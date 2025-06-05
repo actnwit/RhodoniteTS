@@ -7,15 +7,33 @@ import { IShape } from './IShape';
 export type JointDescriptor = IAnyPrimitiveDescriptor;
 
 /**
- * the Joint class
+ * The Joint class represents a 3D joint visualization that creates an arrow-like shape
+ * connecting two world positions, typically used for displaying skeletal connections
+ * or hierarchical relationships in 3D space.
  */
 export class Joint extends IShape {
+  /** The world position of this joint (the starting point of the arrow) */
   private __worldPositionOfThisJoint = Vector3.fromCopyArray3([0, 0, 1]);
+
+  /** The world position of the parent joint (the ending point of the arrow) */
   private __worldPositionOfParentJoint = Vector3.fromCopyArray3([0, 0, 0]);
+
+  /** The width of the arrow shape */
   private __width = 1;
 
   /**
-   * Generates a joint object
+   * Generates a 3D joint visualization as an arrow-like shape connecting two points.
+   * The joint is rendered as a combination of pyramidal shapes and connecting lines,
+   * creating a visual representation of the connection between this joint and its parent.
+   *
+   * @param desc - The primitive descriptor containing material and other rendering properties
+   *
+   * @remarks
+   * The generated shape consists of:
+   * - A long pyramid extending from this joint towards the parent
+   * - A connecting plane section
+   * - A short pyramid at the parent joint position
+   * All rendered as line segments for wireframe visualization
    */
   public generate(desc: JointDescriptor): void {
     const length = Vector3.lengthBtw(

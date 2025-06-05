@@ -47,6 +47,20 @@ declare global {
   }
 }
 
+/**
+ * Gets the appropriate event name based on device capabilities and event type.
+ * Automatically detects whether to use touch, pointer, or mouse events based on device support.
+ *
+ * @param type - The type of event to get ('start', 'move', 'end', or 'click')
+ * @returns The appropriate event name string for the current device
+ * @throws Error if called in a non-browser environment
+ *
+ * @example
+ * ```typescript
+ * const startEvent = getEvent('start'); // Returns 'touchstart', 'pointerdown', or 'mousedown'
+ * element.addEventListener(startEvent, handler);
+ * ```
+ */
 export function getEvent(type: 'start' | 'move' | 'end' | 'click'): string {
   if (typeof window === "undefined") {
     throw new Error("THis function works in Browser environment")
@@ -90,11 +104,19 @@ type ClassInstance = any;
 type InputHandlingStateMap = Map<InputHandlingState, InputHandlerInfo[]>;
 type ActiveMap = Map<InputHandlingState, boolean>;
 
+/**
+ * Information about an input event handler including the event details and target.
+ */
 export interface InputHandlerInfo {
+  /** The name of the event to listen for */
   eventName: string;
+  /** The event handler function */
   handler: (event: any) => void;
+  /** Options for addEventListener */
   options: AddEventListenerOptions;
+  /** The class instance that owns this handler */
   classInstance: ClassInstance;
+  /** The DOM element to attach the event listener to */
   eventTargetDom: EventTarget;
 }
 
@@ -103,13 +125,47 @@ export const INPUT_HANDLING_STATE_CAMERA_CONTROLLER = 'CameraController';
 export const INPUT_HANDLING_STATE_GIZMO_TRANSLATION = 'GizmoTranslation';
 export const INPUT_HANDLING_STATE_GIZMO_SCALE = 'GizmoScale';
 
+/**
+ * Represents different input handling states in the application.
+ */
 export type InputHandlingState =
   | typeof INPUT_HANDLING_STATE_NONE
   | typeof INPUT_HANDLING_STATE_CAMERA_CONTROLLER
   | typeof INPUT_HANDLING_STATE_GIZMO_TRANSLATION
   | typeof INPUT_HANDLING_STATE_GIZMO_SCALE;
 
+/**
+ * Manages input event handling across different states in the Rhodonite engine.
+ *
+ * This class provides a centralized way to manage input events for different interaction modes
+ * such as camera control, gizmo manipulation, etc. It automatically handles adding and removing
+ * event listeners based on the current active state, ensuring that only the appropriate
+ * input handlers are active at any given time.
+ *
+ * The InputManager uses a state-based approach where different input handling states
+ * (like camera control or gizmo manipulation) can be registered with their respective
+ * event handlers. The manager then activates/deactivates these handlers based on the
+ * current application state.
+ *
+ * @example
+ * ```typescript
+ * // Register input handlers for camera control
+ * InputManager.register(INPUT_HANDLING_STATE_CAMERA_CONTROLLER, [
+ *   {
+ *     eventName: 'mousedown',
+ *     handler: onMouseDown,
+ *     options: {},
+ *     classInstance: cameraController,
+ *     eventTargetDom: canvas
+ *   }
+ * ]);
+ *
+ * // Activate camera controller
+ * InputManager.setActive(INPUT_HANDLING_STATE_CAMERA_CONTROLLER, true);
+ * ```
+ */
 export class InputManager {
+  /** Map storing input handler information for each input handling state */
   private static __inputHandlingStateMap: InputHandlingStateMap = new Map();
 
   /**
@@ -119,8 +175,32 @@ export class InputManager {
    */
   private static __activeMap: ActiveMap = new Map();
 
+  /** The currently active input handling state */
   private static __currentState = INPUT_HANDLING_STATE_NONE;
 
+  /**
+   * Registers input handlers for a specific input handling state.
+   *
+   * This method associates a set of input event handlers with a particular state.
+   * When the state becomes active, these handlers will be automatically attached
+   * to their respective DOM elements.
+   *
+   * @param inputHandlingState - The input handling state to register handlers for
+   * @param events - Array of input handler information objects
+   *
+   * @example
+   * ```typescript
+   * InputManager.register(INPUT_HANDLING_STATE_CAMERA_CONTROLLER, [
+   *   {
+   *     eventName: 'mousedown',
+   *     handler: (e) => console.log('Mouse down'),
+   *     options: { passive: false },
+   *     classInstance: this,
+   *     eventTargetDom: document.getElementById('canvas')
+   *   }
+   * ]);
+   * ```
+   */
   static register(inputHandlingState: InputHandlingState, events: InputHandlerInfo[]) {
     // add event listeners
     this.__inputHandlingStateMap.set(inputHandlingState, events);
@@ -128,12 +208,48 @@ export class InputManager {
     this.__processEventListeners();
   }
 
+  /**
+   * Unregisters and deactivates input handlers for a specific input handling state.
+   *
+   * This method removes all event handlers associated with the specified state
+   * and marks the state as inactive. All event listeners will be removed from
+   * their respective DOM elements.
+   *
+   * @param inputHandlingState - The input handling state to unregister
+   *
+   * @example
+   * ```typescript
+   * InputManager.unregister(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
+   * ```
+   */
   static unregister(inputHandlingState: InputHandlingState) {
     this.__activeMap.set(inputHandlingState, false);
     this.__inputHandlingStateMap.delete(inputHandlingState);
     this.__processEventListeners();
   }
 
+  /**
+   * Sets the active state of a specific input handling state.
+   *
+   * This method controls whether the input handlers for a particular state
+   * should be active or inactive. When set to active, the corresponding event
+   * listeners will be attached. When set to inactive, they will be removed.
+   *
+   * Special handling is implemented for gizmo states - activating one gizmo
+   * state will automatically deactivate the other to prevent conflicts.
+   *
+   * @param inputHandlingState - The input handling state to modify
+   * @param active - Whether the state should be active (true) or inactive (false)
+   *
+   * @example
+   * ```typescript
+   * // Activate camera controller
+   * InputManager.setActive(INPUT_HANDLING_STATE_CAMERA_CONTROLLER, true);
+   *
+   * // Deactivate camera controller
+   * InputManager.setActive(INPUT_HANDLING_STATE_CAMERA_CONTROLLER, false);
+   * ```
+   */
   static setActive(inputHandlingState: InputHandlingState, active: boolean) {
     this.__activeMap.set(inputHandlingState, active);
 
@@ -146,6 +262,15 @@ export class InputManager {
     this.__processEventListeners();
   }
 
+  /**
+   * Adds event listeners for a specific input handling state.
+   *
+   * This private method attaches all event handlers associated with the given
+   * input handling state to their respective DOM elements.
+   *
+   * @param inputHandlingState - The input handling state to add listeners for
+   * @private
+   */
   static __addEventListeners(inputHandlingState: InputHandlingState) {
     const infos = InputManager.__inputHandlingStateMap.get(inputHandlingState);
     if (Is.exist(infos)) {
@@ -159,6 +284,15 @@ export class InputManager {
     }
   }
 
+  /**
+   * Removes event listeners for a specific input handling state.
+   *
+   * This private method detaches all event handlers associated with the given
+   * input handling state from their respective DOM elements.
+   *
+   * @param inputHandlingState - The input handling state to remove listeners for
+   * @private
+   */
   static __removeEventListeners(inputHandlingState: InputHandlingState) {
     const infos = InputManager.__inputHandlingStateMap.get(inputHandlingState);
     if (Is.exist(infos)) {
@@ -172,6 +306,21 @@ export class InputManager {
     }
   }
 
+  /**
+   * Processes and manages event listeners based on current active states.
+   *
+   * This private method handles the logic for determining which event listeners
+   * should be active based on the current state configuration. It implements
+   * priority rules where gizmo interactions take precedence over camera control,
+   * and ensures mutual exclusivity between different gizmo modes.
+   *
+   * The processing order is:
+   * 1. Camera controller (base level)
+   * 2. Translation gizmo (overrides camera, excludes scale gizmo)
+   * 3. Scale gizmo (overrides camera, excludes translation gizmo)
+   *
+   * @private
+   */
   static __processEventListeners() {
     const translationGizmoActive = InputManager.__inputHandlingStateMap.get(
       INPUT_HANDLING_STATE_GIZMO_TRANSLATION
@@ -204,18 +353,55 @@ export class InputManager {
     }
   }
 
+  /**
+   * Enables the camera controller input handling.
+   *
+   * This is a convenience method that activates the camera controller state
+   * and processes the event listeners accordingly. It's equivalent to calling
+   * `setActive(INPUT_HANDLING_STATE_CAMERA_CONTROLLER, true)`.
+   *
+   * @example
+   * ```typescript
+   * InputManager.enableCameraController();
+   * ```
+   */
   static enableCameraController() {
     this.__addEventListeners(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
     this.__activeMap.set(INPUT_HANDLING_STATE_CAMERA_CONTROLLER, true);
     this.__processEventListeners();
   }
 
+  /**
+   * Disables the camera controller input handling.
+   *
+   * This is a convenience method that deactivates the camera controller state
+   * and processes the event listeners accordingly. It's equivalent to calling
+   * `setActive(INPUT_HANDLING_STATE_CAMERA_CONTROLLER, false)`.
+   *
+   * @example
+   * ```typescript
+   * InputManager.disableCameraController();
+   * ```
+   */
   static disableCameraController() {
     this.__removeEventListeners(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
     this.__activeMap.set(INPUT_HANDLING_STATE_CAMERA_CONTROLLER, false);
     this.__processEventListeners();
   }
 
+  /**
+   * Gets the current active input handling state.
+   *
+   * @returns The currently active input handling state
+   *
+   * @example
+   * ```typescript
+   * const currentState = InputManager.getCurrentState();
+   * if (currentState === INPUT_HANDLING_STATE_CAMERA_CONTROLLER) {
+   *   console.log('Camera controller is active');
+   * }
+   * ```
+   */
   static getCurrentState() {
     return this.__currentState;
   }

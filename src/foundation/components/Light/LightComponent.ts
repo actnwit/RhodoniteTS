@@ -50,6 +50,14 @@ export class LightComponent extends Component {
   private __lastUpdateCount = -1;
   private __lastTransformUpdateCount = -1;
 
+  /**
+   * Creates a new LightComponent instance.
+   *
+   * @param entityUid - The unique identifier of the entity this component belongs to
+   * @param componentSid - The component session identifier
+   * @param entityRepository - The entity repository instance
+   * @param isReUse - Whether this component is being reused
+   */
   constructor(
     entityUid: EntityUID,
     componentSid: ComponentSID,
@@ -61,44 +69,98 @@ export class LightComponent extends Component {
     this._setMaxNumberOfComponent(Math.max(10, Math.floor(Config.maxEntityNumber / 100)));
   }
 
+  /**
+   * Gets the component type identifier for LightComponent.
+   *
+   * @returns The component type identifier
+   */
   static get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.LightComponentTID;
   }
 
+  /**
+   * Gets the component type identifier for this instance.
+   *
+   * @returns The component type identifier
+   */
   get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.LightComponentTID;
   }
 
+  /**
+   * Gets the current update count of this light component.
+   * The update count is incremented whenever the light properties change.
+   *
+   * @returns The current update count
+   */
   get updateCount() {
     return this.__updateCount;
   }
 
+  /**
+   * Gets the current direction vector of the light.
+   * This direction is calculated based on the transform component's rotation.
+   *
+   * @returns The normalized direction vector
+   */
   get direction() {
     return this.__direction;
   }
 
+  /**
+   * Sets the intensity of the light.
+   *
+   * @param value - The intensity value (typically 0.0 to 1.0, but can be higher for HDR)
+   */
   set intensity(value: number) {
     this.__intensity = value;
     this.__updateCount++;
   }
 
+  /**
+   * Gets the intensity of the light.
+   *
+   * @returns The current intensity value
+   */
   get intensity(): number {
     return this.__intensity;
   }
 
+  /**
+   * Sets the color of the light.
+   *
+   * @param value - The RGB color vector (values typically 0.0 to 1.0)
+   */
   set color(value: Vector3) {
     this.__color = value;
     this.__updateCount++;
   }
 
+  /**
+   * Gets the color of the light.
+   *
+   * @returns The RGB color vector
+   */
   get color(): Vector3 {
     return this.__color;
   }
 
+  /**
+   * Gets the up vector for the light in local space.
+   * This is used for light orientation calculations.
+   *
+   * @returns The up vector (0, 1, 0)
+   */
   get _up() {
     return Vector3.fromCopy3(0, 1, 0);
   }
 
+  /**
+   * Sets the visibility of the light gizmo in the editor.
+   * When enabled, creates and shows a visual representation of the light.
+   *
+   * @param flg - True to show the gizmo, false to hide it
+   */
   set isLightGizmoVisible(flg: boolean) {
     if (flg) {
       if (Is.not.defined(this.__lightGizmo)) {
@@ -114,6 +176,11 @@ export class LightComponent extends Component {
     this.__updateCount++;
   }
 
+  /**
+   * Gets the visibility state of the light gizmo.
+   *
+   * @returns True if the gizmo is visible, false otherwise
+   */
   get isLightGizmoVisible() {
     if (Is.defined(this.__lightGizmo)) {
       return this.__lightGizmo.isVisible;
@@ -122,6 +189,10 @@ export class LightComponent extends Component {
     }
   }
 
+  /**
+   * Initializes the light component by loading global data repositories.
+   * This method is called during the component loading phase.
+   */
   $load() {
     LightComponent.__lightPositions = LightComponent.__globalDataRepository.getValue(
       'lightPosition',
@@ -144,12 +215,24 @@ export class LightComponent extends Component {
     this.moveStageTo(ProcessStage.Logic);
   }
 
+  /**
+   * Updates the light gizmo if it exists and is visible.
+   * This is called internally during the logic update phase.
+   *
+   * @private
+   */
   private __updateGizmo() {
     if (Is.defined(this.__lightGizmo) && this.__lightGizmo.isSetup && this.isLightGizmoVisible) {
       this.__lightGizmo._update();
     }
   }
 
+  /**
+   * Common logic update method that runs once per frame for all light components.
+   * Updates the global light count for the shader system.
+   *
+   * @static
+   */
   static common_$logic() {
     const lightComponents = ComponentRepository.getComponentsWithType(
       LightComponent
@@ -157,6 +240,15 @@ export class LightComponent extends Component {
     LightComponent.__lightNumber._v[0] = lightComponents.length;
   }
 
+  /**
+   * Updates the light component's state and uploads data to the GPU.
+   * This method calculates the light direction, position, and properties,
+   * then stores them in global data arrays for shader access.
+   *
+   * @remarks
+   * This method implements performance optimization by checking update counts
+   * to avoid unnecessary recalculations when nothing has changed.
+   */
   $logic() {
     if (
       TransformComponent.updateCount === this.__lastTransformUpdateCount &&
@@ -200,6 +292,12 @@ export class LightComponent extends Component {
     this.__lastUpdateCount = this.__updateCount;
   }
 
+  /**
+   * Cleans up the light component when it's being destroyed.
+   * Resets the light intensity values in the global data arrays.
+   *
+   * @override
+   */
   _destroy() {
     super._destroy();
     LightComponent.__lightIntensities._v[3 * this.componentSID + 0] = 0;
@@ -208,13 +306,24 @@ export class LightComponent extends Component {
   }
 
   /**
-   * get the entity which has this component.
-   * @returns the entity which has this component
+   * Gets the entity that owns this light component.
+   *
+   * @returns The light entity instance with light-specific methods
    */
   get entity(): ILightEntity {
     return EntityRepository.getEntity(this.__entityUid) as unknown as ILightEntity;
   }
 
+  /**
+   * Adds light-specific methods to an entity class through mixin composition.
+   * This method extends the base entity with light component functionality.
+   *
+   * @template EntityBase - The base entity type
+   * @template SomeComponentClass - The component class type
+   * @param base - The base entity instance to extend
+   * @param _componentClass - The component class (unused but required for type compatibility)
+   * @returns The extended entity with light component methods
+   */
   addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(
     base: EntityBase,
     _componentClass: SomeComponentClass

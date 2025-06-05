@@ -22,8 +22,9 @@ import { assertExist } from '../../misc/MiscUtil';
 import { Logger } from '../../misc/Logger';
 
 /**
- * MeshComponent is a component that manages a mesh.
- *
+ * MeshComponent is a component that manages a mesh geometry for an entity.
+ * It provides functionality for mesh management, ray casting, depth calculation,
+ * and vertex data updates for 3D rendering.
  */
 export class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;
@@ -38,6 +39,13 @@ export class MeshComponent extends Component {
   private static __tmpMatrix44_0: MutableMatrix44 = MutableMatrix44.zero();
   private static __latestPrimitivePositionAccessorVersion = 0;
 
+  /**
+   * Creates a new MeshComponent instance.
+   * @param entityUid - The unique identifier of the entity that owns this component
+   * @param componentSid - The component's system identifier
+   * @param entityRepository - The repository managing entities and components
+   * @param isReUse - Whether this component is being reused from a pool
+   */
   constructor(
     entityUid: EntityUID,
     componentSid: ComponentSID,
@@ -47,19 +55,35 @@ export class MeshComponent extends Component {
     super(entityUid, componentSid, entityRepository, isReUse);
   }
 
+  /**
+   * Gets the component type identifier for MeshComponent.
+   * @returns The component type ID for mesh components
+   */
   static get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.MeshComponentTID;
   }
 
+  /**
+   * Gets the component type identifier for this instance.
+   * @returns The component type ID for mesh components
+   */
   get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.MeshComponentTID;
   }
 
+  /**
+   * Associates a mesh with this component.
+   * @param mesh - The mesh to be assigned to this component
+   */
   setMesh(mesh: Mesh) {
     this.__mesh = mesh;
     mesh._belongToMeshComponent(this);
   }
 
+  /**
+   * Removes the mesh association from this component.
+   * @returns True if a mesh was successfully unset, false if no mesh was set
+   */
   unsetMesh() {
     if (this.__mesh == null) {
       return false;
@@ -69,10 +93,20 @@ export class MeshComponent extends Component {
     return true;
   }
 
+  /**
+   * Gets the mesh associated with this component.
+   * @returns The mesh instance, or undefined if no mesh is set
+   */
   get mesh() {
     return this.__mesh;
   }
 
+  /**
+   * Calculates the view depth of the mesh center from the given camera's perspective.
+   * This is used for depth sorting and rendering order determination.
+   * @param cameraComponent - The camera component to calculate depth from
+   * @returns The depth value in view space (negative Z value), or Number.MAX_VALUE if no mesh is set
+   */
   calcViewDepth(cameraComponent: CameraComponent) {
     if (Is.not.exist(this.__mesh)) {
       return Number.MAX_VALUE;
@@ -103,14 +137,29 @@ export class MeshComponent extends Component {
     return this.__viewDepth;
   }
 
+  /**
+   * Gets the cached view depth value.
+   * @returns The current view depth value
+   */
   get viewDepth() {
     return this.__viewDepth;
   }
 
+  /**
+   * Logs a debug message when no mesh is set on a MeshComponent.
+   * @param meshComponent - The mesh component instance to log about
+   */
   static alertNoMeshSet(meshComponent: MeshComponent) {
     Logger.debug('No mesh is set on this MeshComponent:' + meshComponent.componentSID);
   }
 
+  /**
+   * Performs ray casting against the mesh geometry in world space.
+   * @param srcPointInWorld - The ray origin point in world coordinates
+   * @param directionInWorld - The ray direction vector in world coordinates
+   * @param dotThreshold - The dot product threshold for face culling (default: 0)
+   * @returns Ray casting result with intersection information
+   */
   castRay(srcPointInWorld: Vector3, directionInWorld: Vector3, dotThreshold = 0): RaycastResultEx1 {
     if (this.__mesh) {
       let srcPointInLocal = srcPointInWorld;
@@ -154,6 +203,15 @@ export class MeshComponent extends Component {
     };
   }
 
+  /**
+   * Performs ray casting from screen coordinates against the mesh in local space.
+   * @param x - The X coordinate in screen space
+   * @param y - The Y coordinate in screen space
+   * @param camera - The camera component for projection calculations
+   * @param viewport - The viewport dimensions as Vector4 (x, y, width, height)
+   * @param dotThreshold - The dot product threshold for face culling (default: 0)
+   * @returns Ray casting result with intersection information in local space
+   */
   castRayFromScreenInLocal(
     x: number,
     y: number,
@@ -215,6 +273,15 @@ export class MeshComponent extends Component {
     };
   }
 
+  /**
+   * Performs ray casting from screen coordinates against the mesh in world space.
+   * @param x - The X coordinate in screen space
+   * @param y - The Y coordinate in screen space
+   * @param camera - The camera component for projection calculations
+   * @param viewport - The viewport dimensions as Vector4 (x, y, width, height)
+   * @param dotThreshold - The dot product threshold for face culling (default: 0)
+   * @returns Ray casting result with intersection information in world space
+   */
   castRayFromScreenInWorld(
     x: number,
     y: number,
@@ -246,6 +313,11 @@ export class MeshComponent extends Component {
     }
   }
 
+  /**
+   * Loads and initializes the mesh data, performing necessary calculations.
+   * This method calculates tangents, face normals, and barycentric coordinates
+   * if blend shapes are present, then moves to the Logic processing stage.
+   */
   $load() {
     if (this.__mesh == null) {
       return;
@@ -261,6 +333,11 @@ export class MeshComponent extends Component {
     this.moveStageTo(ProcessStage.Logic);
   }
 
+  /**
+   * Updates the 3D API vertex data by recreating VBO and VAO.
+   * This is called internally when vertex data needs to be refreshed.
+   * @private
+   */
   private __update3DAPIVertexData() {
     if (this.__mesh != null) {
       this.__mesh.delete3DAPIVertexData();
@@ -268,6 +345,11 @@ export class MeshComponent extends Component {
     }
   }
 
+  /**
+   * Calculates barycentric coordinates for all mesh primitives.
+   * This converts indexed geometry to unindexed geometry and updates
+   * the 3D API vertex data afterwards.
+   */
   calcBaryCentricCoord() {
     if (this.__mesh != null) {
       for (const primitive of this.__mesh.primitives) {
@@ -278,8 +360,17 @@ export class MeshComponent extends Component {
     this.__update3DAPIVertexData();
   }
 
+  /**
+   * Logic processing stage method. Currently empty but can be overridden
+   * for custom logic processing during the component's lifecycle.
+   */
   $logic() {}
 
+  /**
+   * Performs a shallow copy of data from another MeshComponent.
+   * @param component_ - The source component to copy from
+   * @protected
+   */
   _shallowCopyFrom(component_: Component): void {
     const component = component_ as MeshComponent;
     this.__viewDepth = component.__viewDepth;
@@ -289,6 +380,10 @@ export class MeshComponent extends Component {
     this.isPickable = component.isPickable;
   }
 
+  /**
+   * Destroys the component and cleans up resources.
+   * @protected
+   */
   _destroy(): void {
     super._destroy();
     if (this.__mesh) {
@@ -297,18 +392,21 @@ export class MeshComponent extends Component {
   }
 
   /**
-   * get the entity which has this component.
-   * @returns the entity which has this component
+   * Gets the entity which has this component with proper typing.
+   * @returns The entity which has this component as an IMeshEntity
    */
   get entity(): IMeshEntity {
     return EntityRepository.getEntity(this.__entityUid) as unknown as IMeshEntity;
   }
 
   /**
-   * @override
-   * Add this component to the entity
-   * @param base the target entity
-   * @param _componentClass the component class to add
+   * Adds this component to an entity by extending the entity class with mesh-specific methods.
+   * This method applies mixins to add getMesh() method to the target entity.
+   * @param base - The target entity to extend
+   * @param _componentClass - The component class to add (not used but required by interface)
+   * @returns The extended entity with mesh component methods
+   * @template EntityBase - The base entity type
+   * @template SomeComponentClass - The component class type
    */
   addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(
     base: EntityBase,

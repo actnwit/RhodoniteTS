@@ -35,6 +35,11 @@ interface WEBGL_multiview {
   is_multisample: boolean;
 }
 
+/**
+ * A wrapper class for WebGL context that provides enhanced functionality and state management.
+ * This class handles WebGL state optimization, extension management, and provides convenience methods
+ * for common WebGL operations while maintaining compatibility with both WebGL1 and WebGL2.
+ */
 export class WebGLContextWrapper {
   __gl: WebGL2RenderingContext;
   __webglVersion = 1;
@@ -105,6 +110,11 @@ export class WebGLContextWrapper {
 
   __extensions: Map<WebGLExtensionEnum, WebGLObject> = new Map();
 
+  /**
+   * Creates a new WebGLContextWrapper instance.
+   * @param gl - The WebGL2 rendering context to wrap
+   * @param canvas - The HTML canvas element associated with the context
+   */
   constructor(gl: WebGL2RenderingContext, canvas: HTMLCanvasElement) {
     this.__gl = gl;
     this.width = canvas.width;
@@ -166,18 +176,34 @@ export class WebGLContextWrapper {
     this.__getMaxUniformVectors();
   }
 
+  /**
+   * Gets the raw WebGL rendering context.
+   * @returns The underlying WebGL context (WebGL1 or WebGL2)
+   */
   getRawContext(): WebGLRenderingContext | WebGL2RenderingContext {
     return this.__gl;
   }
 
+  /**
+   * Gets the raw WebGL context cast as WebGL1.
+   * @returns The underlying WebGL context as WebGL1 type
+   */
   getRawContextAsWebGL1(): WebGLRenderingContext {
     return this.__gl as WebGLRenderingContext;
   }
 
+  /**
+   * Gets the raw WebGL context cast as WebGL2.
+   * @returns The underlying WebGL context as WebGL2 type
+   */
   getRawContextAsWebGL2(): WebGL2RenderingContext {
     return this.__gl as WebGL2RenderingContext;
   }
 
+  /**
+   * Gets the current viewport settings.
+   * @returns A Vector4 containing viewport left, top, width, and height
+   */
   get viewport() {
     return Vector4.fromCopyArray([
       this.__viewport_left,
@@ -187,6 +213,10 @@ export class WebGLContextWrapper {
     ]);
   }
 
+  /**
+   * Gets the default viewport settings.
+   * @returns A Vector4 containing default viewport left, top, width, and height
+   */
   get defaultViewport() {
     return Vector4.fromCopyArray([
       this.__default_viewport_left,
@@ -196,6 +226,11 @@ export class WebGLContextWrapper {
     ]);
   }
 
+  /**
+   * Checks if a WebGL1 extension is supported.
+   * @param webGLExtension - The WebGL extension to check
+   * @returns True if the extension is supported, false otherwise
+   */
   isSupportWebGL1Extension(webGLExtension: WebGLExtensionEnum) {
     if (this.__getExtension(webGLExtension)) {
       return true;
@@ -204,14 +239,28 @@ export class WebGLContextWrapper {
     }
   }
 
+  /**
+   * Checks if a WebGL1 extension is not supported.
+   * @param webGLExtension - The WebGL extension to check
+   * @returns True if the extension is not supported, false otherwise
+   */
   isNotSupportWebGL1Extension(webGLExtension: WebGLExtensionEnum) {
     return !this.isSupportWebGL1Extension(webGLExtension);
   }
 
+  /**
+   * Type guard to check if the context is WebGL2.
+   * @param gl - The WebGL context to check
+   * @returns True if the context is WebGL2, false otherwise
+   */
   getIsWebGL2(gl: WebGLRenderingContext | WebGL2RenderingContext): gl is WebGL2RenderingContext {
     return this.isWebGL2;
   }
 
+  /**
+   * Checks if the current context is WebGL2.
+   * @returns True if WebGL2, false if WebGL1
+   */
   get isWebGL2() {
     if (this.__webglVersion === 2) {
       return true;
@@ -220,22 +269,47 @@ export class WebGLContextWrapper {
     }
   }
 
+  /**
+   * Creates a new vertex array object.
+   * @returns A new WebGL vertex array object
+   */
   createVertexArray() {
     return this.__gl.createVertexArray();
   }
 
+  /**
+   * Deletes a vertex array object.
+   * @param vertexArray - The vertex array object to delete
+   */
   deleteVertexArray(vertexArray: WebGLVertexArrayObject | WebGLVertexArrayObjectOES) {
     this.__gl.deleteVertexArray(vertexArray);
   }
 
+  /**
+   * Binds a vertex array object.
+   * @param vao - The vertex array object to bind, or null to unbind
+   */
   bindVertexArray(vao: WebGLVertexArrayObjectOES | null) {
     this.__gl.bindVertexArray(vao);
   }
 
+  /**
+   * Sets the divisor for instanced rendering for a vertex attribute.
+   * @param index - The index of the vertex attribute
+   * @param divisor - The divisor value (0 for per-vertex, 1+ for per-instance)
+   */
   vertexAttribDivisor(index: number, divisor: number) {
     this.__gl.vertexAttribDivisor(index, divisor);
   }
 
+  /**
+   * Draws elements with instancing support.
+   * @param primitiveMode - The primitive mode (GL_TRIANGLES, etc.)
+   * @param indexCount - The number of indices to draw
+   * @param type - The type of the index values
+   * @param offset - The offset in the index buffer
+   * @param instanceCount - The number of instances to draw
+   */
   drawElementsInstanced(
     primitiveMode: number,
     indexCount: number,
@@ -246,14 +320,30 @@ export class WebGLContextWrapper {
     this.__gl.drawElementsInstanced(primitiveMode, indexCount, type, offset, instanceCount);
   }
 
+  /**
+   * Draws arrays with instancing support.
+   * @param primitiveMode - The primitive mode (GL_TRIANGLES, etc.)
+   * @param first - The starting index in the enabled arrays
+   * @param count - The number of vertices to draw
+   * @param instanceCount - The number of instances to draw
+   */
   drawArraysInstanced(primitiveMode: number, first: number, count: number, instanceCount: number) {
     this.__gl.drawArraysInstanced(primitiveMode, first, count, instanceCount);
   }
 
+  /**
+   * Gets the color attachment constant for a given index.
+   * @param index - The attachment index
+   * @returns The WebGL color attachment constant
+   */
   colorAttachment(index: Index) {
     return 0x8ce0 + index; // GL_COLOR_ATTACHMENT0 = 0x8ce0
   }
 
+  /**
+   * Sets the draw buffers for multiple render targets.
+   * @param buffers - Array of render buffer targets to draw to
+   */
   drawBuffers(buffers: RenderBufferTargetEnum[]) {
     const gl = this.__gl as WebGL2RenderingContext;
     if (buffers.length === 0) {
@@ -274,6 +364,11 @@ export class WebGLContextWrapper {
     }
   }
 
+  /**
+   * Activates a texture unit for subsequent texture operations.
+   * Optimized to avoid redundant state changes.
+   * @param activeTextureIndex - The texture unit index to activate
+   */
   private __activeTexture(activeTextureIndex: number) {
     if (this.__activeTextureBackup === activeTextureIndex) {
       return;
@@ -282,6 +377,12 @@ export class WebGLContextWrapper {
     this.__activeTextureBackup = activeTextureIndex;
   }
 
+  /**
+   * Binds a 2D texture to a specific texture unit.
+   * Optimized to avoid redundant state changes.
+   * @param activeTextureIndex - The texture unit index
+   * @param texture - The 2D texture to bind
+   */
   bindTexture2D(activeTextureIndex: Index, texture: WebGLTexture) {
     const tex = this.__boundTextures.get(activeTextureIndex);
     if (tex !== texture) {
@@ -293,6 +394,12 @@ export class WebGLContextWrapper {
     this.__activeTextures2D[activeTextureIndex] = texture;
   }
 
+  /**
+   * Binds a 2D array texture to a specific texture unit.
+   * Optimized to avoid redundant state changes.
+   * @param activeTextureIndex - The texture unit index
+   * @param texture - The 2D array texture to bind
+   */
   bindTexture2DArray(activeTextureIndex: Index, texture: WebGLTexture) {
     const tex = this.__boundTextures.get(activeTextureIndex);
     if (tex !== texture) {
@@ -304,6 +411,12 @@ export class WebGLContextWrapper {
     this.__activeTextures2DArray[activeTextureIndex] = texture;
   }
 
+  /**
+   * Binds a sampler object to a specific texture unit.
+   * Optimized to avoid redundant state changes.
+   * @param activeTextureIndex - The texture unit index
+   * @param sampler - The sampler object to bind
+   */
   bindTextureSampler(activeTextureIndex: Index, sampler: WebGLSampler) {
     const samp = this.__boundSamplers.get(activeTextureIndex);
     if (samp !== sampler) {
@@ -312,6 +425,12 @@ export class WebGLContextWrapper {
     }
   }
 
+  /**
+   * Binds a cube map texture to a specific texture unit.
+   * Optimized to avoid redundant state changes.
+   * @param activeTextureIndex - The texture unit index
+   * @param texture - The cube map texture to bind
+   */
   bindTextureCube(activeTextureIndex: Index, texture: WebGLTexture) {
     const tex = this.__boundTextures.get(activeTextureIndex);
     if (tex !== texture) {
@@ -323,6 +442,10 @@ export class WebGLContextWrapper {
     this.__activeTexturesCube[activeTextureIndex] = texture;
   }
 
+  /**
+   * Unbinds a 2D texture from a specific texture unit.
+   * @param activeTextureIndex - The texture unit index
+   */
   unbindTexture2D(activeTextureIndex: Index) {
     this.__activeTexture(activeTextureIndex);
     this.__gl.bindTexture(this.__gl.TEXTURE_2D, null);
@@ -330,6 +453,10 @@ export class WebGLContextWrapper {
     delete this.__activeTextures2D[activeTextureIndex];
   }
 
+  /**
+   * Unbinds a 2D array texture from a specific texture unit.
+   * @param activeTextureIndex - The texture unit index
+   */
   unbindTexture2DArray(activeTextureIndex: Index) {
     this.__activeTexture(activeTextureIndex);
     this.__gl.bindTexture(this.__gl.TEXTURE_2D_ARRAY, null);
@@ -337,6 +464,10 @@ export class WebGLContextWrapper {
     delete this.__activeTextures2DArray[activeTextureIndex];
   }
 
+  /**
+   * Unbinds a cube map texture from a specific texture unit.
+   * @param activeTextureIndex - The texture unit index
+   */
   unbindTextureCube(activeTextureIndex: Index) {
     this.__activeTexture(activeTextureIndex);
     this.__gl.bindTexture(this.__gl.TEXTURE_CUBE_MAP, null);
@@ -344,6 +475,10 @@ export class WebGLContextWrapper {
     delete this.__activeTexturesCube[activeTextureIndex];
   }
 
+  /**
+   * Unbinds all currently bound textures from all texture units.
+   * This is useful for cleanup operations.
+   */
   unbindTextures() {
     for (let i = 0; i < this.__activeTextures2D.length; i++) {
       if (this.__activeTextures2D[i] == null) {
@@ -373,6 +508,11 @@ export class WebGLContextWrapper {
     }
   }
 
+  /**
+   * Gets a WebGL extension and caches it for future use.
+   * @param extension - The extension to retrieve
+   * @returns The extension object or null if not available
+   */
   private __getExtension(extension: WebGLExtensionEnum) {
     const gl: any = this.__gl;
 
@@ -388,6 +528,11 @@ export class WebGLContextWrapper {
     return this.__extensions.get(extension);
   }
 
+  /**
+   * Gets a compressed texture extension with vendor prefix support.
+   * @param extension - The compressed texture extension to retrieve
+   * @returns The extension object or null if not available
+   */
   private __getCompressedTextureExtension(extension: WebGLExtensionEnum) {
     const gl = this.__gl as WebGLRenderingContext | WebGL2RenderingContext;
 
@@ -409,6 +554,13 @@ export class WebGLContextWrapper {
     return this.__extensions.get(extension);
   }
 
+  /**
+   * Sets the viewport with optimization to avoid redundant state changes.
+   * @param left - Left coordinate of the viewport
+   * @param top - Top coordinate of the viewport
+   * @param width - Width of the viewport
+   * @param height - Height of the viewport
+   */
   setViewport(left: number, top: number, width: number, height: number): void {
     const gl: any = this.__gl;
     if (
@@ -425,6 +577,10 @@ export class WebGLContextWrapper {
     }
   }
 
+  /**
+   * Sets the viewport using a Vector4 with optimization to avoid redundant state changes.
+   * @param viewport - Vector4 containing left, top, width, and height
+   */
   setViewportAsVector4(viewport: Vector4): void {
     const gl: any = this.__gl;
     if (
@@ -441,6 +597,10 @@ export class WebGLContextWrapper {
     }
   }
 
+  /**
+   * Retrieves and caches uniform buffer information for WebGL2.
+   * This includes alignment requirements and size limits.
+   */
   private __getUniformBufferInfo() {
     if (!this.isWebGL2) {
       return;
@@ -460,28 +620,51 @@ export class WebGLContextWrapper {
     this.#maxUniformBlockSize = maxBlockSize;
   }
 
+  /**
+   * Retrieves and caches the maximum number of uniform vectors for vertex and fragment shaders.
+   */
   private __getMaxUniformVectors() {
     const gl = this.getRawContext();
     this.__maxVertexUniformVectors = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS) as number;
     this.__maxVertexUniformVectors = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS) as number;
   }
 
+  /**
+   * Gets the maximum number of uniform blocks that can be used in both vertex and fragment shaders.
+   * @returns The minimum of vertex and fragment shader uniform block limits
+   */
   getMaxConventionUniformBlocks() {
     return this.#maxConventionUniformBlocks;
   }
 
+  /**
+   * Gets the maximum uniform block size aligned to the required offset alignment.
+   * @returns The aligned maximum uniform block size in bytes
+   */
   getAlignedMaxUniformBlockSize() {
     return this.#alignedMaxUniformBlockSize;
   }
 
+  /**
+   * Gets the maximum number of uniform vectors available in vertex shaders.
+   * @returns The maximum vertex uniform vectors
+   */
   getMaxVertexUniformVectors() {
     return this.__maxVertexUniformVectors;
   }
 
+  /**
+   * Gets the maximum number of uniform vectors available in fragment shaders.
+   * @returns The maximum fragment uniform vectors
+   */
   getMaxFragmentUniformVectors() {
     return this.__maxFragmentUniformVectors;
   }
 
+  /**
+   * Gets WebGL memory usage information if the GMAN_WEBGL_MEMORY extension is available.
+   * @returns Memory information object or undefined if extension is not available
+   */
   getWebGLMemoryInfo() {
     if (this.webgl2ExtGmanWM) {
       const result = this.webgl2ExtGmanWM.getMemoryInfo();
@@ -491,6 +674,10 @@ export class WebGLContextWrapper {
     return undefined;
   }
 
+  /**
+   * Checks if multiview rendering is supported and enabled.
+   * @returns True if multiview is available and enabled for WebVR
+   */
   isMultiview() {
     return this.__is_multiview && Config.multiViewForWebVR;
   }

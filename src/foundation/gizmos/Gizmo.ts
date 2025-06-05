@@ -4,7 +4,9 @@ import { ISceneGraphEntity, IMeshEntity } from '../helpers/EntityHelper';
 import { flattenHierarchy } from '../components/SceneGraph/SceneGraphOps';
 
 /**
- * Abstract Gizmo class
+ * Abstract Gizmo class that provides a foundation for creating interactive gizmo objects
+ * in 3D scenes. Gizmos are typically used for manipulation tools like transform handles,
+ * rotation rings, or other interactive visual aids.
  */
 export abstract class Gizmo extends RnObject {
   /**
@@ -20,8 +22,8 @@ export abstract class Gizmo extends RnObject {
   protected __isVisible = false;
 
   /**
-   * Constructor
-   * @param entity the object which this gizmo belong to
+   * Creates a new Gizmo instance
+   * @param target - The entity that this gizmo will be associated with and manipulate
    */
   constructor(target: ISceneGraphEntity) {
     super();
@@ -35,14 +37,26 @@ export abstract class Gizmo extends RnObject {
   ///
   ///
 
+  /**
+   * Sets the visibility state of the gizmo
+   * @param flg - True to make the gizmo visible, false to hide it
+   */
   set isVisible(flg: boolean) {
     this.__setVisible(flg);
   }
 
+  /**
+   * Gets the current visibility state of the gizmo
+   * @returns True if the gizmo is visible, false otherwise
+   */
   get isVisible() {
     return this.__isVisible;
   }
 
+  /**
+   * Internal method to set the visibility of the gizmo and all its child entities
+   * @param flg - True to show the gizmo, false to hide it
+   */
   protected __setVisible(flg: boolean) {
     this.__isVisible = flg;
     if (this.__topEntity) {
@@ -50,22 +64,37 @@ export abstract class Gizmo extends RnObject {
     }
   }
 
+  /**
+   * Indicates whether the gizmo has been set up and is ready for use
+   * Must be implemented by concrete gizmo classes
+   */
   abstract isSetup: boolean;
 
   /**
+   * Sets up the entities and components required for the gizmo
+   * This method is called internally and should only be executed once
    * @internal
-   * setup entities of Gizmo if not done yet
    */
   abstract _setup(): void;
 
   /**
+   * Updates the gizmo's transform, appearance, and other properties
+   * This method is typically called every frame to keep the gizmo synchronized
+   * with its target entity
    * @internal
-   * update the transform and etc of the gizmo
    */
   abstract _update(): void;
 
+  /**
+   * Cleans up and destroys the gizmo, releasing all associated resources
+   * @internal
+   */
   abstract _destroy(): void;
 
+  /**
+   * Determines whether the gizmo setup should be skipped
+   * @returns True if setup should be skipped, false otherwise
+   */
   protected __toSkipSetup(): boolean {
     if (this.isSetup) {
       return true;
@@ -76,6 +105,11 @@ export abstract class Gizmo extends RnObject {
     return false;
   }
 
+  /**
+   * Applies appropriate tags to the gizmo entities for identification and categorization
+   * This method ensures that all gizmo entities are properly tagged for rendering
+   * and processing pipelines
+   */
   protected setGizmoTag() {
     if (this.__topEntity) {
       this.__topEntity.tryToSetTag({ tag: 'Being', value: 'gizmo' });

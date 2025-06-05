@@ -45,14 +45,18 @@ import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 
 /**
  * ShaderGraphResolver is a class that resolves the shader node graph and generates shader code.
+ * It provides functionality to convert a graph of shader nodes into complete vertex and fragment shaders.
  */
 export class ShaderGraphResolver {
   /**
-   * Create a vertex shader code from the given vertex nodes.
-   * @param vertexNodes - Vertex nodes
-   * @param varyingNodes - Varying nodes
-   * @param isFullVersion - Whether to generate a full version of the shader code
-   * @returns Vertex shader code
+   * Creates a complete vertex shader code from the given vertex and varying nodes.
+   * This method performs topological sorting of nodes, generates function definitions,
+   * and constructs the main shader body with proper variable declarations and connections.
+   *
+   * @param vertexNodes - Array of shader nodes that contribute to vertex processing
+   * @param varyingNodes - Array of shader nodes that pass data from vertex to fragment stage
+   * @param isFullVersion - Whether to generate a full version with all prerequisites and boilerplate
+   * @returns Complete vertex shader code as a string, or undefined if generation fails
    */
   static createVertexShaderCode(
     vertexNodes: AbstractShaderNode[],
@@ -102,11 +106,13 @@ export class ShaderGraphResolver {
   }
 
   /**
-   * Create a pixel shader code from the given pixel nodes.
+   * Creates a complete fragment/pixel shader code from the given pixel nodes.
+   * This method performs topological sorting, generates function definitions,
+   * and constructs the main shader body for fragment processing.
    *
-   * @param pixelNodes - Pixel nodes
-   * @param isFullVersion - Whether to generate a full version of the shader code
-   * @returns Pixel shader code
+   * @param pixelNodes - Array of shader nodes that contribute to fragment processing
+   * @param isFullVersion - Whether to generate a full version with all prerequisites and boilerplate
+   * @returns Complete fragment shader code as a string, or undefined if generation fails
    */
   static createPixelShaderCode(pixelNodes: AbstractShaderNode[], isFullVersion: boolean = true) {
     const shaderNodes = pixelNodes.concat();
@@ -149,6 +155,14 @@ export class ShaderGraphResolver {
     return shader;
   }
 
+  /**
+   * Validates that all shader nodes have their required input connections properly set.
+   * This is a validation step to ensure the shader graph is complete before code generation.
+   *
+   * @param shaderNodes - Array of shader nodes to validate
+   * @returns True if all nodes are valid, false if any node has missing required connections
+   * @private
+   */
   private static __validateShaderNodes(shaderNodes: AbstractShaderNode[]) {
     const shaderNodeUids: ShaderNodeUID[] = [];
     for (let i = 0; i < shaderNodes.length; i++) {
@@ -164,10 +178,14 @@ export class ShaderGraphResolver {
   }
 
   /**
-   * Sort shader nodes topologically.
+   * Performs topological sorting on shader nodes to determine the correct execution order.
+   * Uses Kahn's algorithm (BFS-based) to sort nodes based on their dependencies.
+   * This ensures that nodes are processed in the correct order during shader execution.
    *
-   * @param shaderNodes - Shader nodes to sort
-   * @returns Sorted shader nodes
+   * @param shaderNodes - Array of shader nodes to sort
+   * @returns Array of shader nodes sorted in topological order
+   * @throws Error if the graph contains cycles
+   * @private
    */
   private static __sortTopologically(shaderNodes: AbstractShaderNode[]) {
     const sortedNodeArray: AbstractShaderNode[] = [];
@@ -236,11 +254,14 @@ export class ShaderGraphResolver {
   }
 
   /**
-   * Get function definition from shader nodes.
+   * Generates function definitions for all unique shader nodes.
+   * Collects shader function code from each node type and removes duplicates
+   * to create the function definition section of the shader.
    *
-   * @param shaderNodes - Shader nodes
-   * @param shaderType - Shader type
-   * @returns Function definition as a string
+   * @param shaderNodes - Array of shader nodes to generate functions for
+   * @param shaderType - Type of shader (vertex or fragment) being generated
+   * @returns String containing all function definitions
+   * @private
    */
   private static __getFunctionDefinition(
     shaderNodes: AbstractShaderNode[],
@@ -261,12 +282,19 @@ export class ShaderGraphResolver {
   }
 
   /**
-   * Construct shader code with shader nodes.
+   * Constructs the main shader body with proper variable declarations, connections, and function calls.
+   * This is the core method that generates the actual shader execution logic by:
+   * - Declaring varying variables for vertex-to-fragment communication
+   * - Collecting input/output variable names for each node
+   * - Generating function call statements in topological order
+   * - Handling vertex-to-fragment data passing
    *
-   * @param shaderNodes - Shader nodes (sorted topologically)
-   * @param isVertexStage - Whether the shader is a vertex shader
-   * @param isFullVersion - Whether to generate a full version of the shader code
-   * @returns Shader code
+   * @param shaderNodes - Array of shader nodes sorted in topological order
+   * @param isVertexStage - True for vertex shader generation, false for fragment
+   * @param isFullVersion - Whether to include full shader boilerplate
+   * @returns Complete shader main function body as a string
+   * @throws Error if shader construction fails
+   * @private
    */
   private static __constructShaderWithNodes(
     shaderNodes: AbstractShaderNode[],
@@ -475,10 +503,21 @@ export class ShaderGraphResolver {
   }
 
   /**
-   * Generate shader code from JSON.
+   * Generates complete vertex and fragment shader code from a JSON shader node graph definition.
+   * This is the main entry point for converting a serialized shader graph into executable shader code.
+   * The method performs the full pipeline: node construction, dependency resolution, stage assignment,
+   * and final code generation.
    *
-   * @param json - JSON data of a shader node graph
-   * @returns Shader code
+   * @param json - JSON representation of the shader node graph containing nodes and connections
+   * @returns Object containing both vertex and fragment shader code, or undefined if generation fails
+   * @example
+   * ```typescript
+   * const shaderCode = ShaderGraphResolver.generateShaderCodeFromJson(graphJson);
+   * if (shaderCode) {
+   *   const { vertexShader, pixelShader } = shaderCode;
+   *   // Use the generated shaders...
+   * }
+   * ```
    */
   public static generateShaderCodeFromJson(
     json: ShaderNodeJson
@@ -505,6 +544,15 @@ export class ShaderGraphResolver {
   }
 }
 
+/**
+ * Recursively filters shader nodes starting from a specific end node by traversing backwards
+ * through input connections. This is a helper function for dependency analysis.
+ *
+ * @param nodes - Array of all available shader nodes
+ * @param endNodeName - Name of the target end node to start filtering from
+ * @returns Array of nodes that contribute to the specified end node
+ * @private
+ */
 function filterNodesInner(nodes: AbstractShaderNode[], endNodeName: string) {
   let endNode: AbstractShaderNode | undefined;
   for (let i = 0; i < nodes.length; i++) {
@@ -539,6 +587,16 @@ function filterNodesInner(nodes: AbstractShaderNode[], endNodeName: string) {
   return filteredNodes;
 }
 
+/**
+ * Filters shader nodes to include only those that contribute to the specified end nodes.
+ * This function is used to separate vertex and fragment processing pipelines by identifying
+ * which nodes contribute to specific output targets (e.g., position, color).
+ *
+ * @param nodes - Array of all shader nodes in the graph
+ * @param endNodesName - Array of end node names to filter for (e.g., ['outPosition', 'outColor'])
+ * @returns Array of unique nodes that contribute to any of the specified end nodes
+ * @private
+ */
 function filterNodes(nodes: AbstractShaderNode[], endNodesName: string[]) {
   let finalFilterNodes: AbstractShaderNode[] = [];
   for (let i = 0; i < endNodesName.length; i++) {
@@ -553,6 +611,14 @@ function filterNodes(nodes: AbstractShaderNode[], endNodesName: string[]) {
   return finalFilterNodes;
 }
 
+/**
+ * Resolves and assigns appropriate shader stages (Vertex/Fragment) to nodes based on their dependencies.
+ * This function propagates stage information through the node graph, ensuring that nodes
+ * are assigned to the correct shader stage based on their connections and usage patterns.
+ *
+ * @param shaderNodes - Array of shader nodes to resolve stages for
+ * @private
+ */
 function resolveShaderStage(shaderNodes: AbstractShaderNode[]) {
   for (let i = 0; i < shaderNodes.length; i++) {
     const shaderNode = shaderNodes[i];
@@ -570,6 +636,16 @@ function resolveShaderStage(shaderNodes: AbstractShaderNode[]) {
   }
 }
 
+/**
+ * Identifies shader nodes that need to pass data from vertex to fragment stage (varying variables).
+ * This function traces the dependency graph to find nodes that bridge between vertex and fragment
+ * processing, which require special handling for inter-stage communication.
+ *
+ * @param nodes - Array of all shader nodes in the graph
+ * @param endNodeName - Name of the final output node (typically 'outColor' for fragment output)
+ * @returns Array of nodes that require varying variable declarations for vertex-to-fragment data passing
+ * @private
+ */
 function filterNodesForVarying(nodes: AbstractShaderNode[], endNodeName: string) {
   // Find the end node
   let endNode: AbstractShaderNode | undefined;
@@ -629,10 +705,14 @@ function filterNodesForVarying(nodes: AbstractShaderNode[], endNodeName: string)
 }
 
 /**
- * Construct shader nodes from JSON.
+ * Constructs concrete shader node instances from a JSON shader graph definition.
+ * This function deserializes the JSON representation into actual shader node objects,
+ * setting up their properties, connections, and default values based on the JSON data.
  *
- * @param json - JSON data of a shader node graph
- * @returns Constructed shader nodes
+ * @param json - JSON object containing the complete shader graph definition with nodes and connections
+ * @returns Record mapping node IDs to their corresponding shader node instances
+ * @throws Error if unknown node types are encountered or if connections cannot be established
+ * @private
  */
 function constructNodes(json: ShaderNodeJson) {
   // Create Node Instances

@@ -85,6 +85,17 @@ export type WebGLResource =
   | WebGLTexture
   | WebGLTransformFeedback;
 
+/**
+ * A comprehensive repository for managing WebGL resources including buffers, textures, shaders, and framebuffers.
+ * This class provides a centralized interface for creating, managing, and disposing of WebGL resources
+ * while maintaining resource handles for efficient memory management.
+ *
+ * @example
+ * ```typescript
+ * const repository = WebGLResourceRepository.getInstance();
+ * const textureHandle = repository.createTextureFromImageBitmapData(imageData, options);
+ * ```
+ */
 export class WebGLResourceRepository
   extends CGAPIResourceRepository
   implements ICGAPIResourceRepository
@@ -112,6 +123,11 @@ export class WebGLResourceRepository
     super();
   }
 
+  /**
+   * Gets the singleton instance of WebGLResourceRepository.
+   *
+   * @returns The singleton instance of WebGLResourceRepository
+   */
   static getInstance(): WebGLResourceRepository {
     if (!this.__instance) {
       this.__instance = new WebGLResourceRepository();
@@ -119,6 +135,13 @@ export class WebGLResourceRepository
     return this.__instance;
   }
 
+  /**
+   * Adds an existing WebGL2 context to the repository.
+   *
+   * @param gl - The WebGL2 rendering context to add
+   * @param canvas - The HTML canvas element associated with the context
+   * @param asCurrent - Whether to set this context as the current active context
+   */
   addWebGLContext(gl: WebGL2RenderingContext, canvas: HTMLCanvasElement, asCurrent: boolean) {
     const glw = new WebGLContextWrapper(gl, canvas);
     this.__webglContexts.set('default', glw);
@@ -127,6 +150,14 @@ export class WebGLResourceRepository
     }
   }
 
+  /**
+   * Generates a new WebGL2 context for the given canvas element.
+   *
+   * @param canvas - The HTML canvas element to create the context for
+   * @param asCurrent - Whether to set this context as the current active context
+   * @param webglOption - Optional WebGL context attributes for context creation
+   * @returns The created WebGL2 rendering context
+   */
   generateWebGLContext(
     canvas: HTMLCanvasElement,
     asCurrent: boolean,
@@ -143,14 +174,30 @@ export class WebGLResourceRepository
     return gl;
   }
 
+  /**
+   * Gets the current WebGL context wrapper.
+   *
+   * @returns The current WebGLContextWrapper instance or undefined if none is set
+   */
   get currentWebGLContextWrapper() {
     return this.__glw;
   }
 
+  /**
+   * Generates a unique resource handle for WebGL objects.
+   *
+   * @returns A unique WebGL resource handle
+   */
   private getResourceNumber(): WebGLResourceHandle {
     return ++this.__resourceCounter;
   }
 
+  /**
+   * Registers a WebGL object and assigns it a unique handle.
+   *
+   * @param obj - The WebGL object to register
+   * @returns The assigned resource handle
+   */
   private __registerResource(obj: WebGLResource) {
     const handle = this.getResourceNumber();
     (obj as any)._resourceUid = handle;
@@ -158,11 +205,24 @@ export class WebGLResourceRepository
     return handle;
   }
 
+  /**
+   * Retrieves a WebGL resource by its handle.
+   *
+   * @param WebGLResourceHandle - The handle of the resource to retrieve
+   * @returns The WebGL resource or null if not found
+   */
   getWebGLResource(WebGLResourceHandle: WebGLResourceHandle): WebGLResource | null {
     const result = this.__webglResources.get(WebGLResourceHandle);
     return result ?? null;
   }
 
+  /**
+   * Creates an index buffer from the provided accessor data.
+   *
+   * @param accessor - The accessor containing index data
+   * @returns The handle of the created index buffer
+   * @throws Error if no WebGL context is available
+   */
   createIndexBuffer(accessor: Accessor) {
     const gl = this.__glw!.getRawContext();
 
@@ -182,6 +242,13 @@ export class WebGLResourceRepository
     return resourceHandle;
   }
 
+  /**
+   * Updates an existing index buffer with new data from the accessor.
+   *
+   * @param accessor - The accessor containing new index data
+   * @param resourceHandle - The handle of the index buffer to update
+   * @throws Error if no WebGL context is available or IBO not found
+   */
   updateIndexBuffer(accessor: Accessor, resourceHandle: number) {
     const glw = this.__glw as WebGLContextWrapper;
     const gl = glw?.getRawContext() as WebGLRenderingContext | WebGL2RenderingContext;
@@ -201,6 +268,13 @@ export class WebGLResourceRepository
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
   }
 
+  /**
+   * Creates a vertex buffer from the provided accessor data.
+   *
+   * @param accessor - The accessor containing vertex data
+   * @returns The handle of the created vertex buffer
+   * @throws Error if no WebGL context is available
+   */
   createVertexBuffer(accessor: Accessor) {
     const gl = this.__glw!.getRawContext();
 
@@ -220,6 +294,13 @@ export class WebGLResourceRepository
     return resourceHandle;
   }
 
+  /**
+   * Creates a vertex buffer directly from a typed array.
+   *
+   * @param typedArray - The typed array containing vertex data
+   * @returns The handle of the created vertex buffer
+   * @throws Error if no WebGL context is available
+   */
   createVertexBufferFromTypedArray(typedArray: TypedArray) {
     const gl = this.__glw!.getRawContext();
 
@@ -238,6 +319,13 @@ export class WebGLResourceRepository
     return resourceHandle;
   }
 
+  /**
+   * Updates an existing vertex buffer with new data from the accessor.
+   *
+   * @param accessor - The accessor containing new vertex data
+   * @param resourceHandle - The handle of the vertex buffer to update
+   * @throws Error if no WebGL context is available or VBO not found
+   */
   updateVertexBuffer(accessor: Accessor, resourceHandle: number) {
     const glw = this.__glw as WebGLContextWrapper;
     const gl = glw?.getRawContext() as WebGLRenderingContext | WebGL2RenderingContext;
@@ -256,6 +344,12 @@ export class WebGLResourceRepository
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
   }
 
+  /**
+   * Creates a new vertex array object (VAO).
+   *
+   * @returns The handle of the created VAO or undefined if creation failed
+   * @throws Error if no WebGL context is available
+   */
   createVertexArray() {
     const gl = this.__glw;
 
@@ -274,9 +368,10 @@ export class WebGLResourceRepository
   }
 
   /**
-   * bind the Texture2D
-   * @param textureSlotIndex
-   * @param textureUid
+   * Binds a 2D texture to the specified texture slot.
+   *
+   * @param textureSlotIndex - The texture slot index to bind to
+   * @param textureUid - The handle of the texture to bind
    */
   bindTexture2D(textureSlotIndex: Index, textureUid: CGAPIResourceHandle) {
     const texture = this.getWebGLResource(textureUid) as WebGLTexture;
@@ -284,9 +379,10 @@ export class WebGLResourceRepository
   }
 
   /**
-   * bind the Sampler
-   * @param textureSlotIndex
-   * @param samplerUid
+   * Binds a texture sampler to the specified texture slot.
+   *
+   * @param textureSlotIndex - The texture slot index to bind to
+   * @param samplerUid - The handle of the sampler to bind, or -1 to unbind
    */
   bindTextureSampler(textureSlotIndex: Index, samplerUid: CGAPIResourceHandle) {
     if (samplerUid === -1) {
@@ -298,9 +394,10 @@ export class WebGLResourceRepository
   }
 
   /**
-   * bind the TextureCube
-   * @param textureSlotIndex
-   * @param textureUid
+   * Binds a cube texture to the specified texture slot.
+   *
+   * @param textureSlotIndex - The texture slot index to bind to
+   * @param textureUid - The handle of the cube texture to bind
    */
   bindTextureCube(textureSlotIndex: Index, textureUid: CGAPIResourceHandle) {
     const texture = this.getWebGLResource(textureUid) as WebGLTexture;
@@ -308,9 +405,10 @@ export class WebGLResourceRepository
   }
 
   /**
-   * bind the Texture2DArray
-   * @param textureSlotIndex
-   * @param textureUid
+   * Binds a 2D texture array to the specified texture slot.
+   *
+   * @param textureSlotIndex - The texture slot index to bind to
+   * @param textureUid - The handle of the 2D texture array to bind
    */
   bindTexture2DArray(textureSlotIndex: Index, textureUid: CGAPIResourceHandle) {
     const texture = this.getWebGLResource(textureUid) as WebGLTexture;
@@ -318,9 +416,11 @@ export class WebGLResourceRepository
   }
 
   /**
-   * create a VertexBuffer and IndexBuffer
-   * @param primitive
-   * @returns
+   * Creates vertex buffers and index buffers for a primitive and returns handles for them.
+   * This method processes all vertex attributes of the primitive and creates corresponding VBOs.
+   *
+   * @param primitive - The primitive object containing vertex and index data
+   * @returns VertexHandles object containing all created buffer handles and metadata
    */
   createVertexBufferAndIndexBuffer(primitive: Primitive): VertexHandles {
     let iboHandle;
@@ -352,9 +452,10 @@ export class WebGLResourceRepository
   }
 
   /**
-   * update the VertexBuffer and IndexBuffer
-   * @param primitive
-   * @param vertexHandles
+   * Updates existing vertex buffers and index buffers with new data from a primitive.
+   *
+   * @param primitive - The primitive object containing updated vertex and index data
+   * @param vertexHandles - The handles of the buffers to update
    */
   updateVertexBufferAndIndexBuffer(primitive: Primitive, vertexHandles: VertexHandles) {
     if (vertexHandles.iboHandle) {
@@ -368,8 +469,19 @@ export class WebGLResourceRepository
   }
 
   /**
-   * create a shader program
-   * @returns a object which has shader modules
+   * Creates and compiles a shader program from vertex and fragment shader source code.
+   * This method handles shader compilation, linking, and error reporting.
+   *
+   * @param params - Configuration object for shader program creation
+   * @param params.material - The material associated with this shader program
+   * @param params.primitive - The primitive that will use this shader program
+   * @param params.vertexShaderStr - The vertex shader source code
+   * @param params.fragmentShaderStr - The fragment shader source code
+   * @param params.attributeNames - Array of vertex attribute names
+   * @param params.attributeSemantics - Array of vertex attribute semantics
+   * @param params.onError - Optional error callback function
+   * @returns The handle of the created shader program, or InvalidCGAPIResourceUid on failure
+   * @throws Error if no WebGL context is available
    */
   createShaderProgram({
     material,
@@ -466,6 +578,15 @@ export class WebGLResourceRepository
     return resourceHandle;
   }
 
+  /**
+   * Validates shader compilation status and logs errors if compilation fails.
+   *
+   * @param materialTypeName - The name of the material type for error context
+   * @param shader - The compiled shader object to check
+   * @param shaderText - The shader source code for error reporting
+   * @param onError - Optional error callback function
+   * @returns True if compilation succeeded, false otherwise
+   */
   private __checkShaderCompileStatus(
     materialTypeName: string,
     shader: WebGLShader,
@@ -493,6 +614,15 @@ export class WebGLResourceRepository
     return true;
   }
 
+  /**
+   * Validates shader program linking status and logs errors if linking fails.
+   *
+   * @param materialTypeName - The name of the material type for error context
+   * @param shaderProgram - The linked shader program to check
+   * @param vertexShaderText - The vertex shader source code for error reporting
+   * @param fragmentShaderText - The fragment shader source code for error reporting
+   * @returns True if linking succeeded, false otherwise
+   */
   private __checkShaderProgramLinkStatus(
     materialTypeName: string,
     shaderProgram: WebGLProgram,
@@ -521,11 +651,14 @@ export class WebGLResourceRepository
   }
 
   /**
-   * setup the uniform locations
-   * @param shaderProgramUid
-   * @param infoArray
-   * @param isUniformOnlyMode
-   * @returns
+   * Sets up uniform locations for a shader program based on shader semantics information.
+   * This method extracts uniform locations from the compiled shader program and stores them
+   * for efficient access during rendering.
+   *
+   * @param shaderProgramUid - The handle of the shader program
+   * @param infoArray - Array of shader semantics information
+   * @param isUniformOnlyMode - Whether to set up only uniform locations
+   * @returns The WebGL program object with configured uniform locations
    */
   setupUniformLocations(
     shaderProgramUid: WebGLResourceHandle,
@@ -570,6 +703,11 @@ export class WebGLResourceRepository
     return shaderProgram;
   }
 
+  /**
+   * Sets up basic uniform locations required for data texture operations.
+   *
+   * @param shaderProgramUid - The handle of the shader program to configure
+   */
   setupBasicUniformLocations(shaderProgramUid: WebGLResourceHandle) {
     const shaderProgram = this.getWebGLResource(shaderProgramUid) as RnWebGLProgram;
     const gl = this.currentWebGLContextWrapper!.getRawContext();
@@ -580,6 +718,13 @@ export class WebGLResourceRepository
     );
   }
 
+  /**
+   * Sets a uniform value for texture binding and binds the texture to the appropriate slot.
+   *
+   * @param shaderProgram_ - The shader program to set the uniform for
+   * @param semanticStr - The semantic string identifying the uniform
+   * @param value - The value array containing texture slot index and texture data
+   */
   setUniform1iForTexture(shaderProgram_: WebGLProgram, semanticStr: string, value: any) {
     const shaderProgram = shaderProgram_ as RnWebGLProgram;
     const info = shaderProgram._shaderSemanticsInfoMap.get(semanticStr);
@@ -593,7 +738,14 @@ export class WebGLResourceRepository
   }
 
   /**
-   * set an uniform value
+   * Sets a uniform value in the shader program with automatic type detection and conversion.
+   * This method handles various composition types including matrices, vectors, and textures.
+   *
+   * @param shaderProgram_ - The shader program to set the uniform for
+   * @param semanticStr - The semantic string identifying the uniform
+   * @param firstTime - Whether this is the first time setting this uniform
+   * @param value - The value to set (can be scalar, vector, matrix, or texture data)
+   * @returns True if the uniform was successfully set, false otherwise
    */
   setUniformValue(
     shaderProgram_: WebGLProgram,
@@ -718,9 +870,11 @@ export class WebGLResourceRepository
   }
 
   /**
-   * bind the texture
-   * @param info
-   * @param value
+   * Binds textures and samplers based on the composition type information.
+   * This method handles different texture types including 2D, cube, and texture arrays.
+   *
+   * @param info - The shader semantics info containing composition type details
+   * @param value - Array containing texture slot, texture object, and sampler
    */
   bindTexture(info: ShaderSemanticsInfo, value: [number, AbstractTexture, Sampler]) {
     if (
@@ -770,16 +924,21 @@ export class WebGLResourceRepository
   }
 
   /**
-   * set the uniform value
-   * @param shaderProgram
-   * @param semanticStr
-   * @param info
-   * @param isMatrix
-   * @param componentNumber
-   * @param isVector
-   * @param param6
-   * @param index
-   * @returns
+   * Internal method for setting uniform values with proper WebGL calls based on data type.
+   * This method handles the actual WebGL uniform* calls with appropriate type conversion.
+   *
+   * @param shaderProgram - The shader program to set the uniform for
+   * @param semanticStr - The semantic string identifying the uniform
+   * @param info - The shader semantics information
+   * @param isMatrix - Whether the value is a matrix
+   * @param componentNumber - Number of components in the value
+   * @param isVector - Whether the value is a vector/array
+   * @param param6 - Object containing the value components
+   * @param param6.x - Primary value component
+   * @param param6.y - Second value component (optional)
+   * @param param6.z - Third value component (optional)
+   * @param param6.w - Fourth value component (optional)
+   * @returns True if the uniform was successfully set, false if location not found
    */
   setUniformValueInner(
     shaderProgram: WebGLProgram,
@@ -881,7 +1040,16 @@ export class WebGLResourceRepository
   }
 
   /**
-   * set the VertexData to the Pipeline
+   * Configures vertex data for rendering by setting up VAO with VBOs and IBO.
+   * This method binds vertex arrays, index buffers, and configures vertex attribute pointers.
+   *
+   * @param handles - Object containing VAO, IBO, and VBO handles
+   * @param handles.vaoHandle - Handle to the vertex array object
+   * @param handles.iboHandle - Handle to the index buffer object (optional)
+   * @param handles.vboHandles - Array of vertex buffer object handles
+   * @param primitive - The primitive object containing vertex attribute information
+   * @param instanceIDBufferUid - Handle to instance ID buffer for instanced rendering (optional)
+   * @throws Error if required buffers are not found
    */
   setVertexDataToPipeline(
     {
@@ -961,10 +1129,15 @@ export class WebGLResourceRepository
   }
 
   /**
-   * create a TexStorage2D
-   * @param data
-   * @param param1
-   * @returns
+   * Creates a 2D texture with immutable storage using texStorage2D.
+   * This method allocates texture storage with the specified parameters.
+   *
+   * @param params - Configuration object for texture creation
+   * @param params.levels - Number of mipmap levels to allocate
+   * @param params.internalFormat - Internal format of the texture
+   * @param params.width - Width of the texture
+   * @param params.height - Height of the texture
+   * @returns The handle of the created texture
    */
   createTexStorage2D({
     levels,
@@ -987,6 +1160,20 @@ export class WebGLResourceRepository
     return resourceHandle;
   }
 
+  /**
+   * Creates a new texture sampler with the specified filtering and wrapping parameters.
+   *
+   * @param params - Configuration object for sampler creation
+   * @param params.magFilter - Magnification filter mode
+   * @param params.minFilter - Minification filter mode
+   * @param params.wrapS - Wrapping mode for S coordinate
+   * @param params.wrapT - Wrapping mode for T coordinate
+   * @param params.wrapR - Wrapping mode for R coordinate
+   * @param params.anisotropy - Whether to enable anisotropic filtering
+   * @param params.isPremultipliedAlpha - Whether alpha is premultiplied (optional)
+   * @param params.shadowCompareMode - Whether to enable shadow comparison mode
+   * @returns The handle of the created sampler
+   */
   createTextureSampler({
     magFilter,
     minFilter,
@@ -1027,6 +1214,12 @@ export class WebGLResourceRepository
     return resourceHandle;
   }
 
+  /**
+   * Creates or returns an existing texture sampler with clamp-to-edge wrapping and linear filtering.
+   * This method implements a singleton pattern for commonly used sampler configurations.
+   *
+   * @returns The handle of the clamp-to-edge linear sampler
+   */
   createOrGetTextureSamplerClampToEdgeLinear() {
     if (this.__samplerClampToEdgeLinearUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       const gl = this.__glw!.getRawContextAsWebGL2();
@@ -1043,6 +1236,12 @@ export class WebGLResourceRepository
     return this.__samplerClampToEdgeLinearUid;
   }
 
+  /**
+   * Creates or returns an existing texture sampler with clamp-to-edge wrapping and nearest filtering.
+   * This method implements a singleton pattern for commonly used sampler configurations.
+   *
+   * @returns The handle of the clamp-to-edge nearest sampler
+   */
   createOrGetTextureSamplerClampToEdgeNearest() {
     if (this.__samplerClampToEdgeNearestUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       const gl = this.__glw!.getRawContextAsWebGL2();
@@ -1059,6 +1258,12 @@ export class WebGLResourceRepository
     return this.__samplerClampToEdgeNearestUid;
   }
 
+  /**
+   * Creates or returns an existing texture sampler with repeat wrapping and nearest filtering.
+   * This method implements a singleton pattern for commonly used sampler configurations.
+   *
+   * @returns The handle of the repeat nearest sampler
+   */
   createOrGetTextureSamplerRepeatNearest() {
     if (this.__samplerRepeatNearestUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       const gl = this.__glw!.getRawContextAsWebGL2();
@@ -1075,6 +1280,12 @@ export class WebGLResourceRepository
     return this.__samplerRepeatNearestUid;
   }
 
+  /**
+   * Creates or returns an existing texture sampler with repeat wrapping and linear filtering.
+   * This method implements a singleton pattern for commonly used sampler configurations.
+   *
+   * @returns The handle of the repeat linear sampler
+   */
   createOrGetTextureSamplerRepeatLinear() {
     if (this.__samplerRepeatLinearUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       const gl = this.__glw!.getRawContextAsWebGL2();
@@ -1091,6 +1302,12 @@ export class WebGLResourceRepository
     return this.__samplerRepeatLinearUid;
   }
 
+  /**
+   * Creates or returns an existing texture sampler with repeat wrapping and trilinear filtering.
+   * This method implements a singleton pattern for commonly used sampler configurations.
+   *
+   * @returns The handle of the repeat trilinear sampler
+   */
   createOrGetTextureSamplerRepeatTriLinear() {
     if (this.__samplerRepeatTriLinearUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       const gl = this.__glw!.getRawContextAsWebGL2();
@@ -1107,6 +1324,12 @@ export class WebGLResourceRepository
     return this.__samplerRepeatTriLinearUid;
   }
 
+  /**
+   * Creates or returns an existing texture sampler configured for shadow mapping.
+   * This sampler uses nearest filtering and enables shadow comparison functionality.
+   *
+   * @returns The handle of the shadow sampler
+   */
   createOrGetTextureSamplerShadow() {
     if (this.__samplerShadowUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       const gl = this.__glw!.getRawContextAsWebGL2();
@@ -1124,6 +1347,12 @@ export class WebGLResourceRepository
     return this.__samplerShadowUid;
   }
 
+  /**
+   * Creates or returns an existing texture sampler with repeat wrapping, anisotropic filtering, and linear filtering.
+   * This method implements a singleton pattern for commonly used sampler configurations.
+   *
+   * @returns The handle of the repeat anisotropy linear sampler
+   */
   createOrGetTextureSamplerRepeatAnisotropyLinear() {
     if (
       this.__samplerRepeatAnisotropyLinearUid === CGAPIResourceRepository.InvalidCGAPIResourceUid
@@ -1144,10 +1373,20 @@ export class WebGLResourceRepository
   }
 
   /**
-   * create a Texture
-   * @param imageData
-   * @param param1
-   * @returns
+   * Creates a 2D texture from ImageBitmap data with specified parameters.
+   * This method allocates texture storage and uploads the image data to the GPU.
+   *
+   * @param imageData - The ImageBitmap or ImageBitmapSource data to upload
+   * @param params - Configuration object for texture creation
+   * @param params.level - Mipmap level (usually 0 for base level)
+   * @param params.internalFormat - Internal format of the texture
+   * @param params.width - Width of the texture
+   * @param params.height - Height of the texture
+   * @param params.border - Border width (must be 0 in WebGL)
+   * @param params.format - Pixel format of the source data
+   * @param params.type - Data type of the source data
+   * @param params.generateMipmap - Whether to generate mipmaps automatically
+   * @returns Promise that resolves to the handle of the created texture
    */
   async createTextureFromImageBitmapData(
     imageData: ImageBitmapData,
@@ -1186,6 +1425,15 @@ export class WebGLResourceRepository
     return textureHandle;
   }
 
+  /**
+   * Internal helper method for common texture setup operations.
+   * This method handles mipmap generation and texture parameter setup.
+   *
+   * @param gl - The WebGL2 rendering context
+   * @param width - Width of the texture
+   * @param height - Height of the texture
+   * @param generateMipmap - Whether to generate mipmaps
+   */
   private __createTextureInner(
     gl: WebGL2RenderingContext,
     width: number,
@@ -1214,10 +1462,20 @@ export class WebGLResourceRepository
   }
 
   /**
-   * create a Texture
-   * @param imageData
-   * @param param1
-   * @returns
+   * Creates a 2D texture from an HTML image element with specified parameters.
+   * This method allocates texture storage and uploads the image data to the GPU.
+   *
+   * @param imageData - The HTML image element containing the image data
+   * @param params - Configuration object for texture creation
+   * @param params.level - Mipmap level (usually 0 for base level)
+   * @param params.internalFormat - Internal format of the texture
+   * @param params.width - Width of the texture
+   * @param params.height - Height of the texture
+   * @param params.border - Border width (must be 0 in WebGL)
+   * @param params.format - Pixel format of the source data
+   * @param params.type - Data type of the source data
+   * @param params.generateMipmap - Whether to generate mipmaps automatically
+   * @returns Promise that resolves to the handle of the created texture
    */
   async createTextureFromHTMLImageElement(
     imageData: HTMLImageElement,
@@ -1257,15 +1515,18 @@ export class WebGLResourceRepository
   }
 
   /**
-   * create a TextureArray
-   * @param width
-   * @param height
-   * @param arrayLength
-   * @param mipLevelCount
-   * @param internalFormat
-   * @param format
-   * @param type
-   * @returns texture handle
+   * Creates a 2D texture array with specified dimensions and format.
+   * Texture arrays allow storing multiple texture layers in a single texture object.
+   *
+   * @param width - Width of each texture layer
+   * @param height - Height of each texture layer
+   * @param arrayLength - Number of texture layers in the array
+   * @param mipLevelCount - Number of mipmap levels
+   * @param internalFormat - Internal format of the texture
+   * @param format - Pixel format of the source data
+   * @param type - Data type of the source data
+   * @param imageData - Typed array containing the texture data
+   * @returns The handle of the created texture array
    */
   createTextureArray(
     width: Size,
@@ -1313,12 +1574,15 @@ export class WebGLResourceRepository
   }
 
   /**
-   * allocate a Texture
-   * @param format - the internal format of the texture
-   * @param width - the width of the texture
-   * @param height - the height of the texture
-   * @param mipmapCount - the number of mipmap levels
-   * @returns the handle of the texture
+   * Allocates texture storage without uploading any image data.
+   * This method creates an empty texture with the specified format and dimensions.
+   *
+   * @param params - Configuration object for texture allocation
+   * @param params.format - Internal format of the texture
+   * @param params.width - Width of the texture
+   * @param params.height - Height of the texture
+   * @param params.mipLevelCount - Number of mipmap levels to allocate
+   * @returns The handle of the allocated texture
    */
   allocateTexture({
     format,
@@ -1343,16 +1607,20 @@ export class WebGLResourceRepository
   }
 
   /**
-   * Load an image to a specific mip level of a texture
-   * @param mipLevel - the mip level to load the image to
-   * @param textureUid - the handle of the texture
-   * @param format - the format of the image
-   * @param type - the type of the data
-   * @param xOffset - the x offset of copy region
-   * @param yOffset - the y offset of copy region
-   * @param width - the width of the image
-   * @param height - the height of the image
-   * @param data - the typedarray data of the image
+   * Loads image data to a specific mip level of an existing 2D texture.
+   * This method supports uploading data with row padding, extracting only the relevant pixels.
+   *
+   * @param params - Configuration object for image loading
+   * @param params.mipLevel - The mip level to load the image to
+   * @param params.textureUid - The handle of the target texture
+   * @param params.format - The format of the image
+   * @param params.type - The data type of the image
+   * @param params.xOffset - X offset of the copy region
+   * @param params.yOffset - Y offset of the copy region
+   * @param params.width - Width of the image to copy
+   * @param params.height - Height of the image to copy
+   * @param params.rowSizeByPixel - Size of each row in pixels (including padding)
+   * @param params.data - The typed array containing the image data
    */
   loadImageToMipLevelOfTexture2D({
     mipLevel,
@@ -1411,10 +1679,20 @@ export class WebGLResourceRepository
   }
 
   /**
-   * create a Texture from TypedArray
-   * @param imageData
-   * @param param1
-   * @returns
+   * Creates a 2D texture from a typed array with specified parameters.
+   * This method is useful for creating textures from raw pixel data.
+   *
+   * @param imageData - The typed array containing the pixel data
+   * @param params - Configuration object for texture creation
+   * @param params.level - Mipmap level (usually 0 for base level)
+   * @param params.internalFormat - Internal format of the texture
+   * @param params.width - Width of the texture
+   * @param params.height - Height of the texture
+   * @param params.border - Border width (must be 0 in WebGL)
+   * @param params.format - Pixel format of the source data
+   * @param params.type - Data type of the source data
+   * @param params.generateMipmap - Whether to generate mipmaps automatically
+   * @returns The handle of the created texture
    */
   createTextureFromTypedArray(
     imageData: TypedArray,
@@ -1463,9 +1741,12 @@ export class WebGLResourceRepository
   }
 
   /**
-   * Create and bind compressed texture object
-   * @param textureDataArray transcoded texture data for each mipmaps(levels)
-   * @param compressionTextureType
+   * Creates a compressed texture from pre-transcoded texture data for multiple mip levels.
+   * This method handles various compressed texture formats and uploads the data to GPU.
+   *
+   * @param textureDataArray - Array of texture data for each mipmap level
+   * @param compressionTextureType - The compression format type (e.g., DXT, ETC, ASTC)
+   * @returns Promise that resolves to the handle of the created compressed texture
    */
   async createCompressedTexture(
     textureDataArray: TextureData[],
@@ -1498,10 +1779,16 @@ export class WebGLResourceRepository
   }
 
   /**
-   * create CompressedTextureFromBasis
-   * @param basisFile
-   * @param param1
-   * @returns
+   * Creates a compressed texture from a Basis Universal file.
+   * This method automatically detects the best compression format supported by the hardware
+   * and transcodes the Basis file accordingly.
+   *
+   * @param basisFile - The Basis Universal file containing the compressed texture data
+   * @param params - Configuration object for texture creation
+   * @param params.border - Border width (must be 0 in WebGL)
+   * @param params.format - Pixel format (not used for compressed textures)
+   * @param params.type - Data type (not used for compressed textures)
+   * @returns The handle of the created compressed texture
    */
   createCompressedTextureFromBasis(
     basisFile: BasisFile,
@@ -1579,12 +1866,14 @@ export class WebGLResourceRepository
   }
 
   /**
-   * decode the BasisImage
-   * @param basisFile
-   * @param basisCompressionType
-   * @param imageIndex
-   * @param levelIndex
-   * @returns
+   * Decodes a specific image and mip level from a Basis Universal file to the target compression format.
+   * This method handles the transcoding process from Basis format to hardware-specific formats.
+   *
+   * @param basisFile - The Basis Universal file containing the texture data
+   * @param basisCompressionType - The target compression format to transcode to
+   * @param imageIndex - Index of the image to decode (for texture arrays)
+   * @param levelIndex - Mip level index to decode
+   * @returns Uint8Array containing the transcoded texture data
    */
   private decodeBasisImage(
     basisFile: BasisFile,
@@ -1614,8 +1903,10 @@ export class WebGLResourceRepository
   }
 
   /**
-   * create a FrameBufferObject
-   * @returns
+   * Creates a new framebuffer object for off-screen rendering.
+   * Framebuffers are used for render-to-texture operations and post-processing effects.
+   *
+   * @returns The handle of the created framebuffer object
    */
   createFrameBufferObject() {
     const gl = this.__glw!.getRawContext();
@@ -1626,10 +1917,12 @@ export class WebGLResourceRepository
   }
 
   /**
-   * attach the ColorBuffer to the FrameBufferObject
-   * @param framebuffer a Framebuffer
-   * @param attachmentIndex a attachment index
-   * @param renderable a ColorBuffer
+   * Attaches a color buffer (texture or renderbuffer) to a framebuffer object.
+   * This method supports both regular textures and multiview VR textures.
+   *
+   * @param framebuffer - The framebuffer to attach to
+   * @param attachmentIndex - The color attachment index (0-based)
+   * @param renderable - The texture or renderbuffer to attach
    */
   attachColorBufferToFrameBufferObject(
     framebuffer: FrameBuffer,
@@ -1693,9 +1986,14 @@ export class WebGLResourceRepository
   }
 
   /**
-   * attach the ColorBuffer to the FrameBufferObject
-   * @param framebuffer a Framebuffer
-   * @param renderable a ColorBuffer
+   * Attaches a specific layer of a texture array to a framebuffer object.
+   * This method is useful for rendering to individual layers of a texture array.
+   *
+   * @param framebuffer - The framebuffer to attach to
+   * @param attachmentIndex - The color attachment index (0-based)
+   * @param renderable - The texture array to attach
+   * @param layerIndex - The layer index within the texture array
+   * @param mipLevel - The mip level to attach
    */
   attachColorBufferLayerToFrameBufferObject(
     framebuffer: FrameBuffer,
@@ -1727,12 +2025,14 @@ export class WebGLResourceRepository
   }
 
   /**
-   * attach the ColorBuffer to the FrameBufferObject
-   * @param framebuffer a Framebuffer
-   * @param attachmentIndex a attachment index
-   * @param faceIndex a face index
-   * @param mipLevel a mip level
-   * @param renderable a ColorBuffer
+   * Attaches a specific face of a cube texture to a framebuffer object.
+   * This method is used for rendering to individual faces of cube maps.
+   *
+   * @param framebuffer - The framebuffer to attach to
+   * @param attachmentIndex - The color attachment index (0-based)
+   * @param faceIndex - The cube face index (0-5: +X, -X, +Y, -Y, +Z, -Z)
+   * @param mipLevel - The mip level to attach
+   * @param renderable - The cube texture to attach
    */
   attachColorBufferCubeToFrameBufferObject(
     framebuffer: FrameBuffer,
@@ -1762,33 +2062,45 @@ export class WebGLResourceRepository
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   }
+
   /**
-   * attach the DepthBuffer to the FrameBufferObject
-   * @param framebuffer a Framebuffer
-   * @param renderable a DepthBuffer
+   * Attaches a depth buffer to a framebuffer object.
+   *
+   * @param framebuffer - The framebuffer to attach to
+   * @param renderable - The depth texture or renderbuffer to attach
    */
   attachDepthBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable) {
     this.__attachDepthOrStencilBufferToFrameBufferObject(framebuffer, renderable, 36096); // gl.DEPTH_ATTACHMENT
   }
 
   /**
-   * attach the StencilBuffer to the FrameBufferObject
-   * @param framebuffer a Framebuffer
-   * @param renderable a StencilBuffer
+   * Attaches a stencil buffer to a framebuffer object.
+   *
+   * @param framebuffer - The framebuffer to attach to
+   * @param renderable - The stencil texture or renderbuffer to attach
    */
   attachStencilBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable) {
     this.__attachDepthOrStencilBufferToFrameBufferObject(framebuffer, renderable, 36128); // gl.STENCIL_ATTACHMENT
   }
 
   /**
-   * attach the depthStencilBuffer to the FrameBufferObject
-   * @param framebuffer a Framebuffer
-   * @param renderable a depthStencilBuffer
+   * Attaches a combined depth-stencil buffer to a framebuffer object.
+   *
+   * @param framebuffer - The framebuffer to attach to
+   * @param renderable - The depth-stencil texture or renderbuffer to attach
    */
   attachDepthStencilBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable) {
     this.__attachDepthOrStencilBufferToFrameBufferObject(framebuffer, renderable, 33306); // gl.DEPTH_STENCIL_ATTACHMENT
   }
 
+  /**
+   * Internal method for attaching depth or stencil buffers to framebuffers.
+   * This method handles the common logic for depth, stencil, and depth-stencil attachments.
+   *
+   * @param framebuffer - The framebuffer to attach to
+   * @param renderable - The texture or renderbuffer to attach
+   * @param attachmentType - The WebGL attachment type constant
+   */
   private __attachDepthOrStencilBufferToFrameBufferObject(
     framebuffer: FrameBuffer,
     renderable: IRenderable,

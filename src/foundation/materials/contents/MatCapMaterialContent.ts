@@ -18,9 +18,23 @@ import { Sampler } from '../../textures/Sampler';
 import { dummyBlackTexture } from '../core/DummyTextures';
 import { Logger } from '../../misc/Logger';
 
+/**
+ * Material content implementation for MatCap (Material Capture) rendering.
+ * MatCap is a technique that captures material appearance from a sphere under specific lighting conditions
+ * and applies it to 3D objects for realistic material representation.
+ */
 export class MatCapMaterialContent extends AbstractMaterialContent {
   static MatCapTexture = new ShaderSemanticsClass({ str: 'matCapTexture' });
 
+  /**
+   * Creates a new MatCap material content instance.
+   *
+   * @param materialName - The name identifier for this material
+   * @param isSkinning - Whether this material supports skeletal animation/skinning
+   * @param uri - Optional URI to load the MatCap texture from
+   * @param texture - Optional pre-existing texture to use as the MatCap texture
+   * @param sampler - Optional sampler settings for texture sampling behavior
+   */
   constructor(
     materialName: string,
     isSkinning: boolean,
@@ -94,6 +108,17 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
+  /**
+   * Sets internal GPU parameters specific to MatCap material rendering for WebGL.
+   * This method configures uniforms and matrices required for proper MatCap material rendering,
+   * including world transformations, camera settings, and skeletal animation support.
+   *
+   * @param params - Configuration object containing rendering parameters
+   * @param params.material - The material instance being rendered
+   * @param params.shaderProgram - The WebGL shader program to configure
+   * @param params.firstTime - Whether this is the first time setting these parameters
+   * @param params.args - WebGL rendering arguments containing matrices, camera, and entity data
+   */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
     material,
     shaderProgram,

@@ -45,38 +45,43 @@ type IBLCubeTextureParameter = {
 };
 
 /**
- * ForwardRenderPipeline is a one of render pipelines
+ * A forward rendering pipeline that provides advanced rendering features including shadows, bloom, tone mapping, and IBL.
  *
  * @remarks
- * A render pipeline is a class of complex multi-pass setups already built in,
- * which allows users to easily benefit from advanced expressions such as refraction and MSAA.
- * (like the URP (Universal Render Pipeline) in the Unity engine).
+ * ForwardRenderPipeline is a comprehensive rendering solution that handles multi-pass rendering setups
+ * with features like MSAA, shadow mapping, bloom effects, and tone mapping. It supports both regular
+ * rendering and WebXR multi-view rendering for VR applications.
+ *
+ * The pipeline automatically manages frame buffers, render targets, and expression chains to provide
+ * a complete rendering solution similar to Unity's Universal Render Pipeline (URP).
  *
  * @example
- * ```
- * const expressions = ...;
- * const matrix = ...;
- * // Create a render pipeline
+ * ```typescript
+ * const expressions = [...];
+ * const matrix = [...];
+ *
+ * // Create and setup the render pipeline
  * const forwardRenderPipeline = new Rn.ForwardRenderPipeline();
- * // Set up the render pipeline
- * forwardRenderPipeline.setup(1024, 1024, {isShadow: true});
- * // Set expressions before calling other setter methods
+ * await forwardRenderPipeline.setup(1024, 1024, {isShadow: true, isBloom: true});
+ *
+ * // Configure expressions and IBL
  * forwardRenderPipeline.setExpressions(expressions);
- * // Set IBLs
+ *
  * const diffuseCubeTexture = new Rn.CubeTexture();
  * diffuseCubeTexture.baseUriToLoad = './../../../assets/ibl/papermill/diffuse/diffuse';
  * diffuseCubeTexture.isNamePosNeg = true;
  * diffuseCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
  * diffuseCubeTexture.mipmapLevelNumber = 1;
+ *
  * const specularCubeTexture = new Rn.CubeTexture();
  * specularCubeTexture.baseUriToLoad = './../../../assets/ibl/papermill/specular/specular';
  * specularCubeTexture.isNamePosNeg = true;
  * specularCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
  * specularCubeTexture.mipmapLevelNumber = 10;
+ *
  * forwardRenderPipeline.setIBLTextures(diffuseCubeTexture, specularCubeTexture);
- * // Set BiasViewProjectionMatrix for Shadow
- * forwardRenderPipeline.setBiasViewProjectionMatrixForShadow(matrix);
- * // Start Render Loop
+ *
+ * // Start the render loop
  * forwardRenderPipeline.startRenderLoop((frame) => {
  *   Rn.System.process(frame);
  * });
@@ -118,10 +123,23 @@ export class ForwardRenderPipeline extends RnObject {
   private __bloomHelper: Bloom = new Bloom();
   private __oShadowSystem: Option<ShadowSystem> = new None();
   private __shadowExpressions: Expression[] = [];
+
+  /**
+   * Creates a new instance of ForwardRenderPipeline.
+   */
   constructor() {
     super();
   }
 
+  /**
+   * Destroys all allocated 3D API resources including frame buffers and textures.
+   *
+   * @remarks
+   * This method is called internally during resize operations and cleanup.
+   * It ensures proper resource management by releasing GPU memory.
+   *
+   * @internal
+   */
   private __destroyResources() {
     if (this.__oFrameBufferMultiView.has()) {
       this.__oFrameBufferMultiView.get().destroy3DAPIResources();
@@ -152,9 +170,37 @@ export class ForwardRenderPipeline extends RnObject {
   }
 
   /**
-   * Initializes the pipeline.
-   * @param canvasWidth - The width of the canvas.
-   * @param canvasHeight - The height of the canvas.
+   * Initializes the rendering pipeline with the specified configuration.
+   *
+   * @param canvasWidth - The width of the rendering canvas in pixels
+   * @param canvasHeight - The height of the rendering canvas in pixels
+   * @param options - Configuration options for the pipeline
+   * @param options.isShadow - Whether to enable shadow mapping (default: false)
+   * @param options.isBloom - Whether to enable bloom post-processing effect (default: false)
+   * @param options.shadowMapSize - Size of the shadow map texture in pixels (default: 1024)
+   * @param options.isSimple - Whether to use simplified rendering without post-processing (default: false)
+   *
+   * @returns A Result indicating success or failure of the setup operation
+   *
+   * @remarks
+   * This method must be called before using any other pipeline methods. It creates all necessary
+   * frame buffers, render targets, and expressions based on the provided configuration.
+   *
+   * The method automatically detects WebXR capabilities and configures multi-view rendering
+   * when appropriate for VR applications.
+   *
+   * @example
+   * ```typescript
+   * const result = await pipeline.setup(1920, 1080, {
+   *   isShadow: true,
+   *   isBloom: true,
+   *   shadowMapSize: 2048
+   * });
+   *
+   * if (result.isErr()) {
+   *   console.error('Pipeline setup failed:', result.getErr());
+   * }
+   * ```
    */
   async setup(
     canvasWidth: number,
@@ -253,6 +299,13 @@ export class ForwardRenderPipeline extends RnObject {
     return new Ok();
   }
 
+  /**
+   * Gets the main frame buffer used for back buffer operations.
+   *
+   * @returns The frame buffer for back buffer operations, or None if not available
+   *
+   * @internal
+   */
   private __getMainFrameBufferBackBuffer(): Option<FrameBuffer> {
     if (this.__oFrameBufferMultiView.has()) {
       return this.__oFrameBufferMultiViewBlitBackBuffer;
@@ -261,6 +314,13 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
+  /**
+   * Gets the main frame buffer used for resolve operations.
+   *
+   * @returns The frame buffer for resolve operations, or None if not available
+   *
+   * @internal
+   */
   private __getMainFrameBufferResolve(): Option<FrameBuffer> {
     if (this.__oFrameBufferMultiView.has()) {
       return this.__oFrameBufferMultiViewBlit;
@@ -269,6 +329,13 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
+  /**
+   * Gets the main frame buffer used for rendering operations.
+   *
+   * @returns The main frame buffer, or None if not available
+   *
+   * @internal
+   */
   private __getMainFrameBuffer(): Option<FrameBuffer> {
     if (this.__oFrameBufferMultiView.has()) {
       return this.__oFrameBufferMultiView;
@@ -276,10 +343,27 @@ export class ForwardRenderPipeline extends RnObject {
       return this.__oFrameBufferMsaa;
     }
   }
+
   /**
-   * set Expressions for drawing
-   * @param expressions - expressions to draw
-   * @param options - option parameters
+   * Sets the expressions to be rendered by the pipeline.
+   *
+   * @param expressions - Array of expressions containing render passes and entities to render
+   * @param options - Configuration options for expression setup
+   * @param options.isTransmission - Whether to enable transmission rendering for transparent objects (default: true)
+   *
+   * @remarks
+   * This method configures the expressions for both opaque and transparent rendering.
+   * When transmission is enabled, transparent objects are rendered in a separate pass
+   * to support advanced material effects like glass and water.
+   *
+   * The method automatically clones expressions for transparent rendering and configures
+   * shadow expressions if shadow mapping is enabled.
+   *
+   * @example
+   * ```typescript
+   * const expressions = [sceneExpression, uiExpression];
+   * pipeline.setExpressions(expressions, { isTransmission: true });
+   * ```
    */
   public setExpressions(
     expressions: Expression[],
@@ -307,9 +391,33 @@ export class ForwardRenderPipeline extends RnObject {
   }
 
   /**
-   * Start rendering loop
-   * @param func - function to be called when the frame is rendered
-   * @returns RnResult
+   * Starts the main rendering loop with the provided draw function.
+   *
+   * @param func - Function to be called each frame for rendering operations
+   * @returns A Result indicating success or failure of starting the render loop
+   *
+   * @remarks
+   * This method begins the continuous rendering loop using the system's render loop mechanism.
+   * The provided function will be called every frame with the current frame object.
+   *
+   * The method automatically handles shadow system updates, expression management,
+   * and frame processing.
+   *
+   * @example
+   * ```typescript
+   * const result = pipeline.startRenderLoop((frame) => {
+   *   // Update scene
+   *   Rn.System.process(frame);
+   *
+   *   // Custom per-frame logic
+   *   updateAnimations();
+   *   handleInput();
+   * });
+   *
+   * if (result.isErr()) {
+   *   console.error('Failed to start render loop:', result.getErr());
+   * }
+   * ```
    */
   startRenderLoop(func: (frame: Frame) => void) {
     if (this.__oFrame.doesNotHave()) {
@@ -339,17 +447,45 @@ export class ForwardRenderPipeline extends RnObject {
   }
 
   /**
-   * draw with the given function in startRenderLoop method
+   * Executes a single frame render using the draw function provided to startRenderLoop.
+   *
+   * @remarks
+   * This method allows manual control over frame rendering instead of using the automatic
+   * render loop. It calls the draw function that was provided to startRenderLoop.
+   *
+   * @example
+   * ```typescript
+   * // Manual frame rendering
+   * pipeline.draw();
+   * ```
    */
   draw() {
     this.__oDrawFunc.unwrapForce()(this.__oFrame.unwrapForce());
   }
 
   /**
-   * Resize screen
-   * @param width - width of the screen
-   * @param height - height of the screen
-   * @returns RnResult
+   * Resizes the rendering pipeline to match new canvas dimensions.
+   *
+   * @param width - New width of the rendering canvas
+   * @param height - New height of the rendering canvas
+   * @returns A Result indicating success or failure of the resize operation
+   *
+   * @remarks
+   * This method handles canvas resizing by destroying existing resources and recreating
+   * them with the new dimensions. It automatically handles WebXR canvas sizing when
+   * in VR mode.
+   *
+   * The method preserves all current pipeline settings (shadow, bloom, etc.) during resize.
+   *
+   * @example
+   * ```typescript
+   * window.addEventListener('resize', () => {
+   *   const result = pipeline.resize(window.innerWidth, window.innerHeight);
+   *   if (result.isErr()) {
+   *     console.error('Resize failed:', result.getErr());
+   *   }
+   * });
+   * ```
    */
   resize(width: Size, height: Size) {
     if (this.__oFrame.doesNotHave()) {
@@ -377,9 +513,32 @@ export class ForwardRenderPipeline extends RnObject {
   }
 
   /**
-   * set IBL cube textures
-   * @param diffuse - diffuse IBL Cube Texture
-   * @param specular - specular IBL Cube Texture
+   * Sets the IBL (Image-Based Lighting) cube textures for realistic lighting.
+   *
+   * @param diffuse - Diffuse IBL cube texture for ambient lighting
+   * @param specular - Specular IBL cube texture for reflections
+   * @param sheen - Optional sheen IBL cube texture for fabric-like materials
+   *
+   * @remarks
+   * IBL textures provide realistic lighting by using pre-computed environment maps.
+   * The diffuse texture provides ambient lighting, while the specular texture provides
+   * reflections and specular highlights.
+   *
+   * The sheen texture is optional and used for materials with fabric-like properties.
+   *
+   * @example
+   * ```typescript
+   * const diffuseCube = new Rn.CubeTexture();
+   * diffuseCube.baseUriToLoad = './assets/ibl/diffuse/diffuse';
+   * diffuseCube.hdriFormat = Rn.HdriFormat.RGBE_PNG;
+   *
+   * const specularCube = new Rn.CubeTexture();
+   * specularCube.baseUriToLoad = './assets/ibl/specular/specular';
+   * specularCube.hdriFormat = Rn.HdriFormat.RGBE_PNG;
+   * specularCube.mipmapLevelNumber = 10;
+   *
+   * pipeline.setIBLTextures(diffuseCube, specularCube);
+   * ```
    */
   setIBLTextures(diffuse: CubeTexture, specular: CubeTexture, sheen?: CubeTexture) {
     this.__oDiffuseCubeTexture = new Some(diffuse);
@@ -392,22 +551,53 @@ export class ForwardRenderPipeline extends RnObject {
   }
 
   /**
-   * getter of initial expression
+   * Gets the initial expression used for buffer clearing and setup.
+   *
+   * @returns The initial expression, or undefined if not available
+   *
+   * @remarks
+   * The initial expression is automatically created during setup and handles
+   * clearing of color and depth buffers before main rendering begins.
    */
   getInitialExpression(): Expression | undefined {
     return this.__oInitialExpression.unwrapOrUndefined();
   }
 
   /**
-   * getter of ToneMapping expression
+   * Gets the tone mapping expression used for HDR to LDR conversion.
+   *
+   * @returns The tone mapping expression, or undefined if not available
+   *
+   * @remarks
+   * The tone mapping expression is created during setup when not in simple mode.
+   * It handles the conversion from high dynamic range rendering to low dynamic range
+   * output suitable for display devices.
    */
   getToneMappingExpression(): Expression | undefined {
     return this.__oToneMappingExpression.unwrapOrUndefined();
   }
 
   /**
-   * set diffuse IBL contribution
-   * @param value - 0.0 ~ 1.0 or greater
+   * Sets the contribution factor for diffuse IBL lighting.
+   *
+   * @param value - Contribution factor (0.0 to 1.0 or higher for over-exposure effects)
+   *
+   * @remarks
+   * This method controls how much the diffuse IBL texture contributes to the final lighting.
+   * A value of 0.0 disables diffuse IBL, while 1.0 provides full contribution.
+   * Values greater than 1.0 can be used for artistic over-exposure effects.
+   *
+   * @example
+   * ```typescript
+   * // Reduce ambient lighting
+   * pipeline.setDiffuseIBLContribution(0.5);
+   *
+   * // Disable diffuse IBL
+   * pipeline.setDiffuseIBLContribution(0.0);
+   *
+   * // Over-expose for artistic effect
+   * pipeline.setDiffuseIBLContribution(2.0);
+   * ```
    */
   setDiffuseIBLContribution(value: number) {
     for (const expression of this.__expressions) {
@@ -433,8 +623,26 @@ export class ForwardRenderPipeline extends RnObject {
   }
 
   /**
-   * set specular IBL contribution
-   * @param value - 0.0 ~ 1.0 or greater
+   * Sets the contribution factor for specular IBL reflections.
+   *
+   * @param value - Contribution factor (0.0 to 1.0 or higher for over-exposure effects)
+   *
+   * @remarks
+   * This method controls how much the specular IBL texture contributes to reflections
+   * and specular highlights. A value of 0.0 disables specular IBL, while 1.0 provides
+   * full contribution. Values greater than 1.0 can create over-exposed reflections.
+   *
+   * @example
+   * ```typescript
+   * // Subtle reflections
+   * pipeline.setSpecularIBLContribution(0.3);
+   *
+   * // No reflections
+   * pipeline.setSpecularIBLContribution(0.0);
+   *
+   * // Enhanced reflections
+   * pipeline.setSpecularIBLContribution(1.5);
+   * ```
    */
   setSpecularIBLContribution(value: number) {
     for (const expression of this.__expressions) {
@@ -460,8 +668,30 @@ export class ForwardRenderPipeline extends RnObject {
   }
 
   /**
-   * set the rotation of IBL
-   * @param radian - rotation in radian
+   * Sets the rotation of the IBL environment in radians.
+   *
+   * @param radian - Rotation angle in radians
+   *
+   * @remarks
+   * This method allows rotating the IBL environment to match the desired lighting
+   * direction. This is useful when the IBL doesn't align with the scene's lighting
+   * requirements or for artistic control over the environment lighting.
+   *
+   * @example
+   * ```typescript
+   * // Rotate IBL by 90 degrees
+   * pipeline.setIBLRotation(Math.PI / 2);
+   *
+   * // Rotate IBL by 180 degrees
+   * pipeline.setIBLRotation(Math.PI);
+   *
+   * // Animate IBL rotation
+   * let rotation = 0;
+   * setInterval(() => {
+   *   rotation += 0.01;
+   *   pipeline.setIBLRotation(rotation);
+   * }, 16);
+   * ```
    */
   setIBLRotation(radian: number) {
     for (const expression of this.__expressions) {
@@ -476,6 +706,15 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
+  /**
+   * Internal method to configure expressions for opaque and blended rendering.
+   *
+   * @param expressions - Array of expressions to configure
+   * @param options - Configuration options
+   * @param options.isTransmission - Whether transmission rendering is enabled
+   *
+   * @internal
+   */
   private __setExpressionsInner(
     expressions: Expression[],
     options: {
@@ -517,6 +756,17 @@ export class ForwardRenderPipeline extends RnObject {
     this.__setIblInner();
   }
 
+  /**
+   * Internal method to configure expressions specifically for transparent object transmission.
+   *
+   * @param expressions - Array of expressions to configure for transmission
+   *
+   * @remarks
+   * This method sets up expressions for rendering transparent objects with transmission
+   * effects like glass and water. It configures back buffer access for refraction effects.
+   *
+   * @internal
+   */
   private __setTransparentExpressionsForTransmission(expressions: Expression[]) {
     for (const expression of expressions) {
       expression.tryToSetUniqueName('modelTransparentForTransmission', true);
@@ -558,6 +808,13 @@ export class ForwardRenderPipeline extends RnObject {
     this.__setIblInnerForTransparentOnly();
   }
 
+  /**
+   * Creates and configures the initial expression for buffer clearing.
+   *
+   * @returns The configured initial expression
+   *
+   * @internal
+   */
   private __setupInitialExpression() {
     const expression = new Expression();
     expression.tryToSetUniqueName('Initial', true);
@@ -584,6 +841,19 @@ export class ForwardRenderPipeline extends RnObject {
     return expression;
   }
 
+  /**
+   * Creates render targets and frame buffers based on canvas dimensions and WebXR support.
+   *
+   * @param canvasWidth - Width of the canvas
+   * @param canvasHeight - Height of the canvas
+   *
+   * @remarks
+   * This method automatically detects WebXR multi-view support and creates appropriate
+   * render targets. For VR, it creates texture arrays for multi-view rendering.
+   * For regular rendering, it creates MSAA frame buffers with resolve targets.
+   *
+   * @internal
+   */
   private __createRenderTargets(canvasWidth: number, canvasHeight: number) {
     const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR | undefined;
     const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
@@ -680,6 +950,14 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
+  /**
+   * Sets up an expression for generating mipmaps on resolve frame buffers.
+   *
+   * @param resolveFramebuffer2 - The frame buffer to generate mipmaps for
+   * @returns The configured mipmap generation expression
+   *
+   * @internal
+   */
   private __setupGenerateMipmapsExpression(resolveFramebuffer2: FrameBuffer) {
     const expression = new Expression();
     expression.tryToSetUniqueName('GenerateMipmaps', true);
@@ -697,6 +975,15 @@ export class ForwardRenderPipeline extends RnObject {
 
     return new Some(expression);
   }
+
+  /**
+   * Sets up an expression for blitting multi-view rendering to back buffer.
+   *
+   * @param multiViewFrameBuffer - The multi-view frame buffer to blit from
+   * @returns The configured blit expression
+   *
+   * @internal
+   */
   private __setupMultiViewBlitBackBufferExpression(multiViewFrameBuffer: FrameBuffer) {
     const expression = new Expression();
     expression.tryToSetUniqueName('MultiViewBlitBackBuffer', true);
@@ -721,6 +1008,14 @@ export class ForwardRenderPipeline extends RnObject {
     return new Some(expression);
   }
 
+  /**
+   * Sets up an expression for blitting multi-view rendering results.
+   *
+   * @param multiViewFrameBuffer - The multi-view frame buffer to blit from
+   * @returns The configured blit expression
+   *
+   * @internal
+   */
   private __setupMultiViewBlitExpression(multiViewFrameBuffer: FrameBuffer) {
     const expression = new Expression();
     expression.tryToSetUniqueName('MultiViewBlit', true);
@@ -744,6 +1039,19 @@ export class ForwardRenderPipeline extends RnObject {
     return new Some(expression);
   }
 
+  /**
+   * Sets up the tone mapping expression for HDR to LDR conversion.
+   *
+   * @param toneMappingTargetRenderTargetTexture - The render target texture to apply tone mapping to
+   * @returns The configured tone mapping expression
+   *
+   * @remarks
+   * This method creates both regular and VR-specific tone mapping render passes.
+   * The tone mapping converts high dynamic range rendering results to low dynamic range
+   * output suitable for display devices.
+   *
+   * @internal
+   */
   private __setupToneMappingExpression(toneMappingTargetRenderTargetTexture: RenderTargetTexture) {
     const expressionToneMappingEffect = new Expression();
     const materialToneMapping = MaterialHelper.createToneMappingMaterial();
@@ -781,6 +1089,14 @@ export class ForwardRenderPipeline extends RnObject {
     return expressionToneMappingEffect;
   }
 
+  /**
+   * Creates a frame buffer for depth moment shadow mapping.
+   *
+   * @param shadowMapSize - Size of the shadow map in pixels
+   * @returns The configured depth moment frame buffer
+   *
+   * @internal
+   */
   private __setupDepthMomentFramebuffer(shadowMapSize: number) {
     return new Some(
       RenderableHelper.createFrameBuffer({
@@ -794,6 +1110,11 @@ export class ForwardRenderPipeline extends RnObject {
     );
   }
 
+  /**
+   * Internal method to apply IBL textures to all expressions.
+   *
+   * @internal
+   */
   private __setIblInner() {
     for (const expression of this.__expressions) {
       for (const renderPass of expression.renderPasses) {
@@ -811,6 +1132,11 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
+  /**
+   * Internal method to apply IBL textures to transparent-only expressions.
+   *
+   * @internal
+   */
   private __setIblInnerForTransparentOnly() {
     for (const expression of this.__transparentOnlyExpressions) {
       for (const renderPass of expression.renderPasses) {
@@ -828,6 +1154,35 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
+  /**
+   * Sets the tone mapping algorithm used for HDR to LDR conversion.
+   *
+   * @param type - The tone mapping algorithm to use
+   *
+   * @remarks
+   * Tone mapping is essential for converting high dynamic range rendering results
+   * to low dynamic range output that can be displayed on standard monitors.
+   *
+   * Available tone mapping algorithms:
+   * - KhronosPbrNeutral: Khronos PBR neutral tone mapping
+   * - Reinhard: Classic Reinhard tone mapping
+   * - GT_ToneMap: GT tone mapping (default)
+   * - ACES_Narkowicz: ACES tone mapping by Narkowicz
+   * - ACES_Hill: ACES tone mapping by Hill
+   * - ACES_Hill_Exposure_Boost: ACES Hill with exposure boost
+   *
+   * @example
+   * ```typescript
+   * // Use ACES tone mapping for cinematic look
+   * pipeline.setToneMappingType(Rn.ToneMappingType.ACES_Hill);
+   *
+   * // Use Reinhard for classic look
+   * pipeline.setToneMappingType(Rn.ToneMappingType.Reinhard);
+   *
+   * // Use Khronos PBR neutral for accurate colors
+   * pipeline.setToneMappingType(Rn.ToneMappingType.KhronosPbrNeutral);
+   * ```
+   */
   public setToneMappingType(type: ToneMappingTypeEnum) {
     if (!this.__oToneMappingMaterial.has()) {
       return;
@@ -857,10 +1212,21 @@ export class ForwardRenderPipeline extends RnObject {
   }
 
   /**
-   * setUp Frame
+   * Internal method to set up the frame with all configured expressions.
    *
    * @remarks
-   * This method adds expressions to the frame.
+   * This method is called automatically during the render loop to configure
+   * the frame with all necessary expressions in the correct order:
+   * 1. Initial expression (buffer clearing)
+   * 2. Shadow expressions
+   * 3. Main expressions (opaque rendering)
+   * 4. Mipmap generation
+   * 5. Multi-view blitting
+   * 6. Transparent expressions
+   * 7. Bloom effect
+   * 8. Tone mapping
+   *
+   * @internal
    */
   private __setExpressions() {
     if (this.__oFrame.doesNotHave()) {

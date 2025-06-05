@@ -28,6 +28,10 @@ import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository'
 import { BasisFile } from '../../types/BasisTexture';
 import { Vector4 } from '../math/Vector4';
 
+/**
+ * Union type representing direct texture data that can be used for texture creation.
+ * Includes typed arrays and various HTML/browser elements that can serve as texture sources.
+ */
 export type DirectTextureData =
   | TypedArray
   | HTMLImageElement
@@ -35,11 +39,29 @@ export type DirectTextureData =
   | HTMLCanvasElement
   | ImageBitmap;
 
+/**
+ * Union type representing image bitmap data sources.
+ * Includes HTML elements and ImageBitmap that can be converted to texture data.
+ */
 export type ImageBitmapData = HTMLImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap;
 
+/**
+ * Abstract base class for Computer Graphics API Resource Repository.
+ * Provides a unified interface for managing graphics resources across different APIs (WebGL, WebGPU).
+ * This class serves as a factory and utility provider for accessing the appropriate resource repository
+ * based on the current graphics API approach.
+ */
 export abstract class CGAPIResourceRepository {
+  /** Invalid resource handle constant used to indicate failed resource creation or invalid resources */
   static readonly InvalidCGAPIResourceUid = -1;
 
+  /**
+   * Gets the appropriate Computer Graphics API Resource Repository instance based on the current process approach.
+   * Automatically selects between WebGL and WebGPU implementations.
+   *
+   * @returns The active ICGAPIResourceRepository implementation
+   * @throws Error if the required module is not available
+   */
   static getCgApiResourceRepository(): ICGAPIResourceRepository {
     const moduleName = ProcessApproach.isWebGL2Approach(SystemState.currentProcessApproach)
       ? 'webgl'
@@ -60,6 +82,13 @@ export abstract class CGAPIResourceRepository {
     }
   }
 
+  /**
+   * Gets the WebGL-specific resource repository instance.
+   * Use this method when you specifically need WebGL functionality.
+   *
+   * @returns The WebGLResourceRepository singleton instance
+   * @throws Error if the WebGL module is not available
+   */
   static getWebGLResourceRepository(): WebGLResourceRepository {
     const moduleName = 'webgl';
     const moduleManager = ModuleManager.getInstance();
@@ -69,6 +98,13 @@ export abstract class CGAPIResourceRepository {
     return webGLResourceRepository;
   }
 
+  /**
+   * Gets the WebGPU-specific resource repository instance.
+   * Use this method when you specifically need WebGPU functionality.
+   *
+   * @returns The WebGpuResourceRepository singleton instance
+   * @throws Error if the WebGPU module is not available
+   */
   static getWebGpuResourceRepository(): WebGpuResourceRepository {
     const moduleName = 'webgpu';
     const moduleManager = ModuleManager.getInstance();
@@ -79,21 +115,52 @@ export abstract class CGAPIResourceRepository {
   }
 }
 
+/**
+ * Interface defining the contract for Computer Graphics API Resource Repository implementations.
+ * This interface abstracts graphics resource management operations across different APIs (WebGL, WebGPU).
+ * Implementations handle creation, management, and deletion of graphics resources like textures,
+ * buffers, shaders, and framebuffers.
+ */
 export interface ICGAPIResourceRepository {
   /**
-   * Get a Canvas Size
+   * Retrieves the current canvas dimensions.
+   *
+   * @returns A tuple containing [width, height] of the canvas
    */
   getCanvasSize(): [Size, Size];
 
+  /**
+   * Resizes the canvas to the specified dimensions.
+   * This operation may trigger viewport adjustments and resource reallocation.
+   *
+   * @param width - The new canvas width in pixels
+   * @param height - The new canvas height in pixels
+   */
   resizeCanvas(width: Size, height: Size): void;
 
+  /**
+   * Clears the framebuffer associated with the given render pass.
+   * This operation clears color, depth, and/or stencil buffers as configured in the render pass.
+   *
+   * @param renderPass - The render pass containing clear configuration
+   */
   clearFrameBuffer(renderPass: RenderPass): void;
 
   /**
-   * create a Texture
-   * @param imageData
-   * @param param1
-   * @returns
+   * Creates a texture from image bitmap data with specified parameters.
+   * This method handles various image sources and converts them to GPU textures.
+   *
+   * @param imageData - The source image data (HTMLImageElement, HTMLVideoElement, etc.)
+   * @param options - Texture creation parameters
+   * @param options.level - Mipmap level (typically 0 for base level)
+   * @param options.internalFormat - Internal texture format for GPU storage
+   * @param options.width - Texture width in pixels
+   * @param options.height - Texture height in pixels
+   * @param options.border - Border width (typically 0)
+   * @param options.format - Pixel data format
+   * @param options.type - Component data type
+   * @param options.generateMipmap - Whether to automatically generate mipmaps
+   * @returns Promise resolving to the texture resource handle
    */
   createTextureFromImageBitmapData(
     imageData: ImageBitmapData,
@@ -119,10 +186,16 @@ export interface ICGAPIResourceRepository {
   ): Promise<CGAPIResourceHandle>;
 
   /**
-   * create CompressedTextureFromBasis
-   * @param basisFile
-   * @param param1
-   * @returns
+   * Creates a compressed texture from a Basis Universal file.
+   * Basis Universal provides efficient texture compression that can be transcoded
+   * to various GPU-specific formats at runtime.
+   *
+   * @param basisFile - The Basis Universal file containing compressed texture data
+   * @param options - Texture creation parameters
+   * @param options.border - Border width (typically 0)
+   * @param options.format - Target pixel format after transcoding
+   * @param options.type - Component data type
+   * @returns The texture resource handle
    */
   createCompressedTextureFromBasis(
     basisFile: BasisFile,
@@ -138,9 +211,12 @@ export interface ICGAPIResourceRepository {
   ): CGAPIResourceHandle;
 
   /**
-   * Create and bind compressed texture object
-   * @param textureDataArray transcoded texture data for each mipmaps(levels)
-   * @param compressionTextureType
+   * Creates a compressed texture from pre-transcoded texture data.
+   * This method handles already transcoded compressed texture data for multiple mipmap levels.
+   *
+   * @param textureDataArray - Array of texture data for each mipmap level
+   * @param compressionTextureType - The specific compression format type
+   * @returns Promise resolving to the texture resource handle
    */
   createCompressedTexture(
     textureDataArray: TextureData[],
@@ -148,63 +224,94 @@ export interface ICGAPIResourceRepository {
   ): Promise<CGAPIResourceHandle>;
 
   /**
-   * create a Vertex Buffer
-   * @param accessor
-   * @returns a CGAPIResourceHandle
+   * Creates a vertex buffer from an accessor containing vertex data.
+   * The accessor provides metadata about the data layout and type information.
+   *
+   * @param accessor - Accessor containing vertex data and metadata
+   * @returns The vertex buffer resource handle
    */
   createVertexBuffer(accessor: Accessor): CGAPIResourceHandle;
 
   /**
-   * create a Vertex Buffer
-   * @param typedArray - a typed array
-   * @returns a CGAPIResourceHandle
+   * Creates a vertex buffer directly from a typed array.
+   * This is a more direct approach when you have raw vertex data without accessor metadata.
+   *
+   * @param typedArray - The typed array containing vertex data
+   * @returns The vertex buffer resource handle
    */
   createVertexBufferFromTypedArray(typedArray: TypedArray): CGAPIResourceHandle;
 
   /**
-   * create a Index Buffer
-   * @param accessor - an accessor
-   * @returns a CGAPIResourceHandle
+   * Creates an index buffer from an accessor containing index data.
+   * Index buffers are used to define the order in which vertices are processed.
+   *
+   * @param accessor - Accessor containing index data and metadata
+   * @returns The index buffer resource handle
    */
   createIndexBuffer(accessor: Accessor): CGAPIResourceHandle;
 
   /**
-   * create a Vertex Buffer and Index Buffer
-   * @param primitive
+   * Creates both vertex and index buffers for a primitive geometry.
+   * This is a convenience method that handles the creation of all necessary buffers
+   * for rendering a geometric primitive.
+   *
+   * @param primitive - The primitive geometry containing vertex and index data
+   * @returns Object containing handles for all created vertex-related resources
    */
   createVertexBufferAndIndexBuffer(primitive: Primitive): VertexHandles;
 
   /**
-   * update a Vertex Buffer
+   * Updates an existing vertex buffer with new data from an accessor.
+   * This allows for dynamic modification of vertex data without recreating the buffer.
+   *
+   * @param accessor - Accessor containing the new vertex data
+   * @param resourceHandle - Handle to the existing vertex buffer to update
    */
   updateVertexBuffer(accessor: Accessor, resourceHandle: CGAPIResourceHandle): void;
 
   /**
-   * update a Index Buffer
+   * Updates an existing index buffer with new data from an accessor.
+   * This allows for dynamic modification of index data without recreating the buffer.
+   *
+   * @param accessor - Accessor containing the new index data
+   * @param resourceHandle - Handle to the existing index buffer to update
    */
   updateIndexBuffer(accessor: Accessor, resourceHandle: CGAPIResourceHandle): void;
 
   /**
-   * update the VertexBuffer and IndexBuffer
-   * @param primitive
-   * @param vertexHandles
+   * Updates both vertex and index buffers for a primitive geometry.
+   * This is a convenience method for updating all vertex-related data at once.
+   *
+   * @param primitive - The primitive geometry containing updated vertex and index data
+   * @param vertexHandles - Object containing handles to the buffers to update
    */
   updateVertexBufferAndIndexBuffer(primitive: Primitive, vertexHandles: VertexHandles): void;
 
   /**
-   * delete the Vertex Data resources
-   * @param vertexHandles
+   * Deletes all vertex-related resources (vertex buffers, index buffers, VAOs).
+   * This method ensures proper cleanup of all resources associated with vertex data.
+   *
+   * @param vertexHandles - Object containing handles to all vertex-related resources to delete
    */
   deleteVertexDataResources(vertexHandles: VertexHandles): void;
 
   /**
-   * delete a Vertex Buffer
-   * @param resourceHandle - a CGAPIResourceHandle
+   * Deletes a specific vertex buffer resource.
+   *
+   * @param resourceHandle - Handle to the vertex buffer to delete
    */
   deleteVertexBuffer(resourceHandle: CGAPIResourceHandle): void;
 
   /**
-   * set the VertexData to the Pipeline
+   * Configures the graphics pipeline with vertex data for rendering.
+   * This method sets up the vertex array object (VAO) and binds the necessary buffers.
+   *
+   * @param bufferHandles - Object containing buffer handles
+   * @param bufferHandles.vaoHandle - Vertex Array Object handle
+   * @param bufferHandles.iboHandle - Index Buffer Object handle (optional)
+   * @param bufferHandles.vboHandles - Array of Vertex Buffer Object handles
+   * @param primitive - The primitive geometry defining vertex layout
+   * @param instanceIDBufferUid - Handle to instance ID buffer for instanced rendering
    */
   setVertexDataToPipeline(
     {
@@ -221,8 +328,18 @@ export interface ICGAPIResourceRepository {
   ): void;
 
   /**
-   * Create a shader program
-   * @return a shader program handle
+   * Creates a shader program from vertex and fragment shader source code.
+   * This method compiles, links, and validates the shader program for use in rendering.
+   *
+   * @param options - Shader program creation parameters
+   * @param options.material - Material that will use this shader program
+   * @param options.primitive - Primitive geometry that will be rendered with this shader
+   * @param options.vertexShaderStr - Vertex shader source code
+   * @param options.fragmentShaderStr - Fragment shader source code
+   * @param options.attributeNames - Names of vertex attributes
+   * @param options.attributeSemantics - Semantic meanings of vertex attributes
+   * @param options.onError - Optional error callback for compilation/linking errors
+   * @returns The shader program resource handle
    */
   createShaderProgram({
     material,
@@ -242,6 +359,16 @@ export interface ICGAPIResourceRepository {
     onError?: (message: string) => void;
   }): CGAPIResourceHandle;
 
+  /**
+   * Creates a cube texture from image files with automatic loading.
+   * This method handles the loading and assembly of 6 cube faces from file sources.
+   *
+   * @param baseUri - Base URI for the cube texture files
+   * @param mipLevelCount - Number of mipmap levels to generate
+   * @param isNamePosNeg - Whether to use positive/negative naming convention
+   * @param hdriFormat - HDRI format specification for high dynamic range textures
+   * @returns Promise resolving to a tuple of [texture handle, sampler]
+   */
   createCubeTextureFromFiles(
     baseUri: string,
     mipLevelCount: Count,
@@ -250,12 +377,15 @@ export interface ICGAPIResourceRepository {
   ): Promise<[number, Sampler]>;
 
   /**
-   * allocate a Texture
-   * @param format - the format of the texture
-   * @param width - the width of the texture
-   * @param height - the height of the texture
-   * @param mipmapCount - the number of mipmap levels
-   * @returns the handle of the texture
+   * Allocates a texture with specified dimensions and format without initial data.
+   * This creates an empty texture that can be filled later or used as a render target.
+   *
+   * @param options - Texture allocation parameters
+   * @param options.format - Internal texture format
+   * @param options.width - Texture width in pixels
+   * @param options.height - Texture height in pixels
+   * @param options.mipLevelCount - Number of mipmap levels to allocate
+   * @returns The texture resource handle
    */
   allocateTexture({
     format,
@@ -270,16 +400,20 @@ export interface ICGAPIResourceRepository {
   }): CGAPIResourceHandle;
 
   /**
-   * Load an image to a specific mip level of a texture
-   * @param mipLevel - the mip level to load the image to
-   * @param textureUid - the handle of the texture
-   * @param format - the format of the image
-   * @param type - the type of the data
-   * @param xOffset - the x offset of copy region
-   * @param yOffset - the y offset of copy region
-   * @param width - the width of the image
-   * @param height - the height of the image
-   * @param data - the typedarray data of the image
+   * Loads image data to a specific mipmap level of an existing texture.
+   * This method allows for partial texture updates and mipmap level management.
+   *
+   * @param options - Image loading parameters
+   * @param options.mipLevel - Target mipmap level
+   * @param options.textureUid - Handle to the target texture
+   * @param options.format - Format of the source image data
+   * @param options.type - Data type of the source image
+   * @param options.xOffset - X offset within the texture for the copy region
+   * @param options.yOffset - Y offset within the texture for the copy region
+   * @param options.width - Width of the image data to copy
+   * @param options.height - Height of the image data to copy
+   * @param options.rowSizeByPixel - Size of each row in pixels
+   * @param options.data - The actual image data as a typed array
    */
   loadImageToMipLevelOfTexture2D({
     mipLevel,
@@ -306,7 +440,14 @@ export interface ICGAPIResourceRepository {
   }): void;
 
   /**
-   * create a Cube Texture
+   * Creates a cube texture from provided image data for all six faces.
+   * This method assembles a complete cube texture from individual face images.
+   *
+   * @param mipLevelCount - Number of mipmap levels to generate
+   * @param images - Array of image data objects, each containing all six cube faces
+   * @param width - Width of each cube face in pixels
+   * @param height - Height of each cube face in pixels
+   * @returns Tuple containing [texture handle, sampler]
    */
   createCubeTexture(
     mipLevelCount: Count,
@@ -322,6 +463,21 @@ export interface ICGAPIResourceRepository {
     height: Size
   ): [number, Sampler];
 
+  /**
+   * Creates a texture sampler with specified filtering and wrapping parameters.
+   * Samplers define how textures are filtered and addressed during rendering.
+   *
+   * @param options - Sampler creation parameters
+   * @param options.magFilter - Magnification filter mode
+   * @param options.minFilter - Minification filter mode
+   * @param options.wrapS - Texture wrapping mode for S coordinate
+   * @param options.wrapT - Texture wrapping mode for T coordinate
+   * @param options.wrapR - Texture wrapping mode for R coordinate
+   * @param options.anisotropy - Whether to enable anisotropic filtering
+   * @param options.isPremultipliedAlpha - Whether the texture uses premultiplied alpha
+   * @param options.shadowCompareMode - Whether to enable shadow comparison mode
+   * @returns The texture sampler resource handle
+   */
   createTextureSampler({
     magFilter,
     minFilter,
@@ -343,10 +499,20 @@ export interface ICGAPIResourceRepository {
   }): CGAPIResourceHandle;
 
   /**
-   * create a Texture
-   * @param imageData
-   * @param param1
-   * @returns
+   * Creates a texture from an HTML image element with specified parameters.
+   * This method handles the conversion of HTML image elements to GPU textures.
+   *
+   * @param imageData - The HTML image element containing the texture data
+   * @param options - Texture creation parameters
+   * @param options.level - Mipmap level (typically 0 for base level)
+   * @param options.internalFormat - Internal texture format for GPU storage
+   * @param options.width - Texture width in pixels
+   * @param options.height - Texture height in pixels
+   * @param options.border - Border width (typically 0)
+   * @param options.format - Pixel data format
+   * @param options.type - Component data type
+   * @param options.generateMipmap - Whether to automatically generate mipmaps
+   * @returns Promise resolving to the texture resource handle
    */
   createTextureFromHTMLImageElement(
     imageData: HTMLImageElement,
@@ -371,6 +537,20 @@ export interface ICGAPIResourceRepository {
     }
   ): Promise<CGAPIResourceHandle>;
 
+  /**
+   * Creates a texture from a data URI string.
+   * This method decodes base64-encoded image data and creates a GPU texture.
+   *
+   * @param dataUri - The data URI string containing encoded image data
+   * @param options - Texture creation parameters
+   * @param options.level - Mipmap level (typically 0 for base level)
+   * @param options.internalFormat - Internal texture format for GPU storage
+   * @param options.border - Border width (typically 0)
+   * @param options.format - Pixel data format
+   * @param options.type - Component data type
+   * @param options.generateMipmap - Whether to automatically generate mipmaps
+   * @returns Promise resolving to the texture resource handle
+   */
   createTextureFromDataUri(
     dataUri: string,
     {
@@ -389,10 +569,17 @@ export interface ICGAPIResourceRepository {
       generateMipmap: boolean;
     }
   ): Promise<CGAPIResourceHandle>;
+
   /**
-   * create a RenderTargetTexture
-   * @param param0
-   * @returns
+   * Creates a render target texture for off-screen rendering.
+   * This texture can be used as a color attachment in framebuffers for rendering operations.
+   *
+   * @param options - Render target creation parameters
+   * @param options.width - Texture width in pixels
+   * @param options.height - Texture height in pixels
+   * @param options.mipLevelCount - Number of mipmap levels
+   * @param options.format - Internal texture format
+   * @returns The render target texture resource handle
    */
   createRenderTargetTexture({
     width,
@@ -407,9 +594,18 @@ export interface ICGAPIResourceRepository {
   }): CGAPIResourceHandle;
 
   /**
-   * create a RenderTargetTextureArray
-   * @param param0
-   * @returns
+   * Creates a render target texture array for layered rendering.
+   * This allows rendering to multiple texture layers in a single pass.
+   *
+   * @param options - Render target array creation parameters
+   * @param options.width - Texture width in pixels
+   * @param options.height - Texture height in pixels
+   * @param options.level - Mipmap level
+   * @param options.internalFormat - Internal texture format
+   * @param options.format - Pixel data format
+   * @param options.type - Component data type
+   * @param options.arrayLength - Number of texture layers
+   * @returns The render target texture array resource handle
    */
   createRenderTargetTextureArray({
     width,
@@ -430,9 +626,15 @@ export interface ICGAPIResourceRepository {
   }): CGAPIResourceHandle;
 
   /**
-   * create a RenderTargetTextureCube
-   * @param param0
-   * @returns
+   * Creates a render target cube texture for environment mapping and shadow mapping.
+   * This allows rendering to all six faces of a cube texture.
+   *
+   * @param options - Render target cube creation parameters
+   * @param options.width - Texture width in pixels
+   * @param options.height - Texture height in pixels
+   * @param options.mipLevelCount - Number of mipmap levels
+   * @param options.format - Internal texture format
+   * @returns The render target cube texture resource handle
    */
   createRenderTargetTextureCube({
     width,
@@ -447,15 +649,18 @@ export interface ICGAPIResourceRepository {
   }): CGAPIResourceHandle;
 
   /**
-   * create a TextureArray
-   * @param width
-   * @param height
-   * @param arrayLength
-   * @param mipLevelCount
-   * @param internalFormat
-   * @param format
-   * @param type
-   * @returns texture handle
+   * Creates a texture array from provided image data.
+   * Texture arrays allow efficient rendering of multiple related textures.
+   *
+   * @param width - Texture width in pixels
+   * @param height - Texture height in pixels
+   * @param arrayLength - Number of textures in the array
+   * @param mipLevelCount - Number of mipmap levels
+   * @param internalFormat - Internal texture format
+   * @param format - Pixel data format
+   * @param type - Component data type
+   * @param imageData - The texture data as a typed array
+   * @returns The texture array resource handle
    */
   createTextureArray(
     width: Size,
@@ -469,21 +674,43 @@ export interface ICGAPIResourceRepository {
   ): CGAPIResourceHandle;
 
   /**
-   * delete a Texture
-   * @param textureHandle
+   * Deletes a texture resource and frees associated GPU memory.
+   *
+   * @param textureHandle - Handle to the texture to delete
    */
   deleteTexture(textureHandle: CGAPIResourceHandle): void;
 
   /**
-   * generate Mipmaps
+   * Generates mipmaps for a 2D texture.
+   * Mipmaps improve rendering quality and performance by providing pre-filtered texture versions.
+   *
+   * @param textureHandle - Handle to the texture
+   * @param width - Base texture width in pixels
+   * @param height - Base texture height in pixels
    */
   generateMipmaps2d(textureHandle: CGAPIResourceHandle, width: number, height: number): void;
 
   /**
-   * generate Mipmaps
+   * Generates mipmaps for a cube texture.
+   * This creates mipmaps for all six faces of the cube texture.
+   *
+   * @param textureHandle - Handle to the cube texture
+   * @param width - Base texture width in pixels
+   * @param height - Base texture height in pixels
    */
   generateMipmapsCube(textureHandle: CGAPIResourceHandle, width: number, height: number): void;
 
+  /**
+   * Reads pixel data from a texture attached to a framebuffer.
+   * This allows CPU access to rendered texture data for analysis or processing.
+   *
+   * @param textureHandle - Handle to the texture to read from
+   * @param width - Width of the region to read
+   * @param height - Height of the region to read
+   * @param frameBufferUid - Handle to the framebuffer containing the texture
+   * @param colorAttachmentIndex - Index of the color attachment to read from
+   * @returns Promise resolving to the pixel data as a Uint8Array
+   */
   getTexturePixelData(
     textureHandle: CGAPIResourceHandle,
     width: number,
@@ -493,16 +720,20 @@ export interface ICGAPIResourceRepository {
   ): Promise<Uint8Array>;
 
   /**
-   * create a FrameBufferObject
-   * @returns
+   * Creates a framebuffer object for off-screen rendering.
+   * Framebuffers allow rendering to textures instead of the default screen buffer.
+   *
+   * @returns The framebuffer object resource handle
    */
   createFrameBufferObject(): CGAPIResourceHandle;
 
   /**
-   * attach the ColorBuffer to the FrameBufferObject
-   * @param framebuffer a Framebuffer
-   * @param attachmentIndex a attachment index
-   * @param renderable a ColorBuffer
+   * Attaches a color buffer (texture or renderbuffer) to a framebuffer object.
+   * This allows the framebuffer to render color data to the attached buffer.
+   *
+   * @param framebuffer - The target framebuffer
+   * @param attachmentIndex - Color attachment index (0-based)
+   * @param renderable - The color buffer to attach
    */
   attachColorBufferToFrameBufferObject(
     framebuffer: FrameBuffer,
@@ -511,12 +742,14 @@ export interface ICGAPIResourceRepository {
   ): void;
 
   /**
-   * attach the ColorBuffer to the FrameBufferObject
-   * @param framebuffer a Framebuffer
-   * @param attachmentIndex a attachment index
-   * @param renderable a ColorBuffer
-   * @param layerIndex a layer index
-   * @param mipLevel a mip level
+   * Attaches a specific layer of a texture array as a color buffer to a framebuffer.
+   * This enables layered rendering to texture arrays.
+   *
+   * @param framebuffer - The target framebuffer
+   * @param attachmentIndex - Color attachment index (0-based)
+   * @param renderable - The texture array to attach
+   * @param layerIndex - Index of the layer to attach
+   * @param mipLevel - Mipmap level to attach
    */
   attachColorBufferLayerToFrameBufferObject(
     framebuffer: FrameBuffer,
@@ -527,12 +760,14 @@ export interface ICGAPIResourceRepository {
   ): void;
 
   /**
-   * attach the ColorBuffer to the FrameBufferObject
-   * @param framebuffer a Framebuffer
-   * @param attachmentIndex a attachment index
-   * @param faceIndex a face index
-   * @param mipLevel a mip level
-   * @param renderable a ColorBuffer
+   * Attaches a specific face of a cube texture as a color buffer to a framebuffer.
+   * This enables rendering to individual faces of cube textures.
+   *
+   * @param framebuffer - The target framebuffer
+   * @param attachmentIndex - Color attachment index (0-based)
+   * @param faceIndex - Cube face index (0-5)
+   * @param mipLevel - Mipmap level to attach
+   * @param renderable - The cube texture to attach
    */
   attachColorBufferCubeToFrameBufferObject(
     framebuffer: FrameBuffer,
@@ -543,7 +778,15 @@ export interface ICGAPIResourceRepository {
   ): void;
 
   /**
-   * create a Renderbuffer
+   * Creates a renderbuffer for use as a framebuffer attachment.
+   * Renderbuffers are optimized for use as render targets but cannot be sampled as textures.
+   *
+   * @param width - Renderbuffer width in pixels
+   * @param height - Renderbuffer height in pixels
+   * @param internalFormat - Internal format of the renderbuffer
+   * @param isMSAA - Whether to enable multi-sample anti-aliasing
+   * @param sampleCountMSAA - Number of MSAA samples (if MSAA is enabled)
+   * @returns The renderbuffer resource handle
    */
   createRenderBuffer(
     width: Size,
@@ -554,29 +797,36 @@ export interface ICGAPIResourceRepository {
   ): CGAPIResourceHandle;
 
   /**
-   * delete a RenderBuffer
-   * @param renderBufferUid
+   * Deletes a renderbuffer resource and frees associated GPU memory.
+   *
+   * @param renderBufferUid - Handle to the renderbuffer to delete
    */
   deleteRenderBuffer(renderBufferUid: CGAPIResourceHandle): void;
 
   /**
-   * attach the DepthBuffer to the FrameBufferObject
-   * @param framebuffer a Framebuffer
-   * @param renderable a DepthBuffer
+   * Attaches a depth buffer to a framebuffer object.
+   * The depth buffer stores per-pixel depth information for depth testing.
+   *
+   * @param framebuffer - The target framebuffer
+   * @param renderable - The depth buffer to attach
    */
   attachDepthBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable): void;
 
   /**
-   * attach the StencilBuffer to the FrameBufferObject
-   * @param framebuffer a Framebuffer
-   * @param renderable a StencilBuffer
+   * Attaches a stencil buffer to a framebuffer object.
+   * The stencil buffer enables stencil testing for advanced rendering effects.
+   *
+   * @param framebuffer - The target framebuffer
+   * @param renderable - The stencil buffer to attach
    */
   attachStencilBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable): void;
 
   /**
-   * attach the depthStencilBuffer to the FrameBufferObject
-   * @param framebuffer a Framebuffer
-   * @param renderable a depthStencilBuffer
+   * Attaches a combined depth-stencil buffer to a framebuffer object.
+   * This is more efficient than separate depth and stencil buffers when both are needed.
+   *
+   * @param framebuffer - The target framebuffer
+   * @param renderable - The depth-stencil buffer to attach
    */
   attachDepthStencilBufferToFrameBufferObject(
     framebuffer: FrameBuffer,
@@ -584,12 +834,25 @@ export interface ICGAPIResourceRepository {
   ): void;
 
   /**
-   * delete a FrameBufferObject
-   * @param frameBufferObjectHandle
+   * Deletes a framebuffer object and frees associated resources.
+   *
+   * @param frameBufferObjectHandle - Handle to the framebuffer to delete
    */
   deleteFrameBufferObject(frameBufferObjectHandle: CGAPIResourceHandle): void;
 
+  /**
+   * Checks if the current graphics API supports multi-view VR rendering.
+   * Multi-view rendering allows efficient stereo rendering for VR applications.
+   *
+   * @returns True if multi-view VR rendering is supported, false otherwise
+   */
   isSupportMultiViewVRRendering(): boolean;
 
+  /**
+   * Sets the viewport for rendering operations.
+   * The viewport defines the area of the framebuffer that will be rendered to.
+   *
+   * @param viewport - Optional viewport rectangle as [x, y, width, height]. If not provided, uses full framebuffer
+   */
   setViewport(viewport?: Vector4): void;
 }

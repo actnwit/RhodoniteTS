@@ -5,18 +5,38 @@ import { IQuaternion } from '../../../math/IQuaternion';
 import { Is } from '../../../misc/Is';
 import { IAnimationRetarget } from './AnimationRetarget';
 
+/**
+ * Global retarget reverse implementation for animation retargeting.
+ * This class handles the reverse retargeting of animations from source to destination entities
+ * with global coordinate system considerations and 180-degree rotation reversal.
+ */
 export class GlobalRetargetReverse implements IAnimationRetarget {
   private __srcEntity: ISceneGraphEntity;
   static readonly __rev = Quaternion.fromAxisAngle(Vector3.fromCopy3(0, 1, 0), Math.PI);
 
+  /**
+   * Creates a new GlobalRetargetReverse instance.
+   * @param srcEntity - The source entity from which animation data will be retargeted
+   */
   constructor(srcEntity: ISceneGraphEntity) {
     this.__srcEntity = srcEntity;
   }
 
+  /**
+   * Gets the source entity used for retargeting.
+   * @returns The source scene graph entity
+   */
   getEntity(): ISceneGraphEntity {
     return this.__srcEntity;
   }
 
+  /**
+   * Gets the parent global rest quaternion for the source entity.
+   * This method traverses up the hierarchy to find the parent's rest rotation
+   * for entities that have VRM components.
+   * @param srcEntity - The source entity to get parent global rest quaternion for
+   * @returns The parent global rest quaternion, or identity quaternion if no parent exists
+   */
   getSrcPGRestQ(srcEntity: ISceneGraphEntity) {
 
     let srcPGRestQ: IQuaternion;
@@ -32,6 +52,13 @@ export class GlobalRetargetReverse implements IAnimationRetarget {
     return srcPGRestQ;
   }
 
+  /**
+   * Gets the parent global rest quaternion for the destination entity.
+   * This method traverses up the hierarchy to find the parent's rest rotation
+   * for entities that have VRM components.
+   * @param dstEntity - The destination entity to get parent global rest quaternion for
+   * @returns The parent global rest quaternion, or identity quaternion if no parent exists
+   */
   getDstPGRestQ(dstEntity: ISceneGraphEntity) {
     let dstPGRestQ: IQuaternion;
     const parent = dstEntity.getSceneGraph().parent;
@@ -46,6 +73,14 @@ export class GlobalRetargetReverse implements IAnimationRetarget {
     return dstPGRestQ;
   }
 
+  /**
+   * Retargets the quaternion rotation from source entity to destination entity.
+   * This method extracts the global animation quaternion from the source entity,
+   * then applies it to the destination entity's local coordinate system with
+   * a 180-degree Y-axis rotation reversal.
+   * @param dstEntity - The destination entity to apply the retargeted rotation to
+   * @returns The retargeted quaternion with reverse rotation applied
+   */
   retargetQuaternion(dstEntity: ISceneGraphEntity): IQuaternion {
     const srcEntity = this.__srcEntity;
 
@@ -79,6 +114,14 @@ export class GlobalRetargetReverse implements IAnimationRetarget {
     return tgtPoseQRev;
   }
 
+  /**
+   * Retargets the translation from source entity to destination entity.
+   * This method extracts the global animation translation from the source entity,
+   * scales it according to the destination entity's proportions, then applies
+   * a 180-degree Y-axis rotation reversal.
+   * @param dstEntity - The destination entity to apply the retargeted translation to
+   * @returns The retargeted translation vector with reverse rotation applied
+   */
   retargetTranslate(dstEntity: ISceneGraphEntity): IVector3 {
     const srcEntity = this.__srcEntity;
 
@@ -103,6 +146,13 @@ export class GlobalRetargetReverse implements IAnimationRetarget {
     return dstPoseTRev;
   }
 
+  /**
+   * Retargets the scale from source entity to destination entity.
+   * Currently, this method simply returns the source entity's local scale
+   * without any modifications or transformations.
+   * @param dstEntity - The destination entity (currently unused)
+   * @returns The source entity's local scale vector
+   */
   retargetScale(dstEntity: ISceneGraphEntity): IVector3 {
     const srcEntity = this.__srcEntity;
 

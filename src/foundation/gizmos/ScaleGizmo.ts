@@ -30,7 +30,9 @@ import { Gizmo } from './Gizmo';
 declare let window: any;
 
 /**
- * Translation Gizmo class
+ * Scale Gizmo class for handling object scaling operations in 3D space
+ * Provides interactive handles for scaling objects along individual axes (X, Y, Z)
+ * or within specific planes (XY, YZ, ZX) in both local and world coordinate spaces
  */
 export class ScaleGizmo extends Gizmo {
   private static __groupEntity: ISceneGraphEntity;
@@ -82,8 +84,8 @@ export class ScaleGizmo extends Gizmo {
   private __onPointerUpFunc = this.__onPointerUp.bind(this);
 
   /**
-   * Constructor
-   * @param target the object which this gizmo belong to
+   * Creates a new ScaleGizmo instance
+   * @param target - The mesh entity that this gizmo will control
    */
   constructor(target: IMeshEntity) {
     super(target);
@@ -95,6 +97,10 @@ export class ScaleGizmo extends Gizmo {
   ///
   ///
 
+  /**
+   * Checks if the gizmo has been properly set up and initialized
+   * @returns True if the gizmo is set up, false otherwise
+   */
   get isSetup(): boolean {
     if (this.__topEntity != null) {
       return true;
@@ -103,14 +109,26 @@ export class ScaleGizmo extends Gizmo {
     }
   }
 
+  /**
+   * Sets the length of the gizmo handles
+   * @param val - The length value to set
+   */
   set length(val: number) {
     ScaleGizmo.__length = val;
   }
 
+  /**
+   * Gets the current length of the gizmo handles
+   * @returns The current length value
+   */
   get length(): number {
     return ScaleGizmo.__length;
   }
 
+  /**
+   * Sets the visibility of the gizmo and manages input event registration
+   * @param flg - True to show the gizmo, false to hide it
+   */
   set isVisible(flg: boolean) {
     if (this.__isVisible === false && flg === true) {
       let eventTargetDom = window;
@@ -178,6 +196,10 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__zxPlaneEntity.getSceneGraph().isVisible = false;
   }
 
+  /**
+   * Sets the coordinate space for gizmo operations
+   * @param space - The coordinate space to use ('local' or 'world')
+   */
   setSpace(space: 'local' | 'world') {
     ScaleGizmo.__space = space;
     if (this.__isVisible) {
@@ -186,6 +208,10 @@ export class ScaleGizmo extends Gizmo {
     }
   }
 
+  /**
+   * Gets the current visibility state of the gizmo
+   * @returns True if the gizmo is visible, false otherwise
+   */
   get isVisible(): boolean {
     return this.__isVisible;
   }
@@ -198,7 +224,8 @@ export class ScaleGizmo extends Gizmo {
 
   /**
    * @internal
-   * setup entities of Gizmo if not done yet
+   * Sets up the gizmo entities and their visual components if not already done
+   * Creates all necessary meshes, materials, and entity hierarchies for the scale gizmo
    */
   _setup(): void {
     if (this.__toSkipSetup()) {
@@ -273,6 +300,10 @@ export class ScaleGizmo extends Gizmo {
     this.setGizmoTag();
   }
 
+  /**
+   * Creates the ZX plane entity for plane-based scaling operations
+   * @private
+   */
   private zxPlane() {
     ScaleGizmo.__zxPlaneEntity = createMeshEntity();
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_zxPlane', true);
@@ -301,6 +332,10 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__zxPlaneEntity.getMesh().setMesh(ScaleGizmo.__zxPlaneMesh);
   }
 
+  /**
+   * Creates the YZ plane entity for plane-based scaling operations
+   * @private
+   */
   private yzPlane() {
     ScaleGizmo.__yzPlaneEntity = createMeshEntity();
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_yzPlane', true);
@@ -332,6 +367,10 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__yzPlaneEntity.getMesh().setMesh(ScaleGizmo.__yzPlaneMesh);
   }
 
+  /**
+   * Creates the XY plane entity for plane-based scaling operations
+   * @private
+   */
   private xyPlane() {
     ScaleGizmo.__xyPlaneEntity = createMeshEntity();
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_xyPlane', true);
@@ -363,6 +402,10 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__xyPlaneEntity.getMesh().setMesh(ScaleGizmo.__xyPlaneMesh);
   }
 
+  /**
+   * Creates the Z-axis scaling handle mesh and entity
+   * @private
+   */
   private zMesh() {
     ScaleGizmo.__zCubeEntity = createMeshEntity();
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_zCube', true);
@@ -382,6 +425,10 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__zCubeEntity.getMesh().setMesh(ScaleGizmo.__zCubeMesh);
   }
 
+  /**
+   * Creates the Y-axis scaling handle mesh and entity
+   * @private
+   */
   private yMesh() {
     ScaleGizmo.__yCubeEntity = createMeshEntity();
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_yCube', true);
@@ -401,6 +448,10 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__yCubeEntity.getMesh().setMesh(ScaleGizmo.__yCubeMesh);
   }
 
+  /**
+   * Creates the X-axis scaling handle mesh and entity
+   * @private
+   */
   private xMesh() {
     ScaleGizmo.__xCubeEntity = createMeshEntity();
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_xCube', true);
@@ -420,6 +471,10 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__xCubeEntity.getMesh().setMesh(ScaleGizmo.__xCubeMesh);
   }
 
+  /**
+   * Creates the X-axis edge cube for enhanced visual feedback
+   * @private
+   */
   private xEdgeMesh() {
     ScaleGizmo.__xEdgeCubeEntity = createMeshEntity();
     ScaleGizmo.__xEdgeCubeEntity.tryToSetUniqueName('ScaleGizmo_xEdgeCube', true);
@@ -436,6 +491,10 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__xCubeEntity.addChild(ScaleGizmo.__xEdgeCubeEntity.getSceneGraph());
   }
 
+  /**
+   * Creates the Y-axis edge cube for enhanced visual feedback
+   * @private
+   */
   private yEdgeMesh() {
     ScaleGizmo.__yEdgeCubeEntity = createMeshEntity();
     ScaleGizmo.__yEdgeCubeEntity.tryToSetUniqueName('ScaleGizmo_yEdgeCube', true);
@@ -452,6 +511,10 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__yCubeEntity.addChild(ScaleGizmo.__yEdgeCubeEntity.getSceneGraph());
   }
 
+  /**
+   * Creates the Z-axis edge cube for enhanced visual feedback
+   * @private
+   */
   private zEdgeMesh() {
     ScaleGizmo.__zEdgeCubeEntity = createMeshEntity();
     ScaleGizmo.__zEdgeCubeEntity.tryToSetUniqueName('ScaleGizmo_zEdgeCube', true);
@@ -470,7 +533,8 @@ export class ScaleGizmo extends Gizmo {
 
   /**
    * @internal
-   * update the transform and etc of the gizmo
+   * Updates the gizmo's transform, scale, and position based on the target entity
+   * Called each frame to maintain proper gizmo positioning and scaling behavior
    */
   _update(): void {
     if (this.__topEntity == null) {
@@ -504,6 +568,11 @@ export class ScaleGizmo extends Gizmo {
   ///
   ///
 
+  /**
+   * Generates a primitive for line-based gizmo visualization
+   * @returns A primitive containing position and color data for axis lines
+   * @private
+   */
   private static __generatePrimitive(): Primitive {
     const positions = new Float32Array([
       // X axis
@@ -551,6 +620,11 @@ export class ScaleGizmo extends Gizmo {
     return primitive;
   }
 
+  /**
+   * Handles pointer down events for initiating scaling operations
+   * @param evt - The pointer event containing input information
+   * @private
+   */
   private __onPointerDown(evt: PointerEvent) {
     evt.preventDefault();
     this.__isPointerDown = true;
@@ -604,6 +678,11 @@ export class ScaleGizmo extends Gizmo {
     }
   }
 
+  /**
+   * Handles pointer move events for performing real-time scaling
+   * @param evt - The pointer event containing current pointer position
+   * @private
+   */
   private __onPointerMove(evt: PointerEvent) {
     evt.preventDefault();
     if (Is.false(this.__isPointerDown)) {
@@ -753,6 +832,11 @@ export class ScaleGizmo extends Gizmo {
     }
   }
 
+  /**
+   * Handles pointer up events for finalizing scaling operations
+   * @param evt - The pointer event indicating the end of interaction
+   * @private
+   */
   private __onPointerUp(evt: PointerEvent) {
     evt.preventDefault();
     this.__isPointerDown = false;
@@ -764,6 +848,12 @@ export class ScaleGizmo extends Gizmo {
     }
   }
 
+  /**
+   * Performs ray casting against the entire gizmo group entity
+   * @param evt - The pointer event containing screen coordinates
+   * @returns Ray casting result for the group entity
+   * @private
+   */
   private static castRay2(evt: PointerEvent) {
     const rect = (evt.target as HTMLElement).getBoundingClientRect();
     const width = (evt.target as HTMLElement).clientWidth;
@@ -781,6 +871,12 @@ export class ScaleGizmo extends Gizmo {
     return result;
   }
 
+  /**
+   * Performs ray casting against individual axis entities to determine interaction
+   * @param evt - The pointer event containing screen coordinates
+   * @returns Object containing ray casting results for X, Y, and Z axes
+   * @private
+   */
   private static castRay(evt: PointerEvent) {
     const rect = (evt.target as HTMLElement).getBoundingClientRect();
     const width = (evt.target as HTMLElement).clientWidth;
@@ -804,6 +900,10 @@ export class ScaleGizmo extends Gizmo {
     return { xResult, yResult, zResult };
   }
 
+  /**
+   * Destroys the gizmo and cleans up associated resources
+   * @internal
+   */
   _destroy(): void {
     if (Is.exist(this.__topEntity)) {
       this.__topEntity._destroy();

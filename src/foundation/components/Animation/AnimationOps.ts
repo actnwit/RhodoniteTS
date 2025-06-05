@@ -31,13 +31,15 @@ import {
 } from '../../math/raw/raw_extension';
 
 /**
- * Compute cubic spline interpolation.
- * @param p_0 starting point
- * @param p_1 ending point
- * @param m_0 inTangent
- * @param m_1 outTangent
- * @param t ratio
- * @param animationAttributeIndex index of attribution
+ * Computes cubic spline interpolation using the Hermite interpolation formula.
+ * This is typically used for smooth animation curves with tangent control.
+ *
+ * @param p0 - Starting point values
+ * @param p1 - Ending point values
+ * @param m0 - Input tangent values at the starting point
+ * @param m1 - Output tangent values at the ending point
+ * @param t - Interpolation parameter (0.0 to 1.0)
+ * @returns Interpolated values as an array
  */
 function cubicSpline(
   p0: Array<number>,
@@ -57,6 +59,19 @@ function cubicSpline(
   return ret;
 }
 
+/**
+ * Prepares the required variables for cubic spline interpolation according to glTF 2.0 specification.
+ * Extracts control points and tangent vectors from the animation output array based on component count.
+ *
+ * In glTF CUBICSPLINE interpolation, data is organized as: a1,a2,…an,v1,v2,…vn,b1,b2,…bn
+ * where 'a' are in-tangents, 'v' are values, and 'b' are out-tangents.
+ *
+ * @param outputArray_ - Animation output data array
+ * @param i - Current keyframe index
+ * @param componentN - Number of components per value (1, 2, 3, 4, or N)
+ * @param t_diff - Time difference between current and next keyframe
+ * @returns Object containing control points and tangent vectors for interpolation
+ */
 function __prepareVariablesForCubicSpline(
   outputArray_: Float32Array | number[],
   i: number,
@@ -128,6 +143,15 @@ function __prepareVariablesForCubicSpline(
   }
 }
 
+/**
+ * Extracts the output value at a specific keyframe from the animation sampler data.
+ * Handles different interpolation methods and component counts appropriately.
+ *
+ * @param keyFrameId - Index of the keyframe to extract
+ * @param sampler - Animation sampler containing the data and metadata
+ * @param array_ - Animation output data array
+ * @returns The extracted value as an array of numbers
+ */
 export function __getOutputValue(
   keyFrameId: Index,
   sampler: AnimationSampler,
@@ -196,6 +220,14 @@ export function __getOutputValue(
   }
 }
 
+/**
+ * Performs binary search to find the keyframe index for a given time value.
+ * This is an efficient O(log n) search algorithm for sorted time arrays.
+ *
+ * @param inputArray - Sorted array of time values
+ * @param currentTime - Time value to search for
+ * @returns Index of the keyframe at or before the current time
+ */
 function binarySearch(inputArray: Float32Array, currentTime: number) {
   let low = 0;
   let high = inputArray.length - 1;
@@ -219,6 +251,15 @@ function binarySearch(inputArray: Float32Array, currentTime: number) {
   return retVal;
 }
 
+/**
+ * Performs brute force linear search to find the keyframe index for a given time value.
+ * This is an O(n) search algorithm that checks each element sequentially.
+ * Less efficient than binary search but useful for small datasets or debugging.
+ *
+ * @param inputArray - Array of time values
+ * @param currentTime - Time value to search for
+ * @returns Index of the keyframe at or before the current time
+ */
 function bruteForceSearch(inputArray: Float32Array, currentTime: number) {
   for (let i = 0; i < inputArray.length; i++) {
     if (inputArray[i] <= currentTime && currentTime < inputArray[i + 1]) {
@@ -228,6 +269,15 @@ function bruteForceSearch(inputArray: Float32Array, currentTime: number) {
   return inputArray.length - 1;
 }
 
+/**
+ * Performs interpolation search to find the keyframe index for a given time value.
+ * This algorithm assumes uniform distribution of time values and can be more efficient
+ * than binary search in such cases, with average O(log log n) complexity.
+ *
+ * @param inputArray - Sorted array of time values
+ * @param currentTime - Time value to search for
+ * @returns Index of the keyframe at or before the current time
+ */
 function interpolationSearch(inputArray: Float32Array | number[], currentTime: number) {
   let mid = 0;
   let lower = 0;
@@ -256,6 +306,17 @@ function interpolationSearch(inputArray: Float32Array | number[], currentTime: n
   return retVal;
 }
 
+/**
+ * Performs linear interpolation between two keyframes based on animation attribute type.
+ * Handles different data types including quaternions, vectors, scalars, and weights.
+ *
+ * @param data_ - Animation output data array
+ * @param ratio - Interpolation ratio (0.0 to 1.0)
+ * @param animationAttributeIndex - Type of animation attribute being interpolated
+ * @param i - Index of the first keyframe
+ * @param outputComponentN - Number of components per value
+ * @returns Interpolated value as an array or scalar
+ */
 function __lerp(
   data_: Float32Array | number[],
   ratio: number,
@@ -289,6 +350,15 @@ function __lerp(
   }
 }
 
+/**
+ * Interpolates animation values at a specific time using the specified interpolation method.
+ * Supports linear, step, and cubic spline interpolation methods according to glTF 2.0 specification.
+ *
+ * @param sampler - Animation sampler containing input/output data and interpolation settings
+ * @param currentTime - Time value to interpolate at
+ * @param animationAttributeIndex - Type of animation attribute being interpolated
+ * @returns Interpolated animation values as an array
+ */
 export function __interpolate(
   sampler: AnimationSampler,
   currentTime: number,

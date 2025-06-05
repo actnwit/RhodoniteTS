@@ -69,6 +69,26 @@ interface KTX2GlobalDataBasisLZImageDesc {
 
 declare const MSC_TRANSCODER: MSC_TRANSCODER;
 
+/**
+ * A texture loader for KTX2 format files that handles transcoding of compressed texture data.
+ *
+ * KTX2 is a container format for GPU textures that supports various compression formats
+ * including Basis Universal (ETC1S and UASTC). This loader can transcode KTX2 textures
+ * to device-specific formats based on available GPU extensions.
+ *
+ * The loader supports:
+ * - ETC1S and UASTC4x4 compressed formats
+ * - Multiple target formats (ASTC, BC, ETC, PVRTC, etc.)
+ * - ZSTD supercompression
+ * - Mipmap generation
+ * - Both WebGL and WebGPU rendering contexts
+ *
+ * @example
+ * ```typescript
+ * const loader = KTX2TextureLoader.getInstance();
+ * const textureData = await loader.transcode(ktx2ArrayBuffer);
+ * ```
+ */
 export class KTX2TextureLoader {
   private static __instance: KTX2TextureLoader;
 
@@ -78,6 +98,12 @@ export class KTX2TextureLoader {
 
   private __mscTranscoderPromise: Promise<void>;
 
+  /**
+   * Creates a new KTX2TextureLoader instance.
+   *
+   * Initializes the MSC transcoder module required for texture transcoding.
+   * Logs an error if the MSC_TRANSCODER function is not available.
+   */
   constructor() {
     if (typeof MSC_TRANSCODER === 'undefined') {
       Logger.error(
@@ -87,8 +113,11 @@ export class KTX2TextureLoader {
     this.__mscTranscoderPromise = this.__loadMSCTranscoder();
   }
 
-  // ----- Public Methods -----------------------------------------------------
-
+  /**
+   * Gets the singleton instance of KTX2TextureLoader.
+   *
+   * @returns The singleton KTX2TextureLoader instance
+   */
   static getInstance() {
     if (!this.__instance) {
       this.__instance = new KTX2TextureLoader();
@@ -96,6 +125,22 @@ export class KTX2TextureLoader {
     return this.__instance;
   }
 
+  /**
+   * Transcodes a KTX2 texture from the provided byte array.
+   *
+   * This method parses the KTX2 container, validates its format constraints,
+   * and transcodes the texture data to a format suitable for the current GPU.
+   *
+   * @param uint8Array - The KTX2 texture data as a Uint8Array
+   * @returns A promise that resolves to the transcoded texture data
+   * @throws Error if the texture format is not supported (3D textures, array textures, or cube textures)
+   *
+   * @example
+   * ```typescript
+   * const ktx2Data = new Uint8Array(buffer);
+   * const textureData = await loader.transcode(ktx2Data);
+   * ```
+   */
   transcode(uint8Array: Uint8Array) {
     const ktx2Container = this.__parse(uint8Array);
 
@@ -128,10 +173,16 @@ export class KTX2TextureLoader {
     }
   }
 
-  // ----- Private Methods ----------------------------------------------------
-
+  /**
+   * Loads and initializes the MSC (Basis Universal) transcoder module.
+   *
+   * This method ensures the transcoder is loaded only once and initializes
+   * the transcoder functions required for texture decompression.
+   *
+   * @returns A promise that resolves when the transcoder is ready
+   * @private
+   */
   private __loadMSCTranscoder(): Promise<void> {
-    // load msc_basis_transcoder once
     return new Promise((resolve) => {
       if (KTX2TextureLoader.__mscTranscoderModule) {
         resolve();
@@ -145,6 +196,17 @@ export class KTX2TextureLoader {
     });
   }
 
+  /**
+   * Determines the optimal transcoding parameters for WebGL contexts.
+   *
+   * Analyzes available WebGL extensions to select the best compression format
+   * and transcoding target based on GPU capabilities. Prioritizes formats in
+   * order of quality: ASTC > BPTC > S3TC > PVRTC > ETC2 > ETC1 > RGBA32.
+   *
+   * @param hasAlpha - Whether the texture contains alpha channel data
+   * @returns An object containing the transcoding target string and compression type
+   * @private
+   */
   private __getDeviceDependentParametersWebGL(hasAlpha: boolean) {
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webGLResourceRepository.currentWebGLContextWrapper as WebGLContextWrapper;
@@ -198,6 +260,18 @@ export class KTX2TextureLoader {
 
     return { transcodeTargetStr, compressionTextureType };
   }
+
+  /**
+   * Determines the optimal transcoding parameters for WebGPU contexts.
+   *
+   * Analyzes available WebGPU texture compression features to select the best
+   * compression format and transcoding target. Prioritizes formats in order
+   * of quality: ASTC > BC (S3TC) > ETC2 > RGBA32.
+   *
+   * @param hasAlpha - Whether the texture contains alpha channel data
+   * @returns An object containing the transcoding target string and compression type
+   * @private
+   */
   private __getDeviceDependentParametersWebGPU(hasAlpha: boolean) {
     const webGpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
     const adapter = webGpuResourceRepository.getWebGpuDeviceWrapper().gpuAdapter;
@@ -235,11 +309,35 @@ export class KTX2TextureLoader {
     return { transcodeTargetStr, compressionTextureType };
   }
 
+  /**
+   * Parses a KTX2 container from the provided byte array.
+   *
+   * Uses the ktx-parse library to read and validate the KTX2 file format.
+   * The parser automatically detects invalid identifiers and throws errors
+   * for malformed files.
+   *
+   * @param uint8Array - The raw KTX2 file data
+   * @returns The parsed KTX2 container with all metadata and texture data
+   * @private
+   */
   private __parse(uint8Array: Uint8Array): KTX2Container {
-    // The parser can detect an invalid identifier.
     return read(uint8Array);
   }
 
+  /**
+   * Transcodes the texture data from the KTX2 container to the target format.
+   *
+   * This method handles the core transcoding logic, including:
+   * - Determining the source compression format (ETC1S or UASTC4x4)
+   * - Selecting the appropriate transcoder and target format
+   * - Processing all mipmap levels
+   * - Handling ZSTD decompression if needed
+   * - Managing Basis Universal palette and table data for ETC1S
+   *
+   * @param ktx2Container - The parsed KTX2 container
+   * @returns The transcoded texture data with all mipmap levels
+   * @private
+   */
   private __transcodeData(ktx2Container: KTX2Container) {
     const width = ktx2Container.pixelWidth;
     const height = ktx2Container.pixelHeight;
@@ -320,12 +418,12 @@ export class KTX2TextureLoader {
           ] as KTX2GlobalDataBasisLZImageDesc;
 
           faceBuffer = new Uint8Array(
-            levelBuffer,
+            levelBuffer as unknown as ArrayBuffer,
             imageDesc.rgbSliceByteOffset,
             imageDesc.rgbSliceByteLength + imageDesc.alphaSliceByteLength
           );
         } else {
-          faceBuffer = new Uint8Array(levelBuffer, faceBufferByteOffset, levelBufferByteLength);
+          faceBuffer = new Uint8Array(levelBuffer as unknown as ArrayBuffer, faceBufferByteOffset, levelBufferByteLength);
           faceBufferByteOffset += levelBufferByteLength;
         }
 
@@ -390,6 +488,17 @@ export class KTX2TextureLoader {
     return transcodedData;
   }
 
+  /**
+   * Determines whether the texture contains alpha channel data.
+   *
+   * For UASTC4x4 format, checks if the channel ID indicates RGBA data.
+   * For ETC1S format, checks if any sample contains alpha channel information.
+   *
+   * @param dfd - The data format descriptor from the KTX2 container
+   * @param compressedTextureFormat - The compression format (ETC1S or UASTC4x4)
+   * @returns True if the texture has alpha channel data, false otherwise
+   * @private
+   */
   private __hasAlpha(
     dfd: KTX2DataFormatDescriptorBasicFormat,
     compressedTextureFormat: CompressedTextureFormat

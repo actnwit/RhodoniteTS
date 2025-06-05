@@ -94,6 +94,14 @@ const IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT = 17;
 
 type DRAW_PARAMETERS_IDENTIFIER = string;
 
+/**
+ * WebGPU Resource Repository that manages WebGPU resources and provides rendering functionality.
+ * This class serves as a central hub for creating, managing, and utilizing WebGPU resources
+ * such as textures, buffers, pipelines, and render passes.
+ *
+ * @extends CGAPIResourceRepository
+ * @implements ICGAPIResourceRepository
+ */
 export class WebGpuResourceRepository
   extends CGAPIResourceRepository
   implements ICGAPIResourceRepository
@@ -148,6 +156,10 @@ export class WebGpuResourceRepository
     super();
   }
 
+  /**
+   * Clears all cached resources including render pipelines, bind groups, and render bundles.
+   * This method should be called when resources need to be recreated or when the rendering context changes.
+   */
   clearCache() {
     this.__webGpuRenderPipelineMap.clear();
     this.__materialStateVersionMap.clear();
@@ -158,15 +170,33 @@ export class WebGpuResourceRepository
     this.__renderBundles.clear();
   }
 
+  /**
+   * Adds a WebGPU device wrapper to the repository and initializes the command encoder.
+   * This must be called before using any WebGPU functionality.
+   *
+   * @param webGpuDeviceWrapper - The WebGPU device wrapper containing the device and context
+   */
   addWebGpuDeviceWrapper(webGpuDeviceWrapper: WebGpuDeviceWrapper) {
     this.__webGpuDeviceWrapper = webGpuDeviceWrapper;
     this.__commandEncoder = this.__webGpuDeviceWrapper.gpuDevice.createCommandEncoder();
   }
 
+  /**
+   * Returns the WebGPU device wrapper instance.
+   *
+   * @returns The WebGPU device wrapper
+   * @throws Error if the device wrapper has not been initialized
+   */
   getWebGpuDeviceWrapper(): WebGpuDeviceWrapper {
     return this.__webGpuDeviceWrapper!;
   }
 
+  /**
+   * Returns the singleton instance of WebGpuResourceRepository.
+   * Creates a new instance if one doesn't exist.
+   *
+   * @returns The singleton instance
+   */
   static getInstance(): WebGpuResourceRepository {
     if (!this.__instance) {
       this.__instance = new WebGpuResourceRepository();
@@ -174,10 +204,21 @@ export class WebGpuResourceRepository
     return this.__instance;
   }
 
+  /**
+   * Generates a unique resource number for tracking WebGPU resources.
+   *
+   * @returns A unique resource handle number
+   */
   private getResourceNumber(): WebGPUResourceHandle {
     return ++this.__resourceCounter;
   }
 
+  /**
+   * Registers a WebGPU resource and assigns it a unique handle.
+   *
+   * @param obj - The WebGPU resource to register
+   * @returns The unique handle for the registered resource
+   */
   private __registerResource(obj: WebGpuResource) {
     const handle = this.getResourceNumber();
     (obj as any)._resourceUid = handle;
@@ -185,16 +226,31 @@ export class WebGpuResourceRepository
     return handle;
   }
 
+  /**
+   * Gets the current canvas size as a tuple of width and height.
+   *
+   * @returns A tuple containing [width, height] of the canvas
+   */
   getCanvasSize(): [Size, Size] {
     const canvas = this.__webGpuDeviceWrapper!.canvas;
     return [canvas.width, canvas.height];
   }
 
   /**
-   * create a WebGPU Texture
-   * @param imageData - an ImageBitmapData
-   * @param paramObject - a parameter object
-   * @returns
+   * Creates a WebGPU texture from ImageBitmap data with specified parameters.
+   * This method handles texture creation, data upload, and optional mipmap generation.
+   *
+   * @param imageData - The ImageBitmap data to create the texture from
+   * @param params - Configuration object containing texture parameters
+   * @param params.level - Mipmap level (typically 0 for base level)
+   * @param params.internalFormat - Internal format of the texture
+   * @param params.width - Width of the texture in pixels
+   * @param params.height - Height of the texture in pixels
+   * @param params.border - Border width (must be 0 for WebGPU)
+   * @param params.format - Pixel format of the source data
+   * @param params.type - Component type of the source data
+   * @param params.generateMipmap - Whether to generate mipmaps automatically
+   * @returns Promise that resolves to the texture resource handle
    */
   public async createTextureFromImageBitmapData(
     imageData: ImageBitmapData,
@@ -229,6 +285,20 @@ export class WebGpuResourceRepository
     return textureHandle;
   }
 
+  /**
+   * Creates a WebGPU texture from a data URI string.
+   * This method loads the image from the data URI and creates a texture from it.
+   *
+   * @param dataUri - The data URI string containing the image data
+   * @param params - Configuration object containing texture parameters
+   * @param params.level - Mipmap level (typically 0 for base level)
+   * @param params.internalFormat - Internal format of the texture
+   * @param params.border - Border width (must be 0 for WebGPU)
+   * @param params.format - Pixel format of the source data
+   * @param params.type - Component type of the source data
+   * @param params.generateMipmap - Whether to generate mipmaps automatically
+   * @returns Promise that resolves to the texture resource handle
+   */
   async createTextureFromDataUri(
     dataUri: string,
     {
@@ -274,6 +344,14 @@ export class WebGpuResourceRepository
     });
   }
 
+  /**
+   * Generates mipmaps for a 2D texture using the specified dimensions.
+   * This method creates all mipmap levels from the base texture.
+   *
+   * @param textureHandle - Handle to the texture resource
+   * @param width - Width of the base texture level
+   * @param height - Height of the base texture level
+   */
   generateMipmaps2d(textureHandle: WebGPUResourceHandle, width: number, height: number): void {
     const gpuTexture = this.__webGpuResources.get(textureHandle) as GPUTexture;
     const textureDescriptor: GPUTextureDescriptor = {
@@ -288,6 +366,14 @@ export class WebGpuResourceRepository
     this.generateMipmaps(gpuTexture, textureDescriptor);
   }
 
+  /**
+   * Generates mipmaps for a cube texture using the specified dimensions.
+   * This method creates all mipmap levels for all 6 faces of the cube texture.
+   *
+   * @param textureHandle - Handle to the cube texture resource
+   * @param width - Width of the base texture level
+   * @param height - Height of the base texture level
+   */
   generateMipmapsCube(textureHandle: WebGPUResourceHandle, width: number, height: number): void {
     const gpuTexture = this.__webGpuResources.get(textureHandle) as GPUTexture;
     const textureDescriptor: GPUTextureDescriptor = {
@@ -302,6 +388,17 @@ export class WebGpuResourceRepository
     this.generateMipmaps(gpuTexture, textureDescriptor);
   }
 
+  /**
+   * Reads pixel data from a texture and returns it as a Uint8Array.
+   * This method is useful for debugging or post-processing texture data.
+   *
+   * @param textureHandle - Handle to the texture resource
+   * @param width - Width of the texture region to read
+   * @param height - Height of the texture region to read
+   * @param frameBufferUid - Handle to the framebuffer (if applicable)
+   * @param colorAttachmentIndex - Index of the color attachment to read from
+   * @returns Promise that resolves to the pixel data as Uint8Array
+   */
   async getTexturePixelData(
     textureHandle: WebGPUResourceHandle,
     width: number,
@@ -331,12 +428,14 @@ export class WebGpuResourceRepository
   }
 
   /**
-   * create a WebGPU Texture Mipmaps (including CubeMap support)
+   * Generates mipmaps for a texture using render passes (including CubeMap support).
+   * This is an optimized method adapted from WebGPU best practices that uses
+   * a custom shader to generate each mipmap level from the previous one.
    *
    * @remarks
    * Adapted from: https://toji.dev/webgpu-best-practices/img-textures#generating-mipmaps
-   * @param texture - a texture
-   * @param textureDescriptor - a texture descriptor
+   * @param texture - The GPU texture to generate mipmaps for
+   * @param textureDescriptor - Descriptor containing texture format and dimensions
    */
   generateMipmaps(texture: GPUTexture, textureDescriptor: GPUTextureDescriptor) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
@@ -529,6 +628,21 @@ export class WebGpuResourceRepository
     }
   }
 
+  /**
+   * Creates a texture sampler with the specified filtering and wrapping parameters.
+   * The sampler defines how textures are filtered and wrapped when accessed in shaders.
+   *
+   * @param params - Configuration object for the sampler
+   * @param params.magFilter - Magnification filter mode
+   * @param params.minFilter - Minification filter mode
+   * @param params.wrapS - Wrapping mode for S (U) texture coordinate
+   * @param params.wrapT - Wrapping mode for T (V) texture coordinate
+   * @param params.wrapR - Wrapping mode for R (W) texture coordinate
+   * @param params.anisotropy - Whether to enable anisotropic filtering
+   * @param params.isPremultipliedAlpha - Whether the texture has premultiplied alpha (optional)
+   * @param params.shadowCompareMode - Whether to enable shadow comparison mode
+   * @returns Handle to the created sampler resource
+   */
   createTextureSampler({
     magFilter,
     minFilter,
@@ -583,9 +697,11 @@ export class WebGpuResourceRepository
   }
 
   /**
-   * create a WebGPU Vertex Buffer
-   * @param accessor - an accessor
-   * @returns
+   * Creates a WebGPU vertex buffer from an accessor containing vertex data.
+   * The buffer is created with the appropriate size and the data is uploaded immediately.
+   *
+   * @param accessor - Accessor containing the vertex data to upload
+   * @returns Handle to the created vertex buffer
    */
   public createVertexBuffer(accessor: Accessor): WebGPUResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
@@ -604,9 +720,11 @@ export class WebGpuResourceRepository
   }
 
   /**
-   * create a WebGPU Vertex Buffer
-   * @param typedArray - a typed array
-   * @returns a WebGPUResourceHandle
+   * Creates a WebGPU vertex buffer from a typed array.
+   * This is a more direct method when you have raw typed array data.
+   *
+   * @param typedArray - The typed array containing vertex data
+   * @returns Handle to the created vertex buffer resource
    */
   createVertexBufferFromTypedArray(typedArray: TypedArray): WebGPUResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
@@ -625,9 +743,12 @@ export class WebGpuResourceRepository
   }
 
   /**
-   * create a WebGPU Index Buffer
-   * @param accessor - an accessor
-   * @returns a WebGPUResourceHandle
+   * Creates a WebGPU index buffer from an accessor containing index data.
+   * Automatically converts UnsignedByte indices to UnsignedShort since WebGPU
+   * doesn't support 8-bit index buffers.
+   *
+   * @param accessor - Accessor containing the index data to upload
+   * @returns Handle to the created index buffer resource
    */
   public createIndexBuffer(accessor: Accessor): WebGPUResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
@@ -659,6 +780,14 @@ export class WebGpuResourceRepository
     return bufferHandle;
   }
 
+  /**
+   * Updates the data in an existing vertex buffer with new data from an accessor.
+   * This method maps the buffer for writing and uploads the new data.
+   *
+   * @param accessor - Accessor containing the new vertex data
+   * @param resourceHandle - Handle to the existing vertex buffer to update
+   * @throws Error if the vertex buffer is not found
+   */
   updateVertexBuffer(accessor: Accessor, resourceHandle: WebGPUResourceHandle) {
     const vertexBuffer = this.__webGpuResources.get(resourceHandle) as GPUBuffer;
     if (Is.not.exist(vertexBuffer)) {
@@ -671,6 +800,14 @@ export class WebGpuResourceRepository
     });
   }
 
+  /**
+   * Updates the data in an existing index buffer with new data from an accessor.
+   * Automatically handles conversion of UnsignedByte indices to UnsignedShort if needed.
+   *
+   * @param accessor - Accessor containing the new index data
+   * @param resourceHandle - Handle to the existing index buffer to update
+   * @throws Error if the index buffer is not found
+   */
   updateIndexBuffer(accessor: Accessor, resourceHandle: WebGPUResourceHandle) {
     const indexBuffer = this.__webGpuResources.get(resourceHandle) as GPUBuffer;
     if (Is.not.exist(indexBuffer)) {
@@ -694,6 +831,13 @@ export class WebGpuResourceRepository
     });
   }
 
+  /**
+   * Deletes a vertex buffer and removes it from the resource registry.
+   * This destroys the GPU buffer and frees its memory.
+   *
+   * @param resourceHandle - Handle to the vertex buffer to delete
+   * @throws Error if the vertex buffer is not found
+   */
   deleteVertexBuffer(resourceHandle: WebGPUResourceHandle) {
     const vertexBuffer = this.__webGpuResources.get(resourceHandle) as GPUBuffer;
     if (Is.not.exist(vertexBuffer)) {
@@ -705,9 +849,12 @@ export class WebGpuResourceRepository
   }
 
   /**
-   * create a VertexBuffer and IndexBuffer
-   * @param primitive
-   * @returns
+   * Creates vertex and index buffers for a primitive and returns their handles.
+   * This method processes all vertex attributes and creates appropriate buffers
+   * while tracking which attributes are present.
+   *
+   * @param primitive - The primitive containing vertex and index data
+   * @returns Object containing buffer handles and attribute flags
    */
   createVertexBufferAndIndexBuffer(primitive: Primitive): VertexHandles {
     let iboHandle;
@@ -739,9 +886,11 @@ export class WebGpuResourceRepository
   }
 
   /**
-   * update the VertexBuffer and IndexBuffer
-   * @param primitive
-   * @param vertexHandles
+   * Updates the vertex and index buffers for a primitive with new data.
+   * This method updates all existing buffers with fresh data from the primitive.
+   *
+   * @param primitive - The primitive containing the updated vertex and index data
+   * @param vertexHandles - Object containing the handles to the buffers to update
    */
   updateVertexBufferAndIndexBuffer(primitive: Primitive, vertexHandles: VertexHandles) {
     if (vertexHandles.iboHandle) {
@@ -754,6 +903,12 @@ export class WebGpuResourceRepository
     }
   }
 
+  /**
+   * Deletes all vertex data resources (vertex and index buffers) associated with vertex handles.
+   * This method destroys both vertex buffers and index buffers to free GPU memory.
+   *
+   * @param vertexHandles - Object containing handles to the vertex data resources to delete
+   */
   deleteVertexDataResources(vertexHandles: VertexHandles) {
     if (Is.exist(vertexHandles.iboHandle)) {
       const indexBuffer = this.__webGpuResources.get(vertexHandles.iboHandle) as GPUBuffer;
@@ -771,7 +926,15 @@ export class WebGpuResourceRepository
   }
 
   /**
-   * set the VertexData to the Pipeline
+   * Configures vertex data layout for the rendering pipeline.
+   * This method sets up vertex buffer layouts including both per-vertex and per-instance data.
+   *
+   * @param bufferHandles - Object containing vertex array object, index buffer, and vertex buffer handles
+   * @param bufferHandles.vaoHandle - Handle to the vertex array object
+   * @param bufferHandles.iboHandle - Handle to the index buffer (optional)
+   * @param bufferHandles.vboHandles - Array of vertex buffer handles
+   * @param primitive - The primitive containing vertex attribute information
+   * @param instanceIDBufferUid - Handle to the instance ID buffer for instanced rendering
    */
   setVertexDataToPipeline(
     {
@@ -825,6 +988,15 @@ export class WebGpuResourceRepository
     };
   }
 
+  /**
+   * Checks and logs shader compilation status and error messages.
+   * This method provides detailed debugging information when shader compilation fails.
+   *
+   * @param materialTypeName - Name of the material type for debugging
+   * @param shaderText - The shader source code that was compiled
+   * @param info - WebGPU compilation info containing messages and errors
+   * @returns True if compilation was successful, false otherwise
+   */
   private __checkShaderCompileStatus(
     materialTypeName: string,
     shaderText: string,
@@ -842,9 +1014,18 @@ export class WebGpuResourceRepository
   }
 
   /**
-   * create a shader program
-   * @param param0
-   * @returns
+   * Creates shader modules (vertex and fragment) from shader source code.
+   * This method compiles both vertex and fragment shaders and returns their handles.
+   *
+   * @param params - Configuration object for shader creation
+   * @param params.material - The material that will use these shaders
+   * @param params.primitive - The primitive that will be rendered with these shaders
+   * @param params.vertexShaderStr - WGSL vertex shader source code
+   * @param params.fragmentShaderStr - WGSL fragment shader source code
+   * @param params.attributeNames - Names of vertex attributes
+   * @param params.attributeSemantics - Semantic meanings of vertex attributes
+   * @param params.onError - Optional error callback function
+   * @returns Handle to the shader program containing both modules
    */
   createShaderProgram({
     material,
@@ -896,6 +1077,13 @@ export class WebGpuResourceRepository
     return modulesHandle;
   }
 
+  /**
+   * Clears the framebuffer with the specified clear values.
+   * This method is executed when the render pass has no entities to render,
+   * but still needs to perform clear operations.
+   *
+   * @param renderPass - The render pass containing clear settings and target framebuffer
+   */
   clearFrameBuffer(renderPass: RenderPass) {
     if (renderPass.entities.length > 0) {
       return;
@@ -978,6 +1166,17 @@ export class WebGpuResourceRepository
     passEncoder.end();
   }
 
+  /**
+   * Executes a draw call for rendering a primitive with the specified material and render pass.
+   * This is the core rendering method that sets up the render pipeline, bind groups,
+   * and executes the actual GPU draw commands.
+   *
+   * @param primitive - The geometric primitive to render (vertices, indices, attributes)
+   * @param material - The material containing shaders and rendering properties
+   * @param renderPass - The render pass defining render targets and clear operations
+   * @param cameraId - Identifier for the camera used for rendering
+   * @param zWrite - Whether to enable depth writing during rendering
+   */
   draw(
     primitive: Primitive,
     material: Material,
@@ -1082,6 +1281,12 @@ export class WebGpuResourceRepository
     this.createRenderPassEncoder(renderPass);
   }
 
+  /**
+   * Creates a render bundle encoder for efficient rendering.
+   * Render bundles allow pre-recording of rendering commands for better performance.
+   *
+   * @param renderPass - The render pass that will use this render bundle encoder
+   */
   private createRenderBundleEncoder(renderPass: RenderPass) {
     if (this.__renderBundleEncoder == null) {
       const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
@@ -1118,6 +1323,12 @@ export class WebGpuResourceRepository
     }
   }
 
+  /**
+   * Creates a render pass encoder for immediate rendering commands.
+   * This encoder is used for recording rendering commands that will be executed immediately.
+   *
+   * @param renderPass - The render pass configuration including targets and clear values
+   */
   private createRenderPassEncoder(renderPass: RenderPass) {
     if (this.__renderPassEncoder == null) {
       const framebuffer = renderPass.getFramebuffer();
@@ -1478,6 +1689,10 @@ export class WebGpuResourceRepository
     return [pipeline, true];
   }
 
+  /**
+   * Submits all recorded commands to the GPU queue and resets the command encoder.
+   * This method must be called to execute any recorded rendering commands.
+   */
   flush() {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     gpuDevice.queue.submit([this.__commandEncoder!.finish()]);
@@ -1831,6 +2046,13 @@ export class WebGpuResourceRepository
     return textureHandle;
   }
 
+  /**
+   * Creates a storage buffer from a Float32Array and registers it as a WebGPU resource.
+   * Storage buffers are used for storing large amounts of data accessible from shaders.
+   *
+   * @param inputArray - The Float32Array containing the data to store
+   * @returns Handle to the created storage buffer resource
+   */
   createStorageBuffer(inputArray: Float32Array) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const storageBuffer = gpuDevice.createBuffer({
@@ -1846,6 +2068,14 @@ export class WebGpuResourceRepository
     return storageBufferHandle;
   }
 
+  /**
+   * Updates an existing storage buffer with new data.
+   * Only updates the specified number of components to optimize data transfer.
+   *
+   * @param storageBufferHandle - Handle to the storage buffer to update
+   * @param inputArray - New data to write to the buffer
+   * @param updateComponentSize - Number of components to update
+   */
   updateStorageBuffer(
     storageBufferHandle: WebGPUResourceHandle,
     inputArray: Float32Array,
@@ -1856,6 +2086,16 @@ export class WebGpuResourceRepository
     gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray, 0, updateComponentSize);
   }
 
+  /**
+   * Updates a portion of a storage buffer with new data at a specific offset.
+   * This allows for efficient partial updates of large storage buffers.
+   *
+   * @param storageBufferHandle - Handle to the storage buffer to update
+   * @param inputArray - New data to write to the buffer
+   * @param offsetOfStorageBufferInByte - Byte offset in the storage buffer where to start writing
+   * @param offsetOfInputArrayInElement - Element offset in the input array where to start reading
+   * @param updateComponentSize - Number of components to update
+   */
   updateStorageBufferPartially(
     storageBufferHandle: WebGPUResourceHandle,
     inputArray: Float32Array,
@@ -2880,9 +3120,15 @@ export class WebGpuResourceRepository
   }
 
   /**
-   * create a RenderTargetTexture
-   * @param param0
-   * @returns
+   * Creates a render target texture that can be used as a color attachment in framebuffers.
+   * This texture can be rendered to and also used as a texture input in shaders.
+   *
+   * @param params - Configuration for the render target texture
+   * @param params.width - Width of the texture in pixels
+   * @param params.height - Height of the texture in pixels
+   * @param params.mipLevelCount - Number of mipmap levels to create
+   * @param params.format - Texture format for the render target
+   * @returns Handle to the created render target texture resource
    */
   createRenderTargetTexture({
     width,
@@ -2915,9 +3161,18 @@ export class WebGpuResourceRepository
   }
 
   /**
-   * create a RenderTargetTextureArray
-   * @param param0
-   * @returns
+   * Creates a render target texture array that can hold multiple 2D textures.
+   * Useful for techniques like shadow mapping with multiple lights or layered rendering.
+   *
+   * @param params - Configuration for the render target texture array
+   * @param params.width - Width of each texture layer in pixels
+   * @param params.height - Height of each texture layer in pixels
+   * @param params.level - Mipmap level (typically 0)
+   * @param params.internalFormat - Internal format of the texture
+   * @param params.format - Pixel format of the data
+   * @param params.type - Component type of the data
+   * @param params.arrayLength - Number of texture layers in the array
+   * @returns Handle to the created render target texture array resource
    */
   createRenderTargetTextureArray({
     width,
@@ -2957,9 +3212,15 @@ export class WebGpuResourceRepository
   }
 
   /**
-   * create a RenderTargetTextureCube
-   * @param param0
-   * @returns
+   * Creates a render target cube texture for environment mapping or omnidirectional shadow mapping.
+   * This creates a cube texture with 6 faces that can be rendered to.
+   *
+   * @param params - Configuration for the render target cube texture
+   * @param params.width - Width of each cube face in pixels
+   * @param params.height - Height of each cube face in pixels
+   * @param params.mipLevelCount - Number of mipmap levels to create
+   * @param params.format - Texture format for the render target
+   * @returns Handle to the created render target cube texture resource
    */
   createRenderTargetTextureCube({
     width,
@@ -2993,7 +3254,15 @@ export class WebGpuResourceRepository
   }
 
   /**
-   * create Renderbuffer
+   * Creates a render buffer for multisampling (MSAA) or as a render attachment.
+   * Render buffers are textures that are only used for rendering and cannot be sampled in shaders.
+   *
+   * @param width - Width of the render buffer in pixels
+   * @param height - Height of the render buffer in pixels
+   * @param internalFormat - Internal format of the render buffer
+   * @param isMSAA - Whether to enable multisampling
+   * @param sampleCountMSAA - Number of samples for MSAA (ignored if isMSAA is false)
+   * @returns Handle to the created render buffer resource
    */
   createRenderBuffer(
     width: Size,
@@ -3196,6 +3465,13 @@ export class WebGpuResourceRepository
     renderable: IRenderable
   ) {}
 
+  /**
+   * Creates a 2D texture view from a texture resource.
+   * This view can be used for sampling the texture in shaders.
+   *
+   * @param textureHandle - Handle to the source texture
+   * @returns Handle to the created texture view
+   */
   createTextureView2d(textureHandle: WebGPUResourceHandle): WebGPUResourceHandle {
     const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
     const textureView = texture.createView();
@@ -3204,6 +3480,13 @@ export class WebGpuResourceRepository
     return textureViewHandle;
   }
 
+  /**
+   * Creates a texture view suitable for use as a render target.
+   * This view targets only the base mip level and first array layer.
+   *
+   * @param textureHandle - Handle to the source texture
+   * @returns Handle to the created render target texture view
+   */
   createTextureViewAsRenderTarget(textureHandle: WebGPUResourceHandle): WebGPUResourceHandle {
     const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
     const textureView = texture.createView({
@@ -3216,6 +3499,13 @@ export class WebGpuResourceRepository
     return textureViewHandle;
   }
 
+  /**
+   * Creates a cube texture view from a cube texture resource.
+   * This view exposes all 6 faces of the cube texture for sampling.
+   *
+   * @param textureHandle - Handle to the source cube texture
+   * @returns Handle to the created cube texture view
+   */
   createTextureViewCube(textureHandle: WebGPUResourceHandle): WebGPUResourceHandle {
     const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
     const textureView = texture.createView({ dimension: 'cube' });
@@ -3290,6 +3580,10 @@ export class WebGpuResourceRepository
     this.__webGpuResources.delete(textureHandle);
   }
 
+  /**
+   * Recreates the system depth texture with the current canvas dimensions.
+   * This is called when the canvas is resized or initialized.
+   */
   recreateSystemDepthTexture() {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const canvas = this.__webGpuDeviceWrapper!.canvas;
@@ -3305,6 +3599,13 @@ export class WebGpuResourceRepository
     this.__systemDepthTextureView = this.__systemDepthTexture.createView();
   }
 
+  /**
+   * Resizes the canvas and recreates the system depth texture.
+   * This method should be called when the window or viewport size changes.
+   *
+   * @param width - New canvas width in pixels
+   * @param height - New canvas height in pixels
+   */
   resizeCanvas(width: Size, height: Size) {
     const canvas = this.__webGpuDeviceWrapper!.canvas;
     canvas.width = width;
@@ -3312,8 +3613,18 @@ export class WebGpuResourceRepository
     this.recreateSystemDepthTexture();
   }
 
+  /**
+   * Sets the viewport for rendering (currently not implemented in WebGPU version).
+   *
+   * @param viewport - Optional viewport rectangle (x, y, width, height)
+   */
   setViewport(viewport?: Vector4) {}
 
+  /**
+   * Checks if the implementation supports multi-view VR rendering.
+   *
+   * @returns Always false for WebGPU implementation (not yet supported)
+   */
   isSupportMultiViewVRRendering(): boolean {
     return false;
   }

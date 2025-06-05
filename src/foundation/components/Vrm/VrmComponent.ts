@@ -21,8 +21,9 @@ export type VrmExpression = {
 };
 
 /**
- * VrmComponent is a component that manages the VRM model.
- *
+ * VrmComponent is a component that manages VRM model expressions and their associated blend shapes.
+ * This component handles the mapping between VRM expressions and the underlying blend shape components,
+ * allowing for facial expressions and other morphing effects in VRM models.
  */
 export class VrmComponent extends Component {
   private __expressions: Map<VrmExpressionName, VrmExpression> = new Map();
@@ -31,6 +32,13 @@ export class VrmComponent extends Component {
 
   public _version = '';
 
+  /**
+   * Creates a new VrmComponent instance.
+   * @param entityUid - Unique identifier for the entity this component belongs to
+   * @param componentSid - Unique identifier for this component instance
+   * @param entityComponent - The entity repository managing this component
+   * @param isReUse - Whether this component is being reused from a pool
+   */
   constructor(
     entityUid: EntityUID,
     componentSid: ComponentSID,
@@ -41,14 +49,27 @@ export class VrmComponent extends Component {
     this.moveStageTo(ProcessStage.Logic);
   }
 
+  /**
+   * Gets the component type identifier for VrmComponent.
+   * @returns The component type ID for VrmComponent
+   */
   static get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.VrmComponentTID;
   }
 
+  /**
+   * Gets the component type identifier for this VrmComponent instance.
+   * @returns The component type ID for VrmComponent
+   */
   get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.VrmComponentTID;
   }
 
+  /**
+   * Sets the VRM expressions for this component.
+   * This method initializes the expressions map and sets initial weights to 0.
+   * @param expressions - Array of VRM expressions to register
+   */
   public setVrmExpressions(expressions: VrmExpression[]) {
     for (const exp of expressions) {
       this.__expressions.set(exp.name, exp);
@@ -56,6 +77,12 @@ export class VrmComponent extends Component {
     }
   }
 
+  /**
+   * Sets the weight for a specific VRM expression.
+   * This method updates the expression weight and applies it to all associated blend shape binds.
+   * @param expressionName - The name of the expression to modify
+   * @param weight - The weight value to apply (typically between 0 and 1)
+   */
   public setExpressionWeight(expressionName: VrmExpressionName, weight: number): void {
     const expression = this.__expressions.get(expressionName);
     if (Is.not.exist(expression)) {
@@ -71,14 +98,29 @@ export class VrmComponent extends Component {
     }
   }
 
+  /**
+   * Gets the current weight of a specific VRM expression.
+   * @param expressionName - The name of the expression to query
+   * @returns The current weight of the expression, or undefined if the expression doesn't exist
+   */
   public getExpressionWeight(expressionName: VrmExpressionName): number | undefined {
     return this.__weights.get(expressionName);
   }
 
+  /**
+   * Gets all available expression names registered in this component.
+   * @returns An array of all expression names
+   */
   public getExpressionNames(): string[] {
     return Array.from(this.__expressions.keys());
   }
 
+  /**
+   * Creates a shallow copy of this component from another VrmComponent.
+   * This method copies the expressions, weights, and version information.
+   * @param component - The source component to copy from
+   * @protected
+   */
   _shallowCopyFrom(component: Component): void {
     const vrmComponent = component as VrmComponent;
     this.__expressions = new Map(vrmComponent.__expressions);
@@ -86,15 +128,22 @@ export class VrmComponent extends Component {
     this._version = vrmComponent._version;
   }
 
+  /**
+   * Destroys this component and cleans up resources.
+   * @protected
+   */
   _destroy(): void {
     super._destroy();
   }
 
   /**
-   * @override
-   * Add this component to the entity
-   * @param base the target entity
-   * @param _componentClass the component class to add
+   * Adds this VrmComponent to an entity by extending the entity with VRM-specific methods.
+   * This method uses mixins to add a getVrm() method to the target entity.
+   * @param base - The target entity to extend
+   * @param _componentClass - The component class being added
+   * @returns The extended entity with VRM functionality
+   * @template EntityBase - The base entity type
+   * @template SomeComponentClass - The component class type
    */
   addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(
     base: EntityBase,
@@ -110,6 +159,10 @@ export class VrmComponent extends Component {
         super(entityUID, isAlive, components);
       }
 
+      /**
+       * Gets the VrmComponent associated with this entity.
+       * @returns The VrmComponent instance
+       */
       getVrm() {
         if (this.__vrmComponent === undefined) {
           this.__vrmComponent = this.getComponentByComponentTID(

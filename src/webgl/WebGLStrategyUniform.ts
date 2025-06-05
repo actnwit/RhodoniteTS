@@ -45,6 +45,14 @@ import { Logger } from '../foundation/misc/Logger';
 
 declare const spector: any;
 
+/**
+ * WebGL rendering strategy implementation using uniform-based approach.
+ * This strategy uses uniforms to pass per-object data to shaders instead of vertex attributes,
+ * which is more suitable for rendering multiple objects with different properties.
+ *
+ * @implements {CGAPIStrategy}
+ * @implements {WebGLStrategy}
+ */
 export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
   private __webglResourceRepository: WebGLResourceRepository =
@@ -57,6 +65,10 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __webxrSystem: WebXRSystem;
 
+  /**
+   * Shader semantics information for component matrices used in uniform rendering strategy.
+   * Defines world matrix, normal matrix, billboard flag, and vertex attributes existence array.
+   */
   private static readonly componentMatrices: ShaderSemanticsInfo[] = [
     {
       semantic: 'vertexAttributesExistenceArray',
@@ -96,8 +108,16 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
     },
   ];
 
+  /**
+   * Private constructor to enforce singleton pattern.
+   */
   private constructor() {}
 
+  /**
+   * Vertex shader method definitions for uniform-based rendering.
+   * Provides GLSL functions for accessing world matrix, normal matrix, visibility,
+   * billboard state, and morphing functionality through uniforms.
+   */
   private static __vertexShaderMethodDefinitions_uniform = `uniform mat4 u_worldMatrix;
 uniform mat3 u_normalMatrix;
 uniform bool u_isBillboard;
@@ -165,8 +185,12 @@ bool get_isBillboard(float instanceId) {
   `;
 
   /**
-   * setup shader program for the material in this WebGL strategy
-   * @param material - a material to setup shader program
+   * Sets up shader program for the given material and primitive in this WebGL strategy.
+   * Creates a new shader program if needed and configures uniform locations for rendering.
+   *
+   * @param material - The material to setup shader program for
+   * @param primitive - The primitive geometry to associate with the shader
+   * @returns The CGAPIResourceHandle of the created or existing shader program
    */
   public setupShaderForMaterial(material: Material, primitive: Primitive): CGAPIResourceHandle {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
@@ -203,11 +227,14 @@ bool get_isBillboard(float instanceId) {
   }
 
   /**
-   * re-setup shader program for the material in this WebGL strategy
-   * @param material - a material to re-setup shader program
-   * @param updatedShaderSources - updated shader sources
-   * @param onError - callback function to handle error
-   * @returns
+   * Re-sets up shader program for the material using updated shader sources from Spector.js.
+   * This method is specifically designed for shader debugging and live editing scenarios.
+   *
+   * @param material - The material to re-setup shader program for
+   * @param primitive - The primitive geometry associated with the shader
+   * @param updatedShaderSources - The updated shader source code
+   * @param onError - Callback function to handle compilation errors
+   * @returns The CGAPIResourceHandle of the updated shader program, or InvalidCGAPIResourceUid on failure
    */
   public _reSetupShaderForMaterialBySpector(
     material: Material,
@@ -247,6 +274,13 @@ bool get_isBillboard(float instanceId) {
     return programUid;
   }
 
+  /**
+   * Loads and prepares mesh data for rendering.
+   * Sets up VBO (Vertex Buffer Object) and VAO (Vertex Array Object) if not already done.
+   *
+   * @param meshComponent - The mesh component containing the mesh to load
+   * @returns True if the mesh was loaded successfully, false otherwise
+   */
   $load(meshComponent: MeshComponent) {
     const mesh = meshComponent.mesh as Mesh;
     if (!Is.exist(mesh)) {
@@ -261,6 +295,11 @@ bool get_isBillboard(float instanceId) {
     return true;
   }
 
+  /**
+   * Performs pre-rendering setup operations.
+   * Initializes light components, sets up data texture for GPU vertex data,
+   * and prepares global rendering state.
+   */
   prerender(): void {
     this.__lightComponents = ComponentRepository.getComponentsWithType(
       LightComponent
@@ -306,8 +345,25 @@ bool get_isBillboard(float instanceId) {
     }
   }
 
+  /**
+   * Attaches GPU data for the primitive.
+   * This method is part of the CGAPIStrategy interface but is a no-op in uniform strategy
+   * as GPU data is handled differently through data textures.
+   *
+   * @param primitive - The primitive to attach GPU data for
+   */
   attachGPUData(primitive: Primitive): void {}
 
+  /**
+   * Attaches vertex data for rendering.
+   * This method is part of the CGAPIStrategy interface but is a no-op in uniform strategy
+   * as vertex data attachment is handled in attachVertexDataInner.
+   *
+   * @param i - Index parameter (unused in uniform strategy)
+   * @param primitive - The primitive containing vertex data
+   * @param glw - WebGL context wrapper
+   * @param instanceIDBufferUid - Instance ID buffer handle (unused in uniform strategy)
+   */
   attachVertexData(
     i: number,
     primitive: Primitive,
@@ -315,6 +371,16 @@ bool get_isBillboard(float instanceId) {
     instanceIDBufferUid: WebGLResourceHandle
   ) {}
 
+  /**
+   * Internal method to attach vertex data for a specific mesh and primitive.
+   * Binds the appropriate VAO or sets up vertex data pipeline for rendering.
+   *
+   * @param mesh - The mesh containing vertex data
+   * @param primitive - The primitive geometry to render
+   * @param primitiveUid - Unique identifier for the primitive
+   * @param glw - WebGL context wrapper
+   * @param instanceIDBufferUid - Instance ID buffer handle (unused in uniform strategy)
+   */
   attachVertexDataInner(
     mesh: Mesh,
     primitive: Primitive,
@@ -343,6 +409,12 @@ bool get_isBillboard(float instanceId) {
     }
   }
 
+  /**
+   * Detaches vertex data and cleans up OpenGL state after rendering.
+   * Unbinds VAO, element array buffer, and array buffer to prevent state leakage.
+   *
+   * @param glw - WebGL context wrapper used for state cleanup
+   */
   dettachVertexData(glw: WebGLContextWrapper) {
     const gl = glw.getRawContext();
     if (glw.bindVertexArray) {
@@ -353,6 +425,12 @@ bool get_isBillboard(float instanceId) {
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
   }
 
+  /**
+   * Gets the singleton instance of WebGLStrategyUniform.
+   * Initializes the instance and WebXR system if not already created.
+   *
+   * @returns The singleton instance of WebGLStrategyUniform
+   */
   static getInstance() {
     if (!this.__instance) {
       this.__instance = new WebGLStrategyUniform();
@@ -364,6 +442,16 @@ bool get_isBillboard(float instanceId) {
     return this.__instance;
   }
 
+  /**
+   * Common rendering method that handles the main rendering pipeline.
+   * Processes primitives in different rendering phases: opaque, translucent, blend with/without Z-write.
+   * Supports buffer-less rendering mode for special cases like post-processing effects.
+   *
+   * @param primitiveUids - Array of primitive UIDs to render, sorted by rendering order
+   * @param renderPass - The render pass configuration containing rendering settings
+   * @param renderPassTickCount - Current tick count for the render pass
+   * @returns True if any primitives were rendered, false otherwise
+   */
   common_$render(
     primitiveUids: PrimitiveUID[],
     renderPass: RenderPass,
@@ -442,6 +530,13 @@ bool get_isBillboard(float instanceId) {
     return renderedSomething;
   }
 
+  /**
+   * Renders primitives without using vertex/index buffers.
+   * Used for buffer-less rendering scenarios such as full-screen post-processing effects.
+   *
+   * @param gl - WebGL2 rendering context
+   * @param renderPass - The render pass containing material and rendering configuration
+   */
   private __renderWithoutBuffers(gl: WebGL2RenderingContext, renderPass: RenderPass) {
     // setup shader program
     const material: Material = renderPass.material!;
@@ -487,6 +582,17 @@ bool get_isBillboard(float instanceId) {
     );
   }
 
+  /**
+   * Internal rendering method for processing individual primitives.
+   * Handles shader setup, material parameters, lighting, VR rendering, and draw calls
+   * for each mesh entity associated with the primitive.
+   *
+   * @param primitiveUid - Unique identifier of the primitive to render
+   * @param glw - WebGL context wrapper
+   * @param renderPass - The render pass configuration
+   * @param renderPassTickCount - Current tick count for the render pass
+   * @returns True if the primitive was rendered successfully, false otherwise
+   */
   renderInner(
     primitiveUid: PrimitiveUID,
     glw: WebGLContextWrapper,
@@ -630,6 +736,13 @@ bool get_isBillboard(float instanceId) {
     return renderedSomething;
   }
 
+  /**
+   * Binds the data texture containing vertex data to the shader program.
+   * The data texture is used to store and access vertex data in uniform rendering strategy.
+   *
+   * @param gl - WebGL rendering context
+   * @param shaderProgram - The shader program to bind the texture to
+   */
   private bindDataTexture(
     gl: WebGLRenderingContext | WebGL2RenderingContext,
     shaderProgram: WebGLProgram

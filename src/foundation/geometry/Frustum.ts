@@ -7,6 +7,8 @@ import { Index } from '../../types/CommonTypes';
 
 /**
  * The view frustum class.
+ * Represents a truncated pyramid (frustum) used for view culling in 3D graphics.
+ * Contains six planes (top, bottom, left, right, near, far) and eight corner vertices.
  */
 export class Frustum {
   public top = MutableVector4.zero();
@@ -46,12 +48,24 @@ export class Frustum {
 
   public corners: Vector4[] = [];
 
+  /**
+   * Creates a new Frustum instance.
+   * Initializes all planes and corner arrays with default values.
+   */
   constructor() {}
 
   /**
    * Updates this view frustum data from the view and projection matrices.
-   * @param viewMatrix The view matrix.
-   * @param projectionMatrix The projection matrix.
+   * Calculates the six frustum planes and eight corner vertices in world space.
+   * This method should be called whenever the camera's view or projection matrix changes.
+   *
+   * @param viewMatrix - The view matrix that transforms from world space to view space
+   * @param projectionMatrix - The projection matrix that transforms from view space to clip space
+   *
+   * @remarks
+   * The frustum planes are calculated using the combined view-projection matrix.
+   * Corner vertices are computed by transforming normalized device coordinates back to world space.
+   * The planes are stored as Vector4 where (x,y,z) is the normal and w is the distance from origin.
    */
   update(viewMatrix: Matrix44, projectionMatrix: Matrix44) {
     // Calculate the planes of the view frustum.
@@ -108,9 +122,32 @@ export class Frustum {
   }
 
   /**
-   * false if fully outside, true if inside or intersects
+   * Performs frustum culling test against a mesh component's bounding box.
+   * Uses optimized frustum-AABB intersection algorithm to determine visibility.
    *
-   * original idea is from https://iquilezles.org/articles/frustumcorrect/
+   * @param meshComponent - The mesh component to test for culling
+   * @returns `false` if the mesh is completely outside the frustum (should be culled),
+   *          `true` if the mesh is inside or intersects the frustum (should be rendered)
+   *
+   * @remarks
+   * This method uses a two-phase approach:
+   * 1. Tests if the AABB is completely outside any frustum plane
+   * 2. Tests if all frustum corners are outside any AABB face
+   *
+   * The algorithm is based on the optimized frustum culling technique described at:
+   * https://iquilezles.org/articles/frustumcorrect/
+   *
+   * @example
+   * ```typescript
+   * const frustum = new Frustum();
+   * frustum.update(viewMatrix, projectionMatrix);
+   *
+   * if (frustum.culling(meshComponent)) {
+   *   // Render the mesh
+   *   renderMesh(meshComponent);
+   * }
+   * // Otherwise, skip rendering (culled)
+   * ```
    */
   culling(meshComponent: MeshComponent) {
     const aabb = meshComponent.entity.getSceneGraph().worldMergedAABBWithSkeletal;
@@ -242,6 +279,29 @@ export class Frustum {
     return true;
   }
 
+  /**
+   * Retrieves a specific frustum plane by index.
+   *
+   * @param i - The plane index (0-5)
+   *   - 0: Top plane
+   *   - 1: Bottom plane
+   *   - 2: Right plane
+   *   - 3: Left plane
+   *   - 4: Near plane
+   *   - 5: Far plane
+   *
+   * @returns The plane as a Vector4 where (x,y,z) represents the plane normal
+   *          and w represents the distance from the origin
+   *
+   * @throws {Error} Throws an error if the plane index is invalid (not 0-5)
+   *
+   * @example
+   * ```typescript
+   * const frustum = new Frustum();
+   * const topPlane = frustum.getPlane(0);    // Get top plane
+   * const nearPlane = frustum.getPlane(4);   // Get near plane
+   * ```
+   */
   getPlane(i: Index) {
     switch (i) {
       case 0:

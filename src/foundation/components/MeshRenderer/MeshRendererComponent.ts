@@ -38,8 +38,9 @@ import { SystemState } from '../../system/SystemState';
 import { RenderTargetTextureCube } from '../../textures/RenderTargetTextureCube';
 
 /**
- * MeshRendererComponent is a component that manages the rendering of a mesh.
- *
+ * MeshRendererComponent is a component that manages the rendering of a mesh entity.
+ * It handles mesh rendering pipeline, IBL (Image-Based Lighting) cube maps, frustum culling,
+ * and rendering optimization through various strategies.
  */
 export class MeshRendererComponent extends Component {
   private __diffuseCubeMap?: CubeTexture | RenderTargetTextureCube;
@@ -59,6 +60,13 @@ export class MeshRendererComponent extends Component {
 
   private __fingerPrint = '';
 
+  /**
+   * Creates a new MeshRendererComponent instance.
+   * @param entityUid - The unique identifier of the entity this component belongs to
+   * @param componentSid - The component's system identifier
+   * @param entityRepository - The repository managing entities
+   * @param isReUse - Whether this component is being reused from a pool
+   */
   constructor(
     entityUid: EntityUID,
     componentSid: ComponentSID,
@@ -69,72 +77,138 @@ export class MeshRendererComponent extends Component {
     this.calcFingerPrint();
   }
 
+  /**
+   * Gets the component type ID for MeshRendererComponent.
+   * @returns The component type ID
+   */
   static get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.MeshRendererComponentTID;
   }
 
+  /**
+   * Gets the component type ID for this instance.
+   * @returns The component type ID
+   */
   get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.MeshRendererComponentTID;
   }
 
+  /**
+   * Gets the diffuse cube map used for IBL lighting.
+   * @returns The diffuse cube map texture or undefined if not set
+   */
   get diffuseCubeMap() {
     return this.__diffuseCubeMap;
   }
 
+  /**
+   * Gets the specular cube map used for IBL lighting.
+   * @returns The specular cube map texture or undefined if not set
+   */
   get specularCubeMap() {
     return this.__specularCubeMap;
   }
 
+  /**
+   * Gets the sheen cube map used for IBL lighting.
+   * @returns The sheen cube map texture or undefined if not set
+   */
   get sheenCubeMap() {
     return this.__sheenCubeMap;
   }
 
+  /**
+   * Gets the update count for this component instance.
+   * @returns The current update count
+   */
   get updateCount() {
     return this.__updateCount;
   }
 
+  /**
+   * Gets the global update count for all MeshRendererComponent instances.
+   * @returns The global update count
+   */
   static get updateCount() {
     return MeshRendererComponent.__updateCount;
   }
 
+  /**
+   * Gets the contribution factor for the diffuse cube map in IBL calculations.
+   * @returns The diffuse cube map contribution factor (0.0 to 1.0)
+   */
   get diffuseCubeMapContribution() {
     return this.__diffuseCubeMapContribution;
   }
 
+  /**
+   * Sets the contribution factor for the diffuse cube map in IBL calculations.
+   * @param contribution - The contribution factor (0.0 to 1.0)
+   */
   set diffuseCubeMapContribution(contribution: number) {
     this.__diffuseCubeMapContribution = contribution;
     this.__updateCount++;
     MeshRendererComponent.__updateCount++;
   }
 
+  /**
+   * Gets the contribution factor for the specular cube map in IBL calculations.
+   * @returns The specular cube map contribution factor (0.0 to 1.0)
+   */
   get specularCubeMapContribution() {
     return this.__specularCubeMapContribution;
   }
 
+  /**
+   * Sets the contribution factor for the specular cube map in IBL calculations.
+   * @param contribution - The contribution factor (0.0 to 1.0)
+   */
   set specularCubeMapContribution(contribution: number) {
     this.__specularCubeMapContribution = contribution;
     this.__updateCount++;
     MeshRendererComponent.__updateCount++;
   }
 
+  /**
+   * Gets the rotation angle of the cube map in radians.
+   * @returns The rotation angle in radians
+   */
   get rotationOfCubeMap() {
     return this.__rotationOfCubeMap;
   }
 
+  /**
+   * Sets the rotation angle of the cube map in radians.
+   * @param rotation - The rotation angle in radians
+   */
   set rotationOfCubeMap(rotation: number) {
     this.__rotationOfCubeMap = rotation;
     this.__updateCount++;
     MeshRendererComponent.__updateCount++;
   }
 
+  /**
+   * Calculates and updates the fingerprint for this component based on current cube map settings.
+   * The fingerprint is used for caching and optimization purposes.
+   */
   calcFingerPrint() {
     this.__fingerPrint = `${this.__diffuseCubeMap != null ? this.__diffuseCubeMap.textureUID : -1} ${this.__specularCubeMap != null ? this.__specularCubeMap.textureUID : -1} ${this.__sheenCubeMap != null ? this.__sheenCubeMap.textureUID : -1}`;
   }
 
+  /**
+   * Gets the current fingerprint of this component.
+   * @returns The fingerprint string
+   */
   getFingerPrint() {
     return this.__fingerPrint;
   }
 
+  /**
+   * Sets the IBL (Image-Based Lighting) cube maps for this mesh renderer.
+   * @param diffuseCubeTexture - The diffuse cube map texture for IBL
+   * @param specularCubeTexture - The specular cube map texture for IBL
+   * @param sheenCubeTexture - Optional sheen cube map texture for IBL
+   */
   setIBLCubeMap(
     diffuseCubeTexture: CubeTexture | RenderTargetTextureCube,
     specularCubeTexture: CubeTexture | RenderTargetTextureCube,
@@ -154,6 +228,11 @@ export class MeshRendererComponent extends Component {
     MeshRendererComponent.__updateCount++;
   }
 
+  /**
+   * Common loading method that initializes the rendering strategy based on the process approach.
+   * This method sets up either WebGPU or WebGL rendering strategies.
+   * @param processApproach - The graphics API approach to use (WebGPU or WebGL)
+   */
   static common_$load({ processApproach }: { processApproach: ProcessApproachEnum }) {
     const moduleManager = ModuleManager.getInstance();
 
@@ -172,6 +251,10 @@ export class MeshRendererComponent extends Component {
     }
   }
 
+  /**
+   * Loads and initializes this mesh renderer component.
+   * Sets up the component for rendering by loading the associated mesh.
+   */
   $load() {
     const ready = MeshRendererComponent.__cgApiRenderingStrategy!.$load(
       this.entity.tryToGetMesh()!
@@ -181,6 +264,12 @@ export class MeshRendererComponent extends Component {
     }
   }
 
+  /**
+   * Sorts and filters mesh components for rendering based on camera frustum and material properties.
+   * Performs frustum culling and sorts primitives by render order and depth.
+   * @param renderPass - The render pass containing mesh components and rendering context
+   * @returns Array of primitive UIDs sorted for optimal rendering
+   */
   static sort_$render(renderPass: RenderPass): ComponentSID[] {
     if (
       TransformComponent.updateCount === renderPass._lastTransformComponentsUpdateCount &&
@@ -327,6 +416,13 @@ export class MeshRendererComponent extends Component {
     return primitiveUids;
   }
 
+  /**
+   * Performs frustum culling on mesh components using the camera's view frustum.
+   * Filters out mesh components that are not visible from the camera's perspective.
+   * @param cameraComponent - The camera component used for frustum culling
+   * @param meshComponents - Array of mesh components to be culled
+   * @returns Array of primitives that passed the frustum culling test
+   */
   private static __cullingWithViewFrustum(
     cameraComponent: CameraComponent,
     meshComponents: MeshComponent[]
@@ -406,6 +502,10 @@ export class MeshRendererComponent extends Component {
     return primitives;
   }
 
+  /**
+   * Common pre-rendering setup method that prepares the rendering strategy.
+   * Initializes the rendering strategy if not already set and calls its prerender method.
+   */
   static common_$prerender() {
     if (MeshRendererComponent.__cgApiRenderingStrategy == null) {
       // Possible if there is no mesh entity in the scene
@@ -416,6 +516,15 @@ export class MeshRendererComponent extends Component {
     MeshRendererComponent.__cgApiRenderingStrategy!.prerender();
   }
 
+  /**
+   * Common rendering method that executes the actual rendering of primitives.
+   * Delegates to the appropriate rendering strategy (WebGL or WebGPU).
+   * @param renderPass - The render pass context
+   * @param processStage - The current process stage
+   * @param renderPassTickCount - The tick count for this render pass
+   * @param primitiveUids - Array of primitive UIDs to render
+   * @returns True if rendering was successful, false otherwise
+   */
   static common_$render({
     renderPass,
     processStage,
@@ -435,6 +544,13 @@ export class MeshRendererComponent extends Component {
     );
   }
 
+  /**
+   * Instance-specific render method for this mesh renderer component.
+   * Currently empty as rendering is handled by the static common_$render method.
+   * @param i - The index of this component in the render queue
+   * @param renderPass - The render pass context
+   * @param renderPassTickCount - The tick count for this render pass
+   */
   $render({
     i,
     renderPass,
@@ -445,6 +561,11 @@ export class MeshRendererComponent extends Component {
     renderPassTickCount: Count;
   }) {}
 
+  /**
+   * Performs a shallow copy of properties from another MeshRendererComponent.
+   * Copies cube map settings and contributions without deep cloning the textures.
+   * @param component_ - The source component to copy from
+   */
   _shallowCopyFrom(component_: Component): void {
     const component = component_ as MeshRendererComponent;
 
@@ -455,6 +576,10 @@ export class MeshRendererComponent extends Component {
     this.rotationOfCubeMap = component.rotationOfCubeMap;
   }
 
+  /**
+   * Destroys this component and cleans up its resources.
+   * Clears cube map references and calls the parent destroy method.
+   */
   _destroy(): void {
     super._destroy();
     this.__diffuseCubeMap = undefined;
@@ -462,10 +587,11 @@ export class MeshRendererComponent extends Component {
   }
 
   /**
-   * @override
-   * Add this component to the entity
-   * @param base the target entity
-   * @param _componentClass the component class to add
+   * Adds the MeshRenderer component functionality to an entity class.
+   * This method extends the entity base class with mesh renderer specific methods.
+   * @param base - The target entity base class
+   * @param _componentClass - The component class to add (unused parameter for type safety)
+   * @returns The enhanced entity class with mesh renderer methods
    */
   addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(
     base: EntityBase,

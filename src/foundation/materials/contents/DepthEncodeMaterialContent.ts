@@ -13,15 +13,37 @@ import DepthEncodeSingleShaderFragment from '../../../webgl/shaderity_shaders/De
 import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 
+/**
+ * Material content for depth encoding functionality.
+ * This class handles encoding depth information into textures for shadow mapping and depth-based effects.
+ */
 export class DepthEncodeMaterialContent extends AbstractMaterialContent {
+  /** Shader semantic for the inner z-near clipping plane value */
   static zNearInner = new ShaderSemanticsClass({ str: 'zNearInner' });
+
+  /** Shader semantic for the inner z-far clipping plane value */
   static zFarInner = new ShaderSemanticsClass({ str: 'zFarInner' });
+
+  /** Shader semantic to indicate if the light source is a point light */
   static isPointLight = new ShaderSemanticsClass({ str: 'isPointLight' });
+
+  /** Shader semantic for the depth power factor used in depth encoding */
   static depthPow = new ShaderSemanticsClass({ str: 'depthPow' });
 
+  /** Cached value of the last z-near plane to avoid unnecessary uniform updates */
   private __lastZNear = 0.0;
+
+  /** Cached value of the last z-far plane to avoid unnecessary uniform updates */
   private __lastZFar = 0.0;
 
+  /**
+   * Creates a new DepthEncodeMaterialContent instance.
+   *
+   * @param materialName - The name identifier for this material
+   * @param depthPow - The power factor for depth encoding (1.0-2.0 range)
+   * @param options - Configuration options for the material
+   * @param options.isSkinning - Whether skeletal animation skinning is enabled
+   */
   constructor(materialName: string, depthPow: number, { isSkinning }: { isSkinning: boolean }) {
     super(
       materialName,
@@ -94,6 +116,17 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
+  /**
+   * Sets internal shader parameters specific to depth encoding for WebGL rendering.
+   * This method configures camera-related parameters and handles uniform updates
+   * for the depth encoding shader.
+   *
+   * @param params - Parameters for setting internal WebGL settings
+   * @param params.material - The material instance being configured
+   * @param params.shaderProgram - The WebGL shader program to configure
+   * @param params.firstTime - Whether this is the first time setting parameters
+   * @param params.args - WebGL rendering arguments containing camera and entity data
+   */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
     material,
     shaderProgram,

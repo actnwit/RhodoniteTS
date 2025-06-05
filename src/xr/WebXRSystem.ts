@@ -29,7 +29,21 @@ declare const window: any;
 const defaultUserPositionInVR = Vector3.fromCopyArray([0.0, 1.1, 0]);
 
 /**
- * WebXRSystem class manages WebXR session and rendering
+ * WebXRSystem class manages WebXR session and rendering for virtual reality experiences.
+ * This singleton class handles WebXR session lifecycle, camera setup for stereo rendering,
+ * input source management, and coordinate space transformations for VR applications.
+ *
+ * @example
+ * ```typescript
+ * const webXRSystem = WebXRSystem.getInstance();
+ * await webXRSystem.readyForWebXR(requestButton, '/assets/');
+ * const controllers = await webXRSystem.enterWebXR({
+ *   initialUserPosition: Vector3.fromCopyArray([0, 1.6, 0]),
+ *   callbackOnXrSessionStart: () => console.log('VR started'),
+ *   callbackOnXrSessionEnd: () => console.log('VR ended'),
+ *   profilePriorities: ['oculus-touch', 'generic-trigger']
+ * });
+ * ```
  */
 export class WebXRSystem {
   private static __instance: WebXRSystem;
@@ -59,6 +73,11 @@ export class WebXRSystem {
   private __multiviewColorTextureHandle = -1;
   private __webglStereoUtil?: WebGLStereoUtil;
 
+  /**
+   * Private constructor for singleton pattern.
+   * Initializes the viewer entity and left/right camera entities for stereo rendering.
+   * Sets up the scene graph hierarchy with cameras as children of the viewer entity.
+   */
   private constructor() {
     this.__viewerEntity = createGroupEntity();
     this.__viewerEntity.tryToSetUniqueName('WebXR Viewer', true);
@@ -90,10 +109,19 @@ export class WebXRSystem {
   /// Public Methods
 
   /**
-   * Ready for WebXR
+   * Prepares the WebXR system for VR session initialization.
+   * Checks for WebXR support, loads required modules, and sets up the entry point.
    *
-   * @param requestButtonDom
-   * @returns true: prepared properly, false: failed to prepare
+   * @param requestButtonDom - HTML element to serve as the VR entry button. If null, creates a default button.
+   * @param basePath - Base path for loading controller models and assets.
+   * @returns Promise that resolves to an empty array on success.
+   * @throws {Error} When not running in a browser environment or WebXR is not supported.
+   *
+   * @example
+   * ```typescript
+   * const enterButton = document.getElementById('enter-vr-button');
+   * await webXRSystem.readyForWebXR(enterButton, '/assets/controllers/');
+   * ```
    */
   async readyForWebXR(requestButtonDom: HTMLElement, basePath: string) {
     if (typeof window === "undefined") {
@@ -134,10 +162,31 @@ export class WebXRSystem {
   }
 
   /**
-   * Enter to WebXR (VR mode)
-   * @param initialUserPosition the initial user position in world space
-   * @param callbackOnXrSessionEnd the callback function for XrSession ending
-   * @returns boolean value about succeeded or not
+   * Initiates a WebXR VR session with specified configuration.
+   * Requests an immersive VR session, sets up reference space, WebGL layer, and input handling.
+   *
+   * @param options - Configuration object for WebXR session.
+   * @param options.initialUserPosition - Initial position of the user in world space. Defaults to [0, 1.1, 0].
+   * @param options.callbackOnXrSessionStart - Callback function executed when the XR session starts.
+   * @param options.callbackOnXrSessionEnd - Callback function executed when the XR session ends.
+   * @param options.profilePriorities - Array of controller profile names in priority order for input mapping.
+   * @returns Promise that resolves to an array of controller entities, or undefined on failure.
+   *
+   * @example
+   * ```typescript
+   * const controllers = await webXRSystem.enterWebXR({
+   *   initialUserPosition: Vector3.fromCopyArray([0, 1.6, 2]),
+   *   callbackOnXrSessionStart: () => {
+   *     console.log('VR session started');
+   *     // Initialize VR-specific UI or game logic
+   *   },
+   *   callbackOnXrSessionEnd: () => {
+   *     console.log('VR session ended');
+   *     // Clean up VR-specific resources
+   *   },
+   *   profilePriorities: ['oculus-touch-v2', 'oculus-touch', 'generic-trigger']
+   * });
+   * ```
    */
   async enterWebXR({
     initialUserPosition,
@@ -209,7 +258,16 @@ export class WebXRSystem {
   }
 
   /**
-   * Disable WebXR (Close the XrSession)
+   * Exits the current WebXR session and returns to normal rendering mode.
+   * Gracefully terminates the XR session, triggering cleanup callbacks.
+   *
+   * @example
+   * ```typescript
+   * // Exit VR mode when user clicks a button
+   * exitButton.addEventListener('click', async () => {
+   *   await webXRSystem.exitWebXR();
+   * });
+   * ```
    */
   async exitWebXR() {
     if (this.__xrSession != null) {
@@ -220,28 +278,59 @@ export class WebXRSystem {
 
   /// Getter Methods
 
+  /**
+   * Gets the canvas width configured for VR rendering.
+   *
+   * @returns The width of the VR canvas in pixels.
+   */
   getCanvasWidthForVr() {
     return this.__canvasWidthForVR;
   }
 
+  /**
+   * Gets the canvas height configured for VR rendering.
+   *
+   * @returns The height of the VR canvas in pixels.
+   */
   getCanvasHeightForVr() {
     return this.__canvasHeightForVR;
   }
 
+  /**
+   * Gets all currently tracked controller entities.
+   *
+   * @returns Array of scene graph entities representing VR controllers.
+   */
   getControllerEntities() {
     return this.__controllerEntities;
   }
 
   /// Accessors
 
+  /**
+   * Gets the view matrix for the left eye camera.
+   *
+   * @returns The view matrix for left eye rendering.
+   */
   get leftViewMatrix() {
     return this.__leftCameraEntity.getCamera().viewMatrix;
   }
 
+  /**
+   * Gets the view matrix for the right eye camera.
+   *
+   * @returns The view matrix for right eye rendering.
+   */
   get rightViewMatrix() {
     return this.__rightCameraEntity.getCamera().viewMatrix;
   }
 
+  /**
+   * Gets the projection matrix for the left eye.
+   * Derived from the XR system's view information.
+   *
+   * @returns The projection matrix for left eye rendering.
+   */
   get leftProjectionMatrix() {
     const xrViewLeft = this.__xrViewerPose?.views[0];
     return MutableMatrix44.fromCopyFloat32ArrayColumnMajor(
@@ -249,6 +338,12 @@ export class WebXRSystem {
     );
   }
 
+  /**
+   * Gets the projection matrix for the right eye.
+   * Derived from the XR system's view information.
+   *
+   * @returns The projection matrix for right eye rendering.
+   */
   get rightProjectionMatrix() {
     const xrViewRight = this.__xrViewerPose?.views[1];
     return MutableMatrix44.fromCopyFloat32ArrayColumnMajor(
@@ -256,6 +351,11 @@ export class WebXRSystem {
     );
   }
 
+  /**
+   * Gets the WebXR framebuffer for rendering.
+   *
+   * @returns The WebGL framebuffer provided by the XR system, or undefined if not available.
+   */
   get framebuffer() {
     // if (this.__multiviewFramebufferHandle > 0) {
     //   const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
@@ -268,38 +368,80 @@ export class WebXRSystem {
     return this.__xrSession?.renderState.baseLayer?.framebuffer;
   }
 
+  /**
+   * Checks if multiview rendering is supported and enabled.
+   *
+   * @returns True if multiview VR rendering is supported.
+   */
   isMultiView() {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     return webglResourceRepository.isSupportMultiViewVRRendering();
   }
 
+  /**
+   * Checks if a WebXR session has been requested.
+   *
+   * @returns True if WebXR session entry has been requested.
+   */
   get requestedToEnterWebXR() {
     return this.__requestedToEnterWebXR;
   }
 
+  /**
+   * Gets the current XR session object.
+   *
+   * @returns The active XRSession, or undefined if no session is active.
+   */
   get xrSession() {
     return this.__xrSession;
   }
 
+  /**
+   * Legacy property for backward compatibility.
+   *
+   * @deprecated Use requestedToEnterWebXR instead.
+   * @returns True if WebXR session entry has been requested.
+   */
   get requestedToEnterWebVR() {
     return this.__requestedToEnterWebXR;
   }
 
+  /**
+   * Checks if currently in WebXR rendering mode.
+   *
+   * @returns True if WebXR mode is active.
+   */
   get isWebXRMode() {
     return this.__isWebXRMode;
   }
 
+  /**
+   * Sets the WebXR mode state for this system and the WebGL context.
+   *
+   * @param mode - Whether WebXR mode should be enabled.
+   */
   private __setWebXRMode(mode: boolean) {
     this.__isWebXRMode = mode;
     this.__glw!._isWebXRMode = mode;
   }
 
+  /**
+   * Checks if the system is ready to enter WebXR.
+   *
+   * @returns True if WebXR initialization is complete and ready for session start.
+   */
   get isReadyForWebXR() {
     return this.__isReadyForWebXR;
   }
 
   /// Public Static Methods
 
+  /**
+   * Gets the singleton instance of WebXRSystem.
+   * Creates a new instance if one doesn't exist.
+   *
+   * @returns The singleton WebXRSystem instance.
+   */
   static getInstance() {
     if (!this.__instance) {
       this.__instance = new WebXRSystem();
@@ -311,10 +453,11 @@ export class WebXRSystem {
   /// Friend methods
 
   /**
-   * Getter of the view matrix of right eye
-   * @param index (0: left, 1: right)
+   * Gets the view matrix for the specified eye.
+   *
    * @internal
-   * @returns The view matrix vector of right eye
+   * @param index - Eye index (0: left, 1: right).
+   * @returns The view matrix for the specified eye.
    */
   _getViewMatrixAt(index: Index) {
     if (index === 0) {
@@ -325,10 +468,11 @@ export class WebXRSystem {
   }
 
   /**
-   * Getter of the project matrix of right eye
-   * @param index (0: left, 1: right)
+   * Gets the projection matrix for the specified eye.
+   *
    * @internal
-   * @returns The project matrix of right eye
+   * @param index - Eye index (0: left, 1: right).
+   * @returns The projection matrix for the specified eye.
    */
   _getProjectMatrixAt(index: Index) {
     if (index === 0) {
@@ -339,10 +483,11 @@ export class WebXRSystem {
   }
 
   /**
-   * Getter of the viewport vector
-   * @param index (0: left, 1: right)
+   * Gets the viewport configuration for the specified eye.
+   *
    * @internal
-   * @returns the viewport vector
+   * @param index - Eye index (0: left, 1: right).
+   * @returns The viewport vector (x, y, width, height) for the specified eye.
    */
   _getViewportAt(index: Index) {
     if (index === 0) {
@@ -353,18 +498,21 @@ export class WebXRSystem {
   }
 
   /**
-   * Getter of the viewport vector of left eye
+   * Gets the viewport configuration for the left eye.
+   *
    * @internal
-   * @returns The viewport vector of left eye
+   * @returns The viewport vector (x, y, width, height) for the left eye.
    */
   _getLeftViewport() {
     return Vector4.fromCopyArray([0, 0, this.__canvasWidthForVR / 2, this.__canvasHeightForVR]);
   }
 
   /**
-   * Getter of the viewport vector of right eye
+   * Gets the viewport configuration for the right eye.
+   * Accounts for multiview rendering mode differences.
+   *
    * @internal
-   * @returns The viewport vector of right eye
+   * @returns The viewport vector (x, y, width, height) for the right eye.
    */
   _getRightViewport() {
     if (this.isMultiView()) {
@@ -379,6 +527,12 @@ export class WebXRSystem {
     }
   }
 
+  /**
+   * Updates camera projection matrices and pushes values to the global data repository.
+   * Called during the rendering pipeline to ensure cameras have current XR projection data.
+   *
+   * @internal
+   */
   _setValuesToGlobalDataRepository() {
     this.__leftCameraEntity.getCamera().projectionMatrix = this.leftProjectionMatrix;
     this.__rightCameraEntity.getCamera().projectionMatrix = this.rightProjectionMatrix;
@@ -387,10 +541,12 @@ export class WebXRSystem {
   }
 
   /**
-   * Getter of the position of the VR camera in world space
+   * Gets the world position of the specified VR camera.
+   * Combines XR pose data with user position offset and viewer transformations.
+   *
    * @internal
-   * @param displayIdx (0: left, 1: right)
-   * @returns The position of the VR camera in world space
+   * @param displayIdx - Eye index (0: left, 1: right).
+   * @returns The world position of the VR camera.
    */
   _getCameraWorldPositionAt(displayIdx: Index) {
     const xrView = this.__xrViewerPose?.views[displayIdx];
@@ -410,10 +566,11 @@ export class WebXRSystem {
   }
 
   /**
-   * Getter of the CameraComponent SID of left/right eye
+   * Gets the component SID (System ID) for the specified camera.
+   *
    * @internal
-   * @param index (0: left, 1: right)
-   * @returns the SID of the CameraComponent of left/right eye
+   * @param index - Eye index (0: left, 1: right).
+   * @returns The SID of the CameraComponent for the specified eye.
    */
   _getCameraComponentSIDAt(index: Index) {
     if (index === 0) {
@@ -424,10 +581,11 @@ export class WebXRSystem {
   }
 
   /**
-   * Getter of the CameraComponent of left/right eye
+   * Gets the camera component for the specified eye.
+   *
    * @internal
-   * @param index (0: left, 1: right)
-   * @returns the CameraComponent of left/right eye
+   * @param index - Eye index (0: left, 1: right).
+   * @returns The CameraComponent for the specified eye.
    */
   _getCameraComponentAt(index: Index) {
     if (index === 0) {
@@ -438,9 +596,13 @@ export class WebXRSystem {
   }
 
   /**
-   * Pre process for rendering
+   * Performs pre-rendering updates for WebXR.
+   * Updates view matrices, input sources, and gamepad states.
+   * Called once per frame before rendering begins.
+   *
    * @internal
-   * @param xrFrame XRFrame object
+   * @param time - Current time in milliseconds.
+   * @param xrFrame - The XRFrame object for this rendering frame.
    */
   _preRender(time: number, xrFrame: XRFrame) {
     if (this.isWebXRMode && this.__requestedToEnterWebXR && xrFrame != null) {
@@ -455,6 +617,10 @@ export class WebXRSystem {
     }
   }
 
+  /**
+   * Resets all viewer transformation parameters to their default values.
+   * Useful for resetting user position and orientation to origin.
+   */
   resetViewerTransform() {
     this.__viewerTranslate = MutableVector3.zero();
     this.__viewerAzimuthAngle = MutableScalar.zero();
@@ -463,7 +629,10 @@ export class WebXRSystem {
   }
 
   /**
-   * Post process for rendering
+   * Performs post-rendering cleanup for WebXR.
+   * Currently handles multiview framebuffer operations when enabled.
+   * Called once per frame after rendering is complete.
+   *
    * @internal
    */
   _postRender() {
@@ -494,8 +663,17 @@ export class WebXRSystem {
 
   /// Private Methods
 
+  /**
+   * Handles changes in XR input sources (controllers).
+   * Creates motion controller entities for newly added input sources.
+   *
+   * @private
+   * @param event - XRInputSourceChangeEvent containing added/removed input sources.
+   * @param resolve - Promise resolve function to return controller entities.
+   * @param profilePriorities - Array of controller profile names in priority order.
+   */
   private async __onInputSourcesChange(
-    event: XRInputSourceChangeEvent,
+    event: XRInputSourcesChangeEvent,
     resolve: (entities: ISceneGraphEntity[]) => void,
     profilePriorities: string[]
   ) {
@@ -515,6 +693,13 @@ export class WebXRSystem {
     resolve(this.__controllerEntities);
   }
 
+  /**
+   * Updates camera information from XR viewer pose data.
+   * Calculates and applies transformations for left and right eye cameras based on XR pose.
+   *
+   * @private
+   * @param xrViewerPose - The XRViewerPose containing view and transform data.
+   */
   private __setCameraInfoFromXRViews(xrViewerPose: XRViewerPose) {
     if (Is.not.exist(xrViewerPose)) {
       Logger.warn('xrViewerPose not exist');
@@ -592,6 +777,14 @@ export class WebXRSystem {
     this.__rightCameraEntity.getTransform()!.localMatrix = rotateMatRight;
   }
 
+  /**
+   * Sets up the WebGL layer for XR rendering.
+   * Makes the WebGL context XR-compatible and configures the XR session's base layer.
+   *
+   * @private
+   * @param xrSession - The XRSession to configure.
+   * @param callbackOnXrSessionStart - Callback to execute when setup is complete.
+   */
   private async __setupWebGLLayer(xrSession: XRSession, callbackOnXrSessionStart: () => void) {
     const gl = this.__glw?.getRawContextAsWebGL2();
 
@@ -639,11 +832,25 @@ export class WebXRSystem {
     }
   }
 
+  /**
+   * Updates the viewer pose from the current XR frame.
+   * Retrieves the current viewer pose and updates camera transformations.
+   *
+   * @private
+   * @param xrFrame - The current XRFrame containing pose data.
+   */
   private __updateView(xrFrame: XRFrame) {
     this.__xrViewerPose = xrFrame.getViewerPose(this.__xrReferenceSpace!);
     this.__setCameraInfoFromXRViews(this.__xrViewerPose!);
   }
 
+  /**
+   * Updates the transforms and states of XR input sources (controllers).
+   * Applies XR pose data to controller entities and updates their visual models.
+   *
+   * @private
+   * @param xrFrame - The current XRFrame containing input source pose data.
+   */
   private __updateInputSources(xrFrame: XRFrame) {
     this.__xrInputSources.forEach((input, i) => {
       if (Is.exist(input.gripSpace)) {

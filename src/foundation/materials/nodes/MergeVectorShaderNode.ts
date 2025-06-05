@@ -6,7 +6,29 @@ import MergeVectorShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/no
 import { SystemState } from '../../system/SystemState';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 
+/**
+ * A shader node that merges vector components to create various vector outputs.
+ *
+ * This node provides the capability to combine individual scalar components (x, y, z, w)
+ * or smaller vectors (xy, zw, xyz) into larger vector outputs (Vec2, Vec3, Vec4).
+ * It supports multiple input configurations and automatically selects the appropriate
+ * shader function based on which inputs are connected.
+ *
+ * @example
+ * ```typescript
+ * const mergeNode = new MergeVectorShaderNode();
+ * // Connect scalar inputs x, y, z, w to create a Vec4 output
+ * // Or connect Vec3 xyz and scalar w to create a Vec4 output
+ * ```
+ */
 export class MergeVectorShaderNode extends AbstractShaderNode {
+  /**
+   * Creates a new MergeVectorShaderNode instance.
+   *
+   * Initializes the node with predefined inputs for various vector components
+   * and outputs for different vector sizes. The node supports multiple input
+   * combinations to create flexible vector merging operations.
+   */
   constructor() {
     super('mergeVector', {
       codeGLSL: MergeVectorShaderityObjectGLSL.code,
@@ -71,6 +93,23 @@ export class MergeVectorShaderNode extends AbstractShaderNode {
     });
   }
 
+  /**
+   * Determines the appropriate shader function name based on connected inputs.
+   *
+   * This method analyzes which input connections are active and returns the
+   * corresponding shader function variant. Each combination of inputs requires
+   * a different shader function implementation to handle the vector merging logic.
+   *
+   * Supported input combinations:
+   * - XYZ + W: Vec3 input with scalar W component
+   * - XY + ZW: Two Vec2 inputs for XY and ZW components
+   * - XY + Z + W: Vec2 input with individual Z and W scalars
+   * - ZW + X + Y: Vec2 input with individual X and Y scalars
+   * - X + Y + Z + W: Four individual scalar components
+   *
+   * @returns The derivative function name suffix for the shader
+   * @throws {Error} When the input connection pattern is not supported
+   */
   getShaderFunctionNameDerivative() {
     if (this.inputConnections[0] != null && this.inputConnections[6] != null) {
       return this.__shaderFunctionName + 'XYZ_W';
@@ -99,6 +138,25 @@ export class MergeVectorShaderNode extends AbstractShaderNode {
     throw new Error('Not implemented');
   }
 
+  /**
+   * Generates the shader function call statement for the merge vector operation.
+   *
+   * This method creates the appropriate shader code to call the merge vector function
+   * with the correct input and output parameters. It handles both WebGL (GLSL) and
+   * WebGPU (WGSL) syntax differences and manages dummy variables for unused outputs.
+   *
+   * The method generates dummy output variables for each possible output (xyzw, xyz, xy, zw)
+   * and replaces them with actual output variable names when they are used. This ensures
+   * that the shader function signature remains consistent regardless of which outputs
+   * are actually connected.
+   *
+   * @param i - The node index in the shader graph
+   * @param shaderNode - The shader node instance (typically this node)
+   * @param functionName - The name of the shader function to call
+   * @param varInputNames - Array of input variable names for each node
+   * @param varOutputNames - Array of output variable names for each node
+   * @returns The generated shader code string for the function call
+   */
   makeCallStatement(
     i: number,
     shaderNode: AbstractShaderNode,

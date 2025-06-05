@@ -71,28 +71,55 @@ export const GLTF2_EXPORT_DRACO = 'glTF-Draco';
 export const GLTF2_EXPORT_EMBEDDED = 'glTF-Embedded';
 export const GLTF2_EXPORT_NO_DOWNLOAD = 'No-Download';
 
+/**
+ * glTF2 Export Type definitions
+ */
 export type Gltf2ExportType =
   | typeof GLTF2_EXPORT_GLTF
   | typeof GLTF2_EXPORT_GLB
   | typeof GLTF2_EXPORT_DRACO
   | typeof GLTF2_EXPORT_EMBEDDED
   | typeof GLTF2_EXPORT_NO_DOWNLOAD;
+
+/**
+ * Configuration options for glTF2 export process
+ */
 export interface Gltf2ExporterArguments {
-  entities?: ISceneGraphEntity[]; // The target entities. This exporter includes their descendants for the output.
+  /** Target entities to export. If specified, includes their descendants in the output */
+  entities?: ISceneGraphEntity[];
+  /** Export format type */
   type: Gltf2ExportType;
+  /** Tags to exclude from export */
   excludeTags?: Tag[];
 }
 
 /**
  * The glTF2 format Exporter class.
+ *
+ * This class provides functionality to export Rhodonite scene data to glTF 2.0 format.
+ * It supports various export formats including .gltf, .glb, and embedded formats.
  */
 export class Gltf2Exporter {
   private constructor() {}
 
   /**
-   * Exports scene data in the rhodonite system in glTF2 format.
-   * @param filename the target output path
-   * @param option a option config
+   * Exports scene data from the Rhodonite system in glTF2 format.
+   *
+   * This is the main entry point for glTF2 export functionality. It processes
+   * the scene graph, materials, animations, and other data to create a complete
+   * glTF2 output in the specified format.
+   *
+   * @param filename - The target output filename (without extension)
+   * @param option - Export configuration options
+   * @returns Promise that resolves to the generated glTF2 ArrayBuffer
+   *
+   * @example
+   * ```typescript
+   * const buffer = await Gltf2Exporter.export('myScene', {
+   *   type: GLTF2_EXPORT_GLB,
+   *   entities: [rootEntity]
+   * });
+   * ```
    */
   static async export(
     filename: string,
@@ -128,6 +155,14 @@ export class Gltf2Exporter {
     return glbArrayBuffer;
   }
 
+  /**
+   * Removes empty arrays from the glTF2 JSON to optimize output size.
+   *
+   * According to glTF2 specification, empty arrays should be omitted rather than
+   * included as empty arrays to reduce file size and improve parsing performance.
+   *
+   * @param json - The glTF2 JSON object to clean up
+   */
   private static __deleteEmptyArrays(json: Gltf2Ex) {
     if (json.accessors.length === 0) {
       delete (json as Gltf2).accessors;
@@ -163,9 +198,14 @@ export class Gltf2Exporter {
   }
 
   /**
-   * collect target entities. This exporter includes their descendants for the output.
-   * @param option an option config
-   * @returns target entities
+   * Collects target entities for export, including their descendants.
+   *
+   * This method processes the entity hierarchy to determine which entities should
+   * be included in the export. It handles tag-based filtering and ensures that
+   * hierarchical relationships are preserved.
+   *
+   * @param option - Export configuration options containing entity filters
+   * @returns Object containing collected entities and top-level entities
    */
   private static __collectEntities(option: Gltf2ExporterArguments | undefined) {
     const checkPassOrNotWithTags = (entity: ISceneGraphEntity) => {
@@ -237,9 +277,14 @@ export class Gltf2Exporter {
   }
 
   /**
-   * create the base of glTF2 JSON
-   * @param filename target output path
-   * @returns the json and fileName in a object
+   * Creates the base structure of the glTF2 JSON document.
+   *
+   * Initializes the fundamental glTF2 structure with required fields like asset,
+   * buffers, and empty arrays for various glTF2 components. Sets up the metadata
+   * and prepares the document for content population.
+   *
+   * @param filename - Target output filename for generating URIs
+   * @returns Object containing the initialized JSON structure and processed filename
    */
   private static __createJsonBase(filename: string) {
     const fileName = filename ? filename : 'Rhodonite_' + new Date().getTime();
@@ -280,9 +325,14 @@ export class Gltf2Exporter {
   }
 
   /**
-   * create Gltf2BufferViews and Gltf2Accessors for the output glTF2 JSON
-   * @param json
-   * @param entities
+   * Creates glTF2 BufferViews and Accessors for all geometry and animation data.
+   *
+   * This method processes mesh geometry, animation data, and skeletal information
+   * to create the necessary buffer views and accessors required for glTF2 format.
+   * It handles data deduplication and proper memory layout.
+   *
+   * @param json - The glTF2 JSON document to populate
+   * @param entities - Array of entities to process for buffer creation
    */
   static __createBufferViewsAndAccessors(json: Gltf2Ex, entities: ISceneGraphEntity[]) {
     const existingUniqueRnBuffers: Buffer[] = [];
@@ -309,10 +359,15 @@ export class Gltf2Exporter {
   }
 
   /**
-   * create Gltf2Nodes for the output glTF2 JSON
-   * @param json a glTF2 JSON
-   * @param entities target entities
-   * @param indicesOfGltfMeshes the indices of Gltf2Meshes
+   * Creates glTF2 nodes representing the scene graph structure.
+   *
+   * Converts Rhodonite entities into glTF2 nodes, preserving hierarchical relationships,
+   * transformations, and component associations (meshes, cameras, skins). Handles
+   * special cases like billboard nodes and blend shape weights.
+   *
+   * @param json - The glTF2 JSON document to populate with nodes
+   * @param entities - All entities to convert to nodes
+   * @param topLevelEntities - Root-level entities for the scene
    */
   static __createNodes(
     json: Gltf2Ex,
@@ -453,9 +508,16 @@ export class Gltf2Exporter {
   }
 
   /**
-   * create Gltf2Materials and set them to Gltf2Primitives for the output glTF2 JSON
-   * @param json a glTF2 JSON
-   * @param entities all target entities
+   * Creates glTF2 materials and textures from Rhodonite materials.
+   *
+   * Processes all materials used by mesh entities, converting Rhodonite material
+   * properties to glTF2 PBR format. Handles texture extraction, optimization,
+   * and proper format conversion including support for various material extensions.
+   *
+   * @param json - The glTF2 JSON document to populate with materials
+   * @param entities - Mesh entities containing materials to convert
+   * @param option - Export options affecting material processing
+   * @returns Promise that resolves when all materials and textures are processed
    */
   static async __createMaterials(
     json: Gltf2Ex,
@@ -695,9 +757,14 @@ export class Gltf2Exporter {
   }
 
   /**
-   * create the arraybuffer of the glTF2 .bin file and write all accessors data to the arraybuffer
-   * @param json a glTF2 JSON
-   * @returns A arraybuffer
+   * Creates the binary buffer containing all mesh, animation, and texture data.
+   *
+   * Consolidates all buffer views into a single binary buffer with proper
+   * alignment and padding according to glTF2 specification. Handles data
+   * copying and memory layout optimization.
+   *
+   * @param json - The glTF2 JSON document containing buffer view definitions
+   * @returns ArrayBuffer containing the consolidated binary data
    */
   private static __createBinary(json: Gltf2Ex) {
     // write all data of accessors to the DataView (total data area)
@@ -745,10 +812,14 @@ export class Gltf2Exporter {
   }
 
   /**
-   * download the glTF2 files
-   * @param json a glTF2 JSON
-   * @param filename target output path
-   * @param arraybuffer an ArrayBuffer of the .bin file
+   * Initiates download of the exported glTF2 data as a .glb file.
+   *
+   * Creates a downloadable .glb file containing the complete glTF2 scene
+   * in binary format. Uses browser download API to save the file locally.
+   *
+   * @param json - The glTF2 JSON document
+   * @param filename - Base filename for the download
+   * @param arraybuffer - Binary data buffer containing the .glb file
    */
   static __downloadGlb(json: Gltf2, filename: string, arraybuffer: ArrayBuffer): void {
     {
@@ -763,13 +834,23 @@ export class Gltf2Exporter {
     }
   }
 
+  /**
+   * Placeholder method for future glTF2 ArrayBuffer export functionality.
+   *
+   * This method is reserved for implementing glTF2 export that returns
+   * an ArrayBuffer without triggering a download.
+   */
   exportGlbAsArrayBuffer() {}
 
   /**
-   * download the glTF2 files
-   * @param json a glTF2 JSON
-   * @param filename target output path
-   * @param arraybuffer an ArrayBuffer of the .bin file
+   * Initiates download of the exported glTF2 data as separate .gltf and .bin files.
+   *
+   * Creates downloadable .gltf (JSON) and .bin (binary) files representing
+   * the complete glTF2 scene in text format with external binary references.
+   *
+   * @param json - The glTF2 JSON document
+   * @param filename - Base filename for the downloads
+   * @param arraybuffer - Binary data buffer for the .bin file
    */
   static __downloadGltf(json: Gltf2, filename: string, arraybuffer: ArrayBuffer): void {
     {
@@ -796,6 +877,17 @@ export class Gltf2Exporter {
   }
 }
 
+/**
+ * Generates a complete glTF2 Binary (.glb) ArrayBuffer from JSON and binary data.
+ *
+ * Combines the glTF2 JSON document and binary buffer into a single .glb file
+ * following the glTF2 binary format specification. Handles proper chunk
+ * alignment and header construction.
+ *
+ * @param json - The glTF2 JSON document to embed
+ * @param arraybuffer - Binary data buffer to include
+ * @returns Complete .glb file as ArrayBuffer
+ */
 function generateGlbArrayBuffer(json: Gltf2, arraybuffer: ArrayBuffer) {
   const headerBytes = 12; // 12byte-header
 
@@ -842,9 +934,17 @@ function generateGlbArrayBuffer(json: Gltf2, arraybuffer: ArrayBuffer) {
 }
 
 /**
- * create Gltf2Skins
- * @param json a glTF2 JSON
- * @param entities all target entities
+ * Creates glTF2 skins from skeletal animation data.
+ *
+ * Processes skeletal entities to create glTF2 skin objects containing joint
+ * hierarchies, inverse bind matrices, and skeletal structure information
+ * required for proper skeletal animation in glTF2 format.
+ *
+ * @param json - The glTF2 JSON document to populate with skin data
+ * @param entities - Skeletal entities to process
+ * @param existingUniqueRnBuffers - Buffer deduplication cache
+ * @param existingUniqueRnBufferViews - BufferView deduplication cache
+ * @param existingUniqueRnAccessors - Accessor deduplication cache
  */
 function __createBufferViewsAndAccessorsOfSkin(
   json: Gltf2Ex,
@@ -908,13 +1008,17 @@ function __createBufferViewsAndAccessorsOfSkin(
 }
 
 /**
- * create BufferViews and Accessors of mesh
- * @param json
- * @param entities
- * @param existingUniqueRnBuffers
- * @param existingUniqueRnBufferViews
- * @param existingUniqueRnAccessors
- * @returns
+ * Creates BufferViews and Accessors for mesh geometry data.
+ *
+ * Processes mesh entities to extract vertex attributes, indices, and blend shape
+ * data, creating the necessary glTF2 buffer views and accessors. Handles
+ * deduplication and proper memory layout for efficient storage.
+ *
+ * @param json - The glTF2 JSON document to populate
+ * @param entities - Mesh entities to process
+ * @param existingUniqueRnBuffers - Buffer deduplication cache
+ * @param existingUniqueRnBufferViews - BufferView deduplication cache
+ * @param existingUniqueRnAccessors - Accessor deduplication cache
  */
 function __createBufferViewsAndAccessorsOfMesh(
   json: Gltf2Ex,
@@ -1005,6 +1109,20 @@ function __createBufferViewsAndAccessorsOfMesh(
   }
 }
 
+/**
+ * Sets up blend shape (morph target) data for a primitive.
+ *
+ * Processes blend shape targets from Rhodonite format to glTF2 morph targets,
+ * creating the necessary accessors and buffer views for vertex attribute deltas.
+ *
+ * @param entity - The mesh entity containing blend shape data
+ * @param rnPrimitive - The Rhodonite primitive with blend shape targets
+ * @param primitive - The glTF2 primitive to populate with morph targets
+ * @param json - The glTF2 JSON document
+ * @param existingUniqueRnBuffers - Buffer deduplication cache
+ * @param existingUniqueRnBufferViews - BufferView deduplication cache
+ * @param existingUniqueRnAccessors - Accessor deduplication cache
+ */
 function setupBlandShapeData(
   entity: IMeshEntity,
   rnPrimitive: Primitive,
@@ -1048,9 +1166,14 @@ function setupBlandShapeData(
 }
 
 /**
- * create BufferViews and Accessors of animation
- * @param json
- * @param entities
+ * Creates BufferViews and Accessors for animation data.
+ *
+ * Processes animation entities to extract keyframe data, creating the necessary
+ * glTF2 animation samplers, channels, and associated buffer views and accessors
+ * for proper animation playback.
+ *
+ * @param json - The glTF2 JSON document to populate with animation data
+ * @param entities - Animation entities to process
  */
 function __createBufferViewsAndAccessorsOfAnimation(
   json: Gltf2Ex,
@@ -1117,6 +1240,16 @@ function __createBufferViewsAndAccessorsOfAnimation(
   json.extras.bufferViewByteLengthAccumulatedArray.push(sumOfBufferViewByteLengthAccumulated);
 }
 
+/**
+ * Calculates the appropriate accessor index for deduplication.
+ *
+ * Searches for an existing accessor that matches the provided one to avoid
+ * creating duplicate accessors in the glTF2 output.
+ *
+ * @param existingUniqueRnAccessors - Array of unique accessors already processed
+ * @param rnAccessor - The accessor to find or add
+ * @returns Index of existing accessor or -1 if not found
+ */
 function calcAccessorIdxToSet(existingUniqueRnAccessors: Accessor[], rnAccessor: Accessor) {
   // let accessorIdxToSet = -1;
   const accessorIdx = existingUniqueRnAccessors.findIndex((accessor) => {
@@ -1134,6 +1267,20 @@ function calcAccessorIdxToSet(existingUniqueRnAccessors: Accessor[], rnAccessor:
   return accessorIdx;
 }
 
+/**
+ * Creates or reuses a glTF2 BufferView for vertex attribute data.
+ *
+ * Optimizes buffer view creation by checking for existing compatible buffer views
+ * and creating new ones only when necessary. Handles proper stride calculation
+ * for vertex attributes.
+ *
+ * @param json - The glTF2 JSON document
+ * @param existingUniqueRnBuffers - Buffer deduplication cache
+ * @param existingUniqueRnBufferViews - BufferView deduplication cache
+ * @param rnBufferView - The Rhodonite buffer view to convert
+ * @param rnAccessor - The accessor that will use this buffer view
+ * @returns The created or existing glTF2 buffer view
+ */
 function createOrReuseGltf2BufferViewForVertexAttributeBuffer(
   json: Gltf2Ex,
   existingUniqueRnBuffers: Buffer[],
@@ -1182,6 +1329,13 @@ function createOrReuseGltf2BufferViewForVertexAttributeBuffer(
   return gltf2BufferView;
 }
 
+/**
+ * Finds the index of an existing buffer view in the cache.
+ *
+ * @param existingUniqueRnBufferViews - Array of unique buffer views
+ * @param rnBufferView - The buffer view to search for
+ * @returns Index of the buffer view or -1 if not found
+ */
 function findBufferViewIdx(existingUniqueRnBufferViews: BufferView[], rnBufferView: BufferView) {
   const bufferViewIdx = existingUniqueRnBufferViews.findIndex((bufferView) =>
     bufferView.isSame(rnBufferView)
@@ -1189,6 +1343,13 @@ function findBufferViewIdx(existingUniqueRnBufferViews: BufferView[], rnBufferVi
   return bufferViewIdx;
 }
 
+/**
+ * Calculates the buffer index for deduplication purposes.
+ *
+ * @param existingUniqueRnBuffers - Array of unique buffers
+ * @param rnBuffer - The buffer to find or add
+ * @returns Index where the buffer should be placed
+ */
 function calcBufferIdxToSet(existingUniqueRnBuffers: Buffer[], rnBuffer: Buffer) {
   if (existingUniqueRnBuffers.length === 0) {
     existingUniqueRnBuffers.push(rnBuffer);
@@ -1201,6 +1362,14 @@ function calcBufferIdxToSet(existingUniqueRnBuffers: Buffer[], rnBuffer: Buffer)
   return bufferIdxToSet;
 }
 
+/**
+ * Accumulates buffer view byte length for proper memory layout.
+ *
+ * @param bufferViewByteLengthAccumulatedArray - Array tracking accumulated lengths
+ * @param bufferIdxToSet - Index of the buffer being processed
+ * @param gltf2BufferView - The buffer view to add
+ * @returns Updated accumulated byte length
+ */
 function accumulateBufferViewByteLength(
   bufferViewByteLengthAccumulatedArray: number[],
   bufferIdxToSet: number,
@@ -1214,6 +1383,13 @@ function accumulateBufferViewByteLength(
   return bufferViewLengthAligned;
 }
 
+/**
+ * Converts Rhodonite animation path names to glTF2 format.
+ *
+ * @param path - The Rhodonite animation path name
+ * @returns The corresponding glTF2 animation path name
+ * @throws Error if the path name is invalid
+ */
 function convertToGltfAnimationPathName(path: AnimationPathName): Gltf2AnimationPathName {
   switch (path) {
     case 'translate':
@@ -1231,6 +1407,15 @@ function convertToGltfAnimationPathName(path: AnimationPathName): Gltf2Animation
   }
 }
 
+/**
+ * Creates a glTF2 animation channel from Rhodonite animation data.
+ *
+ * @param channel - The Rhodonite animation channel
+ * @param samplerIdx - Current sampler index
+ * @param animation - The glTF2 animation to add the channel to
+ * @param entityIdx - Index of the target entity
+ * @returns Updated sampler index
+ */
 function createGltf2AnimationChannel(
   channel: AnimationChannel,
   samplerIdx: Index,
@@ -1250,6 +1435,14 @@ function createGltf2AnimationChannel(
   return samplerIdx;
 }
 
+/**
+ * Creates a glTF2 animation sampler from Rhodonite sampler data.
+ *
+ * @param inputAccessorIdx - Index of the input (time) accessor
+ * @param outputAccessorIdx - Index of the output (value) accessor
+ * @param sampler - The Rhodonite animation sampler
+ * @param animation - The glTF2 animation to add the sampler to
+ */
 function createGltf2AnimationSampler(
   inputAccessorIdx: number,
   outputAccessorIdx: number,
@@ -1264,6 +1457,15 @@ function createGltf2AnimationSampler(
   animation.samplers.push(samplerJson);
 }
 
+/**
+ * Creates BufferView and Accessor for animation input (time) data.
+ *
+ * @param json - The glTF2 JSON document
+ * @param sampler - The animation sampler containing input data
+ * @param bufferIdx - Index of the target buffer
+ * @param bufferViewByteLengthAccumulated - Current accumulated byte length
+ * @returns Object containing accessor index and updated byte length
+ */
 function createGltf2BufferViewAndGltf2AccessorForInput(
   json: Gltf2Ex,
   sampler: AnimationSampler,
@@ -1318,6 +1520,16 @@ function createGltf2BufferViewAndGltf2AccessorForInput(
   };
 }
 
+/**
+ * Creates BufferView and Accessor for animation output (value) data.
+ *
+ * @param json - The glTF2 JSON document
+ * @param sampler - The animation sampler containing output data
+ * @param pathName - The animation path name
+ * @param bufferIdx - Index of the target buffer
+ * @param bufferViewByteLengthAccumulated - Current accumulated byte length
+ * @returns Object containing accessor index and updated byte length
+ */
 function createGltf2BufferViewAndGltf2AccessorForOutput(
   json: Gltf2Ex,
   sampler: AnimationSampler,
@@ -1379,15 +1591,31 @@ function createGltf2BufferViewAndGltf2AccessorForOutput(
   };
 }
 
+/**
+ * Type definition for buffer view byte length calculation parameters.
+ */
 type BufferViewByteLengthDesc = {
+  /** Byte offset of the accessor within the buffer view */
   accessorByteOffset: Byte;
+  /** Number of elements in the accessor */
   accessorCount: Count;
+  /** Byte stride of the buffer view */
   bufferViewByteStride: Byte;
+  /** Byte offset of the buffer view within the buffer */
   bufferViewByteOffset: Byte;
+  /** Size in bytes of each component */
   sizeOfComponent: Byte;
+  /** Number of components per element */
   numberOfComponents: number;
 };
 
+/**
+ * Aligns buffer view byte length to proper boundaries.
+ *
+ * @param bufferViewByteLengthAccumulated - Current accumulated byte length
+ * @param bufferView - The buffer view to align
+ * @returns Aligned byte length with padding
+ */
 function alignBufferViewByteLength(
   bufferViewByteLengthAccumulated: number,
   bufferView: Gltf2BufferViewEx
@@ -1398,16 +1626,15 @@ function alignBufferViewByteLength(
 }
 
 /**
- * calc BufferView byte length
+ * Calculates BufferView byte length and byte offset according to glTF2 specification.
  *
+ * Ensures proper data alignment for performance and compatibility. Each element
+ * of a vertex attribute must be aligned to 4-byte boundaries inside a bufferView.
  *
- *  See: https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#data-alignment
- * @param accessorByteOffset
- * @param accessorCount
- * @param effectiveByteStride
- * @param sizeOfComponent
- * @param numberOfComponents
- * @returns
+ * @param params - Parameters for calculation including offsets and sizes
+ * @returns Object containing fixed byte length and offset values
+ *
+ * @see https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#data-alignment
  */
 function calcBufferViewByteLengthAndByteOffset({
   accessorByteOffset,
@@ -1470,14 +1697,15 @@ function calcBufferViewByteLengthAndByteOffset({
 }
 
 /**
- * fix the passed byteOffset to 4 bytes aligned
- * For performance and compatibility reasons, each element of a vertex attribute
- *   MUST be aligned to 4-byte boundaries inside a bufferView
- *     (i.e., accessor.byteOffset and bufferView.byteStride MUST be multiples of 4).
+ * Aligns accessor byte offset to 4-byte boundaries.
  *
- *  See: https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#data-alignment
- * @param byteOffset ByteOffset of Accessor, which is not algined yet
- * @returns algined byteOffset
+ * For performance and compatibility reasons, each element of a vertex attribute
+ * must be aligned to 4-byte boundaries inside a bufferView.
+ *
+ * @param byteOffset - Byte offset that may not be aligned
+ * @returns Aligned byte offset
+ *
+ * @see https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#data-alignment
  */
 function alignAccessorByteOffsetTo4Bytes(byteOffset: Byte): Byte {
   const alignSize = 4;
@@ -1488,14 +1716,15 @@ function alignAccessorByteOffsetTo4Bytes(byteOffset: Byte): Byte {
 }
 
 /**
- * fix the passed byteOffset to 4 bytes aligned
- * For performance and compatibility reasons, each element of a vertex attribute
- *   MUST be aligned to 4-byte boundaries inside a bufferView
- *     (i.e., accessor.byteOffset and bufferView.byteStride MUST be multiples of 4).
+ * Aligns buffer view byte stride to 4-byte boundaries.
  *
- *  See: https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#data-alignment
- * @param byteOffset ByteOffset of Accessor, which is not algined yet
- * @returns algined byteOffset
+ * For performance and compatibility reasons, bufferView.byteStride must be
+ * a multiple of 4 for vertex attributes.
+ *
+ * @param byteStride - Byte stride that may not be aligned
+ * @returns Aligned byte stride
+ *
+ * @see https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#data-alignment
  */
 function alignBufferViewByteStrideTo4Bytes(byteStride: Byte): Byte {
   const alignSize = 4;
@@ -1507,6 +1736,20 @@ function alignBufferViewByteStrideTo4Bytes(byteStride: Byte): Byte {
   return byteStrideAlgined;
 }
 
+/**
+ * Handles texture image processing for different export formats.
+ *
+ * Processes texture images for inclusion in glTF2 export, handling both
+ * separate file downloads and embedded binary formats depending on export type.
+ *
+ * @param json - The glTF2 JSON document
+ * @param bufferIdx - Index of the target buffer
+ * @param blob - Image data as a Blob
+ * @param option - Export options affecting image handling
+ * @param glTF2ImageEx - The glTF2 image object to populate
+ * @param resolve - Promise resolve callback
+ * @param rejected - Promise reject callback
+ */
 async function handleTextureImage(
   json: Gltf2Ex,
   bufferIdx: Index,
@@ -1551,27 +1794,54 @@ async function handleTextureImage(
 /// BufferView and Accessor Creaters
 ///
 
+/**
+ * Parameters for creating a glTF2 accessor.
+ */
 interface Gltf2AccessorDesc {
+  /** Index of the buffer view */
   bufferViewIdx: Index;
+  /** Byte offset within the buffer view */
   accessorByteOffset: Byte;
+  /** Component type (e.g., FLOAT, UNSIGNED_SHORT) */
   componentType: ComponentTypeEnum;
+  /** Number of elements */
   count: Count;
+  /** Composition type (e.g., VEC3, MAT4) */
   compositionType: CompositionTypeEnum;
+  /** Minimum values for each component */
   min?: Array1to4<number>;
+  /** Maximum values for each component */
   max?: Array1to4<number>;
 }
 
+/**
+ * Parameters for creating a glTF2 buffer view.
+ */
 interface Gltf2BufferViewDesc {
+  /** Index of the buffer */
   bufferIdx: Index;
+  /** Byte offset within the buffer */
   bufferViewByteOffset: Byte;
+  /** Accessor byte offset within the buffer view */
   accessorByteOffset: Byte;
+  /** Number of accessor elements */
   accessorCount: Count;
+  /** Byte stride of the buffer view */
   bufferViewByteStride: Byte;
+  /** Component type */
   componentType: ComponentTypeEnum;
+  /** Composition type */
   compositionType: CompositionTypeEnum;
+  /** Raw data as Uint8Array */
   uint8Array: Uint8Array;
 }
 
+/**
+ * Creates a glTF2 BufferView for animation data.
+ *
+ * @param params - Parameters for buffer view creation
+ * @returns Created glTF2 buffer view with proper alignment
+ */
 function createGltf2BufferViewForAnimation({
   bufferIdx,
   bufferViewByteOffset,
@@ -1605,6 +1875,12 @@ function createGltf2BufferViewForAnimation({
   return gltfBufferViewEx;
 }
 
+/**
+ * Creates a glTF2 Accessor for animation data.
+ *
+ * @param params - Parameters for accessor creation
+ * @returns Created glTF2 accessor with proper type information
+ */
 function createGltf2AccessorForAnimation({
   bufferViewIdx,
   accessorByteOffset,
@@ -1629,6 +1905,16 @@ function createGltf2AccessorForAnimation({
   return gltf2AccessorEx;
 }
 
+/**
+ * Creates or reuses a glTF2 BufferView for general use.
+ *
+ * @param json - The glTF2 JSON document
+ * @param existingUniqueRnBuffers - Buffer deduplication cache
+ * @param existingUniqueRnBufferViews - BufferView deduplication cache
+ * @param rnBufferView - The Rhodonite buffer view to convert
+ * @param target - Optional target binding (e.g., ARRAY_BUFFER)
+ * @returns The created or existing glTF2 buffer view
+ */
 function createOrReuseGltf2BufferView(
   json: Gltf2Ex,
   existingUniqueRnBuffers: Buffer[],
@@ -1665,6 +1951,15 @@ function createOrReuseGltf2BufferView(
   return gltf2BufferView;
 }
 
+/**
+ * Creates or reuses a glTF2 Accessor with deduplication.
+ *
+ * @param json - The glTF2 JSON document
+ * @param bufferViewIdxToSet - Index of the buffer view to use
+ * @param existingUniqueRnAccessors - Accessor deduplication cache
+ * @param rnAccessor - The Rhodonite accessor to convert
+ * @returns The created or existing glTF2 accessor
+ */
 function createOrReuseGltf2Accessor(
   json: Gltf2Ex,
   bufferViewIdxToSet: Index,

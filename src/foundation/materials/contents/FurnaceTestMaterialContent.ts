@@ -14,6 +14,11 @@ import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { dummyWhiteTexture } from '../core/DummyTextures';
 
+/**
+ * Material content for furnace test rendering.
+ * This material is used for testing PBR (Physically Based Rendering) materials
+ * with controlled lighting conditions similar to a furnace test environment.
+ */
 export class FurnaceTestMaterialContent extends AbstractMaterialContent {
   static mode = new ShaderSemanticsClass({ str: 'mode' });
   static debugView = new ShaderSemanticsClass({ str: 'debugView' });
@@ -21,6 +26,11 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
   static disable_fresnel = new ShaderSemanticsClass({ str: 'disable_fresnel' });
   static f0 = new ShaderSemanticsClass({ str: 'f0' });
 
+  /**
+   * Creates a new FurnaceTestMaterialContent instance.
+   *
+   * @param materialName - The name identifier for this material
+   */
   constructor(materialName: string) {
     super(materialName, {}, FurnaceTestShaderVertex, FurnaceTestShaderFragment);
 
@@ -101,6 +111,17 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
+  /**
+   * Sets internal rendering parameters to GPU for WebGL per material.
+   * This method configures shader uniforms including matrices, camera information,
+   * and lighting data required for furnace test rendering.
+   *
+   * @param params - The rendering parameters object
+   * @param params.material - The material instance being rendered
+   * @param params.shaderProgram - The WebGL shader program to configure
+   * @param params.firstTime - Whether this is the first time setting up this shader program
+   * @param params.args - WebGL rendering arguments containing matrices, camera, and lighting data
+   */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
     material,
     shaderProgram,

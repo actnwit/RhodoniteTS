@@ -102,6 +102,15 @@ const g_sampler = new Sampler({
   wrapT: TextureParameter.ClampToEdge,
 });
 
+/**
+ * Creates a new material with the specified material content and maximum instances.
+ * This function automatically manages material grouping when instance limits are reached.
+ *
+ * @param materialContent - The material content that defines the material's properties and shaders
+ * @param maxInstancesNumber - The maximum number of instances that can use this material
+ * @returns A newly created Material instance
+ * @throws Error if material creation fails after exhausting all groups
+ */
 function createMaterial(
   materialContent: AbstractMaterialContent,
   maxInstancesNumber?: Count
@@ -128,6 +137,15 @@ function createMaterial(
   throw new Error('Failed to create material');
 }
 
+/**
+ * Reuses an existing material if compatible with the new content, or recreates it if incompatible.
+ * This function optimizes performance by avoiding unnecessary material recreation.
+ *
+ * @param currentMaterial - The existing material to potentially reuse
+ * @param materialContent - The new material content to apply
+ * @param maxInstancesNumber - The maximum number of instances for the material
+ * @returns The reused or newly created Material instance
+ */
 function reuseOrRecreateMaterial(
   currentMaterial: Material,
   materialContent: AbstractMaterialContent,
@@ -150,6 +168,14 @@ function reuseOrRecreateMaterial(
   }
 }
 
+/**
+ * Forces recreation of a material with the specified content, bypassing compatibility checks.
+ * Use this when you need to ensure a completely fresh material instance.
+ *
+ * @param materialContent - The material content for the new material
+ * @param maxInstancesNumber - The maximum number of instances for the material
+ * @returns A newly recreated Material instance
+ */
 function recreateMaterial(
   materialContent: AbstractMaterialContent,
   maxInstancesNumber?: Count
@@ -165,6 +191,33 @@ function recreateMaterial(
   return material;
 }
 
+/**
+ * Creates a PBR (Physically Based Rendering) Uber material with extensive feature support.
+ * This is a comprehensive material that supports various PBR extensions and features.
+ *
+ * @param options - Configuration object for the PBR material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.isMorphing - Enable morph target animation support
+ * @param options.isSkinning - Enable skeletal animation support
+ * @param options.isLighting - Enable lighting calculations
+ * @param options.isOcclusion - Enable ambient occlusion texture support
+ * @param options.isEmissive - Enable emissive texture support
+ * @param options.isClearCoat - Enable clear coat extension (KHR_materials_clearcoat)
+ * @param options.isTransmission - Enable transmission extension (KHR_materials_transmission)
+ * @param options.isVolume - Enable volume extension (KHR_materials_volume)
+ * @param options.isSheen - Enable sheen extension (KHR_materials_sheen)
+ * @param options.isSpecular - Enable specular extension (KHR_materials_specular)
+ * @param options.isIridescence - Enable iridescence extension (KHR_materials_iridescence)
+ * @param options.isAnisotropy - Enable anisotropy extension (KHR_materials_anisotropy)
+ * @param options.isDispersion - Enable dispersion extension (KHR_materials_dispersion)
+ * @param options.isEmissiveStrength - Enable emissive strength extension
+ * @param options.isDiffuseTransmission - Enable diffuse transmission extension
+ * @param options.isShadow - Enable shadow mapping support
+ * @param options.useTangentAttribute - Use tangent attributes for normal mapping
+ * @param options.useNormalTexture - Enable normal texture support
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @returns A configured PBR Uber Material instance
+ */
 function createPbrUberMaterial({
   additionalName = '',
   isMorphing = true,
@@ -520,6 +573,19 @@ function createPbrUberMaterial({
   return material;
 }
 
+/**
+ * Creates a Classic Uber material for traditional non-PBR rendering.
+ * This material is suitable for classic shading models and legacy content.
+ *
+ * @param options - Configuration object for the Classic material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.isSkinning - Enable skeletal animation support
+ * @param options.isLighting - Enable lighting calculations
+ * @param options.isMorphing - Enable morph target animation support
+ * @param options.isShadow - Enable shadow mapping support
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @returns A configured Classic Uber Material instance
+ */
 function createClassicUberMaterial({
   additionalName = '',
   isSkinning = true,
@@ -582,6 +648,17 @@ function createClassicUberMaterial({
   return material;
 }
 
+/**
+ * Creates a material for encoding depth moments in paraboloid projection.
+ * This material is used for omnidirectional shadow mapping with paraboloid projections.
+ *
+ * @param options - Configuration object for the paraboloid depth material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.isSkinning - Enable skeletal animation support
+ * @param options.isMorphing - Enable morph target animation support
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @returns A configured Paraboloid Depth Moment Encode Material instance
+ */
 function createParaboloidDepthMomentEncodeMaterial({
   additionalName = '',
   isSkinning = true,
@@ -635,6 +712,17 @@ function createParaboloidDepthMomentEncodeMaterial({
   return material;
 }
 
+/**
+ * Creates a material for encoding depth moments for variance shadow mapping.
+ * This material generates depth and depth-squared values for soft shadow techniques.
+ *
+ * @param options - Configuration object for the depth moment material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.isSkinning - Enable skeletal animation support
+ * @param options.isMorphing - Enable morph target animation support
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @returns A configured Depth Moment Encode Material instance
+ */
 function createDepthMomentEncodeMaterial({
   additionalName = '',
   isSkinning = true,
@@ -688,6 +776,17 @@ function createDepthMomentEncodeMaterial({
   return material;
 }
 
+/**
+ * Creates a flat shading material with uniform color rendering.
+ * This material renders objects with flat, unlit colors without lighting calculations.
+ *
+ * @param options - Configuration object for the flat material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.isSkinning - Enable skeletal animation support
+ * @param options.isMorphing - Enable morph target animation support
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @returns A configured Flat Material instance
+ */
 function createFlatMaterial({
   additionalName = '',
   isSkinning = true,
@@ -713,6 +812,16 @@ function createFlatMaterial({
   return material;
 }
 
+/**
+ * Creates a material for rendering environment constant colors.
+ * This material is typically used for skyboxes or environment background rendering.
+ *
+ * @param options - Configuration object for the environment material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @param options.makeOutputSrgb - Whether to convert output to sRGB color space
+ * @returns A configured Environment Constant Material instance
+ */
 function createEnvConstantMaterial({
   additionalName = '',
   maxInstancesNumber = 5,
@@ -736,6 +845,15 @@ function createEnvConstantMaterial({
   return material;
 }
 
+/**
+ * Creates a FXAA (Fast Approximate Anti-Aliasing) post-processing material.
+ * This material applies FXAA3 quality anti-aliasing to reduce edge aliasing.
+ *
+ * @param options - Configuration object for the FXAA material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @returns A configured FXAA3 Quality Material instance
+ */
 function createFXAA3QualityMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
   const materialName = 'FXAA3Quality' + `_${additionalName}`;
 
@@ -753,6 +871,15 @@ function createFXAA3QualityMaterial({ additionalName = '', maxInstancesNumber = 
   return material;
 }
 
+/**
+ * Creates a furnace test material for validating material energy conservation.
+ * This material is used for testing purposes to ensure materials conserve energy properly.
+ *
+ * @param options - Configuration object for the furnace test material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @returns A configured Furnace Test Material instance
+ */
 function createFurnaceTestMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
   const materialName = 'FurnaceTest' + `_${additionalName}`;
   const materialContent = new FurnaceTestMaterialContent(materialName);
@@ -761,6 +888,17 @@ function createFurnaceTestMaterial({ additionalName = '', maxInstancesNumber = 1
   return material;
 }
 
+/**
+ * Creates a material for encoding depth values into color channels.
+ * This material is used for depth-based effects and shadow mapping.
+ *
+ * @param options - Configuration object for the depth encode material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.isSkinning - Enable skeletal animation support
+ * @param options.depthPow - Power value for depth encoding (affects depth precision)
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @returns A configured Depth Encode Material instance
+ */
 function createDepthEncodeMaterial({
   additionalName = '',
   isSkinning = false,
@@ -780,6 +918,21 @@ function createDepthEncodeMaterial({
   return material;
 }
 
+/**
+ * Creates a material for decoding classic shadow maps in the rendering pipeline.
+ * This material applies shadow mapping techniques to create realistic shadows.
+ *
+ * @param options - Configuration object for the shadow map decode material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.isMorphing - Enable morph target animation support
+ * @param options.isSkinning - Enable skeletal animation support
+ * @param options.isLighting - Enable lighting calculations
+ * @param options.isDebugging - Enable debugging features
+ * @param options.colorAttachmentsNumber - Number of color attachments
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @param depthEncodeRenderPass - The render pass that encodes depth information
+ * @returns A configured Shadow Map Decode Classic Material instance
+ */
 function createShadowMapDecodeClassicSingleMaterial(
   {
     additionalName = '',
@@ -822,6 +975,15 @@ function createShadowMapDecodeClassicSingleMaterial(
   return material;
 }
 
+/**
+ * Creates a material for Gaussian blur applied to encoded depth textures.
+ * This material is used for creating soft shadows by blurring depth maps.
+ *
+ * @param options - Configuration object for the Gaussian blur material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @returns A configured Gaussian Blur for Encoded Depth Material instance
+ */
 function createGaussianBlurForEncodedDepthMaterial({
   additionalName = '',
   maxInstancesNumber = 10,
@@ -895,6 +1057,23 @@ function createGaussianBlurForEncodedDepthMaterial({
   return material;
 }
 
+/**
+ * Creates a material for decoding variance shadow maps with classic single-pass rendering.
+ * This material implements variance shadow mapping for soft shadow effects.
+ *
+ * @param options - Configuration object for the variance shadow map material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.isMorphing - Enable morph target animation support
+ * @param options.isSkinning - Enable skeletal animation support
+ * @param options.isDebugging - Enable debugging features
+ * @param options.isLighting - Enable lighting calculations
+ * @param options.colorAttachmentsNumberDepth - Number of depth color attachments
+ * @param options.colorAttachmentsNumberSquareDepth - Number of squared depth color attachments
+ * @param options.depthCameraComponent - Camera component for depth calculations
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @param encodedDepthRenderPasses - Array of render passes that encode depth information
+ * @returns A configured Variance Shadow Map Decode Classic Material instance
+ */
 function createVarianceShadowMapDecodeClassicSingleMaterial(
   {
     additionalName = '',
@@ -949,6 +1128,16 @@ function createVarianceShadowMapDecodeClassicSingleMaterial(
   return material;
 }
 
+/**
+ * Creates a material for detecting high luminance areas in textures.
+ * This material is typically used in HDR rendering pipelines for bloom effects.
+ *
+ * @param options - Configuration object for the high luminance detection material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @param textureToDetectHighLuminance - The texture to analyze for high luminance areas
+ * @returns A configured Detect High Luminance Material instance
+ */
 function createDetectHighLuminanceMaterial(
   { additionalName = '', maxInstancesNumber = 5 } = {},
   textureToDetectHighLuminance: AbstractTexture
@@ -962,6 +1151,15 @@ function createDetectHighLuminanceMaterial(
   return material;
 }
 
+/**
+ * Creates a material for Gaussian blur post-processing effects.
+ * This material applies Gaussian blur for various effects like depth of field or bloom.
+ *
+ * @param options - Configuration object for the Gaussian blur material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @returns A configured Gaussian Blur Material instance
+ */
 function createGaussianBlurMaterial({ additionalName = '', maxInstancesNumber = 10 } = {}): Material {
   const materialName = 'GaussianBlur' + `_${additionalName}`;
 
@@ -1033,6 +1231,16 @@ function createGaussianBlurMaterial({ additionalName = '', maxInstancesNumber = 
   return material;
 }
 
+/**
+ * Creates a material for synthesizing HDR (High Dynamic Range) textures.
+ * This material combines multiple textures to create HDR content for advanced lighting.
+ *
+ * @param options - Configuration object for the HDR synthesis material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @param synthesizeTextures - Array of textures to synthesize into HDR
+ * @returns A configured Synthesize HDR Material instance
+ */
 function createSynthesizeHDRMaterial(
   {
     additionalName = '',
@@ -1051,6 +1259,19 @@ function createSynthesizeHDRMaterial(
   return material;
 }
 
+/**
+ * Creates a material for color grading using LUT (Look-Up Table) textures.
+ * This material applies color correction and grading effects using 3D LUT textures.
+ *
+ * @param options - Configuration object for the color grading material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.colorAttachmentsNumber - Number of color attachments
+ * @param options.uri - URI path to the LUT texture
+ * @param options.texture - Pre-loaded LUT texture
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @param targetRenderPass - The render pass to apply color grading to
+ * @returns A configured Color Grading using LUTs Material instance
+ */
 function createColorGradingUsingLUTsMaterial(
   {
     additionalName = '',
@@ -1081,6 +1302,15 @@ function createColorGradingUsingLUTsMaterial(
   return material;
 }
 
+/**
+ * Creates a material for gamma correction post-processing.
+ * This material applies gamma correction to convert linear color space to sRGB.
+ *
+ * @param options - Configuration object for the gamma correction material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @returns A configured Gamma Correction Material instance
+ */
 function createGammaCorrectionMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
   const materialName = 'GammaCorrection' + `_${additionalName}`;
 
@@ -1100,6 +1330,15 @@ function createGammaCorrectionMaterial({ additionalName = '', maxInstancesNumber
   return material;
 }
 
+/**
+ * Creates a material for tone mapping HDR content to LDR display.
+ * This material converts high dynamic range colors to displayable range using tone mapping algorithms.
+ *
+ * @param options - Configuration object for the tone mapping material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @returns A configured Tone Mapping Material instance
+ */
 function createToneMappingMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
   const materialName = 'ToneMapping' + `_${additionalName}`;
 
@@ -1120,6 +1359,15 @@ function createToneMappingMaterial({ additionalName = '', maxInstancesNumber = 1
   return material;
 }
 
+/**
+ * Creates a material for generating summed area tables from textures.
+ * This material is used for efficient area sampling and filtering operations.
+ *
+ * @param options - Configuration object for the summed area table material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @returns A configured Summed Area Table Material instance
+ */
 function createSummedAreaTableMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
   const materialName = 'SummedAreaTable' + `_${additionalName}`;
 
@@ -1137,6 +1385,15 @@ function createSummedAreaTableMaterial({ additionalName = '', maxInstancesNumber
   return material;
 }
 
+/**
+ * Creates a material for converting panoramic textures to cube map format.
+ * This material transforms equirectangular panoramic images into cube map textures.
+ *
+ * @param options - Configuration object for the panorama to cube material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @returns A configured Panorama to Cube Material instance
+ */
 function createPanoramaToCubeMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
   const materialName = 'PanoramaToCube' + `_${additionalName}`;
 
@@ -1156,6 +1413,15 @@ function createPanoramaToCubeMaterial({ additionalName = '', maxInstancesNumber 
   return material;
 }
 
+/**
+ * Creates a material for prefiltering IBL (Image-Based Lighting) environment maps.
+ * This material generates prefiltered mipmap levels for environment map reflections.
+ *
+ * @param options - Configuration object for the IBL prefilter material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @returns A configured Prefilter IBL Material instance
+ */
 function createPrefilterIBLMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
   const materialName = 'PrefilterIBL' + `_${additionalName}`;
 
@@ -1175,6 +1441,19 @@ function createPrefilterIBLMaterial({ additionalName = '', maxInstancesNumber = 
   return material;
 }
 
+/**
+ * Creates a Material Capture (MatCap) material for stylized lighting effects.
+ * This material uses a material capture texture to simulate lighting without actual light sources.
+ *
+ * @param options - Configuration object for the MatCap material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.isSkinning - Enable skeletal animation support
+ * @param options.uri - URI path to the MatCap texture
+ * @param options.texture - Pre-loaded MatCap texture
+ * @param options.sampler - Texture sampler for the MatCap texture
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @returns A configured MatCap Material instance
+ */
 function createMatCapMaterial({
   additionalName = '',
   isSkinning = false,
@@ -1207,6 +1486,15 @@ function createMatCapMaterial({
   return material;
 }
 
+/**
+ * Creates a material for outputting entity unique identifiers to render targets.
+ * This material is used for object picking and selection by rendering entity IDs.
+ *
+ * @param options - Configuration object for the entity UID output material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @returns A configured Entity UID Output Material instance
+ */
 function createEntityUIDOutputMaterial({ additionalName = '', maxInstancesNumber = 10 } = {}): Material {
   const materialName = 'EntityUIDOutput' + `_${additionalName}`;
 
@@ -1216,6 +1504,25 @@ function createEntityUIDOutputMaterial({ additionalName = '', maxInstancesNumber
   return material;
 }
 
+/**
+ * Creates an MToon 0.x material for VRM character rendering with toon shading.
+ * This material implements the MToon 0.x specification for anime/toon-style rendering.
+ *
+ * @param options - Configuration object for the MToon 0.x material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.isMorphing - Enable morph target animation support
+ * @param options.isSkinning - Enable skeletal animation support
+ * @param options.isLighting - Enable lighting calculations
+ * @param options.useTangentAttribute - Use tangent attributes for normal mapping
+ * @param options.isOutline - Enable outline rendering
+ * @param options.materialProperties - MToon material property definitions
+ * @param options.textures - Array of textures used by the material
+ * @param options.samplers - Array of texture samplers
+ * @param options.debugMode - Debug mode settings
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @param options.makeOutputSrgb - Whether to convert output to sRGB color space
+ * @returns A configured MToon 0.x Material instance
+ */
 function createMToon0xMaterial({
   additionalName = '',
   isMorphing = false,
@@ -1280,6 +1587,25 @@ function createMToon0xMaterial({
   return material;
 }
 
+/**
+ * Creates an MToon 1.0 material for VRM 1.0 character rendering with enhanced toon shading.
+ * This material implements the MToon 1.0 specification with improved features over 0.x.
+ *
+ * @param options - Configuration object for the MToon 1.0 material
+ * @param options.additionalName - Additional name suffix for the material
+ * @param options.isMorphing - Enable morph target animation support
+ * @param options.isSkinning - Enable skeletal animation support
+ * @param options.isLighting - Enable lighting calculations
+ * @param options.useTangentAttribute - Use tangent attributes for normal mapping
+ * @param options.isOutline - Enable outline rendering
+ * @param options.materialJson - MToon 1.0 material JSON definition
+ * @param options.textures - Array of textures used by the material
+ * @param options.samplers - Array of texture samplers
+ * @param options.debugMode - Debug mode settings
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @param options.makeOutputSrgb - Whether to convert output to sRGB color space
+ * @returns A configured MToon 1.0 Material instance
+ */
 function createMToon1Material({
   additionalName = '',
   isMorphing = false,
@@ -1342,6 +1668,20 @@ function createMToon1Material({
   return material;
 }
 
+/**
+ * Reuses an existing custom material or recreates it with new shader code.
+ * This function optimizes performance by reusing materials when possible while allowing shader updates.
+ *
+ * @param currentMaterial - The existing material to potentially reuse
+ * @param vertexShaderStr - Vertex shader source code string
+ * @param pixelShaderStr - Pixel/fragment shader source code string
+ * @param options - Configuration object for the custom material
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @param options.isSkinning - Enable skeletal animation support
+ * @param options.isLighting - Enable lighting calculations
+ * @param options.isMorphing - Enable morph target animation support
+ * @returns A reused or newly created Custom Material instance
+ */
 function reuseOrRecreateCustomMaterial(
   currentMaterial: Material,
   vertexShaderStr: string,
@@ -1450,6 +1790,14 @@ function reuseOrRecreateCustomMaterial(
   return material;
 }
 
+/**
+ * Changes the material assigned to a specific primitive on an entity.
+ * This function updates the primitive's material and triggers necessary render state updates.
+ *
+ * @param entity - The mesh renderer entity containing the primitive
+ * @param primitive - The primitive to change the material for
+ * @param material - The new material to assign to the primitive
+ */
 function changeMaterial(
   entity: IMeshRendererEntityMethods,
   primitive: Primitive,

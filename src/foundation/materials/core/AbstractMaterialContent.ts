@@ -39,6 +39,10 @@ const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 
 type MaterialNodeUID = number;
 
+/**
+ * Abstract base class for material content that provides common functionality for material rendering.
+ * This class handles shader semantics, rendering setup, and GPU parameter management for materials.
+ */
 export abstract class AbstractMaterialContent extends RnObject {
   protected __semantics: ShaderSemanticsInfo[] = [];
   static materialNodes: AbstractMaterialContent[] = [];
@@ -66,6 +70,16 @@ export abstract class AbstractMaterialContent extends RnObject {
 
   private __materialSemanticsVariantName = '';
 
+  /**
+   * Constructs a new AbstractMaterialContent instance.
+   * @param materialName - The unique name identifier for this material
+   * @param options - Configuration options for the material
+   * @param options.isMorphing - Whether this material supports morph target animation
+   * @param options.isSkinning - Whether this material supports skeletal animation
+   * @param options.isLighting - Whether this material supports lighting calculations
+   * @param vertexShaderityObject - Optional vertex shader object
+   * @param pixelShaderityObject - Optional pixel shader object
+   */
   constructor(
     materialName: string,
     { isMorphing = false, isSkinning = false, isLighting = false } = {},
@@ -85,18 +99,30 @@ export abstract class AbstractMaterialContent extends RnObject {
     this.setPixelShaderityObject(pixelShaderityObject);
   }
 
+  /**
+   * Sets the vertex shader object for this material.
+   * @param vertexShaderityObject - The vertex shader object to set
+   */
   protected setVertexShaderityObject(vertexShaderityObject?: ShaderityObject) {
     if (vertexShaderityObject) {
       AbstractMaterialContent.__vertexShaderityObjectMap.set(this.__materialName, vertexShaderityObject);
     }
   }
 
+  /**
+   * Sets the pixel shader object for this material.
+   * @param pixelShaderityObject - The pixel shader object to set
+   */
   protected setPixelShaderityObject(pixelShaderityObject?: ShaderityObject) {
     if (pixelShaderityObject) {
       AbstractMaterialContent.__pixelShaderityObjectMap.set(this.__materialName, pixelShaderityObject);
     }
   }
 
+  /**
+   * Generates a unique variant name for this material based on its shader semantics.
+   * This name is used to differentiate materials with different semantic configurations.
+   */
   makeMaterialSemanticsVariantName() {
     let semantics = '';
     for (const semantic of this.__semantics) {
@@ -106,40 +132,83 @@ export abstract class AbstractMaterialContent extends RnObject {
     this.__materialSemanticsVariantName = this.__materialName + '_semanticsVariation_' + semantics;
   }
 
+  /**
+   * Gets the material semantics variant name for this material.
+   * @returns The unique variant name string
+   */
   getMaterialSemanticsVariantName() {
     return this.__materialSemanticsVariantName;
   }
 
+  /**
+   * Gets the vertex shader object associated with this material.
+   * @returns The vertex shader object or undefined if not set
+   */
   get vertexShaderityObject(): ShaderityObject | undefined {
     return AbstractMaterialContent.__vertexShaderityObjectMap.get(this.__materialName);
   }
 
+  /**
+   * Gets the pixel shader object associated with this material.
+   * @returns The pixel shader object or undefined if not set
+   */
   get pixelShaderityObject(): ShaderityObject | undefined {
     return AbstractMaterialContent.__pixelShaderityObjectMap.get(this.__materialName);
   }
 
+  /**
+   * Gets the shader definitions string for this material.
+   * @returns The definitions string
+   */
   getDefinitions() {
     return this.__definitions;
   }
 
+  /**
+   * Retrieves a material node by its unique identifier.
+   * @param materialNodeUid - The unique identifier of the material node
+   * @returns The material node instance
+   */
   static getMaterialNode(materialNodeUid: MaterialNodeUID) {
     return AbstractMaterialContent.materialNodes[materialNodeUid];
   }
 
+  /**
+   * Gets the shader semantics information array for this material.
+   * @returns Array of shader semantics information
+   */
   get _semanticsInfoArray() {
     return this.__semantics;
   }
 
+  /**
+   * Checks if this material supports skeletal animation.
+   * @returns True if skinning is enabled
+   */
   get isSkinning() {
     return this.__isSkinning;
   }
+
+  /**
+   * Checks if this material supports morph target animation.
+   * @returns True if morphing is enabled
+   */
   get isMorphing() {
     return this.__isMorphing;
   }
+
+  /**
+   * Checks if this material supports lighting calculations.
+   * @returns True if lighting is enabled
+   */
   get isLighting() {
     return this.__isLighting;
   }
 
+  /**
+   * Sets the shader semantics information array for this material.
+   * @param shaderSemanticsInfoArray - Array of shader semantics information to set
+   */
   setShaderSemanticsInfoArray(shaderSemanticsInfoArray: ShaderSemanticsInfo[]) {
     const infoArray: ShaderSemanticsInfo[] = [];
     for (const info of shaderSemanticsInfoArray) {
@@ -149,6 +218,14 @@ export abstract class AbstractMaterialContent extends RnObject {
     this.makeMaterialSemanticsVariantName();
   }
 
+  /**
+   * Sets up basic rendering information including matrices, camera, and lighting.
+   * @param args - WebGL rendering arguments
+   * @param shaderProgram - The WebGL shader program
+   * @param firstTime - Whether this is the first time setup
+   * @param material - The material instance
+   * @param CameraComponentClass - The camera component class
+   */
   protected setupBasicInfo(
     args: RenderingArgWebGL,
     shaderProgram: WebGLProgram,
@@ -185,6 +262,11 @@ export abstract class AbstractMaterialContent extends RnObject {
     this.setMorphInfo(shaderProgram, args.entity.getMesh(), args.primitive, blendShapeComponent);
   }
 
+  /**
+   * Sets the world transformation matrix uniform in the shader.
+   * @param shaderProgram - The WebGL shader program
+   * @param worldMatrix - The world transformation matrix
+   */
   protected setWorldMatrix(shaderProgram: WebGLProgram, worldMatrix: Matrix44) {
     (shaderProgram as any)._gl.uniformMatrix4fv(
       (shaderProgram as any).worldMatrix,
@@ -193,6 +275,11 @@ export abstract class AbstractMaterialContent extends RnObject {
     );
   }
 
+  /**
+   * Sets the normal transformation matrix uniform in the shader.
+   * @param shaderProgram - The WebGL shader program
+   * @param normalMatrix - The normal transformation matrix
+   */
   protected setNormalMatrix(shaderProgram: WebGLProgram, normalMatrix: IMatrix33) {
     (shaderProgram as any)._gl.uniformMatrix3fv(
       (shaderProgram as any).normalMatrix,
@@ -201,10 +288,22 @@ export abstract class AbstractMaterialContent extends RnObject {
     );
   }
 
+  /**
+   * Sets the billboard flag uniform in the shader.
+   * @param shaderProgram - The WebGL shader program
+   * @param isBillboard - Whether the object should be rendered as a billboard
+   */
   protected setIsBillboard(shaderProgram: WebGLProgram, isBillboard: boolean) {
     (shaderProgram as any)._gl.uniform1i((shaderProgram as any).isBillboard, isBillboard ? 1 : 0);
   }
 
+  /**
+   * Sets view-related uniforms including view matrix and camera position.
+   * @param shaderProgram - The WebGL shader program
+   * @param cameraComponent - The camera component
+   * @param isVr - Whether rendering in VR mode
+   * @param displayIdx - The display index for VR rendering
+   */
   protected setViewInfo(
     shaderProgram: WebGLProgram,
     cameraComponent: CameraComponent,
@@ -236,6 +335,13 @@ export abstract class AbstractMaterialContent extends RnObject {
     (shaderProgram as any)._gl.uniform3fv((shaderProgram as any).viewPosition, cameraPosition!._v);
   }
 
+  /**
+   * Sets the projection matrix uniform in the shader.
+   * @param shaderProgram - The WebGL shader program
+   * @param cameraComponent - The camera component
+   * @param isVr - Whether rendering in VR mode
+   * @param displayIdx - The display index for VR rendering
+   */
   protected setProjection(
     shaderProgram: WebGLProgram,
     cameraComponent: CameraComponent,
@@ -261,6 +367,12 @@ export abstract class AbstractMaterialContent extends RnObject {
     );
   }
 
+  /**
+   * Sets skeletal animation uniforms in the shader.
+   * @param shaderProgram - The WebGL shader program
+   * @param setUniform - Whether to set uniform values
+   * @param skeletalComponent - The skeletal component containing bone data
+   */
   protected setSkinning(
     shaderProgram: WebGLProgram,
     setUniform: boolean,
@@ -325,6 +437,13 @@ export abstract class AbstractMaterialContent extends RnObject {
     }
   }
 
+  /**
+   * Sets lighting information uniforms in the shader.
+   * @param shaderProgram - The WebGL shader program
+   * @param lightComponents - Array of light components
+   * @param material - The material instance
+   * @param setUniform - Whether to set uniform values
+   */
   protected setLightsInfo(
     shaderProgram: WebGLProgram,
     lightComponents: LightComponent[],
@@ -413,6 +532,13 @@ export abstract class AbstractMaterialContent extends RnObject {
     }
   }
 
+  /**
+   * Sets morph target animation uniforms in the shader.
+   * @param shaderProgram - The WebGL shader program
+   * @param meshComponent - The mesh component
+   * @param primitive - The primitive containing morph targets
+   * @param blendShapeComponent - The blend shape component containing weights
+   */
   setMorphInfo(
     shaderProgram: WebGLProgram,
     meshComponent: MeshComponent,
@@ -454,6 +580,11 @@ export abstract class AbstractMaterialContent extends RnObject {
     (shaderProgram as any)._gl.uniform1fv((shaderProgram as any).morphWeights, weights);
   }
 
+  /**
+   * Sets internal setting parameters to GPU for WebGL per shader program.
+   * This method should be overridden by derived classes to provide specific parameter handling.
+   * @param params - Object containing material, shader program, firstTime flag, and rendering arguments
+   */
   _setInternalSettingParametersToGpuWebGLPerShaderProgram({
     material,
     shaderProgram,
@@ -466,6 +597,11 @@ export abstract class AbstractMaterialContent extends RnObject {
     args: RenderingArgWebGL;
   }) {}
 
+  /**
+   * Sets internal setting parameters to GPU for WebGL per material.
+   * This method should be overridden by derived classes to provide specific parameter handling.
+   * @param params - Object containing material, shader program, firstTime flag, and rendering arguments
+   */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
     material,
     shaderProgram,
@@ -478,6 +614,11 @@ export abstract class AbstractMaterialContent extends RnObject {
     args: RenderingArgWebGL;
   }) {}
 
+  /**
+   * Sets internal setting parameters to GPU for WebGL per primitive.
+   * This method should be overridden by derived classes to provide specific parameter handling.
+   * @param params - Object containing material, shader program, firstTime flag, and rendering arguments
+   */
   _setInternalSettingParametersToGpuWebGLPerPrimitive({
     material,
     shaderProgram,
@@ -490,6 +631,11 @@ export abstract class AbstractMaterialContent extends RnObject {
     args: RenderingArgWebGL;
   }) {}
 
+  /**
+   * Sets internal setting parameters to GPU for WebGPU.
+   * This method should be overridden by derived classes to provide specific parameter handling.
+   * @param params - Object containing material and WebGPU rendering arguments
+   */
   _setInternalSettingParametersToGpuWebGpu({
     material,
     args,
@@ -498,10 +644,24 @@ export abstract class AbstractMaterialContent extends RnObject {
     args: RenderingArgWebGpu;
   }) {}
 
+  /**
+   * Gets the shader definition string for this material.
+   * This method should be overridden by derived classes to provide specific definitions.
+   * @returns Empty string by default
+   */
   getDefinition() {
     return '';
   }
 
+  /**
+   * Performs shader reflection to extract semantics information from vertex and pixel shaders.
+   * @param vertexShader - The vertex shader object for WebGL
+   * @param pixelShader - The pixel shader object for WebGL
+   * @param vertexShaderWebGpu - The vertex shader object for WebGPU
+   * @param pixelShaderWebGpu - The pixel shader object for WebGPU
+   * @param definitions - Array of shader definitions
+   * @returns Array of shader semantics information
+   */
   protected doShaderReflection(
     vertexShader: ShaderityObject,
     pixelShader: ShaderityObject,

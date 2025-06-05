@@ -21,6 +21,10 @@ import { TextureParameter } from '../../definitions/TextureParameter';
 import { SystemState } from '../../system/SystemState';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 
+/**
+ * Material content for synthesizing HDR textures with optional target region masking.
+ * This material is commonly used for glare effects and other post-processing operations.
+ */
 export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
   static SynthesizeCoefficient = new ShaderSemanticsClass({
     str: 'synthesizeCoefficient',
@@ -50,19 +54,26 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
   private textureNumber: Count;
 
   /**
-   * This material node uses for the glare effect and so on.
+   * Creates a new SynthesizeHdrMaterialContent instance for HDR texture synthesis.
    *
-   * If the targetRegionTexture is not specified, the shader synthesizes all the
-   * synthesizeTextures with all the pixels weighted by the synthesizeCoefficient.
+   * This material node supports texture synthesis operations commonly used for glare effects
+   * and other post-processing operations. It can synthesize up to 6 textures simultaneously.
    *
-   * If the targetRegionTexture is specified, the shader synthesizes all the
-   * synthesizeTextures with weights only for the non-white pixels of
-   * targetRegionTexture (where the color is not (1.0, 1.0, 1.0, 1.0)). On the other
-   * hand, in the white area, the output value is the product of the value of each
-   * pixel in synthesizeTextures[0] and synthesizeCoefficient[0].
+   * **Synthesis Behavior:**
+   * - **Without targetRegionTexture**: Synthesizes all input textures across all pixels,
+   *   weighted by the corresponding synthesizeCoefficient values.
+   * - **With targetRegionTexture**: Applies weighted synthesis only to non-white pixels
+   *   (where color != (1.0, 1.0, 1.0, 1.0)). White areas receive the product of
+   *   synthesizeTextures[0] and synthesizeCoefficient[0].
    *
-   * @synthesizeTextures Textures to be synthesized. The shader supports up to six texture syntheses.
-   * @targetRegionTexture Texture to specify the area where the texture will be synthesized
+   * @param materialName - Unique identifier for this material instance
+   * @param synthesizeTextures - Array of textures to be synthesized (supports up to 6 textures)
+   *
+   * @example
+   * ```typescript
+   * const synthesizeTextures = [texture1, texture2, texture3];
+   * const material = new SynthesizeHdrMaterialContent('GlareMaterial', synthesizeTextures);
+   * ```
    */
   constructor(materialName: string, synthesizeTextures: AbstractTexture[]) {
     super(materialName, {});
@@ -156,6 +167,21 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
+  /**
+   * Sets internal WebGL-specific parameters for the material during rendering.
+   *
+   * This method is called during the WebGL rendering pipeline to configure
+   * shader uniforms and state specific to this material. It handles matrix
+   * transformations and synthesis coefficient updates.
+   *
+   * @param params - Configuration object containing material and rendering context
+   * @param params.material - The material instance being rendered
+   * @param params.shaderProgram - WebGL shader program to configure
+   * @param params.firstTime - Whether this is the first time setting parameters
+   * @param params.args - WebGL rendering arguments and context
+   *
+   * @internal This method is part of the internal rendering pipeline
+   */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
     material,
     shaderProgram,
@@ -189,6 +215,17 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
     );
   }
 
+  /**
+   * Gets the number of textures configured for synthesis.
+   *
+   * @returns The count of textures that will be processed during synthesis
+   *
+   * @example
+   * ```typescript
+   * const material = new SynthesizeHdrMaterialContent('test', [tex1, tex2]);
+   * console.log(material.synthesizeTextureNumber); // 2
+   * ```
+   */
   get synthesizeTextureNumber() {
     return this.textureNumber;
   }

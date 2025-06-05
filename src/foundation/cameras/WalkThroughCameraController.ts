@@ -115,15 +115,27 @@ export class WalkThroughCameraController
     this.registerEventListeners(eventTargetDom);
   }
 
+  /**
+   * Updates the internal counter and notifies the camera controller component.
+   * @private
+   */
   private _updateCount() {
     this.__updateCount++;
     this.__cameraControllerComponent._updateCount(this.__updateCount);
   }
 
+  /**
+   * Gets the current update count.
+   * @returns The current update count
+   */
   get updateCount() {
     return this.__updateCount;
   }
 
+  /**
+   * Registers event listeners for mouse and keyboard input handling.
+   * @param eventTargetDom - The DOM element to attach event listeners to, defaults to document
+   */
   registerEventListeners(eventTargetDom: Document = document) {
     this._eventTargetDom = eventTargetDom;
 
@@ -233,16 +245,29 @@ export class WalkThroughCameraController
     InputManager.register(INPUT_HANDLING_STATE_CAMERA_CONTROLLER, inputHandlerInfos);
   }
 
+  /**
+   * Unregisters all event listeners for this camera controller.
+   */
   unregisterEventListeners() {
     InputManager.unregister(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
   }
 
+  /**
+   * Attempts to prevent default behavior of events if configured to do so.
+   * @param evt - The event to potentially prevent default on
+   * @private
+   */
   private __tryToPreventDefault(evt: Event) {
     if (this.__doPreventDefault) {
       evt.preventDefault();
     }
   }
 
+  /**
+   * Handles mouse wheel events for camera movement.
+   * @param e - The wheel event
+   * @private
+   */
   _mouseWheel(e: WheelEvent) {
     if (this._currentDir === null) {
       return;
@@ -263,6 +288,11 @@ export class WalkThroughCameraController
     this._updateCount();
   }
 
+  /**
+   * Handles mouse down events.
+   * @param evt - The mouse event
+   * @private
+   */
   _mouseDown(evt: MouseEvent) {
     this.__tryToPreventDefault(evt);
     this._isMouseDown = true;
@@ -275,6 +305,11 @@ export class WalkThroughCameraController
     return false;
   }
 
+  /**
+   * Handles mouse move events for camera rotation during drag.
+   * @param evt - The mouse event
+   * @private
+   */
   _mouseMove(evt: MouseEvent) {
     this.__tryToPreventDefault(evt);
     if (!this._isMouseDown) {
@@ -292,6 +327,11 @@ export class WalkThroughCameraController
     this._updateCount();
   }
 
+  /**
+   * Handles mouse up events to stop dragging.
+   * @param evt - The mouse event
+   * @private
+   */
   _mouseUp(evt: MouseEvent) {
     this._isMouseDown = false;
     this._isMouseDrag = false;
@@ -307,8 +347,14 @@ export class WalkThroughCameraController
     this._updateCount();
   }
 
+  /**
+   * Attempts to reset the controller state. Currently not implemented.
+   */
   tryReset() {}
 
+  /**
+   * Resets the camera controller to its initial state.
+   */
   reset() {
     this._isKeyDown = false;
     this._lastKeyCode = -1;
@@ -329,10 +375,19 @@ export class WalkThroughCameraController
     this._newDir.setComponents(0, 0, -1);
   }
 
+  /**
+   * Main logic method that updates the camera component based on input.
+   * @param cameraComponent - The camera component to update
+   */
   logic(cameraComponent: CameraComponent) {
     this.__updateCameraComponent(cameraComponent);
   }
 
+  /**
+   * Updates the camera component with new position, direction, and other properties.
+   * @param camera - The camera component to update
+   * @private
+   */
   private __updateCameraComponent(camera: CameraComponent) {
     const aabb = new AABB();
     for (const targetEntity of this.__targetEntities) {
@@ -465,38 +520,77 @@ export class WalkThroughCameraController
     this._calcZNearInner(camera, this._currentPos, this._newDir);
     this._calcZFarInner(camera);
   }
+
+  /**
+   * Gets the current camera direction.
+   * @returns The current direction vector or null if not available
+   */
   getDirection() {
     return this._currentCenter !== null ? this._newDir.clone() : null;
   }
 
+  /**
+   * Sets the horizontal movement speed.
+   * @param value - The new horizontal speed value
+   */
   set horizontalSpeed(value) {
     this._horizontalSpeed = value;
   }
 
+  /**
+   * Gets the current horizontal movement speed.
+   * @returns The current horizontal speed
+   */
   get horizontalSpeed() {
     return this._horizontalSpeed;
   }
 
+  /**
+   * Sets the vertical movement speed.
+   * @param value - The new vertical speed value
+   */
   set verticalSpeed(value) {
     this._verticalSpeed = value;
   }
 
+  /**
+   * Gets the current vertical movement speed.
+   * @returns The current vertical speed
+   */
   get verticalSpeed() {
     return this._verticalSpeed;
   }
 
+  /**
+   * Sets the mouse wheel speed scale.
+   * @param value - The new mouse wheel speed scale
+   */
   set mouseWheelSpeed(value) {
     this._mouseWheelSpeedScale = value;
   }
 
+  /**
+   * Gets the current mouse wheel speed scale.
+   * @returns The current mouse wheel speed scale
+   */
   get mouseWheelSpeed() {
     return this._mouseWheelSpeedScale;
   }
 
+  /**
+   * Sets a single target entity for the camera to focus on.
+   * @param targetEntity - The entity to set as the target
+   */
   setTarget(targetEntity: ISceneGraphEntity) {
     this.setTargets([targetEntity]);
   }
 
+  /**
+   * Gets the axis-aligned bounding box for a target entity.
+   * @param targetEntity - The entity to get the AABB for
+   * @returns The AABB of the target entity
+   * @private
+   */
   private __getTargetAABB(targetEntity: ISceneGraphEntity) {
     if (this.aabbWithSkeletal) {
       return targetEntity.tryToGetSceneGraph()!.worldMergedAABBWithSkeletal;
@@ -505,6 +599,11 @@ export class WalkThroughCameraController
     }
   }
 
+  /**
+   * Sets multiple target entities for the camera to focus on.
+   * Automatically adjusts movement speeds based on the size of the targets.
+   * @param targetEntities - Array of entities to set as targets
+   */
   setTargets(targetEntities: ISceneGraphEntity[]) {
     const aabb = new AABB();
     for (const targetEntity of targetEntities) {
@@ -519,10 +618,18 @@ export class WalkThroughCameraController
     this._updateCount();
   }
 
+  /**
+   * Gets the current target entities.
+   * @returns Array of current target entities
+   */
   getTargets(): ISceneGraphEntity[] {
     return this.__targetEntities;
   }
 
+  /**
+   * Gets all camera controller information for serialization.
+   * @returns Object containing all controller state information
+   */
   get allInfo() {
     const info: any = {};
 
@@ -544,6 +651,10 @@ export class WalkThroughCameraController
     return info;
   }
 
+  /**
+   * Sets all camera controller information from serialized data.
+   * @param arg - Object or JSON string containing controller state information
+   */
   set allInfo(arg) {
     let json = arg;
     if (typeof arg === 'string') {
