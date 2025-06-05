@@ -8,17 +8,23 @@ import { MutableVector2 } from '../math/MutableVector2';
 import { TextureDataFloat } from '../textures/TextureDataFloat';
 import { Is } from './Is';
 
+/**
+ * Type definition for pixel sorting operations
+ */
 type PixelSortType = {
   x: Index;
   y: Index;
   value: number;
 };
 
-// These codes are from https://eheitzresearch.wordpress.com/738-2/
-// "Procedural Stochastic Textures by Tiling and Blending"
-// Thanks to the authors for permission to use.
-//
-// Compute the eigen vectors of the histogram of the input image
+/**
+ * Computes the eigen vectors of the histogram of the input image.
+ * This implementation is based on "Procedural Stochastic Textures by Tiling and Blending"
+ * from https://eheitzresearch.wordpress.com/738-2/
+ *
+ * @param input - The input texture data to analyze
+ * @param eigenVectors - Array to store the computed eigen vectors (output parameter)
+ */
 function computeEigenVectors(input: TextureDataFloat, eigenVectors: Vector3[]) {
   // First and second order moments
   let R = 0,
@@ -90,6 +96,17 @@ function computeEigenVectors(input: TextureDataFloat, eigenVectors: Vector3[]) {
   ]);
 }
 
+/**
+ * Decorrelates the color space of the input image by transforming it to eigenvector space.
+ * This reduces correlation between color channels for better texture synthesis results.
+ *
+ * @param input - The input texture data to decorrelate
+ * @param input_decorrelated - Output texture data with decorrelated colors
+ * @param colorSpaceVector1 - Output color space vector 1
+ * @param colorSpaceVector2 - Output color space vector 2
+ * @param colorSpaceVector3 - Output color space vector 3
+ * @param colorSpaceOrigin - Output color space origin
+ */
 function decorrelateColorSpace(
   input: TextureDataFloat, // input: example image
   input_decorrelated: TextureDataFloat, // output: decorrelated input
@@ -176,7 +193,15 @@ function decorrelateColorSpace(
   colorSpaceVector3.z = eigenvectors[2].z * (colorSpaceRanges[2].y - colorSpaceRanges[2].x);
 }
 
-// Compute average subpixel variance at a given LOD
+/**
+ * Computes the average subpixel variance at a given Level of Detail (LOD).
+ * This is used for prefiltering operations in texture synthesis.
+ *
+ * @param image - The input texture data
+ * @param LOD - The Level of Detail to compute variance for
+ * @param channel - The color channel index (0=R, 1=G, 2=B)
+ * @returns The computed average subpixel variance
+ */
 function computeLODAverageSubpixelVariance(
   image: TextureDataFloat,
   LOD: Index,
@@ -214,7 +239,17 @@ function computeLODAverageSubpixelVariance(
   return average_window_variance;
 }
 
-// Filter LUT by sampling a Gaussian N(mu, std�)
+/**
+ * Filters a Look-Up Table (LUT) value by sampling a Gaussian distribution N(mu, std²).
+ * This is used for prefiltering LUTs to reduce aliasing artifacts.
+ *
+ * @param LUT - The Look-Up Table to filter
+ * @param x - The position to filter at
+ * @param std - The standard deviation of the Gaussian filter
+ * @param channel - The color channel index
+ * @param LUT_WIDTH - The width of the LUT (default: 128)
+ * @returns The filtered value
+ */
 function filterLUTValueAtx(
   LUT: TextureDataFloat,
   x: number,
@@ -244,6 +279,14 @@ function filterLUTValueAtx(
   return filtered_value;
 }
 
+/**
+ * Prefilters a Look-Up Table (LUT) for multiple Levels of Detail (LOD).
+ * This reduces aliasing artifacts when the texture is viewed at different scales.
+ *
+ * @param image_T_Input - The transformed input image
+ * @param LUT_Tinv - The inverse transformation LUT to prefilter
+ * @param channel - The color channel index to process
+ */
 function prefilterLUT(
   image_T_Input: TextureDataFloat,
   LUT_Tinv: TextureDataFloat,
@@ -267,6 +310,12 @@ function prefilterLUT(
   }
 }
 
+/**
+ * Generates an array of PixelSortType objects for pixel sorting operations.
+ *
+ * @param arrayLength - The length of the array to generate
+ * @returns An array of PixelSortType objects
+ */
 function generatePixelSortTypeArray(arrayLength: Size) {
   const array = [];
   for (let i = 0; i < arrayLength; i++) {
@@ -275,6 +324,16 @@ function generatePixelSortTypeArray(arrayLength: Size) {
   return array as PixelSortType[];
 }
 
+/**
+ * Computes the T(input) transformation by applying histogram matching to Gaussian distribution.
+ * This transforms the input image's histogram to match a Gaussian distribution.
+ *
+ * @param input - The input texture data
+ * @param T_input - The output transformed texture data
+ * @param channel - The color channel index to process
+ * @param GAUSSIAN_AVERAGE - The mean of the target Gaussian distribution (default: 0.5)
+ * @param GAUSSIAN_STD - The standard deviation of the target Gaussian distribution (default: 0.16666)
+ */
 function computeTinput(
   input: TextureDataFloat,
   T_input: TextureDataFloat,
@@ -312,6 +371,16 @@ function computeTinput(
   }
 }
 
+/**
+ * Computes the inverse transformation T^(-1) as a Look-Up Table.
+ * This LUT can be used to transform Gaussian-distributed values back to the original distribution.
+ *
+ * @param input - The input texture data
+ * @param Tinv - The output inverse transformation LUT
+ * @param channel - The color channel index to process
+ * @param GAUSSIAN_AVERAGE - The mean of the Gaussian distribution (default: 0.5)
+ * @param GAUSSIAN_STD - The standard deviation of the Gaussian distribution (default: 0.16666)
+ */
 function computeInvT(
   input: TextureDataFloat,
   Tinv: TextureDataFloat,
@@ -348,6 +417,9 @@ function computeInvT(
   }
 }
 
+/**
+ * Data structure containing all precomputed data needed for seamless texture synthesis.
+ */
 type SeamlessTextureData = {
   input: TextureDataFloat; // input: example image
   Tinput: TextureDataFloat; // output: T(input) image
@@ -359,6 +431,14 @@ type SeamlessTextureData = {
   lutWidth: Size;
 };
 
+/**
+ * Performs all necessary precomputations for seamless texture synthesis.
+ * This includes color space decorrelation, histogram transformation, and LUT prefiltering.
+ *
+ * @param input - The input example texture
+ * @param LUT_WIDTH - The width of the Look-Up Table (default: 128)
+ * @returns SeamlessTextureData containing all precomputed data
+ */
 function precomputations(
   input: TextureDataFloat, // input: example image
   LUT_WIDTH: Size = 128
@@ -409,6 +489,15 @@ function precomputations(
   return retVal as SeamlessTextureData;
 }
 
+/**
+ * Converts an HTMLImageElement to a Canvas with specified dimensions.
+ * The image is scaled to fit the target width and height.
+ *
+ * @param image - The source HTML image element
+ * @param width - The target canvas width
+ * @param height - The target canvas height
+ * @returns A new Canvas element containing the scaled image
+ */
 export function convertHTMLImageElementToCanvas(
   image: HTMLImageElement,
   width: number,
@@ -423,6 +512,19 @@ export function convertHTMLImageElementToCanvas(
   return canvas;
 }
 
+/**
+ * Combines multiple single-channel images into a single RGBA image.
+ * Each input image contributes to one color channel of the output.
+ *
+ * @param data - Configuration object containing:
+ *   - r_image: Optional canvas for red channel
+ *   - g_image: Optional canvas for green channel
+ *   - b_image: Optional canvas for blue channel
+ *   - a_image: Optional canvas for alpha channel
+ *   - width: Output image width
+ *   - height: Output image height
+ * @returns A new Canvas containing the combined RGBA image
+ */
 export function combineImages(data: {
   r_image?: HTMLCanvasElement;
   g_image?: HTMLCanvasElement;
@@ -493,4 +595,8 @@ export function combineImages(data: {
   return outputCanvas;
 }
 
+/**
+ * Utility class for image processing operations.
+ * Provides methods for seamless texture synthesis and image manipulation.
+ */
 export const ImageUtil = Object.freeze({ precomputations });
