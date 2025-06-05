@@ -94,6 +94,14 @@ const IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT = 17;
 
 type DRAW_PARAMETERS_IDENTIFIER = string;
 
+/**
+ * WebGPU Resource Repository that manages WebGPU resources and provides rendering functionality.
+ * This class serves as a central hub for creating, managing, and utilizing WebGPU resources
+ * such as textures, buffers, pipelines, and render passes.
+ *
+ * @extends CGAPIResourceRepository
+ * @implements ICGAPIResourceRepository
+ */
 export class WebGpuResourceRepository
   extends CGAPIResourceRepository
   implements ICGAPIResourceRepository
@@ -148,6 +156,10 @@ export class WebGpuResourceRepository
     super();
   }
 
+  /**
+   * Clears all cached resources including render pipelines, bind groups, and render bundles.
+   * This method should be called when resources need to be recreated or when the rendering context changes.
+   */
   clearCache() {
     this.__webGpuRenderPipelineMap.clear();
     this.__materialStateVersionMap.clear();
@@ -158,15 +170,33 @@ export class WebGpuResourceRepository
     this.__renderBundles.clear();
   }
 
+  /**
+   * Adds a WebGPU device wrapper to the repository and initializes the command encoder.
+   * This must be called before using any WebGPU functionality.
+   *
+   * @param webGpuDeviceWrapper - The WebGPU device wrapper containing the device and context
+   */
   addWebGpuDeviceWrapper(webGpuDeviceWrapper: WebGpuDeviceWrapper) {
     this.__webGpuDeviceWrapper = webGpuDeviceWrapper;
     this.__commandEncoder = this.__webGpuDeviceWrapper.gpuDevice.createCommandEncoder();
   }
 
+  /**
+   * Returns the WebGPU device wrapper instance.
+   *
+   * @returns The WebGPU device wrapper
+   * @throws Error if the device wrapper has not been initialized
+   */
   getWebGpuDeviceWrapper(): WebGpuDeviceWrapper {
     return this.__webGpuDeviceWrapper!;
   }
 
+  /**
+   * Returns the singleton instance of WebGpuResourceRepository.
+   * Creates a new instance if one doesn't exist.
+   *
+   * @returns The singleton instance
+   */
   static getInstance(): WebGpuResourceRepository {
     if (!this.__instance) {
       this.__instance = new WebGpuResourceRepository();
@@ -174,10 +204,21 @@ export class WebGpuResourceRepository
     return this.__instance;
   }
 
+  /**
+   * Generates a unique resource number for tracking WebGPU resources.
+   *
+   * @returns A unique resource handle number
+   */
   private getResourceNumber(): WebGPUResourceHandle {
     return ++this.__resourceCounter;
   }
 
+  /**
+   * Registers a WebGPU resource and assigns it a unique handle.
+   *
+   * @param obj - The WebGPU resource to register
+   * @returns The unique handle for the registered resource
+   */
   private __registerResource(obj: WebGpuResource) {
     const handle = this.getResourceNumber();
     (obj as any)._resourceUid = handle;
@@ -185,16 +226,31 @@ export class WebGpuResourceRepository
     return handle;
   }
 
+  /**
+   * Gets the current canvas size as a tuple of width and height.
+   *
+   * @returns A tuple containing [width, height] of the canvas
+   */
   getCanvasSize(): [Size, Size] {
     const canvas = this.__webGpuDeviceWrapper!.canvas;
     return [canvas.width, canvas.height];
   }
 
   /**
-   * create a WebGPU Texture
-   * @param imageData - an ImageBitmapData
-   * @param paramObject - a parameter object
-   * @returns
+   * Creates a WebGPU texture from ImageBitmap data with specified parameters.
+   * This method handles texture creation, data upload, and optional mipmap generation.
+   *
+   * @param imageData - The ImageBitmap data to create the texture from
+   * @param params - Configuration object containing texture parameters
+   * @param params.level - Mipmap level (typically 0 for base level)
+   * @param params.internalFormat - Internal format of the texture
+   * @param params.width - Width of the texture in pixels
+   * @param params.height - Height of the texture in pixels
+   * @param params.border - Border width (must be 0 for WebGPU)
+   * @param params.format - Pixel format of the source data
+   * @param params.type - Component type of the source data
+   * @param params.generateMipmap - Whether to generate mipmaps automatically
+   * @returns Promise that resolves to the texture resource handle
    */
   public async createTextureFromImageBitmapData(
     imageData: ImageBitmapData,
@@ -229,6 +285,20 @@ export class WebGpuResourceRepository
     return textureHandle;
   }
 
+  /**
+   * Creates a WebGPU texture from a data URI string.
+   * This method loads the image from the data URI and creates a texture from it.
+   *
+   * @param dataUri - The data URI string containing the image data
+   * @param params - Configuration object containing texture parameters
+   * @param params.level - Mipmap level (typically 0 for base level)
+   * @param params.internalFormat - Internal format of the texture
+   * @param params.border - Border width (must be 0 for WebGPU)
+   * @param params.format - Pixel format of the source data
+   * @param params.type - Component type of the source data
+   * @param params.generateMipmap - Whether to generate mipmaps automatically
+   * @returns Promise that resolves to the texture resource handle
+   */
   async createTextureFromDataUri(
     dataUri: string,
     {
@@ -274,6 +344,14 @@ export class WebGpuResourceRepository
     });
   }
 
+  /**
+   * Generates mipmaps for a 2D texture using the specified dimensions.
+   * This method creates all mipmap levels from the base texture.
+   *
+   * @param textureHandle - Handle to the texture resource
+   * @param width - Width of the base texture level
+   * @param height - Height of the base texture level
+   */
   generateMipmaps2d(textureHandle: WebGPUResourceHandle, width: number, height: number): void {
     const gpuTexture = this.__webGpuResources.get(textureHandle) as GPUTexture;
     const textureDescriptor: GPUTextureDescriptor = {
@@ -288,6 +366,14 @@ export class WebGpuResourceRepository
     this.generateMipmaps(gpuTexture, textureDescriptor);
   }
 
+  /**
+   * Generates mipmaps for a cube texture using the specified dimensions.
+   * This method creates all mipmap levels for all 6 faces of the cube texture.
+   *
+   * @param textureHandle - Handle to the cube texture resource
+   * @param width - Width of the base texture level
+   * @param height - Height of the base texture level
+   */
   generateMipmapsCube(textureHandle: WebGPUResourceHandle, width: number, height: number): void {
     const gpuTexture = this.__webGpuResources.get(textureHandle) as GPUTexture;
     const textureDescriptor: GPUTextureDescriptor = {
@@ -302,6 +388,17 @@ export class WebGpuResourceRepository
     this.generateMipmaps(gpuTexture, textureDescriptor);
   }
 
+  /**
+   * Reads pixel data from a texture and returns it as a Uint8Array.
+   * This method is useful for debugging or post-processing texture data.
+   *
+   * @param textureHandle - Handle to the texture resource
+   * @param width - Width of the texture region to read
+   * @param height - Height of the texture region to read
+   * @param frameBufferUid - Handle to the framebuffer (if applicable)
+   * @param colorAttachmentIndex - Index of the color attachment to read from
+   * @returns Promise that resolves to the pixel data as Uint8Array
+   */
   async getTexturePixelData(
     textureHandle: WebGPUResourceHandle,
     width: number,
@@ -331,12 +428,14 @@ export class WebGpuResourceRepository
   }
 
   /**
-   * create a WebGPU Texture Mipmaps (including CubeMap support)
+   * Generates mipmaps for a texture using render passes (including CubeMap support).
+   * This is an optimized method adapted from WebGPU best practices that uses
+   * a custom shader to generate each mipmap level from the previous one.
    *
    * @remarks
    * Adapted from: https://toji.dev/webgpu-best-practices/img-textures#generating-mipmaps
-   * @param texture - a texture
-   * @param textureDescriptor - a texture descriptor
+   * @param texture - The GPU texture to generate mipmaps for
+   * @param textureDescriptor - Descriptor containing texture format and dimensions
    */
   generateMipmaps(texture: GPUTexture, textureDescriptor: GPUTextureDescriptor) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
@@ -529,6 +628,21 @@ export class WebGpuResourceRepository
     }
   }
 
+  /**
+   * Creates a texture sampler with the specified filtering and wrapping parameters.
+   * The sampler defines how textures are filtered and wrapped when accessed in shaders.
+   *
+   * @param params - Configuration object for the sampler
+   * @param params.magFilter - Magnification filter mode
+   * @param params.minFilter - Minification filter mode
+   * @param params.wrapS - Wrapping mode for S (U) texture coordinate
+   * @param params.wrapT - Wrapping mode for T (V) texture coordinate
+   * @param params.wrapR - Wrapping mode for R (W) texture coordinate
+   * @param params.anisotropy - Whether to enable anisotropic filtering
+   * @param params.isPremultipliedAlpha - Whether the texture has premultiplied alpha (optional)
+   * @param params.shadowCompareMode - Whether to enable shadow comparison mode
+   * @returns Handle to the created sampler resource
+   */
   createTextureSampler({
     magFilter,
     minFilter,
@@ -583,9 +697,11 @@ export class WebGpuResourceRepository
   }
 
   /**
-   * create a WebGPU Vertex Buffer
-   * @param accessor - an accessor
-   * @returns
+   * Creates a WebGPU vertex buffer from an accessor containing vertex data.
+   * The buffer is created with the appropriate size and the data is uploaded immediately.
+   *
+   * @param accessor - Accessor containing the vertex data to upload
+   * @returns Handle to the created vertex buffer
    */
   public createVertexBuffer(accessor: Accessor): WebGPUResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
@@ -604,9 +720,11 @@ export class WebGpuResourceRepository
   }
 
   /**
-   * create a WebGPU Vertex Buffer
-   * @param typedArray - a typed array
-   * @returns a WebGPUResourceHandle
+   * Creates a WebGPU vertex buffer from a typed array.
+   * This is a more direct method when you have raw typed array data.
+   *
+   * @param typedArray - The typed array containing vertex data
+   * @returns Handle to the created vertex buffer resource
    */
   createVertexBufferFromTypedArray(typedArray: TypedArray): WebGPUResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
@@ -625,9 +743,12 @@ export class WebGpuResourceRepository
   }
 
   /**
-   * create a WebGPU Index Buffer
-   * @param accessor - an accessor
-   * @returns a WebGPUResourceHandle
+   * Creates a WebGPU index buffer from an accessor containing index data.
+   * Automatically converts UnsignedByte indices to UnsignedShort since WebGPU
+   * doesn't support 8-bit index buffers.
+   *
+   * @param accessor - Accessor containing the index data to upload
+   * @returns Handle to the created index buffer resource
    */
   public createIndexBuffer(accessor: Accessor): WebGPUResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
