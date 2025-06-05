@@ -383,7 +383,7 @@ export class ModelConverter {
     for (const buffer of gltfModel.buffers) {
       const rnBuffer = new Buffer({
         byteLength: buffer.byteLength,
-        buffer: buffer.buffer!.buffer as ArrayBuffer,
+        buffer: buffer.buffer as unknown as ArrayBuffer,
         name: `gltf2Buffer_0_(${buffer.uri})`,
         byteAlign: 4,
       });
@@ -2222,13 +2222,13 @@ export class ModelConverter {
         );
       } else if (dataViewMethod === 'getInt8') {
         typedDataArray = new Int8Array(
-          uint8Array.buffer,
+          uint8Array as unknown as ArrayBuffer,
           byteOffsetFromBuffer,
           byteLength / componentBytes
         );
       } else if (dataViewMethod === 'getUint8') {
         typedDataArray = new Uint8Array(
-          uint8Array.buffer,
+          uint8Array as unknown as ArrayBuffer,
           byteOffsetFromBuffer,
           byteLength / componentBytes
         );

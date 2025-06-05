@@ -882,7 +882,7 @@ export class Gltf2Importer {
       if (typeof rnm2Buffer.uri === 'undefined') {
         rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve) => {
           rnm2Buffer.buffer = uint8ArrayOfGlb;
-          resolve(uint8ArrayOfGlb.buffer as ArrayBuffer);
+          resolve(uint8ArrayOfGlb as unknown as ArrayBuffer);
         });
       } else if (rnm2Buffer.uri.match(/^data:application\/(.*);base64,/)) {
         rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve) => {
