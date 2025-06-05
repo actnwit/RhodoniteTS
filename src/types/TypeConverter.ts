@@ -3,19 +3,28 @@ import { Logger } from '../foundation/misc/Logger';
 
 export function fromTensorToCompositionType(vec: any) {
   switch (vec.className) {
-    case 'Scalar' || 'MutableScalar':
+    case 'Scalar':
+    case 'MutableScalar':
       return CompositionType.Scalar;
-    case 'Vector2' || 'MutableVector2':
+    case 'Vector2':
+    case 'MutableVector2':
       return CompositionType.Vec2;
-    case 'Vector3' || 'MutableVector3':
+    case 'Vector3':
+    case 'MutableVector3':
       return CompositionType.Vec3;
-    case 'Vector4' || 'MutableVector4' || 'Quaternion' || 'MutableQuaternion':
+    case 'Vector4':
+    case 'MutableVector4':
+    case 'Quaternion':
+    case 'MutableQuaternion':
       return CompositionType.Vec4;
-    case 'Matrix22' || 'MutableMatrix22':
+    case 'Matrix22':
+    case 'MutableMatrix22':
       return CompositionType.Mat2;
-    case 'Matrix33' || 'MutableMatrix33':
+    case 'Matrix33':
+    case 'MutableMatrix33':
       return CompositionType.Mat3;
-    case 'Matrix44' || 'MutableMatrix44':
+    case 'Matrix44':
+    case 'MutableMatrix44':
       return CompositionType.Mat4;
     default:
       Logger.error('CompositionType.Unknown');
