@@ -673,7 +673,7 @@ export class WebXRSystem {
    * @param profilePriorities - Array of controller profile names in priority order.
    */
   private async __onInputSourcesChange(
-    event: XRInputSourceChangeEvent,
+    event: XRInputSourcesChangeEvent,
     resolve: (entities: ISceneGraphEntity[]) => void,
     profilePriorities: string[]
   ) {

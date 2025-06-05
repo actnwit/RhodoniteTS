@@ -872,10 +872,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/webxr@npm:^0.5.10":
-  version: 0.5.16
-  resolution: "@types/webxr@npm:0.5.16"
-  checksum: 10c0/7df4f693c58dc15a6749f37dcf0d29dc72c8e63dc8a7b8990120b2ab3492ad998e6c23a9d175b34a31ced36612b94658b1d6a25abf26d22c9ef35bdce512bcc9
+"@types/webxr@npm:^0.5.22":
+  version: 0.5.22
+  resolution: "@types/webxr@npm:0.5.22"
+  checksum: 10c0/dd015cadd71b2cdd3b7bab18152e579d33ff66652b2eab26f371f3583ca607e9a1f1bd5af5e2f7ff861a50aa352f44b3be40f26b64561e365d1fec254c7dfdcd
   languageName: node
   linkType: hard
 
@@ -5160,7 +5160,7 @@ __metadata:
     "@swc/core": "npm:^1.3.24"
     "@types/node": "npm:^18.11.17"
     "@types/webgl-ext": "npm:^0.0.36"
-    "@types/webxr": "npm:^0.5.10"
+    "@types/webxr": "npm:^0.5.22"
     "@typescript-eslint/eslint-plugin": "npm:^7.8.0"
     "@typescript-eslint/parser": "npm:7.8.0"
     "@vitest/coverage-v8": "npm:3.1.2"
