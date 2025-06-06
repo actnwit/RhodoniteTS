@@ -29,10 +29,10 @@ jobs:
         run: yarn install
 
       - name: 'Run Biome linting'
-        run: yarn lint
+        run: yarn biome-lint
 
       - name: 'Run Biome formatting check'
-        run: yarn format
+        run: yarn biome-format
 
       - name: 'Run Biome comprehensive check'
-        run: yarn check
+        run: yarn biome-check
