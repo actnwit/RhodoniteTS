@@ -1,43 +1,34 @@
-import { ModuleManager } from '../system/ModuleManager';
-import type {
-  TextureData,
-  VertexHandles,
-  WebGLResourceRepository,
-} from '../../webgl/WebGLResourceRepository';
+import type { BasisFile } from '../../types/BasisTexture';
 import type { CGAPIResourceHandle, Count, Index, Size, TypedArray } from '../../types/CommonTypes';
-import type { PixelFormatEnum } from '../definitions/PixelFormat';
-import type { ComponentTypeEnum } from '../definitions/ComponentType';
-import type { TextureParameterEnum } from '../definitions/TextureParameter';
-import type { Accessor } from '../memory/Accessor';
-import type { Primitive } from '../geometry/Primitive';
-import { SystemState } from '../system/SystemState';
+import type { TextureData, VertexHandles, WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
+import type { AttributeNames } from '../../webgl/types/CommonTypes';
+import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import {
-  CompressionTextureTypeEnum,
-  HdriFormatEnum,
+  type CompressionTextureTypeEnum,
+  type HdriFormatEnum,
   ProcessApproach,
-  TextureFormatEnum,
-  VertexAttributeEnum,
+  type TextureFormatEnum,
+  type VertexAttributeEnum,
 } from '../definitions';
-import { Material } from '../materials/core/Material';
-import { AttributeNames } from '../../webgl/types/CommonTypes';
-import { Sampler } from '../textures/Sampler';
-import { RenderPass } from './RenderPass';
-import { IRenderable } from '../textures/IRenderable';
-import { FrameBuffer } from '../renderer/FrameBuffer';
-import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
-import { BasisFile } from '../../types/BasisTexture';
-import { Vector4 } from '../math/Vector4';
+import type { ComponentTypeEnum } from '../definitions/ComponentType';
+import type { PixelFormatEnum } from '../definitions/PixelFormat';
+import type { TextureParameterEnum } from '../definitions/TextureParameter';
+import type { Primitive } from '../geometry/Primitive';
+import type { Material } from '../materials/core/Material';
+import type { Vector4 } from '../math/Vector4';
+import type { Accessor } from '../memory/Accessor';
+import type { FrameBuffer } from '../renderer/FrameBuffer';
+import { ModuleManager } from '../system/ModuleManager';
+import { SystemState } from '../system/SystemState';
+import type { IRenderable } from '../textures/IRenderable';
+import type { Sampler } from '../textures/Sampler';
+import type { RenderPass } from './RenderPass';
 
 /**
  * Union type representing direct texture data that can be used for texture creation.
  * Includes typed arrays and various HTML/browser elements that can serve as texture sources.
  */
-export type DirectTextureData =
-  | TypedArray
-  | HTMLImageElement
-  | HTMLVideoElement
-  | HTMLCanvasElement
-  | ImageBitmap;
+export type DirectTextureData = TypedArray | HTMLImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap;
 
 /**
  * Union type representing image bitmap data sources.
@@ -63,23 +54,18 @@ export abstract class CGAPIResourceRepository {
    * @throws Error if the required module is not available
    */
   static getCgApiResourceRepository(): ICGAPIResourceRepository {
-    const moduleName = ProcessApproach.isWebGL2Approach(SystemState.currentProcessApproach)
-      ? 'webgl'
-      : 'webgpu';
+    const moduleName = ProcessApproach.isWebGL2Approach(SystemState.currentProcessApproach) ? 'webgl' : 'webgpu';
     // const moduleName = 'webgl';
     const moduleManager = ModuleManager.getInstance();
     const cgApiModule = moduleManager.getModule(moduleName)! as any;
 
     if (moduleName === 'webgl') {
-      const webGLResourceRepository: ICGAPIResourceRepository =
-        cgApiModule.WebGLResourceRepository.getInstance();
-      return webGLResourceRepository;
-    } else {
-      // WebGPU
-      const webGLResourceRepository: ICGAPIResourceRepository =
-        cgApiModule?.WebGpuResourceRepository.getInstance();
+      const webGLResourceRepository: ICGAPIResourceRepository = cgApiModule.WebGLResourceRepository.getInstance();
       return webGLResourceRepository;
     }
+    // WebGPU
+    const webGLResourceRepository: ICGAPIResourceRepository = cgApiModule?.WebGpuResourceRepository.getInstance();
+    return webGLResourceRepository;
   }
 
   /**
@@ -93,8 +79,7 @@ export abstract class CGAPIResourceRepository {
     const moduleName = 'webgl';
     const moduleManager = ModuleManager.getInstance();
     const webglModule = moduleManager.getModule(moduleName)! as any;
-    const webGLResourceRepository: WebGLResourceRepository =
-      webglModule.WebGLResourceRepository.getInstance();
+    const webGLResourceRepository: WebGLResourceRepository = webglModule.WebGLResourceRepository.getInstance();
     return webGLResourceRepository;
   }
 
@@ -109,8 +94,7 @@ export abstract class CGAPIResourceRepository {
     const moduleName = 'webgpu';
     const moduleManager = ModuleManager.getInstance();
     const webgpuModule = moduleManager.getModule(moduleName)! as any;
-    const webGpuResourceRepository: WebGpuResourceRepository =
-      webgpuModule.WebGpuResourceRepository.getInstance();
+    const webGpuResourceRepository: WebGpuResourceRepository = webgpuModule.WebGpuResourceRepository.getInstance();
     return webGpuResourceRepository;
   }
 }
@@ -735,11 +719,7 @@ export interface ICGAPIResourceRepository {
    * @param attachmentIndex - Color attachment index (0-based)
    * @param renderable - The color buffer to attach
    */
-  attachColorBufferToFrameBufferObject(
-    framebuffer: FrameBuffer,
-    attachmentIndex: Index,
-    renderable: IRenderable
-  ): void;
+  attachColorBufferToFrameBufferObject(framebuffer: FrameBuffer, attachmentIndex: Index, renderable: IRenderable): void;
 
   /**
    * Attaches a specific layer of a texture array as a color buffer to a framebuffer.
@@ -828,10 +808,7 @@ export interface ICGAPIResourceRepository {
    * @param framebuffer - The target framebuffer
    * @param renderable - The depth-stencil buffer to attach
    */
-  attachDepthStencilBufferToFrameBufferObject(
-    framebuffer: FrameBuffer,
-    renderable: IRenderable
-  ): void;
+  attachDepthStencilBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable): void;
 
   /**
    * Deletes a framebuffer object and frees associated resources.

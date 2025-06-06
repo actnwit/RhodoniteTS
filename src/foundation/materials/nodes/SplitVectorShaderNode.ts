@@ -1,10 +1,10 @@
-import { ComponentType } from '../../definitions/ComponentType';
-import { CompositionType } from '../../definitions/CompositionType';
-import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import SplitVectorShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/SplitVector.glsl';
 import SplitVectorShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/SplitVector.wgsl';
-import { SystemState } from '../../system/SystemState';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
+import { SystemState } from '../../system/SystemState';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 /**
  * A shader node that splits vector inputs into their individual components or smaller vectors.
@@ -108,18 +108,19 @@ export class SplitVectorShaderNode extends AbstractShaderNode {
       for (const inputConnection of this.inputConnections) {
         if (inputConnection != null) {
           if (inputConnection.inputNameOfThis === 'xyzw') {
-            return this.__shaderFunctionName + 'XYZW';
-          } else if (inputConnection.inputNameOfThis === 'xyz') {
-            return this.__shaderFunctionName + 'XYZ';
-          } else if (inputConnection.inputNameOfThis === 'xy') {
-            return this.__shaderFunctionName + 'XY';
+            return `${this.__shaderFunctionName}XYZW`;
+          }
+          if (inputConnection.inputNameOfThis === 'xyz') {
+            return `${this.__shaderFunctionName}XYZ`;
+          }
+          if (inputConnection.inputNameOfThis === 'xy') {
+            return `${this.__shaderFunctionName}XY`;
           }
         }
       }
       throw new Error('Not implemented');
-    } else {
-      return this.__shaderFunctionName;
     }
+    return this.__shaderFunctionName;
   }
 
   /**
@@ -203,7 +204,7 @@ export class SplitVectorShaderNode extends AbstractShaderNode {
 
       if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
         for (let i = 0; i < dummyOutputArguments.length; i++) {
-          dummyOutputArguments[i] = '&' + dummyOutputArguments[i];
+          dummyOutputArguments[i] = `&${dummyOutputArguments[i]}`;
         }
       }
 
@@ -212,7 +213,7 @@ export class SplitVectorShaderNode extends AbstractShaderNode {
       rowStr += `${functionName}(`;
       const inputName = varInputNames[i][0];
       rowStr += inputName;
-      rowStr += ', ' + dummyOutputArguments.join(', ');
+      rowStr += `, ${dummyOutputArguments.join(', ')}`;
       rowStr += ');\n';
     }
 

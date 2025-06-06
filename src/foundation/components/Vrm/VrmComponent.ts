@@ -1,11 +1,11 @@
-import { ComponentSID, ComponentTID, EntityUID, Index } from '../../../types/CommonTypes';
+import type { ComponentSID, ComponentTID, EntityUID, Index } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
-import { IEntity } from '../../core/Entity';
-import { applyMixins, EntityRepository } from '../../core/EntityRepository';
+import type { IEntity } from '../../core/Entity';
+import { EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import { Is } from '../../misc';
-import { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
-import { ComponentToComponentMethods } from '../ComponentTypes';
+import type { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
+import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 export type VrmExpressionName = string;
@@ -39,12 +39,7 @@ export class VrmComponent extends Component {
    * @param entityComponent - The entity repository managing this component
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(
-    entityUid: EntityUID,
-    componentSid: ComponentSID,
-    entityComponent: EntityRepository,
-    isReUse: boolean
-  ) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean) {
     super(entityUid, componentSid, entityComponent, isReUse);
     this.moveStageTo(ProcessStage.Logic);
   }
@@ -151,13 +146,6 @@ export class VrmComponent extends Component {
   ) {
     class VrmEntity extends (base.constructor as any) {
       private __vrmComponent?: VrmComponent;
-      constructor(
-        entityUID: EntityUID,
-        isAlive: boolean,
-        components?: Map<ComponentTID, Component>
-      ) {
-        super(entityUID, isAlive, components);
-      }
 
       /**
        * Gets the VrmComponent associated with this entity.
@@ -165,9 +153,7 @@ export class VrmComponent extends Component {
        */
       getVrm() {
         if (this.__vrmComponent === undefined) {
-          this.__vrmComponent = this.getComponentByComponentTID(
-            WellKnownComponentTIDs.VrmComponentTID
-          ) as VrmComponent;
+          this.__vrmComponent = this.getComponentByComponentTID(WellKnownComponentTIDs.VrmComponentTID) as VrmComponent;
         }
         return this.__vrmComponent;
       }

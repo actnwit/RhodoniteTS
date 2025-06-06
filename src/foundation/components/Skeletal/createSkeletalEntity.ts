@@ -1,5 +1,5 @@
 import { EntityRepository } from '../../core/EntityRepository';
-import { ISkeletalEntity } from '../../helpers/EntityHelper';
+import type { ISkeletalEntity } from '../../helpers/EntityHelper';
 import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 

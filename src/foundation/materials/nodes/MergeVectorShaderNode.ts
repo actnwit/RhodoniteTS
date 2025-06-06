@@ -1,10 +1,10 @@
-import { ComponentType } from '../../definitions/ComponentType';
-import { CompositionType } from '../../definitions/CompositionType';
-import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import MergeVectorShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/MergeVector.glsl';
 import MergeVectorShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/MergeVector.wgsl';
-import { SystemState } from '../../system/SystemState';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
+import { SystemState } from '../../system/SystemState';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 /**
  * A shader node that merges vector components to create various vector outputs.
@@ -112,28 +112,24 @@ export class MergeVectorShaderNode extends AbstractShaderNode {
    */
   getShaderFunctionNameDerivative() {
     if (this.inputConnections[0] != null && this.inputConnections[6] != null) {
-      return this.__shaderFunctionName + 'XYZ_W';
-    } else if (this.inputConnections[1] != null && this.inputConnections[2] != null) {
-      return this.__shaderFunctionName + 'XY_ZW';
-    } else if (
-      this.inputConnections[1] != null &&
-      this.inputConnections[5] != null &&
-      this.inputConnections[6] != null
-    ) {
-      return this.__shaderFunctionName + 'XY_Z_W';
-    } else if (
-      this.inputConnections[2] != null &&
-      this.inputConnections[3] != null &&
-      this.inputConnections[4] != null
-    ) {
-      return this.__shaderFunctionName + 'ZW_X_Y';
-    } else if (
+      return `${this.__shaderFunctionName}XYZ_W`;
+    }
+    if (this.inputConnections[1] != null && this.inputConnections[2] != null) {
+      return `${this.__shaderFunctionName}XY_ZW`;
+    }
+    if (this.inputConnections[1] != null && this.inputConnections[5] != null && this.inputConnections[6] != null) {
+      return `${this.__shaderFunctionName}XY_Z_W`;
+    }
+    if (this.inputConnections[2] != null && this.inputConnections[3] != null && this.inputConnections[4] != null) {
+      return `${this.__shaderFunctionName}ZW_X_Y`;
+    }
+    if (
       this.inputConnections[3] != null &&
       this.inputConnections[4] != null &&
       this.inputConnections[5] != null &&
       this.inputConnections[6] != null
     ) {
-      return this.__shaderFunctionName + 'X_Y_Z_W';
+      return `${this.__shaderFunctionName}X_Y_Z_W`;
     }
     throw new Error('Not implemented');
   }
@@ -175,19 +171,9 @@ export class MergeVectorShaderNode extends AbstractShaderNode {
               `var dummyXY_${i}: vec2<f32>;`,
               `var dummyZW_${i}: vec2<f32>;`,
             ]
-          : [
-              `vec4 dummyXYZW_${i};`,
-              `vec3 dummyXYZ_${i};`,
-              `vec2 dummyXY_${i};`,
-              `vec2 dummyZW_${i};`,
-            ];
+          : [`vec4 dummyXYZW_${i};`, `vec3 dummyXYZ_${i};`, `vec2 dummyXY_${i};`, `vec2 dummyZW_${i};`];
 
-      const dummyOutputArguments = [
-        `dummyXYZW_${i}`,
-        `dummyXYZ_${i}`,
-        `dummyXY_${i}`,
-        `dummyZW_${i}`,
-      ];
+      const dummyOutputArguments = [`dummyXYZW_${i}`, `dummyXYZ_${i}`, `dummyXY_${i}`, `dummyZW_${i}`];
 
       for (let k = 0; k < varOutputNames[i].length; k++) {
         const outputName = varOutputNames[i][k];
@@ -208,7 +194,7 @@ export class MergeVectorShaderNode extends AbstractShaderNode {
 
       if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
         for (let i = 0; i < dummyOutputArguments.length; i++) {
-          dummyOutputArguments[i] = '&' + dummyOutputArguments[i];
+          dummyOutputArguments[i] = `&${dummyOutputArguments[i]}`;
         }
       }
 
@@ -222,7 +208,7 @@ export class MergeVectorShaderNode extends AbstractShaderNode {
         const inputName = varInputNames[i][k];
         rowStr += inputName;
       }
-      rowStr += ', ' + dummyOutputArguments.join(', ');
+      rowStr += `, ${dummyOutputArguments.join(', ')}`;
       rowStr += ');\n';
     }
 

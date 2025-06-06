@@ -1,7 +1,7 @@
-import { SceneGraphComponent } from '../../components';
+import type { SceneGraphComponent } from '../../components';
 import { RnObject } from '../../core/RnObject';
-import { ISceneGraphEntity } from '../../helpers/EntityHelper';
-import { IMatrix44, IVector3, Matrix44, MutableVector3, Quaternion } from '../../math';
+import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
+import { type IMatrix44, IVector3, Matrix44, MutableVector3, Quaternion } from '../../math';
 import { Vector3 } from '../../math/Vector3';
 
 /**
@@ -83,19 +83,12 @@ export class VRMSpringBone extends RnObject {
           this.node.getTransform().localPosition.length() > 0
             ? this.node.getTransform().localPosition
             : Vector3.fromCopyArray([0, -1, 0]);
-        this.initialLocalChildPosition = Vector3.multiply(
-          Vector3.normalize(localPosition),
-          0.07
-        );
+        this.initialLocalChildPosition = Vector3.multiply(Vector3.normalize(localPosition), 0.07);
       }
 
-      const initialWorldChildPosition = this.node.matrixInner.multiplyVector3(
-        this.initialLocalChildPosition
-      );
+      const initialWorldChildPosition = this.node.matrixInner.multiplyVector3(this.initialLocalChildPosition);
       this.currentTail =
-        center != null
-          ? center.getLocalPositionOf(initialWorldChildPosition)
-          : initialWorldChildPosition;
+        center != null ? center.getLocalPositionOf(initialWorldChildPosition) : initialWorldChildPosition;
       this.prevTail = this.currentTail.clone();
       const localPosition =
         this.initialLocalChildPosition.length() > 0
@@ -140,10 +133,7 @@ export class VRMSpringBone extends RnObject {
       v3B = children[0].matrixInner.getTranslateTo(VRMSpringBone.__tmp_vec3_1);
     } else {
       // v3B = this.node.getSceneGraph().matrixInner.multiplyVector3(this.initialLocalChildPosition);
-      v3B = Vector3.multiplyMatrix4(
-        this.initialLocalChildPosition,
-        this.node.getSceneGraph().matrixInner
-      );
+      v3B = Vector3.multiplyMatrix4(this.initialLocalChildPosition, this.node.getSceneGraph().matrixInner);
     }
 
     this.boneLength = Vector3.subtract(v3A, v3B).length();

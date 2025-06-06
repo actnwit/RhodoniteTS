@@ -1,13 +1,13 @@
-import { AbstractTexture } from './AbstractTexture';
-import { HdriFormat, HdriFormatEnum } from '../definitions/HdriFormat';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { BasisTranscoder, BASIS } from '../../types/BasisTexture';
-import { TextureParameter } from '../definitions/TextureParameter';
-import { CGAPIResourceHandle, Size, TypedArray } from '../../types/CommonTypes';
-import { SystemState } from '../system/SystemState';
+import type { BASIS, BasisTranscoder } from '../../types/BasisTexture';
+import type { CGAPIResourceHandle, Size, TypedArray } from '../../types/CommonTypes';
+import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
+import { HdriFormat, type HdriFormatEnum } from '../definitions/HdriFormat';
 import { ProcessApproach } from '../definitions/ProcessApproach';
-import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
+import { TextureParameter } from '../definitions/TextureParameter';
 import { Logger } from '../misc/Logger';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import { SystemState } from '../system/SystemState';
+import { AbstractTexture } from './AbstractTexture';
 
 declare const BASIS: BASIS;
 
@@ -49,20 +49,12 @@ export class CubeTexture extends AbstractTexture implements Disposable {
    * This helps prevent memory leaks by automatically releasing WebGL/WebGPU resources.
    */
   private static managedRegistry: FinalizationRegistry<FinalizationRegistryObject> =
-    new FinalizationRegistry<FinalizationRegistryObject>((texObj) => {
+    new FinalizationRegistry<FinalizationRegistryObject>(texObj => {
       Logger.info(
         `WebGL/WebGPU cube texture "${texObj.uniqueName}" was automatically released along with GC. But explicit release is recommended.`
       );
       CubeTexture.__deleteInternalTexture(texObj.textureResourceUid);
     });
-
-  /**
-   * Creates a new CubeTexture instance.
-   * The texture is not loaded until one of the load methods is called.
-   */
-  constructor() {
-    super();
-  }
 
   /**
    * Sets the texture resource UID and registers the texture for automatic cleanup.
@@ -104,10 +96,10 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     isNamePosNeg,
     hdriFormat,
   }: {
-    baseUrl: string,
-    mipmapLevelNumber: number,
-    isNamePosNeg: boolean,
-    hdriFormat: HdriFormatEnum
+    baseUrl: string;
+    mipmapLevelNumber: number;
+    isNamePosNeg: boolean;
+    hdriFormat: HdriFormatEnum;
   }) {
     this.__startedToLoad = true;
 
@@ -115,21 +107,20 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     this.hdriFormat = hdriFormat;
 
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    const [cubeTextureUid, sampler] = await cgApiResourceRepository
-      .createCubeTextureFromFiles(
-        baseUrl,
-        mipmapLevelNumber,
-        isNamePosNeg,
-        hdriFormat
-      );
+    const [cubeTextureUid, sampler] = await cgApiResourceRepository.createCubeTextureFromFiles(
+      baseUrl,
+      mipmapLevelNumber,
+      isNamePosNeg,
+      hdriFormat
+    );
     this.__setTextureResourceUid(cubeTextureUid, this.uniqueName);
     this._recommendedTextureSampler = sampler;
     this._samplerResourceUid = sampler._samplerResourceUid;
 
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      this._textureViewResourceUid = (
-        cgApiResourceRepository as WebGpuResourceRepository
-      ).createTextureViewCube(this._textureResourceUid);
+      this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureViewCube(
+        this._textureResourceUid
+      );
     }
     this.__isTextureReady = true;
   }
@@ -405,10 +396,10 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     isNamePosNeg,
     hdriFormat,
   }: {
-    baseUrl: string,
-    mipmapLevelNumber: number,
-    isNamePosNeg: boolean,
-    hdriFormat: HdriFormatEnum
+    baseUrl: string;
+    mipmapLevelNumber: number;
+    isNamePosNeg: boolean;
+    hdriFormat: HdriFormatEnum;
   }) {
     const cubeTexture = new CubeTexture();
     await cubeTexture.loadTextureImages({

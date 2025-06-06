@@ -1,5 +1,5 @@
-import { TypedArray } from '../../types/CommonTypes';
-import { IQuaternion } from './IQuaternion';
+import type { TypedArray } from '../../types/CommonTypes';
+import type { IQuaternion } from './IQuaternion';
 
 /**
  * Base interface for immutable vector types.

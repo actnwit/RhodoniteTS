@@ -1,14 +1,14 @@
-import { EffekseerComponent, IEffekseerEntityMethods } from '../../effekseer/EffekseerComponent';
-import { Gltf2Ex } from '../../types/glTF2ForOutput';
-import {
+import { type EffekseerComponent, IEffekseerEntityMethods } from '../../effekseer/EffekseerComponent';
+import type {
   RnM2ExtensionEffekseer,
   RnM2ExtensionsEffekseerEffect,
   RnM2ExtensionsEffekseerTimeline,
   RnM2ExtensionsEffekseerTimelineItem,
 } from '../../types/RnM2';
+import type { Gltf2Ex } from '../../types/glTF2ForOutput';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
-import { IEntity } from '../core';
-import { ISceneGraphEntity } from '../helpers/EntityHelper';
+import type { IEntity } from '../core';
+import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
 import { createAndAddGltf2BufferView } from './Gltf2ExporterOps';

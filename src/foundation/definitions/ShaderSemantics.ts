@@ -1,8 +1,8 @@
-import { EnumClass, EnumIO, _from, _fromString, _fromStringCaseSensitively } from '../misc/EnumIO';
-import { CompositionType } from './CompositionType';
-import type { Material } from '../materials/core/Material';
 import { Index } from '../../types/CommonTypes';
-import { ShaderSemanticsInfo } from './ShaderSemanticsInfo';
+import type { Material } from '../materials/core/Material';
+import { EnumClass, type EnumIO, _from, _fromString, _fromStringCaseSensitively } from '../misc/EnumIO';
+import { CompositionType } from './CompositionType';
+import type { ShaderSemanticsInfo } from './ShaderSemanticsInfo';
 
 export type ShaderSemanticsIndex = number;
 export type ShaderSemanticsName = string;
@@ -31,25 +31,22 @@ export class ShaderSemanticsClass extends EnumClass implements ShaderSemanticsEn
   static isNonArrayShaderSemanticIndex(index: ShaderSemanticsIndex) {
     if (index >= this._scale) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   static isArrayAndZeroIndexShaderSemanticIndex(index: ShaderSemanticsIndex) {
     if (index < 0 && Math.abs(index) % ShaderSemanticsClass._scale === 0) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   static isArrayAndNonZeroIndexShaderSemanticIndex(index: ShaderSemanticsIndex) {
     if (index < 0 && Math.abs(index) % ShaderSemanticsClass._scale !== 0) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
   static getIndexCount() {
     return ShaderSemanticsClass.__indexCount;

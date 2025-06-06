@@ -1,5 +1,5 @@
-import { WebXRSystem } from './WebXRSystem';
 import { WebARSystem } from './WebARSystem';
+import { WebXRSystem } from './WebXRSystem';
 
 const XR = Object.freeze({
   WebXRSystem,
@@ -8,6 +8,5 @@ const XR = Object.freeze({
 export default XR;
 
 export type RnXR = typeof XR;
-const globalObj =
-  typeof global !== 'undefined' ? global : typeof window !== 'undefined' ? window : this;
+const globalObj = typeof global !== 'undefined' ? global : typeof window !== 'undefined' ? window : this;
 (globalObj as unknown as { RnXR: RnXR }).RnXR = XR;

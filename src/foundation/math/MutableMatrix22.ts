@@ -1,10 +1,10 @@
-import { Matrix44 } from './Matrix44';
-import { IMutableMatrix22, IMutableMatrix, IMatrix22 } from './IMatrix';
-import { Matrix22 } from './Matrix22';
-import { Array4, Index } from '../../types/CommonTypes';
-import { Matrix33 } from './Matrix33';
-import { Vector2 } from './Vector2';
+import type { Array4, Index } from '../../types/CommonTypes';
 import { Logger } from '../misc/Logger';
+import type { IMatrix22, IMutableMatrix, IMutableMatrix22 } from './IMatrix';
+import { Matrix22 } from './Matrix22';
+import type { Matrix33 } from './Matrix33';
+import type { Matrix44 } from './Matrix44';
+import type { Vector2 } from './Vector2';
 
 /**
  * A mutable 2x2 matrix class that extends Matrix22 and provides modification capabilities.
@@ -26,15 +26,6 @@ import { Logger } from '../misc/Logger';
  * ```
  */
 export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutableMatrix22 {
-  /**
-   * Creates a new MutableMatrix22 instance.
-   *
-   * @param m - Float32Array containing matrix values in column-major order
-   */
-  constructor(m: Float32Array) {
-    super(m);
-  }
-
   /**
    * Sets the value at position (0,0) of the matrix.
    *

@@ -1,5 +1,5 @@
-import { Array3, Array4 } from './CommonTypes';
-import { RnM2 } from './RnM2';
+import type { Array3, Array4 } from './CommonTypes';
+import type { RnM2 } from './RnM2';
 
 export type Vrm0xHumanBone = {
   bone: string;
@@ -124,7 +124,6 @@ export type Vrm0xMaterialProperty = {
   //   RenderType: string;
   // };
 };
-
 
 export interface VRM0x_Extension {
   exporterVersion: string;

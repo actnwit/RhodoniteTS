@@ -1,14 +1,14 @@
+import type { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
+import type { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
-import { VertexAttribute, VertexAttributeEnum } from '../../foundation/definitions/VertexAttribute';
-import { WebGLResourceRepository } from '../WebGLResourceRepository';
+import { VertexAttribute, type VertexAttributeEnum } from '../../foundation/definitions/VertexAttribute';
+import { AbstractShaderNode } from '../../foundation/materials/core/AbstractShaderNode';
+import type { Socket, SocketDefaultValue } from '../../foundation/materials/core/Socket';
 import { SystemState } from '../../foundation/system/SystemState';
 import vertexInputWGSL from '../../webgpu/shaderity_shaders/common/vertexInput.wgsl';
-import { AttributeNames } from '../types/CommonTypes';
-import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
-import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
-import { Socket, SocketDefaultValue } from '../../foundation/materials/core/Socket';
-import { AbstractShaderNode } from '../../foundation/materials/core/AbstractShaderNode';
+import { WebGLResourceRepository } from '../WebGLResourceRepository';
 import morphVariablesGLSL from '../shaderity_shaders/common/morphVariables.glsl';
+import type { AttributeNames } from '../types/CommonTypes';
 
 /**
  * Abstract base class that provides common shader functionality for both WebGL and WebGPU rendering approaches.
@@ -18,7 +18,6 @@ import morphVariablesGLSL from '../shaderity_shaders/common/morphVariables.glsl'
 export abstract class CommonShaderPart {
   static __instance: CommonShaderPart;
   __webglResourceRepository?: WebGLResourceRepository = WebGLResourceRepository.getInstance();
-  constructor() {}
 
   /**
    * Generates the main function beginning code for vertex or fragment shaders.
@@ -38,8 +37,8 @@ ${vertexInputWGSL.code}
 ) -> VertexOutput {
 `;
         return str;
-      } else {
-        let str = `
+      }
+      let str = `
 var<private> rt0: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 1.0);
 @fragment
 fn main(
@@ -47,13 +46,11 @@ fn main(
   @builtin(front_facing) isFront: bool,
 ) -> @location(0) vec4<f32> {
 `;
-        return str;
-      }
-    } else {
-      return `
+      return str;
+    }
+    return `
 void main() {
 `;
-    }
   }
 
   /**
@@ -70,17 +67,15 @@ void main() {
   return output;
 }
 `;
-      } else {
-        return `
+      }
+      return `
   return rt0;
 }
 `;
-      }
-    } else {
-      return `
+    }
+    return `
 }
     `;
-    }
   }
 
   /**
@@ -108,9 +103,10 @@ struct VertexOutput {
 /* shaderity: @{matricesGetters} */
 `;
       return vertexShaderPrerequisites;
-    } else { // WebGL
-      let vertexShaderPrerequisites = '';
-      vertexShaderPrerequisites += `
+    }
+    // WebGL
+    let vertexShaderPrerequisites = '';
+    vertexShaderPrerequisites += `
 #version 300 es
 precision highp float;
 precision highp int;
@@ -131,14 +127,13 @@ in vec4 a_joint;
 in vec4 a_weight;
 in vec4 a_baryCentricCoord;
 `;
-      vertexShaderPrerequisites += `
+    vertexShaderPrerequisites += `
 uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
 `;
-      vertexShaderPrerequisites += '/* shaderity: @{getters} */';
-      vertexShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
+    vertexShaderPrerequisites += '/* shaderity: @{getters} */';
+    vertexShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
 
-      return vertexShaderPrerequisites;
-    }
+    return vertexShaderPrerequisites;
   }
 
   /**
@@ -176,9 +171,8 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     varyings.sort((a, b) => {
       if (a.name < b.name) {
         return -1;
-      } else {
-        return 1;
       }
+      return 1;
     });
 
     let varyingVariables = '';
@@ -215,9 +209,9 @@ struct VertexOutput {
 /* shaderity: @{matricesGetters} */
 `;
       return pixelShaderPrerequisites;
-    } else {
-      let pixelShaderPrerequisites = '';
-      pixelShaderPrerequisites += `
+    }
+    let pixelShaderPrerequisites = '';
+    pixelShaderPrerequisites += `
       #version 300 es
       precision highp float;
       precision highp int;
@@ -225,10 +219,9 @@ struct VertexOutput {
       #define RN_IS_NODE_SHADER
       /* shaderity: @{prerequisites} */
       `;
-      pixelShaderPrerequisites += '/* shaderity: @{getters} */';
-      pixelShaderPrerequisites += 'layout(location = 0) out vec4 rt0;';
-      return pixelShaderPrerequisites;
-    }
+    pixelShaderPrerequisites += '/* shaderity: @{getters} */';
+    pixelShaderPrerequisites += 'layout(location = 0) out vec4 rt0;';
+    return pixelShaderPrerequisites;
   }
 
   /**
@@ -238,7 +231,7 @@ struct VertexOutput {
    * @returns The main prerequisites placeholder string
    */
   static getMainPrerequisites() {
-    return `/* shaderity: @{mainPrerequisites} */`;
+    return '/* shaderity: @{mainPrerequisites} */';
   }
 
   /**
@@ -255,19 +248,14 @@ struct VertexOutput {
   ) {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       const wgslTypeStr = inputSocket!.compositionType.toWGSLType(inputSocket!.componentType);
-      const wgslInitialValue = inputSocket!.compositionType.getWgslInitialValue(
-        inputSocket!.componentType
-      );
+      const wgslInitialValue = inputSocket!.compositionType.getWgslInitialValue(inputSocket!.componentType);
       const rowStr = `var ${varName}: ${wgslTypeStr} = ${wgslInitialValue};\n`;
       return rowStr;
-    } else {
-      const glslTypeStr = inputSocket!.compositionType.getGlslStr(inputSocket!.componentType);
-      const glslInitialValue = inputSocket!.compositionType.getGlslInitialValue(
-        inputSocket!.componentType
-      );
-      const rowStr = `${glslTypeStr} ${varName} = ${glslInitialValue};\n`;
-      return rowStr;
     }
+    const glslTypeStr = inputSocket!.compositionType.getGlslStr(inputSocket!.componentType);
+    const glslInitialValue = inputSocket!.compositionType.getGlslInitialValue(inputSocket!.componentType);
+    const rowStr = `${glslTypeStr} ${varName} = ${glslInitialValue};\n`;
+    return rowStr;
   }
 
   /**
@@ -288,11 +276,10 @@ struct VertexOutput {
       const wgslTypeStr = inputSocket!.compositionType.toWGSLType(inputSocket!.componentType);
       const rowStr = `var ${varName}: ${wgslTypeStr} = input.${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid};\n`;
       return rowStr;
-    } else {
-      const glslTypeStr = inputSocket!.compositionType.getGlslStr(inputSocket!.componentType);
-      const rowStr = `${glslTypeStr} ${varName} = v_${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid};\n`;
-      return rowStr;
     }
+    const glslTypeStr = inputSocket!.compositionType.getGlslStr(inputSocket!.componentType);
+    const rowStr = `${glslTypeStr} ${varName} = v_${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid};\n`;
+    return rowStr;
   }
 
   /**
@@ -304,16 +291,11 @@ struct VertexOutput {
    * @param j - Index of the current variable in the varNames array
    * @returns The varying variable assignment statement string for vertex shader
    */
-  static getAssignmentVaryingStatementInVertexShader(
-    inputNode: AbstractShaderNode,
-    varNames: string[],
-    j: number
-  ) {
+  static getAssignmentVaryingStatementInVertexShader(inputNode: AbstractShaderNode, varNames: string[], j: number) {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `output.${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid} = ${varNames[j]};\n`;
-    } else {
-      return `v_${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid} = ${varNames[j]};\n`;
     }
+    return `v_${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid} = ${varNames[j]};\n`;
   }
 
   /**

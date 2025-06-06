@@ -1,15 +1,15 @@
-/* eslint-disable prettier/prettier */
-import { Matrix33 } from './Matrix33';
-import { Matrix44 } from './Matrix44';
-import { IMatrix, IMatrix22 } from './IMatrix';
+import type { Array4 } from '../../types';
 import { CompositionType } from '../definitions/CompositionType';
-import { Vector2 } from './Vector2';
-import { MutableMatrix22 } from './MutableMatrix22';
-import { MathUtil } from './MathUtil';
-import { MutableVector2 } from './MutableVector2';
-import { AbstractMatrix } from './AbstractMatrix';
-import { Array4 } from '../../types';
 import { Logger } from '../misc/Logger';
+import { AbstractMatrix } from './AbstractMatrix';
+import { IMatrix, type IMatrix22 } from './IMatrix';
+import { MathUtil } from './MathUtil';
+/* eslint-disable prettier/prettier */
+import type { Matrix33 } from './Matrix33';
+import { Matrix44 } from './Matrix44';
+import type { MutableMatrix22 } from './MutableMatrix22';
+import type { MutableVector2 } from './MutableVector2';
+import { Vector2 } from './Vector2';
 
 /**
  * A 2x2 matrix class for 2D transformations and linear algebra operations.
@@ -328,7 +328,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * ```
    */
   toString() {
-    return this._v[0] + ' ' + this._v[2] + '\n' + this._v[1] + ' ' + this._v[3] + ' \n';
+    return `${this._v[0]} ${this._v[2]}\n${this._v[1]} ${this._v[3]} \n`;
   }
 
   /**
@@ -338,16 +338,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * @returns A string showing the matrix with rounded values
    */
   toStringApproximately() {
-    return (
-      MathUtil.financial(this._v[0]) +
-      ' ' +
-      MathUtil.financial(this._v[2]) +
-      '\n' +
-      MathUtil.financial(this._v[1]) +
-      ' ' +
-      MathUtil.financial(this._v[3]) +
-      ' \n'
-    );
+    return `${MathUtil.financial(this._v[0])} ${MathUtil.financial(this._v[2])}\n${MathUtil.financial(this._v[1])} ${MathUtil.financial(this._v[3])} \n`;
   }
 
   /**
@@ -367,9 +358,8 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
   isDummy() {
     if (this._v.length === 0) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -387,9 +377,8 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
       Math.abs(mat._v[3] - this._v[3]) < delta
     ) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -400,16 +389,10 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * @returns True if all corresponding elements are exactly equal
    */
   isStrictEqual(mat: Matrix22) {
-    if (
-      mat._v[0] === this._v[0] &&
-      mat._v[1] === this._v[1] &&
-      mat._v[2] === this._v[2] &&
-      mat._v[3] === this._v[3]
-    ) {
+    if (mat._v[0] === this._v[0] && mat._v[1] === this._v[1] && mat._v[2] === this._v[2] && mat._v[3] === this._v[3]) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -520,12 +503,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * @returns A new Matrix22 instance with the same values
    */
   clone() {
-    return (this.constructor as any).fromCopy4RowMajor(
-      this._v[0],
-      this._v[2],
-      this._v[1],
-      this._v[3]
-    );
+    return (this.constructor as any).fromCopy4RowMajor(this._v[0], this._v[2], this._v[1], this._v[3]);
   }
 
   /**

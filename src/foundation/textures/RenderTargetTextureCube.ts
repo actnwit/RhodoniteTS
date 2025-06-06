@@ -1,13 +1,13 @@
-import { Index, Size } from '../../types/CommonTypes';
-import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
+import type { Index, Size } from '../../types/CommonTypes';
+import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import { HdriFormat } from '../definitions/HdriFormat';
 import { ProcessApproach } from '../definitions/ProcessApproach';
-import { TextureFormat, TextureFormatEnum } from '../definitions/TextureFormat';
+import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFormat';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { FrameBuffer } from '../renderer/FrameBuffer';
+import type { FrameBuffer } from '../renderer/FrameBuffer';
 import { SystemState } from '../system/SystemState';
 import { AbstractTexture } from './AbstractTexture';
-import { IRenderable } from './IRenderable';
+import type { IRenderable } from './IRenderable';
 
 /**
  * A cube texture that can be used as a render target for rendering operations.
@@ -27,15 +27,7 @@ import { IRenderable } from './IRenderable';
 export class RenderTargetTextureCube extends AbstractTexture implements IRenderable {
   private __fbo?: FrameBuffer;
   public hdriFormat = HdriFormat.HDR_LINEAR;
-  public _textureViewAsRenderTargetResourceUid: number = -1;
-
-  /**
-   * Creates a new RenderTargetTextureCube instance.
-   * The texture must be initialized using the create() method before use.
-   */
-  constructor() {
-    super();
-  }
+  public _textureViewAsRenderTargetResourceUid = -1;
 
   /**
    * Creates and initializes the cube render target texture with the specified parameters.
@@ -72,8 +64,7 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
     this.__height = height;
     this.__mipLevelCount = mipLevelCount ?? Math.floor(Math.log2(Math.max(width, height))) + 1;
 
-    const { format, type } =
-      TextureFormat.getPixelFormatAndComponentTypeFromTextureFormat(internalFormat);
+    const { format, type } = TextureFormat.getPixelFormatAndComponentTypeFromTextureFormat(internalFormat);
 
     this.__internalFormat = internalFormat;
     this.__format = format;
@@ -100,9 +91,9 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
     this._textureResourceUid = texture;
 
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      this._textureViewResourceUid = (
-        cgApiResourceRepository as WebGpuResourceRepository
-      ).createTextureViewCube(this._textureResourceUid);
+      this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureViewCube(
+        this._textureResourceUid
+      );
 
       this._textureViewAsRenderTargetResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository
@@ -175,12 +166,11 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
   createCubeTextureViewAsRenderTarget(faceIdx: Index, mipLevel: Index): void {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       const webGpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
-      this._textureViewAsRenderTargetResourceUid =
-        webGpuResourceRepository.createCubeTextureViewAsRenderTarget(
-          this._textureResourceUid,
-          faceIdx,
-          mipLevel
-        );
+      this._textureViewAsRenderTargetResourceUid = webGpuResourceRepository.createCubeTextureViewAsRenderTarget(
+        this._textureResourceUid,
+        faceIdx,
+        mipLevel
+      );
     }
   }
 

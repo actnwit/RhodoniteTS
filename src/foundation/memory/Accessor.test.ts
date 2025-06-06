@@ -1,7 +1,7 @@
-import { Buffer } from './Buffer';
-import { CompositionType } from '../definitions/CompositionType';
+import type { Byte } from '../../types/CommonTypes';
 import { ComponentType } from '../definitions/ComponentType';
-import { Byte } from '../../types/CommonTypes';
+import { CompositionType } from '../definitions/CompositionType';
+import { Buffer } from './Buffer';
 
 function createBuffer(byteSize: Byte) {
   const arrayBuffer = new ArrayBuffer(byteSize);

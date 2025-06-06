@@ -1,5 +1,5 @@
-import { CGAPIResourceHandle } from '../../types/CommonTypes';
-import { TextureParameter, TextureParameterEnum } from '../definitions';
+import type { CGAPIResourceHandle } from '../../types/CommonTypes';
+import { TextureParameter, type TextureParameterEnum } from '../definitions';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 
 /**

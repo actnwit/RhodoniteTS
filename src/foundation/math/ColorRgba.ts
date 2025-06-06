@@ -1,7 +1,7 @@
+import type { Array4 } from '../../types/CommonTypes';
+import type { IColorRgba } from './IColor';
+import type { IVector4 } from './IVector';
 import { Vector4 } from './Vector4';
-import { IVector4 } from './IVector';
-import { IColorRgba } from './IColor';
-import { Array4 } from '../../types/CommonTypes';
 
 /**
  * A RGBA color class that extends Vector4 to provide color-specific functionality.
@@ -18,15 +18,6 @@ import { Array4 } from '../../types/CommonTypes';
  * ```
  */
 export class ColorRgba extends Vector4 implements IVector4, IColorRgba {
-  /**
-   * Creates a new ColorRgba instance from a Float32Array.
-   *
-   * @param r - A Float32Array containing RGBA values [r, g, b, a]
-   */
-  constructor(r: Float32Array) {
-    super(r);
-  }
-
   /**
    * Gets the x component (equivalent to red component).
    *

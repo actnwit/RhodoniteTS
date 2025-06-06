@@ -129,7 +129,7 @@ export class WebGLStereoUtil {
         shader = this.__fragmentShader;
         break;
       default:
-        Logger.error('Invalid Shader Type: ' + type);
+        Logger.error(`Invalid Shader Type: ${type}`);
         return;
     }
 
@@ -222,9 +222,9 @@ export class WebGLStereoUtil {
     const viewport = gl.getParameter(gl.VIEWPORT);
     gl.viewport(0, 0, dest_surface_width, dest_surface_height);
 
-    gl.uniform2f(this.__uniform!['u_scale'], source_rect_uv_width, source_rect_uv_height);
-    gl.uniform2f(this.__uniform!['u_offset'], source_rect_uv_x, source_rect_uv_y);
-    gl.uniform1i(this.__uniform!['u_source_texture'], 15);
+    gl.uniform2f(this.__uniform!.u_scale, source_rect_uv_width, source_rect_uv_height);
+    gl.uniform2f(this.__uniform!.u_offset, source_rect_uv_x, source_rect_uv_y);
+    gl.uniform1i(this.__uniform!.u_source_texture, 15);
 
     // gl.bindVertexArray(this.__vao);
     gl.drawArrays(gl.TRIANGLES, 0, 12);
@@ -288,9 +288,9 @@ export class WebGLStereoUtil {
     const viewport = gl.getParameter(gl.VIEWPORT);
     gl.viewport(0, 0, dest_surface_width, dest_surface_height);
 
-    gl.uniform2f(this.__uniform!['u_scale'], source_rect_uv_width, source_rect_uv_height);
-    gl.uniform2f(this.__uniform!['u_offset'], source_rect_uv_x, source_rect_uv_y);
-    gl.uniform1i(this.__uniform!['u_source_texture'], 15);
+    gl.uniform2f(this.__uniform!.u_scale, source_rect_uv_width, source_rect_uv_height);
+    gl.uniform2f(this.__uniform!.u_offset, source_rect_uv_x, source_rect_uv_y);
+    gl.uniform1i(this.__uniform!.u_source_texture, 15);
     gl.drawArrays(gl.TRIANGLES, 0, 12);
 
     // gl.useProgram((gl as any).__lastUseProgram);
@@ -360,42 +360,13 @@ export class WebGLStereoUtil {
 
       // 一時的なテクスチャにレイヤーをコピー
       gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, drawFramebuffer);
-      gl.framebufferTexture2D(
-        gl.DRAW_FRAMEBUFFER,
-        gl.COLOR_ATTACHMENT0,
-        gl.TEXTURE_2D,
-        tempTexture,
-        0
-      );
+      gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tempTexture, 0);
       gl.blitFramebuffer(0, 0, width, height, 0, 0, width, height, gl.COLOR_BUFFER_BIT, gl.NEAREST);
 
       // 一時的なテクスチャから最終テクスチャにコピー
-      gl.framebufferTexture2D(
-        gl.READ_FRAMEBUFFER,
-        gl.COLOR_ATTACHMENT0,
-        gl.TEXTURE_2D,
-        tempTexture,
-        0
-      );
-      gl.framebufferTexture2D(
-        gl.DRAW_FRAMEBUFFER,
-        gl.COLOR_ATTACHMENT0,
-        gl.TEXTURE_2D,
-        dstTexture,
-        0
-      );
-      gl.blitFramebuffer(
-        0,
-        0,
-        width,
-        height,
-        xOffset,
-        0,
-        xOffset + width,
-        height,
-        gl.COLOR_BUFFER_BIT,
-        gl.NEAREST
-      );
+      gl.framebufferTexture2D(gl.READ_FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tempTexture, 0);
+      gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, dstTexture, 0);
+      gl.blitFramebuffer(0, 0, width, height, xOffset, 0, xOffset + width, height, gl.COLOR_BUFFER_BIT, gl.NEAREST);
     }
 
     // 0番目のレイヤーを左側にコピー

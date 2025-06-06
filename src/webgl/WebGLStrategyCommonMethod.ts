@@ -1,20 +1,20 @@
-import { Material } from '../foundation/materials/core/Material';
-import { RenderPass } from '../foundation/renderer/RenderPass';
 import { AlphaMode } from '../foundation/definitions/AlphaMode';
-import { Index, IndexOf16Bytes } from '../types/CommonTypes';
-import { ModuleManager } from '../foundation/system/ModuleManager';
-import { WebGLResourceRepository } from './WebGLResourceRepository';
-import { RnXR } from '../xr/main';
-import { Vector4 } from '../foundation/math/Vector4';
-import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
-import { CompositionType } from '../foundation/definitions/CompositionType';
 import { ComponentType } from '../foundation/definitions/ComponentType';
+import { CompositionType } from '../foundation/definitions/CompositionType';
+import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
 import { ShaderType } from '../foundation/definitions/ShaderType';
+import type { Primitive } from '../foundation/geometry/Primitive';
+import type { Material } from '../foundation/materials/core/Material';
 import { Scalar } from '../foundation/math/Scalar';
 import { Vector3 } from '../foundation/math/Vector3';
-import { Primitive } from '../foundation/geometry/Primitive';
-import { WebGLStrategy } from './WebGLStrategy';
-import { WebXRSystem } from '../xr/WebXRSystem';
+import type { Vector4 } from '../foundation/math/Vector4';
+import type { RenderPass } from '../foundation/renderer/RenderPass';
+import { ModuleManager } from '../foundation/system/ModuleManager';
+import { type Index, IndexOf16Bytes } from '../types/CommonTypes';
+import type { WebXRSystem } from '../xr/WebXRSystem';
+import type { RnXR } from '../xr/main';
+import { WebGLResourceRepository } from './WebGLResourceRepository';
+import type { WebGLStrategy } from './WebGLStrategy';
 
 let lastIsTransparentMode: boolean;
 let lastBlendEquationMode: number;
@@ -23,10 +23,10 @@ let lastBlendFuncSrcFactor: number;
 let lastBlendFuncDstFactor: number;
 let lastBlendFuncAlphaSrcFactor: number;
 let lastBlendFuncAlphaDstFactor: number;
-let lastCullFace: boolean = false;
-let lastFrontFaceCCW: boolean = true;
-let lastCullFaceBack: boolean = true;
-let lastAlphaToCoverage: boolean = false;
+let lastCullFace = false;
+let lastFrontFaceCCW = true;
+let lastCullFaceBack = true;
+let lastAlphaToCoverage = false;
 let lastColorWriteMask: boolean[] = [true, true, true, true];
 
 /**
@@ -101,11 +101,7 @@ function setBlendSettings(material: Material, gl: WebGLRenderingContext) {
   }
 
   if (material.alphaMode === AlphaMode.Blend) {
-    setBlendEquationMode(
-      material.blendEquationMode.index,
-      material.blendEquationModeAlpha.index,
-      gl
-    );
+    setBlendEquationMode(material.blendEquationMode.index, material.blendEquationModeAlpha.index, gl);
     setBlendFuncSrcFactor(
       material.blendFuncSrcFactor.index,
       material.blendFuncDstFactor.index,
@@ -124,15 +120,8 @@ function setBlendSettings(material: Material, gl: WebGLRenderingContext) {
  * @param blendEquationModeAlpha - The blend equation mode for alpha channel
  * @param gl - The WebGL rendering context
  */
-function setBlendEquationMode(
-  blendEquationMode: number,
-  blendEquationModeAlpha: number,
-  gl: WebGLRenderingContext
-) {
-  const needUpdateBlendEquation = differentWithLastBlendEquation(
-    blendEquationMode,
-    blendEquationModeAlpha
-  );
+function setBlendEquationMode(blendEquationMode: number, blendEquationModeAlpha: number, gl: WebGLRenderingContext) {
+  const needUpdateBlendEquation = differentWithLastBlendEquation(blendEquationMode, blendEquationModeAlpha);
   if (needUpdateBlendEquation) {
     gl.blendEquationSeparate(blendEquationMode, blendEquationModeAlpha);
     lastBlendEquationMode = blendEquationMode;
@@ -148,8 +137,7 @@ function setBlendEquationMode(
  * @returns True if parameters differ from last set values, false otherwise
  */
 function differentWithLastBlendEquation(equationMode: number, equationModeAlpha: number) {
-  const result =
-    lastBlendEquationMode !== equationMode || lastBlendEquationModeAlpha !== equationModeAlpha;
+  const result = lastBlendEquationMode !== equationMode || lastBlendEquationModeAlpha !== equationModeAlpha;
   return result;
 }
 
@@ -177,12 +165,7 @@ function setBlendFuncSrcFactor(
     blendFuncAlphaDstFactor
   );
   if (needUpdateBlendFunc) {
-    gl.blendFuncSeparate(
-      blendFuncSrcFactor,
-      blendFuncDstFactor,
-      blendFuncAlphaSrcFactor,
-      blendFuncAlphaDstFactor!
-    );
+    gl.blendFuncSeparate(blendFuncSrcFactor, blendFuncDstFactor, blendFuncAlphaSrcFactor, blendFuncAlphaDstFactor!);
     lastBlendFuncSrcFactor = blendFuncSrcFactor;
     lastBlendFuncDstFactor = blendFuncDstFactor;
     lastBlendFuncAlphaSrcFactor = blendFuncAlphaSrcFactor;
@@ -297,14 +280,13 @@ function getDisplayCount(isVRMainPass: boolean, webxrSystem: WebXRSystem): 1 | 2
   if (webxrSystem.isWebXRMode) {
     if (webxrSystem.isMultiView()) {
       return 1;
-    } else if (isVRMainPass) {
-      return 2;
-    } else {
-      return 1;
     }
-  } else {
+    if (isVRMainPass) {
+      return 2;
+    }
     return 1;
   }
+  return 1;
 }
 
 /**
@@ -316,8 +298,7 @@ function getDisplayCount(isVRMainPass: boolean, webxrSystem: WebXRSystem): 1 | 2
  */
 function isVrMainPass(renderPass: RenderPass) {
   const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-  const isVRMainPass =
-    rnXRModule?.WebXRSystem.getInstance().isWebXRMode && renderPass.isVrRendering;
+  const isVRMainPass = rnXRModule?.WebXRSystem.getInstance().isWebXRMode && renderPass.isVrRendering;
   return isVRMainPass;
 }
 
@@ -361,11 +342,7 @@ function getPointSpriteShaderSemanticsInfoArray() {
  * @param primitive - The primitive that will use the material
  * @param webglStrategy - The WebGL strategy for shader compilation
  */
-export function setupShaderProgram(
-  material: Material,
-  primitive: Primitive,
-  webglStrategy: WebGLStrategy
-): void {
+export function setupShaderProgram(material: Material, primitive: Primitive, webglStrategy: WebGLStrategy): void {
   if (material == null) {
     return;
   }

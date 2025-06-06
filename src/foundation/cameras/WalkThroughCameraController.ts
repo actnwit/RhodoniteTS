@@ -1,23 +1,19 @@
-import { Matrix44 } from '../math/Matrix44';
-import { MathClassUtil } from '../math/MathClassUtil';
-import { MiscUtil } from '../misc/MiscUtil';
-import { ICameraController } from './ICameraController';
-import { MutableVector3 } from '../math/MutableVector3';
-import { CameraComponent } from '../components/Camera/CameraComponent';
+import type { CameraComponent } from '../components/Camera/CameraComponent';
+import type { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
 import { Entity } from '../core/Entity';
+import type { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { AABB } from '../math/AABB';
+import { MathClassUtil } from '../math/MathClassUtil';
+import { MathUtil } from '../math/MathUtil';
+import { Matrix44 } from '../math/Matrix44';
 import { MutableMatrix33 } from '../math/MutableMatrix33';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
-import { AbstractCameraController } from './AbstractCameraController';
-import { MathUtil } from '../math/MathUtil';
-import { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { MutableVector3 } from '../math/MutableVector3';
 import { Is } from '../misc/Is';
-import {
-  InputHandlerInfo,
-  InputManager,
-  INPUT_HANDLING_STATE_CAMERA_CONTROLLER,
-} from '../system/InputManager';
-import { AABB } from '../math/AABB';
-import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
+import { MiscUtil } from '../misc/MiscUtil';
+import { INPUT_HANDLING_STATE_CAMERA_CONTROLLER, type InputHandlerInfo, InputManager } from '../system/InputManager';
+import { AbstractCameraController } from './AbstractCameraController';
+import type { ICameraController } from './ICameraController';
 
 type KeyboardEventListener = (evt: KeyboardEvent) => any;
 
@@ -25,10 +21,7 @@ type KeyboardEventListener = (evt: KeyboardEvent) => any;
  * WalkThroughCameraController is a camera controller that allows the user to walk through a scene.
  *
  */
-export class WalkThroughCameraController
-  extends AbstractCameraController
-  implements ICameraController
-{
+export class WalkThroughCameraController extends AbstractCameraController implements ICameraController {
   private __updateCount = 0;
   private _horizontalSpeed: number;
   private _verticalSpeed: number;
@@ -100,12 +93,12 @@ export class WalkThroughCameraController
 
     this.reset();
 
-    this._onKeydown = (e) => {
+    this._onKeydown = e => {
       this._isKeyDown = true;
       this._lastKeyCode = e.keyCode;
     };
 
-    this._onKeyup = (e) => {
+    this._onKeyup = e => {
       this._isKeyDown = false;
       this._lastKeyCode = -1;
     };
@@ -272,16 +265,11 @@ export class WalkThroughCameraController
     if (this._currentDir === null) {
       return;
     }
-    const delta =
-      -1 * Math.sign((e as any).deltaY) * this._mouseWheelSpeedScale * this._horizontalSpeed;
+    const delta = -1 * Math.sign((e as any).deltaY) * this._mouseWheelSpeedScale * this._horizontalSpeed;
     const horizontalDir = WalkThroughCameraController.__tmp_Vec3_0;
     horizontalDir.setComponents(this._currentDir.x, 0, this._currentDir.z).normalize();
 
-    const deltaVec = MutableVector3.multiplyTo(
-      horizontalDir,
-      delta,
-      WalkThroughCameraController.__tmp_Vec3_1
-    );
+    const deltaVec = MutableVector3.multiplyTo(horizontalDir, delta, WalkThroughCameraController.__tmp_Vec3_1);
     this._currentPos.add(deltaVec);
     this._currentCenter.add(deltaVec);
 
@@ -396,8 +384,7 @@ export class WalkThroughCameraController
     const targetAABB = aabb;
     if (this._needInitialize && targetAABB != null) {
       const lengthCenterToCamera =
-        targetAABB.lengthCenterToCorner *
-        (1.0 + 1.0 / Math.tan(MathUtil.degreeToRadian(camera.fovy / 2.0)));
+        targetAABB.lengthCenterToCorner * (1.0 + 1.0 / Math.tan(MathUtil.degreeToRadian(camera.fovy / 2.0)));
       this._currentPos.copyComponents(targetAABB.centerPoint);
       this._currentPos.z += lengthCenterToCamera;
 
@@ -406,10 +393,7 @@ export class WalkThroughCameraController
 
       const sceneComponent = camera.entity.tryToGetSceneGraph();
       if (Is.exist(sceneComponent)) {
-        const invMat = Matrix44.invertTo(
-          sceneComponent.matrixInner,
-          WalkThroughCameraController.__tmpInvMat
-        );
+        const invMat = Matrix44.invertTo(sceneComponent.matrixInner, WalkThroughCameraController.__tmpInvMat);
         invMat.multiplyVector3To(this._currentPos, this._currentPos);
         invMat.multiplyVector3To(this._currentCenter, this._currentCenter);
       }
@@ -483,9 +467,7 @@ export class WalkThroughCameraController
       }
       this._deltaY = Math.max(-120, Math.min(50, this._deltaY));
 
-      const rotateMatrix = WalkThroughCameraController.__tmpRotateMat.rotateY(
-        MathUtil.degreeToRadian(this._deltaX)
-      );
+      const rotateMatrix = WalkThroughCameraController.__tmpRotateMat.rotateY(MathUtil.degreeToRadian(this._deltaX));
       rotateMatrix.multiplyVectorTo(this._currentDir, this._currentDir);
 
       const newEyeToCenter = MutableVector3.subtractTo(
@@ -594,9 +576,8 @@ export class WalkThroughCameraController
   private __getTargetAABB(targetEntity: ISceneGraphEntity) {
     if (this.aabbWithSkeletal) {
       return targetEntity.tryToGetSceneGraph()!.worldMergedAABBWithSkeletal;
-    } else {
-      return targetEntity.tryToGetSceneGraph()!.worldMergedAABB;
     }
+    return targetEntity.tryToGetSceneGraph()!.worldMergedAABB;
   }
 
   /**
@@ -663,13 +644,9 @@ export class WalkThroughCameraController
     for (const key in json) {
       if (json.hasOwnProperty(key) && key in this) {
         if (key === 'quaternion') {
-          (this as any)[key] = MathClassUtil.cloneOfMathObjects(
-            MathClassUtil.arrayToQuaternion(json[key])
-          );
+          (this as any)[key] = MathClassUtil.cloneOfMathObjects(MathClassUtil.arrayToQuaternion(json[key]));
         } else {
-          (this as any)[key] = MathClassUtil.cloneOfMathObjects(
-            MathClassUtil.arrayToVectorOrMatrix(json[key])
-          );
+          (this as any)[key] = MathClassUtil.cloneOfMathObjects(MathClassUtil.arrayToVectorOrMatrix(json[key]));
         }
       }
     }

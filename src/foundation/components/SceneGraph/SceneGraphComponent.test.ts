@@ -1,8 +1,8 @@
 import { MemoryManager } from '../../core/MemoryManager';
 import { Matrix44 } from '../../math/Matrix44';
 import { Vector3 } from '../../math/Vector3';
-import { createGroupEntity } from './createGroupEntity';
 import { flattenHierarchy } from './SceneGraphOps';
+import { createGroupEntity } from './createGroupEntity';
 import '../registerComponents';
 
 describe('SceneGraphComponent', () => {
@@ -51,10 +51,7 @@ describe('SceneGraphComponent', () => {
     expect(
       childEntity
         .getSceneGraph()
-        .matrix.isEqual(
-          Matrix44.fromCopy16RowMajor(1, 0, 0, 3, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1),
-          0.00001
-        )
+        .matrix.isEqual(Matrix44.fromCopy16RowMajor(1, 0, 0, 3, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1), 0.00001)
     ).toBe(true);
   });
 

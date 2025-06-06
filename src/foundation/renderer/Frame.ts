@@ -1,12 +1,12 @@
-import { RequireOne } from '../../types/TypeGenerators';
+import type { RequireOne } from '../../types/TypeGenerators';
 import { RnObject } from '../core/RnObject';
-import { IVector4 } from '../math/IVector';
-import { assertExist } from '../misc/MiscUtil';
+import type { IVector4 } from '../math/IVector';
 import { Is } from '../misc/Is';
-import { RenderTargetTexture } from '../textures/RenderTargetTexture';
-import { Expression } from './Expression';
-import { FrameBuffer } from './FrameBuffer';
-import { RenderPass } from './RenderPass';
+import { assertExist } from '../misc/MiscUtil';
+import type { RenderTargetTexture } from '../textures/RenderTargetTexture';
+import type { Expression } from './Expression';
+import type { FrameBuffer } from './FrameBuffer';
+import type { RenderPass } from './RenderPass';
 
 type ColorAttachmentIndex = number;
 type InputRenderPassIndex = number;
@@ -62,18 +62,8 @@ export class Frame extends RnObject {
     }>,
     ColorAttachmentIndex,
     GeneratorOfRenderTargetTexturePromise,
-    'FrameBuffer' | 'ResolveFrameBuffer' | 'ResolveFrameBuffer2'
+    'FrameBuffer' | 'ResolveFrameBuffer' | 'ResolveFrameBuffer2',
   ][] = [];
-
-  /**
-   * Creates a new Frame instance.
-   *
-   * Initializes an empty frame ready to accept expressions and manage
-   * their rendering dependencies.
-   */
-  constructor() {
-    super();
-  }
 
   /**
    * Adds a rendering expression to this frame with optional input dependencies and output configurations.
@@ -229,8 +219,7 @@ export class Frame extends RnObject {
    * ```
    */
   resolve() {
-    for (const [exp, renderPassArg, colorAttachmentIndex, generator, frameBufferType] of this
-      .__expressionQueries) {
+    for (const [exp, renderPassArg, colorAttachmentIndex, generator, frameBufferType] of this.__expressionQueries) {
       for (const expData of this.__expressions) {
         if (exp === expData.expression) {
           let renderPassObj = renderPassArg.instance;
@@ -252,8 +241,7 @@ export class Frame extends RnObject {
           }
 
           if (Is.exist(framebuffer)) {
-            const renderTargetTexture =
-              framebuffer.getColorAttachedRenderTargetTexture(colorAttachmentIndex);
+            const renderTargetTexture = framebuffer.getColorAttachedRenderTargetTexture(colorAttachmentIndex);
             if (Is.exist(renderTargetTexture)) {
               generator.next(renderTargetTexture as any);
               generator.next(renderTargetTexture as any);

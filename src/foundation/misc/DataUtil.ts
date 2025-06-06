@@ -1,8 +1,8 @@
-import { GltfLoadOption } from '../../types';
-import { Byte, Size } from '../../types/CommonTypes';
-import { glTF1 } from '../../types/glTF1';
-import { RnM2 } from '../../types/RnM2';
-import { Err, Result, Ok } from './Result';
+import type { GltfLoadOption } from '../../types';
+import type { Byte, Size } from '../../types/CommonTypes';
+import type { RnM2 } from '../../types/RnM2';
+import type { glTF1 } from '../../types/glTF1';
+import { Err, Ok, type Result } from './Result';
 import { RnPromise } from './RnPromise';
 
 declare const URL: any;
@@ -26,8 +26,7 @@ export class DataUtil {
    * @returns True if running in Node.js environment, false otherwise
    */
   static isNode() {
-    const isNode =
-      window === void 0 && typeof process !== 'undefined' && typeof require !== 'undefined';
+    const isNode = window === void 0 && typeof process !== 'undefined' && typeof require !== 'undefined';
     return isNode;
   }
 
@@ -46,9 +45,8 @@ export class DataUtil {
         buffer = Buffer.from(str.toString(), 'binary');
       }
       return buffer.toString('base64');
-    } else {
-      return btoa(str);
     }
+    return btoa(str);
   }
 
   /**
@@ -60,9 +58,8 @@ export class DataUtil {
     const isNode = DataUtil.isNode();
     if (isNode) {
       return Buffer.from(str, 'base64').toString('binary');
-    } else {
-      return atob(str);
     }
+    return atob(str);
   }
 
   /**
@@ -91,11 +88,10 @@ export class DataUtil {
     if (typeof TextDecoder !== 'undefined') {
       const textDecoder = new TextDecoder();
       return textDecoder.decode(arrayBuffer);
-    } else {
-      const bytes = new Uint8Array(arrayBuffer);
-      const result = this.uint8ArrayToStringInner(bytes);
-      return result;
     }
+    const bytes = new Uint8Array(arrayBuffer);
+    const result = this.uint8ArrayToStringInner(bytes);
+    return result;
   }
 
   /**
@@ -107,10 +103,9 @@ export class DataUtil {
     if (typeof TextDecoder !== 'undefined') {
       const textDecoder = new TextDecoder();
       return textDecoder.decode(uint8Array);
-    } else {
-      const result = this.uint8ArrayToStringInner(uint8Array);
-      return result;
     }
+    const result = this.uint8ArrayToStringInner(uint8Array);
+    return result;
   }
 
   /**
@@ -131,7 +126,7 @@ export class DataUtil {
    * @throws Error if not running in browser environment
    */
   static base64ToArrayBuffer(base64: string) {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       const binary_string = window.atob(base64);
       const len = binary_string.length;
       const bytes = new Uint8Array(len);
@@ -139,9 +134,8 @@ export class DataUtil {
         bytes[i] = binary_string.charCodeAt(i);
       }
       return bytes.buffer;
-    } else {
-      throw new Error('This function works in browser environment.')
     }
+    throw new Error('This function works in browser environment.');
   }
 
   /**
@@ -159,14 +153,10 @@ export class DataUtil {
     const imageData = ctx.createImageData(width, height);
 
     for (let i = 0; i < imageData.data.length; i += 4) {
-      imageData.data[i + 0] =
-        uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + (i % (4 * width)) + 0];
-      imageData.data[i + 1] =
-        uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + (i % (4 * width)) + 1];
-      imageData.data[i + 2] =
-        uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + (i % (4 * width)) + 2];
-      imageData.data[i + 3] =
-        uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + (i % (4 * width)) + 3];
+      imageData.data[i + 0] = uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + (i % (4 * width)) + 0];
+      imageData.data[i + 1] = uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + (i % (4 * width)) + 1];
+      imageData.data[i + 2] = uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + (i % (4 * width)) + 2];
+      imageData.data[i + 3] = uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + (i % (4 * width)) + 3];
     }
 
     ctx.putImageData(imageData, 0, 0);
@@ -217,7 +207,7 @@ export class DataUtil {
       } else {
         const xmlHttp = new XMLHttpRequest();
         if (isBinary) {
-          xmlHttp.onload = (oEvent) => {
+          xmlHttp.onload = oEvent => {
             let response = null;
             if (isBinary) {
               response = xmlHttp.response;
@@ -230,10 +220,7 @@ export class DataUtil {
           xmlHttp.responseType = 'arraybuffer';
         } else {
           xmlHttp.onreadystatechange = () => {
-            if (
-              xmlHttp.readyState === 4 &&
-              (Math.floor(xmlHttp.status / 100) === 2 || xmlHttp.status === 0)
-            ) {
+            if (xmlHttp.readyState === 4 && (Math.floor(xmlHttp.status / 100) === 2 || xmlHttp.status === 0)) {
               let response = null;
               if (isBinary) {
                 response = xmlHttp.response;
@@ -261,15 +248,15 @@ export class DataUtil {
    * @returns CRC32 checksum as unsigned 32-bit integer
    */
   static toCRC32(str: string) {
-    let crc = 0,
-      x: any = 0,
-      y = 0;
+    let crc = 0;
+    let x: any = 0;
+    let y = 0;
     const table = DataUtil.crc32table;
 
     crc = crc ^ -1;
     for (let i = 0, iTop = str.length; i < iTop; ++i) {
       y = (crc ^ str.charCodeAt(i)) & 0xff;
-      x = '0x' + table[y];
+      x = `0x${table[y]}`;
       crc = (crc >>> 8) ^ x;
     }
 
@@ -313,11 +300,7 @@ export class DataUtil {
    * @param buffer - The source buffer data
    * @returns Uint8Array view of the specified buffer region
    */
-  static takeBufferViewAsUint8Array(
-    json: RnM2,
-    bufferViewIndex: number,
-    buffer: ArrayBuffer | Uint8Array
-  ): Uint8Array {
+  static takeBufferViewAsUint8Array(json: RnM2, bufferViewIndex: number, buffer: ArrayBuffer | Uint8Array): Uint8Array {
     const bufferViewJson = json.bufferViews[bufferViewIndex];
     let byteOffset = bufferViewJson.byteOffset ?? 0;
     const byteLength = bufferViewJson.byteLength;
@@ -336,10 +319,7 @@ export class DataUtil {
    * @param imageType - Type/format of the image
    * @returns Data URL string for the image
    */
-  static accessArrayBufferAsImage(
-    arrayBuffer: ArrayBuffer | Uint8Array,
-    imageType: string
-  ): string {
+  static accessArrayBufferAsImage(arrayBuffer: ArrayBuffer | Uint8Array, imageType: string): string {
     const binaryData = this.uint8ArrayToStringInner(new Uint8Array(arrayBuffer));
     const imgSrc = this.getImageType(imageType);
     const dataUrl = imgSrc + DataUtil.btoa(binaryData);
@@ -363,10 +343,7 @@ export class DataUtil {
 
     let binaryData = '';
     for (let i = 0; i < divisionNumber; i++) {
-      binaryData += String.fromCharCode.apply(
-        this,
-        charCodeArray.slice(i * constant, (i + 1) * constant)
-      );
+      binaryData += String.fromCharCode.apply(this, charCodeArray.slice(i * constant, (i + 1) * constant));
     }
     return binaryData;
   }
@@ -378,11 +355,7 @@ export class DataUtil {
    */
   static getImageType(imageType: string): string {
     let imgSrc = null;
-    if (
-      imageType === 'image/jpeg' ||
-      imageType.toLowerCase() === 'jpg' ||
-      imageType.toLowerCase() === 'jpeg'
-    ) {
+    if (imageType === 'image/jpeg' || imageType.toLowerCase() === 'jpg' || imageType.toLowerCase() === 'jpeg') {
       imgSrc = 'data:image/jpeg;base64,';
     } else if (imageType === 'image/png' || imageType.toLowerCase() === 'png') {
       imgSrc = 'data:image/png;base64,';
@@ -459,7 +432,7 @@ export class DataUtil {
    * @returns Promise that resolves to the loaded HTMLImageElement
    */
   static createImageFromUri(uri: string, mimeType: string): RnPromise<HTMLImageElement> {
-    return new RnPromise((resolve) => {
+    return new RnPromise(resolve => {
       const img = new Image();
       img.crossOrigin = 'Anonymous';
 
@@ -481,12 +454,10 @@ export class DataUtil {
 
         const loadBinaryImage = () => {
           const xhr = new XMLHttpRequest();
-          xhr.onreadystatechange = (function (_img) {
-            return function () {
-              if (xhr.readyState === 4 && xhr.status === 200) {
-                load(_img, xhr.response);
-              }
-            };
+          xhr.onreadystatechange = (_img => () => {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+              load(_img, xhr.response);
+            }
           })(img);
           xhr.open('GET', uri);
           xhr.responseType = 'arraybuffer';
@@ -627,7 +598,7 @@ export class DataUtil {
    * @returns The nearest power of two value
    */
   static getNearestPowerOfTwo(x: number): number {
-    return Math.pow(2, Math.round(Math.log(x) / Math.LN2));
+    return 2 ** Math.round(Math.log(x) / Math.LN2);
   }
 
   /**

@@ -1,15 +1,15 @@
-import { IEntity, Entity } from './Entity';
-import { Component } from './Component';
-import { ComponentRepository } from './ComponentRepository';
-import { RnTags, EntityUID, ComponentTID } from '../../types/CommonTypes';
-import { valueWithCompensation } from '../misc/MiscUtil';
-import { ComponentToComponentMethods } from '../components/ComponentTypes';
-import { Is } from '../misc/Is';
+import type { ComponentTID, EntityUID, RnTags } from '../../types/CommonTypes';
+import type { ComponentToComponentMethods } from '../components/ComponentTypes';
+import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
+import type { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
-import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
-import { ISceneGraphEntity } from '../helpers';
+import type { ISceneGraphEntity } from '../helpers';
 import { Logger } from '../misc';
+import { Is } from '../misc/Is';
+import { valueWithCompensation } from '../misc/MiscUtil';
+import type { Component } from './Component';
+import { ComponentRepository } from './ComponentRepository';
+import { Entity, type IEntity } from './Entity';
 
 /**
  * The repository class responsible for creating, managing, and deleting entities within the framework.
@@ -190,17 +190,15 @@ export class EntityRepository {
     ) as SkeletalComponent;
     if (Is.exist(skeletalComponentOfNew) && Is.exist(skeletalComponentOfOriginal)) {
       const jointsOriginal = skeletalComponentOfOriginal.getJoints();
-      const jointsNew = jointsOriginal.map((joint) => {
-        return EntityRepository.getEntity(
-          joint.entity._myLatestCopyEntityUID
-        ).tryToGetSceneGraph()!;
+      const jointsNew = jointsOriginal.map(joint => {
+        return EntityRepository.getEntity(joint.entity._myLatestCopyEntityUID).tryToGetSceneGraph()!;
       });
       skeletalComponentOfNew.setJoints(jointsNew);
     }
 
     const sceneGraph = entity.tryToGetSceneGraph();
     if (Is.exist(sceneGraph)) {
-      sceneGraph.children.forEach((child) => {
+      sceneGraph.children.forEach(child => {
         EntityRepository.__setJoints(child.entity);
       });
     }
@@ -253,7 +251,7 @@ export class EntityRepository {
       for (const tagKey of tagKeys) {
         if (tagKey === 'rnEntities') {
           const entities = newEntity.getTagValue('rnEntities') as ISceneGraphEntity[];
-          const newEntities = entities.map((entity) => {
+          const newEntities = entities.map(entity => {
             return EntityRepository.getEntity(entity._myLatestCopyEntityUID);
           });
           newEntity.tryToSetTag({
@@ -265,10 +263,7 @@ export class EntityRepository {
           const map = newEntity.getTagValue('rnEntitiesByNames') as Map<string, ISceneGraphEntity>;
           for (const name of Object.keys(map)) {
             const entity = map.get(name) as ISceneGraphEntity;
-            map.set(
-              name,
-              EntityRepository.getEntity(entity._myLatestCopyEntityUID) as ISceneGraphEntity
-            );
+            map.set(name, EntityRepository.getEntity(entity._myLatestCopyEntityUID) as ISceneGraphEntity);
           }
           newEntity.tryToSetTag({
             tag: 'rnEntitiesByNames',
@@ -280,7 +275,7 @@ export class EntityRepository {
 
     const sceneGraph = newEntity.tryToGetSceneGraph();
     if (Is.exist(sceneGraph)) {
-      sceneGraph.children.forEach((child) => {
+      sceneGraph.children.forEach(child => {
         EntityRepository.__handleTagData(child.entity as unknown as Entity);
       });
     }
@@ -307,10 +302,7 @@ export class EntityRepository {
    * );
    * ```
    */
-  public static tryToAddComponentToEntityByTID(
-    componentTID: ComponentTID,
-    entity: IEntity
-  ): IEntity {
+  public static tryToAddComponentToEntityByTID(componentTID: ComponentTID, entity: IEntity): IEntity {
     const componentClass = ComponentRepository.getComponentClass(componentTID);
     if (Is.not.exist(componentClass)) {
       return entity;
@@ -343,10 +335,7 @@ export class EntityRepository {
    * // enhancedEntity now has transform-related methods
    * ```
    */
-  public static addComponentToEntity<
-    ComponentType extends typeof Component,
-    EntityType extends IEntity
-  >(
+  public static addComponentToEntity<ComponentType extends typeof Component, EntityType extends IEntity>(
     componentClass: ComponentType,
     entity: EntityType
   ): EntityType & ComponentToComponentMethods<ComponentType> {
@@ -356,11 +345,7 @@ export class EntityRepository {
     }
 
     // Create Component
-    const component = ComponentRepository.createComponent(
-      componentClass.componentTID,
-      entity.entityUID,
-      this
-    );
+    const component = ComponentRepository.createComponent(componentClass.componentTID, entity.entityUID, this);
 
     // set this component to this._components' map
     const map = valueWithCompensation({
@@ -399,10 +384,7 @@ export class EntityRepository {
    * EntityRepository.removeComponentFromEntity(TransformComponent, entity);
    * ```
    */
-  public static removeComponentFromEntity(
-    componentClass: typeof Component,
-    entity: IEntity
-  ): IEntity {
+  public static removeComponentFromEntity(componentClass: typeof Component, entity: IEntity): IEntity {
     let map = this._components[entity.entityUID];
     if (map == null) {
       map = new Map();
@@ -479,19 +461,15 @@ export class EntityRepository {
    * }
    * ```
    */
-  public static getComponentOfEntity(
-    entityUid: EntityUID,
-    componentType: typeof Component
-  ): Component | null {
+  public static getComponentOfEntity(entityUid: EntityUID, componentType: typeof Component): Component | null {
     const entity = this._components[entityUid];
     let component = null;
     if (entity != null) {
       component = entity.get(componentType.componentTID);
       if (component != null) {
         return component;
-      } else {
-        return null;
       }
+      return null;
     }
     return component;
   }
@@ -563,7 +541,7 @@ export class EntityRepository {
    * @returns Array of all alive entities
    */
   public static _getEntities(): IEntity[] {
-    return this.__entities.filter((entity) => entity != null && entity!._isAlive) as IEntity[];
+    return this.__entities.filter(entity => entity != null && entity!._isAlive) as IEntity[];
   }
 
   /**
@@ -581,7 +559,7 @@ export class EntityRepository {
    * ```
    */
   public static getEntitiesNumber(): number {
-    const entities = this.__entities.filter((entity) => entity != null && entity!._isAlive);
+    const entities = this.__entities.filter(entity => entity != null && entity!._isAlive);
     return entities.length;
   }
 
@@ -614,7 +592,7 @@ export class EntityRepository {
  * @internal
  */
 export function applyMixins(derivedCtor: IEntity, baseCtor: any) {
-  Object.getOwnPropertyNames(baseCtor.prototype).forEach((name) => {
+  Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
     Object.defineProperty(
       derivedCtor,
       name,

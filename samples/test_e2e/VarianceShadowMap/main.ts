@@ -63,20 +63,19 @@ const [pointShadowMapArrayFramebuffer, pointShadowMapArrayRenderTargetTexture] =
     type: Rn.ComponentType.Float,
   });
 
-const { blurExpression, blurredRenderTarget, renderPassesBlurred } =
-  gaussianBlur.createGaussianBlurExpression({
-    textureToBlur: shadowDepthFramebuffer.getColorAttachedRenderTargetTexture(0)!,
-    parameters: {
-      blurPassLevel: 4,
-      gaussianKernelSize: 10,
-      gaussianVariance: 10,
-      synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
-      isReduceBuffer: true,
-      textureFormat: Rn.TextureFormat.RGBA16F,
-      outputFrameBuffer: pointShadowMapArrayFramebuffer,
-      outputFrameBufferLayerIndex: 0,
-    },
-  });
+const { blurExpression, blurredRenderTarget, renderPassesBlurred } = gaussianBlur.createGaussianBlurExpression({
+  textureToBlur: shadowDepthFramebuffer.getColorAttachedRenderTargetTexture(0)!,
+  parameters: {
+    blurPassLevel: 4,
+    gaussianKernelSize: 10,
+    gaussianVariance: 10,
+    synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
+    isReduceBuffer: true,
+    textureFormat: Rn.TextureFormat.RGBA16F,
+    outputFrameBuffer: pointShadowMapArrayFramebuffer,
+    outputFrameBufferLayerIndex: 0,
+  },
+});
 
 // Expression
 const expression = new Rn.Expression();
@@ -98,11 +97,8 @@ setParameterForMeshComponent(
 setTextureParameterForMeshComponent(meshComponentSmallBoard, 'depthTexture', blurredRenderTarget);
 setTextureParameterForMeshComponent(meshComponentLargeBoard, 'depthTexture', blurredRenderTarget);
 
-window.download = function () {
-  renderPassDepth
-    .getFramebuffer()
-    .getDepthAttachedRenderTargetTexture()!
-    .downloadTexturePixelData();
+window.download = () => {
+  renderPassDepth.getFramebuffer().getDepthAttachedRenderTargetTexture()!.downloadTexturePixelData();
 };
 
 let count = 0;
@@ -176,11 +172,7 @@ function createRenderPassSpecifyingCameraComponent(lightWithCameraEntity: Rn.ICa
   return renderPass;
 }
 
-function setParameterForMeshComponent(
-  meshComponent: Rn.MeshComponent,
-  shaderSemantic: string,
-  value: any
-) {
+function setParameterForMeshComponent(meshComponent: Rn.MeshComponent, shaderSemantic: string, value: any) {
   const mesh = meshComponent.mesh;
   const primitiveNumber = mesh.getPrimitiveNumber();
 

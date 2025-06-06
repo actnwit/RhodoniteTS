@@ -1,10 +1,10 @@
+import { WebGLContextWrapper } from './WebGLContextWrapper';
+import { WebGLResourceRepository, type VertexHandles as vertexHandles } from './WebGLResourceRepository';
+import type { WebGLStrategy as webGLStrategy } from './WebGLStrategy';
+import { WebGLStrategyDataTexture } from './WebGLStrategyDataTexture';
+import { WebGLStrategyUniform } from './WebGLStrategyUniform';
 import getRenderingStrategy from './getRenderingStrategy';
 import { CommonShaderPart } from './shaders/CommonShaderPart';
-import { WebGLContextWrapper } from './WebGLContextWrapper';
-import { VertexHandles as vertexHandles, WebGLResourceRepository } from './WebGLResourceRepository';
-import { WebGLStrategy as webGLStrategy } from './WebGLStrategy';
-import { WebGLStrategyUniform } from './WebGLStrategyUniform';
-import { WebGLStrategyDataTexture } from './WebGLStrategyDataTexture';
 
 const WebGL = Object.freeze({
   getRenderingStrategy,
@@ -17,8 +17,7 @@ const WebGL = Object.freeze({
 export default WebGL;
 
 export type RnWebGL = typeof WebGL;
-const globalObj =
-  typeof global !== 'undefined' ? global : typeof window !== 'undefined' ? window : this;
+const globalObj = typeof global !== 'undefined' ? global : typeof window !== 'undefined' ? window : this;
 (globalObj as unknown as { RnWebGL: RnWebGL }).RnWebGL = WebGL;
 
 export type VertexHandles = vertexHandles;

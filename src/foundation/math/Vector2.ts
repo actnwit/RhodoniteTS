@@ -1,9 +1,9 @@
-import { IVector2, IVector3, IVector4, IVector, IMutableVector2 } from './IVector';
 import type { Array2, FloatTypedArrayConstructor, TypedArray } from '../../types/CommonTypes';
-import { MathUtil } from './MathUtil';
 import { CompositionType } from '../definitions/CompositionType';
-import { AbstractVector } from './AbstractVector';
 import { Logger } from '../misc/Logger';
+import { AbstractVector } from './AbstractVector';
+import type { IMutableVector2, IVector, IVector2, IVector3, IVector4 } from './IVector';
+import { MathUtil } from './MathUtil';
 
 /**
  * Base class for 2D vector implementations with different precision types.
@@ -300,8 +300,8 @@ export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVect
       y = vec._v[1] / value;
     } else {
       Logger.error('0 division occurred!');
-      x = Infinity;
-      y = Infinity;
+      x = Number.POSITIVE_INFINITY;
+      y = Number.POSITIVE_INFINITY;
     }
     return this._fromCopyArray2([x, y], type);
   }
@@ -320,8 +320,8 @@ export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVect
       out._v[1] = vec._v[1] / value;
     } else {
       Logger.error('0 division occurred!');
-      out._v[0] = Infinity;
-      out._v[1] = Infinity;
+      out._v[0] = Number.POSITIVE_INFINITY;
+      out._v[1] = Number.POSITIVE_INFINITY;
     }
     return out;
   }
@@ -342,8 +342,8 @@ export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVect
       y = l_vec._v[1] / r_vec._v[1];
     } else {
       Logger.error('0 division occurred!');
-      x = r_vec._v[0] === 0 ? Infinity : l_vec._v[0] / r_vec._v[0];
-      y = r_vec._v[1] === 0 ? Infinity : l_vec._v[1] / r_vec._v[1];
+      x = r_vec._v[0] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[0] / r_vec._v[0];
+      y = r_vec._v[1] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[1] / r_vec._v[1];
     }
     return this._fromCopyArray2([x, y], type);
   }
@@ -362,8 +362,8 @@ export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVect
       out._v[1] = l_vec._v[1] / r_vec._v[1];
     } else {
       Logger.error('0 division occurred!');
-      out._v[0] = r_vec._v[0] === 0 ? Infinity : l_vec._v[0] / r_vec._v[0];
-      out._v[1] = r_vec._v[1] === 0 ? Infinity : l_vec._v[1] / r_vec._v[1];
+      out._v[0] = r_vec._v[0] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[0] / r_vec._v[0];
+      out._v[1] = r_vec._v[1] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[1] / r_vec._v[1];
     }
     return out;
   }
@@ -385,7 +385,7 @@ export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVect
    * @returns String representation in the format "(x, y)"
    */
   toString() {
-    return '(' + this._v[0] + ', ' + this._v[1] + ')';
+    return `(${this._v[0]}, ${this._v[1]})`;
   }
 
   /**
@@ -394,7 +394,7 @@ export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVect
    * @returns String representation with reduced decimal places
    */
   toStringApproximately() {
-    return MathUtil.financial(this._v[0]) + ' ' + MathUtil.financial(this._v[1]) + '\n';
+    return `${MathUtil.financial(this._v[0])} ${MathUtil.financial(this._v[1])}\n`;
   }
 
   /**
@@ -414,9 +414,8 @@ export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVect
   isDummy() {
     if (this._v.length === 0) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -429,9 +428,8 @@ export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVect
   isEqual(vec: IVector2, delta: number = Number.EPSILON) {
     if (Math.abs(vec._v[0] - this._v[0]) < delta && Math.abs(vec._v[1] - this._v[1]) < delta) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -443,9 +441,8 @@ export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVect
   isStrictEqual(vec: IVector2) {
     if (this._v[0] === vec._v[0] && this._v[1] === vec._v[1]) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -505,9 +502,7 @@ export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVect
    * @returns A new vector with the same components
    */
   clone() {
-    return new (this.constructor as any)(
-      new (this._v.constructor as any)([this._v[0], this._v[1]])
-    );
+    return new (this.constructor as any)(new (this._v.constructor as any)([this._v[0], this._v[1]]));
   }
 
   /**

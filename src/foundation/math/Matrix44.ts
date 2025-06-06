@@ -1,19 +1,19 @@
+import type { Array16, ArrayType } from '../../types/CommonTypes';
+import { CompositionType } from '../definitions/CompositionType';
+import { Logger } from '../misc/Logger';
+import { AbstractMatrix } from './AbstractMatrix';
+import type { IMatrix, IMatrix33, IMatrix44 } from './IMatrix';
+import type { IQuaternion } from './IQuaternion';
+import type { IVector3 } from './IVector';
+import type { IVector4 } from './IVector';
+import { IdentityMatrix44 } from './IdentityMatrix44';
+import { MathUtil } from './MathUtil';
+import type { MutableMatrix44 } from './MutableMatrix44';
+import type { MutableVector3 } from './MutableVector3';
+import type { MutableVector4 } from './MutableVector4';
 import { Vector3 } from './Vector3';
 import { Vector4 } from './Vector4';
-import { IMatrix, IMatrix33, IMatrix44 } from './IMatrix';
-import { CompositionType } from '../definitions/CompositionType';
-import { MutableVector3 } from './MutableVector3';
-import { MutableMatrix44 } from './MutableMatrix44';
-import { MutableVector4 } from './MutableVector4';
-import { IVector3 } from './IVector';
-import { IVector4 } from './IVector';
-import { MathUtil } from './MathUtil';
-import { IdentityMatrix44 } from './IdentityMatrix44';
-import { AbstractMatrix } from './AbstractMatrix';
-import { Array16, ArrayType } from '../../types/CommonTypes';
 import { mulThatAndThisToOutAsMat44_offsetAsComposition } from './raw/raw_extension';
-import { IQuaternion } from './IQuaternion';
-import { Logger } from '../misc/Logger';
 
 /* eslint-disable prettier/prettier */
 const FloatArray = Float32Array;
@@ -318,24 +318,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     const m32 = (mat._v[7] * n01 - mat._v[3] * n03 - mat._v[11] * n00) * invDet;
     const m33 = (mat._v[2] * n03 - mat._v[6] * n01 + mat._v[10] * n00) * invDet;
 
-    return Matrix44.fromCopy16RowMajor(
-      m00,
-      m01,
-      m02,
-      m03,
-      m10,
-      m11,
-      m12,
-      m13,
-      m20,
-      m21,
-      m22,
-      m23,
-      m30,
-      m31,
-      m32,
-      m33
-    );
+    return Matrix44.fromCopy16RowMajor(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
   }
 
   /**
@@ -386,24 +369,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     const m32 = (mat._v[7] * n01 - mat._v[3] * n03 - mat._v[11] * n00) * invDet;
     const m33 = (mat._v[2] * n03 - mat._v[6] * n01 + mat._v[10] * n00) * invDet;
 
-    return outMat.setComponents(
-      m00,
-      m01,
-      m02,
-      m03,
-      m10,
-      m11,
-      m12,
-      m13,
-      m20,
-      m21,
-      m22,
-      m23,
-      m30,
-      m31,
-      m32,
-      m33
-    );
+    return outMat.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
   }
 
   /**
@@ -412,24 +378,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
    * @returns A new Matrix44 instance representing the translation transformation
    */
   static translate(vec: Vector3) {
-    return Matrix44.fromCopy16RowMajor(
-      1,
-      0,
-      0,
-      vec._v[0],
-      0,
-      1,
-      0,
-      vec._v[1],
-      0,
-      0,
-      1,
-      vec._v[2],
-      0,
-      0,
-      0,
-      1
-    );
+    return Matrix44.fromCopy16RowMajor(1, 0, 0, vec._v[0], 0, 1, 0, vec._v[1], 0, 0, 1, vec._v[2], 0, 0, 0, 1);
   }
 
   /**
@@ -541,24 +490,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     const m32 = 0;
     const m33 = 1;
 
-    return Matrix44.fromCopy16RowMajor(
-      m00,
-      m01,
-      m02,
-      m03,
-      m10,
-      m11,
-      m12,
-      m13,
-      m20,
-      m21,
-      m22,
-      m23,
-      m30,
-      m31,
-      m32,
-      m33
-    );
+    return Matrix44.fromCopy16RowMajor(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
   }
 
   /**
@@ -576,24 +508,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
    * @returns A new Matrix44 instance representing the scaling transformation
    */
   static scale(vec: IVector3) {
-    return Matrix44.fromCopy16RowMajor(
-      vec._v[0],
-      0,
-      0,
-      0,
-      0,
-      vec._v[1],
-      0,
-      0,
-      0,
-      0,
-      vec._v[2],
-      0,
-      0,
-      0,
-      0,
-      1
-    );
+    return Matrix44.fromCopy16RowMajor(vec._v[0], 0, 0, 0, 0, vec._v[1], 0, 0, 0, 0, vec._v[2], 0, 0, 0, 0, 1);
   }
 
   /**
@@ -606,7 +521,8 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   static multiply(l_mat: IMatrix44, r_mat: IMatrix44): IMatrix44 {
     if (l_mat.isIdentityMatrixClass) {
       return r_mat;
-    } else if (r_mat.isIdentityMatrixClass) {
+    }
+    if (r_mat.isIdentityMatrixClass) {
       return l_mat;
     }
 
@@ -632,24 +548,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     const m23 = lv[2] * rv[12] + lv[6] * rv[13] + lv[10] * rv[14] + lv[14] * rv[15];
     const m33 = lv[3] * rv[12] + lv[7] * rv[13] + lv[11] * rv[14] + lv[15] * rv[15];
 
-    return Matrix44.fromCopy16RowMajor(
-      m00,
-      m01,
-      m02,
-      m03,
-      m10,
-      m11,
-      m12,
-      m13,
-      m20,
-      m21,
-      m22,
-      m23,
-      m30,
-      m31,
-      m32,
-      m33
-    );
+    return Matrix44.fromCopy16RowMajor(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
   }
 
   /**
@@ -663,7 +562,8 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   static multiplyTo(l_mat: IMatrix44, r_mat: IMatrix44, outMat: MutableMatrix44) {
     if (l_mat.isIdentityMatrixClass) {
       return outMat.copyComponents(r_mat);
-    } else if (r_mat.isIdentityMatrixClass) {
+    }
+    if (r_mat.isIdentityMatrixClass) {
       return outMat.copyComponents(l_mat);
     }
 
@@ -689,24 +589,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     const m23 = lv[2] * rv[12] + lv[6] * rv[13] + lv[10] * rv[14] + lv[14] * rv[15];
     const m33 = lv[3] * rv[12] + lv[7] * rv[13] + lv[11] * rv[14] + lv[15] * rv[15];
 
-    return outMat.setComponents(
-      m00,
-      m01,
-      m02,
-      m03,
-      m10,
-      m11,
-      m12,
-      m13,
-      m20,
-      m21,
-      m22,
-      m23,
-      m30,
-      m31,
-      m32,
-      m33
-    );
+    return outMat.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
   }
 
   /**
@@ -724,12 +607,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     outMat: MutableMatrix44,
     offsetAsComposition: number
   ) {
-    (r_array as any)[mulThatAndThisToOutAsMat44_offsetAsComposition](
-      offsetAsComposition,
-      l_mat._v,
-      0,
-      outMat._v
-    );
+    (r_array as any)[mulThatAndThisToOutAsMat44_offsetAsComposition](offsetAsComposition, l_mat._v, 0, outMat._v);
 
     return outMat;
   }
@@ -768,24 +646,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     const m32 = 0;
     const m33 = 1;
 
-    return outMat.setComponents(
-      m00,
-      m01,
-      m02,
-      m03,
-      m10,
-      m11,
-      m12,
-      m13,
-      m20,
-      m21,
-      m22,
-      m23,
-      m30,
-      m31,
-      m32,
-      m33
-    );
+    return outMat.setComponents(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
   }
 
   /**
@@ -794,40 +655,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
    * @returns A formatted string representation of the matrix
    */
   toString() {
-    return (
-      this._v[0] +
-      ' ' +
-      this._v[4] +
-      ' ' +
-      this._v[8] +
-      ' ' +
-      this._v[12] +
-      ' \n' +
-      this._v[1] +
-      ' ' +
-      this._v[5] +
-      ' ' +
-      this._v[9] +
-      ' ' +
-      this._v[13] +
-      ' \n' +
-      this._v[2] +
-      ' ' +
-      this._v[6] +
-      ' ' +
-      this._v[10] +
-      ' ' +
-      this._v[14] +
-      ' \n' +
-      this._v[3] +
-      ' ' +
-      this._v[7] +
-      ' ' +
-      this._v[11] +
-      ' ' +
-      this._v[15] +
-      ' \n'
-    );
+    return `${this._v[0]} ${this._v[4]} ${this._v[8]} ${this._v[12]} \n${this._v[1]} ${this._v[5]} ${this._v[9]} ${this._v[13]} \n${this._v[2]} ${this._v[6]} ${this._v[10]} ${this._v[14]} \n${this._v[3]} ${this._v[7]} ${this._v[11]} ${this._v[15]} \n`;
   }
 
   /**
@@ -836,40 +664,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
    * @returns A formatted string representation with approximated values
    */
   toStringApproximately() {
-    return (
-      MathUtil.financial(this._v[0]) +
-      ' ' +
-      MathUtil.financial(this._v[4]) +
-      ' ' +
-      MathUtil.financial(this._v[8]) +
-      ' ' +
-      MathUtil.financial(this._v[12]) +
-      ' \n' +
-      MathUtil.financial(this._v[1]) +
-      ' ' +
-      MathUtil.financial(this._v[5]) +
-      ' ' +
-      MathUtil.financial(this._v[9]) +
-      ' ' +
-      MathUtil.financial(this._v[13]) +
-      ' \n' +
-      MathUtil.financial(this._v[2]) +
-      ' ' +
-      MathUtil.financial(this._v[6]) +
-      ' ' +
-      MathUtil.financial(this._v[10]) +
-      ' ' +
-      MathUtil.financial(this._v[14]) +
-      ' \n' +
-      MathUtil.financial(this._v[3]) +
-      ' ' +
-      MathUtil.financial(this._v[7]) +
-      ' ' +
-      MathUtil.financial(this._v[11]) +
-      ' ' +
-      MathUtil.financial(this._v[15]) +
-      ' \n'
-    );
+    return `${MathUtil.financial(this._v[0])} ${MathUtil.financial(this._v[4])} ${MathUtil.financial(this._v[8])} ${MathUtil.financial(this._v[12])} \n${MathUtil.financial(this._v[1])} ${MathUtil.financial(this._v[5])} ${MathUtil.financial(this._v[9])} ${MathUtil.financial(this._v[13])} \n${MathUtil.financial(this._v[2])} ${MathUtil.financial(this._v[6])} ${MathUtil.financial(this._v[10])} ${MathUtil.financial(this._v[14])} \n${MathUtil.financial(this._v[3])} ${MathUtil.financial(this._v[7])} ${MathUtil.financial(this._v[11])} ${MathUtil.financial(this._v[15])} \n`;
   }
 
   /**
@@ -905,9 +700,8 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   isDummy() {
     if (this._v.length === 0) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -937,9 +731,8 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
       Math.abs(v[15] - this._v[15]) < delta
     ) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -968,9 +761,8 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
       mat._v[15] === this._v[15]
     ) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -1022,26 +814,10 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
    * @returns A new Vector4 containing the multiplication result
    */
   multiplyVector(vec: IVector4): IVector4 {
-    const x =
-      this._v[0] * vec._v[0] +
-      this._v[4] * vec._v[1] +
-      this._v[8] * vec._v[2] +
-      this._v[12] * vec._v[3];
-    const y =
-      this._v[1] * vec._v[0] +
-      this._v[5] * vec._v[1] +
-      this._v[9] * vec._v[2] +
-      this._v[13] * vec._v[3];
-    const z =
-      this._v[2] * vec._v[0] +
-      this._v[6] * vec._v[1] +
-      this._v[10] * vec._v[2] +
-      this._v[14] * vec._v[3];
-    const w =
-      this._v[3] * vec._v[0] +
-      this._v[7] * vec._v[1] +
-      this._v[11] * vec._v[2] +
-      this._v[15] * vec._v[3];
+    const x = this._v[0] * vec._v[0] + this._v[4] * vec._v[1] + this._v[8] * vec._v[2] + this._v[12] * vec._v[3];
+    const y = this._v[1] * vec._v[0] + this._v[5] * vec._v[1] + this._v[9] * vec._v[2] + this._v[13] * vec._v[3];
+    const z = this._v[2] * vec._v[0] + this._v[6] * vec._v[1] + this._v[10] * vec._v[2] + this._v[14] * vec._v[3];
+    const w = this._v[3] * vec._v[0] + this._v[7] * vec._v[1] + this._v[11] * vec._v[2] + this._v[15] * vec._v[3];
 
     return Vector4.fromCopyArray([x, y, z, w]);
   }
@@ -1053,26 +829,10 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
    * @returns The output vector containing the multiplication result
    */
   multiplyVectorTo(vec: IVector4, outVec: MutableVector4) {
-    const x =
-      this._v[0] * vec._v[0] +
-      this._v[4] * vec._v[1] +
-      this._v[8] * vec._v[2] +
-      this._v[12] * vec._v[3];
-    const y =
-      this._v[1] * vec._v[0] +
-      this._v[5] * vec._v[1] +
-      this._v[9] * vec._v[2] +
-      this._v[13] * vec._v[3];
-    const z =
-      this._v[2] * vec._v[0] +
-      this._v[6] * vec._v[1] +
-      this._v[10] * vec._v[2] +
-      this._v[14] * vec._v[3];
-    const w =
-      this._v[3] * vec._v[0] +
-      this._v[7] * vec._v[1] +
-      this._v[11] * vec._v[2] +
-      this._v[15] * vec._v[3];
+    const x = this._v[0] * vec._v[0] + this._v[4] * vec._v[1] + this._v[8] * vec._v[2] + this._v[12] * vec._v[3];
+    const y = this._v[1] * vec._v[0] + this._v[5] * vec._v[1] + this._v[9] * vec._v[2] + this._v[13] * vec._v[3];
+    const z = this._v[2] * vec._v[0] + this._v[6] * vec._v[1] + this._v[10] * vec._v[2] + this._v[14] * vec._v[3];
+    const w = this._v[3] * vec._v[0] + this._v[7] * vec._v[1] + this._v[11] * vec._v[2] + this._v[15] * vec._v[3];
     outVec._v[0] = x;
     outVec._v[1] = y;
     outVec._v[2] = z;
@@ -1088,21 +848,9 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
    * @returns The output vector containing the XYZ components of the result
    */
   multiplyVectorToVec3(vec: IVector4, outVec: MutableVector3) {
-    const x =
-      this._v[0] * vec._v[0] +
-      this._v[4] * vec._v[1] +
-      this._v[8] * vec._v[2] +
-      this._v[12] * vec._v[3];
-    const y =
-      this._v[1] * vec._v[0] +
-      this._v[5] * vec._v[1] +
-      this._v[9] * vec._v[2] +
-      this._v[13] * vec._v[3];
-    const z =
-      this._v[2] * vec._v[0] +
-      this._v[6] * vec._v[1] +
-      this._v[10] * vec._v[2] +
-      this._v[14] * vec._v[3];
+    const x = this._v[0] * vec._v[0] + this._v[4] * vec._v[1] + this._v[8] * vec._v[2] + this._v[12] * vec._v[3];
+    const y = this._v[1] * vec._v[0] + this._v[5] * vec._v[1] + this._v[9] * vec._v[2] + this._v[13] * vec._v[3];
+    const z = this._v[2] * vec._v[0] + this._v[6] * vec._v[1] + this._v[10] * vec._v[2] + this._v[14] * vec._v[3];
     outVec._v[0] = x;
     outVec._v[1] = y;
     outVec._v[2] = z;
@@ -1116,12 +864,9 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
    * @returns A new Vector3 containing the transformed point
    */
   multiplyVector3(vec: IVector3): IVector3 {
-    const x =
-      this._v[0] * vec._v[0] + this._v[4] * vec._v[1] + this._v[8] * vec._v[2] + this._v[12]; // regards vec.w(vec._v[3]) as 1
-    const y =
-      this._v[1] * vec._v[0] + this._v[5] * vec._v[1] + this._v[9] * vec._v[2] + this._v[13];
-    const z =
-      this._v[2] * vec._v[0] + this._v[6] * vec._v[1] + this._v[10] * vec._v[2] + this._v[14];
+    const x = this._v[0] * vec._v[0] + this._v[4] * vec._v[1] + this._v[8] * vec._v[2] + this._v[12]; // regards vec.w(vec._v[3]) as 1
+    const y = this._v[1] * vec._v[0] + this._v[5] * vec._v[1] + this._v[9] * vec._v[2] + this._v[13];
+    const z = this._v[2] * vec._v[0] + this._v[6] * vec._v[1] + this._v[10] * vec._v[2] + this._v[14];
 
     return Vector3.fromCopyArray([x, y, z]);
   }
@@ -1133,12 +878,9 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
    * @returns The output vector containing the transformed point
    */
   multiplyVector3To(vec: IVector3, outVec: MutableVector3) {
-    const x =
-      this._v[0] * vec._v[0] + this._v[4] * vec._v[1] + this._v[8] * vec._v[2] + this._v[12]; // regards vec.w(vec._v[3]) as 1
-    const y =
-      this._v[1] * vec._v[0] + this._v[5] * vec._v[1] + this._v[9] * vec._v[2] + this._v[13];
-    const z =
-      this._v[2] * vec._v[0] + this._v[6] * vec._v[1] + this._v[10] * vec._v[2] + this._v[14];
+    const x = this._v[0] * vec._v[0] + this._v[4] * vec._v[1] + this._v[8] * vec._v[2] + this._v[12]; // regards vec.w(vec._v[3]) as 1
+    const y = this._v[1] * vec._v[0] + this._v[5] * vec._v[1] + this._v[9] * vec._v[2] + this._v[13];
+    const z = this._v[2] * vec._v[0] + this._v[6] * vec._v[1] + this._v[10] * vec._v[2] + this._v[14];
     outVec._v[0] = x;
     outVec._v[1] = y;
     outVec._v[2] = z;

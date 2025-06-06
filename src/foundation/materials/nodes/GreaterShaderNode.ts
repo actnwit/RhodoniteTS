@@ -1,7 +1,7 @@
-import { AbstractShaderNode } from '../core/AbstractShaderNode';
-import { CompositionType, CompositionTypeEnum } from '../../definitions/CompositionType';
-import { ComponentType, ComponentTypeEnum } from '../../definitions/ComponentType';
 import GreaterShaderityObject from '../../../webgl/shaderity_shaders/nodes/Greater.glsl';
+import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 /**
  * A shader node that performs a greater-than comparison operation.

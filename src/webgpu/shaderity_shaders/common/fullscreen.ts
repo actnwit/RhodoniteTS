@@ -1,5 +1,5 @@
-import fullscreen_wgsl from './fullscreen.wgsl'
-import { ShaderityObject } from 'shaderity';
+import type { ShaderityObject } from 'shaderity';
+import fullscreen_wgsl from './fullscreen.wgsl';
 
 const fullscreenWgsl = fullscreen_wgsl as ShaderityObject;
-export { fullscreenWgsl }
+export { fullscreenWgsl };

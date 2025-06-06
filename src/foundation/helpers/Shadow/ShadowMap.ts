@@ -1,11 +1,11 @@
-import { ICameraEntityMethods } from '../../components/Camera/ICameraEntity';
-import { ILightEntityMethods } from '../../components/Light/ILightEntity';
+import type { ICameraEntityMethods } from '../../components/Camera/ICameraEntity';
+import type { ILightEntityMethods } from '../../components/Light/ILightEntity';
 import { TextureFormat } from '../../definitions/TextureFormat';
-import { Material } from '../../materials/core/Material';
+import type { Material } from '../../materials/core/Material';
 import { Vector4 } from '../../math/Vector4';
-import { FrameBuffer } from '../../renderer/FrameBuffer';
+import type { FrameBuffer } from '../../renderer/FrameBuffer';
 import { RenderPass } from '../../renderer/RenderPass';
-import { ISceneGraphEntity } from '../EntityHelper';
+import type { ISceneGraphEntity } from '../EntityHelper';
 import { MaterialHelper } from '../MaterialHelper';
 import { RenderableHelper } from '../RenderableHelper';
 

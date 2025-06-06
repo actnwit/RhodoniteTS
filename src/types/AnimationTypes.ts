@@ -1,8 +1,8 @@
-import { IEntity, Entity } from '../foundation/core/Entity';
-import { AnimationInterpolationEnum } from '../foundation/definitions/AnimationInterpolation';
-import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
-import { IAnimatedValue } from '../foundation/math/IAnimatedValue';
-import { Second, VectorComponentN } from './CommonTypes';
+import { Entity, IEntity } from '../foundation/core/Entity';
+import type { AnimationInterpolationEnum } from '../foundation/definitions/AnimationInterpolation';
+import type { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
+import type { IAnimatedValue } from '../foundation/math/IAnimatedValue';
+import type { Second, VectorComponentN } from './CommonTypes';
 
 /**
  * animation path name
@@ -40,7 +40,6 @@ export interface AnimationInfo {
  * Similar to [Animation](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation)
  */
 export type AnimationTrack = Map<AnimationPathName, AnimationChannel>;
-
 
 export type AnimationSamplers = Map<AnimationTrackName, AnimationSampler>;
 

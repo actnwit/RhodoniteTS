@@ -1,4 +1,4 @@
-import { RnTags, ObjectUID } from '../../types/CommonTypes';
+import type { ObjectUID, RnTags } from '../../types/CommonTypes';
 import { deepCopyUsingJsonStringify } from '../misc/MiscUtil';
 import { Config } from './Config';
 
@@ -187,7 +187,7 @@ export class RnObject implements IRnObject {
     if (RnObject.__uniqueNames.indexOf(name) !== -1) {
       // Conflict
       if (toAddNameIfConflict) {
-        const newName = name + '_(' + this.__objectUid + ')';
+        const newName = `${name}_(${this.__objectUid})`;
         if (RnObject.__uniqueNames.indexOf(newName) === -1) {
           RnObject.__objectsByNameMap.delete(this.__uniqueName);
           this.__uniqueName = newName;
@@ -197,12 +197,11 @@ export class RnObject implements IRnObject {
         }
       }
       return false;
-    } else {
-      this.__uniqueName = name;
-      RnObject.__uniqueNames[this.__objectUid] = this.__uniqueName;
-      RnObject.__objectsByNameMap.set(this.__uniqueName, new WeakRef(this));
-      return true;
     }
+    this.__uniqueName = name;
+    RnObject.__uniqueNames[this.__objectUid] = this.__uniqueName;
+    RnObject.__objectsByNameMap.set(this.__uniqueName, new WeakRef(this));
+    return true;
   }
 
   /**
@@ -230,7 +229,7 @@ export class RnObject implements IRnObject {
       }
 
       this._tags[tag.tag] = tag.value;
-      this.__combinedTagString += `${tag.tag}:${tag.value}` + ' ';
+      this.__combinedTagString += `${tag.tag}:${tag.value} `;
       return true;
     }
     return false;
@@ -266,9 +265,8 @@ export class RnObject implements IRnObject {
   hasTag(tagName: string) {
     if (this._tags[tagName] != null) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -276,7 +274,7 @@ export class RnObject implements IRnObject {
    * @param tagName - The name of the tag to remove
    */
   removeTag(tagName: string) {
-    const strToDelete = `${tagName}:${this._tags[tagName]}` + ' ';
+    const strToDelete = `${tagName}:${this._tags[tagName]} `;
     this.__combinedTagString = this.__combinedTagString.replace(strToDelete, '');
     delete this._tags[tagName];
   }
@@ -290,9 +288,8 @@ export class RnObject implements IRnObject {
   matchTag(tagName: string, tagValue: string): boolean {
     if (this._tags[tagName] === tagValue) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -310,9 +307,8 @@ export class RnObject implements IRnObject {
     const reg = new RegExp(regExpStr);
     if (reg.test(this.__combinedTagString)) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -329,9 +325,8 @@ export class RnObject implements IRnObject {
     const reg = new RegExp(regExpStr);
     if (reg.test(this.__combinedTagString)) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**

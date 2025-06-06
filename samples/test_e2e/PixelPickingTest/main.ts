@@ -2,11 +2,11 @@ import Rn from '../../../dist/esmdev/index.js';
 
 declare const window: any;
 
-const setupRenderPassEntityUidOutput = function (
+const setupRenderPassEntityUidOutput = (
   rootGroup: Rn.ISceneGraphEntity,
   cameraComponent: Rn.CameraComponent,
   canvas: HTMLCanvasElement
-) {
+) => {
   const renderPass = new Rn.RenderPass();
   const entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
 
@@ -32,10 +32,7 @@ const setupRenderPassEntityUidOutput = function (
   return renderPass;
 };
 
-const setupRenderPassRendering = function (
-  rootGroup: Rn.ISceneGraphEntity,
-  cameraComponent: Rn.CameraComponent
-) {
+const setupRenderPassRendering = (rootGroup: Rn.ISceneGraphEntity, cameraComponent: Rn.CameraComponent) => {
   const renderPass = new Rn.RenderPass();
   renderPass.cameraComponent = cameraComponent;
   renderPass.addEntities([rootGroup]);
@@ -43,7 +40,7 @@ const setupRenderPassRendering = function (
   return renderPass;
 };
 
-const pick = async function (e: any) {
+const pick = async (e: any) => {
   const x = e.offsetX;
   const y = window.canvas.clientHeight - e.offsetY;
   const framebuffer = window.renderPassEntityUidOutput.getFramebuffer();
@@ -106,10 +103,8 @@ lightEntity2.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, 
 //const response = await importer.importFromUrl('../../../assets/gltf/glTF-Sample-Models/1.0/2CylinderEngine/glTF/2CylinderEngine.gltf');
 //  const response = await importer.importFromUrl('../../../assets/gltf/glTF-Sample-Models/1.0/Duck/glTF/Duck.gltf');
 //const response = await importer.importFromUrl('../../../assets/gltf/glTF-Sample-Models/1.0/Avocado/glTF/Avocado.gltf');
-const rnm = (
-  await Rn.Gltf2Importer.importFromUrl(
-    '../../../assets/gltf/glTF-Sample-Assets/Models/BoxAnimated/glTF-Binary/BoxAnimated.glb'
-  )
+const rnm = await Rn.Gltf2Importer.importFromUrl(
+  '../../../assets/gltf/glTF-Sample-Assets/Models/BoxAnimated/glTF-Binary/BoxAnimated.glb'
 );
 //const response = await importer.importFromUrl('../../../assets/gltf/glTF-Sample-Models/1.0/BrainStem/glTF/BrainStem.gltf');
 const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(rnm);
@@ -117,11 +112,7 @@ const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(rnm);
 //  rootGroup.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, 1.0, 0.0]);
 //  rootGroup.getTransform().scale = Rn.Vector3.fromCopyArray([0.01, 0.01, 0.01]);
 
-const renderPassEntityUidOutput = setupRenderPassEntityUidOutput(
-  rootGroup,
-  cameraComponent,
-  canvas
-);
+const renderPassEntityUidOutput = setupRenderPassEntityUidOutput(rootGroup, cameraComponent, canvas);
 window.renderPassEntityUidOutput = renderPassEntityUidOutput;
 const renderPassRendering = setupRenderPassRendering(rootGroup, cameraComponent);
 // expression.addRenderPasses([renderPassEntityUidOutput]);
@@ -130,8 +121,7 @@ expression.addRenderPasses([renderPassEntityUidOutput, renderPassRendering]);
 // expression.addRenderPasses([renderPassRendering]);
 
 // CameraComponent
-const cameraControllerComponent =
-  cameraEntity.getCameraController() as Rn.CameraControllerComponent;
+const cameraControllerComponent = cameraEntity.getCameraController() as Rn.CameraControllerComponent;
 (cameraControllerComponent.controller as Rn.OrbitCameraController).setTarget(rootGroup);
 
 Rn.CameraComponent.current = 0;
@@ -171,6 +161,6 @@ Rn.System.startRenderLoop(async () => {
 
 canvas.addEventListener('mousedown', pick);
 
-window.exportGltf2 = function () {
+window.exportGltf2 = () => {
   Rn.Gltf2Exporter.export('Rhodonite');
 };

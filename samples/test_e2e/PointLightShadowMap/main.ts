@@ -52,21 +52,18 @@ const pointShadowMap = new PointShadowMap();
 const renderPasses = pointShadowMap.getRenderPasses([groupEntity, backgroundEntity]);
 shadowMapExpression.addRenderPasses(renderPasses);
 const gaussianBlur = new Rn.GaussianBlur();
-const { blurExpression, blurredRenderTarget, renderPassesBlurred } =
-  gaussianBlur.createGaussianBlurExpression({
-    textureToBlur: pointShadowMap
-      .getShadowMomentFramebuffer()
-      .getColorAttachedRenderTargetTexture(0)!,
-    parameters: {
-      blurPassLevel: 4,
-      gaussianKernelSize: 10,
-      gaussianVariance: 10,
-      synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
-      isReduceBuffer: false,
-      outputFrameBuffer: pointShadowMapArrayFramebuffer,
-      outputFrameBufferLayerIndex: 0,
-    },
-  });
+const { blurExpression, blurredRenderTarget, renderPassesBlurred } = gaussianBlur.createGaussianBlurExpression({
+  textureToBlur: pointShadowMap.getShadowMomentFramebuffer().getColorAttachedRenderTargetTexture(0)!,
+  parameters: {
+    blurPassLevel: 4,
+    gaussianKernelSize: 10,
+    gaussianVariance: 10,
+    synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
+    isReduceBuffer: false,
+    outputFrameBuffer: pointShadowMapArrayFramebuffer,
+    outputFrameBufferLayerIndex: 0,
+  },
+});
 
 const mainExpression = new Rn.Expression();
 const mainRenderPass = new Rn.RenderPass();
@@ -102,10 +99,7 @@ Rn.System.startRenderLoop(() => {
   count++;
 });
 
-function setParaboloidBlurredShadowMap(
-  blurredRenderTarget: Rn.RenderTargetTexture,
-  entities: Rn.ISceneGraphEntity[]
-) {
+function setParaboloidBlurredShadowMap(blurredRenderTarget: Rn.RenderTargetTexture, entities: Rn.ISceneGraphEntity[]) {
   const sampler = new Rn.Sampler({
     minFilter: Rn.TextureParameter.Linear,
     magFilter: Rn.TextureParameter.Linear,
@@ -119,11 +113,7 @@ function setParaboloidBlurredShadowMap(
     if (meshComponent != null && meshComponent.mesh != null) {
       for (let i = 0; i < meshComponent.mesh.getPrimitiveNumber(); i++) {
         const primitive = meshComponent.mesh.getPrimitiveAt(i);
-        primitive.material.setTextureParameter(
-          'paraboloidDepthTexture',
-          blurredRenderTarget,
-          sampler
-        );
+        primitive.material.setTextureParameter('paraboloidDepthTexture', blurredRenderTarget, sampler);
       }
     }
   }

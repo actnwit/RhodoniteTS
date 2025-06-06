@@ -1,8 +1,8 @@
-import { IVector2, IVector3, IVector4, IMutableVector, IMutableVector3 } from './IVector';
-import { TypedArray, FloatTypedArrayConstructor, Array3 } from '../../types/CommonTypes';
-import { Vector3d, Vector3_ } from './Vector3';
-import { IQuaternion } from './IQuaternion';
+import type { Array3, FloatTypedArrayConstructor, TypedArray } from '../../types/CommonTypes';
 import { Logger } from '../misc/Logger';
+import type { IQuaternion } from './IQuaternion';
+import { type IMutableVector, type IMutableVector3, IVector2, type IVector3, type IVector4 } from './IVector';
+import { Vector3_, Vector3d } from './Vector3';
 
 /**
  * Abstract base class for mutable 3D vectors with generic typed array support.
@@ -235,9 +235,9 @@ export class MutableVector3_<T extends FloatTypedArrayConstructor>
       this._v[2] /= value;
     } else {
       Logger.error('0 division occurred!');
-      this._v[0] = Infinity;
-      this._v[1] = Infinity;
-      this._v[2] = Infinity;
+      this._v[0] = Number.POSITIVE_INFINITY;
+      this._v[1] = Number.POSITIVE_INFINITY;
+      this._v[2] = Number.POSITIVE_INFINITY;
     }
 
     return this;
@@ -258,9 +258,9 @@ export class MutableVector3_<T extends FloatTypedArrayConstructor>
       this._v[2] /= vec._v[2];
     } else {
       Logger.error('0 division occurred!');
-      this._v[0] = vec._v[0] === 0 ? Infinity : this._v[0] / vec._v[0];
-      this._v[1] = vec._v[1] === 0 ? Infinity : this._v[1] / vec._v[1];
-      this._v[2] = vec._v[2] === 0 ? Infinity : this._v[2] / vec._v[2];
+      this._v[0] = vec._v[0] === 0 ? Number.POSITIVE_INFINITY : this._v[0] / vec._v[0];
+      this._v[1] = vec._v[1] === 0 ? Number.POSITIVE_INFINITY : this._v[1] / vec._v[1];
+      this._v[2] = vec._v[2] === 0 ? Number.POSITIVE_INFINITY : this._v[2] / vec._v[2];
     }
     return this;
   }
@@ -303,12 +303,9 @@ export class MutableVector3_<T extends FloatTypedArrayConstructor>
     const num11 = quat._v[3] * num2;
     const num12 = quat._v[3] * num3;
 
-    const x =
-      (1 - (num5 + num6)) * this._v[0] + (num7 - num12) * this._v[1] + (num8 + num11) * this._v[2];
-    const y =
-      (num7 + num12) * this._v[0] + (1 - (num4 + num6)) * this._v[1] + (num9 - num10) * this._v[2];
-    const z =
-      (num8 - num11) * this._v[0] + (num9 + num10) * this._v[1] + (1 - (num4 + num5)) * this._v[2];
+    const x = (1 - (num5 + num6)) * this._v[0] + (num7 - num12) * this._v[1] + (num8 + num11) * this._v[2];
+    const y = (num7 + num12) * this._v[0] + (1 - (num4 + num6)) * this._v[1] + (num9 - num10) * this._v[2];
+    const z = (num8 - num11) * this._v[0] + (num9 + num10) * this._v[1] + (1 - (num4 + num5)) * this._v[2];
 
     return this.setComponents(x, y, z);
   }

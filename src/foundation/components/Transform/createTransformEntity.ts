@@ -1,5 +1,5 @@
 import { EntityRepository } from '../../core/EntityRepository';
-import { ITransformEntity } from '../../helpers/EntityHelper';
+import type { ITransformEntity } from '../../helpers/EntityHelper';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 export function createTransformEntity(): ITransformEntity {

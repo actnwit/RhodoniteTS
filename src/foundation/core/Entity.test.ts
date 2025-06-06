@@ -1,5 +1,5 @@
-import { Entity } from './Entity';
 import { Is } from '../misc/Is';
+import { Entity } from './Entity';
 import { EntityRepository } from './EntityRepository';
 
 test('Entities cannot be instantiated by new operator.', () => {

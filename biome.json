@@ -1,0 +1,150 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "include": ["src/**/*", "samples/**/*"],
+    "ignore": [
+      "node_modules/**",
+      "dist/**",
+      "docs/**",
+      "vendor/**",
+      "assets/**",
+      "**/*.d.ts"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 120,
+    "lineEnding": "lf",
+    "ignore": [
+      "dist/**",
+      "docs/**",
+      "vendor/**",
+      "assets/**",
+      "**/*.d.ts"
+    ]
+  },
+  "organizeImports": {
+    "enabled": true
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "style": {
+        "noNonNullAssertion": "off",
+        "useImportType": "error",
+        "useExportType": "error",
+        "useConst": "off",
+        "noParameterAssign": "off",
+        "noCommaOperator": "off",
+        "noArguments": "off"
+      },
+      "complexity": {
+        "noExcessiveCognitiveComplexity": "off",
+        "noMultipleSpacesInRegularExpressionLiterals": "error",
+        "noForEach": "off",
+        "noBannedTypes": "off",
+        "noStaticOnlyClass": "off",
+        "noThisInStatic": "off"
+      },
+      "performance": {
+        "noAccumulatingSpread": "warn",
+        "noDelete": "error"
+      },
+      "correctness": {
+        "noUnusedVariables": "off",
+        "useExhaustiveDependencies": "off",
+        "noUnreachable": "off",
+        "noConstantCondition": "off",
+        "noInvalidUseBeforeDeclaration": "off"
+      },
+      "suspicious": {
+        "noArrayIndexKey": "warn",
+        "noExplicitAny": "off",
+        "noConfusingVoidType": "off",
+        "noPrototypeBuiltins": "off",
+        "noImplicitAnyLet": "off",
+        "noAsyncPromiseExecutor": "off",
+        "noAssignInExpressions": "off",
+        "noShadowRestrictedNames": "off",
+        "noThenProperty": "off",
+        "noRedeclare": "off"
+      }
+    },
+    "ignore": [
+      "dist/**",
+      "docs/**",
+      "vendor/**",
+      "assets/**",
+      "**/*.d.ts"
+    ]
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "jsxQuoteStyle": "single",
+      "quoteProperties": "asNeeded",
+      "trailingCommas": "es5",
+      "semicolons": "always",
+      "arrowParentheses": "asNeeded",
+      "bracketSpacing": true,
+      "bracketSameLine": false
+    },
+    "globals": [
+      "document",
+      "window",
+      "console",
+      "navigator",
+      "requestAnimationFrame",
+      "cancelAnimationFrame",
+      "setTimeout",
+      "clearTimeout",
+      "setInterval",
+      "clearInterval",
+      "URL",
+      "Blob",
+      "File",
+      "FileReader",
+      "WebGL2RenderingContext",
+      "WebGLRenderingContext",
+      "WebGLProgram",
+      "WebGLShader",
+      "WebGLTexture",
+      "WebGLBuffer",
+      "WebGLFramebuffer",
+      "WebGLRenderbuffer",
+      "WebGLUniformLocation",
+      "WebGLActiveInfo",
+      "WebGLShaderPrecisionFormat",
+      "WebGLContextEvent",
+      "ImageData",
+      "ImageBitmap",
+      "HTMLImageElement",
+      "HTMLCanvasElement",
+      "HTMLVideoElement",
+      "OffscreenCanvas",
+      "AudioContext",
+      "GainNode",
+      "AudioBuffer",
+      "AudioBufferSourceNode",
+      "AnalyserNode",
+      "MediaStreamAudioSourceNode"
+    ]
+  },
+  "json": {
+    "formatter": {
+      "trailingCommas": "none"
+    },
+    "parser": {
+      "allowComments": true
+    }
+  }
+}

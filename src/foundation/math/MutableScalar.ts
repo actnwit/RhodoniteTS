@@ -1,6 +1,6 @@
-import { Scalar_ } from './Scalar';
-import { TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
+import type { TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
 import { CompositionType } from '../definitions/CompositionType';
+import { Scalar_ } from './Scalar';
 
 /**
  * Base class for mutable scalar values with typed array backing.
@@ -72,7 +72,7 @@ export class MutableScalar_<T extends TypedArrayConstructor> extends Scalar_<T> 
    * @returns A string representation of the scalar in the format "(value)"
    */
   toString() {
-    return '(' + this._v[0] + ')';
+    return `(${this._v[0]})`;
   }
 
   /**

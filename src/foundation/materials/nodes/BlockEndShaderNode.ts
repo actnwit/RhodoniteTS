@@ -1,7 +1,7 @@
-import { CompositionTypeEnum } from '../../definitions/CompositionType';
-import { ComponentTypeEnum } from '../../definitions/ComponentType';
-import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { BlockEndShader } from '../../../webgl/shaders/nodes/BlockEndShader';
+import type { ComponentTypeEnum } from '../../definitions/ComponentType';
+import type { CompositionTypeEnum } from '../../definitions/CompositionType';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 /**
  * Represents a block end shader node that manages shader block termination.
@@ -17,13 +17,9 @@ export class BlockEndShaderNode extends AbstractShaderNode {
   constructor() {
     super('blockEnd', {});
 
-    this.__shaderFunctionName += '_' + this.__shaderNodeUid;
+    this.__shaderFunctionName += `_${this.__shaderNodeUid}`;
 
-    this.__commonPart = new BlockEndShader(
-      this.__shaderFunctionName,
-      this.__inputs,
-      this.__outputs
-    );
+    this.__commonPart = new BlockEndShader(this.__shaderFunctionName, this.__inputs, this.__outputs);
   }
 
   /**

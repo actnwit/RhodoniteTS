@@ -1,23 +1,23 @@
-import { ComponentRepository } from '../../core/ComponentRepository';
+import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
-import { applyMixins, EntityRepository } from '../../core/EntityRepository';
-import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
-import { LightType } from '../../definitions/LightType';
-import { Vector3 } from '../../math/Vector3';
-import { ProcessStage } from '../../definitions/ProcessStage';
+import { ComponentRepository } from '../../core/ComponentRepository';
 import { Config } from '../../core/Config';
-import { ComponentTID, EntityUID, ComponentSID } from '../../../types/CommonTypes';
+import type { IEntity } from '../../core/Entity';
+import { EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
-import { MutableVector4 } from '../../math/MutableVector4';
-import { VectorN } from '../../math/VectorN';
-import { ILightEntity } from '../../helpers/EntityHelper';
-import { IEntity } from '../../core/Entity';
-import { ComponentToComponentMethods } from '../ComponentTypes';
+import { LightType } from '../../definitions/LightType';
+import { ProcessStage } from '../../definitions/ProcessStage';
 import { LightGizmo } from '../../gizmos/LightGizmo';
-import { Is } from '../../misc/Is';
+import type { ILightEntity } from '../../helpers/EntityHelper';
+import { MutableVector4 } from '../../math/MutableVector4';
 import { Scalar } from '../../math/Scalar';
-import { TransformComponent } from '../Transform';
+import { Vector3 } from '../../math/Vector3';
+import { VectorN } from '../../math/VectorN';
+import { Is } from '../../misc/Is';
+import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { createGroupEntity } from '../SceneGraph/createGroupEntity';
+import { TransformComponent } from '../Transform';
+import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 /**
  * The Component that represents a light.
@@ -58,12 +58,7 @@ export class LightComponent extends Component {
    * @param entityRepository - The entity repository instance
    * @param isReUse - Whether this component is being reused
    */
-  constructor(
-    entityUid: EntityUID,
-    componentSid: ComponentSID,
-    entityRepository: EntityRepository,
-    isReUse: boolean
-  ) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
     super(entityUid, componentSid, entityRepository, isReUse);
 
     this._setMaxNumberOfComponent(Math.max(10, Math.floor(Config.maxEntityNumber / 100)));
@@ -184,9 +179,8 @@ export class LightComponent extends Component {
   get isLightGizmoVisible() {
     if (Is.defined(this.__lightGizmo)) {
       return this.__lightGizmo.isVisible;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -194,22 +188,10 @@ export class LightComponent extends Component {
    * This method is called during the component loading phase.
    */
   $load() {
-    LightComponent.__lightPositions = LightComponent.__globalDataRepository.getValue(
-      'lightPosition',
-      0
-    );
-    LightComponent.__lightDirections = LightComponent.__globalDataRepository.getValue(
-      'lightDirection',
-      0
-    );
-    LightComponent.__lightIntensities = LightComponent.__globalDataRepository.getValue(
-      'lightIntensity',
-      0
-    );
-    LightComponent.__lightProperties = LightComponent.__globalDataRepository.getValue(
-      'lightProperty',
-      0
-    );
+    LightComponent.__lightPositions = LightComponent.__globalDataRepository.getValue('lightPosition', 0);
+    LightComponent.__lightDirections = LightComponent.__globalDataRepository.getValue('lightDirection', 0);
+    LightComponent.__lightIntensities = LightComponent.__globalDataRepository.getValue('lightIntensity', 0);
+    LightComponent.__lightProperties = LightComponent.__globalDataRepository.getValue('lightProperty', 0);
     LightComponent.__lightNumber = LightComponent.__globalDataRepository.getValue('lightNumber', 0);
 
     this.moveStageTo(ProcessStage.Logic);
@@ -234,9 +216,7 @@ export class LightComponent extends Component {
    * @static
    */
   static common_$logic() {
-    const lightComponents = ComponentRepository.getComponentsWithType(
-      LightComponent
-    ) as LightComponent[];
+    const lightComponents = ComponentRepository.getComponentsWithType(LightComponent) as LightComponent[];
     LightComponent.__lightNumber._v[0] = lightComponents.length;
   }
 
@@ -259,9 +239,7 @@ export class LightComponent extends Component {
 
     const sceneGraphComponent = this.entity.getSceneGraph();
 
-    this.__direction = sceneGraphComponent.normalMatrixInner.multiplyVector(
-      this.__initialDirection
-    );
+    this.__direction = sceneGraphComponent.normalMatrixInner.multiplyVector(this.__initialDirection);
 
     const innerConeCos = Math.cos(this.innerConeAngle);
     const outerConeCos = Math.cos(this.outerConeAngle);
@@ -279,9 +257,7 @@ export class LightComponent extends Component {
     LightComponent.__lightIntensities._v[3 * this.componentSID + 1] = this.__color.y * this.__intensity;
     LightComponent.__lightIntensities._v[3 * this.componentSID + 2] = this.__color.z * this.__intensity;
 
-    LightComponent.__lightProperties._v[4 * this.componentSID + 0] = this.enable
-      ? this.type.index
-      : -1;
+    LightComponent.__lightProperties._v[4 * this.componentSID + 0] = this.enable ? this.type.index : -1;
     LightComponent.__lightProperties._v[4 * this.componentSID + 1] = this.range;
     LightComponent.__lightProperties._v[4 * this.componentSID + 2] = innerConeCos;
     LightComponent.__lightProperties._v[4 * this.componentSID + 3] = outerConeCos;
@@ -329,18 +305,8 @@ export class LightComponent extends Component {
     _componentClass: SomeComponentClass
   ) {
     class LightEntity extends (base.constructor as any) {
-      constructor(
-        entityUID: EntityUID,
-        isAlive: boolean,
-        components?: Map<ComponentTID, Component>
-      ) {
-        super(entityUID, isAlive, components);
-      }
-
       getLight() {
-        return this.getComponentByComponentTID(
-          WellKnownComponentTIDs.LightComponentTID
-        ) as LightComponent;
+        return this.getComponentByComponentTID(WellKnownComponentTIDs.LightComponentTID) as LightComponent;
       }
     }
     applyMixins(base, LightEntity);

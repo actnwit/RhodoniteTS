@@ -1,14 +1,11 @@
-import {
-  VertexAttributeEnum,
-  VertexAttribute,
-} from '../../../foundation/definitions/VertexAttribute';
-import { CommonShaderPart } from '../CommonShaderPart';
-import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
-import { ComponentTypeEnum, ComponentType } from '../../../foundation/definitions/ComponentType';
-import { AttributeNames } from '../../types/CommonTypes';
-import { IVector } from '../../../foundation/math/IVector';
+import { ComponentType, type ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
+import type { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { ProcessApproach } from '../../../foundation/definitions/ProcessApproach';
+import { VertexAttribute, type VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
+import type { IVector } from '../../../foundation/math/IVector';
 import { SystemState } from '../../../foundation/system/SystemState';
+import type { AttributeNames } from '../../types/CommonTypes';
+import { CommonShaderPart } from '../CommonShaderPart';
 
 /**
  * A shader part that generates constant variable functions for both vertex and pixel shaders.
@@ -103,14 +100,13 @@ export class ConstantVariableShader extends CommonShaderPart {
         *outValue = ${this.__constantValueStr};
       }
       `;
-    } else {
-      return `
+    }
+    return `
       void ${this.__functionName}(
         out ${this.__compositionType.getGlslStr(this.__componentType)} outValue) {
         outValue = ${this.__constantValueStr};
       }
       `;
-    }
   }
 
   /**
@@ -144,14 +140,13 @@ export class ConstantVariableShader extends CommonShaderPart {
         *outValue = ${this.__constantValueStr};
       }
       `;
-    } else {
-      return `
+    }
+    return `
       void ${this.__functionName}(
         out ${this.__compositionType.getGlslStr(this.__componentType)} outValue) {
         outValue = ${this.__constantValueStr};
       }
       `;
-    }
   }
 
   /**

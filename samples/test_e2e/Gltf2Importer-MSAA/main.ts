@@ -2,8 +2,7 @@ import Rn from '../../../dist/esmdev/index.js';
 
 // ---parameters---------------------------------------------------------------------------------------------
 
-const uriGltf =
-  '../../../assets/gltf/glTF-Sample-Assets/Models/AntiqueCamera/glTF-Binary/AntiqueCamera.glb';
+const uriGltf = '../../../assets/gltf/glTF-Sample-Assets/Models/AntiqueCamera/glTF-Binary/AntiqueCamera.glb';
 const basePathIBL = '../../../assets/ibl/shanghai_bund';
 
 // ---main algorithm-----------------------------------------------------------------------------------------
@@ -23,19 +22,19 @@ Rn.Config.isUboEnabled = false;
 
 const assets = await Rn.defaultAssetLoader.load({
   environment: Rn.CubeTexture.loadFromUrl({
-    baseUrl: basePathIBL + '/environment/environment',
+    baseUrl: `${basePathIBL}/environment/environment`,
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.LDR_SRGB,
   }),
   specular: Rn.CubeTexture.loadFromUrl({
-    baseUrl: basePathIBL + '/specular/specular',
+    baseUrl: `${basePathIBL}/specular/specular`,
     mipmapLevelNumber: 10,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.RGBE_PNG,
   }),
   diffuse: Rn.CubeTexture.loadFromUrl({
-    baseUrl: basePathIBL + '/diffuse/diffuse',
+    baseUrl: `${basePathIBL}/diffuse/diffuse`,
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.RGBE_PNG,
@@ -83,10 +82,7 @@ function createEntityPostEffectCamera() {
   return entityCamera;
 }
 
-async function createRenderPassMain(
-  uriGltf: string,
-  entityCamera: Rn.ICameraEntity
-) {
+async function createRenderPassMain(uriGltf: string, entityCamera: Rn.ICameraEntity) {
   const entityEnvironmentCube = await createEntityEnvironmentCube();
   const entityRootGroup = await createEntityGltf2(uriGltf);
 
@@ -135,19 +131,14 @@ async function createEntityEnvironmentCube() {
 }
 
 async function createEntityGltf2(uriGltf: string) {
-  const gltf2JSON = (
-    await Rn.Gltf2Importer.importFromUrl(uriGltf, {
-      defaultMaterialHelperArgumentArray: [{ makeOutputSrgb: false }],
-    })
-  );
+  const gltf2JSON = await Rn.Gltf2Importer.importFromUrl(uriGltf, {
+    defaultMaterialHelperArgumentArray: [{ makeOutputSrgb: false }],
+  });
   const entityRootGroup = await Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
   return entityRootGroup;
 }
 
-function createAndSetFrameBufferAndMSAAFramebuffer(
-  renderPass: Rn.RenderPass,
-  resolutionFramebuffer: number
-) {
+function createAndSetFrameBufferAndMSAAFramebuffer(renderPass: Rn.RenderPass, resolutionFramebuffer: number) {
   const framebuffer = Rn.RenderableHelper.createFrameBufferMSAA({
     width: resolutionFramebuffer,
     height: resolutionFramebuffer,

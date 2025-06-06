@@ -1,4 +1,4 @@
-import { EnumClass, EnumIO, _from } from '../misc/EnumIO';
+import { EnumClass, type EnumIO, _from } from '../misc/EnumIO';
 
 export interface PrimitiveModeEnum extends EnumIO {
   getWebGPUTypeStr(): string;
@@ -64,16 +64,7 @@ const TriangleFan: PrimitiveModeEnum = new PrimitiveModeClass({
   str: 'TRIANGLE_FAN',
 });
 
-const typeList = [
-  Unknown,
-  Points,
-  Lines,
-  LineLoop,
-  LineStrip,
-  Triangles,
-  TriangleStrip,
-  TriangleFan,
-];
+const typeList = [Unknown, Points, Lines, LineLoop, LineStrip, Triangles, TriangleStrip, TriangleFan];
 
 function from(index: number): PrimitiveModeEnum | undefined {
   return _from({ typeList, index }) as PrimitiveModeEnum | undefined;

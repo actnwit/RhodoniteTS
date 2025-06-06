@@ -22,18 +22,16 @@ cameraComponent.setFovyAndChangeFocalLength(30.0);
 cameraComponent.aspect = 1.0;
 
 // gltf
-const mainExpression = (
-  await Rn.GltfImporter.importFromUrl(
-    '../../../assets/gltf/glTF-Sample-Assets/Models/BarramundiFish/glTF-Draco/BarramundiFish.gltf',
-    {
-      cameraComponent: cameraComponent,
-      defaultMaterialHelperArgumentArray: [
-        {
-          makeOutputSrgb: false,
-        },
-      ],
-    }
-  )
+const mainExpression = await Rn.GltfImporter.importFromUrl(
+  '../../../assets/gltf/glTF-Sample-Assets/Models/BarramundiFish/glTF-Draco/BarramundiFish.gltf',
+  {
+    cameraComponent: cameraComponent,
+    defaultMaterialHelperArgumentArray: [
+      {
+        makeOutputSrgb: false,
+      },
+    ],
+  }
 );
 expressions.push(mainExpression);
 
@@ -60,11 +58,10 @@ rootTransFormComponent.localEulerAngles = Rn.Vector3.fromCopyArray([0, Math.PI /
 rootTransFormComponent.localPosition = Rn.Vector3.fromCopyArray([0, -0.13, -1.5]);
 
 const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial();
-const gammaCorrectionRenderPass =
-  Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
-    gammaCorrectionMaterial,
-    gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)
-  );
+const gammaCorrectionRenderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+  gammaCorrectionMaterial,
+  gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)
+);
 expressionPostEffect.addRenderPasses([gammaCorrectionRenderPass]);
 
 // lighting
@@ -85,6 +82,6 @@ Rn.System.startRenderLoop(() => {
   count++;
 });
 
-window.exportGltf2 = function () {
+window.exportGltf2 = () => {
   Rn.Gltf2Exporter.export('Rhodonite');
 };

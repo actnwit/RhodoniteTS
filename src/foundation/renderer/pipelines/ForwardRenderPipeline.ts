@@ -1,40 +1,40 @@
-import { ShaderSemantics } from '../../definitions/ShaderSemantics';
-import { TextureParameter } from '../../definitions/TextureParameter';
-import { RenderableHelper } from '../../helpers/RenderableHelper';
-import { Vector4 } from '../../math/Vector4';
-import { assertHas, Option, None, Some } from '../../misc/Option';
-import { Is } from '../../misc/Is';
-import { CubeTexture } from '../../textures/CubeTexture';
-import { Expression } from '../Expression';
-import { Frame } from '../Frame';
-import { FrameBuffer } from '../FrameBuffer';
-import { RenderPass } from '../RenderPass';
-import { MaterialHelper } from '../../helpers/MaterialHelper';
-import { Size } from '../../../types';
-import { Err, Ok } from '../../misc/Result';
-import { System } from '../../system/System';
+import type { Size } from '../../../types';
+import type { RnXR } from '../../../xr/main';
 import { RnObject } from '../../core/RnObject';
-import { ModuleManager } from '../../system/ModuleManager';
 import {
   ComponentType,
-  HdriFormatEnum,
+  type HdriFormatEnum,
   PixelFormat,
   ProcessApproach,
   ToneMappingType,
-  ToneMappingTypeEnum,
+  type ToneMappingTypeEnum,
 } from '../../definitions';
-import { RenderPassHelper } from '../../helpers/RenderPassHelper';
-import { Sampler } from '../../textures/Sampler';
-import { SystemState } from '../../system/SystemState';
-import { RenderTargetTexture } from '../../textures/RenderTargetTexture';
-import { RenderTargetTexture2DArray } from '../../textures/RenderTargetTexture2DArray';
-import { CGAPIResourceRepository } from '../CGAPIResourceRepository';
-import { RnXR } from '../../../xr/main';
-import { Material } from '../../materials/core/Material';
+import { ShaderSemantics } from '../../definitions/ShaderSemantics';
 import { TextureFormat } from '../../definitions/TextureFormat';
+import { TextureParameter } from '../../definitions/TextureParameter';
 import { Bloom } from '../../helpers/BloomHelper';
+import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
+import { MaterialHelper } from '../../helpers/MaterialHelper';
+import { RenderPassHelper } from '../../helpers/RenderPassHelper';
+import { RenderableHelper } from '../../helpers/RenderableHelper';
 import { ShadowSystem } from '../../helpers/Shadow/ShadowSystem';
-import { ISceneGraphEntity } from '../../helpers/EntityHelper';
+import type { Material } from '../../materials/core/Material';
+import { Vector4 } from '../../math/Vector4';
+import { Is } from '../../misc/Is';
+import { None, type Option, Some, assertHas } from '../../misc/Option';
+import { Err, Ok } from '../../misc/Result';
+import { ModuleManager } from '../../system/ModuleManager';
+import { System } from '../../system/System';
+import { SystemState } from '../../system/SystemState';
+import type { CubeTexture } from '../../textures/CubeTexture';
+import type { RenderTargetTexture } from '../../textures/RenderTargetTexture';
+import type { RenderTargetTexture2DArray } from '../../textures/RenderTargetTexture2DArray';
+import { Sampler } from '../../textures/Sampler';
+import { CGAPIResourceRepository } from '../CGAPIResourceRepository';
+import { Expression } from '../Expression';
+import { Frame } from '../Frame';
+import type { FrameBuffer } from '../FrameBuffer';
+import { RenderPass } from '../RenderPass';
 
 type DrawFunc = (frame: Frame) => void;
 type IBLCubeTextureParameter = {
@@ -123,13 +123,6 @@ export class ForwardRenderPipeline extends RnObject {
   private __bloomHelper: Bloom = new Bloom();
   private __oShadowSystem: Option<ShadowSystem> = new None();
   private __shadowExpressions: Expression[] = [];
-
-  /**
-   * Creates a new instance of ForwardRenderPipeline.
-   */
-  constructor() {
-    super();
-  }
 
   /**
    * Destroys all allocated 3D API resources including frame buffers and textures.
@@ -254,13 +247,12 @@ export class ForwardRenderPipeline extends RnObject {
         this.__oMultiViewBlitBackBufferExpression = this.__setupMultiViewBlitBackBufferExpression(
           this.__oFrameBufferMultiView.get()
         );
-        this.__oMultiViewBlitExpression = this.__setupMultiViewBlitExpression(
-          this.__oFrameBufferMultiView.get()
-        );
+        this.__oMultiViewBlitExpression = this.__setupMultiViewBlitExpression(this.__oFrameBufferMultiView.get());
       }
 
-      let toneMappingTargetRenderTargetTexture: RenderTargetTexture =
-        this.__getMainFrameBufferResolve().unwrapForce().getColorAttachedRenderTargetTexture(0)!;
+      let toneMappingTargetRenderTargetTexture: RenderTargetTexture = this.__getMainFrameBufferResolve()
+        .unwrapForce()
+        .getColorAttachedRenderTargetTexture(0)!;
 
       // Bloom Expression
       if (isBloom && !this.__isSimple) {
@@ -277,9 +269,7 @@ export class ForwardRenderPipeline extends RnObject {
       }
 
       // ToneMapping Expression
-      const toneMappingExpression = this.__setupToneMappingExpression(
-        toneMappingTargetRenderTargetTexture
-      );
+      const toneMappingExpression = this.__setupToneMappingExpression(toneMappingTargetRenderTargetTexture);
       this.__oToneMappingExpression = new Some(toneMappingExpression);
     }
 
@@ -309,9 +299,8 @@ export class ForwardRenderPipeline extends RnObject {
   private __getMainFrameBufferBackBuffer(): Option<FrameBuffer> {
     if (this.__oFrameBufferMultiView.has()) {
       return this.__oFrameBufferMultiViewBlitBackBuffer;
-    } else {
-      return this.__oFrameBufferResolveForReference;
     }
+    return this.__oFrameBufferResolveForReference;
   }
 
   /**
@@ -324,9 +313,8 @@ export class ForwardRenderPipeline extends RnObject {
   private __getMainFrameBufferResolve(): Option<FrameBuffer> {
     if (this.__oFrameBufferMultiView.has()) {
       return this.__oFrameBufferMultiViewBlit;
-    } else {
-      return this.__oFrameBufferResolve;
     }
+    return this.__oFrameBufferResolve;
   }
 
   /**
@@ -339,9 +327,8 @@ export class ForwardRenderPipeline extends RnObject {
   private __getMainFrameBuffer(): Option<FrameBuffer> {
     if (this.__oFrameBufferMultiView.has()) {
       return this.__oFrameBufferMultiView;
-    } else {
-      return this.__oFrameBufferMsaa;
     }
+    return this.__oFrameBufferMsaa;
   }
 
   /**
@@ -374,7 +361,7 @@ export class ForwardRenderPipeline extends RnObject {
     }
   ) {
     // const expressionsOpaque = expressions.map((expression) => expression.clone());
-    const expressionsTranslucent = expressions.map((expression) => expression.clone());
+    const expressionsTranslucent = expressions.map(expression => expression.clone());
     this.__setExpressionsInner(expressions, {
       isTransmission: options.isTransmission,
     });
@@ -383,8 +370,8 @@ export class ForwardRenderPipeline extends RnObject {
     }
 
     if (this.__oShadowSystem.has()) {
-      const entities = this.__expressions.flatMap((expression) =>
-        expression.renderPasses.flatMap((renderPass) => renderPass.entities)
+      const entities = this.__expressions.flatMap(expression =>
+        expression.renderPasses.flatMap(renderPass => renderPass.entities)
       ) as ISceneGraphEntity[];
       this.__shadowExpressions = this.__oShadowSystem.get().getExpressions(entities);
     }
@@ -432,8 +419,8 @@ export class ForwardRenderPipeline extends RnObject {
     System.startRenderLoop(() => {
       this.__setExpressions();
       if (this.__oShadowSystem.has()) {
-        const entities = this.__expressions.flatMap((expression) =>
-          expression.renderPasses.flatMap((renderPass) => renderPass.entities)
+        const entities = this.__expressions.flatMap(expression =>
+          expression.renderPasses.flatMap(renderPass => renderPass.entities)
         ) as ISceneGraphEntity[];
         if (this.__oShadowSystem.get().isLightChanged()) {
           this.__shadowExpressions = this.__oShadowSystem.get().getExpressions(entities);
@@ -792,9 +779,7 @@ export class ForwardRenderPipeline extends RnObject {
                   const primitive = mesh.getPrimitiveAt(i);
                   primitive.material.setTextureParameter(
                     'backBufferTexture',
-                    this.__getMainFrameBufferBackBuffer()
-                      .unwrapForce()
-                      .getColorAttachedRenderTargetTexture(0)!,
+                    this.__getMainFrameBufferBackBuffer().unwrapForce().getColorAttachedRenderTargetTexture(0)!,
                     this.__oSamplerForBackBuffer.unwrapForce()
                   );
                 }
@@ -858,11 +843,7 @@ export class ForwardRenderPipeline extends RnObject {
     const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR | undefined;
     const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    if (
-      Is.exist(webXRSystem) &&
-      webXRSystem.isWebXRMode &&
-      cgApiResourceRepository.isSupportMultiViewVRRendering()
-    ) {
+    if (Is.exist(webXRSystem) && webXRSystem.isWebXRMode && cgApiResourceRepository.isSupportMultiViewVRRendering()) {
       const framebufferMultiView = RenderableHelper.createFrameBufferTextureArrayForMultiView({
         width: canvasWidth / 2,
         height: canvasHeight,
@@ -881,10 +862,7 @@ export class ForwardRenderPipeline extends RnObject {
         createDepthBuffer: false,
       });
 
-      framebufferMultiViewBlit.tryToSetUniqueName(
-        'FramebufferTargetOfToneMappingMultiViewBlit',
-        true
-      );
+      framebufferMultiViewBlit.tryToSetUniqueName('FramebufferTargetOfToneMappingMultiViewBlit', true);
 
       const framebufferMultiViewBlitBackBuffer = RenderableHelper.createFrameBuffer({
         width: canvasWidth,
@@ -893,10 +871,7 @@ export class ForwardRenderPipeline extends RnObject {
         textureFormats: [this.__isBloom ? TextureFormat.R11F_G11F_B10F : TextureFormat.RGBA8],
         createDepthBuffer: false,
       });
-      framebufferMultiViewBlit.tryToSetUniqueName(
-        'FramebufferTargetOfToneMappingMultiViewBlitBackBuffer',
-        true
-      );
+      framebufferMultiViewBlit.tryToSetUniqueName('FramebufferTargetOfToneMappingMultiViewBlitBackBuffer', true);
 
       this.__oFrameBufferMultiView = new Some(framebufferMultiView);
       this.__oFrameBufferMultiViewBlit = new Some(framebufferMultiViewBlit);
@@ -935,10 +910,7 @@ export class ForwardRenderPipeline extends RnObject {
         textureFormats: [this.__isBloom ? TextureFormat.R11F_G11F_B10F : TextureFormat.RGBA8],
         createDepthBuffer: false,
       });
-      framebufferResolveForReference.tryToSetUniqueName(
-        'FramebufferTargetOfToneMappingResolveForReference',
-        true
-      );
+      framebufferResolveForReference.tryToSetUniqueName('FramebufferTargetOfToneMappingResolveForReference', true);
 
       // FrameBuffers
       this.__oFrameBufferMultiView = new None();
@@ -998,9 +970,9 @@ export class ForwardRenderPipeline extends RnObject {
       if (this.__oFrameBufferMultiViewBlitBackBuffer.has()) {
         const texture = this.__oFrameBufferMultiViewBlitBackBuffer.unwrapForce()
           .colorAttachments[0] as RenderTargetTexture2DArray;
-        (
-          multiViewFrameBuffer.colorAttachments[0] as RenderTargetTexture2DArray
-        ).blitToTexture2dFromTexture2dArrayFake(texture);
+        (multiViewFrameBuffer.colorAttachments[0] as RenderTargetTexture2DArray).blitToTexture2dFromTexture2dArrayFake(
+          texture
+        );
         texture.generateMipmaps();
       }
     });
@@ -1030,9 +1002,9 @@ export class ForwardRenderPipeline extends RnObject {
       if (this.__oFrameBufferMultiViewBlit.has()) {
         const texture = this.__oFrameBufferMultiViewBlit.unwrapForce()
           .colorAttachments[0] as RenderTargetTexture2DArray;
-        (
-          multiViewFrameBuffer.colorAttachments[0] as RenderTargetTexture2DArray
-        ).blitToTexture2dFromTexture2dArrayFake(texture);
+        (multiViewFrameBuffer.colorAttachments[0] as RenderTargetTexture2DArray).blitToTexture2dFromTexture2dArrayFake(
+          texture
+        );
       }
     });
 

@@ -1,11 +1,6 @@
-import {
-  Size,
-  Index,
-  FloatTypedArrayConstructor,
-  TypedArrayConstructor,
-} from '../../types/CommonTypes';
-import { ColorRgb } from '../math/ColorRgb';
-import { ColorRgba } from '../math/ColorRgba';
+import { FloatTypedArrayConstructor, type Index, type Size, type TypedArrayConstructor } from '../../types/CommonTypes';
+import type { ColorRgb } from '../math/ColorRgb';
+import type { ColorRgba } from '../math/ColorRgba';
 
 /**
  * A class for handling floating-point texture data with support for multi-channel pixels.
@@ -42,9 +37,7 @@ export class TextureDataFloat {
     this.__width = width;
     this.__height = height;
     this.__channels = channels;
-    this.__data = new Float32Array(
-      TextureDataFloat.transfer(this.__data.buffer, width * height * channels * 4)
-    );
+    this.__data = new Float32Array(TextureDataFloat.transfer(this.__data.buffer, width * height * channels * 4));
   }
 
   /**
@@ -110,7 +103,8 @@ export class TextureDataFloat {
           this.__data[y * this.__width * this.__channels + x * this.__channels + 2],
         ])
       );
-    } else if (channels === 4) {
+    }
+    if (channels === 4) {
       return new (typeClass as any)(
         new Float32Array([
           this.__data[y * this.__width * this.__channels + x * this.__channels + 0],
@@ -168,7 +162,7 @@ export class TextureDataFloat {
       let nextOffset = 0;
       let leftBytes = source.byteLength;
       const wordSizes = [8, 4, 2, 1];
-      wordSizes.forEach((_wordSize_) => {
+      wordSizes.forEach(_wordSize_ => {
         if (leftBytes >= _wordSize_) {
           const done = transferWith(_wordSize_, source, dest, nextOffset, leftBytes);
           nextOffset = done.nextOffset;
@@ -187,13 +181,7 @@ export class TextureDataFloat {
      * @param leftBytes - The remaining bytes to transfer
      * @returns An object containing the next offset and remaining bytes
      */
-    function transferWith(
-      wordSize: number,
-      source: any,
-      dest: any,
-      nextOffset: number,
-      leftBytes: number
-    ) {
+    function transferWith(wordSize: number, source: any, dest: any, nextOffset: number, leftBytes: number) {
       let ViewClass: TypedArrayConstructor = Uint8Array;
       switch (wordSize) {
         case 8:

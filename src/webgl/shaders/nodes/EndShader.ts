@@ -1,10 +1,10 @@
-import { CommonShaderPart } from '../CommonShaderPart';
-import { ShaderNode } from '../../../foundation/definitions/ShaderNode';
+import type { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { ProcessApproach } from '../../../foundation/definitions/ProcessApproach';
+import { ShaderNode } from '../../../foundation/definitions/ShaderNode';
+import type { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
 import { SystemState } from '../../../foundation/system/SystemState';
-import { AttributeNames } from '../../types/CommonTypes';
-import { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
-import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
+import type { AttributeNames } from '../../types/CommonTypes';
+import { CommonShaderPart } from '../CommonShaderPart';
 
 /**
  * EndShader class provides the final output functions for both vertex and fragment shaders.
@@ -50,13 +50,12 @@ export class EndShader extends CommonShaderPart {
         output.position = inPosition;
       }
       `;
-    } else {
-      return `
+    }
+    return `
       void outPosition(in vec4 inPosition) {
         gl_Position = inPosition;
       }
       `;
-    }
   }
 
   /**
@@ -84,13 +83,12 @@ export class EndShader extends CommonShaderPart {
         rt0 = inColor;
       }
       `;
-    } else {
-      return `
+    }
+    return `
       void outColor(in vec4 inColor) {
         rt0 = inColor;
       }
       `;
-    }
   }
 
   /**

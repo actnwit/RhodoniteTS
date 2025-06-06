@@ -1,20 +1,20 @@
-import { ISkeletalEntity } from '../foundation/helpers/EntityHelper';
-import { Byte, Index } from './CommonTypes';
-import {
-  Gltf2BufferView,
-  Gltf2Accessor,
+import type { ISkeletalEntity } from '../foundation/helpers/EntityHelper';
+import type { Byte, Index } from './CommonTypes';
+import type {
   Gltf2,
-  Gltf2Buffer,
-  Gltf2Mesh,
-  Gltf2Material,
+  Gltf2Accessor,
   Gltf2Animation,
-  Gltf2Skin,
-  Gltf2PbrMetallicRoughness,
-  Gltf2TextureInfo,
-  Gltf2Image,
-  Gltf2Texture,
-  Gltf2TextureSampler,
+  Gltf2Buffer,
+  Gltf2BufferView,
   Gltf2Camera,
+  Gltf2Image,
+  Gltf2Material,
+  Gltf2Mesh,
+  Gltf2PbrMetallicRoughness,
+  Gltf2Skin,
+  Gltf2Texture,
+  Gltf2TextureInfo,
+  Gltf2TextureSampler,
 } from './glTF2';
 
 export interface Gltf2BufferViewEx extends Gltf2BufferView {

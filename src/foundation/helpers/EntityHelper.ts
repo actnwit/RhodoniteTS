@@ -1,22 +1,22 @@
-import { EntityRepository } from '../core/EntityRepository';
-import { IEntity } from '../core/Entity';
-import { ITransformEntityMethods } from '../components/Transform/ITransformEntity';
-import { ISceneGraphEntityMethods } from '../components/SceneGraph/ISceneGraphEntity';
-import { IMeshEntityMethods } from '../components/Mesh/IMeshEntity';
-import { ICameraEntityMethods } from '../components/Camera/ICameraEntity';
-import { ICameraControllerEntityMethods } from '../components/CameraController/ICameraControllerEntity';
-import { IAnimationEntityMethods } from '../components/Animation/IAnimationEntity';
-import { ILightEntityMethods } from '../components/Light/ILightEntity';
-import { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
-import { ISkeletalEntityMethods } from '../components/Skeletal/ISkeletalEntity';
-import { IPhysicsEntityMethods } from '../components/Physics/IPhysicsEntity';
-import { IBlendShapeEntityMethods } from '../components/BlendShape/IBlendShapeEntity';
-import { CameraComponent } from '../components/Camera/CameraComponent';
-import { LightComponent } from '../components/Light/LightComponent';
-import { IConstraintEntityMethods } from '../components/Constraint/IConstraintEntity';
-import { IAnimationStateEntityMethods } from '../components/AnimationState';
-import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
 import { WellKnownComponentTIDs } from '../components';
+import type { IAnimationEntityMethods } from '../components/Animation/IAnimationEntity';
+import type { IAnimationStateEntityMethods } from '../components/AnimationState';
+import type { IBlendShapeEntityMethods } from '../components/BlendShape/IBlendShapeEntity';
+import { CameraComponent } from '../components/Camera/CameraComponent';
+import type { ICameraEntityMethods } from '../components/Camera/ICameraEntity';
+import type { ICameraControllerEntityMethods } from '../components/CameraController/ICameraControllerEntity';
+import type { IConstraintEntityMethods } from '../components/Constraint/IConstraintEntity';
+import type { ILightEntityMethods } from '../components/Light/ILightEntity';
+import { LightComponent } from '../components/Light/LightComponent';
+import type { IMeshEntityMethods } from '../components/Mesh/IMeshEntity';
+import type { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
+import type { IPhysicsEntityMethods } from '../components/Physics/IPhysicsEntity';
+import type { ISceneGraphEntityMethods } from '../components/SceneGraph/ISceneGraphEntity';
+import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
+import type { ISkeletalEntityMethods } from '../components/Skeletal/ISkeletalEntity';
+import type { ITransformEntityMethods } from '../components/Transform/ITransformEntity';
+import type { IEntity } from '../core/Entity';
+import { EntityRepository } from '../core/EntityRepository';
 
 /**
  * An entity that has transform capabilities.

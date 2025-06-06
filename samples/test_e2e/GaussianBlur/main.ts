@@ -87,11 +87,7 @@ function createEntityColoredBoard(boardColor: Rn.Vector4) {
   return entity;
 }
 
-function createAndSetFramebuffer(
-  renderPass: Rn.RenderPass,
-  resolution: number,
-  textureNum: number
-) {
+function createAndSetFramebuffer(renderPass: Rn.RenderPass, resolution: number, textureNum: number) {
   const framebuffer = Rn.RenderableHelper.createFrameBuffer({
     width: resolution,
     height: resolution,
@@ -121,15 +117,9 @@ function createRenderPassGaussianBlur(renderPassBlurTarget: Rn.RenderPass, isHor
   }
 
   const framebufferTarget = renderPassBlurTarget.getFramebuffer();
-  material.setParameter(
-    'framebufferSize',
-    Rn.Vector2.fromCopy2(framebufferTarget.width, framebufferTarget.height)
-  );
+  material.setParameter('framebufferSize', Rn.Vector2.fromCopy2(framebufferTarget.width, framebufferTarget.height));
   const TextureTarget = framebufferTarget.colorAttachments[0] as Rn.RenderTargetTexture;
-  const renderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
-    material,
-    TextureTarget
-  );
+  const renderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(material, TextureTarget);
 
   return renderPass;
 }

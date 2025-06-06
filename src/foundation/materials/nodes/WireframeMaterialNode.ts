@@ -1,7 +1,7 @@
-import { CompositionType } from '../../definitions/CompositionType';
-import { ComponentType } from '../../definitions/ComponentType';
-import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import WireframeShaderityObject from '../../../webgl/shaderity_shaders/nodes/Wireframe.glsl';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 /**
  * A material node that applies wireframe rendering effects to geometry.

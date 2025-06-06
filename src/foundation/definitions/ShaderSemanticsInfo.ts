@@ -1,9 +1,9 @@
-import { Count } from '../../types/CommonTypes';
+import type { Count } from '../../types/CommonTypes';
 import { Logger } from '../misc/Logger';
-import { ComponentTypeEnum } from './ComponentType';
-import { CompositionType, CompositionTypeEnum } from './CompositionType';
-import { ShaderSemanticsEnum, ShaderSemanticsName } from './ShaderSemantics';
-import { ShaderTypeEnum } from './ShaderType';
+import type { ComponentTypeEnum } from './ComponentType';
+import { CompositionType, type CompositionTypeEnum } from './CompositionType';
+import { ShaderSemanticsEnum, type ShaderSemanticsName } from './ShaderSemantics';
+import type { ShaderTypeEnum } from './ShaderType';
 
 export type ShaderSemanticsInfo = {
   semantic: ShaderSemanticsName;

@@ -1,7 +1,7 @@
-import { ConstantVariableShader } from '../../../webgl/shaders/nodes/ConstantVariableShader';
+import type { ConstantVariableShader } from '../../../webgl/shaders/nodes/ConstantVariableShader';
 import { CompositionType } from '../../definitions';
-import { ComponentTypeEnum } from '../../definitions/ComponentType';
-import { IScalar } from '../../math/IVector';
+import type { ComponentTypeEnum } from '../../definitions/ComponentType';
+import type { IScalar } from '../../math/IVector';
 import { ConstantVariableShaderNode } from './ConstantVariableShaderNode';
 
 /**
@@ -11,10 +11,10 @@ import { ConstantVariableShaderNode } from './ConstantVariableShaderNode';
  *
  * @template T - The component type enum that defines the data type of the scalar value
  */
-export class ConstantScalarVariableShaderNode<
-  T extends ComponentTypeEnum
-> extends ConstantVariableShaderNode<typeof CompositionType.Scalar, T> {
-
+export class ConstantScalarVariableShaderNode<T extends ComponentTypeEnum> extends ConstantVariableShaderNode<
+  typeof CompositionType.Scalar,
+  T
+> {
   /**
    * Creates a new ConstantScalarVariableShaderNode instance.
    *

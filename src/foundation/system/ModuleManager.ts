@@ -43,9 +43,7 @@ export class ModuleManager {
     } else if (moduleName.toLowerCase() === 'webgpu') {
       module = await (await import(/* webpackChunkName: "webgpu" */ '../../webgpu/main')).default;
     } else if (moduleName.toLowerCase() === 'effekseer') {
-      module = await (
-        await import(/* webpackChunkName: "effekseer" */ '../../effekseer/main')
-      ).Effekseer;
+      module = await (await import(/* webpackChunkName: "effekseer" */ '../../effekseer/main')).Effekseer;
       module.EffekseerComponent.wasmModuleUri = options?.wasm;
     } else if (moduleName.toLowerCase() === 'pbr') {
       module = await (await import(/* webpackChunkName: "pbr" */ '../../pbr/main')).default;

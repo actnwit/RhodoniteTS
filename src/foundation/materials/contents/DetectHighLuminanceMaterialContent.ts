@@ -1,27 +1,23 @@
-import {
-  ShaderSemantics,
-  ShaderSemanticsEnum,
-  ShaderSemanticsClass,
-} from '../../definitions/ShaderSemantics';
-import { CompositionType } from '../../definitions/CompositionType';
-import { ComponentType } from '../../definitions/ComponentType';
-import { ShaderType } from '../../definitions/ShaderType';
-import { ComponentRepository } from '../../core/ComponentRepository';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
-import { Scalar } from '../../math/Scalar';
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { Material } from '../core/Material';
-import DetectHighLuminanceAndCorrectShaderVertex from '../../../webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.vert';
 import DetectHighLuminanceAndCorrectShaderFragment from '../../../webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.frag';
-import DetectHighLuminanceAndCorrectShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.vert';
+import DetectHighLuminanceAndCorrectShaderVertex from '../../../webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.vert';
+import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import DetectHighLuminanceAndCorrectShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.frag';
-import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
-import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-import { AbstractTexture } from '../../textures/AbstractTexture';
-import { SystemState } from '../../system/SystemState';
-import { ProcessApproach } from '../../definitions/ProcessApproach';
-import { Sampler } from '../../textures/Sampler';
+import DetectHighLuminanceAndCorrectShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.vert';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { ComponentRepository } from '../../core/ComponentRepository';
 import { TextureParameter } from '../../definitions';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
+import { ProcessApproach } from '../../definitions/ProcessApproach';
+import { ShaderSemantics, ShaderSemanticsClass, type ShaderSemanticsEnum } from '../../definitions/ShaderSemantics';
+import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { ShaderType } from '../../definitions/ShaderType';
+import { Scalar } from '../../math/Scalar';
+import { SystemState } from '../../system/SystemState';
+import type { AbstractTexture } from '../../textures/AbstractTexture';
+import { Sampler } from '../../textures/Sampler';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import type { Material } from '../core/Material';
 
 /**
  * A material content class that detects high luminance areas in textures and applies correction.
@@ -123,10 +119,7 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
       /// Matrices
       let cameraComponent = args.renderPass.cameraComponent;
       if (cameraComponent == null) {
-        cameraComponent = ComponentRepository.getComponent(
-          CameraComponent,
-          CameraComponent.current
-        ) as CameraComponent;
+        cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
       }
       if (cameraComponent) {
         this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);

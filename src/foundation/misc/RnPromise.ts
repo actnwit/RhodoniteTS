@@ -1,7 +1,4 @@
-type PromiseFn<T> = (
-  resolve: (value?: T | PromiseLike<T>) => void,
-  reject: (reason?: any) => void
-) => void;
+type PromiseFn<T> = (resolve: (value?: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void;
 type OnFinallyFn = (() => void) | null | undefined;
 
 /**
@@ -80,19 +77,20 @@ export class RnPromise<T> extends Promise<T> {
   static resolve<T>(arg?: T | PromiseLike<T>) {
     if (arg instanceof Promise) {
       return new RnPromise(arg) as unknown as Promise<T>;
-    } else if (arg instanceof RnPromise) {
+    }
+    if (arg instanceof RnPromise) {
       return arg as unknown as Promise<T>;
-    } else if ((arg as any).then != null) {
+    }
+    if ((arg as any).then != null) {
       const rnPromise = new RnPromise((resolve, reject) => {
         resolve(arg);
       });
       rnPromise.then = (arg as any).then;
       return rnPromise as unknown as Promise<T>;
-    } else {
-      return new RnPromise((resolve, reject) => {
-        resolve(arg);
-      }) as unknown as Promise<T>;
     }
+    return new RnPromise((resolve, reject) => {
+      resolve(arg);
+    }) as unknown as Promise<T>;
   }
 
   /**
@@ -122,9 +120,8 @@ export class RnPromise<T> extends Promise<T> {
         rnPromises.push(rnPromise);
       }
       return new RnPromise(Promise.all(rnPromises as any));
-    } else {
-      return new RnPromise(Promise.all(promises));
     }
+    return new RnPromise(Promise.all(promises));
   }
 
   /**
@@ -152,10 +149,7 @@ export class RnPromise<T> extends Promise<T> {
     let onFulfilledWrapper;
     if (onfulfilled) {
       onFulfilledWrapper = (value: T | undefined) => {
-        if (
-          this.__callbackObj.promiseAllNum !== 0 &&
-          this.__callbackObj.processedPromises.indexOf(this) === -1
-        ) {
+        if (this.__callbackObj.promiseAllNum !== 0 && this.__callbackObj.processedPromises.indexOf(this) === -1) {
           this.__callbackObj.pendingNum--;
           this.__callbackObj.resolvedNum++;
           this.__callbackObj.processedPromises.push(this);

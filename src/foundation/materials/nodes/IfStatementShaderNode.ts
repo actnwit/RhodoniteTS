@@ -1,6 +1,6 @@
-import { CompositionType } from '../../definitions/CompositionType';
-import { ComponentType } from '../../definitions/ComponentType';
 import { IfStatementShader } from '../../../webgl/shaders/nodes/IfStatementShader';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 /**

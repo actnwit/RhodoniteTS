@@ -1,7 +1,7 @@
-import { ConstantVariableShader } from '../../../webgl/shaders/nodes/ConstantVariableShader';
+import type { ConstantVariableShader } from '../../../webgl/shaders/nodes/ConstantVariableShader';
 import { CompositionType } from '../../definitions';
-import { ComponentTypeEnum } from '../../definitions/ComponentType';
-import { IVector4 } from '../../math/IVector';
+import type { ComponentTypeEnum } from '../../definitions/ComponentType';
+import type { IVector4 } from '../../math/IVector';
 import { ConstantVariableShaderNode } from './ConstantVariableShaderNode';
 
 /**
@@ -25,10 +25,10 @@ import { ConstantVariableShaderNode } from './ConstantVariableShaderNode';
  * multiplyNode.addInputConnection(colorNode, colorNode.getSocketOutput(), multiplyNode.getSocketInputLhs());
  * ```
  */
-export class ConstantVector4VariableShaderNode<
-  T extends ComponentTypeEnum
-> extends ConstantVariableShaderNode<typeof CompositionType.Vec4, T> {
-
+export class ConstantVector4VariableShaderNode<T extends ComponentTypeEnum> extends ConstantVariableShaderNode<
+  typeof CompositionType.Vec4,
+  T
+> {
   /**
    * Creates a new ConstantVector4VariableShaderNode instance.
    *

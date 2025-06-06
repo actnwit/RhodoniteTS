@@ -1,34 +1,34 @@
-import { EnumClass, EnumIO, _from, _fromString } from '../misc/EnumIO';
-import { Count, Index } from '../../types/CommonTypes';
+import type { Count, Index } from '../../types/CommonTypes';
+import type { VectorComponentN } from '../../types/CommonTypes';
+import { EnumClass, type EnumIO, _from, _fromString } from '../misc/EnumIO';
 import { RnException } from '../misc/RnException';
-import { VectorComponentN } from '../../types/CommonTypes';
 
 type ComponentChar = 'X' | 'Y' | 'Z' | 'W';
 
 // prettier-ignore
 export type VertexAttributeTypeName =
-  'UNKNOWN' |
-  'POSITION'|
-  'NORMAL' |
-  'TANGENT' |
-  'TEXCOORD_0' |
-  'TEXCOORD_1' |
-  'TEXCOORD_2' |
-  'COLOR_0' |
-  'JOINTS_0' |
-  'WEIGHTS_0' |
-  'INSTANCE' |
-  'FACE_NORMAL' |
-  'BARY_CENTRIC_COORD';
+  | 'UNKNOWN'
+  | 'POSITION'
+  | 'NORMAL'
+  | 'TANGENT'
+  | 'TEXCOORD_0'
+  | 'TEXCOORD_1'
+  | 'TEXCOORD_2'
+  | 'COLOR_0'
+  | 'JOINTS_0'
+  | 'WEIGHTS_0'
+  | 'INSTANCE'
+  | 'FACE_NORMAL'
+  | 'BARY_CENTRIC_COORD';
 
 export type VertexAttributeComponent = `${VertexAttributeTypeName}.${ComponentChar}`;
 
 // prettier-ignore
 export type VertexAttributeSemanticsJoinedString =
-  `${string}.${ComponentChar}` |
-  `${string}.${ComponentChar},${string}.${ComponentChar}` |
-  `${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar}` |
-  `${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar}`;
+  | `${string}.${ComponentChar}`
+  | `${string}.${ComponentChar},${string}.${ComponentChar}`
+  | `${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar}`
+  | `${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar}`;
 
 export interface VertexAttributeEnum extends EnumIO {
   getAttributeSlot(): Index;
@@ -53,12 +53,7 @@ export class VertexAttributeClass extends EnumClass implements VertexAttributeEn
   private __attributeSlot: Index;
   private __shaderStr: string;
   private __gltfComponentN: Count;
-  private constructor({
-    str,
-    shaderStr,
-    attributeSlot,
-    gltfComponentN,
-  }: VertexAttributeDescriptor) {
+  private constructor({ str, shaderStr, attributeSlot, gltfComponentN }: VertexAttributeDescriptor) {
     super({ index: VertexAttributeClass.__indexCount++, str });
     this.__attributeSlot = attributeSlot;
     this.__shaderStr = shaderStr;
@@ -106,18 +101,20 @@ export class VertexAttributeClass extends EnumClass implements VertexAttributeEn
   getVertexAttributeComponentsAsGltf(): VertexAttributeSemanticsJoinedString {
     if (this.__gltfComponentN === 1) {
       return this.X;
-    } else if (this.__gltfComponentN === 2) {
-      return this.XY;
-    } else if (this.__gltfComponentN === 3) {
-      return this.XYZ;
-    } else if (this.__gltfComponentN === 4) {
-      return this.XYZW;
-    } else {
-      throw new RnException({
-        message: 'Invalid gltf component number',
-        error: this.__gltfComponentN,
-      });
     }
+    if (this.__gltfComponentN === 2) {
+      return this.XY;
+    }
+    if (this.__gltfComponentN === 3) {
+      return this.XYZ;
+    }
+    if (this.__gltfComponentN === 4) {
+      return this.XYZW;
+    }
+    throw new RnException({
+      message: 'Invalid gltf component number',
+      error: this.__gltfComponentN,
+    });
   }
 
   static __createVertexAttributeClass(desc: VertexAttributeDescriptor) {

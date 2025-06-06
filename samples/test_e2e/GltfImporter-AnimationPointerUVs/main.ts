@@ -16,14 +16,17 @@ Rn.Logger.logLevel = Rn.LogLevel.Info;
 const { cameraComponent, cameraEntity } = createCamera();
 
 const assets = await Rn.defaultAssetLoader.load({
-  mainExpression: Rn.GltfImporter.importFromUrl('./../../../assets/gltf/glTF-Sample-Assets/Models/AnimationPointerUVs/glTF-Binary/AnimationPointerUVs.glb', {
-    cameraComponent: cameraComponent,
-    defaultMaterialHelperArgumentArray: [
-      {
-        makeOutputSrgb: false,
-      },
-    ],
-  }),
+  mainExpression: Rn.GltfImporter.importFromUrl(
+    './../../../assets/gltf/glTF-Sample-Assets/Models/AnimationPointerUVs/glTF-Binary/AnimationPointerUVs.glb',
+    {
+      cameraComponent: cameraComponent,
+      defaultMaterialHelperArgumentArray: [
+        {
+          makeOutputSrgb: false,
+        },
+      ],
+    }
+  ),
   environment: Rn.CubeTexture.loadFromUrl({
     baseUrl: './../../../assets/ibl/papermill/environment/environment',
     mipmapLevelNumber: 1,
@@ -68,7 +71,7 @@ forwardRenderPipeline.setIBLTextures(assets.diffuse, assets.specular);
 
 let count = 0;
 let startTime = Date.now();
-const draw = function (frame) {
+const draw = frame => {
   if (count > 0) {
     window._rendered = true;
   }
@@ -141,4 +144,3 @@ async function createEnvCubeExpression(cameraEntity) {
 
   return sphereExpression;
 }
-

@@ -1,44 +1,41 @@
-import { PrimitiveMode, PrimitiveModeEnum } from '../definitions/PrimitiveMode';
-import {
-  VertexAttribute,
-  VertexAttributeSemanticsJoinedString,
-} from '../definitions/VertexAttribute';
-import { Accessor } from '../memory/Accessor';
-import { RnObject } from '../core/RnObject';
-import { ComponentTypeEnum, ComponentType } from '../definitions/ComponentType';
+import type { Count, Index, PrimitiveUID, TypedArray } from '../../types/CommonTypes';
+import type { VertexHandles } from '../../webgl/WebGLResourceRepository';
+import { Config } from '../core/Config';
 import { MemoryManager } from '../core/MemoryManager';
-import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
-import { AABB } from '../math/AABB';
-import { Material } from '../materials/core/Material';
+import { RnObject } from '../core/RnObject';
+import { BufferUse } from '../definitions/BufferUse';
+import { ComponentType, type ComponentTypeEnum } from '../definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../definitions/CompositionType';
+import { PrimitiveMode, type PrimitiveModeEnum } from '../definitions/PrimitiveMode';
+import { VertexAttribute, type VertexAttributeSemanticsJoinedString } from '../definitions/VertexAttribute';
 import { MaterialHelper } from '../helpers/MaterialHelper';
-import { VertexHandles } from '../../webgl/WebGLResourceRepository';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { PrimitiveUID, TypedArray, Count, Index } from '../../types/CommonTypes';
-import { Vector3 } from '../math/Vector3';
+import type { Material } from '../materials/core/Material';
+import { AABB } from '../math/AABB';
+import type { IVector3 } from '../math/IVector';
 import { MutableVector3 } from '../math/MutableVector3';
+import { Vector3 } from '../math/Vector3';
+import type { Accessor } from '../memory/Accessor';
+import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
-import { IVector3 } from '../math/IVector';
+import { Logger } from '../misc/Logger';
+import { None, type Option, Some } from '../misc/Option';
+import { RnException } from '../misc/RnException';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import type { Mesh } from './Mesh';
 import {
-  IMesh,
-  PrimitiveSortKey,
-  PrimitiveSortKeyLength,
-  PrimitiveSortKeyOffset,
+  type IMesh,
+  type PrimitiveSortKey,
+  type PrimitiveSortKeyLength,
+  type PrimitiveSortKeyOffset,
   PrimitiveSortKey_BitLength_Material,
   PrimitiveSortKey_BitLength_PrimitiveType,
   PrimitiveSortKey_BitLength_TranslucencyType,
   PrimitiveSortKey_BitOffset_Material,
   PrimitiveSortKey_BitOffset_PrimitiveType,
   PrimitiveSortKey_BitOffset_TranslucencyType,
-  RaycastResult,
-  RaycastResultEx1,
+  type RaycastResult,
+  type RaycastResultEx1,
 } from './types/GeometryTypes';
-import { Option, None, Some } from '../misc/Option';
-import { DataUtil } from '../misc/DataUtil';
-import { Config } from '../core/Config';
-import { RnException } from '../misc/RnException';
-import { Mesh } from './Mesh';
-import { Logger } from '../misc/Logger';
-import { BufferUse } from '../definitions/BufferUse';
 
 export type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
 
@@ -87,7 +84,7 @@ export class Primitive extends RnObject {
   private __positionAccessorVersion = 0;
   private static __variantUpdateCount = 0;
 
-  private __fingerPrint: string = '';
+  private __fingerPrint = '';
 
   /**
    * Creates a new Primitive instance.
@@ -164,17 +161,17 @@ export class Primitive extends RnObject {
     const indexAccessor = this.__oIndices.unwrapOrUndefined();
     if (indexAccessor == null) {
       throw new Error('indexAccessor is null');
-    } else {
-      if (indexAccessor.componentType === ComponentType.UnsignedShort) {
-        return 'uint16';
-      } else if (indexAccessor.componentType === ComponentType.UnsignedInt) {
-        return 'uint32';
-      } else if (indexAccessor.componentType === ComponentType.UnsignedByte) {
-        return 'uint16';
-      } else {
-        throw new Error('unknown indexAccessor.componentType');
-      }
     }
+    if (indexAccessor.componentType === ComponentType.UnsignedShort) {
+      return 'uint16';
+    }
+    if (indexAccessor.componentType === ComponentType.UnsignedInt) {
+      return 'uint32';
+    }
+    if (indexAccessor.componentType === ComponentType.UnsignedByte) {
+      return 'uint16';
+    }
+    throw new Error('unknown indexAccessor.componentType');
   }
 
   /**
@@ -256,11 +253,7 @@ export class Primitive extends RnObject {
    */
   set material(mat: Material) {
     this.__material = mat;
-    this.setSortKey(
-      PrimitiveSortKey_BitOffset_Material,
-      PrimitiveSortKey_BitLength_Material,
-      mat.materialUID
-    );
+    this.setSortKey(PrimitiveSortKey_BitOffset_Material, PrimitiveSortKey_BitLength_Material, mat.materialUID);
 
     let translucencyType = 0; // opaque
     if (mat.isTranslucentOpaque()) {
@@ -383,12 +376,7 @@ export class Primitive extends RnObject {
    * @param material - Optional material to assign (uses default if not provided)
    * @param indicesAccessor - Optional index accessor for indexed rendering
    */
-  setData(
-    attributes: Attributes,
-    mode: PrimitiveModeEnum,
-    material?: Material,
-    indicesAccessor?: Accessor
-  ) {
+  setData(attributes: Attributes, mode: PrimitiveModeEnum, material?: Material, indicesAccessor?: Accessor) {
     if (indicesAccessor != null) {
       this.__oIndices = new Some(indicesAccessor);
     } else {
@@ -408,11 +396,7 @@ export class Primitive extends RnObject {
       });
     }
     this.__mode = mode;
-    this.setSortKey(
-      PrimitiveSortKey_BitOffset_PrimitiveType,
-      PrimitiveSortKey_BitLength_PrimitiveType,
-      mode.index
-    );
+    this.setSortKey(PrimitiveSortKey_BitOffset_PrimitiveType, PrimitiveSortKey_BitLength_PrimitiveType, mode.index);
 
     this.__primitiveUid = Primitive.__primitiveCount++;
     Primitive.__primitives[this.__primitiveUid] = new WeakRef(this);
@@ -424,16 +408,10 @@ export class Primitive extends RnObject {
    * Creates appropriate buffers and accessors for the provided data.
    * @param desc - Descriptor containing arrays of vertex data and configuration
    */
-  copyVertexData({
-    attributes,
-    attributeSemantics,
-    primitiveMode,
-    indices,
-    material,
-  }: PrimitiveDescriptor) {
+  copyVertexData({ attributes, attributeSemantics, primitiveMode, indices, material }: PrimitiveDescriptor) {
     let sumOfAttributesByteSize = 0;
     const byteAlign = 4;
-    attributes.forEach((attribute) => {
+    attributes.forEach(attribute => {
       sumOfAttributesByteSize += attribute.byteLength;
     });
 
@@ -481,9 +459,7 @@ export class Primitive extends RnObject {
     const attributeComponentTypes: Array<ComponentTypeEnum> = [];
 
     attributes.forEach((typedArray, i) => {
-      const compositionType = CompositionType.vectorFrom(
-        VertexAttribute.toVectorComponentN(attributeSemantics[i])
-      );
+      const compositionType = CompositionType.vectorFrom(VertexAttribute.toVectorComponentN(attributeSemantics[i]));
       attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
       const accessor: Accessor = attributesBufferView
         .takeAccessor({
@@ -536,9 +512,8 @@ export class Primitive extends RnObject {
   getVertexCountAsIndicesBased() {
     if (this.indicesAccessor) {
       return this.indicesAccessor.elementCount;
-    } else {
-      return this.getVertexCountAsVerticesBased();
     }
+    return this.getVertexCountAsVerticesBased();
   }
 
   /**
@@ -569,9 +544,8 @@ export class Primitive extends RnObject {
         default:
           return 0;
       }
-    } else {
-      return this.getTriangleCountAsVerticesBased();
     }
+    return this.getTriangleCountAsVerticesBased();
   }
 
   /**
@@ -701,10 +675,7 @@ export class Primitive extends RnObject {
    * @returns The bounding box containing all vertices
    */
   get AABB() {
-    if (
-      this.__aabb.isVanilla() ||
-      this.positionAccessorVersion !== this.__latestPositionAccessorVersion
-    ) {
+    if (this.__aabb.isVanilla() || this.positionAccessorVersion !== this.__latestPositionAccessorVersion) {
       const positionAccessor = this.__attributes.get(VertexAttribute.Position.XYZ)!;
 
       const min = positionAccessor.min as number[];
@@ -755,14 +726,8 @@ export class Primitive extends RnObject {
         'Primitive.__primitiveUidsHasMorph.size exceeds the Config.maxMorphPrimitiveNumberInWebGPU. Please increase the Config.maxMorphPrimitiveNumberInWebGPU.'
       );
     } else {
-      Primitive.__idxPrimitiveUidHasMorph.set(
-        Primitive.__primitiveCountHasMorph,
-        new WeakRef(this)
-      );
-      Primitive.__primitiveUidIdxHasMorph.set(
-        this.__primitiveUid,
-        Primitive.__primitiveCountHasMorph++
-      );
+      Primitive.__idxPrimitiveUidHasMorph.set(Primitive.__primitiveCountHasMorph, new WeakRef(this));
+      Primitive.__primitiveUidIdxHasMorph.set(this.__primitiveUid, Primitive.__primitiveCountHasMorph++);
     }
 
     this.__targets = targets;
@@ -792,9 +757,8 @@ export class Primitive extends RnObject {
   isBlend() {
     if (this.material == null || !this.material.isBlend()) {
       return false;
-    } else {
-      return true;
     }
+    return true;
   }
 
   /**
@@ -892,19 +856,23 @@ export class Primitive extends RnObject {
     }
 
     const buffer = MemoryManager.getInstance().createBufferOnDemand(bufferSize, this, 4 /* bytes */);
-    const bufferView = buffer.takeBufferView({
-      byteLengthToNeed: bufferSize,
-      byteStride: 0,
-    }).unwrapForce();
+    const bufferView = buffer
+      .takeBufferView({
+        byteLengthToNeed: bufferSize,
+        byteStride: 0,
+      })
+      .unwrapForce();
 
     for (const [semantic, accessorOld] of this.__attributes) {
       const compositionType = accessorOld.compositionType;
 
-      const accessorNew: Accessor = bufferView.takeAccessor({
-        compositionType,
-        componentType: accessorOld.componentType,
-        count: indices.length,
-      }).unwrapForce();
+      const accessorNew: Accessor = bufferView
+        .takeAccessor({
+          compositionType,
+          componentType: accessorOld.componentType,
+          count: indices.length,
+        })
+        .unwrapForce();
 
       for (let i = 0; i < indices.length; i++) {
         const idx = indices[i];
@@ -988,7 +956,6 @@ export class Primitive extends RnObject {
           hasFaceNormal
         );
         if (Is.false(result) || Is.not.exist(result.data)) {
-          continue;
         } else {
           if (result.data.t < currentShortestT) {
             currentShortestT = result.data.t;
@@ -1041,22 +1008,21 @@ export class Primitive extends RnObject {
       return {
         result: false,
       };
-    } else {
-      const currentShortestIntersectedPosVec3 = Vector3.fromCopy3(
-        dirVec3.x * currentShortestT + origVec3.x,
-        dirVec3.y * currentShortestT + origVec3.y,
-        dirVec3.z * currentShortestT + origVec3.z
-      );
-      return {
-        result: true,
-        data: {
-          t: currentShortestT,
-          u,
-          v,
-          position: currentShortestIntersectedPosVec3,
-        },
-      };
     }
+    const currentShortestIntersectedPosVec3 = Vector3.fromCopy3(
+      dirVec3.x * currentShortestT + origVec3.x,
+      dirVec3.y * currentShortestT + origVec3.y,
+      dirVec3.z * currentShortestT + origVec3.z
+    );
+    return {
+      result: true,
+      data: {
+        t: currentShortestT,
+        u,
+        v,
+        position: currentShortestIntersectedPosVec3,
+      },
+    };
   }
 
   /**
@@ -1114,8 +1080,8 @@ export class Primitive extends RnObject {
     const tvec = MutableVector3.zero();
     const qvec = MutableVector3.zero();
 
-    let u = 0,
-      v = 0;
+    let u = 0;
+    let v = 0;
 
     MutableVector3.subtractTo(pos1Vec3, pos0Vec3, e1);
     MutableVector3.subtractTo(pos2Vec3, pos0Vec3, e2);

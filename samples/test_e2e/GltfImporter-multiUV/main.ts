@@ -22,13 +22,11 @@ cameraTransform.localPosition = Rn.Vector3.fromCopyArray([4, 3, 4]);
 cameraTransform.localEulerAngles = Rn.Vector3.fromCopyArray([-Math.PI / 6, Math.PI / 4, 0]);
 
 // gltf
-const expression = (
-  await Rn.GltfImporter.importFromUrl(
-    '../../../assets/gltf/glTF-Sample-Assets/Models/MultiUVTest/glTF-Binary/MultiUVTest.glb',
-    {
-      cameraComponent: cameraComponent,
-    }
-  )
+const expression = await Rn.GltfImporter.importFromUrl(
+  '../../../assets/gltf/glTF-Sample-Assets/Models/MultiUVTest/glTF-Binary/MultiUVTest.glb',
+  {
+    cameraComponent: cameraComponent,
+  }
 );
 
 // Lights

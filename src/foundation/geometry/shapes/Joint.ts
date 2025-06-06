@@ -1,7 +1,7 @@
-import { Vector3 } from '../../math/Vector3';
-import { IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
 import { PrimitiveMode } from '../../definitions/PrimitiveMode';
 import { VertexAttribute } from '../../definitions/VertexAttribute';
+import { Vector3 } from '../../math/Vector3';
+import { type IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
 import { IShape } from './IShape';
 
 export type JointDescriptor = IAnyPrimitiveDescriptor;
@@ -36,18 +36,12 @@ export class Joint extends IShape {
    * All rendered as line segments for wireframe visualization
    */
   public generate(desc: JointDescriptor): void {
-    const length = Vector3.lengthBtw(
-      this.__worldPositionOfThisJoint,
-      this.__worldPositionOfParentJoint
-    );
+    const length = Vector3.lengthBtw(this.__worldPositionOfThisJoint, this.__worldPositionOfParentJoint);
     const arrowWidth = this.__width;
     const arrowheadLength = length / 7.5;
     const arrowStickLength = length - arrowheadLength;
 
-    const deltaVec = Vector3.subtract(
-      this.__worldPositionOfParentJoint,
-      this.__worldPositionOfThisJoint
-    );
+    const deltaVec = Vector3.subtract(this.__worldPositionOfParentJoint, this.__worldPositionOfThisJoint);
     let directionToParent = Vector3.fromCopyArray3([0, 1, 0]);
     if (!deltaVec.isEqual(Vector3.zero())) {
       directionToParent = Vector3.normalize(
@@ -69,14 +63,8 @@ export class Joint extends IShape {
       dummyVector = Vector3.fromCopyArray3([0, 0, 1]);
       dummyVector2 = Vector3.fromCopyArray3([0, 0, -1]);
     }
-    const crossVector = Vector3.multiply(
-      Vector3.normalize(Vector3.cross(directionToParent, dummyVector)),
-      arrowWidth
-    );
-    const crossVector2 = Vector3.multiply(
-      Vector3.normalize(Vector3.cross(directionToParent, crossVector)),
-      arrowWidth
-    );
+    const crossVector = Vector3.multiply(Vector3.normalize(Vector3.cross(directionToParent, dummyVector)), arrowWidth);
+    const crossVector2 = Vector3.multiply(Vector3.normalize(Vector3.cross(directionToParent, crossVector)), arrowWidth);
     const crossVector3 = Vector3.multiply(
       Vector3.normalize(Vector3.cross(directionToParent, dummyVector2)),
       arrowWidth
@@ -131,7 +119,7 @@ export class Joint extends IShape {
     pos.push(crossPosition4);
 
     const positions: number[] = [];
-    pos.map((vec) => {
+    pos.map(vec => {
       Array.prototype.push.apply(positions, vec.flattenAsArray());
     });
 

@@ -84,11 +84,8 @@ setTextureParameterForMeshComponent(
   renderPassDepth.getFramebuffer().getDepthAttachedRenderTargetTexture()
 );
 
-window.download = function () {
-  renderPassDepth
-    .getFramebuffer()
-    .getDepthAttachedRenderTargetTexture()!
-    .downloadTexturePixelData();
+window.download = () => {
+  renderPassDepth.getFramebuffer().getDepthAttachedRenderTargetTexture()!.downloadTexturePixelData();
 };
 
 let count = 0;
@@ -100,16 +97,8 @@ Rn.System.startRenderLoop(() => {
   }
   Rn.System.process([expression]);
 
-  setParameterForMeshComponent(
-    meshComponentSmallBoard,
-    'depthBiasPV',
-    spotLight.getCamera().biasViewProjectionMatrix
-  );
-  setParameterForMeshComponent(
-    meshComponentLargeBoard,
-    'depthBiasPV',
-    spotLight.getCamera().biasViewProjectionMatrix
-  );
+  setParameterForMeshComponent(meshComponentSmallBoard, 'depthBiasPV', spotLight.getCamera().biasViewProjectionMatrix);
+  setParameterForMeshComponent(meshComponentLargeBoard, 'depthBiasPV', spotLight.getCamera().biasViewProjectionMatrix);
   count++;
 });
 
@@ -141,20 +130,14 @@ function createFramebuffer(renderPass, height, width) {
   return framebuffer;
 }
 
-function createRenderPassSpecifyingCameraComponent(
-  lightWithCameraEntity: Rn.ILightEntity & Rn.ICameraEntityMethods
-) {
+function createRenderPassSpecifyingCameraComponent(lightWithCameraEntity: Rn.ILightEntity & Rn.ICameraEntityMethods) {
   const renderPass = new Rn.RenderPass();
   renderPass.toClearColorBuffer = true;
   renderPass.cameraComponent = lightWithCameraEntity.getCamera();
   return renderPass;
 }
 
-function setParameterForMeshComponent(
-  meshComponent: Rn.MeshComponent,
-  shaderSemantic: string,
-  value: any
-) {
+function setParameterForMeshComponent(meshComponent: Rn.MeshComponent, shaderSemantic: string, value: any) {
   const mesh = meshComponent.mesh;
   const primitiveNumber = mesh.getPrimitiveNumber();
 

@@ -1,6 +1,6 @@
-import { EffekseerComponent, IEffekseerEntityMethods } from '../../effekseer/EffekseerComponent';
-import { AnimationSampler, AnimationTrackName } from '../../types/AnimationTypes';
-import {
+import { EffekseerComponent, type IEffekseerEntityMethods } from '../../effekseer/EffekseerComponent';
+import type { AnimationSampler, AnimationTrackName } from '../../types/AnimationTypes';
+import type {
   RnM2,
   RnM2ExtensionsEffekseerEffect,
   RnM2ExtensionsEffekseerTimeline,
@@ -8,15 +8,15 @@ import {
 } from '../../types/RnM2';
 import {
   AnimationComponent,
-  IAnimationEntityMethods,
-  ISceneGraphEntityMethods,
-  ITransformEntityMethods,
+  type IAnimationEntityMethods,
+  type ISceneGraphEntityMethods,
+  type ITransformEntityMethods,
   WellKnownComponentTIDs,
 } from '../components';
-import { IEntity } from '../core';
+import type { IEntity } from '../core';
 import { EntityRepository } from '../core/EntityRepository';
 import { AnimationInterpolation } from '../definitions';
-import { ISceneGraphEntity } from '../helpers/EntityHelper';
+import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { AnimatedScalar } from '../math/AnimatedScalar';
 import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
@@ -40,7 +40,7 @@ export class RhodoniteImportExtension {
     const RHODONITE_billboard = 'RHODONITE_billboard';
     if (
       Is.not.exist(gltfJson.extensionsUsed) ||
-      gltfJson.extensionsUsed.findIndex((extension) => {
+      gltfJson.extensionsUsed.findIndex(extension => {
         return RHODONITE_billboard === extension;
       }) === -1
     ) {
@@ -73,15 +73,14 @@ export class RhodoniteImportExtension {
     if (
       Is.not.exist(gltfJson.extensions) ||
       Is.not.exist(gltfJson.extensions.RHODONITE_effekseer) ||
-      gltfJson.extensionsUsed.findIndex((extension) => {
+      gltfJson.extensionsUsed.findIndex(extension => {
         return RHODONITE_effekseer === extension;
       }) === -1
     ) {
       return;
     }
     const entities = rootGroup.getTagValue('rnEntities') as ISceneGraphEntity[];
-    const effects = gltfJson.extensions.RHODONITE_effekseer
-      .effects as RnM2ExtensionsEffekseerEffect[];
+    const effects = gltfJson.extensions.RHODONITE_effekseer.effects as RnM2ExtensionsEffekseerEffect[];
 
     for (const effect of effects) {
       const entity = entities[effect.node];
@@ -139,7 +138,7 @@ function createEffekseerAnimation(
       for (const timeline of timelines) {
         const values = timeline.values as RnM2ExtensionsEffekseerTimelineItem[];
         const timelineName = timeline.name;
-        const timelineValues = values.map((value) => {
+        const timelineValues = values.map(value => {
           return {
             input: value.input,
             event: value.event,
@@ -159,20 +158,14 @@ function createEffekseerAnimation(
         animationComponent = animationEntity!.getAnimation();
         const animationSamplers = new Map<AnimationTrackName, AnimationSampler>();
         const trackName = Is.exist(timelineName) ? timelineName : 'Default';
-        animationSamplers.set(
-          trackName,
-          {
-            input: new Float32Array(timelineValues.map((value) => value.input)),
-            output: new Float32Array(timelineValues.map((value) => value.event === 'play' ? 1 : 0)),
-            outputComponentN: 1,
-            interpolationMethod: AnimationInterpolation.Step,
-          }
-        );
+        animationSamplers.set(trackName, {
+          input: new Float32Array(timelineValues.map(value => value.input)),
+          output: new Float32Array(timelineValues.map(value => (value.event === 'play' ? 1 : 0))),
+          outputComponentN: 1,
+          interpolationMethod: AnimationInterpolation.Step,
+        });
         const newAnimatedValue = new AnimatedScalar(animationSamplers, trackName);
-        animationComponent.setAnimation(
-          'effekseer',
-          newAnimatedValue
-        );
+        animationComponent.setAnimation('effekseer', newAnimatedValue);
       }
     }
   }

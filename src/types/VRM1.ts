@@ -1,8 +1,8 @@
-import { RnM2 } from './RnM2';
-import { VRMC } from './VRMC';
-import { Vrm1_Material } from './VRMC_materials_mtoon';
-import { VRMC_node_constraint } from './VRMC_node_constraint';
-import { VRMC_springBone } from './VRMC_springBone';
+import type { RnM2 } from './RnM2';
+import type { VRMC } from './VRMC';
+import type { Vrm1_Material } from './VRMC_materials_mtoon';
+import type { VRMC_node_constraint } from './VRMC_node_constraint';
+import type { VRMC_springBone } from './VRMC_springBone';
 export interface Vrm1 extends RnM2 {
   materials: Vrm1_Material[];
   extensions: {

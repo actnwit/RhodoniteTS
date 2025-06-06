@@ -1,6 +1,6 @@
-import { MeshComponent, Primitive } from '../../../import';
-import { MeshUID } from '../../../types/CommonTypes';
-import { IVector3 } from '../../math/IVector';
+import type { MeshComponent, Primitive } from '../../../import';
+import type { MeshUID } from '../../../types/CommonTypes';
+import type { IVector3 } from '../../math/IVector';
 
 /**
  * Result of a basic raycast operation against geometry.
@@ -102,11 +102,7 @@ export interface IMesh {
  * @param length - The number of bits to read
  * @returns The extracted bits as a number
  */
-function readBits(
-  primitive: Primitive,
-  offset: PrimitiveSortKeyOffset,
-  length: PrimitiveSortKeyLength
-) {
+function readBits(primitive: Primitive, offset: PrimitiveSortKeyOffset, length: PrimitiveSortKeyLength) {
   // Creates a mask with the specified bit length
   let mask = (1 << length) - 1;
   // Read data from a specified offset
@@ -169,11 +165,7 @@ export function isBlendWithoutZWrite(primitive: Primitive) {
  */
 export function isTranslucent(primitive: Primitive) {
   return (
-    readBits(
-      primitive,
-      PrimitiveSortKey_BitOffset_TranslucencyType,
-      PrimitiveSortKey_BitLength_TranslucencyType
-    ) === 1 // translucent
+    readBits(primitive, PrimitiveSortKey_BitOffset_TranslucencyType, PrimitiveSortKey_BitLength_TranslucencyType) === 1 // translucent
   );
 }
 
@@ -184,10 +176,6 @@ export function isTranslucent(primitive: Primitive) {
  */
 export function isOpaque(primitive: Primitive) {
   return (
-    readBits(
-      primitive,
-      PrimitiveSortKey_BitOffset_TranslucencyType,
-      PrimitiveSortKey_BitLength_TranslucencyType
-    ) === 0 // opaque
+    readBits(primitive, PrimitiveSortKey_BitOffset_TranslucencyType, PrimitiveSortKey_BitLength_TranslucencyType) === 0 // opaque
   );
 }

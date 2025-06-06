@@ -1,4 +1,4 @@
-import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 
 export type MaterialTypeName = string;
 export type ShaderVariable = {

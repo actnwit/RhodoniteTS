@@ -1,27 +1,27 @@
+import type { ComponentSID, ComponentTID, EntityUID, Index } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
-import { applyMixins, EntityRepository } from '../../core/EntityRepository';
-import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
-import { Matrix44 } from '../../math/Matrix44';
-import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
-import { ProcessStage } from '../../definitions/ProcessStage';
-import { MutableVector3 } from '../../math/MutableVector3';
-import { MutableQuaternion } from '../../math/MutableQuaternion';
-import { MathUtil } from '../../math/MathUtil';
-import { MutableVector4 } from '../../math/MutableVector4';
-import { MutableMatrix44 } from '../../math/MutableMatrix44';
-import { ComponentTID, ComponentSID, EntityUID, Index } from '../../../types/CommonTypes';
-import { ShaderSemantics } from '../../definitions/ShaderSemantics';
-import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { Config } from '../../core/Config';
+import type { IEntity } from '../../core/Entity';
+import { EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { BoneDataType } from '../../definitions/BoneDataType';
-import { IMatrix44 } from '../../math/IMatrix';
-import { Accessor } from '../../memory/Accessor';
-import { ISkeletalEntity } from '../../helpers/EntityHelper';
-import { IEntity } from '../../core/Entity';
-import { ComponentToComponentMethods } from '../ComponentTypes';
+import { ProcessStage } from '../../definitions/ProcessStage';
+import { ShaderSemantics } from '../../definitions/ShaderSemantics';
+import type { ISkeletalEntity } from '../../helpers/EntityHelper';
+import type { IMatrix44 } from '../../math/IMatrix';
+import { MathUtil } from '../../math/MathUtil';
+import { Matrix44 } from '../../math/Matrix44';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
+import { MutableQuaternion } from '../../math/MutableQuaternion';
+import { MutableVector3 } from '../../math/MutableVector3';
+import { MutableVector4 } from '../../math/MutableVector4';
+import type { Accessor } from '../../memory/Accessor';
 import { Is } from '../../misc';
-import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 import { Logger } from '../../misc/Logger';
+import type { ComponentToComponentMethods } from '../ComponentTypes';
+import type { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
+import { createGroupEntity } from '../SceneGraph/createGroupEntity';
+import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 /**
  * SkeletalComponent manages skeletal animation for entities.
@@ -62,12 +62,7 @@ export class SkeletalComponent extends Component {
    * @param entityRepository - The repository managing entities
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(
-    entityUid: EntityUID,
-    componentSid: ComponentSID,
-    entityRepository: EntityRepository,
-    isReUse: boolean
-  ) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
     super(entityUid, componentSid, entityRepository, isReUse);
     this.moveStageTo(ProcessStage.Logic);
 
@@ -139,29 +134,14 @@ export class SkeletalComponent extends Component {
     if (Config.boneDataType === BoneDataType.Mat43x1) {
       this.__matArray = SkeletalComponent.__globalDataRepository.getValue('boneMatrix', index)._v;
     } else if (Config.boneDataType === BoneDataType.Vec4x2) {
-      this.__tqArray = SkeletalComponent.__globalDataRepository.getValue(
-        'boneTranslatePackedQuat',
-        index
-      )._v;
-      this.__sqArray = SkeletalComponent.__globalDataRepository.getValue(
-        'boneScalePackedQuat',
-        index
-      )._v;
+      this.__tqArray = SkeletalComponent.__globalDataRepository.getValue('boneTranslatePackedQuat', index)._v;
+      this.__sqArray = SkeletalComponent.__globalDataRepository.getValue('boneScalePackedQuat', index)._v;
     } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
       this.__qArray = SkeletalComponent.__globalDataRepository.getValue('boneQuaternion', index)._v;
-      this.__tsArray = SkeletalComponent.__globalDataRepository.getValue(
-        'boneTranslateScale',
-        index
-      )._v;
+      this.__tsArray = SkeletalComponent.__globalDataRepository.getValue('boneTranslateScale', index)._v;
     } else if (Config.boneDataType === BoneDataType.Vec4x1) {
-      this.__tsArray = SkeletalComponent.__globalDataRepository.getValue(
-        'boneTranslateScale',
-        index
-      )._v;
-      this.__qtsArray = SkeletalComponent.__globalDataRepository.getValue(
-        'boneCompressedChunk',
-        index
-      )._v;
+      this.__tsArray = SkeletalComponent.__globalDataRepository.getValue('boneTranslateScale', index)._v;
+      this.__qtsArray = SkeletalComponent.__globalDataRepository.getValue('boneCompressedChunk', index)._v;
       this.__qtsInfo = SkeletalComponent.__globalDataRepository.getValue('boneCompressedInfo', 0);
     }
   }
@@ -318,10 +298,7 @@ export class SkeletalComponent extends Component {
 
       this.__isWorldMatrixVanilla = false;
 
-      if (
-        Config.boneDataType === BoneDataType.Mat43x1 ||
-        Config.boneDataType === BoneDataType.Vec4x1
-      ) {
+      if (Config.boneDataType === BoneDataType.Mat43x1 || Config.boneDataType === BoneDataType.Vec4x1) {
         this.__copyToMatArray(m, i);
       }
 
@@ -344,10 +321,7 @@ export class SkeletalComponent extends Component {
 
         const q = SkeletalComponent.__tmp_q.fromMatrix(m);
 
-        if (
-          Config.boneDataType === BoneDataType.Vec4x2Old ||
-          Config.boneDataType === BoneDataType.Vec4x1
-        ) {
+        if (Config.boneDataType === BoneDataType.Vec4x2Old || Config.boneDataType === BoneDataType.Vec4x1) {
           let maxScale = 1;
           if (Math.abs(scaleVec.x) > Math.abs(scaleVec.y)) {
             if (Math.abs(scaleVec.x) > Math.abs(scaleVec.z)) {
@@ -366,13 +340,7 @@ export class SkeletalComponent extends Component {
         }
 
         if (Config.boneDataType === BoneDataType.Vec4x2) {
-          const vec2QPacked = MathUtil.packNormalizedVec4ToVec2(
-            q.x,
-            q.y,
-            q.z,
-            q.w,
-            Math.pow(2, 12)
-          );
+          const vec2QPacked = MathUtil.packNormalizedVec4ToVec2(q.x, q.y, q.z, q.w, 2 ** 12);
           this.__tqArray[i * 4 + 0] = m.m03;
           this.__tqArray[i * 4 + 1] = m.m13;
           this.__tqArray[i * 4 + 2] = m.m23;
@@ -397,13 +365,7 @@ export class SkeletalComponent extends Component {
           this.__tsArray[i * 4 + 0] = m.m03; // m.getTranslate().x
           this.__tsArray[i * 4 + 1] = m.m13; // m.getTranslate().y
           this.__tsArray[i * 4 + 2] = m.m23; // m.getTranslate().z
-          const vec2QPacked = MathUtil.packNormalizedVec4ToVec2(
-            q.x,
-            q.y,
-            q.z,
-            q.w,
-            Math.pow(2, 12)
-          );
+          const vec2QPacked = MathUtil.packNormalizedVec4ToVec2(q.x, q.y, q.z, q.w, 2 ** 12);
           this.__qtsArray[i * 4 + 0] = vec2QPacked[0];
           this.__qtsArray[i * 4 + 1] = vec2QPacked[1];
           // q.normalize();
@@ -451,7 +413,7 @@ export class SkeletalComponent extends Component {
           normalizedY,
           normalizedZ,
           normalizedW,
-          Math.pow(2, 12)
+          2 ** 12
         );
         this.__qtsArray[i * 4 + 2] = vec2TPacked[0];
         this.__qtsArray[i * 4 + 3] = vec2TPacked[1];
@@ -570,18 +532,8 @@ export class SkeletalComponent extends Component {
     _componentClass: SomeComponentClass
   ) {
     class SkeletalEntity extends (base.constructor as any) {
-      constructor(
-        entityUID: EntityUID,
-        isAlive: boolean,
-        components?: Map<ComponentTID, Component>
-      ) {
-        super(entityUID, isAlive, components);
-      }
-
       getSkeletal() {
-        return this.getComponentByComponentTID(
-          WellKnownComponentTIDs.SkeletalComponentTID
-        ) as SkeletalComponent;
+        return this.getComponentByComponentTID(WellKnownComponentTIDs.SkeletalComponentTID) as SkeletalComponent;
       }
     }
     applyMixins(base, SkeletalEntity);

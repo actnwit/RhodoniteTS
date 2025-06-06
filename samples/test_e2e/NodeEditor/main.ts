@@ -20,16 +20,8 @@ constant2.setDefaultInputValue(Rn.Vector4.fromCopyArray([4, 3, 2, 1]));
 
 // Add (Constant 1 + Constant 2)
 const addShaderNode = new Rn.AddShaderNode(Rn.CompositionType.Vec4, Rn.ComponentType.Float);
-addShaderNode.addInputConnection(
-  constant1,
-  constant1.getSocketOutput(),
-  addShaderNode.getSocketInputLhs()
-);
-addShaderNode.addInputConnection(
-  constant2,
-  constant2.getSocketOutput(),
-  addShaderNode.getSocketInputRhs()
-);
+addShaderNode.addInputConnection(constant1, constant1.getSocketOutput(), addShaderNode.getSocketInputLhs());
+addShaderNode.addInputConnection(constant2, constant2.getSocketOutput(), addShaderNode.getSocketInputRhs());
 
 // Out
 const outPositionShaderNode = new Rn.OutPositionShaderNode();
@@ -39,11 +31,7 @@ outPositionShaderNode.addInputConnection(
   addShaderNode.getSocketOutput(),
   outPositionShaderNode.getSocketInput()
 );
-outColorShaderNode.addInputConnection(
-  constant2,
-  constant2.getSocketOutput(),
-  outColorShaderNode.getSocketInput()
-);
+outColorShaderNode.addInputConnection(constant2, constant2.getSocketOutput(), outColorShaderNode.getSocketInput());
 
 const vertexRet = Rn.ShaderGraphResolver.createVertexShaderCode(
   [outPositionShaderNode, addShaderNode, constant1, constant2],

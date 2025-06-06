@@ -1,18 +1,18 @@
+import type { CGAPIResourceHandle, Index, Size, TextureUID } from '../../types/CommonTypes';
 import { RnObject } from '../core/RnObject';
-import { PixelFormat, PixelFormatEnum } from '../definitions/PixelFormat';
-import { ComponentType, ComponentTypeEnum } from '../definitions/ComponentType';
-import { CGAPIResourceHandle, TextureUID, Size, Index } from '../../types/CommonTypes';
-import { TextureDataFloat } from './TextureDataFloat';
-import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
-import { ColorRgb } from '../math/ColorRgb';
-import { ColorRgba } from '../math/ColorRgba';
-import { MutableVector3 } from '../math/MutableVector3';
-import { MutableVector4 } from '../math/MutableVector4';
-import { Vector3 } from '../math/Vector3';
-import { Vector4 } from '../math/Vector4';
+import { ComponentType, type ComponentTypeEnum } from '../definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../definitions/CompositionType';
+import { PixelFormat, type PixelFormatEnum } from '../definitions/PixelFormat';
+import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFormat';
+import type { ColorRgb } from '../math/ColorRgb';
+import type { ColorRgba } from '../math/ColorRgba';
+import type { MutableVector3 } from '../math/MutableVector3';
+import type { MutableVector4 } from '../math/MutableVector4';
+import type { Vector3 } from '../math/Vector3';
+import type { Vector4 } from '../math/Vector4';
 import { Is } from '../misc/Is';
-import { Sampler } from './Sampler';
-import { TextureFormat, TextureFormatEnum } from '../definitions/TextureFormat';
+import type { Sampler } from './Sampler';
+import { TextureDataFloat } from './TextureDataFloat';
 
 /**
  * Abstract base class for all texture types in the Rhodonite engine.
@@ -84,7 +84,7 @@ export abstract class AbstractTexture extends RnObject {
    * @returns The width at the specified mip level (minimum 1 pixel)
    */
   getWidthAtMipLevel(mipLevel: Index) {
-    return Math.max(1, Math.floor(this.__width / Math.pow(2, mipLevel)));
+    return Math.max(1, Math.floor(this.__width / 2 ** mipLevel));
   }
 
   /**
@@ -94,7 +94,7 @@ export abstract class AbstractTexture extends RnObject {
    * @returns The height at the specified mip level (minimum 1 pixel)
    */
   getHeightAtMipLevel(mipLevel: Index) {
-    return Math.max(1, Math.floor(this.__height / Math.pow(2, mipLevel)));
+    return Math.max(1, Math.floor(this.__height / 2 ** mipLevel));
   }
 
   /**
@@ -164,13 +164,7 @@ export abstract class AbstractTexture extends RnObject {
     if (Is.exist(ctx) && Is.exist(this.__htmlImageElement)) {
       canvas.width = this.__htmlImageElement.width;
       canvas.height = this.__htmlImageElement.height;
-      ctx.drawImage(
-        this.__htmlImageElement,
-        0,
-        0,
-        this.__htmlImageElement.width,
-        this.__htmlImageElement.height
-      );
+      ctx.drawImage(this.__htmlImageElement, 0, 0, this.__htmlImageElement.width, this.__htmlImageElement.height);
     }
     return this.__htmlCanvasElement;
   }
@@ -244,9 +238,8 @@ export abstract class AbstractTexture extends RnObject {
     const data = pixel.data;
     if (typeClass.compositionType === CompositionType.Vec4) {
       return new (typeClass as any)(new Float32Array([data[0], data[1], data[2], data[3]]));
-    } else {
-      return new (typeClass as any)(new Float32Array([data[0], data[1], data[2]]));
     }
+    return new (typeClass as any)(new Float32Array([data[0], data[1], data[2]]));
   }
 
   /**
@@ -270,11 +263,7 @@ export abstract class AbstractTexture extends RnObject {
    * @param y - The y-coordinate of the pixel
    * @param value - The color or vector value to set
    */
-  setPixel(
-    x: Index,
-    y: Index,
-    value: ColorRgb | ColorRgba | Vector3 | MutableVector3 | Vector4 | MutableVector4
-  ) {
+  setPixel(x: Index, y: Index, value: ColorRgb | ColorRgba | Vector3 | MutableVector3 | Vector4 | MutableVector4) {
     const pixel = this.getImageData(x, y, 1, 1);
     const data = pixel.data;
     const classOfValue = value.constructor as unknown as {

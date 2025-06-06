@@ -119,9 +119,8 @@ export class WeakOption<B extends object, T> implements IWeakOption<B, T> {
     const value = this.__weakMap.get(base);
     if (Is.exist(value)) {
       return value;
-    } else {
-      throw new ReferenceError(errorStr);
     }
+    throw new ReferenceError(errorStr);
   }
 
   /**

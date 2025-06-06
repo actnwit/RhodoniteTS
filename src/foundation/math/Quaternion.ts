@@ -1,17 +1,17 @@
-import { IVector2, IVector3, IVector4 } from './IVector';
-import { Array4, TypedArray } from '../../types/CommonTypes';
-import { MathUtil } from './MathUtil';
+import { type Array4, TypedArray } from '../../types/CommonTypes';
 import { CompositionType } from '../definitions/CompositionType';
-import { IQuaternion, ILogQuaternion, IMutableQuaternion } from './IQuaternion';
-import { IMutableVector3 } from './IVector';
-import { IMatrix44 } from './IMatrix';
-import { LogQuaternion } from './LogQuaternion';
-import { AbstractQuaternion } from './AbstractQuaternion';
-import { Vector3 } from './Vector3';
-import { MutableVector3 } from './MutableVector3';
-import { MutableMatrix44 } from './MutableMatrix44';
-import { Matrix44 } from './Matrix44';
 import { Logger } from '../misc/Logger';
+import { AbstractQuaternion } from './AbstractQuaternion';
+import type { IMatrix44 } from './IMatrix';
+import type { ILogQuaternion, IMutableQuaternion, IQuaternion } from './IQuaternion';
+import { IVector2, type IVector3, type IVector4 } from './IVector';
+import type { IMutableVector3 } from './IVector';
+import { LogQuaternion } from './LogQuaternion';
+import { MathUtil } from './MathUtil';
+import { Matrix44 } from './Matrix44';
+import { MutableMatrix44 } from './MutableMatrix44';
+import { MutableVector3 } from './MutableVector3';
+import { Vector3 } from './Vector3';
 
 /**
  * Represents an immutable quaternion that extends AbstractQuaternion.
@@ -143,40 +143,39 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
 
     if (ss === 0.0) {
       return l_quat.clone();
-    } else {
-      if (dotProduct > 1) {
-        dotProduct = 0.999;
-      } else if (dotProduct < -1) {
-        dotProduct = -0.999;
-      }
-
-      let theta = Math.acos(dotProduct);
-      const sinTheta = Math.sin(theta);
-
-      let s2;
-      if (dotProduct < 0.0) {
-        dotProduct *= -1;
-        theta = Math.acos(dotProduct);
-        s2 = (-1 * Math.sin(theta * ratio)) / sinTheta;
-      } else {
-        s2 = Math.sin(theta * ratio) / sinTheta;
-      }
-      const s1 = Math.sin(theta * (1.0 - ratio)) / sinTheta;
-
-      let x = l_quat._v[0] * s1 + r_quat._v[0] * s2;
-      let y = l_quat._v[1] * s1 + r_quat._v[1] * s2;
-      let z = l_quat._v[2] * s1 + r_quat._v[2] * s2;
-      let w = l_quat._v[3] * s1 + r_quat._v[3] * s2;
-
-      // normalize
-      const length = Math.hypot(x, y, z, w);
-      x = x / length;
-      y = y / length;
-      z = z / length;
-      w = w / length;
-
-      return Quaternion.fromCopy4(x, y, z, w) as IQuaternion;
     }
+    if (dotProduct > 1) {
+      dotProduct = 0.999;
+    } else if (dotProduct < -1) {
+      dotProduct = -0.999;
+    }
+
+    let theta = Math.acos(dotProduct);
+    const sinTheta = Math.sin(theta);
+
+    let s2;
+    if (dotProduct < 0.0) {
+      dotProduct *= -1;
+      theta = Math.acos(dotProduct);
+      s2 = (-1 * Math.sin(theta * ratio)) / sinTheta;
+    } else {
+      s2 = Math.sin(theta * ratio) / sinTheta;
+    }
+    const s1 = Math.sin(theta * (1.0 - ratio)) / sinTheta;
+
+    let x = l_quat._v[0] * s1 + r_quat._v[0] * s2;
+    let y = l_quat._v[1] * s1 + r_quat._v[1] * s2;
+    let z = l_quat._v[2] * s1 + r_quat._v[2] * s2;
+    let w = l_quat._v[3] * s1 + r_quat._v[3] * s2;
+
+    // normalize
+    const length = Math.hypot(x, y, z, w);
+    x = x / length;
+    y = y / length;
+    z = z / length;
+    w = w / length;
+
+    return Quaternion.fromCopy4(x, y, z, w) as IQuaternion;
   }
 
   /**
@@ -197,31 +196,30 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
 
     if (ss === 0.0) {
       return out.copyComponents(l_quat);
-    } else {
-      if (dotProduct > 1) {
-        dotProduct = 0.999;
-      } else if (dotProduct < -1) {
-        dotProduct = -0.999;
-      }
-
-      let theta = Math.acos(dotProduct);
-      const sinTheta = Math.sin(theta);
-
-      let s2;
-      if (dotProduct < 0.0) {
-        dotProduct *= -1;
-        theta = Math.acos(dotProduct);
-        s2 = (-1 * Math.sin(theta * ratio)) / sinTheta;
-      } else {
-        s2 = Math.sin(theta * ratio) / sinTheta;
-      }
-      const s1 = Math.sin(theta * (1.0 - ratio)) / sinTheta;
-
-      out._v[0] = l_quat._v[0] * s1 + r_quat._v[0] * s2;
-      out._v[1] = l_quat._v[1] * s1 + r_quat._v[1] * s2;
-      out._v[2] = l_quat._v[2] * s1 + r_quat._v[2] * s2;
-      out._v[3] = l_quat._v[3] * s1 + r_quat._v[3] * s2;
     }
+    if (dotProduct > 1) {
+      dotProduct = 0.999;
+    } else if (dotProduct < -1) {
+      dotProduct = -0.999;
+    }
+
+    let theta = Math.acos(dotProduct);
+    const sinTheta = Math.sin(theta);
+
+    let s2;
+    if (dotProduct < 0.0) {
+      dotProduct *= -1;
+      theta = Math.acos(dotProduct);
+      s2 = (-1 * Math.sin(theta * ratio)) / sinTheta;
+    } else {
+      s2 = Math.sin(theta * ratio) / sinTheta;
+    }
+    const s1 = Math.sin(theta * (1.0 - ratio)) / sinTheta;
+
+    out._v[0] = l_quat._v[0] * s1 + r_quat._v[0] * s2;
+    out._v[1] = l_quat._v[1] * s1 + r_quat._v[1] * s2;
+    out._v[2] = l_quat._v[2] * s1 + r_quat._v[2] * s2;
+    out._v[3] = l_quat._v[3] * s1 + r_quat._v[3] * s2;
 
     return out.normalize();
   }
@@ -324,28 +322,29 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
       const z = (m.m10 - m.m01) * S;
       const w = 0.25 / S;
       return Quaternion.fromCopy4(x, y, z, w);
-    } else if (m.m00 > m.m11 && m.m00 > m.m22) {
+    }
+    if (m.m00 > m.m11 && m.m00 > m.m22) {
       const S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
       const x = 0.25 * S;
       const y = (m.m01 + m.m10) / S;
       const z = (m.m02 + m.m20) / S;
       const w = (m.m21 - m.m12) / S;
       return Quaternion.fromCopy4(x, y, z, w);
-    } else if (m.m11 > m.m22) {
+    }
+    if (m.m11 > m.m22) {
       const S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
       const x = (m.m01 + m.m10) / S;
       const y = 0.25 * S;
       const z = (m.m12 + m.m21) / S;
       const w = (m.m02 - m.m20) / S;
       return Quaternion.fromCopy4(x, y, z, w);
-    } else {
-      const S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
-      const x = (m.m02 + m.m20) / S;
-      const y = (m.m12 + m.m21) / S;
-      const z = 0.25 * S;
-      const w = (m.m10 - m.m01) / S;
-      return Quaternion.fromCopy4(x, y, z, w);
     }
+    const S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
+    const x = (m.m02 + m.m20) / S;
+    const y = (m.m12 + m.m21) / S;
+    const z = 0.25 * S;
+    const w = (m.m10 - m.m01) / S;
+    return Quaternion.fromCopy4(x, y, z, w);
   }
 
   /**
@@ -491,13 +490,9 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     if (num8 > 0) {
       const num = Math.sqrt(num8 + 1);
       const num2 = 0.5 / num;
-      return Quaternion.fromCopy4(
-        (m12 - m21) * num2,
-        (m20 - m02) * num2,
-        (m01 - m10) * num2,
-        num * 0.5
-      ) as IQuaternion;
-    } else if (m00 >= m11 && m00 >= m22) {
+      return Quaternion.fromCopy4((m12 - m21) * num2, (m20 - m02) * num2, (m01 - m10) * num2, num * 0.5) as IQuaternion;
+    }
+    if (m00 >= m11 && m00 >= m22) {
       const num7 = Math.sqrt(1 + m00 - m11 - m22);
       const num4 = 0.5 / num7;
       return Quaternion.fromCopy4(
@@ -506,7 +501,8 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
         (m02 + m20) * num4,
         (m12 - m21) * num4
       ) as IQuaternion;
-    } else if (m11 > m22) {
+    }
+    if (m11 > m22) {
       const num6 = Math.sqrt(1 + m11 - m00 - m22);
       const num3 = 0.5 / num6;
       return Quaternion.fromCopy4(
@@ -515,16 +511,10 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
         (m21 + m12) * num3,
         (m20 - m02) * num3
       ) as IQuaternion;
-    } else {
-      const num5 = Math.sqrt(1 + m22 - m00 - m11);
-      const num2 = 0.5 / num5;
-      return Quaternion.fromCopy4(
-        (m20 + m02) * num2,
-        (m21 + m12) * num2,
-        0.5 * num5,
-        (m01 - m10) * num2
-      ) as IQuaternion;
     }
+    const num5 = Math.sqrt(1 + m22 - m00 - m11);
+    const num2 = 0.5 / num5;
+    return Quaternion.fromCopy4((m20 + m02) * num2, (m21 + m12) * num2, 0.5 * num5, (m01 - m10) * num2) as IQuaternion;
   }
 
   /**
@@ -727,7 +717,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
    * @returns A string in the format "(x, y, z, w)"
    */
   toString() {
-    return '(' + this._v[0] + ', ' + this._v[1] + ', ' + this._v[2] + ', ' + this._v[3] + ')';
+    return `(${this._v[0]}, ${this._v[1]}, ${this._v[2]}, ${this._v[3]})`;
   }
 
   /**
@@ -735,16 +725,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
    * @returns A formatted string with components separated by spaces and ending with newline
    */
   toStringApproximately() {
-    return (
-      MathUtil.financial(this._v[0]) +
-      ' ' +
-      MathUtil.financial(this._v[1]) +
-      ' ' +
-      MathUtil.financial(this._v[2]) +
-      ' ' +
-      MathUtil.financial(this._v[3]) +
-      '\n'
-    );
+    return `${MathUtil.financial(this._v[0])} ${MathUtil.financial(this._v[1])} ${MathUtil.financial(this._v[2])} ${MathUtil.financial(this._v[3])}\n`;
   }
 
   /**
@@ -762,9 +743,8 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   isDummy() {
     if (this._v.length === 0) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -781,9 +761,8 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
       Math.abs(quat._v[3] - this._v[3]) < delta
     ) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -799,9 +778,8 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
       this._v[3] === quat._v[3]
     ) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -868,10 +846,10 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
       w = vec._v[3] / value;
     } else {
       Logger.error('0 division occurred!');
-      x = Infinity;
-      y = Infinity;
-      z = Infinity;
-      w = Infinity;
+      x = Number.POSITIVE_INFINITY;
+      y = Number.POSITIVE_INFINITY;
+      z = Number.POSITIVE_INFINITY;
+      w = Number.POSITIVE_INFINITY;
     }
     return Quaternion.fromCopy4(x, y, z, w);
   }
@@ -895,10 +873,10 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
       w = vec._v[3] / value;
     } else {
       Logger.error('0 division occurred!');
-      x = Infinity;
-      y = Infinity;
-      z = Infinity;
-      w = Infinity;
+      x = Number.POSITIVE_INFINITY;
+      y = Number.POSITIVE_INFINITY;
+      z = Number.POSITIVE_INFINITY;
+      w = Number.POSITIVE_INFINITY;
     }
     out._v[0] = x;
     out._v[1] = y;
@@ -950,16 +928,15 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
       this._v[2] = c.z;
       this._v[3] = s * 0.5;
       return Quaternion.normalize(this);
-    } else {
-      let axis = Vector3.fromCopy3(0, 1, 0);
-      let axis2 = v0.cross(axis);
-      if (axis2.length() < Number.EPSILON) {
-        axis = Vector3.fromCopy3(1, 0, 0);
-        axis2 = v0.cross(axis);
-      }
-      axis2.normalize();
-      return Quaternion.fromAxisAngle(axis2, Math.PI);
     }
+    let axis = Vector3.fromCopy3(0, 1, 0);
+    let axis2 = v0.cross(axis);
+    if (axis2.length() < Number.EPSILON) {
+      axis = Vector3.fromCopy3(1, 0, 0);
+      axis2 = v0.cross(axis);
+    }
+    axis2.normalize();
+    return Quaternion.fromAxisAngle(axis2, Math.PI);
   }
 
   /**
@@ -977,19 +954,17 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
       if (Math.abs(from.x) > Math.abs(from.z)) {
         const q = Quaternion.fromCopy4(-from.y, from.x, 0, r);
         return Quaternion.normalize(q);
-      } else {
-        const q = Quaternion.fromCopy4(0, -from.z, from.y, r);
-        return Quaternion.normalize(q);
       }
-    } else {
-      const q = Quaternion.fromCopy4(
-        from.y * to.z - from.z * to.y,
-        from.z * to.x - from.x * to.z,
-        from.x * to.y - from.y * to.x,
-        r
-      );
+      const q = Quaternion.fromCopy4(0, -from.z, from.y, r);
       return Quaternion.normalize(q);
     }
+    const q = Quaternion.fromCopy4(
+      from.y * to.z - from.z * to.y,
+      from.z * to.x - from.x * to.z,
+      from.x * to.y - from.y * to.x,
+      r
+    );
+    return Quaternion.normalize(q);
   }
 
   /**
@@ -1012,22 +987,20 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
         out._v[3] = r;
         out.normalize();
         return out;
-      } else {
-        out._v[0] = 0;
-        out._v[1] = -from.z;
-        out._v[2] = from.y;
-        out._v[3] = r;
-        out.normalize();
-        return out;
       }
-    } else {
-      out._v[0] = from.y * to.z - from.z * to.y;
-      out._v[1] = from.z * to.x - from.x * to.z;
-      out._v[2] = from.x * to.y - from.y * to.x;
+      out._v[0] = 0;
+      out._v[1] = -from.z;
+      out._v[2] = from.y;
       out._v[3] = r;
       out.normalize();
       return out;
     }
+    out._v[0] = from.y * to.z - from.z * to.y;
+    out._v[1] = from.z * to.x - from.x * to.z;
+    out._v[2] = from.x * to.y - from.y * to.x;
+    out._v[3] = r;
+    out.normalize();
+    return out;
   }
 
   /**
@@ -1217,13 +1190,12 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     if (theta <= thetaMax) {
       // Do nothing if already small enough
       return quat;
-    } else {
-      // Slerp from unit Q to q at the ratio of θmax/θ
-      const t = thetaMax / theta;
-      // Unit quaternion (no rotation)
-      const qIdentity = Quaternion.fromCopy4(0.0, 0.0, 0.0, 1.0);
-      // Interpolate from qIdentity (0 degrees) to q (θ degrees) and reduce to θmax
-      return Quaternion.qlerp(qIdentity, quat, t);
     }
+    // Slerp from unit Q to q at the ratio of θmax/θ
+    const t = thetaMax / theta;
+    // Unit quaternion (no rotation)
+    const qIdentity = Quaternion.fromCopy4(0.0, 0.0, 0.0, 1.0);
+    // Interpolate from qIdentity (0 degrees) to q (θ degrees) and reduce to θmax
+    return Quaternion.qlerp(qIdentity, quat, t);
   }
 }

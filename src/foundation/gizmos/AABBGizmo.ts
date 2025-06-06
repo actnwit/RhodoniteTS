@@ -1,12 +1,12 @@
-import { Gizmo } from './Gizmo';
+import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import { VertexAttribute } from '../definitions/VertexAttribute';
-import { Primitive } from '../geometry/Primitive';
-import { Vector3 } from '../math/Vector3';
 import { Mesh } from '../geometry/Mesh';
-import { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { Primitive } from '../geometry/Primitive';
+import type { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { Vector3 } from '../math/Vector3';
 import { Is } from '../misc/Is';
-import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
+import { Gizmo } from './Gizmo';
 
 /**
  * AABB Gizmo class that visualizes the Axis-Aligned Bounding Box of a target entity.
@@ -14,14 +14,6 @@ import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
  */
 export class AABBGizmo extends Gizmo {
   private static __mesh?: Mesh;
-
-  /**
-   * Creates a new AABB Gizmo instance.
-   * @param target - The scene graph entity that this gizmo will visualize the AABB for
-   */
-  constructor(target: ISceneGraphEntity) {
-    super(target);
-  }
 
   ///
   ///
@@ -36,9 +28,8 @@ export class AABBGizmo extends Gizmo {
   get isSetup() {
     if (this.__topEntity != null) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   ///

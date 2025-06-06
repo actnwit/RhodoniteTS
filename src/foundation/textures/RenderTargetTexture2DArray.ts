@@ -1,15 +1,15 @@
-import { AbstractTexture } from './AbstractTexture';
-import { PixelFormat, PixelFormatEnum } from '../definitions/PixelFormat';
-import { ComponentTypeEnum, ComponentType } from '../definitions/ComponentType';
-import { IRenderable } from './IRenderable';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { Size, Index } from '../../types/CommonTypes';
-import { FrameBuffer } from '../renderer/FrameBuffer';
-import { Vector4 } from '../math/Vector4';
-import { SystemState } from '../system/SystemState';
+import type { Index, Size } from '../../types/CommonTypes';
+import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
+import { ComponentType, type ComponentTypeEnum } from '../definitions/ComponentType';
+import { PixelFormat, type PixelFormatEnum } from '../definitions/PixelFormat';
 import { ProcessApproach } from '../definitions/ProcessApproach';
-import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
-import { TextureFormat, TextureFormatEnum } from '../definitions/TextureFormat';
+import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFormat';
+import { Vector4 } from '../math/Vector4';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import type { FrameBuffer } from '../renderer/FrameBuffer';
+import { SystemState } from '../system/SystemState';
+import { AbstractTexture } from './AbstractTexture';
+import type { IRenderable } from './IRenderable';
 
 /**
  * A 2D texture array that can be used as a render target.
@@ -19,14 +19,7 @@ import { TextureFormat, TextureFormatEnum } from '../definitions/TextureFormat';
  */
 export class RenderTargetTexture2DArray extends AbstractTexture implements IRenderable {
   private __fbo?: FrameBuffer;
-  private __arrayLength: number = 0;
-
-  /**
-   * Creates a new RenderTargetTexture2DArray instance.
-   */
-  constructor() {
-    super();
-  }
+  private __arrayLength = 0;
 
   /**
    * Creates and initializes the 2D texture array with the specified parameters.
@@ -110,9 +103,10 @@ export class RenderTargetTexture2DArray extends AbstractTexture implements IRend
     this._textureResourceUid = texture;
 
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      this._textureViewResourceUid = (
-        cgApiResourceRepository as WebGpuResourceRepository
-      ).createTextureView2dArray(this._textureResourceUid, this.__arrayLength);
+      this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2dArray(
+        this._textureResourceUid,
+        this.__arrayLength
+      );
       this._textureViewAsRenderTargetResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository
       ).createTextureView2dArrayAsRenderTarget(this._textureResourceUid, 0, 0);
@@ -188,11 +182,7 @@ export class RenderTargetTexture2DArray extends AbstractTexture implements IRend
     canvas.width = this.__width;
     canvas.height = this.__height;
     const ctx = canvas.getContext('2d')!;
-    const imageData = new ImageData(
-      new Uint8ClampedArray(data.buffer),
-      this.__width,
-      this.__height
-    );
+    const imageData = new ImageData(new Uint8ClampedArray(data.buffer), this.__width, this.__height);
     ctx.putImageData(imageData, this.__width, this.__height);
     const dataUri = canvas.toDataURL('image/png');
 

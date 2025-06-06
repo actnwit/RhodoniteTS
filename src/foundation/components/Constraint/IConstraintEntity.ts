@@ -1,4 +1,4 @@
-import { ConstraintComponent } from './ConstraintComponent';
+import type { ConstraintComponent } from './ConstraintComponent';
 
 export interface IConstraintEntityMethods {
   getConstraint(): ConstraintComponent;

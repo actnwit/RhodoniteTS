@@ -1,10 +1,10 @@
-import { ComponentType } from "../../definitions/ComponentType";
-import { CompositionType } from "../../definitions/CompositionType";
-import { ProcessApproach } from "../../definitions/ProcessApproach";
-import { Scalar } from "../../math/Scalar";
-import { SystemState } from "../../system/SystemState";
-import { AbstractShaderNode } from "../core/AbstractShaderNode";
-import { Socket } from "../core/Socket";
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
+import { ProcessApproach } from '../../definitions/ProcessApproach';
+import { Scalar } from '../../math/Scalar';
+import { SystemState } from '../../system/SystemState';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
+import { Socket } from '../core/Socket';
 
 /**
  * A shader node that processes geometry transformations in the vertex shader pipeline.
@@ -152,17 +152,9 @@ export class ProcessGeometryShaderNode extends AbstractShaderNode {
               `var dummyPositionInWorld_${i}: vec4<f32>;`,
               `var dummyNormalInWorld_${i}: vec3<f32>;`,
             ]
-          : [
-              `mat3 dummyNormalMatrix_${i};`,
-              `vec4 dummyPositionInWorld_${i};`,
-              `vec3 dummyNormalInWorld_${i};`,
-            ];
+          : [`mat3 dummyNormalMatrix_${i};`, `vec4 dummyPositionInWorld_${i};`, `vec3 dummyNormalInWorld_${i};`];
 
-      const dummyOutputArguments = [
-        `dummyNormalMatrix_${i}`,
-        `dummyPositionInWorld_${i}`,
-        `dummyNormalInWorld_${i}`,
-      ];
+      const dummyOutputArguments = [`dummyNormalMatrix_${i}`, `dummyPositionInWorld_${i}`, `dummyNormalInWorld_${i}`];
 
       for (let k = 0; k < varOutputNames[i].length; k++) {
         const outputName = varOutputNames[i][k];
@@ -180,7 +172,7 @@ export class ProcessGeometryShaderNode extends AbstractShaderNode {
 
       if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
         for (let i = 0; i < dummyOutputArguments.length; i++) {
-          dummyOutputArguments[i] = '&' + dummyOutputArguments[i];
+          dummyOutputArguments[i] = `&${dummyOutputArguments[i]}`;
         }
       }
 
@@ -194,7 +186,7 @@ export class ProcessGeometryShaderNode extends AbstractShaderNode {
         const inputName = varInputNames[i][k];
         rowStr += inputName;
       }
-      rowStr += ', ' + dummyOutputArguments.join(', ');
+      rowStr += `, ${dummyOutputArguments.join(', ')}`;
       rowStr += ');\n';
     }
 

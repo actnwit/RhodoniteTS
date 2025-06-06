@@ -1,7 +1,7 @@
-import { CompositionType } from '../../definitions/CompositionType';
-import { ComponentType } from '../../definitions/ComponentType';
 import ViewMatrixShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/ViewMatrix.vert';
 import ViewMatrixShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/ViewMatrix.vert.wgsl';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 /**

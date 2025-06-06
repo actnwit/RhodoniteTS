@@ -30,5 +30,3 @@ ComponentRepository.registerComponentClass(PhysicsComponent);
 ComponentRepository.registerComponentClass(EffekseerComponent);
 ComponentRepository.registerComponentClass(VrmComponent);
 ComponentRepository.registerComponentClass(ConstraintComponent);
-
-export {};

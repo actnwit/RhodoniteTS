@@ -1,8 +1,8 @@
 import { MeshComponent } from '../components/Mesh/MeshComponent';
-import { IEntity } from '../core/Entity';
-import { MemoryManager } from '../core/MemoryManager';
-import { ArrayAsRn, enhanceArray } from './Array';
 import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
+import type { IEntity } from '../core/Entity';
+import { MemoryManager } from '../core/MemoryManager';
+import { type ArrayAsRn, enhanceArray } from './Array';
 import '../components/registerComponents';
 
 declare global {

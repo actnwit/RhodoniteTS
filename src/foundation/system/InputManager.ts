@@ -62,8 +62,8 @@ declare global {
  * ```
  */
 export function getEvent(type: 'start' | 'move' | 'end' | 'click'): string {
-  if (typeof window === "undefined") {
-    throw new Error("This function works in Browser environment")
+  if (typeof window === 'undefined') {
+    throw new Error('This function works in Browser environment');
   }
   const deviceEvents = {
     Touch: typeof document.ontouchstart !== 'undefined',
@@ -75,24 +75,24 @@ export function getEvent(type: 'start' | 'move' | 'end' | 'click'): string {
     start: deviceEvents.Pointer
       ? EVENT_POINTER_DOWN
       : deviceEvents.MSPointer
-      ? EVENT_MSPOINTER_DOWN
-      : deviceEvents.Touch
-      ? EVENT_TOUCH_START
-      : EVENT_MOUSE_DOWN,
+        ? EVENT_MSPOINTER_DOWN
+        : deviceEvents.Touch
+          ? EVENT_TOUCH_START
+          : EVENT_MOUSE_DOWN,
     move: deviceEvents.Pointer
       ? EVENT_POINTER_MOVE
       : deviceEvents.MSPointer
-      ? EVENT_MSPOINTER_MOVE
-      : deviceEvents.Touch
-      ? EVENT_TOUCH_MOVE
-      : EVENT_MOUSE_MOVE,
+        ? EVENT_MSPOINTER_MOVE
+        : deviceEvents.Touch
+          ? EVENT_TOUCH_MOVE
+          : EVENT_MOUSE_MOVE,
     end: deviceEvents.Pointer
       ? EVENT_POINTER_UP
       : deviceEvents.MSPointer
-      ? EVENT_MSPOINTER_UP
-      : deviceEvents.Touch
-      ? EVENT_TOUCH_END
-      : EVENT_MOUSE_UP,
+        ? EVENT_MSPOINTER_UP
+        : deviceEvents.Touch
+          ? EVENT_TOUCH_END
+          : EVENT_MOUSE_UP,
     click: EVENT_CLICK,
   };
 
@@ -322,15 +322,9 @@ export class InputManager {
    * @private
    */
   static __processEventListeners() {
-    const translationGizmoActive = InputManager.__inputHandlingStateMap.get(
-      INPUT_HANDLING_STATE_GIZMO_TRANSLATION
-    );
-    const scaleGizmoActive = InputManager.__inputHandlingStateMap.get(
-      INPUT_HANDLING_STATE_GIZMO_SCALE
-    );
-    const cameraControllerActive = InputManager.__inputHandlingStateMap.get(
-      INPUT_HANDLING_STATE_CAMERA_CONTROLLER
-    );
+    const translationGizmoActive = InputManager.__inputHandlingStateMap.get(INPUT_HANDLING_STATE_GIZMO_TRANSLATION);
+    const scaleGizmoActive = InputManager.__inputHandlingStateMap.get(INPUT_HANDLING_STATE_GIZMO_SCALE);
+    const cameraControllerActive = InputManager.__inputHandlingStateMap.get(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
 
     if (cameraControllerActive) {
       this.__addEventListeners(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);

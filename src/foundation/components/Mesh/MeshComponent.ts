@@ -1,25 +1,25 @@
+import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
-import { applyMixins, EntityRepository } from '../../core/EntityRepository';
-import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
+import { Entity, type IEntity } from '../../core/Entity';
+import { EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { ProcessApproachEnum } from '../../definitions/ProcessApproach';
 import { ProcessStage } from '../../definitions/ProcessStage';
-import { Vector3 } from '../../math/Vector3';
-import { CameraComponent } from '../Camera/CameraComponent';
-import { Vector4 } from '../../math/Vector4';
-import { Mesh } from '../../geometry/Mesh';
-import { IEntity, Entity } from '../../core/Entity';
-import { ComponentTID, EntityUID, ComponentSID } from '../../../types/CommonTypes';
+import type { Mesh } from '../../geometry/Mesh';
+import type { RaycastResultEx1 } from '../../geometry/types/GeometryTypes';
+import type { IMeshEntity } from '../../helpers/EntityHelper';
+import { MathClassUtil } from '../../math/MathClassUtil';
 import { Matrix44 } from '../../math/Matrix44';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
-import { MathClassUtil } from '../../math/MathClassUtil';
 import { MutableVector3 } from '../../math/MutableVector3';
-import { ProcessApproachEnum } from '../../definitions/ProcessApproach';
+import { Vector3 } from '../../math/Vector3';
+import { Vector4 } from '../../math/Vector4';
 import { Is } from '../../misc/Is';
-import { IMeshEntity } from '../../helpers/EntityHelper';
-import { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
-import { ComponentToComponentMethods } from '../ComponentTypes';
-import { RaycastResultEx1 } from '../../geometry/types/GeometryTypes';
-import { assertExist } from '../../misc/MiscUtil';
 import { Logger } from '../../misc/Logger';
+import { assertExist } from '../../misc/MiscUtil';
+import { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
+import type { CameraComponent } from '../Camera/CameraComponent';
+import type { ComponentToComponentMethods } from '../ComponentTypes';
+import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 /**
  * MeshComponent is a component that manages a mesh geometry for an entity.
@@ -38,22 +38,6 @@ export class MeshComponent extends Component {
 
   private static __tmpMatrix44_0: MutableMatrix44 = MutableMatrix44.zero();
   private static __latestPrimitivePositionAccessorVersion = 0;
-
-  /**
-   * Creates a new MeshComponent instance.
-   * @param entityUid - The unique identifier of the entity that owns this component
-   * @param componentSid - The component's system identifier
-   * @param entityRepository - The repository managing entities and components
-   * @param isReUse - Whether this component is being reused from a pool
-   */
-  constructor(
-    entityUid: EntityUID,
-    componentSid: ComponentSID,
-    entityRepository: EntityRepository,
-    isReUse: boolean
-  ) {
-    super(entityUid, componentSid, entityRepository, isReUse);
-  }
 
   /**
    * Gets the component type identifier for MeshComponent.
@@ -115,10 +99,7 @@ export class MeshComponent extends Component {
     const centerPosition_inLocal = this.__mesh.AABB.centerPoint;
     const skeletal = this.entity.tryToGetSkeletal();
     if (Is.exist(skeletal) && Is.exist(skeletal._bindShapeMatrix)) {
-      skeletal._bindShapeMatrix.multiplyVector3To(
-        this.__mesh.AABB.centerPoint,
-        centerPosition_inLocal
-      );
+      skeletal._bindShapeMatrix.multiplyVector3To(this.__mesh.AABB.centerPoint, centerPosition_inLocal);
     }
 
     const worldMatrixInner = this.entity.getSceneGraph().matrixInner;
@@ -128,10 +109,7 @@ export class MeshComponent extends Component {
     );
 
     const viewMatrix = cameraComponent.viewMatrix;
-    const centerPosition_inView = viewMatrix.multiplyVector3To(
-      centerPosition_inWorld,
-      MeshComponent.__tmpVector3_1
-    );
+    const centerPosition_inView = viewMatrix.multiplyVector3To(centerPosition_inWorld, MeshComponent.__tmpVector3_1);
     this.__viewDepth = centerPosition_inView.z;
 
     return this.__viewDepth;
@@ -150,7 +128,7 @@ export class MeshComponent extends Component {
    * @param meshComponent - The mesh component instance to log about
    */
   static alertNoMeshSet(meshComponent: MeshComponent) {
-    Logger.debug('No mesh is set on this MeshComponent:' + meshComponent.componentSID);
+    Logger.debug(`No mesh is set on this MeshComponent:${meshComponent.componentSID}`);
   }
 
   /**
@@ -180,9 +158,7 @@ export class MeshComponent extends Component {
         let intersectPositionInWorld = null;
         if (Is.defined(result.data) && result.data.t >= 0) {
           intersectPositionInWorld = Vector3.fromCopyVector4(
-            sceneGraphComponent.matrixInner.multiplyVector(
-              Vector4.fromCopyVector3(result.data.position)
-            )
+            sceneGraphComponent.matrixInner.multiplyVector(Vector4.fromCopyVector3(result.data.position))
           );
 
           return {
@@ -230,22 +206,8 @@ export class MeshComponent extends Component {
           .multiply(sceneGraphComponent.matrixInner)
           .invert();
 
-        const srcPointInLocal = MathClassUtil.unProjectTo(
-          x,
-          y,
-          0,
-          invPVW,
-          viewport,
-          MeshComponent.__tmpVector3_0
-        );
-        const distVecInLocal = MathClassUtil.unProjectTo(
-          x,
-          y,
-          1,
-          invPVW,
-          viewport,
-          MeshComponent.__tmpVector3_1
-        );
+        const srcPointInLocal = MathClassUtil.unProjectTo(x, y, 0, invPVW, viewport, MeshComponent.__tmpVector3_0);
+        const distVecInLocal = MathClassUtil.unProjectTo(x, y, 1, invPVW, viewport, MeshComponent.__tmpVector3_1);
 
         const directionInLocal = MutableVector3.subtractTo(
           distVecInLocal,
@@ -308,9 +270,8 @@ export class MeshComponent extends Component {
           position: intersectedPositionInWorld,
         },
       };
-    } else {
-      return result;
     }
+    return result;
   }
 
   /**
@@ -413,18 +374,8 @@ export class MeshComponent extends Component {
     _componentClass: SomeComponentClass
   ) {
     class MeshEntity extends (base.constructor as any) {
-      constructor(
-        entityUID: EntityUID,
-        isAlive: boolean,
-        components?: Map<ComponentTID, Component>
-      ) {
-        super(entityUID, isAlive, components);
-      }
-
       getMesh() {
-        return this.getComponentByComponentTID(
-          WellKnownComponentTIDs.MeshComponentTID
-        ) as MeshComponent;
+        return this.getComponentByComponentTID(WellKnownComponentTIDs.MeshComponentTID) as MeshComponent;
       }
     }
     applyMixins(base, MeshEntity);

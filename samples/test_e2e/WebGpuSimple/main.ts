@@ -1,7 +1,7 @@
 import Rn from '../../../dist/esmdev/index.js';
 
 declare const window: any;
-(function () {
+(() => {
   window.Rn = Rn;
   //    import Rn from '../../../dist/rhodonite.mjs';
   async function readyBasicVerticesData() {
@@ -79,7 +79,7 @@ declare const window: any;
     const expression = new Rn.Expression();
     expression.addRenderPasses([renderPass]);
     let startTimeForPerformanceNow = 0;
-    const draw = function () {
+    const draw = () => {
       if (count > 0) {
         window._rendered = true;
       }
@@ -106,6 +106,6 @@ declare const window: any;
   });
 })();
 
-window.exportGltf2 = function () {
+window.exportGltf2 = () => {
   Rn.Gltf2Exporter.export('Rhodonite');
 };

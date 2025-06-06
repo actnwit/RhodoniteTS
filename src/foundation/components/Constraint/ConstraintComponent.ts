@@ -1,11 +1,11 @@
-import { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
-import { IVrmConstraint } from '../../constraints/IVrmConstraint';
+import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
+import type { IVrmConstraint } from '../../constraints/IVrmConstraint';
 import { Component } from '../../core/Component';
-import { IEntity } from '../../core/Entity';
+import type { IEntity } from '../../core/Entity';
 import { EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
-import { IConstraintEntity } from '../../helpers/EntityHelper';
-import { ComponentToComponentMethods } from '../ComponentTypes';
+import type { IConstraintEntity } from '../../helpers/EntityHelper';
+import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 /**
@@ -24,12 +24,7 @@ export class ConstraintComponent extends Component {
    * @param entityComponent - The entity repository managing this component
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(
-    entityUid: EntityUID,
-    componentSid: ComponentSID,
-    entityComponent: EntityRepository,
-    isReUse: boolean
-  ) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean) {
     super(entityUid, componentSid, entityComponent, isReUse);
     this.moveStageTo(ProcessStage.Logic);
   }
@@ -112,29 +107,12 @@ export class ConstraintComponent extends Component {
   ) {
     class ConstraintEntity extends (base.constructor as any) {
       /**
-       * Creates a new ConstraintEntity instance.
-       *
-       * @param entityUID - The unique identifier for this entity
-       * @param isAlive - Whether the entity is currently active
-       * @param components - Optional map of existing components
-       */
-      constructor(
-        entityUID: EntityUID,
-        isAlive: boolean,
-        components?: Map<ComponentTID, Component>
-      ) {
-        super(entityUID, isAlive, components);
-      }
-
-      /**
        * Gets the constraint component attached to this entity.
        *
        * @returns The ConstraintComponent instance for this entity
        */
       getConstraint() {
-        return this.getComponentByComponentTID(
-          WellKnownComponentTIDs.ConstraintComponentTID
-        ) as ConstraintComponent;
+        return this.getComponentByComponentTID(WellKnownComponentTIDs.ConstraintComponentTID) as ConstraintComponent;
       }
     }
     applyMixins(base, ConstraintEntity);

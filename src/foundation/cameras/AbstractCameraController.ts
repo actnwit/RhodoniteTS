@@ -1,5 +1,5 @@
-import { CameraComponent } from '../components/Camera/CameraComponent';
-import { ISceneGraphEntity } from '../helpers/EntityHelper';
+import type { CameraComponent } from '../components/Camera/CameraComponent';
+import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { AABB } from '../math/AABB';
 import { Vector3 } from '../math/Vector3';
 import { Is } from '../misc/Is';
@@ -14,8 +14,6 @@ export abstract class AbstractCameraController {
   public zFarScalingFactor = 100000;
   public autoCalculateZNearAndZFar = true;
   protected abstract __targetEntities: ISceneGraphEntity[];
-
-  constructor() {}
 
   /**
    * Calculates the near clipping plane (zNear) for the camera based on the target entities' bounding boxes.
@@ -41,8 +39,7 @@ export abstract class AbstractCameraController {
         (eyeToTargetDirectionX * eyeDirection.x +
           eyeToTargetDirectionY * eyeDirection.y +
           eyeToTargetDirectionZ * eyeDirection.z) /
-        (Math.hypot(eyeToTargetDirectionX, eyeToTargetDirectionY, eyeToTargetDirectionZ) *
-          eyeDirection.length());
+        (Math.hypot(eyeToTargetDirectionX, eyeToTargetDirectionY, eyeToTargetDirectionZ) * eyeDirection.length());
 
       camera.zNearInner = Math.max(
         Math.min(lengthOfCenterToEye * cos - targetAABB.lengthCenterToCorner, this.zNearMax),

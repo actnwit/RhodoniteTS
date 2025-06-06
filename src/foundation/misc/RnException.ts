@@ -37,7 +37,7 @@ export class RnException<ErrObj> extends Error {
   message: ${err.message}
   error: ${
     typeof (err.error as Err<unknown, ErrObj>)._rnException !== 'undefined'
-      ? 'see below Exception ↓' + (err.error as Err<unknown, ErrObj>).toString()
+      ? `see below Exception ↓${(err.error as Err<unknown, ErrObj>).toString()}`
       : err.error
   }
 `);

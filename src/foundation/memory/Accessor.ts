@@ -1,30 +1,30 @@
-import { ComponentType, ComponentTypeEnum } from '../definitions/ComponentType';
-import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
-import { BufferView } from './BufferView';
-import { Vector2 } from '../math/Vector2';
-import { Vector3 } from '../math/Vector3';
-import { Vector4 } from '../math/Vector4';
-import { MutableVector2 } from '../math/MutableVector2';
-import { MutableVector3 } from '../math/MutableVector3';
-import { MutableVector4 } from '../math/MutableVector4';
-import { Matrix33 } from '../math/Matrix33';
-import { MutableMatrix33 } from '../math/MutableMatrix33';
-import { MutableMatrix44 } from '../math/MutableMatrix44';
-import {
-  Byte,
-  Index,
-  Count,
-  TypedArray,
-  Size,
-  TypedArrayConstructor,
+import type {
   Array2,
   Array3,
   Array4,
+  Byte,
+  Count,
+  Index,
+  Size,
+  TypedArray,
+  TypedArrayConstructor,
 } from '../../types/CommonTypes';
-import { Matrix44 } from '../math/Matrix44';
+import { ComponentType, type ComponentTypeEnum } from '../definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../definitions/CompositionType';
+import type { Primitive } from '../geometry/Primitive';
+import { Matrix33 } from '../math/Matrix33';
+import type { Matrix44 } from '../math/Matrix44';
+import type { MutableMatrix33 } from '../math/MutableMatrix33';
+import { MutableMatrix44 } from '../math/MutableMatrix44';
+import { MutableVector2 } from '../math/MutableVector2';
+import { MutableVector3 } from '../math/MutableVector3';
+import { MutableVector4 } from '../math/MutableVector4';
+import { Vector2 } from '../math/Vector2';
+import { Vector3 } from '../math/Vector3';
+import { Vector4 } from '../math/Vector4';
 import { Is } from '../misc/Is';
-import { Primitive } from '../geometry/Primitive';
 import { Logger } from '../misc/Logger';
+import type { BufferView } from './BufferView';
 
 type DataViewGetter = (byteOffset: Byte, littleEndian?: boolean) => number;
 type DataViewSetter = (byteOffset: Byte, value: number, littleEndian?: boolean) => void;
@@ -117,8 +117,7 @@ export class Accessor {
     normalized: boolean;
   }) {
     this.__bufferView = bufferView;
-    this.__byteOffsetInRawArrayBufferOfBuffer =
-      bufferView.byteOffsetInRawArrayBufferOfBuffer + byteOffsetInBufferView;
+    this.__byteOffsetInRawArrayBufferOfBuffer = bufferView.byteOffsetInRawArrayBufferOfBuffer + byteOffsetInBufferView;
     this.__compositionType = compositionType;
     this.__componentType = componentType;
     this.__count = count;
@@ -153,9 +152,7 @@ export class Accessor {
 
     if (this.__byteStride === 0) {
       this.__byteStride =
-        this.__compositionType.getNumberOfComponents() *
-        this.__componentType.getSizeInBytes() *
-        this.__arrayLength;
+        this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__arrayLength;
     }
 
     const typedArrayClass = this.getTypedArrayClass(this.__componentType);
@@ -163,16 +160,12 @@ export class Accessor {
 
     /// Check
     const maxExceededSizeOnAoS =
-      this.__byteStride -
-      this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes();
-    const sizeFromAccessorBeginToArrayBufferEnd =
-      this.__raw.byteLength - this.__byteOffsetInRawArrayBufferOfBuffer;
+      this.__byteStride - this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes();
+    const sizeFromAccessorBeginToArrayBufferEnd = this.__raw.byteLength - this.__byteOffsetInRawArrayBufferOfBuffer;
     const maxLimitSizeToAccess = this.byteStride * this.__count - maxExceededSizeOnAoS;
     if (sizeFromAccessorBeginToArrayBufferEnd < maxLimitSizeToAccess) {
       Logger.error(
-        `Requesting a data size that exceeds the remaining capacity of the buffer: ${
-          this.bufferView.buffer.name
-        }.
+        `Requesting a data size that exceeds the remaining capacity of the buffer: ${this.bufferView.buffer.name}.
         Exceeded Size: ${maxLimitSizeToAccess - sizeFromAccessorBeginToArrayBufferEnd}
         this.__raw.byteLength: ${this.__raw.byteLength}
         this.__byteOffsetInRawArrayBufferOfBuffer: ${this.byteOffsetInRawArrayBufferOfBuffer}
@@ -189,10 +182,7 @@ export class Accessor {
     this.__dataView = new DataView(
       this.__raw,
       this.__byteOffsetInRawArrayBufferOfBuffer,
-      Math.min(
-        this.__byteStride * this.__count,
-        this.__raw.byteLength - this.__byteOffsetInRawArrayBufferOfBuffer
-      )
+      Math.min(this.__byteStride * this.__count, this.__raw.byteLength - this.__byteOffsetInRawArrayBufferOfBuffer)
     );
 
     if (this.__byteOffsetInRawArrayBufferOfBuffer % typedArrayClass!.BYTES_PER_ELEMENT === 0) {
@@ -207,12 +197,12 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
 `);
       this.__copyBufferDataToTypedArray();
     }
-    this.__dataViewGetter = (this.__dataView as any)[
-      this.getDataViewGetter(this.__componentType)!
-    ].bind(this.__dataView);
-    this.__dataViewSetter = (this.__dataView as any)[
-      this.getDataViewSetter(this.__componentType)!
-    ].bind(this.__dataView);
+    this.__dataViewGetter = (this.__dataView as any)[this.getDataViewGetter(this.__componentType)!].bind(
+      this.__dataView
+    );
+    this.__dataViewSetter = (this.__dataView as any)[this.getDataViewSetter(this.__componentType)!].bind(
+      this.__dataView
+    );
   }
 
   /**
@@ -222,7 +212,11 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
    */
   private __copyBufferDataToTypedArray() {
     const typedArrayClass = this.getTypedArrayClass(this.__componentType);
-    const copyBuffer = this.__raw.slice(this.__byteOffsetInRawArrayBufferOfBuffer, this.__byteOffsetInRawArrayBufferOfBuffer + this.__compositionType.getNumberOfComponents() * this.__count * typedArrayClass!.BYTES_PER_ELEMENT);
+    const copyBuffer = this.__raw.slice(
+      this.__byteOffsetInRawArrayBufferOfBuffer,
+      this.__byteOffsetInRawArrayBufferOfBuffer +
+        this.__compositionType.getNumberOfComponents() * this.__count * typedArrayClass!.BYTES_PER_ELEMENT
+    );
     this.__typedArray = new typedArrayClass!(copyBuffer);
   }
 
@@ -486,15 +480,48 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
         }
       } else if (this.__compositionType === CompositionType.Vec4) {
         for (let i = 0; i < this.__count; i++) {
-          this.setVec4(i, typedArray[i * 4], typedArray[i * 4 + 1], typedArray[i * 4 + 2], typedArray[i * 4 + 3], { endian: true });
+          this.setVec4(i, typedArray[i * 4], typedArray[i * 4 + 1], typedArray[i * 4 + 2], typedArray[i * 4 + 3], {
+            endian: true,
+          });
         }
       } else if (this.__compositionType === CompositionType.Mat3) {
         for (let i = 0; i < this.__count; i++) {
-          this.setMat3(i, typedArray[i * 9], typedArray[i * 9 + 1], typedArray[i * 9 + 2], typedArray[i * 9 + 3], typedArray[i * 9 + 4], typedArray[i * 9 + 5], typedArray[i * 9 + 6], typedArray[i * 9 + 7], typedArray[i * 9 + 8], { endian: true });
+          this.setMat3(
+            i,
+            typedArray[i * 9],
+            typedArray[i * 9 + 1],
+            typedArray[i * 9 + 2],
+            typedArray[i * 9 + 3],
+            typedArray[i * 9 + 4],
+            typedArray[i * 9 + 5],
+            typedArray[i * 9 + 6],
+            typedArray[i * 9 + 7],
+            typedArray[i * 9 + 8],
+            { endian: true }
+          );
         }
       } else if (this.__compositionType === CompositionType.Mat4) {
         for (let i = 0; i < this.__count; i++) {
-          this.setMat4(i, typedArray[i * 16], typedArray[i * 16 + 1], typedArray[i * 16 + 2], typedArray[i * 16 + 3], typedArray[i * 16 + 4], typedArray[i * 16 + 5], typedArray[i * 16 + 6], typedArray[i * 16 + 7], typedArray[i * 16 + 8], typedArray[i * 16 + 9], typedArray[i * 16 + 10], typedArray[i * 16 + 11], typedArray[i * 16 + 12], typedArray[i * 16 + 13], typedArray[i * 16 + 14], typedArray[i * 16 + 15], { endian: true });
+          this.setMat4(
+            i,
+            typedArray[i * 16],
+            typedArray[i * 16 + 1],
+            typedArray[i * 16 + 2],
+            typedArray[i * 16 + 3],
+            typedArray[i * 16 + 4],
+            typedArray[i * 16 + 5],
+            typedArray[i * 16 + 6],
+            typedArray[i * 16 + 7],
+            typedArray[i * 16 + 8],
+            typedArray[i * 16 + 9],
+            typedArray[i * 16 + 10],
+            typedArray[i * 16 + 11],
+            typedArray[i * 16 + 12],
+            typedArray[i * 16 + 13],
+            typedArray[i * 16 + 14],
+            typedArray[i * 16 + 15],
+            { endian: true }
+          );
         }
       } else {
         throw new Error('Unexpected CompositionType!');
@@ -537,8 +564,7 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
    */
   get isSoA() {
     const isSoA =
-      this.byteStride ===
-      this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes();
+      this.byteStride === this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes();
     return isSoA;
   }
 
@@ -573,11 +599,7 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
    * @param options - Access options including indices accessor and endianness
    * @returns The scalar value
    */
-  getScalarAt(
-    i: Index,
-    compositionOffset: Index,
-    { indicesAccessor, endian = true }: IndicesAccessOption
-  ): number {
+  getScalarAt(i: Index, compositionOffset: Index, { indicesAccessor, endian = true }: IndicesAccessOption): number {
     let index = i;
     if (indicesAccessor) {
       index = indicesAccessor.getScalar(i, {});
@@ -591,10 +613,7 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
    * @param options - Access options including indices accessor and endianness
    * @returns A 2-element array containing the vector components
    */
-  getVec2AsArray(
-    i: Index,
-    { indicesAccessor, endian = true }: IndicesAccessOption
-  ): Array2<number> {
+  getVec2AsArray(i: Index, { indicesAccessor, endian = true }: IndicesAccessOption): Array2<number> {
     let index = i;
     if (indicesAccessor) {
       index = indicesAccessor.getScalar(i, {});
@@ -612,10 +631,7 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
    * @param options - Access options including indices accessor and endianness
    * @returns A 3-element array containing the vector components
    */
-  getVec3AsArray(
-    i: Index,
-    { indicesAccessor, endian = true }: IndicesAccessOption
-  ): Array3<number> {
+  getVec3AsArray(i: Index, { indicesAccessor, endian = true }: IndicesAccessOption): Array3<number> {
     let index = i;
     if (indicesAccessor) {
       index = indicesAccessor.getScalar(i, {});
@@ -634,10 +650,7 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
    * @param options - Access options including indices accessor and endianness
    * @returns A 4-element array containing the vector components
    */
-  getVec4AsArray(
-    i: Index,
-    { indicesAccessor, endian = true }: IndicesAccessOption
-  ): Array4<number> {
+  getVec4AsArray(i: Index, { indicesAccessor, endian = true }: IndicesAccessOption): Array4<number> {
     let index = i;
     if (indicesAccessor) {
       index = indicesAccessor.getScalar(i, {});
@@ -830,11 +843,7 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
    * @param options - Access options including indices accessor and endianness
    * @returns The output Vector2 object (same as the out parameter)
    */
-  getVec2To(
-    i: Index,
-    out: MutableVector2,
-    { indicesAccessor, endian = true }: IndicesAccessOption
-  ): Vector2 {
+  getVec2To(i: Index, out: MutableVector2, { indicesAccessor, endian = true }: IndicesAccessOption): Vector2 {
     let index = i;
     if (indicesAccessor) {
       index = indicesAccessor.getScalar(i, {});
@@ -854,11 +863,7 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
    * @param options - Access options including indices accessor and endianness
    * @returns The output Vector3 object (same as the out parameter)
    */
-  getVec3To(
-    i: Index,
-    out: MutableVector3,
-    { indicesAccessor, endian = true }: IndicesAccessOption
-  ): Vector3 {
+  getVec3To(i: Index, out: MutableVector3, { indicesAccessor, endian = true }: IndicesAccessOption): Vector3 {
     let index = i;
     if (indicesAccessor) {
       index = indicesAccessor.getScalar(i, {});
@@ -879,11 +884,7 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
    * @param options - Access options including indices accessor and endianness
    * @returns The output Vector4 object (same as the out parameter)
    */
-  getVec4To(
-    i: Index,
-    out: MutableVector4,
-    { indicesAccessor, endian = true }: IndicesAccessOption
-  ): Vector4 {
+  getVec4To(i: Index, out: MutableVector4, { indicesAccessor, endian = true }: IndicesAccessOption): Vector4 {
     let index = i;
     if (indicesAccessor) {
       index = indicesAccessor.getScalar(i, {});
@@ -936,11 +937,7 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
    * @param options - Access options including indices accessor and endianness
    * @returns The output MutableMatrix44 object (same as the out parameter)
    */
-  getMat4To(
-    i: Index,
-    out: MutableMatrix44,
-    { indicesAccessor, endian = true }: IndicesAccessOption
-  ): MutableMatrix44 {
+  getMat4To(i: Index, out: MutableMatrix44, { indicesAccessor, endian = true }: IndicesAccessOption): MutableMatrix44 {
     let index = i;
     if (indicesAccessor) {
       index = indicesAccessor.getScalar(i, {});
@@ -1009,13 +1006,7 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
    * @param z - The Z component value
    * @param options - Access options including indices accessor and endianness
    */
-  setVec3(
-    i: Index,
-    x: number,
-    y: number,
-    z: number,
-    { indicesAccessor, endian = true }: IndicesAccessOption
-  ) {
+  setVec3(i: Index, x: number, y: number, z: number, { indicesAccessor, endian = true }: IndicesAccessOption) {
     let index = i;
     if (indicesAccessor) {
       index = indicesAccessor.getScalar(i, {});
@@ -1232,11 +1223,7 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
    * @param mat - The Matrix44 object containing the values to set
    * @param options - Access options including indices accessor and endianness
    */
-  setMat4AsMatrix44(
-    i: Index,
-    mat: Matrix44,
-    { indicesAccessor, endian = true }: IndicesAccessOption
-  ) {
+  setMat4AsMatrix44(i: Index, mat: Matrix44, { indicesAccessor, endian = true }: IndicesAccessOption) {
     let index = i;
     if (indicesAccessor) {
       index = indicesAccessor.getScalar(i, {});
@@ -1283,14 +1270,7 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
           this.setVec3(idx, typedArray[idxN + 0], typedArray[idxN + 1], typedArray[idxN + 2], {});
           break;
         case 4:
-          this.setVec4(
-            idx,
-            typedArray[idxN + 0],
-            typedArray[idxN + 1],
-            typedArray[idxN + 2],
-            typedArray[idxN + 3],
-            {}
-          );
+          this.setVec4(idx, typedArray[idxN + 0], typedArray[idxN + 1], typedArray[idxN + 2], typedArray[idxN + 3], {});
           break;
         default:
           throw new Error('Other than vectors are currently not supported.');
@@ -1349,11 +1329,7 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
    */
   copyBuffer(accessor: Accessor) {
     new Uint8Array(this.__raw).set(
-      new Uint8Array(
-        accessor.__raw,
-        accessor.__byteOffsetInRawArrayBufferOfBuffer,
-        accessor.byteLength
-      ),
+      new Uint8Array(accessor.__raw, accessor.__byteOffsetInRawArrayBufferOfBuffer, accessor.byteLength),
       this.__byteOffsetInRawArrayBufferOfBuffer
     );
     this.__isMinMixDirty = true;
@@ -1432,33 +1408,16 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
    * @param coeff - The coefficient to multiply the source values by
    * @param secondIdx - Optional source index (defaults to i)
    */
-  addElementFromSameCompositionAccessor(
-    i: Index,
-    accessor: Accessor,
-    coeff: number,
-    secondIdx?: Index
-  ) {
+  addElementFromSameCompositionAccessor(i: Index, accessor: Accessor, coeff: number, secondIdx?: Index) {
     const j = secondIdx ?? i;
     if (this.compositionType.getNumberOfComponents() === 1) {
       this.setScalar(i, this.getScalar(i, {}) + coeff * accessor.getScalar(j, {}), {});
     } else if (this.compositionType.getNumberOfComponents() === 2) {
-      this.setVec2AsVector(
-        i,
-        Vector2.add(this.getVec2(i, {}), Vector2.multiply(accessor.getVec2(j, {}), coeff)),
-        {}
-      );
+      this.setVec2AsVector(i, Vector2.add(this.getVec2(i, {}), Vector2.multiply(accessor.getVec2(j, {}), coeff)), {});
     } else if (this.compositionType.getNumberOfComponents() === 3) {
-      this.setVec3AsVector(
-        i,
-        Vector3.add(this.getVec3(i, {}), Vector3.multiply(accessor.getVec3(j, {}), coeff)),
-        {}
-      );
+      this.setVec3AsVector(i, Vector3.add(this.getVec3(i, {}), Vector3.multiply(accessor.getVec3(j, {}), coeff)), {});
     } else if (this.compositionType.getNumberOfComponents() === 4) {
-      this.setVec4AsVector(
-        i,
-        Vector4.add(this.getVec4(i, {}), Vector4.multiply(accessor.getVec4(j, {}), coeff)),
-        {}
-      );
+      this.setVec4AsVector(i, Vector4.add(this.getVec4(i, {}), Vector4.multiply(accessor.getVec4(j, {}), coeff)), {});
     }
     this.__isMinMixDirty = true;
     this.__onUpdated();
@@ -1485,10 +1444,7 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
    * @returns The byte offset in the buffer view
    */
   get byteOffsetInBufferView(): Byte {
-    return (
-      this.__byteOffsetInRawArrayBufferOfBuffer -
-      this.__bufferView.byteOffsetInRawArrayBufferOfBuffer
-    );
+    return this.__byteOffsetInRawArrayBufferOfBuffer - this.__bufferView.byteOffsetInRawArrayBufferOfBuffer;
   }
 
   /**
@@ -1496,10 +1452,7 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
    * @returns The byte offset in the buffer
    */
   get byteOffsetInBuffer(): Byte {
-    return (
-      this.__byteOffsetInRawArrayBufferOfBuffer -
-      this.__bufferView.buffer.byteOffsetInRawArrayBuffer
-    );
+    return this.__byteOffsetInRawArrayBufferOfBuffer - this.__bufferView.buffer.byteOffsetInRawArrayBuffer;
   }
 
   /**
@@ -1566,13 +1519,14 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
     const componentN = this.compositionType.getNumberOfComponents();
     if (componentN === 4) {
       return [this.__min._v[0], this.__min._v[1], this.__min._v[2], this.__min._v[3]];
-    } else if (componentN === 3) {
-      return [this.__min._v[0], this.__min._v[1], this.__min._v[2]];
-    } else if (componentN === 2) {
-      return [this.__min._v[0], this.__min._v[1]];
-    } else {
-      return [this.__min._v[0]];
     }
+    if (componentN === 3) {
+      return [this.__min._v[0], this.__min._v[1], this.__min._v[2]];
+    }
+    if (componentN === 2) {
+      return [this.__min._v[0], this.__min._v[1]];
+    }
+    return [this.__min._v[0]];
   }
 
   /**
@@ -1587,13 +1541,14 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
     const componentN = this.compositionType.getNumberOfComponents();
     if (componentN === 4) {
       return [this.__max._v[0], this.__max._v[1], this.__max._v[2], this.__max._v[3]];
-    } else if (componentN === 3) {
-      return [this.__max._v[0], this.__max._v[1], this.__max._v[2]];
-    } else if (componentN === 2) {
-      return [this.__max._v[0], this.__max._v[1]];
-    } else {
-      return [this.__max._v[0]];
     }
+    if (componentN === 3) {
+      return [this.__max._v[0], this.__max._v[1], this.__max._v[2]];
+    }
+    if (componentN === 2) {
+      return [this.__max._v[0], this.__max._v[1]];
+    }
+    return [this.__max._v[0]];
   }
 
   /**
@@ -1611,18 +1566,8 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
   private __calcMinMax() {
     const componentN = this.compositionType.getNumberOfComponents();
     if (componentN === 4) {
-      this.__max.setComponents(
-        -Number.MAX_VALUE,
-        -Number.MAX_VALUE,
-        -Number.MAX_VALUE,
-        -Number.MAX_VALUE
-      );
-      this.__min.setComponents(
-        Number.MAX_VALUE,
-        Number.MAX_VALUE,
-        Number.MAX_VALUE,
-        Number.MAX_VALUE
-      );
+      this.__max.setComponents(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+      this.__min.setComponents(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
 
       const vec4 = Accessor.__tmpVector4_0;
       for (let i = 0; i < this.elementCount; i++) {
@@ -1637,18 +1582,8 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
         }
       }
     } else if (componentN === 3) {
-      this.__max.setComponents(
-        -Number.MAX_VALUE,
-        -Number.MAX_VALUE,
-        -Number.MAX_VALUE,
-        -Number.MAX_VALUE
-      );
-      this.__min.setComponents(
-        Number.MAX_VALUE,
-        Number.MAX_VALUE,
-        Number.MAX_VALUE,
-        Number.MAX_VALUE
-      );
+      this.__max.setComponents(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+      this.__min.setComponents(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
 
       const vec3 = Accessor.__tmpVector3_0;
       for (let i = 0; i < this.elementCount; i++) {
@@ -1663,18 +1598,8 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
         }
       }
     } else if (componentN === 2) {
-      this.__max.setComponents(
-        -Number.MAX_VALUE,
-        -Number.MAX_VALUE,
-        -Number.MAX_VALUE,
-        -Number.MAX_VALUE
-      );
-      this.__min.setComponents(
-        Number.MAX_VALUE,
-        Number.MAX_VALUE,
-        Number.MAX_VALUE,
-        Number.MAX_VALUE
-      );
+      this.__max.setComponents(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+      this.__min.setComponents(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
 
       const vec2 = Accessor.__tmpVector2_0;
       for (let i = 0; i < this.elementCount; i++) {
@@ -1689,18 +1614,8 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
         }
       }
     } else if (componentN === 1) {
-      this.__max.setComponents(
-        -Number.MAX_VALUE,
-        -Number.MAX_VALUE,
-        -Number.MAX_VALUE,
-        -Number.MAX_VALUE
-      );
-      this.__min.setComponents(
-        Number.MAX_VALUE,
-        Number.MAX_VALUE,
-        Number.MAX_VALUE,
-        Number.MAX_VALUE
-      );
+      this.__max.setComponents(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+      this.__min.setComponents(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
 
       for (let i = 0; i < this.elementCount; i++) {
         const scalar = this.getScalar(i, {});
@@ -1739,13 +1654,10 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
   get actualByteStride() {
     if (this.__byteStride === 0) {
       const actualByteStride =
-        this.__compositionType.getNumberOfComponents() *
-        this.__componentType.getSizeInBytes() *
-        this.__arrayLength;
+        this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__arrayLength;
       return actualByteStride;
-    } else {
-      return this.__byteStride;
     }
+    return this.__byteStride;
   }
 
   /**

@@ -8,8 +8,8 @@ function readyBasicVerticesData() {
   const indices = new Uint16Array([
     //        0, 1, 2, 2, 3, 0
 
-    3, 1, 0, 2, 1, 3, 4, 5, 7, 7, 5, 6, 8, 9, 11, 11, 9, 10, 15, 13, 12, 14, 13, 15, 19, 17, 16, 18,
-    17, 19, 20, 21, 23, 23, 21, 22,
+    3, 1, 0, 2, 1, 3, 4, 5, 7, 7, 5, 6, 8, 9, 11, 11, 9, 10, 15, 13, 12, 14, 13, 15, 19, 17, 16, 18, 17, 19, 20, 21, 23,
+    23, 21, 22,
   ]);
 
   const positions = new Float32Array([
@@ -110,7 +110,7 @@ const stats = new Stats();
 stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
 document.body.appendChild(stats.domElement);
 
-const draw = function () {
+const draw = () => {
   if (count > 0) {
     window._rendered = true;
   }
@@ -119,7 +119,7 @@ const draw = function () {
 
   if (window.isAnimating) {
     const rotation = 0.001 * (date.getTime() - startTime);
-    entities.forEach((entity) => {
+    entities.forEach(entity => {
       rotationVec3._v[0] = rotation;
       rotationVec3._v[1] = rotation;
       rotationVec3._v[2] = rotation;
@@ -138,6 +138,6 @@ const draw = function () {
 
 draw();
 
-window.exportGltf2 = function () {
+window.exportGltf2 = () => {
   Rn.Gltf2Exporter.export('Rhodonite');
 };

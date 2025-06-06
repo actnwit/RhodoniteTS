@@ -1,4 +1,4 @@
-import { Option, None, Some } from './Option';
+import { None, type Option, Some } from './Option';
 test('unwrapOrDefault', () => {
   const val0: Option<number> = new Some(0);
   expect(val0.unwrapOrDefault(1)).toEqual(0);
@@ -79,10 +79,9 @@ test('Basic usage of Some and None', () => {
     if (val % 2 === 0) {
       // return hit object for even numbers
       return new Some(new Hit());
-    } else {
-      // return nothing for odd numbers
-      return new None();
     }
+    // return nothing for odd numbers
+    return new None();
   };
 
   const result0: Option<Hit> = funcUsingSomeAndNone(0); // Some
@@ -103,7 +102,7 @@ test('An IOption variable can be replaced by Some', () => {
 
 test('then(func)', () => {
   const val0 = new Some(0);
-  val0.andThen((val) => {
+  val0.andThen(val => {
     expect(val).toEqual(0);
     return new Some(1);
   });
@@ -111,13 +110,13 @@ test('then(func)', () => {
 
 test('const var = then(func)', () => {
   const val0 = new Some(0);
-  const val1 = val0.andThen((val) => {
+  const val1 = val0.andThen(val => {
     return new Some(val);
   });
   expect(val1.has()).toBe(true);
 
   const none = new None();
-  const none2 = none.andThen((val) => {
+  const none2 = none.andThen(val => {
     return new Some(val); // this is not executed
   });
   expect(none2.doesNotHave()).toBe(true);
@@ -125,7 +124,7 @@ test('const var = then(func)', () => {
 
 test('then<T>', () => {
   const val0 = new Some(0);
-  const val1 = val0.andThen<string>((_val) => {
+  const val1 = val0.andThen<string>(_val => {
     return new Some('exist!');
   });
   expect(val1.unwrapForce()).toEqual('exist!');
@@ -156,7 +155,7 @@ test('then(func).else(func)', () => {
   {
     const some = new Some(0);
     const val = some
-      .andThen((val) => {
+      .andThen(val => {
         expect(val).toEqual(0);
         return new None();
       })
@@ -201,7 +200,7 @@ test('else(func).then(func)', () => {
         console.error('this is not executed');
         return new Some(1);
       })
-      .andThen((val) => {
+      .andThen(val => {
         expect(val).toEqual(0); // do something with the original value
         return new Some(val);
       });
@@ -213,7 +212,7 @@ test('else(func).then(func)', () => {
       .orElse(() => {
         return new Some(1); // recover
       })
-      .andThen((val) => {
+      .andThen(val => {
         expect(val).toEqual(1); // do something with the recovered value
         return new Some(val);
       });
@@ -225,7 +224,7 @@ test('then(func).else(func) with return value', () => {
   {
     const some = new Some(0);
     const val = some
-      .andThen((val) => {
+      .andThen(val => {
         // this is executed because a some.then() does the received function
         expect(val).toEqual(0);
         return new Some(val);
@@ -241,7 +240,7 @@ test('then(func).else(func) with return value', () => {
   {
     const none = new None();
     const val = none
-      .andThen((val) => {
+      .andThen(val => {
         console.error(
           'this is not executed. because a none.then() just returns the none itself but execute received function.'
         );
@@ -263,7 +262,7 @@ test('else(func).then(func) with return value', () => {
         console.error('this is not executed');
         return new Some(1); // recover
       })
-      .andThen((val) => {
+      .andThen(val => {
         expect(val).toEqual(0); // do something with the original value
         return new Some(val);
       });
@@ -275,7 +274,7 @@ test('else(func).then(func) with return value', () => {
       .orElse(() => {
         return new Some(1); // recover
       })
-      .andThen((val) => {
+      .andThen(val => {
         expect(val).toEqual(1); // do something with the recovered value
         return new Some(val);
       });
@@ -286,7 +285,7 @@ test('else(func).then(func) with return value', () => {
 test('match', () => {
   const some = new Some(0);
   const val = some.match({
-    Some: (val) => {
+    Some: val => {
       expect(val).toEqual(0);
     },
     None: () => {
@@ -297,7 +296,7 @@ test('match', () => {
 
   const none = new None();
   const val2 = none.match({
-    Some: (_val) => {
+    Some: _val => {
       fail('this is not executed');
     },
     None: () => {
@@ -310,14 +309,14 @@ test('match', () => {
 test('match with return value', () => {
   const some = new Some(0);
   const val = some.match({
-    Some: (val) => val,
+    Some: val => val,
     None: () => 1,
   });
   expect(val).toEqual(0);
 
   const none = new None();
   const val2 = none.match({
-    Some: (val) => val,
+    Some: val => val,
     None: () => 1,
   });
   expect(val2).toEqual(1);
@@ -326,14 +325,14 @@ test('match with return value', () => {
 test('match<T> with return value', () => {
   const some = new Some(0);
   const val = some.match({
-    Some: (_val) => 'exist!',
+    Some: _val => 'exist!',
     None: () => 'none',
   });
   expect(val).toEqual('exist!');
 
   const none = new None();
   const val2 = none.match({
-    Some: (_val) => 'exist!',
+    Some: _val => 'exist!',
     None: () => 'none',
   });
   expect(val2).toEqual('none');

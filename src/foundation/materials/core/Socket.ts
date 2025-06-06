@@ -1,11 +1,11 @@
-import { ComponentTypeEnum } from '../../definitions/ComponentType';
-import { CompositionTypeEnum } from '../../definitions/CompositionType';
-import { Matrix33 } from '../../math/Matrix33';
-import { Matrix44 } from '../../math/Matrix44';
-import { Scalar } from '../../math/Scalar';
-import { Vector2 } from '../../math/Vector2';
-import { Vector3 } from '../../math/Vector3';
-import { Vector4 } from '../../math/Vector4';
+import type { ComponentTypeEnum } from '../../definitions/ComponentType';
+import type { CompositionTypeEnum } from '../../definitions/CompositionType';
+import type { Matrix33 } from '../../math/Matrix33';
+import type { Matrix44 } from '../../math/Matrix44';
+import type { Scalar } from '../../math/Scalar';
+import type { Vector2 } from '../../math/Vector2';
+import type { Vector3 } from '../../math/Vector3';
+import type { Vector4 } from '../../math/Vector4';
 
 /**
  * Union type representing all possible default values that can be assigned to a Socket.
@@ -26,7 +26,7 @@ export class Socket<
   Name extends string,
   N extends CompositionTypeEnum,
   T extends ComponentTypeEnum,
-  V extends SocketDefaultValue
+  V extends SocketDefaultValue,
 > {
   /**
    * Creates a new Socket instance with the specified name, types, and optional default value.

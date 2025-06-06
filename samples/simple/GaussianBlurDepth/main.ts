@@ -65,10 +65,7 @@ function createEntityPostEffectCamera() {
   return entityCamera;
 }
 
-function createRenderPassDepthEncode(
-  cameraComponent: Rn.CameraComponent,
-  entitiesTarget: Rn.ISceneGraphEntity[]
-) {
+function createRenderPassDepthEncode(cameraComponent: Rn.CameraComponent, entitiesTarget: Rn.ISceneGraphEntity[]) {
   const renderPass = new Rn.RenderPass();
   renderPass.toClearColorBuffer = true;
   renderPass.cameraComponent = cameraComponent;
@@ -125,11 +122,7 @@ function createEntityBoard() {
   return entity;
 }
 
-function createAndSetFramebuffer(
-  renderPass: Rn.RenderPass,
-  resolution: number,
-  textureNum: number
-) {
+function createAndSetFramebuffer(renderPass: Rn.RenderPass, resolution: number, textureNum: number) {
   const framebuffer = Rn.RenderableHelper.createFrameBuffer({
     width: resolution,
     height: resolution,
@@ -141,10 +134,7 @@ function createAndSetFramebuffer(
   return framebuffer;
 }
 
-function createRenderPassGaussianBlurForDepth(
-  renderPassBlurTarget: Rn.RenderPass,
-  isHorizontal: boolean
-) {
+function createRenderPassGaussianBlurForDepth(renderPassBlurTarget: Rn.RenderPass, isHorizontal: boolean) {
   const material = Rn.MaterialHelper.createGaussianBlurForEncodedDepthMaterial();
 
   const gaussianDistributionRatio = Rn.MathUtil.computeGaussianDistributionRatioWhoseSumIsOne({
@@ -159,15 +149,9 @@ function createRenderPassGaussianBlurForDepth(
   }
 
   const framebufferTarget = renderPassBlurTarget.getFramebuffer();
-  material.setParameter(
-    'framebufferSize',
-    Rn.Vector2.fromCopy2(framebufferTarget.width, framebufferTarget.height)
-  );
+  material.setParameter('framebufferSize', Rn.Vector2.fromCopy2(framebufferTarget.width, framebufferTarget.height));
   const TextureTarget = framebufferTarget.colorAttachments[0] as Rn.RenderTargetTexture;
-  const renderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
-    material,
-    TextureTarget
-  );
+  const renderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(material, TextureTarget);
 
   return renderPass;
 }

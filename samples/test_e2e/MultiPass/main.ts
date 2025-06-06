@@ -133,7 +133,7 @@ Rn.System.startRenderLoop(() => {
 
   if (window.isAnimating) {
     const rotation = 0.001 * (date.getTime() - startTime);
-    entities.forEach((entity) => {
+    entities.forEach(entity => {
       rotationVec3._v[0] = rotation;
       rotationVec3._v[1] = rotation;
       rotationVec3._v[2] = rotation;
@@ -149,6 +149,6 @@ Rn.System.startRenderLoop(() => {
   count++;
 });
 
-window.exportGltf2 = function () {
+window.exportGltf2 = () => {
   Rn.Gltf2Exporter.export('Rhodonite');
 };

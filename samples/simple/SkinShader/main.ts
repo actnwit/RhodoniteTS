@@ -2,11 +2,11 @@ import Rn from '../../../dist/esmdev/index.js';
 
 declare const window: any;
 
-const setupRenderPassEntityUidOutput = function (
+const setupRenderPassEntityUidOutput = (
   rootGroup: Rn.ISceneGraphEntity,
   cameraComponent: Rn.CameraComponent,
   canvas: HTMLCanvasElement
-) {
+) => {
   const renderPass = new Rn.RenderPass();
   const entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
 
@@ -32,7 +32,7 @@ const setupRenderPassEntityUidOutput = function (
   return renderPass;
 };
 
-const setupRenderPassRendering = function (rootGroup, cameraComponent) {
+const setupRenderPassRendering = (rootGroup, cameraComponent) => {
   const renderPass = new Rn.RenderPass();
   renderPass.cameraComponent = cameraComponent;
   renderPass.addEntities([rootGroup]);
@@ -45,7 +45,7 @@ const setupRenderPassRendering = function (rootGroup, cameraComponent) {
 
 let p = null;
 
-const load = async function () {
+const load = async () => {
   Rn.Config.cgApiDebugConsoleOutput = true;
   const canvas = document.getElementById('world') as HTMLCanvasElement;
   window.canvas = canvas;
@@ -67,18 +67,13 @@ const load = async function () {
   // Lights
   const lightEntity2 = Rn.createLightEntity();
   lightEntity2.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, 10.0]);
-  (lightEntity2.getComponent(Rn.LightComponent) as Rn.LightComponent).color =
-    Rn.Vector3.fromCopyArray([1, 1, 1]);
+  (lightEntity2.getComponent(Rn.LightComponent) as Rn.LightComponent).color = Rn.Vector3.fromCopyArray([1, 1, 1]);
 
   // Please download a model from https://www.3dscanstore.com/blog/Free-3D-Head-Model or others
-  const response = (await Rn.Gltf2Importer.importFromUrl(''));
+  const response = await Rn.Gltf2Importer.importFromUrl('');
   const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(response);
 
-  const renderPassEntityUidOutput = setupRenderPassEntityUidOutput(
-    rootGroup,
-    cameraComponent,
-    canvas
-  );
+  const renderPassEntityUidOutput = setupRenderPassEntityUidOutput(rootGroup, cameraComponent, canvas);
   window.renderPassEntityUidOutput = renderPassEntityUidOutput;
   const renderPassRendering = setupRenderPassRendering(rootGroup, cameraComponent);
   // expression.addRenderPasses([renderPassEntityUidOutput]);
@@ -96,7 +91,7 @@ const load = async function () {
   let startTime = Date.now();
   const rotationVec3 = Rn.MutableVector3.one();
   let count = 0;
-  const draw = function (time) {
+  const draw = time => {
     if (p == null && count > 0) {
       p = document.createElement('p');
       p.setAttribute('id', 'rendered');

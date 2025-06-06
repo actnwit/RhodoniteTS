@@ -1,6 +1,6 @@
-import { FloatTypedArrayConstructor } from '../../../types/CommonTypes';
-import { IMutableVector3, IVector3 } from '../IVector';
-import { MutableVector3_ } from '../MutableVector3';
+import type { FloatTypedArrayConstructor } from '../../../types/CommonTypes';
+import type { IMutableVector3, IVector3 } from '../IVector';
+import type { MutableVector3_ } from '../MutableVector3';
 import { Vector3_ } from '../Vector3';
 
 /**

@@ -1,6 +1,6 @@
 import { TypedArray } from '../../types/CommonTypes';
-import { IQuaternion } from './IQuaternion';
-import { IMutableVector3, IVector3 } from './IVector';
+import type { IQuaternion } from './IQuaternion';
+import type { IMutableVector3, IVector3 } from './IVector';
 
 /**
  * Abstract base class for quaternion implementations.
@@ -195,12 +195,7 @@ export abstract class AbstractQuaternion implements IQuaternion {
    * @returns The dot product result
    */
   dot(quat: IQuaternion) {
-    return (
-      this._v[0] * quat._v[0] +
-      this._v[1] * quat._v[1] +
-      this._v[2] * quat._v[2] +
-      this._v[3] * quat._v[3]
-    );
+    return this._v[0] * quat._v[0] + this._v[1] * quat._v[1] + this._v[2] * quat._v[2] + this._v[3] * quat._v[3];
   }
 
   /**

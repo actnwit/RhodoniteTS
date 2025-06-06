@@ -1,9 +1,9 @@
-import { Buffer } from '../memory/Buffer';
-import { CompositionTypeEnum } from '../definitions/CompositionType';
-import { ComponentTypeEnum } from '../definitions/ComponentType';
+import type { Byte, Count, Size } from '../../types/CommonTypes';
+import type { ComponentTypeEnum } from '../definitions/ComponentType';
+import type { CompositionTypeEnum } from '../definitions/CompositionType';
+import type { Buffer } from '../memory/Buffer';
+import { Err, Ok, type Result } from '../misc';
 import { Accessor } from './Accessor';
-import { Byte, Count, Size } from '../../types/CommonTypes';
-import { Err, Result, Ok } from '../misc';
 
 /**
  * BufferView represents a view into a Buffer with specific byte offset and length.
@@ -50,8 +50,7 @@ export class BufferView {
   }) {
     this.__buffer = buffer;
     this.__byteOffsetInBuffer = byteOffsetInBuffer;
-    this.__byteOffsetInRawArrayBufferOfBuffer =
-      buffer.byteOffsetInRawArrayBuffer + byteOffsetInBuffer;
+    this.__byteOffsetInRawArrayBufferOfBuffer = buffer.byteOffsetInRawArrayBuffer + byteOffsetInBuffer;
     this.__byteLength = byteLength;
     this.__defaultByteStride = defaultByteStride;
     this.__raw = raw;
@@ -266,8 +265,7 @@ export class BufferView {
     const byteOffsetInBufferView = this.__takenByte;
     let actualByteStride = byteStride;
     if (actualByteStride === 0) {
-      actualByteStride =
-        compositionType.getNumberOfComponents() * componentType.getSizeInBytes() * arrayLength;
+      actualByteStride = compositionType.getNumberOfComponents() * componentType.getSizeInBytes() * arrayLength;
     }
 
     // Each accessor MUST fit its bufferView, i.e.,
@@ -283,9 +281,7 @@ export class BufferView {
 BufferView.byteLength: ${this.byteLength}, BufferView.takenSizeInByte: ${
         this.__takenByte
       }, Accessor.byteStride: ${byteStride}, Accessor.count: ${count};
-byteSizeToTake: ${actualByteStride * count}, the byte length left in the Buffer: ${
-        this.byteLength - this.__takenByte
-      }`;
+byteSizeToTake: ${actualByteStride * count}, the byte length left in the Buffer: ${this.byteLength - this.__takenByte}`;
       // console.error(message);
       return new Err({
         message,
@@ -354,9 +350,7 @@ byteSizeToTake: ${actualByteStride * count}, the byte length left in the Buffer:
 BufferView.byteLength: ${this.byteLength}, BufferView.takenSizeInByte: ${
         this.__takenByte
       }, Accessor.byteStride: ${byteStride}, Accessor.count: ${count};
-byteSizeToTake: ${byteStride * count}, the byte length left in the Buffer: ${
-        this.byteLength - this.__takenByte
-      }`;
+byteSizeToTake: ${byteStride * count}, the byte length left in the Buffer: ${this.byteLength - this.__takenByte}`;
       return new Err({
         message,
         error: undefined,

@@ -1,45 +1,42 @@
-import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';
-import { ComponentRepository } from '../core/ComponentRepository';
-import { ProcessApproachEnum, ProcessApproach } from '../definitions/ProcessApproach';
-import { ModuleManager } from './ModuleManager';
-import {
-  CGAPIResourceRepository,
-  ICGAPIResourceRepository,
-} from '../renderer/CGAPIResourceRepository';
-import { Component } from '../core/Component';
-import { Expression } from '../renderer/Expression';
-import { EntityRepository } from '../core/EntityRepository';
-import { MemoryManager } from '../core/MemoryManager';
-import { GlobalDataRepository } from '../core/GlobalDataRepository';
-import { Vector3 } from '../math/Vector3';
-import { CameraType } from '../definitions/CameraType';
-import { Time } from '../misc/Time';
-import { SystemState } from './SystemState';
-import { MiscUtil } from '../misc/MiscUtil';
-import type { RnXR } from '../../xr/main';
-import { Is } from '../misc/Is';
-import { ISceneGraphEntity } from '../helpers/EntityHelper';
-import { Config } from '../core/Config';
-import { Frame } from '../renderer/Frame';
-import { Vector4 } from '../math/Vector4';
-import { RenderPass } from '../renderer/RenderPass';
-import { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
-import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
-import { initDefaultTextures } from '../materials/core/DummyTextures';
+import { VERSION } from '../../version';
+import type { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
+import type { WebGpuDeviceWrapper } from '../../webgpu/WebGpuDeviceWrapper';
 import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
-import { WebGpuDeviceWrapper } from '../../webgpu/WebGpuDeviceWrapper';
 import { WebGpuStrategyBasic } from '../../webgpu/WebGpuStrategyBasic';
-import { CameraComponent } from '../components/Camera/CameraComponent';
+import type { RnXR } from '../../xr/main';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
+import { CameraComponent } from '../components/Camera/CameraComponent';
+import { createCameraEntity } from '../components/Camera/createCameraEntity';
 import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
 import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
 import { TransformComponent } from '../components/Transform/TransformComponent';
-import { Primitive } from '../geometry/Primitive';
-import { VERSION } from '../../version';
+import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
+import { Component } from '../core/Component';
+import { ComponentRepository } from '../core/ComponentRepository';
+import { Config } from '../core/Config';
+import { EntityRepository } from '../core/EntityRepository';
+import { GlobalDataRepository } from '../core/GlobalDataRepository';
+import { MemoryManager } from '../core/MemoryManager';
+import { CameraType } from '../definitions/CameraType';
+import { ProcessApproach, type ProcessApproachEnum } from '../definitions/ProcessApproach';
+import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
-import { Scalar } from '../math/Scalar';
-import { createCameraEntity } from '../components/Camera/createCameraEntity';
+import { Primitive } from '../geometry/Primitive';
+import type { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { initDefaultTextures } from '../materials/core/DummyTextures';
+import type { Scalar } from '../math/Scalar';
+import { Vector3 } from '../math/Vector3';
+import { Vector4 } from '../math/Vector4';
+import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
+import { MiscUtil } from '../misc/MiscUtil';
+import { Time } from '../misc/Time';
+import { CGAPIResourceRepository, type ICGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import { Expression } from '../renderer/Expression';
+import { Frame } from '../renderer/Frame';
+import { RenderPass } from '../renderer/RenderPass';
+import { ModuleManager } from './ModuleManager';
+import { SystemState } from './SystemState';
 declare const spector: any;
 
 /**
@@ -108,10 +105,7 @@ export class System {
    * @param renderLoopFunc - function to be called in each frame
    * @param args - arguments you want to be passed to renderLoopFunc
    */
-  public static startRenderLoop(
-    renderLoopFunc: (time: number, ...args: any[]) => void,
-    ...args: any[]
-  ) {
+  public static startRenderLoop(renderLoopFunc: (time: number, ...args: any[]) => void, ...args: any[]) {
     this.__renderLoopFunc = renderLoopFunc;
     this.__args = args;
     const animationFrameObject = this.__getAnimationFrameObject();
@@ -119,10 +113,7 @@ export class System {
       this.__rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
     }
 
-    this.__animationFrameId = animationFrameObject.requestAnimationFrame(((
-      _time: number,
-      xrFrame: XRFrame
-    ) => {
+    this.__animationFrameId = animationFrameObject.requestAnimationFrame(((_time: number, xrFrame: XRFrame) => {
       if (this.__rnXRModule !== undefined) {
         const webXRSystem = this.__rnXRModule.WebXRSystem.getInstance();
         const webARSystem = this.__rnXRModule.WebARSystem.getInstance();
@@ -237,7 +228,7 @@ export class System {
       const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
       for (const stage of Component._processStages) {
         const methodName = stage.methodName;
-        const commonMethodName = 'common_' + methodName;
+        const commonMethodName = `common_${methodName}`;
         if (stage === ProcessStage.Render) {
           const webGpuStrategyBasic = WebGpuStrategyBasic.getInstance();
           MeshRendererComponent.common_$prerender();
@@ -280,13 +271,11 @@ export class System {
             AnimationComponent.isAnimating ||
             TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
             CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
-            CameraControllerComponent.updateCount !==
-              this.__lastCameraControllerComponentsUpdateCount ||
+            CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
             Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount
           ) {
             for (const componentTid of componentTids) {
-              const componentClass: typeof Component =
-                ComponentRepository.getComponentClass(componentTid)!;
+              const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
 
               const componentClass_commonMethod = (componentClass as any)[commonMethodName];
               if (componentClass_commonMethod) {
@@ -316,13 +305,12 @@ export class System {
       const renderingComponentTids = ComponentRepository.getRenderingComponentTIDs();
       for (const stage of Component._processStages) {
         const methodName = stage.methodName;
-        const commonMethodName = 'common_' + methodName;
+        const commonMethodName = `common_${methodName}`;
         if (stage === ProcessStage.Render) {
           MeshRendererComponent.common_$prerender();
           for (const exp of expressions) {
             for (const componentTid of renderingComponentTids) {
-              const componentClass: typeof Component =
-                ComponentRepository.getComponentClass(componentTid)!;
+              const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
               for (const renderPass of exp.renderPasses) {
                 if (typeof spector !== 'undefined') {
                   spector.setMarker(`| ${exp.uniqueName}: ${renderPass.uniqueName}#`);
@@ -376,13 +364,11 @@ export class System {
             AnimationComponent.isAnimating ||
             TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
             CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
-            CameraControllerComponent.updateCount !==
-              this.__lastCameraControllerComponentsUpdateCount ||
+            CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
             Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount
           ) {
             for (const componentTid of componentTids) {
-              const componentClass: typeof Component =
-                ComponentRepository.getComponentClass(componentTid)!;
+              const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
 
               const componentClass_commonMethod = (componentClass as any)[commonMethodName];
               if (componentClass_commonMethod) {
@@ -436,9 +422,7 @@ export class System {
     const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
     const webARSystem = rnXRModule?.WebARSystem.getInstance();
     if ((!webXRSystem?.isWebXRMode || !renderPass.isVrRendering) && !webARSystem?.isWebARMode) {
-      (this.__cgApiResourceRepository as WebGLResourceRepository).setViewport(
-        renderPass.getViewport()
-      );
+      (this.__cgApiResourceRepository as WebGLResourceRepository).setViewport(renderPass.getViewport());
     }
   }
 
@@ -446,19 +430,15 @@ export class System {
     const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
     const webARSystem = rnXRModule?.WebARSystem.getInstance();
     if (webXRSystem?.isWebXRMode && renderPass.isOutputForVr) {
-      const glw = (this.__cgApiResourceRepository as WebGLResourceRepository)
-        .currentWebGLContextWrapper!;
+      const glw = (this.__cgApiResourceRepository as WebGLResourceRepository).currentWebGLContextWrapper!;
       const gl = glw.getRawContext();
       gl.bindFramebuffer(gl.FRAMEBUFFER, webXRSystem.framebuffer!);
     } else if (webARSystem?.isWebARMode) {
-      const glw = (this.__cgApiResourceRepository as WebGLResourceRepository)
-        .currentWebGLContextWrapper!;
+      const glw = (this.__cgApiResourceRepository as WebGLResourceRepository).currentWebGLContextWrapper!;
       const gl = glw.getRawContext();
       gl.bindFramebuffer(gl.FRAMEBUFFER, webARSystem.framebuffer!);
     } else {
-      (this.__cgApiResourceRepository as WebGLResourceRepository).bindFramebuffer(
-        renderPass.getFramebuffer()
-      );
+      (this.__cgApiResourceRepository as WebGLResourceRepository).bindFramebuffer(renderPass.getFramebuffer());
       (this.__cgApiResourceRepository as WebGLResourceRepository).setDrawTargets(renderPass);
     }
   }
@@ -466,17 +446,17 @@ export class System {
   private static __displayRnInfo() {
     console.log(
       `%cRhodonite%cWeb3D Library%c %cversion%c${VERSION.version}%c %cbranch%c${VERSION.branch}%c %cmode%c${this.__processApproach.str}`,
-      `font-weight: bold; padding: 4px 8px; border-radius: 6px 0px 0px 6px; background: linear-gradient(to right, #ff0084 0%,#ff0022 100%);`,
-      `padding: 4px; border-radius: 0px 6px 6px 0px; background: linear-gradient(to right, #8400ff 0%,#4400ff 100%);`,
-      ``,
-      `background: #666; padding: 4px; border-radius: 6px 0px 0px 6px`,
-      `background: firebrick; padding: 4px; border-radius: 0px 6px 6px 0px`,
-      ``,
-      `background: #666; padding: 4px; border-radius: 6px 0px 0px 6px`,
-      `background: green; padding: 4px; border-radius: 0px 6px 6px 0px`,
-      ``,
-      `background: #666; padding: 4px; border-radius: 6px 0px 0px 6px`,
-      `background: blue; padding: 4px; border-radius: 0px 6px 6px 0px`
+      'font-weight: bold; padding: 4px 8px; border-radius: 6px 0px 0px 6px; background: linear-gradient(to right, #ff0084 0%,#ff0022 100%);',
+      'padding: 4px; border-radius: 0px 6px 6px 0px; background: linear-gradient(to right, #8400ff 0%,#4400ff 100%);',
+      '',
+      'background: #666; padding: 4px; border-radius: 6px 0px 0px 6px',
+      'background: firebrick; padding: 4px; border-radius: 0px 6px 6px 0px',
+      '',
+      'background: #666; padding: 4px; border-radius: 6px 0px 0px 6px',
+      'background: green; padding: 4px; border-radius: 0px 6px 6px 0px',
+      '',
+      'background: #666; padding: 4px; border-radius: 6px 0px 0px 6px',
+      'background: blue; padding: 4px; border-radius: 0px 6px 6px 0px'
     );
   }
 
@@ -512,9 +492,7 @@ export class System {
     // Memory Settings
     MemoryManager.createInstanceIfNotCreated({
       cpuGeneric: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.cpuGeneric : 0.1,
-      gpuInstanceData: Is.exist(desc.memoryUsageOrder)
-        ? desc.memoryUsageOrder.gpuInstanceData
-        : 0.5,
+      gpuInstanceData: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.gpuInstanceData : 0.5,
       gpuVertexData: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.gpuVertexData : 0.5,
     });
 
@@ -525,8 +503,7 @@ export class System {
       const memoryManager = MemoryManager.getInstance();
       const requiredBufferSize = memoryManager.getMemorySize();
 
-      const webGpuResourceRepository =
-        CGAPIResourceRepository.getCgApiResourceRepository() as WebGpuResourceRepository;
+      const webGpuResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository() as WebGpuResourceRepository;
       const module = ModuleManager.getInstance().getModule('webgpu');
       const WebGpuDeviceWrapperClass = module.WebGpuDeviceWrapper as typeof WebGpuDeviceWrapper;
       const adapter = await navigator.gpu.requestAdapter();

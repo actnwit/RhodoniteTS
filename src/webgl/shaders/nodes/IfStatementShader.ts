@@ -1,13 +1,9 @@
-import { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
+import type { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
+import type { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
+import type { AttributeNames } from '../../types';
 import { CommonShaderPart } from '../CommonShaderPart';
-import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
-import { AttributeNames } from '../../types';
 
 export class IfStatementShader extends CommonShaderPart {
-  constructor() {
-    super();
-  }
-
   get vertexShaderDefinitions() {
     return `
     `;

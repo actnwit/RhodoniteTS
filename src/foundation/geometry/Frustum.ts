@@ -1,9 +1,9 @@
-import { Vector4 } from '../math/Vector4';
+import type { Index } from '../../types/CommonTypes';
+import type { MeshComponent } from '../components/Mesh/MeshComponent';
 import { Matrix44 } from '../math/Matrix44';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
 import { MutableVector4 } from '../math/MutableVector4';
-import { MeshComponent } from '../components/Mesh/MeshComponent';
-import { Index } from '../../types/CommonTypes';
+import { Vector4 } from '../math/Vector4';
 
 /**
  * The view frustum class.
@@ -47,12 +47,6 @@ export class Frustum {
   ];
 
   public corners: Vector4[] = [];
-
-  /**
-   * Creates a new Frustum instance.
-   * Initializes all planes and corner arrays with default values.
-   */
-  constructor() {}
 
   /**
    * Updates this view frustum data from the view and projection matrices.
@@ -156,70 +150,14 @@ export class Frustum {
     for (let i = 0; i < 6; i++) {
       let out = 0;
       const plane = this.getPlane(i);
-      out +=
-        plane.x * aabb.minPoint.x +
-          plane.y * aabb.minPoint.y +
-          plane.z * aabb.minPoint.z +
-          plane.w <
-        0
-          ? 1
-          : 0;
-      out +=
-        plane.x * aabb.maxPoint.x +
-          plane.y * aabb.minPoint.y +
-          plane.z * aabb.minPoint.z +
-          plane.w <
-        0
-          ? 1
-          : 0;
-      out +=
-        plane.x * aabb.minPoint.x +
-          plane.y * aabb.maxPoint.y +
-          plane.z * aabb.minPoint.z +
-          plane.w <
-        0
-          ? 1
-          : 0;
-      out +=
-        plane.x * aabb.maxPoint.x +
-          plane.y * aabb.maxPoint.y +
-          plane.z * aabb.minPoint.z +
-          plane.w <
-        0
-          ? 1
-          : 0;
-      out +=
-        plane.x * aabb.minPoint.x +
-          plane.y * aabb.minPoint.y +
-          plane.z * aabb.maxPoint.z +
-          plane.w <
-        0
-          ? 1
-          : 0;
-      out +=
-        plane.x * aabb.maxPoint.x +
-          plane.y * aabb.minPoint.y +
-          plane.z * aabb.maxPoint.z +
-          plane.w <
-        0
-          ? 1
-          : 0;
-      out +=
-        plane.x * aabb.minPoint.x +
-          plane.y * aabb.maxPoint.y +
-          plane.z * aabb.maxPoint.z +
-          plane.w <
-        0
-          ? 1
-          : 0;
-      out +=
-        plane.x * aabb.maxPoint.x +
-          plane.y * aabb.maxPoint.y +
-          plane.z * aabb.maxPoint.z +
-          plane.w <
-        0
-          ? 1
-          : 0;
+      out += plane.x * aabb.minPoint.x + plane.y * aabb.minPoint.y + plane.z * aabb.minPoint.z + plane.w < 0 ? 1 : 0;
+      out += plane.x * aabb.maxPoint.x + plane.y * aabb.minPoint.y + plane.z * aabb.minPoint.z + plane.w < 0 ? 1 : 0;
+      out += plane.x * aabb.minPoint.x + plane.y * aabb.maxPoint.y + plane.z * aabb.minPoint.z + plane.w < 0 ? 1 : 0;
+      out += plane.x * aabb.maxPoint.x + plane.y * aabb.maxPoint.y + plane.z * aabb.minPoint.z + plane.w < 0 ? 1 : 0;
+      out += plane.x * aabb.minPoint.x + plane.y * aabb.minPoint.y + plane.z * aabb.maxPoint.z + plane.w < 0 ? 1 : 0;
+      out += plane.x * aabb.maxPoint.x + plane.y * aabb.minPoint.y + plane.z * aabb.maxPoint.z + plane.w < 0 ? 1 : 0;
+      out += plane.x * aabb.minPoint.x + plane.y * aabb.maxPoint.y + plane.z * aabb.maxPoint.z + plane.w < 0 ? 1 : 0;
+      out += plane.x * aabb.maxPoint.x + plane.y * aabb.maxPoint.y + plane.z * aabb.maxPoint.z + plane.w < 0 ? 1 : 0;
       if (out === 8) {
         return false;
       }

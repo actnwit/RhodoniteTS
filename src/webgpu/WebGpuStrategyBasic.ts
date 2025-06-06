@@ -1,46 +1,43 @@
+import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
+import { BlendShapeComponent } from '../foundation/components/BlendShape/BlendShapeComponent';
+import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
+import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
 import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
+import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
+import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
+import { Component } from '../foundation/core/Component';
+import { ComponentRepository } from '../foundation/core/ComponentRepository';
+import { Config } from '../foundation/core/Config';
+import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import { MemoryManager } from '../foundation/core/MemoryManager';
 import { BufferUse } from '../foundation/definitions/BufferUse';
-import { Buffer } from '../foundation/memory/Buffer';
+import { ComponentType } from '../foundation/definitions/ComponentType';
+import { CompositionType } from '../foundation/definitions/CompositionType';
+import type { ShaderSemanticsName, getShaderPropertyFunc } from '../foundation/definitions/ShaderSemantics';
+import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
+import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { Material } from '../foundation/materials/core/Material';
+import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
+import type { Accessor } from '../foundation/memory/Accessor';
+import type { Buffer } from '../foundation/memory/Buffer';
+import { Logger } from '../foundation/misc/Logger';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
-import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
-import { RenderPass } from '../foundation/renderer/RenderPass';
+import type { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
+import type { RenderPass } from '../foundation/renderer/RenderPass';
 import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
+import { ModuleManager } from '../foundation/system/ModuleManager';
 import {
-  CGAPIResourceHandle,
+  type CGAPIResourceHandle,
   Count,
   Index,
-  IndexOf16Bytes,
-  IndexOf4Bytes,
-  PrimitiveUID,
+  type IndexOf4Bytes,
+  type IndexOf16Bytes,
+  type PrimitiveUID,
 } from '../types/CommonTypes';
+import type { RnXR } from '../xr/main';
 import { WebGpuResourceRepository } from './WebGpuResourceRepository';
-import { Component } from '../foundation/core/Component';
-import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
-import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
-import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
-import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
-import { CompositionType } from '../foundation/definitions/CompositionType';
-import { ComponentType } from '../foundation/definitions/ComponentType';
-import {
-  getShaderPropertyFunc,
-  ShaderSemanticsName,
-} from '../foundation/definitions/ShaderSemantics';
-import { ModuleManager } from '../foundation/system/ModuleManager';
-import { ComponentRepository } from '../foundation/core/ComponentRepository';
-import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
-import { RnXR } from '../xr/main';
-import { Config } from '../foundation/core/Config';
-import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
-import { Accessor } from '../foundation/memory/Accessor';
-import { BlendShapeComponent } from '../foundation/components/BlendShape/BlendShapeComponent';
-import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
-import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
-import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
-import { Logger } from '../foundation/misc/Logger';
 
 /**
  * Basic WebGPU rendering strategy implementation that handles mesh rendering,
@@ -63,8 +60,7 @@ import { Logger } from '../foundation/misc/Logger';
 export class WebGpuStrategyBasic implements CGAPIStrategy {
   private static __instance: WebGpuStrategyBasic;
   private __storageBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private __storageBlendShapeBufferUid: CGAPIResourceHandle =
-    CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __storageBlendShapeBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __uniformMorphOffsetsTypedArray?: Uint32Array;
   private __uniformMorphWeightsTypedArray?: Float32Array;
 
@@ -186,11 +182,7 @@ fn get_isBillboard(instanceId: u32) -> bool {
    * @param isGlobalData - Whether this property belongs to global data or material-specific data
    * @returns WGSL shader code for the property accessor function
    */
-  private static __getShaderProperty(
-    materialTypeName: string,
-    info: ShaderSemanticsInfo,
-    isGlobalData: boolean
-  ) {
+  private static __getShaderProperty(materialTypeName: string, info: ShaderSemanticsInfo, isGlobalData: boolean) {
     const returnType = info.compositionType.toWGSLType(info.componentType);
     const methodName = info.semantic.replace('.', '_');
     const isTexture = CompositionType.isTexture(info.compositionType);
@@ -266,11 +258,11 @@ ${indexStr}
       case CompositionType.Scalar:
         str += '  let col0 = fetchElement(vec4_idx);\n';
         if (info.componentType === ComponentType.Int) {
-          str += `  let val = i32(col0.x);`;
+          str += '  let val = i32(col0.x);';
         } else if (info.componentType === ComponentType.UnsignedInt) {
           str += '  let val = u32(col0.x);';
         } else if (info.componentType === ComponentType.Bool) {
-          str += `  let val = col0.x >= 0.5;`;
+          str += '  let val = col0.x >= 0.5;';
         } else {
           str += '  let val = col0.x;';
         }
@@ -336,13 +328,9 @@ ${indexStr}
       const globalDataRepository = GlobalDataRepository.getInstance();
       const dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyName);
       return dataBeginPos;
-    } else {
-      const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(
-        materialTypeName,
-        propertyName
-      );
-      return dataBeginPos;
     }
+    const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyName);
+    return dataBeginPos;
   }
 
   /**
@@ -373,23 +361,17 @@ ${indexStr}
   common_$load(): void {
     if (this.__uniformMorphOffsetsTypedArray == null) {
       this.__uniformMorphOffsetsTypedArray = new Uint32Array(
-        Math.ceil(
-          (Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4
-        ) * 4
+        Math.ceil((Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4) * 4
       );
     }
 
     if (this.__uniformMorphWeightsTypedArray == null) {
       this.__uniformMorphWeightsTypedArray = new Float32Array(
-        Math.ceil(
-          (Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4
-        ) * 4
+        Math.ceil((Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4) * 4
       );
     }
 
-    if (
-      BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForBlendData
-    ) {
+    if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForBlendData) {
       this.__createOrUpdateStorageBlendShapeBuffer();
       this.__lastBlendShapeComponentsUpdateCountForBlendData = BlendShapeComponent.updateCount;
     }
@@ -522,11 +504,7 @@ ${indexStr}
    * @param renderPassTickCount - Current tick count for animation and timing purposes
    * @returns True if any primitives were successfully rendered
    */
-  common_$render(
-    primitiveUids: PrimitiveUID[],
-    renderPass: RenderPass,
-    renderPassTickCount: number
-  ): boolean {
+  common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, renderPassTickCount: number): boolean {
     if (renderPass.isBufferLessRenderingMode()) {
       this.__renderWithoutBuffers(renderPass);
       return true;
@@ -535,12 +513,11 @@ ${indexStr}
     let renderedSomething = false;
     const isZWrite = renderPass.isDepthTest && renderPass.depthWriteMask;
     const isZWrite2 =
-      renderPass.isDepthTest &&
-      renderPass.depthWriteMask &&
-      MeshRendererComponent.isDepthMaskTrueForBlendPrimitives;
+      renderPass.isDepthTest && renderPass.depthWriteMask && MeshRendererComponent.isDepthMaskTrueForBlendPrimitives;
     // For opaque primitives
     if (renderPass._toRenderOpaquePrimitives) {
-      for (let i = renderPass._lastOpaqueIndex; i >= 0; i--) { // Drawing from the nearest object
+      for (let i = renderPass._lastOpaqueIndex; i >= 0; i--) {
+        // Drawing from the nearest object
         const primitiveUid = primitiveUids[i];
         const rendered = this.renderInner(primitiveUid, renderPass, isZWrite);
         renderedSomething ||= rendered;
@@ -559,11 +536,7 @@ ${indexStr}
 
     if (renderPass._toRenderBlendWithZWritePrimitives) {
       // Draw Blend primitives with ZWrite
-      for (
-        let i = renderPass._lastTranslucentIndex + 1;
-        i <= renderPass._lastBlendWithZWriteIndex;
-        i++
-      ) {
+      for (let i = renderPass._lastTranslucentIndex + 1; i <= renderPass._lastBlendWithZWriteIndex; i++) {
         const primitiveUid = primitiveUids[i];
         const rendered = this.renderInner(primitiveUid, renderPass, isZWrite);
         renderedSomething ||= rendered;
@@ -572,11 +545,7 @@ ${indexStr}
 
     if (renderPass._toRenderBlendWithoutZWritePrimitives) {
       // Draw Blend primitives without ZWrite
-      for (
-        let i = renderPass._lastBlendWithZWriteIndex + 1;
-        i <= renderPass._lastBlendWithoutZWriteIndex;
-        i++
-      ) {
+      for (let i = renderPass._lastBlendWithZWriteIndex + 1; i <= renderPass._lastBlendWithoutZWriteIndex; i++) {
         const primitiveUid = primitiveUids[i];
         const rendered = this.renderInner(primitiveUid, renderPass, isZWrite2);
         renderedSomething ||= rendered;
@@ -655,9 +624,7 @@ ${indexStr}
     const memoryManager: MemoryManager = MemoryManager.getInstance();
 
     // the GPU global Storage
-    const gpuInstanceDataBuffer: Buffer | undefined = memoryManager.getBuffer(
-      BufferUse.GPUInstanceData
-    );
+    const gpuInstanceDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUInstanceData);
 
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
     // const dataTextureByteSize =
@@ -666,11 +633,7 @@ ${indexStr}
     if (this.__storageBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       // Update
       const dataSizeForDataTexture = gpuInstanceDataBuffer!.takenSizeInByte / 4;
-      webGpuResourceRepository.updateStorageBuffer(
-        this.__storageBufferUid,
-        float32Array,
-        dataSizeForDataTexture
-      );
+      webGpuResourceRepository.updateStorageBuffer(this.__storageBufferUid, float32Array, dataSizeForDataTexture);
     } else {
       // Create
       this.__storageBufferUid = webGpuResourceRepository.createStorageBuffer(float32Array);
@@ -685,20 +648,16 @@ ${indexStr}
     const memoryManager: MemoryManager = MemoryManager.getInstance();
 
     // the GPU global Storage
-    const gpuInstanceDataBuffer: Buffer | undefined = memoryManager.getBuffer(
-      BufferUse.GPUInstanceData
-    );
+    const gpuInstanceDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUInstanceData);
 
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
     const globalDataRepository = GlobalDataRepository.getInstance();
     const float32Array = new Float32Array(gpuInstanceDataBuffer!.getArrayBuffer());
     if (this.__storageBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       // Update
-      const offsetOfStorageBuffer =
-        globalDataRepository.getLocationOffsetOfProperty('viewMatrix') * 16;
+      const offsetOfStorageBuffer = globalDataRepository.getLocationOffsetOfProperty('viewMatrix') * 16;
       const offsetOfFloat32Array = offsetOfStorageBuffer / 4;
-      const positionOfBoneMatrix =
-        (globalDataRepository.getLocationOffsetOfProperty('boneMatrix') * 16) / 4; // camera infos are before boneMatrix
+      const positionOfBoneMatrix = (globalDataRepository.getLocationOffsetOfProperty('boneMatrix') * 16) / 4; // camera infos are before boneMatrix
       webGpuResourceRepository.updateStorageBufferPartially(
         this.__storageBufferUid,
         float32Array,
@@ -720,9 +679,7 @@ ${indexStr}
     const memoryManager: MemoryManager = MemoryManager.getInstance();
 
     // the GPU global Storage
-    const blendShapeDataBuffer: Buffer | undefined = memoryManager.getBuffer(
-      BufferUse.GPUVertexData
-    );
+    const blendShapeDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUVertexData);
 
     if (blendShapeDataBuffer == null) {
       return;
@@ -740,8 +697,7 @@ ${indexStr}
       );
     } else {
       // Create
-      this.__storageBlendShapeBufferUid =
-        webGpuResourceRepository.createStorageBlendShapeBuffer(float32Array);
+      this.__storageBlendShapeBufferUid = webGpuResourceRepository.createStorageBlendShapeBuffer(float32Array);
     }
 
     let i = 0;
@@ -759,10 +715,7 @@ ${indexStr}
       }
     }
     const elementNumToCopy = Config.maxMorphTargetNumber * i;
-    webGpuResourceRepository.updateUniformMorphOffsetsBuffer(
-      this.__uniformMorphOffsetsTypedArray!,
-      elementNumToCopy
-    );
+    webGpuResourceRepository.updateUniformMorphOffsetsBuffer(this.__uniformMorphOffsetsTypedArray!, elementNumToCopy);
   }
 
   /**
@@ -771,9 +724,7 @@ ${indexStr}
    */
   private __updateUniformMorph() {
     const memoryManager: MemoryManager = MemoryManager.getInstance();
-    const blendShapeDataBuffer: Buffer | undefined = memoryManager.getBuffer(
-      BufferUse.GPUVertexData
-    );
+    const blendShapeDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUVertexData);
     if (blendShapeDataBuffer == null) {
       return;
     }
@@ -785,17 +736,13 @@ ${indexStr}
       const blendShapeComponent = blendShapeComponents[i] as BlendShapeComponent;
       const weights = blendShapeComponent!.weights;
       for (let j = 0; j < weights.length; j++) {
-        this.__uniformMorphWeightsTypedArray![
-          Config.maxMorphTargetNumber * blendShapeComponent.componentSID + j
-        ] = weights[j];
+        this.__uniformMorphWeightsTypedArray![Config.maxMorphTargetNumber * blendShapeComponent.componentSID + j] =
+          weights[j];
       }
     }
     if (blendShapeComponents.length > 0) {
       const elementNumToCopy = Config.maxMorphTargetNumber * blendShapeComponents.length;
-      webGpuResourceRepository.updateUniformMorphWeightsBuffer(
-        this.__uniformMorphWeightsTypedArray!,
-        elementNumToCopy
-      );
+      webGpuResourceRepository.updateUniformMorphWeightsBuffer(this.__uniformMorphWeightsTypedArray!, elementNumToCopy);
     }
   }
 
@@ -808,11 +755,7 @@ ${indexStr}
    * @param isVRMainPass - Whether this is a VR main rendering pass
    * @returns The component SID of the appropriate camera, or -1 if no camera is available
    */
-  private __getAppropriateCameraComponentSID(
-    renderPass: RenderPass,
-    displayIdx: 0 | 1,
-    isVRMainPass: boolean
-  ): number {
+  private __getAppropriateCameraComponentSID(renderPass: RenderPass, displayIdx: 0 | 1, isVRMainPass: boolean): number {
     if (isVRMainPass) {
       const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
       const webxrSystem = rnXRModule.WebXRSystem.getInstance();
@@ -825,21 +768,16 @@ ${indexStr}
         }
       }
       return cameraComponentSid;
-    } else {
-      // Non-VR Rendering
-      let cameraComponent = renderPass.cameraComponent;
-      if (cameraComponent == null) {
-        // if the renderPass has no cameraComponent, try to get the current cameraComponent
-        cameraComponent = ComponentRepository.getComponent(
-          CameraComponent,
-          CameraComponent.current
-        ) as CameraComponent;
-      }
-      if (cameraComponent) {
-        return cameraComponent.componentSID;
-      } else {
-        return -1;
-      }
     }
+    // Non-VR Rendering
+    let cameraComponent = renderPass.cameraComponent;
+    if (cameraComponent == null) {
+      // if the renderPass has no cameraComponent, try to get the current cameraComponent
+      cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
+    }
+    if (cameraComponent) {
+      return cameraComponent.componentSID;
+    }
+    return -1;
   }
 }

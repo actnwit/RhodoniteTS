@@ -17,8 +17,8 @@
 //
 // **********************************************************
 
-import {default as ResourceManagerXHR, Decoder4D} from './web4dvResource.js';
 import AudioPlayer from './audioPlayer.js';
+import { Decoder4D, default as ResourceManagerXHR } from './web4dvResource.js';
 
 // 4Dviews variables
 const resourceManager = new ResourceManagerXHR();
@@ -27,17 +27,22 @@ const resourceManager = new ResourceManagerXHR();
 export default class WEB4DS {
   constructor(id, urlD, urlM, urlA, position, gl) {
     // properties
-    this.id = id;  // unique id
-    this.urlD = urlD;  // url Desktop format
-    this.urlM = urlM;  // url Mobile format
-    this.urlA = urlA;  // url Audio
+    this.id = id; // unique id
+    this.urlD = urlD; // url Desktop format
+    this.urlM = urlM; // url Mobile format
+    this.urlA = urlA; // url Audio
     this.position = position;
     this.gl = gl;
     this.glAstcExtension = this.gl.getExtension('WEBGL_compressed_texture_astc');
 
     // Rhodonite objects
     const entityRepository = Rn.EntityRepository.getInstance();
-    const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent]);
+    const cameraEntity = entityRepository.createEntity([
+      Rn.TransformComponent,
+      Rn.SceneGraphComponent,
+      Rn.CameraComponent,
+      Rn.CameraControllerComponent,
+    ]);
     const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent);
     cameraComponent.zNear = 0.1;
     cameraComponent.zFar = 1000.0;
@@ -96,14 +101,19 @@ export default class WEB4DS {
     primitiveSphere.generate({
       radius: 1.5,
       widthSegments: 3,
-      heightSegments: 3
+      heightSegments: 3,
     });
 
     const meshSphere = new Rn.Mesh();
     meshSphere.addPrimitive(primitiveSphere);
 
     const repo = Rn.EntityRepository.getInstance();
-    const entityCameraTarget = repo.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
+    const entityCameraTarget = repo.createEntity([
+      Rn.TransformComponent,
+      Rn.SceneGraphComponent,
+      Rn.MeshComponent,
+      Rn.MeshRendererComponent,
+    ]);
     const meshComponentCameraTarget = entityCameraTarget.getMesh();
     meshComponentCameraTarget.setMesh(meshSphere);
     // this.renderPass.addEntities([entityCameraTarget]);
@@ -122,17 +132,40 @@ export default class WEB4DS {
     }
     // create 4Dview entity
     this.material4D = Rn.MaterialHelper.createClassicUberMaterial({
-      additionalName: 'mesh4D_' + this.id, isMorphing: false, isSkinning: false, isLighting: false
+      additionalName: `mesh4D_${this.id}`,
+      isMorphing: false,
+      isSkinning: false,
+      isLighting: false,
     });
 
     this.primitive = new Rn.Primitive();
     this.primitive.material = this.material4D;
 
     // set tmp accessors
-    const positionAccessor = this.createAttributeAccessor(new Float32Array(3 * maxVertices).buffer, Rn.ComponentType.Float, Rn.CompositionType.Vec3, "position_" + this.id);
-    const normalAccessor = this.createAttributeAccessor(new Float32Array(3 * maxVertices).buffer, Rn.ComponentType.Float, Rn.CompositionType.Vec3, "normal_" + this.id);
-    const texcoordAccessor = this.createAttributeAccessor(new Float32Array(2 * maxVertices).buffer, Rn.ComponentType.Float, Rn.CompositionType.Vec2, "texcoord0_" + this.id);
-    const indicesAccessor = this.createAttributeAccessor(new Uint32Array(3 * maxTriangles).buffer, Rn.ComponentType.UnsignedInt, Rn.CompositionType.Scalar, "indices_" + this.id);
+    const positionAccessor = this.createAttributeAccessor(
+      new Float32Array(3 * maxVertices).buffer,
+      Rn.ComponentType.Float,
+      Rn.CompositionType.Vec3,
+      `position_${this.id}`
+    );
+    const normalAccessor = this.createAttributeAccessor(
+      new Float32Array(3 * maxVertices).buffer,
+      Rn.ComponentType.Float,
+      Rn.CompositionType.Vec3,
+      `normal_${this.id}`
+    );
+    const texcoordAccessor = this.createAttributeAccessor(
+      new Float32Array(2 * maxVertices).buffer,
+      Rn.ComponentType.Float,
+      Rn.CompositionType.Vec2,
+      `texcoord0_${this.id}`
+    );
+    const indicesAccessor = this.createAttributeAccessor(
+      new Uint32Array(3 * maxTriangles).buffer,
+      Rn.ComponentType.UnsignedInt,
+      Rn.CompositionType.Scalar,
+      `indices_${this.id}`
+    );
 
     const attributeMap = new Map();
     attributeMap.set(Rn.VertexAttribute.Position, positionAccessor);
@@ -141,12 +174,16 @@ export default class WEB4DS {
     this.primitive.setData(attributeMap, Rn.PrimitiveMode.Triangles, this.material4D, indicesAccessor);
     this.isDrawing = true;
 
-
     const mesh4D = new Rn.Mesh();
     mesh4D.addPrimitive(this.primitive);
 
     const repo = Rn.EntityRepository.getInstance();
-    this.entity4D = repo.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.MeshComponent, Rn.MeshRendererComponent]);
+    this.entity4D = repo.createEntity([
+      Rn.TransformComponent,
+      Rn.SceneGraphComponent,
+      Rn.MeshComponent,
+      Rn.MeshRendererComponent,
+    ]);
     const meshComponent4D = this.entity4D.getMesh();
     meshComponent4D.setMesh(mesh4D);
 
@@ -159,7 +196,6 @@ export default class WEB4DS {
 
     this.texture4D = new Rn.Texture();
     this.material4D.setTextureParameter(Rn.ShaderSemantics.DiffuseColorTexture, this.texture4D);
-
 
     this.textureSizeX = textureSizeX;
     this.textureSizeY = textureSizeY;
@@ -182,28 +218,36 @@ export default class WEB4DS {
       resourceManager.Open(() => {
         const si = resourceManager._sequenceInfo;
 
-        this.initSequence(si.MaxVertices, si.MaxTriangles, si.TextureSizeX, si.TextureSizeY, this.position);  // Get sequence information
+        this.initSequence(si.MaxVertices, si.MaxTriangles, si.TextureSizeX, si.TextureSizeY, this.position); // Get sequence information
 
-        this.Decode();  // Start decoding, downloading
+        this.Decode(); // Start decoding, downloading
 
         this.loadAudio(this.urlA);
 
         const waiter = setInterval(() => {
           if (this.meshesCache.length >= Decoder4D._maxCacheSize) {
-            clearInterval(waiter);  // Stop the waiter loop
+            clearInterval(waiter); // Stop the waiter loop
 
-            if (showPlaceholder === true) { // Placeholder equals frame 0
+            if (showPlaceholder === true) {
+              // Placeholder equals frame 0
               resourceManager.seek(0);
 
               // Display the frame 0
               const placeholder = this.meshesCache.shift();
-              this.updateSequenceMesh(placeholder.GetVertices(), placeholder.GetFaces(), placeholder.GetUVs(), placeholder.GetNormals(), placeholder.GetTexture(), placeholder.nbVertices, placeholder.nbFaces);
-
-            } else { // Else, play sequence
-              if (this.playOnload === true || this.playOnload == null)
-                this.play();
+              this.updateSequenceMesh(
+                placeholder.GetVertices(),
+                placeholder.GetFaces(),
+                placeholder.GetUVs(),
+                placeholder.GetNormals(),
+                placeholder.GetTexture(),
+                placeholder.nbVertices,
+                placeholder.nbFaces
+              );
+            } else {
+              // Else, play sequence
+              if (this.playOnload === true || this.playOnload == null) this.play();
               else
-                alert('sequence is ready | showPlaceholder: ' + this.showPlaceholder + ' | playOnload: ' + this.playOnload);
+                alert(`sequence is ready | showPlaceholder: ${this.showPlaceholder} | playOnload: ${this.playOnload}`);
             }
             document.getElementById('btnLoad').disabled = false;
           }
@@ -221,10 +265,30 @@ export default class WEB4DS {
 
   updateSequenceMesh(posBuffer, indexBuffer, UVBuffer, normalBuffer, textureBuffer, nbVerts, nbFaces) {
     /* update the buffers */
-    const positionAccessor = this.createAttributeAccessor(new Float32Array(posBuffer).buffer, Rn.ComponentType.Float, Rn.CompositionType.Vec3, "position_" + this.id);
-    const normalAccessor = this.createAttributeAccessor(new Float32Array(normalBuffer).buffer, Rn.ComponentType.Float, Rn.CompositionType.Vec3, "normal_" + this.id);
-    const texcoordAccessor = this.createAttributeAccessor(new Float32Array(UVBuffer).buffer, Rn.ComponentType.Float, Rn.CompositionType.Vec2, "texcoord0_" + this.id);
-    const indicesAccessor = this.createAttributeAccessor(new Uint32Array(indexBuffer).buffer, Rn.ComponentType.UnsignedInt, Rn.CompositionType.Scalar, "indices_" + this.id);
+    const positionAccessor = this.createAttributeAccessor(
+      new Float32Array(posBuffer).buffer,
+      Rn.ComponentType.Float,
+      Rn.CompositionType.Vec3,
+      `position_${this.id}`
+    );
+    const normalAccessor = this.createAttributeAccessor(
+      new Float32Array(normalBuffer).buffer,
+      Rn.ComponentType.Float,
+      Rn.CompositionType.Vec3,
+      `normal_${this.id}`
+    );
+    const texcoordAccessor = this.createAttributeAccessor(
+      new Float32Array(UVBuffer).buffer,
+      Rn.ComponentType.Float,
+      Rn.CompositionType.Vec2,
+      `texcoord0_${this.id}`
+    );
+    const indicesAccessor = this.createAttributeAccessor(
+      new Uint32Array(indexBuffer).buffer,
+      Rn.ComponentType.UnsignedInt,
+      Rn.CompositionType.Scalar,
+      `indices_${this.id}`
+    );
 
     const attributeMap = new Map();
     attributeMap.set(Rn.VertexAttribute.Position, positionAccessor);
@@ -234,42 +298,39 @@ export default class WEB4DS {
 
     this.isDrawing = true;
 
-
     /* update the texture */
     const si = resourceManager._sequenceInfo;
-    if (si.TextureEncoding === 164) {  // astc
+    if (si.TextureEncoding === 164) {
+      // astc
       this.texture4D.generateCompressedTextureFromTypedArray(
         textureBuffer,
         this.textureSizeX,
         this.textureSizeY,
         Rn.CompressionTextureType.ASTC_RGBA_8x8
       );
-    } else if (si.TextureEncoding === 100) {  // dxt
+    } else if (si.TextureEncoding === 100) {
+      // dxt
       this.texture4D.generateCompressedTextureFromTypedArray(
         textureBuffer,
         this.textureSizeX,
         this.textureSizeY,
         Rn.CompressionTextureType.S3TC_RGB_DXT1
       );
-    } else {  // rgba
+    } else {
+      // rgba
       this.texture4D.generateTextureFromTypedArray(textureBuffer);
     }
   }
 
-  createAttributeAccessor(
-    arrayBuffer,
-    componentType,
-    compositionType,
-    bufferName
-  ) {
-
-    const accessorCount = arrayBuffer.byteLength / compositionType.getNumberOfComponents() / componentType.getSizeInBytes();
+  createAttributeAccessor(arrayBuffer, componentType, compositionType, bufferName) {
+    const accessorCount =
+      arrayBuffer.byteLength / compositionType.getNumberOfComponents() / componentType.getSizeInBytes();
 
     const attributeBuffer = new Rn.Buffer({
       byteLength: arrayBuffer.byteLength,
       buffer: arrayBuffer,
       name: bufferName,
-      byteAlign: 4
+      byteAlign: 4,
     });
     const attributeBufferView = attributeBuffer.takeBufferView({
       byteLengthToNeed: arrayBuffer.byteLength,
@@ -279,7 +340,7 @@ export default class WEB4DS {
     const attributeAccessor = attributeBufferView.takeAccessor({
       compositionType,
       componentType,
-      count: accessorCount
+      count: accessorCount,
     });
 
     return attributeAccessor;
@@ -291,13 +352,15 @@ export default class WEB4DS {
 
     /* Download a first pack of chunks at sequence init, bigger than the next ones */
     if (this.firstChunks === false) {
-      if ((Decoder4D._keepChunksInCache === false && Decoder4D._chunks4D.length < resourceManager._sequenceInfo.NbFrames * 2)) {
-
+      if (
+        Decoder4D._keepChunksInCache === false &&
+        Decoder4D._chunks4D.length < resourceManager._sequenceInfo.NbFrames * 2
+      ) {
         if (this.showPlaceholder === true) {
           resourceManager._internalCacheSize = 2000000; // 2 Mo (1 frame 2880p)
           Decoder4D._maxCacheSize = 1; // 1 frame
         } else {
-          resourceManager._internalCacheSize = 20000000;  // 20 Mo
+          resourceManager._internalCacheSize = 20000000; // 20 Mo
           Decoder4D._maxCacheSize = 20; // 20 frames
         }
 
@@ -311,14 +374,11 @@ export default class WEB4DS {
 
     /* Decoding loop, 3*fps */
     this.decodeLoop = setInterval(() => {
-
       /* Do not decode if enough meshes in cache */
-      if (
-        Decoder4D._keepChunksInCache === true &&
-        this.meshesCache.length >= this.sequenceLength
-      ) {
+      if (Decoder4D._keepChunksInCache === true && this.meshesCache.length >= this.sequenceLength) {
         return;
-      } else if (this.meshesCache.length >= Decoder4D._maxCacheSize) {
+      }
+      if (this.meshesCache.length >= Decoder4D._maxCacheSize) {
         return;
       }
 
@@ -326,8 +386,12 @@ export default class WEB4DS {
       const newMesh = Decoder4D.DecodeChunk();
 
       /* If a few chunks, download more */
-      if (Decoder4D._chunks4D.length < 300 || (Decoder4D._keepChunksInCache === true && Decoder4D._chunks4D.length < resourceManager._sequenceInfo.NbFrames * 2)) {
-        resourceManager._internalCacheSize = 6000000;  // 6 Mo
+      if (
+        Decoder4D._chunks4D.length < 300 ||
+        (Decoder4D._keepChunksInCache === true &&
+          Decoder4D._chunks4D.length < resourceManager._sequenceInfo.NbFrames * 2)
+      ) {
+        resourceManager._internalCacheSize = 6000000; // 6 Mo
 
         if (this.showPlaceholder === false || this.showPlaceholder == null) {
           resourceManager.getBunchOfChunks();
@@ -341,7 +405,6 @@ export default class WEB4DS {
       } else {
         // console.log('pas de mesh')
       }
-
     }, decodeLoopTime);
 
     this.isDecoding = true;
@@ -364,22 +427,32 @@ export default class WEB4DS {
 
   // For now, will play any WEB4DV object created (function is generic)
   play() {
-    if (this.isPlaying) {  // If sequence is already playing, do nothing
+    if (this.isPlaying) {
+      // If sequence is already playing, do nothing
       return;
     }
 
-    if (!this.isDecoding) {  // If not decoding, decode
+    if (!this.isDecoding) {
+      // If not decoding, decode
       this.Decode();
     }
 
     const dt = 1000.0 / resourceManager._sequenceInfo.FrameRate;
 
     this.playbackLoop = setInterval(() => {
-      const mesh = this.meshesCache.shift();  // get first mesh from cache
+      const mesh = this.meshesCache.shift(); // get first mesh from cache
 
       if (mesh) {
         /* update buffers for rendering */
-        this.updateSequenceMesh(mesh.GetVertices(), mesh.GetFaces(), mesh.GetUVs(), mesh.GetNormals(), mesh.GetTexture(), mesh.nbVertices, mesh.nbFaces);
+        this.updateSequenceMesh(
+          mesh.GetVertices(),
+          mesh.GetFaces(),
+          mesh.GetUVs(),
+          mesh.GetNormals(),
+          mesh.GetTexture(),
+          mesh.nbVertices,
+          mesh.nbFaces
+        );
 
         if (this.currentMesh) {
           this.currentMesh.delete();
@@ -395,9 +468,11 @@ export default class WEB4DS {
 
             if (
               (this.audioStartOffset + this.audioPassedTime) % this.audioPlayer.duration >
-              (mesh.frame / resourceManager._sequenceInfo.FrameRate)
+              mesh.frame / resourceManager._sequenceInfo.FrameRate
             ) {
-              console.log(`Audio Time: ${this.audioStartOffset + this.audioPassedTime}  - sequence time:  ${mesh.frame / resourceManager._sequenceInfo.FrameRate}`);
+              console.log(
+                `Audio Time: ${this.audioStartOffset + this.audioPassedTime}  - sequence time:  ${mesh.frame / resourceManager._sequenceInfo.FrameRate}`
+              );
               this.pauseAudio();
             } else {
               this.playAudio();
@@ -427,10 +502,9 @@ export default class WEB4DS {
     if (audioFile !== '') {
       console.log(`loading audio file: ${audioFile}`);
       this.audioPlayer.loadPromise(audioFile);
-
     } else if (Array.isArray(resourceManager._audioTrack) && resourceManager._audioTrack.length > 0) {
       console.log('loading internal audio ');
-      this.audioPlayer.audioContext.decodeAudioData(resourceManager._audioTrack, (audioBuffer) => {
+      this.audioPlayer.audioContext.decodeAudioData(resourceManager._audioTrack, audioBuffer => {
         this.audioPlayer.audioBuffer = audioBuffer;
       });
     }
@@ -512,10 +586,10 @@ export default class WEB4DS {
 
     this.currentMesh = null;
 
-    Decoder4D._chunks4D.forEach((element) => {
+    Decoder4D._chunks4D.forEach(element => {
       element.delete();
     });
-    this.meshesCache.forEach((element) => {
+    this.meshesCache.forEach(element => {
       element.delete();
     });
 
@@ -533,5 +607,4 @@ export default class WEB4DS {
       callback();
     }
   }
-
 }

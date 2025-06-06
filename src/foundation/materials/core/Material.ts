@@ -1,54 +1,54 @@
-import { RnObject } from '../../core/RnObject';
-import { AlphaMode, AlphaModeEnum } from '../../definitions/AlphaMode';
-import { AbstractMaterialContent } from './AbstractMaterialContent';
-import {
-  ShaderSemanticsEnum,
-  ShaderSemantics,
-  ShaderSemanticsIndex,
-  getShaderPropertyFunc,
-  _getPropertyIndex2,
-  ShaderSemanticsName,
-} from '../../definitions/ShaderSemantics';
-import { CompositionType } from '../../definitions/CompositionType';
-import { MathClassUtil } from '../../math/MathClassUtil';
-import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
-import type { AbstractTexture } from '../../textures/AbstractTexture';
-import { ShaderType } from '../../definitions/ShaderType';
-import {
-  Index,
+import type {
   CGAPIResourceHandle,
-  PrimitiveUID,
+  Index,
   MaterialSID,
   MaterialTID,
   MaterialUID,
+  PrimitiveUID,
 } from '../../../types/CommonTypes';
-import { GlobalDataRepository } from '../../core/GlobalDataRepository';
+import type { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
 import type { ShaderSources } from '../../../webgl/WebGLStrategy';
-import type { Primitive } from '../../geometry/Primitive';
 import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
-import { ShaderSemanticsInfo, TextureParameter } from '../../definitions';
-import { MaterialTypeName, ShaderVariable } from './MaterialTypes';
-import { Sampler } from '../../textures/Sampler';
-import { Blend, BlendEnum } from '../../definitions/Blend';
+import { GlobalDataRepository } from '../../core/GlobalDataRepository';
+import { RnObject } from '../../core/RnObject';
+import { type ShaderSemanticsInfo, TextureParameter } from '../../definitions';
+import { AlphaMode, type AlphaModeEnum } from '../../definitions/AlphaMode';
+import { Blend, type BlendEnum } from '../../definitions/Blend';
+import { CompositionType } from '../../definitions/CompositionType';
 import {
-  _createProgramAsSingleOperationWebGL,
+  ShaderSemantics,
+  ShaderSemanticsEnum,
+  ShaderSemanticsIndex,
+  type ShaderSemanticsName,
+  _getPropertyIndex2,
+  type getShaderPropertyFunc,
+} from '../../definitions/ShaderSemantics';
+import { ShaderType } from '../../definitions/ShaderType';
+import type { Primitive } from '../../geometry/Primitive';
+import { AnimatedQuaternion } from '../../math/AnimatedQuaternion';
+import { AnimatedScalar } from '../../math/AnimatedScalar';
+import { AnimatedVector2 } from '../../math/AnimatedVector2';
+import { AnimatedVector3 } from '../../math/AnimatedVector3';
+import { AnimatedVector4 } from '../../math/AnimatedVector4';
+import { AnimatedVectorN } from '../../math/AnimatedVectorN';
+import type { IAnimatedValue } from '../../math/IAnimatedValue';
+import { MathClassUtil } from '../../math/MathClassUtil';
+import { Is } from '../../misc/Is';
+import { Logger } from '../../misc/Logger';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import { Texture } from '../../textures';
+import type { AbstractTexture } from '../../textures/AbstractTexture';
+import { Sampler } from '../../textures/Sampler';
+import type { AbstractMaterialContent } from './AbstractMaterialContent';
+import type { MaterialTypeName, ShaderVariable } from './MaterialTypes';
+import {
   _createProgramAsSingleOperationByUpdatedSources,
+  _createProgramAsSingleOperationWebGL,
+  _createProgramAsSingleOperationWebGpu,
   _getAttributeInfo,
   _outputVertexAttributeBindingInfo,
   _setupGlobalShaderDefinitionWebGL,
-  _createProgramAsSingleOperationWebGpu,
 } from './ShaderHandler';
-import { Texture } from '../../textures';
-import type { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
-import { Logger } from '../../misc/Logger';
-import { AnimatedScalar } from '../../math/AnimatedScalar';
-import { AnimatedVector4 } from '../../math/AnimatedVector4';
-import { AnimatedVector3 } from '../../math/AnimatedVector3';
-import { AnimatedQuaternion } from '../../math/AnimatedQuaternion';
-import { AnimatedVectorN } from '../../math/AnimatedVectorN';
-import { IAnimatedValue } from '../../math/IAnimatedValue';
-import { AnimatedVector2 } from '../../math/AnimatedVector2';
-import { Is } from '../../misc/Is';
 
 type PrimitiveFingerPrint = string;
 
@@ -146,8 +146,7 @@ export class Material extends RnObject {
   });
 
   // static fields
-  static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsName, ShaderVariable>> =
-    new Map();
+  static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsName, ShaderVariable>> = new Map();
 
   /**
    * Creates a new Material instance.
@@ -267,7 +266,14 @@ export class Material extends RnObject {
    * @returns True if the value is an animated value, false otherwise
    */
   public _isAnimatedValue(value: any): value is IAnimatedValue {
-    return value instanceof AnimatedScalar || value instanceof AnimatedVector2 || value instanceof AnimatedVector3 || value instanceof AnimatedVector4 || value instanceof AnimatedQuaternion || value instanceof AnimatedVectorN;
+    return (
+      value instanceof AnimatedScalar ||
+      value instanceof AnimatedVector2 ||
+      value instanceof AnimatedVector3 ||
+      value instanceof AnimatedVector4 ||
+      value instanceof AnimatedQuaternion ||
+      value instanceof AnimatedVectorN
+    );
   }
 
   /**
@@ -309,11 +315,7 @@ export class Material extends RnObject {
    * @param texture - The texture to assign
    * @param sampler - Optional sampler to use with the texture. If not provided, uses default sampler
    */
-  public setTextureParameter(
-    shaderSemantic: ShaderSemanticsName,
-    texture: AbstractTexture,
-    sampler?: Sampler
-  ): void {
+  public setTextureParameter(shaderSemantic: ShaderSemanticsName, texture: AbstractTexture, sampler?: Sampler): void {
     if (Is.not.exist(sampler)) {
       sampler = Material.__defaultSampler;
     }
@@ -364,11 +366,8 @@ export class Material extends RnObject {
    * @param shaderSemantic - The shader semantic name for the texture
    * @param promise - A Promise that resolves to the texture
    */
-  public setTextureParameterAsPromise(
-    shaderSemantic: ShaderSemanticsName,
-    promise: Promise<AbstractTexture>
-  ): void {
-    promise.then((texture) => {
+  public setTextureParameterAsPromise(shaderSemantic: ShaderSemanticsName, promise: Promise<AbstractTexture>): void {
+    promise.then(texture => {
       if (this._allFieldsInfo.has(shaderSemantic)) {
         const array = this._allFieldVariables.get(shaderSemantic)!;
         const shaderVariable = {
@@ -404,9 +403,8 @@ export class Material extends RnObject {
     if (info != null) {
       if (info.soloDatum) {
         return Material._soloDatumFields.get(this.__materialTypeName)!.get(shaderSemantic)?.value;
-      } else {
-        return this._allFieldVariables.get(shaderSemantic)?.value;
       }
+      return this._allFieldVariables.get(shaderSemantic)?.value;
     }
 
     return void 0;
@@ -576,11 +574,7 @@ export class Material extends RnObject {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const primitiveFingerPrint = primitive._getFingerPrint();
     const shaderProgramUid = this._shaderProgramUidMap.get(primitiveFingerPrint);
-    webglResourceRepository.setupUniformLocations(
-      shaderProgramUid!,
-      shaderSemantics,
-      isUniformOnlyMode
-    );
+    webglResourceRepository.setupUniformLocations(shaderProgramUid!, shaderSemantics, isUniformOnlyMode);
   }
 
   /**
@@ -717,17 +711,11 @@ export class Material extends RnObject {
   _getProperties(propertySetter: getShaderPropertyFunc, isWebGL2: boolean) {
     let vertexPropertiesStr = '';
     let pixelPropertiesStr = '';
-    this._allFieldsInfo.forEach((info) => {
-      if (
-        info!.stage === ShaderType.VertexShader ||
-        info!.stage === ShaderType.VertexAndPixelShader
-      ) {
+    this._allFieldsInfo.forEach(info => {
+      if (info!.stage === ShaderType.VertexShader || info!.stage === ShaderType.VertexAndPixelShader) {
         vertexPropertiesStr += propertySetter(this.__materialTypeName, info!, false, isWebGL2);
       }
-      if (
-        info!.stage === ShaderType.PixelShader ||
-        info!.stage === ShaderType.VertexAndPixelShader
-      ) {
+      if (info!.stage === ShaderType.PixelShader || info!.stage === ShaderType.VertexAndPixelShader) {
         pixelPropertiesStr += propertySetter(this.__materialTypeName, info!, false, isWebGL2);
       }
     });
@@ -748,34 +736,21 @@ export class Material extends RnObject {
    * @param firstTime - Whether this is the first time setting parameters
    * @param shaderProgram - The WebGL shader program
    */
-  private __setAutoParametersToGpuWebGL(
-    isUniformMode: boolean,
-    firstTime: boolean,
-    shaderProgram: WebGLProgram
-  ) {
+  private __setAutoParametersToGpuWebGL(isUniformMode: boolean, firstTime: boolean, shaderProgram: WebGLProgram) {
     if (Material.__webglResourceRepository == null) {
       Material.__webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     }
     const webglResourceRepository = Material.__webglResourceRepository!;
     if (isUniformMode) {
-      this._autoFieldVariablesOnly.forEach((value) => {
+      this._autoFieldVariablesOnly.forEach(value => {
         const info = value.info;
-        webglResourceRepository.setUniformValue(
-          shaderProgram,
-          info.semantic,
-          firstTime,
-          value.value
-        );
+        webglResourceRepository.setUniformValue(shaderProgram, info.semantic, firstTime, value.value);
       });
     } else {
       for (const [key, value] of this._autoTextureFieldVariablesOnly) {
-      const info = value.info;
+        const info = value.info;
         if (firstTime) {
-          webglResourceRepository.setUniform1iForTexture(
-            shaderProgram,
-            info.semantic,
-            value.value
-          );
+          webglResourceRepository.setUniform1iForTexture(shaderProgram, info.semantic, value.value);
         } else {
           webglResourceRepository.bindTexture(info, value.value);
         }
@@ -783,12 +758,7 @@ export class Material extends RnObject {
       for (const [key, value] of this._autoUniformFieldVariablesOnly) {
         const info = value.info;
         if (info.needUniformInDataTextureMode) {
-          webglResourceRepository.setUniformValue(
-            shaderProgram,
-            info.semantic,
-            firstTime,
-            value.value
-          );
+          webglResourceRepository.setUniformValue(shaderProgram, info.semantic, firstTime, value.value);
         }
       }
     }
@@ -818,12 +788,7 @@ export class Material extends RnObject {
       if (isUniformMode || CompositionType.isTexture(info.compositionType)) {
         if (!info.isInternalSetting) {
           if (firstTime) {
-            webglResourceRepository.setUniformValue(
-              shaderProgram,
-              info.semantic,
-              firstTime,
-              value.value
-            );
+            webglResourceRepository.setUniformValue(shaderProgram, info.semantic, firstTime, value.value);
           } else {
             webglResourceRepository.bindTexture(info, value.value);
           }
@@ -859,10 +824,7 @@ export class Material extends RnObject {
       this.__blendFuncDstFactor = Blend.One;
       this.__blendFuncSrcFactor = Blend.One;
     }
-    if (
-      this.__blendEquationModeAlpha === Blend.Min ||
-      this.__blendEquationModeAlpha === Blend.Max
-    ) {
+    if (this.__blendEquationModeAlpha === Blend.Min || this.__blendEquationModeAlpha === Blend.Max) {
       this.__blendFuncAlphaDstFactor = Blend.One;
       this.__blendFuncAlphaSrcFactor = Blend.One;
     }
@@ -928,9 +890,8 @@ export class Material extends RnObject {
   isBlend() {
     if (this.alphaMode === AlphaMode.Blend) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -940,9 +901,8 @@ export class Material extends RnObject {
   isTranslucentOpaque() {
     if (this.alphaMode !== AlphaMode.Blend && this.isTranslucent) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -952,9 +912,8 @@ export class Material extends RnObject {
   isBlendOrTranslucent() {
     if (this.alphaMode === AlphaMode.Blend || this.isTranslucent) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**

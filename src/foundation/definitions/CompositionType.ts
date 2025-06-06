@@ -1,14 +1,14 @@
-import { EnumClass, EnumIO, _from, _fromString } from '../misc/EnumIO';
-import {
+import type {
   Count,
   IndexOf16Bytes,
   SquareMatrixComponentN,
   VectorAndSquareMatrixComponentN,
   VectorComponentN,
 } from '../../types/CommonTypes';
-import type { ComponentTypeEnum } from './ComponentType';
-import { Gltf2AccessorCompositionTypeString } from '../../types/glTF2';
+import type { Gltf2AccessorCompositionTypeString } from '../../types/glTF2';
+import { EnumClass, type EnumIO, _from, _fromString } from '../misc/EnumIO';
 import { Logger } from '../misc/Logger';
+import type { ComponentTypeEnum } from './ComponentType';
 
 export interface CompositionTypeEnum extends EnumIO {
   webgpu: string;
@@ -21,10 +21,7 @@ export interface CompositionTypeEnum extends EnumIO {
   getVec4SizeOfProperty(): IndexOf16Bytes;
 }
 
-class CompositionTypeClass<TypeName extends string>
-  extends EnumClass
-  implements CompositionTypeEnum
-{
+class CompositionTypeClass<TypeName extends string> extends EnumClass implements CompositionTypeEnum {
   readonly __numberOfComponents: number;
   readonly __glslStr: string;
   readonly __hlslStr: string;
@@ -88,29 +85,30 @@ class CompositionTypeClass<TypeName extends string>
       this === CompositionType.Texture2DArray
     ) {
       return this.__glslStr;
-    } else if (
+    }
+    if (
       componentType.index === 5120 || // BYTE
       componentType.index === 5122 || // SHORT
       componentType.index === 5124 // INT
     ) {
       if (this === CompositionType.Scalar || this === CompositionType.ScalarArray) {
         return 'int';
-      } else {
-        return 'i' + this.__glslStr;
       }
-    } else if (
+      return `i${this.__glslStr}`;
+    }
+    if (
       componentType.index === 5121 || // UNSIGNED_BYTE
       componentType.index === 5123 || // UNSIGNED_SHORT
       componentType.index === 5125 // UNSIGNED_INT
     ) {
       if (this === CompositionType.Scalar || this === CompositionType.ScalarArray) {
         return 'uint';
-      } else {
-        return 'u' + this.__glslStr;
       }
+      return `u${this.__glslStr}`;
       // eslint-disable-next-line prettier/prettier
       // eslint-disable-next-line prettier/prettier
-    } else if (componentType.index === 35670) {
+    }
+    if (componentType.index === 35670) {
       // BOOL
       return 'bool';
     }
@@ -124,22 +122,22 @@ class CompositionTypeClass<TypeName extends string>
     ) {
       if (this === CompositionType.Scalar) {
         return '0.0';
-      } else {
-        const glslType = this.getGlslStr(componentType);
-        if (this.__numberOfComponents === 2) {
-          return glslType + '(0.0, 0.0)';
-        } else if (this.__numberOfComponents === 3) {
-          return glslType + '(0.0, 0.0, 0.0)';
-        } else if (this.__numberOfComponents === 4) {
-          return glslType + '(0.0, 0.0, 0.0, 0.0)';
-        } else if (this.__numberOfComponents === 9) {
-          return glslType + '(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)';
-        } else if (this.__numberOfComponents === 16) {
-          return (
-            glslType +
-            '(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)'
-          );
-        }
+      }
+      const glslType = this.getGlslStr(componentType);
+      if (this.__numberOfComponents === 2) {
+        return `${glslType}(0.0, 0.0)`;
+      }
+      if (this.__numberOfComponents === 3) {
+        return `${glslType}(0.0, 0.0, 0.0)`;
+      }
+      if (this.__numberOfComponents === 4) {
+        return `${glslType}(0.0, 0.0, 0.0, 0.0)`;
+      }
+      if (this.__numberOfComponents === 9) {
+        return `${glslType}(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)`;
+      }
+      if (this.__numberOfComponents === 16) {
+        return `${glslType}(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)`;
       }
     } else if (
       componentType.index === 5120 || // BYTE
@@ -151,33 +149,37 @@ class CompositionTypeClass<TypeName extends string>
     ) {
       if (this === CompositionType.Scalar) {
         return '0';
-      } else {
-        const glslType = this.getGlslStr(componentType);
-        if (this.__numberOfComponents === 2) {
-          return glslType + '(0, 0)';
-        } else if (this.__numberOfComponents === 3) {
-          return glslType + '(0, 0, 0)';
-        } else if (this.__numberOfComponents === 4) {
-          return glslType + '(0, 0, 0, 0)';
-        } else if (this.__numberOfComponents === 9) {
-          return glslType + '(0, 0, 0, 0, 0, 0, 0, 0, 0)';
-        } else if (this.__numberOfComponents === 16) {
-          return glslType + '(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)';
-        }
+      }
+      const glslType = this.getGlslStr(componentType);
+      if (this.__numberOfComponents === 2) {
+        return `${glslType}(0, 0)`;
+      }
+      if (this.__numberOfComponents === 3) {
+        return `${glslType}(0, 0, 0)`;
+      }
+      if (this.__numberOfComponents === 4) {
+        return `${glslType}(0, 0, 0, 0)`;
+      }
+      if (this.__numberOfComponents === 9) {
+        return `${glslType}(0, 0, 0, 0, 0, 0, 0, 0, 0)`;
+      }
+      if (this.__numberOfComponents === 16) {
+        return `${glslType}(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)`;
       }
       // eslint-disable-next-line prettier/prettier
     } else if (componentType.index === 35670) {
       // BOOL
       if (this === CompositionType.Scalar) {
         return 'false';
-      } else {
-        if (this.__numberOfComponents === 2) {
-          return this.__glslStr + '(false, false)';
-        } else if (this.__numberOfComponents === 3) {
-          return this.__glslStr + '(false, false, false)';
-        } else if (this.__numberOfComponents === 4) {
-          return this.__glslStr + '(false, false, false, false)';
-        }
+      }
+      if (this.__numberOfComponents === 2) {
+        return `${this.__glslStr}(false, false)`;
+      }
+      if (this.__numberOfComponents === 3) {
+        return `${this.__glslStr}(false, false, false)`;
+      }
+      if (this.__numberOfComponents === 4) {
+        return `${this.__glslStr}(false, false, false, false)`;
       }
     }
     return 'unknown';
@@ -191,21 +193,21 @@ class CompositionTypeClass<TypeName extends string>
     ) {
       if (this === CompositionType.Scalar) {
         return '0.0';
-      } else {
-        if (this.__numberOfComponents === 2) {
-          return type + '(0.0, 0.0)';
-        } else if (this.__numberOfComponents === 3) {
-          return type + '(0.0, 0.0, 0.0)';
-        } else if (this.__numberOfComponents === 4) {
-          return type + '(0.0, 0.0, 0.0, 0.0)';
-        } else if (this.__numberOfComponents === 9) {
-          return type + '(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)';
-        } else if (this.__numberOfComponents === 16) {
-          return (
-            type +
-            '(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)'
-          );
-        }
+      }
+      if (this.__numberOfComponents === 2) {
+        return `${type}(0.0, 0.0)`;
+      }
+      if (this.__numberOfComponents === 3) {
+        return `${type}(0.0, 0.0, 0.0)`;
+      }
+      if (this.__numberOfComponents === 4) {
+        return `${type}(0.0, 0.0, 0.0, 0.0)`;
+      }
+      if (this.__numberOfComponents === 9) {
+        return `${type}(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)`;
+      }
+      if (this.__numberOfComponents === 16) {
+        return `${type}(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)`;
       }
     } else if (
       componentType.index === 5120 || // BYTE
@@ -217,32 +219,36 @@ class CompositionTypeClass<TypeName extends string>
     ) {
       if (this === CompositionType.Scalar) {
         return '0';
-      } else {
-        if (this.__numberOfComponents === 2) {
-          return type + '(0, 0)';
-        } else if (this.__numberOfComponents === 3) {
-          return type + '(0, 0, 0)';
-        } else if (this.__numberOfComponents === 4) {
-          return type + '(0, 0, 0, 0)';
-        } else if (this.__numberOfComponents === 9) {
-          return type + '(0, 0, 0, 0, 0, 0, 0, 0, 0)';
-        } else if (this.__numberOfComponents === 16) {
-          return type + '(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)';
-        }
+      }
+      if (this.__numberOfComponents === 2) {
+        return `${type}(0, 0)`;
+      }
+      if (this.__numberOfComponents === 3) {
+        return `${type}(0, 0, 0)`;
+      }
+      if (this.__numberOfComponents === 4) {
+        return `${type}(0, 0, 0, 0)`;
+      }
+      if (this.__numberOfComponents === 9) {
+        return `${type}(0, 0, 0, 0, 0, 0, 0, 0, 0)`;
+      }
+      if (this.__numberOfComponents === 16) {
+        return `${type}(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)`;
       }
       // eslint-disable-next-line prettier/prettier
     } else if (componentType.index === 35670) {
       // BOOL
       if (this === CompositionType.Scalar) {
         return 'false';
-      } else {
-        if (this.__numberOfComponents === 2) {
-          return type + '(false, false)';
-        } else if (this.__numberOfComponents === 3) {
-          return type + '(false, false, false)';
-        } else if (this.__numberOfComponents === 4) {
-          return type + '(false, false, false, false)';
-        }
+      }
+      if (this.__numberOfComponents === 2) {
+        return `${type}(false, false)`;
+      }
+      if (this.__numberOfComponents === 3) {
+        return `${type}(false, false, false)`;
+      }
+      if (this.__numberOfComponents === 4) {
+        return `${type}(false, false, false, false)`;
       }
     }
     return 'unknown';
@@ -690,11 +696,7 @@ function toGltf2SquareMatrixAccessorCompositionTypeString(
   }
 }
 
-export type Gltf2AnimationAccessorCompositionType =
-  | typeof Scalar
-  | typeof Vec2
-  | typeof Vec3
-  | typeof Vec4;
+export type Gltf2AnimationAccessorCompositionType = typeof Scalar | typeof Vec2 | typeof Vec3 | typeof Vec4;
 
 export type Gltf2AccessorCompositionType =
   | typeof Scalar
@@ -705,9 +707,7 @@ export type Gltf2AccessorCompositionType =
   | typeof Mat3
   | typeof Mat4;
 
-function toGltf2AnimationAccessorCompositionType(
-  componentN: VectorComponentN
-): Gltf2AnimationAccessorCompositionType {
+function toGltf2AnimationAccessorCompositionType(componentN: VectorComponentN): Gltf2AnimationAccessorCompositionType {
   switch (componentN) {
     case 1:
       return Scalar;
@@ -734,9 +734,8 @@ function isArray(compositionType: CompositionTypeEnum) {
     compositionType === Mat2Array
   ) {
     return true;
-  } else {
-    return false;
   }
+  return false;
 }
 
 function isTexture(compositionType: CompositionTypeEnum) {
@@ -748,9 +747,8 @@ function isTexture(compositionType: CompositionTypeEnum) {
     compositionType === Texture2DArray
   ) {
     return true;
-  } else {
-    return false;
   }
+  return false;
 }
 
 export const CompositionType = Object.freeze({

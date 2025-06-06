@@ -1,4 +1,4 @@
-import { EnumClass, EnumIO, _from } from '../misc/EnumIO';
+import { EnumClass, type EnumIO, _from } from '../misc/EnumIO';
 
 export class ProcessApproachClass extends EnumClass implements EnumIO {
   constructor({ index, str }: { index: number; str: string }) {

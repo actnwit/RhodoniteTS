@@ -467,7 +467,7 @@ expressions.push(expression);
 
 let startTime = Date.now();
 let startTimeForPerformanceNow = 0;
-const draw = function () {
+const draw = () => {
   if (count > 0) {
     window._rendered = true;
   }
@@ -508,7 +508,7 @@ const draw = function () {
 
 draw();
 
-window.exportGltf2 = function () {
+window.exportGltf2 = () => {
   Rn.Gltf2Exporter.export('Rhodonite');
 };
 

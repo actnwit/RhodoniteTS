@@ -1,13 +1,13 @@
+import type { CGAPIResourceHandle, Index, Size } from '../../types/CommonTypes';
 import { RnObject } from '../core/RnObject';
-import { CGAPIResourceRepository } from './CGAPIResourceRepository';
-import { IRenderable } from '../textures/IRenderable';
-import { RenderBufferTargetEnum, RenderBufferTarget } from '../definitions/RenderBufferTarget';
-import { Index, Size, CGAPIResourceHandle } from '../../types/CommonTypes';
+import { ProcessApproach } from '../definitions/ProcessApproach';
+import { RenderBufferTarget, type RenderBufferTargetEnum } from '../definitions/RenderBufferTarget';
+import { SystemState } from '../system/SystemState';
+import type { IRenderable } from '../textures/IRenderable';
 import { RenderTargetTexture } from '../textures/RenderTargetTexture';
 import { RenderTargetTexture2DArray } from '../textures/RenderTargetTexture2DArray';
 import { RenderTargetTextureCube } from '../textures/RenderTargetTextureCube';
-import { SystemState } from '../system/SystemState';
-import { ProcessApproach } from '../definitions/ProcessApproach';
+import { CGAPIResourceRepository } from './CGAPIResourceRepository';
 
 /**
  * FrameBuffer class represents a framebuffer object that manages render targets
@@ -23,13 +23,6 @@ export class FrameBuffer extends RnObject {
   public width: Size = 0;
   public height: Size = 0;
   private __colorAttachmentMap: Map<RenderBufferTargetEnum, IRenderable> = new Map();
-
-  /**
-   * Creates a new FrameBuffer instance.
-   */
-  constructor() {
-    super();
-  }
 
   /**
    * Gets the render buffer targets for all color attachments.
@@ -86,9 +79,8 @@ export class FrameBuffer extends RnObject {
       )
     ) {
       return undefined;
-    } else {
-      return this.__colorAttachments[index] as RenderTargetTexture;
     }
+    return this.__colorAttachments[index] as RenderTargetTexture;
   }
 
   /**
@@ -102,9 +94,8 @@ export class FrameBuffer extends RnObject {
       this.__depthAttachment instanceof RenderTargetTextureCube
     ) {
       return this.__depthAttachment as RenderTargetTexture;
-    } else {
-      return undefined;
     }
+    return undefined;
   }
 
   /**
@@ -158,12 +149,7 @@ export class FrameBuffer extends RnObject {
    * @param mipLevel - The mip level to attach
    * @returns True if the attachment was successful, false if dimensions don't match
    */
-  setColorAttachmentLayerAt(
-    index: Index,
-    renderable: IRenderable,
-    layerIndex: Index,
-    mipLevel: Index
-  ) {
+  setColorAttachmentLayerAt(index: Index, renderable: IRenderable, layerIndex: Index, mipLevel: Index) {
     if (renderable.width !== this.width || renderable.height !== this.height) {
       return false;
     }
@@ -175,13 +161,7 @@ export class FrameBuffer extends RnObject {
         renderable.changeRenderTargetLayerWebGPU(layerIndex);
       }
     } else {
-      cgApiResourceRepository.attachColorBufferLayerToFrameBufferObject(
-        this,
-        index,
-        renderable,
-        layerIndex,
-        mipLevel
-      );
+      cgApiResourceRepository.attachColorBufferLayerToFrameBufferObject(this, index, renderable, layerIndex, mipLevel);
     }
 
     this.__colorAttachmentMap.set(RenderBufferTarget.from(index), renderable);
@@ -197,12 +177,7 @@ export class FrameBuffer extends RnObject {
    * @param renderable - The cube texture renderable to attach
    * @returns True if the attachment was successful, false if dimensions don't match
    */
-  setColorAttachmentCubeAt(
-    attachmentIndex: Index,
-    faceIndex: Index,
-    mipLevel: Index,
-    renderable: IRenderable
-  ) {
+  setColorAttachmentCubeAt(attachmentIndex: Index, faceIndex: Index, mipLevel: Index, renderable: IRenderable) {
     if (renderable.width !== this.width || renderable.height !== this.height) {
       return false;
     }

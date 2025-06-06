@@ -1,22 +1,22 @@
-import { AbstractTexture } from '../../textures/AbstractTexture';
+import MatCapShaderFragment from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.frag';
+import MatCapShaderVertex from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.vert';
+import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
-import { Scalar } from '../../math/Scalar';
-import { ShaderSemanticsClass, ShaderSemantics } from '../../definitions/ShaderSemantics';
+import { ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
+import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { ShaderType } from '../../definitions/ShaderType';
-import { Texture } from '../../textures/Texture';
+import { Scalar } from '../../math/Scalar';
 import { Vector3 } from '../../math/Vector3';
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { Material } from '../core/Material';
-import MatCapShaderVertex from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.vert';
-import MatCapShaderFragment from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.frag';
-import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
-import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-import { Sampler } from '../../textures/Sampler';
-import { dummyBlackTexture } from '../core/DummyTextures';
 import { Logger } from '../../misc/Logger';
+import { AbstractTexture } from '../../textures/AbstractTexture';
+import type { Sampler } from '../../textures/Sampler';
+import { Texture } from '../../textures/Texture';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import { dummyBlackTexture } from '../core/DummyTextures';
+import type { Material } from '../core/Material';
 
 /**
  * Material content implementation for MatCap (Material Capture) rendering.
@@ -35,19 +35,13 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
    * @param texture - Optional pre-existing texture to use as the MatCap texture
    * @param sampler - Optional sampler settings for texture sampling behavior
    */
-  constructor(
-    materialName: string,
-    isSkinning: boolean,
-    uri?: string,
-    texture?: AbstractTexture,
-    sampler?: Sampler
-  ) {
+  constructor(materialName: string, isSkinning: boolean, uri?: string, texture?: AbstractTexture, sampler?: Sampler) {
     super(materialName, { isSkinning: isSkinning }, MatCapShaderVertex, MatCapShaderFragment);
 
     let matCapTexture;
     if (typeof uri === 'string') {
       matCapTexture = new Texture();
-      (async function (uri: string) {
+      (async (uri: string) => {
         await matCapTexture.generateTextureFromUrl(uri, {
           type: ComponentType.UnsignedByte,
         });
@@ -137,10 +131,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
       /// Matrices
       let cameraComponent = args.renderPass.cameraComponent;
       if (cameraComponent == null) {
-        cameraComponent = ComponentRepository.getComponent(
-          CameraComponent,
-          CameraComponent.current
-        ) as CameraComponent;
+        cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
       }
       this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
       this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);

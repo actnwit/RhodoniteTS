@@ -1,13 +1,10 @@
+import type { ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import NormalizeShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/Normalize.glsl';
 import NormalizeShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Normalize.wgsl';
-import { ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
-import {
-  CompositionType,
-  CompositionTypeEnum,
-} from '../../../foundation/definitions/CompositionType';
-import { AbstractShaderNode } from '../core/AbstractShaderNode';
-import { SystemState } from '../../system/SystemState';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
+import { SystemState } from '../../system/SystemState';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 /**
  * A shader node that normalizes vectors by dividing each component by the vector's magnitude.
@@ -50,16 +47,16 @@ export class NormalizeShaderNode extends AbstractShaderNode {
   getShaderFunctionNameDerivative(): string {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (this.__inputs[0].compositionType === CompositionType.Vec2) {
-        return this.__shaderFunctionName + 'Vec2f';
-      } else if (this.__inputs[0].compositionType === CompositionType.Vec3) {
-        return this.__shaderFunctionName + 'Vec3f';
-      } else if (this.__inputs[0].compositionType === CompositionType.Vec4) {
-        return this.__shaderFunctionName + 'Vec4f';
-      } else {
-        throw new Error('Not supported composition type.');
+        return `${this.__shaderFunctionName}Vec2f`;
       }
-    } else {
-      return this.__shaderFunctionName;
+      if (this.__inputs[0].compositionType === CompositionType.Vec3) {
+        return `${this.__shaderFunctionName}Vec3f`;
+      }
+      if (this.__inputs[0].compositionType === CompositionType.Vec4) {
+        return `${this.__shaderFunctionName}Vec4f`;
+      }
+      throw new Error('Not supported composition type.');
     }
+    return this.__shaderFunctionName;
   }
 }

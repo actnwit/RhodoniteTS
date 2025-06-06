@@ -1,23 +1,23 @@
-import { Component } from './Component';
-import { IRnObject, RnObject } from './RnObject';
-import { ComponentTID, EntityUID } from '../../types/CommonTypes';
-import { Is } from '../misc/Is';
-import { BlendShapeComponent } from '../components/BlendShape/BlendShapeComponent';
+import type { EffekseerComponent } from '../../effekseer';
+import type { ComponentTID, EntityUID } from '../../types/CommonTypes';
+import type { AnimationComponent } from '../components/Animation/AnimationComponent';
+import type { AnimationStateComponent } from '../components/AnimationState/AnimationStateComponent';
+import type { BlendShapeComponent } from '../components/BlendShape/BlendShapeComponent';
+import type { CameraComponent } from '../components/Camera/CameraComponent';
+import type { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
+import type { ConstraintComponent } from '../components/Constraint/ConstraintComponent';
+import type { LightComponent } from '../components/Light/LightComponent';
+import type { MeshComponent } from '../components/Mesh/MeshComponent';
+import type { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
+import type { PhysicsComponent } from '../components/Physics/PhysicsComponent';
+import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
+import type { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
+import type { TransformComponent } from '../components/Transform/TransformComponent';
+import type { VrmComponent } from '../components/Vrm/VrmComponent';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
-import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
-import { LightComponent } from '../components/Light/LightComponent';
-import { MeshComponent } from '../components/Mesh/MeshComponent';
-import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
-import { PhysicsComponent } from '../components/Physics/PhysicsComponent';
-import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
-import { TransformComponent } from '../components/Transform/TransformComponent';
-import { AnimationComponent } from '../components/Animation/AnimationComponent';
-import { CameraComponent } from '../components/Camera/CameraComponent';
-import { VrmComponent } from '../components/Vrm/VrmComponent';
-import { ConstraintComponent } from '../components/Constraint/ConstraintComponent';
-import { EffekseerComponent } from '../../effekseer';
-import { AnimationStateComponent } from '../components/AnimationState/AnimationStateComponent';
+import { Is } from '../misc/Is';
+import type { Component } from './Component';
+import { type IRnObject, RnObject } from './RnObject';
 
 /**
  * The Interface for an Entity.
@@ -324,9 +324,7 @@ export class Entity extends RnObject implements IEntity {
    * @returns The CameraComponent if this entity has one, undefined otherwise
    */
   tryToGetCamera() {
-    return this.getComponentByComponentTID(WellKnownComponentTIDs.CameraComponentTID) as
-      | CameraComponent
-      | undefined;
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.CameraComponentTID) as CameraComponent | undefined;
   }
 
   /**
@@ -354,9 +352,7 @@ export class Entity extends RnObject implements IEntity {
    * @returns The LightComponent if this entity has one, undefined otherwise
    */
   tryToGetLight() {
-    return this.getComponentByComponentTID(WellKnownComponentTIDs.LightComponentTID) as
-      | LightComponent
-      | undefined;
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.LightComponentTID) as LightComponent | undefined;
   }
 
   /**
@@ -369,9 +365,7 @@ export class Entity extends RnObject implements IEntity {
    * @returns The MeshComponent if this entity has one, undefined otherwise
    */
   tryToGetMesh() {
-    return this.getComponentByComponentTID(WellKnownComponentTIDs.MeshComponentTID) as
-      | MeshComponent
-      | undefined;
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.MeshComponentTID) as MeshComponent | undefined;
   }
 
   /**
@@ -399,9 +393,7 @@ export class Entity extends RnObject implements IEntity {
    * @returns The PhysicsComponent if this entity has one, undefined otherwise
    */
   tryToGetPhysics() {
-    return this.getComponentByComponentTID(WellKnownComponentTIDs.PhysicsComponentTID) as
-      | PhysicsComponent
-      | undefined;
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.PhysicsComponentTID) as PhysicsComponent | undefined;
   }
 
   /**
@@ -459,9 +451,7 @@ export class Entity extends RnObject implements IEntity {
    * @returns The VrmComponent if this entity has one, undefined otherwise
    */
   tryToGetVrm() {
-    return this.getComponentByComponentTID(WellKnownComponentTIDs.VrmComponentTID) as
-      | VrmComponent
-      | undefined;
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.VrmComponentTID) as VrmComponent | undefined;
   }
 
   /**
@@ -503,7 +493,7 @@ export class Entity extends RnObject implements IEntity {
    * should not be used.
    */
   _destroy() {
-    this.__components.forEach((component) => {
+    this.__components.forEach(component => {
       component._destroy();
     });
     this._isAlive = false;

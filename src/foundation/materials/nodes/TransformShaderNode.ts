@@ -1,11 +1,11 @@
-import { CompositionType } from '../../definitions/CompositionType';
 import MultiplyShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/Transform.glsl';
 import MultiplyShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Transform.wgsl';
-import { ComponentType, ComponentTypeEnum } from '../../definitions/ComponentType';
-import { CompositionTypeEnum } from '../../definitions/CompositionType';
-import { AbstractShaderNode } from '../core/AbstractShaderNode';
-import { SystemState } from '../../system/SystemState';
+import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
+import type { CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
+import { SystemState } from '../../system/SystemState';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 /**
  * A shader node that performs matrix-vector transformation operations.
@@ -41,20 +41,11 @@ export class TransformShaderNode extends AbstractShaderNode {
      * - Mat2 * Vec2 = Vec2
      */
     let outValueCompositionType: CompositionTypeEnum = CompositionType.Unknown;
-    if (
-      lhsCompositionType === CompositionType.Mat4 &&
-      rhsCompositionType === CompositionType.Vec4
-    ) {
+    if (lhsCompositionType === CompositionType.Mat4 && rhsCompositionType === CompositionType.Vec4) {
       outValueCompositionType = CompositionType.Vec4;
-    } else if (
-      lhsCompositionType === CompositionType.Mat3 &&
-      rhsCompositionType === CompositionType.Vec3
-    ) {
+    } else if (lhsCompositionType === CompositionType.Mat3 && rhsCompositionType === CompositionType.Vec3) {
       outValueCompositionType = CompositionType.Vec3;
-    } else if (
-      lhsCompositionType === CompositionType.Mat2 &&
-      rhsCompositionType === CompositionType.Vec2
-    ) {
+    } else if (lhsCompositionType === CompositionType.Mat2 && rhsCompositionType === CompositionType.Vec2) {
       outValueCompositionType = CompositionType.Vec2;
     }
     this.__inputs.push({
@@ -88,22 +79,22 @@ export class TransformShaderNode extends AbstractShaderNode {
         this.__inputs[0].compositionType === CompositionType.Mat2 &&
         this.__inputs[1].compositionType === CompositionType.Vec2
       ) {
-        return this.__shaderFunctionName + 'Mat2x2fVec2f';
-      } else if (
+        return `${this.__shaderFunctionName}Mat2x2fVec2f`;
+      }
+      if (
         this.__inputs[0].compositionType === CompositionType.Mat3 &&
         this.__inputs[1].compositionType === CompositionType.Vec3
       ) {
-        return this.__shaderFunctionName + 'Mat3x3fVec3f';
-      } else if (
+        return `${this.__shaderFunctionName}Mat3x3fVec3f`;
+      }
+      if (
         this.__inputs[0].compositionType === CompositionType.Mat4 &&
         this.__inputs[1].compositionType === CompositionType.Vec4
       ) {
-        return this.__shaderFunctionName + 'Mat4x4fVec4f';
-      } else {
-        throw new Error('Not implemented');
+        return `${this.__shaderFunctionName}Mat4x4fVec4f`;
       }
-    } else {
-      return this.__shaderFunctionName;
+      throw new Error('Not implemented');
     }
+    return this.__shaderFunctionName;
   }
 }

@@ -1,22 +1,22 @@
-import { RnObject } from '../core/RnObject';
-import { IEntity } from '../core/Entity';
-import { FrameBuffer } from './FrameBuffer';
-import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import { MeshComponent } from '../components/Mesh/MeshComponent';
-import { Vector4 } from '../math/Vector4';
-import { EntityUID, RenderPassUID } from '../../types/CommonTypes';
-import { Material } from '../materials/core/Material';
+import type { EntityUID, RenderPassUID } from '../../types/CommonTypes';
 import { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
-import { Primitive } from '../geometry/Primitive';
-import { MutableVector4 } from '../math/MutableVector4';
-import { IVector4 } from '../math/IVector';
-import { ISceneGraphEntity, IMeshEntity } from '../helpers/EntityHelper';
-import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
-import { CameraComponent } from '../components/Camera/CameraComponent';
-import { RenderBufferTargetEnum } from '../definitions/RenderBufferTarget';
-import { PrimitiveMode, PrimitiveModeEnum } from '../definitions/PrimitiveMode';
-import { CGAPIResourceRepository } from './CGAPIResourceRepository';
+import type { CameraComponent } from '../components/Camera/CameraComponent';
+import type { MeshComponent } from '../components/Mesh/MeshComponent';
+import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { flattenHierarchy } from '../components/SceneGraph/SceneGraphOps';
+import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
+import { IEntity } from '../core/Entity';
+import { RnObject } from '../core/RnObject';
+import { PrimitiveMode, type PrimitiveModeEnum } from '../definitions/PrimitiveMode';
+import type { RenderBufferTargetEnum } from '../definitions/RenderBufferTarget';
+import { Primitive } from '../geometry/Primitive';
+import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
+import type { Material } from '../materials/core/Material';
+import type { IVector4 } from '../math/IVector';
+import { MutableVector4 } from '../math/MutableVector4';
+import { Vector4 } from '../math/Vector4';
+import { CGAPIResourceRepository } from './CGAPIResourceRepository';
+import type { FrameBuffer } from './FrameBuffer';
 
 type PrimitiveRnObjectUID = number;
 
@@ -230,7 +230,7 @@ export class RenderPass extends RnObject {
    */
   clone() {
     const renderPass = new RenderPass();
-    renderPass.tryToSetUniqueName(this.uniqueName + '_cloned', true);
+    renderPass.tryToSetUniqueName(`${this.uniqueName}_cloned`, true);
     renderPass.__entities = this.__entities.concat();
     renderPass.__sceneGraphDirectlyAdded = this.__sceneGraphDirectlyAdded.concat();
     renderPass.__topLevelSceneGraphComponents = this.__topLevelSceneGraphComponents.concat();
@@ -264,8 +264,7 @@ export class RenderPass extends RnObject {
     renderPass._lastBlendWithoutZWriteIndex = this._lastBlendWithoutZWriteIndex;
     renderPass._lastPrimitiveUids = this._lastPrimitiveUids.concat();
     renderPass._lastTransformComponentsUpdateCount = this._lastTransformComponentsUpdateCount;
-    renderPass._lastCameraControllerComponentsUpdateCount =
-      this._lastCameraControllerComponentsUpdateCount;
+    renderPass._lastCameraControllerComponentsUpdateCount = this._lastCameraControllerComponentsUpdateCount;
     renderPass._lastSceneGraphComponentsUpdateCount = this._lastSceneGraphComponentsUpdateCount;
     renderPass._renderedSomethingBefore = this._renderedSomethingBefore;
     renderPass._isChangedSortRenderResult = this._isChangedSortRenderResult;
@@ -336,16 +335,10 @@ export class RenderPass extends RnObject {
       // Eliminate duplicates
       const map: Map<EntityUID, IMeshEntity | ISceneGraphEntity> = this.__entities
         .concat(collectedEntities)
-        .reduce(
-          (
-            map: Map<EntityUID, IMeshEntity | ISceneGraphEntity>,
-            entity: IMeshEntity | ISceneGraphEntity
-          ) => {
-            map.set(entity.entityUID, entity);
-            return map;
-          },
-          new Map()
-        );
+        .reduce((map: Map<EntityUID, IMeshEntity | ISceneGraphEntity>, entity: IMeshEntity | ISceneGraphEntity) => {
+          map.set(entity.entityUID, entity);
+          return map;
+        }, new Map());
 
       this.__entities = Array.from(map.values());
     }
@@ -399,11 +392,9 @@ export class RenderPass extends RnObject {
       }
       return sg;
     };
-    this.__topLevelSceneGraphComponents = this.__sceneGraphDirectlyAdded.map(
-      (sg: SceneGraphComponent) => {
-        return goToTopLevel(sg);
-      }
-    );
+    this.__topLevelSceneGraphComponents = this.__sceneGraphDirectlyAdded.map((sg: SceneGraphComponent) => {
+      return goToTopLevel(sg);
+    });
     const set = new Set(this.__topLevelSceneGraphComponents);
     this.__topLevelSceneGraphComponents = Array.from(set);
   }
@@ -417,10 +408,10 @@ export class RenderPass extends RnObject {
   private __collectMeshComponents() {
     this.__meshComponents = [];
     this.__optimizedMeshComponents = [];
-    this.__entities.filter((entity) => {
-      const meshComponent = entity.getComponentByComponentTID(
-        WellKnownComponentTIDs.MeshComponentTID
-      ) as MeshComponent | undefined;
+    this.__entities.filter(entity => {
+      const meshComponent = entity.getComponentByComponentTID(WellKnownComponentTIDs.MeshComponentTID) as
+        | MeshComponent
+        | undefined;
       if (meshComponent != null && meshComponent.mesh != null) {
         this.__meshComponents!.push(meshComponent);
         if (!this._toRenderOpaquePrimitives && meshComponent.mesh.isExistOpaque()) {
@@ -430,16 +421,10 @@ export class RenderPass extends RnObject {
         if (!this._toRenderTranslucentPrimitives && meshComponent.mesh.isExistTranslucent()) {
           return;
         }
-        if (
-          !this._toRenderBlendWithZWritePrimitives &&
-          meshComponent.mesh.isExistBlendWithZWrite()
-        ) {
+        if (!this._toRenderBlendWithZWritePrimitives && meshComponent.mesh.isExistBlendWithZWrite()) {
           return;
         }
-        if (
-          !this._toRenderBlendWithoutZWritePrimitives &&
-          meshComponent.mesh.isExistBlendWithoutZWrite()
-        ) {
+        if (!this._toRenderBlendWithoutZWritePrimitives && meshComponent.mesh.isExistBlendWithoutZWrite()) {
           return;
         }
         this.__optimizedMeshComponents!.push(meshComponent);
@@ -613,9 +598,7 @@ export class RenderPass extends RnObject {
       return;
     }
     const repo = WebGLResourceRepository.getInstance();
-    const webGLResourceFrameBuffer = repo.getWebGLResource(
-      this.__frameBuffer!.cgApiResourceUid
-    ) as WebGLFramebuffer;
+    const webGLResourceFrameBuffer = repo.getWebGLResource(this.__frameBuffer!.cgApiResourceUid) as WebGLFramebuffer;
     const webGLResourceResolveFramebuffer = repo.getWebGLResource(
       resolveFrameBuffer!.cgApiResourceUid
     ) as WebGLFramebuffer;

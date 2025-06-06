@@ -36,7 +36,7 @@ const assets = await Rn.defaultAssetLoader.load({
   vrmModel: Rn.GltfImporter.importFromUrl('../../../assets/vrm/test.vrm', {
     cameraComponent: cameraComponent,
   }),
-  vrmAnimation: Rn.VrmaImporter.importFromUrl('../../../assets/vrma/CC0animationrotate01.vrma')
+  vrmAnimation: Rn.VrmaImporter.importFromUrl('../../../assets/vrma/CC0animationrotate01.vrma'),
 });
 
 // expressions
@@ -49,23 +49,15 @@ const vrmRootEntity = vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity;
 
 // animation
 const animationAssigner = Rn.AnimationAssigner.getInstance();
-animationAssigner.assignAnimationWithVrma(
-  vrmRootEntity,
-  assets.vrmAnimation,
-);
+animationAssigner.assignAnimationWithVrma(vrmRootEntity, assets.vrmAnimation);
 
 for (let i = 0; i < 1; i++) {
   for (let j = 0; j < 1; j++) {
-    const vrmRootEntity2nd = Rn.EntityRepository.shallowCopyEntity(
-      vrmRootEntity
-    ) as Rn.ISceneGraphEntity;
+    const vrmRootEntity2nd = Rn.EntityRepository.shallowCopyEntity(vrmRootEntity) as Rn.ISceneGraphEntity;
     vrmRootEntity2nd.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, Math.PI, 0.0]);
     vrmRootEntity2nd.getTransform().localPosition = Rn.Vector3.fromCopyArray([i, 0, j]);
     vrmMainRenderPass.addEntities([vrmRootEntity2nd]);
-    animationAssigner.assignAnimationWithVrma(
-      vrmRootEntity2nd,
-      assets.vrmAnimation,
-    );
+    animationAssigner.assignAnimationWithVrma(vrmRootEntity2nd, assets.vrmAnimation);
   }
 }
 
@@ -123,6 +115,6 @@ Rn.System.startRenderLoop(() => {
   count++;
 });
 
-window.exportGltf2 = function () {
+window.exportGltf2 = () => {
   Rn.Gltf2Exporter.export('Rhodonite');
 };

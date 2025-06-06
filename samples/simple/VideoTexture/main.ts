@@ -52,9 +52,7 @@ cameraComponent.aspect = 1;
 cameraEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
 
 // CameraComponent
-const cameraControllerComponent = (
-  cameraEntity as Rn.ICameraControllerEntity
-).getCameraController();
+const cameraControllerComponent = (cameraEntity as Rn.ICameraControllerEntity).getCameraController();
 const controller = cameraControllerComponent.controller as Rn.OrbitCameraController;
 controller.setTarget(planeEntity);
 
@@ -99,11 +97,11 @@ Rn.System.startRenderLoop(() => {
   count++;
 });
 
-window.exportGltf2 = function () {
+window.exportGltf2 = () => {
   Rn.Gltf2Exporter.export('Rhodonite');
 };
 
-window.downloadFrame = function () {
+window.downloadFrame = () => {
   const [pixels, width, height] = window.texture.getCurrentFramePixelData();
 
   const canvas = document.createElement('canvas');

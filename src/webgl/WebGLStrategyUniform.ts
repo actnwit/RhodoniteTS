@@ -1,47 +1,41 @@
-import { WebGLResourceRepository } from './WebGLResourceRepository';
-import { ShaderSources, WebGLStrategy } from './WebGLStrategy';
-import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
-import { WebGLContextWrapper } from './WebGLContextWrapper';
-import { Primitive } from '../foundation/geometry/Primitive';
-import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
-import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
-import { ComponentRepository } from '../foundation/core/ComponentRepository';
-import { LightComponent } from '../foundation/components/Light/LightComponent';
-import { Config } from '../foundation/core/Config';
-import { PixelFormat } from '../foundation/definitions/PixelFormat';
-import { ComponentType } from '../foundation/definitions/ComponentType';
-import { TextureParameter } from '../foundation/definitions/TextureParameter';
-import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
-import { CompositionType } from '../foundation/definitions/CompositionType';
-import { Material } from '../foundation/materials/core/Material';
-import { RenderPass } from '../foundation/renderer/RenderPass';
-import { Mesh } from '../foundation/geometry/Mesh';
-import { MemoryManager } from '../foundation/core/MemoryManager';
-import { ShaderType } from '../foundation/definitions/ShaderType';
-import {
-  CGAPIResourceHandle,
-  WebGLResourceHandle,
-  Index,
-  Count,
-  PrimitiveUID,
-} from '../types/CommonTypes';
-import { BufferUse } from '../foundation/definitions/BufferUse';
-import { Buffer } from '../foundation/memory/Buffer';
-import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
-import { MiscUtil } from '../foundation/misc/MiscUtil';
-import WebGLStrategyCommonMethod, { setupShaderProgram } from './WebGLStrategyCommonMethod';
-import { Is } from '../foundation/misc/Is';
-import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
-import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
-import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
-import { ModuleManager } from '../foundation/system/ModuleManager';
-import { RnXR } from '../xr/main';
-import { WebXRSystem } from '../xr/WebXRSystem';
-import { Vector2 } from '../foundation/math/Vector2';
 import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
-import { Scalar } from '../foundation/math/Scalar';
+import { LightComponent } from '../foundation/components/Light/LightComponent';
+import type { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
+import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
+import { ComponentRepository } from '../foundation/core/ComponentRepository';
+import { Config } from '../foundation/core/Config';
+import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
+import { MemoryManager } from '../foundation/core/MemoryManager';
+import { BufferUse } from '../foundation/definitions/BufferUse';
+import { ComponentType } from '../foundation/definitions/ComponentType';
+import { CompositionType } from '../foundation/definitions/CompositionType';
+import { PixelFormat } from '../foundation/definitions/PixelFormat';
+import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
+import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
+import { ShaderType } from '../foundation/definitions/ShaderType';
 import { TextureFormat } from '../foundation/definitions/TextureFormat';
+import { TextureParameter } from '../foundation/definitions/TextureParameter';
+import type { Mesh } from '../foundation/geometry/Mesh';
+import { Primitive } from '../foundation/geometry/Primitive';
+import type { Material } from '../foundation/materials/core/Material';
+import type { Scalar } from '../foundation/math/Scalar';
+import type { Vector2 } from '../foundation/math/Vector2';
+import type { Buffer } from '../foundation/memory/Buffer';
+import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
+import { MiscUtil } from '../foundation/misc/MiscUtil';
+import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
+import type { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
+import type { RenderPass } from '../foundation/renderer/RenderPass';
+import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
+import { ModuleManager } from '../foundation/system/ModuleManager';
+import type { CGAPIResourceHandle, Count, Index, PrimitiveUID, WebGLResourceHandle } from '../types/CommonTypes';
+import type { WebXRSystem } from '../xr/WebXRSystem';
+import type { RnXR } from '../xr/main';
+import type { WebGLContextWrapper } from './WebGLContextWrapper';
+import { WebGLResourceRepository } from './WebGLResourceRepository';
+import type { ShaderSources, WebGLStrategy } from './WebGLStrategy';
+import WebGLStrategyCommonMethod, { setupShaderProgram } from './WebGLStrategyCommonMethod';
 
 declare const spector: any;
 
@@ -55,8 +49,7 @@ declare const spector: any;
  */
 export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
-  private __webglResourceRepository: WebGLResourceRepository =
-    WebGLResourceRepository.getInstance();
+  private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __lastShader: CGAPIResourceHandle = -1;
   private __lastMaterial?: WeakRef<Material>;
@@ -209,8 +202,7 @@ bool get_isBillboard(float instanceId) {
       material._setUniformLocationsOfMaterialNodes(true, primitive);
 
       const shaderSemanticsInfos = WebGLStrategyUniform.componentMatrices;
-      const shaderSemanticsInfosPointSprite =
-        WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray();
+      const shaderSemanticsInfosPointSprite = WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray();
 
       material._setupAdditionalUniformLocations(
         shaderSemanticsInfos.concat(shaderSemanticsInfosPointSprite),
@@ -242,11 +234,7 @@ bool get_isBillboard(float instanceId) {
     updatedShaderSources: ShaderSources,
     onError: (message: string) => void
   ): CGAPIResourceHandle {
-    const [programUid, newOne] = material._createProgramByUpdatedSources(
-      updatedShaderSources,
-      primitive,
-      onError
-    );
+    const [programUid, newOne] = material._createProgramByUpdatedSources(updatedShaderSources, primitive, onError);
     if (programUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       return programUid;
     }
@@ -257,8 +245,7 @@ bool get_isBillboard(float instanceId) {
       material._setUniformLocationsOfMaterialNodes(true, primitive);
 
       const shaderSemanticsInfos = WebGLStrategyUniform.componentMatrices;
-      const shaderSemanticsInfosPointSprite =
-        WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray();
+      const shaderSemanticsInfosPointSprite = WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray();
 
       material._setupAdditionalUniformLocations(
         shaderSemanticsInfos.concat(shaderSemanticsInfosPointSprite),
@@ -301,9 +288,7 @@ bool get_isBillboard(float instanceId) {
    * and prepares global rendering state.
    */
   prerender(): void {
-    this.__lightComponents = ComponentRepository.getComponentsWithType(
-      LightComponent
-    ) as LightComponent[];
+    this.__lightComponents = ComponentRepository.getComponentsWithType(LightComponent) as LightComponent[];
 
     // Setup Data Texture
     if (this.__dataTextureUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
@@ -313,14 +298,10 @@ bool get_isBillboard(float instanceId) {
         return;
       }
 
-      if (
-        buffer.takenSizeInByte / MemoryManager.bufferWidthLength / 4 >
-        MemoryManager.bufferHeightLength
-      ) {
+      if (buffer.takenSizeInByte / MemoryManager.bufferWidthLength / 4 > MemoryManager.bufferHeightLength) {
         Logger.warn('The buffer size exceeds the size of the data texture.');
       }
-      const dataTextureByteSize =
-        MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
+      const dataTextureByteSize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
       const concatArrayBuffer = MiscUtil.concatArrayBuffers2({
         finalSize: dataTextureByteSize,
         srcs: [buffer.getArrayBuffer()],
@@ -329,19 +310,16 @@ bool get_isBillboard(float instanceId) {
       });
       const floatDataTextureBuffer = new Float32Array(concatArrayBuffer);
 
-      this.__dataTextureUid = this.__webglResourceRepository.createTextureFromTypedArray(
-        floatDataTextureBuffer,
-        {
-          level: 0,
-          internalFormat: TextureFormat.RGBA32F,
-          width: MemoryManager.bufferWidthLength,
-          height: MemoryManager.bufferHeightLength,
-          border: 0,
-          format: PixelFormat.RGBA,
-          type: ComponentType.Float,
-          generateMipmap: false,
-        }
-      );
+      this.__dataTextureUid = this.__webglResourceRepository.createTextureFromTypedArray(floatDataTextureBuffer, {
+        level: 0,
+        internalFormat: TextureFormat.RGBA32F,
+        width: MemoryManager.bufferWidthLength,
+        height: MemoryManager.bufferHeightLength,
+        border: 0,
+        format: PixelFormat.RGBA,
+        type: ComponentType.Float,
+        generateMipmap: false,
+      });
     }
   }
 
@@ -396,14 +374,8 @@ bool get_isBillboard(float instanceId) {
       glw.bindVertexArray(vao);
     } else {
       const vaoHandles = primitive.vertexHandles!;
-      this.__webglResourceRepository.setVertexDataToPipeline(
-        vaoHandles,
-        primitive,
-        instanceIDBufferUid
-      );
-      const ibo = this.__webglResourceRepository.getWebGLResource(
-        vaoHandles.iboHandle!
-      ) as WebGLBuffer;
+      this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, instanceIDBufferUid);
+      const ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle!) as WebGLBuffer;
       const gl = glw.getRawContext();
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
     }
@@ -452,11 +424,7 @@ bool get_isBillboard(float instanceId) {
    * @param renderPassTickCount - Current tick count for the render pass
    * @returns True if any primitives were rendered, false otherwise
    */
-  common_$render(
-    primitiveUids: PrimitiveUID[],
-    renderPass: RenderPass,
-    renderPassTickCount: Count
-  ) {
+  common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, renderPassTickCount: Count) {
     if (typeof spector !== 'undefined') {
       spector.setMarker('|  |  Uniform:$render#');
     }
@@ -476,7 +444,8 @@ bool get_isBillboard(float instanceId) {
       if (!renderPass.depthWriteMask) {
         gl.depthMask(false);
       }
-      for (let i = renderPass._lastOpaqueIndex; i >= 0; i--) { // Drawing from the nearest object
+      for (let i = renderPass._lastOpaqueIndex; i >= 0; i--) {
+        // Drawing from the nearest object
         const primitiveUid = primitiveUids[i];
         const rendered = this.renderInner(primitiveUid, glw, renderPass, renderPassTickCount);
         renderedSomething ||= rendered;
@@ -495,11 +464,7 @@ bool get_isBillboard(float instanceId) {
 
     // Draw Blend primitives with ZWrite
     if (renderPass._toRenderBlendWithZWritePrimitives) {
-      for (
-        let i = renderPass._lastTranslucentIndex + 1;
-        i <= renderPass._lastBlendWithZWriteIndex;
-        i++
-      ) {
+      for (let i = renderPass._lastTranslucentIndex + 1; i <= renderPass._lastBlendWithZWriteIndex; i++) {
         const primitiveUid = primitiveUids[i];
         const rendered = this.renderInner(primitiveUid, glw, renderPass, renderPassTickCount);
         renderedSomething ||= rendered;
@@ -513,11 +478,7 @@ bool get_isBillboard(float instanceId) {
       }
 
       // Draw Blend primitives without ZWrite
-      for (
-        let i = renderPass._lastBlendWithZWriteIndex + 1;
-        i <= renderPass._lastBlendWithoutZWriteIndex;
-        i++
-      ) {
+      for (let i = renderPass._lastBlendWithZWriteIndex + 1; i <= renderPass._lastBlendWithoutZWriteIndex; i++) {
         const primitiveUid = primitiveUids[i];
         const rendered = this.renderInner(primitiveUid, glw, renderPass, renderPassTickCount);
         renderedSomething ||= rendered;
@@ -544,9 +505,7 @@ bool get_isBillboard(float instanceId) {
     setupShaderProgram(material, primitive, this);
 
     const shaderProgramUid = material.getShaderProgramUid(primitive);
-    const shaderProgram = this.__webglResourceRepository.getWebGLResource(
-      shaderProgramUid
-    )! as WebGLProgram;
+    const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
     gl.useProgram(shaderProgram);
     this.__lastShader = shaderProgramUid;
 
@@ -612,10 +571,7 @@ bool get_isBillboard(float instanceId) {
 
     let renderedSomething = false;
     const isVrMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
-    const displayCount = WebGLStrategyCommonMethod.getDisplayCount(
-      isVrMainPass,
-      WebGLStrategyUniform.__webxrSystem
-    );
+    const displayCount = WebGLStrategyCommonMethod.getDisplayCount(isVrMainPass, WebGLStrategyUniform.__webxrSystem);
     for (const entity of meshEntities) {
       if (entity.getSceneGraph()._isCulled) {
         continue;
@@ -631,9 +587,7 @@ bool get_isBillboard(float instanceId) {
       );
 
       const shaderProgramUid = material.getShaderProgramUid(primitive);
-      const shaderProgram = this.__webglResourceRepository.getWebGLResource(
-        shaderProgramUid
-      )! as WebGLProgram;
+      const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
 
       let firstTimeForShaderProgram = true;
       let firstTimeForMaterial = true;
@@ -723,11 +677,7 @@ bool get_isBillboard(float instanceId) {
             0
           );
         } else {
-          gl.drawArrays(
-            primitive.primitiveMode.index,
-            0,
-            primitive.getVertexCountAsVerticesBased()
-          );
+          gl.drawArrays(primitive.primitiveMode.index, 0, primitive.getVertexCountAsVerticesBased());
         }
       }
       renderedSomething = true;
@@ -743,10 +693,7 @@ bool get_isBillboard(float instanceId) {
    * @param gl - WebGL rendering context
    * @param shaderProgram - The shader program to bind the texture to
    */
-  private bindDataTexture(
-    gl: WebGLRenderingContext | WebGL2RenderingContext,
-    shaderProgram: WebGLProgram
-  ) {
+  private bindDataTexture(gl: WebGLRenderingContext | WebGL2RenderingContext, shaderProgram: WebGLProgram) {
     gl.uniform1i((shaderProgram as any).dataTexture, 7);
     this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
     const samplerUid = this.__webglResourceRepository.createOrGetTextureSamplerRepeatNearest();

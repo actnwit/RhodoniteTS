@@ -85,11 +85,7 @@ function createEntityColoredBoard(diffuseColor: Rn.Vector4) {
   return entity;
 }
 
-function createAndSetFramebuffer(
-  renderPass: Rn.RenderPass,
-  resolution: number,
-  textureNum: number
-) {
+function createAndSetFramebuffer(renderPass: Rn.RenderPass, resolution: number, textureNum: number) {
   const framebuffer = Rn.RenderableHelper.createFrameBuffer({
     width: resolution,
     height: resolution,
@@ -111,11 +107,7 @@ function createEntityPostEffectCamera() {
   return entityCamera;
 }
 
-function createRenderPassColorGrading(
-  uri: string,
-  renderPassMain: Rn.RenderPass,
-  cameraComponent: Rn.CameraComponent
-) {
+function createRenderPassColorGrading(uri: string, renderPassMain: Rn.RenderPass, cameraComponent: Rn.CameraComponent) {
   const material = Rn.MaterialHelper.createColorGradingUsingLUTsMaterial({ uri }, renderPassMain);
 
   const boardPrimitive = new Rn.Plane();

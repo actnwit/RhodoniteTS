@@ -1,11 +1,11 @@
-import { PixelFormat, PixelFormatEnum } from '../definitions/PixelFormat';
-import { ComponentType, ComponentTypeEnum } from '../definitions/ComponentType';
-import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
-import { AbstractTexture } from './AbstractTexture';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { Size } from '../../types/CommonTypes';
-import { DataUtil } from '../misc/DataUtil';
+import type { Size } from '../../types/CommonTypes';
+import { ComponentType, type ComponentTypeEnum } from '../definitions/ComponentType';
+import { PixelFormat, type PixelFormatEnum } from '../definitions/PixelFormat';
 import { TextureFormat } from '../definitions/TextureFormat';
+import { TextureParameter, type TextureParameterEnum } from '../definitions/TextureParameter';
+import { DataUtil } from '../misc/DataUtil';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import { AbstractTexture } from './AbstractTexture';
 
 /**
  * Configuration options for VideoTexture creation and processing.
@@ -45,13 +45,6 @@ export class VideoTexture extends AbstractTexture {
   private static __loadedBasisFunc = false;
   private static __basisLoadPromise?: Promise<void>;
   #htmlVideoElement?: HTMLVideoElement;
-
-  /**
-   * Creates a new VideoTexture instance.
-   */
-  constructor() {
-    super();
-  }
 
   /**
    * Creates a resized canvas from an image, maintaining aspect ratio and ensuring power-of-two dimensions.
@@ -315,13 +308,7 @@ export class VideoTexture extends AbstractTexture {
     let pixel: Uint8Array | undefined = undefined;
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     if (this.__isTextureReady && this.#htmlVideoElement) {
-      pixel = webGLResourceRepository.getPixelDataFromTexture(
-        this._textureResourceUid,
-        0,
-        0,
-        this.width,
-        this.height
-      );
+      pixel = webGLResourceRepository.getPixelDataFromTexture(this._textureResourceUid, 0, 0, this.width, this.height);
     }
     return [pixel, this.width, this.height];
   }

@@ -1,13 +1,13 @@
+import type { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
 import { RnObject } from '../../core/RnObject';
-import { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
-import { VertexAttributeEnum } from '../../definitions/VertexAttribute';
-import { ShaderSemanticsEnum } from '../../definitions/ShaderSemantics';
-import { CompositionTypeEnum } from '../../definitions/CompositionType';
-import { ComponentTypeEnum } from '../../definitions/ComponentType';
-import { Socket, SocketDefaultValue } from './Socket';
-import { ShaderType, ShaderTypeEnum } from '../../definitions/ShaderType';
-import { SystemState } from '../../system';
 import { ProcessApproach } from '../../definitions';
+import type { ComponentTypeEnum } from '../../definitions/ComponentType';
+import type { CompositionTypeEnum } from '../../definitions/CompositionType';
+import type { ShaderSemanticsEnum } from '../../definitions/ShaderSemantics';
+import { ShaderType, type ShaderTypeEnum } from '../../definitions/ShaderType';
+import type { VertexAttributeEnum } from '../../definitions/VertexAttribute';
+import { SystemState } from '../../system';
+import type { Socket, SocketDefaultValue } from './Socket';
 
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 
@@ -150,16 +150,13 @@ export abstract class AbstractShaderNode extends RnObject {
     if (this.__commonPart != null) {
       if (shaderStage === ShaderType.VertexShader) {
         return this.__commonPart.vertexShaderDefinitions;
-      } else {
-        return this.__commonPart.pixelShaderDefinitions;
       }
-    } else {
-      if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-        return this.__codeWGSL!;
-      } else {
-        return this.__codeGLSL!;
-      }
+      return this.__commonPart.pixelShaderDefinitions;
     }
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      return this.__codeWGSL!;
+    }
+    return this.__codeGLSL!;
   }
 
   /**
@@ -233,8 +230,13 @@ export abstract class AbstractShaderNode extends RnObject {
    * @param varOutputNames - Array of output variable names for each node
    * @returns The generated function call statement string
    */
-  makeCallStatement(i: number, shaderNode: AbstractShaderNode,
-    functionName: string, varInputNames: string[][], varOutputNames: string[][]): string {
+  makeCallStatement(
+    i: number,
+    shaderNode: AbstractShaderNode,
+    functionName: string,
+    varInputNames: string[][],
+    varOutputNames: string[][]
+  ): string {
     let str = '';
     const varNames = varInputNames[i].concat(varOutputNames[i]);
     if (
@@ -253,10 +255,7 @@ export abstract class AbstractShaderNode extends RnObject {
           if (k !== 0) {
             rowStr += ', ';
           }
-          if (
-            SystemState.currentProcessApproach === ProcessApproach.WebGPU &&
-            k >= varInputNames[i].length
-          ) {
+          if (SystemState.currentProcessApproach === ProcessApproach.WebGPU && k >= varInputNames[i].length) {
             rowStr += '&';
           }
           rowStr += varNames[k];

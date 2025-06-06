@@ -15,8 +15,7 @@ export class PointShadowMap {
       depthTextureFormat: Rn.TextureFormat.Depth32F,
     });
 
-    this.__shadowMomentFrontMaterial =
-      Rn.MaterialHelper.createParaboloidDepthMomentEncodeMaterial();
+    this.__shadowMomentFrontMaterial = Rn.MaterialHelper.createParaboloidDepthMomentEncodeMaterial();
     this.__shadowMomentFrontMaterial.colorWriteMask = [true, true, false, false];
 
     this.__shadowMomentBackMaterial = Rn.MaterialHelper.createParaboloidDepthMomentEncodeMaterial();

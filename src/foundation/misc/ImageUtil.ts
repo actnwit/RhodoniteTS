@@ -1,10 +1,10 @@
-import { Vector3 } from '../math/Vector3';
-import { MutableMatrix33 } from '../math/MutableMatrix33';
-import { MathUtil } from '../math/MathUtil';
-import { MutableVector3 } from '../math/MutableVector3';
+import { ColorComponentLetter, type Index, type Size } from '../../types/CommonTypes';
 import { ColorRgb } from '../math/ColorRgb';
-import { ColorComponentLetter, Index, Size } from '../../types/CommonTypes';
+import { MathUtil } from '../math/MathUtil';
+import { MutableMatrix33 } from '../math/MutableMatrix33';
 import { MutableVector2 } from '../math/MutableVector2';
+import { MutableVector3 } from '../math/MutableVector3';
+import { Vector3 } from '../math/Vector3';
 import { TextureDataFloat } from '../textures/TextureDataFloat';
 import { Is } from './Is';
 
@@ -27,15 +27,15 @@ type PixelSortType = {
  */
 function computeEigenVectors(input: TextureDataFloat, eigenVectors: Vector3[]) {
   // First and second order moments
-  let R = 0,
-    G = 0,
-    B = 0,
-    RR = 0,
-    GG = 0,
-    BB = 0,
-    RG = 0,
-    RB = 0,
-    GB = 0;
+  let R = 0;
+  let G = 0;
+  let B = 0;
+  let RR = 0;
+  let GG = 0;
+  let BB = 0;
+  let RG = 0;
+  let RB = 0;
+  let GB = 0;
   for (let y = 0; y < input.height; y++) {
     for (let x = 0; x < input.width; x++) {
       const col = input.getPixelAs(x, y, 3, ColorRgb);
@@ -79,21 +79,9 @@ function computeEigenVectors(input: TextureDataFloat, eigenVectors: Vector3[]) {
   MathUtil.computeEigenValuesAndVectors(covarMat, eigenVectorsTemp, eigenValuesTemp);
 
   // Set return values
-  eigenVectors[0] = Vector3.fromCopyArray([
-    eigenVectorsTemp.m00,
-    eigenVectorsTemp.m10,
-    eigenVectorsTemp.m20,
-  ]);
-  eigenVectors[1] = Vector3.fromCopyArray([
-    eigenVectorsTemp.m01,
-    eigenVectorsTemp.m11,
-    eigenVectorsTemp.m21,
-  ]);
-  eigenVectors[2] = Vector3.fromCopyArray([
-    eigenVectorsTemp.m02,
-    eigenVectorsTemp.m12,
-    eigenVectorsTemp.m22,
-  ]);
+  eigenVectors[0] = Vector3.fromCopyArray([eigenVectorsTemp.m00, eigenVectorsTemp.m10, eigenVectorsTemp.m20]);
+  eigenVectors[1] = Vector3.fromCopyArray([eigenVectorsTemp.m01, eigenVectorsTemp.m11, eigenVectorsTemp.m21]);
+  eigenVectors[2] = Vector3.fromCopyArray([eigenVectorsTemp.m02, eigenVectorsTemp.m12, eigenVectorsTemp.m22]);
 }
 
 /**
@@ -161,8 +149,7 @@ function decorrelateColorSpace(
         const value: number = input_decorrelated.getPixelAsArray(x, y)[channel];
         // Remap in [0, 1]
         const remapped_value =
-          (value - colorSpaceRanges[channel].x) /
-          (colorSpaceRanges[channel].y - colorSpaceRanges[channel].x);
+          (value - colorSpaceRanges[channel].x) / (colorSpaceRanges[channel].y - colorSpaceRanges[channel].x);
         // Store
         input_decorrelated.setPixelAtChannel(x, y, channel, remapped_value);
       }
@@ -202,11 +189,7 @@ function decorrelateColorSpace(
  * @param channel - The color channel index (0=R, 1=G, 2=B)
  * @returns The computed average subpixel variance
  */
-function computeLODAverageSubpixelVariance(
-  image: TextureDataFloat,
-  LOD: Index,
-  channel: Index
-): number {
+function computeLODAverageSubpixelVariance(image: TextureDataFloat, LOD: Index, channel: Index): number {
   // Window width associated with
   const windowWidth = 1 << LOD;
 
@@ -231,8 +214,7 @@ function computeLODAverageSubpixelVariance(
       const window_variance = Math.max(0.0, v2 - v * v);
 
       // Update average
-      average_window_variance +=
-        window_variance / ((image.width * image.height) / windowWidth / windowWidth);
+      average_window_variance += window_variance / ((image.width * image.height) / windowWidth / windowWidth);
     }
   }
 
@@ -287,11 +269,7 @@ function filterLUTValueAtx(
  * @param LUT_Tinv - The inverse transformation LUT to prefilter
  * @param channel - The color channel index to process
  */
-function prefilterLUT(
-  image_T_Input: TextureDataFloat,
-  LUT_Tinv: TextureDataFloat,
-  channel: Index
-): void {
+function prefilterLUT(image_T_Input: TextureDataFloat, LUT_Tinv: TextureDataFloat, channel: Index): void {
   // Prefilter
   for (let LOD = 1; LOD < LUT_Tinv.height; LOD++) {
     // Compute subpixel variance at LOD
@@ -498,11 +476,7 @@ function precomputations(
  * @param height - The target canvas height
  * @returns A new Canvas element containing the scaled image
  */
-export function convertHTMLImageElementToCanvas(
-  image: HTMLImageElement,
-  width: number,
-  height: number
-) {
+export function convertHTMLImageElementToCanvas(image: HTMLImageElement, width: number, height: number) {
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;

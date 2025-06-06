@@ -1,11 +1,11 @@
-import { AnimationTrackName } from '../../../types/AnimationTypes';
-import { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
+import type { AnimationTrackName } from '../../../types/AnimationTypes';
+import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
-import { IEntity } from '../../core/Entity';
+import type { IEntity } from '../../core/Entity';
 import { EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
-import { IAnimationStateEntity, ISceneGraphEntity } from '../../helpers/EntityHelper';
-import { ComponentToComponentMethods } from '../ComponentTypes';
+import type { IAnimationStateEntity, ISceneGraphEntity } from '../../helpers/EntityHelper';
+import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 /**
@@ -26,12 +26,7 @@ export class AnimationStateComponent extends Component {
    * @param entityComponent - The entity repository for component management
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(
-    entityUid: EntityUID,
-    componentSid: ComponentSID,
-    entityComponent: EntityRepository,
-    isReUse: boolean
-  ) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean) {
     super(entityUid, componentSid, entityComponent, isReUse);
 
     this.moveStageTo(ProcessStage.Logic);
@@ -255,14 +250,6 @@ export class AnimationStateComponent extends Component {
     _componentClass: SomeComponentClass
   ) {
     class BlendShapeEntity extends (base.constructor as any) {
-      constructor(
-        entityUID: EntityUID,
-        isAlive: boolean,
-        components?: Map<ComponentTID, Component>
-      ) {
-        super(entityUID, isAlive, components);
-      }
-
       getAnimationState() {
         return this.getComponentByComponentTID(
           WellKnownComponentTIDs.AnimationStateComponentTID

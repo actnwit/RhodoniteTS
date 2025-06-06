@@ -1,7 +1,7 @@
-import { Array16, Array3, Array4 } from '../../types';
-import { IMatrix44 } from './IMatrix';
-import { IQuaternion } from './IQuaternion';
-import { IVector3 } from './IVector';
+import type { Array3, Array4, Array16 } from '../../types';
+import type { IMatrix44 } from './IMatrix';
+import type { IQuaternion } from './IQuaternion';
+import type { IVector3 } from './IVector';
 import { Matrix44 } from './Matrix44';
 import { MutableMatrix44 } from './MutableMatrix44';
 import { MutableQuaternion } from './MutableQuaternion';
@@ -48,11 +48,7 @@ export class Transform3D {
     this.__rotation = MutableQuaternion.dummy();
 
     if (x !== undefined) {
-      this.setTransform(
-        x.positionInner,
-        x.scaleInner,
-        MutableQuaternion.fromCopyQuaternion(x.rotationInner)
-      );
+      this.setTransform(x.positionInner, x.scaleInner, MutableQuaternion.fromCopyQuaternion(x.rotationInner));
     } else {
       this.__position = MutableVector3.zero();
       this.__scale = MutableVector3.one();
@@ -450,7 +446,7 @@ export class Transform3D {
     for (const key in json) {
       if (json.hasOwnProperty(key) && key in this) {
         if (key === 'quaternion') {
-          this['rotation'] = Quaternion.fromCopyArray4((json as any)[key] as Array4<number>);
+          this.rotation = Quaternion.fromCopyArray4((json as any)[key] as Array4<number>);
         } else if (key === 'matrix') {
           this[key] = Matrix44.fromCopyArray16RowMajor((json as any)[key] as Array16<number>);
         } else {

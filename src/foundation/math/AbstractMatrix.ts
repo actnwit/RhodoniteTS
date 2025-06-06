@@ -1,4 +1,4 @@
-import { IMatrix } from './IMatrix';
+import type { IMatrix } from './IMatrix';
 
 /**
  * Abstract base class for matrix implementations.
@@ -69,9 +69,8 @@ export abstract class AbstractMatrix implements IMatrix {
   isDummy(): boolean {
     if (this._v.length === 0) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**

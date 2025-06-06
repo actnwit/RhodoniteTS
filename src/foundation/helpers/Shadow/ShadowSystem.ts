@@ -1,19 +1,19 @@
-import { ICameraEntityMethods } from '../../components/Camera/ICameraEntity';
-import { ILightEntityMethods } from '../../components/Light/ILightEntity';
+import type { ICameraEntityMethods } from '../../components/Camera/ICameraEntity';
+import type { ILightEntityMethods } from '../../components/Light/ILightEntity';
 import { LightComponent } from '../../components/Light/LightComponent';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { Config } from '../../core/Config';
 import { ComponentType } from '../../definitions/ComponentType';
-import { LightType, LightTypeEnum } from '../../definitions/LightType';
+import { LightType, type LightTypeEnum } from '../../definitions/LightType';
 import { PixelFormat } from '../../definitions/PixelFormat';
 import { TextureFormat } from '../../definitions/TextureFormat';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import { VectorN } from '../../math/VectorN';
 import { Expression } from '../../renderer/Expression';
-import { FrameBuffer } from '../../renderer/FrameBuffer';
-import { RenderTargetTexture } from '../../textures/RenderTargetTexture';
+import type { FrameBuffer } from '../../renderer/FrameBuffer';
+import type { RenderTargetTexture } from '../../textures/RenderTargetTexture';
 import { Sampler } from '../../textures/Sampler';
-import { ISceneGraphEntity } from '../EntityHelper';
+import type { ISceneGraphEntity } from '../EntityHelper';
 import { GaussianBlur } from '../GaussianBlurHelper';
 import { RenderableHelper } from '../RenderableHelper';
 import { PointShadowMap } from './PointShadowMap';
@@ -80,9 +80,7 @@ export class ShadowSystem {
 
     let depthTextureCount = 0;
     let pointDepthTextureCount = 0;
-    const lightComponents = ComponentRepository.getComponentsWithType(
-      LightComponent
-    ) as LightComponent[];
+    const lightComponents = ComponentRepository.getComponentsWithType(LightComponent) as LightComponent[];
     for (let i = 0; i < lightComponents.length; i++) {
       const lightComponent = lightComponents[i];
       this.__lightTypes[i] = lightComponent.type;
@@ -108,9 +106,7 @@ export class ShadowSystem {
           blurredRenderTarget: blurredRenderTargetPointLight,
           renderPassesBlurred: renderPassesBlurredPointLight,
         } = this.__gaussianBlur.createGaussianBlurExpression({
-          textureToBlur: this.__pointShadowMap
-            .getShadowMomentFramebuffer()
-            .getColorAttachedRenderTargetTexture(0)!,
+          textureToBlur: this.__pointShadowMap.getShadowMomentFramebuffer().getColorAttachedRenderTargetTexture(0)!,
           parameters: {
             blurPassLevel: 4,
             gaussianKernelSize: 5,
@@ -126,10 +122,7 @@ export class ShadowSystem {
         expressions.push(blurExpressionPointLight);
         depthTextureIndexList.push(pointDepthTextureCount);
         pointDepthTextureCount++;
-      } else if (
-        lightComponent.type === LightType.Spot ||
-        lightComponent.type === LightType.Directional
-      ) {
+      } else if (lightComponent.type === LightType.Spot || lightComponent.type === LightType.Directional) {
         const shadowMapExpression = new Expression();
         shadowMapExpression.addRenderPasses(
           this.__shadowMap.getRenderPasses(
@@ -143,9 +136,7 @@ export class ShadowSystem {
           blurredRenderTarget: blurredRenderTargetSpotLight,
           renderPassesBlurred: renderPassesBlurredSpotLight,
         } = this.__gaussianBlur.createGaussianBlurExpression({
-          textureToBlur: this.__shadowMap
-            .getShadowMomentFramebuffer()
-            .getColorAttachedRenderTargetTexture(0)!,
+          textureToBlur: this.__shadowMap.getShadowMomentFramebuffer().getColorAttachedRenderTargetTexture(0)!,
           parameters: {
             blurPassLevel: 4,
             gaussianKernelSize: 5,
@@ -178,10 +169,7 @@ export class ShadowSystem {
    * @param entities - Array of scene graph entities to apply the shadow map to
    * @private
    */
-  private __setBlurredShadowMap(
-    blurredRenderTarget: RenderTargetTexture,
-    entities: ISceneGraphEntity[]
-  ) {
+  private __setBlurredShadowMap(blurredRenderTarget: RenderTargetTexture, entities: ISceneGraphEntity[]) {
     const sampler = new Sampler({
       minFilter: TextureParameter.Linear,
       magFilter: TextureParameter.Linear,
@@ -209,10 +197,7 @@ export class ShadowSystem {
    * @param entities - Array of scene graph entities to apply the shadow map to
    * @private
    */
-  private __setParaboloidBlurredShadowMap(
-    blurredRenderTarget: RenderTargetTexture,
-    entities: ISceneGraphEntity[]
-  ) {
+  private __setParaboloidBlurredShadowMap(blurredRenderTarget: RenderTargetTexture, entities: ISceneGraphEntity[]) {
     const sampler = new Sampler({
       minFilter: TextureParameter.Linear,
       magFilter: TextureParameter.Linear,
@@ -226,11 +211,7 @@ export class ShadowSystem {
       if (meshComponent != null && meshComponent.mesh != null) {
         for (let i = 0; i < meshComponent.mesh.getPrimitiveNumber(); i++) {
           const primitive = meshComponent.mesh.getPrimitiveAt(i);
-          primitive.material.setTextureParameter(
-            'paraboloidDepthTexture',
-            blurredRenderTarget,
-            sampler
-          );
+          primitive.material.setTextureParameter('paraboloidDepthTexture', blurredRenderTarget, sampler);
           primitive.material.setParameter('pointLightShadowMapUvScale', 0.93);
         }
       }
@@ -244,19 +225,13 @@ export class ShadowSystem {
    * @param depthTextureIndexList - Array of indices mapping lights to shadow map textures (-1 for no shadow)
    * @private
    */
-  private __setDepthTextureIndexList(
-    entities: ISceneGraphEntity[],
-    depthTextureIndexList: number[]
-  ) {
+  private __setDepthTextureIndexList(entities: ISceneGraphEntity[], depthTextureIndexList: number[]) {
     for (const entity of entities) {
       const meshComponent = entity.tryToGetMesh();
       if (meshComponent != null && meshComponent.mesh != null) {
         for (let i = 0; i < meshComponent.mesh.getPrimitiveNumber(); i++) {
           const primitive = meshComponent.mesh.getPrimitiveAt(i);
-          primitive.material.setParameter(
-            'depthTextureIndexList',
-            new VectorN(new Int32Array(depthTextureIndexList))
-          );
+          primitive.material.setParameter('depthTextureIndexList', new VectorN(new Int32Array(depthTextureIndexList)));
         }
       }
     }
@@ -270,15 +245,11 @@ export class ShadowSystem {
   public setDepthBiasPV(entities: ISceneGraphEntity[]) {
     const float32Array = new Float32Array(Config.maxLightNumber * 16);
 
-    const lightComponents = ComponentRepository.getComponentsWithType(
-      LightComponent
-    ) as LightComponent[];
+    const lightComponents = ComponentRepository.getComponentsWithType(LightComponent) as LightComponent[];
 
     for (let i = 0; i < lightComponents.length; i++) {
       const lightComponent = lightComponents[i];
-      const lightEntity = lightComponent.entity as ISceneGraphEntity &
-        ILightEntityMethods &
-        ICameraEntityMethods;
+      const lightEntity = lightComponent.entity as ISceneGraphEntity & ILightEntityMethods & ICameraEntityMethods;
       if (lightComponent.type === LightType.Directional || lightComponent.type === LightType.Spot) {
         const cameraComponent = lightEntity.tryToGetCamera();
         if (cameraComponent != null) {
@@ -307,9 +278,7 @@ export class ShadowSystem {
    * @returns True if any light has changed its type, enable state, or shadow casting state; false otherwise
    */
   public isLightChanged() {
-    const lightComponents = ComponentRepository.getComponentsWithType(
-      LightComponent
-    ) as LightComponent[];
+    const lightComponents = ComponentRepository.getComponentsWithType(LightComponent) as LightComponent[];
 
     if (this.__lightTypes.length !== lightComponents.length) {
       return true;

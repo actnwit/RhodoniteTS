@@ -1,6 +1,6 @@
-import { GltfLoadOption, RnM2 } from '../../types';
-import { RnM2Vrma } from '../../types/RnM2Vrma';
-import { HumanBoneNames, NodeId } from '../../types/VRMC_vrm_animation';
+import { type GltfLoadOption, RnM2 } from '../../types';
+import type { RnM2Vrma } from '../../types/RnM2Vrma';
+import type { HumanBoneNames, NodeId } from '../../types/VRMC_vrm_animation';
 import { Is } from '../misc/Is';
 import { Gltf2Importer } from './Gltf2Importer';
 
@@ -69,9 +69,7 @@ export class VrmaImporter {
    * const vrmaData = await VrmaImporter.importFromArrayBuffer(fileBuffer);
    * ```
    */
-  static async importFromArrayBuffer(
-    arrayBuffer: ArrayBuffer
-  ): Promise<RnM2Vrma> {
+  static async importFromArrayBuffer(arrayBuffer: ArrayBuffer): Promise<RnM2Vrma> {
     const promise = new Promise<RnM2Vrma>(async (resolve, reject) => {
       const options: GltfLoadOption = {};
 

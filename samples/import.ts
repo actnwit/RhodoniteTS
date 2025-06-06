@@ -12,7 +12,7 @@
 import Rn from '../dist/esmdev';
 
 // importing the source code version of Rhodonite object for type annotations
-import RnForType from '../src/index';
+import type RnForType from '../src/index';
 
 // Change the TypeScript type of Rhodonite,
 //   from `typeof Rn` (ESM built index.d.ts)

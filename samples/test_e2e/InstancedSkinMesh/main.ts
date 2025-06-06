@@ -6,8 +6,8 @@ declare const Stats: any;
 
 //-------------------------------
 Rn.Config.maxEntityNumber = 20000;
-Rn.Config.dataTextureWidth = Math.pow(2, 13);
-Rn.Config.dataTextureHeight = Math.pow(2, 13);
+Rn.Config.dataTextureWidth = 2 ** 13;
+Rn.Config.dataTextureHeight = 2 ** 13;
 Rn.Config.maxSkeletonNumber = 200;
 Rn.Config.cgApiDebugConsoleOutput = true;
 await Rn.System.init({
@@ -104,6 +104,6 @@ Rn.System.startRenderLoop(() => {
   count++;
 });
 
-window.exportGltf2 = function () {
+window.exportGltf2 = () => {
   Rn.Gltf2Exporter.export('Rhodonite');
 };

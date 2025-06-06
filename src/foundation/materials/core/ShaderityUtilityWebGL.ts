@@ -1,23 +1,23 @@
-import ShaderityModule, { Reflection, ShaderityObject, TemplateObject } from 'shaderity';
-import { ComponentType, ComponentTypeEnum } from '../../definitions/ComponentType';
-import { CompositionType, CompositionTypeEnum } from '../../definitions/CompositionType';
-import { VertexAttribute, VertexAttributeEnum } from '../../definitions/VertexAttribute';
-import { MemoryManager } from '../../core/MemoryManager';
+import ShaderityModule, { type Reflection, type ShaderityObject, type TemplateObject } from 'shaderity';
+import { mainPrerequisitesGlsl } from '../../../webgl/shaderity_shaders/common/mainPrerequisites';
 import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
 import { Config } from '../../core/Config';
-import { MutableVector2 } from '../../math/MutableVector2';
-import { MutableVector3 } from '../../math/MutableVector3';
-import { MutableVector4 } from '../../math/MutableVector4';
+import { MemoryManager } from '../../core/MemoryManager';
+import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
+import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { ShaderType } from '../../definitions/ShaderType';
+import { VertexAttribute, type VertexAttributeEnum } from '../../definitions/VertexAttribute';
+import { MutableMatrix22 } from '../../math/MutableMatrix22';
 import { MutableMatrix33 } from '../../math/MutableMatrix33';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { MutableScalar } from '../../math/MutableScalar';
-import { MutableMatrix22 } from '../../math/MutableMatrix22';
-import { ShaderType } from '../../definitions/ShaderType';
-import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-import { DefaultTextures, dummyBlackTexture, dummyWhiteTexture } from './DummyTextures';
+import { MutableVector2 } from '../../math/MutableVector2';
+import { MutableVector3 } from '../../math/MutableVector3';
+import { MutableVector4 } from '../../math/MutableVector4';
 import { Logger } from '../../misc/Logger';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
-import { mainPrerequisitesGlsl } from '../../../webgl/shaderity_shaders/common/mainPrerequisites';
+import { DefaultTextures, dummyBlackTexture, dummyWhiteTexture } from './DummyTextures';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 
@@ -71,10 +71,7 @@ export class ShaderityUtilityWebGL {
    * @param args - Key-value pairs of template arguments to fill in the shader
    * @returns A new ShaderityObject with all template placeholders replaced
    */
-  public static fillTemplate(
-    shaderityObject: ShaderityObject,
-    args: FillArgsObject
-  ): ShaderityObject {
+  public static fillTemplate(shaderityObject: ShaderityObject, args: FillArgsObject): ShaderityObject {
     const step1 = Shaderity.fillTemplate(shaderityObject, args);
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const templateObject = {
@@ -97,15 +94,11 @@ export class ShaderityUtilityWebGL {
    * @param isWebGL2 - Whether to target WebGL 2.0 (true) or WebGL 1.0 (false)
    * @returns A new ShaderityObject with version-appropriate GLSL code
    */
-  public static transformWebGLVersion(
-    shaderityObject: ShaderityObject,
-    isWebGL2: boolean
-  ): ShaderityObject {
+  public static transformWebGLVersion(shaderityObject: ShaderityObject, isWebGL2: boolean): ShaderityObject {
     if (isWebGL2) {
       return Shaderity.transformToGLSLES3(shaderityObject);
-    } else {
-      return Shaderity.transformToGLSLES1(shaderityObject, true);
     }
+    return Shaderity.transformToGLSLES1(shaderityObject, true);
   }
 
   /**
@@ -123,13 +116,13 @@ export class ShaderityUtilityWebGL {
     reflection.reflect();
 
     const names = reflection.attributesNames;
-    const semantics = (reflection.attributesSemantics as string[]).map((semantic) => {
+    const semantics = (reflection.attributesSemantics as string[]).map(semantic => {
       return VertexAttribute.fromString(semantic);
     });
-    const compositions = (reflection.attributesTypes as string[]).map((type) => {
+    const compositions = (reflection.attributesTypes as string[]).map(type => {
       return CompositionType.fromGlslString(type);
     });
-    const components = (reflection.attributesTypes as string[]).map((type) => {
+    const components = (reflection.attributesTypes as string[]).map(type => {
       return ComponentType.fromGlslString(type);
     });
 
@@ -293,10 +286,7 @@ export class ShaderityUtilityWebGL {
    * @param info - The comment string containing parameter definitions
    * @private
    */
-  private static __setRhodoniteOriginalParametersTo(
-    shaderSemanticsInfo: ShaderSemanticsInfo,
-    info: string
-  ) {
+  private static __setRhodoniteOriginalParametersTo(shaderSemanticsInfo: ShaderSemanticsInfo, info: string) {
     const soloDatum = info.match(/soloDatum[\t ]*=[\t ]*(\w+)[,\t ]*/);
     let isSoloDatumFlg = false;
     if (soloDatum?.[1] === 'true') {
@@ -314,17 +304,12 @@ export class ShaderityUtilityWebGL {
     const initialValue = info.match(/initialValue[\t ]*=[\t ]*(.+)[,\t ]*/);
     if (initialValue) {
       const initialValueText = initialValue[1];
-      shaderSemanticsInfo.initialValue = this.__getInitialValueFromText(
-        shaderSemanticsInfo,
-        initialValueText
-      );
+      shaderSemanticsInfo.initialValue = this.__getInitialValueFromText(shaderSemanticsInfo, initialValueText);
     } else {
       shaderSemanticsInfo.initialValue = this.__getDefaultInitialValue(shaderSemanticsInfo);
     }
 
-    const needUniformInDataTextureMode = info.match(
-      /needUniformInDataTextureMode[\t ]*=[\t ]*(.+)[,\t ]*/
-    );
+    const needUniformInDataTextureMode = info.match(/needUniformInDataTextureMode[\t ]*=[\t ]*(.+)[,\t ]*/);
     if (needUniformInDataTextureMode) {
       let needUniformInDataTextureModeFlg = false;
       if (needUniformInDataTextureMode?.[1] === 'true') {
@@ -344,14 +329,11 @@ export class ShaderityUtilityWebGL {
    * @returns The parsed initial value as the appropriate Rhodonite math type or texture array
    * @private
    */
-  private static __getInitialValueFromText(
-    shaderSemanticsInfo: ShaderSemanticsInfo,
-    initialValueText: string
-  ) {
+  private static __getInitialValueFromText(shaderSemanticsInfo: ShaderSemanticsInfo, initialValueText: string) {
     const tuple = initialValueText.match(/\(([\d\w., ]+)\)/);
     const checkCompositionNumber = (expected: CompositionTypeEnum) => {
       if (shaderSemanticsInfo.compositionType !== expected) {
-        Logger.error('component number of initialValue is invalid:' + shaderSemanticsInfo.semantic);
+        Logger.error(`component number of initialValue is invalid:${shaderSemanticsInfo.semantic}`);
       }
     };
 
@@ -367,7 +349,7 @@ export class ShaderityUtilityWebGL {
           } else if (split[0] === 'false') {
             initialValue = new MutableScalar(new Float32Array([0]));
           } else {
-            initialValue = new MutableScalar(new Float32Array([parseFloat(split[0])]));
+            initialValue = new MutableScalar(new Float32Array([Number.parseFloat(split[0])]));
           }
           break;
         case 2:
@@ -376,71 +358,65 @@ export class ShaderityUtilityWebGL {
             shaderSemanticsInfo.compositionType === CompositionType.Texture2DShadow
           ) {
             const color = split[1].charAt(0).toUpperCase() + split[1].slice(1);
-            initialValue = [parseInt(split[0]), (DefaultTextures as any)[`dummy${color}Texture`]];
+            initialValue = [Number.parseInt(split[0]), (DefaultTextures as any)[`dummy${color}Texture`]];
           } else if (shaderSemanticsInfo.compositionType === CompositionType.TextureCube) {
             const color = split[1].charAt(0).toUpperCase() + split[1].slice(1);
-            initialValue = [
-              parseInt(split[0]),
-              (DefaultTextures as any)[`dummy${color}CubeTexture`],
-            ];
+            initialValue = [Number.parseInt(split[0]), (DefaultTextures as any)[`dummy${color}CubeTexture`]];
           } else {
             checkCompositionNumber(CompositionType.Vec2);
-            initialValue = MutableVector2.fromCopyArray([
-              parseFloat(split[0]),
-              parseFloat(split[1]),
-            ]);
+            initialValue = MutableVector2.fromCopyArray([Number.parseFloat(split[0]), Number.parseFloat(split[1])]);
           }
           break;
         case 3:
           checkCompositionNumber(CompositionType.Vec3);
           initialValue = MutableVector3.fromCopyArray([
-            parseFloat(split[0]),
-            parseFloat(split[1]),
-            parseFloat(split[2]),
+            Number.parseFloat(split[0]),
+            Number.parseFloat(split[1]),
+            Number.parseFloat(split[2]),
           ]);
           break;
         case 4:
           checkCompositionNumber(CompositionType.Vec4);
           initialValue = MutableVector4.fromCopyArray([
-            parseFloat(split[0]),
-            parseFloat(split[1]),
-            parseFloat(split[2]),
-            parseFloat(split[3]),
+            Number.parseFloat(split[0]),
+            Number.parseFloat(split[1]),
+            Number.parseFloat(split[2]),
+            Number.parseFloat(split[3]),
           ]);
           break;
         case 9:
           checkCompositionNumber(CompositionType.Mat3);
           initialValue = MutableMatrix33.fromCopy9RowMajor(
-            parseFloat(split[0]),
-            parseFloat(split[1]),
-            parseFloat(split[2]),
-            parseFloat(split[3]),
-            parseFloat(split[4]),
-            parseFloat(split[5]),
-            parseFloat(split[6]),
-            parseFloat(split[7]),
-            parseFloat(split[8])
+            Number.parseFloat(split[0]),
+            Number.parseFloat(split[1]),
+            Number.parseFloat(split[2]),
+            Number.parseFloat(split[3]),
+            Number.parseFloat(split[4]),
+            Number.parseFloat(split[5]),
+            Number.parseFloat(split[6]),
+            Number.parseFloat(split[7]),
+            Number.parseFloat(split[8])
           );
           break;
         case 16:
           checkCompositionNumber(CompositionType.Mat4);
           initialValue = MutableMatrix44.fromCopy16RowMajor(
-            parseFloat(split[0]),
-            parseFloat(split[1]),
-            parseFloat(split[2]),
-            parseFloat(split[3]),
-            parseFloat(split[4]),
-            parseFloat(split[5]),
-            parseFloat(split[6]),
-            parseFloat(split[7]),
-            parseFloat(split[8]),
-            parseFloat(split[9]),
-            parseFloat(split[10]),
-            parseFloat(split[11]),
-            parseFloat(split[12]),
-            parseFloat(split[13]),
-            parseFloat(split[14]),
-            parseFloat(split[15])
+            Number.parseFloat(split[0]),
+            Number.parseFloat(split[1]),
+            Number.parseFloat(split[2]),
+            Number.parseFloat(split[3]),
+            Number.parseFloat(split[4]),
+            Number.parseFloat(split[5]),
+            Number.parseFloat(split[6]),
+            Number.parseFloat(split[7]),
+            Number.parseFloat(split[8]),
+            Number.parseFloat(split[9]),
+            Number.parseFloat(split[10]),
+            Number.parseFloat(split[11]),
+            Number.parseFloat(split[12]),
+            Number.parseFloat(split[13]),
+            Number.parseFloat(split[14]),
+            Number.parseFloat(split[15])
           );
           break;
         default:
@@ -453,7 +429,7 @@ export class ShaderityUtilityWebGL {
       } else if (initialValueText === 'false') {
         initialValue = new MutableScalar(new Float32Array([0]));
       } else {
-        initialValue = new MutableScalar(new Float32Array([parseFloat(initialValueText)]));
+        initialValue = new MutableScalar(new Float32Array([Number.parseFloat(initialValueText)]));
       }
     }
 
@@ -472,23 +448,32 @@ export class ShaderityUtilityWebGL {
   private static __getDefaultInitialValue(shaderSemanticsInfo: ShaderSemanticsInfo) {
     if (shaderSemanticsInfo.compositionType === CompositionType.Scalar) {
       return new MutableScalar(new Float32Array([0]));
-    } else if (shaderSemanticsInfo.compositionType === CompositionType.Vec2) {
+    }
+    if (shaderSemanticsInfo.compositionType === CompositionType.Vec2) {
       return MutableVector2.zero();
-    } else if (shaderSemanticsInfo.compositionType === CompositionType.Vec3) {
+    }
+    if (shaderSemanticsInfo.compositionType === CompositionType.Vec3) {
       return MutableVector3.zero();
-    } else if (shaderSemanticsInfo.compositionType === CompositionType.Vec4) {
+    }
+    if (shaderSemanticsInfo.compositionType === CompositionType.Vec4) {
       return MutableVector4.zero();
-    } else if (shaderSemanticsInfo.compositionType === CompositionType.Mat2) {
+    }
+    if (shaderSemanticsInfo.compositionType === CompositionType.Mat2) {
       return MutableMatrix22.identity();
-    } else if (shaderSemanticsInfo.compositionType === CompositionType.Mat3) {
+    }
+    if (shaderSemanticsInfo.compositionType === CompositionType.Mat3) {
       return MutableMatrix33.identity();
-    } else if (shaderSemanticsInfo.compositionType === CompositionType.Mat4) {
+    }
+    if (shaderSemanticsInfo.compositionType === CompositionType.Mat4) {
       return MutableMatrix44.identity();
-    } else if (shaderSemanticsInfo.compositionType === CompositionType.Texture2D) {
+    }
+    if (shaderSemanticsInfo.compositionType === CompositionType.Texture2D) {
       return [0, dummyWhiteTexture];
-    } else if (shaderSemanticsInfo.compositionType === CompositionType.Texture2DShadow) {
+    }
+    if (shaderSemanticsInfo.compositionType === CompositionType.Texture2DShadow) {
       return [0, dummyWhiteTexture];
-    } else if (shaderSemanticsInfo.compositionType === CompositionType.TextureCube) {
+    }
+    if (shaderSemanticsInfo.compositionType === CompositionType.TextureCube) {
       return [0, dummyBlackTexture];
     }
 

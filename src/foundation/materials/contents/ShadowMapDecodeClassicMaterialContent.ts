@@ -1,32 +1,28 @@
-import {
-  ShaderSemantics,
-  ShaderSemanticsEnum,
-  ShaderSemanticsClass,
-} from '../../definitions/ShaderSemantics';
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { CompositionType } from '../../definitions/CompositionType';
-import { ComponentType } from '../../definitions/ComponentType';
-import { Vector4 } from '../../math/Vector4';
-import { Vector3 } from '../../math/Vector3';
-import { ShadingModel } from '../../definitions/ShadingModel';
-import { ShaderType } from '../../definitions/ShaderType';
-import { ComponentRepository } from '../../core/ComponentRepository';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
-import { VectorN } from '../../math/VectorN';
-import { Scalar } from '../../math/Scalar';
-import { Config } from '../../core/Config';
-import { Material } from '../core/Material';
-import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
-import { RenderPass } from '../../renderer/RenderPass';
-import { Count } from '../../../types/CommonTypes';
-import { MutableMatrix44 } from '../../math/MutableMatrix44';
-import { MutableVector4 } from '../../math/MutableVector4';
-import ShadowMapDecodeSingleShaderVertex from '../../../webgl/shaderity_shaders/ShadowMapDecodeClassicSingleShader/ShadowMapDecodeClassicSingleShader.vert';
+import type { Count } from '../../../types/CommonTypes';
 import ShadowMapDecodeSingleShaderFragment from '../../../webgl/shaderity_shaders/ShadowMapDecodeClassicSingleShader/ShadowMapDecodeClassicSingleShader.frag';
-import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
-import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-import { dummyBlueTexture, dummyWhiteTexture } from '../core/DummyTextures';
+import ShadowMapDecodeSingleShaderVertex from '../../../webgl/shaderity_shaders/ShadowMapDecodeClassicSingleShader/ShadowMapDecodeClassicSingleShader.vert';
+import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { Config } from '../../core/Config';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
+import { ShaderSemantics, ShaderSemanticsClass, type ShaderSemanticsEnum } from '../../definitions/ShaderSemantics';
+import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { ShaderType } from '../../definitions/ShaderType';
+import { ShadingModel } from '../../definitions/ShadingModel';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
+import type { MutableVector4 } from '../../math/MutableVector4';
+import { Scalar } from '../../math/Scalar';
+import { Vector3 } from '../../math/Vector3';
+import { Vector4 } from '../../math/Vector4';
+import { VectorN } from '../../math/VectorN';
 import { Logger } from '../../misc/Logger';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import type { RenderPass } from '../../renderer/RenderPass';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import { dummyBlueTexture, dummyWhiteTexture } from '../core/DummyTextures';
+import type { Material } from '../core/Material';
 
 /**
  * Material content class for decoding shadow maps using the classic shadow mapping technique.
@@ -363,14 +359,10 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
   }) {
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getComponent(
-        CameraComponent,
-        CameraComponent.current
-      ) as CameraComponent;
+      cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
     }
 
-    const encodedDepthCameraComponent = this.__encodedDepthRenderPass
-      .cameraComponent as CameraComponent;
+    const encodedDepthCameraComponent = this.__encodedDepthRenderPass.cameraComponent as CameraComponent;
 
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
@@ -378,23 +370,13 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
       this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
       this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
 
-      if (
-        ShadowMapDecodeClassicMaterialContent.__lastZNear !== encodedDepthCameraComponent.zNearInner
-      ) {
-        (shaderProgram as any)._gl.uniform1f(
-          (shaderProgram as any).zNearInner,
-          encodedDepthCameraComponent.zNearInner
-        );
+      if (ShadowMapDecodeClassicMaterialContent.__lastZNear !== encodedDepthCameraComponent.zNearInner) {
+        (shaderProgram as any)._gl.uniform1f((shaderProgram as any).zNearInner, encodedDepthCameraComponent.zNearInner);
         ShadowMapDecodeClassicMaterialContent.__lastZNear = encodedDepthCameraComponent.zNearInner;
       }
 
-      if (
-        ShadowMapDecodeClassicMaterialContent.__lastZFar !== encodedDepthCameraComponent.zFarInner
-      ) {
-        (shaderProgram as any)._gl.uniform1f(
-          (shaderProgram as any).zFarInner,
-          encodedDepthCameraComponent.zFarInner
-        );
+      if (ShadowMapDecodeClassicMaterialContent.__lastZFar !== encodedDepthCameraComponent.zFarInner) {
+        (shaderProgram as any)._gl.uniform1f((shaderProgram as any).zFarInner, encodedDepthCameraComponent.zFarInner);
         ShadowMapDecodeClassicMaterialContent.__lastZFar = encodedDepthCameraComponent.zFarInner;
       }
       const __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();

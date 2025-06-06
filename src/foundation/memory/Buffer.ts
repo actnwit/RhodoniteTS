@@ -1,11 +1,11 @@
+import { ComponentType, type ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
+import type { Byte, TypedArray } from '../../types/CommonTypes';
 import { BufferView } from './BufferView';
-import { Byte, TypedArray } from '../../types/CommonTypes';
-import { CompositionType, CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
-import { ComponentType, ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
 
 import { DataUtil } from '../misc/DataUtil';
-import { Err, Ok, Result } from '../misc/Result';
 import { Logger } from '../misc/Logger';
+import { Err, Ok, type Result } from '../misc/Result';
 
 /**
  * A Buffer class that manages memory allocation and provides BufferView creation functionality.
@@ -157,9 +157,7 @@ export class Buffer {
     if (byteSizeToTake + this.__takenBytesIndex > this.byteLength) {
       const message = `The size of the BufferView you are trying to take exceeds the byte length left in the Buffer.
 Buffer.byteLength: ${this.byteLength}, Buffer.takenSizeInByte: ${this.takenSizeInByte},
-byteSizeToTake: ${byteSizeToTake}, the byte length left in the Buffer: ${
-        this.__byteLength - this.__takenBytesIndex
-      }`;
+byteSizeToTake: ${byteSizeToTake}, the byte length left in the Buffer: ${this.__byteLength - this.__takenBytesIndex}`;
       // console.error(message);
       return new Err({
         message,
@@ -218,9 +216,7 @@ byteSizeToTake: ${byteSizeToTake}, the byte length left in the Buffer: ${
     if (byteSizeToTake + byteOffset > this.byteLength) {
       const message = `The size of the BufferView you are trying to take exceeds the byte length left in the Buffer.
 Buffer.byteLength: ${this.byteLength}, Buffer.takenSizeInByte: ${this.takenSizeInByte},
-byteSizeToTake: ${byteLengthToNeed}, the byte length left in the Buffer: ${
-        this.__byteLength - this.__takenBytesIndex
-      }`;
+byteSizeToTake: ${byteLengthToNeed}, the byte length left in the Buffer: ${this.__byteLength - this.__takenBytesIndex}`;
       return new Err({
         message,
         error: undefined,

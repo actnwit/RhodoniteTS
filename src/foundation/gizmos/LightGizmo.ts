@@ -3,7 +3,7 @@ import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import { VertexAttribute } from '../definitions/VertexAttribute';
 import { Mesh } from '../geometry/Mesh';
 import { Primitive } from '../geometry/Primitive';
-import { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
+import { IMeshEntity, type ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Vector3 } from '../math/Vector3';
 import { Is } from '../misc/Is';
 import { Gizmo } from './Gizmo';
@@ -11,14 +11,6 @@ import { Gizmo } from './Gizmo';
 export class LightGizmo extends Gizmo {
   private static __mesh: Mesh;
   private static __length = 1;
-
-  /**
-   * Creates a new LightGizmo instance for visualizing light entities in the scene.
-   * @param target - The scene graph entity that this gizmo will be attached to and represent visually
-   */
-  constructor(target: ISceneGraphEntity) {
-    super(target);
-  }
 
   ///
   ///
@@ -33,9 +25,8 @@ export class LightGizmo extends Gizmo {
   get isSetup(): boolean {
     if (this.__topEntity != null) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   ///

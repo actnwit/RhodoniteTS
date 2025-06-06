@@ -1,39 +1,38 @@
 import {
   KTX2ChannelETC1S,
   KTX2ChannelUASTC,
-  KTX2Container,
-  KTX2DataFormatDescriptorBasicFormat,
-  KTX2GlobalDataBasisLZ,
+  type KTX2Container,
+  type KTX2DataFormatDescriptorBasicFormat,
+  type KTX2GlobalDataBasisLZ,
   KTX2Model,
   KTX2SupercompressionScheme,
   KTX2Transfer,
   read,
 } from 'ktx-parse';
-import { CGAPIResourceRepository } from '../../foundation/renderer/CGAPIResourceRepository';
-import { WebGLContextWrapper } from '../WebGLContextWrapper';
-import { TextureData } from '../WebGLResourceRepository';
-import {
-  CompressionTextureType,
-  CompressionTextureTypeEnum,
-} from '../../foundation/definitions/CompressionTextureType';
 import { ZSTDDecoder } from 'zstddec';
 import {
+  CompressionTextureType,
+  type CompressionTextureTypeEnum,
+} from '../../foundation/definitions/CompressionTextureType';
+import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
+import { Logger } from '../../foundation/misc/Logger';
+import { CGAPIResourceRepository } from '../../foundation/renderer/CGAPIResourceRepository';
+import { SystemState } from '../../foundation/system/SystemState';
+import type {
   BasisLzEtc1sImageTranscoder,
-  MscTranscoderModule,
   MSC_TRANSCODER,
+  MscTranscoderModule,
   TranscodedImage,
   UastcImageTranscoder,
 } from '../../types/KTX2Texture';
-import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
-import { SystemState } from '../../foundation/system/SystemState';
-import { Logger } from '../../foundation/misc/Logger';
+import type { WebGLContextWrapper } from '../WebGLContextWrapper';
+import type { TextureData } from '../WebGLResourceRepository';
 
 const CompressedTextureFormat = {
   ETC1S: 0,
   UASTC4x4: 1,
 } as const;
-type CompressedTextureFormat =
-  (typeof CompressedTextureFormat)[keyof typeof CompressedTextureFormat];
+type CompressedTextureFormat = (typeof CompressedTextureFormat)[keyof typeof CompressedTextureFormat];
 
 const TranscodeTarget = {
   ETC1_RGB: 'ETC1_RGB',
@@ -106,9 +105,7 @@ export class KTX2TextureLoader {
    */
   constructor() {
     if (typeof MSC_TRANSCODER === 'undefined') {
-      Logger.error(
-        'Failed to call MSC_TRANSCODER() function. Please check to import msc_basis_transcoder.js.'
-      );
+      Logger.error('Failed to call MSC_TRANSCODER() function. Please check to import msc_basis_transcoder.js.');
     }
     this.__mscTranscoderPromise = this.__loadMSCTranscoder();
   }
@@ -166,11 +163,10 @@ export class KTX2TextureLoader {
           return this.__transcodeData(ktx2Container);
         });
       });
-    } else {
-      return this.__mscTranscoderPromise.then(() => {
-        return this.__transcodeData(ktx2Container);
-      });
     }
+    return this.__mscTranscoderPromise.then(() => {
+      return this.__transcodeData(ktx2Container);
+    });
   }
 
   /**
@@ -183,7 +179,7 @@ export class KTX2TextureLoader {
    * @private
    */
   private __loadMSCTranscoder(): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       if (KTX2TextureLoader.__mscTranscoderModule) {
         resolve();
       }
@@ -347,9 +343,7 @@ export class KTX2TextureLoader {
 
     const dfd = ktx2Container.dataFormatDescriptor[0];
     const compressedTextureFormat =
-      dfd.colorModel === KTX2Model.UASTC
-        ? CompressedTextureFormat.UASTC4x4
-        : CompressedTextureFormat.ETC1S;
+      dfd.colorModel === KTX2Model.UASTC ? CompressedTextureFormat.UASTC4x4 : CompressedTextureFormat.ETC1S;
 
     const hasAlpha = this.__hasAlpha(dfd, compressedTextureFormat);
     const isVideo = false;
@@ -384,38 +378,25 @@ export class KTX2TextureLoader {
       const levelWidth = Math.max(1, width >> level);
       const levelHeight = Math.max(1, height >> level);
 
-      const imageInfo = new transcoderModule.ImageInfo(
-        textureFormat,
-        levelWidth,
-        levelHeight,
-        level
-      );
+      const imageInfo = new transcoderModule.ImageInfo(textureFormat, levelWidth, levelHeight, level);
 
       let levelBuffer = ktx2Container.levels[level].levelData;
       const levelUncompressedByteLength = ktx2Container.levels[level].uncompressedByteLength;
       const levelBufferByteLength = imageInfo.numBlocksX * imageInfo.numBlocksY * dfd.bytesPlane[0];
 
       if (ktx2Container.supercompressionScheme === KTX2SupercompressionScheme.ZSTD) {
-        levelBuffer = KTX2TextureLoader.__zstdDecoder.decode(
-          levelBuffer,
-          levelUncompressedByteLength
-        );
+        levelBuffer = KTX2TextureLoader.__zstdDecoder.decode(levelBuffer, levelUncompressedByteLength);
       }
 
       let faceBufferByteOffset = 0;
       const firstImageDescIndexInLevel =
-        level *
-        Math.max(ktx2Container.layerCount, 1) *
-        faceCount *
-        Math.max(ktx2Container.pixelDepth, 1);
+        level * Math.max(ktx2Container.layerCount, 1) * faceCount * Math.max(ktx2Container.pixelDepth, 1);
 
       for (let faceIndex = 0; faceIndex < faceCount; faceIndex++) {
         let imageDesc: KTX2GlobalDataBasisLZImageDesc | null = null;
         let faceBuffer: Uint8Array;
         if (ktx2Container.supercompressionScheme === KTX2SupercompressionScheme.BASISLZ) {
-          imageDesc = imageDescs?.[
-            firstImageDescIndexInLevel + faceIndex
-          ] as KTX2GlobalDataBasisLZImageDesc;
+          imageDesc = imageDescs?.[firstImageDescIndexInLevel + faceIndex] as KTX2GlobalDataBasisLZImageDesc;
 
           faceBuffer = new Uint8Array(
             levelBuffer as unknown as ArrayBuffer,
@@ -423,7 +404,11 @@ export class KTX2TextureLoader {
             imageDesc.rgbSliceByteLength + imageDesc.alphaSliceByteLength
           );
         } else {
-          faceBuffer = new Uint8Array(levelBuffer as unknown as ArrayBuffer, faceBufferByteOffset, levelBufferByteLength);
+          faceBuffer = new Uint8Array(
+            levelBuffer as unknown as ArrayBuffer,
+            faceBufferByteOffset,
+            levelBufferByteLength
+          );
           faceBufferByteOffset += levelBufferByteLength;
         }
 
@@ -446,28 +431,16 @@ export class KTX2TextureLoader {
         } else {
           const sgd = ktx2Container.globalData as KTX2GlobalDataBasisLZ;
           const basisTranscoder = transcoder as BasisLzEtc1sImageTranscoder;
-          basisTranscoder.decodePalettes(
-            sgd.endpointCount,
-            sgd.endpointsData,
-            sgd.selectorCount,
-            sgd.selectorsData
-          );
+          basisTranscoder.decodePalettes(sgd.endpointCount, sgd.endpointsData, sgd.selectorCount, sgd.selectorsData);
           basisTranscoder.decodeTables(sgd.tablesData);
 
           imageInfo.flags = imageDesc!.imageFlags;
           imageInfo.rgbByteOffset = 0;
           imageInfo.rgbByteLength = imageDesc!.rgbSliceByteLength;
-          imageInfo.alphaByteOffset =
-            imageDesc!.alphaSliceByteOffset > 0 ? imageDesc!.rgbSliceByteLength : 0;
+          imageInfo.alphaByteOffset = imageDesc!.alphaSliceByteOffset > 0 ? imageDesc!.rgbSliceByteLength : 0;
           imageInfo.alphaByteLength = imageDesc!.alphaSliceByteLength;
 
-          result = basisTranscoder.transcodeImage(
-            transcodeTarget,
-            faceBuffer,
-            imageInfo,
-            0,
-            isVideo
-          );
+          result = basisTranscoder.transcodeImage(transcodeTarget, faceBuffer, imageInfo, 0, isVideo);
         }
 
         if (result?.transcodedImage != null) {
@@ -499,18 +472,13 @@ export class KTX2TextureLoader {
    * @returns True if the texture has alpha channel data, false otherwise
    * @private
    */
-  private __hasAlpha(
-    dfd: KTX2DataFormatDescriptorBasicFormat,
-    compressedTextureFormat: CompressedTextureFormat
-  ) {
+  private __hasAlpha(dfd: KTX2DataFormatDescriptorBasicFormat, compressedTextureFormat: CompressedTextureFormat) {
     if (compressedTextureFormat === CompressedTextureFormat.UASTC4x4) {
       return dfd.samples[0].channelID === KTX2ChannelUASTC.RGBA;
-    } else {
-      return (
-        dfd.samples.length === 2 &&
-        (dfd.samples[0].channelID === KTX2ChannelETC1S.AAA ||
-          dfd.samples[1].channelID === KTX2ChannelETC1S.AAA)
-      );
     }
+    return (
+      dfd.samples.length === 2 &&
+      (dfd.samples[0].channelID === KTX2ChannelETC1S.AAA || dfd.samples[1].channelID === KTX2ChannelETC1S.AAA)
+    );
   }
 }

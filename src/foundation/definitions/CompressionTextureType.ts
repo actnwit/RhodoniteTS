@@ -1,4 +1,4 @@
-import { EnumClass, EnumIO, _from, _fromString } from '../misc/EnumIO';
+import { EnumClass, type EnumIO, _from, _fromString } from '../misc/EnumIO';
 
 type BlockInfo = {
   byteSize: number;
@@ -8,13 +8,18 @@ type BlockInfo = {
 
 export interface CompressionTextureTypeEnum extends EnumIO {
   webgpu?: string;
-  blockInfo?: BlockInfo
+  blockInfo?: BlockInfo;
 }
 
 class CompressionTextureTypeClass extends EnumClass implements CompressionTextureTypeEnum {
   readonly __webgpu?: string;
   readonly __blockInfo?: BlockInfo;
-  constructor({ index, str, webgpu, blockInfo }: { index: number; str: string; webgpu?: string, blockInfo?: BlockInfo }) {
+  constructor({
+    index,
+    str,
+    webgpu,
+    blockInfo,
+  }: { index: number; str: string; webgpu?: string; blockInfo?: BlockInfo }) {
     super({ index, str });
     this.__webgpu = webgpu;
     this.__blockInfo = blockInfo;
@@ -43,7 +48,7 @@ const ASTC_RGBA_4x4: CompressionTextureTypeEnum = new CompressionTextureTypeClas
     byteSize: 16,
     width: 4,
     height: 4,
-  }
+  },
 });
 const ASTC_RGBA_5x4: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   index: 37809,
@@ -118,7 +123,7 @@ const ASTC_SRGB_4x4: CompressionTextureTypeEnum = new CompressionTextureTypeClas
     byteSize: 16,
     width: 4,
     height: 4,
-  }
+  },
 });
 const ASTC_SRGB_5x4: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   index: 37841,
@@ -194,7 +199,7 @@ const S3TC_RGB_DXT1: CompressionTextureTypeEnum = new CompressionTextureTypeClas
     byteSize: 8,
     width: 4,
     height: 4,
-  }
+  },
 });
 const S3TC_RGBA_DXT1: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   index: 33777,
@@ -204,7 +209,7 @@ const S3TC_RGBA_DXT1: CompressionTextureTypeEnum = new CompressionTextureTypeCla
     byteSize: 8,
     width: 4,
     height: 4,
-  }
+  },
 });
 const S3TC_RGBA_DXT3: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   index: 33778,
@@ -214,7 +219,7 @@ const S3TC_RGBA_DXT3: CompressionTextureTypeEnum = new CompressionTextureTypeCla
     byteSize: 16,
     width: 4,
     height: 4,
-  }
+  },
 });
 const S3TC_RGBA_DXT5: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   index: 33779,
@@ -224,7 +229,7 @@ const S3TC_RGBA_DXT5: CompressionTextureTypeEnum = new CompressionTextureTypeCla
     byteSize: 16,
     width: 4,
     height: 4,
-  }
+  },
 });
 const BPTC_RGBA: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   index: 36492,
@@ -234,7 +239,7 @@ const BPTC_RGBA: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
     byteSize: 16,
     width: 4,
     height: 4,
-  }
+  },
 });
 const PVRTC_RGBA_4BPPV1: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   index: 35842,
@@ -243,7 +248,7 @@ const PVRTC_RGBA_4BPPV1: CompressionTextureTypeEnum = new CompressionTextureType
     byteSize: 8,
     width: 4,
     height: 4,
-  }
+  },
 });
 const PVRTC_RGB_4BPPV1: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   index: 35840,
@@ -252,7 +257,7 @@ const PVRTC_RGB_4BPPV1: CompressionTextureTypeEnum = new CompressionTextureTypeC
     byteSize: 8,
     width: 4,
     height: 4,
-  }
+  },
 });
 const ETC2_RGBA8_EAC: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   index: 37496,
@@ -262,7 +267,7 @@ const ETC2_RGBA8_EAC: CompressionTextureTypeEnum = new CompressionTextureTypeCla
     byteSize: 16,
     width: 4,
     height: 4,
-  }
+  },
 });
 const ETC2_RGB8: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   index: 37492,
@@ -272,7 +277,7 @@ const ETC2_RGB8: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
     byteSize: 8,
     width: 4,
     height: 4,
-  }
+  },
 });
 const ETC1_RGB: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   index: 36196,
@@ -285,7 +290,7 @@ const RGBA8_EXT: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
     byteSize: 4,
     width: 1,
     height: 1,
-  }
+  },
 });
 
 const typeList = [

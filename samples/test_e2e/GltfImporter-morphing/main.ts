@@ -21,13 +21,11 @@ cameraTransform.localPosition = Rn.Vector3.fromCopyArray([3, 0, 3]);
 cameraTransform.localEulerAngles = Rn.Vector3.fromCopyArray([0, Math.PI / 4, 0]);
 
 // gltf
-const expression = (
-  await Rn.GltfImporter.importFromUrl(
-    '../../../assets/gltf/glTF-Sample-Assets/Models/AnimatedMorphCube/glTF-Binary/AnimatedMorphCube.glb',
-    {
-      cameraComponent: cameraComponent,
-    }
-  )
+const expression = await Rn.GltfImporter.importFromUrl(
+  '../../../assets/gltf/glTF-Sample-Assets/Models/AnimatedMorphCube/glTF-Binary/AnimatedMorphCube.glb',
+  {
+    cameraComponent: cameraComponent,
+  }
 );
 
 // Lights
@@ -47,8 +45,7 @@ Rn.System.startRenderLoop(() => {
   if (window.isAnimating) {
     Rn.AnimationComponent.globalTime += 0.016;
     if (Rn.AnimationComponent.globalTime > Rn.AnimationComponent.endInputValue) {
-      Rn.AnimationComponent.globalTime -=
-        Rn.AnimationComponent.endInputValue - Rn.AnimationComponent.startInputValue;
+      Rn.AnimationComponent.globalTime -= Rn.AnimationComponent.endInputValue - Rn.AnimationComponent.startInputValue;
     }
   }
 
@@ -57,6 +54,6 @@ Rn.System.startRenderLoop(() => {
   count++;
 });
 
-window.exportGltf2 = function () {
+window.exportGltf2 = () => {
   Rn.Gltf2Exporter.export('Rhodonite');
 };

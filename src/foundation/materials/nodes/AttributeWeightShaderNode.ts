@@ -1,7 +1,7 @@
-import { CompositionType } from '../../definitions/CompositionType';
-import { ComponentType } from '../../definitions/ComponentType';
 import AttributeWeightShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/AttributeWeight.vert.glsl';
 import AttributeWeightShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/AttributeWeight.vert.wgsl';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 /**
@@ -44,5 +44,3 @@ export class AttributeWeightShaderNode extends AbstractShaderNode {
     });
   }
 }
-
-

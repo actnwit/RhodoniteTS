@@ -1,7 +1,7 @@
-import { IVector3 } from '../../math/IVector';
-import { IQuaternion } from '../../math/IQuaternion';
-import { IMatrix44 } from '../../math/IMatrix';
-import { TransformComponent } from './TransformComponent';
+import type { IMatrix44 } from '../../math/IMatrix';
+import type { IQuaternion } from '../../math/IQuaternion';
+import type { IVector3 } from '../../math/IVector';
+import type { TransformComponent } from './TransformComponent';
 
 export interface ITransformEntityMethods {
   getTransform(): TransformComponent;

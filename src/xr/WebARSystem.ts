@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { createCameraEntity } from '../foundation/components/Camera/createCameraEntity';
-import { ICameraEntity } from '../foundation/helpers/EntityHelper';
+import type { ICameraEntity } from '../foundation/helpers/EntityHelper';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import { MutableQuaternion } from '../foundation/math/MutableQuaternion';
 import { MutableScalar } from '../foundation/math/MutableScalar';
@@ -8,11 +8,11 @@ import { MutableVector3 } from '../foundation/math/MutableVector3';
 import { Vector3 } from '../foundation/math/Vector3';
 import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
-import { Option, None, Some } from '../foundation/misc/Option';
+import { None, type Option, Some } from '../foundation/misc/Option';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import { System } from '../foundation/system/System';
-import { WebGLContextWrapper } from '../webgl/WebGLContextWrapper';
+import type { WebGLContextWrapper } from '../webgl/WebGLContextWrapper';
 
 const defaultUserPositionInVR = Vector3.fromCopyArray([0.0, 1.1, 0]);
 declare const window: any;
@@ -96,7 +96,7 @@ export class WebARSystem {
    * ```
    */
   async readyForWebAR(requestButtonDom: HTMLElement) {
-    if (typeof window === "undefined") {
+    if (typeof window === 'undefined') {
       throw new Error('This method works in Browser environment');
     }
 
@@ -196,10 +196,9 @@ export class WebARSystem {
       System.restartRenderLoop();
       Logger.warn('End of enterWebXR.');
       return;
-    } else {
-      Logger.error('WebGL context or WebXRSession is not ready yet.');
-      return;
     }
+    Logger.error('WebGL context or WebXRSession is not ready yet.');
+    return;
   }
 
   /**
@@ -220,8 +219,8 @@ export class WebARSystem {
       // The content that will be shown on the device is defined by the session's
       // baseLayer.
 
-      if (typeof window === "undefined") {
-        throw new Error('This method works in Browser Environment')
+      if (typeof window === 'undefined') {
+        throw new Error('This method works in Browser Environment');
       }
 
       this.__oWebglLayer = new Some(window.XRWebGLLayer(xrSession, gl) as XRWebGLLayer);
@@ -325,33 +324,23 @@ export class WebARSystem {
     this.__viewerOrientation.z = orientation.z;
     this.__viewerOrientation.w = orientation.w;
 
-    const m = MutableMatrix44.fromCopyFloat32ArrayColumnMajor(
-      xrView?.transform.matrix as Float32Array
-    );
+    const m = MutableMatrix44.fromCopyFloat32ArrayColumnMajor(xrView?.transform.matrix as Float32Array);
 
     const rotateMat = m;
 
     const scale = this.__viewerScale.x;
     const pos = xrView.transform.position;
-    const translateScaled = MutableVector3.add(
-      this.__defaultPositionInLocalSpaceMode,
-      this.__viewerTranslate
-    );
+    const translateScaled = MutableVector3.add(this.__defaultPositionInLocalSpaceMode, this.__viewerTranslate);
     const xrViewerPos = Vector3.fromCopyArray([pos.x, pos.y, pos.z]);
-    const translate = MutableVector3.add(
-      this.__defaultPositionInLocalSpaceMode,
-      this.__viewerTranslate
-    ).add(xrViewerPos);
+    const translate = MutableVector3.add(this.__defaultPositionInLocalSpaceMode, this.__viewerTranslate).add(
+      xrViewerPos
+    );
     const viewerTranslateScaledX = translateScaled.x;
     const viewerTranslateScaledZ = translateScaled.z;
     const viewerTranslateX = translate.x;
     const viewerTranslateZ = translate.z;
     const viewerTransform = this._cameraEntity.getTransform()!;
-    viewerTransform.localPosition = Vector3.fromCopyArray([
-      viewerTranslateScaledX,
-      0,
-      viewerTranslateScaledZ,
-    ]);
+    viewerTransform.localPosition = Vector3.fromCopyArray([viewerTranslateScaledX, 0, viewerTranslateScaledZ]);
     viewerTransform.localScale = Vector3.fromCopyArray([scale, scale, scale]);
     viewerTransform.localEulerAngles = Vector3.fromCopyArray([0, this.__viewerAzimuthAngle.x, 0]);
 

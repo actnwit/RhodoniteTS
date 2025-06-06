@@ -1,17 +1,17 @@
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import DepthEncodeSingleShaderFragment from '../../../webgl/shaderity_shaders/DepthEncodeSingleShader/DepthEncodeSingleShader.frag';
+import DepthEncodeSingleShaderVertex from '../../../webgl/shaderity_shaders/DepthEncodeSingleShader/DepthEncodeSingleShader.vert';
+import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
-import { Material } from '../core/Material';
-import { Scalar } from '../../math/Scalar';
 import { ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
+import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { ShaderType } from '../../definitions/ShaderType';
+import { Scalar } from '../../math/Scalar';
 import { Vector3 } from '../../math/Vector3';
-import DepthEncodeSingleShaderVertex from '../../../webgl/shaderity_shaders/DepthEncodeSingleShader/DepthEncodeSingleShader.vert';
-import DepthEncodeSingleShaderFragment from '../../../webgl/shaderity_shaders/DepthEncodeSingleShader/DepthEncodeSingleShader.frag';
-import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
-import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import type { Material } from '../core/Material';
 
 /**
  * Material content for depth encoding functionality.
@@ -140,10 +140,7 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
   }) {
     let cameraComponent = args.renderPass.cameraComponent as CameraComponent;
     if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getComponent(
-        CameraComponent,
-        CameraComponent.current
-      ) as CameraComponent;
+      cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
     }
 
     if (args.setUniform) {
@@ -153,18 +150,12 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
       this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
 
       if (firstTime || this.__lastZNear !== cameraComponent.zNearInner) {
-        (shaderProgram as any)._gl.uniform1f(
-          (shaderProgram as any).zNearInner,
-          cameraComponent.zNearInner
-        );
+        (shaderProgram as any)._gl.uniform1f((shaderProgram as any).zNearInner, cameraComponent.zNearInner);
         this.__lastZNear = cameraComponent.zNearInner;
       }
 
       if (this.__lastZFar !== cameraComponent.zFarInner) {
-        (shaderProgram as any)._gl.uniform1f(
-          (shaderProgram as any).zFarInner,
-          cameraComponent.zFarInner
-        );
+        (shaderProgram as any)._gl.uniform1f((shaderProgram as any).zFarInner, cameraComponent.zFarInner);
         this.__lastZFar = cameraComponent.zFarInner;
       }
     } else {

@@ -1,11 +1,11 @@
-import { CompositionType } from '../../definitions/CompositionType';
+import { ComponentType, type ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
+import type { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import MultiplyShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/Multiply.glsl';
 import MultiplyShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Multiply.wgsl';
-import { ComponentType, ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
-import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
-import { AbstractShaderNode } from '../core/AbstractShaderNode';
-import { SystemState } from '../../system/SystemState';
+import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
+import { SystemState } from '../../system/SystemState';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 /**
  * A shader node that performs multiplication operations between two inputs.
@@ -77,50 +77,54 @@ export class MultiplyShaderNode extends AbstractShaderNode {
           this.__inputs[0].componentType === ComponentType.Float &&
           this.__inputs[1].componentType === ComponentType.Float
         ) {
-          return this.__shaderFunctionName + 'F32F32';
-        } else if (
+          return `${this.__shaderFunctionName}F32F32`;
+        }
+        if (
           this.__inputs[0].componentType === ComponentType.Int &&
           this.__inputs[1].componentType === ComponentType.Int
         ) {
-          return this.__shaderFunctionName + 'I32I32';
-        } else {
-          throw new Error('Not implemented');
+          return `${this.__shaderFunctionName}I32I32`;
         }
-      } else if (
+        throw new Error('Not implemented');
+      }
+      if (
         this.__inputs[0].compositionType === CompositionType.Vec2 &&
         this.__inputs[1].compositionType === CompositionType.Vec2
       ) {
-        return this.__shaderFunctionName + 'Vec2fVec2f';
-      } else if (
+        return `${this.__shaderFunctionName}Vec2fVec2f`;
+      }
+      if (
         this.__inputs[0].compositionType === CompositionType.Vec3 &&
         this.__inputs[1].compositionType === CompositionType.Vec3
       ) {
-        return this.__shaderFunctionName + 'Vec3fVec3f';
-      } else if (
+        return `${this.__shaderFunctionName}Vec3fVec3f`;
+      }
+      if (
         this.__inputs[0].compositionType === CompositionType.Vec4 &&
         this.__inputs[1].compositionType === CompositionType.Vec4
       ) {
-        return this.__shaderFunctionName + 'Vec4fVec4f';
-      } else if (
+        return `${this.__shaderFunctionName}Vec4fVec4f`;
+      }
+      if (
         this.__inputs[0].compositionType === CompositionType.Mat2 &&
         this.__inputs[1].compositionType === CompositionType.Mat2
       ) {
-        return this.__shaderFunctionName + 'Mat2x2fMat2x2f';
-      } else if (
+        return `${this.__shaderFunctionName}Mat2x2fMat2x2f`;
+      }
+      if (
         this.__inputs[0].compositionType === CompositionType.Mat3 &&
         this.__inputs[1].compositionType === CompositionType.Mat3
       ) {
-        return this.__shaderFunctionName + 'Mat3x3fMat3x3f';
-      } else if (
+        return `${this.__shaderFunctionName}Mat3x3fMat3x3f`;
+      }
+      if (
         this.__inputs[0].compositionType === CompositionType.Mat4 &&
         this.__inputs[1].compositionType === CompositionType.Mat4
       ) {
-        return this.__shaderFunctionName + 'Mat4x4fMat4x4f';
-      } else {
-        throw new Error('Not implemented');
+        return `${this.__shaderFunctionName}Mat4x4fMat4x4f`;
       }
-    } else {
-      return this.__shaderFunctionName;
+      throw new Error('Not implemented');
     }
+    return this.__shaderFunctionName;
   }
 }

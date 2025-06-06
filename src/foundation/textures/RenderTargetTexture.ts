@@ -1,13 +1,13 @@
-import { AbstractTexture } from './AbstractTexture';
-import { IRenderable } from './IRenderable';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { Size, Index } from '../../types/CommonTypes';
-import { FrameBuffer } from '../renderer/FrameBuffer';
-import { Vector4 } from '../math/Vector4';
-import { SystemState } from '../system/SystemState';
+import type { Index, Size } from '../../types/CommonTypes';
+import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import { ProcessApproach } from '../definitions/ProcessApproach';
-import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
-import { TextureFormat, TextureFormatEnum } from '../definitions/TextureFormat';
+import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFormat';
+import { Vector4 } from '../math/Vector4';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import type { FrameBuffer } from '../renderer/FrameBuffer';
+import { SystemState } from '../system/SystemState';
+import { AbstractTexture } from './AbstractTexture';
+import type { IRenderable } from './IRenderable';
 
 /**
  * A texture that can be used as a render target for off-screen rendering.
@@ -17,13 +17,6 @@ import { TextureFormat, TextureFormatEnum } from '../definitions/TextureFormat';
  */
 export class RenderTargetTexture extends AbstractTexture implements IRenderable {
   private __fbo?: FrameBuffer;
-
-  /**
-   * Creates a new RenderTargetTexture instance.
-   */
-  constructor() {
-    super();
-  }
 
   /**
    * Creates and initializes the render target texture with the specified parameters.
@@ -49,8 +42,7 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     this.__height = height;
     this.__mipLevelCount = mipLevelCount ?? Math.floor(Math.log2(Math.max(width, height))) + 1;
 
-    const { format, type } =
-      TextureFormat.getPixelFormatAndComponentTypeFromTextureFormat(internalFormat);
+    const { format, type } = TextureFormat.getPixelFormatAndComponentTypeFromTextureFormat(internalFormat);
 
     this.__internalFormat = internalFormat;
     this.__format = format;
@@ -94,9 +86,9 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     this._textureResourceUid = texture;
 
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      this._textureViewResourceUid = (
-        cgApiResourceRepository as WebGpuResourceRepository
-      ).createTextureView2d(this._textureResourceUid);
+      this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2d(
+        this._textureResourceUid
+      );
       this._textureViewAsRenderTargetResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository
       ).createTextureViewAsRenderTarget(this._textureResourceUid);
@@ -161,11 +153,7 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     canvas.width = this.__width;
     canvas.height = this.__height;
     const ctx = canvas.getContext('2d')!;
-    const imageData = new ImageData(
-      new Uint8ClampedArray(data.buffer),
-      this.__width,
-      this.__height
-    );
+    const imageData = new ImageData(new Uint8ClampedArray(data.buffer), this.__width, this.__height);
     ctx.putImageData(imageData, this.__width, this.__height);
     const dataUri = canvas.toDataURL('image/png');
 

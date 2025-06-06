@@ -3,7 +3,7 @@
  * Thank you!
  */
 
-import { primitives } from '../../../types/CommonTypes';
+import type { primitives } from '../../../types/CommonTypes';
 
 type ObjectFnType = (arg: object) => unknown;
 
@@ -30,9 +30,7 @@ export const objectCachify = (fn: ObjectFnType): ObjectFnType => {
  * @param fn the target function for caching result
  * @returns
  */
-export const primitiveCachify1 = <P extends primitives>(
-  fn: (arg: P) => unknown
-): ((arg: P) => unknown) => {
+export const primitiveCachify1 = <P extends primitives>(fn: (arg: P) => unknown): ((arg: P) => unknown) => {
   const cache = new Map();
   return (arg: P): unknown => {
     if (cache.has(arg)) {

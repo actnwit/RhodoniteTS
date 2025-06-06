@@ -1,11 +1,11 @@
-import { IVector2, IVector3, IVector4, IVector, IMutableVector3 } from './IVector';
-import { MathUtil } from './MathUtil';
+import type { Array3, FloatTypedArrayConstructor, TypedArray } from '../../types/CommonTypes';
 import { CompositionType } from '../definitions/CompositionType';
-import { IQuaternion } from './IQuaternion';
-import { IMatrix44 } from './IMatrix';
-import { AbstractVector } from './AbstractVector';
-import { Array3, FloatTypedArrayConstructor, TypedArray } from '../../types/CommonTypes';
 import { Logger } from '../misc/Logger';
+import { AbstractVector } from './AbstractVector';
+import type { IMatrix44 } from './IMatrix';
+import type { IQuaternion } from './IQuaternion';
+import type { IMutableVector3, IVector, IVector2, IVector3, IVector4 } from './IVector';
+import { MathUtil } from './MathUtil';
 
 /**
  * Generic base class for 3D vectors with floating-point components.
@@ -15,10 +15,7 @@ import { Logger } from '../misc/Logger';
  * @template T - The typed array constructor (Float32Array or Float64Array)
  * @internal
  */
-export class Vector3_<T extends FloatTypedArrayConstructor>
-  extends AbstractVector
-  implements IVector, IVector3
-{
+export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVector implements IVector, IVector3 {
   /**
    * Creates a new Vector3_ instance.
    * @param v - The typed array containing the vector components
@@ -68,9 +65,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   get glslStrAsFloat() {
     return `vec3(${MathUtil.convertToStringAsGLSLFloat(
       this._v[0]
-    )}, ${MathUtil.convertToStringAsGLSLFloat(this._v[1])}, ${MathUtil.convertToStringAsGLSLFloat(
-      this._v[2]
-    )})`;
+    )}, ${MathUtil.convertToStringAsGLSLFloat(this._v[1])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[2])})`;
   }
 
   /**
@@ -347,9 +342,9 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
       z = vec._v[2] / value;
     } else {
       Logger.error('0 division occurred!');
-      x = Infinity;
-      y = Infinity;
-      z = Infinity;
+      x = Number.POSITIVE_INFINITY;
+      y = Number.POSITIVE_INFINITY;
+      z = Number.POSITIVE_INFINITY;
     }
     return this._fromCopyArray([x, y, z], type);
   }
@@ -369,9 +364,9 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
       out._v[2] = vec._v[2] / value;
     } else {
       Logger.error('0 division occurred!');
-      out._v[0] = Infinity;
-      out._v[1] = Infinity;
-      out._v[2] = Infinity;
+      out._v[0] = Number.POSITIVE_INFINITY;
+      out._v[1] = Number.POSITIVE_INFINITY;
+      out._v[2] = Number.POSITIVE_INFINITY;
     }
     return out;
   }
@@ -394,9 +389,9 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
       z = l_vec._v[2] / r_vec._v[2];
     } else {
       Logger.error('0 division occurred!');
-      x = r_vec._v[0] === 0 ? Infinity : l_vec._v[0] / r_vec._v[0];
-      y = r_vec._v[1] === 0 ? Infinity : l_vec._v[1] / r_vec._v[1];
-      z = r_vec._v[2] === 0 ? Infinity : l_vec._v[2] / r_vec._v[2];
+      x = r_vec._v[0] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[0] / r_vec._v[0];
+      y = r_vec._v[1] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[1] / r_vec._v[1];
+      z = r_vec._v[2] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[2] / r_vec._v[2];
     }
     return this._fromCopyArray([x, y, z], type);
   }
@@ -416,9 +411,9 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
       out._v[2] = l_vec._v[2] / r_vec._v[2];
     } else {
       Logger.error('0 division occurred!');
-      out._v[0] = r_vec._v[0] === 0 ? Infinity : l_vec._v[0] / r_vec._v[0];
-      out._v[1] = r_vec._v[1] === 0 ? Infinity : l_vec._v[1] / r_vec._v[1];
-      out._v[2] = r_vec._v[2] === 0 ? Infinity : l_vec._v[2] / r_vec._v[2];
+      out._v[0] = r_vec._v[0] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[0] / r_vec._v[0];
+      out._v[1] = r_vec._v[1] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[1] / r_vec._v[1];
+      out._v[2] = r_vec._v[2] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[2] / r_vec._v[2];
     }
     return out;
   }
@@ -483,12 +478,9 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
     const num11 = quat._v[3] * num2;
     const num12 = quat._v[3] * num3;
 
-    const x =
-      (1 - (num5 + num6)) * vec._v[0] + (num7 - num12) * vec._v[1] + (num8 + num11) * vec._v[2];
-    const y =
-      (num7 + num12) * vec._v[0] + (1 - (num4 + num6)) * vec._v[1] + (num9 - num10) * vec._v[2];
-    const z =
-      (num8 - num11) * vec._v[0] + (num9 + num10) * vec._v[1] + (1 - (num4 + num5)) * vec._v[2];
+    const x = (1 - (num5 + num6)) * vec._v[0] + (num7 - num12) * vec._v[1] + (num8 + num11) * vec._v[2];
+    const y = (num7 + num12) * vec._v[0] + (1 - (num4 + num6)) * vec._v[1] + (num9 - num10) * vec._v[2];
+    const z = (num8 - num11) * vec._v[0] + (num9 + num10) * vec._v[1] + (1 - (num4 + num5)) * vec._v[2];
 
     return this._fromCopyArray([x, y, z], type);
   }
@@ -515,12 +507,9 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
     const num11 = quat._v[3] * num2;
     const num12 = quat._v[3] * num3;
 
-    const x =
-      (1 - (num5 + num6)) * vec._v[0] + (num7 - num12) * vec._v[1] + (num8 + num11) * vec._v[2];
-    const y =
-      (num7 + num12) * vec._v[0] + (1 - (num4 + num6)) * vec._v[1] + (num9 - num10) * vec._v[2];
-    const z =
-      (num8 - num11) * vec._v[0] + (num9 + num10) * vec._v[1] + (1 - (num4 + num5)) * vec._v[2];
+    const x = (1 - (num5 + num6)) * vec._v[0] + (num7 - num12) * vec._v[1] + (num8 + num11) * vec._v[2];
+    const y = (num7 + num12) * vec._v[0] + (1 - (num4 + num6)) * vec._v[1] + (num9 - num10) * vec._v[2];
+    const z = (num8 - num11) * vec._v[0] + (num9 + num10) * vec._v[1] + (1 - (num4 + num5)) * vec._v[2];
 
     return out.setComponents(x, y, z);
   }
@@ -530,7 +519,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
    * @returns A string representation of the vector in the format "(x, y, z)"
    */
   toString() {
-    return '(' + this._v[0] + ', ' + this._v[1] + ', ' + this._v[2] + ')';
+    return `(${this._v[0]}, ${this._v[1]}, ${this._v[2]})`;
   }
 
   /**
@@ -538,14 +527,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
    * @returns A string representation with financial formatting
    */
   toStringApproximately() {
-    return (
-      MathUtil.financial(this._v[0]) +
-      ' ' +
-      MathUtil.financial(this._v[1]) +
-      ' ' +
-      MathUtil.financial(this._v[2]) +
-      '\n'
-    );
+    return `${MathUtil.financial(this._v[0])} ${MathUtil.financial(this._v[1])} ${MathUtil.financial(this._v[2])}\n`;
   }
 
   /**
@@ -563,9 +545,8 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   isDummy() {
     if (this._v.length === 0) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -581,9 +562,8 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
       Math.abs(vec._v[2] - this._v[2]) < delta
     ) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -594,9 +574,8 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   isStrictEqual(vec: IVector3) {
     if (this._v[0] === vec._v[0] && this._v[1] === vec._v[1] && this._v[2] === vec._v[2]) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -659,9 +638,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
    * @returns A new vector with the same components
    */
   clone() {
-    return new (this.constructor as any)(
-      new (this._v.constructor as any)([this._v[0], this._v[1], this._v[2]], 0, 0)
-    );
+    return new (this.constructor as any)(new (this._v.constructor as any)([this._v[0], this._v[1], this._v[2]], 0, 0));
   }
 
   /**

@@ -1,9 +1,9 @@
-import { IVector2, IVector3, IVector4, IMutableVector4 } from './IVector';
-import { Array4, FloatTypedArray, FloatTypedArrayConstructor } from '../../types/CommonTypes';
-import { MathUtil } from './MathUtil';
+import type { Array4, FloatTypedArray, FloatTypedArrayConstructor } from '../../types/CommonTypes';
 import { CompositionType } from '../definitions/CompositionType';
-import { AbstractVector } from './AbstractVector';
 import { Logger } from '../misc/Logger';
+import { AbstractVector } from './AbstractVector';
+import type { IMutableVector4, IVector2, IVector3, IVector4 } from './IVector';
+import { MathUtil } from './MathUtil';
 
 /**
  * Generic 4D vector class that serves as the base implementation for both 32-bit and 64-bit vector types.
@@ -12,10 +12,7 @@ import { Logger } from '../misc/Logger';
  * @template T - The typed array constructor type (Float32ArrayConstructor or Float64ArrayConstructor)
  * @internal This class is not intended for direct instantiation by users
  */
-export class Vector4_<T extends FloatTypedArrayConstructor>
-  extends AbstractVector
-  implements IVector4
-{
+export class Vector4_<T extends FloatTypedArrayConstructor> extends AbstractVector implements IVector4 {
   /**
    * Creates a new Vector4_ instance.
    *
@@ -443,10 +440,10 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
       w = vec._v[3] / value;
     } else {
       Logger.error('0 division occurred!');
-      x = Infinity;
-      y = Infinity;
-      z = Infinity;
-      w = Infinity;
+      x = Number.POSITIVE_INFINITY;
+      y = Number.POSITIVE_INFINITY;
+      z = Number.POSITIVE_INFINITY;
+      w = Number.POSITIVE_INFINITY;
     }
     return new this(new type([x, y, z, w]), { type });
   }
@@ -470,10 +467,10 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
       out._v[3] = vec._v[3] / value;
     } else {
       Logger.error('0 division occurred!');
-      out._v[0] = Infinity;
-      out._v[1] = Infinity;
-      out._v[2] = Infinity;
-      out._v[3] = Infinity;
+      out._v[0] = Number.POSITIVE_INFINITY;
+      out._v[1] = Number.POSITIVE_INFINITY;
+      out._v[2] = Number.POSITIVE_INFINITY;
+      out._v[3] = Number.POSITIVE_INFINITY;
     }
     return out;
   }
@@ -500,10 +497,10 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
       w = l_vec._v[3] / r_vec._v[3];
     } else {
       Logger.error('0 division occurred!');
-      x = r_vec._v[0] === 0 ? Infinity : l_vec._v[0] / r_vec._v[0];
-      y = r_vec._v[1] === 0 ? Infinity : l_vec._v[1] / r_vec._v[1];
-      z = r_vec._v[2] === 0 ? Infinity : l_vec._v[2] / r_vec._v[2];
-      w = r_vec._v[3] === 0 ? Infinity : l_vec._v[3] / r_vec._v[3];
+      x = r_vec._v[0] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[0] / r_vec._v[0];
+      y = r_vec._v[1] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[1] / r_vec._v[1];
+      z = r_vec._v[2] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[2] / r_vec._v[2];
+      w = r_vec._v[3] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[3] / r_vec._v[3];
     }
     return new this(new type([x, y, z, w]), { type });
   }
@@ -527,10 +524,10 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
       out._v[3] = l_vec._v[3] / r_vec._v[3];
     } else {
       Logger.error('0 division occurred!');
-      out._v[0] = r_vec._v[0] === 0 ? Infinity : l_vec._v[0] / r_vec._v[0];
-      out._v[1] = r_vec._v[1] === 0 ? Infinity : l_vec._v[1] / r_vec._v[1];
-      out._v[2] = r_vec._v[2] === 0 ? Infinity : l_vec._v[2] / r_vec._v[2];
-      out._v[3] = r_vec._v[3] === 0 ? Infinity : l_vec._v[3] / r_vec._v[3];
+      out._v[0] = r_vec._v[0] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[0] / r_vec._v[0];
+      out._v[1] = r_vec._v[1] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[1] / r_vec._v[1];
+      out._v[2] = r_vec._v[2] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[2] / r_vec._v[2];
+      out._v[3] = r_vec._v[3] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[3] / r_vec._v[3];
     }
     return out;
   }
@@ -554,7 +551,7 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
    * @returns A string representation of the vector
    */
   toString() {
-    return '(' + this._v[0] + ', ' + this._v[1] + ', ' + this._v[2] + ', ' + this._v[3] + ')';
+    return `(${this._v[0]}, ${this._v[1]}, ${this._v[2]}, ${this._v[3]})`;
   }
 
   /**
@@ -564,16 +561,7 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
    * @returns A string with space-separated components followed by a newline
    */
   toStringApproximately() {
-    return (
-      MathUtil.financial(this._v[0]) +
-      ' ' +
-      MathUtil.financial(this._v[1]) +
-      ' ' +
-      MathUtil.financial(this._v[2]) +
-      ' ' +
-      MathUtil.financial(this._v[3]) +
-      '\n'
-    );
+    return `${MathUtil.financial(this._v[0])} ${MathUtil.financial(this._v[1])} ${MathUtil.financial(this._v[2])} ${MathUtil.financial(this._v[3])}\n`;
   }
 
   /**
@@ -593,9 +581,8 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
   isDummy() {
     if (this._v.length === 0) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -613,9 +600,8 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
       Math.abs(vec._v[3] - this._v[3]) < delta
     ) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -625,16 +611,10 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
    * @returns True if all components are exactly equal, false otherwise
    */
   isStrictEqual(vec: IVector4): boolean {
-    if (
-      this._v[0] === vec._v[0] &&
-      this._v[1] === vec._v[1] &&
-      this._v[2] === vec._v[2] &&
-      this._v[3] === vec._v[3]
-    ) {
+    if (this._v[0] === vec._v[0] && this._v[1] === vec._v[1] && this._v[2] === vec._v[2] && this._v[3] === vec._v[3]) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -688,12 +668,7 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
    * @returns The dot product of the two vectors
    */
   dot(vec: IVector4) {
-    return (
-      this._v[0] * vec._v[0] +
-      this._v[1] * vec._v[1] +
-      this._v[2] * vec._v[2] +
-      this._v[3] * vec._v[3]
-    );
+    return this._v[0] * vec._v[0] + this._v[1] * vec._v[1] + this._v[2] * vec._v[2] + this._v[3] * vec._v[3];
   }
 
   /**

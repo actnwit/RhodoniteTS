@@ -22,13 +22,11 @@ const cameraTransform = cameraEntity.getTransform();
 cameraTransform.localPosition = Rn.Vector3.fromCopyArray([0, 4.2, 25]);
 
 // gltf
-const expression = (
-  await Rn.GltfImporter.importFromUrl(
-    '../../../assets/gltf/glTF-Sample-Assets/Models/InterpolationTest/glTF-Binary/InterpolationTest.glb',
-    {
-      cameraComponent: cameraComponent,
-    }
-  )
+const expression = await Rn.GltfImporter.importFromUrl(
+  '../../../assets/gltf/glTF-Sample-Assets/Models/InterpolationTest/glTF-Binary/InterpolationTest.glb',
+  {
+    cameraComponent: cameraComponent,
+  }
 );
 
 // Lights
@@ -49,8 +47,7 @@ Rn.System.startRenderLoop(() => {
   if (window.isAnimating) {
     Rn.AnimationComponent.globalTime += 0.016;
     if (Rn.AnimationComponent.globalTime > Rn.AnimationComponent.endInputValue) {
-      Rn.AnimationComponent.globalTime -=
-        Rn.AnimationComponent.endInputValue - Rn.AnimationComponent.startInputValue;
+      Rn.AnimationComponent.globalTime -= Rn.AnimationComponent.endInputValue - Rn.AnimationComponent.startInputValue;
     }
   }
 
@@ -59,6 +56,6 @@ Rn.System.startRenderLoop(() => {
   count++;
 });
 
-window.exportGltf2 = function () {
+window.exportGltf2 = () => {
   Rn.Gltf2Exporter.export('Rhodonite');
 };

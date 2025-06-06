@@ -1,19 +1,16 @@
-import { Component } from '../../core/Component';
-import { EntityUID, ComponentSID, ComponentTID } from '../../../types/CommonTypes';
-import { applyMixins, EntityRepository } from '../../core/EntityRepository';
-import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
+import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
+import type { ICameraController } from '../../cameras/ICameraController';
 import { OrbitCameraController } from '../../cameras/OrbitCameraController';
-import { ICameraController } from '../../cameras/ICameraController';
 import { WalkThroughCameraController } from '../../cameras/WalkThroughCameraController';
-import {
-  CameraControllerTypeEnum,
-  CameraControllerType,
-} from '../../definitions/CameraControllerType';
-import { IEntity } from '../../core/Entity';
-import { ComponentToComponentMethods } from '../ComponentTypes';
+import { Component } from '../../core/Component';
+import type { IEntity } from '../../core/Entity';
+import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions';
+import { CameraControllerType, type CameraControllerTypeEnum } from '../../definitions/CameraControllerType';
 import { ICameraControllerEntity } from '../../helpers/EntityHelper';
 import { Logger } from '../../misc/Logger';
+import type { ComponentToComponentMethods } from '../ComponentTypes';
+import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 /**
  * A component that manages and controls camera behavior and movement.
@@ -31,12 +28,7 @@ export class CameraControllerComponent extends Component {
    * @param entityRepository - The entity repository for component management
    * @param isReUse - Whether this component is being reused
    */
-  constructor(
-    entityUid: EntityUID,
-    componentSid: ComponentSID,
-    entityRepository: EntityRepository,
-    isReUse: boolean
-  ) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
     super(entityUid, componentSid, entityRepository, isReUse);
     this.__cameraController = new OrbitCameraController(this);
   }
@@ -66,9 +58,8 @@ export class CameraControllerComponent extends Component {
   get type() {
     if (this.__cameraController instanceof OrbitCameraController) {
       return CameraControllerType.Orbit;
-    } else {
-      return CameraControllerType.WalkThrough;
     }
+    return CameraControllerType.WalkThrough;
   }
 
   /**
@@ -148,14 +139,6 @@ export class CameraControllerComponent extends Component {
     _componentClass: SomeComponentClass
   ) {
     class CameraControllerEntity extends (base.constructor as any) {
-      constructor(
-        entityUID: EntityUID,
-        isAlive: boolean,
-        components?: Map<ComponentTID, Component>
-      ) {
-        super(entityUID, isAlive, components);
-      }
-
       getCameraController() {
         return this.getComponentByComponentTID(
           WellKnownComponentTIDs.CameraControllerComponentTID

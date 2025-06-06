@@ -1,21 +1,21 @@
+import type { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { Entity } from '../foundation/core/Entity';
-import { RnPromise } from '../foundation/misc/RnPromise';
-import { Array3, Array4, Index } from './CommonTypes';
-import { ShaderSemanticsEnum } from '../foundation/definitions/ShaderSemantics';
-import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
+import type { ShaderSemanticsEnum } from '../foundation/definitions/ShaderSemantics';
+import type { ILoaderExtension } from '../foundation/importer/ILoaderExtension';
 import { Material } from '../foundation/materials/core/Material';
-import { Expression } from '../foundation/renderer/Expression';
-import { ILoaderExtension } from '../foundation/importer/ILoaderExtension';
 import { Accessor } from '../foundation/memory/Accessor';
-import {
+import { RnPromise } from '../foundation/misc/RnPromise';
+import type { Expression } from '../foundation/renderer/Expression';
+import type {
   GL_DATA_BYTE,
-  GL_DATA_UNSIGNED_BYTE,
-  GL_DATA_SHORT,
-  GL_DATA_UNSIGNED_SHORT,
-  GL_DATA_INT,
-  GL_DATA_UNSIGNED_INT,
   GL_DATA_FLOAT,
+  GL_DATA_INT,
+  GL_DATA_SHORT,
+  GL_DATA_UNSIGNED_BYTE,
+  GL_DATA_UNSIGNED_INT,
+  GL_DATA_UNSIGNED_SHORT,
 } from '../types/WebGLConstants';
+import type { Array3, Array4, Index } from './CommonTypes';
 
 export interface Gltf2AnyObject {
   [s: string]: any;
@@ -82,14 +82,7 @@ export type Gltf2AccessorComponentTypeNumber =
 
 export type Gltf2AnimationAccessorCompositionTypeString = 'SCALAR' | 'VEC2' | 'VEC3' | 'VEC4';
 
-export type Gltf2AccessorCompositionTypeString =
-  | 'SCALAR'
-  | 'VEC2'
-  | 'VEC3'
-  | 'VEC4'
-  | 'MAT2'
-  | 'MAT3'
-  | 'MAT4';
+export type Gltf2AccessorCompositionTypeString = 'SCALAR' | 'VEC2' | 'VEC3' | 'VEC4' | 'MAT2' | 'MAT3' | 'MAT4';
 
 export type Gltf2AccessorIndex = number;
 
@@ -390,7 +383,7 @@ export type GltfLoadOption = {
       isTransparent: boolean;
       opacity: number;
       isTextureImageToLoadPreMultipliedAlpha: boolean;
-    }
+    },
   ];
   alphaMode?: string;
   ignoreLists?: [];

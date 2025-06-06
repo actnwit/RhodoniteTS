@@ -1,7 +1,7 @@
-import { CompositionType } from '../../definitions/CompositionType';
-import { ComponentType } from '../../definitions/ComponentType';
 import AttributeJointShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/AttributeJoint.vert.glsl';
 import AttributeJointShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/AttributeJoint.vert.wgsl';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 /**
@@ -40,4 +40,3 @@ export class AttributeJointShaderNode extends AbstractShaderNode {
     });
   }
 }
-

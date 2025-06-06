@@ -1,6 +1,6 @@
-import { Array1, Array2, Array3, Array4, Index } from '../../types/CommonTypes';
-import { VertexAttributeEnum } from '../definitions';
-import { IndicesAccessOption } from '../memory/Accessor';
+import type { Array1, Array2, Array3, Array4, Index } from '../../types/CommonTypes';
+import type { VertexAttributeEnum } from '../definitions';
+import type { IndicesAccessOption } from '../memory/Accessor';
 
 export interface ISemanticVertexAttribute {
   semantic: VertexAttributeEnum;

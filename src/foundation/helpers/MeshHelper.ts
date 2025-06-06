@@ -1,20 +1,20 @@
-import { Plane, PlaneDescriptor } from '../geometry/shapes/Plane';
-import { Mesh } from '../geometry/Mesh';
-import { AxisDescriptor } from '../geometry/shapes/Axis';
-import { Axis } from '../geometry/shapes/Axis';
-import { IShape } from '../geometry/shapes/IShape';
-import { Line, LineDescriptor } from '../geometry/shapes/Line';
-import { Vector3 } from '../math/Vector3';
-import { Grid, GridDescriptor } from '../geometry/shapes/Grid';
-import { Cube, CubeDescriptor } from '../geometry/shapes/Cube';
-import { Sphere, SphereDescriptor } from '../geometry/shapes/Sphere';
-import { Joint, JointDescriptor } from '../geometry/shapes/Joint';
-import { Is } from '../misc';
+import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 import { PhysicsComponent } from '../components/Physics/PhysicsComponent';
 import { EntityRepository } from '../core/EntityRepository';
-import { OimoPhysicsStrategy } from '../physics/Oimo/OimoPhysicsStrategy';
 import { PhysicsShape } from '../definitions/PhysicsShapeType';
-import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
+import { Mesh } from '../geometry/Mesh';
+import type { AxisDescriptor } from '../geometry/shapes/Axis';
+import { Axis } from '../geometry/shapes/Axis';
+import { Cube, type CubeDescriptor } from '../geometry/shapes/Cube';
+import { Grid, type GridDescriptor } from '../geometry/shapes/Grid';
+import type { IShape } from '../geometry/shapes/IShape';
+import { Joint, type JointDescriptor } from '../geometry/shapes/Joint';
+import { Line, type LineDescriptor } from '../geometry/shapes/Line';
+import { Plane, type PlaneDescriptor } from '../geometry/shapes/Plane';
+import { Sphere, type SphereDescriptor } from '../geometry/shapes/Sphere';
+import { Vector3 } from '../math/Vector3';
+import { Is } from '../misc';
+import { OimoPhysicsStrategy } from '../physics/Oimo/OimoPhysicsStrategy';
 
 /**
  * Creates a plane mesh entity with configurable orientation.

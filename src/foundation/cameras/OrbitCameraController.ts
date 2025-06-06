@@ -1,19 +1,19 @@
-import { Vector3 } from '../math/Vector3';
-import { MutableVector3 } from '../math/MutableVector3';
-import { MathUtil } from '../math/MathUtil';
-import { CameraComponent } from '../components/Camera/CameraComponent';
-import { MutableMatrix33 } from '../math/MutableMatrix33';
-import { Matrix44 } from '../math/Matrix44';
-import { Count, Size } from '../../types/CommonTypes';
-import { ICameraController } from './ICameraController';
-import { MutableMatrix44 } from '../math/MutableMatrix44';
-import { AABB } from '../math/AABB';
-import { AbstractCameraController } from './AbstractCameraController';
-import { Is } from '../misc/Is';
-import { ISceneGraphEntity } from '../helpers/EntityHelper';
-import { InputManager, INPUT_HANDLING_STATE_CAMERA_CONTROLLER } from '../system/InputManager';
+import type { Count, Size } from '../../types/CommonTypes';
+import type { CameraComponent } from '../components/Camera/CameraComponent';
+import type { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
 import { Config } from '../core/Config';
-import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
+import type { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { AABB } from '../math/AABB';
+import { MathUtil } from '../math/MathUtil';
+import { Matrix44 } from '../math/Matrix44';
+import { MutableMatrix33 } from '../math/MutableMatrix33';
+import { MutableMatrix44 } from '../math/MutableMatrix44';
+import { MutableVector3 } from '../math/MutableVector3';
+import { Vector3 } from '../math/Vector3';
+import { Is } from '../misc/Is';
+import { INPUT_HANDLING_STATE_CAMERA_CONTROLLER, InputManager } from '../system/InputManager';
+import { AbstractCameraController } from './AbstractCameraController';
+import type { ICameraController } from './ICameraController';
 
 declare let window: any;
 
@@ -233,12 +233,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
     switch (this.__buttonNumber) {
       case 1: // left
         if (this.__isPressingShift) {
-          this.__parallelTranslateControl(
-            this.__originalX,
-            this.__originalY,
-            currentMouseX,
-            currentMouseY
-          );
+          this.__parallelTranslateControl(this.__originalX, this.__originalY, currentMouseX, currentMouseY);
         } else {
           this.__rotateControl(this.__originalX, this.__originalY, currentMouseX, currentMouseY);
           this.__rot_bgn_x = this.__rot_x;
@@ -249,12 +244,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
         this.__zoomControl(this.__originalX, currentMouseX);
         break;
       case 4: // center
-        this.__parallelTranslateControl(
-          this.__originalX,
-          this.__originalY,
-          currentMouseX,
-          currentMouseY
-        );
+        this.__parallelTranslateControl(this.__originalX, this.__originalY, currentMouseX, currentMouseY);
         break;
       default:
         return;
@@ -326,12 +316,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
       currentTouchX = (e.touches[0].clientX + e.touches[1].clientX) * 0.5;
       currentTouchY = (e.touches[0].clientY + e.touches[1].clientY) * 0.5;
 
-      this.__parallelTranslateControl(
-        this.__originalX,
-        this.__originalY,
-        currentTouchX,
-        currentTouchY
-      );
+      this.__parallelTranslateControl(this.__originalX, this.__originalY, currentTouchX, currentTouchY);
     }
     this.__originalX = currentTouchX;
     this.__originalY = currentTouchY;
@@ -477,11 +462,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
     const scale = this.__lengthOfCenterToEye * this.__fovyBias * this.__scaleOfTranslation;
 
     const upDirTranslateVec = OrbitCameraController.__tmpVec3_0;
-    upDirTranslateVec
-      .copyComponents(this.__newUpVec)
-      .normalize()
-      .multiply(this.__mouse_translate_y)
-      .multiply(scale);
+    upDirTranslateVec.copyComponents(this.__newUpVec).normalize().multiply(this.__mouse_translate_y).multiply(scale);
 
     const tangentDirTranslateVec = OrbitCameraController.__tmpVec3_1;
     tangentDirTranslateVec
@@ -532,7 +513,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
     }
 
     const ratio = originalDistance / currentDistance;
-    this.dolly *= Math.pow(ratio * this.__efficiency, 2.2 / 15.0);
+    this.dolly *= (ratio * this.__efficiency) ** (2.2 / 15.0);
 
     this.__pinchInOutOriginalDistance = currentDistance;
     this.__updated = false;
@@ -592,7 +573,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
   set dolly(value) {
     value = Math.min(value, 1);
     value = Math.max(value, 0.0001);
-    let gamma = Math.pow(value, 5);
+    let gamma = value ** 5;
     gamma = Math.max(gamma, 0.0001);
     this.__dolly = gamma;
   }
@@ -602,7 +583,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
    * @returns The dolly value (0-1)
    */
   get dolly() {
-    return Math.pow(this.__dolly, 1 / 5);
+    return this.__dolly ** (1 / 5);
   }
 
   /**
@@ -631,7 +612,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
 
     const currentTime = new Date().getTime();
     if (currentTime - this.__resetDollyTouchTime < 300) {
-      this.dolly = Math.pow(0.5, 1.0 / 2.2);
+      this.dolly = 0.5 ** (1.0 / 2.2);
       this.__mouseTranslateVec.zero();
       this.__rot_x = 0;
       this.__rot_y = 0;
@@ -891,11 +872,8 @@ export class OrbitCameraController extends AbstractCameraController implements I
   __getFovyFromCamera(camera: CameraComponent) {
     if (camera.fovy) {
       return camera.fovy;
-    } else {
-      return MathUtil.radianToDegree(
-        2 * Math.atan(Math.abs(camera.top - camera.bottom) / (2 * camera.zNear))
-      );
     }
+    return MathUtil.radianToDegree(2 * Math.atan(Math.abs(camera.top - camera.bottom) / (2 * camera.zNear)));
   }
 
   /**
@@ -920,9 +898,8 @@ export class OrbitCameraController extends AbstractCameraController implements I
   private __getTargetAABB(targetEntity: ISceneGraphEntity) {
     if (this.aabbWithSkeletal) {
       return targetEntity.tryToGetSceneGraph()!.worldMergedAABBWithSkeletal;
-    } else {
-      return targetEntity.tryToGetSceneGraph()!.worldMergedAABB;
     }
+    return targetEntity.tryToGetSceneGraph()!.worldMergedAABB;
   }
 
   /**
@@ -961,11 +938,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
       }
       newCenterVec.copyComponents(aabbToUse.centerPoint);
       // calc newEyeVec
-      const centerToCameraVec = MutableVector3.subtractTo(
-        eyeVec,
-        centerVec,
-        newEyeVec
-      ) as MutableVector3;
+      const centerToCameraVec = MutableVector3.subtractTo(eyeVec, centerVec, newEyeVec) as MutableVector3;
       const centerToCameraVecNormalized = centerToCameraVec.normalize();
       const lengthCenterToCorner = this.useInitialTargetAABBForLength
         ? this.__initialTargetAABB.lengthCenterToCorner
@@ -1013,13 +986,8 @@ export class OrbitCameraController extends AbstractCameraController implements I
       const projectedCenterToEyeVec = OrbitCameraController.__tmpVec3_1;
       projectedCenterToEyeVec.setComponents(centerToEyeVec.x, 0, centerToEyeVec.z);
 
-      let horizontalAngleOfVectors = Vector3.angleOfVectors(
-        projectedCenterToEyeVec,
-        OrbitCameraController.__tmp_up
-      );
-      const horizontalSign = Math.sign(
-        projectedCenterToEyeVec.cross(OrbitCameraController.__tmp_up).y
-      );
+      let horizontalAngleOfVectors = Vector3.angleOfVectors(projectedCenterToEyeVec, OrbitCameraController.__tmp_up);
+      const horizontalSign = Math.sign(projectedCenterToEyeVec.cross(OrbitCameraController.__tmp_up).y);
       horizontalAngleOfVectors *= horizontalSign;
 
       const rotateM_X = OrbitCameraController.__tmp_rotateM_X;
@@ -1062,11 +1030,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
       rotateM_X.rotateX(MathUtil.degreeToRadian(this.__rot_y));
       rotateM_Y.rotateY(MathUtil.degreeToRadian(this.__rot_x));
 
-      const rotateM = MutableMatrix33.multiplyTo(
-        rotateM_Y,
-        rotateM_X,
-        OrbitCameraController.__tmp_rotateM
-      );
+      const rotateM = MutableMatrix33.multiplyTo(rotateM_Y, rotateM_X, OrbitCameraController.__tmp_rotateM);
 
       rotateM.multiplyVectorTo(this.__upVec, newUpVec);
       rotateM.multiplyVectorTo(centerToEyeVec, newEyeVec).add(this.__centerVec);

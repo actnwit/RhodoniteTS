@@ -1,18 +1,18 @@
 import {
-  Count,
+  type Count,
   Index,
-  IndexOf16Bytes,
-  MaterialSID,
-  MaterialTID,
-  MaterialUID,
+  type IndexOf16Bytes,
+  type MaterialSID,
+  type MaterialTID,
+  type MaterialUID,
 } from '../../../types/CommonTypes';
 import { Config } from '../../core/Config';
 import { MemoryManager } from '../../core/MemoryManager';
 import { BufferUse } from '../../definitions/BufferUse';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
-import { ShaderSemanticsIndex, ShaderSemanticsName } from '../../definitions/ShaderSemantics';
-import { calcAlignedByteLength, ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { ShaderSemanticsIndex, type ShaderSemanticsName } from '../../definitions/ShaderSemantics';
+import { type ShaderSemanticsInfo, calcAlignedByteLength } from '../../definitions/ShaderSemanticsInfo';
 import { MathClassUtil } from '../../math/MathClassUtil';
 import type { Accessor } from '../../memory/Accessor';
 import type { BufferView } from '../../memory/BufferView';
@@ -31,12 +31,10 @@ export class MaterialRepository {
   /// static members
   ///
   private static __materialMap: Map<MaterialUID, WeakRef<Material>> = new Map();
-  private static __instances: Map<MaterialTypeName, Map<MaterialSID, WeakRef<Material>>> =
-    new Map();
+  private static __instances: Map<MaterialTypeName, Map<MaterialSID, WeakRef<Material>>> = new Map();
   private static __materialTids: Map<MaterialTypeName, MaterialTID> = new Map();
   private static __materialInstanceCountOfType: Map<MaterialTypeName, Count> = new Map();
-  private static __materialNodes: Map<MaterialTypeName, AbstractMaterialContent | undefined> =
-    new Map();
+  private static __materialNodes: Map<MaterialTypeName, AbstractMaterialContent | undefined> = new Map();
   private static __maxInstances: Map<MaterialTypeName, Count> = new Map();
   private static __bufferViews: Map<MaterialTypeName, BufferView> = new Map();
   private static __accessors: Map<MaterialTypeName, Map<ShaderSemanticsName, Accessor>> = new Map();
@@ -62,10 +60,9 @@ export class MaterialRepository {
       MaterialRepository.__registerInner(materialTypeName, materialNode, maxInstanceNumber);
 
       return true;
-    } else {
-      // console.info(`${materialTypeName} is already registered.`);
-      return false;
     }
+    // console.info(`${materialTypeName} is already registered.`);
+    return false;
   }
 
   /**
@@ -129,14 +126,9 @@ export class MaterialRepository {
    * @returns A new Material instance with proper initialization
    * @throws Error if the material type is not registered or maximum instances exceeded
    */
-  public static createMaterial(
-    materialTypeName: string,
-    materialNode: AbstractMaterialContent
-  ): Material {
+  public static createMaterial(materialTypeName: string, materialNode: AbstractMaterialContent): Material {
     // get the count of instance for the material type
-    let countOfThisType = MaterialRepository.__materialInstanceCountOfType.get(
-      materialTypeName
-    ) as number;
+    let countOfThisType = MaterialRepository.__materialInstanceCountOfType.get(materialTypeName) as number;
     const material = new Material(
       MaterialRepository.__materialTids.get(materialTypeName)!,
       ++MaterialRepository.__materialUidCount,
@@ -173,22 +165,15 @@ export class MaterialRepository {
    * @param newMaterialNode - The new material node to check for compatibility
    * @returns True if the materials are compatible, false otherwise
    */
-  static isMaterialCompatible(
-    currentMaterial: Material,
-    newMaterialNode: AbstractMaterialContent
-  ): boolean {
-    const existingMaterial = MaterialRepository.__materialMap
-      .get(currentMaterial.materialUID)
-      ?.deref();
+  static isMaterialCompatible(currentMaterial: Material, newMaterialNode: AbstractMaterialContent): boolean {
+    const existingMaterial = MaterialRepository.__materialMap.get(currentMaterial.materialUID)?.deref();
     if (Is.not.exist(existingMaterial)) {
       return false;
     }
 
     const existingShaderSemanticsInfoList = Array.from(existingMaterial._allFieldsInfo.values());
     const newShaderSemanticsInfoList = newMaterialNode._semanticsInfoArray;
-    if (
-      JSON.stringify(existingShaderSemanticsInfoList) !== JSON.stringify(newShaderSemanticsInfoList)
-    ) {
+    if (JSON.stringify(existingShaderSemanticsInfoList) !== JSON.stringify(newShaderSemanticsInfoList)) {
       return false;
     }
 
@@ -221,27 +206,21 @@ export class MaterialRepository {
       map.set(material.materialSID, new WeakRef(material));
 
       // set the count of instance for the material type
-      MaterialRepository.__materialInstanceCountOfType.set(
-        material.materialTypeName,
-        countOfThisType
-      );
+      MaterialRepository.__materialInstanceCountOfType.set(material.materialTypeName, countOfThisType);
     }
 
     // Set semanticsInfo and shaderVariables to the material instance
     if (Is.exist(material._materialContent)) {
       const semanticsInfoArray = material._materialContent._semanticsInfoArray;
       const accessorMap = MaterialRepository.__accessors.get(material.materialTypeName);
-      semanticsInfoArray.forEach((semanticsInfo) => {
+      semanticsInfoArray.forEach(semanticsInfo => {
         material._allFieldsInfo.set(semanticsInfo.semantic, semanticsInfo);
         if (!semanticsInfo.soloDatum) {
           const accessor = accessorMap!.get(semanticsInfo.semantic) as Accessor;
           const typedArray = accessor.takeOne() as Float32Array;
           const shaderVariable = {
             info: semanticsInfo,
-            value: MathClassUtil.initWithFloat32Array(
-              semanticsInfo.initialValue,
-              typedArray,
-            ),
+            value: MathClassUtil.initWithFloat32Array(semanticsInfo.initialValue, typedArray),
           };
           material._allFieldVariables.set(semanticsInfo.semantic, shaderVariable);
           if (!semanticsInfo.isInternalSetting) {
@@ -272,7 +251,7 @@ export class MaterialRepository {
     propertyName: ShaderSemanticsName
   ): IndexOf16Bytes {
     const map = MaterialRepository.__instances.get(materialTypeName)!;
-    const materialRef = Array.from(map.values()).find((m) => m.deref() !== undefined); // find an actual exist material
+    const materialRef = Array.from(map.values()).find(m => m.deref() !== undefined); // find an actual exist material
     if (Is.not.exist(materialRef?.deref())) {
       Logger.warn(
         `Material is not found. getLocationOffsetOfMemberOfMaterial returns invalid 0 value. materialTypeName: ${materialTypeName}`
@@ -284,11 +263,10 @@ export class MaterialRepository {
     if (info.soloDatum) {
       const value = Material._soloDatumFields.get(material.materialTypeName)!.get(propertyName);
       return (value!.value._v as Float32Array).byteOffset / 4 / 4;
-    } else {
-      const properties = this.__accessors.get(materialTypeName);
-      const accessor = properties!.get(propertyName);
-      return accessor!.byteOffsetInBuffer / 4 / 4;
     }
+    const properties = this.__accessors.get(materialTypeName);
+    const accessor = properties!.get(propertyName);
+    return accessor!.byteOffsetInBuffer / 4 / 4;
   }
 
   /**
@@ -325,10 +303,7 @@ export class MaterialRepository {
    * @returns The allocated BufferView for the material type
    * @private
    */
-  private static __allocateBufferView(
-    materialTypeName: string,
-    materialNode: AbstractMaterialContent
-  ) {
+  private static __allocateBufferView(materialTypeName: string, materialNode: AbstractMaterialContent) {
     // Calculate a BufferView size to take
     let totalByteLength = 0;
     const alignedByteLengthAndSemanticInfoArray: {
@@ -401,10 +376,7 @@ export class MaterialRepository {
 
         map.set(semanticInfo.semantic, {
           info: semanticInfo,
-          value: MathClassUtil.initWithFloat32Array(
-            semanticInfo.initialValue,
-            typedArray,
-          ),
+          value: MathClassUtil.initWithFloat32Array(semanticInfo.initialValue, typedArray),
         });
       } else {
         // Set an accessor to this.__accessors

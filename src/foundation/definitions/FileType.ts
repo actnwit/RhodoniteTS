@@ -1,4 +1,4 @@
-import { EnumClass, EnumIO, _from, _fromString } from '../misc/EnumIO';
+import { EnumClass, type EnumIO, _from, _fromString } from '../misc/EnumIO';
 
 export type FileTypeEnum = EnumIO;
 
@@ -69,17 +69,15 @@ function fromString(str: string): FileTypeEnum {
   const filetype = _fromString({ typeList, str }) as FileTypeEnum;
   if (filetype != null) {
     return filetype;
-  } else {
-    return Unknown;
   }
+  return Unknown;
 }
 
 function isGltfOrGlb(file: FileTypeEnum) {
   if (file === Gltf || file === GltfBinary) {
     return true;
-  } else {
-    return false;
   }
+  return false;
 }
 
 export const FileType = Object.freeze({

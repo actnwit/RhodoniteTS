@@ -1,4 +1,4 @@
-import { ShaderityObject } from 'shaderity';
+import type { ShaderityObject } from 'shaderity';
 import Rn from '../../../dist/esmdev/index.js';
 import { getProcessApproach } from '../common/testHelpers.js';
 
@@ -226,7 +226,6 @@ function createCustomShader() {
     shaderStage: 'fragment',
     isFragmentShader: true,
   };
-
 
   const vertexShaderWGSL = `
 /* shaderity: @{definitions} */

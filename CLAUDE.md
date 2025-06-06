@@ -34,8 +34,12 @@ yarn test-e2e-update       # Update E2E test snapshots
 
 ### Code Quality
 ```bash
-yarn gts-lint              # Lint using Google TypeScript Style
-yarn gts-fix               # Auto-fix linting issues
+yarn lint                  # Lint code using Biome
+yarn lint:fix              # Auto-fix linting issues
+yarn format                # Format code using Biome
+yarn format:fix            # Auto-format code
+yarn check                 # Run both linting and formatting checks
+yarn check:fix             # Auto-fix both linting and formatting issues
 yarn doc                   # Generate TypeDoc API documentation
 ```
 
@@ -151,7 +155,7 @@ src/xr/                 # WebXR support
 - **zstddec**: ZSTD decompression for compressed assets
 
 ### Key Dev Dependencies
-- **gts**: Google TypeScript Style for consistent code formatting
+- **@biomejs/biome**: Fast linter and formatter for consistent code quality
 - **typedoc**: API documentation generation
 - **vitest**: Fast unit testing framework
 - **puppeteer**: Automated browser testing for E2E

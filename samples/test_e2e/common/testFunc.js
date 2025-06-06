@@ -1,13 +1,11 @@
-import { toMatchImageSnapshot } from "jest-image-snapshot";
+import { toMatchImageSnapshot } from 'jest-image-snapshot';
 
 exports.testFunc = async (browser, url, expect) => {
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(2000000);
-  await page.goto(
-    'http://localhost:8082/samples/test_e2e/ColorGradingUsingLUTs'
-  );
-  await page.setViewport({width: 1000, height: 1000});
-  await page.waitForSelector('p#rendered', {timeout: 2000000});
+  await page.goto('http://localhost:8082/samples/test_e2e/ColorGradingUsingLUTs');
+  await page.setViewport({ width: 1000, height: 1000 });
+  await page.waitForSelector('p#rendered', { timeout: 2000000 });
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
   expect(image).toMatchImageSnapshot();
@@ -26,14 +24,7 @@ exports.consoleLog = async page => {
   });
 };
 
-exports.testCheckWindowRendered = async (
-  browser,
-  url,
-  expect,
-  threshold,
-  noParam = false,
-  consoleOn = false
-) => {
+exports.testCheckWindowRendered = async (browser, url, expect, threshold, noParam = false, consoleOn = false) => {
   expect.extend({ toMatchImageSnapshot });
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(2000000);
@@ -41,12 +32,12 @@ exports.testCheckWindowRendered = async (
   if (consoleOn) {
     this.consoleLog(page);
   }
-  await page.setViewport({width: 1000, height: 1000});
+  await page.setViewport({ width: 1000, height: 1000 });
   await page.waitForFunction(
     () => {
       return window._rendered;
     },
-    {timeout: 2000000}
+    { timeout: 2000000 }
   );
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
@@ -62,14 +53,7 @@ exports.testCheckWindowRendered = async (
   await page.close();
 };
 
-exports.testCheckPtoDocument = async (
-  browser,
-  url,
-  expect,
-  threshold,
-  noParam = false,
-  consoleOn = false
-) => {
+exports.testCheckPtoDocument = async (browser, url, expect, threshold, noParam = false, consoleOn = false) => {
   expect.extend({ toMatchImageSnapshot });
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(2000000);
@@ -77,8 +61,8 @@ exports.testCheckPtoDocument = async (
   if (consoleOn) {
     this.consoleLog(page);
   }
-  await page.setViewport({width: 1000, height: 1000});
-  await page.waitForSelector('p#rendered', {timeout: 2000000});
+  await page.setViewport({ width: 1000, height: 1000 });
+  await page.waitForSelector('p#rendered', { timeout: 2000000 });
   const canvasElement = await page.$('#world');
   const image = await canvasElement.screenshot();
   if (noParam) {
@@ -106,8 +90,7 @@ exports.doTests = (name, modes, errorThreshold = 0.03) => {
   }
 };
 
-
-exports.defineGltfTest = (name, mode, gltfName, gltfFormat,errorThreshold) => {
+exports.defineGltfTest = (name, mode, gltfName, gltfFormat, errorThreshold) => {
   const url = `http://localhost:8082/samples/test_e2e/${name}?mode=${mode}&gltf=${gltfName}&gltfformat=${gltfFormat}`;
   test(`${name} ${gltfName} ${mode}`, async () => {
     await exports.testCheckWindowRendered(browser, url, expect, errorThreshold, true);

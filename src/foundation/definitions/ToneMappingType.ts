@@ -1,4 +1,4 @@
-import { EnumClass, EnumIO, _from } from '../misc/EnumIO';
+import { EnumClass, type EnumIO, _from } from '../misc/EnumIO';
 
 export type ToneMappingTypeEnum = EnumIO;
 
@@ -37,15 +37,7 @@ const ACES_Hill_Exposure_Boost: ToneMappingTypeEnum = new ToneMappingTypeClass({
   str: 'ACES_Filmic_ToneMap_Hill_Exposure_Boost',
 });
 
-const typeList = [
-  None,
-  KhronosPbrNeutral,
-  Reinhard,
-  GT_ToneMap,
-  ACES_Narkowicz,
-  ACES_Hill,
-  ACES_Hill_Exposure_Boost,
-];
+const typeList = [None, KhronosPbrNeutral, Reinhard, GT_ToneMap, ACES_Narkowicz, ACES_Hill, ACES_Hill_Exposure_Boost];
 
 function from(index: number): ToneMappingTypeEnum {
   return _from({ typeList, index }) as ToneMappingTypeEnum;

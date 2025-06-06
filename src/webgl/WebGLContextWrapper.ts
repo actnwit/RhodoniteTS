@@ -1,9 +1,9 @@
-import { WebGLExtensionEnum, WebGLExtension } from './WebGLExtension';
-import { RenderBufferTargetEnum } from '../foundation/definitions/RenderBufferTarget';
-import { Index, Size } from '../types/CommonTypes';
-import { Vector4 } from '../foundation/math/Vector4';
 import { Config } from '../foundation/core/Config';
+import type { RenderBufferTargetEnum } from '../foundation/definitions/RenderBufferTarget';
+import { Vector4 } from '../foundation/math/Vector4';
 import { Logger } from '../foundation/misc/Logger';
+import type { Index, Size } from '../types/CommonTypes';
+import { WebGLExtension, type WebGLExtensionEnum } from './WebGLExtension';
 
 const INVALID_SIZE = -1;
 
@@ -132,27 +132,13 @@ export class WebGLContextWrapper {
       this.webgl2ExtTFA = this.__getExtension(WebGLExtension.TextureFilterAnisotropic);
       this.webgl2ExtCBF = this.__getExtension(WebGLExtension.ColorBufferFloatWebGL2);
       this.webgl2ExtCBHF = this.__getExtension(WebGLExtension.ColorBufferHalfFloatWebGL2);
-      this.webgl2ExtCTAstc = this.__getCompressedTextureExtension(
-        WebGLExtension.CompressedTextureAstc
-      );
-      this.webgl2ExtCTS3tc = this.__getCompressedTextureExtension(
-        WebGLExtension.CompressedTextureS3tc
-      );
-      this.webgl2ExtCTPvrtc = this.__getCompressedTextureExtension(
-        WebGLExtension.CompressedTexturePvrtc
-      );
-      this.webgl2ExtCTAtc = this.__getCompressedTextureExtension(
-        WebGLExtension.CompressedTextureAtc
-      );
-      this.webgl2ExtCTEtc = this.__getCompressedTextureExtension(
-        WebGLExtension.CompressedTextureEtc
-      );
-      this.webgl2ExtCTEtc1 = this.__getCompressedTextureExtension(
-        WebGLExtension.CompressedTextureEtc1
-      );
-      this.webgl2ExtCTBptc = this.__getCompressedTextureExtension(
-        WebGLExtension.CompressedTextureBptc
-      );
+      this.webgl2ExtCTAstc = this.__getCompressedTextureExtension(WebGLExtension.CompressedTextureAstc);
+      this.webgl2ExtCTS3tc = this.__getCompressedTextureExtension(WebGLExtension.CompressedTextureS3tc);
+      this.webgl2ExtCTPvrtc = this.__getCompressedTextureExtension(WebGLExtension.CompressedTexturePvrtc);
+      this.webgl2ExtCTAtc = this.__getCompressedTextureExtension(WebGLExtension.CompressedTextureAtc);
+      this.webgl2ExtCTEtc = this.__getCompressedTextureExtension(WebGLExtension.CompressedTextureEtc);
+      this.webgl2ExtCTEtc1 = this.__getCompressedTextureExtension(WebGLExtension.CompressedTextureEtc1);
+      this.webgl2ExtCTBptc = this.__getCompressedTextureExtension(WebGLExtension.CompressedTextureBptc);
       this.webgl2ExtMLTVIEW = this.__getExtension(WebGLExtension.OculusMultiview);
       if (this.webgl2ExtMLTVIEW) {
         this.webgl2ExtMLTVIEW.is_multisample = true;
@@ -234,9 +220,8 @@ export class WebGLContextWrapper {
   isSupportWebGL1Extension(webGLExtension: WebGLExtensionEnum) {
     if (this.__getExtension(webGLExtension)) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -264,9 +249,8 @@ export class WebGLContextWrapper {
   get isWebGL2() {
     if (this.__webglVersion === 2) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -352,7 +336,7 @@ export class WebGLContextWrapper {
     }
     const buffer = buffers[0].webGLConstantValue();
     gl.drawBuffers(
-      buffers.map((buf) => {
+      buffers.map(buf => {
         return buf.webGLConstantValue();
       })
     );
@@ -540,8 +524,8 @@ export class WebGLContextWrapper {
       const extensionName = extension.toString();
       const extObj =
         gl.getExtension(extensionName) ??
-        gl.getExtension('MOZ_' + extensionName) ??
-        gl.getExtension('WEBKIT_' + extensionName);
+        gl.getExtension(`MOZ_${extensionName}`) ??
+        gl.getExtension(`WEBKIT_${extensionName}`);
 
       if (extObj == null && Config.cgApiDebugConsoleOutput) {
         const text = `${extension.toString()} Not Available in this environment`;
@@ -611,10 +595,7 @@ export class WebGLContextWrapper {
     const maxBlockSize = gl.getParameter(gl.MAX_UNIFORM_BLOCK_SIZE) as number;
     this.#maxVertexUniformBlocks = gl.getParameter(gl.MAX_VERTEX_UNIFORM_BLOCKS) as number;
     this.#maxFragmentUniformBlocks = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_BLOCKS) as number;
-    this.#maxConventionUniformBlocks = Math.min(
-      this.#maxVertexUniformBlocks,
-      this.#maxFragmentUniformBlocks
-    );
+    this.#maxConventionUniformBlocks = Math.min(this.#maxVertexUniformBlocks, this.#maxFragmentUniformBlocks);
     this.#alignedMaxUniformBlockSize = maxBlockSize - (maxBlockSize % offsetAlignment);
     this.#uniformBufferOffsetAlignment = offsetAlignment;
     this.#maxUniformBlockSize = maxBlockSize;

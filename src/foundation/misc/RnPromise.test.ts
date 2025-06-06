@@ -1,4 +1,4 @@
-import { RnPromise, RnPromiseCallbackObj } from './RnPromise';
+import { RnPromise, type RnPromiseCallbackObj } from './RnPromise';
 
 test('works with RnPromise.all', () => {
   const p1 = RnPromise.resolve(1);
@@ -15,7 +15,7 @@ test('works with await', async () => {
   const promise = new RnPromise((onfullfilled, onrejected) => {
     onfullfilled(1);
   });
-  promise.then((val) => {
+  promise.then(val => {
     console.log(val);
   });
   const val2 = await promise;
@@ -35,7 +35,7 @@ test('works with Promise.all', () => {
 
 test('RnPromise.resolve of thenable', () => {
   const thenable = {
-    then: function (resolve: any) {
+    then: (resolve: any) => {
       resolve('Resolving');
     },
   };

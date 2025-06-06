@@ -1,10 +1,10 @@
-import { ISceneGraphEntity } from '../../helpers';
-import { IQuaternion, IVector3, MathUtil, Quaternion } from '../../math';
+import type { ISceneGraphEntity } from '../../helpers';
+import { IQuaternion, type IVector3, MathUtil, Quaternion } from '../../math';
 import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
-import { PhysicsPropertyInner } from '../PhysicsProperty';
-import { PhysicsStrategy } from '../PhysicsStrategy';
-import { PhysicsWorldProperty } from '../PhysicsWorldProperty';
+import type { PhysicsPropertyInner } from '../PhysicsProperty';
+import type { PhysicsStrategy } from '../PhysicsStrategy';
+import type { PhysicsWorldProperty } from '../PhysicsWorldProperty';
 
 declare const OIMO: any;
 
@@ -108,9 +108,7 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     const pos = this.__body.getPosition();
     const rot = this.__body.getQuaternion();
     this.__entity.getSceneGraph().setPositionWithoutPhysics(Vector3.fromCopy3(pos.x, pos.y, pos.z));
-    this.__entity
-      .getSceneGraph()
-      .setRotationWithoutPhysics(Quaternion.fromCopy4(rot.x, rot.y, rot.z, rot.w));
+    this.__entity.getSceneGraph().setRotationWithoutPhysics(Quaternion.fromCopy4(rot.x, rot.y, rot.z, rot.w));
   }
 
   /**
@@ -187,11 +185,7 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     const prop = this.__property;
     this.__property = {
       type: prop.type,
-      size: [
-        this.__localScale.x * scale.x,
-        this.__localScale.y * scale.y,
-        this.__localScale.z * scale.z,
-      ],
+      size: [this.__localScale.x * scale.x, this.__localScale.y * scale.y, this.__localScale.z * scale.z],
       pos: [pos.x, pos.y, pos.z],
       rot: [this.__entity.eulerAngles.x, this.__entity.eulerAngles.y, this.__entity.eulerAngles.z],
       move: prop.move,

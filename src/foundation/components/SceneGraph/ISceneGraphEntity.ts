@@ -1,7 +1,7 @@
-import { SceneGraphComponent } from './SceneGraphComponent';
-import { IMatrix44 } from '../../math/IMatrix';
-import { IVector3 } from '../../math/IVector';
-import { IQuaternion } from '../../math/IQuaternion';
+import type { IMatrix44 } from '../../math/IMatrix';
+import type { IQuaternion } from '../../math/IQuaternion';
+import type { IVector3 } from '../../math/IVector';
+import type { SceneGraphComponent } from './SceneGraphComponent';
 
 export interface ISceneGraphEntityMethods {
   getSceneGraph(): SceneGraphComponent;

@@ -1,7 +1,7 @@
-import { CompositionType } from '../../definitions/CompositionType';
-import { ComponentType } from '../../definitions/ComponentType';
 import AttributePositionShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/AttributePosition.vert';
 import AttributePositionShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/AttributePosition.vert.wgsl';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
 

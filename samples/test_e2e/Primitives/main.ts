@@ -24,15 +24,7 @@ Rn.System.startRenderLoop(() => {
 function createGroupOfShapes(): Rn.IMeshEntity {
   const group = Rn.createGroupEntity();
 
-  const creators = [
-    createPlane,
-    createGrid,
-    createCube,
-    createAxis,
-    createJoint,
-    createLine,
-    createSphere,
-  ];
+  const creators = [createPlane, createGrid, createCube, createAxis, createJoint, createLine, createSphere];
   for (const creator of creators) {
     const shape = creator();
     group.getSceneGraph().addChild(shape.getSceneGraph());

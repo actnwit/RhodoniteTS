@@ -1,34 +1,34 @@
-import { Primitive } from './Primitive';
-import { VertexAttribute } from '../definitions/VertexAttribute';
-import { PrimitiveMode } from '../definitions/PrimitiveMode';
+import type { CGAPIResourceHandle, Index, MeshUID } from '../../types/CommonTypes';
+import type { VertexHandles } from '../../webgl/WebGLResourceRepository';
+import type { MeshComponent } from '../components/Mesh/MeshComponent';
 import { MemoryManager } from '../core/MemoryManager';
 import { BufferUse } from '../definitions/BufferUse';
 import { ComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
-import { Vector3 } from '../math/Vector3';
-import { Accessor } from '../memory/Accessor';
-import { Vector2 } from '../math/Vector2';
+import { PrimitiveMode } from '../definitions/PrimitiveMode';
+import { ProcessApproach } from '../definitions/ProcessApproach';
+import { ProcessStage } from '../definitions/ProcessStage';
+import { VertexAttribute } from '../definitions/VertexAttribute';
+import type { IMeshEntity } from '../helpers/EntityHelper';
 import { AABB } from '../math/AABB';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { Index, CGAPIResourceHandle, MeshUID } from '../../types/CommonTypes';
+import type { IVector3 } from '../math/IVector';
 import { MutableVector3 } from '../math/MutableVector3';
-import { VertexHandles } from '../../webgl/WebGLResourceRepository';
+import type { Vector2 } from '../math/Vector2';
+import { Vector3 } from '../math/Vector3';
+import type { Accessor } from '../memory/Accessor';
 import { Is } from '../misc/Is';
-import { IVector3 } from '../math/IVector';
+import { Logger } from '../misc/Logger';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import { SystemState } from '../system/SystemState';
+import type { Primitive } from './Primitive';
 import {
-  IMesh,
-  isBlendWithoutZWrite,
+  type IMesh,
+  type RaycastResultEx1,
   isBlendWithZWrite,
+  isBlendWithoutZWrite,
   isOpaque,
   isTranslucent,
-  RaycastResultEx1,
 } from './types/GeometryTypes';
-import { IMeshEntity } from '../helpers/EntityHelper';
-import { MeshComponent } from '../components/Mesh/MeshComponent';
-import { ProcessStage } from '../definitions/ProcessStage';
-import { Logger } from '../misc/Logger';
-import { ProcessApproach } from '../definitions/ProcessApproach';
-import { SystemState } from '../system/SystemState';
 
 /**
  * The Mesh class.
@@ -112,9 +112,7 @@ export class Mesh implements IMesh {
    * @returns The VAO resource handle
    */
   public getVaoUidsByPrimitiveUid(primitiveUid: Index): CGAPIResourceHandle {
-    const index = this.__primitives.findIndex(
-      (primitive) => primitive.primitiveUid === primitiveUid
-    );
+    const index = this.__primitives.findIndex(primitive => primitive.primitiveUid === primitiveUid);
 
     return this.__vaoUids[index];
   }
@@ -293,7 +291,7 @@ export class Mesh implements IMesh {
       }
 
       if (
-        isNaN(this.__vaoUids[i]) ||
+        Number.isNaN(this.__vaoUids[i]) ||
         this.__vaoUids[i] === CGAPIResourceRepository.InvalidCGAPIResourceUid ||
         vertexHandles.vaoHandle === CGAPIResourceRepository.InvalidCGAPIResourceUid
       ) {
@@ -301,11 +299,7 @@ export class Mesh implements IMesh {
         vertexHandles.vaoHandle = this.__vaoUids[i];
       }
 
-      webglResourceRepository.setVertexDataToPipeline(
-        vertexHandles,
-        primitive,
-        this.__variationVBOUid
-      );
+      webglResourceRepository.setVertexDataToPipeline(vertexHandles, primitive, this.__variationVBOUid);
     }
 
     // remove useless VAO
@@ -335,11 +329,7 @@ export class Mesh implements IMesh {
    * @param dotThreshold - The dot product threshold for back-face culling (default: 0)
    * @returns Ray casting result with intersection information
    */
-  public castRay(
-    srcPointInLocal: IVector3,
-    directionInLocal: IVector3,
-    dotThreshold = 0
-  ): RaycastResultEx1 {
+  public castRay(srcPointInLocal: IVector3, directionInLocal: IVector3, dotThreshold = 0): RaycastResultEx1 {
     let finalShortestIntersectedPosVec3: IVector3 | undefined;
     let finalShortestT = Number.MAX_VALUE;
     let u = 0;
@@ -371,11 +361,10 @@ export class Mesh implements IMesh {
           position: finalShortestIntersectedPosVec3,
         },
       };
-    } else {
-      return {
-        result: false,
-      };
     }
+    return {
+      result: false,
+    };
   }
 
   ///
@@ -433,9 +422,7 @@ export class Mesh implements IMesh {
    * Gets AABB in local space.
    */
   get AABB(): AABB {
-    if (
-      this.__primitivePositionUpdateCount !== this.__latestPrimitivePositionAccessorVersionForAABB
-    ) {
+    if (this.__primitivePositionUpdateCount !== this.__latestPrimitivePositionAccessorVersionForAABB) {
       this.__localAABB.initialize();
       this.__latestPrimitivePositionAccessorVersionForAABB = this.__primitivePositionUpdateCount;
     }
@@ -546,18 +533,7 @@ export class Mesh implements IMesh {
           const uv2 = texcoordAccessor.getVec2(i + 2, { indicesAccessor });
           const norm0 = normalAccessor.getVec3(i, { indicesAccessor });
 
-          this.__calcTangentFor3Vertices(
-            i,
-            pos0,
-            pos1,
-            pos2,
-            uv0,
-            uv1,
-            uv2,
-            norm0,
-            tangentAccessor,
-            indicesAccessor
-          );
+          this.__calcTangentFor3Vertices(i, pos0, pos1, pos2, uv0, uv1, uv2, norm0, tangentAccessor, indicesAccessor);
         }
         primitive.setVertexAttribute(tangentAccessor, VertexAttribute.Tangent.XYZ);
       }
@@ -591,36 +567,9 @@ export class Mesh implements IMesh {
     tangentAccessor: Accessor,
     indicesAccessor?: Accessor
   ) {
-    const tan0Vec3 = this.__calcTangentPerVertex(
-      pos0,
-      pos1,
-      pos2,
-      uv0,
-      uv1,
-      uv2,
-      norm0,
-      Mesh.__tmpReturnVec3_0
-    );
-    const tan1Vec3 = this.__calcTangentPerVertex(
-      pos1,
-      pos2,
-      pos0,
-      uv1,
-      uv2,
-      uv0,
-      norm0,
-      Mesh.__tmpReturnVec3_1
-    );
-    const tan2Vec3 = this.__calcTangentPerVertex(
-      pos2,
-      pos0,
-      pos1,
-      uv2,
-      uv0,
-      uv1,
-      norm0,
-      Mesh.__tmpReturnVec3_2
-    );
+    const tan0Vec3 = this.__calcTangentPerVertex(pos0, pos1, pos2, uv0, uv1, uv2, norm0, Mesh.__tmpReturnVec3_0);
+    const tan1Vec3 = this.__calcTangentPerVertex(pos1, pos2, pos0, uv1, uv2, uv0, norm0, Mesh.__tmpReturnVec3_1);
+    const tan2Vec3 = this.__calcTangentPerVertex(pos2, pos0, pos1, uv2, uv0, uv1, norm0, Mesh.__tmpReturnVec3_2);
 
     tangentAccessor.setVec4(i, tan0Vec3.x, tan0Vec3.y, tan0Vec3.z, 1, {
       indicesAccessor,
@@ -706,15 +655,10 @@ export class Mesh implements IMesh {
    * @private
    */
   private __usePreCalculatedTangent() {
-    if (
-      this.tangentCalculationMode === 0 ||
-      this.tangentCalculationMode === 1 ||
-      this.tangentCalculationMode === 3
-    ) {
+    if (this.tangentCalculationMode === 0 || this.tangentCalculationMode === 1 || this.tangentCalculationMode === 3) {
       return false;
-    } else {
-      return true;
     }
+    return true;
   }
 
   /**
@@ -900,9 +844,9 @@ export class Mesh implements IMesh {
    */
   getCurrentVariantName() {
     function allEqual(arr: string[]) {
-      return arr.every((val) => val === arr[0]);
+      return arr.every(val => val === arr[0]);
     }
-    const variantNames = this.primitives.map((primitive) => primitive.getCurrentVariantName());
+    const variantNames = this.primitives.map(primitive => primitive.getCurrentVariantName());
     if (variantNames.length === 0) {
       return '';
     }
@@ -941,12 +885,8 @@ export class Mesh implements IMesh {
       return false;
     }
 
-    if (
-      this.__latestPrimitivePositionAccessorVersionForSetUpDone !==
-      this.__primitivePositionUpdateCount
-    ) {
-      this.__latestPrimitivePositionAccessorVersionForSetUpDone =
-        this.__primitivePositionUpdateCount;
+    if (this.__latestPrimitivePositionAccessorVersionForSetUpDone !== this.__primitivePositionUpdateCount) {
+      this.__latestPrimitivePositionAccessorVersionForSetUpDone = this.__primitivePositionUpdateCount;
       return false;
     }
 

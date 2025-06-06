@@ -1,8 +1,4 @@
-/* eslint-disable prefer-spread */
-/* eslint-disable prefer-rest-params */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 // Inspired by https://github.com/enricomarino/is
-
 type FnType = (val: unknown) => boolean;
 
 /**
@@ -78,7 +74,7 @@ export const IsObj = {
    * @returns True if the value is truthy
    */
   truly(val: unknown, ...args: unknown[]): boolean {
-    return val ? true : false;
+    return !!val;
   },
 
   /**
@@ -98,7 +94,7 @@ export const IsObj = {
    * @returns True if the value is falsy
    */
   falsy(val: unknown, ...args: unknown[]): boolean {
-    return !val ? true : false;
+    return !val;
   },
 
   /**
@@ -123,6 +119,7 @@ const Derivatives = {
    * @returns A function that returns the opposite result of the input function
    */
   not(fn: FnType) {
+    // biome-ignore lint/complexity/useArrowFunction: <explanation>
     return function () {
       return fn.apply(null, [...arguments] as any);
     };
@@ -134,6 +131,7 @@ const Derivatives = {
    * @returns A function that returns true if all values pass validation
    */
   all(fn: FnType) {
+    // biome-ignore lint/complexity/useArrowFunction: <explanation>
     return function () {
       if (Array.isArray(arguments[0])) {
         return arguments[0].every(fn);
@@ -148,6 +146,7 @@ const Derivatives = {
    * @returns A function that returns true if any value passes validation
    */
   any(fn: FnType) {
+    // biome-ignore lint/complexity/useArrowFunction: <explanation>
     return function () {
       if (Array.isArray(arguments[0])) {
         return arguments[0].some(fn);
@@ -229,7 +228,7 @@ const NotObj = {
    * @returns True if the value is not truthy
    */
   truly(val: unknown, ...args: unknown[]): boolean {
-    return val ? false : true;
+    return !val;
   },
 
   /**
@@ -249,7 +248,7 @@ const NotObj = {
    * @returns True if the value is not falsy
    */
   falsy(val: unknown, ...args: unknown[]): boolean {
-    return !val ? false : true;
+    return !!val;
   },
 };
 

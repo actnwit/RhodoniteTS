@@ -77,7 +77,7 @@ function createEntityMainCamera() {
 }
 
 async function createEntityGltf2(uriGltf: string) {
-  const gltf2JSON = (await Rn.Gltf2Importer.importFromUrl(uriGltf));
+  const gltf2JSON = await Rn.Gltf2Importer.importFromUrl(uriGltf);
   const entityRootGroup = await Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
 
   const transformComponent = entityRootGroup.getTransform();
@@ -88,7 +88,7 @@ async function createEntityGltf2(uriGltf: string) {
 async function createEntityEnvironmentCube(basePathIBL: string) {
   const cubeTextureEnvironment = new Rn.CubeTexture();
   await cubeTextureEnvironment.loadTextureImages({
-    baseUrl: basePathIBL + '/environment/environment',
+    baseUrl: `${basePathIBL}/environment/environment`,
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.HDR_LINEAR,
@@ -125,10 +125,7 @@ async function createEntityEnvironmentCube(basePathIBL: string) {
 }
 
 function createEntityBoard(renderPassDepth: Rn.RenderPass) {
-  const material = Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial(
-    {},
-    renderPassDepth
-  );
+  const material = Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial({}, renderPassDepth);
   material.setParameter('diffuseColorFactor', Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.0]));
   material.setParameter('shadowColorFactor', Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.5]));
   material.alphaMode = Rn.AlphaMode.Blend;
@@ -156,10 +153,7 @@ function createEntityBoard(renderPassDepth: Rn.RenderPass) {
   return entity;
 }
 
-function createRenderPassDepth(
-  cameraComponentDepth: Rn.CameraComponent,
-  entityRenderTarget: Rn.ISceneGraphEntity
-) {
+function createRenderPassDepth(cameraComponentDepth: Rn.CameraComponent, entityRenderTarget: Rn.ISceneGraphEntity) {
   const renderPass = new Rn.RenderPass();
   renderPass.toClearColorBuffer = true;
   renderPass.cameraComponent = cameraComponentDepth;
@@ -173,11 +167,7 @@ function createRenderPassDepth(
   return renderPass;
 }
 
-function createAndSetFramebuffer(
-  renderPass: Rn.RenderPass,
-  resolution: number,
-  textureNum: number
-) {
+function createAndSetFramebuffer(renderPass: Rn.RenderPass, resolution: number, textureNum: number) {
   const framebuffer = Rn.RenderableHelper.createFrameBuffer({
     width: resolution,
     height: resolution,
@@ -198,7 +188,7 @@ function createExpression(renderPasses: Rn.RenderPass[]) {
 async function setIBLTexture(basePathIBL: string) {
   const cubeTextureSpecular = new Rn.CubeTexture();
   await cubeTextureSpecular.loadTextureImages({
-    baseUrl: basePathIBL + '/specular/specular',
+    baseUrl: `${basePathIBL}/specular/specular`,
     mipmapLevelNumber: 10,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.RGBE_PNG,
@@ -206,7 +196,7 @@ async function setIBLTexture(basePathIBL: string) {
 
   const cubeTextureDiffuse = new Rn.CubeTexture();
   await cubeTextureDiffuse.loadTextureImages({
-    baseUrl: basePathIBL + '/diffuse/diffuse',
+    baseUrl: `${basePathIBL}/diffuse/diffuse`,
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.RGBE_PNG,

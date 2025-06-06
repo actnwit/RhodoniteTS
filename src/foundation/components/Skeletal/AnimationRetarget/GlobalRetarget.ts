@@ -1,9 +1,9 @@
 /* eslint-disable prettier/prettier */
-import { ISceneGraphEntity } from '../../../helpers/EntityHelper';
-import { IVector3, Matrix44, Quaternion, Vector3 } from '../../../math';
-import { IQuaternion } from '../../../math/IQuaternion';
+import type { ISceneGraphEntity } from '../../../helpers/EntityHelper';
+import { type IVector3, Matrix44, Quaternion, Vector3 } from '../../../math';
+import type { IQuaternion } from '../../../math/IQuaternion';
 import { Is } from '../../../misc/Is';
-import { IAnimationRetarget } from './AnimationRetarget';
+import type { IAnimationRetarget } from './AnimationRetarget';
 
 /**
  * Global retargeting implementation for animation retargeting.
@@ -38,7 +38,7 @@ export class GlobalRetarget implements IAnimationRetarget {
     let srcPGRestQ: IQuaternion;
     const parent = srcEntity.getSceneGraph().parent;
     if (Is.exist(parent)) {
-      srcPGRestQ = parent.getRotationRest((sg) => {
+      srcPGRestQ = parent.getRotationRest(sg => {
         return Is.exist(sg.entity.tryToGetVrm());
       });
     } else {
@@ -58,7 +58,7 @@ export class GlobalRetarget implements IAnimationRetarget {
     let dstPGRestQ: IQuaternion;
     const parent = dstEntity.getSceneGraph().parent;
     if (Is.exist(parent)) {
-      dstPGRestQ = parent.getRotationRest((sg) => {
+      dstPGRestQ = parent.getRotationRest(sg => {
         return Is.exist(sg.entity.tryToGetVrm());
       });
     } else {
@@ -84,10 +84,7 @@ export class GlobalRetarget implements IAnimationRetarget {
 
     const animQ = Quaternion.multiply(
       srcPGRestQ,
-      Quaternion.multiply(
-        srcPoseQ,
-        Quaternion.multiply(Quaternion.invert(srcRestQ), Quaternion.invert(srcPGRestQ))
-      )
+      Quaternion.multiply(srcPoseQ, Quaternion.multiply(Quaternion.invert(srcRestQ), Quaternion.invert(srcPGRestQ)))
     );
 
     // retarget quaternion to local pose

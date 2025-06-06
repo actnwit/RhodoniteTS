@@ -1,8 +1,8 @@
-import { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
+import type { ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
+import type { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
+import type { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
+import type { AttributeNames } from '../../types';
 import { CommonShaderPart } from '../CommonShaderPart';
-import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
-import { ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
-import { AttributeNames } from '../../types';
 
 export class VaryingVariableShader extends CommonShaderPart {
   private __variableName = '';

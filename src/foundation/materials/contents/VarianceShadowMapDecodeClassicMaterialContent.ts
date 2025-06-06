@@ -1,32 +1,28 @@
-import {
-  ShaderSemantics,
-  ShaderSemanticsEnum,
-  ShaderSemanticsClass,
-} from '../../definitions/ShaderSemantics';
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { CompositionType } from '../../definitions/CompositionType';
-import { ComponentType } from '../../definitions/ComponentType';
-import { Vector4 } from '../../math/Vector4';
-import { Vector3 } from '../../math/Vector3';
-import { ShadingModel } from '../../definitions/ShadingModel';
-import { ShaderType } from '../../definitions/ShaderType';
-import { ComponentRepository } from '../../core/ComponentRepository';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
-import { VectorN } from '../../math/VectorN';
-import { Scalar } from '../../math/Scalar';
-import { Config } from '../../core/Config';
-import { Material } from '../core/Material';
-import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
-import { RenderPass } from '../../renderer/RenderPass';
-import { Count } from '../../../types/CommonTypes';
-import { MutableMatrix44 } from '../../math/MutableMatrix44';
-import { MutableVector4 } from '../../math/MutableVector4';
-import VarianceShadowMapDecodeClassicShaderVertex from '../../../webgl/shaderity_shaders/VarianceShadowMapDecodeClassicShader/VarianceShadowMapDecodeClassicShader.vert';
+import type { Count } from '../../../types/CommonTypes';
 import VarianceShadowMapDecodeClassicShaderFragment from '../../../webgl/shaderity_shaders/VarianceShadowMapDecodeClassicShader/VarianceShadowMapDecodeClassicShader.frag';
-import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
-import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-import { dummyBlackTexture, dummyBlueTexture, dummyWhiteTexture } from '../core/DummyTextures';
+import VarianceShadowMapDecodeClassicShaderVertex from '../../../webgl/shaderity_shaders/VarianceShadowMapDecodeClassicShader/VarianceShadowMapDecodeClassicShader.vert';
+import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { Config } from '../../core/Config';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
+import { ShaderSemantics, ShaderSemanticsClass, type ShaderSemanticsEnum } from '../../definitions/ShaderSemantics';
+import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { ShaderType } from '../../definitions/ShaderType';
+import { ShadingModel } from '../../definitions/ShadingModel';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
+import type { MutableVector4 } from '../../math/MutableVector4';
+import { Scalar } from '../../math/Scalar';
+import { Vector3 } from '../../math/Vector3';
+import { Vector4 } from '../../math/Vector4';
+import { VectorN } from '../../math/VectorN';
 import { Logger } from '../../misc/Logger';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import type { RenderPass } from '../../renderer/RenderPass';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import { dummyBlackTexture, dummyBlueTexture, dummyWhiteTexture } from '../core/DummyTextures';
+import type { Material } from '../core/Material';
 
 export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMaterialContent {
   static IsPointLight = new ShaderSemanticsClass({ str: 'isPointLight' });
@@ -131,8 +127,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
     let squareDepthTexture;
     const squareDepthFramebuffer = encodedDepthRenderPasses[1].getFramebuffer();
     if (squareDepthFramebuffer) {
-      squareDepthTexture =
-        squareDepthFramebuffer.colorAttachments[colorAttachmentsNumberSquareDepth];
+      squareDepthTexture = squareDepthFramebuffer.colorAttachments[colorAttachmentsNumberSquareDepth];
     } else {
       Logger.warn('renderPass of square depth does not have framebuffer');
       squareDepthTexture = dummyBlackTexture;
@@ -422,10 +417,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
   }) {
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getComponent(
-        CameraComponent,
-        CameraComponent.current
-      ) as CameraComponent;
+      cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
     }
 
     const encodedDepthCameraComponent =
@@ -437,28 +429,14 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
       this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
       this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
 
-      if (
-        VarianceShadowMapDecodeClassicMaterialContent.__lastZNear !==
-        encodedDepthCameraComponent.zNearInner
-      ) {
-        (shaderProgram as any)._gl.uniform1f(
-          (shaderProgram as any).zNearInner,
-          encodedDepthCameraComponent.zNearInner
-        );
-        VarianceShadowMapDecodeClassicMaterialContent.__lastZNear =
-          encodedDepthCameraComponent.zNearInner;
+      if (VarianceShadowMapDecodeClassicMaterialContent.__lastZNear !== encodedDepthCameraComponent.zNearInner) {
+        (shaderProgram as any)._gl.uniform1f((shaderProgram as any).zNearInner, encodedDepthCameraComponent.zNearInner);
+        VarianceShadowMapDecodeClassicMaterialContent.__lastZNear = encodedDepthCameraComponent.zNearInner;
       }
 
-      if (
-        VarianceShadowMapDecodeClassicMaterialContent.__lastZFar !==
-        encodedDepthCameraComponent.zFarInner
-      ) {
-        (shaderProgram as any)._gl.uniform1f(
-          (shaderProgram as any).zFarInner,
-          encodedDepthCameraComponent.zFarInner
-        );
-        VarianceShadowMapDecodeClassicMaterialContent.__lastZFar =
-          encodedDepthCameraComponent.zFarInner;
+      if (VarianceShadowMapDecodeClassicMaterialContent.__lastZFar !== encodedDepthCameraComponent.zFarInner) {
+        (shaderProgram as any)._gl.uniform1f((shaderProgram as any).zFarInner, encodedDepthCameraComponent.zFarInner);
+        VarianceShadowMapDecodeClassicMaterialContent.__lastZFar = encodedDepthCameraComponent.zFarInner;
       }
       const __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       __webglResourceRepository.setUniformValue(
@@ -470,10 +448,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
     } else {
       material.setParameter('zNearInner', encodedDepthCameraComponent.zNearInner);
       material.setParameter('zFarInner', encodedDepthCameraComponent.zFarInner);
-      material.setParameter(
-        'lightViewProjectionMatrix',
-        encodedDepthCameraComponent.viewProjectionMatrix
-      );
+      material.setParameter('lightViewProjectionMatrix', encodedDepthCameraComponent.viewProjectionMatrix);
     }
 
     /// Skinning

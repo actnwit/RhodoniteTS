@@ -1,30 +1,24 @@
-import { MaterialHelper } from './MaterialHelper';
+import { ShaderSemantics } from '../definitions/ShaderSemantics';
+import { TextureFormat } from '../definitions/TextureFormat';
+import { TextureParameter } from '../definitions/TextureParameter';
 import { DetectHighLuminanceMaterialContent } from '../materials/contents/DetectHighLuminanceMaterialContent';
+import { SynthesizeHdrMaterialContent } from '../materials/contents/SynthesizeHdrMaterialContent';
+import { MathUtil } from '../math/MathUtil';
+import { Vector2 } from '../math/Vector2';
+import { VectorN } from '../math/VectorN';
+import { Expression } from '../renderer/Expression';
+import type { FrameBuffer } from '../renderer/FrameBuffer';
+import type { RenderPass } from '../renderer/RenderPass';
+import type { AbstractTexture } from '../textures/AbstractTexture';
+import type { RenderTargetTexture } from '../textures/RenderTargetTexture';
+import { MaterialHelper } from './MaterialHelper';
 import { RenderPassHelper } from './RenderPassHelper';
 import { RenderableHelper } from './RenderableHelper';
-import { RenderPass } from '../renderer/RenderPass';
-import { MathUtil } from '../math/MathUtil';
-import { ShaderSemantics } from '../definitions/ShaderSemantics';
-import { Vector2 } from '../math/Vector2';
-import { RenderTargetTexture } from '../textures/RenderTargetTexture';
-import { SynthesizeHdrMaterialContent } from '../materials/contents/SynthesizeHdrMaterialContent';
-import { Expression } from '../renderer/Expression';
-import { AbstractTexture } from '../textures/AbstractTexture';
-import { VectorN } from '../math/VectorN';
-import { TextureParameter } from '../definitions/TextureParameter';
-import { TextureFormat } from '../definitions/TextureFormat';
-import { FrameBuffer } from '../renderer/FrameBuffer';
 
 export class Bloom {
   private __mapReducedFramebuffer: Map<string, FrameBuffer> = new Map();
   private __mapDetectHighLuminanceFramebuffer: Map<string, FrameBuffer> = new Map();
   private __mapSynthesizeFramebuffer: Map<string, FrameBuffer> = new Map();
-
-  /**
-   * Constructs a new Bloom instance.
-   * Initializes internal framebuffer maps for caching render targets.
-   */
-  constructor() {}
 
   /**
    * Creates a complete bloom effect expression with all required render passes.
@@ -107,8 +101,7 @@ export class Bloom {
 
     return {
       bloomExpression: expression,
-      bloomedRenderTarget: renderPassSynthesizeImage.getFramebuffer()!
-        .colorAttachments[0] as RenderTargetTexture,
+      bloomedRenderTarget: renderPassSynthesizeImage.getFramebuffer()!.colorAttachments[0] as RenderTargetTexture,
     };
   }
 
@@ -123,10 +116,7 @@ export class Bloom {
    * @returns A render pass configured to detect high luminance areas
    * @private
    */
-  private __createRenderPassDetectHighLuminance(
-    texture: AbstractTexture,
-    luminanceCriterion: number
-  ) {
+  private __createRenderPassDetectHighLuminance(texture: AbstractTexture, luminanceCriterion: number) {
     const materialDetectHighLuminance = MaterialHelper.createDetectHighLuminanceMaterial(
       { maxInstancesNumber: 1 },
       texture
@@ -137,9 +127,7 @@ export class Bloom {
     //   luminanceReduce
     // );
 
-    const renderPassDetectHighLuminance = RenderPassHelper.createScreenDrawRenderPass(
-      materialDetectHighLuminance
-    );
+    const renderPassDetectHighLuminance = RenderPassHelper.createScreenDrawRenderPass(materialDetectHighLuminance);
     renderPassDetectHighLuminance.tryToSetUniqueName('renderPassDetectHighLuminance', true);
 
     const key = `${texture.width}_${texture.height}`;
@@ -209,7 +197,7 @@ export class Bloom {
           resolutionHeightBlur
         );
       }
-      renderPassBlurH.tryToSetUniqueName('renderPassBlurH_' + i, true);
+      renderPassBlurH.tryToSetUniqueName(`renderPassBlurH_${i}`, true);
 
       const renderPassBlurHV = this.__createRenderPassGaussianBlur(
         renderPassBlurH,
@@ -219,7 +207,7 @@ export class Bloom {
         resolutionWidthBlur,
         resolutionHeightBlur
       );
-      renderPassBlurHV.tryToSetUniqueName('renderPassBlurHV_' + i, true);
+      renderPassBlurHV.tryToSetUniqueName(`renderPassBlurHV_${i}`, true);
 
       renderPasses.push(renderPassBlurH, renderPassBlurHV);
     }
@@ -258,14 +246,8 @@ export class Bloom {
       variance: gaussianVariance,
     });
     material.setParameter('gaussianKernelSize', gaussianKernelSize);
-    material.setParameter(
-      'gaussianRatio',
-      new VectorN(new Float32Array(gaussianDistributionRatio))
-    );
-    material.setParameter(
-      'framebufferSize',
-      Vector2.fromCopy2(resolutionWidthBlur, resolutionHeightBlur)
-    );
+    material.setParameter('gaussianRatio', new VectorN(new Float32Array(gaussianDistributionRatio)));
+    material.setParameter('framebufferSize', Vector2.fromCopy2(resolutionWidthBlur, resolutionHeightBlur));
 
     if (isHorizontal === false) {
       material.setParameter('isHorizontal', false);
@@ -273,10 +255,7 @@ export class Bloom {
 
     const framebufferTarget = renderPassBlurTarget.getFramebuffer()!;
     const TextureTarget = framebufferTarget.colorAttachments[0] as RenderTargetTexture;
-    const renderPass = RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
-      material,
-      TextureTarget
-    );
+    const renderPass = RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(material, TextureTarget);
 
     const key = `${resolutionWidthBlur}_${resolutionHeightBlur}_${isHorizontal}`;
     let framebuffer = this.__mapReducedFramebuffer.get(key);
@@ -316,8 +295,7 @@ export class Bloom {
     const texturesSynthesize = [texture] as AbstractTexture[]; // original texture
     for (let i = 1; i < renderPassesBlurredHighLuminance.length; i += 2) {
       texturesSynthesize.push(
-        renderPassesBlurredHighLuminance[i].getFramebuffer()! // blurred textures
-          .colorAttachments[0] as unknown as AbstractTexture
+        renderPassesBlurredHighLuminance[i].getFramebuffer()!.colorAttachments[0] as unknown as AbstractTexture // blurred textures
       );
     }
 
@@ -328,9 +306,7 @@ export class Bloom {
       texturesSynthesize
     );
     materialSynthesizeTextures.setParameter('synthesizeCoefficient', synthesizeCoefficient);
-    const renderPassSynthesizeGlare = RenderPassHelper.createScreenDrawRenderPass(
-      materialSynthesizeTextures
-    );
+    const renderPassSynthesizeGlare = RenderPassHelper.createScreenDrawRenderPass(materialSynthesizeTextures);
     renderPassSynthesizeGlare.tryToSetUniqueName('renderPassSynthesizeGlare', true);
     const key = `${texture.width}_${texture.height}`;
     let framebufferSynthesizeImages = this.__mapSynthesizeFramebuffer.get(key);
@@ -359,13 +335,13 @@ export class Bloom {
    * @public
    */
   public destroy3DAPIResources() {
-    this.__mapReducedFramebuffer.forEach((framebuffer) => {
+    this.__mapReducedFramebuffer.forEach(framebuffer => {
       framebuffer.destroy3DAPIResources();
     });
-    this.__mapDetectHighLuminanceFramebuffer.forEach((framebuffer) => {
+    this.__mapDetectHighLuminanceFramebuffer.forEach(framebuffer => {
       framebuffer.destroy3DAPIResources();
     });
-    this.__mapSynthesizeFramebuffer.forEach((framebuffer) => {
+    this.__mapSynthesizeFramebuffer.forEach(framebuffer => {
       framebuffer.destroy3DAPIResources();
     });
     this.__mapReducedFramebuffer.clear();

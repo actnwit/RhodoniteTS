@@ -1,11 +1,16 @@
-import { AnimationChannel, AnimationSampler, AnimationSamplers, AnimationTrackName } from "../../types/AnimationTypes";
-import { Vector4 } from "./Vector4";
-import { __getOutputValue, __interpolate } from "../components/Animation/AnimationOps";
-import { AnimationAttribute } from "../definitions/AnimationAttribute";
-import { AnimationComponent } from "../components/Animation/AnimationComponent";
-import { IVector4 } from "./IVector";
-import { IAnimatedValue } from "./IAnimatedValue";
-import { Logger } from "../misc/Logger";
+import {
+  AnimationChannel,
+  type AnimationSampler,
+  type AnimationSamplers,
+  type AnimationTrackName,
+} from '../../types/AnimationTypes';
+import { AnimationComponent } from '../components/Animation/AnimationComponent';
+import { __getOutputValue, __interpolate } from '../components/Animation/AnimationOps';
+import { AnimationAttribute } from '../definitions/AnimationAttribute';
+import { Logger } from '../misc/Logger';
+import type { IAnimatedValue } from './IAnimatedValue';
+import type { IVector4 } from './IVector';
+import { Vector4 } from './Vector4';
 
 /**
  * An animated 4D vector that interpolates between keyframe values over time.
@@ -161,11 +166,14 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
     if (this.isLoop) {
       let duration = this.__firstActiveAnimationSampler.input[this.__firstActiveAnimationSampler.input.length - 1];
       if (this.__secondActiveAnimationSampler !== undefined) {
-        duration = Math.min(duration, this.__secondActiveAnimationSampler.input[this.__secondActiveAnimationSampler.input.length - 1]);
+        duration = Math.min(
+          duration,
+          this.__secondActiveAnimationSampler.input[this.__secondActiveAnimationSampler.input.length - 1]
+        );
       }
       time = time % duration;
     }
-    if (this.__lastTime == time) {
+    if (this.__lastTime === time) {
       return;
     }
     const firstValue = __interpolate(this.__firstActiveAnimationSampler, time, AnimationAttribute.Vector4.index);
