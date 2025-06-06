@@ -1,20 +1,20 @@
-import { ShaderSemantics } from '../../definitions/ShaderSemantics';
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { ComponentRepository } from '../../core/ComponentRepository';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
-import type { Material } from '../core/Material';
-import { HdriFormat } from '../../definitions/HdriFormat';
 import type { ShaderityObject } from 'shaderity';
+import { ComponentSID, MaterialSID } from '../../../types/CommonTypes';
 import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
-import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { ComponentRepository } from '../../core/ComponentRepository';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
-import { dummyBlackCubeTexture } from '../core/DummyTextures';
-import { MutableVector4 } from '../../math/MutableVector4';
+import { HdriFormat } from '../../definitions/HdriFormat';
+import { ShaderSemantics } from '../../definitions/ShaderSemantics';
+import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { TextureParameter } from '../../definitions/TextureParameter';
 import { MutableVector2 } from '../../math/MutableVector2';
+import { MutableVector4 } from '../../math/MutableVector4';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import { Sampler } from '../../textures/Sampler';
-import { TextureParameter } from '../../definitions/TextureParameter';
-import { ComponentSID, MaterialSID } from '../../../types/CommonTypes';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import { dummyBlackCubeTexture } from '../core/DummyTextures';
+import type { Material } from '../core/Material';
 
 const __latestMaterialMeshRenderComponentVersionMap = new Map<string, number>();
 
@@ -264,7 +264,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     // const diffuseEnv = material.getTextureParameter(ShaderSemantics.DiffuseEnvTexture.str);
     // if (diffuseEnv != null) {
     const diffuseEnvSlot = 5; //diffuseEnv[0];
-    if (args.diffuseCube && args.diffuseCube.isTextureReady) {
+    if (args.diffuseCube?.isTextureReady) {
       webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
         diffuseEnvSlot,
         args.diffuseCube,
@@ -280,7 +280,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     // const specularEnv = material.getTextureParameter(ShaderSemantics.SpecularEnvTexture.str);
     // if (specularEnv != null) {
     const specularEnvSlot = 6; //specularEnv[0];
-    if (args.specularCube && args.specularCube.isTextureReady) {
+    if (args.specularCube?.isTextureReady) {
       webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, [
         specularEnvSlot,
         args.specularCube,
@@ -296,13 +296,13 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     const sheenEnv = material.getTextureParameter(ShaderSemantics.SheenEnvTexture.str);
     if (sheenEnv != null) {
       const sheenEnvSlot = sheenEnv[0];
-      if (args.sheenCube && args.sheenCube.isTextureReady) {
+      if (args.sheenCube?.isTextureReady) {
         webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.SheenEnvTexture.str, [
           sheenEnvSlot,
           args.sheenCube,
           CustomMaterialContent.__specularIblCubeMapSampler,
         ]);
-      } else if (args.specularCube && args.specularCube.isTextureReady) {
+      } else if (args.specularCube?.isTextureReady) {
         webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.SheenEnvTexture.str, [
           sheenEnvSlot,
           args.specularCube,

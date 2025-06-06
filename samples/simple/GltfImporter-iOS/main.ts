@@ -6,8 +6,8 @@ declare const window: any;
 
 // Note: The length of one side of texture must be less than Math.pow(2, 12)
 // This is the limit of iOS13.3 (iPhone 6S)
-Rn.Config.dataTextureWidth = Math.pow(2, 8);
-Rn.Config.dataTextureHeight = Math.pow(2, 9);
+Rn.Config.dataTextureWidth = 2 ** 8;
+Rn.Config.dataTextureHeight = 2 ** 9;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
 await Rn.System.init({

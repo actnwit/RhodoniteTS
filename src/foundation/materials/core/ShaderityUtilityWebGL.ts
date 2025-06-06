@@ -1,23 +1,23 @@
 import ShaderityModule, { type Reflection, type ShaderityObject, type TemplateObject } from 'shaderity';
-import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
-import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
-import { VertexAttribute, type VertexAttributeEnum } from '../../definitions/VertexAttribute';
-import { MemoryManager } from '../../core/MemoryManager';
+import { mainPrerequisitesGlsl } from '../../../webgl/shaderity_shaders/common/mainPrerequisites';
 import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
 import { Config } from '../../core/Config';
-import { MutableVector2 } from '../../math/MutableVector2';
-import { MutableVector3 } from '../../math/MutableVector3';
-import { MutableVector4 } from '../../math/MutableVector4';
+import { MemoryManager } from '../../core/MemoryManager';
+import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
+import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { ShaderType } from '../../definitions/ShaderType';
+import { VertexAttribute, type VertexAttributeEnum } from '../../definitions/VertexAttribute';
+import { MutableMatrix22 } from '../../math/MutableMatrix22';
 import { MutableMatrix33 } from '../../math/MutableMatrix33';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { MutableScalar } from '../../math/MutableScalar';
-import { MutableMatrix22 } from '../../math/MutableMatrix22';
-import { ShaderType } from '../../definitions/ShaderType';
-import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-import { DefaultTextures, dummyBlackTexture, dummyWhiteTexture } from './DummyTextures';
+import { MutableVector2 } from '../../math/MutableVector2';
+import { MutableVector3 } from '../../math/MutableVector3';
+import { MutableVector4 } from '../../math/MutableVector4';
 import { Logger } from '../../misc/Logger';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
-import { mainPrerequisitesGlsl } from '../../../webgl/shaderity_shaders/common/mainPrerequisites';
+import { DefaultTextures, dummyBlackTexture, dummyWhiteTexture } from './DummyTextures';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 
@@ -97,9 +97,8 @@ export class ShaderityUtilityWebGL {
   public static transformWebGLVersion(shaderityObject: ShaderityObject, isWebGL2: boolean): ShaderityObject {
     if (isWebGL2) {
       return Shaderity.transformToGLSLES3(shaderityObject);
-    } else {
-      return Shaderity.transformToGLSLES1(shaderityObject, true);
     }
+    return Shaderity.transformToGLSLES1(shaderityObject, true);
   }
 
   /**
@@ -334,7 +333,7 @@ export class ShaderityUtilityWebGL {
     const tuple = initialValueText.match(/\(([\d\w., ]+)\)/);
     const checkCompositionNumber = (expected: CompositionTypeEnum) => {
       if (shaderSemanticsInfo.compositionType !== expected) {
-        Logger.error('component number of initialValue is invalid:' + shaderSemanticsInfo.semantic);
+        Logger.error(`component number of initialValue is invalid:${shaderSemanticsInfo.semantic}`);
       }
     };
 
@@ -449,23 +448,32 @@ export class ShaderityUtilityWebGL {
   private static __getDefaultInitialValue(shaderSemanticsInfo: ShaderSemanticsInfo) {
     if (shaderSemanticsInfo.compositionType === CompositionType.Scalar) {
       return new MutableScalar(new Float32Array([0]));
-    } else if (shaderSemanticsInfo.compositionType === CompositionType.Vec2) {
+    }
+    if (shaderSemanticsInfo.compositionType === CompositionType.Vec2) {
       return MutableVector2.zero();
-    } else if (shaderSemanticsInfo.compositionType === CompositionType.Vec3) {
+    }
+    if (shaderSemanticsInfo.compositionType === CompositionType.Vec3) {
       return MutableVector3.zero();
-    } else if (shaderSemanticsInfo.compositionType === CompositionType.Vec4) {
+    }
+    if (shaderSemanticsInfo.compositionType === CompositionType.Vec4) {
       return MutableVector4.zero();
-    } else if (shaderSemanticsInfo.compositionType === CompositionType.Mat2) {
+    }
+    if (shaderSemanticsInfo.compositionType === CompositionType.Mat2) {
       return MutableMatrix22.identity();
-    } else if (shaderSemanticsInfo.compositionType === CompositionType.Mat3) {
+    }
+    if (shaderSemanticsInfo.compositionType === CompositionType.Mat3) {
       return MutableMatrix33.identity();
-    } else if (shaderSemanticsInfo.compositionType === CompositionType.Mat4) {
+    }
+    if (shaderSemanticsInfo.compositionType === CompositionType.Mat4) {
       return MutableMatrix44.identity();
-    } else if (shaderSemanticsInfo.compositionType === CompositionType.Texture2D) {
+    }
+    if (shaderSemanticsInfo.compositionType === CompositionType.Texture2D) {
       return [0, dummyWhiteTexture];
-    } else if (shaderSemanticsInfo.compositionType === CompositionType.Texture2DShadow) {
+    }
+    if (shaderSemanticsInfo.compositionType === CompositionType.Texture2DShadow) {
       return [0, dummyWhiteTexture];
-    } else if (shaderSemanticsInfo.compositionType === CompositionType.TextureCube) {
+    }
+    if (shaderSemanticsInfo.compositionType === CompositionType.TextureCube) {
       return [0, dummyBlackTexture];
     }
 

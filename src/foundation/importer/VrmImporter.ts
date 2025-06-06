@@ -1,31 +1,31 @@
-/* eslint-disable prettier/prettier */
-import { ModelConverter } from './ModelConverter';
-import { Is } from '../misc/Is';
-import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { type GltfLoadOption, type RnM2, Vrm0x, Vrm0xMaterialProperty } from '../../types';
-import { RenderPass } from '../renderer/RenderPass';
-import { Texture } from '../textures/Texture';
-import { EntityRepository } from '../core/EntityRepository';
-import { VRMSpringBonePhysicsStrategy } from '../physics/VRMSpring/VRMSpringBonePhysicsStrategy';
+import type { Vrm1 } from '../../types/VRM1';
+import type { Vrm1_Materials_MToon } from '../../types/VRMC_materials_mtoon';
+import { VrmComponent, type VrmExpression, type VrmExpressionMorphBind } from '../components';
+import { ConstraintComponent } from '../components/Constraint';
 import { PhysicsComponent } from '../components/Physics/PhysicsComponent';
 import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import { SphereCollider } from '../physics/VRMSpring/SphereCollider';
+import { VrmAimConstraint } from '../constraints/VrmAimConstraint';
+import { VrmRollConstraint } from '../constraints/VrmRollConstraint';
+import { VrmRotationConstraint } from '../constraints/VrmRotationConstraint';
+import { EntityRepository } from '../core/EntityRepository';
+import { TextureParameter } from '../definitions/TextureParameter';
+import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Vector3 } from '../math/Vector3';
+import { Is } from '../misc/Is';
+import { Err, Ok, Result, assertIsOk } from '../misc/Result';
+import { CapsuleCollider } from '../physics/VRMSpring/CapsuleCollider';
+import { SphereCollider } from '../physics/VRMSpring/SphereCollider';
 import { VRMColliderGroup } from '../physics/VRMSpring/VRMColliderGroup';
 import { VRMSpring } from '../physics/VRMSpring/VRMSpring';
-import type { Vrm1 } from '../../types/VRM1';
-import { assertIsOk, Err, Result, Ok } from '../misc/Result';
-import { Gltf2Importer } from './Gltf2Importer';
-import { Sampler } from '../textures/Sampler';
-import { VrmComponent, type VrmExpression, type VrmExpressionMorphBind } from '../components';
 import { VRMSpringBone } from '../physics/VRMSpring/VRMSpringBone';
-import { CapsuleCollider } from '../physics/VRMSpring/CapsuleCollider';
-import { ConstraintComponent } from '../components/Constraint';
-import { VrmRollConstraint } from '../constraints/VrmRollConstraint';
-import { VrmAimConstraint } from '../constraints/VrmAimConstraint';
-import { VrmRotationConstraint } from '../constraints/VrmRotationConstraint';
-import { TextureParameter } from '../definitions/TextureParameter';
-import type { Vrm1_Materials_MToon } from '../../types/VRMC_materials_mtoon';
+import { VRMSpringBonePhysicsStrategy } from '../physics/VRMSpring/VRMSpringBonePhysicsStrategy';
+import { RenderPass } from '../renderer/RenderPass';
+import { Sampler } from '../textures/Sampler';
+import { Texture } from '../textures/Texture';
+import { Gltf2Importer } from './Gltf2Importer';
+/* eslint-disable prettier/prettier */
+import { ModelConverter } from './ModelConverter';
 
 /**
  * A utility class for importing and processing VRM (Virtual Reality Model) files.
@@ -435,7 +435,7 @@ export class VrmImporter {
         const fileName = file.split('.vrm')[0];
         if (fileName) {
           const arraybuffer = options.files[file];
-          options.files[fileName + '.glb'] = arraybuffer;
+          options.files[`${fileName}.glb`] = arraybuffer;
           delete options.files[file];
         }
       }

@@ -1,7 +1,8 @@
-import type { RnPromise } from '../foundation/misc/RnPromise';
-import { Array3, Array4 } from './CommonTypes';
+import type { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 import type { Material } from '../foundation/materials/core/Material';
 import type { Accessor } from '../foundation/memory/Accessor';
+import type { RnPromise } from '../foundation/misc/RnPromise';
+import { Array3, Array4 } from './CommonTypes';
 import {
   type Gltf2Accessor,
   type Gltf2Animation,
@@ -35,7 +36,6 @@ import {
   type Gltf2TextureSampler,
   type GltfLoadOption,
 } from './glTF2';
-import type { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-gltf
 export type RnM2 = {

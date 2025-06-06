@@ -107,17 +107,6 @@ export class ConstraintComponent extends Component {
   ) {
     class ConstraintEntity extends (base.constructor as any) {
       /**
-       * Creates a new ConstraintEntity instance.
-       *
-       * @param entityUID - The unique identifier for this entity
-       * @param isAlive - Whether the entity is currently active
-       * @param components - Optional map of existing components
-       */
-      constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
-        super(entityUID, isAlive, components);
-      }
-
-      /**
        * Gets the constraint component attached to this entity.
        *
        * @returns The ConstraintComponent instance for this entity

@@ -1,36 +1,36 @@
-import { ComponentRepository } from '../../core/ComponentRepository';
-import { Component } from '../../core/Component';
-import type { MeshComponent } from '../Mesh/MeshComponent';
-import { ProcessApproach, type ProcessApproachEnum } from '../../definitions/ProcessApproach';
-import { ProcessStage, type ProcessStageEnum } from '../../definitions/ProcessStage';
-import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
-import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
-import { CameraComponent } from '../Camera/CameraComponent';
-import { ModuleManager } from '../../system/ModuleManager';
-import type { CubeTexture } from '../../textures/CubeTexture';
-import type { RenderPass } from '../../renderer/RenderPass';
 import type {
-  ComponentSID,
   CGAPIResourceHandle,
+  ComponentSID,
+  ComponentTID,
   Count,
+  EntityUID,
   Index,
   ObjectUID,
-  ComponentTID,
-  EntityUID,
   PrimitiveUID,
 } from '../../../types/CommonTypes';
-import type { IEntity } from '../../core/Entity';
-import type { ComponentToComponentMethods } from '../ComponentTypes';
-import { isBlend, isBlendWithoutZWrite, isBlendWithZWrite, isTranslucent } from '../../geometry/types/GeometryTypes';
-import type { Primitive } from '../../geometry/Primitive';
-import type { CGAPIStrategy } from '../../renderer/CGAPIStrategy';
-import type { RnXR } from '../../../xr/main';
-import { TransformComponent } from '../Transform/TransformComponent';
-import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';
 import type { WebGpuStrategyBasic } from '../../../webgpu/WebGpuStrategyBasic';
-import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
+import type { RnXR } from '../../../xr/main';
+import { Component } from '../../core/Component';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import type { IEntity } from '../../core/Entity';
+import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { ProcessApproach, type ProcessApproachEnum } from '../../definitions/ProcessApproach';
+import { ProcessStage, type ProcessStageEnum } from '../../definitions/ProcessStage';
+import type { Primitive } from '../../geometry/Primitive';
+import { isBlend, isBlendWithZWrite, isBlendWithoutZWrite, isTranslucent } from '../../geometry/types/GeometryTypes';
+import type { CGAPIStrategy } from '../../renderer/CGAPIStrategy';
+import type { RenderPass } from '../../renderer/RenderPass';
+import { ModuleManager } from '../../system/ModuleManager';
 import { SystemState } from '../../system/SystemState';
+import type { CubeTexture } from '../../textures/CubeTexture';
 import type { RenderTargetTextureCube } from '../../textures/RenderTargetTextureCube';
+import { CameraComponent } from '../Camera/CameraComponent';
+import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';
+import type { ComponentToComponentMethods } from '../ComponentTypes';
+import type { MeshComponent } from '../Mesh/MeshComponent';
+import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
+import { TransformComponent } from '../Transform/TransformComponent';
+import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 /**
  * MeshRendererComponent is a component that manages the rendering of a mesh entity.
@@ -272,7 +272,7 @@ export class MeshRendererComponent extends Component {
     }
     if (cameraComponent == null) {
       const cameraComponents = ComponentRepository.getComponentsWithType(CameraComponent) as CameraComponent[];
-      cameraComponent = cameraComponents.find(c => c != null && c._isAlive)!;
+      cameraComponent = cameraComponents.find(c => c?._isAlive)!;
       CameraComponent.current = cameraComponent.componentSID;
     }
     if (renderPass.isVrRendering) {
@@ -353,19 +353,19 @@ export class MeshRendererComponent extends Component {
     }
 
     let resultChanged = false;
-    if (_lastOpaqueIndex != renderPass._lastOpaqueIndex) {
+    if (_lastOpaqueIndex !== renderPass._lastOpaqueIndex) {
       renderPass._lastOpaqueIndex = _lastOpaqueIndex;
       resultChanged ||= true;
     }
-    if (_lastTranslucentIndex != renderPass._lastTranslucentIndex) {
+    if (_lastTranslucentIndex !== renderPass._lastTranslucentIndex) {
       renderPass._lastTranslucentIndex = _lastTranslucentIndex;
       resultChanged ||= true;
     }
-    if (_lastBlendWithZWriteIndex != renderPass._lastBlendWithZWriteIndex) {
+    if (_lastBlendWithZWriteIndex !== renderPass._lastBlendWithZWriteIndex) {
       renderPass._lastBlendWithZWriteIndex = _lastBlendWithZWriteIndex;
       resultChanged ||= true;
     }
-    if (_lastBlendWithoutZWriteIndex != renderPass._lastBlendWithoutZWriteIndex) {
+    if (_lastBlendWithoutZWriteIndex !== renderPass._lastBlendWithoutZWriteIndex) {
       renderPass._lastBlendWithoutZWriteIndex = _lastBlendWithoutZWriteIndex;
       resultChanged ||= true;
     }
@@ -572,10 +572,6 @@ export class MeshRendererComponent extends Component {
     _componentClass: SomeComponentClass
   ) {
     class MeshRendererEntity extends (base.constructor as any) {
-      constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
-        super(entityUID, isAlive, components);
-      }
-
       getMeshRenderer() {
         return this.getComponentByComponentTID(
           WellKnownComponentTIDs.MeshRendererComponentTID

@@ -1,6 +1,6 @@
-import { MutableVector3 } from './MutableVector3';
-import { type IVector3, IVector4, type IMutableVector3 } from './IVector';
 import type { IMutableColorRgb } from './IColor';
+import { type IMutableVector3, type IVector3, IVector4 } from './IVector';
+import { MutableVector3 } from './MutableVector3';
 
 /**
  * A mutable RGB color class that extends MutableVector3.
@@ -8,14 +8,6 @@ import type { IMutableColorRgb } from './IColor';
  * This class provides both vector-based operations and color-specific accessors.
  */
 export class MutableColorRgb extends MutableVector3 implements IMutableVector3, IMutableColorRgb {
-  /**
-   * Creates a new MutableColorRgb instance.
-   * @param r - Float32Array containing the RGB values [r, g, b]
-   */
-  constructor(r: Float32Array) {
-    super(r);
-  }
-
   /**
    * Gets the X component (same as red component).
    * @returns The X/red component value

@@ -1,20 +1,27 @@
+import type { Count, Index, PrimitiveUID, TypedArray } from '../../types/CommonTypes';
+import type { VertexHandles } from '../../webgl/WebGLResourceRepository';
+import { Config } from '../core/Config';
+import { MemoryManager } from '../core/MemoryManager';
+import { RnObject } from '../core/RnObject';
+import { BufferUse } from '../definitions/BufferUse';
+import { ComponentType, type ComponentTypeEnum } from '../definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../definitions/CompositionType';
 import { PrimitiveMode, type PrimitiveModeEnum } from '../definitions/PrimitiveMode';
 import { VertexAttribute, type VertexAttributeSemanticsJoinedString } from '../definitions/VertexAttribute';
-import type { Accessor } from '../memory/Accessor';
-import { RnObject } from '../core/RnObject';
-import { type ComponentTypeEnum, ComponentType } from '../definitions/ComponentType';
-import { MemoryManager } from '../core/MemoryManager';
-import { CompositionType, type CompositionTypeEnum } from '../definitions/CompositionType';
-import { AABB } from '../math/AABB';
-import type { Material } from '../materials/core/Material';
 import { MaterialHelper } from '../helpers/MaterialHelper';
-import type { VertexHandles } from '../../webgl/WebGLResourceRepository';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import type { PrimitiveUID, TypedArray, Count, Index } from '../../types/CommonTypes';
-import { Vector3 } from '../math/Vector3';
-import { MutableVector3 } from '../math/MutableVector3';
-import { Is } from '../misc/Is';
+import type { Material } from '../materials/core/Material';
+import { AABB } from '../math/AABB';
 import type { IVector3 } from '../math/IVector';
+import { MutableVector3 } from '../math/MutableVector3';
+import { Vector3 } from '../math/Vector3';
+import type { Accessor } from '../memory/Accessor';
+import { DataUtil } from '../misc/DataUtil';
+import { Is } from '../misc/Is';
+import { Logger } from '../misc/Logger';
+import { None, type Option, Some } from '../misc/Option';
+import { RnException } from '../misc/RnException';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import type { Mesh } from './Mesh';
 import {
   type IMesh,
   type PrimitiveSortKey,
@@ -29,13 +36,6 @@ import {
   type RaycastResult,
   type RaycastResultEx1,
 } from './types/GeometryTypes';
-import { type Option, None, Some } from '../misc/Option';
-import { DataUtil } from '../misc/DataUtil';
-import { Config } from '../core/Config';
-import { RnException } from '../misc/RnException';
-import type { Mesh } from './Mesh';
-import { Logger } from '../misc/Logger';
-import { BufferUse } from '../definitions/BufferUse';
 
 export type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
 
@@ -161,17 +161,17 @@ export class Primitive extends RnObject {
     const indexAccessor = this.__oIndices.unwrapOrUndefined();
     if (indexAccessor == null) {
       throw new Error('indexAccessor is null');
-    } else {
-      if (indexAccessor.componentType === ComponentType.UnsignedShort) {
-        return 'uint16';
-      } else if (indexAccessor.componentType === ComponentType.UnsignedInt) {
-        return 'uint32';
-      } else if (indexAccessor.componentType === ComponentType.UnsignedByte) {
-        return 'uint16';
-      } else {
-        throw new Error('unknown indexAccessor.componentType');
-      }
     }
+    if (indexAccessor.componentType === ComponentType.UnsignedShort) {
+      return 'uint16';
+    }
+    if (indexAccessor.componentType === ComponentType.UnsignedInt) {
+      return 'uint32';
+    }
+    if (indexAccessor.componentType === ComponentType.UnsignedByte) {
+      return 'uint16';
+    }
+    throw new Error('unknown indexAccessor.componentType');
   }
 
   /**
@@ -512,9 +512,8 @@ export class Primitive extends RnObject {
   getVertexCountAsIndicesBased() {
     if (this.indicesAccessor) {
       return this.indicesAccessor.elementCount;
-    } else {
-      return this.getVertexCountAsVerticesBased();
     }
+    return this.getVertexCountAsVerticesBased();
   }
 
   /**
@@ -545,9 +544,8 @@ export class Primitive extends RnObject {
         default:
           return 0;
       }
-    } else {
-      return this.getTriangleCountAsVerticesBased();
     }
+    return this.getTriangleCountAsVerticesBased();
   }
 
   /**
@@ -759,9 +757,8 @@ export class Primitive extends RnObject {
   isBlend() {
     if (this.material == null || !this.material.isBlend()) {
       return false;
-    } else {
-      return true;
     }
+    return true;
   }
 
   /**
@@ -959,7 +956,6 @@ export class Primitive extends RnObject {
           hasFaceNormal
         );
         if (Is.false(result) || Is.not.exist(result.data)) {
-          continue;
         } else {
           if (result.data.t < currentShortestT) {
             currentShortestT = result.data.t;
@@ -1012,22 +1008,21 @@ export class Primitive extends RnObject {
       return {
         result: false,
       };
-    } else {
-      const currentShortestIntersectedPosVec3 = Vector3.fromCopy3(
-        dirVec3.x * currentShortestT + origVec3.x,
-        dirVec3.y * currentShortestT + origVec3.y,
-        dirVec3.z * currentShortestT + origVec3.z
-      );
-      return {
-        result: true,
-        data: {
-          t: currentShortestT,
-          u,
-          v,
-          position: currentShortestIntersectedPosVec3,
-        },
-      };
     }
+    const currentShortestIntersectedPosVec3 = Vector3.fromCopy3(
+      dirVec3.x * currentShortestT + origVec3.x,
+      dirVec3.y * currentShortestT + origVec3.y,
+      dirVec3.z * currentShortestT + origVec3.z
+    );
+    return {
+      result: true,
+      data: {
+        t: currentShortestT,
+        u,
+        v,
+        position: currentShortestIntersectedPosVec3,
+      },
+    };
   }
 
   /**
@@ -1085,8 +1080,8 @@ export class Primitive extends RnObject {
     const tvec = MutableVector3.zero();
     const qvec = MutableVector3.zero();
 
-    let u = 0,
-      v = 0;
+    let u = 0;
+    let v = 0;
 
     MutableVector3.subtractTo(pos1Vec3, pos0Vec3, e1);
     MutableVector3.subtractTo(pos2Vec3, pos0Vec3, e2);

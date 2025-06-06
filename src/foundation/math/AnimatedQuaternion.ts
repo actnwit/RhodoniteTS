@@ -1,11 +1,16 @@
-import { AnimationChannel, type AnimationSampler, type AnimationSamplers, type AnimationTrackName } from '../../types/AnimationTypes';
+import {
+  AnimationChannel,
+  type AnimationSampler,
+  type AnimationSamplers,
+  type AnimationTrackName,
+} from '../../types/AnimationTypes';
+import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { __getOutputValue, __interpolate } from '../components/Animation/AnimationOps';
 import { AnimationAttribute } from '../definitions/AnimationAttribute';
-import { AnimationComponent } from '../components/Animation/AnimationComponent';
-import type { IAnimatedValue } from './IAnimatedValue';
-import { Quaternion } from './Quaternion';
-import type { IQuaternion } from './IQuaternion';
 import { Logger } from '../misc/Logger';
+import type { IAnimatedValue } from './IAnimatedValue';
+import type { IQuaternion } from './IQuaternion';
+import { Quaternion } from './Quaternion';
 
 /**
  * An animated quaternion that can be driven by animation samplers.
@@ -152,7 +157,7 @@ export class AnimatedQuaternion extends Quaternion implements IQuaternion, IAnim
       }
       time = time % duration;
     }
-    if (this.__lastTime == time) {
+    if (this.__lastTime === time) {
       return;
     }
     const firstValue = __interpolate(this.__firstActiveAnimationSampler, time, AnimationAttribute.Quaternion.index);

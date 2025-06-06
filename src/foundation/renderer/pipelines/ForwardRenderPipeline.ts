@@ -1,20 +1,6 @@
-import { ShaderSemantics } from '../../definitions/ShaderSemantics';
-import { TextureParameter } from '../../definitions/TextureParameter';
-import { RenderableHelper } from '../../helpers/RenderableHelper';
-import { Vector4 } from '../../math/Vector4';
-import { assertHas, type Option, None, Some } from '../../misc/Option';
-import { Is } from '../../misc/Is';
-import type { CubeTexture } from '../../textures/CubeTexture';
-import { Expression } from '../Expression';
-import { Frame } from '../Frame';
-import type { FrameBuffer } from '../FrameBuffer';
-import { RenderPass } from '../RenderPass';
-import { MaterialHelper } from '../../helpers/MaterialHelper';
 import type { Size } from '../../../types';
-import { Err, Ok } from '../../misc/Result';
-import { System } from '../../system/System';
+import type { RnXR } from '../../../xr/main';
 import { RnObject } from '../../core/RnObject';
-import { ModuleManager } from '../../system/ModuleManager';
 import {
   ComponentType,
   type HdriFormatEnum,
@@ -23,18 +9,32 @@ import {
   ToneMappingType,
   type ToneMappingTypeEnum,
 } from '../../definitions';
+import { ShaderSemantics } from '../../definitions/ShaderSemantics';
+import { TextureFormat } from '../../definitions/TextureFormat';
+import { TextureParameter } from '../../definitions/TextureParameter';
+import { Bloom } from '../../helpers/BloomHelper';
+import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
+import { MaterialHelper } from '../../helpers/MaterialHelper';
 import { RenderPassHelper } from '../../helpers/RenderPassHelper';
-import { Sampler } from '../../textures/Sampler';
+import { RenderableHelper } from '../../helpers/RenderableHelper';
+import { ShadowSystem } from '../../helpers/Shadow/ShadowSystem';
+import type { Material } from '../../materials/core/Material';
+import { Vector4 } from '../../math/Vector4';
+import { Is } from '../../misc/Is';
+import { None, type Option, Some, assertHas } from '../../misc/Option';
+import { Err, Ok } from '../../misc/Result';
+import { ModuleManager } from '../../system/ModuleManager';
+import { System } from '../../system/System';
 import { SystemState } from '../../system/SystemState';
+import type { CubeTexture } from '../../textures/CubeTexture';
 import type { RenderTargetTexture } from '../../textures/RenderTargetTexture';
 import type { RenderTargetTexture2DArray } from '../../textures/RenderTargetTexture2DArray';
+import { Sampler } from '../../textures/Sampler';
 import { CGAPIResourceRepository } from '../CGAPIResourceRepository';
-import type { RnXR } from '../../../xr/main';
-import type { Material } from '../../materials/core/Material';
-import { TextureFormat } from '../../definitions/TextureFormat';
-import { Bloom } from '../../helpers/BloomHelper';
-import { ShadowSystem } from '../../helpers/Shadow/ShadowSystem';
-import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
+import { Expression } from '../Expression';
+import { Frame } from '../Frame';
+import type { FrameBuffer } from '../FrameBuffer';
+import { RenderPass } from '../RenderPass';
 
 type DrawFunc = (frame: Frame) => void;
 type IBLCubeTextureParameter = {
@@ -123,13 +123,6 @@ export class ForwardRenderPipeline extends RnObject {
   private __bloomHelper: Bloom = new Bloom();
   private __oShadowSystem: Option<ShadowSystem> = new None();
   private __shadowExpressions: Expression[] = [];
-
-  /**
-   * Creates a new instance of ForwardRenderPipeline.
-   */
-  constructor() {
-    super();
-  }
 
   /**
    * Destroys all allocated 3D API resources including frame buffers and textures.
@@ -306,9 +299,8 @@ export class ForwardRenderPipeline extends RnObject {
   private __getMainFrameBufferBackBuffer(): Option<FrameBuffer> {
     if (this.__oFrameBufferMultiView.has()) {
       return this.__oFrameBufferMultiViewBlitBackBuffer;
-    } else {
-      return this.__oFrameBufferResolveForReference;
     }
+    return this.__oFrameBufferResolveForReference;
   }
 
   /**
@@ -321,9 +313,8 @@ export class ForwardRenderPipeline extends RnObject {
   private __getMainFrameBufferResolve(): Option<FrameBuffer> {
     if (this.__oFrameBufferMultiView.has()) {
       return this.__oFrameBufferMultiViewBlit;
-    } else {
-      return this.__oFrameBufferResolve;
     }
+    return this.__oFrameBufferResolve;
   }
 
   /**
@@ -336,9 +327,8 @@ export class ForwardRenderPipeline extends RnObject {
   private __getMainFrameBuffer(): Option<FrameBuffer> {
     if (this.__oFrameBufferMultiView.has()) {
       return this.__oFrameBufferMultiView;
-    } else {
-      return this.__oFrameBufferMsaa;
     }
+    return this.__oFrameBufferMsaa;
   }
 
   /**

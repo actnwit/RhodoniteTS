@@ -1,15 +1,15 @@
-import { AbstractShaderNode } from '../core/AbstractShaderNode';
-import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
-import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import AddShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/Add.glsl';
 import AddShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Add.wgsl';
-import { Socket } from '../core/Socket';
+import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
-import { SystemState } from '../../system/SystemState';
 import { Scalar } from '../../math/Scalar';
 import { Vector2 } from '../../math/Vector2';
 import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
+import { SystemState } from '../../system/SystemState';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
+import { Socket } from '../core/Socket';
 
 /**
  * A shader node that performs addition operations between two input values.
@@ -62,15 +62,17 @@ export class AddShaderNode extends AbstractShaderNode {
   getDefaultValue(compositionType: CompositionTypeEnum) {
     if (compositionType === CompositionType.Scalar) {
       return Scalar.fromCopyNumber(0);
-    } else if (compositionType === CompositionType.Vec2) {
-      return Vector2.zero();
-    } else if (compositionType === CompositionType.Vec3) {
-      return Vector3.zero();
-    } else if (compositionType === CompositionType.Vec4) {
-      return Vector4.zero();
-    } else {
-      throw new Error('Not implemented');
     }
+    if (compositionType === CompositionType.Vec2) {
+      return Vector2.zero();
+    }
+    if (compositionType === CompositionType.Vec3) {
+      return Vector3.zero();
+    }
+    if (compositionType === CompositionType.Vec4) {
+      return Vector4.zero();
+    }
+    throw new Error('Not implemented');
   }
 
   /**
@@ -124,35 +126,36 @@ export class AddShaderNode extends AbstractShaderNode {
           this.__inputs[0].componentType === ComponentType.Float &&
           this.__inputs[1].componentType === ComponentType.Float
         ) {
-          return this.__shaderFunctionName + 'F32F32';
-        } else if (
+          return `${this.__shaderFunctionName}F32F32`;
+        }
+        if (
           this.__inputs[0].componentType === ComponentType.Int &&
           this.__inputs[1].componentType === ComponentType.Int
         ) {
-          return this.__shaderFunctionName + 'I32I32';
-        } else {
-          throw new Error('Not implemented');
+          return `${this.__shaderFunctionName}I32I32`;
         }
-      } else if (
+        throw new Error('Not implemented');
+      }
+      if (
         this.__inputs[0].compositionType === CompositionType.Vec2 &&
         this.__inputs[1].compositionType === CompositionType.Vec2
       ) {
-        return this.__shaderFunctionName + 'Vec2fVec2f';
-      } else if (
+        return `${this.__shaderFunctionName}Vec2fVec2f`;
+      }
+      if (
         this.__inputs[0].compositionType === CompositionType.Vec3 &&
         this.__inputs[1].compositionType === CompositionType.Vec3
       ) {
-        return this.__shaderFunctionName + 'Vec3fVec3f';
-      } else if (
+        return `${this.__shaderFunctionName}Vec3fVec3f`;
+      }
+      if (
         this.__inputs[0].compositionType === CompositionType.Vec4 &&
         this.__inputs[1].compositionType === CompositionType.Vec4
       ) {
-        return this.__shaderFunctionName + 'Vec4fVec4f';
-      } else {
-        throw new Error('Not implemented');
+        return `${this.__shaderFunctionName}Vec4fVec4f`;
       }
-    } else {
-      return this.__shaderFunctionName;
+      throw new Error('Not implemented');
     }
+    return this.__shaderFunctionName;
   }
 }

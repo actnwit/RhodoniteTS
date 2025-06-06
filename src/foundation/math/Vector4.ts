@@ -1,9 +1,9 @@
-import type { IVector2, IVector3, IVector4, IMutableVector4 } from './IVector';
 import type { Array4, FloatTypedArray, FloatTypedArrayConstructor } from '../../types/CommonTypes';
-import { MathUtil } from './MathUtil';
 import { CompositionType } from '../definitions/CompositionType';
-import { AbstractVector } from './AbstractVector';
 import { Logger } from '../misc/Logger';
+import { AbstractVector } from './AbstractVector';
+import type { IMutableVector4, IVector2, IVector3, IVector4 } from './IVector';
+import { MathUtil } from './MathUtil';
 
 /**
  * Generic 4D vector class that serves as the base implementation for both 32-bit and 64-bit vector types.
@@ -551,7 +551,7 @@ export class Vector4_<T extends FloatTypedArrayConstructor> extends AbstractVect
    * @returns A string representation of the vector
    */
   toString() {
-    return '(' + this._v[0] + ', ' + this._v[1] + ', ' + this._v[2] + ', ' + this._v[3] + ')';
+    return `(${this._v[0]}, ${this._v[1]}, ${this._v[2]}, ${this._v[3]})`;
   }
 
   /**
@@ -561,16 +561,7 @@ export class Vector4_<T extends FloatTypedArrayConstructor> extends AbstractVect
    * @returns A string with space-separated components followed by a newline
    */
   toStringApproximately() {
-    return (
-      MathUtil.financial(this._v[0]) +
-      ' ' +
-      MathUtil.financial(this._v[1]) +
-      ' ' +
-      MathUtil.financial(this._v[2]) +
-      ' ' +
-      MathUtil.financial(this._v[3]) +
-      '\n'
-    );
+    return `${MathUtil.financial(this._v[0])} ${MathUtil.financial(this._v[1])} ${MathUtil.financial(this._v[2])} ${MathUtil.financial(this._v[3])}\n`;
   }
 
   /**
@@ -590,9 +581,8 @@ export class Vector4_<T extends FloatTypedArrayConstructor> extends AbstractVect
   isDummy() {
     if (this._v.length === 0) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -610,9 +600,8 @@ export class Vector4_<T extends FloatTypedArrayConstructor> extends AbstractVect
       Math.abs(vec._v[3] - this._v[3]) < delta
     ) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -624,9 +613,8 @@ export class Vector4_<T extends FloatTypedArrayConstructor> extends AbstractVect
   isStrictEqual(vec: IVector4): boolean {
     if (this._v[0] === vec._v[0] && this._v[1] === vec._v[1] && this._v[2] === vec._v[2] && this._v[3] === vec._v[3]) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**

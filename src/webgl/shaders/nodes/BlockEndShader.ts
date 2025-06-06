@@ -1,8 +1,8 @@
-import type { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
-import { CommonShaderPart } from '../CommonShaderPart';
 import type { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
-import type { AttributeNames } from '../../types/CommonTypes';
+import type { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
 import type { ShaderSocket } from '../../../foundation/materials/core/AbstractShaderNode';
+import type { AttributeNames } from '../../types/CommonTypes';
+import { CommonShaderPart } from '../CommonShaderPart';
 
 /**
  * A shader component that generates the ending block of a shader function.
@@ -44,9 +44,8 @@ export class BlockEndShader extends CommonShaderPart {
     for (let i = 0; i < this.__valueOutputs.length; i++) {
       const output = this.__valueOutputs[i];
       const type = output.compositionType.getGlslStr(output.componentType);
-      funcStr +=
-        `
-        out ${type} outValue${i}` + (i === this.__valueOutputs.length - 1 ? '' : ',');
+      funcStr += `
+        out ${type} outValue${i}${i === this.__valueOutputs.length - 1 ? '' : ','}`;
     }
 
     funcStr += ') {\n';

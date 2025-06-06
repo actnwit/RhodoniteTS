@@ -9,24 +9,24 @@ import {
   KTX2Transfer,
   read,
 } from 'ktx-parse';
-import { CGAPIResourceRepository } from '../../foundation/renderer/CGAPIResourceRepository';
-import type { WebGLContextWrapper } from '../WebGLContextWrapper';
-import type { TextureData } from '../WebGLResourceRepository';
+import { ZSTDDecoder } from 'zstddec';
 import {
   CompressionTextureType,
   type CompressionTextureTypeEnum,
 } from '../../foundation/definitions/CompressionTextureType';
-import { ZSTDDecoder } from 'zstddec';
+import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
+import { Logger } from '../../foundation/misc/Logger';
+import { CGAPIResourceRepository } from '../../foundation/renderer/CGAPIResourceRepository';
+import { SystemState } from '../../foundation/system/SystemState';
 import type {
   BasisLzEtc1sImageTranscoder,
-  MscTranscoderModule,
   MSC_TRANSCODER,
+  MscTranscoderModule,
   TranscodedImage,
   UastcImageTranscoder,
 } from '../../types/KTX2Texture';
-import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
-import { SystemState } from '../../foundation/system/SystemState';
-import { Logger } from '../../foundation/misc/Logger';
+import type { WebGLContextWrapper } from '../WebGLContextWrapper';
+import type { TextureData } from '../WebGLResourceRepository';
 
 const CompressedTextureFormat = {
   ETC1S: 0,
@@ -163,11 +163,10 @@ export class KTX2TextureLoader {
           return this.__transcodeData(ktx2Container);
         });
       });
-    } else {
-      return this.__mscTranscoderPromise.then(() => {
-        return this.__transcodeData(ktx2Container);
-      });
     }
+    return this.__mscTranscoderPromise.then(() => {
+      return this.__transcodeData(ktx2Container);
+    });
   }
 
   /**
@@ -476,11 +475,10 @@ export class KTX2TextureLoader {
   private __hasAlpha(dfd: KTX2DataFormatDescriptorBasicFormat, compressedTextureFormat: CompressedTextureFormat) {
     if (compressedTextureFormat === CompressedTextureFormat.UASTC4x4) {
       return dfd.samples[0].channelID === KTX2ChannelUASTC.RGBA;
-    } else {
-      return (
-        dfd.samples.length === 2 &&
-        (dfd.samples[0].channelID === KTX2ChannelETC1S.AAA || dfd.samples[1].channelID === KTX2ChannelETC1S.AAA)
-      );
     }
+    return (
+      dfd.samples.length === 2 &&
+      (dfd.samples[0].channelID === KTX2ChannelETC1S.AAA || dfd.samples[1].channelID === KTX2ChannelETC1S.AAA)
+    );
   }
 }

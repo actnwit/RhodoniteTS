@@ -1,47 +1,47 @@
-import { type ShaderNodeUID, AbstractShaderNode } from './AbstractShaderNode';
 import type { Index } from '../../../types/CommonTypes';
-import { ShaderType, type ShaderTypeEnum } from '../../definitions/ShaderType';
-import { CompositionType } from '../../definitions/CompositionType';
-import { ComponentType } from '../../definitions/ComponentType';
+import type { ShaderNodeJson } from '../../../types/ShaderNodeJson';
 import { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
-import { ConstantScalarVariableShaderNode } from '../nodes/ConstantScalarVariableShaderNode';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
+import { ProcessApproach } from '../../definitions/ProcessApproach';
+import { ShaderType, type ShaderTypeEnum } from '../../definitions/ShaderType';
 import { Scalar } from '../../math/Scalar';
-import { ConstantVector2VariableShaderNode } from '../nodes/ConstantVector2VariableShaderNode';
 import { Vector2 } from '../../math/Vector2';
-import { ConstantVector3VariableShaderNode } from '../nodes/ConstantVector3VariableShaderNode';
 import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
-import { ConstantVector4VariableShaderNode } from '../nodes/ConstantVector4VariableShaderNode';
-import { UniformDataShaderNode } from '../nodes/UniformDataShaderNode';
+import { Logger } from '../../misc/Logger';
+import { SystemState } from '../../system/SystemState';
 import { AddShaderNode } from '../nodes/AddShaderNode';
-import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
-import { DotProductShaderNode } from '../nodes/DotProductShaderNode';
-import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
 import { AttributeColorShaderNode } from '../nodes/AttributeColorShaderNode';
+import { AttributeJointShaderNode } from '../nodes/AttributeJointShaderNode';
 import { AttributeNormalShaderNode } from '../nodes/AttributeNormalShaderNode';
 import { AttributePositionShaderNode } from '../nodes/AttributePositionShaderNode';
 import { AttributeTexcoordShaderNode } from '../nodes/AttributeTexcoordShaderNode';
-import { WorldMatrixShaderNode } from '../nodes/WorldMatrixShaderNode';
-import { ViewMatrixShaderNode } from '../nodes/ViewMatrixShaderNode';
-import { ProjectionMatrixShaderNode } from '../nodes/ProjectionMatrixShaderNode';
-import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
+import { AttributeWeightShaderNode } from '../nodes/AttributeWeightShaderNode';
+import { ConstantScalarVariableShaderNode } from '../nodes/ConstantScalarVariableShaderNode';
+import { ConstantVector2VariableShaderNode } from '../nodes/ConstantVector2VariableShaderNode';
+import { ConstantVector3VariableShaderNode } from '../nodes/ConstantVector3VariableShaderNode';
+import { ConstantVector4VariableShaderNode } from '../nodes/ConstantVector4VariableShaderNode';
+import { DotProductShaderNode } from '../nodes/DotProductShaderNode';
 import { GreaterShaderNode } from '../nodes/GreaterShaderNode';
-import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
+import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
+import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
+import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
+import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
-import { SystemState } from '../../system/SystemState';
-import { ProcessApproach } from '../../definitions/ProcessApproach';
-import { TransformShaderNode } from '../nodes/TransformShaderNode';
+import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
+import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
+import { ProjectionMatrixShaderNode } from '../nodes/ProjectionMatrixShaderNode';
 import { SinShaderNode } from '../nodes/SinShaderNode';
+import { SmoothStepShaderNode } from '../nodes/SmoothStepShaderNode';
+import { SplitVectorShaderNode } from '../nodes/SplitVectorShaderNode';
 import { StepShaderNode } from '../nodes/StepShaderNode';
 import { TimeShaderNode } from '../nodes/TimeShaderNode';
-import { SmoothStepShaderNode } from '../nodes/SmoothStepShaderNode';
-import type { ShaderNodeJson } from '../../../types/ShaderNodeJson';
-import { Logger } from '../../misc/Logger';
-import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
-import { AttributeJointShaderNode } from '../nodes/AttributeJointShaderNode';
-import { AttributeWeightShaderNode } from '../nodes/AttributeWeightShaderNode';
-import { SplitVectorShaderNode } from '../nodes/SplitVectorShaderNode';
-import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
+import { TransformShaderNode } from '../nodes/TransformShaderNode';
+import { UniformDataShaderNode } from '../nodes/UniformDataShaderNode';
+import { ViewMatrixShaderNode } from '../nodes/ViewMatrixShaderNode';
+import { WorldMatrixShaderNode } from '../nodes/WorldMatrixShaderNode';
+import { AbstractShaderNode, type ShaderNodeUID } from './AbstractShaderNode';
 
 /**
  * ShaderGraphResolver is a class that resolves the shader node graph and generates shader code.
@@ -242,7 +242,7 @@ export class ShaderGraphResolver {
       }
     }
 
-    if (sortedNodeArray.length != shaderNodes.length) {
+    if (sortedNodeArray.length !== shaderNodes.length) {
       Logger.error('graph is cyclic');
     }
 
@@ -363,9 +363,8 @@ export class ShaderGraphResolver {
                 }
               }
               continue;
-            } else {
-              continue;
             }
+            continue;
           }
           const inputNode = AbstractShaderNode._shaderNodes[inputConnection.shaderNodeUid];
 
@@ -437,7 +436,8 @@ export class ShaderGraphResolver {
 
       if (isVertexStage && shaderNode.getShaderStage() === 'Fragment') {
         continue;
-      } else if (!isVertexStage && shaderNode.getShaderStage() === 'Vertex') {
+      }
+      if (!isVertexStage && shaderNode.getShaderStage() === 'Vertex') {
         continue;
       }
 
@@ -689,20 +689,20 @@ function constructNodes(json: ShaderNodeJson) {
       // }
       case 'ConstantScalar': {
         const nodeInstance = new ConstantScalarVariableShaderNode(ComponentType.Float);
-        nodeInstance.setDefaultInputValue(Scalar.fromCopyNumber(node.controls['in1'].value));
+        nodeInstance.setDefaultInputValue(Scalar.fromCopyNumber(node.controls.in1.value));
         nodeInstances[node.id] = nodeInstance;
         break;
       }
       case 'ConstantVector2': {
         const nodeInstance = new ConstantVector2VariableShaderNode(ComponentType.Float);
-        nodeInstance.setDefaultInputValue(Vector2.fromCopy2(node.controls['in1'].value, node.controls['in2'].value));
+        nodeInstance.setDefaultInputValue(Vector2.fromCopy2(node.controls.in1.value, node.controls.in2.value));
         nodeInstances[node.id] = nodeInstance;
         break;
       }
       case 'ConstantVector3': {
         const nodeInstance = new ConstantVector3VariableShaderNode(ComponentType.Float);
         nodeInstance.setDefaultInputValue(
-          Vector3.fromCopy3(node.controls['in1'].value, node.controls['in2'].value, node.controls['in3'].value)
+          Vector3.fromCopy3(node.controls.in1.value, node.controls.in2.value, node.controls.in3.value)
         );
         nodeInstances[node.id] = nodeInstance;
         break;
@@ -711,10 +711,10 @@ function constructNodes(json: ShaderNodeJson) {
         const nodeInstance = new ConstantVector4VariableShaderNode(ComponentType.Float);
         nodeInstance.setDefaultInputValue(
           Vector4.fromCopy4(
-            node.controls['in1'].value,
-            node.controls['in2'].value,
-            node.controls['in3'].value,
-            node.controls['in4'].value
+            node.controls.in1.value,
+            node.controls.in2.value,
+            node.controls.in3.value,
+            node.controls.in4.value
           )
         );
         nodeInstances[node.id] = nodeInstance;
@@ -725,13 +725,13 @@ function constructNodes(json: ShaderNodeJson) {
         nodeInstance.setDefaultInputValue(
           'value',
           Vector4.fromCopyArray4([
-            node.controls['initialX'].value,
-            node.controls['initialY'].value,
-            node.controls['initialZ'].value,
-            node.controls['initialW'].value,
+            node.controls.initialX.value,
+            node.controls.initialY.value,
+            node.controls.initialZ.value,
+            node.controls.initialW.value,
           ])
         );
-        nodeInstance.setUniformDataName(node.controls['name'].value);
+        nodeInstance.setUniformDataName(node.controls.name.value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
@@ -752,10 +752,10 @@ function constructNodes(json: ShaderNodeJson) {
         } else if (socketName.startsWith('Vector4')) {
           nodeInstance = new AddShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
-          Logger.error('Add node: Unknown socket name: ' + socketName);
+          Logger.error(`Add node: Unknown socket name: ${socketName}`);
           break;
         }
-        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
@@ -771,10 +771,10 @@ function constructNodes(json: ShaderNodeJson) {
         } else if (socketName.startsWith('Vector4')) {
           nodeInstance = new SinShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
-          Logger.error('Sin node: Unknown socket name: ' + socketName);
+          Logger.error(`Sin node: Unknown socket name: ${socketName}`);
           break;
         }
-        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
@@ -790,10 +790,10 @@ function constructNodes(json: ShaderNodeJson) {
         } else if (socketName.startsWith('Vector4')) {
           nodeInstance = new StepShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
-          Logger.error('Add node: Unknown socket name: ' + socketName);
+          Logger.error(`Add node: Unknown socket name: ${socketName}`);
           break;
         }
-        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
@@ -809,10 +809,10 @@ function constructNodes(json: ShaderNodeJson) {
         } else if (socketName.startsWith('Vector4')) {
           nodeInstance = new SmoothStepShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
-          Logger.error('Add node: Unknown socket name: ' + socketName);
+          Logger.error(`Add node: Unknown socket name: ${socketName}`);
           break;
         }
-        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
@@ -826,10 +826,10 @@ function constructNodes(json: ShaderNodeJson) {
         } else if (socketName.startsWith('Vector4')) {
           nodeInstance = new NormalizeShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
-          Logger.error('Normalize node: Unknown socket name: ' + socketName);
+          Logger.error(`Normalize node: Unknown socket name: ${socketName}`);
           break;
         }
-        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
@@ -843,10 +843,10 @@ function constructNodes(json: ShaderNodeJson) {
         } else if (socketName.startsWith('Vector4')) {
           nodeInstance = new DotProductShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
-          Logger.error('Dot node: Unknown socket name: ' + socketName);
+          Logger.error(`Dot node: Unknown socket name: ${socketName}`);
           break;
         }
-        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
@@ -868,10 +868,10 @@ function constructNodes(json: ShaderNodeJson) {
         } else if (socketName.startsWith('Matrix4')) {
           nodeInstance = new MultiplyShaderNode(CompositionType.Mat4, ComponentType.Float);
         } else {
-          Logger.error('Multiply node: Unknown socket name: ' + socketName);
+          Logger.error(`Multiply node: Unknown socket name: ${socketName}`);
           break;
         }
-        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
@@ -900,22 +900,22 @@ function constructNodes(json: ShaderNodeJson) {
             ComponentType.Float
           );
         } else {
-          Logger.error('Transform node: Unknown socket name: ' + socketName);
+          Logger.error(`Transform node: Unknown socket name: ${socketName}`);
           break;
         }
-        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
       case 'SplitVector': {
         const nodeInstance = new SplitVectorShaderNode();
-        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
       case 'MergeVector': {
         const nodeInstance = new MergeVectorShaderNode();
-        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }

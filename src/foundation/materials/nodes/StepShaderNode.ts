@@ -1,11 +1,11 @@
-import { AbstractShaderNode } from '../core/AbstractShaderNode';
-import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
-import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import StepShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/Step.glsl';
 import StepShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Step.wgsl';
-import { Socket } from '../core/Socket';
+import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { SystemState } from '../../system/SystemState';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
+import { Socket } from '../core/Socket';
 
 /**
  * A shader node that implements the step function.
@@ -70,18 +70,19 @@ export class StepShaderNode extends AbstractShaderNode {
   getShaderFunctionNameDerivative() {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (this.__inputs[0].compositionType === CompositionType.Scalar) {
-        return this.__shaderFunctionName + 'F32';
-      } else if (this.__inputs[0].compositionType === CompositionType.Vec2) {
-        return this.__shaderFunctionName + 'Vec2f';
-      } else if (this.__inputs[0].compositionType === CompositionType.Vec3) {
-        return this.__shaderFunctionName + 'Vec3f';
-      } else if (this.__inputs[0].compositionType === CompositionType.Vec4) {
-        return this.__shaderFunctionName + 'Vec4f';
-      } else {
-        throw new Error('Not implemented');
+        return `${this.__shaderFunctionName}F32`;
       }
-    } else {
-      return this.__shaderFunctionName;
+      if (this.__inputs[0].compositionType === CompositionType.Vec2) {
+        return `${this.__shaderFunctionName}Vec2f`;
+      }
+      if (this.__inputs[0].compositionType === CompositionType.Vec3) {
+        return `${this.__shaderFunctionName}Vec3f`;
+      }
+      if (this.__inputs[0].compositionType === CompositionType.Vec4) {
+        return `${this.__shaderFunctionName}Vec4f`;
+      }
+      throw new Error('Not implemented');
     }
+    return this.__shaderFunctionName;
   }
 }

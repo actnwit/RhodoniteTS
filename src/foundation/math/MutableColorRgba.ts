@@ -1,6 +1,6 @@
-import { MutableVector4 } from './MutableVector4';
-import type { IVector4, IMutableVector4 } from './IVector';
 import type { IMutableColorRgba } from './IColor';
+import type { IMutableVector4, IVector4 } from './IVector';
+import { MutableVector4 } from './MutableVector4';
 
 /**
  * A mutable RGBA color class that extends MutableVector4.
@@ -8,14 +8,6 @@ import type { IMutableColorRgba } from './IColor';
  * This class provides both vector-like (x, y, z, w) and color-specific (r, g, b, a) accessors.
  */
 export class MutableColorRgba extends MutableVector4 implements IMutableVector4, IMutableColorRgba {
-  /**
-   * Constructs a new MutableColorRgba instance.
-   * @param r - A Float32Array containing the RGBA values [r, g, b, a]
-   */
-  constructor(r: Float32Array) {
-    super(r);
-  }
-
   /**
    * Gets the x component (equivalent to red component).
    * @returns The x/red value

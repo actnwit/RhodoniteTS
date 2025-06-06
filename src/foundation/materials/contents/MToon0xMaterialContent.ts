@@ -1,26 +1,3 @@
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { AlphaMode } from '../../definitions/AlphaMode';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
-import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
-import { ComponentRepository } from '../../core/ComponentRepository';
-import { ComponentType } from '../../definitions/ComponentType';
-import { CompositionType } from '../../definitions/CompositionType';
-import { Config } from '../../core/Config';
-import type { Material } from '../core/Material';
-import { Scalar } from '../../math/Scalar';
-import { ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
-import { ShaderType } from '../../definitions/ShaderType';
-import { Vector3 } from '../../math/Vector3';
-import { Vector4 } from '../../math/Vector4';
-import { VectorN } from '../../math/VectorN';
-import type { Array3, Array4, Count } from '../../../types/CommonTypes';
-import type { Texture } from '../../textures/Texture';
-import mToonSingleShaderVertex from '../../../webgl/shaderity_shaders/MToon0xSingleShader/MToon0xSingleShader.vert.glsl';
-import mToonSingleShaderFragment from '../../../webgl/shaderity_shaders/MToon0xSingleShader/MToon0xSingleShader.frag.glsl';
-import mToonSingleShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/MToon0xSingleShader/MToon0xSingleShader.vert.wgsl';
-import mToonSingleShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/MToon0xSingleShader/MToon0xSingleShader.frag.wgsl';
-import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
-import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import {
   GL_DST_ALPHA,
   GL_DST_COLOR,
@@ -35,14 +12,37 @@ import {
   GL_ZERO,
   type Vrm0xMaterialProperty,
 } from '../../../types';
-import { Sampler } from '../../textures/Sampler';
-import { Blend } from '../../definitions/Blend';
-import { dummyBlackCubeTexture, dummyBlackTexture, dummyWhiteTexture } from '../core/DummyTextures';
-import { SystemState } from '../../system/SystemState';
-import { HdriFormat, ProcessApproach, ProcessApproachClass, TextureParameter } from '../../definitions';
+import type { Array3, Array4, Count } from '../../../types/CommonTypes';
+import mToonSingleShaderFragment from '../../../webgl/shaderity_shaders/MToon0xSingleShader/MToon0xSingleShader.frag.glsl';
+import mToonSingleShaderVertex from '../../../webgl/shaderity_shaders/MToon0xSingleShader/MToon0xSingleShader.vert.glsl';
+import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
+import mToonSingleShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/MToon0xSingleShader/MToon0xSingleShader.frag.wgsl';
+import mToonSingleShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/MToon0xSingleShader/MToon0xSingleShader.vert.wgsl';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
-import { MutableVector4 } from '../../math/MutableVector4';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { Config } from '../../core/Config';
+import { HdriFormat, ProcessApproach, ProcessApproachClass, TextureParameter } from '../../definitions';
+import { AlphaMode } from '../../definitions/AlphaMode';
+import { Blend } from '../../definitions/Blend';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
+import { ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
+import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { ShaderType } from '../../definitions/ShaderType';
 import { MutableVector2 } from '../../math/MutableVector2';
+import { MutableVector4 } from '../../math/MutableVector4';
+import { Scalar } from '../../math/Scalar';
+import { Vector3 } from '../../math/Vector3';
+import { Vector4 } from '../../math/Vector4';
+import { VectorN } from '../../math/VectorN';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import { SystemState } from '../../system/SystemState';
+import { Sampler } from '../../textures/Sampler';
+import type { Texture } from '../../textures/Texture';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import { dummyBlackCubeTexture, dummyBlackTexture, dummyWhiteTexture } from '../core/DummyTextures';
+import type { Material } from '../core/Material';
 
 /**
  * Material content implementation for MToon 0.x shader.
@@ -928,7 +928,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
   }) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     // IBL Env map
-    if (args.diffuseCube && args.diffuseCube.isTextureReady) {
+    if (args.diffuseCube?.isTextureReady) {
       webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
         5,
         args.diffuseCube,

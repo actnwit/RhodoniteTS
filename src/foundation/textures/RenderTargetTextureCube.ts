@@ -30,14 +30,6 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
   public _textureViewAsRenderTargetResourceUid = -1;
 
   /**
-   * Creates a new RenderTargetTextureCube instance.
-   * The texture must be initialized using the create() method before use.
-   */
-  constructor() {
-    super();
-  }
-
-  /**
    * Creates and initializes the cube render target texture with the specified parameters.
    * This method sets up the internal texture resources and calculates mip levels if not provided.
    *

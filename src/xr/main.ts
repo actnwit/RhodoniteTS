@@ -1,5 +1,5 @@
-import { WebXRSystem } from './WebXRSystem';
 import { WebARSystem } from './WebARSystem';
+import { WebXRSystem } from './WebXRSystem';
 
 const XR = Object.freeze({
   WebXRSystem,

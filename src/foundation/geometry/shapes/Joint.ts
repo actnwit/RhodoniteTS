@@ -1,7 +1,7 @@
-import { Vector3 } from '../../math/Vector3';
-import { type IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
 import { PrimitiveMode } from '../../definitions/PrimitiveMode';
 import { VertexAttribute } from '../../definitions/VertexAttribute';
+import { Vector3 } from '../../math/Vector3';
+import { type IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
 import { IShape } from './IShape';
 
 export type JointDescriptor = IAnyPrimitiveDescriptor;

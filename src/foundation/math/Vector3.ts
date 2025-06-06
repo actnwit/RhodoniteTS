@@ -1,11 +1,11 @@
-import type { IVector2, IVector3, IVector4, IVector, IMutableVector3 } from './IVector';
-import { MathUtil } from './MathUtil';
-import { CompositionType } from '../definitions/CompositionType';
-import type { IQuaternion } from './IQuaternion';
-import type { IMatrix44 } from './IMatrix';
-import { AbstractVector } from './AbstractVector';
 import type { Array3, FloatTypedArrayConstructor, TypedArray } from '../../types/CommonTypes';
+import { CompositionType } from '../definitions/CompositionType';
 import { Logger } from '../misc/Logger';
+import { AbstractVector } from './AbstractVector';
+import type { IMatrix44 } from './IMatrix';
+import type { IQuaternion } from './IQuaternion';
+import type { IMutableVector3, IVector, IVector2, IVector3, IVector4 } from './IVector';
+import { MathUtil } from './MathUtil';
 
 /**
  * Generic base class for 3D vectors with floating-point components.
@@ -519,7 +519,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVect
    * @returns A string representation of the vector in the format "(x, y, z)"
    */
   toString() {
-    return '(' + this._v[0] + ', ' + this._v[1] + ', ' + this._v[2] + ')';
+    return `(${this._v[0]}, ${this._v[1]}, ${this._v[2]})`;
   }
 
   /**
@@ -527,14 +527,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVect
    * @returns A string representation with financial formatting
    */
   toStringApproximately() {
-    return (
-      MathUtil.financial(this._v[0]) +
-      ' ' +
-      MathUtil.financial(this._v[1]) +
-      ' ' +
-      MathUtil.financial(this._v[2]) +
-      '\n'
-    );
+    return `${MathUtil.financial(this._v[0])} ${MathUtil.financial(this._v[1])} ${MathUtil.financial(this._v[2])}\n`;
   }
 
   /**
@@ -552,9 +545,8 @@ export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVect
   isDummy() {
     if (this._v.length === 0) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -570,9 +562,8 @@ export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVect
       Math.abs(vec._v[2] - this._v[2]) < delta
     ) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -583,9 +574,8 @@ export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVect
   isStrictEqual(vec: IVector3) {
     if (this._v[0] === vec._v[0] && this._v[1] === vec._v[1] && this._v[2] === vec._v[2]) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**

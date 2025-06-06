@@ -1,37 +1,37 @@
+import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
-import { Matrix44 } from '../../math/Matrix44';
-import { applyMixins, EntityRepository } from '../../core/EntityRepository';
-import { ComponentType } from '../../definitions/ComponentType';
-import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
+import type { IEntity } from '../../core/Entity';
+import { EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { BufferUse } from '../../definitions/BufferUse';
+import { ComponentType } from '../../definitions/ComponentType';
 import { ProcessStage } from '../../definitions/ProcessStage';
-import { MutableMatrix44 } from '../../math/MutableMatrix44';
-import { MutableMatrix33 } from '../../math/MutableMatrix33';
-import { Vector3 } from '../../math/Vector3';
-import { AABB } from '../../math/AABB';
-import { MutableVector3 } from '../../math/MutableVector3';
-import type { MeshComponent } from '../Mesh/MeshComponent';
-import type { ComponentTID, ComponentSID, EntityUID } from '../../../types/CommonTypes';
-import type { CameraComponent } from '../Camera/CameraComponent';
-import type { Vector4 } from '../../math/Vector4';
+import type { RaycastResultEx2 } from '../../geometry/types/GeometryTypes';
 import { AABBGizmo } from '../../gizmos/AABBGizmo';
 import { LocatorGizmo } from '../../gizmos/LocatorGizmo';
-import { Is } from '../../misc/Is';
-import { type ISceneGraphEntity, type IMeshEntity, ITransformEntity } from '../../helpers/EntityHelper';
-import type { IEntity } from '../../core/Entity';
-import type { ComponentToComponentMethods } from '../ComponentTypes';
-import type { RaycastResultEx2 } from '../../geometry/types/GeometryTypes';
-import { TranslationGizmo } from '../../gizmos/TranslationGizmo';
 import { ScaleGizmo } from '../../gizmos/ScaleGizmo';
+import { TranslationGizmo } from '../../gizmos/TranslationGizmo';
+import { type IMeshEntity, type ISceneGraphEntity, ITransformEntity } from '../../helpers/EntityHelper';
+import { AABB } from '../../math/AABB';
 import type { IMatrix44 } from '../../math/IMatrix';
-import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
-import { TransformComponent } from '../Transform/TransformComponent';
-import { flattenHierarchy } from './SceneGraphOps';
-import { MutableScalar } from '../../math/MutableScalar';
-import { MutableQuaternion } from '../../math/MutableQuaternion';
 import type { IQuaternion } from '../../math/IQuaternion';
-import { Quaternion } from '../../math/Quaternion';
 import type { IVector3 } from '../../math/IVector';
+import { Matrix44 } from '../../math/Matrix44';
+import { MutableMatrix33 } from '../../math/MutableMatrix33';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
+import { MutableQuaternion } from '../../math/MutableQuaternion';
+import { MutableScalar } from '../../math/MutableScalar';
+import { MutableVector3 } from '../../math/MutableVector3';
+import { Quaternion } from '../../math/Quaternion';
+import { Vector3 } from '../../math/Vector3';
+import type { Vector4 } from '../../math/Vector4';
+import { Is } from '../../misc/Is';
+import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
+import type { CameraComponent } from '../Camera/CameraComponent';
+import type { ComponentToComponentMethods } from '../ComponentTypes';
+import type { MeshComponent } from '../Mesh/MeshComponent';
+import { TransformComponent } from '../Transform/TransformComponent';
+import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
+import { flattenHierarchy } from './SceneGraphOps';
 
 /**
  * SceneGraphComponent is a component that represents a node in the scene graph.
@@ -129,7 +129,7 @@ export class SceneGraphComponent extends Component {
    * @returns True if visible, false if hidden
    */
   get isVisible() {
-    return this._isVisible.getValue() === 1 ? true : false;
+    return this._isVisible.getValue() === 1;
   }
 
   /**
@@ -164,7 +164,7 @@ export class SceneGraphComponent extends Component {
    * @returns True if billboard is enabled, false otherwise
    */
   get isBillboard() {
-    return this._isBillboard.getValue() === 1 ? true : false;
+    return this._isBillboard.getValue() === 1;
   }
 
   /**
@@ -203,9 +203,8 @@ export class SceneGraphComponent extends Component {
   get isAABBGizmoVisible() {
     if (Is.exist(this.__aabbGizmo)) {
       return this.__aabbGizmo.isVisible;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -233,9 +232,8 @@ export class SceneGraphComponent extends Component {
   get isLocatorGizmoVisible() {
     if (Is.exist(this.__locatorGizmo)) {
       return this.__locatorGizmo.isVisible;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -263,9 +261,8 @@ export class SceneGraphComponent extends Component {
   get isTranslationGizmoVisible() {
     if (Is.exist(this.__translationGizmo)) {
       return this.__translationGizmo.isVisible;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -293,9 +290,8 @@ export class SceneGraphComponent extends Component {
   get isScaleGizmoVisible() {
     if (Is.exist(this.__scaleGizmo)) {
       return this.__scaleGizmo.isVisible;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -308,9 +304,8 @@ export class SceneGraphComponent extends Component {
       .filter((sg: SceneGraphComponent | undefined): sg is SceneGraphComponent => {
         if (sg !== undefined) {
           return sg.isTopLevel;
-        } else {
-          return false;
         }
+        return false;
       });
   }
 
@@ -321,9 +316,8 @@ export class SceneGraphComponent extends Component {
   isJoint() {
     if (this.jointIndex >= 0) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -517,10 +511,9 @@ export class SceneGraphComponent extends Component {
     const skeletalComponent = this.entity.tryToGetSkeletal();
     if (Is.exist(skeletalComponent) && skeletalComponent.isWorldMatrixUpdated) {
       return skeletalComponent.worldMatrixInner;
-    } else {
-      const sceneGraphComponent = this.entity.getSceneGraph();
-      return sceneGraphComponent.matrixInner;
     }
+    const sceneGraphComponent = this.entity.getSceneGraph();
+    return sceneGraphComponent.matrixInner;
   }
 
   /**
@@ -540,9 +533,8 @@ export class SceneGraphComponent extends Component {
       if (this.__parent) {
         const result = this.__parent.isWorldMatrixUpToDateRecursively();
         return result;
-      } else {
-        return true;
       }
+      return true;
     }
     return false;
   }
@@ -812,11 +804,10 @@ export class SceneGraphComponent extends Component {
           selectedMeshComponent,
         },
       };
-    } else {
-      return {
-        result: false,
-      };
     }
+    return {
+      result: false,
+    };
   }
 
   /**
@@ -883,11 +874,10 @@ export class SceneGraphComponent extends Component {
           selectedMeshComponent,
         },
       };
-    } else {
-      return {
-        result: false,
-      };
     }
+    return {
+      result: false,
+    };
   }
 
   /**
@@ -1298,9 +1288,6 @@ export class SceneGraphComponent extends Component {
   ) {
     class SceneGraphEntity extends (base.constructor as any) {
       private __sceneGraphComponent?: SceneGraphComponent;
-      constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
-        super(entityUID, isAlive, components);
-      }
 
       /**
        * Gets the scene graph component for this entity.

@@ -1,13 +1,13 @@
+import type { Index, Size } from '../../types/CommonTypes';
+import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
+import { ProcessApproach } from '../definitions/ProcessApproach';
+import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFormat';
+import { Vector4 } from '../math/Vector4';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import type { FrameBuffer } from '../renderer/FrameBuffer';
+import { SystemState } from '../system/SystemState';
 import { AbstractTexture } from './AbstractTexture';
 import type { IRenderable } from './IRenderable';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import type { Size, Index } from '../../types/CommonTypes';
-import type { FrameBuffer } from '../renderer/FrameBuffer';
-import { Vector4 } from '../math/Vector4';
-import { SystemState } from '../system/SystemState';
-import { ProcessApproach } from '../definitions/ProcessApproach';
-import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
-import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFormat';
 
 /**
  * A texture that can be used as a render target for off-screen rendering.
@@ -17,13 +17,6 @@ import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFor
  */
 export class RenderTargetTexture extends AbstractTexture implements IRenderable {
   private __fbo?: FrameBuffer;
-
-  /**
-   * Creates a new RenderTargetTexture instance.
-   */
-  constructor() {
-    super();
-  }
 
   /**
    * Creates and initializes the render target texture with the specified parameters.

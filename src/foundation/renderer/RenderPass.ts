@@ -1,22 +1,22 @@
-import { RnObject } from '../core/RnObject';
-import { IEntity } from '../core/Entity';
-import type { FrameBuffer } from './FrameBuffer';
-import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import type { MeshComponent } from '../components/Mesh/MeshComponent';
-import { Vector4 } from '../math/Vector4';
 import type { EntityUID, RenderPassUID } from '../../types/CommonTypes';
-import type { Material } from '../materials/core/Material';
 import { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
-import { Primitive } from '../geometry/Primitive';
-import { MutableVector4 } from '../math/MutableVector4';
-import type { IVector4 } from '../math/IVector';
-import type { ISceneGraphEntity, IMeshEntity } from '../helpers/EntityHelper';
-import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import type { CameraComponent } from '../components/Camera/CameraComponent';
-import type { RenderBufferTargetEnum } from '../definitions/RenderBufferTarget';
-import { PrimitiveMode, type PrimitiveModeEnum } from '../definitions/PrimitiveMode';
-import { CGAPIResourceRepository } from './CGAPIResourceRepository';
+import type { MeshComponent } from '../components/Mesh/MeshComponent';
+import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { flattenHierarchy } from '../components/SceneGraph/SceneGraphOps';
+import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
+import { IEntity } from '../core/Entity';
+import { RnObject } from '../core/RnObject';
+import { PrimitiveMode, type PrimitiveModeEnum } from '../definitions/PrimitiveMode';
+import type { RenderBufferTargetEnum } from '../definitions/RenderBufferTarget';
+import { Primitive } from '../geometry/Primitive';
+import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
+import type { Material } from '../materials/core/Material';
+import type { IVector4 } from '../math/IVector';
+import { MutableVector4 } from '../math/MutableVector4';
+import { Vector4 } from '../math/Vector4';
+import { CGAPIResourceRepository } from './CGAPIResourceRepository';
+import type { FrameBuffer } from './FrameBuffer';
 
 type PrimitiveRnObjectUID = number;
 
@@ -230,7 +230,7 @@ export class RenderPass extends RnObject {
    */
   clone() {
     const renderPass = new RenderPass();
-    renderPass.tryToSetUniqueName(this.uniqueName + '_cloned', true);
+    renderPass.tryToSetUniqueName(`${this.uniqueName}_cloned`, true);
     renderPass.__entities = this.__entities.concat();
     renderPass.__sceneGraphDirectlyAdded = this.__sceneGraphDirectlyAdded.concat();
     renderPass.__topLevelSceneGraphComponents = this.__topLevelSceneGraphComponents.concat();

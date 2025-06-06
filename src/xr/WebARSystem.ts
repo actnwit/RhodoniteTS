@@ -8,7 +8,7 @@ import { MutableVector3 } from '../foundation/math/MutableVector3';
 import { Vector3 } from '../foundation/math/Vector3';
 import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
-import { type Option, None, Some } from '../foundation/misc/Option';
+import { None, type Option, Some } from '../foundation/misc/Option';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import { System } from '../foundation/system/System';
@@ -196,10 +196,9 @@ export class WebARSystem {
       System.restartRenderLoop();
       Logger.warn('End of enterWebXR.');
       return;
-    } else {
-      Logger.error('WebGL context or WebXRSession is not ready yet.');
-      return;
     }
+    Logger.error('WebGL context or WebXRSession is not ready yet.');
+    return;
   }
 
   /**

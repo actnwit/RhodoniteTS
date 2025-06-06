@@ -1,18 +1,18 @@
+import FurnaceTestShaderFragment from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.frag';
+import FurnaceTestShaderVertex from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.vert';
+import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { ComponentRepository } from '../../core/ComponentRepository';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
-import { Scalar } from '../../math/Scalar';
 import { ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
+import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { ShaderType } from '../../definitions/ShaderType';
+import { Scalar } from '../../math/Scalar';
 import { Vector2 } from '../../math/Vector2';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { ComponentRepository } from '../../core/ComponentRepository';
-import type { Material } from '../core/Material';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
-import FurnaceTestShaderVertex from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.vert';
-import FurnaceTestShaderFragment from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.frag';
-import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
-import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { dummyWhiteTexture } from '../core/DummyTextures';
+import type { Material } from '../core/Material';
 
 /**
  * Material content for furnace test rendering.

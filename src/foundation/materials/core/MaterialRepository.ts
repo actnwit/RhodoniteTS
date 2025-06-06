@@ -1,11 +1,18 @@
-import { type Count, Index, type IndexOf16Bytes, type MaterialSID, type MaterialTID, type MaterialUID } from '../../../types/CommonTypes';
+import {
+  type Count,
+  Index,
+  type IndexOf16Bytes,
+  type MaterialSID,
+  type MaterialTID,
+  type MaterialUID,
+} from '../../../types/CommonTypes';
 import { Config } from '../../core/Config';
 import { MemoryManager } from '../../core/MemoryManager';
 import { BufferUse } from '../../definitions/BufferUse';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ShaderSemanticsIndex, type ShaderSemanticsName } from '../../definitions/ShaderSemantics';
-import { calcAlignedByteLength, type ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { type ShaderSemanticsInfo, calcAlignedByteLength } from '../../definitions/ShaderSemanticsInfo';
 import { MathClassUtil } from '../../math/MathClassUtil';
 import type { Accessor } from '../../memory/Accessor';
 import type { BufferView } from '../../memory/BufferView';
@@ -53,10 +60,9 @@ export class MaterialRepository {
       MaterialRepository.__registerInner(materialTypeName, materialNode, maxInstanceNumber);
 
       return true;
-    } else {
-      // console.info(`${materialTypeName} is already registered.`);
-      return false;
     }
+    // console.info(`${materialTypeName} is already registered.`);
+    return false;
   }
 
   /**
@@ -257,11 +263,10 @@ export class MaterialRepository {
     if (info.soloDatum) {
       const value = Material._soloDatumFields.get(material.materialTypeName)!.get(propertyName);
       return (value!.value._v as Float32Array).byteOffset / 4 / 4;
-    } else {
-      const properties = this.__accessors.get(materialTypeName);
-      const accessor = properties!.get(propertyName);
-      return accessor!.byteOffsetInBuffer / 4 / 4;
     }
+    const properties = this.__accessors.get(materialTypeName);
+    const accessor = properties!.get(propertyName);
+    return accessor!.byteOffsetInBuffer / 4 / 4;
   }
 
   /**

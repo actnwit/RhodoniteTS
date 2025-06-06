@@ -16,14 +16,6 @@ export class LocatorGizmo extends Gizmo {
   private static __mesh: Mesh;
   private static __length = 1;
 
-  /**
-   * Creates a new LocatorGizmo instance.
-   * @param target - The mesh entity that this gizmo will be attached to
-   */
-  constructor(target: IMeshEntity) {
-    super(target);
-  }
-
   ///
   ///
   /// Accessors
@@ -37,9 +29,8 @@ export class LocatorGizmo extends Gizmo {
   get isSetup(): boolean {
     if (this.__topEntity != null) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**

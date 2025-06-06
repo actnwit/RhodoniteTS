@@ -1,62 +1,62 @@
+import HDRImage from '../../vendor/hdrpng.js';
+import { Config } from '../foundation/core/Config';
+import { BasisCompressionType, type BasisCompressionTypeEnum } from '../foundation/definitions/BasisCompressionType';
+import type { ComponentTypeEnum } from '../foundation/definitions/ComponentType';
+import { ComponentType } from '../foundation/definitions/ComponentType';
+import { CompositionType } from '../foundation/definitions/CompositionType';
+import type { CompressionTextureTypeEnum } from '../foundation/definitions/CompressionTextureType';
+import { HdriFormat, type HdriFormatEnum } from '../foundation/definitions/HdriFormat';
+import { PixelFormat, type PixelFormatEnum } from '../foundation/definitions/PixelFormat';
+import { ProcessApproach } from '../foundation/definitions/ProcessApproach';
+import { RenderBufferTarget } from '../foundation/definitions/RenderBufferTarget';
+import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
+import { TextureFormat, type TextureFormatEnum } from '../foundation/definitions/TextureFormat';
+import { TextureParameter, type TextureParameterEnum } from '../foundation/definitions/TextureParameter';
+import { VertexAttribute, type VertexAttributeEnum } from '../foundation/definitions/VertexAttribute';
+import type { Primitive } from '../foundation/geometry/Primitive';
+import type { Material } from '../foundation/materials/core/Material';
+import { Vector4 } from '../foundation/math/Vector4';
 import type { Accessor } from '../foundation/memory/Accessor';
+import { DataUtil } from '../foundation/misc/DataUtil';
+import { Is } from '../foundation/misc/Is';
+import { Logger } from '../foundation/misc/Logger';
+import { MiscUtil } from '../foundation/misc/MiscUtil';
 import {
   CGAPIResourceRepository,
   type DirectTextureData,
   type ICGAPIResourceRepository,
   type ImageBitmapData,
 } from '../foundation/renderer/CGAPIResourceRepository';
-import type { Primitive } from '../foundation/geometry/Primitive';
-import { type VertexAttributeEnum, VertexAttribute } from '../foundation/definitions/VertexAttribute';
-import { type TextureParameterEnum, TextureParameter } from '../foundation/definitions/TextureParameter';
-import { type PixelFormatEnum, PixelFormat } from '../foundation/definitions/PixelFormat';
-import type { ComponentTypeEnum } from '../foundation/definitions/ComponentType';
-import { CompositionType } from '../foundation/definitions/CompositionType';
-import { ComponentType } from '../foundation/definitions/ComponentType';
-import { WebGLContextWrapper } from './WebGLContextWrapper';
-import type { AbstractTexture } from '../foundation/textures/AbstractTexture';
-import { RenderTargetTexture } from '../foundation/textures/RenderTargetTexture';
-import type { IRenderable } from '../foundation/textures/IRenderable';
 import type { FrameBuffer } from '../foundation/renderer/FrameBuffer';
-import { type HdriFormatEnum, HdriFormat } from '../foundation/definitions/HdriFormat';
-import { Vector4 } from '../foundation/math/Vector4';
-import { RenderBufferTarget } from '../foundation/definitions/RenderBufferTarget';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
-import { MiscUtil } from '../foundation/misc/MiscUtil';
+import { SystemState } from '../foundation/system/SystemState';
+import type { AbstractTexture } from '../foundation/textures/AbstractTexture';
+import type { CubeTexture } from '../foundation/textures/CubeTexture';
+import type { IRenderable } from '../foundation/textures/IRenderable';
+import type { RenderBuffer } from '../foundation/textures/RenderBuffer';
+import { RenderTargetTexture } from '../foundation/textures/RenderTargetTexture';
+import { RenderTargetTexture2DArray } from '../foundation/textures/RenderTargetTexture2DArray';
+import { Sampler } from '../foundation/textures/Sampler';
+import { TextureArray } from '../foundation/textures/TextureArray';
+import type { BasisFile } from '../types/BasisTexture';
 import type {
-  WebGLResourceHandle,
-  TypedArray,
+  ArrayType,
+  Byte,
+  CGAPIResourceHandle,
+  Count,
   Index,
   Size,
-  Count,
-  CGAPIResourceHandle,
-  Byte,
-  ArrayType,
+  TypedArray,
+  WebGLResourceHandle,
   WebGPUResourceHandle,
 } from '../types/CommonTypes';
-import { DataUtil } from '../foundation/misc/DataUtil';
-import type { RenderBuffer } from '../foundation/textures/RenderBuffer';
-import type { BasisFile } from '../types/BasisTexture';
-import { type BasisCompressionTypeEnum, BasisCompressionType } from '../foundation/definitions/BasisCompressionType';
-import { WebGLExtension } from './WebGLExtension';
-import type { RnWebGLProgram, RnWebGLTexture } from './WebGLExtendedTypes';
-import { Is } from '../foundation/misc/Is';
-import type { CompressionTextureTypeEnum } from '../foundation/definitions/CompressionTextureType';
-import type { Material } from '../foundation/materials/core/Material';
-import getRenderingStrategy from './getRenderingStrategy';
-import { Config } from '../foundation/core/Config';
 import { GL_TEXTURE_2D } from '../types/WebGLConstants';
-import type { AttributeNames } from './types';
-import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
-import { Sampler } from '../foundation/textures/Sampler';
-import type { CubeTexture } from '../foundation/textures/CubeTexture';
-import { SystemState } from '../foundation/system/SystemState';
+import { WebGLContextWrapper } from './WebGLContextWrapper';
+import type { RnWebGLProgram, RnWebGLTexture } from './WebGLExtendedTypes';
+import { WebGLExtension } from './WebGLExtension';
 import { WebGLStereoUtil } from './WebGLStereoUtil';
-import { ProcessApproach } from '../foundation/definitions/ProcessApproach';
-import { TextureFormat, type TextureFormatEnum } from '../foundation/definitions/TextureFormat';
-import { Logger } from '../foundation/misc/Logger';
-import HDRImage from '../../vendor/hdrpng.js';
-import { TextureArray } from '../foundation/textures/TextureArray';
-import { RenderTargetTexture2DArray } from '../foundation/textures/RenderTargetTexture2DArray';
+import getRenderingStrategy from './getRenderingStrategy';
+import type { AttributeNames } from './types';
 
 export type VertexHandles = {
   vaoHandle: CGAPIResourceHandle;
@@ -568,17 +568,16 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     const glw = this.__glw!;
     const gl = glw!.getRawContext();
     if (Is.false(gl.getShaderParameter(shader, gl.COMPILE_STATUS)) && Is.false(gl.isContextLost())) {
-      Logger.info('MaterialTypeName: ' + materialTypeName);
+      Logger.info(`MaterialTypeName: ${materialTypeName}`);
       const lineNumberedShaderText = MiscUtil.addLineNumberToCode(shaderText);
       Logger.info(lineNumberedShaderText);
       const log = gl.getShaderInfoLog(shader);
       if (onError === undefined) {
-        Logger.error('An error occurred compiling the shaders:' + log);
-        return false;
-      } else {
-        onError(log!);
+        Logger.error(`An error occurred compiling the shaders:${log}`);
         return false;
       }
+      onError(log!);
+      return false;
     }
     return true;
   }
@@ -603,13 +602,13 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
 
     // If creating the shader program failed, alert
     if (Is.false(gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) && Is.false(gl.isContextLost())) {
-      Logger.info('MaterialTypeName: ' + materialTypeName);
+      Logger.info(`MaterialTypeName: ${materialTypeName}`);
       Logger.info(MiscUtil.addLineNumberToCode('Vertex Shader:'));
       Logger.info(MiscUtil.addLineNumberToCode(vertexShaderText));
       Logger.info(MiscUtil.addLineNumberToCode('Fragment Shader:'));
       Logger.info(MiscUtil.addLineNumberToCode(fragmentShaderText));
       const log = gl.getProgramInfoLog(shaderProgram);
-      Logger.error('Unable to initialize the shader program: ' + log);
+      Logger.error(`Unable to initialize the shader program: ${log}`);
       return false;
     }
 
@@ -651,7 +650,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
 
         const identifier = semanticSingular;
 
-        const shaderVarName = 'u_' + info.semantic;
+        const shaderVarName = `u_${info.semantic}`;
 
         const location = gl.getUniformLocation(shaderProgram, shaderVarName);
         const _shaderProgram = shaderProgram as any;
@@ -996,7 +995,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
       if (vbo != null) {
         gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
       } else {
-        throw new Error('Nothing Element Array Buffer at index ' + i);
+        throw new Error(`Nothing Element Array Buffer at index ${i}`);
       }
       gl.enableVertexAttribArray(VertexAttribute.toAttributeSlotFromJoinedString(primitive.attributeSemantics[i]));
       gl.vertexAttribPointer(
@@ -2700,7 +2699,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     if (texture != null) {
       gl.deleteTexture(texture!);
       this.__webglResources.delete(textureHandle);
-      Logger.debug('gl.deleteTexture called: ' + textureHandle);
+      Logger.debug(`gl.deleteTexture called: ${textureHandle}`);
     }
   }
 
@@ -3212,9 +3211,8 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
   isSupportMultiViewVRRendering(): boolean {
     if (SystemState.currentProcessApproach === ProcessApproach.DataTexture) {
       return this.__glw!.isMultiview();
-    } else {
-      return false;
     }
+    return false;
   }
 
   blitToTexture2dFromTexture2dArray(

@@ -15,8 +15,6 @@ export abstract class AbstractCameraController {
   public autoCalculateZNearAndZFar = true;
   protected abstract __targetEntities: ISceneGraphEntity[];
 
-  constructor() {}
-
   /**
    * Calculates the near clipping plane (zNear) for the camera based on the target entities' bounding boxes.
    * This method is used when autoCalculateZNearAndZFar is enabled and there are target entities.

@@ -1,9 +1,9 @@
-import type { Component } from './Component';
-import { Is } from '../misc/Is';
-import type { EntityRepository } from './EntityRepository';
-import { Config } from './Config';
-import type { ComponentTID, ComponentSID, EntityUID } from '../../types/CommonTypes';
+import type { ComponentSID, ComponentTID, EntityUID } from '../../types/CommonTypes';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
+import { Is } from '../misc/Is';
+import type { Component } from './Component';
+import { Config } from './Config';
+import type { EntityRepository } from './EntityRepository';
 
 /**
  * The repository class that manages all component classes and their instances.
@@ -17,12 +17,6 @@ export class ComponentRepository {
   private static __componentTIDs: Array<ComponentTID> = [];
   private static __renderingComponentTIDs: Array<ComponentTID> = [];
   static readonly invalidComponentSID = -1;
-
-  /**
-   * Creates a new instance of ComponentRepository.
-   * Note: This class is designed to be used statically, so instantiation is typically not necessary.
-   */
-  constructor() {}
 
   /**
    * Registers a component class with the repository.
@@ -97,10 +91,10 @@ export class ComponentRepository {
   public static createComponent(componentTid: ComponentTID, entityUid: EntityUID, entityRepository: EntityRepository) {
     const thisClass = ComponentRepository;
     const componentClass = thisClass.__componentClasses.get(componentTid);
-    if (componentClass != undefined) {
+    if (componentClass !== undefined) {
       // Update __component_sid_count_map
       let component_sid_count = this.__component_sid_count_map.get(componentTid);
-      if (component_sid_count == undefined) {
+      if (component_sid_count === undefined) {
         this.__component_sid_count_map.set(componentTid, 0);
         component_sid_count = ComponentRepository.invalidComponentSID;
       }
@@ -108,9 +102,9 @@ export class ComponentRepository {
       // check __components array whether it has undefined element
       const componentArray = this.__components.get(componentTid);
       let undefinedSid = -1;
-      if (componentArray != undefined) {
+      if (componentArray !== undefined) {
         for (let i = 0; i < componentArray.length; i++) {
-          if (componentArray[i] == undefined) {
+          if (componentArray[i] === undefined) {
             undefinedSid = i;
             break;
           }
@@ -139,9 +133,8 @@ export class ComponentRepository {
       const array = this.__components.get(componentTid);
       array![component.componentSID] = component;
       return component;
-    } else {
-      throw new Error('The Component Class object is invalid.');
     }
+    throw new Error('The Component Class object is invalid.');
   }
 
   /**
@@ -199,9 +192,8 @@ export class ComponentRepository {
       const component = map[componentSid];
       if (component != null) {
         return map[componentSid];
-      } else {
-        return undefined;
       }
+      return undefined;
     }
     return undefined;
   }

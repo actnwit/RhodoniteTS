@@ -1,17 +1,17 @@
-import { Vector3 } from '../../math/Vector3';
-import { MutableVector3 } from '../../math/MutableVector3';
 import type { SceneGraphComponent } from '../../components/SceneGraph/SceneGraphComponent';
-import { Quaternion } from '../../math/Quaternion';
-import { Time } from '../../misc/Time';
-import type { VRMSpring } from './VRMSpring';
-import type { VRMColliderGroup } from './VRMColliderGroup';
-import type { PhysicsStrategy } from '../PhysicsStrategy';
-import { MutableQuaternion } from '../../math/MutableQuaternion';
-import { Is } from '../../misc/Is';
-import type { VRMSpringBone } from './VRMSpringBone';
 import { Config } from '../../core/Config';
 import type { IVector3 } from '../../math/IVector';
 import { Matrix44 } from '../../math/Matrix44';
+import { MutableQuaternion } from '../../math/MutableQuaternion';
+import { MutableVector3 } from '../../math/MutableVector3';
+import { Quaternion } from '../../math/Quaternion';
+import { Vector3 } from '../../math/Vector3';
+import { Is } from '../../misc/Is';
+import { Time } from '../../misc/Time';
+import type { PhysicsStrategy } from '../PhysicsStrategy';
+import type { VRMColliderGroup } from './VRMColliderGroup';
+import type { VRMSpring } from './VRMSpring';
+import type { VRMSpringBone } from './VRMSpringBone';
 
 /**
  * Physics strategy implementation for VRM spring bone simulation.
@@ -63,11 +63,6 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __tmp_collision_vec3_3 = MutableVector3.zero();
 
   private __spring: VRMSpring | undefined;
-
-  /**
-   * Creates a new VRMSpringBonePhysicsStrategy instance.
-   */
-  constructor() {}
 
   /**
    * Gets the parent rotation of the specified scene graph component.

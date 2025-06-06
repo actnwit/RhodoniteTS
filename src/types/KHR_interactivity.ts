@@ -12,9 +12,9 @@ export interface KHR_interactivity_Type {
     | 'int';
 }
 
-export type KHR_interactivity_Variable = {}
+export type KHR_interactivity_Variable = {};
 
-export type KHR_interactivity_Event = {}
+export type KHR_interactivity_Event = {};
 
 export interface KHR_interactivity_Declaration {
   op: string;

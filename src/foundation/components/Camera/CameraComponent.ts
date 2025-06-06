@@ -1,36 +1,36 @@
-import { ComponentRepository } from '../../core/ComponentRepository';
+import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
+import type { RnXR } from '../../../xr/main';
 import { Component } from '../../core/Component';
-import { applyMixins, EntityRepository } from '../../core/EntityRepository';
-import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { Config } from '../../core/Config';
+import type { IEntity } from '../../core/Entity';
+import { EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { GlobalDataRepository } from '../../core/GlobalDataRepository';
+import { BufferUse } from '../../definitions/BufferUse';
+import { CameraType, type CameraTypeEnum } from '../../definitions/CameraType';
+import { ComponentType } from '../../definitions/ComponentType';
+import { LightType } from '../../definitions/LightType';
+import { ProcessApproach } from '../../definitions/ProcessApproach';
+import { ProcessStage } from '../../definitions/ProcessStage';
+import { ShaderSemantics } from '../../definitions/ShaderSemantics';
+import { Frustum } from '../../geometry/Frustum';
+import type { ICameraEntity } from '../../helpers/EntityHelper';
+import { MathUtil } from '../../math/MathUtil';
+import { Matrix44 } from '../../math/Matrix44';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
+import { MutableVector3 } from '../../math/MutableVector3';
+import { MutableVector4 } from '../../math/MutableVector4';
 import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
-import { type CameraTypeEnum, CameraType } from '../../definitions/CameraType';
-import { Matrix44 } from '../../math/Matrix44';
-import { BufferUse } from '../../definitions/BufferUse';
-import { ComponentType } from '../../definitions/ComponentType';
-import { MutableMatrix44 } from '../../math/MutableMatrix44';
-import { ProcessStage } from '../../definitions/ProcessStage';
-import { MutableVector4 } from '../../math/MutableVector4';
-import { MutableVector3 } from '../../math/MutableVector3';
-import { Frustum } from '../../geometry/Frustum';
-import { Config } from '../../core/Config';
-import type { ComponentTID, ComponentSID, EntityUID } from '../../../types/CommonTypes';
-import { GlobalDataRepository } from '../../core/GlobalDataRepository';
-import { ShaderSemantics } from '../../definitions/ShaderSemantics';
-import { MathUtil } from '../../math/MathUtil';
-import { ModuleManager } from '../../system/ModuleManager';
-import type { RnXR } from '../../../xr/main';
-import { RenderPass } from '../../renderer/RenderPass';
-import type { ICameraEntity } from '../../helpers/EntityHelper';
-import type { IEntity } from '../../core/Entity';
-import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { Is } from '../../misc/Is';
-import { LightType } from '../../definitions/LightType';
+import { RenderPass } from '../../renderer/RenderPass';
+import { ModuleManager } from '../../system/ModuleManager';
 import { SystemState } from '../../system/SystemState';
-import { ProcessApproach } from '../../definitions/ProcessApproach';
-import { TransformComponent } from '../Transform/TransformComponent';
 import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';
+import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { createGroupEntity } from '../SceneGraph/createGroupEntity';
+import { TransformComponent } from '../Transform/TransformComponent';
+import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 /**
  * The Component that represents a camera.
@@ -1076,7 +1076,8 @@ export class CameraComponent extends Component {
         const webXRSystem = rnXRModule.WebXRSystem.getInstance();
         if (this._xrLeft) {
           return webXRSystem.leftProjectionMatrix;
-        } else if (this._xrRight) {
+        }
+        if (this._xrRight) {
           return webXRSystem.rightProjectionMatrix;
         }
       }
@@ -1116,13 +1117,12 @@ export class CameraComponent extends Component {
         CameraComponent.__tmpMatrix44_0,
         CameraComponent.__tmpMatrix44_1
       );
-    } else {
-      return MutableMatrix44.multiplyTo(
-        CameraComponent.__biasMatrixWebGL,
-        CameraComponent.__tmpMatrix44_0,
-        CameraComponent.__tmpMatrix44_1
-      );
     }
+    return MutableMatrix44.multiplyTo(
+      CameraComponent.__biasMatrixWebGL,
+      CameraComponent.__tmpMatrix44_0,
+      CameraComponent.__tmpMatrix44_1
+    );
   }
 
   /**
@@ -1277,10 +1277,6 @@ export class CameraComponent extends Component {
     _componentClass: SomeComponentClass
   ) {
     class CameraEntity extends (base.constructor as any) {
-      constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
-        super(entityUID, isAlive, components);
-      }
-
       /**
        * Gets the camera component of this entity.
        *

@@ -1,55 +1,55 @@
 /// <reference types="@webgpu/types" />
 
-import { DataUtil } from '../foundation/misc/DataUtil';
-import { CompositionType } from '../foundation/definitions/CompositionType';
-import type { AbstractTexture } from '../foundation/textures/AbstractTexture';
+import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
+import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
+import { Config } from '../foundation/core/Config';
+import { EntityRepository } from '../foundation/core/EntityRepository';
+import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
+import { AlphaMode } from '../foundation/definitions/AlphaMode';
+import { BasisCompressionType, type BasisCompressionTypeEnum } from '../foundation/definitions/BasisCompressionType';
 import { ComponentType, type ComponentTypeEnum } from '../foundation/definitions/ComponentType';
+import { CompositionType } from '../foundation/definitions/CompositionType';
+import type { CompressionTextureTypeEnum } from '../foundation/definitions/CompressionTextureType';
+import { HdriFormat, type HdriFormatEnum } from '../foundation/definitions/HdriFormat';
 import { PixelFormat, type PixelFormatEnum } from '../foundation/definitions/PixelFormat';
+import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
+import { TextureFormat, type TextureFormatEnum } from '../foundation/definitions/TextureFormat';
 import { TextureParameter, type TextureParameterEnum } from '../foundation/definitions/TextureParameter';
 import { VertexAttribute, type VertexAttributeEnum } from '../foundation/definitions/VertexAttribute';
 import type { Mesh } from '../foundation/geometry/Mesh';
 import { Primitive } from '../foundation/geometry/Primitive';
+import { dummyBlackCubeTexture, dummyWhiteTexture } from '../foundation/materials/core/DummyTextures';
 import { Material } from '../foundation/materials/core/Material';
+import { MutableVector2 } from '../foundation/math/MutableVector2';
+import { MutableVector4 } from '../foundation/math/MutableVector4';
+import { Vector2 } from '../foundation/math/Vector2';
+import type { Vector4 } from '../foundation/math/Vector4';
 import type { Accessor } from '../foundation/memory/Accessor';
+import { DataUtil } from '../foundation/misc/DataUtil';
 import { Is } from '../foundation/misc/Is';
+import { Logger } from '../foundation/misc/Logger';
+import { MiscUtil } from '../foundation/misc/MiscUtil';
 import {
   CGAPIResourceRepository,
   type DirectTextureData,
   type ICGAPIResourceRepository,
   type ImageBitmapData,
 } from '../foundation/renderer/CGAPIResourceRepository';
+import type { FrameBuffer } from '../foundation/renderer/FrameBuffer';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
+import { SystemState } from '../foundation/system/SystemState';
+import type { AbstractTexture } from '../foundation/textures/AbstractTexture';
+import { CubeTexture } from '../foundation/textures/CubeTexture';
+import type { IRenderable } from '../foundation/textures/IRenderable';
+import type { RenderBuffer } from '../foundation/textures/RenderBuffer';
+import { RenderTargetTexture2DArray } from '../foundation/textures/RenderTargetTexture2DArray';
+import { RenderTargetTextureCube } from '../foundation/textures/RenderTargetTextureCube';
 import { Sampler } from '../foundation/textures/Sampler';
+import type { BasisFile } from '../types/BasisTexture';
 import type { Count, Index, Size, TypedArray, WebGLResourceHandle, WebGPUResourceHandle } from '../types/CommonTypes';
 import type { TextureData, VertexHandles } from '../webgl/WebGLResourceRepository';
 import type { AttributeNames } from '../webgl/types/CommonTypes';
 import type { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
-import { Config } from '../foundation/core/Config';
-import { HdriFormat, type HdriFormatEnum } from '../foundation/definitions/HdriFormat';
-import { dummyBlackCubeTexture, dummyWhiteTexture } from '../foundation/materials/core/DummyTextures';
-import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
-import { MutableVector2 } from '../foundation/math/MutableVector2';
-import { MutableVector4 } from '../foundation/math/MutableVector4';
-import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
-import { AlphaMode } from '../foundation/definitions/AlphaMode';
-import { MiscUtil } from '../foundation/misc/MiscUtil';
-import { CubeTexture } from '../foundation/textures/CubeTexture';
-import type { IRenderable } from '../foundation/textures/IRenderable';
-import type { FrameBuffer } from '../foundation/renderer/FrameBuffer';
-import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
-import type { RenderBuffer } from '../foundation/textures/RenderBuffer';
-import { Vector2 } from '../foundation/math/Vector2';
-import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
-import { EntityRepository } from '../foundation/core/EntityRepository';
-import { SystemState } from '../foundation/system/SystemState';
-import type { BasisFile } from '../types/BasisTexture';
-import { BasisCompressionType, type BasisCompressionTypeEnum } from '../foundation/definitions/BasisCompressionType';
-import type { CompressionTextureTypeEnum } from '../foundation/definitions/CompressionTextureType';
-import { TextureFormat, type TextureFormatEnum } from '../foundation/definitions/TextureFormat';
-import type { Vector4 } from '../foundation/math/Vector4';
-import { RenderTargetTextureCube } from '../foundation/textures/RenderTargetTextureCube';
-import { Logger } from '../foundation/misc/Logger';
-import { RenderTargetTexture2DArray } from '../foundation/textures/RenderTargetTexture2DArray';
 
 import HDRImage from '../../vendor/hdrpng.js';
 import { TextureArray } from '../foundation/textures/TextureArray';
@@ -441,7 +441,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       });
     }
 
-    if (this.__generateMipmapsPipeline != null && textureDescriptor.format != this.__generateMipmapsFormat) {
+    if (this.__generateMipmapsPipeline != null && textureDescriptor.format !== this.__generateMipmapsFormat) {
       this.__generateMipmapsPipeline = undefined;
     }
     if (this.__generateMipmapsPipeline == null) {
@@ -948,7 +948,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @returns True if compilation was successful, false otherwise
    */
   private __checkShaderCompileStatus(materialTypeName: string, shaderText: string, info: GPUCompilationInfo): boolean {
-    Logger.info('MaterialTypeName: ' + materialTypeName);
+    Logger.info(`MaterialTypeName: ${materialTypeName}`);
     const lineNumberedShaderText = MiscUtil.addLineNumberToCode(shaderText);
     Logger.info(lineNumberedShaderText);
     for (let i = 0; i < info.messages.length; i++) {
@@ -993,7 +993,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const vsModule = gpuDevice.createShaderModule({
       code: vertexShaderStr,
-      label: material.materialTypeName + ' vertex shader',
+      label: `${material.materialTypeName} vertex shader`,
     });
     if (Config.cgApiDebugConsoleOutput) {
       vsModule.getCompilationInfo().then(info => {
@@ -1004,7 +1004,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     }
     const fsModule = gpuDevice.createShaderModule({
       code: fragmentShaderStr,
-      label: material.materialTypeName + ' fragment shader',
+      label: `${material.materialTypeName} fragment shader`,
     });
     if (Config.cgApiDebugConsoleOutput) {
       fsModule.getCompilationInfo().then(info => {
@@ -3194,9 +3194,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
     if (texture.mipLevelCount > 1) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   duplicateTextureAsMipmapped(fromTexture: WebGPUResourceHandle): [WebGPUResourceHandle, WebGPUResourceHandle] {
@@ -3423,10 +3422,10 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     if (texture == null) {
       return;
     }
-      // delete the texture view for generating mipmaps
-      this.__srcTextureViewsForGeneratingMipmaps.delete(texture);
-      this.__dstTextureViewsForGeneratingMipmaps.delete(texture);
-      this.__bindGroupsForGeneratingMipmaps.delete(texture);
+    // delete the texture view for generating mipmaps
+    this.__srcTextureViewsForGeneratingMipmaps.delete(texture);
+    this.__dstTextureViewsForGeneratingMipmaps.delete(texture);
+    this.__bindGroupsForGeneratingMipmaps.delete(texture);
 
     texture.destroy();
     this.__webGpuResources.delete(textureHandle);

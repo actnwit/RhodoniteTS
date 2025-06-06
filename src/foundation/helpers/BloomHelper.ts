@@ -1,30 +1,24 @@
-import { MaterialHelper } from './MaterialHelper';
+import { ShaderSemantics } from '../definitions/ShaderSemantics';
+import { TextureFormat } from '../definitions/TextureFormat';
+import { TextureParameter } from '../definitions/TextureParameter';
 import { DetectHighLuminanceMaterialContent } from '../materials/contents/DetectHighLuminanceMaterialContent';
+import { SynthesizeHdrMaterialContent } from '../materials/contents/SynthesizeHdrMaterialContent';
+import { MathUtil } from '../math/MathUtil';
+import { Vector2 } from '../math/Vector2';
+import { VectorN } from '../math/VectorN';
+import { Expression } from '../renderer/Expression';
+import type { FrameBuffer } from '../renderer/FrameBuffer';
+import type { RenderPass } from '../renderer/RenderPass';
+import type { AbstractTexture } from '../textures/AbstractTexture';
+import type { RenderTargetTexture } from '../textures/RenderTargetTexture';
+import { MaterialHelper } from './MaterialHelper';
 import { RenderPassHelper } from './RenderPassHelper';
 import { RenderableHelper } from './RenderableHelper';
-import type { RenderPass } from '../renderer/RenderPass';
-import { MathUtil } from '../math/MathUtil';
-import { ShaderSemantics } from '../definitions/ShaderSemantics';
-import { Vector2 } from '../math/Vector2';
-import type { RenderTargetTexture } from '../textures/RenderTargetTexture';
-import { SynthesizeHdrMaterialContent } from '../materials/contents/SynthesizeHdrMaterialContent';
-import { Expression } from '../renderer/Expression';
-import type { AbstractTexture } from '../textures/AbstractTexture';
-import { VectorN } from '../math/VectorN';
-import { TextureParameter } from '../definitions/TextureParameter';
-import { TextureFormat } from '../definitions/TextureFormat';
-import type { FrameBuffer } from '../renderer/FrameBuffer';
 
 export class Bloom {
   private __mapReducedFramebuffer: Map<string, FrameBuffer> = new Map();
   private __mapDetectHighLuminanceFramebuffer: Map<string, FrameBuffer> = new Map();
   private __mapSynthesizeFramebuffer: Map<string, FrameBuffer> = new Map();
-
-  /**
-   * Constructs a new Bloom instance.
-   * Initializes internal framebuffer maps for caching render targets.
-   */
-  constructor() {}
 
   /**
    * Creates a complete bloom effect expression with all required render passes.
@@ -203,7 +197,7 @@ export class Bloom {
           resolutionHeightBlur
         );
       }
-      renderPassBlurH.tryToSetUniqueName('renderPassBlurH_' + i, true);
+      renderPassBlurH.tryToSetUniqueName(`renderPassBlurH_${i}`, true);
 
       const renderPassBlurHV = this.__createRenderPassGaussianBlur(
         renderPassBlurH,
@@ -213,7 +207,7 @@ export class Bloom {
         resolutionWidthBlur,
         resolutionHeightBlur
       );
-      renderPassBlurHV.tryToSetUniqueName('renderPassBlurHV_' + i, true);
+      renderPassBlurHV.tryToSetUniqueName(`renderPassBlurHV_${i}`, true);
 
       renderPasses.push(renderPassBlurH, renderPassBlurHV);
     }

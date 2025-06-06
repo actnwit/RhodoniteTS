@@ -1,42 +1,42 @@
-import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';
-import { ComponentRepository } from '../core/ComponentRepository';
-import { type ProcessApproachEnum, ProcessApproach } from '../definitions/ProcessApproach';
-import { ModuleManager } from './ModuleManager';
-import { CGAPIResourceRepository, type ICGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { Component } from '../core/Component';
-import { Expression } from '../renderer/Expression';
-import { EntityRepository } from '../core/EntityRepository';
-import { MemoryManager } from '../core/MemoryManager';
-import { GlobalDataRepository } from '../core/GlobalDataRepository';
-import { Vector3 } from '../math/Vector3';
-import { CameraType } from '../definitions/CameraType';
-import { Time } from '../misc/Time';
-import { SystemState } from './SystemState';
-import { MiscUtil } from '../misc/MiscUtil';
-import type { RnXR } from '../../xr/main';
-import { Is } from '../misc/Is';
-import type { ISceneGraphEntity } from '../helpers/EntityHelper';
-import { Config } from '../core/Config';
-import { Frame } from '../renderer/Frame';
-import { Vector4 } from '../math/Vector4';
-import { RenderPass } from '../renderer/RenderPass';
+import { VERSION } from '../../version';
 import type { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
-import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
-import { initDefaultTextures } from '../materials/core/DummyTextures';
-import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import type { WebGpuDeviceWrapper } from '../../webgpu/WebGpuDeviceWrapper';
+import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import { WebGpuStrategyBasic } from '../../webgpu/WebGpuStrategyBasic';
-import { CameraComponent } from '../components/Camera/CameraComponent';
+import type { RnXR } from '../../xr/main';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
+import { CameraComponent } from '../components/Camera/CameraComponent';
+import { createCameraEntity } from '../components/Camera/createCameraEntity';
 import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
 import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
 import { TransformComponent } from '../components/Transform/TransformComponent';
-import { Primitive } from '../geometry/Primitive';
-import { VERSION } from '../../version';
+import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
+import { Component } from '../core/Component';
+import { ComponentRepository } from '../core/ComponentRepository';
+import { Config } from '../core/Config';
+import { EntityRepository } from '../core/EntityRepository';
+import { GlobalDataRepository } from '../core/GlobalDataRepository';
+import { MemoryManager } from '../core/MemoryManager';
+import { CameraType } from '../definitions/CameraType';
+import { ProcessApproach, type ProcessApproachEnum } from '../definitions/ProcessApproach';
+import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
+import { Primitive } from '../geometry/Primitive';
+import type { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { initDefaultTextures } from '../materials/core/DummyTextures';
 import type { Scalar } from '../math/Scalar';
-import { createCameraEntity } from '../components/Camera/createCameraEntity';
+import { Vector3 } from '../math/Vector3';
+import { Vector4 } from '../math/Vector4';
+import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
+import { MiscUtil } from '../misc/MiscUtil';
+import { Time } from '../misc/Time';
+import { CGAPIResourceRepository, type ICGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import { Expression } from '../renderer/Expression';
+import { Frame } from '../renderer/Frame';
+import { RenderPass } from '../renderer/RenderPass';
+import { ModuleManager } from './ModuleManager';
+import { SystemState } from './SystemState';
 declare const spector: any;
 
 /**
@@ -228,7 +228,7 @@ export class System {
       const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
       for (const stage of Component._processStages) {
         const methodName = stage.methodName;
-        const commonMethodName = 'common_' + methodName;
+        const commonMethodName = `common_${methodName}`;
         if (stage === ProcessStage.Render) {
           const webGpuStrategyBasic = WebGpuStrategyBasic.getInstance();
           MeshRendererComponent.common_$prerender();
@@ -305,7 +305,7 @@ export class System {
       const renderingComponentTids = ComponentRepository.getRenderingComponentTIDs();
       for (const stage of Component._processStages) {
         const methodName = stage.methodName;
-        const commonMethodName = 'common_' + methodName;
+        const commonMethodName = `common_${methodName}`;
         if (stage === ProcessStage.Render) {
           MeshRendererComponent.common_$prerender();
           for (const exp of expressions) {
@@ -446,17 +446,17 @@ export class System {
   private static __displayRnInfo() {
     console.log(
       `%cRhodonite%cWeb3D Library%c %cversion%c${VERSION.version}%c %cbranch%c${VERSION.branch}%c %cmode%c${this.__processApproach.str}`,
-      `font-weight: bold; padding: 4px 8px; border-radius: 6px 0px 0px 6px; background: linear-gradient(to right, #ff0084 0%,#ff0022 100%);`,
-      `padding: 4px; border-radius: 0px 6px 6px 0px; background: linear-gradient(to right, #8400ff 0%,#4400ff 100%);`,
-      ``,
-      `background: #666; padding: 4px; border-radius: 6px 0px 0px 6px`,
-      `background: firebrick; padding: 4px; border-radius: 0px 6px 6px 0px`,
-      ``,
-      `background: #666; padding: 4px; border-radius: 6px 0px 0px 6px`,
-      `background: green; padding: 4px; border-radius: 0px 6px 6px 0px`,
-      ``,
-      `background: #666; padding: 4px; border-radius: 6px 0px 0px 6px`,
-      `background: blue; padding: 4px; border-radius: 0px 6px 6px 0px`
+      'font-weight: bold; padding: 4px 8px; border-radius: 6px 0px 0px 6px; background: linear-gradient(to right, #ff0084 0%,#ff0022 100%);',
+      'padding: 4px; border-radius: 0px 6px 6px 0px; background: linear-gradient(to right, #8400ff 0%,#4400ff 100%);',
+      '',
+      'background: #666; padding: 4px; border-radius: 6px 0px 0px 6px',
+      'background: firebrick; padding: 4px; border-radius: 0px 6px 6px 0px',
+      '',
+      'background: #666; padding: 4px; border-radius: 6px 0px 0px 6px',
+      'background: green; padding: 4px; border-radius: 0px 6px 6px 0px',
+      '',
+      'background: #666; padding: 4px; border-radius: 6px 0px 0px 6px',
+      'background: blue; padding: 4px; border-radius: 0px 6px 6px 0px'
     );
   }
 

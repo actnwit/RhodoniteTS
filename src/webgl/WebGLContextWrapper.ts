@@ -1,9 +1,9 @@
-import { type WebGLExtensionEnum, WebGLExtension } from './WebGLExtension';
-import type { RenderBufferTargetEnum } from '../foundation/definitions/RenderBufferTarget';
-import type { Index, Size } from '../types/CommonTypes';
-import { Vector4 } from '../foundation/math/Vector4';
 import { Config } from '../foundation/core/Config';
+import type { RenderBufferTargetEnum } from '../foundation/definitions/RenderBufferTarget';
+import { Vector4 } from '../foundation/math/Vector4';
 import { Logger } from '../foundation/misc/Logger';
+import type { Index, Size } from '../types/CommonTypes';
+import { WebGLExtension, type WebGLExtensionEnum } from './WebGLExtension';
 
 const INVALID_SIZE = -1;
 
@@ -220,9 +220,8 @@ export class WebGLContextWrapper {
   isSupportWebGL1Extension(webGLExtension: WebGLExtensionEnum) {
     if (this.__getExtension(webGLExtension)) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -250,9 +249,8 @@ export class WebGLContextWrapper {
   get isWebGL2() {
     if (this.__webglVersion === 2) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -526,8 +524,8 @@ export class WebGLContextWrapper {
       const extensionName = extension.toString();
       const extObj =
         gl.getExtension(extensionName) ??
-        gl.getExtension('MOZ_' + extensionName) ??
-        gl.getExtension('WEBKIT_' + extensionName);
+        gl.getExtension(`MOZ_${extensionName}`) ??
+        gl.getExtension(`WEBKIT_${extensionName}`);
 
       if (extObj == null && Config.cgApiDebugConsoleOutput) {
         const text = `${extension.toString()} Not Available in this environment`;

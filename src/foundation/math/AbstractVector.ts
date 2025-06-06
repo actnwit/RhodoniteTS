@@ -159,9 +159,8 @@ export abstract class AbstractVector implements IVector {
   isDummy(): boolean {
     if (this._v.length === 0) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**

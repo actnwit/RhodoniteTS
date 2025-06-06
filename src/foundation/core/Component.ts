@@ -1,20 +1,20 @@
-import { MemoryManager } from '../core/MemoryManager';
-import type { EntityRepository } from './EntityRepository';
-import type { BufferView } from '../memory/BufferView';
-import type { Accessor } from '../memory/Accessor';
-import type { BufferUseEnum } from '../definitions/BufferUse';
 import type { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
 import type { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
+import type { Byte, ComponentSID, Count, EntityUID, TypedArray } from '../../types/CommonTypes';
+import type { ComponentToComponentMethods } from '../components/ComponentTypes';
+import { MemoryManager } from '../core/MemoryManager';
+import type { BufferUseEnum } from '../definitions/BufferUse';
 import { ProcessStage, type ProcessStageEnum } from '../definitions/ProcessStage';
+import type { Accessor } from '../memory/Accessor';
+import type { BufferView } from '../memory/BufferView';
+import { RnException } from '../misc';
+import { Err, type Result } from '../misc/Result';
+import type { RenderPass } from '../renderer/RenderPass';
 import { ComponentRepository } from './ComponentRepository';
 import { Config } from './Config';
-import type { RenderPass } from '../renderer/RenderPass';
-import { RnObject } from './RnObject';
-import type { EntityUID, ComponentSID, TypedArray, Count, Byte } from '../../types/CommonTypes';
 import type { IEntity } from './Entity';
-import type { ComponentToComponentMethods } from '../components/ComponentTypes';
-import { Err, type Result } from '../misc/Result';
-import { RnException } from '../misc';
+import type { EntityRepository } from './EntityRepository';
+import { RnObject } from './RnObject';
 
 type MemberInfo = {
   memberName: string;
@@ -235,7 +235,7 @@ export class Component extends RnObject {
     processStage: ProcessStageEnum,
     renderPass: RenderPass
   ) {
-    const method = (componentClass as any)['sort_$render'];
+    const method = (componentClass as any).sort_$render;
     return method(renderPass);
   }
 
@@ -280,7 +280,7 @@ export class Component extends RnObject {
     isReUse: boolean,
     componentSid: ComponentSID
   ): any {
-    if (!(this as any)['_' + memberName].isDummy()) {
+    if (!(this as any)[`_${memberName}`].isDummy()) {
       return;
     }
 
@@ -290,10 +290,10 @@ export class Component extends RnObject {
     } else {
       taken = Component.__accessors.get(this.constructor)!.get(memberName)!.takeOne();
     }
-    (this as any)['_' + memberName] = new dataClassType(taken, false, true);
+    (this as any)[`_${memberName}`] = new dataClassType(taken, false, true);
 
-    for (let i = 0; i < (this as any)['_' + memberName]._v.length; ++i) {
-      (this as any)['_' + memberName]._v[i] = initValues[i];
+    for (let i = 0; i < (this as any)[`_${memberName}`]._v.length; ++i) {
+      (this as any)[`_${memberName}`]._v[i] = initValues[i];
     }
 
     return null;
@@ -346,7 +346,7 @@ export class Component extends RnObject {
       });
       if (bufferViewResult.isErr()) {
         return new Err({
-          message: 'Failed to take buffer view: ' + bufferViewResult.getRnError().message,
+          message: `Failed to take buffer view: ${bufferViewResult.getRnError().message}`,
           error: undefined,
         });
       }
@@ -358,18 +358,17 @@ export class Component extends RnObject {
       });
       if (accessorResult.isErr()) {
         return new Err({
-          message: 'Failed to take accessor: ' + accessorResult.getRnError().message,
+          message: `Failed to take accessor: ${accessorResult.getRnError().message}`,
           error: undefined,
         });
       }
       accessors.set(memberName, accessorResult.get());
       return accessorResult;
-    } else {
-      return new Err({
-        message: 'Already taken',
-        error: undefined,
-      });
     }
+    return new Err({
+      message: 'Already taken',
+      error: undefined,
+    });
   }
 
   /**
@@ -530,8 +529,8 @@ export class Component extends RnObject {
           if (accessorResult.isErr()) {
             throw new RnException(accessorResult.getRnError());
           }
-          (that as any)['_byteOffsetOfAccessorInBuffer_' + info.memberName] = accessorResult.get().byteOffsetInBuffer;
-          (that as any)['_byteOffsetOfAccessorInComponent_' + info.memberName] =
+          (that as any)[`_byteOffsetOfAccessorInBuffer_${info.memberName}`] = accessorResult.get().byteOffsetInBuffer;
+          (that as any)[`_byteOffsetOfAccessorInComponent_${info.memberName}`] =
             accessorResult.get().byteOffsetInBufferView;
         });
       }
@@ -557,16 +556,16 @@ export class Component extends RnObject {
    * @returns Detailed byte information object
    */
   static getDataByteInfoInner(component: Component, memberName: string) {
-    const data = (component as any)['_' + memberName];
+    const data = (component as any)[`_${memberName}`];
     const typedArray = data._v as TypedArray;
     const byteOffsetInBuffer = typedArray.byteOffset;
     const byteLength = typedArray.byteLength;
     const componentNumber = typedArray.length;
     const locationOffsetInBuffer = byteOffsetInBuffer / 4 / 4; // 4byte is the size of Float32Array, and texel fetch is 4 components unit.
     const byteOffsetInThisComponent =
-      (this as any)['_byteOffsetOfAccessorInComponent_' + memberName] + component.componentSID * componentNumber * 4;
+      (this as any)[`_byteOffsetOfAccessorInComponent_${memberName}`] + component.componentSID * componentNumber * 4;
     const locationOffsetInThisComponent =
-      (this as any)['_byteOffsetOfAccessorInComponent_' + memberName] + component.componentSID * componentNumber;
+      (this as any)[`_byteOffsetOfAccessorInComponent_${memberName}`] + component.componentSID * componentNumber;
     const thisComponentByteOffsetInBuffer = component.__byteOffsetOfThisComponent;
     const thisComponentLocationOffsetInBuffer = component.__byteOffsetOfThisComponent / 4 / 4;
 
@@ -625,7 +624,7 @@ export class Component extends RnObject {
    */
   static getLocationOffsetOfMemberOfComponent(componentType: typeof Component, memberName: string) {
     const component = ComponentRepository.getComponent(componentType, 0);
-    return (component as any)['_byteOffsetOfAccessorInBuffer_' + memberName] / 4 / 4;
+    return (component as any)[`_byteOffsetOfAccessorInBuffer_${memberName}`] / 4 / 4;
   }
 
   /**
@@ -721,9 +720,8 @@ export class Component extends RnObject {
     });
     if (info != null) {
       return info.compositionType;
-    } else {
-      return undefined;
     }
+    return undefined;
   }
 
   /**
@@ -741,9 +739,8 @@ export class Component extends RnObject {
     });
     if (info != null) {
       return info.componentType;
-    } else {
-      return undefined;
     }
+    return undefined;
   }
 
   /**

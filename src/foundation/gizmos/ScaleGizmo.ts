@@ -24,7 +24,7 @@ import { Vector4 } from '../math/Vector4';
 import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
 import { assertExist } from '../misc/MiscUtil';
-import { getEvent, InputManager, INPUT_HANDLING_STATE_GIZMO_SCALE } from '../system/InputManager';
+import { INPUT_HANDLING_STATE_GIZMO_SCALE, InputManager, getEvent } from '../system/InputManager';
 import { Gizmo } from './Gizmo';
 
 declare let window: any;
@@ -83,14 +83,6 @@ export class ScaleGizmo extends Gizmo {
   private __onPointerMoveFunc = this.__onPointerMove.bind(this);
   private __onPointerUpFunc = this.__onPointerUp.bind(this);
 
-  /**
-   * Creates a new ScaleGizmo instance
-   * @param target - The mesh entity that this gizmo will control
-   */
-  constructor(target: IMeshEntity) {
-    super(target);
-  }
-
   ///
   ///
   /// Accessors
@@ -104,9 +96,8 @@ export class ScaleGizmo extends Gizmo {
   get isSetup(): boolean {
     if (this.__topEntity != null) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -631,19 +622,19 @@ export class ScaleGizmo extends Gizmo {
     if (xResult.result) {
       assertExist(xResult.data);
       this.__pickStatedPoint = rotMat.multiplyVector(xResult.data.position.clone());
-      Logger.debug('Down:' + this.__pickStatedPoint.toStringApproximately());
+      Logger.debug(`Down:${this.__pickStatedPoint.toStringApproximately()}`);
       ScaleGizmo.__activeAxis = 'x';
     }
     if (yResult.result) {
       assertExist(yResult.data);
       this.__pickStatedPoint = rotMat.multiplyVector(yResult.data.position.clone());
-      Logger.debug('Down:' + this.__pickStatedPoint.toStringApproximately());
+      Logger.debug(`Down:${this.__pickStatedPoint.toStringApproximately()}`);
       ScaleGizmo.__activeAxis = 'y';
     }
     if (zResult.result) {
       assertExist(zResult.data);
       this.__pickStatedPoint = rotMat.multiplyVector(zResult.data.position.clone());
-      Logger.debug('Down:' + this.__pickStatedPoint.toStringApproximately());
+      Logger.debug(`Down:${this.__pickStatedPoint.toStringApproximately()}`);
       ScaleGizmo.__activeAxis = 'z';
     }
 
@@ -699,7 +690,7 @@ export class ScaleGizmo extends Gizmo {
         const position = rotMat.multiplyVector(xResult.data.position);
         pickInMovingPoint = Vector3.fromCopy3(position.x, pickInMovingPoint.y, pickInMovingPoint.z);
         // pickInMovingPoint = Vector3.fromCopy3(xResult.data.position.x, pickInMovingPoint.y, pickInMovingPoint.z);
-        Logger.debug('Move:' + xResult.data.position.toStringApproximately());
+        Logger.debug(`Move:${xResult.data.position.toStringApproximately()}`);
       }
       InputManager.disableCameraController();
     }
@@ -710,7 +701,7 @@ export class ScaleGizmo extends Gizmo {
         const position = rotMat.multiplyVector(yResult.data.position);
         pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, position.y, pickInMovingPoint.z);
         // pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, yResult.data.position.y, pickInMovingPoint.z);
-        Logger.debug('Move:' + yResult.data.position.toStringApproximately());
+        Logger.debug(`Move:${yResult.data.position.toStringApproximately()}`);
       }
       InputManager.disableCameraController();
     }
@@ -721,7 +712,7 @@ export class ScaleGizmo extends Gizmo {
         const position = rotMat.multiplyVector(zResult.data.position);
         pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, pickInMovingPoint.y, position.z);
         // pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, pickInMovingPoint.y, zResult.data.position.z);
-        Logger.debug('Move:' + zResult.data.position.toStringApproximately());
+        Logger.debug(`Move:${zResult.data.position.toStringApproximately()}`);
       }
       InputManager.disableCameraController();
     }
@@ -733,7 +724,7 @@ export class ScaleGizmo extends Gizmo {
       1 / aabb.lengthCenterToCorner
     );
 
-    Logger.debug(`${this.__target.uniqueName}: ` + deltaVector3.toStringApproximately());
+    Logger.debug(`${this.__target.uniqueName}: ${deltaVector3.toStringApproximately()}`);
 
     if (ScaleGizmo.__space === 'local') {
       this.__deltaPoint = Vector3.add(this.__targetScaleBackup, deltaVector3);

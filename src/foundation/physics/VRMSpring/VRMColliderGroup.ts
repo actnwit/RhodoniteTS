@@ -1,5 +1,5 @@
-import type { SphereCollider } from './SphereCollider';
 import type { CapsuleCollider } from './CapsuleCollider';
+import type { SphereCollider } from './SphereCollider';
 
 /**
  * A group of colliders used in VRM spring bone physics simulation.

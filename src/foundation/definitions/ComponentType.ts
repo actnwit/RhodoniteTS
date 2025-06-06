@@ -1,6 +1,6 @@
-import { EnumClass, type EnumIO, _from, _fromString } from '../misc/EnumIO';
 import type { TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
 import type { Gltf2AccessorComponentTypeNumber } from '../../types/glTF2';
+import { EnumClass, type EnumIO, _from, _fromString } from '../misc/EnumIO';
 
 export interface ComponentTypeEnum extends EnumIO {
   wgsl: string;
@@ -174,19 +174,26 @@ function fromString(str: string): ComponentTypeEnum {
 function fromTypedArray(typedArray: TypedArray): ComponentTypeEnum {
   if (typedArray instanceof Int8Array) {
     return Byte;
-  } else if (typedArray instanceof Uint8Array || typedArray instanceof Uint8ClampedArray) {
+  }
+  if (typedArray instanceof Uint8Array || typedArray instanceof Uint8ClampedArray) {
     return UnsignedByte;
-  } else if (typedArray instanceof Int16Array) {
+  }
+  if (typedArray instanceof Int16Array) {
     return Short;
-  } else if (typedArray instanceof Uint16Array) {
+  }
+  if (typedArray instanceof Uint16Array) {
     return UnsignedShort;
-  } else if (typedArray instanceof Int32Array) {
+  }
+  if (typedArray instanceof Int32Array) {
     return Int;
-  } else if (typedArray instanceof Uint32Array) {
+  }
+  if (typedArray instanceof Uint32Array) {
     return UnsignedInt;
-  } else if (typedArray instanceof Float32Array) {
+  }
+  if (typedArray instanceof Float32Array) {
     return Float;
-  } else if (typedArray instanceof Float64Array) {
+  }
+  if (typedArray instanceof Float64Array) {
     return Double;
   }
 
@@ -196,23 +203,29 @@ function fromTypedArray(typedArray: TypedArray): ComponentTypeEnum {
 function toTypedArray(componentType: ComponentTypeEnum): TypedArrayConstructor | undefined {
   if (componentType === Byte) {
     return Int8Array;
-  } else if (componentType === UnsignedByte) {
-    return Uint8Array;
-  } else if (componentType === Short) {
-    return Int16Array;
-  } else if (componentType === UnsignedShort) {
-    return Uint16Array;
-  } else if (componentType === Int) {
-    return Int32Array;
-  } else if (componentType === UnsignedInt) {
-    return Uint32Array;
-  } else if (componentType === Float) {
-    return Float32Array;
-  } else if (componentType === Double) {
-    return Float64Array;
-  } else {
-    return undefined;
   }
+  if (componentType === UnsignedByte) {
+    return Uint8Array;
+  }
+  if (componentType === Short) {
+    return Int16Array;
+  }
+  if (componentType === UnsignedShort) {
+    return Uint16Array;
+  }
+  if (componentType === Int) {
+    return Int32Array;
+  }
+  if (componentType === UnsignedInt) {
+    return Uint32Array;
+  }
+  if (componentType === Float) {
+    return Float32Array;
+  }
+  if (componentType === Double) {
+    return Float64Array;
+  }
+  return undefined;
 }
 
 function fromWgslString(str_: string): ComponentTypeEnum {

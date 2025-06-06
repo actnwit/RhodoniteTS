@@ -21,13 +21,14 @@ export function getProcessApproach(Rn: any) {
 
   if (mode === 'uniform') {
     return Rn.ProcessApproach.Uniform;
-  } else if (mode === 'datatexture') {
-    return Rn.ProcessApproach.DataTexture;
-  } else if (mode === 'webgpu') {
-    return Rn.ProcessApproach.WebGPU;
-  } else {
-    return Rn.ProcessApproach.DataTexture; // Default
   }
+  if (mode === 'datatexture') {
+    return Rn.ProcessApproach.DataTexture;
+  }
+  if (mode === 'webgpu') {
+    return Rn.ProcessApproach.WebGPU;
+  }
+  return Rn.ProcessApproach.DataTexture; // Default
 }
 
 export function getGltfFilePath() {

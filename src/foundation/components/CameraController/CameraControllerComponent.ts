@@ -1,16 +1,16 @@
-import { Component } from '../../core/Component';
-import type { EntityUID, ComponentSID, ComponentTID } from '../../../types/CommonTypes';
-import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
-import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
-import { OrbitCameraController } from '../../cameras/OrbitCameraController';
+import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
 import type { ICameraController } from '../../cameras/ICameraController';
+import { OrbitCameraController } from '../../cameras/OrbitCameraController';
 import { WalkThroughCameraController } from '../../cameras/WalkThroughCameraController';
-import { type CameraControllerTypeEnum, CameraControllerType } from '../../definitions/CameraControllerType';
+import { Component } from '../../core/Component';
 import type { IEntity } from '../../core/Entity';
-import type { ComponentToComponentMethods } from '../ComponentTypes';
+import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions';
+import { CameraControllerType, type CameraControllerTypeEnum } from '../../definitions/CameraControllerType';
 import { ICameraControllerEntity } from '../../helpers/EntityHelper';
 import { Logger } from '../../misc/Logger';
+import type { ComponentToComponentMethods } from '../ComponentTypes';
+import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 /**
  * A component that manages and controls camera behavior and movement.
@@ -58,9 +58,8 @@ export class CameraControllerComponent extends Component {
   get type() {
     if (this.__cameraController instanceof OrbitCameraController) {
       return CameraControllerType.Orbit;
-    } else {
-      return CameraControllerType.WalkThrough;
     }
+    return CameraControllerType.WalkThrough;
   }
 
   /**
@@ -140,10 +139,6 @@ export class CameraControllerComponent extends Component {
     _componentClass: SomeComponentClass
   ) {
     class CameraControllerEntity extends (base.constructor as any) {
-      constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
-        super(entityUID, isAlive, components);
-      }
-
       getCameraController() {
         return this.getComponentByComponentTID(
           WellKnownComponentTIDs.CameraControllerComponentTID

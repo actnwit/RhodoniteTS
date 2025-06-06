@@ -1,11 +1,11 @@
-import { BufferView } from './BufferView';
-import type { Byte, TypedArray } from '../../types/CommonTypes';
-import { CompositionType, type CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 import { ComponentType, type ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
+import type { Byte, TypedArray } from '../../types/CommonTypes';
+import { BufferView } from './BufferView';
 
 import { DataUtil } from '../misc/DataUtil';
-import { Err, Ok, type Result } from '../misc/Result';
 import { Logger } from '../misc/Logger';
+import { Err, Ok, type Result } from '../misc/Result';
 
 /**
  * A Buffer class that manages memory allocation and provides BufferView creation functionality.

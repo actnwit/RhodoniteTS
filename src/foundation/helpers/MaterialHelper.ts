@@ -1,69 +1,79 @@
-import { Config } from '../core/Config';
-import type { Material } from '../materials/core/Material';
-import type { RenderPass } from '../renderer/RenderPass';
-import type { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
-import { DepthEncodeMaterialContent } from '../materials/contents/DepthEncodeMaterialContent';
-import { ShadowMapDecodeClassicMaterialContent } from '../materials/contents/ShadowMapDecodeClassicMaterialContent';
-import { EntityUIDOutputMaterialContent } from '../materials/contents/EntityUIDOutputMaterialContent';
-import { MToon0xMaterialContent } from '../materials/contents/MToon0xMaterialContent';
-import { CustomMaterialContent } from '../materials/contents/CustomMaterialContent';
-import type { Primitive } from '../geometry/Primitive';
-import { ProcessStage } from '../definitions/ProcessStage';
-import type { AbstractTexture } from '../textures/AbstractTexture';
-import { FurnaceTestMaterialContent } from '../materials/contents/FurnaceTestMaterialContent';
-import { DetectHighLuminanceMaterialContent } from '../materials/contents/DetectHighLuminanceMaterialContent';
-import { SynthesizeHdrMaterialContent as SynthesizeHDRMaterialContent } from '../materials/contents/SynthesizeHdrMaterialContent';
-import { ColorGradingUsingLUTsMaterialContent } from '../materials/contents/ColorGradingUsingLUTsMaterialContent';
-import { MatCapMaterialContent } from '../materials/contents/MatCapMaterialContent';
-import { VarianceShadowMapDecodeClassicMaterialContent } from '../materials/contents/VarianceShadowMapDecodeClassicMaterialContent';
-import type { Texture } from '../textures/Texture';
-import type { CameraComponent } from '../components/Camera/CameraComponent';
+import { RnM2Material, type Vrm0xMaterialProperty } from '../../types';
 import type { Count } from '../../types/CommonTypes';
+import type { Vrm1_Material } from '../../types/VRMC_materials_mtoon';
+import ClassicSingleShaderFragment from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
+import ClassicSingleShaderVertex from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
+import DepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.frag';
+import DepthMomentEncodeShaderVertex from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert';
+import EnvConstantSingleShaderFragment from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
+import EnvConstantSingleShaderVertex from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.vert';
+import FXAA3QualityShaderFragment from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.frag';
+import FXAA3QualityShaderVertex from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.vert';
+import FlatSingleShaderFragment from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
+import FlatSingleShaderVertex from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
+import GammaCorrectionShaderFragment from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
+import GammaCorrectionShaderVertex from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
+import GaussianBlurForEncodedDepthSingleShaderFragment from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.frag';
+import GaussianBlurForEncodedDepthSingleShaderVertex from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.vert';
+import GaussianBlurSingleShaderFragment from '../../webgl/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.frag';
+import GaussianBlurSingleShaderVertex from '../../webgl/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.vert';
+import PanoramaToCubeShaderFragment from '../../webgl/shaderity_shaders/PanoramaToCubeShader/PanoramaToCubeShader.frag';
+import PanoramaToCubeShaderVertex from '../../webgl/shaderity_shaders/PanoramaToCubeShader/PanoramaToCubeShader.vert';
+import ParaboloidDepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.frag.glsl';
+import ParaboloidDepthMomentEncodeShaderVertex from '../../webgl/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.vert.glsl';
+import pbrSingleShaderFragment from '../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
+import pbrSingleShaderVertex from '../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
+import PrefilterIBLShaderFragment from '../../webgl/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.frag';
+import PrefilterIBLShaderVertex from '../../webgl/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.vert';
+import SummedAreaTableShaderFragment from '../../webgl/shaderity_shaders/SummedAreaTableShader/SummedAreaTableShader.frag';
+import SummedAreaTableShaderVertex from '../../webgl/shaderity_shaders/SummedAreaTableShader/SummedAreaTableShader.vert';
+import ToneMappingShaderFragmentGLSL from '../../webgl/shaderity_shaders/ToneMappingShader/ToneMappingShader.frag';
+import ToneMappingShaderVertexGLSL from '../../webgl/shaderity_shaders/ToneMappingShader/ToneMappingShader.vert';
+import ClassicSingleShaderFragmentWebgpu from '../../webgpu/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
+import ClassicSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
+import DepthMomentEncodeShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.frag.wgsl';
+import DepthMomentEncodeShaderVertexWebGpu from '../../webgpu/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert.wgsl';
+import EnvConstantSingleShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
+import EnvConstantSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.vert';
+import FlatSingleShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
+import FlatSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
+import GammaCorrectionShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
+import GammaCorrectionShaderVertexWebGpu from '../../webgpu/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
+import GaussianBlurSingleShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.frag';
+import GaussianBlurSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.vert';
+import PanoramaToCubeShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/PanoramaToCubeShader/PanoramaToCubeShader.frag.wgsl';
+import PanoramaToCubeShaderVertexWebGpu from '../../webgpu/shaderity_shaders/PanoramaToCubeShader/PanoramaToCubeShader.vert.wgsl';
+import ParaboloidDepthMomentEncodeShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.frag.wgsl';
+import ParaboloidDepthMomentEncodeShaderVertexWebGpu from '../../webgpu/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.vert.wgsl';
+import pbrSingleShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
+import pbrSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
+import PrefilterIBLShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.frag.wgsl';
+import PrefilterIBLShaderVertexWebGpu from '../../webgpu/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.vert.wgsl';
+import ToneMappingShaderFragmentWGSL from '../../webgpu/shaderity_shaders/ToneMappingShader/ToneMappingShader.frag.wgsl';
+import ToneMappingShaderVertexWGSL from '../../webgpu/shaderity_shaders/ToneMappingShader/ToneMappingShader.vert.wgsl';
+import type { CameraComponent } from '../components/Camera/CameraComponent';
 import type { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
+import { Config } from '../core/Config';
+import { ProcessApproach, TextureParameter } from '../definitions';
 import { ComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
-import { ShaderType } from '../definitions/ShaderType';
-import { VectorN } from '../math/VectorN';
+import { ProcessStage } from '../definitions/ProcessStage';
 import type { ShaderSemanticsInfo } from '../definitions/ShaderSemanticsInfo';
-import ClassicSingleShaderVertex from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
-import ClassicSingleShaderFragment from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
-import ClassicSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
-import ClassicSingleShaderFragmentWebgpu from '../../webgpu/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
-import pbrSingleShaderVertex from '../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
-import pbrSingleShaderFragment from '../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
-import pbrSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
-import pbrSingleShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
-import EnvConstantSingleShaderVertex from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.vert';
-import EnvConstantSingleShaderFragment from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
-import EnvConstantSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.vert';
-import EnvConstantSingleShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
-import FXAA3QualityShaderVertex from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.vert';
-import FXAA3QualityShaderFragment from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.frag';
-import GammaCorrectionShaderVertex from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
-import GammaCorrectionShaderFragment from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
-import GammaCorrectionShaderVertexWebGpu from '../../webgpu/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
-import GammaCorrectionShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
-import ToneMappingShaderVertexGLSL from '../../webgl/shaderity_shaders/ToneMappingShader/ToneMappingShader.vert';
-import ToneMappingShaderFragmentGLSL from '../../webgl/shaderity_shaders/ToneMappingShader/ToneMappingShader.frag';
-import ToneMappingShaderVertexWGSL from '../../webgpu/shaderity_shaders/ToneMappingShader/ToneMappingShader.vert.wgsl';
-import ToneMappingShaderFragmentWGSL from '../../webgpu/shaderity_shaders/ToneMappingShader/ToneMappingShader.frag.wgsl';
-import SummedAreaTableShaderVertex from '../../webgl/shaderity_shaders/SummedAreaTableShader/SummedAreaTableShader.vert';
-import SummedAreaTableShaderFragment from '../../webgl/shaderity_shaders/SummedAreaTableShader/SummedAreaTableShader.frag';
-import FlatSingleShaderVertex from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
-import FlatSingleShaderFragment from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
-import FlatSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
-import FlatSingleShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
-import DepthMomentEncodeShaderVertex from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert';
-import DepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.frag';
-import DepthMomentEncodeShaderVertexWebGpu from '../../webgpu/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert.wgsl';
-import DepthMomentEncodeShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.frag.wgsl';
-import ParaboloidDepthMomentEncodeShaderVertex from '../../webgl/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.vert.glsl';
-import ParaboloidDepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.frag.glsl';
-import ParaboloidDepthMomentEncodeShaderVertexWebGpu from '../../webgpu/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.vert.wgsl';
-import ParaboloidDepthMomentEncodeShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.frag.wgsl';
-import { MaterialRepository } from '../materials/core/MaterialRepository';
-import { RnM2Material, type Vrm0xMaterialProperty } from '../../types';
-import { Sampler } from '../textures/Sampler';
+import { ShaderType } from '../definitions/ShaderType';
+import type { Primitive } from '../geometry/Primitive';
+import { ColorGradingUsingLUTsMaterialContent } from '../materials/contents/ColorGradingUsingLUTsMaterialContent';
+import { CustomMaterialContent } from '../materials/contents/CustomMaterialContent';
+import { DepthEncodeMaterialContent } from '../materials/contents/DepthEncodeMaterialContent';
+import { DetectHighLuminanceMaterialContent } from '../materials/contents/DetectHighLuminanceMaterialContent';
+import { EntityUIDOutputMaterialContent } from '../materials/contents/EntityUIDOutputMaterialContent';
+import { FurnaceTestMaterialContent } from '../materials/contents/FurnaceTestMaterialContent';
+import { MToon0xMaterialContent } from '../materials/contents/MToon0xMaterialContent';
+import { MToon1MaterialContent } from '../materials/contents/MToon1MaterialContent';
+import { MatCapMaterialContent } from '../materials/contents/MatCapMaterialContent';
+import { ShadowMapDecodeClassicMaterialContent } from '../materials/contents/ShadowMapDecodeClassicMaterialContent';
+import { SynthesizeHdrMaterialContent as SynthesizeHDRMaterialContent } from '../materials/contents/SynthesizeHdrMaterialContent';
+import { VarianceShadowMapDecodeClassicMaterialContent } from '../materials/contents/VarianceShadowMapDecodeClassicMaterialContent';
+import type { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
 import {
   dummyAnisotropyTexture,
   dummyBlackCubeTexture,
@@ -73,27 +83,17 @@ import {
   dummyWhiteTexture,
   sheenLutTexture,
 } from '../materials/core/DummyTextures';
-import GaussianBlurSingleShaderVertex from '../../webgl/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.vert';
-import GaussianBlurSingleShaderFragment from '../../webgl/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.frag';
-import GaussianBlurSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.vert';
-import GaussianBlurSingleShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.frag';
-import GaussianBlurForEncodedDepthSingleShaderVertex from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.vert';
-import GaussianBlurForEncodedDepthSingleShaderFragment from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.frag';
-import PanoramaToCubeShaderVertex from '../../webgl/shaderity_shaders/PanoramaToCubeShader/PanoramaToCubeShader.vert';
-import PanoramaToCubeShaderFragment from '../../webgl/shaderity_shaders/PanoramaToCubeShader/PanoramaToCubeShader.frag';
-import PanoramaToCubeShaderVertexWebGpu from '../../webgpu/shaderity_shaders/PanoramaToCubeShader/PanoramaToCubeShader.vert.wgsl';
-import PanoramaToCubeShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/PanoramaToCubeShader/PanoramaToCubeShader.frag.wgsl';
-import PrefilterIBLShaderVertex from '../../webgl/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.vert';
-import PrefilterIBLShaderFragment from '../../webgl/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.frag';
-import PrefilterIBLShaderVertexWebGpu from '../../webgpu/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.vert.wgsl';
-import PrefilterIBLShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.frag.wgsl';
+import type { Material } from '../materials/core/Material';
+import { MaterialRepository } from '../materials/core/MaterialRepository';
 import { Scalar } from '../math/Scalar';
-import { ProcessApproach, TextureParameter } from '../definitions';
 import { Vector2 } from '../math/Vector2';
-import { SystemState } from '../system/SystemState';
-import { MToon1MaterialContent } from '../materials/contents/MToon1MaterialContent';
-import type { Vrm1_Material } from '../../types/VRMC_materials_mtoon';
+import { VectorN } from '../math/VectorN';
 import { DataUtil } from '../misc/DataUtil';
+import type { RenderPass } from '../renderer/RenderPass';
+import { SystemState } from '../system/SystemState';
+import type { AbstractTexture } from '../textures/AbstractTexture';
+import { Sampler } from '../textures/Sampler';
+import type { Texture } from '../textures/Texture';
 
 const g_sampler = new Sampler({
   minFilter: TextureParameter.Linear,
@@ -116,7 +116,7 @@ function createMaterial(materialContent: AbstractMaterialContent, maxInstancesNu
   let isFull = false;
   const materialSemanticsVariantName = materialContent.getMaterialSemanticsVariantName();
   do {
-    const actualMaterialTypeName = materialSemanticsVariantName + `__group${group}`;
+    const actualMaterialTypeName = `${materialSemanticsVariantName}__group${group}`;
     isFull = MaterialRepository.isFullOrOverOfThisMaterialType(actualMaterialTypeName);
     if (!isFull) {
       MaterialRepository.registerMaterial(actualMaterialTypeName, materialContent, maxInstancesNumber!);
@@ -148,12 +148,11 @@ function reuseOrRecreateMaterial(
     material._materialContent = materialContent;
     material.makeShadersInvalidate();
     return material;
-  } else {
-    const materialSemanticsVariantName = materialContent.getMaterialSemanticsVariantName();
-    MaterialRepository.registerMaterial(materialSemanticsVariantName, materialContent, maxInstancesNumber);
-    material = MaterialRepository.createMaterial(materialSemanticsVariantName, materialContent);
-    return material;
   }
+  const materialSemanticsVariantName = materialContent.getMaterialSemanticsVariantName();
+  MaterialRepository.registerMaterial(materialSemanticsVariantName, materialContent, maxInstancesNumber);
+  material = MaterialRepository.createMaterial(materialSemanticsVariantName, materialContent);
+  return material;
 }
 
 /**
@@ -221,7 +220,7 @@ function createPbrUberMaterial({
   useNormalTexture = true,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType,
 } = {}) {
-  const materialName = 'PbrUber' + `_${additionalName}_`;
+  const materialName = `PbrUber_${additionalName}_`;
 
   let additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
   if (true) {
@@ -574,7 +573,7 @@ function createClassicUberMaterial({
   isShadow = false,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType,
 } = {}) {
-  const materialName = 'ClassicUber' + `_${additionalName}_`;
+  const materialName = `ClassicUber_${additionalName}_`;
   const additionalShaderSemanticInfo = [
     {
       semantic: 'dataTextureMorphOffsetPosition',
@@ -645,7 +644,7 @@ function createParaboloidDepthMomentEncodeMaterial({
   isMorphing = false,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType,
 } = {}) {
-  const materialName = 'ParaboloidDepthMomentEncode' + `_${additionalName}_`;
+  const materialName = `ParaboloidDepthMomentEncode_${additionalName}_`;
 
   const additionalShaderSemanticInfo = [
     {
@@ -709,7 +708,7 @@ function createDepthMomentEncodeMaterial({
   isMorphing = false,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType,
 } = {}) {
-  const materialName = 'DepthMomentEncode' + `_${additionalName}_`;
+  const materialName = `DepthMomentEncode_${additionalName}_`;
 
   const additionalShaderSemanticInfo = [
     {
@@ -773,7 +772,7 @@ function createFlatMaterial({
   isMorphing = false,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType,
 } = {}) {
-  const materialName = 'Flat' + `_${additionalName}_`;
+  const materialName = `Flat_${additionalName}_`;
 
   const materialContent = new CustomMaterialContent({
     name: materialName,
@@ -803,7 +802,7 @@ function createFlatMaterial({
  * @returns A configured Environment Constant Material instance
  */
 function createEnvConstantMaterial({ additionalName = '', maxInstancesNumber = 5, makeOutputSrgb = true } = {}) {
-  const materialName = 'EnvConstant' + `_${additionalName}`;
+  const materialName = `EnvConstant_${additionalName}`;
 
   const materialContent = new CustomMaterialContent({
     name: materialName,
@@ -831,7 +830,7 @@ function createEnvConstantMaterial({ additionalName = '', maxInstancesNumber = 5
  * @returns A configured FXAA3 Quality Material instance
  */
 function createFXAA3QualityMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
-  const materialName = 'FXAA3Quality' + `_${additionalName}`;
+  const materialName = `FXAA3Quality_${additionalName}`;
 
   const materialContent = new CustomMaterialContent({
     name: materialName,
@@ -857,7 +856,7 @@ function createFXAA3QualityMaterial({ additionalName = '', maxInstancesNumber = 
  * @returns A configured Furnace Test Material instance
  */
 function createFurnaceTestMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
-  const materialName = 'FurnaceTest' + `_${additionalName}`;
+  const materialName = `FurnaceTest_${additionalName}`;
   const materialContent = new FurnaceTestMaterialContent(materialName);
   const material = createMaterial(materialContent, maxInstancesNumber);
 
@@ -881,7 +880,7 @@ function createDepthEncodeMaterial({
   depthPow = 1.0,
   maxInstancesNumber = 10,
 } = {}) {
-  const materialName = 'DepthEncode' + `_${additionalName}_`;
+  const materialName = `DepthEncode_${additionalName}_`;
 
   const materialContent = new DepthEncodeMaterialContent(materialName, depthPow, {
     isSkinning,
@@ -918,10 +917,10 @@ function createShadowMapDecodeClassicSingleMaterial(
     isDebugging = false,
     colorAttachmentsNumber = 0,
     maxInstancesNumber = 20,
-  } = {},
+  },
   depthEncodeRenderPass: RenderPass
 ) {
-  const materialName = 'ShadowMapDecodeClassic' + `_${additionalName}_`;
+  const materialName = `ShadowMapDecodeClassic_${additionalName}_`;
 
   const materialContent = new ShadowMapDecodeClassicMaterialContent(
     materialName,
@@ -961,7 +960,7 @@ function createShadowMapDecodeClassicSingleMaterial(
  * @returns A configured Gaussian Blur for Encoded Depth Material instance
  */
 function createGaussianBlurForEncodedDepthMaterial({ additionalName = '', maxInstancesNumber = 10 } = {}) {
-  const materialName = 'GaussianBlurForEncodedDepth' + `_${additionalName}`;
+  const materialName = `GaussianBlurForEncodedDepth_${additionalName}`;
 
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
   const gaussianRatio = new Float32Array(30);
@@ -1071,7 +1070,7 @@ function createVarianceShadowMapDecodeClassicSingleMaterial(
   },
   encodedDepthRenderPasses: RenderPass[]
 ) {
-  const materialName = 'VarianceShadowMapDecodeClassic' + `_${additionalName}_`;
+  const materialName = `VarianceShadowMapDecodeClassic_${additionalName}_`;
   const materialContent = new VarianceShadowMapDecodeClassicMaterialContent(
     materialName,
     {
@@ -1112,10 +1111,10 @@ function createVarianceShadowMapDecodeClassicSingleMaterial(
  * @returns A configured Detect High Luminance Material instance
  */
 function createDetectHighLuminanceMaterial(
-  { additionalName = '', maxInstancesNumber = 5 } = {},
+  { additionalName = '', maxInstancesNumber = 5 },
   textureToDetectHighLuminance: AbstractTexture
 ) {
-  const materialName = 'DetectHighLuminance' + `_${additionalName}_`;
+  const materialName = `DetectHighLuminance_${additionalName}_`;
   const materialContent = new DetectHighLuminanceMaterialContent(materialName, textureToDetectHighLuminance);
   const material = createMaterial(materialContent, maxInstancesNumber);
   return material;
@@ -1131,7 +1130,7 @@ function createDetectHighLuminanceMaterial(
  * @returns A configured Gaussian Blur Material instance
  */
 function createGaussianBlurMaterial({ additionalName = '', maxInstancesNumber = 10 } = {}): Material {
-  const materialName = 'GaussianBlur' + `_${additionalName}`;
+  const materialName = `GaussianBlur_${additionalName}`;
 
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
   const gaussianRatio = new Float32Array(30);
@@ -1221,7 +1220,7 @@ function createSynthesizeHDRMaterial(
   },
   synthesizeTextures: AbstractTexture[]
 ) {
-  const materialName = 'SynthesizeHDR' + `_${additionalName}`;
+  const materialName = `SynthesizeHDR_${additionalName}`;
 
   const materialContent = new SynthesizeHDRMaterialContent(materialName, synthesizeTextures);
   const material = createMaterial(materialContent, maxInstancesNumber);
@@ -1258,7 +1257,7 @@ function createColorGradingUsingLUTsMaterial(
   },
   targetRenderPass: RenderPass
 ) {
-  const materialName = 'ColorGradingUsingLUTs' + `_${additionalName}`;
+  const materialName = `ColorGradingUsingLUTs_${additionalName}`;
 
   const materialContent = new ColorGradingUsingLUTsMaterialContent(
     materialName,
@@ -1282,7 +1281,7 @@ function createColorGradingUsingLUTsMaterial(
  * @returns A configured Gamma Correction Material instance
  */
 function createGammaCorrectionMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
-  const materialName = 'GammaCorrection' + `_${additionalName}`;
+  const materialName = `GammaCorrection_${additionalName}`;
 
   const materialContent = new CustomMaterialContent({
     name: materialName,
@@ -1310,7 +1309,7 @@ function createGammaCorrectionMaterial({ additionalName = '', maxInstancesNumber
  * @returns A configured Tone Mapping Material instance
  */
 function createToneMappingMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
-  const materialName = 'ToneMapping' + `_${additionalName}`;
+  const materialName = `ToneMapping_${additionalName}`;
 
   const materialContent = new CustomMaterialContent({
     name: materialName,
@@ -1339,7 +1338,7 @@ function createToneMappingMaterial({ additionalName = '', maxInstancesNumber = 1
  * @returns A configured Summed Area Table Material instance
  */
 function createSummedAreaTableMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
-  const materialName = 'SummedAreaTable' + `_${additionalName}`;
+  const materialName = `SummedAreaTable_${additionalName}`;
 
   const materialContent = new CustomMaterialContent({
     name: materialName,
@@ -1365,7 +1364,7 @@ function createSummedAreaTableMaterial({ additionalName = '', maxInstancesNumber
  * @returns A configured Panorama to Cube Material instance
  */
 function createPanoramaToCubeMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
-  const materialName = 'PanoramaToCube' + `_${additionalName}`;
+  const materialName = `PanoramaToCube_${additionalName}`;
 
   const materialContent = new CustomMaterialContent({
     name: materialName,
@@ -1393,7 +1392,7 @@ function createPanoramaToCubeMaterial({ additionalName = '', maxInstancesNumber 
  * @returns A configured Prefilter IBL Material instance
  */
 function createPrefilterIBLMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
-  const materialName = 'PrefilterIBL' + `_${additionalName}`;
+  const materialName = `PrefilterIBL_${additionalName}`;
 
   const materialContent = new CustomMaterialContent({
     name: materialName,
@@ -1439,7 +1438,7 @@ function createMatCapMaterial({
   sampler?: Sampler;
   maxInstancesNumber?: Count;
 }) {
-  const materialName = 'MatCap' + `_${additionalName}`;
+  const materialName = `MatCap_${additionalName}`;
 
   const materialContent = new MatCapMaterialContent(materialName, isSkinning, uri, texture, sampler);
   const material = createMaterial(materialContent, maxInstancesNumber);
@@ -1460,7 +1459,7 @@ function createMatCapMaterial({
  * @returns A configured Entity UID Output Material instance
  */
 function createEntityUIDOutputMaterial({ additionalName = '', maxInstancesNumber = 10 } = {}): Material {
-  const materialName = 'EntityUIDOutput' + `_${additionalName}`;
+  const materialName = `EntityUIDOutput_${additionalName}`;
 
   const materialContent = new EntityUIDOutputMaterialContent(materialName);
   const material = createMaterial(materialContent, maxInstancesNumber);
@@ -1514,7 +1513,7 @@ function createMToon0xMaterial({
   maxInstancesNumber?: Count;
   makeOutputSrgb?: boolean;
 }) {
-  const materialName = 'MToon0x' + `_${additionalName}_`;
+  const materialName = `MToon0x_${additionalName}_`;
 
   const definitions = [];
   if (isSkinning) {
@@ -1597,7 +1596,7 @@ function createMToon1Material({
   maxInstancesNumber?: Count;
   makeOutputSrgb?: boolean;
 }) {
-  const materialName = 'MToon1' + `_${additionalName}_`;
+  const materialName = `MToon1_${additionalName}_`;
 
   const definitions = [];
   if (isSkinning) {
@@ -1658,7 +1657,7 @@ function reuseOrRecreateCustomMaterial(
   } = {}
 ) {
   const hash = DataUtil.toCRC32(vertexShaderStr + pixelShaderStr);
-  const materialName = 'Custom' + `_${hash}`;
+  const materialName = `Custom_${hash}`;
 
   let additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
   if (isMorphing) {

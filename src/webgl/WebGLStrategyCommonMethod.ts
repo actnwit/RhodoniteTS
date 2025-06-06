@@ -1,20 +1,20 @@
-import type { Material } from '../foundation/materials/core/Material';
-import type { RenderPass } from '../foundation/renderer/RenderPass';
 import { AlphaMode } from '../foundation/definitions/AlphaMode';
-import { type Index, IndexOf16Bytes } from '../types/CommonTypes';
-import { ModuleManager } from '../foundation/system/ModuleManager';
-import { WebGLResourceRepository } from './WebGLResourceRepository';
-import type { RnXR } from '../xr/main';
-import type { Vector4 } from '../foundation/math/Vector4';
-import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
-import { CompositionType } from '../foundation/definitions/CompositionType';
 import { ComponentType } from '../foundation/definitions/ComponentType';
+import { CompositionType } from '../foundation/definitions/CompositionType';
+import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
 import { ShaderType } from '../foundation/definitions/ShaderType';
+import type { Primitive } from '../foundation/geometry/Primitive';
+import type { Material } from '../foundation/materials/core/Material';
 import { Scalar } from '../foundation/math/Scalar';
 import { Vector3 } from '../foundation/math/Vector3';
-import type { Primitive } from '../foundation/geometry/Primitive';
-import type { WebGLStrategy } from './WebGLStrategy';
+import type { Vector4 } from '../foundation/math/Vector4';
+import type { RenderPass } from '../foundation/renderer/RenderPass';
+import { ModuleManager } from '../foundation/system/ModuleManager';
+import { type Index, IndexOf16Bytes } from '../types/CommonTypes';
 import type { WebXRSystem } from '../xr/WebXRSystem';
+import type { RnXR } from '../xr/main';
+import { WebGLResourceRepository } from './WebGLResourceRepository';
+import type { WebGLStrategy } from './WebGLStrategy';
 
 let lastIsTransparentMode: boolean;
 let lastBlendEquationMode: number;
@@ -280,14 +280,13 @@ function getDisplayCount(isVRMainPass: boolean, webxrSystem: WebXRSystem): 1 | 2
   if (webxrSystem.isWebXRMode) {
     if (webxrSystem.isMultiView()) {
       return 1;
-    } else if (isVRMainPass) {
-      return 2;
-    } else {
-      return 1;
     }
-  } else {
+    if (isVRMainPass) {
+      return 2;
+    }
     return 1;
   }
+  return 1;
 }
 
 /**

@@ -1,11 +1,11 @@
-import { type IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
-import { VertexAttribute } from '../../definitions/VertexAttribute';
-import { PrimitiveMode } from '../../definitions/PrimitiveMode';
-import { Vector3 } from '../../math/Vector3';
 import type { Count } from '../../../types/CommonTypes';
-import { IShape } from './IShape';
-import type { PhysicsProperty } from '../../physics/PhysicsProperty';
+import { PrimitiveMode } from '../../definitions/PrimitiveMode';
+import { VertexAttribute } from '../../definitions/VertexAttribute';
+import { Vector3 } from '../../math/Vector3';
 import { Logger } from '../../misc/Logger';
+import type { PhysicsProperty } from '../../physics/PhysicsProperty';
+import { type IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
+import { IShape } from './IShape';
 
 /**
  * The argument descriptor for Sphere primitives
@@ -45,16 +45,6 @@ export interface SphereDescriptor extends IAnyPrimitiveDescriptor {
  * Sphere class for generating spherical geometry with customizable parameters
  */
 export class Sphere extends IShape {
-  /**
-   * Creates a new Sphere instance
-   *
-   * @remarks
-   * The sphere is not generated until the generate method is called with appropriate parameters.
-   */
-  constructor() {
-    super();
-  }
-
   /**
    * Generates sphere geometry with the specified parameters
    *

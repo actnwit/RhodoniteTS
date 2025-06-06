@@ -1,13 +1,13 @@
+import type { CGAPIResourceHandle, Index, Size } from '../../types/CommonTypes';
+import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import { RnObject } from '../core/RnObject';
-import type { IRenderable } from './IRenderable';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import { ProcessApproach } from '../definitions/ProcessApproach';
+import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFormat';
 import { TextureParameter, type TextureParameterEnum } from '../definitions/TextureParameter';
-import type { Size, CGAPIResourceHandle, Index } from '../../types/CommonTypes';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import type { FrameBuffer } from '../renderer/FrameBuffer';
 import { SystemState } from '../system/SystemState';
-import { ProcessApproach } from '../definitions/ProcessApproach';
-import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
-import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFormat';
+import type { IRenderable } from './IRenderable';
 
 /**
  * A render buffer class that represents a renderable texture buffer used for off-screen rendering.
@@ -33,13 +33,6 @@ export class RenderBuffer extends RnObject implements IRenderable {
   private __isMSAA = false;
   /** The number of samples used for MSAA */
   private __sampleCountMSAA = 4;
-
-  /**
-   * Creates a new RenderBuffer instance.
-   */
-  constructor() {
-    super();
-  }
 
   /**
    * Sets the associated frame buffer object.

@@ -1,12 +1,12 @@
+import type { Array9, Index } from '../../types/CommonTypes';
+import { Logger } from '../misc/Logger';
+import type { IMatrix33, IMatrix44, IMutableMatrix, IMutableMatrix33 } from './IMatrix';
+import type { IQuaternion } from './IQuaternion';
+import type { IVector3 } from './IVector';
+import { Matrix33 } from './Matrix33';
 import type { Matrix44 } from './Matrix44';
 import { Quaternion } from './Quaternion';
-import type { IMutableMatrix33, IMutableMatrix, IMatrix33, IMatrix44 } from './IMatrix';
-import { Matrix33 } from './Matrix33';
 import type { Vector3 } from './Vector3';
-import type { IVector3 } from './IVector';
-import type { Array9, Index } from '../../types/CommonTypes';
-import type { IQuaternion } from './IQuaternion';
-import { Logger } from '../misc/Logger';
 
 /* eslint-disable prettier/prettier */
 
@@ -29,14 +29,6 @@ import { Logger } from '../misc/Logger';
  * ```
  */
 export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutableMatrix33 {
-  /**
-   * Creates a new mutable 3x3 matrix from a Float32Array.
-   * @param m - A Float32Array containing 9 elements in column-major order
-   */
-  constructor(m: Float32Array) {
-    super(m);
-  }
-
   /**
    * Sets the matrix element at position (0,0).
    * @param val - The value to set

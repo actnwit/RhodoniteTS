@@ -1,24 +1,24 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
-import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
-import { Vector3 } from '../foundation/math/Vector3';
-import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
-import type { Index } from '../types/CommonTypes';
-import { Vector4 } from '../foundation/math/Vector4';
+import { createCameraEntity } from '../foundation/components/Camera/createCameraEntity';
+import { createGroupEntity } from '../foundation/components/SceneGraph/createGroupEntity';
 import type { IEntity } from '../foundation/core/Entity';
-import type { WebGLContextWrapper } from '../webgl/WebGLContextWrapper';
-import { System } from '../foundation/system/System';
-import { ModuleManager } from '../foundation/system/ModuleManager';
-import { updateGamePad, createMotionController, updateMotionControllerModel, getMotionController } from './WebXRInput';
-import { Is } from '../foundation/misc/Is';
-import { MutableVector3 } from '../foundation/math/MutableVector3';
+import type { ICameraEntity, ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
+import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
+import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import { MutableQuaternion } from '../foundation/math/MutableQuaternion';
 import { MutableScalar } from '../foundation/math/MutableScalar';
-import type { ICameraEntity, ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
-import type { WebGLStereoUtil } from '../webgl/WebGLStereoUtil';
-import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
-import { createGroupEntity } from '../foundation/components/SceneGraph/createGroupEntity';
-import { createCameraEntity } from '../foundation/components/Camera/createCameraEntity';
+import { MutableVector3 } from '../foundation/math/MutableVector3';
+import { Vector3 } from '../foundation/math/Vector3';
+import { Vector4 } from '../foundation/math/Vector4';
+import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
+/* eslint-disable @typescript-eslint/no-empty-function */
+import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
+import { ModuleManager } from '../foundation/system/ModuleManager';
+import { System } from '../foundation/system/System';
+import type { Index } from '../types/CommonTypes';
+import type { WebGLContextWrapper } from '../webgl/WebGLContextWrapper';
+import type { WebGLStereoUtil } from '../webgl/WebGLStereoUtil';
+import { createMotionController, getMotionController, updateGamePad, updateMotionControllerModel } from './WebXRInput';
 declare const navigator: Navigator;
 declare const window: any;
 const defaultUserPositionInVR = Vector3.fromCopyArray([0.0, 1.1, 0]);
@@ -246,10 +246,9 @@ export class WebXRSystem {
       System.restartRenderLoop();
       Logger.warn('End of enterWebXR.');
       return promise;
-    } else {
-      Logger.error('WebGL context or WebXRSession is not ready yet.');
-      return undefined;
     }
+    Logger.error('WebGL context or WebXRSession is not ready yet.');
+    return undefined;
   }
 
   /**
@@ -457,9 +456,8 @@ export class WebXRSystem {
   _getViewMatrixAt(index: Index) {
     if (index === 0) {
       return this.leftViewMatrix;
-    } else {
-      return this.rightViewMatrix;
     }
+    return this.rightViewMatrix;
   }
 
   /**
@@ -472,9 +470,8 @@ export class WebXRSystem {
   _getProjectMatrixAt(index: Index) {
     if (index === 0) {
       return this.leftProjectionMatrix;
-    } else {
-      return this.rightProjectionMatrix;
     }
+    return this.rightProjectionMatrix;
   }
 
   /**
@@ -487,9 +484,8 @@ export class WebXRSystem {
   _getViewportAt(index: Index) {
     if (index === 0) {
       return this._getLeftViewport();
-    } else {
-      return this._getRightViewport();
     }
+    return this._getRightViewport();
   }
 
   /**
@@ -512,14 +508,13 @@ export class WebXRSystem {
   _getRightViewport() {
     if (this.isMultiView()) {
       return Vector4.fromCopyArray([0, 0, this.__canvasWidthForVR / 2, this.__canvasHeightForVR]);
-    } else {
-      return Vector4.fromCopyArray([
-        this.__canvasWidthForVR / 2,
-        0,
-        this.__canvasWidthForVR / 2,
-        this.__canvasHeightForVR,
-      ]);
     }
+    return Vector4.fromCopyArray([
+      this.__canvasWidthForVR / 2,
+      0,
+      this.__canvasWidthForVR / 2,
+      this.__canvasHeightForVR,
+    ]);
   }
 
   /**
@@ -555,9 +550,8 @@ export class WebXRSystem {
         (viewerHeadPos.y + translate.y) * this.__viewerScale.y,
         (viewerHeadPos.z + translate.z) * this.__viewerScale.z,
       ]);
-    } else {
-      return this.__defaultPositionInLocalSpaceMode;
     }
+    return this.__defaultPositionInLocalSpaceMode;
   }
 
   /**
@@ -570,9 +564,8 @@ export class WebXRSystem {
   _getCameraComponentSIDAt(index: Index) {
     if (index === 0) {
       return this.__leftCameraEntity.getCamera().componentSID;
-    } else {
-      return this.__rightCameraEntity.getCamera().componentSID;
     }
+    return this.__rightCameraEntity.getCamera().componentSID;
   }
 
   /**
@@ -585,9 +578,8 @@ export class WebXRSystem {
   _getCameraComponentAt(index: Index) {
     if (index === 0) {
       return this.__leftCameraEntity.getCamera();
-    } else {
-      return this.__rightCameraEntity.getCamera();
     }
+    return this.__rightCameraEntity.getCamera();
   }
 
   /**

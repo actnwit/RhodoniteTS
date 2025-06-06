@@ -88,7 +88,7 @@ async function createEntityGltf2(uriGltf: string) {
 async function createEntityEnvironmentCube(basePathIBL: string) {
   const cubeTextureEnvironment = new Rn.CubeTexture();
   await cubeTextureEnvironment.loadTextureImages({
-    baseUrl: basePathIBL + '/environment/environment',
+    baseUrl: `${basePathIBL}/environment/environment`,
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.HDR_LINEAR,
@@ -188,7 +188,7 @@ function createExpression(renderPasses: Rn.RenderPass[]) {
 async function setIBLTexture(basePathIBL: string) {
   const cubeTextureSpecular = new Rn.CubeTexture();
   await cubeTextureSpecular.loadTextureImages({
-    baseUrl: basePathIBL + '/specular/specular',
+    baseUrl: `${basePathIBL}/specular/specular`,
     mipmapLevelNumber: 10,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.RGBE_PNG,
@@ -196,7 +196,7 @@ async function setIBLTexture(basePathIBL: string) {
 
   const cubeTextureDiffuse = new Rn.CubeTexture();
   await cubeTextureDiffuse.loadTextureImages({
-    baseUrl: basePathIBL + '/diffuse/diffuse',
+    baseUrl: `${basePathIBL}/diffuse/diffuse`,
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.RGBE_PNG,

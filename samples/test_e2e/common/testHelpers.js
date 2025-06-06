@@ -13,15 +13,13 @@ export function getProcessApproach(Rn) {
     if (mode === 'uniform') {
         return Rn.ProcessApproach.Uniform;
     }
-    else if (mode === 'datatexture') {
+    if (mode === 'datatexture') {
         return Rn.ProcessApproach.DataTexture;
     }
-    else if (mode === 'webgpu') {
+    if (mode === 'webgpu') {
         return Rn.ProcessApproach.WebGPU;
     }
-    else {
-        return Rn.ProcessApproach.DataTexture; // Default
-    }
+    return Rn.ProcessApproach.DataTexture; // Default
 }
 export function getGltfFilePath() {
     const params = new URLSearchParams(window.location.search);

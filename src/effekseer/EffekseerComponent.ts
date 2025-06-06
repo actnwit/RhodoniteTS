@@ -1,19 +1,19 @@
 /// <reference path="../../vendor/effekseer.d.ts" />
-import { Component } from '../foundation/core/Component';
-import { applyMixins, type EntityRepository } from '../foundation/core/EntityRepository';
-import { ProcessStage } from '../foundation/definitions/ProcessStage';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
-import { ComponentRepository } from '../foundation/core/ComponentRepository';
+import type { ComponentToComponentMethods } from '../foundation/components/ComponentTypes';
 import { WellKnownComponentTIDs } from '../foundation/components/WellKnownComponentTIDs';
-import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
-import type { ComponentTID, EntityUID, ComponentSID, Second } from '../types/CommonTypes';
+import { Component } from '../foundation/core/Component';
+import { ComponentRepository } from '../foundation/core/ComponentRepository';
+import type { IEntity } from '../foundation/core/Entity';
+import { type EntityRepository, applyMixins } from '../foundation/core/EntityRepository';
+import { ProcessStage } from '../foundation/definitions/ProcessStage';
+import type { IVector3 } from '../foundation/math/IVector';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import { Is } from '../foundation/misc/Is';
-import type { IVector3 } from '../foundation/math/IVector';
-import type { IEntity } from '../foundation/core/Entity';
-import type { ComponentToComponentMethods } from '../foundation/components/ComponentTypes';
-import type { RenderPass } from '../foundation/renderer/RenderPass';
 import { Logger } from '../foundation/misc/Logger';
+import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
+import type { RenderPass } from '../foundation/renderer/RenderPass';
+import type { ComponentSID, ComponentTID, EntityUID, Second } from '../types/CommonTypes';
 
 export class EffekseerComponent extends Component {
   public static readonly ANIMATION_EVENT_PLAY = 0;
@@ -40,10 +40,6 @@ export class EffekseerComponent extends Component {
 
   private isLoadEffect = false;
 
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
-    super(entityUid, componentSid, entityRepository, isReUse);
-  }
-
   static get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.EffekseerComponentTID;
   }
@@ -56,12 +52,10 @@ export class EffekseerComponent extends Component {
     if (Is.exist(this.__handle)) {
       if (this.__handle.exists) {
         return !this.isPause;
-      } else {
-        return false;
       }
-    } else {
       return false;
     }
+    return false;
   }
 
   play() {
@@ -205,7 +199,7 @@ export class EffekseerComponent extends Component {
       }
     };
     const onError = (message: string, path: string) => {
-      Logger.error(message + ', ' + path);
+      Logger.error(`${message}, ${path}`);
     };
     if (this.type === 'efkpkg') {
       if (Is.not.exist(EffekseerComponent.Unzip)) {
@@ -348,10 +342,6 @@ export class EffekseerComponent extends Component {
     _componentClass: SomeComponentClass
   ) {
     class EffekseerEntity extends (base.constructor as any) {
-      constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
-        super(entityUID, isAlive, components);
-      }
-
       getEffekseer() {
         return this.getComponentByComponentTID(EffekseerComponent.componentTID) as EffekseerComponent;
       }

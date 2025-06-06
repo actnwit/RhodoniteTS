@@ -1,19 +1,19 @@
-import { Matrix44 } from '../math/Matrix44';
-import { MathClassUtil } from '../math/MathClassUtil';
-import { MiscUtil } from '../misc/MiscUtil';
-import type { ICameraController } from './ICameraController';
-import { MutableVector3 } from '../math/MutableVector3';
 import type { CameraComponent } from '../components/Camera/CameraComponent';
+import type { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
 import { Entity } from '../core/Entity';
+import type { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { AABB } from '../math/AABB';
+import { MathClassUtil } from '../math/MathClassUtil';
+import { MathUtil } from '../math/MathUtil';
+import { Matrix44 } from '../math/Matrix44';
 import { MutableMatrix33 } from '../math/MutableMatrix33';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
-import { AbstractCameraController } from './AbstractCameraController';
-import { MathUtil } from '../math/MathUtil';
-import type { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { MutableVector3 } from '../math/MutableVector3';
 import { Is } from '../misc/Is';
-import { type InputHandlerInfo, InputManager, INPUT_HANDLING_STATE_CAMERA_CONTROLLER } from '../system/InputManager';
-import { AABB } from '../math/AABB';
-import type { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
+import { MiscUtil } from '../misc/MiscUtil';
+import { INPUT_HANDLING_STATE_CAMERA_CONTROLLER, type InputHandlerInfo, InputManager } from '../system/InputManager';
+import { AbstractCameraController } from './AbstractCameraController';
+import type { ICameraController } from './ICameraController';
 
 type KeyboardEventListener = (evt: KeyboardEvent) => any;
 
@@ -576,9 +576,8 @@ export class WalkThroughCameraController extends AbstractCameraController implem
   private __getTargetAABB(targetEntity: ISceneGraphEntity) {
     if (this.aabbWithSkeletal) {
       return targetEntity.tryToGetSceneGraph()!.worldMergedAABBWithSkeletal;
-    } else {
-      return targetEntity.tryToGetSceneGraph()!.worldMergedAABB;
     }
+    return targetEntity.tryToGetSceneGraph()!.worldMergedAABB;
   }
 
   /**

@@ -1,11 +1,11 @@
 import type { AnimationSampler, AnimationSamplers, AnimationTrackName } from '../../types/AnimationTypes';
+import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { __interpolate } from '../components/Animation/AnimationOps';
 import { AnimationAttribute } from '../definitions/AnimationAttribute';
-import { AnimationComponent } from '../components/Animation/AnimationComponent';
-import type { IVector2 } from './IVector';
-import type { IAnimatedValue } from './IAnimatedValue';
-import { Vector2 } from './Vector2';
 import { Logger } from '../misc/Logger';
+import type { IAnimatedValue } from './IAnimatedValue';
+import type { IVector2 } from './IVector';
+import { Vector2 } from './Vector2';
 
 /**
  * An animated 2D vector that can interpolate between animation keyframes over time.
@@ -137,7 +137,7 @@ export class AnimatedVector2 extends Vector2 implements IVector2, IAnimatedValue
       }
       time = time % duration;
     }
-    if (this.__lastTime == time) {
+    if (this.__lastTime === time) {
       return;
     }
     const firstValue = __interpolate(this.__firstActiveAnimationSampler, time, AnimationAttribute.Vector2.index);

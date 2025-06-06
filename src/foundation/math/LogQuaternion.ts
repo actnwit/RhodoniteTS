@@ -1,7 +1,7 @@
-import { type IVector3, IVector4 } from './IVector';
-import { Quaternion } from './Quaternion';
 import { type Array3, TypedArray } from '../../types/CommonTypes';
 import type { ILogQuaternion, IQuaternion } from './IQuaternion';
+import { type IVector3, IVector4 } from './IVector';
+import { Quaternion } from './Quaternion';
 
 /**
  * Represents a logarithm of a quaternion, which provides a more compact representation

@@ -1,12 +1,8 @@
-import { ModuleManager } from '../system/ModuleManager';
-import type { TextureData, VertexHandles, WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
+import type { BasisFile } from '../../types/BasisTexture';
 import type { CGAPIResourceHandle, Count, Index, Size, TypedArray } from '../../types/CommonTypes';
-import type { PixelFormatEnum } from '../definitions/PixelFormat';
-import type { ComponentTypeEnum } from '../definitions/ComponentType';
-import type { TextureParameterEnum } from '../definitions/TextureParameter';
-import type { Accessor } from '../memory/Accessor';
-import type { Primitive } from '../geometry/Primitive';
-import { SystemState } from '../system/SystemState';
+import type { TextureData, VertexHandles, WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
+import type { AttributeNames } from '../../webgl/types/CommonTypes';
+import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import {
   type CompressionTextureTypeEnum,
   type HdriFormatEnum,
@@ -14,15 +10,19 @@ import {
   type TextureFormatEnum,
   type VertexAttributeEnum,
 } from '../definitions';
+import type { ComponentTypeEnum } from '../definitions/ComponentType';
+import type { PixelFormatEnum } from '../definitions/PixelFormat';
+import type { TextureParameterEnum } from '../definitions/TextureParameter';
+import type { Primitive } from '../geometry/Primitive';
 import type { Material } from '../materials/core/Material';
-import type { AttributeNames } from '../../webgl/types/CommonTypes';
+import type { Vector4 } from '../math/Vector4';
+import type { Accessor } from '../memory/Accessor';
+import type { FrameBuffer } from '../renderer/FrameBuffer';
+import { ModuleManager } from '../system/ModuleManager';
+import { SystemState } from '../system/SystemState';
+import type { IRenderable } from '../textures/IRenderable';
 import type { Sampler } from '../textures/Sampler';
 import type { RenderPass } from './RenderPass';
-import type { IRenderable } from '../textures/IRenderable';
-import type { FrameBuffer } from '../renderer/FrameBuffer';
-import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
-import type { BasisFile } from '../../types/BasisTexture';
-import type { Vector4 } from '../math/Vector4';
 
 /**
  * Union type representing direct texture data that can be used for texture creation.
@@ -62,11 +62,10 @@ export abstract class CGAPIResourceRepository {
     if (moduleName === 'webgl') {
       const webGLResourceRepository: ICGAPIResourceRepository = cgApiModule.WebGLResourceRepository.getInstance();
       return webGLResourceRepository;
-    } else {
-      // WebGPU
-      const webGLResourceRepository: ICGAPIResourceRepository = cgApiModule?.WebGpuResourceRepository.getInstance();
-      return webGLResourceRepository;
     }
+    // WebGPU
+    const webGLResourceRepository: ICGAPIResourceRepository = cgApiModule?.WebGpuResourceRepository.getInstance();
+    return webGLResourceRepository;
   }
 
   /**

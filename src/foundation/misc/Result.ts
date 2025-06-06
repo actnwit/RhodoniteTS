@@ -122,7 +122,8 @@ abstract class CResult<T, ErrObj> {
   }): Result<R, ErrObj2> {
     if (this instanceof Ok) {
       return new Ok(obj.Ok(this.val as T));
-    } else if (this instanceof Err) {
+    }
+    if (this instanceof Err) {
       return new Err(obj.Err(this.val as RnError<ErrObj>));
     }
 
@@ -145,14 +146,6 @@ abstract class CResult<T, ErrObj> {
  * @template ErrObj - The type of the error object (for type compatibility)
  */
 export class Ok<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, ErrObj> {
-  /**
-   * Creates a new Ok result.
-   * @param val - The success value to store
-   */
-  constructor(val?: T) {
-    super(val);
-  }
-
   /**
    * Chains operations on this successful result.
    * Applies the provided function to the contained value.

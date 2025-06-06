@@ -18,7 +18,7 @@
 // **********************************************************
 
 import { default as Module } from './CODEC.js';
-var ModuleInstance;
+let ModuleInstance;
 
 class Decoder {
   constructor() {
@@ -88,10 +88,9 @@ class Decoder {
       }
 
       return mesh4D;
-    } else {
-      // console.log('there is NO chunk4D');
-      return null;
     }
+    // console.log('there is NO chunk4D');
+    return null;
   }
 }
 
@@ -167,7 +166,6 @@ export default class ResourceManagerXHR {
   }
 
   getOneChunk(position) {
-
     this.fetchBuffer(position, position + 9)
       .then(response => {
         response.arrayBuffer().then(arraybuffer => {
@@ -200,7 +198,7 @@ export default class ResourceManagerXHR {
         });
       })
       .catch(e => {
-        console.error('getFileHeader: ' + e);
+        console.error(`getFileHeader: ${e}`);
       });
   }
 
@@ -273,7 +271,7 @@ export default class ResourceManagerXHR {
         });
       })
       .catch(e => {
-        console.error('getFileHeader: ' + e);
+        console.error(`getFileHeader: ${e}`);
       });
   }
 
@@ -331,7 +329,7 @@ export default class ResourceManagerXHR {
         });
       })
       .catch(e => {
-        console.error('getFileHeader: ' + e);
+        console.error(`getFileHeader: ${e}`);
       });
   }
 
@@ -365,12 +363,11 @@ export default class ResourceManagerXHR {
         });
       })
       .catch(e => {
-        console.error('getFileHeader: ' + e);
+        console.error(`getFileHeader: ${e}`);
       });
   }
 
   getSequenceInfo(position, size) {
-
     this.fetchBuffer(position, position + size)
       .then(response => {
         response.arrayBuffer().then(arraybuffer => {
@@ -397,7 +394,7 @@ export default class ResourceManagerXHR {
         });
       })
       .catch(e => {
-        console.error('getFileHeader: ' + e);
+        console.error(`getFileHeader: ${e}`);
       });
   }
 
@@ -430,12 +427,11 @@ export default class ResourceManagerXHR {
         });
       })
       .catch(e => {
-        console.error('getFileHeader: ' + e);
+        console.error(`getFileHeader: ${e}`);
       });
   }
 
   getTracksIndexes(position, size) {
-
     this.fetchBuffer(position, position + size)
       .then(response => {
         response.arrayBuffer().then(arraybuffer => {
@@ -449,12 +445,11 @@ export default class ResourceManagerXHR {
         });
       })
       .catch(e => {
-        console.error('getFileHeader: ' + e);
+        console.error(`getFileHeader: ${e}`);
       });
   }
 
   getAudioTrack(position, size) {
-
     this.fetchBuffer(position, position + size)
       .then(response => {
         response.arrayBuffer().then(arraybuffer => {
@@ -464,7 +459,7 @@ export default class ResourceManagerXHR {
         });
       })
       .catch(e => {
-        console.error('getFileHeader: ' + e);
+        console.error(`getFileHeader: ${e}`);
       });
   }
 

@@ -1,7 +1,7 @@
-import { Vector2_ } from './Vector2';
-import type { IVector2, IMutableVector, IMutableVector2 } from './IVector';
-import type { TypedArray, FloatTypedArrayConstructor, Array2 } from '../../types/CommonTypes';
+import type { Array2, FloatTypedArrayConstructor, TypedArray } from '../../types/CommonTypes';
 import { Logger } from '../misc/Logger';
+import type { IMutableVector, IMutableVector2, IVector2 } from './IVector';
+import { Vector2_ } from './Vector2';
 
 /**
  * Base class for mutable 2D vectors with generic typed array support.

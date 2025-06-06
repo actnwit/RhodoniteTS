@@ -30,19 +30,19 @@ await Rn.System.init({
 
 const assets = await Rn.defaultAssetLoader.load({
   environment: Rn.CubeTexture.loadFromUrl({
-    baseUrl: basePathIBL + '/environment/environment',
+    baseUrl: `${basePathIBL}/environment/environment`,
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.HDR_LINEAR,
   }),
   specular: Rn.CubeTexture.loadFromUrl({
-    baseUrl: basePathIBL + '/specular/specular',
+    baseUrl: `${basePathIBL}/specular/specular`,
     mipmapLevelNumber: 10,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.RGBE_PNG,
   }),
   diffuse: Rn.CubeTexture.loadFromUrl({
-    baseUrl: basePathIBL + '/diffuse/diffuse',
+    baseUrl: `${basePathIBL}/diffuse/diffuse`,
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.RGBE_PNG,

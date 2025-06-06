@@ -1,8 +1,8 @@
-import { IVector2, type IVector3, type IVector4, type IMutableVector, type IMutableVector3 } from './IVector';
-import type { TypedArray, FloatTypedArrayConstructor, Array3 } from '../../types/CommonTypes';
-import { Vector3d, Vector3_ } from './Vector3';
-import type { IQuaternion } from './IQuaternion';
+import type { Array3, FloatTypedArrayConstructor, TypedArray } from '../../types/CommonTypes';
 import { Logger } from '../misc/Logger';
+import type { IQuaternion } from './IQuaternion';
+import { type IMutableVector, type IMutableVector3, IVector2, type IVector3, type IVector4 } from './IVector';
+import { Vector3_, Vector3d } from './Vector3';
 
 /**
  * Abstract base class for mutable 3D vectors with generic typed array support.

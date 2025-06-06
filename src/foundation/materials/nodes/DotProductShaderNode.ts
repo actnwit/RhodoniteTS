@@ -1,12 +1,12 @@
-import DotProductShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/DotProduct.glsl';
-import DotProductShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/DotProduct.wgsl';
 import type { ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
 import type { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
-import { AbstractShaderNode } from '../core/AbstractShaderNode';
-import { CompositionType } from '../../definitions/CompositionType';
+import DotProductShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/DotProduct.glsl';
+import DotProductShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/DotProduct.wgsl';
 import { ComponentType } from '../../definitions/ComponentType';
-import { SystemState } from '../../system/SystemState';
+import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
+import { SystemState } from '../../system/SystemState';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 /**
  * A shader node that performs dot product operations between two vectors.
@@ -83,16 +83,16 @@ export class DotProductShaderNode extends AbstractShaderNode {
   getShaderFunctionNameDerivative(): string {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (this.__inputs[0].compositionType === CompositionType.Vec2) {
-        return this.__shaderFunctionName + 'Vec2f';
-      } else if (this.__inputs[0].compositionType === CompositionType.Vec3) {
-        return this.__shaderFunctionName + 'Vec3f';
-      } else if (this.__inputs[0].compositionType === CompositionType.Vec4) {
-        return this.__shaderFunctionName + 'Vec4f';
-      } else {
-        throw new Error('Not supported composition type.');
+        return `${this.__shaderFunctionName}Vec2f`;
       }
-    } else {
-      return this.__shaderFunctionName;
+      if (this.__inputs[0].compositionType === CompositionType.Vec3) {
+        return `${this.__shaderFunctionName}Vec3f`;
+      }
+      if (this.__inputs[0].compositionType === CompositionType.Vec4) {
+        return `${this.__shaderFunctionName}Vec4f`;
+      }
+      throw new Error('Not supported composition type.');
     }
+    return this.__shaderFunctionName;
   }
 }

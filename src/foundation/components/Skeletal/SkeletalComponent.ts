@@ -1,27 +1,27 @@
+import type { ComponentSID, ComponentTID, EntityUID, Index } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
-import { applyMixins, EntityRepository } from '../../core/EntityRepository';
-import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
-import { Matrix44 } from '../../math/Matrix44';
-import type { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
-import { ProcessStage } from '../../definitions/ProcessStage';
-import { MutableVector3 } from '../../math/MutableVector3';
-import { MutableQuaternion } from '../../math/MutableQuaternion';
-import { MathUtil } from '../../math/MathUtil';
-import { MutableVector4 } from '../../math/MutableVector4';
-import { MutableMatrix44 } from '../../math/MutableMatrix44';
-import type { ComponentTID, ComponentSID, EntityUID, Index } from '../../../types/CommonTypes';
-import { ShaderSemantics } from '../../definitions/ShaderSemantics';
-import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { Config } from '../../core/Config';
-import { BoneDataType } from '../../definitions/BoneDataType';
-import type { IMatrix44 } from '../../math/IMatrix';
-import type { Accessor } from '../../memory/Accessor';
-import type { ISkeletalEntity } from '../../helpers/EntityHelper';
 import type { IEntity } from '../../core/Entity';
-import type { ComponentToComponentMethods } from '../ComponentTypes';
+import { EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { GlobalDataRepository } from '../../core/GlobalDataRepository';
+import { BoneDataType } from '../../definitions/BoneDataType';
+import { ProcessStage } from '../../definitions/ProcessStage';
+import { ShaderSemantics } from '../../definitions/ShaderSemantics';
+import type { ISkeletalEntity } from '../../helpers/EntityHelper';
+import type { IMatrix44 } from '../../math/IMatrix';
+import { MathUtil } from '../../math/MathUtil';
+import { Matrix44 } from '../../math/Matrix44';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
+import { MutableQuaternion } from '../../math/MutableQuaternion';
+import { MutableVector3 } from '../../math/MutableVector3';
+import { MutableVector4 } from '../../math/MutableVector4';
+import type { Accessor } from '../../memory/Accessor';
 import { Is } from '../../misc';
-import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 import { Logger } from '../../misc/Logger';
+import type { ComponentToComponentMethods } from '../ComponentTypes';
+import type { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
+import { createGroupEntity } from '../SceneGraph/createGroupEntity';
+import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 /**
  * SkeletalComponent manages skeletal animation for entities.
@@ -340,7 +340,7 @@ export class SkeletalComponent extends Component {
         }
 
         if (Config.boneDataType === BoneDataType.Vec4x2) {
-          const vec2QPacked = MathUtil.packNormalizedVec4ToVec2(q.x, q.y, q.z, q.w, Math.pow(2, 12));
+          const vec2QPacked = MathUtil.packNormalizedVec4ToVec2(q.x, q.y, q.z, q.w, 2 ** 12);
           this.__tqArray[i * 4 + 0] = m.m03;
           this.__tqArray[i * 4 + 1] = m.m13;
           this.__tqArray[i * 4 + 2] = m.m23;
@@ -365,7 +365,7 @@ export class SkeletalComponent extends Component {
           this.__tsArray[i * 4 + 0] = m.m03; // m.getTranslate().x
           this.__tsArray[i * 4 + 1] = m.m13; // m.getTranslate().y
           this.__tsArray[i * 4 + 2] = m.m23; // m.getTranslate().z
-          const vec2QPacked = MathUtil.packNormalizedVec4ToVec2(q.x, q.y, q.z, q.w, Math.pow(2, 12));
+          const vec2QPacked = MathUtil.packNormalizedVec4ToVec2(q.x, q.y, q.z, q.w, 2 ** 12);
           this.__qtsArray[i * 4 + 0] = vec2QPacked[0];
           this.__qtsArray[i * 4 + 1] = vec2QPacked[1];
           // q.normalize();
@@ -413,7 +413,7 @@ export class SkeletalComponent extends Component {
           normalizedY,
           normalizedZ,
           normalizedW,
-          Math.pow(2, 12)
+          2 ** 12
         );
         this.__qtsArray[i * 4 + 2] = vec2TPacked[0];
         this.__qtsArray[i * 4 + 3] = vec2TPacked[1];
@@ -532,10 +532,6 @@ export class SkeletalComponent extends Component {
     _componentClass: SomeComponentClass
   ) {
     class SkeletalEntity extends (base.constructor as any) {
-      constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
-        super(entityUID, isAlive, components);
-      }
-
       getSkeletal() {
         return this.getComponentByComponentTID(WellKnownComponentTIDs.SkeletalComponentTID) as SkeletalComponent;
       }

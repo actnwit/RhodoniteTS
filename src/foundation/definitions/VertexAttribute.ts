@@ -1,7 +1,7 @@
-import { EnumClass, type EnumIO, _from, _fromString } from '../misc/EnumIO';
 import type { Count, Index } from '../../types/CommonTypes';
-import { RnException } from '../misc/RnException';
 import type { VectorComponentN } from '../../types/CommonTypes';
+import { EnumClass, type EnumIO, _from, _fromString } from '../misc/EnumIO';
+import { RnException } from '../misc/RnException';
 
 type ComponentChar = 'X' | 'Y' | 'Z' | 'W';
 
@@ -101,18 +101,20 @@ export class VertexAttributeClass extends EnumClass implements VertexAttributeEn
   getVertexAttributeComponentsAsGltf(): VertexAttributeSemanticsJoinedString {
     if (this.__gltfComponentN === 1) {
       return this.X;
-    } else if (this.__gltfComponentN === 2) {
-      return this.XY;
-    } else if (this.__gltfComponentN === 3) {
-      return this.XYZ;
-    } else if (this.__gltfComponentN === 4) {
-      return this.XYZW;
-    } else {
-      throw new RnException({
-        message: 'Invalid gltf component number',
-        error: this.__gltfComponentN,
-      });
     }
+    if (this.__gltfComponentN === 2) {
+      return this.XY;
+    }
+    if (this.__gltfComponentN === 3) {
+      return this.XYZ;
+    }
+    if (this.__gltfComponentN === 4) {
+      return this.XYZW;
+    }
+    throw new RnException({
+      message: 'Invalid gltf component number',
+      error: this.__gltfComponentN,
+    });
   }
 
   static __createVertexAttributeClass(desc: VertexAttributeDescriptor) {

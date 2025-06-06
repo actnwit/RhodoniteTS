@@ -1,36 +1,43 @@
+import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
+import { BlendShapeComponent } from '../foundation/components/BlendShape/BlendShapeComponent';
+import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
+import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
 import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
+import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
+import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
+import { Component } from '../foundation/core/Component';
+import { ComponentRepository } from '../foundation/core/ComponentRepository';
+import { Config } from '../foundation/core/Config';
+import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import { MemoryManager } from '../foundation/core/MemoryManager';
 import { BufferUse } from '../foundation/definitions/BufferUse';
-import type { Buffer } from '../foundation/memory/Buffer';
+import { ComponentType } from '../foundation/definitions/ComponentType';
+import { CompositionType } from '../foundation/definitions/CompositionType';
+import type { ShaderSemanticsName, getShaderPropertyFunc } from '../foundation/definitions/ShaderSemantics';
+import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
+import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { Material } from '../foundation/materials/core/Material';
+import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
+import type { Accessor } from '../foundation/memory/Accessor';
+import type { Buffer } from '../foundation/memory/Buffer';
+import { Logger } from '../foundation/misc/Logger';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import type { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
 import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
-import { type CGAPIResourceHandle, Count, Index, type IndexOf16Bytes, type IndexOf4Bytes, type PrimitiveUID } from '../types/CommonTypes';
-import { WebGpuResourceRepository } from './WebGpuResourceRepository';
-import { Component } from '../foundation/core/Component';
-import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
-import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
-import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
-import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
-import { CompositionType } from '../foundation/definitions/CompositionType';
-import { ComponentType } from '../foundation/definitions/ComponentType';
-import type { getShaderPropertyFunc, ShaderSemanticsName } from '../foundation/definitions/ShaderSemantics';
 import { ModuleManager } from '../foundation/system/ModuleManager';
-import { ComponentRepository } from '../foundation/core/ComponentRepository';
-import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
+import {
+  type CGAPIResourceHandle,
+  Count,
+  Index,
+  type IndexOf4Bytes,
+  type IndexOf16Bytes,
+  type PrimitiveUID,
+} from '../types/CommonTypes';
 import type { RnXR } from '../xr/main';
-import { Config } from '../foundation/core/Config';
-import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
-import type { Accessor } from '../foundation/memory/Accessor';
-import { BlendShapeComponent } from '../foundation/components/BlendShape/BlendShapeComponent';
-import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
-import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
-import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
-import { Logger } from '../foundation/misc/Logger';
+import { WebGpuResourceRepository } from './WebGpuResourceRepository';
 
 /**
  * Basic WebGPU rendering strategy implementation that handles mesh rendering,
@@ -251,11 +258,11 @@ ${indexStr}
       case CompositionType.Scalar:
         str += '  let col0 = fetchElement(vec4_idx);\n';
         if (info.componentType === ComponentType.Int) {
-          str += `  let val = i32(col0.x);`;
+          str += '  let val = i32(col0.x);';
         } else if (info.componentType === ComponentType.UnsignedInt) {
           str += '  let val = u32(col0.x);';
         } else if (info.componentType === ComponentType.Bool) {
-          str += `  let val = col0.x >= 0.5;`;
+          str += '  let val = col0.x >= 0.5;';
         } else {
           str += '  let val = col0.x;';
         }
@@ -321,10 +328,9 @@ ${indexStr}
       const globalDataRepository = GlobalDataRepository.getInstance();
       const dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyName);
       return dataBeginPos;
-    } else {
-      const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyName);
-      return dataBeginPos;
     }
+    const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyName);
+    return dataBeginPos;
   }
 
   /**
@@ -762,18 +768,16 @@ ${indexStr}
         }
       }
       return cameraComponentSid;
-    } else {
-      // Non-VR Rendering
-      let cameraComponent = renderPass.cameraComponent;
-      if (cameraComponent == null) {
-        // if the renderPass has no cameraComponent, try to get the current cameraComponent
-        cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
-      }
-      if (cameraComponent) {
-        return cameraComponent.componentSID;
-      } else {
-        return -1;
-      }
     }
+    // Non-VR Rendering
+    let cameraComponent = renderPass.cameraComponent;
+    if (cameraComponent == null) {
+      // if the renderPass has no cameraComponent, try to get the current cameraComponent
+      cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
+    }
+    if (cameraComponent) {
+      return cameraComponent.componentSID;
+    }
+    return -1;
   }
 }

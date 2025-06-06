@@ -1,6 +1,6 @@
 import { ProcessApproach, type ProcessApproachEnum } from '../foundation/definitions/ProcessApproach';
-import type { WebGLStrategy } from './WebGLStrategy';
 import { ModuleManager } from '../foundation/system/ModuleManager';
+import type { WebGLStrategy } from './WebGLStrategy';
 
 const getRenderingStrategy = (processApproach: ProcessApproachEnum): WebGLStrategy => {
   // Strategy
@@ -9,7 +9,8 @@ const getRenderingStrategy = (processApproach: ProcessApproachEnum): WebGLStrate
   const webglModule = moduleManager.getModule(moduleName)! as any;
   if (ProcessApproach.isDataTextureApproach(processApproach)) {
     return webglModule.WebGLStrategyDataTexture.getInstance();
-  } else if (ProcessApproach.isUniformApproach(processApproach)) {
+  }
+  if (ProcessApproach.isUniformApproach(processApproach)) {
     return webglModule.WebGLStrategyUniform.getInstance();
   }
   return webglModule.WebGLStrategyUniform.getInstance();

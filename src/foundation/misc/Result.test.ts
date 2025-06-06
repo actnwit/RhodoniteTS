@@ -1,18 +1,17 @@
-import { type Result, Ok, Err, type RnError } from './Result';
+import { Err, Ok, type Result, type RnError } from './Result';
 import { RnException } from './RnException';
 
 function succeedIfValueEven(val: number): Result<number, number> {
   if (val % 2 === 0) {
     return new Ok(val);
-  } else {
-    return new Err({
-      message: 'Error',
-      error: val,
-    });
   }
+  return new Err({
+    message: 'Error',
+    error: val,
+  });
 }
 
-test(`Result.match`, () => {
+test('Result.match', () => {
   const result0 = succeedIfValueEven(0);
   const result1 = succeedIfValueEven(1);
   const ret0 = result0.match({
@@ -35,7 +34,7 @@ test(`Result.match`, () => {
     Err: err => {
       expect(err.message).toBe('Error');
       return {
-        message: err.message + '!!!',
+        message: `${err.message}!!!`,
         error: 'Err',
       };
     },
@@ -46,7 +45,7 @@ test(`Result.match`, () => {
   }
 });
 
-test(`Result.unwrap`, () => {
+test('Result.unwrap', () => {
   const result0 = succeedIfValueEven(0);
   const value0 = result0.unwrapWithCompensation((err: RnError<number>) => {
     expect(true).toBe(false); // If here come, this is wrong behavior.
@@ -62,7 +61,7 @@ test(`Result.unwrap`, () => {
   expect(value1 % 2).toBe(0);
 });
 
-test(`Result.unwrapForce`, () => {
+test('Result.unwrapForce', () => {
   const result0 = succeedIfValueEven(0);
   const value0 = result0.unwrapForce();
   expect(value0).toBe(0);
@@ -87,7 +86,7 @@ test(`Result.unwrapForce`, () => {
   }
 });
 
-test(`Result.isOk`, () => {
+test('Result.isOk', () => {
   const result0 = succeedIfValueEven(0);
   expect(result0.isOk()).toBe(true);
   if (result0.isOk()) {
@@ -95,7 +94,7 @@ test(`Result.isOk`, () => {
   }
 });
 
-test(`wrapped Err`, () => {
+test('wrapped Err', () => {
   function wrapper(): Result<number, Err<number, number>> {
     const result0 = succeedIfValueEven(1);
     if (result0.isErr()) {

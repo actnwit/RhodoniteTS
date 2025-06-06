@@ -109,7 +109,7 @@ Rn.System.startRenderLoop(() => {
 async function createEnvCubeExpression(baseuri) {
   const environmentCubeTexture = new Rn.CubeTexture();
   await environmentCubeTexture.loadTextureImages({
-    baseUrl: baseuri + '/environment/environment',
+    baseUrl: `${baseuri}/environment/environment`,
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.LDR_SRGB,

@@ -1,7 +1,7 @@
 import type { ComponentSID, ComponentTID, EntityUID, Index } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
 import type { IEntity } from '../../core/Entity';
-import { applyMixins, EntityRepository } from '../../core/EntityRepository';
+import { EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import { Is } from '../../misc';
 import type { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
@@ -146,9 +146,6 @@ export class VrmComponent extends Component {
   ) {
     class VrmEntity extends (base.constructor as any) {
       private __vrmComponent?: VrmComponent;
-      constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
-        super(entityUID, isAlive, components);
-      }
 
       /**
        * Gets the VrmComponent associated with this entity.

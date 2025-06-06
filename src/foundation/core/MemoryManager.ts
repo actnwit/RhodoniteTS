@@ -1,9 +1,9 @@
-import { Buffer } from '../memory/Buffer';
+import type { Byte, ObjectUID, Size } from '../../types/CommonTypes';
 import { BufferUse, type BufferUseEnum } from '../definitions/BufferUse';
-import type { Size, Byte, ObjectUID } from '../../types/CommonTypes';
+import { Buffer } from '../memory/Buffer';
+import { MiscUtil } from '../misc/MiscUtil';
 import { Config } from './Config';
 import type { RnObject } from './RnObject';
-import { MiscUtil } from '../misc/MiscUtil';
 
 /**
  * MemoryManager is a singleton class that manages the memory allocation and buffers for the Rhodonite library.

@@ -1,4 +1,6 @@
 import { CameraComponent } from '../components/Camera/CameraComponent';
+import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
+import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
 import { ComponentRepository } from '../core/ComponentRepository';
 import { Config } from '../core/Config';
 import { AlphaMode } from '../definitions/AlphaMode';
@@ -11,25 +13,19 @@ import { Plane } from '../geometry/shapes/Plane';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
 import { MaterialHelper } from '../helpers/MaterialHelper';
 import type { Material } from '../materials/core/Material';
-import { Matrix44 } from '../math/Matrix44';
+import type { IQuaternion } from '../math';
 import { MathUtil } from '../math/MathUtil';
 import { Matrix33 } from '../math/Matrix33';
+import { Matrix44 } from '../math/Matrix44';
 import { MutableMatrix33 } from '../math/MutableMatrix33';
 import { Quaternion } from '../math/Quaternion';
 import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
 import { Is } from '../misc/Is';
-import { assertExist } from '../misc/MiscUtil';
-import {
-  getEvent,
-  InputManager,
-  INPUT_HANDLING_STATE_GIZMO_TRANSLATION,
-} from '../system/InputManager';
-import { Gizmo } from './Gizmo';
-import type { IQuaternion } from '../math';
-import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
-import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 import { Logger } from '../misc/Logger';
+import { assertExist } from '../misc/MiscUtil';
+import { INPUT_HANDLING_STATE_GIZMO_TRANSLATION, InputManager, getEvent } from '../system/InputManager';
+import { Gizmo } from './Gizmo';
 
 declare let window: any;
 
@@ -79,13 +75,6 @@ export class TranslationGizmo extends Gizmo {
   private __onPointerUpFunc = this.__onPointerUp.bind(this);
 
   private static __length = 1;
-  /**
-   * Creates a new TranslationGizmo instance.
-   * @param target - The mesh entity that this gizmo will control
-   */
-  constructor(target: IMeshEntity) {
-    super(target);
-  }
 
   ///
   ///
@@ -100,9 +89,8 @@ export class TranslationGizmo extends Gizmo {
   get isSetup(): boolean {
     if (this.__topEntity != null) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -519,19 +507,19 @@ export class TranslationGizmo extends Gizmo {
     if (xResult.result) {
       assertExist(xResult.data);
       this.__pickStatedPoint = rotMat.multiplyVector(xResult.data.position.clone());
-      Logger.debug('Down:' + this.__pickStatedPoint.toStringApproximately());
+      Logger.debug(`Down:${this.__pickStatedPoint.toStringApproximately()}`);
       TranslationGizmo.__activeAxis = 'x';
     }
     if (yResult.result) {
       assertExist(yResult.data);
       this.__pickStatedPoint = rotMat.multiplyVector(yResult.data.position.clone());
-      Logger.debug('Down:' + this.__pickStatedPoint.toStringApproximately());
+      Logger.debug(`Down:${this.__pickStatedPoint.toStringApproximately()}`);
       TranslationGizmo.__activeAxis = 'y';
     }
     if (zResult.result) {
       assertExist(zResult.data);
       this.__pickStatedPoint = rotMat.multiplyVector(zResult.data.position.clone());
-      Logger.debug('Down:' + this.__pickStatedPoint.toStringApproximately());
+      Logger.debug(`Down:${this.__pickStatedPoint.toStringApproximately()}`);
       TranslationGizmo.__activeAxis = 'z';
     }
 
@@ -628,7 +616,7 @@ export class TranslationGizmo extends Gizmo {
       return;
     }
 
-    Logger.debug(`${this.__target.uniqueName}: ` + deltaVector3.toStringApproximately());
+    Logger.debug(`${this.__target.uniqueName}: ${deltaVector3.toStringApproximately()}`);
 
     if (TranslationGizmo.__space === 'local') {
       this.__deltaPoint = Vector3.add(deltaVector3, this.__targetPointBackup);

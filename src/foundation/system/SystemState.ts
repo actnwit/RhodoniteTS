@@ -1,4 +1,4 @@
-import { type ProcessApproachEnum, ProcessApproach } from '../definitions/ProcessApproach';
+import { ProcessApproach, type ProcessApproachEnum } from '../definitions/ProcessApproach';
 
 /**
  * The current process approach used by the system for rendering operations.

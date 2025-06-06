@@ -1,10 +1,10 @@
-import type { VertexAttributeEnum } from '../definitions/VertexAttribute';
-import { PrimitiveModeEnum } from '../definitions/PrimitiveMode';
-import type { Attributes } from './Primitive';
-import type { IndicesAccessOption, Accessor } from '../memory/Accessor';
-import type { Index, Array1to4 } from '../../types/CommonTypes';
+import type { Array1to4, Index } from '../../types/CommonTypes';
 import type { Array1, Array2, Array3, Array4 } from '../../types/CommonTypes';
+import { PrimitiveModeEnum } from '../definitions/PrimitiveMode';
+import type { VertexAttributeEnum } from '../definitions/VertexAttribute';
+import type { Accessor, IndicesAccessOption } from '../memory/Accessor';
 import type { ISemanticVertexAttribute } from './ISemanticVertexAttribute';
+import type { Attributes } from './Primitive';
 
 /**
  * A complex vertex attribute that manages multiple accessors for different components (X, Y, Z, W)

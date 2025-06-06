@@ -1,8 +1,8 @@
 import { MemoryManager } from '../../core/MemoryManager';
 import { Matrix44 } from '../../math/Matrix44';
 import { Vector3 } from '../../math/Vector3';
-import { createGroupEntity } from './createGroupEntity';
 import { flattenHierarchy } from './SceneGraphOps';
+import { createGroupEntity } from './createGroupEntity';
 import '../registerComponents';
 
 describe('SceneGraphComponent', () => {

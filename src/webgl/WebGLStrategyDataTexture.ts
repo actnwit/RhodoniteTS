@@ -1,58 +1,58 @@
-import { WebGLResourceRepository } from './WebGLResourceRepository';
-import { MemoryManager } from '../foundation/core/MemoryManager';
-import type { Buffer } from '../foundation/memory/Buffer';
-import { PixelFormat } from '../foundation/definitions/PixelFormat';
-import { ComponentType } from '../foundation/definitions/ComponentType';
-import { TextureParameter } from '../foundation/definitions/TextureParameter';
-import { BufferUse } from '../foundation/definitions/BufferUse';
-import type { ShaderSources, WebGLStrategy } from './WebGLStrategy';
+import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
+import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
+import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
+import { LightComponent } from '../foundation/components/Light/LightComponent';
 import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
-import { Primitive } from '../foundation/geometry/Primitive';
-import type { WebGLContextWrapper } from './WebGLContextWrapper';
-import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
-import { ShaderSemantics, type ShaderSemanticsName } from '../foundation/definitions/ShaderSemantics';
-import { Material } from '../foundation/materials/core/Material';
-import { CompositionType } from '../foundation/definitions/CompositionType';
-import { Component } from '../foundation/core/Component';
-import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
-import type { Mesh } from '../foundation/geometry/Mesh';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
+import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
+import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
+import { WellKnownComponentTIDs } from '../foundation/components/WellKnownComponentTIDs';
+import { Component } from '../foundation/core/Component';
 import { ComponentRepository } from '../foundation/core/ComponentRepository';
 import { Config } from '../foundation/core/Config';
+import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
+import { MemoryManager } from '../foundation/core/MemoryManager';
+import { BufferUse } from '../foundation/definitions/BufferUse';
+import { ComponentType } from '../foundation/definitions/ComponentType';
+import { CompositionType } from '../foundation/definitions/CompositionType';
+import { PixelFormat } from '../foundation/definitions/PixelFormat';
+import { ShaderSemantics, type ShaderSemanticsName } from '../foundation/definitions/ShaderSemantics';
+import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
+import { TextureFormat } from '../foundation/definitions/TextureFormat';
+import { TextureParameter } from '../foundation/definitions/TextureParameter';
+import type { Mesh } from '../foundation/geometry/Mesh';
+import { Primitive } from '../foundation/geometry/Primitive';
+import { Material } from '../foundation/materials/core/Material';
+import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
+import type { Vector2 } from '../foundation/math/Vector2';
+import type { VectorN } from '../foundation/math/VectorN';
+import type { Buffer } from '../foundation/memory/Buffer';
+import { Is } from '../foundation/misc/Is';
+import { Logger } from '../foundation/misc/Logger';
+import { MiscUtil } from '../foundation/misc/MiscUtil';
+import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
+import type { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
-import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
+import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
+import { ModuleManager } from '../foundation/system/ModuleManager';
+import { SystemState } from '../foundation/system/SystemState';
 import type {
-  WebGLResourceHandle,
-  Index,
+  Byte,
   CGAPIResourceHandle,
   Count,
-  IndexOf16Bytes,
+  Index,
   IndexOf4Bytes,
+  IndexOf16Bytes,
   PrimitiveUID,
-  Byte,
+  WebGLResourceHandle,
 } from '../types/CommonTypes';
-import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
-import type { VectorN } from '../foundation/math/VectorN';
-import { WellKnownComponentTIDs } from '../foundation/components/WellKnownComponentTIDs';
-import { MiscUtil } from '../foundation/misc/MiscUtil';
-import WebGLStrategyCommonMethod, { setupShaderProgram } from './WebGLStrategyCommonMethod';
-import { ModuleManager } from '../foundation/system/ModuleManager';
-import type { RnXR } from '../xr/main';
-import { Is } from '../foundation/misc/Is';
-import { LightComponent } from '../foundation/components/Light/LightComponent';
-import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
-import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
-import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
-import type { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
-import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
-import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
 import type { WebXRSystem } from '../xr';
-import type { Vector2 } from '../foundation/math/Vector2';
-import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
-import { TextureFormat } from '../foundation/definitions/TextureFormat';
-import { Logger } from '../foundation/misc/Logger';
+import type { RnXR } from '../xr/main';
+import type { WebGLContextWrapper } from './WebGLContextWrapper';
+import { WebGLResourceRepository } from './WebGLResourceRepository';
+import type { ShaderSources, WebGLStrategy } from './WebGLStrategy';
+import WebGLStrategyCommonMethod, { setupShaderProgram } from './WebGLStrategyCommonMethod';
 import type { RenderingArgWebGL } from './types/CommonTypes';
-import { SystemState } from '../foundation/system/SystemState';
 
 declare const spector: any;
 
@@ -435,24 +435,23 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 }
 `;
       return str;
-    } else if (!isTexture && info.needUniformInDataTextureMode) {
+    }
+    if (!isTexture && info.needUniformInDataTextureMode) {
       if (!isWebGL2 && info.arrayLength) {
         return `\n${varDef}\n`;
-      } else {
-        let varIndexStr = '';
-        if (info.arrayLength) {
-          varIndexStr = '[idxOfArray]';
-        }
-        const str = `${varDef}
+      }
+      let varIndexStr = '';
+      if (info.arrayLength) {
+        varIndexStr = '[idxOfArray]';
+      }
+      const str = `${varDef}
 ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   return u_${methodName}${varIndexStr};
 }
 `;
-        return str;
-      }
-    } else {
-      return varDef;
+      return str;
     }
+    return varDef;
   }
 
   /**
@@ -478,10 +477,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       const globalDataRepository = GlobalDataRepository.getInstance();
       const dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyName);
       return dataBeginPos;
-    } else {
-      const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyName);
-      return dataBeginPos;
     }
+    const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyName);
+    return dataBeginPos;
   }
 
   /**

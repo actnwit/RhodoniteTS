@@ -1,11 +1,11 @@
-import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import { Is } from '../misc/Is';
-import { createEntity, EntityRepository } from './EntityRepository';
-import { MemoryManager } from './MemoryManager';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
+import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
+import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
 import { TransformComponent } from '../components/Transform/TransformComponent';
 import { Vector3 } from '../math';
-import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
+import { Is } from '../misc/Is';
+import { EntityRepository, createEntity } from './EntityRepository';
+import { MemoryManager } from './MemoryManager';
 import '../components/registerComponents';
 
 test('getEntitiesNumber', () => {

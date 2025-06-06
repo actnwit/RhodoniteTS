@@ -1,11 +1,11 @@
 import type { AnimationSampler, AnimationSamplers, AnimationTrackName } from '../../types/AnimationTypes';
+import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { __interpolate } from '../components/Animation/AnimationOps';
 import { AnimationAttribute } from '../definitions/AnimationAttribute';
-import { AnimationComponent } from '../components/Animation/AnimationComponent';
-import type { IScalar } from './IVector';
-import type { IAnimatedValue } from './IAnimatedValue';
-import { Scalar } from './Scalar';
 import { Logger } from '../misc/Logger';
+import type { IAnimatedValue } from './IAnimatedValue';
+import type { IScalar } from './IVector';
+import { Scalar } from './Scalar';
 
 /**
  * A scalar value that can be animated using animation samplers.
@@ -118,7 +118,7 @@ export class AnimatedScalar extends Scalar implements IScalar, IAnimatedValue {
       }
       time = time % duration;
     }
-    if (this.__lastTime == time) {
+    if (this.__lastTime === time) {
       return;
     }
     const firstValue = __interpolate(this.__firstActiveAnimationSampler, time, AnimationAttribute.Scalar.index);

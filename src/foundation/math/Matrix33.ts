@@ -1,16 +1,16 @@
-import { Vector3 } from './Vector3';
-import type { Matrix44 } from './Matrix44';
-import type { Quaternion } from './Quaternion';
-import type { IMatrix, IMatrix33 } from './IMatrix';
-import type { MutableMatrix33 } from './MutableMatrix33';
-import { CompositionType } from '../definitions/CompositionType';
-import { MathUtil } from './MathUtil';
-import type { MutableVector3 } from './MutableVector3';
-import { AbstractMatrix } from './AbstractMatrix';
-import { IdentityMatrix33 } from './IdentityMatrix33';
-import type { IMutableVector3, IVector3 } from './IVector';
 import type { Array9 } from '../../types';
+import { CompositionType } from '../definitions/CompositionType';
 import { Logger } from '../misc/Logger';
+import { AbstractMatrix } from './AbstractMatrix';
+import type { IMatrix, IMatrix33 } from './IMatrix';
+import type { IMutableVector3, IVector3 } from './IVector';
+import { IdentityMatrix33 } from './IdentityMatrix33';
+import { MathUtil } from './MathUtil';
+import type { Matrix44 } from './Matrix44';
+import type { MutableMatrix33 } from './MutableMatrix33';
+import type { MutableVector3 } from './MutableVector3';
+import type { Quaternion } from './Quaternion';
+import { Vector3 } from './Vector3';
 /* eslint-disable prettier/prettier */
 
 /**
@@ -404,7 +404,8 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
   static multiply(l_mat: IMatrix33, r_mat: IMatrix33): IMatrix33 {
     if (l_mat.isIdentityMatrixClass) {
       return r_mat;
-    } else if (r_mat.isIdentityMatrixClass) {
+    }
+    if (r_mat.isIdentityMatrixClass) {
       return l_mat;
     }
 
@@ -433,7 +434,8 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
   static multiplyTo(l_mat: IMatrix33, r_mat: IMatrix33, outMat: MutableMatrix33) {
     if (l_mat.isIdentityMatrixClass) {
       return outMat.copyComponents(r_mat);
-    } else if (r_mat.isIdentityMatrixClass) {
+    }
+    if (r_mat.isIdentityMatrixClass) {
       return outMat.copyComponents(l_mat);
     }
 
@@ -457,26 +459,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
    * @returns A formatted string showing the matrix in 3x3 layout
    */
   toString() {
-    return (
-      this._v[0] +
-      ' ' +
-      this._v[3] +
-      ' ' +
-      this._v[6] +
-      '\n' +
-      this._v[1] +
-      ' ' +
-      this._v[4] +
-      ' ' +
-      this._v[7] +
-      '\n' +
-      this._v[2] +
-      ' ' +
-      this._v[5] +
-      ' ' +
-      this._v[8] +
-      '\n'
-    );
+    return `${this._v[0]} ${this._v[3]} ${this._v[6]}\n${this._v[1]} ${this._v[4]} ${this._v[7]}\n${this._v[2]} ${this._v[5]} ${this._v[8]}\n`;
   }
 
   /**
@@ -484,26 +467,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
    * @returns A formatted string showing the matrix with financially rounded values
    */
   toStringApproximately() {
-    return (
-      MathUtil.financial(this._v[0]) +
-      ' ' +
-      MathUtil.financial(this._v[3]) +
-      ' ' +
-      MathUtil.financial(this._v[6]) +
-      '\n' +
-      MathUtil.financial(this._v[1]) +
-      ' ' +
-      MathUtil.financial(this._v[4]) +
-      ' ' +
-      MathUtil.financial(this._v[7]) +
-      ' \n' +
-      MathUtil.financial(this._v[2]) +
-      ' ' +
-      MathUtil.financial(this._v[5]) +
-      ' ' +
-      MathUtil.financial(this._v[8]) +
-      '\n'
-    );
+    return `${MathUtil.financial(this._v[0])} ${MathUtil.financial(this._v[3])} ${MathUtil.financial(this._v[6])}\n${MathUtil.financial(this._v[1])} ${MathUtil.financial(this._v[4])} ${MathUtil.financial(this._v[7])} \n${MathUtil.financial(this._v[2])} ${MathUtil.financial(this._v[5])} ${MathUtil.financial(this._v[8])}\n`;
   }
 
   /**
@@ -521,9 +485,8 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
   isDummy() {
     if (this._v.length === 0) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -545,9 +508,8 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
       Math.abs(mat._v[8] - this._v[8]) < delta
     ) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -568,9 +530,8 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
       mat._v[8] === this._v[8]
     ) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**

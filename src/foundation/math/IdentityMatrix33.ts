@@ -2,7 +2,7 @@
 import { CompositionType } from '../definitions/CompositionType';
 import { AbstractMatrix } from './AbstractMatrix';
 import type { IMatrix, IMatrix33 } from './IMatrix';
-import type { IVector, IMutableVector } from './IVector';
+import type { IMutableVector, IVector } from './IVector';
 import type { Matrix33 } from './Matrix33';
 import type { MutableVector3 } from './MutableVector3';
 import { Vector3 } from './Vector3';
@@ -88,9 +88,8 @@ export class IdentityMatrix33 extends AbstractMatrix implements IMatrix, IMatrix
       Math.abs(mat.m22 - 1) < delta
     ) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -120,9 +119,8 @@ export class IdentityMatrix33 extends AbstractMatrix implements IMatrix, IMatrix
       v[15] === 0
     ) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**

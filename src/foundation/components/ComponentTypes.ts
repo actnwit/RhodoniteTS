@@ -1,12 +1,17 @@
+import type { EffekseerComponent, IEffekseerEntityMethods } from '../../effekseer/EffekseerComponent';
 import type { MixinBase } from '../../types/TypeGenerators';
 import type { Component } from '../core/Component';
 import type { AnimationComponent } from './Animation/AnimationComponent';
 import type { IAnimationEntityMethods } from './Animation/IAnimationEntity';
+import type { AnimationStateComponent, IAnimationStateEntityMethods } from './AnimationState';
 import type { BlendShapeComponent } from './BlendShape/BlendShapeComponent';
 import type { IBlendShapeEntityMethods } from './BlendShape/IBlendShapeEntity';
+import type { CameraComponent } from './Camera/CameraComponent';
 import type { ICameraEntityMethods } from './Camera/ICameraEntity';
 import type { CameraControllerComponent } from './CameraController/CameraControllerComponent';
 import type { ICameraControllerEntityMethods } from './CameraController/ICameraControllerEntity';
+import type { ConstraintComponent } from './Constraint/ConstraintComponent';
+import type { IConstraintEntityMethods } from './Constraint/IConstraintEntity';
 import type { ILightEntityMethods } from './Light/ILightEntity';
 import type { LightComponent } from './Light/LightComponent';
 import type { IMeshEntityMethods } from './Mesh/IMeshEntity';
@@ -21,13 +26,8 @@ import type { ISkeletalEntityMethods } from './Skeletal/ISkeletalEntity';
 import type { SkeletalComponent } from './Skeletal/SkeletalComponent';
 import type { ITransformEntityMethods } from './Transform/ITransformEntity';
 import type { TransformComponent } from './Transform/TransformComponent';
-import type { IEffekseerEntityMethods, EffekseerComponent } from '../../effekseer/EffekseerComponent';
-import type { CameraComponent } from './Camera/CameraComponent';
-import type { VrmComponent } from './Vrm/VrmComponent';
 import type { IVrmEntityMethods } from './Vrm/IVrmEntity';
-import type { ConstraintComponent } from './Constraint/ConstraintComponent';
-import type { IConstraintEntityMethods } from './Constraint/IConstraintEntity';
-import type { AnimationStateComponent, IAnimationStateEntityMethods } from './AnimationState';
+import type { VrmComponent } from './Vrm/VrmComponent';
 
 export type ComponentMixinFunction = <EntityBaseClass extends MixinBase>(
   baseClass: EntityBaseClass,

@@ -8,8 +8,8 @@ import type { RenderPass } from '../renderer/RenderPass';
 import type { AbstractTexture } from '../textures/AbstractTexture';
 import type { RenderTargetTexture } from '../textures/RenderTargetTexture';
 import { MaterialHelper } from './MaterialHelper';
-import { RenderableHelper } from './RenderableHelper';
 import { RenderPassHelper } from './RenderPassHelper';
+import { RenderableHelper } from './RenderableHelper';
 
 /**
  * A helper class for creating Gaussian blur effects on textures.
@@ -19,11 +19,6 @@ import { RenderPassHelper } from './RenderPassHelper';
 export class GaussianBlur {
   private __mapReducedFramebuffer: Map<string, FrameBuffer> = new Map();
   private __mapSynthesizeFramebuffer: Map<string, FrameBuffer> = new Map();
-
-  /**
-   * Creates a new instance of GaussianBlur.
-   */
-  constructor() {}
 
   /**
    * Creates a complete Gaussian blur expression with multiple blur passes and synthesis.
@@ -154,7 +149,7 @@ export class GaussianBlur {
           textureFormat
         );
       }
-      renderPassBlurH.tryToSetUniqueName('renderPassBlurH_' + i, true);
+      renderPassBlurH.tryToSetUniqueName(`renderPassBlurH_${i}`, true);
 
       const renderPassBlurHV = this.__createRenderPassGaussianBlur(
         renderPassBlurH.getFramebuffer()!.getColorAttachedRenderTargetTexture(0)!,
@@ -165,7 +160,7 @@ export class GaussianBlur {
         resolutionHeightBlur,
         textureFormat
       );
-      renderPassBlurHV.tryToSetUniqueName('renderPassBlurHV_' + i, true);
+      renderPassBlurHV.tryToSetUniqueName(`renderPassBlurHV_${i}`, true);
 
       renderPasses.push(renderPassBlurH, renderPassBlurHV);
     }

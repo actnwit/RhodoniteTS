@@ -1,4 +1,4 @@
-import { type Size, type Index, FloatTypedArrayConstructor, type TypedArrayConstructor } from '../../types/CommonTypes';
+import { FloatTypedArrayConstructor, type Index, type Size, type TypedArrayConstructor } from '../../types/CommonTypes';
 import type { ColorRgb } from '../math/ColorRgb';
 import type { ColorRgba } from '../math/ColorRgba';
 
@@ -103,7 +103,8 @@ export class TextureDataFloat {
           this.__data[y * this.__width * this.__channels + x * this.__channels + 2],
         ])
       );
-    } else if (channels === 4) {
+    }
+    if (channels === 4) {
       return new (typeClass as any)(
         new Float32Array([
           this.__data[y * this.__width * this.__channels + x * this.__channels + 0],

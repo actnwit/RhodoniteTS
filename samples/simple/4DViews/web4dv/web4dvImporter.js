@@ -17,8 +17,8 @@
 //
 // **********************************************************
 
-import { default as ResourceManagerXHR, Decoder4D } from './web4dvResource.js';
 import AudioPlayer from './audioPlayer.js';
+import { Decoder4D, default as ResourceManagerXHR } from './web4dvResource.js';
 
 // 4Dviews variables
 const resourceManager = new ResourceManagerXHR();
@@ -132,7 +132,7 @@ export default class WEB4DS {
     }
     // create 4Dview entity
     this.material4D = Rn.MaterialHelper.createClassicUberMaterial({
-      additionalName: 'mesh4D_' + this.id,
+      additionalName: `mesh4D_${this.id}`,
       isMorphing: false,
       isSkinning: false,
       isLighting: false,
@@ -146,25 +146,25 @@ export default class WEB4DS {
       new Float32Array(3 * maxVertices).buffer,
       Rn.ComponentType.Float,
       Rn.CompositionType.Vec3,
-      'position_' + this.id
+      `position_${this.id}`
     );
     const normalAccessor = this.createAttributeAccessor(
       new Float32Array(3 * maxVertices).buffer,
       Rn.ComponentType.Float,
       Rn.CompositionType.Vec3,
-      'normal_' + this.id
+      `normal_${this.id}`
     );
     const texcoordAccessor = this.createAttributeAccessor(
       new Float32Array(2 * maxVertices).buffer,
       Rn.ComponentType.Float,
       Rn.CompositionType.Vec2,
-      'texcoord0_' + this.id
+      `texcoord0_${this.id}`
     );
     const indicesAccessor = this.createAttributeAccessor(
       new Uint32Array(3 * maxTriangles).buffer,
       Rn.ComponentType.UnsignedInt,
       Rn.CompositionType.Scalar,
-      'indices_' + this.id
+      `indices_${this.id}`
     );
 
     const attributeMap = new Map();
@@ -247,9 +247,7 @@ export default class WEB4DS {
               // Else, play sequence
               if (this.playOnload === true || this.playOnload == null) this.play();
               else
-                alert(
-                  'sequence is ready | showPlaceholder: ' + this.showPlaceholder + ' | playOnload: ' + this.playOnload
-                );
+                alert(`sequence is ready | showPlaceholder: ${this.showPlaceholder} | playOnload: ${this.playOnload}`);
             }
             document.getElementById('btnLoad').disabled = false;
           }
@@ -271,25 +269,25 @@ export default class WEB4DS {
       new Float32Array(posBuffer).buffer,
       Rn.ComponentType.Float,
       Rn.CompositionType.Vec3,
-      'position_' + this.id
+      `position_${this.id}`
     );
     const normalAccessor = this.createAttributeAccessor(
       new Float32Array(normalBuffer).buffer,
       Rn.ComponentType.Float,
       Rn.CompositionType.Vec3,
-      'normal_' + this.id
+      `normal_${this.id}`
     );
     const texcoordAccessor = this.createAttributeAccessor(
       new Float32Array(UVBuffer).buffer,
       Rn.ComponentType.Float,
       Rn.CompositionType.Vec2,
-      'texcoord0_' + this.id
+      `texcoord0_${this.id}`
     );
     const indicesAccessor = this.createAttributeAccessor(
       new Uint32Array(indexBuffer).buffer,
       Rn.ComponentType.UnsignedInt,
       Rn.CompositionType.Scalar,
-      'indices_' + this.id
+      `indices_${this.id}`
     );
 
     const attributeMap = new Map();
@@ -379,7 +377,8 @@ export default class WEB4DS {
       /* Do not decode if enough meshes in cache */
       if (Decoder4D._keepChunksInCache === true && this.meshesCache.length >= this.sequenceLength) {
         return;
-      } else if (this.meshesCache.length >= Decoder4D._maxCacheSize) {
+      }
+      if (this.meshesCache.length >= Decoder4D._maxCacheSize) {
         return;
       }
 

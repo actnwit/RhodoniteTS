@@ -1,4 +1,4 @@
-import { type Option, None, Some } from './Option';
+import { None, type Option, Some } from './Option';
 test('unwrapOrDefault', () => {
   const val0: Option<number> = new Some(0);
   expect(val0.unwrapOrDefault(1)).toEqual(0);
@@ -79,10 +79,9 @@ test('Basic usage of Some and None', () => {
     if (val % 2 === 0) {
       // return hit object for even numbers
       return new Some(new Hit());
-    } else {
-      // return nothing for odd numbers
-      return new None();
     }
+    // return nothing for odd numbers
+    return new None();
   };
 
   const result0: Option<Hit> = funcUsingSomeAndNone(0); // Some

@@ -1,17 +1,17 @@
-import { detectFormatByArrayBuffers } from './FormatDetector';
-import { Gltf2Importer } from './Gltf2Importer';
+import type { GltfFileBuffers, GltfLoadOption } from '../../types';
 import type { RnM2 } from '../../types/RnM2';
-import { ModelConverter } from './ModelConverter';
-import { DrcPointCloudImporter } from './DrcPointCloudImporter';
+import type { glTF1 } from '../../types/glTF1';
+import { FileType } from '../definitions/FileType';
+import { DataUtil } from '../misc/DataUtil';
+import { Err, Ok, type Result, assertIsErr } from '../misc/Result';
+import type { RnPromiseCallback } from '../misc/RnPromise';
 import { Expression } from '../renderer/Expression';
 import { RenderPass } from '../renderer/RenderPass';
-import { DataUtil } from '../misc/DataUtil';
-import { FileType } from '../definitions/FileType';
-import type { glTF1 } from '../../types/glTF1';
-import type { GltfFileBuffers, GltfLoadOption } from '../../types';
-import type { RnPromiseCallback } from '../misc/RnPromise';
+import { DrcPointCloudImporter } from './DrcPointCloudImporter';
+import { detectFormatByArrayBuffers } from './FormatDetector';
+import { Gltf2Importer } from './Gltf2Importer';
+import { ModelConverter } from './ModelConverter';
 import { Vrm0xImporter } from './Vrm0xImporter';
-import { Err, type Result, Ok, assertIsErr } from '../misc/Result';
 import { VrmImporter } from './VrmImporter';
 
 /**
@@ -56,7 +56,7 @@ export class GltfImporter {
 
       await this.__detectTheModelFileTypeAndImport(url, renderPasses, options, url, callback);
 
-      if (options && options.cameraComponent) {
+      if (options?.cameraComponent) {
         for (const renderPass of renderPasses) {
           renderPass.cameraComponent = options.cameraComponent;
         }
@@ -103,7 +103,7 @@ export class GltfImporter {
         }
       }
 
-      if (options && options.cameraComponent) {
+      if (options?.cameraComponent) {
         for (const renderPass of renderPasses) {
           renderPass.cameraComponent = options.cameraComponent;
         }
@@ -141,7 +141,7 @@ export class GltfImporter {
         const fileName = file.split('.vrm')[0];
         if (fileName) {
           const arraybuffer = options.files[file];
-          options.files[fileName + '.glb'] = arraybuffer;
+          options.files[`${fileName}.glb`] = arraybuffer;
           delete options.files[file];
         }
       }
@@ -189,9 +189,8 @@ export class GltfImporter {
   private static __isValidExtension(fileExtension: string) {
     if (fileExtension === 'gltf' || fileExtension === 'glb' || fileExtension === 'vrm' || fileExtension === 'drc') {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -211,9 +210,8 @@ export class GltfImporter {
     // The 0x46546C67 means 'glTF' string in glb files.
     if (magic === 0x46546c67) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -242,9 +240,8 @@ export class GltfImporter {
   private static __getGltfVersion(gltfJson: glTF1 | RnM2) {
     if ((gltfJson as RnM2).asset?.version?.charAt(0) === '2') {
       return 2;
-    } else {
-      return 1;
     }
+    return 1;
   }
 
   /**
@@ -302,12 +299,11 @@ export class GltfImporter {
             message: 'importArrayBuffer error is occurred',
             error: undefined,
           });
-        } else {
-          options.__importedType = 'draco';
-          const rootGroup = await ModelConverter.convertToRhodoniteObject(gltfModel);
-          renderPasses[0].addEntities([rootGroup]);
-          return new Ok();
         }
+        options.__importedType = 'draco';
+        const rootGroup = await ModelConverter.convertToRhodoniteObject(gltfModel);
+        renderPasses[0].addEntities([rootGroup]);
+        return new Ok();
       }
       case FileType.VRM: {
         options.__isImportVRM0x = true;
@@ -325,13 +321,12 @@ export class GltfImporter {
             await Vrm0xImporter.__importVRM0x(gltfModel, renderPasses);
           }
           return new Ok();
-        } else {
-          assertIsErr(result);
-          return new Err({
-            message: result.getRnError().message,
-            error: undefined,
-          });
         }
+        assertIsErr(result);
+        return new Err({
+          message: result.getRnError().message,
+          error: undefined,
+        });
       }
       default:
         return new Err({
@@ -354,11 +349,10 @@ export class GltfImporter {
   private static __getFileTypeFromFilePromise(fileName: string, options: GltfLoadOption, optionalFileType?: string) {
     if (optionalFileType != null) {
       return FileType.fromString(optionalFileType);
-    } else {
-      const fileType = detectFormatByArrayBuffers({
-        [fileName]: options.files![fileName],
-      });
-      return fileType;
     }
+    const fileType = detectFormatByArrayBuffers({
+      [fileName]: options.files![fileName],
+    });
+    return fileType;
   }
 }

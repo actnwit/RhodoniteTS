@@ -1,5 +1,5 @@
-import { DataUtil } from '../misc/DataUtil';
 import { FileType, type FileTypeEnum } from '../../foundation/definitions/FileType';
+import { DataUtil } from '../misc/DataUtil';
 
 /**
  * Detects the file format based on file extensions from a collection of ArrayBuffers.
@@ -20,11 +20,14 @@ export function detectFormatByArrayBuffers(files: { [s: string]: ArrayBuffer }):
 
     if (fileExtension === 'gltf') {
       return FileType.Gltf;
-    } else if (fileExtension === 'glb') {
+    }
+    if (fileExtension === 'glb') {
       return FileType.GltfBinary;
-    } else if (fileExtension === 'vrm') {
+    }
+    if (fileExtension === 'vrm') {
       return FileType.VRM;
-    } else if (fileExtension === 'drc') {
+    }
+    if (fileExtension === 'drc') {
       return FileType.Draco;
     }
   }
@@ -49,11 +52,14 @@ export function detectFormatByUri(uri: string): string {
 
   if (fileExtension === 'efk') {
     return 'Effekseer';
-  } else if (fileExtension === 'drc') {
+  }
+  if (fileExtension === 'drc') {
     return 'Draco';
-  } else if (fileExtension === 'vrm') {
+  }
+  if (fileExtension === 'vrm') {
     return 'VRM';
-  } else if (fileExtension === 'gltf') {
+  }
+  if (fileExtension === 'gltf') {
     return 'glTF';
   }
 
@@ -100,11 +106,10 @@ function checkVersionOfGltf(arrayBuffer: ArrayBuffer) {
 
     const glTFVer = checkGLTFVersion(gltfJson);
 
-    return 'glTF' + glTFVer;
-  } else {
-    const glTFVer = dataView.getUint32(4, isLittleEndian);
-    return 'glTF' + glTFVer;
+    return `glTF${glTFVer}`;
   }
+  const glTFVer = dataView.getUint32(4, isLittleEndian);
+  return `glTF${glTFVer}`;
 }
 
 /**
@@ -120,7 +125,7 @@ function checkVersionOfGltf(arrayBuffer: ArrayBuffer) {
  */
 function checkGLTFVersion(gltfJson: any) {
   let glTFVer = 1.0;
-  if (gltfJson.asset && gltfJson.asset.version) {
+  if (gltfJson.asset?.version) {
     glTFVer = Number.parseFloat(gltfJson.asset.version);
   }
   return glTFVer;

@@ -1,11 +1,11 @@
 import { type EffekseerComponent, IEffekseerEntityMethods } from '../../effekseer/EffekseerComponent';
-import type { Gltf2Ex } from '../../types/glTF2ForOutput';
 import type {
   RnM2ExtensionEffekseer,
   RnM2ExtensionsEffekseerEffect,
   RnM2ExtensionsEffekseerTimeline,
   RnM2ExtensionsEffekseerTimelineItem,
 } from '../../types/RnM2';
+import type { Gltf2Ex } from '../../types/glTF2ForOutput';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import type { IEntity } from '../core';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';

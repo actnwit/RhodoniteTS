@@ -10,9 +10,8 @@ const isMobileVr = (): boolean => {
     return /(Pacific Build.+OculusBrowser.+SamsungBrowser.+)|(SamsungBrowser)|(Mobile VR)/i.test(
       window.navigator.userAgent
     );
-  } else {
-    return false;
   }
+  return false;
 };
 
 /**
@@ -92,7 +91,7 @@ const preventDefaultForDesktopOnly = (e: Event): void => {
  * @param o - The value to check
  * @returns True if the value is a plain object, false otherwise
  */
-const isObject = (o: any): boolean => o instanceof Object && !(o instanceof Array) ? true : false;
+const isObject = (o: any): boolean => !!(o instanceof Object && !Array.isArray(o));
 
 /**
  * Fills a template string with variables using template literals
@@ -101,7 +100,8 @@ const isObject = (o: any): boolean => o instanceof Object && !(o instanceof Arra
  * @returns The filled template string
  * @see https://stackoverflow.com/questions/30003353/can-es6-template-literals-be-substituted-at-runtime-or-reused
  */
-const fillTemplate = (templateString: string, templateVars: string): string => new Function('return `' + templateString + '`;').call(templateVars);
+const fillTemplate = (templateString: string, templateVars: string): string =>
+  new Function(`return \`${templateString}\`;`).call(templateVars);
 
 /**
  * Detects if the current environment is Node.js
@@ -132,9 +132,8 @@ const concatArrayBuffers = (segments: ArrayBuffer[], sizes: Byte[], offsets: Byt
   const getExceededSize = (sizeToAdd: Size) => {
     if (finalSize != null && offsetOfBase + sizeToAdd > finalSize) {
       return offsetOfBase + sizeToAdd - finalSize;
-    } else {
-      return 0;
     }
+    return 0;
   };
   let offsetOfBase = 0;
   const addData = (sizeToAdd: Size, i: number) => {
@@ -143,11 +142,10 @@ const concatArrayBuffers = (segments: ArrayBuffer[], sizes: Byte[], offsets: Byt
       whole.set(new Uint8Array(segments[i], offsets[i], exceededSize), offsetOfBase);
       offsetOfBase += exceededSize;
       return true;
-    } else {
-      whole.set(new Uint8Array(segments[i], offsets[i], sizeToAdd), offsetOfBase);
-      offsetOfBase += sizeToAdd;
-      return false;
     }
+    whole.set(new Uint8Array(segments[i], offsets[i], sizeToAdd), offsetOfBase);
+    offsetOfBase += sizeToAdd;
+    return false;
   };
   const addOverSizeData = (overSize: Size) => {
     const exceededSize = getExceededSize(overSize);
@@ -155,11 +153,10 @@ const concatArrayBuffers = (segments: ArrayBuffer[], sizes: Byte[], offsets: Byt
       whole.set(new Uint8Array(exceededSize), offsetOfBase);
       offsetOfBase += exceededSize;
       return true;
-    } else {
-      whole.set(new Uint8Array(overSize), offsetOfBase);
-      offsetOfBase += overSize;
-      return false;
     }
+    whole.set(new Uint8Array(overSize), offsetOfBase);
+    offsetOfBase += overSize;
+    return false;
   };
 
   for (let i = 0; i < segments.length; ++i) {
@@ -428,9 +425,8 @@ interface CompareResult {
 export const greaterThan = (it: number, than: number): CompareResult => {
   if (it > than) {
     return { result: true, greater: it, less: than };
-  } else {
-    return { result: false, greater: than, less: it };
   }
+  return { result: false, greater: than, less: it };
 };
 
 /**
@@ -442,9 +438,8 @@ export const greaterThan = (it: number, than: number): CompareResult => {
 export const lessThan = (it: number, than: number): CompareResult => {
   if (it < than) {
     return { result: true, greater: than, less: it };
-  } else {
-    return { result: false, greater: it, less: than };
   }
+  return { result: false, greater: it, less: than };
 };
 
 /**
@@ -463,7 +458,7 @@ export const addLineNumberToCode = (shaderString: string): string => {
     } else if (lineIndex >= 100) {
       splitter = ': ';
     }
-    shaderTextWithLineNumber += lineIndex + splitter + shaderTextLines[i] + '\n';
+    shaderTextWithLineNumber += `${lineIndex + splitter + shaderTextLines[i]}\n`;
   }
 
   return shaderTextWithLineNumber;

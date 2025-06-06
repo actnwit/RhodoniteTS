@@ -1,10 +1,10 @@
-import { CommonShaderPart } from '../CommonShaderPart';
-import type { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import type { ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
+import type { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { ProcessApproach } from '../../../foundation/definitions/ProcessApproach';
+import type { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
 import { SystemState } from '../../../foundation/system/SystemState';
 import type { AttributeNames } from '../../types/CommonTypes';
-import type { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
+import { CommonShaderPart } from '../CommonShaderPart';
 
 export class UniformDataShader extends CommonShaderPart {
   private __variableName = '';
@@ -35,11 +35,11 @@ fn ${this.__functionName}(outValue: ptr<function, ${this.__compositionType.toWGS
   *outValue = get_${this.__variableName}(uniformDrawParameters.materialSid, 0);
 }
 `;
-    } else {
-      return `
+    }
+    return `
 uniform ${this.__compositionType.getGlslStr(this.__componentType)} u_${
-        this.__variableName
-      }; // initialValue=${this.__valueStr}
+      this.__variableName
+    }; // initialValue=${this.__valueStr}
 void ${this.__functionName}(out ${this.__compositionType.getGlslStr(this.__componentType)} outValue) {
   #ifdef RN_IS_DATATEXTURE_MODE
     float materialSID = u_currentComponentSIDs[0]; // index 0 data is the materialSID
@@ -50,7 +50,6 @@ void ${this.__functionName}(out ${this.__compositionType.getGlslStr(this.__compo
   outValue = get_${this.__variableName}(materialSID, 0);
 }
 `;
-    }
   }
 
   get pixelShaderDefinitions() {
@@ -63,11 +62,11 @@ fn ${this.__functionName}(outValue: ptr<function, ${this.__compositionType.toWGS
   *outValue = get_${this.__variableName}(uniformDrawParameters.materialSid, 0);
 }
 `;
-    } else {
-      return `
+    }
+    return `
 uniform ${this.__compositionType.getGlslStr(this.__componentType)} u_${
-        this.__variableName
-      }; // initialValue=${this.__valueStr}
+      this.__variableName
+    }; // initialValue=${this.__valueStr}
 void ${this.__functionName}(out ${this.__compositionType.getGlslStr(this.__componentType)} outValue) {
 #ifdef RN_IS_DATATEXTURE_MODE
   float materialSID = u_currentComponentSIDs[0]; // index 0 data is the materialSID
@@ -78,7 +77,6 @@ void ${this.__functionName}(out ${this.__compositionType.getGlslStr(this.__compo
 outValue = get_${this.__variableName}(materialSID, 0);
     }
     `;
-    }
   }
 
   get attributeNames(): AttributeNames {

@@ -1,7 +1,7 @@
-import type { IVector4, IMutableVector, IMutableVector4 } from './IVector';
 import type { Array4, FloatTypedArray, FloatTypedArrayConstructor } from '../../types/CommonTypes';
-import { Vector4_ } from './Vector4';
 import { Logger } from '../misc/Logger';
+import type { IMutableVector, IMutableVector4, IVector4 } from './IVector';
+import { Vector4_ } from './Vector4';
 
 /**
  * Base class for mutable 4D vectors with generic typed array support.

@@ -12,14 +12,6 @@ export class LightGizmo extends Gizmo {
   private static __mesh: Mesh;
   private static __length = 1;
 
-  /**
-   * Creates a new LightGizmo instance for visualizing light entities in the scene.
-   * @param target - The scene graph entity that this gizmo will be attached to and represent visually
-   */
-  constructor(target: ISceneGraphEntity) {
-    super(target);
-  }
-
   ///
   ///
   /// Accessors
@@ -33,9 +25,8 @@ export class LightGizmo extends Gizmo {
   get isSetup(): boolean {
     if (this.__topEntity != null) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   ///

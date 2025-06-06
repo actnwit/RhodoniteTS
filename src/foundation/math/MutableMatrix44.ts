@@ -1,11 +1,11 @@
+import type { Array16, Index } from '../../types/CommonTypes';
+import { Logger } from '../misc/Logger';
+import type { IMatrix33, IMatrix44, IMutableMatrix, IMutableMatrix44 } from './IMatrix';
+import type { IQuaternion } from './IQuaternion';
 import { Matrix44 } from './Matrix44';
-import type { IMutableMatrix44, IMutableMatrix, IMatrix44, IMatrix33 } from './IMatrix';
+import type { MutableVector3 } from './MutableVector3';
 import type { Quaternion } from './Quaternion';
 import type { Vector3 } from './Vector3';
-import type { Array16, Index } from '../../types/CommonTypes';
-import type { IQuaternion } from './IQuaternion';
-import type { MutableVector3 } from './MutableVector3';
-import { Logger } from '../misc/Logger';
 
 /* eslint-disable prettier/prettier */
 const FloatArray = Float32Array;
@@ -26,15 +26,6 @@ type FloatArray = Float32Array;
  * ```
  */
 export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutableMatrix44 {
-  /**
-   * Creates a new MutableMatrix44 instance.
-   *
-   * @param m - A Float32Array containing 16 elements representing the matrix in column-major order
-   */
-  constructor(m: FloatArray) {
-    super(m);
-  }
-
   /**
    * Sets the value at position (0,0) in the matrix.
    *

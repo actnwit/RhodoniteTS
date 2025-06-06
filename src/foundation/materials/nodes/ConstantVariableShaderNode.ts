@@ -1,8 +1,8 @@
-import type { CompositionTypeEnum } from '../../definitions/CompositionType';
-import type { ComponentTypeEnum } from '../../definitions/ComponentType';
 import { ConstantVariableShader } from '../../../webgl/shaders/nodes/ConstantVariableShader';
-import { AbstractShaderNode } from '../core/AbstractShaderNode';
+import type { ComponentTypeEnum } from '../../definitions/ComponentType';
+import type { CompositionTypeEnum } from '../../definitions/CompositionType';
 import type { IVector } from '../../math/IVector';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
 
 /**
@@ -41,7 +41,7 @@ export abstract class ConstantVariableShaderNode<
   constructor(nodeName: string, compositionType: N, componentType: T) {
     super(nodeName, {});
 
-    this.__shaderFunctionName += '_' + this.__shaderNodeUid;
+    this.__shaderFunctionName += `_${this.__shaderNodeUid}`;
 
     this.__commonPart = new ConstantVariableShader(this.__shaderFunctionName, compositionType, componentType);
 

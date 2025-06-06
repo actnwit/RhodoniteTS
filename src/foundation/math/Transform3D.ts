@@ -1,4 +1,4 @@
-import type { Array16, Array3, Array4 } from '../../types';
+import type { Array3, Array4, Array16 } from '../../types';
 import type { IMatrix44 } from './IMatrix';
 import type { IQuaternion } from './IQuaternion';
 import type { IVector3 } from './IVector';
@@ -446,7 +446,7 @@ export class Transform3D {
     for (const key in json) {
       if (json.hasOwnProperty(key) && key in this) {
         if (key === 'quaternion') {
-          this['rotation'] = Quaternion.fromCopyArray4((json as any)[key] as Array4<number>);
+          this.rotation = Quaternion.fromCopyArray4((json as any)[key] as Array4<number>);
         } else if (key === 'matrix') {
           this[key] = Matrix44.fromCopyArray16RowMajor((json as any)[key] as Array16<number>);
         } else {

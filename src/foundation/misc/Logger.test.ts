@@ -1,6 +1,6 @@
-import { Logger, LogLevel } from './Logger';
+import { LogLevel, Logger } from './Logger';
 
-test(`LogLevel.Debug`, () => {
+test('LogLevel.Debug', () => {
   Logger.logLevel = LogLevel.Debug;
   Logger.isAccumulateLog = false;
   Logger.isRichLog = false;
@@ -12,7 +12,7 @@ test(`LogLevel.Debug`, () => {
   expect(Logger.assert(true, 'assert')).toBe('assert');
 });
 
-test(`LogLevel.Info`, () => {
+test('LogLevel.Info', () => {
   Logger.logLevel = LogLevel.Info;
   Logger.isAccumulateLog = false;
   Logger.isRichLog = false;
@@ -24,7 +24,7 @@ test(`LogLevel.Info`, () => {
   expect(Logger.assert(true, 'assert')).toBe('assert');
 });
 
-test(`LogLevel.Warn`, () => {
+test('LogLevel.Warn', () => {
   Logger.logLevel = LogLevel.Warn;
   Logger.isAccumulateLog = false;
   Logger.isRichLog = false;
@@ -36,7 +36,7 @@ test(`LogLevel.Warn`, () => {
   expect(Logger.assert(true, 'assert')).toBe('assert');
 });
 
-test(`LogLevel.Error`, () => {
+test('LogLevel.Error', () => {
   Logger.logLevel = LogLevel.Error;
   Logger.isAccumulateLog = false;
   Logger.isRichLog = false;
@@ -48,7 +48,7 @@ test(`LogLevel.Error`, () => {
   expect(Logger.assert(true, 'assert')).toBe('assert');
 });
 
-test(`LogLevel.Assert`, () => {
+test('LogLevel.Assert', () => {
   Logger.logLevel = LogLevel.Assert;
   Logger.isAccumulateLog = false;
   Logger.isRichLog = false;
@@ -60,7 +60,7 @@ test(`LogLevel.Assert`, () => {
   expect(Logger.assert(true, 'assert')).toBe('assert');
 });
 
-test(`isAccumulateLog`, () => {
+test('isAccumulateLog', () => {
   Logger.logLevel = LogLevel.Debug;
   Logger.isAccumulateLog = true;
   Logger.isRichLog = true;

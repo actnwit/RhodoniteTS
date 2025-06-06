@@ -1,15 +1,15 @@
-import { type IEntity, Entity } from './Entity';
-import type { Component } from './Component';
-import { ComponentRepository } from './ComponentRepository';
-import type { RnTags, EntityUID, ComponentTID } from '../../types/CommonTypes';
-import { valueWithCompensation } from '../misc/MiscUtil';
+import type { ComponentTID, EntityUID, RnTags } from '../../types/CommonTypes';
 import type { ComponentToComponentMethods } from '../components/ComponentTypes';
-import { Is } from '../misc/Is';
-import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import type { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
+import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import type { ISceneGraphEntity } from '../helpers';
 import { Logger } from '../misc';
+import { Is } from '../misc/Is';
+import { valueWithCompensation } from '../misc/MiscUtil';
+import type { Component } from './Component';
+import { ComponentRepository } from './ComponentRepository';
+import { Entity, type IEntity } from './Entity';
 
 /**
  * The repository class responsible for creating, managing, and deleting entities within the framework.
@@ -468,9 +468,8 @@ export class EntityRepository {
       component = entity.get(componentType.componentTID);
       if (component != null) {
         return component;
-      } else {
-        return null;
       }
+      return null;
     }
     return component;
   }

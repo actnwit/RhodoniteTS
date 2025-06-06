@@ -1,96 +1,102 @@
-import { EntityRepository } from '../core/EntityRepository';
-import { MeshComponent } from '../components/Mesh/MeshComponent';
-import { Vector3 } from '../math/Vector3';
-import { Quaternion } from '../math/Quaternion';
-import { Matrix44 } from '../math/Matrix44';
-import { Primitive } from '../geometry/Primitive';
-import { Buffer } from '../memory/Buffer';
-import { PrimitiveMode } from '../definitions/PrimitiveMode';
-import { CompositionType } from '../definitions/CompositionType';
-import { ComponentType } from '../definitions/ComponentType';
-import { VertexAttribute, type VertexAttributeSemanticsJoinedString } from '../definitions/VertexAttribute';
-import { CameraType } from '../definitions/CameraType';
-import { Texture } from '../textures/Texture';
-import { Vector4 } from '../math/Vector4';
-import { AnimationComponent } from '../components/Animation/AnimationComponent';
-import { AnimationInterpolation } from '../definitions/AnimationInterpolation';
-import { MathUtil } from '../math/MathUtil';
-import { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
-import { AlphaMode } from '../definitions/AlphaMode';
-import { MaterialHelper } from '../helpers/MaterialHelper';
-import { ShaderSemantics, ShaderSemanticsEnum, type ShaderSemanticsName } from '../definitions/ShaderSemantics';
-import { Vector2 } from '../math/Vector2';
-import type { Material } from '../materials/core/Material';
-import { ShadingModel } from '../definitions/ShadingModel';
-import type { Accessor } from '../memory/Accessor';
-import { Mesh } from '../geometry/Mesh';
-import { MutableVector4 } from '../math/MutableVector4';
-import { LightType } from '../definitions/LightType';
+import type { AnimationPathName, AnimationSampler, AnimationTrackName } from '../../types/AnimationTypes';
 import {
-  type Count,
+  type Array3,
+  Array4,
   type Byte,
-  type Size,
+  type Count,
   type Index,
+  type Size,
   type TypedArray,
   TypedArrayConstructor,
-  Array4,
   type VectorComponentN,
-  type Array3,
 } from '../../types/CommonTypes';
 import {
   type RnM2,
-  type RnM2Node,
   type RnM2Accessor,
-  type RnM2BufferView,
-  type RnM2Primitive,
-  type RnM2Material,
-  type RnM2Image,
-  type RnM2Camera,
-  RnM2Texture,
-  type RnM2Mesh,
-  type RnM2TextureInfo,
-  type RnM2SparseIndices,
-  type RnM2PbrMetallicRoughness,
   type RnM2Animation,
   type RnM2AnimationChannel,
   type RnM2AnimationSampler,
+  type RnM2BufferView,
+  type RnM2Camera,
+  type RnM2Image,
+  type RnM2Material,
+  type RnM2Mesh,
+  type RnM2Node,
+  type RnM2PbrMetallicRoughness,
+  type RnM2Primitive,
+  type RnM2SparseIndices,
+  RnM2Texture,
+  type RnM2TextureInfo,
   type RnM2TextureSampler,
 } from '../../types/RnM2';
-import { Config } from '../core/Config';
-import { BufferUse } from '../definitions/BufferUse';
-import { MemoryManager } from '../core/MemoryManager';
-import { ILoaderExtension } from './ILoaderExtension';
-import { Scalar } from '../math/Scalar';
-import { TextureParameter } from '../definitions/TextureParameter';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { Is } from '../misc/Is';
-import { DataUtil } from '../misc/DataUtil';
-import type { AnimationPathName, AnimationSampler, AnimationTrackName } from '../../types/AnimationTypes';
-import { type GltfLoadOption, type KHR_lights_punctual_Light, TagGltf2NodeIndex } from '../../types/glTF2';
-import type { IAnimationEntity, ICameraEntity, ISceneGraphEntity, ILightEntity, IMeshEntity } from '../helpers/EntityHelper';
-import { BlendShapeComponent } from '../components/BlendShape/BlendShapeComponent';
-import { LightComponent } from '../components/Light/LightComponent';
-import type { IBlendShapeEntityMethods } from '../components/BlendShape/IBlendShapeEntity';
-import type { BufferView } from '../memory/BufferView';
-import { RhodoniteImportExtension } from './RhodoniteImportExtension';
 import type { Vrm0xMaterialProperty } from '../../types/VRM0x';
-import { MutableMatrix44 } from '../math/MutableMatrix44';
-import { Sampler } from '../textures/Sampler';
+import type { Vrm1_Material } from '../../types/VRMC_materials_mtoon';
+import { type GltfLoadOption, type KHR_lights_punctual_Light, TagGltf2NodeIndex } from '../../types/glTF2';
+import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { AnimationStateComponent } from '../components/AnimationState/AnimationStateComponent';
-import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
-import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
-import { createLightEntity } from '../components/Light/createLightEntity';
+import { BlendShapeComponent } from '../components/BlendShape/BlendShapeComponent';
+import type { IBlendShapeEntityMethods } from '../components/BlendShape/IBlendShapeEntity';
 import { createCameraEntity } from '../components/Camera/createCameraEntity';
-import { Logger } from '../misc/Logger';
-import { AnimatedVector3 } from '../math/AnimatedVector3';
+import { LightComponent } from '../components/Light/LightComponent';
+import { createLightEntity } from '../components/Light/createLightEntity';
+import { MeshComponent } from '../components/Mesh/MeshComponent';
+import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
+import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
+import { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
+import { Config } from '../core/Config';
+import { EntityRepository } from '../core/EntityRepository';
+import { MemoryManager } from '../core/MemoryManager';
+import { AlphaMode } from '../definitions/AlphaMode';
+import { AnimationInterpolation } from '../definitions/AnimationInterpolation';
+import { BufferUse } from '../definitions/BufferUse';
+import { CameraType } from '../definitions/CameraType';
+import { ComponentType } from '../definitions/ComponentType';
+import { CompositionType } from '../definitions/CompositionType';
+import { LightType } from '../definitions/LightType';
+import { PrimitiveMode } from '../definitions/PrimitiveMode';
+import { ShaderSemantics, ShaderSemanticsEnum, type ShaderSemanticsName } from '../definitions/ShaderSemantics';
+import { ShadingModel } from '../definitions/ShadingModel';
+import { TextureParameter } from '../definitions/TextureParameter';
+import { VertexAttribute, type VertexAttributeSemanticsJoinedString } from '../definitions/VertexAttribute';
+import { Mesh } from '../geometry/Mesh';
+import { Primitive } from '../geometry/Primitive';
+import type {
+  IAnimationEntity,
+  ICameraEntity,
+  ILightEntity,
+  IMeshEntity,
+  ISceneGraphEntity,
+} from '../helpers/EntityHelper';
+import { MaterialHelper } from '../helpers/MaterialHelper';
+import type { Material } from '../materials/core/Material';
 import { AnimatedQuaternion } from '../math/AnimatedQuaternion';
 import { AnimatedScalar } from '../math/AnimatedScalar';
-import { AnimatedVector4 } from '../math/AnimatedVector4';
-import type { IAnimatedValue } from '../math/IAnimatedValue';
 import { AnimatedVector2 } from '../math/AnimatedVector2';
-import { MutableVector2 } from '../math/MutableVector2';
+import { AnimatedVector3 } from '../math/AnimatedVector3';
+import { AnimatedVector4 } from '../math/AnimatedVector4';
 import { AnimatedVectorN } from '../math/AnimatedVectorN';
-import type { Vrm1_Material } from '../../types/VRMC_materials_mtoon';
+import type { IAnimatedValue } from '../math/IAnimatedValue';
+import { MathUtil } from '../math/MathUtil';
+import { Matrix44 } from '../math/Matrix44';
+import { MutableMatrix44 } from '../math/MutableMatrix44';
+import { MutableVector2 } from '../math/MutableVector2';
+import { MutableVector4 } from '../math/MutableVector4';
+import { Quaternion } from '../math/Quaternion';
+import { Scalar } from '../math/Scalar';
+import { Vector2 } from '../math/Vector2';
+import { Vector3 } from '../math/Vector3';
+import { Vector4 } from '../math/Vector4';
+import type { Accessor } from '../memory/Accessor';
+import { Buffer } from '../memory/Buffer';
+import type { BufferView } from '../memory/BufferView';
+import { DataUtil } from '../misc/DataUtil';
+import { Is } from '../misc/Is';
+import { Logger } from '../misc/Logger';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import { Sampler } from '../textures/Sampler';
+import { Texture } from '../textures/Texture';
+import { ILoaderExtension } from './ILoaderExtension';
+import { RhodoniteImportExtension } from './RhodoniteImportExtension';
 
 declare let DracoDecoderModule: any;
 
@@ -318,12 +324,12 @@ export class ModelConverter {
       }
     }
 
-    if (gltfModel.asset.extras && gltfModel.asset.extras.rnLoaderOptions) {
+    if (gltfModel.asset.extras?.rnLoaderOptions) {
       const options = gltfModel.asset.extras!.rnLoaderOptions;
-      if (options && options.loaderExtension && options?.loaderExtension?.loadExtensionInfoAndSetToRootGroup) {
+      if (options?.loaderExtension?.loadExtensionInfoAndSetToRootGroup) {
         options.loaderExtension.loadExtensionInfoAndSetToRootGroup(rootGroup, gltfModel);
       }
-      if (options && options.expression) {
+      if (options?.expression) {
         options.expression.tryToSetTag({
           tag: 'gltfModel',
           value: gltfModel,
@@ -1133,9 +1139,8 @@ export class ModelConverter {
     const argument = gltfModel.asset.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray![0];
     if (argument?.isMorphing === false) {
       return false;
-    } else {
-      return node.meshObject?.primitives[0].targets != null;
     }
+    return node.meshObject?.primitives[0].targets != null;
   }
 
   /**
@@ -1730,10 +1735,7 @@ export class ModelConverter {
       const rnLoaderOptions = gltfModel.asset.extras.rnLoaderOptions;
 
       // For specified loader extension
-      if (
-        rnLoaderOptions.loaderExtension?.isNeededToUseThisMaterial != null &&
-        rnLoaderOptions.loaderExtension.isNeededToUseThisMaterial(gltfModel)
-      ) {
+      if (rnLoaderOptions.loaderExtension?.isNeededToUseThisMaterial?.(gltfModel)) {
         const loaderExtension = gltfModel.asset.extras?.rnLoaderOptions?.loaderExtension;
         if (loaderExtension?.generateMaterial != null) {
           return loaderExtension.generateMaterial(materialJson!);
@@ -1795,7 +1797,7 @@ export class ModelConverter {
         isDispersion: Is.exist(materialJson?.extensions?.KHR_materials_dispersion),
         isEmissiveStrength: Is.exist(materialJson?.extensions?.KHR_materials_emissive_strength),
         isDiffuseTransmission: Is.exist(materialJson?.extensions?.KHR_materials_diffuse_transmission),
-        isShadow: rnLoaderOptions.shadow ? true : false,
+        isShadow: !!rnLoaderOptions.shadow,
         useTangentAttribute,
         useNormalTexture,
         additionalName: additionalName,
@@ -1807,17 +1809,16 @@ export class ModelConverter {
       }
       material.isTranslucent = isTranslucent;
       return material;
-    } else {
-      // For glTF 1
-      const material = MaterialHelper.createClassicUberMaterial({
-        isSkinning,
-        isLighting,
-        additionalName: additionalName,
-        maxInstancesNumber: maxMaterialInstanceNumber,
-      });
-      material.isTranslucent = isTranslucent;
-      return material;
     }
+    // For glTF 1
+    const material = MaterialHelper.createClassicUberMaterial({
+      isSkinning,
+      isLighting,
+      additionalName: additionalName,
+      maxInstancesNumber: maxMaterialInstanceNumber,
+    });
+    material.isTranslucent = isTranslucent;
+    return material;
   }
 
   /**
@@ -1830,9 +1831,8 @@ export class ModelConverter {
     const argument = gltfModel?.asset?.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray![0];
     if (argument?.isLighting != null) {
       return argument.isLighting as boolean;
-    } else {
-      return materialJson?.extensions?.KHR_materials_unlit != null ? false : true;
     }
+    return materialJson?.extensions?.KHR_materials_unlit == null;
   }
 
   /**
@@ -1870,9 +1870,8 @@ export class ModelConverter {
     const argument = gltfModel?.asset?.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray![0];
     if (argument?.useNormalTexture === false) {
       return false;
-    } else {
-      return gltfModel?.asset?.extras?.rnLoaderOptions?.tangentCalculationMode !== 0;
     }
+    return gltfModel?.asset?.extras?.rnLoaderOptions?.tangentCalculationMode !== 0;
   }
 
   private static __makeOutputSrgb(gltfModel: RnM2) {
@@ -2058,7 +2057,7 @@ export class ModelConverter {
       rnTexture.name = image.uri;
     } else {
       const ext = image.mimeType?.split('/')[1];
-      rnTexture.name = image.name ?? 'Untitled' + `.${ext}`;
+      rnTexture.name = image.name ?? `Untitled.${ext}`;
     }
     rnTexture.tryToSetUniqueName(rnTexture.name, true);
 
@@ -2083,9 +2082,8 @@ export class ModelConverter {
 
     if ((width & (width - 1)) === 0 && (height & (height - 1)) === 0) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   private static __needParameterInitialization(materialJson: RnM2Material, materialTypeName: string): boolean {
@@ -2097,9 +2095,8 @@ export class ModelConverter {
   private static _checkRnGltfLoaderOptionsExist(gltfModel: RnM2) {
     if (gltfModel.asset.extras?.rnLoaderOptions) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   private static __rewrapWithTypedArray(typedArrayClass: any, uint8Array: Uint8Array, byteOffset: Byte, length: Size) {
@@ -2336,26 +2333,31 @@ export class ModelConverter {
   ): Float32Array {
     if (dataViewMethod === 'getInt8') {
       return DataUtil.normalizedInt8ArrayToFloat32Array(numberArray as unknown as Int8Array);
-    } else if (dataViewMethod === 'getUint8') {
+    }
+    if (dataViewMethod === 'getUint8') {
       return DataUtil.normalizedUint8ArrayToFloat32Array(numberArray as unknown as Uint8Array);
-    } else if (dataViewMethod === 'getInt16') {
+    }
+    if (dataViewMethod === 'getInt16') {
       return DataUtil.normalizedInt16ArrayToFloat32Array(numberArray as unknown as Int16Array);
-    } else if (dataViewMethod === 'getUint16') {
+    }
+    if (dataViewMethod === 'getUint16') {
       return DataUtil.normalizedUint16ArrayToFloat32Array(numberArray as unknown as Uint16Array);
-    } else if (dataViewMethod === 'getInt32') {
+    }
+    if (dataViewMethod === 'getInt32') {
       // typedDataArray = new Int32Array(numberArray);
       Logger.error('Not considered');
       return new Float32Array();
-    } else if (dataViewMethod === 'getUint32') {
+    }
+    if (dataViewMethod === 'getUint32') {
       // typedDataArray = new Uint32Array(numberArray);
       Logger.error('Not considered');
       return new Float32Array();
-    } else if (dataViewMethod === 'getFloat32') {
-      return new Float32Array(numberArray);
-    } else {
-      Logger.error('Not considered');
-      return new Float32Array();
     }
+    if (dataViewMethod === 'getFloat32') {
+      return new Float32Array(numberArray);
+    }
+    Logger.error('Not considered');
+    return new Float32Array();
   }
 
   private static __addOffsetToIndices(meshComponent: MeshComponent) {

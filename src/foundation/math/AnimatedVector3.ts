@@ -1,11 +1,16 @@
-import { AnimationChannel, type AnimationSampler, type AnimationSamplers, type AnimationTrackName } from '../../types/AnimationTypes';
+import {
+  AnimationChannel,
+  type AnimationSampler,
+  type AnimationSamplers,
+  type AnimationTrackName,
+} from '../../types/AnimationTypes';
+import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { __interpolate } from '../components/Animation/AnimationOps';
 import { AnimationAttribute } from '../definitions/AnimationAttribute';
-import { AnimationComponent } from '../components/Animation/AnimationComponent';
-import type { IVector3 } from './IVector';
-import type { IAnimatedValue } from './IAnimatedValue';
-import { Vector3 } from './Vector3';
 import { Logger } from '../misc/Logger';
+import type { IAnimatedValue } from './IAnimatedValue';
+import type { IVector3 } from './IVector';
+import { Vector3 } from './Vector3';
 
 /**
  * An animated 3D vector that interpolates values based on animation tracks.
@@ -174,7 +179,7 @@ export class AnimatedVector3 extends Vector3 implements IVector3, IAnimatedValue
       }
       time = time % duration;
     }
-    if (this.__lastTime == time) {
+    if (this.__lastTime === time) {
       return;
     }
     const firstValue = __interpolate(this.__firstActiveAnimationSampler, time, AnimationAttribute.Vector3.index);

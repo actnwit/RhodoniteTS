@@ -1,22 +1,22 @@
-import { PixelFormat, type PixelFormatEnum } from '../definitions/PixelFormat';
-import { ComponentType } from '../definitions/ComponentType';
-import { TextureParameter, type TextureParameterEnum } from '../definitions/TextureParameter';
-import { AbstractTexture } from './AbstractTexture';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import type { TypedArray, Count, CGAPIResourceHandle, Index, Size, Offset } from '../../types/CommonTypes';
-import { Config } from '../core/Config';
-import type { BasisFile, BasisTranscoder, BASIS } from '../../types/BasisTexture';
 import type { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
-import { DataUtil } from '../misc/DataUtil';
-import type { CompressionTextureTypeEnum } from '../definitions/CompressionTextureType';
-import { KTX2TextureLoader } from '../../webgl/textureLoader/KTX2TextureLoader';
+import type { BASIS, BasisFile, BasisTranscoder } from '../../types/BasisTexture';
+import type { CGAPIResourceHandle, Count, Index, Offset, Size, TypedArray } from '../../types/CommonTypes';
 import { type TextureData, WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
-import { ModuleManager } from '../system/ModuleManager';
-import { ProcessApproach } from '../definitions/ProcessApproach';
-import { SystemState } from '../system/SystemState';
+import { KTX2TextureLoader } from '../../webgl/textureLoader/KTX2TextureLoader';
 import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
+import { Config } from '../core/Config';
+import { ComponentType } from '../definitions/ComponentType';
+import type { CompressionTextureTypeEnum } from '../definitions/CompressionTextureType';
+import { PixelFormat, type PixelFormatEnum } from '../definitions/PixelFormat';
+import { ProcessApproach } from '../definitions/ProcessApproach';
 import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFormat';
+import { TextureParameter, type TextureParameterEnum } from '../definitions/TextureParameter';
+import { DataUtil } from '../misc/DataUtil';
 import { Logger } from '../misc/Logger';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import { ModuleManager } from '../system/ModuleManager';
+import { SystemState } from '../system/SystemState';
+import { AbstractTexture } from './AbstractTexture';
 
 declare const BASIS: BASIS;
 
@@ -97,13 +97,6 @@ export class Texture extends AbstractTexture implements Disposable {
       );
       Texture.__deleteInternalTexture(texObj.textureResourceUid);
     });
-
-  /**
-   * Creates a new Texture instance.
-   */
-  constructor() {
-    super();
-  }
 
   /**
    * Sets the texture resource UID and registers it for automatic cleanup.

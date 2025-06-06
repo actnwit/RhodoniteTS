@@ -1,19 +1,19 @@
-import { Vector3 } from './Vector3';
-import { Vector4 } from './Vector4';
-import type { IMatrix, IMatrix33, IMatrix44 } from './IMatrix';
+import type { Array16, ArrayType } from '../../types/CommonTypes';
 import { CompositionType } from '../definitions/CompositionType';
-import type { MutableVector3 } from './MutableVector3';
-import type { MutableMatrix44 } from './MutableMatrix44';
-import type { MutableVector4 } from './MutableVector4';
+import { Logger } from '../misc/Logger';
+import { AbstractMatrix } from './AbstractMatrix';
+import type { IMatrix, IMatrix33, IMatrix44 } from './IMatrix';
+import type { IQuaternion } from './IQuaternion';
 import type { IVector3 } from './IVector';
 import type { IVector4 } from './IVector';
-import { MathUtil } from './MathUtil';
 import { IdentityMatrix44 } from './IdentityMatrix44';
-import { AbstractMatrix } from './AbstractMatrix';
-import type { Array16, ArrayType } from '../../types/CommonTypes';
+import { MathUtil } from './MathUtil';
+import type { MutableMatrix44 } from './MutableMatrix44';
+import type { MutableVector3 } from './MutableVector3';
+import type { MutableVector4 } from './MutableVector4';
+import { Vector3 } from './Vector3';
+import { Vector4 } from './Vector4';
 import { mulThatAndThisToOutAsMat44_offsetAsComposition } from './raw/raw_extension';
-import type { IQuaternion } from './IQuaternion';
-import { Logger } from '../misc/Logger';
 
 /* eslint-disable prettier/prettier */
 const FloatArray = Float32Array;
@@ -521,7 +521,8 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   static multiply(l_mat: IMatrix44, r_mat: IMatrix44): IMatrix44 {
     if (l_mat.isIdentityMatrixClass) {
       return r_mat;
-    } else if (r_mat.isIdentityMatrixClass) {
+    }
+    if (r_mat.isIdentityMatrixClass) {
       return l_mat;
     }
 
@@ -561,7 +562,8 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   static multiplyTo(l_mat: IMatrix44, r_mat: IMatrix44, outMat: MutableMatrix44) {
     if (l_mat.isIdentityMatrixClass) {
       return outMat.copyComponents(r_mat);
-    } else if (r_mat.isIdentityMatrixClass) {
+    }
+    if (r_mat.isIdentityMatrixClass) {
       return outMat.copyComponents(l_mat);
     }
 
@@ -653,40 +655,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
    * @returns A formatted string representation of the matrix
    */
   toString() {
-    return (
-      this._v[0] +
-      ' ' +
-      this._v[4] +
-      ' ' +
-      this._v[8] +
-      ' ' +
-      this._v[12] +
-      ' \n' +
-      this._v[1] +
-      ' ' +
-      this._v[5] +
-      ' ' +
-      this._v[9] +
-      ' ' +
-      this._v[13] +
-      ' \n' +
-      this._v[2] +
-      ' ' +
-      this._v[6] +
-      ' ' +
-      this._v[10] +
-      ' ' +
-      this._v[14] +
-      ' \n' +
-      this._v[3] +
-      ' ' +
-      this._v[7] +
-      ' ' +
-      this._v[11] +
-      ' ' +
-      this._v[15] +
-      ' \n'
-    );
+    return `${this._v[0]} ${this._v[4]} ${this._v[8]} ${this._v[12]} \n${this._v[1]} ${this._v[5]} ${this._v[9]} ${this._v[13]} \n${this._v[2]} ${this._v[6]} ${this._v[10]} ${this._v[14]} \n${this._v[3]} ${this._v[7]} ${this._v[11]} ${this._v[15]} \n`;
   }
 
   /**
@@ -695,40 +664,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
    * @returns A formatted string representation with approximated values
    */
   toStringApproximately() {
-    return (
-      MathUtil.financial(this._v[0]) +
-      ' ' +
-      MathUtil.financial(this._v[4]) +
-      ' ' +
-      MathUtil.financial(this._v[8]) +
-      ' ' +
-      MathUtil.financial(this._v[12]) +
-      ' \n' +
-      MathUtil.financial(this._v[1]) +
-      ' ' +
-      MathUtil.financial(this._v[5]) +
-      ' ' +
-      MathUtil.financial(this._v[9]) +
-      ' ' +
-      MathUtil.financial(this._v[13]) +
-      ' \n' +
-      MathUtil.financial(this._v[2]) +
-      ' ' +
-      MathUtil.financial(this._v[6]) +
-      ' ' +
-      MathUtil.financial(this._v[10]) +
-      ' ' +
-      MathUtil.financial(this._v[14]) +
-      ' \n' +
-      MathUtil.financial(this._v[3]) +
-      ' ' +
-      MathUtil.financial(this._v[7]) +
-      ' ' +
-      MathUtil.financial(this._v[11]) +
-      ' ' +
-      MathUtil.financial(this._v[15]) +
-      ' \n'
-    );
+    return `${MathUtil.financial(this._v[0])} ${MathUtil.financial(this._v[4])} ${MathUtil.financial(this._v[8])} ${MathUtil.financial(this._v[12])} \n${MathUtil.financial(this._v[1])} ${MathUtil.financial(this._v[5])} ${MathUtil.financial(this._v[9])} ${MathUtil.financial(this._v[13])} \n${MathUtil.financial(this._v[2])} ${MathUtil.financial(this._v[6])} ${MathUtil.financial(this._v[10])} ${MathUtil.financial(this._v[14])} \n${MathUtil.financial(this._v[3])} ${MathUtil.financial(this._v[7])} ${MathUtil.financial(this._v[11])} ${MathUtil.financial(this._v[15])} \n`;
   }
 
   /**
@@ -764,9 +700,8 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   isDummy() {
     if (this._v.length === 0) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -796,9 +731,8 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
       Math.abs(v[15] - this._v[15]) < delta
     ) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -827,9 +761,8 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
       mat._v[15] === this._v[15]
     ) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**

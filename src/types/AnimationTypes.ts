@@ -1,4 +1,4 @@
-import { IEntity, Entity } from '../foundation/core/Entity';
+import { Entity, IEntity } from '../foundation/core/Entity';
 import type { AnimationInterpolationEnum } from '../foundation/definitions/AnimationInterpolation';
 import type { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 import type { IAnimatedValue } from '../foundation/math/IAnimatedValue';

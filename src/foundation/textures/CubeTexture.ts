@@ -1,13 +1,13 @@
-import { AbstractTexture } from './AbstractTexture';
-import { HdriFormat, type HdriFormatEnum } from '../definitions/HdriFormat';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import type { BasisTranscoder, BASIS } from '../../types/BasisTexture';
-import { TextureParameter } from '../definitions/TextureParameter';
+import type { BASIS, BasisTranscoder } from '../../types/BasisTexture';
 import type { CGAPIResourceHandle, Size, TypedArray } from '../../types/CommonTypes';
-import { SystemState } from '../system/SystemState';
-import { ProcessApproach } from '../definitions/ProcessApproach';
 import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
+import { HdriFormat, type HdriFormatEnum } from '../definitions/HdriFormat';
+import { ProcessApproach } from '../definitions/ProcessApproach';
+import { TextureParameter } from '../definitions/TextureParameter';
 import { Logger } from '../misc/Logger';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import { SystemState } from '../system/SystemState';
+import { AbstractTexture } from './AbstractTexture';
 
 declare const BASIS: BASIS;
 
@@ -55,14 +55,6 @@ export class CubeTexture extends AbstractTexture implements Disposable {
       );
       CubeTexture.__deleteInternalTexture(texObj.textureResourceUid);
     });
-
-  /**
-   * Creates a new CubeTexture instance.
-   * The texture is not loaded until one of the load methods is called.
-   */
-  constructor() {
-    super();
-  }
 
   /**
    * Sets the texture resource UID and registers the texture for automatic cleanup.

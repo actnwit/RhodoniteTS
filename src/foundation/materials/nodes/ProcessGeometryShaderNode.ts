@@ -172,7 +172,7 @@ export class ProcessGeometryShaderNode extends AbstractShaderNode {
 
       if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
         for (let i = 0; i < dummyOutputArguments.length; i++) {
-          dummyOutputArguments[i] = '&' + dummyOutputArguments[i];
+          dummyOutputArguments[i] = `&${dummyOutputArguments[i]}`;
         }
       }
 
@@ -186,7 +186,7 @@ export class ProcessGeometryShaderNode extends AbstractShaderNode {
         const inputName = varInputNames[i][k];
         rowStr += inputName;
       }
-      rowStr += ', ' + dummyOutputArguments.join(', ');
+      rowStr += `, ${dummyOutputArguments.join(', ')}`;
       rowStr += ');\n';
     }
 

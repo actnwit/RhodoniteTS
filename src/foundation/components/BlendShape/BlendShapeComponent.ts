@@ -1,10 +1,10 @@
+import type { ComponentSID, ComponentTID, EntityUID, Index } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
-import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
-import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
-import { ProcessStage } from '../../definitions/ProcessStage';
-import type { ComponentTID, ComponentSID, EntityUID, Index } from '../../../types/CommonTypes';
 import type { IEntity } from '../../core/Entity';
+import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { ProcessStage } from '../../definitions/ProcessStage';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
+import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 /**
  * The Component that manages the blend shape.
@@ -135,10 +135,6 @@ export class BlendShapeComponent extends Component {
     _componentClass: SomeComponentClass
   ) {
     class BlendShapeEntity extends (base.constructor as any) {
-      constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
-        super(entityUID, isAlive, components);
-      }
-
       /**
        * Gets the BlendShapeComponent attached to this entity.
        * @returns The BlendShapeComponent instance or undefined if not attached

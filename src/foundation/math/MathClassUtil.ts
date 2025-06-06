@@ -1,22 +1,22 @@
+import type { TypedArray } from '../../types/CommonTypes';
+import type { CompositionTypeEnum } from '../definitions/CompositionType';
+import { CompositionType } from '../definitions/CompositionType';
+import { Logger } from '../misc/Logger';
+import { Matrix33 } from './Matrix33';
+import { Matrix44 } from './Matrix44';
+import { MutableMatrix33 } from './MutableMatrix33';
+import { MutableMatrix44 } from './MutableMatrix44';
+import { MutableQuaternion } from './MutableQuaternion';
+import { MutableScalar } from './MutableScalar';
+import { MutableVector2 } from './MutableVector2';
+import { MutableVector3 } from './MutableVector3';
+import { MutableVector4 } from './MutableVector4';
+import { Quaternion } from './Quaternion';
+import { Scalar } from './Scalar';
 import { Vector2 } from './Vector2';
 import { Vector3 } from './Vector3';
 import { Vector4 } from './Vector4';
-import { Quaternion } from './Quaternion';
-import { Matrix33 } from './Matrix33';
-import { Matrix44 } from './Matrix44';
-import type { CompositionTypeEnum } from '../definitions/CompositionType';
-import { CompositionType } from '../definitions/CompositionType';
-import { MutableMatrix44 } from './MutableMatrix44';
-import { MutableMatrix33 } from './MutableMatrix33';
-import { MutableVector4 } from './MutableVector4';
-import { MutableVector3 } from './MutableVector3';
-import { MutableVector2 } from './MutableVector2';
-import { Scalar } from './Scalar';
-import { MutableQuaternion } from './MutableQuaternion';
-import { MutableScalar } from './MutableScalar';
 import { VectorN } from './VectorN';
-import type { TypedArray } from '../../types/CommonTypes';
-import { Logger } from '../misc/Logger';
 
 /**
  * Utility class providing various mathematical operations and conversions for vector, matrix, and quaternion types.
@@ -27,8 +27,6 @@ export class MathClassUtil {
   private static __tmpVector4_0: MutableVector4 = MutableVector4.zero();
   private static __tmpVector4_1: MutableVector4 = MutableVector4.zero();
 
-  constructor() {}
-
   /**
    * Converts an array of numbers to the appropriate Vector type based on array length.
    * @param element - Array of numbers to convert
@@ -38,14 +36,13 @@ export class MathClassUtil {
     if (Array.isArray(element)) {
       if (typeof element[3] !== 'undefined') {
         return Vector4.fromCopyArray([element[0], element[1], element[2], element[3]]);
-      } else if (typeof element[2] !== 'undefined') {
-        return Vector3.fromCopyArray([element[0], element[1], element[2]]);
-      } else {
-        return Vector2.fromCopyArray2([element[0], element[1]]);
       }
-    } else {
-      return element;
+      if (typeof element[2] !== 'undefined') {
+        return Vector3.fromCopyArray([element[0], element[1], element[2]]);
+      }
+      return Vector2.fromCopyArray2([element[0], element[1]]);
     }
+    return element;
   }
 
   /**
@@ -58,18 +55,19 @@ export class MathClassUtil {
     if (Array.isArray(element)) {
       if (typeof element[15] !== 'undefined') {
         return Matrix44.fromCopyArrayRowMajor(element);
-      } else if (typeof element[8] !== 'undefined') {
-        return Matrix33.fromCopyArrayRowMajor(element);
-      } else if (typeof element[3] !== 'undefined') {
-        return Vector4.fromCopyArray([element[0], element[1], element[2], element[3]]);
-      } else if (typeof element[2] !== 'undefined') {
-        return Vector3.fromCopyArray([element[0], element[1], element[2]]);
-      } else {
-        return Vector2.fromCopyArray2([element[0], element[1]]);
       }
-    } else {
-      return element;
+      if (typeof element[8] !== 'undefined') {
+        return Matrix33.fromCopyArrayRowMajor(element);
+      }
+      if (typeof element[3] !== 'undefined') {
+        return Vector4.fromCopyArray([element[0], element[1], element[2], element[3]]);
+      }
+      if (typeof element[2] !== 'undefined') {
+        return Vector3.fromCopyArray([element[0], element[1], element[2]]);
+      }
+      return Vector2.fromCopyArray2([element[0], element[1]]);
     }
+    return element;
   }
 
   /**
@@ -80,13 +78,17 @@ export class MathClassUtil {
   static getImmutableValueClass(compositionType: CompositionTypeEnum): Function | undefined {
     if (compositionType === CompositionType.Vec2) {
       return Vector2;
-    } else if (compositionType === CompositionType.Vec3) {
+    }
+    if (compositionType === CompositionType.Vec3) {
       return Vector3;
-    } else if (compositionType === CompositionType.Vec4) {
+    }
+    if (compositionType === CompositionType.Vec4) {
       return Vector4;
-    } else if (compositionType === CompositionType.Mat3) {
+    }
+    if (compositionType === CompositionType.Mat3) {
       return Matrix33;
-    } else if (compositionType === CompositionType.Mat4) {
+    }
+    if (compositionType === CompositionType.Mat4) {
       return Matrix44;
     }
     return void 0;
@@ -100,17 +102,20 @@ export class MathClassUtil {
   static getMutableValueClass(compositionType: CompositionTypeEnum): Function | undefined {
     if (compositionType === CompositionType.Vec2) {
       return MutableVector2;
-    } else if (compositionType === CompositionType.Vec3) {
-      return MutableVector3;
-    } else if (compositionType === CompositionType.Vec4) {
-      return MutableVector4;
-    } else if (compositionType === CompositionType.Mat3) {
-      return MutableMatrix33;
-    } else if (compositionType === CompositionType.Mat4) {
-      return MutableMatrix44;
-    } else {
-      return void 0;
     }
+    if (compositionType === CompositionType.Vec3) {
+      return MutableVector3;
+    }
+    if (compositionType === CompositionType.Vec4) {
+      return MutableVector4;
+    }
+    if (compositionType === CompositionType.Mat3) {
+      return MutableMatrix33;
+    }
+    if (compositionType === CompositionType.Mat4) {
+      return MutableMatrix44;
+    }
+    return void 0;
   }
 
   /**
@@ -121,17 +126,20 @@ export class MathClassUtil {
   static cloneOfMathObjects(element: any) {
     if (element instanceof Matrix44) {
       return element.clone();
-    } else if (element instanceof Matrix33) {
-      return element.clone();
-    } else if (element instanceof Vector4) {
-      return element.clone();
-    } else if (element instanceof Vector3) {
-      return element.clone();
-    } else if (element instanceof Vector2) {
-      return element.clone();
-    } else {
-      return element;
     }
+    if (element instanceof Matrix33) {
+      return element.clone();
+    }
+    if (element instanceof Vector4) {
+      return element.clone();
+    }
+    if (element instanceof Vector3) {
+      return element.clone();
+    }
+    if (element instanceof Vector2) {
+      return element.clone();
+    }
+    return element;
   }
 
   /**
@@ -166,13 +174,14 @@ export class MathClassUtil {
   static makeSubArray(array: Array<any>, componentN: number) {
     if (componentN === 4) {
       return [array[0], array[1], array[2], array[3]];
-    } else if (componentN === 3) {
-      return [array[0], array[1], array[2]];
-    } else if (componentN === 2) {
-      return [array[0], array[1]];
-    } else {
-      return array[0];
     }
+    if (componentN === 3) {
+      return [array[0], array[1], array[2]];
+    }
+    if (componentN === 2) {
+      return [array[0], array[1]];
+    }
+    return array[0];
   }
 
   /**
@@ -183,13 +192,14 @@ export class MathClassUtil {
   static vectorToArray(element: Vector2 | Vector3 | Vector4 | Quaternion) {
     if (element instanceof Vector2) {
       return [element.x, element.y];
-    } else if (element instanceof Vector3) {
-      return [element.x, element.y, element.z];
-    } else if (element instanceof Vector4 || element instanceof Quaternion) {
-      return [element.x, element.y, element.z, element.w];
-    } else {
-      return element;
     }
+    if (element instanceof Vector3) {
+      return [element.x, element.y, element.z];
+    }
+    if (element instanceof Vector4 || element instanceof Quaternion) {
+      return [element.x, element.y, element.z, element.w];
+    }
+    return element;
   }
 
   /**
@@ -200,15 +210,17 @@ export class MathClassUtil {
   static componentNumberOfVector(element: Vector2 | Vector3 | Vector4 | Quaternion | Array<any>): number {
     if (element instanceof Vector2) {
       return 2;
-    } else if (element instanceof Vector3) {
-      return 3;
-    } else if (element instanceof Vector4 || element instanceof Quaternion) {
-      return 4;
-    } else if (Array.isArray(element)) {
-      return element.length;
-    } else {
-      return 0;
     }
+    if (element instanceof Vector3) {
+      return 3;
+    }
+    if (element instanceof Vector4 || element instanceof Quaternion) {
+      return 4;
+    }
+    if (Array.isArray(element)) {
+      return element.length;
+    }
+    return 0;
   }
 
   /**
@@ -285,27 +297,31 @@ export class MathClassUtil {
    * @returns Result of the addition operation, type depends on input types
    */
   static add(lhs: any, rhs: any) {
-    if (isFinite(lhs)) {
+    if (Number.isFinite(lhs)) {
       // number?
       return lhs + rhs;
-    } else if (lhs instanceof Vector2) {
+    }
+    if (lhs instanceof Vector2) {
       return Vector2.add(lhs, rhs);
-    } else if (lhs instanceof Vector3) {
+    }
+    if (lhs instanceof Vector3) {
       return Vector3.add(lhs, rhs);
-    } else if (lhs instanceof Vector4) {
+    }
+    if (lhs instanceof Vector4) {
       return Vector4.add(lhs, rhs);
-    } else if (lhs instanceof Quaternion) {
+    }
+    if (lhs instanceof Quaternion) {
       return Quaternion.add(lhs, rhs);
-    } else if (Array.isArray(lhs)) {
+    }
+    if (Array.isArray(lhs)) {
       const arr: number[] = [];
       for (let i = 0; i < lhs.length; i++) {
         arr[i] = lhs[i] + rhs[i];
       }
       return arr;
-    } else {
-      Logger.error('Non supported type!');
-      return;
     }
+    Logger.error('Non supported type!');
+    return;
   }
 
   /**
@@ -316,27 +332,31 @@ export class MathClassUtil {
    * @returns Result of the subtraction operation, type depends on input types
    */
   static subtract(lhs: any, rhs: any) {
-    if (isFinite(lhs)) {
+    if (Number.isFinite(lhs)) {
       // number?
       return lhs - rhs;
-    } else if (lhs instanceof Vector2) {
+    }
+    if (lhs instanceof Vector2) {
       return Vector2.subtract(lhs, rhs);
-    } else if (lhs instanceof Vector3) {
+    }
+    if (lhs instanceof Vector3) {
       return Vector3.subtract(lhs, rhs);
-    } else if (lhs instanceof Vector4) {
+    }
+    if (lhs instanceof Vector4) {
       return Vector4.subtract(lhs, rhs);
-    } else if (lhs instanceof Quaternion) {
+    }
+    if (lhs instanceof Quaternion) {
       return Quaternion.subtract(lhs, rhs);
-    } else if (Array.isArray(lhs)) {
+    }
+    if (Array.isArray(lhs)) {
       const arr: number[] = [];
       for (let i = 0; i < lhs.length; i++) {
         arr[i] = lhs[i] - rhs[i];
       }
       return arr;
-    } else {
-      Logger.error('Non supported type!');
-      return;
     }
+    Logger.error('Non supported type!');
+    return;
   }
 
   /**
@@ -347,27 +367,31 @@ export class MathClassUtil {
    * @returns Result of the scalar multiplication, type depends on input type
    */
   static multiplyNumber(lhs: any, rhs: number) {
-    if (isFinite(lhs)) {
+    if (Number.isFinite(lhs)) {
       // number?
       return lhs * rhs;
-    } else if (lhs instanceof Vector2) {
+    }
+    if (lhs instanceof Vector2) {
       return Vector2.multiply(lhs, rhs);
-    } else if (lhs instanceof Vector3) {
+    }
+    if (lhs instanceof Vector3) {
       return Vector3.multiply(lhs, rhs);
-    } else if (lhs instanceof Vector4) {
+    }
+    if (lhs instanceof Vector4) {
       return Vector4.multiply(lhs, rhs);
-    } else if (lhs instanceof Quaternion) {
+    }
+    if (lhs instanceof Quaternion) {
       return Quaternion.multiplyNumber(lhs, rhs);
-    } else if (Array.isArray(lhs)) {
+    }
+    if (Array.isArray(lhs)) {
       const arr: number[] = [];
       for (let i = 0; i < lhs.length; i++) {
         arr[i] = lhs[i] * rhs;
       }
       return arr;
-    } else {
-      Logger.error('Non supported type!');
-      return;
     }
+    Logger.error('Non supported type!');
+    return;
   }
 
   /**
@@ -378,27 +402,31 @@ export class MathClassUtil {
    * @returns Result of the scalar division, type depends on input type
    */
   static divideNumber(lhs: any, rhs: number) {
-    if (isFinite(lhs)) {
+    if (Number.isFinite(lhs)) {
       // number?
       return lhs / rhs;
-    } else if (lhs instanceof Vector2) {
+    }
+    if (lhs instanceof Vector2) {
       return Vector2.multiply(lhs, 1 / rhs);
-    } else if (lhs instanceof Vector3) {
+    }
+    if (lhs instanceof Vector3) {
       return Vector3.multiply(lhs, 1 / rhs);
-    } else if (lhs instanceof Vector4) {
+    }
+    if (lhs instanceof Vector4) {
       return Vector4.multiply(lhs, 1 / rhs);
-    } else if (lhs instanceof Quaternion) {
+    }
+    if (lhs instanceof Quaternion) {
       return Quaternion.multiplyNumber(lhs, 1 / rhs);
-    } else if (Array.isArray(lhs)) {
+    }
+    if (Array.isArray(lhs)) {
       const arr: number[] = [];
       for (let i = 0; i < lhs.length; i++) {
         arr[i] = lhs[i] / rhs;
       }
       return arr;
-    } else {
-      Logger.error('Non supported type!');
-      return;
     }
+    Logger.error('Non supported type!');
+    return;
   }
 
   /**
@@ -410,27 +438,31 @@ export class MathClassUtil {
    * @returns New instance of the same type as objForDetectType initialized with val
    */
   static initWithScalar(objForDetectType: any, val: number) {
-    if (isFinite(objForDetectType)) {
+    if (Number.isFinite(objForDetectType)) {
       // number?
       return val;
-    } else if (objForDetectType instanceof Vector2) {
+    }
+    if (objForDetectType instanceof Vector2) {
       return Vector2.fromCopyArray2([val, val]);
-    } else if (objForDetectType instanceof Vector3) {
+    }
+    if (objForDetectType instanceof Vector3) {
       return Vector3.fromCopyArray([val, val, val]);
-    } else if (objForDetectType instanceof Vector4) {
+    }
+    if (objForDetectType instanceof Vector4) {
       return Vector4.fromCopyArray([val, val, val, val]);
-    } else if (objForDetectType instanceof Quaternion) {
+    }
+    if (objForDetectType instanceof Quaternion) {
       return Quaternion.fromCopy4(0, 0, 0, 1);
-    } else if (Array.isArray(objForDetectType)) {
+    }
+    if (Array.isArray(objForDetectType)) {
       const arr: number[] = [];
       for (let i = 0; i < objForDetectType.length; i++) {
         arr[i] = val;
       }
       return arr;
-    } else {
-      Logger.error('Non supported type!');
-      return void 0;
     }
+    Logger.error('Non supported type!');
+    return void 0;
   }
 
   /**
@@ -442,13 +474,14 @@ export class MathClassUtil {
    */
   static initWithFloat32Array(val: any, floatArray: Float32Array) {
     let obj;
-    if (isFinite(val)) {
+    if (Number.isFinite(val)) {
       // number?
       const array = new Float32Array(floatArray);
       (floatArray as any)._v = void 0;
       array[0] = val;
       return new Scalar(array);
-    } else if (val instanceof Scalar || val instanceof MutableScalar) {
+    }
+    if (val instanceof Scalar || val instanceof MutableScalar) {
       floatArray[0] = val.x;
       obj = new MutableScalar(floatArray);
     } else if (val instanceof Vector2 || val instanceof MutableVector2) {
@@ -567,12 +600,12 @@ export class MathClassUtil {
       objForDetectType._v[2] = val._v[2];
     } else if (objForDetectType instanceof MutableScalar || objForDetectType instanceof Scalar) {
       if (typeof val._v === 'undefined') {
-        if (objForDetectType._v[0] == val) {
+        if (objForDetectType._v[0] === val) {
           return false;
         }
         objForDetectType._v[0] = val;
       } else {
-        if (objForDetectType._v[0] == val._v[0]) {
+        if (objForDetectType._v[0] === val._v[0]) {
           return false;
         }
         objForDetectType._v[0] = val._v[0];
@@ -652,7 +685,7 @@ export class MathClassUtil {
       for (let i = 0; i < objForDetectType.length; i++) {
         objForDetectType[i] = val._v[i];
       }
-    } else if (!isNaN(objForDetectType._v.length)) {
+    } else if (!Number.isNaN(objForDetectType._v.length)) {
       let isSame = true;
       for (let i = 0; i < objForDetectType._v.length; i++) {
         if (Array.isArray(val)) {

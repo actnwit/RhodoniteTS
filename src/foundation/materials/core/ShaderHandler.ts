@@ -1,50 +1,50 @@
 import ShaderityModule, { type ShaderityObject } from 'shaderity';
 import type { CGAPIResourceHandle } from '../../../types/CommonTypes';
-import type { AttributeNames } from '../../../webgl/types/CommonTypes';
 import type { WebGLContextWrapper } from '../../../webgl/WebGLContextWrapper';
 import type { ShaderSources } from '../../../webgl/WebGLStrategy';
+import { alphaProcessGlsl } from '../../../webgl/shaderity_shaders/common/alphaProcess';
+import { enableVertexExtensionsGlsl } from '../../../webgl/shaderity_shaders/common/enableVertexExtensions';
+import { fullscreenGlsl } from '../../../webgl/shaderity_shaders/common/fullscreen';
+import { glslPrecisionGlsl } from '../../../webgl/shaderity_shaders/common/glslPrecision';
+import { iblDefinitionGlsl } from '../../../webgl/shaderity_shaders/common/iblDefinition';
+import { mainPrerequisitesGlsl } from '../../../webgl/shaderity_shaders/common/mainPrerequisites';
+import { opticalDefinitionGlsl } from '../../../webgl/shaderity_shaders/common/opticalDefinition';
+import { outputSrgbGlsl } from '../../../webgl/shaderity_shaders/common/outputSrgb';
+import { pbrDefinitionGlsl } from '../../../webgl/shaderity_shaders/common/pbrDefinition';
+import { prerequisitesGlsl } from '../../../webgl/shaderity_shaders/common/prerequisites';
+import { processGeometryGlsl } from '../../../webgl/shaderity_shaders/common/processGeometry';
+import { vertexInGlsl } from '../../../webgl/shaderity_shaders/common/vertexIn';
+import { vertexInOutGlsl } from '../../../webgl/shaderity_shaders/common/vertexInOut';
+import { wireframeGlsl } from '../../../webgl/shaderity_shaders/common/wireframe';
+import type { AttributeNames } from '../../../webgl/types/CommonTypes';
+import { alphaProcessWgsl } from '../../../webgpu/shaderity_shaders/common/alphaProcess';
+import { fullscreenWgsl } from '../../../webgpu/shaderity_shaders/common/fullscreen';
+import { iblDefinitionWgsl } from '../../../webgpu/shaderity_shaders/common/iblDefinition';
+import { mainPrerequisitesWgsl } from '../../../webgpu/shaderity_shaders/common/mainPrerequisites';
+import { opticalDefinitionWgsl } from '../../../webgpu/shaderity_shaders/common/opticalDefinition';
+import { outputSrgbWgsl } from '../../../webgpu/shaderity_shaders/common/outputSrgb';
+import { pbrDefinitionWgsl } from '../../../webgpu/shaderity_shaders/common/pbrDefinition';
+import { prerequisitesWgsl } from '../../../webgpu/shaderity_shaders/common/prerequisites';
+import { processGeometryWgsl } from '../../../webgpu/shaderity_shaders/common/processGeometry';
+import { vertexInputWgsl } from '../../../webgpu/shaderity_shaders/common/vertexInput';
+import { vertexOutputWgsl } from '../../../webgpu/shaderity_shaders/common/vertexOutput';
+import { wireframeWgsl } from '../../../webgpu/shaderity_shaders/common/wireframe';
+import type { RnXR } from '../../../xr/main';
+import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
 import { Config } from '../../core/Config';
 import { BoneDataType } from '../../definitions/BoneDataType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
+import type { getShaderPropertyFunc } from '../../definitions/ShaderSemantics';
 import type { VertexAttributeEnum } from '../../definitions/VertexAttribute';
+import type { Primitive } from '../../geometry/Primitive';
+import { Is } from '../../misc/Is';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import { ModuleManager } from '../../system/ModuleManager';
 import { SystemState } from '../../system/SystemState';
 import type { AbstractMaterialContent } from './AbstractMaterialContent';
 import type { Material } from './Material';
 import { ShaderityUtilityWebGL } from './ShaderityUtilityWebGL';
-import type { Primitive } from '../../geometry/Primitive';
-import { ModuleManager } from '../../system/ModuleManager';
-import { Is } from '../../misc/Is';
-import type { RnXR } from '../../../xr/main';
-import type { getShaderPropertyFunc } from '../../definitions/ShaderSemantics';
 import { ShaderityUtilityWebGPU } from './ShaderityUtilityWebGPU';
-import { processGeometryWgsl } from '../../../webgpu/shaderity_shaders/common/processGeometry';
-import { processGeometryGlsl } from '../../../webgl/shaderity_shaders/common/processGeometry';
-import { prerequisitesGlsl } from '../../../webgl/shaderity_shaders/common/prerequisites';
-import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
-import { prerequisitesWgsl } from '../../../webgpu/shaderity_shaders/common/prerequisites';
-import { opticalDefinitionGlsl } from '../../../webgl/shaderity_shaders/common/opticalDefinition';
-import { opticalDefinitionWgsl } from '../../../webgpu/shaderity_shaders/common/opticalDefinition';
-import { pbrDefinitionGlsl } from '../../../webgl/shaderity_shaders/common/pbrDefinition';
-import { pbrDefinitionWgsl } from '../../../webgpu/shaderity_shaders/common/pbrDefinition';
-import { iblDefinitionGlsl } from '../../../webgl/shaderity_shaders/common/iblDefinition';
-import { iblDefinitionWgsl } from '../../../webgpu/shaderity_shaders/common/iblDefinition';
-import { mainPrerequisitesGlsl } from '../../../webgl/shaderity_shaders/common/mainPrerequisites';
-import { mainPrerequisitesWgsl } from '../../../webgpu/shaderity_shaders/common/mainPrerequisites';
-import { glslPrecisionGlsl } from '../../../webgl/shaderity_shaders/common/glslPrecision';
-import { alphaProcessGlsl } from '../../../webgl/shaderity_shaders/common/alphaProcess';
-import { alphaProcessWgsl } from '../../../webgpu/shaderity_shaders/common/alphaProcess';
-import { enableVertexExtensionsGlsl } from '../../../webgl/shaderity_shaders/common/enableVertexExtensions';
-import { fullscreenGlsl } from '../../../webgl/shaderity_shaders/common/fullscreen';
-import { fullscreenWgsl } from '../../../webgpu/shaderity_shaders/common/fullscreen';
-import { outputSrgbGlsl } from '../../../webgl/shaderity_shaders/common/outputSrgb';
-import { outputSrgbWgsl } from '../../../webgpu/shaderity_shaders/common/outputSrgb';
-import { vertexInOutGlsl } from '../../../webgl/shaderity_shaders/common/vertexInOut';
-import { vertexInGlsl } from '../../../webgl/shaderity_shaders/common/vertexIn';
-import { vertexOutputWgsl } from '../../../webgpu/shaderity_shaders/common/vertexOutput';
-import { vertexInputWgsl } from '../../../webgpu/shaderity_shaders/common/vertexInput';
-import { wireframeGlsl } from '../../../webgl/shaderity_shaders/common/wireframe';
-import { wireframeWgsl } from '../../../webgpu/shaderity_shaders/common/wireframe';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 const __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
@@ -416,7 +416,7 @@ export function _createProgramAsSingleOperationWebGpu(
     mainPrerequisites: mainPrerequisitesWgsl.code,
     fullscreen: fullscreenWgsl.code,
     getters: vertexPropertiesStr,
-    definitions: '// RN_IS_VERTEX_SHADER\n#define RN_IS_VERTEX_SHADER\n' + definitions,
+    definitions: `// RN_IS_VERTEX_SHADER\n#define RN_IS_VERTEX_SHADER\n${definitions}`,
     matricesGetters: vertexShaderMethodDefinitions,
     processGeometry: processGeometryWgsl.code,
     Config,
@@ -428,7 +428,7 @@ export function _createProgramAsSingleOperationWebGpu(
     prerequisites: prerequisitesWgsl.code,
     mainPrerequisites: mainPrerequisitesWgsl.code,
     getters: pixelPropertiesStr,
-    definitions: '// RN_IS_PIXEL_SHADER\n#define RN_IS_PIXEL_SHADER\n' + definitions + alphaMode,
+    definitions: `// RN_IS_PIXEL_SHADER\n#define RN_IS_PIXEL_SHADER\n${definitions}${alphaMode}`,
     matricesGetters: vertexShaderMethodDefinitions,
     opticalDefinition: opticalDefinitionWgsl.code,
     pbrDefinition: pbrDefinitionWgsl.code,
@@ -469,59 +469,59 @@ function defineAttributes(primitive: Primitive) {
   const attributeSemantics = primitive.attributeSemantics;
   for (const attributeSemantic of attributeSemantics) {
     if (attributeSemantic.indexOf('POSITION') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_POSITION\n`;
+      vertexAttributeDefines += '#define RN_USE_POSITION\n';
       const accessor = primitive.getAttribute(attributeSemantic);
       if (accessor!.componentType.isFloatingPoint()) {
-        vertexAttributeDefines += `#define RN_USE_POSITION_FLOAT\n`;
+        vertexAttributeDefines += '#define RN_USE_POSITION_FLOAT\n';
       } else if (accessor!.componentType.isInteger()) {
-        vertexAttributeDefines += `#define RN_USE_POSITION_INT\n`;
+        vertexAttributeDefines += '#define RN_USE_POSITION_INT\n';
       } else {
-        vertexAttributeDefines += `#define RN_USE_POSITION_UINT\n`;
+        vertexAttributeDefines += '#define RN_USE_POSITION_UINT\n';
       }
     }
     if (attributeSemantic.indexOf('NORMAL') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_NORMAL\n`;
+      vertexAttributeDefines += '#define RN_USE_NORMAL\n';
     }
     if (attributeSemantic.indexOf('TANGENT') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_TANGENT\n`;
+      vertexAttributeDefines += '#define RN_USE_TANGENT\n';
     }
     if (attributeSemantic.indexOf('TEXCOORD_0') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_TEXCOORD_0\n`;
+      vertexAttributeDefines += '#define RN_USE_TEXCOORD_0\n';
     }
     if (attributeSemantic.indexOf('TEXCOORD_1') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_TEXCOORD_1\n`;
+      vertexAttributeDefines += '#define RN_USE_TEXCOORD_1\n';
     }
     if (attributeSemantic.indexOf('COLOR_0') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_COLOR_0\n`;
+      vertexAttributeDefines += '#define RN_USE_COLOR_0\n';
       const accessor = primitive.getAttribute(attributeSemantic);
       if (accessor!.componentType.isFloatingPoint()) {
-        vertexAttributeDefines += `#define RN_USE_COLOR_0_FLOAT\n`;
+        vertexAttributeDefines += '#define RN_USE_COLOR_0_FLOAT\n';
       } else if (accessor!.componentType.isInteger()) {
-        vertexAttributeDefines += `#define RN_USE_COLOR_0_INT\n`;
+        vertexAttributeDefines += '#define RN_USE_COLOR_0_INT\n';
       } else {
-        vertexAttributeDefines += `#define RN_USE_COLOR_0_UINT\n`;
+        vertexAttributeDefines += '#define RN_USE_COLOR_0_UINT\n';
       }
     }
     if (attributeSemantic.indexOf('JOINTS_0') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_JOINTS_0\n`;
+      vertexAttributeDefines += '#define RN_USE_JOINTS_0\n';
     }
     if (attributeSemantic.indexOf('WEIGHTS_0') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_WEIGHTS_0\n`;
+      vertexAttributeDefines += '#define RN_USE_WEIGHTS_0\n';
     }
     if (attributeSemantic.indexOf('FACE_NORMAL') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_FACE_NORMAL\n`;
+      vertexAttributeDefines += '#define RN_USE_FACE_NORMAL\n';
     }
     if (attributeSemantic.indexOf('BARY_CENTRIC_COORD') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_BARY_CENTRIC_COORD\n`;
+      vertexAttributeDefines += '#define RN_USE_BARY_CENTRIC_COORD\n';
     }
     if (attributeSemantic.indexOf('TEXCOORD_2') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_TEXCOORD_2\n`;
+      vertexAttributeDefines += '#define RN_USE_TEXCOORD_2\n';
     }
   }
   if (primitive.targets != null && primitive.targets.length > 0) {
     vertexAttributeDefines += '#define RN_IS_MORPHING\n';
   }
 
-  vertexAttributeDefines += `#define RN_USE_INSTANCE\n`;
+  vertexAttributeDefines += '#define RN_USE_INSTANCE\n';
   return vertexAttributeDefines;
 }

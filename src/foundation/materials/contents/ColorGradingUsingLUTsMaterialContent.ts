@@ -1,23 +1,23 @@
-import { AbstractTexture } from '../../textures/AbstractTexture';
+import type { Count } from '../../../types/CommonTypes';
+import ColorGradingUsingLUTsShaderFragment from '../../../webgl/shaderity_shaders/ColorGradingUsingLUTsShader/ColorGradingUsingLUTsShader.frag';
+import ColorGradingUsingLUTsShaderVertex from '../../../webgl/shaderity_shaders/ColorGradingUsingLUTsShader/ColorGradingUsingLUTsShader.vert';
+import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
-import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { ComponentType } from '../../definitions/ComponentType';
-import type { Count } from '../../../types/CommonTypes';
+import { CompositionType } from '../../definitions/CompositionType';
 import { ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
-import { ShaderType } from '../../definitions/ShaderType';
-import { Texture } from '../../textures/Texture';
-import { TextureParameter } from '../../definitions/TextureParameter';
-import type { RenderPass } from '../../renderer/RenderPass';
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import type { Material } from '../core/Material';
-import ColorGradingUsingLUTsShaderVertex from '../../../webgl/shaderity_shaders/ColorGradingUsingLUTsShader/ColorGradingUsingLUTsShader.vert';
-import ColorGradingUsingLUTsShaderFragment from '../../../webgl/shaderity_shaders/ColorGradingUsingLUTsShader/ColorGradingUsingLUTsShader.frag';
-import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-import { Sampler } from '../../textures/Sampler';
-import { dummyBlackTexture } from '../core/DummyTextures';
+import { ShaderType } from '../../definitions/ShaderType';
+import { TextureParameter } from '../../definitions/TextureParameter';
 import { Logger } from '../../misc/Logger';
+import type { RenderPass } from '../../renderer/RenderPass';
+import { AbstractTexture } from '../../textures/AbstractTexture';
+import { Sampler } from '../../textures/Sampler';
+import { Texture } from '../../textures/Texture';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import { dummyBlackTexture } from '../core/DummyTextures';
+import type { Material } from '../core/Material';
 
 /**
  * Material content for color grading using Look-Up Tables (LUTs).
@@ -62,7 +62,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
     } else {
       targetTexture = dummyBlackTexture;
       if (framebuffer != null) {
-        Logger.warn('renderPass does not have framebuffer.colorAttachments[' + colorAttachmentsNumber + ']');
+        Logger.warn(`renderPass does not have framebuffer.colorAttachments[${colorAttachmentsNumber}]`);
       } else {
         Logger.warn('renderPass does not have framebuffer');
       }

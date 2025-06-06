@@ -1,34 +1,34 @@
-import type { Primitive } from './Primitive';
-import { VertexAttribute } from '../definitions/VertexAttribute';
-import { PrimitiveMode } from '../definitions/PrimitiveMode';
+import type { CGAPIResourceHandle, Index, MeshUID } from '../../types/CommonTypes';
+import type { VertexHandles } from '../../webgl/WebGLResourceRepository';
+import type { MeshComponent } from '../components/Mesh/MeshComponent';
 import { MemoryManager } from '../core/MemoryManager';
 import { BufferUse } from '../definitions/BufferUse';
 import { ComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
+import { PrimitiveMode } from '../definitions/PrimitiveMode';
+import { ProcessApproach } from '../definitions/ProcessApproach';
+import { ProcessStage } from '../definitions/ProcessStage';
+import { VertexAttribute } from '../definitions/VertexAttribute';
+import type { IMeshEntity } from '../helpers/EntityHelper';
+import { AABB } from '../math/AABB';
+import type { IVector3 } from '../math/IVector';
+import { MutableVector3 } from '../math/MutableVector3';
+import type { Vector2 } from '../math/Vector2';
 import { Vector3 } from '../math/Vector3';
 import type { Accessor } from '../memory/Accessor';
-import type { Vector2 } from '../math/Vector2';
-import { AABB } from '../math/AABB';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import type { Index, CGAPIResourceHandle, MeshUID } from '../../types/CommonTypes';
-import { MutableVector3 } from '../math/MutableVector3';
-import type { VertexHandles } from '../../webgl/WebGLResourceRepository';
 import { Is } from '../misc/Is';
-import type { IVector3 } from '../math/IVector';
+import { Logger } from '../misc/Logger';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import { SystemState } from '../system/SystemState';
+import type { Primitive } from './Primitive';
 import {
   type IMesh,
-  isBlendWithoutZWrite,
+  type RaycastResultEx1,
   isBlendWithZWrite,
+  isBlendWithoutZWrite,
   isOpaque,
   isTranslucent,
-  type RaycastResultEx1,
 } from './types/GeometryTypes';
-import type { IMeshEntity } from '../helpers/EntityHelper';
-import type { MeshComponent } from '../components/Mesh/MeshComponent';
-import { ProcessStage } from '../definitions/ProcessStage';
-import { Logger } from '../misc/Logger';
-import { ProcessApproach } from '../definitions/ProcessApproach';
-import { SystemState } from '../system/SystemState';
 
 /**
  * The Mesh class.
@@ -291,7 +291,7 @@ export class Mesh implements IMesh {
       }
 
       if (
-        isNaN(this.__vaoUids[i]) ||
+        Number.isNaN(this.__vaoUids[i]) ||
         this.__vaoUids[i] === CGAPIResourceRepository.InvalidCGAPIResourceUid ||
         vertexHandles.vaoHandle === CGAPIResourceRepository.InvalidCGAPIResourceUid
       ) {
@@ -361,11 +361,10 @@ export class Mesh implements IMesh {
           position: finalShortestIntersectedPosVec3,
         },
       };
-    } else {
-      return {
-        result: false,
-      };
     }
+    return {
+      result: false,
+    };
   }
 
   ///
@@ -658,9 +657,8 @@ export class Mesh implements IMesh {
   private __usePreCalculatedTangent() {
     if (this.tangentCalculationMode === 0 || this.tangentCalculationMode === 1 || this.tangentCalculationMode === 3) {
       return false;
-    } else {
-      return true;
     }
+    return true;
   }
 
   /**

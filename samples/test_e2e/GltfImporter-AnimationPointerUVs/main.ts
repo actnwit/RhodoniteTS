@@ -71,7 +71,7 @@ forwardRenderPipeline.setIBLTextures(assets.diffuse, assets.specular);
 
 let count = 0;
 let startTime = Date.now();
-const draw = (frame) => {
+const draw = frame => {
   if (count > 0) {
     window._rendered = true;
   }

@@ -1,6 +1,14 @@
-import type { IVector, IVector2, IMutableVector2, IVector3, IMutableVector3, IVector4, IMutableVector4 } from './IVector';
-import type { TypedArray, Index } from '../../types/CommonTypes';
+import type { Index, TypedArray } from '../../types/CommonTypes';
 import type { IQuaternion } from './IQuaternion';
+import type {
+  IMutableVector2,
+  IMutableVector3,
+  IMutableVector4,
+  IVector,
+  IVector2,
+  IVector3,
+  IVector4,
+} from './IVector';
 
 /**
  * Base interface for immutable matrix operations.

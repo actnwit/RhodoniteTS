@@ -1,22 +1,22 @@
-import { Quaternion } from '../../math/Quaternion';
+import type { Array3, Array4, ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
-import { applyMixins, EntityRepository } from '../../core/EntityRepository';
-import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
-import { ProcessStage } from '../../definitions/ProcessStage';
-import type { MutableVector3 } from '../../math/MutableVector3';
-import type { ComponentTID, ComponentSID, EntityUID, Array4, Array3 } from '../../../types/CommonTypes';
-import type { IQuaternion } from '../../math/IQuaternion';
-import type { IMatrix44 } from '../../math/IMatrix';
-import type { IVector3 } from '../../math/IVector';
 import type { IEntity } from '../../core/Entity';
-import type { ComponentToComponentMethods } from '../ComponentTypes';
+import { EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { ProcessStage } from '../../definitions/ProcessStage';
 import type { ITransformEntity } from '../../helpers';
-import { Is } from '../../misc';
-import { Transform3D } from '../../math/Transform3D';
-import { MutableQuaternion } from '../../math/MutableQuaternion';
-import type { MutableMatrix44 } from '../../math/MutableMatrix44';
-import { Vector3 } from '../../math/Vector3';
 import { Matrix44 } from '../../math';
+import type { IMatrix44 } from '../../math/IMatrix';
+import type { IQuaternion } from '../../math/IQuaternion';
+import type { IVector3 } from '../../math/IVector';
+import type { MutableMatrix44 } from '../../math/MutableMatrix44';
+import { MutableQuaternion } from '../../math/MutableQuaternion';
+import type { MutableVector3 } from '../../math/MutableVector3';
+import { Quaternion } from '../../math/Quaternion';
+import { Transform3D } from '../../math/Transform3D';
+import { Vector3 } from '../../math/Vector3';
+import { Is } from '../../misc';
+import type { ComponentToComponentMethods } from '../ComponentTypes';
+import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 /**
  * TransformComponent is a component that manages the transform of an entity.
@@ -29,17 +29,6 @@ export class TransformComponent extends Component {
   private __updateCountAtLastLogic = 0;
 
   private static __updateCount = 0;
-
-  /**
-   * Creates a new TransformComponent instance.
-   * @param entityUid - The unique identifier of the entity this component belongs to
-   * @param componentSid - The component's system identifier
-   * @param entityComponent - The entity repository managing this component
-   * @param isReUse - Whether this component is being reused from a pool
-   */
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean) {
-    super(entityUid, componentSid, entityComponent, isReUse);
-  }
 
   /**
    * Gets the number of rendered properties for this component type.
@@ -72,9 +61,8 @@ export class TransformComponent extends Component {
   get restOrPose() {
     if (this.__rest !== undefined) {
       return this.__rest;
-    } else {
-      return this.__pose;
     }
+    return this.__pose;
   }
 
   /**
@@ -610,9 +598,6 @@ export class TransformComponent extends Component {
   ) {
     class TransformEntity extends (base.constructor as any) {
       private __transformComponent?: TransformComponent;
-      constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
-        super(entityUID, isAlive, components);
-      }
 
       /**
        * Gets the transform component for this entity.

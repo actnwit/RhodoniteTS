@@ -16,14 +16,6 @@ export class Expression extends RnObject {
   private __renderPasses: RenderPass[] = [];
 
   /**
-   * Creates a new Expression instance.
-   * Initializes an empty array of render passes that can be populated later.
-   */
-  constructor() {
-    super();
-  }
-
-  /**
    * Creates a deep copy of this Expression instance.
    * All render passes are cloned individually to ensure complete independence.
    *
@@ -31,7 +23,7 @@ export class Expression extends RnObject {
    */
   clone() {
     const exp = new Expression();
-    exp.tryToSetUniqueName(this.uniqueName + '_cloned', true);
+    exp.tryToSetUniqueName(`${this.uniqueName}_cloned`, true);
     const renderPasses = [];
     for (const renderPass of this.__renderPasses) {
       renderPasses.push(renderPass.clone());

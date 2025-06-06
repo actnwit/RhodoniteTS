@@ -129,7 +129,7 @@ export class WebGLStereoUtil {
         shader = this.__fragmentShader;
         break;
       default:
-        Logger.error('Invalid Shader Type: ' + type);
+        Logger.error(`Invalid Shader Type: ${type}`);
         return;
     }
 
@@ -222,9 +222,9 @@ export class WebGLStereoUtil {
     const viewport = gl.getParameter(gl.VIEWPORT);
     gl.viewport(0, 0, dest_surface_width, dest_surface_height);
 
-    gl.uniform2f(this.__uniform!['u_scale'], source_rect_uv_width, source_rect_uv_height);
-    gl.uniform2f(this.__uniform!['u_offset'], source_rect_uv_x, source_rect_uv_y);
-    gl.uniform1i(this.__uniform!['u_source_texture'], 15);
+    gl.uniform2f(this.__uniform!.u_scale, source_rect_uv_width, source_rect_uv_height);
+    gl.uniform2f(this.__uniform!.u_offset, source_rect_uv_x, source_rect_uv_y);
+    gl.uniform1i(this.__uniform!.u_source_texture, 15);
 
     // gl.bindVertexArray(this.__vao);
     gl.drawArrays(gl.TRIANGLES, 0, 12);
@@ -288,9 +288,9 @@ export class WebGLStereoUtil {
     const viewport = gl.getParameter(gl.VIEWPORT);
     gl.viewport(0, 0, dest_surface_width, dest_surface_height);
 
-    gl.uniform2f(this.__uniform!['u_scale'], source_rect_uv_width, source_rect_uv_height);
-    gl.uniform2f(this.__uniform!['u_offset'], source_rect_uv_x, source_rect_uv_y);
-    gl.uniform1i(this.__uniform!['u_source_texture'], 15);
+    gl.uniform2f(this.__uniform!.u_scale, source_rect_uv_width, source_rect_uv_height);
+    gl.uniform2f(this.__uniform!.u_offset, source_rect_uv_x, source_rect_uv_y);
+    gl.uniform1i(this.__uniform!.u_source_texture, 15);
     gl.drawArrays(gl.TRIANGLES, 0, 12);
 
     // gl.useProgram((gl as any).__lastUseProgram);

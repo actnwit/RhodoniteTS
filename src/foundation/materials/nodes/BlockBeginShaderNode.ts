@@ -1,6 +1,6 @@
-import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
-import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { BlockBeginShader } from '../../../webgl/shaders/nodes/BlockBeginShader';
+import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { AbstractShaderNode, type ShaderSocket } from '../core/AbstractShaderNode';
 
 /**
@@ -33,7 +33,7 @@ export class BlockBeginShaderNode extends AbstractShaderNode {
   constructor() {
     super('blockBegin', {});
 
-    this.__shaderFunctionName += '_' + this.__shaderNodeUid;
+    this.__shaderFunctionName += `_${this.__shaderNodeUid}`;
 
     this.__commonPart = new BlockBeginShader(this.__shaderFunctionName, this.__valueInputs, this.__valueOutputs);
 

@@ -1,8 +1,8 @@
-import type { IScalar } from './IVector';
 import type { FloatTypedArrayConstructor, TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
-import { MathUtil } from './MathUtil';
-import { AbstractVector } from './AbstractVector';
 import { CompositionType } from '../definitions/CompositionType';
+import { AbstractVector } from './AbstractVector';
+import type { IScalar } from './IVector';
+import { MathUtil } from './MathUtil';
 
 /**
  * Abstract base class for scalar values using typed arrays.
@@ -63,9 +63,8 @@ export class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
   isStrictEqual(scalar: Scalar_<T>) {
     if (this.x === scalar.x) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -77,9 +76,8 @@ export class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
   isEqual(scalar: Scalar_<T>, delta: number = Number.EPSILON) {
     if (Math.abs(scalar.x - this.x) < delta) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -212,7 +210,7 @@ export class Scalar extends Scalar_<Float32ArrayConstructor> implements IScalar 
    * @returns A string representation of the scalar in the format "(value)"
    */
   toString() {
-    return '(' + this._v[0] + ')';
+    return `(${this._v[0]})`;
   }
 
   /**

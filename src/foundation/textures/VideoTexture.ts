@@ -1,11 +1,11 @@
-import { PixelFormat, type PixelFormatEnum } from '../definitions/PixelFormat';
-import { ComponentType, type ComponentTypeEnum } from '../definitions/ComponentType';
-import { TextureParameter, type TextureParameterEnum } from '../definitions/TextureParameter';
-import { AbstractTexture } from './AbstractTexture';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import type { Size } from '../../types/CommonTypes';
-import { DataUtil } from '../misc/DataUtil';
+import { ComponentType, type ComponentTypeEnum } from '../definitions/ComponentType';
+import { PixelFormat, type PixelFormatEnum } from '../definitions/PixelFormat';
 import { TextureFormat } from '../definitions/TextureFormat';
+import { TextureParameter, type TextureParameterEnum } from '../definitions/TextureParameter';
+import { DataUtil } from '../misc/DataUtil';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import { AbstractTexture } from './AbstractTexture';
 
 /**
  * Configuration options for VideoTexture creation and processing.
@@ -45,13 +45,6 @@ export class VideoTexture extends AbstractTexture {
   private static __loadedBasisFunc = false;
   private static __basisLoadPromise?: Promise<void>;
   #htmlVideoElement?: HTMLVideoElement;
-
-  /**
-   * Creates a new VideoTexture instance.
-   */
-  constructor() {
-    super();
-  }
 
   /**
    * Creates a resized canvas from an image, maintaining aspect ratio and ensuring power-of-two dimensions.

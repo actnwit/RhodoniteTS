@@ -1,9 +1,9 @@
+import type { CGAPIResourceHandle, Index, Size, TextureUID } from '../../types/CommonTypes';
 import { RnObject } from '../core/RnObject';
-import { PixelFormat, type PixelFormatEnum } from '../definitions/PixelFormat';
 import { ComponentType, type ComponentTypeEnum } from '../definitions/ComponentType';
-import type { CGAPIResourceHandle, TextureUID, Size, Index } from '../../types/CommonTypes';
-import { TextureDataFloat } from './TextureDataFloat';
 import { CompositionType, type CompositionTypeEnum } from '../definitions/CompositionType';
+import { PixelFormat, type PixelFormatEnum } from '../definitions/PixelFormat';
+import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFormat';
 import type { ColorRgb } from '../math/ColorRgb';
 import type { ColorRgba } from '../math/ColorRgba';
 import type { MutableVector3 } from '../math/MutableVector3';
@@ -12,7 +12,7 @@ import type { Vector3 } from '../math/Vector3';
 import type { Vector4 } from '../math/Vector4';
 import { Is } from '../misc/Is';
 import type { Sampler } from './Sampler';
-import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFormat';
+import { TextureDataFloat } from './TextureDataFloat';
 
 /**
  * Abstract base class for all texture types in the Rhodonite engine.
@@ -84,7 +84,7 @@ export abstract class AbstractTexture extends RnObject {
    * @returns The width at the specified mip level (minimum 1 pixel)
    */
   getWidthAtMipLevel(mipLevel: Index) {
-    return Math.max(1, Math.floor(this.__width / Math.pow(2, mipLevel)));
+    return Math.max(1, Math.floor(this.__width / 2 ** mipLevel));
   }
 
   /**
@@ -94,7 +94,7 @@ export abstract class AbstractTexture extends RnObject {
    * @returns The height at the specified mip level (minimum 1 pixel)
    */
   getHeightAtMipLevel(mipLevel: Index) {
-    return Math.max(1, Math.floor(this.__height / Math.pow(2, mipLevel)));
+    return Math.max(1, Math.floor(this.__height / 2 ** mipLevel));
   }
 
   /**
@@ -238,9 +238,8 @@ export abstract class AbstractTexture extends RnObject {
     const data = pixel.data;
     if (typeClass.compositionType === CompositionType.Vec4) {
       return new (typeClass as any)(new Float32Array([data[0], data[1], data[2], data[3]]));
-    } else {
-      return new (typeClass as any)(new Float32Array([data[0], data[1], data[2]]));
     }
+    return new (typeClass as any)(new Float32Array([data[0], data[1], data[2]]));
   }
 
   /**

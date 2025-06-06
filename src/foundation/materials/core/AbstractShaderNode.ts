@@ -1,13 +1,13 @@
-import { RnObject } from '../../core/RnObject';
 import type { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
-import type { VertexAttributeEnum } from '../../definitions/VertexAttribute';
-import type { ShaderSemanticsEnum } from '../../definitions/ShaderSemantics';
-import type { CompositionTypeEnum } from '../../definitions/CompositionType';
-import type { ComponentTypeEnum } from '../../definitions/ComponentType';
-import type { Socket, SocketDefaultValue } from './Socket';
-import { ShaderType, type ShaderTypeEnum } from '../../definitions/ShaderType';
-import { SystemState } from '../../system';
+import { RnObject } from '../../core/RnObject';
 import { ProcessApproach } from '../../definitions';
+import type { ComponentTypeEnum } from '../../definitions/ComponentType';
+import type { CompositionTypeEnum } from '../../definitions/CompositionType';
+import type { ShaderSemanticsEnum } from '../../definitions/ShaderSemantics';
+import { ShaderType, type ShaderTypeEnum } from '../../definitions/ShaderType';
+import type { VertexAttributeEnum } from '../../definitions/VertexAttribute';
+import { SystemState } from '../../system';
+import type { Socket, SocketDefaultValue } from './Socket';
 
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 
@@ -150,16 +150,13 @@ export abstract class AbstractShaderNode extends RnObject {
     if (this.__commonPart != null) {
       if (shaderStage === ShaderType.VertexShader) {
         return this.__commonPart.vertexShaderDefinitions;
-      } else {
-        return this.__commonPart.pixelShaderDefinitions;
       }
-    } else {
-      if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-        return this.__codeWGSL!;
-      } else {
-        return this.__codeGLSL!;
-      }
+      return this.__commonPart.pixelShaderDefinitions;
     }
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      return this.__codeWGSL!;
+    }
+    return this.__codeGLSL!;
   }
 
   /**

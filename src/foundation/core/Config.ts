@@ -38,10 +38,10 @@ let maxSkeletalBoneNumber = 300;
 let maxSkeletalBoneNumberForUniformMode = 50;
 
 /**　The width of the data texture */
-let dataTextureWidth = Math.pow(2, 12);
+let dataTextureWidth = 2 ** 12;
 
 /**　The height of the data texture */
-let dataTextureHeight = Math.pow(2, 12);
+let dataTextureHeight = 2 ** 12;
 
 /**　The data type of the bone */
 let boneDataType = BoneDataType.Mat43x1;

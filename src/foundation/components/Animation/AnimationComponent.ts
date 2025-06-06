@@ -1,45 +1,45 @@
-import { Component } from '../../core/Component';
-import { ComponentRepository } from '../../core/ComponentRepository';
-import { applyMixins, EntityRepository } from '../../core/EntityRepository';
-import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
-import { AnimationInterpolationEnum } from '../../definitions/AnimationInterpolation';
-import { AnimationAttribute } from '../../definitions/AnimationAttribute';
 import {
-  type ComponentTID,
-  type ComponentSID,
-  type EntityUID,
-  type Index,
-  Array4,
-  Array3,
-  VectorComponentN,
-} from '../../../types/CommonTypes';
-import {
-  type AnimationPathName,
-  type AnimationTrack,
+  AnimationChannel,
   type AnimationComponentEventType,
   type AnimationInfo,
-  type AnimationTrackName,
-  AnimationChannel,
+  type AnimationPathName,
   type AnimationSampler,
+  type AnimationTrack,
+  type AnimationTrackName,
 } from '../../../types/AnimationTypes';
-import { valueWithDefault, valueWithCompensation } from '../../misc/MiscUtil';
-import { EventPubSub, type EventHandler } from '../../system/EventPubSub';
+import {
+  Array3,
+  Array4,
+  type ComponentSID,
+  type ComponentTID,
+  type EntityUID,
+  type Index,
+  VectorComponentN,
+} from '../../../types/CommonTypes';
+import { Component } from '../../core/Component';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import type { IEntity } from '../../core/Entity';
+import { EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { ProcessStage } from '../../definitions';
+import { AnimationAttribute } from '../../definitions/AnimationAttribute';
+import { AnimationInterpolationEnum } from '../../definitions/AnimationInterpolation';
+import type { IAnimationEntity, ISceneGraphEntity } from '../../helpers/EntityHelper';
+import { MathUtil, type Scalar } from '../../math';
+import { AnimatedQuaternion } from '../../math/AnimatedQuaternion';
+import { AnimatedVector3 } from '../../math/AnimatedVector3';
+import type { AnimatedVectorN } from '../../math/AnimatedVectorN';
+import type { IAnimatedValue } from '../../math/IAnimatedValue';
+import { MutableQuaternion } from '../../math/MutableQuaternion';
+import { MutableVector3 } from '../../math/MutableVector3';
 import type { Quaternion } from '../../math/Quaternion';
 import type { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
-import type { IAnimationEntity, ISceneGraphEntity } from '../../helpers/EntityHelper';
-import type { IEntity } from '../../core/Entity';
+import { valueWithCompensation, valueWithDefault } from '../../misc/MiscUtil';
+import { type EventHandler, EventPubSub } from '../../system/EventPubSub';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import type { IAnimationRetarget } from '../Skeletal';
+import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { __interpolate } from './AnimationOps';
-import { ProcessStage } from '../../definitions';
-import { MutableQuaternion } from '../../math/MutableQuaternion';
-import { MutableVector3 } from '../../math/MutableVector3';
-import { MathUtil, type Scalar } from '../../math';
-import type { IAnimatedValue } from '../../math/IAnimatedValue';
-import { AnimatedVector3 } from '../../math/AnimatedVector3';
-import { AnimatedQuaternion } from '../../math/AnimatedQuaternion';
-import type { AnimatedVectorN } from '../../math/AnimatedVectorN';
 
 const defaultAnimationInfo = {
   name: '',
@@ -89,17 +89,6 @@ export class AnimationComponent extends Component {
   private static __tmpScale = MutableVector3.one();
 
   private static __pubsub = new EventPubSub();
-
-  /**
-   * Creates an instance of AnimationComponent.
-   * @param entityUid - The unique identifier of the entity that owns this component
-   * @param componentSid - The component system identifier
-   * @param entityRepository - The repository for managing entities
-   * @param isReUse - Whether this component is being reused
-   */
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
-    super(entityUid, componentSid, entityRepository, isReUse);
-  }
 
   /// LifeCycle Methods ///
 
@@ -319,7 +308,7 @@ export class AnimationComponent extends Component {
    */
   hasAnimation(trackName: AnimationTrackName, pathName: AnimationPathName): boolean {
     for (const [currentPathName, channel] of this.__animationTrack) {
-      return pathName == currentPathName && channel.animatedValue.getFirstActiveAnimationTrackName() === trackName;
+      return pathName === currentPathName && channel.animatedValue.getFirstActiveAnimationTrackName() === trackName;
     }
     return false;
   }
@@ -448,11 +437,10 @@ export class AnimationComponent extends Component {
     const components = ComponentRepository.getComponentsWithType(AnimationComponent) as AnimationComponent[];
     if (components.length === 0) {
       return 0;
-    } else {
-      const infoArray = Array.from(this.__animationGlobalInfo.values());
-      const lastInfo = infoArray[infoArray.length - 1];
-      return lastInfo.minStartInputTime;
     }
+    const infoArray = Array.from(this.__animationGlobalInfo.values());
+    const lastInfo = infoArray[infoArray.length - 1];
+    return lastInfo.minStartInputTime;
   }
 
   /**
@@ -463,11 +451,10 @@ export class AnimationComponent extends Component {
     const components = ComponentRepository.getComponentsWithType(AnimationComponent) as AnimationComponent[];
     if (components.length === 0) {
       return 0;
-    } else {
-      const infoArray = Array.from(this.__animationGlobalInfo.values());
-      const lastInfo = infoArray[infoArray.length - 1];
-      return lastInfo.maxEndInputTime;
     }
+    const infoArray = Array.from(this.__animationGlobalInfo.values());
+    const lastInfo = infoArray[infoArray.length - 1];
+    return lastInfo.maxEndInputTime;
   }
 
   /**
@@ -505,10 +492,6 @@ export class AnimationComponent extends Component {
     _componentClass: SomeComponentClass
   ) {
     class AnimationEntity extends (base.constructor as any) {
-      constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
-        super(entityUID, isAlive, components);
-      }
-
       getAnimation() {
         return this.getComponentByComponentTID(WellKnownComponentTIDs.AnimationComponentTID) as AnimationComponent;
       }

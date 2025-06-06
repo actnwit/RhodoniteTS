@@ -1,8 +1,8 @@
 import type { GltfLoadOption } from '../../types';
 import type { Byte, Size } from '../../types/CommonTypes';
-import type { glTF1 } from '../../types/glTF1';
 import type { RnM2 } from '../../types/RnM2';
-import { Err, type Result, Ok } from './Result';
+import type { glTF1 } from '../../types/glTF1';
+import { Err, Ok, type Result } from './Result';
 import { RnPromise } from './RnPromise';
 
 declare const URL: any;
@@ -45,9 +45,8 @@ export class DataUtil {
         buffer = Buffer.from(str.toString(), 'binary');
       }
       return buffer.toString('base64');
-    } else {
-      return btoa(str);
     }
+    return btoa(str);
   }
 
   /**
@@ -59,9 +58,8 @@ export class DataUtil {
     const isNode = DataUtil.isNode();
     if (isNode) {
       return Buffer.from(str, 'base64').toString('binary');
-    } else {
-      return atob(str);
     }
+    return atob(str);
   }
 
   /**
@@ -90,11 +88,10 @@ export class DataUtil {
     if (typeof TextDecoder !== 'undefined') {
       const textDecoder = new TextDecoder();
       return textDecoder.decode(arrayBuffer);
-    } else {
-      const bytes = new Uint8Array(arrayBuffer);
-      const result = this.uint8ArrayToStringInner(bytes);
-      return result;
     }
+    const bytes = new Uint8Array(arrayBuffer);
+    const result = this.uint8ArrayToStringInner(bytes);
+    return result;
   }
 
   /**
@@ -106,10 +103,9 @@ export class DataUtil {
     if (typeof TextDecoder !== 'undefined') {
       const textDecoder = new TextDecoder();
       return textDecoder.decode(uint8Array);
-    } else {
-      const result = this.uint8ArrayToStringInner(uint8Array);
-      return result;
     }
+    const result = this.uint8ArrayToStringInner(uint8Array);
+    return result;
   }
 
   /**
@@ -138,9 +134,8 @@ export class DataUtil {
         bytes[i] = binary_string.charCodeAt(i);
       }
       return bytes.buffer;
-    } else {
-      throw new Error('This function works in browser environment.');
     }
+    throw new Error('This function works in browser environment.');
   }
 
   /**
@@ -253,15 +248,15 @@ export class DataUtil {
    * @returns CRC32 checksum as unsigned 32-bit integer
    */
   static toCRC32(str: string) {
-    let crc = 0,
-      x: any = 0,
-      y = 0;
+    let crc = 0;
+    let x: any = 0;
+    let y = 0;
     const table = DataUtil.crc32table;
 
     crc = crc ^ -1;
     for (let i = 0, iTop = str.length; i < iTop; ++i) {
       y = (crc ^ str.charCodeAt(i)) & 0xff;
-      x = '0x' + table[y];
+      x = `0x${table[y]}`;
       crc = (crc >>> 8) ^ x;
     }
 
@@ -459,11 +454,11 @@ export class DataUtil {
 
         const loadBinaryImage = () => {
           const xhr = new XMLHttpRequest();
-          xhr.onreadystatechange = ((_img) => () => {
-              if (xhr.readyState === 4 && xhr.status === 200) {
-                load(_img, xhr.response);
-              }
-            })(img);
+          xhr.onreadystatechange = (_img => () => {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+              load(_img, xhr.response);
+            }
+          })(img);
           xhr.open('GET', uri);
           xhr.responseType = 'arraybuffer';
           xhr.send();
@@ -603,7 +598,7 @@ export class DataUtil {
    * @returns The nearest power of two value
    */
   static getNearestPowerOfTwo(x: number): number {
-    return Math.pow(2, Math.round(Math.log(x) / Math.LN2));
+    return 2 ** Math.round(Math.log(x) / Math.LN2);
   }
 
   /**

@@ -1,6 +1,6 @@
+import type { Byte } from '../../types/CommonTypes';
 import { Buffer } from './Buffer';
 import { BufferView } from './BufferView';
-import type { Byte } from '../../types/CommonTypes';
 
 function createBuffer(byteSize: Byte) {
   const arrayBuffer = new ArrayBuffer(byteSize);

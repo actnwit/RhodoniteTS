@@ -250,10 +250,6 @@ export class AnimationStateComponent extends Component {
     _componentClass: SomeComponentClass
   ) {
     class BlendShapeEntity extends (base.constructor as any) {
-      constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
-        super(entityUID, isAlive, components);
-      }
-
       getAnimationState() {
         return this.getComponentByComponentTID(
           WellKnownComponentTIDs.AnimationStateComponentTID

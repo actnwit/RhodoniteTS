@@ -1,24 +1,24 @@
-import { Gltf2Importer } from './Gltf2Importer';
-import { ModelConverter } from './ModelConverter';
-import { Is } from '../misc/Is';
-import type { Vrm0x, Vrm0xBoneGroup } from '../../types/VRM0x';
-import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import type { GltfLoadOption, RnM2 } from '../../types';
-import { RenderPass } from '../renderer/RenderPass';
-import { Texture } from '../textures/Texture';
-import { EntityRepository } from '../core/EntityRepository';
-import { VRMSpringBonePhysicsStrategy } from '../physics/VRMSpring/VRMSpringBonePhysicsStrategy';
+import type { Vrm0x, Vrm0xBoneGroup } from '../../types/VRM0x';
 import { PhysicsComponent } from '../components/Physics/PhysicsComponent';
 import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import { SphereCollider } from '../physics/VRMSpring/SphereCollider';
+import { VrmComponent, type VrmExpression } from '../components/Vrm/VrmComponent';
+import { EntityRepository } from '../core/EntityRepository';
+import { TextureParameter } from '../definitions';
+import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Vector3 } from '../math/Vector3';
+import { Is } from '../misc/Is';
+import { type Err, Ok, type Result, assertIsOk } from '../misc/Result';
+import { SphereCollider } from '../physics/VRMSpring/SphereCollider';
 import { VRMColliderGroup } from '../physics/VRMSpring/VRMColliderGroup';
 import { VRMSpring } from '../physics/VRMSpring/VRMSpring';
-import { assertIsOk, type Err, type Result, Ok } from '../misc/Result';
-import { VrmComponent, type VrmExpression } from '../components/Vrm/VrmComponent';
-import { Sampler } from '../textures/Sampler';
 import { VRMSpringBone } from '../physics/VRMSpring/VRMSpringBone';
-import { TextureParameter } from '../definitions';
+import { VRMSpringBonePhysicsStrategy } from '../physics/VRMSpring/VRMSpringBonePhysicsStrategy';
+import { RenderPass } from '../renderer/RenderPass';
+import { Sampler } from '../textures/Sampler';
+import { Texture } from '../textures/Texture';
+import { Gltf2Importer } from './Gltf2Importer';
+import { ModelConverter } from './ModelConverter';
 
 /**
  * The VRM 0.x format importer class.
@@ -542,7 +542,7 @@ export class Vrm0xImporter {
         const fileName = file.split('.vrm')[0];
         if (fileName) {
           const arraybuffer = options.files[file];
-          options.files[fileName + '.glb'] = arraybuffer;
+          options.files[`${fileName}.glb`] = arraybuffer;
           delete options.files[file];
         }
       }

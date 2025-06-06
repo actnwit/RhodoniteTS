@@ -1,12 +1,12 @@
-import { DataUtil } from '../misc/DataUtil';
-import type { RnM2, RnM2Image, RnM2Accessor } from '../../types/RnM2';
-import { RnPromise, type RnPromiseCallback } from '../misc/RnPromise';
-import { Is } from '../misc/Is';
-import { ifDefinedThen } from '../misc/MiscUtil';
 import type { GltfFileBuffers, GltfLoadOption } from '../../types';
-import { Err, type Result, Ok } from '../misc/Result';
-import { Logger } from '../misc/Logger';
+import type { RnM2, RnM2Accessor, RnM2Image } from '../../types/RnM2';
 import type { Vrm1_Materials_MToon } from '../../types/VRMC_materials_mtoon';
+import { DataUtil } from '../misc/DataUtil';
+import { Is } from '../misc/Is';
+import { Logger } from '../misc/Logger';
+import { ifDefinedThen } from '../misc/MiscUtil';
+import { Err, Ok, type Result } from '../misc/Result';
+import { RnPromise, type RnPromiseCallback } from '../misc/RnPromise';
 
 declare let Rn: any;
 
@@ -163,7 +163,7 @@ export class Gltf2Importer {
       (defaultOptions as any)[optionName as keyof GltfLoadOption] = options[optionName as keyof GltfLoadOption] as any;
     }
 
-    if (options && options.loaderExtensionName && typeof options.loaderExtensionName === 'string') {
+    if (options?.loaderExtensionName && typeof options.loaderExtensionName === 'string') {
       if (Rn[options.loaderExtensionName] != null) {
         defaultOptions.loaderExtension = Rn[options.loaderExtensionName].getInstance();
       } else {
@@ -215,7 +215,7 @@ export class Gltf2Importer {
     try {
       await this._loadInner(gltfJson, files, options, uint8array);
     } catch (err) {
-      Logger.info('this._loadInner error in _loadAsBinaryJson: ' + err);
+      Logger.info(`this._loadInner error in _loadAsBinaryJson: ${err}`);
     }
     return gltfJson;
   }
@@ -240,7 +240,7 @@ export class Gltf2Importer {
     uri?: string,
     callback?: RnPromiseCallback
   ): Promise<RnM2> {
-    const basePath = uri?.substring(0, uri?.lastIndexOf('/')) + '/'; // location of model file as basePath
+    const basePath = `${uri?.substring(0, uri?.lastIndexOf('/'))}/`; // location of model file as basePath
     if (gltfJson.asset.extras === undefined) {
       gltfJson.asset.extras = { fileType: 'glTF', version: '2' };
     }
@@ -254,7 +254,7 @@ export class Gltf2Importer {
     try {
       await this._loadInner(gltfJson, fileArrayBuffers, options, undefined, basePath, callback);
     } catch (err) {
-      Logger.error('this._loadInner error in _loadAsTextJson: ' + err);
+      Logger.error(`this._loadInner error in _loadAsTextJson: ${err}`);
     }
     return gltfJson;
   }
@@ -495,11 +495,10 @@ export class Gltf2Importer {
    * @internal
    */
   private static _checkRnGltfLoaderOptionsExist(gltfModel: RnM2) {
-    if (gltfModel.asset.extras && gltfModel.asset.extras.rnLoaderOptions) {
+    if (gltfModel.asset.extras?.rnLoaderOptions) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -879,7 +878,7 @@ export class Gltf2Importer {
               resolve(response);
             },
             (reject: Function, error: number) => {
-              reject('HTTP Error Status:' + error);
+              reject(`HTTP Error Status:${error}`);
             }
           )
         );
@@ -953,7 +952,7 @@ export class Gltf2Importer {
     }
 
     return RnPromise.all(promisesToLoadResources, callback).catch((err: any) => {
-      Logger.error('Promise.all error: ' + err);
+      Logger.error(`Promise.all error: ${err}`);
     });
   }
 

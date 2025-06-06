@@ -1,7 +1,7 @@
-import { RnObject } from '../core/RnObject';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import type { ISceneGraphEntity, IMeshEntity } from '../helpers/EntityHelper';
 import { flattenHierarchy } from '../components/SceneGraph/SceneGraphOps';
+import { RnObject } from '../core/RnObject';
+import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
 
 /**
  * Abstract Gizmo class that provides a foundation for creating interactive gizmo objects

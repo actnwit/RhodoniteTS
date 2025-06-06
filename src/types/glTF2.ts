@@ -1,21 +1,21 @@
-import { Entity } from '../foundation/core/Entity';
-import { RnPromise } from '../foundation/misc/RnPromise';
-import type { Array3, Array4, Index } from './CommonTypes';
-import type { ShaderSemanticsEnum } from '../foundation/definitions/ShaderSemantics';
 import type { CameraComponent } from '../foundation/components/Camera/CameraComponent';
-import { Material } from '../foundation/materials/core/Material';
-import type { Expression } from '../foundation/renderer/Expression';
+import { Entity } from '../foundation/core/Entity';
+import type { ShaderSemanticsEnum } from '../foundation/definitions/ShaderSemantics';
 import type { ILoaderExtension } from '../foundation/importer/ILoaderExtension';
+import { Material } from '../foundation/materials/core/Material';
 import { Accessor } from '../foundation/memory/Accessor';
+import { RnPromise } from '../foundation/misc/RnPromise';
+import type { Expression } from '../foundation/renderer/Expression';
 import type {
   GL_DATA_BYTE,
-  GL_DATA_UNSIGNED_BYTE,
-  GL_DATA_SHORT,
-  GL_DATA_UNSIGNED_SHORT,
-  GL_DATA_INT,
-  GL_DATA_UNSIGNED_INT,
   GL_DATA_FLOAT,
+  GL_DATA_INT,
+  GL_DATA_SHORT,
+  GL_DATA_UNSIGNED_BYTE,
+  GL_DATA_UNSIGNED_INT,
+  GL_DATA_UNSIGNED_SHORT,
 } from '../types/WebGLConstants';
+import type { Array3, Array4, Index } from './CommonTypes';
 
 export interface Gltf2AnyObject {
   [s: string]: any;

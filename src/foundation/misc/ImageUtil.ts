@@ -1,10 +1,10 @@
-import { Vector3 } from '../math/Vector3';
-import { MutableMatrix33 } from '../math/MutableMatrix33';
-import { MathUtil } from '../math/MathUtil';
-import { MutableVector3 } from '../math/MutableVector3';
-import { ColorRgb } from '../math/ColorRgb';
 import { ColorComponentLetter, type Index, type Size } from '../../types/CommonTypes';
+import { ColorRgb } from '../math/ColorRgb';
+import { MathUtil } from '../math/MathUtil';
+import { MutableMatrix33 } from '../math/MutableMatrix33';
 import { MutableVector2 } from '../math/MutableVector2';
+import { MutableVector3 } from '../math/MutableVector3';
+import { Vector3 } from '../math/Vector3';
 import { TextureDataFloat } from '../textures/TextureDataFloat';
 import { Is } from './Is';
 
@@ -27,15 +27,15 @@ type PixelSortType = {
  */
 function computeEigenVectors(input: TextureDataFloat, eigenVectors: Vector3[]) {
   // First and second order moments
-  let R = 0,
-    G = 0,
-    B = 0,
-    RR = 0,
-    GG = 0,
-    BB = 0,
-    RG = 0,
-    RB = 0,
-    GB = 0;
+  let R = 0;
+  let G = 0;
+  let B = 0;
+  let RR = 0;
+  let GG = 0;
+  let BB = 0;
+  let RG = 0;
+  let RB = 0;
+  let GB = 0;
   for (let y = 0; y < input.height; y++) {
     for (let x = 0; x < input.width; x++) {
       const col = input.getPixelAs(x, y, 3, ColorRgb);

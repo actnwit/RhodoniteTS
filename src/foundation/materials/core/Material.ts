@@ -1,54 +1,54 @@
-import { RnObject } from '../../core/RnObject';
-import { AlphaMode, type AlphaModeEnum } from '../../definitions/AlphaMode';
-import type { AbstractMaterialContent } from './AbstractMaterialContent';
-import {
-  ShaderSemanticsEnum,
-  ShaderSemantics,
-  ShaderSemanticsIndex,
-  type getShaderPropertyFunc,
-  _getPropertyIndex2,
-  type ShaderSemanticsName,
-} from '../../definitions/ShaderSemantics';
-import { CompositionType } from '../../definitions/CompositionType';
-import { MathClassUtil } from '../../math/MathClassUtil';
-import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
-import type { AbstractTexture } from '../../textures/AbstractTexture';
-import { ShaderType } from '../../definitions/ShaderType';
 import type {
-  Index,
   CGAPIResourceHandle,
-  PrimitiveUID,
+  Index,
   MaterialSID,
   MaterialTID,
   MaterialUID,
+  PrimitiveUID,
 } from '../../../types/CommonTypes';
-import { GlobalDataRepository } from '../../core/GlobalDataRepository';
+import type { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
 import type { ShaderSources } from '../../../webgl/WebGLStrategy';
-import type { Primitive } from '../../geometry/Primitive';
 import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
+import { GlobalDataRepository } from '../../core/GlobalDataRepository';
+import { RnObject } from '../../core/RnObject';
 import { type ShaderSemanticsInfo, TextureParameter } from '../../definitions';
-import type { MaterialTypeName, ShaderVariable } from './MaterialTypes';
-import { Sampler } from '../../textures/Sampler';
+import { AlphaMode, type AlphaModeEnum } from '../../definitions/AlphaMode';
 import { Blend, type BlendEnum } from '../../definitions/Blend';
+import { CompositionType } from '../../definitions/CompositionType';
 import {
-  _createProgramAsSingleOperationWebGL,
+  ShaderSemantics,
+  ShaderSemanticsEnum,
+  ShaderSemanticsIndex,
+  type ShaderSemanticsName,
+  _getPropertyIndex2,
+  type getShaderPropertyFunc,
+} from '../../definitions/ShaderSemantics';
+import { ShaderType } from '../../definitions/ShaderType';
+import type { Primitive } from '../../geometry/Primitive';
+import { AnimatedQuaternion } from '../../math/AnimatedQuaternion';
+import { AnimatedScalar } from '../../math/AnimatedScalar';
+import { AnimatedVector2 } from '../../math/AnimatedVector2';
+import { AnimatedVector3 } from '../../math/AnimatedVector3';
+import { AnimatedVector4 } from '../../math/AnimatedVector4';
+import { AnimatedVectorN } from '../../math/AnimatedVectorN';
+import type { IAnimatedValue } from '../../math/IAnimatedValue';
+import { MathClassUtil } from '../../math/MathClassUtil';
+import { Is } from '../../misc/Is';
+import { Logger } from '../../misc/Logger';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import { Texture } from '../../textures';
+import type { AbstractTexture } from '../../textures/AbstractTexture';
+import { Sampler } from '../../textures/Sampler';
+import type { AbstractMaterialContent } from './AbstractMaterialContent';
+import type { MaterialTypeName, ShaderVariable } from './MaterialTypes';
+import {
   _createProgramAsSingleOperationByUpdatedSources,
+  _createProgramAsSingleOperationWebGL,
+  _createProgramAsSingleOperationWebGpu,
   _getAttributeInfo,
   _outputVertexAttributeBindingInfo,
   _setupGlobalShaderDefinitionWebGL,
-  _createProgramAsSingleOperationWebGpu,
 } from './ShaderHandler';
-import { Texture } from '../../textures';
-import type { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
-import { Logger } from '../../misc/Logger';
-import { AnimatedScalar } from '../../math/AnimatedScalar';
-import { AnimatedVector4 } from '../../math/AnimatedVector4';
-import { AnimatedVector3 } from '../../math/AnimatedVector3';
-import { AnimatedQuaternion } from '../../math/AnimatedQuaternion';
-import { AnimatedVectorN } from '../../math/AnimatedVectorN';
-import type { IAnimatedValue } from '../../math/IAnimatedValue';
-import { AnimatedVector2 } from '../../math/AnimatedVector2';
-import { Is } from '../../misc/Is';
 
 type PrimitiveFingerPrint = string;
 
@@ -403,9 +403,8 @@ export class Material extends RnObject {
     if (info != null) {
       if (info.soloDatum) {
         return Material._soloDatumFields.get(this.__materialTypeName)!.get(shaderSemantic)?.value;
-      } else {
-        return this._allFieldVariables.get(shaderSemantic)?.value;
       }
+      return this._allFieldVariables.get(shaderSemantic)?.value;
     }
 
     return void 0;
@@ -891,9 +890,8 @@ export class Material extends RnObject {
   isBlend() {
     if (this.alphaMode === AlphaMode.Blend) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -903,9 +901,8 @@ export class Material extends RnObject {
   isTranslucentOpaque() {
     if (this.alphaMode !== AlphaMode.Blend && this.isTranslucent) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -915,9 +912,8 @@ export class Material extends RnObject {
   isBlendOrTranslucent() {
     if (this.alphaMode === AlphaMode.Blend || this.isTranslucent) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**

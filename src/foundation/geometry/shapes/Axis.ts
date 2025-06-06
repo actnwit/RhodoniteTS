@@ -1,7 +1,7 @@
-import type { IAnyPrimitiveDescriptor } from '../Primitive';
-import { VertexAttribute } from '../../definitions/VertexAttribute';
-import { PrimitiveMode } from '../../definitions/PrimitiveMode';
 import type { Size } from '../../../types/CommonTypes';
+import { PrimitiveMode } from '../../definitions/PrimitiveMode';
+import { VertexAttribute } from '../../definitions/VertexAttribute';
+import type { IAnyPrimitiveDescriptor } from '../Primitive';
 import { IShape } from '../shapes/IShape';
 
 /**

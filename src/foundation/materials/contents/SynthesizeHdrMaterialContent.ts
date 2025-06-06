@@ -1,25 +1,25 @@
-import type { AbstractTexture } from '../../textures/AbstractTexture';
+import type { Count } from '../../../types/CommonTypes';
+import SynthesizeHDRTextureShaderFragment from '../../../webgl/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.frag';
+import SynthesizeHDRTextureShaderVertex from '../../../webgl/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.vert';
+import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
+import SynthesizeHDRTextureShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.frag';
+import SynthesizeHDRTextureShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.vert';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
-import type { Count } from '../../../types/CommonTypes';
-import { ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
-import { ShaderType } from '../../definitions/ShaderType';
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import type { Material } from '../core/Material';
-import { VectorN } from '../../math/VectorN';
-import SynthesizeHDRTextureShaderVertex from '../../../webgl/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.vert';
-import SynthesizeHDRTextureShaderFragment from '../../../webgl/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.frag';
-import SynthesizeHDRTextureShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.vert';
-import SynthesizeHDRTextureShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.frag';
-import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
-import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-import { dummyBlackTexture, dummyZeroTexture } from '../core/DummyTextures';
-import { Sampler } from '../../textures/Sampler';
-import { TextureParameter } from '../../definitions/TextureParameter';
-import { SystemState } from '../../system/SystemState';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
+import { ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
+import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { ShaderType } from '../../definitions/ShaderType';
+import { TextureParameter } from '../../definitions/TextureParameter';
+import { VectorN } from '../../math/VectorN';
+import { SystemState } from '../../system/SystemState';
+import type { AbstractTexture } from '../../textures/AbstractTexture';
+import { Sampler } from '../../textures/Sampler';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import { dummyBlackTexture, dummyZeroTexture } from '../core/DummyTextures';
+import type { Material } from '../core/Material';
 
 /**
  * Material content for synthesizing HDR textures with optional target region masking.

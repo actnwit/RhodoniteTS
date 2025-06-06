@@ -1,8 +1,8 @@
-import { Vector3 } from './Vector3';
-import type { Matrix44 } from './Matrix44';
-import { MutableVector3 } from './MutableVector3';
 import type { Index } from '../../types/CommonTypes';
 import { MathUtil } from './MathUtil';
+import type { Matrix44 } from './Matrix44';
+import { MutableVector3 } from './MutableVector3';
+import { Vector3 } from './Vector3';
 
 /**
  * A 3D axis-aligned bounding box (AABB) class for spatial calculations and collision detection.
@@ -32,14 +32,6 @@ export class AABB {
   private __isLengthCenterToCornerDirty = false;
   private static __tmpVector3 = MutableVector3.zero();
   private __isVanilla = true;
-
-  /**
-   * Creates a new AABB instance in vanilla (uninitialized) state.
-   *
-   * The AABB is initially in "vanilla" state with invalid bounds until
-   * positions are added or bounds are explicitly set.
-   */
-  constructor() {}
 
   /**
    * Creates a deep copy of this AABB instance.
@@ -510,19 +502,7 @@ export class AABB {
    * ```
    */
   toString() {
-    return (
-      'AABB_min: ' +
-      this.__min +
-      '\n' +
-      'AABB_max: ' +
-      this.__max +
-      '\n' +
-      'centerPoint: ' +
-      this.__centerPoint +
-      '\n' +
-      'lengthCenterToCorner: ' +
-      this.__lengthCenterToCorner
-    );
+    return `AABB_min: ${this.__min}\nAABB_max: ${this.__max}\ncenterPoint: ${this.__centerPoint}\nlengthCenterToCorner: ${this.__lengthCenterToCorner}`;
   }
 
   /**
@@ -542,18 +522,6 @@ export class AABB {
    * ```
    */
   toStringApproximately() {
-    return (
-      'AABB_max: ' +
-      this.__max.toStringApproximately() +
-      '\n' +
-      'AABB_min: ' +
-      this.__min.toStringApproximately() +
-      '\n' +
-      'centerPoint: ' +
-      this.centerPoint.toStringApproximately() +
-      '\n' +
-      'lengthCenterToCorner: ' +
-      MathUtil.financial(this.lengthCenterToCorner)
-    );
+    return `AABB_max: ${this.__max.toStringApproximately()}\nAABB_min: ${this.__min.toStringApproximately()}\ncenterPoint: ${this.centerPoint.toStringApproximately()}\nlengthCenterToCorner: ${MathUtil.financial(this.lengthCenterToCorner)}`;
   }
 }

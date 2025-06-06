@@ -2,7 +2,6 @@ import { Is } from '../Is';
 
 export class SymbolWeakMap<V> {
   private __weakMap: WeakMap<Symbol, V> = new WeakMap();
-  constructor() {}
 
   /**
    * set key and value
@@ -14,10 +13,9 @@ export class SymbolWeakMap<V> {
     const isExist = this.__weakMap.has(symbol);
     if (isExist) {
       return false;
-    } else {
-      this.__weakMap.set(symbol, value);
-      return true;
     }
+    this.__weakMap.set(symbol, value);
+    return true;
   }
 
   /**
@@ -29,9 +27,8 @@ export class SymbolWeakMap<V> {
     const isExist = this.__weakMap.has(symbol);
     if (isExist) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**

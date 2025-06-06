@@ -1,30 +1,30 @@
-import { ComponentType, type ComponentTypeEnum } from '../definitions/ComponentType';
-import { CompositionType, type CompositionTypeEnum } from '../definitions/CompositionType';
-import type { BufferView } from './BufferView';
-import { Vector2 } from '../math/Vector2';
-import { Vector3 } from '../math/Vector3';
-import { Vector4 } from '../math/Vector4';
-import { MutableVector2 } from '../math/MutableVector2';
-import { MutableVector3 } from '../math/MutableVector3';
-import { MutableVector4 } from '../math/MutableVector4';
-import { Matrix33 } from '../math/Matrix33';
-import type { MutableMatrix33 } from '../math/MutableMatrix33';
-import { MutableMatrix44 } from '../math/MutableMatrix44';
 import type {
-  Byte,
-  Index,
-  Count,
-  TypedArray,
-  Size,
-  TypedArrayConstructor,
   Array2,
   Array3,
   Array4,
+  Byte,
+  Count,
+  Index,
+  Size,
+  TypedArray,
+  TypedArrayConstructor,
 } from '../../types/CommonTypes';
-import type { Matrix44 } from '../math/Matrix44';
-import { Is } from '../misc/Is';
+import { ComponentType, type ComponentTypeEnum } from '../definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../definitions/CompositionType';
 import type { Primitive } from '../geometry/Primitive';
+import { Matrix33 } from '../math/Matrix33';
+import type { Matrix44 } from '../math/Matrix44';
+import type { MutableMatrix33 } from '../math/MutableMatrix33';
+import { MutableMatrix44 } from '../math/MutableMatrix44';
+import { MutableVector2 } from '../math/MutableVector2';
+import { MutableVector3 } from '../math/MutableVector3';
+import { MutableVector4 } from '../math/MutableVector4';
+import { Vector2 } from '../math/Vector2';
+import { Vector3 } from '../math/Vector3';
+import { Vector4 } from '../math/Vector4';
+import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
+import type { BufferView } from './BufferView';
 
 type DataViewGetter = (byteOffset: Byte, littleEndian?: boolean) => number;
 type DataViewSetter = (byteOffset: Byte, value: number, littleEndian?: boolean) => void;
@@ -1519,13 +1519,14 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
     const componentN = this.compositionType.getNumberOfComponents();
     if (componentN === 4) {
       return [this.__min._v[0], this.__min._v[1], this.__min._v[2], this.__min._v[3]];
-    } else if (componentN === 3) {
-      return [this.__min._v[0], this.__min._v[1], this.__min._v[2]];
-    } else if (componentN === 2) {
-      return [this.__min._v[0], this.__min._v[1]];
-    } else {
-      return [this.__min._v[0]];
     }
+    if (componentN === 3) {
+      return [this.__min._v[0], this.__min._v[1], this.__min._v[2]];
+    }
+    if (componentN === 2) {
+      return [this.__min._v[0], this.__min._v[1]];
+    }
+    return [this.__min._v[0]];
   }
 
   /**
@@ -1540,13 +1541,14 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
     const componentN = this.compositionType.getNumberOfComponents();
     if (componentN === 4) {
       return [this.__max._v[0], this.__max._v[1], this.__max._v[2], this.__max._v[3]];
-    } else if (componentN === 3) {
-      return [this.__max._v[0], this.__max._v[1], this.__max._v[2]];
-    } else if (componentN === 2) {
-      return [this.__max._v[0], this.__max._v[1]];
-    } else {
-      return [this.__max._v[0]];
     }
+    if (componentN === 3) {
+      return [this.__max._v[0], this.__max._v[1], this.__max._v[2]];
+    }
+    if (componentN === 2) {
+      return [this.__max._v[0], this.__max._v[1]];
+    }
+    return [this.__max._v[0]];
   }
 
   /**
@@ -1654,9 +1656,8 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
       const actualByteStride =
         this.__compositionType.getNumberOfComponents() * this.__componentType.getSizeInBytes() * this.__arrayLength;
       return actualByteStride;
-    } else {
-      return this.__byteStride;
     }
+    return this.__byteStride;
   }
 
   /**

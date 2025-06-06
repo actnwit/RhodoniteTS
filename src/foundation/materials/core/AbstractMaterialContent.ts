@@ -1,39 +1,39 @@
-import { RnObject } from '../../core/RnObject';
-import { ShaderSemanticsEnum, ShaderSemanticsName } from '../../definitions/ShaderSemantics';
-import { CompositionTypeEnum } from '../../definitions/CompositionType';
-import { ComponentTypeEnum } from '../../definitions/ComponentType';
-import { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
-import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
-import type { Matrix44 } from '../../math/Matrix44';
+import ShaderityModule, { type ShaderityObject } from 'shaderity';
 import { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
-import { Config } from '../../core/Config';
+import { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
+import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
+import type { RnXR } from '../../../xr/main';
+import type { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
+import type { CameraComponent } from '../../components/Camera/CameraComponent';
+import type { LightComponent } from '../../components/Light/LightComponent';
+import type { MeshComponent } from '../../components/Mesh/MeshComponent';
 import type { SkeletalComponent } from '../../components/Skeletal/SkeletalComponent';
-import type { Material } from './Material';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { Config } from '../../core/Config';
+import { RnObject } from '../../core/RnObject';
+import { BoneDataType } from '../../definitions/BoneDataType';
+import { ComponentTypeEnum } from '../../definitions/ComponentType';
+import { CompositionTypeEnum } from '../../definitions/CompositionType';
+import { ProcessApproach } from '../../definitions/ProcessApproach';
+import { ShaderSemanticsEnum, ShaderSemanticsName } from '../../definitions/ShaderSemantics';
+import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { ShaderType, type ShaderTypeEnum } from '../../definitions/ShaderType';
+import { VertexAttribute, VertexAttributeEnum } from '../../definitions/VertexAttribute';
+import type { Attributes, Primitive } from '../../geometry/Primitive';
+import type { IMatrix33 } from '../../math/IMatrix';
+import type { IVector3 } from '../../math/IVector';
+import type { Matrix44 } from '../../math/Matrix44';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { MutableVector2 } from '../../math/MutableVector2';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { Vector3 } from '../../math/Vector3';
-import { MutableMatrix44 } from '../../math/MutableMatrix44';
-import type { MeshComponent } from '../../components/Mesh/MeshComponent';
-import type { Primitive, Attributes } from '../../geometry/Primitive';
 import type { Accessor } from '../../memory/Accessor';
-import { VertexAttribute, VertexAttributeEnum } from '../../definitions/VertexAttribute';
-import type { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
-import { ProcessApproach } from '../../definitions/ProcessApproach';
-import ShaderityModule, { type ShaderityObject } from 'shaderity';
-import { BoneDataType } from '../../definitions/BoneDataType';
-import { SystemState } from '../../system/SystemState';
-import { type ShaderTypeEnum, ShaderType } from '../../definitions/ShaderType';
-import type { IVector3 } from '../../math/IVector';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import { ModuleManager } from '../../system/ModuleManager';
-import type { RnXR } from '../../../xr/main';
-import type { LightComponent } from '../../components/Light/LightComponent';
-import type { IMatrix33 } from '../../math/IMatrix';
-import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
-import { ComponentRepository } from '../../core/ComponentRepository';
-import type { CameraComponent } from '../../components/Camera/CameraComponent';
-import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-import { ShaderityUtilityWebGPU } from './ShaderityUtilityWebGPU';
+import { SystemState } from '../../system/SystemState';
+import type { Material } from './Material';
 import { ShaderityUtilityWebGL } from './ShaderityUtilityWebGL';
+import { ShaderityUtilityWebGPU } from './ShaderityUtilityWebGPU';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 
@@ -129,7 +129,7 @@ export abstract class AbstractMaterialContent extends RnObject {
       semantics += `${semantic.semantic}_`; //${semantic.stage.index} ${semantic.componentType.index} ${semantic.compositionType.index} ${semantic.soloDatum} ${semantic.isInternalSetting} ${semantic.arrayLength} ${semantic.needUniformInDataTextureMode}\n`;
     }
 
-    this.__materialSemanticsVariantName = this.__materialName + '_semanticsVariation_' + semantics;
+    this.__materialSemanticsVariantName = `${this.__materialName}_semanticsVariation_${semantics}`;
   }
 
   /**
@@ -664,9 +664,8 @@ export abstract class AbstractMaterialContent extends RnObject {
       const foundShaderSemanticsInfo = shaderSemanticsInfoArray.find((vertexInfo: ShaderSemanticsInfo) => {
         if (vertexInfo.semantic === pixelShaderSemanticsInfo.semantic) {
           return true;
-        } else {
-          return false;
         }
+        return false;
       });
       if (foundShaderSemanticsInfo) {
         foundShaderSemanticsInfo.stage = ShaderType.VertexAndPixelShader;

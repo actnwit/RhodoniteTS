@@ -1,6 +1,6 @@
-import { Vector3 } from './Vector3';
-import type { IVector3 } from './IVector';
 import type { IColorRgb } from './IColor';
+import type { IVector3 } from './IVector';
+import { Vector3 } from './Vector3';
 
 /**
  * Represents an RGB color with red, green, and blue components.
@@ -14,15 +14,6 @@ import type { IColorRgb } from './IColor';
  * ```
  */
 export class ColorRgb extends Vector3 implements IVector3, IColorRgb {
-  /**
-   * Creates a new ColorRgb instance.
-   *
-   * @param r - A Float32Array containing the RGB values [red, green, blue]
-   */
-  constructor(r: Float32Array) {
-    super(r);
-  }
-
   /**
    * Gets the X component of the color (equivalent to red component).
    *

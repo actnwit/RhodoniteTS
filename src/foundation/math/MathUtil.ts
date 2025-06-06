@@ -1,6 +1,6 @@
+import type { Count, Size } from '../../types/CommonTypes';
 import type { MutableMatrix33 } from './MutableMatrix33';
 import type { MutableVector3 } from './MutableVector3';
-import type { Count, Size } from '../../types/CommonTypes';
 
 /**
  * Converts radians to degrees.
@@ -51,7 +51,7 @@ const toHalfFloat = (): ((val: number) => number) => {
       bits |= 0x7c00;
       /* If exponent was 0xff and one mantissa bit was set, it means NaN,
        * not Inf, so make sure we set one mantissa bit too. */
-      bits |= (e == 255 ? 0 : 1) && x & 0x007fffff;
+      bits |= (e === 255 ? 0 : 1) && x & 0x007fffff;
       return bits;
     }
 
@@ -78,7 +78,7 @@ const toHalfFloat = (): ((val: number) => number) => {
  * @returns True if the number is a power of two, false otherwise
  */
 function isPowerOfTwo(x: number): boolean {
-  return (x & (x - 1)) == 0;
+  return (x & (x - 1)) === 0;
 }
 
 /**
@@ -150,8 +150,8 @@ function erf(x: number): number {
  * @returns The inverse error function value for x
  */
 function invErf(x: number): number {
-  let w: number,
-    p = 0;
+  let w: number;
+  let p = 0;
   w = -Math.log((1.0 - x) * (1.0 + x));
   if (w < 5.0) {
     w = w - 2.5;
@@ -247,7 +247,7 @@ function computeEigenValuesAndVectors(A: MutableMatrix33, Q: MutableMatrix33, w:
     for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) so += Math.abs(A.at(p, q));
     }
-    if (so == 0.0) return 0;
+    if (so === 0.0) return 0;
 
     if (nIter < 4) thresh = (0.2 * so) / (n * n);
     else thresh = 0.0;
@@ -256,12 +256,12 @@ function computeEigenValuesAndVectors(A: MutableMatrix33, Q: MutableMatrix33, w:
     for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) {
         g = 100.0 * Math.abs(A.at(p, q));
-        if (nIter > 4 && Math.abs(w.at(p)) + g == Math.abs(w.at(p)) && Math.abs(w.at(q)) + g == Math.abs(w.at(q))) {
+        if (nIter > 4 && Math.abs(w.at(p)) + g === Math.abs(w.at(p)) && Math.abs(w.at(q)) + g === Math.abs(w.at(q))) {
           A.setAt(p, q, 0.0);
         } else if (Math.abs(A.at(p, q)) > thresh) {
           // Calculate Jacobi transformation
           h = w.at(q) - w.at(p);
-          if (Math.abs(h) + g == Math.abs(h)) {
+          if (Math.abs(h) + g === Math.abs(h)) {
             t = A.at(p, q) / h;
           } else {
             theta = (0.5 * h) / A.at(p, q);
@@ -314,9 +314,8 @@ function computeEigenValuesAndVectors(A: MutableMatrix33, Q: MutableMatrix33, w:
 function convertToStringAsGLSLFloat(value: number): string {
   if (Number.isInteger(value)) {
     return `${value}.0`;
-  } else {
-    return '' + value;
   }
+  return `${value}`;
 }
 
 /**
@@ -345,7 +344,7 @@ function nearZeroToZero(value: number): number {
 function financial(val: number | string): string {
   const fixedStr = Number.parseFloat(val as string).toFixed(7);
   if ((val as number) >= 0) {
-    return ' ' + fixedStr;
+    return ` ${fixedStr}`;
   }
   return fixedStr;
 }
@@ -417,7 +416,7 @@ function computeGaussianDistributionRatioWhoseSumIsOne({
 
   const gaussianDistributionRatioWhoseSumIsOne = new Array(kernelSize);
   let totalRatio = 0;
-  const changeDigitParam = Math.pow(10, effectiveDigit);
+  const changeDigitParam = 10 ** effectiveDigit;
 
   for (let i = 0; i < ceiledHalfKernelSize - 1; i++) {
     let ratio = gaussianDistributionRatio[ceiledHalfKernelSize - 1 - i] / totalSize;

@@ -1,10 +1,10 @@
-import { Quaternion } from './Quaternion';
-import type { IVector3, IVector4 } from './IVector';
 import { type Array4, TypedArray } from '../../types/CommonTypes';
-import type { IMutableQuaternion, ILogQuaternion, IQuaternion } from './IQuaternion';
-import type { IMatrix44 } from './IMatrix';
-import { MutableMatrix44 } from './MutableMatrix44';
 import { Logger } from '../misc/Logger';
+import type { IMatrix44 } from './IMatrix';
+import type { ILogQuaternion, IMutableQuaternion, IQuaternion } from './IQuaternion';
+import type { IVector3, IVector4 } from './IVector';
+import { MutableMatrix44 } from './MutableMatrix44';
+import { Quaternion } from './Quaternion';
 
 /**
  * A mutable quaternion class that extends the immutable Quaternion class.
@@ -13,14 +13,6 @@ import { Logger } from '../misc/Logger';
  * useful for avoiding gimbal lock and providing smooth interpolations.
  */
 export class MutableQuaternion extends Quaternion implements IMutableQuaternion {
-  /**
-   * Creates a new MutableQuaternion instance.
-   * @param x - Float32Array containing the quaternion components [x, y, z, w]
-   */
-  constructor(x: Float32Array) {
-    super(x);
-  }
-
   /**
    * Sets the x component of the quaternion.
    * @param x - The x component value
@@ -313,33 +305,32 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
 
     if (ss === 0.0) {
       return this.copyComponents(l_quat);
-    } else {
-      if (qr > 1) {
-        qr = 0.999;
-      } else if (qr < -1) {
-        qr = -0.999;
-      }
-
-      let ph = Math.acos(qr);
-      let s2;
-      if (qr < 0.0 && ph > Math.PI / 2.0) {
-        qr =
-          -l_quat._v[3] * r_quat._v[3] -
-          l_quat._v[0] * r_quat._v[0] -
-          l_quat._v[1] * r_quat._v[1] -
-          l_quat._v[2] * r_quat._v[2];
-        ph = Math.acos(qr);
-        s2 = (-1 * Math.sin(ph * ratio)) / Math.sin(ph);
-      } else {
-        s2 = Math.sin(ph * ratio) / Math.sin(ph);
-      }
-      const s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);
-
-      this._v[0] = l_quat._v[0] * s1 + r_quat._v[0] * s2;
-      this._v[1] = l_quat._v[1] * s1 + r_quat._v[1] * s2;
-      this._v[2] = l_quat._v[2] * s1 + r_quat._v[2] * s2;
-      this._v[3] = l_quat._v[3] * s1 + r_quat._v[3] * s2;
     }
+    if (qr > 1) {
+      qr = 0.999;
+    } else if (qr < -1) {
+      qr = -0.999;
+    }
+
+    let ph = Math.acos(qr);
+    let s2;
+    if (qr < 0.0 && ph > Math.PI / 2.0) {
+      qr =
+        -l_quat._v[3] * r_quat._v[3] -
+        l_quat._v[0] * r_quat._v[0] -
+        l_quat._v[1] * r_quat._v[1] -
+        l_quat._v[2] * r_quat._v[2];
+      ph = Math.acos(qr);
+      s2 = (-1 * Math.sin(ph * ratio)) / Math.sin(ph);
+    } else {
+      s2 = Math.sin(ph * ratio) / Math.sin(ph);
+    }
+    const s1 = Math.sin(ph * (1.0 - ratio)) / Math.sin(ph);
+
+    this._v[0] = l_quat._v[0] * s1 + r_quat._v[0] * s2;
+    this._v[1] = l_quat._v[1] * s1 + r_quat._v[1] * s2;
+    this._v[2] = l_quat._v[2] * s1 + r_quat._v[2] * s2;
+    this._v[3] = l_quat._v[3] * s1 + r_quat._v[3] * s2;
 
     return this;
   }

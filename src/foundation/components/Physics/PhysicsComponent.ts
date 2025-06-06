@@ -1,14 +1,14 @@
+import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
-import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
-import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
-import { ProcessStage } from '../../definitions/ProcessStage';
-import type { ComponentTID, ComponentSID, EntityUID } from '../../../types/CommonTypes';
-import type { PhysicsStrategy } from '../../physics/PhysicsStrategy';
 import type { IEntity } from '../../core/Entity';
-import type { ComponentToComponentMethods } from '../ComponentTypes';
-import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
+import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { ProcessStage } from '../../definitions/ProcessStage';
 import { IPhysicsEntity } from '../../helpers/EntityHelper';
+import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
+import type { PhysicsStrategy } from '../../physics/PhysicsStrategy';
+import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { createGroupEntity } from '../SceneGraph/createGroupEntity';
+import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 /**
  * PhysicsComponent is a component that manages the physics simulation for an entity.
@@ -107,16 +107,6 @@ export class PhysicsComponent extends Component {
     _componentClass: SomeComponentClass
   ) {
     class PhysicsEntity extends (base.constructor as any) {
-      /**
-       * Creates a new PhysicsEntity instance.
-       * @param entityUID - The unique identifier for this entity
-       * @param isAlive - Whether the entity is currently active
-       * @param components - Optional map of existing components
-       */
-      constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
-        super(entityUID, isAlive, components);
-      }
-
       /**
        * Gets the physics component attached to this entity.
        * @returns The PhysicsComponent instance for this entity

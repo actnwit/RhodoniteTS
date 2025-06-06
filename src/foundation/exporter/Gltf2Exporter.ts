@@ -1,46 +1,52 @@
-import { EntityRepository } from '../core/EntityRepository';
-import { ShaderSemantics } from '../definitions/ShaderSemantics';
-import type { AbstractTexture } from '../textures/AbstractTexture';
-import { Is } from '../misc/Is';
+import type { AnimationChannel, AnimationPathName, AnimationSampler } from '../../types/AnimationTypes';
+import type { Array1to4, Byte, Count, Index, VectorAndSquareMatrixComponentN } from '../../types/CommonTypes';
+import { GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER } from '../../types/WebGLConstants';
 import {
   type Gltf2,
   type Gltf2AccessorCompositionTypeString,
   type Gltf2Animation,
   type Gltf2AnimationChannel,
-  type Gltf2AnimationSampler,
-  type Gltf2Mesh,
-  type Gltf2Primitive,
   type Gltf2AnimationPathName,
-  type Gltf2Skin,
-  type Gltf2Image,
-  type Gltf2TextureSampler,
-  isSameGlTF2TextureSampler,
-  type Gltf2Texture,
+  type Gltf2AnimationSampler,
   type Gltf2AttributeBlendShapes,
   type Gltf2Attributes,
   type Gltf2Camera,
+  type Gltf2Image,
+  type Gltf2Mesh,
+  type Gltf2Primitive,
+  type Gltf2Skin,
+  type Gltf2Texture,
+  type Gltf2TextureSampler,
+  isSameGlTF2TextureSampler,
 } from '../../types/glTF2';
+import type {
+  Gltf2AccessorEx,
+  Gltf2BufferViewEx,
+  Gltf2Ex,
+  Gltf2ImageEx,
+  Gltf2MaterialEx,
+} from '../../types/glTF2ForOutput';
+import { VERSION } from '../../version';
+import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
+import { EntityRepository } from '../core/EntityRepository';
+import type { Tag } from '../core/RnObject';
+import { CameraType, type ComponentTypeEnum, type CompositionTypeEnum, TextureParameter } from '../definitions';
 import { ComponentType, type Gltf2AccessorComponentType } from '../definitions/ComponentType';
-import type { Gltf2AccessorEx, Gltf2BufferViewEx, Gltf2Ex, Gltf2ImageEx, Gltf2MaterialEx } from '../../types/glTF2ForOutput';
+import { CompositionType } from '../definitions/CompositionType';
+import { ShaderSemantics } from '../definitions/ShaderSemantics';
+import type { Primitive } from '../geometry';
+import type { IAnimationEntity, IMeshEntity, ISceneGraphEntity, ISkeletalEntity } from '../helpers/EntityHelper';
+import { MathUtil } from '../math/MathUtil';
+import { Vector4 } from '../math/Vector4';
+import type { Accessor } from '../memory/Accessor';
+import type { Buffer } from '../memory/Buffer';
 import type { BufferView } from '../memory/BufferView';
 import { DataUtil } from '../misc/DataUtil';
-import type { Accessor } from '../memory/Accessor';
-import type { Array1to4, Byte, Count, Index, VectorAndSquareMatrixComponentN } from '../../types/CommonTypes';
-import type { Buffer } from '../memory/Buffer';
-import { GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER } from '../../types/WebGLConstants';
-import type { AnimationChannel, AnimationPathName, AnimationSampler } from '../../types/AnimationTypes';
-import { CompositionType } from '../definitions/CompositionType';
-import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import type { IAnimationEntity, ISceneGraphEntity, IMeshEntity, ISkeletalEntity } from '../helpers/EntityHelper';
-import { createEffekseer } from './Gltf2ExporterEffekseer';
-import { Vector4 } from '../math/Vector4';
-import type { Tag } from '../core/RnObject';
-import type { Primitive } from '../geometry';
-import { CameraType, type ComponentTypeEnum, type CompositionTypeEnum, TextureParameter } from '../definitions';
-import { MathUtil } from '../math/MathUtil';
-import { VERSION } from '../../version';
-import type { Texture } from '../textures/Texture';
+import { Is } from '../misc/Is';
+import type { AbstractTexture } from '../textures/AbstractTexture';
 import type { Sampler } from '../textures/Sampler';
+import type { Texture } from '../textures/Texture';
+import { createEffekseer } from './Gltf2ExporterEffekseer';
 import { createAndAddGltf2BufferView } from './Gltf2ExporterOps';
 
 export const GLTF2_EXPORT_GLTF = 'glTF';
@@ -143,36 +149,36 @@ export class Gltf2Exporter {
    */
   private static __deleteEmptyArrays(json: Gltf2Ex) {
     if (json.accessors.length === 0) {
-      delete (json as Gltf2).accessors;
+      (json as Gltf2).accessors = undefined;
     }
     if (json.bufferViews.length === 0) {
-      delete (json as Gltf2).bufferViews;
+      (json as Gltf2).bufferViews = undefined;
     }
     if (json.materials.length === 0) {
-      delete (json as Gltf2).materials;
+      (json as Gltf2).materials = undefined;
     }
     if (json.meshes.length === 0) {
-      delete (json as Gltf2).meshes;
+      (json as Gltf2).meshes = undefined;
     }
     if (json.skins.length === 0) {
-      delete (json as Gltf2).skins;
+      (json as Gltf2).skins = undefined;
     }
     if (json.textures.length === 0) {
-      delete (json as Gltf2).textures;
+      (json as Gltf2).textures = undefined;
     }
     if (json.images.length === 0) {
-      delete (json as Gltf2).images;
+      (json as Gltf2).images = undefined;
     }
     if (json.animations.length === 0) {
-      delete (json as Gltf2).animations;
+      (json as Gltf2).animations = undefined;
     }
     if (Is.exist(json.extensionsUsed) && json.extensionsUsed.length === 0) {
-      delete (json as Gltf2).extensionsUsed;
+      (json as Gltf2).extensionsUsed = undefined;
     }
     if (json.cameras.length === 0) {
-      delete (json as Gltf2).cameras;
+      (json as Gltf2).cameras = undefined;
     }
-    delete (json as Gltf2).extras;
+    (json as Gltf2).extras = undefined;
   }
 
   /**
@@ -218,9 +224,8 @@ export class Gltf2Exporter {
           Array.prototype.push.apply(array, collectDescendants(child.entity, false));
         }
         return array;
-      } else {
-        return root ? [] : excludeWithTags(entity);
       }
+      return root ? [] : excludeWithTags(entity);
     };
     if (Is.exist(option) && Is.exist(option.entities) && option.entities.length > 0) {
       const collectedDescendants = option.entities.flatMap(entity => collectDescendants(entity, true));
@@ -263,13 +268,13 @@ export class Gltf2Exporter {
    * @returns Object containing the initialized JSON structure and processed filename
    */
   private static __createJsonBase(filename: string) {
-    const fileName = filename ? filename : 'Rhodonite_' + new Date().getTime();
+    const fileName = filename ? filename : `Rhodonite_${new Date().getTime()}`;
     const json: Gltf2Ex = {
       asset: {
         version: '2.0',
         generator: `Rhodonite (${VERSION.version})`,
       },
-      buffers: [{ uri: fileName + '.bin', byteLength: 0 }],
+      buffers: [{ uri: `${fileName}.bin`, byteLength: 0 }],
       bufferViews: [],
       accessors: [],
       animations: [],
@@ -495,7 +500,7 @@ export class Gltf2Exporter {
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
       const meshComponent = entity.tryToGetMesh();
-      if (meshComponent && meshComponent.mesh) {
+      if (meshComponent?.mesh) {
         const gltf2Mesh = json.meshes![countMesh++];
         const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
         for (let j = 0; j < primitiveCount; j++) {
@@ -575,7 +580,7 @@ export class Gltf2Exporter {
                   glTF2ImageEx.rnTextureUID = rnTexture.textureUID;
 
                   if (existedImages.indexOf(rnTexture.name) !== -1) {
-                    glTF2ImageEx.uri += '_' + rnTexture.textureUID;
+                    glTF2ImageEx.uri += `_${rnTexture.textureUID}`;
                   }
 
                   existedImages.push(glTF2ImageEx.uri!);
@@ -725,7 +730,7 @@ export class Gltf2Exporter {
     for (let i = 0; i < json.bufferViews.length; i++) {
       const bufferView = json.bufferViews[i];
       const uint8ArrayOfBufferView = bufferView.extras!.uint8Array!;
-      delete (bufferView as unknown as Gltf2).extras;
+      (bufferView as unknown as Gltf2).extras = undefined;
 
       const distByteOffset = lastCopiedByteLengthOfBufferView;
       DataUtil.copyArrayBufferWithPadding({
@@ -756,7 +761,7 @@ export class Gltf2Exporter {
   static __downloadGlb(json: Gltf2, filename: string, arraybuffer: ArrayBuffer): void {
     {
       const a = document.createElement('a');
-      a.download = filename + '.glb';
+      a.download = `${filename}.glb`;
       const blob = new Blob([arraybuffer], { type: 'octet/stream' });
       const url = URL.createObjectURL(blob);
       a.href = url;
@@ -789,9 +794,9 @@ export class Gltf2Exporter {
       // .gltf file
       const a = document.createElement('a');
 
-      a.download = filename + '.gltf';
+      a.download = `${filename}.gltf`;
       const str = JSON.stringify(json, null, 2);
-      a.href = 'data:application/octet-stream,' + encodeURIComponent(str);
+      a.href = `data:application/octet-stream,${encodeURIComponent(str)}`;
 
       const e = new MouseEvent('click');
       a.dispatchEvent(e);
@@ -799,7 +804,7 @@ export class Gltf2Exporter {
     {
       // .bin file
       const a = document.createElement('a');
-      a.download = filename + '.bin';
+      a.download = `${filename}.bin`;
       const blob = new Blob([arraybuffer], { type: 'octet/stream' });
       const url = URL.createObjectURL(blob);
       a.href = url;
@@ -824,7 +829,7 @@ function generateGlbArrayBuffer(json: Gltf2, arraybuffer: ArrayBuffer) {
   const headerBytes = 12; // 12byte-header
 
   // .glb file
-  delete json.buffers![0].uri;
+  json.buffers![0].uri = undefined;
   let jsonStr = JSON.stringify(json, null, 2);
   let jsonArrayBuffer = DataUtil.stringToBuffer(jsonStr);
   const paddingBytes = DataUtil.calcPaddingBytes(jsonArrayBuffer.byteLength, 4);
@@ -1685,7 +1690,7 @@ async function handleTextureImage(
       );
       glTF2ImageEx.bufferView = json.bufferViews.indexOf(gltf2BufferView);
       glTF2ImageEx.mimeType = 'image/png';
-      delete glTF2ImageEx.uri;
+      glTF2ImageEx.uri = undefined;
       resolve();
     });
     reader.addEventListener('error', () => {

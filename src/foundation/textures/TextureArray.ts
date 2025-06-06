@@ -38,14 +38,6 @@ export class TextureArray extends AbstractTexture implements Disposable {
     });
 
   /**
-   * Creates a new TextureArray instance.
-   * The texture must be initialized using load1x1Texture() before use.
-   */
-  constructor() {
-    super();
-  }
-
-  /**
    * Sets the texture resource UID and registers the texture for automatic cleanup.
    * This method is called internally when a texture resource is created.
    *
