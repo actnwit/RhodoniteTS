@@ -484,18 +484,9 @@ export class VrmImporter {
    * @returns Promise resolving to the VRM JSON structure
    */
   static async importJsonOfVRM(uri: string, options?: GltfLoadOption): Promise<Vrm1> {
-    const promise = new Promise<Vrm1>(async (resolve, reject) => {
-      options = this._getOptions(options);
-
-      try {
-        const result = await Gltf2Importer.importFromUrl(uri, options);
-        VrmImporter._readVRMHumanoidInfo(result as Vrm1);
-        resolve(result as Vrm1);
-      } catch (error) {
-        reject(error);
-      }
-    });
-
-    return promise;
+    options = this._getOptions(options);
+    const result = await Gltf2Importer.importFromUrl(uri, options);
+    VrmImporter._readVRMHumanoidInfo(result as Vrm1);
+    return result as Vrm1;
   }
 }

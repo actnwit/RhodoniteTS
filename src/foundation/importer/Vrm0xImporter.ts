@@ -89,19 +89,10 @@ export class Vrm0xImporter {
    * @returns A promise that resolves to the VRM JSON data structure
    */
   static async importJsonOfVRM(uri: string, options?: GltfLoadOption): Promise<Vrm0x> {
-    const promise = new Promise<Vrm0x>(async (resolve, reject) => {
-      options = this._getOptions(options);
-
-      try {
-        const result = await Gltf2Importer.importFromUrl(uri, options);
-        Vrm0xImporter._readVRMHumanoidInfo(result as Vrm0x);
-        resolve(result as Vrm0x);
-      } catch (error) {
-        reject(error);
-      }
-    });
-
-    return promise;
+    options = this._getOptions(options);
+    const result = await Gltf2Importer.importFromUrl(uri, options);
+    Vrm0xImporter._readVRMHumanoidInfo(result as Vrm0x);
+    return result as Vrm0x;
   }
 
   /**
