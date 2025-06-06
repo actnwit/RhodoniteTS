@@ -830,7 +830,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
 
     return {
       vaoHandle: -1,
-      iboHandle: iboHandle,
+      iboHandle: iboHandle!,
       vboHandles: vboHandles,
       attributesFlags: attributesFlags,
       setComplete: false,

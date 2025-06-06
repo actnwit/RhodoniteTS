@@ -73,15 +73,6 @@ function createEntityMainCamera() {
   return entityCamera;
 }
 
-function createEntityPostEffectCamera() {
-  const entityCamera = Rn.createCameraEntity();
-  const cameraComponent = entityCamera.getCamera();
-  cameraComponent.zNearInner = 0.5;
-  cameraComponent.zFarInner = 2.0;
-
-  return entityCamera;
-}
-
 async function createRenderPassMain(uriGltf: string, entityCamera: Rn.ICameraEntity) {
   const entityEnvironmentCube = await createEntityEnvironmentCube();
   const entityRootGroup = await createEntityGltf2(uriGltf);

@@ -111,26 +111,3 @@ async function setIBL() {
     await meshRendererComponent.setIBLCubeMap(assets.diffuse, assets.specular);
   }
 }
-
-function setTextureParameterForMeshComponents(
-  meshComponents: Rn.MeshComponent[],
-  shaderSemantic: string,
-  value: Rn.RenderTargetTexture
-) {
-  const sampler = new Rn.Sampler({
-    wrapS: Rn.TextureParameter.ClampToEdge,
-    wrapT: Rn.TextureParameter.ClampToEdge,
-    minFilter: Rn.TextureParameter.Linear,
-    magFilter: Rn.TextureParameter.Linear,
-  });
-  for (let i = 0; i < meshComponents.length; i++) {
-    const mesh = meshComponents[i].mesh;
-    if (!mesh) continue;
-
-    const primitiveNumber = mesh.getPrimitiveNumber();
-    for (let j = 0; j < primitiveNumber; j++) {
-      const primitive = mesh.getPrimitiveAt(j);
-      primitive.material.setTextureParameter(shaderSemantic, value, sampler);
-    }
-  }
-}

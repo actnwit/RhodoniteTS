@@ -481,7 +481,7 @@ export class Primitive extends RnObject {
       attributeMap.set(attributeSemantic, attributeAccessors[i]);
     }
 
-    this.setData(attributeMap, primitiveMode, material, indicesAccessor);
+    this.setData(attributeMap, primitiveMode, material, indicesAccessor!);
   }
 
   /**

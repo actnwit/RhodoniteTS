@@ -55,16 +55,6 @@ function createEntityDepthCamera() {
   return entityCamera;
 }
 
-function createEntityPostEffectCamera() {
-  const entityCamera = Rn.createCameraEntity();
-
-  const cameraComponent = entityCamera.getCamera();
-  cameraComponent.zNearInner = 0.5;
-  cameraComponent.zFarInner = 2.0;
-
-  return entityCamera;
-}
-
 function createRenderPassDepthEncode(cameraComponent: Rn.CameraComponent, entitiesTarget: Rn.ISceneGraphEntity[]) {
   const renderPass = new Rn.RenderPass();
   renderPass.toClearColorBuffer = true;

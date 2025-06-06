@@ -106,50 +106,6 @@ Rn.System.startRenderLoop(() => {
   count++;
 });
 
-async function createEnvCubeExpression(baseuri) {
-  const environmentCubeTexture = new Rn.CubeTexture();
-  await environmentCubeTexture.loadTextureImages({
-    baseUrl: `${baseuri}/environment/environment`,
-    mipmapLevelNumber: 1,
-    isNamePosNeg: true,
-    hdriFormat: Rn.HdriFormat.LDR_SRGB,
-  });
-
-  const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
-  const sampler = new Rn.Sampler({
-    wrapS: Rn.TextureParameter.ClampToEdge,
-    wrapT: Rn.TextureParameter.ClampToEdge,
-    minFilter: Rn.TextureParameter.LinearMipmapLinear,
-    magFilter: Rn.TextureParameter.Linear,
-  });
-  sphereMaterial.setTextureParameter('colorEnvTexture', environmentCubeTexture, sampler);
-
-  const spherePrimitive = new Rn.Sphere();
-  spherePrimitive.generate({
-    radius: 50,
-    widthSegments: 40,
-    heightSegments: 40,
-    material: sphereMaterial,
-  });
-
-  const sphereMesh = new Rn.Mesh();
-  sphereMesh.addPrimitive(spherePrimitive);
-
-  const sphereEntity = Rn.createMeshEntity();
-  sphereEntity.getTransform().localScale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
-
-  const sphereMeshComponent = sphereEntity.getMesh();
-  sphereMeshComponent.setMesh(sphereMesh);
-
-  const sphereRenderPass = new Rn.RenderPass();
-  sphereRenderPass.addEntities([sphereEntity]);
-
-  const sphereExpression = new Rn.Expression();
-  sphereExpression.addRenderPasses([sphereRenderPass]);
-
-  return sphereExpression;
-}
-
 async function setIBL() {
   const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
     Rn.MeshRendererComponent

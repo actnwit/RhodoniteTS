@@ -122,7 +122,7 @@ export class DrcPointCloudImporter {
     const isLittleEndian = true;
     // Magic field
     const magic = dataView.getUint32(0, isLittleEndian);
-    let result: RnM2 | undefined;
+    let result: any;
     // 0x46546C67 is 'glTF' in ASCII codes.
     if (magic !== 0x46546c67) {
       //const json = await response.json();

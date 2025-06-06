@@ -78,7 +78,7 @@ const renderPass = new Rn.RenderPass();
 expression.addRenderPasses([renderPass]);
 renderPass.addEntities(entities);
 
-const lightEntity = Rn.createLightEntity();
+Rn.createLightEntity();
 
 // Camera
 const cameraEntity = Rn.createCameraControllerEntity();
@@ -97,7 +97,6 @@ const controller = cameraControllerComponent.controller as Rn.OrbitCameraControl
 controller.setTarget(ground);
 
 Rn.CameraComponent.current = 0;
-const startTime = Date.now();
 let count = 0;
 
 Rn.System.startRenderLoop(() => {
