@@ -307,7 +307,7 @@ export abstract class AbstractTexture extends RnObject {
    * Uses existing canvas element if available, otherwise creates a new one.
    */
   createInternalCanvasContext() {
-    let canvas;
+    let canvas: HTMLCanvasElement;
     if (this.__htmlCanvasElement != null) {
       canvas = this.__htmlCanvasElement;
     } else {

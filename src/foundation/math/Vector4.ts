@@ -429,10 +429,10 @@ export class Vector4_<T extends FloatTypedArrayConstructor> extends AbstractVect
    * @static
    */
   static _divide(vec: IVector4, value: number, type: FloatTypedArrayConstructor) {
-    let x;
-    let y;
-    let z;
-    let w;
+    let x: number;
+    let y: number;
+    let z: number;
+    let w: number;
     if (value !== 0) {
       x = vec._v[0] / value;
       y = vec._v[1] / value;
@@ -486,10 +486,10 @@ export class Vector4_<T extends FloatTypedArrayConstructor> extends AbstractVect
    * @static
    */
   static _divideVector(l_vec: IVector4, r_vec: IVector4, type: FloatTypedArrayConstructor) {
-    let x;
-    let y;
-    let z;
-    let w;
+    let x: number;
+    let y: number;
+    let z: number;
+    let w: number;
     if (r_vec._v[0] !== 0 && r_vec._v[1] !== 0 && r_vec._v[2] !== 0 && r_vec._v[3] !== 0) {
       x = l_vec._v[0] / r_vec._v[0];
       y = l_vec._v[1] / r_vec._v[1];

@@ -38,7 +38,7 @@ export class DataUtil {
   static btoa(str: string) {
     const isNode = DataUtil.isNode();
     if (isNode) {
-      let buffer;
+      let buffer: Buffer;
       if (Buffer.isBuffer(str)) {
         buffer = str;
       } else {

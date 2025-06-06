@@ -333,9 +333,9 @@ export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVect
    * @throws Error if division by zero occurs
    */
   static _divide(vec: IVector3, value: number, type: FloatTypedArrayConstructor) {
-    let x;
-    let y;
-    let z;
+    let x: number;
+    let y: number;
+    let z: number;
     if (value !== 0) {
       x = vec._v[0] / value;
       y = vec._v[1] / value;
@@ -380,9 +380,9 @@ export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVect
    * @throws Error if division by zero occurs
    */
   static _divideVector(l_vec: IVector3, r_vec: IVector3, type: FloatTypedArrayConstructor) {
-    let x;
-    let y;
-    let z;
+    let x: number;
+    let y: number;
+    let z: number;
     if (r_vec._v[0] !== 0 && r_vec._v[1] !== 0 && r_vec._v[2] !== 0) {
       x = l_vec._v[0] / r_vec._v[0];
       y = l_vec._v[1] / r_vec._v[1];

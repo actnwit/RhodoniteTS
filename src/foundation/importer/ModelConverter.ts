@@ -93,6 +93,7 @@ import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import type { RenderPass } from '../renderer/RenderPass';
 import { Sampler } from '../textures/Sampler';
 import { Texture } from '../textures/Texture';
 import { ILoaderExtension } from './ILoaderExtension';
@@ -1304,7 +1305,7 @@ export class ModelConverter {
         }
 
         // indices
-        let indicesRnAccessor;
+        let indicesRnAccessor: Accessor | undefined;
         const map: Map<VertexAttributeSemanticsJoinedString, Accessor> = new Map();
         if (primitive.extensions?.KHR_draco_mesh_compression) {
           indicesRnAccessor = this.__decodeDraco(primitive, rnBuffers, gltfModel, map);
@@ -1477,10 +1478,10 @@ export class ModelConverter {
       const makeOutputSrgb = this.__makeOutputSrgb(gltfModel);
 
       // outline
-      let renderPassOutline;
+      let renderPassOutline: RenderPass | undefined;
       if (Is.exist(VRMProperties?.rnExtension)) {
         const rnExtension = VRMProperties.rnExtension;
-        renderPassOutline = rnExtension.renderPassOutline;
+        renderPassOutline = rnExtension.renderPassOutline as RenderPass;
         renderPassOutline.isVrRendering = true;
         renderPassOutline.tryToSetUniqueName('VRM Outline RenderPass', true);
       }
@@ -1664,10 +1665,10 @@ export class ModelConverter {
       const makeOutputSrgb = this.__makeOutputSrgb(gltfModel);
 
       // outline
-      let renderPassOutline;
+      let renderPassOutline: RenderPass | undefined;
       if (Is.exist(VRMProperties?.rnExtension)) {
         const rnExtension = VRMProperties.rnExtension;
-        renderPassOutline = rnExtension.renderPassOutline;
+        renderPassOutline = rnExtension.renderPassOutline as RenderPass;
         renderPassOutline.isVrRendering = true;
         renderPassOutline.tryToSetUniqueName('VRM Outline RenderPass', true);
       }
@@ -2508,8 +2509,8 @@ export class ModelConverter {
     const buffer = new draco.DecoderBuffer();
     buffer.Init(new Int8Array(arrayBuffer), arrayBuffer.byteLength);
     const geometryType = decoder.GetEncodedGeometryType(buffer);
-    let dracoGeometry;
-    let decodingStatus;
+    let dracoGeometry: any;
+    let decodingStatus: any;
     if (geometryType === draco.TRIANGULAR_MESH) {
       dracoGeometry = new draco.Mesh();
       decodingStatus = decoder.DecodeBufferToMesh(buffer, dracoGeometry);
@@ -2543,7 +2544,7 @@ export class ModelConverter {
       return void 0;
     }
 
-    let indices;
+    let indices: Uint32Array | undefined;
 
     if (triangleStripDrawMode) {
       const stripsArray = new draco.DracoInt32Array();

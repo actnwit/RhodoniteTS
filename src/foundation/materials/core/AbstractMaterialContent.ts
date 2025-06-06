@@ -515,7 +515,7 @@ export abstract class AbstractMaterialContent extends RnObject {
       (shaderProgram as any).dataTextureMorphOffsetPosition,
       dataTextureMorphOffsetPositionOfTargets
     );
-    let weights;
+    let weights: Float32Array | number[];
     if (blendShapeComponent!.weights.length > 0) {
       weights = blendShapeComponent!.weights;
     } else {

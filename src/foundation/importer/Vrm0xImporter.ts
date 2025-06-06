@@ -59,7 +59,7 @@ export class Vrm0xImporter {
     Vrm0xImporter._initializeMaterialProperties(gltfModel, textures.length);
 
     // setup rootGroup
-    let rootGroups;
+    let rootGroups: ISceneGraphEntity[];
     const rootGroupMain = await ModelConverter.convertToRhodoniteObject(gltfModel!);
 
     const existOutline = Vrm0xImporter._existOutlineMaterial(gltfModel.extensions.VRM);
@@ -117,7 +117,7 @@ export class Vrm0xImporter {
     this._initializeMaterialProperties(gltfModel, textures.length);
 
     // get rootGroup
-    let rootGroup;
+    let rootGroup: ISceneGraphEntity;
     const existOutline = this._existOutlineMaterial(gltfModel.extensions.VRM);
     if (existOutline) {
       renderPasses[1] = renderPasses[1] ?? new RenderPass();

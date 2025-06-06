@@ -811,7 +811,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @returns Object containing buffer handles and attribute flags
    */
   createVertexBufferAndIndexBuffer(primitive: Primitive): VertexHandles {
-    let iboHandle;
+    let iboHandle: WebGPUResourceHandle;
     if (primitive.hasIndices()) {
       iboHandle = this.createIndexBuffer(primitive.indicesAccessor!);
     }

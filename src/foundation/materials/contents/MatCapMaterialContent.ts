@@ -38,7 +38,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
   constructor(materialName: string, isSkinning: boolean, uri?: string, texture?: AbstractTexture, sampler?: Sampler) {
     super(materialName, { isSkinning: isSkinning }, MatCapShaderVertex, MatCapShaderFragment);
 
-    let matCapTexture;
+    let matCapTexture: any;
     if (typeof uri === 'string') {
       matCapTexture = new Texture();
       (async (uri: string) => {

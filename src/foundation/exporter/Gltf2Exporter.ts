@@ -621,7 +621,7 @@ export class Gltf2Exporter {
             };
 
             let textureParam = rnMaterial.getParameter('baseColorTexture');
-            let textureIndex;
+            let textureIndex: number | undefined;
             if (textureParam != null) {
               const rnTexture = textureParam[1] as Texture;
               const rnSampler = textureParam[2] as Sampler | undefined;

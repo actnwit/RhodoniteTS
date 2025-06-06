@@ -127,7 +127,7 @@ export class GaussianBlur {
       const resolutionWidthBlur = isReduceBuffer ? Math.max(maxResolutionWidth >> (i + 1), 1) : maxResolutionWidth;
       const resolutionHeightBlur = isReduceBuffer ? Math.max(maxResolutionHeight >> (i + 1), 1) : maxResolutionHeight;
 
-      let renderPassBlurH;
+      let renderPassBlurH: RenderPass;
       if (i === 0) {
         renderPassBlurH = this.__createRenderPassGaussianBlur(
           frameBufferToBlur,

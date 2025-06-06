@@ -811,7 +811,7 @@ const qlerp_offsetAsComposition_fn = function (
     let theta = Math.acos(dotProduct);
     const sinTheta = Math.sin(theta);
 
-    let s2;
+    let s2: number;
     if (dotProduct < 0.0) {
       dotProduct *= -1;
       theta = Math.acos(dotProduct);

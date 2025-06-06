@@ -307,7 +307,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   ) {
     const returnType = info.compositionType.getGlslStr(info.componentType);
 
-    let indexStr;
+    let indexStr: string;
 
     const isTexture = CompositionType.isTexture(info.compositionType);
 

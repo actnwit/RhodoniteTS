@@ -20,6 +20,8 @@ import { VectorN } from '../../math/VectorN';
 import { Logger } from '../../misc/Logger';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import type { RenderPass } from '../../renderer/RenderPass';
+import type { IRenderable } from '../../textures/IRenderable';
+import type { Texture } from '../../textures/Texture';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { dummyBlackTexture, dummyBlueTexture, dummyWhiteTexture } from '../core/DummyTextures';
 import type { Material } from '../core/Material';
@@ -115,7 +117,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
       encodedDepthRenderPass.setViewport(viewport);
     }
 
-    let depthTexture;
+    let depthTexture: IRenderable | Texture;
     const depthFramebuffer = encodedDepthRenderPasses[0].getFramebuffer();
     if (depthFramebuffer) {
       depthTexture = depthFramebuffer.colorAttachments[colorAttachmentsNumberDepth];
@@ -124,7 +126,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
       depthTexture = dummyBlackTexture;
     }
 
-    let squareDepthTexture;
+    let squareDepthTexture: IRenderable | Texture;
     const squareDepthFramebuffer = encodedDepthRenderPasses[1].getFramebuffer();
     if (squareDepthFramebuffer) {
       squareDepthTexture = squareDepthFramebuffer.colorAttachments[colorAttachmentsNumberSquareDepth];

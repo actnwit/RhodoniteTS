@@ -923,7 +923,7 @@ export class Gltf2Importer {
         const splitUri = imageFileStr.split('/');
         const filename = splitUri[splitUri.length - 1];
 
-        let imageUri;
+        let imageUri: string;
         if (files && this.__containsFileName(files, filename)) {
           const fullPath = this.__getFullPathOfFileName(files, filename);
           const arrayBuffer = files[fullPath!];

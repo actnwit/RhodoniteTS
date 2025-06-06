@@ -57,7 +57,7 @@ export class VrmImporter {
     const existOutline = this.__initializeMToonMaterialProperties(gltfModel, textures.length);
 
     // get rootGroup
-    let rootGroup;
+    let rootGroup: ISceneGraphEntity;
     if (existOutline) {
       renderPasses[1] = renderPasses[1] ?? new RenderPass();
       const renderPassOutline = renderPasses[1];

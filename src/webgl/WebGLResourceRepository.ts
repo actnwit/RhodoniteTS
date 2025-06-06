@@ -407,7 +407,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    * @returns VertexHandles object containing all created buffer handles and metadata
    */
   createVertexBufferAndIndexBuffer(primitive: Primitive): VertexHandles {
-    let iboHandle;
+    let iboHandle: WebGLResourceHandle;
     if (primitive.hasIndices()) {
       iboHandle = this.createIndexBuffer(primitive.indicesAccessor!);
     }

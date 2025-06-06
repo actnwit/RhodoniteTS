@@ -300,7 +300,7 @@ export class ShaderityUtilityWebGPU {
     binding: number,
     initialValueText: string
   ) {
-    let initialValue;
+    let initialValue: any;
     const sampler = new Sampler({
       magFilter: TextureParameter.Linear,
       minFilter: TextureParameter.Linear,
@@ -339,7 +339,7 @@ export class ShaderityUtilityWebGPU {
       }
     };
 
-    let initialValue;
+    let initialValue: any;
     if (tuple) {
       const text = tuple[1];
       const split = text.split(',');

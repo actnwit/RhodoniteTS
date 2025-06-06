@@ -117,7 +117,7 @@ export class WebGLStereoUtil {
    */
   private __attachShaderSource(source: string, type: number) {
     const gl = this.__gl;
-    let shader;
+    let shader: WebGLShader;
 
     switch (type) {
       case gl.VERTEX_SHADER:

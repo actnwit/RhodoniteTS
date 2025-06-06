@@ -153,7 +153,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     let theta = Math.acos(dotProduct);
     const sinTheta = Math.sin(theta);
 
-    let s2;
+    let s2: number;
     if (dotProduct < 0.0) {
       dotProduct *= -1;
       theta = Math.acos(dotProduct);
@@ -206,7 +206,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     let theta = Math.acos(dotProduct);
     const sinTheta = Math.sin(theta);
 
-    let s2;
+    let s2: number;
     if (dotProduct < 0.0) {
       dotProduct *= -1;
       theta = Math.acos(dotProduct);
@@ -835,10 +835,10 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
    * @returns A new quaternion with divided components, or Infinity components if division by zero
    */
   private static _divide(vec: IQuaternion, value: number) {
-    let x;
-    let y;
-    let z;
-    let w;
+    let x: number;
+    let y: number;
+    let z: number;
+    let w: number;
     if (value !== 0) {
       x = vec._v[0] / value;
       y = vec._v[1] / value;
@@ -862,10 +862,10 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
    * @returns The output quaternion with divided components
    */
   private static _divideTo(vec: IQuaternion, value: number, out: IMutableQuaternion) {
-    let x;
-    let y;
-    let z;
-    let w;
+    let x: number;
+    let y: number;
+    let z: number;
+    let w: number;
     if (value !== 0) {
       x = vec._v[0] / value;
       y = vec._v[1] / value;

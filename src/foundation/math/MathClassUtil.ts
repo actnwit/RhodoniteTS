@@ -473,7 +473,7 @@ export class MathClassUtil {
    * @returns Mutable mathematical object using the provided array as storage
    */
   static initWithFloat32Array(val: any, floatArray: Float32Array) {
-    let obj;
+    let obj: any;
     if (Number.isFinite(val)) {
       // number?
       const array = new Float32Array(floatArray);
@@ -540,7 +540,7 @@ export class MathClassUtil {
       }
       obj = new VectorN(floatArray);
     } else if (val == null) {
-      let vec;
+      let vec: any;
       switch (floatArray.length) {
         case 4:
           vec = Vector4.fromCopyFloat32Array(floatArray);

@@ -122,7 +122,7 @@ export class DrcPointCloudImporter {
     const isLittleEndian = true;
     // Magic field
     const magic = dataView.getUint32(0, isLittleEndian);
-    let result;
+    let result: RnM2 | undefined;
     // 0x46546C67 is 'glTF' in ASCII codes.
     if (magic !== 0x46546c67) {
       //const json = await response.json();
@@ -237,7 +237,12 @@ export class DrcPointCloudImporter {
    * @returns A Promise that resolves to the processed glTF JSON
    * @private
    */
-  async _loadAsTextJson(gltfJson: RnM2, options: GltfLoadOption, defaultOptions: GltfLoadOption, basePath: string) {
+  async _loadAsTextJson(
+    gltfJson: RnM2,
+    options: GltfLoadOption,
+    defaultOptions: GltfLoadOption,
+    basePath: string
+  ): Promise<RnM2> {
     if (gltfJson.asset.extras === undefined) {
       gltfJson.asset.extras = { fileType: 'glTF', version: '2' };
     }
@@ -1068,7 +1073,7 @@ export class DrcPointCloudImporter {
     for (let i = 0, indexOfBufferView = 0; i < attributeNames.length; indexOfBufferView++) {
       const numOfComponents = attributeComponents[i];
 
-      let type;
+      let type: string;
       if (numOfComponents === 1) {
         type = 'SCALAR';
       } else {
@@ -1227,8 +1232,8 @@ export class DrcPointCloudImporter {
     const buffer = new draco.DecoderBuffer();
     buffer.Init(new Int8Array(arrayBuffer), arrayBuffer.byteLength);
     const geometryType = decoder.GetEncodedGeometryType(buffer);
-    let dracoGeometry;
-    let decodingStatus;
+    let dracoGeometry: any;
+    let decodingStatus: any;
     if (geometryType === draco.TRIANGULAR_MESH) {
       dracoGeometry = new draco.Mesh();
       decodingStatus = decoder.DecodeBufferToMesh(buffer, dracoGeometry);

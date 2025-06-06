@@ -146,7 +146,7 @@ export class RnPromise<T> extends Promise<T> {
     onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null,
     onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null
   ): RnPromise<TResult1 | TResult2> {
-    let onFulfilledWrapper;
+    let onFulfilledWrapper: any;
     if (onfulfilled) {
       onFulfilledWrapper = (value: T | undefined) => {
         if (this.__callbackObj.promiseAllNum !== 0 && this.__callbackObj.processedPromises.indexOf(this) === -1) {

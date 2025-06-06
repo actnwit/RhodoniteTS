@@ -177,7 +177,7 @@ export class Bloom {
       const resolutionWidthBlur = Math.max(maxResolutionWidth >> (i + 1), 1);
       const resolutionHeightBlur = Math.max(maxResolutionHeight >> (i + 1), 1);
 
-      let renderPassBlurH;
+      let renderPassBlurH: RenderPass;
       if (i === 0) {
         renderPassBlurH = this.__createRenderPassGaussianBlur(
           renderPassHighLuminance,

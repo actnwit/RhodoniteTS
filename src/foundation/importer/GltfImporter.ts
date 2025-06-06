@@ -210,7 +210,7 @@ export class GltfImporter {
     const isLittleEndian = true;
     // Magic field
     const magic = dataView.getUint32(0, isLittleEndian);
-    let result;
+    let result: boolean;
     // The 0x46546C67 means 'glTF' string in glb files.
     if (magic === 0x46546c67) {
       return true;

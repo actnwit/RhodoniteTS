@@ -313,7 +313,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
     }
 
     let ph = Math.acos(qr);
-    let s2;
+    let s2: number;
     if (qr < 0.0 && ph > Math.PI / 2.0) {
       qr =
         -l_quat._v[3] * r_quat._v[3] -

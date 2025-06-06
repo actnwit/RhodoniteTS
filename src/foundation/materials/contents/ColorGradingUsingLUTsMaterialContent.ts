@@ -12,6 +12,7 @@ import { ShaderType } from '../../definitions/ShaderType';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import { Logger } from '../../misc/Logger';
 import type { RenderPass } from '../../renderer/RenderPass';
+import type { IRenderable } from '../../textures';
 import { AbstractTexture } from '../../textures/AbstractTexture';
 import { Sampler } from '../../textures/Sampler';
 import { Texture } from '../../textures/Texture';
@@ -55,7 +56,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
   ) {
     super(materialName, {}, ColorGradingUsingLUTsShaderVertex, ColorGradingUsingLUTsShaderFragment);
 
-    let targetTexture;
+    let targetTexture: IRenderable | Texture;
     const framebuffer = targetRenderPass.getFramebuffer();
     if (framebuffer != null && framebuffer.colorAttachments[colorAttachmentsNumber] != null) {
       targetTexture = framebuffer.colorAttachments[colorAttachmentsNumber];
@@ -68,7 +69,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
       }
     }
 
-    let lookupTableTexture;
+    let lookupTableTexture: any;
     if (typeof uri === 'string') {
       lookupTableTexture = new Texture();
       (async (uri: string) => {

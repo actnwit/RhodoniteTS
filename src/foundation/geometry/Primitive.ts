@@ -422,8 +422,8 @@ export class Primitive extends RnObject {
 
     const buffer = MemoryManager.getInstance().createBufferOnDemand(bufferSize, this, byteAlign);
 
-    let indicesComponentType;
-    let indicesAccessor;
+    let indicesComponentType: ComponentTypeEnum;
+    let indicesAccessor: Accessor;
     if (indices != null) {
       indicesComponentType = ComponentType.fromTypedArray(indices);
       const indicesBufferViewResult = buffer.takeBufferView({

@@ -65,7 +65,7 @@
         "noExplicitAny": "off",
         "noConfusingVoidType": "error",
         "noPrototypeBuiltins": "error",
-        "noImplicitAnyLet": "off",
+        "noImplicitAnyLet": "error",
         "noAsyncPromiseExecutor": "error",
         "noAssignInExpressions": "error",
         "noShadowRestrictedNames": "error",
