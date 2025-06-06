@@ -38,7 +38,7 @@
         "useExportType": "error",
         "useConst": "off",
         "noParameterAssign": "off",
-        "noCommaOperator": "off",
+        "noCommaOperator": "error",
         "noArguments": "off"
       },
       "complexity": {
@@ -55,7 +55,7 @@
       },
       "correctness": {
         "noUnusedVariables": "off",
-        "useExhaustiveDependencies": "off",
+        "useExhaustiveDependencies": "error",
         "noUnreachable": "error",
         "noConstantCondition": "error",
         "noInvalidUseBeforeDeclaration": "error"
