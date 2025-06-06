@@ -56,7 +56,7 @@
       "correctness": {
         "noUnusedVariables": "off",
         "useExhaustiveDependencies": "off",
-        "noUnreachable": "off",
+        "noUnreachable": "error",
         "noConstantCondition": "error",
         "noInvalidUseBeforeDeclaration": "error"
       },

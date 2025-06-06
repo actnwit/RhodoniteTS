@@ -951,12 +951,13 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     Logger.info(`MaterialTypeName: ${materialTypeName}`);
     const lineNumberedShaderText = MiscUtil.addLineNumberToCode(shaderText);
     Logger.info(lineNumberedShaderText);
+    let isOk = true;
     for (let i = 0; i < info.messages.length; i++) {
       Logger.info(info.messages[i].message);
-      return false;
+      isOk = false;
     }
 
-    return true;
+    return isOk;
   }
 
   /**
