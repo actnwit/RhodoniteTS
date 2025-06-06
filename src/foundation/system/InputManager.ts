@@ -63,7 +63,7 @@ declare global {
  */
 export function getEvent(type: 'start' | 'move' | 'end' | 'click'): string {
   if (typeof window === "undefined") {
-    throw new Error("THis function works in Browser environment")
+    throw new Error("This function works in Browser environment")
   }
   const deviceEvents = {
     Touch: typeof document.ontouchstart !== 'undefined',
