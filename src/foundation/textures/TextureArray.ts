@@ -30,7 +30,7 @@ export class TextureArray extends AbstractTexture implements Disposable {
    * This helps prevent memory leaks by automatically releasing GPU resources.
    */
   private static managedRegistry: FinalizationRegistry<FinalizationRegistryObject> =
-    new FinalizationRegistry<FinalizationRegistryObject>((texObj) => {
+    new FinalizationRegistry<FinalizationRegistryObject>(texObj => {
       Logger.info(
         `WebGL/WebGPU texture array "${texObj.uniqueName}" was automatically released along with GC. But explicit release is recommended.`
       );
@@ -108,9 +108,10 @@ export class TextureArray extends AbstractTexture implements Disposable {
     this.__setTextureResourceUid(resourceUid, this.uniqueName);
 
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      this._textureViewResourceUid = (
-        cgApiResourceRepository as WebGpuResourceRepository
-      ).createTextureView2dArray(this._textureResourceUid, Config.maxLightNumber);
+      this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2dArray(
+        this._textureResourceUid,
+        Config.maxLightNumber
+      );
     }
 
     this.__isTextureReady = true;

@@ -253,6 +253,6 @@ export class Logger {
    * ```
    */
   public static getAccumulatedLog(): string[] {
-    return this.__messages.map((log) => this.__formatLogs(log));
+    return this.__messages.map(log => this.__formatLogs(log));
   }
 }

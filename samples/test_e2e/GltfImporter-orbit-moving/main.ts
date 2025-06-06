@@ -50,7 +50,6 @@ const assets = await Rn.defaultAssetLoader.load({
   }),
 });
 
-
 // expressions
 const expressions = [];
 
@@ -84,11 +83,10 @@ assets.mainExpression.renderPasses[0].clearColor = Rn.Vector4.fromCopyArray([0, 
 const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial();
 gammaCorrectionMaterial.alphaMode = Rn.AlphaMode.Blend;
 
-const gammaCorrectionRenderPass =
-  Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
-    gammaCorrectionMaterial,
-    gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)
-  );
+const gammaCorrectionRenderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+  gammaCorrectionMaterial,
+  gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)
+);
 expressionPostEffect.addRenderPasses([gammaCorrectionRenderPass]);
 
 // cameraController

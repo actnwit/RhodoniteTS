@@ -21,10 +21,7 @@ export interface CompositionTypeEnum extends EnumIO {
   getVec4SizeOfProperty(): IndexOf16Bytes;
 }
 
-class CompositionTypeClass<TypeName extends string>
-  extends EnumClass
-  implements CompositionTypeEnum
-{
+class CompositionTypeClass<TypeName extends string> extends EnumClass implements CompositionTypeEnum {
   readonly __numberOfComponents: number;
   readonly __glslStr: string;
   readonly __hlslStr: string;
@@ -135,10 +132,7 @@ class CompositionTypeClass<TypeName extends string>
         } else if (this.__numberOfComponents === 9) {
           return glslType + '(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)';
         } else if (this.__numberOfComponents === 16) {
-          return (
-            glslType +
-            '(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)'
-          );
+          return glslType + '(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)';
         }
       }
     } else if (
@@ -201,10 +195,7 @@ class CompositionTypeClass<TypeName extends string>
         } else if (this.__numberOfComponents === 9) {
           return type + '(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)';
         } else if (this.__numberOfComponents === 16) {
-          return (
-            type +
-            '(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)'
-          );
+          return type + '(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)';
         }
       }
     } else if (
@@ -690,11 +681,7 @@ function toGltf2SquareMatrixAccessorCompositionTypeString(
   }
 }
 
-export type Gltf2AnimationAccessorCompositionType =
-  | typeof Scalar
-  | typeof Vec2
-  | typeof Vec3
-  | typeof Vec4;
+export type Gltf2AnimationAccessorCompositionType = typeof Scalar | typeof Vec2 | typeof Vec3 | typeof Vec4;
 
 export type Gltf2AccessorCompositionType =
   | typeof Scalar
@@ -705,9 +692,7 @@ export type Gltf2AccessorCompositionType =
   | typeof Mat3
   | typeof Mat4;
 
-function toGltf2AnimationAccessorCompositionType(
-  componentN: VectorComponentN
-): Gltf2AnimationAccessorCompositionType {
+function toGltf2AnimationAccessorCompositionType(componentN: VectorComponentN): Gltf2AnimationAccessorCompositionType {
   switch (componentN) {
     case 1:
       return Scalar;

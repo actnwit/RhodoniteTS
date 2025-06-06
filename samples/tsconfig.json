@@ -14,6 +14,7 @@
     "types": [
       "../node_modules/@webgpu/types/dist/index.d.ts",
       "../node_modules/@types/webgl-ext/index.d.ts",
-      "../node_modules/@types/webxr/index.d.ts"],
+      "../node_modules/@types/webxr/index.d.ts"
+    ]
   }
 }

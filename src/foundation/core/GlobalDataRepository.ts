@@ -405,10 +405,7 @@ export class GlobalDataRepository {
       const semanticInfo = globalPropertyStruct.shaderSemanticsInfo;
       const typedArray = globalPropertyStruct.accessor.takeOne() as Float32Array;
       const countIndex = globalPropertyStruct.values.length;
-      const valueObj = MathClassUtil.initWithFloat32Array(
-        semanticInfo.initialValue,
-        typedArray,
-      );
+      const valueObj = MathClassUtil.initWithFloat32Array(semanticInfo.initialValue, typedArray);
       globalPropertyStruct.values[countIndex] = valueObj;
       return valueObj;
     }
@@ -582,16 +579,10 @@ export class GlobalDataRepository {
   ) {
     this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct) => {
       const info = globalPropertyStruct.shaderSemanticsInfo;
-      if (
-        info!.stage === ShaderType.VertexShader ||
-        info!.stage === ShaderType.VertexAndPixelShader
-      ) {
+      if (info!.stage === ShaderType.VertexShader || info!.stage === ShaderType.VertexAndPixelShader) {
         vertexPropertiesStr += propertySetter('', info!, true, isWebGL2);
       }
-      if (
-        info!.stage === ShaderType.PixelShader ||
-        info!.stage === ShaderType.VertexAndPixelShader
-      ) {
+      if (info!.stage === ShaderType.PixelShader || info!.stage === ShaderType.VertexAndPixelShader) {
         pixelPropertiesStr += propertySetter('', info!, true, isWebGL2);
       }
     });

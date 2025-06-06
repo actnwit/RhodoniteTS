@@ -171,16 +171,10 @@ function getPixelFormatAndComponentTypeFromTextureFormat(internalFormat: Texture
   } else if (internalFormat === TextureFormat.Depth16) {
     format = PixelFormat.DepthComponent;
     type = ComponentType.UnsignedShort;
-  } else if (
-    internalFormat === TextureFormat.Depth24 ||
-    internalFormat === TextureFormat.Depth24Stencil8
-  ) {
+  } else if (internalFormat === TextureFormat.Depth24 || internalFormat === TextureFormat.Depth24Stencil8) {
     format = PixelFormat.DepthComponent;
     type = ComponentType.UnsignedInt;
-  } else if (
-    internalFormat === TextureFormat.Depth32F ||
-    internalFormat === TextureFormat.Depth32FStencil8
-  ) {
+  } else if (internalFormat === TextureFormat.Depth32F || internalFormat === TextureFormat.Depth32FStencil8) {
     format = PixelFormat.DepthComponent;
     type = ComponentType.Float;
   }

@@ -1,11 +1,7 @@
 import { VertexAttribute } from './VertexAttribute';
 
 test('Vertex Attributes with Positions', async () => {
-  const position3 = [
-    VertexAttribute.Position.X,
-    VertexAttribute.Position.Y,
-    VertexAttribute.Position.Z,
-  ];
+  const position3 = [VertexAttribute.Position.X, VertexAttribute.Position.Y, VertexAttribute.Position.Z];
   expect(position3).toStrictEqual(['POSITION.X', 'POSITION.Y', 'POSITION.Z']);
 
   const position4 = VertexAttribute.Position.XYZW;

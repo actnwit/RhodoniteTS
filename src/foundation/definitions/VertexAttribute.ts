@@ -7,28 +7,28 @@ type ComponentChar = 'X' | 'Y' | 'Z' | 'W';
 
 // prettier-ignore
 export type VertexAttributeTypeName =
-  'UNKNOWN' |
-  'POSITION'|
-  'NORMAL' |
-  'TANGENT' |
-  'TEXCOORD_0' |
-  'TEXCOORD_1' |
-  'TEXCOORD_2' |
-  'COLOR_0' |
-  'JOINTS_0' |
-  'WEIGHTS_0' |
-  'INSTANCE' |
-  'FACE_NORMAL' |
-  'BARY_CENTRIC_COORD';
+  | 'UNKNOWN'
+  | 'POSITION'
+  | 'NORMAL'
+  | 'TANGENT'
+  | 'TEXCOORD_0'
+  | 'TEXCOORD_1'
+  | 'TEXCOORD_2'
+  | 'COLOR_0'
+  | 'JOINTS_0'
+  | 'WEIGHTS_0'
+  | 'INSTANCE'
+  | 'FACE_NORMAL'
+  | 'BARY_CENTRIC_COORD';
 
 export type VertexAttributeComponent = `${VertexAttributeTypeName}.${ComponentChar}`;
 
 // prettier-ignore
 export type VertexAttributeSemanticsJoinedString =
-  `${string}.${ComponentChar}` |
-  `${string}.${ComponentChar},${string}.${ComponentChar}` |
-  `${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar}` |
-  `${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar}`;
+  | `${string}.${ComponentChar}`
+  | `${string}.${ComponentChar},${string}.${ComponentChar}`
+  | `${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar}`
+  | `${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar}`;
 
 export interface VertexAttributeEnum extends EnumIO {
   getAttributeSlot(): Index;
@@ -53,12 +53,7 @@ export class VertexAttributeClass extends EnumClass implements VertexAttributeEn
   private __attributeSlot: Index;
   private __shaderStr: string;
   private __gltfComponentN: Count;
-  private constructor({
-    str,
-    shaderStr,
-    attributeSlot,
-    gltfComponentN,
-  }: VertexAttributeDescriptor) {
+  private constructor({ str, shaderStr, attributeSlot, gltfComponentN }: VertexAttributeDescriptor) {
     super({ index: VertexAttributeClass.__indexCount++, str });
     this.__attributeSlot = attributeSlot;
     this.__shaderStr = shaderStr;

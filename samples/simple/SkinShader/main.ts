@@ -67,18 +67,13 @@ const load = async function () {
   // Lights
   const lightEntity2 = Rn.createLightEntity();
   lightEntity2.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, 10.0]);
-  (lightEntity2.getComponent(Rn.LightComponent) as Rn.LightComponent).color =
-    Rn.Vector3.fromCopyArray([1, 1, 1]);
+  (lightEntity2.getComponent(Rn.LightComponent) as Rn.LightComponent).color = Rn.Vector3.fromCopyArray([1, 1, 1]);
 
   // Please download a model from https://www.3dscanstore.com/blog/Free-3D-Head-Model or others
-  const response = (await Rn.Gltf2Importer.importFromUrl(''));
+  const response = await Rn.Gltf2Importer.importFromUrl('');
   const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(response);
 
-  const renderPassEntityUidOutput = setupRenderPassEntityUidOutput(
-    rootGroup,
-    cameraComponent,
-    canvas
-  );
+  const renderPassEntityUidOutput = setupRenderPassEntityUidOutput(rootGroup, cameraComponent, canvas);
   window.renderPassEntityUidOutput = renderPassEntityUidOutput;
   const renderPassRendering = setupRenderPassRendering(rootGroup, cameraComponent);
   // expression.addRenderPasses([renderPassEntityUidOutput]);

@@ -24,13 +24,7 @@ import { Is } from '../misc/Is';
 export class VrmAimConstraint {
   private __srcEntity: ISceneGraphEntity;
   private __dstEntity: ISceneGraphEntity;
-  private __aimAxis:
-    | 'PositiveX'
-    | 'NegativeX'
-    | 'PositiveY'
-    | 'NegativeY'
-    | 'PositiveZ'
-    | 'NegativeZ';
+  private __aimAxis: 'PositiveX' | 'NegativeX' | 'PositiveY' | 'NegativeY' | 'PositiveZ' | 'NegativeZ';
   private __weight: number;
 
   /**
@@ -70,9 +64,7 @@ export class VrmAimConstraint {
    * const rightVector = constraint.getAxisVector('PositiveX');   // Returns (1, 0, 0)
    * ```
    */
-  getAxisVector(
-    aimAxis: 'PositiveX' | 'NegativeX' | 'PositiveY' | 'NegativeY' | 'PositiveZ' | 'NegativeZ'
-  ) {
+  getAxisVector(aimAxis: 'PositiveX' | 'NegativeX' | 'PositiveY' | 'NegativeY' | 'PositiveZ' | 'NegativeZ') {
     switch (aimAxis) {
       case 'PositiveX':
         return Vector3.fromCopy3(1, 0, 0);
@@ -113,18 +105,13 @@ export class VrmAimConstraint {
       : Quaternion.identity();
     const dstRestQuat = this.__dstEntity.localRotationRestInner;
     const fromVec = Quaternion.multiply(dstParentWorldQuat, dstRestQuat).transformVector3(aimAxis);
-    const toVec = Vector3.normalize(
-      Vector3.subtract(this.__srcEntity.position, this.__dstEntity.position)
-    );
+    const toVec = Vector3.normalize(Vector3.subtract(this.__srcEntity.position, this.__dstEntity.position));
     const fromToQuat = Quaternion.fromToRotation(fromVec, toVec);
 
     const targetQuat = Quaternion.lerp(
       dstRestQuat,
       Quaternion.multiply(
-        Quaternion.multiply(
-          Quaternion.multiply(Quaternion.invert(dstParentWorldQuat), fromToQuat),
-          dstParentWorldQuat
-        ),
+        Quaternion.multiply(Quaternion.multiply(Quaternion.invert(dstParentWorldQuat), fromToQuat), dstParentWorldQuat),
         dstRestQuat
       ),
       this.__weight

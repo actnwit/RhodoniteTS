@@ -26,8 +26,7 @@ export class DataUtil {
    * @returns True if running in Node.js environment, false otherwise
    */
   static isNode() {
-    const isNode =
-      window === void 0 && typeof process !== 'undefined' && typeof require !== 'undefined';
+    const isNode = window === void 0 && typeof process !== 'undefined' && typeof require !== 'undefined';
     return isNode;
   }
 
@@ -131,7 +130,7 @@ export class DataUtil {
    * @throws Error if not running in browser environment
    */
   static base64ToArrayBuffer(base64: string) {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       const binary_string = window.atob(base64);
       const len = binary_string.length;
       const bytes = new Uint8Array(len);
@@ -140,7 +139,7 @@ export class DataUtil {
       }
       return bytes.buffer;
     } else {
-      throw new Error('This function works in browser environment.')
+      throw new Error('This function works in browser environment.');
     }
   }
 
@@ -159,14 +158,10 @@ export class DataUtil {
     const imageData = ctx.createImageData(width, height);
 
     for (let i = 0; i < imageData.data.length; i += 4) {
-      imageData.data[i + 0] =
-        uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + (i % (4 * width)) + 0];
-      imageData.data[i + 1] =
-        uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + (i % (4 * width)) + 1];
-      imageData.data[i + 2] =
-        uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + (i % (4 * width)) + 2];
-      imageData.data[i + 3] =
-        uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + (i % (4 * width)) + 3];
+      imageData.data[i + 0] = uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + (i % (4 * width)) + 0];
+      imageData.data[i + 1] = uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + (i % (4 * width)) + 1];
+      imageData.data[i + 2] = uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + (i % (4 * width)) + 2];
+      imageData.data[i + 3] = uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + (i % (4 * width)) + 3];
     }
 
     ctx.putImageData(imageData, 0, 0);
@@ -217,7 +212,7 @@ export class DataUtil {
       } else {
         const xmlHttp = new XMLHttpRequest();
         if (isBinary) {
-          xmlHttp.onload = (oEvent) => {
+          xmlHttp.onload = oEvent => {
             let response = null;
             if (isBinary) {
               response = xmlHttp.response;
@@ -230,10 +225,7 @@ export class DataUtil {
           xmlHttp.responseType = 'arraybuffer';
         } else {
           xmlHttp.onreadystatechange = () => {
-            if (
-              xmlHttp.readyState === 4 &&
-              (Math.floor(xmlHttp.status / 100) === 2 || xmlHttp.status === 0)
-            ) {
+            if (xmlHttp.readyState === 4 && (Math.floor(xmlHttp.status / 100) === 2 || xmlHttp.status === 0)) {
               let response = null;
               if (isBinary) {
                 response = xmlHttp.response;
@@ -313,11 +305,7 @@ export class DataUtil {
    * @param buffer - The source buffer data
    * @returns Uint8Array view of the specified buffer region
    */
-  static takeBufferViewAsUint8Array(
-    json: RnM2,
-    bufferViewIndex: number,
-    buffer: ArrayBuffer | Uint8Array
-  ): Uint8Array {
+  static takeBufferViewAsUint8Array(json: RnM2, bufferViewIndex: number, buffer: ArrayBuffer | Uint8Array): Uint8Array {
     const bufferViewJson = json.bufferViews[bufferViewIndex];
     let byteOffset = bufferViewJson.byteOffset ?? 0;
     const byteLength = bufferViewJson.byteLength;
@@ -336,10 +324,7 @@ export class DataUtil {
    * @param imageType - Type/format of the image
    * @returns Data URL string for the image
    */
-  static accessArrayBufferAsImage(
-    arrayBuffer: ArrayBuffer | Uint8Array,
-    imageType: string
-  ): string {
+  static accessArrayBufferAsImage(arrayBuffer: ArrayBuffer | Uint8Array, imageType: string): string {
     const binaryData = this.uint8ArrayToStringInner(new Uint8Array(arrayBuffer));
     const imgSrc = this.getImageType(imageType);
     const dataUrl = imgSrc + DataUtil.btoa(binaryData);
@@ -363,10 +348,7 @@ export class DataUtil {
 
     let binaryData = '';
     for (let i = 0; i < divisionNumber; i++) {
-      binaryData += String.fromCharCode.apply(
-        this,
-        charCodeArray.slice(i * constant, (i + 1) * constant)
-      );
+      binaryData += String.fromCharCode.apply(this, charCodeArray.slice(i * constant, (i + 1) * constant));
     }
     return binaryData;
   }
@@ -378,11 +360,7 @@ export class DataUtil {
    */
   static getImageType(imageType: string): string {
     let imgSrc = null;
-    if (
-      imageType === 'image/jpeg' ||
-      imageType.toLowerCase() === 'jpg' ||
-      imageType.toLowerCase() === 'jpeg'
-    ) {
+    if (imageType === 'image/jpeg' || imageType.toLowerCase() === 'jpg' || imageType.toLowerCase() === 'jpeg') {
       imgSrc = 'data:image/jpeg;base64,';
     } else if (imageType === 'image/png' || imageType.toLowerCase() === 'png') {
       imgSrc = 'data:image/png;base64,';
@@ -459,7 +437,7 @@ export class DataUtil {
    * @returns Promise that resolves to the loaded HTMLImageElement
    */
   static createImageFromUri(uri: string, mimeType: string): RnPromise<HTMLImageElement> {
-    return new RnPromise((resolve) => {
+    return new RnPromise(resolve => {
       const img = new Image();
       img.crossOrigin = 'Anonymous';
 

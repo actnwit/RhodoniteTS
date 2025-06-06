@@ -1,9 +1,5 @@
 import { ModuleManager } from '../system/ModuleManager';
-import type {
-  TextureData,
-  VertexHandles,
-  WebGLResourceRepository,
-} from '../../webgl/WebGLResourceRepository';
+import type { TextureData, VertexHandles, WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import type { CGAPIResourceHandle, Count, Index, Size, TypedArray } from '../../types/CommonTypes';
 import type { PixelFormatEnum } from '../definitions/PixelFormat';
 import type { ComponentTypeEnum } from '../definitions/ComponentType';
@@ -32,12 +28,7 @@ import { Vector4 } from '../math/Vector4';
  * Union type representing direct texture data that can be used for texture creation.
  * Includes typed arrays and various HTML/browser elements that can serve as texture sources.
  */
-export type DirectTextureData =
-  | TypedArray
-  | HTMLImageElement
-  | HTMLVideoElement
-  | HTMLCanvasElement
-  | ImageBitmap;
+export type DirectTextureData = TypedArray | HTMLImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap;
 
 /**
  * Union type representing image bitmap data sources.
@@ -63,21 +54,17 @@ export abstract class CGAPIResourceRepository {
    * @throws Error if the required module is not available
    */
   static getCgApiResourceRepository(): ICGAPIResourceRepository {
-    const moduleName = ProcessApproach.isWebGL2Approach(SystemState.currentProcessApproach)
-      ? 'webgl'
-      : 'webgpu';
+    const moduleName = ProcessApproach.isWebGL2Approach(SystemState.currentProcessApproach) ? 'webgl' : 'webgpu';
     // const moduleName = 'webgl';
     const moduleManager = ModuleManager.getInstance();
     const cgApiModule = moduleManager.getModule(moduleName)! as any;
 
     if (moduleName === 'webgl') {
-      const webGLResourceRepository: ICGAPIResourceRepository =
-        cgApiModule.WebGLResourceRepository.getInstance();
+      const webGLResourceRepository: ICGAPIResourceRepository = cgApiModule.WebGLResourceRepository.getInstance();
       return webGLResourceRepository;
     } else {
       // WebGPU
-      const webGLResourceRepository: ICGAPIResourceRepository =
-        cgApiModule?.WebGpuResourceRepository.getInstance();
+      const webGLResourceRepository: ICGAPIResourceRepository = cgApiModule?.WebGpuResourceRepository.getInstance();
       return webGLResourceRepository;
     }
   }
@@ -93,8 +80,7 @@ export abstract class CGAPIResourceRepository {
     const moduleName = 'webgl';
     const moduleManager = ModuleManager.getInstance();
     const webglModule = moduleManager.getModule(moduleName)! as any;
-    const webGLResourceRepository: WebGLResourceRepository =
-      webglModule.WebGLResourceRepository.getInstance();
+    const webGLResourceRepository: WebGLResourceRepository = webglModule.WebGLResourceRepository.getInstance();
     return webGLResourceRepository;
   }
 
@@ -109,8 +95,7 @@ export abstract class CGAPIResourceRepository {
     const moduleName = 'webgpu';
     const moduleManager = ModuleManager.getInstance();
     const webgpuModule = moduleManager.getModule(moduleName)! as any;
-    const webGpuResourceRepository: WebGpuResourceRepository =
-      webgpuModule.WebGpuResourceRepository.getInstance();
+    const webGpuResourceRepository: WebGpuResourceRepository = webgpuModule.WebGpuResourceRepository.getInstance();
     return webGpuResourceRepository;
   }
 }
@@ -735,11 +720,7 @@ export interface ICGAPIResourceRepository {
    * @param attachmentIndex - Color attachment index (0-based)
    * @param renderable - The color buffer to attach
    */
-  attachColorBufferToFrameBufferObject(
-    framebuffer: FrameBuffer,
-    attachmentIndex: Index,
-    renderable: IRenderable
-  ): void;
+  attachColorBufferToFrameBufferObject(framebuffer: FrameBuffer, attachmentIndex: Index, renderable: IRenderable): void;
 
   /**
    * Attaches a specific layer of a texture array as a color buffer to a framebuffer.
@@ -828,10 +809,7 @@ export interface ICGAPIResourceRepository {
    * @param framebuffer - The target framebuffer
    * @param renderable - The depth-stencil buffer to attach
    */
-  attachDepthStencilBufferToFrameBufferObject(
-    framebuffer: FrameBuffer,
-    renderable: IRenderable
-  ): void;
+  attachDepthStencilBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable): void;
 
   /**
    * Deletes a framebuffer object and frees associated resources.

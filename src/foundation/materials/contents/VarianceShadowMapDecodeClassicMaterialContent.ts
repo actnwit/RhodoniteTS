@@ -1,8 +1,4 @@
-import {
-  ShaderSemantics,
-  ShaderSemanticsEnum,
-  ShaderSemanticsClass,
-} from '../../definitions/ShaderSemantics';
+import { ShaderSemantics, ShaderSemanticsEnum, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';
@@ -131,8 +127,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
     let squareDepthTexture;
     const squareDepthFramebuffer = encodedDepthRenderPasses[1].getFramebuffer();
     if (squareDepthFramebuffer) {
-      squareDepthTexture =
-        squareDepthFramebuffer.colorAttachments[colorAttachmentsNumberSquareDepth];
+      squareDepthTexture = squareDepthFramebuffer.colorAttachments[colorAttachmentsNumberSquareDepth];
     } else {
       Logger.warn('renderPass of square depth does not have framebuffer');
       squareDepthTexture = dummyBlackTexture;
@@ -422,10 +417,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
   }) {
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getComponent(
-        CameraComponent,
-        CameraComponent.current
-      ) as CameraComponent;
+      cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
     }
 
     const encodedDepthCameraComponent =
@@ -437,28 +429,14 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
       this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
       this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
 
-      if (
-        VarianceShadowMapDecodeClassicMaterialContent.__lastZNear !==
-        encodedDepthCameraComponent.zNearInner
-      ) {
-        (shaderProgram as any)._gl.uniform1f(
-          (shaderProgram as any).zNearInner,
-          encodedDepthCameraComponent.zNearInner
-        );
-        VarianceShadowMapDecodeClassicMaterialContent.__lastZNear =
-          encodedDepthCameraComponent.zNearInner;
+      if (VarianceShadowMapDecodeClassicMaterialContent.__lastZNear !== encodedDepthCameraComponent.zNearInner) {
+        (shaderProgram as any)._gl.uniform1f((shaderProgram as any).zNearInner, encodedDepthCameraComponent.zNearInner);
+        VarianceShadowMapDecodeClassicMaterialContent.__lastZNear = encodedDepthCameraComponent.zNearInner;
       }
 
-      if (
-        VarianceShadowMapDecodeClassicMaterialContent.__lastZFar !==
-        encodedDepthCameraComponent.zFarInner
-      ) {
-        (shaderProgram as any)._gl.uniform1f(
-          (shaderProgram as any).zFarInner,
-          encodedDepthCameraComponent.zFarInner
-        );
-        VarianceShadowMapDecodeClassicMaterialContent.__lastZFar =
-          encodedDepthCameraComponent.zFarInner;
+      if (VarianceShadowMapDecodeClassicMaterialContent.__lastZFar !== encodedDepthCameraComponent.zFarInner) {
+        (shaderProgram as any)._gl.uniform1f((shaderProgram as any).zFarInner, encodedDepthCameraComponent.zFarInner);
+        VarianceShadowMapDecodeClassicMaterialContent.__lastZFar = encodedDepthCameraComponent.zFarInner;
       }
       const __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       __webglResourceRepository.setUniformValue(
@@ -470,10 +448,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
     } else {
       material.setParameter('zNearInner', encodedDepthCameraComponent.zNearInner);
       material.setParameter('zFarInner', encodedDepthCameraComponent.zFarInner);
-      material.setParameter(
-        'lightViewProjectionMatrix',
-        encodedDepthCameraComponent.viewProjectionMatrix
-      );
+      material.setParameter('lightViewProjectionMatrix', encodedDepthCameraComponent.viewProjectionMatrix);
     }
 
     /// Skinning

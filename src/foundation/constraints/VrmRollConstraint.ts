@@ -22,12 +22,7 @@ export class VrmRollConstraint {
    * @param weight - The blend weight of the constraint (0.0 = no effect, 1.0 = full effect)
    * @param dstEntity - The destination entity that will receive the constrained rotation
    */
-  constructor(
-    srcEntity: ISceneGraphEntity,
-    rollAxis: 'X' | 'Y' | 'Z',
-    weight: number,
-    dstEntity: ISceneGraphEntity
-  ) {
+  constructor(srcEntity: ISceneGraphEntity, rollAxis: 'X' | 'Y' | 'Z', weight: number, dstEntity: ISceneGraphEntity) {
     this.__srcEntity = srcEntity;
     this.__rollAxis = rollAxis;
     this.__weight = weight;
@@ -76,10 +71,7 @@ export class VrmRollConstraint {
       Quaternion.invert(this.__srcEntity.localRotationRestInner)
     );
     const deltaSrcQuatInDst = Quaternion.multiply(
-      Quaternion.multiply(
-        Quaternion.invert(this.__dstEntity.localRotationRestInner),
-        deltaSrcQuatInParent
-      ),
+      Quaternion.multiply(Quaternion.invert(this.__dstEntity.localRotationRestInner), deltaSrcQuatInParent),
       this.__dstEntity.localRotationRestInner
     );
 

@@ -312,10 +312,7 @@ export class ScaleGizmo extends Gizmo {
     // TranslationGizmo.__zxPlaneEntity.getTransform().localEulerAngles =
     // Vector3.fromCopy3(90, 0, 0);
     ScaleGizmo.__zxPlaneMaterial = MaterialHelper.createClassicUberMaterial();
-    ScaleGizmo.__zxPlaneMaterial.setParameter(
-      'diffuseColorFactor',
-      Vector4.fromCopyArray4([0, 0.5, 0, 0])
-    );
+    ScaleGizmo.__zxPlaneMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0.5, 0, 0]));
     ScaleGizmo.__zxPlaneMaterial.alphaMode = AlphaMode.Blend;
     ScaleGizmo.__zxPlaneMesh = new Mesh();
     ScaleGizmo.__zxPlanePrimitive = new Plane();
@@ -341,17 +338,10 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_yzPlane', true);
     ScaleGizmo.__yzPlaneEntity.getSceneGraph().isVisible = false;
     // TranslationGizmo.__yzPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
-    ScaleGizmo.__yzPlaneEntity.getTransform().localEulerAngles = Vector3.fromCopy3(
-      0,
-      0,
-      MathUtil.degreeToRadian(90)
-    );
+    ScaleGizmo.__yzPlaneEntity.getTransform().localEulerAngles = Vector3.fromCopy3(0, 0, MathUtil.degreeToRadian(90));
     ScaleGizmo.__yzPlaneMaterial = MaterialHelper.createClassicUberMaterial();
     ScaleGizmo.__yzPlaneMaterial.alphaMode = AlphaMode.Blend;
-    ScaleGizmo.__yzPlaneMaterial.setParameter(
-      'diffuseColorFactor',
-      Vector4.fromCopyArray4([0.5, 0, 0, 0])
-    );
+    ScaleGizmo.__yzPlaneMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0.5, 0, 0, 0]));
     ScaleGizmo.__yzPlaneMesh = new Mesh();
     ScaleGizmo.__yzPlanePrimitive = new Plane();
     ScaleGizmo.__yzPlanePrimitive.generate({
@@ -376,17 +366,10 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_xyPlane', true);
     ScaleGizmo.__xyPlaneEntity.getSceneGraph().isVisible = false;
     // TranslationGizmo.__xyPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
-    ScaleGizmo.__xyPlaneEntity.getTransform().localEulerAngles = Vector3.fromCopy3(
-      MathUtil.degreeToRadian(90),
-      0,
-      0
-    );
+    ScaleGizmo.__xyPlaneEntity.getTransform().localEulerAngles = Vector3.fromCopy3(MathUtil.degreeToRadian(90), 0, 0);
     ScaleGizmo.__xyPlaneMaterial = MaterialHelper.createClassicUberMaterial();
     ScaleGizmo.__xyPlaneMaterial.alphaMode = AlphaMode.Blend;
-    ScaleGizmo.__xyPlaneMaterial.setParameter(
-      'diffuseColorFactor',
-      Vector4.fromCopyArray4([0, 0, 0.5, 0])
-    );
+    ScaleGizmo.__xyPlaneMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0, 0.5, 0]));
     ScaleGizmo.__xyPlaneMesh = new Mesh();
     ScaleGizmo.__xyPlanePrimitive = new Plane();
     ScaleGizmo.__xyPlanePrimitive.generate({
@@ -412,10 +395,7 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__zCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 1);
     ScaleGizmo.__zCubeMesh = new Mesh();
     ScaleGizmo.__zCubeMaterial = MaterialHelper.createClassicUberMaterial();
-    ScaleGizmo.__zCubeMaterial.setParameter(
-      'diffuseColorFactor',
-      Vector4.fromCopyArray4([0, 0, 1, 1])
-    );
+    ScaleGizmo.__zCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0, 1, 1]));
     ScaleGizmo.__zCubePrimitive = new Cube();
     ScaleGizmo.__zCubePrimitive.generate({
       widthVector: Vector3.fromCopy3(0.05, 0.05, 1),
@@ -435,10 +415,7 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__yCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 1, 0);
     ScaleGizmo.__yCubeMesh = new Mesh();
     ScaleGizmo.__yCubeMaterial = MaterialHelper.createClassicUberMaterial();
-    ScaleGizmo.__yCubeMaterial.setParameter(
-      'diffuseColorFactor',
-      Vector4.fromCopyArray4([0, 1, 0, 1])
-    );
+    ScaleGizmo.__yCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 1, 0, 1]));
     ScaleGizmo.__yCubePrimitive = new Cube();
     ScaleGizmo.__yCubePrimitive.generate({
       widthVector: Vector3.fromCopy3(0.05, 1, 0.05),
@@ -458,10 +435,7 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__xCubeEntity.getTransform().localPosition = Vector3.fromCopy3(1, 0, 0);
     ScaleGizmo.__xCubeMesh = new Mesh();
     ScaleGizmo.__xCubeMaterial = MaterialHelper.createClassicUberMaterial();
-    ScaleGizmo.__xCubeMaterial.setParameter(
-      'diffuseColorFactor',
-      Vector4.fromCopyArray4([1, 0, 0, 1])
-    );
+    ScaleGizmo.__xCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([1, 0, 0, 1]));
     ScaleGizmo.__xCubePrimitive = new Cube();
     ScaleGizmo.__xCubePrimitive.generate({
       widthVector: Vector3.fromCopy3(1, 0.05, 0.05),
@@ -695,10 +669,9 @@ export class ScaleGizmo extends Gizmo {
     const x = evt.clientX - rect.left;
     const y = rect.height - (evt.clientY - rect.top);
     const viewport = Vector4.fromCopy4(0, 0, width, height) as Vector4;
-    const activeCamera = ComponentRepository.getComponent(
-      CameraComponent,
-      CameraComponent.current
-    ) as CameraComponent | undefined;
+    const activeCamera = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as
+      | CameraComponent
+      | undefined;
 
     const worldMatrix = this.__target.getSceneGraph().matrix.getRotate();
     const scaleVec = Vector3.one(); //this.__target.getSceneGraph().worldMatrix.getScale();
@@ -720,9 +693,7 @@ export class ScaleGizmo extends Gizmo {
     }
     let pickInMovingPoint: Vector3 = this.__pickStatedPoint.clone();
     if (ScaleGizmo.__activeAxis === 'x') {
-      const xResult = ScaleGizmo.__xyPlaneEntity
-        .getMesh()
-        .castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
+      const xResult = ScaleGizmo.__xyPlaneEntity.getMesh().castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
       if (xResult.result) {
         assertExist(xResult.data);
         const position = rotMat.multiplyVector(xResult.data.position);
@@ -733,9 +704,7 @@ export class ScaleGizmo extends Gizmo {
       InputManager.disableCameraController();
     }
     if (ScaleGizmo.__activeAxis === 'y') {
-      const yResult = ScaleGizmo.__xyPlaneEntity
-        .getMesh()
-        .castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
+      const yResult = ScaleGizmo.__xyPlaneEntity.getMesh().castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
       if (yResult.result) {
         assertExist(yResult.data);
         const position = rotMat.multiplyVector(yResult.data.position);
@@ -746,9 +715,7 @@ export class ScaleGizmo extends Gizmo {
       InputManager.disableCameraController();
     }
     if (ScaleGizmo.__activeAxis === 'z') {
-      const zResult = ScaleGizmo.__yzPlaneEntity
-        .getMesh()
-        .castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
+      const zResult = ScaleGizmo.__yzPlaneEntity.getMesh().castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
       if (zResult.result) {
         assertExist(zResult.data);
         const position = rotMat.multiplyVector(zResult.data.position);
@@ -776,13 +743,8 @@ export class ScaleGizmo extends Gizmo {
         Math.max(this.__deltaPoint.z, 0.01)
       );
     } else if (ScaleGizmo.__space === 'world') {
-      const worldMat = Matrix44.fromCopyQuaternion(
-        this.__target.getSceneGraph().getQuaternionRecursively()
-      );
-      const existedScale = Matrix44.multiply(
-        worldMat,
-        Matrix44.scale(this.__targetScaleBackup)
-      ).getScale();
+      const worldMat = Matrix44.fromCopyQuaternion(this.__target.getSceneGraph().getQuaternionRecursively());
+      const existedScale = Matrix44.multiply(worldMat, Matrix44.scale(this.__targetScaleBackup)).getScale();
       let scale = Vector4.add(deltaVector3, existedScale);
       scale = Vector4.fromCopy4(
         Math.max(scale.x, 0.01),
@@ -790,10 +752,7 @@ export class ScaleGizmo extends Gizmo {
         Math.max(scale.z, 0.01),
         Math.max(scale.w, 0.01)
       );
-      this.__deltaPoint = Matrix44.multiply(
-        Matrix44.invert(worldMat),
-        Matrix44.scale(scale)
-      ).getScale();
+      this.__deltaPoint = Matrix44.multiply(Matrix44.invert(worldMat), Matrix44.scale(scale)).getScale();
       this.__deltaPoint = Vector3.fromCopy3(
         Math.max(this.__deltaPoint.x, 0.01),
         Math.max(this.__deltaPoint.y, 0.01),
@@ -861,13 +820,10 @@ export class ScaleGizmo extends Gizmo {
     const x = evt.clientX - rect.left;
     const y = rect.height - (evt.clientY - rect.top);
     const viewport = Vector4.fromCopy4(0, 0, width, height) as Vector4;
-    const activeCamera = ComponentRepository.getComponent(
-      CameraComponent,
-      CameraComponent.current
-    ) as CameraComponent | undefined;
-    const result = ScaleGizmo.__groupEntity
-      .getSceneGraph()
-      .castRayFromScreen(x, y, activeCamera!, viewport, 0.0, []);
+    const activeCamera = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as
+      | CameraComponent
+      | undefined;
+    const result = ScaleGizmo.__groupEntity.getSceneGraph().castRayFromScreen(x, y, activeCamera!, viewport, 0.0, []);
     return result;
   }
 
@@ -884,19 +840,12 @@ export class ScaleGizmo extends Gizmo {
     const x = evt.clientX - rect.left;
     const y = rect.height - (evt.clientY - rect.top);
     const viewport = Vector4.fromCopy4(0, 0, width, height) as Vector4;
-    const activeCamera = ComponentRepository.getComponent(
-      CameraComponent,
-      CameraComponent.current
-    ) as CameraComponent | undefined;
-    const xResult = ScaleGizmo.__xCubeEntity
-      .getSceneGraph()
-      .castRayFromScreen(x, y, activeCamera!, viewport, 0.0);
-    const yResult = ScaleGizmo.__yCubeEntity
-      .getSceneGraph()
-      .castRayFromScreen(x, y, activeCamera!, viewport, 0.0);
-    const zResult = ScaleGizmo.__zCubeEntity
-      .getSceneGraph()
-      .castRayFromScreen(x, y, activeCamera!, viewport, 0.0);
+    const activeCamera = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as
+      | CameraComponent
+      | undefined;
+    const xResult = ScaleGizmo.__xCubeEntity.getSceneGraph().castRayFromScreen(x, y, activeCamera!, viewport, 0.0);
+    const yResult = ScaleGizmo.__yCubeEntity.getSceneGraph().castRayFromScreen(x, y, activeCamera!, viewport, 0.0);
+    const zResult = ScaleGizmo.__zCubeEntity.getSceneGraph().castRayFromScreen(x, y, activeCamera!, viewport, 0.0);
     return { xResult, yResult, zResult };
   }
 

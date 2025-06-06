@@ -20,11 +20,7 @@ import { MathUtil } from './MathUtil';
  * ```
  */
 export class AABB {
-  private __min: MutableVector3 = MutableVector3.fromCopyArray([
-    Number.MAX_VALUE,
-    Number.MAX_VALUE,
-    Number.MAX_VALUE,
-  ]);
+  private __min: MutableVector3 = MutableVector3.fromCopyArray([Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE]);
   private __max: MutableVector3 = MutableVector3.fromCopyArray([
     -Number.MAX_VALUE,
     -Number.MAX_VALUE,

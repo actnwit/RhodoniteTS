@@ -43,13 +43,7 @@ export class AnimationAssigner {
   ) {
     this.__resetAnimationAndPose(rootEntity);
 
-    this.__setupAnimationForSameSkeleton(
-      rootEntity,
-      gltfModel,
-      vrmModel as VRM,
-      isSameSkeleton,
-      retargetMode
-    );
+    this.__setupAnimationForSameSkeleton(rootEntity, gltfModel, vrmModel as VRM, isSameSkeleton, retargetMode);
 
     return rootEntity;
   }
@@ -63,11 +57,7 @@ export class AnimationAssigner {
    * @param postfixToTrackName - Optional postfix to append to animation track names for identification
    * @returns An array of animation track names that were created
    */
-  assignAnimationWithVrma(
-    rootEntity: ISceneGraphEntity,
-    vrmaModel: RnM2Vrma,
-    postfixToTrackName?: string
-  ) {
+  assignAnimationWithVrma(rootEntity: ISceneGraphEntity, vrmaModel: RnM2Vrma, postfixToTrackName?: string) {
     const entityVrma = ModelConverter.convertToRhodoniteObjectSimple(vrmaModel);
 
     this.__resetAnimationAndPose(rootEntity, postfixToTrackName);
@@ -91,11 +81,7 @@ export class AnimationAssigner {
         for (const channel of animation.channels) {
           // find the corresponding joint entity
           // const node = gltfModel.nodes[channel.target!.node!];
-          const rnEntity = this.__getCorrespondingEntityWithVrma(
-            rootEntity,
-            vrma,
-            channel.target!.node!
-          );
+          const rnEntity = this.__getCorrespondingEntityWithVrma(rootEntity, vrma, channel.target!.node!);
           if (rnEntity) {
             const newRnEntity = EntityRepository.addComponentToEntity(AnimationComponent, rnEntity);
             const animationComponent = newRnEntity.getAnimation();
@@ -112,7 +98,7 @@ export class AnimationAssigner {
               retarget = new GlobalRetarget(gltfEntity);
             }
             const names = animationComponent._setRetarget(retarget!, postfixToTrackName);
-            names.forEach((name) => {
+            names.forEach(name => {
               trackNames.add(name);
             });
           }
@@ -190,10 +176,7 @@ export class AnimationAssigner {
   ) {
     if (isSameSkeleton) {
       // isSameSkeleton is true, so we find joints from joints name.
-      const rnEntities = rootEntity.getTagValue('rnEntitiesByNames')! as Map<
-        string,
-        ISceneGraphEntity
-      >;
+      const rnEntities = rootEntity.getTagValue('rnEntitiesByNames')! as Map<string, ISceneGraphEntity>;
       const node = gltfModel.nodes[nodeIndex];
       const rnEntity = rnEntities.get(node.name!);
       return rnEntity;
@@ -215,18 +198,13 @@ export class AnimationAssigner {
             humanoidBoneName = srcMapNodeIdName.get(nodeIndex)!;
           }
         }
-        const dstMapNameNodeId = rootEntity.getTagValue('humanoid_map_name_nodeId')! as Map<
-          string,
-          number
-        >;
+        const dstMapNameNodeId = rootEntity.getTagValue('humanoid_map_name_nodeId')! as Map<string, number>;
         const dstBoneNodeId = dstMapNameNodeId.get(humanoidBoneName!);
         if (dstBoneNodeId != null) {
           const rnEntities = rootEntity.getTagValue('rnEntities')! as ISceneGraphEntity[];
           return rnEntities[dstBoneNodeId];
         } else {
-          Logger.info(
-            `humanoidBoneName: ${humanoidBoneName}, nodeIndex: ${nodeIndex}, nodeName: ${nodeName}`
-          );
+          Logger.info(`humanoidBoneName: ${humanoidBoneName}, nodeIndex: ${nodeIndex}, nodeName: ${nodeName}`);
           return void 0;
         }
       } else if (Is.exist(vrmModel.extensions.VRMC_vrm)) {
@@ -241,18 +219,13 @@ export class AnimationAssigner {
         if (nodeName != null) {
           humanoidBoneName = srcMapNodeIdName.get(nodeIndex)!;
         }
-        const dstMapNameNodeId = rootEntity.getTagValue('humanoid_map_name_nodeId')! as Map<
-          string,
-          number
-        >;
+        const dstMapNameNodeId = rootEntity.getTagValue('humanoid_map_name_nodeId')! as Map<string, number>;
         const dstBoneNodeId = dstMapNameNodeId.get(humanoidBoneName!);
         if (dstBoneNodeId != null) {
           const rnEntities = rootEntity.getTagValue('rnEntities')! as ISceneGraphEntity[];
           return rnEntities[dstBoneNodeId];
         } else {
-          Logger.info(
-            `humanoidBoneName: ${humanoidBoneName}, nodeIndex: ${nodeIndex}, nodeName: ${nodeName}`
-          );
+          Logger.info(`humanoidBoneName: ${humanoidBoneName}, nodeIndex: ${nodeIndex}, nodeName: ${nodeName}`);
           return void 0;
         }
       }
@@ -269,18 +242,11 @@ export class AnimationAssigner {
    * @param nodeIndex - The index of the node in the VRMA model
    * @returns The corresponding entity in the target skeleton, or undefined if not found
    */
-  private __getCorrespondingEntityWithVrma(
-    rootEntity: ISceneGraphEntity,
-    gltfModel: RnM2Vrma,
-    nodeIndex: Index
-  ) {
+  private __getCorrespondingEntityWithVrma(rootEntity: ISceneGraphEntity, gltfModel: RnM2Vrma, nodeIndex: Index) {
     // VRM1.0
     const humanBones = gltfModel.extensions.VRMC_vrm_animation.humanoidBoneNameMap!;
     const humanoidBoneName = humanBones.get(nodeIndex)!;
-    const dstMapNameNodeId = rootEntity.getTagValue('humanoid_map_name_nodeId')! as Map<
-      string,
-      number
-    >;
+    const dstMapNameNodeId = rootEntity.getTagValue('humanoid_map_name_nodeId')! as Map<string, number>;
     const dstBoneNodeId = dstMapNameNodeId.get(humanoidBoneName!);
     if (dstBoneNodeId != null) {
       const rnEntities = rootEntity.getTagValue('rnEntities')! as ISceneGraphEntity[];
@@ -319,10 +285,7 @@ export class AnimationAssigner {
         srcMapNodeIdName.set(bone.node, boneName);
       }
     }
-    const dstMapNameNodeId = rootEntity.getTagValue('humanoid_map_name_nodeId')! as Map<
-      string,
-      number
-    >;
+    const dstMapNameNodeId = rootEntity.getTagValue('humanoid_map_name_nodeId')! as Map<string, number>;
     const humanoidBoneName = srcMapNodeIdName.get(nodeIndex)!;
     if (humanoidBoneName === 'hips') {
       return true;
@@ -367,9 +330,7 @@ export class AnimationAssigner {
         const animInputArray = channel.samplerObject?.inputObject?.extras!.typedDataArray;
         const animOutputArray = channel.samplerObject?.outputObject?.extras!.typedDataArray;
         const interpolation =
-          channel.samplerObject!.interpolation != null
-            ? channel.samplerObject!.interpolation
-            : 'LINEAR';
+          channel.samplerObject!.interpolation != null ? channel.samplerObject!.interpolation : 'LINEAR';
 
         // find the corresponding joint entity
         const node = gltfModel.nodes[channel.target!.node!];
@@ -398,35 +359,26 @@ export class AnimationAssigner {
             if (animationAttributeType === 'quaternion') {
               const animationSamplers = new Map<AnimationTrackName, AnimationSampler>();
               const trackName = Is.exist(animation.name) ? animation.name! : 'Untitled';
-              animationSamplers.set(
-                trackName,
-                {
-                  input: animInputArray!,
-                  output: animOutputArray!,
-                  outputComponentN: 4, // Quaternion
-                  interpolationMethod: AnimationInterpolation.fromString(interpolation)
-                }
-              );
+              animationSamplers.set(trackName, {
+                input: animInputArray!,
+                output: animOutputArray!,
+                outputComponentN: 4, // Quaternion
+                interpolationMethod: AnimationInterpolation.fromString(interpolation),
+              });
               const newAnimatedValue = new AnimatedQuaternion(animationSamplers, trackName);
-              animationComponent.setAnimation(
-                animationAttributeType,
-                newAnimatedValue
-              );
+              animationComponent.setAnimation(animationAttributeType, newAnimatedValue);
             } else if (
               animationAttributeType === 'translate' &&
               this.__isHips(rootEntity, vrmModel, channel.target!.node!)
             ) {
               const animationSamplers = new Map<AnimationTrackName, AnimationSampler>();
               const trackName = Is.exist(animation.name) ? animation.name! : 'Untitled';
-              animationSamplers.set(
-                trackName,
-                {
-                  input: animInputArray!,
-                  output: animOutputArray!,
-                  outputComponentN: 3, // translate
-                  interpolationMethod: AnimationInterpolation.fromString(interpolation)
-                }
-              );
+              animationSamplers.set(trackName, {
+                input: animInputArray!,
+                output: animOutputArray!,
+                outputComponentN: 3, // translate
+                interpolationMethod: AnimationInterpolation.fromString(interpolation),
+              });
               const newAnimatedValue = new AnimatedVector3(animationSamplers, trackName);
               animationComponent.setAnimation(animationAttributeType, newAnimatedValue);
             }

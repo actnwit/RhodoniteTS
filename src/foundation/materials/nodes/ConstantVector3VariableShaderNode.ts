@@ -24,10 +24,10 @@ import { ConstantVariableShaderNode } from './ConstantVariableShaderNode';
  * multiplyNode.addInputConnection(vec3Node, vec3Node.getSocketOutput(), multiplyNode.getSocketInputLhs());
  * ```
  */
-export class ConstantVector3VariableShaderNode<
-  T extends ComponentTypeEnum
-> extends ConstantVariableShaderNode<typeof CompositionType.Vec3, T> {
-
+export class ConstantVector3VariableShaderNode<T extends ComponentTypeEnum> extends ConstantVariableShaderNode<
+  typeof CompositionType.Vec3,
+  T
+> {
   /**
    * Creates a new ConstantVector3VariableShaderNode instance.
    *

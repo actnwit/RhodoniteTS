@@ -25,9 +25,7 @@ await Rn.System.init({
 
 // Effekseer
 const effekseerEntity = effekseerModule.createEffekseerEntity();
-const effekseerComponent = effekseerEntity.getComponent(
-  effekseerModule.EffekseerComponent
-) as Rn.EffekseerComponent;
+const effekseerComponent = effekseerEntity.getComponent(effekseerModule.EffekseerComponent) as Rn.EffekseerComponent;
 effekseerComponent.playJustAfterLoaded = true;
 effekseerComponent.randomSeed = 1;
 effekseerComponent.isLoop = false;
@@ -45,10 +43,8 @@ cameraComponent.setFovyAndChangeFocalLength(90);
 cameraComponent.aspect = 1;
 
 // 3D Model for Test
-const response = (
-  await Rn.Gltf2Importer.importFromUrl(
-    '../../../assets/gltf/glTF-Sample-Assets/Models/BoxAnimated/glTF-Binary/BoxAnimated.glb'
-  )
+const response = await Rn.Gltf2Importer.importFromUrl(
+  '../../../assets/gltf/glTF-Sample-Assets/Models/BoxAnimated/glTF-Binary/BoxAnimated.glb'
 );
 const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(response);
 // const sphereEntity = createSphere();

@@ -175,19 +175,9 @@ export class MergeVectorShaderNode extends AbstractShaderNode {
               `var dummyXY_${i}: vec2<f32>;`,
               `var dummyZW_${i}: vec2<f32>;`,
             ]
-          : [
-              `vec4 dummyXYZW_${i};`,
-              `vec3 dummyXYZ_${i};`,
-              `vec2 dummyXY_${i};`,
-              `vec2 dummyZW_${i};`,
-            ];
+          : [`vec4 dummyXYZW_${i};`, `vec3 dummyXYZ_${i};`, `vec2 dummyXY_${i};`, `vec2 dummyZW_${i};`];
 
-      const dummyOutputArguments = [
-        `dummyXYZW_${i}`,
-        `dummyXYZ_${i}`,
-        `dummyXY_${i}`,
-        `dummyZW_${i}`,
-      ];
+      const dummyOutputArguments = [`dummyXYZW_${i}`, `dummyXYZ_${i}`, `dummyXY_${i}`, `dummyZW_${i}`];
 
       for (let k = 0; k < varOutputNames[i].length; k++) {
         const outputName = varOutputNames[i][k];

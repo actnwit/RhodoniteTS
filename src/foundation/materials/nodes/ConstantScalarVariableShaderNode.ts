@@ -11,10 +11,10 @@ import { ConstantVariableShaderNode } from './ConstantVariableShaderNode';
  *
  * @template T - The component type enum that defines the data type of the scalar value
  */
-export class ConstantScalarVariableShaderNode<
-  T extends ComponentTypeEnum
-> extends ConstantVariableShaderNode<typeof CompositionType.Scalar, T> {
-
+export class ConstantScalarVariableShaderNode<T extends ComponentTypeEnum> extends ConstantVariableShaderNode<
+  typeof CompositionType.Scalar,
+  T
+> {
   /**
    * Creates a new ConstantScalarVariableShaderNode instance.
    *

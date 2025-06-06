@@ -195,12 +195,7 @@ export abstract class AbstractQuaternion implements IQuaternion {
    * @returns The dot product result
    */
   dot(quat: IQuaternion) {
-    return (
-      this._v[0] * quat._v[0] +
-      this._v[1] * quat._v[1] +
-      this._v[2] * quat._v[2] +
-      this._v[3] * quat._v[3]
-    );
+    return this._v[0] * quat._v[0] + this._v[1] * quat._v[1] + this._v[2] * quat._v[2] + this._v[3] * quat._v[3];
   }
 
   /**

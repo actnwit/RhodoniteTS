@@ -51,10 +51,7 @@ describe('SceneGraphComponent', () => {
     expect(
       childEntity
         .getSceneGraph()
-        .matrix.isEqual(
-          Matrix44.fromCopy16RowMajor(1, 0, 0, 3, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1),
-          0.00001
-        )
+        .matrix.isEqual(Matrix44.fromCopy16RowMajor(1, 0, 0, 3, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1), 0.00001)
     ).toBe(true);
   });
 

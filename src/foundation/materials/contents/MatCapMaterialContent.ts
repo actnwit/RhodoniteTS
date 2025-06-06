@@ -35,13 +35,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
    * @param texture - Optional pre-existing texture to use as the MatCap texture
    * @param sampler - Optional sampler settings for texture sampling behavior
    */
-  constructor(
-    materialName: string,
-    isSkinning: boolean,
-    uri?: string,
-    texture?: AbstractTexture,
-    sampler?: Sampler
-  ) {
+  constructor(materialName: string, isSkinning: boolean, uri?: string, texture?: AbstractTexture, sampler?: Sampler) {
     super(materialName, { isSkinning: isSkinning }, MatCapShaderVertex, MatCapShaderFragment);
 
     let matCapTexture;
@@ -137,10 +131,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
       /// Matrices
       let cameraComponent = args.renderPass.cameraComponent;
       if (cameraComponent == null) {
-        cameraComponent = ComponentRepository.getComponent(
-          CameraComponent,
-          CameraComponent.current
-        ) as CameraComponent;
+        cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
       }
       this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
       this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);

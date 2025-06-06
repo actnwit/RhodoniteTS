@@ -1,10 +1,7 @@
 import NormalizeShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/Normalize.glsl';
 import NormalizeShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Normalize.wgsl';
 import { ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
-import {
-  CompositionType,
-  CompositionTypeEnum,
-} from '../../../foundation/definitions/CompositionType';
+import { CompositionType, CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { SystemState } from '../../system/SystemState';
 import { ProcessApproach } from '../../definitions/ProcessApproach';

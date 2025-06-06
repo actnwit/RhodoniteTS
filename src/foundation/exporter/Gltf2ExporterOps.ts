@@ -30,8 +30,7 @@ export function createAndAddGltf2BufferView(
   bufferIdx: Index,
   uint8Array: Uint8Array
 ): Gltf2BufferViewEx {
-  const bufferViewByteLengthAccumulated =
-    json.extras.bufferViewByteLengthAccumulatedArray[bufferIdx];
+  const bufferViewByteLengthAccumulated = json.extras.bufferViewByteLengthAccumulatedArray[bufferIdx];
   const gltfBufferViewEx: Gltf2BufferViewEx = {
     buffer: bufferIdx,
     byteLength: uint8Array.byteLength,
@@ -45,7 +44,6 @@ export function createAndAddGltf2BufferView(
     DataUtil.addPaddingBytes(gltfBufferViewEx.byteLength, 4) + bufferViewByteLengthAccumulated;
 
   json.bufferViews.push(gltfBufferViewEx);
-  json.extras.bufferViewByteLengthAccumulatedArray[bufferIdx] =
-    nextBufferViewBytesLengthAccumulated;
+  json.extras.bufferViewByteLengthAccumulatedArray[bufferIdx] = nextBufferViewBytesLengthAccumulated;
   return gltfBufferViewEx;
 }

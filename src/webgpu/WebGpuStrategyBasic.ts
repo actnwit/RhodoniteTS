@@ -9,14 +9,7 @@ import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRep
 import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import { RenderPass } from '../foundation/renderer/RenderPass';
 import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
-import {
-  CGAPIResourceHandle,
-  Count,
-  Index,
-  IndexOf16Bytes,
-  IndexOf4Bytes,
-  PrimitiveUID,
-} from '../types/CommonTypes';
+import { CGAPIResourceHandle, Count, Index, IndexOf16Bytes, IndexOf4Bytes, PrimitiveUID } from '../types/CommonTypes';
 import { WebGpuResourceRepository } from './WebGpuResourceRepository';
 import { Component } from '../foundation/core/Component';
 import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
@@ -25,10 +18,7 @@ import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 import { CompositionType } from '../foundation/definitions/CompositionType';
 import { ComponentType } from '../foundation/definitions/ComponentType';
-import {
-  getShaderPropertyFunc,
-  ShaderSemanticsName,
-} from '../foundation/definitions/ShaderSemantics';
+import { getShaderPropertyFunc, ShaderSemanticsName } from '../foundation/definitions/ShaderSemantics';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import { ComponentRepository } from '../foundation/core/ComponentRepository';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
@@ -63,8 +53,7 @@ import { Logger } from '../foundation/misc/Logger';
 export class WebGpuStrategyBasic implements CGAPIStrategy {
   private static __instance: WebGpuStrategyBasic;
   private __storageBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private __storageBlendShapeBufferUid: CGAPIResourceHandle =
-    CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __storageBlendShapeBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __uniformMorphOffsetsTypedArray?: Uint32Array;
   private __uniformMorphWeightsTypedArray?: Float32Array;
 
@@ -186,11 +175,7 @@ fn get_isBillboard(instanceId: u32) -> bool {
    * @param isGlobalData - Whether this property belongs to global data or material-specific data
    * @returns WGSL shader code for the property accessor function
    */
-  private static __getShaderProperty(
-    materialTypeName: string,
-    info: ShaderSemanticsInfo,
-    isGlobalData: boolean
-  ) {
+  private static __getShaderProperty(materialTypeName: string, info: ShaderSemanticsInfo, isGlobalData: boolean) {
     const returnType = info.compositionType.toWGSLType(info.componentType);
     const methodName = info.semantic.replace('.', '_');
     const isTexture = CompositionType.isTexture(info.compositionType);
@@ -337,10 +322,7 @@ ${indexStr}
       const dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyName);
       return dataBeginPos;
     } else {
-      const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(
-        materialTypeName,
-        propertyName
-      );
+      const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyName);
       return dataBeginPos;
     }
   }
@@ -373,23 +355,17 @@ ${indexStr}
   common_$load(): void {
     if (this.__uniformMorphOffsetsTypedArray == null) {
       this.__uniformMorphOffsetsTypedArray = new Uint32Array(
-        Math.ceil(
-          (Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4
-        ) * 4
+        Math.ceil((Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4) * 4
       );
     }
 
     if (this.__uniformMorphWeightsTypedArray == null) {
       this.__uniformMorphWeightsTypedArray = new Float32Array(
-        Math.ceil(
-          (Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4
-        ) * 4
+        Math.ceil((Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4) * 4
       );
     }
 
-    if (
-      BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForBlendData
-    ) {
+    if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForBlendData) {
       this.__createOrUpdateStorageBlendShapeBuffer();
       this.__lastBlendShapeComponentsUpdateCountForBlendData = BlendShapeComponent.updateCount;
     }
@@ -522,11 +498,7 @@ ${indexStr}
    * @param renderPassTickCount - Current tick count for animation and timing purposes
    * @returns True if any primitives were successfully rendered
    */
-  common_$render(
-    primitiveUids: PrimitiveUID[],
-    renderPass: RenderPass,
-    renderPassTickCount: number
-  ): boolean {
+  common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, renderPassTickCount: number): boolean {
     if (renderPass.isBufferLessRenderingMode()) {
       this.__renderWithoutBuffers(renderPass);
       return true;
@@ -535,12 +507,11 @@ ${indexStr}
     let renderedSomething = false;
     const isZWrite = renderPass.isDepthTest && renderPass.depthWriteMask;
     const isZWrite2 =
-      renderPass.isDepthTest &&
-      renderPass.depthWriteMask &&
-      MeshRendererComponent.isDepthMaskTrueForBlendPrimitives;
+      renderPass.isDepthTest && renderPass.depthWriteMask && MeshRendererComponent.isDepthMaskTrueForBlendPrimitives;
     // For opaque primitives
     if (renderPass._toRenderOpaquePrimitives) {
-      for (let i = renderPass._lastOpaqueIndex; i >= 0; i--) { // Drawing from the nearest object
+      for (let i = renderPass._lastOpaqueIndex; i >= 0; i--) {
+        // Drawing from the nearest object
         const primitiveUid = primitiveUids[i];
         const rendered = this.renderInner(primitiveUid, renderPass, isZWrite);
         renderedSomething ||= rendered;
@@ -559,11 +530,7 @@ ${indexStr}
 
     if (renderPass._toRenderBlendWithZWritePrimitives) {
       // Draw Blend primitives with ZWrite
-      for (
-        let i = renderPass._lastTranslucentIndex + 1;
-        i <= renderPass._lastBlendWithZWriteIndex;
-        i++
-      ) {
+      for (let i = renderPass._lastTranslucentIndex + 1; i <= renderPass._lastBlendWithZWriteIndex; i++) {
         const primitiveUid = primitiveUids[i];
         const rendered = this.renderInner(primitiveUid, renderPass, isZWrite);
         renderedSomething ||= rendered;
@@ -572,11 +539,7 @@ ${indexStr}
 
     if (renderPass._toRenderBlendWithoutZWritePrimitives) {
       // Draw Blend primitives without ZWrite
-      for (
-        let i = renderPass._lastBlendWithZWriteIndex + 1;
-        i <= renderPass._lastBlendWithoutZWriteIndex;
-        i++
-      ) {
+      for (let i = renderPass._lastBlendWithZWriteIndex + 1; i <= renderPass._lastBlendWithoutZWriteIndex; i++) {
         const primitiveUid = primitiveUids[i];
         const rendered = this.renderInner(primitiveUid, renderPass, isZWrite2);
         renderedSomething ||= rendered;
@@ -655,9 +618,7 @@ ${indexStr}
     const memoryManager: MemoryManager = MemoryManager.getInstance();
 
     // the GPU global Storage
-    const gpuInstanceDataBuffer: Buffer | undefined = memoryManager.getBuffer(
-      BufferUse.GPUInstanceData
-    );
+    const gpuInstanceDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUInstanceData);
 
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
     // const dataTextureByteSize =
@@ -666,11 +627,7 @@ ${indexStr}
     if (this.__storageBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       // Update
       const dataSizeForDataTexture = gpuInstanceDataBuffer!.takenSizeInByte / 4;
-      webGpuResourceRepository.updateStorageBuffer(
-        this.__storageBufferUid,
-        float32Array,
-        dataSizeForDataTexture
-      );
+      webGpuResourceRepository.updateStorageBuffer(this.__storageBufferUid, float32Array, dataSizeForDataTexture);
     } else {
       // Create
       this.__storageBufferUid = webGpuResourceRepository.createStorageBuffer(float32Array);
@@ -685,20 +642,16 @@ ${indexStr}
     const memoryManager: MemoryManager = MemoryManager.getInstance();
 
     // the GPU global Storage
-    const gpuInstanceDataBuffer: Buffer | undefined = memoryManager.getBuffer(
-      BufferUse.GPUInstanceData
-    );
+    const gpuInstanceDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUInstanceData);
 
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
     const globalDataRepository = GlobalDataRepository.getInstance();
     const float32Array = new Float32Array(gpuInstanceDataBuffer!.getArrayBuffer());
     if (this.__storageBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       // Update
-      const offsetOfStorageBuffer =
-        globalDataRepository.getLocationOffsetOfProperty('viewMatrix') * 16;
+      const offsetOfStorageBuffer = globalDataRepository.getLocationOffsetOfProperty('viewMatrix') * 16;
       const offsetOfFloat32Array = offsetOfStorageBuffer / 4;
-      const positionOfBoneMatrix =
-        (globalDataRepository.getLocationOffsetOfProperty('boneMatrix') * 16) / 4; // camera infos are before boneMatrix
+      const positionOfBoneMatrix = (globalDataRepository.getLocationOffsetOfProperty('boneMatrix') * 16) / 4; // camera infos are before boneMatrix
       webGpuResourceRepository.updateStorageBufferPartially(
         this.__storageBufferUid,
         float32Array,
@@ -720,9 +673,7 @@ ${indexStr}
     const memoryManager: MemoryManager = MemoryManager.getInstance();
 
     // the GPU global Storage
-    const blendShapeDataBuffer: Buffer | undefined = memoryManager.getBuffer(
-      BufferUse.GPUVertexData
-    );
+    const blendShapeDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUVertexData);
 
     if (blendShapeDataBuffer == null) {
       return;
@@ -740,8 +691,7 @@ ${indexStr}
       );
     } else {
       // Create
-      this.__storageBlendShapeBufferUid =
-        webGpuResourceRepository.createStorageBlendShapeBuffer(float32Array);
+      this.__storageBlendShapeBufferUid = webGpuResourceRepository.createStorageBlendShapeBuffer(float32Array);
     }
 
     let i = 0;
@@ -759,10 +709,7 @@ ${indexStr}
       }
     }
     const elementNumToCopy = Config.maxMorphTargetNumber * i;
-    webGpuResourceRepository.updateUniformMorphOffsetsBuffer(
-      this.__uniformMorphOffsetsTypedArray!,
-      elementNumToCopy
-    );
+    webGpuResourceRepository.updateUniformMorphOffsetsBuffer(this.__uniformMorphOffsetsTypedArray!, elementNumToCopy);
   }
 
   /**
@@ -771,9 +718,7 @@ ${indexStr}
    */
   private __updateUniformMorph() {
     const memoryManager: MemoryManager = MemoryManager.getInstance();
-    const blendShapeDataBuffer: Buffer | undefined = memoryManager.getBuffer(
-      BufferUse.GPUVertexData
-    );
+    const blendShapeDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUVertexData);
     if (blendShapeDataBuffer == null) {
       return;
     }
@@ -785,17 +730,13 @@ ${indexStr}
       const blendShapeComponent = blendShapeComponents[i] as BlendShapeComponent;
       const weights = blendShapeComponent!.weights;
       for (let j = 0; j < weights.length; j++) {
-        this.__uniformMorphWeightsTypedArray![
-          Config.maxMorphTargetNumber * blendShapeComponent.componentSID + j
-        ] = weights[j];
+        this.__uniformMorphWeightsTypedArray![Config.maxMorphTargetNumber * blendShapeComponent.componentSID + j] =
+          weights[j];
       }
     }
     if (blendShapeComponents.length > 0) {
       const elementNumToCopy = Config.maxMorphTargetNumber * blendShapeComponents.length;
-      webGpuResourceRepository.updateUniformMorphWeightsBuffer(
-        this.__uniformMorphWeightsTypedArray!,
-        elementNumToCopy
-      );
+      webGpuResourceRepository.updateUniformMorphWeightsBuffer(this.__uniformMorphWeightsTypedArray!, elementNumToCopy);
     }
   }
 
@@ -808,11 +749,7 @@ ${indexStr}
    * @param isVRMainPass - Whether this is a VR main rendering pass
    * @returns The component SID of the appropriate camera, or -1 if no camera is available
    */
-  private __getAppropriateCameraComponentSID(
-    renderPass: RenderPass,
-    displayIdx: 0 | 1,
-    isVRMainPass: boolean
-  ): number {
+  private __getAppropriateCameraComponentSID(renderPass: RenderPass, displayIdx: 0 | 1, isVRMainPass: boolean): number {
     if (isVRMainPass) {
       const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
       const webxrSystem = rnXRModule.WebXRSystem.getInstance();
@@ -830,10 +767,7 @@ ${indexStr}
       let cameraComponent = renderPass.cameraComponent;
       if (cameraComponent == null) {
         // if the renderPass has no cameraComponent, try to get the current cameraComponent
-        cameraComponent = ComponentRepository.getComponent(
-          CameraComponent,
-          CameraComponent.current
-        ) as CameraComponent;
+        cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
       }
       if (cameraComponent) {
         return cameraComponent.componentSID;

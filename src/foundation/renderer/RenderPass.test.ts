@@ -22,7 +22,7 @@ test('addEntities and get entities', () => {
   renderPass.addEntities([entity1st, entity2nd]);
 
   const entities = renderPass.entities;
-  const entitieUids = entities.map((entity) => {
+  const entitieUids = entities.map(entity => {
     return entity.entityUID;
   });
 

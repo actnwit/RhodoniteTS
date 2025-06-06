@@ -102,10 +102,7 @@ export class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
       /// Matrices
       let cameraComponent = args.renderPass.cameraComponent;
       if (cameraComponent == null) {
-        cameraComponent = ComponentRepository.getComponent(
-          CameraComponent,
-          CameraComponent.current
-        ) as CameraComponent;
+        cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
       }
       this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
       this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);

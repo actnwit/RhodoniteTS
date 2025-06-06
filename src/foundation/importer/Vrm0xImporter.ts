@@ -88,10 +88,7 @@ export class Vrm0xImporter {
    * @param options - Optional loading configuration
    * @returns A promise that resolves to the VRM JSON data structure
    */
-  static async importJsonOfVRM(
-    uri: string,
-    options?: GltfLoadOption
-  ): Promise<Vrm0x> {
+  static async importJsonOfVRM(uri: string, options?: GltfLoadOption): Promise<Vrm0x> {
     const promise = new Promise<Vrm0x>(async (resolve, reject) => {
       options = this._getOptions(options);
 
@@ -122,12 +119,9 @@ export class Vrm0xImporter {
     const textures = await this._createTextures(gltfModel);
     const samplers = this._createSamplers(gltfModel);
     if (Is.exist(defaultMaterialHelperArgumentArray)) {
-      defaultMaterialHelperArgumentArray[0].textures =
-        defaultMaterialHelperArgumentArray[0].textures ?? textures;
-      defaultMaterialHelperArgumentArray[0].samplers =
-        defaultMaterialHelperArgumentArray[0].samplers ?? samplers;
-      defaultMaterialHelperArgumentArray[0].isLighting =
-        defaultMaterialHelperArgumentArray[0].isLighting ?? true;
+      defaultMaterialHelperArgumentArray[0].textures = defaultMaterialHelperArgumentArray[0].textures ?? textures;
+      defaultMaterialHelperArgumentArray[0].samplers = defaultMaterialHelperArgumentArray[0].samplers ?? samplers;
+      defaultMaterialHelperArgumentArray[0].isLighting = defaultMaterialHelperArgumentArray[0].isLighting ?? true;
     }
     this._initializeMaterialProperties(gltfModel, textures.length);
 
@@ -176,7 +170,7 @@ export class Vrm0xImporter {
       const vrmExpression: VrmExpression = {
         name: blendShapeGroup.presetName,
         isBinary: blendShapeGroup.isBinary,
-        binds: blendShapeGroup.binds.map((bind) => {
+        binds: blendShapeGroup.binds.map(bind => {
           for (let i = 0; i < gltfModel.nodes.length; i++) {
             const node = gltfModel.nodes[i];
             if (node.mesh === bind.mesh) {
@@ -233,8 +227,7 @@ export class Vrm0xImporter {
   static _readSpringBone(gltfModel: Vrm0x): void {
     const colliderGroups: VRMColliderGroup[] = [];
     for (const colliderGroupIdx in gltfModel.extensions.VRM.secondaryAnimation.colliderGroups) {
-      const colliderGroup =
-        gltfModel.extensions.VRM.secondaryAnimation.colliderGroups[colliderGroupIdx];
+      const colliderGroup = gltfModel.extensions.VRM.secondaryAnimation.colliderGroups[colliderGroupIdx];
       const vrmColliderGroup = new VRMColliderGroup();
       colliderGroups.push(vrmColliderGroup);
       const colliders: SphereCollider[] = [];
@@ -261,7 +254,7 @@ export class Vrm0xImporter {
       const vrmSpringBoneGroup = new VRMSpring(jointRootEntity.getSceneGraph());
 
       vrmSpringBoneGroup.tryToSetUniqueName(boneGroup.comment, true);
-      vrmSpringBoneGroup.colliderGroups = boneGroup.colliderGroups.map((colliderGroupIndex) => {
+      vrmSpringBoneGroup.colliderGroups = boneGroup.colliderGroups.map(colliderGroupIndex => {
         return colliderGroups[colliderGroupIndex];
       });
 
@@ -275,8 +268,7 @@ export class Vrm0xImporter {
       }
 
       if (boneGroup.center != null && boneGroup.center !== -1) {
-        vrmSpringBoneGroup.center =
-          gltfModel.asset.extras!.rnEntities![boneGroup.center].getSceneGraph();
+        vrmSpringBoneGroup.center = gltfModel.asset.extras!.rnEntities![boneGroup.center].getSceneGraph();
       }
 
       boneGroups.push(vrmSpringBoneGroup);
@@ -450,10 +442,7 @@ export class Vrm0xImporter {
    * @param gltfModel - The GLTF model containing MToon materials
    * @param texturesLength - The total number of textures for dummy texture assignment
    */
-  private static __initializeMToonMaterialProperties(
-    gltfModel: RnM2,
-    texturesLength: number
-  ): void {
+  private static __initializeMToonMaterialProperties(gltfModel: RnM2, texturesLength: number): void {
     const materialProperties = gltfModel.extensions.VRM.materialProperties;
 
     const dummyWhiteTextureNumber = texturesLength - 2;
@@ -506,42 +495,14 @@ export class Vrm0xImporter {
       // set num of texture array
       const textureProperties = materialProperties[i].textureProperties;
       this.__initializeForUndefinedProperty(textureProperties, '_BumpMap', dummyWhiteTextureNumber);
-      this.__initializeForUndefinedProperty(
-        textureProperties,
-        '_EmissionMap',
-        dummyBlackTextureNumber
-      );
+      this.__initializeForUndefinedProperty(textureProperties, '_EmissionMap', dummyBlackTextureNumber);
       this.__initializeForUndefinedProperty(textureProperties, '_MainTex', dummyWhiteTextureNumber);
-      this.__initializeForUndefinedProperty(
-        textureProperties,
-        '_OutlineWidthTexture',
-        dummyWhiteTextureNumber
-      );
-      this.__initializeForUndefinedProperty(
-        textureProperties,
-        '_ReceiveShadowTexture',
-        dummyWhiteTextureNumber
-      );
-      this.__initializeForUndefinedProperty(
-        textureProperties,
-        '_RimTexture',
-        dummyBlackTextureNumber
-      );
-      this.__initializeForUndefinedProperty(
-        textureProperties,
-        '_ShadeTexture',
-        dummyWhiteTextureNumber
-      );
-      this.__initializeForUndefinedProperty(
-        textureProperties,
-        '_ShadingGradeTexture',
-        dummyWhiteTextureNumber
-      );
-      this.__initializeForUndefinedProperty(
-        textureProperties,
-        '_SphereAdd',
-        dummyBlackTextureNumber
-      );
+      this.__initializeForUndefinedProperty(textureProperties, '_OutlineWidthTexture', dummyWhiteTextureNumber);
+      this.__initializeForUndefinedProperty(textureProperties, '_ReceiveShadowTexture', dummyWhiteTextureNumber);
+      this.__initializeForUndefinedProperty(textureProperties, '_RimTexture', dummyBlackTextureNumber);
+      this.__initializeForUndefinedProperty(textureProperties, '_ShadeTexture', dummyWhiteTextureNumber);
+      this.__initializeForUndefinedProperty(textureProperties, '_ShadingGradeTexture', dummyWhiteTextureNumber);
+      this.__initializeForUndefinedProperty(textureProperties, '_SphereAdd', dummyBlackTextureNumber);
       // this.__initializeForUndefinedProperty(textureProperties, "_UvAnimMaskTexture", dummyWhiteTextureNumber);
     }
 
@@ -563,11 +524,7 @@ export class Vrm0xImporter {
    * @param propertyName - The name of the property to check
    * @param initialValue - The default value to set if the property is undefined
    */
-  private static __initializeForUndefinedProperty(
-    object: any,
-    propertyName: string,
-    initialValue: any
-  ): void {
+  private static __initializeForUndefinedProperty(object: any, propertyName: string, initialValue: any): void {
     if (object[propertyName] == null) object[propertyName] = initialValue;
   }
 
@@ -604,9 +561,7 @@ export class Vrm0xImporter {
         files: {},
         loaderExtension: undefined,
         defaultMaterialHelperName: undefined,
-        defaultMaterialHelperArgumentArray: [
-          { isLighting: true, isMorphing: true, isSkinning: true },
-        ],
+        defaultMaterialHelperArgumentArray: [{ isLighting: true, isMorphing: true, isSkinning: true }],
         statesOfElements: [
           {
             targets: [],

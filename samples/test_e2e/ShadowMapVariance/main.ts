@@ -26,16 +26,8 @@ const cameraComponentDepth = createEntityDepthCamera().getCamera();
 const cameraComponentMain = createEntityMainCamera().getCamera();
 
 // prepare render passes
-const renderPassesDepth = createRenderPassesDepth(
-  cameraComponentDepth,
-  entitiesRenderTarget,
-  false
-);
-const renderPassesSquareDepth = createRenderPassesDepth(
-  cameraComponentDepth,
-  entitiesRenderTarget,
-  true
-);
+const renderPassesDepth = createRenderPassesDepth(cameraComponentDepth, entitiesRenderTarget, false);
+const renderPassesSquareDepth = createRenderPassesDepth(cameraComponentDepth, entitiesRenderTarget, true);
 
 const renderPassDepthBlurHV = renderPassesDepth[2];
 const renderPassSquareDepthBlurHV = renderPassesSquareDepth[2];
@@ -85,11 +77,7 @@ function createRenderPassesDepth(
   entitiesRenderTarget: Rn.IMeshEntity[],
   isSquareDepth: boolean
 ) {
-  const renderPassDepth = createRenderPassDepthEncode(
-    cameraComponentDepth,
-    entitiesRenderTarget,
-    isSquareDepth
-  );
+  const renderPassDepth = createRenderPassDepthEncode(cameraComponentDepth, entitiesRenderTarget, isSquareDepth);
   createAndSetFramebuffer(renderPassDepth, resolutionDepthCamera, 1);
 
   const renderPassDepthBlurH = createRenderPassGaussianBlurForDepth(renderPassDepth, true);
@@ -202,11 +190,7 @@ function createEntityBoard() {
   return entity;
 }
 
-function createAndSetFramebuffer(
-  renderPass: Rn.RenderPass,
-  resolution: number,
-  textureNum: number
-) {
+function createAndSetFramebuffer(renderPass: Rn.RenderPass, resolution: number, textureNum: number) {
   const framebuffer = Rn.RenderableHelper.createFrameBuffer({
     width: resolution,
     height: resolution,
@@ -218,10 +202,7 @@ function createAndSetFramebuffer(
   return framebuffer;
 }
 
-function createRenderPassGaussianBlurForDepth(
-  renderPassBlurTarget: Rn.RenderPass,
-  isHorizontal: boolean
-) {
+function createRenderPassGaussianBlurForDepth(renderPassBlurTarget: Rn.RenderPass, isHorizontal: boolean) {
   const material = Rn.MaterialHelper.createGaussianBlurForEncodedDepthMaterial({
     additionalName: '',
     maxInstancesNumber: 10,
@@ -238,15 +219,9 @@ function createRenderPassGaussianBlurForDepth(
   }
 
   const framebufferTarget = renderPassBlurTarget.getFramebuffer();
-  material.setParameter(
-    'framebufferSize',
-    Rn.Vector2.fromCopy2(framebufferTarget.width, framebufferTarget.height)
-  );
+  material.setParameter('framebufferSize', Rn.Vector2.fromCopy2(framebufferTarget.width, framebufferTarget.height));
   const TextureTarget = framebufferTarget.colorAttachments[0] as Rn.RenderTargetTexture;
-  const renderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
-    material,
-    TextureTarget
-  );
+  const renderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(material, TextureTarget);
 
   return renderPass;
 }

@@ -37,18 +37,16 @@ cameraComponent.aspect = 1.0;
 const expressions = [];
 
 // vrm
-const vrmExpression = (
-  await Rn.GltfImporter.importFromUrl('../../../assets/vrm/test.vrm', {
-    defaultMaterialHelperArgumentArray: [
-      {
-        isSkinning: false,
-        isMorphing: false,
-        makeOutputSrgb: false,
-      },
-    ],
-    cameraComponent: cameraComponent,
-  })
-);
+const vrmExpression = await Rn.GltfImporter.importFromUrl('../../../assets/vrm/test.vrm', {
+  defaultMaterialHelperArgumentArray: [
+    {
+      isSkinning: false,
+      isMorphing: false,
+      makeOutputSrgb: false,
+    },
+  ],
+  cameraComponent: cameraComponent,
+});
 expressions.push(vrmExpression);
 
 const vrmMainRenderPass = vrmExpression.renderPasses[0];
@@ -79,10 +77,7 @@ const postEffectCameraEntity = createPostEffectCameraEntity();
 const postEffectCameraComponent = postEffectCameraEntity.getCamera();
 
 const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial();
-const gammaCorrectionRenderPass = createPostEffectRenderPass(
-  gammaCorrectionMaterial,
-  postEffectCameraComponent
-);
+const gammaCorrectionRenderPass = createPostEffectRenderPass(gammaCorrectionMaterial, postEffectCameraComponent);
 
 setTextureParameterForMeshComponents(
   gammaCorrectionRenderPass.meshComponents,
@@ -102,10 +97,7 @@ gammaCorrectionRenderPass.setFramebuffer(fxaaTargetFramebuffer);
 
 const fxaaRenderPass = createRenderPassSharingEntitiesAndCamera(gammaCorrectionRenderPass);
 const fxaaMaterial = Rn.MaterialHelper.createFXAA3QualityMaterial();
-fxaaMaterial.setParameter(
-  'screenInfo',
-  Rn.Vector2.fromCopyArray2([displayResolution, displayResolution])
-);
+fxaaMaterial.setParameter('screenInfo', Rn.Vector2.fromCopyArray2([displayResolution, displayResolution]));
 const sampler = new Rn.Sampler({
   magFilter: Rn.TextureParameter.Linear,
   minFilter: Rn.TextureParameter.Linear,

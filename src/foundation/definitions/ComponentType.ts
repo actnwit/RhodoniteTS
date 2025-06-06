@@ -161,19 +161,7 @@ const HalfFloat = new ComponentTypeClass({
   webgpu: 'float16',
 });
 
-const typeList = [
-  Unknown,
-  Byte,
-  UnsignedByte,
-  Short,
-  UnsignedShort,
-  Int,
-  UnsignedInt,
-  Float,
-  Double,
-  HalfFloat,
-  Bool,
-];
+const typeList = [Unknown, Byte, UnsignedByte, Short, UnsignedShort, Int, UnsignedInt, Float, Double, HalfFloat, Bool];
 
 function from(index: number): ComponentTypeEnum {
   return _from({ typeList, index }) as ComponentTypeEnum;
@@ -352,9 +340,7 @@ export type Gltf2AccessorComponentType =
   | typeof UnsignedInt
   | typeof Float;
 
-function toGltf2AccessorComponentType(
-  componentTypeForGltf2: ComponentTypeEnum
-): Gltf2AccessorComponentTypeNumber {
+function toGltf2AccessorComponentType(componentTypeForGltf2: ComponentTypeEnum): Gltf2AccessorComponentTypeNumber {
   return componentTypeForGltf2.index as Gltf2AccessorComponentTypeNumber;
 }
 

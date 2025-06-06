@@ -39,11 +39,7 @@ function createCubes(numberToCreate: number) {
 
   for (let i = 0; i < numberToCreate; i++) {
     const cube = cubes[i];
-    cube.position = Rn.Vector3.fromCopyArray([
-      5 * Math.random() - 2.5,
-      i + 5,
-      5 * Math.random() - 2.5,
-    ]);
+    cube.position = Rn.Vector3.fromCopyArray([5 * Math.random() - 2.5, i + 5, 5 * Math.random() - 2.5]);
     cube.eulerAngles = Rn.Vector3.fromCopyArray([Math.random(), 0, Math.random()]);
   }
   return cubes;
@@ -66,11 +62,7 @@ function createSpheres(numberToCreate: number) {
   for (let i = 0; i < numberToCreate; i++) {
     const sphere = spheres[i];
     sphere.scale = Rn.Vector3.fromCopyArray([1, Math.random() + 0.2, 1]);
-    sphere.position = Rn.Vector3.fromCopyArray([
-      5 * Math.random() - 2.5,
-      i + 5,
-      5 * Math.random() - 2.5,
-    ]);
+    sphere.position = Rn.Vector3.fromCopyArray([5 * Math.random() - 2.5, i + 5, 5 * Math.random() - 2.5]);
     sphere.eulerAngles = Rn.Vector3.fromCopyArray([Math.random(), 0, Math.random()]);
   }
   return spheres;

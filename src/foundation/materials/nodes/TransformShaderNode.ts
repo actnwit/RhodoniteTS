@@ -41,20 +41,11 @@ export class TransformShaderNode extends AbstractShaderNode {
      * - Mat2 * Vec2 = Vec2
      */
     let outValueCompositionType: CompositionTypeEnum = CompositionType.Unknown;
-    if (
-      lhsCompositionType === CompositionType.Mat4 &&
-      rhsCompositionType === CompositionType.Vec4
-    ) {
+    if (lhsCompositionType === CompositionType.Mat4 && rhsCompositionType === CompositionType.Vec4) {
       outValueCompositionType = CompositionType.Vec4;
-    } else if (
-      lhsCompositionType === CompositionType.Mat3 &&
-      rhsCompositionType === CompositionType.Vec3
-    ) {
+    } else if (lhsCompositionType === CompositionType.Mat3 && rhsCompositionType === CompositionType.Vec3) {
       outValueCompositionType = CompositionType.Vec3;
-    } else if (
-      lhsCompositionType === CompositionType.Mat2 &&
-      rhsCompositionType === CompositionType.Vec2
-    ) {
+    } else if (lhsCompositionType === CompositionType.Mat2 && rhsCompositionType === CompositionType.Vec2) {
       outValueCompositionType = CompositionType.Vec2;
     }
     this.__inputs.push({

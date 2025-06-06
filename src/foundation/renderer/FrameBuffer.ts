@@ -158,12 +158,7 @@ export class FrameBuffer extends RnObject {
    * @param mipLevel - The mip level to attach
    * @returns True if the attachment was successful, false if dimensions don't match
    */
-  setColorAttachmentLayerAt(
-    index: Index,
-    renderable: IRenderable,
-    layerIndex: Index,
-    mipLevel: Index
-  ) {
+  setColorAttachmentLayerAt(index: Index, renderable: IRenderable, layerIndex: Index, mipLevel: Index) {
     if (renderable.width !== this.width || renderable.height !== this.height) {
       return false;
     }
@@ -175,13 +170,7 @@ export class FrameBuffer extends RnObject {
         renderable.changeRenderTargetLayerWebGPU(layerIndex);
       }
     } else {
-      cgApiResourceRepository.attachColorBufferLayerToFrameBufferObject(
-        this,
-        index,
-        renderable,
-        layerIndex,
-        mipLevel
-      );
+      cgApiResourceRepository.attachColorBufferLayerToFrameBufferObject(this, index, renderable, layerIndex, mipLevel);
     }
 
     this.__colorAttachmentMap.set(RenderBufferTarget.from(index), renderable);
@@ -197,12 +186,7 @@ export class FrameBuffer extends RnObject {
    * @param renderable - The cube texture renderable to attach
    * @returns True if the attachment was successful, false if dimensions don't match
    */
-  setColorAttachmentCubeAt(
-    attachmentIndex: Index,
-    faceIndex: Index,
-    mipLevel: Index,
-    renderable: IRenderable
-  ) {
+  setColorAttachmentCubeAt(attachmentIndex: Index, faceIndex: Index, mipLevel: Index, renderable: IRenderable) {
     if (renderable.width !== this.width || renderable.height !== this.height) {
       return false;
     }

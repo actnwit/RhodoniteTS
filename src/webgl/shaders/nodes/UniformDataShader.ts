@@ -31,9 +31,7 @@ export class UniformDataShader extends CommonShaderPart {
 // #param ${this.__variableName}: ${this.__compositionType.toWGSLType(
         this.__componentType
       )}; // initialValue=${this.__valueStr}
-fn ${this.__functionName}(outValue: ptr<function, ${this.__compositionType.toWGSLType(
-        this.__componentType
-      )}>) {
+fn ${this.__functionName}(outValue: ptr<function, ${this.__compositionType.toWGSLType(this.__componentType)}>) {
   *outValue = get_${this.__variableName}(uniformDrawParameters.materialSid, 0);
 }
 `;
@@ -42,9 +40,7 @@ fn ${this.__functionName}(outValue: ptr<function, ${this.__compositionType.toWGS
 uniform ${this.__compositionType.getGlslStr(this.__componentType)} u_${
         this.__variableName
       }; // initialValue=${this.__valueStr}
-void ${this.__functionName}(out ${this.__compositionType.getGlslStr(
-        this.__componentType
-      )} outValue) {
+void ${this.__functionName}(out ${this.__compositionType.getGlslStr(this.__componentType)} outValue) {
   #ifdef RN_IS_DATATEXTURE_MODE
     float materialSID = u_currentComponentSIDs[0]; // index 0 data is the materialSID
   #else
@@ -63,9 +59,7 @@ void ${this.__functionName}(out ${this.__compositionType.getGlslStr(
 // #param ${this.__variableName}: ${this.__compositionType.toWGSLType(
         this.__componentType
       )}; // initialValue=${this.__valueStr}
-fn ${this.__functionName}(outValue: ptr<function, ${this.__compositionType.toWGSLType(
-        this.__componentType
-      )}>) {
+fn ${this.__functionName}(outValue: ptr<function, ${this.__compositionType.toWGSLType(this.__componentType)}>) {
   *outValue = get_${this.__variableName}(uniformDrawParameters.materialSid, 0);
 }
 `;
@@ -74,9 +68,7 @@ fn ${this.__functionName}(outValue: ptr<function, ${this.__compositionType.toWGS
 uniform ${this.__compositionType.getGlslStr(this.__componentType)} u_${
         this.__variableName
       }; // initialValue=${this.__valueStr}
-void ${this.__functionName}(out ${this.__compositionType.getGlslStr(
-        this.__componentType
-      )} outValue) {
+void ${this.__functionName}(out ${this.__compositionType.getGlslStr(this.__componentType)} outValue) {
 #ifdef RN_IS_DATATEXTURE_MODE
   float materialSID = u_currentComponentSIDs[0]; // index 0 data is the materialSID
 #else

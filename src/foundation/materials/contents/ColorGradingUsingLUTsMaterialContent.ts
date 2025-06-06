@@ -62,9 +62,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
     } else {
       targetTexture = dummyBlackTexture;
       if (framebuffer != null) {
-        Logger.warn(
-          'renderPass does not have framebuffer.colorAttachments[' + colorAttachmentsNumber + ']'
-        );
+        Logger.warn('renderPass does not have framebuffer.colorAttachments[' + colorAttachmentsNumber + ']');
       } else {
         Logger.warn('renderPass does not have framebuffer');
       }
@@ -150,10 +148,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
     /// Matrices
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getComponent(
-        CameraComponent,
-        CameraComponent.current
-      ) as CameraComponent;
+      cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
     }
     if (cameraComponent) {
       this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);

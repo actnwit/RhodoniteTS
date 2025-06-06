@@ -6,7 +6,7 @@ import { Is } from './Is';
  * @returns True if running on a mobile VR device, false otherwise
  */
 const isMobileVr = function (): boolean {
-  if (typeof window !== "undefined") {
+  if (typeof window !== 'undefined') {
     return /(Pacific Build.+OculusBrowser.+SamsungBrowser.+)|(SamsungBrowser)|(Mobile VR)/i.test(
       window.navigator.userAgent
     );
@@ -125,12 +125,7 @@ const isNode = function (): boolean {
  * @param finalSize - Optional final size of the resulting buffer
  * @returns The concatenated ArrayBuffer
  */
-const concatArrayBuffers = function (
-  segments: ArrayBuffer[],
-  sizes: Byte[],
-  offsets: Byte[],
-  finalSize?: Byte
-) {
+const concatArrayBuffers = function (segments: ArrayBuffer[], sizes: Byte[], offsets: Byte[], finalSize?: Byte) {
   let sumLength = 0;
   for (let i = 0; i < sizes.length; ++i) {
     sumLength += sizes[i];

@@ -132,27 +132,13 @@ export class WebGLContextWrapper {
       this.webgl2ExtTFA = this.__getExtension(WebGLExtension.TextureFilterAnisotropic);
       this.webgl2ExtCBF = this.__getExtension(WebGLExtension.ColorBufferFloatWebGL2);
       this.webgl2ExtCBHF = this.__getExtension(WebGLExtension.ColorBufferHalfFloatWebGL2);
-      this.webgl2ExtCTAstc = this.__getCompressedTextureExtension(
-        WebGLExtension.CompressedTextureAstc
-      );
-      this.webgl2ExtCTS3tc = this.__getCompressedTextureExtension(
-        WebGLExtension.CompressedTextureS3tc
-      );
-      this.webgl2ExtCTPvrtc = this.__getCompressedTextureExtension(
-        WebGLExtension.CompressedTexturePvrtc
-      );
-      this.webgl2ExtCTAtc = this.__getCompressedTextureExtension(
-        WebGLExtension.CompressedTextureAtc
-      );
-      this.webgl2ExtCTEtc = this.__getCompressedTextureExtension(
-        WebGLExtension.CompressedTextureEtc
-      );
-      this.webgl2ExtCTEtc1 = this.__getCompressedTextureExtension(
-        WebGLExtension.CompressedTextureEtc1
-      );
-      this.webgl2ExtCTBptc = this.__getCompressedTextureExtension(
-        WebGLExtension.CompressedTextureBptc
-      );
+      this.webgl2ExtCTAstc = this.__getCompressedTextureExtension(WebGLExtension.CompressedTextureAstc);
+      this.webgl2ExtCTS3tc = this.__getCompressedTextureExtension(WebGLExtension.CompressedTextureS3tc);
+      this.webgl2ExtCTPvrtc = this.__getCompressedTextureExtension(WebGLExtension.CompressedTexturePvrtc);
+      this.webgl2ExtCTAtc = this.__getCompressedTextureExtension(WebGLExtension.CompressedTextureAtc);
+      this.webgl2ExtCTEtc = this.__getCompressedTextureExtension(WebGLExtension.CompressedTextureEtc);
+      this.webgl2ExtCTEtc1 = this.__getCompressedTextureExtension(WebGLExtension.CompressedTextureEtc1);
+      this.webgl2ExtCTBptc = this.__getCompressedTextureExtension(WebGLExtension.CompressedTextureBptc);
       this.webgl2ExtMLTVIEW = this.__getExtension(WebGLExtension.OculusMultiview);
       if (this.webgl2ExtMLTVIEW) {
         this.webgl2ExtMLTVIEW.is_multisample = true;
@@ -352,7 +338,7 @@ export class WebGLContextWrapper {
     }
     const buffer = buffers[0].webGLConstantValue();
     gl.drawBuffers(
-      buffers.map((buf) => {
+      buffers.map(buf => {
         return buf.webGLConstantValue();
       })
     );
@@ -611,10 +597,7 @@ export class WebGLContextWrapper {
     const maxBlockSize = gl.getParameter(gl.MAX_UNIFORM_BLOCK_SIZE) as number;
     this.#maxVertexUniformBlocks = gl.getParameter(gl.MAX_VERTEX_UNIFORM_BLOCKS) as number;
     this.#maxFragmentUniformBlocks = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_BLOCKS) as number;
-    this.#maxConventionUniformBlocks = Math.min(
-      this.#maxVertexUniformBlocks,
-      this.#maxFragmentUniformBlocks
-    );
+    this.#maxConventionUniformBlocks = Math.min(this.#maxVertexUniformBlocks, this.#maxFragmentUniformBlocks);
     this.#alignedMaxUniformBlockSize = maxBlockSize - (maxBlockSize % offsetAlignment);
     this.#uniformBufferOffsetAlignment = offsetAlignment;
     this.#maxUniformBlockSize = maxBlockSize;

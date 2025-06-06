@@ -17,18 +17,16 @@ cameraComponent.zFar = 1000.0;
 cameraComponent.setFovyAndChangeFocalLength(25.0);
 
 // gltf
-const expression = (
-  await Rn.GltfImporter.importFromUrl(
-    './../../../assets/gltf/glTF-Sample-Assets/Models/TextureSettingsTest/glTF-Binary/TextureSettingsTest.glb',
-    {
-      cameraComponent: cameraComponent,
-      defaultMaterialHelperArgumentArray: [
-        {
-          isLighting: false,
-        },
-      ],
-    }
-  )
+const expression = await Rn.GltfImporter.importFromUrl(
+  './../../../assets/gltf/glTF-Sample-Assets/Models/TextureSettingsTest/glTF-Binary/TextureSettingsTest.glb',
+  {
+    cameraComponent: cameraComponent,
+    defaultMaterialHelperArgumentArray: [
+      {
+        isLighting: false,
+      },
+    ],
+  }
 );
 
 const cameraControllerComponent = cameraEntity.getCameraController();

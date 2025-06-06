@@ -49,7 +49,7 @@ export class CubeTexture extends AbstractTexture implements Disposable {
    * This helps prevent memory leaks by automatically releasing WebGL/WebGPU resources.
    */
   private static managedRegistry: FinalizationRegistry<FinalizationRegistryObject> =
-    new FinalizationRegistry<FinalizationRegistryObject>((texObj) => {
+    new FinalizationRegistry<FinalizationRegistryObject>(texObj => {
       Logger.info(
         `WebGL/WebGPU cube texture "${texObj.uniqueName}" was automatically released along with GC. But explicit release is recommended.`
       );
@@ -104,10 +104,10 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     isNamePosNeg,
     hdriFormat,
   }: {
-    baseUrl: string,
-    mipmapLevelNumber: number,
-    isNamePosNeg: boolean,
-    hdriFormat: HdriFormatEnum
+    baseUrl: string;
+    mipmapLevelNumber: number;
+    isNamePosNeg: boolean;
+    hdriFormat: HdriFormatEnum;
   }) {
     this.__startedToLoad = true;
 
@@ -115,21 +115,20 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     this.hdriFormat = hdriFormat;
 
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    const [cubeTextureUid, sampler] = await cgApiResourceRepository
-      .createCubeTextureFromFiles(
-        baseUrl,
-        mipmapLevelNumber,
-        isNamePosNeg,
-        hdriFormat
-      );
+    const [cubeTextureUid, sampler] = await cgApiResourceRepository.createCubeTextureFromFiles(
+      baseUrl,
+      mipmapLevelNumber,
+      isNamePosNeg,
+      hdriFormat
+    );
     this.__setTextureResourceUid(cubeTextureUid, this.uniqueName);
     this._recommendedTextureSampler = sampler;
     this._samplerResourceUid = sampler._samplerResourceUid;
 
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      this._textureViewResourceUid = (
-        cgApiResourceRepository as WebGpuResourceRepository
-      ).createTextureViewCube(this._textureResourceUid);
+      this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureViewCube(
+        this._textureResourceUid
+      );
     }
     this.__isTextureReady = true;
   }
@@ -405,10 +404,10 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     isNamePosNeg,
     hdriFormat,
   }: {
-    baseUrl: string,
-    mipmapLevelNumber: number,
-    isNamePosNeg: boolean,
-    hdriFormat: HdriFormatEnum
+    baseUrl: string;
+    mipmapLevelNumber: number;
+    isNamePosNeg: boolean;
+    hdriFormat: HdriFormatEnum;
   }) {
     const cubeTexture = new CubeTexture();
     await cubeTexture.loadTextureImages({

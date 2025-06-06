@@ -115,9 +115,7 @@ export const mulArrayNWithScalar_offset = Symbol('mulArrayNWithScalar_offset');
 /**
  * Symbol for multiplying two 4x4 matrices and storing the result in an output array
  */
-export const mulThatAndThisToOutAsMat44_offsetAsComposition = Symbol(
-  'mulThatAndThisToOutAsMat44_offsetAsComposition'
-);
+export const mulThatAndThisToOutAsMat44_offsetAsComposition = Symbol('mulThatAndThisToOutAsMat44_offsetAsComposition');
 
 /**
  * Symbol for adding two 4-component vectors at specific offsets
@@ -259,11 +257,7 @@ declare global {
      * @param componentN - The number of components to read
      * @returns A new Array containing N elements at the specified composition offset
      */
-    [getN_offsetAsComposition](
-      this: ArrayType,
-      offsetAsComposition: number,
-      componentN: number
-    ): Array<number>;
+    [getN_offsetAsComposition](this: ArrayType, offsetAsComposition: number, componentN: number): Array<number>;
 
     /**
      * Adds a 2-component vector to this array in-place
@@ -279,12 +273,7 @@ declare global {
      * @param argOffset - The offset in the argument array
      * @returns The modified array (this)
      */
-    [add2_offset](
-      this: ArrayType,
-      array: ArrayType,
-      selfOffset: number,
-      argOffset: number
-    ): ArrayType;
+    [add2_offset](this: ArrayType, array: ArrayType, selfOffset: number, argOffset: number): ArrayType;
 
     /**
      * Adds a 3-component vector to this array in-place
@@ -300,12 +289,7 @@ declare global {
      * @param argOffset - The offset in the argument array
      * @returns The modified array (this)
      */
-    [add3_offset](
-      this: ArrayType,
-      array: ArrayType,
-      selfOffset: number,
-      argOffset: number
-    ): ArrayType;
+    [add3_offset](this: ArrayType, array: ArrayType, selfOffset: number, argOffset: number): ArrayType;
 
     /**
      * Adds a 4-component vector to this array in-place
@@ -321,12 +305,7 @@ declare global {
      * @param argOffset - The offset in the argument array
      * @returns The modified array (this)
      */
-    [add4_offset](
-      this: ArrayType,
-      array: ArrayType,
-      selfOffset: number,
-      argOffset: number
-    ): ArrayType;
+    [add4_offset](this: ArrayType, array: ArrayType, selfOffset: number, argOffset: number): ArrayType;
 
     /**
      * Multiplies a 3-component vector by a scalar in-place at a specific offset
@@ -351,12 +330,7 @@ declare global {
      * @param value - The scalar value to multiply by
      * @returns The modified array (this)
      */
-    [mulArrayNWithScalar_offset](
-      this: ArrayType,
-      offset: number,
-      componentN: number,
-      value: number
-    ): Array4<number>;
+    [mulArrayNWithScalar_offset](this: ArrayType, offset: number, componentN: number, value: number): Array4<number>;
 
     /**
      * Multiplies two 4x4 matrices and stores the result in an output array
@@ -509,10 +483,7 @@ const get1_offset_fn = function (this: ArrayType, offset: number): Array1<number
  * @param offsetAsComposition - The composition index (element index = offsetAsComposition * 1)
  * @returns A new Array1 containing one element at the specified composition offset
  */
-const get1_offsetAsComposition_fn = function (
-  this: ArrayType,
-  offsetAsComposition: number
-): Array1<number> {
+const get1_offsetAsComposition_fn = function (this: ArrayType, offsetAsComposition: number): Array1<number> {
   return [this[offsetAsComposition]];
 };
 
@@ -538,10 +509,7 @@ const get2_offset_fn = function (this: ArrayType, offset: number): Array2<number
  * @param offsetAsComposition - The composition index (element index = offsetAsComposition * 2)
  * @returns A new Array2 containing two elements at the specified composition offset
  */
-const get2_offsetAsComposition_fn = function (
-  this: ArrayType,
-  offsetAsComposition: number
-): Array2<number> {
+const get2_offsetAsComposition_fn = function (this: ArrayType, offsetAsComposition: number): Array2<number> {
   return [this[offsetAsComposition * 2], this[offsetAsComposition * 2 + 1]];
 };
 
@@ -567,15 +535,8 @@ const get3_offset_fn = function (this: ArrayType, offset: number): Array3<number
  * @param offsetAsComposition - The composition index (element index = offsetAsComposition * 3)
  * @returns A new Array3 containing three elements at the specified composition offset
  */
-const get3_offsetAsComposition_fn = function (
-  this: ArrayType,
-  offsetAsComposition: number
-): Array3<number> {
-  return [
-    this[offsetAsComposition * 3],
-    this[offsetAsComposition * 3 + 1],
-    this[offsetAsComposition * 3 + 2],
-  ];
+const get3_offsetAsComposition_fn = function (this: ArrayType, offsetAsComposition: number): Array3<number> {
+  return [this[offsetAsComposition * 3], this[offsetAsComposition * 3 + 1], this[offsetAsComposition * 3 + 2]];
 };
 
 /**
@@ -600,10 +561,7 @@ const get4_offset_fn = function (this: ArrayType, offset: number): Array4<number
  * @param offsetAsComposition - The composition index (element index = offsetAsComposition * 4)
  * @returns A new Array4 containing four elements at the specified composition offset
  */
-const get4_offsetAsComposition_fn = function (
-  this: ArrayType,
-  offsetAsComposition: number
-): Array4<number> {
+const get4_offsetAsComposition_fn = function (this: ArrayType, offsetAsComposition: number): Array4<number> {
   return [
     this[offsetAsComposition * 4],
     this[offsetAsComposition * 4 + 1],
@@ -618,11 +576,7 @@ const get4_offsetAsComposition_fn = function (
  * @param componentN - The number of components to read
  * @returns A new Array containing N elements starting at the specified offset
  */
-const getN_offset_fn = function (
-  this: ArrayType,
-  offset: number,
-  componentN: number
-): Array<number> {
+const getN_offset_fn = function (this: ArrayType, offset: number, componentN: number): Array<number> {
   const array = new Array(componentN) as unknown as Array<number>;
   for (let i = 0; i < componentN; i++) {
     array[i] = this[offset + i];
@@ -667,12 +621,7 @@ const add2_fn = function (this: ArrayType, array: ArrayType) {
  * @param argOffset - The offset in the argument array
  * @returns The modified array (this)
  */
-const add2_offset_fn = function (
-  this: ArrayType,
-  array: ArrayType,
-  selfOffset: number,
-  argOffset: number
-) {
+const add2_offset_fn = function (this: ArrayType, array: ArrayType, selfOffset: number, argOffset: number) {
   this[selfOffset] += array[argOffset];
   this[selfOffset + 1] += array[argOffset + 1];
 
@@ -699,12 +648,7 @@ const add3_fn = function (this: ArrayType, array: ArrayType) {
  * @param argOffset - The offset in the argument array
  * @returns The modified array (this)
  */
-const add3_offset_fn = function (
-  this: ArrayType,
-  array: ArrayType,
-  selfOffset: number,
-  argOffset: number
-) {
+const add3_offset_fn = function (this: ArrayType, array: ArrayType, selfOffset: number, argOffset: number) {
   this[selfOffset] += array[argOffset];
   this[selfOffset + 1] += array[argOffset + 1];
   this[selfOffset + 2] += array[argOffset + 2];
@@ -733,12 +677,7 @@ const add4_fn = function (this: ArrayType, array: ArrayType) {
  * @param argOffset - The offset in the argument array
  * @returns The modified array (this)
  */
-const add4_offset_fn = function (
-  this: ArrayType,
-  array: ArrayType,
-  selfOffset: number,
-  argOffset: number
-) {
+const add4_offset_fn = function (this: ArrayType, array: ArrayType, selfOffset: number, argOffset: number) {
   this[selfOffset] += array[argOffset];
   this[selfOffset + 1] += array[argOffset + 1];
   this[selfOffset + 2] += array[argOffset + 2];
@@ -783,12 +722,7 @@ const mulArray4WithScalar_offset_fn = function (this: ArrayType, offset: number,
  * @param value - The scalar value to multiply by
  * @returns The modified array (this)
  */
-const mulArrayNWithScalar_offset_fn = function (
-  this: ArrayType,
-  offset: number,
-  componentN: number,
-  value: number
-) {
+const mulArrayNWithScalar_offset_fn = function (this: ArrayType, offset: number, componentN: number, value: number) {
   for (let i = 0; i < componentN; i++) {
     this[offset + i] *= value;
   }
@@ -819,25 +753,25 @@ const mulThatAndThisToOutAsMat44_offsetAsComposition_fn = function (
   const l = thatOffsetAsComposition * 16;
   const r = thisOffsetAsComposition * 16;
 
-  out[0]  = lv[l  ] * rv[r   ] + lv[l+4] * rv[r+1 ] + lv[l+8 ] * rv[r+2 ] + lv[l+12] * rv[r+3]; // m00
-  out[1]  = lv[l+1] * rv[r   ] + lv[l+5] * rv[r+1 ] + lv[l+9 ] * rv[r+2 ] + lv[l+13] * rv[r+3]; // m10
-  out[2]  = lv[l+2] * rv[r   ] + lv[l+6] * rv[r+1 ] + lv[l+10] * rv[r+2 ] + lv[l+14] * rv[r+3]; // m20
-  out[3]  = lv[l+3] * rv[r   ] + lv[l+7] * rv[r+1 ] + lv[l+11] * rv[r+2 ] + lv[l+15] * rv[r+3]; // m30
+  out[0] = lv[l] * rv[r] + lv[l + 4] * rv[r + 1] + lv[l + 8] * rv[r + 2] + lv[l + 12] * rv[r + 3]; // m00
+  out[1] = lv[l + 1] * rv[r] + lv[l + 5] * rv[r + 1] + lv[l + 9] * rv[r + 2] + lv[l + 13] * rv[r + 3]; // m10
+  out[2] = lv[l + 2] * rv[r] + lv[l + 6] * rv[r + 1] + lv[l + 10] * rv[r + 2] + lv[l + 14] * rv[r + 3]; // m20
+  out[3] = lv[l + 3] * rv[r] + lv[l + 7] * rv[r + 1] + lv[l + 11] * rv[r + 2] + lv[l + 15] * rv[r + 3]; // m30
 
-  out[4]  = lv[l  ] * rv[r+4 ] + lv[l+4] * rv[r+5 ] + lv[l+8 ] * rv[r+6 ] + lv[l+12] * rv[r+7]; // m01
-  out[5]  = lv[l+1] * rv[r+4 ] + lv[l+5] * rv[r+5 ] + lv[l+9 ] * rv[r+6 ] + lv[l+13] * rv[r+7]; // m11
-  out[6]  = lv[l+2] * rv[r+4 ] + lv[l+6] * rv[r+5 ] + lv[l+10] * rv[r+6 ] + lv[l+14] * rv[r+7]; // m21
-  out[7]  = lv[l+3] * rv[r+4 ] + lv[l+7] * rv[r+5 ] + lv[l+11] * rv[r+6 ] + lv[l+15] * rv[r+7]; // m31
+  out[4] = lv[l] * rv[r + 4] + lv[l + 4] * rv[r + 5] + lv[l + 8] * rv[r + 6] + lv[l + 12] * rv[r + 7]; // m01
+  out[5] = lv[l + 1] * rv[r + 4] + lv[l + 5] * rv[r + 5] + lv[l + 9] * rv[r + 6] + lv[l + 13] * rv[r + 7]; // m11
+  out[6] = lv[l + 2] * rv[r + 4] + lv[l + 6] * rv[r + 5] + lv[l + 10] * rv[r + 6] + lv[l + 14] * rv[r + 7]; // m21
+  out[7] = lv[l + 3] * rv[r + 4] + lv[l + 7] * rv[r + 5] + lv[l + 11] * rv[r + 6] + lv[l + 15] * rv[r + 7]; // m31
 
-  out[8 ] = lv[l  ] * rv[r+8 ] + lv[l+4] * rv[r+9 ] + lv[l+8 ] * rv[r+10] + lv[l+12] * rv[r+11]; // m02
-  out[9 ] = lv[l+1] * rv[r+8 ] + lv[l+5] * rv[r+9 ] + lv[l+9 ] * rv[r+10] + lv[l+13] * rv[r+11]; // m12
-  out[10] = lv[l+2] * rv[r+8 ] + lv[l+6] * rv[r+9 ] + lv[l+10] * rv[r+10] + lv[l+14] * rv[r+11]; // m22
-  out[11] = lv[l+3] * rv[r+8 ] + lv[l+7] * rv[r+9 ] + lv[l+11] * rv[r+10] + lv[l+15] * rv[r+11]; // m32
+  out[8] = lv[l] * rv[r + 8] + lv[l + 4] * rv[r + 9] + lv[l + 8] * rv[r + 10] + lv[l + 12] * rv[r + 11]; // m02
+  out[9] = lv[l + 1] * rv[r + 8] + lv[l + 5] * rv[r + 9] + lv[l + 9] * rv[r + 10] + lv[l + 13] * rv[r + 11]; // m12
+  out[10] = lv[l + 2] * rv[r + 8] + lv[l + 6] * rv[r + 9] + lv[l + 10] * rv[r + 10] + lv[l + 14] * rv[r + 11]; // m22
+  out[11] = lv[l + 3] * rv[r + 8] + lv[l + 7] * rv[r + 9] + lv[l + 11] * rv[r + 10] + lv[l + 15] * rv[r + 11]; // m32
 
-  out[12] = lv[l  ] * rv[r+12] + lv[l+4] * rv[r+13] + lv[l+8 ] * rv[r+14] + lv[l+12] * rv[r+15]; // m03
-  out[13] = lv[l+1] * rv[r+12] + lv[l+5] * rv[r+13] + lv[l+9 ] * rv[r+14] + lv[l+13] * rv[r+15]; // m13
-  out[14] = lv[l+2] * rv[r+12] + lv[l+6] * rv[r+13] + lv[l+10] * rv[r+14] + lv[l+14] * rv[r+15]; // m23
-  out[15] = lv[l+3] * rv[r+12] + lv[l+7] * rv[r+13] + lv[l+11] * rv[r+14] + lv[l+15] * rv[r+15]; // m33
+  out[12] = lv[l] * rv[r + 12] + lv[l + 4] * rv[r + 13] + lv[l + 8] * rv[r + 14] + lv[l + 12] * rv[r + 15]; // m03
+  out[13] = lv[l + 1] * rv[r + 12] + lv[l + 5] * rv[r + 13] + lv[l + 9] * rv[r + 14] + lv[l + 13] * rv[r + 15]; // m13
+  out[14] = lv[l + 2] * rv[r + 12] + lv[l + 6] * rv[r + 13] + lv[l + 10] * rv[r + 14] + lv[l + 14] * rv[r + 15]; // m23
+  out[15] = lv[l + 3] * rv[r + 12] + lv[l + 7] * rv[r + 13] + lv[l + 11] * rv[r + 14] + lv[l + 15] * rv[r + 15]; // m33
 };
 
 /**
@@ -889,14 +823,10 @@ const qlerp_offsetAsComposition_fn = function (
     }
     const s1 = Math.sin(theta * (1.0 - ratio)) / sinTheta;
 
-    out[0] =
-      this[0 + selfOffsetAsComposition * 4] * s1 + array[0 + argOffsetAsComposition * 4] * s2;
-    out[1] =
-      this[1 + selfOffsetAsComposition * 4] * s1 + array[1 + argOffsetAsComposition * 4] * s2;
-    out[2] =
-      this[2 + selfOffsetAsComposition * 4] * s1 + array[2 + argOffsetAsComposition * 4] * s2;
-    out[3] =
-      this[3 + selfOffsetAsComposition * 4] * s1 + array[3 + argOffsetAsComposition * 4] * s2;
+    out[0] = this[0 + selfOffsetAsComposition * 4] * s1 + array[0 + argOffsetAsComposition * 4] * s2;
+    out[1] = this[1 + selfOffsetAsComposition * 4] * s1 + array[1 + argOffsetAsComposition * 4] * s2;
+    out[2] = this[2 + selfOffsetAsComposition * 4] * s1 + array[2 + argOffsetAsComposition * 4] * s2;
+    out[3] = this[3 + selfOffsetAsComposition * 4] * s1 + array[3 + argOffsetAsComposition * 4] * s2;
   }
 
   return out;
@@ -937,9 +867,7 @@ const array2_lerp_offsetAsComposition_fn = function (
 ) {
   const ret = new Array(2);
   for (let i = 0; i < 2; i++) {
-    ret[i] =
-      this[selfOffsetAsComposition * 2 + i] * (1 - ratio) +
-      array[argOffsetAsComposition * 2 + i] * ratio;
+    ret[i] = this[selfOffsetAsComposition * 2 + i] * (1 - ratio) + array[argOffsetAsComposition * 2 + i] * ratio;
   }
   return ret;
 };
@@ -961,9 +889,7 @@ const array3_lerp_offsetAsComposition_fn = function (
 ) {
   const ret = new Array(3);
   for (let i = 0; i < 3; i++) {
-    ret[i] =
-      this[selfOffsetAsComposition * 3 + i] * (1 - ratio) +
-      array[argOffsetAsComposition * 3 + i] * ratio;
+    ret[i] = this[selfOffsetAsComposition * 3 + i] * (1 - ratio) + array[argOffsetAsComposition * 3 + i] * ratio;
   }
   return ret;
 };
@@ -985,9 +911,7 @@ const array4_lerp_offsetAsComposition_fn = function (
 ) {
   const ret = new Array(4);
   for (let i = 0; i < 4; i++) {
-    ret[i] =
-      this[selfOffsetAsComposition * 4 + i] * (1 - ratio) +
-      array[argOffsetAsComposition * 4 + i] * ratio;
+    ret[i] = this[selfOffsetAsComposition * 4 + i] * (1 - ratio) + array[argOffsetAsComposition * 4 + i] * ratio;
   }
   return ret;
 };

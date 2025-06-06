@@ -505,9 +505,7 @@ export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVect
    * @returns A new vector with the same components
    */
   clone() {
-    return new (this.constructor as any)(
-      new (this._v.constructor as any)([this._v[0], this._v[1]])
-    );
+    return new (this.constructor as any)(new (this._v.constructor as any)([this._v[0], this._v[1]]));
   }
 
   /**

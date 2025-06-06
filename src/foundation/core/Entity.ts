@@ -324,9 +324,7 @@ export class Entity extends RnObject implements IEntity {
    * @returns The CameraComponent if this entity has one, undefined otherwise
    */
   tryToGetCamera() {
-    return this.getComponentByComponentTID(WellKnownComponentTIDs.CameraComponentTID) as
-      | CameraComponent
-      | undefined;
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.CameraComponentTID) as CameraComponent | undefined;
   }
 
   /**
@@ -354,9 +352,7 @@ export class Entity extends RnObject implements IEntity {
    * @returns The LightComponent if this entity has one, undefined otherwise
    */
   tryToGetLight() {
-    return this.getComponentByComponentTID(WellKnownComponentTIDs.LightComponentTID) as
-      | LightComponent
-      | undefined;
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.LightComponentTID) as LightComponent | undefined;
   }
 
   /**
@@ -369,9 +365,7 @@ export class Entity extends RnObject implements IEntity {
    * @returns The MeshComponent if this entity has one, undefined otherwise
    */
   tryToGetMesh() {
-    return this.getComponentByComponentTID(WellKnownComponentTIDs.MeshComponentTID) as
-      | MeshComponent
-      | undefined;
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.MeshComponentTID) as MeshComponent | undefined;
   }
 
   /**
@@ -399,9 +393,7 @@ export class Entity extends RnObject implements IEntity {
    * @returns The PhysicsComponent if this entity has one, undefined otherwise
    */
   tryToGetPhysics() {
-    return this.getComponentByComponentTID(WellKnownComponentTIDs.PhysicsComponentTID) as
-      | PhysicsComponent
-      | undefined;
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.PhysicsComponentTID) as PhysicsComponent | undefined;
   }
 
   /**
@@ -459,9 +451,7 @@ export class Entity extends RnObject implements IEntity {
    * @returns The VrmComponent if this entity has one, undefined otherwise
    */
   tryToGetVrm() {
-    return this.getComponentByComponentTID(WellKnownComponentTIDs.VrmComponentTID) as
-      | VrmComponent
-      | undefined;
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.VrmComponentTID) as VrmComponent | undefined;
   }
 
   /**
@@ -503,7 +493,7 @@ export class Entity extends RnObject implements IEntity {
    * should not be used.
    */
   _destroy() {
-    this.__components.forEach((component) => {
+    this.__components.forEach(component => {
       component._destroy();
     });
     this._isAlive = false;

@@ -101,11 +101,7 @@ function setBlendSettings(material: Material, gl: WebGLRenderingContext) {
   }
 
   if (material.alphaMode === AlphaMode.Blend) {
-    setBlendEquationMode(
-      material.blendEquationMode.index,
-      material.blendEquationModeAlpha.index,
-      gl
-    );
+    setBlendEquationMode(material.blendEquationMode.index, material.blendEquationModeAlpha.index, gl);
     setBlendFuncSrcFactor(
       material.blendFuncSrcFactor.index,
       material.blendFuncDstFactor.index,
@@ -124,15 +120,8 @@ function setBlendSettings(material: Material, gl: WebGLRenderingContext) {
  * @param blendEquationModeAlpha - The blend equation mode for alpha channel
  * @param gl - The WebGL rendering context
  */
-function setBlendEquationMode(
-  blendEquationMode: number,
-  blendEquationModeAlpha: number,
-  gl: WebGLRenderingContext
-) {
-  const needUpdateBlendEquation = differentWithLastBlendEquation(
-    blendEquationMode,
-    blendEquationModeAlpha
-  );
+function setBlendEquationMode(blendEquationMode: number, blendEquationModeAlpha: number, gl: WebGLRenderingContext) {
+  const needUpdateBlendEquation = differentWithLastBlendEquation(blendEquationMode, blendEquationModeAlpha);
   if (needUpdateBlendEquation) {
     gl.blendEquationSeparate(blendEquationMode, blendEquationModeAlpha);
     lastBlendEquationMode = blendEquationMode;
@@ -148,8 +137,7 @@ function setBlendEquationMode(
  * @returns True if parameters differ from last set values, false otherwise
  */
 function differentWithLastBlendEquation(equationMode: number, equationModeAlpha: number) {
-  const result =
-    lastBlendEquationMode !== equationMode || lastBlendEquationModeAlpha !== equationModeAlpha;
+  const result = lastBlendEquationMode !== equationMode || lastBlendEquationModeAlpha !== equationModeAlpha;
   return result;
 }
 
@@ -177,12 +165,7 @@ function setBlendFuncSrcFactor(
     blendFuncAlphaDstFactor
   );
   if (needUpdateBlendFunc) {
-    gl.blendFuncSeparate(
-      blendFuncSrcFactor,
-      blendFuncDstFactor,
-      blendFuncAlphaSrcFactor,
-      blendFuncAlphaDstFactor!
-    );
+    gl.blendFuncSeparate(blendFuncSrcFactor, blendFuncDstFactor, blendFuncAlphaSrcFactor, blendFuncAlphaDstFactor!);
     lastBlendFuncSrcFactor = blendFuncSrcFactor;
     lastBlendFuncDstFactor = blendFuncDstFactor;
     lastBlendFuncAlphaSrcFactor = blendFuncAlphaSrcFactor;
@@ -316,8 +299,7 @@ function getDisplayCount(isVRMainPass: boolean, webxrSystem: WebXRSystem): 1 | 2
  */
 function isVrMainPass(renderPass: RenderPass) {
   const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-  const isVRMainPass =
-    rnXRModule?.WebXRSystem.getInstance().isWebXRMode && renderPass.isVrRendering;
+  const isVRMainPass = rnXRModule?.WebXRSystem.getInstance().isWebXRMode && renderPass.isVrRendering;
   return isVRMainPass;
 }
 
@@ -361,11 +343,7 @@ function getPointSpriteShaderSemanticsInfoArray() {
  * @param primitive - The primitive that will use the material
  * @param webglStrategy - The WebGL strategy for shader compilation
  */
-export function setupShaderProgram(
-  material: Material,
-  primitive: Primitive,
-  webglStrategy: WebGLStrategy
-): void {
+export function setupShaderProgram(material: Material, primitive: Primitive, webglStrategy: WebGLStrategy): void {
   if (material == null) {
     return;
   }

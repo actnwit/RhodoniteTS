@@ -19,13 +19,11 @@ cameraComponent.setFovyAndChangeFocalLength(30.0);
 cameraComponent.aspect = 1.0;
 
 // gltf
-const expression = (
-  await Rn.GltfImporter.importFromUrl(
-    '../../../assets/gltf/glTF-Sample-Assets/Models/AnimatedTriangle/glTF-Embedded/AnimatedTriangle.gltf',
-    {
-      cameraComponent: cameraComponent,
-    }
-  )
+const expression = await Rn.GltfImporter.importFromUrl(
+  '../../../assets/gltf/glTF-Sample-Assets/Models/AnimatedTriangle/glTF-Embedded/AnimatedTriangle.gltf',
+  {
+    cameraComponent: cameraComponent,
+  }
 );
 
 // cameraController

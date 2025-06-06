@@ -8,12 +8,7 @@ import { IEntity } from '../foundation/core/Entity';
 import { WebGLContextWrapper } from '../webgl/WebGLContextWrapper';
 import { System } from '../foundation/system/System';
 import { ModuleManager } from '../foundation/system/ModuleManager';
-import {
-  updateGamePad,
-  createMotionController,
-  updateMotionControllerModel,
-  getMotionController,
-} from './WebXRInput';
+import { updateGamePad, createMotionController, updateMotionControllerModel, getMotionController } from './WebXRInput';
 import { Is } from '../foundation/misc/Is';
 import { MutableVector3 } from '../foundation/math/MutableVector3';
 import { MutableQuaternion } from '../foundation/math/MutableQuaternion';
@@ -124,7 +119,7 @@ export class WebXRSystem {
    * ```
    */
   async readyForWebXR(requestButtonDom: HTMLElement, basePath: string) {
-    if (typeof window === "undefined") {
+    if (typeof window === 'undefined') {
       throw new Error('This method works in Browser environment');
     }
     this.__basePath = basePath;
@@ -680,11 +675,7 @@ export class WebXRSystem {
     this.__xrInputSources.length = 0;
     for (const xrInputSource of event.added) {
       this.__xrInputSources.push(xrInputSource);
-      const controller = await createMotionController(
-        xrInputSource,
-        this.__basePath as string,
-        profilePriorities
-      );
+      const controller = await createMotionController(xrInputSource, this.__basePath as string, profilePriorities);
       if (Is.exist(controller)) {
         this.__controllerEntities.push(controller);
         this.__viewerEntity.getSceneGraph()!.addChild(controller.getSceneGraph()!);
@@ -717,46 +708,30 @@ export class WebXRSystem {
     this.__viewerOrientation.z = orientation.z;
     this.__viewerOrientation.w = orientation.w;
 
-    const lm = MutableMatrix44.fromCopyFloat32ArrayColumnMajor(
-      xrViewLeft?.transform.matrix as Float32Array
-    );
-    const rm = MutableMatrix44.fromCopyFloat32ArrayColumnMajor(
-      xrViewRight?.transform.matrix as Float32Array
-    );
+    const lm = MutableMatrix44.fromCopyFloat32ArrayColumnMajor(xrViewLeft?.transform.matrix as Float32Array);
+    const rm = MutableMatrix44.fromCopyFloat32ArrayColumnMajor(xrViewRight?.transform.matrix as Float32Array);
 
     const rotateMatLeft = lm;
     const rotateMatRight = rm;
 
     const scale = this.__viewerScale.x;
     const pos = xrViewLeft.transform.position;
-    const translateLeftScaled = MutableVector3.add(
-      this.__defaultPositionInLocalSpaceMode,
-      this.__viewerTranslate
-    );
-    const translateRightScaled = MutableVector3.add(
-      this.__defaultPositionInLocalSpaceMode,
-      this.__viewerTranslate
-    );
+    const translateLeftScaled = MutableVector3.add(this.__defaultPositionInLocalSpaceMode, this.__viewerTranslate);
+    const translateRightScaled = MutableVector3.add(this.__defaultPositionInLocalSpaceMode, this.__viewerTranslate);
     const xrViewerPosLeft = Vector3.fromCopyArray([pos.x, pos.y, pos.z]);
     const xrViewerPosRight = Vector3.fromCopyArray([pos.x, pos.y, pos.z]);
-    const translateLeft = MutableVector3.add(
-      this.__defaultPositionInLocalSpaceMode,
-      this.__viewerTranslate
-    ).add(xrViewerPosLeft);
-    const translateRight = MutableVector3.add(
-      this.__defaultPositionInLocalSpaceMode,
-      this.__viewerTranslate
-    ).add(xrViewerPosRight);
+    const translateLeft = MutableVector3.add(this.__defaultPositionInLocalSpaceMode, this.__viewerTranslate).add(
+      xrViewerPosLeft
+    );
+    const translateRight = MutableVector3.add(this.__defaultPositionInLocalSpaceMode, this.__viewerTranslate).add(
+      xrViewerPosRight
+    );
     const viewerTranslateScaledX = (translateLeftScaled.x + translateRightScaled.x) / 2;
     const viewerTranslateScaledZ = (translateLeftScaled.z + translateRightScaled.z) / 2;
     const viewerTranslateX = (translateLeft.x + translateRight.x) / 2;
     const viewerTranslateZ = (translateLeft.z + translateRight.z) / 2;
     const viewerTransform = this.__viewerEntity.getTransform()!;
-    viewerTransform.localPosition = Vector3.fromCopyArray([
-      viewerTranslateScaledX,
-      0,
-      viewerTranslateScaledZ,
-    ]);
+    viewerTransform.localPosition = Vector3.fromCopyArray([viewerTranslateScaledX, 0, viewerTranslateScaledZ]);
     viewerTransform.localScale = Vector3.fromCopyArray([scale, scale, scale]);
     viewerTransform.localEulerAngles = Vector3.fromCopyArray([0, this.__viewerAzimuthAngle.x, 0]);
 
@@ -794,7 +769,7 @@ export class WebXRSystem {
       // The content that will be shown on the device is defined by the session's
       // baseLayer.
 
-      if (typeof window === "undefined") {
+      if (typeof window === 'undefined') {
         throw new Error('This method works in Browser environment');
       }
 
@@ -859,9 +834,7 @@ export class WebXRSystem {
           const hand = this.__controllerEntities[i];
           if (Is.exist(hand)) {
             // update the transform of the controller itself
-            const handWorldMatrix = MutableMatrix44.fromCopyFloat32ArrayColumnMajor(
-              xrPose.transform.matrix
-            );
+            const handWorldMatrix = MutableMatrix44.fromCopyFloat32ArrayColumnMajor(xrPose.transform.matrix);
             const rotateMat = MutableMatrix44.fromCopyMatrix44(handWorldMatrix);
             rotateMat.translateY += this.__defaultPositionInLocalSpaceMode.y;
             rotateMat.translateY += this.__viewerTranslate.y;

@@ -31,10 +31,7 @@ export class SphereCollider {
    *   - distance: The penetration distance (negative if penetrating, positive if separated)
    */
   collision(bonePosition: Vector3, boneRadius: number) {
-    const spherePosWorld = this.baseSceneGraph!.getWorldPositionOfTo(
-      this.position,
-      SphereCollider.__tmp_vec3_0
-    );
+    const spherePosWorld = this.baseSceneGraph!.getWorldPositionOfTo(this.position, SphereCollider.__tmp_vec3_0);
     const delta = Vector3.subtractTo(bonePosition, spherePosWorld, SphereCollider.__tmp_vec3_1);
     const direction = Vector3.normalizeTo(delta, SphereCollider.__tmp_vec3_2);
     const radius = this.radius + boneRadius;

@@ -15,13 +15,11 @@ const lightEntity = Rn.createLightEntity();
 lightEntity.getLight().type = Rn.LightType.Directional;
 
 // gltf
-const expression = (
-  await Rn.GltfImporter.importFromUrl(
-    '../../../assets/gltf/glTF-Sample-Assets/Models/AnimatedColorsCube/glTF-Binary/AnimatedColorsCube.glb',
-    {
-      cameraComponent: cameraComponent,
-    }
-  )
+const expression = await Rn.GltfImporter.importFromUrl(
+  '../../../assets/gltf/glTF-Sample-Assets/Models/AnimatedColorsCube/glTF-Binary/AnimatedColorsCube.glb',
+  {
+    cameraComponent: cameraComponent,
+  }
 );
 
 cameraEntity.getCameraController().controller.setTargets(expression.renderPasses[0].entities as Rn.ISceneGraphEntity[]);

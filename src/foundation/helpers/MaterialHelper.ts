@@ -111,23 +111,15 @@ const g_sampler = new Sampler({
  * @returns A newly created Material instance
  * @throws Error if material creation fails after exhausting all groups
  */
-function createMaterial(
-  materialContent: AbstractMaterialContent,
-  maxInstancesNumber?: Count
-): Material {
+function createMaterial(materialContent: AbstractMaterialContent, maxInstancesNumber?: Count): Material {
   let group = 0;
   let isFull = false;
   const materialSemanticsVariantName = materialContent.getMaterialSemanticsVariantName();
   do {
-    const actualMaterialTypeName =
-      materialSemanticsVariantName + `__group${group}`;
+    const actualMaterialTypeName = materialSemanticsVariantName + `__group${group}`;
     isFull = MaterialRepository.isFullOrOverOfThisMaterialType(actualMaterialTypeName);
     if (!isFull) {
-      MaterialRepository.registerMaterial(
-        actualMaterialTypeName,
-        materialContent,
-        maxInstancesNumber!
-      );
+      MaterialRepository.registerMaterial(actualMaterialTypeName, materialContent, maxInstancesNumber!);
       const material = MaterialRepository.createMaterial(actualMaterialTypeName, materialContent);
       return material;
     }
@@ -158,11 +150,7 @@ function reuseOrRecreateMaterial(
     return material;
   } else {
     const materialSemanticsVariantName = materialContent.getMaterialSemanticsVariantName();
-    MaterialRepository.registerMaterial(
-      materialSemanticsVariantName,
-      materialContent,
-      maxInstancesNumber
-    );
+    MaterialRepository.registerMaterial(materialSemanticsVariantName, materialContent, maxInstancesNumber);
     material = MaterialRepository.createMaterial(materialSemanticsVariantName, materialContent);
     return material;
   }
@@ -176,16 +164,9 @@ function reuseOrRecreateMaterial(
  * @param maxInstancesNumber - The maximum number of instances for the material
  * @returns A newly recreated Material instance
  */
-function recreateMaterial(
-  materialContent: AbstractMaterialContent,
-  maxInstancesNumber?: Count
-): Material {
+function recreateMaterial(materialContent: AbstractMaterialContent, maxInstancesNumber?: Count): Material {
   const materialSemanticsVariantName = materialContent.getMaterialSemanticsVariantName();
-  MaterialRepository.forceRegisterMaterial(
-    materialSemanticsVariantName,
-    materialContent,
-    maxInstancesNumber!
-  );
+  MaterialRepository.forceRegisterMaterial(materialSemanticsVariantName, materialContent, maxInstancesNumber!);
 
   const material = MaterialRepository.createMaterial(materialSemanticsVariantName, materialContent);
   return material;
@@ -550,7 +531,6 @@ function createPbrUberMaterial({
     definitions.push('RN_USE_DIFFUSE_TRANSMISSION');
   }
 
-
   const materialContent = new CustomMaterialContent({
     name: materialName,
     isSkinning,
@@ -822,11 +802,7 @@ function createFlatMaterial({
  * @param options.makeOutputSrgb - Whether to convert output to sRGB color space
  * @returns A configured Environment Constant Material instance
  */
-function createEnvConstantMaterial({
-  additionalName = '',
-  maxInstancesNumber = 5,
-  makeOutputSrgb = true,
-} = {}) {
+function createEnvConstantMaterial({ additionalName = '', maxInstancesNumber = 5, makeOutputSrgb = true } = {}) {
   const materialName = 'EnvConstant' + `_${additionalName}`;
 
   const materialContent = new CustomMaterialContent({
@@ -984,10 +960,7 @@ function createShadowMapDecodeClassicSingleMaterial(
  * @param options.maxInstancesNumber - Maximum number of material instances
  * @returns A configured Gaussian Blur for Encoded Depth Material instance
  */
-function createGaussianBlurForEncodedDepthMaterial({
-  additionalName = '',
-  maxInstancesNumber = 10,
-} = {}) {
+function createGaussianBlurForEncodedDepthMaterial({ additionalName = '', maxInstancesNumber = 10 } = {}) {
   const materialName = 'GaussianBlurForEncodedDepth' + `_${additionalName}`;
 
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
@@ -1143,10 +1116,7 @@ function createDetectHighLuminanceMaterial(
   textureToDetectHighLuminance: AbstractTexture
 ) {
   const materialName = 'DetectHighLuminance' + `_${additionalName}_`;
-  const materialContent = new DetectHighLuminanceMaterialContent(
-    materialName,
-    textureToDetectHighLuminance
-  );
+  const materialContent = new DetectHighLuminanceMaterialContent(materialName, textureToDetectHighLuminance);
   const material = createMaterial(materialContent, maxInstancesNumber);
   return material;
 }
@@ -1471,13 +1441,7 @@ function createMatCapMaterial({
 }) {
   const materialName = 'MatCap' + `_${additionalName}`;
 
-  const materialContent = new MatCapMaterialContent(
-    materialName,
-    isSkinning,
-    uri,
-    texture,
-    sampler
-  );
+  const materialContent = new MatCapMaterialContent(materialName, isSkinning, uri, texture, sampler);
   const material = createMaterial(materialContent, maxInstancesNumber);
   if (isSkinning) {
     material.addShaderDefine('RN_IS_SKINNING');
@@ -1780,7 +1744,6 @@ function reuseOrRecreateCustomMaterial(
     });
   }
 
-
   const material = reuseOrRecreateMaterial(currentMaterial, materialContent, maxInstancesNumber);
 
   for (const definition of definitions) {
@@ -1798,11 +1761,7 @@ function reuseOrRecreateCustomMaterial(
  * @param primitive - The primitive to change the material for
  * @param material - The new material to assign to the primitive
  */
-function changeMaterial(
-  entity: IMeshRendererEntityMethods,
-  primitive: Primitive,
-  material: Material
-) {
+function changeMaterial(entity: IMeshRendererEntityMethods, primitive: Primitive, material: Material) {
   const meshRendererComponent = entity.getMeshRenderer()!;
   primitive.material = material;
   meshRendererComponent.moveStageTo(ProcessStage.Load);

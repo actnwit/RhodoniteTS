@@ -42,9 +42,7 @@ import Rn from '../../../dist/esmdev/index.js';
 
   async function createEntityPointCloud(pointCloudDrcUri: string): Promise<Rn.IMeshEntity> {
     const importer = Rn.DrcPointCloudImporter.getInstance();
-    const r_gltf2JSON = (
-      await importer.importPointCloud(pointCloudDrcUri)
-    ).unwrapForce() as Rn.RnM2;
+    const r_gltf2JSON = (await importer.importPointCloud(pointCloudDrcUri)).unwrapForce() as Rn.RnM2;
 
     const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(r_gltf2JSON);
     return rootGroup as Rn.IMeshEntity;

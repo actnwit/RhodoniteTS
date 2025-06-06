@@ -41,8 +41,7 @@ export abstract class AbstractCameraController {
         (eyeToTargetDirectionX * eyeDirection.x +
           eyeToTargetDirectionY * eyeDirection.y +
           eyeToTargetDirectionZ * eyeDirection.z) /
-        (Math.hypot(eyeToTargetDirectionX, eyeToTargetDirectionY, eyeToTargetDirectionZ) *
-          eyeDirection.length());
+        (Math.hypot(eyeToTargetDirectionX, eyeToTargetDirectionY, eyeToTargetDirectionZ) * eyeDirection.length());
 
       camera.zNearInner = Math.max(
         Math.min(lengthOfCenterToEye * cos - targetAABB.lengthCenterToCorner, this.zNearMax),

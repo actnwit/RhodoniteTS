@@ -140,10 +140,7 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
   }) {
     let cameraComponent = args.renderPass.cameraComponent as CameraComponent;
     if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getComponent(
-        CameraComponent,
-        CameraComponent.current
-      ) as CameraComponent;
+      cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
     }
 
     if (args.setUniform) {
@@ -153,18 +150,12 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
       this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
 
       if (firstTime || this.__lastZNear !== cameraComponent.zNearInner) {
-        (shaderProgram as any)._gl.uniform1f(
-          (shaderProgram as any).zNearInner,
-          cameraComponent.zNearInner
-        );
+        (shaderProgram as any)._gl.uniform1f((shaderProgram as any).zNearInner, cameraComponent.zNearInner);
         this.__lastZNear = cameraComponent.zNearInner;
       }
 
       if (this.__lastZFar !== cameraComponent.zFarInner) {
-        (shaderProgram as any)._gl.uniform1f(
-          (shaderProgram as any).zFarInner,
-          cameraComponent.zFarInner
-        );
+        (shaderProgram as any)._gl.uniform1f((shaderProgram as any).zFarInner, cameraComponent.zFarInner);
         this.__lastZFar = cameraComponent.zFarInner;
       }
     } else {

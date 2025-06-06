@@ -69,9 +69,7 @@ export class VrmaImporter {
    * const vrmaData = await VrmaImporter.importFromArrayBuffer(fileBuffer);
    * ```
    */
-  static async importFromArrayBuffer(
-    arrayBuffer: ArrayBuffer
-  ): Promise<RnM2Vrma> {
+  static async importFromArrayBuffer(arrayBuffer: ArrayBuffer): Promise<RnM2Vrma> {
     const promise = new Promise<RnM2Vrma>(async (resolve, reject) => {
       const options: GltfLoadOption = {};
 

@@ -1,7 +1,4 @@
-import {
-  VertexAttributeEnum,
-  VertexAttribute,
-} from '../../../foundation/definitions/VertexAttribute';
+import { VertexAttributeEnum, VertexAttribute } from '../../../foundation/definitions/VertexAttribute';
 import { CommonShaderPart } from '../CommonShaderPart';
 import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { ComponentTypeEnum, ComponentType } from '../../../foundation/definitions/ComponentType';

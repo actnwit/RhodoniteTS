@@ -40,12 +40,7 @@ export class EffekseerComponent extends Component {
 
   private isLoadEffect = false;
 
-  constructor(
-    entityUid: EntityUID,
-    componentSid: ComponentSID,
-    entityRepository: EntityRepository,
-    isReUse: boolean
-  ) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
     super(entityUid, componentSid, entityRepository, isReUse);
   }
 
@@ -225,12 +220,7 @@ export class EffekseerComponent extends Component {
         onError.bind(this)
       );
     } else {
-      this.__effect = this.__context.loadEffect(
-        data as any,
-        1.0,
-        onLoad.bind(this),
-        onError.bind(this)
-      );
+      this.__effect = this.__context.loadEffect(data as any, 1.0, onLoad.bind(this), onError.bind(this));
     }
 
     return true;
@@ -344,7 +334,7 @@ export class EffekseerComponent extends Component {
       return [];
     }
     const components = ComponentRepository.getComponentsWithType(EffekseerComponent);
-    return components.map((c) => c.componentSID);
+    return components.map(c => c.componentSID);
   }
 
   /**
@@ -358,18 +348,12 @@ export class EffekseerComponent extends Component {
     _componentClass: SomeComponentClass
   ) {
     class EffekseerEntity extends (base.constructor as any) {
-      constructor(
-        entityUID: EntityUID,
-        isAlive: boolean,
-        components?: Map<ComponentTID, Component>
-      ) {
+      constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
         super(entityUID, isAlive, components);
       }
 
       getEffekseer() {
-        return this.getComponentByComponentTID(
-          EffekseerComponent.componentTID
-        ) as EffekseerComponent;
+        return this.getComponentByComponentTID(EffekseerComponent.componentTID) as EffekseerComponent;
       }
     }
     applyMixins(base, EffekseerEntity);

@@ -18,28 +18,20 @@ cameraComponent.setFovyAndChangeFocalLength(70.0);
 cameraComponent.aspect = 1.0;
 
 // gltf
-const expression = (
-  await Rn.GltfImporter.importFromUrl(
-    '../../../assets/gltf/glTF-Sample-Assets/Models/AnimatedTriangle/glTF-Embedded/AnimatedTriangle.gltf',
-    {
-      defaultMaterialHelperArgumentArray: [
-        {
-          isLighting: false,
-        },
-      ],
-      cameraComponent: cameraComponent,
-    }
-  )
+const expression = await Rn.GltfImporter.importFromUrl(
+  '../../../assets/gltf/glTF-Sample-Assets/Models/AnimatedTriangle/glTF-Embedded/AnimatedTriangle.gltf',
+  {
+    defaultMaterialHelperArgumentArray: [
+      {
+        isLighting: false,
+      },
+    ],
+    cameraComponent: cameraComponent,
+  }
 );
 
-const meshComponents = Rn.ComponentRepository.getComponentsWithType(
-  Rn.MeshComponent
-) as Rn.MeshComponent[];
-setParameterForMeshComponents(
-  meshComponents,
-  'baseColorFactor',
-  Rn.Vector4.fromCopyArray([0.5, 0.5, 0.5, 1.0])
-);
+const meshComponents = Rn.ComponentRepository.getComponentsWithType(Rn.MeshComponent) as Rn.MeshComponent[];
+setParameterForMeshComponents(meshComponents, 'baseColorFactor', Rn.Vector4.fromCopyArray([0.5, 0.5, 0.5, 1.0]));
 
 // cameraController
 const mainRenderPass = expression.renderPasses[0];
@@ -73,11 +65,7 @@ Rn.System.startRenderLoop(() => {
   count++;
 });
 
-function setParameterForMeshComponents(
-  meshComponents: Rn.MeshComponent[],
-  shaderSemantic: string,
-  value: any
-) {
+function setParameterForMeshComponents(meshComponents: Rn.MeshComponent[], shaderSemantic: string, value: any) {
   for (let i = 0; i < meshComponents.length; i++) {
     const mesh = meshComponents[i].mesh;
     if (!mesh) continue;

@@ -94,11 +94,7 @@ export class ComponentRepository {
    * );
    * ```
    */
-  public static createComponent(
-    componentTid: ComponentTID,
-    entityUid: EntityUID,
-    entityRepository: EntityRepository
-  ) {
+  public static createComponent(componentTid: ComponentTID, entityUid: EntityUID, entityRepository: EntityRepository) {
     const thisClass = ComponentRepository;
     const componentClass = thisClass.__componentClasses.get(componentTid);
     if (componentClass != undefined) {
@@ -133,12 +129,7 @@ export class ComponentRepository {
         isReUse = true;
       }
       // create the component
-      const component = new componentClass(
-        entityUid,
-        componentSid,
-        entityRepository,
-        isReUse
-      ) as Component;
+      const component = new componentClass(entityUid, componentSid, entityRepository, isReUse) as Component;
 
       // register the component
       if (!this.__components.has(componentTid)) {
@@ -202,10 +193,7 @@ export class ComponentRepository {
    * const component = ComponentRepository.getComponentFromComponentTID(componentTID, componentSID);
    * ```
    */
-  public static getComponentFromComponentTID(
-    componentTid: ComponentTID,
-    componentSid: ComponentSID
-  ) {
+  public static getComponentFromComponentTID(componentTid: ComponentTID, componentSid: ComponentSID) {
     const map = this.__components.get(componentTid);
     if (map != null) {
       const component = map[componentSid];
@@ -239,9 +227,7 @@ export class ComponentRepository {
    * @param componentClass - The component class to retrieve instances for
    * @returns Array of component instances including dead components, or undefined if type not found
    */
-  public static _getComponentsIncludingDead(
-    componentClass: typeof Component
-  ): Array<Component> | undefined {
+  public static _getComponentsIncludingDead(componentClass: typeof Component): Array<Component> | undefined {
     const components = this.__components.get(componentClass.componentTID);
     return components;
   }
@@ -291,7 +277,7 @@ export class ComponentRepository {
     if (components == null) {
       return [];
     }
-    return components.filter((component) => component != null);
+    return components.filter(component => component != null);
   }
 
   /**

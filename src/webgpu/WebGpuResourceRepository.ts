@@ -20,23 +20,13 @@ import {
 } from '../foundation/renderer/CGAPIResourceRepository';
 import { RenderPass } from '../foundation/renderer/RenderPass';
 import { Sampler } from '../foundation/textures/Sampler';
-import {
-  Count,
-  Index,
-  Size,
-  TypedArray,
-  WebGLResourceHandle,
-  WebGPUResourceHandle,
-} from '../types/CommonTypes';
+import { Count, Index, Size, TypedArray, WebGLResourceHandle, WebGPUResourceHandle } from '../types/CommonTypes';
 import { TextureData, VertexHandles } from '../webgl/WebGLResourceRepository';
 import { AttributeNames } from '../webgl/types/CommonTypes';
 import { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 import { Config } from '../foundation/core/Config';
 import { HdriFormat, HdriFormatEnum } from '../foundation/definitions/HdriFormat';
-import {
-  dummyBlackCubeTexture,
-  dummyWhiteTexture,
-} from '../foundation/materials/core/DummyTextures';
+import { dummyBlackCubeTexture, dummyWhiteTexture } from '../foundation/materials/core/DummyTextures';
 import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
 import { MutableVector2 } from '../foundation/math/MutableVector2';
 import { MutableVector4 } from '../foundation/math/MutableVector4';
@@ -53,10 +43,7 @@ import { CameraComponent } from '../foundation/components/Camera/CameraComponent
 import { EntityRepository } from '../foundation/core/EntityRepository';
 import { SystemState } from '../foundation/system/SystemState';
 import { BasisFile } from '../types/BasisTexture';
-import {
-  BasisCompressionType,
-  BasisCompressionTypeEnum,
-} from '../foundation/definitions/BasisCompressionType';
+import { BasisCompressionType, BasisCompressionTypeEnum } from '../foundation/definitions/BasisCompressionType';
 import { CompressionTextureTypeEnum } from '../foundation/definitions/CompressionTextureType';
 import { TextureFormat, TextureFormatEnum } from '../foundation/definitions/TextureFormat';
 import { Vector4 } from '../foundation/math/Vector4';
@@ -102,10 +89,7 @@ type DRAW_PARAMETERS_IDENTIFIER = string;
  * @extends CGAPIResourceRepository
  * @implements ICGAPIResourceRepository
  */
-export class WebGpuResourceRepository
-  extends CGAPIResourceRepository
-  implements ICGAPIResourceRepository
-{
+export class WebGpuResourceRepository extends CGAPIResourceRepository implements ICGAPIResourceRepository {
   private static __instance: WebGpuResourceRepository;
   private __webGpuResources: Map<WebGLResourceHandle, WebGpuResource> = new Map();
   private __resourceCounter: number = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -120,8 +104,7 @@ export class WebGpuResourceRepository
   private __bindGroupLayoutTextureMap: Map<RenderPipelineId, GPUBindGroupLayout> = new Map();
   private __bindGroupSamplerMap: Map<RenderPipelineId, GPUBindGroup> = new Map();
   private __bindGroupLayoutSamplerMap: Map<RenderPipelineId, GPUBindGroupLayout> = new Map();
-  private __bindGroupsUniformDrawParameters: Map<DRAW_PARAMETERS_IDENTIFIER, GPUBindGroup> =
-    new Map();
+  private __bindGroupsUniformDrawParameters: Map<DRAW_PARAMETERS_IDENTIFIER, GPUBindGroup> = new Map();
   private __bindGroupLayoutUniformDrawParameters?: GPUBindGroupLayout;
   private __uniformDrawParametersBuffers: Map<DRAW_PARAMETERS_IDENTIFIER, GPUBuffer> = new Map();
   private __commandEncoder?: GPUCommandEncoder;
@@ -146,8 +129,7 @@ export class WebGpuResourceRepository
   private __lastMeshRendererComponentsUpdateCount = -1;
 
   private __srcTextureViewsForGeneratingMipmaps: Map<GPUTexture, Array<GPUTextureView>> = new Map();
-  private __dstTextureViewsForGeneratingMipmaps: Map<GPUTexture, Array<Array<GPUTextureView>>> =
-    new Map();
+  private __dstTextureViewsForGeneratingMipmaps: Map<GPUTexture, Array<Array<GPUTextureView>>> = new Map();
   private __bindGroupsForGeneratingMipmaps: Map<GPUTexture, Array<Array<GPUBindGroup>>> = new Map();
 
   private static __drawParametersUint32Array: Uint32Array = new Uint32Array(4);
@@ -274,13 +256,7 @@ export class WebGpuResourceRepository
       generateMipmap: boolean;
     }
   ): Promise<WebGPUResourceHandle> {
-    const textureHandle = await this.__createTextureInner(
-      width,
-      height,
-      internalFormat,
-      generateMipmap,
-      imageData
-    );
+    const textureHandle = await this.__createTextureInner(width, height, internalFormat, generateMipmap, imageData);
 
     return textureHandle;
   }
@@ -317,7 +293,7 @@ export class WebGpuResourceRepository
       generateMipmap: boolean;
     }
   ): Promise<WebGPUResourceHandle> {
-    return new Promise<WebGPUResourceHandle>((resolve) => {
+    return new Promise<WebGPUResourceHandle>(resolve => {
       const img = new Image();
       if (!dataUri.match(/^data:/)) {
         img.crossOrigin = 'Anonymous';
@@ -357,10 +333,7 @@ export class WebGpuResourceRepository
     const textureDescriptor: GPUTextureDescriptor = {
       size: [width, height, 1],
       format: gpuTexture.format,
-      usage:
-        GPUTextureUsage.TEXTURE_BINDING |
-        GPUTextureUsage.COPY_DST |
-        GPUTextureUsage.RENDER_ATTACHMENT,
+      usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
       mipLevelCount: Math.floor(Math.log2(Math.max(width, height))) + 1,
     };
     this.generateMipmaps(gpuTexture, textureDescriptor);
@@ -379,10 +352,7 @@ export class WebGpuResourceRepository
     const textureDescriptor: GPUTextureDescriptor = {
       size: [width, height, 6],
       format: gpuTexture.format,
-      usage:
-        GPUTextureUsage.TEXTURE_BINDING |
-        GPUTextureUsage.COPY_DST |
-        GPUTextureUsage.RENDER_ATTACHMENT,
+      usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
       mipLevelCount: Math.floor(Math.log2(Math.max(width, height))) + 1,
     };
     this.generateMipmaps(gpuTexture, textureDescriptor);
@@ -471,10 +441,7 @@ export class WebGpuResourceRepository
       });
     }
 
-    if (
-      this.__generateMipmapsPipeline != null &&
-      textureDescriptor.format != this.__generateMipmapsFormat
-    ) {
+    if (this.__generateMipmapsPipeline != null && textureDescriptor.format != this.__generateMipmapsFormat) {
       this.__generateMipmapsPipeline = undefined;
     }
     if (this.__generateMipmapsPipeline == null) {
@@ -555,11 +522,7 @@ export class WebGpuResourceRepository
 
       for (let i = 1; i < textureDescriptor.mipLevelCount!; ++i) {
         const dstTextureViewsMap = this.__dstTextureViewsForGeneratingMipmaps.get(texture);
-        if (
-          dstTextureViewsMap == null ||
-          dstTextureViewsMap[layer] == null ||
-          dstTextureViewsMap[layer][i] == null
-        ) {
+        if (dstTextureViewsMap == null || dstTextureViewsMap[layer] == null || dstTextureViewsMap[layer][i] == null) {
           const dstView = texture.createView({
             dimension: '2d',
             baseMipLevel: i,
@@ -589,11 +552,7 @@ export class WebGpuResourceRepository
         });
 
         const bindGroupsMap = this.__bindGroupsForGeneratingMipmaps.get(texture);
-        if (
-          bindGroupsMap == null ||
-          bindGroupsMap[layer] == null ||
-          bindGroupsMap[layer][i] == null
-        ) {
+        if (bindGroupsMap == null || bindGroupsMap[layer] == null || bindGroupsMap[layer][i] == null) {
           const bindGroup = gpuDevice.createBindGroup({
             layout: this.__generateMipmapsBindGroupLayout!,
             entries: [
@@ -669,8 +628,7 @@ export class WebGpuResourceRepository
       magFilter: magFilter.webgpu as GPUFilterMode,
       minFilter: minFilter.webgpu as GPUFilterMode,
       mipmapFilter:
-        minFilter === TextureParameter.LinearMipmapLinear ||
-        minFilter === TextureParameter.NearestMipmapLinear
+        minFilter === TextureParameter.LinearMipmapLinear || minFilter === TextureParameter.NearestMipmapLinear
           ? 'linear'
           : 'nearest',
       addressModeU: wrapS.webgpu as GPUAddressMode,
@@ -681,11 +639,7 @@ export class WebGpuResourceRepository
       maxAnisotropy,
     } as GPUSamplerDescriptor;
 
-    if (
-      desc.magFilter === 'nearest' ||
-      desc.minFilter === 'nearest' ||
-      desc.mipmapFilter === 'nearest'
-    ) {
+    if (desc.magFilter === 'nearest' || desc.minFilter === 'nearest' || desc.mipmapFilter === 'nearest') {
       desc.maxAnisotropy = 1;
     }
 
@@ -869,9 +823,7 @@ export class WebGpuResourceRepository
     const vboHandles: Array<WebGLResourceHandle> = [];
     primitive.attributeAccessors.forEach((accessor: Accessor, i: number) => {
       const vboHandle = this.createVertexBuffer(accessor);
-      const slotIdx = VertexAttribute.toAttributeSlotFromJoinedString(
-        primitive.attributeSemantics[i]
-      );
+      const slotIdx = VertexAttribute.toAttributeSlotFromJoinedString(primitive.attributeSemantics[i]);
       attributesFlags[slotIdx] = true;
       vboHandles.push(vboHandle);
     });
@@ -955,9 +907,7 @@ export class WebGpuResourceRepository
     /// Each vertex attributes
     const attributes: GPUVertexAttribute[] = [];
     for (let i = 0; i < vboHandles.length; i++) {
-      const shaderLocation = VertexAttribute.toAttributeSlotFromJoinedString(
-        primitive.attributeSemantics[i]
-      );
+      const shaderLocation = VertexAttribute.toAttributeSlotFromJoinedString(primitive.attributeSemantics[i]);
 
       const gpuVertexFormat = (primitive.attributeAccessors[i].componentType.webgpu +
         primitive.attributeAccessors[i].compositionType.webgpu) as GPUVertexFormat;
@@ -997,11 +947,7 @@ export class WebGpuResourceRepository
    * @param info - WebGPU compilation info containing messages and errors
    * @returns True if compilation was successful, false otherwise
    */
-  private __checkShaderCompileStatus(
-    materialTypeName: string,
-    shaderText: string,
-    info: GPUCompilationInfo
-  ): boolean {
+  private __checkShaderCompileStatus(materialTypeName: string, shaderText: string, info: GPUCompilationInfo): boolean {
     Logger.info('MaterialTypeName: ' + materialTypeName);
     const lineNumberedShaderText = MiscUtil.addLineNumberToCode(shaderText);
     Logger.info(lineNumberedShaderText);
@@ -1050,7 +996,7 @@ export class WebGpuResourceRepository
       label: material.materialTypeName + ' vertex shader',
     });
     if (Config.cgApiDebugConsoleOutput) {
-      vsModule.getCompilationInfo().then((info) => {
+      vsModule.getCompilationInfo().then(info => {
         if (info.messages.length > 0) {
           this.__checkShaderCompileStatus(material.materialTypeName, vertexShaderStr, info);
         }
@@ -1061,7 +1007,7 @@ export class WebGpuResourceRepository
       label: material.materialTypeName + ' fragment shader',
     });
     if (Config.cgApiDebugConsoleOutput) {
-      fsModule.getCompilationInfo().then((info) => {
+      fsModule.getCompilationInfo().then(info => {
         if (info.messages.length > 0) {
           this.__checkShaderCompileStatus(material.materialTypeName, fragmentShaderStr, info);
         }
@@ -1177,13 +1123,7 @@ export class WebGpuResourceRepository
    * @param cameraId - Identifier for the camera used for rendering
    * @param zWrite - Whether to enable depth writing during rendering
    */
-  draw(
-    primitive: Primitive,
-    material: Material,
-    renderPass: RenderPass,
-    cameraId: number,
-    zWrite: boolean
-  ) {
+  draw(primitive: Primitive, material: Material, renderPass: RenderPass, cameraId: number, zWrite: boolean) {
     const isBufferLessRendering = renderPass.isBufferLessRenderingMode();
     const VertexHandles = primitive._vertexHandles;
     if (!isBufferLessRendering && VertexHandles == null) {
@@ -1238,7 +1178,6 @@ export class WebGpuResourceRepository
       sheenCubeMap
     );
 
-
     this.createRenderBundleEncoder(renderPass);
 
     const renderBundleEncoder = this.__renderBundleEncoder!;
@@ -1248,9 +1187,7 @@ export class WebGpuResourceRepository
     renderBundleEncoder.setBindGroup(2, this.__bindGroupSamplerMap.get(bindGroupId)!);
     renderBundleEncoder.setBindGroup(
       3,
-      this.__bindGroupsUniformDrawParameters.get(
-        `${renderPass.renderPassUID}-${primitive.primitiveUid}`
-      )!
+      this.__bindGroupsUniformDrawParameters.get(`${renderPass.renderPassUID}-${primitive.primitiveUid}`)!
     );
     if (isBufferLessRendering) {
       renderBundleEncoder.draw(renderPass._drawVertexNumberForBufferLessRendering);
@@ -1268,10 +1205,7 @@ export class WebGpuResourceRepository
         const indexBitSize = primitive.getIndexBitSize();
         renderBundleEncoder.setIndexBuffer(indicesBuffer, indexBitSize);
         const indicesAccessor = primitive.indicesAccessor!;
-        renderBundleEncoder.drawIndexed(
-          indicesAccessor.elementCount,
-          mesh.meshEntitiesInner.length
-        );
+        renderBundleEncoder.drawIndexed(indicesAccessor.elementCount, mesh.meshEntitiesInner.length);
       } else {
         const vertexCount = primitive.attributeAccessors[0].elementCount;
         renderBundleEncoder.draw(vertexCount, mesh.meshEntitiesInner.length);
@@ -1296,9 +1230,7 @@ export class WebGpuResourceRepository
       if (framebuffer != null) {
         colorFormats = [];
         for (let colorAttachment of framebuffer.colorAttachments) {
-          const texture = this.__webGpuResources.get(
-            colorAttachment._textureResourceUid
-          ) as GPUTexture;
+          const texture = this.__webGpuResources.get(colorAttachment._textureResourceUid) as GPUTexture;
           colorFormats.push(texture.format);
         }
         if (framebuffer.depthAttachment != null) {
@@ -1567,14 +1499,11 @@ export class WebGpuResourceRepository
       });
     }
     primitive.attributeAccessors.forEach((accessor: Accessor, i: number) => {
-      const slotIdx = VertexAttribute.toAttributeSlotFromJoinedString(
-        primitive.attributeSemantics[i]
-      );
+      const slotIdx = VertexAttribute.toAttributeSlotFromJoinedString(primitive.attributeSemantics[i]);
       const attribute = {
         shaderLocation: slotIdx,
         offset: 0,
-        format: (accessor.componentType.webgpu +
-          accessor.compositionType.webgpu) as GPUVertexFormat,
+        format: (accessor.componentType.webgpu + accessor.compositionType.webgpu) as GPUVertexFormat,
       };
       gpuVertexBufferLayouts.push({
         stepMode: 'vertex',
@@ -1630,9 +1559,7 @@ export class WebGpuResourceRepository
     if (framebuffer != null) {
       targets = [];
       for (let colorAttachment of framebuffer.colorAttachments) {
-        const texture = this.__webGpuResources.get(
-          colorAttachment._textureResourceUid
-        ) as GPUTexture;
+        const texture = this.__webGpuResources.get(colorAttachment._textureResourceUid) as GPUTexture;
         targets.push({
           format: texture.format,
           blend,
@@ -1640,9 +1567,7 @@ export class WebGpuResourceRepository
         });
       }
       if (framebuffer.depthAttachment != null) {
-        const depthTexture = this.__webGpuResources.get(
-          framebuffer.depthAttachment._textureResourceUid
-        ) as GPUTexture;
+        const depthTexture = this.__webGpuResources.get(framebuffer.depthAttachment._textureResourceUid) as GPUTexture;
         depthStencilFormat = depthTexture.format;
       } else {
         depthStencilFormat = undefined;
@@ -1915,13 +1840,9 @@ export class WebGpuResourceRepository
     const cubemapTexture = gpuDevice.createTexture({
       dimension: '2d',
       size: [width, height, 6],
-      format:
-        (mipmaps[0][0] as any).hdriFormat === HdriFormat.HDR_LINEAR ? 'rgba32float' : 'rgba8unorm',
+      format: (mipmaps[0][0] as any).hdriFormat === HdriFormat.HDR_LINEAR ? 'rgba32float' : 'rgba8unorm',
       mipLevelCount: mipLevelCount,
-      usage:
-        GPUTextureUsage.TEXTURE_BINDING |
-        GPUTextureUsage.COPY_DST |
-        GPUTextureUsage.RENDER_ATTACHMENT,
+      usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
     });
 
     for (let i = 0; i < mipLevelCount; i++) {
@@ -1987,8 +1908,7 @@ export class WebGpuResourceRepository
     const handle = this.__registerResource(cubemapTexture);
     const wrapS = TextureParameter.Repeat;
     const wrapT = TextureParameter.Repeat;
-    const minFilter =
-      mipLevelCount === 1 ? TextureParameter.Linear : TextureParameter.LinearMipmapLinear;
+    const minFilter = mipLevelCount === 1 ? TextureParameter.Linear : TextureParameter.LinearMipmapLinear;
     const magFilter = TextureParameter.Linear;
 
     const sampler = new Sampler({ wrapS, wrapT, minFilter, magFilter, anisotropy: false });
@@ -2022,10 +1942,7 @@ export class WebGpuResourceRepository
     const textureDescriptor: GPUTextureDescriptor = {
       size: [width, height, arrayLength],
       format: internalFormat.webgpu as GPUTextureFormat,
-      usage:
-        GPUTextureUsage.TEXTURE_BINDING |
-        GPUTextureUsage.COPY_DST |
-        GPUTextureUsage.RENDER_ATTACHMENT,
+      usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
       dimension: '2d',
       mipLevelCount: mipLevelCount,
     };
@@ -2035,11 +1952,10 @@ export class WebGpuResourceRepository
     const imageData2 = new ImageData(new Uint8ClampedArray(imageData.buffer), width, height);
 
     for (let i = 0; i < arrayLength; i++) {
-      gpuDevice.queue.copyExternalImageToTexture(
-        { source: imageData2 },
-        { texture: gpuTexture, origin: [0, 0, i] },
-        [width, height]
-      );
+      gpuDevice.queue.copyExternalImageToTexture({ source: imageData2 }, { texture: gpuTexture, origin: [0, 0, i] }, [
+        width,
+        height,
+      ]);
     }
 
     const textureHandle = this.__registerResource(gpuTexture);
@@ -2076,11 +1992,7 @@ export class WebGpuResourceRepository
    * @param inputArray - New data to write to the buffer
    * @param updateComponentSize - Number of components to update
    */
-  updateStorageBuffer(
-    storageBufferHandle: WebGPUResourceHandle,
-    inputArray: Float32Array,
-    updateComponentSize: Count
-  ) {
+  updateStorageBuffer(storageBufferHandle: WebGPUResourceHandle, inputArray: Float32Array, updateComponentSize: Count) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const storageBuffer = this.__webGpuResources.get(storageBufferHandle) as GPUBuffer;
     gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray, 0, updateComponentSize);
@@ -2192,19 +2104,13 @@ export class WebGpuResourceRepository
     WebGpuResourceRepository.__drawParametersUint32Array[1] = cameraSID;
     WebGpuResourceRepository.__drawParametersUint32Array[2] = currentPrimitiveIdx;
     WebGpuResourceRepository.__drawParametersUint32Array[3] = morphTargetNumber;
-    gpuDevice.queue.writeBuffer(
-      uniformBuffer,
-      0,
-      WebGpuResourceRepository.__drawParametersUint32Array
-    );
+    gpuDevice.queue.writeBuffer(uniformBuffer, 0, WebGpuResourceRepository.__drawParametersUint32Array);
   }
 
   createUniformMorphOffsetsBuffer() {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const inputArray = new Uint32Array(
-      Math.ceil(
-        (Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4
-      ) * 4
+      Math.ceil((Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4) * 4
     );
     const uniformBuffer = gpuDevice.createBuffer({
       size: inputArray.byteLength,
@@ -2230,9 +2136,7 @@ export class WebGpuResourceRepository
   createUniformMorphWeightsBuffer() {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const inputArray = new Float32Array(
-      Math.ceil(
-        (Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4
-      ) * 4
+      Math.ceil((Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4) * 4
     );
     const uniformBuffer = gpuDevice.createBuffer({
       size: inputArray.byteLength,
@@ -2373,9 +2277,13 @@ export class WebGpuResourceRepository
       const bindGroupLayoutEntriesForTexture: GPUBindGroupLayoutEntry[] = [];
       const entriesForSampler: GPUBindGroupEntry[] = [];
       const bindGroupLayoutEntriesForSampler: GPUBindGroupLayoutEntry[] = [];
-      material._autoTextureFieldVariablesOnly.forEach((value) => {
+      material._autoTextureFieldVariablesOnly.forEach(value => {
         const info = value.info;
-        if (info.semantic === 'diffuseEnvTexture' || info.semantic === 'specularEnvTexture' || info.semantic === 'sheenEnvTexture') {
+        if (
+          info.semantic === 'diffuseEnvTexture' ||
+          info.semantic === 'specularEnvTexture' ||
+          info.semantic === 'sheenEnvTexture'
+        ) {
           return;
         }
 
@@ -2392,24 +2300,16 @@ export class WebGpuResourceRepository
             type = '2d-array';
           }
 
-          let gpuTextureView = this.__webGpuResources.get(
-            texture._textureViewResourceUid
-          ) as GPUTextureView;
+          let gpuTextureView = this.__webGpuResources.get(texture._textureViewResourceUid) as GPUTextureView;
           if (gpuTextureView == null) {
             if (texture instanceof CubeTexture || texture instanceof RenderTargetTextureCube) {
-              const gpuTexture = this.__webGpuResources.get(
-                dummyBlackCubeTexture._textureResourceUid
-              ) as GPUTexture;
+              const gpuTexture = this.__webGpuResources.get(dummyBlackCubeTexture._textureResourceUid) as GPUTexture;
               gpuTextureView = gpuTexture.createView({ dimension: 'cube' });
             } else if (texture instanceof TextureArray || texture instanceof RenderTargetTexture2DArray) {
-              const gpuTexture = this.__webGpuResources.get(
-                dummyWhiteTexture._textureResourceUid
-              ) as GPUTexture;
+              const gpuTexture = this.__webGpuResources.get(dummyWhiteTexture._textureResourceUid) as GPUTexture;
               gpuTextureView = gpuTexture.createView({ dimension: '2d-array' });
             } else {
-              const gpuTexture = this.__webGpuResources.get(
-                dummyWhiteTexture._textureResourceUid
-              ) as GPUTexture;
+              const gpuTexture = this.__webGpuResources.get(dummyWhiteTexture._textureResourceUid) as GPUTexture;
               gpuTextureView = gpuTexture.createView();
             }
           }
@@ -2481,9 +2381,7 @@ export class WebGpuResourceRepository
             resource: diffuseCubeSampler,
           });
         } else {
-          const dummyCubeSampler = this.__webGpuResources.get(
-            dummyBlackCubeTexture._samplerResourceUid
-          ) as GPUSampler;
+          const dummyCubeSampler = this.__webGpuResources.get(dummyBlackCubeTexture._samplerResourceUid) as GPUSampler;
           entriesForSampler.push({
             binding: diffuseEnvSlot,
             resource: dummyCubeSampler,
@@ -2535,9 +2433,7 @@ export class WebGpuResourceRepository
             resource: specularCubeSampler,
           });
         } else {
-          const dummyCubeSampler = this.__webGpuResources.get(
-            dummyBlackCubeTexture._samplerResourceUid
-          ) as GPUSampler;
+          const dummyCubeSampler = this.__webGpuResources.get(dummyBlackCubeTexture._samplerResourceUid) as GPUSampler;
           entriesForSampler.push({
             binding: specularEnvSlot,
             resource: dummyCubeSampler,
@@ -2558,13 +2454,14 @@ export class WebGpuResourceRepository
         const sheenEnvSlot = sheenEnvValue[0];
         let sheenCubeTextureView: GPUTextureView | undefined;
         if (Is.exist(sheenCubeMap)) {
-          sheenCubeTextureView = this.__webGpuResources.get(
-            sheenCubeMap._textureViewResourceUid
-          ) as GPUTextureView | undefined;
-        } else if (Is.exist(specularCubeMap)) { // if sheenCubeMap is not exist, use specularCubeMap instead as sheenCubeMap
-          sheenCubeTextureView = this.__webGpuResources.get(
-            specularCubeMap._textureViewResourceUid
-          ) as GPUTextureView | undefined;
+          sheenCubeTextureView = this.__webGpuResources.get(sheenCubeMap._textureViewResourceUid) as
+            | GPUTextureView
+            | undefined;
+        } else if (Is.exist(specularCubeMap)) {
+          // if sheenCubeMap is not exist, use specularCubeMap instead as sheenCubeMap
+          sheenCubeTextureView = this.__webGpuResources.get(specularCubeMap._textureViewResourceUid) as
+            | GPUTextureView
+            | undefined;
         }
         if (Is.exist(sheenCubeTextureView)) {
           entriesForTexture.push({
@@ -2589,13 +2486,10 @@ export class WebGpuResourceRepository
         });
         let sheenCubeSampler: GPUSampler | undefined;
         if (Is.exist(sheenCubeMap)) {
-          sheenCubeSampler = this.__webGpuResources.get(
-            sheenCubeMap._samplerResourceUid
-          ) as GPUSampler | undefined;
-        } else if (Is.exist(specularCubeMap)) { // if sheenCubeMap is not exist, use specularCubeMap instead as sheenCubeMap
-          sheenCubeSampler = this.__webGpuResources.get(
-            specularCubeMap._samplerResourceUid
-          ) as GPUSampler | undefined;
+          sheenCubeSampler = this.__webGpuResources.get(sheenCubeMap._samplerResourceUid) as GPUSampler | undefined;
+        } else if (Is.exist(specularCubeMap)) {
+          // if sheenCubeMap is not exist, use specularCubeMap instead as sheenCubeMap
+          sheenCubeSampler = this.__webGpuResources.get(specularCubeMap._samplerResourceUid) as GPUSampler | undefined;
         }
         if (Is.exist(sheenCubeSampler)) {
           entriesForSampler.push({
@@ -2603,9 +2497,7 @@ export class WebGpuResourceRepository
             resource: sheenCubeSampler,
           });
         } else {
-          const dummyCubeSampler = this.__webGpuResources.get(
-            dummyBlackCubeTexture._samplerResourceUid
-          ) as GPUSampler;
+          const dummyCubeSampler = this.__webGpuResources.get(dummyBlackCubeTexture._samplerResourceUid) as GPUSampler;
           entriesForSampler.push({
             binding: sheenEnvSlot,
             resource: dummyCubeSampler,
@@ -2624,9 +2516,7 @@ export class WebGpuResourceRepository
       const bindGroupLayoutDescForTexture: GPUBindGroupLayoutDescriptor = {
         entries: bindGroupLayoutEntriesForTexture,
       };
-      const bindGroupLayoutForTexture = gpuDevice.createBindGroupLayout(
-        bindGroupLayoutDescForTexture
-      );
+      const bindGroupLayoutForTexture = gpuDevice.createBindGroupLayout(bindGroupLayoutDescForTexture);
       const bindGroupForTexture = gpuDevice.createBindGroup({
         layout: bindGroupLayoutForTexture,
         entries: entriesForTexture,
@@ -2638,9 +2528,7 @@ export class WebGpuResourceRepository
       const bindGroupLayoutDescForSampler: GPUBindGroupLayoutDescriptor = {
         entries: bindGroupLayoutEntriesForSampler,
       };
-      const bindGroupLayoutForSampler = gpuDevice.createBindGroupLayout(
-        bindGroupLayoutDescForSampler
-      );
+      const bindGroupLayoutForSampler = gpuDevice.createBindGroupLayout(bindGroupLayoutDescForSampler);
       const bindGroupForSampler = gpuDevice.createBindGroup({
         layout: bindGroupLayoutForSampler,
         entries: entriesForSampler,
@@ -2680,13 +2568,7 @@ export class WebGpuResourceRepository
   ): Promise<WebGPUResourceHandle> {
     imageData.crossOrigin = 'Anonymous';
 
-    const textureHandle = await this.__createTextureInner(
-      width,
-      height,
-      internalFormat,
-      generateMipmap,
-      imageData
-    );
+    const textureHandle = await this.__createTextureInner(width, height, internalFormat, generateMipmap, imageData);
 
     return textureHandle;
   }
@@ -2738,7 +2620,6 @@ export class WebGpuResourceRepository
       console.warn('No supported compression format found, falling back to uncompressed');
       throw new Error('No supported compression format found');
     }
-
 
     const textureDescriptor: GPUTextureDescriptor = {
       size: [width, height, 1],
@@ -2835,22 +2716,9 @@ export class WebGpuResourceRepository
     imageIndex: Index,
     levelIndex: Index
   ) {
-    const extractSize = basisFile.getImageTranscodedSizeInBytes(
-      imageIndex,
-      levelIndex,
-      basisCompressionType!.index
-    );
+    const extractSize = basisFile.getImageTranscodedSizeInBytes(imageIndex, levelIndex, basisCompressionType!.index);
     const textureSource = new Uint8Array(extractSize);
-    if (
-      !basisFile.transcodeImage(
-        textureSource,
-        imageIndex,
-        levelIndex,
-        basisCompressionType!.index,
-        0,
-        0
-      )
-    ) {
+    if (!basisFile.transcodeImage(textureSource, imageIndex, levelIndex, basisCompressionType!.index, 0, 0)) {
       Logger.error('failed to transcode the image.');
     }
     return textureSource;
@@ -2897,9 +2765,10 @@ export class WebGpuResourceRepository
       const bytesPerRow = Math.ceil(unalignedBytesPerRow / 256) * 256;
 
       // Retrieve the appropriate Uint8Array from ArrayBufferView
-      const originalData = textureData.buffer instanceof Uint8Array
-        ? textureData.buffer
-        : new Uint8Array(textureData.buffer.buffer, textureData.buffer.byteOffset, textureData.buffer.byteLength);
+      const originalData =
+        textureData.buffer instanceof Uint8Array
+          ? textureData.buffer
+          : new Uint8Array(textureData.buffer.buffer, textureData.buffer.byteOffset, textureData.buffer.byteLength);
 
       // If bytesPerRow is not aligned, data needs to be padded
       let compressedTextureData: Uint8Array;
@@ -2975,10 +2844,7 @@ export class WebGpuResourceRepository
       size: [width, height, 1],
       mipLevelCount: mipLevelCount,
       format: format.webgpu as GPUTextureFormat,
-      usage:
-        GPUTextureUsage.TEXTURE_BINDING |
-        GPUTextureUsage.COPY_DST |
-        GPUTextureUsage.RENDER_ATTACHMENT,
+      usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
     };
 
     const gpuTexture = gpuDevice.createTexture(textureDescriptor);
@@ -3092,10 +2958,7 @@ export class WebGpuResourceRepository
     const textureDescriptor: GPUTextureDescriptor = {
       size: [width, height, 1],
       format: internalFormat.webgpu as GPUTextureFormat,
-      usage:
-        GPUTextureUsage.TEXTURE_BINDING |
-        GPUTextureUsage.COPY_DST |
-        GPUTextureUsage.RENDER_ATTACHMENT,
+      usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
     };
 
     if (generateMipmap) {
@@ -3104,10 +2967,7 @@ export class WebGpuResourceRepository
 
     const gpuTexture = gpuDevice.createTexture(textureDescriptor);
 
-    gpuDevice.queue.copyExternalImageToTexture({ source: imageData }, { texture: gpuTexture }, [
-      width,
-      height,
-    ]);
+    gpuDevice.queue.copyExternalImageToTexture({ source: imageData }, { texture: gpuTexture }, [width, height]);
 
     if (generateMipmap) {
       this.generateMipmaps(gpuTexture, textureDescriptor);
@@ -3339,9 +3199,7 @@ export class WebGpuResourceRepository
     }
   }
 
-  duplicateTextureAsMipmapped(
-    fromTexture: WebGPUResourceHandle
-  ): [WebGPUResourceHandle, WebGPUResourceHandle] {
+  duplicateTextureAsMipmapped(fromTexture: WebGPUResourceHandle): [WebGPUResourceHandle, WebGPUResourceHandle] {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const texture = this.__webGpuResources.get(fromTexture) as GPUTexture;
 
@@ -3398,10 +3256,7 @@ export class WebGpuResourceRepository
    * @param framebuffer a Framebuffer
    * @param renderable a depthStencilBuffer
    */
-  attachDepthStencilBufferToFrameBufferObject(
-    framebuffer: FrameBuffer,
-    renderable: IRenderable
-  ): void {}
+  attachDepthStencilBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable): void {}
 
   /**
    * create a FrameBufferObject
@@ -3423,11 +3278,7 @@ export class WebGpuResourceRepository
    * @param attachmentIndex a attachment index
    * @param renderable a ColorBuffer
    */
-  attachColorBufferToFrameBufferObject(
-    framebuffer: FrameBuffer,
-    attachmentIndex: Index,
-    renderable: IRenderable
-  ) {
+  attachColorBufferToFrameBufferObject(framebuffer: FrameBuffer, attachmentIndex: Index, renderable: IRenderable) {
     return;
   }
 
@@ -3516,7 +3367,11 @@ export class WebGpuResourceRepository
 
   createTextureView2dArray(textureHandle: WebGPUResourceHandle, arrayLayerCount: Count): WebGPUResourceHandle {
     const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
-    const textureView = texture.createView({ dimension: '2d-array', baseArrayLayer: 0, arrayLayerCount: arrayLayerCount });
+    const textureView = texture.createView({
+      dimension: '2d-array',
+      baseArrayLayer: 0,
+      arrayLayerCount: arrayLayerCount,
+    });
     const textureViewHandle = this.__registerResource(textureView);
 
     return textureViewHandle;

@@ -97,12 +97,7 @@ export class AnimationComponent extends Component {
    * @param entityRepository - The repository for managing entities
    * @param isReUse - Whether this component is being reused
    */
-  constructor(
-    entityUid: EntityUID,
-    componentSid: ComponentSID,
-    entityRepository: EntityRepository,
-    isReUse: boolean
-  ) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
     super(entityUid, componentSid, entityRepository, isReUse);
   }
 
@@ -244,7 +239,7 @@ export class AnimationComponent extends Component {
       } else if (pathName === 'effekseer') {
         if ((channel.animatedValue as unknown as Scalar).x > 0.5) {
           if (this.__isEffekseerState === 0) {
-              effekseerComponent?.play();
+            effekseerComponent?.play();
           }
         } else {
           if (this.__isEffekseerState === 1) {
@@ -278,9 +273,7 @@ export class AnimationComponent extends Component {
    * @param animationTrackName - The name of the animation track to activate
    */
   static setActiveAnimationForAll(animationTrackName: AnimationTrackName) {
-    const components = ComponentRepository.getComponentsWithType(
-      AnimationComponent
-    ) as AnimationComponent[];
+    const components = ComponentRepository.getComponentsWithType(AnimationComponent) as AnimationComponent[];
     for (const component of components) {
       component.setActiveAnimationTrack(animationTrackName);
     }
@@ -337,13 +330,10 @@ export class AnimationComponent extends Component {
    * @param pathName - The name of the animation path (e.g., 'translate', 'rotate', 'scale')
    * @param animatedValueArg - The animated value containing animation data
    */
-  setAnimation(
-    pathName: AnimationPathName,
-    animatedValueArg: IAnimatedValue
-  ) {
+  setAnimation(pathName: AnimationPathName, animatedValueArg: IAnimatedValue) {
     let animatedValue: IAnimatedValue;
     if (this.__animationTrack.has(pathName)) {
-      const existedAnimatedValue = this.__animationTrack.get(pathName)!.animatedValue
+      const existedAnimatedValue = this.__animationTrack.get(pathName)!.animatedValue;
       for (const trackName of animatedValueArg.getAllTrackNames()) {
         existedAnimatedValue.setAnimationSampler(trackName, animatedValueArg.getAnimationSampler(trackName));
       }
@@ -358,7 +348,6 @@ export class AnimationComponent extends Component {
       });
       animatedValue = animatedValueArg;
     }
-
 
     // update AnimationInfo
     const trackNames = animatedValue.getAllTrackNames();
@@ -456,9 +445,7 @@ export class AnimationComponent extends Component {
    * @returns The start input value
    */
   static get startInputValue() {
-    const components = ComponentRepository.getComponentsWithType(
-      AnimationComponent
-    ) as AnimationComponent[];
+    const components = ComponentRepository.getComponentsWithType(AnimationComponent) as AnimationComponent[];
     if (components.length === 0) {
       return 0;
     } else {
@@ -473,9 +460,7 @@ export class AnimationComponent extends Component {
    * @returns The end input value
    */
   static get endInputValue() {
-    const components = ComponentRepository.getComponentsWithType(
-      AnimationComponent
-    ) as AnimationComponent[];
+    const components = ComponentRepository.getComponentsWithType(AnimationComponent) as AnimationComponent[];
     if (components.length === 0) {
       return 0;
     } else {
@@ -520,18 +505,12 @@ export class AnimationComponent extends Component {
     _componentClass: SomeComponentClass
   ) {
     class AnimationEntity extends (base.constructor as any) {
-      constructor(
-        entityUID: EntityUID,
-        isAlive: boolean,
-        components?: Map<ComponentTID, Component>
-      ) {
+      constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
         super(entityUID, isAlive, components);
       }
 
       getAnimation() {
-        return this.getComponentByComponentTID(
-          WellKnownComponentTIDs.AnimationComponentTID
-        ) as AnimationComponent;
+        return this.getComponentByComponentTID(WellKnownComponentTIDs.AnimationComponentTID) as AnimationComponent;
       }
     }
     applyMixins(base, AnimationEntity);
@@ -546,12 +525,7 @@ export class AnimationComponent extends Component {
    * @param fps - The frames per second rate
    * @returns True if the keyframe was successfully added, false otherwise
    */
-  addKeyFrame(
-    trackName: AnimationTrackName,
-    pathName: AnimationPathName,
-    frameToInsert: Index,
-    fps: number
-  ) {
+  addKeyFrame(trackName: AnimationTrackName, pathName: AnimationPathName, frameToInsert: Index, fps: number) {
     const secBegin = frameToInsert / fps;
     const input = secBegin;
     const secEnd = (frameToInsert + 1) / fps;
@@ -606,7 +580,9 @@ export class AnimationComponent extends Component {
           if (secBegin <= existedInput && existedInput <= secEnd) {
             animatedValue.getAnimationSampler(trackName).input[i] = input;
             for (let j = 0; j < animatedValue.getAnimationSampler(trackName).outputComponentN; j++) {
-              animatedValue.getAnimationSampler(trackName).output[i * animatedValue.getAnimationSampler(trackName).outputComponentN + j] = output[j];
+              animatedValue.getAnimationSampler(trackName).output[
+                i * animatedValue.getAnimationSampler(trackName).outputComponentN + j
+              ] = output[j];
             }
           } else {
             const inputArray = Array.from(animatedValue.getAnimationSampler(trackName).input);
@@ -691,7 +667,9 @@ export class AnimationComponent extends Component {
           if (secBegin <= existedInput && existedInput <= secEnd) {
             animatedValue.getAnimationSampler(trackName).input[i] = input;
             for (let j = 0; j < animatedValue.getAnimationSampler(trackName).outputComponentN; j++) {
-              animatedValue.getAnimationSampler(trackName).output[i * animatedValue.getAnimationSampler(trackName).outputComponentN + j] = output[j];
+              animatedValue.getAnimationSampler(trackName).output[
+                i * animatedValue.getAnimationSampler(trackName).outputComponentN + j
+              ] = output[j];
             }
           } else {
             const inputArray = Array.from(animatedValue.getAnimationSampler(trackName).input);
@@ -717,12 +695,7 @@ export class AnimationComponent extends Component {
    * @param fps - The frames per second rate
    * @returns True if keyframes were successfully deleted, false otherwise
    */
-  deleteKeysAtFrame(
-    trackName: AnimationTrackName,
-    pathName: AnimationPathName,
-    frameToDelete: Index,
-    fps: number
-  ) {
+  deleteKeysAtFrame(trackName: AnimationTrackName, pathName: AnimationPathName, frameToDelete: Index, fps: number) {
     const secBegin = frameToDelete / fps;
     const secEnd = (frameToDelete + 1) / fps;
 
@@ -740,7 +713,10 @@ export class AnimationComponent extends Component {
         input.splice(i, 1);
         animatedValue.getAnimationSampler(trackName).input = new Float32Array(input);
         const output = Array.from(animatedValue.getAnimationSampler(trackName).output);
-        output.splice(i * animatedValue.getAnimationSampler(trackName).outputComponentN, animatedValue.getAnimationSampler(trackName).outputComponentN);
+        output.splice(
+          i * animatedValue.getAnimationSampler(trackName).outputComponentN,
+          animatedValue.getAnimationSampler(trackName).outputComponentN
+        );
         animatedValue.getAnimationSampler(trackName).output = new Float32Array(output);
       }
     }
@@ -756,12 +732,7 @@ export class AnimationComponent extends Component {
    * @param fps - The frames per second rate
    * @returns True if keyframes exist at the frame, false otherwise
    */
-  hasKeyFramesAtFrame(
-    trackName: AnimationTrackName,
-    pathName: AnimationPathName,
-    frame: Index,
-    fps: number
-  ) {
+  hasKeyFramesAtFrame(trackName: AnimationTrackName, pathName: AnimationPathName, frame: Index, fps: number) {
     const secBegin = frame / fps;
     const secEnd = (frame + 1) / fps;
 
@@ -823,7 +794,6 @@ export class AnimationComponent extends Component {
     for (const [pathName, channel] of srcAnim.__animationTrack) {
       const animatedValue = channel.animatedValue;
       for (const _trackName of animatedValue.getAllTrackNames()) {
-
         const trackName = _trackName + (postfixToTrackName ?? '');
         trackNames.push(trackName);
 
@@ -838,10 +808,7 @@ export class AnimationComponent extends Component {
             interpolationMethod: animatedValue.getAnimationSampler(_trackName).interpolationMethod,
           });
           const newAnimatedValue = new AnimatedVector3(samplers, trackName);
-          this.setAnimation(
-            pathName as AnimationPathName,
-            newAnimatedValue
-          );
+          this.setAnimation(pathName as AnimationPathName, newAnimatedValue);
         }
         if (channel.target.pathName === 'quaternion') {
           const outputs = retargetQuaternion(input, srcAnim);
@@ -853,10 +820,7 @@ export class AnimationComponent extends Component {
             interpolationMethod: animatedValue.getAnimationSampler(_trackName).interpolationMethod,
           });
           const newAnimatedValue = new AnimatedQuaternion(samplers, trackName);
-          this.setAnimation(
-            pathName as AnimationPathName,
-            newAnimatedValue
-          );
+          this.setAnimation(pathName as AnimationPathName, newAnimatedValue);
         }
         if (channel.target.pathName === 'scale') {
           const outputs = retargetScale(input, srcAnim);
@@ -868,10 +832,7 @@ export class AnimationComponent extends Component {
             interpolationMethod: animatedValue.getAnimationSampler(_trackName).interpolationMethod,
           });
           const newAnimatedValue = new AnimatedVector3(samplers, trackName);
-          this.setAnimation(
-            pathName as AnimationPathName,
-            newAnimatedValue
-          );
+          this.setAnimation(pathName as AnimationPathName, newAnimatedValue);
         }
       }
     }

@@ -41,7 +41,6 @@ export interface AnimationInfo {
  */
 export type AnimationTrack = Map<AnimationPathName, AnimationChannel>;
 
-
 export type AnimationSamplers = Map<AnimationTrackName, AnimationSampler>;
 
 /**

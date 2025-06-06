@@ -1,8 +1,4 @@
-import {
-  ShaderSemantics,
-  ShaderSemanticsEnum,
-  ShaderSemanticsClass,
-} from '../../definitions/ShaderSemantics';
+import { ShaderSemantics, ShaderSemanticsEnum, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';
@@ -363,14 +359,10 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
   }) {
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getComponent(
-        CameraComponent,
-        CameraComponent.current
-      ) as CameraComponent;
+      cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
     }
 
-    const encodedDepthCameraComponent = this.__encodedDepthRenderPass
-      .cameraComponent as CameraComponent;
+    const encodedDepthCameraComponent = this.__encodedDepthRenderPass.cameraComponent as CameraComponent;
 
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
@@ -378,23 +370,13 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
       this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
       this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
 
-      if (
-        ShadowMapDecodeClassicMaterialContent.__lastZNear !== encodedDepthCameraComponent.zNearInner
-      ) {
-        (shaderProgram as any)._gl.uniform1f(
-          (shaderProgram as any).zNearInner,
-          encodedDepthCameraComponent.zNearInner
-        );
+      if (ShadowMapDecodeClassicMaterialContent.__lastZNear !== encodedDepthCameraComponent.zNearInner) {
+        (shaderProgram as any)._gl.uniform1f((shaderProgram as any).zNearInner, encodedDepthCameraComponent.zNearInner);
         ShadowMapDecodeClassicMaterialContent.__lastZNear = encodedDepthCameraComponent.zNearInner;
       }
 
-      if (
-        ShadowMapDecodeClassicMaterialContent.__lastZFar !== encodedDepthCameraComponent.zFarInner
-      ) {
-        (shaderProgram as any)._gl.uniform1f(
-          (shaderProgram as any).zFarInner,
-          encodedDepthCameraComponent.zFarInner
-        );
+      if (ShadowMapDecodeClassicMaterialContent.__lastZFar !== encodedDepthCameraComponent.zFarInner) {
+        (shaderProgram as any)._gl.uniform1f((shaderProgram as any).zFarInner, encodedDepthCameraComponent.zFarInner);
         ShadowMapDecodeClassicMaterialContent.__lastZFar = encodedDepthCameraComponent.zFarInner;
       }
       const __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();

@@ -90,12 +90,7 @@ export class SceneGraphComponent extends Component {
    * @param entityRepository - The entity repository managing this component
    * @param isReUse - Whether this component is being reused
    */
-  constructor(
-    entityUid: EntityUID,
-    componentSid: ComponentSID,
-    entityRepository: EntityRepository,
-    isReUse: boolean
-  ) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
     super(entityUid, componentSid, entityRepository, isReUse);
 
     SceneGraphComponent.__sceneGraphs.push(new WeakRef(this));
@@ -114,20 +109,8 @@ export class SceneGraphComponent extends Component {
       ComponentType.Float,
       [1, 0, 0, 0, 1, 0, 0, 0, 1]
     );
-    this.registerMember(
-      BufferUse.GPUInstanceData,
-      'isVisible',
-      MutableScalar,
-      ComponentType.Float,
-      [1]
-    );
-    this.registerMember(
-      BufferUse.GPUInstanceData,
-      'isBillboard',
-      MutableScalar,
-      ComponentType.Float,
-      [0]
-    );
+    this.registerMember(BufferUse.GPUInstanceData, 'isVisible', MutableScalar, ComponentType.Float, [1]);
+    this.registerMember(BufferUse.GPUInstanceData, 'isBillboard', MutableScalar, ComponentType.Float, [0]);
 
     this.submitToAllocation(this.maxNumberOfComponent, isReUse);
   }
@@ -321,7 +304,7 @@ export class SceneGraphComponent extends Component {
    */
   static getTopLevelComponents(): SceneGraphComponent[] {
     return SceneGraphComponent.__sceneGraphs
-      .map((sgRef) => sgRef.deref())
+      .map(sgRef => sgRef.deref())
       .filter((sg: SceneGraphComponent | undefined): sg is SceneGraphComponent => {
         if (sg !== undefined) {
           return sg.isTopLevel;
@@ -372,7 +355,7 @@ export class SceneGraphComponent extends Component {
    */
   setWorldMatrixRestDirtyRecursively() {
     this.__isWorldMatrixRestUpToDate = false;
-    this.children.forEach((child) => {
+    this.children.forEach(child => {
       child.setWorldMatrixRestDirtyRecursively();
     });
   }
@@ -393,7 +376,7 @@ export class SceneGraphComponent extends Component {
     this.__isNormalMatrixUpToDate = false;
     this.__isWorldAABBDirty = true;
 
-    this.children.forEach((child) => {
+    this.children.forEach(child => {
       child.setWorldMatrixDirtyRecursively();
     });
   }
@@ -624,10 +607,7 @@ export class SceneGraphComponent extends Component {
     }
 
     const matrixFromAncestorToParent = this.parent.getQuaternionRecursively();
-    return Quaternion.multiply(
-      matrixFromAncestorToParent,
-      this.entity.getTransform().localRotation
-    );
+    return Quaternion.multiply(matrixFromAncestorToParent, this.entity.getTransform().localRotation);
   }
 
   /**
@@ -675,10 +655,7 @@ export class SceneGraphComponent extends Component {
    * @returns The output vector containing the local position
    */
   getLocalPositionOfTo(worldPosition: Vector3, out: MutableVector3): Vector3 {
-    return Matrix44.invertTo(this.matrixInner, SceneGraphComponent.__tmp_mat4).multiplyVector3To(
-      worldPosition,
-      out
-    );
+    return Matrix44.invertTo(this.matrixInner, SceneGraphComponent.__tmp_mat4).multiplyVector3To(worldPosition, out);
   }
 
   /**
@@ -691,11 +668,7 @@ export class SceneGraphComponent extends Component {
     if (Is.exist(meshComponent) && Is.exist(meshComponent.mesh)) {
       aabb.mergeAABB(meshComponent.mesh.AABB);
 
-      AABB.multiplyMatrixTo(
-        this.entity.getSceneGraph().matrixInner,
-        aabb,
-        SceneGraphComponent.__tmpAABB
-      );
+      AABB.multiplyMatrixTo(this.entity.getSceneGraph().matrixInner, aabb, SceneGraphComponent.__tmpAABB);
     } else {
       SceneGraphComponent.__tmpAABB.initialize();
     }
@@ -963,18 +936,10 @@ export class SceneGraphComponent extends Component {
     if (Is.exist(this.__aabbGizmo) && this.__aabbGizmo.isSetup && this.__aabbGizmo.isVisible) {
       this.__aabbGizmo._update();
     }
-    if (
-      Is.exist(this.__locatorGizmo) &&
-      this.__locatorGizmo.isSetup &&
-      this.__locatorGizmo.isVisible
-    ) {
+    if (Is.exist(this.__locatorGizmo) && this.__locatorGizmo.isSetup && this.__locatorGizmo.isVisible) {
       this.__locatorGizmo._update();
     }
-    if (
-      Is.exist(this.__translationGizmo) &&
-      this.__translationGizmo.isSetup &&
-      this.__translationGizmo.isVisible
-    ) {
+    if (Is.exist(this.__translationGizmo) && this.__translationGizmo.isSetup && this.__translationGizmo.isVisible) {
       this.__translationGizmo._update();
     }
     if (Is.exist(this.__scaleGizmo) && this.__scaleGizmo.isSetup && this.__scaleGizmo.isVisible) {
@@ -990,12 +955,8 @@ export class SceneGraphComponent extends Component {
     if (Is.not.exist(this.__parent)) {
       this.entity.getTransform().localPositionWithoutPhysics = vec;
     } else {
-      MutableMatrix44.invertTo(
-        this.__parent.entity.getSceneGraph().matrixInner,
-        SceneGraphComponent.__tmp_mat4
-      );
-      this.entity.getTransform().localPositionWithoutPhysics =
-        SceneGraphComponent.__tmp_mat4.multiplyVector3(vec);
+      MutableMatrix44.invertTo(this.__parent.entity.getSceneGraph().matrixInner, SceneGraphComponent.__tmp_mat4);
+      this.entity.getTransform().localPositionWithoutPhysics = SceneGraphComponent.__tmp_mat4.multiplyVector3(vec);
     }
   }
 
@@ -1182,10 +1143,7 @@ export class SceneGraphComponent extends Component {
   get rotationRest(): Quaternion {
     const parent = this.parent;
     if (parent != null) {
-      return Quaternion.multiply(
-        parent.rotationRest,
-        this.entity.getTransform().localRotationRestInner
-      );
+      return Quaternion.multiply(parent.rotationRest, this.entity.getTransform().localRotationRestInner);
     }
     return this.entity.getTransform().localRotationRestInner;
   }
@@ -1198,10 +1156,7 @@ export class SceneGraphComponent extends Component {
   getRotationRest(endFn: (sg: SceneGraphComponent) => boolean): Quaternion {
     const parent = this.parent;
     if (parent != null && !endFn(this)) {
-      return Quaternion.multiply(
-        parent.getRotationRest(endFn),
-        this.entity.getTransform().localRotationRestInner
-      );
+      return Quaternion.multiply(parent.getRotationRest(endFn), this.entity.getTransform().localRotationRestInner);
     }
     return Quaternion.identity();
 
@@ -1293,8 +1248,7 @@ export class SceneGraphComponent extends Component {
     // this.__translationGizmo = component.__translationGizmo;
     // this.__scaleGizmo = component.__scaleGizmo;
     this.__transformGizmoSpace = component.__transformGizmoSpace;
-    this.__latestPrimitivePositionAccessorVersion =
-      component.__latestPrimitivePositionAccessorVersion;
+    this.__latestPrimitivePositionAccessorVersion = component.__latestPrimitivePositionAccessorVersion;
     this.toMakeWorldMatrixTheSameAsLocalMatrix = component.toMakeWorldMatrixTheSameAsLocalMatrix;
     this.isRootJoint = component.isRootJoint;
     this.jointIndex = component.jointIndex;
@@ -1329,7 +1283,7 @@ export class SceneGraphComponent extends Component {
     this.__scaleGizmo?._destroy();
     // this.__entityRepository.removeEntity(this.__entityUid);
     this.parent?.removeChild(this);
-    this.children.forEach((child) => child.parent?.removeChild(child));
+    this.children.forEach(child => child.parent?.removeChild(child));
   }
 
   /**
@@ -1344,11 +1298,7 @@ export class SceneGraphComponent extends Component {
   ) {
     class SceneGraphEntity extends (base.constructor as any) {
       private __sceneGraphComponent?: SceneGraphComponent;
-      constructor(
-        entityUID: EntityUID,
-        isAlive: boolean,
-        components?: Map<ComponentTID, Component>
-      ) {
+      constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
         super(entityUID, isAlive, components);
       }
 

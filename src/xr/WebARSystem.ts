@@ -96,7 +96,7 @@ export class WebARSystem {
    * ```
    */
   async readyForWebAR(requestButtonDom: HTMLElement) {
-    if (typeof window === "undefined") {
+    if (typeof window === 'undefined') {
       throw new Error('This method works in Browser environment');
     }
 
@@ -220,8 +220,8 @@ export class WebARSystem {
       // The content that will be shown on the device is defined by the session's
       // baseLayer.
 
-      if (typeof window === "undefined") {
-        throw new Error('This method works in Browser Environment')
+      if (typeof window === 'undefined') {
+        throw new Error('This method works in Browser Environment');
       }
 
       this.__oWebglLayer = new Some(window.XRWebGLLayer(xrSession, gl) as XRWebGLLayer);
@@ -325,33 +325,23 @@ export class WebARSystem {
     this.__viewerOrientation.z = orientation.z;
     this.__viewerOrientation.w = orientation.w;
 
-    const m = MutableMatrix44.fromCopyFloat32ArrayColumnMajor(
-      xrView?.transform.matrix as Float32Array
-    );
+    const m = MutableMatrix44.fromCopyFloat32ArrayColumnMajor(xrView?.transform.matrix as Float32Array);
 
     const rotateMat = m;
 
     const scale = this.__viewerScale.x;
     const pos = xrView.transform.position;
-    const translateScaled = MutableVector3.add(
-      this.__defaultPositionInLocalSpaceMode,
-      this.__viewerTranslate
-    );
+    const translateScaled = MutableVector3.add(this.__defaultPositionInLocalSpaceMode, this.__viewerTranslate);
     const xrViewerPos = Vector3.fromCopyArray([pos.x, pos.y, pos.z]);
-    const translate = MutableVector3.add(
-      this.__defaultPositionInLocalSpaceMode,
-      this.__viewerTranslate
-    ).add(xrViewerPos);
+    const translate = MutableVector3.add(this.__defaultPositionInLocalSpaceMode, this.__viewerTranslate).add(
+      xrViewerPos
+    );
     const viewerTranslateScaledX = translateScaled.x;
     const viewerTranslateScaledZ = translateScaled.z;
     const viewerTranslateX = translate.x;
     const viewerTranslateZ = translate.z;
     const viewerTransform = this._cameraEntity.getTransform()!;
-    viewerTransform.localPosition = Vector3.fromCopyArray([
-      viewerTranslateScaledX,
-      0,
-      viewerTranslateScaledZ,
-    ]);
+    viewerTransform.localPosition = Vector3.fromCopyArray([viewerTranslateScaledX, 0, viewerTranslateScaledZ]);
     viewerTransform.localScale = Vector3.fromCopyArray([scale, scale, scale]);
     viewerTransform.localEulerAngles = Vector3.fromCopyArray([0, this.__viewerAzimuthAngle.x, 0]);
 

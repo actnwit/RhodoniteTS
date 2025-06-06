@@ -39,9 +39,5 @@ export interface CGAPIStrategy {
    * @param renderPassTickCount - The current tick count for the render pass, used for timing and animation
    * @returns True if the rendering operation was successful, false otherwise
    */
-  common_$render(
-    primitiveUids: PrimitiveUID[],
-    renderPass: RenderPass,
-    renderPassTickCount: Count
-  ): boolean;
+  common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, renderPassTickCount: Count): boolean;
 }

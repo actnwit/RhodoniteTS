@@ -511,17 +511,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
    * @returns An array containing all 9 matrix elements
    */
   flattenAsArray() {
-    return [
-      this._v[0],
-      this._v[1],
-      this._v[2],
-      this._v[3],
-      this._v[4],
-      this._v[5],
-      this._v[6],
-      this._v[7],
-      this._v[8],
-    ];
+    return [this._v[0], this._v[1], this._v[2], this._v[3], this._v[4], this._v[5], this._v[6], this._v[7], this._v[8]];
   }
 
   /**

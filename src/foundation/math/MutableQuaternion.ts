@@ -489,26 +489,10 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @returns This instance for method chaining
    */
   multiply(quat: IQuaternion) {
-    const x =
-      quat._v[3] * this._v[0] +
-      quat._v[2] * this._v[1] +
-      quat._v[1] * this._v[2] -
-      quat._v[0] * this._v[3];
-    const y =
-      -quat._v[2] * this._v[0] +
-      quat._v[3] * this._v[1] +
-      quat._v[0] * this._v[2] -
-      quat._v[1] * this._v[3];
-    const z =
-      quat._v[1] * this._v[0] +
-      quat._v[0] * this._v[1] +
-      quat._v[3] * this._v[2] -
-      quat._v[2] * this._v[3];
-    const w =
-      -quat._v[0] * this._v[0] -
-      quat._v[1] * this._v[1] -
-      quat._v[2] * this._v[2] -
-      quat._v[3] * this._v[3];
+    const x = quat._v[3] * this._v[0] + quat._v[2] * this._v[1] + quat._v[1] * this._v[2] - quat._v[0] * this._v[3];
+    const y = -quat._v[2] * this._v[0] + quat._v[3] * this._v[1] + quat._v[0] * this._v[2] - quat._v[1] * this._v[3];
+    const z = quat._v[1] * this._v[0] + quat._v[0] * this._v[1] + quat._v[3] * this._v[2] - quat._v[2] * this._v[3];
+    const w = -quat._v[0] * this._v[0] - quat._v[1] * this._v[1] - quat._v[2] * this._v[2] - quat._v[3] * this._v[3];
     return this.setComponents(x, y, z, w);
   }
 
@@ -551,12 +535,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @returns A new IMutableQuaternion with the same component values
    */
   clone(): IMutableQuaternion {
-    return MutableQuaternion.fromCopy4(
-      this._v[0],
-      this._v[1],
-      this._v[2],
-      this._v[3]
-    ) as IMutableQuaternion;
+    return MutableQuaternion.fromCopy4(this._v[0], this._v[1], this._v[2], this._v[3]) as IMutableQuaternion;
   }
 
   /**

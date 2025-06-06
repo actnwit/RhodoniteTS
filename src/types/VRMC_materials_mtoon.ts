@@ -1,4 +1,4 @@
-import { RnM2Material, RnM2Texture } from "./RnM2";
+import { RnM2Material, RnM2Texture } from './RnM2';
 
 export type Vrm1_Materials_MToon = {
   // Meta

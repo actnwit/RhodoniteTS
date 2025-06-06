@@ -1,8 +1,5 @@
 import { PrimitiveMode, PrimitiveModeEnum } from '../definitions/PrimitiveMode';
-import {
-  VertexAttribute,
-  VertexAttributeSemanticsJoinedString,
-} from '../definitions/VertexAttribute';
+import { VertexAttribute, VertexAttributeSemanticsJoinedString } from '../definitions/VertexAttribute';
 import { Accessor } from '../memory/Accessor';
 import { RnObject } from '../core/RnObject';
 import { ComponentTypeEnum, ComponentType } from '../definitions/ComponentType';
@@ -256,11 +253,7 @@ export class Primitive extends RnObject {
    */
   set material(mat: Material) {
     this.__material = mat;
-    this.setSortKey(
-      PrimitiveSortKey_BitOffset_Material,
-      PrimitiveSortKey_BitLength_Material,
-      mat.materialUID
-    );
+    this.setSortKey(PrimitiveSortKey_BitOffset_Material, PrimitiveSortKey_BitLength_Material, mat.materialUID);
 
     let translucencyType = 0; // opaque
     if (mat.isTranslucentOpaque()) {
@@ -383,12 +376,7 @@ export class Primitive extends RnObject {
    * @param material - Optional material to assign (uses default if not provided)
    * @param indicesAccessor - Optional index accessor for indexed rendering
    */
-  setData(
-    attributes: Attributes,
-    mode: PrimitiveModeEnum,
-    material?: Material,
-    indicesAccessor?: Accessor
-  ) {
+  setData(attributes: Attributes, mode: PrimitiveModeEnum, material?: Material, indicesAccessor?: Accessor) {
     if (indicesAccessor != null) {
       this.__oIndices = new Some(indicesAccessor);
     } else {
@@ -408,11 +396,7 @@ export class Primitive extends RnObject {
       });
     }
     this.__mode = mode;
-    this.setSortKey(
-      PrimitiveSortKey_BitOffset_PrimitiveType,
-      PrimitiveSortKey_BitLength_PrimitiveType,
-      mode.index
-    );
+    this.setSortKey(PrimitiveSortKey_BitOffset_PrimitiveType, PrimitiveSortKey_BitLength_PrimitiveType, mode.index);
 
     this.__primitiveUid = Primitive.__primitiveCount++;
     Primitive.__primitives[this.__primitiveUid] = new WeakRef(this);
@@ -424,16 +408,10 @@ export class Primitive extends RnObject {
    * Creates appropriate buffers and accessors for the provided data.
    * @param desc - Descriptor containing arrays of vertex data and configuration
    */
-  copyVertexData({
-    attributes,
-    attributeSemantics,
-    primitiveMode,
-    indices,
-    material,
-  }: PrimitiveDescriptor) {
+  copyVertexData({ attributes, attributeSemantics, primitiveMode, indices, material }: PrimitiveDescriptor) {
     let sumOfAttributesByteSize = 0;
     const byteAlign = 4;
-    attributes.forEach((attribute) => {
+    attributes.forEach(attribute => {
       sumOfAttributesByteSize += attribute.byteLength;
     });
 
@@ -481,9 +459,7 @@ export class Primitive extends RnObject {
     const attributeComponentTypes: Array<ComponentTypeEnum> = [];
 
     attributes.forEach((typedArray, i) => {
-      const compositionType = CompositionType.vectorFrom(
-        VertexAttribute.toVectorComponentN(attributeSemantics[i])
-      );
+      const compositionType = CompositionType.vectorFrom(VertexAttribute.toVectorComponentN(attributeSemantics[i]));
       attributeComponentTypes[i] = ComponentType.fromTypedArray(attributes[i]);
       const accessor: Accessor = attributesBufferView
         .takeAccessor({
@@ -701,10 +677,7 @@ export class Primitive extends RnObject {
    * @returns The bounding box containing all vertices
    */
   get AABB() {
-    if (
-      this.__aabb.isVanilla() ||
-      this.positionAccessorVersion !== this.__latestPositionAccessorVersion
-    ) {
+    if (this.__aabb.isVanilla() || this.positionAccessorVersion !== this.__latestPositionAccessorVersion) {
       const positionAccessor = this.__attributes.get(VertexAttribute.Position.XYZ)!;
 
       const min = positionAccessor.min as number[];
@@ -755,14 +728,8 @@ export class Primitive extends RnObject {
         'Primitive.__primitiveUidsHasMorph.size exceeds the Config.maxMorphPrimitiveNumberInWebGPU. Please increase the Config.maxMorphPrimitiveNumberInWebGPU.'
       );
     } else {
-      Primitive.__idxPrimitiveUidHasMorph.set(
-        Primitive.__primitiveCountHasMorph,
-        new WeakRef(this)
-      );
-      Primitive.__primitiveUidIdxHasMorph.set(
-        this.__primitiveUid,
-        Primitive.__primitiveCountHasMorph++
-      );
+      Primitive.__idxPrimitiveUidHasMorph.set(Primitive.__primitiveCountHasMorph, new WeakRef(this));
+      Primitive.__primitiveUidIdxHasMorph.set(this.__primitiveUid, Primitive.__primitiveCountHasMorph++);
     }
 
     this.__targets = targets;
@@ -892,19 +859,23 @@ export class Primitive extends RnObject {
     }
 
     const buffer = MemoryManager.getInstance().createBufferOnDemand(bufferSize, this, 4 /* bytes */);
-    const bufferView = buffer.takeBufferView({
-      byteLengthToNeed: bufferSize,
-      byteStride: 0,
-    }).unwrapForce();
+    const bufferView = buffer
+      .takeBufferView({
+        byteLengthToNeed: bufferSize,
+        byteStride: 0,
+      })
+      .unwrapForce();
 
     for (const [semantic, accessorOld] of this.__attributes) {
       const compositionType = accessorOld.compositionType;
 
-      const accessorNew: Accessor = bufferView.takeAccessor({
-        compositionType,
-        componentType: accessorOld.componentType,
-        count: indices.length,
-      }).unwrapForce();
+      const accessorNew: Accessor = bufferView
+        .takeAccessor({
+          compositionType,
+          componentType: accessorOld.componentType,
+          count: indices.length,
+        })
+        .unwrapForce();
 
       for (let i = 0; i < indices.length; i++) {
         const idx = indices[i];

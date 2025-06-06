@@ -202,28 +202,26 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       if (firstTime) {
         const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
           CustomMaterialContent.__setupHdriParameters(args);
-        webglResourceRepository.setUniformValue(
-          shaderProgram,
-          ShaderSemantics.IBLParameter.str,
-          firstTime,
-          {
-            x: mipmapLevelNumber,
-            y: meshRenderComponent!.diffuseCubeMapContribution,
-            z: meshRenderComponent!.specularCubeMapContribution,
-            w: meshRenderComponent!.rotationOfCubeMap,
-          }
-        );
-        webglResourceRepository.setUniformValue(
-          shaderProgram,
-          ShaderSemantics.HDRIFormat.str,
-          firstTime,
-          { x: diffuseHdriType, y: specularHdriType }
-        );
+        webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.IBLParameter.str, firstTime, {
+          x: mipmapLevelNumber,
+          y: meshRenderComponent!.diffuseCubeMapContribution,
+          z: meshRenderComponent!.specularCubeMapContribution,
+          w: meshRenderComponent!.rotationOfCubeMap,
+        });
+        webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.HDRIFormat.str, firstTime, {
+          x: diffuseHdriType,
+          y: specularHdriType,
+        });
       }
     } else {
-      const meshRenderComponentVersion = __latestMaterialMeshRenderComponentVersionMap.get(`${args.entity.getMeshRenderer().componentSID}_${args.primitive.primitiveUid}`);
+      const meshRenderComponentVersion = __latestMaterialMeshRenderComponentVersionMap.get(
+        `${args.entity.getMeshRenderer().componentSID}_${args.primitive.primitiveUid}`
+      );
       if (meshRenderComponentVersion !== args.entity.getMeshRenderer().updateCount) {
-        __latestMaterialMeshRenderComponentVersionMap.set(`${args.entity.getMeshRenderer().componentSID}_${args.primitive.primitiveUid}`, args.entity.getMeshRenderer().updateCount);
+        __latestMaterialMeshRenderComponentVersionMap.set(
+          `${args.entity.getMeshRenderer().componentSID}_${args.primitive.primitiveUid}`,
+          args.entity.getMeshRenderer().updateCount
+        );
         const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
           CustomMaterialContent.__setupHdriParameters(args);
         const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
@@ -261,64 +259,60 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     firstTime: boolean;
     args: RenderingArgWebGL;
   }) {
-
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     // IBL Env map
     // const diffuseEnv = material.getTextureParameter(ShaderSemantics.DiffuseEnvTexture.str);
     // if (diffuseEnv != null) {
-      const diffuseEnvSlot = 5; //diffuseEnv[0];
-      if (args.diffuseCube && args.diffuseCube.isTextureReady) {
-        webglResourceRepository.setUniform1iForTexture(
-          shaderProgram,
-          ShaderSemantics.DiffuseEnvTexture.str,
-          [diffuseEnvSlot, args.diffuseCube, CustomMaterialContent.__diffuseIblCubeMapSampler]
-        );
-      } else {
-        webglResourceRepository.setUniform1iForTexture(
-          shaderProgram,
-          ShaderSemantics.DiffuseEnvTexture.str,
-          [diffuseEnvSlot, dummyBlackCubeTexture]
-        );
-      }
+    const diffuseEnvSlot = 5; //diffuseEnv[0];
+    if (args.diffuseCube && args.diffuseCube.isTextureReady) {
+      webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
+        diffuseEnvSlot,
+        args.diffuseCube,
+        CustomMaterialContent.__diffuseIblCubeMapSampler,
+      ]);
+    } else {
+      webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
+        diffuseEnvSlot,
+        dummyBlackCubeTexture,
+      ]);
+    }
     // }
     // const specularEnv = material.getTextureParameter(ShaderSemantics.SpecularEnvTexture.str);
     // if (specularEnv != null) {
-      const specularEnvSlot = 6; //specularEnv[0];
-      if (args.specularCube && args.specularCube.isTextureReady) {
-        webglResourceRepository.setUniform1iForTexture(
-            shaderProgram,
-          ShaderSemantics.SpecularEnvTexture.str,
-          [specularEnvSlot, args.specularCube, CustomMaterialContent.__specularIblCubeMapSampler]
-        );
-      } else {
-        webglResourceRepository.setUniform1iForTexture(
-          shaderProgram,
-          ShaderSemantics.SpecularEnvTexture.str,
-          [specularEnvSlot, dummyBlackCubeTexture]
-        );
-      }
+    const specularEnvSlot = 6; //specularEnv[0];
+    if (args.specularCube && args.specularCube.isTextureReady) {
+      webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, [
+        specularEnvSlot,
+        args.specularCube,
+        CustomMaterialContent.__specularIblCubeMapSampler,
+      ]);
+    } else {
+      webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, [
+        specularEnvSlot,
+        dummyBlackCubeTexture,
+      ]);
+    }
     // }
     const sheenEnv = material.getTextureParameter(ShaderSemantics.SheenEnvTexture.str);
     if (sheenEnv != null) {
       const sheenEnvSlot = sheenEnv[0];
       if (args.sheenCube && args.sheenCube.isTextureReady) {
-        webglResourceRepository.setUniform1iForTexture(
-          shaderProgram,
-          ShaderSemantics.SheenEnvTexture.str,
-          [sheenEnvSlot, args.sheenCube, CustomMaterialContent.__specularIblCubeMapSampler]
-        );
+        webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.SheenEnvTexture.str, [
+          sheenEnvSlot,
+          args.sheenCube,
+          CustomMaterialContent.__specularIblCubeMapSampler,
+        ]);
       } else if (args.specularCube && args.specularCube.isTextureReady) {
-        webglResourceRepository.setUniform1iForTexture(
-          shaderProgram,
-          ShaderSemantics.SheenEnvTexture.str,
-          [sheenEnvSlot, args.specularCube, CustomMaterialContent.__specularIblCubeMapSampler]
-        );
+        webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.SheenEnvTexture.str, [
+          sheenEnvSlot,
+          args.specularCube,
+          CustomMaterialContent.__specularIblCubeMapSampler,
+        ]);
       } else {
-        webglResourceRepository.setUniform1iForTexture(
-          shaderProgram,
-          ShaderSemantics.SheenEnvTexture.str,
-          [sheenEnvSlot, dummyBlackCubeTexture]
-        );
+        webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.SheenEnvTexture.str, [
+          sheenEnvSlot,
+          dummyBlackCubeTexture,
+        ]);
       }
     }
   }

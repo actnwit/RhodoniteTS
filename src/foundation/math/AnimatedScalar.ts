@@ -1,11 +1,11 @@
-import { AnimationSampler, AnimationSamplers, AnimationTrackName } from "../../types/AnimationTypes";
-import { __interpolate } from "../components/Animation/AnimationOps";
-import { AnimationAttribute } from "../definitions/AnimationAttribute";
-import { AnimationComponent } from "../components/Animation/AnimationComponent";
-import { IScalar } from "./IVector";
-import { IAnimatedValue } from "./IAnimatedValue";
-import { Scalar } from "./Scalar";
-import { Logger } from "../misc/Logger";
+import { AnimationSampler, AnimationSamplers, AnimationTrackName } from '../../types/AnimationTypes';
+import { __interpolate } from '../components/Animation/AnimationOps';
+import { AnimationAttribute } from '../definitions/AnimationAttribute';
+import { AnimationComponent } from '../components/Animation/AnimationComponent';
+import { IScalar } from './IVector';
+import { IAnimatedValue } from './IAnimatedValue';
+import { Scalar } from './Scalar';
+import { Logger } from '../misc/Logger';
 
 /**
  * A scalar value that can be animated using animation samplers.
@@ -111,7 +111,10 @@ export class AnimatedScalar extends Scalar implements IScalar, IAnimatedValue {
     if (this.isLoop) {
       let duration = this.__firstActiveAnimationSampler.input[this.__firstActiveAnimationSampler.input.length - 1];
       if (this.__secondActiveAnimationSampler !== undefined) {
-        duration = Math.min(duration, this.__secondActiveAnimationSampler.input[this.__secondActiveAnimationSampler.input.length - 1]);
+        duration = Math.min(
+          duration,
+          this.__secondActiveAnimationSampler.input[this.__secondActiveAnimationSampler.input.length - 1]
+        );
       }
       time = time % duration;
     }
@@ -241,5 +244,3 @@ export class AnimatedScalar extends Scalar implements IScalar, IAnimatedValue {
     this.__animationSamplers.set(animationTrackName, animationSampler);
   }
 }
-
-

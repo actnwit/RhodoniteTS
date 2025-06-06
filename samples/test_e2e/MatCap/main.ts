@@ -11,10 +11,7 @@ Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // prepare renderPasses
 const cameraComponentMain = createEntityMainCamera().getCamera();
-const renderPassMain = await createRenderPassMain(
-  cameraComponentMain,
-  './../../../assets/images/matcap/matcap.png'
-);
+const renderPassMain = await createRenderPassMain(cameraComponentMain, './../../../assets/images/matcap/matcap.png');
 
 // prepare expressions
 const expressionMain = createExpression([renderPassMain]);

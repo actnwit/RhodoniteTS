@@ -31,19 +31,17 @@ cameraComponent.aspect = 1.0;
 const expressions = [];
 
 // vrm
-const vrmExpression = (
-  await Rn.GltfImporter.importFromUrl('../../../assets/vrm/test.vrm', {
-    defaultMaterialHelperArgumentArray: [
-      {
-        isSkinning: false,
-        isMorphing: false,
-        makeOutputSrgb: true,
-      },
-    ],
-    tangentCalculationMode: 0,
-    cameraComponent: cameraComponent,
-  })
-);
+const vrmExpression = await Rn.GltfImporter.importFromUrl('../../../assets/vrm/test.vrm', {
+  defaultMaterialHelperArgumentArray: [
+    {
+      isSkinning: false,
+      isMorphing: false,
+      makeOutputSrgb: true,
+    },
+  ],
+  tangentCalculationMode: 0,
+  cameraComponent: cameraComponent,
+});
 expressions.push(vrmExpression);
 
 const vrmMainRenderPass = vrmExpression.renderPasses[0];

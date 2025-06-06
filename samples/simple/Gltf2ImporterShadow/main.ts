@@ -77,7 +77,7 @@ function createEntityMainCamera() {
 }
 
 async function createEntityGltf2(uriGltf: string) {
-  const gltf2JSON = (await Rn.Gltf2Importer.importFromUrl(uriGltf));
+  const gltf2JSON = await Rn.Gltf2Importer.importFromUrl(uriGltf);
   const entityRootGroup = await Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
 
   const transformComponent = entityRootGroup.getTransform();
@@ -125,10 +125,7 @@ async function createEntityEnvironmentCube(basePathIBL: string) {
 }
 
 function createEntityBoard(renderPassDepth: Rn.RenderPass) {
-  const material = Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial(
-    {},
-    renderPassDepth
-  );
+  const material = Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial({}, renderPassDepth);
   material.setParameter('diffuseColorFactor', Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.0]));
   material.setParameter('shadowColorFactor', Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.5]));
   material.alphaMode = Rn.AlphaMode.Blend;
@@ -156,10 +153,7 @@ function createEntityBoard(renderPassDepth: Rn.RenderPass) {
   return entity;
 }
 
-function createRenderPassDepth(
-  cameraComponentDepth: Rn.CameraComponent,
-  entityRenderTarget: Rn.ISceneGraphEntity
-) {
+function createRenderPassDepth(cameraComponentDepth: Rn.CameraComponent, entityRenderTarget: Rn.ISceneGraphEntity) {
   const renderPass = new Rn.RenderPass();
   renderPass.toClearColorBuffer = true;
   renderPass.cameraComponent = cameraComponentDepth;
@@ -173,11 +167,7 @@ function createRenderPassDepth(
   return renderPass;
 }
 
-function createAndSetFramebuffer(
-  renderPass: Rn.RenderPass,
-  resolution: number,
-  textureNum: number
-) {
+function createAndSetFramebuffer(renderPass: Rn.RenderPass, resolution: number, textureNum: number) {
   const framebuffer = Rn.RenderableHelper.createFrameBuffer({
     width: resolution,
     height: resolution,

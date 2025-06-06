@@ -72,8 +72,7 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
     this.__height = height;
     this.__mipLevelCount = mipLevelCount ?? Math.floor(Math.log2(Math.max(width, height))) + 1;
 
-    const { format, type } =
-      TextureFormat.getPixelFormatAndComponentTypeFromTextureFormat(internalFormat);
+    const { format, type } = TextureFormat.getPixelFormatAndComponentTypeFromTextureFormat(internalFormat);
 
     this.__internalFormat = internalFormat;
     this.__format = format;
@@ -100,9 +99,9 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
     this._textureResourceUid = texture;
 
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      this._textureViewResourceUid = (
-        cgApiResourceRepository as WebGpuResourceRepository
-      ).createTextureViewCube(this._textureResourceUid);
+      this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureViewCube(
+        this._textureResourceUid
+      );
 
       this._textureViewAsRenderTargetResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository
@@ -175,12 +174,11 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
   createCubeTextureViewAsRenderTarget(faceIdx: Index, mipLevel: Index): void {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       const webGpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
-      this._textureViewAsRenderTargetResourceUid =
-        webGpuResourceRepository.createCubeTextureViewAsRenderTarget(
-          this._textureResourceUid,
-          faceIdx,
-          mipLevel
-        );
+      this._textureViewAsRenderTargetResourceUid = webGpuResourceRepository.createCubeTextureViewAsRenderTarget(
+        this._textureResourceUid,
+        faceIdx,
+        mipLevel
+      );
     }
   }
 

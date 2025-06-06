@@ -37,15 +37,11 @@ void main() {
   expect(array.shaderSemanticsInfoArray[0].soloDatum).toBe(false);
   expect(array.shaderSemanticsInfoArray[1].semantic).toBe('shadingModel');
   expect(array.shaderSemanticsInfoArray[1].soloDatum).toBe(false);
-  expect(
-    array.shaderSemanticsInfoArray[1].initialValue.isStrictEqual(Rn.MutableScalar.zero())
-  ).toBe(true);
+  expect(array.shaderSemanticsInfoArray[1].initialValue.isStrictEqual(Rn.MutableScalar.zero())).toBe(true);
   expect(array.shaderSemanticsInfoArray[2].semantic).toBe('screenInfo');
   expect(array.shaderSemanticsInfoArray[2].soloDatum).toBe(true);
   expect(
-    array.shaderSemanticsInfoArray[2].initialValue.isStrictEqual(
-      Rn.MutableVector2.fromCopyArray2([100, 100])
-    )
+    array.shaderSemanticsInfoArray[2].initialValue.isStrictEqual(Rn.MutableVector2.fromCopyArray2([100, 100]))
   ).toBe(true);
   expect(array.shaderSemanticsInfoArray[3].semantic).toBe('diffuseColorTexture');
   expect(array.shaderSemanticsInfoArray[3].compositionType).toBe(Rn.CompositionType.Texture2D);

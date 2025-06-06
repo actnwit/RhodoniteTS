@@ -75,11 +75,10 @@ assets.mainExpression.renderPasses[0].toClearColorBuffer = true;
 assets.mainExpression.renderPasses[0].toClearDepthBuffer = true;
 
 const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial();
-const gammaCorrectionRenderPass =
-  Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
-    gammaCorrectionMaterial,
-    gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)
-  );
+const gammaCorrectionRenderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+  gammaCorrectionMaterial,
+  gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)
+);
 expressionPostEffect.addRenderPasses([gammaCorrectionRenderPass]);
 
 // cameraController

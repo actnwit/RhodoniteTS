@@ -2,10 +2,7 @@ import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';
 import { ComponentRepository } from '../core/ComponentRepository';
 import { ProcessApproachEnum, ProcessApproach } from '../definitions/ProcessApproach';
 import { ModuleManager } from './ModuleManager';
-import {
-  CGAPIResourceRepository,
-  ICGAPIResourceRepository,
-} from '../renderer/CGAPIResourceRepository';
+import { CGAPIResourceRepository, ICGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { Component } from '../core/Component';
 import { Expression } from '../renderer/Expression';
 import { EntityRepository } from '../core/EntityRepository';
@@ -108,10 +105,7 @@ export class System {
    * @param renderLoopFunc - function to be called in each frame
    * @param args - arguments you want to be passed to renderLoopFunc
    */
-  public static startRenderLoop(
-    renderLoopFunc: (time: number, ...args: any[]) => void,
-    ...args: any[]
-  ) {
+  public static startRenderLoop(renderLoopFunc: (time: number, ...args: any[]) => void, ...args: any[]) {
     this.__renderLoopFunc = renderLoopFunc;
     this.__args = args;
     const animationFrameObject = this.__getAnimationFrameObject();
@@ -119,10 +113,7 @@ export class System {
       this.__rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
     }
 
-    this.__animationFrameId = animationFrameObject.requestAnimationFrame(((
-      _time: number,
-      xrFrame: XRFrame
-    ) => {
+    this.__animationFrameId = animationFrameObject.requestAnimationFrame(((_time: number, xrFrame: XRFrame) => {
       if (this.__rnXRModule !== undefined) {
         const webXRSystem = this.__rnXRModule.WebXRSystem.getInstance();
         const webARSystem = this.__rnXRModule.WebARSystem.getInstance();
@@ -280,13 +271,11 @@ export class System {
             AnimationComponent.isAnimating ||
             TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
             CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
-            CameraControllerComponent.updateCount !==
-              this.__lastCameraControllerComponentsUpdateCount ||
+            CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
             Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount
           ) {
             for (const componentTid of componentTids) {
-              const componentClass: typeof Component =
-                ComponentRepository.getComponentClass(componentTid)!;
+              const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
 
               const componentClass_commonMethod = (componentClass as any)[commonMethodName];
               if (componentClass_commonMethod) {
@@ -321,8 +310,7 @@ export class System {
           MeshRendererComponent.common_$prerender();
           for (const exp of expressions) {
             for (const componentTid of renderingComponentTids) {
-              const componentClass: typeof Component =
-                ComponentRepository.getComponentClass(componentTid)!;
+              const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
               for (const renderPass of exp.renderPasses) {
                 if (typeof spector !== 'undefined') {
                   spector.setMarker(`| ${exp.uniqueName}: ${renderPass.uniqueName}#`);
@@ -376,13 +364,11 @@ export class System {
             AnimationComponent.isAnimating ||
             TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
             CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
-            CameraControllerComponent.updateCount !==
-              this.__lastCameraControllerComponentsUpdateCount ||
+            CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
             Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount
           ) {
             for (const componentTid of componentTids) {
-              const componentClass: typeof Component =
-                ComponentRepository.getComponentClass(componentTid)!;
+              const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
 
               const componentClass_commonMethod = (componentClass as any)[commonMethodName];
               if (componentClass_commonMethod) {
@@ -436,9 +422,7 @@ export class System {
     const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
     const webARSystem = rnXRModule?.WebARSystem.getInstance();
     if ((!webXRSystem?.isWebXRMode || !renderPass.isVrRendering) && !webARSystem?.isWebARMode) {
-      (this.__cgApiResourceRepository as WebGLResourceRepository).setViewport(
-        renderPass.getViewport()
-      );
+      (this.__cgApiResourceRepository as WebGLResourceRepository).setViewport(renderPass.getViewport());
     }
   }
 
@@ -446,19 +430,15 @@ export class System {
     const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
     const webARSystem = rnXRModule?.WebARSystem.getInstance();
     if (webXRSystem?.isWebXRMode && renderPass.isOutputForVr) {
-      const glw = (this.__cgApiResourceRepository as WebGLResourceRepository)
-        .currentWebGLContextWrapper!;
+      const glw = (this.__cgApiResourceRepository as WebGLResourceRepository).currentWebGLContextWrapper!;
       const gl = glw.getRawContext();
       gl.bindFramebuffer(gl.FRAMEBUFFER, webXRSystem.framebuffer!);
     } else if (webARSystem?.isWebARMode) {
-      const glw = (this.__cgApiResourceRepository as WebGLResourceRepository)
-        .currentWebGLContextWrapper!;
+      const glw = (this.__cgApiResourceRepository as WebGLResourceRepository).currentWebGLContextWrapper!;
       const gl = glw.getRawContext();
       gl.bindFramebuffer(gl.FRAMEBUFFER, webARSystem.framebuffer!);
     } else {
-      (this.__cgApiResourceRepository as WebGLResourceRepository).bindFramebuffer(
-        renderPass.getFramebuffer()
-      );
+      (this.__cgApiResourceRepository as WebGLResourceRepository).bindFramebuffer(renderPass.getFramebuffer());
       (this.__cgApiResourceRepository as WebGLResourceRepository).setDrawTargets(renderPass);
     }
   }
@@ -512,9 +492,7 @@ export class System {
     // Memory Settings
     MemoryManager.createInstanceIfNotCreated({
       cpuGeneric: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.cpuGeneric : 0.1,
-      gpuInstanceData: Is.exist(desc.memoryUsageOrder)
-        ? desc.memoryUsageOrder.gpuInstanceData
-        : 0.5,
+      gpuInstanceData: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.gpuInstanceData : 0.5,
       gpuVertexData: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.gpuVertexData : 0.5,
     });
 
@@ -525,8 +503,7 @@ export class System {
       const memoryManager = MemoryManager.getInstance();
       const requiredBufferSize = memoryManager.getMemorySize();
 
-      const webGpuResourceRepository =
-        CGAPIResourceRepository.getCgApiResourceRepository() as WebGpuResourceRepository;
+      const webGpuResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository() as WebGpuResourceRepository;
       const module = ModuleManager.getInstance().getModule('webgpu');
       const WebGpuDeviceWrapperClass = module.WebGpuDeviceWrapper as typeof WebGpuDeviceWrapper;
       const adapter = await navigator.gpu.requestAdapter();

@@ -227,7 +227,6 @@ function createCustomShader() {
     isFragmentShader: true,
   };
 
-
   const vertexShaderWGSL = `
 /* shaderity: @{definitions} */
 /* shaderity: @{vertexOutput} */

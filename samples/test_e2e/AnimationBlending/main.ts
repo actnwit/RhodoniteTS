@@ -10,17 +10,13 @@ await Rn.System.init({
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
-const expression = (
-  await Rn.GltfImporter.importFromUrl(
-    '../../../assets/gltf/glTF-Sample-Assets/Models/Fox/glTF-Binary/Fox.glb'
-  )
+const expression = await Rn.GltfImporter.importFromUrl(
+  '../../../assets/gltf/glTF-Sample-Assets/Models/Fox/glTF-Binary/Fox.glb'
 );
 // camera
 const cameraEntity = Rn.createCameraControllerEntity();
 const cameraController = cameraEntity.getCameraController();
-cameraController.controller.setTarget(
-  expression.renderPasses[0].entities[0] as Rn.ISceneGraphEntity
-);
+cameraController.controller.setTarget(expression.renderPasses[0].entities[0] as Rn.ISceneGraphEntity);
 
 const light = Rn.createLightEntity();
 light.getLight().type = Rn.LightType.Directional;

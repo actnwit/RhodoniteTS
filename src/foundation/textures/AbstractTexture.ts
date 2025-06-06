@@ -164,13 +164,7 @@ export abstract class AbstractTexture extends RnObject {
     if (Is.exist(ctx) && Is.exist(this.__htmlImageElement)) {
       canvas.width = this.__htmlImageElement.width;
       canvas.height = this.__htmlImageElement.height;
-      ctx.drawImage(
-        this.__htmlImageElement,
-        0,
-        0,
-        this.__htmlImageElement.width,
-        this.__htmlImageElement.height
-      );
+      ctx.drawImage(this.__htmlImageElement, 0, 0, this.__htmlImageElement.width, this.__htmlImageElement.height);
     }
     return this.__htmlCanvasElement;
   }
@@ -270,11 +264,7 @@ export abstract class AbstractTexture extends RnObject {
    * @param y - The y-coordinate of the pixel
    * @param value - The color or vector value to set
    */
-  setPixel(
-    x: Index,
-    y: Index,
-    value: ColorRgb | ColorRgba | Vector3 | MutableVector3 | Vector4 | MutableVector4
-  ) {
+  setPixel(x: Index, y: Index, value: ColorRgb | ColorRgba | Vector3 | MutableVector3 | Vector4 | MutableVector4) {
     const pixel = this.getImageData(x, y, 1, 1);
     const data = pixel.data;
     const classOfValue = value.constructor as unknown as {

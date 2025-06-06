@@ -191,9 +191,7 @@ export interface FrameBufferTextureArrayForMultiViewDescriptor {
  * @param desc - Multi-view frame buffer descriptor
  * @returns A configured FrameBuffer with color and depth-stencil texture arrays
  */
-function createFrameBufferTextureArrayForMultiView(
-  desc: FrameBufferTextureArrayForMultiViewDescriptor
-) {
+function createFrameBufferTextureArrayForMultiView(desc: FrameBufferTextureArrayForMultiViewDescriptor) {
   const frameBuffer = new FrameBuffer();
   frameBuffer.create(desc.width, desc.height);
 
@@ -244,9 +242,7 @@ export interface FrameBufferCubeMapDescriptor {
  * @param desc - Cube map frame buffer descriptor
  * @returns A tuple containing the FrameBuffer and RenderTargetTextureCube
  */
-function createFrameBufferCubeMap(
-  desc: FrameBufferCubeMapDescriptor
-): [FrameBuffer, RenderTargetTextureCube] {
+function createFrameBufferCubeMap(desc: FrameBufferCubeMapDescriptor): [FrameBuffer, RenderTargetTextureCube] {
   const frameBuffer = new FrameBuffer();
   frameBuffer.create(desc.width, desc.height);
 
@@ -273,11 +269,7 @@ function createFrameBufferCubeMap(
  * @param options.internalFormat - Internal format for the depth texture (default: Depth32F)
  * @returns A FrameBuffer configured with only a depth attachment
  */
-function createDepthBuffer(
-  width: number,
-  height: number,
-  { level = 0, internalFormat = TextureFormat.Depth32F }
-) {
+function createDepthBuffer(width: number, height: number, { level = 0, internalFormat = TextureFormat.Depth32F }) {
   const frameBuffer = new FrameBuffer();
   frameBuffer.create(width, height);
 

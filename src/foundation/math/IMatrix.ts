@@ -1,12 +1,4 @@
-import {
-  IVector,
-  IVector2,
-  IMutableVector2,
-  IVector3,
-  IMutableVector3,
-  IVector4,
-  IMutableVector4,
-} from './IVector';
+import { IVector, IVector2, IMutableVector2, IVector3, IMutableVector3, IVector4, IMutableVector4 } from './IVector';
 import { TypedArray, Index } from '../../types/CommonTypes';
 import { IQuaternion } from './IQuaternion';
 

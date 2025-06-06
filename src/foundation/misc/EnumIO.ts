@@ -63,7 +63,7 @@ export function _from({
   typeList: Array<EnumIO>;
   index: number;
 }): EnumIO | undefined {
-  const match = typeList.find((type) => type.index === index);
+  const match = typeList.find(type => type.index === index);
   if (!match) {
     return void 0;
   }
@@ -78,7 +78,7 @@ export function _fromString({
   typeList: Array<EnumIO>;
   str: string;
 }): EnumIO | undefined {
-  const match = typeList.find((type) => type.str.toLowerCase() === str.toLowerCase());
+  const match = typeList.find(type => type.str.toLowerCase() === str.toLowerCase());
   if (!match) {
     return void 0;
   }
@@ -93,7 +93,7 @@ export function _fromStringCaseSensitively({
   typeList: Array<EnumIO>;
   str: string;
 }): EnumIO | undefined {
-  const match = typeList.find((type) => type.str === str);
+  const match = typeList.find(type => type.str === str);
   if (!match) {
     return void 0;
   }

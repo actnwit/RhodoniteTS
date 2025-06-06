@@ -11,9 +11,7 @@ function getComponentFromEntities<T extends typeof Component>(
   const that = this.__raw as Array<Entity>;
   const components: InstanceType<T>[] = [];
   that.forEach((entity: Entity) => {
-    const component = entity.getComponentByComponentTID(
-      ComponentClass.componentTID
-    ) as InstanceType<T>;
+    const component = entity.getComponentByComponentTID(ComponentClass.componentTID) as InstanceType<T>;
     if (component != null) {
       components.push(component);
     }

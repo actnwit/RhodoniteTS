@@ -5,10 +5,7 @@ import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { OrbitCameraController } from '../../cameras/OrbitCameraController';
 import { ICameraController } from '../../cameras/ICameraController';
 import { WalkThroughCameraController } from '../../cameras/WalkThroughCameraController';
-import {
-  CameraControllerTypeEnum,
-  CameraControllerType,
-} from '../../definitions/CameraControllerType';
+import { CameraControllerTypeEnum, CameraControllerType } from '../../definitions/CameraControllerType';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import { ProcessStage } from '../../definitions';
@@ -31,12 +28,7 @@ export class CameraControllerComponent extends Component {
    * @param entityRepository - The entity repository for component management
    * @param isReUse - Whether this component is being reused
    */
-  constructor(
-    entityUid: EntityUID,
-    componentSid: ComponentSID,
-    entityRepository: EntityRepository,
-    isReUse: boolean
-  ) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
     super(entityUid, componentSid, entityRepository, isReUse);
     this.__cameraController = new OrbitCameraController(this);
   }
@@ -148,11 +140,7 @@ export class CameraControllerComponent extends Component {
     _componentClass: SomeComponentClass
   ) {
     class CameraControllerEntity extends (base.constructor as any) {
-      constructor(
-        entityUID: EntityUID,
-        isAlive: boolean,
-        components?: Map<ComponentTID, Component>
-      ) {
+      constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
         super(entityUID, isAlive, components);
       }
 

@@ -37,12 +37,7 @@ export class TransformComponent extends Component {
    * @param entityComponent - The entity repository managing this component
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(
-    entityUid: EntityUID,
-    componentSid: ComponentSID,
-    entityComponent: EntityRepository,
-    isReUse: boolean
-  ) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean) {
     super(entityUid, componentSid, entityComponent, isReUse);
   }
 
@@ -615,11 +610,7 @@ export class TransformComponent extends Component {
   ) {
     class TransformEntity extends (base.constructor as any) {
       private __transformComponent?: TransformComponent;
-      constructor(
-        entityUID: EntityUID,
-        isAlive: boolean,
-        components?: Map<ComponentTID, Component>
-      ) {
+      constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
         super(entityUID, isAlive, components);
       }
 

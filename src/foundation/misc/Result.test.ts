@@ -16,11 +16,11 @@ test(`Result.match`, () => {
   const result0 = succeedIfValueEven(0);
   const result1 = succeedIfValueEven(1);
   const ret0 = result0.match({
-    Ok: (val) => {
+    Ok: val => {
       expect(val).toBe(0);
       return result0.name();
     },
-    Err: (err) => {
+    Err: err => {
       expect(true).toBe(false); // If here come, this is wrong behavior.
       return err;
     },
@@ -28,11 +28,11 @@ test(`Result.match`, () => {
   expect(ret0.unwrapForce()).toBe('Ok');
 
   const ret1 = result1.match({
-    Ok: (val) => {
+    Ok: val => {
       expect(true).toBe(false); // If here come, this is wrong behavior.
       return val;
     },
-    Err: (err) => {
+    Err: err => {
       expect(err.message).toBe('Error');
       return {
         message: err.message + '!!!',
@@ -109,7 +109,7 @@ test(`wrapped Err`, () => {
   }
 
   const result = wrapper();
-  result.unwrapWithCompensation((err) => {
+  result.unwrapWithCompensation(err => {
     expect(err.message).toBe('Error 2');
     console.log(err.error.toString());
     return 0;
@@ -122,7 +122,7 @@ test(`wrapped Err`, () => {
 
 test('then', () => {
   const ok = new Ok(0);
-  const result = ok.andThen((val) => {
+  const result = ok.andThen(val => {
     return new Ok(val + 1);
   });
   expect(result.unwrapForce()).toBe(1);
@@ -131,7 +131,7 @@ test('then', () => {
     message: 'Error',
     error: 0,
   });
-  const result2 = err.andThen((val) => {
+  const result2 = err.andThen(val => {
     console.error('this is not executed');
     return new Ok(val);
   });
@@ -159,7 +159,7 @@ test('else', () => {
 test('then().else()', () => {
   const ok = new Ok(0);
   const result = ok
-    .andThen((val) => {
+    .andThen(val => {
       return new Ok(val + 1);
     })
     .orElse(() => {
@@ -172,7 +172,7 @@ test('then().else()', () => {
 test('then().else() 2', () => {
   const ok = new Ok(0);
   const result = ok
-    .andThen((val) => {
+    .andThen(val => {
       return new Err({
         message: 'Error',
         error: val,
@@ -193,7 +193,7 @@ test('else().then()', () => {
     .orElse(() => {
       return new Ok(1);
     })
-    .andThen((val) => {
+    .andThen(val => {
       expect(val).toBe(1);
       return new Ok(val + 1);
     });

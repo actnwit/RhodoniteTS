@@ -45,17 +45,14 @@ export class VrmImporter {
    */
   static async __importVRM(gltfModel: RnM2, renderPasses: RenderPass[]): Promise<void> {
     // process defaultMaterialHelperArgumentArray
-    const defaultMaterialHelperArgumentArray =
-      gltfModel.asset.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray ?? [{}];
+    const defaultMaterialHelperArgumentArray = gltfModel.asset.extras?.rnLoaderOptions
+      ?.defaultMaterialHelperArgumentArray ?? [{}];
     const textures = await this._createTextures(gltfModel);
     const samplers = this._createSamplers(gltfModel);
     if (Is.exist(defaultMaterialHelperArgumentArray)) {
-      defaultMaterialHelperArgumentArray[0].textures =
-        defaultMaterialHelperArgumentArray[0].textures ?? textures;
-      defaultMaterialHelperArgumentArray[0].samplers =
-        defaultMaterialHelperArgumentArray[0].samplers ?? samplers;
-      defaultMaterialHelperArgumentArray[0].isLighting =
-        defaultMaterialHelperArgumentArray[0].isLighting ?? true;
+      defaultMaterialHelperArgumentArray[0].textures = defaultMaterialHelperArgumentArray[0].textures ?? textures;
+      defaultMaterialHelperArgumentArray[0].samplers = defaultMaterialHelperArgumentArray[0].samplers ?? samplers;
+      defaultMaterialHelperArgumentArray[0].isLighting = defaultMaterialHelperArgumentArray[0].isLighting ?? true;
     }
     const existOutline = this.__initializeMToonMaterialProperties(gltfModel, textures.length);
 
@@ -162,7 +159,7 @@ export class VrmImporter {
       const expression = expressions[expressionName];
       let binds: VrmExpressionMorphBind[] = [];
       if (Is.exist(expression.morphTargetBinds)) {
-        binds = expression.morphTargetBinds.map((bind) => {
+        binds = expression.morphTargetBinds.map(bind => {
           const rnEntity = gltfModel.extras.rnEntities[bind.node];
           return {
             entityIdx: rnEntity.entityUID,
@@ -262,7 +259,7 @@ export class VrmImporter {
         const vrmSpring = new VRMSpring(jointRootEntity.getSceneGraph());
         vrmSpring.tryToSetUniqueName(spring.name, true);
         const colliderGroupIndices = Is.exist(spring.colliderGroups) ? spring.colliderGroups : [];
-        vrmSpring.colliderGroups = colliderGroupIndices.map((colliderGroupIdx) => {
+        vrmSpring.colliderGroups = colliderGroupIndices.map(colliderGroupIdx => {
           return colliderGroups[colliderGroupIdx];
         });
 
@@ -275,11 +272,7 @@ export class VrmImporter {
           springBone.stiffnessForce = joint.stiffness;
           springBone.gravityPower = Is.exist(joint.gravityPower) ? joint.gravityPower : 1;
           springBone.gravityDir = Is.exist(joint.gravityDir)
-            ? Vector3.fromCopyArray3([
-                joint.gravityDir[0],
-                joint.gravityDir[1],
-                joint.gravityDir[2],
-              ])
+            ? Vector3.fromCopyArray3([joint.gravityDir[0], joint.gravityDir[1], joint.gravityDir[2]])
             : Vector3.fromCopyArray3([0, -1, 0]);
           springBone.hitRadius = joint.hitRadius;
           vrmSpring.bones.push(springBone);
@@ -409,10 +402,7 @@ export class VrmImporter {
    * @param texturesLength - The number of textures in the model
    * @returns True if any material requires outline rendering, false otherwise
    */
-  private static __initializeMToonMaterialProperties(
-    gltfModel: RnM2,
-    texturesLength: number
-  ): boolean {
+  private static __initializeMToonMaterialProperties(gltfModel: RnM2, texturesLength: number): boolean {
     let isOutline = false;
     for (const material of gltfModel.materials) {
       const mtoonMaterial: Vrm1_Materials_MToon = material.extensions?.VRMC_materials_mtoon;
@@ -464,9 +454,7 @@ export class VrmImporter {
         files: {},
         loaderExtension: undefined,
         defaultMaterialHelperName: undefined,
-        defaultMaterialHelperArgumentArray: [
-          { isLighting: true, isMorphing: true, isSkinning: true },
-        ],
+        defaultMaterialHelperArgumentArray: [{ isLighting: true, isMorphing: true, isSkinning: true }],
         statesOfElements: [
           {
             targets: [],
@@ -495,10 +483,7 @@ export class VrmImporter {
    * @param options - Optional import configuration
    * @returns Promise resolving to the VRM JSON structure
    */
-  static async importJsonOfVRM(
-    uri: string,
-    options?: GltfLoadOption
-  ): Promise<Vrm1> {
+  static async importJsonOfVRM(uri: string, options?: GltfLoadOption): Promise<Vrm1> {
     const promise = new Promise<Vrm1>(async (resolve, reject) => {
       options = this._getOptions(options);
 

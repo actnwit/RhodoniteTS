@@ -1,8 +1,4 @@
-import {
-  ShaderSemantics,
-  ShaderSemanticsEnum,
-  ShaderSemanticsClass,
-} from '../../definitions/ShaderSemantics';
+import { ShaderSemantics, ShaderSemanticsEnum, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';
 import { ShaderType } from '../../definitions/ShaderType';
@@ -123,10 +119,7 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
       /// Matrices
       let cameraComponent = args.renderPass.cameraComponent;
       if (cameraComponent == null) {
-        cameraComponent = ComponentRepository.getComponent(
-          CameraComponent,
-          CameraComponent.current
-        ) as CameraComponent;
+        cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
       }
       if (cameraComponent) {
         this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);

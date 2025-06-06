@@ -97,9 +97,9 @@ export class RenderBuffer extends RnObject implements IRenderable {
     );
 
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      this._textureViewResourceUid = (
-        cgApiResourceRepository as WebGpuResourceRepository
-      ).createTextureView2d(this._textureResourceUid);
+      this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2d(
+        this._textureResourceUid
+      );
       this._textureViewAsRenderTargetResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository
       ).createTextureViewAsRenderTarget(this._textureResourceUid);

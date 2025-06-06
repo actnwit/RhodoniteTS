@@ -15,10 +15,7 @@ import { Logger } from '../misc/Logger';
  * @template T - The typed array constructor (Float32Array or Float64Array)
  * @internal
  */
-export class Vector3_<T extends FloatTypedArrayConstructor>
-  extends AbstractVector
-  implements IVector, IVector3
-{
+export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVector implements IVector, IVector3 {
   /**
    * Creates a new Vector3_ instance.
    * @param v - The typed array containing the vector components
@@ -68,9 +65,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   get glslStrAsFloat() {
     return `vec3(${MathUtil.convertToStringAsGLSLFloat(
       this._v[0]
-    )}, ${MathUtil.convertToStringAsGLSLFloat(this._v[1])}, ${MathUtil.convertToStringAsGLSLFloat(
-      this._v[2]
-    )})`;
+    )}, ${MathUtil.convertToStringAsGLSLFloat(this._v[1])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[2])})`;
   }
 
   /**
@@ -483,12 +478,9 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
     const num11 = quat._v[3] * num2;
     const num12 = quat._v[3] * num3;
 
-    const x =
-      (1 - (num5 + num6)) * vec._v[0] + (num7 - num12) * vec._v[1] + (num8 + num11) * vec._v[2];
-    const y =
-      (num7 + num12) * vec._v[0] + (1 - (num4 + num6)) * vec._v[1] + (num9 - num10) * vec._v[2];
-    const z =
-      (num8 - num11) * vec._v[0] + (num9 + num10) * vec._v[1] + (1 - (num4 + num5)) * vec._v[2];
+    const x = (1 - (num5 + num6)) * vec._v[0] + (num7 - num12) * vec._v[1] + (num8 + num11) * vec._v[2];
+    const y = (num7 + num12) * vec._v[0] + (1 - (num4 + num6)) * vec._v[1] + (num9 - num10) * vec._v[2];
+    const z = (num8 - num11) * vec._v[0] + (num9 + num10) * vec._v[1] + (1 - (num4 + num5)) * vec._v[2];
 
     return this._fromCopyArray([x, y, z], type);
   }
@@ -515,12 +507,9 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
     const num11 = quat._v[3] * num2;
     const num12 = quat._v[3] * num3;
 
-    const x =
-      (1 - (num5 + num6)) * vec._v[0] + (num7 - num12) * vec._v[1] + (num8 + num11) * vec._v[2];
-    const y =
-      (num7 + num12) * vec._v[0] + (1 - (num4 + num6)) * vec._v[1] + (num9 - num10) * vec._v[2];
-    const z =
-      (num8 - num11) * vec._v[0] + (num9 + num10) * vec._v[1] + (1 - (num4 + num5)) * vec._v[2];
+    const x = (1 - (num5 + num6)) * vec._v[0] + (num7 - num12) * vec._v[1] + (num8 + num11) * vec._v[2];
+    const y = (num7 + num12) * vec._v[0] + (1 - (num4 + num6)) * vec._v[1] + (num9 - num10) * vec._v[2];
+    const z = (num8 - num11) * vec._v[0] + (num9 + num10) * vec._v[1] + (1 - (num4 + num5)) * vec._v[2];
 
     return out.setComponents(x, y, z);
   }
@@ -659,9 +648,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
    * @returns A new vector with the same components
    */
   clone() {
-    return new (this.constructor as any)(
-      new (this._v.constructor as any)([this._v[0], this._v[1], this._v[2]], 0, 0)
-    );
+    return new (this.constructor as any)(new (this._v.constructor as any)([this._v[0], this._v[1], this._v[2]], 0, 0));
   }
 
   /**

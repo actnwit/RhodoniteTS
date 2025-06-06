@@ -23,13 +23,11 @@ const cameraTransform = cameraEntity.getTransform();
 cameraTransform.localPosition = Rn.Vector3.fromCopyArray([3, 2, 1]);
 
 // gltf
-const expression = (
-  await Rn.GltfImporter.importFromUrl(
-    '../../../assets/gltf/glTF-Sample-Assets/Models/SimpleSparseAccessor/glTF-Embedded/SimpleSparseAccessor.gltf',
-    {
-      cameraComponent: cameraComponent,
-    }
-  )
+const expression = await Rn.GltfImporter.importFromUrl(
+  '../../../assets/gltf/glTF-Sample-Assets/Models/SimpleSparseAccessor/glTF-Embedded/SimpleSparseAccessor.gltf',
+  {
+    cameraComponent: cameraComponent,
+  }
 );
 
 Rn.System.process([expression]);

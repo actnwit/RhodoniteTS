@@ -303,12 +303,9 @@ export class MutableVector3_<T extends FloatTypedArrayConstructor>
     const num11 = quat._v[3] * num2;
     const num12 = quat._v[3] * num3;
 
-    const x =
-      (1 - (num5 + num6)) * this._v[0] + (num7 - num12) * this._v[1] + (num8 + num11) * this._v[2];
-    const y =
-      (num7 + num12) * this._v[0] + (1 - (num4 + num6)) * this._v[1] + (num9 - num10) * this._v[2];
-    const z =
-      (num8 - num11) * this._v[0] + (num9 + num10) * this._v[1] + (1 - (num4 + num5)) * this._v[2];
+    const x = (1 - (num5 + num6)) * this._v[0] + (num7 - num12) * this._v[1] + (num8 + num11) * this._v[2];
+    const y = (num7 + num12) * this._v[0] + (1 - (num4 + num6)) * this._v[1] + (num9 - num10) * this._v[2];
+    const z = (num8 - num11) * this._v[0] + (num9 + num10) * this._v[1] + (1 - (num4 + num5)) * this._v[2];
 
     return this.setComponents(x, y, z);
   }

@@ -72,12 +72,7 @@ export declare class BasisLzEtc1sImageTranscoder {
     decodeFlags: 0,
     isVideo: boolean
   ) => TranscodedImage | undefined;
-  decodePalettes: (
-    numEndpoints: number,
-    endpoints: Uint8Array,
-    numSelectors: number,
-    selectors: Uint8Array
-  ) => void;
+  decodePalettes: (numEndpoints: number, endpoints: Uint8Array, numSelectors: number, selectors: Uint8Array) => void;
   decodeTables: (tables: Uint8Array) => void;
 }
 

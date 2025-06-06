@@ -19,11 +19,7 @@ export class BlockEndShaderNode extends AbstractShaderNode {
 
     this.__shaderFunctionName += '_' + this.__shaderNodeUid;
 
-    this.__commonPart = new BlockEndShader(
-      this.__shaderFunctionName,
-      this.__inputs,
-      this.__outputs
-    );
+    this.__commonPart = new BlockEndShader(this.__shaderFunctionName, this.__inputs, this.__outputs);
   }
 
   /**

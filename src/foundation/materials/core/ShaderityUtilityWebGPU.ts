@@ -5,11 +5,7 @@ import { VertexAttribute, VertexAttributeEnum } from '../../definitions/VertexAt
 import { MemoryManager } from '../../core/MemoryManager';
 import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
 import { Config } from '../../core/Config';
-import {
-  ShaderSemantics,
-  ShaderSemanticsClass,
-  ShaderSemanticsName,
-} from '../../definitions/ShaderSemantics';
+import { ShaderSemantics, ShaderSemanticsClass, ShaderSemanticsName } from '../../definitions/ShaderSemantics';
 import { MutableVector2 } from '../../math/MutableVector2';
 import { MutableVector3 } from '../../math/MutableVector3';
 import { MutableVector4 } from '../../math/MutableVector4';
@@ -60,19 +56,11 @@ export class ShaderityUtilityWebGPU {
    * @param args - Object containing template arguments to fill
    * @returns A new ShaderityObject with templates filled
    */
-  public static fillTemplate(
-    shaderityObject: ShaderityObject,
-    args: FillArgsObject
-  ): ShaderityObject {
-
+  public static fillTemplate(shaderityObject: ShaderityObject, args: FillArgsObject): ShaderityObject {
     const step1 = Shaderity.fillTemplate(shaderityObject, args);
 
     const templateObject = {
-      maxMorphDataNumber:
-      '' +
-      Math.ceil(
-        (Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4
-      ),
+      maxMorphDataNumber: '' + Math.ceil((Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4),
     } as unknown as TemplateObject;
 
     return Shaderity.fillTemplate(step1, templateObject);
@@ -98,15 +86,13 @@ export class ShaderityUtilityWebGPU {
 
     const shaderSemanticsInfoArray = [];
     for (const row of splitCode) {
-      const reg =
-        /^[\t ]*\/\/[\t ]*#param[\t ]+(\w+)[ \t]*:[\t ]*([\w><]+);[\t ]*(\/\/)*[\t ]*(.*)/;
+      const reg = /^[\t ]*\/\/[\t ]*#param[\t ]+(\w+)[ \t]*:[\t ]*([\w><]+);[\t ]*(\/\/)*[\t ]*(.*)/;
       const matchUniformDeclaration = row.match(reg);
 
       const tex =
         /^[\t ]*@group\(1\) @binding\((\d+)\)[ \t]*var[ \t]*(\w+)[ \t]*:[ \t]*([\w><]+);[\t ]*\/\/*[\t ]*(.*)/;
       const matchTextureDeclaration = row.match(tex);
-      const sampler =
-        /^[\t ]*@group\(2\) @binding\((\d+)\)[ \t]*var[ \t]*(\w+)[ \t]*:[ \t]*sampler;/;
+      const sampler = /^[\t ]*@group\(2\) @binding\((\d+)\)[ \t]*var[ \t]*(\w+)[ \t]*:[ \t]*sampler;/;
       const matchSamplerDeclaration = row.match(sampler);
 
       if (matchUniformDeclaration) {
@@ -267,10 +253,7 @@ export class ShaderityUtilityWebGPU {
    * @param shaderSemanticsInfo - The ShaderSemanticsInfo object to modify
    * @param info - The parameter information string to parse
    */
-  private static __setRhodoniteOriginalParametersTo(
-    shaderSemanticsInfo: ShaderSemanticsInfo,
-    info: string
-  ) {
+  private static __setRhodoniteOriginalParametersTo(shaderSemanticsInfo: ShaderSemanticsInfo, info: string) {
     const soloDatum = info.match(/soloDatum[\t ]*=[\t ]*(\w+)[,\t ]*/);
     let isSoloDatumFlg = false;
     if (soloDatum?.[1] === 'true') {
@@ -288,17 +271,12 @@ export class ShaderityUtilityWebGPU {
     const initialValue = info.match(/initialValue[\t ]*=[\t ]*(.+)[,\t ]*/);
     if (initialValue) {
       const initialValueText = initialValue[1];
-      shaderSemanticsInfo.initialValue = this.__getInitialValueFromText(
-        shaderSemanticsInfo,
-        initialValueText
-      );
+      shaderSemanticsInfo.initialValue = this.__getInitialValueFromText(shaderSemanticsInfo, initialValueText);
     } else {
       shaderSemanticsInfo.initialValue = this.__getDefaultInitialValue(shaderSemanticsInfo);
     }
 
-    const needUniformInDataTextureMode = info.match(
-      /needUniformInDataTextureMode[\t ]*=[\t ]*(.+)[,\t ]*/
-    );
+    const needUniformInDataTextureMode = info.match(/needUniformInDataTextureMode[\t ]*=[\t ]*(.+)[,\t ]*/);
     if (needUniformInDataTextureMode) {
       let needUniformInDataTextureModeFlg = false;
       if (needUniformInDataTextureMode?.[1] === 'true') {
@@ -353,10 +331,7 @@ export class ShaderityUtilityWebGPU {
    * @param initialValueText - The text containing the initial value specification
    * @returns A mathematical object representing the initial value
    */
-  private static __getInitialValueFromText(
-    shaderSemanticsInfo: ShaderSemanticsInfo,
-    initialValueText: string
-  ) {
+  private static __getInitialValueFromText(shaderSemanticsInfo: ShaderSemanticsInfo, initialValueText: string) {
     const tuple = initialValueText.match(/\(([\d\w., ]+)\)/);
     const checkCompositionNumber = (expected: CompositionTypeEnum) => {
       if (shaderSemanticsInfo.compositionType !== expected) {

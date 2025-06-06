@@ -52,9 +52,7 @@ cameraComponent.aspect = 1;
 cameraEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
 
 // CameraComponent
-const cameraControllerComponent = (
-  cameraEntity as Rn.ICameraControllerEntity
-).getCameraController();
+const cameraControllerComponent = (cameraEntity as Rn.ICameraControllerEntity).getCameraController();
 const controller = cameraControllerComponent.controller as Rn.OrbitCameraController;
 controller.setTarget(planeEntity);
 

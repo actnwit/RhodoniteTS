@@ -62,12 +62,7 @@ export class SkeletalComponent extends Component {
    * @param entityRepository - The repository managing entities
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(
-    entityUid: EntityUID,
-    componentSid: ComponentSID,
-    entityRepository: EntityRepository,
-    isReUse: boolean
-  ) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
     super(entityUid, componentSid, entityRepository, isReUse);
     this.moveStageTo(ProcessStage.Logic);
 
@@ -139,29 +134,14 @@ export class SkeletalComponent extends Component {
     if (Config.boneDataType === BoneDataType.Mat43x1) {
       this.__matArray = SkeletalComponent.__globalDataRepository.getValue('boneMatrix', index)._v;
     } else if (Config.boneDataType === BoneDataType.Vec4x2) {
-      this.__tqArray = SkeletalComponent.__globalDataRepository.getValue(
-        'boneTranslatePackedQuat',
-        index
-      )._v;
-      this.__sqArray = SkeletalComponent.__globalDataRepository.getValue(
-        'boneScalePackedQuat',
-        index
-      )._v;
+      this.__tqArray = SkeletalComponent.__globalDataRepository.getValue('boneTranslatePackedQuat', index)._v;
+      this.__sqArray = SkeletalComponent.__globalDataRepository.getValue('boneScalePackedQuat', index)._v;
     } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
       this.__qArray = SkeletalComponent.__globalDataRepository.getValue('boneQuaternion', index)._v;
-      this.__tsArray = SkeletalComponent.__globalDataRepository.getValue(
-        'boneTranslateScale',
-        index
-      )._v;
+      this.__tsArray = SkeletalComponent.__globalDataRepository.getValue('boneTranslateScale', index)._v;
     } else if (Config.boneDataType === BoneDataType.Vec4x1) {
-      this.__tsArray = SkeletalComponent.__globalDataRepository.getValue(
-        'boneTranslateScale',
-        index
-      )._v;
-      this.__qtsArray = SkeletalComponent.__globalDataRepository.getValue(
-        'boneCompressedChunk',
-        index
-      )._v;
+      this.__tsArray = SkeletalComponent.__globalDataRepository.getValue('boneTranslateScale', index)._v;
+      this.__qtsArray = SkeletalComponent.__globalDataRepository.getValue('boneCompressedChunk', index)._v;
       this.__qtsInfo = SkeletalComponent.__globalDataRepository.getValue('boneCompressedInfo', 0);
     }
   }
@@ -318,10 +298,7 @@ export class SkeletalComponent extends Component {
 
       this.__isWorldMatrixVanilla = false;
 
-      if (
-        Config.boneDataType === BoneDataType.Mat43x1 ||
-        Config.boneDataType === BoneDataType.Vec4x1
-      ) {
+      if (Config.boneDataType === BoneDataType.Mat43x1 || Config.boneDataType === BoneDataType.Vec4x1) {
         this.__copyToMatArray(m, i);
       }
 
@@ -344,10 +321,7 @@ export class SkeletalComponent extends Component {
 
         const q = SkeletalComponent.__tmp_q.fromMatrix(m);
 
-        if (
-          Config.boneDataType === BoneDataType.Vec4x2Old ||
-          Config.boneDataType === BoneDataType.Vec4x1
-        ) {
+        if (Config.boneDataType === BoneDataType.Vec4x2Old || Config.boneDataType === BoneDataType.Vec4x1) {
           let maxScale = 1;
           if (Math.abs(scaleVec.x) > Math.abs(scaleVec.y)) {
             if (Math.abs(scaleVec.x) > Math.abs(scaleVec.z)) {
@@ -366,13 +340,7 @@ export class SkeletalComponent extends Component {
         }
 
         if (Config.boneDataType === BoneDataType.Vec4x2) {
-          const vec2QPacked = MathUtil.packNormalizedVec4ToVec2(
-            q.x,
-            q.y,
-            q.z,
-            q.w,
-            Math.pow(2, 12)
-          );
+          const vec2QPacked = MathUtil.packNormalizedVec4ToVec2(q.x, q.y, q.z, q.w, Math.pow(2, 12));
           this.__tqArray[i * 4 + 0] = m.m03;
           this.__tqArray[i * 4 + 1] = m.m13;
           this.__tqArray[i * 4 + 2] = m.m23;
@@ -397,13 +365,7 @@ export class SkeletalComponent extends Component {
           this.__tsArray[i * 4 + 0] = m.m03; // m.getTranslate().x
           this.__tsArray[i * 4 + 1] = m.m13; // m.getTranslate().y
           this.__tsArray[i * 4 + 2] = m.m23; // m.getTranslate().z
-          const vec2QPacked = MathUtil.packNormalizedVec4ToVec2(
-            q.x,
-            q.y,
-            q.z,
-            q.w,
-            Math.pow(2, 12)
-          );
+          const vec2QPacked = MathUtil.packNormalizedVec4ToVec2(q.x, q.y, q.z, q.w, Math.pow(2, 12));
           this.__qtsArray[i * 4 + 0] = vec2QPacked[0];
           this.__qtsArray[i * 4 + 1] = vec2QPacked[1];
           // q.normalize();
@@ -570,18 +532,12 @@ export class SkeletalComponent extends Component {
     _componentClass: SomeComponentClass
   ) {
     class SkeletalEntity extends (base.constructor as any) {
-      constructor(
-        entityUID: EntityUID,
-        isAlive: boolean,
-        components?: Map<ComponentTID, Component>
-      ) {
+      constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
         super(entityUID, isAlive, components);
       }
 
       getSkeletal() {
-        return this.getComponentByComponentTID(
-          WellKnownComponentTIDs.SkeletalComponentTID
-        ) as SkeletalComponent;
+        return this.getComponentByComponentTID(WellKnownComponentTIDs.SkeletalComponentTID) as SkeletalComponent;
       }
     }
     applyMixins(base, SkeletalEntity);

@@ -82,14 +82,7 @@ export type Gltf2AccessorComponentTypeNumber =
 
 export type Gltf2AnimationAccessorCompositionTypeString = 'SCALAR' | 'VEC2' | 'VEC3' | 'VEC4';
 
-export type Gltf2AccessorCompositionTypeString =
-  | 'SCALAR'
-  | 'VEC2'
-  | 'VEC3'
-  | 'VEC4'
-  | 'MAT2'
-  | 'MAT3'
-  | 'MAT4';
+export type Gltf2AccessorCompositionTypeString = 'SCALAR' | 'VEC2' | 'VEC3' | 'VEC4' | 'MAT2' | 'MAT3' | 'MAT4';
 
 export type Gltf2AccessorIndex = number;
 
@@ -390,7 +383,7 @@ export type GltfLoadOption = {
       isTransparent: boolean;
       opacity: number;
       isTextureImageToLoadPreMultipliedAlpha: boolean;
-    }
+    },
   ];
   alphaMode?: string;
   ignoreLists?: [];

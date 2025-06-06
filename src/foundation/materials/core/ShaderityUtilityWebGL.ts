@@ -71,10 +71,7 @@ export class ShaderityUtilityWebGL {
    * @param args - Key-value pairs of template arguments to fill in the shader
    * @returns A new ShaderityObject with all template placeholders replaced
    */
-  public static fillTemplate(
-    shaderityObject: ShaderityObject,
-    args: FillArgsObject
-  ): ShaderityObject {
+  public static fillTemplate(shaderityObject: ShaderityObject, args: FillArgsObject): ShaderityObject {
     const step1 = Shaderity.fillTemplate(shaderityObject, args);
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const templateObject = {
@@ -97,10 +94,7 @@ export class ShaderityUtilityWebGL {
    * @param isWebGL2 - Whether to target WebGL 2.0 (true) or WebGL 1.0 (false)
    * @returns A new ShaderityObject with version-appropriate GLSL code
    */
-  public static transformWebGLVersion(
-    shaderityObject: ShaderityObject,
-    isWebGL2: boolean
-  ): ShaderityObject {
+  public static transformWebGLVersion(shaderityObject: ShaderityObject, isWebGL2: boolean): ShaderityObject {
     if (isWebGL2) {
       return Shaderity.transformToGLSLES3(shaderityObject);
     } else {
@@ -123,13 +117,13 @@ export class ShaderityUtilityWebGL {
     reflection.reflect();
 
     const names = reflection.attributesNames;
-    const semantics = (reflection.attributesSemantics as string[]).map((semantic) => {
+    const semantics = (reflection.attributesSemantics as string[]).map(semantic => {
       return VertexAttribute.fromString(semantic);
     });
-    const compositions = (reflection.attributesTypes as string[]).map((type) => {
+    const compositions = (reflection.attributesTypes as string[]).map(type => {
       return CompositionType.fromGlslString(type);
     });
-    const components = (reflection.attributesTypes as string[]).map((type) => {
+    const components = (reflection.attributesTypes as string[]).map(type => {
       return ComponentType.fromGlslString(type);
     });
 
@@ -293,10 +287,7 @@ export class ShaderityUtilityWebGL {
    * @param info - The comment string containing parameter definitions
    * @private
    */
-  private static __setRhodoniteOriginalParametersTo(
-    shaderSemanticsInfo: ShaderSemanticsInfo,
-    info: string
-  ) {
+  private static __setRhodoniteOriginalParametersTo(shaderSemanticsInfo: ShaderSemanticsInfo, info: string) {
     const soloDatum = info.match(/soloDatum[\t ]*=[\t ]*(\w+)[,\t ]*/);
     let isSoloDatumFlg = false;
     if (soloDatum?.[1] === 'true') {
@@ -314,17 +305,12 @@ export class ShaderityUtilityWebGL {
     const initialValue = info.match(/initialValue[\t ]*=[\t ]*(.+)[,\t ]*/);
     if (initialValue) {
       const initialValueText = initialValue[1];
-      shaderSemanticsInfo.initialValue = this.__getInitialValueFromText(
-        shaderSemanticsInfo,
-        initialValueText
-      );
+      shaderSemanticsInfo.initialValue = this.__getInitialValueFromText(shaderSemanticsInfo, initialValueText);
     } else {
       shaderSemanticsInfo.initialValue = this.__getDefaultInitialValue(shaderSemanticsInfo);
     }
 
-    const needUniformInDataTextureMode = info.match(
-      /needUniformInDataTextureMode[\t ]*=[\t ]*(.+)[,\t ]*/
-    );
+    const needUniformInDataTextureMode = info.match(/needUniformInDataTextureMode[\t ]*=[\t ]*(.+)[,\t ]*/);
     if (needUniformInDataTextureMode) {
       let needUniformInDataTextureModeFlg = false;
       if (needUniformInDataTextureMode?.[1] === 'true') {
@@ -344,10 +330,7 @@ export class ShaderityUtilityWebGL {
    * @returns The parsed initial value as the appropriate Rhodonite math type or texture array
    * @private
    */
-  private static __getInitialValueFromText(
-    shaderSemanticsInfo: ShaderSemanticsInfo,
-    initialValueText: string
-  ) {
+  private static __getInitialValueFromText(shaderSemanticsInfo: ShaderSemanticsInfo, initialValueText: string) {
     const tuple = initialValueText.match(/\(([\d\w., ]+)\)/);
     const checkCompositionNumber = (expected: CompositionTypeEnum) => {
       if (shaderSemanticsInfo.compositionType !== expected) {
@@ -379,16 +362,10 @@ export class ShaderityUtilityWebGL {
             initialValue = [parseInt(split[0]), (DefaultTextures as any)[`dummy${color}Texture`]];
           } else if (shaderSemanticsInfo.compositionType === CompositionType.TextureCube) {
             const color = split[1].charAt(0).toUpperCase() + split[1].slice(1);
-            initialValue = [
-              parseInt(split[0]),
-              (DefaultTextures as any)[`dummy${color}CubeTexture`],
-            ];
+            initialValue = [parseInt(split[0]), (DefaultTextures as any)[`dummy${color}CubeTexture`]];
           } else {
             checkCompositionNumber(CompositionType.Vec2);
-            initialValue = MutableVector2.fromCopyArray([
-              parseFloat(split[0]),
-              parseFloat(split[1]),
-            ]);
+            initialValue = MutableVector2.fromCopyArray([parseFloat(split[0]), parseFloat(split[1])]);
           }
           break;
         case 3:

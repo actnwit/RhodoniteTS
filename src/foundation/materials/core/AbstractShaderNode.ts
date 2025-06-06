@@ -233,8 +233,13 @@ export abstract class AbstractShaderNode extends RnObject {
    * @param varOutputNames - Array of output variable names for each node
    * @returns The generated function call statement string
    */
-  makeCallStatement(i: number, shaderNode: AbstractShaderNode,
-    functionName: string, varInputNames: string[][], varOutputNames: string[][]): string {
+  makeCallStatement(
+    i: number,
+    shaderNode: AbstractShaderNode,
+    functionName: string,
+    varInputNames: string[][],
+    varOutputNames: string[][]
+  ): string {
     let str = '';
     const varNames = varInputNames[i].concat(varOutputNames[i]);
     if (
@@ -253,10 +258,7 @@ export abstract class AbstractShaderNode extends RnObject {
           if (k !== 0) {
             rowStr += ', ';
           }
-          if (
-            SystemState.currentProcessApproach === ProcessApproach.WebGPU &&
-            k >= varInputNames[i].length
-          ) {
+          if (SystemState.currentProcessApproach === ProcessApproach.WebGPU && k >= varInputNames[i].length) {
             rowStr += '&';
           }
           rowStr += varNames[k];

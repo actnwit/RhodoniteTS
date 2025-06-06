@@ -21,12 +21,7 @@ import {
 } from '../../../types/CommonTypes';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
-import {
-  isBlend,
-  isBlendWithoutZWrite,
-  isBlendWithZWrite,
-  isTranslucent,
-} from '../../geometry/types/GeometryTypes';
+import { isBlend, isBlendWithoutZWrite, isBlendWithZWrite, isTranslucent } from '../../geometry/types/GeometryTypes';
 import { Primitive } from '../../geometry/Primitive';
 import { CGAPIStrategy } from '../../renderer/CGAPIStrategy';
 import { RnXR } from '../../../xr/main';
@@ -52,8 +47,7 @@ export class MeshRendererComponent extends Component {
 
   private static __cgApiRenderingStrategy?: CGAPIStrategy;
   public static isDepthMaskTrueForBlendPrimitives = false;
-  static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> =
-    new Map();
+  static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> = new Map();
   private __updateCount = 0;
   private static __updateCount = 0;
   public static _isFrustumCullingEnabled = true;
@@ -67,12 +61,7 @@ export class MeshRendererComponent extends Component {
    * @param entityRepository - The repository managing entities
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(
-    entityUid: EntityUID,
-    componentSid: ComponentSID,
-    entityRepository: EntityRepository,
-    isReUse: boolean
-  ) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
     super(entityUid, componentSid, entityRepository, isReUse);
     this.calcFingerPrint();
   }
@@ -240,14 +229,12 @@ export class MeshRendererComponent extends Component {
     if (processApproach === ProcessApproach.WebGPU) {
       const moduleName = 'webgpu';
       const webgpuModule = moduleManager.getModule(moduleName)! as any;
-      MeshRendererComponent.__cgApiRenderingStrategy =
-        webgpuModule.WebGpuStrategyBasic.getInstance();
+      MeshRendererComponent.__cgApiRenderingStrategy = webgpuModule.WebGpuStrategyBasic.getInstance();
       (MeshRendererComponent.__cgApiRenderingStrategy as WebGpuStrategyBasic).common_$load();
     } else {
       const moduleName = 'webgl';
       const webglModule = moduleManager.getModule(moduleName)! as any;
-      MeshRendererComponent.__cgApiRenderingStrategy =
-        webglModule.getRenderingStrategy(processApproach);
+      MeshRendererComponent.__cgApiRenderingStrategy = webglModule.getRenderingStrategy(processApproach);
     }
   }
 
@@ -256,9 +243,7 @@ export class MeshRendererComponent extends Component {
    * Sets up the component for rendering by loading the associated mesh.
    */
   $load() {
-    const ready = MeshRendererComponent.__cgApiRenderingStrategy!.$load(
-      this.entity.tryToGetMesh()!
-    );
+    const ready = MeshRendererComponent.__cgApiRenderingStrategy!.$load(this.entity.tryToGetMesh()!);
     if (ready) {
       this.moveStageTo(ProcessStage.Unknown);
     }
@@ -273,8 +258,7 @@ export class MeshRendererComponent extends Component {
   static sort_$render(renderPass: RenderPass): ComponentSID[] {
     if (
       TransformComponent.updateCount === renderPass._lastTransformComponentsUpdateCount &&
-      CameraControllerComponent.updateCount ===
-        renderPass._lastCameraControllerComponentsUpdateCount &&
+      CameraControllerComponent.updateCount === renderPass._lastCameraControllerComponentsUpdateCount &&
       SceneGraphComponent.updateCount === renderPass._lastSceneGraphComponentsUpdateCount
     ) {
       return renderPass._lastPrimitiveUids;
@@ -284,16 +268,11 @@ export class MeshRendererComponent extends Component {
     let cameraComponent = renderPass.cameraComponent;
     // If the renderPass doesn't have a cameraComponent, then we get it of the main camera
     if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getComponent(
-        CameraComponent,
-        CameraComponent.current
-      ) as CameraComponent;
+      cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
     }
     if (cameraComponent == null) {
-      const cameraComponents = ComponentRepository.getComponentsWithType(
-        CameraComponent
-      ) as CameraComponent[];
-      cameraComponent = cameraComponents.find((c) => c != null && c._isAlive)!;
+      const cameraComponents = ComponentRepository.getComponentsWithType(CameraComponent) as CameraComponent[];
+      cameraComponent = cameraComponents.find(c => c != null && c._isAlive)!;
       CameraComponent.current = cameraComponent.componentSID;
     }
     if (renderPass.isVrRendering) {
@@ -323,7 +302,7 @@ export class MeshRendererComponent extends Component {
       return a._viewDepth - b._viewDepth;
     });
 
-    const primitiveUids = primitives.map((primitive) => primitive.primitiveUid);
+    const primitiveUids = primitives.map(primitive => primitive.primitiveUid);
     primitiveUids.push(-1);
 
     let _lastOpaqueIndex = primitives.length - 1;
@@ -423,10 +402,7 @@ export class MeshRendererComponent extends Component {
    * @param meshComponents - Array of mesh components to be culled
    * @returns Array of primitives that passed the frustum culling test
    */
-  private static __cullingWithViewFrustum(
-    cameraComponent: CameraComponent,
-    meshComponents: MeshComponent[]
-  ) {
+  private static __cullingWithViewFrustum(cameraComponent: CameraComponent, meshComponents: MeshComponent[]) {
     let filteredMeshComponents: MeshComponent[] = [];
     if (cameraComponent && MeshRendererComponent._isFrustumCullingEnabled) {
       cameraComponent.updateFrustum();
@@ -447,9 +423,7 @@ export class MeshRendererComponent extends Component {
       const frustum = cameraComponent.frustum;
       const frustumCulling = (meshComponent: MeshComponent, outMeshComponents: MeshComponent[]) => {
         const result =
-          meshComponent.entity.getTagValue('type') === 'background-assets'
-            ? true
-            : frustum.culling(meshComponent);
+          meshComponent.entity.getTagValue('type') === 'background-assets' ? true : frustum.culling(meshComponent);
         if (result) {
           outMeshComponents.push(meshComponent);
           meshComponent.entity.getSceneGraph()._isCulled = false;
@@ -472,7 +446,7 @@ export class MeshRendererComponent extends Component {
       }
     } else {
       filteredMeshComponents = meshComponents.filter(
-        (meshComponent) => meshComponent._isAlive && meshComponent.entity.getSceneGraph().isVisible
+        meshComponent => meshComponent._isAlive && meshComponent.entity.getSceneGraph().isVisible
       );
     }
 
@@ -598,11 +572,7 @@ export class MeshRendererComponent extends Component {
     _componentClass: SomeComponentClass
   ) {
     class MeshRendererEntity extends (base.constructor as any) {
-      constructor(
-        entityUID: EntityUID,
-        isAlive: boolean,
-        components?: Map<ComponentTID, Component>
-      ) {
+      constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
         super(entityUID, isAlive, components);
       }
 

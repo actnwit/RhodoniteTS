@@ -3,14 +3,7 @@ import { ComponentType } from '../definitions/ComponentType';
 import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
 import { AbstractTexture } from './AbstractTexture';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import {
-  TypedArray,
-  Count,
-  CGAPIResourceHandle,
-  Index,
-  Size,
-  Offset,
-} from '../../types/CommonTypes';
+import { TypedArray, Count, CGAPIResourceHandle, Index, Size, Offset } from '../../types/CommonTypes';
 import { Config } from '../core/Config';
 import { BasisFile, BasisTranscoder, BASIS } from '../../types/BasisTexture';
 import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
@@ -86,7 +79,9 @@ export class Texture extends AbstractTexture implements Disposable {
 
   private static __loadedBasisFunc = false;
   private static __basisLoadPromise?: Promise<void>;
-  private static __BasisFile?: new (x: Uint8Array) => BasisFile;
+  private static __BasisFile?: new (
+    x: Uint8Array
+  ) => BasisFile;
   private __optionsToLoadLazy?: {
     level: number;
     internalFormat: TextureParameterEnum;
@@ -96,7 +91,7 @@ export class Texture extends AbstractTexture implements Disposable {
   };
 
   private static managedRegistry: FinalizationRegistry<FinalizationRegistryObject> =
-    new FinalizationRegistry<FinalizationRegistryObject>((texObj) => {
+    new FinalizationRegistry<FinalizationRegistryObject>(texObj => {
       Logger.info(
         `WebGL/WebGPU 2D texture "${texObj.uniqueName}" was automatically released along with GC. But explicit release is recommended.`
       );
@@ -159,7 +154,7 @@ export class Texture extends AbstractTexture implements Disposable {
     if (!Texture.__loadedBasisFunc) {
       Texture.__loadedBasisFunc = true;
 
-      Texture.__basisLoadPromise = new Promise((resolve) => {
+      Texture.__basisLoadPromise = new Promise(resolve => {
         BASIS().then((basisTransCoder: BasisTranscoder) => {
           const { initializeBasis } = basisTransCoder;
           initializeBasis();
@@ -308,9 +303,9 @@ export class Texture extends AbstractTexture implements Disposable {
 
     this.__setTextureResourceUid(texture, this.uniqueName);
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      this._textureViewResourceUid = (
-        cgApiResourceRepository as WebGpuResourceRepository
-      ).createTextureView2d(this._textureResourceUid);
+      this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2d(
+        this._textureResourceUid
+      );
     }
     this.__isTextureReady = true;
     this.__uri = image.src;
@@ -454,22 +449,19 @@ export class Texture extends AbstractTexture implements Disposable {
     const moduleManager = ModuleManager.getInstance();
     const pbrModule = moduleManager.getModule(moduleName)! as any;
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    const textureHandle = await cgApiResourceRepository!.createTextureFromDataUri(
-      pbrModule.sheen_E_and_DGTerm,
-      {
-        level: 0,
-        internalFormat: TextureFormat.RGBA8,
-        border: 0,
-        format: PixelFormat.RGBA,
-        type: ComponentType.UnsignedByte,
-        generateMipmap: false,
-      }
-    );
+    const textureHandle = await cgApiResourceRepository!.createTextureFromDataUri(pbrModule.sheen_E_and_DGTerm, {
+      level: 0,
+      internalFormat: TextureFormat.RGBA8,
+      border: 0,
+      format: PixelFormat.RGBA,
+      type: ComponentType.UnsignedByte,
+      generateMipmap: false,
+    });
     this.__setTextureResourceUid(textureHandle, this.uniqueName);
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      this._textureViewResourceUid = (
-        cgApiResourceRepository as WebGpuResourceRepository
-      ).createTextureView2d(this._textureResourceUid);
+      this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2d(
+        this._textureResourceUid
+      );
     }
     this.__isTextureReady = true;
   }
@@ -502,8 +494,7 @@ export class Texture extends AbstractTexture implements Disposable {
   }) {
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
 
-    desc.mipLevelCount =
-      desc.mipLevelCount ?? Math.floor(Math.log2(Math.max(desc.width, desc.height))) + 1;
+    desc.mipLevelCount = desc.mipLevelCount ?? Math.floor(Math.log2(Math.max(desc.width, desc.height))) + 1;
 
     const texture = cgApiResourceRepository.allocateTexture({
       mipLevelCount: desc.mipLevelCount,
@@ -514,9 +505,9 @@ export class Texture extends AbstractTexture implements Disposable {
 
     this.__setTextureResourceUid(texture, this.uniqueName);
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      this._textureViewResourceUid = (
-        cgApiResourceRepository as WebGpuResourceRepository
-      ).createTextureView2d(this._textureResourceUid);
+      this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2d(
+        this._textureResourceUid
+      );
     }
     this.__width = desc.width;
     this.__height = desc.height;
@@ -603,16 +594,13 @@ export class Texture extends AbstractTexture implements Disposable {
     } as TextureData;
 
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    const textureHandle = await cgApiResourceRepository.createCompressedTexture(
-      [textureData],
-      compressionTextureType
-    );
+    const textureHandle = await cgApiResourceRepository.createCompressedTexture([textureData], compressionTextureType);
 
     this.__setTextureResourceUid(textureHandle, this.uniqueName);
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      this._textureViewResourceUid = (
-          cgApiResourceRepository as WebGpuResourceRepository
-        ).createTextureView2d(this._textureResourceUid);
+      this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2d(
+        this._textureResourceUid
+      );
     }
     this.__isTextureReady = true;
   }
@@ -644,7 +632,7 @@ export class Texture extends AbstractTexture implements Disposable {
     textureDataArray: TextureData[],
     compressionTextureType: CompressionTextureTypeEnum
   ) {
-    const originalTextureData = textureDataArray.find((textureData) => textureData.level === 0);
+    const originalTextureData = textureDataArray.find(textureData => textureData.level === 0);
     if (originalTextureData == null) {
       throw new Error('texture data with level 0 is not found');
     }
@@ -660,9 +648,9 @@ export class Texture extends AbstractTexture implements Disposable {
 
     this.__setTextureResourceUid(textureHandle, this.uniqueName);
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      this._textureViewResourceUid = (
-        cgApiResourceRepository as WebGpuResourceRepository
-      ).createTextureView2d(this._textureResourceUid);
+      this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2d(
+        this._textureResourceUid
+      );
     }
     this.__isTextureReady = true;
   }
@@ -680,11 +668,7 @@ export class Texture extends AbstractTexture implements Disposable {
    */
   generateMipmaps() {
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    cgApiResourceRepository.generateMipmaps2d(
-      this._textureResourceUid,
-      this.__width,
-      this.__height
-    );
+    cgApiResourceRepository.generateMipmaps2d(this._textureResourceUid, this.__width, this.__height);
   }
 
   /**
@@ -778,7 +762,9 @@ export class Texture extends AbstractTexture implements Disposable {
    * });
    * ```
    */
-  static async loadFromUrl(uri: string, {
+  static async loadFromUrl(
+    uri: string,
+    {
       level = 0,
       internalFormat = TextureFormat.RGBA8,
       format = PixelFormat.RGBA,

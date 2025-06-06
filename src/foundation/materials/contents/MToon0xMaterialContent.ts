@@ -39,12 +39,7 @@ import { Sampler } from '../../textures/Sampler';
 import { Blend } from '../../definitions/Blend';
 import { dummyBlackCubeTexture, dummyBlackTexture, dummyWhiteTexture } from '../core/DummyTextures';
 import { SystemState } from '../../system/SystemState';
-import {
-  HdriFormat,
-  ProcessApproach,
-  ProcessApproachClass,
-  TextureParameter,
-} from '../../definitions';
+import { HdriFormat, ProcessApproach, ProcessApproachClass, TextureParameter } from '../../definitions';
 import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { MutableVector2 } from '../../math/MutableVector2';
@@ -393,9 +388,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader,
-        initialValue: Vector3.fromCopyArray(
-          this.__vectorProperties._EmissionColor as Array3<number>
-        ),
+        initialValue: Vector3.fromCopyArray(this.__vectorProperties._EmissionColor as Array3<number>),
         min: 0,
         max: 1,
       },
@@ -511,9 +504,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
           componentType: ComponentType.Float,
           compositionType: CompositionType.Vec3,
           stage: ShaderType.PixelShader,
-          initialValue: Vector4.fromCopyArray(
-            this.__vectorProperties._OutlineColor as Array4<number>
-          ),
+          initialValue: Vector4.fromCopyArray(this.__vectorProperties._OutlineColor as Array4<number>),
           min: 0,
           max: 1,
         },
@@ -632,11 +623,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        initialValue: [
-          0,
-          textures[this.__textureProperties._MainTex],
-          samplers[this.__textureProperties._MainTex],
-        ],
+        initialValue: [0, textures[this.__textureProperties._MainTex], samplers[this.__textureProperties._MainTex]],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -697,11 +684,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        initialValue: [
-          8,
-          textures[this.__textureProperties._SphereAdd],
-          samplers[this.__textureProperties._SphereAdd],
-        ],
+        initialValue: [8, textures[this.__textureProperties._SphereAdd], samplers[this.__textureProperties._SphereAdd]],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -727,11 +710,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        initialValue: [
-          10,
-          textures[this.__textureProperties._BumpMap],
-          samplers[this.__textureProperties._BumpMap],
-        ],
+        initialValue: [10, textures[this.__textureProperties._BumpMap], samplers[this.__textureProperties._BumpMap]],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -798,12 +777,8 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
 
       const blendEquationMode = 32774; // gl.FUNC_ADD
       const blendEquationModeAlpha = MToon0xMaterialContent.usableBlendEquationModeAlpha;
-      const blendFuncSrcFactor = MToon0xMaterialContent.unityBlendEnumCorrespondence(
-        this.__floatProperties._SrcBlend
-      );
-      const blendFuncDstFactor = MToon0xMaterialContent.unityBlendEnumCorrespondence(
-        this.__floatProperties._DstBlend
-      );
+      const blendFuncSrcFactor = MToon0xMaterialContent.unityBlendEnumCorrespondence(this.__floatProperties._SrcBlend);
+      const blendFuncDstFactor = MToon0xMaterialContent.unityBlendEnumCorrespondence(this.__floatProperties._DstBlend);
 
       material.setBlendEquationMode(
         Blend.from(blendEquationMode),
@@ -954,17 +929,16 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     // IBL Env map
     if (args.diffuseCube && args.diffuseCube.isTextureReady) {
-      webglResourceRepository.setUniform1iForTexture(
-        shaderProgram,
-        ShaderSemantics.DiffuseEnvTexture.str,
-        [5, args.diffuseCube, MToon0xMaterialContent.__diffuseIblCubeMapSampler]
-      );
+      webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
+        5,
+        args.diffuseCube,
+        MToon0xMaterialContent.__diffuseIblCubeMapSampler,
+      ]);
     } else {
-      webglResourceRepository.setUniform1iForTexture(
-        shaderProgram,
-        ShaderSemantics.DiffuseEnvTexture.str,
-        [5, dummyBlackCubeTexture]
-      );
+      webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
+        5,
+        dummyBlackCubeTexture,
+      ]);
     }
     // if (args.specularCube && args.specularCube.isTextureReady) {
     //   webglResourceRepository.setUniform1iForTexture(
@@ -1005,10 +979,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
   }) {
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getComponent(
-        CameraComponent,
-        CameraComponent.current
-      ) as CameraComponent;
+      cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
     }
 
     if (args.setUniform) {
@@ -1025,10 +996,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
       // Lights
       this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
 
-      (shaderProgram as any)._gl.uniform3fv(
-        (shaderProgram as any).cameraUp,
-        cameraComponent.upInner._v
-      );
+      (shaderProgram as any)._gl.uniform3fv((shaderProgram as any).cameraUp, cameraComponent.upInner._v);
 
       if (this.__OutlineWidthModeIsScreen) {
         (shaderProgram as any)._gl.uniform1f((shaderProgram as any).aspect, cameraComponent.aspect);
@@ -1047,23 +1015,16 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
       if (firstTime) {
         const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
           MToon0xMaterialContent.__setupHdriParameters(args);
-        webglResourceRepository.setUniformValue(
-          shaderProgram,
-          ShaderSemantics.IBLParameter.str,
-          firstTime,
-          {
-            x: mipmapLevelNumber,
-            y: meshRenderComponent!.diffuseCubeMapContribution,
-            z: meshRenderComponent!.specularCubeMapContribution,
-            w: meshRenderComponent!.rotationOfCubeMap,
-          }
-        );
-        webglResourceRepository.setUniformValue(
-          shaderProgram,
-          ShaderSemantics.HDRIFormat.str,
-          firstTime,
-          { x: diffuseHdriType, y: specularHdriType }
-        );
+        webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.IBLParameter.str, firstTime, {
+          x: mipmapLevelNumber,
+          y: meshRenderComponent!.diffuseCubeMapContribution,
+          z: meshRenderComponent!.specularCubeMapContribution,
+          w: meshRenderComponent!.rotationOfCubeMap,
+        });
+        webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.HDRIFormat.str, firstTime, {
+          x: diffuseHdriType,
+          y: specularHdriType,
+        });
       }
     } else {
       const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =

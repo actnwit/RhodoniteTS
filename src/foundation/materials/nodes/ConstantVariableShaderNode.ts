@@ -25,7 +25,7 @@ import { Socket } from '../core/Socket';
  */
 export abstract class ConstantVariableShaderNode<
   N extends CompositionTypeEnum,
-  T extends ComponentTypeEnum
+  T extends ComponentTypeEnum,
 > extends AbstractShaderNode {
   /**
    * Creates a new ConstantVariableShaderNode instance.
@@ -43,11 +43,7 @@ export abstract class ConstantVariableShaderNode<
 
     this.__shaderFunctionName += '_' + this.__shaderNodeUid;
 
-    this.__commonPart = new ConstantVariableShader(
-      this.__shaderFunctionName,
-      compositionType,
-      componentType
-    );
+    this.__commonPart = new ConstantVariableShader(this.__shaderFunctionName, compositionType, componentType);
 
     this.__outputs.push(new Socket('outValue', compositionType, componentType));
   }

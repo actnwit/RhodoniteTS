@@ -133,7 +133,7 @@ Rn.System.startRenderLoop(() => {
 
   if (window.isAnimating) {
     const rotation = 0.001 * (date.getTime() - startTime);
-    entities.forEach((entity) => {
+    entities.forEach(entity => {
       rotationVec3._v[0] = rotation;
       rotationVec3._v[1] = rotation;
       rotationVec3._v[2] = rotation;

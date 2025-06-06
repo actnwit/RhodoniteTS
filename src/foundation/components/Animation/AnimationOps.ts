@@ -94,10 +94,7 @@ function __prepareVariablesForCubicSpline(
       // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…an,v1,v2,…vn,b1,b2,…bn
       componentN * 3 * (i + 1) + componentN
     );
-    const m_0 = outputArray[mulArray4WithScalar_offset](
-      componentN * 3 * i + componentN * 2,
-      t_diff
-    );
+    const m_0 = outputArray[mulArray4WithScalar_offset](componentN * 3 * i + componentN * 2, t_diff);
     const m_1 = outputArray[mulArray4WithScalar_offset](componentN * 3 * (i + 1), t_diff);
     return { p_0, p_1, m_0, m_1 };
   } else if (componentN === 3) {
@@ -109,14 +106,8 @@ function __prepareVariablesForCubicSpline(
       // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…an,v1,v2,…vn,b1,b2,…bn
       componentN * 3 * (i + 1) + componentN
     ) as Array<number>;
-    const m_0 = outputArray[mulArray3WithScalar_offset](
-      componentN * 3 * i + componentN * 2,
-      t_diff
-    ) as Array<number>;
-    const m_1 = outputArray[mulArray3WithScalar_offset](
-      componentN * 3 * (i + 1),
-      t_diff
-    ) as Array<number>;
+    const m_0 = outputArray[mulArray3WithScalar_offset](componentN * 3 * i + componentN * 2, t_diff) as Array<number>;
+    const m_1 = outputArray[mulArray3WithScalar_offset](componentN * 3 * (i + 1), t_diff) as Array<number>;
     return { p_0, p_1, m_0, m_1 };
   } else {
     const p_0 = outputArray[getN_offset](
@@ -134,11 +125,7 @@ function __prepareVariablesForCubicSpline(
       componentN,
       t_diff
     ) as Array<number>;
-    const m_1 = outputArray[mulArrayNWithScalar_offset](
-      componentN * 3 * (i + 1),
-      componentN,
-      t_diff
-    ) as Array<number>;
+    const m_1 = outputArray[mulArrayNWithScalar_offset](componentN * 3 * (i + 1), componentN, t_diff) as Array<number>;
     return { p_0, p_1, m_0, m_1 };
   }
 }
@@ -152,11 +139,7 @@ function __prepareVariablesForCubicSpline(
  * @param array_ - Animation output data array
  * @returns The extracted value as an array of numbers
  */
-export function __getOutputValue(
-  keyFrameId: Index,
-  sampler: AnimationSampler,
-  array_: Float32Array | number[]
-) {
+export function __getOutputValue(keyFrameId: Index, sampler: AnimationSampler, array_: Float32Array | number[]) {
   const array = array_ as globalThis.Float32Array;
   if (sampler.interpolationMethod === AnimationInterpolation.CubicSpline) {
     // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…an,v1,v2,…vn,b1,b2,…bn
@@ -211,10 +194,7 @@ export function __getOutputValue(
       return value;
     } else {
       // weights
-      const value = array[getN_offsetAsComposition](
-        keyFrameId,
-        sampler.outputComponentN
-      ) as Array<number>;
+      const value = array[getN_offsetAsComposition](keyFrameId, sampler.outputComponentN) as Array<number>;
       return value;
     }
   }
@@ -286,9 +266,7 @@ function interpolationSearch(inputArray: Float32Array | number[], currentTime: n
 
   while (lower <= upper && currentTime >= inputArray[lower] && currentTime <= inputArray[upper]) {
     mid = Math.floor(
-      lower +
-        ((currentTime - inputArray[lower]) * (upper - lower)) /
-          (inputArray[upper] - inputArray[lower])
+      lower + ((currentTime - inputArray[lower]) * (upper - lower)) / (inputArray[upper] - inputArray[lower])
     );
 
     if (inputArray[mid] < currentTime) {
@@ -328,10 +306,17 @@ function __lerp(
   if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
     const array4 = data[qlerp_offsetAsComposition](data, ratio, i, i + 1);
     return array4;
-  } else if (animationAttributeIndex === AnimationAttribute.Weights.index || animationAttributeIndex === AnimationAttribute.VectorN.index) {
+  } else if (
+    animationAttributeIndex === AnimationAttribute.Weights.index ||
+    animationAttributeIndex === AnimationAttribute.VectorN.index
+  ) {
     const arrayN = data[arrayN_lerp_offsetAsComposition](data, outputComponentN, ratio, i, i + 1);
     return arrayN;
-  } else if (animationAttributeIndex === AnimationAttribute.Translate.index || animationAttributeIndex === AnimationAttribute.Scale.index || animationAttributeIndex === AnimationAttribute.Vector3.index) {
+  } else if (
+    animationAttributeIndex === AnimationAttribute.Translate.index ||
+    animationAttributeIndex === AnimationAttribute.Scale.index ||
+    animationAttributeIndex === AnimationAttribute.Vector3.index
+  ) {
     // Translate / Scale
     const array3 = data[array3_lerp_offsetAsComposition](data, ratio, i, i + 1);
     return array3;
@@ -382,12 +367,7 @@ export function __interpolate(
     const i = interpolationSearch(inputArray, currentTime);
     const t_diff = inputArray[i + 1] - inputArray[i]; // t_(k+1) - t_k
     const t = (currentTime - inputArray[i]) / t_diff;
-    const { p_0, p_1, m_0, m_1 } = __prepareVariablesForCubicSpline(
-      outputArray,
-      i,
-      sampler.outputComponentN,
-      t_diff
-    );
+    const { p_0, p_1, m_0, m_1 } = __prepareVariablesForCubicSpline(outputArray, i, sampler.outputComponentN, t_diff);
     const ret = cubicSpline(p_0, p_1, m_0, m_1, t) as globalThis.Array<number>;
     if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
       (ret as any)[normalizeArray4]();
@@ -396,13 +376,7 @@ export function __interpolate(
   } else if (method === AnimationInterpolation.Linear) {
     const i = interpolationSearch(inputArray, currentTime);
     const ratio = (currentTime - inputArray[i]) / (inputArray[i + 1] - inputArray[i]);
-    const ret = __lerp(
-      outputArray,
-      ratio,
-      animationAttributeIndex,
-      i,
-      sampler.outputComponentN
-    );
+    const ret = __lerp(outputArray, ratio, animationAttributeIndex, i, sampler.outputComponentN);
     return ret as Array<number>;
   } else if (method === AnimationInterpolation.Step) {
     for (let i = 0; i < inputArray.length - 1; i++) {

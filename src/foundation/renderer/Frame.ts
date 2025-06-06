@@ -62,7 +62,7 @@ export class Frame extends RnObject {
     }>,
     ColorAttachmentIndex,
     GeneratorOfRenderTargetTexturePromise,
-    'FrameBuffer' | 'ResolveFrameBuffer' | 'ResolveFrameBuffer2'
+    'FrameBuffer' | 'ResolveFrameBuffer' | 'ResolveFrameBuffer2',
   ][] = [];
 
   /**
@@ -229,8 +229,7 @@ export class Frame extends RnObject {
    * ```
    */
   resolve() {
-    for (const [exp, renderPassArg, colorAttachmentIndex, generator, frameBufferType] of this
-      .__expressionQueries) {
+    for (const [exp, renderPassArg, colorAttachmentIndex, generator, frameBufferType] of this.__expressionQueries) {
       for (const expData of this.__expressions) {
         if (exp === expData.expression) {
           let renderPassObj = renderPassArg.instance;
@@ -252,8 +251,7 @@ export class Frame extends RnObject {
           }
 
           if (Is.exist(framebuffer)) {
-            const renderTargetTexture =
-              framebuffer.getColorAttachedRenderTargetTexture(colorAttachmentIndex);
+            const renderTargetTexture = framebuffer.getColorAttachedRenderTargetTexture(colorAttachmentIndex);
             if (Is.exist(renderTargetTexture)) {
               generator.next(renderTargetTexture as any);
               generator.next(renderTargetTexture as any);

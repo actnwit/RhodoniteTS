@@ -24,7 +24,7 @@ interface LoadRequest<T> {
  * Helper type to infer the result object type from the promise object type
  */
 type AwaitedObject<T> = {
-  [K in keyof T]: T[K] extends Promise<infer U> ? U : T[K]
+  [K in keyof T]: T[K] extends Promise<infer U> ? U : T[K];
 };
 
 /**
@@ -126,9 +126,7 @@ export class AssetLoader {
    * console.log(assets.audio);   // AudioBuffer
    * ```
    */
-  async load<T extends Record<string, Promise<any>>>(
-    promiseObject: T
-  ): Promise<AwaitedObject<T>> {
+  async load<T extends Record<string, Promise<any>>>(promiseObject: T): Promise<AwaitedObject<T>> {
     const keys = Object.keys(promiseObject);
     const promises = Object.values(promiseObject);
 
@@ -190,9 +188,7 @@ export class AssetLoader {
    * ]);
    * ```
    */
-  async loadWithRetrySingle<T>(
-    promiseFactories: Array<() => Promise<T>>
-  ): Promise<T> {
+  async loadWithRetrySingle<T>(promiseFactories: Array<() => Promise<T>>): Promise<T> {
     if (promiseFactories.length === 0) {
       throw new Error('At least one promise factory must be provided');
     }
@@ -227,9 +223,7 @@ export class AssetLoader {
    * ```
    */
   async loadArray<T>(promises: Promise<T>[]): Promise<T[]>;
-  async loadArray<T extends readonly unknown[]>(
-    promises: readonly [...{ [K in keyof T]: Promise<T[K]> }]
-  ): Promise<T>;
+  async loadArray<T extends readonly unknown[]>(promises: readonly [...{ [K in keyof T]: Promise<T[K]> }]): Promise<T>;
   async loadArray<T>(promises: Promise<T>[] | readonly Promise<any>[]): Promise<T[] | any[]> {
     const loadPromises = promises.map(promise => this.loadSingle(promise));
     return Promise.all(loadPromises);
@@ -257,9 +251,7 @@ export class AssetLoader {
    * ]);
    * ```
    */
-  async loadWithRetryArray<T>(
-    promiseFactories: Array<Array<() => Promise<T>>>
-  ): Promise<T[]> {
+  async loadWithRetryArray<T>(promiseFactories: Array<Array<() => Promise<T>>>): Promise<T[]> {
     const loadPromises = promiseFactories.map(factories => {
       const [primaryFactory, ...retryFactories] = factories;
       return this.loadSingleWithMultipleRetries(primaryFactory(), retryFactories);
@@ -294,7 +286,7 @@ export class AssetLoader {
    */
   async loadWithRetry<T extends Record<string, Promise<any>>>(
     promiseFactories: {
-      [K in keyof T]: Array<() => T[K]>
+      [K in keyof T]: Array<() => T[K]>;
     }
   ): Promise<AwaitedObject<T>> {
     const keys = Object.keys(promiseFactories);
@@ -331,10 +323,13 @@ export class AssetLoader {
         reject,
         retryCount: 0,
         maxRetryCount: retryFactories.length,
-        retryFactory: retryFactories.length > 0 ? () => {
-          const factoryIndex = Math.min(request.retryCount - 1, retryFactories.length - 1);
-          return retryFactories[factoryIndex]();
-        } : undefined,
+        retryFactory:
+          retryFactories.length > 0
+            ? () => {
+                const factoryIndex = Math.min(request.retryCount - 1, retryFactories.length - 1);
+                return retryFactories[factoryIndex]();
+              }
+            : undefined,
       };
 
       this.loadingQueue.push(request);

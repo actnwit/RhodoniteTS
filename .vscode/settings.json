@@ -87,14 +87,10 @@
   "eslint.format.enable": true,
   "bookmarks.saveBookmarksInProject": true,
   "nuxt.isNuxtApp": false,
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode" // フォーマッタをprettierに指定
-  },
   "editor.formatOnSave": true, // ファイル保存時にPrettierでフォーマット
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit" // ファイル保存時にESLintでフォーマット
-  },
   "[glsl]": {
     "editor.formatOnSave": false
-  }
+  },
+  "editor.defaultFormatter": "biomejs.biome",
+  "notebook.defaultFormatter": "biomejs.biome"
 }

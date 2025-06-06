@@ -45,9 +45,7 @@ pointGroupEntity2.localPosition = Rn.Vector3.fromCopyArray([-2, 0, 2]);
 pointLight2.localPosition = Rn.Vector3.fromCopyArray([-2, 0, 0]);
 
 // Spot Light 1
-let spotLight = Rn.MeshHelper.createSphere() as Rn.IMeshEntity &
-  Rn.ILightEntityMethods &
-  Rn.ICameraEntityMethods;
+let spotLight = Rn.MeshHelper.createSphere() as Rn.IMeshEntity & Rn.ILightEntityMethods & Rn.ICameraEntityMethods;
 spotLight = Rn.EntityRepository.tryToAddComponentToEntityByTID(
   Rn.WellKnownComponentTIDs.LightComponentTID,
   spotLight
@@ -66,9 +64,7 @@ spotLight.localEulerAngles = Rn.Vector3.fromCopy3(-Math.PI / 2, 0, 0);
 spotLight.localPosition = Rn.Vector3.fromCopy3(0.0, 6.0, 0.0);
 
 // Spot Light 2
-let spotLight2 = Rn.MeshHelper.createSphere() as Rn.IMeshEntity &
-  Rn.ILightEntityMethods &
-  Rn.ICameraEntityMethods;
+let spotLight2 = Rn.MeshHelper.createSphere() as Rn.IMeshEntity & Rn.ILightEntityMethods & Rn.ICameraEntityMethods;
 spotLight2 = Rn.EntityRepository.tryToAddComponentToEntityByTID(
   Rn.WellKnownComponentTIDs.LightComponentTID,
   spotLight2
@@ -104,14 +100,7 @@ mainRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
 mainRenderPass.toClearColorBuffer = true;
 mainRenderPass.toClearDepthBuffer = true;
 mainRenderPass.cameraComponent = mainCameraEntity.getCamera();
-mainRenderPass.addEntities([
-  groupEntity,
-  backgroundEntity,
-  pointLight,
-  pointLight2,
-  spotLight,
-  spotLight2,
-]);
+mainRenderPass.addEntities([groupEntity, backgroundEntity, pointLight, pointLight2, spotLight, spotLight2]);
 mainExpression.addRenderPasses([mainRenderPass]);
 
 let count = 0;

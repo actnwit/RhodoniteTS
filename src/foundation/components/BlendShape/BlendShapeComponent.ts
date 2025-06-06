@@ -24,12 +24,7 @@ export class BlendShapeComponent extends Component {
    * @param entityComponent - The entity repository for component management
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(
-    entityUid: EntityUID,
-    componentSid: ComponentSID,
-    entityComponent: EntityRepository,
-    isReUse: boolean
-  ) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean) {
     super(entityUid, componentSid, entityComponent, isReUse);
 
     this.moveStageTo(ProcessStage.Logic);
@@ -140,11 +135,7 @@ export class BlendShapeComponent extends Component {
     _componentClass: SomeComponentClass
   ) {
     class BlendShapeEntity extends (base.constructor as any) {
-      constructor(
-        entityUID: EntityUID,
-        isAlive: boolean,
-        components?: Map<ComponentTID, Component>
-      ) {
+      constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
         super(entityUID, isAlive, components);
       }
 
@@ -153,9 +144,7 @@ export class BlendShapeComponent extends Component {
        * @returns The BlendShapeComponent instance or undefined if not attached
        */
       getBlendShape() {
-        return this.getComponentByComponentTID(
-          WellKnownComponentTIDs.BlendShapeComponentTID
-        ) as BlendShapeComponent;
+        return this.getComponentByComponentTID(WellKnownComponentTIDs.BlendShapeComponentTID) as BlendShapeComponent;
       }
     }
     applyMixins(base, BlendShapeEntity);

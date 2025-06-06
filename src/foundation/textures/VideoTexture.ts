@@ -315,13 +315,7 @@ export class VideoTexture extends AbstractTexture {
     let pixel: Uint8Array | undefined = undefined;
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     if (this.__isTextureReady && this.#htmlVideoElement) {
-      pixel = webGLResourceRepository.getPixelDataFromTexture(
-        this._textureResourceUid,
-        0,
-        0,
-        this.width,
-        this.height
-      );
+      pixel = webGLResourceRepository.getPixelDataFromTexture(this._textureResourceUid, 0, 0, this.width, this.height);
     }
     return [pixel, this.width, this.height];
   }

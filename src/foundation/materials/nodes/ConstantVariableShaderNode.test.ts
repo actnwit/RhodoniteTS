@@ -21,11 +21,7 @@ test('ConstantVariable works correctly 1', async () => {
   outPosition.addInputConnection(add, add.getSocketOutput(), outPosition.getSocketInput());
 
   // nodes are intentionally made the order random
-  const ret = Rn.ShaderGraphResolver.createVertexShaderCode(
-    [constant1, constant2, add, outPosition],
-    [],
-    false
-  );
+  const ret = Rn.ShaderGraphResolver.createVertexShaderCode([constant1, constant2, add, outPosition], [], false);
 
   // console.log(ret.shaderBody, ret.shader);
 

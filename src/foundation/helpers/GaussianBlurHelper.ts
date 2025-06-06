@@ -96,8 +96,7 @@ export class GaussianBlur {
 
     return {
       blurExpression: expression,
-      blurredRenderTarget: renderPassSynthesizeImage.getFramebuffer()!
-        .colorAttachments[0] as RenderTargetTexture,
+      blurredRenderTarget: renderPassSynthesizeImage.getFramebuffer()!.colorAttachments[0] as RenderTargetTexture,
       renderPassesBlurred,
     };
   }
@@ -130,12 +129,8 @@ export class GaussianBlur {
     const renderPasses: RenderPass[] = [];
 
     for (let i = 0; i < blurPassLevel; i++) {
-      const resolutionWidthBlur = isReduceBuffer
-        ? Math.max(maxResolutionWidth >> (i + 1), 1)
-        : maxResolutionWidth;
-      const resolutionHeightBlur = isReduceBuffer
-        ? Math.max(maxResolutionHeight >> (i + 1), 1)
-        : maxResolutionHeight;
+      const resolutionWidthBlur = isReduceBuffer ? Math.max(maxResolutionWidth >> (i + 1), 1) : maxResolutionWidth;
+      const resolutionHeightBlur = isReduceBuffer ? Math.max(maxResolutionHeight >> (i + 1), 1) : maxResolutionHeight;
 
       let renderPassBlurH;
       if (i === 0) {
@@ -150,9 +145,7 @@ export class GaussianBlur {
         );
       } else {
         renderPassBlurH = this.__createRenderPassGaussianBlur(
-          renderPasses[renderPasses.length - 1]
-            .getFramebuffer()!
-            .getColorAttachedRenderTargetTexture(0)!,
+          renderPasses[renderPasses.length - 1].getFramebuffer()!.getColorAttachedRenderTargetTexture(0)!,
           gaussianKernelSize,
           gaussianVariance,
           true,
@@ -205,8 +198,7 @@ export class GaussianBlur {
     const texturesSynthesize = [texture] as AbstractTexture[]; // original texture
     for (let i = 1; i < renderPassesBlurredHighLuminance.length; i += 2) {
       texturesSynthesize.push(
-        renderPassesBlurredHighLuminance[i].getFramebuffer()! // blurred textures
-          .colorAttachments[0] as unknown as AbstractTexture
+        renderPassesBlurredHighLuminance[i].getFramebuffer()!.colorAttachments[0] as unknown as AbstractTexture // blurred textures
       );
     }
 
@@ -217,9 +209,7 @@ export class GaussianBlur {
       texturesSynthesize
     );
     materialSynthesizeTextures.setParameter('synthesizeCoefficient', synthesizeCoefficient);
-    const renderPassSynthesizeBlur = RenderPassHelper.createScreenDrawRenderPass(
-      materialSynthesizeTextures
-    );
+    const renderPassSynthesizeBlur = RenderPassHelper.createScreenDrawRenderPass(materialSynthesizeTextures);
     renderPassSynthesizeBlur.tryToSetUniqueName('renderPassSynthesizeBlur', true);
 
     let framebufferSynthesizeImages = outputFrameBuffer;
@@ -283,23 +273,14 @@ export class GaussianBlur {
       variance: gaussianVariance,
     });
     material.setParameter('gaussianKernelSize', gaussianKernelSize);
-    material.setParameter(
-      'gaussianRatio',
-      new VectorN(new Float32Array(gaussianDistributionRatio))
-    );
-    material.setParameter(
-      'framebufferSize',
-      Vector2.fromCopy2(resolutionWidthBlur, resolutionHeightBlur)
-    );
+    material.setParameter('gaussianRatio', new VectorN(new Float32Array(gaussianDistributionRatio)));
+    material.setParameter('framebufferSize', Vector2.fromCopy2(resolutionWidthBlur, resolutionHeightBlur));
 
     if (isHorizontal === false) {
       material.setParameter('isHorizontal', false);
     }
 
-    const renderPass = RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
-      material,
-      textureToBlur
-    );
+    const renderPass = RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(material, textureToBlur);
 
     const key = `${resolutionWidthBlur}x${resolutionHeightBlur}_${textureFormat.str}_${isHorizontal}`;
     let framebuffer = this.__mapReducedFramebuffer.get(key);
@@ -324,10 +305,10 @@ export class GaussianBlur {
    * to prevent memory leaks. Should be called when the GaussianBlur instance is no longer needed.
    */
   public destroy3DAPIResources() {
-    this.__mapReducedFramebuffer.forEach((framebuffer) => {
+    this.__mapReducedFramebuffer.forEach(framebuffer => {
       framebuffer.destroy3DAPIResources();
     });
-    this.__mapSynthesizeFramebuffer.forEach((framebuffer) => {
+    this.__mapSynthesizeFramebuffer.forEach(framebuffer => {
       framebuffer.destroy3DAPIResources();
     });
     this.__mapReducedFramebuffer.clear();

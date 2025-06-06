@@ -19,7 +19,7 @@ import { Accessor } from '../../memory/Accessor';
 import { VertexAttribute, VertexAttributeEnum } from '../../definitions/VertexAttribute';
 import { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
-import  ShaderityModule, { ShaderityObject } from 'shaderity';
+import ShaderityModule, { ShaderityObject } from 'shaderity';
 import { BoneDataType } from '../../definitions/BoneDataType';
 import { SystemState } from '../../system/SystemState';
 import { ShaderTypeEnum, ShaderType } from '../../definitions/ShaderType';
@@ -268,11 +268,7 @@ export abstract class AbstractMaterialContent extends RnObject {
    * @param worldMatrix - The world transformation matrix
    */
   protected setWorldMatrix(shaderProgram: WebGLProgram, worldMatrix: Matrix44) {
-    (shaderProgram as any)._gl.uniformMatrix4fv(
-      (shaderProgram as any).worldMatrix,
-      false,
-      worldMatrix._v
-    );
+    (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).worldMatrix, false, worldMatrix._v);
   }
 
   /**
@@ -281,11 +277,7 @@ export abstract class AbstractMaterialContent extends RnObject {
    * @param normalMatrix - The normal transformation matrix
    */
   protected setNormalMatrix(shaderProgram: WebGLProgram, normalMatrix: IMatrix33) {
-    (shaderProgram as any)._gl.uniformMatrix3fv(
-      (shaderProgram as any).normalMatrix,
-      false,
-      normalMatrix._v
-    );
+    (shaderProgram as any)._gl.uniformMatrix3fv((shaderProgram as any).normalMatrix, false, normalMatrix._v);
   }
 
   /**
@@ -327,11 +319,7 @@ export abstract class AbstractMaterialContent extends RnObject {
       cameraPosition = Vector3.fromCopyArray([0, 0, 10]);
     }
 
-    (shaderProgram as any)._gl.uniformMatrix4fv(
-      (shaderProgram as any).viewMatrix,
-      false,
-      viewMatrix!._v
-    );
+    (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).viewMatrix, false, viewMatrix!._v);
     (shaderProgram as any)._gl.uniform3fv((shaderProgram as any).viewPosition, cameraPosition!._v);
   }
 
@@ -360,11 +348,7 @@ export abstract class AbstractMaterialContent extends RnObject {
     } else {
       projectionMatrix = MutableMatrix44.identity();
     }
-    (shaderProgram as any)._gl.uniformMatrix4fv(
-      (shaderProgram as any).projectionMatrix,
-      false,
-      projectionMatrix!._v
-    );
+    (shaderProgram as any)._gl.uniformMatrix4fv((shaderProgram as any).projectionMatrix, false, projectionMatrix!._v);
   }
 
   /**
@@ -373,11 +357,7 @@ export abstract class AbstractMaterialContent extends RnObject {
    * @param setUniform - Whether to set uniform values
    * @param skeletalComponent - The skeletal component containing bone data
    */
-  protected setSkinning(
-    shaderProgram: WebGLProgram,
-    setUniform: boolean,
-    skeletalComponent?: SkeletalComponent
-  ) {
+  protected setSkinning(shaderProgram: WebGLProgram, setUniform: boolean, skeletalComponent?: SkeletalComponent) {
     if (!this.__isSkinning) {
       return;
     }
@@ -385,11 +365,7 @@ export abstract class AbstractMaterialContent extends RnObject {
       if (setUniform) {
         if (Config.boneDataType === BoneDataType.Mat43x1) {
           const jointMatricesArray = skeletalComponent.jointMatricesArray;
-          (shaderProgram as any)._gl.uniformMatrix4x3fv(
-            (shaderProgram as any).boneMatrix,
-            false,
-            jointMatricesArray
-          );
+          (shaderProgram as any)._gl.uniformMatrix4x3fv((shaderProgram as any).boneMatrix, false, jointMatricesArray);
         } else if (Config.boneDataType === BoneDataType.Vec4x2) {
           const jointTranslatePackedQuat = skeletalComponent.jointTranslatePackedQuat;
           const jointScalePackedQuat = skeletalComponent.jointScalePackedQuat;
@@ -397,38 +373,20 @@ export abstract class AbstractMaterialContent extends RnObject {
             (shaderProgram as any).boneTranslatePackedQuat,
             jointTranslatePackedQuat
           );
-          (shaderProgram as any)._gl.uniform4fv(
-            (shaderProgram as any).boneScalePackedQuat,
-            jointScalePackedQuat
-          );
+          (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneScalePackedQuat, jointScalePackedQuat);
         } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
           const jointQuaternionArray = skeletalComponent.jointQuaternionArray;
           const jointTranslateScaleArray = skeletalComponent.jointTranslateScaleArray;
-          (shaderProgram as any)._gl.uniform4fv(
-            (shaderProgram as any).boneQuaternion,
-            jointQuaternionArray
-          );
-          (shaderProgram as any)._gl.uniform4fv(
-            (shaderProgram as any).boneTranslateScale,
-            jointTranslateScaleArray
-          );
+          (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneQuaternion, jointQuaternionArray);
+          (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneTranslateScale, jointTranslateScaleArray);
         } else if (Config.boneDataType === BoneDataType.Vec4x1) {
           const jointCompressedChunk = skeletalComponent.jointCompressedChunk;
           const jointCompressedInfo = skeletalComponent.jointCompressedInfo;
-          (shaderProgram as any)._gl.uniform4fv(
-            (shaderProgram as any).boneCompressedChunk,
-            jointCompressedChunk
-          );
-          (shaderProgram as any)._gl.uniform4fv(
-            (shaderProgram as any).boneCompressedInfo,
-            jointCompressedInfo._v
-          );
+          (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneCompressedChunk, jointCompressedChunk);
+          (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneCompressedInfo, jointCompressedInfo._v);
         }
 
-        (shaderProgram as any)._gl.uniform1i(
-          (shaderProgram as any).skinningMode,
-          skeletalComponent.componentSID
-        );
+        (shaderProgram as any)._gl.uniform1i((shaderProgram as any).skinningMode, skeletalComponent.componentSID);
       }
     } else {
       if (setUniform) {
@@ -454,14 +412,9 @@ export abstract class AbstractMaterialContent extends RnObject {
       return;
     }
     if (setUniform) {
-      const lightComponentsEnabled = lightComponents.filter(
-        (lightComponent) => lightComponent.enable
-      );
+      const lightComponentsEnabled = lightComponents.filter(lightComponent => lightComponent.enable);
 
-      (shaderProgram as any)._gl.uniform1i(
-        (shaderProgram as any).lightNumber,
-        lightComponentsEnabled!.length
-      );
+      (shaderProgram as any)._gl.uniform1i((shaderProgram as any).lightNumber, lightComponentsEnabled!.length);
 
       const length = Math.min(lightComponentsEnabled!.length, Config.maxLightNumber);
       if (AbstractMaterialContent.__lightPositions.length !== 3 * length) {
@@ -490,11 +443,7 @@ export abstract class AbstractMaterialContent extends RnObject {
         AbstractMaterialContent.__lightPositions[i * 3 + 2] = worldLightPosition.z;
 
         const lightAngleScale =
-          1.0 /
-          Math.max(
-            0.001,
-            Math.cos(lightComponent.innerConeAngle) - Math.cos(lightComponent.outerConeAngle)
-          );
+          1.0 / Math.max(0.001, Math.cos(lightComponent.innerConeAngle) - Math.cos(lightComponent.outerConeAngle));
         const lightAngleOffset = -Math.cos(lightComponent.outerConeAngle) * lightAngleScale;
 
         AbstractMaterialContent.__lightDirections[i * 3 + 0] = worldLightDirection.x;
@@ -552,21 +501,16 @@ export abstract class AbstractMaterialContent extends RnObject {
       return;
     }
 
-    (shaderProgram as any)._gl.uniform1i(
-      (shaderProgram as any).morphTargetNumber,
-      primitive.targets.length
-    );
-    const dataTextureMorphOffsetPositionOfTargets: number[] = primitive.targets.map(
-      (target: Attributes) => {
-        const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
-        let offset = 0;
+    (shaderProgram as any)._gl.uniform1i((shaderProgram as any).morphTargetNumber, primitive.targets.length);
+    const dataTextureMorphOffsetPositionOfTargets: number[] = primitive.targets.map((target: Attributes) => {
+      const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
+      let offset = 0;
 
-        if (ProcessApproach.isDataTextureApproach(SystemState.currentProcessApproach)) {
-          offset = SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData;
-        }
-        return (offset + accessor.byteOffsetInBuffer) / 4 / 4;
+      if (ProcessApproach.isDataTextureApproach(SystemState.currentProcessApproach)) {
+        offset = SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData;
       }
-    );
+      return (offset + accessor.byteOffsetInBuffer) / 4 / 4;
+    });
     (shaderProgram as any)._gl.uniform1iv(
       (shaderProgram as any).dataTextureMorphOffsetPosition,
       dataTextureMorphOffsetPositionOfTargets
@@ -670,7 +614,9 @@ export abstract class AbstractMaterialContent extends RnObject {
     definitions: string[]
   ) {
     const definitionsStr = definitions.join('');
-    const reflectedShaderSemanticsInfoArray = AbstractMaterialContent.__reflectedShaderSemanticsInfoArrayMap.get(this.__materialName + definitionsStr);
+    const reflectedShaderSemanticsInfoArray = AbstractMaterialContent.__reflectedShaderSemanticsInfoArrayMap.get(
+      this.__materialName + definitionsStr
+    );
     if (reflectedShaderSemanticsInfoArray != null) {
       return reflectedShaderSemanticsInfoArray.concat();
     }
@@ -684,7 +630,6 @@ export abstract class AbstractMaterialContent extends RnObject {
       shaderityObject: ShaderityObject;
     };
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-
       const preprocessedVertexShader = Shaderity.processPragma(vertexShaderWebGpu!, definitions);
       const preprocessedPixelShader = Shaderity.processPragma(pixelShaderWebGpu!, definitions);
 
@@ -716,15 +661,13 @@ export abstract class AbstractMaterialContent extends RnObject {
       shaderSemanticsInfoArray.push(vertexShaderSemanticsInfo);
     }
     for (const pixelShaderSemanticsInfo of preprocessedPixelShaderData.shaderSemanticsInfoArray) {
-      const foundShaderSemanticsInfo = shaderSemanticsInfoArray.find(
-        (vertexInfo: ShaderSemanticsInfo) => {
-          if (vertexInfo.semantic === pixelShaderSemanticsInfo.semantic) {
-            return true;
-          } else {
-            return false;
-          }
+      const foundShaderSemanticsInfo = shaderSemanticsInfoArray.find((vertexInfo: ShaderSemanticsInfo) => {
+        if (vertexInfo.semantic === pixelShaderSemanticsInfo.semantic) {
+          return true;
+        } else {
+          return false;
         }
-      );
+      });
       if (foundShaderSemanticsInfo) {
         foundShaderSemanticsInfo.stage = ShaderType.VertexAndPixelShader;
       } else {

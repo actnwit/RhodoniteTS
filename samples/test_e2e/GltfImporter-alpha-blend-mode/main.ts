@@ -24,18 +24,16 @@ cameraTransform.localPosition = Rn.Vector3.fromCopyArray([0, 2, 8]);
 cameraTransform.localEulerAngles = Rn.Vector3.fromCopyArray([-0.1, 0, 0]);
 
 // gltf
-const expression = (
-  await Rn.GltfImporter.importFromUrl(
-    './../../../assets/gltf/glTF-Sample-Assets/Models/AlphaBlendModeTest/glTF-Binary/AlphaBlendModeTest.glb',
-    {
-      cameraComponent: cameraComponent,
-      defaultMaterialHelperArgumentArray: [
-        {
-          isLighting: false,
-        },
-      ],
-    }
-  )
+const expression = await Rn.GltfImporter.importFromUrl(
+  './../../../assets/gltf/glTF-Sample-Assets/Models/AlphaBlendModeTest/glTF-Binary/AlphaBlendModeTest.glb',
+  {
+    cameraComponent: cameraComponent,
+    defaultMaterialHelperArgumentArray: [
+      {
+        isLighting: false,
+      },
+    ],
+  }
 );
 
 let count = 0;

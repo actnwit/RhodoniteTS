@@ -256,11 +256,7 @@ function computeEigenValuesAndVectors(A: MutableMatrix33, Q: MutableMatrix33, w:
     for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) {
         g = 100.0 * Math.abs(A.at(p, q));
-        if (
-          nIter > 4 &&
-          Math.abs(w.at(p)) + g == Math.abs(w.at(p)) &&
-          Math.abs(w.at(q)) + g == Math.abs(w.at(q))
-        ) {
+        if (nIter > 4 && Math.abs(w.at(p)) + g == Math.abs(w.at(p)) && Math.abs(w.at(q)) + g == Math.abs(w.at(q))) {
           A.setAt(p, q, 0.0);
         } else if (Math.abs(A.at(p, q)) > thresh) {
           // Calculate Jacobi transformation

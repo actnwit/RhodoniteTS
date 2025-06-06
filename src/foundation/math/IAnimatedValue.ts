@@ -1,4 +1,4 @@
-import { AnimationSampler, AnimationTrackName } from "../../types/AnimationTypes";
+import { AnimationSampler, AnimationTrackName } from '../../types/AnimationTypes';
 
 /**
  * Interface for animated values that can be controlled by animation tracks.

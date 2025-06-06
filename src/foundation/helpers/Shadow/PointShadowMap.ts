@@ -53,10 +53,7 @@ export class PointShadowMap {
    * @param lightEntity - The point light entity that casts shadows
    * @returns An array containing two render passes: [frontRenderPass, backRenderPass]
    */
-  public getRenderPasses(
-    entities: ISceneGraphEntity[],
-    lightEntity: ISceneGraphEntity & ILightEntityMethods
-  ) {
+  public getRenderPasses(entities: ISceneGraphEntity[], lightEntity: ISceneGraphEntity & ILightEntityMethods) {
     const lightComponentSid = lightEntity.getLight().componentSID;
 
     const shadowMomentFrontRenderPass = new RenderPass();
@@ -66,20 +63,14 @@ export class PointShadowMap {
     shadowMomentFrontRenderPass.addEntities(entities);
     shadowMomentFrontRenderPass.setFramebuffer(this.__shadowMomentFramebuffer);
     shadowMomentFrontRenderPass.setMaterial(this.__shadowMomentFrontMaterials[lightComponentSid]);
-    this.__shadowMomentFrontMaterials[lightComponentSid].setParameter(
-      'lightIndex',
-      lightComponentSid
-    );
+    this.__shadowMomentFrontMaterials[lightComponentSid].setParameter('lightIndex', lightComponentSid);
     const shadowMomentBackRenderPass = new RenderPass();
     shadowMomentBackRenderPass.toClearColorBuffer = false;
     shadowMomentBackRenderPass.toClearDepthBuffer = true;
     shadowMomentBackRenderPass.addEntities(entities);
     shadowMomentBackRenderPass.setFramebuffer(this.__shadowMomentFramebuffer);
     shadowMomentBackRenderPass.setMaterial(this.__shadowMomentBackMaterials[lightComponentSid]);
-    this.__shadowMomentBackMaterials[lightComponentSid].setParameter(
-      'lightIndex',
-      lightComponentSid
-    );
+    this.__shadowMomentBackMaterials[lightComponentSid].setParameter('lightIndex', lightComponentSid);
 
     return [shadowMomentFrontRenderPass, shadowMomentBackRenderPass];
   }

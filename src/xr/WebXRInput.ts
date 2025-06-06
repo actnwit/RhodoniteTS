@@ -158,23 +158,14 @@ async function addMotionControllerToScene(motionController: MotionController) {
  * @param xrFrame - Current WebXR frame
  * @param viewerData - Current viewer position and orientation data
  */
-export function updateGamePad(
-  timestamp: number,
-  xrFrame: XRFrame,
-  viewerData: WebXRSystemViewerData
-) {
+export function updateGamePad(timestamp: number, xrFrame: XRFrame, viewerData: WebXRSystemViewerData) {
   // Other frame-loop stuff ...
 
   Array.from(motionControllers.values()).forEach((motionController: MotionController) => {
     motionController.updateFromGamepad();
     Object.keys(motionController.components).forEach((componentId: string) => {
       const component = motionController.components[componentId];
-      processInput(
-        component,
-        (motionController.xrInputSource as XRInputSource).handedness,
-        viewerData,
-        timestamp
-      );
+      processInput(component, (motionController.xrInputSource as XRInputSource).handedness, viewerData, timestamp);
     });
   });
 
@@ -191,12 +182,7 @@ let lastTimestamp = 0;
  * @param viewerData - Viewer data to update based on input
  * @param timestamp - Current timestamp in microseconds
  */
-function processInput(
-  component: Component,
-  handed: string,
-  viewerData: WebXRSystemViewerData,
-  timestamp: number
-) {
+function processInput(component: Component, handed: string, viewerData: WebXRSystemViewerData, timestamp: number) {
   const componentName = wellKnownMapping.get(component.rootNodeName);
   if (Is.not.exist(componentName)) {
     return;
@@ -329,13 +315,7 @@ function processThumbstickInput(
   const deltaScaleAzimuthAngle = 0.15;
   if (thumbstickComponent.values.state === Constants.ComponentState.PRESSED) {
     Logger.info(
-      componentName +
-        ', ' +
-        thumbstickComponent.values.button +
-        ', ' +
-        thumbstickComponent.values.state +
-        ', ' +
-        handed
+      componentName + ', ' + thumbstickComponent.values.button + ', ' + thumbstickComponent.values.state + ', ' + handed
     );
     xAxis =
       valueWithDefault({
@@ -372,9 +352,7 @@ function processThumbstickInput(
     deltaVector.z += yAxis * deltaScaleHorizontal * viewerData.viewerScale.x;
   }
   const orientationMat = MutableMatrix33.fromCopyQuaternion(viewerData.viewerOrientation);
-  const rotateMat = orientationMat.multiply(
-    MutableMatrix33.rotateY(viewerData.viewerAzimuthAngle.x)
-  );
+  const rotateMat = orientationMat.multiply(MutableMatrix33.rotateY(viewerData.viewerAzimuthAngle.x));
   rotateMat.multiplyVectorTo(deltaVector, deltaVector as MutableVector3);
   viewerData.viewerTranslate.add(deltaVector);
 }
@@ -395,23 +373,11 @@ function processButtonInput(
   const componentName = wellKnownMapping.get(buttonComponent.rootNodeName);
   if (buttonComponent.values.state === Constants.ComponentState.PRESSED) {
     Logger.info(
-      componentName +
-        ', ' +
-        buttonComponent.values.button +
-        ', ' +
-        buttonComponent.values.state +
-        ', ' +
-        handed
+      componentName + ', ' + buttonComponent.values.button + ', ' + buttonComponent.values.state + ', ' + handed
     );
   } else if (buttonComponent.values.state === Constants.ComponentState.TOUCHED) {
     Logger.info(
-      componentName +
-        ', ' +
-        buttonComponent.values.button +
-        ', ' +
-        buttonComponent.values.state +
-        ', ' +
-        handed
+      componentName + ', ' + buttonComponent.values.button + ', ' + buttonComponent.values.state + ', ' + handed
     );
   }
 }
@@ -431,10 +397,7 @@ function processTouchpadInput(
 ) {
   if (thumbstick.values.state === Constants.ComponentState.PRESSED) {
     // Align the world orientation to the user's current orientation
-  } else if (
-    thumbstick.values.state === Constants.ComponentState.TOUCHED &&
-    thumbstick.values.yAxis !== 0
-  ) {
+  } else if (thumbstick.values.state === Constants.ComponentState.TOUCHED && thumbstick.values.yAxis !== 0) {
     const scootDistance = thumbstick.values.yAxis; //* scootIncrement;
     // Scoot the user forward
   }
@@ -446,7 +409,7 @@ function processTouchpadInput(
  * @param asset - The 3D asset of the controller
  */
 function addTouchPointDots(motionController: MotionController, asset: any) {
-  Object.values(motionController.components).forEach((component) => {
+  Object.values(motionController.components).forEach(component => {
     if (component.touchPointNodeName) {
       const touchPointRoot = asset.getChildByName(component.touchPointNodeName, true);
 

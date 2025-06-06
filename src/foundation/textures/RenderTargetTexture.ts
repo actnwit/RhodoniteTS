@@ -49,8 +49,7 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     this.__height = height;
     this.__mipLevelCount = mipLevelCount ?? Math.floor(Math.log2(Math.max(width, height))) + 1;
 
-    const { format, type } =
-      TextureFormat.getPixelFormatAndComponentTypeFromTextureFormat(internalFormat);
+    const { format, type } = TextureFormat.getPixelFormatAndComponentTypeFromTextureFormat(internalFormat);
 
     this.__internalFormat = internalFormat;
     this.__format = format;
@@ -94,9 +93,9 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     this._textureResourceUid = texture;
 
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      this._textureViewResourceUid = (
-        cgApiResourceRepository as WebGpuResourceRepository
-      ).createTextureView2d(this._textureResourceUid);
+      this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2d(
+        this._textureResourceUid
+      );
       this._textureViewAsRenderTargetResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository
       ).createTextureViewAsRenderTarget(this._textureResourceUid);
@@ -161,11 +160,7 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     canvas.width = this.__width;
     canvas.height = this.__height;
     const ctx = canvas.getContext('2d')!;
-    const imageData = new ImageData(
-      new Uint8ClampedArray(data.buffer),
-      this.__width,
-      this.__height
-    );
+    const imageData = new ImageData(new Uint8ClampedArray(data.buffer), this.__width, this.__height);
     ctx.putImageData(imageData, this.__width, this.__height);
     const dataUri = canvas.toDataURL('image/png');
 

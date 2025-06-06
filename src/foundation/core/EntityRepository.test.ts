@@ -23,10 +23,7 @@ test('The entity repository can provide the component corresponding to the speci
   });
 
   const firstEntity = createGroupEntity();
-  const sceneGraphComponent = EntityRepository.getComponentOfEntity(
-    firstEntity.entityUID,
-    SceneGraphComponent
-  );
+  const sceneGraphComponent = EntityRepository.getComponentOfEntity(firstEntity.entityUID, SceneGraphComponent);
 
   expect(sceneGraphComponent instanceof SceneGraphComponent).toBe(true);
 });
@@ -51,7 +48,5 @@ test('shallow copy of entity', () => {
   expect(Is.exist(secondEntity.tryToGetAnimation())).toBe(true);
   expect(Is.exist(secondEntity.tryToGetCamera())).toBe(false);
 
-  expect(secondEntity.tryToGetTransform()!.localPosition.isEqual(Vector3.fromCopy3(1, 2, 3))).toBe(
-    true
-  );
+  expect(secondEntity.tryToGetTransform()!.localPosition.isEqual(Vector3.fromCopy3(1, 2, 3))).toBe(true);
 });

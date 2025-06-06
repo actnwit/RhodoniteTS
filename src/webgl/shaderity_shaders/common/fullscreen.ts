@@ -1,5 +1,5 @@
-import fullscreen_glsl from './fullscreen.glsl'
+import fullscreen_glsl from './fullscreen.glsl';
 import { ShaderityObject } from 'shaderity';
 
 const fullscreenGlsl = fullscreen_glsl as ShaderityObject;
-export { fullscreenGlsl }
+export { fullscreenGlsl };

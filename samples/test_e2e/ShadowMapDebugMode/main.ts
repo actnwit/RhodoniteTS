@@ -34,14 +34,14 @@ const entitySmallBoardForDepth = createBoardEntityWithMaterial('createDepthEncod
 const entityLargeBoardForDepth = createBoardEntityWithMaterial('createDepthEncodeMaterial', [{}]);
 renderPassDepth.addEntities([entitySmallBoardForDepth, entityLargeBoardForDepth]);
 
-const entitySmallBoard = createBoardEntityWithMaterial(
-  'createShadowMapDecodeClassicSingleMaterial',
-  [{ isDebugging: true }, renderPassDepth]
-);
-const entityLargeBoard = createBoardEntityWithMaterial(
-  'createShadowMapDecodeClassicSingleMaterial',
-  [{ isDebugging: true }, renderPassDepth]
-);
+const entitySmallBoard = createBoardEntityWithMaterial('createShadowMapDecodeClassicSingleMaterial', [
+  { isDebugging: true },
+  renderPassDepth,
+]);
+const entityLargeBoard = createBoardEntityWithMaterial('createShadowMapDecodeClassicSingleMaterial', [
+  { isDebugging: true },
+  renderPassDepth,
+]);
 renderPassMain.addEntities([entitySmallBoard, entityLargeBoard]);
 
 const meshComponentSmallBoard = entitySmallBoard.getMesh();
@@ -99,10 +99,7 @@ Rn.System.startRenderLoop(() => {
   count++;
 });
 
-function createBoardEntityWithMaterial(
-  materialHelperFunctionStr,
-  arrayOfHelperFunctionArgument = []
-) {
+function createBoardEntityWithMaterial(materialHelperFunctionStr, arrayOfHelperFunctionArgument = []) {
   const entity = Rn.createMeshEntity();
 
   const primitive = new Rn.Plane();
@@ -153,11 +150,7 @@ function createRenderPassSpecifyingCameraComponent(cameraComponent) {
   return renderPass;
 }
 
-function setParameterForMeshComponent(
-  meshComponent: Rn.MeshComponent,
-  shaderSemantic: string,
-  value: any
-) {
+function setParameterForMeshComponent(meshComponent: Rn.MeshComponent, shaderSemantic: string, value: any) {
   const mesh = meshComponent.mesh;
   const primitiveNumber = mesh.getPrimitiveNumber();
 

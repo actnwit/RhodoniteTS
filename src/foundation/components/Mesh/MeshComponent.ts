@@ -46,12 +46,7 @@ export class MeshComponent extends Component {
    * @param entityRepository - The repository managing entities and components
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(
-    entityUid: EntityUID,
-    componentSid: ComponentSID,
-    entityRepository: EntityRepository,
-    isReUse: boolean
-  ) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
     super(entityUid, componentSid, entityRepository, isReUse);
   }
 
@@ -115,10 +110,7 @@ export class MeshComponent extends Component {
     const centerPosition_inLocal = this.__mesh.AABB.centerPoint;
     const skeletal = this.entity.tryToGetSkeletal();
     if (Is.exist(skeletal) && Is.exist(skeletal._bindShapeMatrix)) {
-      skeletal._bindShapeMatrix.multiplyVector3To(
-        this.__mesh.AABB.centerPoint,
-        centerPosition_inLocal
-      );
+      skeletal._bindShapeMatrix.multiplyVector3To(this.__mesh.AABB.centerPoint, centerPosition_inLocal);
     }
 
     const worldMatrixInner = this.entity.getSceneGraph().matrixInner;
@@ -128,10 +120,7 @@ export class MeshComponent extends Component {
     );
 
     const viewMatrix = cameraComponent.viewMatrix;
-    const centerPosition_inView = viewMatrix.multiplyVector3To(
-      centerPosition_inWorld,
-      MeshComponent.__tmpVector3_1
-    );
+    const centerPosition_inView = viewMatrix.multiplyVector3To(centerPosition_inWorld, MeshComponent.__tmpVector3_1);
     this.__viewDepth = centerPosition_inView.z;
 
     return this.__viewDepth;
@@ -180,9 +169,7 @@ export class MeshComponent extends Component {
         let intersectPositionInWorld = null;
         if (Is.defined(result.data) && result.data.t >= 0) {
           intersectPositionInWorld = Vector3.fromCopyVector4(
-            sceneGraphComponent.matrixInner.multiplyVector(
-              Vector4.fromCopyVector3(result.data.position)
-            )
+            sceneGraphComponent.matrixInner.multiplyVector(Vector4.fromCopyVector3(result.data.position))
           );
 
           return {
@@ -230,22 +217,8 @@ export class MeshComponent extends Component {
           .multiply(sceneGraphComponent.matrixInner)
           .invert();
 
-        const srcPointInLocal = MathClassUtil.unProjectTo(
-          x,
-          y,
-          0,
-          invPVW,
-          viewport,
-          MeshComponent.__tmpVector3_0
-        );
-        const distVecInLocal = MathClassUtil.unProjectTo(
-          x,
-          y,
-          1,
-          invPVW,
-          viewport,
-          MeshComponent.__tmpVector3_1
-        );
+        const srcPointInLocal = MathClassUtil.unProjectTo(x, y, 0, invPVW, viewport, MeshComponent.__tmpVector3_0);
+        const distVecInLocal = MathClassUtil.unProjectTo(x, y, 1, invPVW, viewport, MeshComponent.__tmpVector3_1);
 
         const directionInLocal = MutableVector3.subtractTo(
           distVecInLocal,
@@ -413,18 +386,12 @@ export class MeshComponent extends Component {
     _componentClass: SomeComponentClass
   ) {
     class MeshEntity extends (base.constructor as any) {
-      constructor(
-        entityUID: EntityUID,
-        isAlive: boolean,
-        components?: Map<ComponentTID, Component>
-      ) {
+      constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
         super(entityUID, isAlive, components);
       }
 
       getMesh() {
-        return this.getComponentByComponentTID(
-          WellKnownComponentTIDs.MeshComponentTID
-        ) as MeshComponent;
+        return this.getComponentByComponentTID(WellKnownComponentTIDs.MeshComponentTID) as MeshComponent;
       }
     }
     applyMixins(base, MeshEntity);

@@ -360,42 +360,13 @@ export class WebGLStereoUtil {
 
       // 一時的なテクスチャにレイヤーをコピー
       gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, drawFramebuffer);
-      gl.framebufferTexture2D(
-        gl.DRAW_FRAMEBUFFER,
-        gl.COLOR_ATTACHMENT0,
-        gl.TEXTURE_2D,
-        tempTexture,
-        0
-      );
+      gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tempTexture, 0);
       gl.blitFramebuffer(0, 0, width, height, 0, 0, width, height, gl.COLOR_BUFFER_BIT, gl.NEAREST);
 
       // 一時的なテクスチャから最終テクスチャにコピー
-      gl.framebufferTexture2D(
-        gl.READ_FRAMEBUFFER,
-        gl.COLOR_ATTACHMENT0,
-        gl.TEXTURE_2D,
-        tempTexture,
-        0
-      );
-      gl.framebufferTexture2D(
-        gl.DRAW_FRAMEBUFFER,
-        gl.COLOR_ATTACHMENT0,
-        gl.TEXTURE_2D,
-        dstTexture,
-        0
-      );
-      gl.blitFramebuffer(
-        0,
-        0,
-        width,
-        height,
-        xOffset,
-        0,
-        xOffset + width,
-        height,
-        gl.COLOR_BUFFER_BIT,
-        gl.NEAREST
-      );
+      gl.framebufferTexture2D(gl.READ_FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tempTexture, 0);
+      gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, dstTexture, 0);
+      gl.blitFramebuffer(0, 0, width, height, xOffset, 0, xOffset + width, height, gl.COLOR_BUFFER_BIT, gl.NEAREST);
     }
 
     // 0番目のレイヤーを左側にコピー

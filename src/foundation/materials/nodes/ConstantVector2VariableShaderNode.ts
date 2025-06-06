@@ -21,10 +21,10 @@ import { ConstantVariableShaderNode } from './ConstantVariableShaderNode';
  * vector2Node.setDefaultInputValue({x: 1.0, y: 0.5});
  * ```
  */
-export class ConstantVector2VariableShaderNode<
-  T extends ComponentTypeEnum
-> extends ConstantVariableShaderNode<typeof CompositionType.Vec2, T> {
-
+export class ConstantVector2VariableShaderNode<T extends ComponentTypeEnum> extends ConstantVariableShaderNode<
+  typeof CompositionType.Vec2,
+  T
+> {
   /**
    * Creates a new ConstantVector2VariableShaderNode instance.
    *

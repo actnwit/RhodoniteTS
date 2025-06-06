@@ -108,7 +108,8 @@ struct VertexOutput {
 /* shaderity: @{matricesGetters} */
 `;
       return vertexShaderPrerequisites;
-    } else { // WebGL
+    } else {
+      // WebGL
       let vertexShaderPrerequisites = '';
       vertexShaderPrerequisites += `
 #version 300 es
@@ -255,16 +256,12 @@ struct VertexOutput {
   ) {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       const wgslTypeStr = inputSocket!.compositionType.toWGSLType(inputSocket!.componentType);
-      const wgslInitialValue = inputSocket!.compositionType.getWgslInitialValue(
-        inputSocket!.componentType
-      );
+      const wgslInitialValue = inputSocket!.compositionType.getWgslInitialValue(inputSocket!.componentType);
       const rowStr = `var ${varName}: ${wgslTypeStr} = ${wgslInitialValue};\n`;
       return rowStr;
     } else {
       const glslTypeStr = inputSocket!.compositionType.getGlslStr(inputSocket!.componentType);
-      const glslInitialValue = inputSocket!.compositionType.getGlslInitialValue(
-        inputSocket!.componentType
-      );
+      const glslInitialValue = inputSocket!.compositionType.getGlslInitialValue(inputSocket!.componentType);
       const rowStr = `${glslTypeStr} ${varName} = ${glslInitialValue};\n`;
       return rowStr;
     }
@@ -304,11 +301,7 @@ struct VertexOutput {
    * @param j - Index of the current variable in the varNames array
    * @returns The varying variable assignment statement string for vertex shader
    */
-  static getAssignmentVaryingStatementInVertexShader(
-    inputNode: AbstractShaderNode,
-    varNames: string[],
-    j: number
-  ) {
+  static getAssignmentVaryingStatementInVertexShader(inputNode: AbstractShaderNode, varNames: string[], j: number) {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `output.${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid} = ${varNames[j]};\n`;
     } else {

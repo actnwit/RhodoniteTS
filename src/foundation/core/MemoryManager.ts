@@ -78,10 +78,7 @@ export class MemoryManager {
    */
   getMemorySize() {
     return (
-      MemoryManager.bufferWidthLength *
-      MemoryManager.bufferHeightLength /*width*height*/ *
-      4 /*rgba*/ *
-      4 /*byte*/
+      MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength /*width*height*/ * 4 /*rgba*/ * 4 /*byte*/
     );
   }
 

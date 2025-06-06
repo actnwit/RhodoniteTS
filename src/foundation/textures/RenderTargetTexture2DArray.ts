@@ -110,9 +110,10 @@ export class RenderTargetTexture2DArray extends AbstractTexture implements IRend
     this._textureResourceUid = texture;
 
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      this._textureViewResourceUid = (
-        cgApiResourceRepository as WebGpuResourceRepository
-      ).createTextureView2dArray(this._textureResourceUid, this.__arrayLength);
+      this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2dArray(
+        this._textureResourceUid,
+        this.__arrayLength
+      );
       this._textureViewAsRenderTargetResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository
       ).createTextureView2dArrayAsRenderTarget(this._textureResourceUid, 0, 0);
@@ -188,11 +189,7 @@ export class RenderTargetTexture2DArray extends AbstractTexture implements IRend
     canvas.width = this.__width;
     canvas.height = this.__height;
     const ctx = canvas.getContext('2d')!;
-    const imageData = new ImageData(
-      new Uint8ClampedArray(data.buffer),
-      this.__width,
-      this.__height
-    );
+    const imageData = new ImageData(new Uint8ClampedArray(data.buffer), this.__width, this.__height);
     ctx.putImageData(imageData, this.__width, this.__height);
     const dataUri = canvas.toDataURL('image/png');
 

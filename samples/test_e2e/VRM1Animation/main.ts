@@ -45,7 +45,7 @@ const assets = await Rn.defaultAssetLoader.load({
     ],
     tangentCalculationMode: 0,
     cameraComponent: cameraComponent,
-  })
+  }),
 });
 
 // expressions
@@ -60,13 +60,7 @@ const animGltfModel = await Rn.ModelConverter.convertToRhodoniteObject(assets.an
 
 // animation
 const animationAssigner = Rn.AnimationAssigner.getInstance();
-animationAssigner.assignAnimation(
-  vrmRootEntity,
-  assets.animGltf2,
-  assets.vrmModel,
-  false,
-  'global'
-);
+animationAssigner.assignAnimation(vrmRootEntity, assets.animGltf2, assets.vrmModel, false, 'global');
 
 // for (let i = 0; i < 1; i++) {
 //   for (let j = 0; j < 1; j++) {

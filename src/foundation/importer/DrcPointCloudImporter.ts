@@ -3,10 +3,7 @@ import { Primitive } from '../geometry/Primitive';
 import { MaterialHelper } from '../helpers/MaterialHelper';
 import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
 import { PrimitiveMode } from '../definitions/PrimitiveMode';
-import {
-  VertexAttribute,
-  VertexAttributeSemanticsJoinedString,
-} from '../definitions/VertexAttribute';
+import { VertexAttribute, VertexAttributeSemanticsJoinedString } from '../definitions/VertexAttribute';
 import { TypedArray } from '../../types/CommonTypes';
 import { RnM2, RnM2Image, RnM2Accessor } from '../../types/RnM2';
 import { RnPromise } from '../misc/RnPromise';
@@ -51,10 +48,7 @@ export class DrcPointCloudImporter {
    * }
    * ```
    */
-  async importPointCloud(
-    uri: string,
-    options?: GltfLoadOption
-  ): Promise<Result<RnM2, Err<ArrayBuffer, unknown>>> {
+  async importPointCloud(uri: string, options?: GltfLoadOption): Promise<Result<RnM2, Err<ArrayBuffer, unknown>>> {
     const basePath = uri.substring(0, uri.lastIndexOf('/')) + '/'; // location of model file as basePath
     const defaultOptions = DataUtil.createDefaultGltfOptions();
 
@@ -63,12 +57,7 @@ export class DrcPointCloudImporter {
         const fileExtension = DataUtil.getExtension(fileName);
 
         if (fileExtension === 'drc') {
-          const rnm2 = await this.__decodeDraco(
-            (options.files as any)[fileName],
-            defaultOptions,
-            basePath,
-            options
-          );
+          const rnm2 = await this.__decodeDraco((options.files as any)[fileName], defaultOptions, basePath, options);
 
           return new Ok(rnm2!);
         }
@@ -107,7 +96,7 @@ export class DrcPointCloudImporter {
   importArrayBuffer(uri: string, arrayBuffer: ArrayBuffer, options?: GltfLoadOption) {
     const basePath = uri.substring(0, uri.lastIndexOf('/')) + '/'; // location of model file as basePath
     const defaultOptions = DataUtil.createDefaultGltfOptions();
-    return this.__decodeDraco(arrayBuffer, defaultOptions, basePath, options).catch((err) => {
+    return this.__decodeDraco(arrayBuffer, defaultOptions, basePath, options).catch(err => {
       Logger.error('__loadFromArrayBuffer error: ' + err);
     });
   }
@@ -139,12 +128,7 @@ export class DrcPointCloudImporter {
       //const json = await response.json();
       const gotText = DataUtil.arrayBufferToString(arrayBuffer);
       const json = JSON.parse(gotText);
-      result = await this._loadAsTextJson(
-        json,
-        options as GltfLoadOption,
-        defaultOptions,
-        basePath
-      ).catch((err) => {
+      result = await this._loadAsTextJson(json, options as GltfLoadOption, defaultOptions, basePath).catch(err => {
         Logger.error('this.__loadAsTextJson error: ' + err);
       });
     } else {
@@ -155,7 +139,7 @@ export class DrcPointCloudImporter {
         options as GltfLoadOption,
         defaultOptions,
         basePath
-      ).catch((err) => {
+      ).catch(err => {
         Logger.error('this.__loadAsBinaryJson error: ' + err);
       });
     }
@@ -253,12 +237,7 @@ export class DrcPointCloudImporter {
    * @returns A Promise that resolves to the processed glTF JSON
    * @private
    */
-  async _loadAsTextJson(
-    gltfJson: RnM2,
-    options: GltfLoadOption,
-    defaultOptions: GltfLoadOption,
-    basePath: string
-  ) {
+  async _loadAsTextJson(gltfJson: RnM2, options: GltfLoadOption, defaultOptions: GltfLoadOption, basePath: string) {
     if (gltfJson.asset.extras === undefined) {
       gltfJson.asset.extras = { fileType: 'glTF', version: '2' };
     }
@@ -287,12 +266,7 @@ export class DrcPointCloudImporter {
    * @returns A Promise that resolves when all loading is complete
    * @private
    */
-  _loadInner(
-    uint8array: Uint8Array | undefined,
-    basePath: string,
-    gltfJson: RnM2,
-    options: GltfLoadOption
-  ) {
+  _loadInner(uint8array: Uint8Array | undefined, basePath: string, gltfJson: RnM2, options: GltfLoadOption) {
     const promises = [];
 
     const resources = {
@@ -413,9 +387,7 @@ export class DrcPointCloudImporter {
       ) {
         node.extensions.KHR_lights_punctual.lightIndex = node.extensions.KHR_lights_punctual.light;
         node.extensions.KHR_lights_punctual.light =
-          gltfJson.extensions.KHR_lights_punctual.lights[
-            node.extensions.KHR_lights_punctual.lightIndex
-          ];
+          gltfJson.extensions.KHR_lights_punctual.lights[node.extensions.KHR_lights_punctual.lightIndex];
       }
     }
   }
@@ -541,7 +513,7 @@ export class DrcPointCloudImporter {
     // Texture
     if (gltfJson.textures) {
       for (const texture of gltfJson.textures) {
-        ifDefinedThen((v) => {
+        ifDefinedThen(v => {
           texture.samplerObject = gltfJson.samplers[v];
         }, texture.sampler);
 
@@ -565,15 +537,9 @@ export class DrcPointCloudImporter {
         if (Is.exist(skin.skeleton)) {
           skin.skeletonObject = gltfJson.nodes[skin.skeleton];
 
-          ifDefinedThen(
-            (v) => (skin.inverseBindMatricesObject = gltfJson.accessors[v]),
-            skin.inverseBindMatrices
-          );
+          ifDefinedThen(v => (skin.inverseBindMatricesObject = gltfJson.accessors[v]), skin.inverseBindMatrices);
 
-          ifUndefinedThen(
-            () => (skin.skeletonObject = gltfJson.nodes[skin.joints[0]]),
-            skin.skeleton
-          );
+          ifUndefinedThen(() => (skin.skeletonObject = gltfJson.nodes[skin.joints[0]]), skin.skeleton);
 
           skin.jointsObjects = [];
           for (const jointIndex of skin.joints) {
@@ -834,10 +800,7 @@ export class DrcPointCloudImporter {
         const filename = splitted[splitted.length - 1];
         if (options.files && options.files[filename]) {
           const arrayBuffer = options.files[filename];
-          imageUri = DataUtil.createBlobImageUriFromUint8Array(
-            new Uint8Array(arrayBuffer),
-            imageJson.mimeType!
-          );
+          imageUri = DataUtil.createBlobImageUriFromUint8Array(new Uint8Array(arrayBuffer), imageJson.mimeType!);
         } else if (imageFileStr.match(/^data:/)) {
           imageUri = imageFileStr;
         } else {
@@ -849,7 +812,7 @@ export class DrcPointCloudImporter {
       //   options.extensionLoader.setUVTransformToTexture(texture, samplerJson);
       // }
 
-      const promise = DataUtil.createImageFromUri(imageUri, imageJson.mimeType!).then((image) => {
+      const promise = DataUtil.createImageFromUri(imageUri, imageJson.mimeType!).then(image => {
         image.crossOrigin = 'Anonymous';
         resources.images[i] = image;
         imageJson.image = image;
@@ -857,7 +820,7 @@ export class DrcPointCloudImporter {
       promisesToLoadResources.push(promise);
     }
 
-    return Promise.all(promisesToLoadResources).catch((err) => {
+    return Promise.all(promisesToLoadResources).catch(err => {
       Logger.error('Promise.all error: ' + err);
     });
   }
@@ -886,21 +849,11 @@ export class DrcPointCloudImporter {
    * @returns A Promise that resolves to the glTF2 JSON object
    * @private
    */
-  private __decodeDraco(
-    arrayBuffer: ArrayBuffer,
-    defaultOptions: GltfLoadOption,
-    basePath: string,
-    options?: {}
-  ) {
+  private __decodeDraco(arrayBuffer: ArrayBuffer, defaultOptions: GltfLoadOption, basePath: string, options?: {}) {
     return this.__decodeBuffer(arrayBuffer).then((json: any) => {
       const gotText = JSON.stringify(json);
       const gltfJson = JSON.parse(gotText);
-      return this._loadAsTextJson(
-        gltfJson,
-        options as GltfLoadOption,
-        defaultOptions,
-        basePath
-      ).catch((err) => {
+      return this._loadAsTextJson(gltfJson, options as GltfLoadOption, defaultOptions, basePath).catch(err => {
         Logger.error('this.__loadAsTextJson error: ' + err);
       });
     });
@@ -1053,7 +1006,7 @@ export class DrcPointCloudImporter {
    */
   private __setBuffersToJSON(buffer: ArrayBuffer, json: any) {
     return this.__convertBufferToURI(buffer)
-      .then((uri) => {
+      .then(uri => {
         json['buffers'] = [
           {
             name: 'input',
@@ -1062,7 +1015,7 @@ export class DrcPointCloudImporter {
           },
         ];
       })
-      .catch((err) => {
+      .catch(err => {
         Logger.error('this.__convertBufferToURI error: ' + err);
       });
   }
@@ -1236,38 +1189,10 @@ export class DrcPointCloudImporter {
     const attributeSemantics: Array<VertexAttributeSemanticsJoinedString> = [];
     const attributes: Array<TypedArray> = [];
 
-    this.__getPositions(
-      draco,
-      decoder,
-      dracoGeometry,
-      attributeCompositionTypes,
-      attributeSemantics,
-      attributes
-    );
-    this.__getColors(
-      draco,
-      decoder,
-      dracoGeometry,
-      attributeCompositionTypes,
-      attributeSemantics,
-      attributes
-    );
-    this.__getNormals(
-      draco,
-      decoder,
-      dracoGeometry,
-      attributeCompositionTypes,
-      attributeSemantics,
-      attributes
-    );
-    this.__getTextureCoords(
-      draco,
-      decoder,
-      dracoGeometry,
-      attributeCompositionTypes,
-      attributeSemantics,
-      attributes
-    );
+    this.__getPositions(draco, decoder, dracoGeometry, attributeCompositionTypes, attributeSemantics, attributes);
+    this.__getColors(draco, decoder, dracoGeometry, attributeCompositionTypes, attributeSemantics, attributes);
+    this.__getNormals(draco, decoder, dracoGeometry, attributeCompositionTypes, attributeSemantics, attributes);
+    this.__getTextureCoords(draco, decoder, dracoGeometry, attributeCompositionTypes, attributeSemantics, attributes);
 
     const primitive = Primitive.createPrimitive({
       attributeSemantics: attributeSemantics,
@@ -1506,11 +1431,7 @@ export class DrcPointCloudImporter {
     } else {
       const texCoordAttribute = decoder.GetAttribute(dracoGeometry, texCoordAttId);
       const texCoordAttributeData = new draco.DracoFloat32Array();
-      decoder.GetAttributeFloatForAllPoints(
-        dracoGeometry,
-        texCoordAttribute,
-        texCoordAttributeData
-      );
+      decoder.GetAttributeFloatForAllPoints(dracoGeometry, texCoordAttribute, texCoordAttributeData);
 
       const numPoints = dracoGeometry.num_points();
       const numVertices = numPoints * 2;

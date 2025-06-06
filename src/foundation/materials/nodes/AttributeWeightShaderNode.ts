@@ -44,5 +44,3 @@ export class AttributeWeightShaderNode extends AbstractShaderNode {
     });
   }
 }
-
-

@@ -57,13 +57,12 @@ panoramaToCubeMaterial.setParameter('cubeMapFaceId', 0);
 // Create expression
 const panoramaToCubeExpression = new Rn.Expression();
 
-const [panoramaToCubeFramebuffer, panoramaToCubeRenderTargetCube] =
-  Rn.RenderableHelper.createFrameBufferCubeMap({
-    width: cubeMapSize,
-    height: cubeMapSize,
-    textureFormat: Rn.TextureFormat.RGBA32F,
-    // mipLevelCount: 1,
-  });
+const [panoramaToCubeFramebuffer, panoramaToCubeRenderTargetCube] = Rn.RenderableHelper.createFrameBufferCubeMap({
+  width: cubeMapSize,
+  height: cubeMapSize,
+  textureFormat: Rn.TextureFormat.RGBA32F,
+  // mipLevelCount: 1,
+});
 
 // Create renderPass and set hdrTexture to panoramaToCubeMaterial
 const panoramaToCubeRenderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
@@ -82,25 +81,22 @@ prefilterIblMaterial.setParameter('cubeMapFaceId', 0);
 
 const prefilterIblExpression = new Rn.Expression();
 
-const [diffuseIblFramebuffer, diffuseIblRenderTargetCube] =
-  Rn.RenderableHelper.createFrameBufferCubeMap({
-    width: cubeMapSize,
-    height: cubeMapSize,
-    textureFormat: Rn.TextureFormat.RGBA32F,
-    mipLevelCount: 1,
-  });
-const [specularIblFramebuffer, specularIblRenderTargetCube] =
-  Rn.RenderableHelper.createFrameBufferCubeMap({
-    width: cubeMapSize,
-    height: cubeMapSize,
-    textureFormat: Rn.TextureFormat.RGBA32F,
-  });
-const [sheenIblFramebuffer, sheenIblRenderTargetCube] =
-  Rn.RenderableHelper.createFrameBufferCubeMap({
-    width: cubeMapSize,
-    height: cubeMapSize,
-    textureFormat: Rn.TextureFormat.RGBA32F,
-  });
+const [diffuseIblFramebuffer, diffuseIblRenderTargetCube] = Rn.RenderableHelper.createFrameBufferCubeMap({
+  width: cubeMapSize,
+  height: cubeMapSize,
+  textureFormat: Rn.TextureFormat.RGBA32F,
+  mipLevelCount: 1,
+});
+const [specularIblFramebuffer, specularIblRenderTargetCube] = Rn.RenderableHelper.createFrameBufferCubeMap({
+  width: cubeMapSize,
+  height: cubeMapSize,
+  textureFormat: Rn.TextureFormat.RGBA32F,
+});
+const [sheenIblFramebuffer, sheenIblRenderTargetCube] = Rn.RenderableHelper.createFrameBufferCubeMap({
+  width: cubeMapSize,
+  height: cubeMapSize,
+  textureFormat: Rn.TextureFormat.RGBA32F,
+});
 
 const sampler = new Rn.Sampler({
   magFilter: Rn.TextureParameter.Linear,
@@ -159,9 +155,7 @@ const renderIBL = () => {
       for (let face = 0; face < 6; face++) {
         prefilterIblMaterial.setParameter('cubeMapFaceId', face);
         specularIblFramebuffer.setColorAttachmentCubeAt(0, face, i, specularIblRenderTargetCube);
-        prefilterIblRenderPass.setViewport(
-          Rn.Vector4.fromCopy4(0, 0, cubeMapSize >> i, cubeMapSize >> i)
-        );
+        prefilterIblRenderPass.setViewport(Rn.Vector4.fromCopy4(0, 0, cubeMapSize >> i, cubeMapSize >> i));
         Rn.System.process([prefilterIblExpression]);
       }
     }
@@ -180,9 +174,7 @@ const renderIBL = () => {
       for (let face = 0; face < 6; face++) {
         prefilterIblMaterial.setParameter('cubeMapFaceId', face);
         sheenIblFramebuffer.setColorAttachmentCubeAt(0, face, i, sheenIblRenderTargetCube);
-        prefilterIblRenderPass.setViewport(
-          Rn.Vector4.fromCopy4(0, 0, cubeMapSize >> i, cubeMapSize >> i)
-        );
+        prefilterIblRenderPass.setViewport(Rn.Vector4.fromCopy4(0, 0, cubeMapSize >> i, cubeMapSize >> i));
         Rn.System.process([prefilterIblExpression]);
       }
     }
@@ -277,7 +269,6 @@ const createEntityEnvironmentCube = () => {
 
   return expression;
 };
-
 
 // const debugExpression = createEntityEnvironmentCube();
 

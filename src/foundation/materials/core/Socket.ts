@@ -26,7 +26,7 @@ export class Socket<
   Name extends string,
   N extends CompositionTypeEnum,
   T extends ComponentTypeEnum,
-  V extends SocketDefaultValue
+  V extends SocketDefaultValue,
 > {
   /**
    * Creates a new Socket instance with the specified name, types, and optional default value.

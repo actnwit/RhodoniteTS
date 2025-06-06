@@ -400,12 +400,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * @returns True if all corresponding elements are exactly equal
    */
   isStrictEqual(mat: Matrix22) {
-    if (
-      mat._v[0] === this._v[0] &&
-      mat._v[1] === this._v[1] &&
-      mat._v[2] === this._v[2] &&
-      mat._v[3] === this._v[3]
-    ) {
+    if (mat._v[0] === this._v[0] && mat._v[1] === this._v[1] && mat._v[2] === this._v[2] && mat._v[3] === this._v[3]) {
       return true;
     } else {
       return false;
@@ -520,12 +515,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * @returns A new Matrix22 instance with the same values
    */
   clone() {
-    return (this.constructor as any).fromCopy4RowMajor(
-      this._v[0],
-      this._v[2],
-      this._v[1],
-      this._v[3]
-    );
+    return (this.constructor as any).fromCopy4RowMajor(this._v[0], this._v[2], this._v[1], this._v[3]);
   }
 
   /**

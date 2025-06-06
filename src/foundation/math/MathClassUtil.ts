@@ -197,9 +197,7 @@ export class MathClassUtil {
    * @param element - Vector instance or array to analyze
    * @returns Number of components (2 for Vector2, 3 for Vector3, 4 for Vector4/Quaternion, array length for arrays, 0 for unsupported types)
    */
-  static componentNumberOfVector(
-    element: Vector2 | Vector3 | Vector4 | Quaternion | Array<any>
-  ): number {
+  static componentNumberOfVector(element: Vector2 | Vector3 | Vector4 | Quaternion | Array<any>): number {
     if (element instanceof Vector2) {
       return 2;
     } else if (element instanceof Vector3) {
@@ -442,10 +440,7 @@ export class MathClassUtil {
    * @param floatArray - Float32Array to use as backing storage
    * @returns Mutable mathematical object using the provided array as storage
    */
-  static initWithFloat32Array(
-    val: any,
-    floatArray: Float32Array,
-  ) {
+  static initWithFloat32Array(val: any, floatArray: Float32Array) {
     let obj;
     if (isFinite(val)) {
       // number?
@@ -471,19 +466,13 @@ export class MathClassUtil {
       floatArray[2] = val.z;
       floatArray[3] = val.w;
       obj = new MutableVector4(floatArray);
-    } else if (
-      val instanceof Quaternion ||
-      val instanceof MutableQuaternion
-    ) {
+    } else if (val instanceof Quaternion || val instanceof MutableQuaternion) {
       floatArray[0] = val.x;
       floatArray[1] = val.y;
       floatArray[2] = val.z;
       floatArray[3] = val.w;
       obj = new MutableQuaternion(floatArray);
-    } else if (
-      val instanceof Matrix33 ||
-      val instanceof MutableMatrix33
-    ) {
+    } else if (val instanceof Matrix33 || val instanceof MutableMatrix33) {
       obj = obj == null ? new MutableMatrix33(floatArray) : obj;
       obj.m00 = val.m00;
       obj.m01 = val.m01;
@@ -494,10 +483,7 @@ export class MathClassUtil {
       obj.m20 = val.m20;
       obj.m21 = val.m21;
       obj.m22 = val.m22;
-    } else if (
-      val instanceof Matrix44 ||
-      val instanceof MutableMatrix44
-    ) {
+    } else if (val instanceof Matrix44 || val instanceof MutableMatrix44) {
       obj = new MutableMatrix44(floatArray);
       obj.m00 = val.m00;
       obj.m01 = val.m01;
@@ -538,11 +524,7 @@ export class MathClassUtil {
       }
       (floatArray as any)._v = void 0;
       return vec;
-    } else if (
-      Array.isArray(val) ||
-      ArrayBuffer.isView(val) ||
-      ArrayBuffer.isView(val._v)
-    ) {
+    } else if (Array.isArray(val) || ArrayBuffer.isView(val) || ArrayBuffer.isView(val._v)) {
       return val;
     } else {
       Logger.error('Non supported type!');
@@ -595,10 +577,7 @@ export class MathClassUtil {
         }
         objForDetectType._v[0] = val._v[0];
       }
-    } else if (
-      objForDetectType instanceof MutableMatrix33 ||
-      objForDetectType instanceof Matrix33
-    ) {
+    } else if (objForDetectType instanceof MutableMatrix33 || objForDetectType instanceof Matrix33) {
       if (objForDetectType.isEqual(val)) {
         return false;
       }
@@ -611,10 +590,7 @@ export class MathClassUtil {
       objForDetectType._v[6] = val._v[6];
       objForDetectType._v[7] = val._v[7];
       objForDetectType._v[8] = val._v[8];
-    } else if (
-      objForDetectType instanceof MutableMatrix44 ||
-      objForDetectType instanceof Matrix44
-    ) {
+    } else if (objForDetectType instanceof MutableMatrix44 || objForDetectType instanceof Matrix44) {
       if (objForDetectType.isEqual(val)) {
         return false;
       }
@@ -634,10 +610,7 @@ export class MathClassUtil {
       objForDetectType._v[13] = val._v[13];
       objForDetectType._v[14] = val._v[14];
       objForDetectType._v[15] = val._v[15];
-    } else if (
-      objForDetectType instanceof MutableQuaternion ||
-      objForDetectType instanceof Quaternion
-    ) {
+    } else if (objForDetectType instanceof MutableQuaternion || objForDetectType instanceof Quaternion) {
       if (objForDetectType.isEqual(val)) {
         return false;
       }

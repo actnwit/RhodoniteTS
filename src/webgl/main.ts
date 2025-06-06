@@ -17,8 +17,7 @@ const WebGL = Object.freeze({
 export default WebGL;
 
 export type RnWebGL = typeof WebGL;
-const globalObj =
-  typeof global !== 'undefined' ? global : typeof window !== 'undefined' ? window : this;
+const globalObj = typeof global !== 'undefined' ? global : typeof window !== 'undefined' ? window : this;
 (globalObj as unknown as { RnWebGL: RnWebGL }).RnWebGL = WebGL;
 
 export type VertexHandles = vertexHandles;

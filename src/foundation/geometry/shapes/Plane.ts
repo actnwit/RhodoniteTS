@@ -128,17 +128,9 @@ export class Plane extends IShape {
     }
 
     // Check Size
-    const attributeSemantics = [
-      VertexAttribute.Position.XYZ,
-      VertexAttribute.Normal.XYZ,
-      VertexAttribute.Texcoord0.XY,
-    ];
+    const attributeSemantics = [VertexAttribute.Position.XYZ, VertexAttribute.Normal.XYZ, VertexAttribute.Texcoord0.XY];
     const primitiveMode = PrimitiveMode.TriangleStrip;
-    const attributes = [
-      new Float32Array(positions),
-      new Float32Array(normals),
-      new Float32Array(texcoords),
-    ];
+    const attributes = [new Float32Array(positions), new Float32Array(normals), new Float32Array(texcoords)];
 
     this.copyVertexData({
       attributes,

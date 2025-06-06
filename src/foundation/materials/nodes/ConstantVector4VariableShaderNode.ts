@@ -25,10 +25,10 @@ import { ConstantVariableShaderNode } from './ConstantVariableShaderNode';
  * multiplyNode.addInputConnection(colorNode, colorNode.getSocketOutput(), multiplyNode.getSocketInputLhs());
  * ```
  */
-export class ConstantVector4VariableShaderNode<
-  T extends ComponentTypeEnum
-> extends ConstantVariableShaderNode<typeof CompositionType.Vec4, T> {
-
+export class ConstantVector4VariableShaderNode<T extends ComponentTypeEnum> extends ConstantVariableShaderNode<
+  typeof CompositionType.Vec4,
+  T
+> {
   /**
    * Creates a new ConstantVector4VariableShaderNode instance.
    *

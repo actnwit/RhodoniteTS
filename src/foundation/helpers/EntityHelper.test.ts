@@ -17,10 +17,7 @@ describe('EntityHelper', () => {
   test('EntityHelper', () => {
     const entity = EntityRepository.createEntity();
     const transformEntity = EntityRepository.addComponentToEntity(TransformComponent, entity);
-    const sceneGraphEntity = EntityRepository.addComponentToEntity(
-      SceneGraphComponent,
-      transformEntity
-    );
+    const sceneGraphEntity = EntityRepository.addComponentToEntity(SceneGraphComponent, transformEntity);
     const cameraEntity = EntityRepository.addComponentToEntity(CameraComponent, sceneGraphEntity);
     const transformComponent = transformEntity.getTransform();
     const sceneGraphComponent = sceneGraphEntity.getSceneGraph();

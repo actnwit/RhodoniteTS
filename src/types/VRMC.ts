@@ -46,8 +46,6 @@ export type Vrm1TextureTransformBind = {
 
 export type Vrm1OverrideType = 'none' | 'block' | 'blend';
 
-
-
 export type Vrm1_NodeConstraint_Constraint = {
   specVersion: string;
   constraint: {
@@ -67,7 +65,6 @@ export type Vrm1_NodeConstraint_Constraint = {
     };
   };
 };
-
 
 export interface VRMC {
   specVersion: string;

@@ -12,10 +12,7 @@ import { Logger } from '../misc/Logger';
  * @template T - The typed array constructor type (Float32ArrayConstructor or Float64ArrayConstructor)
  * @internal This class is not intended for direct instantiation by users
  */
-export class Vector4_<T extends FloatTypedArrayConstructor>
-  extends AbstractVector
-  implements IVector4
-{
+export class Vector4_<T extends FloatTypedArrayConstructor> extends AbstractVector implements IVector4 {
   /**
    * Creates a new Vector4_ instance.
    *
@@ -625,12 +622,7 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
    * @returns True if all components are exactly equal, false otherwise
    */
   isStrictEqual(vec: IVector4): boolean {
-    if (
-      this._v[0] === vec._v[0] &&
-      this._v[1] === vec._v[1] &&
-      this._v[2] === vec._v[2] &&
-      this._v[3] === vec._v[3]
-    ) {
+    if (this._v[0] === vec._v[0] && this._v[1] === vec._v[1] && this._v[2] === vec._v[2] && this._v[3] === vec._v[3]) {
       return true;
     } else {
       return false;
@@ -688,12 +680,7 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
    * @returns The dot product of the two vectors
    */
   dot(vec: IVector4) {
-    return (
-      this._v[0] * vec._v[0] +
-      this._v[1] * vec._v[1] +
-      this._v[2] * vec._v[2] +
-      this._v[3] * vec._v[3]
-    );
+    return this._v[0] * vec._v[0] + this._v[1] * vec._v[1] + this._v[2] * vec._v[2] + this._v[3] * vec._v[3];
   }
 
   /**

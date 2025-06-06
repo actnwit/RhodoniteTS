@@ -491,12 +491,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     if (num8 > 0) {
       const num = Math.sqrt(num8 + 1);
       const num2 = 0.5 / num;
-      return Quaternion.fromCopy4(
-        (m12 - m21) * num2,
-        (m20 - m02) * num2,
-        (m01 - m10) * num2,
-        num * 0.5
-      ) as IQuaternion;
+      return Quaternion.fromCopy4((m12 - m21) * num2, (m20 - m02) * num2, (m01 - m10) * num2, num * 0.5) as IQuaternion;
     } else if (m00 >= m11 && m00 >= m22) {
       const num7 = Math.sqrt(1 + m00 - m11 - m22);
       const num4 = 0.5 / num7;

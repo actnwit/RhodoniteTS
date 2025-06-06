@@ -55,102 +55,84 @@ type AllWellKnownComponentMethodsTypes =
 
 type IsThisAnimationState<
   T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes
+  Possibles extends AllWellKnownComponentMethodsTypes,
 > = T extends typeof AnimationStateComponent
   ? IAnimationStateEntityMethods
   : Exclude<Possibles, IAnimationStateEntityMethods>;
 
 type IsThisAnimation<
   T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes
-> = T extends typeof AnimationComponent
-  ? IAnimationEntityMethods
-  : Exclude<Possibles, IAnimationEntityMethods>;
+  Possibles extends AllWellKnownComponentMethodsTypes,
+> = T extends typeof AnimationComponent ? IAnimationEntityMethods : Exclude<Possibles, IAnimationEntityMethods>;
 
 type IsThisTransform<
   T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes
-> = T extends typeof TransformComponent
-  ? ITransformEntityMethods
-  : Exclude<Possibles, ITransformEntityMethods>;
+  Possibles extends AllWellKnownComponentMethodsTypes,
+> = T extends typeof TransformComponent ? ITransformEntityMethods : Exclude<Possibles, ITransformEntityMethods>;
 
 type IsThisSceneGraph<
   T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes
-> = T extends typeof SceneGraphComponent
-  ? ISceneGraphEntityMethods
-  : Exclude<Possibles, ISceneGraphEntityMethods>;
+  Possibles extends AllWellKnownComponentMethodsTypes,
+> = T extends typeof SceneGraphComponent ? ISceneGraphEntityMethods : Exclude<Possibles, ISceneGraphEntityMethods>;
 
 type IsThisMesh<
   T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes
+  Possibles extends AllWellKnownComponentMethodsTypes,
 > = T extends typeof MeshComponent ? IMeshEntityMethods : Exclude<Possibles, IMeshEntityMethods>;
 
 type IsThisMeshRenderer<
   T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes
+  Possibles extends AllWellKnownComponentMethodsTypes,
 > = T extends typeof MeshRendererComponent
   ? IMeshRendererEntityMethods
   : Exclude<Possibles, IMeshRendererEntityMethods>;
 
 type IsThisCameraController<
   T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes
+  Possibles extends AllWellKnownComponentMethodsTypes,
 > = T extends typeof CameraControllerComponent
   ? ICameraControllerEntityMethods
   : Exclude<Possibles, ICameraControllerEntityMethods>;
 
 type IsThisCamera<
   T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes
-> = T extends typeof CameraComponent
-  ? ICameraEntityMethods
-  : Exclude<Possibles, ICameraEntityMethods>;
+  Possibles extends AllWellKnownComponentMethodsTypes,
+> = T extends typeof CameraComponent ? ICameraEntityMethods : Exclude<Possibles, ICameraEntityMethods>;
 
 type IsThisLight<
   T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes
+  Possibles extends AllWellKnownComponentMethodsTypes,
 > = T extends typeof LightComponent ? ILightEntityMethods : Exclude<Possibles, ILightEntityMethods>;
 
 type IsThisSkeletal<
   T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes
-> = T extends typeof SkeletalComponent
-  ? ISkeletalEntityMethods
-  : Exclude<Possibles, ISkeletalEntityMethods>;
+  Possibles extends AllWellKnownComponentMethodsTypes,
+> = T extends typeof SkeletalComponent ? ISkeletalEntityMethods : Exclude<Possibles, ISkeletalEntityMethods>;
 
 type IsThisBlendShape<
   T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes
-> = T extends typeof BlendShapeComponent
-  ? IBlendShapeEntityMethods
-  : Exclude<Possibles, IBlendShapeEntityMethods>;
+  Possibles extends AllWellKnownComponentMethodsTypes,
+> = T extends typeof BlendShapeComponent ? IBlendShapeEntityMethods : Exclude<Possibles, IBlendShapeEntityMethods>;
 
 type IsThisPhysics<
   T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes
-> = T extends typeof PhysicsComponent
-  ? IPhysicsEntityMethods
-  : Exclude<Possibles, IPhysicsEntityMethods>;
+  Possibles extends AllWellKnownComponentMethodsTypes,
+> = T extends typeof PhysicsComponent ? IPhysicsEntityMethods : Exclude<Possibles, IPhysicsEntityMethods>;
 
 type IsThisEffekseer<
   T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes
-> = T extends typeof EffekseerComponent
-  ? IEffekseerEntityMethods
-  : Exclude<Possibles, IEffekseerEntityMethods>;
+  Possibles extends AllWellKnownComponentMethodsTypes,
+> = T extends typeof EffekseerComponent ? IEffekseerEntityMethods : Exclude<Possibles, IEffekseerEntityMethods>;
 
 type IsThisVrm<
   T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes
+  Possibles extends AllWellKnownComponentMethodsTypes,
 > = T extends typeof VrmComponent ? IVrmEntityMethods : Exclude<Possibles, IVrmEntityMethods>;
 
 type IsThisConstraint<
   T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes
-> = T extends typeof ConstraintComponent
-  ? IConstraintEntityMethods
-  : Exclude<Possibles, IConstraintEntityMethods>;
+  Possibles extends AllWellKnownComponentMethodsTypes,
+> = T extends typeof ConstraintComponent ? IConstraintEntityMethods : Exclude<Possibles, IConstraintEntityMethods>;
 
 export type ComponentToComponentMethods<T extends typeof Component> = IsThisConstraint<
   T,
@@ -178,10 +160,7 @@ export type ComponentToComponentMethods<T extends typeof Component> = IsThisCons
                         T,
                         IsThisTransform<
                           T,
-                          IsThisAnimation<
-                            T,
-                            IsThisAnimationState<T, AllWellKnownComponentMethodsTypes>
-                          >
+                          IsThisAnimation<T, IsThisAnimationState<T, AllWellKnownComponentMethodsTypes>>
                         >
                       >
                     >

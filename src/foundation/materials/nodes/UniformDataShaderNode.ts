@@ -21,11 +21,7 @@ export class UniformDataShaderNode extends AbstractShaderNode {
 
     this.__shaderFunctionName += '_' + this.__shaderNodeUid;
 
-    this.__commonPart = new UniformDataShader(
-      this.__shaderFunctionName,
-      compositionType,
-      componentType
-    );
+    this.__commonPart = new UniformDataShader(this.__shaderFunctionName, compositionType, componentType);
 
     this.__outputs.push(new Socket('outValue', compositionType, componentType));
   }

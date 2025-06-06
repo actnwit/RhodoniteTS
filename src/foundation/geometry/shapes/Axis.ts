@@ -50,31 +50,40 @@ export class Axis extends IShape {
     // prettier-ignore
     const positions = [
       // X axis
-      0, 0, 0,
-      desc.length, 0, 0,
+      0,
+      0,
+      0,
+      desc.length,
+      0,
+      0,
 
       // Y axis
-      0, 0, 0,
-      0, desc.length, 0,
+      0,
+      0,
+      0,
+      0,
+      desc.length,
+      0,
 
       // Z axis
-      0, 0, 0,
-      0, 0, desc.length,
+      0,
+      0,
+      0,
+      0,
+      0,
+      desc.length,
     ];
 
     // prettier-ignore
     const colors = [
       // X axis as Red
-      1, 0, 0,
-      1, 0, 0,
+      1, 0, 0, 1, 0, 0,
 
       // Y axis as Green
-      0, 1, 0,
-      0, 1, 0,
+      0, 1, 0, 0, 1, 0,
 
       // Z axis as Blue
-      0, 0, 1,
-      0, 0, 1,
+      0, 0, 1, 0, 0, 1,
     ];
 
     const attributes = [new Float32Array(positions), new Float32Array(colors)];

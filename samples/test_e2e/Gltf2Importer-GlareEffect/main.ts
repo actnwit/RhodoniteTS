@@ -17,14 +17,7 @@ const gaussianVariance = 10;
 //  ratio of the final drawing ([original image, glare level 0, glare level 1, glare level 2])
 //  glare level N means the glare effect in size [2^(N-1) * original image size]
 // const synthesizeCoefficient = [1.0, 1.0 / 5.0, 1.0 / 6.0, 1.0 / 10.0];
-const synthesizeCoefficient = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0] as [
-  number,
-  number,
-  number,
-  number,
-  number,
-  number
-];
+const synthesizeCoefficient = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0] as [number, number, number, number, number, number];
 // ---main algorithm-----------------------------------------------------------------------------------------
 
 // prepare memory
@@ -66,10 +59,7 @@ const entityEnvironmentCube = await createEntityEnvironmentCube();
 const cameraComponentMain = createEntityMainCamera(rootGroup).getCamera();
 
 // prepare renderPasses
-const renderPassMain = await createRenderPassMain(cameraComponentMain, [
-  rootGroup,
-  entityEnvironmentCube,
-]);
+const renderPassMain = await createRenderPassMain(cameraComponentMain, [rootGroup, entityEnvironmentCube]);
 createAndSetFramebuffer(renderPassMain, rnCanvasElement.width, rnCanvasElement.height, 1, {
   internalFormat: Rn.TextureFormat.RGBA16F,
 });
@@ -77,8 +67,7 @@ renderPassMain.clearColor = Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 1.0]);
 
 const bloomHelper = new Rn.Bloom();
 const { bloomExpression, bloomedRenderTarget } = bloomHelper.createBloomExpression({
-  textureToBloom: renderPassMain.getFramebuffer()
-    .colorAttachments[0] as unknown as Rn.AbstractTexture,
+  textureToBloom: renderPassMain.getFramebuffer().colorAttachments[0] as unknown as Rn.AbstractTexture,
   parameters: {
     luminanceCriterion,
     gaussianBlurLevelHighLuminance,
@@ -109,11 +98,9 @@ draw(expressions, 0);
 // ---functions-----------------------------------------------------------------------------------------
 
 async function createEntityGltf2(uriGltf: string) {
-  const gltf2JSON = (
-    await Rn.Gltf2Importer.importFromUrl(uriGltf, {
-      defaultMaterialHelperArgumentArray: [{ makeOutputSrgb: false }],
-    })
-  );
+  const gltf2JSON = await Rn.Gltf2Importer.importFromUrl(uriGltf, {
+    defaultMaterialHelperArgumentArray: [{ makeOutputSrgb: false }],
+  });
 
   const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
   return rootGroup;
@@ -161,10 +148,7 @@ function createEntityMainCamera(entityCameraTarget: Rn.ISceneGraphEntity) {
   return entityCamera as Rn.ICameraEntity;
 }
 
-async function createRenderPassMain(
-  cameraComponent: Rn.CameraComponent,
-  entityRenderTargets: Rn.ISceneGraphEntity[]
-) {
+async function createRenderPassMain(cameraComponent: Rn.CameraComponent, entityRenderTargets: Rn.ISceneGraphEntity[]) {
   const renderPass = new Rn.RenderPass();
   renderPass.tryToSetUniqueName('renderPassMain', true);
   renderPass.toClearColorBuffer = true;

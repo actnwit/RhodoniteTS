@@ -156,70 +156,14 @@ export class Frustum {
     for (let i = 0; i < 6; i++) {
       let out = 0;
       const plane = this.getPlane(i);
-      out +=
-        plane.x * aabb.minPoint.x +
-          plane.y * aabb.minPoint.y +
-          plane.z * aabb.minPoint.z +
-          plane.w <
-        0
-          ? 1
-          : 0;
-      out +=
-        plane.x * aabb.maxPoint.x +
-          plane.y * aabb.minPoint.y +
-          plane.z * aabb.minPoint.z +
-          plane.w <
-        0
-          ? 1
-          : 0;
-      out +=
-        plane.x * aabb.minPoint.x +
-          plane.y * aabb.maxPoint.y +
-          plane.z * aabb.minPoint.z +
-          plane.w <
-        0
-          ? 1
-          : 0;
-      out +=
-        plane.x * aabb.maxPoint.x +
-          plane.y * aabb.maxPoint.y +
-          plane.z * aabb.minPoint.z +
-          plane.w <
-        0
-          ? 1
-          : 0;
-      out +=
-        plane.x * aabb.minPoint.x +
-          plane.y * aabb.minPoint.y +
-          plane.z * aabb.maxPoint.z +
-          plane.w <
-        0
-          ? 1
-          : 0;
-      out +=
-        plane.x * aabb.maxPoint.x +
-          plane.y * aabb.minPoint.y +
-          plane.z * aabb.maxPoint.z +
-          plane.w <
-        0
-          ? 1
-          : 0;
-      out +=
-        plane.x * aabb.minPoint.x +
-          plane.y * aabb.maxPoint.y +
-          plane.z * aabb.maxPoint.z +
-          plane.w <
-        0
-          ? 1
-          : 0;
-      out +=
-        plane.x * aabb.maxPoint.x +
-          plane.y * aabb.maxPoint.y +
-          plane.z * aabb.maxPoint.z +
-          plane.w <
-        0
-          ? 1
-          : 0;
+      out += plane.x * aabb.minPoint.x + plane.y * aabb.minPoint.y + plane.z * aabb.minPoint.z + plane.w < 0 ? 1 : 0;
+      out += plane.x * aabb.maxPoint.x + plane.y * aabb.minPoint.y + plane.z * aabb.minPoint.z + plane.w < 0 ? 1 : 0;
+      out += plane.x * aabb.minPoint.x + plane.y * aabb.maxPoint.y + plane.z * aabb.minPoint.z + plane.w < 0 ? 1 : 0;
+      out += plane.x * aabb.maxPoint.x + plane.y * aabb.maxPoint.y + plane.z * aabb.minPoint.z + plane.w < 0 ? 1 : 0;
+      out += plane.x * aabb.minPoint.x + plane.y * aabb.minPoint.y + plane.z * aabb.maxPoint.z + plane.w < 0 ? 1 : 0;
+      out += plane.x * aabb.maxPoint.x + plane.y * aabb.minPoint.y + plane.z * aabb.maxPoint.z + plane.w < 0 ? 1 : 0;
+      out += plane.x * aabb.minPoint.x + plane.y * aabb.maxPoint.y + plane.z * aabb.maxPoint.z + plane.w < 0 ? 1 : 0;
+      out += plane.x * aabb.maxPoint.x + plane.y * aabb.maxPoint.y + plane.z * aabb.maxPoint.z + plane.w < 0 ? 1 : 0;
       if (out === 8) {
         return false;
       }

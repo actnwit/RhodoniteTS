@@ -31,9 +31,7 @@ lightComponent2.type = Rn.LightType.Directional;
 lightComponent2.color = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
 lightEntity2.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0.0, 0.0, Math.PI / 8]);
 
-const expression = (
-  await Rn.GltfImporter.importFromUrl('../../../assets/vrm/test.vrm')
-);
+const expression = await Rn.GltfImporter.importFromUrl('../../../assets/vrm/test.vrm');
 
 const entities = expression.renderPasses[0].entities;
 expression.renderPasses[0].toClearColorBuffer = true;

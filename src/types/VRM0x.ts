@@ -125,7 +125,6 @@ export type Vrm0xMaterialProperty = {
   // };
 };
 
-
 export interface VRM0x_Extension {
   exporterVersion: string;
   meta: {

@@ -1,4 +1,3 @@
-
 export default class AudioPlayer {
   constructor() {
     // for cross browser compatibility
@@ -20,15 +19,14 @@ export default class AudioPlayer {
   loadPromise(url) {
     this.__isLoaded = false;
 
-    return fetch(url).then(
-      response => response.arrayBuffer()
-    ).then(
-      arraybuffer => this.__audioCtx.decodeAudioData(arraybuffer)
-    ).then((audioBuffer) => {
-      this.audioBuffer = audioBuffer;
-      this.__isLoaded = true;
-      return this.__audioBuffer;
-    });
+    return fetch(url)
+      .then(response => response.arrayBuffer())
+      .then(arraybuffer => this.__audioCtx.decodeAudioData(arraybuffer))
+      .then(audioBuffer => {
+        this.audioBuffer = audioBuffer;
+        this.__isLoaded = true;
+        return this.__audioBuffer;
+      });
   }
 
   startAt(audioStartOffset) {

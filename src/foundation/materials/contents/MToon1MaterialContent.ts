@@ -235,17 +235,16 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     // IBL Env map
     if (args.diffuseCube && args.diffuseCube.isTextureReady) {
-      webglResourceRepository.setUniform1iForTexture(
-        shaderProgram,
-        ShaderSemantics.DiffuseEnvTexture.str,
-        [5, args.diffuseCube, MToon1MaterialContent.__diffuseIblCubeMapSampler]
-      );
+      webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
+        5,
+        args.diffuseCube,
+        MToon1MaterialContent.__diffuseIblCubeMapSampler,
+      ]);
     } else {
-      webglResourceRepository.setUniform1iForTexture(
-        shaderProgram,
-        ShaderSemantics.DiffuseEnvTexture.str,
-        [5, dummyBlackCubeTexture]
-      );
+      webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
+        5,
+        dummyBlackCubeTexture,
+      ]);
     }
     // if (args.specularCube && args.specularCube.isTextureReady) {
     //   webglResourceRepository.setUniform1iForTexture(
@@ -317,23 +316,16 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
       if (firstTime) {
         const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
           MToon1MaterialContent.__setupHdriParameters(args);
-        webglResourceRepository.setUniformValue(
-          shaderProgram,
-          ShaderSemantics.IBLParameter.str,
-          firstTime,
-          {
-            x: mipmapLevelNumber,
-            y: meshRenderComponent!.diffuseCubeMapContribution,
-            z: meshRenderComponent!.specularCubeMapContribution,
-            w: meshRenderComponent!.rotationOfCubeMap,
-          }
-        );
-        webglResourceRepository.setUniformValue(
-          shaderProgram,
-          ShaderSemantics.HDRIFormat.str,
-          firstTime,
-          { x: diffuseHdriType, y: specularHdriType }
-        );
+        webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.IBLParameter.str, firstTime, {
+          x: mipmapLevelNumber,
+          y: meshRenderComponent!.diffuseCubeMapContribution,
+          z: meshRenderComponent!.specularCubeMapContribution,
+          w: meshRenderComponent!.rotationOfCubeMap,
+        });
+        webglResourceRepository.setUniformValue(shaderProgram, ShaderSemantics.HDRIFormat.str, firstTime, {
+          x: diffuseHdriType,
+          y: specularHdriType,
+        });
       }
     } else {
       const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =

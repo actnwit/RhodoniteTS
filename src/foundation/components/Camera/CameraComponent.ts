@@ -131,12 +131,7 @@ export class CameraComponent extends Component {
    * @param entityRepository - The entity repository instance
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(
-    entityUid: EntityUID,
-    componentSid: ComponentSID,
-    entityRepository: EntityRepository,
-    isReUse: boolean
-  ) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
     super(entityUid, componentSid, entityRepository, isReUse);
 
     this._setMaxNumberOfComponent(Math.max(10, Math.floor(Config.maxEntityNumber / 100)));
@@ -147,56 +142,14 @@ export class CameraComponent extends Component {
       CameraComponent.current = componentSid;
     }
 
-    this.registerMember(
-      BufferUse.CPUGeneric,
-      'eyeInner',
-      MutableVector3,
-      ComponentType.Float,
-      [0, 0, 0]
-    );
-    this.registerMember(
-      BufferUse.CPUGeneric,
-      'direction',
-      MutableVector3,
-      ComponentType.Float,
-      [0, 0, -1]
-    );
+    this.registerMember(BufferUse.CPUGeneric, 'eyeInner', MutableVector3, ComponentType.Float, [0, 0, 0]);
+    this.registerMember(BufferUse.CPUGeneric, 'direction', MutableVector3, ComponentType.Float, [0, 0, -1]);
     this.registerMember(BufferUse.CPUGeneric, 'up', MutableVector3, ComponentType.Float, [0, 1, 0]);
-    this.registerMember(
-      BufferUse.CPUGeneric,
-      'directionInner',
-      MutableVector3,
-      ComponentType.Float,
-      [0, 0, -1]
-    );
-    this.registerMember(
-      BufferUse.CPUGeneric,
-      'upInner',
-      MutableVector3,
-      ComponentType.Float,
-      [0, 1, 0]
-    );
-    this.registerMember(
-      BufferUse.CPUGeneric,
-      'corner',
-      MutableVector4,
-      ComponentType.Float,
-      [-1, 1, 1, -1]
-    );
-    this.registerMember(
-      BufferUse.CPUGeneric,
-      'cornerInner',
-      MutableVector4,
-      ComponentType.Float,
-      [-1, 1, 1, -1]
-    );
-    this.registerMember(
-      BufferUse.CPUGeneric,
-      'parameters',
-      MutableVector4,
-      ComponentType.Float,
-      [0.1, 10000, 90, 1]
-    );
+    this.registerMember(BufferUse.CPUGeneric, 'directionInner', MutableVector3, ComponentType.Float, [0, 0, -1]);
+    this.registerMember(BufferUse.CPUGeneric, 'upInner', MutableVector3, ComponentType.Float, [0, 1, 0]);
+    this.registerMember(BufferUse.CPUGeneric, 'corner', MutableVector4, ComponentType.Float, [-1, 1, 1, -1]);
+    this.registerMember(BufferUse.CPUGeneric, 'cornerInner', MutableVector4, ComponentType.Float, [-1, 1, 1, -1]);
+    this.registerMember(BufferUse.CPUGeneric, 'parameters', MutableVector4, ComponentType.Float, [0.1, 10000, 90, 1]);
     this.registerMember(
       BufferUse.CPUGeneric,
       'parametersInner',
@@ -320,9 +273,7 @@ export class CameraComponent extends Component {
    * @throws Always throws an error as eye positioning should use TransformComponent
    */
   set eye(noUseVec: Vector3) {
-    throw Error(
-      'In Rhodonite, eye is always (0,0,0). Use TransformComponent for Camera positioning.'
-    );
+    throw Error('In Rhodonite, eye is always (0,0,0). Use TransformComponent for Camera positioning.');
   }
 
   /**
@@ -402,16 +353,8 @@ export class CameraComponent extends Component {
 
     let newUpNonNormalize;
     if (isOrthogonalNewDirectionAndOldUp) {
-      const relativeXaxis = MutableVector3.crossTo(
-        oldDirection,
-        oldUp,
-        CameraComponent.__tmpVector3_1
-      );
-      newUpNonNormalize = MutableVector3.crossTo(
-        relativeXaxis,
-        newDirection,
-        CameraComponent.__tmpVector3_2
-      );
+      const relativeXaxis = MutableVector3.crossTo(oldDirection, oldUp, CameraComponent.__tmpVector3_1);
+      newUpNonNormalize = MutableVector3.crossTo(relativeXaxis, newDirection, CameraComponent.__tmpVector3_2);
     } else {
       const newDirectionComponentInOldUp = MutableVector3.multiplyTo(
         newDirection,
@@ -1067,11 +1010,7 @@ export class CameraComponent extends Component {
    */
   calcViewMatrix() {
     const eye = this.eyeInner;
-    const f = MutableVector3.subtractTo(
-      this._directionInner,
-      eye,
-      CameraComponent.__tmpVector3_0
-    ).normalize();
+    const f = MutableVector3.subtractTo(this._directionInner, eye, CameraComponent.__tmpVector3_0).normalize();
     const s = MutableVector3.crossTo(f, this._upInner, CameraComponent.__tmpVector3_1).normalize();
     const u = MutableVector3.crossTo(s, f, CameraComponent.__tmpVector3_2);
 
@@ -1161,11 +1100,7 @@ export class CameraComponent extends Component {
    * @returns The view-projection matrix
    */
   get viewProjectionMatrix() {
-    return MutableMatrix44.multiplyTo(
-      this._projectionMatrix,
-      this._viewMatrix,
-      CameraComponent.__tmpMatrix44_0
-    );
+    return MutableMatrix44.multiplyTo(this._projectionMatrix, this._viewMatrix, CameraComponent.__tmpMatrix44_0);
   }
 
   /**
@@ -1174,11 +1109,7 @@ export class CameraComponent extends Component {
    * @returns The bias view-projection matrix adjusted for the current graphics API
    */
   get biasViewProjectionMatrix() {
-    MutableMatrix44.multiplyTo(
-      this._projectionMatrix,
-      this._viewMatrix,
-      CameraComponent.__tmpMatrix44_0
-    );
+    MutableMatrix44.multiplyTo(this._projectionMatrix, this._viewMatrix, CameraComponent.__tmpMatrix44_0);
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       return MutableMatrix44.multiplyTo(
         CameraComponent.__biasMatrixWebGPU,
@@ -1198,37 +1129,17 @@ export class CameraComponent extends Component {
    * Sets only the matrix values to the global data repository.
    */
   setValuesToGlobalDataRepositoryOnlyMatrices() {
-    CameraComponent.__globalDataRepository.setValue(
-      'viewMatrix',
-      this.componentSID,
-      this.viewMatrix
-    );
-    CameraComponent.__globalDataRepository.setValue(
-      'projectionMatrix',
-      this.componentSID,
-      this.projectionMatrix
-    );
+    CameraComponent.__globalDataRepository.setValue('viewMatrix', this.componentSID, this.viewMatrix);
+    CameraComponent.__globalDataRepository.setValue('projectionMatrix', this.componentSID, this.projectionMatrix);
   }
 
   /**
    * Sets camera values (matrices and position) to the global data repository.
    */
   setValuesToGlobalDataRepository() {
-    CameraComponent.__globalDataRepository.setValue(
-      'viewMatrix',
-      this.componentSID,
-      this.viewMatrix
-    );
-    CameraComponent.__globalDataRepository.setValue(
-      'projectionMatrix',
-      this.componentSID,
-      this.projectionMatrix
-    );
-    CameraComponent.__globalDataRepository.setValue(
-      'viewPosition',
-      this.componentSID,
-      this.worldPosition
-    );
+    CameraComponent.__globalDataRepository.setValue('viewMatrix', this.componentSID, this.viewMatrix);
+    CameraComponent.__globalDataRepository.setValue('projectionMatrix', this.componentSID, this.projectionMatrix);
+    CameraComponent.__globalDataRepository.setValue('viewPosition', this.componentSID, this.worldPosition);
   }
 
   /**
@@ -1237,9 +1148,7 @@ export class CameraComponent extends Component {
    * @returns The world position vector
    */
   get worldPosition() {
-    this.entity
-      .getSceneGraph()
-      .matrixInner.multiplyVector3To(this.eyeInner, CameraComponent.returnVector3);
+    this.entity.getSceneGraph().matrixInner.multiplyVector3To(this.eyeInner, CameraComponent.returnVector3);
     return CameraComponent.returnVector3;
   }
 
@@ -1302,9 +1211,7 @@ export class CameraComponent extends Component {
       } else if (lightComponent.type === LightType.Directional) {
         this.type = CameraType.Orthographic;
         const areaSize = lightComponent.shadowAreaSizeForDirectionalLight;
-        this._cornerInner.copyComponents(
-          Vector4.fromCopy4(-areaSize, areaSize, areaSize, -areaSize)
-        );
+        this._cornerInner.copyComponents(Vector4.fromCopy4(-areaSize, areaSize, areaSize, -areaSize));
         this.aspect = 1;
         this.zNear = 0.1;
         this.zFar = lightComponent.range !== -1 ? lightComponent.range : 100;
@@ -1344,10 +1251,7 @@ export class CameraComponent extends Component {
    * @returns The entity with the current camera component
    */
   static getCurrentCameraEntity() {
-    const currentCameraComponent = ComponentRepository.getComponent(
-      this,
-      this.current
-    ) as CameraComponent;
+    const currentCameraComponent = ComponentRepository.getComponent(this, this.current) as CameraComponent;
     return currentCameraComponent.entity;
   }
 
@@ -1368,16 +1272,12 @@ export class CameraComponent extends Component {
    * @returns The entity extended with camera component methods
    * @override
    */
-  addThisComponentToEntity<
-    EntityBaseClass extends IEntity,
-    SomeComponentClass extends typeof Component
-  >(base: EntityBaseClass, _componentClass: SomeComponentClass) {
+  addThisComponentToEntity<EntityBaseClass extends IEntity, SomeComponentClass extends typeof Component>(
+    base: EntityBaseClass,
+    _componentClass: SomeComponentClass
+  ) {
     class CameraEntity extends (base.constructor as any) {
-      constructor(
-        entityUID: EntityUID,
-        isAlive: boolean,
-        components?: Map<ComponentTID, Component>
-      ) {
+      constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
         super(entityUID, isAlive, components);
       }
 
@@ -1387,9 +1287,7 @@ export class CameraComponent extends Component {
        * @returns The camera component
        */
       getCamera() {
-        return this.getComponentByComponentTID(
-          WellKnownComponentTIDs.CameraComponentTID
-        ) as CameraComponent;
+        return this.getComponentByComponentTID(WellKnownComponentTIDs.CameraComponentTID) as CameraComponent;
       }
     }
     applyMixins(base, CameraEntity);

@@ -1,7 +1,4 @@
-type PromiseFn<T> = (
-  resolve: (value?: T | PromiseLike<T>) => void,
-  reject: (reason?: any) => void
-) => void;
+type PromiseFn<T> = (resolve: (value?: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void;
 type OnFinallyFn = (() => void) | null | undefined;
 
 /**
@@ -152,10 +149,7 @@ export class RnPromise<T> extends Promise<T> {
     let onFulfilledWrapper;
     if (onfulfilled) {
       onFulfilledWrapper = (value: T | undefined) => {
-        if (
-          this.__callbackObj.promiseAllNum !== 0 &&
-          this.__callbackObj.processedPromises.indexOf(this) === -1
-        ) {
+        if (this.__callbackObj.promiseAllNum !== 0 && this.__callbackObj.processedPromises.indexOf(this) === -1) {
           this.__callbackObj.pendingNum--;
           this.__callbackObj.resolvedNum++;
           this.__callbackObj.processedPromises.push(this);

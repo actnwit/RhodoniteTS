@@ -93,11 +93,7 @@ async function setupRenderPassMain() {
   const planeMesh = new Rn.Mesh();
   planeMesh.addPrimitive(planePrimitive);
   planeMeshComponent.setMesh(planeMesh);
-  planeEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([
-    Math.PI / 2,
-    0,
-    Math.PI / 3,
-  ]);
+  planeEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, Math.PI / 3]);
   const sphereEntity = Rn.createMeshEntity();
   const spherePrimitive = new Rn.Sphere();
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();

@@ -48,11 +48,7 @@ export class Transform3D {
     this.__rotation = MutableQuaternion.dummy();
 
     if (x !== undefined) {
-      this.setTransform(
-        x.positionInner,
-        x.scaleInner,
-        MutableQuaternion.fromCopyQuaternion(x.rotationInner)
-      );
+      this.setTransform(x.positionInner, x.scaleInner, MutableQuaternion.fromCopyQuaternion(x.rotationInner));
     } else {
       this.__position = MutableVector3.zero();
       this.__scale = MutableVector3.one();

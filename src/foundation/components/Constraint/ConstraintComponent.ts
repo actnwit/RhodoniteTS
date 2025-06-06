@@ -24,12 +24,7 @@ export class ConstraintComponent extends Component {
    * @param entityComponent - The entity repository managing this component
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(
-    entityUid: EntityUID,
-    componentSid: ComponentSID,
-    entityComponent: EntityRepository,
-    isReUse: boolean
-  ) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean) {
     super(entityUid, componentSid, entityComponent, isReUse);
     this.moveStageTo(ProcessStage.Logic);
   }
@@ -118,11 +113,7 @@ export class ConstraintComponent extends Component {
        * @param isAlive - Whether the entity is currently active
        * @param components - Optional map of existing components
        */
-      constructor(
-        entityUID: EntityUID,
-        isAlive: boolean,
-        components?: Map<ComponentTID, Component>
-      ) {
+      constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
         super(entityUID, isAlive, components);
       }
 
@@ -132,9 +123,7 @@ export class ConstraintComponent extends Component {
        * @returns The ConstraintComponent instance for this entity
        */
       getConstraint() {
-        return this.getComponentByComponentTID(
-          WellKnownComponentTIDs.ConstraintComponentTID
-        ) as ConstraintComponent;
+        return this.getComponentByComponentTID(WellKnownComponentTIDs.ConstraintComponentTID) as ConstraintComponent;
       }
     }
     applyMixins(base, ConstraintEntity);
