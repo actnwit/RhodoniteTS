@@ -250,7 +250,6 @@ export class System {
               if (doRender) {
                 const renderedSomething = MeshRendererComponent.common_$render({
                   renderPass: renderPass,
-                  processStage: stage,
                   renderPassTickCount: this.__renderPassTickCount,
                   primitiveUids,
                 });

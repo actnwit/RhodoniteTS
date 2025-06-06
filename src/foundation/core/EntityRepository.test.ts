@@ -9,9 +9,9 @@ import { MemoryManager } from './MemoryManager';
 import '../components/registerComponents';
 
 test('getEntitiesNumber', () => {
-  const entity1 = EntityRepository.createEntity();
+  EntityRepository.createEntity();
   expect(EntityRepository.getEntitiesNumber()).toBe(1);
-  const entity2 = EntityRepository.createEntity();
+  EntityRepository.createEntity();
   expect(EntityRepository.getEntitiesNumber()).toBe(2);
 });
 

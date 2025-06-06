@@ -504,7 +504,7 @@ ${indexStr}
    * @param renderPassTickCount - Current tick count for animation and timing purposes
    * @returns True if any primitives were successfully rendered
    */
-  common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, renderPassTickCount: number): boolean {
+  common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, _renderPassTickCount: number): boolean {
     if (renderPass.isBufferLessRenderingMode()) {
       this.__renderWithoutBuffers(renderPass);
       return true;

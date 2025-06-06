@@ -251,12 +251,10 @@ export class CustomMaterialContent extends AbstractMaterialContent {
   _setInternalSettingParametersToGpuWebGLPerShaderProgram({
     material,
     shaderProgram,
-    firstTime,
     args,
   }: {
     material: Material;
     shaderProgram: WebGLProgram;
-    firstTime: boolean;
     args: RenderingArgWebGL;
   }) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
@@ -322,20 +320,14 @@ export class CustomMaterialContent extends AbstractMaterialContent {
    * Handles morph target/blend shape information for vertex animation.
    *
    * @param params - Parameters object
-   * @param params.material - The material instance to configure
    * @param params.shaderProgram - The WebGL shader program to use
-   * @param params.firstTime - Whether this is the first time setting up this primitive
    * @param params.args - WebGL rendering arguments containing entity, mesh, and primitive data
    */
   _setInternalSettingParametersToGpuWebGLPerPrimitive({
-    material,
     shaderProgram,
-    firstTime,
     args,
   }: {
-    material: Material;
     shaderProgram: WebGLProgram;
-    firstTime: boolean;
     args: RenderingArgWebGL;
   }) {
     // Morph

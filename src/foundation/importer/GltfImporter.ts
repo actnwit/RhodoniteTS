@@ -210,7 +210,6 @@ export class GltfImporter {
     const isLittleEndian = true;
     // Magic field
     const magic = dataView.getUint32(0, isLittleEndian);
-    let result: boolean;
     // The 0x46546C67 means 'glTF' string in glb files.
     if (magic === 0x46546c67) {
       return true;
@@ -273,12 +272,10 @@ export class GltfImporter {
 
     const fileArrayBuffer = options.files![fileName];
     options.__isImportVRM0x = false;
-    let glTFVer = 0; // 0: not glTF, 1: glTF1, 2: glTF2
     switch (fileType) {
       case FileType.Gltf: {
         const gotText = DataUtil.arrayBufferToString(fileArrayBuffer);
         const json = JSON.parse(gotText);
-        glTFVer = this.__getGltfVersion(json);
         const importer = Gltf2Importer;
         const gltfModel = await importer._importGltf(json, options.files!, options, fileName, callback);
         const rootGroup = await ModelConverter.convertToRhodoniteObject(gltfModel);
@@ -287,7 +284,6 @@ export class GltfImporter {
         return new Ok();
       }
       case FileType.GltfBinary: {
-        glTFVer = this.__getGlbVersion(fileArrayBuffer);
         const importer = Gltf2Importer;
         const gltfModel = await importer._importGlb(fileArrayBuffer, options.files!, options);
         const rootGroup = await ModelConverter.convertToRhodoniteObject(gltfModel);

@@ -41,12 +41,6 @@ import type { IAnimationRetarget } from '../Skeletal';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { __interpolate } from './AnimationOps';
 
-const defaultAnimationInfo = {
-  name: '',
-  minStartInputTime: 0,
-  maxEndInputTime: 0,
-};
-
 const ChangeAnimationInfo = Symbol('AnimationComponentEventChangeAnimationInfo');
 const PlayEnd = Symbol('AnimationComponentEventPlayEnd');
 
@@ -273,7 +267,7 @@ export class AnimationComponent extends Component {
    * @param animationTrackName - The name of the animation track to activate
    */
   setActiveAnimationTrack(animationTrackName: AnimationTrackName) {
-    for (const [pathName, channel] of this.__animationTrack) {
+    for (const [, channel] of this.__animationTrack) {
       channel.animatedValue.setFirstActiveAnimationTrackName(animationTrackName);
     }
   }
@@ -283,7 +277,7 @@ export class AnimationComponent extends Component {
    * @param animationTrackName - The name of the second animation track to activate
    */
   setSecondActiveAnimationTrack(animationTrackName: AnimationTrackName) {
-    for (const [pathName, channel] of this.__animationTrack) {
+    for (const [, channel] of this.__animationTrack) {
       channel.animatedValue.setSecondActiveAnimationTrackName(animationTrackName);
     }
   }
@@ -294,7 +288,7 @@ export class AnimationComponent extends Component {
    * @throws Error if no active animation track is found
    */
   getActiveAnimationTrack() {
-    for (const [pathName, channel] of this.__animationTrack) {
+    for (const [, channel] of this.__animationTrack) {
       return channel.animatedValue.getFirstActiveAnimationTrackName();
     }
     throw new Error('No active animation track found');
@@ -407,7 +401,7 @@ export class AnimationComponent extends Component {
    */
   public getAnimationTrackNames(): AnimationTrackName[] {
     const trackNames = [];
-    for (const [pathName, channel] of this.__animationTrack) {
+    for (const [, channel] of this.__animationTrack) {
       trackNames.push(...channel.animatedValue.getAllTrackNames());
     }
     return trackNames;
@@ -875,7 +869,7 @@ export class AnimationComponent extends Component {
    * @param trackName - The name of the animation track to reset
    */
   resetAnimationTrack(trackName: string) {
-    for (const [pathName, channel] of this.__animationTrack) {
+    for (const [, channel] of this.__animationTrack) {
       channel.animatedValue.deleteAnimationSampler(trackName);
     }
   }

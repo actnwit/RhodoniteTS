@@ -132,14 +132,10 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
    * This method is called internally during the rendering pipeline.
    */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
-    material,
     shaderProgram,
-    firstTime,
     args,
   }: {
-    material: Material;
     shaderProgram: WebGLProgram;
-    firstTime: boolean;
     args: RenderingArgWebGL;
   }) {
     if (args.setUniform) {

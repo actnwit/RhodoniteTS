@@ -104,14 +104,10 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
    * @param params.args - WebGL rendering arguments including world matrix, render pass, and camera info
    */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
-    material,
     shaderProgram,
-    firstTime,
     args,
   }: {
-    material: Material;
     shaderProgram: WebGLProgram;
-    firstTime: boolean;
     args: RenderingArgWebGL;
   }) {
     if (args.setUniform) {

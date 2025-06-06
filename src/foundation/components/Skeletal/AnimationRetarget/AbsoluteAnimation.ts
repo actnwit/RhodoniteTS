@@ -32,7 +32,7 @@ export class AbsoluteAnimation implements IAnimationRetarget {
    * @param dstEntity - The destination entity (unused in absolute animation)
    * @returns The source entity's local rotation quaternion
    */
-  retargetQuaternion(dstEntity: ISceneGraphEntity): IQuaternion {
+  retargetQuaternion(_dstEntity: ISceneGraphEntity): IQuaternion {
     const srcEntity = this.__srcEntity;
     return srcEntity.getTransform().localRotationInner;
   }
@@ -42,7 +42,7 @@ export class AbsoluteAnimation implements IAnimationRetarget {
    * @param dstEntity - The destination entity (unused in absolute animation)
    * @returns The source entity's local position vector
    */
-  retargetTranslate(dstEntity: ISceneGraphEntity): IVector3 {
+  retargetTranslate(_dstEntity: ISceneGraphEntity): IVector3 {
     const srcEntity = this.__srcEntity;
 
     return srcEntity.getTransform().localPositionInner;
@@ -53,7 +53,7 @@ export class AbsoluteAnimation implements IAnimationRetarget {
    * @param dstEntity - The destination entity (unused in absolute animation)
    * @returns The source entity's local scale vector
    */
-  retargetScale(dstEntity: ISceneGraphEntity): IVector3 {
+  retargetScale(_dstEntity: ISceneGraphEntity): IVector3 {
     const srcEntity = this.__srcEntity;
 
     return srcEntity.getTransform().localScaleInner;

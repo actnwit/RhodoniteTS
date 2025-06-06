@@ -272,7 +272,7 @@ export class CameraComponent extends Component {
    * @param noUseVec - The vector to set (not used)
    * @throws Always throws an error as eye positioning should use TransformComponent
    */
-  set eye(noUseVec: Vector3) {
+  set eye(_noUseVec: Vector3) {
     throw Error('In Rhodonite, eye is always (0,0,0). Use TransformComponent for Camera positioning.');
   }
 

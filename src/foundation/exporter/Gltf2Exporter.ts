@@ -472,7 +472,7 @@ export class Gltf2Exporter {
     }
 
     // If the entity has no parent, it must be a top level entity in the scene graph.
-    topLevelEntities.forEach((entity, i) => {
+    topLevelEntities.forEach(entity => {
       const idx = entities.indexOf(entity);
       if (idx >= 0) {
         scene.nodes!.push(idx);
@@ -758,7 +758,7 @@ export class Gltf2Exporter {
    * @param filename - Base filename for the download
    * @param arraybuffer - Binary data buffer containing the .glb file
    */
-  static __downloadGlb(json: Gltf2, filename: string, arraybuffer: ArrayBuffer): void {
+  static __downloadGlb(_json: Gltf2, filename: string, arraybuffer: ArrayBuffer): void {
     {
       const a = document.createElement('a');
       a.download = `${filename}.glb`;

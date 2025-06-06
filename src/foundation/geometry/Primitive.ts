@@ -583,7 +583,7 @@ export class Primitive extends RnObject {
    */
   get attributeAccessors(): Array<Accessor> {
     const accessors: Array<Accessor> = [];
-    this.__attributes.forEach((accessor, semantic) => {
+    this.__attributes.forEach(accessor => {
       accessors.push(accessor);
     });
     return accessors;
@@ -604,7 +604,7 @@ export class Primitive extends RnObject {
    */
   get attributeSemantics(): Array<VertexAttributeSemanticsJoinedString> {
     const semantics: Array<VertexAttributeSemanticsJoinedString> = [];
-    this.__attributes.forEach((accessor, semantic) => {
+    this.__attributes.forEach((_accessor, semantic) => {
       semantics.push(semantic);
     });
     return semantics;
@@ -624,7 +624,7 @@ export class Primitive extends RnObject {
    */
   get attributeCompositionTypes(): Array<CompositionTypeEnum> {
     const types: Array<CompositionTypeEnum> = [];
-    this.__attributes.forEach((accessor, semantic) => {
+    this.__attributes.forEach(accessor => {
       types.push(accessor.compositionType);
     });
 
@@ -637,7 +637,7 @@ export class Primitive extends RnObject {
    */
   get attributeComponentTypes(): Array<ComponentTypeEnum> {
     const types: Array<ComponentTypeEnum> = [];
-    this.__attributes.forEach((accessor, semantic) => {
+    this.__attributes.forEach(accessor => {
       types.push(accessor.componentType);
     });
 
@@ -927,9 +927,9 @@ export class Primitive extends RnObject {
       };
     }
 
-    let hitPos0IndexBase = 0;
-    let hitPos1IndexBase = 0;
-    const hitPos2IndexBase = 0;
+    let _hitPos0IndexBase = 0;
+    let _hitPos1IndexBase = 0;
+    let _hitPos2IndexBase = 0;
     let u = 0;
     let v = 0;
     if (this.hasIndices()) {
@@ -961,9 +961,9 @@ export class Primitive extends RnObject {
             currentShortestT = result.data.t;
             u = result.data.u;
             v = result.data.v;
-            hitPos0IndexBase = pos0IndexBase;
-            hitPos1IndexBase = pos1IndexBase;
-            hitPos0IndexBase = pos2IndexBase;
+            _hitPos0IndexBase = pos0IndexBase;
+            _hitPos1IndexBase = pos1IndexBase;
+            _hitPos2IndexBase = pos2IndexBase;
           }
         }
       }
@@ -996,9 +996,9 @@ export class Primitive extends RnObject {
             currentShortestT = t;
             u = result.data.u;
             v = result.data.v;
-            hitPos0IndexBase = pos0IndexBase;
-            hitPos1IndexBase = pos1IndexBase;
-            hitPos0IndexBase = pos2IndexBase;
+            _hitPos0IndexBase = pos0IndexBase;
+            _hitPos1IndexBase = pos1IndexBase;
+            _hitPos2IndexBase = pos2IndexBase;
           }
         }
       }

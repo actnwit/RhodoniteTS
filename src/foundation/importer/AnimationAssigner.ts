@@ -268,7 +268,7 @@ export class AnimationAssigner {
    * @param nodeIndex - The index of the node to check
    * @returns True if the node represents the hips bone, false otherwise
    */
-  private __isHips(rootEntity: ISceneGraphEntity, vrmModel: VRM, nodeIndex: Index) {
+  private __isHips(_rootEntity: ISceneGraphEntity, vrmModel: VRM, nodeIndex: Index) {
     const srcMapNodeIdName: Map<number, string> = new Map();
     if (Is.exist(vrmModel.extensions.VRM)) {
       const humanBones = vrmModel.extensions.VRM.humanoid.humanBones;
@@ -282,7 +282,6 @@ export class AnimationAssigner {
         srcMapNodeIdName.set(bone.node, boneName);
       }
     }
-    const dstMapNameNodeId = rootEntity.getTagValue('humanoid_map_name_nodeId')! as Map<string, number>;
     const humanoidBoneName = srcMapNodeIdName.get(nodeIndex)!;
     if (humanoidBoneName === 'hips') {
       return true;

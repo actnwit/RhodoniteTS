@@ -81,18 +81,15 @@ export class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
    * @param params - The rendering parameters
    * @param params.material - The material instance
    * @param params.shaderProgram - The WebGL shader program
-   * @param params.firstTime - Whether this is the first time setting parameters
    * @param params.args - WebGL rendering arguments containing matrices, camera, and entity information
    */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
     material,
     shaderProgram,
-    firstTime,
     args,
   }: {
     material: Material;
     shaderProgram: WebGLProgram;
-    firstTime: boolean;
     args: RenderingArgWebGL;
   }) {
     if (args.setUniform) {

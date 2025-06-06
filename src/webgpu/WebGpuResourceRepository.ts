@@ -76,8 +76,8 @@ export type WebGpuResource =
 type RenderPipelineId = string;
 type RenderPassUid = number;
 
-const IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT = 16;
-const IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT = 17;
+const _IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT = 16;
+const _IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT = 17;
 
 type DRAW_PARAMETERS_IDENTIFIER = string;
 
@@ -237,22 +237,14 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   public async createTextureFromImageBitmapData(
     imageData: ImageBitmapData,
     {
-      level,
       internalFormat,
       width,
       height,
-      border,
-      format,
-      type,
       generateMipmap,
     }: {
-      level: Index;
       internalFormat: TextureParameterEnum;
       width: Size;
       height: Size;
-      border: Size;
-      format: PixelFormatEnum;
-      type: ComponentTypeEnum;
       generateMipmap: boolean;
     }
   ): Promise<WebGPUResourceHandle> {
@@ -373,8 +365,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     textureHandle: WebGPUResourceHandle,
     width: number,
     height: number,
-    frameBufferUid: WebGPUResourceHandle,
-    colorAttachmentIndex: number
+    _frameBufferUid: WebGPUResourceHandle,
+    _colorAttachmentIndex: number
   ): Promise<Uint8Array> {
     const gpuTexture = this.__webGpuResources.get(textureHandle) as GPUTexture;
     const textureData = new Uint8Array(width * height * 4);
@@ -598,8 +590,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @param params.wrapT - Wrapping mode for T (V) texture coordinate
    * @param params.wrapR - Wrapping mode for R (W) texture coordinate
    * @param params.anisotropy - Whether to enable anisotropic filtering
-   * @param params.isPremultipliedAlpha - Whether the texture has premultiplied alpha (optional)
-   * @param params.shadowCompareMode - Whether to enable shadow comparison mode
    * @returns Handle to the created sampler resource
    */
   createTextureSampler({
@@ -609,8 +599,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     wrapT,
     wrapR,
     anisotropy,
-    isPremultipliedAlpha,
-    shadowCompareMode,
   }: {
     magFilter: TextureParameterEnum;
     minFilter: TextureParameterEnum;
@@ -618,8 +606,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     wrapT: TextureParameterEnum;
     wrapR: TextureParameterEnum;
     anisotropy: boolean;
-    isPremultipliedAlpha?: boolean;
-    shadowCompareMode: boolean;
   }): WebGPUResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const maxAnisotropy = anisotropy ? 4 : 1;

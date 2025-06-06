@@ -1,6 +1,6 @@
 import Rn from '../../../dist/esm';
 
-function generatePrimitive() {
+function _generatePrimitive() {
   const indices = new Uint32Array([0, 1, 3, 3, 1, 2]);
 
   const positions = new Float32Array([-1.5, -0.5, 0.0, -0.5, -0.5, 0.0, -0.5, 0.5, 0.0, -1.5, 0.5, 0.0]);

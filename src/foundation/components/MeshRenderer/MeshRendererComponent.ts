@@ -501,12 +501,10 @@ export class MeshRendererComponent extends Component {
    */
   static common_$render({
     renderPass,
-    processStage,
     renderPassTickCount,
     primitiveUids,
   }: {
     renderPass: RenderPass;
-    processStage: ProcessStageEnum;
     renderPassTickCount: Count;
     primitiveUids: PrimitiveUID[];
   }): boolean {
@@ -525,15 +523,7 @@ export class MeshRendererComponent extends Component {
    * @param renderPass - The render pass context
    * @param renderPassTickCount - The tick count for this render pass
    */
-  $render({
-    i,
-    renderPass,
-    renderPassTickCount,
-  }: {
-    i: Index;
-    renderPass: RenderPass;
-    renderPassTickCount: Count;
-  }) {}
+  $render() {}
 
   /**
    * Performs a shallow copy of properties from another MeshRendererComponent.

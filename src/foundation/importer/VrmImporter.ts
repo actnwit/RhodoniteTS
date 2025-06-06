@@ -402,7 +402,7 @@ export class VrmImporter {
    * @param texturesLength - The number of textures in the model
    * @returns True if any material requires outline rendering, false otherwise
    */
-  private static __initializeMToonMaterialProperties(gltfModel: RnM2, texturesLength: number): boolean {
+  private static __initializeMToonMaterialProperties(gltfModel: RnM2, _texturesLength: number): boolean {
     let isOutline = false;
     for (const material of gltfModel.materials) {
       const mtoonMaterial: Vrm1_Materials_MToon = material.extensions?.VRMC_materials_mtoon;

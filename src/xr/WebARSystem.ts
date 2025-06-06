@@ -388,7 +388,6 @@ export class WebARSystem {
    */
   _postRender() {
     if (this.isWebARMode) {
-      const gl = this.__oGlw.unwrapForce().getRawContext();
       // gl?.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
     if (this.requestedToEnterWebAR) {

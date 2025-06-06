@@ -583,7 +583,7 @@ function fromStringCaseSensitively(str: string): ShaderSemanticsEnum {
   return _fromStringCaseSensitively({ typeList, str }) as ShaderSemanticsEnum;
 }
 
-type UpdateFunc = ({
+type _UpdateFunc = ({
   material,
   shaderProgram,
   firstTime,
@@ -600,17 +600,17 @@ type UpdateFunc = ({
 }) => void;
 
 export type getShaderPropertyFunc = (
-  materialTypeName: string,
+  _materialTypeName: string,
   info: ShaderSemanticsInfo,
-  isGlobalData: boolean,
-  isWebGL2: boolean
+  _isGlobalData: boolean,
+  _isWebGL2: boolean
 ) => string;
 
 const getShaderProperty: getShaderPropertyFunc = (
-  materialTypeName: string,
+  _materialTypeName: string,
   info: ShaderSemanticsInfo,
-  isGlobalData: boolean,
-  isWebGL2: boolean
+  _isGlobalData: boolean,
+  _isWebGL2: boolean
 ) => {
   const returnType = info.compositionType.getGlslStr(info.componentType);
 

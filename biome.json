@@ -54,7 +54,7 @@
         "noDelete": "error"
       },
       "correctness": {
-        "noUnusedVariables": "off",
+        "noUnusedVariables": "error",
         "useExhaustiveDependencies": "error",
         "noUnreachable": "error",
         "noConstantCondition": "error",

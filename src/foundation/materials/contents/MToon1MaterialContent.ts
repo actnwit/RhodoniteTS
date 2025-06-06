@@ -216,20 +216,14 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
    * and specular cube maps with appropriate samplers.
    *
    * @param params - Object containing shader program and rendering context
-   * @param params.material - The material instance being rendered
    * @param params.shaderProgram - The compiled WebGL shader program
-   * @param params.firstTime - Whether this is the first time setting parameters for this program
    * @param params.args - WebGL rendering arguments with cube map textures
    */
   _setInternalSettingParametersToGpuWebGLPerShaderProgram({
-    material,
     shaderProgram,
-    firstTime,
     args,
   }: {
-    material: Material;
     shaderProgram: WebGLProgram;
-    firstTime: boolean;
     args: RenderingArgWebGL;
   }) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();

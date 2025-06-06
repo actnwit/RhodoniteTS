@@ -216,7 +216,6 @@ function createPbrUberMaterial({
   isEmissiveStrength = false,
   isDiffuseTransmission = false,
   isShadow = false,
-  useTangentAttribute = false,
   useNormalTexture = true,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType,
 } = {}) {
@@ -1572,12 +1571,8 @@ function createMToon1Material({
   isMorphing = false,
   isSkinning = false,
   isLighting = true,
-  useTangentAttribute = false,
   isOutline = false,
   materialJson,
-  textures,
-  samplers,
-  debugMode,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType,
   makeOutputSrgb = true,
 }: {

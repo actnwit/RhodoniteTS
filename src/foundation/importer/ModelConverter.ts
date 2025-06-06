@@ -1799,7 +1799,6 @@ export class ModelConverter {
         isEmissiveStrength: Is.exist(materialJson?.extensions?.KHR_materials_emissive_strength),
         isDiffuseTransmission: Is.exist(materialJson?.extensions?.KHR_materials_diffuse_transmission),
         isShadow: !!rnLoaderOptions.shadow,
-        useTangentAttribute,
         useNormalTexture,
         additionalName: additionalName,
         maxInstancesNumber: maxMaterialInstanceNumber,

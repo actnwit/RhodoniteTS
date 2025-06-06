@@ -281,7 +281,7 @@ export class DrcPointCloudImporter {
     };
     promises.push(this._loadResources(uint8array!, basePath, gltfJson, options, resources));
     promises.push(
-      new Promise((resolve, reject) => {
+      new Promise(resolve => {
         this._loadJsonContent(gltfJson, options);
         resolve();
       }) as Promise<void>
@@ -744,20 +744,20 @@ export class DrcPointCloudImporter {
         filename = splitted[splitted.length - 1];
       }
       if (typeof bufferInfo.uri === 'undefined') {
-        rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve, rejected) => {
+        rnpArrayBuffer = new RnPromise<ArrayBuffer>(resolve => {
           resources.buffers[i] = uint8Array;
           bufferInfo.buffer = uint8Array;
           resolve(uint8Array.buffer as ArrayBuffer);
         });
       } else if (bufferInfo.uri.match(/^data:application\/(.*);base64,/)) {
-        rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve, rejected) => {
+        rnpArrayBuffer = new RnPromise<ArrayBuffer>(resolve => {
           const arrayBuffer = DataUtil.dataUriToArrayBuffer(bufferInfo.uri!);
           resources.buffers[i] = new Uint8Array(arrayBuffer);
           bufferInfo.buffer = new Uint8Array(arrayBuffer);
           resolve(arrayBuffer);
         });
       } else if (options.files?.[filename!]) {
-        rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve, rejected) => {
+        rnpArrayBuffer = new RnPromise<ArrayBuffer>(resolve => {
           const arrayBuffer = options.files![filename];
           resources.buffers[i] = new Uint8Array(arrayBuffer);
           bufferInfo.buffer = new Uint8Array(arrayBuffer);
@@ -773,7 +773,7 @@ export class DrcPointCloudImporter {
               bufferInfo.buffer = new Uint8Array(response);
               resolve(response);
             },
-            (reject: Function, error: any) => {}
+            (_reject: Function, _error: any) => {}
           )
         );
       }

@@ -105,7 +105,7 @@ export class Gltf2Importer {
       try {
         const gltfJson = await this._importGltf(json, otherFiles, options!, uri);
         return new Ok(gltfJson);
-      } catch (err) {
+      } catch {
         return new Err({
           message: 'this.__importGltf error',
           error: undefined,
@@ -115,7 +115,7 @@ export class Gltf2Importer {
       try {
         const gltfJson = await this._importGlb(arrayBuffer, otherFiles, options!);
         return new Ok(gltfJson);
-      } catch (err) {
+      } catch {
         return new Err({
           message: 'this.importGlb error',
           error: undefined,
@@ -822,7 +822,7 @@ export class Gltf2Importer {
     uint8ArrayOfGlb: Uint8Array,
     gltfJson: RnM2,
     files: GltfFileBuffers,
-    options: GltfLoadOption,
+    _options: GltfLoadOption,
     basePath?: string,
     callback?: RnPromiseCallback
   ) {
