@@ -67,8 +67,8 @@
         "noPrototypeBuiltins": "off",
         "noImplicitAnyLet": "off",
         "noAsyncPromiseExecutor": "off",
-        "noAssignInExpressions": "off",
-        "noShadowRestrictedNames": "off",
+        "noAssignInExpressions": "error",
+        "noShadowRestrictedNames": "error",
         "noThenProperty": "off",
         "noRedeclare": "error"
       }

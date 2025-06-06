@@ -536,9 +536,13 @@ export class DrcPointCloudImporter {
         if (Is.exist(skin.skeleton)) {
           skin.skeletonObject = gltfJson.nodes[skin.skeleton];
 
-          ifDefinedThen(v => (skin.inverseBindMatricesObject = gltfJson.accessors[v]), skin.inverseBindMatrices);
+          ifDefinedThen(v => {
+            skin.inverseBindMatricesObject = gltfJson.accessors[v];
+          }, skin.inverseBindMatrices);
 
-          ifUndefinedThen(() => (skin.skeletonObject = gltfJson.nodes[skin.joints[0]]), skin.skeleton);
+          ifUndefinedThen(() => {
+            skin.skeletonObject = gltfJson.nodes[skin.joints[0]];
+          }, skin.skeleton);
 
           skin.jointsObjects = [];
           for (const jointIndex of skin.joints) {

@@ -398,7 +398,9 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @private
    */
   _swap(l: Index, r: Index) {
-    this._v[r] = [this._v[l], (this._v[l] = this._v[r])][0];
+    const temp = this._v[l];
+    this._v[l] = this._v[r];
+    this._v[r] = temp;
   }
 
   /**

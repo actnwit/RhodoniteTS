@@ -277,7 +277,9 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @param r - Index of the second element
    */
   _swap(l: Index, r: Index) {
-    this._v[r] = [this._v[l], (this._v[l] = this._v[r])][0];
+    const temp = this._v[l];
+    this._v[l] = this._v[r];
+    this._v[r] = temp;
   }
 
   /**

@@ -669,7 +669,9 @@ export class Gltf2Importer {
     // Texture
     if (gltfJson.textures) {
       for (const texture of gltfJson.textures) {
-        ifDefinedThen(v => (texture.samplerObject = gltfJson.samplers[v]), texture.sampler);
+        ifDefinedThen(v => {
+          texture.samplerObject = gltfJson.samplers[v];
+        }, texture.sampler);
 
         if (texture.extensions?.KHR_texture_basisu?.source != null) {
           texture.extensions.KHR_texture_basisu.fallbackSourceIndex = texture.source;
