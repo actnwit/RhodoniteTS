@@ -50,13 +50,13 @@
     "yarn-pack": "npx yarn pack -f rhodonite-tmp.tgz",
     "start": "node server.js",
     "create-VERSION-FILE": "npx shx touch VERSION-FILE",
-    "biome-lint": "biome lint ./src ./samples",
-    "biome-lint-fix": "biome lint --write ./src ./samples",
-    "biome-format": "biome format ./src ./samples",
-    "biome-format-fix": "biome format --write ./src ./samples",
-    "biome-check": "biome check ./src ./samples",
-    "biome-check-fix": "biome check --write ./src ./samples",
-    "biome-check-fix-unsafe": "biome check --unsafe --write ./src ./samples"
+    "lint": "biome lint ./src ./samples",
+    "lint-fix": "biome lint --write ./src ./samples",
+    "format": "biome format ./src ./samples",
+    "format-fix": "biome format --write ./src ./samples",
+    "check": "biome check ./src ./samples",
+    "check-fix": "biome check --write ./src ./samples",
+    "check-fix-unsafe": "biome check --unsafe --write ./src ./samples"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
@@ -102,5 +102,6 @@
   },
   "engines": {
     "node": ">=22"
-  }
+  },
+  "packageManager": "yarn@4.9.2"
 }
