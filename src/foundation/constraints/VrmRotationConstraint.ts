@@ -1,6 +1,6 @@
-import { ISceneGraphEntity } from '../helpers/EntityHelper';
+import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Quaternion } from '../math';
-import { IVrmConstraint } from './IVrmConstraint';
+import type { IVrmConstraint } from './IVrmConstraint';
 
 /**
  * VrmRotationConstraint is a constraint that rotates a destination node to match

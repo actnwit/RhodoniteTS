@@ -1,4 +1,4 @@
-import { RnM2Node } from './RnM2';
+import type { RnM2Node } from './RnM2';
 
 export interface VRMC_node_constraint {
   node: RnM2Node;

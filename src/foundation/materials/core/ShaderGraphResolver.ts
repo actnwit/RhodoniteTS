@@ -1,6 +1,6 @@
-import { ShaderNodeUID, AbstractShaderNode } from './AbstractShaderNode';
-import { Index } from '../../../types/CommonTypes';
-import { ShaderType, ShaderTypeEnum } from '../../definitions/ShaderType';
+import { type ShaderNodeUID, AbstractShaderNode } from './AbstractShaderNode';
+import type { Index } from '../../../types/CommonTypes';
+import { ShaderType, type ShaderTypeEnum } from '../../definitions/ShaderType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
@@ -35,7 +35,7 @@ import { SinShaderNode } from '../nodes/SinShaderNode';
 import { StepShaderNode } from '../nodes/StepShaderNode';
 import { TimeShaderNode } from '../nodes/TimeShaderNode';
 import { SmoothStepShaderNode } from '../nodes/SmoothStepShaderNode';
-import { ShaderNodeJson } from '../../../types/ShaderNodeJson';
+import type { ShaderNodeJson } from '../../../types/ShaderNodeJson';
 import { Logger } from '../../misc/Logger';
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
 import { AttributeJointShaderNode } from '../nodes/AttributeJointShaderNode';
@@ -61,7 +61,7 @@ export class ShaderGraphResolver {
   static createVertexShaderCode(
     vertexNodes: AbstractShaderNode[],
     varyingNodes: AbstractShaderNode[],
-    isFullVersion: boolean = true
+    isFullVersion = true
   ) {
     const shaderNodes = vertexNodes.concat();
 
@@ -114,7 +114,7 @@ export class ShaderGraphResolver {
    * @param isFullVersion - Whether to generate a full version with all prerequisites and boilerplate
    * @returns Complete fragment shader code as a string, or undefined if generation fails
    */
-  static createPixelShaderCode(pixelNodes: AbstractShaderNode[], isFullVersion: boolean = true) {
+  static createPixelShaderCode(pixelNodes: AbstractShaderNode[], isFullVersion = true) {
     const shaderNodes = pixelNodes.concat();
 
     // const isValid = this.__validateShaderNodes(shaderNodes);

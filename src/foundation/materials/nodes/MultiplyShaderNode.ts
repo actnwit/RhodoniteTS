@@ -1,8 +1,8 @@
 import { CompositionType } from '../../definitions/CompositionType';
 import MultiplyShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/Multiply.glsl';
 import MultiplyShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Multiply.wgsl';
-import { ComponentType, ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
-import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
+import { ComponentType, type ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
+import type { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { SystemState } from '../../system/SystemState';
 import { ProcessApproach } from '../../definitions/ProcessApproach';

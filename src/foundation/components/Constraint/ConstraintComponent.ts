@@ -1,11 +1,11 @@
-import { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
-import { IVrmConstraint } from '../../constraints/IVrmConstraint';
+import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
+import type { IVrmConstraint } from '../../constraints/IVrmConstraint';
 import { Component } from '../../core/Component';
-import { IEntity } from '../../core/Entity';
+import type { IEntity } from '../../core/Entity';
 import { EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
-import { IConstraintEntity } from '../../helpers/EntityHelper';
-import { ComponentToComponentMethods } from '../ComponentTypes';
+import type { IConstraintEntity } from '../../helpers/EntityHelper';
+import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 /**

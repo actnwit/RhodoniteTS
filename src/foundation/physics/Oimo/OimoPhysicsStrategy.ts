@@ -1,10 +1,10 @@
-import { ISceneGraphEntity } from '../../helpers';
-import { IQuaternion, IVector3, MathUtil, Quaternion } from '../../math';
+import type { ISceneGraphEntity } from '../../helpers';
+import { IQuaternion, type IVector3, MathUtil, Quaternion } from '../../math';
 import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
-import { PhysicsPropertyInner } from '../PhysicsProperty';
-import { PhysicsStrategy } from '../PhysicsStrategy';
-import { PhysicsWorldProperty } from '../PhysicsWorldProperty';
+import type { PhysicsPropertyInner } from '../PhysicsProperty';
+import type { PhysicsStrategy } from '../PhysicsStrategy';
+import type { PhysicsWorldProperty } from '../PhysicsWorldProperty';
 
 declare const OIMO: any;
 

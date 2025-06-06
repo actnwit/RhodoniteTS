@@ -1,5 +1,5 @@
-import { IVector4, IMutableVector, IMutableVector4 } from './IVector';
-import { Array4, FloatTypedArray, FloatTypedArrayConstructor } from '../../types/CommonTypes';
+import type { IVector4, IMutableVector, IMutableVector4 } from './IVector';
+import type { Array4, FloatTypedArray, FloatTypedArrayConstructor } from '../../types/CommonTypes';
 import { Vector4_ } from './Vector4';
 import { Logger } from '../misc/Logger';
 
@@ -264,10 +264,10 @@ export class MutableVector4_<T extends FloatTypedArrayConstructor>
       this._v[3] /= value;
     } else {
       Logger.error('0 division occurred!');
-      this._v[0] = Infinity;
-      this._v[1] = Infinity;
-      this._v[2] = Infinity;
-      this._v[3] = Infinity;
+      this._v[0] = Number.POSITIVE_INFINITY;
+      this._v[1] = Number.POSITIVE_INFINITY;
+      this._v[2] = Number.POSITIVE_INFINITY;
+      this._v[3] = Number.POSITIVE_INFINITY;
     }
     return this;
   }
@@ -287,10 +287,10 @@ export class MutableVector4_<T extends FloatTypedArrayConstructor>
       this._v[3] /= vec._v[3];
     } else {
       Logger.error('0 division occurred!');
-      this._v[0] = vec._v[0] === 0 ? Infinity : this._v[0] / vec._v[0];
-      this._v[1] = vec._v[1] === 0 ? Infinity : this._v[1] / vec._v[1];
-      this._v[2] = vec._v[2] === 0 ? Infinity : this._v[2] / vec._v[2];
-      this._v[3] = vec._v[3] === 0 ? Infinity : this._v[3] / vec._v[3];
+      this._v[0] = vec._v[0] === 0 ? Number.POSITIVE_INFINITY : this._v[0] / vec._v[0];
+      this._v[1] = vec._v[1] === 0 ? Number.POSITIVE_INFINITY : this._v[1] / vec._v[1];
+      this._v[2] = vec._v[2] === 0 ? Number.POSITIVE_INFINITY : this._v[2] / vec._v[2];
+      this._v[3] = vec._v[3] === 0 ? Number.POSITIVE_INFINITY : this._v[3] / vec._v[3];
     }
     return this;
   }

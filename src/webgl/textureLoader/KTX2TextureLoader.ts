@@ -1,23 +1,23 @@
 import {
   KTX2ChannelETC1S,
   KTX2ChannelUASTC,
-  KTX2Container,
-  KTX2DataFormatDescriptorBasicFormat,
-  KTX2GlobalDataBasisLZ,
+  type KTX2Container,
+  type KTX2DataFormatDescriptorBasicFormat,
+  type KTX2GlobalDataBasisLZ,
   KTX2Model,
   KTX2SupercompressionScheme,
   KTX2Transfer,
   read,
 } from 'ktx-parse';
 import { CGAPIResourceRepository } from '../../foundation/renderer/CGAPIResourceRepository';
-import { WebGLContextWrapper } from '../WebGLContextWrapper';
-import { TextureData } from '../WebGLResourceRepository';
+import type { WebGLContextWrapper } from '../WebGLContextWrapper';
+import type { TextureData } from '../WebGLResourceRepository';
 import {
   CompressionTextureType,
-  CompressionTextureTypeEnum,
+  type CompressionTextureTypeEnum,
 } from '../../foundation/definitions/CompressionTextureType';
 import { ZSTDDecoder } from 'zstddec';
-import {
+import type {
   BasisLzEtc1sImageTranscoder,
   MscTranscoderModule,
   MSC_TRANSCODER,

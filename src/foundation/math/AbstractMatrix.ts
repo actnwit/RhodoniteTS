@@ -1,4 +1,4 @@
-import { IMatrix } from './IMatrix';
+import type { IMatrix } from './IMatrix';
 
 /**
  * Abstract base class for matrix implementations.

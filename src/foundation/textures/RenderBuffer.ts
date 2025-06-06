@@ -1,13 +1,13 @@
 import { RnObject } from '../core/RnObject';
-import { IRenderable } from './IRenderable';
+import type { IRenderable } from './IRenderable';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
-import { Size, CGAPIResourceHandle, Index } from '../../types/CommonTypes';
-import { FrameBuffer } from '../renderer/FrameBuffer';
+import { TextureParameter, type TextureParameterEnum } from '../definitions/TextureParameter';
+import type { Size, CGAPIResourceHandle, Index } from '../../types/CommonTypes';
+import type { FrameBuffer } from '../renderer/FrameBuffer';
 import { SystemState } from '../system/SystemState';
 import { ProcessApproach } from '../definitions/ProcessApproach';
-import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
-import { TextureFormat, TextureFormatEnum } from '../definitions/TextureFormat';
+import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
+import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFormat';
 
 /**
  * A render buffer class that represents a renderable texture buffer used for off-screen rendering.

@@ -1,4 +1,4 @@
-import { RnTags, ObjectUID } from '../../types/CommonTypes';
+import type { RnTags, ObjectUID } from '../../types/CommonTypes';
 import { deepCopyUsingJsonStringify } from '../misc/MiscUtil';
 import { Config } from './Config';
 

@@ -150,7 +150,7 @@ function setupRenderPassFxaa(renderable: Promise<Rn.AbstractTexture>) {
   return renderPassFxaa;
 }
 
-window.toggleFXAA = function () {
+window.toggleFXAA = () => {
   const toggleButton = document.getElementById('toggleFXAAButton') as HTMLElement;
   if (activeExpression === expressionWithFXAA) {
     activeExpression = expressionWithOutFXAA;

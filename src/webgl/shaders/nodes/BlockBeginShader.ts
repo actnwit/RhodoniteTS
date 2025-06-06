@@ -1,8 +1,8 @@
-import { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
+import type { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
 import { CommonShaderPart } from '../CommonShaderPart';
-import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
-import { AttributeNames } from '../../types/CommonTypes';
-import { ShaderSocket } from '../../../foundation/materials/core/AbstractShaderNode';
+import type { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
+import type { AttributeNames } from '../../types/CommonTypes';
+import type { ShaderSocket } from '../../../foundation/materials/core/AbstractShaderNode';
 
 /**
  * A shader part that generates the beginning block of a shader function.

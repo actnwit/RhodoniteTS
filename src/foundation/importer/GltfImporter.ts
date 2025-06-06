@@ -1,17 +1,17 @@
 import { detectFormatByArrayBuffers } from './FormatDetector';
 import { Gltf2Importer } from './Gltf2Importer';
-import { RnM2 } from '../../types/RnM2';
+import type { RnM2 } from '../../types/RnM2';
 import { ModelConverter } from './ModelConverter';
 import { DrcPointCloudImporter } from './DrcPointCloudImporter';
 import { Expression } from '../renderer/Expression';
 import { RenderPass } from '../renderer/RenderPass';
 import { DataUtil } from '../misc/DataUtil';
 import { FileType } from '../definitions/FileType';
-import { glTF1 } from '../../types/glTF1';
-import { GltfFileBuffers, GltfLoadOption } from '../../types';
-import { RnPromiseCallback } from '../misc/RnPromise';
+import type { glTF1 } from '../../types/glTF1';
+import type { GltfFileBuffers, GltfLoadOption } from '../../types';
+import type { RnPromiseCallback } from '../misc/RnPromise';
 import { Vrm0xImporter } from './Vrm0xImporter';
-import { Err, Result, Ok, assertIsErr } from '../misc/Result';
+import { Err, type Result, Ok, assertIsErr } from '../misc/Result';
 import { VrmImporter } from './VrmImporter';
 
 /**

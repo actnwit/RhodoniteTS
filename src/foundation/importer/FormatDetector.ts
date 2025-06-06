@@ -1,5 +1,5 @@
 import { DataUtil } from '../misc/DataUtil';
-import { FileType, FileTypeEnum } from '../../foundation/definitions/FileType';
+import { FileType, type FileTypeEnum } from '../../foundation/definitions/FileType';
 
 /**
  * Detects the file format based on file extensions from a collection of ArrayBuffers.
@@ -121,7 +121,7 @@ function checkVersionOfGltf(arrayBuffer: ArrayBuffer) {
 function checkGLTFVersion(gltfJson: any) {
   let glTFVer = 1.0;
   if (gltfJson.asset && gltfJson.asset.version) {
-    glTFVer = parseFloat(gltfJson.asset.version);
+    glTFVer = Number.parseFloat(gltfJson.asset.version);
   }
   return glTFVer;
 }

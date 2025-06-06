@@ -1,6 +1,6 @@
-import { MeshComponent, Primitive } from '../../../import';
-import { MeshUID } from '../../../types/CommonTypes';
-import { IVector3 } from '../../math/IVector';
+import type { MeshComponent, Primitive } from '../../../import';
+import type { MeshUID } from '../../../types/CommonTypes';
+import type { IVector3 } from '../../math/IVector';
 
 /**
  * Result of a basic raycast operation against geometry.

@@ -1,7 +1,7 @@
 import { MeshComponent } from '../components/Mesh/MeshComponent';
-import { IEntity } from '../core/Entity';
+import type { IEntity } from '../core/Entity';
 import { MemoryManager } from '../core/MemoryManager';
-import { ArrayAsRn, enhanceArray } from './Array';
+import { type ArrayAsRn, enhanceArray } from './Array';
 import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 import '../components/registerComponents';
 

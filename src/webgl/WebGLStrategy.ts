@@ -1,7 +1,7 @@
-import { WebGLContextWrapper } from './WebGLContextWrapper';
-import { Primitive } from '../foundation/geometry/Primitive';
-import { Material } from '../foundation/materials/core/Material';
-import { WebGLResourceHandle, Index, Count, CGAPIResourceHandle } from '../types/CommonTypes';
+import type { WebGLContextWrapper } from './WebGLContextWrapper';
+import type { Primitive } from '../foundation/geometry/Primitive';
+import type { Material } from '../foundation/materials/core/Material';
+import { type WebGLResourceHandle, Index, Count, type CGAPIResourceHandle } from '../types/CommonTypes';
 
 export type ShaderSources = {
   vertex: string;

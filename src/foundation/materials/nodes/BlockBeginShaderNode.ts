@@ -1,7 +1,7 @@
-import { CompositionType, CompositionTypeEnum } from '../../definitions/CompositionType';
-import { ComponentType, ComponentTypeEnum } from '../../definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
+import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { BlockBeginShader } from '../../../webgl/shaders/nodes/BlockBeginShader';
-import { AbstractShaderNode, ShaderSocket } from '../core/AbstractShaderNode';
+import { AbstractShaderNode, type ShaderSocket } from '../core/AbstractShaderNode';
 
 /**
  * A shader node that marks the beginning of a conditional block in a node-based shader graph.

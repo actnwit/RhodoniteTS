@@ -1,5 +1,5 @@
-import { Array3, Array4 } from './CommonTypes';
-import { RnM2 } from './RnM2';
+import type { Array3, Array4 } from './CommonTypes';
+import type { RnM2 } from './RnM2';
 
 export type Vrm0xHumanBone = {
   bone: string;

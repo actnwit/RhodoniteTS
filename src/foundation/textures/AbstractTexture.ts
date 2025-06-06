@@ -1,18 +1,18 @@
 import { RnObject } from '../core/RnObject';
-import { PixelFormat, PixelFormatEnum } from '../definitions/PixelFormat';
-import { ComponentType, ComponentTypeEnum } from '../definitions/ComponentType';
-import { CGAPIResourceHandle, TextureUID, Size, Index } from '../../types/CommonTypes';
+import { PixelFormat, type PixelFormatEnum } from '../definitions/PixelFormat';
+import { ComponentType, type ComponentTypeEnum } from '../definitions/ComponentType';
+import type { CGAPIResourceHandle, TextureUID, Size, Index } from '../../types/CommonTypes';
 import { TextureDataFloat } from './TextureDataFloat';
-import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
-import { ColorRgb } from '../math/ColorRgb';
-import { ColorRgba } from '../math/ColorRgba';
-import { MutableVector3 } from '../math/MutableVector3';
-import { MutableVector4 } from '../math/MutableVector4';
-import { Vector3 } from '../math/Vector3';
-import { Vector4 } from '../math/Vector4';
+import { CompositionType, type CompositionTypeEnum } from '../definitions/CompositionType';
+import type { ColorRgb } from '../math/ColorRgb';
+import type { ColorRgba } from '../math/ColorRgba';
+import type { MutableVector3 } from '../math/MutableVector3';
+import type { MutableVector4 } from '../math/MutableVector4';
+import type { Vector3 } from '../math/Vector3';
+import type { Vector4 } from '../math/Vector4';
 import { Is } from '../misc/Is';
-import { Sampler } from './Sampler';
-import { TextureFormat, TextureFormatEnum } from '../definitions/TextureFormat';
+import type { Sampler } from './Sampler';
+import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFormat';
 
 /**
  * Abstract base class for all texture types in the Rhodonite engine.

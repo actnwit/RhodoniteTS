@@ -1,6 +1,6 @@
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
-import { CompositionType, CompositionTypeEnum } from '../../definitions/CompositionType';
-import { ComponentType, ComponentTypeEnum } from '../../definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
+import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import SinShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/Sin.glsl';
 import SinShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Sin.wgsl';
 import { Socket } from '../core/Socket';

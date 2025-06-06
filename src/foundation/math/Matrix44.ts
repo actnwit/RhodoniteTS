@@ -1,18 +1,18 @@
 import { Vector3 } from './Vector3';
 import { Vector4 } from './Vector4';
-import { IMatrix, IMatrix33, IMatrix44 } from './IMatrix';
+import type { IMatrix, IMatrix33, IMatrix44 } from './IMatrix';
 import { CompositionType } from '../definitions/CompositionType';
-import { MutableVector3 } from './MutableVector3';
-import { MutableMatrix44 } from './MutableMatrix44';
-import { MutableVector4 } from './MutableVector4';
-import { IVector3 } from './IVector';
-import { IVector4 } from './IVector';
+import type { MutableVector3 } from './MutableVector3';
+import type { MutableMatrix44 } from './MutableMatrix44';
+import type { MutableVector4 } from './MutableVector4';
+import type { IVector3 } from './IVector';
+import type { IVector4 } from './IVector';
 import { MathUtil } from './MathUtil';
 import { IdentityMatrix44 } from './IdentityMatrix44';
 import { AbstractMatrix } from './AbstractMatrix';
-import { Array16, ArrayType } from '../../types/CommonTypes';
+import type { Array16, ArrayType } from '../../types/CommonTypes';
 import { mulThatAndThisToOutAsMat44_offsetAsComposition } from './raw/raw_extension';
-import { IQuaternion } from './IQuaternion';
+import type { IQuaternion } from './IQuaternion';
 import { Logger } from '../misc/Logger';
 
 /* eslint-disable prettier/prettier */

@@ -4,7 +4,7 @@ import { VertexAttribute } from '../definitions/VertexAttribute';
 import { Primitive } from '../geometry/Primitive';
 import { Vector3 } from '../math/Vector3';
 import { Mesh } from '../geometry/Mesh';
-import { ISceneGraphEntity } from '../helpers/EntityHelper';
+import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Is } from '../misc/Is';
 import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 

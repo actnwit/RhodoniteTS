@@ -1,6 +1,6 @@
 import { MutableVector3 } from './MutableVector3';
-import { IVector3, IVector4, IMutableVector3 } from './IVector';
-import { IMutableColorRgb } from './IColor';
+import { type IVector3, IVector4, type IMutableVector3 } from './IVector';
+import type { IMutableColorRgb } from './IColor';
 
 /**
  * A mutable RGB color class that extends MutableVector3.

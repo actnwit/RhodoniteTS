@@ -1,9 +1,9 @@
-import { AnimationSampler, AnimationSamplers, AnimationTrackName } from '../../types/AnimationTypes';
+import type { AnimationSampler, AnimationSamplers, AnimationTrackName } from '../../types/AnimationTypes';
 import { __interpolate } from '../components/Animation/AnimationOps';
 import { AnimationAttribute } from '../definitions/AnimationAttribute';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
-import { IScalar } from './IVector';
-import { IAnimatedValue } from './IAnimatedValue';
+import type { IScalar } from './IVector';
+import type { IAnimatedValue } from './IAnimatedValue';
 import { Scalar } from './Scalar';
 import { Logger } from '../misc/Logger';
 

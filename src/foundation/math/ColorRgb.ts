@@ -1,6 +1,6 @@
 import { Vector3 } from './Vector3';
-import { IVector3 } from './IVector';
-import { IColorRgb } from './IColor';
+import type { IVector3 } from './IVector';
+import type { IColorRgb } from './IColor';
 
 /**
  * Represents an RGB color with red, green, and blue components.

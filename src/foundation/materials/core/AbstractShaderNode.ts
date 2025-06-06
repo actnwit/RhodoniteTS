@@ -1,11 +1,11 @@
 import { RnObject } from '../../core/RnObject';
-import { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
-import { VertexAttributeEnum } from '../../definitions/VertexAttribute';
-import { ShaderSemanticsEnum } from '../../definitions/ShaderSemantics';
-import { CompositionTypeEnum } from '../../definitions/CompositionType';
-import { ComponentTypeEnum } from '../../definitions/ComponentType';
-import { Socket, SocketDefaultValue } from './Socket';
-import { ShaderType, ShaderTypeEnum } from '../../definitions/ShaderType';
+import type { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
+import type { VertexAttributeEnum } from '../../definitions/VertexAttribute';
+import type { ShaderSemanticsEnum } from '../../definitions/ShaderSemantics';
+import type { CompositionTypeEnum } from '../../definitions/CompositionType';
+import type { ComponentTypeEnum } from '../../definitions/ComponentType';
+import type { Socket, SocketDefaultValue } from './Socket';
+import { ShaderType, type ShaderTypeEnum } from '../../definitions/ShaderType';
 import { SystemState } from '../../system';
 import { ProcessApproach } from '../../definitions';
 

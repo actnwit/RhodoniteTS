@@ -1,6 +1,6 @@
-import { MutableMatrix33 } from './MutableMatrix33';
-import { MutableVector3 } from './MutableVector3';
-import { Count, Size } from '../../types/CommonTypes';
+import type { MutableMatrix33 } from './MutableMatrix33';
+import type { MutableVector3 } from './MutableVector3';
+import type { Count, Size } from '../../types/CommonTypes';
 
 /**
  * Converts radians to degrees.

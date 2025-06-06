@@ -1,6 +1,6 @@
-import { ISceneGraphEntity } from '../../../helpers';
-import { IVector3 } from '../../../math';
-import { IQuaternion } from '../../../math/IQuaternion';
+import type { ISceneGraphEntity } from '../../../helpers';
+import type { IVector3 } from '../../../math';
+import type { IQuaternion } from '../../../math/IQuaternion';
 
 export interface IAnimationRetarget {
   retargetQuaternion(dstEntity: ISceneGraphEntity): IQuaternion;

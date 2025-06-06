@@ -1,15 +1,15 @@
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { Component } from '../../core/Component';
-import { MeshComponent } from '../Mesh/MeshComponent';
-import { ProcessApproach, ProcessApproachEnum } from '../../definitions/ProcessApproach';
-import { ProcessStage, ProcessStageEnum } from '../../definitions/ProcessStage';
-import { applyMixins, EntityRepository } from '../../core/EntityRepository';
+import type { MeshComponent } from '../Mesh/MeshComponent';
+import { ProcessApproach, type ProcessApproachEnum } from '../../definitions/ProcessApproach';
+import { ProcessStage, type ProcessStageEnum } from '../../definitions/ProcessStage';
+import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { CameraComponent } from '../Camera/CameraComponent';
 import { ModuleManager } from '../../system/ModuleManager';
-import { CubeTexture } from '../../textures/CubeTexture';
-import { RenderPass } from '../../renderer/RenderPass';
-import {
+import type { CubeTexture } from '../../textures/CubeTexture';
+import type { RenderPass } from '../../renderer/RenderPass';
+import type {
   ComponentSID,
   CGAPIResourceHandle,
   Count,
@@ -19,18 +19,18 @@ import {
   EntityUID,
   PrimitiveUID,
 } from '../../../types/CommonTypes';
-import { IEntity } from '../../core/Entity';
-import { ComponentToComponentMethods } from '../ComponentTypes';
+import type { IEntity } from '../../core/Entity';
+import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { isBlend, isBlendWithoutZWrite, isBlendWithZWrite, isTranslucent } from '../../geometry/types/GeometryTypes';
-import { Primitive } from '../../geometry/Primitive';
-import { CGAPIStrategy } from '../../renderer/CGAPIStrategy';
-import { RnXR } from '../../../xr/main';
+import type { Primitive } from '../../geometry/Primitive';
+import type { CGAPIStrategy } from '../../renderer/CGAPIStrategy';
+import type { RnXR } from '../../../xr/main';
 import { TransformComponent } from '../Transform/TransformComponent';
 import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';
-import { WebGpuStrategyBasic } from '../../../webgpu/WebGpuStrategyBasic';
+import type { WebGpuStrategyBasic } from '../../../webgpu/WebGpuStrategyBasic';
 import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import { SystemState } from '../../system/SystemState';
-import { RenderTargetTextureCube } from '../../textures/RenderTargetTextureCube';
+import type { RenderTargetTextureCube } from '../../textures/RenderTargetTextureCube';
 
 /**
  * MeshRendererComponent is a component that manages the rendering of a mesh entity.

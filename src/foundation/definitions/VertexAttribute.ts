@@ -1,7 +1,7 @@
-import { EnumClass, EnumIO, _from, _fromString } from '../misc/EnumIO';
-import { Count, Index } from '../../types/CommonTypes';
+import { EnumClass, type EnumIO, _from, _fromString } from '../misc/EnumIO';
+import type { Count, Index } from '../../types/CommonTypes';
 import { RnException } from '../misc/RnException';
-import { VectorComponentN } from '../../types/CommonTypes';
+import type { VectorComponentN } from '../../types/CommonTypes';
 
 type ComponentChar = 'X' | 'Y' | 'Z' | 'W';
 

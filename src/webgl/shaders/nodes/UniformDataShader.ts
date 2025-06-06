@@ -1,10 +1,10 @@
 import { CommonShaderPart } from '../CommonShaderPart';
-import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
-import { ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
+import type { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
+import type { ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
 import { ProcessApproach } from '../../../foundation/definitions/ProcessApproach';
 import { SystemState } from '../../../foundation/system/SystemState';
-import { AttributeNames } from '../../types/CommonTypes';
-import { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
+import type { AttributeNames } from '../../types/CommonTypes';
+import type { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
 
 export class UniformDataShader extends CommonShaderPart {
   private __variableName = '';

@@ -1,9 +1,9 @@
-import { VertexAttributeEnum, VertexAttribute } from '../../../foundation/definitions/VertexAttribute';
+import { type VertexAttributeEnum, VertexAttribute } from '../../../foundation/definitions/VertexAttribute';
 import { CommonShaderPart } from '../CommonShaderPart';
-import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
-import { ComponentTypeEnum, ComponentType } from '../../../foundation/definitions/ComponentType';
-import { AttributeNames } from '../../types/CommonTypes';
-import { IVector } from '../../../foundation/math/IVector';
+import type { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
+import { type ComponentTypeEnum, ComponentType } from '../../../foundation/definitions/ComponentType';
+import type { AttributeNames } from '../../types/CommonTypes';
+import type { IVector } from '../../../foundation/math/IVector';
 import { ProcessApproach } from '../../../foundation/definitions/ProcessApproach';
 import { SystemState } from '../../../foundation/system/SystemState';
 

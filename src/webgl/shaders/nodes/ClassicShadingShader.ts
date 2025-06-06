@@ -1,9 +1,9 @@
-import { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
+import type { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
 import { CommonShaderPart } from '../CommonShaderPart';
 import { Config } from '../../../foundation/core/Config';
 import { ShaderNode } from '../../../foundation/definitions/ShaderNode';
-import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
-import { AttributeNames } from '../../types/CommonTypes';
+import type { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
+import type { AttributeNames } from '../../types/CommonTypes';
 
 /**
  * A shader part that implements classic shading models including Lambert, Blinn-Phong, and Phong shading.

@@ -1,6 +1,6 @@
 import { RnObject } from '../core/RnObject';
-import { IVector4 } from '../math/IVector';
-import { RenderPass } from './RenderPass';
+import type { IVector4 } from '../math/IVector';
+import type { RenderPass } from './RenderPass';
 
 /**
  * Expression class manages the rendering pipeline by defining the order and sequence of render passes.

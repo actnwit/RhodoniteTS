@@ -1,7 +1,7 @@
-import { ConstantVariableShader } from '../../../webgl/shaders/nodes/ConstantVariableShader';
+import type { ConstantVariableShader } from '../../../webgl/shaders/nodes/ConstantVariableShader';
 import { CompositionType } from '../../definitions';
-import { ComponentTypeEnum } from '../../definitions/ComponentType';
-import { IVector4 } from '../../math/IVector';
+import type { ComponentTypeEnum } from '../../definitions/ComponentType';
+import type { IVector4 } from '../../math/IVector';
 import { ConstantVariableShaderNode } from './ConstantVariableShaderNode';
 
 /**

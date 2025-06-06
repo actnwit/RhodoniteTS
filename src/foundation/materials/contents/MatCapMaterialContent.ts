@@ -9,12 +9,12 @@ import { ShaderType } from '../../definitions/ShaderType';
 import { Texture } from '../../textures/Texture';
 import { Vector3 } from '../../math/Vector3';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { Material } from '../core/Material';
+import type { Material } from '../core/Material';
 import MatCapShaderVertex from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.vert';
 import MatCapShaderFragment from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.frag';
-import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
-import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-import { Sampler } from '../../textures/Sampler';
+import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
+import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import type { Sampler } from '../../textures/Sampler';
 import { dummyBlackTexture } from '../core/DummyTextures';
 import { Logger } from '../../misc/Logger';
 
@@ -41,7 +41,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
     let matCapTexture;
     if (typeof uri === 'string') {
       matCapTexture = new Texture();
-      (async function (uri: string) {
+      (async (uri: string) => {
         await matCapTexture.generateTextureFromUrl(uri, {
           type: ComponentType.UnsignedByte,
         });

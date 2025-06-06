@@ -1,12 +1,12 @@
-import { RequireOne } from '../../types/TypeGenerators';
+import type { RequireOne } from '../../types/TypeGenerators';
 import { RnObject } from '../core/RnObject';
-import { IVector4 } from '../math/IVector';
+import type { IVector4 } from '../math/IVector';
 import { assertExist } from '../misc/MiscUtil';
 import { Is } from '../misc/Is';
-import { RenderTargetTexture } from '../textures/RenderTargetTexture';
-import { Expression } from './Expression';
-import { FrameBuffer } from './FrameBuffer';
-import { RenderPass } from './RenderPass';
+import type { RenderTargetTexture } from '../textures/RenderTargetTexture';
+import type { Expression } from './Expression';
+import type { FrameBuffer } from './FrameBuffer';
+import type { RenderPass } from './RenderPass';
 
 type ColorAttachmentIndex = number;
 type InputRenderPassIndex = number;

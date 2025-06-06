@@ -1,5 +1,5 @@
-import { CompositionTypeEnum } from '../../definitions/CompositionType';
-import { ComponentTypeEnum } from '../../definitions/ComponentType';
+import type { CompositionTypeEnum } from '../../definitions/CompositionType';
+import type { ComponentTypeEnum } from '../../definitions/ComponentType';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { BlockEndShader } from '../../../webgl/shaders/nodes/BlockEndShader';
 

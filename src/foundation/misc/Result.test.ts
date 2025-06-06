@@ -1,4 +1,4 @@
-import { Result, Ok, Err, RnError } from './Result';
+import { type Result, Ok, Err, type RnError } from './Result';
 import { RnException } from './RnException';
 
 function succeedIfValueEven(val: number): Result<number, number> {

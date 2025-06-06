@@ -1,13 +1,13 @@
 import { Entity } from '../foundation/core/Entity';
 import { RnPromise } from '../foundation/misc/RnPromise';
-import { Array3, Array4, Index } from './CommonTypes';
-import { ShaderSemanticsEnum } from '../foundation/definitions/ShaderSemantics';
-import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
+import type { Array3, Array4, Index } from './CommonTypes';
+import type { ShaderSemanticsEnum } from '../foundation/definitions/ShaderSemantics';
+import type { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { Material } from '../foundation/materials/core/Material';
-import { Expression } from '../foundation/renderer/Expression';
-import { ILoaderExtension } from '../foundation/importer/ILoaderExtension';
+import type { Expression } from '../foundation/renderer/Expression';
+import type { ILoaderExtension } from '../foundation/importer/ILoaderExtension';
 import { Accessor } from '../foundation/memory/Accessor';
-import {
+import type {
   GL_DATA_BYTE,
   GL_DATA_UNSIGNED_BYTE,
   GL_DATA_SHORT,

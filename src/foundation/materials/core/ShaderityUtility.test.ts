@@ -1,5 +1,5 @@
 import Rn from '../../../../dist/esm';
-import { ShaderityObject } from 'shaderity';
+import type { ShaderityObject } from 'shaderity';
 import { ShaderityUtilityWebGL } from './ShaderityUtilityWebGL';
 
 test.skip('ShaderityUtility parse rn_data correctly', async () => {

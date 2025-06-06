@@ -6,21 +6,21 @@ import { ComponentRepository } from '../../core/ComponentRepository';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { Config } from '../../core/Config';
-import { Material } from '../core/Material';
+import type { Material } from '../core/Material';
 import { Scalar } from '../../math/Scalar';
 import { ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
 import { ShaderType } from '../../definitions/ShaderType';
 import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
 import { VectorN } from '../../math/VectorN';
-import { Array3, Array4, Count } from '../../../types/CommonTypes';
-import { Texture } from '../../textures/Texture';
+import type { Array3, Array4, Count } from '../../../types/CommonTypes';
+import type { Texture } from '../../textures/Texture';
 import mToonSingleShaderVertex from '../../../webgl/shaderity_shaders/MToon0xSingleShader/MToon0xSingleShader.vert.glsl';
 import mToonSingleShaderFragment from '../../../webgl/shaderity_shaders/MToon0xSingleShader/MToon0xSingleShader.frag.glsl';
 import mToonSingleShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/MToon0xSingleShader/MToon0xSingleShader.vert.wgsl';
 import mToonSingleShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/MToon0xSingleShader/MToon0xSingleShader.frag.wgsl';
-import { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
-import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
+import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import {
   GL_DST_ALPHA,
   GL_DST_COLOR,
@@ -33,7 +33,7 @@ import {
   GL_SRC_ALPHA_SATURATE,
   GL_SRC_COLOR,
   GL_ZERO,
-  Vrm0xMaterialProperty,
+  type Vrm0xMaterialProperty,
 } from '../../../types';
 import { Sampler } from '../../textures/Sampler';
 import { Blend } from '../../definitions/Blend';

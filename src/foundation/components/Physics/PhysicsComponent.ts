@@ -1,11 +1,11 @@
 import { Component } from '../../core/Component';
-import { applyMixins, EntityRepository } from '../../core/EntityRepository';
+import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { ProcessStage } from '../../definitions/ProcessStage';
-import { ComponentTID, ComponentSID, EntityUID } from '../../../types/CommonTypes';
-import { PhysicsStrategy } from '../../physics/PhysicsStrategy';
-import { IEntity } from '../../core/Entity';
-import { ComponentToComponentMethods } from '../ComponentTypes';
+import type { ComponentTID, ComponentSID, EntityUID } from '../../../types/CommonTypes';
+import type { PhysicsStrategy } from '../../physics/PhysicsStrategy';
+import type { IEntity } from '../../core/Entity';
+import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
 import { IPhysicsEntity } from '../../helpers/EntityHelper';
 import { createGroupEntity } from '../SceneGraph/createGroupEntity';

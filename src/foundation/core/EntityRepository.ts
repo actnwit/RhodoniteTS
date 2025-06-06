@@ -1,14 +1,14 @@
-import { IEntity, Entity } from './Entity';
-import { Component } from './Component';
+import { type IEntity, Entity } from './Entity';
+import type { Component } from './Component';
 import { ComponentRepository } from './ComponentRepository';
-import { RnTags, EntityUID, ComponentTID } from '../../types/CommonTypes';
+import type { RnTags, EntityUID, ComponentTID } from '../../types/CommonTypes';
 import { valueWithCompensation } from '../misc/MiscUtil';
-import { ComponentToComponentMethods } from '../components/ComponentTypes';
+import type { ComponentToComponentMethods } from '../components/ComponentTypes';
 import { Is } from '../misc/Is';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
-import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
-import { ISceneGraphEntity } from '../helpers';
+import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
+import type { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
+import type { ISceneGraphEntity } from '../helpers';
 import { Logger } from '../misc';
 
 /**

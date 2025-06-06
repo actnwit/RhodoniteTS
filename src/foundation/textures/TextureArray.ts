@@ -1,5 +1,5 @@
-import { CGAPIResourceHandle } from '../../types/CommonTypes';
-import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
+import type { CGAPIResourceHandle } from '../../types/CommonTypes';
+import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import { Config } from '../core/Config';
 import { ComponentType } from '../definitions/ComponentType';
 import { PixelFormat } from '../definitions/PixelFormat';

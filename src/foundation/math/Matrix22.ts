@@ -1,14 +1,14 @@
 /* eslint-disable prettier/prettier */
-import { Matrix33 } from './Matrix33';
+import type { Matrix33 } from './Matrix33';
 import { Matrix44 } from './Matrix44';
-import { IMatrix, IMatrix22 } from './IMatrix';
+import { IMatrix, type IMatrix22 } from './IMatrix';
 import { CompositionType } from '../definitions/CompositionType';
 import { Vector2 } from './Vector2';
-import { MutableMatrix22 } from './MutableMatrix22';
+import type { MutableMatrix22 } from './MutableMatrix22';
 import { MathUtil } from './MathUtil';
-import { MutableVector2 } from './MutableVector2';
+import type { MutableVector2 } from './MutableVector2';
 import { AbstractMatrix } from './AbstractMatrix';
-import { Array4 } from '../../types';
+import type { Array4 } from '../../types';
 import { Logger } from '../misc/Logger';
 
 /**

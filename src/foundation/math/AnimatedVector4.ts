@@ -1,10 +1,10 @@
-import { AnimationChannel, AnimationSampler, AnimationSamplers, AnimationTrackName } from '../../types/AnimationTypes';
+import { AnimationChannel, type AnimationSampler, type AnimationSamplers, type AnimationTrackName } from '../../types/AnimationTypes';
 import { Vector4 } from './Vector4';
 import { __getOutputValue, __interpolate } from '../components/Animation/AnimationOps';
 import { AnimationAttribute } from '../definitions/AnimationAttribute';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
-import { IVector4 } from './IVector';
-import { IAnimatedValue } from './IAnimatedValue';
+import type { IVector4 } from './IVector';
+import type { IAnimatedValue } from './IAnimatedValue';
 import { Logger } from '../misc/Logger';
 
 /**

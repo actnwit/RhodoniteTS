@@ -4,18 +4,18 @@
  */
 export enum LogLevel {
   Debug = 0,
-  Info,
-  Warn,
-  Error,
-  Assert,
+  Info = 1,
+  Warn = 2,
+  Error = 3,
+  Assert = 4,
 }
 
 /**
  * Internal log entry structure for storing log messages with metadata.
  */
 class Log {
-  message: string = '';
-  timestamp: number = 0;
+  message = '';
+  timestamp = 0;
   logLevel: LogLevel = LogLevel.Info;
 }
 

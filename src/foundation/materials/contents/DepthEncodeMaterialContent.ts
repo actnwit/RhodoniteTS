@@ -3,15 +3,15 @@ import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
-import { Material } from '../core/Material';
+import type { Material } from '../core/Material';
 import { Scalar } from '../../math/Scalar';
 import { ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
 import { ShaderType } from '../../definitions/ShaderType';
 import { Vector3 } from '../../math/Vector3';
 import DepthEncodeSingleShaderVertex from '../../../webgl/shaderity_shaders/DepthEncodeSingleShader/DepthEncodeSingleShader.vert';
 import DepthEncodeSingleShaderFragment from '../../../webgl/shaderity_shaders/DepthEncodeSingleShader/DepthEncodeSingleShader.frag';
-import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
-import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
+import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 
 /**
  * Material content for depth encoding functionality.

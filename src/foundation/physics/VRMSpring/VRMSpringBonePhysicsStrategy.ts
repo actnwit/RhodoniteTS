@@ -1,16 +1,16 @@
 import { Vector3 } from '../../math/Vector3';
 import { MutableVector3 } from '../../math/MutableVector3';
-import { SceneGraphComponent } from '../../components/SceneGraph/SceneGraphComponent';
+import type { SceneGraphComponent } from '../../components/SceneGraph/SceneGraphComponent';
 import { Quaternion } from '../../math/Quaternion';
 import { Time } from '../../misc/Time';
-import { VRMSpring } from './VRMSpring';
-import { VRMColliderGroup } from './VRMColliderGroup';
-import { PhysicsStrategy } from '../PhysicsStrategy';
+import type { VRMSpring } from './VRMSpring';
+import type { VRMColliderGroup } from './VRMColliderGroup';
+import type { PhysicsStrategy } from '../PhysicsStrategy';
 import { MutableQuaternion } from '../../math/MutableQuaternion';
 import { Is } from '../../misc/Is';
-import { VRMSpringBone } from './VRMSpringBone';
+import type { VRMSpringBone } from './VRMSpringBone';
 import { Config } from '../../core/Config';
-import { IVector3 } from '../../math/IVector';
+import type { IVector3 } from '../../math/IVector';
 import { Matrix44 } from '../../math/Matrix44';
 
 /**

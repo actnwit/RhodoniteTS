@@ -1,11 +1,11 @@
-import { Matrix44 } from './Matrix44';
+import type { Matrix44 } from './Matrix44';
 import { Quaternion } from './Quaternion';
-import { IMutableMatrix33, IMutableMatrix, IMatrix33, IMatrix44 } from './IMatrix';
+import type { IMutableMatrix33, IMutableMatrix, IMatrix33, IMatrix44 } from './IMatrix';
 import { Matrix33 } from './Matrix33';
-import { Vector3 } from './Vector3';
-import { IVector3 } from './IVector';
-import { Array9, Index } from '../../types/CommonTypes';
-import { IQuaternion } from './IQuaternion';
+import type { Vector3 } from './Vector3';
+import type { IVector3 } from './IVector';
+import type { Array9, Index } from '../../types/CommonTypes';
+import type { IQuaternion } from './IQuaternion';
 import { Logger } from '../misc/Logger';
 
 /* eslint-disable prettier/prettier */

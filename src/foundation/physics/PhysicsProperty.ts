@@ -1,5 +1,5 @@
-import { PhysicsShapeTypeEnum } from '../definitions/PhysicsShapeType';
-import { IVector3 } from '../math';
+import type { PhysicsShapeTypeEnum } from '../definitions/PhysicsShapeType';
+import type { IVector3 } from '../math';
 
 /**
  * Internal physics property configuration containing detailed shape and physics parameters.

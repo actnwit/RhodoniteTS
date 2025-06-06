@@ -1,5 +1,5 @@
-import { Index } from '../../types/CommonTypes';
-import { Gltf2BufferViewEx, Gltf2Ex } from '../../types/glTF2ForOutput';
+import type { Index } from '../../types/CommonTypes';
+import type { Gltf2BufferViewEx, Gltf2Ex } from '../../types/glTF2ForOutput';
 import { DataUtil } from '../misc/DataUtil';
 
 /**

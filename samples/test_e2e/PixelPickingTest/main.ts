@@ -2,11 +2,11 @@ import Rn from '../../../dist/esmdev/index.js';
 
 declare const window: any;
 
-const setupRenderPassEntityUidOutput = function (
+const setupRenderPassEntityUidOutput = (
   rootGroup: Rn.ISceneGraphEntity,
   cameraComponent: Rn.CameraComponent,
   canvas: HTMLCanvasElement
-) {
+) => {
   const renderPass = new Rn.RenderPass();
   const entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
 
@@ -32,7 +32,7 @@ const setupRenderPassEntityUidOutput = function (
   return renderPass;
 };
 
-const setupRenderPassRendering = function (rootGroup: Rn.ISceneGraphEntity, cameraComponent: Rn.CameraComponent) {
+const setupRenderPassRendering = (rootGroup: Rn.ISceneGraphEntity, cameraComponent: Rn.CameraComponent) => {
   const renderPass = new Rn.RenderPass();
   renderPass.cameraComponent = cameraComponent;
   renderPass.addEntities([rootGroup]);
@@ -40,7 +40,7 @@ const setupRenderPassRendering = function (rootGroup: Rn.ISceneGraphEntity, came
   return renderPass;
 };
 
-const pick = async function (e: any) {
+const pick = async (e: any) => {
   const x = e.offsetX;
   const y = window.canvas.clientHeight - e.offsetY;
   const framebuffer = window.renderPassEntityUidOutput.getFramebuffer();
@@ -161,6 +161,6 @@ Rn.System.startRenderLoop(async () => {
 
 canvas.addEventListener('mousedown', pick);
 
-window.exportGltf2 = function () {
+window.exportGltf2 = () => {
   Rn.Gltf2Exporter.export('Rhodonite');
 };

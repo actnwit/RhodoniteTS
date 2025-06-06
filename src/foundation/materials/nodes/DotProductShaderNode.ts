@@ -1,7 +1,7 @@
 import DotProductShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/DotProduct.glsl';
 import DotProductShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/DotProduct.wgsl';
-import { ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
-import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
+import type { ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
+import type { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';

@@ -84,7 +84,7 @@ setTextureParameterForMeshComponent(
   renderPassDepth.getFramebuffer().getDepthAttachedRenderTargetTexture()
 );
 
-window.download = function () {
+window.download = () => {
   renderPassDepth.getFramebuffer().getDepthAttachedRenderTargetTexture()!.downloadTexturePixelData();
 };
 

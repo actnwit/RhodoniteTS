@@ -1,12 +1,12 @@
 import { AbstractTexture } from './AbstractTexture';
-import { HdriFormat, HdriFormatEnum } from '../definitions/HdriFormat';
+import { HdriFormat, type HdriFormatEnum } from '../definitions/HdriFormat';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { BasisTranscoder, BASIS } from '../../types/BasisTexture';
+import type { BasisTranscoder, BASIS } from '../../types/BasisTexture';
 import { TextureParameter } from '../definitions/TextureParameter';
-import { CGAPIResourceHandle, Size, TypedArray } from '../../types/CommonTypes';
+import type { CGAPIResourceHandle, Size, TypedArray } from '../../types/CommonTypes';
 import { SystemState } from '../system/SystemState';
 import { ProcessApproach } from '../definitions/ProcessApproach';
-import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
+import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import { Logger } from '../misc/Logger';
 
 declare const BASIS: BASIS;

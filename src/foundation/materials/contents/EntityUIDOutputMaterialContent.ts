@@ -7,11 +7,11 @@ import { ShaderType } from '../../definitions/ShaderType';
 import { Scalar } from '../../math/Scalar';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
-import { Material } from '../core/Material';
+import type { Material } from '../core/Material';
 import entityUIDOutputSingleShaderVertex from '../../../webgl/shaderity_shaders/EntityUIDOutputSingleShader/EntityUIDOutputSingleShader.vert';
 import entityUIDOutputSingleShaderFragment from '../../../webgl/shaderity_shaders/EntityUIDOutputSingleShader/EntityUIDOutputSingleShader.frag';
-import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
-import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
+import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 
 /**
  * Material content class for rendering entity UID output.

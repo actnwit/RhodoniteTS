@@ -1,4 +1,4 @@
-import { Primitive } from './Primitive';
+import type { Primitive } from './Primitive';
 import { VertexAttribute } from '../definitions/VertexAttribute';
 import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import { MemoryManager } from '../core/MemoryManager';
@@ -6,25 +6,25 @@ import { BufferUse } from '../definitions/BufferUse';
 import { ComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
 import { Vector3 } from '../math/Vector3';
-import { Accessor } from '../memory/Accessor';
-import { Vector2 } from '../math/Vector2';
+import type { Accessor } from '../memory/Accessor';
+import type { Vector2 } from '../math/Vector2';
 import { AABB } from '../math/AABB';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { Index, CGAPIResourceHandle, MeshUID } from '../../types/CommonTypes';
+import type { Index, CGAPIResourceHandle, MeshUID } from '../../types/CommonTypes';
 import { MutableVector3 } from '../math/MutableVector3';
-import { VertexHandles } from '../../webgl/WebGLResourceRepository';
+import type { VertexHandles } from '../../webgl/WebGLResourceRepository';
 import { Is } from '../misc/Is';
-import { IVector3 } from '../math/IVector';
+import type { IVector3 } from '../math/IVector';
 import {
-  IMesh,
+  type IMesh,
   isBlendWithoutZWrite,
   isBlendWithZWrite,
   isOpaque,
   isTranslucent,
-  RaycastResultEx1,
+  type RaycastResultEx1,
 } from './types/GeometryTypes';
-import { IMeshEntity } from '../helpers/EntityHelper';
-import { MeshComponent } from '../components/Mesh/MeshComponent';
+import type { IMeshEntity } from '../helpers/EntityHelper';
+import type { MeshComponent } from '../components/Mesh/MeshComponent';
 import { ProcessStage } from '../definitions/ProcessStage';
 import { Logger } from '../misc/Logger';
 import { ProcessApproach } from '../definitions/ProcessApproach';

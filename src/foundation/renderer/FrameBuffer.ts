@@ -1,8 +1,8 @@
 import { RnObject } from '../core/RnObject';
 import { CGAPIResourceRepository } from './CGAPIResourceRepository';
-import { IRenderable } from '../textures/IRenderable';
-import { RenderBufferTargetEnum, RenderBufferTarget } from '../definitions/RenderBufferTarget';
-import { Index, Size, CGAPIResourceHandle } from '../../types/CommonTypes';
+import type { IRenderable } from '../textures/IRenderable';
+import { type RenderBufferTargetEnum, RenderBufferTarget } from '../definitions/RenderBufferTarget';
+import type { Index, Size, CGAPIResourceHandle } from '../../types/CommonTypes';
 import { RenderTargetTexture } from '../textures/RenderTargetTexture';
 import { RenderTargetTexture2DArray } from '../textures/RenderTargetTexture2DArray';
 import { RenderTargetTextureCube } from '../textures/RenderTargetTextureCube';

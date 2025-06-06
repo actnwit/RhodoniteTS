@@ -2,9 +2,9 @@ import { CommonShaderPart } from '../CommonShaderPart';
 import { ShaderNode } from '../../../foundation/definitions/ShaderNode';
 import { ProcessApproach } from '../../../foundation/definitions/ProcessApproach';
 import { SystemState } from '../../../foundation/system/SystemState';
-import { AttributeNames } from '../../types/CommonTypes';
-import { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
-import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
+import type { AttributeNames } from '../../types/CommonTypes';
+import type { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
+import type { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 
 /**
  * EndShader class provides the final output functions for both vertex and fragment shaders.

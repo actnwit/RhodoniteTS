@@ -8,7 +8,7 @@ import { Buffer } from '../memory/Buffer';
 import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import { CompositionType } from '../definitions/CompositionType';
 import { ComponentType } from '../definitions/ComponentType';
-import { VertexAttribute, VertexAttributeSemanticsJoinedString } from '../definitions/VertexAttribute';
+import { VertexAttribute, type VertexAttributeSemanticsJoinedString } from '../definitions/VertexAttribute';
 import { CameraType } from '../definitions/CameraType';
 import { Texture } from '../textures/Texture';
 import { Vector4 } from '../math/Vector4';
@@ -18,43 +18,43 @@ import { MathUtil } from '../math/MathUtil';
 import { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
 import { AlphaMode } from '../definitions/AlphaMode';
 import { MaterialHelper } from '../helpers/MaterialHelper';
-import { ShaderSemantics, ShaderSemanticsEnum, ShaderSemanticsName } from '../definitions/ShaderSemantics';
+import { ShaderSemantics, ShaderSemanticsEnum, type ShaderSemanticsName } from '../definitions/ShaderSemantics';
 import { Vector2 } from '../math/Vector2';
-import { Material } from '../materials/core/Material';
+import type { Material } from '../materials/core/Material';
 import { ShadingModel } from '../definitions/ShadingModel';
-import { Accessor } from '../memory/Accessor';
+import type { Accessor } from '../memory/Accessor';
 import { Mesh } from '../geometry/Mesh';
 import { MutableVector4 } from '../math/MutableVector4';
 import { LightType } from '../definitions/LightType';
 import {
-  Count,
-  Byte,
-  Size,
-  Index,
-  TypedArray,
+  type Count,
+  type Byte,
+  type Size,
+  type Index,
+  type TypedArray,
   TypedArrayConstructor,
   Array4,
-  VectorComponentN,
-  Array3,
+  type VectorComponentN,
+  type Array3,
 } from '../../types/CommonTypes';
 import {
-  RnM2,
-  RnM2Node,
-  RnM2Accessor,
-  RnM2BufferView,
-  RnM2Primitive,
-  RnM2Material,
-  RnM2Image,
-  RnM2Camera,
+  type RnM2,
+  type RnM2Node,
+  type RnM2Accessor,
+  type RnM2BufferView,
+  type RnM2Primitive,
+  type RnM2Material,
+  type RnM2Image,
+  type RnM2Camera,
   RnM2Texture,
-  RnM2Mesh,
-  RnM2TextureInfo,
-  RnM2SparseIndices,
-  RnM2PbrMetallicRoughness,
-  RnM2Animation,
-  RnM2AnimationChannel,
-  RnM2AnimationSampler,
-  RnM2TextureSampler,
+  type RnM2Mesh,
+  type RnM2TextureInfo,
+  type RnM2SparseIndices,
+  type RnM2PbrMetallicRoughness,
+  type RnM2Animation,
+  type RnM2AnimationChannel,
+  type RnM2AnimationSampler,
+  type RnM2TextureSampler,
 } from '../../types/RnM2';
 import { Config } from '../core/Config';
 import { BufferUse } from '../definitions/BufferUse';
@@ -65,15 +65,15 @@ import { TextureParameter } from '../definitions/TextureParameter';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { Is } from '../misc/Is';
 import { DataUtil } from '../misc/DataUtil';
-import { AnimationPathName, AnimationSampler, AnimationTrackName } from '../../types/AnimationTypes';
-import { GltfLoadOption, KHR_lights_punctual_Light, TagGltf2NodeIndex } from '../../types/glTF2';
-import { IAnimationEntity, ICameraEntity, ISceneGraphEntity, ILightEntity, IMeshEntity } from '../helpers/EntityHelper';
+import type { AnimationPathName, AnimationSampler, AnimationTrackName } from '../../types/AnimationTypes';
+import { type GltfLoadOption, type KHR_lights_punctual_Light, TagGltf2NodeIndex } from '../../types/glTF2';
+import type { IAnimationEntity, ICameraEntity, ISceneGraphEntity, ILightEntity, IMeshEntity } from '../helpers/EntityHelper';
 import { BlendShapeComponent } from '../components/BlendShape/BlendShapeComponent';
 import { LightComponent } from '../components/Light/LightComponent';
-import { IBlendShapeEntityMethods } from '../components/BlendShape/IBlendShapeEntity';
-import { BufferView } from '../memory/BufferView';
+import type { IBlendShapeEntityMethods } from '../components/BlendShape/IBlendShapeEntity';
+import type { BufferView } from '../memory/BufferView';
 import { RhodoniteImportExtension } from './RhodoniteImportExtension';
-import { Vrm0xMaterialProperty } from '../../types/VRM0x';
+import type { Vrm0xMaterialProperty } from '../../types/VRM0x';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
 import { Sampler } from '../textures/Sampler';
 import { AnimationStateComponent } from '../components/AnimationState/AnimationStateComponent';
@@ -86,11 +86,11 @@ import { AnimatedVector3 } from '../math/AnimatedVector3';
 import { AnimatedQuaternion } from '../math/AnimatedQuaternion';
 import { AnimatedScalar } from '../math/AnimatedScalar';
 import { AnimatedVector4 } from '../math/AnimatedVector4';
-import { IAnimatedValue } from '../math/IAnimatedValue';
+import type { IAnimatedValue } from '../math/IAnimatedValue';
 import { AnimatedVector2 } from '../math/AnimatedVector2';
 import { MutableVector2 } from '../math/MutableVector2';
 import { AnimatedVectorN } from '../math/AnimatedVectorN';
-import { Vrm1_Material } from '../../types/VRMC_materials_mtoon';
+import type { Vrm1_Material } from '../../types/VRMC_materials_mtoon';
 
 declare let DracoDecoderModule: any;
 
@@ -420,7 +420,7 @@ export class ModelConverter {
     });
 
     for (const node_i in gltfModel.nodes) {
-      const parentNode_i = parseInt(node_i);
+      const parentNode_i = Number.parseInt(node_i);
       const glTF2ParentNode = gltfModel.nodes[parentNode_i];
       if (Is.exist(glTF2ParentNode.children)) {
         const rnParentSceneGraphComponent = groupSceneComponents[parentNode_i];
@@ -620,7 +620,7 @@ export class ModelConverter {
     animationAttributeType: AnimationPathName,
     gltfModel: RnM2
   ) {
-    const cameraIndex = parseInt(match[1]);
+    const cameraIndex = Number.parseInt(match[1]);
     const nodes = gltfModel.nodes;
     for (let i = 0; i < nodes.length; i++) {
       const node = nodes[i];
@@ -700,7 +700,7 @@ export class ModelConverter {
     animationAttributeType: AnimationPathName,
     gltfModel: RnM2
   ) {
-    const lightIndex = parseInt(match[1]);
+    const lightIndex = Number.parseInt(match[1]);
     const nodes = gltfModel.nodes;
     for (let i = 0; i < nodes.length; i++) {
       const node = nodes[i];
@@ -781,7 +781,7 @@ export class ModelConverter {
     interpolation: string,
     animationAttributeType: AnimationPathName
   ) {
-    const nodeIndex = parseInt(match[1]);
+    const nodeIndex = Number.parseInt(match[1]);
     const rnEntity = rnEntities[nodeIndex];
     if (Is.not.exist(rnEntity)) {
       throw new Error(`Node not found: ${pointer}`);
@@ -859,7 +859,7 @@ export class ModelConverter {
     interpolation: string,
     animationAttributeType: AnimationPathName
   ) {
-    const materialIndex = parseInt(match[1]);
+    const materialIndex = Number.parseInt(match[1]);
     const material = rnMaterials[materialIndex];
     if (Is.not.exist(material)) {
       throw new Error(`Material not found: ${pointer}`);
@@ -1051,7 +1051,7 @@ export class ModelConverter {
     const rnEntitiesByNames: Map<string, ISceneGraphEntity> = new Map();
 
     for (const node_i in gltfModel.nodes) {
-      const node = gltfModel.nodes[parseInt(node_i)] as RnM2Node;
+      const node = gltfModel.nodes[Number.parseInt(node_i)] as RnM2Node;
       let entity: ISceneGraphEntity;
       if (node.mesh != null) {
         const meshIdx = node.mesh;
@@ -1774,7 +1774,7 @@ export class ModelConverter {
     }
 
     const maxMaterialInstanceNumber: number = Config.maxMaterialInstanceForEachType;
-    if (parseFloat(gltfModel.asset?.version) >= 2) {
+    if (Number.parseFloat(gltfModel.asset?.version) >= 2) {
       const rnLoaderOptions = gltfModel.asset.extras?.rnLoaderOptions ?? {};
       // For glTF 2
       const useTangentAttribute = true; //this.__useTangentAttribute(gltfModel, primitive);
@@ -1958,7 +1958,7 @@ export class ModelConverter {
       const rnTexture = rnTextures[emissiveTexture.texture!.source!];
       const rnSampler = rnSamplers[emissiveTexture.texture!.sampler!];
       material.setTextureParameter('emissiveTexture', rnTexture, rnSampler);
-      if (parseFloat(gltfModel.asset?.version) >= 2 && emissiveTexture.texCoord != null) {
+      if (Number.parseFloat(gltfModel.asset?.version) >= 2 && emissiveTexture.texCoord != null) {
         material.setParameter('emissiveTexcoordIndex', emissiveTexture.texCoord);
       }
       ModelConverter._setupTextureTransform(
@@ -1994,7 +1994,7 @@ export class ModelConverter {
       const rnTexture = rnTextures[normalTexture.texture!.source!];
       const rnSampler = rnSamplers[normalTexture.texture!.sampler!];
       material.setTextureParameter('normalTexture', rnTexture, rnSampler);
-      if (parseFloat(gltfModel.asset?.version) >= 2) {
+      if (Number.parseFloat(gltfModel.asset?.version) >= 2) {
         if (normalTexture.texCoord != null) {
           material.setParameter('normalTexcoordIndex', normalTexture.texCoord);
         }

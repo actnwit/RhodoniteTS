@@ -1,10 +1,10 @@
-import { AnimationChannel, AnimationSampler, AnimationSamplers, AnimationTrackName } from '../../types/AnimationTypes';
+import { AnimationChannel, type AnimationSampler, type AnimationSamplers, type AnimationTrackName } from '../../types/AnimationTypes';
 import { __getOutputValue, __interpolate } from '../components/Animation/AnimationOps';
 import { AnimationAttribute } from '../definitions/AnimationAttribute';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
-import { IAnimatedValue } from './IAnimatedValue';
+import type { IAnimatedValue } from './IAnimatedValue';
 import { Quaternion } from './Quaternion';
-import { IQuaternion } from './IQuaternion';
+import type { IQuaternion } from './IQuaternion';
 import { Logger } from '../misc/Logger';
 
 /**

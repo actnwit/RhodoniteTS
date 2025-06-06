@@ -1,5 +1,5 @@
-import { CGAPIResourceHandle, Index, Size } from '../../types/CommonTypes';
-import { FrameBuffer } from '../renderer/FrameBuffer';
+import type { CGAPIResourceHandle, Index, Size } from '../../types/CommonTypes';
+import type { FrameBuffer } from '../renderer/FrameBuffer';
 
 /**
  * Interface for renderable texture objects that can be used as render targets.

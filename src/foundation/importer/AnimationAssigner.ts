@@ -1,22 +1,22 @@
-import { RnM2 } from '../../types/RnM2';
+import type { RnM2 } from '../../types/RnM2';
 import { ModelConverter } from './ModelConverter';
 import { EntityRepository } from '../core/EntityRepository';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { AnimationInterpolation } from '../definitions/AnimationInterpolation';
-import { Index } from '../../types/CommonTypes';
-import { Vrm0x } from '../../types/VRM0x';
+import type { Index } from '../../types/CommonTypes';
+import type { Vrm0x } from '../../types/VRM0x';
 import { Is } from '../misc/Is';
-import { ISceneGraphEntity } from '../helpers/EntityHelper';
-import { AbsoluteAnimation, GlobalRetarget, IAnimationRetarget } from '../components';
-import { Vrm1 } from '../../types/VRM1';
-import { AnimationSampler, AnimationTrackName, RnM2Vrma } from '../../types';
+import type { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { AbsoluteAnimation, GlobalRetarget, type IAnimationRetarget } from '../components';
+import type { Vrm1 } from '../../types/VRM1';
+import type { AnimationSampler, AnimationTrackName, RnM2Vrma } from '../../types';
 import { Vector3 } from '../math';
 import { GlobalRetargetReverse } from '../components/Skeletal/AnimationRetarget/GlobalRetargetReverse';
 import { AnimationStateComponent } from '../components/AnimationState/AnimationStateComponent';
 import { Logger } from '../misc/Logger';
 import { AnimatedQuaternion } from '../math/AnimatedQuaternion';
 import { AnimatedVector3 } from '../math/AnimatedVector3';
-import { VRM } from '../../types/VRM';
+import type { VRM } from '../../types/VRM';
 
 type RetargetMode = 'none' | 'global' | 'absolute';
 

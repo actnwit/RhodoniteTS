@@ -1,8 +1,8 @@
-import { VertexAttributeEnum } from '../definitions/VertexAttribute';
-import { Accessor } from '../memory/Accessor';
-import { Array1, Array2, Array3, Array4, Index } from '../../types/CommonTypes';
-import { IndicesAccessOption } from '../memory/Accessor';
-import { ISemanticVertexAttribute } from './ISemanticVertexAttribute';
+import type { VertexAttributeEnum } from '../definitions/VertexAttribute';
+import type { Accessor } from '../memory/Accessor';
+import type { Array1, Array2, Array3, Array4, Index } from '../../types/CommonTypes';
+import type { IndicesAccessOption } from '../memory/Accessor';
+import type { ISemanticVertexAttribute } from './ISemanticVertexAttribute';
 
 /**
  * A simple implementation of vertex attribute that provides access to vertex data

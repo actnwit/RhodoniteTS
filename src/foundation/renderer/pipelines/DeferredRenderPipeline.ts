@@ -1,9 +1,9 @@
 import { RnObject } from '../../core/RnObject';
-import { Expression } from '../Expression';
+import type { Expression } from '../Expression';
 
 export class DeferredRenderPipeline extends RnObject {
-  private __width: number = 0;
-  private __height: number = 0;
+  private __width = 0;
+  private __height = 0;
   private __expressions: Expression[] = [];
 
   constructor() {

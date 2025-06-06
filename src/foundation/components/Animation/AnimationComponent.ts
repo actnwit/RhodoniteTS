@@ -5,41 +5,41 @@ import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { AnimationInterpolationEnum } from '../../definitions/AnimationInterpolation';
 import { AnimationAttribute } from '../../definitions/AnimationAttribute';
 import {
-  ComponentTID,
-  ComponentSID,
-  EntityUID,
-  Index,
+  type ComponentTID,
+  type ComponentSID,
+  type EntityUID,
+  type Index,
   Array4,
   Array3,
   VectorComponentN,
 } from '../../../types/CommonTypes';
 import {
-  AnimationPathName,
-  AnimationTrack,
-  AnimationComponentEventType,
-  AnimationInfo,
-  AnimationTrackName,
+  type AnimationPathName,
+  type AnimationTrack,
+  type AnimationComponentEventType,
+  type AnimationInfo,
+  type AnimationTrackName,
   AnimationChannel,
-  AnimationSampler,
+  type AnimationSampler,
 } from '../../../types/AnimationTypes';
 import { valueWithDefault, valueWithCompensation } from '../../misc/MiscUtil';
-import { EventPubSub, EventHandler } from '../../system/EventPubSub';
-import { Quaternion } from '../../math/Quaternion';
-import { Vector3 } from '../../math/Vector3';
+import { EventPubSub, type EventHandler } from '../../system/EventPubSub';
+import type { Quaternion } from '../../math/Quaternion';
+import type { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
-import { IAnimationEntity, ISceneGraphEntity } from '../../helpers/EntityHelper';
-import { IEntity } from '../../core/Entity';
-import { ComponentToComponentMethods } from '../ComponentTypes';
-import { IAnimationRetarget } from '../Skeletal';
+import type { IAnimationEntity, ISceneGraphEntity } from '../../helpers/EntityHelper';
+import type { IEntity } from '../../core/Entity';
+import type { ComponentToComponentMethods } from '../ComponentTypes';
+import type { IAnimationRetarget } from '../Skeletal';
 import { __interpolate } from './AnimationOps';
 import { ProcessStage } from '../../definitions';
 import { MutableQuaternion } from '../../math/MutableQuaternion';
 import { MutableVector3 } from '../../math/MutableVector3';
-import { MathUtil, Scalar } from '../../math';
-import { IAnimatedValue } from '../../math/IAnimatedValue';
+import { MathUtil, type Scalar } from '../../math';
+import type { IAnimatedValue } from '../../math/IAnimatedValue';
 import { AnimatedVector3 } from '../../math/AnimatedVector3';
 import { AnimatedQuaternion } from '../../math/AnimatedQuaternion';
-import { AnimatedVectorN } from '../../math/AnimatedVectorN';
+import type { AnimatedVectorN } from '../../math/AnimatedVectorN';
 
 const defaultAnimationInfo = {
   name: '',

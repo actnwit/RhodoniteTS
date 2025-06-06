@@ -1,13 +1,13 @@
 import { AbstractTexture } from './AbstractTexture';
-import { IRenderable } from './IRenderable';
+import type { IRenderable } from './IRenderable';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { Size, Index } from '../../types/CommonTypes';
-import { FrameBuffer } from '../renderer/FrameBuffer';
+import type { Size, Index } from '../../types/CommonTypes';
+import type { FrameBuffer } from '../renderer/FrameBuffer';
 import { Vector4 } from '../math/Vector4';
 import { SystemState } from '../system/SystemState';
 import { ProcessApproach } from '../definitions/ProcessApproach';
-import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
-import { TextureFormat, TextureFormatEnum } from '../definitions/TextureFormat';
+import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
+import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFormat';
 
 /**
  * A texture that can be used as a render target for off-screen rendering.

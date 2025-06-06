@@ -1,46 +1,46 @@
 import { EntityRepository } from '../core/EntityRepository';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
-import { AbstractTexture } from '../textures/AbstractTexture';
+import type { AbstractTexture } from '../textures/AbstractTexture';
 import { Is } from '../misc/Is';
 import {
-  Gltf2,
-  Gltf2AccessorCompositionTypeString,
-  Gltf2Animation,
-  Gltf2AnimationChannel,
-  Gltf2AnimationSampler,
-  Gltf2Mesh,
-  Gltf2Primitive,
-  Gltf2AnimationPathName,
-  Gltf2Skin,
-  Gltf2Image,
-  Gltf2TextureSampler,
+  type Gltf2,
+  type Gltf2AccessorCompositionTypeString,
+  type Gltf2Animation,
+  type Gltf2AnimationChannel,
+  type Gltf2AnimationSampler,
+  type Gltf2Mesh,
+  type Gltf2Primitive,
+  type Gltf2AnimationPathName,
+  type Gltf2Skin,
+  type Gltf2Image,
+  type Gltf2TextureSampler,
   isSameGlTF2TextureSampler,
-  Gltf2Texture,
-  Gltf2AttributeBlendShapes,
-  Gltf2Attributes,
-  Gltf2Camera,
+  type Gltf2Texture,
+  type Gltf2AttributeBlendShapes,
+  type Gltf2Attributes,
+  type Gltf2Camera,
 } from '../../types/glTF2';
-import { ComponentType, Gltf2AccessorComponentType } from '../definitions/ComponentType';
-import { Gltf2AccessorEx, Gltf2BufferViewEx, Gltf2Ex, Gltf2ImageEx, Gltf2MaterialEx } from '../../types/glTF2ForOutput';
-import { BufferView } from '../memory/BufferView';
+import { ComponentType, type Gltf2AccessorComponentType } from '../definitions/ComponentType';
+import type { Gltf2AccessorEx, Gltf2BufferViewEx, Gltf2Ex, Gltf2ImageEx, Gltf2MaterialEx } from '../../types/glTF2ForOutput';
+import type { BufferView } from '../memory/BufferView';
 import { DataUtil } from '../misc/DataUtil';
-import { Accessor } from '../memory/Accessor';
-import { Array1to4, Byte, Count, Index, VectorAndSquareMatrixComponentN } from '../../types/CommonTypes';
-import { Buffer } from '../memory/Buffer';
+import type { Accessor } from '../memory/Accessor';
+import type { Array1to4, Byte, Count, Index, VectorAndSquareMatrixComponentN } from '../../types/CommonTypes';
+import type { Buffer } from '../memory/Buffer';
 import { GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER } from '../../types/WebGLConstants';
-import { AnimationChannel, AnimationPathName, AnimationSampler } from '../../types/AnimationTypes';
+import type { AnimationChannel, AnimationPathName, AnimationSampler } from '../../types/AnimationTypes';
 import { CompositionType } from '../definitions/CompositionType';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import { IAnimationEntity, ISceneGraphEntity, IMeshEntity, ISkeletalEntity } from '../helpers/EntityHelper';
+import type { IAnimationEntity, ISceneGraphEntity, IMeshEntity, ISkeletalEntity } from '../helpers/EntityHelper';
 import { createEffekseer } from './Gltf2ExporterEffekseer';
 import { Vector4 } from '../math/Vector4';
-import { Tag } from '../core/RnObject';
-import { Primitive } from '../geometry';
-import { CameraType, ComponentTypeEnum, CompositionTypeEnum, TextureParameter } from '../definitions';
+import type { Tag } from '../core/RnObject';
+import type { Primitive } from '../geometry';
+import { CameraType, type ComponentTypeEnum, type CompositionTypeEnum, TextureParameter } from '../definitions';
 import { MathUtil } from '../math/MathUtil';
 import { VERSION } from '../../version';
-import { Texture } from '../textures/Texture';
-import { Sampler } from '../textures/Sampler';
+import type { Texture } from '../textures/Texture';
+import type { Sampler } from '../textures/Sampler';
 import { createAndAddGltf2BufferView } from './Gltf2ExporterOps';
 
 export const GLTF2_EXPORT_GLTF = 'glTF';

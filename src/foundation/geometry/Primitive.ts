@@ -1,39 +1,39 @@
-import { PrimitiveMode, PrimitiveModeEnum } from '../definitions/PrimitiveMode';
-import { VertexAttribute, VertexAttributeSemanticsJoinedString } from '../definitions/VertexAttribute';
-import { Accessor } from '../memory/Accessor';
+import { PrimitiveMode, type PrimitiveModeEnum } from '../definitions/PrimitiveMode';
+import { VertexAttribute, type VertexAttributeSemanticsJoinedString } from '../definitions/VertexAttribute';
+import type { Accessor } from '../memory/Accessor';
 import { RnObject } from '../core/RnObject';
-import { ComponentTypeEnum, ComponentType } from '../definitions/ComponentType';
+import { type ComponentTypeEnum, ComponentType } from '../definitions/ComponentType';
 import { MemoryManager } from '../core/MemoryManager';
-import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
+import { CompositionType, type CompositionTypeEnum } from '../definitions/CompositionType';
 import { AABB } from '../math/AABB';
-import { Material } from '../materials/core/Material';
+import type { Material } from '../materials/core/Material';
 import { MaterialHelper } from '../helpers/MaterialHelper';
-import { VertexHandles } from '../../webgl/WebGLResourceRepository';
+import type { VertexHandles } from '../../webgl/WebGLResourceRepository';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { PrimitiveUID, TypedArray, Count, Index } from '../../types/CommonTypes';
+import type { PrimitiveUID, TypedArray, Count, Index } from '../../types/CommonTypes';
 import { Vector3 } from '../math/Vector3';
 import { MutableVector3 } from '../math/MutableVector3';
 import { Is } from '../misc/Is';
-import { IVector3 } from '../math/IVector';
+import type { IVector3 } from '../math/IVector';
 import {
-  IMesh,
-  PrimitiveSortKey,
-  PrimitiveSortKeyLength,
-  PrimitiveSortKeyOffset,
+  type IMesh,
+  type PrimitiveSortKey,
+  type PrimitiveSortKeyLength,
+  type PrimitiveSortKeyOffset,
   PrimitiveSortKey_BitLength_Material,
   PrimitiveSortKey_BitLength_PrimitiveType,
   PrimitiveSortKey_BitLength_TranslucencyType,
   PrimitiveSortKey_BitOffset_Material,
   PrimitiveSortKey_BitOffset_PrimitiveType,
   PrimitiveSortKey_BitOffset_TranslucencyType,
-  RaycastResult,
-  RaycastResultEx1,
+  type RaycastResult,
+  type RaycastResultEx1,
 } from './types/GeometryTypes';
-import { Option, None, Some } from '../misc/Option';
+import { type Option, None, Some } from '../misc/Option';
 import { DataUtil } from '../misc/DataUtil';
 import { Config } from '../core/Config';
 import { RnException } from '../misc/RnException';
-import { Mesh } from './Mesh';
+import type { Mesh } from './Mesh';
 import { Logger } from '../misc/Logger';
 import { BufferUse } from '../definitions/BufferUse';
 
@@ -84,7 +84,7 @@ export class Primitive extends RnObject {
   private __positionAccessorVersion = 0;
   private static __variantUpdateCount = 0;
 
-  private __fingerPrint: string = '';
+  private __fingerPrint = '';
 
   /**
    * Creates a new Primitive instance.

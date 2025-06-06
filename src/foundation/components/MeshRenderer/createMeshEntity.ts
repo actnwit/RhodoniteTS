@@ -1,5 +1,5 @@
 import { EntityRepository } from '../../core/EntityRepository';
-import { IMeshEntity } from '../../helpers/EntityHelper';
+import type { IMeshEntity } from '../../helpers/EntityHelper';
 import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 

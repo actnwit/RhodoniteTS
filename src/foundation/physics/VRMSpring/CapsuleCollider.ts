@@ -1,4 +1,4 @@
-import { SceneGraphComponent } from '../../components/SceneGraph/SceneGraphComponent';
+import type { SceneGraphComponent } from '../../components/SceneGraph/SceneGraphComponent';
 import { Vector3 } from '../../math/Vector3';
 
 /**

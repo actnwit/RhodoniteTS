@@ -1,8 +1,8 @@
 import type { Component } from './Component';
 import { Is } from '../misc/Is';
-import { EntityRepository } from './EntityRepository';
+import type { EntityRepository } from './EntityRepository';
 import { Config } from './Config';
-import { ComponentTID, ComponentSID, EntityUID } from '../../types/CommonTypes';
+import type { ComponentTID, ComponentSID, EntityUID } from '../../types/CommonTypes';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 
 /**

@@ -1,9 +1,9 @@
-import { Buffer } from '../memory/Buffer';
-import { CompositionTypeEnum } from '../definitions/CompositionType';
-import { ComponentTypeEnum } from '../definitions/ComponentType';
+import type { Buffer } from '../memory/Buffer';
+import type { CompositionTypeEnum } from '../definitions/CompositionType';
+import type { ComponentTypeEnum } from '../definitions/ComponentType';
 import { Accessor } from './Accessor';
-import { Byte, Count, Size } from '../../types/CommonTypes';
-import { Err, Result, Ok } from '../misc';
+import type { Byte, Count, Size } from '../../types/CommonTypes';
+import { Err, type Result, Ok } from '../misc';
 
 /**
  * BufferView represents a view into a Buffer with specific byte offset and length.

@@ -1,8 +1,8 @@
-import { GltfLoadOption } from '../../types';
-import { Byte, Size } from '../../types/CommonTypes';
-import { glTF1 } from '../../types/glTF1';
-import { RnM2 } from '../../types/RnM2';
-import { Err, Result, Ok } from './Result';
+import type { GltfLoadOption } from '../../types';
+import type { Byte, Size } from '../../types/CommonTypes';
+import type { glTF1 } from '../../types/glTF1';
+import type { RnM2 } from '../../types/RnM2';
+import { Err, type Result, Ok } from './Result';
 import { RnPromise } from './RnPromise';
 
 declare const URL: any;
@@ -459,13 +459,11 @@ export class DataUtil {
 
         const loadBinaryImage = () => {
           const xhr = new XMLHttpRequest();
-          xhr.onreadystatechange = (function (_img) {
-            return function () {
+          xhr.onreadystatechange = ((_img) => () => {
               if (xhr.readyState === 4 && xhr.status === 200) {
                 load(_img, xhr.response);
               }
-            };
-          })(img);
+            })(img);
           xhr.open('GET', uri);
           xhr.responseType = 'arraybuffer';
           xhr.send();

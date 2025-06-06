@@ -2,18 +2,18 @@ import { MaterialHelper } from './MaterialHelper';
 import { DetectHighLuminanceMaterialContent } from '../materials/contents/DetectHighLuminanceMaterialContent';
 import { RenderPassHelper } from './RenderPassHelper';
 import { RenderableHelper } from './RenderableHelper';
-import { RenderPass } from '../renderer/RenderPass';
+import type { RenderPass } from '../renderer/RenderPass';
 import { MathUtil } from '../math/MathUtil';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
 import { Vector2 } from '../math/Vector2';
-import { RenderTargetTexture } from '../textures/RenderTargetTexture';
+import type { RenderTargetTexture } from '../textures/RenderTargetTexture';
 import { SynthesizeHdrMaterialContent } from '../materials/contents/SynthesizeHdrMaterialContent';
 import { Expression } from '../renderer/Expression';
-import { AbstractTexture } from '../textures/AbstractTexture';
+import type { AbstractTexture } from '../textures/AbstractTexture';
 import { VectorN } from '../math/VectorN';
 import { TextureParameter } from '../definitions/TextureParameter';
 import { TextureFormat } from '../definitions/TextureFormat';
-import { FrameBuffer } from '../renderer/FrameBuffer';
+import type { FrameBuffer } from '../renderer/FrameBuffer';
 
 export class Bloom {
   private __mapReducedFramebuffer: Map<string, FrameBuffer> = new Map();

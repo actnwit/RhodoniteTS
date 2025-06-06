@@ -4,9 +4,9 @@
  */
 
 import { ProcessApproach } from '../definitions/ProcessApproach';
-import { Primitive } from '../geometry';
+import type { Primitive } from '../geometry';
 import { Mesh } from '../geometry/Mesh';
-import { Material } from '../materials/core/Material';
+import type { Material } from '../materials/core/Material';
 import { Is } from '../misc/Is';
 import { SystemState } from '../system/SystemState';
 

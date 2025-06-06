@@ -1,20 +1,20 @@
-import { Material } from '../foundation/materials/core/Material';
-import { RenderPass } from '../foundation/renderer/RenderPass';
+import type { Material } from '../foundation/materials/core/Material';
+import type { RenderPass } from '../foundation/renderer/RenderPass';
 import { AlphaMode } from '../foundation/definitions/AlphaMode';
-import { Index, IndexOf16Bytes } from '../types/CommonTypes';
+import { type Index, IndexOf16Bytes } from '../types/CommonTypes';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import { WebGLResourceRepository } from './WebGLResourceRepository';
-import { RnXR } from '../xr/main';
-import { Vector4 } from '../foundation/math/Vector4';
+import type { RnXR } from '../xr/main';
+import type { Vector4 } from '../foundation/math/Vector4';
 import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
 import { CompositionType } from '../foundation/definitions/CompositionType';
 import { ComponentType } from '../foundation/definitions/ComponentType';
 import { ShaderType } from '../foundation/definitions/ShaderType';
 import { Scalar } from '../foundation/math/Scalar';
 import { Vector3 } from '../foundation/math/Vector3';
-import { Primitive } from '../foundation/geometry/Primitive';
-import { WebGLStrategy } from './WebGLStrategy';
-import { WebXRSystem } from '../xr/WebXRSystem';
+import type { Primitive } from '../foundation/geometry/Primitive';
+import type { WebGLStrategy } from './WebGLStrategy';
+import type { WebXRSystem } from '../xr/WebXRSystem';
 
 let lastIsTransparentMode: boolean;
 let lastBlendEquationMode: number;
@@ -23,10 +23,10 @@ let lastBlendFuncSrcFactor: number;
 let lastBlendFuncDstFactor: number;
 let lastBlendFuncAlphaSrcFactor: number;
 let lastBlendFuncAlphaDstFactor: number;
-let lastCullFace: boolean = false;
-let lastFrontFaceCCW: boolean = true;
-let lastCullFaceBack: boolean = true;
-let lastAlphaToCoverage: boolean = false;
+let lastCullFace = false;
+let lastFrontFaceCCW = true;
+let lastCullFaceBack = true;
+let lastAlphaToCoverage = false;
 let lastColorWriteMask: boolean[] = [true, true, true, true];
 
 /**

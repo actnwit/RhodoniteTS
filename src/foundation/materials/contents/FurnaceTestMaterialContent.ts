@@ -6,12 +6,12 @@ import { ShaderType } from '../../definitions/ShaderType';
 import { Vector2 } from '../../math/Vector2';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { ComponentRepository } from '../../core/ComponentRepository';
-import { Material } from '../core/Material';
+import type { Material } from '../core/Material';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import FurnaceTestShaderVertex from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.vert';
 import FurnaceTestShaderFragment from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.frag';
-import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
-import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
+import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { dummyWhiteTexture } from '../core/DummyTextures';
 
 /**

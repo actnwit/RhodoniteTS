@@ -3,18 +3,18 @@ import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { ComponentType } from '../../definitions/ComponentType';
-import { Count } from '../../../types/CommonTypes';
+import type { Count } from '../../../types/CommonTypes';
 import { ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
 import { ShaderType } from '../../definitions/ShaderType';
 import { Texture } from '../../textures/Texture';
 import { TextureParameter } from '../../definitions/TextureParameter';
-import { RenderPass } from '../../renderer/RenderPass';
+import type { RenderPass } from '../../renderer/RenderPass';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { Material } from '../core/Material';
+import type { Material } from '../core/Material';
 import ColorGradingUsingLUTsShaderVertex from '../../../webgl/shaderity_shaders/ColorGradingUsingLUTsShader/ColorGradingUsingLUTsShader.vert';
 import ColorGradingUsingLUTsShaderFragment from '../../../webgl/shaderity_shaders/ColorGradingUsingLUTsShader/ColorGradingUsingLUTsShader.frag';
-import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
-import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
+import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { Sampler } from '../../textures/Sampler';
 import { dummyBlackTexture } from '../core/DummyTextures';
 import { Logger } from '../../misc/Logger';
@@ -71,7 +71,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
     let lookupTableTexture;
     if (typeof uri === 'string') {
       lookupTableTexture = new Texture();
-      (async function (uri: string) {
+      (async (uri: string) => {
         await lookupTableTexture.generateTextureFromUrl(uri, {
           type: ComponentType.UnsignedByte,
         });

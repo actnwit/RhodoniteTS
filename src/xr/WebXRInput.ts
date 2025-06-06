@@ -1,20 +1,20 @@
 import { MotionController } from 'webxr-input-profiles/packages/motion-controllers/src/motionController.js';
 import { fetchProfile } from 'webxr-input-profiles/packages/motion-controllers/src/profiles.js';
 import { Constants } from 'webxr-input-profiles/packages/motion-controllers/src/constants.js';
-import { Component } from 'webxr-input-profiles/packages/motion-controllers/src/component.js';
+import type { Component } from 'webxr-input-profiles/packages/motion-controllers/src/component.js';
 import { Gltf2Importer } from '../foundation/importer/Gltf2Importer';
 import { ModelConverter } from '../foundation/importer/ModelConverter';
 import { Is } from '../foundation/misc/Is';
-import { IEntity } from '../foundation/core/Entity';
+import type { IEntity } from '../foundation/core/Entity';
 import { Quaternion } from '../foundation/math/Quaternion';
 import { Vector3 } from '../foundation/math/Vector3';
-import { IMutableVector3 } from '../foundation/math/IVector';
+import type { IMutableVector3 } from '../foundation/math/IVector';
 import { valueWithDefault } from '../foundation/misc/MiscUtil';
-import { IMutableQuaternion } from '../foundation/math/IQuaternion';
+import type { IMutableQuaternion } from '../foundation/math/IQuaternion';
 import { MutableVector3 } from '../foundation/math/MutableVector3';
 import { MutableMatrix33 } from '../foundation/math/MutableMatrix33';
-import { MutableScalar } from '../foundation/math/MutableScalar';
-import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
+import type { MutableScalar } from '../foundation/math/MutableScalar';
+import type { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 import { Logger } from '../foundation/misc/Logger';
 // const oculusProfile = require('webxr-input-profiles/packages/registry/profiles/oculus/oculus-touch.json');
 

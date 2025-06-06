@@ -1,19 +1,19 @@
 import { MemoryManager } from '../core/MemoryManager';
-import { EntityRepository } from './EntityRepository';
-import { BufferView } from '../memory/BufferView';
-import { Accessor } from '../memory/Accessor';
-import { BufferUseEnum } from '../definitions/BufferUse';
-import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
-import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
-import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';
+import type { EntityRepository } from './EntityRepository';
+import type { BufferView } from '../memory/BufferView';
+import type { Accessor } from '../memory/Accessor';
+import type { BufferUseEnum } from '../definitions/BufferUse';
+import type { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
+import type { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
+import { ProcessStage, type ProcessStageEnum } from '../definitions/ProcessStage';
 import { ComponentRepository } from './ComponentRepository';
 import { Config } from './Config';
-import { RenderPass } from '../renderer/RenderPass';
+import type { RenderPass } from '../renderer/RenderPass';
 import { RnObject } from './RnObject';
-import { EntityUID, ComponentSID, TypedArray, Count, Byte } from '../../types/CommonTypes';
-import { IEntity } from './Entity';
-import { ComponentToComponentMethods } from '../components/ComponentTypes';
-import { Err, Result } from '../misc/Result';
+import type { EntityUID, ComponentSID, TypedArray, Count, Byte } from '../../types/CommonTypes';
+import type { IEntity } from './Entity';
+import type { ComponentToComponentMethods } from '../components/ComponentTypes';
+import { Err, type Result } from '../misc/Result';
 import { RnException } from '../misc';
 
 type MemberInfo = {

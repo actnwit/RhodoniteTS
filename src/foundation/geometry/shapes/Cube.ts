@@ -1,11 +1,11 @@
 import { PrimitiveMode } from '../../definitions/PrimitiveMode';
 import { VertexAttribute } from '../../definitions/VertexAttribute';
-import { IColorRgba } from '../../math/IColor';
-import { IVector3 } from '../../math/IVector';
+import type { IColorRgba } from '../../math/IColor';
+import type { IVector3 } from '../../math/IVector';
 import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
-import { PhysicsProperty, PhysicsPropertyInner } from '../../physics/PhysicsProperty';
-import { IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
+import { type PhysicsProperty, PhysicsPropertyInner } from '../../physics/PhysicsProperty';
+import { type IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
 import { IShape } from './IShape';
 
 /**

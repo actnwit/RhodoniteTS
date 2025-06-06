@@ -1,6 +1,6 @@
 import { RnObject } from '../core/RnObject';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import { ISceneGraphEntity, IMeshEntity } from '../helpers/EntityHelper';
+import type { ISceneGraphEntity, IMeshEntity } from '../helpers/EntityHelper';
 import { flattenHierarchy } from '../components/SceneGraph/SceneGraphOps';
 
 /**

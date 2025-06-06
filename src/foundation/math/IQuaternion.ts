@@ -1,6 +1,6 @@
-import { TypedArray } from '../../types/CommonTypes';
-import { IVector3, IMutableVector3 } from './IVector';
-import { IMatrix44 } from './IMatrix';
+import type { TypedArray } from '../../types/CommonTypes';
+import type { IVector3, IMutableVector3 } from './IVector';
+import type { IMatrix44 } from './IMatrix';
 
 /**
  * Immutable quaternion interface representing a rotation in 3D space.

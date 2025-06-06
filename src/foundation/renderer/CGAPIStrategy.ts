@@ -1,7 +1,7 @@
-import { CGAPIResourceHandle, Count, Index, PrimitiveUID } from '../../types/CommonTypes';
-import { MeshComponent } from '../components/Mesh/MeshComponent';
+import { CGAPIResourceHandle, type Count, Index, type PrimitiveUID } from '../../types/CommonTypes';
+import type { MeshComponent } from '../components/Mesh/MeshComponent';
 import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
-import { RenderPass } from './RenderPass';
+import type { RenderPass } from './RenderPass';
 
 /**
  * Strategy interface for Computer Graphics API implementations.

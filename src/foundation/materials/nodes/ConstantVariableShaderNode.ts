@@ -1,8 +1,8 @@
-import { CompositionTypeEnum } from '../../definitions/CompositionType';
-import { ComponentTypeEnum } from '../../definitions/ComponentType';
+import type { CompositionTypeEnum } from '../../definitions/CompositionType';
+import type { ComponentTypeEnum } from '../../definitions/ComponentType';
 import { ConstantVariableShader } from '../../../webgl/shaders/nodes/ConstantVariableShader';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
-import { IVector } from '../../math/IVector';
+import type { IVector } from '../../math/IVector';
 import { Socket } from '../core/Socket';
 
 /**

@@ -1,7 +1,7 @@
 import { Vector4 } from './Vector4';
-import { IVector4 } from './IVector';
-import { IColorRgba } from './IColor';
-import { Array4 } from '../../types/CommonTypes';
+import type { IVector4 } from './IVector';
+import type { IColorRgba } from './IColor';
+import type { Array4 } from '../../types/CommonTypes';
 
 /**
  * A RGBA color class that extends Vector4 to provide color-specific functionality.

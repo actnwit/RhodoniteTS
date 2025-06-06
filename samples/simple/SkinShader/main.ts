@@ -2,11 +2,11 @@ import Rn from '../../../dist/esmdev/index.js';
 
 declare const window: any;
 
-const setupRenderPassEntityUidOutput = function (
+const setupRenderPassEntityUidOutput = (
   rootGroup: Rn.ISceneGraphEntity,
   cameraComponent: Rn.CameraComponent,
   canvas: HTMLCanvasElement
-) {
+) => {
   const renderPass = new Rn.RenderPass();
   const entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
 
@@ -32,7 +32,7 @@ const setupRenderPassEntityUidOutput = function (
   return renderPass;
 };
 
-const setupRenderPassRendering = function (rootGroup, cameraComponent) {
+const setupRenderPassRendering = (rootGroup, cameraComponent) => {
   const renderPass = new Rn.RenderPass();
   renderPass.cameraComponent = cameraComponent;
   renderPass.addEntities([rootGroup]);
@@ -45,7 +45,7 @@ const setupRenderPassRendering = function (rootGroup, cameraComponent) {
 
 let p = null;
 
-const load = async function () {
+const load = async () => {
   Rn.Config.cgApiDebugConsoleOutput = true;
   const canvas = document.getElementById('world') as HTMLCanvasElement;
   window.canvas = canvas;
@@ -91,7 +91,7 @@ const load = async function () {
   let startTime = Date.now();
   const rotationVec3 = Rn.MutableVector3.one();
   let count = 0;
-  const draw = function (time) {
+  const draw = (time) => {
     if (p == null && count > 0) {
       p = document.createElement('p');
       p.setAttribute('id', 'rendered');

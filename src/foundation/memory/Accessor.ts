@@ -1,6 +1,6 @@
-import { ComponentType, ComponentTypeEnum } from '../definitions/ComponentType';
-import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
-import { BufferView } from './BufferView';
+import { ComponentType, type ComponentTypeEnum } from '../definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../definitions/CompositionType';
+import type { BufferView } from './BufferView';
 import { Vector2 } from '../math/Vector2';
 import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
@@ -8,9 +8,9 @@ import { MutableVector2 } from '../math/MutableVector2';
 import { MutableVector3 } from '../math/MutableVector3';
 import { MutableVector4 } from '../math/MutableVector4';
 import { Matrix33 } from '../math/Matrix33';
-import { MutableMatrix33 } from '../math/MutableMatrix33';
+import type { MutableMatrix33 } from '../math/MutableMatrix33';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
-import {
+import type {
   Byte,
   Index,
   Count,
@@ -21,9 +21,9 @@ import {
   Array3,
   Array4,
 } from '../../types/CommonTypes';
-import { Matrix44 } from '../math/Matrix44';
+import type { Matrix44 } from '../math/Matrix44';
 import { Is } from '../misc/Is';
-import { Primitive } from '../geometry/Primitive';
+import type { Primitive } from '../geometry/Primitive';
 import { Logger } from '../misc/Logger';
 
 type DataViewGetter = (byteOffset: Byte, littleEndian?: boolean) => number;

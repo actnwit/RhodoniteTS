@@ -1,30 +1,30 @@
 import { Config } from '../core/Config';
-import { Material } from '../materials/core/Material';
-import { RenderPass } from '../renderer/RenderPass';
+import type { Material } from '../materials/core/Material';
+import type { RenderPass } from '../renderer/RenderPass';
 import type { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
 import { DepthEncodeMaterialContent } from '../materials/contents/DepthEncodeMaterialContent';
 import { ShadowMapDecodeClassicMaterialContent } from '../materials/contents/ShadowMapDecodeClassicMaterialContent';
 import { EntityUIDOutputMaterialContent } from '../materials/contents/EntityUIDOutputMaterialContent';
 import { MToon0xMaterialContent } from '../materials/contents/MToon0xMaterialContent';
 import { CustomMaterialContent } from '../materials/contents/CustomMaterialContent';
-import { Primitive } from '../geometry/Primitive';
+import type { Primitive } from '../geometry/Primitive';
 import { ProcessStage } from '../definitions/ProcessStage';
-import { AbstractTexture } from '../textures/AbstractTexture';
+import type { AbstractTexture } from '../textures/AbstractTexture';
 import { FurnaceTestMaterialContent } from '../materials/contents/FurnaceTestMaterialContent';
 import { DetectHighLuminanceMaterialContent } from '../materials/contents/DetectHighLuminanceMaterialContent';
 import { SynthesizeHdrMaterialContent as SynthesizeHDRMaterialContent } from '../materials/contents/SynthesizeHdrMaterialContent';
 import { ColorGradingUsingLUTsMaterialContent } from '../materials/contents/ColorGradingUsingLUTsMaterialContent';
 import { MatCapMaterialContent } from '../materials/contents/MatCapMaterialContent';
 import { VarianceShadowMapDecodeClassicMaterialContent } from '../materials/contents/VarianceShadowMapDecodeClassicMaterialContent';
-import { Texture } from '../textures/Texture';
-import { CameraComponent } from '../components/Camera/CameraComponent';
-import { Count } from '../../types/CommonTypes';
-import { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
+import type { Texture } from '../textures/Texture';
+import type { CameraComponent } from '../components/Camera/CameraComponent';
+import type { Count } from '../../types/CommonTypes';
+import type { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
 import { ComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
 import { ShaderType } from '../definitions/ShaderType';
 import { VectorN } from '../math/VectorN';
-import { ShaderSemanticsInfo } from '../definitions/ShaderSemanticsInfo';
+import type { ShaderSemanticsInfo } from '../definitions/ShaderSemanticsInfo';
 import ClassicSingleShaderVertex from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
 import ClassicSingleShaderFragment from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
 import ClassicSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
@@ -62,7 +62,7 @@ import ParaboloidDepthMomentEncodeShaderFragment from '../../webgl/shaderity_sha
 import ParaboloidDepthMomentEncodeShaderVertexWebGpu from '../../webgpu/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.vert.wgsl';
 import ParaboloidDepthMomentEncodeShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.frag.wgsl';
 import { MaterialRepository } from '../materials/core/MaterialRepository';
-import { RnM2Material, Vrm0xMaterialProperty } from '../../types';
+import { RnM2Material, type Vrm0xMaterialProperty } from '../../types';
 import { Sampler } from '../textures/Sampler';
 import {
   dummyAnisotropyTexture,
@@ -92,7 +92,7 @@ import { ProcessApproach, TextureParameter } from '../definitions';
 import { Vector2 } from '../math/Vector2';
 import { SystemState } from '../system/SystemState';
 import { MToon1MaterialContent } from '../materials/contents/MToon1MaterialContent';
-import { Vrm1_Material } from '../../types/VRMC_materials_mtoon';
+import type { Vrm1_Material } from '../../types/VRMC_materials_mtoon';
 import { DataUtil } from '../misc/DataUtil';
 
 const g_sampler = new Sampler({

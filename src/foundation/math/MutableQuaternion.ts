@@ -1,8 +1,8 @@
 import { Quaternion } from './Quaternion';
-import { IVector3, IVector4 } from './IVector';
-import { Array4, TypedArray } from '../../types/CommonTypes';
-import { IMutableQuaternion, ILogQuaternion, IQuaternion } from './IQuaternion';
-import { IMatrix44 } from './IMatrix';
+import type { IVector3, IVector4 } from './IVector';
+import { type Array4, TypedArray } from '../../types/CommonTypes';
+import type { IMutableQuaternion, ILogQuaternion, IQuaternion } from './IQuaternion';
+import type { IMatrix44 } from './IMatrix';
 import { MutableMatrix44 } from './MutableMatrix44';
 import { Logger } from '../misc/Logger';
 
@@ -522,10 +522,10 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
       this._v[3] /= value;
     } else {
       Logger.error('0 division occurred!');
-      this._v[0] = Infinity;
-      this._v[1] = Infinity;
-      this._v[2] = Infinity;
-      this._v[3] = Infinity;
+      this._v[0] = Number.POSITIVE_INFINITY;
+      this._v[1] = Number.POSITIVE_INFINITY;
+      this._v[2] = Number.POSITIVE_INFINITY;
+      this._v[3] = Number.POSITIVE_INFINITY;
     }
     return this;
   }

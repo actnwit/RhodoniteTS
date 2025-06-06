@@ -1,10 +1,10 @@
 import { Component } from '../../core/Component';
-import { applyMixins, EntityRepository } from '../../core/EntityRepository';
+import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { ProcessStage } from '../../definitions/ProcessStage';
-import { ComponentTID, ComponentSID, EntityUID, Index } from '../../../types/CommonTypes';
-import { IEntity } from '../../core/Entity';
-import { ComponentToComponentMethods } from '../ComponentTypes';
+import type { ComponentTID, ComponentSID, EntityUID, Index } from '../../../types/CommonTypes';
+import type { IEntity } from '../../core/Entity';
+import type { ComponentToComponentMethods } from '../ComponentTypes';
 
 /**
  * The Component that manages the blend shape.

@@ -1,7 +1,7 @@
-import { Material } from '../materials/core/Material';
-import { RnM2, RnM2Material, RnM2TextureSampler } from '../../types/RnM2';
+import type { Material } from '../materials/core/Material';
+import type { RnM2, RnM2Material, RnM2TextureSampler } from '../../types/RnM2';
 import { Entity } from '../core/Entity';
-import { ISceneGraphEntity } from '../helpers/EntityHelper';
+import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 
 export interface ILoaderExtension {
   generateMaterial?(materialJson: RnM2Material): Material;

@@ -1,10 +1,10 @@
-import { IVector2, IVector3, IVector4 } from './IVector';
-import { Array4, TypedArray } from '../../types/CommonTypes';
+import { IVector2, type IVector3, type IVector4 } from './IVector';
+import { type Array4, TypedArray } from '../../types/CommonTypes';
 import { MathUtil } from './MathUtil';
 import { CompositionType } from '../definitions/CompositionType';
-import { IQuaternion, ILogQuaternion, IMutableQuaternion } from './IQuaternion';
-import { IMutableVector3 } from './IVector';
-import { IMatrix44 } from './IMatrix';
+import type { IQuaternion, ILogQuaternion, IMutableQuaternion } from './IQuaternion';
+import type { IMutableVector3 } from './IVector';
+import type { IMatrix44 } from './IMatrix';
 import { LogQuaternion } from './LogQuaternion';
 import { AbstractQuaternion } from './AbstractQuaternion';
 import { Vector3 } from './Vector3';
@@ -863,10 +863,10 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
       w = vec._v[3] / value;
     } else {
       Logger.error('0 division occurred!');
-      x = Infinity;
-      y = Infinity;
-      z = Infinity;
-      w = Infinity;
+      x = Number.POSITIVE_INFINITY;
+      y = Number.POSITIVE_INFINITY;
+      z = Number.POSITIVE_INFINITY;
+      w = Number.POSITIVE_INFINITY;
     }
     return Quaternion.fromCopy4(x, y, z, w);
   }
@@ -890,10 +890,10 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
       w = vec._v[3] / value;
     } else {
       Logger.error('0 division occurred!');
-      x = Infinity;
-      y = Infinity;
-      z = Infinity;
-      w = Infinity;
+      x = Number.POSITIVE_INFINITY;
+      y = Number.POSITIVE_INFINITY;
+      z = Number.POSITIVE_INFINITY;
+      w = Number.POSITIVE_INFINITY;
     }
     out._v[0] = x;
     out._v[1] = y;

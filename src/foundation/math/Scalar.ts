@@ -1,5 +1,5 @@
-import { IScalar } from './IVector';
-import { FloatTypedArrayConstructor, TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
+import type { IScalar } from './IVector';
+import type { FloatTypedArrayConstructor, TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
 import { MathUtil } from './MathUtil';
 import { AbstractVector } from './AbstractVector';
 import { CompositionType } from '../definitions/CompositionType';

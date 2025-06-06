@@ -1,4 +1,4 @@
-import { IVector3 } from '../math';
+import type { IVector3 } from '../math';
 
 /**
  * Configuration properties for a physics world simulation.

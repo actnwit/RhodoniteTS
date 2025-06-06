@@ -1,5 +1,5 @@
-import { Component } from '../core/Component';
-import { Entity } from '../core/Entity';
+import type { Component } from '../core/Component';
+import type { Entity } from '../core/Entity';
 export const GetComponentFromEntities = Symbol();
 
 const getComponentFromEntitiesStr = 'getComponentFromEntities';

@@ -2,16 +2,16 @@ import {
   ShaderSemanticsIndex,
   ShaderSemanticsEnum,
   ShaderSemantics,
-  getShaderPropertyFunc,
+  type getShaderPropertyFunc,
   _getPropertyIndex2,
-  ShaderSemanticsName,
+  type ShaderSemanticsName,
 } from '../definitions/ShaderSemantics';
-import { Count, Index, CGAPIResourceHandle, IndexOf16Bytes } from '../../types/CommonTypes';
+import type { Count, Index, CGAPIResourceHandle, IndexOf16Bytes } from '../../types/CommonTypes';
 import { BufferUse } from '../definitions/BufferUse';
 import { MemoryManager } from './MemoryManager';
 import { CompositionType } from '../definitions/CompositionType';
 import { ComponentType } from '../definitions/ComponentType';
-import { Accessor } from '../memory/Accessor';
+import type { Accessor } from '../memory/Accessor';
 import { MathClassUtil } from '../math/MathClassUtil';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { ShaderType } from '../definitions/ShaderType';
@@ -23,8 +23,8 @@ import { Vector3 } from '../math/Vector3';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { BoneDataType } from '../definitions/BoneDataType';
-import { ProcessApproach, ProcessApproachEnum } from '../../foundation/definitions/ProcessApproach';
-import { calcAlignedByteLength, ShaderSemanticsInfo } from '../definitions/ShaderSemanticsInfo';
+import { ProcessApproach, type ProcessApproachEnum } from '../../foundation/definitions/ProcessApproach';
+import { calcAlignedByteLength, type ShaderSemanticsInfo } from '../definitions/ShaderSemanticsInfo';
 import { Vector2 } from '../math/Vector2';
 
 type GlobalPropertyStruct = {

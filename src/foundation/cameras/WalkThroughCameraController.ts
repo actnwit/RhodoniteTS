@@ -1,19 +1,19 @@
 import { Matrix44 } from '../math/Matrix44';
 import { MathClassUtil } from '../math/MathClassUtil';
 import { MiscUtil } from '../misc/MiscUtil';
-import { ICameraController } from './ICameraController';
+import type { ICameraController } from './ICameraController';
 import { MutableVector3 } from '../math/MutableVector3';
-import { CameraComponent } from '../components/Camera/CameraComponent';
+import type { CameraComponent } from '../components/Camera/CameraComponent';
 import { Entity } from '../core/Entity';
 import { MutableMatrix33 } from '../math/MutableMatrix33';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
 import { AbstractCameraController } from './AbstractCameraController';
 import { MathUtil } from '../math/MathUtil';
-import { ISceneGraphEntity } from '../helpers/EntityHelper';
+import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Is } from '../misc/Is';
-import { InputHandlerInfo, InputManager, INPUT_HANDLING_STATE_CAMERA_CONTROLLER } from '../system/InputManager';
+import { type InputHandlerInfo, InputManager, INPUT_HANDLING_STATE_CAMERA_CONTROLLER } from '../system/InputManager';
 import { AABB } from '../math/AABB';
-import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
+import type { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
 
 type KeyboardEventListener = (evt: KeyboardEvent) => any;
 

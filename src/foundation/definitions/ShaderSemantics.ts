@@ -1,8 +1,8 @@
-import { EnumClass, EnumIO, _from, _fromString, _fromStringCaseSensitively } from '../misc/EnumIO';
+import { EnumClass, type EnumIO, _from, _fromString, _fromStringCaseSensitively } from '../misc/EnumIO';
 import { CompositionType } from './CompositionType';
 import type { Material } from '../materials/core/Material';
 import { Index } from '../../types/CommonTypes';
-import { ShaderSemanticsInfo } from './ShaderSemanticsInfo';
+import type { ShaderSemanticsInfo } from './ShaderSemanticsInfo';
 
 export type ShaderSemanticsIndex = number;
 export type ShaderSemanticsName = string;

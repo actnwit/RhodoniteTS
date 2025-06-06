@@ -2,39 +2,39 @@ import { ShaderSemantics } from '../../definitions/ShaderSemantics';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import { RenderableHelper } from '../../helpers/RenderableHelper';
 import { Vector4 } from '../../math/Vector4';
-import { assertHas, Option, None, Some } from '../../misc/Option';
+import { assertHas, type Option, None, Some } from '../../misc/Option';
 import { Is } from '../../misc/Is';
-import { CubeTexture } from '../../textures/CubeTexture';
+import type { CubeTexture } from '../../textures/CubeTexture';
 import { Expression } from '../Expression';
 import { Frame } from '../Frame';
-import { FrameBuffer } from '../FrameBuffer';
+import type { FrameBuffer } from '../FrameBuffer';
 import { RenderPass } from '../RenderPass';
 import { MaterialHelper } from '../../helpers/MaterialHelper';
-import { Size } from '../../../types';
+import type { Size } from '../../../types';
 import { Err, Ok } from '../../misc/Result';
 import { System } from '../../system/System';
 import { RnObject } from '../../core/RnObject';
 import { ModuleManager } from '../../system/ModuleManager';
 import {
   ComponentType,
-  HdriFormatEnum,
+  type HdriFormatEnum,
   PixelFormat,
   ProcessApproach,
   ToneMappingType,
-  ToneMappingTypeEnum,
+  type ToneMappingTypeEnum,
 } from '../../definitions';
 import { RenderPassHelper } from '../../helpers/RenderPassHelper';
 import { Sampler } from '../../textures/Sampler';
 import { SystemState } from '../../system/SystemState';
-import { RenderTargetTexture } from '../../textures/RenderTargetTexture';
-import { RenderTargetTexture2DArray } from '../../textures/RenderTargetTexture2DArray';
+import type { RenderTargetTexture } from '../../textures/RenderTargetTexture';
+import type { RenderTargetTexture2DArray } from '../../textures/RenderTargetTexture2DArray';
 import { CGAPIResourceRepository } from '../CGAPIResourceRepository';
-import { RnXR } from '../../../xr/main';
-import { Material } from '../../materials/core/Material';
+import type { RnXR } from '../../../xr/main';
+import type { Material } from '../../materials/core/Material';
 import { TextureFormat } from '../../definitions/TextureFormat';
 import { Bloom } from '../../helpers/BloomHelper';
 import { ShadowSystem } from '../../helpers/Shadow/ShadowSystem';
-import { ISceneGraphEntity } from '../../helpers/EntityHelper';
+import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
 
 type DrawFunc = (frame: Frame) => void;
 type IBLCubeTextureParameter = {

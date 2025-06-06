@@ -1,9 +1,9 @@
 /* eslint-disable prettier/prettier */
-import { ISceneGraphEntity } from '../../../helpers/EntityHelper';
-import { IVector3, MathUtil, Matrix44, Quaternion, Vector3 } from '../../../math';
-import { IQuaternion } from '../../../math/IQuaternion';
+import type { ISceneGraphEntity } from '../../../helpers/EntityHelper';
+import { type IVector3, MathUtil, Matrix44, Quaternion, Vector3 } from '../../../math';
+import type { IQuaternion } from '../../../math/IQuaternion';
 import { Is } from '../../../misc/Is';
-import { IAnimationRetarget } from './AnimationRetarget';
+import type { IAnimationRetarget } from './AnimationRetarget';
 
 /**
  * Global retarget reverse implementation for animation retargeting.

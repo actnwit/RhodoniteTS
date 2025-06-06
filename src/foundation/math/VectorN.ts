@@ -1,4 +1,4 @@
-import { TypedArray } from '../../types/CommonTypes';
+import type { TypedArray } from '../../types/CommonTypes';
 
 /**
  * VectorN represents an N-dimensional vector with arbitrary length.

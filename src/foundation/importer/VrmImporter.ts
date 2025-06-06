@@ -1,23 +1,23 @@
 /* eslint-disable prettier/prettier */
 import { ModelConverter } from './ModelConverter';
 import { Is } from '../misc/Is';
-import { ISceneGraphEntity } from '../helpers/EntityHelper';
-import { GltfLoadOption, RnM2, Vrm0x, Vrm0xMaterialProperty } from '../../types';
+import type { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { type GltfLoadOption, type RnM2, Vrm0x, Vrm0xMaterialProperty } from '../../types';
 import { RenderPass } from '../renderer/RenderPass';
 import { Texture } from '../textures/Texture';
 import { EntityRepository } from '../core/EntityRepository';
 import { VRMSpringBonePhysicsStrategy } from '../physics/VRMSpring/VRMSpringBonePhysicsStrategy';
 import { PhysicsComponent } from '../components/Physics/PhysicsComponent';
-import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
+import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { SphereCollider } from '../physics/VRMSpring/SphereCollider';
 import { Vector3 } from '../math/Vector3';
 import { VRMColliderGroup } from '../physics/VRMSpring/VRMColliderGroup';
 import { VRMSpring } from '../physics/VRMSpring/VRMSpring';
-import { Vrm1 } from '../../types/VRM1';
+import type { Vrm1 } from '../../types/VRM1';
 import { assertIsOk, Err, Result, Ok } from '../misc/Result';
 import { Gltf2Importer } from './Gltf2Importer';
 import { Sampler } from '../textures/Sampler';
-import { VrmComponent, VrmExpression, VrmExpressionMorphBind } from '../components';
+import { VrmComponent, type VrmExpression, type VrmExpressionMorphBind } from '../components';
 import { VRMSpringBone } from '../physics/VRMSpring/VRMSpringBone';
 import { CapsuleCollider } from '../physics/VRMSpring/CapsuleCollider';
 import { ConstraintComponent } from '../components/Constraint';
@@ -25,7 +25,7 @@ import { VrmRollConstraint } from '../constraints/VrmRollConstraint';
 import { VrmAimConstraint } from '../constraints/VrmAimConstraint';
 import { VrmRotationConstraint } from '../constraints/VrmRotationConstraint';
 import { TextureParameter } from '../definitions/TextureParameter';
-import { Vrm1_Materials_MToon } from '../../types/VRMC_materials_mtoon';
+import type { Vrm1_Materials_MToon } from '../../types/VRMC_materials_mtoon';
 
 /**
  * A utility class for importing and processing VRM (Virtual Reality Model) files.

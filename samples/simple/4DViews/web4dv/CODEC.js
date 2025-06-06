@@ -1,6 +1,6 @@
-var Module = (function () {
+var Module = (() => {
   var _scriptDir = typeof document !== 'undefined' && document.currentScript ? document.currentScript.src : undefined;
-  return function (Module) {
+  return (Module) => {
     Module = Module || {};
 
     var Module = typeof Module !== 'undefined' ? Module : {};
@@ -13,7 +13,7 @@ var Module = (function () {
     }
     Module['arguments'] = [];
     Module['thisProgram'] = './this.program';
-    Module['quit'] = function (status, toThrow) {
+    Module['quit'] = (status, toThrow) => {
       throw toThrow;
     };
     Module['preRun'] = [];
@@ -59,18 +59,16 @@ var Module = (function () {
         Module['thisProgram'] = process['argv'][1].replace(/\\/g, '/');
       }
       Module['arguments'] = process['argv'].slice(2);
-      process['on']('uncaughtException', function (ex) {
+      process['on']('uncaughtException', (ex) => {
         if (!(ex instanceof ExitStatus)) {
           throw ex;
         }
       });
       process['on']('unhandledRejection', abort);
-      Module['quit'] = function (status) {
+      Module['quit'] = (status) => {
         process['exit'](status);
       };
-      Module['inspect'] = function () {
-        return '[Emscripten Module object]';
-      };
+      Module['inspect'] = () => '[Emscripten Module object]';
     } else if (ENVIRONMENT_IS_SHELL) {
       if (typeof read != 'undefined') {
         Module['read'] = function shell_read(f) {
@@ -92,7 +90,7 @@ var Module = (function () {
         Module['arguments'] = arguments;
       }
       if (typeof quit === 'function') {
-        Module['quit'] = function (status) {
+        Module['quit'] = (status) => {
           quit(status);
         };
       }
@@ -139,7 +137,7 @@ var Module = (function () {
         xhr.onerror = onerror;
         xhr.send(null);
       };
-      Module['setWindowTitle'] = function (title) {
+      Module['setWindowTitle'] = (title) => {
         document.title = title;
       };
     } else {
@@ -201,7 +199,7 @@ var Module = (function () {
           if (type[type.length - 1] === '*') {
             return 4;
           } else if (type[0] === 'i') {
-            var bits = parseInt(type.substr(1));
+            var bits = Number.parseInt(type.substr(1));
             assert(bits % 8 === 0);
             return bits / 8;
           } else {
@@ -218,10 +216,8 @@ var Module = (function () {
       }
     }
     var asm2wasmImports = {
-      'f64-rem': function (x, y) {
-        return x % y;
-      },
-      debugger: function () {
+      'f64-rem': (x, y) => x % y,
+      debugger: () => {
         debugger;
       },
     };
@@ -236,12 +232,10 @@ var Module = (function () {
       }
     }
     var tempRet0 = 0;
-    var setTempRet0 = function (value) {
+    var setTempRet0 = (value) => {
       tempRet0 = value;
     };
-    var getTempRet0 = function () {
-      return tempRet0;
-    };
+    var getTempRet0 = () => tempRet0;
     var GLOBAL_BASE = 1024;
     var ABORT = false;
     var EXITSTATUS = 0;
@@ -256,18 +250,18 @@ var Module = (function () {
       return func;
     }
     var JSfuncs = {
-      stackSave: function () {
+      stackSave: () => {
         stackSave();
       },
-      stackRestore: function () {
+      stackRestore: () => {
         stackRestore();
       },
-      arrayToC: function (arr) {
+      arrayToC: (arr) => {
         var ret = stackAlloc(arr.length);
         writeArrayToMemory(arr, ret);
         return ret;
       },
-      stringToC: function (str) {
+      stringToC: (str) => {
         var ret = 0;
         if (str !== null && str !== undefined && str !== 0) {
           var len = (str.length << 2) + 1;
@@ -505,7 +499,7 @@ var Module = (function () {
     }
     function demangleAll(text) {
       var regex = /__Z[\w\d_]+/g;
-      return text.replace(regex, function (x) {
+      return text.replace(regex, (x) => {
         var y = demangle(x);
         return x === y ? x : y + ' [' + x + ']';
       });
@@ -565,7 +559,7 @@ var Module = (function () {
       );
     }
     if (!Module['reallocBuffer'])
-      Module['reallocBuffer'] = function (size) {
+      Module['reallocBuffer'] = (size) => {
         var ret;
         try {
           var oldHEAP8 = HEAP8;
@@ -610,9 +604,7 @@ var Module = (function () {
       );
       byteLength(new ArrayBuffer(4));
     } catch (e) {
-      byteLength = function (buffer) {
-        return buffer.byteLength;
-      };
+      byteLength = (buffer) => buffer.byteLength;
     }
     var TOTAL_STACK = Module['TOTAL_STACK'] || 5242880;
     var TOTAL_MEMORY = Module['TOTAL_MEMORY'] || 16777216;
@@ -791,17 +783,15 @@ var Module = (function () {
       function getBinaryPromise() {
         if (!Module['wasmBinary'] && (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) && typeof fetch === 'function') {
           return fetch(wasmBinaryFile, { credentials: 'same-origin' })
-            .then(function (response) {
+            .then((response) => {
               if (!response['ok']) {
                 throw "failed to load wasm binary file at '" + wasmBinaryFile + "'";
               }
               return response['arrayBuffer']();
             })
-            .catch(function () {
-              return getBinary();
-            });
+            .catch(() => getBinary());
         }
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) => {
           resolve(getBinary());
         });
       }
@@ -815,7 +805,7 @@ var Module = (function () {
           return false;
         }
         env['memory'] = Module['wasmMemory'];
-        info['global'] = { NaN: NaN, Infinity: Infinity };
+        info['global'] = { NaN: Number.NaN, Infinity: Number.POSITIVE_INFINITY };
         info['global.Math'] = Math;
         info['env'] = env;
         function receiveInstance(instance, module) {
@@ -839,10 +829,8 @@ var Module = (function () {
         }
         function instantiateArrayBuffer(receiver) {
           getBinaryPromise()
-            .then(function (binary) {
-              return WebAssembly.instantiate(binary, info);
-            })
-            .then(receiver, function (reason) {
+            .then((binary) => WebAssembly.instantiate(binary, info))
+            .then(receiver, (reason) => {
               err('failed to asynchronously prepare wasm: ' + reason);
               abort(reason);
             });
@@ -855,7 +843,7 @@ var Module = (function () {
         ) {
           WebAssembly.instantiateStreaming(fetch(wasmBinaryFile, { credentials: 'same-origin' }), info).then(
             receiveInstantiatedSource,
-            function (reason) {
+            (reason) => {
               err('wasm streaming compile failed: ' + reason);
               err('falling back to ArrayBuffer instantiation');
               instantiateArrayBuffer(receiveInstantiatedSource);
@@ -868,7 +856,7 @@ var Module = (function () {
       }
       Module['asmPreload'] = Module['asm'];
       var asmjsReallocBuffer = Module['reallocBuffer'];
-      var wasmReallocBuffer = function (size) {
+      var wasmReallocBuffer = (size) => {
         var PAGE_MULTIPLE = Module['usingWasm'] ? WASM_PAGE_SIZE : ASMJS_PAGE_SIZE;
         size = alignUp(size, PAGE_MULTIPLE);
         var old = Module['buffer'];
@@ -886,7 +874,7 @@ var Module = (function () {
           }
         }
       };
-      Module['reallocBuffer'] = function (size) {
+      Module['reallocBuffer'] = (size) => {
         if (finalMethod === 'asmjs') {
           return asmjsReallocBuffer(size);
         } else {
@@ -894,7 +882,7 @@ var Module = (function () {
         }
       };
       var finalMethod = '';
-      Module['asm'] = function (global, env, providedBuffer) {
+      Module['asm'] = (global, env, providedBuffer) => {
         if (!env['table']) {
           var TABLE_SIZE = Module['wasmTableSize'];
           if (TABLE_SIZE === undefined) TABLE_SIZE = 1024;
@@ -931,22 +919,22 @@ var Module = (function () {
     STATICTOP = STATIC_BASE + 57360;
     __ATINIT__.push(
       {
-        func: function () {
+        func: () => {
           __GLOBAL__I_000101();
         },
       },
       {
-        func: function () {
+        func: () => {
           __GLOBAL__sub_I_Binding_cpp();
         },
       },
       {
-        func: function () {
+        func: () => {
           __GLOBAL__sub_I_bind_cpp();
         },
       },
       {
-        func: function () {
+        func: () => {
           __GLOBAL__sub_I_iostream_cpp();
         },
       }
@@ -963,7 +951,7 @@ var Module = (function () {
       last: 0,
       caught: [],
       infos: {},
-      deAdjust: function (adjusted) {
+      deAdjust: (adjusted) => {
         if (!adjusted || EXCEPTIONS.infos[adjusted]) return adjusted;
         for (var key in EXCEPTIONS.infos) {
           var ptr = +key;
@@ -974,12 +962,12 @@ var Module = (function () {
         }
         return adjusted;
       },
-      addRef: function (ptr) {
+      addRef: (ptr) => {
         if (!ptr) return;
         var info = EXCEPTIONS.infos[ptr];
         info.refcount++;
       },
-      decRef: function (ptr) {
+      decRef: (ptr) => {
         if (!ptr) return;
         var info = EXCEPTIONS.infos[ptr];
         assert(info.refcount > 0);
@@ -992,7 +980,7 @@ var Module = (function () {
           ___cxa_free_exception(ptr);
         }
       },
-      clearRef: function (ptr) {
+      clearRef: (ptr) => {
         if (!ptr) return;
         var info = EXCEPTIONS.infos[ptr];
         info.refcount = 0;
@@ -1322,11 +1310,11 @@ var Module = (function () {
       131: 'State not recoverable',
     };
     var PATH = {
-      splitPath: function (filename) {
+      splitPath: (filename) => {
         var splitPathRe = /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
         return splitPathRe.exec(filename).slice(1);
       },
-      normalizeArray: function (parts, allowAboveRoot) {
+      normalizeArray: (parts, allowAboveRoot) => {
         var up = 0;
         for (var i = parts.length - 1; i >= 0; i--) {
           var last = parts[i];
@@ -1347,13 +1335,11 @@ var Module = (function () {
         }
         return parts;
       },
-      normalize: function (path) {
+      normalize: (path) => {
         var isAbsolute = path.charAt(0) === '/',
           trailingSlash = path.substr(-1) === '/';
         path = PATH.normalizeArray(
-          path.split('/').filter(function (p) {
-            return !!p;
-          }),
+          path.split('/').filter((p) => !!p),
           !isAbsolute
         ).join('/');
         if (!path && !isAbsolute) {
@@ -1364,7 +1350,7 @@ var Module = (function () {
         }
         return (isAbsolute ? '/' : '') + path;
       },
-      dirname: function (path) {
+      dirname: (path) => {
         var result = PATH.splitPath(path),
           root = result[0],
           dir = result[1];
@@ -1376,23 +1362,19 @@ var Module = (function () {
         }
         return root + dir;
       },
-      basename: function (path) {
+      basename: (path) => {
         if (path === '/') return '/';
         var lastSlash = path.lastIndexOf('/');
         if (lastSlash === -1) return path;
         return path.substr(lastSlash + 1);
       },
-      extname: function (path) {
-        return PATH.splitPath(path)[3];
-      },
-      join: function () {
+      extname: (path) => PATH.splitPath(path)[3],
+      join: () => {
         var paths = Array.prototype.slice.call(arguments, 0);
         return PATH.normalize(paths.join('/'));
       },
-      join2: function (l, r) {
-        return PATH.normalize(l + '/' + r);
-      },
-      resolve: function () {
+      join2: (l, r) => PATH.normalize(l + '/' + r),
+      resolve: () => {
         var resolvedPath = '',
           resolvedAbsolute = false;
         for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
@@ -1406,14 +1388,12 @@ var Module = (function () {
           resolvedAbsolute = path.charAt(0) === '/';
         }
         resolvedPath = PATH.normalizeArray(
-          resolvedPath.split('/').filter(function (p) {
-            return !!p;
-          }),
+          resolvedPath.split('/').filter((p) => !!p),
           !resolvedAbsolute
         ).join('/');
         return (resolvedAbsolute ? '/' : '') + resolvedPath || '.';
       },
-      relative: function (from, to) {
+      relative: (from, to) => {
         from = PATH.resolve(from).substr(1);
         to = PATH.resolve(to).substr(1);
         function trim(arr) {
@@ -1448,14 +1428,14 @@ var Module = (function () {
     };
     var TTY = {
       ttys: [],
-      init: function () {},
-      shutdown: function () {},
-      register: function (dev, ops) {
+      init: () => {},
+      shutdown: () => {},
+      register: (dev, ops) => {
         TTY.ttys[dev] = { input: [], output: [], ops: ops };
         FS.registerDevice(dev, TTY.stream_ops);
       },
       stream_ops: {
-        open: function (stream) {
+        open: (stream) => {
           var tty = TTY.ttys[stream.node.rdev];
           if (!tty) {
             throw new FS.ErrnoError(ERRNO_CODES.ENODEV);
@@ -1463,13 +1443,13 @@ var Module = (function () {
           stream.tty = tty;
           stream.seekable = false;
         },
-        close: function (stream) {
+        close: (stream) => {
           stream.tty.ops.flush(stream.tty);
         },
-        flush: function (stream) {
+        flush: (stream) => {
           stream.tty.ops.flush(stream.tty);
         },
-        read: function (stream, buffer, offset, length, pos) {
+        read: (stream, buffer, offset, length, pos) => {
           if (!stream.tty || !stream.tty.ops.get_char) {
             throw new FS.ErrnoError(ERRNO_CODES.ENXIO);
           }
@@ -1493,7 +1473,7 @@ var Module = (function () {
           }
           return bytesRead;
         },
-        write: function (stream, buffer, offset, length, pos) {
+        write: (stream, buffer, offset, length, pos) => {
           if (!stream.tty || !stream.tty.ops.put_char) {
             throw new FS.ErrnoError(ERRNO_CODES.ENXIO);
           }
@@ -1517,7 +1497,7 @@ var Module = (function () {
         },
       },
       default_tty_ops: {
-        get_char: function (tty) {
+        get_char: (tty) => {
           if (!tty.input.length) {
             var result = null;
             if (ENVIRONMENT_IS_NODE) {
@@ -1565,7 +1545,7 @@ var Module = (function () {
           }
           return tty.input.shift();
         },
-        put_char: function (tty, val) {
+        put_char: (tty, val) => {
           if (val === null || val === 10) {
             out(UTF8ArrayToString(tty.output, 0));
             tty.output = [];
@@ -1573,7 +1553,7 @@ var Module = (function () {
             if (val != 0) tty.output.push(val);
           }
         },
-        flush: function (tty) {
+        flush: (tty) => {
           if (tty.output && tty.output.length > 0) {
             out(UTF8ArrayToString(tty.output, 0));
             tty.output = [];
@@ -1581,7 +1561,7 @@ var Module = (function () {
         },
       },
       default_tty1_ops: {
-        put_char: function (tty, val) {
+        put_char: (tty, val) => {
           if (val === null || val === 10) {
             err(UTF8ArrayToString(tty.output, 0));
             tty.output = [];
@@ -1589,7 +1569,7 @@ var Module = (function () {
             if (val != 0) tty.output.push(val);
           }
         },
-        flush: function (tty) {
+        flush: (tty) => {
           if (tty.output && tty.output.length > 0) {
             err(UTF8ArrayToString(tty.output, 0));
             tty.output = [];
@@ -1599,10 +1579,8 @@ var Module = (function () {
     };
     var MEMFS = {
       ops_table: null,
-      mount: function (mount) {
-        return MEMFS.createNode(null, '/', 16384 | 511, 0);
-      },
-      createNode: function (parent, name, mode, dev) {
+      mount: (mount) => MEMFS.createNode(null, '/', 16384 | 511, 0),
+      createNode: (parent, name, mode, dev) => {
         if (FS.isBlkdev(mode) || FS.isFIFO(mode)) {
           throw new FS.ErrnoError(ERRNO_CODES.EPERM);
         }
@@ -1670,7 +1648,7 @@ var Module = (function () {
         }
         return node;
       },
-      getFileDataAsRegularArray: function (node) {
+      getFileDataAsRegularArray: (node) => {
         if (node.contents && node.contents.subarray) {
           var arr = [];
           for (var i = 0; i < node.usedBytes; ++i) arr.push(node.contents[i]);
@@ -1678,12 +1656,12 @@ var Module = (function () {
         }
         return node.contents;
       },
-      getFileDataAsTypedArray: function (node) {
+      getFileDataAsTypedArray: (node) => {
         if (!node.contents) return new Uint8Array();
         if (node.contents.subarray) return node.contents.subarray(0, node.usedBytes);
         return new Uint8Array(node.contents);
       },
-      expandFileStorage: function (node, newCapacity) {
+      expandFileStorage: (node, newCapacity) => {
         if (node.contents && node.contents.subarray && newCapacity > node.contents.length) {
           node.contents = MEMFS.getFileDataAsRegularArray(node);
           node.usedBytes = node.contents.length;
@@ -1702,7 +1680,7 @@ var Module = (function () {
         if (!node.contents && newCapacity > 0) node.contents = [];
         while (node.contents.length < newCapacity) node.contents.push(0);
       },
-      resizeFileStorage: function (node, newSize) {
+      resizeFileStorage: (node, newSize) => {
         if (node.usedBytes == newSize) return;
         if (newSize == 0) {
           node.contents = null;
@@ -1724,7 +1702,7 @@ var Module = (function () {
         node.usedBytes = newSize;
       },
       node_ops: {
-        getattr: function (node) {
+        getattr: (node) => {
           var attr = {};
           attr.dev = FS.isChrdev(node.mode) ? node.id : 1;
           attr.ino = node.id;
@@ -1749,7 +1727,7 @@ var Module = (function () {
           attr.blocks = Math.ceil(attr.size / attr.blksize);
           return attr;
         },
-        setattr: function (node, attr) {
+        setattr: (node, attr) => {
           if (attr.mode !== undefined) {
             node.mode = attr.mode;
           }
@@ -1760,13 +1738,11 @@ var Module = (function () {
             MEMFS.resizeFileStorage(node, attr.size);
           }
         },
-        lookup: function (parent, name) {
+        lookup: (parent, name) => {
           throw FS.genericErrors[ERRNO_CODES.ENOENT];
         },
-        mknod: function (parent, name, mode, dev) {
-          return MEMFS.createNode(parent, name, mode, dev);
-        },
-        rename: function (old_node, new_dir, new_name) {
+        mknod: (parent, name, mode, dev) => MEMFS.createNode(parent, name, mode, dev),
+        rename: (old_node, new_dir, new_name) => {
           if (FS.isDir(old_node.mode)) {
             var new_node;
             try {
@@ -1783,17 +1759,17 @@ var Module = (function () {
           new_dir.contents[new_name] = old_node;
           old_node.parent = new_dir;
         },
-        unlink: function (parent, name) {
+        unlink: (parent, name) => {
           delete parent.contents[name];
         },
-        rmdir: function (parent, name) {
+        rmdir: (parent, name) => {
           var node = FS.lookupNode(parent, name);
           for (var i in node.contents) {
             throw new FS.ErrnoError(ERRNO_CODES.ENOTEMPTY);
           }
           delete parent.contents[name];
         },
-        readdir: function (node) {
+        readdir: (node) => {
           var entries = ['.', '..'];
           for (var key in node.contents) {
             if (!node.contents.hasOwnProperty(key)) {
@@ -1803,12 +1779,12 @@ var Module = (function () {
           }
           return entries;
         },
-        symlink: function (parent, newname, oldpath) {
+        symlink: (parent, newname, oldpath) => {
           var node = MEMFS.createNode(parent, newname, 511 | 40960, 0);
           node.link = oldpath;
           return node;
         },
-        readlink: function (node) {
+        readlink: (node) => {
           if (!FS.isLink(node.mode)) {
             throw new FS.ErrnoError(ERRNO_CODES.EINVAL);
           }
@@ -1816,7 +1792,7 @@ var Module = (function () {
         },
       },
       stream_ops: {
-        read: function (stream, buffer, offset, length, position) {
+        read: (stream, buffer, offset, length, position) => {
           var contents = stream.node.contents;
           if (position >= stream.node.usedBytes) return 0;
           var size = Math.min(stream.node.usedBytes - position, length);
@@ -1828,7 +1804,7 @@ var Module = (function () {
           }
           return size;
         },
-        write: function (stream, buffer, offset, length, position, canOwn) {
+        write: (stream, buffer, offset, length, position, canOwn) => {
           canOwn = false;
           if (!length) return 0;
           var node = stream.node;
@@ -1858,7 +1834,7 @@ var Module = (function () {
           node.usedBytes = Math.max(node.usedBytes, position + length);
           return length;
         },
-        llseek: function (stream, offset, whence) {
+        llseek: (stream, offset, whence) => {
           var position = offset;
           if (whence === 1) {
             position += stream.position;
@@ -1872,11 +1848,11 @@ var Module = (function () {
           }
           return position;
         },
-        allocate: function (stream, offset, length) {
+        allocate: (stream, offset, length) => {
           MEMFS.expandFileStorage(stream.node, offset + length);
           stream.node.usedBytes = Math.max(stream.node.usedBytes, offset + length);
         },
-        mmap: function (stream, buffer, offset, length, position, prot, flags) {
+        mmap: (stream, buffer, offset, length, position, prot, flags) => {
           if (!FS.isFile(stream.node.mode)) {
             throw new FS.ErrnoError(ERRNO_CODES.ENODEV);
           }
@@ -1903,7 +1879,7 @@ var Module = (function () {
           }
           return { ptr: ptr, allocated: allocated };
         },
-        msync: function (stream, buffer, offset, length, mmapFlags) {
+        msync: (stream, buffer, offset, length, mmapFlags) => {
           if (!FS.isFile(stream.node.mode)) {
             throw new FS.ErrnoError(ERRNO_CODES.ENODEV);
           }
@@ -1917,7 +1893,7 @@ var Module = (function () {
     };
     var IDBFS = {
       dbs: {},
-      indexedDB: function () {
+      indexedDB: () => {
         if (typeof indexedDB !== 'undefined') return indexedDB;
         var ret = null;
         if (typeof window === 'object')
@@ -1927,13 +1903,11 @@ var Module = (function () {
       },
       DB_VERSION: 21,
       DB_STORE_NAME: 'FILE_DATA',
-      mount: function (mount) {
-        return MEMFS.mount.apply(null, arguments);
-      },
-      syncfs: function (mount, populate, callback) {
-        IDBFS.getLocalSet(mount, function (err, local) {
+      mount: (mount) => MEMFS.mount.apply(null, arguments),
+      syncfs: (mount, populate, callback) => {
+        IDBFS.getLocalSet(mount, (err, local) => {
           if (err) return callback(err);
-          IDBFS.getRemoteSet(mount, function (err, remote) {
+          IDBFS.getRemoteSet(mount, (err, remote) => {
             if (err) return callback(err);
             var src = populate ? remote : local;
             var dst = populate ? local : remote;
@@ -1941,7 +1915,7 @@ var Module = (function () {
           });
         });
       },
-      getDB: function (name, callback) {
+      getDB: (name, callback) => {
         var db = IDBFS.dbs[name];
         if (db) {
           return callback(null, db);
@@ -1955,7 +1929,7 @@ var Module = (function () {
         if (!req) {
           return callback('Unable to connect to IndexedDB');
         }
-        req.onupgradeneeded = function (e) {
+        req.onupgradeneeded = (e) => {
           var db = e.target.result;
           var transaction = e.target.transaction;
           var fileStore;
@@ -1968,7 +1942,7 @@ var Module = (function () {
             fileStore.createIndex('timestamp', 'timestamp', { unique: false });
           }
         };
-        req.onsuccess = function () {
+        req.onsuccess = () => {
           db = req.result;
           IDBFS.dbs[name] = db;
           callback(null, db);
@@ -1978,15 +1952,13 @@ var Module = (function () {
           e.preventDefault();
         };
       },
-      getLocalSet: function (mount, callback) {
+      getLocalSet: (mount, callback) => {
         var entries = {};
         function isRealDir(p) {
           return p !== '.' && p !== '..';
         }
         function toAbsolute(root) {
-          return function (p) {
-            return PATH.join2(root, p);
-          };
+          return (p) => PATH.join2(root, p);
         }
         var check = FS.readdir(mount.mountpoint).filter(isRealDir).map(toAbsolute(mount.mountpoint));
         while (check.length) {
@@ -2004,9 +1976,9 @@ var Module = (function () {
         }
         return callback(null, { type: 'local', entries: entries });
       },
-      getRemoteSet: function (mount, callback) {
+      getRemoteSet: (mount, callback) => {
         var entries = {};
-        IDBFS.getDB(mount.mountpoint, function (err, db) {
+        IDBFS.getDB(mount.mountpoint, (err, db) => {
           if (err) return callback(err);
           try {
             var transaction = db.transaction([IDBFS.DB_STORE_NAME], 'readonly');
@@ -2016,7 +1988,7 @@ var Module = (function () {
             };
             var store = transaction.objectStore(IDBFS.DB_STORE_NAME);
             var index = store.index('timestamp');
-            index.openKeyCursor().onsuccess = function (event) {
+            index.openKeyCursor().onsuccess = (event) => {
               var cursor = event.target.result;
               if (!cursor) {
                 return callback(null, { type: 'remote', db: db, entries: entries });
@@ -2029,7 +2001,7 @@ var Module = (function () {
           }
         });
       },
-      loadLocalEntry: function (path, callback) {
+      loadLocalEntry: (path, callback) => {
         var stat, node;
         try {
           var lookup = FS.lookupPath(path);
@@ -2047,7 +2019,7 @@ var Module = (function () {
           return callback(new Error('node type not supported'));
         }
       },
-      storeLocalEntry: function (path, entry, callback) {
+      storeLocalEntry: (path, entry, callback) => {
         try {
           if (FS.isDir(entry.mode)) {
             FS.mkdir(path, entry.mode);
@@ -2063,7 +2035,7 @@ var Module = (function () {
         }
         callback(null);
       },
-      removeLocalEntry: function (path, callback) {
+      removeLocalEntry: (path, callback) => {
         try {
           var lookup = FS.lookupPath(path);
           var stat = FS.stat(path);
@@ -2077,9 +2049,9 @@ var Module = (function () {
         }
         callback(null);
       },
-      loadRemoteEntry: function (store, path, callback) {
+      loadRemoteEntry: (store, path, callback) => {
         var req = store.get(path);
-        req.onsuccess = function (event) {
+        req.onsuccess = (event) => {
           callback(null, event.target.result);
         };
         req.onerror = function (e) {
@@ -2087,9 +2059,9 @@ var Module = (function () {
           e.preventDefault();
         };
       },
-      storeRemoteEntry: function (store, path, entry, callback) {
+      storeRemoteEntry: (store, path, entry, callback) => {
         var req = store.put(entry, path);
-        req.onsuccess = function () {
+        req.onsuccess = () => {
           callback(null);
         };
         req.onerror = function (e) {
@@ -2097,9 +2069,9 @@ var Module = (function () {
           e.preventDefault();
         };
       },
-      removeRemoteEntry: function (store, path, callback) {
+      removeRemoteEntry: (store, path, callback) => {
         var req = store.delete(path);
-        req.onsuccess = function () {
+        req.onsuccess = () => {
           callback(null);
         };
         req.onerror = function (e) {
@@ -2107,10 +2079,10 @@ var Module = (function () {
           e.preventDefault();
         };
       },
-      reconcile: function (src, dst, callback) {
+      reconcile: (src, dst, callback) => {
         var total = 0;
         var create = [];
-        Object.keys(src.entries).forEach(function (key) {
+        Object.keys(src.entries).forEach((key) => {
           var e = src.entries[key];
           var e2 = dst.entries[key];
           if (!e2 || e.timestamp > e2.timestamp) {
@@ -2119,7 +2091,7 @@ var Module = (function () {
           }
         });
         var remove = [];
-        Object.keys(dst.entries).forEach(function (key) {
+        Object.keys(dst.entries).forEach((key) => {
           var e = dst.entries[key];
           var e2 = src.entries[key];
           if (!e2) {
@@ -2150,14 +2122,14 @@ var Module = (function () {
           done(this.error);
           e.preventDefault();
         };
-        create.sort().forEach(function (path) {
+        create.sort().forEach((path) => {
           if (dst.type === 'local') {
-            IDBFS.loadRemoteEntry(store, path, function (err, entry) {
+            IDBFS.loadRemoteEntry(store, path, (err, entry) => {
               if (err) return done(err);
               IDBFS.storeLocalEntry(path, entry, done);
             });
           } else {
-            IDBFS.loadLocalEntry(path, function (err, entry) {
+            IDBFS.loadLocalEntry(path, (err, entry) => {
               if (err) return done(err);
               IDBFS.storeRemoteEntry(store, path, entry, done);
             });
@@ -2166,7 +2138,7 @@ var Module = (function () {
         remove
           .sort()
           .reverse()
-          .forEach(function (path) {
+          .forEach((path) => {
             if (dst.type === 'local') {
               IDBFS.removeLocalEntry(path, done);
             } else {
@@ -2177,7 +2149,7 @@ var Module = (function () {
     };
     var NODEFS = {
       isWindows: false,
-      staticInit: function () {
+      staticInit: () => {
         NODEFS.isWindows = !!process.platform.match(/^win/);
         var flags = process['binding']('constants');
         if (flags['fs']) {
@@ -2194,14 +2166,12 @@ var Module = (function () {
           1: flags['O_WRONLY'],
         };
       },
-      bufferFrom: function (arrayBuffer) {
-        return Buffer.alloc ? Buffer.from(arrayBuffer) : new Buffer(arrayBuffer);
-      },
-      mount: function (mount) {
+      bufferFrom: (arrayBuffer) => Buffer.alloc ? Buffer.from(arrayBuffer) : new Buffer(arrayBuffer),
+      mount: (mount) => {
         assert(ENVIRONMENT_IS_NODE);
         return NODEFS.createNode(null, '/', NODEFS.getMode(mount.opts.root), 0);
       },
-      createNode: function (parent, name, mode, dev) {
+      createNode: (parent, name, mode, dev) => {
         if (!FS.isDir(mode) && !FS.isFile(mode) && !FS.isLink(mode)) {
           throw new FS.ErrnoError(ERRNO_CODES.EINVAL);
         }
@@ -2210,7 +2180,7 @@ var Module = (function () {
         node.stream_ops = NODEFS.stream_ops;
         return node;
       },
-      getMode: function (path) {
+      getMode: (path) => {
         var stat;
         try {
           stat = fs.lstatSync(path);
@@ -2223,7 +2193,7 @@ var Module = (function () {
         }
         return stat.mode;
       },
-      realPath: function (node) {
+      realPath: (node) => {
         var parts = [];
         while (node.parent !== node) {
           parts.push(node.name);
@@ -2233,7 +2203,7 @@ var Module = (function () {
         parts.reverse();
         return PATH.join.apply(null, parts);
       },
-      flagsForNode: function (flags) {
+      flagsForNode: (flags) => {
         flags &= ~2097152;
         flags &= ~2048;
         flags &= ~32768;
@@ -2252,7 +2222,7 @@ var Module = (function () {
         }
       },
       node_ops: {
-        getattr: function (node) {
+        getattr: (node) => {
           var path = NODEFS.realPath(node);
           var stat;
           try {
@@ -2283,7 +2253,7 @@ var Module = (function () {
             blocks: stat.blocks,
           };
         },
-        setattr: function (node, attr) {
+        setattr: (node, attr) => {
           var path = NODEFS.realPath(node);
           try {
             if (attr.mode !== undefined) {
@@ -2302,12 +2272,12 @@ var Module = (function () {
             throw new FS.ErrnoError(ERRNO_CODES[e.code]);
           }
         },
-        lookup: function (parent, name) {
+        lookup: (parent, name) => {
           var path = PATH.join2(NODEFS.realPath(parent), name);
           var mode = NODEFS.getMode(path);
           return NODEFS.createNode(parent, name, mode);
         },
-        mknod: function (parent, name, mode, dev) {
+        mknod: (parent, name, mode, dev) => {
           var node = NODEFS.createNode(parent, name, mode, dev);
           var path = NODEFS.realPath(node);
           try {
@@ -2322,7 +2292,7 @@ var Module = (function () {
           }
           return node;
         },
-        rename: function (oldNode, newDir, newName) {
+        rename: (oldNode, newDir, newName) => {
           var oldPath = NODEFS.realPath(oldNode);
           var newPath = PATH.join2(NODEFS.realPath(newDir), newName);
           try {
@@ -2332,7 +2302,7 @@ var Module = (function () {
             throw new FS.ErrnoError(ERRNO_CODES[e.code]);
           }
         },
-        unlink: function (parent, name) {
+        unlink: (parent, name) => {
           var path = PATH.join2(NODEFS.realPath(parent), name);
           try {
             fs.unlinkSync(path);
@@ -2341,7 +2311,7 @@ var Module = (function () {
             throw new FS.ErrnoError(ERRNO_CODES[e.code]);
           }
         },
-        rmdir: function (parent, name) {
+        rmdir: (parent, name) => {
           var path = PATH.join2(NODEFS.realPath(parent), name);
           try {
             fs.rmdirSync(path);
@@ -2350,7 +2320,7 @@ var Module = (function () {
             throw new FS.ErrnoError(ERRNO_CODES[e.code]);
           }
         },
-        readdir: function (node) {
+        readdir: (node) => {
           var path = NODEFS.realPath(node);
           try {
             return fs.readdirSync(path);
@@ -2359,7 +2329,7 @@ var Module = (function () {
             throw new FS.ErrnoError(ERRNO_CODES[e.code]);
           }
         },
-        symlink: function (parent, newName, oldPath) {
+        symlink: (parent, newName, oldPath) => {
           var newPath = PATH.join2(NODEFS.realPath(parent), newName);
           try {
             fs.symlinkSync(oldPath, newPath);
@@ -2368,7 +2338,7 @@ var Module = (function () {
             throw new FS.ErrnoError(ERRNO_CODES[e.code]);
           }
         },
-        readlink: function (node) {
+        readlink: (node) => {
           var path = NODEFS.realPath(node);
           try {
             path = fs.readlinkSync(path);
@@ -2381,7 +2351,7 @@ var Module = (function () {
         },
       },
       stream_ops: {
-        open: function (stream) {
+        open: (stream) => {
           var path = NODEFS.realPath(stream.node);
           try {
             if (FS.isFile(stream.node.mode)) {
@@ -2392,7 +2362,7 @@ var Module = (function () {
             throw new FS.ErrnoError(ERRNO_CODES[e.code]);
           }
         },
-        close: function (stream) {
+        close: (stream) => {
           try {
             if (FS.isFile(stream.node.mode) && stream.nfd) {
               fs.closeSync(stream.nfd);
@@ -2402,7 +2372,7 @@ var Module = (function () {
             throw new FS.ErrnoError(ERRNO_CODES[e.code]);
           }
         },
-        read: function (stream, buffer, offset, length, position) {
+        read: (stream, buffer, offset, length, position) => {
           if (length === 0) return 0;
           try {
             return fs.readSync(stream.nfd, NODEFS.bufferFrom(buffer.buffer), offset, length, position);
@@ -2410,14 +2380,14 @@ var Module = (function () {
             throw new FS.ErrnoError(ERRNO_CODES[e.code]);
           }
         },
-        write: function (stream, buffer, offset, length, position) {
+        write: (stream, buffer, offset, length, position) => {
           try {
             return fs.writeSync(stream.nfd, NODEFS.bufferFrom(buffer.buffer), offset, length, position);
           } catch (e) {
             throw new FS.ErrnoError(ERRNO_CODES[e.code]);
           }
         },
-        llseek: function (stream, offset, whence) {
+        llseek: (stream, offset, whence) => {
           var position = offset;
           if (whence === 1) {
             position += stream.position;
@@ -2442,7 +2412,7 @@ var Module = (function () {
       DIR_MODE: 16895,
       FILE_MODE: 33279,
       reader: null,
-      mount: function (mount) {
+      mount: (mount) => {
         assert(ENVIRONMENT_IS_WORKER);
         if (!WORKERFS.reader) WORKERFS.reader = new FileReaderSync();
         var root = WORKERFS.createNode(null, '/', WORKERFS.DIR_MODE, 0);
@@ -2463,7 +2433,7 @@ var Module = (function () {
           var parts = path.split('/');
           return parts[parts.length - 1];
         }
-        Array.prototype.forEach.call(mount.opts['files'] || [], function (file) {
+        Array.prototype.forEach.call(mount.opts['files'] || [], (file) => {
           WORKERFS.createNode(
             ensureParent(file.name),
             base(file.name),
@@ -2473,11 +2443,11 @@ var Module = (function () {
             file.lastModifiedDate
           );
         });
-        (mount.opts['blobs'] || []).forEach(function (obj) {
+        (mount.opts['blobs'] || []).forEach((obj) => {
           WORKERFS.createNode(ensureParent(obj['name']), base(obj['name']), WORKERFS.FILE_MODE, 0, obj['data']);
         });
-        (mount.opts['packages'] || []).forEach(function (pack) {
-          pack['metadata'].files.forEach(function (file) {
+        (mount.opts['packages'] || []).forEach((pack) => {
+          pack['metadata'].files.forEach((file) => {
             var name = file.filename.substr(1);
             WORKERFS.createNode(
               ensureParent(name),
@@ -2490,7 +2460,7 @@ var Module = (function () {
         });
         return root;
       },
-      createNode: function (parent, name, mode, dev, contents, mtime) {
+      createNode: (parent, name, mode, dev, contents, mtime) => {
         var node = FS.createNode(parent, name, mode);
         node.mode = mode;
         node.node_ops = WORKERFS.node_ops;
@@ -2510,8 +2480,7 @@ var Module = (function () {
         return node;
       },
       node_ops: {
-        getattr: function (node) {
-          return {
+        getattr: (node) => ({
             dev: 1,
             ino: undefined,
             mode: node.mode,
@@ -2525,9 +2494,8 @@ var Module = (function () {
             ctime: new Date(node.timestamp),
             blksize: 4096,
             blocks: Math.ceil(node.size / 4096),
-          };
-        },
-        setattr: function (node, attr) {
+          }),
+        setattr: (node, attr) => {
           if (attr.mode !== undefined) {
             node.mode = attr.mode;
           }
@@ -2535,22 +2503,22 @@ var Module = (function () {
             node.timestamp = attr.timestamp;
           }
         },
-        lookup: function (parent, name) {
+        lookup: (parent, name) => {
           throw new FS.ErrnoError(ERRNO_CODES.ENOENT);
         },
-        mknod: function (parent, name, mode, dev) {
+        mknod: (parent, name, mode, dev) => {
           throw new FS.ErrnoError(ERRNO_CODES.EPERM);
         },
-        rename: function (oldNode, newDir, newName) {
+        rename: (oldNode, newDir, newName) => {
           throw new FS.ErrnoError(ERRNO_CODES.EPERM);
         },
-        unlink: function (parent, name) {
+        unlink: (parent, name) => {
           throw new FS.ErrnoError(ERRNO_CODES.EPERM);
         },
-        rmdir: function (parent, name) {
+        rmdir: (parent, name) => {
           throw new FS.ErrnoError(ERRNO_CODES.EPERM);
         },
-        readdir: function (node) {
+        readdir: (node) => {
           var entries = ['.', '..'];
           for (var key in node.contents) {
             if (!node.contents.hasOwnProperty(key)) {
@@ -2560,25 +2528,25 @@ var Module = (function () {
           }
           return entries;
         },
-        symlink: function (parent, newName, oldPath) {
+        symlink: (parent, newName, oldPath) => {
           throw new FS.ErrnoError(ERRNO_CODES.EPERM);
         },
-        readlink: function (node) {
+        readlink: (node) => {
           throw new FS.ErrnoError(ERRNO_CODES.EPERM);
         },
       },
       stream_ops: {
-        read: function (stream, buffer, offset, length, position) {
+        read: (stream, buffer, offset, length, position) => {
           if (position >= stream.node.size) return 0;
           var chunk = stream.node.contents.slice(position, position + length);
           var ab = WORKERFS.reader.readAsArrayBuffer(chunk);
           buffer.set(new Uint8Array(ab), offset);
           return chunk.size;
         },
-        write: function (stream, buffer, offset, length, position) {
+        write: (stream, buffer, offset, length, position) => {
           throw new FS.ErrnoError(ERRNO_CODES.EIO);
         },
-        llseek: function (stream, offset, whence) {
+        llseek: (stream, offset, whence) => {
           var position = offset;
           if (whence === 1) {
             position += stream.position;
@@ -2613,11 +2581,11 @@ var Module = (function () {
       genericErrors: {},
       filesystems: null,
       syncFSRequests: 0,
-      handleFSError: function (e) {
+      handleFSError: (e) => {
         if (!(e instanceof FS.ErrnoError)) throw e + ' : ' + stackTrace();
         return ___setErrNo(e.errno);
       },
-      lookupPath: function (path, opts) {
+      lookupPath: (path, opts) => {
         path = PATH.resolve(FS.cwd(), path);
         opts = opts || {};
         if (!path) return { path: '', node: null };
@@ -2631,9 +2599,7 @@ var Module = (function () {
           throw new FS.ErrnoError(ERRNO_CODES.ELOOP);
         }
         var parts = PATH.normalizeArray(
-          path.split('/').filter(function (p) {
-            return !!p;
-          }),
+          path.split('/').filter((p) => !!p),
           false
         );
         var current = FS.root;
@@ -2665,7 +2631,7 @@ var Module = (function () {
         }
         return { path: current_path, node: current };
       },
-      getPath: function (node) {
+      getPath: (node) => {
         var path;
         while (true) {
           if (FS.isRoot(node)) {
@@ -2677,19 +2643,19 @@ var Module = (function () {
           node = node.parent;
         }
       },
-      hashName: function (parentid, name) {
+      hashName: (parentid, name) => {
         var hash = 0;
         for (var i = 0; i < name.length; i++) {
           hash = ((hash << 5) - hash + name.charCodeAt(i)) | 0;
         }
         return ((parentid + hash) >>> 0) % FS.nameTable.length;
       },
-      hashAddNode: function (node) {
+      hashAddNode: (node) => {
         var hash = FS.hashName(node.parent.id, node.name);
         node.name_next = FS.nameTable[hash];
         FS.nameTable[hash] = node;
       },
-      hashRemoveNode: function (node) {
+      hashRemoveNode: (node) => {
         var hash = FS.hashName(node.parent.id, node.name);
         if (FS.nameTable[hash] === node) {
           FS.nameTable[hash] = node.name_next;
@@ -2704,7 +2670,7 @@ var Module = (function () {
           }
         }
       },
-      lookupNode: function (parent, name) {
+      lookupNode: (parent, name) => {
         var err = FS.mayLookup(parent);
         if (err) {
           throw new FS.ErrnoError(err, parent);
@@ -2718,7 +2684,7 @@ var Module = (function () {
         }
         return FS.lookup(parent, name);
       },
-      createNode: function (parent, name, mode, rdev) {
+      createNode: (parent, name, mode, rdev) => {
         if (!FS.FSNode) {
           FS.FSNode = function (parent, name, mode, rdev) {
             if (!parent) {
@@ -2770,36 +2736,18 @@ var Module = (function () {
         FS.hashAddNode(node);
         return node;
       },
-      destroyNode: function (node) {
+      destroyNode: (node) => {
         FS.hashRemoveNode(node);
       },
-      isRoot: function (node) {
-        return node === node.parent;
-      },
-      isMountpoint: function (node) {
-        return !!node.mounted;
-      },
-      isFile: function (mode) {
-        return (mode & 61440) === 32768;
-      },
-      isDir: function (mode) {
-        return (mode & 61440) === 16384;
-      },
-      isLink: function (mode) {
-        return (mode & 61440) === 40960;
-      },
-      isChrdev: function (mode) {
-        return (mode & 61440) === 8192;
-      },
-      isBlkdev: function (mode) {
-        return (mode & 61440) === 24576;
-      },
-      isFIFO: function (mode) {
-        return (mode & 61440) === 4096;
-      },
-      isSocket: function (mode) {
-        return (mode & 49152) === 49152;
-      },
+      isRoot: (node) => node === node.parent,
+      isMountpoint: (node) => !!node.mounted,
+      isFile: (mode) => (mode & 61440) === 32768,
+      isDir: (mode) => (mode & 61440) === 16384,
+      isLink: (mode) => (mode & 61440) === 40960,
+      isChrdev: (mode) => (mode & 61440) === 8192,
+      isBlkdev: (mode) => (mode & 61440) === 24576,
+      isFIFO: (mode) => (mode & 61440) === 4096,
+      isSocket: (mode) => (mode & 49152) === 49152,
       flagModes: {
         r: 0,
         rs: 1052672,
@@ -2817,21 +2765,21 @@ var Module = (function () {
         'ax+': 1218,
         'xa+': 1218,
       },
-      modeStringToFlags: function (str) {
+      modeStringToFlags: (str) => {
         var flags = FS.flagModes[str];
         if (typeof flags === 'undefined') {
           throw new Error('Unknown file open mode: ' + str);
         }
         return flags;
       },
-      flagsToPermissionString: function (flag) {
+      flagsToPermissionString: (flag) => {
         var perms = ['r', 'w', 'rw'][flag & 3];
         if (flag & 512) {
           perms += 'w';
         }
         return perms;
       },
-      nodePermissions: function (node, perms) {
+      nodePermissions: (node, perms) => {
         if (FS.ignorePermissions) {
           return 0;
         }
@@ -2844,20 +2792,20 @@ var Module = (function () {
         }
         return 0;
       },
-      mayLookup: function (dir) {
+      mayLookup: (dir) => {
         var err = FS.nodePermissions(dir, 'x');
         if (err) return err;
         if (!dir.node_ops.lookup) return ERRNO_CODES.EACCES;
         return 0;
       },
-      mayCreate: function (dir, name) {
+      mayCreate: (dir, name) => {
         try {
           var node = FS.lookupNode(dir, name);
           return ERRNO_CODES.EEXIST;
         } catch (e) {}
         return FS.nodePermissions(dir, 'wx');
       },
-      mayDelete: function (dir, name, isdir) {
+      mayDelete: (dir, name, isdir) => {
         var node;
         try {
           node = FS.lookupNode(dir, name);
@@ -2882,7 +2830,7 @@ var Module = (function () {
         }
         return 0;
       },
-      mayOpen: function (node, flags) {
+      mayOpen: (node, flags) => {
         if (!node) {
           return ERRNO_CODES.ENOENT;
         }
@@ -2896,7 +2844,7 @@ var Module = (function () {
         return FS.nodePermissions(node, FS.flagsToPermissionString(flags));
       },
       MAX_OPEN_FDS: 4096,
-      nextfd: function (fd_start, fd_end) {
+      nextfd: (fd_start, fd_end) => {
         fd_start = fd_start || 0;
         fd_end = fd_end || FS.MAX_OPEN_FDS;
         for (var fd = fd_start; fd <= fd_end; fd++) {
@@ -2906,12 +2854,10 @@ var Module = (function () {
         }
         throw new FS.ErrnoError(ERRNO_CODES.EMFILE);
       },
-      getStream: function (fd) {
-        return FS.streams[fd];
-      },
-      createStream: function (stream, fd_start, fd_end) {
+      getStream: (fd) => FS.streams[fd],
+      createStream: (stream, fd_start, fd_end) => {
         if (!FS.FSStream) {
-          FS.FSStream = function () {};
+          FS.FSStream = () => {};
           FS.FSStream.prototype = {};
           Object.defineProperties(FS.FSStream.prototype, {
             object: {
@@ -2949,37 +2895,29 @@ var Module = (function () {
         FS.streams[fd] = stream;
         return stream;
       },
-      closeStream: function (fd) {
+      closeStream: (fd) => {
         FS.streams[fd] = null;
       },
       chrdev_stream_ops: {
-        open: function (stream) {
+        open: (stream) => {
           var device = FS.getDevice(stream.node.rdev);
           stream.stream_ops = device.stream_ops;
           if (stream.stream_ops.open) {
             stream.stream_ops.open(stream);
           }
         },
-        llseek: function () {
+        llseek: () => {
           throw new FS.ErrnoError(ERRNO_CODES.ESPIPE);
         },
       },
-      major: function (dev) {
-        return dev >> 8;
-      },
-      minor: function (dev) {
-        return dev & 255;
-      },
-      makedev: function (ma, mi) {
-        return (ma << 8) | mi;
-      },
-      registerDevice: function (dev, ops) {
+      major: (dev) => dev >> 8,
+      minor: (dev) => dev & 255,
+      makedev: (ma, mi) => (ma << 8) | mi,
+      registerDevice: (dev, ops) => {
         FS.devices[dev] = { stream_ops: ops };
       },
-      getDevice: function (dev) {
-        return FS.devices[dev];
-      },
-      getMounts: function (mount) {
+      getDevice: (dev) => FS.devices[dev],
+      getMounts: (mount) => {
         var mounts = [];
         var check = [mount];
         while (check.length) {
@@ -2989,7 +2927,7 @@ var Module = (function () {
         }
         return mounts;
       },
-      syncfs: function (populate, callback) {
+      syncfs: (populate, callback) => {
         if (typeof populate === 'function') {
           callback = populate;
           populate = false;
@@ -3019,14 +2957,14 @@ var Module = (function () {
             doCallback(null);
           }
         }
-        mounts.forEach(function (mount) {
+        mounts.forEach((mount) => {
           if (!mount.type.syncfs) {
             return done(null);
           }
           mount.type.syncfs(mount, populate, done);
         });
       },
-      mount: function (type, opts, mountpoint) {
+      mount: (type, opts, mountpoint) => {
         var root = mountpoint === '/';
         var pseudo = !mountpoint;
         var node;
@@ -3057,7 +2995,7 @@ var Module = (function () {
         }
         return mountRoot;
       },
-      unmount: function (mountpoint) {
+      unmount: (mountpoint) => {
         var lookup = FS.lookupPath(mountpoint, { follow_mount: false });
         if (!FS.isMountpoint(lookup.node)) {
           throw new FS.ErrnoError(ERRNO_CODES.EINVAL);
@@ -3065,7 +3003,7 @@ var Module = (function () {
         var node = lookup.node;
         var mount = node.mounted;
         var mounts = FS.getMounts(mount);
-        Object.keys(FS.nameTable).forEach(function (hash) {
+        Object.keys(FS.nameTable).forEach((hash) => {
           var current = FS.nameTable[hash];
           while (current) {
             var next = current.name_next;
@@ -3080,10 +3018,8 @@ var Module = (function () {
         assert(idx !== -1);
         node.mount.mounts.splice(idx, 1);
       },
-      lookup: function (parent, name) {
-        return parent.node_ops.lookup(parent, name);
-      },
-      mknod: function (path, mode, dev) {
+      lookup: (parent, name) => parent.node_ops.lookup(parent, name),
+      mknod: (path, mode, dev) => {
         var lookup = FS.lookupPath(path, { parent: true });
         var parent = lookup.node;
         var name = PATH.basename(path);
@@ -3099,19 +3035,19 @@ var Module = (function () {
         }
         return parent.node_ops.mknod(parent, name, mode, dev);
       },
-      create: function (path, mode) {
+      create: (path, mode) => {
         mode = mode !== undefined ? mode : 438;
         mode &= 4095;
         mode |= 32768;
         return FS.mknod(path, mode, 0);
       },
-      mkdir: function (path, mode) {
+      mkdir: (path, mode) => {
         mode = mode !== undefined ? mode : 511;
         mode &= 511 | 512;
         mode |= 16384;
         return FS.mknod(path, mode, 0);
       },
-      mkdirTree: function (path, mode) {
+      mkdirTree: (path, mode) => {
         var dirs = path.split('/');
         var d = '';
         for (var i = 0; i < dirs.length; ++i) {
@@ -3124,7 +3060,7 @@ var Module = (function () {
           }
         }
       },
-      mkdev: function (path, mode, dev) {
+      mkdev: (path, mode, dev) => {
         if (typeof dev === 'undefined') {
           dev = mode;
           mode = 438;
@@ -3132,7 +3068,7 @@ var Module = (function () {
         mode |= 8192;
         return FS.mknod(path, mode, dev);
       },
-      symlink: function (oldpath, newpath) {
+      symlink: (oldpath, newpath) => {
         if (!PATH.resolve(oldpath)) {
           throw new FS.ErrnoError(ERRNO_CODES.ENOENT);
         }
@@ -3151,7 +3087,7 @@ var Module = (function () {
         }
         return parent.node_ops.symlink(parent, newname, oldpath);
       },
-      rename: function (old_path, new_path) {
+      rename: (old_path, new_path) => {
         var old_dirname = PATH.dirname(old_path);
         var new_dirname = PATH.dirname(new_path);
         var old_name = PATH.basename(old_path);
@@ -3236,7 +3172,7 @@ var Module = (function () {
           );
         }
       },
-      rmdir: function (path) {
+      rmdir: (path) => {
         var lookup = FS.lookupPath(path, { parent: true });
         var parent = lookup.node;
         var name = PATH.basename(path);
@@ -3266,7 +3202,7 @@ var Module = (function () {
           console.log("FS.trackingDelegate['onDeletePath']('" + path + "') threw an exception: " + e.message);
         }
       },
-      readdir: function (path) {
+      readdir: (path) => {
         var lookup = FS.lookupPath(path, { follow: true });
         var node = lookup.node;
         if (!node.node_ops.readdir) {
@@ -3274,7 +3210,7 @@ var Module = (function () {
         }
         return node.node_ops.readdir(node);
       },
-      unlink: function (path) {
+      unlink: (path) => {
         var lookup = FS.lookupPath(path, { parent: true });
         var parent = lookup.node;
         var name = PATH.basename(path);
@@ -3304,7 +3240,7 @@ var Module = (function () {
           console.log("FS.trackingDelegate['onDeletePath']('" + path + "') threw an exception: " + e.message);
         }
       },
-      readlink: function (path) {
+      readlink: (path) => {
         var lookup = FS.lookupPath(path);
         var link = lookup.node;
         if (!link) {
@@ -3315,7 +3251,7 @@ var Module = (function () {
         }
         return PATH.resolve(FS.getPath(link.parent), link.node_ops.readlink(link));
       },
-      stat: function (path, dontFollow) {
+      stat: (path, dontFollow) => {
         var lookup = FS.lookupPath(path, { follow: !dontFollow });
         var node = lookup.node;
         if (!node) {
@@ -3326,10 +3262,8 @@ var Module = (function () {
         }
         return node.node_ops.getattr(node);
       },
-      lstat: function (path) {
-        return FS.stat(path, true);
-      },
-      chmod: function (path, mode, dontFollow) {
+      lstat: (path) => FS.stat(path, true),
+      chmod: (path, mode, dontFollow) => {
         var node;
         if (typeof path === 'string') {
           var lookup = FS.lookupPath(path, { follow: !dontFollow });
@@ -3342,17 +3276,17 @@ var Module = (function () {
         }
         node.node_ops.setattr(node, { mode: (mode & 4095) | (node.mode & ~4095), timestamp: Date.now() });
       },
-      lchmod: function (path, mode) {
+      lchmod: (path, mode) => {
         FS.chmod(path, mode, true);
       },
-      fchmod: function (fd, mode) {
+      fchmod: (fd, mode) => {
         var stream = FS.getStream(fd);
         if (!stream) {
           throw new FS.ErrnoError(ERRNO_CODES.EBADF);
         }
         FS.chmod(stream.node, mode);
       },
-      chown: function (path, uid, gid, dontFollow) {
+      chown: (path, uid, gid, dontFollow) => {
         var node;
         if (typeof path === 'string') {
           var lookup = FS.lookupPath(path, { follow: !dontFollow });
@@ -3365,17 +3299,17 @@ var Module = (function () {
         }
         node.node_ops.setattr(node, { timestamp: Date.now() });
       },
-      lchown: function (path, uid, gid) {
+      lchown: (path, uid, gid) => {
         FS.chown(path, uid, gid, true);
       },
-      fchown: function (fd, uid, gid) {
+      fchown: (fd, uid, gid) => {
         var stream = FS.getStream(fd);
         if (!stream) {
           throw new FS.ErrnoError(ERRNO_CODES.EBADF);
         }
         FS.chown(stream.node, uid, gid);
       },
-      truncate: function (path, len) {
+      truncate: (path, len) => {
         if (len < 0) {
           throw new FS.ErrnoError(ERRNO_CODES.EINVAL);
         }
@@ -3401,7 +3335,7 @@ var Module = (function () {
         }
         node.node_ops.setattr(node, { size: len, timestamp: Date.now() });
       },
-      ftruncate: function (fd, len) {
+      ftruncate: (fd, len) => {
         var stream = FS.getStream(fd);
         if (!stream) {
           throw new FS.ErrnoError(ERRNO_CODES.EBADF);
@@ -3411,12 +3345,12 @@ var Module = (function () {
         }
         FS.truncate(stream.node, len);
       },
-      utime: function (path, atime, mtime) {
+      utime: (path, atime, mtime) => {
         var lookup = FS.lookupPath(path, { follow: true });
         var node = lookup.node;
         node.node_ops.setattr(node, { timestamp: Math.max(atime, mtime) });
       },
-      open: function (path, flags, mode, fd_start, fd_end) {
+      open: (path, flags, mode, fd_start, fd_end) => {
         if (path === '') {
           throw new FS.ErrnoError(ERRNO_CODES.ENOENT);
         }
@@ -3507,7 +3441,7 @@ var Module = (function () {
         }
         return stream;
       },
-      close: function (stream) {
+      close: (stream) => {
         if (FS.isClosed(stream)) {
           throw new FS.ErrnoError(ERRNO_CODES.EBADF);
         }
@@ -3523,10 +3457,8 @@ var Module = (function () {
         }
         stream.fd = null;
       },
-      isClosed: function (stream) {
-        return stream.fd === null;
-      },
-      llseek: function (stream, offset, whence) {
+      isClosed: (stream) => stream.fd === null,
+      llseek: (stream, offset, whence) => {
         if (FS.isClosed(stream)) {
           throw new FS.ErrnoError(ERRNO_CODES.EBADF);
         }
@@ -3537,7 +3469,7 @@ var Module = (function () {
         stream.ungotten = [];
         return stream.position;
       },
-      read: function (stream, buffer, offset, length, position) {
+      read: (stream, buffer, offset, length, position) => {
         if (length < 0 || position < 0) {
           throw new FS.ErrnoError(ERRNO_CODES.EINVAL);
         }
@@ -3563,7 +3495,7 @@ var Module = (function () {
         if (!seeking) stream.position += bytesRead;
         return bytesRead;
       },
-      write: function (stream, buffer, offset, length, position, canOwn) {
+      write: (stream, buffer, offset, length, position, canOwn) => {
         if (length < 0 || position < 0) {
           throw new FS.ErrnoError(ERRNO_CODES.EINVAL);
         }
@@ -3597,7 +3529,7 @@ var Module = (function () {
         }
         return bytesWritten;
       },
-      allocate: function (stream, offset, length) {
+      allocate: (stream, offset, length) => {
         if (FS.isClosed(stream)) {
           throw new FS.ErrnoError(ERRNO_CODES.EBADF);
         }
@@ -3615,7 +3547,7 @@ var Module = (function () {
         }
         stream.stream_ops.allocate(stream, offset, length);
       },
-      mmap: function (stream, buffer, offset, length, position, prot, flags) {
+      mmap: (stream, buffer, offset, length, position, prot, flags) => {
         if ((stream.flags & 2097155) === 1) {
           throw new FS.ErrnoError(ERRNO_CODES.EACCES);
         }
@@ -3624,22 +3556,20 @@ var Module = (function () {
         }
         return stream.stream_ops.mmap(stream, buffer, offset, length, position, prot, flags);
       },
-      msync: function (stream, buffer, offset, length, mmapFlags) {
+      msync: (stream, buffer, offset, length, mmapFlags) => {
         if (!stream || !stream.stream_ops.msync) {
           return 0;
         }
         return stream.stream_ops.msync(stream, buffer, offset, length, mmapFlags);
       },
-      munmap: function (stream) {
-        return 0;
-      },
-      ioctl: function (stream, cmd, arg) {
+      munmap: (stream) => 0,
+      ioctl: (stream, cmd, arg) => {
         if (!stream.stream_ops.ioctl) {
           throw new FS.ErrnoError(ERRNO_CODES.ENOTTY);
         }
         return stream.stream_ops.ioctl(stream, cmd, arg);
       },
-      readFile: function (path, opts) {
+      readFile: (path, opts) => {
         opts = opts || {};
         opts.flags = opts.flags || 'r';
         opts.encoding = opts.encoding || 'binary';
@@ -3660,7 +3590,7 @@ var Module = (function () {
         FS.close(stream);
         return ret;
       },
-      writeFile: function (path, data, opts) {
+      writeFile: (path, data, opts) => {
         opts = opts || {};
         opts.flags = opts.flags || 'w';
         var stream = FS.open(path, opts.flags, opts.mode);
@@ -3675,10 +3605,8 @@ var Module = (function () {
         }
         FS.close(stream);
       },
-      cwd: function () {
-        return FS.currentPath;
-      },
-      chdir: function (path) {
+      cwd: () => FS.currentPath,
+      chdir: (path) => {
         var lookup = FS.lookupPath(path, { follow: true });
         if (lookup.node === null) {
           throw new FS.ErrnoError(ERRNO_CODES.ENOENT);
@@ -3692,20 +3620,16 @@ var Module = (function () {
         }
         FS.currentPath = lookup.path;
       },
-      createDefaultDirectories: function () {
+      createDefaultDirectories: () => {
         FS.mkdir('/tmp');
         FS.mkdir('/home');
         FS.mkdir('/home/web_user');
       },
-      createDefaultDevices: function () {
+      createDefaultDevices: () => {
         FS.mkdir('/dev');
         FS.registerDevice(FS.makedev(1, 3), {
-          read: function () {
-            return 0;
-          },
-          write: function (stream, buffer, offset, length, pos) {
-            return length;
-          },
+          read: () => 0,
+          write: (stream, buffer, offset, length, pos) => length,
         });
         FS.mkdev('/dev/null', FS.makedev(1, 3));
         TTY.register(FS.makedev(5, 0), TTY.default_tty_ops);
@@ -3715,16 +3639,14 @@ var Module = (function () {
         var random_device;
         if (typeof crypto !== 'undefined') {
           var randomBuffer = new Uint8Array(1);
-          random_device = function () {
+          random_device = () => {
             crypto.getRandomValues(randomBuffer);
             return randomBuffer[0];
           };
         } else if (ENVIRONMENT_IS_NODE) {
-          random_device = function () {
-            return require('crypto')['randomBytes'](1)[0];
-          };
+          random_device = () => require('crypto')['randomBytes'](1)[0];
         } else {
-          random_device = function () {
+          random_device = () => {
             abort('random_device');
           };
         }
@@ -3733,16 +3655,16 @@ var Module = (function () {
         FS.mkdir('/dev/shm');
         FS.mkdir('/dev/shm/tmp');
       },
-      createSpecialDirectories: function () {
+      createSpecialDirectories: () => {
         FS.mkdir('/proc');
         FS.mkdir('/proc/self');
         FS.mkdir('/proc/self/fd');
         FS.mount(
           {
-            mount: function () {
+            mount: () => {
               var node = FS.createNode('/proc/self', 'fd', 16384 | 511, 73);
               node.node_ops = {
-                lookup: function (parent, name) {
+                lookup: (parent, name) => {
                   var fd = +name;
                   var stream = FS.getStream(fd);
                   if (!stream) throw new FS.ErrnoError(ERRNO_CODES.EBADF);
@@ -3750,9 +3672,7 @@ var Module = (function () {
                     parent: null,
                     mount: { mountpoint: 'fake' },
                     node_ops: {
-                      readlink: function () {
-                        return stream.path;
-                      },
+                      readlink: () => stream.path,
                     },
                   };
                   ret.parent = ret;
@@ -3766,7 +3686,7 @@ var Module = (function () {
           '/proc/self/fd'
         );
       },
-      createStandardStreams: function () {
+      createStandardStreams: () => {
         if (Module['stdin']) {
           FS.createDevice('/dev', 'stdin', Module['stdin']);
         } else {
@@ -3789,7 +3709,7 @@ var Module = (function () {
         var stderr = FS.open('/dev/stderr', 'w');
         assert(stderr.fd === 2, 'invalid handle for stderr (' + stderr.fd + ')');
       },
-      ensureErrnoError: function () {
+      ensureErrnoError: () => {
         if (FS.ErrnoError) return;
         FS.ErrnoError = function ErrnoError(errno, node) {
           this.node = node;
@@ -3808,12 +3728,12 @@ var Module = (function () {
         };
         FS.ErrnoError.prototype = new Error();
         FS.ErrnoError.prototype.constructor = FS.ErrnoError;
-        [ERRNO_CODES.ENOENT].forEach(function (code) {
+        [ERRNO_CODES.ENOENT].forEach((code) => {
           FS.genericErrors[code] = new FS.ErrnoError(code);
           FS.genericErrors[code].stack = '<generic error, no stack>';
         });
       },
-      staticInit: function () {
+      staticInit: () => {
         FS.ensureErrnoError();
         FS.nameTable = new Array(4096);
         FS.mount(MEMFS, {}, '/');
@@ -3822,7 +3742,7 @@ var Module = (function () {
         FS.createSpecialDirectories();
         FS.filesystems = { MEMFS: MEMFS, IDBFS: IDBFS, NODEFS: NODEFS, WORKERFS: WORKERFS };
       },
-      init: function (input, output, error) {
+      init: (input, output, error) => {
         assert(
           !FS.init.initialized,
           'FS.init was previously called. If you want to initialize later with custom parameters, remove any earlier calls (note that one is automatically added to the generated code)'
@@ -3834,7 +3754,7 @@ var Module = (function () {
         Module['stderr'] = error || Module['stderr'];
         FS.createStandardStreams();
       },
-      quit: function () {
+      quit: () => {
         FS.init.initialized = false;
         var fflush = Module['_fflush'];
         if (fflush) fflush(0);
@@ -3846,24 +3766,20 @@ var Module = (function () {
           FS.close(stream);
         }
       },
-      getMode: function (canRead, canWrite) {
+      getMode: (canRead, canWrite) => {
         var mode = 0;
         if (canRead) mode |= 292 | 73;
         if (canWrite) mode |= 146;
         return mode;
       },
-      joinPath: function (parts, forceRelative) {
+      joinPath: (parts, forceRelative) => {
         var path = PATH.join.apply(null, parts);
         if (forceRelative && path[0] == '/') path = path.substr(1);
         return path;
       },
-      absolutePath: function (relative, base) {
-        return PATH.resolve(base, relative);
-      },
-      standardizePath: function (path) {
-        return PATH.normalize(path);
-      },
-      findObject: function (path, dontResolveLastLink) {
+      absolutePath: (relative, base) => PATH.resolve(base, relative),
+      standardizePath: (path) => PATH.normalize(path),
+      findObject: (path, dontResolveLastLink) => {
         var ret = FS.analyzePath(path, dontResolveLastLink);
         if (ret.exists) {
           return ret.object;
@@ -3872,7 +3788,7 @@ var Module = (function () {
           return null;
         }
       },
-      analyzePath: function (path, dontResolveLastLink) {
+      analyzePath: (path, dontResolveLastLink) => {
         try {
           var lookup = FS.lookupPath(path, { follow: !dontResolveLastLink });
           path = lookup.path;
@@ -3905,12 +3821,12 @@ var Module = (function () {
         }
         return ret;
       },
-      createFolder: function (parent, name, canRead, canWrite) {
+      createFolder: (parent, name, canRead, canWrite) => {
         var path = PATH.join2(typeof parent === 'string' ? parent : FS.getPath(parent), name);
         var mode = FS.getMode(canRead, canWrite);
         return FS.mkdir(path, mode);
       },
-      createPath: function (parent, path, canRead, canWrite) {
+      createPath: (parent, path, canRead, canWrite) => {
         parent = typeof parent === 'string' ? parent : FS.getPath(parent);
         var parts = path.split('/').reverse();
         while (parts.length) {
@@ -3924,12 +3840,12 @@ var Module = (function () {
         }
         return current;
       },
-      createFile: function (parent, name, properties, canRead, canWrite) {
+      createFile: (parent, name, properties, canRead, canWrite) => {
         var path = PATH.join2(typeof parent === 'string' ? parent : FS.getPath(parent), name);
         var mode = FS.getMode(canRead, canWrite);
         return FS.create(path, mode);
       },
-      createDataFile: function (parent, name, data, canRead, canWrite, canOwn) {
+      createDataFile: (parent, name, data, canRead, canWrite, canOwn) => {
         var path = name ? PATH.join2(typeof parent === 'string' ? parent : FS.getPath(parent), name) : parent;
         var mode = FS.getMode(canRead, canWrite);
         var node = FS.create(path, mode);
@@ -3947,21 +3863,21 @@ var Module = (function () {
         }
         return node;
       },
-      createDevice: function (parent, name, input, output) {
+      createDevice: (parent, name, input, output) => {
         var path = PATH.join2(typeof parent === 'string' ? parent : FS.getPath(parent), name);
         var mode = FS.getMode(!!input, !!output);
         if (!FS.createDevice.major) FS.createDevice.major = 64;
         var dev = FS.makedev(FS.createDevice.major++, 0);
         FS.registerDevice(dev, {
-          open: function (stream) {
+          open: (stream) => {
             stream.seekable = false;
           },
-          close: function (stream) {
+          close: (stream) => {
             if (output && output.buffer && output.buffer.length) {
               output(10);
             }
           },
-          read: function (stream, buffer, offset, length, pos) {
+          read: (stream, buffer, offset, length, pos) => {
             var bytesRead = 0;
             for (var i = 0; i < length; i++) {
               var result;
@@ -3982,7 +3898,7 @@ var Module = (function () {
             }
             return bytesRead;
           },
-          write: function (stream, buffer, offset, length, pos) {
+          write: (stream, buffer, offset, length, pos) => {
             for (var i = 0; i < length; i++) {
               try {
                 output(buffer[offset + i]);
@@ -3998,11 +3914,11 @@ var Module = (function () {
         });
         return FS.mkdev(path, mode, dev);
       },
-      createLink: function (parent, name, target, canRead, canWrite) {
+      createLink: (parent, name, target, canRead, canWrite) => {
         var path = PATH.join2(typeof parent === 'string' ? parent : FS.getPath(parent), name);
         return FS.symlink(target, path);
       },
-      forceLoadFile: function (obj) {
+      forceLoadFile: (obj) => {
         if (obj.isDevice || obj.isFolder || obj.link || obj.contents) return true;
         var success = true;
         if (typeof XMLHttpRequest !== 'undefined') {
@@ -4022,7 +3938,7 @@ var Module = (function () {
         if (!success) ___setErrNo(ERRNO_CODES.EIO);
         return success;
       },
-      createLazyFile: function (parent, name, url, canRead, canWrite) {
+      createLazyFile: (parent, name, url, canRead, canWrite) => {
         function LazyUint8Array() {
           this.lengthKnown = false;
           this.chunks = [];
@@ -4050,7 +3966,7 @@ var Module = (function () {
           var usesGzip = (header = xhr.getResponseHeader('Content-Encoding')) && header === 'gzip';
           var chunkSize = 1024 * 1024;
           if (!hasByteServing) chunkSize = datalength;
-          var doXHR = function (from, to) {
+          var doXHR = (from, to) => {
             if (from > to) throw new Error('invalid range (' + from + ', ' + to + ') or no bytes requested!');
             if (to > datalength - 1) throw new Error('only ' + datalength + ' bytes available! programmer error!');
             var xhr = new XMLHttpRequest();
@@ -4069,16 +3985,15 @@ var Module = (function () {
               return intArrayFromString(xhr.responseText || '', true);
             }
           };
-          var lazyArray = this;
-          lazyArray.setDataGetter(function (chunkNum) {
+          this.setDataGetter((chunkNum) => {
             var start = chunkNum * chunkSize;
             var end = (chunkNum + 1) * chunkSize - 1;
             end = Math.min(end, datalength - 1);
-            if (typeof lazyArray.chunks[chunkNum] === 'undefined') {
-              lazyArray.chunks[chunkNum] = doXHR(start, end);
+            if (typeof this.chunks[chunkNum] === 'undefined') {
+              this.chunks[chunkNum] = doXHR(start, end);
             }
-            if (typeof lazyArray.chunks[chunkNum] === 'undefined') throw new Error('doXHR failed!');
-            return lazyArray.chunks[chunkNum];
+            if (typeof this.chunks[chunkNum] === 'undefined') throw new Error('doXHR failed!');
+            return this.chunks[chunkNum];
           });
           if (usesGzip || !datalength) {
             chunkSize = datalength = 1;
@@ -4132,7 +4047,7 @@ var Module = (function () {
         });
         var stream_ops = {};
         var keys = Object.keys(node.stream_ops);
-        keys.forEach(function (key) {
+        keys.forEach((key) => {
           var fn = node.stream_ops[key];
           stream_ops[key] = function forceLoadLazyFile() {
             if (!FS.forceLoadFile(node)) {
@@ -4163,7 +4078,7 @@ var Module = (function () {
         node.stream_ops = stream_ops;
         return node;
       },
-      createPreloadedFile: function (
+      createPreloadedFile: (
         parent,
         name,
         url,
@@ -4174,7 +4089,7 @@ var Module = (function () {
         dontCreateFile,
         canOwn,
         preFinish
-      ) {
+      ) => {
         Browser.init();
         var fullname = name ? PATH.resolve(PATH.join2(parent, name)) : parent;
         var dep = getUniqueRunDependency('cp ' + fullname);
@@ -4188,10 +4103,10 @@ var Module = (function () {
             removeRunDependency(dep);
           }
           var handled = false;
-          Module['preloadPlugins'].forEach(function (plugin) {
+          Module['preloadPlugins'].forEach((plugin) => {
             if (handled) return;
             if (plugin['canHandle'](fullname)) {
-              plugin['handle'](byteArray, fullname, finish, function () {
+              plugin['handle'](byteArray, fullname, finish, () => {
                 if (onerror) onerror();
                 removeRunDependency(dep);
               });
@@ -4204,7 +4119,7 @@ var Module = (function () {
         if (typeof url == 'string') {
           Browser.asyncLoad(
             url,
-            function (byteArray) {
+            (byteArray) => {
               processData(byteArray);
             },
             onerror
@@ -4213,17 +4128,13 @@ var Module = (function () {
           processData(url);
         }
       },
-      indexedDB: function () {
-        return window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
-      },
-      DB_NAME: function () {
-        return 'EM_FS_' + window.location.pathname;
-      },
+      indexedDB: () => window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB,
+      DB_NAME: () => 'EM_FS_' + window.location.pathname,
       DB_VERSION: 20,
       DB_STORE_NAME: 'FILE_DATA',
-      saveFilesToDB: function (paths, onload, onerror) {
-        onload = onload || function () {};
-        onerror = onerror || function () {};
+      saveFilesToDB: (paths, onload, onerror) => {
+        onload = onload || (() => {});
+        onerror = onerror || (() => {});
         var indexedDB = FS.indexedDB();
         try {
           var openRequest = indexedDB.open(FS.DB_NAME(), FS.DB_VERSION);
@@ -4246,7 +4157,7 @@ var Module = (function () {
             if (fail == 0) onload();
             else onerror();
           }
-          paths.forEach(function (path) {
+          paths.forEach((path) => {
             var putRequest = files.put(FS.analyzePath(path).object.contents, path);
             putRequest.onsuccess = function putRequest_onsuccess() {
               ok++;
@@ -4261,9 +4172,9 @@ var Module = (function () {
         };
         openRequest.onerror = onerror;
       },
-      loadFilesFromDB: function (paths, onload, onerror) {
-        onload = onload || function () {};
-        onerror = onerror || function () {};
+      loadFilesFromDB: (paths, onload, onerror) => {
+        onload = onload || (() => {});
+        onerror = onerror || (() => {});
         var indexedDB = FS.indexedDB();
         try {
           var openRequest = indexedDB.open(FS.DB_NAME(), FS.DB_VERSION);
@@ -4287,7 +4198,7 @@ var Module = (function () {
             if (fail == 0) onload();
             else onerror();
           }
-          paths.forEach(function (path) {
+          paths.forEach((path) => {
             var getRequest = files.get(path);
             getRequest.onsuccess = function getRequest_onsuccess() {
               if (FS.analyzePath(path).exists) {
@@ -4311,7 +4222,7 @@ var Module = (function () {
       DEFAULT_POLLMASK: 5,
       mappings: {},
       umask: 511,
-      calculateAt: function (dirfd, path) {
+      calculateAt: (dirfd, path) => {
         if (path[0] !== '/') {
           var dir;
           if (dirfd === -100) {
@@ -4325,7 +4236,7 @@ var Module = (function () {
         }
         return path;
       },
-      doStat: function (func, path, buf) {
+      doStat: (func, path, buf) => {
         try {
           var stat = func(path);
         } catch (e) {
@@ -4355,17 +4266,17 @@ var Module = (function () {
         HEAP32[(buf + 72) >> 2] = stat.ino;
         return 0;
       },
-      doMsync: function (addr, stream, len, flags) {
+      doMsync: (addr, stream, len, flags) => {
         var buffer = new Uint8Array(HEAPU8.subarray(addr, addr + len));
         FS.msync(stream, buffer, 0, len, flags);
       },
-      doMkdir: function (path, mode) {
+      doMkdir: (path, mode) => {
         path = PATH.normalize(path);
         if (path[path.length - 1] === '/') path = path.substr(0, path.length - 1);
         FS.mkdir(path, mode, 0);
         return 0;
       },
-      doMknod: function (path, mode, dev) {
+      doMknod: (path, mode, dev) => {
         switch (mode & 61440) {
           case 32768:
           case 8192:
@@ -4379,7 +4290,7 @@ var Module = (function () {
         FS.mknod(path, mode, dev);
         return 0;
       },
-      doReadlink: function (path, buf, bufsize) {
+      doReadlink: (path, buf, bufsize) => {
         if (bufsize <= 0) return -ERRNO_CODES.EINVAL;
         var ret = FS.readlink(path);
         var len = Math.min(bufsize, lengthBytesUTF8(ret));
@@ -4388,7 +4299,7 @@ var Module = (function () {
         HEAP8[buf + len] = endChar;
         return len;
       },
-      doAccess: function (path, amode) {
+      doAccess: (path, amode) => {
         if (amode & ~7) {
           return -ERRNO_CODES.EINVAL;
         }
@@ -4404,12 +4315,12 @@ var Module = (function () {
         }
         return 0;
       },
-      doDup: function (path, flags, suggestFD) {
+      doDup: (path, flags, suggestFD) => {
         var suggest = FS.getStream(suggestFD);
         if (suggest) FS.close(suggest);
         return FS.open(path, flags, 0, suggestFD, suggestFD).fd;
       },
-      doReadv: function (stream, iov, iovcnt, offset) {
+      doReadv: (stream, iov, iovcnt, offset) => {
         var ret = 0;
         for (var i = 0; i < iovcnt; i++) {
           var ptr = HEAP32[(iov + i * 8) >> 2];
@@ -4421,7 +4332,7 @@ var Module = (function () {
         }
         return ret;
       },
-      doWritev: function (stream, iov, iovcnt, offset) {
+      doWritev: (stream, iov, iovcnt, offset) => {
         var ret = 0;
         for (var i = 0; i < iovcnt; i++) {
           var ptr = HEAP32[(iov + i * 8) >> 2];
@@ -4433,26 +4344,26 @@ var Module = (function () {
         return ret;
       },
       varargs: 0,
-      get: function (varargs) {
+      get: (varargs) => {
         SYSCALLS.varargs += 4;
         var ret = HEAP32[(SYSCALLS.varargs - 4) >> 2];
         return ret;
       },
-      getStr: function () {
+      getStr: () => {
         var ret = Pointer_stringify(SYSCALLS.get());
         return ret;
       },
-      getStreamFromFD: function () {
+      getStreamFromFD: () => {
         var stream = FS.getStream(SYSCALLS.get());
         if (!stream) throw new FS.ErrnoError(ERRNO_CODES.EBADF);
         return stream;
       },
-      getSocketFromFD: function () {
+      getSocketFromFD: () => {
         var socket = SOCKFS.getSocket(SYSCALLS.get());
         if (!socket) throw new FS.ErrnoError(ERRNO_CODES.EBADF);
         return socket;
       },
-      getSocketAddress: function (allowNull) {
+      getSocketAddress: (allowNull) => {
         var addrp = SYSCALLS.get(),
           addrlen = SYSCALLS.get();
         if (allowNull && addrp === 0) return null;
@@ -4461,14 +4372,14 @@ var Module = (function () {
         info.addr = DNS.lookup_addr(info.addr) || info.addr;
         return info;
       },
-      get64: function () {
+      get64: () => {
         var low = SYSCALLS.get(),
           high = SYSCALLS.get();
         if (low >= 0) assert(high === 0);
         else assert(high === -1);
         return low;
       },
-      getZero: function () {
+      getZero: () => {
         assert(SYSCALLS.get() === 0);
       },
     };
@@ -4686,7 +4597,7 @@ var Module = (function () {
       throw new InternalError(message);
     }
     function whenDependentTypesAreResolved(myTypes, dependentTypes, getTypeConverters) {
-      myTypes.forEach(function (type) {
+      myTypes.forEach((type) => {
         typeDependencies[type] = dependentTypes;
       });
       function onComplete(typeConverters) {
@@ -4701,7 +4612,7 @@ var Module = (function () {
       var typeConverters = new Array(dependentTypes.length);
       var unregisteredTypes = [];
       var registered = 0;
-      dependentTypes.forEach(function (dt, i) {
+      dependentTypes.forEach((dt, i) => {
         if (registeredTypes.hasOwnProperty(dt)) {
           typeConverters[i] = registeredTypes[dt];
         } else {
@@ -4709,7 +4620,7 @@ var Module = (function () {
           if (!awaitingDependencies.hasOwnProperty(dt)) {
             awaitingDependencies[dt] = [];
           }
-          awaitingDependencies[dt].push(function () {
+          awaitingDependencies[dt].push(() => {
             typeConverters[i] = registeredTypes[dt];
             ++registered;
             if (registered === unregisteredTypes.length) {
@@ -4743,7 +4654,7 @@ var Module = (function () {
       if (awaitingDependencies.hasOwnProperty(rawType)) {
         var callbacks = awaitingDependencies[rawType];
         delete awaitingDependencies[rawType];
-        callbacks.forEach(function (cb) {
+        callbacks.forEach((cb) => {
           cb();
         });
       }
@@ -4753,12 +4664,8 @@ var Module = (function () {
       name = readLatin1String(name);
       registerType(rawType, {
         name: name,
-        fromWireType: function (wt) {
-          return !!wt;
-        },
-        toWireType: function (destructors, o) {
-          return o ? trueValue : falseValue;
-        },
+        fromWireType: (wt) => !!wt,
+        toWireType: (destructors, o) => o ? trueValue : falseValue,
         argPackAdvance: 8,
         readValueFromPointer: function (pointer) {
           var heap;
@@ -5039,7 +4946,7 @@ var Module = (function () {
               var clonedHandle = handle['clone']();
               ptr = this.rawShare(
                 ptr,
-                __emval_register(function () {
+                __emval_register(() => {
                   clonedHandle['delete']();
                 })
               );
@@ -5355,13 +5262,13 @@ var Module = (function () {
       }
       rawDestructor = embind__requireFunction(destructorSignature, rawDestructor);
       var legalFunctionName = makeLegalFunctionName(name);
-      exposePublicSymbol(legalFunctionName, function () {
+      exposePublicSymbol(legalFunctionName, () => {
         throwUnboundTypeError('Cannot construct ' + name + ' due to unbound types', [baseClassRawType]);
       });
       whenDependentTypesAreResolved(
         [rawType, rawPointerType, rawConstPointerType],
         baseClassRawType ? [baseClassRawType] : [],
-        function (base) {
+        (base) => {
           base = base[0];
           var baseClass;
           var basePrototype;
@@ -5437,7 +5344,7 @@ var Module = (function () {
     ) {
       var rawArgTypes = heap32VectorToArray(argCount, rawArgTypesAddr);
       invoker = embind__requireFunction(invokerSignature, invoker);
-      whenDependentTypesAreResolved([], [rawClassType], function (classType) {
+      whenDependentTypesAreResolved([], [rawClassType], (classType) => {
         classType = classType[0];
         var humanName = 'constructor ' + classType.name;
         if (undefined === classType.registeredClass.constructor_body) {
@@ -5455,7 +5362,7 @@ var Module = (function () {
         classType.registeredClass.constructor_body[argCount - 1] = function unboundTypeHandler() {
           throwUnboundTypeError('Cannot construct ' + classType.name + ' due to unbound types', rawArgTypes);
         };
-        whenDependentTypesAreResolved([], rawArgTypes, function (argTypes) {
+        whenDependentTypesAreResolved([], rawArgTypes, (argTypes) => {
           classType.registeredClass.constructor_body[argCount - 1] = function constructor_body() {
             if (arguments.length !== argCount - 1) {
               throwBindingError(
@@ -5481,7 +5388,7 @@ var Module = (function () {
       if (!(constructor instanceof Function)) {
         throw new TypeError('new_ called with constructor type ' + typeof constructor + ' which is not a function');
       }
-      var dummy = createNamedFunction(constructor.name || 'unknownFunctionName', function () {});
+      var dummy = createNamedFunction(constructor.name || 'unknownFunctionName', () => {});
       dummy.prototype = constructor.prototype;
       var obj = new dummy();
       var r = constructor.apply(obj, argumentList);
@@ -5586,7 +5493,7 @@ var Module = (function () {
       var rawArgTypes = heap32VectorToArray(argCount, rawArgTypesAddr);
       methodName = readLatin1String(methodName);
       rawInvoker = embind__requireFunction(invokerSignature, rawInvoker);
-      whenDependentTypesAreResolved([], [rawClassType], function (classType) {
+      whenDependentTypesAreResolved([], [rawClassType], (classType) => {
         classType = classType[0];
         var humanName = classType.name + '.' + methodName;
         if (isPureVirtual) {
@@ -5610,7 +5517,7 @@ var Module = (function () {
           ensureOverloadTable(proto, methodName, humanName);
           proto[methodName].overloadTable[argCount - 2] = unboundTypesHandler;
         }
-        whenDependentTypesAreResolved([], rawArgTypes, function (argTypes) {
+        whenDependentTypesAreResolved([], rawArgTypes, (argTypes) => {
           var memberFunction = craftInvokerFunction(humanName, argTypes, classType, rawInvoker, context);
           if (undefined === proto[methodName].overloadTable) {
             memberFunction.argCount = argCount - 2;
@@ -5649,11 +5556,11 @@ var Module = (function () {
     ) {
       fieldName = readLatin1String(fieldName);
       getter = embind__requireFunction(getterSignature, getter);
-      whenDependentTypesAreResolved([], [classType], function (classType) {
+      whenDependentTypesAreResolved([], [classType], (classType) => {
         classType = classType[0];
         var humanName = classType.name + '.' + fieldName;
         var desc = {
-          get: function () {
+          get: () => {
             throwUnboundTypeError('Cannot access ' + humanName + ' due to unbound types', [
               getterReturnType,
               setterArgumentType,
@@ -5663,14 +5570,14 @@ var Module = (function () {
           configurable: true,
         };
         if (setter) {
-          desc.set = function () {
+          desc.set = () => {
             throwUnboundTypeError('Cannot access ' + humanName + ' due to unbound types', [
               getterReturnType,
               setterArgumentType,
             ]);
           };
         } else {
-          desc.set = function (v) {
+          desc.set = (v) => {
             throwBindingError(humanName + ' is a read-only property');
           };
         }
@@ -5678,7 +5585,7 @@ var Module = (function () {
         whenDependentTypesAreResolved(
           [],
           setter ? [getterReturnType, setterArgumentType] : [getterReturnType],
-          function (types) {
+          (types) => {
             var getterReturnType = types[0];
             var desc = {
               get: function () {
@@ -5758,14 +5665,12 @@ var Module = (function () {
       name = readLatin1String(name);
       registerType(rawType, {
         name: name,
-        fromWireType: function (handle) {
+        fromWireType: (handle) => {
           var rv = emval_handle_array[handle].value;
           __emval_decref(handle);
           return rv;
         },
-        toWireType: function (destructors, value) {
-          return __emval_register(value);
-        },
+        toWireType: (destructors, value) => __emval_register(value),
         argPackAdvance: 8,
         readValueFromPointer: simpleReadValueFromPointer,
         destructorFunction: null,
@@ -5801,9 +5706,7 @@ var Module = (function () {
       name = readLatin1String(name);
       registerType(rawType, {
         name: name,
-        fromWireType: function (value) {
-          return value;
-        },
+        fromWireType: (value) => value,
         toWireType: function (destructors, value) {
           if (typeof value !== 'number' && typeof value !== 'boolean') {
             throw new TypeError('Cannot convert "' + _embind_repr(value) + '" to ' + this.name);
@@ -5851,14 +5754,10 @@ var Module = (function () {
         maxRange = 4294967295;
       }
       var shift = getShiftFromSize(size);
-      var fromWireType = function (value) {
-        return value;
-      };
+      var fromWireType = (value) => value;
       if (minRange === 0) {
         var bitshift = 32 - 8 * size;
-        fromWireType = function (value) {
-          return (value << bitshift) >>> bitshift;
-        };
+        fromWireType = (value) => (value << bitshift) >>> bitshift;
       }
       var isUnsignedType = name.indexOf('unsigned') != -1;
       registerType(primitiveType, {
@@ -5933,7 +5832,7 @@ var Module = (function () {
       rawConstructor = embind__requireFunction(constructorSignature, rawConstructor);
       rawShare = embind__requireFunction(shareSignature, rawShare);
       rawDestructor = embind__requireFunction(destructorSignature, rawDestructor);
-      whenDependentTypesAreResolved([rawType], [rawPointeeType], function (pointeeType) {
+      whenDependentTypesAreResolved([rawType], [rawPointeeType], (pointeeType) => {
         pointeeType = pointeeType[0];
         var registeredPointer = new RegisteredPointer(
           name,
@@ -5956,7 +5855,7 @@ var Module = (function () {
       var stdStringIsUTF8 = name === 'std::string';
       registerType(rawType, {
         name: name,
-        fromWireType: function (value) {
+        fromWireType: (value) => {
           var length = HEAPU32[value >> 2];
           var str;
           if (stdStringIsUTF8) {
@@ -5990,7 +5889,7 @@ var Module = (function () {
           _free(value);
           return str;
         },
-        toWireType: function (destructors, value) {
+        toWireType: (destructors, value) => {
           if (value instanceof ArrayBuffer) {
             value = new Uint8Array(value);
           }
@@ -6007,13 +5906,9 @@ var Module = (function () {
             throwBindingError('Cannot pass non-string to std::string');
           }
           if (stdStringIsUTF8 && valueIsOfTypeString) {
-            getLength = function () {
-              return lengthBytesUTF8(value);
-            };
+            getLength = () => lengthBytesUTF8(value);
           } else {
-            getLength = function () {
-              return value.length;
-            };
+            getLength = () => value.length;
           }
           var length = getLength();
           var ptr = _malloc(4 + length + 1);
@@ -6043,7 +5938,7 @@ var Module = (function () {
         },
         argPackAdvance: 8,
         readValueFromPointer: simpleReadValueFromPointer,
-        destructorFunction: function (ptr) {
+        destructorFunction: (ptr) => {
           _free(ptr);
         },
       });
@@ -6052,19 +5947,15 @@ var Module = (function () {
       name = readLatin1String(name);
       var getHeap, shift;
       if (charSize === 2) {
-        getHeap = function () {
-          return HEAPU16;
-        };
+        getHeap = () => HEAPU16;
         shift = 1;
       } else if (charSize === 4) {
-        getHeap = function () {
-          return HEAPU32;
-        };
+        getHeap = () => HEAPU32;
         shift = 2;
       }
       registerType(rawType, {
         name: name,
-        fromWireType: function (value) {
+        fromWireType: (value) => {
           var HEAP = getHeap();
           var length = HEAPU32[value >> 2];
           var a = new Array(length);
@@ -6075,7 +5966,7 @@ var Module = (function () {
           _free(value);
           return a.join('');
         },
-        toWireType: function (destructors, value) {
+        toWireType: (destructors, value) => {
           var HEAP = getHeap();
           var length = value.length;
           var ptr = _malloc(4 + length * charSize);
@@ -6091,7 +5982,7 @@ var Module = (function () {
         },
         argPackAdvance: 8,
         readValueFromPointer: simpleReadValueFromPointer,
-        destructorFunction: function (ptr) {
+        destructorFunction: (ptr) => {
           _free(ptr);
         },
       });
@@ -6102,12 +5993,8 @@ var Module = (function () {
         isVoid: true,
         name: name,
         argPackAdvance: 0,
-        fromWireType: function () {
-          return undefined;
-        },
-        toWireType: function (destructors, o) {
-          return undefined;
-        },
+        fromWireType: () => undefined,
+        toWireType: (destructors, o) => undefined,
       });
     }
     function requireRegisteredType(rawType, humanName) {
@@ -6164,9 +6051,7 @@ var Module = (function () {
       caller(handle, methodName, null, args);
     }
     function emval_get_global() {
-      return (function () {
-        return Function;
-      })()('return this')();
+      return (() => Function)()('return this')();
     }
     function __emval_get_global(name) {
       if (name === 0) {
@@ -6189,9 +6074,7 @@ var Module = (function () {
         '_$' +
         types
           .slice(1)
-          .map(function (t) {
-            return t.name;
-          })
+          .map((t) => t.name)
           .join('_') +
         '$';
       var params = ['retType'];
@@ -6474,77 +6357,47 @@ var Module = (function () {
         }
       }
       var EXPANSION_RULES_2 = {
-        '%a': function (date) {
-          return WEEKDAYS[date.tm_wday].substring(0, 3);
-        },
-        '%A': function (date) {
-          return WEEKDAYS[date.tm_wday];
-        },
-        '%b': function (date) {
-          return MONTHS[date.tm_mon].substring(0, 3);
-        },
-        '%B': function (date) {
-          return MONTHS[date.tm_mon];
-        },
-        '%C': function (date) {
+        '%a': (date) => WEEKDAYS[date.tm_wday].substring(0, 3),
+        '%A': (date) => WEEKDAYS[date.tm_wday],
+        '%b': (date) => MONTHS[date.tm_mon].substring(0, 3),
+        '%B': (date) => MONTHS[date.tm_mon],
+        '%C': (date) => {
           var year = date.tm_year + 1900;
           return leadingNulls((year / 100) | 0, 2);
         },
-        '%d': function (date) {
-          return leadingNulls(date.tm_mday, 2);
-        },
-        '%e': function (date) {
-          return leadingSomething(date.tm_mday, 2, ' ');
-        },
-        '%g': function (date) {
-          return getWeekBasedYear(date).toString().substring(2);
-        },
-        '%G': function (date) {
-          return getWeekBasedYear(date);
-        },
-        '%H': function (date) {
-          return leadingNulls(date.tm_hour, 2);
-        },
-        '%I': function (date) {
+        '%d': (date) => leadingNulls(date.tm_mday, 2),
+        '%e': (date) => leadingSomething(date.tm_mday, 2, ' '),
+        '%g': (date) => getWeekBasedYear(date).toString().substring(2),
+        '%G': (date) => getWeekBasedYear(date),
+        '%H': (date) => leadingNulls(date.tm_hour, 2),
+        '%I': (date) => {
           var twelveHour = date.tm_hour;
           if (twelveHour == 0) twelveHour = 12;
           else if (twelveHour > 12) twelveHour -= 12;
           return leadingNulls(twelveHour, 2);
         },
-        '%j': function (date) {
-          return leadingNulls(
+        '%j': (date) => leadingNulls(
             date.tm_mday +
               __arraySum(__isLeapYear(date.tm_year + 1900) ? __MONTH_DAYS_LEAP : __MONTH_DAYS_REGULAR, date.tm_mon - 1),
             3
-          );
-        },
-        '%m': function (date) {
-          return leadingNulls(date.tm_mon + 1, 2);
-        },
-        '%M': function (date) {
-          return leadingNulls(date.tm_min, 2);
-        },
-        '%n': function () {
-          return '\n';
-        },
-        '%p': function (date) {
+          ),
+        '%m': (date) => leadingNulls(date.tm_mon + 1, 2),
+        '%M': (date) => leadingNulls(date.tm_min, 2),
+        '%n': () => '\n',
+        '%p': (date) => {
           if (date.tm_hour >= 0 && date.tm_hour < 12) {
             return 'AM';
           } else {
             return 'PM';
           }
         },
-        '%S': function (date) {
-          return leadingNulls(date.tm_sec, 2);
-        },
-        '%t': function () {
-          return '\t';
-        },
-        '%u': function (date) {
+        '%S': (date) => leadingNulls(date.tm_sec, 2),
+        '%t': () => '\t',
+        '%u': (date) => {
           var day = new Date(date.tm_year + 1900, date.tm_mon + 1, date.tm_mday, 0, 0, 0, 0);
           return day.getDay() || 7;
         },
-        '%U': function (date) {
+        '%U': (date) => {
           var janFirst = new Date(date.tm_year + 1900, 0, 1);
           var firstSunday = janFirst.getDay() === 0 ? janFirst : __addDays(janFirst, 7 - janFirst.getDay());
           var endDate = new Date(date.tm_year + 1900, date.tm_mon, date.tm_mday);
@@ -6560,7 +6413,7 @@ var Module = (function () {
           }
           return compareByDay(firstSunday, janFirst) === 0 ? '01' : '00';
         },
-        '%V': function (date) {
+        '%V': (date) => {
           var janFourthThisYear = new Date(date.tm_year + 1900, 0, 4);
           var janFourthNextYear = new Date(date.tm_year + 1901, 0, 4);
           var firstWeekStartThisYear = getFirstWeekStartDate(janFourthThisYear);
@@ -6580,11 +6433,11 @@ var Module = (function () {
           }
           return leadingNulls(Math.ceil(daysDifference / 7), 2);
         },
-        '%w': function (date) {
+        '%w': (date) => {
           var day = new Date(date.tm_year + 1900, date.tm_mon + 1, date.tm_mday, 0, 0, 0, 0);
           return day.getDay();
         },
-        '%W': function (date) {
+        '%W': (date) => {
           var janFirst = new Date(date.tm_year, 0, 1);
           var firstMonday =
             janFirst.getDay() === 1
@@ -6603,25 +6456,17 @@ var Module = (function () {
           }
           return compareByDay(firstMonday, janFirst) === 0 ? '01' : '00';
         },
-        '%y': function (date) {
-          return (date.tm_year + 1900).toString().substring(2);
-        },
-        '%Y': function (date) {
-          return date.tm_year + 1900;
-        },
-        '%z': function (date) {
+        '%y': (date) => (date.tm_year + 1900).toString().substring(2),
+        '%Y': (date) => date.tm_year + 1900,
+        '%z': (date) => {
           var off = date.tm_gmtoff;
           var ahead = off >= 0;
           off = Math.abs(off) / 60;
           off = (off / 60) * 100 + (off % 60);
           return (ahead ? '+' : '-') + String('0000' + off).slice(-4);
         },
-        '%Z': function (date) {
-          return date.tm_zone;
-        },
-        '%%': function () {
-          return '%';
-        },
+        '%Z': (date) => date.tm_zone,
+        '%%': () => '%',
       };
       for (var rule in EXPANSION_RULES_2) {
         if (pattern.indexOf(rule) >= 0) {
@@ -6639,19 +6484,19 @@ var Module = (function () {
       return _strftime(s, maxsize, format, tm);
     }
     FS.staticInit();
-    __ATINIT__.unshift(function () {
+    __ATINIT__.unshift(() => {
       if (!Module['noFSInit'] && !FS.init.initialized) FS.init();
     });
-    __ATMAIN__.push(function () {
+    __ATMAIN__.push(() => {
       FS.ignorePermissions = false;
     });
-    __ATEXIT__.push(function () {
+    __ATEXIT__.push(() => {
       FS.quit();
     });
-    __ATINIT__.unshift(function () {
+    __ATINIT__.unshift(() => {
       TTY.init();
     });
-    __ATEXIT__.push(function () {
+    __ATEXIT__.push(() => {
       TTY.shutdown();
     });
     if (ENVIRONMENT_IS_NODE) {
@@ -6821,160 +6666,62 @@ var Module = (function () {
     };
     var asm = Module['asm'](Module.asmGlobalArg, Module.asmLibraryArg, buffer);
     Module['asm'] = asm;
-    var __GLOBAL__I_000101 = (Module['__GLOBAL__I_000101'] = function () {
-      return Module['asm']['__GLOBAL__I_000101'].apply(null, arguments);
-    });
-    var __GLOBAL__sub_I_Binding_cpp = (Module['__GLOBAL__sub_I_Binding_cpp'] = function () {
-      return Module['asm']['__GLOBAL__sub_I_Binding_cpp'].apply(null, arguments);
-    });
-    var __GLOBAL__sub_I_bind_cpp = (Module['__GLOBAL__sub_I_bind_cpp'] = function () {
-      return Module['asm']['__GLOBAL__sub_I_bind_cpp'].apply(null, arguments);
-    });
-    var __GLOBAL__sub_I_iostream_cpp = (Module['__GLOBAL__sub_I_iostream_cpp'] = function () {
-      return Module['asm']['__GLOBAL__sub_I_iostream_cpp'].apply(null, arguments);
-    });
-    var __ZSt18uncaught_exceptionv = (Module['__ZSt18uncaught_exceptionv'] = function () {
-      return Module['asm']['__ZSt18uncaught_exceptionv'].apply(null, arguments);
-    });
-    var ___cxa_can_catch = (Module['___cxa_can_catch'] = function () {
-      return Module['asm']['___cxa_can_catch'].apply(null, arguments);
-    });
-    var ___cxa_is_pointer_type = (Module['___cxa_is_pointer_type'] = function () {
-      return Module['asm']['___cxa_is_pointer_type'].apply(null, arguments);
-    });
-    var ___errno_location = (Module['___errno_location'] = function () {
-      return Module['asm']['___errno_location'].apply(null, arguments);
-    });
-    var ___getTypeName = (Module['___getTypeName'] = function () {
-      return Module['asm']['___getTypeName'].apply(null, arguments);
-    });
-    var _emscripten_replace_memory = (Module['_emscripten_replace_memory'] = function () {
-      return Module['asm']['_emscripten_replace_memory'].apply(null, arguments);
-    });
-    var _free = (Module['_free'] = function () {
-      return Module['asm']['_free'].apply(null, arguments);
-    });
-    var _llvm_bswap_i32 = (Module['_llvm_bswap_i32'] = function () {
-      return Module['asm']['_llvm_bswap_i32'].apply(null, arguments);
-    });
-    var _malloc = (Module['_malloc'] = function () {
-      return Module['asm']['_malloc'].apply(null, arguments);
-    });
-    var _memcpy = (Module['_memcpy'] = function () {
-      return Module['asm']['_memcpy'].apply(null, arguments);
-    });
-    var _memmove = (Module['_memmove'] = function () {
-      return Module['asm']['_memmove'].apply(null, arguments);
-    });
-    var _memset = (Module['_memset'] = function () {
-      return Module['asm']['_memset'].apply(null, arguments);
-    });
-    var _pthread_cond_broadcast = (Module['_pthread_cond_broadcast'] = function () {
-      return Module['asm']['_pthread_cond_broadcast'].apply(null, arguments);
-    });
-    var _pthread_mutex_lock = (Module['_pthread_mutex_lock'] = function () {
-      return Module['asm']['_pthread_mutex_lock'].apply(null, arguments);
-    });
-    var _pthread_mutex_unlock = (Module['_pthread_mutex_unlock'] = function () {
-      return Module['asm']['_pthread_mutex_unlock'].apply(null, arguments);
-    });
-    var _sbrk = (Module['_sbrk'] = function () {
-      return Module['asm']['_sbrk'].apply(null, arguments);
-    });
-    var establishStackSpace = (Module['establishStackSpace'] = function () {
-      return Module['asm']['establishStackSpace'].apply(null, arguments);
-    });
-    var runPostSets = (Module['runPostSets'] = function () {
-      return Module['asm']['runPostSets'].apply(null, arguments);
-    });
-    var setThrew = (Module['setThrew'] = function () {
-      return Module['asm']['setThrew'].apply(null, arguments);
-    });
-    var stackAlloc = (Module['stackAlloc'] = function () {
-      return Module['asm']['stackAlloc'].apply(null, arguments);
-    });
-    var stackRestore = (Module['stackRestore'] = function () {
-      return Module['asm']['stackRestore'].apply(null, arguments);
-    });
-    var stackSave = (Module['stackSave'] = function () {
-      return Module['asm']['stackSave'].apply(null, arguments);
-    });
-    var dynCall_i = (Module['dynCall_i'] = function () {
-      return Module['asm']['dynCall_i'].apply(null, arguments);
-    });
-    var dynCall_ii = (Module['dynCall_ii'] = function () {
-      return Module['asm']['dynCall_ii'].apply(null, arguments);
-    });
-    var dynCall_iii = (Module['dynCall_iii'] = function () {
-      return Module['asm']['dynCall_iii'].apply(null, arguments);
-    });
-    var dynCall_iiii = (Module['dynCall_iiii'] = function () {
-      return Module['asm']['dynCall_iiii'].apply(null, arguments);
-    });
-    var dynCall_iiiif = (Module['dynCall_iiiif'] = function () {
-      return Module['asm']['dynCall_iiiif'].apply(null, arguments);
-    });
-    var dynCall_iiiii = (Module['dynCall_iiiii'] = function () {
-      return Module['asm']['dynCall_iiiii'].apply(null, arguments);
-    });
-    var dynCall_iiiiid = (Module['dynCall_iiiiid'] = function () {
-      return Module['asm']['dynCall_iiiiid'].apply(null, arguments);
-    });
-    var dynCall_iiiiii = (Module['dynCall_iiiiii'] = function () {
-      return Module['asm']['dynCall_iiiiii'].apply(null, arguments);
-    });
-    var dynCall_iiiiiid = (Module['dynCall_iiiiiid'] = function () {
-      return Module['asm']['dynCall_iiiiiid'].apply(null, arguments);
-    });
-    var dynCall_iiiiiii = (Module['dynCall_iiiiiii'] = function () {
-      return Module['asm']['dynCall_iiiiiii'].apply(null, arguments);
-    });
-    var dynCall_iiiiiiii = (Module['dynCall_iiiiiiii'] = function () {
-      return Module['asm']['dynCall_iiiiiiii'].apply(null, arguments);
-    });
-    var dynCall_iiiiiiiii = (Module['dynCall_iiiiiiiii'] = function () {
-      return Module['asm']['dynCall_iiiiiiiii'].apply(null, arguments);
-    });
-    var dynCall_iiiiij = (Module['dynCall_iiiiij'] = function () {
-      return Module['asm']['dynCall_iiiiij'].apply(null, arguments);
-    });
-    var dynCall_v = (Module['dynCall_v'] = function () {
-      return Module['asm']['dynCall_v'].apply(null, arguments);
-    });
-    var dynCall_vi = (Module['dynCall_vi'] = function () {
-      return Module['asm']['dynCall_vi'].apply(null, arguments);
-    });
-    var dynCall_vii = (Module['dynCall_vii'] = function () {
-      return Module['asm']['dynCall_vii'].apply(null, arguments);
-    });
-    var dynCall_viif = (Module['dynCall_viif'] = function () {
-      return Module['asm']['dynCall_viif'].apply(null, arguments);
-    });
-    var dynCall_viii = (Module['dynCall_viii'] = function () {
-      return Module['asm']['dynCall_viii'].apply(null, arguments);
-    });
-    var dynCall_viiif = (Module['dynCall_viiif'] = function () {
-      return Module['asm']['dynCall_viiif'].apply(null, arguments);
-    });
-    var dynCall_viiii = (Module['dynCall_viiii'] = function () {
-      return Module['asm']['dynCall_viiii'].apply(null, arguments);
-    });
-    var dynCall_viiiii = (Module['dynCall_viiiii'] = function () {
-      return Module['asm']['dynCall_viiiii'].apply(null, arguments);
-    });
-    var dynCall_viiiiii = (Module['dynCall_viiiiii'] = function () {
-      return Module['asm']['dynCall_viiiiii'].apply(null, arguments);
-    });
-    var dynCall_viijii = (Module['dynCall_viijii'] = function () {
-      return Module['asm']['dynCall_viijii'].apply(null, arguments);
-    });
+    var __GLOBAL__I_000101 = (Module['__GLOBAL__I_000101'] = () => Module['asm']['__GLOBAL__I_000101'].apply(null, arguments));
+    var __GLOBAL__sub_I_Binding_cpp = (Module['__GLOBAL__sub_I_Binding_cpp'] = () => Module['asm']['__GLOBAL__sub_I_Binding_cpp'].apply(null, arguments));
+    var __GLOBAL__sub_I_bind_cpp = (Module['__GLOBAL__sub_I_bind_cpp'] = () => Module['asm']['__GLOBAL__sub_I_bind_cpp'].apply(null, arguments));
+    var __GLOBAL__sub_I_iostream_cpp = (Module['__GLOBAL__sub_I_iostream_cpp'] = () => Module['asm']['__GLOBAL__sub_I_iostream_cpp'].apply(null, arguments));
+    var __ZSt18uncaught_exceptionv = (Module['__ZSt18uncaught_exceptionv'] = () => Module['asm']['__ZSt18uncaught_exceptionv'].apply(null, arguments));
+    var ___cxa_can_catch = (Module['___cxa_can_catch'] = () => Module['asm']['___cxa_can_catch'].apply(null, arguments));
+    var ___cxa_is_pointer_type = (Module['___cxa_is_pointer_type'] = () => Module['asm']['___cxa_is_pointer_type'].apply(null, arguments));
+    var ___errno_location = (Module['___errno_location'] = () => Module['asm']['___errno_location'].apply(null, arguments));
+    var ___getTypeName = (Module['___getTypeName'] = () => Module['asm']['___getTypeName'].apply(null, arguments));
+    var _emscripten_replace_memory = (Module['_emscripten_replace_memory'] = () => Module['asm']['_emscripten_replace_memory'].apply(null, arguments));
+    var _free = (Module['_free'] = () => Module['asm']['_free'].apply(null, arguments));
+    var _llvm_bswap_i32 = (Module['_llvm_bswap_i32'] = () => Module['asm']['_llvm_bswap_i32'].apply(null, arguments));
+    var _malloc = (Module['_malloc'] = () => Module['asm']['_malloc'].apply(null, arguments));
+    var _memcpy = (Module['_memcpy'] = () => Module['asm']['_memcpy'].apply(null, arguments));
+    var _memmove = (Module['_memmove'] = () => Module['asm']['_memmove'].apply(null, arguments));
+    var _memset = (Module['_memset'] = () => Module['asm']['_memset'].apply(null, arguments));
+    var _pthread_cond_broadcast = (Module['_pthread_cond_broadcast'] = () => Module['asm']['_pthread_cond_broadcast'].apply(null, arguments));
+    var _pthread_mutex_lock = (Module['_pthread_mutex_lock'] = () => Module['asm']['_pthread_mutex_lock'].apply(null, arguments));
+    var _pthread_mutex_unlock = (Module['_pthread_mutex_unlock'] = () => Module['asm']['_pthread_mutex_unlock'].apply(null, arguments));
+    var _sbrk = (Module['_sbrk'] = () => Module['asm']['_sbrk'].apply(null, arguments));
+    var establishStackSpace = (Module['establishStackSpace'] = () => Module['asm']['establishStackSpace'].apply(null, arguments));
+    var runPostSets = (Module['runPostSets'] = () => Module['asm']['runPostSets'].apply(null, arguments));
+    var setThrew = (Module['setThrew'] = () => Module['asm']['setThrew'].apply(null, arguments));
+    var stackAlloc = (Module['stackAlloc'] = () => Module['asm']['stackAlloc'].apply(null, arguments));
+    var stackRestore = (Module['stackRestore'] = () => Module['asm']['stackRestore'].apply(null, arguments));
+    var stackSave = (Module['stackSave'] = () => Module['asm']['stackSave'].apply(null, arguments));
+    var dynCall_i = (Module['dynCall_i'] = () => Module['asm']['dynCall_i'].apply(null, arguments));
+    var dynCall_ii = (Module['dynCall_ii'] = () => Module['asm']['dynCall_ii'].apply(null, arguments));
+    var dynCall_iii = (Module['dynCall_iii'] = () => Module['asm']['dynCall_iii'].apply(null, arguments));
+    var dynCall_iiii = (Module['dynCall_iiii'] = () => Module['asm']['dynCall_iiii'].apply(null, arguments));
+    var dynCall_iiiif = (Module['dynCall_iiiif'] = () => Module['asm']['dynCall_iiiif'].apply(null, arguments));
+    var dynCall_iiiii = (Module['dynCall_iiiii'] = () => Module['asm']['dynCall_iiiii'].apply(null, arguments));
+    var dynCall_iiiiid = (Module['dynCall_iiiiid'] = () => Module['asm']['dynCall_iiiiid'].apply(null, arguments));
+    var dynCall_iiiiii = (Module['dynCall_iiiiii'] = () => Module['asm']['dynCall_iiiiii'].apply(null, arguments));
+    var dynCall_iiiiiid = (Module['dynCall_iiiiiid'] = () => Module['asm']['dynCall_iiiiiid'].apply(null, arguments));
+    var dynCall_iiiiiii = (Module['dynCall_iiiiiii'] = () => Module['asm']['dynCall_iiiiiii'].apply(null, arguments));
+    var dynCall_iiiiiiii = (Module['dynCall_iiiiiiii'] = () => Module['asm']['dynCall_iiiiiiii'].apply(null, arguments));
+    var dynCall_iiiiiiiii = (Module['dynCall_iiiiiiiii'] = () => Module['asm']['dynCall_iiiiiiiii'].apply(null, arguments));
+    var dynCall_iiiiij = (Module['dynCall_iiiiij'] = () => Module['asm']['dynCall_iiiiij'].apply(null, arguments));
+    var dynCall_v = (Module['dynCall_v'] = () => Module['asm']['dynCall_v'].apply(null, arguments));
+    var dynCall_vi = (Module['dynCall_vi'] = () => Module['asm']['dynCall_vi'].apply(null, arguments));
+    var dynCall_vii = (Module['dynCall_vii'] = () => Module['asm']['dynCall_vii'].apply(null, arguments));
+    var dynCall_viif = (Module['dynCall_viif'] = () => Module['asm']['dynCall_viif'].apply(null, arguments));
+    var dynCall_viii = (Module['dynCall_viii'] = () => Module['asm']['dynCall_viii'].apply(null, arguments));
+    var dynCall_viiif = (Module['dynCall_viiif'] = () => Module['asm']['dynCall_viiif'].apply(null, arguments));
+    var dynCall_viiii = (Module['dynCall_viiii'] = () => Module['asm']['dynCall_viiii'].apply(null, arguments));
+    var dynCall_viiiii = (Module['dynCall_viiiii'] = () => Module['asm']['dynCall_viiiii'].apply(null, arguments));
+    var dynCall_viiiiii = (Module['dynCall_viiiiii'] = () => Module['asm']['dynCall_viiiiii'].apply(null, arguments));
+    var dynCall_viijii = (Module['dynCall_viijii'] = () => Module['asm']['dynCall_viijii'].apply(null, arguments));
     Module['asm'] = asm;
-    Module['then'] = function (func) {
+    Module['then'] = (func) => {
       if (Module['calledRun']) {
         func(Module);
       } else {
         var old = Module['onRuntimeInitialized'];
-        Module['onRuntimeInitialized'] = function () {
+        Module['onRuntimeInitialized'] = () => {
           if (old) old();
           func(Module);
         };
@@ -7012,8 +6759,8 @@ var Module = (function () {
       }
       if (Module['setStatus']) {
         Module['setStatus']('Running...');
-        setTimeout(function () {
-          setTimeout(function () {
+        setTimeout(() => {
+          setTimeout(() => {
             Module['setStatus']('');
           }, 1);
           doRun();

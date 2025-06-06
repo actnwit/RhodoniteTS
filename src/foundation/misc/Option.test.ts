@@ -1,4 +1,4 @@
-import { Option, None, Some } from './Option';
+import { type Option, None, Some } from './Option';
 test('unwrapOrDefault', () => {
   const val0: Option<number> = new Some(0);
   expect(val0.unwrapOrDefault(1)).toEqual(0);

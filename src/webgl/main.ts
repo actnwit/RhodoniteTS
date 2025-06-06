@@ -1,8 +1,8 @@
 import getRenderingStrategy from './getRenderingStrategy';
 import { CommonShaderPart } from './shaders/CommonShaderPart';
 import { WebGLContextWrapper } from './WebGLContextWrapper';
-import { VertexHandles as vertexHandles, WebGLResourceRepository } from './WebGLResourceRepository';
-import { WebGLStrategy as webGLStrategy } from './WebGLStrategy';
+import { type VertexHandles as vertexHandles, WebGLResourceRepository } from './WebGLResourceRepository';
+import type { WebGLStrategy as webGLStrategy } from './WebGLStrategy';
 import { WebGLStrategyUniform } from './WebGLStrategyUniform';
 import { WebGLStrategyDataTexture } from './WebGLStrategyDataTexture';
 

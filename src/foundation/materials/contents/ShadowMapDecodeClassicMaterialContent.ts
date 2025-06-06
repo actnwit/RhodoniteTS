@@ -1,4 +1,4 @@
-import { ShaderSemantics, ShaderSemanticsEnum, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
+import { ShaderSemantics, type ShaderSemanticsEnum, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';
@@ -11,16 +11,16 @@ import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { VectorN } from '../../math/VectorN';
 import { Scalar } from '../../math/Scalar';
 import { Config } from '../../core/Config';
-import { Material } from '../core/Material';
+import type { Material } from '../core/Material';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
-import { RenderPass } from '../../renderer/RenderPass';
-import { Count } from '../../../types/CommonTypes';
+import type { RenderPass } from '../../renderer/RenderPass';
+import type { Count } from '../../../types/CommonTypes';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
-import { MutableVector4 } from '../../math/MutableVector4';
+import type { MutableVector4 } from '../../math/MutableVector4';
 import ShadowMapDecodeSingleShaderVertex from '../../../webgl/shaderity_shaders/ShadowMapDecodeClassicSingleShader/ShadowMapDecodeClassicSingleShader.vert';
 import ShadowMapDecodeSingleShaderFragment from '../../../webgl/shaderity_shaders/ShadowMapDecodeClassicSingleShader/ShadowMapDecodeClassicSingleShader.frag';
-import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
-import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
+import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { dummyBlueTexture, dummyWhiteTexture } from '../core/DummyTextures';
 import { Logger } from '../../misc/Logger';
 

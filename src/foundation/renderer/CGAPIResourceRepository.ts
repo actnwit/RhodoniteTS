@@ -8,21 +8,21 @@ import type { Accessor } from '../memory/Accessor';
 import type { Primitive } from '../geometry/Primitive';
 import { SystemState } from '../system/SystemState';
 import {
-  CompressionTextureTypeEnum,
-  HdriFormatEnum,
+  type CompressionTextureTypeEnum,
+  type HdriFormatEnum,
   ProcessApproach,
-  TextureFormatEnum,
-  VertexAttributeEnum,
+  type TextureFormatEnum,
+  type VertexAttributeEnum,
 } from '../definitions';
-import { Material } from '../materials/core/Material';
-import { AttributeNames } from '../../webgl/types/CommonTypes';
-import { Sampler } from '../textures/Sampler';
-import { RenderPass } from './RenderPass';
-import { IRenderable } from '../textures/IRenderable';
-import { FrameBuffer } from '../renderer/FrameBuffer';
-import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
-import { BasisFile } from '../../types/BasisTexture';
-import { Vector4 } from '../math/Vector4';
+import type { Material } from '../materials/core/Material';
+import type { AttributeNames } from '../../webgl/types/CommonTypes';
+import type { Sampler } from '../textures/Sampler';
+import type { RenderPass } from './RenderPass';
+import type { IRenderable } from '../textures/IRenderable';
+import type { FrameBuffer } from '../renderer/FrameBuffer';
+import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
+import type { BasisFile } from '../../types/BasisTexture';
+import type { Vector4 } from '../math/Vector4';
 
 /**
  * Union type representing direct texture data that can be used for texture creation.

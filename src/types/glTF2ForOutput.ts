@@ -1,6 +1,6 @@
-import { ISkeletalEntity } from '../foundation/helpers/EntityHelper';
-import { Byte, Index } from './CommonTypes';
-import {
+import type { ISkeletalEntity } from '../foundation/helpers/EntityHelper';
+import type { Byte, Index } from './CommonTypes';
+import type {
   Gltf2BufferView,
   Gltf2Accessor,
   Gltf2,

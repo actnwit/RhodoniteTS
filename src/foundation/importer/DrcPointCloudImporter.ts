@@ -1,17 +1,17 @@
 import { DataUtil } from '../misc/DataUtil';
 import { Primitive } from '../geometry/Primitive';
 import { MaterialHelper } from '../helpers/MaterialHelper';
-import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
+import { CompositionType, type CompositionTypeEnum } from '../definitions/CompositionType';
 import { PrimitiveMode } from '../definitions/PrimitiveMode';
-import { VertexAttribute, VertexAttributeSemanticsJoinedString } from '../definitions/VertexAttribute';
-import { TypedArray } from '../../types/CommonTypes';
-import { RnM2, RnM2Image, RnM2Accessor } from '../../types/RnM2';
+import { VertexAttribute, type VertexAttributeSemanticsJoinedString } from '../definitions/VertexAttribute';
+import type { TypedArray } from '../../types/CommonTypes';
+import type { RnM2, RnM2Image, RnM2Accessor } from '../../types/RnM2';
 import { RnPromise } from '../misc/RnPromise';
 import { Is } from '../misc/Is';
 import { ifDefinedThen } from '../misc/MiscUtil';
 import { ifUndefinedThen } from '../misc/MiscUtil';
-import { GltfLoadOption } from '../../types';
-import { Err, Result, Ok } from '../misc/Result';
+import type { GltfLoadOption } from '../../types';
+import { Err, type Result, Ok } from '../misc/Result';
 import { Logger } from '../misc/Logger';
 
 declare let DracoDecoderModule: any;

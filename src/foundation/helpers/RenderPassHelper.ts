@@ -1,9 +1,9 @@
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
 import { TextureParameter } from '../definitions/TextureParameter';
-import { Material } from '../materials/core/Material';
+import type { Material } from '../materials/core/Material';
 import { Is } from '../misc/Is';
 import { RenderPass } from '../renderer/RenderPass';
-import { AbstractTexture } from '../textures/AbstractTexture';
+import type { AbstractTexture } from '../textures/AbstractTexture';
 import { Sampler } from '../textures/Sampler';
 import { MeshHelper } from './MeshHelper';
 

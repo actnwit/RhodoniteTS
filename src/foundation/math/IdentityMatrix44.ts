@@ -1,12 +1,12 @@
 /* eslint-disable prettier/prettier */
 import { CompositionType } from '../definitions/CompositionType';
 import { AbstractMatrix } from './AbstractMatrix';
-import { IMatrix, IMatrix44 } from './IMatrix';
-import { IVector, IVector4, IMutableVector, IVector3 } from './IVector';
-import { Matrix44 } from './Matrix44';
-import { MutableVector4 } from './MutableVector4';
+import type { IMatrix, IMatrix44 } from './IMatrix';
+import type { IVector, IVector4, IMutableVector, IVector3 } from './IVector';
+import type { Matrix44 } from './Matrix44';
+import type { MutableVector4 } from './MutableVector4';
 import { Vector3 } from './Vector3';
-import { Vector4 } from './Vector4';
+import type { Vector4 } from './Vector4';
 
 /**
  * Represents a 4x4 identity matrix that provides optimized operations for identity transformations.

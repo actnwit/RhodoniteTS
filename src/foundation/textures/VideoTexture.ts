@@ -1,9 +1,9 @@
-import { PixelFormat, PixelFormatEnum } from '../definitions/PixelFormat';
-import { ComponentType, ComponentTypeEnum } from '../definitions/ComponentType';
-import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
+import { PixelFormat, type PixelFormatEnum } from '../definitions/PixelFormat';
+import { ComponentType, type ComponentTypeEnum } from '../definitions/ComponentType';
+import { TextureParameter, type TextureParameterEnum } from '../definitions/TextureParameter';
 import { AbstractTexture } from './AbstractTexture';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { Size } from '../../types/CommonTypes';
+import type { Size } from '../../types/CommonTypes';
 import { DataUtil } from '../misc/DataUtil';
 import { TextureFormat } from '../definitions/TextureFormat';
 

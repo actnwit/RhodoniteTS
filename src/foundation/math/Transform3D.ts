@@ -1,7 +1,7 @@
-import { Array16, Array3, Array4 } from '../../types';
-import { IMatrix44 } from './IMatrix';
-import { IQuaternion } from './IQuaternion';
-import { IVector3 } from './IVector';
+import type { Array16, Array3, Array4 } from '../../types';
+import type { IMatrix44 } from './IMatrix';
+import type { IQuaternion } from './IQuaternion';
+import type { IVector3 } from './IVector';
 import { Matrix44 } from './Matrix44';
 import { MutableMatrix44 } from './MutableMatrix44';
 import { MutableQuaternion } from './MutableQuaternion';

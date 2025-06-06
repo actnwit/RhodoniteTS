@@ -1,4 +1,4 @@
-import { IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
+import { type IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
 
 export abstract class IShape extends Primitive {
   abstract generate(desc: IAnyPrimitiveDescriptor): void;

@@ -1,7 +1,7 @@
-import ShaderityModule, { Reflection, ShaderityObject, TemplateObject } from 'shaderity';
-import { ComponentType, ComponentTypeEnum } from '../../definitions/ComponentType';
-import { CompositionType, CompositionTypeEnum } from '../../definitions/CompositionType';
-import { VertexAttribute, VertexAttributeEnum } from '../../definitions/VertexAttribute';
+import ShaderityModule, { Reflection, type ShaderityObject, type TemplateObject } from 'shaderity';
+import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
+import { VertexAttribute, type VertexAttributeEnum } from '../../definitions/VertexAttribute';
 import { MemoryManager } from '../../core/MemoryManager';
 import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
 import { Config } from '../../core/Config';
@@ -14,7 +14,7 @@ import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { MutableScalar } from '../../math/MutableScalar';
 import { MutableMatrix22 } from '../../math/MutableMatrix22';
 import { ShaderType } from '../../definitions/ShaderType';
-import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { DefaultTextures, dummyBlackTexture, dummyWhiteTexture } from './DummyTextures';
 import { TextureParameter } from '../../definitions';
 import { Sampler } from '../../textures/Sampler';
@@ -109,7 +109,7 @@ export class ShaderityUtilityWebGPU {
 
         shaderSemanticsInfoArray.push(shaderSemanticsInfo);
       } else if (matchTextureDeclaration) {
-        const binding = parseInt(matchTextureDeclaration[1]);
+        const binding = Number.parseInt(matchTextureDeclaration[1]);
         const variableName = matchTextureDeclaration[2];
         const type = matchTextureDeclaration[3];
         const info = matchTextureDeclaration[4];
@@ -126,7 +126,7 @@ export class ShaderityUtilityWebGPU {
 
         shaderSemanticsInfoArray.push(shaderSemanticsInfo);
       } else if (matchSamplerDeclaration) {
-        const binding = parseInt(matchSamplerDeclaration[1]);
+        const binding = Number.parseInt(matchSamplerDeclaration[1]);
         const variableName = matchSamplerDeclaration[2];
 
         if (textureMap.has(binding)) {
@@ -351,63 +351,63 @@ export class ShaderityUtilityWebGPU {
           } else if (split[0] === 'false') {
             initialValue = new MutableScalar(new Float32Array([0]));
           } else {
-            initialValue = new MutableScalar(new Float32Array([parseFloat(split[0])]));
+            initialValue = new MutableScalar(new Float32Array([Number.parseFloat(split[0])]));
           }
           break;
         case 2:
           checkCompositionNumber(CompositionType.Vec2);
-          initialValue = MutableVector2.fromCopyArray([parseFloat(split[0]), parseFloat(split[1])]);
+          initialValue = MutableVector2.fromCopyArray([Number.parseFloat(split[0]), Number.parseFloat(split[1])]);
           break;
         case 3:
           checkCompositionNumber(CompositionType.Vec3);
           initialValue = MutableVector3.fromCopyArray([
-            parseFloat(split[0]),
-            parseFloat(split[1]),
-            parseFloat(split[2]),
+            Number.parseFloat(split[0]),
+            Number.parseFloat(split[1]),
+            Number.parseFloat(split[2]),
           ]);
           break;
         case 4:
           checkCompositionNumber(CompositionType.Vec4);
           initialValue = MutableVector4.fromCopyArray([
-            parseFloat(split[0]),
-            parseFloat(split[1]),
-            parseFloat(split[2]),
-            parseFloat(split[3]),
+            Number.parseFloat(split[0]),
+            Number.parseFloat(split[1]),
+            Number.parseFloat(split[2]),
+            Number.parseFloat(split[3]),
           ]);
           break;
         case 9:
           checkCompositionNumber(CompositionType.Mat3);
           initialValue = MutableMatrix33.fromCopy9RowMajor(
-            parseFloat(split[0]),
-            parseFloat(split[1]),
-            parseFloat(split[2]),
-            parseFloat(split[3]),
-            parseFloat(split[4]),
-            parseFloat(split[5]),
-            parseFloat(split[6]),
-            parseFloat(split[7]),
-            parseFloat(split[8])
+            Number.parseFloat(split[0]),
+            Number.parseFloat(split[1]),
+            Number.parseFloat(split[2]),
+            Number.parseFloat(split[3]),
+            Number.parseFloat(split[4]),
+            Number.parseFloat(split[5]),
+            Number.parseFloat(split[6]),
+            Number.parseFloat(split[7]),
+            Number.parseFloat(split[8])
           );
           break;
         case 16:
           checkCompositionNumber(CompositionType.Mat4);
           initialValue = MutableMatrix44.fromCopy16RowMajor(
-            parseFloat(split[0]),
-            parseFloat(split[1]),
-            parseFloat(split[2]),
-            parseFloat(split[3]),
-            parseFloat(split[4]),
-            parseFloat(split[5]),
-            parseFloat(split[6]),
-            parseFloat(split[7]),
-            parseFloat(split[8]),
-            parseFloat(split[9]),
-            parseFloat(split[10]),
-            parseFloat(split[11]),
-            parseFloat(split[12]),
-            parseFloat(split[13]),
-            parseFloat(split[14]),
-            parseFloat(split[15])
+            Number.parseFloat(split[0]),
+            Number.parseFloat(split[1]),
+            Number.parseFloat(split[2]),
+            Number.parseFloat(split[3]),
+            Number.parseFloat(split[4]),
+            Number.parseFloat(split[5]),
+            Number.parseFloat(split[6]),
+            Number.parseFloat(split[7]),
+            Number.parseFloat(split[8]),
+            Number.parseFloat(split[9]),
+            Number.parseFloat(split[10]),
+            Number.parseFloat(split[11]),
+            Number.parseFloat(split[12]),
+            Number.parseFloat(split[13]),
+            Number.parseFloat(split[14]),
+            Number.parseFloat(split[15])
           );
           break;
         default:
@@ -420,7 +420,7 @@ export class ShaderityUtilityWebGPU {
       } else if (initialValueText === 'false') {
         initialValue = new MutableScalar(new Float32Array([0]));
       } else {
-        initialValue = new MutableScalar(new Float32Array([parseFloat(initialValueText)]));
+        initialValue = new MutableScalar(new Float32Array([Number.parseFloat(initialValueText)]));
       }
     }
 

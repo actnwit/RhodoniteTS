@@ -3,7 +3,7 @@ import { MutableMatrix33 } from '../math/MutableMatrix33';
 import { MathUtil } from '../math/MathUtil';
 import { MutableVector3 } from '../math/MutableVector3';
 import { ColorRgb } from '../math/ColorRgb';
-import { ColorComponentLetter, Index, Size } from '../../types/CommonTypes';
+import { ColorComponentLetter, type Index, type Size } from '../../types/CommonTypes';
 import { MutableVector2 } from '../math/MutableVector2';
 import { TextureDataFloat } from '../textures/TextureDataFloat';
 import { Is } from './Is';

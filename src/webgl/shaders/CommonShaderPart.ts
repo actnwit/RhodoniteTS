@@ -1,12 +1,12 @@
 import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
-import { VertexAttribute, VertexAttributeEnum } from '../../foundation/definitions/VertexAttribute';
+import { VertexAttribute, type VertexAttributeEnum } from '../../foundation/definitions/VertexAttribute';
 import { WebGLResourceRepository } from '../WebGLResourceRepository';
 import { SystemState } from '../../foundation/system/SystemState';
 import vertexInputWGSL from '../../webgpu/shaderity_shaders/common/vertexInput.wgsl';
-import { AttributeNames } from '../types/CommonTypes';
-import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
-import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
-import { Socket, SocketDefaultValue } from '../../foundation/materials/core/Socket';
+import type { AttributeNames } from '../types/CommonTypes';
+import type { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
+import type { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
+import type { Socket, SocketDefaultValue } from '../../foundation/materials/core/Socket';
 import { AbstractShaderNode } from '../../foundation/materials/core/AbstractShaderNode';
 import morphVariablesGLSL from '../shaderity_shaders/common/morphVariables.glsl';
 

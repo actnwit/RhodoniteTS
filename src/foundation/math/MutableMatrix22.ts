@@ -1,9 +1,9 @@
-import { Matrix44 } from './Matrix44';
-import { IMutableMatrix22, IMutableMatrix, IMatrix22 } from './IMatrix';
+import type { Matrix44 } from './Matrix44';
+import type { IMutableMatrix22, IMutableMatrix, IMatrix22 } from './IMatrix';
 import { Matrix22 } from './Matrix22';
-import { Array4, Index } from '../../types/CommonTypes';
-import { Matrix33 } from './Matrix33';
-import { Vector2 } from './Vector2';
+import type { Array4, Index } from '../../types/CommonTypes';
+import type { Matrix33 } from './Matrix33';
+import type { Vector2 } from './Vector2';
 import { Logger } from '../misc/Logger';
 
 /**

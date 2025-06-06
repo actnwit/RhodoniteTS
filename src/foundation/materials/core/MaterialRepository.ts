@@ -1,11 +1,11 @@
-import { Count, Index, IndexOf16Bytes, MaterialSID, MaterialTID, MaterialUID } from '../../../types/CommonTypes';
+import { type Count, Index, type IndexOf16Bytes, type MaterialSID, type MaterialTID, type MaterialUID } from '../../../types/CommonTypes';
 import { Config } from '../../core/Config';
 import { MemoryManager } from '../../core/MemoryManager';
 import { BufferUse } from '../../definitions/BufferUse';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
-import { ShaderSemanticsIndex, ShaderSemanticsName } from '../../definitions/ShaderSemantics';
-import { calcAlignedByteLength, ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { ShaderSemanticsIndex, type ShaderSemanticsName } from '../../definitions/ShaderSemantics';
+import { calcAlignedByteLength, type ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { MathClassUtil } from '../../math/MathClassUtil';
 import type { Accessor } from '../../memory/Accessor';
 import type { BufferView } from '../../memory/BufferView';

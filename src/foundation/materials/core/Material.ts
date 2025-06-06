@@ -1,20 +1,20 @@
 import { RnObject } from '../../core/RnObject';
-import { AlphaMode, AlphaModeEnum } from '../../definitions/AlphaMode';
-import { AbstractMaterialContent } from './AbstractMaterialContent';
+import { AlphaMode, type AlphaModeEnum } from '../../definitions/AlphaMode';
+import type { AbstractMaterialContent } from './AbstractMaterialContent';
 import {
   ShaderSemanticsEnum,
   ShaderSemantics,
   ShaderSemanticsIndex,
-  getShaderPropertyFunc,
+  type getShaderPropertyFunc,
   _getPropertyIndex2,
-  ShaderSemanticsName,
+  type ShaderSemanticsName,
 } from '../../definitions/ShaderSemantics';
 import { CompositionType } from '../../definitions/CompositionType';
 import { MathClassUtil } from '../../math/MathClassUtil';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import type { AbstractTexture } from '../../textures/AbstractTexture';
 import { ShaderType } from '../../definitions/ShaderType';
-import {
+import type {
   Index,
   CGAPIResourceHandle,
   PrimitiveUID,
@@ -26,10 +26,10 @@ import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import type { ShaderSources } from '../../../webgl/WebGLStrategy';
 import type { Primitive } from '../../geometry/Primitive';
 import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
-import { ShaderSemanticsInfo, TextureParameter } from '../../definitions';
-import { MaterialTypeName, ShaderVariable } from './MaterialTypes';
+import { type ShaderSemanticsInfo, TextureParameter } from '../../definitions';
+import type { MaterialTypeName, ShaderVariable } from './MaterialTypes';
 import { Sampler } from '../../textures/Sampler';
-import { Blend, BlendEnum } from '../../definitions/Blend';
+import { Blend, type BlendEnum } from '../../definitions/Blend';
 import {
   _createProgramAsSingleOperationWebGL,
   _createProgramAsSingleOperationByUpdatedSources,
@@ -46,7 +46,7 @@ import { AnimatedVector4 } from '../../math/AnimatedVector4';
 import { AnimatedVector3 } from '../../math/AnimatedVector3';
 import { AnimatedQuaternion } from '../../math/AnimatedQuaternion';
 import { AnimatedVectorN } from '../../math/AnimatedVectorN';
-import { IAnimatedValue } from '../../math/IAnimatedValue';
+import type { IAnimatedValue } from '../../math/IAnimatedValue';
 import { AnimatedVector2 } from '../../math/AnimatedVector2';
 import { Is } from '../../misc/Is';
 

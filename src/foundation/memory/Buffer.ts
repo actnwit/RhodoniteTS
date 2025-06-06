@@ -1,10 +1,10 @@
 import { BufferView } from './BufferView';
-import { Byte, TypedArray } from '../../types/CommonTypes';
-import { CompositionType, CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
-import { ComponentType, ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
+import type { Byte, TypedArray } from '../../types/CommonTypes';
+import { CompositionType, type CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
+import { ComponentType, type ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
 
 import { DataUtil } from '../misc/DataUtil';
-import { Err, Ok, Result } from '../misc/Result';
+import { Err, Ok, type Result } from '../misc/Result';
 import { Logger } from '../misc/Logger';
 
 /**

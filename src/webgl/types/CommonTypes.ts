@@ -1,12 +1,12 @@
-import { Matrix44, RenderTargetTextureCube } from '../../import';
-import { LightComponent } from '../../foundation/components/Light/LightComponent';
-import { Primitive } from '../../foundation/geometry/Primitive';
-import { IMeshEntity } from '../../foundation/helpers/EntityHelper';
-import { IMatrix33 } from '../../foundation/math/IMatrix';
-import { RenderPass } from '../../foundation/renderer/RenderPass';
-import { CubeTexture } from '../../foundation/textures/CubeTexture';
-import { Index } from '../../types/CommonTypes';
-import { WebGLContextWrapper } from '../WebGLContextWrapper';
+import type { Matrix44, RenderTargetTextureCube } from '../../import';
+import type { LightComponent } from '../../foundation/components/Light/LightComponent';
+import type { Primitive } from '../../foundation/geometry/Primitive';
+import type { IMeshEntity } from '../../foundation/helpers/EntityHelper';
+import type { IMatrix33 } from '../../foundation/math/IMatrix';
+import type { RenderPass } from '../../foundation/renderer/RenderPass';
+import type { CubeTexture } from '../../foundation/textures/CubeTexture';
+import type { Index } from '../../types/CommonTypes';
+import type { WebGLContextWrapper } from '../WebGLContextWrapper';
 
 export type RenderingArgWebGL = {
   glw: WebGLContextWrapper;

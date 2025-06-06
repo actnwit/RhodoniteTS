@@ -1,18 +1,18 @@
 /// <reference path="../../vendor/effekseer.d.ts" />
 import { Component } from '../foundation/core/Component';
-import { applyMixins, EntityRepository } from '../foundation/core/EntityRepository';
+import { applyMixins, type EntityRepository } from '../foundation/core/EntityRepository';
 import { ProcessStage } from '../foundation/definitions/ProcessStage';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { ComponentRepository } from '../foundation/core/ComponentRepository';
 import { WellKnownComponentTIDs } from '../foundation/components/WellKnownComponentTIDs';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
-import { ComponentTID, EntityUID, ComponentSID, Second } from '../types/CommonTypes';
+import type { ComponentTID, EntityUID, ComponentSID, Second } from '../types/CommonTypes';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import { Is } from '../foundation/misc/Is';
-import { IVector3 } from '../foundation/math/IVector';
-import { IEntity } from '../foundation/core/Entity';
-import { ComponentToComponentMethods } from '../foundation/components/ComponentTypes';
-import { RenderPass } from '../foundation/renderer/RenderPass';
+import type { IVector3 } from '../foundation/math/IVector';
+import type { IEntity } from '../foundation/core/Entity';
+import type { ComponentToComponentMethods } from '../foundation/components/ComponentTypes';
+import type { RenderPass } from '../foundation/renderer/RenderPass';
 import { Logger } from '../foundation/misc/Logger';
 
 export class EffekseerComponent extends Component {

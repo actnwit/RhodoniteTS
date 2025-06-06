@@ -1,9 +1,9 @@
 import { Vector3 } from '../../math/Vector3';
-import { SceneGraphComponent } from '../../components/SceneGraph/SceneGraphComponent';
+import type { SceneGraphComponent } from '../../components/SceneGraph/SceneGraphComponent';
 import { RnObject } from '../../core/RnObject';
 import { Index } from '../../../types/CommonTypes';
-import { VRMSpringBone } from './VRMSpringBone';
-import { VRMColliderGroup } from './VRMColliderGroup';
+import type { VRMSpringBone } from './VRMSpringBone';
+import type { VRMColliderGroup } from './VRMColliderGroup';
 
 /**
  * Represents a VRM spring bone system that manages physics simulation for character bones.

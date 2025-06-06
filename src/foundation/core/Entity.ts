@@ -1,23 +1,23 @@
-import { Component } from './Component';
-import { IRnObject, RnObject } from './RnObject';
-import { ComponentTID, EntityUID } from '../../types/CommonTypes';
+import type { Component } from './Component';
+import { type IRnObject, RnObject } from './RnObject';
+import type { ComponentTID, EntityUID } from '../../types/CommonTypes';
 import { Is } from '../misc/Is';
-import { BlendShapeComponent } from '../components/BlendShape/BlendShapeComponent';
+import type { BlendShapeComponent } from '../components/BlendShape/BlendShapeComponent';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
-import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
-import { LightComponent } from '../components/Light/LightComponent';
-import { MeshComponent } from '../components/Mesh/MeshComponent';
-import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
-import { PhysicsComponent } from '../components/Physics/PhysicsComponent';
-import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
-import { TransformComponent } from '../components/Transform/TransformComponent';
-import { AnimationComponent } from '../components/Animation/AnimationComponent';
-import { CameraComponent } from '../components/Camera/CameraComponent';
-import { VrmComponent } from '../components/Vrm/VrmComponent';
-import { ConstraintComponent } from '../components/Constraint/ConstraintComponent';
-import { EffekseerComponent } from '../../effekseer';
-import { AnimationStateComponent } from '../components/AnimationState/AnimationStateComponent';
+import type { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
+import type { LightComponent } from '../components/Light/LightComponent';
+import type { MeshComponent } from '../components/Mesh/MeshComponent';
+import type { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
+import type { PhysicsComponent } from '../components/Physics/PhysicsComponent';
+import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
+import type { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
+import type { TransformComponent } from '../components/Transform/TransformComponent';
+import type { AnimationComponent } from '../components/Animation/AnimationComponent';
+import type { CameraComponent } from '../components/Camera/CameraComponent';
+import type { VrmComponent } from '../components/Vrm/VrmComponent';
+import type { ConstraintComponent } from '../components/Constraint/ConstraintComponent';
+import type { EffekseerComponent } from '../../effekseer';
+import type { AnimationStateComponent } from '../components/AnimationState/AnimationStateComponent';
 
 /**
  * The Interface for an Entity.

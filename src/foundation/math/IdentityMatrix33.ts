@@ -1,10 +1,10 @@
 /* eslint-disable prettier/prettier */
 import { CompositionType } from '../definitions/CompositionType';
 import { AbstractMatrix } from './AbstractMatrix';
-import { IMatrix, IMatrix33 } from './IMatrix';
-import { IVector, IMutableVector } from './IVector';
-import { Matrix33 } from './Matrix33';
-import { MutableVector3 } from './MutableVector3';
+import type { IMatrix, IMatrix33 } from './IMatrix';
+import type { IVector, IMutableVector } from './IVector';
+import type { Matrix33 } from './Matrix33';
+import type { MutableVector3 } from './MutableVector3';
 import { Vector3 } from './Vector3';
 
 /**

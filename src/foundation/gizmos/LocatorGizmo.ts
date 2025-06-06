@@ -3,7 +3,7 @@ import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import { VertexAttribute } from '../definitions/VertexAttribute';
 import { Mesh } from '../geometry/Mesh';
 import { Primitive } from '../geometry/Primitive';
-import { IMeshEntity } from '../helpers/EntityHelper';
+import type { IMeshEntity } from '../helpers/EntityHelper';
 import { Vector3 } from '../math/Vector3';
 import { Is } from '../misc/Is';
 import { Gizmo } from './Gizmo';

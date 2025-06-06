@@ -1,11 +1,11 @@
-import { AnimationTrackName } from '../../../types/AnimationTypes';
-import { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
+import type { AnimationTrackName } from '../../../types/AnimationTypes';
+import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
-import { IEntity } from '../../core/Entity';
+import type { IEntity } from '../../core/Entity';
 import { EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
-import { IAnimationStateEntity, ISceneGraphEntity } from '../../helpers/EntityHelper';
-import { ComponentToComponentMethods } from '../ComponentTypes';
+import type { IAnimationStateEntity, ISceneGraphEntity } from '../../helpers/EntityHelper';
+import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 /**

@@ -97,7 +97,7 @@ setParameterForMeshComponent(
 setTextureParameterForMeshComponent(meshComponentSmallBoard, 'depthTexture', blurredRenderTarget);
 setTextureParameterForMeshComponent(meshComponentLargeBoard, 'depthTexture', blurredRenderTarget);
 
-window.download = function () {
+window.download = () => {
   renderPassDepth.getFramebuffer().getDepthAttachedRenderTargetTexture()!.downloadTexturePixelData();
 };
 

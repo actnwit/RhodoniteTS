@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { createCameraEntity } from '../foundation/components/Camera/createCameraEntity';
-import { ICameraEntity } from '../foundation/helpers/EntityHelper';
+import type { ICameraEntity } from '../foundation/helpers/EntityHelper';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import { MutableQuaternion } from '../foundation/math/MutableQuaternion';
 import { MutableScalar } from '../foundation/math/MutableScalar';
@@ -8,11 +8,11 @@ import { MutableVector3 } from '../foundation/math/MutableVector3';
 import { Vector3 } from '../foundation/math/Vector3';
 import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
-import { Option, None, Some } from '../foundation/misc/Option';
+import { type Option, None, Some } from '../foundation/misc/Option';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import { System } from '../foundation/system/System';
-import { WebGLContextWrapper } from '../webgl/WebGLContextWrapper';
+import type { WebGLContextWrapper } from '../webgl/WebGLContextWrapper';
 
 const defaultUserPositionInVR = Vector3.fromCopyArray([0.0, 1.1, 0]);
 declare const window: any;

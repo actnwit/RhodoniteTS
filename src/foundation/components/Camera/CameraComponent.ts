@@ -4,7 +4,7 @@ import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
-import { CameraTypeEnum, CameraType } from '../../definitions/CameraType';
+import { type CameraTypeEnum, CameraType } from '../../definitions/CameraType';
 import { Matrix44 } from '../../math/Matrix44';
 import { BufferUse } from '../../definitions/BufferUse';
 import { ComponentType } from '../../definitions/ComponentType';
@@ -14,16 +14,16 @@ import { MutableVector4 } from '../../math/MutableVector4';
 import { MutableVector3 } from '../../math/MutableVector3';
 import { Frustum } from '../../geometry/Frustum';
 import { Config } from '../../core/Config';
-import { ComponentTID, ComponentSID, EntityUID } from '../../../types/CommonTypes';
+import type { ComponentTID, ComponentSID, EntityUID } from '../../../types/CommonTypes';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { ShaderSemantics } from '../../definitions/ShaderSemantics';
 import { MathUtil } from '../../math/MathUtil';
 import { ModuleManager } from '../../system/ModuleManager';
-import { RnXR } from '../../../xr/main';
+import type { RnXR } from '../../../xr/main';
 import { RenderPass } from '../../renderer/RenderPass';
-import { ICameraEntity } from '../../helpers/EntityHelper';
-import { IEntity } from '../../core/Entity';
-import { ComponentToComponentMethods } from '../ComponentTypes';
+import type { ICameraEntity } from '../../helpers/EntityHelper';
+import type { IEntity } from '../../core/Entity';
+import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { Is } from '../../misc/Is';
 import { LightType } from '../../definitions/LightType';
 import { SystemState } from '../../system/SystemState';
@@ -863,7 +863,7 @@ export class CameraComponent extends Component {
         this._projectionMatrix.m13 = 0;
         this._projectionMatrix.m20 = 0;
         this._projectionMatrix.m21 = 0;
-        if (zFar === Infinity) {
+        if (zFar === Number.POSITIVE_INFINITY) {
           this._projectionMatrix.m22 = -1;
           this._projectionMatrix.m23 = -zNear;
         } else {
@@ -940,7 +940,7 @@ export class CameraComponent extends Component {
         this._projectionMatrix.m13 = 0;
         this._projectionMatrix.m20 = 0;
         this._projectionMatrix.m21 = 0;
-        if (zFar === Infinity) {
+        if (zFar === Number.POSITIVE_INFINITY) {
           this._projectionMatrix.m22 = -1;
           this._projectionMatrix.m23 = -2 * zNear;
         } else {

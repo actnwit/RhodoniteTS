@@ -1,5 +1,5 @@
-import { EnumClass, EnumIO, _from, _fromString } from '../misc/EnumIO';
-import {
+import { EnumClass, type EnumIO, _from, _fromString } from '../misc/EnumIO';
+import type {
   Count,
   IndexOf16Bytes,
   SquareMatrixComponentN,
@@ -7,7 +7,7 @@ import {
   VectorComponentN,
 } from '../../types/CommonTypes';
 import type { ComponentTypeEnum } from './ComponentType';
-import { Gltf2AccessorCompositionTypeString } from '../../types/glTF2';
+import type { Gltf2AccessorCompositionTypeString } from '../../types/glTF2';
 import { Logger } from '../misc/Logger';
 
 export interface CompositionTypeEnum extends EnumIO {

@@ -1,9 +1,9 @@
-import { AnimationChannel, AnimationSampler, AnimationSamplers, AnimationTrackName } from '../../types/AnimationTypes';
+import { AnimationChannel, type AnimationSampler, type AnimationSamplers, type AnimationTrackName } from '../../types/AnimationTypes';
 import { __interpolate } from '../components/Animation/AnimationOps';
 import { AnimationAttribute } from '../definitions/AnimationAttribute';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
-import { IVector3 } from './IVector';
-import { IAnimatedValue } from './IAnimatedValue';
+import type { IVector3 } from './IVector';
+import type { IAnimatedValue } from './IAnimatedValue';
 import { Vector3 } from './Vector3';
 import { Logger } from '../misc/Logger';
 

@@ -1,11 +1,11 @@
-import { ComponentSID, ComponentTID, EntityUID, Index } from '../../../types/CommonTypes';
+import type { ComponentSID, ComponentTID, EntityUID, Index } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
-import { IEntity } from '../../core/Entity';
+import type { IEntity } from '../../core/Entity';
 import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import { Is } from '../../misc';
-import { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
-import { ComponentToComponentMethods } from '../ComponentTypes';
+import type { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
+import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 export type VrmExpressionName = string;

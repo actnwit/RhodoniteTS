@@ -167,7 +167,6 @@ export default class ResourceManagerXHR {
   }
 
   getOneChunk(position) {
-    const parent = this;
 
     this.fetchBuffer(position, position + 9)
       .then(response => {
@@ -188,15 +187,15 @@ export default class ResourceManagerXHR {
           // console.log(`chunkSize = ${chunkHeader.Size}`);
 
           if (chunkHeader.Type === 1) {
-            parent.getSequenceInfo(position + 9, chunkHeader.Size);
+            this.getSequenceInfo(position + 9, chunkHeader.Size);
           } else if (chunkHeader.Type === 2) {
-            parent.getTracksIndexes(position + 9, chunkHeader.Size);
+            this.getTracksIndexes(position + 9, chunkHeader.Size);
           } else if (chunkHeader.Type === 3) {
-            parent.getBlocsInfos(position + 9, chunkHeader.Size);
+            this.getBlocsInfos(position + 9, chunkHeader.Size);
           } else if (chunkHeader.Type === 21) {
-            parent.getAudioTrack(position + 9, chunkHeader.Size);
+            this.getAudioTrack(position + 9, chunkHeader.Size);
           } else {
-            parent.getChunkData(position + 9, chunkHeader.Size);
+            this.getChunkData(position + 9, chunkHeader.Size);
           }
         });
       })
@@ -234,8 +233,6 @@ export default class ResourceManagerXHR {
     }
 
     let memorySize = pos1 - pos0;
-
-    const parent = this;
     this.fetchBuffer(pos0, pos1)
       .then(response => {
         response.arrayBuffer().then(arraybuffer => {
@@ -261,10 +258,10 @@ export default class ResourceManagerXHR {
             memorySize -= 9 + chunkSize;
 
             if (chunk4D.type === 10 || chunk4D.type === 11 || chunk4D.type === 12) {
-              if (!Decoder4D._keepChunksInCache || Decoder4D.chunks4D.length < parent._sequenceInfo.NbFrames * 2) {
+              if (!Decoder4D._keepChunksInCache || Decoder4D.chunks4D.length < this._sequenceInfo.NbFrames * 2) {
                 Decoder4D._chunks4D.push(chunk4D);
               } else {
-                console.log(`nbframes = ${parent._sequenceInfo.NbFrames}`);
+                console.log(`nbframes = ${this._sequenceInfo.NbFrames}`);
               }
             } else {
               //console.log(`chunk4D type = ${chunk4D.type}`)
@@ -272,7 +269,7 @@ export default class ResourceManagerXHR {
           }
 
           // Chunks downloaded
-          parent._isDownloading = false;
+          this._isDownloading = false;
         });
       })
       .catch(e => {
@@ -340,8 +337,6 @@ export default class ResourceManagerXHR {
 
   getFileHeader() {
     console.log(`file : ${this._file4ds}`);
-
-    const parent = this;
     this.fetchBuffer(0, 30)
       .then(response => {
         response.arrayBuffer().then(arraybuffer => {
@@ -351,11 +346,11 @@ export default class ResourceManagerXHR {
 
           const dv = new DataView(headerChunk);
           // const version = dv.getInt16(4, true)
-          parent._pointerToSequenceInfo = dv.getInt32(6, true);
+          this._pointerToSequenceInfo = dv.getInt32(6, true);
           // const pointerToSequenceInfoPart2 = dv.getInt32(10, true)
-          parent._pointerToBlocIndex = dv.getInt32(14, true);
+          this._pointerToBlocIndex = dv.getInt32(14, true);
           // const pointerToBlocIndexPart2 = dv.getInt32(18, true)
-          parent._pointerToTrackIndex = dv.getInt32(22, true);
+          this._pointerToTrackIndex = dv.getInt32(22, true);
           // const pointerToTrackIndexPart2 = dv.getInt32(26, true)
 
           //console.log(`file magic= ${dv.getUint8(0, true)} ${dv.getUint8(1, true)} ${dv.getUint8(2, true)} ${dv.getUint8(3, true)}`)
@@ -366,7 +361,7 @@ export default class ResourceManagerXHR {
           //console.log(`pointerToBlocIndexPart2 = ${pointerToBlocIndexPart2}`)
 
           // sequence info
-          parent.getOneChunk(parent._pointerToSequenceInfo);
+          this.getOneChunk(this._pointerToSequenceInfo);
         });
       })
       .catch(e => {
@@ -375,30 +370,29 @@ export default class ResourceManagerXHR {
   }
 
   getSequenceInfo(position, size) {
-    const parent = this;
 
     this.fetchBuffer(position, position + size)
       .then(response => {
         response.arrayBuffer().then(arraybuffer => {
           const dv = new DataView(arraybuffer);
-          parent._sequenceInfo.NbFrames = dv.getUint32(0, true);
-          parent._sequenceInfo.NbBlocs = dv.getUint32(4, true);
-          parent._sequenceInfo.FrameRate = dv.getFloat32(8, true);
-          parent._sequenceInfo.MaxVertices = dv.getUint32(12, true);
-          parent._sequenceInfo.MaxTriangles = dv.getUint32(16, true);
-          parent._sequenceInfo.TextureEncoding = dv.getUint32(20, true);
-          parent._sequenceInfo.TextureSizeX = dv.getUint32(24, true);
-          parent._sequenceInfo.TextureSizeY = dv.getUint32(28, true);
-          parent._sequenceInfo.NbAdditionalTracks = dv.getUint32(32, true);
+          this._sequenceInfo.NbFrames = dv.getUint32(0, true);
+          this._sequenceInfo.NbBlocs = dv.getUint32(4, true);
+          this._sequenceInfo.FrameRate = dv.getFloat32(8, true);
+          this._sequenceInfo.MaxVertices = dv.getUint32(12, true);
+          this._sequenceInfo.MaxTriangles = dv.getUint32(16, true);
+          this._sequenceInfo.TextureEncoding = dv.getUint32(20, true);
+          this._sequenceInfo.TextureSizeX = dv.getUint32(24, true);
+          this._sequenceInfo.TextureSizeY = dv.getUint32(28, true);
+          this._sequenceInfo.NbAdditionalTracks = dv.getUint32(32, true);
 
-          console.log(parent._sequenceInfo);
+          console.log(this._sequenceInfo);
 
           // bloc index
-          parent.getOneChunk(parent._pointerToBlocIndex);
+          this.getOneChunk(this._pointerToBlocIndex);
 
           // track index
-          if (parent._sequenceInfo.NbAdditionalTracks > 0) {
-            parent.getOneChunk(parent._pointerToTrackIndex);
+          if (this._sequenceInfo.NbAdditionalTracks > 0) {
+            this.getOneChunk(this._pointerToTrackIndex);
           }
         });
       })
@@ -408,31 +402,30 @@ export default class ResourceManagerXHR {
   }
 
   getBlocsInfos(position, size) {
-    const parent = this;
     this.fetchBuffer(position, position + size)
       .then(response => {
         response.arrayBuffer().then(arraybuffer => {
           const dv = new DataView(arraybuffer);
 
-          parent._KFPositions.push(79);
+          this._KFPositions.push(79);
 
-          for (let i = 0; i < parent._sequenceInfo.NbBlocs; i++) {
+          for (let i = 0; i < this._sequenceInfo.NbBlocs; i++) {
             const bi = new BlocInfo(
               dv.getInt32(i * 16, true),
               dv.getInt32(i * 16 + 4, true),
               dv.getInt32(i * 16 + 8, true)
             );
-            parent._blocInfos.push(bi);
-            parent._KFPositions.push(bi.BlocChunkPos + 9 + (bi.NbInterFrames + 1) * 16);
+            this._blocInfos.push(bi);
+            this._KFPositions.push(bi.BlocChunkPos + 9 + (bi.NbInterFrames + 1) * 16);
           }
 
-          parent._firstBlocIndex = 0;
-          parent._lastBlocIndex = parent._sequenceInfo.NbBlocs - 1;
+          this._firstBlocIndex = 0;
+          this._lastBlocIndex = this._sequenceInfo.NbBlocs - 1;
 
           // console.log(parent._blocInfos);
 
-          parent._isInitialized = true;
-          parent._callback();
+          this._isInitialized = true;
+          this._callback();
           // parent.Read();
         });
       })
@@ -442,17 +435,16 @@ export default class ResourceManagerXHR {
   }
 
   getTracksIndexes(position, size) {
-    const parent = this;
 
     this.fetchBuffer(position, position + size)
       .then(response => {
         response.arrayBuffer().then(arraybuffer => {
           const dv = new DataView(arraybuffer);
 
-          for (let i = 0; i < parent._sequenceInfo.NbAdditionalTracks; i++) {
-            parent._tracksPositions.push(dv.getInt32(i * 8, true));
+          for (let i = 0; i < this._sequenceInfo.NbAdditionalTracks; i++) {
+            this._tracksPositions.push(dv.getInt32(i * 8, true));
 
-            parent.getOneChunk(parent._tracksPositions[i]);
+            this.getOneChunk(this._tracksPositions[i]);
           }
         });
       })
@@ -462,14 +454,13 @@ export default class ResourceManagerXHR {
   }
 
   getAudioTrack(position, size) {
-    const parent = this;
 
     this.fetchBuffer(position, position + size)
       .then(response => {
         response.arrayBuffer().then(arraybuffer => {
           // var dv = new DataView(xhr.response);
 
-          parent._audioTrack = arraybuffer;
+          this._audioTrack = arraybuffer;
         });
       })
       .catch(e => {

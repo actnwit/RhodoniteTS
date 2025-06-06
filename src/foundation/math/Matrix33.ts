@@ -1,15 +1,15 @@
 import { Vector3 } from './Vector3';
-import { Matrix44 } from './Matrix44';
-import { Quaternion } from './Quaternion';
-import { IMatrix, IMatrix33 } from './IMatrix';
-import { MutableMatrix33 } from './MutableMatrix33';
+import type { Matrix44 } from './Matrix44';
+import type { Quaternion } from './Quaternion';
+import type { IMatrix, IMatrix33 } from './IMatrix';
+import type { MutableMatrix33 } from './MutableMatrix33';
 import { CompositionType } from '../definitions/CompositionType';
 import { MathUtil } from './MathUtil';
-import { MutableVector3 } from './MutableVector3';
+import type { MutableVector3 } from './MutableVector3';
 import { AbstractMatrix } from './AbstractMatrix';
 import { IdentityMatrix33 } from './IdentityMatrix33';
-import { IMutableVector3, IVector3 } from './IVector';
-import { Array9 } from '../../types';
+import type { IMutableVector3, IVector3 } from './IVector';
+import type { Array9 } from '../../types';
 import { Logger } from '../misc/Logger';
 /* eslint-disable prettier/prettier */
 

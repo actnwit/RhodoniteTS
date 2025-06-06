@@ -1,27 +1,27 @@
 import { WebGLResourceRepository } from './WebGLResourceRepository';
 import { MemoryManager } from '../foundation/core/MemoryManager';
-import { Buffer } from '../foundation/memory/Buffer';
+import type { Buffer } from '../foundation/memory/Buffer';
 import { PixelFormat } from '../foundation/definitions/PixelFormat';
 import { ComponentType } from '../foundation/definitions/ComponentType';
 import { TextureParameter } from '../foundation/definitions/TextureParameter';
 import { BufferUse } from '../foundation/definitions/BufferUse';
-import { ShaderSources, WebGLStrategy } from './WebGLStrategy';
+import type { ShaderSources, WebGLStrategy } from './WebGLStrategy';
 import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { Primitive } from '../foundation/geometry/Primitive';
-import { WebGLContextWrapper } from './WebGLContextWrapper';
+import type { WebGLContextWrapper } from './WebGLContextWrapper';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
-import { ShaderSemantics, ShaderSemanticsName } from '../foundation/definitions/ShaderSemantics';
+import { ShaderSemantics, type ShaderSemanticsName } from '../foundation/definitions/ShaderSemantics';
 import { Material } from '../foundation/materials/core/Material';
 import { CompositionType } from '../foundation/definitions/CompositionType';
 import { Component } from '../foundation/core/Component';
 import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
-import { Mesh } from '../foundation/geometry/Mesh';
+import type { Mesh } from '../foundation/geometry/Mesh';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import { ComponentRepository } from '../foundation/core/ComponentRepository';
 import { Config } from '../foundation/core/Config';
-import { RenderPass } from '../foundation/renderer/RenderPass';
+import type { RenderPass } from '../foundation/renderer/RenderPass';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
-import {
+import type {
   WebGLResourceHandle,
   Index,
   CGAPIResourceHandle,
@@ -32,26 +32,26 @@ import {
   Byte,
 } from '../types/CommonTypes';
 import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
-import { VectorN } from '../foundation/math/VectorN';
+import type { VectorN } from '../foundation/math/VectorN';
 import { WellKnownComponentTIDs } from '../foundation/components/WellKnownComponentTIDs';
 import { MiscUtil } from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod, { setupShaderProgram } from './WebGLStrategyCommonMethod';
 import { ModuleManager } from '../foundation/system/ModuleManager';
-import { RnXR } from '../xr/main';
+import type { RnXR } from '../xr/main';
 import { Is } from '../foundation/misc/Is';
 import { LightComponent } from '../foundation/components/Light/LightComponent';
-import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
+import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
-import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
+import type { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
-import { WebXRSystem } from '../xr';
-import { Vector2 } from '../foundation/math/Vector2';
+import type { WebXRSystem } from '../xr';
+import type { Vector2 } from '../foundation/math/Vector2';
 import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
 import { TextureFormat } from '../foundation/definitions/TextureFormat';
 import { Logger } from '../foundation/misc/Logger';
-import { RenderingArgWebGL } from './types/CommonTypes';
+import type { RenderingArgWebGL } from './types/CommonTypes';
 import { SystemState } from '../foundation/system/SystemState';
 
 declare const spector: any;

@@ -173,7 +173,7 @@ function setTransformParameterToEntity(
 
 function draw(expressions: Rn.Expression[], entityDepthCamera: Rn.ICameraEntity, directionLight: Rn.MutableVector3) {
   const inputElem = document.getElementById('light_pos') as HTMLInputElement;
-  const inputValue = parseFloat(inputElem.value) / 200;
+  const inputValue = Number.parseFloat(inputElem.value) / 200;
   lightPosition.x = inputValue;
   entityDepthCamera.getTransform().localPosition = lightPosition;
   Rn.MutableVector3.multiplyTo(lightPosition, -1, directionLight).normalize();

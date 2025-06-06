@@ -73,6 +73,6 @@ Rn.System.startRenderLoop(() => {
   count++;
 });
 
-window.exportGltf2 = function () {
+window.exportGltf2 = () => {
   Rn.Gltf2Exporter.export('Rhodonite');
 };

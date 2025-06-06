@@ -1,6 +1,6 @@
-import { Size, Index, FloatTypedArrayConstructor, TypedArrayConstructor } from '../../types/CommonTypes';
-import { ColorRgb } from '../math/ColorRgb';
-import { ColorRgba } from '../math/ColorRgba';
+import { type Size, type Index, FloatTypedArrayConstructor, type TypedArrayConstructor } from '../../types/CommonTypes';
+import type { ColorRgb } from '../math/ColorRgb';
+import type { ColorRgba } from '../math/ColorRgba';
 
 /**
  * A class for handling floating-point texture data with support for multi-channel pixels.

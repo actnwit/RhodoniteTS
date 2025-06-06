@@ -1,8 +1,8 @@
-import { ProcessApproach, ProcessApproachEnum } from '../foundation/definitions/ProcessApproach';
-import { WebGLStrategy } from './WebGLStrategy';
+import { ProcessApproach, type ProcessApproachEnum } from '../foundation/definitions/ProcessApproach';
+import type { WebGLStrategy } from './WebGLStrategy';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 
-const getRenderingStrategy = function (processApproach: ProcessApproachEnum): WebGLStrategy {
+const getRenderingStrategy = (processApproach: ProcessApproachEnum): WebGLStrategy => {
   // Strategy
   const moduleName = 'webgl';
   const moduleManager = ModuleManager.getInstance();

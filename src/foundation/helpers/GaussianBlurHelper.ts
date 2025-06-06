@@ -1,12 +1,12 @@
-import { TextureFormat, TextureFormatEnum } from '../definitions';
+import { TextureFormat, type TextureFormatEnum } from '../definitions';
 import { MathUtil } from '../math/MathUtil';
 import { Vector2 } from '../math/Vector2';
 import { VectorN } from '../math/VectorN';
 import { Expression } from '../renderer/Expression';
-import { FrameBuffer } from '../renderer/FrameBuffer';
-import { RenderPass } from '../renderer/RenderPass';
-import { AbstractTexture } from '../textures/AbstractTexture';
-import { RenderTargetTexture } from '../textures/RenderTargetTexture';
+import type { FrameBuffer } from '../renderer/FrameBuffer';
+import type { RenderPass } from '../renderer/RenderPass';
+import type { AbstractTexture } from '../textures/AbstractTexture';
+import type { RenderTargetTexture } from '../textures/RenderTargetTexture';
 import { MaterialHelper } from './MaterialHelper';
 import { RenderableHelper } from './RenderableHelper';
 import { RenderPassHelper } from './RenderPassHelper';

@@ -1,5 +1,5 @@
-import { IVector3 } from './IVector';
-import { TypedArray } from '../../types/CommonTypes';
+import type { IVector3 } from './IVector';
+import type { TypedArray } from '../../types/CommonTypes';
 
 /**
  * Immutable RGB color interface with alpha channel support.

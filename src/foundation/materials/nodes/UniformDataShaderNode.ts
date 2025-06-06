@@ -1,5 +1,5 @@
-import { CompositionTypeEnum } from '../../definitions/CompositionType';
-import { ComponentTypeEnum } from '../../definitions/ComponentType';
+import type { CompositionTypeEnum } from '../../definitions/CompositionType';
+import type { ComponentTypeEnum } from '../../definitions/ComponentType';
 import { UniformDataShader } from '../../../webgl/shaders/nodes/UniformDataShader';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';

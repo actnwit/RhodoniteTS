@@ -1,5 +1,5 @@
 import { Scalar_ } from './Scalar';
-import { TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
+import type { TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
 import { CompositionType } from '../definitions/CompositionType';
 
 /**

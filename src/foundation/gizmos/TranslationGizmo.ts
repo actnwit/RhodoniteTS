@@ -8,9 +8,9 @@ import { Mesh } from '../geometry/Mesh';
 import { Primitive } from '../geometry/Primitive';
 import { Cube } from '../geometry/shapes/Cube';
 import { Plane } from '../geometry/shapes/Plane';
-import { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
+import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
 import { MaterialHelper } from '../helpers/MaterialHelper';
-import { Material } from '../materials/core/Material';
+import type { Material } from '../materials/core/Material';
 import { Matrix44 } from '../math/Matrix44';
 import { MathUtil } from '../math/MathUtil';
 import { Matrix33 } from '../math/Matrix33';
@@ -23,10 +23,10 @@ import { assertExist } from '../misc/MiscUtil';
 import {
   getEvent,
   InputManager,
-  INPUT_HANDLING_STATE_GIZMO_TRANSLATION as INPUT_HANDLING_STATE_GIZMO_TRANSLATION,
+  INPUT_HANDLING_STATE_GIZMO_TRANSLATION,
 } from '../system/InputManager';
 import { Gizmo } from './Gizmo';
-import { IQuaternion } from '../math';
+import type { IQuaternion } from '../math';
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
 import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 import { Logger } from '../misc/Logger';

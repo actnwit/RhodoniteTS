@@ -1,13 +1,13 @@
-import { Index, Size } from '../../types/CommonTypes';
-import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
+import type { Index, Size } from '../../types/CommonTypes';
+import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import { HdriFormat } from '../definitions/HdriFormat';
 import { ProcessApproach } from '../definitions/ProcessApproach';
-import { TextureFormat, TextureFormatEnum } from '../definitions/TextureFormat';
+import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFormat';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { FrameBuffer } from '../renderer/FrameBuffer';
+import type { FrameBuffer } from '../renderer/FrameBuffer';
 import { SystemState } from '../system/SystemState';
 import { AbstractTexture } from './AbstractTexture';
-import { IRenderable } from './IRenderable';
+import type { IRenderable } from './IRenderable';
 
 /**
  * A cube texture that can be used as a render target for rendering operations.
@@ -27,7 +27,7 @@ import { IRenderable } from './IRenderable';
 export class RenderTargetTextureCube extends AbstractTexture implements IRenderable {
   private __fbo?: FrameBuffer;
   public hdriFormat = HdriFormat.HDR_LINEAR;
-  public _textureViewAsRenderTargetResourceUid: number = -1;
+  public _textureViewAsRenderTargetResourceUid = -1;
 
   /**
    * Creates a new RenderTargetTextureCube instance.

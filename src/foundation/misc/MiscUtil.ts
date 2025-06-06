@@ -1,11 +1,11 @@
-import { Byte, Size, TypedArray } from '../../types/CommonTypes';
+import type { Byte, Size, TypedArray } from '../../types/CommonTypes';
 import { Is } from './Is';
 
 /**
  * Detects if the current environment is a mobile VR device (Oculus Browser, Samsung Browser VR, etc.)
  * @returns True if running on a mobile VR device, false otherwise
  */
-const isMobileVr = function (): boolean {
+const isMobileVr = (): boolean => {
   if (typeof window !== 'undefined') {
     return /(Pacific Build.+OculusBrowser.+SamsungBrowser.+)|(SamsungBrowser)|(Mobile VR)/i.test(
       window.navigator.userAgent
@@ -19,7 +19,7 @@ const isMobileVr = function (): boolean {
  * Detects if the current environment is a mobile device (iPod, iPad, iPhone, Android)
  * @returns True if running on a mobile device, false otherwise
  */
-const isMobile = function (): boolean {
+const isMobile = (): boolean => {
   const ua = [
     'iPod',
     'iPad', // for old version
@@ -40,7 +40,7 @@ const isMobile = function (): boolean {
  * Detects if the current browser is Safari (excluding Chrome-based browsers)
  * @returns True if running on Safari browser, false otherwise
  */
-const isSafari = function (): boolean {
+const isSafari = (): boolean => {
   const toBe = 'Safari';
   const noToBe = 'Chrome';
 
@@ -55,7 +55,7 @@ const isSafari = function (): boolean {
  * Detects if the current environment is an iOS device (iPod, iPad, iPhone)
  * @returns True if running on an iOS device, false otherwise
  */
-const isIOS = function (): boolean {
+const isIOS = (): boolean => {
   const ua = [
     'iPod',
     'iPad', // for old version
@@ -75,15 +75,13 @@ const isIOS = function (): boolean {
  * Detects if the current device is an iPad (including newer iPads that identify as Macintosh)
  * @returns True if running on an iPad, false otherwise
  */
-const isIPad = function (): boolean {
-  return navigator.userAgent.indexOf('Macintosh') > -1 && 'ontouchend' in document;
-};
+const isIPad = (): boolean => navigator.userAgent.indexOf('Macintosh') > -1 && 'ontouchend' in document;
 
 /**
  * Prevents the default behavior of an event only on desktop devices
  * @param e - The event to potentially prevent default behavior for
  */
-const preventDefaultForDesktopOnly = function (e: Event): void {
+const preventDefaultForDesktopOnly = (e: Event): void => {
   if (!isMobile()) {
     e.preventDefault();
   }
@@ -94,9 +92,7 @@ const preventDefaultForDesktopOnly = function (e: Event): void {
  * @param o - The value to check
  * @returns True if the value is a plain object, false otherwise
  */
-const isObject = function (o: any): boolean {
-  return o instanceof Object && !(o instanceof Array) ? true : false;
-};
+const isObject = (o: any): boolean => o instanceof Object && !(o instanceof Array) ? true : false;
 
 /**
  * Fills a template string with variables using template literals
@@ -105,17 +101,13 @@ const isObject = function (o: any): boolean {
  * @returns The filled template string
  * @see https://stackoverflow.com/questions/30003353/can-es6-template-literals-be-substituted-at-runtime-or-reused
  */
-const fillTemplate = function (templateString: string, templateVars: string): string {
-  return new Function('return `' + templateString + '`;').call(templateVars);
-};
+const fillTemplate = (templateString: string, templateVars: string): string => new Function('return `' + templateString + '`;').call(templateVars);
 
 /**
  * Detects if the current environment is Node.js
  * @returns True if running in Node.js environment, false otherwise
  */
-const isNode = function (): boolean {
-  return typeof process !== 'undefined' && typeof require !== 'undefined';
-};
+const isNode = (): boolean => typeof process !== 'undefined' && typeof require !== 'undefined';
 
 /**
  * Concatenates multiple ArrayBuffers into a single ArrayBuffer with specified sizes and offsets
@@ -125,7 +117,7 @@ const isNode = function (): boolean {
  * @param finalSize - Optional final size of the resulting buffer
  * @returns The concatenated ArrayBuffer
  */
-const concatArrayBuffers = function (segments: ArrayBuffer[], sizes: Byte[], offsets: Byte[], finalSize?: Byte) {
+const concatArrayBuffers = (segments: ArrayBuffer[], sizes: Byte[], offsets: Byte[], finalSize?: Byte) => {
   let sumLength = 0;
   for (let i = 0; i < sizes.length; ++i) {
     sumLength += sizes[i];

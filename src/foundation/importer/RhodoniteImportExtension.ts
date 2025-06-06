@@ -1,6 +1,6 @@
-import { EffekseerComponent, IEffekseerEntityMethods } from '../../effekseer/EffekseerComponent';
-import { AnimationSampler, AnimationTrackName } from '../../types/AnimationTypes';
-import {
+import { EffekseerComponent, type IEffekseerEntityMethods } from '../../effekseer/EffekseerComponent';
+import type { AnimationSampler, AnimationTrackName } from '../../types/AnimationTypes';
+import type {
   RnM2,
   RnM2ExtensionsEffekseerEffect,
   RnM2ExtensionsEffekseerTimeline,
@@ -8,15 +8,15 @@ import {
 } from '../../types/RnM2';
 import {
   AnimationComponent,
-  IAnimationEntityMethods,
-  ISceneGraphEntityMethods,
-  ITransformEntityMethods,
+  type IAnimationEntityMethods,
+  type ISceneGraphEntityMethods,
+  type ITransformEntityMethods,
   WellKnownComponentTIDs,
 } from '../components';
-import { IEntity } from '../core';
+import type { IEntity } from '../core';
 import { EntityRepository } from '../core/EntityRepository';
 import { AnimationInterpolation } from '../definitions';
-import { ISceneGraphEntity } from '../helpers/EntityHelper';
+import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { AnimatedScalar } from '../math/AnimatedScalar';
 import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';

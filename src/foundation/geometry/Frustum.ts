@@ -2,8 +2,8 @@ import { Vector4 } from '../math/Vector4';
 import { Matrix44 } from '../math/Matrix44';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
 import { MutableVector4 } from '../math/MutableVector4';
-import { MeshComponent } from '../components/Mesh/MeshComponent';
-import { Index } from '../../types/CommonTypes';
+import type { MeshComponent } from '../components/Mesh/MeshComponent';
+import type { Index } from '../../types/CommonTypes';
 
 /**
  * The view frustum class.

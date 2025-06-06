@@ -1,10 +1,10 @@
 import { FrameBuffer } from '../renderer/FrameBuffer';
 import { RenderTargetTexture } from '../textures/RenderTargetTexture';
-import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
-import { ComponentType, ComponentTypeEnum } from '../definitions/ComponentType';
-import { PixelFormat, PixelFormatEnum } from '../definitions/PixelFormat';
+import { TextureParameter, type TextureParameterEnum } from '../definitions/TextureParameter';
+import { ComponentType, type ComponentTypeEnum } from '../definitions/ComponentType';
+import { PixelFormat, type PixelFormatEnum } from '../definitions/PixelFormat';
 import { RenderBuffer } from '../textures/RenderBuffer';
-import { TextureFormat, TextureFormatEnum } from '../definitions/TextureFormat';
+import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFormat';
 import { RenderTargetTexture2DArray, RenderTargetTextureCube } from '../textures';
 
 /**

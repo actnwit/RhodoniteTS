@@ -1,7 +1,7 @@
-import { SceneGraphComponent } from '../../components';
+import type { SceneGraphComponent } from '../../components';
 import { RnObject } from '../../core/RnObject';
-import { ISceneGraphEntity } from '../../helpers/EntityHelper';
-import { IMatrix44, IVector3, Matrix44, MutableVector3, Quaternion } from '../../math';
+import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
+import { type IMatrix44, IVector3, Matrix44, MutableVector3, Quaternion } from '../../math';
 import { Vector3 } from '../../math/Vector3';
 
 /**

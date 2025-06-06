@@ -1,12 +1,12 @@
 import { DataUtil } from '../misc/DataUtil';
-import { RnM2, RnM2Image, RnM2Accessor } from '../../types/RnM2';
-import { RnPromise, RnPromiseCallback } from '../misc/RnPromise';
+import type { RnM2, RnM2Image, RnM2Accessor } from '../../types/RnM2';
+import { RnPromise, type RnPromiseCallback } from '../misc/RnPromise';
 import { Is } from '../misc/Is';
 import { ifDefinedThen } from '../misc/MiscUtil';
-import { GltfFileBuffers, GltfLoadOption } from '../../types';
-import { Err, Result, Ok } from '../misc/Result';
+import type { GltfFileBuffers, GltfLoadOption } from '../../types';
+import { Err, type Result, Ok } from '../misc/Result';
 import { Logger } from '../misc/Logger';
-import { Vrm1_Materials_MToon } from '../../types/VRMC_materials_mtoon';
+import type { Vrm1_Materials_MToon } from '../../types/VRMC_materials_mtoon';
 
 declare let Rn: any;
 
@@ -374,7 +374,7 @@ export class Gltf2Importer {
       if (node.children) {
         for (const child_i of node.children) {
           node.childrenObjects![child_i] = gltfJson.nodes[child_i];
-          gltfJson.nodes[child_i].parent = parseInt(node_i);
+          gltfJson.nodes[child_i].parent = Number.parseInt(node_i);
           gltfJson.nodes[child_i].parentObject = node;
         }
       }

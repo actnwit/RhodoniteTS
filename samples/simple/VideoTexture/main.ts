@@ -97,11 +97,11 @@ Rn.System.startRenderLoop(() => {
   count++;
 });
 
-window.exportGltf2 = function () {
+window.exportGltf2 = () => {
   Rn.Gltf2Exporter.export('Rhodonite');
 };
 
-window.downloadFrame = function () {
+window.downloadFrame = () => {
   const [pixels, width, height] = window.texture.getCurrentFramePixelData();
 
   const canvas = document.createElement('canvas');

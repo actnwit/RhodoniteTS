@@ -1,4 +1,4 @@
-import { ISceneGraphEntity } from '../helpers';
+import type { ISceneGraphEntity } from '../helpers';
 import { Quaternion } from '../math/Quaternion';
 import { Vector3 } from '../math/Vector3';
 

@@ -1,4 +1,4 @@
-import { IVector2, IVector3, IVector4, IVector, IMutableVector2 } from './IVector';
+import type { IVector2, IVector3, IVector4, IVector, IMutableVector2 } from './IVector';
 import type { Array2, FloatTypedArrayConstructor, TypedArray } from '../../types/CommonTypes';
 import { MathUtil } from './MathUtil';
 import { CompositionType } from '../definitions/CompositionType';
@@ -300,8 +300,8 @@ export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVect
       y = vec._v[1] / value;
     } else {
       Logger.error('0 division occurred!');
-      x = Infinity;
-      y = Infinity;
+      x = Number.POSITIVE_INFINITY;
+      y = Number.POSITIVE_INFINITY;
     }
     return this._fromCopyArray2([x, y], type);
   }
@@ -320,8 +320,8 @@ export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVect
       out._v[1] = vec._v[1] / value;
     } else {
       Logger.error('0 division occurred!');
-      out._v[0] = Infinity;
-      out._v[1] = Infinity;
+      out._v[0] = Number.POSITIVE_INFINITY;
+      out._v[1] = Number.POSITIVE_INFINITY;
     }
     return out;
   }
@@ -342,8 +342,8 @@ export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVect
       y = l_vec._v[1] / r_vec._v[1];
     } else {
       Logger.error('0 division occurred!');
-      x = r_vec._v[0] === 0 ? Infinity : l_vec._v[0] / r_vec._v[0];
-      y = r_vec._v[1] === 0 ? Infinity : l_vec._v[1] / r_vec._v[1];
+      x = r_vec._v[0] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[0] / r_vec._v[0];
+      y = r_vec._v[1] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[1] / r_vec._v[1];
     }
     return this._fromCopyArray2([x, y], type);
   }
@@ -362,8 +362,8 @@ export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVect
       out._v[1] = l_vec._v[1] / r_vec._v[1];
     } else {
       Logger.error('0 division occurred!');
-      out._v[0] = r_vec._v[0] === 0 ? Infinity : l_vec._v[0] / r_vec._v[0];
-      out._v[1] = r_vec._v[1] === 0 ? Infinity : l_vec._v[1] / r_vec._v[1];
+      out._v[0] = r_vec._v[0] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[0] / r_vec._v[0];
+      out._v[1] = r_vec._v[1] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[1] / r_vec._v[1];
     }
     return out;
   }

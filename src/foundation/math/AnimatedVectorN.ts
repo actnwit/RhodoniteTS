@@ -1,6 +1,6 @@
 import { VectorN } from './VectorN';
-import { IAnimatedValue } from './IAnimatedValue';
-import { AnimationSampler, AnimationSamplers, AnimationTrackName } from '../../types/AnimationTypes';
+import type { IAnimatedValue } from './IAnimatedValue';
+import type { AnimationSampler, AnimationSamplers, AnimationTrackName } from '../../types/AnimationTypes';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { AnimationAttribute } from '../definitions/AnimationAttribute';
 import { __interpolate } from '../components/Animation/AnimationOps';

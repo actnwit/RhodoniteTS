@@ -33,7 +33,7 @@ if (animationStateComponent != null) {
 
   const slider = document.getElementById('slider') as HTMLInputElement;
   slider.addEventListener('input', (e: any) => {
-    animationStateComponent.setAnimationBlendingRatio(parseFloat(e.target.value));
+    animationStateComponent.setAnimationBlendingRatio(Number.parseFloat(e.target.value));
   });
 }
 

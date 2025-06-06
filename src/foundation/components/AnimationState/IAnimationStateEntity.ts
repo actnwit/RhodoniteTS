@@ -1,4 +1,4 @@
-import { AnimationStateComponent } from './AnimationStateComponent';
+import type { AnimationStateComponent } from './AnimationStateComponent';
 
 export interface IAnimationStateEntityMethods {
   getAnimationState(): AnimationStateComponent;

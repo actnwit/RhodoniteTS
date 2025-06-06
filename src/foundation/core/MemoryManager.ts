@@ -1,8 +1,8 @@
 import { Buffer } from '../memory/Buffer';
-import { BufferUse, BufferUseEnum } from '../definitions/BufferUse';
-import { Size, Byte, ObjectUID } from '../../types/CommonTypes';
+import { BufferUse, type BufferUseEnum } from '../definitions/BufferUse';
+import type { Size, Byte, ObjectUID } from '../../types/CommonTypes';
 import { Config } from './Config';
-import { RnObject } from './RnObject';
+import type { RnObject } from './RnObject';
 import { MiscUtil } from '../misc/MiscUtil';
 
 /**

@@ -1,5 +1,5 @@
-import { TypedArray } from '../../types/CommonTypes';
-import { IArrayBufferBasedMathNumber } from './IMathNumber';
+import type { TypedArray } from '../../types/CommonTypes';
+import type { IArrayBufferBasedMathNumber } from './IMathNumber';
 
 /**
  * Abstract base class for math number implementations that are backed by ArrayBuffer.

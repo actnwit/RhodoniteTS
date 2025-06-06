@@ -1,28 +1,28 @@
-import { Accessor } from '../foundation/memory/Accessor';
+import type { Accessor } from '../foundation/memory/Accessor';
 import {
   CGAPIResourceRepository,
-  DirectTextureData,
-  ICGAPIResourceRepository,
-  ImageBitmapData,
+  type DirectTextureData,
+  type ICGAPIResourceRepository,
+  type ImageBitmapData,
 } from '../foundation/renderer/CGAPIResourceRepository';
-import { Primitive } from '../foundation/geometry/Primitive';
-import { VertexAttributeEnum, VertexAttribute } from '../foundation/definitions/VertexAttribute';
-import { TextureParameterEnum, TextureParameter } from '../foundation/definitions/TextureParameter';
-import { PixelFormatEnum, PixelFormat } from '../foundation/definitions/PixelFormat';
-import { ComponentTypeEnum } from '../foundation/definitions/ComponentType';
+import type { Primitive } from '../foundation/geometry/Primitive';
+import { type VertexAttributeEnum, VertexAttribute } from '../foundation/definitions/VertexAttribute';
+import { type TextureParameterEnum, TextureParameter } from '../foundation/definitions/TextureParameter';
+import { type PixelFormatEnum, PixelFormat } from '../foundation/definitions/PixelFormat';
+import type { ComponentTypeEnum } from '../foundation/definitions/ComponentType';
 import { CompositionType } from '../foundation/definitions/CompositionType';
 import { ComponentType } from '../foundation/definitions/ComponentType';
 import { WebGLContextWrapper } from './WebGLContextWrapper';
-import { AbstractTexture } from '../foundation/textures/AbstractTexture';
+import type { AbstractTexture } from '../foundation/textures/AbstractTexture';
 import { RenderTargetTexture } from '../foundation/textures/RenderTargetTexture';
-import { IRenderable } from '../foundation/textures/IRenderable';
-import { FrameBuffer } from '../foundation/renderer/FrameBuffer';
-import { HdriFormatEnum, HdriFormat } from '../foundation/definitions/HdriFormat';
+import type { IRenderable } from '../foundation/textures/IRenderable';
+import type { FrameBuffer } from '../foundation/renderer/FrameBuffer';
+import { type HdriFormatEnum, HdriFormat } from '../foundation/definitions/HdriFormat';
 import { Vector4 } from '../foundation/math/Vector4';
 import { RenderBufferTarget } from '../foundation/definitions/RenderBufferTarget';
-import { RenderPass } from '../foundation/renderer/RenderPass';
+import type { RenderPass } from '../foundation/renderer/RenderPass';
 import { MiscUtil } from '../foundation/misc/MiscUtil';
-import {
+import type {
   WebGLResourceHandle,
   TypedArray,
   Index,
@@ -34,25 +34,25 @@ import {
   WebGPUResourceHandle,
 } from '../types/CommonTypes';
 import { DataUtil } from '../foundation/misc/DataUtil';
-import { RenderBuffer } from '../foundation/textures/RenderBuffer';
-import { BasisFile } from '../types/BasisTexture';
-import { BasisCompressionTypeEnum, BasisCompressionType } from '../foundation/definitions/BasisCompressionType';
+import type { RenderBuffer } from '../foundation/textures/RenderBuffer';
+import type { BasisFile } from '../types/BasisTexture';
+import { type BasisCompressionTypeEnum, BasisCompressionType } from '../foundation/definitions/BasisCompressionType';
 import { WebGLExtension } from './WebGLExtension';
-import { RnWebGLProgram, RnWebGLTexture } from './WebGLExtendedTypes';
+import type { RnWebGLProgram, RnWebGLTexture } from './WebGLExtendedTypes';
 import { Is } from '../foundation/misc/Is';
-import { CompressionTextureTypeEnum } from '../foundation/definitions/CompressionTextureType';
-import { Material } from '../foundation/materials/core/Material';
+import type { CompressionTextureTypeEnum } from '../foundation/definitions/CompressionTextureType';
+import type { Material } from '../foundation/materials/core/Material';
 import getRenderingStrategy from './getRenderingStrategy';
 import { Config } from '../foundation/core/Config';
 import { GL_TEXTURE_2D } from '../types/WebGLConstants';
-import { AttributeNames } from './types';
-import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
+import type { AttributeNames } from './types';
+import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
 import { Sampler } from '../foundation/textures/Sampler';
-import { CubeTexture } from '../foundation/textures/CubeTexture';
+import type { CubeTexture } from '../foundation/textures/CubeTexture';
 import { SystemState } from '../foundation/system/SystemState';
 import { WebGLStereoUtil } from './WebGLStereoUtil';
 import { ProcessApproach } from '../foundation/definitions/ProcessApproach';
-import { TextureFormat, TextureFormatEnum } from '../foundation/definitions/TextureFormat';
+import { TextureFormat, type TextureFormatEnum } from '../foundation/definitions/TextureFormat';
 import { Logger } from '../foundation/misc/Logger';
 import HDRImage from '../../vendor/hdrpng.js';
 import { TextureArray } from '../foundation/textures/TextureArray';

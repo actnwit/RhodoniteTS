@@ -1,10 +1,10 @@
-import { IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
+import { type IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
 import { VertexAttribute } from '../../definitions/VertexAttribute';
 import { PrimitiveMode } from '../../definitions/PrimitiveMode';
 import { Vector3 } from '../../math/Vector3';
-import { Count } from '../../../types/CommonTypes';
+import type { Count } from '../../../types/CommonTypes';
 import { IShape } from './IShape';
-import { PhysicsProperty } from '../../physics/PhysicsProperty';
+import type { PhysicsProperty } from '../../physics/PhysicsProperty';
 import { Logger } from '../../misc/Logger';
 
 /**
