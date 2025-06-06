@@ -84,13 +84,16 @@
     "ZSTD",
     "zstddec"
   ],
-  "eslint.format.enable": true,
   "bookmarks.saveBookmarksInProject": true,
   "nuxt.isNuxtApp": false,
-  "editor.formatOnSave": true, // ファイル保存時にPrettierでフォーマット
+  "editor.formatOnSave": true,
   "[glsl]": {
     "editor.formatOnSave": false
   },
   "editor.defaultFormatter": "biomejs.biome",
-  "notebook.defaultFormatter": "biomejs.biome"
+  "notebook.defaultFormatter": "biomejs.biome",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.biome": "explicit",
+    "source.organizeImports.biome": "explicit"
+  }
 }
