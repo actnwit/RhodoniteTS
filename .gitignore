@@ -7,6 +7,8 @@ vendor/hdrpngts.js
 vendor/hdrpngts.js.map
 samples/**/main.js*
 samples/**/types.js*
+samples/test_e2e/common/testHelpers.js
+samples/test_e2e/common/testHelpers.js.map
 samples/test_e2e/PointLightShadowMap/PointShadowMap.js
 samples/test_e2e/PointLightShadowMap/PointShadowMap.js.map
 samples/test_e2e/MultipleLightsShadowMap/PointShadowMap.js
