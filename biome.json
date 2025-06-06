@@ -57,13 +57,13 @@
         "noUnusedVariables": "off",
         "useExhaustiveDependencies": "off",
         "noUnreachable": "off",
-        "noConstantCondition": "off",
-        "noInvalidUseBeforeDeclaration": "off"
+        "noConstantCondition": "error",
+        "noInvalidUseBeforeDeclaration": "error"
       },
       "suspicious": {
         "noArrayIndexKey": "warn",
         "noExplicitAny": "off",
-        "noConfusingVoidType": "off",
+        "noConfusingVoidType": "error",
         "noPrototypeBuiltins": "error",
         "noImplicitAnyLet": "off",
         "noAsyncPromiseExecutor": "error",
