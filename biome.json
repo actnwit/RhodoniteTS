@@ -64,7 +64,7 @@
         "noArrayIndexKey": "warn",
         "noExplicitAny": "off",
         "noConfusingVoidType": "off",
-        "noPrototypeBuiltins": "off",
+        "noPrototypeBuiltins": "error",
         "noImplicitAnyLet": "off",
         "noAsyncPromiseExecutor": "error",
         "noAssignInExpressions": "error",
