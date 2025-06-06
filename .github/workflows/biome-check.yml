@@ -1,0 +1,38 @@
+name: 'Biome Check'
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+  pull_request:
+    branches:
+      - develop
+      - main
+
+jobs:
+  biome:
+    name: 'Code Quality Check'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Checkout repository'
+        uses: actions/checkout@v4
+
+      - name: 'Setup Node.js'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'yarn'
+
+      - name: 'Install dependencies'
+        run: yarn install
+
+      - name: 'Run Biome linting'
+        run: yarn lint
+
+      - name: 'Run Biome formatting check'
+        run: yarn format
+
+      - name: 'Run Biome comprehensive check'
+        run: yarn check
