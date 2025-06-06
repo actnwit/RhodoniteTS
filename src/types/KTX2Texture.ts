@@ -85,4 +85,4 @@ export type MscTranscoderModule = {
   BasisLzEtc1sImageTranscoder: new () => BasisLzEtc1sImageTranscoder;
 };
 
-export type MSC_TRANSCODER = () => Promise<MscTranscoderModule>;
+export type MSC_TRANSCODER_TYPE = () => Promise<MscTranscoderModule>;

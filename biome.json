@@ -23,13 +23,7 @@
     "indentWidth": 2,
     "lineWidth": 120,
     "lineEnding": "lf",
-    "ignore": [
-      "dist/**",
-      "docs/**",
-      "vendor/**",
-      "assets/**",
-      "**/*.d.ts"
-    ]
+    "ignore": ["dist/**", "docs/**", "vendor/**", "assets/**", "**/*.d.ts"]
   },
   "organizeImports": {
     "enabled": true
@@ -76,16 +70,10 @@
         "noAssignInExpressions": "off",
         "noShadowRestrictedNames": "off",
         "noThenProperty": "off",
-        "noRedeclare": "off"
+        "noRedeclare": "error"
       }
     },
-    "ignore": [
-      "dist/**",
-      "docs/**",
-      "vendor/**",
-      "assets/**",
-      "**/*.d.ts"
-    ]
+    "ignore": ["dist/**", "docs/**", "vendor/**", "assets/**", "**/*.d.ts"]
   },
   "javascript": {
     "formatter": {

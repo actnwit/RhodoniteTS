@@ -1,4 +1,4 @@
-import type { BASIS, BasisTranscoder } from '../../types/BasisTexture';
+import type { BASIS_TYPE, BasisTranscoder } from '../../types/BasisTexture';
 import type { CGAPIResourceHandle, Size, TypedArray } from '../../types/CommonTypes';
 import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import { HdriFormat, type HdriFormatEnum } from '../definitions/HdriFormat';
@@ -9,7 +9,7 @@ import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { SystemState } from '../system/SystemState';
 import { AbstractTexture } from './AbstractTexture';
 
-declare const BASIS: BASIS;
+declare const BASIS: BASIS_TYPE;
 
 type FinalizationRegistryObject = {
   textureResourceUid: CGAPIResourceHandle;
