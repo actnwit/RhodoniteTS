@@ -30,6 +30,7 @@ yarn test
 ```
 
 You can also run only unit tests or a subset of the E2E tests using the commands described in the [README](README.md).
+The E2E test will only pass if the test is run in the library author's environment, so you can submit a PR in a failed state.
 
 ## Submitting pull requests
 
