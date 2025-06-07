@@ -193,7 +193,7 @@ export class VideoTexture extends AbstractTexture {
   ) {
     this.__uri = videoUri;
     this.__startedToLoad = true;
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       const button = playButtonDomElement as HTMLButtonElement | undefined;
 
       const setupTexture = async () => {
@@ -278,8 +278,6 @@ export class VideoTexture extends AbstractTexture {
     if (this.__isTextureReady && this.#htmlVideoElement) {
       webGLResourceRepository.updateTexture(this._textureResourceUid, this.#htmlVideoElement, {
         level: 0,
-        xoffset: 0,
-        yoffset: 0,
         width: this.__width,
         height: this.__height,
         format: PixelFormat.RGBA,

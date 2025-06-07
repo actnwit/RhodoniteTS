@@ -457,7 +457,7 @@ export class Mesh implements IMesh {
       const morphPrimitive = this.__morphPrimitives[i];
       const primitive = this.__primitives[i];
       const target0Attributes = primitive.targets[0];
-      target0Attributes.forEach((accessor, semantic) => {
+      target0Attributes.forEach((_accessor, semantic) => {
         const morphAccessor = morphPrimitive.getAttribute(semantic)!;
         const elementCount = morphAccessor.elementCount;
         for (let j = 0; j < elementCount; j++) {

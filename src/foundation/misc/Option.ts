@@ -124,7 +124,7 @@ export class Some<T> implements IOption<T> {
    * @param f Function that returns an alternative Option (unused)
    * @returns This Some instance cast to the appropriate type
    */
-  orElse<U>(f: () => Option<NonNullable<U>>): Option<NonNullable<U>> {
+  orElse<U>(_f: () => Option<NonNullable<U>>): Option<NonNullable<U>> {
     return this as Option<NonNullable<U>>;
   }
 
@@ -149,7 +149,7 @@ export class Some<T> implements IOption<T> {
    * @param altValue The default value (unused)
    * @returns The contained value
    */
-  unwrapOrDefault(altValue: NonNullable<T>): NonNullable<T> {
+  unwrapOrDefault(_altValue: NonNullable<T>): NonNullable<T> {
     return this.value;
   }
 
@@ -160,7 +160,7 @@ export class Some<T> implements IOption<T> {
    * @param f Function that returns a default value (unused)
    * @returns The contained value
    */
-  unwrapOrElse(f: () => NonNullable<T>): NonNullable<T> {
+  unwrapOrElse(_f: () => NonNullable<T>): NonNullable<T> {
     return this.value;
   }
 
@@ -226,7 +226,7 @@ export class None implements IOption<never> {
    * @param f Function to apply (unused)
    * @returns This None instance
    */
-  andThen<U>(f: (value: never) => Option<NonNullable<U>>): Option<NonNullable<U>> {
+  andThen<U>(_f: (value: never) => Option<NonNullable<U>>): Option<NonNullable<U>> {
     return this;
   }
 

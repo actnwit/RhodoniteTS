@@ -311,11 +311,9 @@ bool get_isBillboard(float instanceId) {
       const floatDataTextureBuffer = new Float32Array(concatArrayBuffer);
 
       this.__dataTextureUid = this.__webglResourceRepository.createTextureFromTypedArray(floatDataTextureBuffer, {
-        level: 0,
         internalFormat: TextureFormat.RGBA32F,
         width: MemoryManager.bufferWidthLength,
         height: MemoryManager.bufferHeightLength,
-        border: 0,
         format: PixelFormat.RGBA,
         type: ComponentType.Float,
         generateMipmap: false,
@@ -330,7 +328,7 @@ bool get_isBillboard(float instanceId) {
    *
    * @param primitive - The primitive to attach GPU data for
    */
-  attachGPUData(primitive: Primitive): void {}
+  attachGPUData(_primitive: Primitive): void {}
 
   /**
    * Attaches vertex data for rendering.
@@ -343,10 +341,10 @@ bool get_isBillboard(float instanceId) {
    * @param instanceIDBufferUid - Instance ID buffer handle (unused in uniform strategy)
    */
   attachVertexData(
-    i: number,
-    primitive: Primitive,
-    glw: WebGLContextWrapper,
-    instanceIDBufferUid: WebGLResourceHandle
+    _i: number,
+    _primitive: Primitive,
+    _glw: WebGLContextWrapper,
+    _instanceIDBufferUid: WebGLResourceHandle
   ) {}
 
   /**
@@ -556,7 +554,7 @@ bool get_isBillboard(float instanceId) {
     primitiveUid: PrimitiveUID,
     glw: WebGLContextWrapper,
     renderPass: RenderPass,
-    renderPassTickCount: Count
+    _renderPassTickCount: Count
   ) {
     const gl = glw.getRawContext();
     const primitive = Primitive.getPrimitive(primitiveUid);

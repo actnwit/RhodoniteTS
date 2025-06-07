@@ -173,4 +173,5 @@ export const WebGLExtension = Object.freeze({
   OvrMultiview2,
   GMAN_WEBGL_MEMORY,
   ClipControl,
+  from,
 });

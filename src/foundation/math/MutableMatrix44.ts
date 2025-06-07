@@ -7,10 +7,6 @@ import type { MutableVector3 } from './MutableVector3';
 import type { Quaternion } from './Quaternion';
 import type { Vector3 } from './Vector3';
 
-/* eslint-disable prettier/prettier */
-const FloatArray = Float32Array;
-type FloatArray = Float32Array;
-
 /**
  * A mutable 4x4 matrix class that extends the immutable Matrix44 class.
  *
@@ -690,7 +686,9 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
   }
 
   _swap(l: Index, r: Index) {
-    this._v[r] = [this._v[l], (this._v[l] = this._v[r])][0];
+    const temp = this._v[l];
+    this._v[l] = this._v[r];
+    this._v[r] = temp;
   }
 
   /**

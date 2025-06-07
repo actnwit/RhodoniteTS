@@ -272,7 +272,7 @@ export class CameraComponent extends Component {
    * @param noUseVec - The vector to set (not used)
    * @throws Always throws an error as eye positioning should use TransformComponent
    */
-  set eye(noUseVec: Vector3) {
+  set eye(_noUseVec: Vector3) {
     throw Error('In Rhodonite, eye is always (0,0,0). Use TransformComponent for Camera positioning.');
   }
 
@@ -351,7 +351,7 @@ export class CameraComponent extends Component {
     );
     const isOrthogonalNewDirectionAndOldUp = orthogonalVectorNewDirectionAndOldUp.length() === 0.0;
 
-    let newUpNonNormalize;
+    let newUpNonNormalize: MutableVector3;
     if (isOrthogonalNewDirectionAndOldUp) {
       const relativeXaxis = MutableVector3.crossTo(oldDirection, oldUp, CameraComponent.__tmpVector3_1);
       newUpNonNormalize = MutableVector3.crossTo(relativeXaxis, newDirection, CameraComponent.__tmpVector3_2);

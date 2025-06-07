@@ -223,55 +223,6 @@ for (const meshRendererComponent of meshRendererComponents) {
   );
 }
 
-const createEntityEnvironmentCube = () => {
-  panoramaToCubeRenderTargetCube.hdriFormat = Rn.HdriFormat.HDR_LINEAR;
-
-  const materialSphere = Rn.MaterialHelper.createEnvConstantMaterial({
-    makeOutputSrgb: false,
-  });
-  materialSphere.setParameter('envHdriFormat', Rn.HdriFormat.HDR_LINEAR.index);
-  const sampler = new Rn.Sampler({
-    wrapS: Rn.TextureParameter.ClampToEdge,
-    wrapT: Rn.TextureParameter.ClampToEdge,
-    minFilter: Rn.TextureParameter.Linear,
-    magFilter: Rn.TextureParameter.Linear,
-  });
-  materialSphere.setTextureParameter(
-    'colorEnvTexture',
-    panoramaToCubeRenderTargetCube,
-    // diffuseIblRenderTargetCube,
-    // specularIblRenderTargetCube,
-    sampler
-  );
-
-  const primitiveSphere = new Rn.Sphere();
-  primitiveSphere.generate({
-    radius: 2500,
-    widthSegments: 40,
-    heightSegments: 40,
-    material: materialSphere,
-  });
-  const meshSphere = new Rn.Mesh();
-  meshSphere.addPrimitive(primitiveSphere);
-
-  const entitySphere = Rn.createMeshEntity();
-  const meshComponentSphere = entitySphere.getMesh();
-  meshComponentSphere.setMesh(meshSphere);
-
-  entitySphere.getTransform().localScale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
-  entitySphere.getTransform().localPosition = Rn.Vector3.fromCopyArray([0, 0, 0]);
-
-  const expression = new Rn.Expression();
-  const renderPass = new Rn.RenderPass();
-  renderPass.addEntities([entitySphere]);
-  renderPass.cameraComponent = cameraComponent;
-  expression.addRenderPasses([renderPass]);
-
-  return expression;
-};
-
-// const debugExpression = createEntityEnvironmentCube();
-
 Rn.System.startRenderLoop(() => {
   if (!window._rendered && count > 0) {
     window._rendered = true;

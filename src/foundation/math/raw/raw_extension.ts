@@ -453,10 +453,12 @@ declare global {
     [normalizeArray4](this: Array4<number>): Array4<number>;
   }
 
+  // biome-ignore lint/correctness/noUnusedVariables: <explanation>
   interface Array<T> extends Extension {}
   // interface Array2<T> extends Extension {}
   // interface Array3<T> extends Extension {}
   // interface Array4<T> extends Extension {}
+  // biome-ignore lint/correctness/noUnusedVariables: <explanation>
   interface ReadonlyArray<T> extends Extension {}
   interface Float32Array extends Extension {}
 }
@@ -811,7 +813,7 @@ const qlerp_offsetAsComposition_fn = function (
     let theta = Math.acos(dotProduct);
     const sinTheta = Math.sin(theta);
 
-    let s2;
+    let s2: number;
     if (dotProduct < 0.0) {
       dotProduct *= -1;
       theta = Math.acos(dotProduct);

@@ -175,4 +175,4 @@ export type ComponentToComponentMethods<T extends typeof Component> = IsThisCons
   >
 >;
 
-type Foo = ComponentToComponentMethods<typeof TransformComponent>;
+type _Foo = ComponentToComponentMethods<typeof TransformComponent>;

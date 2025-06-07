@@ -76,8 +76,8 @@ export type WebGpuResource =
 type RenderPipelineId = string;
 type RenderPassUid = number;
 
-const IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT = 16;
-const IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT = 17;
+const _IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT = 16;
+const _IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT = 17;
 
 type DRAW_PARAMETERS_IDENTIFIER = string;
 
@@ -237,22 +237,14 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   public async createTextureFromImageBitmapData(
     imageData: ImageBitmapData,
     {
-      level,
       internalFormat,
       width,
       height,
-      border,
-      format,
-      type,
       generateMipmap,
     }: {
-      level: Index;
       internalFormat: TextureParameterEnum;
       width: Size;
       height: Size;
-      border: Size;
-      format: PixelFormatEnum;
-      type: ComponentTypeEnum;
       generateMipmap: boolean;
     }
   ): Promise<WebGPUResourceHandle> {
@@ -267,29 +259,17 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    *
    * @param dataUri - The data URI string containing the image data
    * @param params - Configuration object containing texture parameters
-   * @param params.level - Mipmap level (typically 0 for base level)
    * @param params.internalFormat - Internal format of the texture
-   * @param params.border - Border width (must be 0 for WebGPU)
-   * @param params.format - Pixel format of the source data
-   * @param params.type - Component type of the source data
    * @param params.generateMipmap - Whether to generate mipmaps automatically
    * @returns Promise that resolves to the texture resource handle
    */
   async createTextureFromDataUri(
     dataUri: string,
     {
-      level,
       internalFormat,
-      border,
-      format,
-      type,
       generateMipmap,
     }: {
-      level: Index;
       internalFormat: TextureParameterEnum;
-      border: Size;
-      format: PixelFormatEnum;
-      type: ComponentTypeEnum;
       generateMipmap: boolean;
     }
   ): Promise<WebGPUResourceHandle> {
@@ -303,13 +283,9 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         const height = img.height;
 
         const texture = await this.createTextureFromHTMLImageElement(img, {
-          level,
           internalFormat,
           width,
           height,
-          border,
-          format,
-          type,
           generateMipmap,
         });
 
@@ -373,8 +349,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     textureHandle: WebGPUResourceHandle,
     width: number,
     height: number,
-    frameBufferUid: WebGPUResourceHandle,
-    colorAttachmentIndex: number
+    _frameBufferUid: WebGPUResourceHandle,
+    _colorAttachmentIndex: number
   ): Promise<Uint8Array> {
     const gpuTexture = this.__webGpuResources.get(textureHandle) as GPUTexture;
     const textureData = new Uint8Array(width * height * 4);
@@ -598,8 +574,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @param params.wrapT - Wrapping mode for T (V) texture coordinate
    * @param params.wrapR - Wrapping mode for R (W) texture coordinate
    * @param params.anisotropy - Whether to enable anisotropic filtering
-   * @param params.isPremultipliedAlpha - Whether the texture has premultiplied alpha (optional)
-   * @param params.shadowCompareMode - Whether to enable shadow comparison mode
    * @returns Handle to the created sampler resource
    */
   createTextureSampler({
@@ -609,8 +583,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     wrapT,
     wrapR,
     anisotropy,
-    isPremultipliedAlpha,
-    shadowCompareMode,
   }: {
     magFilter: TextureParameterEnum;
     minFilter: TextureParameterEnum;
@@ -618,8 +590,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     wrapT: TextureParameterEnum;
     wrapR: TextureParameterEnum;
     anisotropy: boolean;
-    isPremultipliedAlpha?: boolean;
-    shadowCompareMode: boolean;
   }): WebGPUResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const maxAnisotropy = anisotropy ? 4 : 1;
@@ -811,7 +781,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @returns Object containing buffer handles and attribute flags
    */
   createVertexBufferAndIndexBuffer(primitive: Primitive): VertexHandles {
-    let iboHandle;
+    let iboHandle: WebGPUResourceHandle;
     if (primitive.hasIndices()) {
       iboHandle = this.createIndexBuffer(primitive.indicesAccessor!);
     }
@@ -830,7 +800,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
 
     return {
       vaoHandle: -1,
-      iboHandle: iboHandle,
+      iboHandle: iboHandle!,
       vboHandles: vboHandles,
       attributesFlags: attributesFlags,
       setComplete: false,
@@ -882,24 +852,16 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * This method sets up vertex buffer layouts including both per-vertex and per-instance data.
    *
    * @param bufferHandles - Object containing vertex array object, index buffer, and vertex buffer handles
-   * @param bufferHandles.vaoHandle - Handle to the vertex array object
-   * @param bufferHandles.iboHandle - Handle to the index buffer (optional)
    * @param bufferHandles.vboHandles - Array of vertex buffer handles
    * @param primitive - The primitive containing vertex attribute information
-   * @param instanceIDBufferUid - Handle to the instance ID buffer for instanced rendering
    */
   setVertexDataToPipeline(
     {
-      vaoHandle,
-      iboHandle,
       vboHandles,
     }: {
-      vaoHandle: WebGPUResourceHandle;
-      iboHandle?: WebGPUResourceHandle;
       vboHandles: Array<WebGPUResourceHandle>;
     },
-    primitive: Primitive,
-    instanceIDBufferUid: WebGPUResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid
+    primitive: Primitive
   ) {
     const buffers: GPUVertexBufferLayout[] = [];
 
@@ -924,7 +886,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     };
 
     /// Instance Buffer
-    const instanceIDBuffer = this.__webGpuResources.get(instanceIDBufferUid) as GPUBuffer;
     buffers[1] = {
       stepMode: 'instance',
       attributes: [
@@ -951,12 +912,13 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     Logger.info(`MaterialTypeName: ${materialTypeName}`);
     const lineNumberedShaderText = MiscUtil.addLineNumberToCode(shaderText);
     Logger.info(lineNumberedShaderText);
+    let isOk = true;
     for (let i = 0; i < info.messages.length; i++) {
       Logger.info(info.messages[i].message);
-      return false;
+      isOk = false;
     }
 
-    return true;
+    return isOk;
   }
 
   /**
@@ -965,30 +927,18 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    *
    * @param params - Configuration object for shader creation
    * @param params.material - The material that will use these shaders
-   * @param params.primitive - The primitive that will be rendered with these shaders
    * @param params.vertexShaderStr - WGSL vertex shader source code
    * @param params.fragmentShaderStr - WGSL fragment shader source code
-   * @param params.attributeNames - Names of vertex attributes
-   * @param params.attributeSemantics - Semantic meanings of vertex attributes
-   * @param params.onError - Optional error callback function
    * @returns Handle to the shader program containing both modules
    */
   createShaderProgram({
     material,
-    primitive,
     vertexShaderStr,
     fragmentShaderStr,
-    attributeNames,
-    attributeSemantics,
-    onError,
   }: {
     material: Material;
-    primitive: Primitive;
     vertexShaderStr: string;
     fragmentShaderStr: string;
-    attributeNames: AttributeNames;
-    attributeSemantics: VertexAttributeEnum[];
-    onError?: (message: string) => void;
   }) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const vsModule = gpuDevice.createShaderModule({
@@ -1041,7 +991,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       return;
     }
 
-    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const context = this.__webGpuDeviceWrapper!.context;
     const colorAttachments: GPURenderPassColorAttachment[] = [];
     let depthStencilAttachment: GPURenderPassDepthStencilAttachment | undefined;
@@ -1130,8 +1079,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       return;
     }
 
-    let meshRendererComponentSid = -1;
-    let meshRendererComponentUpdateCount = -1;
     let meshRendererComponentFingerPrint = '';
     let diffuseCubeMap: CubeTexture | RenderTargetTextureCube | undefined;
     let specularCubeMap: CubeTexture | RenderTargetTextureCube | undefined;
@@ -1149,8 +1096,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           specularCube: meshRendererComponent.specularCubeMap,
         },
       });
-      meshRendererComponentSid = meshRendererComponent.componentSID;
-      meshRendererComponentUpdateCount = meshRendererComponent.updateCount;
       diffuseCubeMap = meshRendererComponent.diffuseCubeMap;
       specularCubeMap = meshRendererComponent.specularCubeMap;
       sheenCubeMap = meshRendererComponent.sheenCubeMap;
@@ -1166,7 +1111,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       this.__createBindGroup(bindGroupId, material, diffuseCubeMap, specularCubeMap, sheenCubeMap);
     }
 
-    const [pipeline, recreated] = this.getOrCreateRenderPipeline(
+    const [pipeline, _recreated] = this.getOrCreateRenderPipeline(
       renderPipelineId,
       bindGroupId,
       primitive,
@@ -1447,9 +1392,9 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     material: Material,
     renderPass: RenderPass,
     zWrite: boolean,
-    diffuseCubeMap?: CubeTexture | RenderTargetTextureCube,
-    specularCubeMap?: CubeTexture | RenderTargetTextureCube,
-    sheenCubeMap?: CubeTexture | RenderTargetTextureCube
+    _diffuseCubeMap?: CubeTexture | RenderTargetTextureCube,
+    _specularCubeMap?: CubeTexture | RenderTargetTextureCube,
+    _sheenCubeMap?: CubeTexture | RenderTargetTextureCube
   ): [GPURenderPipeline, boolean] {
     if (this.__webGpuRenderPipelineMap.has(renderPipelineId)) {
       const materialStateVersion = this.__materialStateVersionMap.get(renderPipelineId);
@@ -1733,7 +1678,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       let images: HTMLImageElement[] | HTMLCanvasElement[];
       try {
         images = await loadOneLevel();
-      } catch (e) {
+      } catch (_e) {
         // Try again once
         try {
           images = await loadOneLevel();
@@ -1934,8 +1879,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     arrayLength: Size,
     mipLevelCount: Size,
     internalFormat: TextureFormatEnum,
-    format: PixelFormatEnum,
-    type: ComponentTypeEnum,
+    _format: PixelFormatEnum,
+    _type: ComponentTypeEnum,
     imageData: TypedArray
   ): WebGPUResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
@@ -2547,22 +2492,14 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   async createTextureFromHTMLImageElement(
     imageData: HTMLImageElement,
     {
-      level,
       internalFormat,
       width,
       height,
-      border,
-      format,
-      type,
       generateMipmap,
     }: {
-      level: Index;
       internalFormat: TextureParameterEnum;
       width: Size;
       height: Size;
-      border: Size;
-      format: PixelFormatEnum;
-      type: ComponentTypeEnum;
       generateMipmap: boolean;
     }
   ): Promise<WebGPUResourceHandle> {
@@ -2576,21 +2513,9 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   /**
    * create CompressedTextureFromBasis
    * @param basisFile
-   * @param param1
    * @returns
    */
-  createCompressedTextureFromBasis(
-    basisFile: BasisFile,
-    {
-      border,
-      format,
-      type,
-    }: {
-      border: Size;
-      format: PixelFormatEnum;
-      type: ComponentTypeEnum;
-    }
-  ): WebGPUResourceHandle {
+  createCompressedTextureFromBasis(basisFile: BasisFile): WebGPUResourceHandle {
     let basisCompressionType: BasisCompressionTypeEnum;
     let compressionType: GPUTextureFormat | undefined;
     const mipmapDepth = basisFile.getNumLevels(0);
@@ -3027,28 +2952,19 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @param params - Configuration for the render target texture array
    * @param params.width - Width of each texture layer in pixels
    * @param params.height - Height of each texture layer in pixels
-   * @param params.level - Mipmap level (typically 0)
    * @param params.internalFormat - Internal format of the texture
-   * @param params.format - Pixel format of the data
-   * @param params.type - Component type of the data
    * @param params.arrayLength - Number of texture layers in the array
    * @returns Handle to the created render target texture array resource
    */
   createRenderTargetTextureArray({
     width,
     height,
-    level,
     internalFormat,
-    format,
-    type,
     arrayLength,
   }: {
     width: Size;
     height: Size;
-    level: Index;
     internalFormat: TextureParameterEnum;
-    format: PixelFormatEnum;
-    type: ComponentTypeEnum;
     arrayLength: Count;
   }): WebGPUResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
@@ -3168,7 +3084,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @param toTexture
    */
   copyTextureData(fromTexture: WebGPUResourceHandle, toTexture: WebGPUResourceHandle) {
-    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const from = this.__webGpuResources.get(fromTexture) as GPUTexture;
     const to = this.__webGpuResources.get(toTexture) as GPUTexture;
     if (this.__renderPassEncoder != null) {
@@ -3190,7 +3105,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   }
 
   isMippmappedTexture(textureHandle: WebGPUResourceHandle): boolean {
-    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
     if (texture.mipLevelCount > 1) {
       return true;
@@ -3241,21 +3155,21 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @param framebuffer a Framebuffer
    * @param renderable a DepthBuffer
    */
-  attachDepthBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable): void {}
+  attachDepthBufferToFrameBufferObject(_framebuffer: FrameBuffer, _renderable: IRenderable): void {}
 
   /**
    * attach the StencilBuffer to the FrameBufferObject
    * @param framebuffer a Framebuffer
    * @param renderable a StencilBuffer
    */
-  attachStencilBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable): void {}
+  attachStencilBufferToFrameBufferObject(_framebuffer: FrameBuffer, _renderable: IRenderable): void {}
 
   /**
    * attach the depthStencilBuffer to the FrameBufferObject
    * @param framebuffer a Framebuffer
    * @param renderable a depthStencilBuffer
    */
-  attachDepthStencilBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable): void {}
+  attachDepthStencilBufferToFrameBufferObject(_framebuffer: FrameBuffer, _renderable: IRenderable): void {}
 
   /**
    * create a FrameBufferObject
@@ -3269,7 +3183,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * delete a FrameBufferObject
    * @param frameBufferObjectHandle
    */
-  deleteFrameBufferObject(frameBufferObjectHandle: WebGPUResourceHandle): void {}
+  deleteFrameBufferObject(_frameBufferObjectHandle: WebGPUResourceHandle): void {}
 
   /**
    * attach the ColorBuffer to the FrameBufferObject
@@ -3277,7 +3191,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @param attachmentIndex a attachment index
    * @param renderable a ColorBuffer
    */
-  attachColorBufferToFrameBufferObject(framebuffer: FrameBuffer, attachmentIndex: Index, renderable: IRenderable) {
+  attachColorBufferToFrameBufferObject(_framebuffer: FrameBuffer, _attachmentIndex: Index, _renderable: IRenderable) {
     return;
   }
 
@@ -3290,11 +3204,11 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @param mipLevel a mip level
    */
   attachColorBufferLayerToFrameBufferObject(
-    framebuffer: FrameBuffer,
-    attachmentIndex: Index,
-    renderable: IRenderable,
-    layerIndex: Index,
-    mipLevel: Index
+    _framebuffer: FrameBuffer,
+    _attachmentIndex: Index,
+    _renderable: IRenderable,
+    _layerIndex: Index,
+    _mipLevel: Index
   ) {
     return;
   }
@@ -3308,11 +3222,11 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @param renderable a ColorBuffer
    */
   attachColorBufferCubeToFrameBufferObject(
-    framebuffer: FrameBuffer,
-    attachmentIndex: Index,
-    faceIndex: Index,
-    mipLevel: Index,
-    renderable: IRenderable
+    _framebuffer: FrameBuffer,
+    _attachmentIndex: Index,
+    _faceIndex: Index,
+    _mipLevel: Index,
+    _renderable: IRenderable
   ) {}
 
   /**
@@ -3469,7 +3383,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    *
    * @param viewport - Optional viewport rectangle (x, y, width, height)
    */
-  setViewport(viewport?: Vector4) {}
+  setViewport(_viewport?: Vector4) {}
 
   /**
    * Checks if the implementation supports multi-view VR rendering.

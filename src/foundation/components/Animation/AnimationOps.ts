@@ -211,7 +211,7 @@ export function __getOutputValue(keyFrameId: Index, sampler: AnimationSampler, a
  * @param currentTime - Time value to search for
  * @returns Index of the keyframe at or before the current time
  */
-function binarySearch(inputArray: Float32Array, currentTime: number) {
+function _binarySearch(inputArray: Float32Array, currentTime: number) {
   let low = 0;
   let high = inputArray.length - 1;
   let mid = 0;
@@ -243,7 +243,7 @@ function binarySearch(inputArray: Float32Array, currentTime: number) {
  * @param currentTime - Time value to search for
  * @returns Index of the keyframe at or before the current time
  */
-function bruteForceSearch(inputArray: Float32Array, currentTime: number) {
+function _bruteForceSearch(inputArray: Float32Array, currentTime: number) {
   for (let i = 0; i < inputArray.length; i++) {
     if (inputArray[i] <= currentTime && currentTime < inputArray[i + 1]) {
       return i;

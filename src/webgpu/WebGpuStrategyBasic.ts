@@ -215,7 +215,7 @@ fn get_isBillboard(instanceId: u32) -> bool {
       Logger.error('Could not get the location offset of the property.');
     }
 
-    let indexStr;
+    let indexStr: string;
     let instanceSize = vec4SizeOfProperty;
     indexStr = `  let vec4_idx: u32 = ${offsetOfProperty}u + ${instanceSize}u * instanceId;\n`;
     if (CompositionType.isArray(info.compositionType)) {
@@ -504,7 +504,7 @@ ${indexStr}
    * @param renderPassTickCount - Current tick count for animation and timing purposes
    * @returns True if any primitives were successfully rendered
    */
-  common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, renderPassTickCount: number): boolean {
+  common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, _renderPassTickCount: number): boolean {
     if (renderPass.isBufferLessRenderingMode()) {
       this.__renderWithoutBuffers(renderPass);
       return true;

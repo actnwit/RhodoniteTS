@@ -374,7 +374,7 @@ export class WebARSystem {
    * @param time - The current time timestamp
    * @param xrFrame - The XR frame object containing pose and view data
    */
-  _preRender(time: number, xrFrame: XRFrame) {
+  _preRender(_time: number, xrFrame: XRFrame) {
     if (this.isWebARMode && this.__requestedToEnterWebAR && xrFrame != null) {
       this.__updateView(xrFrame);
     }
@@ -388,7 +388,6 @@ export class WebARSystem {
    */
   _postRender() {
     if (this.isWebARMode) {
-      const gl = this.__oGlw.unwrapForce().getRawContext();
       // gl?.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
     if (this.requestedToEnterWebAR) {

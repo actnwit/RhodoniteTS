@@ -75,7 +75,7 @@ test('take BufferView and Accessor, but the count is too much', () => {
     .unwrapForce();
 
   try {
-    const accessor = bufferView!
+    const _accessor = bufferView!
       .takeAccessor({
         compositionType,
         componentType,
@@ -95,7 +95,7 @@ test('take BufferView, but the byteLength is too much', () => {
   const buffer = createBuffer(bytes * count);
 
   try {
-    const bufferView = buffer
+    const _bufferView = buffer
       .takeBufferView({
         byteLengthToNeed: bytes * count + 1,
         byteStride: 0,

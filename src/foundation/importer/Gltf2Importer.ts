@@ -36,24 +36,14 @@ export class Gltf2Importer {
    * ```
    */
   public static async importFromUrl(url: string, options?: GltfLoadOption): Promise<RnM2> {
-    const promise = new Promise<RnM2>(async (resolve, reject) => {
-      const r_arrayBuffer = await DataUtil.fetchArrayBuffer(url);
+    const r_arrayBuffer = await DataUtil.fetchArrayBuffer(url);
 
-      if (r_arrayBuffer.isErr()) {
-        reject(r_arrayBuffer.getRnError());
-        return;
-      }
+    if (r_arrayBuffer.isErr()) {
+      throw r_arrayBuffer.getRnError();
+    }
 
-      const result = await this._importGltfOrGlbFromArrayBuffers(
-        r_arrayBuffer.get(),
-        options?.files ?? {},
-        options,
-        url
-      );
-      resolve(result.unwrapForce());
-    });
-
-    return promise;
+    const result = await this._importGltfOrGlbFromArrayBuffers(r_arrayBuffer.get(), options?.files ?? {}, options, url);
+    return result.unwrapForce();
   }
 
   /**
@@ -75,20 +65,15 @@ export class Gltf2Importer {
    * ```
    */
   public static async importFromArrayBuffers(files: GltfFileBuffers, options?: GltfLoadOption): Promise<RnM2> {
-    const promise = new Promise<RnM2>(async (resolve, reject) => {
-      for (const fileName in files) {
-        const fileExtension = DataUtil.getExtension(fileName);
+    for (const fileName in files) {
+      const fileExtension = DataUtil.getExtension(fileName);
 
-        if (fileExtension === 'gltf' || fileExtension === 'glb') {
-          const result = await this._importGltfOrGlbFromArrayBuffers(files[fileName], files, options);
-          resolve(result.unwrapForce());
-          return;
-        }
+      if (fileExtension === 'gltf' || fileExtension === 'glb') {
+        const result = await this._importGltfOrGlbFromArrayBuffers(files[fileName], files, options);
+        return result.unwrapForce();
       }
-      reject(new Error('no gltf or glb file found'));
-    });
-
-    return promise;
+    }
+    throw new Error('no gltf or glb file found');
   }
 
   /**
@@ -120,7 +105,7 @@ export class Gltf2Importer {
       try {
         const gltfJson = await this._importGltf(json, otherFiles, options!, uri);
         return new Ok(gltfJson);
-      } catch (err) {
+      } catch {
         return new Err({
           message: 'this.__importGltf error',
           error: undefined,
@@ -130,7 +115,7 @@ export class Gltf2Importer {
       try {
         const gltfJson = await this._importGlb(arrayBuffer, otherFiles, options!);
         return new Ok(gltfJson);
-      } catch (err) {
+      } catch {
         return new Err({
           message: 'this.importGlb error',
           error: undefined,
@@ -669,7 +654,9 @@ export class Gltf2Importer {
     // Texture
     if (gltfJson.textures) {
       for (const texture of gltfJson.textures) {
-        ifDefinedThen(v => (texture.samplerObject = gltfJson.samplers[v]), texture.sampler);
+        ifDefinedThen(v => {
+          texture.samplerObject = gltfJson.samplers[v];
+        }, texture.sampler);
 
         if (texture.extensions?.KHR_texture_basisu?.source != null) {
           texture.extensions.KHR_texture_basisu.fallbackSourceIndex = texture.source;
@@ -835,7 +822,7 @@ export class Gltf2Importer {
     uint8ArrayOfGlb: Uint8Array,
     gltfJson: RnM2,
     files: GltfFileBuffers,
-    options: GltfLoadOption,
+    _options: GltfLoadOption,
     basePath?: string,
     callback?: RnPromiseCallback
   ) {
@@ -936,7 +923,7 @@ export class Gltf2Importer {
         const splitUri = imageFileStr.split('/');
         const filename = splitUri[splitUri.length - 1];
 
-        let imageUri;
+        let imageUri: string;
         if (files && this.__containsFileName(files, filename)) {
           const fullPath = this.__getFullPathOfFileName(files, filename);
           const arrayBuffer = files[fullPath!];

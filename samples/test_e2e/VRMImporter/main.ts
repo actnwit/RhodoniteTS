@@ -55,7 +55,7 @@ Rn.System.startRenderLoop(() => {
 
   if (window.isAnimating) {
     const date = new Date();
-    const rotation = 0.001 * (date.getTime() - startTime);
+    const _rotation = 0.001 * (date.getTime() - startTime);
     //rotationVec3._v[0] = 0.1;
     //rotationVec3._v[1] = rotation;
     //rotationVec3._v[2] = 0.1;

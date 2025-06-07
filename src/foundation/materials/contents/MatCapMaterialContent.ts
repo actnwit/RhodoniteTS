@@ -38,7 +38,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
   constructor(materialName: string, isSkinning: boolean, uri?: string, texture?: AbstractTexture, sampler?: Sampler) {
     super(materialName, { isSkinning: isSkinning }, MatCapShaderVertex, MatCapShaderFragment);
 
-    let matCapTexture;
+    let matCapTexture: any;
     if (typeof uri === 'string') {
       matCapTexture = new Texture();
       (async (uri: string) => {
@@ -108,20 +108,14 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
    * including world transformations, camera settings, and skeletal animation support.
    *
    * @param params - Configuration object containing rendering parameters
-   * @param params.material - The material instance being rendered
    * @param params.shaderProgram - The WebGL shader program to configure
-   * @param params.firstTime - Whether this is the first time setting these parameters
    * @param params.args - WebGL rendering arguments containing matrices, camera, and entity data
    */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
-    material,
     shaderProgram,
-    firstTime,
     args,
   }: {
-    material: Material;
     shaderProgram: WebGLProgram;
-    firstTime: boolean;
     args: RenderingArgWebGL;
   }) {
     if (args.setUniform) {

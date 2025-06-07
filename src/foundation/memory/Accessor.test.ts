@@ -1,6 +1,7 @@
 import type { Byte } from '../../types/CommonTypes';
 import { ComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
+import type { Accessor } from './Accessor';
 import { Buffer } from './Buffer';
 
 function createBuffer(byteSize: Byte) {
@@ -43,7 +44,7 @@ test('The range of the accessor exceeds the range of the buffer view', () => {
       byteStride: 0,
     })
     .unwrapForce();
-  let accessor = null;
+  let accessor: Accessor | null = null;
   try {
     accessor = bufferView!
       .takeAccessor({
@@ -52,7 +53,7 @@ test('The range of the accessor exceeds the range of the buffer view', () => {
         count: 2,
       })
       .unwrapForce();
-    const typedArray = accessor.takeOne() as Float32Array;
+    const _typedArray = accessor.takeOne() as Float32Array;
   } catch {}
   expect(accessor).toBe(null);
 });
@@ -79,7 +80,7 @@ test('In SoA mode, data can be written in the correct position.', () => {
       count: 2,
     })
     .unwrapForce();
-  const accessor2 = bufferView!
+  const _accessor2 = bufferView!
     .takeAccessor({
       compositionType: CompositionType.Vec2,
       componentType: ComponentType.Float,
@@ -121,7 +122,7 @@ test.skip('In AoS mode, data can be written in the correct position.', () => {
       count: 2,
     })
     .unwrapForce();
-  const accessor2 = bufferView!
+  const _accessor2 = bufferView!
     .takeAccessor({
       compositionType: CompositionType.Vec2,
       componentType: ComponentType.Float,

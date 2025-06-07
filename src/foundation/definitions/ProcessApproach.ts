@@ -86,5 +86,6 @@ export const ProcessApproach = Object.freeze({
   Uniform,
   DataTexture,
   WebGPU,
+  from,
   isWebGL2Approach,
 });

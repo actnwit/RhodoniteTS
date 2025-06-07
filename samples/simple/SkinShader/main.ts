@@ -89,9 +89,8 @@ const load = async () => {
 
   Rn.CameraComponent.current = 0;
   let startTime = Date.now();
-  const rotationVec3 = Rn.MutableVector3.one();
   let count = 0;
-  const draw = time => {
+  const draw = () => {
     if (p == null && count > 0) {
       p = document.createElement('p');
       p.setAttribute('id', 'rendered');
@@ -101,10 +100,6 @@ const load = async () => {
 
     if (window.isAnimating) {
       const date = new Date();
-      const rotation = 0.001 * (date.getTime() - startTime);
-      //rotationVec3.v[0] = 0.1;
-      //rotationVec3.v[1] = rotation;
-      //rotationVec3.v[2] = 0.1;
       const time = (date.getTime() - startTime) / 1000;
       Rn.AnimationComponent.globalTime = time;
       if (time > Rn.AnimationComponent.endInputValue) {
@@ -121,7 +116,7 @@ const load = async () => {
     requestAnimationFrame(draw);
   };
 
-  draw(0);
+  draw();
 };
 
 load();

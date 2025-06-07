@@ -206,5 +206,5 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
    * @param faceIdx - Index of the cube face (0-5)
    * @param mipLevel - Mip level to create the view for
    */
-  createCubeTextureViewAsRenderTarget(faceIdx: Index, mipLevel: Index): void {}
+  createCubeTextureViewAsRenderTarget(_faceIdx: Index, _mipLevel: Index): void {}
 }

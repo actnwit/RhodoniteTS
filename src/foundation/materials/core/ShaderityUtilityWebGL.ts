@@ -337,7 +337,14 @@ export class ShaderityUtilityWebGL {
       }
     };
 
-    let initialValue;
+    let initialValue:
+      | MutableScalar
+      | MutableVector2
+      | MutableVector3
+      | MutableVector4
+      | MutableMatrix33
+      | MutableMatrix44
+      | any[];
     if (tuple) {
       const text = tuple[1];
       const split = text.split(',');
@@ -433,7 +440,7 @@ export class ShaderityUtilityWebGL {
       }
     }
 
-    return initialValue;
+    return initialValue!;
   }
 
   /**

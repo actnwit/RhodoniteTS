@@ -90,7 +90,7 @@ export function detectFormatByUri(uri: string): string {
  * directly from the header. For regular glTF files, it parses the JSON to extract
  * the version from the asset.version field.
  */
-function checkVersionOfGltf(arrayBuffer: ArrayBuffer) {
+export function checkVersionOfGltf(arrayBuffer: ArrayBuffer) {
   const isLittleEndian = true;
 
   const dataView = new DataView(arrayBuffer, 0, 20);

@@ -57,7 +57,7 @@ export class VrmImporter {
     const existOutline = this.__initializeMToonMaterialProperties(gltfModel, textures.length);
 
     // get rootGroup
-    let rootGroup;
+    let rootGroup: ISceneGraphEntity;
     if (existOutline) {
       renderPasses[1] = renderPasses[1] ?? new RenderPass();
       const renderPassOutline = renderPasses[1];
@@ -402,7 +402,7 @@ export class VrmImporter {
    * @param texturesLength - The number of textures in the model
    * @returns True if any material requires outline rendering, false otherwise
    */
-  private static __initializeMToonMaterialProperties(gltfModel: RnM2, texturesLength: number): boolean {
+  private static __initializeMToonMaterialProperties(gltfModel: RnM2, _texturesLength: number): boolean {
     let isOutline = false;
     for (const material of gltfModel.materials) {
       const mtoonMaterial: Vrm1_Materials_MToon = material.extensions?.VRMC_materials_mtoon;
@@ -484,18 +484,9 @@ export class VrmImporter {
    * @returns Promise resolving to the VRM JSON structure
    */
   static async importJsonOfVRM(uri: string, options?: GltfLoadOption): Promise<Vrm1> {
-    const promise = new Promise<Vrm1>(async (resolve, reject) => {
-      options = this._getOptions(options);
-
-      try {
-        const result = await Gltf2Importer.importFromUrl(uri, options);
-        VrmImporter._readVRMHumanoidInfo(result as Vrm1);
-        resolve(result as Vrm1);
-      } catch (error) {
-        reject(error);
-      }
-    });
-
-    return promise;
+    options = this._getOptions(options);
+    const result = await Gltf2Importer.importFromUrl(uri, options);
+    VrmImporter._readVRMHumanoidInfo(result as Vrm1);
+    return result as Vrm1;
   }
 }

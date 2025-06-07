@@ -185,12 +185,10 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
   _setInternalSettingParametersToGpuWebGLPerMaterial({
     material,
     shaderProgram,
-    firstTime,
     args,
   }: {
     material: Material;
     shaderProgram: WebGLProgram;
-    firstTime: boolean;
     args: RenderingArgWebGL;
   }) {
     if (args.setUniform) {

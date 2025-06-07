@@ -30,4 +30,4 @@ declare function _BASIS(): {
   then: (callback: (basisTranscoder: BasisTranscoder) => void) => void;
 };
 
-export type BASIS = typeof _BASIS;
+export type BASIS_TYPE = typeof _BASIS;

@@ -8,16 +8,6 @@ function RnExceptionTest() {
   });
 }
 
-function RnExceptionTest2() {
-  throw new RnException({
-    message: 'Error',
-    error: new Err({
-      message: 'Error',
-      error: 1,
-    }),
-  });
-}
-
 test('RnException Test', () => {
   expect(() => {
     RnExceptionTest();

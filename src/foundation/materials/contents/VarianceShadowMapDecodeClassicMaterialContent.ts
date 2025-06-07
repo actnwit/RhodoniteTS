@@ -20,6 +20,8 @@ import { VectorN } from '../../math/VectorN';
 import { Logger } from '../../misc/Logger';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import type { RenderPass } from '../../renderer/RenderPass';
+import type { IRenderable } from '../../textures/IRenderable';
+import type { Texture } from '../../textures/Texture';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { dummyBlackTexture, dummyBlueTexture, dummyWhiteTexture } from '../core/DummyTextures';
 import type { Material } from '../core/Material';
@@ -115,7 +117,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
       encodedDepthRenderPass.setViewport(viewport);
     }
 
-    let depthTexture;
+    let depthTexture: IRenderable | Texture;
     const depthFramebuffer = encodedDepthRenderPasses[0].getFramebuffer();
     if (depthFramebuffer) {
       depthTexture = depthFramebuffer.colorAttachments[colorAttachmentsNumberDepth];
@@ -124,7 +126,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
       depthTexture = dummyBlackTexture;
     }
 
-    let squareDepthTexture;
+    let squareDepthTexture: IRenderable | Texture;
     const squareDepthFramebuffer = encodedDepthRenderPasses[1].getFramebuffer();
     if (squareDepthFramebuffer) {
       squareDepthTexture = squareDepthFramebuffer.colorAttachments[colorAttachmentsNumberSquareDepth];
@@ -391,7 +393,6 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
    * @param params - The rendering parameters object
    * @param params.material - The material instance being rendered
    * @param params.shaderProgram - The WebGL shader program to configure
-   * @param params.firstTime - Whether this is the first time setting parameters for this material
    * @param params.args - WebGL-specific rendering arguments containing entity, camera, and rendering context
    *
    * @remarks
@@ -407,12 +408,10 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
   _setInternalSettingParametersToGpuWebGLPerMaterial({
     material,
     shaderProgram,
-    firstTime,
     args,
   }: {
     material: Material;
     shaderProgram: WebGLProgram;
-    firstTime: boolean;
     args: RenderingArgWebGL;
   }) {
     let cameraComponent = args.renderPass.cameraComponent;

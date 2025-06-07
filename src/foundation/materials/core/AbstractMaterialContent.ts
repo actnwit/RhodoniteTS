@@ -405,7 +405,7 @@ export abstract class AbstractMaterialContent extends RnObject {
   protected setLightsInfo(
     shaderProgram: WebGLProgram,
     lightComponents: LightComponent[],
-    material: Material,
+    _material: Material,
     setUniform: boolean
   ) {
     if (!this.__isLighting) {
@@ -490,7 +490,7 @@ export abstract class AbstractMaterialContent extends RnObject {
    */
   setMorphInfo(
     shaderProgram: WebGLProgram,
-    meshComponent: MeshComponent,
+    _meshComponent: MeshComponent,
     primitive: Primitive,
     blendShapeComponent?: BlendShapeComponent
   ) {
@@ -515,7 +515,7 @@ export abstract class AbstractMaterialContent extends RnObject {
       (shaderProgram as any).dataTextureMorphOffsetPosition,
       dataTextureMorphOffsetPositionOfTargets
     );
-    let weights;
+    let weights: Float32Array | number[];
     if (blendShapeComponent!.weights.length > 0) {
       weights = blendShapeComponent!.weights;
     } else {
@@ -529,64 +529,28 @@ export abstract class AbstractMaterialContent extends RnObject {
    * This method should be overridden by derived classes to provide specific parameter handling.
    * @param params - Object containing material, shader program, firstTime flag, and rendering arguments
    */
-  _setInternalSettingParametersToGpuWebGLPerShaderProgram({
-    material,
-    shaderProgram,
-    firstTime,
-    args,
-  }: {
-    material: Material;
-    shaderProgram: WebGLProgram;
-    firstTime: boolean;
-    args: RenderingArgWebGL;
-  }) {}
+  _setInternalSettingParametersToGpuWebGLPerShaderProgram(_params: {}) {}
 
   /**
    * Sets internal setting parameters to GPU for WebGL per material.
    * This method should be overridden by derived classes to provide specific parameter handling.
    * @param params - Object containing material, shader program, firstTime flag, and rendering arguments
    */
-  _setInternalSettingParametersToGpuWebGLPerMaterial({
-    material,
-    shaderProgram,
-    firstTime,
-    args,
-  }: {
-    material: Material;
-    shaderProgram: WebGLProgram;
-    firstTime: boolean;
-    args: RenderingArgWebGL;
-  }) {}
+  _setInternalSettingParametersToGpuWebGLPerMaterial(_params: {}) {}
 
   /**
    * Sets internal setting parameters to GPU for WebGL per primitive.
    * This method should be overridden by derived classes to provide specific parameter handling.
    * @param params - Object containing material, shader program, firstTime flag, and rendering arguments
    */
-  _setInternalSettingParametersToGpuWebGLPerPrimitive({
-    material,
-    shaderProgram,
-    firstTime,
-    args,
-  }: {
-    material: Material;
-    shaderProgram: WebGLProgram;
-    firstTime: boolean;
-    args: RenderingArgWebGL;
-  }) {}
+  _setInternalSettingParametersToGpuWebGLPerPrimitive(_params: {}) {}
 
   /**
    * Sets internal setting parameters to GPU for WebGPU.
    * This method should be overridden by derived classes to provide specific parameter handling.
    * @param params - Object containing material and WebGPU rendering arguments
    */
-  _setInternalSettingParametersToGpuWebGpu({
-    material,
-    args,
-  }: {
-    material: Material;
-    args: RenderingArgWebGpu;
-  }) {}
+  _setInternalSettingParametersToGpuWebGpu(_params: {}) {}
 
   /**
    * Gets the shader definition string for this material.

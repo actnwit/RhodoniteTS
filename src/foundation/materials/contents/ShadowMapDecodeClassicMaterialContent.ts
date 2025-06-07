@@ -349,12 +349,10 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
   _setInternalSettingParametersToGpuWebGLPerMaterial({
     material,
     shaderProgram,
-    firstTime,
     args,
   }: {
     material: Material;
     shaderProgram: WebGLProgram;
-    firstTime: boolean;
     args: RenderingArgWebGL;
   }) {
     let cameraComponent = args.renderPass.cameraComponent;

@@ -27,7 +27,7 @@ test.skip('AttributePosition works correctly 1', async () => {
   });
 
   // Material.registerMaterial('MyMaterial', undefined);
-  const material = Rn.MaterialRepository.createMaterial('MyMaterial', materialNode)!;
+  const _material = Rn.MaterialRepository.createMaterial('MyMaterial', materialNode)!;
 
   const a_position = new Rn.AttributePositionShaderNode();
 

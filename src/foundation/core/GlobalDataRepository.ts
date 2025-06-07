@@ -475,7 +475,7 @@ export class GlobalDataRepository {
   _setUniformLocationsForUniformModeOnly(shaderProgramUid: CGAPIResourceHandle) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const semanticsInfoArray: ShaderSemanticsInfo[] = [];
-    this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct, key) => {
+    this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct) => {
       const semanticInfo = globalPropertyStruct.shaderSemanticsInfo;
       semanticsInfoArray.push(semanticInfo);
     });
@@ -493,7 +493,7 @@ export class GlobalDataRepository {
   _setUniformLocationsForDataTextureModeOnly(shaderProgramUid: CGAPIResourceHandle) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const semanticsInfoArray: ShaderSemanticsInfo[] = [];
-    this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct, key) => {
+    this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct) => {
       const semanticInfo = globalPropertyStruct.shaderSemanticsInfo;
       if (semanticInfo.needUniformInDataTextureMode) {
         semanticsInfoArray.push(semanticInfo);
@@ -511,7 +511,7 @@ export class GlobalDataRepository {
    */
   setUniformValues(shaderProgram: WebGLProgram) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct, key) => {
+    this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct) => {
       const info = globalPropertyStruct.shaderSemanticsInfo;
       const values = globalPropertyStruct.values;
       for (let i = 0; i < values.length; i++) {

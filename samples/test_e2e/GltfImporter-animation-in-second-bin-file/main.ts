@@ -58,16 +58,3 @@ Rn.System.startRenderLoop(() => {
 
   count++;
 });
-
-function setParameterForMeshComponents(meshComponents, shaderSemantic, value) {
-  for (let i = 0; i < meshComponents.length; i++) {
-    const mesh = meshComponents[i].mesh;
-    if (!mesh) continue;
-
-    const primitiveNumber = mesh.getPrimitiveNumber();
-    for (let j = 0; j < primitiveNumber; j++) {
-      const primitive = mesh.getPrimitiveAt(j);
-      primitive.material.setParameter(shaderSemantic, value);
-    }
-  }
-}

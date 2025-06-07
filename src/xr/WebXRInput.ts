@@ -67,7 +67,7 @@ const GeneralType = Object.freeze({
 /**
  * Map of component types to their callback functions
  */
-type ComponentFunctionMap = {
+type _ComponentFunctionMap = {
   /** Trigger component callback */
   trigger: ComponentChangeCallback;
   /** Squeeze/grip component callback */
@@ -129,7 +129,7 @@ wellKnownMapping.set('touchpad', GeneralType.TOUCHPAD);
 export async function createMotionController(
   xrInputSource: XRInputSource,
   basePath: string,
-  profilePriorities: string[]
+  _profilePriorities: string[]
 ) {
   const { profile, assetPath } = await fetchProfile(xrInputSource, basePath);
   const motionController = new MotionController(xrInputSource, profile, assetPath!);
@@ -158,7 +158,7 @@ async function addMotionControllerToScene(motionController: MotionController) {
  * @param xrFrame - Current WebXR frame
  * @param viewerData - Current viewer position and orientation data
  */
-export function updateGamePad(timestamp: number, xrFrame: XRFrame, viewerData: WebXRSystemViewerData) {
+export function updateGamePad(timestamp: number, _xrFrame: XRFrame, viewerData: WebXRSystemViewerData) {
   // Other frame-loop stuff ...
 
   Array.from(motionControllers.values()).forEach((motionController: MotionController) => {
@@ -279,8 +279,8 @@ function processTriggerInput(
 function processSqueezeInput(
   squeezeComponent: Component,
   handed: string,
-  viewerData: WebXRSystemViewerData,
-  deltaSec: number
+  _viewerData: WebXRSystemViewerData,
+  _deltaSec: number
 ) {
   const componentName = wellKnownMapping.get(squeezeComponent.rootNodeName);
   if (squeezeComponent.values.state === Constants.ComponentState.PRESSED) {
@@ -367,8 +367,8 @@ function processThumbstickInput(
 function processButtonInput(
   buttonComponent: Component,
   handed: string,
-  viewerData: WebXRSystemViewerData,
-  deltaSec: number
+  _viewerData: WebXRSystemViewerData,
+  _deltaSec: number
 ) {
   const componentName = wellKnownMapping.get(buttonComponent.rootNodeName);
   if (buttonComponent.values.state === Constants.ComponentState.PRESSED) {
@@ -387,14 +387,14 @@ function processButtonInput(
  */
 function processTouchpadInput(
   thumbstick: Component,
-  handed: string,
-  viewerData: WebXRSystemViewerData,
-  deltaSec: number
+  _handed: string,
+  _viewerData: WebXRSystemViewerData,
+  _deltaSec: number
 ) {
   if (thumbstick.values.state === Constants.ComponentState.PRESSED) {
     // Align the world orientation to the user's current orientation
   } else if (thumbstick.values.state === Constants.ComponentState.TOUCHED && thumbstick.values.yAxis !== 0) {
-    const scootDistance = thumbstick.values.yAxis; //* scootIncrement;
+    const _scootDistance = thumbstick.values.yAxis; //* scootIncrement;
     // Scoot the user forward
   }
 }
@@ -407,7 +407,7 @@ function processTouchpadInput(
 function addTouchPointDots(motionController: MotionController, asset: any) {
   Object.values(motionController.components).forEach(component => {
     if (component.touchPointNodeName) {
-      const touchPointRoot = asset.getChildByName(component.touchPointNodeName, true);
+      const _touchPointRoot = asset.getChildByName(component.touchPointNodeName, true);
 
       // const sphereGeometry = new THREE.SphereGeometry(0.001);
       // const material = new THREE.MeshBasicMaterial({ color: 0x0000FF });

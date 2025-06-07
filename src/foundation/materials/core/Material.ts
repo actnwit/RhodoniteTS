@@ -747,7 +747,7 @@ export class Material extends RnObject {
         webglResourceRepository.setUniformValue(shaderProgram, info.semantic, firstTime, value.value);
       });
     } else {
-      for (const [key, value] of this._autoTextureFieldVariablesOnly) {
+      for (const [, value] of this._autoTextureFieldVariablesOnly) {
         const info = value.info;
         if (firstTime) {
           webglResourceRepository.setUniform1iForTexture(shaderProgram, info.semantic, value.value);
@@ -755,7 +755,7 @@ export class Material extends RnObject {
           webglResourceRepository.bindTexture(info, value.value);
         }
       }
-      for (const [key, value] of this._autoUniformFieldVariablesOnly) {
+      for (const [, value] of this._autoUniformFieldVariablesOnly) {
         const info = value.info;
         if (info.needUniformInDataTextureMode) {
           webglResourceRepository.setUniformValue(shaderProgram, info.semantic, firstTime, value.value);

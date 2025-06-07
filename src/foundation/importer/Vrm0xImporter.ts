@@ -59,7 +59,7 @@ export class Vrm0xImporter {
     Vrm0xImporter._initializeMaterialProperties(gltfModel, textures.length);
 
     // setup rootGroup
-    let rootGroups;
+    let rootGroups: ISceneGraphEntity[];
     const rootGroupMain = await ModelConverter.convertToRhodoniteObject(gltfModel!);
 
     const existOutline = Vrm0xImporter._existOutlineMaterial(gltfModel.extensions.VRM);
@@ -89,19 +89,10 @@ export class Vrm0xImporter {
    * @returns A promise that resolves to the VRM JSON data structure
    */
   static async importJsonOfVRM(uri: string, options?: GltfLoadOption): Promise<Vrm0x> {
-    const promise = new Promise<Vrm0x>(async (resolve, reject) => {
-      options = this._getOptions(options);
-
-      try {
-        const result = await Gltf2Importer.importFromUrl(uri, options);
-        Vrm0xImporter._readVRMHumanoidInfo(result as Vrm0x);
-        resolve(result as Vrm0x);
-      } catch (error) {
-        reject(error);
-      }
-    });
-
-    return promise;
+    options = this._getOptions(options);
+    const result = await Gltf2Importer.importFromUrl(uri, options);
+    Vrm0xImporter._readVRMHumanoidInfo(result as Vrm0x);
+    return result as Vrm0x;
   }
 
   /**
@@ -126,7 +117,7 @@ export class Vrm0xImporter {
     this._initializeMaterialProperties(gltfModel, textures.length);
 
     // get rootGroup
-    let rootGroup;
+    let rootGroup: ISceneGraphEntity;
     const existOutline = this._existOutlineMaterial(gltfModel.extensions.VRM);
     if (existOutline) {
       renderPasses[1] = renderPasses[1] ?? new RenderPass();

@@ -258,7 +258,7 @@ function getViewport(renderPass: RenderPass) {
  * @param renderPass - The render pass being processed
  * @param displayIdx - The index of the display/eye (0 for left eye, 1 for right eye)
  */
-function setVRViewport(renderPass: RenderPass, displayIdx: Index) {
+function setVRViewport(_renderPass: RenderPass, displayIdx: Index) {
   const webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
   const webxrSystem = rnXRModule.WebXRSystem.getInstance();
@@ -371,6 +371,7 @@ export function setupShaderProgram(material: Material, primitive: Primitive, web
 export default Object.freeze({
   setWebGLParameters,
   setVRViewport,
+  getViewport,
   getDisplayCount,
   isVrMainPass,
   getPointSpriteShaderSemanticsInfoArray,

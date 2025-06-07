@@ -23,13 +23,7 @@
     "indentWidth": 2,
     "lineWidth": 120,
     "lineEnding": "lf",
-    "ignore": [
-      "dist/**",
-      "docs/**",
-      "vendor/**",
-      "assets/**",
-      "**/*.d.ts"
-    ]
+    "ignore": ["dist/**", "docs/**", "vendor/**", "assets/**", "**/*.d.ts"]
   },
   "organizeImports": {
     "enabled": true
@@ -44,7 +38,7 @@
         "useExportType": "error",
         "useConst": "off",
         "noParameterAssign": "off",
-        "noCommaOperator": "off",
+        "noCommaOperator": "error",
         "noArguments": "off"
       },
       "complexity": {
@@ -60,32 +54,26 @@
         "noDelete": "error"
       },
       "correctness": {
-        "noUnusedVariables": "off",
-        "useExhaustiveDependencies": "off",
-        "noUnreachable": "off",
-        "noConstantCondition": "off",
-        "noInvalidUseBeforeDeclaration": "off"
+        "noUnusedVariables": "error",
+        "useExhaustiveDependencies": "error",
+        "noUnreachable": "error",
+        "noConstantCondition": "error",
+        "noInvalidUseBeforeDeclaration": "error"
       },
       "suspicious": {
         "noArrayIndexKey": "warn",
         "noExplicitAny": "off",
-        "noConfusingVoidType": "off",
-        "noPrototypeBuiltins": "off",
-        "noImplicitAnyLet": "off",
-        "noAsyncPromiseExecutor": "off",
-        "noAssignInExpressions": "off",
-        "noShadowRestrictedNames": "off",
+        "noConfusingVoidType": "error",
+        "noPrototypeBuiltins": "error",
+        "noImplicitAnyLet": "error",
+        "noAsyncPromiseExecutor": "error",
+        "noAssignInExpressions": "error",
+        "noShadowRestrictedNames": "error",
         "noThenProperty": "off",
-        "noRedeclare": "off"
+        "noRedeclare": "error"
       }
     },
-    "ignore": [
-      "dist/**",
-      "docs/**",
-      "vendor/**",
-      "assets/**",
-      "**/*.d.ts"
-    ]
+    "ignore": ["dist/**", "docs/**", "vendor/**", "assets/**", "**/*.d.ts"]
   },
   "javascript": {
     "formatter": {

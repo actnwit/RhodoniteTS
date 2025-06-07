@@ -38,32 +38,34 @@ export class GltfImporter {
    * @throws Will reject the promise if the file cannot be fetched or parsed
    */
   static async importFromUrl(url: string, options?: GltfLoadOption, callback?: RnPromiseCallback): Promise<Expression> {
-    const promise = new Promise<Expression>(async (resolve, reject) => {
-      options = this.__initOptions(options);
+    const promise = new Promise<Expression>((resolve, reject) => {
+      (async () => {
+        options = this.__initOptions(options);
 
-      const renderPasses = options.expression?.renderPasses || [];
-      if (renderPasses.length === 0) {
-        renderPasses.push(new RenderPass());
-      }
-
-      const r_arrayBuffer = await DataUtil.fetchArrayBuffer(url);
-      if (r_arrayBuffer.isErr()) {
-        reject(r_arrayBuffer.getRnError());
-        return;
-      }
-
-      options.files![url] = r_arrayBuffer.get();
-
-      await this.__detectTheModelFileTypeAndImport(url, renderPasses, options, url, callback);
-
-      if (options?.cameraComponent) {
-        for (const renderPass of renderPasses) {
-          renderPass.cameraComponent = options.cameraComponent;
+        const renderPasses = options.expression?.renderPasses || [];
+        if (renderPasses.length === 0) {
+          renderPasses.push(new RenderPass());
         }
-      }
 
-      const expression = this.__setRenderPassesToExpression(renderPasses, options);
-      resolve(expression);
+        const r_arrayBuffer = await DataUtil.fetchArrayBuffer(url);
+        if (r_arrayBuffer.isErr()) {
+          reject(r_arrayBuffer.getRnError());
+          return;
+        }
+
+        options.files![url] = r_arrayBuffer.get();
+
+        await this.__detectTheModelFileTypeAndImport(url, renderPasses, options, url, callback);
+
+        if (options?.cameraComponent) {
+          for (const renderPass of renderPasses) {
+            renderPass.cameraComponent = options.cameraComponent;
+          }
+        }
+
+        const expression = this.__setRenderPassesToExpression(renderPasses, options);
+        resolve(expression);
+      })().catch(reject);
     });
 
     return promise;
@@ -86,32 +88,34 @@ export class GltfImporter {
     options?: GltfLoadOption,
     callback?: RnPromiseCallback
   ): Promise<Expression> {
-    const promise = new Promise<Expression>(async (resolve, reject) => {
-      options = this.__initOptions(options);
+    const promise = new Promise<Expression>((resolve, reject) => {
+      (async () => {
+        options = this.__initOptions(options);
 
-      const renderPasses = options.expression?.renderPasses || [];
-      if (renderPasses.length === 0) {
-        renderPasses.push(new RenderPass());
-      }
-
-      for (const fileName in files) {
-        // filename is uri with file extension
-        const fileExtension = DataUtil.getExtension(fileName);
-        // if the file is main file type?
-        if (this.__isValidExtension(fileExtension)) {
-          await this.__detectTheModelFileTypeAndImport(fileName, renderPasses, options, fileName, callback);
+        const renderPasses = options.expression?.renderPasses || [];
+        if (renderPasses.length === 0) {
+          renderPasses.push(new RenderPass());
         }
-      }
 
-      if (options?.cameraComponent) {
-        for (const renderPass of renderPasses) {
-          renderPass.cameraComponent = options.cameraComponent;
+        for (const fileName in files) {
+          // filename is uri with file extension
+          const fileExtension = DataUtil.getExtension(fileName);
+          // if the file is main file type?
+          if (this.__isValidExtension(fileExtension)) {
+            await this.__detectTheModelFileTypeAndImport(fileName, renderPasses, options, fileName, callback);
+          }
         }
-      }
 
-      const expression = this.__setRenderPassesToExpression(renderPasses, options);
+        if (options?.cameraComponent) {
+          for (const renderPass of renderPasses) {
+            renderPass.cameraComponent = options.cameraComponent;
+          }
+        }
 
-      resolve(expression);
+        const expression = this.__setRenderPassesToExpression(renderPasses, options);
+
+        resolve(expression);
+      })().catch(reject);
     });
 
     return promise;
@@ -206,7 +210,6 @@ export class GltfImporter {
     const isLittleEndian = true;
     // Magic field
     const magic = dataView.getUint32(0, isLittleEndian);
-    let result;
     // The 0x46546C67 means 'glTF' string in glb files.
     if (magic === 0x46546c67) {
       return true;
@@ -269,12 +272,10 @@ export class GltfImporter {
 
     const fileArrayBuffer = options.files![fileName];
     options.__isImportVRM0x = false;
-    let glTFVer = 0; // 0: not glTF, 1: glTF1, 2: glTF2
     switch (fileType) {
       case FileType.Gltf: {
         const gotText = DataUtil.arrayBufferToString(fileArrayBuffer);
         const json = JSON.parse(gotText);
-        glTFVer = this.__getGltfVersion(json);
         const importer = Gltf2Importer;
         const gltfModel = await importer._importGltf(json, options.files!, options, fileName, callback);
         const rootGroup = await ModelConverter.convertToRhodoniteObject(gltfModel);
@@ -283,7 +284,6 @@ export class GltfImporter {
         return new Ok();
       }
       case FileType.GltfBinary: {
-        glTFVer = this.__getGlbVersion(fileArrayBuffer);
         const importer = Gltf2Importer;
         const gltfModel = await importer._importGlb(fileArrayBuffer, options.files!, options);
         const rootGroup = await ModelConverter.convertToRhodoniteObject(gltfModel);

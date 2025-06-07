@@ -13,7 +13,7 @@ export const IsObj = {
    * @param args - Additional arguments (unused)
    * @returns True if the value is not undefined
    */
-  defined(val: unknown, ...args: unknown[]): val is Exclude<Object, undefined> {
+  defined(val: unknown, ..._args: unknown[]): val is Exclude<Object, undefined> {
     return val !== void 0;
   },
 
@@ -23,7 +23,7 @@ export const IsObj = {
    * @param args - Additional arguments (unused)
    * @returns True if the value is undefined
    */
-  undefined(val: unknown, ...args: unknown[]): val is undefined {
+  undefined(val: unknown, ..._args: unknown[]): val is undefined {
     return val === void 0;
   },
 
@@ -33,7 +33,7 @@ export const IsObj = {
    * @param args - Additional arguments (unused)
    * @returns True if the value is null
    */
-  null(val: unknown, ...args: unknown[]): val is null {
+  null(val: unknown, ..._args: unknown[]): val is null {
     return val === null;
   },
 
@@ -43,7 +43,7 @@ export const IsObj = {
    * @param args - Additional arguments (unused)
    * @returns True if the value is not null and not undefined
    */
-  exist(val?: unknown, ...args: unknown[]): val is Object {
+  exist(val?: unknown, ..._args: unknown[]): val is Object {
     return val !== null && val !== undefined;
   },
 
@@ -53,7 +53,7 @@ export const IsObj = {
    * @param args - Additional arguments (unused)
    * @returns True if the value is a function
    */
-  function(val: unknown, ...args: unknown[]): val is Function {
+  function(val: unknown, ..._args: unknown[]): val is Function {
     return typeof val === 'function';
   },
 
@@ -63,7 +63,7 @@ export const IsObj = {
    * @param args - Additional arguments (unused)
    * @returns True if the value is exactly true
    */
-  true(val: unknown, ...args: unknown[]): boolean {
+  true(val: unknown, ..._args: unknown[]): boolean {
     return val === true;
   },
 
@@ -73,7 +73,7 @@ export const IsObj = {
    * @param args - Additional arguments (unused)
    * @returns True if the value is truthy
    */
-  truly(val: unknown, ...args: unknown[]): boolean {
+  truly(val: unknown, ..._args: unknown[]): boolean {
     return !!val;
   },
 
@@ -83,7 +83,7 @@ export const IsObj = {
    * @param args - Additional arguments (unused)
    * @returns True if the value is exactly false
    */
-  false(val: unknown, ...args: unknown[]): boolean {
+  false(val: unknown, ..._args: unknown[]): boolean {
     return val === false;
   },
 
@@ -93,7 +93,7 @@ export const IsObj = {
    * @param args - Additional arguments (unused)
    * @returns True if the value is falsy
    */
-  falsy(val: unknown, ...args: unknown[]): boolean {
+  falsy(val: unknown, ..._args: unknown[]): boolean {
     return !val;
   },
 
@@ -167,7 +167,7 @@ const NotObj = {
    * @param args - Additional arguments (unused)
    * @returns True if the value is undefined
    */
-  defined(val: unknown, ...args: unknown[]): val is undefined {
+  defined(val: unknown, ..._args: unknown[]): val is undefined {
     return val === void 0;
   },
 
@@ -177,7 +177,7 @@ const NotObj = {
    * @param args - Additional arguments (unused)
    * @returns True if the value is not undefined
    */
-  undefined(val: unknown, ...args: unknown[]): val is Object {
+  undefined(val: unknown, ..._args: unknown[]): val is Object {
     return val !== void 0;
   },
 
@@ -187,7 +187,7 @@ const NotObj = {
    * @param args - Additional arguments (unused)
    * @returns True if the value is not null
    */
-  null(val: unknown, ...args: unknown[]): val is Object {
+  null(val: unknown, ..._args: unknown[]): val is Object {
     return val !== null;
   },
 
@@ -197,7 +197,7 @@ const NotObj = {
    * @param args - Additional arguments (unused)
    * @returns True if the value is null or undefined
    */
-  exist(val?: unknown, ...args: unknown[]): val is undefined | null {
+  exist(val?: unknown, ..._args: unknown[]): val is undefined | null {
     return val === null || val === undefined;
   },
 
@@ -207,7 +207,7 @@ const NotObj = {
    * @param args - Additional arguments (unused)
    * @returns True if the value is not a function
    */
-  function(val: unknown, ...args: unknown[]): val is Exclude<unknown, Function> {
+  function(val: unknown, ..._args: unknown[]): val is Exclude<unknown, Function> {
     return typeof val !== 'function';
   },
 
@@ -217,7 +217,7 @@ const NotObj = {
    * @param args - Additional arguments (unused)
    * @returns True if the value is not exactly true
    */
-  true(val: unknown, ...args: unknown[]): boolean {
+  true(val: unknown, ..._args: unknown[]): boolean {
     return val !== true;
   },
 
@@ -227,7 +227,7 @@ const NotObj = {
    * @param args - Additional arguments (unused)
    * @returns True if the value is not truthy
    */
-  truly(val: unknown, ...args: unknown[]): boolean {
+  truly(val: unknown, ..._args: unknown[]): boolean {
     return !val;
   },
 
@@ -237,7 +237,7 @@ const NotObj = {
    * @param args - Additional arguments (unused)
    * @returns True if the value is not exactly false
    */
-  false(val: unknown, ...args: unknown[]): boolean {
+  false(val: unknown, ..._args: unknown[]): boolean {
     return val !== false;
   },
 
@@ -247,7 +247,7 @@ const NotObj = {
    * @param args - Additional arguments (unused)
    * @returns True if the value is not falsy
    */
-  falsy(val: unknown, ...args: unknown[]): boolean {
+  falsy(val: unknown, ..._args: unknown[]): boolean {
     return !!val;
   },
 };

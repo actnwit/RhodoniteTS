@@ -127,7 +127,6 @@ export class ShaderityUtilityWebGPU {
         shaderSemanticsInfoArray.push(shaderSemanticsInfo);
       } else if (matchSamplerDeclaration) {
         const binding = Number.parseInt(matchSamplerDeclaration[1]);
-        const variableName = matchSamplerDeclaration[2];
 
         if (textureMap.has(binding)) {
           const textureShaderSemanticsInfo = textureMap.get(binding);
@@ -300,7 +299,7 @@ export class ShaderityUtilityWebGPU {
     binding: number,
     initialValueText: string
   ) {
-    let initialValue;
+    let initialValue: any;
     const sampler = new Sampler({
       magFilter: TextureParameter.Linear,
       minFilter: TextureParameter.Linear,
@@ -339,7 +338,7 @@ export class ShaderityUtilityWebGPU {
       }
     };
 
-    let initialValue;
+    let initialValue: any;
     if (tuple) {
       const text = tuple[1];
       const split = text.split(',');

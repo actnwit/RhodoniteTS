@@ -307,7 +307,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   ) {
     const returnType = info.compositionType.getGlslStr(info.componentType);
 
-    let indexStr;
+    let indexStr: string;
 
     const isTexture = CompositionType.isTexture(info.compositionType);
 
@@ -604,8 +604,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       );
       this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
         level: 0,
-        xoffset: 0,
-        yoffset: 0,
         width: MemoryManager.bufferWidthLength,
         height: height,
         format: PixelFormat.RGBA,
@@ -619,11 +617,11 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       }
     } else {
       const morphBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
-      let morphBufferTakenSizeInByte = 0;
-      let morphBufferArrayBuffer = new ArrayBuffer(0);
+      let _morphBufferTakenSizeInByte = 0;
+      let _morphBufferArrayBuffer = new ArrayBuffer(0);
       if (Is.exist(morphBuffer)) {
-        morphBufferTakenSizeInByte = morphBuffer.takenSizeInByte;
-        morphBufferArrayBuffer = morphBuffer.getArrayBuffer();
+        _morphBufferTakenSizeInByte = morphBuffer.takenSizeInByte;
+        _morphBufferArrayBuffer = morphBuffer.getArrayBuffer();
       }
       let floatDataTextureBuffer: Float32Array;
       {
@@ -674,11 +672,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
       // write data
       this.__dataTextureUid = this.__webglResourceRepository.createTextureFromTypedArray(floatDataTextureBuffer!, {
-        level: 0,
         internalFormat: TextureFormat.RGBA32F,
         width: MemoryManager.bufferWidthLength,
         height: MemoryManager.bufferHeightLength,
-        border: 0,
         format: PixelFormat.RGBA,
         type: ComponentType.Float,
         generateMipmap: false,
@@ -796,7 +792,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    *
    * @param primitive - The primitive to attach GPU data for
    */
-  attachGPUData(primitive: Primitive): void {}
+  attachGPUData(_primitive: Primitive): void {}
 
   /**
    * Internal GPU data attachment (placeholder implementation).
@@ -805,7 +801,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    * @param gl - The WebGL rendering context
    * @param shaderProgram - The shader program to attach data to
    */
-  attachGPUDataInner(gl: WebGLRenderingContext, shaderProgram: WebGLProgram) {}
+  attachGPUDataInner(_gl: WebGLRenderingContext, _shaderProgram: WebGLProgram) {}
 
   /**
    * Attaches vertex data for a primitive (placeholder implementation).
@@ -817,10 +813,10 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    * @param instanceIDBufferUid - The instance ID buffer resource handle
    */
   attachVertexData(
-    i: number,
-    primitive: Primitive,
-    glw: WebGLContextWrapper,
-    instanceIDBufferUid: WebGLResourceHandle
+    _i: number,
+    _primitive: Primitive,
+    _glw: WebGLContextWrapper,
+    _instanceIDBufferUid: WebGLResourceHandle
   ): void {}
 
   /**
@@ -844,7 +840,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     primitive: Primitive,
     primitiveIndex: Index,
     glw: WebGLContextWrapper,
-    instanceIDBufferUid: WebGLResourceHandle
+    _instanceIDBufferUid: WebGLResourceHandle
   ): void {
     // bind
     const vao = this.__webglResourceRepository.getWebGLResource(
@@ -942,9 +938,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    * The material SID is stored at index 0 of the component SID array.
    */
   private __setCurrentComponentSIDsForEachPrimitive(
-    gl: WebGLRenderingContext,
+    _gl: WebGLRenderingContext,
     material: Material,
-    shaderProgram: WebGLProgram
+    _shaderProgram: WebGLProgram
   ) {
     if (WebGLStrategyDataTexture.__currentComponentSIDs == null) {
       WebGLStrategyDataTexture.__currentComponentSIDs = WebGLStrategyDataTexture.__globalDataRepository.getValue(

@@ -67,7 +67,6 @@ expression.addRenderPasses([renderPass]);
 
 Rn.CameraComponent.current = 0;
 let startTime = Date.now();
-const rotationVec3 = Rn.MutableVector3.one();
 let count = 0;
 Rn.System.startRenderLoop(() => {
   if (p == null && count > 0) {
@@ -79,10 +78,6 @@ Rn.System.startRenderLoop(() => {
 
   if (window.isAnimating) {
     const date = new Date();
-    const rotation = 0.001 * (date.getTime() - startTime);
-    //rotationVec3._v[0] = 0.1;
-    //rotationVec3._v[1] = rotation;
-    //rotationVec3._v[2] = 0.1;
     const time = (date.getTime() - startTime) / 1000;
     Rn.AnimationComponent.globalTime = time;
     if (time > Rn.AnimationComponent.endInputValue) {

@@ -179,7 +179,7 @@ export class WeakSome<B extends object, T> implements IWeakOption<B, T> {
    * @param altValue - The alternative value (ignored)
    * @returns The stored value
    */
-  unwrapOrDefault(base: B, altValue: T): T {
+  unwrapOrDefault(base: B, _altValue: T): T {
     return this.__weakMap.get(base)!;
   }
 
@@ -190,7 +190,7 @@ export class WeakSome<B extends object, T> implements IWeakOption<B, T> {
    * @param f - Function to execute (ignored)
    * @returns The stored value
    */
-  unwrapOrElse(base: B, f: (value: T) => T): T {
+  unwrapOrElse(base: B, _f: (value: T) => T): T {
     return this.__weakMap.get(base)!;
   }
 
@@ -230,7 +230,7 @@ export class WeakSome<B extends object, T> implements IWeakOption<B, T> {
    * @param base - The base object used as a key (unused)
    * @returns Always true
    */
-  has(base: B): true {
+  has(_base: B): true {
     return true;
   }
 }
@@ -267,7 +267,7 @@ export class WeakNone<B extends object> implements IWeakOption<B, never> {
    * @param value - The default value to return
    * @returns The default value
    */
-  unwrapOrDefault<T>(base: B, value: T): T {
+  unwrapOrDefault<T>(_base: B, value: T): T {
     return value;
   }
 
@@ -278,7 +278,7 @@ export class WeakNone<B extends object> implements IWeakOption<B, never> {
    * @param f - Function to execute
    * @returns The result of the function
    */
-  unwrapOrElse(base: B, f: (...vals: any) => never): never {
+  unwrapOrElse(_base: B, f: (...vals: any) => never): never {
     return f(undefined as never);
   }
 
@@ -288,7 +288,7 @@ export class WeakNone<B extends object> implements IWeakOption<B, never> {
    * @param base - The base object used as a key (unused)
    * @throws {ReferenceError} Always throws since no value exists
    */
-  unwrapForce(base: B): never {
+  unwrapForce(_base: B): never {
     throw new ReferenceError(errorStr);
   }
 
@@ -298,7 +298,7 @@ export class WeakNone<B extends object> implements IWeakOption<B, never> {
    * @param base - The base object used as a key (unused)
    * @returns Always undefined
    */
-  unwrapOrUndefined(base: B): never {
+  unwrapOrUndefined(_base: B): never {
     return undefined as never;
   }
 

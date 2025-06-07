@@ -64,7 +64,6 @@ Rn.System.startRenderLoop(() => {
   }
   if (window.isAnimating) {
     const date = new Date();
-    const rotation = 0.001 * (date.getTime() - startTime);
     const time = (date.getTime() - startTime) / 1000;
     Rn.AnimationComponent.globalTime = time;
     if (time > Rn.AnimationComponent.endInputValue) {

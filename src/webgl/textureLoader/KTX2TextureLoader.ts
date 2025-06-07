@@ -20,7 +20,7 @@ import { CGAPIResourceRepository } from '../../foundation/renderer/CGAPIResource
 import { SystemState } from '../../foundation/system/SystemState';
 import type {
   BasisLzEtc1sImageTranscoder,
-  MSC_TRANSCODER,
+  MSC_TRANSCODER_TYPE,
   MscTranscoderModule,
   TranscodedImage,
   UastcImageTranscoder,
@@ -66,7 +66,7 @@ interface KTX2GlobalDataBasisLZImageDesc {
   alphaSliceByteLength: number;
 }
 
-declare const MSC_TRANSCODER: MSC_TRANSCODER;
+declare const MSC_TRANSCODER: MSC_TRANSCODER_TYPE;
 
 /**
  * A texture loader for KTX2 format files that handles transcoding of compressed texture data.

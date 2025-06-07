@@ -330,7 +330,7 @@ export class MaterialRepository {
 
     // take A Buffer View from GPUInstanceData buffer, or reuse it if it already exists
     const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUInstanceData);
-    let bufferView;
+    let bufferView: BufferView | undefined;
     if (this.__bufferViews.has(materialTypeName)) {
       bufferView = this.__bufferViews.get(materialTypeName);
     } else {

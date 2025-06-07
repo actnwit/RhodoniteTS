@@ -41,19 +41,10 @@ export class VrmaImporter {
    * ```
    */
   static async importFromUrl(url: string): Promise<RnM2Vrma> {
-    const promise = new Promise<RnM2Vrma>(async (resolve, reject) => {
-      const options: GltfLoadOption = {};
-
-      try {
-        const result = await Gltf2Importer.importFromUrl(url, options);
-        this.readHumanoid(result as RnM2Vrma);
-        resolve(result as RnM2Vrma);
-      } catch (error) {
-        reject(error);
-      }
-    });
-
-    return promise;
+    const options: GltfLoadOption = {};
+    const result = await Gltf2Importer.importFromUrl(url, options);
+    this.readHumanoid(result as RnM2Vrma);
+    return result as RnM2Vrma;
   }
 
   /**
@@ -70,19 +61,10 @@ export class VrmaImporter {
    * ```
    */
   static async importFromArrayBuffer(arrayBuffer: ArrayBuffer): Promise<RnM2Vrma> {
-    const promise = new Promise<RnM2Vrma>(async (resolve, reject) => {
-      const options: GltfLoadOption = {};
-
-      try {
-        const result = await Gltf2Importer.importFromArrayBuffers({ 'data.glb': arrayBuffer }, options);
-        this.readHumanoid(result as RnM2Vrma);
-        resolve(result as RnM2Vrma);
-      } catch (error) {
-        reject(error);
-      }
-    });
-
-    return promise;
+    const options: GltfLoadOption = {};
+    const result = await Gltf2Importer.importFromArrayBuffers({ 'data.glb': arrayBuffer }, options);
+    this.readHumanoid(result as RnM2Vrma);
+    return result as RnM2Vrma;
   }
 
   /**

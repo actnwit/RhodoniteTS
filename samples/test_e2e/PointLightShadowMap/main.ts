@@ -37,7 +37,7 @@ mainCameraEntity.getCameraController().controller.setTarget(groupEntity);
 const backgroundEntity = createBackground();
 
 // Expression
-const [pointShadowMapArrayFramebuffer, pointShadowMapArrayRenderTargetTexture] =
+const [pointShadowMapArrayFramebuffer, _pointShadowMapArrayRenderTargetTexture] =
   Rn.RenderableHelper.createFrameBufferTextureArray({
     width: 1024,
     height: 1024,
@@ -52,7 +52,7 @@ const pointShadowMap = new PointShadowMap();
 const renderPasses = pointShadowMap.getRenderPasses([groupEntity, backgroundEntity]);
 shadowMapExpression.addRenderPasses(renderPasses);
 const gaussianBlur = new Rn.GaussianBlur();
-const { blurExpression, blurredRenderTarget, renderPassesBlurred } = gaussianBlur.createGaussianBlurExpression({
+const { blurExpression, blurredRenderTarget } = gaussianBlur.createGaussianBlurExpression({
   textureToBlur: pointShadowMap.getShadowMomentFramebuffer().getColorAttachedRenderTargetTexture(0)!,
   parameters: {
     blurPassLevel: 4,

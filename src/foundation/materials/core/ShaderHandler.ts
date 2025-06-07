@@ -306,7 +306,7 @@ export function _createProgramAsSingleOperationWebGL(
  * @param primitive - The geometric primitive for context-specific definitions
  * @returns A string containing all global shader definitions
  */
-export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, primitive: Primitive) {
+export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, _primitive: Primitive) {
   let definitions = '';
   const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
   const glw = webglResourceRepository.currentWebGLContextWrapper as WebGLContextWrapper;

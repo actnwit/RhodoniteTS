@@ -98,7 +98,7 @@ export class WalkThroughCameraController extends AbstractCameraController implem
       this._lastKeyCode = e.keyCode;
     };
 
-    this._onKeyup = e => {
+    this._onKeyup = () => {
       this._isKeyDown = false;
       this._lastKeyCode = -1;
     };
@@ -642,7 +642,7 @@ export class WalkThroughCameraController extends AbstractCameraController implem
       json = JSON.parse(arg);
     }
     for (const key in json) {
-      if (json.hasOwnProperty(key) && key in this) {
+      if (Object.prototype.hasOwnProperty.call(json, key) && key in this) {
         if (key === 'quaternion') {
           (this as any)[key] = MathClassUtil.cloneOfMathObjects(MathClassUtil.arrayToQuaternion(json[key]));
         } else {

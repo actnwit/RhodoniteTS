@@ -3,7 +3,7 @@ import { checkFinished } from '../common/testHelpers.js';
 let p: HTMLParagraphElement | undefined;
 
 // setup Rhodonite
-const system = await setupRhodonite();
+const _system = await setupRhodonite();
 
 // setup shape entities
 const group = createGroupOfShapes();

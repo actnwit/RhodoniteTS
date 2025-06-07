@@ -31,11 +31,11 @@ test('MaterialTID are processed correctly', () => {
 
   // 0st
   MaterialRepository.registerMaterial('MyMaterial0', materialNode);
-  const material0 = MaterialRepository.createMaterial('MyMaterial0', materialNode)!;
+  const _material0 = MaterialRepository.createMaterial('MyMaterial0', materialNode)!;
 
   // 1st
   MaterialRepository.registerMaterial('MyMaterial1', materialNode);
-  const material1a = MaterialRepository.createMaterial('MyMaterial1', materialNode)!;
+  const _material1a = MaterialRepository.createMaterial('MyMaterial1', materialNode)!;
   const material1b = MaterialRepository.createMaterial('MyMaterial1', materialNode)!;
 
   expect(material1b.materialTID).toEqual(1);

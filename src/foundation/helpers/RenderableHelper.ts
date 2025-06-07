@@ -269,7 +269,7 @@ function createFrameBufferCubeMap(desc: FrameBufferCubeMapDescriptor): [FrameBuf
  * @param options.internalFormat - Internal format for the depth texture (default: Depth32F)
  * @returns A FrameBuffer configured with only a depth attachment
  */
-function createDepthBuffer(width: number, height: number, { level = 0, internalFormat = TextureFormat.Depth32F }) {
+function createDepthBuffer(width: number, height: number, { _level = 0, internalFormat = TextureFormat.Depth32F }) {
   const frameBuffer = new FrameBuffer();
   frameBuffer.create(width, height);
 

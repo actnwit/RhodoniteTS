@@ -1,5 +1,5 @@
 import type { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
-import type { BASIS, BasisFile, BasisTranscoder } from '../../types/BasisTexture';
+import type { BASIS_TYPE, BasisFile, BasisTranscoder } from '../../types/BasisTexture';
 import type { CGAPIResourceHandle, Count, Index, Offset, Size, TypedArray } from '../../types/CommonTypes';
 import { type TextureData, WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import { KTX2TextureLoader } from '../../webgl/textureLoader/KTX2TextureLoader';
@@ -18,7 +18,7 @@ import { ModuleManager } from '../system/ModuleManager';
 import { SystemState } from '../system/SystemState';
 import { AbstractTexture } from './AbstractTexture';
 
-declare const BASIS: BASIS;
+declare const BASIS: BASIS_TYPE;
 
 /**
  * Descriptor for loading image data to a specific mip level of a texture.
@@ -178,11 +178,11 @@ export class Texture extends AbstractTexture implements Disposable {
   private __setBasisTexture(
     uint8Array: Uint8Array,
     {
-      level = 0,
-      internalFormat = TextureFormat.RGBA8,
+      _level = 0,
+      _internalFormat = TextureFormat.RGBA8,
       format = PixelFormat.RGBA,
       type = ComponentType.UnsignedByte as ComponentTypeEnum,
-      generateMipmap = true,
+      _generateMipmap = true,
     } = {}
   ): void {
     this.__startedToLoad = true;
@@ -335,7 +335,7 @@ export class Texture extends AbstractTexture implements Disposable {
   ) {
     this.__uri = imageUri;
     this.__startedToLoad = true;
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       this.__img = new Image();
       if (!imageUri.match(/^data:/)) {
         this.__img.crossOrigin = 'Anonymous';

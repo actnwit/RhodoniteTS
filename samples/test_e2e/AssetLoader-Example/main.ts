@@ -365,7 +365,7 @@ async function main() {
     console.log('=== AssetLoader example ===');
 
     // Loading using AssetLoader
-    const assetsWithLoader = await loadAssetsWithAssetLoader();
+    await loadAssetsWithAssetLoader();
 
     console.log('\n=== Example of replacing original code ===');
     await replaceOriginalCodeWithAssetLoader();

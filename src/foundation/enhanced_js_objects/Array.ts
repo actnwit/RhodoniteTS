@@ -19,7 +19,7 @@ function getComponentFromEntities<T extends typeof Component>(
   return components;
 }
 
-export interface ArrayAsRn<T> {
+export interface ArrayAsRn<_T> {
   Rn: EnhancedArrayMethods & IEnhancedArrayMethods;
 }
 

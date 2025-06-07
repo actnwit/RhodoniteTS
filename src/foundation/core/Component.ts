@@ -74,13 +74,11 @@ export class Component extends RnObject {
    * @param entityRepository - The instance of the EntityRepository class (Dependency Injection)
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, _isReUse: boolean) {
     super();
 
     this.__entityUid = entityUid;
     this._component_sid = componentSid;
-
-    const stages = Component._processStages;
 
     this.__memoryManager = MemoryManager.getInstance();
     this.__entityRepository = entityRepository;
@@ -232,7 +230,7 @@ export class Component extends RnObject {
    */
   static updateComponentsForRenderStage(
     componentClass: typeof Component,
-    processStage: ProcessStageEnum,
+    _processStage: ProcessStageEnum,
     renderPass: RenderPass
   ) {
     const method = (componentClass as any).sort_$render;
@@ -260,7 +258,7 @@ export class Component extends RnObject {
    * @param isMust - Whether this dependency is required
    * @todo This method is not used yet and needs implementation
    */
-  registerDependency(component: Component, isMust: boolean) {}
+  registerDependency(_component: Component, _isMust: boolean) {}
 
   /**
    * Allocates memory for a specific member field of this component instance.
@@ -638,7 +636,7 @@ export class Component extends RnObject {
    * @throws Error indicating invalid calling of virtual method
    */
   addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(
-    base: EntityBase,
+    _base: EntityBase,
     _componentClass: SomeComponentClass
   ): EntityBase & ComponentToComponentMethods<SomeComponentClass> {
     // can not be called. this is a virtual method.
@@ -759,7 +757,7 @@ export class Component extends RnObject {
    *
    * @param component - The source component to copy from
    */
-  _shallowCopyFrom(component: Component): void {
+  _shallowCopyFrom(_component: Component): void {
     // new Error('Not Implemented');
   }
 }

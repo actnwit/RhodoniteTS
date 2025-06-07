@@ -54,8 +54,6 @@ interface SystemInitDescription {
   notToDisplayRnInfoAtInit?: boolean;
 }
 
-type ComponentMethodName = string;
-
 /**
  * The system class is the entry point of the Rhodonite library.
  *
@@ -250,7 +248,6 @@ export class System {
               if (doRender) {
                 const renderedSomething = MeshRendererComponent.common_$render({
                   renderPass: renderPass,
-                  processStage: stage,
                   renderPassTickCount: this.__renderPassTickCount,
                   primitiveUids,
                 });

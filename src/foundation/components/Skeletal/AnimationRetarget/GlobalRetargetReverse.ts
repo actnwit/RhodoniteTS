@@ -149,7 +149,7 @@ export class GlobalRetargetReverse implements IAnimationRetarget {
    * @param dstEntity - The destination entity (currently unused)
    * @returns The source entity's local scale vector
    */
-  retargetScale(dstEntity: ISceneGraphEntity): IVector3 {
+  retargetScale(_dstEntity: ISceneGraphEntity): IVector3 {
     const srcEntity = this.__srcEntity;
 
     return srcEntity.getTransform().localScaleInner;

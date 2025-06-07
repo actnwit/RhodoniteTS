@@ -15,10 +15,6 @@ import { Vector3 } from './Vector3';
 import { Vector4 } from './Vector4';
 import { mulThatAndThisToOutAsMat44_offsetAsComposition } from './raw/raw_extension';
 
-/* eslint-disable prettier/prettier */
-const FloatArray = Float32Array;
-type FloatArray = Float32Array;
-
 /**
  * Represents a 4x4 matrix stored in column-major order (OpenGL/WebGL style).
  * This class provides immutable matrix operations and is used for 3D transformations
@@ -36,7 +32,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
    * Creates a new Matrix44 instance.
    * @param m - A Float32Array containing 16 matrix elements in column-major order
    */
-  constructor(m: FloatArray) {
+  constructor(m: Float32Array) {
     super();
     this._v = m;
   }

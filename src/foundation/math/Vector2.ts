@@ -19,7 +19,7 @@ export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVect
    * @param v - The typed array containing the vector components
    * @param options - Configuration object containing the array type
    */
-  constructor(v: TypedArray, { type }: { type: T }) {
+  constructor(v: TypedArray, _options: { type: T }) {
     super();
     this._v = v;
   }
@@ -293,8 +293,8 @@ export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVect
    * @returns A new vector containing the divided result
    */
   static _divide(vec: IVector2, value: number, type: FloatTypedArrayConstructor) {
-    let x;
-    let y;
+    let x: number;
+    let y: number;
     if (value !== 0) {
       x = vec._v[0] / value;
       y = vec._v[1] / value;
@@ -335,8 +335,8 @@ export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVect
    * @returns A new vector containing the component-wise division result
    */
   static _divideVector(l_vec: IVector2, r_vec: IVector2, type: FloatTypedArrayConstructor) {
-    let x;
-    let y;
+    let x: number;
+    let y: number;
     if (r_vec._v[0] !== 0 && r_vec._v[1] !== 0) {
       x = l_vec._v[0] / r_vec._v[0];
       y = l_vec._v[1] / r_vec._v[1];

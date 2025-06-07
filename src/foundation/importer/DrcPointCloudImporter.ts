@@ -122,7 +122,7 @@ export class DrcPointCloudImporter {
     const isLittleEndian = true;
     // Magic field
     const magic = dataView.getUint32(0, isLittleEndian);
-    let result;
+    let result: any;
     // 0x46546C67 is 'glTF' in ASCII codes.
     if (magic !== 0x46546c67) {
       //const json = await response.json();
@@ -237,7 +237,12 @@ export class DrcPointCloudImporter {
    * @returns A Promise that resolves to the processed glTF JSON
    * @private
    */
-  async _loadAsTextJson(gltfJson: RnM2, options: GltfLoadOption, defaultOptions: GltfLoadOption, basePath: string) {
+  async _loadAsTextJson(
+    gltfJson: RnM2,
+    options: GltfLoadOption,
+    defaultOptions: GltfLoadOption,
+    basePath: string
+  ): Promise<RnM2> {
     if (gltfJson.asset.extras === undefined) {
       gltfJson.asset.extras = { fileType: 'glTF', version: '2' };
     }
@@ -276,7 +281,7 @@ export class DrcPointCloudImporter {
     };
     promises.push(this._loadResources(uint8array!, basePath, gltfJson, options, resources));
     promises.push(
-      new Promise((resolve, reject) => {
+      new Promise(resolve => {
         this._loadJsonContent(gltfJson, options);
         resolve();
       }) as Promise<void>
@@ -293,7 +298,7 @@ export class DrcPointCloudImporter {
    * @param options - Loading options
    * @private
    */
-  _loadJsonContent(gltfJson: RnM2, options: GltfLoadOption) {
+  _loadJsonContent(gltfJson: RnM2, _options: GltfLoadOption) {
     // Scene
     this._loadDependenciesOfScenes(gltfJson);
 
@@ -536,9 +541,13 @@ export class DrcPointCloudImporter {
         if (Is.exist(skin.skeleton)) {
           skin.skeletonObject = gltfJson.nodes[skin.skeleton];
 
-          ifDefinedThen(v => (skin.inverseBindMatricesObject = gltfJson.accessors[v]), skin.inverseBindMatrices);
+          ifDefinedThen(v => {
+            skin.inverseBindMatricesObject = gltfJson.accessors[v];
+          }, skin.inverseBindMatrices);
 
-          ifUndefinedThen(() => (skin.skeletonObject = gltfJson.nodes[skin.joints[0]]), skin.skeleton);
+          ifUndefinedThen(() => {
+            skin.skeletonObject = gltfJson.nodes[skin.joints[0]];
+          }, skin.skeleton);
 
           skin.jointsObjects = [];
           for (const jointIndex of skin.joints) {
@@ -735,20 +744,20 @@ export class DrcPointCloudImporter {
         filename = splitted[splitted.length - 1];
       }
       if (typeof bufferInfo.uri === 'undefined') {
-        rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve, rejected) => {
+        rnpArrayBuffer = new RnPromise<ArrayBuffer>(resolve => {
           resources.buffers[i] = uint8Array;
           bufferInfo.buffer = uint8Array;
           resolve(uint8Array.buffer as ArrayBuffer);
         });
       } else if (bufferInfo.uri.match(/^data:application\/(.*);base64,/)) {
-        rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve, rejected) => {
+        rnpArrayBuffer = new RnPromise<ArrayBuffer>(resolve => {
           const arrayBuffer = DataUtil.dataUriToArrayBuffer(bufferInfo.uri!);
           resources.buffers[i] = new Uint8Array(arrayBuffer);
           bufferInfo.buffer = new Uint8Array(arrayBuffer);
           resolve(arrayBuffer);
         });
       } else if (options.files?.[filename!]) {
-        rnpArrayBuffer = new RnPromise<ArrayBuffer>((resolve, rejected) => {
+        rnpArrayBuffer = new RnPromise<ArrayBuffer>(resolve => {
           const arrayBuffer = options.files![filename];
           resources.buffers[i] = new Uint8Array(arrayBuffer);
           bufferInfo.buffer = new Uint8Array(arrayBuffer);
@@ -764,7 +773,7 @@ export class DrcPointCloudImporter {
               bufferInfo.buffer = new Uint8Array(response);
               resolve(response);
             },
-            (reject: Function, error: any) => {}
+            (_reject: Function, _error: any) => {}
           )
         );
       }
@@ -782,11 +791,6 @@ export class DrcPointCloudImporter {
       let imageUri: string;
 
       if (typeof imageJson.uri === 'undefined') {
-        let arrayBuffer = uint8Array;
-        if (uint8Array == null) {
-          const bufferView = gltfJson.bufferViews[imageJson.bufferView!];
-          arrayBuffer = bufferView.bufferObject!.buffer!;
-        }
         const imageUint8Array = DataUtil.createUint8ArrayFromBufferViewInfo(
           gltfJson,
           imageJson.bufferView!,
@@ -990,7 +994,7 @@ export class DrcPointCloudImporter {
     this.__setAccessorsAndBufferViewsToJSON(numPoints, attributeNames, attributeComponents, json);
     this.__setMeshesToJSON(attributeNames, json);
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       resolve(json);
     });
   }
@@ -1064,7 +1068,7 @@ export class DrcPointCloudImporter {
     for (let i = 0, indexOfBufferView = 0; i < attributeNames.length; indexOfBufferView++) {
       const numOfComponents = attributeComponents[i];
 
-      let type;
+      let type: string;
       if (numOfComponents === 1) {
         type = 'SCALAR';
       } else {
@@ -1223,8 +1227,8 @@ export class DrcPointCloudImporter {
     const buffer = new draco.DecoderBuffer();
     buffer.Init(new Int8Array(arrayBuffer), arrayBuffer.byteLength);
     const geometryType = decoder.GetEncodedGeometryType(buffer);
-    let dracoGeometry;
-    let decodingStatus;
+    let dracoGeometry: any;
+    let decodingStatus: any;
     if (geometryType === draco.TRIANGULAR_MESH) {
       dracoGeometry = new draco.Mesh();
       decodingStatus = decoder.DecodeBufferToMesh(buffer, dracoGeometry);

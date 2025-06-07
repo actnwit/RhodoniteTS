@@ -43,7 +43,7 @@ export class ShadowSystem {
     this.__pointShadowMap = new PointShadowMap();
     this.__gaussianBlur = new GaussianBlur();
 
-    const [shadowMapArrayFramebuffer, shadowMapArrayRenderTargetTexture] =
+    const [shadowMapArrayFramebuffer, _shadowMapArrayRenderTargetTexture] =
       RenderableHelper.createFrameBufferTextureArray({
         width: shadowMapSize,
         height: shadowMapSize,
@@ -55,7 +55,7 @@ export class ShadowSystem {
       });
     this.__shadowMapArrayFramebuffer = shadowMapArrayFramebuffer;
 
-    const [pointShadowMapArrayFramebuffer, pointShadowMapArrayRenderTargetTexture] =
+    const [pointShadowMapArrayFramebuffer, _pointShadowMapArrayRenderTargetTexture] =
       RenderableHelper.createFrameBufferTextureArray({
         width: shadowMapSize,
         height: shadowMapSize,
@@ -104,7 +104,7 @@ export class ShadowSystem {
         const {
           blurExpression: blurExpressionPointLight,
           blurredRenderTarget: blurredRenderTargetPointLight,
-          renderPassesBlurred: renderPassesBlurredPointLight,
+          renderPassesBlurred: _renderPassesBlurredPointLight,
         } = this.__gaussianBlur.createGaussianBlurExpression({
           textureToBlur: this.__pointShadowMap.getShadowMomentFramebuffer().getColorAttachedRenderTargetTexture(0)!,
           parameters: {
@@ -134,7 +134,7 @@ export class ShadowSystem {
         const {
           blurExpression: blurExpressionSpotLight,
           blurredRenderTarget: blurredRenderTargetSpotLight,
-          renderPassesBlurred: renderPassesBlurredSpotLight,
+          renderPassesBlurred: _renderPassesBlurredSpotLight,
         } = this.__gaussianBlur.createGaussianBlurExpression({
           textureToBlur: this.__shadowMap.getShadowMomentFramebuffer().getColorAttachedRenderTargetTexture(0)!,
           parameters: {

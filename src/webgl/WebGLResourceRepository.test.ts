@@ -5,7 +5,7 @@ import { WebGLResourceRepository } from '../webgl/WebGLResourceRepository';
 // const timeout = 5000;
 
 //let browser;
-let page: any;
+//let page: any;
 // beforeAll(async () => {
 // }, timeout)
 
