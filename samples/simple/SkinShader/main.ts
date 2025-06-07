@@ -116,7 +116,7 @@ const load = async () => {
     requestAnimationFrame(draw);
   };
 
-  draw(0);
+  draw();
 };
 
 load();

@@ -604,8 +604,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       );
       this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
         level: 0,
-        xoffset: 0,
-        yoffset: 0,
         width: MemoryManager.bufferWidthLength,
         height: height,
         format: PixelFormat.RGBA,
@@ -674,11 +672,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
       // write data
       this.__dataTextureUid = this.__webglResourceRepository.createTextureFromTypedArray(floatDataTextureBuffer!, {
-        level: 0,
         internalFormat: TextureFormat.RGBA32F,
         width: MemoryManager.bufferWidthLength,
         height: MemoryManager.bufferHeightLength,
-        border: 0,
         format: PixelFormat.RGBA,
         type: ComponentType.Float,
         generateMipmap: false,

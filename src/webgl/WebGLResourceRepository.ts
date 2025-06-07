@@ -2527,16 +2527,12 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
   async createTextureFromDataUri(
     dataUri: string,
     {
-      level,
       internalFormat,
-      border,
       format,
       type,
       generateMipmap,
     }: {
-      level: Index;
       internalFormat: TextureParameterEnum;
-      border: Size;
       format: PixelFormatEnum;
       type: ComponentTypeEnum;
       generateMipmap: boolean;
@@ -2552,11 +2548,9 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
         const height = img.height;
 
         const texture = this.createTextureFromHTMLImageElement(img, {
-          level,
           internalFormat,
           width,
           height,
-          border,
           format,
           type,
           generateMipmap,
@@ -2702,11 +2696,9 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
   __createDummyTextureInner(base64: string) {
     const arrayBuffer = DataUtil.base64ToArrayBuffer(base64);
     return this.createTextureFromTypedArray(new Uint8Array(arrayBuffer), {
-      level: 0,
       internalFormat: TextureFormat.RGBA8,
       width: 1,
       height: 1,
-      border: 0,
       format: PixelFormat.RGBA,
       type: ComponentType.UnsignedByte,
       generateMipmap: false,

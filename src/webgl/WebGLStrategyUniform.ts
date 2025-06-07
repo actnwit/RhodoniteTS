@@ -311,11 +311,9 @@ bool get_isBillboard(float instanceId) {
       const floatDataTextureBuffer = new Float32Array(concatArrayBuffer);
 
       this.__dataTextureUid = this.__webglResourceRepository.createTextureFromTypedArray(floatDataTextureBuffer, {
-        level: 0,
         internalFormat: TextureFormat.RGBA32F,
         width: MemoryManager.bufferWidthLength,
         height: MemoryManager.bufferHeightLength,
-        border: 0,
         format: PixelFormat.RGBA,
         type: ComponentType.Float,
         generateMipmap: false,

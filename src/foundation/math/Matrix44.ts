@@ -32,7 +32,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
    * Creates a new Matrix44 instance.
    * @param m - A Float32Array containing 16 matrix elements in column-major order
    */
-  constructor(m: FloatArray) {
+  constructor(m: Float32Array) {
     super();
     this._v = m;
   }
