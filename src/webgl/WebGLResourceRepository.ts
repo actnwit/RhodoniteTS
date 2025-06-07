@@ -707,7 +707,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    * @param value - The value to set (can be scalar, vector, matrix, or texture data)
    * @returns True if the uniform was successfully set, false otherwise
    */
-  setUniformValue(shaderProgram_: WebGLProgram, semanticStr: string, firstTime: boolean, value: any) {
+  setUniformValue(shaderProgram_: WebGLProgram, semanticStr: string, _firstTime: boolean, value: any) {
     const shaderProgram = shaderProgram_ as RnWebGLProgram;
     const info = shaderProgram._shaderSemanticsInfoMap.get(semanticStr);
     if (info == null) {
@@ -1076,7 +1076,6 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    * @param params.wrapT - Wrapping mode for T coordinate
    * @param params.wrapR - Wrapping mode for R coordinate
    * @param params.anisotropy - Whether to enable anisotropic filtering
-   * @param params.isPremultipliedAlpha - Whether alpha is premultiplied (optional)
    * @param params.shadowCompareMode - Whether to enable shadow comparison mode
    * @returns The handle of the created sampler
    */
@@ -1087,7 +1086,6 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     wrapT,
     wrapR,
     anisotropy,
-    isPremultipliedAlpha,
     shadowCompareMode,
   }: {
     magFilter: TextureParameterEnum;
@@ -1096,7 +1094,6 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     wrapT: TextureParameterEnum;
     wrapR: TextureParameterEnum;
     anisotropy: boolean;
-    isPremultipliedAlpha?: boolean;
     shadowCompareMode: boolean;
   }) {
     const gl = this.__glw!.getRawContextAsWebGL2();
@@ -1282,11 +1279,9 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    *
    * @param imageData - The ImageBitmap or ImageBitmapSource data to upload
    * @param params - Configuration object for texture creation
-   * @param params.level - Mipmap level (usually 0 for base level)
    * @param params.internalFormat - Internal format of the texture
    * @param params.width - Width of the texture
    * @param params.height - Height of the texture
-   * @param params.border - Border width (must be 0 in WebGL)
    * @param params.format - Pixel format of the source data
    * @param params.type - Data type of the source data
    * @param params.generateMipmap - Whether to generate mipmaps automatically
@@ -1295,20 +1290,16 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
   async createTextureFromImageBitmapData(
     imageData: ImageBitmapData,
     {
-      level,
       internalFormat,
       width,
       height,
-      border,
       format,
       type,
       generateMipmap,
     }: {
-      level: Index;
       internalFormat: TextureFormatEnum;
       width: Size;
       height: Size;
-      border: Size;
       format: PixelFormatEnum;
       type: ComponentTypeEnum;
       generateMipmap: boolean;
@@ -1338,7 +1329,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    * @param height - Height of the texture
    * @param generateMipmap - Whether to generate mipmaps
    */
-  private __createTextureInner(gl: WebGL2RenderingContext, width: number, height: number, generateMipmap: boolean) {
+  private __createTextureInner(gl: WebGL2RenderingContext, _width: number, _height: number, _generateMipmap: boolean) {
     // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
     // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
     // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
@@ -1366,11 +1357,9 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    *
    * @param imageData - The HTML image element containing the image data
    * @param params - Configuration object for texture creation
-   * @param params.level - Mipmap level (usually 0 for base level)
    * @param params.internalFormat - Internal format of the texture
    * @param params.width - Width of the texture
    * @param params.height - Height of the texture
-   * @param params.border - Border width (must be 0 in WebGL)
    * @param params.format - Pixel format of the source data
    * @param params.type - Data type of the source data
    * @param params.generateMipmap - Whether to generate mipmaps automatically
@@ -1379,20 +1368,16 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
   async createTextureFromHTMLImageElement(
     imageData: HTMLImageElement,
     {
-      level,
       internalFormat,
       width,
       height,
-      border,
       format,
       type,
       generateMipmap,
     }: {
-      level: Index;
       internalFormat: TextureParameterEnum;
       width: Size;
       height: Size;
-      border: Size;
       format: PixelFormatEnum;
       type: ComponentTypeEnum;
       generateMipmap: boolean;
@@ -1576,11 +1561,9 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    *
    * @param imageData - The typed array containing the pixel data
    * @param params - Configuration object for texture creation
-   * @param params.level - Mipmap level (usually 0 for base level)
    * @param params.internalFormat - Internal format of the texture
    * @param params.width - Width of the texture
    * @param params.height - Height of the texture
-   * @param params.border - Border width (must be 0 in WebGL)
    * @param params.format - Pixel format of the source data
    * @param params.type - Data type of the source data
    * @param params.generateMipmap - Whether to generate mipmaps automatically
@@ -1589,20 +1572,16 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
   createTextureFromTypedArray(
     imageData: TypedArray,
     {
-      level,
       internalFormat,
       width,
       height,
-      border,
       format,
       type,
       generateMipmap,
     }: {
-      level: Index;
       internalFormat: TextureFormatEnum;
       width: Size;
       height: Size;
-      border: Size;
       format: PixelFormatEnum;
       type: ComponentTypeEnum;
       generateMipmap: boolean;
@@ -1678,20 +1657,14 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    * @param basisFile - The Basis Universal file containing the compressed texture data
    * @param params - Configuration object for texture creation
    * @param params.border - Border width (must be 0 in WebGL)
-   * @param params.format - Pixel format (not used for compressed textures)
-   * @param params.type - Data type (not used for compressed textures)
    * @returns The handle of the created compressed texture
    */
   createCompressedTextureFromBasis(
     basisFile: BasisFile,
     {
       border,
-      format,
-      type,
     }: {
       border: Size;
-      format: PixelFormatEnum;
-      type: ComponentTypeEnum;
     }
   ): WebGLResourceHandle {
     let basisCompressionType: BasisCompressionTypeEnum;
@@ -2111,18 +2084,12 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
   createRenderTargetTextureArray({
     width,
     height,
-    level,
     internalFormat,
-    format,
-    type,
     arrayLength,
   }: {
     width: Size;
     height: Size;
-    level: Index;
     internalFormat: TextureParameterEnum;
-    format: PixelFormatEnum;
-    type: ComponentTypeEnum;
     arrayLength: Count;
   }): WebGLResourceHandle {
     const gl = this.__glw!.getRawContextAsWebGL2();
@@ -2356,7 +2323,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
       let images: HTMLImageElement[];
       try {
         images = await loadOneLevel();
-      } catch (e) {
+      } catch (_e) {
         // Try again once
         try {
           images = await loadOneLevel();
@@ -2641,16 +2608,12 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     textureData: DirectTextureData,
     {
       level,
-      xoffset,
-      yoffset,
       width,
       height,
       format,
       type,
     }: {
       level: Index;
-      xoffset: Size;
-      yoffset: Size;
       width: Size;
       height: Size;
       format: PixelFormatEnum;
@@ -2712,11 +2675,9 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     ctx.fillRect(0, 0, 1, 1);
 
     return this.createTextureFromImageBitmapData(canvas, {
-      level: 0,
       internalFormat: TextureFormat.RGBA8,
       width: 1,
       height: 1,
-      border: 0,
       format: PixelFormat.RGBA,
       type: ComponentType.UnsignedByte,
       generateMipmap: false,
@@ -2752,7 +2713,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     });
   }
 
-  generateMipmaps2d(textureHandle: WebGLResourceHandle, width: number, height: number): void {
+  generateMipmaps2d(textureHandle: WebGLResourceHandle, _width: number, _height: number): void {
     const gl = this.__glw!.getRawContext();
     const texture = this.getWebGLResource(textureHandle) as WebGLTexture;
     this.__glw!.bindTexture2D(15, texture);
@@ -2760,7 +2721,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     this.__glw!.unbindTexture2D(15);
   }
 
-  generateMipmapsCube(textureHandle: WebGLResourceHandle, width: number, height: number): void {
+  generateMipmapsCube(textureHandle: WebGLResourceHandle, _width: number, _height: number): void {
     const gl = this.__glw!.getRawContext();
     const texture = this.getWebGLResource(textureHandle) as WebGLTexture;
     this.__glw!.bindTextureCube(15, texture);
@@ -2769,7 +2730,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
   }
 
   async getTexturePixelData(
-    textureHandle: WebGLResourceHandle,
+    _textureHandle: WebGLResourceHandle,
     width: number,
     height: number,
     frameBufferUid: WebGLResourceHandle,

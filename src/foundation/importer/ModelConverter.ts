@@ -105,7 +105,6 @@ declare let DracoDecoderModule: any;
  * A converter class from glTF2 model to Rhodonite Native data
  */
 export class ModelConverter {
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {}
 
   /**
@@ -459,7 +458,7 @@ export class ModelConverter {
       return;
     }
 
-    const newRootGroup = EntityRepository.addComponentToEntity(AnimationStateComponent, rootGroup);
+    EntityRepository.addComponentToEntity(AnimationStateComponent, rootGroup);
 
     for (const animation of gltfModel.animations) {
       for (const sampler of animation.samplers) {
@@ -624,7 +623,7 @@ export class ModelConverter {
     animInputArray: Float32Array,
     animOutputArray: Float32Array,
     interpolation: string,
-    animationAttributeType: AnimationPathName,
+    _animationAttributeType: AnimationPathName,
     gltfModel: RnM2
   ) {
     const cameraIndex = Number.parseInt(match[1]);
@@ -704,7 +703,7 @@ export class ModelConverter {
     animInputArray: Float32Array,
     animOutputArray: Float32Array,
     interpolation: string,
-    animationAttributeType: AnimationPathName,
+    _animationAttributeType: AnimationPathName,
     gltfModel: RnM2
   ) {
     const lightIndex = Number.parseInt(match[1]);
@@ -786,7 +785,7 @@ export class ModelConverter {
     animInputArray: Float32Array,
     animOutputArray: Float32Array,
     interpolation: string,
-    animationAttributeType: AnimationPathName
+    _animationAttributeType: AnimationPathName
   ) {
     const nodeIndex = Number.parseInt(match[1]);
     const rnEntity = rnEntities[nodeIndex];
@@ -864,7 +863,7 @@ export class ModelConverter {
     animInputArray: Float32Array,
     animOutputArray: Float32Array,
     interpolation: string,
-    animationAttributeType: AnimationPathName
+    _animationAttributeType: AnimationPathName
   ) {
     const materialIndex = Number.parseInt(match[1]);
     const material = rnMaterials[materialIndex];
@@ -1780,7 +1779,7 @@ export class ModelConverter {
     if (Number.parseFloat(gltfModel.asset?.version) >= 2) {
       const rnLoaderOptions = gltfModel.asset.extras?.rnLoaderOptions ?? {};
       // For glTF 2
-      const useTangentAttribute = true; //this.__useTangentAttribute(gltfModel, primitive);
+      const _useTangentAttribute = true; //this.__useTangentAttribute(gltfModel, primitive);
       const useNormalTexture = materialJson?.normalTexture != null;
       const material = MaterialHelper.createPbrUberMaterial({
         isMorphing,
@@ -2037,7 +2036,7 @@ export class ModelConverter {
   }
 
   static async _createTexture(image: RnM2Image, gltfModel: RnM2, { autoDetectTransparency = false } = {}) {
-    const options = gltfModel.asset.extras?.rnLoaderOptions;
+    const _options = gltfModel.asset.extras?.rnLoaderOptions;
 
     const rnTexture = new Texture();
     rnTexture.autoDetectTransparency = autoDetectTransparency;
@@ -2086,7 +2085,7 @@ export class ModelConverter {
     return false;
   }
 
-  private static __needParameterInitialization(materialJson: RnM2Material, materialTypeName: string): boolean {
+  private static __needParameterInitialization(materialJson: RnM2Material, _materialTypeName: string): boolean {
     if (materialJson == null) return false;
 
     return true;
@@ -2756,7 +2755,7 @@ export class ModelConverter {
  */
 function setupMToon1(
   material: Material,
-  gltfModel: RnM2,
+  _gltfModel: RnM2,
   materialJson: Vrm1_Material,
   rnTextures: Texture[],
   rnSamplers: Sampler[]
@@ -3073,7 +3072,7 @@ function setupPbrMetallicRoughness(
 function setup_KHR_materials_transmission(
   materialJson: RnM2Material,
   material: Material,
-  gltfModel: RnM2,
+  _gltfModel: RnM2,
   rnTextures: Texture[],
   rnSamplers: Sampler[]
 ) {
@@ -3116,7 +3115,7 @@ function setup_KHR_materials_transmission(
 function setup_KHR_materials_clearcoat(
   materialJson: RnM2Material,
   material: Material,
-  gltfModel: RnM2,
+  _gltfModel: RnM2,
   rnTextures: Texture[],
   rnSamplers: Sampler[]
 ) {
@@ -3200,7 +3199,7 @@ function setup_KHR_materials_clearcoat(
 function setup_KHR_materials_volume(
   materialJson: RnM2Material,
   material: Material,
-  gltfModel: RnM2,
+  _gltfModel: RnM2,
   rnTextures: Texture[],
   rnSamplers: Sampler[]
 ): void {
@@ -3253,7 +3252,7 @@ function setup_KHR_materials_volume(
 function setup_KHR_materials_sheen(
   materialJson: RnM2Material,
   material: Material,
-  gltfModel: RnM2,
+  _gltfModel: RnM2,
   rnTextures: Texture[],
   rnSamplers: Sampler[]
 ) {
@@ -3315,7 +3314,7 @@ function setup_KHR_materials_sheen(
 function setup_KHR_materials_specular(
   materialJson: RnM2Material,
   material: Material,
-  gltfModel: RnM2,
+  _gltfModel: RnM2,
   rnTextures: Texture[],
   rnSamplers: Sampler[]
 ) {
@@ -3372,7 +3371,7 @@ function setup_KHR_materials_specular(
  * @param material - The material to configure
  * @param gltfModel - The glTF model data
  */
-function setup_KHR_materials_ior(materialJson: RnM2Material, material: Material, gltfModel: RnM2) {
+function setup_KHR_materials_ior(materialJson: RnM2Material, material: Material, _gltfModel: RnM2) {
   const KHR_materials_ior = materialJson?.extensions?.KHR_materials_ior;
   if (Is.exist(KHR_materials_ior)) {
     const ior = Is.exist(KHR_materials_ior.ior) ? KHR_materials_ior.ior : 1.5;
@@ -3391,7 +3390,7 @@ function setup_KHR_materials_ior(materialJson: RnM2Material, material: Material,
 function setup_KHR_materials_iridescence(
   materialJson: RnM2Material,
   material: Material,
-  gltfModel: RnM2,
+  _gltfModel: RnM2,
   rnTextures: Texture[],
   rnSamplers: Sampler[]
 ) {
@@ -3464,7 +3463,7 @@ function setup_KHR_materials_iridescence(
 function setup_KHR_materials_anisotropy(
   materialJson: RnM2Material,
   material: Material,
-  gltfModel: RnM2,
+  _gltfModel: RnM2,
   rnTextures: Texture[],
   rnSamplers: Sampler[]
 ) {
@@ -3508,7 +3507,7 @@ function setup_KHR_materials_anisotropy(
  * @param material - The material to configure
  * @param gltfModel - The glTF model data
  */
-function setup_KHR_materials_emissive_strength(materialJson: RnM2Material, material: Material, gltfModel: RnM2) {
+function setup_KHR_materials_emissive_strength(materialJson: RnM2Material, material: Material, _gltfModel: RnM2) {
   const KHR_materials_emissive_strength = materialJson?.extensions?.KHR_materials_emissive_strength;
   if (Is.exist(KHR_materials_emissive_strength)) {
     const emissiveStrength = Is.exist(KHR_materials_emissive_strength.emissiveStrength)
@@ -3524,7 +3523,7 @@ function setup_KHR_materials_emissive_strength(materialJson: RnM2Material, mater
  * @param material - The material to configure
  * @param gltfModel - The glTF model data
  */
-function setup_KHR_materials_dispersion(materialJson: RnM2Material, material: Material, gltfModel: RnM2) {
+function setup_KHR_materials_dispersion(materialJson: RnM2Material, material: Material, _gltfModel: RnM2) {
   const KHR_materials_dispersion = materialJson?.extensions?.KHR_materials_dispersion;
   if (Is.exist(KHR_materials_dispersion)) {
     const dispersion = Is.exist(KHR_materials_dispersion.dispersion) ? KHR_materials_dispersion.dispersion : 0.0;
@@ -3543,7 +3542,7 @@ function setup_KHR_materials_dispersion(materialJson: RnM2Material, material: Ma
 function setup_KHR_materials_diffuse_transmission(
   materialJson: RnM2Material,
   material: Material,
-  gltfModel: RnM2,
+  _gltfModel: RnM2,
   rnTextures: Texture[],
   rnSamplers: Sampler[]
 ) {

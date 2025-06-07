@@ -37,12 +37,6 @@ import type { FrameBuffer } from '../FrameBuffer';
 import { RenderPass } from '../RenderPass';
 
 type DrawFunc = (frame: Frame) => void;
-type IBLCubeTextureParameter = {
-  baseUri: string;
-  isNamePosNeg: boolean;
-  hdriFormat: HdriFormatEnum;
-  mipmapLevelNumber: number;
-};
 
 /**
  * A forward rendering pipeline that provides advanced rendering features including shadows, bloom, tone mapping, and IBL.

@@ -53,7 +53,7 @@ export class RnPromise<T> extends Promise<T> {
   constructor(fn: PromiseFn<T>);
 
   constructor(arg: Promise<T> | PromiseFn<T>) {
-    super((resolve, reject) => {});
+    super((_resolve, _reject) => {});
     if (arg instanceof Promise) {
       this.__promise = arg;
     } else {
@@ -82,13 +82,13 @@ export class RnPromise<T> extends Promise<T> {
       return arg as unknown as Promise<T>;
     }
     if ((arg as any).then != null) {
-      const rnPromise = new RnPromise((resolve, reject) => {
+      const rnPromise = new RnPromise((resolve, _reject) => {
         resolve(arg);
       });
       rnPromise.then = (arg as any).then;
       return rnPromise as unknown as Promise<T>;
     }
-    return new RnPromise((resolve, reject) => {
+    return new RnPromise((resolve, _reject) => {
       resolve(arg);
     }) as unknown as Promise<T>;
   }

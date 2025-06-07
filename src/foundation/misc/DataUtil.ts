@@ -207,7 +207,7 @@ export class DataUtil {
       } else {
         const xmlHttp = new XMLHttpRequest();
         if (isBinary) {
-          xmlHttp.onload = oEvent => {
+          xmlHttp.onload = () => {
             let response = null;
             if (isBinary) {
               response = xmlHttp.response;

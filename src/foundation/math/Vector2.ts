@@ -19,7 +19,7 @@ export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVect
    * @param v - The typed array containing the vector components
    * @param options - Configuration object containing the array type
    */
-  constructor(v: TypedArray, { type }: { type: T }) {
+  constructor(v: TypedArray, _options: { type: T }) {
     super();
     this._v = v;
   }

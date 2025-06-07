@@ -99,7 +99,6 @@ export function getEvent(type: 'start' | 'move' | 'end' | 'click'): string {
   return EventNames[type];
 }
 
-type EventName = string;
 type ClassInstance = any;
 type InputHandlingStateMap = Map<InputHandlingState, InputHandlerInfo[]>;
 type ActiveMap = Map<InputHandlingState, boolean>;

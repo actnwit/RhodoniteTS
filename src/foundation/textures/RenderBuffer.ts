@@ -106,7 +106,7 @@ export class RenderBuffer extends RnObject implements IRenderable {
    * @param faceIdx - The index of the cube face (0-5)
    * @param mipLevel - The mip level to create the view for
    */
-  createCubeTextureViewAsRenderTarget(faceIdx: Index, mipLevel: Index): void {}
+  createCubeTextureViewAsRenderTarget(_faceIdx: Index, _mipLevel: Index): void {}
 
   /**
    * Resizes the render buffer to new dimensions.

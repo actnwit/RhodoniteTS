@@ -155,7 +155,7 @@ export class MergeVectorShaderNode extends AbstractShaderNode {
    */
   makeCallStatement(
     i: number,
-    shaderNode: AbstractShaderNode,
+    _shaderNode: AbstractShaderNode,
     functionName: string,
     varInputNames: string[][],
     varOutputNames: string[][]

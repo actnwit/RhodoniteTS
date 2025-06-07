@@ -910,20 +910,14 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
    * IBL environment textures and other program-level uniforms.
    *
    * @param params - Object containing rendering parameters
-   * @param params.material - The material instance
    * @param params.shaderProgram - The WebGL shader program
-   * @param params.firstTime - Whether this is the first time setup
    * @param params.args - WebGL rendering arguments
    */
   _setInternalSettingParametersToGpuWebGLPerShaderProgram({
-    material,
     shaderProgram,
-    firstTime,
     args,
   }: {
-    material: Material;
     shaderProgram: WebGLProgram;
-    firstTime: boolean;
     args: RenderingArgWebGL;
   }) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();

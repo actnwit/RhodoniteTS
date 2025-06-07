@@ -3,8 +3,8 @@ import Rn from '../../../dist/esmdev/index.js';
 
 declare const window: any;
 
-let framebuffer: Rn.FrameBuffer;
-let renderPassMain: Rn.RenderPass;
+let _framebuffer: Rn.FrameBuffer;
+let _renderPassMain: Rn.RenderPass;
 
 // Init Rhodonite
 await initRn();
@@ -77,7 +77,7 @@ async function initRn() {
   Rn.Logger.logLevel = Rn.LogLevel.Info;
 }
 
-function createSat(expressions: Rn.Expression[]) {
+function _createSat(expressions: Rn.Expression[]) {
   const expressionSat = new Rn.Expression();
   const materialSat = Rn.MaterialHelper.createSummedAreaTableMaterial();
   const renderPassSat = Rn.RenderPassHelper.createScreenDrawRenderPass(materialSat);

@@ -17,7 +17,7 @@ export class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
    * @param options - Configuration object containing the array type
    * @param options.type - The typed array constructor type
    */
-  constructor(v: TypedArray, { type }: { type: T }) {
+  constructor(v: TypedArray, _options: { type: T }) {
     super();
     this._v = v;
   }

@@ -1,6 +1,6 @@
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
 
-exports.testFunc = async (browser, url, expect) => {
+exports.testFunc = async (browser, _url, expect) => {
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(2000000);
   await page.goto('http://localhost:8082/samples/test_e2e/ColorGradingUsingLUTs');

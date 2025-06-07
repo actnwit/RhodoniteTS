@@ -393,7 +393,6 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
    * @param params - The rendering parameters object
    * @param params.material - The material instance being rendered
    * @param params.shaderProgram - The WebGL shader program to configure
-   * @param params.firstTime - Whether this is the first time setting parameters for this material
    * @param params.args - WebGL-specific rendering arguments containing entity, camera, and rendering context
    *
    * @remarks
@@ -409,12 +408,10 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
   _setInternalSettingParametersToGpuWebGLPerMaterial({
     material,
     shaderProgram,
-    firstTime,
     args,
   }: {
     material: Material;
     shaderProgram: WebGLProgram;
-    firstTime: boolean;
     args: RenderingArgWebGL;
   }) {
     let cameraComponent = args.renderPass.cameraComponent;

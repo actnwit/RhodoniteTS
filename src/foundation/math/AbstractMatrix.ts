@@ -21,7 +21,7 @@ export abstract class AbstractMatrix implements IMatrix {
    * @returns The matrix element value at the specified position
    * @throws Error when not implemented in derived classes
    */
-  at(row_i: number, column_i: number): number {
+  at(_row_i: number, _column_i: number): number {
     throw new Error('Method not implemented.');
   }
 

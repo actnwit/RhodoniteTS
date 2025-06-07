@@ -193,7 +193,7 @@ export class VideoTexture extends AbstractTexture {
   ) {
     this.__uri = videoUri;
     this.__startedToLoad = true;
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       const button = playButtonDomElement as HTMLButtonElement | undefined;
 
       const setupTexture = async () => {

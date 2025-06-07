@@ -20,7 +20,7 @@ export class Vector4_<T extends FloatTypedArrayConstructor> extends AbstractVect
    * @param options - Configuration object containing the array type constructor
    * @protected This constructor is protected to prevent direct instantiation
    */
-  protected constructor(v: FloatTypedArray, { type }: { type: T }) {
+  protected constructor(v: FloatTypedArray, _options: { type: T }) {
     super();
     this._v = v;
   }

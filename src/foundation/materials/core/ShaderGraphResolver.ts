@@ -160,7 +160,7 @@ export class ShaderGraphResolver {
    * @private
    */
   private static __validateShaderNodes(shaderNodes: AbstractShaderNode[]) {
-    const shaderNodeUids: ShaderNodeUID[] = [];
+    const _shaderNodeUids: ShaderNodeUID[] = [];
     for (let i = 0; i < shaderNodes.length; i++) {
       const shaderNode = shaderNodes[i];
       for (let j = 0; j < shaderNode.inputConnections.length; j++) {

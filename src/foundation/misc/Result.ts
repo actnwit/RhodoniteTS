@@ -164,7 +164,7 @@ export class Ok<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, ErrO
    * @param f - Alternative function (not called for Ok results)
    * @returns This Ok result cast to the new type
    */
-  orElse<U>(f: () => Result<U, ErrObj>): Result<U, ErrObj> {
+  orElse<U>(_f: () => Result<U, ErrObj>): Result<U, ErrObj> {
     return this as unknown as Result<U, ErrObj>;
   }
 
@@ -174,7 +174,7 @@ export class Ok<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, ErrO
    * @param catchFn - Compensation function (not called for Ok results)
    * @returns The contained success value
    */
-  unwrapWithCompensation(catchFn: (err: RnError<ErrObj>) => T): T {
+  unwrapWithCompensation(_catchFn: (err: RnError<ErrObj>) => T): T {
     return this.val as T;
   }
 
@@ -246,7 +246,7 @@ export class Err<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, Err
    * @param f - Chaining function (not called for Err results)
    * @returns This Err result cast to the new type
    */
-  andThen<U>(f: (value: T) => Result<U, ErrObj>): Result<U, ErrObj> {
+  andThen<U>(_f: (value: T) => Result<U, ErrObj>): Result<U, ErrObj> {
     return this as unknown as Result<U, ErrObj>;
   }
 

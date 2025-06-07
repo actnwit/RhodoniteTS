@@ -127,7 +127,6 @@ export class ShaderityUtilityWebGPU {
         shaderSemanticsInfoArray.push(shaderSemanticsInfo);
       } else if (matchSamplerDeclaration) {
         const binding = Number.parseInt(matchSamplerDeclaration[1]);
-        const variableName = matchSamplerDeclaration[2];
 
         if (textureMap.has(binding)) {
           const textureShaderSemanticsInfo = textureMap.get(binding);

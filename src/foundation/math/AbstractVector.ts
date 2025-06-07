@@ -61,7 +61,7 @@ export abstract class AbstractVector implements IVector {
    * @returns True if vectors are approximately equal, false otherwise
    * @throws Error - Must be implemented by subclasses
    */
-  isEqual(vec: IVector, delta?: number): boolean {
+  isEqual(_vec: IVector, _delta?: number): boolean {
     throw new Error('Method not implemented.');
   }
 
@@ -71,7 +71,7 @@ export abstract class AbstractVector implements IVector {
    * @returns True if vectors are exactly equal, false otherwise
    * @throws Error - Must be implemented by subclasses
    */
-  isStrictEqual(vec: IVector): boolean {
+  isStrictEqual(_vec: IVector): boolean {
     throw new Error('Method not implemented.');
   }
 
@@ -100,7 +100,7 @@ export abstract class AbstractVector implements IVector {
    * @returns The distance between the vectors
    * @throws Error - Must be implemented by subclasses
    */
-  lengthTo(vec: IVector): number {
+  lengthTo(_vec: IVector): number {
     throw new Error('Method not implemented.');
   }
 
@@ -110,7 +110,7 @@ export abstract class AbstractVector implements IVector {
    * @returns The dot product result
    * @throws Error - Must be implemented by subclasses
    */
-  dot(vec: IVector): number {
+  dot(_vec: IVector): number {
     throw new Error('Method not implemented.');
   }
 

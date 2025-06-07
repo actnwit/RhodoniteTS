@@ -7,10 +7,6 @@ import type { MutableVector3 } from './MutableVector3';
 import type { Quaternion } from './Quaternion';
 import type { Vector3 } from './Vector3';
 
-/* eslint-disable prettier/prettier */
-const FloatArray = Float32Array;
-type FloatArray = Float32Array;
-
 /**
  * A mutable 4x4 matrix class that extends the immutable Matrix44 class.
  *

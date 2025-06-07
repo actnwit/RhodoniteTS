@@ -103,7 +103,7 @@ test('wrapped Err', () => {
         error: result0,
       });
     }
-    const one = result0.get();
+    const _one = result0.get();
     return new Ok(0);
   }
 

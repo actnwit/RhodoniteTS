@@ -54,8 +54,6 @@ interface SystemInitDescription {
   notToDisplayRnInfoAtInit?: boolean;
 }
 
-type ComponentMethodName = string;
-
 /**
  * The system class is the entry point of the Rhodonite library.
  *

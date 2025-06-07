@@ -298,7 +298,7 @@ export class DrcPointCloudImporter {
    * @param options - Loading options
    * @private
    */
-  _loadJsonContent(gltfJson: RnM2, options: GltfLoadOption) {
+  _loadJsonContent(gltfJson: RnM2, _options: GltfLoadOption) {
     // Scene
     this._loadDependenciesOfScenes(gltfJson);
 
@@ -791,11 +791,6 @@ export class DrcPointCloudImporter {
       let imageUri: string;
 
       if (typeof imageJson.uri === 'undefined') {
-        let arrayBuffer = uint8Array;
-        if (uint8Array == null) {
-          const bufferView = gltfJson.bufferViews[imageJson.bufferView!];
-          arrayBuffer = bufferView.bufferObject!.buffer!;
-        }
         const imageUint8Array = DataUtil.createUint8ArrayFromBufferViewInfo(
           gltfJson,
           imageJson.bufferView!,
@@ -999,7 +994,7 @@ export class DrcPointCloudImporter {
     this.__setAccessorsAndBufferViewsToJSON(numPoints, attributeNames, attributeComponents, json);
     this.__setMeshesToJSON(attributeNames, json);
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       resolve(json);
     });
   }

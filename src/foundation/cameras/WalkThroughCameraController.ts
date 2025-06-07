@@ -98,7 +98,7 @@ export class WalkThroughCameraController extends AbstractCameraController implem
       this._lastKeyCode = e.keyCode;
     };
 
-    this._onKeyup = e => {
+    this._onKeyup = () => {
       this._isKeyDown = false;
       this._lastKeyCode = -1;
     };

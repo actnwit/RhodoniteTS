@@ -123,7 +123,7 @@ export abstract class AbstractQuaternion implements IQuaternion {
    * @returns True if quaternions are approximately equal, false otherwise
    * @throws Error - Method must be implemented by subclass
    */
-  isEqual(vec: IQuaternion, delta?: number): boolean {
+  isEqual(_vec: IQuaternion, _delta?: number): boolean {
     throw new Error('Method not implemented.');
   }
 
@@ -133,7 +133,7 @@ export abstract class AbstractQuaternion implements IQuaternion {
    * @returns True if quaternions are exactly equal, false otherwise
    * @throws Error - Method must be implemented by subclass
    */
-  isStrictEqual(vec: IQuaternion): boolean {
+  isStrictEqual(_vec: IQuaternion): boolean {
     throw new Error('Method not implemented.');
   }
 
@@ -143,7 +143,7 @@ export abstract class AbstractQuaternion implements IQuaternion {
    * @returns The output vector containing the Euler angles
    * @throws Error - Method must be implemented by subclass
    */
-  toEulerAnglesTo(out: IMutableVector3): IMutableVector3 {
+  toEulerAnglesTo(_out: IMutableVector3): IMutableVector3 {
     throw new Error('Method not implemented.');
   }
 
@@ -162,7 +162,7 @@ export abstract class AbstractQuaternion implements IQuaternion {
    * @returns A new transformed vector
    * @throws Error - Method must be implemented by subclass
    */
-  transformVector3(vec: IVector3): IVector3 {
+  transformVector3(_vec: IVector3): IVector3 {
     throw new Error('Method not implemented.');
   }
 
@@ -173,7 +173,7 @@ export abstract class AbstractQuaternion implements IQuaternion {
    * @returns The output vector containing the transformed result
    * @throws Error - Method must be implemented by subclass
    */
-  transformVector3To(vec: IVector3, out: IMutableVector3): IVector3 {
+  transformVector3To(_vec: IVector3, _out: IMutableVector3): IVector3 {
     throw new Error('Method not implemented.');
   }
 
@@ -183,7 +183,7 @@ export abstract class AbstractQuaternion implements IQuaternion {
    * @returns A new vector transformed by the inverse rotation
    * @throws Error - Method must be implemented by subclass
    */
-  transformVector3Inverse(vec: IVector3): IVector3 {
+  transformVector3Inverse(_vec: IVector3): IVector3 {
     throw new Error('Method not implemented.');
   }
 

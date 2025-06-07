@@ -178,11 +178,11 @@ export class Texture extends AbstractTexture implements Disposable {
   private __setBasisTexture(
     uint8Array: Uint8Array,
     {
-      level = 0,
-      internalFormat = TextureFormat.RGBA8,
+      _level = 0,
+      _internalFormat = TextureFormat.RGBA8,
       format = PixelFormat.RGBA,
       type = ComponentType.UnsignedByte as ComponentTypeEnum,
-      generateMipmap = true,
+      _generateMipmap = true,
     } = {}
   ): void {
     this.__startedToLoad = true;
@@ -335,7 +335,7 @@ export class Texture extends AbstractTexture implements Disposable {
   ) {
     this.__uri = imageUri;
     this.__startedToLoad = true;
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       this.__img = new Image();
       if (!imageUri.match(/^data:/)) {
         this.__img.crossOrigin = 'Anonymous';

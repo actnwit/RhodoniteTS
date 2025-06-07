@@ -20,7 +20,7 @@ test('Unsubscribe', () => {
   };
 
   const index = pubsub.subscribe('init', subscriber);
-  const index2 = pubsub.subscribe('init', subscriber);
+  const _index2 = pubsub.subscribe('init', subscriber);
 
   {
     const subN = pubsub.publishSync('init', true);

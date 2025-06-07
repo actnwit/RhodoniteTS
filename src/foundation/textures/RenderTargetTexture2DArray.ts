@@ -287,5 +287,5 @@ export class RenderTargetTexture2DArray extends AbstractTexture implements IRend
    * @param faceIdx - The index of the cube face to target
    * @param mipLevel - The mipmap level to target
    */
-  createCubeTextureViewAsRenderTarget(faceIdx: Index, mipLevel: Index): void {}
+  createCubeTextureViewAsRenderTarget(_faceIdx: Index, _mipLevel: Index): void {}
 }

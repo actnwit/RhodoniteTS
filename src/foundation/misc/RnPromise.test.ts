@@ -12,7 +12,7 @@ test('works with RnPromise.all', () => {
 });
 
 test('works with await', async () => {
-  const promise = new RnPromise((onfullfilled, onrejected) => {
+  const promise = new RnPromise((onfullfilled, _onrejected) => {
     onfullfilled(1);
   });
   promise.then(val => {
@@ -48,7 +48,7 @@ test('RnPromise.resolve of thenable', () => {
 });
 
 test('RnPromise.resolve of resolving rnPromise', () => {
-  const rnPromise = new RnPromise((resolve, reject) => {
+  const rnPromise = new RnPromise((resolve, _reject) => {
     resolve('resolve');
   });
   const p1 = RnPromise.resolve(rnPromise);
@@ -58,20 +58,20 @@ test('RnPromise.resolve of resolving rnPromise', () => {
       // console.log(results);
       expect(results).toEqual(['resolve']);
     })
-    .catch((results: any) => {
+    .catch((_results: any) => {
       // console.log(results);
     })
     .finally(() => {});
 });
 
 test('RnPromise.resolve of rejecting rnPromise', () => {
-  const rnPromise = new RnPromise((resolve, reject) => {
+  const rnPromise = new RnPromise((_resolve, reject) => {
     reject('reject');
   });
   const p1 = RnPromise.resolve(rnPromise);
 
   RnPromise.all([p1])
-    .then((results: any) => {
+    .then((_results: any) => {
       // console.log(results);
     })
     .catch((results: any) => {
