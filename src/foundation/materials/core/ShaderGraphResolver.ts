@@ -275,6 +275,283 @@ export class ShaderGraphResolver {
   }
 
   /**
+   * Defines varying variables for vertex-to-fragment communication.
+   * @private
+   */
+  private static __defineVaryingVariables(shaderNodes: AbstractShaderNode[], isVertexStage: boolean): string {
+    let shaderBody = '';
+
+    if (SystemState.currentProcessApproach !== ProcessApproach.WebGPU) {
+      for (let i = 0; i < shaderNodes.length; i++) {
+        const shaderNode = shaderNodes[i];
+        for (let j = 0; j < shaderNode.inputConnections.length; j++) {
+          const inputConnection = shaderNode.inputConnections[j];
+          if (inputConnection == null) {
+            continue;
+          }
+          const input = shaderNode.getInputs()[j];
+          const inputNode = AbstractShaderNode.getShaderNodeByUid(inputConnection.shaderNodeUid);
+          if (inputNode.getShaderStage() === 'Vertex' && shaderNode.getShaderStage() === 'Fragment') {
+            const type = input.compositionType.getGlslStr(input.componentType);
+            shaderBody += `${isVertexStage ? 'out' : 'in'} ${type} v_${
+              inputNode.shaderFunctionName
+            }_${inputNode.shaderNodeUid};\n`;
+          }
+        }
+      }
+    }
+
+    return shaderBody;
+  }
+
+  /**
+   * Collects input and output variable names for shader nodes.
+   * @private
+   */
+  private static __collectVariableNames(
+    shaderNodes: AbstractShaderNode[],
+    isVertexStage: boolean
+  ): {
+    varInputNames: Array<Array<string>>;
+    varOutputNames: Array<Array<string>>;
+    collectedShaderBody: string;
+  } {
+    const varInputNames: Array<Array<string>> = [];
+    const varOutputNames: Array<Array<string>> = [];
+    let collectedShaderBody = '';
+
+    const existingInputs: Set<string> = new Set();
+    const existingOutputs: Set<string> = new Set();
+    const existingOutputsVarName: Map<ShaderNodeUID, string> = new Map();
+
+    for (let i = 1; i < shaderNodes.length; i++) {
+      collectedShaderBody += this.__collectInputsForNode(
+        i,
+        shaderNodes,
+        varInputNames,
+        varOutputNames,
+        existingInputs,
+        existingOutputsVarName,
+        isVertexStage
+      );
+
+      this.__collectOutputsForNode(i, shaderNodes, varOutputNames, existingOutputs, existingOutputsVarName);
+    }
+
+    return { varInputNames, varOutputNames, collectedShaderBody };
+  }
+
+  /**
+   * Collects input variables for a specific node.
+   * @private
+   */
+  private static __collectInputsForNode(
+    nodeIndex: number,
+    shaderNodes: AbstractShaderNode[],
+    varInputNames: Array<Array<string>>,
+    varOutputNames: Array<Array<string>>,
+    existingInputs: Set<string>,
+    existingOutputsVarName: Map<ShaderNodeUID, string>,
+    isVertexStage: boolean
+  ): string {
+    const shaderNode = shaderNodes[nodeIndex];
+
+    if (varInputNames[nodeIndex] == null) {
+      varInputNames[nodeIndex] = [];
+    }
+    if (nodeIndex - 1 >= 0 && varOutputNames[nodeIndex - 1] == null) {
+      varOutputNames[nodeIndex - 1] = [];
+    }
+
+    const inputConnections = shaderNode.inputConnections;
+    let shaderBody = '';
+
+    for (let j = 0; j < shaderNode.getInputs().length; j++) {
+      const inputConnection = inputConnections[j];
+      if (inputConnection == null) {
+        const defaultValue = this.__getDefaultInputValue(shaderNode, j);
+        if (defaultValue) {
+          varInputNames[nodeIndex].push(defaultValue);
+        }
+        continue;
+      }
+
+      const { varName, rowStr } = this.__processInputConnection(
+        inputConnection,
+        shaderNode,
+        isVertexStage,
+        existingInputs
+      );
+
+      shaderBody += rowStr;
+      const existVarName = existingOutputsVarName.get(inputConnection.shaderNodeUid);
+      varInputNames[nodeIndex].push(existVarName || varName);
+    }
+
+    return shaderBody;
+  }
+
+  /**
+   * Gets default value for an input socket.
+   * @private
+   */
+  private static __getDefaultInputValue(shaderNode: AbstractShaderNode, inputIndex: number): string | null {
+    const inputSocket = shaderNode.getInputs()[inputIndex];
+    if (inputSocket.defaultValue == null) {
+      return null;
+    }
+
+    const isWebGPU = SystemState.currentProcessApproach === ProcessApproach.WebGPU;
+    const isBool = inputSocket.componentType === ComponentType.Bool;
+
+    if (isBool) {
+      return inputSocket.defaultValue._v[0] > 0.5 ? 'true' : 'false';
+    }
+
+    return isWebGPU ? inputSocket.defaultValue.wgslStrAsFloat : inputSocket.defaultValue.glslStrAsFloat;
+  }
+
+  /**
+   * Processes an input connection and returns variable name and shader statement.
+   * @private
+   */
+  private static __processInputConnection(
+    inputConnection: any,
+    shaderNode: AbstractShaderNode,
+    isVertexStage: boolean,
+    existingInputs: Set<string>
+  ): { varName: string; rowStr: string } {
+    const inputNode = AbstractShaderNode._shaderNodes[inputConnection.shaderNodeUid];
+    const outputSocketOfPrev = inputNode.getOutput(inputConnection.outputNameOfPrev);
+    const inputSocketOfThis = shaderNode.getInput(inputConnection.inputNameOfThis);
+    const varName = `${outputSocketOfPrev!.name}_${inputConnection.shaderNodeUid}_to_${shaderNode.shaderNodeUid}`;
+
+    let rowStr = '';
+    const inputKey = `${inputNode.shaderNodeUid}_${inputConnection.outputNameOfPrev}`;
+
+    if (!existingInputs.has(inputKey)) {
+      rowStr = CommonShaderPart.getAssignmentStatement(varName, inputSocketOfThis!);
+      if (!isVertexStage && inputNode.getShaderStage() === 'Vertex' && shaderNode.getShaderStage() === 'Fragment') {
+        rowStr = CommonShaderPart.getAssignmentVaryingStatementInPixelShader(varName, inputSocketOfThis!, inputNode);
+      }
+      existingInputs.add(inputKey);
+    }
+
+    return { varName, rowStr };
+  }
+
+  /**
+   * Collects output variables for a specific node.
+   * @private
+   */
+  private static __collectOutputsForNode(
+    nodeIndex: number,
+    shaderNodes: AbstractShaderNode[],
+    varOutputNames: Array<Array<string>>,
+    existingOutputs: Set<string>,
+    existingOutputsVarName: Map<ShaderNodeUID, string>
+  ): void {
+    const prevShaderNode = shaderNodes[nodeIndex - 1];
+    if (!prevShaderNode) return;
+
+    for (let j = nodeIndex; j < shaderNodes.length; j++) {
+      const targetShaderNode = shaderNodes[j];
+      const targetNodeInputConnections = targetShaderNode.inputConnections;
+
+      for (let k = 0; k < targetNodeInputConnections.length; k++) {
+        const inputConnection = targetNodeInputConnections[k];
+        if (inputConnection == null || prevShaderNode.shaderNodeUid !== inputConnection.shaderNodeUid) {
+          continue;
+        }
+
+        const outputKey = `${inputConnection.shaderNodeUid}_${inputConnection.outputNameOfPrev}`;
+        if (!existingOutputs.has(outputKey)) {
+          const inputNode = AbstractShaderNode._shaderNodes[inputConnection.shaderNodeUid];
+          const outputSocketOfPrev = inputNode.getOutput(inputConnection.outputNameOfPrev);
+          const varName = `${outputSocketOfPrev!.name}_${inputConnection.shaderNodeUid}_to_${
+            targetShaderNode.shaderNodeUid
+          }`;
+
+          if (nodeIndex - 1 >= 0) {
+            varOutputNames[nodeIndex - 1].push(varName);
+          }
+          existingOutputsVarName.set(inputConnection.shaderNodeUid, varName);
+          existingOutputs.add(outputKey);
+        }
+      }
+    }
+  }
+
+  /**
+   * Generates shader code for the nodes.
+   * @private
+   */
+  private static __generateShaderCode(
+    shaderNodes: AbstractShaderNode[],
+    varInputNames: Array<Array<string>>,
+    varOutputNames: Array<Array<string>>,
+    isVertexStage: boolean
+  ): string {
+    let shaderBody = '';
+
+    for (let i = 0; i < shaderNodes.length; i++) {
+      const shaderNode = shaderNodes[i];
+
+      // Skip nodes not in current stage
+      if (
+        (isVertexStage && shaderNode.getShaderStage() === 'Fragment') ||
+        (!isVertexStage && shaderNode.getShaderStage() === 'Vertex')
+      ) {
+        continue;
+      }
+
+      // Ensure arrays are initialized
+      if (varInputNames[i] == null) {
+        varInputNames[i] = [];
+      }
+      if (varOutputNames[i] == null) {
+        varOutputNames[i] = [];
+      }
+
+      const functionName = shaderNode.getShaderFunctionNameDerivative();
+      shaderBody += shaderNode.makeCallStatement(i, shaderNode, functionName, varInputNames, varOutputNames);
+    }
+
+    return shaderBody;
+  }
+
+  /**
+   * Handles vertex-to-fragment data passing in vertex stage.
+   * @private
+   */
+  private static __handleVertexToFragmentPassing(
+    shaderNodes: AbstractShaderNode[],
+    varInputNames: Array<Array<string>>,
+    varOutputNames: Array<Array<string>>
+  ): string {
+    let shaderBody = '';
+
+    for (let i = 0; i < shaderNodes.length; i++) {
+      const shaderNode = shaderNodes[i];
+      const varNames = varInputNames[i].concat(varOutputNames[i]);
+
+      for (let j = 0; j < shaderNode.inputConnections.length; j++) {
+        const inputConnection = shaderNode.inputConnections[j];
+        if (inputConnection == null) {
+          continue;
+        }
+
+        const inputNode = AbstractShaderNode.getShaderNodeByUid(inputConnection.shaderNodeUid);
+        if (inputNode.getShaderStage() === 'Vertex' && shaderNode.getShaderStage() === 'Fragment') {
+          shaderBody += CommonShaderPart.getAssignmentVaryingStatementInVertexShader(inputNode, varNames, j);
+        }
+      }
+    }
+
+    return shaderBody;
+  }
+
+  /**
    * Constructs the main shader body with proper variable declarations, connections, and function calls.
    * This is the core method that generates the actual shader execution logic by:
    * - Declaring varying variables for vertex-to-fragment communication
@@ -296,26 +573,8 @@ export class ShaderGraphResolver {
   ) {
     let shaderBody = '';
 
-    // Define varying(out) variables
-    if (SystemState.currentProcessApproach !== ProcessApproach.WebGPU) {
-      for (let i = 0; i < shaderNodes.length; i++) {
-        const shaderNode = shaderNodes[i];
-        for (let j = 0; j < shaderNode.inputConnections.length; j++) {
-          const inputConnection = shaderNode.inputConnections[j];
-          if (inputConnection == null) {
-            continue;
-          }
-          const input = shaderNode.getInputs()[j];
-          const inputNode = AbstractShaderNode.getShaderNodeByUid(inputConnection.shaderNodeUid);
-          if (inputNode.getShaderStage() === 'Vertex' && shaderNode.getShaderStage() === 'Fragment') {
-            const type = input.compositionType.getGlslStr(input.componentType);
-            shaderBody += `${isVertexStage ? 'out' : 'in'} ${type} v_${
-              inputNode.shaderFunctionName
-            }_${inputNode.shaderNodeUid};\n`;
-          }
-        }
-      }
-    }
+    // Define varying variables
+    shaderBody += this.__defineVaryingVariables(shaderNodes, isVertexStage);
 
     shaderBody += CommonShaderPart.getMainBegin(isVertexStage);
 
@@ -323,142 +582,19 @@ export class ShaderGraphResolver {
       shaderBody += CommonShaderPart.getMainPrerequisites();
     }
 
-    // Collects varInputNames and varOutputNames
-    const varInputNames: Array<Array<string>> = []; // input names of topological sorted Nodes
-    const varOutputNames: Array<Array<string>> = []; // output names of topological sorted Nodes
-    {
-      const existingInputs: Set<string> = new Set();
-      const existingOutputs: Set<string> = new Set();
-      const existingOutputsVarName: Map<ShaderNodeUID, string> = new Map();
-      for (let i = 1; i < shaderNodes.length; i++) {
-        const shaderNode = shaderNodes[i];
-        if (varInputNames[i] == null) {
-          varInputNames[i] = [];
-        }
-        if (i - 1 >= 0) {
-          if (varOutputNames[i - 1] == null) {
-            varOutputNames[i - 1] = [];
-          }
-        }
+    // Collect input/output variable names
+    const { varInputNames, varOutputNames, collectedShaderBody } = this.__collectVariableNames(
+      shaderNodes,
+      isVertexStage
+    );
+    shaderBody += collectedShaderBody;
 
-        const inputConnections = shaderNode.inputConnections;
+    // Generate shader code
+    shaderBody += this.__generateShaderCode(shaderNodes, varInputNames, varOutputNames, isVertexStage);
 
-        // Collects ExistingInputs
-        for (let j = 0; j < shaderNode.getInputs().length; j++) {
-          const inputConnection = inputConnections[j];
-          if (inputConnection == null) {
-            const inputSocket = shaderNode.getInputs()[j];
-            if (inputSocket.defaultValue != null) {
-              if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-                if (inputSocket.componentType === ComponentType.Bool) {
-                  varInputNames[i].push(inputSocket.defaultValue._v[0] > 0.5 ? 'true' : 'false');
-                } else {
-                  varInputNames[i].push(inputSocket.defaultValue.wgslStrAsFloat);
-                }
-              } else {
-                if (inputSocket.componentType === ComponentType.Bool) {
-                  varInputNames[i].push(inputSocket.defaultValue._v[0] > 0.5 ? 'true' : 'false');
-                } else {
-                  varInputNames[i].push(inputSocket.defaultValue.glslStrAsFloat);
-                }
-              }
-              continue;
-            }
-            continue;
-          }
-          const inputNode = AbstractShaderNode._shaderNodes[inputConnection.shaderNodeUid];
-
-          const outputSocketOfPrev = inputNode.getOutput(inputConnection.outputNameOfPrev);
-          const inputSocketOfThis = shaderNode.getInput(inputConnection.inputNameOfThis);
-          const varName = `${outputSocketOfPrev!.name}_${inputConnection.shaderNodeUid}_to_${shaderNode.shaderNodeUid}`;
-
-          //
-          if (!existingInputs.has(`${inputNode.shaderNodeUid}_${inputConnection.outputNameOfPrev}`)) {
-            let rowStr = CommonShaderPart.getAssignmentStatement(varName, inputSocketOfThis!);
-            if (!isVertexStage) {
-              if (inputNode.getShaderStage() === 'Vertex' && shaderNode.getShaderStage() === 'Fragment') {
-                rowStr = CommonShaderPart.getAssignmentVaryingStatementInPixelShader(
-                  varName,
-                  inputSocketOfThis!,
-                  inputNode
-                );
-              }
-            }
-            shaderBody += rowStr;
-          }
-          const existVarName = existingOutputsVarName.get(inputNode.shaderNodeUid);
-          varInputNames[i].push(existVarName ? existVarName : varName);
-          existingInputs.add(`${inputConnection.shaderNodeUid}_${inputConnection.outputNameOfPrev}`);
-        }
-
-        // Collects ExistingOutputs
-        for (let j = i; j < shaderNodes.length; j++) {
-          const targetShaderNode = shaderNodes[j];
-          const prevShaderNodeInner = shaderNodes[i - 1];
-          const targetNodeInputConnections = targetShaderNode.inputConnections;
-          for (let k = 0; k < targetNodeInputConnections.length; k++) {
-            const inputConnection = targetNodeInputConnections[k];
-            if (inputConnection == null) {
-              continue;
-            }
-            if (prevShaderNodeInner?.shaderNodeUid !== inputConnection.shaderNodeUid) {
-              continue;
-            }
-            const inputNode = AbstractShaderNode._shaderNodes[inputConnection.shaderNodeUid];
-            if (!existingOutputs.has(`${inputNode.shaderNodeUid}_${inputConnection.outputNameOfPrev}`)) {
-              const outputSocketOfPrev = inputNode.getOutput(inputConnection.outputNameOfPrev);
-
-              const varName = `${outputSocketOfPrev!.name}_${inputConnection.shaderNodeUid}_to_${
-                targetShaderNode.shaderNodeUid
-              }`;
-
-              if (i - 1 >= 0) {
-                varOutputNames[i - 1].push(varName);
-              }
-              existingOutputsVarName.set(inputConnection.shaderNodeUid, varName);
-            }
-            existingOutputs.add(`${inputConnection.shaderNodeUid}_${inputConnection.outputNameOfPrev}`);
-          }
-        }
-      }
-    }
-
-    // generate shader code by topological sorted nodes, varInputNames and varOutputNames
-    for (let i = 0; i < shaderNodes.length; i++) {
-      const shaderNode = shaderNodes[i];
-      const functionName = shaderNode.getShaderFunctionNameDerivative();
-      if (varInputNames[i] == null) {
-        varInputNames[i] = [];
-      }
-      if (varOutputNames[i] == null) {
-        varOutputNames[i] = [];
-      }
-
-      if (isVertexStage && shaderNode.getShaderStage() === 'Fragment') {
-        continue;
-      }
-      if (!isVertexStage && shaderNode.getShaderStage() === 'Vertex') {
-        continue;
-      }
-
-      shaderBody += shaderNode.makeCallStatement(i, shaderNode, functionName, varInputNames, varOutputNames);
-    }
-
+    // Handle vertex-to-fragment data passing
     if (isVertexStage) {
-      for (let i = 0; i < shaderNodes.length; i++) {
-        const shaderNode = shaderNodes[i];
-        const varNames = varInputNames[i].concat(varOutputNames[i]);
-        for (let j = 0; j < shaderNode.inputConnections.length; j++) {
-          const inputConnection = shaderNode.inputConnections[j];
-          if (inputConnection == null) {
-            continue;
-          }
-          const inputNode = AbstractShaderNode.getShaderNodeByUid(inputConnection.shaderNodeUid);
-          if (inputNode.getShaderStage() === 'Vertex' && shaderNode.getShaderStage() === 'Fragment') {
-            shaderBody += CommonShaderPart.getAssignmentVaryingStatementInVertexShader(inputNode, varNames, j);
-          }
-        }
-      }
+      shaderBody += this.__handleVertexToFragmentPassing(shaderNodes, varInputNames, varOutputNames);
     }
 
     shaderBody += CommonShaderPart.getMainEnd(isVertexStage);
