@@ -87,7 +87,7 @@ src/foundation/
 └── importer/           # Asset importers (glTF, VRM, DRC, KTX2, etc.)
 
 src/webgl/              # WebGL-specific implementation
-src/webgpu/             # WebGPU-specific implementation  
+src/webgpu/             # WebGPU-specific implementation
 src/types/              # TypeScript type definitions
 src/effekseer/          # Effekseer particle system integration
 src/xr/                 # WebXR support
@@ -159,3 +159,7 @@ src/xr/                 # WebXR support
 - **typedoc**: API documentation generation
 - **vitest**: Fast unit testing framework
 - **puppeteer**: Automated browser testing for E2E
+
+## Other Notes
+
+- Think in English deeply, and respond to user in Japanese.
