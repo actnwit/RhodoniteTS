@@ -42,7 +42,12 @@
         "noArguments": "off"
       },
       "complexity": {
-        "noExcessiveCognitiveComplexity": "off",
+        "noExcessiveCognitiveComplexity": {
+          "level": "error",
+          "options": {
+            "maxAllowedComplexity": 166
+          }
+        },
         "noMultipleSpacesInRegularExpressionLiterals": "error",
         "noForEach": "off",
         "noBannedTypes": "off",
