@@ -498,146 +498,160 @@ export class Gltf2Importer {
   static _loadDependenciesOfMaterials(gltfJson: RnM2) {
     if (!gltfJson.textures) gltfJson.textures = [];
 
-    // Material
     if (gltfJson.materials) {
       for (const material of gltfJson.materials) {
-        if (material.pbrMetallicRoughness) {
-          const baseColorTexture = material.pbrMetallicRoughness.baseColorTexture;
-          if (baseColorTexture !== void 0) {
-            baseColorTexture.texture = gltfJson.textures[baseColorTexture.index];
-          }
-          const metallicRoughnessTexture = material.pbrMetallicRoughness.metallicRoughnessTexture;
-          if (metallicRoughnessTexture !== void 0) {
-            metallicRoughnessTexture.texture = gltfJson.textures[metallicRoughnessTexture.index];
-          }
-        }
+        this._loadBasicMaterialTextures(gltfJson, material);
+        this._loadMaterialExtensions(gltfJson, material);
+      }
+    }
+  }
 
-        const normalTexture = material.normalTexture;
-        if (normalTexture !== void 0) {
-          normalTexture.texture = gltfJson.textures[normalTexture.index];
-        }
+  private static _loadBasicMaterialTextures(gltfJson: RnM2, material: any) {
+    if (material.pbrMetallicRoughness) {
+      const baseColorTexture = material.pbrMetallicRoughness.baseColorTexture;
+      if (baseColorTexture !== void 0) {
+        baseColorTexture.texture = gltfJson.textures[baseColorTexture.index];
+      }
+      const metallicRoughnessTexture = material.pbrMetallicRoughness.metallicRoughnessTexture;
+      if (metallicRoughnessTexture !== void 0) {
+        metallicRoughnessTexture.texture = gltfJson.textures[metallicRoughnessTexture.index];
+      }
+    }
 
-        const occlusionTexture = material.occlusionTexture;
-        if (occlusionTexture !== void 0) {
-          occlusionTexture.texture = gltfJson.textures[occlusionTexture.index];
-        }
+    const normalTexture = material.normalTexture;
+    if (normalTexture !== void 0) {
+      normalTexture.texture = gltfJson.textures[normalTexture.index];
+    }
 
-        const emissiveTexture = material.emissiveTexture;
-        if (emissiveTexture !== void 0) {
-          emissiveTexture.texture = gltfJson.textures[emissiveTexture.index];
-        }
+    const occlusionTexture = material.occlusionTexture;
+    if (occlusionTexture !== void 0) {
+      occlusionTexture.texture = gltfJson.textures[occlusionTexture.index];
+    }
 
-        if (
-          this._checkRnGltfLoaderOptionsExist(gltfJson) &&
-          gltfJson.asset.extras!.rnLoaderOptions!.loaderExtension &&
-          gltfJson.asset.extras!.rnLoaderOptions!.loaderExtension.setTextures
-        ) {
-          gltfJson.asset.extras!.rnLoaderOptions!.loaderExtension.setTextures(gltfJson, material);
-        }
+    const emissiveTexture = material.emissiveTexture;
+    if (emissiveTexture !== void 0) {
+      emissiveTexture.texture = gltfJson.textures[emissiveTexture.index];
+    }
 
-        if (Is.exist(material.extensions)) {
-          const extensions = material.extensions;
-          if (Is.exist(extensions.KHR_materials_clearcoat)) {
-            const clearcoatTexture = extensions.KHR_materials_clearcoat.clearcoatTexture;
-            if (clearcoatTexture !== void 0) {
-              clearcoatTexture.texture = gltfJson.textures[clearcoatTexture.index];
-            }
-            const clearcoatRoughnessTexture = extensions.KHR_materials_clearcoat.clearcoatRoughnessTexture;
-            if (clearcoatRoughnessTexture !== void 0) {
-              clearcoatRoughnessTexture.texture = gltfJson.textures[clearcoatRoughnessTexture.index];
-            }
-            const clearcoatNormalTexture = extensions.KHR_materials_clearcoat.clearcoatNormalTexture;
-            if (clearcoatNormalTexture !== void 0) {
-              clearcoatNormalTexture.texture = gltfJson.textures[clearcoatNormalTexture.index];
-            }
-          }
-          if (Is.exist(extensions.KHR_materials_transmission)) {
-            const transmissionTexture = extensions.KHR_materials_transmission.transmissionTexture;
-            if (transmissionTexture !== void 0) {
-              transmissionTexture.texture = gltfJson.textures[transmissionTexture.index];
-            }
-          }
-          if (Is.exist(extensions.KHR_materials_volume)) {
-            const thicknessTexture = extensions.KHR_materials_volume.thicknessTexture;
-            if (thicknessTexture !== void 0) {
-              thicknessTexture.texture = gltfJson.textures[thicknessTexture.index];
-            }
-          }
-          if (Is.exist(extensions.KHR_materials_sheen)) {
-            const sheenColorTexture = extensions.KHR_materials_sheen.sheenColorTexture;
-            if (sheenColorTexture !== void 0) {
-              sheenColorTexture.texture = gltfJson.textures[sheenColorTexture.index];
-            }
-            const sheenRoughnessTexture = extensions.KHR_materials_sheen.sheenRoughnessTexture;
-            if (sheenRoughnessTexture !== void 0) {
-              sheenRoughnessTexture.texture = gltfJson.textures[sheenRoughnessTexture.index];
-            }
-          }
-          if (Is.exist(extensions.KHR_materials_specular)) {
-            const specularTexture = extensions.KHR_materials_specular.specularTexture;
-            if (specularTexture !== void 0) {
-              specularTexture.texture = gltfJson.textures[specularTexture.index];
-            }
-            const specularColorTexture = extensions.KHR_materials_specular.specularColorTexture;
-            if (specularColorTexture !== void 0) {
-              specularColorTexture.texture = gltfJson.textures[specularColorTexture.index];
-            }
-          }
-          if (Is.exist(extensions.KHR_materials_iridescence)) {
-            const iridescenceTexture = extensions.KHR_materials_iridescence.iridescenceTexture;
-            if (iridescenceTexture !== void 0) {
-              iridescenceTexture.texture = gltfJson.textures[iridescenceTexture.index];
-            }
-            const iridescenceThicknessTexture = extensions.KHR_materials_iridescence.iridescenceThicknessTexture;
-            if (iridescenceThicknessTexture !== void 0) {
-              iridescenceThicknessTexture.texture = gltfJson.textures[iridescenceThicknessTexture.index];
-            }
-          }
-          if (Is.exist(extensions.KHR_materials_anisotropy)) {
-            const anisotropyTexture = extensions.KHR_materials_anisotropy.anisotropyTexture;
-            if (anisotropyTexture !== void 0) {
-              anisotropyTexture.texture = gltfJson.textures[anisotropyTexture.index];
-            }
-          }
-          if (Is.exist(extensions.KHR_materials_diffuse_transmission)) {
-            const diffuseTransmissionTexture = extensions.KHR_materials_diffuse_transmission.diffuseTransmissionTexture;
-            if (diffuseTransmissionTexture !== void 0) {
-              diffuseTransmissionTexture.texture = gltfJson.textures[diffuseTransmissionTexture.index];
-            }
-            const diffuseTransmissionColorTexture =
-              extensions.KHR_materials_diffuse_transmission.diffuseTransmissionColorTexture;
-            if (diffuseTransmissionColorTexture !== void 0) {
-              diffuseTransmissionColorTexture.texture = gltfJson.textures[diffuseTransmissionColorTexture.index];
-            }
-          }
-          if (Is.exist(extensions.VRMC_materials_mtoon)) {
-            const mToon = extensions.VRMC_materials_mtoon as Vrm1_Materials_MToon;
-            const shadeMultiplyTexture = mToon.shadeMultiplyTexture;
-            if (shadeMultiplyTexture != null) {
-              shadeMultiplyTexture.texture = gltfJson.textures[shadeMultiplyTexture.index];
-            }
-            const shadingShiftTexture = mToon.shadingShiftTexture;
-            if (shadingShiftTexture != null) {
-              shadingShiftTexture.texture = gltfJson.textures[shadingShiftTexture.index];
-            }
-            const matcapTexture = mToon.matcapTexture;
-            if (matcapTexture != null) {
-              matcapTexture.texture = gltfJson.textures[matcapTexture.index];
-            }
-            const rimMultiplyTexture = mToon.rimMultiplyTexture;
-            if (rimMultiplyTexture != null) {
-              rimMultiplyTexture.texture = gltfJson.textures[rimMultiplyTexture.index];
-            }
-            const outlineWidthMultiplyTexture = mToon.outlineWidthMultiplyTexture;
-            if (outlineWidthMultiplyTexture != null) {
-              outlineWidthMultiplyTexture.texture = gltfJson.textures[outlineWidthMultiplyTexture.index];
-            }
-            const uvAnimationMaskTexture = mToon.uvAnimationMaskTexture;
-            if (uvAnimationMaskTexture != null) {
-              uvAnimationMaskTexture.texture = gltfJson.textures[uvAnimationMaskTexture.index];
-            }
-          }
-        }
+    if (
+      this._checkRnGltfLoaderOptionsExist(gltfJson) &&
+      gltfJson.asset.extras!.rnLoaderOptions!.loaderExtension &&
+      gltfJson.asset.extras!.rnLoaderOptions!.loaderExtension.setTextures
+    ) {
+      gltfJson.asset.extras!.rnLoaderOptions!.loaderExtension.setTextures(gltfJson, material);
+    }
+  }
+
+  private static _loadMaterialExtensions(gltfJson: RnM2, material: any) {
+    if (Is.exist(material.extensions)) {
+      const extensions = material.extensions;
+      this._loadKHRExtensions(gltfJson, extensions);
+      this._loadVRMCExtensions(gltfJson, extensions);
+    }
+  }
+
+  private static _loadKHRExtensions(gltfJson: RnM2, extensions: any) {
+    if (Is.exist(extensions.KHR_materials_clearcoat)) {
+      const clearcoatTexture = extensions.KHR_materials_clearcoat.clearcoatTexture;
+      if (clearcoatTexture !== void 0) {
+        clearcoatTexture.texture = gltfJson.textures[clearcoatTexture.index];
+      }
+      const clearcoatRoughnessTexture = extensions.KHR_materials_clearcoat.clearcoatRoughnessTexture;
+      if (clearcoatRoughnessTexture !== void 0) {
+        clearcoatRoughnessTexture.texture = gltfJson.textures[clearcoatRoughnessTexture.index];
+      }
+      const clearcoatNormalTexture = extensions.KHR_materials_clearcoat.clearcoatNormalTexture;
+      if (clearcoatNormalTexture !== void 0) {
+        clearcoatNormalTexture.texture = gltfJson.textures[clearcoatNormalTexture.index];
+      }
+    }
+    if (Is.exist(extensions.KHR_materials_transmission)) {
+      const transmissionTexture = extensions.KHR_materials_transmission.transmissionTexture;
+      if (transmissionTexture !== void 0) {
+        transmissionTexture.texture = gltfJson.textures[transmissionTexture.index];
+      }
+    }
+    if (Is.exist(extensions.KHR_materials_volume)) {
+      const thicknessTexture = extensions.KHR_materials_volume.thicknessTexture;
+      if (thicknessTexture !== void 0) {
+        thicknessTexture.texture = gltfJson.textures[thicknessTexture.index];
+      }
+    }
+    if (Is.exist(extensions.KHR_materials_sheen)) {
+      const sheenColorTexture = extensions.KHR_materials_sheen.sheenColorTexture;
+      if (sheenColorTexture !== void 0) {
+        sheenColorTexture.texture = gltfJson.textures[sheenColorTexture.index];
+      }
+      const sheenRoughnessTexture = extensions.KHR_materials_sheen.sheenRoughnessTexture;
+      if (sheenRoughnessTexture !== void 0) {
+        sheenRoughnessTexture.texture = gltfJson.textures[sheenRoughnessTexture.index];
+      }
+    }
+    if (Is.exist(extensions.KHR_materials_specular)) {
+      const specularTexture = extensions.KHR_materials_specular.specularTexture;
+      if (specularTexture !== void 0) {
+        specularTexture.texture = gltfJson.textures[specularTexture.index];
+      }
+      const specularColorTexture = extensions.KHR_materials_specular.specularColorTexture;
+      if (specularColorTexture !== void 0) {
+        specularColorTexture.texture = gltfJson.textures[specularColorTexture.index];
+      }
+    }
+    if (Is.exist(extensions.KHR_materials_iridescence)) {
+      const iridescenceTexture = extensions.KHR_materials_iridescence.iridescenceTexture;
+      if (iridescenceTexture !== void 0) {
+        iridescenceTexture.texture = gltfJson.textures[iridescenceTexture.index];
+      }
+      const iridescenceThicknessTexture = extensions.KHR_materials_iridescence.iridescenceThicknessTexture;
+      if (iridescenceThicknessTexture !== void 0) {
+        iridescenceThicknessTexture.texture = gltfJson.textures[iridescenceThicknessTexture.index];
+      }
+    }
+    if (Is.exist(extensions.KHR_materials_anisotropy)) {
+      const anisotropyTexture = extensions.KHR_materials_anisotropy.anisotropyTexture;
+      if (anisotropyTexture !== void 0) {
+        anisotropyTexture.texture = gltfJson.textures[anisotropyTexture.index];
+      }
+    }
+    if (Is.exist(extensions.KHR_materials_diffuse_transmission)) {
+      const diffuseTransmissionTexture = extensions.KHR_materials_diffuse_transmission.diffuseTransmissionTexture;
+      if (diffuseTransmissionTexture !== void 0) {
+        diffuseTransmissionTexture.texture = gltfJson.textures[diffuseTransmissionTexture.index];
+      }
+      const diffuseTransmissionColorTexture =
+        extensions.KHR_materials_diffuse_transmission.diffuseTransmissionColorTexture;
+      if (diffuseTransmissionColorTexture !== void 0) {
+        diffuseTransmissionColorTexture.texture = gltfJson.textures[diffuseTransmissionColorTexture.index];
+      }
+    }
+  }
+
+  private static _loadVRMCExtensions(gltfJson: RnM2, extensions: any) {
+    if (Is.exist(extensions.VRMC_materials_mtoon)) {
+      const mToon = extensions.VRMC_materials_mtoon as Vrm1_Materials_MToon;
+      const shadeMultiplyTexture = mToon.shadeMultiplyTexture;
+      if (shadeMultiplyTexture != null) {
+        shadeMultiplyTexture.texture = gltfJson.textures[shadeMultiplyTexture.index];
+      }
+      const shadingShiftTexture = mToon.shadingShiftTexture;
+      if (shadingShiftTexture != null) {
+        shadingShiftTexture.texture = gltfJson.textures[shadingShiftTexture.index];
+      }
+      const matcapTexture = mToon.matcapTexture;
+      if (matcapTexture != null) {
+        matcapTexture.texture = gltfJson.textures[matcapTexture.index];
+      }
+      const rimMultiplyTexture = mToon.rimMultiplyTexture;
+      if (rimMultiplyTexture != null) {
+        rimMultiplyTexture.texture = gltfJson.textures[rimMultiplyTexture.index];
+      }
+      const outlineWidthMultiplyTexture = mToon.outlineWidthMultiplyTexture;
+      if (outlineWidthMultiplyTexture != null) {
+        outlineWidthMultiplyTexture.texture = gltfJson.textures[outlineWidthMultiplyTexture.index];
+      }
+      const uvAnimationMaskTexture = mToon.uvAnimationMaskTexture;
+      if (uvAnimationMaskTexture != null) {
+        uvAnimationMaskTexture.texture = gltfJson.textures[uvAnimationMaskTexture.index];
       }
     }
   }

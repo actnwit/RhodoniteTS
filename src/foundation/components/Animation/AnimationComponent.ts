@@ -1,11 +1,12 @@
-import {
+import type { EffekseerComponent } from '../../../effekseer/EffekseerComponent';
+import type {
   AnimationChannel,
-  type AnimationComponentEventType,
-  type AnimationInfo,
-  type AnimationPathName,
-  type AnimationSampler,
-  type AnimationTrack,
-  type AnimationTrackName,
+  AnimationComponentEventType,
+  AnimationInfo,
+  AnimationPathName,
+  AnimationSampler,
+  AnimationTrack,
+  AnimationTrackName,
 } from '../../../types/AnimationTypes';
 import {
   Array3,
@@ -36,8 +37,10 @@ import type { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
 import { valueWithCompensation, valueWithDefault } from '../../misc/MiscUtil';
 import { type EventHandler, EventPubSub } from '../../system/EventPubSub';
+import type { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import type { IAnimationRetarget } from '../Skeletal';
+import type { TransformComponent } from '../Transform/TransformComponent';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { __interpolate } from './AnimationOps';
 
@@ -139,99 +142,159 @@ export class AnimationComponent extends Component {
     for (const [pathName, channel] of this.__animationTrack) {
       channel.animatedValue.setTime(time);
       channel.animatedValue.blendingRatio = this.__animationBlendingRatio;
-      if (pathName === 'translate') {
-        transformComponent.localPosition = channel.animatedValue as unknown as Vector3;
-      } else if (pathName === 'quaternion') {
-        transformComponent.localRotation = channel.animatedValue as unknown as Quaternion;
-      } else if (pathName === 'scale') {
-        transformComponent.localScale = channel.animatedValue as unknown as Vector3;
-      } else if (pathName === 'weights') {
-        blendShapeComponent!.weights = (channel.animatedValue as AnimatedVectorN).getNumberArray();
-      } else if (pathName.startsWith('material/')) {
-        const meshComponent = this.entity.tryToGetMesh();
-        if (Is.exist(meshComponent) && Is.exist(meshComponent.mesh)) {
-          const mesh = meshComponent.mesh;
-          for (let i = 0; i < mesh.getPrimitiveNumber(); i++) {
-            const primitive = mesh.getPrimitiveAt(i);
-            const material = primitive.material;
-            if (Is.exist(material)) {
-              material.setParameter(pathName.split('/').pop()!, channel.animatedValue);
-            }
-          }
-        }
-      } else if (pathName === 'light_color') {
-        const lightComponent = this.entity.tryToGetLight();
-        if (Is.exist(lightComponent)) {
-          const color = channel.animatedValue as unknown as Vector3;
-          lightComponent.color = color;
-        }
-      } else if (pathName === 'light_intensity') {
-        const lightComponent = this.entity.tryToGetLight();
-        if (Is.exist(lightComponent)) {
-          const intensity = channel.animatedValue as unknown as Scalar;
-          lightComponent.intensity = intensity._v[0];
-        }
-      } else if (pathName === 'light_range') {
-        const lightComponent = this.entity.tryToGetLight();
-        if (Is.exist(lightComponent)) {
-          const range = channel.animatedValue as unknown as Scalar;
-          lightComponent.range = range._v[0];
-        }
-      } else if (pathName === 'light_spot_innerConeAngle') {
-        const lightComponent = this.entity.tryToGetLight();
-        if (Is.exist(lightComponent)) {
-          const innerConeAngle = channel.animatedValue as unknown as Scalar;
-          lightComponent.innerConeAngle = innerConeAngle._v[0];
-        }
-      } else if (pathName === 'light_spot_outerConeAngle') {
-        const lightComponent = this.entity.tryToGetLight();
-        if (Is.exist(lightComponent)) {
-          const outerConeAngle = channel.animatedValue as unknown as Scalar;
-          lightComponent.outerConeAngle = outerConeAngle._v[0];
-        }
-      } else if (pathName === 'camera_znear') {
-        const cameraComponent = this.entity.tryToGetCamera();
-        if (Is.exist(cameraComponent)) {
-          const znear = channel.animatedValue as unknown as Scalar;
-          cameraComponent.zNear = znear._v[0];
-        }
-      } else if (pathName === 'camera_zfar') {
-        const cameraComponent = this.entity.tryToGetCamera();
-        if (Is.exist(cameraComponent)) {
-          const zfar = channel.animatedValue as unknown as Scalar;
-          cameraComponent.zFar = zfar._v[0];
-        }
-      } else if (pathName === 'camera_fovy') {
-        const cameraComponent = this.entity.tryToGetCamera();
-        if (Is.exist(cameraComponent)) {
-          const fovy = channel.animatedValue as unknown as Scalar;
-          cameraComponent.setFovyAndChangeFocalLength(MathUtil.radianToDegree(fovy._v[0]));
-        }
-      } else if (pathName === 'camera_xmag') {
-        const cameraComponent = this.entity.tryToGetCamera();
-        if (Is.exist(cameraComponent)) {
-          const xmag = channel.animatedValue as unknown as Scalar;
-          cameraComponent.xMag = xmag._v[0];
-        }
-      } else if (pathName === 'camera_ymag') {
-        const cameraComponent = this.entity.tryToGetCamera();
-        if (Is.exist(cameraComponent)) {
-          const ymag = channel.animatedValue as unknown as Scalar;
-          cameraComponent.yMag = ymag._v[0];
-        }
-      } else if (pathName === 'effekseer') {
-        if ((channel.animatedValue as unknown as Scalar).x > 0.5) {
-          if (this.__isEffekseerState === 0) {
-            effekseerComponent?.play();
-          }
-        } else {
-          if (this.__isEffekseerState === 1) {
-            effekseerComponent?.pause();
-          }
-        }
-        this.__isEffekseerState = (channel.animatedValue as unknown as Scalar).x;
-      }
+
+      this.__applyChannelAnimation(pathName, channel, transformComponent, blendShapeComponent, effekseerComponent);
     }
+  }
+
+  private __applyChannelAnimation(
+    pathName: string,
+    channel: AnimationChannel,
+    transformComponent: TransformComponent,
+    blendShapeComponent?: BlendShapeComponent,
+    effekseerComponent?: EffekseerComponent
+  ) {
+    if (this.__applyTransformAnimation(pathName, channel, transformComponent)) return;
+    if (this.__applyBlendShapeAnimation(pathName, channel, blendShapeComponent)) return;
+    if (this.__applyMaterialAnimation(pathName, channel)) return;
+    if (this.__applyLightAnimation(pathName, channel)) return;
+    if (this.__applyCameraAnimation(pathName, channel)) return;
+    if (this.__applyEffekseerAnimation(pathName, channel, effekseerComponent)) return;
+  }
+
+  private __applyTransformAnimation(
+    pathName: string,
+    channel: AnimationChannel,
+    transformComponent: TransformComponent
+  ): boolean {
+    if (pathName === 'translate') {
+      transformComponent.localPosition = channel.animatedValue as unknown as Vector3;
+      return true;
+    }
+    if (pathName === 'quaternion') {
+      transformComponent.localRotation = channel.animatedValue as unknown as Quaternion;
+      return true;
+    }
+    if (pathName === 'scale') {
+      transformComponent.localScale = channel.animatedValue as unknown as Vector3;
+      return true;
+    }
+    return false;
+  }
+
+  private __applyBlendShapeAnimation(
+    pathName: string,
+    channel: AnimationChannel,
+    blendShapeComponent?: BlendShapeComponent
+  ): boolean {
+    if (pathName === 'weights') {
+      blendShapeComponent!.weights = (channel.animatedValue as AnimatedVectorN).getNumberArray();
+      return true;
+    }
+    return false;
+  }
+
+  private __applyMaterialAnimation(pathName: string, channel: AnimationChannel): boolean {
+    if (pathName.startsWith('material/')) {
+      const meshComponent = this.entity.tryToGetMesh();
+      if (Is.exist(meshComponent) && Is.exist(meshComponent.mesh)) {
+        const mesh = meshComponent.mesh;
+        for (let i = 0; i < mesh.getPrimitiveNumber(); i++) {
+          const primitive = mesh.getPrimitiveAt(i);
+          const material = primitive.material;
+          if (Is.exist(material)) {
+            material.setParameter(pathName.split('/').pop()!, channel.animatedValue);
+          }
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
+  private __applyLightAnimation(pathName: string, channel: AnimationChannel): boolean {
+    const lightComponent = this.entity.tryToGetLight();
+    if (!Is.exist(lightComponent)) return false;
+
+    if (pathName === 'light_color') {
+      const color = channel.animatedValue as unknown as Vector3;
+      lightComponent.color = color;
+      return true;
+    }
+    if (pathName === 'light_intensity') {
+      const intensity = channel.animatedValue as unknown as Scalar;
+      lightComponent.intensity = intensity._v[0];
+      return true;
+    }
+    if (pathName === 'light_range') {
+      const range = channel.animatedValue as unknown as Scalar;
+      lightComponent.range = range._v[0];
+      return true;
+    }
+    if (pathName === 'light_spot_innerConeAngle') {
+      const innerConeAngle = channel.animatedValue as unknown as Scalar;
+      lightComponent.innerConeAngle = innerConeAngle._v[0];
+      return true;
+    }
+    if (pathName === 'light_spot_outerConeAngle') {
+      const outerConeAngle = channel.animatedValue as unknown as Scalar;
+      lightComponent.outerConeAngle = outerConeAngle._v[0];
+      return true;
+    }
+    return false;
+  }
+
+  private __applyCameraAnimation(pathName: string, channel: AnimationChannel): boolean {
+    const cameraComponent = this.entity.tryToGetCamera();
+    if (!Is.exist(cameraComponent)) return false;
+
+    if (pathName === 'camera_znear') {
+      const znear = channel.animatedValue as unknown as Scalar;
+      cameraComponent.zNear = znear._v[0];
+      return true;
+    }
+    if (pathName === 'camera_zfar') {
+      const zfar = channel.animatedValue as unknown as Scalar;
+      cameraComponent.zFar = zfar._v[0];
+      return true;
+    }
+    if (pathName === 'camera_fovy') {
+      const fovy = channel.animatedValue as unknown as Scalar;
+      cameraComponent.setFovyAndChangeFocalLength(MathUtil.radianToDegree(fovy._v[0]));
+      return true;
+    }
+    if (pathName === 'camera_xmag') {
+      const xmag = channel.animatedValue as unknown as Scalar;
+      cameraComponent.xMag = xmag._v[0];
+      return true;
+    }
+    if (pathName === 'camera_ymag') {
+      const ymag = channel.animatedValue as unknown as Scalar;
+      cameraComponent.yMag = ymag._v[0];
+      return true;
+    }
+    return false;
+  }
+
+  private __applyEffekseerAnimation(
+    pathName: string,
+    channel: AnimationChannel,
+    effekseerComponent?: EffekseerComponent
+  ): boolean {
+    if (pathName === 'effekseer') {
+      if ((channel.animatedValue as unknown as Scalar).x > 0.5) {
+        if (this.__isEffekseerState === 0) {
+          effekseerComponent?.play();
+        }
+      } else {
+        if (this.__isEffekseerState === 1) {
+          effekseerComponent?.pause();
+        }
+      }
+      this.__isEffekseerState = (channel.animatedValue as unknown as Scalar).x;
+      return true;
+    }
+    return false;
   }
 
   /**

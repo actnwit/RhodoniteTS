@@ -222,173 +222,181 @@ export class System {
     time._v[0] = Time.timeFromSystemStart;
 
     if (this.processApproach === ProcessApproach.WebGPU) {
-      const componentTids = ComponentRepository.getComponentTIDs();
-      const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
-      for (const stage of Component._processStages) {
-        const methodName = stage.methodName;
-        const commonMethodName = `common_${methodName}`;
-        if (stage === ProcessStage.Render) {
-          const webGpuStrategyBasic = WebGpuStrategyBasic.getInstance();
-          MeshRendererComponent.common_$prerender();
-          for (const exp of expressions) {
+      this._processWebGPU(expressions);
+    } else {
+      this._processWebGL(expressions);
+    }
+
+    Time._processEnd();
+  }
+
+  private static _processWebGPU(expressions: Expression[]) {
+    const componentTids = ComponentRepository.getComponentTIDs();
+    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+    for (const stage of Component._processStages) {
+      const methodName = stage.methodName;
+      const commonMethodName = `common_${methodName}`;
+      if (stage === ProcessStage.Render) {
+        const webGpuStrategyBasic = WebGpuStrategyBasic.getInstance();
+        MeshRendererComponent.common_$prerender();
+        for (const exp of expressions) {
+          for (const renderPass of exp.renderPasses) {
+            renderPass.doPreRender();
+
+            // clear Framebuffer
+            this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
+
+            renderPass._isChangedSortRenderResult = false;
+            const primitiveUids = MeshRendererComponent.sort_$render(renderPass);
+            let doRender = renderPass._renderedSomethingBefore;
+            if (doRender) {
+              doRender = !webGpuStrategyBasic.renderWithRenderBundle(renderPass);
+              SystemState.webgpuRenderBundleMode ||= doRender;
+            }
+
+            if (doRender) {
+              const renderedSomething = MeshRendererComponent.common_$render({
+                renderPass: renderPass,
+                renderPassTickCount: this.__renderPassTickCount,
+                primitiveUids,
+              });
+              renderPass._renderedSomethingBefore = renderedSomething;
+              if (renderedSomething) {
+                webGpuResourceRepository.finishRenderBundleEncoder(renderPass);
+              }
+            }
+            renderPass._copyResolve1ToResolve2WebGpu();
+            renderPass.doPostRender();
+            this.__renderPassTickCount++;
+          }
+        }
+        webGpuResourceRepository.flush();
+      } else {
+        if (
+          !SystemState.webgpuRenderBundleMode ||
+          AnimationComponent.isAnimating ||
+          TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
+          CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
+          CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
+          Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount
+        ) {
+          for (const componentTid of componentTids) {
+            const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
+
+            const componentClass_commonMethod = (componentClass as any)[commonMethodName];
+            if (componentClass_commonMethod) {
+              componentClass_commonMethod({
+                processApproach: this.__processApproach,
+                renderPass: void 0,
+                processStage: stage,
+                renderPassTickCount: this.__renderPassTickCount,
+              });
+            }
+
+            componentClass.process(componentClass, stage);
+          }
+        }
+      }
+    }
+    this.__lastCameraComponentsUpdateCount = CameraComponent.currentCameraUpdateCount;
+    this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
+    this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
+    this.__lastPrimitiveCount = Primitive.getPrimitiveCount();
+  }
+
+  private static _processWebGL(expressions: Expression[]) {
+    // WebGL
+    const repo = CGAPIResourceRepository.getWebGLResourceRepository();
+    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR | undefined;
+
+    const componentTids = ComponentRepository.getComponentTIDs();
+    const renderingComponentTids = ComponentRepository.getRenderingComponentTIDs();
+    for (const stage of Component._processStages) {
+      const methodName = stage.methodName;
+      const commonMethodName = `common_${methodName}`;
+      if (stage === ProcessStage.Render) {
+        MeshRendererComponent.common_$prerender();
+        for (const exp of expressions) {
+          for (const componentTid of renderingComponentTids) {
+            const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
             for (const renderPass of exp.renderPasses) {
+              if (typeof spector !== 'undefined') {
+                spector.setMarker(`| ${exp.uniqueName}: ${renderPass.uniqueName}#`);
+              }
               renderPass.doPreRender();
 
-              // clear Framebuffer
-              this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
+              repo.switchDepthTest(renderPass.isDepthTest);
+
+              if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
+                // bind Framebuffer
+                System.bindFramebufferWebGL(renderPass, rnXRModule);
+
+                // set Viewport for Normal (Not WebXR)
+                System.setViewportForNormalRendering(renderPass, rnXRModule);
+              }
+              if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
+                // clear Framebuffer
+                this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
+              }
 
               renderPass._isChangedSortRenderResult = false;
               const primitiveUids = MeshRendererComponent.sort_$render(renderPass);
               let doRender = renderPass._renderedSomethingBefore;
               if (doRender) {
-                doRender = !webGpuStrategyBasic.renderWithRenderBundle(renderPass);
-                SystemState.webgpuRenderBundleMode ||= doRender;
-              }
+                const componentClass_commonMethod = (componentClass as any)[commonMethodName];
+                if (componentClass_commonMethod) {
+                  const renderedSomething = componentClass_commonMethod({
+                    processApproach: this.__processApproach,
+                    renderPass: renderPass,
+                    processStage: stage,
+                    renderPassTickCount: this.__renderPassTickCount,
+                    primitiveUids,
+                  });
+                  renderPass._renderedSomethingBefore = renderedSomething;
+                }
 
-              if (doRender) {
-                const renderedSomething = MeshRendererComponent.common_$render({
-                  renderPass: renderPass,
-                  renderPassTickCount: this.__renderPassTickCount,
-                  primitiveUids,
-                });
-                renderPass._renderedSomethingBefore = renderedSomething;
-                if (renderedSomething) {
-                  webGpuResourceRepository.finishRenderBundleEncoder(renderPass);
+                if (componentTid !== WellKnownComponentTIDs.MeshRendererComponentTID) {
+                  componentClass.process(componentClass, stage);
                 }
               }
-              renderPass._copyResolve1ToResolve2WebGpu();
-              renderPass.doPostRender();
               this.__renderPassTickCount++;
-            }
-          }
-          webGpuResourceRepository.flush();
-        } else {
-          if (
-            !SystemState.webgpuRenderBundleMode ||
-            AnimationComponent.isAnimating ||
-            TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
-            CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
-            CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
-            Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount
-          ) {
-            for (const componentTid of componentTids) {
-              const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
 
-              const componentClass_commonMethod = (componentClass as any)[commonMethodName];
-              if (componentClass_commonMethod) {
-                componentClass_commonMethod({
-                  processApproach: this.__processApproach,
-                  renderPass: void 0,
-                  processStage: stage,
-                  renderPassTickCount: this.__renderPassTickCount,
-                });
-              }
+              renderPass._copyFramebufferToResolveFramebuffersWebGL();
 
-              componentClass.process(componentClass, stage);
+              renderPass.doPostRender();
             }
           }
         }
-      }
-      this.__lastCameraComponentsUpdateCount = CameraComponent.currentCameraUpdateCount;
-      this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
-      this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
-      this.__lastPrimitiveCount = Primitive.getPrimitiveCount();
-    } else {
-      // WebGL
-      const repo = CGAPIResourceRepository.getWebGLResourceRepository();
-      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR | undefined;
+      } else {
+        if (
+          AnimationComponent.isAnimating ||
+          TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
+          CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
+          CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
+          Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount
+        ) {
+          for (const componentTid of componentTids) {
+            const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
 
-      const componentTids = ComponentRepository.getComponentTIDs();
-      const renderingComponentTids = ComponentRepository.getRenderingComponentTIDs();
-      for (const stage of Component._processStages) {
-        const methodName = stage.methodName;
-        const commonMethodName = `common_${methodName}`;
-        if (stage === ProcessStage.Render) {
-          MeshRendererComponent.common_$prerender();
-          for (const exp of expressions) {
-            for (const componentTid of renderingComponentTids) {
-              const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
-              for (const renderPass of exp.renderPasses) {
-                if (typeof spector !== 'undefined') {
-                  spector.setMarker(`| ${exp.uniqueName}: ${renderPass.uniqueName}#`);
-                }
-                renderPass.doPreRender();
-
-                repo.switchDepthTest(renderPass.isDepthTest);
-
-                if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
-                  // bind Framebuffer
-                  System.bindFramebufferWebGL(renderPass, rnXRModule);
-
-                  // set Viewport for Normal (Not WebXR)
-                  System.setViewportForNormalRendering(renderPass, rnXRModule);
-                }
-                if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
-                  // clear Framebuffer
-                  this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
-                }
-
-                renderPass._isChangedSortRenderResult = false;
-                const primitiveUids = MeshRendererComponent.sort_$render(renderPass);
-                let doRender = renderPass._renderedSomethingBefore;
-                if (doRender) {
-                  const componentClass_commonMethod = (componentClass as any)[commonMethodName];
-                  if (componentClass_commonMethod) {
-                    const renderedSomething = componentClass_commonMethod({
-                      processApproach: this.__processApproach,
-                      renderPass: renderPass,
-                      processStage: stage,
-                      renderPassTickCount: this.__renderPassTickCount,
-                      primitiveUids,
-                    });
-                    renderPass._renderedSomethingBefore = renderedSomething;
-                  }
-
-                  if (componentTid !== WellKnownComponentTIDs.MeshRendererComponentTID) {
-                    componentClass.process(componentClass, stage);
-                  }
-                }
-                this.__renderPassTickCount++;
-
-                renderPass._copyFramebufferToResolveFramebuffersWebGL();
-
-                renderPass.doPostRender();
-              }
+            const componentClass_commonMethod = (componentClass as any)[commonMethodName];
+            if (componentClass_commonMethod) {
+              componentClass_commonMethod({
+                processApproach: this.__processApproach,
+                renderPass: void 0,
+                processStage: stage,
+                renderPassTickCount: this.__renderPassTickCount,
+              });
             }
-          }
-        } else {
-          if (
-            AnimationComponent.isAnimating ||
-            TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
-            CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
-            CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
-            Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount
-          ) {
-            for (const componentTid of componentTids) {
-              const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;
 
-              const componentClass_commonMethod = (componentClass as any)[commonMethodName];
-              if (componentClass_commonMethod) {
-                componentClass_commonMethod({
-                  processApproach: this.__processApproach,
-                  renderPass: void 0,
-                  processStage: stage,
-                  renderPassTickCount: this.__renderPassTickCount,
-                });
-              }
-
-              componentClass.process(componentClass, stage);
-            }
+            componentClass.process(componentClass, stage);
           }
         }
       }
-      this.__lastCameraComponentsUpdateCount = CameraComponent.currentCameraUpdateCount;
-      this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
-      this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
-      this.__lastPrimitiveCount = Primitive.getPrimitiveCount();
     }
-
-    Time._processEnd();
+    this.__lastCameraComponentsUpdateCount = CameraComponent.currentCameraUpdateCount;
+    this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
+    this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
+    this.__lastPrimitiveCount = Primitive.getPrimitiveCount();
   }
 
   static get processTime() {
