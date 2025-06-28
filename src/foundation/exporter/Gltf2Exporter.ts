@@ -34,8 +34,10 @@ import { CameraType, type ComponentTypeEnum, type CompositionTypeEnum, TexturePa
 import { ComponentType, type Gltf2AccessorComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
-import type { Primitive } from '../geometry';
+import type { Mesh } from '../geometry/Mesh';
+import type { Primitive } from '../geometry/Primitive';
 import type { IAnimationEntity, IMeshEntity, ISceneGraphEntity, ISkeletalEntity } from '../helpers/EntityHelper';
+import type { Material } from '../materials/core/Material';
 import { MathUtil } from '../math/MathUtil';
 import { Vector4 } from '../math/Vector4';
 import type { Accessor } from '../memory/Accessor';
@@ -497,206 +499,255 @@ export class Gltf2Exporter {
     const promises: Promise<any>[] = [];
     json.extras.bufferViewByteLengthAccumulatedArray.push(0);
     const bufferIdx = json.extras.bufferViewByteLengthAccumulatedArray.length - 1;
+
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
       const meshComponent = entity.tryToGetMesh();
       if (meshComponent?.mesh) {
         const gltf2Mesh = json.meshes![countMesh++];
-        const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
-        for (let j = 0; j < primitiveCount; j++) {
-          const rnPrimitive = meshComponent.mesh.getPrimitiveAt(j);
-          const primitive = gltf2Mesh.primitives[j];
-          const rnMaterial = rnPrimitive.material!;
+        await this.__processMeshPrimitives(json, meshComponent.mesh, gltf2Mesh, promises, bufferIdx, option);
+      }
+    }
 
-          const material: Gltf2MaterialEx = {
-            pbrMetallicRoughness: {
-              metallicFactor: 1.0,
-              roughnessFactor: 1.0,
-            },
+    return Promise.all(promises);
+  }
+
+  private static async __processMeshPrimitives(
+    json: Gltf2Ex,
+    mesh: Mesh,
+    gltf2Mesh: Gltf2Mesh,
+    promises: Promise<any>[],
+    bufferIdx: number,
+    option: Gltf2ExporterArguments
+  ) {
+    const primitiveCount = mesh.getPrimitiveNumber();
+    for (let j = 0; j < primitiveCount; j++) {
+      const rnPrimitive = mesh.getPrimitiveAt(j);
+      const primitive = gltf2Mesh.primitives[j];
+      const rnMaterial = rnPrimitive.material!;
+
+      const material = await this.__createMaterialFromRhodonite(json, rnMaterial, promises, bufferIdx, option);
+      const materialIndex = json.materials.length;
+      json.materials.push(material);
+      primitive.material = materialIndex;
+    }
+  }
+
+  private static async __createMaterialFromRhodonite(
+    json: Gltf2Ex,
+    rnMaterial: Material,
+    promises: Promise<any>[],
+    bufferIdx: number,
+    option: Gltf2ExporterArguments
+  ): Promise<Gltf2MaterialEx> {
+    const material: Gltf2MaterialEx = {
+      pbrMetallicRoughness: {
+        metallicFactor: 1.0,
+        roughnessFactor: 1.0,
+      },
+    };
+
+    if (Is.exist(rnMaterial)) {
+      this.__setupMaterialBasicProperties(material, rnMaterial, json);
+      await this.__setupMaterialTextures(material, rnMaterial, json, promises, bufferIdx, option);
+    }
+
+    return material;
+  }
+
+  private static __setupMaterialBasicProperties(material: Gltf2MaterialEx, rnMaterial: Material, json: Gltf2Ex) {
+    if (Is.false(rnMaterial.isLighting)) {
+      if (Is.not.exist(material.extensions)) {
+        material.extensions = {};
+      }
+      material.extensions.KHR_materials_unlit = {};
+      if (json.extensionsUsed.indexOf('KHR_materials_unlit') < 0) {
+        json.extensionsUsed.push('KHR_materials_unlit');
+      }
+    }
+
+    let colorParam: Vector4 = rnMaterial.getParameter('baseColorFactor');
+    if (Is.not.exist(colorParam)) {
+      colorParam = rnMaterial.getParameter('diffuseColorFactor');
+      if (Is.not.exist(colorParam)) {
+        colorParam = Vector4.fromCopy4(1, 1, 1, 1);
+      }
+      material.pbrMetallicRoughness.baseColorFactor = [colorParam.x, colorParam.y, colorParam.z, colorParam.w];
+    } else {
+      material.pbrMetallicRoughness.metallicFactor = rnMaterial.getParameter('metallicRoughnessFactor').x;
+      material.pbrMetallicRoughness.roughnessFactor = rnMaterial.getParameter('metallicRoughnessFactor').y;
+    }
+
+    material.alphaMode = rnMaterial.alphaMode.toGltfString();
+  }
+
+  private static async __setupMaterialTextures(
+    material: Gltf2MaterialEx,
+    rnMaterial: Material,
+    json: Gltf2Ex,
+    promises: Promise<any>[],
+    bufferIdx: number,
+    option: Gltf2ExporterArguments
+  ) {
+    const existedImages: string[] = [];
+
+    const processSampler = (rnSampler?: Sampler) => {
+      const gltf2TextureSampler: Gltf2TextureSampler = {
+        magFilter: rnSampler != null ? rnSampler.magFilter.index : TextureParameter.Linear.index,
+        minFilter: rnSampler != null ? rnSampler.minFilter.index : TextureParameter.Linear.index,
+        wrapS: rnSampler != null ? rnSampler.wrapS.index : TextureParameter.TextureWrapS.index,
+        wrapT: rnSampler != null ? rnSampler.wrapT.index : TextureParameter.TextureWrapT.index,
+      };
+
+      let samplerIdx = json.samplers.findIndex(sampler => {
+        return isSameGlTF2TextureSampler(gltf2TextureSampler, sampler);
+      });
+      if (samplerIdx === -1) {
+        json.samplers.push(gltf2TextureSampler);
+        samplerIdx = json.samplers.length - 1;
+      }
+      return samplerIdx;
+    };
+
+    const processImage = (rnTexture: AbstractTexture) => {
+      let imageIndex = json.images.length;
+      let match = false;
+      for (let k = 0; k < json.images.length; k++) {
+        const image = json.images![k];
+        if (Is.exist(image.rnTextureUID) && image.rnTextureUID === rnTexture.textureUID) {
+          imageIndex = k;
+          match = true;
+        }
+      }
+
+      if (!match) {
+        const glTF2ImageEx: Gltf2ImageEx = {
+          uri: rnTexture.name,
+        };
+        glTF2ImageEx.rnTextureUID = rnTexture.textureUID;
+
+        if (existedImages.indexOf(rnTexture.name) !== -1) {
+          glTF2ImageEx.uri += `_${rnTexture.textureUID}`;
+        }
+
+        existedImages.push(glTF2ImageEx.uri!);
+
+        if (Is.not.exist(glTF2ImageEx.uri!.match(/\.(png)/))) {
+          glTF2ImageEx.uri += '.png';
+        }
+        const htmlCanvasElement = rnTexture.htmlCanvasElement;
+        if (htmlCanvasElement) {
+          const promise = new Promise(
+            (resolve: (v?: ArrayBuffer) => void, rejected: (reason?: DOMException) => void) => {
+              htmlCanvasElement.toBlob(blob => {
+                if (Is.exist(blob)) {
+                  handleTextureImage(json, bufferIdx, blob, option, glTF2ImageEx, resolve, rejected);
+                } else {
+                  throw Error('canvas to blob error!');
+                }
+              });
+            }
+          );
+          promises.push(promise);
+        }
+        json.images.push(glTF2ImageEx);
+      }
+      return imageIndex;
+    };
+
+    const processTexture = (rnTexture: AbstractTexture, rnSampler?: Sampler) => {
+      if (rnTexture && rnTexture.width > 1 && rnTexture.height > 1) {
+        const samplerIdx = processSampler(rnSampler);
+        const imageIndex = processImage(rnTexture);
+
+        const gltf2Texture: Gltf2Texture = {
+          sampler: samplerIdx,
+          source: imageIndex,
+        };
+        const textureIdx = json.textures.indexOf(gltf2Texture);
+        if (textureIdx === -1) {
+          json.textures.push(gltf2Texture);
+        }
+
+        return json.textures.indexOf(gltf2Texture);
+      }
+      return void 0;
+    };
+
+    this.__processTextureParameters(material, rnMaterial, processTexture);
+  }
+
+  private static __processTextureParameters(
+    material: Gltf2MaterialEx,
+    rnMaterial: Material,
+    processTexture: (rnTexture: AbstractTexture, rnSampler?: Sampler) => number | undefined
+  ) {
+    let textureParam = rnMaterial.getParameter('baseColorTexture');
+    let textureIndex: number | undefined;
+    if (textureParam != null) {
+      const rnTexture = textureParam[1] as Texture;
+      const rnSampler = textureParam[2] as Sampler | undefined;
+      textureIndex = processTexture(rnTexture, rnSampler);
+      if (textureIndex != null) {
+        material.pbrMetallicRoughness.baseColorTexture = {
+          index: textureIndex,
+        };
+      }
+    } else {
+      textureParam = rnMaterial.getParameter('diffuseColorTexture');
+      if (textureParam != null) {
+        const rnTexture = textureParam[1] as Texture;
+        const rnSampler = textureParam[2] as Sampler | undefined;
+        const textureIndex = processTexture(rnTexture, rnSampler);
+        if (textureIndex != null) {
+          material.pbrMetallicRoughness.diffuseColorTexture = {
+            index: textureIndex,
           };
-
-          if (Is.exist(rnMaterial)) {
-            if (Is.false(rnMaterial.isLighting)) {
-              if (Is.not.exist(material.extensions)) {
-                material.extensions = {};
-              }
-              material.extensions.KHR_materials_unlit = {};
-              if (json.extensionsUsed.indexOf('KHR_materials_unlit') < 0) {
-                json.extensionsUsed.push('KHR_materials_unlit');
-              }
-            }
-            let colorParam: Vector4 = rnMaterial.getParameter('baseColorFactor');
-            if (Is.not.exist(colorParam)) {
-              colorParam = rnMaterial.getParameter('diffuseColorFactor');
-              if (Is.not.exist(colorParam)) {
-                colorParam = Vector4.fromCopy4(1, 1, 1, 1);
-              }
-              material.pbrMetallicRoughness.baseColorFactor = [colorParam.x, colorParam.y, colorParam.z, colorParam.w];
-            } else {
-              material.pbrMetallicRoughness.metallicFactor = rnMaterial.getParameter('metallicRoughnessFactor').x;
-              material.pbrMetallicRoughness.roughnessFactor = rnMaterial.getParameter('metallicRoughnessFactor').y;
-            }
-
-            material.alphaMode = rnMaterial.alphaMode.toGltfString();
-
-            const existedImages: string[] = [];
-
-            const processTexture = (rnTexture: AbstractTexture, rnSampler?: Sampler) => {
-              if (rnTexture && rnTexture.width > 1 && rnTexture.height > 1) {
-                let imageIndex = json.images.length;
-                let match = false;
-                for (let k = 0; k < json.images.length; k++) {
-                  const image = json.images![k];
-                  if (Is.exist(image.rnTextureUID) && image.rnTextureUID === rnTexture.textureUID) {
-                    imageIndex = k;
-                    match = true;
-                  }
-                }
-
-                // Sampler
-                let samplerIdx = -1;
-                {
-                  const gltf2TextureSampler: Gltf2TextureSampler = {
-                    magFilter: rnSampler != null ? rnSampler.magFilter.index : TextureParameter.Linear.index,
-                    minFilter: rnSampler != null ? rnSampler.minFilter.index : TextureParameter.Linear.index,
-                    wrapS: rnSampler != null ? rnSampler.wrapS.index : TextureParameter.TextureWrapS.index,
-                    wrapT: rnSampler != null ? rnSampler.wrapT.index : TextureParameter.TextureWrapT.index,
-                  };
-
-                  samplerIdx = json.samplers.findIndex(sampler => {
-                    return isSameGlTF2TextureSampler(gltf2TextureSampler, sampler);
-                  });
-                  if (samplerIdx === -1) {
-                    json.samplers.push(gltf2TextureSampler);
-                    samplerIdx = json.samplers.length - 1;
-                  }
-                }
-
-                if (!match) {
-                  // Image
-                  const glTF2ImageEx: Gltf2ImageEx = {
-                    uri: rnTexture.name,
-                  };
-                  glTF2ImageEx.rnTextureUID = rnTexture.textureUID;
-
-                  if (existedImages.indexOf(rnTexture.name) !== -1) {
-                    glTF2ImageEx.uri += `_${rnTexture.textureUID}`;
-                  }
-
-                  existedImages.push(glTF2ImageEx.uri!);
-
-                  if (Is.not.exist(glTF2ImageEx.uri!.match(/\.(png)/))) {
-                    glTF2ImageEx.uri += '.png';
-                  }
-                  const htmlCanvasElement = rnTexture.htmlCanvasElement;
-                  if (htmlCanvasElement) {
-                    const promise = new Promise(
-                      (resolve: (v?: ArrayBuffer) => void, rejected: (reason?: DOMException) => void) => {
-                        htmlCanvasElement.toBlob(blob => {
-                          if (Is.exist(blob)) {
-                            handleTextureImage(json, bufferIdx, blob, option, glTF2ImageEx, resolve, rejected);
-                          } else {
-                            throw Error('canvas to blob error!');
-                          }
-                        });
-                      }
-                    );
-                    promises.push(promise);
-                  }
-                  json.images.push(glTF2ImageEx);
-                }
-
-                const gltf2Texture: Gltf2Texture = {
-                  sampler: samplerIdx,
-                  source: imageIndex,
-                };
-                const textureIdx = json.textures.indexOf(gltf2Texture);
-                if (textureIdx === -1) {
-                  json.textures.push(gltf2Texture);
-                }
-
-                return json.textures.indexOf(gltf2Texture);
-              }
-              return void 0;
-            };
-
-            let textureParam = rnMaterial.getParameter('baseColorTexture');
-            let textureIndex: number | undefined;
-            if (textureParam != null) {
-              const rnTexture = textureParam[1] as Texture;
-              const rnSampler = textureParam[2] as Sampler | undefined;
-              textureIndex = processTexture(rnTexture, rnSampler);
-              if (textureIndex != null) {
-                material.pbrMetallicRoughness.baseColorTexture = {
-                  index: textureIndex,
-                };
-              }
-            } else {
-              textureParam = rnMaterial.getParameter('diffuseColorTexture');
-              if (textureParam != null) {
-                const rnTexture = textureParam[1] as Texture;
-                const rnSampler = textureParam[2] as Sampler | undefined;
-                const textureIndex = processTexture(rnTexture, rnSampler);
-                if (textureIndex != null) {
-                  material.pbrMetallicRoughness.diffuseColorTexture = {
-                    index: textureIndex,
-                  };
-                }
-              }
-            }
-
-            textureParam = rnMaterial.getParameter('metallicRoughnessTexture') as AbstractTexture;
-            if (textureParam) {
-              const rnTexture = textureParam[1] as Texture;
-              const rnSampler = textureParam[2] as Sampler | undefined;
-              textureIndex = processTexture(rnTexture, rnSampler);
-              if (textureIndex != null) {
-                material.pbrMetallicRoughness.metallicRoughnessTexture = {
-                  index: textureIndex,
-                };
-              }
-            }
-
-            textureParam = rnMaterial.getParameter('normalTexture') as AbstractTexture;
-            if (textureParam) {
-              const rnTexture = textureParam[1] as Texture;
-              const rnSampler = textureParam[2] as Sampler | undefined;
-              textureIndex = processTexture(rnTexture, rnSampler);
-              if (textureIndex != null) {
-                material.normalTexture = { index: textureIndex };
-              }
-            }
-
-            textureParam = rnMaterial.getParameter('occlusionTexture') as AbstractTexture;
-            if (textureParam) {
-              const rnTexture = textureParam[1] as Texture;
-              const rnSampler = textureParam[2] as Sampler | undefined;
-              textureIndex = processTexture(rnTexture, rnSampler);
-              if (textureIndex != null) {
-                material.occlusionTexture = { index: textureIndex };
-              }
-            }
-
-            textureParam = rnMaterial.getParameter('emissiveTexture') as AbstractTexture;
-            if (textureParam) {
-              const rnTexture = textureParam[1] as Texture;
-              const rnSampler = textureParam[2] as Sampler | undefined;
-              textureIndex = processTexture(rnTexture, rnSampler);
-              if (textureIndex != null) {
-                material.emissiveTexture = { index: textureIndex };
-              }
-            }
-          }
-
-          const imageIdx = json.materials.indexOf(material);
-          if (imageIdx === -1) {
-            json.materials.push(material);
-          }
-          primitive.material = json.materials.indexOf(material);
         }
       }
     }
-    return Promise.all(promises);
+
+    textureParam = rnMaterial.getParameter('metallicRoughnessTexture') as AbstractTexture;
+    if (textureParam) {
+      const rnTexture = textureParam[1] as Texture;
+      const rnSampler = textureParam[2] as Sampler | undefined;
+      textureIndex = processTexture(rnTexture, rnSampler);
+      if (textureIndex != null) {
+        material.pbrMetallicRoughness.metallicRoughnessTexture = {
+          index: textureIndex,
+        };
+      }
+    }
+
+    textureParam = rnMaterial.getParameter('normalTexture') as AbstractTexture;
+    if (textureParam) {
+      const rnTexture = textureParam[1] as Texture;
+      const rnSampler = textureParam[2] as Sampler | undefined;
+      textureIndex = processTexture(rnTexture, rnSampler);
+      if (textureIndex != null) {
+        material.normalTexture = { index: textureIndex };
+      }
+    }
+
+    textureParam = rnMaterial.getParameter('occlusionTexture') as AbstractTexture;
+    if (textureParam) {
+      const rnTexture = textureParam[1] as Texture;
+      const rnSampler = textureParam[2] as Sampler | undefined;
+      textureIndex = processTexture(rnTexture, rnSampler);
+      if (textureIndex != null) {
+        material.occlusionTexture = { index: textureIndex };
+      }
+    }
+
+    textureParam = rnMaterial.getParameter('emissiveTexture') as AbstractTexture;
+    if (textureParam) {
+      const rnTexture = textureParam[1] as Texture;
+      const rnSampler = textureParam[2] as Sampler | undefined;
+      textureIndex = processTexture(rnTexture, rnSampler);
+      if (textureIndex != null) {
+        material.emissiveTexture = { index: textureIndex };
+      }
+    }
   }
 
   /**

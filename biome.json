@@ -45,7 +45,7 @@
         "noExcessiveCognitiveComplexity": {
           "level": "error",
           "options": {
-            "maxAllowedComplexity": 100
+            "maxAllowedComplexity": 80
           }
         },
         "noMultipleSpacesInRegularExpressionLiterals": "error",
