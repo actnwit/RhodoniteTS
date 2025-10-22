@@ -574,8 +574,8 @@ export class Gltf2Exporter {
       }
       material.pbrMetallicRoughness.baseColorFactor = [colorParam.x, colorParam.y, colorParam.z, colorParam.w];
     } else {
-      material.pbrMetallicRoughness.metallicFactor = rnMaterial.getParameter('metallicRoughnessFactor').x;
-      material.pbrMetallicRoughness.roughnessFactor = rnMaterial.getParameter('metallicRoughnessFactor').y;
+      material.pbrMetallicRoughness.metallicFactor = rnMaterial.getParameter('metallicFactor').x;
+      material.pbrMetallicRoughness.roughnessFactor = rnMaterial.getParameter('roughnessFactor').x;
     }
 
     material.alphaMode = rnMaterial.alphaMode.toGltfString();
