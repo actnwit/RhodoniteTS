@@ -32733,6 +32733,13 @@ declare class AnimationComponent extends Component {
      * @private
      */
     private __applyAnimation;
+    private __applyChannelAnimation;
+    private __applyTransformAnimation;
+    private __applyBlendShapeAnimation;
+    private __applyMaterialAnimation;
+    private __applyLightAnimation;
+    private __applyCameraAnimation;
+    private __applyEffekseerAnimation;
     /**
      * Subscribes to animation component events.
      * @param type - The type of event to subscribe to
@@ -35814,6 +35821,11 @@ declare class Gltf2Exporter {
      * @returns Promise that resolves when all materials and textures are processed
      */
     static __createMaterials(json: Gltf2Ex, entities: IMeshEntity[], option: Gltf2ExporterArguments): Promise<any[]>;
+    private static __processMeshPrimitives;
+    private static __createMaterialFromRhodonite;
+    private static __setupMaterialBasicProperties;
+    private static __setupMaterialTextures;
+    private static __processTextureParameters;
     /**
      * Creates the binary buffer containing all mesh, animation, and texture data.
      *
@@ -37359,6 +37371,10 @@ declare class Gltf2Importer {
      * @internal
      */
     static _loadDependenciesOfMaterials(gltfJson: RnM2): void;
+    private static _loadBasicMaterialTextures;
+    private static _loadMaterialExtensions;
+    private static _loadKHRExtensions;
+    private static _loadVRMCExtensions;
     /**
      * Resolves dependencies for glTF textures including samplers and image sources.
      * Handles KHR_texture_basisu extension for Basis Universal texture compression.
@@ -38744,6 +38760,46 @@ declare class ShaderGraphResolver {
      * @private
      */
     private static __getFunctionDefinition;
+    /**
+     * Defines varying variables for vertex-to-fragment communication.
+     * @private
+     */
+    private static __defineVaryingVariables;
+    /**
+     * Collects input and output variable names for shader nodes.
+     * @private
+     */
+    private static __collectVariableNames;
+    /**
+     * Collects input variables for a specific node.
+     * @private
+     */
+    private static __collectInputsForNode;
+    /**
+     * Gets default value for an input socket.
+     * @private
+     */
+    private static __getDefaultInputValue;
+    /**
+     * Processes an input connection and returns variable name and shader statement.
+     * @private
+     */
+    private static __processInputConnection;
+    /**
+     * Collects output variables for a specific node.
+     * @private
+     */
+    private static __collectOutputsForNode;
+    /**
+     * Generates shader code for the nodes.
+     * @private
+     */
+    private static __generateShaderCode;
+    /**
+     * Handles vertex-to-fragment data passing in vertex stage.
+     * @private
+     */
+    private static __handleVertexToFragmentPassing;
     /**
      * Constructs the main shader body with proper variable declarations, connections, and function calls.
      * This is the core method that generates the actual shader execution logic by:
@@ -43873,6 +43929,8 @@ declare class System {
      */
     static process(frame: Frame): void;
     static process(expressions: Expression[]): void;
+    private static _processWebGPU;
+    private static _processWebGL;
     static get processTime(): number;
     static get timeAtProcessBegin(): number;
     static get timeAtProcessEnd(): number;
