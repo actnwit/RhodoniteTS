@@ -21,6 +21,7 @@ import type { Index } from '../types/CommonTypes';
 import type { WebGLContextWrapper } from '../webgl/WebGLContextWrapper';
 import type { WebGLResourceRepository } from '../webgl/WebGLResourceRepository';
 import type { WebGLStereoUtil } from '../webgl/WebGLStereoUtil';
+import type { WebGpuResourceRepository } from '../webgpu/WebGpuResourceRepository';
 import { createMotionController, getMotionController, updateGamePad, updateMotionControllerModel } from './WebXRInput';
 declare const navigator: Navigator;
 declare const window: any;
@@ -203,11 +204,9 @@ export class WebXRSystem {
       let referenceSpace: XRReferenceSpace;
       const isWebGPU = SystemState.currentProcessApproach === ProcessApproach.WebGPU;
       const requiredFeatures: string[] = isWebGPU ? ['webgpu'] : [];
-      const session = (await navigator.xr!.requestSession('immersive-vr', { requiredFeatures })) as XRSession;
+      const xrSession = (await navigator.xr!.requestSession('immersive-vr', { requiredFeatures })) as XRSession;
 
-      this.__xrSession = session;
-
-      session.addEventListener('end', () => {
+      xrSession.addEventListener('end', () => {
         if (!isWebGPU) {
           const glw = (cgApiResourceRepository as WebGLResourceRepository).currentWebGLContextWrapper!;
           glw.__gl.bindFramebuffer(glw.__gl.FRAMEBUFFER, null);
@@ -230,7 +229,7 @@ export class WebXRSystem {
       });
 
       const promiseFn = (resolve: (entities: IEntity[]) => void) => {
-        session.addEventListener('inputsourceschange', (e: any) => {
+        xrSession.addEventListener('inputsourceschange', (e: any) => {
           this.__onInputSourcesChange(e, resolve, profilePriorities);
         });
       };
@@ -244,12 +243,25 @@ export class WebXRSystem {
       // } catch (err) {
       // Logger.error(`Failed to start XRSession: ${err}`);
       // eslint-disable-next-line prefer-const
-      referenceSpace = await session.requestReferenceSpace('local');
+      referenceSpace = await xrSession.requestReferenceSpace('local');
       this.__spaceType = 'local';
       this.__defaultPositionInLocalSpaceMode = initialUserPosition ?? defaultUserPositionInVR;
       this.__xrReferenceSpace = referenceSpace;
+
+      this.__xrSession = xrSession;
       System.stopRenderLoop();
-      await this.__setupWebGLLayer(session, callbackOnXrSessionStart);
+      if (isWebGPU) {
+        const webgpuDeviceWrapper = (cgApiResourceRepository as WebGpuResourceRepository).getWebGpuDeviceWrapper();
+        const webgpuDevice = webgpuDeviceWrapper.gpuDevice;
+        const xrGpuBinding = new window.XRGPUBinding(xrSession, webgpuDevice);
+        const projectionLayer = xrGpuBinding.createProjectionLayer({
+          colorFormat: xrGpuBinding.getPreferredColorFormat(),
+          depthStencilFormat: 'depth24plus',
+        });
+        await this.__setupWebGPULayer(xrSession, projectionLayer, callbackOnXrSessionStart);
+      } else {
+        await this.__setupWebGLLayer(xrSession, callbackOnXrSessionStart);
+      }
       this.__requestedToEnterWebXR = true;
       System.restartRenderLoop();
       Logger.warn('End of enterWebXR.');
@@ -805,6 +817,16 @@ export class WebXRSystem {
     } else {
       Logger.error('WebGL context is not ready for WebXR.');
     }
+  }
+
+  private async __setupWebGPULayer(
+    xrSession: XRSession,
+    projectionLayer: XRLayer,
+    callbackOnXrSessionStart: () => void
+  ) {
+    xrSession.updateRenderState({ layers: [projectionLayer] });
+    this.__setWebXRMode(true);
+    callbackOnXrSessionStart();
   }
 
   /**
