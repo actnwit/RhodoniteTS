@@ -538,19 +538,6 @@ export class WebXRSystem {
   }
 
   /**
-   * Updates camera projection matrices and pushes values to the global data repository.
-   * Called during the rendering pipeline to ensure cameras have current XR projection data.
-   *
-   * @internal
-   */
-  _setValuesToGlobalDataRepository() {
-    this.__leftCameraEntity.getCamera().projectionMatrix = this.leftProjectionMatrix;
-    this.__rightCameraEntity.getCamera().projectionMatrix = this.rightProjectionMatrix;
-    this.__leftCameraEntity.getCamera().setValuesToGlobalDataRepository();
-    this.__rightCameraEntity.getCamera().setValuesToGlobalDataRepository();
-  }
-
-  /**
    * Gets the world position of the specified VR camera.
    * Combines XR pose data with user position offset and viewer transformations.
    *
