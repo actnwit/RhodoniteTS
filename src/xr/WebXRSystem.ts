@@ -19,6 +19,7 @@ import { System } from '../foundation/system/System';
 import { SystemState } from '../foundation/system/SystemState';
 import type { Index } from '../types/CommonTypes';
 import type { WebGLContextWrapper } from '../webgl/WebGLContextWrapper';
+import type { WebGLResourceRepository } from '../webgl/WebGLResourceRepository';
 import type { WebGLStereoUtil } from '../webgl/WebGLStereoUtil';
 import { createMotionController, getMotionController, updateGamePad, updateMotionControllerModel } from './WebXRInput';
 declare const navigator: Navigator;
@@ -196,18 +197,21 @@ export class WebXRSystem {
     callbackOnXrSessionEnd: () => void;
     profilePriorities: string[];
   }) {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const glw = webglResourceRepository.currentWebGLContextWrapper;
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
 
-    if (glw != null && this.__isReadyForWebXR) {
+    if (cgApiResourceRepository != null && this.__isReadyForWebXR) {
       let referenceSpace: XRReferenceSpace;
       const isWebGPU = SystemState.currentProcessApproach === ProcessApproach.WebGPU;
       const requiredFeatures: string[] = isWebGPU ? ['webgpu'] : [];
       const session = (await navigator.xr!.requestSession('immersive-vr', { requiredFeatures })) as XRSession;
+
       this.__xrSession = session;
 
       session.addEventListener('end', () => {
-        glw.__gl.bindFramebuffer(glw.__gl.FRAMEBUFFER, null);
+        if (!isWebGPU) {
+          const glw = (cgApiResourceRepository as WebGLResourceRepository).currentWebGLContextWrapper!;
+          glw.__gl.bindFramebuffer(glw.__gl.FRAMEBUFFER, null);
+        }
         this.__xrSession = undefined;
         this.__webglLayer = undefined;
         this.__xrViewerPose = undefined;
