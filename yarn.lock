@@ -976,10 +976,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@webgpu/types@npm:^0.1.43":
-  version: 0.1.43
-  resolution: "@webgpu/types@npm:0.1.43"
-  checksum: 10c0/851cf929f34d2959f3e7999c420a8b0503dfde08a54106555bae734888c4320e4faa648efa6d7642d406e74ca56fe73da4003fa9f4da81763d8e1e0540308092
+"@webgpu/types@npm:^0.1.66":
+  version: 0.1.66
+  resolution: "@webgpu/types@npm:0.1.66"
+  checksum: 10c0/4af272f0133d893d13c4d69a48c3b0458c408f20d57c9fbc8995fdeb38d3a6d8df0898660fa7c484e4b82cccc968ddc9c977c25fe3e1f8ff25b26f0790719589
   languageName: node
   linkType: hard
 
@@ -3819,7 +3819,7 @@ __metadata:
     "@types/webgl-ext": "npm:^0.0.36"
     "@types/webxr": "npm:^0.5.24"
     "@vitest/coverage-v8": "npm:3.1.2"
-    "@webgpu/types": "npm:^0.1.43"
+    "@webgpu/types": "npm:^0.1.66"
     cliui: "npm:^9.0.1"
     cross-env: "npm:^7.0.3"
     esbuild-plugin-shaderity: "npm:^0.0.4"
