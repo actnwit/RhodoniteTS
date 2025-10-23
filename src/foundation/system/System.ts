@@ -509,9 +509,9 @@ export class System {
       const requiredBufferSize = memoryManager.getMemorySize();
 
       const webGpuResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository() as WebGpuResourceRepository;
-      const module = ModuleManager.getInstance().getModule('webgpu');
-      const WebGpuDeviceWrapperClass = module.WebGpuDeviceWrapper as typeof WebGpuDeviceWrapper;
-      const adapter = await navigator.gpu.requestAdapter();
+      const webgpuModule = ModuleManager.getInstance().getModule('webgpu');
+      const WebGpuDeviceWrapperClass = webgpuModule.WebGpuDeviceWrapper as typeof WebGpuDeviceWrapper;
+      const adapter = await navigator.gpu.requestAdapter({ xrCompatible: true });
       const { maxBufferSize, maxStorageBufferBindingSize } = adapter!.limits;
       if (maxBufferSize < requiredBufferSize || maxStorageBufferBindingSize < requiredBufferSize) {
         throw new Error('The required buffer size is too large for this device.');
