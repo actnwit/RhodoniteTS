@@ -1,6 +1,7 @@
 import { createCameraEntity } from '../foundation/components/Camera/createCameraEntity';
 import { createGroupEntity } from '../foundation/components/SceneGraph/createGroupEntity';
 import type { IEntity } from '../foundation/core/Entity';
+import { ProcessApproach } from '../foundation/definitions/ProcessApproach';
 import type { ICameraEntity, ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
@@ -15,6 +16,7 @@ import { Logger } from '../foundation/misc/Logger';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import { System } from '../foundation/system/System';
+import { SystemState } from '../foundation/system/SystemState';
 import type { Index } from '../types/CommonTypes';
 import type { WebGLContextWrapper } from '../webgl/WebGLContextWrapper';
 import type { WebGLStereoUtil } from '../webgl/WebGLStereoUtil';
@@ -199,7 +201,9 @@ export class WebXRSystem {
 
     if (glw != null && this.__isReadyForWebXR) {
       let referenceSpace: XRReferenceSpace;
-      const session = (await navigator.xr!.requestSession('immersive-vr')) as XRSession;
+      const isWebGPU = SystemState.currentProcessApproach === ProcessApproach.WebGPU;
+      const requiredFeatures: string[] = isWebGPU ? ['webgpu'] : [];
+      const session = (await navigator.xr!.requestSession('immersive-vr', { requiredFeatures })) as XRSession;
       this.__xrSession = session;
 
       session.addEventListener('end', () => {
