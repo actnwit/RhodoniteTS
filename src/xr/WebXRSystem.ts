@@ -71,7 +71,8 @@ export class WebXRSystem {
   private __multiviewFramebufferHandle = -1;
   private __multiviewColorTextureHandle = -1;
   private __webglStereoUtil?: WebGLStereoUtil;
-
+  private __xrGpuBinding?: any;
+  private __xrProjectionLayerWebGPU?: XRLayer;
   /**
    * Private constructor for singleton pattern.
    * Initializes the viewer entity and left/right camera entities for stereo rendering.
@@ -254,10 +255,12 @@ export class WebXRSystem {
         const webgpuDeviceWrapper = (cgApiResourceRepository as WebGpuResourceRepository).getWebGpuDeviceWrapper();
         const webgpuDevice = webgpuDeviceWrapper.gpuDevice;
         const xrGpuBinding = new window.XRGPUBinding(xrSession, webgpuDevice);
+        this.__xrGpuBinding = xrGpuBinding;
         const projectionLayer = xrGpuBinding.createProjectionLayer({
           colorFormat: xrGpuBinding.getPreferredColorFormat(),
           depthStencilFormat: 'depth24plus',
         });
+        this.__xrProjectionLayerWebGPU = projectionLayer;
         await this.__setupWebGPULayer(xrSession, projectionLayer, callbackOnXrSessionStart);
       } else {
         await this.__setupWebGLLayer(xrSession, callbackOnXrSessionStart);
@@ -826,6 +829,18 @@ export class WebXRSystem {
   private __updateView(xrFrame: XRFrame) {
     this.__xrViewerPose = xrFrame.getViewerPose(this.__xrReferenceSpace!);
     this.__setCameraInfoFromXRViews(this.__xrViewerPose!);
+    const isWebGPU = SystemState.currentProcessApproach === ProcessApproach.WebGPU;
+    if (isWebGPU) {
+      const view = this.__xrViewerPose!.views[0];
+      const subImage = this.__xrGpuBinding!.getViewSubImage(this.__xrProjectionLayerWebGPU!, view);
+      const vp = subImage.viewport;
+      this.__canvasWidthForVR = vp.width;
+      this.__canvasHeightForVR = vp.height;
+      Logger.info(this.__canvasWidthForVR.toString());
+      Logger.info(this.__canvasHeightForVR.toString());
+      const webgpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
+      webgpuResourceRepository.resizeCanvas(this.__canvasWidthForVR, this.__canvasHeightForVR);
+    }
   }
 
   /**
