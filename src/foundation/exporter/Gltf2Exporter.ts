@@ -748,11 +748,17 @@ export class Gltf2Exporter {
           return value.x;
         }
         if (ArrayBuffer.isView(value)) {
-          return (value as ArrayLike<number>).length > 0 ? (value as ArrayLike<number>)[0] : undefined;
+          const view = value as ArrayBufferView;
+          if (isNumericArrayBufferView(view) && view.length > 0) {
+            return view[0];
+          }
         }
         const internal = (value as { _v?: ArrayLike<number> })._v;
         if (ArrayBuffer.isView(internal)) {
-          return internal.length > 0 ? internal[0] : undefined;
+          const view = internal as ArrayBufferView;
+          if (isNumericArrayBufferView(view) && view.length > 0) {
+            return view[0];
+          }
         }
         if (Array.isArray(internal)) {
           return internal.length > 0 ? internal[0] : undefined;
@@ -778,11 +784,20 @@ export class Gltf2Exporter {
           return [value.x, value.y];
         }
         const internal = (value as { _v?: ArrayLike<number> })._v;
-        if (ArrayBuffer.isView(internal) && internal.length >= 2) {
-          return [internal[0], internal[1]];
+        if (ArrayBuffer.isView(internal)) {
+          const view = internal as ArrayBufferView;
+          if (isNumericArrayBufferView(view) && view.length >= 2) {
+            return [view[0], view[1]];
+          }
         }
         if (Array.isArray(internal) && internal.length >= 2) {
           return [internal[0], internal[1]];
+        }
+        if (ArrayBuffer.isView(value)) {
+          const view = value as ArrayBufferView;
+          if (isNumericArrayBufferView(view) && view.length >= 2) {
+            return [view[0], view[1]];
+          }
         }
       }
       return undefined;
