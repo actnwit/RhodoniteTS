@@ -1176,6 +1176,14 @@ function setupBlandShapeData(
     if (Is.not.exist(primitive.targets)) {
       primitive.targets = [] as Gltf2AttributeBlendShapes;
     }
+
+    const targetNames = blendShapeComponent.targetNames;
+    if (targets.length > 0) {
+      const limitedTargetNames = targets.map((_, idx) => targetNames[idx] ?? `MorphTarget_${idx}`);
+      primitive.extras = primitive.extras ?? {};
+      primitive.extras.targetNames = limitedTargetNames;
+    }
+
     for (const target of targets) {
       const targetJson = {} as Gltf2Attributes;
       for (const [attributeName, rnAccessor] of target.entries()) {
