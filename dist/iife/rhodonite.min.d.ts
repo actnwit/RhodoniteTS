@@ -35823,6 +35823,7 @@ declare class Gltf2Exporter {
     static __createMaterials(json: Gltf2Ex, entities: IMeshEntity[], option: Gltf2ExporterArguments): Promise<any[]>;
     private static __processMeshPrimitives;
     private static __createMaterialFromRhodonite;
+    private static __extractScalarParameter;
     private static __setupMaterialBasicProperties;
     private static __setupMaterialTextures;
     private static __processTextureParameters;
