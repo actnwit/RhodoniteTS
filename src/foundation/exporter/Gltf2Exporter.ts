@@ -555,6 +555,41 @@ export class Gltf2Exporter {
     return material;
   }
 
+  private static __extractScalarParameter(value: unknown): number | undefined {
+    if (typeof value === 'number') {
+      return value;
+    }
+
+    const candidateWithX = (value as { x?: number })?.x;
+    if (typeof candidateWithX === 'number') {
+      return candidateWithX;
+    }
+
+    if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'number') {
+      return value[0];
+    }
+
+    if (ArrayBuffer.isView(value)) {
+      const view = value as ArrayBufferView;
+      if (isNumericArrayBufferView(view) && view.length > 0) {
+        return view[0];
+      }
+    }
+
+    const internal = (value as { _v?: unknown })._v;
+    if (Array.isArray(internal) && internal.length > 0 && typeof internal[0] === 'number') {
+      return internal[0];
+    }
+    if (ArrayBuffer.isView(internal)) {
+      const view = internal as ArrayBufferView;
+      if (isNumericArrayBufferView(view) && view.length > 0) {
+        return view[0];
+      }
+    }
+
+    return undefined;
+  }
+
   private static __setupMaterialBasicProperties(material: Gltf2MaterialEx, rnMaterial: Material, json: Gltf2Ex) {
     if (Is.false(rnMaterial.isLighting)) {
       if (Is.not.exist(material.extensions)) {
@@ -566,16 +601,25 @@ export class Gltf2Exporter {
       }
     }
 
-    let colorParam: Vector4 = rnMaterial.getParameter('baseColorFactor');
-    if (Is.not.exist(colorParam)) {
-      colorParam = rnMaterial.getParameter('diffuseColorFactor');
-      if (Is.not.exist(colorParam)) {
-        colorParam = Vector4.fromCopy4(1, 1, 1, 1);
-      }
-      material.pbrMetallicRoughness.baseColorFactor = [colorParam.x, colorParam.y, colorParam.z, colorParam.w];
-    } else {
-      material.pbrMetallicRoughness.metallicFactor = rnMaterial.getParameter('metallicFactor').x;
-      material.pbrMetallicRoughness.roughnessFactor = rnMaterial.getParameter('roughnessFactor').x;
+    const baseColorParam =
+      (rnMaterial.getParameter('baseColorFactor') as Vector4 | undefined) ??
+      (rnMaterial.getParameter('diffuseColorFactor') as Vector4 | undefined) ??
+      Vector4.fromCopy4(1, 1, 1, 1);
+    material.pbrMetallicRoughness.baseColorFactor = [
+      baseColorParam.x,
+      baseColorParam.y,
+      baseColorParam.z,
+      baseColorParam.w,
+    ];
+
+    const metallicValue = this.__extractScalarParameter(rnMaterial.getParameter('metallicFactor'));
+    if (Is.exist(metallicValue)) {
+      material.pbrMetallicRoughness.metallicFactor = metallicValue as number;
+    }
+
+    const roughnessValue = this.__extractScalarParameter(rnMaterial.getParameter('roughnessFactor'));
+    if (Is.exist(roughnessValue)) {
+      material.pbrMetallicRoughness.roughnessFactor = roughnessValue as number;
     }
 
     material.alphaMode = rnMaterial.alphaMode.toGltfString();
@@ -700,7 +744,7 @@ export class Gltf2Exporter {
         const rnSampler = textureParam[2] as Sampler | undefined;
         const textureIndex = processTexture(rnTexture, rnSampler);
         if (textureIndex != null) {
-          material.pbrMetallicRoughness.diffuseColorTexture = {
+          material.pbrMetallicRoughness.baseColorTexture = {
             index: textureIndex,
           };
         }
@@ -863,6 +907,12 @@ export class Gltf2Exporter {
       a.dispatchEvent(e);
     }
   }
+}
+
+type NumericArrayBufferView = ArrayBufferView & { length: number; [index: number]: number };
+
+function isNumericArrayBufferView(view: ArrayBufferView): view is NumericArrayBufferView {
+  return typeof (view as any).length === 'number';
 }
 
 /**
@@ -1585,8 +1635,10 @@ type BufferViewByteLengthDesc = {
  * @returns Aligned byte length with padding
  */
 function alignBufferViewByteLength(bufferViewByteLengthAccumulated: number, bufferView: Gltf2BufferViewEx) {
-  bufferViewByteLengthAccumulated = bufferView.byteLength + DataUtil.calcPaddingBytes(bufferView.byteLength, 4);
-  return bufferViewByteLengthAccumulated;
+  const bufferViewEnd = bufferView.byteOffset + bufferView.byteLength;
+  const alignedEnd = bufferViewEnd + DataUtil.calcPaddingBytes(bufferViewEnd, 4);
+  const delta = alignedEnd - bufferViewByteLengthAccumulated;
+  return delta >= 0 ? delta : 0;
 }
 
 /**
