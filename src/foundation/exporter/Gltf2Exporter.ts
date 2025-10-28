@@ -566,16 +566,35 @@ export class Gltf2Exporter {
       }
     }
 
-    let colorParam: Vector4 = rnMaterial.getParameter('baseColorFactor');
-    if (Is.not.exist(colorParam)) {
-      colorParam = rnMaterial.getParameter('diffuseColorFactor');
-      if (Is.not.exist(colorParam)) {
-        colorParam = Vector4.fromCopy4(1, 1, 1, 1);
-      }
-      material.pbrMetallicRoughness.baseColorFactor = [colorParam.x, colorParam.y, colorParam.z, colorParam.w];
-    } else {
-      material.pbrMetallicRoughness.metallicFactor = rnMaterial.getParameter('metallicFactor').x;
-      material.pbrMetallicRoughness.roughnessFactor = rnMaterial.getParameter('roughnessFactor').x;
+    const baseColorParam =
+      (rnMaterial.getParameter('baseColorFactor') as Vector4 | undefined) ??
+      (rnMaterial.getParameter('diffuseColorFactor') as Vector4 | undefined) ??
+      Vector4.fromCopy4(1, 1, 1, 1);
+    material.pbrMetallicRoughness.baseColorFactor = [
+      baseColorParam.x,
+      baseColorParam.y,
+      baseColorParam.z,
+      baseColorParam.w,
+    ];
+
+    const metallicParam = rnMaterial.getParameter('metallicFactor');
+    const metallicValue =
+      typeof metallicParam === 'number'
+        ? metallicParam
+        : metallicParam?.x ??
+          (ArrayBuffer.isView(metallicParam) ? (metallicParam as ArrayLike<number>)[0] : metallicParam?._v?.[0]);
+    if (Is.exist(metallicValue)) {
+      material.pbrMetallicRoughness.metallicFactor = metallicValue as number;
+    }
+
+    const roughnessParam = rnMaterial.getParameter('roughnessFactor');
+    const roughnessValue =
+      typeof roughnessParam === 'number'
+        ? roughnessParam
+        : roughnessParam?.x ??
+          (ArrayBuffer.isView(roughnessParam) ? (roughnessParam as ArrayLike<number>)[0] : roughnessParam?._v?.[0]);
+    if (Is.exist(roughnessValue)) {
+      material.pbrMetallicRoughness.roughnessFactor = roughnessValue as number;
     }
 
     material.alphaMode = rnMaterial.alphaMode.toGltfString();
@@ -700,7 +719,7 @@ export class Gltf2Exporter {
         const rnSampler = textureParam[2] as Sampler | undefined;
         const textureIndex = processTexture(rnTexture, rnSampler);
         if (textureIndex != null) {
-          material.pbrMetallicRoughness.diffuseColorTexture = {
+          material.pbrMetallicRoughness.baseColorTexture = {
             index: textureIndex,
           };
         }
@@ -1585,8 +1604,10 @@ type BufferViewByteLengthDesc = {
  * @returns Aligned byte length with padding
  */
 function alignBufferViewByteLength(bufferViewByteLengthAccumulated: number, bufferView: Gltf2BufferViewEx) {
-  bufferViewByteLengthAccumulated = bufferView.byteLength + DataUtil.calcPaddingBytes(bufferView.byteLength, 4);
-  return bufferViewByteLengthAccumulated;
+  const bufferViewEnd = bufferView.byteOffset + bufferView.byteLength;
+  const alignedEnd = bufferViewEnd + DataUtil.calcPaddingBytes(bufferViewEnd, 4);
+  const delta = alignedEnd - bufferViewByteLengthAccumulated;
+  return delta >= 0 ? delta : 0;
 }
 
 /**
