@@ -718,80 +718,237 @@ export class Gltf2Exporter {
       return void 0;
     };
 
-    this.__processTextureParameters(material, rnMaterial, processTexture);
+    this.__processTextureParameters(json, material, rnMaterial, processTexture);
   }
 
   private static __processTextureParameters(
+    json: Gltf2Ex,
     material: Gltf2MaterialEx,
     rnMaterial: Material,
     processTexture: (rnTexture: AbstractTexture, rnSampler?: Sampler) => number | undefined
   ) {
-    let textureParam = rnMaterial.getParameter('baseColorTexture');
-    let textureIndex: number | undefined;
-    if (textureParam != null) {
-      const rnTexture = textureParam[1] as Texture;
-      const rnSampler = textureParam[2] as Sampler | undefined;
-      textureIndex = processTexture(rnTexture, rnSampler);
-      if (textureIndex != null) {
-        material.pbrMetallicRoughness.baseColorTexture = {
-          index: textureIndex,
-        };
+    const ensureExtensionUsed = (extensionName: string) => {
+      if (json.extensionsUsed.indexOf(extensionName) === -1) {
+        json.extensionsUsed.push(extensionName);
       }
-    } else {
-      textureParam = rnMaterial.getParameter('diffuseColorTexture');
-      if (textureParam != null) {
-        const rnTexture = textureParam[1] as Texture;
-        const rnSampler = textureParam[2] as Sampler | undefined;
-        const textureIndex = processTexture(rnTexture, rnSampler);
-        if (textureIndex != null) {
-          material.pbrMetallicRoughness.baseColorTexture = {
-            index: textureIndex,
-          };
+    };
+
+    const coerceNumber = (value: any): number | undefined => {
+      if (Is.not.exist(value)) {
+        return undefined;
+      }
+      if (typeof value === 'number') {
+        return value;
+      }
+      if (Array.isArray(value)) {
+        return value.length > 0 ? value[0] : undefined;
+      }
+      if (typeof value === 'object') {
+        if (typeof value.x === 'number' && typeof value.y === 'undefined') {
+          return value.x;
+        }
+        if (ArrayBuffer.isView(value)) {
+          return (value as ArrayLike<number>).length > 0 ? (value as ArrayLike<number>)[0] : undefined;
+        }
+        const internal = (value as { _v?: ArrayLike<number> })._v;
+        if (ArrayBuffer.isView(internal)) {
+          return internal.length > 0 ? internal[0] : undefined;
+        }
+        if (Array.isArray(internal)) {
+          return internal.length > 0 ? internal[0] : undefined;
         }
       }
-    }
+      return undefined;
+    };
 
-    textureParam = rnMaterial.getParameter('metallicRoughnessTexture') as AbstractTexture;
-    if (textureParam) {
+    const coerceVec2 = (value: any): [number, number] | undefined => {
+      if (Is.not.exist(value)) {
+        return undefined;
+      }
+      if (Array.isArray(value)) {
+        if (value.length >= 2) {
+          return [value[0], value[1]];
+        }
+        if (value.length === 1) {
+          return [value[0], value[0]];
+        }
+      }
+      if (typeof value === 'object') {
+        if (typeof value.x === 'number' && typeof value.y === 'number') {
+          return [value.x, value.y];
+        }
+        const internal = (value as { _v?: ArrayLike<number> })._v;
+        if (ArrayBuffer.isView(internal) && internal.length >= 2) {
+          return [internal[0], internal[1]];
+        }
+        if (Array.isArray(internal) && internal.length >= 2) {
+          return [internal[0], internal[1]];
+        }
+      }
+      return undefined;
+    };
+
+    type TextureOptions = {
+      texCoordParam?: string;
+      transform?: {
+        scale?: string;
+        offset?: string;
+        rotation?: string;
+      };
+      scaleParam?: string;
+      strengthParam?: string;
+      onAssign: (info: any) => void;
+    };
+
+    const applyTexture = (paramName: string, options: TextureOptions) => {
+      const textureParam = rnMaterial.getParameter(paramName) as any;
+      if (Is.not.exist(textureParam)) {
+        return;
+      }
       const rnTexture = textureParam[1] as Texture;
       const rnSampler = textureParam[2] as Sampler | undefined;
-      textureIndex = processTexture(rnTexture, rnSampler);
-      if (textureIndex != null) {
-        material.pbrMetallicRoughness.metallicRoughnessTexture = {
-          index: textureIndex,
-        };
+      const textureIndex = processTexture(rnTexture, rnSampler);
+      if (textureIndex == null) {
+        return;
       }
+
+      const info: any = {
+        index: textureIndex,
+      };
+
+      if (Is.exist(options.texCoordParam)) {
+        const texCoordValue = coerceNumber(rnMaterial.getParameter(options.texCoordParam!));
+        if (Is.exist(texCoordValue)) {
+          info.texCoord = texCoordValue;
+        }
+      }
+
+      if (Is.exist(options.scaleParam)) {
+        const scaleValue = coerceNumber(rnMaterial.getParameter(options.scaleParam!));
+        if (Is.exist(scaleValue)) {
+          info.scale = scaleValue;
+        }
+      }
+
+      if (Is.exist(options.strengthParam)) {
+        const strengthValue = coerceNumber(rnMaterial.getParameter(options.strengthParam!));
+        if (Is.exist(strengthValue)) {
+          info.strength = strengthValue;
+        }
+      }
+
+      if (Is.exist(options.transform)) {
+        const scale = Is.exist(options.transform!.scale)
+          ? coerceVec2(rnMaterial.getParameter(options.transform!.scale!))
+          : undefined;
+        const offset = Is.exist(options.transform!.offset)
+          ? coerceVec2(rnMaterial.getParameter(options.transform!.offset!))
+          : undefined;
+        const rotation = Is.exist(options.transform!.rotation)
+          ? coerceNumber(rnMaterial.getParameter(options.transform!.rotation!))
+          : undefined;
+
+        if (Is.exist(scale) || Is.exist(offset) || Is.exist(rotation)) {
+          const transform: Record<string, unknown> = {};
+          if (Is.exist(scale)) {
+            transform.scale = scale;
+          }
+          if (Is.exist(offset)) {
+            transform.offset = offset;
+          }
+          if (Is.exist(rotation)) {
+            transform.rotation = rotation;
+          }
+          if (Object.keys(transform).length > 0) {
+            info.extensions = info.extensions ?? {};
+            info.extensions.KHR_texture_transform = transform;
+            ensureExtensionUsed('KHR_texture_transform');
+          }
+        }
+      }
+
+      options.onAssign(info);
+    };
+
+    const hasBaseColorTexture = Is.exist(rnMaterial.getParameter('baseColorTexture'));
+
+    applyTexture('baseColorTexture', {
+      texCoordParam: 'baseColorTexcoordIndex',
+      transform: {
+        scale: 'baseColorTextureTransformScale',
+        offset: 'baseColorTextureTransformOffset',
+        rotation: 'baseColorTextureTransformRotation',
+      },
+      onAssign: info => {
+        material.pbrMetallicRoughness.baseColorTexture = info;
+      },
+    });
+
+    if (!hasBaseColorTexture) {
+      applyTexture('diffuseColorTexture', {
+        texCoordParam: 'baseColorTexcoordIndex',
+        transform: {
+          scale: 'baseColorTextureTransformScale',
+          offset: 'baseColorTextureTransformOffset',
+          rotation: 'baseColorTextureTransformRotation',
+        },
+        onAssign: info => {
+          if (Is.not.exist(material.pbrMetallicRoughness.baseColorTexture)) {
+            material.pbrMetallicRoughness.baseColorTexture = info;
+          }
+        },
+      });
     }
 
-    textureParam = rnMaterial.getParameter('normalTexture') as AbstractTexture;
-    if (textureParam) {
-      const rnTexture = textureParam[1] as Texture;
-      const rnSampler = textureParam[2] as Sampler | undefined;
-      textureIndex = processTexture(rnTexture, rnSampler);
-      if (textureIndex != null) {
-        material.normalTexture = { index: textureIndex };
-      }
-    }
+    applyTexture('metallicRoughnessTexture', {
+      texCoordParam: 'metallicRoughnessTexcoordIndex',
+      transform: {
+        scale: 'metallicRoughnessTextureTransformScale',
+        offset: 'metallicRoughnessTextureTransformOffset',
+        rotation: 'metallicRoughnessTextureTransformRotation',
+      },
+      onAssign: info => {
+        material.pbrMetallicRoughness.metallicRoughnessTexture = info;
+      },
+    });
 
-    textureParam = rnMaterial.getParameter('occlusionTexture') as AbstractTexture;
-    if (textureParam) {
-      const rnTexture = textureParam[1] as Texture;
-      const rnSampler = textureParam[2] as Sampler | undefined;
-      textureIndex = processTexture(rnTexture, rnSampler);
-      if (textureIndex != null) {
-        material.occlusionTexture = { index: textureIndex };
-      }
-    }
+    applyTexture('normalTexture', {
+      texCoordParam: 'normalTexcoordIndex',
+      transform: {
+        scale: 'normalTextureTransformScale',
+        offset: 'normalTextureTransformOffset',
+        rotation: 'normalTextureTransformRotation',
+      },
+      scaleParam: 'normalScale',
+      onAssign: info => {
+        material.normalTexture = info;
+      },
+    });
 
-    textureParam = rnMaterial.getParameter('emissiveTexture') as AbstractTexture;
-    if (textureParam) {
-      const rnTexture = textureParam[1] as Texture;
-      const rnSampler = textureParam[2] as Sampler | undefined;
-      textureIndex = processTexture(rnTexture, rnSampler);
-      if (textureIndex != null) {
-        material.emissiveTexture = { index: textureIndex };
-      }
-    }
+    applyTexture('occlusionTexture', {
+      texCoordParam: 'occlusionTexcoordIndex',
+      transform: {
+        scale: 'occlusionTextureTransformScale',
+        offset: 'occlusionTextureTransformOffset',
+        rotation: 'occlusionTextureTransformRotation',
+      },
+      strengthParam: 'occlusionStrength',
+      onAssign: info => {
+        material.occlusionTexture = info;
+      },
+    });
+
+    applyTexture('emissiveTexture', {
+      texCoordParam: 'emissiveTexcoordIndex',
+      transform: {
+        scale: 'emissiveTextureTransformScale',
+        offset: 'emissiveTextureTransformOffset',
+        rotation: 'emissiveTextureTransformRotation',
+      },
+      onAssign: info => {
+        material.emissiveTexture = info;
+      },
+    });
   }
 
   /**
