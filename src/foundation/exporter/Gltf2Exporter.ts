@@ -555,6 +555,41 @@ export class Gltf2Exporter {
     return material;
   }
 
+  private static __extractScalarParameter(value: unknown): number | undefined {
+    if (typeof value === 'number') {
+      return value;
+    }
+
+    const candidateWithX = (value as { x?: number })?.x;
+    if (typeof candidateWithX === 'number') {
+      return candidateWithX;
+    }
+
+    if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'number') {
+      return value[0];
+    }
+
+    if (ArrayBuffer.isView(value)) {
+      const view = value as ArrayBufferView;
+      if (isNumericArrayBufferView(view) && view.length > 0) {
+        return view[0];
+      }
+    }
+
+    const internal = (value as { _v?: unknown })._v;
+    if (Array.isArray(internal) && internal.length > 0 && typeof internal[0] === 'number') {
+      return internal[0];
+    }
+    if (ArrayBuffer.isView(internal)) {
+      const view = internal as ArrayBufferView;
+      if (isNumericArrayBufferView(view) && view.length > 0) {
+        return view[0];
+      }
+    }
+
+    return undefined;
+  }
+
   private static __setupMaterialBasicProperties(material: Gltf2MaterialEx, rnMaterial: Material, json: Gltf2Ex) {
     if (Is.false(rnMaterial.isLighting)) {
       if (Is.not.exist(material.extensions)) {
@@ -577,22 +612,12 @@ export class Gltf2Exporter {
       baseColorParam.w,
     ];
 
-    const metallicParam = rnMaterial.getParameter('metallicFactor');
-    const metallicValue =
-      typeof metallicParam === 'number'
-        ? metallicParam
-        : metallicParam?.x ??
-          (ArrayBuffer.isView(metallicParam) ? (metallicParam as ArrayLike<number>)[0] : metallicParam?._v?.[0]);
+    const metallicValue = this.__extractScalarParameter(rnMaterial.getParameter('metallicFactor'));
     if (Is.exist(metallicValue)) {
       material.pbrMetallicRoughness.metallicFactor = metallicValue as number;
     }
 
-    const roughnessParam = rnMaterial.getParameter('roughnessFactor');
-    const roughnessValue =
-      typeof roughnessParam === 'number'
-        ? roughnessParam
-        : roughnessParam?.x ??
-          (ArrayBuffer.isView(roughnessParam) ? (roughnessParam as ArrayLike<number>)[0] : roughnessParam?._v?.[0]);
+    const roughnessValue = this.__extractScalarParameter(rnMaterial.getParameter('roughnessFactor'));
     if (Is.exist(roughnessValue)) {
       material.pbrMetallicRoughness.roughnessFactor = roughnessValue as number;
     }
@@ -882,6 +907,12 @@ export class Gltf2Exporter {
       a.dispatchEvent(e);
     }
   }
+}
+
+type NumericArrayBufferView = ArrayBufferView & { length: number; [index: number]: number };
+
+function isNumericArrayBufferView(view: ArrayBufferView): view is NumericArrayBufferView {
+  return typeof (view as any).length === 'number';
 }
 
 /**
