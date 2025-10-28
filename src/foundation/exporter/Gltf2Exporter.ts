@@ -1,4 +1,4 @@
-import type { AnimationChannel, AnimationPathName, AnimationSampler } from '../../types/AnimationTypes';
+import type { AnimationChannel, AnimationPathName, AnimationSampler, AnimationTrackName } from '../../types/AnimationTypes';
 import type { Array1to4, Byte, Count, Index, VectorAndSquareMatrixComponentN } from '../../types/CommonTypes';
 import { GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER } from '../../types/WebGLConstants';
 import {
@@ -1224,18 +1224,30 @@ function setupBlandShapeData(
 function __createBufferViewsAndAccessorsOfAnimation(json: Gltf2Ex, entities: IAnimationEntity[]): void {
   let sumOfBufferViewByteLengthAccumulated = 0;
   const bufferIdx = json.extras.bufferViewByteLengthAccumulatedArray.length;
-  for (let i = 0; i < entities.length; i++) {
-    const entity = entities[i];
-    const animationComponent = entity.tryToGetAnimation();
-    if (Is.exist(animationComponent)) {
-      // AnimationTrack (Gltf2Animation)
+  const animationRegistry = new Map<
+    AnimationTrackName,
+    { animation: Gltf2Animation; samplerIdx: number }
+  >();
+
+  const acquireAnimation = (trackName: AnimationTrackName) => {
+    let entry = animationRegistry.get(trackName);
+    if (Is.not.exist(entry)) {
       const animation: Gltf2Animation = {
+        name: trackName,
         channels: [],
         samplers: [],
       };
       json.animations.push(animation);
-      let samplerIdx = 0;
-      // Rhodonite AnimationTrack is corresponding to Gltf2Animation
+      entry = { animation, samplerIdx: 0 };
+      animationRegistry.set(trackName, entry);
+    }
+    return entry;
+  };
+
+  for (let i = 0; i < entities.length; i++) {
+    const entity = entities[i];
+    const animationComponent = entity.tryToGetAnimation();
+    if (Is.exist(animationComponent)) {
       const rnAnimationTrack = animationComponent.getAnimationChannelsOfTrack();
       const rnChannels = rnAnimationTrack.values();
       for (const rnChannel of rnChannels) {
@@ -1246,6 +1258,9 @@ function __createBufferViewsAndAccessorsOfAnimation(json: Gltf2Ex, entities: IAn
         const animatedValue = rnChannel.animatedValue;
         const trackNames = animatedValue.getAllTrackNames();
         for (const trackName of trackNames) {
+          const animationEntry = acquireAnimation(trackName);
+          const animation = animationEntry.animation;
+
           // create and register Gltf2BufferView and Gltf2Accessor
           //   and set Input animation data as Uint8Array to the Gltf2Accessor
           const { inputAccessorIdx, inputBufferViewByteLengthAccumulated } =
@@ -1271,7 +1286,12 @@ function __createBufferViewsAndAccessorsOfAnimation(json: Gltf2Ex, entities: IAn
           sumOfBufferViewByteLengthAccumulated += outputBufferViewByteLengthAccumulated;
 
           // Create Gltf2AnimationChannel
-          samplerIdx = createGltf2AnimationChannel(rnChannel, samplerIdx, animation, i);
+          animationEntry.samplerIdx = createGltf2AnimationChannel(
+            rnChannel,
+            animationEntry.samplerIdx,
+            animation,
+            i
+          );
 
           // Create Gltf2AnimationSampler
           createGltf2AnimationSampler(
