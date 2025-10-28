@@ -1303,7 +1303,7 @@ function __createBufferViewsAndAccessorsOfMesh(
           primitive.attributes[attributeName] = accessorIdx;
         }
         // BlendShape
-        setupBlandShapeData(
+        setupBlendShapeData(
           entity,
           rnPrimitive,
           primitive,
@@ -1333,7 +1333,7 @@ function __createBufferViewsAndAccessorsOfMesh(
  * @param existingUniqueRnBufferViews - BufferView deduplication cache
  * @param existingUniqueRnAccessors - Accessor deduplication cache
  */
-function setupBlandShapeData(
+function setupBlendShapeData(
   entity: IMeshEntity,
   rnPrimitive: Primitive,
   primitive: Gltf2Primitive,
