@@ -1,4 +1,9 @@
-import type { AnimationChannel, AnimationPathName, AnimationSampler, AnimationTrackName } from '../../types/AnimationTypes';
+import type {
+  AnimationChannel,
+  AnimationPathName,
+  AnimationSampler,
+  AnimationTrackName,
+} from '../../types/AnimationTypes';
 import type { Array1to4, Byte, Count, Index, VectorAndSquareMatrixComponentN } from '../../types/CommonTypes';
 import { GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER } from '../../types/WebGLConstants';
 import {
@@ -39,6 +44,7 @@ import type { Primitive } from '../geometry/Primitive';
 import type { IAnimationEntity, IMeshEntity, ISceneGraphEntity, ISkeletalEntity } from '../helpers/EntityHelper';
 import type { Material } from '../materials/core/Material';
 import { MathUtil } from '../math/MathUtil';
+import type { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
 import type { Accessor } from '../memory/Accessor';
 import type { Buffer } from '../memory/Buffer';
@@ -620,6 +626,11 @@ export class Gltf2Exporter {
     const roughnessValue = this.__extractScalarParameter(rnMaterial.getParameter('roughnessFactor'));
     if (Is.exist(roughnessValue)) {
       material.pbrMetallicRoughness.roughnessFactor = roughnessValue as number;
+    }
+
+    const emissiveParam = rnMaterial.getParameter('emissiveFactor') as Vector3 | undefined;
+    if (Is.exist(emissiveParam)) {
+      material.emissiveFactor = [emissiveParam.x, emissiveParam.y, emissiveParam.z];
     }
 
     material.alphaMode = rnMaterial.alphaMode.toGltfString();
@@ -1396,10 +1407,7 @@ function setupBlendShapeData(
 function __createBufferViewsAndAccessorsOfAnimation(json: Gltf2Ex, entities: IAnimationEntity[]): void {
   let sumOfBufferViewByteLengthAccumulated = 0;
   const bufferIdx = json.extras.bufferViewByteLengthAccumulatedArray.length;
-  const animationRegistry = new Map<
-    AnimationTrackName,
-    { animation: Gltf2Animation; samplerIdx: number }
-  >();
+  const animationRegistry = new Map<AnimationTrackName, { animation: Gltf2Animation; samplerIdx: number }>();
 
   const acquireAnimation = (trackName: AnimationTrackName) => {
     let entry = animationRegistry.get(trackName);
@@ -1458,12 +1466,7 @@ function __createBufferViewsAndAccessorsOfAnimation(json: Gltf2Ex, entities: IAn
           sumOfBufferViewByteLengthAccumulated += outputBufferViewByteLengthAccumulated;
 
           // Create Gltf2AnimationChannel
-          animationEntry.samplerIdx = createGltf2AnimationChannel(
-            rnChannel,
-            animationEntry.samplerIdx,
-            animation,
-            i
-          );
+          animationEntry.samplerIdx = createGltf2AnimationChannel(rnChannel, animationEntry.samplerIdx, animation, i);
 
           // Create Gltf2AnimationSampler
           createGltf2AnimationSampler(
