@@ -1568,12 +1568,12 @@ function createGltf2BufferViewAndGltf2AccessorForOutput(
     ArrayBuffer.isView(sampler.output) ? sampler.output : new Float32Array(sampler.output)
   );
 
-  let compositionType = CompositionType.toGltf2AnimationAccessorCompositionType(sampler.outputComponentN);
-  let accessorCount = sampler.output.length / sampler.outputComponentN;
-  if (pathName === 'weights') {
-    compositionType = CompositionType.Scalar;
-    accessorCount = sampler.output.length;
-  }
+  const compositionType =
+    pathName === 'weights'
+      ? CompositionType.Scalar
+      : CompositionType.toGltf2AnimationAccessorCompositionType(sampler.outputComponentN);
+  const accessorCount =
+    pathName === 'weights' ? sampler.output.length : sampler.output.length / sampler.outputComponentN;
 
   // create a Gltf2BufferView
   const gltf2BufferView = createGltf2BufferViewForAnimation({
