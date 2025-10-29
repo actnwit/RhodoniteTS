@@ -218,7 +218,7 @@ export class Scalar extends Scalar_<Float32ArrayConstructor> implements IScalar 
    * @returns A new Scalar instance with the same value
    */
   clone(): Scalar {
-    return new Scalar(this._v) as Scalar;
+    return new Scalar(new Float32Array([this._v[0]])) as Scalar;
   }
 }
 
@@ -274,7 +274,7 @@ export class Scalard extends Scalar_<Float64ArrayConstructor> {
    * @returns A new Scalard instance with the same value
    */
   clone(): Scalard {
-    return new Scalard(this._v) as Scalard;
+    return new Scalard(new Float64Array([this._v[0]])) as Scalard;
   }
 }
 
