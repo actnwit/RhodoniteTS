@@ -3,13 +3,10 @@ import type { RnXR } from '../../../xr/main';
 import { RnObject } from '../../core/RnObject';
 import {
   ComponentType,
-  type HdriFormatEnum,
   PixelFormat,
-  ProcessApproach,
   ToneMappingType,
   type ToneMappingTypeEnum,
 } from '../../definitions';
-import { ShaderSemantics } from '../../definitions/ShaderSemantics';
 import { TextureFormat } from '../../definitions/TextureFormat';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import { Bloom } from '../../helpers/BloomHelper';
@@ -25,7 +22,6 @@ import { None, type Option, Some, assertHas } from '../../misc/Option';
 import { Err, Ok } from '../../misc/Result';
 import { ModuleManager } from '../../system/ModuleManager';
 import { System } from '../../system/System';
-import { SystemState } from '../../system/SystemState';
 import type { CubeTexture } from '../../textures/CubeTexture';
 import type { RenderTargetTexture } from '../../textures/RenderTargetTexture';
 import type { RenderTargetTexture2DArray } from '../../textures/RenderTargetTexture2DArray';
