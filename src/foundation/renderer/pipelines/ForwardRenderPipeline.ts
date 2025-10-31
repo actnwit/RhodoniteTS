@@ -1197,36 +1197,48 @@ export class ForwardRenderPipeline extends RnObject {
     }
     const frame = this.__oFrame.get();
     frame.clearExpressions();
+
+    // initial expression for clearing the frame buffer
     frame.addExpression(this.getInitialExpression()!);
 
     if (!this.__isSimple) {
+      // depth map generation for shadow mapping
       for (const exp of this.__shadowExpressions) {
         frame.addExpression(exp);
       }
     }
+
+    // main expressions for opaque rendering
     for (const exp of this.__expressions) {
       frame.addExpression(exp);
     }
 
+    // mipmap generation for glTF transmission visual effect
     if (!this.__isSimple && this.__oGenerateMipmapsExpression.has()) {
       frame.addExpression(this.__oGenerateMipmapsExpression.get());
     }
+
+    // multi-view blitting for VR rendering
     if (!this.__isSimple && this.__oMultiViewBlitBackBufferExpression.has()) {
       frame.addExpression(this.__oMultiViewBlitBackBufferExpression.get());
     }
 
+    // transparent expressions for transparent rendering
     for (const exp of this.__transparentOnlyExpressions) {
       frame.addExpression(exp);
     }
 
+    // multi-view blitting for VR rendering
     if (!this.__isSimple && this.__oMultiViewBlitExpression.has()) {
       frame.addExpression(this.__oMultiViewBlitExpression.get());
     }
 
+    // bloom effect for post-processing
     if (!this.__isSimple && this.__isBloom && this.__oBloomExpression.has()) {
       frame.addExpression(this.__oBloomExpression.get());
     }
 
+    // tone mapping for HDR to LDR conversion
     if (!this.__isSimple && this.__oToneMappingExpression.has()) {
       frame.addExpression(this.getToneMappingExpression()!);
     }
