@@ -1276,7 +1276,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           },
           label: renderPass.uniqueName,
         };
-        const colorAttachments = [];
+        const colorAttachments: GPURenderPassColorAttachment[] = [];
         for (let i = 0; i < resolveFramebuffer.colorAttachments.length; i++) {
           const colorAttachment = framebuffer.colorAttachments[i] as RenderBuffer;
           const resolveColorAttachment = resolveFramebuffer.colorAttachments[i] as RenderBuffer;
@@ -1297,7 +1297,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         renderPassDescriptor.colorAttachments = colorAttachments as GPURenderPassColorAttachment[];
         this.__renderPassEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
       } else if (framebuffer != null) {
-        let depthTextureView = undefined;
+        let depthTextureView: GPUTextureView | undefined = undefined;
         if (framebuffer.depthAttachment != null) {
           const depthTexture = this.__webGpuResources.get(
             framebuffer.depthAttachment._textureResourceUid
@@ -1322,7 +1322,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           depthStencilAttachment: depthStencilAttachment,
           label: renderPass.uniqueName,
         };
-        const colorAttachments = [];
+        const colorAttachments: GPURenderPassColorAttachment[] = [];
         for (let colorAttachment of framebuffer.colorAttachments) {
           const textureView = this.__webGpuResources.get(
             colorAttachment._textureViewAsRenderTargetResourceUid
