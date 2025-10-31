@@ -3,13 +3,10 @@ import type { RnXR } from '../../../xr/main';
 import { RnObject } from '../../core/RnObject';
 import {
   ComponentType,
-  type HdriFormatEnum,
   PixelFormat,
-  ProcessApproach,
   ToneMappingType,
   type ToneMappingTypeEnum,
 } from '../../definitions';
-import { ShaderSemantics } from '../../definitions/ShaderSemantics';
 import { TextureFormat } from '../../definitions/TextureFormat';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import { Bloom } from '../../helpers/BloomHelper';
@@ -25,7 +22,6 @@ import { None, type Option, Some, assertHas } from '../../misc/Option';
 import { Err, Ok } from '../../misc/Result';
 import { ModuleManager } from '../../system/ModuleManager';
 import { System } from '../../system/System';
-import { SystemState } from '../../system/SystemState';
 import type { CubeTexture } from '../../textures/CubeTexture';
 import type { RenderTargetTexture } from '../../textures/RenderTargetTexture';
 import type { RenderTargetTexture2DArray } from '../../textures/RenderTargetTexture2DArray';
@@ -225,7 +221,7 @@ export class ForwardRenderPipeline extends RnObject {
       this.__createRenderTargets(canvasWidth, canvasHeight);
 
       // depth moment FrameBuffer
-      if (isShadow && !this.__isSimple) {
+      if (isShadow) {
         this.__oShadowSystem = new Some(new ShadowSystem(shadowMapSize));
       }
 
@@ -249,7 +245,7 @@ export class ForwardRenderPipeline extends RnObject {
         .getColorAttachedRenderTargetTexture(0)!;
 
       // Bloom Expression
-      if (isBloom && !this.__isSimple) {
+      if (isBloom) {
         const frameBufferToBloom = this.__getMainFrameBufferResolve();
         const textureToBloom = frameBufferToBloom
           .unwrapForce()
@@ -412,7 +408,9 @@ export class ForwardRenderPipeline extends RnObject {
 
     System.startRenderLoop(() => {
       this.__setExpressions();
+
       if (this.__oShadowSystem.has()) {
+        // update shadow expressions if shadow mapping is enabled
         const entities = this.__expressions.flatMap(expression =>
           expression.renderPasses.flatMap(renderPass => renderPass.entities)
         ) as ISceneGraphEntity[];
@@ -1201,36 +1199,67 @@ export class ForwardRenderPipeline extends RnObject {
     }
     const frame = this.__oFrame.get();
     frame.clearExpressions();
+
+    // initial expression for clearing the frame buffer
     frame.addExpression(this.getInitialExpression()!);
 
     if (!this.__isSimple) {
+      // depth map generation for shadow mapping
       for (const exp of this.__shadowExpressions) {
         frame.addExpression(exp);
       }
     }
+
+    // main expressions for opaque rendering
     for (const exp of this.__expressions) {
+      if (this.__isSimple) {
+        // output VR display
+        exp.renderPasses.forEach(renderPass => {
+          renderPass.isOutputForVr = true;
+        });
+      } else {
+        exp.renderPasses.forEach(renderPass => {
+          renderPass.isOutputForVr = false;
+        });
+      }
       frame.addExpression(exp);
     }
 
+    // mipmap generation for glTF transmission visual effect
     if (!this.__isSimple && this.__oGenerateMipmapsExpression.has()) {
       frame.addExpression(this.__oGenerateMipmapsExpression.get());
     }
+
+    // multi-view blitting for VR rendering
     if (!this.__isSimple && this.__oMultiViewBlitBackBufferExpression.has()) {
       frame.addExpression(this.__oMultiViewBlitBackBufferExpression.get());
     }
 
+    // transparent expressions for transparent rendering
     for (const exp of this.__transparentOnlyExpressions) {
-      frame.addExpression(exp);
+      if (this.__isSimple) {
+        // output VR display
+        exp.renderPasses.forEach(renderPass => {
+          renderPass.isOutputForVr = true;
+        });
+      } else {
+        exp.renderPasses.forEach(renderPass => {
+          renderPass.isOutputForVr = false;
+        });
+      }
     }
 
+    // multi-view blitting for VR rendering
     if (!this.__isSimple && this.__oMultiViewBlitExpression.has()) {
       frame.addExpression(this.__oMultiViewBlitExpression.get());
     }
 
+    // bloom effect for post-processing
     if (!this.__isSimple && this.__isBloom && this.__oBloomExpression.has()) {
       frame.addExpression(this.__oBloomExpression.get());
     }
 
+    // tone mapping for HDR to LDR conversion
     if (!this.__isSimple && this.__oToneMappingExpression.has()) {
       frame.addExpression(this.getToneMappingExpression()!);
     }
