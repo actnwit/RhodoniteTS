@@ -36,6 +36,7 @@ import {
   type IndexOf16Bytes,
   type PrimitiveUID,
 } from '../types/CommonTypes';
+import type { WebXRSystem } from '../xr/WebXRSystem';
 import type { RnXR } from '../xr/main';
 import { WebGpuResourceRepository } from './WebGpuResourceRepository';
 
@@ -72,6 +73,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
 
   private __lastBlendShapeComponentsUpdateCountForWeights = -1;
   private __lastBlendShapeComponentsUpdateCountForBlendData = -1;
+  private static __webxrSystem: WebXRSystem;
 
   private constructor() {}
 
@@ -84,6 +86,9 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   static getInstance() {
     if (!this.__instance) {
       this.__instance = new WebGpuStrategyBasic();
+      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+      WebGpuStrategyBasic.__webxrSystem = webxrSystem;
     }
     return this.__instance;
   }

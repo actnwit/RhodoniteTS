@@ -840,6 +840,9 @@ export class WebXRSystem {
       Logger.info(this.__canvasHeightForVR.toString());
       const webgpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
       webgpuResourceRepository.resizeCanvas(this.__canvasWidthForVR, this.__canvasHeightForVR);
+      SystemState.xrPoseWebGPU = this.__xrViewerPose;
+      SystemState.xrGpuBinding = this.__xrGpuBinding;
+      SystemState.xrProjectionLayerWebGPU = this.__xrProjectionLayerWebGPU;
     }
   }
 

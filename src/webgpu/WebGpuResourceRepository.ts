@@ -52,7 +52,10 @@ import type { AttributeNames } from '../webgl/types/CommonTypes';
 import type { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 
 import HDRImage from '../../vendor/hdrpng.js';
+import { ModuleManager } from '../foundation/system/ModuleManager';
 import { TextureArray } from '../foundation/textures/TextureArray';
+import type { WebXRSystem } from '../xr/WebXRSystem';
+import type { RnXR } from '../xr/main';
 
 export type WebGpuResource =
   | GPUTexture
@@ -133,6 +136,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   private __bindGroupsForGeneratingMipmaps: Map<GPUTexture, Array<Array<GPUBindGroup>>> = new Map();
 
   private static __drawParametersUint32Array: Uint32Array = new Uint32Array(4);
+  private static __webxrSystem: WebXRSystem;
 
   private constructor() {
     super();
@@ -994,6 +998,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     const context = this.__webGpuDeviceWrapper!.context;
     const colorAttachments: GPURenderPassColorAttachment[] = [];
     let depthStencilAttachment: GPURenderPassDepthStencilAttachment | undefined;
+    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+    const webxrSystem = rnXRModule.WebXRSystem.getInstance();
     if (renderPass.toClearColorBuffer) {
       const framebuffer = renderPass.getFramebuffer();
       if (framebuffer != null) {
@@ -1003,6 +1009,22 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           ) as GPUTextureView;
           colorAttachments.push({
             view: textureView,
+            clearValue: {
+              r: renderPass.clearColor.x,
+              g: renderPass.clearColor.y,
+              b: renderPass.clearColor.z,
+              a: renderPass.clearColor.w,
+            },
+            loadOp: 'clear',
+            storeOp: 'store',
+          });
+        }
+      } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
+        for (let i = 0; i < SystemState.xrPoseWebGPU!.views.length; i++) {
+          const view = SystemState.xrPoseWebGPU!.views[i];
+          const subImage = SystemState.xrGpuBinding.getViewSubImage(SystemState.xrProjectionLayerWebGPU!, view);
+          colorAttachments.push({
+            view: subImage.colorTexture.createView(subImage.getViewDescriptor()),
             clearValue: {
               r: renderPass.clearColor.x,
               g: renderPass.clearColor.y,
@@ -1042,6 +1064,17 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           depthLoadOp: 'clear',
           depthStoreOp: 'store',
         };
+      } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
+        for (let i = 0; i < SystemState.xrPoseWebGPU!.views.length; i++) {
+          const view = SystemState.xrPoseWebGPU!.views[i];
+          const subImage = SystemState.xrGpuBinding.getViewSubImage(SystemState.xrProjectionLayerWebGPU!, view);
+          depthStencilAttachment = {
+            view: subImage.depthStencilTexture.createView(subImage.getViewDescriptor()),
+            depthClearValue: renderPass.clearDepth,
+            depthLoadOp: 'clear',
+            depthStoreOp: 'store',
+          };
+        }
       } else {
         depthStencilAttachment = {
           view: this.__systemDepthTextureView!,

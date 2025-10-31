@@ -46,7 +46,7 @@ import type {
   PrimitiveUID,
   WebGLResourceHandle,
 } from '../types/CommonTypes';
-import type { WebXRSystem } from '../xr';
+import type { WebXRSystem } from '../xr/WebXRSystem';
 import type { RnXR } from '../xr/main';
 import type { WebGLContextWrapper } from './WebGLContextWrapper';
 import { WebGLResourceRepository } from './WebGLResourceRepository';
