@@ -408,7 +408,9 @@ export class ForwardRenderPipeline extends RnObject {
 
     System.startRenderLoop(() => {
       this.__setExpressions();
+
       if (this.__oShadowSystem.has()) {
+        // update shadow expressions if shadow mapping is enabled
         const entities = this.__expressions.flatMap(expression =>
           expression.renderPasses.flatMap(renderPass => renderPass.entities)
         ) as ISceneGraphEntity[];
@@ -1210,6 +1212,16 @@ export class ForwardRenderPipeline extends RnObject {
 
     // main expressions for opaque rendering
     for (const exp of this.__expressions) {
+      if (this.__isSimple) {
+        // output VR display
+        exp.renderPasses.forEach(renderPass => {
+          renderPass.isOutputForVr = true;
+        });
+      } else {
+        exp.renderPasses.forEach(renderPass => {
+          renderPass.isOutputForVr = false;
+        });
+      }
       frame.addExpression(exp);
     }
 
@@ -1225,7 +1237,16 @@ export class ForwardRenderPipeline extends RnObject {
 
     // transparent expressions for transparent rendering
     for (const exp of this.__transparentOnlyExpressions) {
-      frame.addExpression(exp);
+      if (this.__isSimple) {
+        // output VR display
+        exp.renderPasses.forEach(renderPass => {
+          renderPass.isOutputForVr = true;
+        });
+      } else {
+        exp.renderPasses.forEach(renderPass => {
+          renderPass.isOutputForVr = false;
+        });
+      }
     }
 
     // multi-view blitting for VR rendering
