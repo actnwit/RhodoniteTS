@@ -130,12 +130,21 @@ export class WebXRSystem {
     this.__basePath = basePath;
     await ModuleManager.getInstance().loadModule('xr');
 
-    const glw = CGAPIResourceRepository.getWebGLResourceRepository().currentWebGLContextWrapper;
-    if (glw == null) {
-      Logger.error('WebGL Context is not ready yet.');
-      return [];
+    const isWebGPU = SystemState.currentProcessApproach === ProcessApproach.WebGPU;
+    if (isWebGPU) {
+      const webgpuDeviceWrapper = CGAPIResourceRepository.getWebGpuResourceRepository().getWebGpuDeviceWrapper();
+      if (webgpuDeviceWrapper == null) {
+        Logger.error('WebGPU Device Wrapper is not ready yet.');
+        return [];
+      }
+    } else {
+      const glw = CGAPIResourceRepository.getWebGLResourceRepository().currentWebGLContextWrapper;
+      if (glw == null) {
+        Logger.error('WebGL Context is not ready yet.');
+        return [];
+      }
+      this.__glw = glw;
     }
-    this.__glw = glw;
     const supported = await navigator.xr!.isSessionSupported('immersive-vr');
     if (supported) {
       if (requestButtonDom) {
@@ -149,9 +158,15 @@ export class WebXRSystem {
         anchor.appendChild(enterVr);
         paragraph.appendChild(anchor);
 
-        const canvas = glw.canvas;
-        canvas.parentNode!.insertBefore(paragraph, canvas);
-        window.addEventListener('click', this.enterWebXR.bind(this) as any);
+        if (isWebGPU) {
+          const canvas = CGAPIResourceRepository.getWebGpuResourceRepository().getWebGpuDeviceWrapper().canvas;
+          canvas.parentNode!.insertBefore(paragraph, canvas);
+          window.addEventListener('click', this.enterWebXR.bind(this) as any);
+        } else {
+          const canvas = this.__glw!.canvas;
+          canvas.parentNode!.insertBefore(paragraph, canvas);
+          window.addEventListener('click', this.enterWebXR.bind(this) as any);
+        }
       }
 
       this.__isReadyForWebXR = true;
@@ -270,7 +285,7 @@ export class WebXRSystem {
       Logger.warn('End of enterWebXR.');
       return promise;
     }
-    Logger.error('WebGL context or WebXRSession is not ready yet.');
+    Logger.error('WebGL/WebGPU context or WebXRSession is not ready yet.');
     return undefined;
   }
 
@@ -439,7 +454,9 @@ export class WebXRSystem {
    */
   private __setWebXRMode(mode: boolean) {
     this.__isWebXRMode = mode;
-    this.__glw!._isWebXRMode = mode;
+    if (this.__glw != null) {
+      this.__glw._isWebXRMode = mode;
+    }
   }
 
   /**
