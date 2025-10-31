@@ -225,7 +225,7 @@ export class ForwardRenderPipeline extends RnObject {
       this.__createRenderTargets(canvasWidth, canvasHeight);
 
       // depth moment FrameBuffer
-      if (isShadow && !this.__isSimple) {
+      if (isShadow) {
         this.__oShadowSystem = new Some(new ShadowSystem(shadowMapSize));
       }
 
@@ -249,7 +249,7 @@ export class ForwardRenderPipeline extends RnObject {
         .getColorAttachedRenderTargetTexture(0)!;
 
       // Bloom Expression
-      if (isBloom && !this.__isSimple) {
+      if (isBloom) {
         const frameBufferToBloom = this.__getMainFrameBufferResolve();
         const textureToBloom = frameBufferToBloom
           .unwrapForce()
