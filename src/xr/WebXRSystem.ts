@@ -834,6 +834,35 @@ export class WebXRSystem {
     callbackOnXrSessionStart: () => void
   ) {
     xrSession.updateRenderState({ layers: [projectionLayer] });
+
+    const webgpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
+    const webgpuDeviceWrapper = webgpuResourceRepository.getWebGpuDeviceWrapper();
+    const canvas = webgpuDeviceWrapper.canvas;
+    const projectionLayerTyped = projectionLayer as XRProjectionLayer;
+
+    let resolvedWidth = projectionLayerTyped?.textureWidth ?? 0;
+    let resolvedHeight = projectionLayerTyped?.textureHeight ?? 0;
+
+    if (resolvedWidth <= 0 || resolvedHeight <= 0) {
+      const [currentWidth, currentHeight] = System.getCanvasSize();
+      resolvedWidth = currentWidth;
+      resolvedHeight = currentHeight;
+    }
+
+    if (resolvedWidth <= 0 || resolvedHeight <= 0) {
+      resolvedWidth = canvas.width;
+      resolvedHeight = canvas.height;
+    }
+
+    if (resolvedWidth > 0 && resolvedHeight > 0) {
+      this.__canvasWidthForVR = resolvedWidth;
+      this.__canvasHeightForVR = resolvedHeight;
+      webgpuResourceRepository.resizeCanvas(resolvedWidth, resolvedHeight);
+    } else {
+      Logger.warn('Unable to resolve XR canvas size during WebGPU layer setup. Deferring resize until first frame.');
+    }
+
+    MaterialRepository._makeShaderInvalidateToAllMaterials();
     this.__setWebXRMode(true);
     callbackOnXrSessionStart();
   }
