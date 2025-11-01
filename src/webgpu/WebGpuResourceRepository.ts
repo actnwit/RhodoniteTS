@@ -3464,6 +3464,10 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     if (this.__systemDepthTexture != null) {
       this.__systemDepthTexture.destroy();
     }
+    if (canvas.width <= 0 || canvas.height <= 0) {
+      Logger.warn('Skip recreating system depth texture because the canvas size is zero.');
+      return;
+    }
     this.__systemDepthTexture = gpuDevice.createTexture({
       size: [canvas.width, canvas.height],
       format: 'depth24plus',
@@ -3480,6 +3484,10 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @param height - New canvas height in pixels
    */
   resizeCanvas(width: Size, height: Size) {
+    if (width <= 0 || height <= 0) {
+      Logger.warn('Skip resizing WebGPU canvas because width or height is zero.');
+      return;
+    }
     const canvas = this.__webGpuDeviceWrapper!.canvas;
     canvas.width = width;
     canvas.height = height;

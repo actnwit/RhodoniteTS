@@ -796,6 +796,7 @@ export class ForwardRenderPipeline extends RnObject {
     initialRenderPass.clearColor = Vector4.fromCopyArray4([0.0, 0.0, 0.0, 0.0]);
     initialRenderPass.toClearColorBuffer = true;
     initialRenderPass.toClearDepthBuffer = true;
+    initialRenderPass.isOutputForVr = true;
     initialRenderPass.tryToSetUniqueName('InitialRenderPass', true);
     expression.addRenderPasses([initialRenderPass]);
 

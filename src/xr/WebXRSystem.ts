@@ -852,12 +852,18 @@ export class WebXRSystem {
       const view = this.__xrViewerPose!.views[0];
       const subImage = this.__xrGpuBinding!.getViewSubImage(this.__xrProjectionLayerWebGPU!, view);
       const vp = subImage.viewport;
-      this.__canvasWidthForVR = vp.width;
-      this.__canvasHeightForVR = vp.height;
-      Logger.info(this.__canvasWidthForVR.toString());
-      Logger.info(this.__canvasHeightForVR.toString());
-      const webgpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
-      webgpuResourceRepository.resizeCanvas(this.__canvasWidthForVR, this.__canvasHeightForVR);
+      const resolvedWidth = subImage.textureWidth ?? vp?.width ?? 0;
+      const resolvedHeight = subImage.textureHeight ?? vp?.height ?? 0;
+      if (resolvedWidth > 0 && resolvedHeight > 0) {
+        this.__canvasWidthForVR = resolvedWidth;
+        this.__canvasHeightForVR = resolvedHeight;
+        Logger.info(this.__canvasWidthForVR.toString());
+        Logger.info(this.__canvasHeightForVR.toString());
+        const webgpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
+        webgpuResourceRepository.resizeCanvas(this.__canvasWidthForVR, this.__canvasHeightForVR);
+      } else {
+        Logger.warn('XRWebGPU subImage returned zero-sized extent. Skipping canvas resize for this frame.');
+      }
       SystemState.xrPoseWebGPU = this.__xrViewerPose;
       SystemState.xrGpuBinding = this.__xrGpuBinding;
       SystemState.xrProjectionLayerWebGPU = this.__xrProjectionLayerWebGPU;
