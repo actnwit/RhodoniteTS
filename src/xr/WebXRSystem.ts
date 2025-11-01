@@ -858,8 +858,6 @@ export class WebXRSystem {
       if (resolvedWidth > 0 && resolvedHeight > 0) {
         this.__canvasWidthForVR = resolvedWidth;
         this.__canvasHeightForVR = resolvedHeight;
-        Logger.info(this.__canvasWidthForVR.toString());
-        Logger.info(this.__canvasHeightForVR.toString());
         const webgpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
         webgpuResourceRepository.resizeCanvas(this.__canvasWidthForVR, this.__canvasHeightForVR);
       } else {
