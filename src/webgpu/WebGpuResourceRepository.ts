@@ -1156,8 +1156,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       sheenCubeMap
     );
 
-    this.createRenderBundleEncoder(renderPass);
-
     const renderBundleEncoder = this.__renderBundleEncoder!;
     renderBundleEncoder.setBindGroup(0, this.__bindGroupStorageBuffer!);
     renderBundleEncoder.setPipeline(pipeline);
@@ -1190,7 +1188,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       }
     }
 
-    this.createRenderPassEncoder(renderPass);
   }
 
   /**
@@ -1199,7 +1196,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    *
    * @param renderPass - The render pass that will use this render bundle encoder
    */
-  private createRenderBundleEncoder(renderPass: RenderPass) {
+  createRenderBundleEncoder(renderPass: RenderPass) {
     if (this.__renderBundleEncoder == null) {
       const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
       const framebuffer = renderPass.getFramebuffer();
@@ -1434,6 +1431,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   }
 
   finishRenderBundleEncoder(renderPass: RenderPass) {
+    this.createRenderPassEncoder(renderPass);
+
     if (this.__renderPassEncoder != null && this.__renderBundleEncoder != null) {
       const renderBundle = this.__renderBundleEncoder.finish();
       if (Config.cacheWebGpuRenderBundles) {
@@ -1445,6 +1444,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       this.__renderPassEncoder.end();
       this.__renderBundleEncoder = undefined;
       this.__renderPassEncoder = undefined;
+    } else {
+      console.log('renderPassEncoder is null');
     }
   }
 

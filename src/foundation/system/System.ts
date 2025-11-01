@@ -246,15 +246,17 @@ export class System {
             // clear Framebuffer
             this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
 
+            webGpuResourceRepository.createRenderBundleEncoder(renderPass);
+
             renderPass._isChangedSortRenderResult = false;
             const primitiveUids = MeshRendererComponent.sort_$render(renderPass);
-            let doRender = renderPass._renderedSomethingBefore;
-            if (doRender) {
-              doRender = !webGpuStrategyBasic.renderWithRenderBundle(renderPass);
-              SystemState.webgpuRenderBundleMode ||= doRender;
-            }
+            // let doRender = renderPass._renderedSomethingBefore;
+            // if (doRender) {
+            //   doRender = !webGpuStrategyBasic.renderWithRenderBundle(renderPass);
+            //   SystemState.webgpuRenderBundleMode ||= doRender;
+            // }
 
-            if (doRender) {
+            // if (doRender) {
               const renderedSomething = MeshRendererComponent.common_$render({
                 renderPass: renderPass,
                 renderPassTickCount: this.__renderPassTickCount,
@@ -264,7 +266,7 @@ export class System {
               if (renderedSomething) {
                 webGpuResourceRepository.finishRenderBundleEncoder(renderPass);
               }
-            }
+            // }
             renderPass._copyResolve1ToResolve2WebGpu();
             renderPass.doPostRender();
             this.__renderPassTickCount++;

@@ -53,7 +53,7 @@ let isUboEnabled = false;
 let eventTargetDom: HTMLElement | undefined;
 
 /**　Whether to cache the WebGPU render bundles */
-let cacheWebGpuRenderBundles = true;
+let cacheWebGpuRenderBundles = false;
 
 /**　Whether to output the CG API debug console */
 let cgApiDebugConsoleOutput = false;
