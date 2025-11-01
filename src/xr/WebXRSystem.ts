@@ -407,8 +407,8 @@ export class WebXRSystem {
    * @returns True if multiview VR rendering is supported.
    */
   isMultiView() {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    return webglResourceRepository.isSupportMultiViewVRRendering();
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    return cgApiResourceRepository.isSupportMultiViewVRRendering();
   }
 
   /**

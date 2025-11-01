@@ -567,13 +567,13 @@ ${indexStr}
 
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
     webGpuResourceRepository.updateUniformBufferForDrawParameters(
-      `${renderPass.renderPassUID}-${primitive.primitiveUid}`,
+      `${renderPass.renderPassUID}-${primitive.primitiveUid}-${0}`,
       material.materialSID,
       0,
       0,
       0
     );
-    webGpuResourceRepository.draw(primitive, material, renderPass, 0, true);
+    webGpuResourceRepository.draw(primitive, material, renderPass, 0, true, 0);
   }
 
   /**
@@ -611,13 +611,13 @@ ${indexStr}
 
     const primitiveIdxHasMorph = Primitive.getPrimitiveIdxHasMorph(primitive.primitiveUid) ?? 0;
     webGpuResourceRepository.updateUniformBufferForDrawParameters(
-      `${renderPass.renderPassUID}-${primitive.primitiveUid}`,
+      `${renderPass.renderPassUID}-${primitive.primitiveUid}-${displayIdx}`,
       material.materialSID,
       cameraSID,
       primitiveIdxHasMorph,
       primitive.targets.length
     );
-    webGpuResourceRepository.draw(primitive, material, renderPass, cameraSID, zWrite);
+    webGpuResourceRepository.draw(primitive, material, renderPass, cameraSID, zWrite, displayIdx);
     return true;
   }
 

@@ -1104,7 +1104,14 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @param cameraId - Identifier for the camera used for rendering
    * @param zWrite - Whether to enable depth writing during rendering
    */
-  draw(primitive: Primitive, material: Material, renderPass: RenderPass, cameraId: number, zWrite: boolean) {
+  draw(
+    primitive: Primitive,
+    material: Material,
+    renderPass: RenderPass,
+    cameraId: number,
+    zWrite: boolean,
+    displayIdx: number
+  ) {
     const isBufferLessRendering = renderPass.isBufferLessRenderingMode();
     const VertexHandles = primitive._vertexHandles;
     if (!isBufferLessRendering && VertexHandles == null) {
@@ -1162,7 +1169,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     renderBundleEncoder.setBindGroup(2, this.__bindGroupSamplerMap.get(bindGroupId)!);
     renderBundleEncoder.setBindGroup(
       3,
-      this.__bindGroupsUniformDrawParameters.get(`${renderPass.renderPassUID}-${primitive.primitiveUid}`)!
+      this.__bindGroupsUniformDrawParameters.get(`${renderPass.renderPassUID}-${primitive.primitiveUid}-${displayIdx}`)!
     );
     if (isBufferLessRendering) {
       renderBundleEncoder.draw(renderPass._drawVertexNumberForBufferLessRendering);
