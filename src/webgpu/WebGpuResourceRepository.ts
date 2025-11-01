@@ -77,7 +77,6 @@ export type WebGpuResource =
   | object;
 
 type RenderPipelineId = string;
-type RenderPassUid = number;
 
 const _IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT = 16;
 const _IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT = 17;

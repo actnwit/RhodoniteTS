@@ -1,3 +1,4 @@
+import type { PrimitiveUID } from '../../types/CommonTypes';
 import { VERSION } from '../../version';
 import type { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import type { WebGpuDeviceWrapper } from '../../webgpu/WebGpuDeviceWrapper';
@@ -37,7 +38,6 @@ import { Frame } from '../renderer/Frame';
 import { RenderPass } from '../renderer/RenderPass';
 import { ModuleManager } from './ModuleManager';
 import { SystemState } from './SystemState';
-import type { PrimitiveUID } from '../../types/CommonTypes';
 declare const spector: any;
 
 /**
@@ -260,7 +260,8 @@ export class System {
                 primitiveUidsMap.set(renderPassUid, MeshRendererComponent.sort_$render(renderPass));
               }
 
-              const primitiveUids = primitiveUidsMap.get(renderPassUid) ?? MeshRendererComponent.sort_$render(renderPass);
+              const primitiveUids =
+                primitiveUidsMap.get(renderPassUid) ?? MeshRendererComponent.sort_$render(renderPass);
 
               // Run pre-render hook per-eye (ensures per-view framebuffer adjustments)
               renderPass.doPreRender();
