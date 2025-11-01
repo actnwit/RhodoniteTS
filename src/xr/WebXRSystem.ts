@@ -267,7 +267,8 @@ export class WebXRSystem {
       this.__xrSession = xrSession;
       System.stopRenderLoop();
       if (isWebGPU) {
-        const webgpuDeviceWrapper = (cgApiResourceRepository as WebGpuResourceRepository).getWebGpuDeviceWrapper();
+        const webgpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
+        const webgpuDeviceWrapper = webgpuResourceRepository.getWebGpuDeviceWrapper();
         const webgpuDevice = webgpuDeviceWrapper.gpuDevice;
         const xrGpuBinding = new window.XRGPUBinding(xrSession, webgpuDevice);
         this.__xrGpuBinding = xrGpuBinding;

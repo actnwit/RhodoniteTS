@@ -987,7 +987,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    *
    * @param renderPass - The render pass containing clear settings and target framebuffer
    */
-  clearFrameBuffer(renderPass: RenderPass) {
+  clearFrameBuffer(renderPass: RenderPass, displayIdx: number) {
     if (renderPass.entities.length > 0) {
       return;
     }
@@ -1023,21 +1023,19 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           });
         }
       } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
-        for (let i = 0; i < SystemState.xrPoseWebGPU!.views.length; i++) {
-          const view = SystemState.xrPoseWebGPU!.views[i];
-          const subImage = SystemState.xrGpuBinding.getViewSubImage(SystemState.xrProjectionLayerWebGPU!, view);
-          colorAttachments.push({
-            view: subImage.colorTexture.createView(subImage.getViewDescriptor()),
-            clearValue: {
-              r: renderPass.clearColor.x,
-              g: renderPass.clearColor.y,
-              b: renderPass.clearColor.z,
-              a: renderPass.clearColor.w,
-            },
-            loadOp: 'clear',
-            storeOp: 'store',
-          });
-        }
+        const view = SystemState.xrPoseWebGPU!.views[displayIdx];
+        const subImage = SystemState.xrGpuBinding.getViewSubImage(SystemState.xrProjectionLayerWebGPU!, view);
+        colorAttachments.push({
+          view: subImage.colorTexture.createView(subImage.getViewDescriptor()),
+          clearValue: {
+            r: renderPass.clearColor.x,
+            g: renderPass.clearColor.y,
+            b: renderPass.clearColor.z,
+            a: renderPass.clearColor.w,
+          },
+          loadOp: 'clear',
+          storeOp: 'store',
+        });
       } else {
         if (this.__contextCurrentTextureView == null) {
           this.__contextCurrentTextureView = context.getCurrentTexture().createView();
@@ -1068,16 +1066,14 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           depthStoreOp: 'store',
         };
       } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
-        for (let i = 0; i < SystemState.xrPoseWebGPU!.views.length; i++) {
-          const view = SystemState.xrPoseWebGPU!.views[i];
-          const subImage = SystemState.xrGpuBinding.getViewSubImage(SystemState.xrProjectionLayerWebGPU!, view);
-          depthStencilAttachment = {
-            view: subImage.depthStencilTexture.createView(subImage.getViewDescriptor()),
-            depthClearValue: renderPass.clearDepth,
-            depthLoadOp: 'clear',
-            depthStoreOp: 'store',
-          };
-        }
+        const view = SystemState.xrPoseWebGPU!.views[displayIdx];
+        const subImage = SystemState.xrGpuBinding.getViewSubImage(SystemState.xrProjectionLayerWebGPU!, view);
+        depthStencilAttachment = {
+          view: subImage.depthStencilTexture.createView(subImage.getViewDescriptor()),
+          depthClearValue: renderPass.clearDepth,
+          depthLoadOp: 'clear',
+          depthStoreOp: 'store',
+        };
       } else {
         depthStencilAttachment = {
           view: this.__systemDepthTextureView!,
@@ -1198,13 +1194,14 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    *
    * @param renderPass - The render pass that will use this render bundle encoder
    */
-  private __getRenderBundleDescriptor(renderPass: RenderPass): GPURenderBundleEncoderDescriptor {
+  private __getRenderBundleDescriptor(renderPass: RenderPass, displayIdx: number): GPURenderBundleEncoderDescriptor {
     const framebuffer = renderPass.getFramebuffer();
     const resolveFramebuffer = renderPass.getResolveFramebuffer();
     let colorFormats: GPUTextureFormat[] = [];
     let depthStencilFormat: GPUTextureFormat | undefined;
     let sampleCount = 1;
-
+    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+    const webxrSystem = rnXRModule.WebXRSystem.getInstance();
     if (framebuffer != null) {
       for (const colorAttachment of framebuffer.colorAttachments) {
         if (colorAttachment == null) {
@@ -1241,6 +1238,11 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       } else {
         depthStencilFormat = undefined;
       }
+    } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
+      const view = SystemState.xrPoseWebGPU!.views[displayIdx];
+      const subImage = SystemState.xrGpuBinding.getViewSubImage(SystemState.xrProjectionLayerWebGPU!, view);
+      colorFormats = [subImage.colorTexture.format];
+      depthStencilFormat = subImage.depthStencilTexture.format;
     } else {
       colorFormats = [navigator.gpu.getPreferredCanvasFormat()];
       depthStencilFormat =
@@ -1258,9 +1260,9 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     };
   }
 
-  createRenderBundleEncoder(renderPass: RenderPass) {
+  createRenderBundleEncoder(renderPass: RenderPass, displayIdx: number) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-    const renderBundleDescriptor = this.__getRenderBundleDescriptor(renderPass);
+    const renderBundleDescriptor = this.__getRenderBundleDescriptor(renderPass, displayIdx);
     const descriptorKey = JSON.stringify({
       colorFormats: renderBundleDescriptor.colorFormats,
       depthStencilFormat: renderBundleDescriptor.depthStencilFormat ?? null,
@@ -1281,7 +1283,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    *
    * @param renderPass - The render pass configuration including targets and clear values
    */
-  private createRenderPassEncoder(renderPass: RenderPass) {
+  private createRenderPassEncoder(renderPass: RenderPass, displayIdx: number) {
     if (this.__renderPassEncoder != null) {
       return;
     }
@@ -1382,18 +1384,14 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       this.__renderPassEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
     } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
       const colorAttachments: GPURenderPassColorAttachment[] = [];
-      for (let i = 0; i < SystemState.xrPoseWebGPU!.views.length; i++) {
-        const view = SystemState.xrPoseWebGPU!.views[i];
-        const subImage = SystemState.xrGpuBinding.getViewSubImage(SystemState.xrProjectionLayerWebGPU!, view);
-        colorAttachments.push({
-          view: subImage.colorTexture.createView(subImage.getViewDescriptor()),
-          clearValue: clearValue,
-          loadOp: renderPass.toClearColorBuffer ? 'clear' : 'load',
-          storeOp: 'store',
-        });
-      }
-      const view = SystemState.xrPoseWebGPU!.views[0];
+      const view = SystemState.xrPoseWebGPU!.views[displayIdx];
       const subImage = SystemState.xrGpuBinding.getViewSubImage(SystemState.xrProjectionLayerWebGPU!, view);
+      colorAttachments.push({
+        view: subImage.colorTexture.createView(subImage.getViewDescriptor()),
+        clearValue: clearValue,
+        loadOp: renderPass.toClearColorBuffer ? 'clear' : 'load',
+        storeOp: 'store',
+      });
       const depthStencilAttachment: GPURenderPassDepthStencilAttachment = {
         view: subImage.depthStencilTexture.createView(subImage.getViewDescriptor()),
         depthClearValue: depthClearValue,
@@ -1449,7 +1447,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     }
   }
 
-  renderWithRenderBundle(renderPass: RenderPass) {
+  renderWithRenderBundle(renderPass: RenderPass, displayIdx: number) {
     this.__toClearRenderBundles();
     if (renderPass._isChangedSortRenderResult || !Config.cacheWebGpuRenderBundles) {
       this.__renderBundles.clear();
@@ -1457,7 +1455,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
 
     let renderBundle = this.__renderBundles.get(renderPass.renderPassUID);
     if (renderBundle != null) {
-      this.createRenderPassEncoder(renderPass);
+      this.createRenderPassEncoder(renderPass, displayIdx);
 
       if (this.__renderPassEncoder != null) {
         this.__renderPassEncoder.executeBundles([renderBundle]);
@@ -1471,8 +1469,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     return false;
   }
 
-  finishRenderBundleEncoder(renderPass: RenderPass) {
-    this.createRenderPassEncoder(renderPass);
+  finishRenderBundleEncoder(renderPass: RenderPass, displayIdx: number) {
+    this.createRenderPassEncoder(renderPass, displayIdx);
 
     if (this.__renderPassEncoder != null && this.__renderBundleEncoder != null) {
       const renderBundle = this.__renderBundleEncoder.finish();

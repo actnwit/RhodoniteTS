@@ -233,6 +233,8 @@ export class System {
   private static _processWebGPU(expressions: Expression[]) {
     const componentTids = ComponentRepository.getComponentTIDs();
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+    const webxrSystem = rnXRModule.WebXRSystem.getInstance();
     for (const stage of Component._processStages) {
       const methodName = stage.methodName;
       const commonMethodName = `common_${methodName}`;
@@ -242,28 +244,34 @@ export class System {
           for (const renderPass of exp.renderPasses) {
             renderPass.doPreRender();
 
-            // clear Framebuffer
-            this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
-
-            webGpuResourceRepository.createRenderBundleEncoder(renderPass);
-
             renderPass._isChangedSortRenderResult = false;
             const primitiveUids = MeshRendererComponent.sort_$render(renderPass);
-            let doRender = renderPass._renderedSomethingBefore;
-            if (doRender) {
-              doRender = !webGpuResourceRepository.renderWithRenderBundle(renderPass);
-              SystemState.webgpuRenderBundleMode ||= doRender;
-            }
 
-            if (doRender) {
-              const renderedSomething = MeshRendererComponent.common_$render({
-                renderPass: renderPass,
-                renderPassTickCount: this.__renderPassTickCount,
-                primitiveUids,
-              });
-              renderPass._renderedSomethingBefore = renderedSomething;
-              if (renderedSomething) {
-                webGpuResourceRepository.finishRenderBundleEncoder(renderPass);
+            const displayCount =
+              webxrSystem.isWebXRMode && renderPass.isOutputForVr ? SystemState.xrPoseWebGPU!.views.length : 1;
+
+            for (let i = 0; i < displayCount; i++) {
+              // clear Framebuffer
+              webGpuResourceRepository.clearFrameBuffer(renderPass, i);
+
+              webGpuResourceRepository.createRenderBundleEncoder(renderPass, i);
+
+              let doRender = renderPass._renderedSomethingBefore;
+              if (doRender) {
+                doRender = !webGpuResourceRepository.renderWithRenderBundle(renderPass, i);
+                SystemState.webgpuRenderBundleMode ||= doRender;
+              }
+
+              if (doRender) {
+                const renderedSomething = MeshRendererComponent.common_$render({
+                  renderPass: renderPass,
+                  renderPassTickCount: this.__renderPassTickCount,
+                  primitiveUids,
+                });
+                renderPass._renderedSomethingBefore = renderedSomething;
+                if (renderedSomething) {
+                  webGpuResourceRepository.finishRenderBundleEncoder(renderPass, i);
+                }
               }
             }
             renderPass._copyResolve1ToResolve2WebGpu();
