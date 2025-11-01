@@ -1449,7 +1449,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     }
   }
 
-  executeRenderBundle(renderPass: RenderPass) {
+  renderWithRenderBundle(renderPass: RenderPass) {
     this.__toClearRenderBundles();
     if (renderPass._isChangedSortRenderResult || !Config.cacheWebGpuRenderBundles) {
       this.__renderBundles.clear();

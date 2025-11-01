@@ -458,18 +458,6 @@ ${indexStr}
   }
 
   /**
-   * Renders a render pass using pre-built render bundles for improved performance.
-   * Render bundles allow WebGPU to optimize command encoding by pre-recording draw commands.
-   *
-   * @param renderPass - The render pass to execute
-   * @returns True if the render bundle was successfully executed
-   */
-  renderWithRenderBundle(renderPass: RenderPass): boolean {
-    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
-    return webGpuResourceRepository.executeRenderBundle(renderPass);
-  }
-
-  /**
    * Performs pre-rendering operations required before drawing.
    * Updates storage buffers when components have been modified and handles morph target updates.
    * This method should be called once per frame before any rendering operations.

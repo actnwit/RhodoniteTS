@@ -237,7 +237,6 @@ export class System {
       const methodName = stage.methodName;
       const commonMethodName = `common_${methodName}`;
       if (stage === ProcessStage.Render) {
-        const webGpuStrategyBasic = WebGpuStrategyBasic.getInstance();
         MeshRendererComponent.common_$prerender();
         for (const exp of expressions) {
           for (const renderPass of exp.renderPasses) {
@@ -252,7 +251,7 @@ export class System {
             const primitiveUids = MeshRendererComponent.sort_$render(renderPass);
             let doRender = renderPass._renderedSomethingBefore;
             if (doRender) {
-              doRender = !webGpuStrategyBasic.renderWithRenderBundle(renderPass);
+              doRender = !webGpuResourceRepository.renderWithRenderBundle(renderPass);
               SystemState.webgpuRenderBundleMode ||= doRender;
             }
 
