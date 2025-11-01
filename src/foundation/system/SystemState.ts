@@ -37,4 +37,10 @@ export const SystemState = {
    * @default 0
    */
   totalSizeOfGPUShaderDataStorageExceptMorphData: 0,
+
+  xrPoseWebGPU: undefined as XRViewerPose | undefined,
+
+  xrGpuBinding: undefined as any,
+
+  xrProjectionLayerWebGPU: undefined as XRLayer | undefined,
 };

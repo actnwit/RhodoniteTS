@@ -494,25 +494,28 @@ export class MeshRendererComponent extends Component {
    * Common rendering method that executes the actual rendering of primitives.
    * Delegates to the appropriate rendering strategy (WebGL or WebGPU).
    * @param renderPass - The render pass context
-   * @param processStage - The current process stage
    * @param renderPassTickCount - The tick count for this render pass
    * @param primitiveUids - Array of primitive UIDs to render
+   * @param displayIdx - The index of the display to render to
    * @returns True if rendering was successful, false otherwise
    */
   static common_$render({
     renderPass,
     renderPassTickCount,
     primitiveUids,
+    displayIdx,
   }: {
     renderPass: RenderPass;
     renderPassTickCount: Count;
     primitiveUids: PrimitiveUID[];
+    displayIdx: Index;
   }): boolean {
     // Call common_$render of WebGLRenderingStrategy
     return MeshRendererComponent.__cgApiRenderingStrategy!.common_$render(
       primitiveUids,
       renderPass,
-      renderPassTickCount
+      renderPassTickCount,
+      displayIdx
     );
   }
 

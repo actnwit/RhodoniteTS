@@ -2975,7 +2975,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     }
   }
 
-  clearFrameBuffer(renderPass: RenderPass) {
+  clearFrameBuffer(renderPass: RenderPass, _ = 0) {
     const gl = this.__glw!.getRawContext();
     let bufferBit = 0;
     if (renderPass.toClearColorBuffer) {

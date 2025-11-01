@@ -1,3 +1,4 @@
+import type { PrimitiveUID } from '../../types/CommonTypes';
 import { VERSION } from '../../version';
 import type { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import type { WebGpuDeviceWrapper } from '../../webgpu/WebGpuDeviceWrapper';
@@ -233,41 +234,72 @@ export class System {
   private static _processWebGPU(expressions: Expression[]) {
     const componentTids = ComponentRepository.getComponentTIDs();
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+    const webxrSystem = rnXRModule.WebXRSystem.getInstance();
     for (const stage of Component._processStages) {
       const methodName = stage.methodName;
       const commonMethodName = `common_${methodName}`;
       if (stage === ProcessStage.Render) {
-        const webGpuStrategyBasic = WebGpuStrategyBasic.getInstance();
         MeshRendererComponent.common_$prerender();
-        for (const exp of expressions) {
-          for (const renderPass of exp.renderPasses) {
-            renderPass.doPreRender();
+        const isWebXRMode = webxrSystem.isWebXRMode;
+        const isMultiView = webxrSystem.isMultiView();
+        const xrPose = SystemState.xrPoseWebGPU;
+        const displayCount = isWebXRMode && !isMultiView && xrPose != null ? xrPose.views.length : 1;
+        const renderPassTickCountMap = new Map<number, number>();
+        const primitiveUidsMap = new Map<number, PrimitiveUID[]>();
 
-            // clear Framebuffer
-            this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
+        for (let displayIdx = 0; displayIdx < displayCount; displayIdx++) {
+          for (const exp of expressions) {
+            for (const renderPass of exp.renderPasses) {
+              const renderPassUid = renderPass.renderPassUID;
+              let renderPassTickCount = renderPassTickCountMap.get(renderPassUid);
+              if (renderPassTickCount === undefined) {
+                renderPassTickCount = this.__renderPassTickCount;
+                renderPassTickCountMap.set(renderPassUid, renderPassTickCount);
+                renderPass._isChangedSortRenderResult = false;
+                primitiveUidsMap.set(renderPassUid, MeshRendererComponent.sort_$render(renderPass));
+              }
 
-            renderPass._isChangedSortRenderResult = false;
-            const primitiveUids = MeshRendererComponent.sort_$render(renderPass);
-            let doRender = renderPass._renderedSomethingBefore;
-            if (doRender) {
-              doRender = !webGpuStrategyBasic.renderWithRenderBundle(renderPass);
-              SystemState.webgpuRenderBundleMode ||= doRender;
-            }
+              const primitiveUids =
+                primitiveUidsMap.get(renderPassUid) ?? MeshRendererComponent.sort_$render(renderPass);
 
-            if (doRender) {
-              const renderedSomething = MeshRendererComponent.common_$render({
-                renderPass: renderPass,
-                renderPassTickCount: this.__renderPassTickCount,
-                primitiveUids,
-              });
-              renderPass._renderedSomethingBefore = renderedSomething;
-              if (renderedSomething) {
-                webGpuResourceRepository.finishRenderBundleEncoder(renderPass);
+              // Run pre-render hook per-eye (ensures per-view framebuffer adjustments)
+              renderPass.doPreRender();
+
+              // clear Framebuffer
+              webGpuResourceRepository.clearFrameBuffer(renderPass, displayIdx);
+
+              webGpuResourceRepository.createRenderBundleEncoder(renderPass, displayIdx);
+
+              let doRender = renderPass._renderedSomethingBefore;
+              if (doRender) {
+                doRender = !webGpuResourceRepository.renderWithRenderBundle(renderPass, displayIdx);
+                SystemState.webgpuRenderBundleMode ||= doRender;
+              }
+
+              if (doRender) {
+                const renderedSomething = MeshRendererComponent.common_$render({
+                  renderPass: renderPass,
+                  renderPassTickCount,
+                  primitiveUids,
+                  displayIdx,
+                });
+                renderPass._renderedSomethingBefore = renderedSomething;
+                if (renderedSomething) {
+                  webGpuResourceRepository.finishRenderBundleEncoder(renderPass, displayIdx);
+                }
+              }
+
+              renderPass._copyResolve1ToResolve2WebGpu();
+              renderPass.doPostRender();
+
+              // advance tick count only after the final display has been processed
+              if (displayIdx === displayCount - 1) {
+                renderPassTickCountMap.delete(renderPassUid);
+                primitiveUidsMap.delete(renderPassUid);
+                this.__renderPassTickCount++;
               }
             }
-            renderPass._copyResolve1ToResolve2WebGpu();
-            renderPass.doPostRender();
-            this.__renderPassTickCount++;
           }
         }
         webGpuResourceRepository.flush();
@@ -290,6 +322,7 @@ export class System {
                 renderPass: void 0,
                 processStage: stage,
                 renderPassTickCount: this.__renderPassTickCount,
+                displayIdx: 0,
               });
             }
 
@@ -509,9 +542,9 @@ export class System {
       const requiredBufferSize = memoryManager.getMemorySize();
 
       const webGpuResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository() as WebGpuResourceRepository;
-      const module = ModuleManager.getInstance().getModule('webgpu');
-      const WebGpuDeviceWrapperClass = module.WebGpuDeviceWrapper as typeof WebGpuDeviceWrapper;
-      const adapter = await navigator.gpu.requestAdapter();
+      const webgpuModule = ModuleManager.getInstance().getModule('webgpu');
+      const WebGpuDeviceWrapperClass = webgpuModule.WebGpuDeviceWrapper as typeof WebGpuDeviceWrapper;
+      const adapter = await navigator.gpu.requestAdapter({ xrCompatible: true });
       const { maxBufferSize, maxStorageBufferBindingSize } = adapter!.limits;
       if (maxBufferSize < requiredBufferSize || maxStorageBufferBindingSize < requiredBufferSize) {
         throw new Error('The required buffer size is too large for this device.');

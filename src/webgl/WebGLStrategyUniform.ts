@@ -420,9 +420,15 @@ bool get_isBillboard(float instanceId) {
    * @param primitiveUids - Array of primitive UIDs to render, sorted by rendering order
    * @param renderPass - The render pass configuration containing rendering settings
    * @param renderPassTickCount - Current tick count for the render pass
+   * @param displayIdx - The index of the display to render to
    * @returns True if any primitives were rendered, false otherwise
    */
-  common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, renderPassTickCount: Count) {
+  common_$render(
+    primitiveUids: PrimitiveUID[],
+    renderPass: RenderPass,
+    renderPassTickCount: Count,
+    _displayIdx: Index
+  ) {
     if (typeof spector !== 'undefined') {
       spector.setMarker('|  |  Uniform:$render#');
     }

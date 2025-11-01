@@ -1,12 +1,7 @@
 import type { Size } from '../../../types';
 import type { RnXR } from '../../../xr/main';
 import { RnObject } from '../../core/RnObject';
-import {
-  ComponentType,
-  PixelFormat,
-  ToneMappingType,
-  type ToneMappingTypeEnum,
-} from '../../definitions';
+import { ComponentType, PixelFormat, ToneMappingType, type ToneMappingTypeEnum } from '../../definitions';
 import { TextureFormat } from '../../definitions/TextureFormat';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import { Bloom } from '../../helpers/BloomHelper';
@@ -18,6 +13,7 @@ import { ShadowSystem } from '../../helpers/Shadow/ShadowSystem';
 import type { Material } from '../../materials/core/Material';
 import { Vector4 } from '../../math/Vector4';
 import { Is } from '../../misc/Is';
+import { Logger } from '../../misc/Logger';
 import { None, type Option, Some, assertHas } from '../../misc/Option';
 import { Err, Ok } from '../../misc/Result';
 import { ModuleManager } from '../../system/ModuleManager';
@@ -478,6 +474,26 @@ export class ForwardRenderPipeline extends RnObject {
       width = webXRSystem.getCanvasWidthForVr();
       height = webXRSystem.getCanvasHeightForVr();
     }
+
+    if (width <= 0 || height <= 0) {
+      let fallbackWidth = this.__width;
+      let fallbackHeight = this.__height;
+      if (fallbackWidth <= 0 || fallbackHeight <= 0) {
+        const [currentWidth, currentHeight] = System.getCanvasSize();
+        fallbackWidth = currentWidth;
+        fallbackHeight = currentHeight;
+      }
+      if (fallbackWidth <= 0 || fallbackHeight <= 0) {
+        fallbackWidth = 1;
+        fallbackHeight = 1;
+      }
+      Logger.warn(
+        `ForwardRenderPipeline.resize received non-positive dimensions (${width}x${height}). Falling back to ${fallbackWidth}x${fallbackHeight}.`
+      );
+      width = fallbackWidth;
+      height = fallbackHeight;
+    }
+
     System.resizeCanvas(width, height);
 
     this.__destroyResources();
@@ -801,6 +817,7 @@ export class ForwardRenderPipeline extends RnObject {
     initialRenderPass.clearColor = Vector4.fromCopyArray4([0.0, 0.0, 0.0, 0.0]);
     initialRenderPass.toClearColorBuffer = true;
     initialRenderPass.toClearDepthBuffer = true;
+    initialRenderPass.isOutputForVr = true;
     initialRenderPass.tryToSetUniqueName('InitialRenderPass', true);
     expression.addRenderPasses([initialRenderPass]);
 
@@ -872,6 +889,7 @@ export class ForwardRenderPipeline extends RnObject {
       this.__oFrameBufferResolve = new None();
       this.__oFrameBufferResolveForReference = new None();
     } else {
+      console.log(`canvasWidth: ${canvasWidth}, canvasHeight: ${canvasHeight}`);
       // MSAA depth
       const framebufferMsaa = RenderableHelper.createFrameBufferMSAA({
         width: canvasWidth,
@@ -1247,6 +1265,7 @@ export class ForwardRenderPipeline extends RnObject {
           renderPass.isOutputForVr = false;
         });
       }
+      frame.addExpression(exp);
     }
 
     // multi-view blitting for VR rendering

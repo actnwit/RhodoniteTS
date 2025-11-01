@@ -1,4 +1,4 @@
-import { CGAPIResourceHandle, type Count, Index, type PrimitiveUID } from '../../types/CommonTypes';
+import { CGAPIResourceHandle, type Count, type Index, type PrimitiveUID } from '../../types/CommonTypes';
 import type { MeshComponent } from '../components/Mesh/MeshComponent';
 import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
 import type { RenderPass } from './RenderPass';
@@ -37,7 +37,13 @@ export interface CGAPIStrategy {
    * @param primitiveUids - Array of unique identifiers for the primitives to be rendered
    * @param renderPass - The render pass context containing rendering configuration
    * @param renderPassTickCount - The current tick count for the render pass, used for timing and animation
+   * @param displayIdx - The index of the display to render to
    * @returns True if the rendering operation was successful, false otherwise
    */
-  common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, renderPassTickCount: Count): boolean;
+  common_$render(
+    primitiveUids: PrimitiveUID[],
+    renderPass: RenderPass,
+    renderPassTickCount: Count,
+    displayIdx: Index
+  ): boolean;
 }

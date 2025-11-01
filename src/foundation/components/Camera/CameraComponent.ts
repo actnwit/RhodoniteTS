@@ -1126,14 +1126,6 @@ export class CameraComponent extends Component {
   }
 
   /**
-   * Sets only the matrix values to the global data repository.
-   */
-  setValuesToGlobalDataRepositoryOnlyMatrices() {
-    CameraComponent.__globalDataRepository.setValue('viewMatrix', this.componentSID, this.viewMatrix);
-    CameraComponent.__globalDataRepository.setValue('projectionMatrix', this.componentSID, this.projectionMatrix);
-  }
-
-  /**
    * Sets camera values (matrices and position) to the global data repository.
    */
   setValuesToGlobalDataRepository() {
