@@ -1,12 +1,7 @@
 import type { Size } from '../../../types';
 import type { RnXR } from '../../../xr/main';
 import { RnObject } from '../../core/RnObject';
-import {
-  ComponentType,
-  PixelFormat,
-  ToneMappingType,
-  type ToneMappingTypeEnum,
-} from '../../definitions';
+import { ComponentType, PixelFormat, ToneMappingType, type ToneMappingTypeEnum } from '../../definitions';
 import { TextureFormat } from '../../definitions/TextureFormat';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import { Bloom } from '../../helpers/BloomHelper';

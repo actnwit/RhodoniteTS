@@ -113,6 +113,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   private __commandEncoder?: GPUCommandEncoder;
   private __renderBundles: Map<RenderPassUid, GPURenderBundle> = new Map();
   private __renderBundleEncoder?: GPURenderBundleEncoder;
+  private __renderBundleEncoderKey?: string;
   private __systemDepthTexture?: GPUTexture;
   private __systemDepthTextureView?: GPUTextureView;
   private __uniformMorphOffsetsBuffer?: GPUBuffer;
@@ -476,6 +477,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     if (this.__renderPassEncoder != null) {
       if (this.__renderBundleEncoder != null) {
         this.__renderPassEncoder.executeBundles([this.__renderBundleEncoder.finish()]);
+        this.__renderBundleEncoder = undefined;
+        this.__renderBundleEncoderKey = undefined;
       }
       this.__renderPassEncoder.end();
       this.__renderPassEncoder = undefined;
@@ -1156,6 +1159,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       sheenCubeMap
     );
 
+    this.createRenderBundleEncoder(renderPass);
     const renderBundleEncoder = this.__renderBundleEncoder!;
     renderBundleEncoder.setBindGroup(0, this.__bindGroupStorageBuffer!);
     renderBundleEncoder.setPipeline(pipeline);
@@ -1196,38 +1200,81 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    *
    * @param renderPass - The render pass that will use this render bundle encoder
    */
-  createRenderBundleEncoder(renderPass: RenderPass) {
-    if (this.__renderBundleEncoder == null) {
-      const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-      const framebuffer = renderPass.getFramebuffer();
-      let colorFormats = [navigator.gpu.getPreferredCanvasFormat()];
-      let depthStencilFormat: GPUTextureFormat | undefined = this.__systemDepthTexture!.format;
-      if (framebuffer != null) {
-        colorFormats = [];
-        for (let colorAttachment of framebuffer.colorAttachments) {
-          const texture = this.__webGpuResources.get(colorAttachment._textureResourceUid) as GPUTexture;
+  private __getRenderBundleDescriptor(renderPass: RenderPass): GPURenderBundleEncoderDescriptor {
+    const framebuffer = renderPass.getFramebuffer();
+    const resolveFramebuffer = renderPass.getResolveFramebuffer();
+    let colorFormats: GPUTextureFormat[] = [];
+    let depthStencilFormat: GPUTextureFormat | undefined;
+    let sampleCount = 1;
+
+    if (framebuffer != null) {
+      for (const colorAttachment of framebuffer.colorAttachments) {
+        if (colorAttachment == null) {
+          continue;
+        }
+        const textureResourceUid = (colorAttachment as { _textureResourceUid?: WebGLResourceHandle })
+          ._textureResourceUid;
+        if (textureResourceUid == null || textureResourceUid < 0) {
+          continue;
+        }
+        const texture = this.__webGpuResources.get(textureResourceUid) as GPUTexture | undefined;
+        if (texture != null) {
           colorFormats.push(texture.format);
         }
-        if (framebuffer.depthAttachment != null) {
-          const depthTexture = this.__webGpuResources.get(
-            framebuffer.depthAttachment._textureResourceUid
-          ) as GPUTexture;
-          depthStencilFormat = depthTexture.format;
+      }
+
+      if (resolveFramebuffer != null && framebuffer.colorAttachments.length > 0) {
+        const msaaAttachment = framebuffer.colorAttachments[0] as RenderBuffer | undefined;
+        const sampledCount = msaaAttachment?.sampleCount;
+        if (typeof sampledCount === 'number' && sampledCount > 0) {
+          sampleCount = sampledCount;
+        }
+      }
+
+      if (framebuffer.depthAttachment != null) {
+        const depthTextureUid = (framebuffer.depthAttachment as { _textureResourceUid?: WebGLResourceHandle })
+          ._textureResourceUid;
+        if (depthTextureUid != null && depthTextureUid >= 0) {
+          const depthTexture = this.__webGpuResources.get(depthTextureUid) as GPUTexture | undefined;
+          depthStencilFormat = depthTexture?.format;
         } else {
           depthStencilFormat = undefined;
         }
+      } else {
+        depthStencilFormat = undefined;
       }
-      const renderBundleDescriptor: GPURenderBundleEncoderDescriptor = {
-        colorFormats: colorFormats,
-        depthStencilFormat: depthStencilFormat,
-        sampleCount:
-          renderPass.getResolveFramebuffer() != null
-            ? (renderPass.getFramebuffer()!.colorAttachments[0] as RenderBuffer).sampleCount
-            : 1,
-      };
-      const encoder = gpuDevice.createRenderBundleEncoder(renderBundleDescriptor);
-      this.__renderBundleEncoder = encoder;
+    } else {
+      colorFormats = [navigator.gpu.getPreferredCanvasFormat()];
+      depthStencilFormat =
+        this.__systemDepthTexture != null ? this.__systemDepthTexture.format : ('depth24plus' as GPUTextureFormat);
     }
+
+    if (colorFormats.length === 0) {
+      colorFormats = [navigator.gpu.getPreferredCanvasFormat()];
+    }
+
+    return {
+      colorFormats,
+      depthStencilFormat,
+      sampleCount,
+    };
+  }
+
+  createRenderBundleEncoder(renderPass: RenderPass) {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const renderBundleDescriptor = this.__getRenderBundleDescriptor(renderPass);
+    const descriptorKey = JSON.stringify({
+      colorFormats: renderBundleDescriptor.colorFormats,
+      depthStencilFormat: renderBundleDescriptor.depthStencilFormat ?? null,
+      sampleCount: renderBundleDescriptor.sampleCount,
+    });
+
+    if (this.__renderBundleEncoder != null && this.__renderBundleEncoderKey === descriptorKey) {
+      return;
+    }
+
+    this.__renderBundleEncoder = gpuDevice.createRenderBundleEncoder(renderBundleDescriptor);
+    this.__renderBundleEncoderKey = descriptorKey;
   }
 
   /**
@@ -1443,6 +1490,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       this.__renderPassEncoder.executeBundles([renderBundle]);
       this.__renderPassEncoder.end();
       this.__renderBundleEncoder = undefined;
+      this.__renderBundleEncoderKey = undefined;
       this.__renderPassEncoder = undefined;
     } else {
       console.log('renderPassEncoder is null');
@@ -3153,6 +3201,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     if (this.__renderPassEncoder != null) {
       if (this.__renderBundleEncoder != null) {
         this.__renderPassEncoder.executeBundles([this.__renderBundleEncoder.finish()]);
+        this.__renderBundleEncoder = undefined;
+        this.__renderBundleEncoderKey = undefined;
       }
       this.__renderPassEncoder.end();
       this.__renderPassEncoder = undefined;
@@ -3196,6 +3246,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     if (this.__renderPassEncoder != null) {
       if (this.__renderBundleEncoder != null) {
         this.__renderPassEncoder.executeBundles([this.__renderBundleEncoder.finish()]);
+        this.__renderBundleEncoder = undefined;
+        this.__renderBundleEncoderKey = undefined;
       }
       this.__renderPassEncoder.end();
       this.__renderPassEncoder = undefined;
