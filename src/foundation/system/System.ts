@@ -37,6 +37,7 @@ import { Frame } from '../renderer/Frame';
 import { RenderPass } from '../renderer/RenderPass';
 import { ModuleManager } from './ModuleManager';
 import { SystemState } from './SystemState';
+import type { PrimitiveUID } from '../../types/CommonTypes';
 declare const spector: any;
 
 /**
@@ -240,44 +241,64 @@ export class System {
       const commonMethodName = `common_${methodName}`;
       if (stage === ProcessStage.Render) {
         MeshRendererComponent.common_$prerender();
-        for (const exp of expressions) {
-          for (const renderPass of exp.renderPasses) {
-            renderPass.doPreRender();
+        const isWebXRMode = webxrSystem.isWebXRMode;
+        const isMultiView = webxrSystem.isMultiView();
+        const xrPose = SystemState.xrPoseWebGPU;
+        const displayCount = isWebXRMode && !isMultiView && xrPose != null ? xrPose.views.length : 1;
+        const renderPassTickCountMap = new Map<number, number>();
+        const primitiveUidsMap = new Map<number, PrimitiveUID[]>();
 
-            renderPass._isChangedSortRenderResult = false;
-            const primitiveUids = MeshRendererComponent.sort_$render(renderPass);
+        for (let displayIdx = 0; displayIdx < displayCount; displayIdx++) {
+          for (const exp of expressions) {
+            for (const renderPass of exp.renderPasses) {
+              const renderPassUid = renderPass.renderPassUID;
+              let renderPassTickCount = renderPassTickCountMap.get(renderPassUid);
+              if (renderPassTickCount === undefined) {
+                renderPassTickCount = this.__renderPassTickCount;
+                renderPassTickCountMap.set(renderPassUid, renderPassTickCount);
+                renderPass._isChangedSortRenderResult = false;
+                primitiveUidsMap.set(renderPassUid, MeshRendererComponent.sort_$render(renderPass));
+              }
 
-            const displayCount =
-              webxrSystem.isWebXRMode && renderPass.isOutputForVr ? SystemState.xrPoseWebGPU!.views.length : 1;
+              const primitiveUids = primitiveUidsMap.get(renderPassUid) ?? MeshRendererComponent.sort_$render(renderPass);
 
-            for (let i = 0; i < displayCount; i++) {
+              // Run pre-render hook per-eye (ensures per-view framebuffer adjustments)
+              renderPass.doPreRender();
+
               // clear Framebuffer
-              webGpuResourceRepository.clearFrameBuffer(renderPass, i);
+              webGpuResourceRepository.clearFrameBuffer(renderPass, displayIdx);
 
-              webGpuResourceRepository.createRenderBundleEncoder(renderPass, i);
+              webGpuResourceRepository.createRenderBundleEncoder(renderPass, displayIdx);
 
               let doRender = renderPass._renderedSomethingBefore;
               if (doRender) {
-                doRender = !webGpuResourceRepository.renderWithRenderBundle(renderPass, i);
+                doRender = !webGpuResourceRepository.renderWithRenderBundle(renderPass, displayIdx);
                 SystemState.webgpuRenderBundleMode ||= doRender;
               }
 
               if (doRender) {
                 const renderedSomething = MeshRendererComponent.common_$render({
                   renderPass: renderPass,
-                  renderPassTickCount: this.__renderPassTickCount,
+                  renderPassTickCount,
                   primitiveUids,
-                  displayIdx: i,
+                  displayIdx,
                 });
                 renderPass._renderedSomethingBefore = renderedSomething;
                 if (renderedSomething) {
-                  webGpuResourceRepository.finishRenderBundleEncoder(renderPass, i);
+                  webGpuResourceRepository.finishRenderBundleEncoder(renderPass, displayIdx);
                 }
               }
+
+              renderPass._copyResolve1ToResolve2WebGpu();
+              renderPass.doPostRender();
+
+              // advance tick count only after the final display has been processed
+              if (displayIdx === displayCount - 1) {
+                renderPassTickCountMap.delete(renderPassUid);
+                primitiveUidsMap.delete(renderPassUid);
+                this.__renderPassTickCount++;
+              }
             }
-            renderPass._copyResolve1ToResolve2WebGpu();
-            renderPass.doPostRender();
-            this.__renderPassTickCount++;
           }
         }
         webGpuResourceRepository.flush();
