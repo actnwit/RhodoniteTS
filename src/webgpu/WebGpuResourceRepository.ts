@@ -1159,7 +1159,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       sheenCubeMap
     );
 
-    this.createRenderBundleEncoder(renderPass);
     const renderBundleEncoder = this.__renderBundleEncoder!;
     renderBundleEncoder.setBindGroup(0, this.__bindGroupStorageBuffer!);
     renderBundleEncoder.setPipeline(pipeline);
@@ -1191,7 +1190,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         renderBundleEncoder.draw(vertexCount, mesh.meshEntitiesInner.length);
       }
     }
-
   }
 
   /**
@@ -1307,9 +1305,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     if (resolveFramebuffer != null && framebuffer != null) {
       let depthTextureView = this.__systemDepthTextureView!;
       if (framebuffer.depthAttachment != null) {
-        const depthTexture = this.__webGpuResources.get(
-          framebuffer.depthAttachment._textureResourceUid
-        ) as GPUTexture;
+        const depthTexture = this.__webGpuResources.get(framebuffer.depthAttachment._textureResourceUid) as GPUTexture;
         if (depthTexture != null) {
           depthTextureView = this.__webGpuResources.get(
             framebuffer.depthAttachment._textureViewResourceUid
@@ -1349,9 +1345,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     } else if (framebuffer != null) {
       let depthTextureView: GPUTextureView | undefined = undefined;
       if (framebuffer.depthAttachment != null) {
-        const depthTexture = this.__webGpuResources.get(
-          framebuffer.depthAttachment._textureResourceUid
-        ) as GPUTexture;
+        const depthTexture = this.__webGpuResources.get(framebuffer.depthAttachment._textureResourceUid) as GPUTexture;
         if (depthTexture != null) {
           depthTextureView = this.__webGpuResources.get(
             framebuffer.depthAttachment._textureViewAsRenderTargetResourceUid
