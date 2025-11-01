@@ -359,6 +359,9 @@ function processThumbstickInput(
   const orientationMat = MutableMatrix33.fromCopyQuaternion(viewerData.viewerOrientation);
   const rotateMat = orientationMat.multiply(MutableMatrix33.rotateY(viewerData.viewerAzimuthAngle.x));
   rotateMat.multiplyVectorTo(deltaVector, deltaVector as MutableVector3);
+  if (handed === 'left') {
+    deltaVector.y = 0;
+  }
   viewerData.viewerTranslate.add(deltaVector);
 }
 
