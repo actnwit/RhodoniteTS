@@ -161,11 +161,22 @@ async function addMotionControllerToScene(motionController: MotionController) {
 export function updateGamePad(timestamp: number, _xrFrame: XRFrame, viewerData: WebXRSystemViewerData) {
   // Other frame-loop stuff ...
 
+  if (lastTimestamp === 0) {
+    lastTimestamp = timestamp;
+    return;
+  }
+  const timeScale = 0.01;
+  const deltaSec = (timestamp - lastTimestamp) * timeScale;
+  lastTimestamp = timestamp;
+  if (deltaSec <= 0) {
+    return;
+  }
+
   Array.from(motionControllers.values()).forEach((motionController: MotionController) => {
     motionController.updateFromGamepad();
     Object.keys(motionController.components).forEach((componentId: string) => {
       const component = motionController.components[componentId];
-      processInput(component, (motionController.xrInputSource as XRInputSource).handedness, viewerData, timestamp);
+      processInput(component, (motionController.xrInputSource as XRInputSource).handedness, viewerData, deltaSec);
     });
   });
 
@@ -180,20 +191,14 @@ let lastTimestamp = 0;
  * @param component - The input component to process
  * @param handed - The handedness of the controller (left/right)
  * @param viewerData - Viewer data to update based on input
- * @param timestamp - Current timestamp in microseconds
+ * @param deltaSec - Time delta in seconds since the previous XR frame
  */
-function processInput(component: Component, handed: string, viewerData: WebXRSystemViewerData, timestamp: number) {
+function processInput(component: Component, handed: string, viewerData: WebXRSystemViewerData, deltaSec: number) {
   const componentName = wellKnownMapping.get(component.rootNodeName);
   if (Is.not.exist(componentName)) {
     return;
   }
 
-  if (lastTimestamp === 0) {
-    lastTimestamp = timestamp;
-    return;
-  }
-
-  const deltaSec = (timestamp - lastTimestamp) * 0.000001;
   switch (componentName) {
     case GeneralType.TRIGGER:
       processTriggerInput(component, handed, viewerData, deltaSec);
