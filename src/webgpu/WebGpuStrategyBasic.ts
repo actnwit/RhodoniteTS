@@ -28,13 +28,13 @@ import type { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
 import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
 import { ModuleManager } from '../foundation/system/ModuleManager';
-import {
-  type CGAPIResourceHandle,
+import type {
+  CGAPIResourceHandle,
   Count,
   Index,
-  type IndexOf4Bytes,
-  type IndexOf16Bytes,
-  type PrimitiveUID,
+  IndexOf4Bytes,
+  IndexOf16Bytes,
+  PrimitiveUID,
 } from '../types/CommonTypes';
 import type { WebXRSystem } from '../xr/WebXRSystem';
 import type { RnXR } from '../xr/main';
@@ -495,9 +495,15 @@ ${indexStr}
    * @param primitiveUids - Array of primitive UIDs to render, sorted by rendering order
    * @param renderPass - The render pass configuration containing rendering settings
    * @param renderPassTickCount - Current tick count for animation and timing purposes
+   * @param displayIdx - The index of the display to render to
    * @returns True if any primitives were successfully rendered
    */
-  common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, _renderPassTickCount: number): boolean {
+  common_$render(
+    primitiveUids: PrimitiveUID[],
+    renderPass: RenderPass,
+    _renderPassTickCount: Count,
+    displayIdx: Index
+  ): boolean {
     if (renderPass.isBufferLessRenderingMode()) {
       this.__renderWithoutBuffers(renderPass);
       return true;
@@ -512,7 +518,7 @@ ${indexStr}
       for (let i = renderPass._lastOpaqueIndex; i >= 0; i--) {
         // Drawing from the nearest object
         const primitiveUid = primitiveUids[i];
-        const rendered = this.renderInner(primitiveUid, renderPass, isZWrite);
+        const rendered = this.renderInner(primitiveUid, renderPass, isZWrite, displayIdx);
         renderedSomething ||= rendered;
       }
     }
@@ -522,7 +528,7 @@ ${indexStr}
       // Draw Translucent primitives
       for (let i = renderPass._lastOpaqueIndex + 1; i <= renderPass._lastTranslucentIndex; i++) {
         const primitiveUid = primitiveUids[i];
-        const rendered = this.renderInner(primitiveUid, renderPass, isZWrite);
+        const rendered = this.renderInner(primitiveUid, renderPass, isZWrite, displayIdx);
         renderedSomething ||= rendered;
       }
     }
@@ -531,7 +537,7 @@ ${indexStr}
       // Draw Blend primitives with ZWrite
       for (let i = renderPass._lastTranslucentIndex + 1; i <= renderPass._lastBlendWithZWriteIndex; i++) {
         const primitiveUid = primitiveUids[i];
-        const rendered = this.renderInner(primitiveUid, renderPass, isZWrite);
+        const rendered = this.renderInner(primitiveUid, renderPass, isZWrite, displayIdx);
         renderedSomething ||= rendered;
       }
     }
@@ -540,7 +546,7 @@ ${indexStr}
       // Draw Blend primitives without ZWrite
       for (let i = renderPass._lastBlendWithZWriteIndex + 1; i <= renderPass._lastBlendWithoutZWriteIndex; i++) {
         const primitiveUid = primitiveUids[i];
-        const rendered = this.renderInner(primitiveUid, renderPass, isZWrite2);
+        const rendered = this.renderInner(primitiveUid, renderPass, isZWrite2, displayIdx);
         renderedSomething ||= rendered;
       }
     }
@@ -577,9 +583,10 @@ ${indexStr}
    * @param primitiveUid - Unique identifier of the primitive to render
    * @param renderPass - Render pass containing rendering configuration
    * @param zWrite - Whether to enable depth buffer writing
+   * @param displayIdx - The index of the display to render to
    * @returns True if the primitive was successfully rendered
    */
-  renderInner(primitiveUid: PrimitiveUID, renderPass: RenderPass, zWrite: boolean) {
+  renderInner(primitiveUid: PrimitiveUID, renderPass: RenderPass, zWrite: boolean, displayIdx: Index) {
     if (primitiveUid === -1) {
       return false;
     }
@@ -594,7 +601,13 @@ ${indexStr}
     }
 
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
-    const cameraSID = this.__getAppropriateCameraComponentSID(renderPass, 0, false);
+    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+    const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+    const cameraSID = this.__getAppropriateCameraComponentSID(
+      renderPass,
+      displayIdx as 0 | 1,
+      webxrSystem.isWebXRMode && renderPass.isVrRendering
+    );
 
     const primitiveIdxHasMorph = Primitive.getPrimitiveIdxHasMorph(primitive.primitiveUid) ?? 0;
     webGpuResourceRepository.updateUniformBufferForDrawParameters(

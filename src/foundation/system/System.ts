@@ -267,6 +267,7 @@ export class System {
                   renderPass: renderPass,
                   renderPassTickCount: this.__renderPassTickCount,
                   primitiveUids,
+                  displayIdx: i,
                 });
                 renderPass._renderedSomethingBefore = renderedSomething;
                 if (renderedSomething) {
@@ -299,6 +300,7 @@ export class System {
                 renderPass: void 0,
                 processStage: stage,
                 renderPassTickCount: this.__renderPassTickCount,
+                displayIdx: 0,
               });
             }
 
