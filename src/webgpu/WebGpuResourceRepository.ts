@@ -111,7 +111,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   private __bindGroupLayoutUniformDrawParameters?: GPUBindGroupLayout;
   private __uniformDrawParametersBuffers: Map<DRAW_PARAMETERS_IDENTIFIER, GPUBuffer> = new Map();
   private __commandEncoder?: GPUCommandEncoder;
-  private __renderBundles: Map<RenderPassUid, GPURenderBundle> = new Map();
+  private __renderBundles: Map<string, GPURenderBundle> = new Map();
   private __renderBundleEncoder?: GPURenderBundleEncoder;
   private __renderBundleEncoderKey?: string;
   private __systemDepthTexture?: GPUTexture;
@@ -1460,7 +1460,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       this.__renderBundles.clear();
     }
 
-    let renderBundle = this.__renderBundles.get(renderPass.renderPassUID);
+    const renderBundleKey = `${renderPass.renderPassUID}-${displayIdx}`;
+    let renderBundle = this.__renderBundles.get(renderBundleKey);
     if (renderBundle != null) {
       this.createRenderPassEncoder(renderPass, displayIdx);
 
@@ -1482,7 +1483,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     if (this.__renderPassEncoder != null && this.__renderBundleEncoder != null) {
       const renderBundle = this.__renderBundleEncoder.finish();
       if (Config.cacheWebGpuRenderBundles) {
-        this.__renderBundles.set(renderPass.renderPassUID, renderBundle);
+        const renderBundleKey = `${renderPass.renderPassUID}-${displayIdx}`;
+        this.__renderBundles.set(renderBundleKey, renderBundle);
       } else {
         this.__renderBundles.clear();
       }
