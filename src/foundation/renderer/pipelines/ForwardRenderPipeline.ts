@@ -1247,6 +1247,7 @@ export class ForwardRenderPipeline extends RnObject {
           renderPass.isOutputForVr = false;
         });
       }
+      frame.addExpression(exp);
     }
 
     // multi-view blitting for VR rendering
