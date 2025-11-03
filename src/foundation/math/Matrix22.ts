@@ -115,7 +115,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * ```
    */
   static zero() {
-    return Matrix22.fromCopy4RowMajor(0, 0, 0, 0);
+    return this.fromCopy4RowMajor(0, 0, 0, 0);
   }
 
   /**
@@ -132,7 +132,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * ```
    */
   static identity() {
-    return Matrix22.fromCopy4RowMajor(1, 0, 0, 1);
+    return this.fromCopy4RowMajor(1, 0, 0, 1);
   }
 
   /**
@@ -162,7 +162,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * ```
    */
   static transpose(mat: Matrix22) {
-    return Matrix22.fromCopy4RowMajor(mat._v[0], mat._v[1], mat._v[2], mat._v[3]);
+    return this.fromCopy4RowMajor(mat._v[0], mat._v[1], mat._v[2], mat._v[3]);
   }
 
   /**
@@ -198,7 +198,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
     const m10 = (mat._v[1] / det) * -1.0;
     const m11 = mat._v[0] / det;
 
-    return Matrix22.fromCopy4RowMajor(m00, m01, m10, m11);
+    return this.fromCopy4RowMajor(m00, m01, m10, m11);
   }
 
   /**
@@ -243,7 +243,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
   static rotate(radian: number) {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
-    return Matrix22.fromCopy4RowMajor(cos, -sin, sin, cos);
+    return this.fromCopy4RowMajor(cos, -sin, sin, cos);
   }
 
   /**
@@ -263,7 +263,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * ```
    */
   static scale(vec: Vector2) {
-    return Matrix22.fromCopy4RowMajor(vec._v[0], 0, 0, vec._v[1]);
+    return this.fromCopy4RowMajor(vec._v[0], 0, 0, vec._v[1]);
   }
 
   /**
@@ -288,7 +288,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
     const m01 = l_mat._v[0] * r_mat._v[2] + l_mat._v[2] * r_mat._v[3];
     const m11 = l_mat._v[1] * r_mat._v[2] + l_mat._v[3] * r_mat._v[3];
 
-    return Matrix22.fromCopy4RowMajor(m00, m01, m10, m11);
+    return this.fromCopy4RowMajor(m00, m01, m10, m11);
   }
 
   /**

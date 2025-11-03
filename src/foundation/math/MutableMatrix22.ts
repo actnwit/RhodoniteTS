@@ -113,7 +113,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @returns A new MutableMatrix22 instance with all zero values
    */
   static zero() {
-    return super.zero() as MutableMatrix22;
+    return super.zero();
   }
 
   /**
@@ -121,7 +121,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    *
    * @returns A new MutableMatrix22 identity matrix
    */
-  static identity() {
+  static identity(): MutableMatrix22 {
     return super.identity() as MutableMatrix22;
   }
 

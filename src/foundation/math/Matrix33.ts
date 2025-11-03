@@ -168,7 +168,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
    * @returns A new Matrix33 with all zero elements
    */
   static zero() {
-    return Matrix33.fromCopy9RowMajor(0, 0, 0, 0, 0, 0, 0, 0, 0);
+    return this.fromCopy9RowMajor(0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
 
   /**
@@ -242,7 +242,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
     const m21 = (mat._v[3] * mat._v[2] - mat._v[0] * mat._v[5]) / det;
     const m22 = (mat._v[0] * mat._v[4] - mat._v[3] * mat._v[1]) / det;
 
-    return Matrix33.fromCopy9RowMajor(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+    return this.fromCopy9RowMajor(m00, m01, m02, m10, m11, m12, m20, m21, m22);
   }
 
   /**
@@ -282,7 +282,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
   static rotateX(radian: number) {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
-    return Matrix33.fromCopy9RowMajor(1, 0, 0, 0, cos, -sin, 0, sin, cos);
+    return this.fromCopy9RowMajor(1, 0, 0, 0, cos, -sin, 0, sin, cos);
   }
 
   /**
@@ -293,7 +293,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
   static rotateY(radian: number) {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
-    return Matrix33.fromCopy9RowMajor(cos, 0, sin, 0, 1, 0, -sin, 0, cos);
+    return this.fromCopy9RowMajor(cos, 0, sin, 0, 1, 0, -sin, 0, cos);
   }
 
   /**
@@ -304,7 +304,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
   static rotateZ(radian: number) {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
-    return Matrix33.fromCopy9RowMajor(cos, -sin, 0, sin, cos, 0, 0, 0, 1);
+    return this.fromCopy9RowMajor(cos, -sin, 0, sin, cos, 0, 0, 0, 1);
   }
 
   /**
@@ -374,7 +374,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
     const m21 = yx21;
     const m22 = yx22;
 
-    return Matrix33.fromCopy9RowMajor(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+    return this.fromCopy9RowMajor(m00, m01, m02, m10, m11, m12, m20, m21, m22);
   }
 
   /**
@@ -392,7 +392,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
    * @returns A new scaling matrix
    */
   static scale(vec: IVector3) {
-    return Matrix33.fromCopy9RowMajor(vec._v[0], 0, 0, 0, vec._v[1], 0, 0, 0, vec._v[2]);
+    return this.fromCopy9RowMajor(vec._v[0], 0, 0, 0, vec._v[1], 0, 0, 0, vec._v[2]);
   }
 
   /**
@@ -421,7 +421,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
     const m12 = l_mat._v[1] * r_mat._v[6] + l_mat._v[4] * r_mat._v[7] + l_mat._v[7] * r_mat._v[8];
     const m22 = l_mat._v[2] * r_mat._v[6] + l_mat._v[5] * r_mat._v[7] + l_mat._v[8] * r_mat._v[8];
 
-    return Matrix33.fromCopy9RowMajor(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+    return this.fromCopy9RowMajor(m00, m01, m02, m10, m11, m12, m20, m21, m22);
   }
 
   /**

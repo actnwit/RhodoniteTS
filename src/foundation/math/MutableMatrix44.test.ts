@@ -17,3 +17,9 @@ test('Make MutableMatrix44 from Matrix44 (2)', () => {
 
   expect(b.m03).toBe(0);
 });
+
+test('static rotateY', () => {
+  const a = MutableMatrix44.rotateY(Math.PI / 2);
+
+  expect(a instanceof MutableMatrix44).toBe(true);
+});

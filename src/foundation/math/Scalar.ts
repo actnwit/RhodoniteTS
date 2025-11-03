@@ -178,7 +178,7 @@ export class Scalar extends Scalar_<Float32ArrayConstructor> implements IScalar 
    * @returns A new Scalar instance with value 0
    */
   static zero(): Scalar {
-    return Scalar.fromCopyNumber(0);
+    return super._fromCopyNumber(0, Float32Array) as Scalar;
   }
 
   /**
@@ -186,7 +186,7 @@ export class Scalar extends Scalar_<Float32ArrayConstructor> implements IScalar 
    * @returns A new Scalar instance with value 1
    */
   static one(): Scalar {
-    return Scalar.fromCopyNumber(1);
+    return super._fromCopyNumber(1, Float32Array) as Scalar;
   }
 
   /**
@@ -250,7 +250,7 @@ export class Scalard extends Scalar_<Float64ArrayConstructor> {
    * @returns A new Scalard instance with value 0
    */
   static zero(): Scalard {
-    return Scalard.fromCopyNumber(0);
+    return super._fromCopyNumber(0, Float64Array) as Scalard;
   }
 
   /**
@@ -258,7 +258,7 @@ export class Scalard extends Scalar_<Float64ArrayConstructor> {
    * @returns A new Scalard instance with value 1
    */
   static one(): Scalard {
-    return Scalard.fromCopyNumber(1);
+    return super._fromCopyNumber(1, Float64Array) as Scalard;
   }
 
   /**
