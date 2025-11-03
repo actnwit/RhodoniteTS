@@ -2,6 +2,7 @@ import type { Array16, Index } from '../../types/CommonTypes';
 import { Logger } from '../misc/Logger';
 import type { IMatrix33, IMatrix44, IMutableMatrix, IMutableMatrix44 } from './IMatrix';
 import type { IQuaternion } from './IQuaternion';
+import type { IVector3 } from './IVector';
 import { Matrix44 } from './Matrix44';
 import type { MutableVector3 } from './MutableVector3';
 import type { Quaternion } from './Quaternion';
@@ -27,7 +28,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @param val - The value to set
    */
-  public set m00(val) {
+  public set m00(val: number) {
     this._v[0] = val;
   }
 
@@ -36,7 +37,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns The value at position (0,0)
    */
-  public get m00() {
+  public get m00(): number {
     return this._v[0];
   }
 
@@ -45,7 +46,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @param val - The value to set
    */
-  public set m10(val) {
+  public set m10(val: number) {
     this._v[1] = val;
   }
 
@@ -54,7 +55,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns The value at position (1,0)
    */
-  public get m10() {
+  public get m10(): number {
     return this._v[1];
   }
 
@@ -63,7 +64,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @param val - The value to set
    */
-  public set m20(val) {
+  public set m20(val: number) {
     this._v[2] = val;
   }
 
@@ -72,7 +73,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns The value at position (2,0)
    */
-  public get m20() {
+  public get m20(): number {
     return this._v[2];
   }
 
@@ -81,7 +82,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @param val - The value to set
    */
-  public set m30(val) {
+  public set m30(val: number) {
     this._v[3] = val;
   }
 
@@ -90,7 +91,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns The value at position (3,0)
    */
-  public get m30() {
+  public get m30(): number {
     return this._v[3];
   }
 
@@ -99,7 +100,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @param val - The value to set
    */
-  public set m01(val) {
+  public set m01(val: number) {
     this._v[4] = val;
   }
 
@@ -108,7 +109,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns The value at position (0,1)
    */
-  public get m01() {
+  public get m01(): number {
     return this._v[4];
   }
 
@@ -117,7 +118,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @param val - The value to set
    */
-  public set m11(val) {
+  public set m11(val: number) {
     this._v[5] = val;
   }
 
@@ -126,7 +127,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns The value at position (1,1)
    */
-  public get m11() {
+  public get m11(): number {
     return this._v[5];
   }
 
@@ -135,7 +136,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @param val - The value to set
    */
-  public set m21(val) {
+  public set m21(val: number) {
     this._v[6] = val;
   }
 
@@ -144,7 +145,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns The value at position (2,1)
    */
-  public get m21() {
+  public get m21(): number {
     return this._v[6];
   }
 
@@ -153,7 +154,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @param val - The value to set
    */
-  public set m31(val) {
+  public set m31(val: number) {
     this._v[7] = val;
   }
 
@@ -162,7 +163,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns The value at position (3,1)
    */
-  public get m31() {
+  public get m31(): number {
     return this._v[7];
   }
 
@@ -171,7 +172,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @param val - The value to set
    */
-  public set m02(val) {
+  public set m02(val: number) {
     this._v[8] = val;
   }
 
@@ -180,7 +181,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns The value at position (0,2)
    */
-  public get m02() {
+  public get m02(): number {
     return this._v[8];
   }
 
@@ -189,7 +190,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @param val - The value to set
    */
-  public set m12(val) {
+  public set m12(val: number) {
     this._v[9] = val;
   }
 
@@ -198,7 +199,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns The value at position (1,2)
    */
-  public get m12() {
+  public get m12(): number {
     return this._v[9];
   }
 
@@ -207,7 +208,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @param val - The value to set
    */
-  public set m22(val) {
+  public set m22(val: number) {
     this._v[10] = val;
   }
 
@@ -216,7 +217,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns The value at position (2,2)
    */
-  public get m22() {
+  public get m22(): number {
     return this._v[10];
   }
 
@@ -225,7 +226,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @param val - The value to set
    */
-  public set m32(val) {
+  public set m32(val: number) {
     this._v[11] = val;
   }
 
@@ -234,7 +235,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns The value at position (3,2)
    */
-  public get m32() {
+  public get m32(): number {
     return this._v[11];
   }
 
@@ -243,7 +244,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @param val - The value to set
    */
-  public set m03(val) {
+  public set m03(val: number) {
     this._v[12] = val;
   }
 
@@ -252,7 +253,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns The value at position (0,3)
    */
-  public get m03() {
+  public get m03(): number {
     return this._v[12];
   }
 
@@ -261,7 +262,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @param val - The value to set
    */
-  public set m13(val) {
+  public set m13(val: number) {
     this._v[13] = val;
   }
 
@@ -270,7 +271,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns The value at position (1,3)
    */
-  public get m13() {
+  public get m13(): number {
     return this._v[13];
   }
 
@@ -279,7 +280,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @param val - The value to set
    */
-  public set m23(val) {
+  public set m23(val: number) {
     this._v[14] = val;
   }
 
@@ -288,7 +289,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns The value at position (2,3)
    */
-  public get m23() {
+  public get m23(): number {
     return this._v[14];
   }
 
@@ -297,7 +298,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @param val - The value to set
    */
-  public set m33(val) {
+  public set m33(val: number) {
     this._v[15] = val;
   }
 
@@ -306,7 +307,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns The value at position (3,3)
    */
-  public get m33() {
+  public get m33(): number {
     return this._v[15];
   }
 
@@ -315,7 +316,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns The X translation value
    */
-  public get translateX() {
+  public get translateX(): number {
     return this._v[12];
   }
 
@@ -333,7 +334,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns The Y translation value
    */
-  public get translateY() {
+  public get translateY(): number {
     return this._v[13];
   }
 
@@ -351,7 +352,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns The Z translation value
    */
-  public get translateZ() {
+  public get translateZ(): number {
     return this._v[14];
   }
 
@@ -369,7 +370,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns The string 'MutableMatrix44'
    */
-  get className() {
+  get className(): string {
     return 'MutableMatrix44';
   }
 
@@ -378,7 +379,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns A new MutableMatrix44 instance with all elements set to 0
    */
-  static zero() {
+  static zero(): MutableMatrix44 {
     return MutableMatrix44.fromCopy16RowMajor(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
 
@@ -387,7 +388,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns A new MutableMatrix44 instance representing the 4x4 identity matrix
    */
-  static identity() {
+  static identity(): MutableMatrix44 {
     return MutableMatrix44.fromCopy16RowMajor(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 
@@ -416,7 +417,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param mat - The matrix to invert
    * @returns A new MutableMatrix44 instance that is the inverse of the input matrix
    */
-  static invert(mat: Matrix44) {
+  static invert(mat: IMatrix44): MutableMatrix44 {
     return super.invert(mat) as MutableMatrix44;
   }
 
@@ -426,7 +427,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param vec - The translation vector
    * @returns A new MutableMatrix44 instance representing the translation transformation
    */
-  static translate(vec: Vector3) {
+  static translate(vec: IVector3): MutableMatrix44 {
     return super.translate(vec) as MutableMatrix44;
   }
 
@@ -436,7 +437,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param radian - The rotation angle in radians
    * @returns A new MutableMatrix44 instance representing the X-axis rotation
    */
-  static rotateX(radian: number) {
+  static rotateX(radian: number): MutableMatrix44 {
     return super.rotateX(radian) as MutableMatrix44;
   }
 
@@ -446,7 +447,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param radian - The rotation angle in radians
    * @returns A new MutableMatrix44 instance representing the Y-axis rotation
    */
-  static rotateY(radian: number) {
+  static rotateY(radian: number): MutableMatrix44 {
     return super.rotateY(radian) as MutableMatrix44;
   }
 
@@ -456,7 +457,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param radian - The rotation angle in radians
    * @returns A new MutableMatrix44 instance representing the Z-axis rotation
    */
-  static rotateZ(radian: number) {
+  static rotateZ(radian: number): MutableMatrix44 {
     return super.rotateZ(radian) as MutableMatrix44;
   }
 
@@ -468,7 +469,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param z - Rotation angle around Z-axis in radians
    * @returns A new MutableMatrix44 instance representing the combined rotation
    */
-  static rotateXYZ(x: number, y: number, z: number) {
+  static rotateXYZ(x: number, y: number, z: number): MutableMatrix44 {
     return super.rotateXYZ(x, y, z) as MutableMatrix44;
   }
 
@@ -478,7 +479,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param vec - Vector containing rotation angles (x, y, z) in radians
    * @returns A new MutableMatrix44 instance representing the rotation transformation
    */
-  static rotate(vec: Vector3) {
+  static rotate(vec: IVector3): MutableMatrix44 {
     return super.rotateXYZ(vec._v[0], vec._v[1], vec._v[2]) as MutableMatrix44;
   }
 
@@ -488,7 +489,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param vec - The scaling factors for X, Y, and Z axes
    * @returns A new MutableMatrix44 instance representing the scaling transformation
    */
-  static scale(vec: Vector3) {
+  static scale(vec: IVector3): MutableMatrix44 {
     return super.scale(vec) as MutableMatrix44;
   }
 
@@ -499,7 +500,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param r_mat - The right matrix in the multiplication
    * @returns A new MutableMatrix44 instance representing the product l_mat * r_mat
    */
-  static multiply(l_mat: Matrix44, r_mat: Matrix44) {
+  static multiply(l_mat: IMatrix44, r_mat: IMatrix44): MutableMatrix44 {
     return super.multiply(l_mat, r_mat) as MutableMatrix44;
   }
 
@@ -508,7 +509,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns A new MutableMatrix44 instance with the same values as this matrix
    */
-  clone() {
+  clone(): MutableMatrix44 {
     const result = super.clone() as MutableMatrix44;
     return result;
   }
@@ -518,7 +519,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns A new MutableMatrix44 instance containing only the rotation transformation
    */
-  getRotate() {
+  getRotate(): MutableMatrix44 {
     const rotateMat = super.getRotate() as MutableMatrix44;
     return rotateMat;
   }
@@ -528,7 +529,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns A new MutableVector3 instance containing the translation values
    */
-  getTranslate() {
+  getTranslate(): MutableVector3 {
     const rotateMat = super.getTranslate() as MutableVector3;
     return rotateMat;
   }
@@ -539,7 +540,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param outVec - The vector to store the translation values
    * @returns The output vector with translation values
    */
-  getTranslateTo(outVec: MutableVector3) {
+  getTranslateTo(outVec: MutableVector3): MutableVector3 {
     const rotateMat = super.getTranslateTo(outVec) as MutableVector3;
     return rotateMat;
   }
@@ -549,7 +550,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns A new MutableVector3 instance containing the scale values for each axis
    */
-  getScale() {
+  getScale(): MutableVector3 {
     const rotateMat = super.getScale() as MutableVector3;
     return rotateMat;
   }
@@ -559,7 +560,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns The internal Float32Array with matrix values in column-major order
    */
-  raw() {
+  raw(): Float32Array {
     return this._v;
   }
 
@@ -571,7 +572,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param value - The value to set
    * @returns This matrix instance for method chaining
    */
-  setAt(row_i: number, column_i: number, value: number) {
+  setAt(row_i: number, column_i: number, value: number): MutableMatrix44 {
     this._v[row_i + column_i * 4] = value;
     return this;
   }
@@ -615,7 +616,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
     m31: number,
     m32: number,
     m33: number
-  ) {
+  ): MutableMatrix44 {
     this._v[0] = m00;
     this._v[4] = m01;
     this._v[8] = m02;
@@ -642,7 +643,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param mat - The source matrix to copy from
    * @returns This matrix instance for method chaining
    */
-  copyComponents(mat: IMatrix44) {
+  copyComponents(mat: IMatrix44): MutableMatrix44 {
     this._v[0] = mat._v[0];
     this._v[4] = mat._v[4];
     this._v[8] = mat._v[8];
@@ -668,7 +669,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns This matrix instance for method chaining
    */
-  zero() {
+  zero(): MutableMatrix44 {
     return this.setComponents(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
 
@@ -677,11 +678,11 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns This matrix instance for method chaining
    */
-  identity() {
+  identity(): MutableMatrix44 {
     return this.setComponents(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 
-  _swap(l: Index, r: Index) {
+  _swap(l: Index, r: Index): void {
     const temp = this._v[l];
     this._v[l] = this._v[r];
     this._v[r] = temp;
@@ -692,7 +693,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns This matrix instance for method chaining
    */
-  transpose() {
+  transpose(): MutableMatrix44 {
     this._swap(1, 4);
     this._swap(2, 8);
     this._swap(3, 12);
@@ -709,7 +710,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns This matrix instance for method chaining
    */
-  invert() {
+  invert(): MutableMatrix44 {
     const n00 = this._v[0] * this._v[5] - this._v[4] * this._v[1];
     const n01 = this._v[0] * this._v[9] - this._v[8] * this._v[1];
     const n02 = this._v[0] * this._v[13] - this._v[12] * this._v[1];
@@ -754,7 +755,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param vec - The translation vector
    * @returns This matrix instance for method chaining
    */
-  translate(vec: Vector3) {
+  translate(vec: IVector3): MutableMatrix44 {
     return this.setComponents(1, 0, 0, vec._v[0], 0, 1, 0, vec._v[1], 0, 0, 1, vec._v[2], 0, 0, 0, 1);
   }
 
@@ -764,7 +765,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param vec - The translation vector to set
    * @returns This matrix instance for method chaining
    */
-  putTranslate(vec: Vector3) {
+  putTranslate(vec: IVector3): MutableMatrix44 {
     this._v[12] = vec._v[0];
     this._v[13] = vec._v[1];
     this._v[14] = vec._v[2];
@@ -777,7 +778,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param vec - The translation vector to add
    * @returns This matrix instance for method chaining
    */
-  addTranslate(vec: Vector3) {
+  addTranslate(vec: IVector3): MutableMatrix44 {
     this._v[12] += vec._v[0];
     this._v[13] += vec._v[1];
     this._v[14] += vec._v[2];
@@ -790,7 +791,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param radian - The rotation angle in radians
    * @returns This matrix instance for method chaining
    */
-  rotateX(radian: number) {
+  rotateX(radian: number): MutableMatrix44 {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
     return this.setComponents(1, 0, 0, 0, 0, cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1);
@@ -802,7 +803,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param radian - The rotation angle in radians
    * @returns This matrix instance for method chaining
    */
-  rotateY(radian: number) {
+  rotateY(radian: number): MutableMatrix44 {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
     return this.setComponents(cos, 0, sin, 0, 0, 1, 0, 0, -sin, 0, cos, 0, 0, 0, 0, 1);
@@ -814,7 +815,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param radian - The rotation angle in radians
    * @returns This matrix instance for method chaining
    */
-  rotateZ(radian: number) {
+  rotateZ(radian: number): MutableMatrix44 {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
     return this.setComponents(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
@@ -829,7 +830,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param z - Rotation angle around Z-axis in radians
    * @returns This matrix instance for method chaining
    */
-  rotateXYZ(x: number, y: number, z: number) {
+  rotateXYZ(x: number, y: number, z: number): MutableMatrix44 {
     const cosX = Math.cos(x);
     const sinX = Math.sin(x);
     const cosY = Math.cos(y);
@@ -906,7 +907,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param vec - Vector containing rotation angles (x, y, z) in radians
    * @returns This matrix instance for method chaining
    */
-  rotate(vec: Vector3) {
+  rotate(vec: IVector3): MutableMatrix44 {
     return this.rotateXYZ(vec._v[0], vec._v[1], vec._v[2]);
   }
 
@@ -916,7 +917,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param vec - The scaling factors for X, Y, and Z axes
    * @returns This matrix instance for method chaining
    */
-  scale(vec: Vector3) {
+  scale(vec: IVector3): MutableMatrix44 {
     return this.setComponents(vec._v[0], 0, 0, 0, 0, vec._v[1], 0, 0, 0, 0, vec._v[2], 0, 0, 0, 0, 1);
   }
 
@@ -927,7 +928,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param vec - The scaling factors for X, Y, and Z axes
    * @returns This matrix instance for method chaining
    */
-  multiplyScale(vec: Vector3) {
+  multiplyScale(vec: IVector3): MutableMatrix44 {
     this._v[0] *= vec._v[0];
     this._v[4] *= vec._v[0];
     this._v[8] *= vec._v[0];
@@ -1020,7 +1021,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param quat - The quaternion to convert to a rotation matrix
    * @returns This matrix instance for method chaining
    */
-  fromQuaternion(quat: IQuaternion) {
+  fromQuaternion(quat: IQuaternion): MutableMatrix44 {
     const sx = quat._v[0] * quat._v[0];
     const sy = quat._v[1] * quat._v[1];
     const sz = quat._v[2] * quat._v[2];
@@ -1075,7 +1076,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
     m31: number,
     m32: number,
     m33: number
-  ) {
+  ): MutableMatrix44 {
     const v = new Float32Array(16);
     v[0] = m00;
     v[4] = m01;
@@ -1119,7 +1120,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
     m13: number,
     m23: number,
     m33: number
-  ) {
+  ): MutableMatrix44 {
     const v = new Float32Array(16);
     v[0] = m00;
     v[4] = m01;
@@ -1148,7 +1149,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param mat - The source Matrix44 to copy from
    * @returns A new MutableMatrix44 instance with copied data
    */
-  static fromCopyMatrix44(mat: IMatrix44) {
+  static fromCopyMatrix44(mat: IMatrix44): MutableMatrix44 {
     const v = new Float32Array(16);
     v.set(mat._v);
     return new MutableMatrix44(v);
@@ -1162,7 +1163,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param float32Array - A Float32Array containing 16 elements in column-major order
    * @returns A new MutableMatrix44 instance using the provided array
    */
-  static fromFloat32ArrayColumnMajor(float32Array: Float32Array) {
+  static fromFloat32ArrayColumnMajor(float32Array: Float32Array): MutableMatrix44 {
     return new MutableMatrix44(float32Array);
   }
 
@@ -1174,7 +1175,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param float32Array - A Float32Array containing 16 elements in column-major order
    * @returns A new MutableMatrix44 instance with copied data
    */
-  static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array) {
+  static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array): MutableMatrix44 {
     const v = new Float32Array(16);
     v.set(float32Array);
     return new MutableMatrix44(v);
@@ -1187,7 +1188,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param array - A Float32Array containing 16 elements in row-major order
    * @returns A new MutableMatrix44 instance with data converted to column-major order
    */
-  static fromCopyFloat32ArrayRowMajor(array: Float32Array) {
+  static fromCopyFloat32ArrayRowMajor(array: Float32Array): MutableMatrix44 {
     const v = new Float32Array(16);
     v[0] = array[0];
     v[4] = array[1];
@@ -1216,7 +1217,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param mat - The source 3x3 matrix to convert
    * @returns A new MutableMatrix44 instance with the 3x3 matrix embedded
    */
-  static fromCopyMatrix33(mat: IMatrix33) {
+  static fromCopyMatrix33(mat: IMatrix33): MutableMatrix44 {
     const v = new Float32Array(16);
     v[0] = mat._v[0];
     v[4] = mat._v[3];
@@ -1244,7 +1245,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param array - An Array16 containing 16 elements in column-major order
    * @returns A new MutableMatrix44 instance with copied data
    */
-  static fromCopyArray16ColumnMajor(array: Array16<number>) {
+  static fromCopyArray16ColumnMajor(array: Array16<number>): MutableMatrix44 {
     const v = new Float32Array(16);
     v.set(array);
     return new MutableMatrix44(v);
@@ -1257,7 +1258,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param array - An array containing at least 16 elements in column-major order
    * @returns A new MutableMatrix44 instance with copied data
    */
-  static fromCopyArrayColumnMajor(array: Array<number>) {
+  static fromCopyArrayColumnMajor(array: Array<number>): MutableMatrix44 {
     const v = new Float32Array(16);
     v.set(array);
     return new MutableMatrix44(v);
@@ -1270,7 +1271,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param array - An Array16 containing 16 elements in row-major order
    * @returns A new MutableMatrix44 instance with data converted to column-major order
    */
-  static fromCopyArray16RowMajor(array: Array16<number>) {
+  static fromCopyArray16RowMajor(array: Array16<number>): MutableMatrix44 {
     const v = new Float32Array(16);
     v[0] = array[0];
     v[4] = array[1];
@@ -1299,7 +1300,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param array - An array containing at least 16 elements in row-major order
    * @returns A new MutableMatrix44 instance with data converted to column-major order
    */
-  static fromCopyArrayRowMajor(array: Array<number>) {
+  static fromCopyArrayRowMajor(array: Array<number>): MutableMatrix44 {
     const v = new Float32Array(16);
     v[0] = array[0];
     v[4] = array[1];
@@ -1326,7 +1327,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param q - The quaternion to convert
    * @returns A new MutableMatrix44 instance representing the rotation
    */
-  static fromCopyQuaternion(q: Quaternion) {
+  static fromCopyQuaternion(q: IQuaternion): MutableMatrix44 {
     const sx = q._v[0] * q._v[0];
     const sy = q._v[1] * q._v[1];
     const sz = q._v[2] * q._v[2];

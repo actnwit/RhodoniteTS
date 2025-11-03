@@ -1,5 +1,5 @@
 import type { FloatTypedArrayConstructor, TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
-import { CompositionType } from '../definitions/CompositionType';
+import { CompositionType, type CompositionTypeEnum } from '../definitions/CompositionType';
 import { AbstractVector } from './AbstractVector';
 import type { IScalar } from './IVector';
 import { MathUtil } from './MathUtil';
@@ -137,7 +137,7 @@ export class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
    * Gets the composition type for scalar values.
    * @returns The scalar composition type
    */
-  static get compositionType() {
+  static get compositionType(): CompositionTypeEnum {
     return CompositionType.Scalar;
   }
 

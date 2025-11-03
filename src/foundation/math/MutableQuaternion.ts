@@ -81,7 +81,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * Gets the class name for identification purposes.
    * @returns The string 'MutableQuaternion'
    */
-  get className() {
+  get className(): string {
     return 'MutableQuaternion';
   }
 
@@ -89,7 +89,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * Creates an identity quaternion (0, 0, 0, 1).
    * @returns A new MutableQuaternion representing no rotation
    */
-  static identity() {
+  static identity(): MutableQuaternion {
     return MutableQuaternion.fromCopy4(0, 0, 0, 1);
   }
 
@@ -97,7 +97,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * Creates a dummy quaternion with empty array (for initialization purposes).
    * @returns A new MutableQuaternion with zero-length array
    */
-  static dummy() {
+  static dummy(): MutableQuaternion {
     return new this(new Float32Array(0));
   }
 
@@ -106,7 +106,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param quat - The quaternion to invert
    * @returns A new MutableQuaternion representing the inverse rotation
    */
-  static invert(quat: IQuaternion) {
+  static invert(quat: IQuaternion): MutableQuaternion {
     return super.invert(quat) as MutableQuaternion;
   }
 
@@ -117,7 +117,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param ratio - Interpolation factor (0.0 to 1.0)
    * @returns A new MutableQuaternion representing the interpolated rotation
    */
-  static qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number) {
+  static qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): MutableQuaternion {
     return super.qlerp(l_quat, r_quat, ratio) as MutableQuaternion;
   }
 
@@ -128,7 +128,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param ratio - Interpolation factor (0.0 to 1.0)
    * @returns A new MutableQuaternion representing the interpolated rotation
    */
-  static lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number) {
+  static lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): MutableQuaternion {
     return super.lerp(l_quat, r_quat, ratio) as MutableQuaternion;
   }
 
@@ -138,7 +138,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param radian - The rotation angle in radians
    * @returns A new MutableQuaternion representing the axis-angle rotation
    */
-  static axisAngle(vec: IVector3, radian: number) {
+  static axisAngle(vec: IVector3, radian: number): MutableQuaternion {
     return super.axisAngle(vec, radian) as MutableQuaternion;
   }
 
@@ -147,7 +147,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param mat - The 4x4 transformation matrix
    * @returns A new MutableQuaternion representing the matrix's rotation
    */
-  static fromMatrix(mat: IMatrix44) {
+  static fromMatrix(mat: IMatrix44): MutableQuaternion {
     return super.fromMatrix(mat) as MutableQuaternion;
   }
 
@@ -156,7 +156,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param vec - The position vector
    * @returns A new MutableQuaternion with position data
    */
-  static fromPosition(vec: IVector3) {
+  static fromPosition(vec: IVector3): MutableQuaternion {
     return super.fromPosition(vec) as MutableQuaternion;
   }
 
@@ -166,7 +166,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param r_quat - The right quaternion
    * @returns A new MutableQuaternion representing the sum
    */
-  static add(l_quat: IQuaternion, r_quat: IQuaternion) {
+  static add(l_quat: IQuaternion, r_quat: IQuaternion): MutableQuaternion {
     return super.add(l_quat, r_quat) as MutableQuaternion;
   }
 
@@ -176,7 +176,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param r_quat - The right quaternion
    * @returns A new MutableQuaternion representing the difference
    */
-  static subtract(l_quat: IQuaternion, r_quat: IQuaternion) {
+  static subtract(l_quat: IQuaternion, r_quat: IQuaternion): MutableQuaternion {
     return super.subtract(l_quat, r_quat) as MutableQuaternion;
   }
 
@@ -186,7 +186,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param r_quat - The right quaternion
    * @returns A new MutableQuaternion representing the composed rotation
    */
-  static multiply(l_quat: IQuaternion, r_quat: IQuaternion) {
+  static multiply(l_quat: IQuaternion, r_quat: IQuaternion): MutableQuaternion {
     return super.multiply(l_quat, r_quat) as MutableQuaternion;
   }
 
@@ -196,7 +196,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param value - The scalar value
    * @returns A new MutableQuaternion representing the scaled quaternion
    */
-  static multiplyNumber(quat: IQuaternion, value: number) {
+  static multiplyNumber(quat: IQuaternion, value: number): MutableQuaternion {
     return super.multiplyNumber(quat, value) as MutableQuaternion;
   }
 
@@ -206,7 +206,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param value - The scalar value (must not be zero)
    * @returns A new MutableQuaternion representing the scaled quaternion
    */
-  static divideNumber(quat: IQuaternion, value: number) {
+  static divideNumber(quat: IQuaternion, value: number): MutableQuaternion {
     return super.divideNumber(quat, value) as MutableQuaternion;
   }
 
@@ -214,7 +214,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * Gets the raw Float32Array containing the quaternion components.
    * @returns The underlying Float32Array [x, y, z, w]
    */
-  raw() {
+  raw(): Float32Array {
     return this._v;
   }
 
@@ -224,7 +224,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param value - The value to set
    * @returns This instance for method chaining
    */
-  setAt(i: number, value: number) {
+  setAt(i: number, value: number): MutableQuaternion {
     this._v[i] = value;
     return this;
   }
@@ -237,7 +237,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param w - The w component
    * @returns This instance for method chaining
    */
-  setComponents(x: number, y: number, z: number, w: number) {
+  setComponents(x: number, y: number, z: number, w: number): MutableQuaternion {
     this._v[0] = x;
     this._v[1] = y;
     this._v[2] = z;
@@ -250,7 +250,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param quat - The quaternion to copy from
    * @returns This instance for method chaining
    */
-  copyComponents(quat: IQuaternion) {
+  copyComponents(quat: IQuaternion): MutableQuaternion {
     return this.setComponents(quat._v[0], quat._v[1], quat._v[2], quat._v[3]);
   }
 
@@ -258,7 +258,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * Sets this quaternion to the identity quaternion (0, 0, 0, 1).
    * @returns This instance for method chaining
    */
-  identity() {
+  identity(): MutableQuaternion {
     return this.setComponents(0, 0, 0, 1);
   }
 
@@ -266,7 +266,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * Normalizes this quaternion to unit length in place.
    * @returns This instance for method chaining
    */
-  normalize() {
+  normalize(): MutableQuaternion {
     const norm = this.length();
     return this.divideNumber(norm);
   }
@@ -275,7 +275,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * Inverts this quaternion in place (conjugate divided by magnitude squared).
    * @returns This instance for method chaining
    */
-  invert() {
+  invert(): MutableQuaternion {
     const norm = this.length();
     if (norm === 0.0) {
       return this; // [0, 0, 0, 0]
@@ -295,7 +295,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param ratio - Interpolation factor (0.0 to 1.0)
    * @returns This instance for method chaining
    */
-  qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number) {
+  qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): MutableQuaternion {
     let qr =
       l_quat._v[3] * r_quat._v[3] +
       l_quat._v[0] * r_quat._v[0] +
@@ -342,7 +342,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param ratio - Interpolation factor (0.0 to 1.0)
    * @returns This instance for method chaining
    */
-  lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number) {
+  lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): MutableQuaternion {
     this._v[0] = l_quat._v[0] * (1 - ratio) + r_quat._v[0] * ratio;
     this._v[1] = l_quat._v[1] * (1 - ratio) + r_quat._v[1] * ratio;
     this._v[2] = l_quat._v[2] * (1 - ratio) + r_quat._v[2] * ratio;
@@ -357,7 +357,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param radian - The rotation angle in radians
    * @returns This instance for method chaining
    */
-  axisAngle(vec: IVector3, radian: number) {
+  axisAngle(vec: IVector3, radian: number): MutableQuaternion {
     const halfAngle = 0.5 * radian;
     const sin = Math.sin(halfAngle);
 
@@ -380,7 +380,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param mat - The 4x4 transformation matrix
    * @returns This instance for method chaining
    */
-  fromMatrix(mat: IMatrix44) {
+  fromMatrix(mat: IMatrix44): MutableQuaternion {
     let sx = Math.hypot(mat.m00, mat.m10, mat.m20);
     const sy = Math.hypot(mat.m01, mat.m11, mat.m21);
     const sz = Math.hypot(mat.m02, mat.m12, mat.m22);
@@ -443,7 +443,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param vec - The position vector
    * @returns This instance for method chaining
    */
-  fromPosition(vec: IVector3) {
+  fromPosition(vec: IVector3): MutableQuaternion {
     return this.setComponents(vec._v[0], vec._v[1], vec._v[2], 0);
   }
 
@@ -452,7 +452,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param quat - The quaternion to add
    * @returns This instance for method chaining
    */
-  add(quat: IQuaternion) {
+  add(quat: IQuaternion): MutableQuaternion {
     this._v[0] += quat._v[0];
     this._v[1] += quat._v[1];
     this._v[2] += quat._v[2];
@@ -465,7 +465,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param quat - The quaternion to subtract
    * @returns This instance for method chaining
    */
-  subtract(quat: IQuaternion) {
+  subtract(quat: IQuaternion): MutableQuaternion {
     this._v[0] -= quat._v[0];
     this._v[1] -= quat._v[1];
     this._v[2] -= quat._v[2];
@@ -479,7 +479,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param quat - The quaternion to multiply by
    * @returns This instance for method chaining
    */
-  multiply(quat: IQuaternion) {
+  multiply(quat: IQuaternion): MutableQuaternion {
     const x = quat._v[3] * this._v[0] + quat._v[2] * this._v[1] + quat._v[1] * this._v[2] - quat._v[0] * this._v[3];
     const y = -quat._v[2] * this._v[0] + quat._v[3] * this._v[1] + quat._v[0] * this._v[2] - quat._v[1] * this._v[3];
     const z = quat._v[1] * this._v[0] + quat._v[0] * this._v[1] + quat._v[3] * this._v[2] - quat._v[2] * this._v[3];
@@ -492,7 +492,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param value - The scalar value to multiply by
    * @returns This instance for method chaining
    */
-  multiplyNumber(value: number) {
+  multiplyNumber(value: number): MutableQuaternion {
     this._v[0] *= value;
     this._v[1] *= value;
     this._v[2] *= value;
@@ -505,7 +505,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param value - The scalar value to divide by (must not be zero)
    * @returns This instance for method chaining
    */
-  divideNumber(value: number) {
+  divideNumber(value: number): MutableQuaternion {
     if (value !== 0) {
       this._v[0] /= value;
       this._v[1] /= value;
@@ -525,8 +525,8 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * Creates a copy of this quaternion.
    * @returns A new IMutableQuaternion with the same component values
    */
-  clone(): IMutableQuaternion {
-    return MutableQuaternion.fromCopy4(this._v[0], this._v[1], this._v[2], this._v[3]) as IMutableQuaternion;
+  clone(): MutableQuaternion {
+    return MutableQuaternion.fromCopy4(this._v[0], this._v[1], this._v[2], this._v[3]);
   }
 
   /**
@@ -534,7 +534,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param array - The Float32Array containing quaternion components
    * @returns A new MutableQuaternion instance
    */
-  static fromFloat32Array(array: Float32Array) {
+  static fromFloat32Array(array: Float32Array): MutableQuaternion {
     return new MutableQuaternion(array);
   }
 
@@ -543,7 +543,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param array - Array containing [x, y, z, w] components
    * @returns A new MutableQuaternion instance
    */
-  static fromCopyArray4(array: Array4<number>) {
+  static fromCopyArray4(array: Array4<number>): MutableQuaternion {
     return new MutableQuaternion(new Float32Array(array));
   }
 
@@ -552,7 +552,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param array - Array containing quaternion components
    * @returns A new MutableQuaternion instance
    */
-  static fromCopyArray(array: Array<number>) {
+  static fromCopyArray(array: Array<number>): MutableQuaternion {
     return new MutableQuaternion(new Float32Array(array.slice(0, 4)));
   }
 
@@ -564,7 +564,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param w - The w component
    * @returns A new MutableQuaternion instance
    */
-  static fromCopy4(x: number, y: number, z: number, w: number) {
+  static fromCopy4(x: number, y: number, z: number, w: number): MutableQuaternion {
     return new MutableQuaternion(new Float32Array([x, y, z, w]));
   }
 
@@ -573,7 +573,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param quat - The quaternion to copy from
    * @returns A new MutableQuaternion instance
    */
-  static fromCopyQuaternion(quat: IQuaternion) {
+  static fromCopyQuaternion(quat: IQuaternion): MutableQuaternion {
     const v = new Float32Array(4);
     v[0] = quat._v[0];
     v[1] = quat._v[1];
@@ -587,7 +587,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param vec - The 4D vector to copy from
    * @returns A new MutableQuaternion instance
    */
-  static fromCopyVector4(vec: IVector4) {
+  static fromCopyVector4(vec: IVector4): MutableQuaternion {
     const v = new Float32Array(4);
     v[0] = vec._v[0];
     v[1] = vec._v[1];
@@ -602,7 +602,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
    * @param x - The logarithmic quaternion to convert
    * @returns A new MutableQuaternion instance
    */
-  static fromCopyLogQuaternion(x: ILogQuaternion) {
+  static fromCopyLogQuaternion(x: ILogQuaternion): MutableQuaternion {
     const theta = x._v[0] * x._v[0] + x._v[1] * x._v[1] + x._v[2] * x._v[2];
     const sin = Math.sin(theta);
     const v = new Float32Array(4);
