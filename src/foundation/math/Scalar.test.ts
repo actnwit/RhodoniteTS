@@ -1,5 +1,5 @@
-import { Scalar, Scalard } from './Scalar';
 import { CompositionType } from '../definitions/CompositionType';
+import { Scalar, Scalard } from './Scalar';
 
 describe('Scalar', () => {
   test('Scalar is immutable', () => {
@@ -67,7 +67,7 @@ describe('Scalar', () => {
       const scalar1 = Scalar.fromCopyNumber(1.0);
       const scalar2 = Scalar.fromCopyNumber(1.0);
       const scalar3 = Scalar.fromCopyNumber(1.0000001);
-      
+
       expect(scalar1.isStrictEqual(scalar2)).toBe(true);
       expect(scalar1.isStrictEqual(scalar3)).toBe(false);
     });
@@ -76,7 +76,7 @@ describe('Scalar', () => {
       const scalar1 = Scalar.fromCopyNumber(1.0);
       const scalar2 = Scalar.fromCopyNumber(1.0 + Number.EPSILON / 2);
       const scalar3 = Scalar.fromCopyNumber(1.1);
-      
+
       expect(scalar1.isEqual(scalar2)).toBe(true);
       expect(scalar1.isEqual(scalar3)).toBe(false);
     });
@@ -85,7 +85,7 @@ describe('Scalar', () => {
       const scalar1 = Scalar.fromCopyNumber(1.0);
       const scalar2 = Scalar.fromCopyNumber(1.05);
       const scalar3 = Scalar.fromCopyNumber(1.15);
-      
+
       expect(scalar1.isEqual(scalar2, 0.1)).toBe(true);
       expect(scalar1.isEqual(scalar3, 0.1)).toBe(false);
     });
@@ -95,7 +95,7 @@ describe('Scalar', () => {
     test('glslStrAsFloat returns correct GLSL float representation', () => {
       const scalar1 = Scalar.fromCopyNumber(5);
       const scalar2 = Scalar.fromCopyNumber(3.125); // Use exactly representable float
-      
+
       expect(scalar1.glslStrAsFloat).toBe('5.0');
       expect(scalar2.glslStrAsFloat).toBe('3.125');
     });
@@ -104,7 +104,7 @@ describe('Scalar', () => {
       const scalar1 = Scalar.fromCopyNumber(5.7);
       const scalar2 = Scalar.fromCopyNumber(-4.2);
       const scalar3 = Scalar.fromCopyNumber(10);
-      
+
       expect(scalar1.glslStrAsInt).toBe('5');
       // Math.floor(-4.2) = -5, test the actual behavior
       expect(scalar2.glslStrAsInt).toBe(Math.floor(scalar2.getValue()).toString());
@@ -116,7 +116,7 @@ describe('Scalar', () => {
     test('wgslStrAsFloat returns correct WGSL float representation', () => {
       const scalar1 = Scalar.fromCopyNumber(5);
       const scalar2 = Scalar.fromCopyNumber(2.75); // Use exactly representable float
-      
+
       expect(scalar1.wgslStrAsFloat).toBe('5.0');
       expect(scalar2.wgslStrAsFloat).toBe('2.75');
     });
@@ -125,7 +125,7 @@ describe('Scalar', () => {
       const scalar1 = Scalar.fromCopyNumber(7.8);
       const scalar2 = Scalar.fromCopyNumber(-5.2);
       const scalar3 = Scalar.fromCopyNumber(15);
-      
+
       expect(scalar1.wgslStrAsInt).toBe('7');
       // Math.floor(-5.2) = -6, test the actual behavior
       expect(scalar2.wgslStrAsInt).toBe(Math.floor(scalar2.getValue()).toString());
@@ -142,7 +142,7 @@ describe('Scalar', () => {
     test('clone creates a copy of the scalar', () => {
       const original = Scalar.fromCopyNumber(99);
       const cloned = original.clone();
-      
+
       expect(cloned.getValue()).toBe(99);
       expect(cloned).not.toBe(original); // Different instances
       expect(cloned.raw).not.toBe(original.raw); // Different underlying arrays (deep copy)
@@ -151,10 +151,10 @@ describe('Scalar', () => {
     test('clone creates independent copy (modifying original does not affect clone)', () => {
       const original = Scalar.fromCopyNumber(42);
       const cloned = original.clone();
-      
+
       // Verify original independence by modifying the underlying array
       original.raw[0] = 100;
-      
+
       expect(original.getValue()).toBe(100);
       expect(cloned.getValue()).toBe(42); // Clone should remain unchanged
     });
@@ -179,19 +179,19 @@ describe('Scalar', () => {
 
   describe('Edge cases', () => {
     test('handles positive infinity', () => {
-      const scalar = Scalar.fromCopyNumber(Infinity);
-      expect(scalar.getValue()).toBe(Infinity);
+      const scalar = Scalar.fromCopyNumber(Number.POSITIVE_INFINITY);
+      expect(scalar.getValue()).toBe(Number.POSITIVE_INFINITY);
       expect(scalar.glslStrAsFloat).toBe('Infinity');
     });
 
     test('handles negative infinity', () => {
-      const scalar = Scalar.fromCopyNumber(-Infinity);
-      expect(scalar.getValue()).toBe(-Infinity);
+      const scalar = Scalar.fromCopyNumber(Number.NEGATIVE_INFINITY);
+      expect(scalar.getValue()).toBe(Number.NEGATIVE_INFINITY);
       expect(scalar.glslStrAsFloat).toBe('-Infinity');
     });
 
     test('handles NaN', () => {
-      const scalar = Scalar.fromCopyNumber(NaN);
+      const scalar = Scalar.fromCopyNumber(Number.NaN);
       expect(scalar.getValue()).toBeNaN();
       expect(scalar.glslStrAsFloat).toBe('NaN');
     });
@@ -245,23 +245,23 @@ describe('Scalard (double precision)', () => {
   });
 
   test('clone creates a copy of the double precision scalar', () => {
-    const original = Scalard.fromCopyNumber(3.141592653589793);
+    const original = Scalard.fromCopyNumber(Math.PI);
     const cloned = original.clone();
-    
-    expect(cloned.getValue()).toBe(3.141592653589793);
+
+    expect(cloned.getValue()).toBe(Math.PI);
     expect(cloned).not.toBe(original);
     expect(cloned.raw).not.toBe(original.raw); // Different underlying arrays (deep copy)
   });
 
   test('clone creates independent copy for double precision', () => {
-    const original = Scalard.fromCopyNumber(2.718281828459045);
+    const original = Scalard.fromCopyNumber(Math.E);
     const cloned = original.clone();
-    
+
     // Verify independence by modifying the underlying array
     original.raw[0] = 999.999;
-    
+
     expect(original.getValue()).toBe(999.999);
-    expect(cloned.getValue()).toBe(2.718281828459045); // Clone should remain unchanged
+    expect(cloned.getValue()).toBe(Math.E); // Clone should remain unchanged
   });
 
   test('handles high precision values', () => {
@@ -271,10 +271,10 @@ describe('Scalard (double precision)', () => {
   });
 
   test('maintains precision better than 32-bit', () => {
-    const preciseValue = 0.123456789012345678;
+    const preciseValue = 0.1234567890123456;
     const scalar32 = Scalar.fromCopyNumber(preciseValue);
     const scalar64 = Scalard.fromCopyNumber(preciseValue);
-    
+
     // Double precision should maintain more decimal places
     expect(scalar64.getValue()).toBeCloseTo(preciseValue, 15);
     // Single precision will have less precision
@@ -284,7 +284,7 @@ describe('Scalard (double precision)', () => {
   test('comparison methods work with double precision', () => {
     const scalar1 = Scalard.fromCopyNumber(1.000000000000001);
     const scalar2 = Scalard.fromCopyNumber(1.000000000000002);
-    
+
     expect(scalar1.isStrictEqual(scalar2)).toBe(false);
     expect(scalar1.isEqual(scalar2, 1e-14)).toBe(true);
     expect(scalar1.isEqual(scalar2, 1e-16)).toBe(false);

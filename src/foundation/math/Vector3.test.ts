@@ -1,7 +1,7 @@
-import { Vector3, Vector3d } from './Vector3';
-import { Vector4 } from './Vector4';
 import { Matrix44 } from './Matrix44';
 import { Quaternion } from './Quaternion';
+import { Vector3, Vector3d } from './Vector3';
+import { Vector4 } from './Vector4';
 
 describe('Vector3', () => {
   test('Vector3 is immutable', () => {

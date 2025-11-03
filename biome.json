@@ -7,14 +7,7 @@
   },
   "files": {
     "include": ["src/**/*", "samples/**/*"],
-    "ignore": [
-      "node_modules/**",
-      "dist/**",
-      "docs/**",
-      "vendor/**",
-      "assets/**",
-      "**/*.d.ts"
-    ]
+    "ignore": ["node_modules/**", "dist/**", "docs/**", "vendor/**", "assets/**", "**/*.d.ts"]
   },
   "formatter": {
     "enabled": true,

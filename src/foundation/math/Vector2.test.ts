@@ -290,7 +290,7 @@ describe('Vector2d (double precision)', () => {
     const view = new Float64Array(buffer);
     view[0] = 1.5;
     view[1] = 2.5;
-    
+
     const vec = Vector2d.fromArrayBuffer(buffer);
     expect(vec.x).toBe(1.5);
     expect(vec.y).toBe(2.5);
