@@ -3,6 +3,7 @@ import { CompositionType } from '../definitions/CompositionType';
 import { Logger } from '../misc/Logger';
 import { AbstractMatrix } from './AbstractMatrix';
 import { IMatrix, type IMatrix22 } from './IMatrix';
+import type { IVector2 } from './IVector';
 import { MathUtil } from './MathUtil';
 /* eslint-disable prettier/prettier */
 import type { Matrix33 } from './Matrix33';
@@ -115,7 +116,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * ```
    */
   static zero() {
-    return Matrix22.fromCopy4RowMajor(0, 0, 0, 0);
+    return this.fromCopy4RowMajor(0, 0, 0, 0);
   }
 
   /**
@@ -132,7 +133,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * ```
    */
   static identity() {
-    return Matrix22.fromCopy4RowMajor(1, 0, 0, 1);
+    return this.fromCopy4RowMajor(1, 0, 0, 1);
   }
 
   /**
@@ -161,8 +162,8 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * // | 3 4 |      | 2 4 |
    * ```
    */
-  static transpose(mat: Matrix22) {
-    return Matrix22.fromCopy4RowMajor(mat._v[0], mat._v[1], mat._v[2], mat._v[3]);
+  static transpose(mat: IMatrix22) {
+    return this.fromCopy4RowMajor(mat._v[0], mat._v[1], mat._v[2], mat._v[3]);
   }
 
   /**
@@ -187,7 +188,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * // |   0 0.5 |
    * ```
    */
-  static invert(mat: Matrix22) {
+  static invert(mat: IMatrix22) {
     const det = mat.determinant();
     if (det === 0) {
       Logger.error('the determinant is 0!');
@@ -198,7 +199,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
     const m10 = (mat._v[1] / det) * -1.0;
     const m11 = mat._v[0] / det;
 
-    return Matrix22.fromCopy4RowMajor(m00, m01, m10, m11);
+    return this.fromCopy4RowMajor(m00, m01, m10, m11);
   }
 
   /**
@@ -243,7 +244,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
   static rotate(radian: number) {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
-    return Matrix22.fromCopy4RowMajor(cos, -sin, sin, cos);
+    return this.fromCopy4RowMajor(cos, -sin, sin, cos);
   }
 
   /**
@@ -262,8 +263,8 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * // Creates a matrix that scales x by 2 and y by 3
    * ```
    */
-  static scale(vec: Vector2) {
-    return Matrix22.fromCopy4RowMajor(vec._v[0], 0, 0, vec._v[1]);
+  static scale(vec: IVector2) {
+    return this.fromCopy4RowMajor(vec._v[0], 0, 0, vec._v[1]);
   }
 
   /**
@@ -281,14 +282,14 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * const result = Matrix22.multiply(a, b); // Scale then rotate
    * ```
    */
-  static multiply(l_mat: Matrix22, r_mat: Matrix22) {
+  static multiply(l_mat: IMatrix22, r_mat: IMatrix22) {
     const m00 = l_mat._v[0] * r_mat._v[0] + l_mat._v[2] * r_mat._v[1];
     const m10 = l_mat._v[1] * r_mat._v[0] + l_mat._v[3] * r_mat._v[1];
 
     const m01 = l_mat._v[0] * r_mat._v[2] + l_mat._v[2] * r_mat._v[3];
     const m11 = l_mat._v[1] * r_mat._v[2] + l_mat._v[3] * r_mat._v[3];
 
-    return Matrix22.fromCopy4RowMajor(m00, m01, m10, m11);
+    return this.fromCopy4RowMajor(m00, m01, m10, m11);
   }
 
   /**

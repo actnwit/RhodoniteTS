@@ -13,7 +13,8 @@ import { Plane } from '../geometry/shapes/Plane';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
 import { MaterialHelper } from '../helpers/MaterialHelper';
 import type { Material } from '../materials/core/Material';
-import type { IQuaternion } from '../math';
+import type { IMatrix44 } from '../math/IMatrix';
+import type { IQuaternion } from '../math/IQuaternion';
 import { MathUtil } from '../math/MathUtil';
 import { Matrix33 } from '../math/Matrix33';
 import { Matrix44 } from '../math/Matrix44';
@@ -480,7 +481,7 @@ export class TranslationGizmo extends Gizmo {
     TranslationGizmo.__originalY = evt.clientY;
 
     const parent = this.__target.getSceneGraph().parent;
-    let worldMatrix = Matrix44.identity();
+    let worldMatrix: IMatrix44 = Matrix44.identity();
     if (Is.exist(parent)) {
       worldMatrix = parent.matrixInner.getRotate();
     }
@@ -551,7 +552,7 @@ export class TranslationGizmo extends Gizmo {
       | undefined;
 
     const parent = this.__target.getSceneGraph().parent;
-    let worldMatrix = Matrix44.identity();
+    let worldMatrix: IMatrix44 = Matrix44.identity();
     if (Is.exist(parent)) {
       worldMatrix = parent.matrixInner.getRotate();
     }
@@ -622,7 +623,7 @@ export class TranslationGizmo extends Gizmo {
       this.__deltaPoint = Vector3.add(deltaVector3, this.__targetPointBackup);
     } else if (TranslationGizmo.__space === 'world') {
       const parent = this.__target.getSceneGraph().parent;
-      let worldMatrix = Matrix44.identity();
+      let worldMatrix: IMatrix44 = Matrix44.identity();
       if (Is.exist(parent)) {
         worldMatrix = parent.matrix.getRotate();
       }

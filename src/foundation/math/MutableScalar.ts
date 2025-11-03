@@ -1,5 +1,5 @@
 import type { TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
-import { CompositionType } from '../definitions/CompositionType';
+import { CompositionType, type CompositionTypeEnum } from '../definitions/CompositionType';
 import { Scalar_ } from './Scalar';
 
 /**
@@ -31,7 +31,7 @@ export class MutableScalar_<T extends TypedArrayConstructor> extends Scalar_<T> 
    * Gets the x component (scalar value).
    * @returns The scalar value
    */
-  get x() {
+  get x(): number {
     return this._v[0];
   }
 
@@ -47,7 +47,7 @@ export class MutableScalar_<T extends TypedArrayConstructor> extends Scalar_<T> 
    * Gets the y component (always 0 for scalars).
    * @returns Always returns 0
    */
-  get y() {
+  get y(): number {
     return 0;
   }
 
@@ -55,7 +55,7 @@ export class MutableScalar_<T extends TypedArrayConstructor> extends Scalar_<T> 
    * Gets the z component (always 0 for scalars).
    * @returns Always returns 0
    */
-  get z() {
+  get z(): number {
     return 0;
   }
 
@@ -63,7 +63,7 @@ export class MutableScalar_<T extends TypedArrayConstructor> extends Scalar_<T> 
    * Gets the w component (always 1 for scalars).
    * @returns Always returns 1
    */
-  get w() {
+  get w(): number {
     return 1;
   }
 
@@ -71,7 +71,7 @@ export class MutableScalar_<T extends TypedArrayConstructor> extends Scalar_<T> 
    * Converts the scalar to a string representation.
    * @returns A string representation of the scalar in the format "(value)"
    */
-  toString() {
+  toString(): string {
     return `(${this._v[0]})`;
   }
 
@@ -89,7 +89,7 @@ export class MutableScalar_<T extends TypedArrayConstructor> extends Scalar_<T> 
    * Gets the composition type for this scalar.
    * @returns The scalar composition type
    */
-  static get compositionType() {
+  static get compositionType(): CompositionTypeEnum {
     return CompositionType.Scalar;
   }
 
@@ -97,7 +97,7 @@ export class MutableScalar_<T extends TypedArrayConstructor> extends Scalar_<T> 
    * Gets the number of bytes per component in the underlying typed array.
    * @returns The number of bytes per element
    */
-  get bytesPerComponent() {
+  get bytesPerComponent(): number {
     return this._v.BYTES_PER_ELEMENT;
   }
 }
@@ -119,7 +119,7 @@ export class MutableScalar extends MutableScalar_<Float32ArrayConstructor> {
    * Creates a copy of this scalar.
    * @returns A new MutableScalar instance with the same value
    */
-  clone() {
+  clone(): MutableScalar {
     return new MutableScalar(new Float32Array([this.x]));
   }
 
@@ -127,7 +127,7 @@ export class MutableScalar extends MutableScalar_<Float32ArrayConstructor> {
    * Creates a scalar with value 1.
    * @returns A new MutableScalar instance with value 1
    */
-  static one() {
+  static one(): MutableScalar {
     return new MutableScalar(new Float32Array([1]));
   }
 
@@ -135,7 +135,7 @@ export class MutableScalar extends MutableScalar_<Float32ArrayConstructor> {
    * Creates a dummy scalar with no data.
    * @returns A new MutableScalar instance with empty array
    */
-  static dummy() {
+  static dummy(): MutableScalar {
     return new MutableScalar(new Float32Array([]));
   }
 
@@ -143,7 +143,7 @@ export class MutableScalar extends MutableScalar_<Float32ArrayConstructor> {
    * Creates a scalar with value 0.
    * @returns A new MutableScalar instance with value 0
    */
-  static zero() {
+  static zero(): MutableScalar {
     return new MutableScalar(new Float32Array([0]));
   }
 
@@ -151,7 +151,7 @@ export class MutableScalar extends MutableScalar_<Float32ArrayConstructor> {
    * Gets the class name for debugging and serialization purposes.
    * @returns The string "MutableScalar"
    */
-  get className() {
+  get className(): string {
     return 'MutableScalar';
   }
 }
@@ -173,7 +173,7 @@ export class MutableScalard extends MutableScalar_<Float64ArrayConstructor> {
    * Creates a copy of this scalar.
    * @returns A new MutableScalard instance with the same value
    */
-  clone() {
+  clone(): MutableScalard {
     return new MutableScalard(new Float64Array([this.x]));
   }
 
@@ -181,7 +181,7 @@ export class MutableScalard extends MutableScalar_<Float64ArrayConstructor> {
    * Creates a scalar with value 1.
    * @returns A new MutableScalard instance with value 1
    */
-  static one() {
+  static one(): MutableScalard {
     return new MutableScalard(new Float64Array([1]));
   }
 
@@ -189,7 +189,7 @@ export class MutableScalard extends MutableScalar_<Float64ArrayConstructor> {
    * Creates a dummy scalar with no data.
    * @returns A new MutableScalard instance with empty array
    */
-  static dummy() {
+  static dummy(): MutableScalard {
     return new MutableScalard(new Float64Array([]));
   }
 
@@ -197,7 +197,7 @@ export class MutableScalard extends MutableScalar_<Float64ArrayConstructor> {
    * Creates a scalar with value 0.
    * @returns A new MutableScalard instance with value 0
    */
-  static zero() {
+  static zero(): MutableScalard {
     return new MutableScalard(new Float64Array([0]));
   }
 }

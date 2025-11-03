@@ -1,9 +1,10 @@
 /* eslint-disable prettier/prettier */
-import { CompositionType } from '../definitions/CompositionType';
+import { CompositionType, type CompositionTypeEnum } from '../definitions/CompositionType';
 import { AbstractMatrix } from './AbstractMatrix';
 import type { IMatrix, IMatrix44 } from './IMatrix';
 import type { IMutableVector, IVector, IVector3, IVector4 } from './IVector';
 import type { Matrix44 } from './Matrix44';
+import type { MutableVector3 } from './MutableVector3';
 import type { MutableVector4 } from './MutableVector4';
 import { Vector3 } from './Vector3';
 import type { Vector4 } from './Vector4';
@@ -186,7 +187,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * @param vec - The 4D vector to multiply
    * @returns The same vector (identity transformation)
    */
-  multiplyVector(vec: IVector4): IVector4 {
+  multiplyVector(vec: IVector4) {
     return vec;
   }
 
@@ -197,7 +198,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * @param vec - The 3D vector to multiply
    * @returns The same vector (identity transformation)
    */
-  multiplyVector3(vec: IVector3): IVector3 {
+  multiplyVector3(vec: IVector3) {
     return vec;
   }
 
@@ -209,7 +210,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * @param outVec - The mutable vector to store the result
    * @returns The output vector containing the copied values
    */
-  multiplyVectorTo(vec: IVector, outVec: IMutableVector): IMutableVector {
+  multiplyVectorTo(vec: IVector, outVec: MutableVector4): MutableVector4 {
     const v = (vec as Vector4)._v;
     outVec._v[0] = v[0];
     outVec._v[1] = v[1];
@@ -225,7 +226,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    *
    * @returns A Vector3 with all components set to 1
    */
-  getScale(): IVector3 {
+  getScale(): Vector3 {
     return Vector3.one();
   }
 
@@ -236,8 +237,8 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * @param outVec - The mutable vector to store the scale values
    * @returns The output vector with scale components set to 1
    */
-  getScaleTo(outVec: IMutableVector): IMutableVector {
-    const v = (outVec as MutableVector4)._v;
+  getScaleTo(outVec: MutableVector3): MutableVector3 {
+    const v = outVec._v;
 
     v[0] = 1;
     v[1] = 1;
@@ -252,7 +253,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    *
    * @returns A new IdentityMatrix44 instance
    */
-  clone(): IMatrix44 {
+  clone(): IdentityMatrix44 {
     return new IdentityMatrix44();
   }
 
@@ -262,7 +263,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    *
    * @returns A new IdentityMatrix44 representing no rotation
    */
-  getRotate(): IMatrix44 {
+  getRotate(): IdentityMatrix44 {
     return new IdentityMatrix44();
   }
 
@@ -272,7 +273,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    *
    * @returns A Vector3 with all components set to 0
    */
-  getTranslate(): IVector3 {
+  getTranslate(): Vector3 {
     return Vector3.zero();
   }
 
@@ -280,7 +281,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * Gets the matrix element at row 0, column 0.
    * @returns Always 1 for identity matrix
    */
-  public get m00() {
+  public get m00(): number {
     return 1;
   }
 
@@ -288,7 +289,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * Gets the matrix element at row 1, column 0.
    * @returns Always 0 for identity matrix
    */
-  public get m10() {
+  public get m10(): number {
     return 0;
   }
 
@@ -296,7 +297,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * Gets the matrix element at row 2, column 0.
    * @returns Always 0 for identity matrix
    */
-  public get m20() {
+  public get m20(): number {
     return 0;
   }
 
@@ -304,7 +305,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * Gets the matrix element at row 3, column 0.
    * @returns Always 0 for identity matrix
    */
-  public get m30() {
+  public get m30(): number {
     return 0;
   }
 
@@ -312,7 +313,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * Gets the matrix element at row 0, column 1.
    * @returns Always 0 for identity matrix
    */
-  public get m01() {
+  public get m01(): number {
     return 0;
   }
 
@@ -320,7 +321,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * Gets the matrix element at row 1, column 1.
    * @returns Always 1 for identity matrix
    */
-  public get m11() {
+  public get m11(): number {
     return 1;
   }
 
@@ -328,7 +329,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * Gets the matrix element at row 2, column 1.
    * @returns Always 0 for identity matrix
    */
-  public get m21() {
+  public get m21(): number {
     return 0;
   }
 
@@ -336,7 +337,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * Gets the matrix element at row 3, column 1.
    * @returns Always 0 for identity matrix
    */
-  public get m31() {
+  public get m31(): number {
     return 0;
   }
 
@@ -344,7 +345,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * Gets the matrix element at row 0, column 2.
    * @returns Always 0 for identity matrix
    */
-  public get m02() {
+  public get m02(): number {
     return 0;
   }
 
@@ -352,7 +353,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * Gets the matrix element at row 1, column 2.
    * @returns Always 0 for identity matrix
    */
-  public get m12() {
+  public get m12(): number {
     return 0;
   }
 
@@ -360,7 +361,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * Gets the matrix element at row 2, column 2.
    * @returns Always 1 for identity matrix
    */
-  public get m22() {
+  public get m22(): number {
     return 1;
   }
 
@@ -368,7 +369,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * Gets the matrix element at row 3, column 2.
    * @returns Always 0 for identity matrix
    */
-  public get m32() {
+  public get m32(): number {
     return 0;
   }
 
@@ -376,7 +377,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * Gets the matrix element at row 0, column 3.
    * @returns Always 0 for identity matrix
    */
-  public get m03() {
+  public get m03(): number {
     return 0;
   }
 
@@ -384,7 +385,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * Gets the matrix element at row 1, column 3.
    * @returns Always 0 for identity matrix
    */
-  public get m13() {
+  public get m13(): number {
     return 0;
   }
 
@@ -392,7 +393,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * Gets the matrix element at row 2, column 3.
    * @returns Always 0 for identity matrix
    */
-  public get m23() {
+  public get m23(): number {
     return 0;
   }
 
@@ -400,7 +401,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * Gets the matrix element at row 3, column 3.
    * @returns Always 1 for identity matrix
    */
-  public get m33() {
+  public get m33(): number {
     return 1;
   }
 
@@ -408,7 +409,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * Gets the X translation component from the matrix.
    * @returns Always 0 for identity matrix
    */
-  public get translateX() {
+  public get translateX(): number {
     return 0;
   }
 
@@ -416,7 +417,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * Gets the Y translation component from the matrix.
    * @returns Always 0 for identity matrix
    */
-  public get translateY() {
+  public get translateY(): number {
     return 0;
   }
 
@@ -424,7 +425,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * Gets the Z translation component from the matrix.
    * @returns Always 0 for identity matrix
    */
-  public get translateZ() {
+  public get translateZ(): number {
     return 0;
   }
 
@@ -432,7 +433,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * Gets the class name for debugging and reflection purposes.
    * @returns The string 'IdentityMatrix44'
    */
-  get className() {
+  get className(): string {
     return 'IdentityMatrix44';
   }
 
@@ -440,7 +441,7 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
    * Gets the composition type for this matrix class.
    * @returns CompositionType.Mat4 indicating this is a 4x4 matrix
    */
-  static get compositionType() {
+  static get compositionType(): CompositionTypeEnum {
     return CompositionType.Mat4;
   }
 

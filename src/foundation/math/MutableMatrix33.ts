@@ -5,10 +5,7 @@ import type { IQuaternion } from './IQuaternion';
 import type { IVector3 } from './IVector';
 import { Matrix33 } from './Matrix33';
 import type { Matrix44 } from './Matrix44';
-import { Quaternion } from './Quaternion';
 import type { Vector3 } from './Vector3';
-
-/* eslint-disable prettier/prettier */
 
 /**
  * A mutable 3x3 matrix class that extends Matrix33 and provides mutating operations.
@@ -33,7 +30,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Sets the matrix element at position (0,0).
    * @param val - The value to set
    */
-  public set m00(val) {
+  public set m00(val: number) {
     this._v[0] = val;
   }
 
@@ -41,7 +38,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Gets the matrix element at position (0,0).
    * @returns The value at position (0,0)
    */
-  public get m00() {
+  public get m00(): number {
     return this._v[0];
   }
 
@@ -49,7 +46,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Sets the matrix element at position (1,0).
    * @param val - The value to set
    */
-  public set m10(val) {
+  public set m10(val: number) {
     this._v[1] = val;
   }
 
@@ -57,7 +54,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Gets the matrix element at position (1,0).
    * @returns The value at position (1,0)
    */
-  public get m10() {
+  public get m10(): number {
     return this._v[1];
   }
 
@@ -65,7 +62,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Sets the matrix element at position (2,0).
    * @param val - The value to set
    */
-  public set m20(val) {
+  public set m20(val: number) {
     this._v[2] = val;
   }
 
@@ -73,7 +70,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Gets the matrix element at position (2,0).
    * @returns The value at position (2,0)
    */
-  public get m20() {
+  public get m20(): number {
     return this._v[2];
   }
 
@@ -81,7 +78,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Sets the matrix element at position (0,1).
    * @param val - The value to set
    */
-  public set m01(val) {
+  public set m01(val: number) {
     this._v[3] = val;
   }
 
@@ -89,7 +86,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Gets the matrix element at position (0,1).
    * @returns The value at position (0,1)
    */
-  public get m01() {
+  public get m01(): number {
     return this._v[3];
   }
 
@@ -97,7 +94,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Sets the matrix element at position (1,1).
    * @param val - The value to set
    */
-  public set m11(val) {
+  public set m11(val: number) {
     this._v[4] = val;
   }
 
@@ -105,7 +102,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Gets the matrix element at position (1,1).
    * @returns The value at position (1,1)
    */
-  public get m11() {
+  public get m11(): number {
     return this._v[4];
   }
 
@@ -113,7 +110,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Sets the matrix element at position (2,1).
    * @param val - The value to set
    */
-  public set m21(val) {
+  public set m21(val: number) {
     this._v[5] = val;
   }
 
@@ -121,7 +118,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Gets the matrix element at position (2,1).
    * @returns The value at position (2,1)
    */
-  public get m21() {
+  public get m21(): number {
     return this._v[5];
   }
 
@@ -129,7 +126,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Sets the matrix element at position (0,2).
    * @param val - The value to set
    */
-  public set m02(val) {
+  public set m02(val: number) {
     this._v[6] = val;
   }
 
@@ -137,7 +134,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Gets the matrix element at position (0,2).
    * @returns The value at position (0,2)
    */
-  public get m02() {
+  public get m02(): number {
     return this._v[6];
   }
 
@@ -145,7 +142,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Sets the matrix element at position (1,2).
    * @param val - The value to set
    */
-  public set m12(val) {
+  public set m12(val: number) {
     this._v[7] = val;
   }
 
@@ -153,7 +150,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Gets the matrix element at position (1,2).
    * @returns The value at position (1,2)
    */
-  public get m12() {
+  public get m12(): number {
     return this._v[7];
   }
 
@@ -161,7 +158,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Sets the matrix element at position (2,2).
    * @param val - The value to set
    */
-  public set m22(val) {
+  public set m22(val: number) {
     this._v[8] = val;
   }
 
@@ -169,7 +166,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Gets the matrix element at position (2,2).
    * @returns The value at position (2,2)
    */
-  public get m22() {
+  public get m22(): number {
     return this._v[8];
   }
 
@@ -177,7 +174,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Gets the class name for debugging purposes.
    * @returns The string 'MutableMatrix33'
    */
-  get className() {
+  get className(): string {
     return 'MutableMatrix33';
   }
 
@@ -185,7 +182,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Creates a new zero matrix (all elements set to 0).
    * @returns A new MutableMatrix33 instance with all elements set to 0
    */
-  static zero() {
+  static zero(): MutableMatrix33 {
     return super.zero() as MutableMatrix33;
   }
 
@@ -193,7 +190,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Creates a new identity matrix.
    * @returns A new MutableMatrix33 instance representing the identity matrix
    */
-  static identity() {
+  static identity(): MutableMatrix33 {
     return MutableMatrix33.fromCopy9RowMajor(1, 0, 0, 0, 1, 0, 0, 0, 1);
   }
 
@@ -201,7 +198,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Creates a dummy matrix for testing purposes.
    * @returns A new MutableMatrix33 instance with default values
    */
-  static dummy() {
+  static dummy(): MutableMatrix33 {
     return super.dummy() as MutableMatrix33;
   }
 
@@ -210,7 +207,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param mat - The matrix to transpose
    * @returns A new MutableMatrix33 instance representing the transposed matrix
    */
-  static transpose(mat: IMatrix33) {
+  static transpose(mat: IMatrix33): MutableMatrix33 {
     return super.transpose(mat) as MutableMatrix33;
   }
 
@@ -219,7 +216,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param mat - The matrix to invert
    * @returns A new MutableMatrix33 instance representing the inverted matrix
    */
-  static invert(mat: IMatrix33) {
+  static invert(mat: IMatrix33): MutableMatrix33 {
     return super.invert(mat) as MutableMatrix33;
   }
 
@@ -228,7 +225,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param radian - The rotation angle in radians
    * @returns A new MutableMatrix33 instance representing the X-axis rotation
    */
-  static rotateX(radian: number) {
+  static rotateX(radian: number): MutableMatrix33 {
     return super.rotateX(radian) as MutableMatrix33;
   }
 
@@ -237,7 +234,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param radian - The rotation angle in radians
    * @returns A new MutableMatrix33 instance representing the Y-axis rotation
    */
-  static rotateY(radian: number) {
+  static rotateY(radian: number): MutableMatrix33 {
     return super.rotateY(radian) as MutableMatrix33;
   }
 
@@ -246,7 +243,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param radian - The rotation angle in radians
    * @returns A new MutableMatrix33 instance representing the Z-axis rotation
    */
-  static rotateZ(radian: number) {
+  static rotateZ(radian: number): MutableMatrix33 {
     return super.rotateZ(radian) as MutableMatrix33;
   }
 
@@ -257,7 +254,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param z - Rotation angle around Z-axis in radians
    * @returns A new MutableMatrix33 instance representing the combined rotation
    */
-  static rotateXYZ(x: number, y: number, z: number) {
+  static rotateXYZ(x: number, y: number, z: number): MutableMatrix33 {
     return super.rotateXYZ(x, y, z) as MutableMatrix33;
   }
 
@@ -266,7 +263,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param vec - A vector containing rotation angles for X, Y, and Z axes
    * @returns A new MutableMatrix33 instance representing the rotation
    */
-  static rotate(vec: IVector3) {
+  static rotate(vec: IVector3): MutableMatrix33 {
     return super.rotateXYZ(vec._v[0], vec._v[1], vec._v[2]) as MutableMatrix33;
   }
 
@@ -275,7 +272,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param vec - A vector containing scale factors for X, Y, and Z axes
    * @returns A new MutableMatrix33 instance representing the scaling transformation
    */
-  static scale(vec: IVector3) {
+  static scale(vec: IVector3): MutableMatrix33 {
     return super.scale(vec) as MutableMatrix33;
   }
 
@@ -285,7 +282,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param r_mat - The right matrix operand
    * @returns A new MutableMatrix33 instance representing l_mat * r_mat
    */
-  static multiply(l_mat: IMatrix33, r_mat: IMatrix33) {
+  static multiply(l_mat: IMatrix33, r_mat: IMatrix33): MutableMatrix33 {
     return super.multiply(l_mat, r_mat) as MutableMatrix33;
   }
 
@@ -293,7 +290,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Creates a copy of this matrix.
    * @returns A new MutableMatrix33 instance with the same values
    */
-  clone() {
+  clone(): MutableMatrix33 {
     const result = super.clone() as MutableMatrix33;
     return result;
   }
@@ -302,7 +299,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Gets the raw Float32Array containing the matrix data.
    * @returns The underlying Float32Array in column-major order
    */
-  raw() {
+  raw(): Float32Array {
     return this._v;
   }
 
@@ -313,7 +310,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param value - The value to set
    * @returns This matrix instance for method chaining
    */
-  setAt(row_i: number, column_i: number, value: number) {
+  setAt(row_i: number, column_i: number, value: number): MutableMatrix33 {
     this._v[row_i + column_i * 3] = value;
     return this;
   }
@@ -361,7 +358,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param mat - The source matrix to copy from
    * @returns This matrix instance for method chaining
    */
-  copyComponents(mat: IMatrix33 | IMatrix44) {
+  copyComponents(mat: IMatrix33 | IMatrix44): MutableMatrix33 {
     this._v[0] = mat.m00;
     this._v[3] = mat.m01;
     this._v[6] = mat.m02; // mat.m01 is mat._v[3 or 4]
@@ -379,7 +376,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Sets this matrix to the zero matrix (all elements set to 0).
    * @returns This matrix instance for method chaining
    */
-  zero() {
+  zero(): MutableMatrix33 {
     return this.setComponents(0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
 
@@ -387,7 +384,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Sets this matrix to the identity matrix.
    * @returns This matrix instance for method chaining
    */
-  identity() {
+  identity(): MutableMatrix33 {
     return this.setComponents(1, 0, 0, 0, 1, 0, 0, 0, 1);
   }
 
@@ -397,7 +394,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param r - Index of the second element
    * @private
    */
-  _swap(l: Index, r: Index) {
+  _swap(l: Index, r: Index): void {
     const temp = this._v[l];
     this._v[l] = this._v[r];
     this._v[r] = temp;
@@ -407,7 +404,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Transposes this matrix in place.
    * @returns This matrix instance for method chaining
    */
-  transpose() {
+  transpose(): MutableMatrix33 {
     this._swap(1, 3);
     this._swap(2, 6);
     this._swap(5, 8);
@@ -420,7 +417,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * Logs an error if the determinant is 0 (matrix is not invertible).
    * @returns This matrix instance for method chaining
    */
-  invert() {
+  invert(): MutableMatrix33 {
     const det = this.determinant();
     if (det === 0) {
       Logger.error('the determinant is 0!');
@@ -444,7 +441,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param radian - The rotation angle in radians
    * @returns This matrix instance for method chaining
    */
-  rotateX(radian: number) {
+  rotateX(radian: number): MutableMatrix33 {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
     return this.setComponents(1, 0, 0, 0, cos, -sin, 0, sin, cos);
@@ -455,7 +452,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param radian - The rotation angle in radians
    * @returns This matrix instance for method chaining
    */
-  rotateY(radian: number) {
+  rotateY(radian: number): MutableMatrix33 {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
     return this.setComponents(cos, 0, sin, 0, 1, 0, -sin, 0, cos);
@@ -480,7 +477,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param z - Rotation angle around Z-axis in radians
    * @returns This matrix instance for method chaining
    */
-  rotateXYZ(x: number, y: number, z: number) {
+  rotateXYZ(x: number, y: number, z: number): MutableMatrix33 {
     const cosX = Math.cos(x);
     const sinX = Math.sin(x);
     const cosY = Math.cos(y);
@@ -548,7 +545,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param vec - A vector containing rotation angles for X, Y, and Z axes in radians
    * @returns This matrix instance for method chaining
    */
-  rotate(vec: Vector3) {
+  rotate(vec: IVector3): MutableMatrix33 {
     return this.rotateXYZ(vec._v[0], vec._v[1], vec._v[2]);
   }
 
@@ -557,7 +554,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param vec - A vector containing scale factors for X, Y, and Z axes
    * @returns This matrix instance for method chaining
    */
-  scale(vec: Vector3) {
+  scale(vec: IVector3): MutableMatrix33 {
     return this.setComponents(vec._v[0], 0, 0, 0, vec._v[1], 0, 0, 0, vec._v[2]);
   }
 
@@ -567,7 +564,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param vec - A vector containing scale factors for X, Y, and Z axes
    * @returns This matrix instance for method chaining
    */
-  multiplyScale(vec: Vector3) {
+  multiplyScale(vec: IVector3): MutableMatrix33 {
     this._v[0] *= vec._v[0];
     this._v[3] *= vec._v[0];
     this._v[6] *= vec._v[0];
@@ -589,7 +586,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param mat - The matrix to multiply with from the right
    * @returns This matrix instance for method chaining
    */
-  multiply(mat: Matrix33) {
+  multiply(mat: IMatrix33): MutableMatrix33 {
     if (mat.isIdentityMatrixClass) {
       return this;
     }
@@ -615,7 +612,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param mat - The matrix to multiply with from the left
    * @returns This matrix instance for method chaining
    */
-  multiplyByLeft(mat: Matrix33) {
+  multiplyByLeft(mat: IMatrix33): MutableMatrix33 {
     if (mat.isIdentityMatrixClass) {
       return this;
     }
@@ -659,7 +656,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
     m20: number,
     m21: number,
     m22: number
-  ) {
+  ): MutableMatrix33 {
     const v = new Float32Array(9);
     v[0] = m00;
     v[3] = m01;
@@ -697,7 +694,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
     m02: number,
     m12: number,
     m22: number
-  ) {
+  ): MutableMatrix33 {
     const v = new Float32Array(9);
     v[0] = m00;
     v[3] = m01;
@@ -716,7 +713,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param mat - The 4x4 matrix to copy from
    * @returns A new MutableMatrix33 instance
    */
-  static fromCopyMatrix44(mat: Matrix44) {
+  static fromCopyMatrix44(mat: IMatrix44): MutableMatrix33 {
     const v = new Float32Array(9);
     v.set(mat._v);
     return new MutableMatrix33(v);
@@ -728,7 +725,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param float32Array - A Float32Array containing the matrix data
    * @returns A new MutableMatrix33 instance that shares the array reference
    */
-  static fromFloat32ArrayColumnMajor(float32Array: Float32Array) {
+  static fromFloat32ArrayColumnMajor(float32Array: Float32Array): MutableMatrix33 {
     return new MutableMatrix33(float32Array);
   }
 
@@ -737,7 +734,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param float32Array - A Float32Array containing the matrix data to copy
    * @returns A new MutableMatrix33 instance with copied data
    */
-  static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array) {
+  static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array): MutableMatrix33 {
     const v = new Float32Array(9);
     v.set(float32Array);
     return new MutableMatrix33(v);
@@ -749,7 +746,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param array - A Float32Array containing the matrix data in row-major order
    * @returns A new MutableMatrix33 instance with converted data
    */
-  static fromCopyFloat32ArrayRowMajor(array: Float32Array) {
+  static fromCopyFloat32ArrayRowMajor(array: Float32Array): MutableMatrix33 {
     const v = new Float32Array(9);
     v[0] = array[0];
     v[3] = array[1];
@@ -769,7 +766,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param mat - The source matrix to copy from
    * @returns A new MutableMatrix33 instance with copied data
    */
-  static fromCopyMatrix33(mat: IMatrix33) {
+  static fromCopyMatrix33(mat: IMatrix33): MutableMatrix33 {
     const v = new Float32Array(9);
     v[0] = mat._v[0];
     v[3] = mat._v[3];
@@ -788,7 +785,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param array - An array containing exactly 9 numbers in column-major order
    * @returns A new MutableMatrix33 instance
    */
-  static fromCopyArray9ColumnMajor(array: Array9<number>) {
+  static fromCopyArray9ColumnMajor(array: Array9<number>): MutableMatrix33 {
     const v = new Float32Array(9);
     v.set(array);
     return new MutableMatrix33(v);
@@ -800,7 +797,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param array - An array containing the matrix data in column-major order
    * @returns A new MutableMatrix33 instance
    */
-  static fromCopyArrayColumnMajor(array: Array<number>) {
+  static fromCopyArrayColumnMajor(array: Array<number>): MutableMatrix33 {
     const v = new Float32Array(9);
     v.set(array);
     return new MutableMatrix33(v);
@@ -812,7 +809,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param array - An array containing exactly 9 numbers in row-major order
    * @returns A new MutableMatrix33 instance
    */
-  static fromCopyArray9RowMajor(array: Array9<number>) {
+  static fromCopyArray9RowMajor(array: Array9<number>): MutableMatrix33 {
     const v = new Float32Array(9);
     v[0] = array[0];
     v[3] = array[1];
@@ -833,7 +830,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param array - An array containing the matrix data in row-major order
    * @returns A new MutableMatrix33 instance
    */
-  static fromCopyArrayRowMajor(array: Array<number>) {
+  static fromCopyArrayRowMajor(array: Array<number>): MutableMatrix33 {
     const v = new Float32Array(9);
     v[0] = array[0];
     v[3] = array[1];
@@ -853,7 +850,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @param q - The quaternion to convert (should be normalized)
    * @returns A new MutableMatrix33 instance representing the rotation
    */
-  static fromCopyQuaternion(q: IQuaternion) {
+  static fromCopyQuaternion(q: IQuaternion): MutableMatrix33 {
     const sx = q._v[0] * q._v[0];
     const sy = q._v[1] * q._v[1];
     const sz = q._v[2] * q._v[2];

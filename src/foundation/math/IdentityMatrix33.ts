@@ -1,5 +1,4 @@
-/* eslint-disable prettier/prettier */
-import { CompositionType } from '../definitions/CompositionType';
+import { CompositionType, type CompositionTypeEnum } from '../definitions/CompositionType';
 import { AbstractMatrix } from './AbstractMatrix';
 import type { IMatrix, IMatrix33 } from './IMatrix';
 import type { IMutableVector, IVector } from './IVector';
@@ -149,7 +148,7 @@ export class IdentityMatrix33 extends AbstractMatrix implements IMatrix, IMatrix
    * @param vec - The vector to multiply
    * @returns The same vector (identity operation)
    */
-  multiplyVector(vec: IVector): IVector {
+  multiplyVector(vec: IVector) {
     return vec;
   }
 
@@ -160,7 +159,7 @@ export class IdentityMatrix33 extends AbstractMatrix implements IMatrix, IMatrix
    * @param outVec - The output vector to store the result
    * @returns The output vector containing the result
    */
-  multiplyVectorTo(vec: IVector, outVec: IMutableVector): IMutableVector {
+  multiplyVectorTo(vec: IVector, outVec: MutableVector3): MutableVector3 {
     const v = (vec as Vector3)._v;
     outVec._v[0] = v[0];
     outVec._v[1] = v[1];
@@ -175,7 +174,7 @@ export class IdentityMatrix33 extends AbstractMatrix implements IMatrix, IMatrix
    * For identity matrix, all scale components are 1.
    * @returns A Vector3 with components [1, 1, 1]
    */
-  getScale(): IVector {
+  getScale(): Vector3 {
     return Vector3.fromCopyArray([1, 1, 1]);
   }
 
@@ -185,7 +184,7 @@ export class IdentityMatrix33 extends AbstractMatrix implements IMatrix, IMatrix
    * @param outVec - The output vector to store the scale values
    * @returns The output vector containing [1, 1, 1]
    */
-  getScaleTo(outVec: IMutableVector): IMutableVector {
+  getScaleTo(outVec: MutableVector3): MutableVector3 {
     const v = (outVec as MutableVector3)._v;
 
     v[0] = 1;
@@ -199,7 +198,7 @@ export class IdentityMatrix33 extends AbstractMatrix implements IMatrix, IMatrix
    * Creates a copy of this identity matrix.
    * @returns A new IdentityMatrix33 instance
    */
-  clone(): IMatrix33 {
+  clone(): IdentityMatrix33 {
     return new IdentityMatrix33();
   }
 
@@ -208,97 +207,97 @@ export class IdentityMatrix33 extends AbstractMatrix implements IMatrix, IMatrix
    * For identity matrix, the rotation is also identity (no rotation).
    * @returns A new IdentityMatrix33 instance representing no rotation
    */
-  getRotate(): IMatrix33 {
+  getRotate(): IdentityMatrix33 {
     return new IdentityMatrix33();
   }
 
   /** Gets the matrix element at row 0, column 0 */
-  public get m00() {
+  public get m00(): number {
     return 1;
   }
 
   /** Gets the matrix element at row 1, column 0 */
-  public get m10() {
+  public get m10(): number {
     return 0;
   }
 
   /** Gets the matrix element at row 2, column 0 */
-  public get m20() {
+  public get m20(): number {
     return 0;
   }
 
   /** Gets the matrix element at row 3, column 0 (not applicable for 3x3 matrix) */
-  public get m30() {
+  public get m30(): number {
     return 0;
   }
 
   /** Gets the matrix element at row 0, column 1 */
-  public get m01() {
+  public get m01(): number {
     return 0;
   }
 
   /** Gets the matrix element at row 1, column 1 */
-  public get m11() {
+  public get m11(): number {
     return 1;
   }
 
   /** Gets the matrix element at row 2, column 1 */
-  public get m21() {
+  public get m21(): number {
     return 0;
   }
 
   /** Gets the matrix element at row 3, column 1 (not applicable for 3x3 matrix) */
-  public get m31() {
+  public get m31(): number {
     return 0;
   }
 
   /** Gets the matrix element at row 0, column 2 */
-  public get m02() {
+  public get m02(): number {
     return 0;
   }
 
   /** Gets the matrix element at row 1, column 2 */
-  public get m12() {
+  public get m12(): number {
     return 0;
   }
 
   /** Gets the matrix element at row 1, column 2 */
-  public get m22() {
+  public get m22(): number {
     return 1;
   }
 
   /** Gets the matrix element at row 3, column 2 (not applicable for 3x3 matrix) */
-  public get m32() {
+  public get m32(): number {
     return 0;
   }
 
   /** Gets the matrix element at row 0, column 3 (not applicable for 3x3 matrix) */
-  public get m03() {
+  public get m03(): number {
     return 0;
   }
 
   /** Gets the matrix element at row 1, column 3 (not applicable for 3x3 matrix) */
-  public get m13() {
+  public get m13(): number {
     return 0;
   }
 
   /** Gets the matrix element at row 2, column 3 (not applicable for 3x3 matrix) */
-  public get m23() {
+  public get m23(): number {
     return 0;
   }
 
   /** Gets the matrix element at row 3, column 3 (not applicable for 3x3 matrix) */
-  public get m33() {
+  public get m33(): number {
     return 1;
   }
 
   /** Gets the class name for debugging and reflection purposes */
-  get className() {
+  get className(): string {
     return 'IdentityMatrix33';
   }
 
   /** Gets the composition type for this matrix class */
-  static get compositionType() {
+  static get compositionType(): CompositionTypeEnum {
     return CompositionType.Mat3;
   }
 

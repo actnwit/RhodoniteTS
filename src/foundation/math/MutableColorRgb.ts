@@ -12,7 +12,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * Gets the X component (same as red component).
    * @returns The X/red component value
    */
-  get x() {
+  get x(): number {
     return this._v[0];
   }
 
@@ -20,7 +20,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * Sets the X component (same as red component).
    * @param val - The value to set for X/red component
    */
-  set x(val) {
+  set x(val: number) {
     this._v[0] = val;
   }
 
@@ -28,7 +28,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * Gets the Y component (same as green component).
    * @returns The Y/green component value
    */
-  get y() {
+  get y(): number {
     return this._v[1];
   }
 
@@ -36,7 +36,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * Sets the Y component (same as green component).
    * @param val - The value to set for Y/green component
    */
-  set y(val) {
+  set y(val: number) {
     this._v[1] = val;
   }
 
@@ -44,7 +44,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * Gets the Z component (same as blue component).
    * @returns The Z/blue component value
    */
-  get z() {
+  get z(): number {
     return this._v[2];
   }
 
@@ -52,7 +52,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * Sets the Z component (same as blue component).
    * @param val - The value to set for Z/blue component
    */
-  set z(val) {
+  set z(val: number) {
     this._v[2] = val;
   }
 
@@ -60,7 +60,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * Gets the W component (always 1 for RGB colors).
    * @returns Always returns 1
    */
-  get w() {
+  get w(): number {
     return 1;
   }
 
@@ -68,7 +68,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * Gets the red color component.
    * @returns The red component value (0.0 to 1.0)
    */
-  get r() {
+  get r(): number {
     return this._v[0];
   }
 
@@ -76,7 +76,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * Sets the red color component.
    * @param val - The red component value (typically 0.0 to 1.0)
    */
-  set r(val) {
+  set r(val: number) {
     this._v[0] = val;
   }
 
@@ -84,7 +84,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * Gets the green color component.
    * @returns The green component value (0.0 to 1.0)
    */
-  get g() {
+  get g(): number {
     return this._v[1];
   }
 
@@ -92,7 +92,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * Sets the green color component.
    * @param val - The green component value (typically 0.0 to 1.0)
    */
-  set g(val) {
+  set g(val: number) {
     this._v[1] = val;
   }
 
@@ -100,7 +100,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * Gets the blue color component.
    * @returns The blue component value (0.0 to 1.0)
    */
-  get b() {
+  get b(): number {
     return this._v[2];
   }
 
@@ -108,7 +108,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * Sets the blue color component.
    * @param val - The blue component value (typically 0.0 to 1.0)
    */
-  set b(val) {
+  set b(val: number) {
     this._v[2] = val;
   }
 
@@ -116,7 +116,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * Gets the alpha component (always 1 for RGB colors).
    * @returns Always returns 1
    */
-  get a() {
+  get a(): number {
     return 1;
   }
 
@@ -124,7 +124,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * Creates a new MutableColorRgb with all components set to zero (black).
    * @returns A new MutableColorRgb instance with RGB values [0, 0, 0]
    */
-  static zero() {
+  static zero(): MutableColorRgb {
     return super._zero(Float32Array) as MutableColorRgb;
   }
 
@@ -132,7 +132,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * Creates a new MutableColorRgb with all components set to one (white).
    * @returns A new MutableColorRgb instance with RGB values [1, 1, 1]
    */
-  static one() {
+  static one(): MutableColorRgb {
     return super._one(Float32Array) as MutableColorRgb;
   }
 
@@ -140,7 +140,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * Creates a dummy MutableColorRgb instance for placeholder purposes.
    * @returns A new MutableColorRgb instance for dummy use
    */
-  static dummy() {
+  static dummy(): MutableColorRgb {
     return super._dummy(Float32Array) as MutableColorRgb;
   }
 
@@ -149,7 +149,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * @param vec - The vector to normalize
    * @returns A new normalized MutableColorRgb instance
    */
-  static normalize(vec: IVector3) {
+  static normalize(vec: IVector3): MutableColorRgb {
     return super._normalize(vec, Float32Array) as MutableColorRgb;
   }
 
@@ -159,7 +159,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * @param r_vec - The right operand vector
    * @returns A new MutableColorRgb with the sum of the input vectors
    */
-  static add(l_vec: IVector3, r_vec: IVector3) {
+  static add(l_vec: IVector3, r_vec: IVector3): MutableColorRgb {
     return super._add(l_vec, r_vec, Float32Array) as MutableColorRgb;
   }
 
@@ -169,7 +169,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * @param r_vec - The right operand vector (subtrahend)
    * @returns A new MutableColorRgb with the difference of the input vectors
    */
-  static subtract(l_vec: IVector3, r_vec: IVector3) {
+  static subtract(l_vec: IVector3, r_vec: IVector3): MutableColorRgb {
     return super._subtract(l_vec, r_vec, Float32Array) as MutableColorRgb;
   }
 
@@ -179,7 +179,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * @param value - The scalar value to multiply by
    * @returns A new MutableColorRgb with the scaled vector
    */
-  static multiply(vec: IVector3, value: number) {
+  static multiply(vec: IVector3, value: number): MutableColorRgb {
     return super._multiply(vec, value, Float32Array) as MutableColorRgb;
   }
 
@@ -189,7 +189,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * @param r_vec - The right operand vector
    * @returns A new MutableColorRgb with the component-wise product
    */
-  static multiplyVector(l_vec: IVector3, r_vec: IVector3) {
+  static multiplyVector(l_vec: IVector3, r_vec: IVector3): MutableColorRgb {
     return super._multiplyVector(l_vec, r_vec, Float32Array) as MutableColorRgb;
   }
 
@@ -199,7 +199,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * @param value - The scalar value to divide by
    * @returns A new MutableColorRgb with the divided vector
    */
-  static divide(vec: IVector3, value: number) {
+  static divide(vec: IVector3, value: number): MutableColorRgb {
     return super._divide(vec, value, Float32Array) as MutableColorRgb;
   }
 
@@ -209,7 +209,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * @param r_vec - The right operand vector (divisor)
    * @returns A new MutableColorRgb with the component-wise division
    */
-  static divideVector(l_vec: IVector3, r_vec: IVector3) {
+  static divideVector(l_vec: IVector3, r_vec: IVector3): MutableColorRgb {
     return super._divideVector(l_vec, r_vec, Float32Array) as MutableColorRgb;
   }
 
@@ -219,7 +219,7 @@ export class MutableColorRgb extends MutableVector3 implements IMutableVector3, 
    * @param r_vec - The right operand vector
    * @returns A new MutableColorRgb with the cross product result
    */
-  static cross(l_vec: IVector3, r_vec: IVector3) {
+  static cross(l_vec: IVector3, r_vec: IVector3): MutableColorRgb {
     return super._cross(l_vec, r_vec, Float32Array) as MutableColorRgb;
   }
 

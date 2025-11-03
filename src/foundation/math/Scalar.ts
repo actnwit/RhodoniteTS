@@ -1,5 +1,5 @@
 import type { FloatTypedArrayConstructor, TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
-import { CompositionType } from '../definitions/CompositionType';
+import { CompositionType, type CompositionTypeEnum } from '../definitions/CompositionType';
 import { AbstractVector } from './AbstractVector';
 import type { IScalar } from './IVector';
 import { MathUtil } from './MathUtil';
@@ -137,7 +137,7 @@ export class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
    * Gets the composition type for scalar values.
    * @returns The scalar composition type
    */
-  static get compositionType() {
+  static get compositionType(): CompositionTypeEnum {
     return CompositionType.Scalar;
   }
 
@@ -178,7 +178,7 @@ export class Scalar extends Scalar_<Float32ArrayConstructor> implements IScalar 
    * @returns A new Scalar instance with value 0
    */
   static zero(): Scalar {
-    return Scalar.fromCopyNumber(0);
+    return super._fromCopyNumber(0, Float32Array) as Scalar;
   }
 
   /**
@@ -186,7 +186,7 @@ export class Scalar extends Scalar_<Float32ArrayConstructor> implements IScalar 
    * @returns A new Scalar instance with value 1
    */
   static one(): Scalar {
-    return Scalar.fromCopyNumber(1);
+    return super._fromCopyNumber(1, Float32Array) as Scalar;
   }
 
   /**
@@ -218,7 +218,7 @@ export class Scalar extends Scalar_<Float32ArrayConstructor> implements IScalar 
    * @returns A new Scalar instance with the same value
    */
   clone(): Scalar {
-    return new Scalar(this._v) as Scalar;
+    return new Scalar(new Float32Array([this._v[0]])) as Scalar;
   }
 }
 
@@ -250,7 +250,7 @@ export class Scalard extends Scalar_<Float64ArrayConstructor> {
    * @returns A new Scalard instance with value 0
    */
   static zero(): Scalard {
-    return Scalard.fromCopyNumber(0);
+    return super._fromCopyNumber(0, Float64Array) as Scalard;
   }
 
   /**
@@ -258,7 +258,7 @@ export class Scalard extends Scalar_<Float64ArrayConstructor> {
    * @returns A new Scalard instance with value 1
    */
   static one(): Scalard {
-    return Scalard.fromCopyNumber(1);
+    return super._fromCopyNumber(1, Float64Array) as Scalard;
   }
 
   /**
@@ -274,7 +274,7 @@ export class Scalard extends Scalar_<Float64ArrayConstructor> {
    * @returns A new Scalard instance with the same value
    */
   clone(): Scalard {
-    return new Scalard(this._v) as Scalard;
+    return new Scalard(new Float64Array([this._v[0]])) as Scalard;
   }
 }
 
