@@ -46,7 +46,7 @@ import type {
   PrimitiveUID,
   WebGLResourceHandle,
 } from '../types/CommonTypes';
-import type { WebXRSystem } from '../xr';
+import type { WebXRSystem } from '../xr/WebXRSystem';
 import type { RnXR } from '../xr/main';
 import type { WebGLContextWrapper } from './WebGLContextWrapper';
 import { WebGLResourceRepository } from './WebGLResourceRepository';
@@ -960,6 +960,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    * @param primitiveUids - Array of primitive UIDs to render
    * @param renderPass - The render pass configuration
    * @param renderPassTickCount - Current tick count for the render pass
+   * @param displayIdx - The index of the display to render to
    * @returns true if any primitives were successfully rendered, false otherwise
    *
    * @remarks
@@ -972,7 +973,12 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    * The method also handles buffer-less rendering mode for special cases
    * and manages depth mask settings for different primitive types.
    */
-  common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, renderPassTickCount: Count) {
+  common_$render(
+    primitiveUids: PrimitiveUID[],
+    renderPass: RenderPass,
+    renderPassTickCount: Count,
+    _displayIdx: Index
+  ) {
     if (typeof spector !== 'undefined') {
       spector.setMarker('|  |  DataTexture:common_$render#');
     }

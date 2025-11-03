@@ -128,7 +128,7 @@ export interface ICGAPIResourceRepository {
    *
    * @param renderPass - The render pass containing clear configuration
    */
-  clearFrameBuffer(renderPass: RenderPass): void;
+  clearFrameBuffer(renderPass: RenderPass, displayIdx?: number): void;
 
   /**
    * Creates a texture from image bitmap data with specified parameters.

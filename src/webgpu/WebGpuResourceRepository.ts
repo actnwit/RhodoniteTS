@@ -52,7 +52,10 @@ import type { AttributeNames } from '../webgl/types/CommonTypes';
 import type { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 
 import HDRImage from '../../vendor/hdrpng.js';
+import { ModuleManager } from '../foundation/system/ModuleManager';
 import { TextureArray } from '../foundation/textures/TextureArray';
+import type { WebXRSystem } from '../xr/WebXRSystem';
+import type { RnXR } from '../xr/main';
 
 export type WebGpuResource =
   | GPUTexture
@@ -74,7 +77,6 @@ export type WebGpuResource =
   | object;
 
 type RenderPipelineId = string;
-type RenderPassUid = number;
 
 const _IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT = 16;
 const _IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT = 17;
@@ -108,8 +110,9 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   private __bindGroupLayoutUniformDrawParameters?: GPUBindGroupLayout;
   private __uniformDrawParametersBuffers: Map<DRAW_PARAMETERS_IDENTIFIER, GPUBuffer> = new Map();
   private __commandEncoder?: GPUCommandEncoder;
-  private __renderBundles: Map<RenderPassUid, GPURenderBundle> = new Map();
+  private __renderBundles: Map<string, GPURenderBundle> = new Map();
   private __renderBundleEncoder?: GPURenderBundleEncoder;
+  private __renderBundleEncoderKey?: string;
   private __systemDepthTexture?: GPUTexture;
   private __systemDepthTextureView?: GPUTextureView;
   private __uniformMorphOffsetsBuffer?: GPUBuffer;
@@ -133,6 +136,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   private __bindGroupsForGeneratingMipmaps: Map<GPUTexture, Array<Array<GPUBindGroup>>> = new Map();
 
   private static __drawParametersUint32Array: Uint32Array = new Uint32Array(4);
+  private static __webxrSystem: WebXRSystem;
 
   private constructor() {
     super();
@@ -472,6 +476,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     if (this.__renderPassEncoder != null) {
       if (this.__renderBundleEncoder != null) {
         this.__renderPassEncoder.executeBundles([this.__renderBundleEncoder.finish()]);
+        this.__renderBundleEncoder = undefined;
+        this.__renderBundleEncoderKey = undefined;
       }
       this.__renderPassEncoder.end();
       this.__renderPassEncoder = undefined;
@@ -980,7 +986,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    *
    * @param renderPass - The render pass containing clear settings and target framebuffer
    */
-  clearFrameBuffer(renderPass: RenderPass) {
+  clearFrameBuffer(renderPass: RenderPass, displayIdx: number) {
     if (renderPass.entities.length > 0) {
       return;
     }
@@ -994,6 +1000,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     const context = this.__webGpuDeviceWrapper!.context;
     const colorAttachments: GPURenderPassColorAttachment[] = [];
     let depthStencilAttachment: GPURenderPassDepthStencilAttachment | undefined;
+    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+    const webxrSystem = rnXRModule.WebXRSystem.getInstance();
     if (renderPass.toClearColorBuffer) {
       const framebuffer = renderPass.getFramebuffer();
       if (framebuffer != null) {
@@ -1013,6 +1021,20 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
             storeOp: 'store',
           });
         }
+      } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
+        const view = SystemState.xrPoseWebGPU!.views[displayIdx];
+        const subImage = SystemState.xrGpuBinding.getViewSubImage(SystemState.xrProjectionLayerWebGPU!, view);
+        colorAttachments.push({
+          view: subImage.colorTexture.createView(subImage.getViewDescriptor()),
+          clearValue: {
+            r: renderPass.clearColor.x,
+            g: renderPass.clearColor.y,
+            b: renderPass.clearColor.z,
+            a: renderPass.clearColor.w,
+          },
+          loadOp: 'clear',
+          storeOp: 'store',
+        });
       } else {
         if (this.__contextCurrentTextureView == null) {
           this.__contextCurrentTextureView = context.getCurrentTexture().createView();
@@ -1038,6 +1060,15 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         ) as GPUTextureView;
         depthStencilAttachment = {
           view: depthTextureView,
+          depthClearValue: renderPass.clearDepth,
+          depthLoadOp: 'clear',
+          depthStoreOp: 'store',
+        };
+      } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
+        const view = SystemState.xrPoseWebGPU!.views[displayIdx];
+        const subImage = SystemState.xrGpuBinding.getViewSubImage(SystemState.xrProjectionLayerWebGPU!, view);
+        depthStencilAttachment = {
+          view: subImage.depthStencilTexture.createView(subImage.getViewDescriptor()),
           depthClearValue: renderPass.clearDepth,
           depthLoadOp: 'clear',
           depthStoreOp: 'store',
@@ -1072,7 +1103,14 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @param cameraId - Identifier for the camera used for rendering
    * @param zWrite - Whether to enable depth writing during rendering
    */
-  draw(primitive: Primitive, material: Material, renderPass: RenderPass, cameraId: number, zWrite: boolean) {
+  draw(
+    primitive: Primitive,
+    material: Material,
+    renderPass: RenderPass,
+    cameraId: number,
+    zWrite: boolean,
+    displayIdx: number
+  ) {
     const isBufferLessRendering = renderPass.isBufferLessRenderingMode();
     const VertexHandles = primitive._vertexHandles;
     if (!isBufferLessRendering && VertexHandles == null) {
@@ -1123,8 +1161,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       sheenCubeMap
     );
 
-    this.createRenderBundleEncoder(renderPass);
-
     const renderBundleEncoder = this.__renderBundleEncoder!;
     renderBundleEncoder.setBindGroup(0, this.__bindGroupStorageBuffer!);
     renderBundleEncoder.setPipeline(pipeline);
@@ -1132,7 +1168,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     renderBundleEncoder.setBindGroup(2, this.__bindGroupSamplerMap.get(bindGroupId)!);
     renderBundleEncoder.setBindGroup(
       3,
-      this.__bindGroupsUniformDrawParameters.get(`${renderPass.renderPassUID}-${primitive.primitiveUid}`)!
+      this.__bindGroupsUniformDrawParameters.get(`${renderPass.renderPassUID}-${primitive.primitiveUid}-${displayIdx}`)!
     );
     if (isBufferLessRendering) {
       renderBundleEncoder.draw(renderPass._drawVertexNumberForBufferLessRendering);
@@ -1156,8 +1192,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         renderBundleEncoder.draw(vertexCount, mesh.meshEntitiesInner.length);
       }
     }
-
-    this.createRenderPassEncoder(renderPass);
   }
 
   /**
@@ -1166,38 +1200,87 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    *
    * @param renderPass - The render pass that will use this render bundle encoder
    */
-  private createRenderBundleEncoder(renderPass: RenderPass) {
-    if (this.__renderBundleEncoder == null) {
-      const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-      const framebuffer = renderPass.getFramebuffer();
-      let colorFormats = [navigator.gpu.getPreferredCanvasFormat()];
-      let depthStencilFormat: GPUTextureFormat | undefined = this.__systemDepthTexture!.format;
-      if (framebuffer != null) {
-        colorFormats = [];
-        for (let colorAttachment of framebuffer.colorAttachments) {
-          const texture = this.__webGpuResources.get(colorAttachment._textureResourceUid) as GPUTexture;
+  private __getRenderBundleDescriptor(renderPass: RenderPass, displayIdx: number): GPURenderBundleEncoderDescriptor {
+    const framebuffer = renderPass.getFramebuffer();
+    const resolveFramebuffer = renderPass.getResolveFramebuffer();
+    let colorFormats: GPUTextureFormat[] = [];
+    let depthStencilFormat: GPUTextureFormat | undefined;
+    let sampleCount = 1;
+    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+    const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+    if (framebuffer != null) {
+      for (const colorAttachment of framebuffer.colorAttachments) {
+        if (colorAttachment == null) {
+          continue;
+        }
+        const textureResourceUid = (colorAttachment as { _textureResourceUid?: WebGLResourceHandle })
+          ._textureResourceUid;
+        if (textureResourceUid == null || textureResourceUid < 0) {
+          continue;
+        }
+        const texture = this.__webGpuResources.get(textureResourceUid) as GPUTexture | undefined;
+        if (texture != null) {
           colorFormats.push(texture.format);
         }
-        if (framebuffer.depthAttachment != null) {
-          const depthTexture = this.__webGpuResources.get(
-            framebuffer.depthAttachment._textureResourceUid
-          ) as GPUTexture;
-          depthStencilFormat = depthTexture.format;
+      }
+
+      if (resolveFramebuffer != null && framebuffer.colorAttachments.length > 0) {
+        const msaaAttachment = framebuffer.colorAttachments[0] as RenderBuffer | undefined;
+        const sampledCount = msaaAttachment?.sampleCount;
+        if (typeof sampledCount === 'number' && sampledCount > 0) {
+          sampleCount = sampledCount;
+        }
+      }
+
+      if (framebuffer.depthAttachment != null) {
+        const depthTextureUid = (framebuffer.depthAttachment as { _textureResourceUid?: WebGLResourceHandle })
+          ._textureResourceUid;
+        if (depthTextureUid != null && depthTextureUid >= 0) {
+          const depthTexture = this.__webGpuResources.get(depthTextureUid) as GPUTexture | undefined;
+          depthStencilFormat = depthTexture?.format;
         } else {
           depthStencilFormat = undefined;
         }
+      } else {
+        depthStencilFormat = undefined;
       }
-      const renderBundleDescriptor: GPURenderBundleEncoderDescriptor = {
-        colorFormats: colorFormats,
-        depthStencilFormat: depthStencilFormat,
-        sampleCount:
-          renderPass.getResolveFramebuffer() != null
-            ? (renderPass.getFramebuffer()!.colorAttachments[0] as RenderBuffer).sampleCount
-            : 1,
-      };
-      const encoder = gpuDevice.createRenderBundleEncoder(renderBundleDescriptor);
-      this.__renderBundleEncoder = encoder;
+    } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
+      const view = SystemState.xrPoseWebGPU!.views[displayIdx];
+      const subImage = SystemState.xrGpuBinding.getViewSubImage(SystemState.xrProjectionLayerWebGPU!, view);
+      colorFormats = [subImage.colorTexture.format];
+      depthStencilFormat = subImage.depthStencilTexture.format;
+    } else {
+      colorFormats = [navigator.gpu.getPreferredCanvasFormat()];
+      depthStencilFormat =
+        this.__systemDepthTexture != null ? this.__systemDepthTexture.format : ('depth24plus' as GPUTextureFormat);
     }
+
+    if (colorFormats.length === 0) {
+      colorFormats = [navigator.gpu.getPreferredCanvasFormat()];
+    }
+
+    return {
+      colorFormats,
+      depthStencilFormat,
+      sampleCount,
+    };
+  }
+
+  createRenderBundleEncoder(renderPass: RenderPass, displayIdx: number) {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const renderBundleDescriptor = this.__getRenderBundleDescriptor(renderPass, displayIdx);
+    const descriptorKey = JSON.stringify({
+      colorFormats: renderBundleDescriptor.colorFormats,
+      depthStencilFormat: renderBundleDescriptor.depthStencilFormat ?? null,
+      sampleCount: renderBundleDescriptor.sampleCount,
+    });
+
+    if (this.__renderBundleEncoder != null && this.__renderBundleEncoderKey === descriptorKey) {
+      return;
+    }
+
+    this.__renderBundleEncoder = gpuDevice.createRenderBundleEncoder(renderBundleDescriptor);
+    this.__renderBundleEncoderKey = descriptorKey;
   }
 
   /**
@@ -1206,127 +1289,149 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    *
    * @param renderPass - The render pass configuration including targets and clear values
    */
-  private createRenderPassEncoder(renderPass: RenderPass) {
-    if (this.__renderPassEncoder == null) {
-      const framebuffer = renderPass.getFramebuffer();
-      const resolveFramebuffer = renderPass.getResolveFramebuffer();
+  private createRenderPassEncoder(renderPass: RenderPass, displayIdx: number) {
+    if (this.__renderPassEncoder != null) {
+      return;
+    }
 
-      const clearValue = renderPass.toClearColorBuffer
-        ? {
-            r: renderPass.clearColor.x,
-            g: renderPass.clearColor.y,
-            b: renderPass.clearColor.z,
-            a: renderPass.clearColor.w,
-          }
-        : undefined;
-      const depthClearValue = renderPass.toClearDepthBuffer ? renderPass.clearDepth : undefined;
+    const framebuffer = renderPass.getFramebuffer();
+    const resolveFramebuffer = renderPass.getResolveFramebuffer();
 
-      if (resolveFramebuffer != null && framebuffer != null) {
-        let depthTextureView = this.__systemDepthTextureView!;
-        if (framebuffer.depthAttachment != null) {
-          const depthTexture = this.__webGpuResources.get(
-            framebuffer.depthAttachment._textureResourceUid
-          ) as GPUTexture;
-          if (depthTexture != null) {
-            depthTextureView = this.__webGpuResources.get(
-              framebuffer.depthAttachment._textureViewResourceUid
-            ) as GPUTextureView;
-          }
+    const clearValue = renderPass.toClearColorBuffer
+      ? {
+          r: renderPass.clearColor.x,
+          g: renderPass.clearColor.y,
+          b: renderPass.clearColor.z,
+          a: renderPass.clearColor.w,
         }
-        const renderPassDescriptor: GPURenderPassDescriptor = {
-          colorAttachments: [],
-          depthStencilAttachment: {
-            view: depthTextureView,
-            depthClearValue: depthClearValue,
-            depthLoadOp: renderPass.toClearDepthBuffer ? 'clear' : 'load',
-            depthStoreOp: 'store',
-          },
-          label: renderPass.uniqueName,
-        };
-        const colorAttachments = [];
-        for (let i = 0; i < resolveFramebuffer.colorAttachments.length; i++) {
-          const colorAttachment = framebuffer.colorAttachments[i] as RenderBuffer;
-          const resolveColorAttachment = resolveFramebuffer.colorAttachments[i] as RenderBuffer;
-          const textureView = this.__webGpuResources.get(
-            colorAttachment._textureViewAsRenderTargetResourceUid
+      : undefined;
+    const depthClearValue = renderPass.toClearDepthBuffer ? renderPass.clearDepth : undefined;
+
+    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+    const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+
+    if (resolveFramebuffer != null && framebuffer != null) {
+      let depthTextureView = this.__systemDepthTextureView!;
+      if (framebuffer.depthAttachment != null) {
+        const depthTexture = this.__webGpuResources.get(framebuffer.depthAttachment._textureResourceUid) as GPUTexture;
+        if (depthTexture != null) {
+          depthTextureView = this.__webGpuResources.get(
+            framebuffer.depthAttachment._textureViewResourceUid
           ) as GPUTextureView;
-          let resolveTextureView = this.__webGpuResources.get(
-            resolveColorAttachment._textureViewAsRenderTargetResourceUid
-          ) as GPUTextureView;
-          colorAttachments.push({
-            view: textureView,
-            resolveTarget: resolveTextureView,
-            clearValue: clearValue,
-            loadOp: renderPass.toClearColorBuffer ? 'clear' : 'load',
-            storeOp: 'store',
-          });
         }
-        renderPassDescriptor.colorAttachments = colorAttachments as GPURenderPassColorAttachment[];
-        this.__renderPassEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
-      } else if (framebuffer != null) {
-        let depthTextureView = undefined;
-        if (framebuffer.depthAttachment != null) {
-          const depthTexture = this.__webGpuResources.get(
-            framebuffer.depthAttachment._textureResourceUid
-          ) as GPUTexture;
-          if (depthTexture != null) {
-            depthTextureView = this.__webGpuResources.get(
-              framebuffer.depthAttachment._textureViewAsRenderTargetResourceUid
-            ) as GPUTextureView;
-          }
-        }
-        let depthStencilAttachment: GPURenderPassDepthStencilAttachment | undefined = undefined;
-        if (depthTextureView != null) {
-          depthStencilAttachment = {
-            view: depthTextureView,
-            depthClearValue: depthClearValue,
-            depthLoadOp: renderPass.toClearDepthBuffer ? 'clear' : 'load',
-            depthStoreOp: 'store',
-          };
-        }
-        const renderPassDescriptor: GPURenderPassDescriptor = {
-          colorAttachments: [],
-          depthStencilAttachment: depthStencilAttachment,
-          label: renderPass.uniqueName,
-        };
-        const colorAttachments = [];
-        for (let colorAttachment of framebuffer.colorAttachments) {
-          const textureView = this.__webGpuResources.get(
-            colorAttachment._textureViewAsRenderTargetResourceUid
-          ) as GPUTextureView;
-          colorAttachments.push({
-            view: textureView,
-            clearValue: clearValue,
-            loadOp: renderPass.toClearColorBuffer ? 'clear' : 'load',
-            storeOp: 'store',
-          });
-        }
-        renderPassDescriptor.colorAttachments = colorAttachments as GPURenderPassColorAttachment[];
-        this.__renderPassEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
-      } else {
-        if (this.__contextCurrentTextureView == null) {
-          const context = this.__webGpuDeviceWrapper!.context;
-          this.__contextCurrentTextureView = context.getCurrentTexture().createView();
-        }
-        const renderPassDescriptor: GPURenderPassDescriptor = {
-          colorAttachments: [
-            {
-              view: this.__contextCurrentTextureView,
-              clearValue: clearValue,
-              loadOp: renderPass.toClearColorBuffer ? 'clear' : 'load',
-              storeOp: 'store',
-            },
-          ],
-          depthStencilAttachment: {
-            view: this.__systemDepthTextureView!,
-            depthClearValue: depthClearValue,
-            depthLoadOp: renderPass.toClearDepthBuffer ? 'clear' : 'load',
-            depthStoreOp: 'store',
-          },
-          label: renderPass.uniqueName,
-        };
-        this.__renderPassEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
       }
+      const renderPassDescriptor: GPURenderPassDescriptor = {
+        colorAttachments: [],
+        depthStencilAttachment: {
+          view: depthTextureView,
+          depthClearValue: depthClearValue,
+          depthLoadOp: renderPass.toClearDepthBuffer ? 'clear' : 'load',
+          depthStoreOp: 'store',
+        },
+        label: renderPass.uniqueName,
+      };
+      const colorAttachments: GPURenderPassColorAttachment[] = [];
+      for (let i = 0; i < resolveFramebuffer.colorAttachments.length; i++) {
+        const colorAttachment = framebuffer.colorAttachments[i] as RenderBuffer;
+        const resolveColorAttachment = resolveFramebuffer.colorAttachments[i] as RenderBuffer;
+        const textureView = this.__webGpuResources.get(
+          colorAttachment._textureViewAsRenderTargetResourceUid
+        ) as GPUTextureView;
+        let resolveTextureView = this.__webGpuResources.get(
+          resolveColorAttachment._textureViewAsRenderTargetResourceUid
+        ) as GPUTextureView;
+        colorAttachments.push({
+          view: textureView,
+          resolveTarget: resolveTextureView,
+          clearValue: clearValue,
+          loadOp: renderPass.toClearColorBuffer ? 'clear' : 'load',
+          storeOp: 'store',
+        });
+      }
+      renderPassDescriptor.colorAttachments = colorAttachments as GPURenderPassColorAttachment[];
+      this.__renderPassEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
+    } else if (framebuffer != null) {
+      let depthTextureView: GPUTextureView | undefined = undefined;
+      if (framebuffer.depthAttachment != null) {
+        const depthTexture = this.__webGpuResources.get(framebuffer.depthAttachment._textureResourceUid) as GPUTexture;
+        if (depthTexture != null) {
+          depthTextureView = this.__webGpuResources.get(
+            framebuffer.depthAttachment._textureViewAsRenderTargetResourceUid
+          ) as GPUTextureView;
+        }
+      }
+      let depthStencilAttachment: GPURenderPassDepthStencilAttachment | undefined = undefined;
+      if (depthTextureView != null) {
+        depthStencilAttachment = {
+          view: depthTextureView,
+          depthClearValue: depthClearValue,
+          depthLoadOp: renderPass.toClearDepthBuffer ? 'clear' : 'load',
+          depthStoreOp: 'store',
+        };
+      }
+      const renderPassDescriptor: GPURenderPassDescriptor = {
+        colorAttachments: [],
+        depthStencilAttachment: depthStencilAttachment,
+        label: renderPass.uniqueName,
+      };
+      const colorAttachments: GPURenderPassColorAttachment[] = [];
+      for (let colorAttachment of framebuffer.colorAttachments) {
+        const textureView = this.__webGpuResources.get(
+          colorAttachment._textureViewAsRenderTargetResourceUid
+        ) as GPUTextureView;
+        colorAttachments.push({
+          view: textureView,
+          clearValue: clearValue,
+          loadOp: renderPass.toClearColorBuffer ? 'clear' : 'load',
+          storeOp: 'store',
+        });
+      }
+      renderPassDescriptor.colorAttachments = colorAttachments as GPURenderPassColorAttachment[];
+      this.__renderPassEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
+    } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
+      const colorAttachments: GPURenderPassColorAttachment[] = [];
+      const view = SystemState.xrPoseWebGPU!.views[displayIdx];
+      const subImage = SystemState.xrGpuBinding.getViewSubImage(SystemState.xrProjectionLayerWebGPU!, view);
+      colorAttachments.push({
+        view: subImage.colorTexture.createView(subImage.getViewDescriptor()),
+        clearValue: clearValue,
+        loadOp: renderPass.toClearColorBuffer ? 'clear' : 'load',
+        storeOp: 'store',
+      });
+      const depthStencilAttachment: GPURenderPassDepthStencilAttachment = {
+        view: subImage.depthStencilTexture.createView(subImage.getViewDescriptor()),
+        depthClearValue: depthClearValue,
+        depthLoadOp: renderPass.toClearDepthBuffer ? 'clear' : 'load',
+        depthStoreOp: 'store',
+      };
+      const renderPassDescriptor: GPURenderPassDescriptor = {
+        colorAttachments: colorAttachments as GPURenderPassColorAttachment[],
+        depthStencilAttachment: depthStencilAttachment,
+      };
+      this.__renderPassEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
+    } else {
+      if (this.__contextCurrentTextureView == null) {
+        const context = this.__webGpuDeviceWrapper!.context;
+        this.__contextCurrentTextureView = context.getCurrentTexture().createView();
+      }
+      const renderPassDescriptor: GPURenderPassDescriptor = {
+        colorAttachments: [
+          {
+            view: this.__contextCurrentTextureView,
+            clearValue: clearValue,
+            loadOp: renderPass.toClearColorBuffer ? 'clear' : 'load',
+            storeOp: 'store',
+          },
+        ],
+        depthStencilAttachment: {
+          view: this.__systemDepthTextureView!,
+          depthClearValue: depthClearValue,
+          depthLoadOp: renderPass.toClearDepthBuffer ? 'clear' : 'load',
+          depthStoreOp: 'store',
+        },
+        label: renderPass.uniqueName,
+      };
+      this.__renderPassEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
     }
   }
 
@@ -1348,15 +1453,16 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     }
   }
 
-  executeRenderBundle(renderPass: RenderPass) {
+  renderWithRenderBundle(renderPass: RenderPass, displayIdx: number) {
     this.__toClearRenderBundles();
     if (renderPass._isChangedSortRenderResult || !Config.cacheWebGpuRenderBundles) {
       this.__renderBundles.clear();
     }
 
-    let renderBundle = this.__renderBundles.get(renderPass.renderPassUID);
+    const renderBundleKey = `${renderPass.renderPassUID}-${displayIdx}`;
+    let renderBundle = this.__renderBundles.get(renderBundleKey);
     if (renderBundle != null) {
-      this.createRenderPassEncoder(renderPass);
+      this.createRenderPassEncoder(renderPass, displayIdx);
 
       if (this.__renderPassEncoder != null) {
         this.__renderPassEncoder.executeBundles([renderBundle]);
@@ -1370,18 +1476,24 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     return false;
   }
 
-  finishRenderBundleEncoder(renderPass: RenderPass) {
+  finishRenderBundleEncoder(renderPass: RenderPass, displayIdx: number) {
+    this.createRenderPassEncoder(renderPass, displayIdx);
+
     if (this.__renderPassEncoder != null && this.__renderBundleEncoder != null) {
       const renderBundle = this.__renderBundleEncoder.finish();
       if (Config.cacheWebGpuRenderBundles) {
-        this.__renderBundles.set(renderPass.renderPassUID, renderBundle);
+        const renderBundleKey = `${renderPass.renderPassUID}-${displayIdx}`;
+        this.__renderBundles.set(renderBundleKey, renderBundle);
       } else {
         this.__renderBundles.clear();
       }
       this.__renderPassEncoder.executeBundles([renderBundle]);
       this.__renderPassEncoder.end();
       this.__renderBundleEncoder = undefined;
+      this.__renderBundleEncoderKey = undefined;
       this.__renderPassEncoder = undefined;
+    } else {
+      console.log('renderPassEncoder is null');
     }
   }
 
@@ -3089,6 +3201,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     if (this.__renderPassEncoder != null) {
       if (this.__renderBundleEncoder != null) {
         this.__renderPassEncoder.executeBundles([this.__renderBundleEncoder.finish()]);
+        this.__renderBundleEncoder = undefined;
+        this.__renderBundleEncoderKey = undefined;
       }
       this.__renderPassEncoder.end();
       this.__renderPassEncoder = undefined;
@@ -3132,6 +3246,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     if (this.__renderPassEncoder != null) {
       if (this.__renderBundleEncoder != null) {
         this.__renderPassEncoder.executeBundles([this.__renderBundleEncoder.finish()]);
+        this.__renderBundleEncoder = undefined;
+        this.__renderBundleEncoderKey = undefined;
       }
       this.__renderPassEncoder.end();
       this.__renderPassEncoder = undefined;
@@ -3356,6 +3472,10 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     if (this.__systemDepthTexture != null) {
       this.__systemDepthTexture.destroy();
     }
+    if (canvas.width <= 0 || canvas.height <= 0) {
+      Logger.warn('Skip recreating system depth texture because the canvas size is zero.');
+      return;
+    }
     this.__systemDepthTexture = gpuDevice.createTexture({
       size: [canvas.width, canvas.height],
       format: 'depth24plus',
@@ -3372,6 +3492,10 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @param height - New canvas height in pixels
    */
   resizeCanvas(width: Size, height: Size) {
+    if (width <= 0 || height <= 0) {
+      Logger.warn('Skip resizing WebGPU canvas because width or height is zero.');
+      return;
+    }
     const canvas = this.__webGpuDeviceWrapper!.canvas;
     canvas.width = width;
     canvas.height = height;
