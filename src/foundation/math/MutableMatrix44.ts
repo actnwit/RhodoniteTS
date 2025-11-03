@@ -396,7 +396,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    *
    * @returns A new MutableMatrix44 instance representing a dummy matrix
    */
-  static dummy() {
+  static dummy(): MutableMatrix44 {
     return super.dummy() as MutableMatrix44;
   }
 
@@ -406,11 +406,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param mat - The matrix to transpose
    * @returns A new MutableMatrix44 instance that is the transpose of the input matrix
    */
-  static transpose(mat: Matrix44) {
-    if (mat.isIdentityMatrixClass) {
-      return mat;
-    }
-
+  static transpose(mat: IMatrix44): MutableMatrix44 {
     return MutableMatrix44.fromCopyFloat32ArrayRowMajor(mat._v);
   }
 
@@ -957,7 +953,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param mat - The matrix to multiply from the right
    * @returns This matrix instance for method chaining
    */
-  multiply(mat: Matrix44) {
+  multiply(mat: IMatrix44): MutableMatrix44 {
     if (mat.isIdentityMatrixClass) {
       return this;
     }
@@ -991,7 +987,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
    * @param mat - The matrix to multiply from the left
    * @returns This matrix instance for method chaining
    */
-  multiplyByLeft(mat: Matrix44) {
+  multiplyByLeft(mat: IMatrix44): MutableMatrix44 {
     if (mat.isIdentityMatrixClass) {
       return this;
     }

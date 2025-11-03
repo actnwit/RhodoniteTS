@@ -514,12 +514,12 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
    * @param r_mat - The right matrix in the multiplication
    * @returns A new Matrix44 instance representing the matrix product (l_mat * r_mat)
    */
-  static multiply(l_mat: IMatrix44, r_mat: IMatrix44): IMatrix44 {
+  static multiply(l_mat: IMatrix44, r_mat: IMatrix44): Matrix44 {
     if (l_mat.isIdentityMatrixClass) {
-      return r_mat;
+      return this.fromCopyMatrix44(r_mat);
     }
     if (r_mat.isIdentityMatrixClass) {
-      return l_mat;
+      return this.fromCopyMatrix44(l_mat);
     }
 
     const lv = (l_mat as Matrix44)._v;
@@ -1159,7 +1159,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
    * @param mat - The source matrix to copy
    * @returns A new Matrix44 instance with copied values
    */
-  static fromCopyMatrix44(mat: Matrix44) {
+  static fromCopyMatrix44(mat: IMatrix44) {
     const v = new Float32Array(16);
     v.set(mat._v);
     return new Matrix44(v);
