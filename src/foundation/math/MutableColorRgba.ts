@@ -12,7 +12,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * Gets the x component (equivalent to red component).
    * @returns The x/red value
    */
-  get x() {
+  get x(): number {
     return this._v[0];
   }
 
@@ -20,7 +20,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * Sets the x component (equivalent to red component).
    * @param val - The value to set
    */
-  set x(val) {
+  set x(val: number) {
     this._v[0] = val;
   }
 
@@ -28,7 +28,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * Gets the y component (equivalent to green component).
    * @returns The y/green value
    */
-  get y() {
+  get y(): number {
     return this._v[1];
   }
 
@@ -36,7 +36,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * Sets the y component (equivalent to green component).
    * @param val - The value to set
    */
-  set y(val) {
+  set y(val: number) {
     this._v[1] = val;
   }
 
@@ -44,7 +44,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * Gets the z component (equivalent to blue component).
    * @returns The z/blue value
    */
-  get z() {
+  get z(): number {
     return this._v[2];
   }
 
@@ -52,7 +52,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * Sets the z component (equivalent to blue component).
    * @param val - The value to set
    */
-  set z(val) {
+  set z(val: number) {
     this._v[2] = val;
   }
 
@@ -60,7 +60,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * Gets the w component (equivalent to alpha component).
    * @returns The w/alpha value
    */
-  get w() {
+  get w(): number {
     return this._v[3];
   }
 
@@ -68,7 +68,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * Sets the w component (equivalent to alpha component).
    * @param val - The value to set
    */
-  set w(val) {
+  set w(val: number) {
     this._v[3] = val;
   }
 
@@ -76,7 +76,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * Gets the red component.
    * @returns The red value
    */
-  get r() {
+  get r(): number {
     return this._v[0];
   }
 
@@ -84,7 +84,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * Sets the red component.
    * @param val - The red value to set
    */
-  set r(val) {
+  set r(val: number) {
     this._v[0] = val;
   }
 
@@ -92,7 +92,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * Gets the green component.
    * @returns The green value
    */
-  get g() {
+  get g(): number {
     return this._v[1];
   }
 
@@ -100,7 +100,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * Sets the green component.
    * @param val - The green value to set
    */
-  set g(val) {
+  set g(val: number) {
     this._v[1] = val;
   }
 
@@ -108,7 +108,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * Gets the blue component.
    * @returns The blue value
    */
-  get b() {
+  get b(): number {
     return this._v[2];
   }
 
@@ -116,7 +116,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * Sets the blue component.
    * @param val - The blue value to set
    */
-  set b(val) {
+  set b(val: number) {
     this._v[2] = val;
   }
 
@@ -124,7 +124,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * Gets the alpha component.
    * @returns The alpha value
    */
-  get a() {
+  get a(): number {
     return this._v[3];
   }
 
@@ -132,7 +132,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * Sets the alpha component.
    * @param val - The alpha value to set
    */
-  set a(val) {
+  set a(val: number) {
     this._v[3] = val;
   }
 
@@ -140,7 +140,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * Creates a new MutableColorRgba with all components set to zero.
    * @returns A new MutableColorRgba instance with values [0, 0, 0, 0]
    */
-  static zero() {
+  static zero(): MutableColorRgba {
     return super._zero(Float32Array) as MutableColorRgba;
   }
 
@@ -148,7 +148,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * Creates a new MutableColorRgba with all components set to one.
    * @returns A new MutableColorRgba instance with values [1, 1, 1, 1]
    */
-  static one() {
+  static one(): MutableColorRgba {
     return super._one(Float32Array) as MutableColorRgba;
   }
 
@@ -156,7 +156,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * Creates a dummy MutableColorRgba instance.
    * @returns A new MutableColorRgba instance for placeholder purposes
    */
-  static dummy() {
+  static dummy(): MutableColorRgba {
     return super._dummy(Float32Array) as MutableColorRgba;
   }
 
@@ -165,7 +165,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * @param vec - The vector to normalize
    * @returns A new MutableColorRgba with normalized values
    */
-  static normalize(vec: IVector4) {
+  static normalize(vec: IVector4): MutableColorRgba {
     return super._normalize(vec, Float32Array) as MutableColorRgba;
   }
 
@@ -175,7 +175,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * @param r_vec - The right operand vector
    * @returns A new MutableColorRgba containing the sum
    */
-  static add(l_vec: IVector4, r_vec: IVector4) {
+  static add(l_vec: IVector4, r_vec: IVector4): MutableColorRgba {
     return super._add(l_vec, r_vec, Float32Array) as MutableColorRgba;
   }
 
@@ -185,7 +185,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * @param r_vec - The right operand vector (subtrahend)
    * @returns A new MutableColorRgba containing the difference
    */
-  static subtract(l_vec: IVector4, r_vec: IVector4) {
+  static subtract(l_vec: IVector4, r_vec: IVector4): MutableColorRgba {
     return super._subtract(l_vec, r_vec, Float32Array) as MutableColorRgba;
   }
 
@@ -195,7 +195,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * @param value - The scalar value to multiply by
    * @returns A new MutableColorRgba containing the scaled result
    */
-  static multiply(vec: IVector4, value: number) {
+  static multiply(vec: IVector4, value: number): MutableColorRgba {
     return super._multiply(vec, value, Float32Array) as MutableColorRgba;
   }
 
@@ -205,7 +205,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * @param r_vec - The right operand vector
    * @returns A new MutableColorRgba containing the component-wise product
    */
-  static multiplyVector(l_vec: IVector4, r_vec: IVector4) {
+  static multiplyVector(l_vec: IVector4, r_vec: IVector4): MutableColorRgba {
     return super._multiplyVector(l_vec, r_vec, Float32Array) as MutableColorRgba;
   }
 
@@ -215,7 +215,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * @param value - The scalar value to divide by
    * @returns A new MutableColorRgba containing the divided result
    */
-  static divide(vec: IVector4, value: number) {
+  static divide(vec: IVector4, value: number): MutableColorRgba {
     return super._divide(vec, value, Float32Array) as MutableColorRgba;
   }
 
@@ -225,7 +225,7 @@ export class MutableColorRgba extends MutableVector4 implements IMutableVector4,
    * @param r_vec - The right operand vector (divisor)
    * @returns A new MutableColorRgba containing the component-wise quotient
    */
-  static divideVector(l_vec: IVector4, r_vec: IVector4) {
+  static divideVector(l_vec: IVector4, r_vec: IVector4): MutableColorRgba {
     return super._divideVector(l_vec, r_vec, Float32Array) as MutableColorRgba;
   }
 

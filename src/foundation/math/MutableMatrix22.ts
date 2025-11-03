@@ -1,6 +1,7 @@
 import type { Array4, Index } from '../../types/CommonTypes';
 import { Logger } from '../misc/Logger';
-import type { IMatrix22, IMutableMatrix, IMutableMatrix22 } from './IMatrix';
+import type { IMatrix22, IMatrix33, IMatrix44, IMutableMatrix, IMutableMatrix22 } from './IMatrix';
+import type { IVector2 } from './IVector';
 import { Matrix22 } from './Matrix22';
 import type { Matrix33 } from './Matrix33';
 import type { Matrix44 } from './Matrix44';
@@ -31,7 +32,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    *
    * @param val - The value to set
    */
-  public set m00(val) {
+  public set m00(val: number) {
     this._v[0] = val;
   }
 
@@ -40,7 +41,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    *
    * @returns The value at position (0,0)
    */
-  public get m00() {
+  public get m00(): number {
     return this._v[0];
   }
 
@@ -49,7 +50,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    *
    * @param val - The value to set
    */
-  public set m10(val) {
+  public set m10(val: number) {
     this._v[1] = val;
   }
 
@@ -58,7 +59,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    *
    * @returns The value at position (1,0)
    */
-  public get m10() {
+  public get m10(): number {
     return this._v[1];
   }
 
@@ -67,7 +68,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    *
    * @param val - The value to set
    */
-  public set m01(val) {
+  public set m01(val: number) {
     this._v[2] = val;
   }
 
@@ -76,7 +77,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    *
    * @returns The value at position (0,1)
    */
-  public get m01() {
+  public get m01(): number {
     return this._v[2];
   }
 
@@ -85,7 +86,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    *
    * @param val - The value to set
    */
-  public set m11(val) {
+  public set m11(val: number) {
     this._v[3] = val;
   }
 
@@ -94,7 +95,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    *
    * @returns The value at position (1,1)
    */
-  public get m11() {
+  public get m11(): number {
     return this._v[3];
   }
 
@@ -103,7 +104,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    *
    * @returns The class name "MutableMatrix22"
    */
-  get className() {
+  get className(): string {
     return 'MutableMatrix22';
   }
 
@@ -112,8 +113,8 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    *
    * @returns A new MutableMatrix22 instance with all zero values
    */
-  static zero() {
-    return super.zero();
+  static zero(): MutableMatrix22 {
+    return super.zero() as MutableMatrix22;
   }
 
   /**
@@ -130,7 +131,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    *
    * @returns A new MutableMatrix22 dummy instance
    */
-  static dummy() {
+  static dummy(): MutableMatrix22 {
     return super.dummy() as MutableMatrix22;
   }
 
@@ -140,7 +141,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @param mat - The matrix to transpose
    * @returns A new MutableMatrix22 containing the transposed matrix
    */
-  static transpose(mat: Matrix22) {
+  static transpose(mat: IMatrix22): MutableMatrix22 {
     return super.transpose(mat) as MutableMatrix22;
   }
 
@@ -151,7 +152,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @returns A new MutableMatrix22 containing the inverted matrix
    * @throws Error if the matrix is not invertible (determinant is 0)
    */
-  static invert(mat: Matrix22) {
+  static invert(mat: IMatrix22): MutableMatrix22 {
     return super.invert(mat) as MutableMatrix22;
   }
 
@@ -161,7 +162,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @param radian - The rotation angle in radians
    * @returns A new MutableMatrix22 representing the rotation transformation
    */
-  static rotate(radian: number) {
+  static rotate(radian: number): MutableMatrix22 {
     return super.rotate(radian) as MutableMatrix22;
   }
 
@@ -171,8 +172,8 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @param vec - Vector2 containing the scale factors for x and y axes
    * @returns A new MutableMatrix22 representing the scale transformation
    */
-  static scale(vec: Vector2) {
-    return super.scale(vec) as unknown as MutableMatrix22;
+  static scale(vec: IVector2): MutableMatrix22 {
+    return super.scale(vec) as MutableMatrix22;
   }
 
   /**
@@ -182,7 +183,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @param r_mat - The right matrix operand
    * @returns A new MutableMatrix22 containing the multiplication result
    */
-  static multiply(l_mat: Matrix22, r_mat: Matrix22) {
+  static multiply(l_mat: IMatrix22, r_mat: IMatrix22): MutableMatrix22 {
     return super.multiply(l_mat, r_mat) as MutableMatrix22;
   }
 
@@ -191,7 +192,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    *
    * @returns A new MutableMatrix22 instance with the same values
    */
-  clone() {
+  clone(): MutableMatrix22 {
     const result = super.clone() as MutableMatrix22;
     return result;
   }
@@ -201,7 +202,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    *
    * @returns The internal Float32Array in column-major order
    */
-  raw() {
+  raw(): Float32Array {
     return this._v;
   }
 
@@ -213,7 +214,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @param value - The value to set
    * @returns This matrix instance for method chaining
    */
-  setAt(row_i: number, column_i: number, value: number) {
+  setAt(row_i: number, column_i: number, value: number): MutableMatrix22 {
     this._v[row_i + column_i * 2] = value;
     return this;
   }
@@ -243,7 +244,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @param mat - The source matrix to copy from
    * @returns This matrix instance for method chaining
    */
-  copyComponents(mat: Matrix22 | Matrix33 | Matrix44) {
+  copyComponents(mat: IMatrix22 | IMatrix33 | IMatrix44): MutableMatrix22 {
     this._v[0] = mat.m00;
     this._v[2] = mat.m01; // mat.m01 is mat._v[2 or 3 or 4]
     this._v[1] = mat.m10;
@@ -257,7 +258,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    *
    * @returns This matrix instance for method chaining
    */
-  zero() {
+  zero(): MutableMatrix22 {
     return this.setComponents(0, 0, 0, 0);
   }
 
@@ -266,7 +267,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    *
    * @returns This matrix instance for method chaining
    */
-  identity() {
+  identity(): MutableMatrix22 {
     return this.setComponents(1, 0, 0, 1);
   }
 
@@ -276,7 +277,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @param l - Index of the first element
    * @param r - Index of the second element
    */
-  _swap(l: Index, r: Index) {
+  _swap(l: Index, r: Index): void {
     const temp = this._v[l];
     this._v[l] = this._v[r];
     this._v[r] = temp;
@@ -287,7 +288,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    *
    * @returns This matrix instance for method chaining
    */
-  transpose() {
+  transpose(): MutableMatrix22 {
     this._swap(1, 2);
 
     return this;
@@ -299,7 +300,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @returns This matrix instance for method chaining
    * @throws Error if the matrix is not invertible (determinant is 0)
    */
-  invert() {
+  invert(): MutableMatrix22 {
     const det = this.determinant();
     if (det === 0) {
       Logger.error('the determinant is 0!');
@@ -319,7 +320,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @param radian - The rotation angle in radians
    * @returns This matrix instance for method chaining
    */
-  rotate(radian: number) {
+  rotate(radian: number): MutableMatrix22 {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
     return this.setComponents(cos, -sin, sin, cos);
@@ -331,7 +332,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @param vec - Vector2 containing the scale factors for x and y axes
    * @returns This matrix instance for method chaining
    */
-  scale(vec: Vector2) {
+  scale(vec: IVector2): MutableMatrix22 {
     return this.setComponents(vec._v[0], 0, 0, vec._v[1]);
   }
 
@@ -341,7 +342,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @param vec - Vector2 containing the scale factors for x and y axes
    * @returns This matrix instance for method chaining
    */
-  multiplyScale(vec: Vector2) {
+  multiplyScale(vec: IVector2): MutableMatrix22 {
     this._v[0] *= vec._v[0];
     this._v[2] *= vec._v[0];
 
@@ -357,7 +358,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @param mat - The matrix to multiply with
    * @returns This matrix instance for method chaining
    */
-  multiply(mat: Matrix22) {
+  multiply(mat: IMatrix22): MutableMatrix22 {
     const m00 = this._v[0] * mat._v[0] + this._v[2] * mat._v[1];
     const m01 = this._v[0] * mat._v[2] + this._v[2] * mat._v[3];
 
@@ -373,7 +374,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @param mat - The matrix to multiply with from the left
    * @returns This matrix instance for method chaining
    */
-  multiplyByLeft(mat: Matrix22) {
+  multiplyByLeft(mat: IMatrix22): MutableMatrix22 {
     const m00 = mat._v[0] * this._v[0] + mat._v[2] * this._v[1];
     const m01 = mat._v[0] * this._v[2] + mat._v[2] * this._v[3];
 
@@ -394,7 +395,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @param m11 - Value for position (1,1)
    * @returns A new MutableMatrix22 instance
    */
-  static fromCopy4RowMajor(m00: number, m01: number, m10: number, m11: number) {
+  static fromCopy4RowMajor(m00: number, m01: number, m10: number, m11: number): MutableMatrix22 {
     const v = new Float32Array(4);
     v[0] = m00;
     v[2] = m01;
@@ -413,7 +414,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @param m11 - Value for position (1,1)
    * @returns A new MutableMatrix22 instance
    */
-  static fromCopy4ColumnMajor(m00: number, m10: number, m01: number, m11: number) {
+  static fromCopy4ColumnMajor(m00: number, m10: number, m01: number, m11: number): MutableMatrix22 {
     const v = new Float32Array(4);
     v[0] = m00;
     v[2] = m01;
@@ -429,7 +430,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @param float32Array - Float32Array containing matrix data in column-major order
    * @returns A new MutableMatrix22 instance sharing the provided array
    */
-  static fromFloat32ArrayColumnMajor(float32Array: Float32Array) {
+  static fromFloat32ArrayColumnMajor(float32Array: Float32Array): MutableMatrix22 {
     return new MutableMatrix22(float32Array);
   }
 
@@ -439,7 +440,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @param float32Array - Float32Array containing matrix data in column-major order
    * @returns A new MutableMatrix22 instance with copied data
    */
-  static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array) {
+  static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array): MutableMatrix22 {
     const v = new Float32Array(4);
     v.set(float32Array);
     return new MutableMatrix22(v);
@@ -451,7 +452,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @param array - Float32Array containing matrix data in row-major order
    * @returns A new MutableMatrix22 instance with converted data
    */
-  static fromCopyFloat32ArrayRowMajor(array: Float32Array) {
+  static fromCopyFloat32ArrayRowMajor(array: Float32Array): MutableMatrix22 {
     const v = new Float32Array(4);
     v[0] = array[0];
     v[3] = array[1];
@@ -467,7 +468,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @param mat - The source Matrix22 to copy from
    * @returns A new MutableMatrix22 instance with copied data
    */
-  static fromCopyMatrix22(mat: IMatrix22) {
+  static fromCopyMatrix22(mat: IMatrix22): MutableMatrix22 {
     const v = new Float32Array(4);
     v[0] = mat._v[0];
     v[3] = mat._v[1];
@@ -482,7 +483,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @param array - Array4 containing matrix data in column-major order
    * @returns A new MutableMatrix22 instance with copied data
    */
-  static fromCopyArray9ColumnMajor(array: Array4<number>) {
+  static fromCopyArray9ColumnMajor(array: Array4<number>): MutableMatrix22 {
     const v = new Float32Array(4);
     v.set(array);
     return new MutableMatrix22(v);
@@ -494,7 +495,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @param array - Array containing matrix data in column-major order
    * @returns A new MutableMatrix22 instance with copied data
    */
-  static fromCopyArrayColumnMajor(array: Array<number>) {
+  static fromCopyArrayColumnMajor(array: Array<number>): MutableMatrix22 {
     const v = new Float32Array(4);
     v.set(array);
     return new MutableMatrix22(v);
@@ -506,7 +507,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @param array - Array4 containing matrix data in row-major order
    * @returns A new MutableMatrix22 instance with converted data
    */
-  static fromCopyArray9RowMajor(array: Array4<number>) {
+  static fromCopyArray9RowMajor(array: Array4<number>): MutableMatrix22 {
     const v = new Float32Array(4);
     v[0] = array[0];
     v[3] = array[1];
@@ -521,7 +522,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
    * @param array - Array containing matrix data in row-major order
    * @returns A new MutableMatrix22 instance with converted data
    */
-  static fromCopyArrayRowMajor(array: Array<number>) {
+  static fromCopyArrayRowMajor(array: Array<number>): MutableMatrix22 {
     const v = new Float32Array(4);
     v[0] = array[0];
     v[3] = array[1];
