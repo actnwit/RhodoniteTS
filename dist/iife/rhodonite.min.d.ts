@@ -22157,6 +22157,7 @@ declare class WebGpuResourceRepository extends CGAPIResourceRepository implement
     private __commandEncoder?;
     private __renderBundles;
     private __renderBundleEncoder?;
+    private __renderBundleEncoderKey?;
     private __systemDepthTexture?;
     private __systemDepthTextureView?;
     private __uniformMorphOffsetsBuffer?;
@@ -22177,6 +22178,7 @@ declare class WebGpuResourceRepository extends CGAPIResourceRepository implement
     private __dstTextureViewsForGeneratingMipmaps;
     private __bindGroupsForGeneratingMipmaps;
     private static __drawParametersUint32Array;
+    private static __webxrSystem;
     private constructor();
     /**
      * Clears all cached resources including render pipelines, bind groups, and render bundles.
@@ -22439,7 +22441,7 @@ declare class WebGpuResourceRepository extends CGAPIResourceRepository implement
      *
      * @param renderPass - The render pass containing clear settings and target framebuffer
      */
-    clearFrameBuffer(renderPass: RenderPass): void;
+    clearFrameBuffer(renderPass: RenderPass, displayIdx: number): void;
     /**
      * Executes a draw call for rendering a primitive with the specified material and render pass.
      * This is the core rendering method that sets up the render pipeline, bind groups,
@@ -22451,14 +22453,15 @@ declare class WebGpuResourceRepository extends CGAPIResourceRepository implement
      * @param cameraId - Identifier for the camera used for rendering
      * @param zWrite - Whether to enable depth writing during rendering
      */
-    draw(primitive: Primitive, material: Material, renderPass: RenderPass, cameraId: number, zWrite: boolean): void;
+    draw(primitive: Primitive, material: Material, renderPass: RenderPass, cameraId: number, zWrite: boolean, displayIdx: number): void;
     /**
      * Creates a render bundle encoder for efficient rendering.
      * Render bundles allow pre-recording of rendering commands for better performance.
      *
      * @param renderPass - The render pass that will use this render bundle encoder
      */
-    private createRenderBundleEncoder;
+    private __getRenderBundleDescriptor;
+    createRenderBundleEncoder(renderPass: RenderPass, displayIdx: number): void;
     /**
      * Creates a render pass encoder for immediate rendering commands.
      * This encoder is used for recording rendering commands that will be executed immediately.
@@ -22467,8 +22470,8 @@ declare class WebGpuResourceRepository extends CGAPIResourceRepository implement
      */
     private createRenderPassEncoder;
     private __toClearRenderBundles;
-    executeRenderBundle(renderPass: RenderPass): boolean;
-    finishRenderBundleEncoder(renderPass: RenderPass): void;
+    renderWithRenderBundle(renderPass: RenderPass, displayIdx: number): boolean;
+    finishRenderBundleEncoder(renderPass: RenderPass, displayIdx: number): void;
     getOrCreateRenderPipeline(renderPipelineId: string, bindGroupId: string, primitive: Primitive, material: Material, renderPass: RenderPass, zWrite: boolean, _diffuseCubeMap?: CubeTexture | RenderTargetTextureCube, _specularCubeMap?: CubeTexture | RenderTargetTextureCube, _sheenCubeMap?: CubeTexture | RenderTargetTextureCube): [GPURenderPipeline, boolean];
     /**
      * Submits all recorded commands to the GPU queue and resets the command encoder.
@@ -22876,7 +22879,7 @@ interface ICGAPIResourceRepository {
      *
      * @param renderPass - The render pass containing clear configuration
      */
-    clearFrameBuffer(renderPass: RenderPass): void;
+    clearFrameBuffer(renderPass: RenderPass, displayIdx?: number): void;
     /**
      * Creates a texture from image bitmap data with specified parameters.
      * This method handles various image sources and converts them to GPU textures.
@@ -24168,7 +24171,7 @@ declare class WebGLResourceRepository extends CGAPIResourceRepository implements
     createTransformFeedback(): number;
     deleteTransformFeedback(transformFeedbackUid: WebGLResourceHandle): void;
     setViewport(viewport?: Vector4): void;
-    clearFrameBuffer(renderPass: RenderPass): void;
+    clearFrameBuffer(renderPass: RenderPass, _?: number): void;
     deleteVertexDataResources(vertexHandles: VertexHandles): void;
     deleteVertexArray(vaoHandle: WebGLResourceHandle): void;
     deleteVertexBuffer(vboUid: WebGLResourceHandle): void;
@@ -25147,15 +25150,16 @@ declare class MeshRendererComponent extends Component {
      * Common rendering method that executes the actual rendering of primitives.
      * Delegates to the appropriate rendering strategy (WebGL or WebGPU).
      * @param renderPass - The render pass context
-     * @param processStage - The current process stage
      * @param renderPassTickCount - The tick count for this render pass
      * @param primitiveUids - Array of primitive UIDs to render
+     * @param displayIdx - The index of the display to render to
      * @returns True if rendering was successful, false otherwise
      */
-    static common_$render({ renderPass, renderPassTickCount, primitiveUids, }: {
+    static common_$render({ renderPass, renderPassTickCount, primitiveUids, displayIdx, }: {
         renderPass: RenderPass;
         renderPassTickCount: Count;
         primitiveUids: PrimitiveUID[];
+        displayIdx: Index;
     }): boolean;
     /**
      * Instance-specific render method for this mesh renderer component.
@@ -34628,10 +34632,6 @@ declare class CameraComponent extends Component {
      */
     get biasViewProjectionMatrix(): MutableMatrix44;
     /**
-     * Sets only the matrix values to the global data repository.
-     */
-    setValuesToGlobalDataRepositoryOnlyMatrices(): void;
-    /**
      * Sets camera values (matrices and position) to the global data repository.
      */
     setValuesToGlobalDataRepository(): void;
@@ -42360,6 +42360,8 @@ declare class WebXRSystem {
     private __multiviewFramebufferHandle;
     private __multiviewColorTextureHandle;
     private __webglStereoUtil?;
+    private __xrGpuBinding?;
+    private __xrProjectionLayerWebGPU?;
     /**
      * Private constructor for singleton pattern.
      * Initializes the viewer entity and left/right camera entities for stereo rendering.
@@ -42568,13 +42570,6 @@ declare class WebXRSystem {
      */
     _getRightViewport(): Vector4;
     /**
-     * Updates camera projection matrices and pushes values to the global data repository.
-     * Called during the rendering pipeline to ensure cameras have current XR projection data.
-     *
-     * @internal
-     */
-    _setValuesToGlobalDataRepository(): void;
-    /**
      * Gets the world position of the specified VR camera.
      * Combines XR pose data with user position offset and viewer transformations.
      *
@@ -42649,6 +42644,7 @@ declare class WebXRSystem {
      * @param callbackOnXrSessionStart - Callback to execute when setup is complete.
      */
     private __setupWebGLLayer;
+    private __setupWebGPULayer;
     /**
      * Updates the viewer pose from the current XR frame.
      * Retrieves the current viewer pose and updates camera transformations.
@@ -42710,9 +42706,10 @@ interface CGAPIStrategy {
      * @param primitiveUids - Array of unique identifiers for the primitives to be rendered
      * @param renderPass - The render pass context containing rendering configuration
      * @param renderPassTickCount - The current tick count for the render pass, used for timing and animation
+     * @param displayIdx - The index of the display to render to
      * @returns True if the rendering operation was successful, false otherwise
      */
-    common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, renderPassTickCount: Count): boolean;
+    common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, renderPassTickCount: Count, displayIdx: Index): boolean;
 }
 
 /**
@@ -43041,6 +43038,7 @@ declare class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
      * @param primitiveUids - Array of primitive UIDs to render
      * @param renderPass - The render pass configuration
      * @param renderPassTickCount - Current tick count for the render pass
+     * @param displayIdx - The index of the display to render to
      * @returns true if any primitives were successfully rendered, false otherwise
      *
      * @remarks
@@ -43053,7 +43051,7 @@ declare class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
      * The method also handles buffer-less rendering mode for special cases
      * and manages depth mask settings for different primitive types.
      */
-    common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, renderPassTickCount: Count): boolean;
+    common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, renderPassTickCount: Count, _displayIdx: Index): boolean;
     /**
      * Renders primitives without using vertex/index buffers.
      * This specialized rendering mode is used for certain types of procedural
@@ -43235,9 +43233,10 @@ declare class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
      * @param primitiveUids - Array of primitive UIDs to render, sorted by rendering order
      * @param renderPass - The render pass configuration containing rendering settings
      * @param renderPassTickCount - Current tick count for the render pass
+     * @param displayIdx - The index of the display to render to
      * @returns True if any primitives were rendered, false otherwise
      */
-    common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, renderPassTickCount: Count): boolean;
+    common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, renderPassTickCount: Count, _displayIdx: Index): boolean;
     /**
      * Renders primitives without using vertex/index buffers.
      * Used for buffer-less rendering scenarios such as full-screen post-processing effects.
@@ -43991,6 +43990,9 @@ declare const SystemState: {
      * @default 0
      */
     totalSizeOfGPUShaderDataStorageExceptMorphData: number;
+    xrPoseWebGPU: XRViewerPose | undefined;
+    xrGpuBinding: any;
+    xrProjectionLayerWebGPU: XRLayer | undefined;
 };
 
 /**
@@ -44024,6 +44026,7 @@ declare class WebGpuStrategyBasic implements CGAPIStrategy {
     private __lastCameraControllerComponentsUpdateCount;
     private __lastBlendShapeComponentsUpdateCountForWeights;
     private __lastBlendShapeComponentsUpdateCountForBlendData;
+    private static __webxrSystem;
     private constructor();
     /**
      * Gets the singleton instance of WebGpuStrategyBasic.
@@ -44100,14 +44103,6 @@ declare class WebGpuStrategyBasic implements CGAPIStrategy {
      */
     setupShaderForMaterial(material: Material, primitive: Primitive, vertexShaderMethodDefinitions: string, propertySetter: getShaderPropertyFunc): void;
     /**
-     * Renders a render pass using pre-built render bundles for improved performance.
-     * Render bundles allow WebGPU to optimize command encoding by pre-recording draw commands.
-     *
-     * @param renderPass - The render pass to execute
-     * @returns True if the render bundle was successfully executed
-     */
-    renderWithRenderBundle(renderPass: RenderPass): boolean;
-    /**
      * Performs pre-rendering operations required before drawing.
      * Updates storage buffers when components have been modified and handles morph target updates.
      * This method should be called once per frame before any rendering operations.
@@ -44120,9 +44115,10 @@ declare class WebGpuStrategyBasic implements CGAPIStrategy {
      * @param primitiveUids - Array of primitive UIDs to render, sorted by rendering order
      * @param renderPass - The render pass configuration containing rendering settings
      * @param renderPassTickCount - Current tick count for animation and timing purposes
+     * @param displayIdx - The index of the display to render to
      * @returns True if any primitives were successfully rendered
      */
-    common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, _renderPassTickCount: number): boolean;
+    common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, _renderPassTickCount: Count, displayIdx: Index): boolean;
     /**
      * Renders primitives without using vertex/index buffers.
      * This is used for special rendering modes like full-screen effects or procedural geometry.
@@ -44137,9 +44133,10 @@ declare class WebGpuStrategyBasic implements CGAPIStrategy {
      * @param primitiveUid - Unique identifier of the primitive to render
      * @param renderPass - Render pass containing rendering configuration
      * @param zWrite - Whether to enable depth buffer writing
+     * @param displayIdx - The index of the display to render to
      * @returns True if the primitive was successfully rendered
      */
-    renderInner(primitiveUid: PrimitiveUID, renderPass: RenderPass, zWrite: boolean): boolean;
+    renderInner(primitiveUid: PrimitiveUID, renderPass: RenderPass, zWrite: boolean, displayIdx: Index): boolean;
     /**
      * Creates or updates the main storage buffer containing all GPU instance data.
      * This buffer holds transform matrices, material properties, and other per-instance data
