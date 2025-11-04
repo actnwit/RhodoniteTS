@@ -47,7 +47,6 @@
     "test-e2e-update": "npm run test-e2e-part -- --update ./samples/test_e2e",
     "test-coverage": "npx vitest run --coverage",
     "doc": "npx typedoc --exclude '**/*+(test|d).ts' --out ./docs/api/ ./src/",
-    "yarn-pack": "npm pack && ./rename_tgz.sh",
     "pnpm-pack": "pnpm pack && ./rename_tgz.sh",
     "start": "node server.js",
     "create-VERSION-FILE": "npx shx touch VERSION-FILE",
