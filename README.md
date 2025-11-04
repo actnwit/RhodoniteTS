@@ -162,21 +162,19 @@ See the last part of https://github.com/actnwit/RhodoniteTS/wiki/Install .
 ### Setup Project
 
 ```bash
-$ yarn install
+$ pnpm install
 ```
-
-You can use yarn instead.
 
 ### Build command for Rhodonite library
 
 ```bash
-$ yarn build
+$ pnpm run build
 ```
 
 ### Build command for samples
 
 ```bash
-$ yarn build-samples
+$ pnpm run build-samples
 ```
 
 ## Try Samples
@@ -184,7 +182,7 @@ $ yarn build-samples
 After building Rhodonite, try:
 
 ```bash
-$ yarn watch-samples
+$ pnpm run watch-samples
 ```
 
 Then, access http://localhost:8082/ with your web browser.
@@ -193,7 +191,7 @@ When you are finished, press ctrl + c.
 ## Build command for API documents
 
 ```bash
-$ yarn doc
+$ pnpm run doc
 ```
 
 ## Testing Rhodonite
@@ -201,7 +199,7 @@ $ yarn doc
 The following command runs unit tests and E2E tests.
 
 ```bash
-$ yarn test
+$ pnpm run test
 ```
 
 The E2E test uses a headless browser for rendering. Because the results are GPU hardware-dependent rather than software-dependent, results will vary depending on your environment.
@@ -212,17 +210,17 @@ You can execute a part of tests like this.
 ### For unit test
 
 ```bash
-$ yarn test-unit-part -- ./src/foundation/core
+$ pnpm run test-unit-part -- ./src/foundation/core
 ```
 
 ```bash
-$ yarn test-unit-part -- ./src/foundation/core/Entity.test.ts
+$ pnpm run test-unit-part -- ./src/foundation/core/Entity.test.ts
 ```
 
 ### For E2E (visual) test
 
 ```bash
-$ yarn test-e2e-part -- ./samples/test_e2e/DataTextureInstancedDrawing
+$ pnpm run test-e2e-part -- ./samples/test_e2e/DataTextureInstancedDrawing
 ```
 
 ## Development using VSCode devcontainer
