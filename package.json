@@ -84,6 +84,7 @@
     "typescript": "5.8.3",
     "version-loader": "^0.1.0",
     "vitest": "^3.1.2",
+    "vitest-environment-puppeteer": "^11.0.3",
     "vitest-puppeteer": "^11.0.3",
     "webxr-input-profiles": "actnwit/webxr-input-profiles#21272c8a0a5512614e60dca5be26f7b1485ad6e7"
   },

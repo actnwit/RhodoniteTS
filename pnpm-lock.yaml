@@ -93,6 +93,9 @@ importers:
       vitest:
         specifier: ^3.1.2
         version: 3.2.4(@types/node@24.10.0)(happy-dom@17.6.3)(terser@5.44.0)(yaml@2.8.1)
+      vitest-environment-puppeteer:
+        specifier: ^11.0.3
+        version: 11.0.3(typescript@5.8.3)
       vitest-puppeteer:
         specifier: ^11.0.3
         version: 11.0.3(puppeteer@22.15.0(typescript@5.8.3))(typescript@5.8.3)
