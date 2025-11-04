@@ -47,7 +47,7 @@
     "test-e2e-update": "npm run test-e2e-part -- --update ./samples/test_e2e",
     "test-coverage": "npx vitest run --coverage",
     "doc": "npx typedoc --exclude '**/*+(test|d).ts' --out ./docs/api/ ./src/",
-    "yarn-pack": "npm pack && ./rename_tgz.sh",
+    "pnpm-pack": "pnpm pack && ./rename_tgz.sh",
     "start": "node server.js",
     "create-VERSION-FILE": "npx shx touch VERSION-FILE",
     "lint": "biome lint ./src ./samples",
@@ -84,6 +84,7 @@
     "typescript": "5.8.3",
     "version-loader": "^0.1.0",
     "vitest": "^3.1.2",
+    "vitest-environment-puppeteer": "^11.0.3",
     "vitest-puppeteer": "^11.0.3",
     "webxr-input-profiles": "actnwit/webxr-input-profiles#21272c8a0a5512614e60dca5be26f7b1485ad6e7"
   },
@@ -103,5 +104,5 @@
   "engines": {
     "node": ">=22"
   },
-  "packageManager": "yarn@4.9.2"
+  "packageManager": "pnpm@9.14.3"
 }

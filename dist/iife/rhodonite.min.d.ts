@@ -4697,6 +4697,4228 @@ declare abstract class AbstractMatrix implements IMatrix {
     isTheSourceSame(arrayBuffer: ArrayBuffer): boolean;
 }
 
+/**
+ * Abstract base class for mutable 3D vectors with generic typed array support.
+ * Extends the immutable Vector3_ class to provide mutable operations.
+ *
+ * @template T - The typed array constructor type (Float32Array or Float64Array)
+ * @internal
+ */
+declare class MutableVector3_<T extends FloatTypedArrayConstructor> extends Vector3_<T> implements IMutableVector, IMutableVector3 {
+    /**
+     * Creates a new MutableVector3_ instance.
+     *
+     * @param v - The typed array containing the vector components
+     * @param options - Configuration object containing the array type
+     */
+    constructor(v: TypedArray, { type }: {
+        type: T;
+    });
+    /**
+     * Sets the x component of the vector.
+     *
+     * @param x - The new x value
+     */
+    set x(x: number);
+    /**
+     * Gets the x component of the vector.
+     *
+     * @returns The x component value
+     */
+    get x(): number;
+    /**
+     * Sets the y component of the vector.
+     *
+     * @param y - The new y value
+     */
+    set y(y: number);
+    /**
+     * Gets the y component of the vector.
+     *
+     * @returns The y component value
+     */
+    get y(): number;
+    /**
+     * Sets the z component of the vector.
+     *
+     * @param z - The new z value
+     */
+    set z(z: number);
+    /**
+     * Gets the z component of the vector.
+     *
+     * @returns The z component value
+     */
+    get z(): number;
+    /**
+     * Gets the w component (always 1 for 3D vectors).
+     *
+     * @returns Always returns 1
+     */
+    get w(): number;
+    /**
+     * Returns the raw typed array containing the vector components.
+     *
+     * @returns The underlying typed array
+     */
+    raw(): TypedArray;
+    /**
+     * Sets the value at the specified index.
+     *
+     * @param i - The index (0 for x, 1 for y, 2 for z)
+     * @param value - The new value to set
+     * @returns This vector instance for method chaining
+     */
+    setAt(i: number, value: number): this;
+    /**
+     * Sets all three components of the vector.
+     *
+     * @param x - The x component value
+     * @param y - The y component value
+     * @param z - The z component value
+     * @returns This vector instance for method chaining
+     */
+    setComponents(x: number, y: number, z: number): this;
+    /**
+     * Copies the components from another vector.
+     *
+     * @param vec - The vector to copy from
+     * @returns This vector instance for method chaining
+     */
+    copyComponents(vec: IVector3): this;
+    /**
+     * Sets all components to zero.
+     *
+     * @returns This vector instance for method chaining
+     */
+    zero(): this;
+    /**
+     * Sets all components to one.
+     *
+     * @returns This vector instance for method chaining
+     */
+    one(): this;
+    /**
+     * Normalizes this vector to unit length.
+     * Modifies the vector in place to have a magnitude of 1.
+     *
+     * @returns This vector instance for method chaining
+     */
+    normalize(): this;
+    /**
+     * Adds another vector to this vector.
+     * Performs component-wise addition and modifies this vector in place.
+     *
+     * @param vec - The vector to add
+     * @returns This vector instance for method chaining
+     */
+    add(vec: IVector3): this;
+    /**
+     * Subtracts another vector from this vector.
+     * Performs component-wise subtraction and modifies this vector in place.
+     *
+     * @param vec - The vector to subtract
+     * @returns This vector instance for method chaining
+     */
+    subtract(vec: IVector3): this;
+    /**
+     * Multiplies this vector by a scalar value.
+     * Scales all components by the given value and modifies this vector in place.
+     *
+     * @param value - The scalar value to multiply by
+     * @returns This vector instance for method chaining
+     */
+    multiply(value: number): this;
+    /**
+     * Multiplies this vector by another vector component-wise.
+     * Performs element-wise multiplication and modifies this vector in place.
+     *
+     * @param vec - The vector to multiply by
+     * @returns This vector instance for method chaining
+     */
+    multiplyVector(vec: IVector3): this;
+    /**
+     * Divides this vector by a scalar value.
+     * Scales all components by 1/value and modifies this vector in place.
+     * If value is 0, sets all components to Infinity and logs an error.
+     *
+     * @param value - The scalar value to divide by
+     * @returns This vector instance for method chaining
+     */
+    divide(value: number): this;
+    /**
+     * Divides this vector by another vector component-wise.
+     * Performs element-wise division and modifies this vector in place.
+     * If any component of the divisor vector is 0, sets the corresponding component to Infinity.
+     *
+     * @param vec - The vector to divide by
+     * @returns This vector instance for method chaining
+     */
+    divideVector(vec: IVector3): this;
+    /**
+     * Computes the cross product of this vector with another vector.
+     * Calculates the cross product and modifies this vector in place to store the result.
+     * The cross product produces a vector perpendicular to both input vectors.
+     *
+     * @param vec - The vector to compute cross product with
+     * @returns This vector instance for method chaining
+     */
+    cross(vec: IVector3): this;
+    /**
+     * Applies a quaternion rotation to this vector.
+     * Rotates this vector by the given quaternion and modifies it in place.
+     * Equivalent to: quat * vector3 * quat^(-1)
+     *
+     * @param quat - The quaternion representing the rotation
+     * @returns This vector instance for method chaining
+     */
+    multiplyQuaternion(quat: IQuaternion): this;
+    /**
+     * Gets the number of bytes per component in the underlying typed array.
+     *
+     * @returns The number of bytes per element (4 for Float32Array, 8 for Float64Array)
+     */
+    get bytesPerComponent(): number;
+    /**
+     * Creates a new vector from three component values.
+     *
+     * @param x - The x component
+     * @param y - The y component
+     * @param z - The z component
+     * @param type - The typed array constructor
+     * @returns A new vector instance
+     * @protected
+     */
+    static _fromCopy3(x: number, y: number, z: number, type: FloatTypedArrayConstructor): MutableVector3_<FloatTypedArrayConstructor>;
+}
+/**
+ * Mutable 3D vector class with 32-bit float precision.
+ * Provides in-place vector operations for efficient mathematical computations.
+ * All operations modify the vector instance and return it for method chaining.
+ */
+declare class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
+    /**
+     * Creates a new MutableVector3 instance.
+     *
+     * @param v - The typed array containing the vector components
+     */
+    constructor(v: TypedArray);
+    /**
+     * Creates a zero vector (0, 0, 0).
+     *
+     * @returns A new zero vector
+     */
+    static zero(): MutableVector3;
+    /**
+     * Creates a unit vector (1, 1, 1).
+     *
+     * @returns A new unit vector
+     */
+    static one(): MutableVector3;
+    /**
+     * Creates a dummy vector for initialization purposes.
+     *
+     * @returns A new dummy vector
+     */
+    static dummy(): MutableVector3;
+    /**
+     * Creates a normalized copy of the given vector.
+     *
+     * @param vec - The vector to normalize
+     * @returns A new normalized vector
+     */
+    static normalize(vec: IVector3): MutableVector3;
+    /**
+     * Creates a new vector that is the sum of two vectors.
+     *
+     * @param l_vec - The left vector
+     * @param r_vec - The right vector
+     * @returns A new vector containing the sum
+     */
+    static add(l_vec: IVector3, r_vec: IVector3): MutableVector3;
+    /**
+     * Creates a new vector that is the difference of two vectors.
+     *
+     * @param l_vec - The left vector (minuend)
+     * @param r_vec - The right vector (subtrahend)
+     * @returns A new vector containing the difference
+     */
+    static subtract(l_vec: IVector3, r_vec: IVector3): MutableVector3;
+    /**
+     * Creates a new vector that is the scalar multiplication of a vector.
+     *
+     * @param vec - The vector to multiply
+     * @param value - The scalar value
+     * @returns A new scaled vector
+     */
+    static multiply(vec: IVector3, value: number): MutableVector3;
+    /**
+     * Creates a new vector that is the component-wise multiplication of two vectors.
+     *
+     * @param l_vec - The left vector
+     * @param r_vec - The right vector
+     * @returns A new vector containing the component-wise product
+     */
+    static multiplyVector(l_vec: IVector3, r_vec: IVector3): MutableVector3;
+    /**
+     * Creates a new vector that is the scalar division of a vector.
+     *
+     * @param vec - The vector to divide
+     * @param value - The scalar divisor
+     * @returns A new divided vector
+     */
+    static divide(vec: IVector3, value: number): MutableVector3;
+    /**
+     * Creates a new vector that is the component-wise division of two vectors.
+     *
+     * @param l_vec - The dividend vector
+     * @param r_vec - The divisor vector
+     * @returns A new vector containing the component-wise quotient
+     */
+    static divideVector(l_vec: IVector3, r_vec: IVector3): MutableVector3;
+    /**
+     * Creates a new vector that is the cross product of two vectors.
+     *
+     * @param l_vec - The left vector
+     * @param r_vec - The right vector
+     * @returns A new vector containing the cross product
+     */
+    static cross(l_vec: IVector3, r_vec: IVector3): MutableVector3;
+    /**
+     * Creates a new vector by applying a quaternion rotation to a vector.
+     *
+     * @param quat - The quaternion representing the rotation
+     * @param vec - The vector to rotate
+     * @returns A new rotated vector
+     */
+    static multiplyQuaternion(quat: IQuaternion, vec: IVector3): MutableVector3;
+    /**
+     * Gets the class name for debugging purposes.
+     *
+     * @returns The class name string
+     */
+    get className(): string;
+    /**
+     * Creates a vector from three component values.
+     *
+     * @param x - The x component
+     * @param y - The y component
+     * @param z - The z component
+     * @returns A new vector instance
+     */
+    static fromCopy3(x: number, y: number, z: number): MutableVector3;
+    /**
+     * Creates a vector with all components set to the same value.
+     *
+     * @param val - The value for all components
+     * @returns A new vector instance
+     */
+    static fromCopy1(val: number): MutableVector3;
+    /**
+     * Creates a vector from a 3-element array.
+     *
+     * @param array - The array containing x, y, z values
+     * @returns A new vector instance
+     */
+    static fromCopyArray3(array: Array3<number>): MutableVector3;
+    /**
+     * Creates a vector from an array, taking the first 3 elements.
+     *
+     * @param array - The array containing at least 3 values
+     * @returns A new vector instance
+     */
+    static fromCopyArray(array: Array<number>): MutableVector3;
+    /**
+     * Creates a vector from an existing Float32Array (shares the same buffer).
+     *
+     * @param float32Array - The Float32Array to use
+     * @returns A new vector instance
+     */
+    static fromFloat32Array(float32Array: Float32Array): MutableVector3;
+    /**
+     * Creates a vector by copying from an existing Float32Array.
+     *
+     * @param float32Array - The Float32Array to copy from
+     * @returns A new vector instance with copied data
+     */
+    static fromCopyFloat32Array(float32Array: Float32Array): MutableVector3;
+    /**
+     * Creates a vector by copying from another 3D vector.
+     *
+     * @param vec - The vector to copy from
+     * @returns A new vector instance
+     */
+    static fromCopyVector3(vec: IVector3): MutableVector3;
+    /**
+     * Creates a 3D vector by copying from a 4D vector (ignoring w component).
+     *
+     * @param vec - The 4D vector to copy from
+     * @returns A new 3D vector instance
+     */
+    static fromCopyVector4(vec: IVector4): MutableVector3;
+    /**
+     * Creates a copy of this vector.
+     *
+     * @returns A new vector instance with the same values
+     */
+    clone(): MutableVector3;
+    /**
+     * Rotates a vector around the X-axis and stores the result in the output vector.
+     * Only the Y and Z components are affected by X-axis rotation.
+     *
+     * @param vec3 - The input vector to rotate
+     * @param radian - The rotation angle in radians
+     * @param outVec - The output vector to store the result
+     */
+    static rotateX(vec3: IVector3, radian: number, outVec: MutableVector3): void;
+    /**
+     * Rotates a vector around the Y-axis and stores the result in the output vector.
+     * Only the X and Z components are affected by Y-axis rotation.
+     *
+     * @param vec3 - The input vector to rotate
+     * @param radian - The rotation angle in radians
+     * @param outVec - The output vector to store the result
+     */
+    static rotateY(vec3: IVector3, radian: number, outVec: MutableVector3): void;
+    /**
+     * Rotates a vector around the Z-axis and stores the result in the output vector.
+     * Only the X and Y components are affected by Z-axis rotation.
+     *
+     * @param vec3 - The input vector to rotate
+     * @param radian - The rotation angle in radians
+     * @param outVec - The output vector to store the result
+     */
+    static rotateZ(vec3: IVector3, radian: number, outVec: MutableVector3): void;
+}
+/**
+ * Mutable 3D vector class with 64-bit double precision.
+ * Provides higher precision vector operations for applications requiring
+ * greater numerical accuracy than 32-bit floats.
+ */
+declare class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
+    /**
+     * Creates a new MutableVector3d instance.
+     *
+     * @param x - The typed array containing the vector components
+     */
+    constructor(x: TypedArray);
+    /**
+     * Creates a zero vector (0, 0, 0) with double precision.
+     *
+     * @returns A new zero vector
+     */
+    static zero(): MutableVector3d;
+    /**
+     * Creates a unit vector (1, 1, 1) with double precision.
+     *
+     * @returns A new unit vector
+     */
+    static one(): MutableVector3d;
+    /**
+     * Creates a dummy vector for initialization purposes with double precision.
+     *
+     * @returns A new dummy vector
+     */
+    static dummy(): MutableVector3d;
+    /**
+     * Creates a normalized copy of the given vector with double precision.
+     *
+     * @param vec - The vector to normalize
+     * @returns A new normalized vector
+     */
+    static normalize(vec: IVector3): MutableVector3d;
+    /**
+     * Creates a new vector that is the sum of two vectors with double precision.
+     *
+     * @param l_vec - The left vector
+     * @param r_vec - The right vector
+     * @returns A new vector containing the sum
+     */
+    static add(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
+    /**
+     * Creates a new vector that is the difference of two vectors with double precision.
+     *
+     * @param l_vec - The left vector (minuend)
+     * @param r_vec - The right vector (subtrahend)
+     * @returns A new vector containing the difference
+     */
+    static subtract(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
+    /**
+     * Creates a new vector that is the scalar multiplication of a vector with double precision.
+     *
+     * @param vec - The vector to multiply
+     * @param value - The scalar value
+     * @returns A new scaled vector
+     */
+    static multiply(vec: IVector3, value: number): MutableVector3d;
+    /**
+     * Creates a new vector that is the component-wise multiplication of two vectors with double precision.
+     *
+     * @param l_vec - The left vector
+     * @param r_vec - The right vector
+     * @returns A new vector containing the component-wise product
+     */
+    static multiplyVector(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
+    /**
+     * Creates a new vector that is the scalar division of a vector with double precision.
+     *
+     * @param vec - The vector to divide
+     * @param value - The scalar divisor
+     * @returns A new divided vector
+     */
+    static divide(vec: IVector3, value: number): MutableVector3d;
+    /**
+     * Creates a new vector that is the component-wise division of two vectors with double precision.
+     *
+     * @param l_vec - The dividend vector
+     * @param r_vec - The divisor vector
+     * @returns A new vector containing the component-wise quotient
+     */
+    static divideVector(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
+    /**
+     * Creates a new vector that is the cross product of two vectors with double precision.
+     *
+     * @param l_vec - The left vector
+     * @param r_vec - The right vector
+     * @returns A new vector containing the cross product
+     */
+    static cross(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
+    /**
+     * Creates a new vector by applying a quaternion rotation to a vector with double precision.
+     *
+     * @param quat - The quaternion representing the rotation
+     * @param vec - The vector to rotate
+     * @returns A new rotated vector
+     */
+    static multiplyQuaternion(quat: IQuaternion, vec: IVector3): MutableVector3d;
+    /**
+     * Creates a vector from three component values with double precision.
+     *
+     * @param x - The x component
+     * @param y - The y component
+     * @param z - The z component
+     * @returns A new vector instance
+     */
+    static fromCopy3(x: number, y: number, z: number): MutableVector3d;
+    /**
+     * Creates a vector with all components set to the same value with double precision.
+     *
+     * @param val - The value for all components
+     * @returns A new vector instance
+     */
+    static fromCopy1(val: number): MutableVector3d;
+    /**
+     * Creates a vector from a 3-element array with double precision.
+     *
+     * @param array - The array containing x, y, z values
+     * @returns A new vector instance
+     */
+    static fromCopyArray3(array: Array3<number>): MutableVector3d;
+    /**
+     * Creates a vector from an array, taking the first 3 elements with double precision.
+     *
+     * @param array - The array containing at least 3 values
+     * @returns A new vector instance
+     */
+    static fromCopyArray(array: Array<number>): MutableVector3d;
+    /**
+     * Rotates a vector around the X-axis and stores the result in the output vector with double precision.
+     * Only the Y and Z components are affected by X-axis rotation.
+     *
+     * @param vec3 - The input vector to rotate
+     * @param radian - The rotation angle in radians
+     * @param outVec - The output vector to store the result
+     */
+    static rotateX(vec3: IVector3, radian: number, outVec: MutableVector3d): void;
+    /**
+     * Rotates a vector around the Y-axis and stores the result in the output vector with double precision.
+     * Only the X and Z components are affected by Y-axis rotation.
+     *
+     * @param vec3 - The input vector to rotate
+     * @param radian - The rotation angle in radians
+     * @param outVec - The output vector to store the result
+     */
+    static rotateY(vec3: IVector3, radian: number, outVec: MutableVector3d): void;
+    /**
+     * Rotates a vector around the Z-axis and stores the result in the output vector with double precision.
+     * Only the X and Y components are affected by Z-axis rotation.
+     *
+     * @param vec3 - The input vector to rotate
+     * @param radian - The rotation angle in radians
+     * @param outVec - The output vector to store the result
+     */
+    static rotateZ(vec3: IVector3, radian: number, outVec: MutableVector3d): void;
+    /**
+     * Creates a copy of this vector with double precision.
+     *
+     * @returns A new vector instance with the same values
+     */
+    clone(): MutableVector3d;
+}
+/**
+ * Type alias for MutableVector3 with single precision (32-bit) floating point components.
+ */
+type MutableVector3f = MutableVector3;
+
+/**
+ * Generic 4D vector class that serves as the base implementation for both 32-bit and 64-bit vector types.
+ * This class provides immutable vector operations with support for different floating-point precisions.
+ *
+ * @template T - The typed array constructor type (Float32ArrayConstructor or Float64ArrayConstructor)
+ * @internal This class is not intended for direct instantiation by users
+ */
+declare class Vector4_<T extends FloatTypedArrayConstructor> extends AbstractVector implements IVector4 {
+    /**
+     * Creates a new Vector4_ instance.
+     *
+     * @param v - The underlying typed array containing the vector components
+     * @param options - Configuration object containing the array type constructor
+     * @protected This constructor is protected to prevent direct instantiation
+     */
+    protected constructor(v: FloatTypedArray, _options: {
+        type: T;
+    });
+    /**
+     * Gets the X component of the vector.
+     *
+     * @returns The X component value
+     */
+    get x(): number;
+    /**
+     * Gets the Y component of the vector.
+     *
+     * @returns The Y component value
+     */
+    get y(): number;
+    /**
+     * Gets the Z component of the vector.
+     *
+     * @returns The Z component value
+     */
+    get z(): number;
+    /**
+     * Gets the W component of the vector.
+     *
+     * @returns The W component value
+     */
+    get w(): number;
+    /**
+     * Converts the vector to a GLSL vec4 string representation with float precision.
+     *
+     * @returns A GLSL-compatible vec4 string (e.g., "vec4(1.0, 2.0, 3.0, 4.0)")
+     */
+    get glslStrAsFloat(): string;
+    /**
+     * Converts the vector to a GLSL ivec4 string representation with integer values.
+     *
+     * @returns A GLSL-compatible ivec4 string (e.g., "ivec4(1, 2, 3, 4)")
+     */
+    get glslStrAsInt(): string;
+    /**
+     * Converts the vector to a WGSL vec4f string representation with float precision.
+     *
+     * @returns A WGSL-compatible vec4f string (e.g., "vec4f(1.0, 2.0, 3.0, 4.0)")
+     */
+    get wgslStrAsFloat(): string;
+    /**
+     * Converts the vector to a WGSL vec4i string representation with integer values.
+     *
+     * @returns A WGSL-compatible vec4i string (e.g., "vec4i(1, 2, 3, 4)")
+     */
+    get wgslStrAsInt(): string;
+    /**
+     * Creates a new vector from a 4-element array by copying the values.
+     *
+     * @param array - Array containing exactly 4 numeric values [x, y, z, w]
+     * @param type - The typed array constructor to use for internal storage
+     * @returns A new vector instance with the copied values
+     * @static
+     */
+    static _fromCopyArray4(array: Array4<number>, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
+    /**
+     * Creates a new vector from individual component values.
+     *
+     * @param x - The X component value
+     * @param y - The Y component value
+     * @param z - The Z component value
+     * @param w - The W component value
+     * @param type - The typed array constructor to use for internal storage
+     * @returns A new vector instance with the specified component values
+     * @static
+     */
+    static _fromCopy4(x: number, y: number, z: number, w: number, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
+    /**
+     * Creates a new vector from an array by copying the first 4 values.
+     * If the array has fewer than 4 elements, the remaining components will be undefined.
+     *
+     * @param array - Array containing numeric values (at least 4 elements recommended)
+     * @param type - The typed array constructor to use for internal storage
+     * @returns A new vector instance with the first 4 values from the array
+     * @static
+     */
+    static _fromCopyArray(array: Array<number>, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
+    /**
+     * Creates a new vector by copying values from another Vector4.
+     *
+     * @param vec4 - The source Vector4 to copy from
+     * @param type - The typed array constructor to use for internal storage
+     * @returns A new vector instance with copied values from the source vector
+     * @static
+     */
+    static _fromCopyVector4(vec4: IVector4, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
+    /**
+     * Creates a new Vector4 from a Vector3, setting the W component to 1.
+     * This is commonly used for converting 3D positions to homogeneous coordinates.
+     *
+     * @param vec3 - The source Vector3 to copy from
+     * @param type - The typed array constructor to use for internal storage
+     * @returns A new Vector4 with (vec3.x, vec3.y, vec3.z, 1.0)
+     * @static
+     */
+    static _fromCopyVector3(vec3: IVector3, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
+    /**
+     * Creates a new Vector4 from a Vector2, setting Z to 0 and W to 1.
+     * This is commonly used for converting 2D positions to homogeneous coordinates.
+     *
+     * @param vec2 - The source Vector2 to copy from
+     * @param type - The typed array constructor to use for internal storage
+     * @returns A new Vector4 with (vec2.x, vec2.y, 0.0, 1.0)
+     * @static
+     */
+    static _fromVector2(vec2: IVector2, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
+    /**
+     * Gets the composition type identifier for this vector type.
+     *
+     * @returns The CompositionType.Vec4 identifier
+     * @static
+     */
+    static get compositionType(): {
+        readonly __numberOfComponents: number;
+        readonly __glslStr: string;
+        readonly __hlslStr: string;
+        readonly __webgpuStr: string;
+        readonly __wgslStr: string;
+        readonly __isArray: boolean;
+        readonly __vec4SizeOfProperty: IndexOf16Bytes;
+        readonly __dummyStr: "VEC4";
+        readonly webgpu: string;
+        readonly wgsl: string;
+        getNumberOfComponents(): Count;
+        getGlslStr(componentType: ComponentTypeEnum): string;
+        getGlslInitialValue(componentType: ComponentTypeEnum): string;
+        getWgslInitialValue(componentType: ComponentTypeEnum): string;
+        toWGSLType(componentType: ComponentTypeEnum): string;
+        getVec4SizeOfProperty(): IndexOf16Bytes;
+        readonly index: number;
+        readonly symbol: symbol;
+        readonly str: string;
+        toString(): string;
+        toJSON(): number;
+    };
+    /**
+     * Calculates the squared length (magnitude) of a vector.
+     * This is more efficient than length() when only comparing magnitudes.
+     *
+     * @param vec - The vector to calculate squared length for
+     * @returns The squared length of the vector
+     * @static
+     */
+    static lengthSquared(vec: IVector4): number;
+    /**
+     * Calculates the distance between two vectors.
+     *
+     * @param l_vec - The first vector
+     * @param r_vec - The second vector
+     * @returns The distance between the two vectors
+     * @static
+     */
+    static lengthBtw(l_vec: IVector4, r_vec: IVector4): number;
+    /**
+     * Creates a zero vector (0, 0, 0, 0).
+     *
+     * @param type - The typed array constructor to use for internal storage
+     * @returns A new zero vector
+     * @static
+     */
+    static _zero(type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
+    /**
+     * Creates a vector with all components set to 1 (1, 1, 1, 1).
+     *
+     * @param type - The typed array constructor to use for internal storage
+     * @returns A new vector with all components set to 1
+     * @static
+     */
+    static _one(type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
+    /**
+     * Creates a dummy vector with no components (empty array).
+     * This is used as a placeholder when a vector is needed but not yet initialized.
+     *
+     * @param type - The typed array constructor to use for internal storage
+     * @returns A new dummy vector with empty components
+     * @static
+     */
+    static _dummy(type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
+    /**
+     * Creates a normalized version of the given vector.
+     * A normalized vector has a length of 1 while maintaining its direction.
+     *
+     * @param vec - The vector to normalize
+     * @param type - The typed array constructor to use for internal storage
+     * @returns A new normalized vector
+     * @static
+     */
+    static _normalize(vec: IVector4, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
+    /**
+     * Adds two vectors component-wise and returns a new vector.
+     *
+     * @param l_vec - The left operand vector
+     * @param r_vec - The right operand vector
+     * @param type - The typed array constructor to use for internal storage
+     * @returns A new vector containing the sum (l_vec + r_vec)
+     * @static
+     */
+    static _add(l_vec: IVector4, r_vec: IVector4, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
+    /**
+     * Adds two vectors component-wise and stores the result in the output vector.
+     * This method modifies the output vector in-place for better performance.
+     *
+     * @param l_vec - The left operand vector
+     * @param r_vec - The right operand vector
+     * @param out - The output vector to store the result (will be modified)
+     * @returns The modified output vector containing the sum
+     * @static
+     */
+    static addTo(l_vec: IVector4, r_vec: IVector4, out: IMutableVector4): IMutableVector4;
+    /**
+     * Subtracts the right vector from the left vector component-wise and returns a new vector.
+     *
+     * @param l_vec - The left operand vector (minuend)
+     * @param r_vec - The right operand vector (subtrahend)
+     * @param type - The typed array constructor to use for internal storage
+     * @returns A new vector containing the difference (l_vec - r_vec)
+     * @static
+     */
+    static _subtract(l_vec: IVector4, r_vec: IVector4, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
+    /**
+     * Subtracts the right vector from the left vector component-wise and stores the result in the output vector.
+     * This method modifies the output vector in-place for better performance.
+     *
+     * @param l_vec - The left operand vector (minuend)
+     * @param r_vec - The right operand vector (subtrahend)
+     * @param out - The output vector to store the result (will be modified)
+     * @returns The modified output vector containing the difference
+     * @static
+     */
+    static subtractTo(l_vec: IVector4, r_vec: IVector4, out: IMutableVector4): IMutableVector4;
+    /**
+     * Multiplies a vector by a scalar value and returns a new vector.
+     * This operation scales the vector while preserving its direction.
+     *
+     * @param vec - The vector to multiply
+     * @param value - The scalar value to multiply by
+     * @param type - The typed array constructor to use for internal storage
+     * @returns A new vector with each component multiplied by the scalar
+     * @static
+     */
+    static _multiply(vec: IVector4, value: number, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
+    /**
+     * Multiplies a vector by a scalar value and stores the result in the output vector.
+     * This method modifies the output vector in-place for better performance.
+     *
+     * @param vec - The vector to multiply
+     * @param value - The scalar value to multiply by
+     * @param out - The output vector to store the result (will be modified)
+     * @returns The modified output vector with each component multiplied by the scalar
+     * @static
+     */
+    static multiplyTo(vec: IVector4, value: number, out: IMutableVector4): IMutableVector4;
+    /**
+     * Multiplies two vectors component-wise and returns a new vector.
+     * This is also known as the Hadamard product or element-wise multiplication.
+     *
+     * @param l_vec - The left operand vector
+     * @param r_vec - The right operand vector
+     * @param type - The typed array constructor to use for internal storage
+     * @returns A new vector with each component being the product of corresponding components
+     * @static
+     */
+    static _multiplyVector(l_vec: IVector4, r_vec: IVector4, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
+    /**
+     * Multiplies two vectors component-wise and stores the result in the output vector.
+     * This method modifies the output vector in-place for better performance.
+     *
+     * @param l_vec - The left operand vector
+     * @param r_vec - The right operand vector
+     * @param out - The output vector to store the result (will be modified)
+     * @returns The modified output vector with component-wise multiplication result
+     * @static
+     */
+    static multiplyVectorTo(l_vec: IVector4, r_vec: IVector4, out: IMutableVector4): IMutableVector4;
+    /**
+     * Divides a vector by a scalar value and returns a new vector.
+     * If the divisor is zero, the result components will be set to Infinity and an error will be logged.
+     *
+     * @param vec - The vector to divide
+     * @param value - The scalar value to divide by
+     * @param type - The typed array constructor to use for internal storage
+     * @returns A new vector with each component divided by the scalar
+     * @static
+     */
+    static _divide(vec: IVector4, value: number, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
+    /**
+     * Divides a vector by a scalar value and stores the result in the output vector.
+     * If the divisor is zero, the result components will be set to Infinity and an error will be logged.
+     * This method modifies the output vector in-place for better performance.
+     *
+     * @param vec - The vector to divide
+     * @param value - The scalar value to divide by
+     * @param out - The output vector to store the result (will be modified)
+     * @returns The modified output vector with each component divided by the scalar
+     * @static
+     */
+    static divideTo(vec: IVector4, value: number, out: IMutableVector4): IMutableVector4;
+    /**
+     * Divides the left vector by the right vector component-wise and returns a new vector.
+     * If any component of the right vector is zero, the corresponding result component will be set to Infinity.
+     *
+     * @param l_vec - The left operand vector (dividend)
+     * @param r_vec - The right operand vector (divisor)
+     * @param type - The typed array constructor to use for internal storage
+     * @returns A new vector with component-wise division result
+     * @static
+     */
+    static _divideVector(l_vec: IVector4, r_vec: IVector4, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
+    /**
+     * Divides the left vector by the right vector component-wise and stores the result in the output vector.
+     * If any component of the right vector is zero, the corresponding result component will be set to Infinity.
+     * This method modifies the output vector in-place for better performance.
+     *
+     * @param l_vec - The left operand vector (dividend)
+     * @param r_vec - The right operand vector (divisor)
+     * @param out - The output vector to store the result (will be modified)
+     * @returns The modified output vector with component-wise division result
+     * @static
+     */
+    static divideVectorTo(l_vec: IVector4, r_vec: IVector4, out: IMutableVector4): IMutableVector4;
+    /**
+     * Calculates the dot product of two vectors.
+     * The dot product is the sum of the products of corresponding components.
+     *
+     * @param l_vec - The left operand vector
+     * @param r_vec - The right operand vector
+     * @returns The dot product of the two vectors
+     * @static
+     */
+    static dot(l_vec: IVector4, r_vec: IVector4): number;
+    /**
+     * Converts the vector to a string representation in the format "(x, y, z, w)".
+     *
+     * @returns A string representation of the vector
+     */
+    toString(): string;
+    /**
+     * Converts the vector to an approximately formatted string representation with financial precision.
+     * Each component is formatted to a fixed number of decimal places.
+     *
+     * @returns A string with space-separated components followed by a newline
+     */
+    toStringApproximately(): string;
+    /**
+     * Converts the vector to a flat array representation.
+     *
+     * @returns An array containing the vector components [x, y, z, w]
+     */
+    flattenAsArray(): number[];
+    /**
+     * Checks if this vector is a dummy vector (has no components).
+     *
+     * @returns True if the vector has no components, false otherwise
+     */
+    isDummy(): boolean;
+    /**
+     * Checks if this vector is approximately equal to another vector within a specified tolerance.
+     *
+     * @param vec - The vector to compare with
+     * @param delta - The tolerance value for comparison (default: Number.EPSILON)
+     * @returns True if the vectors are approximately equal, false otherwise
+     */
+    isEqual(vec: IVector4, delta?: number): boolean;
+    /**
+     * Checks if this vector is strictly equal to another vector (exact component equality).
+     *
+     * @param vec - The vector to compare with
+     * @returns True if all components are exactly equal, false otherwise
+     */
+    isStrictEqual(vec: IVector4): boolean;
+    /**
+     * Gets the component value at the specified index.
+     *
+     * @param i - The index (0=x, 1=y, 2=z, 3=w)
+     * @returns The component value at the specified index
+     */
+    at(i: number): number;
+    /**
+     * Calculates the length (magnitude) of the vector using the Euclidean norm.
+     *
+     * @returns The length of the vector
+     */
+    length(): number;
+    /**
+     * Calculates the squared length (magnitude) of the vector.
+     * This is more efficient than length() when only comparing magnitudes.
+     *
+     * @returns The squared length of the vector
+     */
+    lengthSquared(): number;
+    /**
+     * Calculates the distance from this vector to another vector.
+     *
+     * @param vec - The target vector to calculate distance to
+     * @returns The distance between the two vectors
+     */
+    lengthTo(vec: IVector4): number;
+    /**
+     * Calculates the dot product between this vector and another vector.
+     * The dot product is the sum of the products of corresponding components.
+     *
+     * @param vec - The vector to calculate dot product with
+     * @returns The dot product of the two vectors
+     */
+    dot(vec: IVector4): number;
+    /**
+     * Gets the class name of this vector type.
+     *
+     * @returns The string "Vector4"
+     */
+    get className(): string;
+    /**
+     * Creates a deep copy of this vector.
+     *
+     * @returns A new vector instance with the same component values
+     */
+    clone(): any;
+    /**
+     * Gets the number of bytes per component in the underlying typed array.
+     *
+     * @returns The number of bytes per element (4 for Float32Array, 8 for Float64Array)
+     */
+    get bytesPerComponent(): number;
+}
+/**
+ * Immutable 4D(x,y,z,w) Vector class with 32-bit float components.
+ *
+ * This class provides comprehensive vector operations for 4-dimensional mathematics,
+ * commonly used in graphics programming for representing positions, directions,
+ * colors (RGBA), and homogeneous coordinates.
+ *
+ * All operations return new vector instances, preserving immutability.
+ * For performance-critical applications where mutation is acceptable,
+ * consider using the corresponding mutable vector types or the *To methods.
+ *
+ * @example Basic usage:
+ * ```typescript
+ * const vec1 = Vector4.fromCopy4(1, 2, 3, 1);
+ * const vec2 = Vector4.fromCopyArray4([2, 3, 3, 1]);
+ * const dotProduct = vec1.dot(vec2);
+ * const sum = Vector4.add(vec1, vec2);
+ * ```
+ *
+ * @example Creating vectors from different sources:
+ * ```typescript
+ * const fromArray = Vector4.fromCopyArray([1, 2, 3, 4, 5]); // Takes first 4 elements
+ * const fromVec3 = Vector4.fromCopyVector3(someVector3); // W component set to 1
+ * const zero = Vector4.zero();
+ * const normalized = Vector4.normalize(someVector);
+ * ```
+ */
+declare class Vector4 extends Vector4_<Float32ArrayConstructor> {
+    /**
+     * Creates a new Vector4 instance from a Float32Array.
+     *
+     * @param x - The Float32Array containing vector components
+     */
+    constructor(x: Float32Array);
+    /**
+     * Creates a new Vector4 by copying values from an array.
+     * Takes the first 4 elements from the array. If the array has fewer than 4 elements,
+     * the remaining components will be undefined.
+     *
+     * @param array - Array containing numeric values (at least 4 elements recommended)
+     * @returns A new Vector4 instance with copied values
+     * @static
+     */
+    static fromCopyArray(array: Array<number>): Vector4;
+    /**
+     * Creates a new Vector4 from a 4-element array by copying the values.
+     *
+     * @param array - Array containing exactly 4 numeric values [x, y, z, w]
+     * @returns A new Vector4 instance with the copied values
+     * @static
+     */
+    static fromCopyArray4(array: Array4<number>): Vector4;
+    /**
+     * Creates a new Vector4 from individual component values.
+     *
+     * @param x - The X component value
+     * @param y - The Y component value
+     * @param z - The Z component value
+     * @param w - The W component value
+     * @returns A new Vector4 instance with the specified component values
+     * @static
+     */
+    static fromCopy4(x: number, y: number, z: number, w: number): Vector4;
+    /**
+     * Creates a new Vector4 from a Vector3, setting the W component to 1.
+     * This is commonly used for converting 3D positions to homogeneous coordinates.
+     *
+     * @param vec3 - The source Vector3 to copy from
+     * @returns A new Vector4 with (vec3.x, vec3.y, vec3.z, 1.0)
+     * @static
+     */
+    static fromCopyVector3(vec3: IVector3): Vector4;
+    /**
+     * Creates a new Vector4 by copying values from another Vector4.
+     *
+     * @param vec4 - The source Vector4 to copy from
+     * @returns A new Vector4 instance with copied values from the source vector
+     * @static
+     */
+    static fromCopyVector4(vec4: IVector4): Vector4;
+    /**
+     * Creates a new Vector4 from an ArrayBuffer.
+     * The ArrayBuffer should contain at least 16 bytes (4 float32 values).
+     *
+     * @param arrayBuffer - The ArrayBuffer containing vector data
+     * @returns A new Vector4 instance using the ArrayBuffer data
+     * @static
+     */
+    static fromArrayBuffer(arrayBuffer: ArrayBuffer): Vector4;
+    /**
+     * Creates a new Vector4 from a Float32Array.
+     * The Float32Array is used directly without copying.
+     *
+     * @param float32Array - The Float32Array containing vector components
+     * @returns A new Vector4 instance using the provided Float32Array
+     * @static
+     */
+    static fromFloat32Array(float32Array: Float32Array): Vector4;
+    /**
+     * Creates a new Vector4 by copying from a Float32Array.
+     * This creates a new Float32Array copy of the input data.
+     *
+     * @param float32Array - The Float32Array to copy from
+     * @returns A new Vector4 instance with copied Float32Array data
+     * @static
+     */
+    static fromCopyFloat32Array(float32Array: Float32Array): Vector4;
+    /**
+     * Creates a zero vector (0, 0, 0, 0).
+     *
+     * @returns A new Vector4 with all components set to zero
+     * @static
+     */
+    static zero(): Vector4;
+    /**
+     * Creates a vector with all components set to 1 (1, 1, 1, 1).
+     *
+     * @returns A new Vector4 with all components set to 1
+     * @static
+     */
+    static one(): Vector4;
+    /**
+     * Creates a dummy vector with no components (empty array).
+     * This is used as a placeholder when a vector is needed but not yet initialized.
+     *
+     * @returns A new dummy Vector4 with empty components
+     * @static
+     */
+    static dummy(): Vector4;
+    /**
+     * Creates a normalized version of the given vector.
+     * A normalized vector has a length of 1 while maintaining its direction.
+     *
+     * @param vec - The vector to normalize
+     * @returns A new normalized Vector4
+     * @static
+     */
+    static normalize(vec: IVector4): Vector4;
+    /**
+     * Adds two vectors component-wise and returns a new vector.
+     *
+     * @param l_vec - The left operand vector
+     * @param r_vec - The right operand vector
+     * @returns A new Vector4 containing the sum (l_vec + r_vec)
+     * @static
+     */
+    static add(l_vec: IVector4, r_vec: IVector4): Vector4;
+    /**
+     * Subtracts the right vector from the left vector component-wise and returns a new vector.
+     *
+     * @param l_vec - The left operand vector (minuend)
+     * @param r_vec - The right operand vector (subtrahend)
+     * @returns A new Vector4 containing the difference (l_vec - r_vec)
+     * @static
+     */
+    static subtract(l_vec: IVector4, r_vec: IVector4): Vector4;
+    /**
+     * Multiplies a vector by a scalar value and returns a new vector.
+     * This operation scales the vector while preserving its direction.
+     *
+     * @param vec - The vector to multiply
+     * @param value - The scalar value to multiply by
+     * @returns A new Vector4 with each component multiplied by the scalar
+     * @static
+     */
+    static multiply(vec: IVector4, value: number): Vector4;
+    /**
+     * Multiplies two vectors component-wise and returns a new vector.
+     * This is also known as the Hadamard product or element-wise multiplication.
+     *
+     * @param l_vec - The left operand vector
+     * @param r_vec - The right operand vector
+     * @returns A new Vector4 with each component being the product of corresponding components
+     * @static
+     */
+    static multiplyVector(l_vec: IVector4, r_vec: IVector4): Vector4;
+    /**
+     * Divides a vector by a scalar value and returns a new vector.
+     * If the divisor is zero, the result components will be set to Infinity and an error will be logged.
+     *
+     * @param vec - The vector to divide
+     * @param value - The scalar value to divide by
+     * @returns A new Vector4 with each component divided by the scalar
+     * @static
+     */
+    static divide(vec: IVector4, value: number): Vector4;
+    /**
+     * Divides the left vector by the right vector component-wise and returns a new vector.
+     * If any component of the right vector is zero, the corresponding result component will be set to Infinity.
+     *
+     * @param l_vec - The left operand vector (dividend)
+     * @param r_vec - The right operand vector (divisor)
+     * @returns A new Vector4 with component-wise division result
+     * @static
+     */
+    static divideVector(l_vec: IVector4, r_vec: IVector4): Vector4;
+    /**
+     * Creates a deep copy of this vector.
+     *
+     * @returns A new Vector4 instance with the same component values
+     */
+    clone(): Vector4;
+}
+/**
+ * Immutable 4D(x,y,z,w) Vector class with 64-bit float components.
+ *
+ * This class provides the same functionality as Vector4 but with double precision
+ * floating-point components. Use this when higher precision is required for
+ * mathematical calculations or when working with very large or very small numbers.
+ *
+ * @example Basic usage:
+ * ```typescript
+ * const vec1 = Vector4d.fromCopy4(1.0, 2.0, 3.0, 1.0);
+ * const vec2 = Vector4d.fromCopyArray4([2.0, 3.0, 3.0, 1.0]);
+ * const dotProduct = vec1.dot(vec2);
+ * const sum = Vector4d.add(vec1, vec2);
+ * ```
+ */
+declare class Vector4d extends Vector4_<Float64ArrayConstructor> {
+    /**
+     * Creates a new Vector4d instance from a Float64Array.
+     *
+     * @param x - The Float64Array containing vector components
+     * @private This constructor is private to prevent direct instantiation
+     */
+    private constructor();
+    /**
+     * Creates a new Vector4d from a 4-element array by copying the values.
+     *
+     * @param array - Array containing exactly 4 numeric values [x, y, z, w]
+     * @returns A new Vector4d instance with the copied values
+     * @static
+     */
+    static fromCopyArray4(array: Array4<number>): Vector4d;
+    /**
+     * Creates a new Vector4d from individual component values.
+     *
+     * @param x - The X component value
+     * @param y - The Y component value
+     * @param z - The Z component value
+     * @param w - The W component value
+     * @returns A new Vector4d instance with the specified component values
+     * @static
+     */
+    static fromCopy4(x: number, y: number, z: number, w: number): Vector4d;
+    /**
+     * Creates a new Vector4d by copying values from an array.
+     * Takes the first 4 elements from the array. If the array has fewer than 4 elements,
+     * the remaining components will be undefined.
+     *
+     * @param array - Array containing numeric values (at least 4 elements recommended)
+     * @returns A new Vector4d instance with copied values
+     * @static
+     */
+    static fromCopyArray(array: Array4<number>): Vector4d;
+    /**
+     * Creates a new Vector4d from an ArrayBuffer.
+     * The ArrayBuffer should contain at least 32 bytes (4 float64 values).
+     *
+     * @param arrayBuffer - The ArrayBuffer containing vector data
+     * @returns A new Vector4d instance using the ArrayBuffer data
+     * @static
+     */
+    static fromArrayBuffer(arrayBuffer: ArrayBuffer): Vector4d;
+    /**
+     * Creates a new Vector4d from a Float64Array.
+     * The Float64Array is used directly without copying.
+     *
+     * @param float64Array - The Float64Array containing vector components
+     * @returns A new Vector4d instance using the provided Float64Array
+     * @static
+     */
+    static fromFloat64Array(float64Array: Float64Array): Vector4d;
+    /**
+     * Creates a zero vector (0, 0, 0, 0).
+     *
+     * @returns A new Vector4d with all components set to zero
+     * @static
+     */
+    static zero(): Vector4d;
+    /**
+     * Creates a vector with all components set to 1 (1, 1, 1, 1).
+     *
+     * @returns A new Vector4d with all components set to 1
+     * @static
+     */
+    static one(): Vector4d;
+    /**
+     * Creates a dummy vector with no components (empty array).
+     * This is used as a placeholder when a vector is needed but not yet initialized.
+     *
+     * @returns A new dummy Vector4d with empty components
+     * @static
+     */
+    static dummy(): Vector4d;
+    /**
+     * Creates a normalized version of the given vector.
+     * A normalized vector has a length of 1 while maintaining its direction.
+     *
+     * @param vec - The vector to normalize
+     * @returns A new normalized Vector4d
+     * @static
+     */
+    static normalize(vec: IVector4): Vector4d;
+    /**
+     * Adds two vectors component-wise and returns a new vector.
+     *
+     * @param l_vec - The left operand vector
+     * @param r_vec - The right operand vector
+     * @returns A new Vector4d containing the sum (l_vec + r_vec)
+     * @static
+     */
+    static add(l_vec: IVector4, r_vec: IVector4): Vector4d;
+    /**
+     * Subtracts the right vector from the left vector component-wise and returns a new vector.
+     *
+     * @param l_vec - The left operand vector (minuend)
+     * @param r_vec - The right operand vector (subtrahend)
+     * @returns A new Vector4d containing the difference (l_vec - r_vec)
+     * @static
+     */
+    static subtract(l_vec: IVector4, r_vec: IVector4): Vector4d;
+    /**
+     * Multiplies a vector by a scalar value and returns a new vector.
+     * This operation scales the vector while preserving its direction.
+     *
+     * @param vec - The vector to multiply
+     * @param value - The scalar value to multiply by
+     * @returns A new Vector4d with each component multiplied by the scalar
+     * @static
+     */
+    static multiply(vec: IVector4, value: number): Vector4d;
+    /**
+     * Multiplies two vectors component-wise and returns a new vector.
+     * This is also known as the Hadamard product or element-wise multiplication.
+     *
+     * @param l_vec - The left operand vector
+     * @param r_vec - The right operand vector
+     * @returns A new Vector4d with each component being the product of corresponding components
+     * @static
+     */
+    static multiplyVector(l_vec: IVector4, r_vec: IVector4): Vector4d;
+    /**
+     * Divides a vector by a scalar value and returns a new vector.
+     * If the divisor is zero, the result components will be set to Infinity and an error will be logged.
+     *
+     * @param vec - The vector to divide
+     * @param value - The scalar value to divide by
+     * @returns A new Vector4d with each component divided by the scalar
+     * @static
+     */
+    static divide(vec: IVector4, value: number): Vector4d;
+    /**
+     * Divides the left vector by the right vector component-wise and returns a new vector.
+     * If any component of the right vector is zero, the corresponding result component will be set to Infinity.
+     *
+     * @param l_vec - The left operand vector (dividend)
+     * @param r_vec - The right operand vector (divisor)
+     * @returns A new Vector4d with component-wise division result
+     * @static
+     */
+    static divideVector(l_vec: IVector4, r_vec: IVector4): Vector4d;
+    /**
+     * Creates a deep copy of this vector.
+     *
+     * @returns A new Vector4d instance with the same component values
+     */
+    clone(): Vector4d;
+}
+/**
+ * Type alias for Vector4 to provide a consistent naming convention.
+ * Vector4f explicitly indicates 32-bit float precision.
+ */
+type Vector4f = Vector4;
+/**
+ * Constant Vector4 with all components set to 1 (1, 1, 1, 1).
+ * Useful for initialization and mathematical operations.
+ */
+declare const ConstVector4_1_1_1_1: Vector4;
+/**
+ * Constant Vector4 representing a homogeneous coordinate with W=1 (0, 0, 0, 1).
+ * Commonly used for representing positions in homogeneous coordinates.
+ */
+declare const ConstVector4_0_0_0_1: Vector4;
+/**
+ * Constant Vector4 with all components set to 0 (0, 0, 0, 0).
+ * Represents the zero vector or null vector.
+ */
+declare const ConstVector4_0_0_0_0: Vector4;
+
+/**
+ * Base class for mutable 4D vectors with generic typed array support.
+ * Extends Vector4_ to provide mutability capabilities for x, y, z, and w components.
+ *
+ * @template T - The typed array constructor type (Float32Array or Float64Array)
+ * @internal
+ */
+declare class MutableVector4_<T extends FloatTypedArrayConstructor> extends Vector4_<T> implements IMutableVector, IMutableVector4 {
+    /**
+     * Creates a new MutableVector4_ instance.
+     *
+     * @param x - The typed array containing vector components
+     * @param type - Object containing the typed array constructor
+     */
+    constructor(x: FloatTypedArray, { type }: {
+        type: T;
+    });
+    /**
+     * Sets the x component of the vector.
+     * Automatically increments the update counter for change tracking.
+     */
+    set x(x: number);
+    /**
+     * Gets the x component of the vector.
+     * @returns The x component value
+     */
+    get x(): number;
+    /**
+     * Sets the y component of the vector.
+     * Automatically increments the update counter for change tracking.
+     */
+    set y(y: number);
+    /**
+     * Gets the y component of the vector.
+     * @returns The y component value
+     */
+    get y(): number;
+    /**
+     * Sets the z component of the vector.
+     * Automatically increments the update counter for change tracking.
+     */
+    set z(z: number);
+    /**
+     * Gets the z component of the vector.
+     * @returns The z component value
+     */
+    get z(): number;
+    /**
+     * Sets the w component of the vector.
+     * Automatically increments the update counter for change tracking.
+     */
+    set w(w: number);
+    /**
+     * Gets the w component of the vector.
+     * @returns The w component value
+     */
+    get w(): number;
+    /**
+     * Gets the raw typed array containing the vector components.
+     *
+     * @returns The underlying typed array [x, y, z, w]
+     */
+    raw(): TypedArray;
+    /**
+     * Sets the value at the specified index.
+     *
+     * @param i - The index (0-3) to set
+     * @param value - The value to set at the index
+     * @returns This vector instance for method chaining
+     */
+    setAt(i: number, value: number): this;
+    /**
+     * Sets all four components of the vector.
+     *
+     * @param x - The x component value
+     * @param y - The y component value
+     * @param z - The z component value
+     * @param w - The w component value
+     * @returns This vector instance for method chaining
+     */
+    setComponents(x: number, y: number, z: number, w: number): this;
+    /**
+     * Copies components from another vector to this vector.
+     *
+     * @param vec - The source vector to copy from
+     * @returns This vector instance for method chaining
+     */
+    copyComponents(vec: IVector4): this;
+    /**
+     * Sets all components to zero.
+     *
+     * @returns This vector instance for method chaining
+     */
+    zero(): this;
+    /**
+     * Sets all components to one.
+     *
+     * @returns This vector instance for method chaining
+     */
+    one(): this;
+    /**
+     * Gets the number of bytes per component in the underlying typed array.
+     *
+     * @returns The byte size per component (4 for Float32Array, 8 for Float64Array)
+     */
+    get bytesPerComponent(): number;
+    /**
+     * Normalizes the vector to unit length.
+     * Modifies this vector in place.
+     *
+     * @returns This vector instance for method chaining
+     */
+    normalize(): this;
+    /**
+     * Normalizes only the x, y, z components (treating as 3D vector).
+     * The w component is divided by the same length factor.
+     *
+     * @returns This vector instance for method chaining
+     */
+    normalize3(): this;
+    /**
+     * Adds another vector to this vector component-wise.
+     *
+     * @param vec - The vector to add
+     * @returns This vector instance for method chaining
+     */
+    add(vec: IVector4): this;
+    /**
+     * Subtracts another vector from this vector component-wise.
+     *
+     * @param vec - The vector to subtract
+     * @returns This vector instance for method chaining
+     */
+    subtract(vec: IVector4): this;
+    /**
+     * Multiplies this vector by a scalar value.
+     *
+     * @param value - The scalar value to multiply by
+     * @returns This vector instance for method chaining
+     */
+    multiply(value: number): this;
+    /**
+     * Multiplies this vector by another vector component-wise.
+     *
+     * @param vec - The vector to multiply by
+     * @returns This vector instance for method chaining
+     */
+    multiplyVector(vec: IVector4): this;
+    /**
+     * Divides this vector by a scalar value.
+     * If the value is zero, sets components to Infinity and logs an error.
+     *
+     * @param value - The scalar value to divide by
+     * @returns This vector instance for method chaining
+     */
+    divide(value: number): this;
+    /**
+     * Divides this vector by another vector component-wise.
+     * If any component of the divisor is zero, sets the corresponding result to Infinity.
+     *
+     * @param vec - The vector to divide by
+     * @returns This vector instance for method chaining
+     */
+    divideVector(vec: IVector4): this;
+    /**
+     * Gets the update counter value.
+     * This counter is incremented whenever the vector is modified.
+     *
+     * @returns The current update count
+     */
+    get _updateCount(): number;
+    private __updateCount;
+}
+/**
+ * Mutable 4D vector class with 32-bit float components.
+ * Provides methods for vector operations that modify the vector in place,
+ * as well as static factory methods for creating new vectors.
+ */
+declare class MutableVector4 extends MutableVector4_<Float32ArrayConstructor> {
+    /**
+     * Creates a new MutableVector4 instance.
+     *
+     * @param x - Float32Array containing the vector components [x, y, z, w]
+     */
+    constructor(x: Float32Array);
+    /**
+     * Creates a new MutableVector4 from an array of numbers.
+     * Takes up to 4 elements from the array.
+     *
+     * @param array - Array of numbers to copy from
+     * @returns A new MutableVector4 instance
+     */
+    static fromCopyArray(array: Array<number>): MutableVector4;
+    /**
+     * Creates a new MutableVector4 from a 4-element array.
+     *
+     * @param array - Array of exactly 4 numbers [x, y, z, w]
+     * @returns A new MutableVector4 instance
+     */
+    static fromCopyArray4(array: Array4<number>): MutableVector4;
+    /**
+     * Creates a new MutableVector4 from individual component values.
+     *
+     * @param x - The x component
+     * @param y - The y component
+     * @param z - The z component
+     * @param w - The w component
+     * @returns A new MutableVector4 instance
+     */
+    static fromCopy4(x: number, y: number, z: number, w: number): MutableVector4;
+    /**
+     * Creates a zero vector (0, 0, 0, 0).
+     *
+     * @returns A new MutableVector4 with all components set to 0
+     */
+    static zero(): MutableVector4;
+    /**
+     * Creates a vector with all components set to 1 (1, 1, 1, 1).
+     *
+     * @returns A new MutableVector4 with all components set to 1
+     */
+    static one(): MutableVector4;
+    /**
+     * Creates a dummy vector for placeholder purposes.
+     *
+     * @returns A new MutableVector4 dummy instance
+     */
+    static dummy(): MutableVector4;
+    /**
+     * Creates a normalized copy of the given vector.
+     *
+     * @param vec - The vector to normalize
+     * @returns A new normalized MutableVector4
+     */
+    static normalize(vec: IVector4): MutableVector4;
+    /**
+     * Creates a new vector by adding two vectors component-wise.
+     *
+     * @param l_vec - The left operand vector
+     * @param r_vec - The right operand vector
+     * @returns A new MutableVector4 containing the sum
+     */
+    static add(l_vec: IVector4, r_vec: IVector4): MutableVector4;
+    /**
+     * Creates a new vector by subtracting the second vector from the first.
+     *
+     * @param l_vec - The vector to subtract from
+     * @param r_vec - The vector to subtract
+     * @returns A new MutableVector4 containing the difference
+     */
+    static subtract(l_vec: IVector4, r_vec: IVector4): MutableVector4;
+    /**
+     * Creates a new vector by multiplying a vector by a scalar.
+     *
+     * @param vec - The vector to multiply
+     * @param value - The scalar value to multiply by
+     * @returns A new MutableVector4 containing the scaled vector
+     */
+    static multiply(vec: IVector4, value: number): MutableVector4;
+    /**
+     * Creates a new vector by multiplying two vectors component-wise.
+     *
+     * @param l_vec - The left operand vector
+     * @param r_vec - The right operand vector
+     * @returns A new MutableVector4 containing the component-wise product
+     */
+    static multiplyVector(l_vec: IVector4, r_vec: IVector4): MutableVector4;
+    /**
+     * Creates a new vector by dividing a vector by a scalar.
+     *
+     * @param vec - The vector to divide
+     * @param value - The scalar value to divide by
+     * @returns A new MutableVector4 containing the divided vector
+     */
+    static divide(vec: IVector4, value: number): MutableVector4;
+    /**
+     * Creates a new vector by dividing two vectors component-wise.
+     *
+     * @param l_vec - The dividend vector
+     * @param r_vec - The divisor vector
+     * @returns A new MutableVector4 containing the component-wise quotient
+     */
+    static divideVector(l_vec: IVector4, r_vec: IVector4): MutableVector4;
+    /**
+     * Gets the class name for debugging and identification purposes.
+     *
+     * @returns The string 'MutableVector4'
+     */
+    get className(): string;
+    /**
+     * Creates a deep copy of this vector.
+     *
+     * @returns A new MutableVector4 instance with copied values
+     */
+    clone(): any;
+}
+/**
+ * Mutable 4D vector class with 64-bit float components.
+ * Provides higher precision arithmetic compared to MutableVector4.
+ */
+declare class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> {
+    /**
+     * Creates a new MutableVector4d instance.
+     *
+     * @param x - Float64Array containing the vector components [x, y, z, w]
+     */
+    constructor(x: Float64Array);
+    /**
+     * Creates a zero vector (0, 0, 0, 0) with 64-bit precision.
+     *
+     * @returns A new MutableVector4d with all components set to 0
+     */
+    static zero(): MutableVector4d;
+    /**
+     * Creates a vector with all components set to 1 (1, 1, 1, 1) with 64-bit precision.
+     *
+     * @returns A new MutableVector4d with all components set to 1
+     */
+    static one(): MutableVector4d;
+    /**
+     * Creates a dummy vector for placeholder purposes with 64-bit precision.
+     *
+     * @returns A new MutableVector4d dummy instance
+     */
+    static dummy(): MutableVector4d;
+    /**
+     * Creates a normalized copy of the given vector with 64-bit precision.
+     *
+     * @param vec - The vector to normalize
+     * @returns A new normalized MutableVector4d
+     */
+    static normalize(vec: IVector4): MutableVector4d;
+    /**
+     * Creates a new vector by adding two vectors component-wise with 64-bit precision.
+     *
+     * @param l_vec - The left operand vector
+     * @param r_vec - The right operand vector
+     * @returns A new MutableVector4d containing the sum
+     */
+    static add(l_vec: IVector4, r_vec: IVector4): MutableVector4d;
+    /**
+     * Creates a new vector by subtracting the second vector from the first with 64-bit precision.
+     *
+     * @param l_vec - The vector to subtract from
+     * @param r_vec - The vector to subtract
+     * @returns A new MutableVector4d containing the difference
+     */
+    static subtract(l_vec: IVector4, r_vec: IVector4): MutableVector4d;
+    /**
+     * Creates a new vector by multiplying a vector by a scalar with 64-bit precision.
+     *
+     * @param vec - The vector to multiply
+     * @param value - The scalar value to multiply by
+     * @returns A new MutableVector4d containing the scaled vector
+     */
+    static multiply(vec: IVector4, value: number): MutableVector4d;
+    /**
+     * Creates a new vector by multiplying two vectors component-wise with 64-bit precision.
+     *
+     * @param l_vec - The left operand vector
+     * @param r_vec - The right operand vector
+     * @returns A new MutableVector4d containing the component-wise product
+     */
+    static multiplyVector(l_vec: IVector4, r_vec: IVector4): MutableVector4d;
+    /**
+     * Creates a new vector by dividing a vector by a scalar with 64-bit precision.
+     *
+     * @param vec - The vector to divide
+     * @param value - The scalar value to divide by
+     * @returns A new MutableVector4d containing the divided vector
+     */
+    static divide(vec: IVector4, value: number): MutableVector4d;
+    /**
+     * Creates a new vector by dividing two vectors component-wise with 64-bit precision.
+     *
+     * @param l_vec - The dividend vector
+     * @param r_vec - The divisor vector
+     * @returns A new MutableVector4d containing the component-wise quotient
+     */
+    static divideVector(l_vec: IVector4, r_vec: IVector4): MutableVector4d;
+    /**
+     * Creates a new MutableVector4d from a 4-element array with 64-bit precision.
+     *
+     * @param array - Array of exactly 4 numbers [x, y, z, w]
+     * @returns A new MutableVector4d instance
+     */
+    static fromCopyArray4(array: Array4<number>): MutableVector4d;
+    /**
+     * Creates a new MutableVector4d from an array of numbers with 64-bit precision.
+     * Takes up to 4 elements from the array.
+     *
+     * @param array - Array of numbers to copy from
+     * @returns A new MutableVector4d instance
+     */
+    static fromCopyArray(array: Array<number>): MutableVector4d;
+    /**
+     * Creates a new MutableVector4d from individual component values with 64-bit precision.
+     *
+     * @param x - The x component
+     * @param y - The y component
+     * @param z - The z component
+     * @param w - The w component
+     * @returns A new MutableVector4d instance
+     */
+    static fromCopy4(x: number, y: number, z: number, w: number): MutableVector4d;
+    /**
+     * Creates a deep copy of this vector with 64-bit precision.
+     *
+     * @returns A new MutableVector4d instance with copied values
+     */
+    clone(): MutableVector4d;
+}
+/**
+ * Type alias for MutableVector4 to indicate 32-bit float precision.
+ */
+type MutableVector4f = MutableVector4;
+
+/**
+ * Represents a 4x4 identity matrix that provides optimized operations for identity transformations.
+ * This class implements the identity matrix pattern where all diagonal elements are 1 and all other elements are 0.
+ * It extends AbstractMatrix and implements both IMatrix and IMatrix44 interfaces.
+ *
+ * The identity matrix is immutable and provides efficient implementations since the result of many operations
+ * can be computed without actual matrix multiplication.
+ *
+ * @example
+ * ```typescript
+ * const identity = new IdentityMatrix44();
+ * const vector = new Vector4(1, 2, 3, 1);
+ * const result = identity.multiplyVector(vector); // Returns the same vector
+ * ```
+ */
+declare class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
+    /**
+     * Static array representing the identity matrix values in column-major order.
+     * This is shared across all instances for memory efficiency.
+     */
+    static readonly __v: Float32Array<ArrayBuffer>;
+    /**
+     * Creates a new IdentityMatrix44 instance.
+     * The internal array reference points to the static identity matrix values.
+     */
+    constructor();
+    /**
+     * Returns a string representation of the identity matrix in a readable format.
+     * Each row is separated by newlines for visual clarity.
+     *
+     * @returns A formatted string showing the 4x4 identity matrix
+     */
+    toString(): string;
+    /**
+     * Returns an approximate string representation of the matrix.
+     * For identity matrix, this is identical to toString() since all values are exact.
+     *
+     * @returns A formatted string showing the 4x4 identity matrix
+     */
+    toStringApproximately(): string;
+    /**
+     * Returns the matrix elements as a flat array in column-major order.
+     *
+     * @returns An array of 16 numbers representing the identity matrix
+     */
+    flattenAsArray(): number[];
+    /**
+     * Indicates whether this matrix is a dummy/placeholder matrix.
+     * Identity matrix is not considered a dummy matrix.
+     *
+     * @returns Always false for identity matrix
+     */
+    isDummy(): boolean;
+    /**
+     * Checks if the given matrix is approximately equal to this identity matrix within a tolerance.
+     * Compares each element of the input matrix against the corresponding identity matrix element.
+     *
+     * @param mat - The matrix to compare against this identity matrix
+     * @param delta - The tolerance for floating-point comparison (default: Number.EPSILON)
+     * @returns True if the matrix is approximately an identity matrix, false otherwise
+     */
+    isEqual(mat: IMatrix44, delta?: number): boolean;
+    /**
+     * Performs a strict equality check against another matrix.
+     * Uses exact floating-point comparison without tolerance.
+     *
+     * @param mat - The matrix to compare for strict equality
+     * @returns True if the matrix is exactly an identity matrix, false otherwise
+     */
+    isStrictEqual(mat: IMatrix): boolean;
+    /**
+     * Gets the matrix element at the specified row and column indices.
+     * For identity matrix, returns 1 for diagonal elements and 0 for off-diagonal elements.
+     *
+     * @param row_i - The row index (0-based)
+     * @param column_i - The column index (0-based)
+     * @returns 1 if row equals column (diagonal), 0 otherwise
+     */
+    at(row_i: number, column_i: number): number;
+    /**
+     * Gets the matrix element at the specified linear index in column-major order.
+     * For identity matrix, returns 1 for diagonal positions and 0 elsewhere.
+     *
+     * @param i - The linear index (0-15) in column-major order
+     * @returns 1 for diagonal elements (indices 0, 5, 10, 15), 0 otherwise
+     */
+    v(i: number): number;
+    /**
+     * Calculates the determinant of this identity matrix.
+     * The determinant of an identity matrix is always 1.
+     *
+     * @returns Always returns 1
+     */
+    determinant(): number;
+    /**
+     * Multiplies this identity matrix with a 4D vector.
+     * Since this is an identity matrix, the result is the input vector unchanged.
+     *
+     * @param vec - The 4D vector to multiply
+     * @returns The same vector (identity transformation)
+     */
+    multiplyVector(vec: IVector4): IVector4;
+    /**
+     * Multiplies this identity matrix with a 3D vector.
+     * Since this is an identity matrix, the result is the input vector unchanged.
+     *
+     * @param vec - The 3D vector to multiply
+     * @returns The same vector (identity transformation)
+     */
+    multiplyVector3(vec: IVector3): IVector3;
+    /**
+     * Multiplies this identity matrix with a vector and stores the result in an output vector.
+     * Since this is an identity matrix, copies the input vector to the output vector.
+     *
+     * @param vec - The input vector to multiply
+     * @param outVec - The mutable vector to store the result
+     * @returns The output vector containing the copied values
+     */
+    multiplyVectorTo(vec: IVector, outVec: MutableVector4): MutableVector4;
+    /**
+     * Extracts the scale components from this transformation matrix.
+     * For identity matrix, the scale is (1, 1, 1).
+     *
+     * @returns A Vector3 with all components set to 1
+     */
+    getScale(): Vector3;
+    /**
+     * Extracts the scale components and stores them in an output vector.
+     * For identity matrix, sets all scale components to 1.
+     *
+     * @param outVec - The mutable vector to store the scale values
+     * @returns The output vector with scale components set to 1
+     */
+    getScaleTo(outVec: MutableVector3): MutableVector3;
+    /**
+     * Creates a copy of this identity matrix.
+     * Returns a new IdentityMatrix44 instance.
+     *
+     * @returns A new IdentityMatrix44 instance
+     */
+    clone(): IdentityMatrix44;
+    /**
+     * Extracts the rotation part of this transformation matrix.
+     * For identity matrix, the rotation is also an identity matrix.
+     *
+     * @returns A new IdentityMatrix44 representing no rotation
+     */
+    getRotate(): IdentityMatrix44;
+    /**
+     * Extracts the translation components from this transformation matrix.
+     * For identity matrix, the translation is (0, 0, 0).
+     *
+     * @returns A Vector3 with all components set to 0
+     */
+    getTranslate(): Vector3;
+    /**
+     * Gets the matrix element at row 0, column 0.
+     * @returns Always 1 for identity matrix
+     */
+    get m00(): number;
+    /**
+     * Gets the matrix element at row 1, column 0.
+     * @returns Always 0 for identity matrix
+     */
+    get m10(): number;
+    /**
+     * Gets the matrix element at row 2, column 0.
+     * @returns Always 0 for identity matrix
+     */
+    get m20(): number;
+    /**
+     * Gets the matrix element at row 3, column 0.
+     * @returns Always 0 for identity matrix
+     */
+    get m30(): number;
+    /**
+     * Gets the matrix element at row 0, column 1.
+     * @returns Always 0 for identity matrix
+     */
+    get m01(): number;
+    /**
+     * Gets the matrix element at row 1, column 1.
+     * @returns Always 1 for identity matrix
+     */
+    get m11(): number;
+    /**
+     * Gets the matrix element at row 2, column 1.
+     * @returns Always 0 for identity matrix
+     */
+    get m21(): number;
+    /**
+     * Gets the matrix element at row 3, column 1.
+     * @returns Always 0 for identity matrix
+     */
+    get m31(): number;
+    /**
+     * Gets the matrix element at row 0, column 2.
+     * @returns Always 0 for identity matrix
+     */
+    get m02(): number;
+    /**
+     * Gets the matrix element at row 1, column 2.
+     * @returns Always 0 for identity matrix
+     */
+    get m12(): number;
+    /**
+     * Gets the matrix element at row 2, column 2.
+     * @returns Always 1 for identity matrix
+     */
+    get m22(): number;
+    /**
+     * Gets the matrix element at row 3, column 2.
+     * @returns Always 0 for identity matrix
+     */
+    get m32(): number;
+    /**
+     * Gets the matrix element at row 0, column 3.
+     * @returns Always 0 for identity matrix
+     */
+    get m03(): number;
+    /**
+     * Gets the matrix element at row 1, column 3.
+     * @returns Always 0 for identity matrix
+     */
+    get m13(): number;
+    /**
+     * Gets the matrix element at row 2, column 3.
+     * @returns Always 0 for identity matrix
+     */
+    get m23(): number;
+    /**
+     * Gets the matrix element at row 3, column 3.
+     * @returns Always 1 for identity matrix
+     */
+    get m33(): number;
+    /**
+     * Gets the X translation component from the matrix.
+     * @returns Always 0 for identity matrix
+     */
+    get translateX(): number;
+    /**
+     * Gets the Y translation component from the matrix.
+     * @returns Always 0 for identity matrix
+     */
+    get translateY(): number;
+    /**
+     * Gets the Z translation component from the matrix.
+     * @returns Always 0 for identity matrix
+     */
+    get translateZ(): number;
+    /**
+     * Gets the class name for debugging and reflection purposes.
+     * @returns The string 'IdentityMatrix44'
+     */
+    get className(): string;
+    /**
+     * Gets the composition type for this matrix class.
+     * @returns CompositionType.Mat4 indicating this is a 4x4 matrix
+     */
+    static get compositionType(): CompositionTypeEnum;
+    /**
+     * Indicates whether this matrix is an identity matrix class.
+     * @returns Always true for IdentityMatrix44
+     */
+    get isIdentityMatrixClass(): boolean;
+}
+
+/**
+ * A mutable 4x4 matrix class that extends the immutable Matrix44 class.
+ *
+ * This class provides a mutable interface for 4x4 matrix operations commonly used
+ * in 3D graphics, including transformations, rotations, scaling, and projections.
+ * The matrix is stored in column-major order internally, which is compatible with WebGL.
+ *
+ * @example
+ * ```typescript
+ * const matrix = MutableMatrix44.identity();
+ * matrix.translate(Vector3.fromCopy(1, 2, 3));
+ * matrix.rotateY(Math.PI / 4);
+ * ```
+ */
+declare class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutableMatrix44 {
+    /**
+     * Sets the value at position (0,0) in the matrix.
+     *
+     * @param val - The value to set
+     */
+    set m00(val: number);
+    /**
+     * Gets the value at position (0,0) in the matrix.
+     *
+     * @returns The value at position (0,0)
+     */
+    get m00(): number;
+    /**
+     * Sets the value at position (1,0) in the matrix.
+     *
+     * @param val - The value to set
+     */
+    set m10(val: number);
+    /**
+     * Gets the value at position (1,0) in the matrix.
+     *
+     * @returns The value at position (1,0)
+     */
+    get m10(): number;
+    /**
+     * Sets the value at position (2,0) in the matrix.
+     *
+     * @param val - The value to set
+     */
+    set m20(val: number);
+    /**
+     * Gets the value at position (2,0) in the matrix.
+     *
+     * @returns The value at position (2,0)
+     */
+    get m20(): number;
+    /**
+     * Sets the value at position (3,0) in the matrix.
+     *
+     * @param val - The value to set
+     */
+    set m30(val: number);
+    /**
+     * Gets the value at position (3,0) in the matrix.
+     *
+     * @returns The value at position (3,0)
+     */
+    get m30(): number;
+    /**
+     * Sets the value at position (0,1) in the matrix.
+     *
+     * @param val - The value to set
+     */
+    set m01(val: number);
+    /**
+     * Gets the value at position (0,1) in the matrix.
+     *
+     * @returns The value at position (0,1)
+     */
+    get m01(): number;
+    /**
+     * Sets the value at position (1,1) in the matrix.
+     *
+     * @param val - The value to set
+     */
+    set m11(val: number);
+    /**
+     * Gets the value at position (1,1) in the matrix.
+     *
+     * @returns The value at position (1,1)
+     */
+    get m11(): number;
+    /**
+     * Sets the value at position (2,1) in the matrix.
+     *
+     * @param val - The value to set
+     */
+    set m21(val: number);
+    /**
+     * Gets the value at position (2,1) in the matrix.
+     *
+     * @returns The value at position (2,1)
+     */
+    get m21(): number;
+    /**
+     * Sets the value at position (3,1) in the matrix.
+     *
+     * @param val - The value to set
+     */
+    set m31(val: number);
+    /**
+     * Gets the value at position (3,1) in the matrix.
+     *
+     * @returns The value at position (3,1)
+     */
+    get m31(): number;
+    /**
+     * Sets the value at position (0,2) in the matrix.
+     *
+     * @param val - The value to set
+     */
+    set m02(val: number);
+    /**
+     * Gets the value at position (0,2) in the matrix.
+     *
+     * @returns The value at position (0,2)
+     */
+    get m02(): number;
+    /**
+     * Sets the value at position (1,2) in the matrix.
+     *
+     * @param val - The value to set
+     */
+    set m12(val: number);
+    /**
+     * Gets the value at position (1,2) in the matrix.
+     *
+     * @returns The value at position (1,2)
+     */
+    get m12(): number;
+    /**
+     * Sets the value at position (2,2) in the matrix.
+     *
+     * @param val - The value to set
+     */
+    set m22(val: number);
+    /**
+     * Gets the value at position (2,2) in the matrix.
+     *
+     * @returns The value at position (2,2)
+     */
+    get m22(): number;
+    /**
+     * Sets the value at position (3,2) in the matrix.
+     *
+     * @param val - The value to set
+     */
+    set m32(val: number);
+    /**
+     * Gets the value at position (3,2) in the matrix.
+     *
+     * @returns The value at position (3,2)
+     */
+    get m32(): number;
+    /**
+     * Sets the value at position (0,3) in the matrix.
+     *
+     * @param val - The value to set
+     */
+    set m03(val: number);
+    /**
+     * Gets the value at position (0,3) in the matrix.
+     *
+     * @returns The value at position (0,3)
+     */
+    get m03(): number;
+    /**
+     * Sets the value at position (1,3) in the matrix.
+     *
+     * @param val - The value to set
+     */
+    set m13(val: number);
+    /**
+     * Gets the value at position (1,3) in the matrix.
+     *
+     * @returns The value at position (1,3)
+     */
+    get m13(): number;
+    /**
+     * Sets the value at position (2,3) in the matrix.
+     *
+     * @param val - The value to set
+     */
+    set m23(val: number);
+    /**
+     * Gets the value at position (2,3) in the matrix.
+     *
+     * @returns The value at position (2,3)
+     */
+    get m23(): number;
+    /**
+     * Sets the value at position (3,3) in the matrix.
+     *
+     * @param val - The value to set
+     */
+    set m33(val: number);
+    /**
+     * Gets the value at position (3,3) in the matrix.
+     *
+     * @returns The value at position (3,3)
+     */
+    get m33(): number;
+    /**
+     * Gets the X translation component from the matrix.
+     *
+     * @returns The X translation value
+     */
+    get translateX(): number;
+    /**
+     * Sets the X translation component in the matrix.
+     *
+     * @param val - The X translation value to set
+     */
+    set translateX(val: number);
+    /**
+     * Gets the Y translation component from the matrix.
+     *
+     * @returns The Y translation value
+     */
+    get translateY(): number;
+    /**
+     * Sets the Y translation component in the matrix.
+     *
+     * @param val - The Y translation value to set
+     */
+    set translateY(val: number);
+    /**
+     * Gets the Z translation component from the matrix.
+     *
+     * @returns The Z translation value
+     */
+    get translateZ(): number;
+    /**
+     * Sets the Z translation component in the matrix.
+     *
+     * @param val - The Z translation value to set
+     */
+    set translateZ(val: number);
+    /**
+     * Gets the class name identifier for this matrix type.
+     *
+     * @returns The string 'MutableMatrix44'
+     */
+    get className(): string;
+    /**
+     * Creates a zero matrix (all elements are 0).
+     *
+     * @returns A new MutableMatrix44 instance with all elements set to 0
+     */
+    static zero(): MutableMatrix44;
+    /**
+     * Creates an identity matrix.
+     *
+     * @returns A new MutableMatrix44 instance representing the 4x4 identity matrix
+     */
+    static identity(): MutableMatrix44;
+    /**
+     * Creates a dummy matrix (typically used as a placeholder).
+     *
+     * @returns A new MutableMatrix44 instance representing a dummy matrix
+     */
+    static dummy(): MutableMatrix44;
+    /**
+     * Creates a transposed matrix from the given matrix.
+     *
+     * @param mat - The matrix to transpose
+     * @returns A new MutableMatrix44 instance that is the transpose of the input matrix
+     */
+    static transpose(mat: IMatrix44): MutableMatrix44;
+    /**
+     * Creates an inverted matrix from the given matrix.
+     *
+     * @param mat - The matrix to invert
+     * @returns A new MutableMatrix44 instance that is the inverse of the input matrix
+     */
+    static invert(mat: IMatrix44): MutableMatrix44;
+    /**
+     * Creates a translation matrix from the given vector.
+     *
+     * @param vec - The translation vector
+     * @returns A new MutableMatrix44 instance representing the translation transformation
+     */
+    static translate(vec: IVector3): MutableMatrix44;
+    /**
+     * Creates a rotation matrix around the X-axis.
+     *
+     * @param radian - The rotation angle in radians
+     * @returns A new MutableMatrix44 instance representing the X-axis rotation
+     */
+    static rotateX(radian: number): MutableMatrix44;
+    /**
+     * Creates a rotation matrix around the Y-axis.
+     *
+     * @param radian - The rotation angle in radians
+     * @returns A new MutableMatrix44 instance representing the Y-axis rotation
+     */
+    static rotateY(radian: number): MutableMatrix44;
+    /**
+     * Creates a rotation matrix around the Z-axis.
+     *
+     * @param radian - The rotation angle in radians
+     * @returns A new MutableMatrix44 instance representing the Z-axis rotation
+     */
+    static rotateZ(radian: number): MutableMatrix44;
+    /**
+     * Creates a rotation matrix with rotations around X, Y, and Z axes in that order.
+     *
+     * @param x - Rotation angle around X-axis in radians
+     * @param y - Rotation angle around Y-axis in radians
+     * @param z - Rotation angle around Z-axis in radians
+     * @returns A new MutableMatrix44 instance representing the combined rotation
+     */
+    static rotateXYZ(x: number, y: number, z: number): MutableMatrix44;
+    /**
+     * Creates a rotation matrix from a vector containing X, Y, Z rotation angles.
+     *
+     * @param vec - Vector containing rotation angles (x, y, z) in radians
+     * @returns A new MutableMatrix44 instance representing the rotation transformation
+     */
+    static rotate(vec: IVector3): MutableMatrix44;
+    /**
+     * Creates a scaling matrix from the given vector.
+     *
+     * @param vec - The scaling factors for X, Y, and Z axes
+     * @returns A new MutableMatrix44 instance representing the scaling transformation
+     */
+    static scale(vec: IVector3): MutableMatrix44;
+    /**
+     * Multiplies two matrices and returns the result as a new matrix.
+     *
+     * @param l_mat - The left matrix in the multiplication
+     * @param r_mat - The right matrix in the multiplication
+     * @returns A new MutableMatrix44 instance representing the product l_mat * r_mat
+     */
+    static multiply(l_mat: IMatrix44, r_mat: IMatrix44): MutableMatrix44;
+    /**
+     * Creates a copy of this matrix.
+     *
+     * @returns A new MutableMatrix44 instance with the same values as this matrix
+     */
+    clone(): MutableMatrix44;
+    /**
+     * Extracts the rotation part of this matrix.
+     *
+     * @returns A new MutableMatrix44 instance containing only the rotation transformation
+     */
+    getRotate(): MutableMatrix44;
+    /**
+     * Extracts the translation part of this matrix.
+     *
+     * @returns A new MutableVector3 instance containing the translation values
+     */
+    getTranslate(): MutableVector3;
+    /**
+     * Extracts the translation part of this matrix into the provided vector.
+     *
+     * @param outVec - The vector to store the translation values
+     * @returns The output vector with translation values
+     */
+    getTranslateTo(outVec: MutableVector3): MutableVector3;
+    /**
+     * Extracts the scale part of this matrix.
+     *
+     * @returns A new MutableVector3 instance containing the scale values for each axis
+     */
+    getScale(): MutableVector3;
+    /**
+     * Gets the raw Float32Array containing the matrix data.
+     *
+     * @returns The internal Float32Array with matrix values in column-major order
+     */
+    raw(): Float32Array;
+    /**
+     * Sets a value at the specified row and column position.
+     *
+     * @param row_i - The row index (0-3)
+     * @param column_i - The column index (0-3)
+     * @param value - The value to set
+     * @returns This matrix instance for method chaining
+     */
+    setAt(row_i: number, column_i: number, value: number): MutableMatrix44;
+    /**
+     * Sets all 16 components of the matrix with individual values.
+     * Values are specified in row-major order but stored internally in column-major order.
+     *
+     * @param m00 - Element at row 0, column 0
+     * @param m01 - Element at row 0, column 1
+     * @param m02 - Element at row 0, column 2
+     * @param m03 - Element at row 0, column 3
+     * @param m10 - Element at row 1, column 0
+     * @param m11 - Element at row 1, column 1
+     * @param m12 - Element at row 1, column 2
+     * @param m13 - Element at row 1, column 3
+     * @param m20 - Element at row 2, column 0
+     * @param m21 - Element at row 2, column 1
+     * @param m22 - Element at row 2, column 2
+     * @param m23 - Element at row 2, column 3
+     * @param m30 - Element at row 3, column 0
+     * @param m31 - Element at row 3, column 1
+     * @param m32 - Element at row 3, column 2
+     * @param m33 - Element at row 3, column 3
+     * @returns This matrix instance for method chaining
+     */
+    setComponents(m00: number, m01: number, m02: number, m03: number, m10: number, m11: number, m12: number, m13: number, m20: number, m21: number, m22: number, m23: number, m30: number, m31: number, m32: number, m33: number): MutableMatrix44;
+    /**
+     * Copies all components from another matrix to this matrix.
+     *
+     * @param mat - The source matrix to copy from
+     * @returns This matrix instance for method chaining
+     */
+    copyComponents(mat: IMatrix44): MutableMatrix44;
+    /**
+     * Sets this matrix to the zero matrix (all elements are 0).
+     *
+     * @returns This matrix instance for method chaining
+     */
+    zero(): MutableMatrix44;
+    /**
+     * Sets this matrix to the identity matrix.
+     *
+     * @returns This matrix instance for method chaining
+     */
+    identity(): MutableMatrix44;
+    _swap(l: Index, r: Index): void;
+    /**
+     * Transposes this matrix in place (swaps rows and columns).
+     *
+     * @returns This matrix instance for method chaining
+     */
+    transpose(): MutableMatrix44;
+    /**
+     * Inverts this matrix in place.
+     * The matrix must be invertible (determinant != 0), otherwise an error is logged.
+     *
+     * @returns This matrix instance for method chaining
+     */
+    invert(): MutableMatrix44;
+    /**
+     * Sets this matrix to a translation matrix with the given vector.
+     *
+     * @param vec - The translation vector
+     * @returns This matrix instance for method chaining
+     */
+    translate(vec: IVector3): MutableMatrix44;
+    /**
+     * Sets the translation component of this matrix without affecting other components.
+     *
+     * @param vec - The translation vector to set
+     * @returns This matrix instance for method chaining
+     */
+    putTranslate(vec: IVector3): MutableMatrix44;
+    /**
+     * Adds the given vector to the current translation component.
+     *
+     * @param vec - The translation vector to add
+     * @returns This matrix instance for method chaining
+     */
+    addTranslate(vec: IVector3): MutableMatrix44;
+    /**
+     * Sets this matrix to a rotation matrix around the X-axis.
+     *
+     * @param radian - The rotation angle in radians
+     * @returns This matrix instance for method chaining
+     */
+    rotateX(radian: number): MutableMatrix44;
+    /**
+     * Sets this matrix to a rotation matrix around the Y-axis.
+     *
+     * @param radian - The rotation angle in radians
+     * @returns This matrix instance for method chaining
+     */
+    rotateY(radian: number): MutableMatrix44;
+    /**
+     * Sets this matrix to a rotation matrix around the Z-axis.
+     *
+     * @param radian - The rotation angle in radians
+     * @returns This matrix instance for method chaining
+     */
+    rotateZ(radian: number): MutableMatrix44;
+    /**
+     * Sets this matrix to a rotation matrix with rotations around X, Y, and Z axes in that order.
+     * The rotation order is: Z * Y * X (applied from right to left).
+     *
+     * @param x - Rotation angle around X-axis in radians
+     * @param y - Rotation angle around Y-axis in radians
+     * @param z - Rotation angle around Z-axis in radians
+     * @returns This matrix instance for method chaining
+     */
+    rotateXYZ(x: number, y: number, z: number): MutableMatrix44;
+    /**
+     * Sets this matrix to a rotation matrix from a vector containing X, Y, Z rotation angles.
+     *
+     * @param vec - Vector containing rotation angles (x, y, z) in radians
+     * @returns This matrix instance for method chaining
+     */
+    rotate(vec: IVector3): MutableMatrix44;
+    /**
+     * Sets this matrix to a scaling matrix with the given vector.
+     *
+     * @param vec - The scaling factors for X, Y, and Z axes
+     * @returns This matrix instance for method chaining
+     */
+    scale(vec: IVector3): MutableMatrix44;
+    /**
+     * Multiplies the scaling factors to the current matrix.
+     * This applies scaling transformation to each column of the matrix.
+     *
+     * @param vec - The scaling factors for X, Y, and Z axes
+     * @returns This matrix instance for method chaining
+     */
+    multiplyScale(vec: IVector3): MutableMatrix44;
+    /**
+     * Multiplies this matrix by another matrix from the right side (this * mat).
+     * This operation transforms this matrix in place.
+     *
+     * @param mat - The matrix to multiply from the right
+     * @returns This matrix instance for method chaining
+     */
+    multiply(mat: IMatrix44): MutableMatrix44;
+    /**
+     * Multiplies this matrix by another matrix from the left side (mat * this).
+     * This operation transforms this matrix in place.
+     *
+     * @param mat - The matrix to multiply from the left
+     * @returns This matrix instance for method chaining
+     */
+    multiplyByLeft(mat: IMatrix44): MutableMatrix44;
+    /**
+     * Sets this matrix to a rotation matrix based on the given quaternion.
+     *
+     * @param quat - The quaternion to convert to a rotation matrix
+     * @returns This matrix instance for method chaining
+     */
+    fromQuaternion(quat: IQuaternion): MutableMatrix44;
+    /**
+     * Creates a matrix from 16 values in row-major order.
+     * Values are provided in row-major order but stored internally in column-major order.
+     *
+     * @param m00-m33 - Matrix elements in row-major order
+     * @returns A new MutableMatrix44 instance
+     */
+    static fromCopy16RowMajor(m00: number, m01: number, m02: number, m03: number, m10: number, m11: number, m12: number, m13: number, m20: number, m21: number, m22: number, m23: number, m30: number, m31: number, m32: number, m33: number): MutableMatrix44;
+    /**
+     * Creates a matrix from 16 values in column-major order.
+     *
+     * @param m00-m33 - Matrix elements in column-major order
+     * @returns A new MutableMatrix44 instance
+     */
+    static fromCopy16ColumnMajor(m00: number, m10: number, m20: number, m30: number, m01: number, m11: number, m21: number, m31: number, m02: number, m12: number, m22: number, m32: number, m03: number, m13: number, m23: number, m33: number): MutableMatrix44;
+    /**
+     * Creates a new MutableMatrix44 from an existing Matrix44 instance.
+     * This creates a copy of the matrix data, so modifications to the new matrix
+     * will not affect the original.
+     *
+     * @param mat - The source Matrix44 to copy from
+     * @returns A new MutableMatrix44 instance with copied data
+     */
+    static fromCopyMatrix44(mat: IMatrix44): MutableMatrix44;
+    /**
+     * Creates a new MutableMatrix44 directly from a Float32Array in column-major order.
+     * This method does not copy the array, so the matrix will share the same memory
+     * as the input array.
+     *
+     * @param float32Array - A Float32Array containing 16 elements in column-major order
+     * @returns A new MutableMatrix44 instance using the provided array
+     */
+    static fromFloat32ArrayColumnMajor(float32Array: Float32Array): MutableMatrix44;
+    /**
+     * Creates a new MutableMatrix44 from a Float32Array in column-major order.
+     * This method creates a copy of the input array, so modifications to the matrix
+     * will not affect the original array.
+     *
+     * @param float32Array - A Float32Array containing 16 elements in column-major order
+     * @returns A new MutableMatrix44 instance with copied data
+     */
+    static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array): MutableMatrix44;
+    /**
+     * Creates a new MutableMatrix44 from a Float32Array in row-major order.
+     * The input data is converted from row-major to column-major order during creation.
+     *
+     * @param array - A Float32Array containing 16 elements in row-major order
+     * @returns A new MutableMatrix44 instance with data converted to column-major order
+     */
+    static fromCopyFloat32ArrayRowMajor(array: Float32Array): MutableMatrix44;
+    /**
+     * Creates a new MutableMatrix44 from a 3x3 matrix.
+     * The 3x3 matrix is embedded in the upper-left corner of the 4x4 matrix,
+     * with the bottom row and right column set to [0, 0, 0, 1].
+     *
+     * @param mat - The source 3x3 matrix to convert
+     * @returns A new MutableMatrix44 instance with the 3x3 matrix embedded
+     */
+    static fromCopyMatrix33(mat: IMatrix33): MutableMatrix44;
+    /**
+     * Creates a new MutableMatrix44 from an Array16 in column-major order.
+     * This method copies the array data into a new Float32Array.
+     *
+     * @param array - An Array16 containing 16 elements in column-major order
+     * @returns A new MutableMatrix44 instance with copied data
+     */
+    static fromCopyArray16ColumnMajor(array: Array16<number>): MutableMatrix44;
+    /**
+     * Creates a new MutableMatrix44 from a regular array in column-major order.
+     * Only the first 16 elements are used if the array is larger.
+     *
+     * @param array - An array containing at least 16 elements in column-major order
+     * @returns A new MutableMatrix44 instance with copied data
+     */
+    static fromCopyArrayColumnMajor(array: Array<number>): MutableMatrix44;
+    /**
+     * Creates a new MutableMatrix44 from an Array16 in row-major order.
+     * The input data is converted from row-major to column-major order during creation.
+     *
+     * @param array - An Array16 containing 16 elements in row-major order
+     * @returns A new MutableMatrix44 instance with data converted to column-major order
+     */
+    static fromCopyArray16RowMajor(array: Array16<number>): MutableMatrix44;
+    /**
+     * Creates a new MutableMatrix44 from a regular array in row-major order.
+     * The input data is converted from row-major to column-major order during creation.
+     * Only the first 16 elements are used if the array is larger.
+     *
+     * @param array - An array containing at least 16 elements in row-major order
+     * @returns A new MutableMatrix44 instance with data converted to column-major order
+     */
+    static fromCopyArrayRowMajor(array: Array<number>): MutableMatrix44;
+    /**
+     * Creates a matrix from a quaternion.
+     *
+     * @param q - The quaternion to convert
+     * @returns A new MutableMatrix44 instance representing the rotation
+     */
+    static fromCopyQuaternion(q: IQuaternion): MutableMatrix44;
+}
+
+/**
+ * Represents a 4x4 matrix stored in column-major order (OpenGL/WebGL style).
+ * This class provides immutable matrix operations and is used for 3D transformations
+ * including translation, rotation, and scaling.
+ *
+ * @example
+ * ```typescript
+ * const identity = Matrix44.identity();
+ * const translation = Matrix44.translate(Vector3.fromCopyArray([1, 2, 3]));
+ * const result = Matrix44.multiply(identity, translation);
+ * ```
+ */
+declare class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
+    /**
+     * Creates a new Matrix44 instance.
+     * @param m - A Float32Array containing 16 matrix elements in column-major order
+     */
+    constructor(m: Float32Array);
+    /**
+     * Gets the matrix element at row 0, column 0.
+     * @returns The m00 component of the matrix
+     */
+    get m00(): number;
+    /**
+     * Gets the matrix element at row 1, column 0.
+     * @returns The m10 component of the matrix
+     */
+    get m10(): number;
+    /**
+     * Gets the matrix element at row 2, column 0.
+     * @returns The m20 component of the matrix
+     */
+    get m20(): number;
+    /**
+     * Gets the matrix element at row 3, column 0.
+     * @returns The m30 component of the matrix
+     */
+    get m30(): number;
+    /**
+     * Gets the matrix element at row 0, column 1.
+     * @returns The m01 component of the matrix
+     */
+    get m01(): number;
+    /**
+     * Gets the matrix element at row 1, column 1.
+     * @returns The m11 component of the matrix
+     */
+    get m11(): number;
+    /**
+     * Gets the matrix element at row 2, column 1.
+     * @returns The m21 component of the matrix
+     */
+    get m21(): number;
+    /**
+     * Gets the matrix element at row 3, column 1.
+     * @returns The m31 component of the matrix
+     */
+    get m31(): number;
+    /**
+     * Gets the matrix element at row 0, column 2.
+     * @returns The m02 component of the matrix
+     */
+    get m02(): number;
+    /**
+     * Gets the matrix element at row 1, column 2.
+     * @returns The m12 component of the matrix
+     */
+    get m12(): number;
+    /**
+     * Gets the matrix element at row 2, column 2.
+     * @returns The m22 component of the matrix
+     */
+    get m22(): number;
+    /**
+     * Gets the matrix element at row 3, column 2.
+     * @returns The m32 component of the matrix
+     */
+    get m32(): number;
+    /**
+     * Gets the matrix element at row 0, column 3.
+     * @returns The m03 component of the matrix
+     */
+    get m03(): number;
+    /**
+     * Gets the matrix element at row 1, column 3.
+     * @returns The m13 component of the matrix
+     */
+    get m13(): number;
+    /**
+     * Gets the matrix element at row 2, column 3.
+     * @returns The m23 component of the matrix
+     */
+    get m23(): number;
+    /**
+     * Gets the matrix element at row 3, column 3.
+     * @returns The m33 component of the matrix
+     */
+    get m33(): number;
+    /**
+     * Gets the X component of the translation vector from this matrix.
+     * @returns The X translation value
+     */
+    get translateX(): number;
+    /**
+     * Gets the Y component of the translation vector from this matrix.
+     * @returns The Y translation value
+     */
+    get translateY(): number;
+    /**
+     * Gets the Z component of the translation vector from this matrix.
+     * @returns The Z translation value
+     */
+    get translateZ(): number;
+    /**
+     * Gets the composition type for this matrix class.
+     * @returns The composition type enum value
+     */
+    static get compositionType(): CompositionTypeEnum;
+    /**
+     * Converts the matrix to a GLSL mat4 string representation with float precision.
+     * @returns A GLSL-compatible string representation of the matrix
+     */
+    get glslStrAsFloat(): string;
+    /**
+     * Converts the matrix to a GLSL mat4 string representation with integer values.
+     * @returns A GLSL-compatible string representation of the matrix with integer values
+     */
+    get glslStrAsInt(): string;
+    /**
+     * Converts the matrix to a WGSL mat4x4f string representation with float precision.
+     * @returns A WGSL-compatible string representation of the matrix
+     */
+    get wgslStrAsFloat(): string;
+    /**
+     * Converts the matrix to a WGSL mat4x4i string representation with integer values.
+     * @returns A WGSL-compatible string representation of the matrix with integer values
+     */
+    get wgslStrAsInt(): string;
+    /**
+     * Creates a zero matrix (all elements are 0).
+     * @returns A new Matrix44 instance with all elements set to 0
+     */
+    static zero(): Matrix44;
+    /**
+     * Creates a 4x4 identity matrix.
+     * @returns A new IdentityMatrix44 instance representing the identity matrix
+     */
+    static identity(): IdentityMatrix44;
+    /**
+     * Creates a dummy matrix with zero-length array (for placeholder purposes).
+     * @returns A new Matrix44 instance with an empty array
+     */
+    static dummy(): Matrix44;
+    /**
+     * Creates a transpose matrix from the given matrix.
+     * For identity matrices, returns the same matrix since transpose of identity is identity.
+     * @param mat - The matrix to transpose
+     * @returns A new Matrix44 instance representing the transposed matrix
+     */
+    static transpose(mat: IMatrix44): Matrix44;
+    /**
+     * Creates an inverse matrix from the given matrix.
+     * Uses optimized computation for 4x4 matrix inversion.
+     * @param mat - The matrix to invert
+     * @returns A new Matrix44 instance representing the inverted matrix
+     * @throws Logs an error if the matrix is not invertible (determinant is 0)
+     */
+    static invert(mat: IMatrix44): Matrix44;
+    /**
+     * Computes the inverse of a matrix and stores the result in an output matrix.
+     * This is the mutable version of the invert method for performance optimization.
+     * @param mat - The matrix to invert
+     * @param outMat - The output matrix to store the result
+     * @returns The output matrix containing the inverted matrix
+     * @throws Logs an error if the matrix is not invertible (determinant is 0)
+     */
+    static invertTo(mat: IMatrix44, outMat: MutableMatrix44): MutableMatrix44;
+    /**
+     * Creates a translation matrix from a 3D vector.
+     * @param vec - The translation vector
+     * @returns A new Matrix44 instance representing the translation transformation
+     */
+    static translate(vec: Vector3): Matrix44;
+    /**
+     * Creates a rotation matrix around the X-axis.
+     * @param radian - The rotation angle in radians
+     * @returns A new Matrix44 instance representing the X-axis rotation
+     */
+    static rotateX(radian: number): Matrix44;
+    /**
+     * Creates a rotation matrix around the Y-axis.
+     * @param radian - The rotation angle in radians
+     * @returns A new Matrix44 instance representing the Y-axis rotation
+     */
+    static rotateY(radian: number): Matrix44;
+    /**
+     * Creates a rotation matrix around the Z-axis.
+     * @param radian - The rotation angle in radians
+     * @returns A new Matrix44 instance representing the Z-axis rotation
+     */
+    static rotateZ(radian: number): Matrix44;
+    /**
+     * Creates a rotation matrix from Euler angles (XYZ order).
+     * Applies rotations in the order: X, then Y, then Z.
+     * @param x - Rotation around X-axis in radians
+     * @param y - Rotation around Y-axis in radians
+     * @param z - Rotation around Z-axis in radians
+     * @returns A new Matrix44 instance representing the combined rotation
+     */
+    static rotateXYZ(x: number, y: number, z: number): Matrix44;
+    /**
+     * Creates a rotation matrix from a 3D vector containing Euler angles.
+     * @param vec - A vector containing rotation angles [x, y, z] in radians
+     * @returns A new Matrix44 instance representing the rotation
+     */
+    static rotate(vec: IVector3): Matrix44;
+    /**
+     * Creates a scaling matrix from a 3D vector.
+     * @param vec - The scaling factors for each axis [x, y, z]
+     * @returns A new Matrix44 instance representing the scaling transformation
+     */
+    static scale(vec: IVector3): Matrix44;
+    /**
+     * Multiplies two 4x4 matrices and returns the result.
+     * Optimized to handle identity matrices efficiently.
+     * @param l_mat - The left matrix in the multiplication
+     * @param r_mat - The right matrix in the multiplication
+     * @returns A new Matrix44 instance representing the matrix product (l_mat * r_mat)
+     */
+    static multiply(l_mat: IMatrix44, r_mat: IMatrix44): Matrix44;
+    /**
+     * Multiplies two 4x4 matrices and stores the result in an output matrix.
+     * This is the mutable version of the multiply method for performance optimization.
+     * @param l_mat - The left matrix in the multiplication
+     * @param r_mat - The right matrix in the multiplication
+     * @param outMat - The output matrix to store the result
+     * @returns The output matrix containing the multiplication result
+     */
+    static multiplyTo(l_mat: IMatrix44, r_mat: IMatrix44, outMat: MutableMatrix44): MutableMatrix44;
+    /**
+     * Multiplies a matrix with data from a typed array and stores the result.
+     * This method is optimized for working with raw array data.
+     * @param l_mat - The left matrix in the multiplication
+     * @param r_array - The right operand as a typed array
+     * @param outMat - The output matrix to store the result
+     * @param offsetAsComposition - The offset in the array for composition data
+     * @returns The output matrix containing the multiplication result
+     */
+    static multiplyTypedArrayTo(l_mat: IMatrix44, r_array: ArrayType, outMat: MutableMatrix44, offsetAsComposition: number): MutableMatrix44;
+    /**
+     * Creates a rotation matrix from a quaternion and stores it in an output matrix.
+     * @param quat - The quaternion representing the rotation
+     * @param outMat - The output matrix to store the result
+     * @returns The output matrix containing the rotation matrix
+     */
+    static fromQuaternionTo(quat: IQuaternion, outMat: MutableMatrix44): MutableMatrix44;
+    /**
+     * Converts the matrix to a human-readable string representation.
+     * Elements are displayed in row-major order for intuitive reading.
+     * @returns A formatted string representation of the matrix
+     */
+    toString(): string;
+    /**
+     * Converts the matrix to a human-readable string with rounded values.
+     * Uses financial rounding for better readability of floating-point numbers.
+     * @returns A formatted string representation with approximated values
+     */
+    toStringApproximately(): string;
+    /**
+     * Flattens the matrix into a regular JavaScript array.
+     * Elements are returned in column-major order (WebGL compatible).
+     * @returns An array containing all 16 matrix elements
+     */
+    flattenAsArray(): number[];
+    /**
+     * Checks if this is a dummy matrix (empty array).
+     * @returns true if the matrix has no elements, false otherwise
+     */
+    isDummy(): boolean;
+    /**
+     * Checks if this matrix is approximately equal to another matrix.
+     * @param mat - The matrix to compare with
+     * @param delta - The tolerance for floating-point comparison (default: Number.EPSILON)
+     * @returns true if matrices are approximately equal within the given tolerance
+     */
+    isEqual(mat: IMatrix44, delta?: number): boolean;
+    /**
+     * Checks if this matrix is exactly equal to another matrix.
+     * Uses strict equality comparison for all elements.
+     * @param mat - The matrix to compare with
+     * @returns true if matrices are exactly equal, false otherwise
+     */
+    isStrictEqual(mat: IMatrix44): boolean;
+    /**
+     * Gets a matrix element at the specified row and column.
+     * @param row_i - The row index (0-3)
+     * @param column_i - The column index (0-3)
+     * @returns The matrix element at the given position
+     */
+    at(row_i: number, column_i: number): number;
+    /**
+     * Calculates the determinant of this 4x4 matrix.
+     * @returns The determinant value
+     */
+    determinant(): number;
+    /**
+     * Multiplies this matrix with a 4D vector and returns the result.
+     * @param vec - The 4D vector to multiply
+     * @returns A new Vector4 containing the multiplication result
+     */
+    multiplyVector(vec: IVector4): Vector4;
+    /**
+     * Multiplies this matrix with a 4D vector and stores the result in an output vector.
+     * @param vec - The 4D vector to multiply
+     * @param outVec - The output vector to store the result
+     * @returns The output vector containing the multiplication result
+     */
+    multiplyVectorTo(vec: IVector4, outVec: MutableVector4): MutableVector4;
+    /**
+     * Multiplies this matrix with a 4D vector and stores the XYZ components in a 3D vector.
+     * @param vec - The 4D vector to multiply
+     * @param outVec - The output 3D vector to store the XYZ components
+     * @returns The output vector containing the XYZ components of the result
+     */
+    multiplyVectorToVec3(vec: IVector4, outVec: MutableVector3): MutableVector3;
+    /**
+     * Multiplies this matrix with a 3D vector (treating it as a point with w=1).
+     * @param vec - The 3D vector to multiply
+     * @returns A new Vector3 containing the transformed point
+     */
+    multiplyVector3(vec: IVector3): Vector3;
+    /**
+     * Multiplies this matrix with a 3D vector and stores the result (treating it as a point with w=1).
+     * @param vec - The 3D vector to multiply
+     * @param outVec - The output vector to store the result
+     * @returns The output vector containing the transformed point
+     */
+    multiplyVector3To(vec: IVector3, outVec: MutableVector3): MutableVector3;
+    /**
+     * Extracts the translation vector from this transformation matrix.
+     * @returns A new Vector3 containing the translation components
+     */
+    getTranslate(): Vector3;
+    /**
+     * Extracts the translation vector from this matrix and stores it in an output vector.
+     * @param outVec - The output vector to store the translation
+     * @returns The output vector containing the translation components
+     */
+    getTranslateTo(outVec: MutableVector3): MutableVector3;
+    /**
+     * Extracts the scale factors from this transformation matrix.
+     * @returns A new Vector3 containing the scale components for each axis
+     */
+    getScale(): Vector3;
+    /**
+     * Extracts the scale factors from this matrix and stores them in an output vector.
+     * @param outVec - The output vector to store the scale factors
+     * @returns The output vector containing the scale components
+     */
+    getScaleTo(outVec: MutableVector3): MutableVector3;
+    /**
+     * Converts this transformation matrix to Euler angles (XYZ rotation order).
+     * @returns A Vector3 containing the Euler angles [x, y, z] in radians
+     */
+    toEulerAngles(): Vector3;
+    /**
+     * Converts this transformation matrix to Euler angles and stores them in an output vector.
+     * @param outVec3 - The output vector to store the Euler angles
+     * @returns The output vector containing the Euler angles [x, y, z] in radians
+     */
+    toEulerAnglesTo(outVec3: MutableVector3): MutableVector3;
+    /**
+     * Creates a deep copy of this matrix.
+     * @returns A new Matrix44 instance with the same values
+     */
+    clone(): Matrix44;
+    /**
+     * Extracts the rotation part of this transformation matrix.
+     * Removes scaling effects to get pure rotation.
+     * @returns A new Matrix44 containing only the rotation transformation
+     */
+    getRotate(): Matrix44;
+    /**
+     * Creates a matrix from 16 individual values in row-major order.
+     * This is the most intuitive way to specify matrix values, as you can
+     * write them in the same 4x4 layout as they appear visually.
+     * Note that internally, WebGL uses column-major storage.
+     *
+     * @param m00 - Element at row 0, column 0
+     * @param m01 - Element at row 0, column 1
+     * @param m02 - Element at row 0, column 2
+     * @param m03 - Element at row 0, column 3
+     * @param m10 - Element at row 1, column 0
+     * @param m11 - Element at row 1, column 1
+     * @param m12 - Element at row 1, column 2
+     * @param m13 - Element at row 1, column 3
+     * @param m20 - Element at row 2, column 0
+     * @param m21 - Element at row 2, column 1
+     * @param m22 - Element at row 2, column 2
+     * @param m23 - Element at row 2, column 3
+     * @param m30 - Element at row 3, column 0
+     * @param m31 - Element at row 3, column 1
+     * @param m32 - Element at row 3, column 2
+     * @param m33 - Element at row 3, column 3
+     * @returns A new Matrix44 instance
+     */
+    static fromCopy16RowMajor(m00: number, m01: number, m02: number, m03: number, m10: number, m11: number, m12: number, m13: number, m20: number, m21: number, m22: number, m23: number, m30: number, m31: number, m32: number, m33: number): Matrix44;
+    /**
+     * Creates a matrix from 16 individual values in column-major order.
+     * This matches the internal storage format used by WebGL.
+     *
+     * @param m00 - Element at row 0, column 0
+     * @param m10 - Element at row 1, column 0
+     * @param m20 - Element at row 2, column 0
+     * @param m30 - Element at row 3, column 0
+     * @param m01 - Element at row 0, column 1
+     * @param m11 - Element at row 1, column 1
+     * @param m21 - Element at row 2, column 1
+     * @param m31 - Element at row 3, column 1
+     * @param m02 - Element at row 0, column 2
+     * @param m12 - Element at row 1, column 2
+     * @param m22 - Element at row 2, column 2
+     * @param m32 - Element at row 3, column 2
+     * @param m03 - Element at row 0, column 3
+     * @param m13 - Element at row 1, column 3
+     * @param m23 - Element at row 2, column 3
+     * @param m33 - Element at row 3, column 3
+     * @returns A new Matrix44 instance
+     */
+    static fromCopy16ColumnMajor(m00: number, m10: number, m20: number, m30: number, m01: number, m11: number, m21: number, m31: number, m02: number, m12: number, m22: number, m32: number, m03: number, m13: number, m23: number, m33: number): Matrix44;
+    /**
+     * Creates a new matrix by copying another Matrix44 instance.
+     * @param mat - The source matrix to copy
+     * @returns A new Matrix44 instance with copied values
+     */
+    static fromCopyMatrix44(mat: IMatrix44): Matrix44;
+    /**
+     * Creates a matrix directly from a Float32Array in column-major order.
+     * The array is used directly without copying (shares the same memory).
+     * @param float32Array - A Float32Array containing 16 matrix elements
+     * @returns A new Matrix44 instance using the provided array
+     */
+    static fromFloat32ArrayColumnMajor(float32Array: Float32Array): Matrix44;
+    /**
+     * Creates a matrix from a Float32Array in column-major order with copying.
+     * @param float32Array - A Float32Array containing 16 matrix elements
+     * @returns A new Matrix44 instance with copied values
+     */
+    static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array): Matrix44;
+    /**
+     * Creates a matrix from a Float32Array in row-major order with copying.
+     * The input array is assumed to be in row-major order and will be converted
+     * to column-major order for internal storage.
+     * @param array - A Float32Array containing 16 matrix elements in row-major order
+     * @returns A new Matrix44 instance with converted values
+     */
+    static fromCopyFloat32ArrayRowMajor(array: Float32Array): Matrix44;
+    /**
+     * Creates a 4x4 matrix from a 3x3 matrix by embedding it in the upper-left corner.
+     * The resulting matrix has the 3x3 matrix in the upper-left, with the bottom-right
+     * element set to 1 and other elements set to 0.
+     * @param mat - The 3x3 matrix to embed
+     * @returns A new Matrix44 instance
+     */
+    static fromCopyMatrix33(mat: IMatrix33): Matrix44;
+    /**
+     * Creates a matrix from a fixed-size array (Array16) in column-major order.
+     * @param array - An Array16 containing exactly 16 matrix elements
+     * @returns A new Matrix44 instance with copied values
+     */
+    static fromCopyArray16ColumnMajor(array: Array16<number>): Matrix44;
+    /**
+     * Creates a matrix from a variable-length array in column-major order.
+     * @param array - An array containing at least 16 matrix elements
+     * @returns A new Matrix44 instance with copied values
+     */
+    static fromCopyArrayColumnMajor(array: Array<number>): Matrix44;
+    /**
+     * Creates a matrix from a fixed-size array (Array16) in row-major order.
+     * The input array is converted from row-major to column-major order.
+     * @param array - An Array16 containing exactly 16 matrix elements in row-major order
+     * @returns A new Matrix44 instance with converted values
+     */
+    static fromCopyArray16RowMajor(array: Array16<number>): Matrix44;
+    /**
+     * Creates a matrix from a variable-length array in row-major order.
+     * The input array is converted from row-major to column-major order.
+     * @param array - An array containing at least 16 matrix elements in row-major order
+     * @returns A new Matrix44 instance with converted values
+     */
+    static fromCopyArrayRowMajor(array: Array<number>): Matrix44;
+    /**
+     * Creates a rotation matrix from a quaternion.
+     * @param q - The quaternion representing the rotation
+     * @returns A new Matrix44 instance representing the rotation transformation
+     */
+    static fromCopyQuaternion(q: IQuaternion): Matrix44;
+}
+
+/**
+ * A 3D axis-aligned bounding box (AABB) class for spatial calculations and collision detection.
+ *
+ * The AABB represents a rectangular box aligned with the coordinate axes, defined by
+ * minimum and maximum points. It provides efficient methods for spatial queries,
+ * transformations, and merging operations commonly used in 3D graphics and physics simulations.
+ *
+ * @example
+ * ```typescript
+ * const aabb = new AABB();
+ * aabb.addPosition(Vector3.fromValues(1, 2, 3));
+ * aabb.addPosition(Vector3.fromValues(4, 5, 6));
+ * console.log(aabb.centerPoint); // Center of the bounding box
+ * ```
+ */
+declare class AABB {
+    private __min;
+    private __max;
+    private __centerPoint;
+    private __lengthCenterToCorner;
+    private __isCenterPointDirty;
+    private __isLengthCenterToCornerDirty;
+    private static __tmpVector3;
+    private __isVanilla;
+    /**
+     * Creates a deep copy of this AABB instance.
+     *
+     * All internal state including bounds, cached values, and dirty flags
+     * are copied to the new instance.
+     *
+     * @returns A new AABB instance that is an exact copy of this one
+     *
+     * @example
+     * ```typescript
+     * const originalAABB = new AABB();
+     * originalAABB.addPosition(Vector3.fromValues(1, 1, 1));
+     * const clonedAABB = originalAABB.clone();
+     * ```
+     */
+    clone(): AABB;
+    /**
+     * Copies all components and state from another AABB into this instance.
+     *
+     * This is a more efficient alternative to creating a new instance when you
+     * want to overwrite the current AABB's state.
+     *
+     * @param aabb - The source AABB to copy from
+     * @returns This AABB instance for method chaining
+     *
+     * @example
+     * ```typescript
+     * const sourceAABB = new AABB();
+     * const targetAABB = new AABB();
+     * targetAABB.copyComponents(sourceAABB);
+     * ```
+     */
+    copyComponents(aabb: AABB): this;
+    /**
+     * Resets this AABB to its initial vanilla state.
+     *
+     * Clears all bounds, cached values, and marks the AABB as vanilla.
+     * After initialization, the AABB will need new positions added to become valid.
+     *
+     * @example
+     * ```typescript
+     * const aabb = new AABB();
+     * aabb.addPosition(Vector3.fromValues(1, 1, 1));
+     * aabb.initialize(); // Reset to vanilla state
+     * console.log(aabb.isVanilla()); // true
+     * ```
+     */
+    initialize(): void;
+    /**
+     * Sets the minimum point of the bounding box.
+     *
+     * Setting the minimum point will invalidate cached values and mark
+     * the AABB as non-vanilla.
+     *
+     * @param val - The new minimum point vector
+     */
+    set minPoint(val: Vector3);
+    /**
+     * Gets the minimum point of the bounding box.
+     *
+     * @returns The minimum point as a read-only Vector3
+     */
+    get minPoint(): Vector3;
+    /**
+     * Sets the maximum point of the bounding box.
+     *
+     * Setting the maximum point will invalidate cached values and mark
+     * the AABB as non-vanilla.
+     *
+     * @param val - The new maximum point vector
+     */
+    set maxPoint(val: Vector3);
+    /**
+     * Gets the maximum point of the bounding box.
+     *
+     * @returns The maximum point as a read-only Vector3
+     */
+    get maxPoint(): Vector3;
+    /**
+     * Checks whether this AABB is in vanilla (uninitialized) state.
+     *
+     * A vanilla AABB has not had any positions added and contains invalid bounds.
+     * Most operations on vanilla AABBs will return early or produce undefined results.
+     *
+     * @returns True if this AABB is vanilla, false otherwise
+     *
+     * @example
+     * ```typescript
+     * const aabb = new AABB();
+     * console.log(aabb.isVanilla()); // true
+     * aabb.addPosition(Vector3.fromValues(1, 1, 1));
+     * console.log(aabb.isVanilla()); // false
+     * ```
+     */
+    isVanilla(): boolean;
+    /**
+     * Expands the AABB to include the given position.
+     *
+     * If this is the first position added to a vanilla AABB, it will set both
+     * min and max points to this position. Otherwise, it will expand the bounds
+     * as necessary to encompass the new position.
+     *
+     * @param positionVector - The position to include in the bounding box
+     * @returns The input position vector for convenience
+     *
+     * @example
+     * ```typescript
+     * const aabb = new AABB();
+     * aabb.addPosition(Vector3.fromValues(1, 2, 3));
+     * aabb.addPosition(Vector3.fromValues(4, 1, 2));
+     * // AABB now encompasses both points
+     * ```
+     */
+    addPosition(positionVector: Vector3): Vector3;
+    /**
+     * Expands the AABB to include a position from an array at the specified index.
+     *
+     * This is a more efficient way to add positions when working with packed
+     * vertex data or other array-based position representations.
+     *
+     * @param array - The array containing position data
+     * @param index - The starting index in the array (x, y, z values at index, index+1, index+2)
+     * @returns The input array for convenience
+     *
+     * @example
+     * ```typescript
+     * const positions = [1, 2, 3, 4, 5, 6]; // Two 3D positions
+     * const aabb = new AABB();
+     * aabb.addPositionWithArray(positions, 0); // Add position (1, 2, 3)
+     * aabb.addPositionWithArray(positions, 3); // Add position (4, 5, 6)
+     * ```
+     */
+    addPositionWithArray(array: number[], index: Index): number[];
+    /**
+     * Merges this AABB with another AABB to create a combined bounding volume.
+     *
+     * The resulting AABB will encompass both the original and the merged AABB.
+     * If either AABB is vanilla, special handling is applied.
+     *
+     * @param aabb - The AABB to merge with this one
+     * @returns True if the merge was successful, false if the input AABB is vanilla
+     *
+     * @example
+     * ```typescript
+     * const aabb1 = new AABB();
+     * const aabb2 = new AABB();
+     * aabb1.addPosition(Vector3.fromValues(0, 0, 0));
+     * aabb2.addPosition(Vector3.fromValues(5, 5, 5));
+     * aabb1.mergeAABB(aabb2); // aabb1 now encompasses both volumes
+     * ```
+     */
+    mergeAABB(aabb: AABB): boolean;
+    /**
+     * Gets the center point of the bounding box.
+     *
+     * The center point is calculated as the midpoint between the minimum and maximum points.
+     * This value is cached and only recalculated when the bounds change.
+     *
+     * @returns The center point of the AABB
+     *
+     * @example
+     * ```typescript
+     * const aabb = new AABB();
+     * aabb.minPoint = Vector3.fromValues(0, 0, 0);
+     * aabb.maxPoint = Vector3.fromValues(4, 6, 8);
+     * console.log(aabb.centerPoint); // Vector3(2, 3, 4)
+     * ```
+     */
+    get centerPoint(): MutableVector3;
+    /**
+     * Gets the distance from the center point to any corner of the bounding box.
+     *
+     * This represents the radius of a sphere that would completely contain the AABB
+     * when centered at the AABB's center point. Useful for sphere-based culling operations.
+     *
+     * @returns The distance from center to corner
+     *
+     * @example
+     * ```typescript
+     * const aabb = new AABB();
+     * aabb.minPoint = Vector3.fromValues(-1, -1, -1);
+     * aabb.maxPoint = Vector3.fromValues(1, 1, 1);
+     * console.log(aabb.lengthCenterToCorner); // sqrt(3) ≈ 1.732
+     * ```
+     */
+    get lengthCenterToCorner(): number;
+    /**
+     * Gets the width of the bounding box along the X-axis.
+     *
+     * @returns The difference between maximum and minimum X coordinates
+     *
+     * @example
+     * ```typescript
+     * const aabb = new AABB();
+     * aabb.minPoint = Vector3.fromValues(1, 0, 0);
+     * aabb.maxPoint = Vector3.fromValues(5, 0, 0);
+     * console.log(aabb.sizeX); // 4
+     * ```
+     */
+    get sizeX(): number;
+    /**
+     * Gets the height of the bounding box along the Y-axis.
+     *
+     * @returns The difference between maximum and minimum Y coordinates
+     *
+     * @example
+     * ```typescript
+     * const aabb = new AABB();
+     * aabb.minPoint = Vector3.fromValues(0, 2, 0);
+     * aabb.maxPoint = Vector3.fromValues(0, 8, 0);
+     * console.log(aabb.sizeY); // 6
+     * ```
+     */
+    get sizeY(): number;
+    /**
+     * Gets the depth of the bounding box along the Z-axis.
+     *
+     * @returns The difference between maximum and minimum Z coordinates
+     *
+     * @example
+     * ```typescript
+     * const aabb = new AABB();
+     * aabb.minPoint = Vector3.fromValues(0, 0, -2);
+     * aabb.maxPoint = Vector3.fromValues(0, 0, 3);
+     * console.log(aabb.sizeZ); // 5
+     * ```
+     */
+    get sizeZ(): number;
+    /**
+     * Transforms an AABB by a matrix and stores the result in an output AABB.
+     *
+     * This method transforms all 8 corners of the input AABB using the given matrix,
+     * then calculates the axis-aligned bounding box that encompasses all transformed corners.
+     * This is necessary because matrix transformations can rotate the AABB, requiring
+     * recalculation of the axis-aligned bounds.
+     *
+     * @param matrix - The transformation matrix to apply
+     * @param aabb - The source AABB to transform
+     * @param outAabb - The output AABB to store the result
+     * @returns The output AABB for method chaining
+     *
+     * @example
+     * ```typescript
+     * const matrix = Matrix44.rotateY(Math.PI / 4); // 45-degree rotation
+     * const sourceAABB = new AABB();
+     * const resultAABB = new AABB();
+     * sourceAABB.addPosition(Vector3.fromValues(1, 1, 1));
+     * AABB.multiplyMatrixTo(matrix, sourceAABB, resultAABB);
+     * ```
+     */
+    static multiplyMatrixTo(matrix: Matrix44, aabb: AABB, outAabb: AABB): AABB;
+    /**
+     * Returns a string representation of the AABB with full precision.
+     *
+     * Includes minimum and maximum points, center point, and center-to-corner distance.
+     *
+     * @returns A detailed string representation of the AABB
+     *
+     * @example
+     * ```typescript
+     * const aabb = new AABB();
+     * aabb.addPosition(Vector3.fromValues(1, 2, 3));
+     * console.log(aabb.toString());
+     * // Output: "AABB_min: (1, 2, 3)\nAABB_max: (1, 2, 3)\n..."
+     * ```
+     */
+    toString(): string;
+    /**
+     * Returns a string representation of the AABB with rounded numbers for readability.
+     *
+     * Similar to toString() but with approximate values that are easier to read.
+     * Useful for debugging and logging where exact precision is not required.
+     *
+     * @returns A string representation with approximated numeric values
+     *
+     * @example
+     * ```typescript
+     * const aabb = new AABB();
+     * aabb.addPosition(Vector3.fromValues(1.23456789, 2.3456789, 3.456789));
+     * console.log(aabb.toStringApproximately());
+     * // Output with rounded values for better readability
+     * ```
+     */
+    toStringApproximately(): string;
+}
+
+type BlockInfo = {
+    byteSize: number;
+    width: number;
+    height: number;
+};
+interface CompressionTextureTypeEnum extends EnumIO {
+    webgpu?: string;
+    blockInfo?: BlockInfo;
+}
+declare function from$p(index: number): CompressionTextureTypeEnum;
+declare function fromString$f(str: string): CompressionTextureTypeEnum;
+declare const CompressionTextureType: Readonly<{
+    ASTC_RGBA_4x4: CompressionTextureTypeEnum;
+    ASTC_RGBA_5x4: CompressionTextureTypeEnum;
+    ASTC_RGBA_5x5: CompressionTextureTypeEnum;
+    ASTC_RGBA_6x5: CompressionTextureTypeEnum;
+    ASTC_RGBA_6x6: CompressionTextureTypeEnum;
+    ASTC_RGBA_8x5: CompressionTextureTypeEnum;
+    ASTC_RGBA_8x6: CompressionTextureTypeEnum;
+    ASTC_RGBA_8x8: CompressionTextureTypeEnum;
+    ASTC_RGBA_10x5: CompressionTextureTypeEnum;
+    ASTC_RGBA_10x6: CompressionTextureTypeEnum;
+    ASTC_RGBA_10x8: CompressionTextureTypeEnum;
+    ASTC_RGBA_10x10: CompressionTextureTypeEnum;
+    ASTC_RGBA_12x10: CompressionTextureTypeEnum;
+    ASTC_RGBA_12x12: CompressionTextureTypeEnum;
+    ASTC_SRGB_4x4: CompressionTextureTypeEnum;
+    ASTC_SRGB_5x4: CompressionTextureTypeEnum;
+    ASTC_SRGB_5x5: CompressionTextureTypeEnum;
+    ASTC_SRGB_6x5: CompressionTextureTypeEnum;
+    ASTC_SRGB_6x6: CompressionTextureTypeEnum;
+    ASTC_SRGB_8x5: CompressionTextureTypeEnum;
+    ASTC_SRGB_8x6: CompressionTextureTypeEnum;
+    ASTC_SRGB_8x8: CompressionTextureTypeEnum;
+    ASTC_SRGB_10x5: CompressionTextureTypeEnum;
+    ASTC_SRGB_10x6: CompressionTextureTypeEnum;
+    ASTC_SRGB_10x8: CompressionTextureTypeEnum;
+    ASTC_SRGB_10x10: CompressionTextureTypeEnum;
+    ASTC_SRGB_12x10: CompressionTextureTypeEnum;
+    ASTC_SRGB_12x12: CompressionTextureTypeEnum;
+    S3TC_RGB_DXT1: CompressionTextureTypeEnum;
+    S3TC_RGBA_DXT1: CompressionTextureTypeEnum;
+    S3TC_RGBA_DXT3: CompressionTextureTypeEnum;
+    S3TC_RGBA_DXT5: CompressionTextureTypeEnum;
+    BPTC_RGBA: CompressionTextureTypeEnum;
+    PVRTC_RGBA_4BPPV1: CompressionTextureTypeEnum;
+    PVRTC_RGB_4BPPV1: CompressionTextureTypeEnum;
+    ETC2_RGBA8_EAC: CompressionTextureTypeEnum;
+    ETC2_RGB8: CompressionTextureTypeEnum;
+    ETC1_RGB: CompressionTextureTypeEnum;
+    RGBA8_EXT: CompressionTextureTypeEnum;
+    from: typeof from$p;
+    fromString: typeof fromString$f;
+}>;
+
+type HdriFormatEnum = EnumIO;
+declare function from$o(index: number): HdriFormatEnum;
+declare function fromString$e(str: string): HdriFormatEnum;
+declare const HdriFormat: Readonly<{
+    LDR_SRGB: EnumIO;
+    LDR_LINEAR: EnumIO;
+    HDR_LINEAR: EnumIO;
+    RGBE_PNG: EnumIO;
+    RGB9_E5_PNG: EnumIO;
+    OpenEXR: EnumIO;
+    from: typeof from$o;
+    fromString: typeof fromString$e;
+}>;
+
+type PixelFormatEnum = EnumIO;
+declare function getCompositionNumFromPixelFormat(pixelFormat: PixelFormatEnum): number;
+declare function from$n(index: number): PixelFormatEnum;
+declare const PixelFormat: Readonly<{
+    DepthComponent: EnumIO;
+    DepthStencil: EnumIO;
+    Alpha: EnumIO;
+    RG: EnumIO;
+    RGB: EnumIO;
+    RGBA: EnumIO;
+    Luminance: EnumIO;
+    LuminanceAlpha: EnumIO;
+    from: typeof from$n;
+    getCompositionNumFromPixelFormat: typeof getCompositionNumFromPixelFormat;
+}>;
+
+interface TextureFormatEnum extends EnumIO {
+    webgpu: string;
+}
+declare function getPixelFormatFromTextureFormat(textureFormat: TextureFormatEnum): PixelFormatEnum;
+declare function getPixelFormatAndComponentTypeFromTextureFormat(internalFormat: TextureFormatEnum): {
+    format: EnumIO;
+    type: ComponentTypeEnum;
+};
+declare function from$m(index: number): TextureFormatEnum;
+declare const TextureFormat$1: Readonly<{
+    RGB8: TextureFormatEnum;
+    RGBA8: TextureFormatEnum;
+    RGB10_A2: TextureFormatEnum;
+    RG16F: TextureFormatEnum;
+    RG32F: TextureFormatEnum;
+    RGB16F: TextureFormatEnum;
+    RGB32F: TextureFormatEnum;
+    RGBA16F: TextureFormatEnum;
+    RGBA32F: TextureFormatEnum;
+    R11F_G11F_B10F: TextureFormatEnum;
+    Depth16: TextureFormatEnum;
+    Depth24: TextureFormatEnum;
+    Depth32F: TextureFormatEnum;
+    Depth24Stencil8: TextureFormatEnum;
+    Depth32FStencil8: TextureFormatEnum;
+    getPixelFormatFromTextureFormat: typeof getPixelFormatFromTextureFormat;
+    getPixelFormatAndComponentTypeFromTextureFormat: typeof getPixelFormatAndComponentTypeFromTextureFormat;
+    from: typeof from$m;
+}>;
+
+interface TextureParameterEnum extends EnumIO {
+    webgpu: string;
+}
+declare function from$l(index: number): TextureParameterEnum;
+declare const TextureParameter: Readonly<{
+    Nearest: TextureParameterEnum;
+    Linear: TextureParameterEnum;
+    NearestMipmapNearest: TextureParameterEnum;
+    LinearMipmapNearest: TextureParameterEnum;
+    NearestMipmapLinear: TextureParameterEnum;
+    LinearMipmapLinear: TextureParameterEnum;
+    TextureMagFilter: TextureParameterEnum;
+    TextureMinFilter: TextureParameterEnum;
+    TextureWrapS: TextureParameterEnum;
+    TextureWrapT: TextureParameterEnum;
+    Texture2D: TextureParameterEnum;
+    Texture: TextureParameterEnum;
+    Texture0: TextureParameterEnum;
+    Texture1: TextureParameterEnum;
+    ActiveTexture: TextureParameterEnum;
+    Repeat: TextureParameterEnum;
+    ClampToEdge: TextureParameterEnum;
+    MirroredRepeat: TextureParameterEnum;
+    from: typeof from$l;
+}>;
+
+type ComponentChar = 'X' | 'Y' | 'Z' | 'W';
+type VertexAttributeTypeName = 'UNKNOWN' | 'POSITION' | 'NORMAL' | 'TANGENT' | 'TEXCOORD_0' | 'TEXCOORD_1' | 'TEXCOORD_2' | 'COLOR_0' | 'JOINTS_0' | 'WEIGHTS_0' | 'INSTANCE' | 'FACE_NORMAL' | 'BARY_CENTRIC_COORD';
+type VertexAttributeComponent = `${VertexAttributeTypeName}.${ComponentChar}`;
+type VertexAttributeSemanticsJoinedString = `${string}.${ComponentChar}` | `${string}.${ComponentChar},${string}.${ComponentChar}` | `${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar}` | `${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar}`;
+interface VertexAttributeEnum extends EnumIO {
+    getAttributeSlot(): Index;
+    shaderStr: string;
+    X: VertexAttributeComponent;
+    Y: VertexAttributeComponent;
+    Z: VertexAttributeComponent;
+    W: VertexAttributeComponent;
+    XY: VertexAttributeSemanticsJoinedString;
+    XYZ: VertexAttributeSemanticsJoinedString;
+    XYZW: VertexAttributeSemanticsJoinedString;
+}
+type VertexAttributeDescriptor = {
+    str: VertexAttributeTypeName;
+    shaderStr: string;
+    attributeSlot: Index;
+    gltfComponentN: Count;
+};
+declare class VertexAttributeClass extends EnumClass implements VertexAttributeEnum {
+    private static __indexCount;
+    private __attributeSlot;
+    private __shaderStr;
+    private __gltfComponentN;
+    private constructor();
+    getAttributeSlot(): Index;
+    get shaderStr(): string;
+    get attributeTypeName(): VertexAttributeTypeName;
+    _setShaderStr(str: string): void;
+    get X(): VertexAttributeComponent;
+    get Y(): VertexAttributeComponent;
+    get Z(): VertexAttributeComponent;
+    get W(): VertexAttributeComponent;
+    get XY(): VertexAttributeSemanticsJoinedString;
+    get XYZ(): VertexAttributeSemanticsJoinedString;
+    get XYZW(): VertexAttributeSemanticsJoinedString;
+    getVertexAttributeComponentsAsGltf(): VertexAttributeSemanticsJoinedString;
+    static __createVertexAttributeClass(desc: VertexAttributeDescriptor): VertexAttributeClass;
+}
+declare const Position: VertexAttributeEnum;
+declare const Normal: VertexAttributeEnum;
+declare const Tangent: VertexAttributeEnum;
+declare const Texcoord0: VertexAttributeEnum;
+declare const Texcoord1: VertexAttributeEnum;
+declare const Color0: VertexAttributeEnum;
+declare const Joints0: VertexAttributeEnum;
+declare const Weights0: VertexAttributeEnum;
+declare function isInstanceOfVertexAttributeClass(obj: unknown): obj is VertexAttributeClass;
+declare function from$k(index: number): VertexAttributeEnum;
+declare function fromString$d(str: string): VertexAttributeEnum;
+type Gltf2VertexAttributeEnums = typeof Position | typeof Color0 | typeof Normal | typeof Tangent | typeof Texcoord0 | typeof Texcoord1 | typeof Joints0 | typeof Weights0;
+declare function toVertexAttributeSemanticJoinedStringAsGltfStyle(attribute: Gltf2VertexAttributeEnums): VertexAttributeSemanticsJoinedString;
+declare function toAttributeSlotFromJoinedString(str: VertexAttributeSemanticsJoinedString): Index;
+declare function toVectorComponentN(joinedString: VertexAttributeSemanticsJoinedString): VectorComponentN;
+declare const VertexAttribute: Readonly<{
+    Unknown: VertexAttributeEnum;
+    Position: VertexAttributeEnum;
+    Normal: VertexAttributeEnum;
+    Tangent: VertexAttributeEnum;
+    Texcoord0: VertexAttributeEnum;
+    Texcoord1: VertexAttributeEnum;
+    Color0: VertexAttributeEnum;
+    Joints0: VertexAttributeEnum;
+    Weights0: VertexAttributeEnum;
+    Instance: VertexAttributeEnum;
+    FaceNormal: VertexAttributeEnum;
+    BaryCentricCoord: VertexAttributeEnum;
+    AttributeTypeNumber: number;
+    isInstanceOfVertexAttributeClass: typeof isInstanceOfVertexAttributeClass;
+    toVertexAttributeSemanticJoinedStringAsGltfStyle: typeof toVertexAttributeSemanticJoinedStringAsGltfStyle;
+    toAttributeSlotFromJoinedString: typeof toAttributeSlotFromJoinedString;
+    toVectorComponentN: typeof toVectorComponentN;
+    from: typeof from$k;
+    fromString: typeof fromString$d;
+}>;
+
+interface RenderBufferTargetEnum extends EnumIO {
+    webGLConstantValue(): number;
+}
+declare function from$j(index: number): RenderBufferTargetEnum;
+declare const RenderBufferTarget: Readonly<{
+    None: RenderBufferTargetEnum;
+    Back: RenderBufferTargetEnum;
+    ColorAttachment0: RenderBufferTargetEnum;
+    ColorAttachment1: RenderBufferTargetEnum;
+    ColorAttachment2: RenderBufferTargetEnum;
+    ColorAttachment3: RenderBufferTargetEnum;
+    ColorAttachment4: RenderBufferTargetEnum;
+    ColorAttachment5: RenderBufferTargetEnum;
+    ColorAttachment6: RenderBufferTargetEnum;
+    ColorAttachment7: RenderBufferTargetEnum;
+    ColorAttachment8: RenderBufferTargetEnum;
+    ColorAttachment9: RenderBufferTargetEnum;
+    ColorAttachment10: RenderBufferTargetEnum;
+    ColorAttachment11: RenderBufferTargetEnum;
+    ColorAttachment12: RenderBufferTargetEnum;
+    ColorAttachment13: RenderBufferTargetEnum;
+    ColorAttachment14: RenderBufferTargetEnum;
+    ColorAttachment15: RenderBufferTargetEnum;
+    from: typeof from$j;
+}>;
+
+type WebGLExtensionEnum = EnumIO;
+declare function from$i({ index }: {
+    index: number;
+}): WebGLExtensionEnum;
+declare const WebGLExtension: Readonly<{
+    VertexArrayObject: EnumIO;
+    TextureFloat: EnumIO;
+    TextureHalfFloat: EnumIO;
+    TextureFloatLinear: EnumIO;
+    TextureHalfFloatLinear: EnumIO;
+    InstancedArrays: EnumIO;
+    TextureFilterAnisotropic: EnumIO;
+    ElementIndexUint: EnumIO;
+    ShaderTextureLod: EnumIO;
+    ShaderDerivatives: EnumIO;
+    DrawBuffers: EnumIO;
+    BlendMinmax: EnumIO;
+    ColorBufferFloatWebGL1: EnumIO;
+    CompressedTextureAstc: EnumIO;
+    CompressedTextureS3tc: EnumIO;
+    CompressedTexturePvrtc: EnumIO;
+    CompressedTextureAtc: EnumIO;
+    CompressedTextureEtc: EnumIO;
+    CompressedTextureEtc1: EnumIO;
+    CompressedTextureBptc: EnumIO;
+    ColorBufferFloatWebGL2: EnumIO;
+    ColorBufferHalfFloatWebGL2: EnumIO;
+    OculusMultiview: EnumIO;
+    OvrMultiview2: EnumIO;
+    GMAN_WEBGL_MEMORY: EnumIO;
+    ClipControl: EnumIO;
+    from: typeof from$i;
+}>;
+
+interface WEBGL_compressed_texture_etc {
+    readonly COMPRESSED_RGBA8_ETC2_EAC: number;
+}
+interface WEBGL_compressed_texture_bptc {
+    readonly COMPRESSED_RGBA_BPTC_UNORM_EXT: number;
+}
+interface WEBGL_multiview {
+    framebufferTextureMultiviewOVR(target: number, attachment: number, texture: WebGLTexture, level: number, baseViewIndex: number, numViews: number): void;
+    framebufferTextureMultisampleMultiviewOVR(target: number, attachment: number, texture: WebGLTexture, level: number, samples: number, baseViewIndex: number, numViews: number): void;
+    is_multisample: boolean;
+}
+/**
+ * A wrapper class for WebGL context that provides enhanced functionality and state management.
+ * This class handles WebGL state optimization, extension management, and provides convenience methods
+ * for common WebGL operations while maintaining compatibility with both WebGL1 and WebGL2.
+ */
+declare class WebGLContextWrapper {
+    #private;
+    __gl: WebGL2RenderingContext;
+    __webglVersion: number;
+    width: Size;
+    height: Size;
+    readonly canvas: HTMLCanvasElement;
+    readonly webgl1ExtVAO?: OES_vertex_array_object;
+    readonly webgl1ExtIA?: ANGLE_instanced_arrays;
+    readonly webgl1ExtTF?: OES_texture_float;
+    readonly webgl1ExtTHF?: OES_texture_half_float;
+    readonly webgl1ExtTFL?: OES_texture_float_linear;
+    readonly webgl1ExtTHFL?: OES_texture_half_float_linear;
+    readonly webgl1ExtTFA?: EXT_texture_filter_anisotropic;
+    readonly webgl1ExtEIUI?: OES_element_index_uint;
+    readonly webgl1ExtSTL?: EXT_shader_texture_lod;
+    readonly webgl1ExtDRV?: OES_standard_derivatives;
+    readonly webgl1ExtDB?: WEBGL_draw_buffers;
+    readonly webgl1ExtBM?: EXT_blend_minmax;
+    readonly webgl1ExtCBF?: WEBGL_color_buffer_float;
+    readonly webgl1ExtCTAstc?: WEBGL_compressed_texture_astc;
+    readonly webgl1ExtCTS3tc?: WEBGL_compressed_texture_s3tc;
+    readonly webgl1ExtCTPvrtc?: WEBKIT_WEBGL_compressed_texture_pvrtc;
+    readonly webgl1ExtCTAtc?: WEBGL_compressed_texture_atc;
+    readonly webgl1ExtCTEtc?: WEBGL_compressed_texture_etc;
+    readonly webgl1ExtCTEtc1?: WEBGL_compressed_texture_etc1;
+    readonly webgl1ExtCTBptc?: WEBGL_compressed_texture_bptc;
+    readonly webgl2ExtTFL?: OES_texture_float_linear;
+    readonly webgl2ExtTHFL?: OES_texture_half_float_linear;
+    readonly webgl2ExtTFA?: EXT_texture_filter_anisotropic;
+    readonly webgl2ExtCBF?: EXT_color_buffer_float;
+    readonly webgl2ExtCBHF?: EXT_color_buffer_half_float;
+    readonly webgl2ExtCTAstc?: WEBGL_compressed_texture_astc;
+    readonly webgl2ExtCTS3tc?: WEBGL_compressed_texture_s3tc;
+    readonly webgl2ExtCTPvrtc?: WEBKIT_WEBGL_compressed_texture_pvrtc;
+    readonly webgl2ExtCTAtc?: WEBGL_compressed_texture_atc;
+    readonly webgl2ExtCTEtc?: WEBGL_compressed_texture_etc;
+    readonly webgl2ExtCTEtc1?: WEBGL_compressed_texture_etc1;
+    readonly webgl2ExtCTBptc?: WEBGL_compressed_texture_bptc;
+    readonly webgl2ExtMLTVIEW?: WEBGL_multiview;
+    readonly webgl2ExtClipCtrl?: any;
+    readonly webgl2ExtGmanWM?: any;
+    private __activeTextureBackup;
+    private __activeTextures2D;
+    private __activeTextures2DArray;
+    private __activeTexturesCube;
+    private __boundTextures;
+    private __boundSamplers;
+    private __viewport_left;
+    private __viewport_top;
+    private __viewport_width;
+    private __viewport_height;
+    private __default_viewport_left;
+    private __default_viewport_top;
+    private __default_viewport_width;
+    private __default_viewport_height;
+    private __maxVertexUniformVectors;
+    private __maxFragmentUniformVectors;
+    private readonly __is_multiview;
+    _isWebXRMode: boolean;
+    __extensions: Map<WebGLExtensionEnum, WebGLObject>;
+    /**
+     * Creates a new WebGLContextWrapper instance.
+     * @param gl - The WebGL2 rendering context to wrap
+     * @param canvas - The HTML canvas element associated with the context
+     */
+    constructor(gl: WebGL2RenderingContext, canvas: HTMLCanvasElement);
+    /**
+     * Gets the raw WebGL rendering context.
+     * @returns The underlying WebGL context (WebGL1 or WebGL2)
+     */
+    getRawContext(): WebGLRenderingContext | WebGL2RenderingContext;
+    /**
+     * Gets the raw WebGL context cast as WebGL1.
+     * @returns The underlying WebGL context as WebGL1 type
+     */
+    getRawContextAsWebGL1(): WebGLRenderingContext;
+    /**
+     * Gets the raw WebGL context cast as WebGL2.
+     * @returns The underlying WebGL context as WebGL2 type
+     */
+    getRawContextAsWebGL2(): WebGL2RenderingContext;
+    /**
+     * Gets the current viewport settings.
+     * @returns A Vector4 containing viewport left, top, width, and height
+     */
+    get viewport(): Vector4;
+    /**
+     * Gets the default viewport settings.
+     * @returns A Vector4 containing default viewport left, top, width, and height
+     */
+    get defaultViewport(): Vector4;
+    /**
+     * Checks if a WebGL1 extension is supported.
+     * @param webGLExtension - The WebGL extension to check
+     * @returns True if the extension is supported, false otherwise
+     */
+    isSupportWebGL1Extension(webGLExtension: WebGLExtensionEnum): boolean;
+    /**
+     * Checks if a WebGL1 extension is not supported.
+     * @param webGLExtension - The WebGL extension to check
+     * @returns True if the extension is not supported, false otherwise
+     */
+    isNotSupportWebGL1Extension(webGLExtension: WebGLExtensionEnum): boolean;
+    /**
+     * Type guard to check if the context is WebGL2.
+     * @param gl - The WebGL context to check
+     * @returns True if the context is WebGL2, false otherwise
+     */
+    getIsWebGL2(gl: WebGLRenderingContext | WebGL2RenderingContext): gl is WebGL2RenderingContext;
+    /**
+     * Checks if the current context is WebGL2.
+     * @returns True if WebGL2, false if WebGL1
+     */
+    get isWebGL2(): boolean;
+    /**
+     * Creates a new vertex array object.
+     * @returns A new WebGL vertex array object
+     */
+    createVertexArray(): WebGLVertexArrayObject;
+    /**
+     * Deletes a vertex array object.
+     * @param vertexArray - The vertex array object to delete
+     */
+    deleteVertexArray(vertexArray: WebGLVertexArrayObject | WebGLVertexArrayObjectOES): void;
+    /**
+     * Binds a vertex array object.
+     * @param vao - The vertex array object to bind, or null to unbind
+     */
+    bindVertexArray(vao: WebGLVertexArrayObjectOES | null): void;
+    /**
+     * Sets the divisor for instanced rendering for a vertex attribute.
+     * @param index - The index of the vertex attribute
+     * @param divisor - The divisor value (0 for per-vertex, 1+ for per-instance)
+     */
+    vertexAttribDivisor(index: number, divisor: number): void;
+    /**
+     * Draws elements with instancing support.
+     * @param primitiveMode - The primitive mode (GL_TRIANGLES, etc.)
+     * @param indexCount - The number of indices to draw
+     * @param type - The type of the index values
+     * @param offset - The offset in the index buffer
+     * @param instanceCount - The number of instances to draw
+     */
+    drawElementsInstanced(primitiveMode: number, indexCount: number, type: number, offset: number, instanceCount: number): void;
+    /**
+     * Draws arrays with instancing support.
+     * @param primitiveMode - The primitive mode (GL_TRIANGLES, etc.)
+     * @param first - The starting index in the enabled arrays
+     * @param count - The number of vertices to draw
+     * @param instanceCount - The number of instances to draw
+     */
+    drawArraysInstanced(primitiveMode: number, first: number, count: number, instanceCount: number): void;
+    /**
+     * Gets the color attachment constant for a given index.
+     * @param index - The attachment index
+     * @returns The WebGL color attachment constant
+     */
+    colorAttachment(index: Index): number;
+    /**
+     * Sets the draw buffers for multiple render targets.
+     * @param buffers - Array of render buffer targets to draw to
+     */
+    drawBuffers(buffers: RenderBufferTargetEnum[]): void;
+    /**
+     * Activates a texture unit for subsequent texture operations.
+     * Optimized to avoid redundant state changes.
+     * @param activeTextureIndex - The texture unit index to activate
+     */
+    private __activeTexture;
+    /**
+     * Binds a 2D texture to a specific texture unit.
+     * Optimized to avoid redundant state changes.
+     * @param activeTextureIndex - The texture unit index
+     * @param texture - The 2D texture to bind
+     */
+    bindTexture2D(activeTextureIndex: Index, texture: WebGLTexture): void;
+    /**
+     * Binds a 2D array texture to a specific texture unit.
+     * Optimized to avoid redundant state changes.
+     * @param activeTextureIndex - The texture unit index
+     * @param texture - The 2D array texture to bind
+     */
+    bindTexture2DArray(activeTextureIndex: Index, texture: WebGLTexture): void;
+    /**
+     * Binds a sampler object to a specific texture unit.
+     * Optimized to avoid redundant state changes.
+     * @param activeTextureIndex - The texture unit index
+     * @param sampler - The sampler object to bind
+     */
+    bindTextureSampler(activeTextureIndex: Index, sampler: WebGLSampler): void;
+    /**
+     * Binds a cube map texture to a specific texture unit.
+     * Optimized to avoid redundant state changes.
+     * @param activeTextureIndex - The texture unit index
+     * @param texture - The cube map texture to bind
+     */
+    bindTextureCube(activeTextureIndex: Index, texture: WebGLTexture): void;
+    /**
+     * Unbinds a 2D texture from a specific texture unit.
+     * @param activeTextureIndex - The texture unit index
+     */
+    unbindTexture2D(activeTextureIndex: Index): void;
+    /**
+     * Unbinds a 2D array texture from a specific texture unit.
+     * @param activeTextureIndex - The texture unit index
+     */
+    unbindTexture2DArray(activeTextureIndex: Index): void;
+    /**
+     * Unbinds a cube map texture from a specific texture unit.
+     * @param activeTextureIndex - The texture unit index
+     */
+    unbindTextureCube(activeTextureIndex: Index): void;
+    /**
+     * Unbinds all currently bound textures from all texture units.
+     * This is useful for cleanup operations.
+     */
+    unbindTextures(): void;
+    /**
+     * Gets a WebGL extension and caches it for future use.
+     * @param extension - The extension to retrieve
+     * @returns The extension object or null if not available
+     */
+    private __getExtension;
+    /**
+     * Gets a compressed texture extension with vendor prefix support.
+     * @param extension - The compressed texture extension to retrieve
+     * @returns The extension object or null if not available
+     */
+    private __getCompressedTextureExtension;
+    /**
+     * Sets the viewport with optimization to avoid redundant state changes.
+     * @param left - Left coordinate of the viewport
+     * @param top - Top coordinate of the viewport
+     * @param width - Width of the viewport
+     * @param height - Height of the viewport
+     */
+    setViewport(left: number, top: number, width: number, height: number): void;
+    /**
+     * Sets the viewport using a Vector4 with optimization to avoid redundant state changes.
+     * @param viewport - Vector4 containing left, top, width, and height
+     */
+    setViewportAsVector4(viewport: Vector4): void;
+    /**
+     * Retrieves and caches uniform buffer information for WebGL2.
+     * This includes alignment requirements and size limits.
+     */
+    private __getUniformBufferInfo;
+    /**
+     * Retrieves and caches the maximum number of uniform vectors for vertex and fragment shaders.
+     */
+    private __getMaxUniformVectors;
+    /**
+     * Gets the maximum number of uniform blocks that can be used in both vertex and fragment shaders.
+     * @returns The minimum of vertex and fragment shader uniform block limits
+     */
+    getMaxConventionUniformBlocks(): number;
+    /**
+     * Gets the maximum uniform block size aligned to the required offset alignment.
+     * @returns The aligned maximum uniform block size in bytes
+     */
+    getAlignedMaxUniformBlockSize(): number;
+    /**
+     * Gets the maximum number of uniform vectors available in vertex shaders.
+     * @returns The maximum vertex uniform vectors
+     */
+    getMaxVertexUniformVectors(): number;
+    /**
+     * Gets the maximum number of uniform vectors available in fragment shaders.
+     * @returns The maximum fragment uniform vectors
+     */
+    getMaxFragmentUniformVectors(): number;
+    /**
+     * Gets WebGL memory usage information if the GMAN_WEBGL_MEMORY extension is available.
+     * @returns Memory information object or undefined if extension is not available
+     */
+    getWebGLMemoryInfo(): any;
+    /**
+     * Checks if multiview rendering is supported and enabled.
+     * @returns True if multiview is available and enabled for WebVR
+     */
+    isMultiview(): boolean;
+}
+
+type ShaderSources = {
+    vertex: string;
+    pixel: string;
+};
+interface WebGLStrategy {
+    attachGPUData(primitive: Primitive): void;
+    attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
+    setupShaderForMaterial(material: Material, primitive: Primitive): CGAPIResourceHandle;
+    _reSetupShaderForMaterialBySpector(material: Material, primitive: Primitive, updatedShaderSources: ShaderSources, onError: (message: string) => void): CGAPIResourceHandle;
+}
+
+/**
+ * Result of a basic raycast operation against geometry.
+ */
+interface RaycastResult {
+    result: boolean;
+    data?: {
+        t: number;
+        u: number;
+        v: number;
+    };
+}
+/**
+ * Extended raycast result that includes the intersection position in world space.
+ */
+interface RaycastResultEx1 {
+    result: boolean;
+    data?: {
+        t: number;
+        u: number;
+        v: number;
+        position: IVector3;
+    };
+}
+/**
+ * Extended raycast result that includes the intersection position and the selected mesh component.
+ */
+interface RaycastResultEx2 {
+    result: boolean;
+    data?: {
+        t: number;
+        u: number;
+        v: number;
+        position: IVector3;
+        selectedMeshComponent: MeshComponent;
+    };
+}
+/**
+ * Primitive sort key used for depth sorting and rendering order optimization.
+ *
+ * See: http://realtimecollisiondetection.net/blog/?p=86
+ *
+ * Bit Field Layout:
+ * --- 0
+ *  3 bits: Primitive Type (0: POINTS, 1: LINES, 2: LINE_LOOP, 3: LINE_STRIP, 4: TRIANGLES, 5: TRIANGLE_STRIP, 6: TRIANGLE_FAN)
+ * 10 bits: Material TID
+ *  2 bits: Translucency type (0: Opaque, 1: Translucent, 2: Blend with ZWrite, 3: Blend without ZWrite
+ *  3 bits: Viewport layer
+ *  3 bits: Viewport
+ *  2 bits: Fullscreen layer
+ * --- 31
+ *
+ * Depth Field:
+ * 32 bits: Depth
+ */
+type PrimitiveSortKey = number;
+declare const PrimitiveSortKey_BitLength_TranslucencyType = 2;
+declare const PrimitiveSortKey_BitLength_Material = 10;
+declare const PrimitiveSortKey_BitLength_PrimitiveType = 3;
+declare const PrimitiveSortKey_BitOffset_PrimitiveType = 0;
+declare const PrimitiveSortKey_BitOffset_Material = 3;
+declare const PrimitiveSortKey_BitOffset_TranslucencyType: number;
+declare const PrimitiveSortKey_BitOffset_ViewportLayer: number;
+type PrimitiveSortKeyLength = typeof PrimitiveSortKey_BitLength_Material | typeof PrimitiveSortKey_BitLength_TranslucencyType | typeof PrimitiveSortKey_BitLength_PrimitiveType;
+type PrimitiveSortKeyOffset = typeof PrimitiveSortKey_BitOffset_Material | typeof PrimitiveSortKey_BitOffset_TranslucencyType | typeof PrimitiveSortKey_BitOffset_ViewportLayer;
+declare const PrimitiveSortKey_BitLength_Depth = 32;
+/**
+ * Interface representing a mesh with a unique identifier.
+ */
+interface IMesh {
+    meshUID: MeshUID;
+}
+/**
+ * Checks if the primitive uses blending (either with or without Z-write).
+ * @param primitive - The primitive to check
+ * @returns True if the primitive uses blending, false otherwise
+ */
+declare function isBlend(primitive: Primitive): boolean;
+/**
+ * Checks if the primitive uses blending with Z-write enabled.
+ * @param primitive - The primitive to check
+ * @returns True if the primitive uses blending with Z-write, false otherwise
+ */
+declare function isBlendWithZWrite(primitive: Primitive): boolean;
+/**
+ * Checks if the primitive uses blending without Z-write (depth writing disabled).
+ * @param primitive - The primitive to check
+ * @returns True if the primitive uses blending without Z-write, false otherwise
+ */
+declare function isBlendWithoutZWrite(primitive: Primitive): boolean;
+/**
+ * Checks if the primitive is translucent (partially transparent).
+ * @param primitive - The primitive to check
+ * @returns True if the primitive is translucent, false otherwise
+ */
+declare function isTranslucent(primitive: Primitive): boolean;
+/**
+ * Checks if the primitive is opaque (fully solid, not transparent).
+ * @param primitive - The primitive to check
+ * @returns True if the primitive is opaque, false otherwise
+ */
+declare function isOpaque(primitive: Primitive): boolean;
+
 declare class _BasisFile {
     constructor(x: Uint8Array);
     close(): void;
@@ -4720,12 +8942,12 @@ declare function _BASIS(): {
 };
 type BASIS_TYPE = typeof _BASIS;
 
-type TextureFormat$1 = {
+type TextureFormat = {
     value: number;
 };
 type _TextureFormat = {
-    ETC1S: TextureFormat$1;
-    UASTC4x4: TextureFormat$1;
+    ETC1S: TextureFormat;
+    UASTC4x4: TextureFormat;
 };
 type TranscodeTarget = {
     value: number;
@@ -4753,7 +8975,7 @@ type _TranscodeTarget = {
     EAC_RG11: TranscodeTarget;
 };
 declare class ImageInfo {
-    constructor(textureFormat: TextureFormat$1, levelWidth: number, levelHeight: number, level: number);
+    constructor(textureFormat: TextureFormat, levelWidth: number, levelHeight: number, level: number);
     numBlocksX: number;
     numBlocksY: number;
     flags: number;
@@ -4762,7 +8984,7 @@ declare class ImageInfo {
     alphaByteOffset: number;
     alphaByteLength: number;
 }
-type _ImageInfo = new (textureFormat: TextureFormat$1, levelWidth: number, levelHeight: number, level: number) => ImageInfo;
+type _ImageInfo = new (textureFormat: TextureFormat, levelWidth: number, levelHeight: number, level: number) => ImageInfo;
 type TranscodedImage = {
     transcodedImage: {
         get_typed_memory_view: () => Uint8Array;
@@ -8306,858 +12528,6 @@ interface KHR_interactivity {
 }
 
 /**
- * Represents a 4x4 identity matrix that provides optimized operations for identity transformations.
- * This class implements the identity matrix pattern where all diagonal elements are 1 and all other elements are 0.
- * It extends AbstractMatrix and implements both IMatrix and IMatrix44 interfaces.
- *
- * The identity matrix is immutable and provides efficient implementations since the result of many operations
- * can be computed without actual matrix multiplication.
- *
- * @example
- * ```typescript
- * const identity = new IdentityMatrix44();
- * const vector = new Vector4(1, 2, 3, 1);
- * const result = identity.multiplyVector(vector); // Returns the same vector
- * ```
- */
-declare class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
-    /**
-     * Static array representing the identity matrix values in column-major order.
-     * This is shared across all instances for memory efficiency.
-     */
-    static readonly __v: Float32Array<ArrayBuffer>;
-    /**
-     * Creates a new IdentityMatrix44 instance.
-     * The internal array reference points to the static identity matrix values.
-     */
-    constructor();
-    /**
-     * Returns a string representation of the identity matrix in a readable format.
-     * Each row is separated by newlines for visual clarity.
-     *
-     * @returns A formatted string showing the 4x4 identity matrix
-     */
-    toString(): string;
-    /**
-     * Returns an approximate string representation of the matrix.
-     * For identity matrix, this is identical to toString() since all values are exact.
-     *
-     * @returns A formatted string showing the 4x4 identity matrix
-     */
-    toStringApproximately(): string;
-    /**
-     * Returns the matrix elements as a flat array in column-major order.
-     *
-     * @returns An array of 16 numbers representing the identity matrix
-     */
-    flattenAsArray(): number[];
-    /**
-     * Indicates whether this matrix is a dummy/placeholder matrix.
-     * Identity matrix is not considered a dummy matrix.
-     *
-     * @returns Always false for identity matrix
-     */
-    isDummy(): boolean;
-    /**
-     * Checks if the given matrix is approximately equal to this identity matrix within a tolerance.
-     * Compares each element of the input matrix against the corresponding identity matrix element.
-     *
-     * @param mat - The matrix to compare against this identity matrix
-     * @param delta - The tolerance for floating-point comparison (default: Number.EPSILON)
-     * @returns True if the matrix is approximately an identity matrix, false otherwise
-     */
-    isEqual(mat: IMatrix44, delta?: number): boolean;
-    /**
-     * Performs a strict equality check against another matrix.
-     * Uses exact floating-point comparison without tolerance.
-     *
-     * @param mat - The matrix to compare for strict equality
-     * @returns True if the matrix is exactly an identity matrix, false otherwise
-     */
-    isStrictEqual(mat: IMatrix): boolean;
-    /**
-     * Gets the matrix element at the specified row and column indices.
-     * For identity matrix, returns 1 for diagonal elements and 0 for off-diagonal elements.
-     *
-     * @param row_i - The row index (0-based)
-     * @param column_i - The column index (0-based)
-     * @returns 1 if row equals column (diagonal), 0 otherwise
-     */
-    at(row_i: number, column_i: number): number;
-    /**
-     * Gets the matrix element at the specified linear index in column-major order.
-     * For identity matrix, returns 1 for diagonal positions and 0 elsewhere.
-     *
-     * @param i - The linear index (0-15) in column-major order
-     * @returns 1 for diagonal elements (indices 0, 5, 10, 15), 0 otherwise
-     */
-    v(i: number): number;
-    /**
-     * Calculates the determinant of this identity matrix.
-     * The determinant of an identity matrix is always 1.
-     *
-     * @returns Always returns 1
-     */
-    determinant(): number;
-    /**
-     * Multiplies this identity matrix with a 4D vector.
-     * Since this is an identity matrix, the result is the input vector unchanged.
-     *
-     * @param vec - The 4D vector to multiply
-     * @returns The same vector (identity transformation)
-     */
-    multiplyVector(vec: IVector4): IVector4;
-    /**
-     * Multiplies this identity matrix with a 3D vector.
-     * Since this is an identity matrix, the result is the input vector unchanged.
-     *
-     * @param vec - The 3D vector to multiply
-     * @returns The same vector (identity transformation)
-     */
-    multiplyVector3(vec: IVector3): IVector3;
-    /**
-     * Multiplies this identity matrix with a vector and stores the result in an output vector.
-     * Since this is an identity matrix, copies the input vector to the output vector.
-     *
-     * @param vec - The input vector to multiply
-     * @param outVec - The mutable vector to store the result
-     * @returns The output vector containing the copied values
-     */
-    multiplyVectorTo(vec: IVector, outVec: IMutableVector): IMutableVector;
-    /**
-     * Extracts the scale components from this transformation matrix.
-     * For identity matrix, the scale is (1, 1, 1).
-     *
-     * @returns A Vector3 with all components set to 1
-     */
-    getScale(): IVector3;
-    /**
-     * Extracts the scale components and stores them in an output vector.
-     * For identity matrix, sets all scale components to 1.
-     *
-     * @param outVec - The mutable vector to store the scale values
-     * @returns The output vector with scale components set to 1
-     */
-    getScaleTo(outVec: IMutableVector): IMutableVector;
-    /**
-     * Creates a copy of this identity matrix.
-     * Returns a new IdentityMatrix44 instance.
-     *
-     * @returns A new IdentityMatrix44 instance
-     */
-    clone(): IMatrix44;
-    /**
-     * Extracts the rotation part of this transformation matrix.
-     * For identity matrix, the rotation is also an identity matrix.
-     *
-     * @returns A new IdentityMatrix44 representing no rotation
-     */
-    getRotate(): IMatrix44;
-    /**
-     * Extracts the translation components from this transformation matrix.
-     * For identity matrix, the translation is (0, 0, 0).
-     *
-     * @returns A Vector3 with all components set to 0
-     */
-    getTranslate(): IVector3;
-    /**
-     * Gets the matrix element at row 0, column 0.
-     * @returns Always 1 for identity matrix
-     */
-    get m00(): number;
-    /**
-     * Gets the matrix element at row 1, column 0.
-     * @returns Always 0 for identity matrix
-     */
-    get m10(): number;
-    /**
-     * Gets the matrix element at row 2, column 0.
-     * @returns Always 0 for identity matrix
-     */
-    get m20(): number;
-    /**
-     * Gets the matrix element at row 3, column 0.
-     * @returns Always 0 for identity matrix
-     */
-    get m30(): number;
-    /**
-     * Gets the matrix element at row 0, column 1.
-     * @returns Always 0 for identity matrix
-     */
-    get m01(): number;
-    /**
-     * Gets the matrix element at row 1, column 1.
-     * @returns Always 1 for identity matrix
-     */
-    get m11(): number;
-    /**
-     * Gets the matrix element at row 2, column 1.
-     * @returns Always 0 for identity matrix
-     */
-    get m21(): number;
-    /**
-     * Gets the matrix element at row 3, column 1.
-     * @returns Always 0 for identity matrix
-     */
-    get m31(): number;
-    /**
-     * Gets the matrix element at row 0, column 2.
-     * @returns Always 0 for identity matrix
-     */
-    get m02(): number;
-    /**
-     * Gets the matrix element at row 1, column 2.
-     * @returns Always 0 for identity matrix
-     */
-    get m12(): number;
-    /**
-     * Gets the matrix element at row 2, column 2.
-     * @returns Always 1 for identity matrix
-     */
-    get m22(): number;
-    /**
-     * Gets the matrix element at row 3, column 2.
-     * @returns Always 0 for identity matrix
-     */
-    get m32(): number;
-    /**
-     * Gets the matrix element at row 0, column 3.
-     * @returns Always 0 for identity matrix
-     */
-    get m03(): number;
-    /**
-     * Gets the matrix element at row 1, column 3.
-     * @returns Always 0 for identity matrix
-     */
-    get m13(): number;
-    /**
-     * Gets the matrix element at row 2, column 3.
-     * @returns Always 0 for identity matrix
-     */
-    get m23(): number;
-    /**
-     * Gets the matrix element at row 3, column 3.
-     * @returns Always 1 for identity matrix
-     */
-    get m33(): number;
-    /**
-     * Gets the X translation component from the matrix.
-     * @returns Always 0 for identity matrix
-     */
-    get translateX(): number;
-    /**
-     * Gets the Y translation component from the matrix.
-     * @returns Always 0 for identity matrix
-     */
-    get translateY(): number;
-    /**
-     * Gets the Z translation component from the matrix.
-     * @returns Always 0 for identity matrix
-     */
-    get translateZ(): number;
-    /**
-     * Gets the class name for debugging and reflection purposes.
-     * @returns The string 'IdentityMatrix44'
-     */
-    get className(): string;
-    /**
-     * Gets the composition type for this matrix class.
-     * @returns CompositionType.Mat4 indicating this is a 4x4 matrix
-     */
-    static get compositionType(): {
-        readonly __numberOfComponents: number;
-        readonly __glslStr: string;
-        readonly __hlslStr: string;
-        readonly __webgpuStr: string;
-        readonly __wgslStr: string;
-        readonly __isArray: boolean;
-        readonly __vec4SizeOfProperty: IndexOf16Bytes;
-        readonly __dummyStr: "MAT4";
-        readonly webgpu: string;
-        readonly wgsl: string;
-        getNumberOfComponents(): Count;
-        getGlslStr(componentType: ComponentTypeEnum): string;
-        getGlslInitialValue(componentType: ComponentTypeEnum): string;
-        getWgslInitialValue(componentType: ComponentTypeEnum): string;
-        toWGSLType(componentType: ComponentTypeEnum): string;
-        getVec4SizeOfProperty(): IndexOf16Bytes;
-        readonly index: number;
-        readonly symbol: symbol;
-        readonly str: string;
-        toString(): string;
-        toJSON(): number;
-    };
-    /**
-     * Indicates whether this matrix is an identity matrix class.
-     * @returns Always true for IdentityMatrix44
-     */
-    get isIdentityMatrixClass(): boolean;
-}
-
-/**
- * Abstract base class for mutable 3D vectors with generic typed array support.
- * Extends the immutable Vector3_ class to provide mutable operations.
- *
- * @template T - The typed array constructor type (Float32Array or Float64Array)
- * @internal
- */
-declare class MutableVector3_<T extends FloatTypedArrayConstructor> extends Vector3_<T> implements IMutableVector, IMutableVector3 {
-    /**
-     * Creates a new MutableVector3_ instance.
-     *
-     * @param v - The typed array containing the vector components
-     * @param options - Configuration object containing the array type
-     */
-    constructor(v: TypedArray, { type }: {
-        type: T;
-    });
-    /**
-     * Sets the x component of the vector.
-     *
-     * @param x - The new x value
-     */
-    set x(x: number);
-    /**
-     * Gets the x component of the vector.
-     *
-     * @returns The x component value
-     */
-    get x(): number;
-    /**
-     * Sets the y component of the vector.
-     *
-     * @param y - The new y value
-     */
-    set y(y: number);
-    /**
-     * Gets the y component of the vector.
-     *
-     * @returns The y component value
-     */
-    get y(): number;
-    /**
-     * Sets the z component of the vector.
-     *
-     * @param z - The new z value
-     */
-    set z(z: number);
-    /**
-     * Gets the z component of the vector.
-     *
-     * @returns The z component value
-     */
-    get z(): number;
-    /**
-     * Gets the w component (always 1 for 3D vectors).
-     *
-     * @returns Always returns 1
-     */
-    get w(): number;
-    /**
-     * Returns the raw typed array containing the vector components.
-     *
-     * @returns The underlying typed array
-     */
-    raw(): TypedArray;
-    /**
-     * Sets the value at the specified index.
-     *
-     * @param i - The index (0 for x, 1 for y, 2 for z)
-     * @param value - The new value to set
-     * @returns This vector instance for method chaining
-     */
-    setAt(i: number, value: number): this;
-    /**
-     * Sets all three components of the vector.
-     *
-     * @param x - The x component value
-     * @param y - The y component value
-     * @param z - The z component value
-     * @returns This vector instance for method chaining
-     */
-    setComponents(x: number, y: number, z: number): this;
-    /**
-     * Copies the components from another vector.
-     *
-     * @param vec - The vector to copy from
-     * @returns This vector instance for method chaining
-     */
-    copyComponents(vec: IVector3): this;
-    /**
-     * Sets all components to zero.
-     *
-     * @returns This vector instance for method chaining
-     */
-    zero(): this;
-    /**
-     * Sets all components to one.
-     *
-     * @returns This vector instance for method chaining
-     */
-    one(): this;
-    /**
-     * Normalizes this vector to unit length.
-     * Modifies the vector in place to have a magnitude of 1.
-     *
-     * @returns This vector instance for method chaining
-     */
-    normalize(): this;
-    /**
-     * Adds another vector to this vector.
-     * Performs component-wise addition and modifies this vector in place.
-     *
-     * @param vec - The vector to add
-     * @returns This vector instance for method chaining
-     */
-    add(vec: IVector3): this;
-    /**
-     * Subtracts another vector from this vector.
-     * Performs component-wise subtraction and modifies this vector in place.
-     *
-     * @param vec - The vector to subtract
-     * @returns This vector instance for method chaining
-     */
-    subtract(vec: IVector3): this;
-    /**
-     * Multiplies this vector by a scalar value.
-     * Scales all components by the given value and modifies this vector in place.
-     *
-     * @param value - The scalar value to multiply by
-     * @returns This vector instance for method chaining
-     */
-    multiply(value: number): this;
-    /**
-     * Multiplies this vector by another vector component-wise.
-     * Performs element-wise multiplication and modifies this vector in place.
-     *
-     * @param vec - The vector to multiply by
-     * @returns This vector instance for method chaining
-     */
-    multiplyVector(vec: IVector3): this;
-    /**
-     * Divides this vector by a scalar value.
-     * Scales all components by 1/value and modifies this vector in place.
-     * If value is 0, sets all components to Infinity and logs an error.
-     *
-     * @param value - The scalar value to divide by
-     * @returns This vector instance for method chaining
-     */
-    divide(value: number): this;
-    /**
-     * Divides this vector by another vector component-wise.
-     * Performs element-wise division and modifies this vector in place.
-     * If any component of the divisor vector is 0, sets the corresponding component to Infinity.
-     *
-     * @param vec - The vector to divide by
-     * @returns This vector instance for method chaining
-     */
-    divideVector(vec: IVector3): this;
-    /**
-     * Computes the cross product of this vector with another vector.
-     * Calculates the cross product and modifies this vector in place to store the result.
-     * The cross product produces a vector perpendicular to both input vectors.
-     *
-     * @param vec - The vector to compute cross product with
-     * @returns This vector instance for method chaining
-     */
-    cross(vec: IVector3): this;
-    /**
-     * Applies a quaternion rotation to this vector.
-     * Rotates this vector by the given quaternion and modifies it in place.
-     * Equivalent to: quat * vector3 * quat^(-1)
-     *
-     * @param quat - The quaternion representing the rotation
-     * @returns This vector instance for method chaining
-     */
-    multiplyQuaternion(quat: IQuaternion): this;
-    /**
-     * Gets the number of bytes per component in the underlying typed array.
-     *
-     * @returns The number of bytes per element (4 for Float32Array, 8 for Float64Array)
-     */
-    get bytesPerComponent(): number;
-    /**
-     * Creates a new vector from three component values.
-     *
-     * @param x - The x component
-     * @param y - The y component
-     * @param z - The z component
-     * @param type - The typed array constructor
-     * @returns A new vector instance
-     * @protected
-     */
-    static _fromCopy3(x: number, y: number, z: number, type: FloatTypedArrayConstructor): MutableVector3_<FloatTypedArrayConstructor>;
-}
-/**
- * Mutable 3D vector class with 32-bit float precision.
- * Provides in-place vector operations for efficient mathematical computations.
- * All operations modify the vector instance and return it for method chaining.
- */
-declare class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
-    /**
-     * Creates a new MutableVector3 instance.
-     *
-     * @param v - The typed array containing the vector components
-     */
-    constructor(v: TypedArray);
-    /**
-     * Creates a zero vector (0, 0, 0).
-     *
-     * @returns A new zero vector
-     */
-    static zero(): MutableVector3;
-    /**
-     * Creates a unit vector (1, 1, 1).
-     *
-     * @returns A new unit vector
-     */
-    static one(): MutableVector3;
-    /**
-     * Creates a dummy vector for initialization purposes.
-     *
-     * @returns A new dummy vector
-     */
-    static dummy(): MutableVector3;
-    /**
-     * Creates a normalized copy of the given vector.
-     *
-     * @param vec - The vector to normalize
-     * @returns A new normalized vector
-     */
-    static normalize(vec: IVector3): MutableVector3;
-    /**
-     * Creates a new vector that is the sum of two vectors.
-     *
-     * @param l_vec - The left vector
-     * @param r_vec - The right vector
-     * @returns A new vector containing the sum
-     */
-    static add(l_vec: IVector3, r_vec: IVector3): MutableVector3;
-    /**
-     * Creates a new vector that is the difference of two vectors.
-     *
-     * @param l_vec - The left vector (minuend)
-     * @param r_vec - The right vector (subtrahend)
-     * @returns A new vector containing the difference
-     */
-    static subtract(l_vec: IVector3, r_vec: IVector3): MutableVector3;
-    /**
-     * Creates a new vector that is the scalar multiplication of a vector.
-     *
-     * @param vec - The vector to multiply
-     * @param value - The scalar value
-     * @returns A new scaled vector
-     */
-    static multiply(vec: IVector3, value: number): MutableVector3;
-    /**
-     * Creates a new vector that is the component-wise multiplication of two vectors.
-     *
-     * @param l_vec - The left vector
-     * @param r_vec - The right vector
-     * @returns A new vector containing the component-wise product
-     */
-    static multiplyVector(l_vec: IVector3, r_vec: IVector3): MutableVector3;
-    /**
-     * Creates a new vector that is the scalar division of a vector.
-     *
-     * @param vec - The vector to divide
-     * @param value - The scalar divisor
-     * @returns A new divided vector
-     */
-    static divide(vec: IVector3, value: number): MutableVector3;
-    /**
-     * Creates a new vector that is the component-wise division of two vectors.
-     *
-     * @param l_vec - The dividend vector
-     * @param r_vec - The divisor vector
-     * @returns A new vector containing the component-wise quotient
-     */
-    static divideVector(l_vec: IVector3, r_vec: IVector3): MutableVector3;
-    /**
-     * Creates a new vector that is the cross product of two vectors.
-     *
-     * @param l_vec - The left vector
-     * @param r_vec - The right vector
-     * @returns A new vector containing the cross product
-     */
-    static cross(l_vec: IVector3, r_vec: IVector3): MutableVector3;
-    /**
-     * Creates a new vector by applying a quaternion rotation to a vector.
-     *
-     * @param quat - The quaternion representing the rotation
-     * @param vec - The vector to rotate
-     * @returns A new rotated vector
-     */
-    static multiplyQuaternion(quat: IQuaternion, vec: IVector3): MutableVector3;
-    /**
-     * Gets the class name for debugging purposes.
-     *
-     * @returns The class name string
-     */
-    get className(): string;
-    /**
-     * Creates a vector from three component values.
-     *
-     * @param x - The x component
-     * @param y - The y component
-     * @param z - The z component
-     * @returns A new vector instance
-     */
-    static fromCopy3(x: number, y: number, z: number): MutableVector3;
-    /**
-     * Creates a vector with all components set to the same value.
-     *
-     * @param val - The value for all components
-     * @returns A new vector instance
-     */
-    static fromCopy1(val: number): MutableVector3;
-    /**
-     * Creates a vector from a 3-element array.
-     *
-     * @param array - The array containing x, y, z values
-     * @returns A new vector instance
-     */
-    static fromCopyArray3(array: Array3<number>): MutableVector3;
-    /**
-     * Creates a vector from an array, taking the first 3 elements.
-     *
-     * @param array - The array containing at least 3 values
-     * @returns A new vector instance
-     */
-    static fromCopyArray(array: Array<number>): MutableVector3;
-    /**
-     * Creates a vector from an existing Float32Array (shares the same buffer).
-     *
-     * @param float32Array - The Float32Array to use
-     * @returns A new vector instance
-     */
-    static fromFloat32Array(float32Array: Float32Array): MutableVector3;
-    /**
-     * Creates a vector by copying from an existing Float32Array.
-     *
-     * @param float32Array - The Float32Array to copy from
-     * @returns A new vector instance with copied data
-     */
-    static fromCopyFloat32Array(float32Array: Float32Array): MutableVector3;
-    /**
-     * Creates a vector by copying from another 3D vector.
-     *
-     * @param vec - The vector to copy from
-     * @returns A new vector instance
-     */
-    static fromCopyVector3(vec: IVector3): MutableVector3;
-    /**
-     * Creates a 3D vector by copying from a 4D vector (ignoring w component).
-     *
-     * @param vec - The 4D vector to copy from
-     * @returns A new 3D vector instance
-     */
-    static fromCopyVector4(vec: IVector4): MutableVector3;
-    /**
-     * Creates a copy of this vector.
-     *
-     * @returns A new vector instance with the same values
-     */
-    clone(): MutableVector3;
-    /**
-     * Rotates a vector around the X-axis and stores the result in the output vector.
-     * Only the Y and Z components are affected by X-axis rotation.
-     *
-     * @param vec3 - The input vector to rotate
-     * @param radian - The rotation angle in radians
-     * @param outVec - The output vector to store the result
-     */
-    static rotateX(vec3: IVector3, radian: number, outVec: MutableVector3): void;
-    /**
-     * Rotates a vector around the Y-axis and stores the result in the output vector.
-     * Only the X and Z components are affected by Y-axis rotation.
-     *
-     * @param vec3 - The input vector to rotate
-     * @param radian - The rotation angle in radians
-     * @param outVec - The output vector to store the result
-     */
-    static rotateY(vec3: IVector3, radian: number, outVec: MutableVector3): void;
-    /**
-     * Rotates a vector around the Z-axis and stores the result in the output vector.
-     * Only the X and Y components are affected by Z-axis rotation.
-     *
-     * @param vec3 - The input vector to rotate
-     * @param radian - The rotation angle in radians
-     * @param outVec - The output vector to store the result
-     */
-    static rotateZ(vec3: IVector3, radian: number, outVec: MutableVector3): void;
-}
-/**
- * Mutable 3D vector class with 64-bit double precision.
- * Provides higher precision vector operations for applications requiring
- * greater numerical accuracy than 32-bit floats.
- */
-declare class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
-    /**
-     * Creates a new MutableVector3d instance.
-     *
-     * @param x - The typed array containing the vector components
-     */
-    constructor(x: TypedArray);
-    /**
-     * Creates a zero vector (0, 0, 0) with double precision.
-     *
-     * @returns A new zero vector
-     */
-    static zero(): MutableVector3d;
-    /**
-     * Creates a unit vector (1, 1, 1) with double precision.
-     *
-     * @returns A new unit vector
-     */
-    static one(): MutableVector3d;
-    /**
-     * Creates a dummy vector for initialization purposes with double precision.
-     *
-     * @returns A new dummy vector
-     */
-    static dummy(): MutableVector3d;
-    /**
-     * Creates a normalized copy of the given vector with double precision.
-     *
-     * @param vec - The vector to normalize
-     * @returns A new normalized vector
-     */
-    static normalize(vec: IVector3): MutableVector3d;
-    /**
-     * Creates a new vector that is the sum of two vectors with double precision.
-     *
-     * @param l_vec - The left vector
-     * @param r_vec - The right vector
-     * @returns A new vector containing the sum
-     */
-    static add(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
-    /**
-     * Creates a new vector that is the difference of two vectors with double precision.
-     *
-     * @param l_vec - The left vector (minuend)
-     * @param r_vec - The right vector (subtrahend)
-     * @returns A new vector containing the difference
-     */
-    static subtract(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
-    /**
-     * Creates a new vector that is the scalar multiplication of a vector with double precision.
-     *
-     * @param vec - The vector to multiply
-     * @param value - The scalar value
-     * @returns A new scaled vector
-     */
-    static multiply(vec: IVector3, value: number): MutableVector3d;
-    /**
-     * Creates a new vector that is the component-wise multiplication of two vectors with double precision.
-     *
-     * @param l_vec - The left vector
-     * @param r_vec - The right vector
-     * @returns A new vector containing the component-wise product
-     */
-    static multiplyVector(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
-    /**
-     * Creates a new vector that is the scalar division of a vector with double precision.
-     *
-     * @param vec - The vector to divide
-     * @param value - The scalar divisor
-     * @returns A new divided vector
-     */
-    static divide(vec: IVector3, value: number): MutableVector3d;
-    /**
-     * Creates a new vector that is the component-wise division of two vectors with double precision.
-     *
-     * @param l_vec - The dividend vector
-     * @param r_vec - The divisor vector
-     * @returns A new vector containing the component-wise quotient
-     */
-    static divideVector(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
-    /**
-     * Creates a new vector that is the cross product of two vectors with double precision.
-     *
-     * @param l_vec - The left vector
-     * @param r_vec - The right vector
-     * @returns A new vector containing the cross product
-     */
-    static cross(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
-    /**
-     * Creates a new vector by applying a quaternion rotation to a vector with double precision.
-     *
-     * @param quat - The quaternion representing the rotation
-     * @param vec - The vector to rotate
-     * @returns A new rotated vector
-     */
-    static multiplyQuaternion(quat: IQuaternion, vec: IVector3): MutableVector3d;
-    /**
-     * Creates a vector from three component values with double precision.
-     *
-     * @param x - The x component
-     * @param y - The y component
-     * @param z - The z component
-     * @returns A new vector instance
-     */
-    static fromCopy3(x: number, y: number, z: number): MutableVector3d;
-    /**
-     * Creates a vector with all components set to the same value with double precision.
-     *
-     * @param val - The value for all components
-     * @returns A new vector instance
-     */
-    static fromCopy1(val: number): MutableVector3d;
-    /**
-     * Creates a vector from a 3-element array with double precision.
-     *
-     * @param array - The array containing x, y, z values
-     * @returns A new vector instance
-     */
-    static fromCopyArray3(array: Array3<number>): MutableVector3d;
-    /**
-     * Creates a vector from an array, taking the first 3 elements with double precision.
-     *
-     * @param array - The array containing at least 3 values
-     * @returns A new vector instance
-     */
-    static fromCopyArray(array: Array<number>): MutableVector3d;
-    /**
-     * Rotates a vector around the X-axis and stores the result in the output vector with double precision.
-     * Only the Y and Z components are affected by X-axis rotation.
-     *
-     * @param vec3 - The input vector to rotate
-     * @param radian - The rotation angle in radians
-     * @param outVec - The output vector to store the result
-     */
-    static rotateX(vec3: IVector3, radian: number, outVec: MutableVector3d): void;
-    /**
-     * Rotates a vector around the Y-axis and stores the result in the output vector with double precision.
-     * Only the X and Z components are affected by Y-axis rotation.
-     *
-     * @param vec3 - The input vector to rotate
-     * @param radian - The rotation angle in radians
-     * @param outVec - The output vector to store the result
-     */
-    static rotateY(vec3: IVector3, radian: number, outVec: MutableVector3d): void;
-    /**
-     * Rotates a vector around the Z-axis and stores the result in the output vector with double precision.
-     * Only the X and Y components are affected by Z-axis rotation.
-     *
-     * @param vec3 - The input vector to rotate
-     * @param radian - The rotation angle in radians
-     * @param outVec - The output vector to store the result
-     */
-    static rotateZ(vec3: IVector3, radian: number, outVec: MutableVector3d): void;
-    /**
-     * Creates a copy of this vector with double precision.
-     *
-     * @returns A new vector instance with the same values
-     */
-    clone(): MutableVector3d;
-}
-/**
- * Type alias for MutableVector3 with single precision (32-bit) floating point components.
- */
-type MutableVector3f = MutableVector3;
-
-/**
  * Abstract base class for quaternion implementations.
  *
  * Quaternions are a mathematical system that extends complex numbers and are commonly used
@@ -9759,3420 +13129,6 @@ declare class Quaternion extends AbstractQuaternion implements IQuaternion {
 }
 
 /**
- * A mutable 4x4 matrix class that extends the immutable Matrix44 class.
- *
- * This class provides a mutable interface for 4x4 matrix operations commonly used
- * in 3D graphics, including transformations, rotations, scaling, and projections.
- * The matrix is stored in column-major order internally, which is compatible with WebGL.
- *
- * @example
- * ```typescript
- * const matrix = MutableMatrix44.identity();
- * matrix.translate(Vector3.fromCopy(1, 2, 3));
- * matrix.rotateY(Math.PI / 4);
- * ```
- */
-declare class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutableMatrix44 {
-    /**
-     * Sets the value at position (0,0) in the matrix.
-     *
-     * @param val - The value to set
-     */
-    set m00(val: number);
-    /**
-     * Gets the value at position (0,0) in the matrix.
-     *
-     * @returns The value at position (0,0)
-     */
-    get m00(): number;
-    /**
-     * Sets the value at position (1,0) in the matrix.
-     *
-     * @param val - The value to set
-     */
-    set m10(val: number);
-    /**
-     * Gets the value at position (1,0) in the matrix.
-     *
-     * @returns The value at position (1,0)
-     */
-    get m10(): number;
-    /**
-     * Sets the value at position (2,0) in the matrix.
-     *
-     * @param val - The value to set
-     */
-    set m20(val: number);
-    /**
-     * Gets the value at position (2,0) in the matrix.
-     *
-     * @returns The value at position (2,0)
-     */
-    get m20(): number;
-    /**
-     * Sets the value at position (3,0) in the matrix.
-     *
-     * @param val - The value to set
-     */
-    set m30(val: number);
-    /**
-     * Gets the value at position (3,0) in the matrix.
-     *
-     * @returns The value at position (3,0)
-     */
-    get m30(): number;
-    /**
-     * Sets the value at position (0,1) in the matrix.
-     *
-     * @param val - The value to set
-     */
-    set m01(val: number);
-    /**
-     * Gets the value at position (0,1) in the matrix.
-     *
-     * @returns The value at position (0,1)
-     */
-    get m01(): number;
-    /**
-     * Sets the value at position (1,1) in the matrix.
-     *
-     * @param val - The value to set
-     */
-    set m11(val: number);
-    /**
-     * Gets the value at position (1,1) in the matrix.
-     *
-     * @returns The value at position (1,1)
-     */
-    get m11(): number;
-    /**
-     * Sets the value at position (2,1) in the matrix.
-     *
-     * @param val - The value to set
-     */
-    set m21(val: number);
-    /**
-     * Gets the value at position (2,1) in the matrix.
-     *
-     * @returns The value at position (2,1)
-     */
-    get m21(): number;
-    /**
-     * Sets the value at position (3,1) in the matrix.
-     *
-     * @param val - The value to set
-     */
-    set m31(val: number);
-    /**
-     * Gets the value at position (3,1) in the matrix.
-     *
-     * @returns The value at position (3,1)
-     */
-    get m31(): number;
-    /**
-     * Sets the value at position (0,2) in the matrix.
-     *
-     * @param val - The value to set
-     */
-    set m02(val: number);
-    /**
-     * Gets the value at position (0,2) in the matrix.
-     *
-     * @returns The value at position (0,2)
-     */
-    get m02(): number;
-    /**
-     * Sets the value at position (1,2) in the matrix.
-     *
-     * @param val - The value to set
-     */
-    set m12(val: number);
-    /**
-     * Gets the value at position (1,2) in the matrix.
-     *
-     * @returns The value at position (1,2)
-     */
-    get m12(): number;
-    /**
-     * Sets the value at position (2,2) in the matrix.
-     *
-     * @param val - The value to set
-     */
-    set m22(val: number);
-    /**
-     * Gets the value at position (2,2) in the matrix.
-     *
-     * @returns The value at position (2,2)
-     */
-    get m22(): number;
-    /**
-     * Sets the value at position (3,2) in the matrix.
-     *
-     * @param val - The value to set
-     */
-    set m32(val: number);
-    /**
-     * Gets the value at position (3,2) in the matrix.
-     *
-     * @returns The value at position (3,2)
-     */
-    get m32(): number;
-    /**
-     * Sets the value at position (0,3) in the matrix.
-     *
-     * @param val - The value to set
-     */
-    set m03(val: number);
-    /**
-     * Gets the value at position (0,3) in the matrix.
-     *
-     * @returns The value at position (0,3)
-     */
-    get m03(): number;
-    /**
-     * Sets the value at position (1,3) in the matrix.
-     *
-     * @param val - The value to set
-     */
-    set m13(val: number);
-    /**
-     * Gets the value at position (1,3) in the matrix.
-     *
-     * @returns The value at position (1,3)
-     */
-    get m13(): number;
-    /**
-     * Sets the value at position (2,3) in the matrix.
-     *
-     * @param val - The value to set
-     */
-    set m23(val: number);
-    /**
-     * Gets the value at position (2,3) in the matrix.
-     *
-     * @returns The value at position (2,3)
-     */
-    get m23(): number;
-    /**
-     * Sets the value at position (3,3) in the matrix.
-     *
-     * @param val - The value to set
-     */
-    set m33(val: number);
-    /**
-     * Gets the value at position (3,3) in the matrix.
-     *
-     * @returns The value at position (3,3)
-     */
-    get m33(): number;
-    /**
-     * Gets the X translation component from the matrix.
-     *
-     * @returns The X translation value
-     */
-    get translateX(): number;
-    /**
-     * Sets the X translation component in the matrix.
-     *
-     * @param val - The X translation value to set
-     */
-    set translateX(val: number);
-    /**
-     * Gets the Y translation component from the matrix.
-     *
-     * @returns The Y translation value
-     */
-    get translateY(): number;
-    /**
-     * Sets the Y translation component in the matrix.
-     *
-     * @param val - The Y translation value to set
-     */
-    set translateY(val: number);
-    /**
-     * Gets the Z translation component from the matrix.
-     *
-     * @returns The Z translation value
-     */
-    get translateZ(): number;
-    /**
-     * Sets the Z translation component in the matrix.
-     *
-     * @param val - The Z translation value to set
-     */
-    set translateZ(val: number);
-    /**
-     * Gets the class name identifier for this matrix type.
-     *
-     * @returns The string 'MutableMatrix44'
-     */
-    get className(): string;
-    /**
-     * Creates a zero matrix (all elements are 0).
-     *
-     * @returns A new MutableMatrix44 instance with all elements set to 0
-     */
-    static zero(): MutableMatrix44;
-    /**
-     * Creates an identity matrix.
-     *
-     * @returns A new MutableMatrix44 instance representing the 4x4 identity matrix
-     */
-    static identity(): MutableMatrix44;
-    /**
-     * Creates a dummy matrix (typically used as a placeholder).
-     *
-     * @returns A new MutableMatrix44 instance representing a dummy matrix
-     */
-    static dummy(): MutableMatrix44;
-    /**
-     * Creates a transposed matrix from the given matrix.
-     *
-     * @param mat - The matrix to transpose
-     * @returns A new MutableMatrix44 instance that is the transpose of the input matrix
-     */
-    static transpose(mat: Matrix44): Matrix44;
-    /**
-     * Creates an inverted matrix from the given matrix.
-     *
-     * @param mat - The matrix to invert
-     * @returns A new MutableMatrix44 instance that is the inverse of the input matrix
-     */
-    static invert(mat: Matrix44): MutableMatrix44;
-    /**
-     * Creates a translation matrix from the given vector.
-     *
-     * @param vec - The translation vector
-     * @returns A new MutableMatrix44 instance representing the translation transformation
-     */
-    static translate(vec: Vector3): MutableMatrix44;
-    /**
-     * Creates a rotation matrix around the X-axis.
-     *
-     * @param radian - The rotation angle in radians
-     * @returns A new MutableMatrix44 instance representing the X-axis rotation
-     */
-    static rotateX(radian: number): MutableMatrix44;
-    /**
-     * Creates a rotation matrix around the Y-axis.
-     *
-     * @param radian - The rotation angle in radians
-     * @returns A new MutableMatrix44 instance representing the Y-axis rotation
-     */
-    static rotateY(radian: number): MutableMatrix44;
-    /**
-     * Creates a rotation matrix around the Z-axis.
-     *
-     * @param radian - The rotation angle in radians
-     * @returns A new MutableMatrix44 instance representing the Z-axis rotation
-     */
-    static rotateZ(radian: number): MutableMatrix44;
-    /**
-     * Creates a rotation matrix with rotations around X, Y, and Z axes in that order.
-     *
-     * @param x - Rotation angle around X-axis in radians
-     * @param y - Rotation angle around Y-axis in radians
-     * @param z - Rotation angle around Z-axis in radians
-     * @returns A new MutableMatrix44 instance representing the combined rotation
-     */
-    static rotateXYZ(x: number, y: number, z: number): MutableMatrix44;
-    /**
-     * Creates a rotation matrix from a vector containing X, Y, Z rotation angles.
-     *
-     * @param vec - Vector containing rotation angles (x, y, z) in radians
-     * @returns A new MutableMatrix44 instance representing the rotation transformation
-     */
-    static rotate(vec: Vector3): MutableMatrix44;
-    /**
-     * Creates a scaling matrix from the given vector.
-     *
-     * @param vec - The scaling factors for X, Y, and Z axes
-     * @returns A new MutableMatrix44 instance representing the scaling transformation
-     */
-    static scale(vec: Vector3): MutableMatrix44;
-    /**
-     * Multiplies two matrices and returns the result as a new matrix.
-     *
-     * @param l_mat - The left matrix in the multiplication
-     * @param r_mat - The right matrix in the multiplication
-     * @returns A new MutableMatrix44 instance representing the product l_mat * r_mat
-     */
-    static multiply(l_mat: Matrix44, r_mat: Matrix44): MutableMatrix44;
-    /**
-     * Creates a copy of this matrix.
-     *
-     * @returns A new MutableMatrix44 instance with the same values as this matrix
-     */
-    clone(): MutableMatrix44;
-    /**
-     * Extracts the rotation part of this matrix.
-     *
-     * @returns A new MutableMatrix44 instance containing only the rotation transformation
-     */
-    getRotate(): MutableMatrix44;
-    /**
-     * Extracts the translation part of this matrix.
-     *
-     * @returns A new MutableVector3 instance containing the translation values
-     */
-    getTranslate(): MutableVector3;
-    /**
-     * Extracts the translation part of this matrix into the provided vector.
-     *
-     * @param outVec - The vector to store the translation values
-     * @returns The output vector with translation values
-     */
-    getTranslateTo(outVec: MutableVector3): MutableVector3;
-    /**
-     * Extracts the scale part of this matrix.
-     *
-     * @returns A new MutableVector3 instance containing the scale values for each axis
-     */
-    getScale(): MutableVector3;
-    /**
-     * Gets the raw Float32Array containing the matrix data.
-     *
-     * @returns The internal Float32Array with matrix values in column-major order
-     */
-    raw(): Float32Array<ArrayBufferLike>;
-    /**
-     * Sets a value at the specified row and column position.
-     *
-     * @param row_i - The row index (0-3)
-     * @param column_i - The column index (0-3)
-     * @param value - The value to set
-     * @returns This matrix instance for method chaining
-     */
-    setAt(row_i: number, column_i: number, value: number): this;
-    /**
-     * Sets all 16 components of the matrix with individual values.
-     * Values are specified in row-major order but stored internally in column-major order.
-     *
-     * @param m00 - Element at row 0, column 0
-     * @param m01 - Element at row 0, column 1
-     * @param m02 - Element at row 0, column 2
-     * @param m03 - Element at row 0, column 3
-     * @param m10 - Element at row 1, column 0
-     * @param m11 - Element at row 1, column 1
-     * @param m12 - Element at row 1, column 2
-     * @param m13 - Element at row 1, column 3
-     * @param m20 - Element at row 2, column 0
-     * @param m21 - Element at row 2, column 1
-     * @param m22 - Element at row 2, column 2
-     * @param m23 - Element at row 2, column 3
-     * @param m30 - Element at row 3, column 0
-     * @param m31 - Element at row 3, column 1
-     * @param m32 - Element at row 3, column 2
-     * @param m33 - Element at row 3, column 3
-     * @returns This matrix instance for method chaining
-     */
-    setComponents(m00: number, m01: number, m02: number, m03: number, m10: number, m11: number, m12: number, m13: number, m20: number, m21: number, m22: number, m23: number, m30: number, m31: number, m32: number, m33: number): this;
-    /**
-     * Copies all components from another matrix to this matrix.
-     *
-     * @param mat - The source matrix to copy from
-     * @returns This matrix instance for method chaining
-     */
-    copyComponents(mat: IMatrix44): this;
-    /**
-     * Sets this matrix to the zero matrix (all elements are 0).
-     *
-     * @returns This matrix instance for method chaining
-     */
-    zero(): this;
-    /**
-     * Sets this matrix to the identity matrix.
-     *
-     * @returns This matrix instance for method chaining
-     */
-    identity(): this;
-    _swap(l: Index, r: Index): void;
-    /**
-     * Transposes this matrix in place (swaps rows and columns).
-     *
-     * @returns This matrix instance for method chaining
-     */
-    transpose(): this;
-    /**
-     * Inverts this matrix in place.
-     * The matrix must be invertible (determinant != 0), otherwise an error is logged.
-     *
-     * @returns This matrix instance for method chaining
-     */
-    invert(): this;
-    /**
-     * Sets this matrix to a translation matrix with the given vector.
-     *
-     * @param vec - The translation vector
-     * @returns This matrix instance for method chaining
-     */
-    translate(vec: Vector3): this;
-    /**
-     * Sets the translation component of this matrix without affecting other components.
-     *
-     * @param vec - The translation vector to set
-     * @returns This matrix instance for method chaining
-     */
-    putTranslate(vec: Vector3): this;
-    /**
-     * Adds the given vector to the current translation component.
-     *
-     * @param vec - The translation vector to add
-     * @returns This matrix instance for method chaining
-     */
-    addTranslate(vec: Vector3): this;
-    /**
-     * Sets this matrix to a rotation matrix around the X-axis.
-     *
-     * @param radian - The rotation angle in radians
-     * @returns This matrix instance for method chaining
-     */
-    rotateX(radian: number): this;
-    /**
-     * Sets this matrix to a rotation matrix around the Y-axis.
-     *
-     * @param radian - The rotation angle in radians
-     * @returns This matrix instance for method chaining
-     */
-    rotateY(radian: number): this;
-    /**
-     * Sets this matrix to a rotation matrix around the Z-axis.
-     *
-     * @param radian - The rotation angle in radians
-     * @returns This matrix instance for method chaining
-     */
-    rotateZ(radian: number): this;
-    /**
-     * Sets this matrix to a rotation matrix with rotations around X, Y, and Z axes in that order.
-     * The rotation order is: Z * Y * X (applied from right to left).
-     *
-     * @param x - Rotation angle around X-axis in radians
-     * @param y - Rotation angle around Y-axis in radians
-     * @param z - Rotation angle around Z-axis in radians
-     * @returns This matrix instance for method chaining
-     */
-    rotateXYZ(x: number, y: number, z: number): this;
-    /**
-     * Sets this matrix to a rotation matrix from a vector containing X, Y, Z rotation angles.
-     *
-     * @param vec - Vector containing rotation angles (x, y, z) in radians
-     * @returns This matrix instance for method chaining
-     */
-    rotate(vec: Vector3): this;
-    /**
-     * Sets this matrix to a scaling matrix with the given vector.
-     *
-     * @param vec - The scaling factors for X, Y, and Z axes
-     * @returns This matrix instance for method chaining
-     */
-    scale(vec: Vector3): this;
-    /**
-     * Multiplies the scaling factors to the current matrix.
-     * This applies scaling transformation to each column of the matrix.
-     *
-     * @param vec - The scaling factors for X, Y, and Z axes
-     * @returns This matrix instance for method chaining
-     */
-    multiplyScale(vec: Vector3): this;
-    /**
-     * Multiplies this matrix by another matrix from the right side (this * mat).
-     * This operation transforms this matrix in place.
-     *
-     * @param mat - The matrix to multiply from the right
-     * @returns This matrix instance for method chaining
-     */
-    multiply(mat: Matrix44): this;
-    /**
-     * Multiplies this matrix by another matrix from the left side (mat * this).
-     * This operation transforms this matrix in place.
-     *
-     * @param mat - The matrix to multiply from the left
-     * @returns This matrix instance for method chaining
-     */
-    multiplyByLeft(mat: Matrix44): this;
-    /**
-     * Sets this matrix to a rotation matrix based on the given quaternion.
-     *
-     * @param quat - The quaternion to convert to a rotation matrix
-     * @returns This matrix instance for method chaining
-     */
-    fromQuaternion(quat: IQuaternion): this;
-    /**
-     * Creates a matrix from 16 values in row-major order.
-     * Values are provided in row-major order but stored internally in column-major order.
-     *
-     * @param m00-m33 - Matrix elements in row-major order
-     * @returns A new MutableMatrix44 instance
-     */
-    static fromCopy16RowMajor(m00: number, m01: number, m02: number, m03: number, m10: number, m11: number, m12: number, m13: number, m20: number, m21: number, m22: number, m23: number, m30: number, m31: number, m32: number, m33: number): MutableMatrix44;
-    /**
-     * Creates a matrix from 16 values in column-major order.
-     *
-     * @param m00-m33 - Matrix elements in column-major order
-     * @returns A new MutableMatrix44 instance
-     */
-    static fromCopy16ColumnMajor(m00: number, m10: number, m20: number, m30: number, m01: number, m11: number, m21: number, m31: number, m02: number, m12: number, m22: number, m32: number, m03: number, m13: number, m23: number, m33: number): MutableMatrix44;
-    /**
-     * Creates a new MutableMatrix44 from an existing Matrix44 instance.
-     * This creates a copy of the matrix data, so modifications to the new matrix
-     * will not affect the original.
-     *
-     * @param mat - The source Matrix44 to copy from
-     * @returns A new MutableMatrix44 instance with copied data
-     */
-    static fromCopyMatrix44(mat: IMatrix44): MutableMatrix44;
-    /**
-     * Creates a new MutableMatrix44 directly from a Float32Array in column-major order.
-     * This method does not copy the array, so the matrix will share the same memory
-     * as the input array.
-     *
-     * @param float32Array - A Float32Array containing 16 elements in column-major order
-     * @returns A new MutableMatrix44 instance using the provided array
-     */
-    static fromFloat32ArrayColumnMajor(float32Array: Float32Array): MutableMatrix44;
-    /**
-     * Creates a new MutableMatrix44 from a Float32Array in column-major order.
-     * This method creates a copy of the input array, so modifications to the matrix
-     * will not affect the original array.
-     *
-     * @param float32Array - A Float32Array containing 16 elements in column-major order
-     * @returns A new MutableMatrix44 instance with copied data
-     */
-    static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array): MutableMatrix44;
-    /**
-     * Creates a new MutableMatrix44 from a Float32Array in row-major order.
-     * The input data is converted from row-major to column-major order during creation.
-     *
-     * @param array - A Float32Array containing 16 elements in row-major order
-     * @returns A new MutableMatrix44 instance with data converted to column-major order
-     */
-    static fromCopyFloat32ArrayRowMajor(array: Float32Array): MutableMatrix44;
-    /**
-     * Creates a new MutableMatrix44 from a 3x3 matrix.
-     * The 3x3 matrix is embedded in the upper-left corner of the 4x4 matrix,
-     * with the bottom row and right column set to [0, 0, 0, 1].
-     *
-     * @param mat - The source 3x3 matrix to convert
-     * @returns A new MutableMatrix44 instance with the 3x3 matrix embedded
-     */
-    static fromCopyMatrix33(mat: IMatrix33): MutableMatrix44;
-    /**
-     * Creates a new MutableMatrix44 from an Array16 in column-major order.
-     * This method copies the array data into a new Float32Array.
-     *
-     * @param array - An Array16 containing 16 elements in column-major order
-     * @returns A new MutableMatrix44 instance with copied data
-     */
-    static fromCopyArray16ColumnMajor(array: Array16<number>): MutableMatrix44;
-    /**
-     * Creates a new MutableMatrix44 from a regular array in column-major order.
-     * Only the first 16 elements are used if the array is larger.
-     *
-     * @param array - An array containing at least 16 elements in column-major order
-     * @returns A new MutableMatrix44 instance with copied data
-     */
-    static fromCopyArrayColumnMajor(array: Array<number>): MutableMatrix44;
-    /**
-     * Creates a new MutableMatrix44 from an Array16 in row-major order.
-     * The input data is converted from row-major to column-major order during creation.
-     *
-     * @param array - An Array16 containing 16 elements in row-major order
-     * @returns A new MutableMatrix44 instance with data converted to column-major order
-     */
-    static fromCopyArray16RowMajor(array: Array16<number>): MutableMatrix44;
-    /**
-     * Creates a new MutableMatrix44 from a regular array in row-major order.
-     * The input data is converted from row-major to column-major order during creation.
-     * Only the first 16 elements are used if the array is larger.
-     *
-     * @param array - An array containing at least 16 elements in row-major order
-     * @returns A new MutableMatrix44 instance with data converted to column-major order
-     */
-    static fromCopyArrayRowMajor(array: Array<number>): MutableMatrix44;
-    /**
-     * Creates a matrix from a quaternion.
-     *
-     * @param q - The quaternion to convert
-     * @returns A new MutableMatrix44 instance representing the rotation
-     */
-    static fromCopyQuaternion(q: Quaternion): MutableMatrix44;
-}
-
-/**
- * Generic 4D vector class that serves as the base implementation for both 32-bit and 64-bit vector types.
- * This class provides immutable vector operations with support for different floating-point precisions.
- *
- * @template T - The typed array constructor type (Float32ArrayConstructor or Float64ArrayConstructor)
- * @internal This class is not intended for direct instantiation by users
- */
-declare class Vector4_<T extends FloatTypedArrayConstructor> extends AbstractVector implements IVector4 {
-    /**
-     * Creates a new Vector4_ instance.
-     *
-     * @param v - The underlying typed array containing the vector components
-     * @param options - Configuration object containing the array type constructor
-     * @protected This constructor is protected to prevent direct instantiation
-     */
-    protected constructor(v: FloatTypedArray, _options: {
-        type: T;
-    });
-    /**
-     * Gets the X component of the vector.
-     *
-     * @returns The X component value
-     */
-    get x(): number;
-    /**
-     * Gets the Y component of the vector.
-     *
-     * @returns The Y component value
-     */
-    get y(): number;
-    /**
-     * Gets the Z component of the vector.
-     *
-     * @returns The Z component value
-     */
-    get z(): number;
-    /**
-     * Gets the W component of the vector.
-     *
-     * @returns The W component value
-     */
-    get w(): number;
-    /**
-     * Converts the vector to a GLSL vec4 string representation with float precision.
-     *
-     * @returns A GLSL-compatible vec4 string (e.g., "vec4(1.0, 2.0, 3.0, 4.0)")
-     */
-    get glslStrAsFloat(): string;
-    /**
-     * Converts the vector to a GLSL ivec4 string representation with integer values.
-     *
-     * @returns A GLSL-compatible ivec4 string (e.g., "ivec4(1, 2, 3, 4)")
-     */
-    get glslStrAsInt(): string;
-    /**
-     * Converts the vector to a WGSL vec4f string representation with float precision.
-     *
-     * @returns A WGSL-compatible vec4f string (e.g., "vec4f(1.0, 2.0, 3.0, 4.0)")
-     */
-    get wgslStrAsFloat(): string;
-    /**
-     * Converts the vector to a WGSL vec4i string representation with integer values.
-     *
-     * @returns A WGSL-compatible vec4i string (e.g., "vec4i(1, 2, 3, 4)")
-     */
-    get wgslStrAsInt(): string;
-    /**
-     * Creates a new vector from a 4-element array by copying the values.
-     *
-     * @param array - Array containing exactly 4 numeric values [x, y, z, w]
-     * @param type - The typed array constructor to use for internal storage
-     * @returns A new vector instance with the copied values
-     * @static
-     */
-    static _fromCopyArray4(array: Array4<number>, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
-    /**
-     * Creates a new vector from individual component values.
-     *
-     * @param x - The X component value
-     * @param y - The Y component value
-     * @param z - The Z component value
-     * @param w - The W component value
-     * @param type - The typed array constructor to use for internal storage
-     * @returns A new vector instance with the specified component values
-     * @static
-     */
-    static _fromCopy4(x: number, y: number, z: number, w: number, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
-    /**
-     * Creates a new vector from an array by copying the first 4 values.
-     * If the array has fewer than 4 elements, the remaining components will be undefined.
-     *
-     * @param array - Array containing numeric values (at least 4 elements recommended)
-     * @param type - The typed array constructor to use for internal storage
-     * @returns A new vector instance with the first 4 values from the array
-     * @static
-     */
-    static _fromCopyArray(array: Array<number>, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
-    /**
-     * Creates a new vector by copying values from another Vector4.
-     *
-     * @param vec4 - The source Vector4 to copy from
-     * @param type - The typed array constructor to use for internal storage
-     * @returns A new vector instance with copied values from the source vector
-     * @static
-     */
-    static _fromCopyVector4(vec4: IVector4, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
-    /**
-     * Creates a new Vector4 from a Vector3, setting the W component to 1.
-     * This is commonly used for converting 3D positions to homogeneous coordinates.
-     *
-     * @param vec3 - The source Vector3 to copy from
-     * @param type - The typed array constructor to use for internal storage
-     * @returns A new Vector4 with (vec3.x, vec3.y, vec3.z, 1.0)
-     * @static
-     */
-    static _fromCopyVector3(vec3: IVector3, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
-    /**
-     * Creates a new Vector4 from a Vector2, setting Z to 0 and W to 1.
-     * This is commonly used for converting 2D positions to homogeneous coordinates.
-     *
-     * @param vec2 - The source Vector2 to copy from
-     * @param type - The typed array constructor to use for internal storage
-     * @returns A new Vector4 with (vec2.x, vec2.y, 0.0, 1.0)
-     * @static
-     */
-    static _fromVector2(vec2: IVector2, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
-    /**
-     * Gets the composition type identifier for this vector type.
-     *
-     * @returns The CompositionType.Vec4 identifier
-     * @static
-     */
-    static get compositionType(): {
-        readonly __numberOfComponents: number;
-        readonly __glslStr: string;
-        readonly __hlslStr: string;
-        readonly __webgpuStr: string;
-        readonly __wgslStr: string;
-        readonly __isArray: boolean;
-        readonly __vec4SizeOfProperty: IndexOf16Bytes;
-        readonly __dummyStr: "VEC4";
-        readonly webgpu: string;
-        readonly wgsl: string;
-        getNumberOfComponents(): Count;
-        getGlslStr(componentType: ComponentTypeEnum): string;
-        getGlslInitialValue(componentType: ComponentTypeEnum): string;
-        getWgslInitialValue(componentType: ComponentTypeEnum): string;
-        toWGSLType(componentType: ComponentTypeEnum): string;
-        getVec4SizeOfProperty(): IndexOf16Bytes;
-        readonly index: number;
-        readonly symbol: symbol;
-        readonly str: string;
-        toString(): string;
-        toJSON(): number;
-    };
-    /**
-     * Calculates the squared length (magnitude) of a vector.
-     * This is more efficient than length() when only comparing magnitudes.
-     *
-     * @param vec - The vector to calculate squared length for
-     * @returns The squared length of the vector
-     * @static
-     */
-    static lengthSquared(vec: IVector4): number;
-    /**
-     * Calculates the distance between two vectors.
-     *
-     * @param l_vec - The first vector
-     * @param r_vec - The second vector
-     * @returns The distance between the two vectors
-     * @static
-     */
-    static lengthBtw(l_vec: IVector4, r_vec: IVector4): number;
-    /**
-     * Creates a zero vector (0, 0, 0, 0).
-     *
-     * @param type - The typed array constructor to use for internal storage
-     * @returns A new zero vector
-     * @static
-     */
-    static _zero(type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
-    /**
-     * Creates a vector with all components set to 1 (1, 1, 1, 1).
-     *
-     * @param type - The typed array constructor to use for internal storage
-     * @returns A new vector with all components set to 1
-     * @static
-     */
-    static _one(type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
-    /**
-     * Creates a dummy vector with no components (empty array).
-     * This is used as a placeholder when a vector is needed but not yet initialized.
-     *
-     * @param type - The typed array constructor to use for internal storage
-     * @returns A new dummy vector with empty components
-     * @static
-     */
-    static _dummy(type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
-    /**
-     * Creates a normalized version of the given vector.
-     * A normalized vector has a length of 1 while maintaining its direction.
-     *
-     * @param vec - The vector to normalize
-     * @param type - The typed array constructor to use for internal storage
-     * @returns A new normalized vector
-     * @static
-     */
-    static _normalize(vec: IVector4, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
-    /**
-     * Adds two vectors component-wise and returns a new vector.
-     *
-     * @param l_vec - The left operand vector
-     * @param r_vec - The right operand vector
-     * @param type - The typed array constructor to use for internal storage
-     * @returns A new vector containing the sum (l_vec + r_vec)
-     * @static
-     */
-    static _add(l_vec: IVector4, r_vec: IVector4, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
-    /**
-     * Adds two vectors component-wise and stores the result in the output vector.
-     * This method modifies the output vector in-place for better performance.
-     *
-     * @param l_vec - The left operand vector
-     * @param r_vec - The right operand vector
-     * @param out - The output vector to store the result (will be modified)
-     * @returns The modified output vector containing the sum
-     * @static
-     */
-    static addTo(l_vec: IVector4, r_vec: IVector4, out: IMutableVector4): IMutableVector4;
-    /**
-     * Subtracts the right vector from the left vector component-wise and returns a new vector.
-     *
-     * @param l_vec - The left operand vector (minuend)
-     * @param r_vec - The right operand vector (subtrahend)
-     * @param type - The typed array constructor to use for internal storage
-     * @returns A new vector containing the difference (l_vec - r_vec)
-     * @static
-     */
-    static _subtract(l_vec: IVector4, r_vec: IVector4, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
-    /**
-     * Subtracts the right vector from the left vector component-wise and stores the result in the output vector.
-     * This method modifies the output vector in-place for better performance.
-     *
-     * @param l_vec - The left operand vector (minuend)
-     * @param r_vec - The right operand vector (subtrahend)
-     * @param out - The output vector to store the result (will be modified)
-     * @returns The modified output vector containing the difference
-     * @static
-     */
-    static subtractTo(l_vec: IVector4, r_vec: IVector4, out: IMutableVector4): IMutableVector4;
-    /**
-     * Multiplies a vector by a scalar value and returns a new vector.
-     * This operation scales the vector while preserving its direction.
-     *
-     * @param vec - The vector to multiply
-     * @param value - The scalar value to multiply by
-     * @param type - The typed array constructor to use for internal storage
-     * @returns A new vector with each component multiplied by the scalar
-     * @static
-     */
-    static _multiply(vec: IVector4, value: number, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
-    /**
-     * Multiplies a vector by a scalar value and stores the result in the output vector.
-     * This method modifies the output vector in-place for better performance.
-     *
-     * @param vec - The vector to multiply
-     * @param value - The scalar value to multiply by
-     * @param out - The output vector to store the result (will be modified)
-     * @returns The modified output vector with each component multiplied by the scalar
-     * @static
-     */
-    static multiplyTo(vec: IVector4, value: number, out: IMutableVector4): IMutableVector4;
-    /**
-     * Multiplies two vectors component-wise and returns a new vector.
-     * This is also known as the Hadamard product or element-wise multiplication.
-     *
-     * @param l_vec - The left operand vector
-     * @param r_vec - The right operand vector
-     * @param type - The typed array constructor to use for internal storage
-     * @returns A new vector with each component being the product of corresponding components
-     * @static
-     */
-    static _multiplyVector(l_vec: IVector4, r_vec: IVector4, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
-    /**
-     * Multiplies two vectors component-wise and stores the result in the output vector.
-     * This method modifies the output vector in-place for better performance.
-     *
-     * @param l_vec - The left operand vector
-     * @param r_vec - The right operand vector
-     * @param out - The output vector to store the result (will be modified)
-     * @returns The modified output vector with component-wise multiplication result
-     * @static
-     */
-    static multiplyVectorTo(l_vec: IVector4, r_vec: IVector4, out: IMutableVector4): IMutableVector4;
-    /**
-     * Divides a vector by a scalar value and returns a new vector.
-     * If the divisor is zero, the result components will be set to Infinity and an error will be logged.
-     *
-     * @param vec - The vector to divide
-     * @param value - The scalar value to divide by
-     * @param type - The typed array constructor to use for internal storage
-     * @returns A new vector with each component divided by the scalar
-     * @static
-     */
-    static _divide(vec: IVector4, value: number, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
-    /**
-     * Divides a vector by a scalar value and stores the result in the output vector.
-     * If the divisor is zero, the result components will be set to Infinity and an error will be logged.
-     * This method modifies the output vector in-place for better performance.
-     *
-     * @param vec - The vector to divide
-     * @param value - The scalar value to divide by
-     * @param out - The output vector to store the result (will be modified)
-     * @returns The modified output vector with each component divided by the scalar
-     * @static
-     */
-    static divideTo(vec: IVector4, value: number, out: IMutableVector4): IMutableVector4;
-    /**
-     * Divides the left vector by the right vector component-wise and returns a new vector.
-     * If any component of the right vector is zero, the corresponding result component will be set to Infinity.
-     *
-     * @param l_vec - The left operand vector (dividend)
-     * @param r_vec - The right operand vector (divisor)
-     * @param type - The typed array constructor to use for internal storage
-     * @returns A new vector with component-wise division result
-     * @static
-     */
-    static _divideVector(l_vec: IVector4, r_vec: IVector4, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
-    /**
-     * Divides the left vector by the right vector component-wise and stores the result in the output vector.
-     * If any component of the right vector is zero, the corresponding result component will be set to Infinity.
-     * This method modifies the output vector in-place for better performance.
-     *
-     * @param l_vec - The left operand vector (dividend)
-     * @param r_vec - The right operand vector (divisor)
-     * @param out - The output vector to store the result (will be modified)
-     * @returns The modified output vector with component-wise division result
-     * @static
-     */
-    static divideVectorTo(l_vec: IVector4, r_vec: IVector4, out: IMutableVector4): IMutableVector4;
-    /**
-     * Calculates the dot product of two vectors.
-     * The dot product is the sum of the products of corresponding components.
-     *
-     * @param l_vec - The left operand vector
-     * @param r_vec - The right operand vector
-     * @returns The dot product of the two vectors
-     * @static
-     */
-    static dot(l_vec: IVector4, r_vec: IVector4): number;
-    /**
-     * Converts the vector to a string representation in the format "(x, y, z, w)".
-     *
-     * @returns A string representation of the vector
-     */
-    toString(): string;
-    /**
-     * Converts the vector to an approximately formatted string representation with financial precision.
-     * Each component is formatted to a fixed number of decimal places.
-     *
-     * @returns A string with space-separated components followed by a newline
-     */
-    toStringApproximately(): string;
-    /**
-     * Converts the vector to a flat array representation.
-     *
-     * @returns An array containing the vector components [x, y, z, w]
-     */
-    flattenAsArray(): number[];
-    /**
-     * Checks if this vector is a dummy vector (has no components).
-     *
-     * @returns True if the vector has no components, false otherwise
-     */
-    isDummy(): boolean;
-    /**
-     * Checks if this vector is approximately equal to another vector within a specified tolerance.
-     *
-     * @param vec - The vector to compare with
-     * @param delta - The tolerance value for comparison (default: Number.EPSILON)
-     * @returns True if the vectors are approximately equal, false otherwise
-     */
-    isEqual(vec: IVector4, delta?: number): boolean;
-    /**
-     * Checks if this vector is strictly equal to another vector (exact component equality).
-     *
-     * @param vec - The vector to compare with
-     * @returns True if all components are exactly equal, false otherwise
-     */
-    isStrictEqual(vec: IVector4): boolean;
-    /**
-     * Gets the component value at the specified index.
-     *
-     * @param i - The index (0=x, 1=y, 2=z, 3=w)
-     * @returns The component value at the specified index
-     */
-    at(i: number): number;
-    /**
-     * Calculates the length (magnitude) of the vector using the Euclidean norm.
-     *
-     * @returns The length of the vector
-     */
-    length(): number;
-    /**
-     * Calculates the squared length (magnitude) of the vector.
-     * This is more efficient than length() when only comparing magnitudes.
-     *
-     * @returns The squared length of the vector
-     */
-    lengthSquared(): number;
-    /**
-     * Calculates the distance from this vector to another vector.
-     *
-     * @param vec - The target vector to calculate distance to
-     * @returns The distance between the two vectors
-     */
-    lengthTo(vec: IVector4): number;
-    /**
-     * Calculates the dot product between this vector and another vector.
-     * The dot product is the sum of the products of corresponding components.
-     *
-     * @param vec - The vector to calculate dot product with
-     * @returns The dot product of the two vectors
-     */
-    dot(vec: IVector4): number;
-    /**
-     * Gets the class name of this vector type.
-     *
-     * @returns The string "Vector4"
-     */
-    get className(): string;
-    /**
-     * Creates a deep copy of this vector.
-     *
-     * @returns A new vector instance with the same component values
-     */
-    clone(): any;
-    /**
-     * Gets the number of bytes per component in the underlying typed array.
-     *
-     * @returns The number of bytes per element (4 for Float32Array, 8 for Float64Array)
-     */
-    get bytesPerComponent(): number;
-}
-/**
- * Immutable 4D(x,y,z,w) Vector class with 32-bit float components.
- *
- * This class provides comprehensive vector operations for 4-dimensional mathematics,
- * commonly used in graphics programming for representing positions, directions,
- * colors (RGBA), and homogeneous coordinates.
- *
- * All operations return new vector instances, preserving immutability.
- * For performance-critical applications where mutation is acceptable,
- * consider using the corresponding mutable vector types or the *To methods.
- *
- * @example Basic usage:
- * ```typescript
- * const vec1 = Vector4.fromCopy4(1, 2, 3, 1);
- * const vec2 = Vector4.fromCopyArray4([2, 3, 3, 1]);
- * const dotProduct = vec1.dot(vec2);
- * const sum = Vector4.add(vec1, vec2);
- * ```
- *
- * @example Creating vectors from different sources:
- * ```typescript
- * const fromArray = Vector4.fromCopyArray([1, 2, 3, 4, 5]); // Takes first 4 elements
- * const fromVec3 = Vector4.fromCopyVector3(someVector3); // W component set to 1
- * const zero = Vector4.zero();
- * const normalized = Vector4.normalize(someVector);
- * ```
- */
-declare class Vector4 extends Vector4_<Float32ArrayConstructor> {
-    /**
-     * Creates a new Vector4 instance from a Float32Array.
-     *
-     * @param x - The Float32Array containing vector components
-     */
-    constructor(x: Float32Array);
-    /**
-     * Creates a new Vector4 by copying values from an array.
-     * Takes the first 4 elements from the array. If the array has fewer than 4 elements,
-     * the remaining components will be undefined.
-     *
-     * @param array - Array containing numeric values (at least 4 elements recommended)
-     * @returns A new Vector4 instance with copied values
-     * @static
-     */
-    static fromCopyArray(array: Array<number>): Vector4;
-    /**
-     * Creates a new Vector4 from a 4-element array by copying the values.
-     *
-     * @param array - Array containing exactly 4 numeric values [x, y, z, w]
-     * @returns A new Vector4 instance with the copied values
-     * @static
-     */
-    static fromCopyArray4(array: Array4<number>): Vector4;
-    /**
-     * Creates a new Vector4 from individual component values.
-     *
-     * @param x - The X component value
-     * @param y - The Y component value
-     * @param z - The Z component value
-     * @param w - The W component value
-     * @returns A new Vector4 instance with the specified component values
-     * @static
-     */
-    static fromCopy4(x: number, y: number, z: number, w: number): Vector4;
-    /**
-     * Creates a new Vector4 from a Vector3, setting the W component to 1.
-     * This is commonly used for converting 3D positions to homogeneous coordinates.
-     *
-     * @param vec3 - The source Vector3 to copy from
-     * @returns A new Vector4 with (vec3.x, vec3.y, vec3.z, 1.0)
-     * @static
-     */
-    static fromCopyVector3(vec3: IVector3): Vector4;
-    /**
-     * Creates a new Vector4 by copying values from another Vector4.
-     *
-     * @param vec4 - The source Vector4 to copy from
-     * @returns A new Vector4 instance with copied values from the source vector
-     * @static
-     */
-    static fromCopyVector4(vec4: IVector4): Vector4;
-    /**
-     * Creates a new Vector4 from an ArrayBuffer.
-     * The ArrayBuffer should contain at least 16 bytes (4 float32 values).
-     *
-     * @param arrayBuffer - The ArrayBuffer containing vector data
-     * @returns A new Vector4 instance using the ArrayBuffer data
-     * @static
-     */
-    static fromArrayBuffer(arrayBuffer: ArrayBuffer): Vector4;
-    /**
-     * Creates a new Vector4 from a Float32Array.
-     * The Float32Array is used directly without copying.
-     *
-     * @param float32Array - The Float32Array containing vector components
-     * @returns A new Vector4 instance using the provided Float32Array
-     * @static
-     */
-    static fromFloat32Array(float32Array: Float32Array): Vector4;
-    /**
-     * Creates a new Vector4 by copying from a Float32Array.
-     * This creates a new Float32Array copy of the input data.
-     *
-     * @param float32Array - The Float32Array to copy from
-     * @returns A new Vector4 instance with copied Float32Array data
-     * @static
-     */
-    static fromCopyFloat32Array(float32Array: Float32Array): Vector4;
-    /**
-     * Creates a zero vector (0, 0, 0, 0).
-     *
-     * @returns A new Vector4 with all components set to zero
-     * @static
-     */
-    static zero(): Vector4;
-    /**
-     * Creates a vector with all components set to 1 (1, 1, 1, 1).
-     *
-     * @returns A new Vector4 with all components set to 1
-     * @static
-     */
-    static one(): Vector4;
-    /**
-     * Creates a dummy vector with no components (empty array).
-     * This is used as a placeholder when a vector is needed but not yet initialized.
-     *
-     * @returns A new dummy Vector4 with empty components
-     * @static
-     */
-    static dummy(): Vector4;
-    /**
-     * Creates a normalized version of the given vector.
-     * A normalized vector has a length of 1 while maintaining its direction.
-     *
-     * @param vec - The vector to normalize
-     * @returns A new normalized Vector4
-     * @static
-     */
-    static normalize(vec: IVector4): Vector4;
-    /**
-     * Adds two vectors component-wise and returns a new vector.
-     *
-     * @param l_vec - The left operand vector
-     * @param r_vec - The right operand vector
-     * @returns A new Vector4 containing the sum (l_vec + r_vec)
-     * @static
-     */
-    static add(l_vec: IVector4, r_vec: IVector4): Vector4;
-    /**
-     * Subtracts the right vector from the left vector component-wise and returns a new vector.
-     *
-     * @param l_vec - The left operand vector (minuend)
-     * @param r_vec - The right operand vector (subtrahend)
-     * @returns A new Vector4 containing the difference (l_vec - r_vec)
-     * @static
-     */
-    static subtract(l_vec: IVector4, r_vec: IVector4): Vector4;
-    /**
-     * Multiplies a vector by a scalar value and returns a new vector.
-     * This operation scales the vector while preserving its direction.
-     *
-     * @param vec - The vector to multiply
-     * @param value - The scalar value to multiply by
-     * @returns A new Vector4 with each component multiplied by the scalar
-     * @static
-     */
-    static multiply(vec: IVector4, value: number): Vector4;
-    /**
-     * Multiplies two vectors component-wise and returns a new vector.
-     * This is also known as the Hadamard product or element-wise multiplication.
-     *
-     * @param l_vec - The left operand vector
-     * @param r_vec - The right operand vector
-     * @returns A new Vector4 with each component being the product of corresponding components
-     * @static
-     */
-    static multiplyVector(l_vec: IVector4, r_vec: IVector4): Vector4;
-    /**
-     * Divides a vector by a scalar value and returns a new vector.
-     * If the divisor is zero, the result components will be set to Infinity and an error will be logged.
-     *
-     * @param vec - The vector to divide
-     * @param value - The scalar value to divide by
-     * @returns A new Vector4 with each component divided by the scalar
-     * @static
-     */
-    static divide(vec: IVector4, value: number): Vector4;
-    /**
-     * Divides the left vector by the right vector component-wise and returns a new vector.
-     * If any component of the right vector is zero, the corresponding result component will be set to Infinity.
-     *
-     * @param l_vec - The left operand vector (dividend)
-     * @param r_vec - The right operand vector (divisor)
-     * @returns A new Vector4 with component-wise division result
-     * @static
-     */
-    static divideVector(l_vec: IVector4, r_vec: IVector4): Vector4;
-    /**
-     * Creates a deep copy of this vector.
-     *
-     * @returns A new Vector4 instance with the same component values
-     */
-    clone(): Vector4;
-}
-/**
- * Immutable 4D(x,y,z,w) Vector class with 64-bit float components.
- *
- * This class provides the same functionality as Vector4 but with double precision
- * floating-point components. Use this when higher precision is required for
- * mathematical calculations or when working with very large or very small numbers.
- *
- * @example Basic usage:
- * ```typescript
- * const vec1 = Vector4d.fromCopy4(1.0, 2.0, 3.0, 1.0);
- * const vec2 = Vector4d.fromCopyArray4([2.0, 3.0, 3.0, 1.0]);
- * const dotProduct = vec1.dot(vec2);
- * const sum = Vector4d.add(vec1, vec2);
- * ```
- */
-declare class Vector4d extends Vector4_<Float64ArrayConstructor> {
-    /**
-     * Creates a new Vector4d instance from a Float64Array.
-     *
-     * @param x - The Float64Array containing vector components
-     * @private This constructor is private to prevent direct instantiation
-     */
-    private constructor();
-    /**
-     * Creates a new Vector4d from a 4-element array by copying the values.
-     *
-     * @param array - Array containing exactly 4 numeric values [x, y, z, w]
-     * @returns A new Vector4d instance with the copied values
-     * @static
-     */
-    static fromCopyArray4(array: Array4<number>): Vector4d;
-    /**
-     * Creates a new Vector4d from individual component values.
-     *
-     * @param x - The X component value
-     * @param y - The Y component value
-     * @param z - The Z component value
-     * @param w - The W component value
-     * @returns A new Vector4d instance with the specified component values
-     * @static
-     */
-    static fromCopy4(x: number, y: number, z: number, w: number): Vector4d;
-    /**
-     * Creates a new Vector4d by copying values from an array.
-     * Takes the first 4 elements from the array. If the array has fewer than 4 elements,
-     * the remaining components will be undefined.
-     *
-     * @param array - Array containing numeric values (at least 4 elements recommended)
-     * @returns A new Vector4d instance with copied values
-     * @static
-     */
-    static fromCopyArray(array: Array4<number>): Vector4d;
-    /**
-     * Creates a new Vector4d from an ArrayBuffer.
-     * The ArrayBuffer should contain at least 32 bytes (4 float64 values).
-     *
-     * @param arrayBuffer - The ArrayBuffer containing vector data
-     * @returns A new Vector4d instance using the ArrayBuffer data
-     * @static
-     */
-    static fromArrayBuffer(arrayBuffer: ArrayBuffer): Vector4d;
-    /**
-     * Creates a new Vector4d from a Float64Array.
-     * The Float64Array is used directly without copying.
-     *
-     * @param float64Array - The Float64Array containing vector components
-     * @returns A new Vector4d instance using the provided Float64Array
-     * @static
-     */
-    static fromFloat64Array(float64Array: Float64Array): Vector4d;
-    /**
-     * Creates a zero vector (0, 0, 0, 0).
-     *
-     * @returns A new Vector4d with all components set to zero
-     * @static
-     */
-    static zero(): Vector4d;
-    /**
-     * Creates a vector with all components set to 1 (1, 1, 1, 1).
-     *
-     * @returns A new Vector4d with all components set to 1
-     * @static
-     */
-    static one(): Vector4d;
-    /**
-     * Creates a dummy vector with no components (empty array).
-     * This is used as a placeholder when a vector is needed but not yet initialized.
-     *
-     * @returns A new dummy Vector4d with empty components
-     * @static
-     */
-    static dummy(): Vector4d;
-    /**
-     * Creates a normalized version of the given vector.
-     * A normalized vector has a length of 1 while maintaining its direction.
-     *
-     * @param vec - The vector to normalize
-     * @returns A new normalized Vector4d
-     * @static
-     */
-    static normalize(vec: IVector4): Vector4d;
-    /**
-     * Adds two vectors component-wise and returns a new vector.
-     *
-     * @param l_vec - The left operand vector
-     * @param r_vec - The right operand vector
-     * @returns A new Vector4d containing the sum (l_vec + r_vec)
-     * @static
-     */
-    static add(l_vec: IVector4, r_vec: IVector4): Vector4d;
-    /**
-     * Subtracts the right vector from the left vector component-wise and returns a new vector.
-     *
-     * @param l_vec - The left operand vector (minuend)
-     * @param r_vec - The right operand vector (subtrahend)
-     * @returns A new Vector4d containing the difference (l_vec - r_vec)
-     * @static
-     */
-    static subtract(l_vec: IVector4, r_vec: IVector4): Vector4d;
-    /**
-     * Multiplies a vector by a scalar value and returns a new vector.
-     * This operation scales the vector while preserving its direction.
-     *
-     * @param vec - The vector to multiply
-     * @param value - The scalar value to multiply by
-     * @returns A new Vector4d with each component multiplied by the scalar
-     * @static
-     */
-    static multiply(vec: IVector4, value: number): Vector4d;
-    /**
-     * Multiplies two vectors component-wise and returns a new vector.
-     * This is also known as the Hadamard product or element-wise multiplication.
-     *
-     * @param l_vec - The left operand vector
-     * @param r_vec - The right operand vector
-     * @returns A new Vector4d with each component being the product of corresponding components
-     * @static
-     */
-    static multiplyVector(l_vec: IVector4, r_vec: IVector4): Vector4d;
-    /**
-     * Divides a vector by a scalar value and returns a new vector.
-     * If the divisor is zero, the result components will be set to Infinity and an error will be logged.
-     *
-     * @param vec - The vector to divide
-     * @param value - The scalar value to divide by
-     * @returns A new Vector4d with each component divided by the scalar
-     * @static
-     */
-    static divide(vec: IVector4, value: number): Vector4d;
-    /**
-     * Divides the left vector by the right vector component-wise and returns a new vector.
-     * If any component of the right vector is zero, the corresponding result component will be set to Infinity.
-     *
-     * @param l_vec - The left operand vector (dividend)
-     * @param r_vec - The right operand vector (divisor)
-     * @returns A new Vector4d with component-wise division result
-     * @static
-     */
-    static divideVector(l_vec: IVector4, r_vec: IVector4): Vector4d;
-    /**
-     * Creates a deep copy of this vector.
-     *
-     * @returns A new Vector4d instance with the same component values
-     */
-    clone(): Vector4d;
-}
-/**
- * Type alias for Vector4 to provide a consistent naming convention.
- * Vector4f explicitly indicates 32-bit float precision.
- */
-type Vector4f = Vector4;
-/**
- * Constant Vector4 with all components set to 1 (1, 1, 1, 1).
- * Useful for initialization and mathematical operations.
- */
-declare const ConstVector4_1_1_1_1: Vector4;
-/**
- * Constant Vector4 representing a homogeneous coordinate with W=1 (0, 0, 0, 1).
- * Commonly used for representing positions in homogeneous coordinates.
- */
-declare const ConstVector4_0_0_0_1: Vector4;
-/**
- * Constant Vector4 with all components set to 0 (0, 0, 0, 0).
- * Represents the zero vector or null vector.
- */
-declare const ConstVector4_0_0_0_0: Vector4;
-
-/**
- * Base class for mutable 4D vectors with generic typed array support.
- * Extends Vector4_ to provide mutability capabilities for x, y, z, and w components.
- *
- * @template T - The typed array constructor type (Float32Array or Float64Array)
- * @internal
- */
-declare class MutableVector4_<T extends FloatTypedArrayConstructor> extends Vector4_<T> implements IMutableVector, IMutableVector4 {
-    /**
-     * Creates a new MutableVector4_ instance.
-     *
-     * @param x - The typed array containing vector components
-     * @param type - Object containing the typed array constructor
-     */
-    constructor(x: FloatTypedArray, { type }: {
-        type: T;
-    });
-    /**
-     * Sets the x component of the vector.
-     * Automatically increments the update counter for change tracking.
-     */
-    set x(x: number);
-    /**
-     * Gets the x component of the vector.
-     * @returns The x component value
-     */
-    get x(): number;
-    /**
-     * Sets the y component of the vector.
-     * Automatically increments the update counter for change tracking.
-     */
-    set y(y: number);
-    /**
-     * Gets the y component of the vector.
-     * @returns The y component value
-     */
-    get y(): number;
-    /**
-     * Sets the z component of the vector.
-     * Automatically increments the update counter for change tracking.
-     */
-    set z(z: number);
-    /**
-     * Gets the z component of the vector.
-     * @returns The z component value
-     */
-    get z(): number;
-    /**
-     * Sets the w component of the vector.
-     * Automatically increments the update counter for change tracking.
-     */
-    set w(w: number);
-    /**
-     * Gets the w component of the vector.
-     * @returns The w component value
-     */
-    get w(): number;
-    /**
-     * Gets the raw typed array containing the vector components.
-     *
-     * @returns The underlying typed array [x, y, z, w]
-     */
-    raw(): TypedArray;
-    /**
-     * Sets the value at the specified index.
-     *
-     * @param i - The index (0-3) to set
-     * @param value - The value to set at the index
-     * @returns This vector instance for method chaining
-     */
-    setAt(i: number, value: number): this;
-    /**
-     * Sets all four components of the vector.
-     *
-     * @param x - The x component value
-     * @param y - The y component value
-     * @param z - The z component value
-     * @param w - The w component value
-     * @returns This vector instance for method chaining
-     */
-    setComponents(x: number, y: number, z: number, w: number): this;
-    /**
-     * Copies components from another vector to this vector.
-     *
-     * @param vec - The source vector to copy from
-     * @returns This vector instance for method chaining
-     */
-    copyComponents(vec: IVector4): this;
-    /**
-     * Sets all components to zero.
-     *
-     * @returns This vector instance for method chaining
-     */
-    zero(): this;
-    /**
-     * Sets all components to one.
-     *
-     * @returns This vector instance for method chaining
-     */
-    one(): this;
-    /**
-     * Gets the number of bytes per component in the underlying typed array.
-     *
-     * @returns The byte size per component (4 for Float32Array, 8 for Float64Array)
-     */
-    get bytesPerComponent(): number;
-    /**
-     * Normalizes the vector to unit length.
-     * Modifies this vector in place.
-     *
-     * @returns This vector instance for method chaining
-     */
-    normalize(): this;
-    /**
-     * Normalizes only the x, y, z components (treating as 3D vector).
-     * The w component is divided by the same length factor.
-     *
-     * @returns This vector instance for method chaining
-     */
-    normalize3(): this;
-    /**
-     * Adds another vector to this vector component-wise.
-     *
-     * @param vec - The vector to add
-     * @returns This vector instance for method chaining
-     */
-    add(vec: IVector4): this;
-    /**
-     * Subtracts another vector from this vector component-wise.
-     *
-     * @param vec - The vector to subtract
-     * @returns This vector instance for method chaining
-     */
-    subtract(vec: IVector4): this;
-    /**
-     * Multiplies this vector by a scalar value.
-     *
-     * @param value - The scalar value to multiply by
-     * @returns This vector instance for method chaining
-     */
-    multiply(value: number): this;
-    /**
-     * Multiplies this vector by another vector component-wise.
-     *
-     * @param vec - The vector to multiply by
-     * @returns This vector instance for method chaining
-     */
-    multiplyVector(vec: IVector4): this;
-    /**
-     * Divides this vector by a scalar value.
-     * If the value is zero, sets components to Infinity and logs an error.
-     *
-     * @param value - The scalar value to divide by
-     * @returns This vector instance for method chaining
-     */
-    divide(value: number): this;
-    /**
-     * Divides this vector by another vector component-wise.
-     * If any component of the divisor is zero, sets the corresponding result to Infinity.
-     *
-     * @param vec - The vector to divide by
-     * @returns This vector instance for method chaining
-     */
-    divideVector(vec: IVector4): this;
-    /**
-     * Gets the update counter value.
-     * This counter is incremented whenever the vector is modified.
-     *
-     * @returns The current update count
-     */
-    get _updateCount(): number;
-    private __updateCount;
-}
-/**
- * Mutable 4D vector class with 32-bit float components.
- * Provides methods for vector operations that modify the vector in place,
- * as well as static factory methods for creating new vectors.
- */
-declare class MutableVector4 extends MutableVector4_<Float32ArrayConstructor> {
-    /**
-     * Creates a new MutableVector4 instance.
-     *
-     * @param x - Float32Array containing the vector components [x, y, z, w]
-     */
-    constructor(x: Float32Array);
-    /**
-     * Creates a new MutableVector4 from an array of numbers.
-     * Takes up to 4 elements from the array.
-     *
-     * @param array - Array of numbers to copy from
-     * @returns A new MutableVector4 instance
-     */
-    static fromCopyArray(array: Array<number>): MutableVector4;
-    /**
-     * Creates a new MutableVector4 from a 4-element array.
-     *
-     * @param array - Array of exactly 4 numbers [x, y, z, w]
-     * @returns A new MutableVector4 instance
-     */
-    static fromCopyArray4(array: Array4<number>): MutableVector4;
-    /**
-     * Creates a new MutableVector4 from individual component values.
-     *
-     * @param x - The x component
-     * @param y - The y component
-     * @param z - The z component
-     * @param w - The w component
-     * @returns A new MutableVector4 instance
-     */
-    static fromCopy4(x: number, y: number, z: number, w: number): MutableVector4;
-    /**
-     * Creates a zero vector (0, 0, 0, 0).
-     *
-     * @returns A new MutableVector4 with all components set to 0
-     */
-    static zero(): MutableVector4;
-    /**
-     * Creates a vector with all components set to 1 (1, 1, 1, 1).
-     *
-     * @returns A new MutableVector4 with all components set to 1
-     */
-    static one(): MutableVector4;
-    /**
-     * Creates a dummy vector for placeholder purposes.
-     *
-     * @returns A new MutableVector4 dummy instance
-     */
-    static dummy(): MutableVector4;
-    /**
-     * Creates a normalized copy of the given vector.
-     *
-     * @param vec - The vector to normalize
-     * @returns A new normalized MutableVector4
-     */
-    static normalize(vec: IVector4): MutableVector4;
-    /**
-     * Creates a new vector by adding two vectors component-wise.
-     *
-     * @param l_vec - The left operand vector
-     * @param r_vec - The right operand vector
-     * @returns A new MutableVector4 containing the sum
-     */
-    static add(l_vec: IVector4, r_vec: IVector4): MutableVector4;
-    /**
-     * Creates a new vector by subtracting the second vector from the first.
-     *
-     * @param l_vec - The vector to subtract from
-     * @param r_vec - The vector to subtract
-     * @returns A new MutableVector4 containing the difference
-     */
-    static subtract(l_vec: IVector4, r_vec: IVector4): MutableVector4;
-    /**
-     * Creates a new vector by multiplying a vector by a scalar.
-     *
-     * @param vec - The vector to multiply
-     * @param value - The scalar value to multiply by
-     * @returns A new MutableVector4 containing the scaled vector
-     */
-    static multiply(vec: IVector4, value: number): MutableVector4;
-    /**
-     * Creates a new vector by multiplying two vectors component-wise.
-     *
-     * @param l_vec - The left operand vector
-     * @param r_vec - The right operand vector
-     * @returns A new MutableVector4 containing the component-wise product
-     */
-    static multiplyVector(l_vec: IVector4, r_vec: IVector4): MutableVector4;
-    /**
-     * Creates a new vector by dividing a vector by a scalar.
-     *
-     * @param vec - The vector to divide
-     * @param value - The scalar value to divide by
-     * @returns A new MutableVector4 containing the divided vector
-     */
-    static divide(vec: IVector4, value: number): MutableVector4;
-    /**
-     * Creates a new vector by dividing two vectors component-wise.
-     *
-     * @param l_vec - The dividend vector
-     * @param r_vec - The divisor vector
-     * @returns A new MutableVector4 containing the component-wise quotient
-     */
-    static divideVector(l_vec: IVector4, r_vec: IVector4): MutableVector4;
-    /**
-     * Gets the class name for debugging and identification purposes.
-     *
-     * @returns The string 'MutableVector4'
-     */
-    get className(): string;
-    /**
-     * Creates a deep copy of this vector.
-     *
-     * @returns A new MutableVector4 instance with copied values
-     */
-    clone(): any;
-}
-/**
- * Mutable 4D vector class with 64-bit float components.
- * Provides higher precision arithmetic compared to MutableVector4.
- */
-declare class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> {
-    /**
-     * Creates a new MutableVector4d instance.
-     *
-     * @param x - Float64Array containing the vector components [x, y, z, w]
-     */
-    constructor(x: Float64Array);
-    /**
-     * Creates a zero vector (0, 0, 0, 0) with 64-bit precision.
-     *
-     * @returns A new MutableVector4d with all components set to 0
-     */
-    static zero(): MutableVector4d;
-    /**
-     * Creates a vector with all components set to 1 (1, 1, 1, 1) with 64-bit precision.
-     *
-     * @returns A new MutableVector4d with all components set to 1
-     */
-    static one(): MutableVector4d;
-    /**
-     * Creates a dummy vector for placeholder purposes with 64-bit precision.
-     *
-     * @returns A new MutableVector4d dummy instance
-     */
-    static dummy(): MutableVector4d;
-    /**
-     * Creates a normalized copy of the given vector with 64-bit precision.
-     *
-     * @param vec - The vector to normalize
-     * @returns A new normalized MutableVector4d
-     */
-    static normalize(vec: IVector4): MutableVector4d;
-    /**
-     * Creates a new vector by adding two vectors component-wise with 64-bit precision.
-     *
-     * @param l_vec - The left operand vector
-     * @param r_vec - The right operand vector
-     * @returns A new MutableVector4d containing the sum
-     */
-    static add(l_vec: IVector4, r_vec: IVector4): MutableVector4d;
-    /**
-     * Creates a new vector by subtracting the second vector from the first with 64-bit precision.
-     *
-     * @param l_vec - The vector to subtract from
-     * @param r_vec - The vector to subtract
-     * @returns A new MutableVector4d containing the difference
-     */
-    static subtract(l_vec: IVector4, r_vec: IVector4): MutableVector4d;
-    /**
-     * Creates a new vector by multiplying a vector by a scalar with 64-bit precision.
-     *
-     * @param vec - The vector to multiply
-     * @param value - The scalar value to multiply by
-     * @returns A new MutableVector4d containing the scaled vector
-     */
-    static multiply(vec: IVector4, value: number): MutableVector4d;
-    /**
-     * Creates a new vector by multiplying two vectors component-wise with 64-bit precision.
-     *
-     * @param l_vec - The left operand vector
-     * @param r_vec - The right operand vector
-     * @returns A new MutableVector4d containing the component-wise product
-     */
-    static multiplyVector(l_vec: IVector4, r_vec: IVector4): MutableVector4d;
-    /**
-     * Creates a new vector by dividing a vector by a scalar with 64-bit precision.
-     *
-     * @param vec - The vector to divide
-     * @param value - The scalar value to divide by
-     * @returns A new MutableVector4d containing the divided vector
-     */
-    static divide(vec: IVector4, value: number): MutableVector4d;
-    /**
-     * Creates a new vector by dividing two vectors component-wise with 64-bit precision.
-     *
-     * @param l_vec - The dividend vector
-     * @param r_vec - The divisor vector
-     * @returns A new MutableVector4d containing the component-wise quotient
-     */
-    static divideVector(l_vec: IVector4, r_vec: IVector4): MutableVector4d;
-    /**
-     * Creates a new MutableVector4d from a 4-element array with 64-bit precision.
-     *
-     * @param array - Array of exactly 4 numbers [x, y, z, w]
-     * @returns A new MutableVector4d instance
-     */
-    static fromCopyArray4(array: Array4<number>): MutableVector4d;
-    /**
-     * Creates a new MutableVector4d from an array of numbers with 64-bit precision.
-     * Takes up to 4 elements from the array.
-     *
-     * @param array - Array of numbers to copy from
-     * @returns A new MutableVector4d instance
-     */
-    static fromCopyArray(array: Array<number>): MutableVector4d;
-    /**
-     * Creates a new MutableVector4d from individual component values with 64-bit precision.
-     *
-     * @param x - The x component
-     * @param y - The y component
-     * @param z - The z component
-     * @param w - The w component
-     * @returns A new MutableVector4d instance
-     */
-    static fromCopy4(x: number, y: number, z: number, w: number): MutableVector4d;
-    /**
-     * Creates a deep copy of this vector with 64-bit precision.
-     *
-     * @returns A new MutableVector4d instance with copied values
-     */
-    clone(): MutableVector4d;
-}
-/**
- * Type alias for MutableVector4 to indicate 32-bit float precision.
- */
-type MutableVector4f = MutableVector4;
-
-/**
- * Represents a 4x4 matrix stored in column-major order (OpenGL/WebGL style).
- * This class provides immutable matrix operations and is used for 3D transformations
- * including translation, rotation, and scaling.
- *
- * @example
- * ```typescript
- * const identity = Matrix44.identity();
- * const translation = Matrix44.translate(Vector3.fromCopyArray([1, 2, 3]));
- * const result = Matrix44.multiply(identity, translation);
- * ```
- */
-declare class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
-    /**
-     * Creates a new Matrix44 instance.
-     * @param m - A Float32Array containing 16 matrix elements in column-major order
-     */
-    constructor(m: Float32Array);
-    /**
-     * Gets the matrix element at row 0, column 0.
-     * @returns The m00 component of the matrix
-     */
-    get m00(): number;
-    /**
-     * Gets the matrix element at row 1, column 0.
-     * @returns The m10 component of the matrix
-     */
-    get m10(): number;
-    /**
-     * Gets the matrix element at row 2, column 0.
-     * @returns The m20 component of the matrix
-     */
-    get m20(): number;
-    /**
-     * Gets the matrix element at row 3, column 0.
-     * @returns The m30 component of the matrix
-     */
-    get m30(): number;
-    /**
-     * Gets the matrix element at row 0, column 1.
-     * @returns The m01 component of the matrix
-     */
-    get m01(): number;
-    /**
-     * Gets the matrix element at row 1, column 1.
-     * @returns The m11 component of the matrix
-     */
-    get m11(): number;
-    /**
-     * Gets the matrix element at row 2, column 1.
-     * @returns The m21 component of the matrix
-     */
-    get m21(): number;
-    /**
-     * Gets the matrix element at row 3, column 1.
-     * @returns The m31 component of the matrix
-     */
-    get m31(): number;
-    /**
-     * Gets the matrix element at row 0, column 2.
-     * @returns The m02 component of the matrix
-     */
-    get m02(): number;
-    /**
-     * Gets the matrix element at row 1, column 2.
-     * @returns The m12 component of the matrix
-     */
-    get m12(): number;
-    /**
-     * Gets the matrix element at row 2, column 2.
-     * @returns The m22 component of the matrix
-     */
-    get m22(): number;
-    /**
-     * Gets the matrix element at row 3, column 2.
-     * @returns The m32 component of the matrix
-     */
-    get m32(): number;
-    /**
-     * Gets the matrix element at row 0, column 3.
-     * @returns The m03 component of the matrix
-     */
-    get m03(): number;
-    /**
-     * Gets the matrix element at row 1, column 3.
-     * @returns The m13 component of the matrix
-     */
-    get m13(): number;
-    /**
-     * Gets the matrix element at row 2, column 3.
-     * @returns The m23 component of the matrix
-     */
-    get m23(): number;
-    /**
-     * Gets the matrix element at row 3, column 3.
-     * @returns The m33 component of the matrix
-     */
-    get m33(): number;
-    /**
-     * Gets the X component of the translation vector from this matrix.
-     * @returns The X translation value
-     */
-    get translateX(): number;
-    /**
-     * Gets the Y component of the translation vector from this matrix.
-     * @returns The Y translation value
-     */
-    get translateY(): number;
-    /**
-     * Gets the Z component of the translation vector from this matrix.
-     * @returns The Z translation value
-     */
-    get translateZ(): number;
-    /**
-     * Gets the composition type for this matrix class.
-     * @returns The composition type enum value
-     */
-    static get compositionType(): {
-        readonly __numberOfComponents: number;
-        readonly __glslStr: string;
-        readonly __hlslStr: string;
-        readonly __webgpuStr: string;
-        readonly __wgslStr: string;
-        readonly __isArray: boolean;
-        readonly __vec4SizeOfProperty: IndexOf16Bytes;
-        readonly __dummyStr: "MAT4";
-        readonly webgpu: string;
-        readonly wgsl: string;
-        getNumberOfComponents(): Count;
-        getGlslStr(componentType: ComponentTypeEnum): string;
-        getGlslInitialValue(componentType: ComponentTypeEnum): string;
-        getWgslInitialValue(componentType: ComponentTypeEnum): string;
-        toWGSLType(componentType: ComponentTypeEnum): string;
-        getVec4SizeOfProperty(): IndexOf16Bytes;
-        readonly index: number;
-        readonly symbol: symbol;
-        readonly str: string;
-        toString(): string;
-        toJSON(): number;
-    };
-    /**
-     * Converts the matrix to a GLSL mat4 string representation with float precision.
-     * @returns A GLSL-compatible string representation of the matrix
-     */
-    get glslStrAsFloat(): string;
-    /**
-     * Converts the matrix to a GLSL mat4 string representation with integer values.
-     * @returns A GLSL-compatible string representation of the matrix with integer values
-     */
-    get glslStrAsInt(): string;
-    /**
-     * Converts the matrix to a WGSL mat4x4f string representation with float precision.
-     * @returns A WGSL-compatible string representation of the matrix
-     */
-    get wgslStrAsFloat(): string;
-    /**
-     * Converts the matrix to a WGSL mat4x4i string representation with integer values.
-     * @returns A WGSL-compatible string representation of the matrix with integer values
-     */
-    get wgslStrAsInt(): string;
-    /**
-     * Creates a zero matrix (all elements are 0).
-     * @returns A new Matrix44 instance with all elements set to 0
-     */
-    static zero(): Matrix44;
-    /**
-     * Creates a 4x4 identity matrix.
-     * @returns A new IdentityMatrix44 instance representing the identity matrix
-     */
-    static identity(): IdentityMatrix44;
-    /**
-     * Creates a dummy matrix with zero-length array (for placeholder purposes).
-     * @returns A new Matrix44 instance with an empty array
-     */
-    static dummy(): Matrix44;
-    /**
-     * Creates a transpose matrix from the given matrix.
-     * For identity matrices, returns the same matrix since transpose of identity is identity.
-     * @param mat - The matrix to transpose
-     * @returns A new Matrix44 instance representing the transposed matrix
-     */
-    static transpose(mat: IMatrix44): IMatrix44 | Matrix44;
-    /**
-     * Creates an inverse matrix from the given matrix.
-     * Uses optimized computation for 4x4 matrix inversion.
-     * @param mat - The matrix to invert
-     * @returns A new Matrix44 instance representing the inverted matrix
-     * @throws Logs an error if the matrix is not invertible (determinant is 0)
-     */
-    static invert(mat: IMatrix44): IMatrix44;
-    /**
-     * Computes the inverse of a matrix and stores the result in an output matrix.
-     * This is the mutable version of the invert method for performance optimization.
-     * @param mat - The matrix to invert
-     * @param outMat - The output matrix to store the result
-     * @returns The output matrix containing the inverted matrix
-     * @throws Logs an error if the matrix is not invertible (determinant is 0)
-     */
-    static invertTo(mat: IMatrix44, outMat: MutableMatrix44): MutableMatrix44;
-    /**
-     * Creates a translation matrix from a 3D vector.
-     * @param vec - The translation vector
-     * @returns A new Matrix44 instance representing the translation transformation
-     */
-    static translate(vec: Vector3): Matrix44;
-    /**
-     * Creates a rotation matrix around the X-axis.
-     * @param radian - The rotation angle in radians
-     * @returns A new Matrix44 instance representing the X-axis rotation
-     */
-    static rotateX(radian: number): Matrix44;
-    /**
-     * Creates a rotation matrix around the Y-axis.
-     * @param radian - The rotation angle in radians
-     * @returns A new Matrix44 instance representing the Y-axis rotation
-     */
-    static rotateY(radian: number): Matrix44;
-    /**
-     * Creates a rotation matrix around the Z-axis.
-     * @param radian - The rotation angle in radians
-     * @returns A new Matrix44 instance representing the Z-axis rotation
-     */
-    static rotateZ(radian: number): Matrix44;
-    /**
-     * Creates a rotation matrix from Euler angles (XYZ order).
-     * Applies rotations in the order: X, then Y, then Z.
-     * @param x - Rotation around X-axis in radians
-     * @param y - Rotation around Y-axis in radians
-     * @param z - Rotation around Z-axis in radians
-     * @returns A new Matrix44 instance representing the combined rotation
-     */
-    static rotateXYZ(x: number, y: number, z: number): Matrix44;
-    /**
-     * Creates a rotation matrix from a 3D vector containing Euler angles.
-     * @param vec - A vector containing rotation angles [x, y, z] in radians
-     * @returns A new Matrix44 instance representing the rotation
-     */
-    static rotate(vec: IVector3): Matrix44;
-    /**
-     * Creates a scaling matrix from a 3D vector.
-     * @param vec - The scaling factors for each axis [x, y, z]
-     * @returns A new Matrix44 instance representing the scaling transformation
-     */
-    static scale(vec: IVector3): Matrix44;
-    /**
-     * Multiplies two 4x4 matrices and returns the result.
-     * Optimized to handle identity matrices efficiently.
-     * @param l_mat - The left matrix in the multiplication
-     * @param r_mat - The right matrix in the multiplication
-     * @returns A new Matrix44 instance representing the matrix product (l_mat * r_mat)
-     */
-    static multiply(l_mat: IMatrix44, r_mat: IMatrix44): IMatrix44;
-    /**
-     * Multiplies two 4x4 matrices and stores the result in an output matrix.
-     * This is the mutable version of the multiply method for performance optimization.
-     * @param l_mat - The left matrix in the multiplication
-     * @param r_mat - The right matrix in the multiplication
-     * @param outMat - The output matrix to store the result
-     * @returns The output matrix containing the multiplication result
-     */
-    static multiplyTo(l_mat: IMatrix44, r_mat: IMatrix44, outMat: MutableMatrix44): MutableMatrix44;
-    /**
-     * Multiplies a matrix with data from a typed array and stores the result.
-     * This method is optimized for working with raw array data.
-     * @param l_mat - The left matrix in the multiplication
-     * @param r_array - The right operand as a typed array
-     * @param outMat - The output matrix to store the result
-     * @param offsetAsComposition - The offset in the array for composition data
-     * @returns The output matrix containing the multiplication result
-     */
-    static multiplyTypedArrayTo(l_mat: IMatrix44, r_array: ArrayType, outMat: MutableMatrix44, offsetAsComposition: number): MutableMatrix44;
-    /**
-     * Creates a rotation matrix from a quaternion and stores it in an output matrix.
-     * @param quat - The quaternion representing the rotation
-     * @param outMat - The output matrix to store the result
-     * @returns The output matrix containing the rotation matrix
-     */
-    static fromQuaternionTo(quat: IQuaternion, outMat: MutableMatrix44): MutableMatrix44;
-    /**
-     * Converts the matrix to a human-readable string representation.
-     * Elements are displayed in row-major order for intuitive reading.
-     * @returns A formatted string representation of the matrix
-     */
-    toString(): string;
-    /**
-     * Converts the matrix to a human-readable string with rounded values.
-     * Uses financial rounding for better readability of floating-point numbers.
-     * @returns A formatted string representation with approximated values
-     */
-    toStringApproximately(): string;
-    /**
-     * Flattens the matrix into a regular JavaScript array.
-     * Elements are returned in column-major order (WebGL compatible).
-     * @returns An array containing all 16 matrix elements
-     */
-    flattenAsArray(): number[];
-    /**
-     * Checks if this is a dummy matrix (empty array).
-     * @returns true if the matrix has no elements, false otherwise
-     */
-    isDummy(): boolean;
-    /**
-     * Checks if this matrix is approximately equal to another matrix.
-     * @param mat - The matrix to compare with
-     * @param delta - The tolerance for floating-point comparison (default: Number.EPSILON)
-     * @returns true if matrices are approximately equal within the given tolerance
-     */
-    isEqual(mat: IMatrix44, delta?: number): boolean;
-    /**
-     * Checks if this matrix is exactly equal to another matrix.
-     * Uses strict equality comparison for all elements.
-     * @param mat - The matrix to compare with
-     * @returns true if matrices are exactly equal, false otherwise
-     */
-    isStrictEqual(mat: IMatrix44): boolean;
-    /**
-     * Gets a matrix element at the specified row and column.
-     * @param row_i - The row index (0-3)
-     * @param column_i - The column index (0-3)
-     * @returns The matrix element at the given position
-     */
-    at(row_i: number, column_i: number): number;
-    /**
-     * Calculates the determinant of this 4x4 matrix.
-     * @returns The determinant value
-     */
-    determinant(): number;
-    /**
-     * Multiplies this matrix with a 4D vector and returns the result.
-     * @param vec - The 4D vector to multiply
-     * @returns A new Vector4 containing the multiplication result
-     */
-    multiplyVector(vec: IVector4): IVector4;
-    /**
-     * Multiplies this matrix with a 4D vector and stores the result in an output vector.
-     * @param vec - The 4D vector to multiply
-     * @param outVec - The output vector to store the result
-     * @returns The output vector containing the multiplication result
-     */
-    multiplyVectorTo(vec: IVector4, outVec: MutableVector4): MutableVector4;
-    /**
-     * Multiplies this matrix with a 4D vector and stores the XYZ components in a 3D vector.
-     * @param vec - The 4D vector to multiply
-     * @param outVec - The output 3D vector to store the XYZ components
-     * @returns The output vector containing the XYZ components of the result
-     */
-    multiplyVectorToVec3(vec: IVector4, outVec: MutableVector3): MutableVector3;
-    /**
-     * Multiplies this matrix with a 3D vector (treating it as a point with w=1).
-     * @param vec - The 3D vector to multiply
-     * @returns A new Vector3 containing the transformed point
-     */
-    multiplyVector3(vec: IVector3): IVector3;
-    /**
-     * Multiplies this matrix with a 3D vector and stores the result (treating it as a point with w=1).
-     * @param vec - The 3D vector to multiply
-     * @param outVec - The output vector to store the result
-     * @returns The output vector containing the transformed point
-     */
-    multiplyVector3To(vec: IVector3, outVec: MutableVector3): MutableVector3;
-    /**
-     * Extracts the translation vector from this transformation matrix.
-     * @returns A new Vector3 containing the translation components
-     */
-    getTranslate(): Vector3;
-    /**
-     * Extracts the translation vector from this matrix and stores it in an output vector.
-     * @param outVec - The output vector to store the translation
-     * @returns The output vector containing the translation components
-     */
-    getTranslateTo(outVec: MutableVector3): MutableVector3;
-    /**
-     * Extracts the scale factors from this transformation matrix.
-     * @returns A new Vector3 containing the scale components for each axis
-     */
-    getScale(): Vector3;
-    /**
-     * Extracts the scale factors from this matrix and stores them in an output vector.
-     * @param outVec - The output vector to store the scale factors
-     * @returns The output vector containing the scale components
-     */
-    getScaleTo(outVec: MutableVector3): MutableVector3;
-    /**
-     * Converts this transformation matrix to Euler angles (XYZ rotation order).
-     * @returns A Vector3 containing the Euler angles [x, y, z] in radians
-     */
-    toEulerAngles(): Vector3;
-    /**
-     * Converts this transformation matrix to Euler angles and stores them in an output vector.
-     * @param outVec3 - The output vector to store the Euler angles
-     * @returns The output vector containing the Euler angles [x, y, z] in radians
-     */
-    toEulerAnglesTo(outVec3: MutableVector3): MutableVector3;
-    /**
-     * Creates a deep copy of this matrix.
-     * @returns A new Matrix44 instance with the same values
-     */
-    clone(): Matrix44;
-    /**
-     * Extracts the rotation part of this transformation matrix.
-     * Removes scaling effects to get pure rotation.
-     * @returns A new Matrix44 containing only the rotation transformation
-     */
-    getRotate(): Matrix44;
-    /**
-     * Creates a matrix from 16 individual values in row-major order.
-     * This is the most intuitive way to specify matrix values, as you can
-     * write them in the same 4x4 layout as they appear visually.
-     * Note that internally, WebGL uses column-major storage.
-     *
-     * @param m00 - Element at row 0, column 0
-     * @param m01 - Element at row 0, column 1
-     * @param m02 - Element at row 0, column 2
-     * @param m03 - Element at row 0, column 3
-     * @param m10 - Element at row 1, column 0
-     * @param m11 - Element at row 1, column 1
-     * @param m12 - Element at row 1, column 2
-     * @param m13 - Element at row 1, column 3
-     * @param m20 - Element at row 2, column 0
-     * @param m21 - Element at row 2, column 1
-     * @param m22 - Element at row 2, column 2
-     * @param m23 - Element at row 2, column 3
-     * @param m30 - Element at row 3, column 0
-     * @param m31 - Element at row 3, column 1
-     * @param m32 - Element at row 3, column 2
-     * @param m33 - Element at row 3, column 3
-     * @returns A new Matrix44 instance
-     */
-    static fromCopy16RowMajor(m00: number, m01: number, m02: number, m03: number, m10: number, m11: number, m12: number, m13: number, m20: number, m21: number, m22: number, m23: number, m30: number, m31: number, m32: number, m33: number): Matrix44;
-    /**
-     * Creates a matrix from 16 individual values in column-major order.
-     * This matches the internal storage format used by WebGL.
-     *
-     * @param m00 - Element at row 0, column 0
-     * @param m10 - Element at row 1, column 0
-     * @param m20 - Element at row 2, column 0
-     * @param m30 - Element at row 3, column 0
-     * @param m01 - Element at row 0, column 1
-     * @param m11 - Element at row 1, column 1
-     * @param m21 - Element at row 2, column 1
-     * @param m31 - Element at row 3, column 1
-     * @param m02 - Element at row 0, column 2
-     * @param m12 - Element at row 1, column 2
-     * @param m22 - Element at row 2, column 2
-     * @param m32 - Element at row 3, column 2
-     * @param m03 - Element at row 0, column 3
-     * @param m13 - Element at row 1, column 3
-     * @param m23 - Element at row 2, column 3
-     * @param m33 - Element at row 3, column 3
-     * @returns A new Matrix44 instance
-     */
-    static fromCopy16ColumnMajor(m00: number, m10: number, m20: number, m30: number, m01: number, m11: number, m21: number, m31: number, m02: number, m12: number, m22: number, m32: number, m03: number, m13: number, m23: number, m33: number): Matrix44;
-    /**
-     * Creates a new matrix by copying another Matrix44 instance.
-     * @param mat - The source matrix to copy
-     * @returns A new Matrix44 instance with copied values
-     */
-    static fromCopyMatrix44(mat: Matrix44): Matrix44;
-    /**
-     * Creates a matrix directly from a Float32Array in column-major order.
-     * The array is used directly without copying (shares the same memory).
-     * @param float32Array - A Float32Array containing 16 matrix elements
-     * @returns A new Matrix44 instance using the provided array
-     */
-    static fromFloat32ArrayColumnMajor(float32Array: Float32Array): Matrix44;
-    /**
-     * Creates a matrix from a Float32Array in column-major order with copying.
-     * @param float32Array - A Float32Array containing 16 matrix elements
-     * @returns A new Matrix44 instance with copied values
-     */
-    static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array): Matrix44;
-    /**
-     * Creates a matrix from a Float32Array in row-major order with copying.
-     * The input array is assumed to be in row-major order and will be converted
-     * to column-major order for internal storage.
-     * @param array - A Float32Array containing 16 matrix elements in row-major order
-     * @returns A new Matrix44 instance with converted values
-     */
-    static fromCopyFloat32ArrayRowMajor(array: Float32Array): Matrix44;
-    /**
-     * Creates a 4x4 matrix from a 3x3 matrix by embedding it in the upper-left corner.
-     * The resulting matrix has the 3x3 matrix in the upper-left, with the bottom-right
-     * element set to 1 and other elements set to 0.
-     * @param mat - The 3x3 matrix to embed
-     * @returns A new Matrix44 instance
-     */
-    static fromCopyMatrix33(mat: IMatrix33): Matrix44;
-    /**
-     * Creates a matrix from a fixed-size array (Array16) in column-major order.
-     * @param array - An Array16 containing exactly 16 matrix elements
-     * @returns A new Matrix44 instance with copied values
-     */
-    static fromCopyArray16ColumnMajor(array: Array16<number>): Matrix44;
-    /**
-     * Creates a matrix from a variable-length array in column-major order.
-     * @param array - An array containing at least 16 matrix elements
-     * @returns A new Matrix44 instance with copied values
-     */
-    static fromCopyArrayColumnMajor(array: Array<number>): Matrix44;
-    /**
-     * Creates a matrix from a fixed-size array (Array16) in row-major order.
-     * The input array is converted from row-major to column-major order.
-     * @param array - An Array16 containing exactly 16 matrix elements in row-major order
-     * @returns A new Matrix44 instance with converted values
-     */
-    static fromCopyArray16RowMajor(array: Array16<number>): Matrix44;
-    /**
-     * Creates a matrix from a variable-length array in row-major order.
-     * The input array is converted from row-major to column-major order.
-     * @param array - An array containing at least 16 matrix elements in row-major order
-     * @returns A new Matrix44 instance with converted values
-     */
-    static fromCopyArrayRowMajor(array: Array<number>): Matrix44;
-    /**
-     * Creates a rotation matrix from a quaternion.
-     * @param q - The quaternion representing the rotation
-     * @returns A new Matrix44 instance representing the rotation transformation
-     */
-    static fromCopyQuaternion(q: IQuaternion): Matrix44;
-}
-
-/**
- * A 3D axis-aligned bounding box (AABB) class for spatial calculations and collision detection.
- *
- * The AABB represents a rectangular box aligned with the coordinate axes, defined by
- * minimum and maximum points. It provides efficient methods for spatial queries,
- * transformations, and merging operations commonly used in 3D graphics and physics simulations.
- *
- * @example
- * ```typescript
- * const aabb = new AABB();
- * aabb.addPosition(Vector3.fromValues(1, 2, 3));
- * aabb.addPosition(Vector3.fromValues(4, 5, 6));
- * console.log(aabb.centerPoint); // Center of the bounding box
- * ```
- */
-declare class AABB {
-    private __min;
-    private __max;
-    private __centerPoint;
-    private __lengthCenterToCorner;
-    private __isCenterPointDirty;
-    private __isLengthCenterToCornerDirty;
-    private static __tmpVector3;
-    private __isVanilla;
-    /**
-     * Creates a deep copy of this AABB instance.
-     *
-     * All internal state including bounds, cached values, and dirty flags
-     * are copied to the new instance.
-     *
-     * @returns A new AABB instance that is an exact copy of this one
-     *
-     * @example
-     * ```typescript
-     * const originalAABB = new AABB();
-     * originalAABB.addPosition(Vector3.fromValues(1, 1, 1));
-     * const clonedAABB = originalAABB.clone();
-     * ```
-     */
-    clone(): AABB;
-    /**
-     * Copies all components and state from another AABB into this instance.
-     *
-     * This is a more efficient alternative to creating a new instance when you
-     * want to overwrite the current AABB's state.
-     *
-     * @param aabb - The source AABB to copy from
-     * @returns This AABB instance for method chaining
-     *
-     * @example
-     * ```typescript
-     * const sourceAABB = new AABB();
-     * const targetAABB = new AABB();
-     * targetAABB.copyComponents(sourceAABB);
-     * ```
-     */
-    copyComponents(aabb: AABB): this;
-    /**
-     * Resets this AABB to its initial vanilla state.
-     *
-     * Clears all bounds, cached values, and marks the AABB as vanilla.
-     * After initialization, the AABB will need new positions added to become valid.
-     *
-     * @example
-     * ```typescript
-     * const aabb = new AABB();
-     * aabb.addPosition(Vector3.fromValues(1, 1, 1));
-     * aabb.initialize(); // Reset to vanilla state
-     * console.log(aabb.isVanilla()); // true
-     * ```
-     */
-    initialize(): void;
-    /**
-     * Sets the minimum point of the bounding box.
-     *
-     * Setting the minimum point will invalidate cached values and mark
-     * the AABB as non-vanilla.
-     *
-     * @param val - The new minimum point vector
-     */
-    set minPoint(val: Vector3);
-    /**
-     * Gets the minimum point of the bounding box.
-     *
-     * @returns The minimum point as a read-only Vector3
-     */
-    get minPoint(): Vector3;
-    /**
-     * Sets the maximum point of the bounding box.
-     *
-     * Setting the maximum point will invalidate cached values and mark
-     * the AABB as non-vanilla.
-     *
-     * @param val - The new maximum point vector
-     */
-    set maxPoint(val: Vector3);
-    /**
-     * Gets the maximum point of the bounding box.
-     *
-     * @returns The maximum point as a read-only Vector3
-     */
-    get maxPoint(): Vector3;
-    /**
-     * Checks whether this AABB is in vanilla (uninitialized) state.
-     *
-     * A vanilla AABB has not had any positions added and contains invalid bounds.
-     * Most operations on vanilla AABBs will return early or produce undefined results.
-     *
-     * @returns True if this AABB is vanilla, false otherwise
-     *
-     * @example
-     * ```typescript
-     * const aabb = new AABB();
-     * console.log(aabb.isVanilla()); // true
-     * aabb.addPosition(Vector3.fromValues(1, 1, 1));
-     * console.log(aabb.isVanilla()); // false
-     * ```
-     */
-    isVanilla(): boolean;
-    /**
-     * Expands the AABB to include the given position.
-     *
-     * If this is the first position added to a vanilla AABB, it will set both
-     * min and max points to this position. Otherwise, it will expand the bounds
-     * as necessary to encompass the new position.
-     *
-     * @param positionVector - The position to include in the bounding box
-     * @returns The input position vector for convenience
-     *
-     * @example
-     * ```typescript
-     * const aabb = new AABB();
-     * aabb.addPosition(Vector3.fromValues(1, 2, 3));
-     * aabb.addPosition(Vector3.fromValues(4, 1, 2));
-     * // AABB now encompasses both points
-     * ```
-     */
-    addPosition(positionVector: Vector3): Vector3;
-    /**
-     * Expands the AABB to include a position from an array at the specified index.
-     *
-     * This is a more efficient way to add positions when working with packed
-     * vertex data or other array-based position representations.
-     *
-     * @param array - The array containing position data
-     * @param index - The starting index in the array (x, y, z values at index, index+1, index+2)
-     * @returns The input array for convenience
-     *
-     * @example
-     * ```typescript
-     * const positions = [1, 2, 3, 4, 5, 6]; // Two 3D positions
-     * const aabb = new AABB();
-     * aabb.addPositionWithArray(positions, 0); // Add position (1, 2, 3)
-     * aabb.addPositionWithArray(positions, 3); // Add position (4, 5, 6)
-     * ```
-     */
-    addPositionWithArray(array: number[], index: Index): number[];
-    /**
-     * Merges this AABB with another AABB to create a combined bounding volume.
-     *
-     * The resulting AABB will encompass both the original and the merged AABB.
-     * If either AABB is vanilla, special handling is applied.
-     *
-     * @param aabb - The AABB to merge with this one
-     * @returns True if the merge was successful, false if the input AABB is vanilla
-     *
-     * @example
-     * ```typescript
-     * const aabb1 = new AABB();
-     * const aabb2 = new AABB();
-     * aabb1.addPosition(Vector3.fromValues(0, 0, 0));
-     * aabb2.addPosition(Vector3.fromValues(5, 5, 5));
-     * aabb1.mergeAABB(aabb2); // aabb1 now encompasses both volumes
-     * ```
-     */
-    mergeAABB(aabb: AABB): boolean;
-    /**
-     * Gets the center point of the bounding box.
-     *
-     * The center point is calculated as the midpoint between the minimum and maximum points.
-     * This value is cached and only recalculated when the bounds change.
-     *
-     * @returns The center point of the AABB
-     *
-     * @example
-     * ```typescript
-     * const aabb = new AABB();
-     * aabb.minPoint = Vector3.fromValues(0, 0, 0);
-     * aabb.maxPoint = Vector3.fromValues(4, 6, 8);
-     * console.log(aabb.centerPoint); // Vector3(2, 3, 4)
-     * ```
-     */
-    get centerPoint(): MutableVector3;
-    /**
-     * Gets the distance from the center point to any corner of the bounding box.
-     *
-     * This represents the radius of a sphere that would completely contain the AABB
-     * when centered at the AABB's center point. Useful for sphere-based culling operations.
-     *
-     * @returns The distance from center to corner
-     *
-     * @example
-     * ```typescript
-     * const aabb = new AABB();
-     * aabb.minPoint = Vector3.fromValues(-1, -1, -1);
-     * aabb.maxPoint = Vector3.fromValues(1, 1, 1);
-     * console.log(aabb.lengthCenterToCorner); // sqrt(3) ≈ 1.732
-     * ```
-     */
-    get lengthCenterToCorner(): number;
-    /**
-     * Gets the width of the bounding box along the X-axis.
-     *
-     * @returns The difference between maximum and minimum X coordinates
-     *
-     * @example
-     * ```typescript
-     * const aabb = new AABB();
-     * aabb.minPoint = Vector3.fromValues(1, 0, 0);
-     * aabb.maxPoint = Vector3.fromValues(5, 0, 0);
-     * console.log(aabb.sizeX); // 4
-     * ```
-     */
-    get sizeX(): number;
-    /**
-     * Gets the height of the bounding box along the Y-axis.
-     *
-     * @returns The difference between maximum and minimum Y coordinates
-     *
-     * @example
-     * ```typescript
-     * const aabb = new AABB();
-     * aabb.minPoint = Vector3.fromValues(0, 2, 0);
-     * aabb.maxPoint = Vector3.fromValues(0, 8, 0);
-     * console.log(aabb.sizeY); // 6
-     * ```
-     */
-    get sizeY(): number;
-    /**
-     * Gets the depth of the bounding box along the Z-axis.
-     *
-     * @returns The difference between maximum and minimum Z coordinates
-     *
-     * @example
-     * ```typescript
-     * const aabb = new AABB();
-     * aabb.minPoint = Vector3.fromValues(0, 0, -2);
-     * aabb.maxPoint = Vector3.fromValues(0, 0, 3);
-     * console.log(aabb.sizeZ); // 5
-     * ```
-     */
-    get sizeZ(): number;
-    /**
-     * Transforms an AABB by a matrix and stores the result in an output AABB.
-     *
-     * This method transforms all 8 corners of the input AABB using the given matrix,
-     * then calculates the axis-aligned bounding box that encompasses all transformed corners.
-     * This is necessary because matrix transformations can rotate the AABB, requiring
-     * recalculation of the axis-aligned bounds.
-     *
-     * @param matrix - The transformation matrix to apply
-     * @param aabb - The source AABB to transform
-     * @param outAabb - The output AABB to store the result
-     * @returns The output AABB for method chaining
-     *
-     * @example
-     * ```typescript
-     * const matrix = Matrix44.rotateY(Math.PI / 4); // 45-degree rotation
-     * const sourceAABB = new AABB();
-     * const resultAABB = new AABB();
-     * sourceAABB.addPosition(Vector3.fromValues(1, 1, 1));
-     * AABB.multiplyMatrixTo(matrix, sourceAABB, resultAABB);
-     * ```
-     */
-    static multiplyMatrixTo(matrix: Matrix44, aabb: AABB, outAabb: AABB): AABB;
-    /**
-     * Returns a string representation of the AABB with full precision.
-     *
-     * Includes minimum and maximum points, center point, and center-to-corner distance.
-     *
-     * @returns A detailed string representation of the AABB
-     *
-     * @example
-     * ```typescript
-     * const aabb = new AABB();
-     * aabb.addPosition(Vector3.fromValues(1, 2, 3));
-     * console.log(aabb.toString());
-     * // Output: "AABB_min: (1, 2, 3)\nAABB_max: (1, 2, 3)\n..."
-     * ```
-     */
-    toString(): string;
-    /**
-     * Returns a string representation of the AABB with rounded numbers for readability.
-     *
-     * Similar to toString() but with approximate values that are easier to read.
-     * Useful for debugging and logging where exact precision is not required.
-     *
-     * @returns A string representation with approximated numeric values
-     *
-     * @example
-     * ```typescript
-     * const aabb = new AABB();
-     * aabb.addPosition(Vector3.fromValues(1.23456789, 2.3456789, 3.456789));
-     * console.log(aabb.toStringApproximately());
-     * // Output with rounded values for better readability
-     * ```
-     */
-    toStringApproximately(): string;
-}
-
-type BlockInfo = {
-    byteSize: number;
-    width: number;
-    height: number;
-};
-interface CompressionTextureTypeEnum extends EnumIO {
-    webgpu?: string;
-    blockInfo?: BlockInfo;
-}
-declare function from$p(index: number): CompressionTextureTypeEnum;
-declare function fromString$f(str: string): CompressionTextureTypeEnum;
-declare const CompressionTextureType: Readonly<{
-    ASTC_RGBA_4x4: CompressionTextureTypeEnum;
-    ASTC_RGBA_5x4: CompressionTextureTypeEnum;
-    ASTC_RGBA_5x5: CompressionTextureTypeEnum;
-    ASTC_RGBA_6x5: CompressionTextureTypeEnum;
-    ASTC_RGBA_6x6: CompressionTextureTypeEnum;
-    ASTC_RGBA_8x5: CompressionTextureTypeEnum;
-    ASTC_RGBA_8x6: CompressionTextureTypeEnum;
-    ASTC_RGBA_8x8: CompressionTextureTypeEnum;
-    ASTC_RGBA_10x5: CompressionTextureTypeEnum;
-    ASTC_RGBA_10x6: CompressionTextureTypeEnum;
-    ASTC_RGBA_10x8: CompressionTextureTypeEnum;
-    ASTC_RGBA_10x10: CompressionTextureTypeEnum;
-    ASTC_RGBA_12x10: CompressionTextureTypeEnum;
-    ASTC_RGBA_12x12: CompressionTextureTypeEnum;
-    ASTC_SRGB_4x4: CompressionTextureTypeEnum;
-    ASTC_SRGB_5x4: CompressionTextureTypeEnum;
-    ASTC_SRGB_5x5: CompressionTextureTypeEnum;
-    ASTC_SRGB_6x5: CompressionTextureTypeEnum;
-    ASTC_SRGB_6x6: CompressionTextureTypeEnum;
-    ASTC_SRGB_8x5: CompressionTextureTypeEnum;
-    ASTC_SRGB_8x6: CompressionTextureTypeEnum;
-    ASTC_SRGB_8x8: CompressionTextureTypeEnum;
-    ASTC_SRGB_10x5: CompressionTextureTypeEnum;
-    ASTC_SRGB_10x6: CompressionTextureTypeEnum;
-    ASTC_SRGB_10x8: CompressionTextureTypeEnum;
-    ASTC_SRGB_10x10: CompressionTextureTypeEnum;
-    ASTC_SRGB_12x10: CompressionTextureTypeEnum;
-    ASTC_SRGB_12x12: CompressionTextureTypeEnum;
-    S3TC_RGB_DXT1: CompressionTextureTypeEnum;
-    S3TC_RGBA_DXT1: CompressionTextureTypeEnum;
-    S3TC_RGBA_DXT3: CompressionTextureTypeEnum;
-    S3TC_RGBA_DXT5: CompressionTextureTypeEnum;
-    BPTC_RGBA: CompressionTextureTypeEnum;
-    PVRTC_RGBA_4BPPV1: CompressionTextureTypeEnum;
-    PVRTC_RGB_4BPPV1: CompressionTextureTypeEnum;
-    ETC2_RGBA8_EAC: CompressionTextureTypeEnum;
-    ETC2_RGB8: CompressionTextureTypeEnum;
-    ETC1_RGB: CompressionTextureTypeEnum;
-    RGBA8_EXT: CompressionTextureTypeEnum;
-    from: typeof from$p;
-    fromString: typeof fromString$f;
-}>;
-
-type HdriFormatEnum = EnumIO;
-declare function from$o(index: number): HdriFormatEnum;
-declare function fromString$e(str: string): HdriFormatEnum;
-declare const HdriFormat: Readonly<{
-    LDR_SRGB: EnumIO;
-    LDR_LINEAR: EnumIO;
-    HDR_LINEAR: EnumIO;
-    RGBE_PNG: EnumIO;
-    RGB9_E5_PNG: EnumIO;
-    OpenEXR: EnumIO;
-    from: typeof from$o;
-    fromString: typeof fromString$e;
-}>;
-
-type PixelFormatEnum = EnumIO;
-declare function getCompositionNumFromPixelFormat(pixelFormat: PixelFormatEnum): number;
-declare function from$n(index: number): PixelFormatEnum;
-declare const PixelFormat: Readonly<{
-    DepthComponent: EnumIO;
-    DepthStencil: EnumIO;
-    Alpha: EnumIO;
-    RG: EnumIO;
-    RGB: EnumIO;
-    RGBA: EnumIO;
-    Luminance: EnumIO;
-    LuminanceAlpha: EnumIO;
-    from: typeof from$n;
-    getCompositionNumFromPixelFormat: typeof getCompositionNumFromPixelFormat;
-}>;
-
-interface TextureFormatEnum extends EnumIO {
-    webgpu: string;
-}
-declare function getPixelFormatFromTextureFormat(textureFormat: TextureFormatEnum): PixelFormatEnum;
-declare function getPixelFormatAndComponentTypeFromTextureFormat(internalFormat: TextureFormatEnum): {
-    format: EnumIO;
-    type: ComponentTypeEnum;
-};
-declare function from$m(index: number): TextureFormatEnum;
-declare const TextureFormat: Readonly<{
-    RGB8: TextureFormatEnum;
-    RGBA8: TextureFormatEnum;
-    RGB10_A2: TextureFormatEnum;
-    RG16F: TextureFormatEnum;
-    RG32F: TextureFormatEnum;
-    RGB16F: TextureFormatEnum;
-    RGB32F: TextureFormatEnum;
-    RGBA16F: TextureFormatEnum;
-    RGBA32F: TextureFormatEnum;
-    R11F_G11F_B10F: TextureFormatEnum;
-    Depth16: TextureFormatEnum;
-    Depth24: TextureFormatEnum;
-    Depth32F: TextureFormatEnum;
-    Depth24Stencil8: TextureFormatEnum;
-    Depth32FStencil8: TextureFormatEnum;
-    getPixelFormatFromTextureFormat: typeof getPixelFormatFromTextureFormat;
-    getPixelFormatAndComponentTypeFromTextureFormat: typeof getPixelFormatAndComponentTypeFromTextureFormat;
-    from: typeof from$m;
-}>;
-
-interface TextureParameterEnum extends EnumIO {
-    webgpu: string;
-}
-declare function from$l(index: number): TextureParameterEnum;
-declare const TextureParameter: Readonly<{
-    Nearest: TextureParameterEnum;
-    Linear: TextureParameterEnum;
-    NearestMipmapNearest: TextureParameterEnum;
-    LinearMipmapNearest: TextureParameterEnum;
-    NearestMipmapLinear: TextureParameterEnum;
-    LinearMipmapLinear: TextureParameterEnum;
-    TextureMagFilter: TextureParameterEnum;
-    TextureMinFilter: TextureParameterEnum;
-    TextureWrapS: TextureParameterEnum;
-    TextureWrapT: TextureParameterEnum;
-    Texture2D: TextureParameterEnum;
-    Texture: TextureParameterEnum;
-    Texture0: TextureParameterEnum;
-    Texture1: TextureParameterEnum;
-    ActiveTexture: TextureParameterEnum;
-    Repeat: TextureParameterEnum;
-    ClampToEdge: TextureParameterEnum;
-    MirroredRepeat: TextureParameterEnum;
-    from: typeof from$l;
-}>;
-
-type ComponentChar = 'X' | 'Y' | 'Z' | 'W';
-type VertexAttributeTypeName = 'UNKNOWN' | 'POSITION' | 'NORMAL' | 'TANGENT' | 'TEXCOORD_0' | 'TEXCOORD_1' | 'TEXCOORD_2' | 'COLOR_0' | 'JOINTS_0' | 'WEIGHTS_0' | 'INSTANCE' | 'FACE_NORMAL' | 'BARY_CENTRIC_COORD';
-type VertexAttributeComponent = `${VertexAttributeTypeName}.${ComponentChar}`;
-type VertexAttributeSemanticsJoinedString = `${string}.${ComponentChar}` | `${string}.${ComponentChar},${string}.${ComponentChar}` | `${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar}` | `${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar}`;
-interface VertexAttributeEnum extends EnumIO {
-    getAttributeSlot(): Index;
-    shaderStr: string;
-    X: VertexAttributeComponent;
-    Y: VertexAttributeComponent;
-    Z: VertexAttributeComponent;
-    W: VertexAttributeComponent;
-    XY: VertexAttributeSemanticsJoinedString;
-    XYZ: VertexAttributeSemanticsJoinedString;
-    XYZW: VertexAttributeSemanticsJoinedString;
-}
-type VertexAttributeDescriptor = {
-    str: VertexAttributeTypeName;
-    shaderStr: string;
-    attributeSlot: Index;
-    gltfComponentN: Count;
-};
-declare class VertexAttributeClass extends EnumClass implements VertexAttributeEnum {
-    private static __indexCount;
-    private __attributeSlot;
-    private __shaderStr;
-    private __gltfComponentN;
-    private constructor();
-    getAttributeSlot(): Index;
-    get shaderStr(): string;
-    get attributeTypeName(): VertexAttributeTypeName;
-    _setShaderStr(str: string): void;
-    get X(): VertexAttributeComponent;
-    get Y(): VertexAttributeComponent;
-    get Z(): VertexAttributeComponent;
-    get W(): VertexAttributeComponent;
-    get XY(): VertexAttributeSemanticsJoinedString;
-    get XYZ(): VertexAttributeSemanticsJoinedString;
-    get XYZW(): VertexAttributeSemanticsJoinedString;
-    getVertexAttributeComponentsAsGltf(): VertexAttributeSemanticsJoinedString;
-    static __createVertexAttributeClass(desc: VertexAttributeDescriptor): VertexAttributeClass;
-}
-declare const Position: VertexAttributeEnum;
-declare const Normal: VertexAttributeEnum;
-declare const Tangent: VertexAttributeEnum;
-declare const Texcoord0: VertexAttributeEnum;
-declare const Texcoord1: VertexAttributeEnum;
-declare const Color0: VertexAttributeEnum;
-declare const Joints0: VertexAttributeEnum;
-declare const Weights0: VertexAttributeEnum;
-declare function isInstanceOfVertexAttributeClass(obj: unknown): obj is VertexAttributeClass;
-declare function from$k(index: number): VertexAttributeEnum;
-declare function fromString$d(str: string): VertexAttributeEnum;
-type Gltf2VertexAttributeEnums = typeof Position | typeof Color0 | typeof Normal | typeof Tangent | typeof Texcoord0 | typeof Texcoord1 | typeof Joints0 | typeof Weights0;
-declare function toVertexAttributeSemanticJoinedStringAsGltfStyle(attribute: Gltf2VertexAttributeEnums): VertexAttributeSemanticsJoinedString;
-declare function toAttributeSlotFromJoinedString(str: VertexAttributeSemanticsJoinedString): Index;
-declare function toVectorComponentN(joinedString: VertexAttributeSemanticsJoinedString): VectorComponentN;
-declare const VertexAttribute: Readonly<{
-    Unknown: VertexAttributeEnum;
-    Position: VertexAttributeEnum;
-    Normal: VertexAttributeEnum;
-    Tangent: VertexAttributeEnum;
-    Texcoord0: VertexAttributeEnum;
-    Texcoord1: VertexAttributeEnum;
-    Color0: VertexAttributeEnum;
-    Joints0: VertexAttributeEnum;
-    Weights0: VertexAttributeEnum;
-    Instance: VertexAttributeEnum;
-    FaceNormal: VertexAttributeEnum;
-    BaryCentricCoord: VertexAttributeEnum;
-    AttributeTypeNumber: number;
-    isInstanceOfVertexAttributeClass: typeof isInstanceOfVertexAttributeClass;
-    toVertexAttributeSemanticJoinedStringAsGltfStyle: typeof toVertexAttributeSemanticJoinedStringAsGltfStyle;
-    toAttributeSlotFromJoinedString: typeof toAttributeSlotFromJoinedString;
-    toVectorComponentN: typeof toVectorComponentN;
-    from: typeof from$k;
-    fromString: typeof fromString$d;
-}>;
-
-interface RenderBufferTargetEnum extends EnumIO {
-    webGLConstantValue(): number;
-}
-declare function from$j(index: number): RenderBufferTargetEnum;
-declare const RenderBufferTarget: Readonly<{
-    None: RenderBufferTargetEnum;
-    Back: RenderBufferTargetEnum;
-    ColorAttachment0: RenderBufferTargetEnum;
-    ColorAttachment1: RenderBufferTargetEnum;
-    ColorAttachment2: RenderBufferTargetEnum;
-    ColorAttachment3: RenderBufferTargetEnum;
-    ColorAttachment4: RenderBufferTargetEnum;
-    ColorAttachment5: RenderBufferTargetEnum;
-    ColorAttachment6: RenderBufferTargetEnum;
-    ColorAttachment7: RenderBufferTargetEnum;
-    ColorAttachment8: RenderBufferTargetEnum;
-    ColorAttachment9: RenderBufferTargetEnum;
-    ColorAttachment10: RenderBufferTargetEnum;
-    ColorAttachment11: RenderBufferTargetEnum;
-    ColorAttachment12: RenderBufferTargetEnum;
-    ColorAttachment13: RenderBufferTargetEnum;
-    ColorAttachment14: RenderBufferTargetEnum;
-    ColorAttachment15: RenderBufferTargetEnum;
-    from: typeof from$j;
-}>;
-
-type WebGLExtensionEnum = EnumIO;
-declare function from$i({ index }: {
-    index: number;
-}): WebGLExtensionEnum;
-declare const WebGLExtension: Readonly<{
-    VertexArrayObject: EnumIO;
-    TextureFloat: EnumIO;
-    TextureHalfFloat: EnumIO;
-    TextureFloatLinear: EnumIO;
-    TextureHalfFloatLinear: EnumIO;
-    InstancedArrays: EnumIO;
-    TextureFilterAnisotropic: EnumIO;
-    ElementIndexUint: EnumIO;
-    ShaderTextureLod: EnumIO;
-    ShaderDerivatives: EnumIO;
-    DrawBuffers: EnumIO;
-    BlendMinmax: EnumIO;
-    ColorBufferFloatWebGL1: EnumIO;
-    CompressedTextureAstc: EnumIO;
-    CompressedTextureS3tc: EnumIO;
-    CompressedTexturePvrtc: EnumIO;
-    CompressedTextureAtc: EnumIO;
-    CompressedTextureEtc: EnumIO;
-    CompressedTextureEtc1: EnumIO;
-    CompressedTextureBptc: EnumIO;
-    ColorBufferFloatWebGL2: EnumIO;
-    ColorBufferHalfFloatWebGL2: EnumIO;
-    OculusMultiview: EnumIO;
-    OvrMultiview2: EnumIO;
-    GMAN_WEBGL_MEMORY: EnumIO;
-    ClipControl: EnumIO;
-    from: typeof from$i;
-}>;
-
-interface WEBGL_compressed_texture_etc {
-    readonly COMPRESSED_RGBA8_ETC2_EAC: number;
-}
-interface WEBGL_compressed_texture_bptc {
-    readonly COMPRESSED_RGBA_BPTC_UNORM_EXT: number;
-}
-interface WEBGL_multiview {
-    framebufferTextureMultiviewOVR(target: number, attachment: number, texture: WebGLTexture, level: number, baseViewIndex: number, numViews: number): void;
-    framebufferTextureMultisampleMultiviewOVR(target: number, attachment: number, texture: WebGLTexture, level: number, samples: number, baseViewIndex: number, numViews: number): void;
-    is_multisample: boolean;
-}
-/**
- * A wrapper class for WebGL context that provides enhanced functionality and state management.
- * This class handles WebGL state optimization, extension management, and provides convenience methods
- * for common WebGL operations while maintaining compatibility with both WebGL1 and WebGL2.
- */
-declare class WebGLContextWrapper {
-    #private;
-    __gl: WebGL2RenderingContext;
-    __webglVersion: number;
-    width: Size;
-    height: Size;
-    readonly canvas: HTMLCanvasElement;
-    readonly webgl1ExtVAO?: OES_vertex_array_object;
-    readonly webgl1ExtIA?: ANGLE_instanced_arrays;
-    readonly webgl1ExtTF?: OES_texture_float;
-    readonly webgl1ExtTHF?: OES_texture_half_float;
-    readonly webgl1ExtTFL?: OES_texture_float_linear;
-    readonly webgl1ExtTHFL?: OES_texture_half_float_linear;
-    readonly webgl1ExtTFA?: EXT_texture_filter_anisotropic;
-    readonly webgl1ExtEIUI?: OES_element_index_uint;
-    readonly webgl1ExtSTL?: EXT_shader_texture_lod;
-    readonly webgl1ExtDRV?: OES_standard_derivatives;
-    readonly webgl1ExtDB?: WEBGL_draw_buffers;
-    readonly webgl1ExtBM?: EXT_blend_minmax;
-    readonly webgl1ExtCBF?: WEBGL_color_buffer_float;
-    readonly webgl1ExtCTAstc?: WEBGL_compressed_texture_astc;
-    readonly webgl1ExtCTS3tc?: WEBGL_compressed_texture_s3tc;
-    readonly webgl1ExtCTPvrtc?: WEBKIT_WEBGL_compressed_texture_pvrtc;
-    readonly webgl1ExtCTAtc?: WEBGL_compressed_texture_atc;
-    readonly webgl1ExtCTEtc?: WEBGL_compressed_texture_etc;
-    readonly webgl1ExtCTEtc1?: WEBGL_compressed_texture_etc1;
-    readonly webgl1ExtCTBptc?: WEBGL_compressed_texture_bptc;
-    readonly webgl2ExtTFL?: OES_texture_float_linear;
-    readonly webgl2ExtTHFL?: OES_texture_half_float_linear;
-    readonly webgl2ExtTFA?: EXT_texture_filter_anisotropic;
-    readonly webgl2ExtCBF?: EXT_color_buffer_float;
-    readonly webgl2ExtCBHF?: EXT_color_buffer_half_float;
-    readonly webgl2ExtCTAstc?: WEBGL_compressed_texture_astc;
-    readonly webgl2ExtCTS3tc?: WEBGL_compressed_texture_s3tc;
-    readonly webgl2ExtCTPvrtc?: WEBKIT_WEBGL_compressed_texture_pvrtc;
-    readonly webgl2ExtCTAtc?: WEBGL_compressed_texture_atc;
-    readonly webgl2ExtCTEtc?: WEBGL_compressed_texture_etc;
-    readonly webgl2ExtCTEtc1?: WEBGL_compressed_texture_etc1;
-    readonly webgl2ExtCTBptc?: WEBGL_compressed_texture_bptc;
-    readonly webgl2ExtMLTVIEW?: WEBGL_multiview;
-    readonly webgl2ExtClipCtrl?: any;
-    readonly webgl2ExtGmanWM?: any;
-    private __activeTextureBackup;
-    private __activeTextures2D;
-    private __activeTextures2DArray;
-    private __activeTexturesCube;
-    private __boundTextures;
-    private __boundSamplers;
-    private __viewport_left;
-    private __viewport_top;
-    private __viewport_width;
-    private __viewport_height;
-    private __default_viewport_left;
-    private __default_viewport_top;
-    private __default_viewport_width;
-    private __default_viewport_height;
-    private __maxVertexUniformVectors;
-    private __maxFragmentUniformVectors;
-    private readonly __is_multiview;
-    _isWebXRMode: boolean;
-    __extensions: Map<WebGLExtensionEnum, WebGLObject>;
-    /**
-     * Creates a new WebGLContextWrapper instance.
-     * @param gl - The WebGL2 rendering context to wrap
-     * @param canvas - The HTML canvas element associated with the context
-     */
-    constructor(gl: WebGL2RenderingContext, canvas: HTMLCanvasElement);
-    /**
-     * Gets the raw WebGL rendering context.
-     * @returns The underlying WebGL context (WebGL1 or WebGL2)
-     */
-    getRawContext(): WebGLRenderingContext | WebGL2RenderingContext;
-    /**
-     * Gets the raw WebGL context cast as WebGL1.
-     * @returns The underlying WebGL context as WebGL1 type
-     */
-    getRawContextAsWebGL1(): WebGLRenderingContext;
-    /**
-     * Gets the raw WebGL context cast as WebGL2.
-     * @returns The underlying WebGL context as WebGL2 type
-     */
-    getRawContextAsWebGL2(): WebGL2RenderingContext;
-    /**
-     * Gets the current viewport settings.
-     * @returns A Vector4 containing viewport left, top, width, and height
-     */
-    get viewport(): Vector4;
-    /**
-     * Gets the default viewport settings.
-     * @returns A Vector4 containing default viewport left, top, width, and height
-     */
-    get defaultViewport(): Vector4;
-    /**
-     * Checks if a WebGL1 extension is supported.
-     * @param webGLExtension - The WebGL extension to check
-     * @returns True if the extension is supported, false otherwise
-     */
-    isSupportWebGL1Extension(webGLExtension: WebGLExtensionEnum): boolean;
-    /**
-     * Checks if a WebGL1 extension is not supported.
-     * @param webGLExtension - The WebGL extension to check
-     * @returns True if the extension is not supported, false otherwise
-     */
-    isNotSupportWebGL1Extension(webGLExtension: WebGLExtensionEnum): boolean;
-    /**
-     * Type guard to check if the context is WebGL2.
-     * @param gl - The WebGL context to check
-     * @returns True if the context is WebGL2, false otherwise
-     */
-    getIsWebGL2(gl: WebGLRenderingContext | WebGL2RenderingContext): gl is WebGL2RenderingContext;
-    /**
-     * Checks if the current context is WebGL2.
-     * @returns True if WebGL2, false if WebGL1
-     */
-    get isWebGL2(): boolean;
-    /**
-     * Creates a new vertex array object.
-     * @returns A new WebGL vertex array object
-     */
-    createVertexArray(): WebGLVertexArrayObject;
-    /**
-     * Deletes a vertex array object.
-     * @param vertexArray - The vertex array object to delete
-     */
-    deleteVertexArray(vertexArray: WebGLVertexArrayObject | WebGLVertexArrayObjectOES): void;
-    /**
-     * Binds a vertex array object.
-     * @param vao - The vertex array object to bind, or null to unbind
-     */
-    bindVertexArray(vao: WebGLVertexArrayObjectOES | null): void;
-    /**
-     * Sets the divisor for instanced rendering for a vertex attribute.
-     * @param index - The index of the vertex attribute
-     * @param divisor - The divisor value (0 for per-vertex, 1+ for per-instance)
-     */
-    vertexAttribDivisor(index: number, divisor: number): void;
-    /**
-     * Draws elements with instancing support.
-     * @param primitiveMode - The primitive mode (GL_TRIANGLES, etc.)
-     * @param indexCount - The number of indices to draw
-     * @param type - The type of the index values
-     * @param offset - The offset in the index buffer
-     * @param instanceCount - The number of instances to draw
-     */
-    drawElementsInstanced(primitiveMode: number, indexCount: number, type: number, offset: number, instanceCount: number): void;
-    /**
-     * Draws arrays with instancing support.
-     * @param primitiveMode - The primitive mode (GL_TRIANGLES, etc.)
-     * @param first - The starting index in the enabled arrays
-     * @param count - The number of vertices to draw
-     * @param instanceCount - The number of instances to draw
-     */
-    drawArraysInstanced(primitiveMode: number, first: number, count: number, instanceCount: number): void;
-    /**
-     * Gets the color attachment constant for a given index.
-     * @param index - The attachment index
-     * @returns The WebGL color attachment constant
-     */
-    colorAttachment(index: Index): number;
-    /**
-     * Sets the draw buffers for multiple render targets.
-     * @param buffers - Array of render buffer targets to draw to
-     */
-    drawBuffers(buffers: RenderBufferTargetEnum[]): void;
-    /**
-     * Activates a texture unit for subsequent texture operations.
-     * Optimized to avoid redundant state changes.
-     * @param activeTextureIndex - The texture unit index to activate
-     */
-    private __activeTexture;
-    /**
-     * Binds a 2D texture to a specific texture unit.
-     * Optimized to avoid redundant state changes.
-     * @param activeTextureIndex - The texture unit index
-     * @param texture - The 2D texture to bind
-     */
-    bindTexture2D(activeTextureIndex: Index, texture: WebGLTexture): void;
-    /**
-     * Binds a 2D array texture to a specific texture unit.
-     * Optimized to avoid redundant state changes.
-     * @param activeTextureIndex - The texture unit index
-     * @param texture - The 2D array texture to bind
-     */
-    bindTexture2DArray(activeTextureIndex: Index, texture: WebGLTexture): void;
-    /**
-     * Binds a sampler object to a specific texture unit.
-     * Optimized to avoid redundant state changes.
-     * @param activeTextureIndex - The texture unit index
-     * @param sampler - The sampler object to bind
-     */
-    bindTextureSampler(activeTextureIndex: Index, sampler: WebGLSampler): void;
-    /**
-     * Binds a cube map texture to a specific texture unit.
-     * Optimized to avoid redundant state changes.
-     * @param activeTextureIndex - The texture unit index
-     * @param texture - The cube map texture to bind
-     */
-    bindTextureCube(activeTextureIndex: Index, texture: WebGLTexture): void;
-    /**
-     * Unbinds a 2D texture from a specific texture unit.
-     * @param activeTextureIndex - The texture unit index
-     */
-    unbindTexture2D(activeTextureIndex: Index): void;
-    /**
-     * Unbinds a 2D array texture from a specific texture unit.
-     * @param activeTextureIndex - The texture unit index
-     */
-    unbindTexture2DArray(activeTextureIndex: Index): void;
-    /**
-     * Unbinds a cube map texture from a specific texture unit.
-     * @param activeTextureIndex - The texture unit index
-     */
-    unbindTextureCube(activeTextureIndex: Index): void;
-    /**
-     * Unbinds all currently bound textures from all texture units.
-     * This is useful for cleanup operations.
-     */
-    unbindTextures(): void;
-    /**
-     * Gets a WebGL extension and caches it for future use.
-     * @param extension - The extension to retrieve
-     * @returns The extension object or null if not available
-     */
-    private __getExtension;
-    /**
-     * Gets a compressed texture extension with vendor prefix support.
-     * @param extension - The compressed texture extension to retrieve
-     * @returns The extension object or null if not available
-     */
-    private __getCompressedTextureExtension;
-    /**
-     * Sets the viewport with optimization to avoid redundant state changes.
-     * @param left - Left coordinate of the viewport
-     * @param top - Top coordinate of the viewport
-     * @param width - Width of the viewport
-     * @param height - Height of the viewport
-     */
-    setViewport(left: number, top: number, width: number, height: number): void;
-    /**
-     * Sets the viewport using a Vector4 with optimization to avoid redundant state changes.
-     * @param viewport - Vector4 containing left, top, width, and height
-     */
-    setViewportAsVector4(viewport: Vector4): void;
-    /**
-     * Retrieves and caches uniform buffer information for WebGL2.
-     * This includes alignment requirements and size limits.
-     */
-    private __getUniformBufferInfo;
-    /**
-     * Retrieves and caches the maximum number of uniform vectors for vertex and fragment shaders.
-     */
-    private __getMaxUniformVectors;
-    /**
-     * Gets the maximum number of uniform blocks that can be used in both vertex and fragment shaders.
-     * @returns The minimum of vertex and fragment shader uniform block limits
-     */
-    getMaxConventionUniformBlocks(): number;
-    /**
-     * Gets the maximum uniform block size aligned to the required offset alignment.
-     * @returns The aligned maximum uniform block size in bytes
-     */
-    getAlignedMaxUniformBlockSize(): number;
-    /**
-     * Gets the maximum number of uniform vectors available in vertex shaders.
-     * @returns The maximum vertex uniform vectors
-     */
-    getMaxVertexUniformVectors(): number;
-    /**
-     * Gets the maximum number of uniform vectors available in fragment shaders.
-     * @returns The maximum fragment uniform vectors
-     */
-    getMaxFragmentUniformVectors(): number;
-    /**
-     * Gets WebGL memory usage information if the GMAN_WEBGL_MEMORY extension is available.
-     * @returns Memory information object or undefined if extension is not available
-     */
-    getWebGLMemoryInfo(): any;
-    /**
-     * Checks if multiview rendering is supported and enabled.
-     * @returns True if multiview is available and enabled for WebVR
-     */
-    isMultiview(): boolean;
-}
-
-type ShaderSources = {
-    vertex: string;
-    pixel: string;
-};
-interface WebGLStrategy {
-    attachGPUData(primitive: Primitive): void;
-    attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
-    setupShaderForMaterial(material: Material, primitive: Primitive): CGAPIResourceHandle;
-    _reSetupShaderForMaterialBySpector(material: Material, primitive: Primitive, updatedShaderSources: ShaderSources, onError: (message: string) => void): CGAPIResourceHandle;
-}
-
-/**
- * Result of a basic raycast operation against geometry.
- */
-interface RaycastResult {
-    result: boolean;
-    data?: {
-        t: number;
-        u: number;
-        v: number;
-    };
-}
-/**
- * Extended raycast result that includes the intersection position in world space.
- */
-interface RaycastResultEx1 {
-    result: boolean;
-    data?: {
-        t: number;
-        u: number;
-        v: number;
-        position: IVector3;
-    };
-}
-/**
- * Extended raycast result that includes the intersection position and the selected mesh component.
- */
-interface RaycastResultEx2 {
-    result: boolean;
-    data?: {
-        t: number;
-        u: number;
-        v: number;
-        position: IVector3;
-        selectedMeshComponent: MeshComponent;
-    };
-}
-/**
- * Primitive sort key used for depth sorting and rendering order optimization.
- *
- * See: http://realtimecollisiondetection.net/blog/?p=86
- *
- * Bit Field Layout:
- * --- 0
- *  3 bits: Primitive Type (0: POINTS, 1: LINES, 2: LINE_LOOP, 3: LINE_STRIP, 4: TRIANGLES, 5: TRIANGLE_STRIP, 6: TRIANGLE_FAN)
- * 10 bits: Material TID
- *  2 bits: Translucency type (0: Opaque, 1: Translucent, 2: Blend with ZWrite, 3: Blend without ZWrite
- *  3 bits: Viewport layer
- *  3 bits: Viewport
- *  2 bits: Fullscreen layer
- * --- 31
- *
- * Depth Field:
- * 32 bits: Depth
- */
-type PrimitiveSortKey = number;
-declare const PrimitiveSortKey_BitLength_TranslucencyType = 2;
-declare const PrimitiveSortKey_BitLength_Material = 10;
-declare const PrimitiveSortKey_BitLength_PrimitiveType = 3;
-declare const PrimitiveSortKey_BitOffset_PrimitiveType = 0;
-declare const PrimitiveSortKey_BitOffset_Material = 3;
-declare const PrimitiveSortKey_BitOffset_TranslucencyType: number;
-declare const PrimitiveSortKey_BitOffset_ViewportLayer: number;
-type PrimitiveSortKeyLength = typeof PrimitiveSortKey_BitLength_Material | typeof PrimitiveSortKey_BitLength_TranslucencyType | typeof PrimitiveSortKey_BitLength_PrimitiveType;
-type PrimitiveSortKeyOffset = typeof PrimitiveSortKey_BitOffset_Material | typeof PrimitiveSortKey_BitOffset_TranslucencyType | typeof PrimitiveSortKey_BitOffset_ViewportLayer;
-declare const PrimitiveSortKey_BitLength_Depth = 32;
-/**
- * Interface representing a mesh with a unique identifier.
- */
-interface IMesh {
-    meshUID: MeshUID;
-}
-/**
- * Checks if the primitive uses blending (either with or without Z-write).
- * @param primitive - The primitive to check
- * @returns True if the primitive uses blending, false otherwise
- */
-declare function isBlend(primitive: Primitive): boolean;
-/**
- * Checks if the primitive uses blending with Z-write enabled.
- * @param primitive - The primitive to check
- * @returns True if the primitive uses blending with Z-write, false otherwise
- */
-declare function isBlendWithZWrite(primitive: Primitive): boolean;
-/**
- * Checks if the primitive uses blending without Z-write (depth writing disabled).
- * @param primitive - The primitive to check
- * @returns True if the primitive uses blending without Z-write, false otherwise
- */
-declare function isBlendWithoutZWrite(primitive: Primitive): boolean;
-/**
- * Checks if the primitive is translucent (partially transparent).
- * @param primitive - The primitive to check
- * @returns True if the primitive is translucent, false otherwise
- */
-declare function isTranslucent(primitive: Primitive): boolean;
-/**
- * Checks if the primitive is opaque (fully solid, not transparent).
- * @param primitive - The primitive to check
- * @returns True if the primitive is opaque, false otherwise
- */
-declare function isOpaque(primitive: Primitive): boolean;
-
-/**
  * Immutable 3x3 matrix class for 3D transformations.
  * Matrix values are stored in column-major order for WebGL compatibility.
  * Provides various matrix operations including rotation, scaling, and multiplication.
@@ -13751,7 +13707,7 @@ declare class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutab
      * Gets the raw Float32Array containing the matrix data.
      * @returns The underlying Float32Array in column-major order
      */
-    raw(): Float32Array<ArrayBufferLike>;
+    raw(): Float32Array;
     /**
      * Sets a value at the specified row and column position.
      * @param row_i - The row index (0-2)
@@ -13759,7 +13715,7 @@ declare class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutab
      * @param value - The value to set
      * @returns This matrix instance for method chaining
      */
-    setAt(row_i: number, column_i: number, value: number): this;
+    setAt(row_i: number, column_i: number, value: number): MutableMatrix33;
     /**
      * Sets all matrix components using row-major order parameters.
      * @param m00 - Element at position (0,0)
@@ -13780,7 +13736,7 @@ declare class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutab
      * @param mat - The source matrix to copy from
      * @returns This matrix instance for method chaining
      */
-    copyComponents(mat: IMatrix33 | IMatrix44): this;
+    copyComponents(mat: IMatrix33 | IMatrix44): MutableMatrix33;
     /**
      * Sets this matrix to the zero matrix (all elements set to 0).
      * @returns This matrix instance for method chaining
@@ -13802,7 +13758,7 @@ declare class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutab
      * Transposes this matrix in place.
      * @returns This matrix instance for method chaining
      */
-    transpose(): this;
+    transpose(): MutableMatrix33;
     /**
      * Inverts this matrix in place using the determinant method.
      * Logs an error if the determinant is 0 (matrix is not invertible).
@@ -13841,34 +13797,34 @@ declare class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutab
      * @param vec - A vector containing rotation angles for X, Y, and Z axes in radians
      * @returns This matrix instance for method chaining
      */
-    rotate(vec: Vector3): MutableMatrix33;
+    rotate(vec: IVector3): MutableMatrix33;
     /**
      * Sets this matrix to a scaling matrix.
      * @param vec - A vector containing scale factors for X, Y, and Z axes
      * @returns This matrix instance for method chaining
      */
-    scale(vec: Vector3): MutableMatrix33;
+    scale(vec: IVector3): MutableMatrix33;
     /**
      * Multiplies this matrix by a scale matrix, applying scaling to the existing transformation.
      * Each column of the matrix is scaled by the corresponding component of the vector.
      * @param vec - A vector containing scale factors for X, Y, and Z axes
      * @returns This matrix instance for method chaining
      */
-    multiplyScale(vec: Vector3): this;
+    multiplyScale(vec: IVector3): MutableMatrix33;
     /**
      * Multiplies this matrix by another matrix from the right side (this = this * mat).
      * If the input matrix is an identity matrix, no operation is performed for optimization.
      * @param mat - The matrix to multiply with from the right
      * @returns This matrix instance for method chaining
      */
-    multiply(mat: Matrix33): MutableMatrix33;
+    multiply(mat: IMatrix33): MutableMatrix33;
     /**
      * Multiplies this matrix by another matrix from the left side (this = mat * this).
      * If the input matrix is an identity matrix, no operation is performed for optimization.
      * @param mat - The matrix to multiply with from the left
      * @returns This matrix instance for method chaining
      */
-    multiplyByLeft(mat: Matrix33): MutableMatrix33;
+    multiplyByLeft(mat: IMatrix33): MutableMatrix33;
     /**
      * Creates a new matrix from 9 values specified in row-major order.
      * This is more intuitive when writing matrix values as they appear visually.
@@ -13904,7 +13860,7 @@ declare class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutab
      * @param mat - The 4x4 matrix to copy from
      * @returns A new MutableMatrix33 instance
      */
-    static fromCopyMatrix44(mat: Matrix44): MutableMatrix33;
+    static fromCopyMatrix44(mat: IMatrix44): MutableMatrix33;
     /**
      * Creates a new matrix using the provided Float32Array directly (no copy).
      * The array should contain 9 elements in column-major order.
@@ -14110,14 +14066,14 @@ declare class MutableQuaternion extends Quaternion implements IMutableQuaternion
      * Gets the raw Float32Array containing the quaternion components.
      * @returns The underlying Float32Array [x, y, z, w]
      */
-    raw(): Float32Array<ArrayBufferLike>;
+    raw(): Float32Array;
     /**
      * Sets a component value at the specified index.
      * @param i - The component index (0=x, 1=y, 2=z, 3=w)
      * @param value - The value to set
      * @returns This instance for method chaining
      */
-    setAt(i: number, value: number): this;
+    setAt(i: number, value: number): MutableQuaternion;
     /**
      * Sets all quaternion components.
      * @param x - The x component
@@ -14126,28 +14082,28 @@ declare class MutableQuaternion extends Quaternion implements IMutableQuaternion
      * @param w - The w component
      * @returns This instance for method chaining
      */
-    setComponents(x: number, y: number, z: number, w: number): this;
+    setComponents(x: number, y: number, z: number, w: number): MutableQuaternion;
     /**
      * Copies components from another quaternion.
      * @param quat - The quaternion to copy from
      * @returns This instance for method chaining
      */
-    copyComponents(quat: IQuaternion): this;
+    copyComponents(quat: IQuaternion): MutableQuaternion;
     /**
      * Sets this quaternion to the identity quaternion (0, 0, 0, 1).
      * @returns This instance for method chaining
      */
-    identity(): this;
+    identity(): MutableQuaternion;
     /**
      * Normalizes this quaternion to unit length in place.
      * @returns This instance for method chaining
      */
-    normalize(): this;
+    normalize(): MutableQuaternion;
     /**
      * Inverts this quaternion in place (conjugate divided by magnitude squared).
      * @returns This instance for method chaining
      */
-    invert(): this;
+    invert(): MutableQuaternion;
     /**
      * Performs spherical linear interpolation (SLERP) and stores the result in this quaternion.
      * @param l_quat - The starting quaternion
@@ -14155,7 +14111,7 @@ declare class MutableQuaternion extends Quaternion implements IMutableQuaternion
      * @param ratio - Interpolation factor (0.0 to 1.0)
      * @returns This instance for method chaining
      */
-    qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): this;
+    qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): MutableQuaternion;
     /**
      * Performs linear interpolation and stores the result in this quaternion.
      * @param l_quat - The starting quaternion
@@ -14163,63 +14119,63 @@ declare class MutableQuaternion extends Quaternion implements IMutableQuaternion
      * @param ratio - Interpolation factor (0.0 to 1.0)
      * @returns This instance for method chaining
      */
-    lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): this;
+    lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): MutableQuaternion;
     /**
      * Sets this quaternion from an axis and angle.
      * @param vec - The rotation axis (will be normalized)
      * @param radian - The rotation angle in radians
      * @returns This instance for method chaining
      */
-    axisAngle(vec: IVector3, radian: number): this;
+    axisAngle(vec: IVector3, radian: number): MutableQuaternion;
     /**
      * Sets this quaternion from a 4x4 transformation matrix.
      * Extracts the rotation component from the matrix, ignoring scale and translation.
      * @param mat - The 4x4 transformation matrix
      * @returns This instance for method chaining
      */
-    fromMatrix(mat: IMatrix44): this;
+    fromMatrix(mat: IMatrix44): MutableQuaternion;
     /**
      * Sets this quaternion from a position vector (w component set to 0).
      * @param vec - The position vector
      * @returns This instance for method chaining
      */
-    fromPosition(vec: IVector3): this;
+    fromPosition(vec: IVector3): MutableQuaternion;
     /**
      * Adds another quaternion to this quaternion component-wise.
      * @param quat - The quaternion to add
      * @returns This instance for method chaining
      */
-    add(quat: IQuaternion): this;
+    add(quat: IQuaternion): MutableQuaternion;
     /**
      * Subtracts another quaternion from this quaternion component-wise.
      * @param quat - The quaternion to subtract
      * @returns This instance for method chaining
      */
-    subtract(quat: IQuaternion): this;
+    subtract(quat: IQuaternion): MutableQuaternion;
     /**
      * Multiplies this quaternion by another quaternion (quaternion composition).
      * The result represents the combined rotation.
      * @param quat - The quaternion to multiply by
      * @returns This instance for method chaining
      */
-    multiply(quat: IQuaternion): this;
+    multiply(quat: IQuaternion): MutableQuaternion;
     /**
      * Multiplies this quaternion by a scalar value.
      * @param value - The scalar value to multiply by
      * @returns This instance for method chaining
      */
-    multiplyNumber(value: number): this;
+    multiplyNumber(value: number): MutableQuaternion;
     /**
      * Divides this quaternion by a scalar value.
      * @param value - The scalar value to divide by (must not be zero)
      * @returns This instance for method chaining
      */
-    divideNumber(value: number): this;
+    divideNumber(value: number): MutableQuaternion;
     /**
      * Creates a copy of this quaternion.
      * @returns A new IMutableQuaternion with the same component values
      */
-    clone(): IMutableQuaternion;
+    clone(): MutableQuaternion;
     /**
      * Creates a MutableQuaternion from an existing Float32Array.
      * @param array - The Float32Array containing quaternion components
@@ -14533,7 +14489,7 @@ declare class SceneGraphComponent extends Component {
      * @param localPosition - The position in local space
      * @returns The position in world space
      */
-    getWorldPositionOf(localPosition: Vector3): IVector3;
+    getWorldPositionOf(localPosition: Vector3): Vector3;
     /**
      * Transforms a local position to world space and stores the result in the output vector.
      * @param localPosition - The position in local space
@@ -27076,31 +27032,31 @@ declare class IdentityMatrix33 extends AbstractMatrix implements IMatrix, IMatri
      * @param outVec - The output vector to store the result
      * @returns The output vector containing the result
      */
-    multiplyVectorTo(vec: IVector, outVec: IMutableVector): IMutableVector;
+    multiplyVectorTo(vec: IVector, outVec: MutableVector3): MutableVector3;
     /**
      * Gets the scale components from this matrix.
      * For identity matrix, all scale components are 1.
      * @returns A Vector3 with components [1, 1, 1]
      */
-    getScale(): IVector;
+    getScale(): Vector3;
     /**
      * Gets the scale components from this matrix and stores them in an output vector.
      * For identity matrix, all scale components are 1.
      * @param outVec - The output vector to store the scale values
      * @returns The output vector containing [1, 1, 1]
      */
-    getScaleTo(outVec: IMutableVector): IMutableVector;
+    getScaleTo(outVec: MutableVector3): MutableVector3;
     /**
      * Creates a copy of this identity matrix.
      * @returns A new IdentityMatrix33 instance
      */
-    clone(): IMatrix33;
+    clone(): IdentityMatrix33;
     /**
      * Extracts the rotation part of this matrix.
      * For identity matrix, the rotation is also identity (no rotation).
      * @returns A new IdentityMatrix33 instance representing no rotation
      */
-    getRotate(): IMatrix33;
+    getRotate(): IdentityMatrix33;
     /** Gets the matrix element at row 0, column 0 */
     get m00(): number;
     /** Gets the matrix element at row 1, column 0 */
@@ -27136,29 +27092,7 @@ declare class IdentityMatrix33 extends AbstractMatrix implements IMatrix, IMatri
     /** Gets the class name for debugging and reflection purposes */
     get className(): string;
     /** Gets the composition type for this matrix class */
-    static get compositionType(): {
-        readonly __numberOfComponents: number;
-        readonly __glslStr: string;
-        readonly __hlslStr: string;
-        readonly __webgpuStr: string;
-        readonly __wgslStr: string;
-        readonly __isArray: boolean;
-        readonly __vec4SizeOfProperty: IndexOf16Bytes;
-        readonly __dummyStr: "MAT3";
-        readonly webgpu: string;
-        readonly wgsl: string;
-        getNumberOfComponents(): Count;
-        getGlslStr(componentType: ComponentTypeEnum): string;
-        getGlslInitialValue(componentType: ComponentTypeEnum): string;
-        getWgslInitialValue(componentType: ComponentTypeEnum): string;
-        toWGSLType(componentType: ComponentTypeEnum): string;
-        getVec4SizeOfProperty(): IndexOf16Bytes;
-        readonly index: number;
-        readonly symbol: symbol;
-        readonly str: string;
-        toString(): string;
-        toJSON(): number;
-    };
+    static get compositionType(): CompositionTypeEnum;
     /** Indicates that this is an identity matrix class implementation */
     get isIdentityMatrixClass(): boolean;
 }
@@ -27267,7 +27201,7 @@ declare class MathClassUtil {
      * @param element - Array of numbers to convert
      * @returns Matrix44, Matrix33, Vector4, Vector3, or Vector2 instance based on array length, or the original element if not an array
      */
-    static arrayToVectorOrMatrix(element: Array<number>): Vector4 | Matrix44 | Vector3 | Matrix33 | Vector2;
+    static arrayToVectorOrMatrix(element: Array<number>): Vector4 | Vector3 | Matrix44 | Matrix33 | Vector2;
     /**
      * Gets the immutable value class constructor for a given composition type.
      * @param compositionType - The composition type enum value
@@ -27643,7 +27577,7 @@ declare class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutab
      * @param mat - The matrix to transpose
      * @returns A new MutableMatrix22 containing the transposed matrix
      */
-    static transpose(mat: Matrix22): MutableMatrix22;
+    static transpose(mat: IMatrix22): MutableMatrix22;
     /**
      * Creates a new matrix that is the inverse of the input matrix.
      *
@@ -27651,7 +27585,7 @@ declare class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutab
      * @returns A new MutableMatrix22 containing the inverted matrix
      * @throws Error if the matrix is not invertible (determinant is 0)
      */
-    static invert(mat: Matrix22): MutableMatrix22;
+    static invert(mat: IMatrix22): MutableMatrix22;
     /**
      * Creates a new rotation matrix for the given angle.
      *
@@ -27665,7 +27599,7 @@ declare class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutab
      * @param vec - Vector2 containing the scale factors for x and y axes
      * @returns A new MutableMatrix22 representing the scale transformation
      */
-    static scale(vec: Vector2): MutableMatrix22;
+    static scale(vec: IVector2): MutableMatrix22;
     /**
      * Multiplies two matrices and returns a new matrix with the result.
      *
@@ -27673,7 +27607,7 @@ declare class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutab
      * @param r_mat - The right matrix operand
      * @returns A new MutableMatrix22 containing the multiplication result
      */
-    static multiply(l_mat: Matrix22, r_mat: Matrix22): MutableMatrix22;
+    static multiply(l_mat: IMatrix22, r_mat: IMatrix22): MutableMatrix22;
     /**
      * Creates a deep copy of this matrix.
      *
@@ -27685,7 +27619,7 @@ declare class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutab
      *
      * @returns The internal Float32Array in column-major order
      */
-    raw(): Float32Array<ArrayBufferLike>;
+    raw(): Float32Array;
     /**
      * Sets the value at the specified row and column position.
      *
@@ -27694,7 +27628,7 @@ declare class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutab
      * @param value - The value to set
      * @returns This matrix instance for method chaining
      */
-    setAt(row_i: number, column_i: number, value: number): this;
+    setAt(row_i: number, column_i: number, value: number): MutableMatrix22;
     /**
      * Sets all matrix components directly.
      *
@@ -27712,7 +27646,7 @@ declare class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutab
      * @param mat - The source matrix to copy from
      * @returns This matrix instance for method chaining
      */
-    copyComponents(mat: Matrix22 | Matrix33 | Matrix44): this;
+    copyComponents(mat: IMatrix22 | IMatrix33 | IMatrix44): MutableMatrix22;
     /**
      * Sets this matrix to a zero matrix (all elements are 0).
      *
@@ -27737,7 +27671,7 @@ declare class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutab
      *
      * @returns This matrix instance for method chaining
      */
-    transpose(): this;
+    transpose(): MutableMatrix22;
     /**
      * Inverts this matrix in place.
      *
@@ -27758,28 +27692,28 @@ declare class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutab
      * @param vec - Vector2 containing the scale factors for x and y axes
      * @returns This matrix instance for method chaining
      */
-    scale(vec: Vector2): MutableMatrix22;
+    scale(vec: IVector2): MutableMatrix22;
     /**
      * Multiplies this matrix by a scale transformation in place.
      *
      * @param vec - Vector2 containing the scale factors for x and y axes
      * @returns This matrix instance for method chaining
      */
-    multiplyScale(vec: Vector2): this;
+    multiplyScale(vec: IVector2): MutableMatrix22;
     /**
      * Multiplies this matrix by another matrix from the right side (this * mat).
      *
      * @param mat - The matrix to multiply with
      * @returns This matrix instance for method chaining
      */
-    multiply(mat: Matrix22): MutableMatrix22;
+    multiply(mat: IMatrix22): MutableMatrix22;
     /**
      * Multiplies this matrix by another matrix from the left side (mat * this).
      *
      * @param mat - The matrix to multiply with from the left
      * @returns This matrix instance for method chaining
      */
-    multiplyByLeft(mat: Matrix22): MutableMatrix22;
+    multiplyByLeft(mat: IMatrix22): MutableMatrix22;
     /**
      * Creates a new matrix from values provided in row-major order.
      * This is more intuitive for manual input as values are specified
@@ -28003,7 +27937,7 @@ declare class Matrix22 extends AbstractMatrix implements IMatrix22 {
      * // | 3 4 |      | 2 4 |
      * ```
      */
-    static transpose(mat: Matrix22): Matrix22;
+    static transpose(mat: IMatrix22): Matrix22;
     /**
      * Creates the inverse of the given matrix.
      *
@@ -28026,7 +27960,7 @@ declare class Matrix22 extends AbstractMatrix implements IMatrix22 {
      * // |   0 0.5 |
      * ```
      */
-    static invert(mat: Matrix22): Matrix22;
+    static invert(mat: IMatrix22): Matrix22;
     /**
      * Calculates the inverse of the given matrix and stores the result in the output matrix.
      * This method avoids creating a new matrix instance for better performance.
@@ -28070,7 +28004,7 @@ declare class Matrix22 extends AbstractMatrix implements IMatrix22 {
      * // Creates a matrix that scales x by 2 and y by 3
      * ```
      */
-    static scale(vec: Vector2): Matrix22;
+    static scale(vec: IVector2): Matrix22;
     /**
      * Multiplies two 2x2 matrices and returns the result.
      * Matrix multiplication is not commutative: A * B ≠ B * A in general.
@@ -28086,7 +28020,7 @@ declare class Matrix22 extends AbstractMatrix implements IMatrix22 {
      * const result = Matrix22.multiply(a, b); // Scale then rotate
      * ```
      */
-    static multiply(l_mat: Matrix22, r_mat: Matrix22): Matrix22;
+    static multiply(l_mat: IMatrix22, r_mat: IMatrix22): Matrix22;
     /**
      * Multiplies two matrices and stores the result in the output matrix.
      * This method avoids creating a new matrix instance for better performance.
@@ -28734,29 +28668,7 @@ declare class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
      * Gets the composition type for scalar values.
      * @returns The scalar composition type
      */
-    static get compositionType(): {
-        readonly __numberOfComponents: number;
-        readonly __glslStr: string;
-        readonly __hlslStr: string;
-        readonly __webgpuStr: string;
-        readonly __wgslStr: string;
-        readonly __isArray: boolean;
-        readonly __vec4SizeOfProperty: IndexOf16Bytes;
-        readonly __dummyStr: "SCALAR";
-        readonly webgpu: string;
-        readonly wgsl: string;
-        getNumberOfComponents(): Count;
-        getGlslStr(componentType: ComponentTypeEnum): string;
-        getGlslInitialValue(componentType: ComponentTypeEnum): string;
-        getWgslInitialValue(componentType: ComponentTypeEnum): string;
-        toWGSLType(componentType: ComponentTypeEnum): string;
-        getVec4SizeOfProperty(): IndexOf16Bytes;
-        readonly index: number;
-        readonly symbol: symbol;
-        readonly str: string;
-        toString(): string;
-        toJSON(): number;
-    };
+    static get compositionType(): CompositionTypeEnum;
     /**
      * Gets the number of bytes per component in the underlying typed array.
      * @returns The number of bytes per element
@@ -28916,29 +28828,7 @@ declare class MutableScalar_<T extends TypedArrayConstructor> extends Scalar_<T>
      * Gets the composition type for this scalar.
      * @returns The scalar composition type
      */
-    static get compositionType(): {
-        readonly __numberOfComponents: number;
-        readonly __glslStr: string;
-        readonly __hlslStr: string;
-        readonly __webgpuStr: string;
-        readonly __wgslStr: string;
-        readonly __isArray: boolean;
-        readonly __vec4SizeOfProperty: IndexOf16Bytes;
-        readonly __dummyStr: "SCALAR";
-        readonly webgpu: string;
-        readonly wgsl: string;
-        getNumberOfComponents(): Count;
-        getGlslStr(componentType: ComponentTypeEnum): string;
-        getGlslInitialValue(componentType: ComponentTypeEnum): string;
-        getWgslInitialValue(componentType: ComponentTypeEnum): string;
-        toWGSLType(componentType: ComponentTypeEnum): string;
-        getVec4SizeOfProperty(): IndexOf16Bytes;
-        readonly index: number;
-        readonly symbol: symbol;
-        readonly str: string;
-        toString(): string;
-        toJSON(): number;
-    };
+    static get compositionType(): CompositionTypeEnum;
     /**
      * Gets the number of bytes per component in the underlying typed array.
      * @returns The number of bytes per element
@@ -44421,4 +44311,4 @@ type RnXR = typeof XR;
 
 declare const VERSION: any;
 
-export { AABB, AABBGizmo, AbsoluteAnimation, AbstractArrayBufferBaseMathNumber, AbstractCameraController, AbstractMaterialContent, AbstractMatrix, AbstractQuaternion, AbstractShaderNode, AbstractTexture, AbstractVector, Accessor, AddShaderNode, AlphaMode, type AlphaModeEnum, AnimatedQuaternion, AnimatedScalar, AnimatedVector2, AnimatedVector3, AnimatedVector4, AnimatedVectorN, AnimationAssigner, AnimationAttribute, type AnimationAttributeEnum, type AnimationChannel, type AnimationChannelTarget, AnimationComponent, type AnimationComponentEventType, type AnimationInfo, AnimationInterpolation, type AnimationInterpolationEnum, type AnimationPathName, type AnimationSampler, type AnimationSamplers, type AnimationTrack, type AnimationTrackName, type Array1, type Array16, type Array1to4, type Array2, type Array3, type Array4, type Array9, type ArrayAsRn, type ArrayType, AssetLoader, type AssetLoaderConfig, AttributeColorShaderNode, type AttributeName, type AttributeNames, AttributeNormalShaderNode, AttributePositionShaderNode, AttributeTexcoordShaderNode, type Attributes, Axis, type AxisDescriptor, type BASIS_TYPE, BasisCompressionType, type BasisCompressionTypeEnum, type BasisFile, BasisLzEtc1sImageTranscoder, type BasisTranscoder, BlendShapeComponent, BlockBeginShader, BlockBeginShaderNode, BlockEndShader, BlockEndShaderNode, Bloom, BoneDataType, type BoneDataTypeEnum, Buffer, BufferUse, type BufferUseEnum, BufferView, type Byte$1 as Byte, type CGAPIResourceHandle, CGAPIResourceRepository, Cache, type CalledSubscriberNumber, CameraComponent, CameraControllerComponent, CameraControllerType, type CameraControllerTypeEnum, type CameraSID, CameraType, type CameraTypeEnum, CapsuleCollider, type ChangeAnimationInfoEvent, ClassicShadingShader, type ColorComponentLetter, ColorGradingUsingLUTsMaterialContent, ColorRgb, ColorRgba, CommonShaderPart, ComplexVertexAttribute, Component, type ComponentMixinFunction, ComponentRepository, type ComponentSID, type ComponentTID, type ComponentToComponentMethods, ComponentType, type ComponentTypeEnum, CompositionType, type CompositionTypeEnum, CompressionTextureType, type CompressionTextureTypeEnum, Config, ConstRgbaBlack, ConstRgbaWhite, ConstVector2_0_0, ConstVector2_1_1, ConstVector3_0_0_0, ConstVector3_1_1_1, ConstVector4_0_0_0_0, ConstVector4_0_0_0_1, ConstVector4_1_1_1_1, ConstantScalarVariableShaderNode, ConstantVariableShader, ConstantVector2VariableShaderNode, ConstantVector3VariableShaderNode, ConstantVector4VariableShaderNode, type Count, Cube, type CubeDescriptor, CubeTexture, CustomMaterialContent, DataUtil, DefaultTextures, DepthEncodeMaterialContent, DetectHighLuminanceMaterialContent, type DirectTextureData, DotProductShaderNode, DrcPointCloudImporter, EVENT_CLICK, EVENT_KEY_DOWN, EVENT_KEY_PRESS, EVENT_KEY_UP, EVENT_MOUSE_DOWN, EVENT_MOUSE_ENTER, EVENT_MOUSE_LEAVE, EVENT_MOUSE_MOVE, EVENT_MOUSE_OVER, EVENT_MOUSE_UP, EVENT_MOUSE_WHEEL, EVENT_MSPOINTER_DOWN, EVENT_MSPOINTER_MOVE, EVENT_MSPOINTER_UP, EVENT_ORIENTATION_CHANGE, EVENT_POINTER_CANCEL, EVENT_POINTER_DOWN, EVENT_POINTER_ENTER, EVENT_POINTER_LEAVE, EVENT_POINTER_MOVE, EVENT_POINTER_OUT, EVENT_POINTER_OVER, EVENT_POINTER_UP, EVENT_RESIZE, EVENT_TOUCH_CANCEL, EVENT_TOUCH_DOUBLE_TAP, EVENT_TOUCH_DRAG, EVENT_TOUCH_END, EVENT_TOUCH_ENTER, EVENT_TOUCH_HOLD, EVENT_TOUCH_LEAVE, EVENT_TOUCH_LONG_TAP, EVENT_TOUCH_MOVE, EVENT_TOUCH_OUT, EVENT_TOUCH_OVER, EVENT_TOUCH_PINCH, EVENT_TOUCH_START, EVENT_TOUCH_SWIPE, EVENT_TOUCH_TAP, Effekseer, EffekseerComponent, EndShader, Entity, EntityRepository, type EntityUID, EntityUIDOutputMaterialContent, EnumClass, type EnumIO, Err, type EventHandler, EventPubSub, type EventSubscriberIndex, type EventType, Expression, FileType, type FileTypeEnum, type FillArgsObject, type FloatTypedArray, type FloatTypedArrayConstructor, ForwardRenderPipeline, Frame, FrameBuffer, type FrameBufferCubeMapDescriptor, type FrameBufferDescriptor, type FrameBufferMSAADescriptor, type FrameBufferTextureArrayDescriptor, type FrameBufferTextureArrayForMultiViewDescriptor, Frustum, FurnaceTestMaterialContent, GLTF2_EXPORT_DRACO, GLTF2_EXPORT_EMBEDDED, GLTF2_EXPORT_GLB, GLTF2_EXPORT_GLTF, GLTF2_EXPORT_NO_DOWNLOAD, GL_ACTIVE_ATTRIBUTES, GL_ACTIVE_TEXTURE, GL_ACTIVE_UNIFORMS, GL_ACTIVE_UNIFORM_BLOCKS, GL_ALIASED_LINE_WIDTH_RANGE, GL_ALIASED_POINT_SIZE_RANGE, GL_ALPHA, GL_ALPHA_BITS, GL_ALREADY_SIGNALED, GL_ALWAYS, GL_ANY_SAMPLES_PASSED, GL_ANY_SAMPLES_PASSED_CONSERVATIVE, GL_ARRAY_BUFFER, GL_ARRAY_BUFFER_BINDING, GL_ATTACHED_SHADERS, GL_BACK, GL_BLEND, GL_BLEND_COLOR, GL_BLEND_DST_ALPHA, GL_BLEND_DST_RGB, GL_BLEND_EQUATION, GL_BLEND_EQUATION_ALPHA, GL_BLEND_EQUATION_RGB, GL_BLEND_SRC_ALPHA, GL_BLEND_SRC_RGB, GL_BLUE_BITS, GL_BOOL, GL_BOOL_VEC2, GL_BOOL_VEC3, GL_BOOL_VEC4, GL_BROWSER_DEFAULT_WEBGL, GL_BUFFER_SIZE, GL_BUFFER_USAGE, GL_CCW, GL_CLAMP_TO_EDGE, GL_COLOR, GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT0_WEBGL, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT10, GL_COLOR_ATTACHMENT10_WEBGL, GL_COLOR_ATTACHMENT11, GL_COLOR_ATTACHMENT11_WEBGL, GL_COLOR_ATTACHMENT12, GL_COLOR_ATTACHMENT12_WEBGL, GL_COLOR_ATTACHMENT13, GL_COLOR_ATTACHMENT13_WEBGL, GL_COLOR_ATTACHMENT14, GL_COLOR_ATTACHMENT14_WEBGL, GL_COLOR_ATTACHMENT15, GL_COLOR_ATTACHMENT15_WEBGL, GL_COLOR_ATTACHMENT1_WEBGL, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT2_WEBGL, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT3_WEBGL, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT4_WEBGL, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT5_WEBGL, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT6_WEBGL, GL_COLOR_ATTACHMENT7, GL_COLOR_ATTACHMENT7_WEBGL, GL_COLOR_ATTACHMENT8, GL_COLOR_ATTACHMENT8_WEBGL, GL_COLOR_ATTACHMENT9, GL_COLOR_ATTACHMENT9_WEBGL, GL_COLOR_BUFFER_BIT, GL_COLOR_CLEAR_VALUE, GL_COLOR_WRITEMASK, GL_COMPARE_REF_TO_TEXTURE, GL_COMPILE_STATUS, GL_COMPRESSED_R11_EAC, GL_COMPRESSED_RG11_EAC, GL_COMPRESSED_RGB8_ETC2, GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2, GL_COMPRESSED_RGBA8_ETC2_EAC, GL_COMPRESSED_RGBA_ASTC_10X10_KHR, GL_COMPRESSED_RGBA_ASTC_10X5_KHR, GL_COMPRESSED_RGBA_ASTC_10X6_KHR, GL_COMPRESSED_RGBA_ASTC_10X8_KHR, GL_COMPRESSED_RGBA_ASTC_12X10_KHR, GL_COMPRESSED_RGBA_ASTC_12X12_KHR, GL_COMPRESSED_RGBA_ASTC_4X4_KHR, GL_COMPRESSED_RGBA_ASTC_5X4_KHR, GL_COMPRESSED_RGBA_ASTC_5X5_KHR, GL_COMPRESSED_RGBA_ASTC_6X5_KHR, GL_COMPRESSED_RGBA_ASTC_6X6_KHR, GL_COMPRESSED_RGBA_ASTC_8X5_KHR, GL_COMPRESSED_RGBA_ASTC_8X6_KHR, GL_COMPRESSED_RGBA_ASTC_8X8_KHR, GL_COMPRESSED_RGBA_ATC_EXPLICIT_ALPHA_WEBGL, GL_COMPRESSED_RGBA_ATC_INTERPOLATED_ALPHA_WEBGL, GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, GL_COMPRESSED_RGB_ATC_WEBGL, GL_COMPRESSED_RGB_ETC1_WEBGL, GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, GL_COMPRESSED_RGB_S3TC_DXT1_EXT, GL_COMPRESSED_SIGNED_R11_EAC, GL_COMPRESSED_SIGNED_RG11_EAC, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X10_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X5_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X6_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X8_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X10_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X12_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4X4_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X4_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X5_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X5_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X6_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X5_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X6_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X8_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC, GL_COMPRESSED_SRGB8_ETC2, GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2, GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT, GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT, GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT, GL_COMPRESSED_SRGB_S3TC_DXT1_EXT, GL_COMPRESSED_TEXTURE_FORMATS, GL_CONDITION_SATISFIED, GL_CONSTANT_ALPHA, GL_CONSTANT_COLOR, GL_CONTEXT_LOST_WEBGL, GL_COPY_READ_BUFFER, GL_COPY_READ_BUFFER_BINDING, GL_COPY_WRITE_BUFFER, GL_COPY_WRITE_BUFFER_BINDING, GL_CULL_FACE, GL_CULL_FACE_MODE, GL_CURRENT_PROGRAM, GL_CURRENT_QUERY, GL_CURRENT_QUERY_EXT, GL_CURRENT_VERTEX_ATTRIB, GL_CW, GL_DATA_BYTE, GL_DATA_FLOAT, GL_DATA_INT, GL_DATA_SHORT, GL_DATA_UNSIGNED_BYTE, GL_DATA_UNSIGNED_INT, GL_DATA_UNSIGNED_SHORT, GL_DECR, GL_DECR_WRAP, GL_DELETE_STATUS, GL_DEPTH, GL_DEPTH24_STENCIL8, GL_DEPTH32F_STENCIL8, GL_DEPTH_ATTACHMENT, GL_DEPTH_BITS, GL_DEPTH_BUFFER_BIT, GL_DEPTH_CLEAR_VALUE, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT32F, GL_DEPTH_FUNC, GL_DEPTH_RANGE, GL_DEPTH_STENCIL, GL_DEPTH_STENCIL_ATTACHMENT, GL_DEPTH_TEST, GL_DEPTH_WRITEMASK, GL_DITHER, GL_DONT_CARE, GL_DRAW_BUFFER0, GL_DRAW_BUFFER0_WEBGL, GL_DRAW_BUFFER1, GL_DRAW_BUFFER10, GL_DRAW_BUFFER10_WEBGL, GL_DRAW_BUFFER11, GL_DRAW_BUFFER11_WEBGL, GL_DRAW_BUFFER12, GL_DRAW_BUFFER12_WEBGL, GL_DRAW_BUFFER13, GL_DRAW_BUFFER13_WEBGL, GL_DRAW_BUFFER14, GL_DRAW_BUFFER14_WEBGL, GL_DRAW_BUFFER15, GL_DRAW_BUFFER15_WEBGL, GL_DRAW_BUFFER1_WEBGL, GL_DRAW_BUFFER2, GL_DRAW_BUFFER2_WEBGL, GL_DRAW_BUFFER3, GL_DRAW_BUFFER3_WEBGL, GL_DRAW_BUFFER4, GL_DRAW_BUFFER4_WEBGL, GL_DRAW_BUFFER5, GL_DRAW_BUFFER5_WEBGL, GL_DRAW_BUFFER6, GL_DRAW_BUFFER6_WEBGL, GL_DRAW_BUFFER7, GL_DRAW_BUFFER7_WEBGL, GL_DRAW_BUFFER8, GL_DRAW_BUFFER8_WEBGL, GL_DRAW_BUFFER9, GL_DRAW_BUFFER9_WEBGL, GL_DRAW_FRAMEBUFFER, GL_DRAW_FRAMEBUFFER_BINDING, GL_DST_ALPHA, GL_DST_COLOR, GL_DYNAMIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ, GL_ELEMENT_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER_BINDING, GL_EQUAL, GL_FASTEST, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, GL_FLOAT_MAT2, GL_FLOAT_MAT2X3, GL_FLOAT_MAT2X4, GL_FLOAT_MAT3, GL_FLOAT_MAT3X2, GL_FLOAT_MAT3X4, GL_FLOAT_MAT4, GL_FLOAT_MAT4X2, GL_FLOAT_MAT4X3, GL_FLOAT_VEC2, GL_FLOAT_VEC3, GL_FLOAT_VEC4, GL_FRAGMENT_SHADER, GL_FRAGMENT_SHADER_DERIVATIVE_HINT, GL_FRAGMENT_SHADER_DERIVATIVE_HINT_OES, GL_FRAMEBUFFER, GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING_EXT, GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE, GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE_EXT, GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE, GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER, GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL, GL_FRAMEBUFFER_BINDING, GL_FRAMEBUFFER_COMPLETE, GL_FRAMEBUFFER_DEFAULT, GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT, GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS, GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT, GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE, GL_FRAMEBUFFER_UNSUPPORTED, GL_FRONT, GL_FRONT_AND_BACK, GL_FRONT_FACE, GL_FUNC_ADD, GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_SUBSTRACT, GL_GENERATE_MIPMAP_HINT, GL_GEQUAL, GL_GPU_DISJOINT_EXT, GL_GREATER, GL_GREEN_BITS, GL_HALF_FLOAT, GL_HALF_FLOAT_OES, GL_HIGH_FLOAT, GL_HIGH_INT, GL_IMPLEMENTATION_COLOR_READ_FORMAT, GL_IMPLEMENTATION_COLOR_READ_TYPE, GL_INCR, GL_INCR_WRAP, GL_INTERLEAVED_ATTRIBS, GL_INT_2_10_10_10_REV, GL_INT_SAMPLER_2D, GL_INT_SAMPLER_2D_ARRAY, GL_INT_SAMPLER_3D, GL_INT_SAMPLER_CUBE, GL_INT_VEC2, GL_INT_VEC3, GL_INT_VEC4, GL_INVALID_ENUM, GL_INVALID_FRAMEBUFFER_OPERATION, GL_INVALID_INDEX, GL_INVALID_OPERATION, GL_INVALID_VALUE, GL_INVERT, GL_KEEP, GL_LEQUAL, GL_LESS, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR_MIPMAP_NEAREST, GL_LINES, GL_LINE_LOOP, GL_LINE_STRIP, GL_LINE_WIDTH, GL_LINK_STATUS, GL_LOW_FLOAT, GL_LOW_INT, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_MAX, GL_MAX_3D_TEXTURE_SIZE, GL_MAX_ARRAY_TEXTURE_LAYERS, GL_MAX_CLIENT_WAIT_TIMEOUT_WEBGL, GL_MAX_COLOR_ATTACHMENTS, GL_MAX_COLOR_ATTACHMENTS_WEBGL, GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS, GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, GL_MAX_COMBINED_UNIFORM_BLOCKS, GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS, GL_MAX_CUBE_MAP_TEXTURE_SIZE, GL_MAX_DRAW_BUFFERS, GL_MAX_DRAW_BUFFERS_WEBGL, GL_MAX_ELEMENTS_INDICES, GL_MAX_ELEMENTS_VERTICES, GL_MAX_ELEMENT_INDEX, GL_MAX_EXT, GL_MAX_FRAGMENT_INPUT_COMPONENTS, GL_MAX_FRAGMENT_UNIFORM_BLOCKS, GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, GL_MAX_FRAGMENT_UNIFORM_VECTORS, GL_MAX_PROGRAM_TEXEL_OFFSET, GL_MAX_RENDERBUFFER_SIZE, GL_MAX_SAMPLES, GL_MAX_SERVER_WAIT_TIMEOUT, GL_MAX_TEXTURE_IMAGE_UNITS, GL_MAX_TEXTURE_LOD_BIAS, GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, GL_MAX_TEXTURE_SIZE, GL_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS, GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS, GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS, GL_MAX_UNIFORM_BLOCK_SIZE, GL_MAX_UNIFORM_BUFFER_BINDINGS, GL_MAX_VARYING_COMPONENTS, GL_MAX_VARYING_VECTORS, GL_MAX_VERTEX_ATTRIBS, GL_MAX_VERTEX_OUTPUT_COMPONENTS, GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, GL_MAX_VERTEX_UNIFORM_BLOCKS, GL_MAX_VERTEX_UNIFORM_COMPONENTS, GL_MAX_VERTEX_UNIFORM_VECTORS, GL_MAX_VIEWPORT_DIMS, GL_MEDIUM_FLOAT, GL_MEDIUM_INT, GL_MIN, GL_MIN_EXT, GL_MIN_PROGRAM_TEXEL_OFFSET, GL_MIRRORED_REPEAT, GL_NEAREST, GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST_MIPMAP_NEAREST, GL_NEVER, GL_NICEST, GL_NONE, GL_NOTEQUAL, GL_NO_ERROR, GL_OBJECT_TYPE, GL_ONE, GL_ONE_MINUS_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_COLOR, GL_ONE_MINUS_DST_ALPHA, GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR, GL_OUT_OF_MEMORY, GL_PACK_ALIGNMENT, GL_PACK_ROW_LENGTH, GL_PACK_SKIP_PIXELS, GL_PACK_SKIP_ROWS, GL_PIXEL_PACK_BUFFER, GL_PIXEL_PACK_BUFFER_BINDING, GL_PIXEL_UNPACK_BUFFER, GL_PIXEL_UNPACK_BUFFER_BINDING, GL_PIXEL_UNSIGNED_BYTE, GL_PIXEL_UNSIGNED_SHORT_4_4_4_4, GL_PIXEL_UNSIGNED_SHORT_5_5_5_1, GL_PIXEL_UNSIGNED_SHORT_5_6_5, GL_POINTS, GL_POLYGON_OFFSET_FACTOR, GL_POLYGON_OFFSET_FILL, GL_POLYGON_OFFSET_UNITS, GL_QUERY_COUNTER_BITS_EXT, GL_QUERY_RESULT, GL_QUERY_RESULT_AVAILABLE, GL_QUERY_RESULT_AVAILABLE_EXT, GL_QUERY_RESULT_EXT, GL_R11F_G11F_B10F, GL_R16F, GL_R16I, GL_R16UI, GL_R32F, GL_R32I, GL_R32UI, GL_R8, GL_R8I, GL_R8UI, GL_R8_SNORM, GL_RASTERIZER_DISCARD, GL_READ_BUFFER, GL_READ_FRAMEBUFFER, GL_READ_FRAMEBUFFER_BINDING, GL_RED, GL_RED_BITS, GL_RED_INTEGER, GL_RENDERBUFFER, GL_RENDERBUFFER_ALPHA_SIZE, GL_RENDERBUFFER_BINDING, GL_RENDERBUFFER_BLUE_SIZE, GL_RENDERBUFFER_DEPTH_SIZE, GL_RENDERBUFFER_GREEN_SIZE, GL_RENDERBUFFER_HEIGHT, GL_RENDERBUFFER_INTERNAL_FORMAT, GL_RENDERBUFFER_RED_SIZE, GL_RENDERBUFFER_SAMPLES, GL_RENDERBUFFER_STENCIL_SIZE, GL_RENDERBUFFER_WIDTH, GL_RENDERER, GL_REPEAT, GL_REPLACE, GL_RG, GL_RG16F, GL_RG16I, GL_RG16UI, GL_RG32F, GL_RG32I, GL_RG32UI, GL_RG8, GL_RG8I, GL_RG8UI, GL_RG8_SNORM, GL_RGB, GL_RGB10_A2, GL_RGB10_A2UI, GL_RGB16F, GL_RGB16I, GL_RGB16UI, GL_RGB32F, GL_RGB32F_EXT, GL_RGB32I, GL_RGB32UI, GL_RGB565, GL_RGB5_A1, GL_RGB8, GL_RGB8I, GL_RGB8UI, GL_RGB8_SNORM, GL_RGB9_E5, GL_RGBA, GL_RGBA16F, GL_RGBA16I, GL_RGBA16UI, GL_RGBA32F, GL_RGBA32F_EXT, GL_RGBA32I, GL_RGBA32UI, GL_RGBA4, GL_RGBA8, GL_RGBA8I, GL_RGBA8UI, GL_RGBA8_SNORM, GL_RGBA_INTEGER, GL_RGB_INTEGER, GL_RG_INTEGER, GL_SAMPLER_2D, GL_SAMPLER_2D_ARRAY, GL_SAMPLER_2D_ARRAY_SHADOW, GL_SAMPLER_2D_SHADOW, GL_SAMPLER_3D, GL_SAMPLER_BINDING, GL_SAMPLER_CUBE, GL_SAMPLER_CUBE_SHADOW, GL_SAMPLES, GL_SAMPLE_ALPHA_TO_COVERAGE, GL_SAMPLE_BUFFERS, GL_SAMPLE_COVERAGE, GL_SAMPLE_COVERAGE_INVERT, GL_SAMPLE_COVERAGE_VALUE, GL_SCISSOR_BOX, GL_SCISSOR_TEST, GL_SEPARATE_ATTRIBS, GL_SHADER_TYPE, GL_SHADING_LANGUAGE_VERSION, GL_SIGNALED, GL_SIGNED_NORMALIZED, GL_SRC_ALPHA, GL_SRC_ALPHA_SATURATE, GL_SRC_COLOR, GL_SRGB, GL_SRGB8, GL_SRGB8_ALPHA8, GL_SRGB8_ALPHA8_EXT, GL_SRGB_ALPHA_EXT, GL_SRGB_EXT, GL_STATIC_COPY, GL_STATIC_DRAW, GL_STATIC_READ, GL_STENCIL, GL_STENCIL_ATTACHMENT, GL_STENCIL_BACK_FAIL, GL_STENCIL_BACK_FUNC, GL_STENCIL_BACK_PASS_DEPTH_FAIL, GL_STENCIL_BACK_PASS_DEPTH_PASS, GL_STENCIL_BACK_REF, GL_STENCIL_BACK_VALUE_MASK, GL_STENCIL_BACK_WRITEMASK, GL_STENCIL_BITS, GL_STENCIL_BUFFER_BIT, GL_STENCIL_CLEAR_VALUE, GL_STENCIL_FAIL, GL_STENCIL_FUNC, GL_STENCIL_INDEX, GL_STENCIL_INDEX8, GL_STENCIL_PASS_DEPTH_FAIL, GL_STENCIL_PASS_DEPTH_PASS, GL_STENCIL_REF, GL_STENCIL_TEST, GL_STENCIL_VALUE_MASK, GL_STENCIL_WRITEMASK, GL_STREAM_COPY, GL_STREAM_DRAW, GL_STREAM_READ, GL_SUBPIXEL_BITS, GL_SYNC_CONDITION, GL_SYNC_FENCE, GL_SYNC_FLAGS, GL_SYNC_FLUSH_COMMANDS_BIT, GL_SYNC_GPU_COMMANDS_COMPLETE, GL_SYNC_STATUS, GL_TEXTURE, GL_TEXTURE0, GL_TEXTURE1, GL_TEXTURE10, GL_TEXTURE11, GL_TEXTURE12, GL_TEXTURE13, GL_TEXTURE14, GL_TEXTURE15, GL_TEXTURE16, GL_TEXTURE17, GL_TEXTURE18, GL_TEXTURE19, GL_TEXTURE2, GL_TEXTURE20, GL_TEXTURE21, GL_TEXTURE22, GL_TEXTURE23, GL_TEXTURE24, GL_TEXTURE25, GL_TEXTURE26, GL_TEXTURE27, GL_TEXTURE28, GL_TEXTURE29, GL_TEXTURE3, GL_TEXTURE30, GL_TEXTURE31, GL_TEXTURE4, GL_TEXTURE5, GL_TEXTURE6, GL_TEXTURE7, GL_TEXTURE8, GL_TEXTURE9, GL_TEXTURE_2D, GL_TEXTURE_2D_ARRAY, GL_TEXTURE_3D, GL_TEXTURE_BASE_LEVEL, GL_TEXTURE_BINDING_2D, GL_TEXTURE_BINDING_2D_ARRAY, GL_TEXTURE_BINDING_3D, GL_TEXTURE_BINDING_CUBE_MAP, GL_TEXTURE_COMPARE_FUNC, GL_TEXTURE_COMPARE_MODE, GL_TEXTURE_CUBE_MAP, GL_TEXTURE_CUBE_MAP_NEGATIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_IMMUTABLE_FORMAT, GL_TEXTURE_IMMUTABLE_LEVELS, GL_TEXTURE_MAG_FILTER, GL_TEXTURE_MAX_ANISOTROPY_EXT, GL_TEXTURE_MAX_LEVEL, GL_TEXTURE_MAX_LOD, GL_TEXTURE_MIN_FILTER, GL_TEXTURE_MIN_LOD, GL_TEXTURE_WRAP_R, GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T, GL_TIMEOUT_EXPIRED, GL_TIMEOUT_IGNORED, GL_TIMESTAMP_EXT, GL_TIME_ELAPSED_EXT, GL_TRANSFORM_FEEDBACK, GL_TRANSFORM_FEEDBACK_ACTIVE, GL_TRANSFORM_FEEDBACK_BINDING, GL_TRANSFORM_FEEDBACK_BUFFER, GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, GL_TRANSFORM_FEEDBACK_BUFFER_MODE, GL_TRANSFORM_FEEDBACK_BUFFER_SIZE, GL_TRANSFORM_FEEDBACK_BUFFER_START, GL_TRANSFORM_FEEDBACK_PAUSED, GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, GL_TRANSFORM_FEEDBACK_VARYINGS, GL_TRIANGLES, GL_TRIANGLE_FAN, GL_TRIANGLE_STRIP, GL_UNIFORM_ARRAY_STRIDE, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, GL_UNIFORM_BLOCK_BINDING, GL_UNIFORM_BLOCK_DATA_SIZE, GL_UNIFORM_BLOCK_INDEX, GL_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER, GL_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER, GL_UNIFORM_BUFFER, GL_UNIFORM_BUFFER_BINDING, GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, GL_UNIFORM_BUFFER_SIZE, GL_UNIFORM_BUFFER_START, GL_UNIFORM_IS_ROW_MAJOR, GL_UNIFORM_MATRIX_STRIDE, GL_UNIFORM_OFFSET, GL_UNIFORM_SIZE, GL_UNIFORM_TYPE, GL_UNMASKED_RENDERER_WEBGL, GL_UNMASKED_VENDOR_WEBGL, GL_UNPACK_ALIGNMENT, GL_UNPACK_COLORSPACE_CONVERSION_WEBGL, GL_UNPACK_FLIP_Y_WEBGL, GL_UNPACK_IMAGE_HEIGHT, GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL, GL_UNPACK_ROW_LENGTH, GL_UNPACK_SKIP_IMAGES, GL_UNPACK_SKIP_PIXELS, GL_UNPACK_SKIP_ROWS, GL_UNSIGNALED, GL_UNSIGNED_INT_10F_11F_11F_REV, GL_UNSIGNED_INT_24_8, GL_UNSIGNED_INT_24_8_WEBGL, GL_UNSIGNED_INT_2_10_10_10_REV, GL_UNSIGNED_INT_5_9_9_9_REV, GL_UNSIGNED_INT_SAMPLER_2D, GL_UNSIGNED_INT_SAMPLER_2D_ARRAY, GL_UNSIGNED_INT_SAMPLER_3D, GL_UNSIGNED_INT_SAMPLER_CUBE, GL_UNSIGNED_INT_VEC2, GL_UNSIGNED_INT_VEC3, GL_UNSIGNED_INT_VEC4, GL_UNSIGNED_NORMALIZED, GL_UNSIGNED_NORMALIZED_EXT, GL_VALIDATE_STATUS, GL_VENDOR, GL_VERSION, GL_VERTEX_ARRAY_BINDING, GL_VERTEX_ARRAY_BINDING_OES, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, GL_VERTEX_ATTRIB_ARRAY_DIVISOR, GL_VERTEX_ATTRIB_ARRAY_DIVISOR_ANGLE, GL_VERTEX_ATTRIB_ARRAY_ENABLED, GL_VERTEX_ATTRIB_ARRAY_INTEGER, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, GL_VERTEX_ATTRIB_ARRAY_POINTER, GL_VERTEX_ATTRIB_ARRAY_SIZE, GL_VERTEX_ATTRIB_ARRAY_STRIDE, GL_VERTEX_ATTRIB_ARRAY_TYPE, GL_VERTEX_SHADER, GL_VIEWPORT, GL_WAIT_FAILED, GL_ZERO, GaussianBlur, GetComponentFromEntities, type GetInstance, type GetProps, Gizmo, GlobalDataRepository, GlobalRetarget, GlobalRetargetReverse, type Gltf1AnyObject, type Gltf2, type Gltf2Accessor, type Gltf2AccessorComponentType, type Gltf2AccessorComponentTypeNumber, type Gltf2AccessorCompositionType, type Gltf2AccessorCompositionTypeString, type Gltf2AccessorEx, type Gltf2AccessorIndex, type Gltf2Animation, type Gltf2AnimationAccessorCompositionType, type Gltf2AnimationAccessorCompositionTypeString, type Gltf2AnimationChannel, type Gltf2AnimationChannelTarget, type Gltf2AnimationPathName, type Gltf2AnimationSampler, type Gltf2AnimationSamplerInterpolation, type Gltf2AnyObject, type Gltf2Asset, type Gltf2AttributeAccessors, type Gltf2AttributeBlendShapes, type Gltf2AttributeBlendShapesAccessors, type Gltf2Attributes, type Gltf2Buffer, type Gltf2BufferView, type Gltf2BufferViewEx, type Gltf2Camera, type Gltf2CameraOrthographic, type Gltf2CameraPerspective, type Gltf2Ex, type Gltf2ExportType, Gltf2Exporter, type Gltf2ExporterArguments, type Gltf2Image, type Gltf2ImageEx, Gltf2Importer, type Gltf2Material, type Gltf2MaterialEx, type Gltf2Mesh, type Gltf2Node, type Gltf2NormalTextureInfo, type Gltf2OcclusionTextureInfo, type Gltf2PbrMetallicRoughness, type Gltf2PbrMetallicRoughnessEx, type Gltf2Primitive, type Gltf2Scene, type Gltf2Skin, type Gltf2Sparse, type Gltf2SparseIndices, type Gltf2SparseValues, type Gltf2Texture, type Gltf2TextureInfo, type Gltf2TextureSampler, type GltfFileBuffers, GltfImporter, type GltfLoadOption, GreaterShaderNode, Grid, type GridDescriptor, HdriFormat, type HdriFormatEnum, type IAnimationEntity, type IAnimationEntityMethods, type IAnimationRetarget, type IAnimationStateEntity, type IAnyPrimitiveDescriptor, type IArrayBufferBasedMathNumber, type IBlendShapeEntity, type IBlendShapeEntityMethods, type ICGAPIResourceRepository, type ICameraController, type ICameraControllerEntity, type ICameraControllerEntityMethods, type ICameraEntity, type ICameraEntityMethods, type IColorRgb, type IColorRgba, type IConstraintEntity, type IEffekseerEntityMethods, type IEnhancedArrayMethods, type IEntity, type IEventPubSub, type ILightEntity, type ILightEntityMethods, type ILoaderExtension, type ILogQuaternion, type IMatrix, type IMatrix22, type IMatrix33, type IMatrix44, type IMesh, type IMeshEntity, type IMeshEntityMethods, type IMeshRendererEntityMethods, type IMutableColorRgb, type IMutableColorRgba, type IMutableMatrix, type IMutableMatrix22, type IMutableMatrix33, type IMutableMatrix44, type IMutableQuaternion, type IMutableScalar, type IMutableVector, type IMutableVector2, type IMutableVector3, type IMutableVector4, INPUT_HANDLING_STATE_CAMERA_CONTROLLER, INPUT_HANDLING_STATE_GIZMO_SCALE, INPUT_HANDLING_STATE_GIZMO_TRANSLATION, INPUT_HANDLING_STATE_NONE, type IPhysicsEntity, type IPhysicsEntityMethods, type IQuaternion, type IRenderable, type IRnObject, type IScalar, type ISceneGraphEntity, type ISceneGraphEntityMethods, type ISemanticVertexAttribute, IShape, type ISkeletalEntity, type ISkeletalEntityMethods, type ITransformEntity, type ITransformEntityMethods, type IVector, type IVector2, type IVector3, type IVector4, type IVrmEntityMethods, type IWeakOption, IdentityMatrix33, IdentityMatrix44, IfStatementShader, IfStatementShaderNode, type ImageBitmapData, ImageInfo, ImageUtil, type Index, type IndexOf16Bytes, type IndexOf4Bytes, type IndicesAccessOption, type InputHandlerInfo, type InputHandlingState, InputManager, type IntegerTypedArray, Is, IsObj, type IsType, Joint, type JointDescriptor, type KHR_interactivity, type KHR_interactivity_Configuration, type KHR_interactivity_Declaration, type KHR_interactivity_Event, type KHR_interactivity_Flow, type KHR_interactivity_Graph, type KHR_interactivity_Node, type KHR_interactivity_Type, type KHR_interactivity_Value, type KHR_interactivity_Variable, type KHR_interactivity_value_type, type KHR_lights_punctual, type KHR_lights_punctual_Light, KTX2TextureLoader, LightComponent, LightGizmo, LightType, type LightTypeEnum, Line, type LineDescriptor, type LoadImageToMipLevelDescriptor, LocatorGizmo, LogLevel, LogQuaternion, Logger, type MSC_TRANSCODER_TYPE, MToon0xMaterialContent, MToon1MaterialContent, MatCapMaterialContent, Material, MaterialHelper, type MaterialNodeUID$1 as MaterialNodeUID, MaterialRepository, type MaterialSID, type MaterialTID, type MaterialTypeName, type MaterialUID, MathClassUtil, MathUtil, Matrix22, Matrix33, Matrix44, MemoryManager, type MergeCtor, MergeVectorShaderNode, Mesh, MeshComponent, MeshHelper, MeshRendererComponent, type MeshUID, type MilliSecond, MiscUtil, type MixinBase, ModelConverter, ModuleManager, type MscTranscoderModule, MultiplyShaderNode, MutableColorRgb, MutableColorRgba, MutableMatrix22, MutableMatrix33, MutableMatrix44, MutableQuaternion, MutableScalar, MutableScalar_, MutableScalard, type MutableScalarf, MutableVector2, MutableVector2_, MutableVector2d, type MutableVector2f, MutableVector3, MutableVector3_, MutableVector3d, type MutableVector3f, MutableVector4, MutableVector4_, MutableVector4d, type MutableVector4f, None, NormalMatrixShaderNode, NormalizeShaderNode, type ObjectUID, type Offset, OimoPhysicsStrategy, Ok, type Option, OrbitCameraController, OutColorShaderNode, OutPositionShaderNode, type PartialRequire, PhysicsComponent, type PhysicsProperty, type PhysicsPropertyInner, type PhysicsStrategy, type PhysicsWorldProperty, PixelFormat, type PixelFormatEnum, Plane, type PlaneDescriptor, PointShadowMap, type PointType, Primitive, type PrimitiveDescriptor, PrimitiveMode, type PrimitiveModeEnum, type PrimitiveSortKey, type PrimitiveSortKeyLength, type PrimitiveSortKeyOffset, PrimitiveSortKey_BitLength_Depth, PrimitiveSortKey_BitLength_Material, PrimitiveSortKey_BitLength_PrimitiveType, PrimitiveSortKey_BitLength_TranslucencyType, PrimitiveSortKey_BitOffset_Material, PrimitiveSortKey_BitOffset_PrimitiveType, PrimitiveSortKey_BitOffset_TranslucencyType, PrimitiveSortKey_BitOffset_ViewportLayer, type PrimitiveUID, ProcessApproach, ProcessApproachClass, type ProcessApproachEnum, ProcessStage, type ProcessStageEnum, ProjectionMatrixShaderNode, Quaternion, type RaycastResult, type RaycastResultEx1, type RaycastResultEx2, RenderBuffer, RenderBufferTarget, type RenderBufferTargetEnum, RenderPass, RenderPassHelper, type RenderPassUID, RenderTargetTexture, RenderTargetTexture2DArray, RenderTargetTextureCube, RenderableHelper, type RenderingArgWebGL, type RenderingArgWebGpu, type RequireOne, type Result, RhodoniteImportExtension, type RnError, RnException, type RnM2, type RnM2Accessor, type RnM2Animation, type RnM2AnimationChannel, type RnM2AnimationChannelTarget, type RnM2AnimationSampler, type RnM2Asset, type RnM2AttributeAccessors, type RnM2AttributeBlendShapes, type RnM2AttributeBlendShapesAccessors, type RnM2Attributes, type RnM2AttributesObject, type RnM2Buffer, type RnM2BufferView, type RnM2Camera, type RnM2CameraOrthographic, type RnM2CameraPerspective, type RnM2ExtensionEffekseer, type RnM2ExtensionsEffekseerEffect, type RnM2ExtensionsEffekseerTimeline, type RnM2ExtensionsEffekseerTimelineItem, type RnM2Image, type RnM2Material, type RnM2MaterialVariant, type RnM2Mesh, type RnM2Node, type RnM2NormalTextureInfo, type RnM2OcclusionTextureInfo, type RnM2PbrMetallicRoughness, type RnM2Primitive, type RnM2Scene, type RnM2Skin, type RnM2Sparse, type RnM2SparseIndices, type RnM2SparseValues, type RnM2Texture, type RnM2TextureInfo, type RnM2TextureSampler, type RnM2Vrma, RnObject, RnPromise, type RnPromiseCallback, type RnPromiseCallbackObj, type RnTags, type RnWebGLProgram, type RnWebGLTexture, type RnXR, Sampler, type SamplerDescriptor, Scalar, Scalar_, Scalard, type Scalarf, ScaleGizmo, SceneGraphComponent, type Second, type ShaderAttributeOrSemanticsOrString, ShaderGraphResolver, ShaderNode, type ShaderNodeEnum, type ShaderNodeJson, type ShaderNodeJsonConnection, type ShaderNodeJsonNode, type ShaderNodeJsonNodeInput, type ShaderNodeJsonNodeOutput, type ShaderNodeUID, ShaderSemantics, ShaderSemanticsClass, type ShaderSemanticsEnum, type ShaderSemanticsIndex, type ShaderSemanticsInfo, type ShaderSemanticsName, type ShaderSocket, type ShaderSources, ShaderType, type ShaderTypeEnum, type ShaderVariable, ShaderVariableType, type ShaderVariableTypeEnum, ShaderityUtilityWebGL, ShadingModel, type ShadingModelEnum, ShadowMap, ShadowMapDecodeClassicMaterialContent, type ShadowMapEnum, ShadowMapType, ShadowSystem, SimpleVertexAttribute, type Size, SkeletalComponent, Some, Sphere, SphereCollider, type SphereDescriptor, SplitVectorShaderNode, type SquareMatrixComponentN, SymbolWeakMap, SynthesizeHdrMaterialContent, System, SystemState, type Tag, TagGltf2NodeIndex, Texture, type TextureData, TextureDataFloat, TextureFetchShader, TextureFormat, type TextureFormatEnum, TextureParameter, type TextureParameterEnum, type TextureParameters, type TextureUID, Time, ToneMappingType, type ToneMappingTypeEnum, type TranscodeTarget, type TranscodedImage, Transform3D, TransformComponent, TranslationGizmo, type TypedArray, type TypedArrayConstructor, UastcImageTranscoder, UniformDataShader, UniformDataShaderNode, VERSION, type VRM0x_Extension, VRMColliderGroup, VRMSpring, VRMSpringBone, VRMSpringBonePhysicsStrategy, VarianceShadowMapDecodeClassicMaterialContent, VaryingVariableShader, Vector2, Vector2_, Vector2d, type Vector2f, Vector3, Vector3_, Vector3d, type Vector3f, Vector4, Vector4_, Vector4d, type Vector4f, type VectorAndSquareMatrixComponentN, type VectorComponentN, type VectorCompositionTypes, VectorN, VertexAttribute, VertexAttributeClass, type VertexAttributeComponent, type VertexAttributeEnum, type VertexAttributeSemanticsJoinedString, type VertexAttributeTypeName, type VertexAttributesLayout, type VertexHandles, VideoTexture, type VideoTextureArguments, ViewMatrixShaderNode, Visibility, type VisibilityEnum, type Vrm0x, type Vrm0xBlendShapeBind, type Vrm0xBlendShapeGroup, type Vrm0xBoneGroup, type Vrm0xCollider, type Vrm0xColliderGroup, type Vrm0xHumanBone, Vrm0xImporter, type Vrm0xLookAt, type Vrm0xMaterialProperty, VrmComponent, type VrmExpression, type VrmExpressionMorphBind, type VrmExpressionName, VrmImporter, VrmaImporter, WalkThroughCameraController, WeakNone, WeakOption, WeakSome, WebGLContextWrapper, WebGLExtension, type WebGLExtensionEnum, type WebGLResource, type WebGLResourceHandle, WebGLResourceRepository, type WebGLStrategy, WebGLStrategyDataTexture, WebGLStrategyUniform, type WebGPUResourceHandle, WebGpuDeviceWrapper, type WebGpuResource, WebGpuResourceRepository, WebGpuStrategyBasic, WebXRSystem, WellKnownComponentTIDs, WireframeMaterialNode, WorldMatrixShaderNode, _from, _fromString, _fromStringCaseSensitively, _getPropertyIndex2, add2, add2_offset, add3, add3_offset, add4, add4_offset, addLineNumberToCode, applyMixins, array2_lerp_offsetAsComposition, array3_lerp_offsetAsComposition, array4_lerp_offsetAsComposition, arrayN_lerp_offsetAsComposition, assertDoesNotHave, assertExist, assertHas, assertIsErr, assertIsOk, calcAlignedByteLength, checkVersionOfGltf, combineImages, convertHTMLImageElementToCanvas, createCameraControllerEntity, createCameraEntity, createEffekseer, createEntity, createGroupEntity, createLightEntity, createLightWithCameraEntity, createMeshEntity, createMotionController, createPhysicsEntity, createSkeletalEntity, createTransformEntity, deepCopyUsingJsonStringify, defaultAnimationTrackName, defaultAssetLoader, defaultValue, detectFormatByArrayBuffers, detectFormatByUri, downloadArrayBuffer, downloadTypedArray, dummyAnisotropyTexture, dummyBlackCubeTexture, dummyBlackTexture, dummyBlueTexture, dummyDepthMomentTextureArray, dummySRGBGrayTexture, dummyWhiteTexture, dummyZeroTexture, enhanceArray, flattenHierarchy, fromTensorToCompositionType, get1, get1_offset, get1_offsetAsComposition, get2, get2_offset, get2_offsetAsComposition, get3, get3_offset, get3_offsetAsComposition, get4, get4_offset, get4_offsetAsComposition, getEvent, getMotionController, getN_offset, getN_offsetAsComposition, type getShaderPropertyFunc, getWebXRSystem, type glTF1, greaterThan, ifDefinedThen, ifDefinedThenWithReturn, ifExistsThen, ifExistsThenWithReturn, ifNotExistsThen, ifNotExistsThenWithReturn, ifUndefinedThen, ifUndefinedThenWithReturn, initDefaultTextures, isBlend, isBlendWithZWrite, isBlendWithoutZWrite, isOpaque, isSameGlTF2TextureSampler, isSkipDrawing, isTranslucent, lessThan, mulArray3WithScalar_offset, mulArray4WithScalar_offset, mulArrayNWithScalar_offset, mulThatAndThisToOutAsMat44_offsetAsComposition, normalizeArray4, nullishToEmptyArray, nullishToEmptyMap, objectCachify, primitiveCachify1, type primitives, qlerp_offsetAsComposition, scalar_lerp_offsetAsComposition, setupShaderProgram, sheenLutTexture, updateGamePad, updateMotionControllerModel, valueWithCompensation, valueWithDefault };
+export { AABB, AABBGizmo, AbsoluteAnimation, AbstractArrayBufferBaseMathNumber, AbstractCameraController, AbstractMaterialContent, AbstractMatrix, AbstractQuaternion, AbstractShaderNode, AbstractTexture, AbstractVector, Accessor, AddShaderNode, AlphaMode, type AlphaModeEnum, AnimatedQuaternion, AnimatedScalar, AnimatedVector2, AnimatedVector3, AnimatedVector4, AnimatedVectorN, AnimationAssigner, AnimationAttribute, type AnimationAttributeEnum, type AnimationChannel, type AnimationChannelTarget, AnimationComponent, type AnimationComponentEventType, type AnimationInfo, AnimationInterpolation, type AnimationInterpolationEnum, type AnimationPathName, type AnimationSampler, type AnimationSamplers, type AnimationTrack, type AnimationTrackName, type Array1, type Array16, type Array1to4, type Array2, type Array3, type Array4, type Array9, type ArrayAsRn, type ArrayType, AssetLoader, type AssetLoaderConfig, AttributeColorShaderNode, type AttributeName, type AttributeNames, AttributeNormalShaderNode, AttributePositionShaderNode, AttributeTexcoordShaderNode, type Attributes, Axis, type AxisDescriptor, type BASIS_TYPE, BasisCompressionType, type BasisCompressionTypeEnum, type BasisFile, BasisLzEtc1sImageTranscoder, type BasisTranscoder, BlendShapeComponent, BlockBeginShader, BlockBeginShaderNode, BlockEndShader, BlockEndShaderNode, Bloom, BoneDataType, type BoneDataTypeEnum, Buffer, BufferUse, type BufferUseEnum, BufferView, type Byte$1 as Byte, type CGAPIResourceHandle, CGAPIResourceRepository, Cache, type CalledSubscriberNumber, CameraComponent, CameraControllerComponent, CameraControllerType, type CameraControllerTypeEnum, type CameraSID, CameraType, type CameraTypeEnum, CapsuleCollider, type ChangeAnimationInfoEvent, ClassicShadingShader, type ColorComponentLetter, ColorGradingUsingLUTsMaterialContent, ColorRgb, ColorRgba, CommonShaderPart, ComplexVertexAttribute, Component, type ComponentMixinFunction, ComponentRepository, type ComponentSID, type ComponentTID, type ComponentToComponentMethods, ComponentType, type ComponentTypeEnum, CompositionType, type CompositionTypeEnum, CompressionTextureType, type CompressionTextureTypeEnum, Config, ConstRgbaBlack, ConstRgbaWhite, ConstVector2_0_0, ConstVector2_1_1, ConstVector3_0_0_0, ConstVector3_1_1_1, ConstVector4_0_0_0_0, ConstVector4_0_0_0_1, ConstVector4_1_1_1_1, ConstantScalarVariableShaderNode, ConstantVariableShader, ConstantVector2VariableShaderNode, ConstantVector3VariableShaderNode, ConstantVector4VariableShaderNode, type Count, Cube, type CubeDescriptor, CubeTexture, CustomMaterialContent, DataUtil, DefaultTextures, DepthEncodeMaterialContent, DetectHighLuminanceMaterialContent, type DirectTextureData, DotProductShaderNode, DrcPointCloudImporter, EVENT_CLICK, EVENT_KEY_DOWN, EVENT_KEY_PRESS, EVENT_KEY_UP, EVENT_MOUSE_DOWN, EVENT_MOUSE_ENTER, EVENT_MOUSE_LEAVE, EVENT_MOUSE_MOVE, EVENT_MOUSE_OVER, EVENT_MOUSE_UP, EVENT_MOUSE_WHEEL, EVENT_MSPOINTER_DOWN, EVENT_MSPOINTER_MOVE, EVENT_MSPOINTER_UP, EVENT_ORIENTATION_CHANGE, EVENT_POINTER_CANCEL, EVENT_POINTER_DOWN, EVENT_POINTER_ENTER, EVENT_POINTER_LEAVE, EVENT_POINTER_MOVE, EVENT_POINTER_OUT, EVENT_POINTER_OVER, EVENT_POINTER_UP, EVENT_RESIZE, EVENT_TOUCH_CANCEL, EVENT_TOUCH_DOUBLE_TAP, EVENT_TOUCH_DRAG, EVENT_TOUCH_END, EVENT_TOUCH_ENTER, EVENT_TOUCH_HOLD, EVENT_TOUCH_LEAVE, EVENT_TOUCH_LONG_TAP, EVENT_TOUCH_MOVE, EVENT_TOUCH_OUT, EVENT_TOUCH_OVER, EVENT_TOUCH_PINCH, EVENT_TOUCH_START, EVENT_TOUCH_SWIPE, EVENT_TOUCH_TAP, Effekseer, EffekseerComponent, EndShader, Entity, EntityRepository, type EntityUID, EntityUIDOutputMaterialContent, EnumClass, type EnumIO, Err, type EventHandler, EventPubSub, type EventSubscriberIndex, type EventType, Expression, FileType, type FileTypeEnum, type FillArgsObject, type FloatTypedArray, type FloatTypedArrayConstructor, ForwardRenderPipeline, Frame, FrameBuffer, type FrameBufferCubeMapDescriptor, type FrameBufferDescriptor, type FrameBufferMSAADescriptor, type FrameBufferTextureArrayDescriptor, type FrameBufferTextureArrayForMultiViewDescriptor, Frustum, FurnaceTestMaterialContent, GLTF2_EXPORT_DRACO, GLTF2_EXPORT_EMBEDDED, GLTF2_EXPORT_GLB, GLTF2_EXPORT_GLTF, GLTF2_EXPORT_NO_DOWNLOAD, GL_ACTIVE_ATTRIBUTES, GL_ACTIVE_TEXTURE, GL_ACTIVE_UNIFORMS, GL_ACTIVE_UNIFORM_BLOCKS, GL_ALIASED_LINE_WIDTH_RANGE, GL_ALIASED_POINT_SIZE_RANGE, GL_ALPHA, GL_ALPHA_BITS, GL_ALREADY_SIGNALED, GL_ALWAYS, GL_ANY_SAMPLES_PASSED, GL_ANY_SAMPLES_PASSED_CONSERVATIVE, GL_ARRAY_BUFFER, GL_ARRAY_BUFFER_BINDING, GL_ATTACHED_SHADERS, GL_BACK, GL_BLEND, GL_BLEND_COLOR, GL_BLEND_DST_ALPHA, GL_BLEND_DST_RGB, GL_BLEND_EQUATION, GL_BLEND_EQUATION_ALPHA, GL_BLEND_EQUATION_RGB, GL_BLEND_SRC_ALPHA, GL_BLEND_SRC_RGB, GL_BLUE_BITS, GL_BOOL, GL_BOOL_VEC2, GL_BOOL_VEC3, GL_BOOL_VEC4, GL_BROWSER_DEFAULT_WEBGL, GL_BUFFER_SIZE, GL_BUFFER_USAGE, GL_CCW, GL_CLAMP_TO_EDGE, GL_COLOR, GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT0_WEBGL, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT10, GL_COLOR_ATTACHMENT10_WEBGL, GL_COLOR_ATTACHMENT11, GL_COLOR_ATTACHMENT11_WEBGL, GL_COLOR_ATTACHMENT12, GL_COLOR_ATTACHMENT12_WEBGL, GL_COLOR_ATTACHMENT13, GL_COLOR_ATTACHMENT13_WEBGL, GL_COLOR_ATTACHMENT14, GL_COLOR_ATTACHMENT14_WEBGL, GL_COLOR_ATTACHMENT15, GL_COLOR_ATTACHMENT15_WEBGL, GL_COLOR_ATTACHMENT1_WEBGL, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT2_WEBGL, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT3_WEBGL, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT4_WEBGL, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT5_WEBGL, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT6_WEBGL, GL_COLOR_ATTACHMENT7, GL_COLOR_ATTACHMENT7_WEBGL, GL_COLOR_ATTACHMENT8, GL_COLOR_ATTACHMENT8_WEBGL, GL_COLOR_ATTACHMENT9, GL_COLOR_ATTACHMENT9_WEBGL, GL_COLOR_BUFFER_BIT, GL_COLOR_CLEAR_VALUE, GL_COLOR_WRITEMASK, GL_COMPARE_REF_TO_TEXTURE, GL_COMPILE_STATUS, GL_COMPRESSED_R11_EAC, GL_COMPRESSED_RG11_EAC, GL_COMPRESSED_RGB8_ETC2, GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2, GL_COMPRESSED_RGBA8_ETC2_EAC, GL_COMPRESSED_RGBA_ASTC_10X10_KHR, GL_COMPRESSED_RGBA_ASTC_10X5_KHR, GL_COMPRESSED_RGBA_ASTC_10X6_KHR, GL_COMPRESSED_RGBA_ASTC_10X8_KHR, GL_COMPRESSED_RGBA_ASTC_12X10_KHR, GL_COMPRESSED_RGBA_ASTC_12X12_KHR, GL_COMPRESSED_RGBA_ASTC_4X4_KHR, GL_COMPRESSED_RGBA_ASTC_5X4_KHR, GL_COMPRESSED_RGBA_ASTC_5X5_KHR, GL_COMPRESSED_RGBA_ASTC_6X5_KHR, GL_COMPRESSED_RGBA_ASTC_6X6_KHR, GL_COMPRESSED_RGBA_ASTC_8X5_KHR, GL_COMPRESSED_RGBA_ASTC_8X6_KHR, GL_COMPRESSED_RGBA_ASTC_8X8_KHR, GL_COMPRESSED_RGBA_ATC_EXPLICIT_ALPHA_WEBGL, GL_COMPRESSED_RGBA_ATC_INTERPOLATED_ALPHA_WEBGL, GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, GL_COMPRESSED_RGB_ATC_WEBGL, GL_COMPRESSED_RGB_ETC1_WEBGL, GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, GL_COMPRESSED_RGB_S3TC_DXT1_EXT, GL_COMPRESSED_SIGNED_R11_EAC, GL_COMPRESSED_SIGNED_RG11_EAC, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X10_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X5_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X6_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X8_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X10_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X12_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4X4_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X4_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X5_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X5_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X6_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X5_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X6_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X8_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC, GL_COMPRESSED_SRGB8_ETC2, GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2, GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT, GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT, GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT, GL_COMPRESSED_SRGB_S3TC_DXT1_EXT, GL_COMPRESSED_TEXTURE_FORMATS, GL_CONDITION_SATISFIED, GL_CONSTANT_ALPHA, GL_CONSTANT_COLOR, GL_CONTEXT_LOST_WEBGL, GL_COPY_READ_BUFFER, GL_COPY_READ_BUFFER_BINDING, GL_COPY_WRITE_BUFFER, GL_COPY_WRITE_BUFFER_BINDING, GL_CULL_FACE, GL_CULL_FACE_MODE, GL_CURRENT_PROGRAM, GL_CURRENT_QUERY, GL_CURRENT_QUERY_EXT, GL_CURRENT_VERTEX_ATTRIB, GL_CW, GL_DATA_BYTE, GL_DATA_FLOAT, GL_DATA_INT, GL_DATA_SHORT, GL_DATA_UNSIGNED_BYTE, GL_DATA_UNSIGNED_INT, GL_DATA_UNSIGNED_SHORT, GL_DECR, GL_DECR_WRAP, GL_DELETE_STATUS, GL_DEPTH, GL_DEPTH24_STENCIL8, GL_DEPTH32F_STENCIL8, GL_DEPTH_ATTACHMENT, GL_DEPTH_BITS, GL_DEPTH_BUFFER_BIT, GL_DEPTH_CLEAR_VALUE, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT32F, GL_DEPTH_FUNC, GL_DEPTH_RANGE, GL_DEPTH_STENCIL, GL_DEPTH_STENCIL_ATTACHMENT, GL_DEPTH_TEST, GL_DEPTH_WRITEMASK, GL_DITHER, GL_DONT_CARE, GL_DRAW_BUFFER0, GL_DRAW_BUFFER0_WEBGL, GL_DRAW_BUFFER1, GL_DRAW_BUFFER10, GL_DRAW_BUFFER10_WEBGL, GL_DRAW_BUFFER11, GL_DRAW_BUFFER11_WEBGL, GL_DRAW_BUFFER12, GL_DRAW_BUFFER12_WEBGL, GL_DRAW_BUFFER13, GL_DRAW_BUFFER13_WEBGL, GL_DRAW_BUFFER14, GL_DRAW_BUFFER14_WEBGL, GL_DRAW_BUFFER15, GL_DRAW_BUFFER15_WEBGL, GL_DRAW_BUFFER1_WEBGL, GL_DRAW_BUFFER2, GL_DRAW_BUFFER2_WEBGL, GL_DRAW_BUFFER3, GL_DRAW_BUFFER3_WEBGL, GL_DRAW_BUFFER4, GL_DRAW_BUFFER4_WEBGL, GL_DRAW_BUFFER5, GL_DRAW_BUFFER5_WEBGL, GL_DRAW_BUFFER6, GL_DRAW_BUFFER6_WEBGL, GL_DRAW_BUFFER7, GL_DRAW_BUFFER7_WEBGL, GL_DRAW_BUFFER8, GL_DRAW_BUFFER8_WEBGL, GL_DRAW_BUFFER9, GL_DRAW_BUFFER9_WEBGL, GL_DRAW_FRAMEBUFFER, GL_DRAW_FRAMEBUFFER_BINDING, GL_DST_ALPHA, GL_DST_COLOR, GL_DYNAMIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ, GL_ELEMENT_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER_BINDING, GL_EQUAL, GL_FASTEST, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, GL_FLOAT_MAT2, GL_FLOAT_MAT2X3, GL_FLOAT_MAT2X4, GL_FLOAT_MAT3, GL_FLOAT_MAT3X2, GL_FLOAT_MAT3X4, GL_FLOAT_MAT4, GL_FLOAT_MAT4X2, GL_FLOAT_MAT4X3, GL_FLOAT_VEC2, GL_FLOAT_VEC3, GL_FLOAT_VEC4, GL_FRAGMENT_SHADER, GL_FRAGMENT_SHADER_DERIVATIVE_HINT, GL_FRAGMENT_SHADER_DERIVATIVE_HINT_OES, GL_FRAMEBUFFER, GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING_EXT, GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE, GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE_EXT, GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE, GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER, GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL, GL_FRAMEBUFFER_BINDING, GL_FRAMEBUFFER_COMPLETE, GL_FRAMEBUFFER_DEFAULT, GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT, GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS, GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT, GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE, GL_FRAMEBUFFER_UNSUPPORTED, GL_FRONT, GL_FRONT_AND_BACK, GL_FRONT_FACE, GL_FUNC_ADD, GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_SUBSTRACT, GL_GENERATE_MIPMAP_HINT, GL_GEQUAL, GL_GPU_DISJOINT_EXT, GL_GREATER, GL_GREEN_BITS, GL_HALF_FLOAT, GL_HALF_FLOAT_OES, GL_HIGH_FLOAT, GL_HIGH_INT, GL_IMPLEMENTATION_COLOR_READ_FORMAT, GL_IMPLEMENTATION_COLOR_READ_TYPE, GL_INCR, GL_INCR_WRAP, GL_INTERLEAVED_ATTRIBS, GL_INT_2_10_10_10_REV, GL_INT_SAMPLER_2D, GL_INT_SAMPLER_2D_ARRAY, GL_INT_SAMPLER_3D, GL_INT_SAMPLER_CUBE, GL_INT_VEC2, GL_INT_VEC3, GL_INT_VEC4, GL_INVALID_ENUM, GL_INVALID_FRAMEBUFFER_OPERATION, GL_INVALID_INDEX, GL_INVALID_OPERATION, GL_INVALID_VALUE, GL_INVERT, GL_KEEP, GL_LEQUAL, GL_LESS, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR_MIPMAP_NEAREST, GL_LINES, GL_LINE_LOOP, GL_LINE_STRIP, GL_LINE_WIDTH, GL_LINK_STATUS, GL_LOW_FLOAT, GL_LOW_INT, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_MAX, GL_MAX_3D_TEXTURE_SIZE, GL_MAX_ARRAY_TEXTURE_LAYERS, GL_MAX_CLIENT_WAIT_TIMEOUT_WEBGL, GL_MAX_COLOR_ATTACHMENTS, GL_MAX_COLOR_ATTACHMENTS_WEBGL, GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS, GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, GL_MAX_COMBINED_UNIFORM_BLOCKS, GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS, GL_MAX_CUBE_MAP_TEXTURE_SIZE, GL_MAX_DRAW_BUFFERS, GL_MAX_DRAW_BUFFERS_WEBGL, GL_MAX_ELEMENTS_INDICES, GL_MAX_ELEMENTS_VERTICES, GL_MAX_ELEMENT_INDEX, GL_MAX_EXT, GL_MAX_FRAGMENT_INPUT_COMPONENTS, GL_MAX_FRAGMENT_UNIFORM_BLOCKS, GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, GL_MAX_FRAGMENT_UNIFORM_VECTORS, GL_MAX_PROGRAM_TEXEL_OFFSET, GL_MAX_RENDERBUFFER_SIZE, GL_MAX_SAMPLES, GL_MAX_SERVER_WAIT_TIMEOUT, GL_MAX_TEXTURE_IMAGE_UNITS, GL_MAX_TEXTURE_LOD_BIAS, GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, GL_MAX_TEXTURE_SIZE, GL_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS, GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS, GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS, GL_MAX_UNIFORM_BLOCK_SIZE, GL_MAX_UNIFORM_BUFFER_BINDINGS, GL_MAX_VARYING_COMPONENTS, GL_MAX_VARYING_VECTORS, GL_MAX_VERTEX_ATTRIBS, GL_MAX_VERTEX_OUTPUT_COMPONENTS, GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, GL_MAX_VERTEX_UNIFORM_BLOCKS, GL_MAX_VERTEX_UNIFORM_COMPONENTS, GL_MAX_VERTEX_UNIFORM_VECTORS, GL_MAX_VIEWPORT_DIMS, GL_MEDIUM_FLOAT, GL_MEDIUM_INT, GL_MIN, GL_MIN_EXT, GL_MIN_PROGRAM_TEXEL_OFFSET, GL_MIRRORED_REPEAT, GL_NEAREST, GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST_MIPMAP_NEAREST, GL_NEVER, GL_NICEST, GL_NONE, GL_NOTEQUAL, GL_NO_ERROR, GL_OBJECT_TYPE, GL_ONE, GL_ONE_MINUS_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_COLOR, GL_ONE_MINUS_DST_ALPHA, GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR, GL_OUT_OF_MEMORY, GL_PACK_ALIGNMENT, GL_PACK_ROW_LENGTH, GL_PACK_SKIP_PIXELS, GL_PACK_SKIP_ROWS, GL_PIXEL_PACK_BUFFER, GL_PIXEL_PACK_BUFFER_BINDING, GL_PIXEL_UNPACK_BUFFER, GL_PIXEL_UNPACK_BUFFER_BINDING, GL_PIXEL_UNSIGNED_BYTE, GL_PIXEL_UNSIGNED_SHORT_4_4_4_4, GL_PIXEL_UNSIGNED_SHORT_5_5_5_1, GL_PIXEL_UNSIGNED_SHORT_5_6_5, GL_POINTS, GL_POLYGON_OFFSET_FACTOR, GL_POLYGON_OFFSET_FILL, GL_POLYGON_OFFSET_UNITS, GL_QUERY_COUNTER_BITS_EXT, GL_QUERY_RESULT, GL_QUERY_RESULT_AVAILABLE, GL_QUERY_RESULT_AVAILABLE_EXT, GL_QUERY_RESULT_EXT, GL_R11F_G11F_B10F, GL_R16F, GL_R16I, GL_R16UI, GL_R32F, GL_R32I, GL_R32UI, GL_R8, GL_R8I, GL_R8UI, GL_R8_SNORM, GL_RASTERIZER_DISCARD, GL_READ_BUFFER, GL_READ_FRAMEBUFFER, GL_READ_FRAMEBUFFER_BINDING, GL_RED, GL_RED_BITS, GL_RED_INTEGER, GL_RENDERBUFFER, GL_RENDERBUFFER_ALPHA_SIZE, GL_RENDERBUFFER_BINDING, GL_RENDERBUFFER_BLUE_SIZE, GL_RENDERBUFFER_DEPTH_SIZE, GL_RENDERBUFFER_GREEN_SIZE, GL_RENDERBUFFER_HEIGHT, GL_RENDERBUFFER_INTERNAL_FORMAT, GL_RENDERBUFFER_RED_SIZE, GL_RENDERBUFFER_SAMPLES, GL_RENDERBUFFER_STENCIL_SIZE, GL_RENDERBUFFER_WIDTH, GL_RENDERER, GL_REPEAT, GL_REPLACE, GL_RG, GL_RG16F, GL_RG16I, GL_RG16UI, GL_RG32F, GL_RG32I, GL_RG32UI, GL_RG8, GL_RG8I, GL_RG8UI, GL_RG8_SNORM, GL_RGB, GL_RGB10_A2, GL_RGB10_A2UI, GL_RGB16F, GL_RGB16I, GL_RGB16UI, GL_RGB32F, GL_RGB32F_EXT, GL_RGB32I, GL_RGB32UI, GL_RGB565, GL_RGB5_A1, GL_RGB8, GL_RGB8I, GL_RGB8UI, GL_RGB8_SNORM, GL_RGB9_E5, GL_RGBA, GL_RGBA16F, GL_RGBA16I, GL_RGBA16UI, GL_RGBA32F, GL_RGBA32F_EXT, GL_RGBA32I, GL_RGBA32UI, GL_RGBA4, GL_RGBA8, GL_RGBA8I, GL_RGBA8UI, GL_RGBA8_SNORM, GL_RGBA_INTEGER, GL_RGB_INTEGER, GL_RG_INTEGER, GL_SAMPLER_2D, GL_SAMPLER_2D_ARRAY, GL_SAMPLER_2D_ARRAY_SHADOW, GL_SAMPLER_2D_SHADOW, GL_SAMPLER_3D, GL_SAMPLER_BINDING, GL_SAMPLER_CUBE, GL_SAMPLER_CUBE_SHADOW, GL_SAMPLES, GL_SAMPLE_ALPHA_TO_COVERAGE, GL_SAMPLE_BUFFERS, GL_SAMPLE_COVERAGE, GL_SAMPLE_COVERAGE_INVERT, GL_SAMPLE_COVERAGE_VALUE, GL_SCISSOR_BOX, GL_SCISSOR_TEST, GL_SEPARATE_ATTRIBS, GL_SHADER_TYPE, GL_SHADING_LANGUAGE_VERSION, GL_SIGNALED, GL_SIGNED_NORMALIZED, GL_SRC_ALPHA, GL_SRC_ALPHA_SATURATE, GL_SRC_COLOR, GL_SRGB, GL_SRGB8, GL_SRGB8_ALPHA8, GL_SRGB8_ALPHA8_EXT, GL_SRGB_ALPHA_EXT, GL_SRGB_EXT, GL_STATIC_COPY, GL_STATIC_DRAW, GL_STATIC_READ, GL_STENCIL, GL_STENCIL_ATTACHMENT, GL_STENCIL_BACK_FAIL, GL_STENCIL_BACK_FUNC, GL_STENCIL_BACK_PASS_DEPTH_FAIL, GL_STENCIL_BACK_PASS_DEPTH_PASS, GL_STENCIL_BACK_REF, GL_STENCIL_BACK_VALUE_MASK, GL_STENCIL_BACK_WRITEMASK, GL_STENCIL_BITS, GL_STENCIL_BUFFER_BIT, GL_STENCIL_CLEAR_VALUE, GL_STENCIL_FAIL, GL_STENCIL_FUNC, GL_STENCIL_INDEX, GL_STENCIL_INDEX8, GL_STENCIL_PASS_DEPTH_FAIL, GL_STENCIL_PASS_DEPTH_PASS, GL_STENCIL_REF, GL_STENCIL_TEST, GL_STENCIL_VALUE_MASK, GL_STENCIL_WRITEMASK, GL_STREAM_COPY, GL_STREAM_DRAW, GL_STREAM_READ, GL_SUBPIXEL_BITS, GL_SYNC_CONDITION, GL_SYNC_FENCE, GL_SYNC_FLAGS, GL_SYNC_FLUSH_COMMANDS_BIT, GL_SYNC_GPU_COMMANDS_COMPLETE, GL_SYNC_STATUS, GL_TEXTURE, GL_TEXTURE0, GL_TEXTURE1, GL_TEXTURE10, GL_TEXTURE11, GL_TEXTURE12, GL_TEXTURE13, GL_TEXTURE14, GL_TEXTURE15, GL_TEXTURE16, GL_TEXTURE17, GL_TEXTURE18, GL_TEXTURE19, GL_TEXTURE2, GL_TEXTURE20, GL_TEXTURE21, GL_TEXTURE22, GL_TEXTURE23, GL_TEXTURE24, GL_TEXTURE25, GL_TEXTURE26, GL_TEXTURE27, GL_TEXTURE28, GL_TEXTURE29, GL_TEXTURE3, GL_TEXTURE30, GL_TEXTURE31, GL_TEXTURE4, GL_TEXTURE5, GL_TEXTURE6, GL_TEXTURE7, GL_TEXTURE8, GL_TEXTURE9, GL_TEXTURE_2D, GL_TEXTURE_2D_ARRAY, GL_TEXTURE_3D, GL_TEXTURE_BASE_LEVEL, GL_TEXTURE_BINDING_2D, GL_TEXTURE_BINDING_2D_ARRAY, GL_TEXTURE_BINDING_3D, GL_TEXTURE_BINDING_CUBE_MAP, GL_TEXTURE_COMPARE_FUNC, GL_TEXTURE_COMPARE_MODE, GL_TEXTURE_CUBE_MAP, GL_TEXTURE_CUBE_MAP_NEGATIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_IMMUTABLE_FORMAT, GL_TEXTURE_IMMUTABLE_LEVELS, GL_TEXTURE_MAG_FILTER, GL_TEXTURE_MAX_ANISOTROPY_EXT, GL_TEXTURE_MAX_LEVEL, GL_TEXTURE_MAX_LOD, GL_TEXTURE_MIN_FILTER, GL_TEXTURE_MIN_LOD, GL_TEXTURE_WRAP_R, GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T, GL_TIMEOUT_EXPIRED, GL_TIMEOUT_IGNORED, GL_TIMESTAMP_EXT, GL_TIME_ELAPSED_EXT, GL_TRANSFORM_FEEDBACK, GL_TRANSFORM_FEEDBACK_ACTIVE, GL_TRANSFORM_FEEDBACK_BINDING, GL_TRANSFORM_FEEDBACK_BUFFER, GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, GL_TRANSFORM_FEEDBACK_BUFFER_MODE, GL_TRANSFORM_FEEDBACK_BUFFER_SIZE, GL_TRANSFORM_FEEDBACK_BUFFER_START, GL_TRANSFORM_FEEDBACK_PAUSED, GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, GL_TRANSFORM_FEEDBACK_VARYINGS, GL_TRIANGLES, GL_TRIANGLE_FAN, GL_TRIANGLE_STRIP, GL_UNIFORM_ARRAY_STRIDE, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, GL_UNIFORM_BLOCK_BINDING, GL_UNIFORM_BLOCK_DATA_SIZE, GL_UNIFORM_BLOCK_INDEX, GL_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER, GL_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER, GL_UNIFORM_BUFFER, GL_UNIFORM_BUFFER_BINDING, GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, GL_UNIFORM_BUFFER_SIZE, GL_UNIFORM_BUFFER_START, GL_UNIFORM_IS_ROW_MAJOR, GL_UNIFORM_MATRIX_STRIDE, GL_UNIFORM_OFFSET, GL_UNIFORM_SIZE, GL_UNIFORM_TYPE, GL_UNMASKED_RENDERER_WEBGL, GL_UNMASKED_VENDOR_WEBGL, GL_UNPACK_ALIGNMENT, GL_UNPACK_COLORSPACE_CONVERSION_WEBGL, GL_UNPACK_FLIP_Y_WEBGL, GL_UNPACK_IMAGE_HEIGHT, GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL, GL_UNPACK_ROW_LENGTH, GL_UNPACK_SKIP_IMAGES, GL_UNPACK_SKIP_PIXELS, GL_UNPACK_SKIP_ROWS, GL_UNSIGNALED, GL_UNSIGNED_INT_10F_11F_11F_REV, GL_UNSIGNED_INT_24_8, GL_UNSIGNED_INT_24_8_WEBGL, GL_UNSIGNED_INT_2_10_10_10_REV, GL_UNSIGNED_INT_5_9_9_9_REV, GL_UNSIGNED_INT_SAMPLER_2D, GL_UNSIGNED_INT_SAMPLER_2D_ARRAY, GL_UNSIGNED_INT_SAMPLER_3D, GL_UNSIGNED_INT_SAMPLER_CUBE, GL_UNSIGNED_INT_VEC2, GL_UNSIGNED_INT_VEC3, GL_UNSIGNED_INT_VEC4, GL_UNSIGNED_NORMALIZED, GL_UNSIGNED_NORMALIZED_EXT, GL_VALIDATE_STATUS, GL_VENDOR, GL_VERSION, GL_VERTEX_ARRAY_BINDING, GL_VERTEX_ARRAY_BINDING_OES, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, GL_VERTEX_ATTRIB_ARRAY_DIVISOR, GL_VERTEX_ATTRIB_ARRAY_DIVISOR_ANGLE, GL_VERTEX_ATTRIB_ARRAY_ENABLED, GL_VERTEX_ATTRIB_ARRAY_INTEGER, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, GL_VERTEX_ATTRIB_ARRAY_POINTER, GL_VERTEX_ATTRIB_ARRAY_SIZE, GL_VERTEX_ATTRIB_ARRAY_STRIDE, GL_VERTEX_ATTRIB_ARRAY_TYPE, GL_VERTEX_SHADER, GL_VIEWPORT, GL_WAIT_FAILED, GL_ZERO, GaussianBlur, GetComponentFromEntities, type GetInstance, type GetProps, Gizmo, GlobalDataRepository, GlobalRetarget, GlobalRetargetReverse, type Gltf1AnyObject, type Gltf2, type Gltf2Accessor, type Gltf2AccessorComponentType, type Gltf2AccessorComponentTypeNumber, type Gltf2AccessorCompositionType, type Gltf2AccessorCompositionTypeString, type Gltf2AccessorEx, type Gltf2AccessorIndex, type Gltf2Animation, type Gltf2AnimationAccessorCompositionType, type Gltf2AnimationAccessorCompositionTypeString, type Gltf2AnimationChannel, type Gltf2AnimationChannelTarget, type Gltf2AnimationPathName, type Gltf2AnimationSampler, type Gltf2AnimationSamplerInterpolation, type Gltf2AnyObject, type Gltf2Asset, type Gltf2AttributeAccessors, type Gltf2AttributeBlendShapes, type Gltf2AttributeBlendShapesAccessors, type Gltf2Attributes, type Gltf2Buffer, type Gltf2BufferView, type Gltf2BufferViewEx, type Gltf2Camera, type Gltf2CameraOrthographic, type Gltf2CameraPerspective, type Gltf2Ex, type Gltf2ExportType, Gltf2Exporter, type Gltf2ExporterArguments, type Gltf2Image, type Gltf2ImageEx, Gltf2Importer, type Gltf2Material, type Gltf2MaterialEx, type Gltf2Mesh, type Gltf2Node, type Gltf2NormalTextureInfo, type Gltf2OcclusionTextureInfo, type Gltf2PbrMetallicRoughness, type Gltf2PbrMetallicRoughnessEx, type Gltf2Primitive, type Gltf2Scene, type Gltf2Skin, type Gltf2Sparse, type Gltf2SparseIndices, type Gltf2SparseValues, type Gltf2Texture, type Gltf2TextureInfo, type Gltf2TextureSampler, type GltfFileBuffers, GltfImporter, type GltfLoadOption, GreaterShaderNode, Grid, type GridDescriptor, HdriFormat, type HdriFormatEnum, type IAnimationEntity, type IAnimationEntityMethods, type IAnimationRetarget, type IAnimationStateEntity, type IAnyPrimitiveDescriptor, type IArrayBufferBasedMathNumber, type IBlendShapeEntity, type IBlendShapeEntityMethods, type ICGAPIResourceRepository, type ICameraController, type ICameraControllerEntity, type ICameraControllerEntityMethods, type ICameraEntity, type ICameraEntityMethods, type IColorRgb, type IColorRgba, type IConstraintEntity, type IEffekseerEntityMethods, type IEnhancedArrayMethods, type IEntity, type IEventPubSub, type ILightEntity, type ILightEntityMethods, type ILoaderExtension, type ILogQuaternion, type IMatrix, type IMatrix22, type IMatrix33, type IMatrix44, type IMesh, type IMeshEntity, type IMeshEntityMethods, type IMeshRendererEntityMethods, type IMutableColorRgb, type IMutableColorRgba, type IMutableMatrix, type IMutableMatrix22, type IMutableMatrix33, type IMutableMatrix44, type IMutableQuaternion, type IMutableScalar, type IMutableVector, type IMutableVector2, type IMutableVector3, type IMutableVector4, INPUT_HANDLING_STATE_CAMERA_CONTROLLER, INPUT_HANDLING_STATE_GIZMO_SCALE, INPUT_HANDLING_STATE_GIZMO_TRANSLATION, INPUT_HANDLING_STATE_NONE, type IPhysicsEntity, type IPhysicsEntityMethods, type IQuaternion, type IRenderable, type IRnObject, type IScalar, type ISceneGraphEntity, type ISceneGraphEntityMethods, type ISemanticVertexAttribute, IShape, type ISkeletalEntity, type ISkeletalEntityMethods, type ITransformEntity, type ITransformEntityMethods, type IVector, type IVector2, type IVector3, type IVector4, type IVrmEntityMethods, type IWeakOption, IdentityMatrix33, IdentityMatrix44, IfStatementShader, IfStatementShaderNode, type ImageBitmapData, ImageInfo, ImageUtil, type Index, type IndexOf16Bytes, type IndexOf4Bytes, type IndicesAccessOption, type InputHandlerInfo, type InputHandlingState, InputManager, type IntegerTypedArray, Is, IsObj, type IsType, Joint, type JointDescriptor, type KHR_interactivity, type KHR_interactivity_Configuration, type KHR_interactivity_Declaration, type KHR_interactivity_Event, type KHR_interactivity_Flow, type KHR_interactivity_Graph, type KHR_interactivity_Node, type KHR_interactivity_Type, type KHR_interactivity_Value, type KHR_interactivity_Variable, type KHR_interactivity_value_type, type KHR_lights_punctual, type KHR_lights_punctual_Light, KTX2TextureLoader, LightComponent, LightGizmo, LightType, type LightTypeEnum, Line, type LineDescriptor, type LoadImageToMipLevelDescriptor, LocatorGizmo, LogLevel, LogQuaternion, Logger, type MSC_TRANSCODER_TYPE, MToon0xMaterialContent, MToon1MaterialContent, MatCapMaterialContent, Material, MaterialHelper, type MaterialNodeUID$1 as MaterialNodeUID, MaterialRepository, type MaterialSID, type MaterialTID, type MaterialTypeName, type MaterialUID, MathClassUtil, MathUtil, Matrix22, Matrix33, Matrix44, MemoryManager, type MergeCtor, MergeVectorShaderNode, Mesh, MeshComponent, MeshHelper, MeshRendererComponent, type MeshUID, type MilliSecond, MiscUtil, type MixinBase, ModelConverter, ModuleManager, type MscTranscoderModule, MultiplyShaderNode, MutableColorRgb, MutableColorRgba, MutableMatrix22, MutableMatrix33, MutableMatrix44, MutableQuaternion, MutableScalar, MutableScalar_, MutableScalard, type MutableScalarf, MutableVector2, MutableVector2_, MutableVector2d, type MutableVector2f, MutableVector3, MutableVector3_, MutableVector3d, type MutableVector3f, MutableVector4, MutableVector4_, MutableVector4d, type MutableVector4f, None, NormalMatrixShaderNode, NormalizeShaderNode, type ObjectUID, type Offset, OimoPhysicsStrategy, Ok, type Option, OrbitCameraController, OutColorShaderNode, OutPositionShaderNode, type PartialRequire, PhysicsComponent, type PhysicsProperty, type PhysicsPropertyInner, type PhysicsStrategy, type PhysicsWorldProperty, PixelFormat, type PixelFormatEnum, Plane, type PlaneDescriptor, PointShadowMap, type PointType, Primitive, type PrimitiveDescriptor, PrimitiveMode, type PrimitiveModeEnum, type PrimitiveSortKey, type PrimitiveSortKeyLength, type PrimitiveSortKeyOffset, PrimitiveSortKey_BitLength_Depth, PrimitiveSortKey_BitLength_Material, PrimitiveSortKey_BitLength_PrimitiveType, PrimitiveSortKey_BitLength_TranslucencyType, PrimitiveSortKey_BitOffset_Material, PrimitiveSortKey_BitOffset_PrimitiveType, PrimitiveSortKey_BitOffset_TranslucencyType, PrimitiveSortKey_BitOffset_ViewportLayer, type PrimitiveUID, ProcessApproach, ProcessApproachClass, type ProcessApproachEnum, ProcessStage, type ProcessStageEnum, ProjectionMatrixShaderNode, Quaternion, type RaycastResult, type RaycastResultEx1, type RaycastResultEx2, RenderBuffer, RenderBufferTarget, type RenderBufferTargetEnum, RenderPass, RenderPassHelper, type RenderPassUID, RenderTargetTexture, RenderTargetTexture2DArray, RenderTargetTextureCube, RenderableHelper, type RenderingArgWebGL, type RenderingArgWebGpu, type RequireOne, type Result, RhodoniteImportExtension, type RnError, RnException, type RnM2, type RnM2Accessor, type RnM2Animation, type RnM2AnimationChannel, type RnM2AnimationChannelTarget, type RnM2AnimationSampler, type RnM2Asset, type RnM2AttributeAccessors, type RnM2AttributeBlendShapes, type RnM2AttributeBlendShapesAccessors, type RnM2Attributes, type RnM2AttributesObject, type RnM2Buffer, type RnM2BufferView, type RnM2Camera, type RnM2CameraOrthographic, type RnM2CameraPerspective, type RnM2ExtensionEffekseer, type RnM2ExtensionsEffekseerEffect, type RnM2ExtensionsEffekseerTimeline, type RnM2ExtensionsEffekseerTimelineItem, type RnM2Image, type RnM2Material, type RnM2MaterialVariant, type RnM2Mesh, type RnM2Node, type RnM2NormalTextureInfo, type RnM2OcclusionTextureInfo, type RnM2PbrMetallicRoughness, type RnM2Primitive, type RnM2Scene, type RnM2Skin, type RnM2Sparse, type RnM2SparseIndices, type RnM2SparseValues, type RnM2Texture, type RnM2TextureInfo, type RnM2TextureSampler, type RnM2Vrma, RnObject, RnPromise, type RnPromiseCallback, type RnPromiseCallbackObj, type RnTags, type RnWebGLProgram, type RnWebGLTexture, type RnXR, Sampler, type SamplerDescriptor, Scalar, Scalar_, Scalard, type Scalarf, ScaleGizmo, SceneGraphComponent, type Second, type ShaderAttributeOrSemanticsOrString, ShaderGraphResolver, ShaderNode, type ShaderNodeEnum, type ShaderNodeJson, type ShaderNodeJsonConnection, type ShaderNodeJsonNode, type ShaderNodeJsonNodeInput, type ShaderNodeJsonNodeOutput, type ShaderNodeUID, ShaderSemantics, ShaderSemanticsClass, type ShaderSemanticsEnum, type ShaderSemanticsIndex, type ShaderSemanticsInfo, type ShaderSemanticsName, type ShaderSocket, type ShaderSources, ShaderType, type ShaderTypeEnum, type ShaderVariable, ShaderVariableType, type ShaderVariableTypeEnum, ShaderityUtilityWebGL, ShadingModel, type ShadingModelEnum, ShadowMap, ShadowMapDecodeClassicMaterialContent, type ShadowMapEnum, ShadowMapType, ShadowSystem, SimpleVertexAttribute, type Size, SkeletalComponent, Some, Sphere, SphereCollider, type SphereDescriptor, SplitVectorShaderNode, type SquareMatrixComponentN, SymbolWeakMap, SynthesizeHdrMaterialContent, System, SystemState, type Tag, TagGltf2NodeIndex, Texture, type TextureData, TextureDataFloat, TextureFetchShader, TextureFormat$1 as TextureFormat, type TextureFormatEnum, TextureParameter, type TextureParameterEnum, type TextureParameters, type TextureUID, Time, ToneMappingType, type ToneMappingTypeEnum, type TranscodeTarget, type TranscodedImage, Transform3D, TransformComponent, TranslationGizmo, type TypedArray, type TypedArrayConstructor, UastcImageTranscoder, UniformDataShader, UniformDataShaderNode, VERSION, type VRM0x_Extension, VRMColliderGroup, VRMSpring, VRMSpringBone, VRMSpringBonePhysicsStrategy, VarianceShadowMapDecodeClassicMaterialContent, VaryingVariableShader, Vector2, Vector2_, Vector2d, type Vector2f, Vector3, Vector3_, Vector3d, type Vector3f, Vector4, Vector4_, Vector4d, type Vector4f, type VectorAndSquareMatrixComponentN, type VectorComponentN, type VectorCompositionTypes, VectorN, VertexAttribute, VertexAttributeClass, type VertexAttributeComponent, type VertexAttributeEnum, type VertexAttributeSemanticsJoinedString, type VertexAttributeTypeName, type VertexAttributesLayout, type VertexHandles, VideoTexture, type VideoTextureArguments, ViewMatrixShaderNode, Visibility, type VisibilityEnum, type Vrm0x, type Vrm0xBlendShapeBind, type Vrm0xBlendShapeGroup, type Vrm0xBoneGroup, type Vrm0xCollider, type Vrm0xColliderGroup, type Vrm0xHumanBone, Vrm0xImporter, type Vrm0xLookAt, type Vrm0xMaterialProperty, VrmComponent, type VrmExpression, type VrmExpressionMorphBind, type VrmExpressionName, VrmImporter, VrmaImporter, WalkThroughCameraController, WeakNone, WeakOption, WeakSome, WebGLContextWrapper, WebGLExtension, type WebGLExtensionEnum, type WebGLResource, type WebGLResourceHandle, WebGLResourceRepository, type WebGLStrategy, WebGLStrategyDataTexture, WebGLStrategyUniform, type WebGPUResourceHandle, WebGpuDeviceWrapper, type WebGpuResource, WebGpuResourceRepository, WebGpuStrategyBasic, WebXRSystem, WellKnownComponentTIDs, WireframeMaterialNode, WorldMatrixShaderNode, _from, _fromString, _fromStringCaseSensitively, _getPropertyIndex2, add2, add2_offset, add3, add3_offset, add4, add4_offset, addLineNumberToCode, applyMixins, array2_lerp_offsetAsComposition, array3_lerp_offsetAsComposition, array4_lerp_offsetAsComposition, arrayN_lerp_offsetAsComposition, assertDoesNotHave, assertExist, assertHas, assertIsErr, assertIsOk, calcAlignedByteLength, checkVersionOfGltf, combineImages, convertHTMLImageElementToCanvas, createCameraControllerEntity, createCameraEntity, createEffekseer, createEntity, createGroupEntity, createLightEntity, createLightWithCameraEntity, createMeshEntity, createMotionController, createPhysicsEntity, createSkeletalEntity, createTransformEntity, deepCopyUsingJsonStringify, defaultAnimationTrackName, defaultAssetLoader, defaultValue, detectFormatByArrayBuffers, detectFormatByUri, downloadArrayBuffer, downloadTypedArray, dummyAnisotropyTexture, dummyBlackCubeTexture, dummyBlackTexture, dummyBlueTexture, dummyDepthMomentTextureArray, dummySRGBGrayTexture, dummyWhiteTexture, dummyZeroTexture, enhanceArray, flattenHierarchy, fromTensorToCompositionType, get1, get1_offset, get1_offsetAsComposition, get2, get2_offset, get2_offsetAsComposition, get3, get3_offset, get3_offsetAsComposition, get4, get4_offset, get4_offsetAsComposition, getEvent, getMotionController, getN_offset, getN_offsetAsComposition, type getShaderPropertyFunc, getWebXRSystem, type glTF1, greaterThan, ifDefinedThen, ifDefinedThenWithReturn, ifExistsThen, ifExistsThenWithReturn, ifNotExistsThen, ifNotExistsThenWithReturn, ifUndefinedThen, ifUndefinedThenWithReturn, initDefaultTextures, isBlend, isBlendWithZWrite, isBlendWithoutZWrite, isOpaque, isSameGlTF2TextureSampler, isSkipDrawing, isTranslucent, lessThan, mulArray3WithScalar_offset, mulArray4WithScalar_offset, mulArrayNWithScalar_offset, mulThatAndThisToOutAsMat44_offsetAsComposition, normalizeArray4, nullishToEmptyArray, nullishToEmptyMap, objectCachify, primitiveCachify1, type primitives, qlerp_offsetAsComposition, scalar_lerp_offsetAsComposition, setupShaderProgram, sheenLutTexture, updateGamePad, updateMotionControllerModel, valueWithCompensation, valueWithDefault };
