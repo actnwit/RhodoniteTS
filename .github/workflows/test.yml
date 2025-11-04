@@ -9,14 +9,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: git submodule update -i
-      # - uses: richard-chim/actions-yarn@v2.3.1
-      #   with:
-      #     cmd: install
-      - run: yarn install
-      - run: npm run build
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9
+      - run: pnpm install
+      - run: pnpm run build
       - uses: actions/upload-artifact@v4
         with:
           name: Rhodonite-distribution-files
           path: dist
-      - run: npm run build-samples
-      - run: npm run test
+      - run: pnpm run build-samples
+      - run: pnpm run test

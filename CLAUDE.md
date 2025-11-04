@@ -10,43 +10,43 @@ RhodoniteTS is a comprehensive Web3D graphics library written in TypeScript that
 
 ### Building
 ```bash
-yarn build                 # Build all targets (ESM + IIFE, dev + prod)
-yarn build-esm-dev         # Development ESM build with source maps
-yarn build-esm-prod        # Production ESM build (optimized)
-yarn build-samples         # Compile TypeScript samples
+pnpm build                 # Build all targets (ESM + IIFE, dev + prod)
+pnpm build-esm-dev         # Development ESM build with source maps
+pnpm build-esm-prod        # Production ESM build (optimized)
+pnpm build-samples         # Compile TypeScript samples
 ```
 
 ### Development Workflow
 ```bash
-yarn watch-esm-dev         # Watch mode for library development
-yarn watch-samples         # Watch samples with auto-reload and dev server
-yarn start                 # Start development server on port 8082
+pnpm watch-esm-dev         # Watch mode for library development
+pnpm watch-samples         # Watch samples with auto-reload and dev server
+pnpm start                 # Start development server on port 8082
 ```
 
 ### Testing
 ```bash
-yarn test                  # Run all tests (unit + E2E visual regression)
-yarn test-unit             # Unit tests only (Vitest)
-yarn test-e2e              # E2E visual tests only (Puppeteer)
-yarn test-coverage         # Test with coverage report
-yarn test-e2e-update       # Update E2E test snapshots
+pnpm test                  # Run all tests (unit + E2E visual regression)
+pnpm test-unit             # Unit tests only (Vitest)
+pnpm test-e2e              # E2E visual tests only (Puppeteer)
+pnpm test-coverage         # Test with coverage report
+pnpm test-e2e-update       # Update E2E test snapshots
 ```
 
 ### Code Quality
 ```bash
-yarn lint                  # Lint code using Biome
-yarn lint:fix              # Auto-fix linting issues
-yarn format                # Format code using Biome
-yarn format:fix            # Auto-format code
-yarn check                 # Run both linting and formatting checks
-yarn check:fix             # Auto-fix both linting and formatting issues
-yarn doc                   # Generate TypeDoc API documentation
+pnpm lint                  # Lint code using Biome
+pnpm lint:fix              # Auto-fix linting issues
+pnpm format                # Format code using Biome
+pnpm format:fix            # Auto-format code
+pnpm check                 # Run both linting and formatting checks
+pnpm check:fix             # Auto-fix both linting and formatting issues
+pnpm doc                   # Generate TypeDoc API documentation
 ```
 
 ### Important Notes
 - **Node.js 22+** is strictly required
 - E2E tests are environment-sensitive and may fail in different environments
-- Always run `yarn build && yarn build-samples && yarn test` before submitting PRs
+- Always run `pnpm build && pnpm build-samples && pnpm test` before submitting PRs
 - Main development branch is `develop`, not `main`
 
 ## Core Architecture

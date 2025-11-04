@@ -48,6 +48,7 @@
     "test-coverage": "npx vitest run --coverage",
     "doc": "npx typedoc --exclude '**/*+(test|d).ts' --out ./docs/api/ ./src/",
     "yarn-pack": "npm pack && ./rename_tgz.sh",
+    "pnpm-pack": "pnpm pack && ./rename_tgz.sh",
     "start": "node server.js",
     "create-VERSION-FILE": "npx shx touch VERSION-FILE",
     "lint": "biome lint ./src ./samples",
@@ -103,5 +104,5 @@
   "engines": {
     "node": ">=22"
   },
-  "packageManager": "yarn@4.9.2"
+  "packageManager": "pnpm@9.14.3"
 }

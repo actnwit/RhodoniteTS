@@ -19,23 +19,25 @@ jobs:
       - name: 'Checkout repository'
         uses: actions/checkout@v4
 
-      - name: 'Enable Corepack'
-        run: corepack enable # enable yarn v4
+      - name: 'Setup pnpm'
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
 
       - name: 'Setup Node.js'
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'yarn'
+          cache: 'pnpm'
 
       - name: 'Install dependencies'
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: 'Run Biome linting'
-        run: yarn lint
+        run: pnpm lint
 
       - name: 'Run Biome formatting check'
-        run: yarn format
+        run: pnpm format
 
       - name: 'Run Biome comprehensive check'
-        run: yarn check
+        run: pnpm check
