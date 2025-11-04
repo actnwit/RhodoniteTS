@@ -100,8 +100,8 @@ importers:
         specifier: ^11.0.3
         version: 11.0.3(puppeteer@22.15.0(typescript@5.8.3))(typescript@5.8.3)
       webxr-input-profiles:
-        specifier: actnwit/webxr-input-profiles#21272c8a0a5512614e60dca5be26f7b1485ad6e7
-        version: git+https://git@github.com:actnwit/webxr-input-profiles.git#21272c8a0a5512614e60dca5be26f7b1485ad6e7
+        specifier: https://github.com/actnwit/webxr-input-profiles.git#21272c8a0a5512614e60dca5be26f7b1485ad6e7
+        version: https://codeload.github.com/actnwit/webxr-input-profiles/tar.gz/21272c8a0a5512614e60dca5be26f7b1485ad6e7
 
 packages:
 
@@ -2513,8 +2513,8 @@ packages:
       webpack-cli:
         optional: true
 
-  webxr-input-profiles@git+https://git@github.com:actnwit/webxr-input-profiles.git#21272c8a0a5512614e60dca5be26f7b1485ad6e7:
-    resolution: {commit: 21272c8a0a5512614e60dca5be26f7b1485ad6e7, repo: git@github.com:actnwit/webxr-input-profiles.git, type: git}
+  webxr-input-profiles@https://codeload.github.com/actnwit/webxr-input-profiles/tar.gz/21272c8a0a5512614e60dca5be26f7b1485ad6e7:
+    resolution: {tarball: https://codeload.github.com/actnwit/webxr-input-profiles/tar.gz/21272c8a0a5512614e60dca5be26f7b1485ad6e7}
     version: 1.0.1
 
   whatwg-mimetype@3.0.0:
@@ -5055,7 +5055,7 @@ snapshots:
       - esbuild
       - uglify-js
 
-  webxr-input-profiles@git+https://git@github.com:actnwit/webxr-input-profiles.git#21272c8a0a5512614e60dca5be26f7b1485ad6e7: {}
+  webxr-input-profiles@https://codeload.github.com/actnwit/webxr-input-profiles/tar.gz/21272c8a0a5512614e60dca5be26f7b1485ad6e7: {}
 
   whatwg-mimetype@3.0.0: {}
 
