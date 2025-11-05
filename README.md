@@ -49,7 +49,7 @@ VRM avatar model and VRMA animation
 Shader Node Editor
 ![ShaderNodeEditor](./assets/images/screenshot_shader_node_editor.jpg)
 
-WebXR(VR) with [multiview](https://blog.mozvr.com/multiview-on-webxr/) extension
+WebXR(VR) with [multiview](https://developers.meta.com/horizon/documentation/web/web-multiview/) extension
 ![WebXR_VR](./assets/images/screenshot_webxr_vr.jpg)
 
 ## Supported Browsers
