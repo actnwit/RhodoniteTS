@@ -46,9 +46,9 @@ import type { Material } from '../materials/core/Material';
 import { MathUtil } from '../math/MathUtil';
 import type { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
-import type { Accessor } from '../memory/Accessor';
-import type { Buffer } from '../memory/Buffer';
-import type { BufferView } from '../memory/BufferView';
+import { Accessor } from '../memory/Accessor';
+import { Buffer } from '../memory/Buffer';
+import { BufferView } from '../memory/BufferView';
 import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
 import type { AbstractTexture } from '../textures/AbstractTexture';
@@ -554,8 +554,7 @@ export class Gltf2Exporter {
     };
 
     if (Is.exist(rnMaterial)) {
-      this.__setupMaterialBasicProperties(material, rnMaterial, json);
-      await this.__setupMaterialTextures(material, rnMaterial, json, promises, bufferIdx, option);
+      await this.__setupMaterial(material, rnMaterial, json, promises, bufferIdx, option);
     }
 
     return material;
@@ -636,7 +635,7 @@ export class Gltf2Exporter {
     material.alphaMode = rnMaterial.alphaMode.toGltfString();
   }
 
-  private static async __setupMaterialTextures(
+  private static async __setupMaterial(
     material: Gltf2MaterialEx,
     rnMaterial: Material,
     json: Gltf2Ex,
@@ -669,7 +668,8 @@ export class Gltf2Exporter {
       let match = false;
       for (let k = 0; k < json.images.length; k++) {
         const image = json.images![k];
-        if (Is.exist(image.rnTextureUID) && image.rnTextureUID === rnTexture.textureUID) {
+        const existingTextureUid = image.extras?.rnTextureUID;
+        if (Is.exist(existingTextureUid) && existingTextureUid === rnTexture.textureUID) {
           imageIndex = k;
           match = true;
         }
@@ -678,8 +678,10 @@ export class Gltf2Exporter {
       if (!match) {
         const glTF2ImageEx: Gltf2ImageEx = {
           uri: rnTexture.name,
+          extras: {
+            rnTextureUID: rnTexture.textureUID,
+          },
         };
-        glTF2ImageEx.rnTextureUID = rnTexture.textureUID;
 
         if (existedImages.indexOf(rnTexture.name) !== -1) {
           glTF2ImageEx.uri += `_${rnTexture.textureUID}`;
@@ -729,10 +731,10 @@ export class Gltf2Exporter {
       return void 0;
     };
 
-    this.__processTextureParameters(json, material, rnMaterial, processTexture);
+    this.__processParameters(json, material, rnMaterial, processTexture);
   }
 
-  private static __processTextureParameters(
+  private static __processParameters(
     json: Gltf2Ex,
     material: Gltf2MaterialEx,
     rnMaterial: Material,
@@ -896,10 +898,20 @@ export class Gltf2Exporter {
       options.onAssign(info);
     };
 
-    Gltf2Exporter.__outputBaseMaterialTextureInfo(rnMaterial, applyTexture, material);
+    Gltf2Exporter.__outputBaseMaterialInfo(rnMaterial, applyTexture, material, json);
+
+    Gltf2Exporter.__outputKhrMaterialsClearcoatInfo(
+      ensureExtensionUsed,
+      coerceNumber,
+      rnMaterial,
+      applyTexture,
+      material
+    );
   }
 
-  private static __outputBaseMaterialTextureInfo(
+  private static __outputKhrMaterialsClearcoatInfo(
+    ensureExtensionUsed: (extensionName: string) => void,
+    coerceNumber: (value: any) => number | undefined,
     rnMaterial: Material,
     applyTexture: (
       paramName: string,
@@ -917,6 +929,109 @@ export class Gltf2Exporter {
     ) => void,
     material: Gltf2MaterialEx
   ) {
+    const clearcoatExtension: Record<string, unknown> = {};
+    let clearcoatExtensionUsed = false;
+    const markClearcoatExtensionUsed = () => {
+      if (!clearcoatExtensionUsed) {
+        clearcoatExtensionUsed = true;
+        ensureExtensionUsed('KHR_materials_clearcoat');
+      }
+    };
+
+    const clearcoatFactor = coerceNumber(rnMaterial.getParameter('clearcoatFactor'));
+    if (Is.exist(clearcoatFactor)) {
+      clearcoatExtension.clearcoatFactor = clearcoatFactor;
+      if (clearcoatFactor !== 0) {
+        markClearcoatExtensionUsed();
+      }
+    }
+
+    const clearcoatRoughnessFactor = coerceNumber(rnMaterial.getParameter('clearcoatRoughnessFactor'));
+    if (Is.exist(clearcoatRoughnessFactor)) {
+      clearcoatExtension.clearcoatRoughnessFactor = clearcoatRoughnessFactor;
+      if (clearcoatRoughnessFactor !== 0) {
+        markClearcoatExtensionUsed();
+      }
+    }
+
+    applyTexture('clearcoatTexture', {
+      texCoordParam: 'clearcoatTexcoordIndex',
+      transform: {
+        scale: 'clearcoatTextureTransformScale',
+        offset: 'clearcoatTextureTransformOffset',
+        rotation: 'clearcoatTextureTransformRotation',
+      },
+      onAssign: info => {
+        clearcoatExtension.clearcoatTexture = info;
+        markClearcoatExtensionUsed();
+      },
+    });
+
+    applyTexture('clearcoatRoughnessTexture', {
+      texCoordParam: 'clearcoatRoughnessTexcoordIndex',
+      transform: {
+        scale: 'clearcoatRoughnessTextureTransformScale',
+        offset: 'clearcoatRoughnessTextureTransformOffset',
+        rotation: 'clearcoatRoughnessTextureTransformRotation',
+      },
+      onAssign: info => {
+        clearcoatExtension.clearcoatRoughnessTexture = info;
+        markClearcoatExtensionUsed();
+      },
+    });
+
+    applyTexture('clearcoatNormalTexture', {
+      texCoordParam: 'clearcoatNormalTexcoordIndex',
+      transform: {
+        scale: 'clearcoatNormalTextureTransformScale',
+        offset: 'clearcoatNormalTextureTransformOffset',
+        rotation: 'clearcoatNormalTextureTransformRotation',
+      },
+      onAssign: info => {
+        const clearcoatNormalScale =
+          coerceNumber(rnMaterial.getParameter('clearcoatNormalScale')) ??
+          coerceNumber(rnMaterial.getParameter('clearcoatNormalTextureScale'));
+        if (Is.exist(clearcoatNormalScale)) {
+          info.scale = clearcoatNormalScale;
+        }
+        clearcoatExtension.clearcoatNormalTexture = info;
+        markClearcoatExtensionUsed();
+      },
+    });
+
+    const shouldAttachClearcoatExtension =
+      clearcoatExtensionUsed ||
+      Is.exist(clearcoatExtension.clearcoatTexture) ||
+      Is.exist(clearcoatExtension.clearcoatRoughnessTexture) ||
+      Is.exist(clearcoatExtension.clearcoatNormalTexture);
+    if (shouldAttachClearcoatExtension) {
+      material.extensions = material.extensions ?? {};
+      material.extensions.KHR_materials_clearcoat = clearcoatExtension;
+      ensureExtensionUsed('KHR_materials_clearcoat');
+    }
+  }
+
+  private static __outputBaseMaterialInfo(
+    rnMaterial: Material,
+    applyTexture: (
+      paramName: string,
+      options: {
+        texCoordParam?: string;
+        transform?: {
+          scale?: string;
+          offset?: string;
+          rotation?: string;
+        };
+        scaleParam?: string;
+        strengthParam?: string;
+        onAssign: (info: any) => void;
+      }
+    ) => void,
+    material: Gltf2MaterialEx,
+    json: Gltf2Ex
+  ) {
+    Gltf2Exporter.__setupMaterialBasicProperties(material, rnMaterial, json);
+
     const hasBaseColorTexture = Is.exist(rnMaterial.getTextureParameter('baseColorTexture'));
 
     applyTexture('baseColorTexture', {
@@ -1316,19 +1431,26 @@ function __createBufferViewsAndAccessorsOfMesh(
           }
           // create a Gltf2BufferView
           const rnAttributeAccessor = attributeAccessors[j];
-          const rnBufferView = rnAttributeAccessor.bufferView;
+
+          // Normalize normals if needed
+          let normalizedAccessor = rnAttributeAccessor;
+          if (attributeName === 'NORMAL') {
+            normalizedAccessor = normalizeNormals(rnAttributeAccessor);
+          }
+
+          const rnBufferView = normalizedAccessor.bufferView;
           const gltf2BufferView = createOrReuseGltf2BufferViewForVertexAttributeBuffer(
             json,
             existingUniqueRnBuffers,
             existingUniqueRnBufferViews,
             rnBufferView,
-            rnAttributeAccessor
+            normalizedAccessor
           );
           const gltf2Accessor = createOrReuseGltf2Accessor(
             json,
             json.bufferViews.indexOf(gltf2BufferView),
             existingUniqueRnAccessors,
-            rnAttributeAccessor
+            normalizedAccessor
           );
 
           const accessorIdx = json.accessors.indexOf(gltf2Accessor);
@@ -1564,15 +1686,17 @@ function createOrReuseGltf2BufferViewForVertexAttributeBuffer(
     };
     gltf2BufferView.target = GL_ARRAY_BUFFER;
 
+    const resolvedByteStride = resolveVertexAttributeByteStride(rnBufferView, rnAccessor);
+    if (Is.exist(resolvedByteStride)) {
+      gltf2BufferView.byteStride = resolvedByteStride;
+    }
+
     json.extras.bufferViewByteLengthAccumulatedArray[bufferIdxToSet] = accumulateBufferViewByteLength(
       json.extras.bufferViewByteLengthAccumulatedArray,
       bufferIdxToSet,
       gltf2BufferView
     );
 
-    if (Is.exist(gltf2BufferView.target)) {
-      gltf2BufferView.byteStride = rnAccessor.elementSizeInBytes;
-    }
     existingUniqueRnBufferViews.push(rnBufferView);
     json.bufferViews.push(gltf2BufferView);
     // const {fixedBufferViewByteLength, fixedBufferViewByteOffset} =
@@ -1587,7 +1711,14 @@ function createOrReuseGltf2BufferViewForVertexAttributeBuffer(
     // gltf2BufferView.byteLength = fixedBufferViewByteLength;
     return gltf2BufferView;
   }
-  const gltf2BufferView = json.bufferViews[bufferViewIdx];
+  const gltf2BufferView = json.bufferViews[bufferViewIdx] as Gltf2BufferViewEx;
+  const resolvedByteStride = resolveVertexAttributeByteStride(rnBufferView, rnAccessor);
+  if (Is.exist(resolvedByteStride)) {
+    const currentStride = gltf2BufferView.byteStride ?? 0;
+    if (currentStride === 0 || currentStride < resolvedByteStride) {
+      gltf2BufferView.byteStride = resolvedByteStride;
+    }
+  }
   return gltf2BufferView;
 }
 
@@ -1974,6 +2105,42 @@ function alignBufferViewByteStrideTo4Bytes(byteStride: Byte): Byte {
 }
 
 /**
+ * Resolves the byteStride to be written to a glTF bufferView for vertex attributes.
+ *
+ * Prefers the bufferView's explicit stride or accessor stride when available and
+ * guarantees the result is large enough for the accessor's element width and aligned
+ * to 4 bytes to satisfy glTF requirements.
+ *
+ * @param rnBufferView - Source buffer view
+ * @param rnAccessor - Accessor that references the buffer view
+ * @returns The resolved stride in bytes or undefined when stride should be omitted
+ */
+function resolveVertexAttributeByteStride(rnBufferView: BufferView, rnAccessor: Accessor): Byte | undefined {
+  const candidates: number[] = [];
+  const defaultStride = rnBufferView.defaultByteStride;
+  if (defaultStride > 0) {
+    candidates.push(defaultStride);
+  }
+  const accessorStride = rnAccessor.byteStride;
+  if (accessorStride > 0) {
+    candidates.push(accessorStride);
+  }
+  const elementSize = rnAccessor.elementSizeInBytes;
+  if (elementSize > 0) {
+    candidates.push(elementSize);
+  }
+
+  if (candidates.length === 0) {
+    return undefined;
+  }
+
+  const resolved = Math.max(...candidates);
+  const aligned = alignBufferViewByteStrideTo4Bytes(resolved as Byte);
+
+  return aligned < elementSize ? elementSize : aligned;
+}
+
+/**
  * Handles texture image processing for different export formats.
  *
  * Processes texture images for inclusion in glTF2 export, handling both
@@ -2226,4 +2393,102 @@ function createOrReuseGltf2Accessor(
   }
   const gltf2Accessor = json.accessors[accessorIdx];
   return gltf2Accessor;
+}
+
+/**
+ * Normalizes normal vectors in an accessor.
+ *
+ * Creates a new accessor with normalized normal vectors from the input accessor.
+ * Each normal vector is normalized to unit length.
+ *
+ * @param accessor - The accessor containing normal vectors to normalize
+ * @returns A new accessor with normalized normal vectors
+ */
+function normalizeNormals(accessor: Accessor): Accessor {
+  const componentCount = accessor.compositionType.getNumberOfComponents();
+  const elementCount = accessor.elementCount;
+
+  // Read the normal data
+  const normalData = new Float32Array(elementCount * componentCount);
+  if (componentCount === 3) {
+    // VEC3
+    for (let i = 0; i < elementCount; i++) {
+      const vec = accessor.getVec3(i, {});
+      normalData[i * 3 + 0] = vec.x;
+      normalData[i * 3 + 1] = vec.y;
+      normalData[i * 3 + 2] = vec.z;
+    }
+  } else if (componentCount === 2) {
+    // VEC2
+    for (let i = 0; i < elementCount; i++) {
+      const vec = accessor.getVec2(i, {});
+      normalData[i * 2 + 0] = vec.x;
+      normalData[i * 2 + 1] = vec.y;
+    }
+  } else if (componentCount === 4) {
+    // VEC4
+    for (let i = 0; i < elementCount; i++) {
+      const vec = accessor.getVec4(i, {});
+      normalData[i * 4 + 0] = vec.x;
+      normalData[i * 4 + 1] = vec.y;
+      normalData[i * 4 + 2] = vec.z;
+      normalData[i * 4 + 3] = vec.w;
+    }
+  } else {
+    // Fallback: scalar
+    for (let i = 0; i < elementCount; i++) {
+      normalData[i] = accessor.getScalar(i, {});
+    }
+  }
+
+  // Normalize each normal vector
+  for (let i = 0; i < elementCount; i++) {
+    const offset = i * componentCount;
+    let length = 0;
+
+    // Calculate length
+    for (let j = 0; j < componentCount; j++) {
+      const value = normalData[offset + j];
+      length += value * value;
+    }
+    length = Math.sqrt(length);
+
+    // Normalize if length is not zero
+    if (length > 0) {
+      for (let j = 0; j < componentCount; j++) {
+        normalData[offset + j] /= length;
+      }
+    }
+  }
+
+  // Create new buffer and buffer view with normalized data
+  const arrayBuffer = normalData.buffer;
+  const newBuffer = new Buffer({
+    byteLength: arrayBuffer.byteLength,
+    buffer: arrayBuffer,
+    name: 'NormalizedNormalsBuffer',
+    byteAlign: 4,
+  });
+  const newBufferView = new BufferView({
+    buffer: newBuffer,
+    byteOffsetInBuffer: 0,
+    defaultByteStride: 0,
+    byteLength: normalData.byteLength,
+    raw: arrayBuffer,
+  });
+
+  // Create new accessor with the same properties but different data
+  const newAccessor = new Accessor({
+    bufferView: newBufferView,
+    byteOffsetInBufferView: 0,
+    compositionType: accessor.compositionType,
+    componentType: accessor.componentType,
+    byteStride: 0,
+    count: elementCount,
+    raw: arrayBuffer,
+    arrayLength: 1,
+    normalized: false,
+  });
+
+  return newAccessor;
 }

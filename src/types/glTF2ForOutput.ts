@@ -4,6 +4,7 @@ import type {
   Gltf2,
   Gltf2Accessor,
   Gltf2Animation,
+  Gltf2AnyObject,
   Gltf2Buffer,
   Gltf2BufferView,
   Gltf2Camera,
@@ -35,7 +36,9 @@ export interface Gltf2MaterialEx extends Gltf2Material {
   pbrMetallicRoughness: Gltf2PbrMetallicRoughnessEx;
 }
 export interface Gltf2ImageEx extends Gltf2Image {
-  rnTextureUID?: Index;
+  extras?: Gltf2AnyObject & {
+    rnTextureUID?: Index;
+  };
 }
 
 export interface Gltf2PbrMetallicRoughnessEx extends Gltf2PbrMetallicRoughness {
