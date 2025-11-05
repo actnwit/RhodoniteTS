@@ -493,8 +493,8 @@ export class Gltf2Exporter {
       }
     }
 
-    // According to glTF specification, nodes with both skin and mesh should be placed directly under the root without local transforms.
-    // Remove them from their parent's children, strip TRS properties, and relocate them to the root node set.
+    // According to glTF specification, nodes with both skin and mesh should be placed directly under the root.
+    // Remove them from their parent's children, preserve their world-space TRS, and relocate them to the root node set.
     for (const nodeIndex of skinnedMeshNodeIndices) {
       const node = json.nodes[nodeIndex];
       const parentIdx = parentNodeIndices[nodeIndex];
@@ -509,9 +509,20 @@ export class Gltf2Exporter {
         parentNodeIndices[nodeIndex] = undefined;
       }
 
-      node.translation = undefined;
-      node.rotation = undefined;
-      node.scale = undefined;
+      const skinnedEntity = entities[nodeIndex];
+      const worldMatrix = skinnedEntity.getSceneGraph()!.matrixInner;
+      const worldTranslation = worldMatrix.getTranslate();
+      const worldScale = worldMatrix.getScale();
+      const worldQuaternion = Quaternion.normalize(Quaternion.fromMatrix(worldMatrix));
+
+      node.translation = [worldTranslation.x, worldTranslation.y, worldTranslation.z];
+      node.rotation = [
+        Math.min(1, Math.max(-1, worldQuaternion.x)),
+        Math.min(1, Math.max(-1, worldQuaternion.y)),
+        Math.min(1, Math.max(-1, worldQuaternion.z)),
+        Math.min(1, Math.max(-1, worldQuaternion.w)),
+      ];
+      node.scale = [worldScale.x, worldScale.y, worldScale.z];
 
       if (!sceneNodeIndices.has(nodeIndex)) {
         scene.nodes!.push(nodeIndex);
