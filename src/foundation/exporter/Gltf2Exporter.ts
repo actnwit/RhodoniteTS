@@ -536,7 +536,80 @@ export class Gltf2Exporter {
       const materialIndex = json.materials.length;
       json.materials.push(material);
       primitive.material = materialIndex;
+      this.__pruneUnusedVertexAttributes(primitive, material);
     }
+  }
+
+  private static __pruneUnusedVertexAttributes(primitive: Gltf2Primitive, material: Gltf2MaterialEx) {
+    const attributes = primitive.attributes as Record<string, number | undefined>;
+
+    if (!this.__doesMaterialRequireTangents(material) && Is.exist(attributes.TANGENT)) {
+      delete attributes.TANGENT;
+    }
+
+    const usedTexCoords = this.__collectUsedTexCoordSetIndices(material);
+    if (usedTexCoords.size === 0) {
+      for (const attributeName of Object.keys(attributes)) {
+        if (attributeName.startsWith('TEXCOORD_')) {
+          delete attributes[attributeName];
+        }
+      }
+      return;
+    }
+
+    for (const attributeName of Object.keys(attributes)) {
+      if (!attributeName.startsWith('TEXCOORD_')) {
+        continue;
+      }
+      const texCoordIndex = Number(attributeName.substring('TEXCOORD_'.length));
+      if (Number.isNaN(texCoordIndex) || !usedTexCoords.has(texCoordIndex)) {
+        delete attributes[attributeName];
+      }
+    }
+  }
+
+  private static __doesMaterialRequireTangents(material: Gltf2MaterialEx): boolean {
+    if (Is.exist(material.normalTexture)) {
+      return true;
+    }
+    const extensions = material.extensions as Record<string, any> | undefined;
+    const clearcoatExtension = extensions?.KHR_materials_clearcoat as { clearcoatNormalTexture?: unknown } | undefined;
+    return Is.exist(clearcoatExtension?.clearcoatNormalTexture);
+  }
+
+  private static __collectUsedTexCoordSetIndices(material: Gltf2MaterialEx): Set<number> {
+    const usedTexCoords = new Set<number>();
+    const registerTexcoord = (info: { texCoord?: number; index?: number } | undefined) => {
+      if (Is.not.exist(info) || typeof info.index !== 'number') {
+        return;
+      }
+      const texCoord = typeof info.texCoord === 'number' ? info.texCoord : 0;
+      usedTexCoords.add(texCoord);
+    };
+
+    const pbr = material.pbrMetallicRoughness;
+    if (Is.exist(pbr)) {
+      registerTexcoord(pbr.baseColorTexture);
+      registerTexcoord(pbr.metallicRoughnessTexture);
+    }
+
+    registerTexcoord(material.normalTexture);
+    registerTexcoord(material.occlusionTexture);
+    registerTexcoord(material.emissiveTexture);
+
+    const extensions = material.extensions as Record<string, any> | undefined;
+    const clearcoatExtension = extensions?.KHR_materials_clearcoat as {
+      clearcoatTexture?: { texCoord?: number; index?: number };
+      clearcoatRoughnessTexture?: { texCoord?: number; index?: number };
+      clearcoatNormalTexture?: { texCoord?: number; index?: number };
+    };
+    if (Is.exist(clearcoatExtension)) {
+      registerTexcoord(clearcoatExtension.clearcoatTexture);
+      registerTexcoord(clearcoatExtension.clearcoatRoughnessTexture);
+      registerTexcoord(clearcoatExtension.clearcoatNormalTexture);
+    }
+
+    return usedTexCoords;
   }
 
   private static async __createMaterialFromRhodonite(
