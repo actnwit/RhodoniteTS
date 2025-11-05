@@ -1683,15 +1683,17 @@ function createOrReuseGltf2BufferViewForVertexAttributeBuffer(
     };
     gltf2BufferView.target = GL_ARRAY_BUFFER;
 
+    const resolvedByteStride = resolveVertexAttributeByteStride(rnBufferView, rnAccessor);
+    if (Is.exist(resolvedByteStride)) {
+      gltf2BufferView.byteStride = resolvedByteStride;
+    }
+
     json.extras.bufferViewByteLengthAccumulatedArray[bufferIdxToSet] = accumulateBufferViewByteLength(
       json.extras.bufferViewByteLengthAccumulatedArray,
       bufferIdxToSet,
       gltf2BufferView
     );
 
-    if (Is.exist(gltf2BufferView.target)) {
-      gltf2BufferView.byteStride = rnAccessor.elementSizeInBytes;
-    }
     existingUniqueRnBufferViews.push(rnBufferView);
     json.bufferViews.push(gltf2BufferView);
     // const {fixedBufferViewByteLength, fixedBufferViewByteOffset} =
@@ -1706,7 +1708,14 @@ function createOrReuseGltf2BufferViewForVertexAttributeBuffer(
     // gltf2BufferView.byteLength = fixedBufferViewByteLength;
     return gltf2BufferView;
   }
-  const gltf2BufferView = json.bufferViews[bufferViewIdx];
+  const gltf2BufferView = json.bufferViews[bufferViewIdx] as Gltf2BufferViewEx;
+  const resolvedByteStride = resolveVertexAttributeByteStride(rnBufferView, rnAccessor);
+  if (Is.exist(resolvedByteStride)) {
+    const currentStride = gltf2BufferView.byteStride ?? 0;
+    if (currentStride === 0 || currentStride < resolvedByteStride) {
+      gltf2BufferView.byteStride = resolvedByteStride;
+    }
+  }
   return gltf2BufferView;
 }
 
@@ -2090,6 +2099,42 @@ function alignBufferViewByteStrideTo4Bytes(byteStride: Byte): Byte {
   const byteStrideAlgined = byteStride + (alignSize - (byteStride % alignSize));
 
   return byteStrideAlgined;
+}
+
+/**
+ * Resolves the byteStride to be written to a glTF bufferView for vertex attributes.
+ *
+ * Prefers the bufferView's explicit stride or accessor stride when available and
+ * guarantees the result is large enough for the accessor's element width and aligned
+ * to 4 bytes to satisfy glTF requirements.
+ *
+ * @param rnBufferView - Source buffer view
+ * @param rnAccessor - Accessor that references the buffer view
+ * @returns The resolved stride in bytes or undefined when stride should be omitted
+ */
+function resolveVertexAttributeByteStride(rnBufferView: BufferView, rnAccessor: Accessor): Byte | undefined {
+  const candidates: number[] = [];
+  const defaultStride = rnBufferView.defaultByteStride;
+  if (defaultStride > 0) {
+    candidates.push(defaultStride);
+  }
+  const accessorStride = rnAccessor.byteStride;
+  if (accessorStride > 0) {
+    candidates.push(accessorStride);
+  }
+  const elementSize = rnAccessor.elementSizeInBytes;
+  if (elementSize > 0) {
+    candidates.push(elementSize);
+  }
+
+  if (candidates.length === 0) {
+    return undefined;
+  }
+
+  const resolved = Math.max(...candidates);
+  const aligned = alignBufferViewByteStrideTo4Bytes(resolved as Byte);
+
+  return aligned < elementSize ? elementSize : aligned;
 }
 
 /**
