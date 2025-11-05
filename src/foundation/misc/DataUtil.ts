@@ -13,6 +13,14 @@ declare const URL: any;
  * base64 encoding/decoding, image processing, and file operations.
  */
 export class DataUtil {
+  private static __assertArrayBufferBacked<T extends ArrayBufferView<ArrayBufferLike>>(
+    view: T,
+    message: string
+  ): asserts view is ArrayBufferView<ArrayBuffer> & T {
+    if (!(view.buffer instanceof ArrayBuffer)) {
+      throw new Error(message);
+    }
+  }
   /**
    * CRC32 lookup table for checksum calculations.
    */
@@ -288,10 +296,8 @@ export class DataUtil {
    * @returns Blob URL string for the image
    */
   static createBlobImageUriFromUint8Array(uint8Array: Uint8Array, mimeType: string): string {
-    if (!(uint8Array.buffer instanceof ArrayBuffer)) {
-      throw new Error('SharedArrayBuffer is not supported when creating blob image URIs.');
-    }
-    const blob = new Blob([uint8Array as unknown as Uint8Array<ArrayBuffer>], { type: mimeType });
+    DataUtil.__assertArrayBufferBacked(uint8Array, 'SharedArrayBuffer is not supported when creating blob image URIs.');
+    const blob = new Blob([uint8Array], { type: mimeType });
     const imageUrl = URL.createObjectURL(blob);
     return imageUrl;
   }

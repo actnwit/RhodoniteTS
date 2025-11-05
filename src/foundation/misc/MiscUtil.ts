@@ -1,6 +1,15 @@
 import type { Byte, Size, TypedArray } from '../../types/CommonTypes';
 import { Is } from './Is';
 
+function assertArrayBufferBacked<T extends ArrayBufferView<ArrayBufferLike>>(
+  view: T,
+  message: string
+): asserts view is ArrayBufferView<ArrayBuffer> & T {
+  if (!(view.buffer instanceof ArrayBuffer)) {
+    throw new Error(message);
+  }
+}
+
 /**
  * Detects if the current environment is a mobile VR device (Oculus Browser, Samsung Browser VR, etc.)
  * @returns True if running on a mobile VR device, false otherwise
@@ -510,10 +519,8 @@ export function downloadArrayBuffer(fileNameToDownload: string, arrayBuffer: Arr
 export function downloadTypedArray(fileNameToDownload: string, typedArray: TypedArray): void {
   const a = document.createElement('a');
   a.download = fileNameToDownload;
-  if (!(typedArray.buffer instanceof ArrayBuffer)) {
-    throw new Error('SharedArrayBuffer is not supported when downloading typed arrays.');
-  }
-  const blob = new Blob([typedArray as unknown as ArrayBufferView<ArrayBuffer>], { type: 'octet/stream' });
+  assertArrayBufferBacked(typedArray, 'SharedArrayBuffer is not supported when downloading typed arrays.');
+  const blob = new Blob([typedArray], { type: 'octet/stream' });
   const url = URL.createObjectURL(blob);
   a.href = url;
   const e = new MouseEvent('click');
