@@ -2796,7 +2796,8 @@ function normalizeSkinWeights(accessor: Accessor): Accessor {
 
   const floatData = new Float32Array(elementCount * componentCount);
   const sumEpsilon = 1e-6;
-  const diffEpsilon = 1e-4;
+  const diffEpsilon = 1e-6;
+  const residualTolerance = 1e-6;
   let mutated = false;
   const normalizationDenominator = treatAsNormalizedUnsignedInt
     ? getNormalizedUnsignedComponentMax(accessor.componentType)
@@ -2826,9 +2827,14 @@ function normalizeSkinWeights(accessor: Accessor): Accessor {
     if (sum > sumEpsilon) {
       if (Math.abs(sum - 1) > diffEpsilon) {
         const invSum = 1 / sum;
+        let normalizedSum = 0;
         for (let j = 0; j < componentCount; j++) {
-          floatData[baseIndex + j] *= invSum;
+          const normalized = Math.fround(floatData[baseIndex + j] * invSum);
+          floatData[baseIndex + j] = normalized;
+          normalizedSum += normalized;
         }
+        const residual = 1 - normalizedSum;
+        adjustWeightsForResidual(floatData, baseIndex, componentCount, residual, residualTolerance);
         mutated = true;
       }
     } else if (sum !== 0) {
@@ -2970,4 +2976,49 @@ function createAccessorFromWeightsTypedArray(
   });
 
   return newAccessor;
+}
+
+function adjustWeightsForResidual(
+  data: Float32Array,
+  offset: number,
+  componentCount: number,
+  residual: number,
+  tolerance: number
+) {
+  if (componentCount === 0 || Math.abs(residual) <= tolerance) {
+    return;
+  }
+
+  const indices = Array.from({ length: componentCount }, (_, idx) => idx).sort(
+    (a, b) => data[offset + b] - data[offset + a]
+  );
+
+  let remaining = residual;
+  for (const localIndex of indices) {
+    if (Math.abs(remaining) <= tolerance) {
+      break;
+    }
+    const idx = offset + localIndex;
+    const before = data[idx];
+    const candidate = clampWeight(before + remaining);
+    data[idx] = candidate;
+    remaining -= candidate - before;
+  }
+
+  if (Math.abs(remaining) > tolerance) {
+    const idx = offset + indices[0];
+    const before = data[idx];
+    const candidate = clampWeight(before + remaining);
+    data[idx] = candidate;
+  }
+}
+
+function clampWeight(value: number): number {
+  if (value < 0) {
+    return 0;
+  }
+  if (value > 1) {
+    return 1;
+  }
+  return value;
 }
