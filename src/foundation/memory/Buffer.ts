@@ -52,7 +52,7 @@ export class Buffer {
     byteAlign,
   }: {
     byteLength: Byte;
-    buffer: ArrayBuffer;
+    buffer: ArrayBuffer | Uint8Array;
     name: string;
     byteAlign: Byte;
   }) {
@@ -61,7 +61,10 @@ export class Buffer {
     this.__byteAlign = byteAlign;
 
     if (buffer instanceof Uint8Array) {
-      this.__raw = buffer.buffer as ArrayBuffer;
+      if (!(buffer.buffer instanceof ArrayBuffer)) {
+        throw new Error('SharedArrayBuffer is not supported in this code path.');
+      }
+      this.__raw = buffer.buffer;
       this.__byteOffset = buffer.byteOffset;
     } else {
       this.__raw = buffer;

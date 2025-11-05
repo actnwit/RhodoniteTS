@@ -182,7 +182,15 @@ export class RenderTargetTexture2DArray extends AbstractTexture implements IRend
     canvas.width = this.__width;
     canvas.height = this.__height;
     const ctx = canvas.getContext('2d')!;
-    const imageData = new ImageData(new Uint8ClampedArray(data.buffer), this.__width, this.__height);
+    if (!(data.buffer instanceof ArrayBuffer)) {
+      throw new Error('SharedArrayBuffer is not supported when downloading texture pixel data.');
+    }
+    const pixelData = new Uint8ClampedArray(
+      data.buffer as ArrayBuffer,
+      data.byteOffset,
+      data.byteLength / Uint8ClampedArray.BYTES_PER_ELEMENT
+    );
+    const imageData = new ImageData(pixelData as Uint8ClampedArray<ArrayBuffer>, this.__width, this.__height);
     ctx.putImageData(imageData, this.__width, this.__height);
     const dataUri = canvas.toDataURL('image/png');
 
