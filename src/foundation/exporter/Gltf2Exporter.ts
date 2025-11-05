@@ -1383,11 +1383,10 @@ export class Gltf2Exporter {
     const accumulators = new Array(json.buffers.length).fill(0);
     for (const bufferView of json.bufferViews) {
       const bufferIdx = typeof bufferView.buffer === 'number' ? bufferView.buffer : 0;
-      const source = bufferView.extras?.uint8Array;
-      const byteLength = Is.exist(source)
-        ? DataUtil.addPaddingBytes(source.byteLength, 4)
-        : DataUtil.addPaddingBytes(bufferView.byteLength, 4);
-      accumulators[bufferIdx] += byteLength;
+      const sourceLength = bufferView.extras?.uint8Array?.byteLength;
+      const effectiveLength = Math.max(bufferView.byteLength, Is.exist(sourceLength) ? sourceLength! : 0);
+      const alignedLength = DataUtil.addPaddingBytes(effectiveLength, 4);
+      accumulators[bufferIdx] += alignedLength;
     }
     json.extras.bufferViewByteLengthAccumulatedArray = accumulators;
   }
@@ -1408,8 +1407,14 @@ export class Gltf2Exporter {
       return new ArrayBuffer(0);
     }
 
-    // calc total sum of BufferViews in multiple Buffers
-    const byteLengthOfUniteBuffer = json.extras.bufferViewByteLengthAccumulatedArray.reduce((sum, val) => sum + val);
+    const byteLengthOfUniteBuffer = json.bufferViews.reduce((sum, bufferView) => {
+      const source = bufferView.extras?.uint8Array;
+      if (Is.not.exist(source)) {
+        return sum + DataUtil.addPaddingBytes(bufferView.byteLength, 4);
+      }
+      return sum + DataUtil.addPaddingBytes(source.byteLength, 4);
+    }, 0);
+
     if (byteLengthOfUniteBuffer > 0) {
       const buffer = json.buffers![0];
       buffer.byteLength = byteLengthOfUniteBuffer + DataUtil.calcPaddingBytes(byteLengthOfUniteBuffer, 4);
