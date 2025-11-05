@@ -44,6 +44,7 @@ import type { Primitive } from '../geometry/Primitive';
 import type { IAnimationEntity, IMeshEntity, ISceneGraphEntity, ISkeletalEntity } from '../helpers/EntityHelper';
 import type { Material } from '../materials/core/Material';
 import { MathUtil } from '../math/MathUtil';
+import { Quaternion } from '../math/Quaternion';
 import type { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
 import { Accessor } from '../memory/Accessor';
@@ -400,12 +401,15 @@ export class Gltf2Exporter {
 
       // matrix
       const transform = entity.getTransform()!;
-      node.rotation = [
-        transform.localRotationInner.x,
-        transform.localRotationInner.y,
-        transform.localRotationInner.z,
-        transform.localRotationInner.w,
+      // glTF requires unit quaternions, so normalize and clamp to keep values within the spec range
+      const normalizedQuaternion = Quaternion.normalize(transform.localRotationInner);
+      const normalizedRotationArray = [
+        normalizedQuaternion.x,
+        normalizedQuaternion.y,
+        normalizedQuaternion.z,
+        normalizedQuaternion.w,
       ];
+      node.rotation = normalizedRotationArray.map(component => Math.min(1, Math.max(-1, component)));
       node.scale = [transform.localScaleInner.x, transform.localScaleInner.y, transform.localScaleInner.z];
       node.translation = [
         transform.localPositionInner.x,
@@ -2909,9 +2913,7 @@ function normalizeSkinWeights(accessor: Accessor): Accessor {
     return createAccessorFromWeightsTypedArray(typedArray, accessor, accessor.componentType, true);
   }
 
-  const componentTypeForFloat = accessor.componentType.isFloatingPoint()
-    ? accessor.componentType
-    : ComponentType.Float;
+  const componentTypeForFloat = accessor.componentType.isFloatingPoint() ? accessor.componentType : ComponentType.Float;
   const normalizedFlagForFloat = componentTypeForFloat === accessor.componentType ? accessor.normalized : false;
   return createAccessorFromWeightsTypedArray(floatData, accessor, componentTypeForFloat, normalizedFlagForFloat);
 }
@@ -2929,7 +2931,10 @@ function getNormalizedUnsignedComponentMax(componentType: ComponentTypeEnum): nu
   return 1;
 }
 
-function createUnsignedTypedArray(componentType: ComponentTypeEnum, length: number): Uint8Array | Uint16Array | Uint32Array {
+function createUnsignedTypedArray(
+  componentType: ComponentTypeEnum,
+  length: number
+): Uint8Array | Uint16Array | Uint32Array {
   if (componentType === ComponentType.UnsignedByte) {
     return new Uint8Array(length);
   }
