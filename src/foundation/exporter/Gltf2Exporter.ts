@@ -1230,11 +1230,102 @@ export class Gltf2Exporter {
       return;
     }
 
+    this.__removeUnusedAccessors(json);
+
+    if (json.bufferViews.length === 0) {
+      this.__recalculateBufferViewAccumulators(json);
+      return;
+    }
+
+    this.__removeUnusedBufferViews(json);
+    this.__recalculateBufferViewAccumulators(json);
+  }
+
+  private static __removeUnusedAccessors(json: Gltf2Ex) {
+    const usedAccessorIndices = this.__collectUsedAccessorIndices(json);
+    const result = this.__filterItemsByUsage(json.accessors, usedAccessorIndices);
+    if (!result) {
+      return;
+    }
+
+    const { filtered, indexMap } = result;
+    json.accessors = filtered;
+    this.__remapAccessorReferences(json, indexMap);
+  }
+
+  private static __collectUsedAccessorIndices(json: Gltf2Ex) {
     const usedAccessorIndices = new Set<number>();
     const registerAccessor = (candidate: unknown) => {
       if (typeof candidate === 'number' && candidate >= 0) {
         usedAccessorIndices.add(candidate);
       }
+    };
+
+    this.__collectAccessorIndicesFromMeshes(json, registerAccessor);
+    this.__collectAccessorIndicesFromSkins(json, registerAccessor);
+    this.__collectAccessorIndicesFromAnimations(json, registerAccessor);
+
+    return usedAccessorIndices;
+  }
+
+  private static __collectAccessorIndicesFromMeshes(json: Gltf2Ex, register: (candidate: unknown) => void) {
+    if (Is.not.exist(json.meshes)) {
+      return;
+    }
+    for (const mesh of json.meshes) {
+      if (Is.not.exist(mesh?.primitives)) {
+        continue;
+      }
+      for (const primitive of mesh.primitives) {
+        register(primitive.indices);
+        const attributes = primitive.attributes as Record<string, number | undefined> | undefined;
+        if (Is.exist(attributes)) {
+          for (const key of Object.keys(attributes)) {
+            register(attributes[key]);
+          }
+        }
+        if (Array.isArray(primitive.targets)) {
+          for (const target of primitive.targets) {
+            const targetAttributes = target as Record<string, number | undefined>;
+            for (const key of Object.keys(targetAttributes)) {
+              register(targetAttributes[key]);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  private static __collectAccessorIndicesFromSkins(json: Gltf2Ex, register: (candidate: unknown) => void) {
+    if (Is.not.exist(json.skins)) {
+      return;
+    }
+    for (const skin of json.skins) {
+      register(skin.inverseBindMatrices);
+    }
+  }
+
+  private static __collectAccessorIndicesFromAnimations(json: Gltf2Ex, register: (candidate: unknown) => void) {
+    if (Is.not.exist(json.animations)) {
+      return;
+    }
+    for (const animation of json.animations) {
+      if (Is.not.exist(animation?.samplers)) {
+        continue;
+      }
+      for (const sampler of animation.samplers) {
+        register(sampler.input);
+        register(sampler.output);
+      }
+    }
+  }
+
+  private static __remapAccessorReferences(json: Gltf2Ex, indexMap: Map<number, number>) {
+    const mapAccessorIndex = (candidate: unknown): number | undefined => {
+      if (typeof candidate !== 'number') {
+        return undefined;
+      }
+      return indexMap.get(candidate);
     };
 
     if (Is.exist(json.meshes)) {
@@ -1243,19 +1334,15 @@ export class Gltf2Exporter {
           continue;
         }
         for (const primitive of mesh.primitives) {
-          registerAccessor(primitive.indices);
-          const attributes = primitive.attributes as Record<string, number | undefined> | undefined;
-          if (Is.exist(attributes)) {
-            for (const key of Object.keys(attributes)) {
-              registerAccessor(attributes[key]);
-            }
+          if (typeof primitive.indices === 'number') {
+            const mapped = mapAccessorIndex(primitive.indices);
+            primitive.indices = typeof mapped === 'number' ? mapped : undefined;
           }
+          const attributes = primitive.attributes as Record<string, number | undefined> | undefined;
+          this.__remapAccessorAttributeRecord(attributes, mapAccessorIndex);
           if (Array.isArray(primitive.targets)) {
             for (const target of primitive.targets) {
-              const targetAttributes = target as Record<string, number | undefined>;
-              for (const key of Object.keys(targetAttributes)) {
-                registerAccessor(targetAttributes[key]);
-              }
+              this.__remapAccessorAttributeRecord(target as Record<string, number | undefined>, mapAccessorIndex);
             }
           }
         }
@@ -1264,7 +1351,10 @@ export class Gltf2Exporter {
 
     if (Is.exist(json.skins)) {
       for (const skin of json.skins) {
-        registerAccessor(skin.inverseBindMatrices);
+        if (typeof skin.inverseBindMatrices === 'number') {
+          const mapped = mapAccessorIndex(skin.inverseBindMatrices);
+          skin.inverseBindMatrices = typeof mapped === 'number' ? mapped : undefined;
+        }
       }
     }
 
@@ -1274,102 +1364,49 @@ export class Gltf2Exporter {
           continue;
         }
         for (const sampler of animation.samplers) {
-          registerAccessor(sampler.input);
-          registerAccessor(sampler.output);
-        }
-      }
-    }
-
-    const accessorIndexMap = new Map<number, number>();
-    const filteredAccessors: typeof json.accessors = [];
-    json.accessors.forEach((accessor, idx) => {
-      if (usedAccessorIndices.has(idx)) {
-        accessorIndexMap.set(idx, filteredAccessors.length);
-        filteredAccessors.push(accessor);
-      }
-    });
-
-    if (filteredAccessors.length !== json.accessors.length) {
-      json.accessors = filteredAccessors;
-
-      const mapAccessorIndex = (candidate: unknown): number | undefined => {
-        if (typeof candidate !== 'number') {
-          return undefined;
-        }
-        return accessorIndexMap.get(candidate);
-      };
-
-      if (Is.exist(json.meshes)) {
-        for (const mesh of json.meshes) {
-          if (Is.not.exist(mesh?.primitives)) {
-            continue;
+          const mappedInput = mapAccessorIndex(sampler.input);
+          const mappedOutput = mapAccessorIndex(sampler.output);
+          if (typeof mappedInput === 'number') {
+            sampler.input = mappedInput;
           }
-          for (const primitive of mesh.primitives) {
-            if (typeof primitive.indices === 'number') {
-              const mapped = mapAccessorIndex(primitive.indices);
-              primitive.indices = typeof mapped === 'number' ? mapped : undefined;
-            }
-            const attributes = primitive.attributes as Record<string, number | undefined> | undefined;
-            if (Is.exist(attributes)) {
-              for (const key of Object.keys(attributes)) {
-                const mapped = mapAccessorIndex(attributes[key]);
-                if (typeof mapped === 'number') {
-                  attributes[key] = mapped;
-                } else {
-                  delete attributes[key];
-                }
-              }
-            }
-            if (Array.isArray(primitive.targets)) {
-              for (const target of primitive.targets) {
-                const targetAttributes = target as Record<string, number | undefined>;
-                for (const key of Object.keys(targetAttributes)) {
-                  const mapped = mapAccessorIndex(targetAttributes[key]);
-                  if (typeof mapped === 'number') {
-                    targetAttributes[key] = mapped;
-                  } else {
-                    delete targetAttributes[key];
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-
-      if (Is.exist(json.skins)) {
-        for (const skin of json.skins) {
-          if (typeof skin.inverseBindMatrices === 'number') {
-            const mapped = mapAccessorIndex(skin.inverseBindMatrices);
-            skin.inverseBindMatrices = typeof mapped === 'number' ? mapped : undefined;
-          }
-        }
-      }
-
-      if (Is.exist(json.animations)) {
-        for (const animation of json.animations) {
-          if (Is.not.exist(animation?.samplers)) {
-            continue;
-          }
-          for (const sampler of animation.samplers) {
-            const mappedInput = mapAccessorIndex(sampler.input);
-            const mappedOutput = mapAccessorIndex(sampler.output);
-            if (typeof mappedInput === 'number') {
-              sampler.input = mappedInput;
-            }
-            if (typeof mappedOutput === 'number') {
-              sampler.output = mappedOutput;
-            }
+          if (typeof mappedOutput === 'number') {
+            sampler.output = mappedOutput;
           }
         }
       }
     }
+  }
 
-    if (json.bufferViews.length === 0) {
-      this.__recalculateBufferViewAccumulators(json);
+  private static __remapAccessorAttributeRecord(
+    attributes: Record<string, number | undefined> | undefined,
+    mapAccessorIndex: (candidate: unknown) => number | undefined
+  ) {
+    if (Is.not.exist(attributes)) {
+      return;
+    }
+    for (const key of Object.keys(attributes)) {
+      const mapped = mapAccessorIndex(attributes[key]);
+      if (typeof mapped === 'number') {
+        attributes[key] = mapped;
+      } else {
+        delete attributes[key];
+      }
+    }
+  }
+
+  private static __removeUnusedBufferViews(json: Gltf2Ex) {
+    const usedBufferViewIndices = this.__collectUsedBufferViewIndices(json);
+    const result = this.__filterItemsByUsage(json.bufferViews, usedBufferViewIndices);
+    if (!result) {
       return;
     }
 
+    const { filtered, indexMap } = result;
+    json.bufferViews = filtered;
+    this.__remapBufferViewReferences(json, indexMap);
+  }
+
+  private static __collectUsedBufferViewIndices(json: Gltf2Ex) {
     const usedBufferViewIndices = new Set<number>();
     for (const accessor of json.accessors) {
       if (typeof accessor.bufferView === 'number') {
@@ -1383,37 +1420,45 @@ export class Gltf2Exporter {
         }
       }
     }
+    return usedBufferViewIndices;
+  }
 
-    const bufferViewIndexMap = new Map<number, number>();
-    const filteredBufferViews: typeof json.bufferViews = [];
-    json.bufferViews.forEach((bufferView, idx) => {
-      if (usedBufferViewIndices.has(idx)) {
-        bufferViewIndexMap.set(idx, filteredBufferViews.length);
-        filteredBufferViews.push(bufferView);
-      }
-    });
-
-    if (filteredBufferViews.length !== json.bufferViews.length) {
-      json.bufferViews = filteredBufferViews;
-
-      for (const accessor of json.accessors) {
-        if (typeof accessor.bufferView === 'number') {
-          const mapped = bufferViewIndexMap.get(accessor.bufferView);
-          accessor.bufferView = typeof mapped === 'number' ? mapped : undefined;
-        }
-      }
-
-      if (Is.exist(json.images)) {
-        for (const image of json.images) {
-          if (typeof image.bufferView === 'number') {
-            const mapped = bufferViewIndexMap.get(image.bufferView);
-            image.bufferView = typeof mapped === 'number' ? mapped : undefined;
-          }
-        }
+  private static __remapBufferViewReferences(json: Gltf2Ex, indexMap: Map<number, number>) {
+    for (const accessor of json.accessors) {
+      if (typeof accessor.bufferView === 'number') {
+        const mapped = indexMap.get(accessor.bufferView);
+        accessor.bufferView = typeof mapped === 'number' ? mapped : undefined;
       }
     }
 
-    this.__recalculateBufferViewAccumulators(json);
+    if (Is.exist(json.images)) {
+      for (const image of json.images) {
+        if (typeof image.bufferView === 'number') {
+          const mapped = indexMap.get(image.bufferView);
+          image.bufferView = typeof mapped === 'number' ? mapped : undefined;
+        }
+      }
+    }
+  }
+
+  private static __filterItemsByUsage<T>(
+    items: T[],
+    usedIndices: Set<number>
+  ): { filtered: T[]; indexMap: Map<number, number> } | undefined {
+    if (usedIndices.size === items.length) {
+      return undefined;
+    }
+
+    const filtered: T[] = [];
+    const indexMap = new Map<number, number>();
+    items.forEach((item, idx) => {
+      if (usedIndices.has(idx)) {
+        indexMap.set(idx, filtered.length);
+        filtered.push(item);
+      }
+    });
+
+    return { filtered, indexMap };
   }
 
   private static __recalculateBufferViewAccumulators(json: Gltf2Ex) {
@@ -2823,6 +2868,10 @@ function normalizeNormals(accessor: Accessor): Accessor {
 
 type WeightTypedArray = Float32Array | Uint8Array | Uint16Array | Uint32Array;
 
+const SKIN_WEIGHT_SUM_EPSILON = 1e-6;
+const SKIN_WEIGHT_DIFF_EPSILON = 1e-6;
+const SKIN_WEIGHT_RESIDUAL_TOLERANCE = 1e-6;
+
 function normalizeSkinWeights(accessor: Accessor): Accessor {
   const componentCount = accessor.compositionType.getNumberOfComponents();
   const elementCount = accessor.elementCount;
@@ -2836,124 +2885,228 @@ function normalizeSkinWeights(accessor: Accessor): Accessor {
       accessor.componentType === ComponentType.UnsignedShort ||
       accessor.componentType === ComponentType.UnsignedInt);
 
-  const floatData = new Float32Array(elementCount * componentCount);
-  const sumEpsilon = 1e-6;
-  const diffEpsilon = 1e-6;
-  const residualTolerance = 1e-6;
-  let mutated = false;
   const normalizationDenominator = treatAsNormalizedUnsignedInt
     ? getNormalizedUnsignedComponentMax(accessor.componentType)
     : 1;
 
-  for (let i = 0; i < elementCount; i++) {
-    const baseIndex = i * componentCount;
-    let sum = 0;
+  const normalizationResult = createNormalizedFloatWeights(
+    accessor,
+    componentCount,
+    elementCount,
+    treatAsNormalizedUnsignedInt,
+    normalizationDenominator
+  );
 
-    for (let j = 0; j < componentCount; j++) {
-      const rawValue = accessor.getScalarAt(i, j * accessor.componentSizeInBytes, {});
-      let weight = treatAsNormalizedUnsignedInt ? rawValue / normalizationDenominator : rawValue;
-      if (!Number.isFinite(weight) || weight < 0) {
-        if (weight !== 0) {
-          mutated = true;
-        }
-        weight = 0;
-      }
-      if (weight > 1) {
-        mutated = true;
-        weight = 1;
-      }
-      floatData[baseIndex + j] = weight;
-      sum += weight;
-    }
-
-    if (sum > sumEpsilon) {
-      if (Math.abs(sum - 1) > diffEpsilon) {
-        const invSum = 1 / sum;
-        let normalizedSum = 0;
-        for (let j = 0; j < componentCount; j++) {
-          const normalized = Math.fround(floatData[baseIndex + j] * invSum);
-          floatData[baseIndex + j] = normalized;
-          normalizedSum += normalized;
-        }
-        const residual = 1 - normalizedSum;
-        adjustWeightsForResidual(floatData, baseIndex, componentCount, residual, residualTolerance);
-        mutated = true;
-      }
-    } else if (sum !== 0) {
-      for (let j = 0; j < componentCount; j++) {
-        floatData[baseIndex + j] = 0;
-      }
-      mutated = true;
-    }
-  }
-
-  if (!mutated) {
+  if (!normalizationResult.mutated) {
     return accessor;
   }
 
   if (treatAsNormalizedUnsignedInt) {
-    const typedArray = createUnsignedTypedArray(accessor.componentType, floatData.length);
-    const maxValue = normalizationDenominator;
-
-    for (let i = 0; i < elementCount; i++) {
-      const baseIndex = i * componentCount;
-      const scaled = new Array<number>(componentCount);
-      let total = 0;
-
-      for (let j = 0; j < componentCount; j++) {
-        const clamped = Math.max(0, Math.min(floatData[baseIndex + j], 1));
-        const value = Math.round(clamped * maxValue);
-        scaled[j] = value;
-        total += value;
-      }
-
-      let diff = maxValue - total;
-      if (diff !== 0) {
-        const indices = [...Array(componentCount).keys()].sort(
-          (a, b) => floatData[baseIndex + b] - floatData[baseIndex + a]
-        );
-        for (const idx of indices) {
-          if (diff === 0) {
-            break;
-          }
-          if (diff > 0) {
-            const available = maxValue - scaled[idx];
-            if (available <= 0) {
-              continue;
-            }
-            const delta = Math.min(available, diff);
-            scaled[idx] += delta;
-            diff -= delta;
-          } else {
-            const available = scaled[idx];
-            if (available <= 0) {
-              continue;
-            }
-            const delta = Math.min(available, -diff);
-            scaled[idx] -= delta;
-            diff += delta;
-          }
-        }
-        if (diff !== 0 && indices.length > 0) {
-          const idx = indices[0];
-          const baseValue = scaled[idx];
-          const newValue = Math.max(0, Math.min(maxValue, baseValue + diff));
-          diff -= newValue - baseValue;
-          scaled[idx] = newValue;
-        }
-      }
-
-      for (let j = 0; j < componentCount; j++) {
-        typedArray[baseIndex + j] = scaled[j];
-      }
-    }
-
-    return createAccessorFromWeightsTypedArray(typedArray, accessor, accessor.componentType, true);
+    return convertNormalizedWeightsToUnsigned(
+      normalizationResult.data,
+      accessor,
+      componentCount,
+      elementCount,
+      normalizationDenominator
+    );
   }
 
   const componentTypeForFloat = accessor.componentType.isFloatingPoint() ? accessor.componentType : ComponentType.Float;
   const normalizedFlagForFloat = componentTypeForFloat === accessor.componentType ? accessor.normalized : false;
-  return createAccessorFromWeightsTypedArray(floatData, accessor, componentTypeForFloat, normalizedFlagForFloat);
+  return createAccessorFromWeightsTypedArray(
+    normalizationResult.data,
+    accessor,
+    componentTypeForFloat,
+    normalizedFlagForFloat
+  );
+}
+
+function createNormalizedFloatWeights(
+  accessor: Accessor,
+  componentCount: number,
+  elementCount: number,
+  treatAsNormalizedUnsignedInt: boolean,
+  normalizationDenominator: number
+): { data: Float32Array; mutated: boolean } {
+  const floatData = new Float32Array(elementCount * componentCount);
+  let mutated = false;
+
+  for (let elementIndex = 0; elementIndex < elementCount; elementIndex++) {
+    const baseIndex = elementIndex * componentCount;
+    const elementMutated = processSkinWeightElement(
+      accessor,
+      elementIndex,
+      baseIndex,
+      componentCount,
+      treatAsNormalizedUnsignedInt,
+      normalizationDenominator,
+      floatData
+    );
+    if (elementMutated) {
+      mutated = true;
+    }
+  }
+
+  return { data: floatData, mutated };
+}
+
+function processSkinWeightElement(
+  accessor: Accessor,
+  elementIndex: number,
+  baseIndex: number,
+  componentCount: number,
+  treatAsNormalizedUnsignedInt: boolean,
+  normalizationDenominator: number,
+  floatData: Float32Array
+): boolean {
+  let mutated = false;
+  let sum = 0;
+
+  for (let componentIndex = 0; componentIndex < componentCount; componentIndex++) {
+    const offset = componentIndex * accessor.componentSizeInBytes;
+    const rawValue = accessor.getScalarAt(elementIndex, offset, {});
+    const scaled = treatAsNormalizedUnsignedInt ? rawValue / normalizationDenominator : rawValue;
+    const sanitized = sanitizeSkinWeight(scaled);
+    if (sanitized.mutated) {
+      mutated = true;
+    }
+    floatData[baseIndex + componentIndex] = sanitized.value;
+    sum += sanitized.value;
+  }
+
+  if (normalizeSkinWeightElement(floatData, baseIndex, componentCount, sum)) {
+    mutated = true;
+  }
+
+  return mutated;
+}
+
+function sanitizeSkinWeight(weight: number): { value: number; mutated: boolean } {
+  if (!Number.isFinite(weight) || weight < 0) {
+    return { value: 0, mutated: weight !== 0 };
+  }
+  if (weight > 1) {
+    return { value: 1, mutated: true };
+  }
+  return { value: weight, mutated: false };
+}
+
+function normalizeSkinWeightElement(
+  floatData: Float32Array,
+  baseIndex: number,
+  componentCount: number,
+  sum: number
+): boolean {
+  if (sum > SKIN_WEIGHT_SUM_EPSILON) {
+    if (Math.abs(sum - 1) > SKIN_WEIGHT_DIFF_EPSILON) {
+      const invSum = 1 / sum;
+      let normalizedSum = 0;
+      for (let componentIndex = 0; componentIndex < componentCount; componentIndex++) {
+        const normalized = Math.fround(floatData[baseIndex + componentIndex] * invSum);
+        floatData[baseIndex + componentIndex] = normalized;
+        normalizedSum += normalized;
+      }
+      const residual = 1 - normalizedSum;
+      adjustWeightsForResidual(floatData, baseIndex, componentCount, residual, SKIN_WEIGHT_RESIDUAL_TOLERANCE);
+      return true;
+    }
+    return false;
+  }
+  if (sum !== 0) {
+    for (let componentIndex = 0; componentIndex < componentCount; componentIndex++) {
+      floatData[baseIndex + componentIndex] = 0;
+    }
+    return true;
+  }
+  return false;
+}
+
+function convertNormalizedWeightsToUnsigned(
+  floatData: Float32Array,
+  accessor: Accessor,
+  componentCount: number,
+  elementCount: number,
+  normalizationDenominator: number
+): Accessor {
+  const typedArray = createUnsignedTypedArray(accessor.componentType, floatData.length);
+  const maxValue = normalizationDenominator;
+
+  for (let elementIndex = 0; elementIndex < elementCount; elementIndex++) {
+    const baseIndex = elementIndex * componentCount;
+    scaleSkinWeightElementToUnsigned(floatData, baseIndex, componentCount, typedArray, maxValue);
+  }
+
+  return createAccessorFromWeightsTypedArray(typedArray, accessor, accessor.componentType, true);
+}
+
+function scaleSkinWeightElementToUnsigned(
+  floatData: Float32Array,
+  baseIndex: number,
+  componentCount: number,
+  typedArray: WeightTypedArray,
+  maxValue: number
+) {
+  const scaled = new Array<number>(componentCount);
+  let total = 0;
+
+  for (let componentIndex = 0; componentIndex < componentCount; componentIndex++) {
+    const clamped = Math.max(0, Math.min(floatData[baseIndex + componentIndex], 1));
+    const value = Math.round(clamped * maxValue);
+    scaled[componentIndex] = value;
+    total += value;
+  }
+
+  let diff = maxValue - total;
+  if (diff !== 0) {
+    rebalanceScaledSkinWeights(diff, scaled, componentCount, maxValue, floatData, baseIndex);
+  }
+
+  for (let componentIndex = 0; componentIndex < componentCount; componentIndex++) {
+    typedArray[baseIndex + componentIndex] = scaled[componentIndex];
+  }
+}
+
+function rebalanceScaledSkinWeights(
+  diff: number,
+  scaled: number[],
+  componentCount: number,
+  maxValue: number,
+  floatData: Float32Array,
+  baseIndex: number
+) {
+  const indices = Array.from({ length: componentCount }, (_, idx) => idx).sort(
+    (a, b) => floatData[baseIndex + b] - floatData[baseIndex + a]
+  );
+
+  for (const idx of indices) {
+    if (diff === 0) {
+      break;
+    }
+    if (diff > 0) {
+      const available = maxValue - scaled[idx];
+      if (available <= 0) {
+        continue;
+      }
+      const delta = Math.min(available, diff);
+      scaled[idx] += delta;
+      diff -= delta;
+    } else {
+      const available = scaled[idx];
+      if (available <= 0) {
+        continue;
+      }
+      const delta = Math.min(available, -diff);
+      scaled[idx] -= delta;
+      diff += delta;
+    }
+  }
+
+  if (diff !== 0 && indices.length > 0) {
+    const idx = indices[0];
+    const baseValue = scaled[idx];
+    const newValue = Math.max(0, Math.min(maxValue, baseValue + diff));
+    scaled[idx] = newValue;
+  }
 }
 
 function getNormalizedUnsignedComponentMax(componentType: ComponentTypeEnum): number {
