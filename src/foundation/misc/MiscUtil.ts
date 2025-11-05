@@ -510,7 +510,10 @@ export function downloadArrayBuffer(fileNameToDownload: string, arrayBuffer: Arr
 export function downloadTypedArray(fileNameToDownload: string, typedArray: TypedArray): void {
   const a = document.createElement('a');
   a.download = fileNameToDownload;
-  const blob = new Blob([typedArray], { type: 'octet/stream' });
+  if (!(typedArray.buffer instanceof ArrayBuffer)) {
+    throw new Error('SharedArrayBuffer is not supported when downloading typed arrays.');
+  }
+  const blob = new Blob([typedArray as unknown as ArrayBufferView<ArrayBuffer>], { type: 'octet/stream' });
   const url = URL.createObjectURL(blob);
   a.href = url;
   const e = new MouseEvent('click');

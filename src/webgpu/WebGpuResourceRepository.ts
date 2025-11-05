@@ -142,6 +142,13 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     super();
   }
 
+  private static __asArrayBufferView(array: TypedArray): ArrayBufferView<ArrayBuffer> {
+    if (!(array.buffer instanceof ArrayBuffer)) {
+      throw new Error('SharedArrayBuffer is not supported in this code path.');
+    }
+    return array as unknown as ArrayBufferView<ArrayBuffer>;
+  }
+
   /**
    * Clears all cached resources including render pipelines, bind groups, and render bundles.
    * This method should be called when resources need to be recreated or when the rendering context changes.
@@ -2006,7 +2013,18 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
 
     const gpuTexture = gpuDevice.createTexture(textureDescriptor);
 
-    const imageData2 = new ImageData(new Uint8ClampedArray(imageData.buffer), width, height);
+    if (!(imageData.buffer instanceof ArrayBuffer)) {
+      throw new Error('SharedArrayBuffer is not supported in this code path.');
+    }
+    const pixelData =
+      imageData instanceof Uint8ClampedArray
+        ? (imageData as Uint8ClampedArray<ArrayBuffer>)
+        : new Uint8ClampedArray(
+            imageData.buffer as ArrayBuffer,
+            imageData.byteOffset,
+            imageData.byteLength / Uint8ClampedArray.BYTES_PER_ELEMENT
+          );
+    const imageData2 = new ImageData(pixelData, width, height);
 
     for (let i = 0; i < arrayLength; i++) {
       gpuDevice.queue.copyExternalImageToTexture({ source: imageData2 }, { texture: gpuTexture, origin: [0, 0, i] }, [
@@ -2032,7 +2050,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       size: inputArray.byteLength,
       usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.STORAGE,
     });
-    gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray);
+    const dataView = WebGpuResourceRepository.__asArrayBufferView(inputArray);
+    gpuDevice.queue.writeBuffer(storageBuffer, 0, dataView);
 
     this.__storageBuffer = storageBuffer;
 
@@ -2052,7 +2071,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   updateStorageBuffer(storageBufferHandle: WebGPUResourceHandle, inputArray: Float32Array, updateComponentSize: Count) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const storageBuffer = this.__webGpuResources.get(storageBufferHandle) as GPUBuffer;
-    gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray, 0, updateComponentSize);
+    const dataView = WebGpuResourceRepository.__asArrayBufferView(inputArray);
+    gpuDevice.queue.writeBuffer(storageBuffer, 0, dataView, 0, updateComponentSize);
   }
 
   /**
@@ -2074,10 +2094,11 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   ) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const storageBuffer = this.__webGpuResources.get(storageBufferHandle) as GPUBuffer;
+    const dataView = WebGpuResourceRepository.__asArrayBufferView(inputArray);
     gpuDevice.queue.writeBuffer(
       storageBuffer,
       offsetOfStorageBufferInByte,
-      inputArray,
+      dataView,
       offsetOfInputArrayInElement,
       updateComponentSize
     );
@@ -2089,7 +2110,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       size: inputArray.byteLength,
       usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.STORAGE,
     });
-    gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray);
+    const dataView = WebGpuResourceRepository.__asArrayBufferView(inputArray);
+    gpuDevice.queue.writeBuffer(storageBuffer, 0, dataView);
 
     this.__storageBlendShapeBuffer = storageBuffer;
 
@@ -2105,7 +2127,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   ) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const storageBuffer = this.__webGpuResources.get(storageBufferHandle) as GPUBuffer;
-    gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray, 0, updateComponentSize);
+    const dataView = WebGpuResourceRepository.__asArrayBufferView(inputArray);
+    gpuDevice.queue.writeBuffer(storageBuffer, 0, dataView, 0, updateComponentSize);
   }
 
   createBindGroupLayoutForDrawParameters() {
@@ -2161,7 +2184,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     WebGpuResourceRepository.__drawParametersUint32Array[1] = cameraSID;
     WebGpuResourceRepository.__drawParametersUint32Array[2] = currentPrimitiveIdx;
     WebGpuResourceRepository.__drawParametersUint32Array[3] = morphTargetNumber;
-    gpuDevice.queue.writeBuffer(uniformBuffer, 0, WebGpuResourceRepository.__drawParametersUint32Array);
+    const dataView = WebGpuResourceRepository.__asArrayBufferView(WebGpuResourceRepository.__drawParametersUint32Array);
+    gpuDevice.queue.writeBuffer(uniformBuffer, 0, dataView);
   }
 
   createUniformMorphOffsetsBuffer() {
@@ -2173,7 +2197,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       size: inputArray.byteLength,
       usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM,
     });
-    gpuDevice.queue.writeBuffer(uniformBuffer, 0, inputArray);
+    const dataView = WebGpuResourceRepository.__asArrayBufferView(inputArray);
+    gpuDevice.queue.writeBuffer(uniformBuffer, 0, dataView);
 
     this.__uniformMorphOffsetsBuffer = uniformBuffer;
 
@@ -2187,7 +2212,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     if (this.__uniformMorphOffsetsBuffer == null) {
       throw new Error('Not found uniform morph buffer.');
     }
-    gpuDevice.queue.writeBuffer(this.__uniformMorphOffsetsBuffer, 0, inputArray, 0, elementNum);
+    const dataView = WebGpuResourceRepository.__asArrayBufferView(inputArray);
+    gpuDevice.queue.writeBuffer(this.__uniformMorphOffsetsBuffer, 0, dataView, 0, elementNum);
   }
 
   createUniformMorphWeightsBuffer() {
@@ -2199,7 +2225,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       size: inputArray.byteLength,
       usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM,
     });
-    gpuDevice.queue.writeBuffer(uniformBuffer, 0, inputArray);
+    const dataView = WebGpuResourceRepository.__asArrayBufferView(inputArray);
+    gpuDevice.queue.writeBuffer(uniformBuffer, 0, dataView);
 
     this.__uniformMorphWeightsBuffer = uniformBuffer;
 
@@ -2213,7 +2240,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     if (this.__uniformMorphWeightsBuffer == null) {
       throw new Error('Not found uniform morph buffer.');
     }
-    gpuDevice.queue.writeBuffer(this.__uniformMorphWeightsBuffer, 0, inputArray, 0, elementNum);
+    const dataView = WebGpuResourceRepository.__asArrayBufferView(inputArray);
+    gpuDevice.queue.writeBuffer(this.__uniformMorphWeightsBuffer, 0, dataView, 0, elementNum);
   }
 
   private __createBindGroup(
@@ -2717,12 +2745,13 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         compressedTextureData = textureSource;
       }
 
+      const textureDataView = WebGpuResourceRepository.__asArrayBufferView(compressedTextureData);
       gpuDevice.queue.writeTexture(
         {
           texture: gpuTexture,
           mipLevel: i,
         },
-        compressedTextureData,
+        textureDataView,
         {
           offset: 0,
           bytesPerRow,
@@ -2832,12 +2861,13 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         compressedTextureData = originalData;
       }
 
+      const textureDataView = WebGpuResourceRepository.__asArrayBufferView(compressedTextureData);
       gpuDevice.queue.writeTexture(
         {
           texture,
           mipLevel: level,
         },
-        compressedTextureData,
+        textureDataView,
         {
           offset: 0,
           bytesPerRow,

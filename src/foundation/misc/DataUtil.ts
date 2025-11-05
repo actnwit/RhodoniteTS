@@ -288,7 +288,10 @@ export class DataUtil {
    * @returns Blob URL string for the image
    */
   static createBlobImageUriFromUint8Array(uint8Array: Uint8Array, mimeType: string): string {
-    const blob = new Blob([uint8Array], { type: mimeType });
+    if (!(uint8Array.buffer instanceof ArrayBuffer)) {
+      throw new Error('SharedArrayBuffer is not supported when creating blob image URIs.');
+    }
+    const blob = new Blob([uint8Array as unknown as Uint8Array<ArrayBuffer>], { type: mimeType });
     const imageUrl = URL.createObjectURL(blob);
     return imageUrl;
   }
