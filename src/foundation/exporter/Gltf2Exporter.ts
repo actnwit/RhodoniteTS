@@ -359,6 +359,9 @@ export class Gltf2Exporter {
     json.nodes = [];
     json.scenes = [{ nodes: [] }];
     const scene = json.scenes![0];
+    const sceneNodeIndices = new Set<number>();
+    const parentNodeIndices: Array<number | undefined> = new Array(entities.length);
+    const skinnedMeshNodeIndices: number[] = [];
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
       (entity as any).gltfNodeIndex = i;
@@ -382,8 +385,13 @@ export class Gltf2Exporter {
         for (let j = 0; j < children.length; j++) {
           const child = children[j];
           if (Is.exist((child.entity as any).gltfNodeIndex)) {
-            node.children.push((child.entity as any).gltfNodeIndex);
+            const childNodeIdx = (child.entity as any).gltfNodeIndex;
+            node.children.push(childNodeIdx);
+            parentNodeIndices[childNodeIdx] = i;
           }
+        }
+        if (node.children.length === 0) {
+          delete node.children;
         }
       }
 
@@ -438,6 +446,9 @@ export class Gltf2Exporter {
         const entityIdx = json.extras.rnSkins.indexOf(skinComponent.entity as any);
         if (entityIdx >= 0) {
           node.skin = entityIdx;
+          if (Is.exist(node.mesh)) {
+            skinnedMeshNodeIndices.push(i);
+          }
         }
       }
 
@@ -479,11 +490,38 @@ export class Gltf2Exporter {
       }
     }
 
+    // According to glTF specification, nodes with both skin and mesh should be placed directly under the root without local transforms.
+    // Remove them from their parent's children, strip TRS properties, and relocate them to the root node set.
+    for (const nodeIndex of skinnedMeshNodeIndices) {
+      const node = json.nodes[nodeIndex];
+      const parentIdx = parentNodeIndices[nodeIndex];
+      if (Is.exist(parentIdx)) {
+        const parentNode = json.nodes[parentIdx];
+        if (Is.exist(parentNode.children)) {
+          parentNode.children = parentNode.children.filter(childIdx => childIdx !== nodeIndex);
+          if (parentNode.children.length === 0) {
+            delete parentNode.children;
+          }
+        }
+        parentNodeIndices[nodeIndex] = undefined;
+      }
+
+      delete node.translation;
+      delete node.rotation;
+      delete node.scale;
+
+      if (!sceneNodeIndices.has(nodeIndex)) {
+        scene.nodes!.push(nodeIndex);
+        sceneNodeIndices.add(nodeIndex);
+      }
+    }
+
     // If the entity has no parent, it must be a top level entity in the scene graph.
     topLevelEntities.forEach(entity => {
       const idx = entities.indexOf(entity);
-      if (idx >= 0) {
+      if (idx >= 0 && !sceneNodeIndices.has(idx)) {
         scene.nodes!.push(idx);
+        sceneNodeIndices.add(idx);
       }
     });
   }
