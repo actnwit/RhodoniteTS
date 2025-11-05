@@ -668,7 +668,8 @@ export class Gltf2Exporter {
       let match = false;
       for (let k = 0; k < json.images.length; k++) {
         const image = json.images![k];
-        if (Is.exist(image.rnTextureUID) && image.rnTextureUID === rnTexture.textureUID) {
+        const existingTextureUid = image.extras?.rnTextureUID;
+        if (Is.exist(existingTextureUid) && existingTextureUid === rnTexture.textureUID) {
           imageIndex = k;
           match = true;
         }
@@ -677,8 +678,10 @@ export class Gltf2Exporter {
       if (!match) {
         const glTF2ImageEx: Gltf2ImageEx = {
           uri: rnTexture.name,
+          extras: {
+            rnTextureUID: rnTexture.textureUID,
+          },
         };
-        glTF2ImageEx.rnTextureUID = rnTexture.textureUID;
 
         if (existedImages.indexOf(rnTexture.name) !== -1) {
           glTF2ImageEx.uri += `_${rnTexture.textureUID}`;
