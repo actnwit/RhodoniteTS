@@ -38,8 +38,10 @@ import type { Tag } from '../core/RnObject';
 import { CameraType, type ComponentTypeEnum, type CompositionTypeEnum, TextureParameter } from '../definitions';
 import { ComponentType, type Gltf2AccessorComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
+import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
 import { VertexAttribute } from '../definitions/VertexAttribute';
+import type { VertexAttributeSemanticsJoinedString } from '../definitions/VertexAttribute';
 import type { Mesh } from '../geometry/Mesh';
 import type { Primitive } from '../geometry/Primitive';
 import type { IAnimationEntity, IMeshEntity, ISceneGraphEntity, ISkeletalEntity } from '../helpers/EntityHelper';
@@ -58,8 +60,6 @@ import type { Sampler } from '../textures/Sampler';
 import type { Texture } from '../textures/Texture';
 import { createEffekseer } from './Gltf2ExporterEffekseer';
 import { createAndAddGltf2BufferView } from './Gltf2ExporterOps';
-import { PrimitiveMode } from '../definitions/PrimitiveMode';
-import type { VertexAttributeSemanticsJoinedString } from '../definitions/VertexAttribute';
 
 export const GLTF2_EXPORT_GLTF = 'glTF';
 export const GLTF2_EXPORT_GLB = 'glTF-Binary';
@@ -1923,7 +1923,10 @@ function createNormalizedTangentAccessor(source: Accessor, normalAccessor: Acces
   return accessor;
 }
 
-function createComputedTangentAccessor(primitive: Primitive, normalAccessor: Accessor | undefined): Accessor | undefined {
+function createComputedTangentAccessor(
+  primitive: Primitive,
+  normalAccessor: Accessor | undefined
+): Accessor | undefined {
   const positionAccessor = primitive.getAttribute(VertexAttribute.Position.XYZ);
   if (Is.not.exist(positionAccessor)) {
     return undefined;
@@ -2022,7 +2025,11 @@ function createComputedTangentAccessor(primitive: Primitive, normalAccessor: Acc
     };
     const normal = normalAccessor?.getVec3(vertexIndex, {});
 
-    const normalized = normalizeTangentVector(tangent, normal ? { x: normal.x, y: normal.y, z: normal.z } : undefined, bitangent);
+    const normalized = normalizeTangentVector(
+      tangent,
+      normal ? { x: normal.x, y: normal.y, z: normal.z } : undefined,
+      bitangent
+    );
     accessor.setVec4(vertexIndex, normalized.x, normalized.y, normalized.z, normalized.w, {});
   }
 
