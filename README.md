@@ -21,7 +21,7 @@ https://librn.com/
 * Support loading the following 3D model files: [glTF2](https://github.com/KhronosGroup/glTF), glTF1, [VRM](https://vrm.dev/en/)
 * Support [Draco compression](https://google.github.io/draco/), [Basis Universal](https://github.com/BinomialLLC/basis_universal) and [KTX2](http://github.khronos.org/KTX-Specification/), etc
 * WebGPU Support
-* WebXR(VR) Support (in WebGL mode)
+* WebXR(VR) Support (in both WebGL & WebGPU)
 
 ## What's the "Blittable Memory Architecture"
 
