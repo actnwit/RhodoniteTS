@@ -132,6 +132,8 @@ export class Gltf2Exporter {
 
     createEffekseer(json, collectedEntities);
 
+    this.__removeUnusedAccessorsAndBufferViews(json);
+
     const arraybuffer = this.__createBinary(json);
 
     this.__deleteEmptyArrays(json);
@@ -288,13 +290,7 @@ export class Gltf2Exporter {
       animations: [],
       meshes: [],
       skins: [],
-      materials: [
-        {
-          pbrMetallicRoughness: {
-            baseColorFactor: [1.0, 1.0, 1.0, 1.0],
-          },
-        },
-      ],
+      materials: [],
       textures: [],
       images: [],
       extensionsUsed: [],
@@ -1184,6 +1180,216 @@ export class Gltf2Exporter {
         material.emissiveTexture = info;
       },
     });
+  }
+
+  private static __removeUnusedAccessorsAndBufferViews(json: Gltf2Ex) {
+    if (json.accessors.length === 0) {
+      this.__recalculateBufferViewAccumulators(json);
+      return;
+    }
+
+    const usedAccessorIndices = new Set<number>();
+    const registerAccessor = (candidate: unknown) => {
+      if (typeof candidate === 'number' && candidate >= 0) {
+        usedAccessorIndices.add(candidate);
+      }
+    };
+
+    if (Is.exist(json.meshes)) {
+      for (const mesh of json.meshes) {
+        if (Is.not.exist(mesh?.primitives)) {
+          continue;
+        }
+        for (const primitive of mesh.primitives) {
+          registerAccessor(primitive.indices);
+          const attributes = primitive.attributes as Record<string, number | undefined> | undefined;
+          if (Is.exist(attributes)) {
+            for (const key of Object.keys(attributes)) {
+              registerAccessor(attributes[key]);
+            }
+          }
+          if (Array.isArray(primitive.targets)) {
+            for (const target of primitive.targets) {
+              const targetAttributes = target as Record<string, number | undefined>;
+              for (const key of Object.keys(targetAttributes)) {
+                registerAccessor(targetAttributes[key]);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    if (Is.exist(json.skins)) {
+      for (const skin of json.skins) {
+        registerAccessor(skin.inverseBindMatrices);
+      }
+    }
+
+    if (Is.exist(json.animations)) {
+      for (const animation of json.animations) {
+        if (Is.not.exist(animation?.samplers)) {
+          continue;
+        }
+        for (const sampler of animation.samplers) {
+          registerAccessor(sampler.input);
+          registerAccessor(sampler.output);
+        }
+      }
+    }
+
+    const accessorIndexMap = new Map<number, number>();
+    const filteredAccessors: typeof json.accessors = [];
+    json.accessors.forEach((accessor, idx) => {
+      if (usedAccessorIndices.has(idx)) {
+        accessorIndexMap.set(idx, filteredAccessors.length);
+        filteredAccessors.push(accessor);
+      }
+    });
+
+    if (filteredAccessors.length !== json.accessors.length) {
+      json.accessors = filteredAccessors;
+
+      const mapAccessorIndex = (candidate: unknown): number | undefined => {
+        if (typeof candidate !== 'number') {
+          return undefined;
+        }
+        return accessorIndexMap.get(candidate);
+      };
+
+      if (Is.exist(json.meshes)) {
+        for (const mesh of json.meshes) {
+          if (Is.not.exist(mesh?.primitives)) {
+            continue;
+          }
+          for (const primitive of mesh.primitives) {
+            if (typeof primitive.indices === 'number') {
+              const mapped = mapAccessorIndex(primitive.indices);
+              primitive.indices = typeof mapped === 'number' ? mapped : undefined;
+            }
+            const attributes = primitive.attributes as Record<string, number | undefined> | undefined;
+            if (Is.exist(attributes)) {
+              for (const key of Object.keys(attributes)) {
+                const mapped = mapAccessorIndex(attributes[key]);
+                if (typeof mapped === 'number') {
+                  attributes[key] = mapped;
+                } else {
+                  delete attributes[key];
+                }
+              }
+            }
+            if (Array.isArray(primitive.targets)) {
+              for (const target of primitive.targets) {
+                const targetAttributes = target as Record<string, number | undefined>;
+                for (const key of Object.keys(targetAttributes)) {
+                  const mapped = mapAccessorIndex(targetAttributes[key]);
+                  if (typeof mapped === 'number') {
+                    targetAttributes[key] = mapped;
+                  } else {
+                    delete targetAttributes[key];
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      if (Is.exist(json.skins)) {
+        for (const skin of json.skins) {
+          if (typeof skin.inverseBindMatrices === 'number') {
+            const mapped = mapAccessorIndex(skin.inverseBindMatrices);
+            skin.inverseBindMatrices = typeof mapped === 'number' ? mapped : undefined;
+          }
+        }
+      }
+
+      if (Is.exist(json.animations)) {
+        for (const animation of json.animations) {
+          if (Is.not.exist(animation?.samplers)) {
+            continue;
+          }
+          for (const sampler of animation.samplers) {
+            const mappedInput = mapAccessorIndex(sampler.input);
+            const mappedOutput = mapAccessorIndex(sampler.output);
+            if (typeof mappedInput === 'number') {
+              sampler.input = mappedInput;
+            }
+            if (typeof mappedOutput === 'number') {
+              sampler.output = mappedOutput;
+            }
+          }
+        }
+      }
+    }
+
+    if (json.bufferViews.length === 0) {
+      this.__recalculateBufferViewAccumulators(json);
+      return;
+    }
+
+    const usedBufferViewIndices = new Set<number>();
+    for (const accessor of json.accessors) {
+      if (typeof accessor.bufferView === 'number') {
+        usedBufferViewIndices.add(accessor.bufferView);
+      }
+    }
+    if (Is.exist(json.images)) {
+      for (const image of json.images) {
+        if (typeof image.bufferView === 'number') {
+          usedBufferViewIndices.add(image.bufferView);
+        }
+      }
+    }
+
+    const bufferViewIndexMap = new Map<number, number>();
+    const filteredBufferViews: typeof json.bufferViews = [];
+    json.bufferViews.forEach((bufferView, idx) => {
+      if (usedBufferViewIndices.has(idx)) {
+        bufferViewIndexMap.set(idx, filteredBufferViews.length);
+        filteredBufferViews.push(bufferView);
+      }
+    });
+
+    if (filteredBufferViews.length !== json.bufferViews.length) {
+      json.bufferViews = filteredBufferViews;
+
+      for (const accessor of json.accessors) {
+        if (typeof accessor.bufferView === 'number') {
+          const mapped = bufferViewIndexMap.get(accessor.bufferView);
+          accessor.bufferView = typeof mapped === 'number' ? mapped : undefined;
+        }
+      }
+
+      if (Is.exist(json.images)) {
+        for (const image of json.images) {
+          if (typeof image.bufferView === 'number') {
+            const mapped = bufferViewIndexMap.get(image.bufferView);
+            image.bufferView = typeof mapped === 'number' ? mapped : undefined;
+          }
+        }
+      }
+    }
+
+    this.__recalculateBufferViewAccumulators(json);
+  }
+
+  private static __recalculateBufferViewAccumulators(json: Gltf2Ex) {
+    if (Is.not.exist(json.buffers) || json.buffers.length === 0) {
+      json.extras.bufferViewByteLengthAccumulatedArray = [];
+      return;
+    }
+
+    const accumulators = new Array(json.buffers.length).fill(0);
+    for (const bufferView of json.bufferViews) {
+      const bufferIdx = typeof bufferView.buffer === 'number' ? bufferView.buffer : 0;
+      const source = bufferView.extras?.uint8Array;
+      const byteLength = Is.exist(source)
+        ? DataUtil.addPaddingBytes(source.byteLength, 4)
+        : DataUtil.addPaddingBytes(bufferView.byteLength, 4);
+      accumulators[bufferIdx] += byteLength;
+    }
+    json.extras.bufferViewByteLengthAccumulatedArray = accumulators;
   }
 
   /**
