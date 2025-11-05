@@ -1720,6 +1720,8 @@ function __createBufferViewsAndAccessorsOfMesh(
           let normalizedAccessor = rnAttributeAccessor;
           if (attributeName === 'NORMAL') {
             normalizedAccessor = normalizeNormals(rnAttributeAccessor);
+          } else if (attributeName === 'WEIGHTS_0') {
+            normalizedAccessor = normalizeSkinWeights(rnAttributeAccessor);
           }
 
           const rnBufferView = normalizedAccessor.bufferView;
@@ -2772,6 +2774,199 @@ function normalizeNormals(accessor: Accessor): Accessor {
     raw: arrayBuffer,
     arrayLength: 1,
     normalized: false,
+  });
+
+  return newAccessor;
+}
+
+type WeightTypedArray = Float32Array | Uint8Array | Uint16Array | Uint32Array;
+
+function normalizeSkinWeights(accessor: Accessor): Accessor {
+  const componentCount = accessor.compositionType.getNumberOfComponents();
+  const elementCount = accessor.elementCount;
+  if (componentCount === 0 || elementCount === 0) {
+    return accessor;
+  }
+
+  const treatAsNormalizedUnsignedInt =
+    accessor.normalized &&
+    (accessor.componentType === ComponentType.UnsignedByte ||
+      accessor.componentType === ComponentType.UnsignedShort ||
+      accessor.componentType === ComponentType.UnsignedInt);
+
+  const floatData = new Float32Array(elementCount * componentCount);
+  const sumEpsilon = 1e-6;
+  const diffEpsilon = 1e-4;
+  let mutated = false;
+  const normalizationDenominator = treatAsNormalizedUnsignedInt
+    ? getNormalizedUnsignedComponentMax(accessor.componentType)
+    : 1;
+
+  for (let i = 0; i < elementCount; i++) {
+    const baseIndex = i * componentCount;
+    let sum = 0;
+
+    for (let j = 0; j < componentCount; j++) {
+      const rawValue = accessor.getScalarAt(i, j * accessor.componentSizeInBytes, {});
+      let weight = treatAsNormalizedUnsignedInt ? rawValue / normalizationDenominator : rawValue;
+      if (!Number.isFinite(weight) || weight < 0) {
+        if (weight !== 0) {
+          mutated = true;
+        }
+        weight = 0;
+      }
+      if (weight > 1) {
+        mutated = true;
+        weight = 1;
+      }
+      floatData[baseIndex + j] = weight;
+      sum += weight;
+    }
+
+    if (sum > sumEpsilon) {
+      if (Math.abs(sum - 1) > diffEpsilon) {
+        const invSum = 1 / sum;
+        for (let j = 0; j < componentCount; j++) {
+          floatData[baseIndex + j] *= invSum;
+        }
+        mutated = true;
+      }
+    } else if (sum !== 0) {
+      for (let j = 0; j < componentCount; j++) {
+        floatData[baseIndex + j] = 0;
+      }
+      mutated = true;
+    }
+  }
+
+  if (!mutated) {
+    return accessor;
+  }
+
+  if (treatAsNormalizedUnsignedInt) {
+    const typedArray = createUnsignedTypedArray(accessor.componentType, floatData.length);
+    const maxValue = normalizationDenominator;
+
+    for (let i = 0; i < elementCount; i++) {
+      const baseIndex = i * componentCount;
+      const scaled = new Array<number>(componentCount);
+      let total = 0;
+
+      for (let j = 0; j < componentCount; j++) {
+        const clamped = Math.max(0, Math.min(floatData[baseIndex + j], 1));
+        const value = Math.round(clamped * maxValue);
+        scaled[j] = value;
+        total += value;
+      }
+
+      let diff = maxValue - total;
+      if (diff !== 0) {
+        const indices = [...Array(componentCount).keys()].sort(
+          (a, b) => floatData[baseIndex + b] - floatData[baseIndex + a]
+        );
+        for (const idx of indices) {
+          if (diff === 0) {
+            break;
+          }
+          if (diff > 0) {
+            const available = maxValue - scaled[idx];
+            if (available <= 0) {
+              continue;
+            }
+            const delta = Math.min(available, diff);
+            scaled[idx] += delta;
+            diff -= delta;
+          } else {
+            const available = scaled[idx];
+            if (available <= 0) {
+              continue;
+            }
+            const delta = Math.min(available, -diff);
+            scaled[idx] -= delta;
+            diff += delta;
+          }
+        }
+        if (diff !== 0 && indices.length > 0) {
+          const idx = indices[0];
+          const baseValue = scaled[idx];
+          const newValue = Math.max(0, Math.min(maxValue, baseValue + diff));
+          diff -= newValue - baseValue;
+          scaled[idx] = newValue;
+        }
+      }
+
+      for (let j = 0; j < componentCount; j++) {
+        typedArray[baseIndex + j] = scaled[j];
+      }
+    }
+
+    return createAccessorFromWeightsTypedArray(typedArray, accessor, accessor.componentType, true);
+  }
+
+  const componentTypeForFloat = accessor.componentType.isFloatingPoint()
+    ? accessor.componentType
+    : ComponentType.Float;
+  const normalizedFlagForFloat = componentTypeForFloat === accessor.componentType ? accessor.normalized : false;
+  return createAccessorFromWeightsTypedArray(floatData, accessor, componentTypeForFloat, normalizedFlagForFloat);
+}
+
+function getNormalizedUnsignedComponentMax(componentType: ComponentTypeEnum): number {
+  if (componentType === ComponentType.UnsignedByte) {
+    return 255;
+  }
+  if (componentType === ComponentType.UnsignedShort) {
+    return 65535;
+  }
+  if (componentType === ComponentType.UnsignedInt) {
+    return 4294967295;
+  }
+  return 1;
+}
+
+function createUnsignedTypedArray(componentType: ComponentTypeEnum, length: number): Uint8Array | Uint16Array | Uint32Array {
+  if (componentType === ComponentType.UnsignedByte) {
+    return new Uint8Array(length);
+  }
+  if (componentType === ComponentType.UnsignedShort) {
+    return new Uint16Array(length);
+  }
+  if (componentType === ComponentType.UnsignedInt) {
+    return new Uint32Array(length);
+  }
+  throw new Error('Unsupported component type for normalized weights');
+}
+
+function createAccessorFromWeightsTypedArray(
+  typedArray: WeightTypedArray,
+  baseAccessor: Accessor,
+  componentType: ComponentTypeEnum,
+  normalized: boolean
+): Accessor {
+  const arrayBuffer = typedArray.buffer as ArrayBuffer;
+  const buffer = new Buffer({
+    byteLength: arrayBuffer.byteLength,
+    buffer: arrayBuffer,
+    name: 'NormalizedSkinWeightsBuffer',
+    byteAlign: 4,
+  });
+  const bufferView = new BufferView({
+    buffer,
+    byteOffsetInBuffer: 0,
+    defaultByteStride: 0,
+    byteLength: arrayBuffer.byteLength,
+    raw: arrayBuffer,
+  });
+
+  const newAccessor = new Accessor({
+    bufferView,
+    byteOffsetInBufferView: 0,
+    compositionType: baseAccessor.compositionType,
+    componentType,
+    byteStride: 0,
+    count: baseAccessor.elementCount,
+    raw: arrayBuffer,
+    arrayLength: 1,
+    normalized,
   });
 
   return newAccessor;
