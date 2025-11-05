@@ -38,12 +38,16 @@ import type { Tag } from '../core/RnObject';
 import { CameraType, type ComponentTypeEnum, type CompositionTypeEnum, TextureParameter } from '../definitions';
 import { ComponentType, type Gltf2AccessorComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
+import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
+import { VertexAttribute } from '../definitions/VertexAttribute';
+import type { VertexAttributeSemanticsJoinedString } from '../definitions/VertexAttribute';
 import type { Mesh } from '../geometry/Mesh';
 import type { Primitive } from '../geometry/Primitive';
 import type { IAnimationEntity, IMeshEntity, ISceneGraphEntity, ISkeletalEntity } from '../helpers/EntityHelper';
 import type { Material } from '../materials/core/Material';
 import { MathUtil } from '../math/MathUtil';
+import { Quaternion } from '../math/Quaternion';
 import type { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
 import { Accessor } from '../memory/Accessor';
@@ -131,6 +135,8 @@ export class Gltf2Exporter {
     await this.__createMaterials(json, collectedEntities as unknown as IMeshEntity[], option);
 
     createEffekseer(json, collectedEntities);
+
+    this.__removeUnusedAccessorsAndBufferViews(json);
 
     const arraybuffer = this.__createBinary(json);
 
@@ -288,13 +294,7 @@ export class Gltf2Exporter {
       animations: [],
       meshes: [],
       skins: [],
-      materials: [
-        {
-          pbrMetallicRoughness: {
-            baseColorFactor: [1.0, 1.0, 1.0, 1.0],
-          },
-        },
-      ],
+      materials: [],
       textures: [],
       images: [],
       extensionsUsed: [],
@@ -362,6 +362,9 @@ export class Gltf2Exporter {
     json.nodes = [];
     json.scenes = [{ nodes: [] }];
     const scene = json.scenes![0];
+    const sceneNodeIndices = new Set<number>();
+    const parentNodeIndices: Array<number | undefined> = new Array(entities.length);
+    const skinnedMeshNodeIndices: number[] = [];
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
       (entity as any).gltfNodeIndex = i;
@@ -385,8 +388,13 @@ export class Gltf2Exporter {
         for (let j = 0; j < children.length; j++) {
           const child = children[j];
           if (Is.exist((child.entity as any).gltfNodeIndex)) {
-            node.children.push((child.entity as any).gltfNodeIndex);
+            const childNodeIdx = (child.entity as any).gltfNodeIndex;
+            node.children.push(childNodeIdx);
+            parentNodeIndices[childNodeIdx] = i;
           }
+        }
+        if (node.children.length === 0) {
+          node.children = undefined;
         }
       }
 
@@ -404,12 +412,15 @@ export class Gltf2Exporter {
 
       // matrix
       const transform = entity.getTransform()!;
-      node.rotation = [
-        transform.localRotationInner.x,
-        transform.localRotationInner.y,
-        transform.localRotationInner.z,
-        transform.localRotationInner.w,
+      // glTF requires unit quaternions, so normalize and clamp to keep values within the spec range
+      const normalizedQuaternion = Quaternion.normalize(transform.localRotationInner);
+      const normalizedRotationArray = [
+        normalizedQuaternion.x,
+        normalizedQuaternion.y,
+        normalizedQuaternion.z,
+        normalizedQuaternion.w,
       ];
+      node.rotation = normalizedRotationArray.map(component => Math.min(1, Math.max(-1, component)));
       node.scale = [transform.localScaleInner.x, transform.localScaleInner.y, transform.localScaleInner.z];
       node.translation = [
         transform.localPositionInner.x,
@@ -438,6 +449,9 @@ export class Gltf2Exporter {
         const entityIdx = json.extras.rnSkins.indexOf(skinComponent.entity as any);
         if (entityIdx >= 0) {
           node.skin = entityIdx;
+          if (Is.exist(node.mesh)) {
+            skinnedMeshNodeIndices.push(i);
+          }
         }
       }
 
@@ -479,11 +493,38 @@ export class Gltf2Exporter {
       }
     }
 
+    // According to glTF specification, nodes with both skin and mesh should be placed directly under the root without local transforms.
+    // Remove them from their parent's children, strip TRS properties, and relocate them to the root node set.
+    for (const nodeIndex of skinnedMeshNodeIndices) {
+      const node = json.nodes[nodeIndex];
+      const parentIdx = parentNodeIndices[nodeIndex];
+      if (Is.exist(parentIdx)) {
+        const parentNode = json.nodes[parentIdx];
+        if (Is.exist(parentNode.children)) {
+          parentNode.children = parentNode.children.filter(childIdx => childIdx !== nodeIndex);
+          if (parentNode.children.length === 0) {
+            parentNode.children = undefined;
+          }
+        }
+        parentNodeIndices[nodeIndex] = undefined;
+      }
+
+      node.translation = undefined;
+      node.rotation = undefined;
+      node.scale = undefined;
+
+      if (!sceneNodeIndices.has(nodeIndex)) {
+        scene.nodes!.push(nodeIndex);
+        sceneNodeIndices.add(nodeIndex);
+      }
+    }
+
     // If the entity has no parent, it must be a top level entity in the scene graph.
     topLevelEntities.forEach(entity => {
       const idx = entities.indexOf(entity);
-      if (idx >= 0) {
+      if (idx >= 0 && !sceneNodeIndices.has(idx)) {
         scene.nodes!.push(idx);
+        sceneNodeIndices.add(idx);
       }
     });
   }
@@ -536,7 +577,80 @@ export class Gltf2Exporter {
       const materialIndex = json.materials.length;
       json.materials.push(material);
       primitive.material = materialIndex;
+      this.__pruneUnusedVertexAttributes(primitive, material);
     }
+  }
+
+  private static __pruneUnusedVertexAttributes(primitive: Gltf2Primitive, material: Gltf2MaterialEx) {
+    const attributes = primitive.attributes as Record<string, number | undefined>;
+
+    if (!this.__doesMaterialRequireTangents(material) && Is.exist(attributes.TANGENT)) {
+      attributes.TANGENT = undefined;
+    }
+
+    const usedTexCoords = this.__collectUsedTexCoordSetIndices(material);
+    if (usedTexCoords.size === 0) {
+      for (const attributeName of Object.keys(attributes)) {
+        if (attributeName.startsWith('TEXCOORD_')) {
+          delete attributes[attributeName];
+        }
+      }
+      return;
+    }
+
+    for (const attributeName of Object.keys(attributes)) {
+      if (!attributeName.startsWith('TEXCOORD_')) {
+        continue;
+      }
+      const texCoordIndex = Number(attributeName.substring('TEXCOORD_'.length));
+      if (Number.isNaN(texCoordIndex) || !usedTexCoords.has(texCoordIndex)) {
+        delete attributes[attributeName];
+      }
+    }
+  }
+
+  private static __doesMaterialRequireTangents(material: Gltf2MaterialEx): boolean {
+    if (Is.exist(material.normalTexture)) {
+      return true;
+    }
+    const extensions = material.extensions as Record<string, any> | undefined;
+    const clearcoatExtension = extensions?.KHR_materials_clearcoat as { clearcoatNormalTexture?: unknown } | undefined;
+    return Is.exist(clearcoatExtension?.clearcoatNormalTexture);
+  }
+
+  private static __collectUsedTexCoordSetIndices(material: Gltf2MaterialEx): Set<number> {
+    const usedTexCoords = new Set<number>();
+    const registerTexcoord = (info: { texCoord?: number; index?: number } | undefined) => {
+      if (Is.not.exist(info) || typeof info.index !== 'number') {
+        return;
+      }
+      const texCoord = typeof info.texCoord === 'number' ? info.texCoord : 0;
+      usedTexCoords.add(texCoord);
+    };
+
+    const pbr = material.pbrMetallicRoughness;
+    if (Is.exist(pbr)) {
+      registerTexcoord(pbr.baseColorTexture);
+      registerTexcoord(pbr.metallicRoughnessTexture);
+    }
+
+    registerTexcoord(material.normalTexture);
+    registerTexcoord(material.occlusionTexture);
+    registerTexcoord(material.emissiveTexture);
+
+    const extensions = material.extensions as Record<string, any> | undefined;
+    const clearcoatExtension = extensions?.KHR_materials_clearcoat as {
+      clearcoatTexture?: { texCoord?: number; index?: number };
+      clearcoatRoughnessTexture?: { texCoord?: number; index?: number };
+      clearcoatNormalTexture?: { texCoord?: number; index?: number };
+    };
+    if (Is.exist(clearcoatExtension)) {
+      registerTexcoord(clearcoatExtension.clearcoatTexture);
+      registerTexcoord(clearcoatExtension.clearcoatRoughnessTexture);
+      registerTexcoord(clearcoatExtension.clearcoatNormalTexture);
+    }
+
+    return usedTexCoords;
   }
 
   private static async __createMaterialFromRhodonite(
@@ -1113,6 +1227,260 @@ export class Gltf2Exporter {
     });
   }
 
+  private static __removeUnusedAccessorsAndBufferViews(json: Gltf2Ex) {
+    if (json.accessors.length === 0) {
+      this.__recalculateBufferViewAccumulators(json);
+      return;
+    }
+
+    this.__removeUnusedAccessors(json);
+
+    if (json.bufferViews.length === 0) {
+      this.__recalculateBufferViewAccumulators(json);
+      return;
+    }
+
+    this.__removeUnusedBufferViews(json);
+    this.__recalculateBufferViewAccumulators(json);
+  }
+
+  private static __removeUnusedAccessors(json: Gltf2Ex) {
+    const usedAccessorIndices = this.__collectUsedAccessorIndices(json);
+    const result = this.__filterItemsByUsage(json.accessors, usedAccessorIndices);
+    if (!result) {
+      return;
+    }
+
+    const { filtered, indexMap } = result;
+    json.accessors = filtered;
+    this.__remapAccessorReferences(json, indexMap);
+  }
+
+  private static __collectUsedAccessorIndices(json: Gltf2Ex) {
+    const usedAccessorIndices = new Set<number>();
+    const registerAccessor = (candidate: unknown) => {
+      if (typeof candidate === 'number' && candidate >= 0) {
+        usedAccessorIndices.add(candidate);
+      }
+    };
+
+    this.__collectAccessorIndicesFromMeshes(json, registerAccessor);
+    this.__collectAccessorIndicesFromSkins(json, registerAccessor);
+    this.__collectAccessorIndicesFromAnimations(json, registerAccessor);
+
+    return usedAccessorIndices;
+  }
+
+  private static __collectAccessorIndicesFromMeshes(json: Gltf2Ex, register: (candidate: unknown) => void) {
+    if (Is.not.exist(json.meshes)) {
+      return;
+    }
+    for (const mesh of json.meshes) {
+      if (Is.not.exist(mesh?.primitives)) {
+        continue;
+      }
+      for (const primitive of mesh.primitives) {
+        register(primitive.indices);
+        const attributes = primitive.attributes as Record<string, number | undefined> | undefined;
+        if (Is.exist(attributes)) {
+          for (const key of Object.keys(attributes)) {
+            register(attributes[key]);
+          }
+        }
+        if (Array.isArray(primitive.targets)) {
+          for (const target of primitive.targets) {
+            const targetAttributes = target as Record<string, number | undefined>;
+            for (const key of Object.keys(targetAttributes)) {
+              register(targetAttributes[key]);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  private static __collectAccessorIndicesFromSkins(json: Gltf2Ex, register: (candidate: unknown) => void) {
+    if (Is.not.exist(json.skins)) {
+      return;
+    }
+    for (const skin of json.skins) {
+      register(skin.inverseBindMatrices);
+    }
+  }
+
+  private static __collectAccessorIndicesFromAnimations(json: Gltf2Ex, register: (candidate: unknown) => void) {
+    if (Is.not.exist(json.animations)) {
+      return;
+    }
+    for (const animation of json.animations) {
+      if (Is.not.exist(animation?.samplers)) {
+        continue;
+      }
+      for (const sampler of animation.samplers) {
+        register(sampler.input);
+        register(sampler.output);
+      }
+    }
+  }
+
+  private static __remapAccessorReferences(json: Gltf2Ex, indexMap: Map<number, number>) {
+    const mapAccessorIndex = (candidate: unknown): number | undefined => {
+      if (typeof candidate !== 'number') {
+        return undefined;
+      }
+      return indexMap.get(candidate);
+    };
+
+    if (Is.exist(json.meshes)) {
+      for (const mesh of json.meshes) {
+        if (Is.not.exist(mesh?.primitives)) {
+          continue;
+        }
+        for (const primitive of mesh.primitives) {
+          if (typeof primitive.indices === 'number') {
+            const mapped = mapAccessorIndex(primitive.indices);
+            primitive.indices = typeof mapped === 'number' ? mapped : undefined;
+          }
+          const attributes = primitive.attributes as Record<string, number | undefined> | undefined;
+          this.__remapAccessorAttributeRecord(attributes, mapAccessorIndex);
+          if (Array.isArray(primitive.targets)) {
+            for (const target of primitive.targets) {
+              this.__remapAccessorAttributeRecord(target as Record<string, number | undefined>, mapAccessorIndex);
+            }
+          }
+        }
+      }
+    }
+
+    if (Is.exist(json.skins)) {
+      for (const skin of json.skins) {
+        if (typeof skin.inverseBindMatrices === 'number') {
+          const mapped = mapAccessorIndex(skin.inverseBindMatrices);
+          skin.inverseBindMatrices = typeof mapped === 'number' ? mapped : undefined;
+        }
+      }
+    }
+
+    if (Is.exist(json.animations)) {
+      for (const animation of json.animations) {
+        if (Is.not.exist(animation?.samplers)) {
+          continue;
+        }
+        for (const sampler of animation.samplers) {
+          const mappedInput = mapAccessorIndex(sampler.input);
+          const mappedOutput = mapAccessorIndex(sampler.output);
+          if (typeof mappedInput === 'number') {
+            sampler.input = mappedInput;
+          }
+          if (typeof mappedOutput === 'number') {
+            sampler.output = mappedOutput;
+          }
+        }
+      }
+    }
+  }
+
+  private static __remapAccessorAttributeRecord(
+    attributes: Record<string, number | undefined> | undefined,
+    mapAccessorIndex: (candidate: unknown) => number | undefined
+  ) {
+    if (Is.not.exist(attributes)) {
+      return;
+    }
+    for (const key of Object.keys(attributes)) {
+      const mapped = mapAccessorIndex(attributes[key]);
+      if (typeof mapped === 'number') {
+        attributes[key] = mapped;
+      } else {
+        delete attributes[key];
+      }
+    }
+  }
+
+  private static __removeUnusedBufferViews(json: Gltf2Ex) {
+    const usedBufferViewIndices = this.__collectUsedBufferViewIndices(json);
+    const result = this.__filterItemsByUsage(json.bufferViews, usedBufferViewIndices);
+    if (!result) {
+      return;
+    }
+
+    const { filtered, indexMap } = result;
+    json.bufferViews = filtered;
+    this.__remapBufferViewReferences(json, indexMap);
+  }
+
+  private static __collectUsedBufferViewIndices(json: Gltf2Ex) {
+    const usedBufferViewIndices = new Set<number>();
+    for (const accessor of json.accessors) {
+      if (typeof accessor.bufferView === 'number') {
+        usedBufferViewIndices.add(accessor.bufferView);
+      }
+    }
+    if (Is.exist(json.images)) {
+      for (const image of json.images) {
+        if (typeof image.bufferView === 'number') {
+          usedBufferViewIndices.add(image.bufferView);
+        }
+      }
+    }
+    return usedBufferViewIndices;
+  }
+
+  private static __remapBufferViewReferences(json: Gltf2Ex, indexMap: Map<number, number>) {
+    for (const accessor of json.accessors) {
+      if (typeof accessor.bufferView === 'number') {
+        const mapped = indexMap.get(accessor.bufferView);
+        accessor.bufferView = typeof mapped === 'number' ? mapped : undefined;
+      }
+    }
+
+    if (Is.exist(json.images)) {
+      for (const image of json.images) {
+        if (typeof image.bufferView === 'number') {
+          const mapped = indexMap.get(image.bufferView);
+          image.bufferView = typeof mapped === 'number' ? mapped : undefined;
+        }
+      }
+    }
+  }
+
+  private static __filterItemsByUsage<T>(
+    items: T[],
+    usedIndices: Set<number>
+  ): { filtered: T[]; indexMap: Map<number, number> } | undefined {
+    if (usedIndices.size === items.length) {
+      return undefined;
+    }
+
+    const filtered: T[] = [];
+    const indexMap = new Map<number, number>();
+    items.forEach((item, idx) => {
+      if (usedIndices.has(idx)) {
+        indexMap.set(idx, filtered.length);
+        filtered.push(item);
+      }
+    });
+
+    return { filtered, indexMap };
+  }
+
+  private static __recalculateBufferViewAccumulators(json: Gltf2Ex) {
+    if (Is.not.exist(json.buffers) || json.buffers.length === 0) {
+      json.extras.bufferViewByteLengthAccumulatedArray = [];
+      return;
+    }
+
+    const accumulators = new Array(json.buffers.length).fill(0);
+    for (const bufferView of json.bufferViews) {
+      const bufferIdx = typeof bufferView.buffer === 'number' ? bufferView.buffer : 0;
+      const sourceLength = bufferView.extras?.uint8Array?.byteLength;
+      const effectiveLength = Math.max(bufferView.byteLength, Is.exist(sourceLength) ? sourceLength! : 0);
+      const alignedLength = DataUtil.addPaddingBytes(effectiveLength, 4);
+      accumulators[bufferIdx] += alignedLength;
+    }
+    json.extras.bufferViewByteLengthAccumulatedArray = accumulators;
+  }
+
   /**
    * Creates the binary buffer containing all mesh, animation, and texture data.
    *
@@ -1129,8 +1497,14 @@ export class Gltf2Exporter {
       return new ArrayBuffer(0);
     }
 
-    // calc total sum of BufferViews in multiple Buffers
-    const byteLengthOfUniteBuffer = json.extras.bufferViewByteLengthAccumulatedArray.reduce((sum, val) => sum + val);
+    const byteLengthOfUniteBuffer = json.bufferViews.reduce((sum, bufferView) => {
+      const source = bufferView.extras?.uint8Array;
+      if (Is.not.exist(source)) {
+        return sum + DataUtil.addPaddingBytes(bufferView.byteLength, 4);
+      }
+      return sum + DataUtil.addPaddingBytes(source.byteLength, 4);
+    }, 0);
+
     if (byteLengthOfUniteBuffer > 0) {
       const buffer = json.buffers![0];
       buffer.byteLength = byteLengthOfUniteBuffer + DataUtil.calcPaddingBytes(byteLengthOfUniteBuffer, 4);
@@ -1364,6 +1738,20 @@ function __createBufferViewsAndAccessorsOfSkin(
   }
 }
 
+function doesRhodoniteMaterialRequireTangents(material: Material | undefined): boolean {
+  if (Is.not.exist(material)) {
+    return false;
+  }
+
+  const normalTextureParam = material.getTextureParameter('normalTexture') as any;
+  if (Is.exist(normalTextureParam?.[1])) {
+    return true;
+  }
+
+  const clearcoatNormalTextureParam = material.getTextureParameter('clearcoatNormalTexture') as any;
+  return Is.exist(clearcoatNormalTextureParam?.[1]);
+}
+
 /**
  * Creates BufferViews and Accessors for mesh geometry data.
  *
@@ -1389,9 +1777,10 @@ function __createBufferViewsAndAccessorsOfMesh(
     const meshComponent = entity.tryToGetMesh();
     if (Is.exist(meshComponent) && meshComponent.mesh) {
       const mesh: Gltf2Mesh = { primitives: [] };
-      const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
+      const rnMesh = meshComponent.mesh;
+      const primitiveCount = rnMesh.getPrimitiveNumber();
       for (let j = 0; j < primitiveCount; j++) {
-        const rnPrimitive = meshComponent.mesh.getPrimitiveAt(j);
+        const rnPrimitive = rnMesh.getPrimitiveAt(j);
         const primitive: Gltf2Primitive = {
           attributes: {},
           mode: rnPrimitive.primitiveMode.index,
@@ -1422,20 +1811,38 @@ function __createBufferViewsAndAccessorsOfMesh(
 
         // Vertex Attributes
         // For each attribute accessor
-        const attributeAccessors = rnPrimitive.attributeAccessors;
-        for (let j = 0; j < attributeAccessors.length; j++) {
-          const attributeJoinedString = rnPrimitive.attributeSemantics[j] as string;
+        const exportAttributeSemantics = rnPrimitive.attributeSemantics.concat();
+        const exportAttributeAccessors = rnPrimitive.attributeAccessors.concat();
+
+        const needsTangents = doesRhodoniteMaterialRequireTangents(rnPrimitive.material);
+        if (needsTangents) {
+          const tangentSemanticIndex = exportAttributeSemantics.findIndex(semantic => semantic.startsWith('TANGENT'));
+          const exportTangentAccessor = getExportTangentAccessorForPrimitive(rnPrimitive);
+          if (Is.exist(exportTangentAccessor)) {
+            if (tangentSemanticIndex >= 0) {
+              exportAttributeAccessors[tangentSemanticIndex] = exportTangentAccessor;
+            } else {
+              exportAttributeSemantics.push(VertexAttribute.Tangent.XYZ);
+              exportAttributeAccessors.push(exportTangentAccessor);
+            }
+          }
+        }
+
+        for (let attrIndex = 0; attrIndex < exportAttributeAccessors.length; attrIndex++) {
+          const attributeJoinedString = exportAttributeSemantics[attrIndex] as string;
           const attributeName = attributeJoinedString.split('.')[0];
           if (attributeName === 'BARY_CENTRIC_COORD') {
             continue;
           }
           // create a Gltf2BufferView
-          const rnAttributeAccessor = attributeAccessors[j];
+          const rnAttributeAccessor = exportAttributeAccessors[attrIndex];
 
           // Normalize normals if needed
           let normalizedAccessor = rnAttributeAccessor;
           if (attributeName === 'NORMAL') {
             normalizedAccessor = normalizeNormals(rnAttributeAccessor);
+          } else if (attributeName === 'WEIGHTS_0') {
+            normalizedAccessor = normalizeSkinWeights(rnAttributeAccessor);
           }
 
           const rnBufferView = normalizedAccessor.bufferView;
@@ -1471,6 +1878,289 @@ function __createBufferViewsAndAccessorsOfMesh(
       json.meshes.push(mesh);
     }
   }
+}
+
+const exportTangentAccessorCache = new WeakMap<Primitive, Accessor>();
+
+const TANGENT_EPSILON = 1e-6;
+
+function getExportTangentAccessorForPrimitive(primitive: Primitive): Accessor | undefined {
+  if (exportTangentAccessorCache.has(primitive)) {
+    return exportTangentAccessorCache.get(primitive);
+  }
+
+  let accessor: Accessor | undefined;
+  const existingTangentAccessor = primitive.getAttribute(VertexAttribute.Tangent.XYZ);
+  const normalAccessor = primitive.getAttribute(VertexAttribute.Normal.XYZ);
+
+  if (Is.exist(existingTangentAccessor)) {
+    accessor = createNormalizedTangentAccessor(existingTangentAccessor, normalAccessor);
+  } else {
+    accessor = createComputedTangentAccessor(primitive, normalAccessor);
+  }
+
+  if (Is.exist(accessor)) {
+    exportTangentAccessorCache.set(primitive, accessor);
+  }
+
+  return accessor;
+}
+
+function createNormalizedTangentAccessor(source: Accessor, normalAccessor: Accessor | undefined): Accessor {
+  const count = source.elementCount;
+  const accessor = createTemporaryVec4Accessor(count);
+
+  for (let i = 0; i < count; i++) {
+    const tangent = source.getVec4(i, {});
+    const normal = normalAccessor?.getVec3(i, {});
+    const normalized = normalizeTangentVector(
+      { x: tangent.x, y: tangent.y, z: tangent.z, w: tangent.w },
+      normal ? { x: normal.x, y: normal.y, z: normal.z } : undefined
+    );
+    accessor.setVec4(i, normalized.x, normalized.y, normalized.z, normalized.w, {});
+  }
+
+  return accessor;
+}
+
+function createComputedTangentAccessor(
+  primitive: Primitive,
+  normalAccessor: Accessor | undefined
+): Accessor | undefined {
+  const positionAccessor = primitive.getAttribute(VertexAttribute.Position.XYZ);
+  if (Is.not.exist(positionAccessor)) {
+    return undefined;
+  }
+
+  const texcoordAccessor = findPrimaryTexcoordAccessor(primitive);
+  if (Is.not.exist(texcoordAccessor)) {
+    return undefined;
+  }
+
+  const vertexCount = positionAccessor.elementCount;
+  if (vertexCount === 0) {
+    return undefined;
+  }
+
+  const accessor = createTemporaryVec4Accessor(vertexCount);
+  const tangentSums = new Float32Array(vertexCount * 3);
+  const bitangentSums = new Float32Array(vertexCount * 3);
+
+  const indicesAccessor = primitive.indicesAccessor;
+  const vertexCountAsIndicesBased = primitive.getVertexCountAsIndicesBased();
+
+  let incrementNum = 3;
+  const primitiveMode = primitive.primitiveMode;
+  if (primitiveMode === PrimitiveMode.TriangleStrip || primitiveMode === PrimitiveMode.TriangleFan) {
+    incrementNum = 1;
+  }
+
+  const extractIndex = (i: number) => (indicesAccessor ? indicesAccessor.getScalar(i, {}) : i);
+
+  for (let i = 0; i < vertexCountAsIndicesBased - 2; i += incrementNum) {
+    const i0 = extractIndex(i);
+    const i1 = extractIndex(i + 1);
+    const i2 = extractIndex(i + 2);
+
+    if (i0 === i1 || i1 === i2 || i0 === i2) {
+      continue;
+    }
+
+    const pos0 = positionAccessor.getVec3(i0, {});
+    const pos1 = positionAccessor.getVec3(i1, {});
+    const pos2 = positionAccessor.getVec3(i2, {});
+
+    const uv0 = texcoordAccessor.getVec2(i0, {});
+    const uv1 = texcoordAccessor.getVec2(i1, {});
+    const uv2 = texcoordAccessor.getVec2(i2, {});
+
+    const edge1x = pos1.x - pos0.x;
+    const edge1y = pos1.y - pos0.y;
+    const edge1z = pos1.z - pos0.z;
+
+    const edge2x = pos2.x - pos0.x;
+    const edge2y = pos2.y - pos0.y;
+    const edge2z = pos2.z - pos0.z;
+
+    const deltaUv1x = uv1.x - uv0.x;
+    const deltaUv1y = uv1.y - uv0.y;
+    const deltaUv2x = uv2.x - uv0.x;
+    const deltaUv2y = uv2.y - uv0.y;
+
+    const denom = deltaUv1x * deltaUv2y - deltaUv2x * deltaUv1y;
+    if (Math.abs(denom) <= TANGENT_EPSILON) {
+      continue;
+    }
+
+    const r = 1.0 / denom;
+
+    const tangentX = (deltaUv2y * edge1x - deltaUv1y * edge2x) * r;
+    const tangentY = (deltaUv2y * edge1y - deltaUv1y * edge2y) * r;
+    const tangentZ = (deltaUv2y * edge1z - deltaUv1y * edge2z) * r;
+
+    const bitangentX = (deltaUv1x * edge2x - deltaUv2x * edge1x) * r;
+    const bitangentY = (deltaUv1x * edge2y - deltaUv2x * edge1y) * r;
+    const bitangentZ = (deltaUv1x * edge2z - deltaUv2x * edge1z) * r;
+
+    accumulateVector3(tangentSums, i0, tangentX, tangentY, tangentZ);
+    accumulateVector3(tangentSums, i1, tangentX, tangentY, tangentZ);
+    accumulateVector3(tangentSums, i2, tangentX, tangentY, tangentZ);
+
+    accumulateVector3(bitangentSums, i0, bitangentX, bitangentY, bitangentZ);
+    accumulateVector3(bitangentSums, i1, bitangentX, bitangentY, bitangentZ);
+    accumulateVector3(bitangentSums, i2, bitangentX, bitangentY, bitangentZ);
+  }
+
+  for (let vertexIndex = 0; vertexIndex < vertexCount; vertexIndex++) {
+    const tangent = {
+      x: tangentSums[vertexIndex * 3 + 0],
+      y: tangentSums[vertexIndex * 3 + 1],
+      z: tangentSums[vertexIndex * 3 + 2],
+      w: 1,
+    };
+    const bitangent = {
+      x: bitangentSums[vertexIndex * 3 + 0],
+      y: bitangentSums[vertexIndex * 3 + 1],
+      z: bitangentSums[vertexIndex * 3 + 2],
+    };
+    const normal = normalAccessor?.getVec3(vertexIndex, {});
+
+    const normalized = normalizeTangentVector(
+      tangent,
+      normal ? { x: normal.x, y: normal.y, z: normal.z } : undefined,
+      bitangent
+    );
+    accessor.setVec4(vertexIndex, normalized.x, normalized.y, normalized.z, normalized.w, {});
+  }
+
+  return accessor;
+}
+
+function findPrimaryTexcoordAccessor(primitive: Primitive): Accessor | undefined {
+  const semantics = primitive.attributeSemantics;
+  for (const semantic of semantics) {
+    if (semantic.startsWith('TEXCOORD_')) {
+      return primitive.getAttribute(semantic as VertexAttributeSemanticsJoinedString) ?? undefined;
+    }
+  }
+  return undefined;
+}
+
+function createTemporaryVec4Accessor(count: number): Accessor {
+  const byteLength = count * 4 * 4;
+  const buffer = new Buffer({
+    byteLength,
+    buffer: new ArrayBuffer(byteLength),
+    name: 'Gltf2Exporter_Tangent',
+    byteAlign: 4,
+  });
+  const bufferView = buffer
+    .takeBufferView({
+      byteLengthToNeed: byteLength,
+      byteStride: 0,
+    })
+    .unwrapForce();
+
+  return bufferView
+    .takeAccessor({
+      compositionType: CompositionType.Vec4,
+      componentType: ComponentType.Float,
+      count,
+    })
+    .unwrapForce();
+}
+
+function accumulateVector3(array: Float32Array, index: number, x: number, y: number, z: number) {
+  array[index * 3 + 0] += x;
+  array[index * 3 + 1] += y;
+  array[index * 3 + 2] += z;
+}
+
+function normalizeTangentVector(
+  tangent: { x: number; y: number; z: number; w: number },
+  normal?: { x: number; y: number; z: number },
+  bitangent?: { x: number; y: number; z: number }
+) {
+  let tx = tangent.x;
+  let ty = tangent.y;
+  let tz = tangent.z;
+
+  if (normal) {
+    const dotNT = normal.x * tx + normal.y * ty + normal.z * tz;
+    tx -= normal.x * dotNT;
+    ty -= normal.y * dotNT;
+    tz -= normal.z * dotNT;
+  }
+
+  let length = Math.hypot(tx, ty, tz);
+  if (length <= TANGENT_EPSILON) {
+    const fallback = buildOrthonormalVector(normal);
+    tx = fallback.x;
+    ty = fallback.y;
+    tz = fallback.z;
+    length = 1;
+  } else {
+    tx /= length;
+    ty /= length;
+    tz /= length;
+  }
+
+  let w = tangent.w !== 0 ? (tangent.w >= 0 ? 1 : -1) : 1;
+  if (normal && bitangent) {
+    const crossX = normal.y * tz - normal.z * ty;
+    const crossY = normal.z * tx - normal.x * tz;
+    const crossZ = normal.x * ty - normal.y * tx;
+    const handedness = crossX * bitangent.x + crossY * bitangent.y + crossZ * bitangent.z;
+    if (handedness < 0) {
+      w = -1;
+    }
+  }
+
+  return { x: tx, y: ty, z: tz, w };
+}
+
+function buildOrthonormalVector(normal?: { x: number; y: number; z: number }) {
+  if (!normal) {
+    return { x: 1, y: 0, z: 0 };
+  }
+
+  const nx = normal.x;
+  const ny = normal.y;
+  const nz = normal.z;
+  const normalLength = Math.hypot(nx, ny, nz);
+
+  let ux = 0;
+  let uy = 0;
+  let uz = 1;
+
+  if (normalLength > TANGENT_EPSILON) {
+    const invLength = 1 / normalLength;
+    const nnx = nx * invLength;
+    const nny = ny * invLength;
+    const nnz = nz * invLength;
+
+    if (Math.abs(nnx) < 0.999) {
+      ux = 1;
+      uy = 0;
+      uz = 0;
+    } else {
+      ux = 0;
+      uy = 1;
+      uz = 0;
+    }
+
+    // tangent = normalize(cross(up, normal))
+    const tx = uy * nnz - uz * nny;
+    const ty = uz * nnx - ux * nnz;
+    const tz = ux * nny - uy * nnx;
+    const tLength = Math.hypot(tx, ty, tz);
+    if (tLength > TANGENT_EPSILON) {
+      const inv = 1 / tLength;
+      return { x: tx * inv, y: ty * inv, z: tz * inv };
+    }
+  }
+
+  return { x: 1, y: 0, z: 0 };
 }
 
 /**
@@ -2491,4 +3181,357 @@ function normalizeNormals(accessor: Accessor): Accessor {
   });
 
   return newAccessor;
+}
+
+type WeightTypedArray = Float32Array | Uint8Array | Uint16Array | Uint32Array;
+
+const SKIN_WEIGHT_SUM_EPSILON = 1e-6;
+const SKIN_WEIGHT_DIFF_EPSILON = 1e-6;
+const SKIN_WEIGHT_RESIDUAL_TOLERANCE = 1e-6;
+
+function normalizeSkinWeights(accessor: Accessor): Accessor {
+  const componentCount = accessor.compositionType.getNumberOfComponents();
+  const elementCount = accessor.elementCount;
+  if (componentCount === 0 || elementCount === 0) {
+    return accessor;
+  }
+
+  const treatAsNormalizedUnsignedInt =
+    accessor.normalized &&
+    (accessor.componentType === ComponentType.UnsignedByte ||
+      accessor.componentType === ComponentType.UnsignedShort ||
+      accessor.componentType === ComponentType.UnsignedInt);
+
+  const normalizationDenominator = treatAsNormalizedUnsignedInt
+    ? getNormalizedUnsignedComponentMax(accessor.componentType)
+    : 1;
+
+  const normalizationResult = createNormalizedFloatWeights(
+    accessor,
+    componentCount,
+    elementCount,
+    treatAsNormalizedUnsignedInt,
+    normalizationDenominator
+  );
+
+  if (!normalizationResult.mutated) {
+    return accessor;
+  }
+
+  if (treatAsNormalizedUnsignedInt) {
+    return convertNormalizedWeightsToUnsigned(
+      normalizationResult.data,
+      accessor,
+      componentCount,
+      elementCount,
+      normalizationDenominator
+    );
+  }
+
+  const componentTypeForFloat = accessor.componentType.isFloatingPoint() ? accessor.componentType : ComponentType.Float;
+  const normalizedFlagForFloat = componentTypeForFloat === accessor.componentType ? accessor.normalized : false;
+  return createAccessorFromWeightsTypedArray(
+    normalizationResult.data,
+    accessor,
+    componentTypeForFloat,
+    normalizedFlagForFloat
+  );
+}
+
+function createNormalizedFloatWeights(
+  accessor: Accessor,
+  componentCount: number,
+  elementCount: number,
+  treatAsNormalizedUnsignedInt: boolean,
+  normalizationDenominator: number
+): { data: Float32Array; mutated: boolean } {
+  const floatData = new Float32Array(elementCount * componentCount);
+  let mutated = false;
+
+  for (let elementIndex = 0; elementIndex < elementCount; elementIndex++) {
+    const baseIndex = elementIndex * componentCount;
+    const elementMutated = processSkinWeightElement(
+      accessor,
+      elementIndex,
+      baseIndex,
+      componentCount,
+      treatAsNormalizedUnsignedInt,
+      normalizationDenominator,
+      floatData
+    );
+    if (elementMutated) {
+      mutated = true;
+    }
+  }
+
+  return { data: floatData, mutated };
+}
+
+function processSkinWeightElement(
+  accessor: Accessor,
+  elementIndex: number,
+  baseIndex: number,
+  componentCount: number,
+  treatAsNormalizedUnsignedInt: boolean,
+  normalizationDenominator: number,
+  floatData: Float32Array
+): boolean {
+  let mutated = false;
+  let sum = 0;
+
+  for (let componentIndex = 0; componentIndex < componentCount; componentIndex++) {
+    const offset = componentIndex * accessor.componentSizeInBytes;
+    const rawValue = accessor.getScalarAt(elementIndex, offset, {});
+    const scaled = treatAsNormalizedUnsignedInt ? rawValue / normalizationDenominator : rawValue;
+    const sanitized = sanitizeSkinWeight(scaled);
+    if (sanitized.mutated) {
+      mutated = true;
+    }
+    floatData[baseIndex + componentIndex] = sanitized.value;
+    sum += sanitized.value;
+  }
+
+  if (normalizeSkinWeightElement(floatData, baseIndex, componentCount, sum)) {
+    mutated = true;
+  }
+
+  return mutated;
+}
+
+function sanitizeSkinWeight(weight: number): { value: number; mutated: boolean } {
+  if (!Number.isFinite(weight) || weight < 0) {
+    return { value: 0, mutated: weight !== 0 };
+  }
+  if (weight > 1) {
+    return { value: 1, mutated: true };
+  }
+  return { value: weight, mutated: false };
+}
+
+function normalizeSkinWeightElement(
+  floatData: Float32Array,
+  baseIndex: number,
+  componentCount: number,
+  sum: number
+): boolean {
+  if (sum > SKIN_WEIGHT_SUM_EPSILON) {
+    if (Math.abs(sum - 1) > SKIN_WEIGHT_DIFF_EPSILON) {
+      const invSum = 1 / sum;
+      let normalizedSum = 0;
+      for (let componentIndex = 0; componentIndex < componentCount; componentIndex++) {
+        const normalized = Math.fround(floatData[baseIndex + componentIndex] * invSum);
+        floatData[baseIndex + componentIndex] = normalized;
+        normalizedSum += normalized;
+      }
+      const residual = 1 - normalizedSum;
+      adjustWeightsForResidual(floatData, baseIndex, componentCount, residual, SKIN_WEIGHT_RESIDUAL_TOLERANCE);
+      return true;
+    }
+    return false;
+  }
+  if (sum !== 0) {
+    for (let componentIndex = 0; componentIndex < componentCount; componentIndex++) {
+      floatData[baseIndex + componentIndex] = 0;
+    }
+    return true;
+  }
+  return false;
+}
+
+function convertNormalizedWeightsToUnsigned(
+  floatData: Float32Array,
+  accessor: Accessor,
+  componentCount: number,
+  elementCount: number,
+  normalizationDenominator: number
+): Accessor {
+  const typedArray = createUnsignedTypedArray(accessor.componentType, floatData.length);
+  const maxValue = normalizationDenominator;
+
+  for (let elementIndex = 0; elementIndex < elementCount; elementIndex++) {
+    const baseIndex = elementIndex * componentCount;
+    scaleSkinWeightElementToUnsigned(floatData, baseIndex, componentCount, typedArray, maxValue);
+  }
+
+  return createAccessorFromWeightsTypedArray(typedArray, accessor, accessor.componentType, true);
+}
+
+function scaleSkinWeightElementToUnsigned(
+  floatData: Float32Array,
+  baseIndex: number,
+  componentCount: number,
+  typedArray: WeightTypedArray,
+  maxValue: number
+) {
+  const scaled = new Array<number>(componentCount);
+  let total = 0;
+
+  for (let componentIndex = 0; componentIndex < componentCount; componentIndex++) {
+    const clamped = Math.max(0, Math.min(floatData[baseIndex + componentIndex], 1));
+    const value = Math.round(clamped * maxValue);
+    scaled[componentIndex] = value;
+    total += value;
+  }
+
+  let diff = maxValue - total;
+  if (diff !== 0) {
+    rebalanceScaledSkinWeights(diff, scaled, componentCount, maxValue, floatData, baseIndex);
+  }
+
+  for (let componentIndex = 0; componentIndex < componentCount; componentIndex++) {
+    typedArray[baseIndex + componentIndex] = scaled[componentIndex];
+  }
+}
+
+function rebalanceScaledSkinWeights(
+  diff: number,
+  scaled: number[],
+  componentCount: number,
+  maxValue: number,
+  floatData: Float32Array,
+  baseIndex: number
+) {
+  const indices = Array.from({ length: componentCount }, (_, idx) => idx).sort(
+    (a, b) => floatData[baseIndex + b] - floatData[baseIndex + a]
+  );
+
+  for (const idx of indices) {
+    if (diff === 0) {
+      break;
+    }
+    if (diff > 0) {
+      const available = maxValue - scaled[idx];
+      if (available <= 0) {
+        continue;
+      }
+      const delta = Math.min(available, diff);
+      scaled[idx] += delta;
+      diff -= delta;
+    } else {
+      const available = scaled[idx];
+      if (available <= 0) {
+        continue;
+      }
+      const delta = Math.min(available, -diff);
+      scaled[idx] -= delta;
+      diff += delta;
+    }
+  }
+
+  if (diff !== 0 && indices.length > 0) {
+    const idx = indices[0];
+    const baseValue = scaled[idx];
+    const newValue = Math.max(0, Math.min(maxValue, baseValue + diff));
+    scaled[idx] = newValue;
+  }
+}
+
+function getNormalizedUnsignedComponentMax(componentType: ComponentTypeEnum): number {
+  if (componentType === ComponentType.UnsignedByte) {
+    return 255;
+  }
+  if (componentType === ComponentType.UnsignedShort) {
+    return 65535;
+  }
+  if (componentType === ComponentType.UnsignedInt) {
+    return 4294967295;
+  }
+  return 1;
+}
+
+function createUnsignedTypedArray(
+  componentType: ComponentTypeEnum,
+  length: number
+): Uint8Array | Uint16Array | Uint32Array {
+  if (componentType === ComponentType.UnsignedByte) {
+    return new Uint8Array(length);
+  }
+  if (componentType === ComponentType.UnsignedShort) {
+    return new Uint16Array(length);
+  }
+  if (componentType === ComponentType.UnsignedInt) {
+    return new Uint32Array(length);
+  }
+  throw new Error('Unsupported component type for normalized weights');
+}
+
+function createAccessorFromWeightsTypedArray(
+  typedArray: WeightTypedArray,
+  baseAccessor: Accessor,
+  componentType: ComponentTypeEnum,
+  normalized: boolean
+): Accessor {
+  const arrayBuffer = typedArray.buffer as ArrayBuffer;
+  const buffer = new Buffer({
+    byteLength: arrayBuffer.byteLength,
+    buffer: arrayBuffer,
+    name: 'NormalizedSkinWeightsBuffer',
+    byteAlign: 4,
+  });
+  const bufferView = new BufferView({
+    buffer,
+    byteOffsetInBuffer: 0,
+    defaultByteStride: 0,
+    byteLength: arrayBuffer.byteLength,
+    raw: arrayBuffer,
+  });
+
+  const newAccessor = new Accessor({
+    bufferView,
+    byteOffsetInBufferView: 0,
+    compositionType: baseAccessor.compositionType,
+    componentType,
+    byteStride: 0,
+    count: baseAccessor.elementCount,
+    raw: arrayBuffer,
+    arrayLength: 1,
+    normalized,
+  });
+
+  return newAccessor;
+}
+
+function adjustWeightsForResidual(
+  data: Float32Array,
+  offset: number,
+  componentCount: number,
+  residual: number,
+  tolerance: number
+) {
+  if (componentCount === 0 || Math.abs(residual) <= tolerance) {
+    return;
+  }
+
+  const indices = Array.from({ length: componentCount }, (_, idx) => idx).sort(
+    (a, b) => data[offset + b] - data[offset + a]
+  );
+
+  let remaining = residual;
+  for (const localIndex of indices) {
+    if (Math.abs(remaining) <= tolerance) {
+      break;
+    }
+    const idx = offset + localIndex;
+    const before = data[idx];
+    const candidate = clampWeight(before + remaining);
+    data[idx] = candidate;
+    remaining -= candidate - before;
+  }
+
+  if (Math.abs(remaining) > tolerance) {
+    const idx = offset + indices[0];
+    const before = data[idx];
+    const candidate = clampWeight(before + remaining);
+    data[idx] = candidate;
+  }
+}
+
+function clampWeight(value: number): number {
+  if (value < 0) {
+    return 0;
+  }
+  if (value > 1) {
+    return 1;
+  }
+  return value;
 }
