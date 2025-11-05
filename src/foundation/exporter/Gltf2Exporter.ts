@@ -39,6 +39,7 @@ import { CameraType, type ComponentTypeEnum, type CompositionTypeEnum, TexturePa
 import { ComponentType, type Gltf2AccessorComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
+import { VertexAttribute } from '../definitions/VertexAttribute';
 import type { Mesh } from '../geometry/Mesh';
 import type { Primitive } from '../geometry/Primitive';
 import type { IAnimationEntity, IMeshEntity, ISceneGraphEntity, ISkeletalEntity } from '../helpers/EntityHelper';
@@ -57,6 +58,8 @@ import type { Sampler } from '../textures/Sampler';
 import type { Texture } from '../textures/Texture';
 import { createEffekseer } from './Gltf2ExporterEffekseer';
 import { createAndAddGltf2BufferView } from './Gltf2ExporterOps';
+import { PrimitiveMode } from '../definitions/PrimitiveMode';
+import type { VertexAttributeSemanticsJoinedString } from '../definitions/VertexAttribute';
 
 export const GLTF2_EXPORT_GLTF = 'glTF';
 export const GLTF2_EXPORT_GLB = 'glTF-Binary';
@@ -1735,6 +1738,20 @@ function __createBufferViewsAndAccessorsOfSkin(
   }
 }
 
+function doesRhodoniteMaterialRequireTangents(material: Material | undefined): boolean {
+  if (Is.not.exist(material)) {
+    return false;
+  }
+
+  const normalTextureParam = material.getTextureParameter('normalTexture') as any;
+  if (Is.exist(normalTextureParam?.[1])) {
+    return true;
+  }
+
+  const clearcoatNormalTextureParam = material.getTextureParameter('clearcoatNormalTexture') as any;
+  return Is.exist(clearcoatNormalTextureParam?.[1]);
+}
+
 /**
  * Creates BufferViews and Accessors for mesh geometry data.
  *
@@ -1760,9 +1777,10 @@ function __createBufferViewsAndAccessorsOfMesh(
     const meshComponent = entity.tryToGetMesh();
     if (Is.exist(meshComponent) && meshComponent.mesh) {
       const mesh: Gltf2Mesh = { primitives: [] };
-      const primitiveCount = meshComponent.mesh.getPrimitiveNumber();
+      const rnMesh = meshComponent.mesh;
+      const primitiveCount = rnMesh.getPrimitiveNumber();
       for (let j = 0; j < primitiveCount; j++) {
-        const rnPrimitive = meshComponent.mesh.getPrimitiveAt(j);
+        const rnPrimitive = rnMesh.getPrimitiveAt(j);
         const primitive: Gltf2Primitive = {
           attributes: {},
           mode: rnPrimitive.primitiveMode.index,
@@ -1793,15 +1811,31 @@ function __createBufferViewsAndAccessorsOfMesh(
 
         // Vertex Attributes
         // For each attribute accessor
-        const attributeAccessors = rnPrimitive.attributeAccessors;
-        for (let j = 0; j < attributeAccessors.length; j++) {
-          const attributeJoinedString = rnPrimitive.attributeSemantics[j] as string;
+        const exportAttributeSemantics = rnPrimitive.attributeSemantics.concat();
+        const exportAttributeAccessors = rnPrimitive.attributeAccessors.concat();
+
+        const needsTangents = doesRhodoniteMaterialRequireTangents(rnPrimitive.material);
+        if (needsTangents) {
+          const tangentSemanticIndex = exportAttributeSemantics.findIndex(semantic => semantic.startsWith('TANGENT'));
+          const exportTangentAccessor = getExportTangentAccessorForPrimitive(rnPrimitive);
+          if (Is.exist(exportTangentAccessor)) {
+            if (tangentSemanticIndex >= 0) {
+              exportAttributeAccessors[tangentSemanticIndex] = exportTangentAccessor;
+            } else {
+              exportAttributeSemantics.push(VertexAttribute.Tangent.XYZ);
+              exportAttributeAccessors.push(exportTangentAccessor);
+            }
+          }
+        }
+
+        for (let attrIndex = 0; attrIndex < exportAttributeAccessors.length; attrIndex++) {
+          const attributeJoinedString = exportAttributeSemantics[attrIndex] as string;
           const attributeName = attributeJoinedString.split('.')[0];
           if (attributeName === 'BARY_CENTRIC_COORD') {
             continue;
           }
           // create a Gltf2BufferView
-          const rnAttributeAccessor = attributeAccessors[j];
+          const rnAttributeAccessor = exportAttributeAccessors[attrIndex];
 
           // Normalize normals if needed
           let normalizedAccessor = rnAttributeAccessor;
@@ -1844,6 +1878,282 @@ function __createBufferViewsAndAccessorsOfMesh(
       json.meshes.push(mesh);
     }
   }
+}
+
+const exportTangentAccessorCache = new WeakMap<Primitive, Accessor>();
+
+const TANGENT_EPSILON = 1e-6;
+
+function getExportTangentAccessorForPrimitive(primitive: Primitive): Accessor | undefined {
+  if (exportTangentAccessorCache.has(primitive)) {
+    return exportTangentAccessorCache.get(primitive);
+  }
+
+  let accessor: Accessor | undefined;
+  const existingTangentAccessor = primitive.getAttribute(VertexAttribute.Tangent.XYZ);
+  const normalAccessor = primitive.getAttribute(VertexAttribute.Normal.XYZ);
+
+  if (Is.exist(existingTangentAccessor)) {
+    accessor = createNormalizedTangentAccessor(existingTangentAccessor, normalAccessor);
+  } else {
+    accessor = createComputedTangentAccessor(primitive, normalAccessor);
+  }
+
+  if (Is.exist(accessor)) {
+    exportTangentAccessorCache.set(primitive, accessor);
+  }
+
+  return accessor;
+}
+
+function createNormalizedTangentAccessor(source: Accessor, normalAccessor: Accessor | undefined): Accessor {
+  const count = source.elementCount;
+  const accessor = createTemporaryVec4Accessor(count);
+
+  for (let i = 0; i < count; i++) {
+    const tangent = source.getVec4(i, {});
+    const normal = normalAccessor?.getVec3(i, {});
+    const normalized = normalizeTangentVector(
+      { x: tangent.x, y: tangent.y, z: tangent.z, w: tangent.w },
+      normal ? { x: normal.x, y: normal.y, z: normal.z } : undefined
+    );
+    accessor.setVec4(i, normalized.x, normalized.y, normalized.z, normalized.w, {});
+  }
+
+  return accessor;
+}
+
+function createComputedTangentAccessor(primitive: Primitive, normalAccessor: Accessor | undefined): Accessor | undefined {
+  const positionAccessor = primitive.getAttribute(VertexAttribute.Position.XYZ);
+  if (Is.not.exist(positionAccessor)) {
+    return undefined;
+  }
+
+  const texcoordAccessor = findPrimaryTexcoordAccessor(primitive);
+  if (Is.not.exist(texcoordAccessor)) {
+    return undefined;
+  }
+
+  const vertexCount = positionAccessor.elementCount;
+  if (vertexCount === 0) {
+    return undefined;
+  }
+
+  const accessor = createTemporaryVec4Accessor(vertexCount);
+  const tangentSums = new Float32Array(vertexCount * 3);
+  const bitangentSums = new Float32Array(vertexCount * 3);
+
+  const indicesAccessor = primitive.indicesAccessor;
+  const vertexCountAsIndicesBased = primitive.getVertexCountAsIndicesBased();
+
+  let incrementNum = 3;
+  const primitiveMode = primitive.primitiveMode;
+  if (primitiveMode === PrimitiveMode.TriangleStrip || primitiveMode === PrimitiveMode.TriangleFan) {
+    incrementNum = 1;
+  }
+
+  const extractIndex = (i: number) => (indicesAccessor ? indicesAccessor.getScalar(i, {}) : i);
+
+  for (let i = 0; i < vertexCountAsIndicesBased - 2; i += incrementNum) {
+    const i0 = extractIndex(i);
+    const i1 = extractIndex(i + 1);
+    const i2 = extractIndex(i + 2);
+
+    if (i0 === i1 || i1 === i2 || i0 === i2) {
+      continue;
+    }
+
+    const pos0 = positionAccessor.getVec3(i0, {});
+    const pos1 = positionAccessor.getVec3(i1, {});
+    const pos2 = positionAccessor.getVec3(i2, {});
+
+    const uv0 = texcoordAccessor.getVec2(i0, {});
+    const uv1 = texcoordAccessor.getVec2(i1, {});
+    const uv2 = texcoordAccessor.getVec2(i2, {});
+
+    const edge1x = pos1.x - pos0.x;
+    const edge1y = pos1.y - pos0.y;
+    const edge1z = pos1.z - pos0.z;
+
+    const edge2x = pos2.x - pos0.x;
+    const edge2y = pos2.y - pos0.y;
+    const edge2z = pos2.z - pos0.z;
+
+    const deltaUv1x = uv1.x - uv0.x;
+    const deltaUv1y = uv1.y - uv0.y;
+    const deltaUv2x = uv2.x - uv0.x;
+    const deltaUv2y = uv2.y - uv0.y;
+
+    const denom = deltaUv1x * deltaUv2y - deltaUv2x * deltaUv1y;
+    if (Math.abs(denom) <= TANGENT_EPSILON) {
+      continue;
+    }
+
+    const r = 1.0 / denom;
+
+    const tangentX = (deltaUv2y * edge1x - deltaUv1y * edge2x) * r;
+    const tangentY = (deltaUv2y * edge1y - deltaUv1y * edge2y) * r;
+    const tangentZ = (deltaUv2y * edge1z - deltaUv1y * edge2z) * r;
+
+    const bitangentX = (deltaUv1x * edge2x - deltaUv2x * edge1x) * r;
+    const bitangentY = (deltaUv1x * edge2y - deltaUv2x * edge1y) * r;
+    const bitangentZ = (deltaUv1x * edge2z - deltaUv2x * edge1z) * r;
+
+    accumulateVector3(tangentSums, i0, tangentX, tangentY, tangentZ);
+    accumulateVector3(tangentSums, i1, tangentX, tangentY, tangentZ);
+    accumulateVector3(tangentSums, i2, tangentX, tangentY, tangentZ);
+
+    accumulateVector3(bitangentSums, i0, bitangentX, bitangentY, bitangentZ);
+    accumulateVector3(bitangentSums, i1, bitangentX, bitangentY, bitangentZ);
+    accumulateVector3(bitangentSums, i2, bitangentX, bitangentY, bitangentZ);
+  }
+
+  for (let vertexIndex = 0; vertexIndex < vertexCount; vertexIndex++) {
+    const tangent = {
+      x: tangentSums[vertexIndex * 3 + 0],
+      y: tangentSums[vertexIndex * 3 + 1],
+      z: tangentSums[vertexIndex * 3 + 2],
+      w: 1,
+    };
+    const bitangent = {
+      x: bitangentSums[vertexIndex * 3 + 0],
+      y: bitangentSums[vertexIndex * 3 + 1],
+      z: bitangentSums[vertexIndex * 3 + 2],
+    };
+    const normal = normalAccessor?.getVec3(vertexIndex, {});
+
+    const normalized = normalizeTangentVector(tangent, normal ? { x: normal.x, y: normal.y, z: normal.z } : undefined, bitangent);
+    accessor.setVec4(vertexIndex, normalized.x, normalized.y, normalized.z, normalized.w, {});
+  }
+
+  return accessor;
+}
+
+function findPrimaryTexcoordAccessor(primitive: Primitive): Accessor | undefined {
+  const semantics = primitive.attributeSemantics;
+  for (const semantic of semantics) {
+    if (semantic.startsWith('TEXCOORD_')) {
+      return primitive.getAttribute(semantic as VertexAttributeSemanticsJoinedString) ?? undefined;
+    }
+  }
+  return undefined;
+}
+
+function createTemporaryVec4Accessor(count: number): Accessor {
+  const byteLength = count * 4 * 4;
+  const buffer = new Buffer({
+    byteLength,
+    buffer: new ArrayBuffer(byteLength),
+    name: 'Gltf2Exporter_Tangent',
+    byteAlign: 4,
+  });
+  const bufferView = buffer
+    .takeBufferView({
+      byteLengthToNeed: byteLength,
+      byteStride: 0,
+    })
+    .unwrapForce();
+
+  return bufferView
+    .takeAccessor({
+      compositionType: CompositionType.Vec4,
+      componentType: ComponentType.Float,
+      count,
+    })
+    .unwrapForce();
+}
+
+function accumulateVector3(array: Float32Array, index: number, x: number, y: number, z: number) {
+  array[index * 3 + 0] += x;
+  array[index * 3 + 1] += y;
+  array[index * 3 + 2] += z;
+}
+
+function normalizeTangentVector(
+  tangent: { x: number; y: number; z: number; w: number },
+  normal?: { x: number; y: number; z: number },
+  bitangent?: { x: number; y: number; z: number }
+) {
+  let tx = tangent.x;
+  let ty = tangent.y;
+  let tz = tangent.z;
+
+  if (normal) {
+    const dotNT = normal.x * tx + normal.y * ty + normal.z * tz;
+    tx -= normal.x * dotNT;
+    ty -= normal.y * dotNT;
+    tz -= normal.z * dotNT;
+  }
+
+  let length = Math.hypot(tx, ty, tz);
+  if (length <= TANGENT_EPSILON) {
+    const fallback = buildOrthonormalVector(normal);
+    tx = fallback.x;
+    ty = fallback.y;
+    tz = fallback.z;
+    length = 1;
+  } else {
+    tx /= length;
+    ty /= length;
+    tz /= length;
+  }
+
+  let w = tangent.w !== 0 ? (tangent.w >= 0 ? 1 : -1) : 1;
+  if (normal && bitangent) {
+    const crossX = normal.y * tz - normal.z * ty;
+    const crossY = normal.z * tx - normal.x * tz;
+    const crossZ = normal.x * ty - normal.y * tx;
+    const handedness = crossX * bitangent.x + crossY * bitangent.y + crossZ * bitangent.z;
+    if (handedness < 0) {
+      w = -1;
+    }
+  }
+
+  return { x: tx, y: ty, z: tz, w };
+}
+
+function buildOrthonormalVector(normal?: { x: number; y: number; z: number }) {
+  if (!normal) {
+    return { x: 1, y: 0, z: 0 };
+  }
+
+  const nx = normal.x;
+  const ny = normal.y;
+  const nz = normal.z;
+  const normalLength = Math.hypot(nx, ny, nz);
+
+  let ux = 0;
+  let uy = 0;
+  let uz = 1;
+
+  if (normalLength > TANGENT_EPSILON) {
+    const invLength = 1 / normalLength;
+    const nnx = nx * invLength;
+    const nny = ny * invLength;
+    const nnz = nz * invLength;
+
+    if (Math.abs(nnx) < 0.999) {
+      ux = 1;
+      uy = 0;
+      uz = 0;
+    } else {
+      ux = 0;
+      uy = 1;
+      uz = 0;
+    }
+
+    // tangent = normalize(cross(up, normal))
+    const tx = uy * nnz - uz * nny;
+    const ty = uz * nnx - ux * nnz;
+    const tz = ux * nny - uy * nnx;
+    const tLength = Math.hypot(tx, ty, tz);
+    if (tLength > TANGENT_EPSILON) {
+      const inv = 1 / tLength;
+      return { x: tx * inv, y: ty * inv, z: tz * inv };
+    }
+  }
+
+  return { x: 1, y: 0, z: 0 };
 }
 
 /**
