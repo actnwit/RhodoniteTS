@@ -827,7 +827,7 @@ export class Gltf2Exporter {
     };
 
     const applyTexture = (paramName: string, options: TextureOptions) => {
-      const textureParam = rnMaterial.getParameter(paramName) as any;
+      const textureParam = rnMaterial.getTextureParameter(paramName) as any;
       if (Is.not.exist(textureParam)) {
         return;
       }
@@ -896,7 +896,28 @@ export class Gltf2Exporter {
       options.onAssign(info);
     };
 
-    const hasBaseColorTexture = Is.exist(rnMaterial.getParameter('baseColorTexture'));
+    Gltf2Exporter.__outputBaseMaterialTextureInfo(rnMaterial, applyTexture, material);
+  }
+
+  private static __outputBaseMaterialTextureInfo(
+    rnMaterial: Material,
+    applyTexture: (
+      paramName: string,
+      options: {
+        texCoordParam?: string;
+        transform?: {
+          scale?: string;
+          offset?: string;
+          rotation?: string;
+        };
+        scaleParam?: string;
+        strengthParam?: string;
+        onAssign: (info: any) => void;
+      }
+    ) => void,
+    material: Gltf2MaterialEx
+  ) {
+    const hasBaseColorTexture = Is.exist(rnMaterial.getTextureParameter('baseColorTexture'));
 
     applyTexture('baseColorTexture', {
       texCoordParam: 'baseColorTexcoordIndex',
