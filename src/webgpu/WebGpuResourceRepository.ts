@@ -142,7 +142,9 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     super();
   }
 
-  private static __assertArrayBufferView(array: TypedArray): asserts array is TypedArray & ArrayBufferView<ArrayBuffer> {
+  private static __assertArrayBufferView(
+    array: TypedArray
+  ): asserts array is TypedArray & ArrayBufferView<ArrayBuffer> {
     if (!(array.buffer instanceof ArrayBuffer)) {
       throw new Error('SharedArrayBuffer is not supported in this code path.');
     }
