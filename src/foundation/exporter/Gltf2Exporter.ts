@@ -391,7 +391,7 @@ export class Gltf2Exporter {
           }
         }
         if (node.children.length === 0) {
-          delete node.children;
+          node.children = undefined;
         }
       }
 
@@ -500,15 +500,15 @@ export class Gltf2Exporter {
         if (Is.exist(parentNode.children)) {
           parentNode.children = parentNode.children.filter(childIdx => childIdx !== nodeIndex);
           if (parentNode.children.length === 0) {
-            delete parentNode.children;
+            parentNode.children = undefined;
           }
         }
         parentNodeIndices[nodeIndex] = undefined;
       }
 
-      delete node.translation;
-      delete node.rotation;
-      delete node.scale;
+      node.translation = undefined;
+      node.rotation = undefined;
+      node.scale = undefined;
 
       if (!sceneNodeIndices.has(nodeIndex)) {
         scene.nodes!.push(nodeIndex);
@@ -582,7 +582,7 @@ export class Gltf2Exporter {
     const attributes = primitive.attributes as Record<string, number | undefined>;
 
     if (!this.__doesMaterialRequireTangents(material) && Is.exist(attributes.TANGENT)) {
-      delete attributes.TANGENT;
+      attributes.TANGENT = undefined;
     }
 
     const usedTexCoords = this.__collectUsedTexCoordSetIndices(material);
