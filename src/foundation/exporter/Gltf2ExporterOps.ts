@@ -1,5 +1,5 @@
 import type { AnimationChannel, AnimationPathName, AnimationSampler } from '../../types/AnimationTypes';
-import type { Byte, Index } from '../../types/CommonTypes';
+import type { Byte, Count, Index } from '../../types/CommonTypes';
 import type {
   Gltf2,
   Gltf2Animation,
@@ -8,6 +8,7 @@ import type {
   Gltf2AnimationSampler,
 } from '../../types/glTF2';
 import type { Gltf2BufferViewEx, Gltf2Ex } from '../../types/glTF2ForOutput';
+import { ComponentType, type ComponentTypeEnum } from '../definitions/ComponentType';
 import type { Accessor } from '../memory/Accessor';
 import type { BufferView } from '../memory/BufferView';
 import { DataUtil } from '../misc/DataUtil';
@@ -321,4 +322,167 @@ export function generateGlbArrayBuffer(json: Gltf2, arraybuffer: ArrayBuffer): A
   dataView.setUint32(headerAndChunk0, arraybuffer.byteLength, true);
   dataView.setUint32(headerAndChunk0 + 4, 0x004e4942, true);
   return glbArrayBuffer;
+}
+
+/**
+ * Type definition for buffer view byte length calculation parameters.
+ */
+export type BufferViewByteLengthDesc = {
+  /** Byte offset of the accessor within the buffer view */
+  accessorByteOffset: Byte;
+  /** Number of elements in the accessor */
+  accessorCount: Count;
+  /** Byte stride of the buffer view */
+  bufferViewByteStride: Byte;
+  /** Byte offset of the buffer view within the buffer */
+  bufferViewByteOffset: Byte;
+  /** Size in bytes of each component */
+  sizeOfComponent: Byte;
+  /** Number of components per element */
+  numberOfComponents: number;
+};
+
+/**
+ * Calculates BufferView byte length and byte offset according to glTF2 specification.
+ *
+ * Ensures proper data alignment for performance and compatibility. Each element
+ * of a vertex attribute must be aligned to 4-byte boundaries inside a bufferView.
+ *
+ * @param params - Parameters for calculation including offsets and sizes
+ * @returns Object containing fixed byte length and offset values
+ *
+ * @see https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#data-alignment
+ */
+export function calcBufferViewByteLengthAndByteOffset({
+  accessorByteOffset,
+  accessorCount,
+  bufferViewByteStride,
+  bufferViewByteOffset,
+  sizeOfComponent,
+  numberOfComponents,
+}: BufferViewByteLengthDesc): {
+  fixedBufferViewByteLength: Byte;
+  fixedBufferViewByteOffset: Byte;
+} {
+  // When byteStride of the referenced bufferView is not defined,
+  // it means that accessor elements are tightly packed,
+  //   i.e., effective stride equals the size of the element.
+  const effectiveByteStride = bufferViewByteStride === 0 ? sizeOfComponent * numberOfComponents : bufferViewByteStride;
+
+  // When byteStride is defined,
+  //   it MUST be a multiple of the size of the accessor's component type.
+  if (bufferViewByteStride % sizeOfComponent !== 0) {
+    throw Error(
+      "glTF2: When byteStride is defined, it MUST be a multiple of the size of the accessor's component type."
+    );
+  }
+
+  // MUST be 4 bytes aligned
+  const effectiveByteStrideAligned = alignBufferViewByteStrideTo4Bytes(effectiveByteStride);
+  // MUST be 4 bytes aligned
+  const alignedAccessorByteOffset = alignAccessorByteOffsetTo4Bytes(accessorByteOffset);
+
+  // calc BufferView byteLength as following,
+  //
+  //  Each accessor MUST fit its bufferView, i.e.,
+  //  ```
+  //  accessor.byteOffset + EFFECTIVE_BYTE_STRIDE * (accessor.count - 1) + SIZE_OF_COMPONENT * NUMBER_OF_COMPONENTS
+  //  ```
+  //   MUST be less than or equal to bufferView.length.
+  const bufferViewByteLength =
+    alignedAccessorByteOffset + effectiveByteStrideAligned * (accessorCount - 1) + sizeOfComponent * numberOfComponents;
+
+  // The offset of an accessor into a bufferView (i.e., accessor.byteOffset)
+  //   and the offset of an accessor into a buffer (i.e., accessor.byteOffset + bufferView.byteOffset)
+  //     MUST be a multiple of the size of the accessor's component type.
+  const valByteLength = sizeOfComponent * numberOfComponents;
+  const sumByteOffset = alignedAccessorByteOffset + bufferViewByteOffset;
+  const paddingByte = valByteLength - (sumByteOffset % valByteLength);
+  const fixedBufferViewByteOffset = bufferViewByteOffset + paddingByte;
+
+  // MUST be 4 bytes aligned
+  const alignedBufferViewByteOffset = alignAccessorByteOffsetTo4Bytes(fixedBufferViewByteOffset);
+
+  const fixedBufferViewByteLength = bufferViewByteLength;
+  return {
+    fixedBufferViewByteLength,
+    fixedBufferViewByteOffset: alignedBufferViewByteOffset,
+  };
+}
+
+/**
+ * Clamps a weight value to the valid range [0, 1].
+ *
+ * @param value - The weight value to clamp
+ * @returns Clamped value between 0 and 1
+ */
+export function clampWeight(value: number): number {
+  if (value < 0) {
+    return 0;
+  }
+  if (value > 1) {
+    return 1;
+  }
+  return value;
+}
+
+/**
+ * Sanitizes a skin weight value to ensure it's valid.
+ *
+ * Ensures the weight is finite, non-negative, and within the valid range [0, 1].
+ *
+ * @param weight - The weight value to sanitize
+ * @returns Object containing the sanitized value and whether it was mutated
+ */
+export function sanitizeSkinWeight(weight: number): { value: number; mutated: boolean } {
+  if (!Number.isFinite(weight) || weight < 0) {
+    return { value: 0, mutated: weight !== 0 };
+  }
+  if (weight > 1) {
+    return { value: 1, mutated: true };
+  }
+  return { value: weight, mutated: false };
+}
+
+/**
+ * Gets the maximum value for a normalized unsigned component type.
+ *
+ * @param componentType - The component type enum
+ * @returns Maximum value for the component type
+ */
+export function getNormalizedUnsignedComponentMax(componentType: ComponentTypeEnum): number {
+  if (componentType === ComponentType.UnsignedByte) {
+    return 255;
+  }
+  if (componentType === ComponentType.UnsignedShort) {
+    return 65535;
+  }
+  if (componentType === ComponentType.UnsignedInt) {
+    return 4294967295;
+  }
+  return 1;
+}
+
+/**
+ * Creates an unsigned typed array based on the component type.
+ *
+ * @param componentType - The component type enum
+ * @param length - The length of the array to create
+ * @returns The created typed array
+ * @throws Error if the component type is not supported
+ */
+export function createUnsignedTypedArray(
+  componentType: ComponentTypeEnum,
+  length: number
+): Uint8Array | Uint16Array | Uint32Array {
+  if (componentType === ComponentType.UnsignedByte) {
+    return new Uint8Array(length);
+  }
+  if (componentType === ComponentType.UnsignedShort) {
+    return new Uint16Array(length);
+  }
+  if (componentType === ComponentType.UnsignedInt) {
+    return new Uint32Array(length);
+  }
+  throw new Error('Unsupported component type for normalized weights');
 }

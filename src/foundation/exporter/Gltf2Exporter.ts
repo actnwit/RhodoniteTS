@@ -59,18 +59,24 @@ import type { Sampler } from '../textures/Sampler';
 import type { Texture } from '../textures/Texture';
 import { createEffekseer } from './Gltf2ExporterEffekseer';
 import {
+  type BufferViewByteLengthDesc,
   type NumericArrayBufferView,
   accumulateBufferViewByteLength,
   alignAccessorByteOffsetTo4Bytes,
   alignBufferViewByteLength,
   alignBufferViewByteStrideTo4Bytes,
+  calcBufferViewByteLengthAndByteOffset,
+  clampWeight,
   convertToGltfAnimationPathName,
   createAndAddGltf2BufferView,
   createGltf2AnimationChannel,
   createGltf2AnimationSampler,
+  createUnsignedTypedArray,
   generateGlbArrayBuffer,
+  getNormalizedUnsignedComponentMax,
   isNumericArrayBufferView,
   resolveVertexAttributeByteStride,
+  sanitizeSkinWeight,
 } from './Gltf2ExporterOps';
 
 export const GLTF2_EXPORT_GLTF = 'glTF';
@@ -2970,92 +2976,6 @@ function createGltf2BufferViewAndGltf2AccessorForOutput(
 }
 
 /**
- * Type definition for buffer view byte length calculation parameters.
- */
-type BufferViewByteLengthDesc = {
-  /** Byte offset of the accessor within the buffer view */
-  accessorByteOffset: Byte;
-  /** Number of elements in the accessor */
-  accessorCount: Count;
-  /** Byte stride of the buffer view */
-  bufferViewByteStride: Byte;
-  /** Byte offset of the buffer view within the buffer */
-  bufferViewByteOffset: Byte;
-  /** Size in bytes of each component */
-  sizeOfComponent: Byte;
-  /** Number of components per element */
-  numberOfComponents: number;
-};
-
-/**
- * Calculates BufferView byte length and byte offset according to glTF2 specification.
- *
- * Ensures proper data alignment for performance and compatibility. Each element
- * of a vertex attribute must be aligned to 4-byte boundaries inside a bufferView.
- *
- * @param params - Parameters for calculation including offsets and sizes
- * @returns Object containing fixed byte length and offset values
- *
- * @see https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#data-alignment
- */
-function calcBufferViewByteLengthAndByteOffset({
-  accessorByteOffset,
-  accessorCount,
-  bufferViewByteStride,
-  bufferViewByteOffset,
-  sizeOfComponent,
-  numberOfComponents,
-}: BufferViewByteLengthDesc): {
-  fixedBufferViewByteLength: Byte;
-  fixedBufferViewByteOffset: Byte;
-} {
-  // When byteStride of the referenced bufferView is not defined,
-  // it means that accessor elements are tightly packed,
-  //   i.e., effective stride equals the size of the element.
-  const effectiveByteStride = bufferViewByteStride === 0 ? sizeOfComponent * numberOfComponents : bufferViewByteStride;
-
-  // When byteStride is defined,
-  //   it MUST be a multiple of the size of the accessor's component type.
-  if (bufferViewByteStride % sizeOfComponent !== 0) {
-    throw Error(
-      "glTF2: When byteStride is defined, it MUST be a multiple of the size of the accessor's component type."
-    );
-  }
-
-  // MUST be 4 bytes aligned
-  const effectiveByteStrideAligned = alignBufferViewByteStrideTo4Bytes(effectiveByteStride);
-  // MUST be 4 bytes aligned
-  const alignedAccessorByteOffset = alignAccessorByteOffsetTo4Bytes(accessorByteOffset);
-
-  // calc BufferView byteLength as following,
-  //
-  //  Each accessor MUST fit its bufferView, i.e.,
-  //  ```
-  //  accessor.byteOffset + EFFECTIVE_BYTE_STRIDE * (accessor.count - 1) + SIZE_OF_COMPONENT * NUMBER_OF_COMPONENTS
-  //  ```
-  //   MUST be less than or equal to bufferView.length.
-  const bufferViewByteLength =
-    alignedAccessorByteOffset + effectiveByteStrideAligned * (accessorCount - 1) + sizeOfComponent * numberOfComponents;
-
-  // The offset of an accessor into a bufferView (i.e., accessor.byteOffset)
-  //   and the offset of an accessor into a buffer (i.e., accessor.byteOffset + bufferView.byteOffset)
-  //     MUST be a multiple of the size of the accessor's component type.
-  const valByteLength = sizeOfComponent * numberOfComponents;
-  const sumByteOffset = alignedAccessorByteOffset + bufferViewByteOffset;
-  const paddingByte = valByteLength - (sumByteOffset % valByteLength);
-  const fixedBufferViewByteOffset = bufferViewByteOffset + paddingByte;
-
-  // MUST be 4 bytes aligned
-  const alignedBufferViewByteOffset = alignAccessorByteOffsetTo4Bytes(fixedBufferViewByteOffset);
-
-  const fixedBufferViewByteLength = bufferViewByteLength;
-  return {
-    fixedBufferViewByteLength,
-    fixedBufferViewByteOffset: alignedBufferViewByteOffset,
-  };
-}
-
-/**
  * Handles texture image processing for different export formats.
  *
  * Processes texture images for inclusion in glTF2 export, handling both
@@ -3523,16 +3443,6 @@ function processSkinWeightElement(
   return mutated;
 }
 
-function sanitizeSkinWeight(weight: number): { value: number; mutated: boolean } {
-  if (!Number.isFinite(weight) || weight < 0) {
-    return { value: 0, mutated: weight !== 0 };
-  }
-  if (weight > 1) {
-    return { value: 1, mutated: true };
-  }
-  return { value: weight, mutated: false };
-}
-
 function normalizeSkinWeightElement(
   floatData: Float32Array,
   baseIndex: number,
@@ -3651,35 +3561,6 @@ function rebalanceScaledSkinWeights(
   }
 }
 
-function getNormalizedUnsignedComponentMax(componentType: ComponentTypeEnum): number {
-  if (componentType === ComponentType.UnsignedByte) {
-    return 255;
-  }
-  if (componentType === ComponentType.UnsignedShort) {
-    return 65535;
-  }
-  if (componentType === ComponentType.UnsignedInt) {
-    return 4294967295;
-  }
-  return 1;
-}
-
-function createUnsignedTypedArray(
-  componentType: ComponentTypeEnum,
-  length: number
-): Uint8Array | Uint16Array | Uint32Array {
-  if (componentType === ComponentType.UnsignedByte) {
-    return new Uint8Array(length);
-  }
-  if (componentType === ComponentType.UnsignedShort) {
-    return new Uint16Array(length);
-  }
-  if (componentType === ComponentType.UnsignedInt) {
-    return new Uint32Array(length);
-  }
-  throw new Error('Unsupported component type for normalized weights');
-}
-
 function createAccessorFromWeightsTypedArray(
   typedArray: WeightTypedArray,
   baseAccessor: Accessor,
@@ -3749,14 +3630,4 @@ function adjustWeightsForResidual(
     const candidate = clampWeight(before + remaining);
     data[idx] = candidate;
   }
-}
-
-function clampWeight(value: number): number {
-  if (value < 0) {
-    return 0;
-  }
-  if (value > 1) {
-    return 1;
-  }
-  return value;
 }
