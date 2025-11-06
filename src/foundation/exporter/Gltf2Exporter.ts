@@ -51,6 +51,7 @@ import {
   __outputKhrMaterialsIorInfo,
   __outputKhrMaterialsIridescenceInfo,
   __outputKhrMaterialsSheenInfo,
+  __outputKhrMaterialsSpecularInfo,
   __outputKhrMaterialsTransmissionInfo,
   __outputKhrMaterialsVolumeInfo,
   __pruneUnusedVertexAttributes,
@@ -1003,6 +1004,8 @@ export class Gltf2Exporter {
     __outputKhrMaterialsClearcoatInfo(ensureExtensionUsed, coerceNumber, rnMaterial, applyTexture, material);
 
     __outputKhrMaterialsSheenInfo(ensureExtensionUsed, coerceNumber, coerceVec3, rnMaterial, applyTexture, material);
+
+    __outputKhrMaterialsSpecularInfo(ensureExtensionUsed, coerceNumber, coerceVec3, rnMaterial, applyTexture, material);
 
     __outputKhrMaterialsAnisotropyInfo(
       ensureExtensionUsed,

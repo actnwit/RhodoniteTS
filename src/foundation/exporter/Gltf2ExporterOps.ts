@@ -2422,6 +2422,15 @@ export function __collectUsedTexCoordSetIndices(material: Gltf2MaterialEx): Set<
     registerTexcoord(diffuseTransmissionExtension.diffuseTransmissionColorTexture);
   }
 
+  const specularExtension = extensions?.KHR_materials_specular as {
+    specularTexture?: { texCoord?: number; index?: number };
+    specularColorTexture?: { texCoord?: number; index?: number };
+  };
+  if (Is.exist(specularExtension)) {
+    registerTexcoord(specularExtension.specularTexture);
+    registerTexcoord(specularExtension.specularColorTexture);
+  }
+
   const transmissionExtension = extensions?.KHR_materials_transmission as {
     transmissionTexture?: { texCoord?: number; index?: number };
   };
@@ -2933,6 +2942,87 @@ export function __outputKhrMaterialsSheenInfo(
     material.extensions = material.extensions ?? {};
     material.extensions.KHR_materials_sheen = sheenExtension;
     ensureExtensionUsed('KHR_materials_sheen');
+  }
+}
+
+export function __outputKhrMaterialsSpecularInfo(
+  ensureExtensionUsed: (extensionName: string) => void,
+  coerceNumber: (value: any) => number | undefined,
+  coerceVec3: (value: any) => [number, number, number] | undefined,
+  rnMaterial: Material,
+  applyTexture: (
+    paramName: string,
+    options: {
+      texCoordParam?: string;
+      transform?: {
+        scale?: string;
+        offset?: string;
+        rotation?: string;
+      };
+      scaleParam?: string;
+      strengthParam?: string;
+      onAssign: (info: any) => void;
+    }
+  ) => void,
+  material: Gltf2MaterialEx
+) {
+  const specularExtension: Record<string, unknown> = {};
+  let specularExtensionUsed = false;
+  const markSpecularExtensionUsed = () => {
+    if (!specularExtensionUsed) {
+      specularExtensionUsed = true;
+      ensureExtensionUsed('KHR_materials_specular');
+    }
+  };
+
+  const specularFactor = coerceNumber(rnMaterial.getParameter('specularFactor'));
+  if (Is.exist(specularFactor) && specularFactor !== 1) {
+    specularExtension.specularFactor = specularFactor;
+    markSpecularExtensionUsed();
+  }
+
+  const specularColorFactor = coerceVec3(rnMaterial.getParameter('specularColorFactor'));
+  if (Is.exist(specularColorFactor) && specularColorFactor.some(v => v !== 1)) {
+    specularExtension.specularColorFactor = specularColorFactor;
+    markSpecularExtensionUsed();
+  }
+
+  applyTexture('specularTexture', {
+    texCoordParam: 'specularTexcoordIndex',
+    transform: {
+      scale: 'specularTextureTransformScale',
+      offset: 'specularTextureTransformOffset',
+      rotation: 'specularTextureTransformRotation',
+    },
+    onAssign: info => {
+      specularExtension.specularTexture = info;
+      markSpecularExtensionUsed();
+    },
+  });
+
+  applyTexture('specularColorTexture', {
+    texCoordParam: 'specularColorTexcoordIndex',
+    transform: {
+      scale: 'specularColorTextureTransformScale',
+      offset: 'specularColorTextureTransformOffset',
+      rotation: 'specularColorTextureTransformRotation',
+    },
+    onAssign: info => {
+      specularExtension.specularColorTexture = info;
+      markSpecularExtensionUsed();
+    },
+  });
+
+  const shouldAttachSpecularExtension =
+    specularExtensionUsed ||
+    Is.exist(specularExtension.specularTexture) ||
+    Is.exist(specularExtension.specularColorTexture) ||
+    Is.exist(specularExtension.specularFactor) ||
+    Is.exist(specularExtension.specularColorFactor);
+  if (shouldAttachSpecularExtension) {
+    material.extensions = material.extensions ?? {};
+    material.extensions.KHR_materials_specular = specularExtension;
+    ensureExtensionUsed('KHR_materials_specular');
   }
 }
 
