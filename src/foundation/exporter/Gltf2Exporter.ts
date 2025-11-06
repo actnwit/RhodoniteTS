@@ -661,6 +661,13 @@ export class Gltf2Exporter {
       registerTexcoord(clearcoatExtension.clearcoatNormalTexture);
     }
 
+    const transmissionExtension = extensions?.KHR_materials_transmission as {
+      transmissionTexture?: { texCoord?: number; index?: number };
+    };
+    if (Is.exist(transmissionExtension)) {
+      registerTexcoord(transmissionExtension.transmissionTexture);
+    }
+
     const sheenExtension = extensions?.KHR_materials_sheen as {
       sheenColorTexture?: { texCoord?: number; index?: number };
       sheenRoughnessTexture?: { texCoord?: number; index?: number };
@@ -1073,6 +1080,14 @@ export class Gltf2Exporter {
 
     Gltf2Exporter.__outputBaseMaterialInfo(rnMaterial, applyTexture, material, json);
 
+    Gltf2Exporter.__outputKhrMaterialsTransmissionInfo(
+      ensureExtensionUsed,
+      coerceNumber,
+      rnMaterial,
+      applyTexture,
+      material
+    );
+
     Gltf2Exporter.__outputKhrMaterialsClearcoatInfo(
       ensureExtensionUsed,
       coerceNumber,
@@ -1089,6 +1104,65 @@ export class Gltf2Exporter {
       applyTexture,
       material
     );
+  }
+
+  private static __outputKhrMaterialsTransmissionInfo(
+    ensureExtensionUsed: (extensionName: string) => void,
+    coerceNumber: (value: any) => number | undefined,
+    rnMaterial: Material,
+    applyTexture: (
+      paramName: string,
+      options: {
+        texCoordParam?: string;
+        transform?: {
+          scale?: string;
+          offset?: string;
+          rotation?: string;
+        };
+        scaleParam?: string;
+        strengthParam?: string;
+        onAssign: (info: any) => void;
+      }
+    ) => void,
+    material: Gltf2MaterialEx
+  ) {
+    const transmissionExtension: Record<string, unknown> = {};
+    let transmissionExtensionUsed = false;
+    const markTransmissionExtensionUsed = () => {
+      if (!transmissionExtensionUsed) {
+        transmissionExtensionUsed = true;
+        ensureExtensionUsed('KHR_materials_transmission');
+      }
+    };
+
+    const transmissionFactor = coerceNumber(rnMaterial.getParameter('transmissionFactor'));
+    if (Is.exist(transmissionFactor)) {
+      transmissionExtension.transmissionFactor = transmissionFactor;
+      if (transmissionFactor !== 0) {
+        markTransmissionExtensionUsed();
+      }
+    }
+
+    applyTexture('transmissionTexture', {
+      texCoordParam: 'transmissionTexcoordIndex',
+      transform: {
+        scale: 'transmissionTextureTransformScale',
+        offset: 'transmissionTextureTransformOffset',
+        rotation: 'transmissionTextureTransformRotation',
+      },
+      onAssign: info => {
+        transmissionExtension.transmissionTexture = info;
+        markTransmissionExtensionUsed();
+      },
+    });
+
+    const shouldAttachTransmissionExtension =
+      transmissionExtensionUsed || Is.exist(transmissionExtension.transmissionTexture);
+    if (shouldAttachTransmissionExtension) {
+      material.extensions = material.extensions ?? {};
+      material.extensions.KHR_materials_transmission = transmissionExtension;
+      ensureExtensionUsed('KHR_materials_transmission');
+    }
   }
 
   private static __outputKhrMaterialsClearcoatInfo(
