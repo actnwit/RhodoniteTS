@@ -1131,6 +1131,8 @@ export class Gltf2Exporter {
       material
     );
 
+    Gltf2Exporter.__outputKhrMaterialsIorInfo(ensureExtensionUsed, coerceNumber, rnMaterial, material);
+
     Gltf2Exporter.__outputKhrMaterialsClearcoatInfo(
       ensureExtensionUsed,
       coerceNumber,
@@ -1296,6 +1298,30 @@ export class Gltf2Exporter {
       material.extensions.KHR_materials_volume = volumeExtension;
       ensureExtensionUsed('KHR_materials_volume');
     }
+  }
+
+  private static __outputKhrMaterialsIorInfo(
+    ensureExtensionUsed: (extensionName: string) => void,
+    coerceNumber: (value: any) => number | undefined,
+    rnMaterial: Material,
+    material: Gltf2MaterialEx
+  ) {
+    const rawIor = coerceNumber(rnMaterial.getParameter('ior'));
+    if (Is.not.exist(rawIor)) {
+      return;
+    }
+
+    const clampedIor = Math.max(1.0, Math.min(rawIor, 2.333));
+    const defaultIor = 1.5;
+    if (Math.abs(clampedIor - defaultIor) < 1e-6) {
+      return;
+    }
+
+    material.extensions = material.extensions ?? {};
+    material.extensions.KHR_materials_ior = {
+      ior: clampedIor,
+    };
+    ensureExtensionUsed('KHR_materials_ior');
   }
 
   private static __outputKhrMaterialsClearcoatInfo(
