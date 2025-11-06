@@ -668,6 +668,13 @@ export class Gltf2Exporter {
       registerTexcoord(transmissionExtension.transmissionTexture);
     }
 
+    const volumeExtension = extensions?.KHR_materials_volume as {
+      thicknessTexture?: { texCoord?: number; index?: number };
+    };
+    if (Is.exist(volumeExtension)) {
+      registerTexcoord(volumeExtension.thicknessTexture);
+    }
+
     const sheenExtension = extensions?.KHR_materials_sheen as {
       sheenColorTexture?: { texCoord?: number; index?: number };
       sheenRoughnessTexture?: { texCoord?: number; index?: number };
@@ -1088,6 +1095,15 @@ export class Gltf2Exporter {
       material
     );
 
+    Gltf2Exporter.__outputKhrMaterialsVolumeInfo(
+      ensureExtensionUsed,
+      coerceNumber,
+      coerceVec3,
+      rnMaterial,
+      applyTexture,
+      material
+    );
+
     Gltf2Exporter.__outputKhrMaterialsClearcoatInfo(
       ensureExtensionUsed,
       coerceNumber,
@@ -1162,6 +1178,87 @@ export class Gltf2Exporter {
       material.extensions = material.extensions ?? {};
       material.extensions.KHR_materials_transmission = transmissionExtension;
       ensureExtensionUsed('KHR_materials_transmission');
+    }
+  }
+
+  private static __outputKhrMaterialsVolumeInfo(
+    ensureExtensionUsed: (extensionName: string) => void,
+    coerceNumber: (value: any) => number | undefined,
+    coerceVec3: (value: any) => [number, number, number] | undefined,
+    rnMaterial: Material,
+    applyTexture: (
+      paramName: string,
+      options: {
+        texCoordParam?: string;
+        transform?: {
+          scale?: string;
+          offset?: string;
+          rotation?: string;
+        };
+        scaleParam?: string;
+        strengthParam?: string;
+        onAssign: (info: any) => void;
+      }
+    ) => void,
+    material: Gltf2MaterialEx
+  ) {
+    const volumeExtension: Record<string, unknown> = {};
+    let volumeExtensionUsed = false;
+    const markVolumeExtensionUsed = () => {
+      if (!volumeExtensionUsed) {
+        volumeExtensionUsed = true;
+        ensureExtensionUsed('KHR_materials_volume');
+      }
+    };
+
+    const thicknessFactor = coerceNumber(rnMaterial.getParameter('thicknessFactor'));
+    if (Is.exist(thicknessFactor)) {
+      volumeExtension.thicknessFactor = thicknessFactor;
+      if (thicknessFactor !== 0) {
+        markVolumeExtensionUsed();
+      }
+    }
+
+    applyTexture('thicknessTexture', {
+      texCoordParam: 'thicknessTexcoordIndex',
+      transform: {
+        scale: 'thicknessTextureTransformScale',
+        offset: 'thicknessTextureTransformOffset',
+        rotation: 'thicknessTextureTransformRotation',
+      },
+      onAssign: info => {
+        volumeExtension.thicknessTexture = info;
+        markVolumeExtensionUsed();
+      },
+    });
+
+    const attenuationDistance = coerceNumber(rnMaterial.getParameter('attenuationDistance'));
+    if (Is.exist(attenuationDistance)) {
+      volumeExtension.attenuationDistance = attenuationDistance;
+      if (attenuationDistance !== 0) {
+        markVolumeExtensionUsed();
+      }
+    }
+
+    const attenuationColor = coerceVec3(rnMaterial.getParameter('attenuationColor'));
+    if (Is.exist(attenuationColor)) {
+      volumeExtension.attenuationColor = attenuationColor;
+      if (attenuationColor.some(v => v !== 1)) {
+        markVolumeExtensionUsed();
+      }
+    }
+
+    const shouldAttachVolumeExtension =
+      volumeExtensionUsed ||
+      Is.exist(volumeExtension.thicknessTexture) ||
+      (Is.exist(volumeExtension.thicknessFactor) && (volumeExtension.thicknessFactor as number) !== 0) ||
+      (Is.exist(volumeExtension.attenuationDistance) && (volumeExtension.attenuationDistance as number) !== 0) ||
+      (Is.exist(volumeExtension.attenuationColor) &&
+        (volumeExtension.attenuationColor as [number, number, number]).some(v => v !== 1));
+    if (shouldAttachVolumeExtension) {
+      material.extensions = material.extensions ?? {};
+      material.extensions.KHR_materials_volume = volumeExtension;
+      ensureExtensionUsed('KHR_materials_volume');
     }
   }
 
