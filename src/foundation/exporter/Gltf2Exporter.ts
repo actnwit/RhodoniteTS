@@ -1,54 +1,22 @@
-import type {
-  AnimationChannel,
-  AnimationPathName,
-  AnimationSampler,
-  AnimationTrackName,
-} from '../../types/AnimationTypes';
-import type { Array1to4, Byte, Count, Index, VectorAndSquareMatrixComponentN } from '../../types/CommonTypes';
-import { GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER } from '../../types/WebGLConstants';
 import {
   type Gltf2,
-  type Gltf2AccessorCompositionTypeString,
-  type Gltf2Animation,
-  type Gltf2AnimationChannel,
-  type Gltf2AnimationPathName,
-  type Gltf2AnimationSampler,
-  type Gltf2AttributeBlendShapes,
-  type Gltf2Attributes,
   type Gltf2Camera,
-  type Gltf2Image,
   type Gltf2Mesh,
-  type Gltf2Primitive,
-  type Gltf2Skin,
   type Gltf2Texture,
   type Gltf2TextureSampler,
   isSameGlTF2TextureSampler,
 } from '../../types/glTF2';
-import type {
-  Gltf2AccessorEx,
-  Gltf2BufferViewEx,
-  Gltf2Ex,
-  Gltf2ImageEx,
-  Gltf2MaterialEx,
-} from '../../types/glTF2ForOutput';
+import type { Gltf2Ex, Gltf2ImageEx, Gltf2MaterialEx } from '../../types/glTF2ForOutput';
 import { VERSION } from '../../version';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { EntityRepository } from '../core/EntityRepository';
 import type { Tag } from '../core/RnObject';
-import { CameraType, type ComponentTypeEnum, type CompositionTypeEnum, TextureParameter } from '../definitions';
-import { ComponentType, type Gltf2AccessorComponentType } from '../definitions/ComponentType';
-import { CompositionType } from '../definitions/CompositionType';
-import { PrimitiveMode } from '../definitions/PrimitiveMode';
-import { VertexAttribute } from '../definitions/VertexAttribute';
-import type { VertexAttributeSemanticsJoinedString } from '../definitions/VertexAttribute';
+import { CameraType, TextureParameter } from '../definitions';
 import type { Mesh } from '../geometry/Mesh';
-import type { Primitive } from '../geometry/Primitive';
 import type { IAnimationEntity, IMeshEntity, ISceneGraphEntity, ISkeletalEntity } from '../helpers/EntityHelper';
 import type { Material } from '../materials/core/Material';
 import { MathUtil } from '../math/MathUtil';
 import { Quaternion } from '../math/Quaternion';
-import type { Vector3 } from '../math/Vector3';
-import { Vector4 } from '../math/Vector4';
 import type { Accessor } from '../memory/Accessor';
 import type { Buffer } from '../memory/Buffer';
 import type { BufferView } from '../memory/BufferView';
@@ -59,15 +27,6 @@ import type { Sampler } from '../textures/Sampler';
 import type { Texture } from '../textures/Texture';
 import { createEffekseer } from './Gltf2ExporterEffekseer';
 import {
-  type BufferViewByteLengthDesc,
-  type Gltf2AccessorDesc,
-  type Gltf2BufferViewDesc,
-  type NumericArrayBufferView,
-  SKIN_WEIGHT_DIFF_EPSILON,
-  SKIN_WEIGHT_RESIDUAL_TOLERANCE,
-  SKIN_WEIGHT_SUM_EPSILON,
-  TANGENT_EPSILON,
-  type WeightTypedArray,
   __collectAccessorIndicesFromAnimations,
   __collectAccessorIndicesFromMeshes,
   __collectAccessorIndicesFromSkins,
@@ -96,53 +55,9 @@ import {
   __removeUnusedAccessors,
   __removeUnusedAccessorsAndBufferViews,
   __removeUnusedBufferViews,
-  accumulateBufferViewByteLength,
-  accumulateVector3,
-  adjustWeightsForResidual,
-  alignAccessorByteOffsetTo4Bytes,
-  alignBufferViewByteLength,
-  alignBufferViewByteStrideTo4Bytes,
-  buildOrthonormalVector,
-  calcAccessorIdxToSet,
-  calcBufferIdxToSet,
-  calcBufferViewByteLengthAndByteOffset,
-  clampWeight,
-  convertNormalizedWeightsToUnsigned,
-  convertToGltfAnimationPathName,
-  createAccessorFromWeightsTypedArray,
-  createAndAddGltf2BufferView,
-  createComputedTangentAccessor,
-  createGltf2AccessorForAnimation,
-  createGltf2AnimationChannel,
-  createGltf2AnimationSampler,
-  createGltf2BufferViewAndGltf2AccessorForInput,
-  createGltf2BufferViewAndGltf2AccessorForOutput,
-  createGltf2BufferViewForAnimation,
-  createNormalizedFloatWeights,
-  createNormalizedTangentAccessor,
-  createOrReuseGltf2Accessor,
-  createOrReuseGltf2BufferView,
-  createOrReuseGltf2BufferViewForVertexAttributeBuffer,
-  createTemporaryVec4Accessor,
-  createUnsignedTypedArray,
-  doesRhodoniteMaterialRequireTangents,
-  findBufferViewIdx,
-  findPrimaryTexcoordAccessor,
   generateGlbArrayBuffer,
-  getExportTangentAccessorForPrimitive,
-  getNormalizedUnsignedComponentMax,
   handleTextureImage,
   isNumericArrayBufferView,
-  normalizeNormals,
-  normalizeSkinWeightElement,
-  normalizeSkinWeights,
-  normalizeTangentVector,
-  processSkinWeightElement,
-  rebalanceScaledSkinWeights,
-  resolveVertexAttributeByteStride,
-  sanitizeSkinWeight,
-  scaleSkinWeightElementToUnsigned,
-  setupBlendShapeData,
 } from './Gltf2ExporterOps';
 
 export const GLTF2_EXPORT_GLTF = 'glTF';
