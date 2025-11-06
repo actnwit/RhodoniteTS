@@ -1,5 +1,6 @@
 import type { AnimationChannel, AnimationPathName, AnimationSampler } from '../../types/AnimationTypes';
 import type { Array1to4, Byte, Count, Index, VectorAndSquareMatrixComponentN } from '../../types/CommonTypes';
+import { GL_ARRAY_BUFFER } from '../../types/WebGLConstants';
 import type {
   Gltf2,
   Gltf2AccessorCompositionTypeString,
@@ -12,7 +13,9 @@ import type { Gltf2AccessorEx, Gltf2BufferViewEx, Gltf2Ex } from '../../types/gl
 import type { ComponentTypeEnum, CompositionTypeEnum } from '../definitions';
 import { ComponentType, type Gltf2AccessorComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
+import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import type { VertexAttributeSemanticsJoinedString } from '../definitions/VertexAttribute';
+import { VertexAttribute } from '../definitions/VertexAttribute';
 import type { Primitive } from '../geometry/Primitive';
 import { Accessor } from '../memory/Accessor';
 import { Buffer } from '../memory/Buffer';
@@ -1552,4 +1555,248 @@ export function createOrReuseGltf2Accessor(
   }
   const gltf2Accessor = json.accessors[accessorIdx];
   return gltf2Accessor;
+}
+
+const exportTangentAccessorCache = new WeakMap<Primitive, Accessor>();
+
+/**
+ * Gets or creates the export tangent accessor for a primitive.
+ *
+ * Uses caching to avoid recomputing tangent accessors for the same primitive.
+ * If an existing tangent accessor exists, it normalizes it. Otherwise, computes
+ * tangents from position and texture coordinate data.
+ *
+ * @param primitive - The primitive to get/create tangent accessor for
+ * @returns The tangent accessor or undefined if it cannot be created
+ */
+export function getExportTangentAccessorForPrimitive(primitive: Primitive): Accessor | undefined {
+  if (exportTangentAccessorCache.has(primitive)) {
+    return exportTangentAccessorCache.get(primitive);
+  }
+
+  let accessor: Accessor | undefined;
+  const existingTangentAccessor = primitive.getAttribute(VertexAttribute.Tangent.XYZ);
+  const normalAccessor = primitive.getAttribute(VertexAttribute.Normal.XYZ);
+
+  if (Is.exist(existingTangentAccessor)) {
+    accessor = createNormalizedTangentAccessor(existingTangentAccessor, normalAccessor);
+  } else {
+    accessor = createComputedTangentAccessor(primitive, normalAccessor);
+  }
+
+  if (Is.exist(accessor)) {
+    exportTangentAccessorCache.set(primitive, accessor);
+  }
+
+  return accessor;
+}
+
+/**
+ * Creates a normalized tangent accessor from an existing source accessor.
+ *
+ * Normalizes each tangent vector using the provided normal vectors to ensure
+ * orthogonality and proper orientation.
+ *
+ * @param source - The source tangent accessor
+ * @param normalAccessor - Optional normal accessor for orthonormalization
+ * @returns New Accessor with normalized tangent vectors
+ */
+export function createNormalizedTangentAccessor(source: Accessor, normalAccessor: Accessor | undefined): Accessor {
+  const count = source.elementCount;
+  const accessor = createTemporaryVec4Accessor(count);
+
+  for (let i = 0; i < count; i++) {
+    const tangent = source.getVec4(i, {});
+    const normal = normalAccessor?.getVec3(i, {});
+    const normalized = normalizeTangentVector(
+      { x: tangent.x, y: tangent.y, z: tangent.z, w: tangent.w },
+      normal ? { x: normal.x, y: normal.y, z: normal.z } : undefined
+    );
+    accessor.setVec4(i, normalized.x, normalized.y, normalized.z, normalized.w, {});
+  }
+
+  return accessor;
+}
+
+/**
+ * Computes tangent vectors for a primitive from position and texture coordinates.
+ *
+ * Calculates tangents using the Mikkelsen tangent space algorithm, accumulating
+ * tangent and bitangent vectors across all triangles and then normalizing them.
+ *
+ * @param primitive - The primitive to compute tangents for
+ * @param normalAccessor - Optional normal accessor for orthonormalization
+ * @returns New Accessor with computed tangent vectors or undefined if computation fails
+ */
+export function createComputedTangentAccessor(
+  primitive: Primitive,
+  normalAccessor: Accessor | undefined
+): Accessor | undefined {
+  const positionAccessor = primitive.getAttribute(VertexAttribute.Position.XYZ);
+  if (Is.not.exist(positionAccessor)) {
+    return undefined;
+  }
+
+  const texcoordAccessor = findPrimaryTexcoordAccessor(primitive);
+  if (Is.not.exist(texcoordAccessor)) {
+    return undefined;
+  }
+
+  const vertexCount = positionAccessor.elementCount;
+  if (vertexCount === 0) {
+    return undefined;
+  }
+
+  const accessor = createTemporaryVec4Accessor(vertexCount);
+  const tangentSums = new Float32Array(vertexCount * 3);
+  const bitangentSums = new Float32Array(vertexCount * 3);
+
+  const indicesAccessor = primitive.indicesAccessor;
+  const vertexCountAsIndicesBased = primitive.getVertexCountAsIndicesBased();
+
+  let incrementNum = 3;
+  const primitiveMode = primitive.primitiveMode;
+  if (primitiveMode === PrimitiveMode.TriangleStrip || primitiveMode === PrimitiveMode.TriangleFan) {
+    incrementNum = 1;
+  }
+
+  const extractIndex = (i: number) => (indicesAccessor ? indicesAccessor.getScalar(i, {}) : i);
+
+  for (let i = 0; i < vertexCountAsIndicesBased - 2; i += incrementNum) {
+    const i0 = extractIndex(i);
+    const i1 = extractIndex(i + 1);
+    const i2 = extractIndex(i + 2);
+
+    if (i0 === i1 || i1 === i2 || i0 === i2) {
+      continue;
+    }
+
+    const pos0 = positionAccessor.getVec3(i0, {});
+    const pos1 = positionAccessor.getVec3(i1, {});
+    const pos2 = positionAccessor.getVec3(i2, {});
+
+    const uv0 = texcoordAccessor.getVec2(i0, {});
+    const uv1 = texcoordAccessor.getVec2(i1, {});
+    const uv2 = texcoordAccessor.getVec2(i2, {});
+
+    const edge1x = pos1.x - pos0.x;
+    const edge1y = pos1.y - pos0.y;
+    const edge1z = pos1.z - pos0.z;
+
+    const edge2x = pos2.x - pos0.x;
+    const edge2y = pos2.y - pos0.y;
+    const edge2z = pos2.z - pos0.z;
+
+    const deltaUv1x = uv1.x - uv0.x;
+    const deltaUv1y = uv1.y - uv0.y;
+    const deltaUv2x = uv2.x - uv0.x;
+    const deltaUv2y = uv2.y - uv0.y;
+
+    const denom = deltaUv1x * deltaUv2y - deltaUv2x * deltaUv1y;
+    if (Math.abs(denom) <= TANGENT_EPSILON) {
+      continue;
+    }
+
+    const r = 1.0 / denom;
+
+    const tangentX = (deltaUv2y * edge1x - deltaUv1y * edge2x) * r;
+    const tangentY = (deltaUv2y * edge1y - deltaUv1y * edge2y) * r;
+    const tangentZ = (deltaUv2y * edge1z - deltaUv1y * edge2z) * r;
+
+    const bitangentX = (deltaUv1x * edge2x - deltaUv2x * edge1x) * r;
+    const bitangentY = (deltaUv1x * edge2y - deltaUv2x * edge1y) * r;
+    const bitangentZ = (deltaUv1x * edge2z - deltaUv2x * edge1z) * r;
+
+    accumulateVector3(tangentSums, i0, tangentX, tangentY, tangentZ);
+    accumulateVector3(tangentSums, i1, tangentX, tangentY, tangentZ);
+    accumulateVector3(tangentSums, i2, tangentX, tangentY, tangentZ);
+
+    accumulateVector3(bitangentSums, i0, bitangentX, bitangentY, bitangentZ);
+    accumulateVector3(bitangentSums, i1, bitangentX, bitangentY, bitangentZ);
+    accumulateVector3(bitangentSums, i2, bitangentX, bitangentY, bitangentZ);
+  }
+
+  for (let vertexIndex = 0; vertexIndex < vertexCount; vertexIndex++) {
+    const tangent = {
+      x: tangentSums[vertexIndex * 3 + 0],
+      y: tangentSums[vertexIndex * 3 + 1],
+      z: tangentSums[vertexIndex * 3 + 2],
+      w: 1,
+    };
+    const bitangent = {
+      x: bitangentSums[vertexIndex * 3 + 0],
+      y: bitangentSums[vertexIndex * 3 + 1],
+      z: bitangentSums[vertexIndex * 3 + 2],
+    };
+    const normal = normalAccessor?.getVec3(vertexIndex, {});
+
+    const normalized = normalizeTangentVector(
+      tangent,
+      normal ? { x: normal.x, y: normal.y, z: normal.z } : undefined,
+      bitangent
+    );
+    accessor.setVec4(vertexIndex, normalized.x, normalized.y, normalized.z, normalized.w, {});
+  }
+
+  return accessor;
+}
+
+/**
+ * Creates or reuses a glTF2 BufferView for vertex attribute data.
+ *
+ * Optimizes buffer view creation by checking for existing compatible buffer views
+ * and creating new ones only when necessary. Handles proper stride calculation
+ * for vertex attributes.
+ *
+ * @param json - The glTF2 JSON document
+ * @param existingUniqueRnBuffers - Buffer deduplication cache
+ * @param existingUniqueRnBufferViews - BufferView deduplication cache
+ * @param rnBufferView - The Rhodonite buffer view to convert
+ * @param rnAccessor - The accessor that will use this buffer view
+ * @returns The created or existing glTF2 buffer view
+ */
+export function createOrReuseGltf2BufferViewForVertexAttributeBuffer(
+  json: Gltf2Ex,
+  existingUniqueRnBuffers: Buffer[],
+  existingUniqueRnBufferViews: BufferView[],
+  rnBufferView: BufferView,
+  rnAccessor: Accessor
+): Gltf2BufferViewEx {
+  const bufferViewIdx = findBufferViewIdx(existingUniqueRnBufferViews, rnBufferView);
+  if (bufferViewIdx === -1) {
+    const bufferIdxToSet = calcBufferIdxToSet(existingUniqueRnBuffers, rnBufferView.buffer);
+    const gltf2BufferView: Gltf2BufferViewEx = {
+      buffer: bufferIdxToSet,
+      byteLength: rnBufferView.byteLength,
+      byteOffset: rnBufferView.byteOffsetInBuffer,
+      extras: {
+        uint8Array: rnBufferView.getUint8Array(),
+      },
+    };
+    gltf2BufferView.target = GL_ARRAY_BUFFER;
+
+    const resolvedByteStride = resolveVertexAttributeByteStride(rnBufferView, rnAccessor);
+    if (Is.exist(resolvedByteStride)) {
+      gltf2BufferView.byteStride = resolvedByteStride;
+    }
+
+    json.extras.bufferViewByteLengthAccumulatedArray[bufferIdxToSet] = accumulateBufferViewByteLength(
+      json.extras.bufferViewByteLengthAccumulatedArray,
+      bufferIdxToSet,
+      gltf2BufferView
+    );
+
+    existingUniqueRnBufferViews.push(rnBufferView);
+    json.bufferViews.push(gltf2BufferView);
+    return gltf2BufferView;
+  }
+  const gltf2BufferView = json.bufferViews[bufferViewIdx] as Gltf2BufferViewEx;
+  const resolvedByteStride = resolveVertexAttributeByteStride(rnBufferView, rnAccessor);
+  if (Is.exist(resolvedByteStride)) {
+    const currentStride = gltf2BufferView.byteStride ?? 0;
+    if (currentStride === 0 || currentStride < resolvedByteStride) {
+      gltf2BufferView.byteStride = resolvedByteStride;
+    }
+  }
+  return gltf2BufferView;
 }
