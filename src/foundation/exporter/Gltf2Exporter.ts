@@ -49,9 +49,9 @@ import { MathUtil } from '../math/MathUtil';
 import { Quaternion } from '../math/Quaternion';
 import type { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
-import { Accessor } from '../memory/Accessor';
-import { Buffer } from '../memory/Buffer';
-import { BufferView } from '../memory/BufferView';
+import type { Accessor } from '../memory/Accessor';
+import type { Buffer } from '../memory/Buffer';
+import type { BufferView } from '../memory/BufferView';
 import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
 import type { AbstractTexture } from '../textures/AbstractTexture';
@@ -88,12 +88,16 @@ import {
   createGltf2AnimationSampler,
   createGltf2BufferViewForAnimation,
   createNormalizedFloatWeights,
+  createTemporaryVec4Accessor,
   createUnsignedTypedArray,
   findBufferViewIdx,
+  findPrimaryTexcoordAccessor,
   generateGlbArrayBuffer,
   getNormalizedUnsignedComponentMax,
   isNumericArrayBufferView,
+  normalizeNormals,
   normalizeSkinWeightElement,
+  normalizeSkinWeights,
   normalizeTangentVector,
   processSkinWeightElement,
   rebalanceScaledSkinWeights,
@@ -2472,40 +2476,6 @@ function createComputedTangentAccessor(
   return accessor;
 }
 
-function findPrimaryTexcoordAccessor(primitive: Primitive): Accessor | undefined {
-  const semantics = primitive.attributeSemantics;
-  for (const semantic of semantics) {
-    if (semantic.startsWith('TEXCOORD_')) {
-      return primitive.getAttribute(semantic as VertexAttributeSemanticsJoinedString) ?? undefined;
-    }
-  }
-  return undefined;
-}
-
-function createTemporaryVec4Accessor(count: number): Accessor {
-  const byteLength = count * 4 * 4;
-  const buffer = new Buffer({
-    byteLength,
-    buffer: new ArrayBuffer(byteLength),
-    name: 'Gltf2Exporter_Tangent',
-    byteAlign: 4,
-  });
-  const bufferView = buffer
-    .takeBufferView({
-      byteLengthToNeed: byteLength,
-      byteStride: 0,
-    })
-    .unwrapForce();
-
-  return bufferView
-    .takeAccessor({
-      compositionType: CompositionType.Vec4,
-      componentType: ComponentType.Float,
-      count,
-    })
-    .unwrapForce();
-}
-
 /**
  * Sets up blend shape (morph target) data for a primitive.
  *
@@ -2988,151 +2958,4 @@ function createOrReuseGltf2Accessor(
   }
   const gltf2Accessor = json.accessors[accessorIdx];
   return gltf2Accessor;
-}
-
-/**
- * Normalizes normal vectors in an accessor.
- *
- * Creates a new accessor with normalized normal vectors from the input accessor.
- * Each normal vector is normalized to unit length.
- *
- * @param accessor - The accessor containing normal vectors to normalize
- * @returns A new accessor with normalized normal vectors
- */
-function normalizeNormals(accessor: Accessor): Accessor {
-  const componentCount = accessor.compositionType.getNumberOfComponents();
-  const elementCount = accessor.elementCount;
-
-  // Read the normal data
-  const normalData = new Float32Array(elementCount * componentCount);
-  if (componentCount === 3) {
-    // VEC3
-    for (let i = 0; i < elementCount; i++) {
-      const vec = accessor.getVec3(i, {});
-      normalData[i * 3 + 0] = vec.x;
-      normalData[i * 3 + 1] = vec.y;
-      normalData[i * 3 + 2] = vec.z;
-    }
-  } else if (componentCount === 2) {
-    // VEC2
-    for (let i = 0; i < elementCount; i++) {
-      const vec = accessor.getVec2(i, {});
-      normalData[i * 2 + 0] = vec.x;
-      normalData[i * 2 + 1] = vec.y;
-    }
-  } else if (componentCount === 4) {
-    // VEC4
-    for (let i = 0; i < elementCount; i++) {
-      const vec = accessor.getVec4(i, {});
-      normalData[i * 4 + 0] = vec.x;
-      normalData[i * 4 + 1] = vec.y;
-      normalData[i * 4 + 2] = vec.z;
-      normalData[i * 4 + 3] = vec.w;
-    }
-  } else {
-    // Fallback: scalar
-    for (let i = 0; i < elementCount; i++) {
-      normalData[i] = accessor.getScalar(i, {});
-    }
-  }
-
-  // Normalize each normal vector
-  for (let i = 0; i < elementCount; i++) {
-    const offset = i * componentCount;
-    let length = 0;
-
-    // Calculate length
-    for (let j = 0; j < componentCount; j++) {
-      const value = normalData[offset + j];
-      length += value * value;
-    }
-    length = Math.sqrt(length);
-
-    // Normalize if length is not zero
-    if (length > 0) {
-      for (let j = 0; j < componentCount; j++) {
-        normalData[offset + j] /= length;
-      }
-    }
-  }
-
-  // Create new buffer and buffer view with normalized data
-  const arrayBuffer = normalData.buffer;
-  const newBuffer = new Buffer({
-    byteLength: arrayBuffer.byteLength,
-    buffer: arrayBuffer,
-    name: 'NormalizedNormalsBuffer',
-    byteAlign: 4,
-  });
-  const newBufferView = new BufferView({
-    buffer: newBuffer,
-    byteOffsetInBuffer: 0,
-    defaultByteStride: 0,
-    byteLength: normalData.byteLength,
-    raw: arrayBuffer,
-  });
-
-  // Create new accessor with the same properties but different data
-  const newAccessor = new Accessor({
-    bufferView: newBufferView,
-    byteOffsetInBufferView: 0,
-    compositionType: accessor.compositionType,
-    componentType: accessor.componentType,
-    byteStride: 0,
-    count: elementCount,
-    raw: arrayBuffer,
-    arrayLength: 1,
-    normalized: false,
-  });
-
-  return newAccessor;
-}
-
-function normalizeSkinWeights(accessor: Accessor): Accessor {
-  const componentCount = accessor.compositionType.getNumberOfComponents();
-  const elementCount = accessor.elementCount;
-  if (componentCount === 0 || elementCount === 0) {
-    return accessor;
-  }
-
-  const treatAsNormalizedUnsignedInt =
-    accessor.normalized &&
-    (accessor.componentType === ComponentType.UnsignedByte ||
-      accessor.componentType === ComponentType.UnsignedShort ||
-      accessor.componentType === ComponentType.UnsignedInt);
-
-  const normalizationDenominator = treatAsNormalizedUnsignedInt
-    ? getNormalizedUnsignedComponentMax(accessor.componentType)
-    : 1;
-
-  const normalizationResult = createNormalizedFloatWeights(
-    accessor,
-    componentCount,
-    elementCount,
-    treatAsNormalizedUnsignedInt,
-    normalizationDenominator
-  );
-
-  if (!normalizationResult.mutated) {
-    return accessor;
-  }
-
-  if (treatAsNormalizedUnsignedInt) {
-    return convertNormalizedWeightsToUnsigned(
-      normalizationResult.data,
-      accessor,
-      componentCount,
-      elementCount,
-      normalizationDenominator
-    );
-  }
-
-  const componentTypeForFloat = accessor.componentType.isFloatingPoint() ? accessor.componentType : ComponentType.Float;
-  const normalizedFlagForFloat = componentTypeForFloat === accessor.componentType ? accessor.normalized : false;
-  return createAccessorFromWeightsTypedArray(
-    normalizationResult.data,
-    accessor,
-    componentTypeForFloat,
-    normalizedFlagForFloat
-  );
 }

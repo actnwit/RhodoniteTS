@@ -12,6 +12,8 @@ import type { Gltf2AccessorEx, Gltf2BufferViewEx, Gltf2Ex } from '../../types/gl
 import type { ComponentTypeEnum, CompositionTypeEnum } from '../definitions';
 import { ComponentType, type Gltf2AccessorComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
+import type { VertexAttributeSemanticsJoinedString } from '../definitions/VertexAttribute';
+import type { Primitive } from '../geometry/Primitive';
 import { Accessor } from '../memory/Accessor';
 import { Buffer } from '../memory/Buffer';
 import { BufferView } from '../memory/BufferView';
@@ -1133,4 +1135,211 @@ export function createAccessorFromWeightsTypedArray(
   });
 
   return newAccessor;
+}
+
+/**
+ * Finds the primary texture coordinate accessor from a primitive.
+ *
+ * Searches for the first TEXCOORD attribute in the primitive's semantics.
+ *
+ * @param primitive - The primitive to search
+ * @returns The primary texture coordinate accessor or undefined if not found
+ */
+export function findPrimaryTexcoordAccessor(primitive: Primitive): Accessor | undefined {
+  const semantics = primitive.attributeSemantics;
+  for (const semantic of semantics) {
+    if (semantic.startsWith('TEXCOORD_')) {
+      return primitive.getAttribute(semantic as VertexAttributeSemanticsJoinedString) ?? undefined;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Creates a temporary Vec4 accessor for tangent calculations.
+ *
+ * Creates a temporary buffer, buffer view, and accessor for storing
+ * Vec4 tangent data during export processing.
+ *
+ * @param count - Number of elements in the accessor
+ * @returns New Accessor instance with Vec4 composition type
+ */
+export function createTemporaryVec4Accessor(count: number): Accessor {
+  const byteLength = count * 4 * 4;
+  const buffer = new Buffer({
+    byteLength,
+    buffer: new ArrayBuffer(byteLength),
+    name: 'Gltf2Exporter_Tangent',
+    byteAlign: 4,
+  });
+  const bufferView = buffer
+    .takeBufferView({
+      byteLengthToNeed: byteLength,
+      byteStride: 0,
+    })
+    .unwrapForce();
+
+  return bufferView
+    .takeAccessor({
+      compositionType: CompositionType.Vec4,
+      componentType: ComponentType.Float,
+      count,
+    })
+    .unwrapForce();
+}
+
+/**
+ * Normalizes normal vectors in an accessor.
+ *
+ * Reads normal data from the accessor, normalizes each vector to unit length,
+ * and creates a new accessor with the normalized data.
+ *
+ * @param accessor - The accessor containing normal data
+ * @returns New Accessor with normalized normal vectors
+ */
+export function normalizeNormals(accessor: Accessor): Accessor {
+  const componentCount = accessor.compositionType.getNumberOfComponents();
+  const elementCount = accessor.elementCount;
+
+  // Read the normal data
+  const normalData = new Float32Array(elementCount * componentCount);
+  if (componentCount === 3) {
+    // VEC3
+    for (let i = 0; i < elementCount; i++) {
+      const vec = accessor.getVec3(i, {});
+      normalData[i * 3 + 0] = vec.x;
+      normalData[i * 3 + 1] = vec.y;
+      normalData[i * 3 + 2] = vec.z;
+    }
+  } else if (componentCount === 2) {
+    // VEC2
+    for (let i = 0; i < elementCount; i++) {
+      const vec = accessor.getVec2(i, {});
+      normalData[i * 2 + 0] = vec.x;
+      normalData[i * 2 + 1] = vec.y;
+    }
+  } else if (componentCount === 4) {
+    // VEC4
+    for (let i = 0; i < elementCount; i++) {
+      const vec = accessor.getVec4(i, {});
+      normalData[i * 4 + 0] = vec.x;
+      normalData[i * 4 + 1] = vec.y;
+      normalData[i * 4 + 2] = vec.z;
+      normalData[i * 4 + 3] = vec.w;
+    }
+  } else {
+    // Fallback: scalar
+    for (let i = 0; i < elementCount; i++) {
+      normalData[i] = accessor.getScalar(i, {});
+    }
+  }
+
+  // Normalize each normal vector
+  for (let i = 0; i < elementCount; i++) {
+    const offset = i * componentCount;
+    let length = 0;
+
+    // Calculate length
+    for (let j = 0; j < componentCount; j++) {
+      const value = normalData[offset + j];
+      length += value * value;
+    }
+    length = Math.sqrt(length);
+
+    // Normalize if length is not zero
+    if (length > 0) {
+      for (let j = 0; j < componentCount; j++) {
+        normalData[offset + j] /= length;
+      }
+    }
+  }
+
+  // Create new buffer and buffer view with normalized data
+  const arrayBuffer = normalData.buffer;
+  const newBuffer = new Buffer({
+    byteLength: arrayBuffer.byteLength,
+    buffer: arrayBuffer,
+    name: 'NormalizedNormalsBuffer',
+    byteAlign: 4,
+  });
+  const newBufferView = new BufferView({
+    buffer: newBuffer,
+    byteOffsetInBuffer: 0,
+    defaultByteStride: 0,
+    byteLength: normalData.byteLength,
+    raw: arrayBuffer,
+  });
+
+  // Create new accessor with the same properties but different data
+  const newAccessor = new Accessor({
+    bufferView: newBufferView,
+    byteOffsetInBufferView: 0,
+    compositionType: accessor.compositionType,
+    componentType: accessor.componentType,
+    byteStride: 0,
+    count: elementCount,
+    raw: arrayBuffer,
+    arrayLength: 1,
+    normalized: false,
+  });
+
+  return newAccessor;
+}
+
+/**
+ * Normalizes skin weights in an accessor.
+ *
+ * Processes skin weight data to ensure values are properly normalized,
+ * sanitized, and converted to the appropriate format.
+ *
+ * @param accessor - The accessor containing skin weight data
+ * @returns New Accessor with normalized skin weights, or original if unchanged
+ */
+export function normalizeSkinWeights(accessor: Accessor): Accessor {
+  const componentCount = accessor.compositionType.getNumberOfComponents();
+  const elementCount = accessor.elementCount;
+  if (componentCount === 0 || elementCount === 0) {
+    return accessor;
+  }
+
+  const treatAsNormalizedUnsignedInt =
+    accessor.normalized &&
+    (accessor.componentType === ComponentType.UnsignedByte ||
+      accessor.componentType === ComponentType.UnsignedShort ||
+      accessor.componentType === ComponentType.UnsignedInt);
+
+  const normalizationDenominator = treatAsNormalizedUnsignedInt
+    ? getNormalizedUnsignedComponentMax(accessor.componentType)
+    : 1;
+
+  const normalizationResult = createNormalizedFloatWeights(
+    accessor,
+    componentCount,
+    elementCount,
+    treatAsNormalizedUnsignedInt,
+    normalizationDenominator
+  );
+
+  if (!normalizationResult.mutated) {
+    return accessor;
+  }
+
+  if (treatAsNormalizedUnsignedInt) {
+    return convertNormalizedWeightsToUnsigned(
+      normalizationResult.data,
+      accessor,
+      componentCount,
+      elementCount,
+      normalizationDenominator
+    );
+  }
+
+  const componentTypeForFloat = accessor.componentType.isFloatingPoint() ? accessor.componentType : ComponentType.Float;
+  const normalizedFlagForFloat = componentTypeForFloat === accessor.componentType ? accessor.normalized : false;
+  return createAccessorFromWeightsTypedArray(
+    normalizationResult.data,
+    accessor,
+    componentTypeForFloat,
+    normalizedFlagForFloat
+  );
 }
