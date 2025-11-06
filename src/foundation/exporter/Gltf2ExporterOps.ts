@@ -12,9 +12,9 @@ import type { Gltf2AccessorEx, Gltf2BufferViewEx, Gltf2Ex } from '../../types/gl
 import type { ComponentTypeEnum, CompositionTypeEnum } from '../definitions';
 import { ComponentType, type Gltf2AccessorComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
-import type { Accessor } from '../memory/Accessor';
-import type { Buffer } from '../memory/Buffer';
-import type { BufferView } from '../memory/BufferView';
+import { Accessor } from '../memory/Accessor';
+import { Buffer } from '../memory/Buffer';
+import { BufferView } from '../memory/BufferView';
 import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
 
@@ -1012,4 +1012,125 @@ export function adjustWeightsForResidual(
     const candidate = clampWeight(before + remaining);
     data[idx] = candidate;
   }
+}
+
+/**
+ * Creates normalized float weights from an accessor.
+ *
+ * Processes skin weight data from an accessor, sanitizing and normalizing
+ * values to ensure they sum to 1.0 for each element.
+ *
+ * @param accessor - The accessor containing weight data
+ * @param componentCount - Number of components per element
+ * @param elementCount - Number of elements
+ * @param treatAsNormalizedUnsignedInt - Whether to treat values as normalized unsigned integers
+ * @param normalizationDenominator - Denominator for normalization
+ * @returns Object containing normalized float data and mutation flag
+ */
+export function createNormalizedFloatWeights(
+  accessor: Accessor,
+  componentCount: number,
+  elementCount: number,
+  treatAsNormalizedUnsignedInt: boolean,
+  normalizationDenominator: number
+): { data: Float32Array; mutated: boolean } {
+  const floatData = new Float32Array(elementCount * componentCount);
+  let mutated = false;
+
+  for (let elementIndex = 0; elementIndex < elementCount; elementIndex++) {
+    const baseIndex = elementIndex * componentCount;
+    const elementMutated = processSkinWeightElement(
+      accessor,
+      elementIndex,
+      baseIndex,
+      componentCount,
+      treatAsNormalizedUnsignedInt,
+      normalizationDenominator,
+      floatData
+    );
+    if (elementMutated) {
+      mutated = true;
+    }
+  }
+
+  return { data: floatData, mutated };
+}
+
+/**
+ * Converts normalized float weights to unsigned integer format.
+ *
+ * Scales normalized float weights to the appropriate unsigned integer range
+ * based on the component type, ensuring proper quantization.
+ *
+ * @param floatData - Float32Array containing normalized weight data
+ * @param accessor - The original accessor
+ * @param componentCount - Number of components per element
+ * @param elementCount - Number of elements
+ * @param normalizationDenominator - Denominator for normalization
+ * @returns New accessor with unsigned integer weights
+ */
+export function convertNormalizedWeightsToUnsigned(
+  floatData: Float32Array,
+  accessor: Accessor,
+  componentCount: number,
+  elementCount: number,
+  normalizationDenominator: number
+): Accessor {
+  const typedArray = createUnsignedTypedArray(accessor.componentType, floatData.length);
+  const maxValue = normalizationDenominator;
+
+  for (let elementIndex = 0; elementIndex < elementCount; elementIndex++) {
+    const baseIndex = elementIndex * componentCount;
+    scaleSkinWeightElementToUnsigned(floatData, baseIndex, componentCount, typedArray, maxValue);
+  }
+
+  return createAccessorFromWeightsTypedArray(typedArray, accessor, accessor.componentType, true);
+}
+
+/**
+ * Creates an Accessor from a weight typed array.
+ *
+ * Constructs a new Accessor with the provided typed array data, creating
+ * the necessary Buffer and BufferView structures.
+ *
+ * @param typedArray - The typed array containing weight data
+ * @param baseAccessor - The base accessor to copy properties from
+ * @param componentType - The component type for the new accessor
+ * @param normalized - Whether the accessor values are normalized
+ * @returns New Accessor instance
+ */
+export function createAccessorFromWeightsTypedArray(
+  typedArray: WeightTypedArray,
+  baseAccessor: Accessor,
+  componentType: ComponentTypeEnum,
+  normalized: boolean
+): Accessor {
+  const arrayBuffer = typedArray.buffer as ArrayBuffer;
+  const buffer = new Buffer({
+    byteLength: arrayBuffer.byteLength,
+    buffer: arrayBuffer,
+    name: 'NormalizedSkinWeightsBuffer',
+    byteAlign: 4,
+  });
+  const bufferView = new BufferView({
+    buffer,
+    byteOffsetInBuffer: 0,
+    defaultByteStride: 0,
+    byteLength: arrayBuffer.byteLength,
+    raw: arrayBuffer,
+  });
+
+  const newAccessor = new Accessor({
+    bufferView,
+    byteOffsetInBufferView: 0,
+    compositionType: baseAccessor.compositionType,
+    componentType,
+    byteStride: 0,
+    count: baseAccessor.elementCount,
+    raw: arrayBuffer,
+    arrayLength: 1,
+    normalized,
+  });
+
+  return newAccessor;
 }

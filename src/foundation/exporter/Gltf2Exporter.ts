@@ -79,12 +79,15 @@ import {
   calcBufferIdxToSet,
   calcBufferViewByteLengthAndByteOffset,
   clampWeight,
+  convertNormalizedWeightsToUnsigned,
   convertToGltfAnimationPathName,
+  createAccessorFromWeightsTypedArray,
   createAndAddGltf2BufferView,
   createGltf2AccessorForAnimation,
   createGltf2AnimationChannel,
   createGltf2AnimationSampler,
   createGltf2BufferViewForAnimation,
+  createNormalizedFloatWeights,
   createUnsignedTypedArray,
   findBufferViewIdx,
   generateGlbArrayBuffer,
@@ -2656,33 +2659,6 @@ function __createBufferViewsAndAccessorsOfAnimation(json: Gltf2Ex, entities: IAn
 }
 
 /**
- * Calculates the appropriate accessor index for deduplication.
- *
- * Searches for an existing accessor that matches the provided one to avoid
- * creating duplicate accessors in the glTF2 output.
- *
- * @param existingUniqueRnAccessors - Array of unique accessors already processed
- * @param rnAccessor - The accessor to find or add
- * @returns Index of existing accessor or -1 if not found
- */
-function calcAccessorIdxToSet(existingUniqueRnAccessors: Accessor[], rnAccessor: Accessor) {
-  // let accessorIdxToSet = -1;
-  const accessorIdx = existingUniqueRnAccessors.findIndex(accessor => {
-    return accessor.isSame(rnAccessor);
-  });
-  // if (accessorIdx !== -1) {
-  //   // if the Rhodonite RnAccessor is in existingUniqueAccessors already,
-  //   //   reuse the corresponding Gltf2Accessor
-  //   accessorIdxToSet = accessorIdx;
-  // } else {
-  //   // if not, create a Gltf2Accessor and put it into existingUniqueAccessors
-  //   // if the accessor is new one...
-  //   accessorIdxToSet = existingUniqueRnAccessors.length;
-  // }
-  return accessorIdx;
-}
-
-/**
  * Creates or reuses a glTF2 BufferView for vertex attribute data.
  *
  * Optimizes buffer view creation by checking for existing compatible buffer views
@@ -3159,87 +3135,4 @@ function normalizeSkinWeights(accessor: Accessor): Accessor {
     componentTypeForFloat,
     normalizedFlagForFloat
   );
-}
-
-function createNormalizedFloatWeights(
-  accessor: Accessor,
-  componentCount: number,
-  elementCount: number,
-  treatAsNormalizedUnsignedInt: boolean,
-  normalizationDenominator: number
-): { data: Float32Array; mutated: boolean } {
-  const floatData = new Float32Array(elementCount * componentCount);
-  let mutated = false;
-
-  for (let elementIndex = 0; elementIndex < elementCount; elementIndex++) {
-    const baseIndex = elementIndex * componentCount;
-    const elementMutated = processSkinWeightElement(
-      accessor,
-      elementIndex,
-      baseIndex,
-      componentCount,
-      treatAsNormalizedUnsignedInt,
-      normalizationDenominator,
-      floatData
-    );
-    if (elementMutated) {
-      mutated = true;
-    }
-  }
-
-  return { data: floatData, mutated };
-}
-
-function convertNormalizedWeightsToUnsigned(
-  floatData: Float32Array,
-  accessor: Accessor,
-  componentCount: number,
-  elementCount: number,
-  normalizationDenominator: number
-): Accessor {
-  const typedArray = createUnsignedTypedArray(accessor.componentType, floatData.length);
-  const maxValue = normalizationDenominator;
-
-  for (let elementIndex = 0; elementIndex < elementCount; elementIndex++) {
-    const baseIndex = elementIndex * componentCount;
-    scaleSkinWeightElementToUnsigned(floatData, baseIndex, componentCount, typedArray, maxValue);
-  }
-
-  return createAccessorFromWeightsTypedArray(typedArray, accessor, accessor.componentType, true);
-}
-
-function createAccessorFromWeightsTypedArray(
-  typedArray: WeightTypedArray,
-  baseAccessor: Accessor,
-  componentType: ComponentTypeEnum,
-  normalized: boolean
-): Accessor {
-  const arrayBuffer = typedArray.buffer as ArrayBuffer;
-  const buffer = new Buffer({
-    byteLength: arrayBuffer.byteLength,
-    buffer: arrayBuffer,
-    name: 'NormalizedSkinWeightsBuffer',
-    byteAlign: 4,
-  });
-  const bufferView = new BufferView({
-    buffer,
-    byteOffsetInBuffer: 0,
-    defaultByteStride: 0,
-    byteLength: arrayBuffer.byteLength,
-    raw: arrayBuffer,
-  });
-
-  const newAccessor = new Accessor({
-    bufferView,
-    byteOffsetInBufferView: 0,
-    compositionType: baseAccessor.compositionType,
-    componentType,
-    byteStride: 0,
-    count: baseAccessor.elementCount,
-    raw: arrayBuffer,
-    arrayLength: 1,
-    normalized,
-  });
-
-  return newAccessor;
 }
