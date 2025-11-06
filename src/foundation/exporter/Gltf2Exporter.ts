@@ -626,7 +626,22 @@ export class Gltf2Exporter {
     }
     const extensions = material.extensions as Record<string, any> | undefined;
     const clearcoatExtension = extensions?.KHR_materials_clearcoat as { clearcoatNormalTexture?: unknown } | undefined;
-    return Is.exist(clearcoatExtension?.clearcoatNormalTexture);
+    if (Is.exist(clearcoatExtension?.clearcoatNormalTexture)) {
+      return true;
+    }
+    const anisotropyExtension = extensions?.KHR_materials_anisotropy as {
+      anisotropyTexture?: unknown;
+      anisotropyStrength?: number;
+    };
+    if (Is.exist(anisotropyExtension)) {
+      if (Is.exist(anisotropyExtension.anisotropyTexture)) {
+        return true;
+      }
+      if (Is.exist(anisotropyExtension.anisotropyStrength) && anisotropyExtension.anisotropyStrength !== 0) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private static __collectUsedTexCoordSetIndices(material: Gltf2MaterialEx): Set<number> {
@@ -682,6 +697,13 @@ export class Gltf2Exporter {
     if (Is.exist(sheenExtension)) {
       registerTexcoord(sheenExtension.sheenColorTexture);
       registerTexcoord(sheenExtension.sheenRoughnessTexture);
+    }
+
+    const anisotropyExtension = extensions?.KHR_materials_anisotropy as {
+      anisotropyTexture?: { texCoord?: number; index?: number };
+    };
+    if (Is.exist(anisotropyExtension)) {
+      registerTexcoord(anisotropyExtension.anisotropyTexture);
     }
 
     return usedTexCoords;
@@ -1120,6 +1142,15 @@ export class Gltf2Exporter {
       applyTexture,
       material
     );
+
+    Gltf2Exporter.__outputKhrMaterialsAnisotropyInfo(
+      ensureExtensionUsed,
+      coerceNumber,
+      coerceVec2,
+      rnMaterial,
+      applyTexture,
+      material
+    );
   }
 
   private static __outputKhrMaterialsTransmissionInfo(
@@ -1444,6 +1475,81 @@ export class Gltf2Exporter {
       material.extensions = material.extensions ?? {};
       material.extensions.KHR_materials_sheen = sheenExtension;
       ensureExtensionUsed('KHR_materials_sheen');
+    }
+  }
+
+  private static __outputKhrMaterialsAnisotropyInfo(
+    ensureExtensionUsed: (extensionName: string) => void,
+    coerceNumber: (value: any) => number | undefined,
+    coerceVec2: (value: any) => [number, number] | undefined,
+    rnMaterial: Material,
+    applyTexture: (
+      paramName: string,
+      options: {
+        texCoordParam?: string;
+        transform?: {
+          scale?: string;
+          offset?: string;
+          rotation?: string;
+        };
+        scaleParam?: string;
+        strengthParam?: string;
+        onAssign: (info: any) => void;
+      }
+    ) => void,
+    material: Gltf2MaterialEx
+  ) {
+    const anisotropyExtension: Record<string, unknown> = {};
+    let anisotropyExtensionUsed = false;
+    const markAnisotropyExtensionUsed = () => {
+      if (!anisotropyExtensionUsed) {
+        anisotropyExtensionUsed = true;
+        ensureExtensionUsed('KHR_materials_anisotropy');
+      }
+    };
+
+    const anisotropyStrength = coerceNumber(rnMaterial.getParameter('anisotropyStrength'));
+    if (Is.exist(anisotropyStrength)) {
+      anisotropyExtension.anisotropyStrength = anisotropyStrength;
+      if (anisotropyStrength !== 0) {
+        markAnisotropyExtensionUsed();
+      }
+    }
+
+    const anisotropyRotationVector = coerceVec2(rnMaterial.getParameter('anisotropyRotation'));
+    if (Is.exist(anisotropyRotationVector)) {
+      const [x, y] = anisotropyRotationVector;
+      const rotation = Math.atan2(y, x);
+      if (Number.isFinite(rotation)) {
+        anisotropyExtension.anisotropyRotation = rotation;
+        if (rotation !== 0) {
+          markAnisotropyExtensionUsed();
+        }
+      }
+    }
+
+    applyTexture('anisotropyTexture', {
+      texCoordParam: 'anisotropyTexcoordIndex',
+      transform: {
+        scale: 'anisotropyTextureTransformScale',
+        offset: 'anisotropyTextureTransformOffset',
+        rotation: 'anisotropyTextureTransformRotation',
+      },
+      onAssign: info => {
+        anisotropyExtension.anisotropyTexture = info;
+        markAnisotropyExtensionUsed();
+      },
+    });
+
+    const shouldAttachAnisotropyExtension =
+      anisotropyExtensionUsed ||
+      Is.exist(anisotropyExtension.anisotropyTexture) ||
+      (Is.exist(anisotropyExtension.anisotropyStrength) && (anisotropyExtension.anisotropyStrength as number) !== 0) ||
+      (Is.exist(anisotropyExtension.anisotropyRotation) && (anisotropyExtension.anisotropyRotation as number) !== 0);
+    if (shouldAttachAnisotropyExtension) {
+      material.extensions = material.extensions ?? {};
+      material.extensions.KHR_materials_anisotropy = anisotropyExtension;
+      ensureExtensionUsed('KHR_materials_anisotropy');
     }
   }
 
