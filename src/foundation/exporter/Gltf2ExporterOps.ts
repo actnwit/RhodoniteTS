@@ -1,6 +1,11 @@
-import type { AnimationChannel, AnimationPathName, AnimationSampler } from '../../types/AnimationTypes';
+import type {
+  AnimationChannel,
+  AnimationPathName,
+  AnimationSampler,
+  AnimationTrackName,
+} from '../../types/AnimationTypes';
 import type { Array1to4, Byte, Count, Index, VectorAndSquareMatrixComponentN } from '../../types/CommonTypes';
-import { GL_ARRAY_BUFFER } from '../../types/WebGLConstants';
+import { GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER } from '../../types/WebGLConstants';
 import type {
   Gltf2,
   Gltf2AccessorCompositionTypeString,
@@ -8,8 +13,12 @@ import type {
   Gltf2AnimationChannel,
   Gltf2AnimationPathName,
   Gltf2AnimationSampler,
+  Gltf2AttributeBlendShapes,
+  Gltf2Attributes,
+  Gltf2Mesh,
+  Gltf2Primitive,
+  Gltf2Skin,
 } from '../../types/glTF2';
-import type { Gltf2AttributeBlendShapes, Gltf2Attributes, Gltf2Primitive } from '../../types/glTF2';
 import type { Gltf2AccessorEx, Gltf2BufferViewEx, Gltf2Ex, Gltf2ImageEx } from '../../types/glTF2ForOutput';
 import type { ComponentTypeEnum, CompositionTypeEnum } from '../definitions';
 import { ComponentType, type Gltf2AccessorComponentType } from '../definitions/ComponentType';
@@ -18,7 +27,7 @@ import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import type { VertexAttributeSemanticsJoinedString } from '../definitions/VertexAttribute';
 import { VertexAttribute } from '../definitions/VertexAttribute';
 import type { Primitive } from '../geometry/Primitive';
-import type { IMeshEntity } from '../helpers/EntityHelper';
+import type { IAnimationEntity, IMeshEntity, ISkeletalEntity } from '../helpers/EntityHelper';
 import type { Material } from '../materials/core/Material';
 import { Accessor } from '../memory/Accessor';
 import { Buffer } from '../memory/Buffer';
@@ -1944,4 +1953,293 @@ export async function handleTextureImage(
     });
     reader.readAsArrayBuffer(blob);
   }
+}
+
+/**
+ * Creates BufferViews and Accessors for skin (skeletal) data.
+ *
+ * Processes skeletal entities to extract inverse bind matrices and joint
+ * hierarchies, creating the necessary glTF2 buffer views and accessors.
+ *
+ * @param json - The glTF2 JSON document to populate
+ * @param entities - Skeletal entities to process
+ * @param existingUniqueRnBuffers - Buffer deduplication cache
+ * @param existingUniqueRnBufferViews - BufferView deduplication cache
+ * @param existingUniqueRnAccessors - Accessor deduplication cache
+ */
+export function __createBufferViewsAndAccessorsOfSkin(
+  json: Gltf2Ex,
+  entities: ISkeletalEntity[],
+  existingUniqueRnBuffers: Buffer[],
+  existingUniqueRnBufferViews: BufferView[],
+  existingUniqueRnAccessors: Accessor[]
+): void {
+  for (let i = 0; i < entities.length; i++) {
+    const entity = entities[i];
+    const skeletalComponent = entity.tryToGetSkeletal();
+    if (Is.not.exist(skeletalComponent)) {
+      continue;
+    }
+    json.extras.rnSkins.push(skeletalComponent.entity as any);
+    const jointSceneComponentsOfTheEntity = skeletalComponent.getJoints();
+    const jointIndicesOfTheEntity: Index[] = [];
+    for (const jointSceneComponent of jointSceneComponentsOfTheEntity) {
+      entities.forEach((entityObj, j) => {
+        if (jointSceneComponent.entity === entityObj) {
+          jointIndicesOfTheEntity.push(j);
+        }
+      });
+    }
+
+    const inverseBindMatRnAccessor = skeletalComponent.getInverseBindMatricesAccessor();
+    if (Is.exist(inverseBindMatRnAccessor)) {
+      const gltf2BufferView = createOrReuseGltf2BufferView(
+        json,
+        existingUniqueRnBuffers,
+        existingUniqueRnBufferViews,
+        inverseBindMatRnAccessor.bufferView
+      );
+
+      createOrReuseGltf2Accessor(
+        json,
+        json.bufferViews.indexOf(gltf2BufferView),
+        existingUniqueRnAccessors,
+        inverseBindMatRnAccessor
+      );
+    }
+
+    const topOfJointsSkeletonSceneComponent = skeletalComponent.topOfJointsHierarchy;
+    const bindShapeMatrix = skeletalComponent._bindShapeMatrix;
+    let skeletalIdx = -1;
+    if (Is.exist(topOfJointsSkeletonSceneComponent)) {
+      const skeletalEntity = topOfJointsSkeletonSceneComponent.entity as ISkeletalEntity;
+      skeletalIdx = entities.indexOf(skeletalEntity);
+    } else {
+      skeletalIdx = jointIndicesOfTheEntity[0];
+    }
+    const skinJson: Gltf2Skin = {
+      joints: jointIndicesOfTheEntity,
+      inverseBindMatrices: json.accessors.length - 1,
+      skeleton: skeletalIdx >= 0 ? skeletalIdx : undefined,
+      bindShapeMatrix: bindShapeMatrix?.flattenAsArray(),
+    };
+
+    json.skins.push(skinJson);
+  }
+}
+
+/**
+ * Creates BufferViews and Accessors for mesh geometry data.
+ *
+ * Processes mesh entities to extract vertex attributes, indices, and blend shape
+ * data, creating the necessary glTF2 buffer views and accessors. Handles
+ * deduplication and proper memory layout for efficient storage.
+ *
+ * @param json - The glTF2 JSON document to populate
+ * @param entities - Mesh entities to process
+ * @param existingUniqueRnBuffers - Buffer deduplication cache
+ * @param existingUniqueRnBufferViews - BufferView deduplication cache
+ * @param existingUniqueRnAccessors - Accessor deduplication cache
+ */
+export function __createBufferViewsAndAccessorsOfMesh(
+  json: Gltf2Ex,
+  entities: IMeshEntity[],
+  existingUniqueRnBuffers: Buffer[],
+  existingUniqueRnBufferViews: BufferView[],
+  existingUniqueRnAccessors: Accessor[]
+): void {
+  for (let i = 0; i < entities.length; i++) {
+    const entity = entities[i];
+    const meshComponent = entity.tryToGetMesh();
+    if (Is.exist(meshComponent) && meshComponent.mesh) {
+      const mesh: Gltf2Mesh = { primitives: [] };
+      const rnMesh = meshComponent.mesh;
+      const primitiveCount = rnMesh.getPrimitiveNumber();
+      for (let j = 0; j < primitiveCount; j++) {
+        const rnPrimitive = rnMesh.getPrimitiveAt(j);
+        const primitive: Gltf2Primitive = {
+          attributes: {},
+          mode: rnPrimitive.primitiveMode.index,
+        };
+
+        // Vertex Indices
+        // For indices accessor
+        const rnIndicesAccessor = rnPrimitive.indicesAccessor;
+        if (Is.exist(rnIndicesAccessor)) {
+          const rnBufferView = rnIndicesAccessor.bufferView;
+          const gltf2BufferView = createOrReuseGltf2BufferView(
+            json,
+            existingUniqueRnBuffers,
+            existingUniqueRnBufferViews,
+            rnBufferView,
+            GL_ELEMENT_ARRAY_BUFFER
+          );
+
+          const gltf2Accessor = createOrReuseGltf2Accessor(
+            json,
+            json.bufferViews.indexOf(gltf2BufferView),
+            existingUniqueRnAccessors,
+            rnIndicesAccessor
+          );
+          const accessorIdx = json.accessors.indexOf(gltf2Accessor);
+          primitive.indices = accessorIdx;
+        }
+
+        // Vertex Attributes
+        // For each attribute accessor
+        const exportAttributeSemantics = rnPrimitive.attributeSemantics.concat();
+        const exportAttributeAccessors = rnPrimitive.attributeAccessors.concat();
+
+        const needsTangents = doesRhodoniteMaterialRequireTangents(rnPrimitive.material);
+        if (needsTangents) {
+          const tangentSemanticIndex = exportAttributeSemantics.findIndex(semantic => semantic.startsWith('TANGENT'));
+          const exportTangentAccessor = getExportTangentAccessorForPrimitive(rnPrimitive);
+          if (Is.exist(exportTangentAccessor)) {
+            if (tangentSemanticIndex >= 0) {
+              exportAttributeAccessors[tangentSemanticIndex] = exportTangentAccessor;
+            } else {
+              exportAttributeSemantics.push(VertexAttribute.Tangent.XYZ);
+              exportAttributeAccessors.push(exportTangentAccessor);
+            }
+          }
+        }
+
+        for (let attrIndex = 0; attrIndex < exportAttributeAccessors.length; attrIndex++) {
+          const attributeJoinedString = exportAttributeSemantics[attrIndex] as string;
+          const attributeName = attributeJoinedString.split('.')[0];
+          if (attributeName === 'BARY_CENTRIC_COORD') {
+            continue;
+          }
+          // create a Gltf2BufferView
+          const rnAttributeAccessor = exportAttributeAccessors[attrIndex];
+
+          // Normalize normals if needed
+          let normalizedAccessor = rnAttributeAccessor;
+          if (attributeName === 'NORMAL') {
+            normalizedAccessor = normalizeNormals(rnAttributeAccessor);
+          } else if (attributeName === 'WEIGHTS_0') {
+            normalizedAccessor = normalizeSkinWeights(rnAttributeAccessor);
+          }
+
+          const rnBufferView = normalizedAccessor.bufferView;
+          const gltf2BufferView = createOrReuseGltf2BufferViewForVertexAttributeBuffer(
+            json,
+            existingUniqueRnBuffers,
+            existingUniqueRnBufferViews,
+            rnBufferView,
+            normalizedAccessor
+          );
+          const gltf2Accessor = createOrReuseGltf2Accessor(
+            json,
+            json.bufferViews.indexOf(gltf2BufferView),
+            existingUniqueRnAccessors,
+            normalizedAccessor
+          );
+
+          const accessorIdx = json.accessors.indexOf(gltf2Accessor);
+          primitive.attributes[attributeName] = accessorIdx;
+        }
+        // BlendShape
+        setupBlendShapeData(
+          entity,
+          rnPrimitive,
+          primitive,
+          json,
+          existingUniqueRnBuffers,
+          existingUniqueRnBufferViews,
+          existingUniqueRnAccessors
+        );
+        mesh.primitives[j] = primitive;
+      }
+      json.meshes.push(mesh);
+    }
+  }
+}
+
+/**
+ * Creates BufferViews and Accessors for animation data.
+ *
+ * Processes animation entities to extract keyframe data, creating the necessary
+ * glTF2 animation samplers, channels, and associated buffer views and accessors
+ * for proper animation playback.
+ *
+ * @param json - The glTF2 JSON document to populate with animation data
+ * @param entities - Animation entities to process
+ */
+export function __createBufferViewsAndAccessorsOfAnimation(json: Gltf2Ex, entities: IAnimationEntity[]): void {
+  let sumOfBufferViewByteLengthAccumulated = 0;
+  const bufferIdx = json.extras.bufferViewByteLengthAccumulatedArray.length;
+  const animationRegistry = new Map<AnimationTrackName, { animation: Gltf2Animation; samplerIdx: number }>();
+
+  const acquireAnimation = (trackName: AnimationTrackName) => {
+    let entry = animationRegistry.get(trackName);
+    if (Is.not.exist(entry)) {
+      const animation: Gltf2Animation = {
+        name: trackName,
+        channels: [],
+        samplers: [],
+      };
+      json.animations.push(animation);
+      entry = { animation, samplerIdx: 0 };
+      animationRegistry.set(trackName, entry);
+    }
+    return entry;
+  };
+
+  for (let i = 0; i < entities.length; i++) {
+    const entity = entities[i];
+    const animationComponent = entity.tryToGetAnimation();
+    if (Is.exist(animationComponent)) {
+      const rnAnimationTrack = animationComponent.getAnimationChannelsOfTrack();
+      const rnChannels = rnAnimationTrack.values();
+      for (const rnChannel of rnChannels) {
+        if (rnChannel.target.pathName === 'effekseer') {
+          continue;
+        }
+
+        const animatedValue = rnChannel.animatedValue;
+        const trackNames = animatedValue.getAllTrackNames();
+        for (const trackName of trackNames) {
+          const animationEntry = acquireAnimation(trackName);
+          const animation = animationEntry.animation;
+
+          // create and register Gltf2BufferView and Gltf2Accessor
+          //   and set Input animation data as Uint8Array to the Gltf2Accessor
+          const { inputAccessorIdx, inputBufferViewByteLengthAccumulated } =
+            createGltf2BufferViewAndGltf2AccessorForInput(
+              json,
+              animatedValue.getAnimationSampler(trackName),
+              bufferIdx,
+              sumOfBufferViewByteLengthAccumulated
+            );
+
+          sumOfBufferViewByteLengthAccumulated += inputBufferViewByteLengthAccumulated;
+
+          // create and register Gltf2BufferView and Gltf2Accessor
+          //   and set Output animation data as Uint8Array to the Gltf2Accessor
+          const { outputAccessorIdx, outputBufferViewByteLengthAccumulated } =
+            createGltf2BufferViewAndGltf2AccessorForOutput(
+              json,
+              animatedValue.getAnimationSampler(trackName),
+              rnChannel.target.pathName,
+              bufferIdx,
+              sumOfBufferViewByteLengthAccumulated
+            );
+          sumOfBufferViewByteLengthAccumulated += outputBufferViewByteLengthAccumulated;
+
+          // Create Gltf2AnimationChannel
+          animationEntry.samplerIdx = createGltf2AnimationChannel(rnChannel, animationEntry.samplerIdx, animation, i);
+
+          // Create Gltf2AnimationSampler
+          createGltf2AnimationSampler(
+            inputAccessorIdx,
+            outputAccessorIdx,
+            animatedValue.getAnimationSampler(trackName),
+            animation
+          );
+        }
+      }
+    }
+  }
+  json.extras.bufferViewByteLengthAccumulatedArray.push(sumOfBufferViewByteLengthAccumulated);
 }
