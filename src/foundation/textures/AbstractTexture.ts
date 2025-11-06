@@ -32,6 +32,7 @@ export abstract class AbstractTexture extends RnObject {
   protected __type: ComponentTypeEnum = ComponentType.UnsignedByte;
 
   protected __hasTransparentPixels = false;
+  protected __isDummyTexture = false;
 
   private static readonly InvalidTextureUid: TextureUID = -1;
   private static __textureUidCount: TextureUID = AbstractTexture.InvalidTextureUid;
@@ -140,6 +141,24 @@ export abstract class AbstractTexture extends RnObject {
    */
   get startedToLoad() {
     return this.__startedToLoad;
+  }
+
+  /**
+   * Checks whether this texture is marked as a dummy (placeholder) texture.
+   *
+   * @returns True if the texture is marked as dummy, false otherwise
+   */
+  get isDummyTexture() {
+    return this.__isDummyTexture;
+  }
+
+  /**
+   * Marks this texture as a dummy (placeholder) texture.
+   *
+   * @param isDummy - Whether to mark the texture as dummy (default: true)
+   */
+  markAsDummyTexture(isDummy = true) {
+    this.__isDummyTexture = isDummy;
   }
 
   /**

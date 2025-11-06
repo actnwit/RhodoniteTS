@@ -883,7 +883,7 @@ export class Gltf2Exporter {
     };
 
     const processTexture = (rnTexture: AbstractTexture, rnSampler?: Sampler) => {
-      if (rnTexture && rnTexture.width > 1 && rnTexture.height > 1) {
+      if (rnTexture?.isTextureReady && !rnTexture.isDummyTexture && rnTexture.width >= 1 && rnTexture.height >= 1) {
         const samplerIdx = processSampler(rnSampler);
         const imageIndex = processImage(rnTexture);
 
