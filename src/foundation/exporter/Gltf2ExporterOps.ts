@@ -3017,6 +3017,34 @@ export function __outputKhrMaterialsAnisotropyInfo(
   }
 }
 
+export function __outputKhrMaterialsDispersionInfo(
+  ensureExtensionUsed: (extensionName: string) => void,
+  coerceNumber: (value: any) => number | undefined,
+  rnMaterial: Material,
+  material: Gltf2MaterialEx
+) {
+  const rawDispersion = coerceNumber(rnMaterial.getParameter('dispersion'));
+  if (Is.not.exist(rawDispersion)) {
+    return;
+  }
+
+  const dispersion = Math.max(0, rawDispersion);
+  if (!Number.isFinite(dispersion) || dispersion === 0) {
+    return;
+  }
+
+  material.extensions = material.extensions ?? {};
+  material.extensions.KHR_materials_dispersion = {
+    dispersion,
+  };
+  ensureExtensionUsed('KHR_materials_dispersion');
+
+  if (Is.not.exist(material.extensions.KHR_materials_volume)) {
+    material.extensions.KHR_materials_volume = {};
+  }
+  ensureExtensionUsed('KHR_materials_volume');
+}
+
 export function __removeUnusedAccessorsAndBufferViews(json: Gltf2Ex) {
   if (json.accessors.length === 0) {
     __recalculateBufferViewAccumulators(json);
