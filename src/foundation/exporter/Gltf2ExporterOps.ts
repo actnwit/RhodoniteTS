@@ -1,15 +1,19 @@
 import type { AnimationChannel, AnimationPathName, AnimationSampler } from '../../types/AnimationTypes';
-import type { Byte, Count, Index } from '../../types/CommonTypes';
+import type { Array1to4, Byte, Count, Index } from '../../types/CommonTypes';
 import type {
   Gltf2,
+  Gltf2AccessorCompositionTypeString,
   Gltf2Animation,
   Gltf2AnimationChannel,
   Gltf2AnimationPathName,
   Gltf2AnimationSampler,
 } from '../../types/glTF2';
-import type { Gltf2BufferViewEx, Gltf2Ex } from '../../types/glTF2ForOutput';
-import { ComponentType, type ComponentTypeEnum } from '../definitions/ComponentType';
+import type { Gltf2AccessorEx, Gltf2BufferViewEx, Gltf2Ex } from '../../types/glTF2ForOutput';
+import type { ComponentTypeEnum, CompositionTypeEnum } from '../definitions';
+import { ComponentType, type Gltf2AccessorComponentType } from '../definitions/ComponentType';
+import { CompositionType } from '../definitions/CompositionType';
 import type { Accessor } from '../memory/Accessor';
+import type { Buffer } from '../memory/Buffer';
 import type { BufferView } from '../memory/BufferView';
 import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
@@ -485,4 +489,159 @@ export function createUnsignedTypedArray(
     return new Uint32Array(length);
   }
   throw new Error('Unsupported component type for normalized weights');
+}
+
+/**
+ * Parameters for creating a glTF2 accessor.
+ */
+export interface Gltf2AccessorDesc {
+  /** Index of the buffer view */
+  bufferViewIdx: Index;
+  /** Byte offset within the buffer view */
+  accessorByteOffset: Byte;
+  /** Component type (e.g., FLOAT, UNSIGNED_SHORT) */
+  componentType: ComponentTypeEnum;
+  /** Number of elements */
+  count: Count;
+  /** Composition type (e.g., VEC3, MAT4) */
+  compositionType: CompositionTypeEnum;
+  /** Minimum values for each component */
+  min?: Array1to4<number>;
+  /** Maximum values for each component */
+  max?: Array1to4<number>;
+}
+
+/**
+ * Parameters for creating a glTF2 buffer view.
+ */
+export interface Gltf2BufferViewDesc {
+  /** Index of the buffer */
+  bufferIdx: Index;
+  /** Byte offset within the buffer */
+  bufferViewByteOffset: Byte;
+  /** Accessor byte offset within the buffer view */
+  accessorByteOffset: Byte;
+  /** Number of accessor elements */
+  accessorCount: Count;
+  /** Byte stride of the buffer view */
+  bufferViewByteStride: Byte;
+  /** Component type */
+  componentType: ComponentTypeEnum;
+  /** Composition type */
+  compositionType: CompositionTypeEnum;
+  /** Raw data as Uint8Array */
+  uint8Array: Uint8Array;
+}
+
+/**
+ * Calculates the accessor index for deduplication purposes.
+ *
+ * @param existingUniqueRnAccessors - Array of unique accessors
+ * @param rnAccessor - The accessor to find
+ * @returns Index of the accessor or -1 if not found
+ */
+export function calcAccessorIdxToSet(existingUniqueRnAccessors: Accessor[], rnAccessor: Accessor): number {
+  const accessorIdx = existingUniqueRnAccessors.findIndex(accessor => {
+    return accessor.isSame(rnAccessor);
+  });
+  return accessorIdx;
+}
+
+/**
+ * Finds the index of an existing buffer view in the cache.
+ *
+ * @param existingUniqueRnBufferViews - Array of unique buffer views
+ * @param rnBufferView - The buffer view to search for
+ * @returns Index of the buffer view or -1 if not found
+ */
+export function findBufferViewIdx(existingUniqueRnBufferViews: BufferView[], rnBufferView: BufferView): number {
+  const bufferViewIdx = existingUniqueRnBufferViews.findIndex(bufferView => bufferView.isSame(rnBufferView));
+  return bufferViewIdx;
+}
+
+/**
+ * Calculates the buffer index for deduplication purposes.
+ *
+ * @param existingUniqueRnBuffers - Array of unique buffers
+ * @param rnBuffer - The buffer to find or add
+ * @returns Index where the buffer should be placed
+ */
+export function calcBufferIdxToSet(existingUniqueRnBuffers: Buffer[], rnBuffer: Buffer): number {
+  if (existingUniqueRnBuffers.length === 0) {
+    existingUniqueRnBuffers.push(rnBuffer);
+  }
+  const bufferIdx = existingUniqueRnBuffers.findIndex(buffer => buffer.isSame(rnBuffer));
+  const bufferIdxToSet = bufferIdx === -1 ? existingUniqueRnBuffers.length : bufferIdx;
+  if (bufferIdx === -1) {
+    existingUniqueRnBuffers.push(rnBuffer);
+  }
+  return bufferIdxToSet;
+}
+
+/**
+ * Creates a glTF2 BufferView for animation data.
+ *
+ * @param params - Parameters for buffer view creation
+ * @returns Created glTF2 buffer view with proper alignment
+ */
+export function createGltf2BufferViewForAnimation({
+  bufferIdx,
+  bufferViewByteOffset,
+  accessorByteOffset,
+  accessorCount,
+  bufferViewByteStride,
+  componentType,
+  compositionType,
+  uint8Array,
+}: Gltf2BufferViewDesc): Gltf2BufferViewEx {
+  const alignedAccessorByteOffset = alignAccessorByteOffsetTo4Bytes(accessorByteOffset);
+  const { fixedBufferViewByteLength, fixedBufferViewByteOffset } = calcBufferViewByteLengthAndByteOffset({
+    accessorByteOffset: alignedAccessorByteOffset,
+    accessorCount: accessorCount,
+    bufferViewByteStride,
+    bufferViewByteOffset,
+    sizeOfComponent: componentType.getSizeInBytes(),
+    numberOfComponents: compositionType.getNumberOfComponents(),
+  });
+
+  const gltfBufferViewEx: Gltf2BufferViewEx = {
+    buffer: bufferIdx,
+    byteLength: fixedBufferViewByteLength,
+    byteOffset: fixedBufferViewByteOffset,
+    extras: {
+      uint8Array,
+    },
+  };
+
+  return gltfBufferViewEx;
+}
+
+/**
+ * Creates a glTF2 Accessor for animation data.
+ *
+ * @param params - Parameters for accessor creation
+ * @returns Created glTF2 accessor with proper type information
+ */
+export function createGltf2AccessorForAnimation({
+  bufferViewIdx,
+  accessorByteOffset,
+  componentType,
+  count,
+  compositionType,
+  min,
+  max,
+}: Gltf2AccessorDesc): Gltf2AccessorEx {
+  const alignedAccessorByteOffset = alignAccessorByteOffsetTo4Bytes(accessorByteOffset);
+
+  const gltf2AccessorEx = {
+    bufferView: bufferViewIdx,
+    byteOffset: alignedAccessorByteOffset,
+    componentType: ComponentType.toGltf2AccessorComponentType(componentType),
+    count,
+    type: compositionType.str as Gltf2AccessorCompositionTypeString,
+    min,
+    max,
+    extras: {},
+  };
+  return gltf2AccessorEx;
 }

@@ -60,18 +60,25 @@ import type { Texture } from '../textures/Texture';
 import { createEffekseer } from './Gltf2ExporterEffekseer';
 import {
   type BufferViewByteLengthDesc,
+  type Gltf2AccessorDesc,
+  type Gltf2BufferViewDesc,
   type NumericArrayBufferView,
   accumulateBufferViewByteLength,
   alignAccessorByteOffsetTo4Bytes,
   alignBufferViewByteLength,
   alignBufferViewByteStrideTo4Bytes,
+  calcAccessorIdxToSet,
+  calcBufferIdxToSet,
   calcBufferViewByteLengthAndByteOffset,
   clampWeight,
   convertToGltfAnimationPathName,
   createAndAddGltf2BufferView,
+  createGltf2AccessorForAnimation,
   createGltf2AnimationChannel,
   createGltf2AnimationSampler,
+  createGltf2BufferViewForAnimation,
   createUnsignedTypedArray,
+  findBufferViewIdx,
   generateGlbArrayBuffer,
   getNormalizedUnsignedComponentMax,
   isNumericArrayBufferView,
@@ -2828,37 +2835,6 @@ function createOrReuseGltf2BufferViewForVertexAttributeBuffer(
 }
 
 /**
- * Finds the index of an existing buffer view in the cache.
- *
- * @param existingUniqueRnBufferViews - Array of unique buffer views
- * @param rnBufferView - The buffer view to search for
- * @returns Index of the buffer view or -1 if not found
- */
-function findBufferViewIdx(existingUniqueRnBufferViews: BufferView[], rnBufferView: BufferView) {
-  const bufferViewIdx = existingUniqueRnBufferViews.findIndex(bufferView => bufferView.isSame(rnBufferView));
-  return bufferViewIdx;
-}
-
-/**
- * Calculates the buffer index for deduplication purposes.
- *
- * @param existingUniqueRnBuffers - Array of unique buffers
- * @param rnBuffer - The buffer to find or add
- * @returns Index where the buffer should be placed
- */
-function calcBufferIdxToSet(existingUniqueRnBuffers: Buffer[], rnBuffer: Buffer) {
-  if (existingUniqueRnBuffers.length === 0) {
-    existingUniqueRnBuffers.push(rnBuffer);
-  }
-  const bufferIdx = existingUniqueRnBuffers.findIndex(buffer => buffer.isSame(rnBuffer));
-  const bufferIdxToSet = bufferIdx === -1 ? existingUniqueRnBuffers.length : bufferIdx;
-  if (bufferIdx === -1) {
-    existingUniqueRnBuffers.push(rnBuffer);
-  }
-  return bufferIdxToSet;
-}
-
-/**
  * Creates BufferView and Accessor for animation input (time) data.
  *
  * @param json - The glTF2 JSON document
@@ -3032,116 +3008,6 @@ async function handleTextureImage(
 ///
 /// BufferView and Accessor Creaters
 ///
-
-/**
- * Parameters for creating a glTF2 accessor.
- */
-interface Gltf2AccessorDesc {
-  /** Index of the buffer view */
-  bufferViewIdx: Index;
-  /** Byte offset within the buffer view */
-  accessorByteOffset: Byte;
-  /** Component type (e.g., FLOAT, UNSIGNED_SHORT) */
-  componentType: ComponentTypeEnum;
-  /** Number of elements */
-  count: Count;
-  /** Composition type (e.g., VEC3, MAT4) */
-  compositionType: CompositionTypeEnum;
-  /** Minimum values for each component */
-  min?: Array1to4<number>;
-  /** Maximum values for each component */
-  max?: Array1to4<number>;
-}
-
-/**
- * Parameters for creating a glTF2 buffer view.
- */
-interface Gltf2BufferViewDesc {
-  /** Index of the buffer */
-  bufferIdx: Index;
-  /** Byte offset within the buffer */
-  bufferViewByteOffset: Byte;
-  /** Accessor byte offset within the buffer view */
-  accessorByteOffset: Byte;
-  /** Number of accessor elements */
-  accessorCount: Count;
-  /** Byte stride of the buffer view */
-  bufferViewByteStride: Byte;
-  /** Component type */
-  componentType: ComponentTypeEnum;
-  /** Composition type */
-  compositionType: CompositionTypeEnum;
-  /** Raw data as Uint8Array */
-  uint8Array: Uint8Array;
-}
-
-/**
- * Creates a glTF2 BufferView for animation data.
- *
- * @param params - Parameters for buffer view creation
- * @returns Created glTF2 buffer view with proper alignment
- */
-function createGltf2BufferViewForAnimation({
-  bufferIdx,
-  bufferViewByteOffset,
-  accessorByteOffset,
-  accessorCount,
-  bufferViewByteStride,
-  componentType,
-  compositionType,
-  uint8Array,
-}: Gltf2BufferViewDesc): Gltf2BufferViewEx {
-  const alignedAccessorByteOffset = alignAccessorByteOffsetTo4Bytes(accessorByteOffset);
-  const { fixedBufferViewByteLength, fixedBufferViewByteOffset } = calcBufferViewByteLengthAndByteOffset({
-    accessorByteOffset: alignedAccessorByteOffset,
-    accessorCount: accessorCount,
-    bufferViewByteStride,
-    bufferViewByteOffset,
-    sizeOfComponent: componentType.getSizeInBytes(),
-    numberOfComponents: compositionType.getNumberOfComponents(),
-  });
-
-  const gltfBufferViewEx: Gltf2BufferViewEx = {
-    buffer: bufferIdx,
-    byteLength: fixedBufferViewByteLength,
-    byteOffset: fixedBufferViewByteOffset,
-    extras: {
-      uint8Array,
-    },
-  };
-
-  return gltfBufferViewEx;
-}
-
-/**
- * Creates a glTF2 Accessor for animation data.
- *
- * @param params - Parameters for accessor creation
- * @returns Created glTF2 accessor with proper type information
- */
-function createGltf2AccessorForAnimation({
-  bufferViewIdx,
-  accessorByteOffset,
-  componentType,
-  count,
-  compositionType,
-  min,
-  max,
-}: Gltf2AccessorDesc): Gltf2AccessorEx {
-  const alignedAccessorByteOffset = alignAccessorByteOffsetTo4Bytes(accessorByteOffset);
-
-  const gltf2AccessorEx = {
-    bufferView: bufferViewIdx,
-    byteOffset: alignedAccessorByteOffset,
-    componentType: ComponentType.toGltf2AccessorComponentType(componentType),
-    count,
-    type: compositionType.str as Gltf2AccessorCompositionTypeString,
-    min,
-    max,
-    extras: {},
-  };
-  return gltf2AccessorEx;
-}
 
 /**
  * Creates or reuses a glTF2 BufferView for general use.
