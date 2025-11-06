@@ -10,7 +10,7 @@ import type {
   Gltf2AnimationSampler,
 } from '../../types/glTF2';
 import type { Gltf2AttributeBlendShapes, Gltf2Attributes, Gltf2Primitive } from '../../types/glTF2';
-import type { Gltf2AccessorEx, Gltf2BufferViewEx, Gltf2Ex } from '../../types/glTF2ForOutput';
+import type { Gltf2AccessorEx, Gltf2BufferViewEx, Gltf2Ex, Gltf2ImageEx } from '../../types/glTF2ForOutput';
 import type { ComponentTypeEnum, CompositionTypeEnum } from '../definitions';
 import { ComponentType, type Gltf2AccessorComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
@@ -1888,5 +1888,60 @@ export function setupBlendShapeData(
       }
       primitive.targets.push(targetJson);
     }
+  }
+}
+
+/**
+ * Handles texture image processing for different export formats.
+ *
+ * Processes texture images for inclusion in glTF2 export, handling both
+ * separate file downloads and embedded binary formats depending on export type.
+ *
+ * @param json - The glTF2 JSON document
+ * @param bufferIdx - Index of the target buffer
+ * @param blob - Image data as a Blob
+ * @param option - Export options affecting image handling
+ * @param glTF2ImageEx - The glTF2 image object to populate
+ * @param resolve - Promise resolve callback
+ * @param rejected - Promise reject callback
+ */
+export async function handleTextureImage(
+  json: Gltf2Ex,
+  bufferIdx: Index,
+  blob: Blob,
+  option: { type: string },
+  glTF2ImageEx: Gltf2ImageEx,
+  resolve: (v?: ArrayBuffer) => void,
+  rejected: (reason?: DOMException) => void,
+  gltf2ExportType = 'glTF'
+): Promise<void> {
+  if (option.type === gltf2ExportType) {
+    setTimeout(() => {
+      const a = document.createElement('a');
+      const e = new MouseEvent('click');
+      a.href = URL.createObjectURL(blob!);
+      a.download = glTF2ImageEx.uri!;
+      a.dispatchEvent(e);
+      URL.revokeObjectURL(a.href);
+    }, Math.random() * 5000);
+    resolve();
+  } else {
+    const reader = new FileReader();
+    reader.addEventListener('load', () => {
+      const arrayBuffer = reader.result as ArrayBuffer;
+      const gltf2BufferView = createAndAddGltf2BufferView(
+        json,
+        bufferIdx,
+        new Uint8ClampedArray(arrayBuffer) as unknown as Uint8Array
+      );
+      glTF2ImageEx.bufferView = json.bufferViews.indexOf(gltf2BufferView);
+      glTF2ImageEx.mimeType = 'image/png';
+      glTF2ImageEx.uri = undefined;
+      resolve();
+    });
+    reader.addEventListener('error', () => {
+      rejected(reader.error as DOMException);
+    });
+    reader.readAsArrayBuffer(blob);
   }
 }

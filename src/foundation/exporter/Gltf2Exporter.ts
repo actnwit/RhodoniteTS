@@ -103,6 +103,7 @@ import {
   generateGlbArrayBuffer,
   getExportTangentAccessorForPrimitive,
   getNormalizedUnsignedComponentMax,
+  handleTextureImage,
   isNumericArrayBufferView,
   normalizeNormals,
   normalizeSkinWeightElement,
@@ -923,7 +924,7 @@ export class Gltf2Exporter {
             (resolve: (v?: ArrayBuffer) => void, rejected: (reason?: DOMException) => void) => {
               htmlCanvasElement.toBlob(blob => {
                 if (Is.exist(blob)) {
-                  handleTextureImage(json, bufferIdx, blob, option, glTF2ImageEx, resolve, rejected);
+                  handleTextureImage(json, bufferIdx, blob, option, glTF2ImageEx, resolve, rejected, GLTF2_EXPORT_GLTF);
                 } else {
                   throw Error('canvas to blob error!');
                 }
@@ -2404,60 +2405,6 @@ function __createBufferViewsAndAccessorsOfAnimation(json: Gltf2Ex, entities: IAn
     }
   }
   json.extras.bufferViewByteLengthAccumulatedArray.push(sumOfBufferViewByteLengthAccumulated);
-}
-
-/**
- * Handles texture image processing for different export formats.
- *
- * Processes texture images for inclusion in glTF2 export, handling both
- * separate file downloads and embedded binary formats depending on export type.
- *
- * @param json - The glTF2 JSON document
- * @param bufferIdx - Index of the target buffer
- * @param blob - Image data as a Blob
- * @param option - Export options affecting image handling
- * @param glTF2ImageEx - The glTF2 image object to populate
- * @param resolve - Promise resolve callback
- * @param rejected - Promise reject callback
- */
-async function handleTextureImage(
-  json: Gltf2Ex,
-  bufferIdx: Index,
-  blob: Blob,
-  option: Gltf2ExporterArguments,
-  glTF2ImageEx: Gltf2Image,
-  resolve: (v?: ArrayBuffer) => void,
-  rejected: (reason?: DOMException) => void
-) {
-  if (option.type === GLTF2_EXPORT_GLTF) {
-    setTimeout(() => {
-      const a = document.createElement('a');
-      const e = new MouseEvent('click');
-      a.href = URL.createObjectURL(blob!);
-      a.download = glTF2ImageEx.uri!;
-      a.dispatchEvent(e);
-      URL.revokeObjectURL(a.href);
-    }, Math.random() * 5000);
-    resolve();
-  } else {
-    const reader = new FileReader();
-    reader.addEventListener('load', () => {
-      const arrayBuffer = reader.result as ArrayBuffer;
-      const gltf2BufferView = createAndAddGltf2BufferView(
-        json,
-        bufferIdx,
-        new Uint8ClampedArray(arrayBuffer) as unknown as Uint8Array
-      );
-      glTF2ImageEx.bufferView = json.bufferViews.indexOf(gltf2BufferView);
-      glTF2ImageEx.mimeType = 'image/png';
-      glTF2ImageEx.uri = undefined;
-      resolve();
-    });
-    reader.addEventListener('error', () => {
-      rejected(reader.error as DOMException);
-    });
-    reader.readAsArrayBuffer(blob);
-  }
 }
 
 ///
