@@ -1311,7 +1311,7 @@ export class Gltf2Exporter {
       return;
     }
 
-    const clampedIor = Math.max(1.0, Math.min(rawIor, 2.333));
+    const clampedIor = Math.max(1.0, rawIor);
     const defaultIor = 1.5;
     if (Math.abs(clampedIor - defaultIor) < 1e-6) {
       return;
