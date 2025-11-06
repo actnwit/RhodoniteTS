@@ -1544,10 +1544,8 @@ export class Gltf2Exporter {
     const shouldAttachAnisotropyExtension =
       anisotropyExtensionUsed ||
       Is.exist(anisotropyExtension.anisotropyTexture) ||
-      (Is.exist(anisotropyExtension.anisotropyStrength) &&
-        (anisotropyExtension.anisotropyStrength as number) !== 0) ||
-      (Is.exist(anisotropyExtension.anisotropyRotation) &&
-        (anisotropyExtension.anisotropyRotation as number) !== 0);
+      (Is.exist(anisotropyExtension.anisotropyStrength) && (anisotropyExtension.anisotropyStrength as number) !== 0) ||
+      (Is.exist(anisotropyExtension.anisotropyRotation) && (anisotropyExtension.anisotropyRotation as number) !== 0);
     if (shouldAttachAnisotropyExtension) {
       material.extensions = material.extensions ?? {};
       material.extensions.KHR_materials_anisotropy = anisotropyExtension;
