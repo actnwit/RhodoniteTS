@@ -346,9 +346,11 @@ export class Vrm0xImporter {
 
     const dummyWhiteTexture = new Texture();
     await dummyWhiteTexture.generate1x1TextureFrom();
+    dummyWhiteTexture.markAsDummyTexture();
     rnTextures.push(dummyWhiteTexture);
     const dummyBlackTexture = new Texture();
     await dummyBlackTexture.generate1x1TextureFrom('rgba(0, 0, 0, 1)');
+    dummyBlackTexture.markAsDummyTexture();
     rnTextures.push(dummyBlackTexture);
 
     return rnTextures;
