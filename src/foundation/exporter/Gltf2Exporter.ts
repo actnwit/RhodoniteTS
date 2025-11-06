@@ -43,6 +43,7 @@ import {
   __outputBaseMaterialInfo,
   __outputKhrMaterialsAnisotropyInfo,
   __outputKhrMaterialsClearcoatInfo,
+  __outputKhrMaterialsDiffuseTransmissionInfo,
   __outputKhrMaterialsDispersionInfo,
   __outputKhrMaterialsIorInfo,
   __outputKhrMaterialsIridescenceInfo,
@@ -880,6 +881,15 @@ export class Gltf2Exporter {
     };
 
     __outputBaseMaterialInfo(rnMaterial, applyTexture, material, json);
+
+    __outputKhrMaterialsDiffuseTransmissionInfo(
+      ensureExtensionUsed,
+      coerceNumber,
+      coerceVec3,
+      rnMaterial,
+      applyTexture,
+      material
+    );
 
     __outputKhrMaterialsTransmissionInfo(ensureExtensionUsed, coerceNumber, rnMaterial, applyTexture, material);
 

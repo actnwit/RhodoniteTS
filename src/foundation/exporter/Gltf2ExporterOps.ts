@@ -2413,6 +2413,15 @@ export function __collectUsedTexCoordSetIndices(material: Gltf2MaterialEx): Set<
     registerTexcoord(clearcoatExtension.clearcoatNormalTexture);
   }
 
+  const diffuseTransmissionExtension = extensions?.KHR_materials_diffuse_transmission as {
+    diffuseTransmissionTexture?: { texCoord?: number; index?: number };
+    diffuseTransmissionColorTexture?: { texCoord?: number; index?: number };
+  };
+  if (Is.exist(diffuseTransmissionExtension)) {
+    registerTexcoord(diffuseTransmissionExtension.diffuseTransmissionTexture);
+    registerTexcoord(diffuseTransmissionExtension.diffuseTransmissionColorTexture);
+  }
+
   const transmissionExtension = extensions?.KHR_materials_transmission as {
     transmissionTexture?: { texCoord?: number; index?: number };
   };
@@ -2489,6 +2498,94 @@ export function __pruneUnusedVertexAttributes(primitive: Gltf2Primitive, materia
     if (Number.isNaN(texCoordIndex) || !usedTexCoords.has(texCoordIndex)) {
       delete attributes[attributeName];
     }
+  }
+}
+
+export function __outputKhrMaterialsDiffuseTransmissionInfo(
+  ensureExtensionUsed: (extensionName: string) => void,
+  coerceNumber: (value: any) => number | undefined,
+  coerceVec3: (value: any) => [number, number, number] | undefined,
+  rnMaterial: Material,
+  applyTexture: (
+    paramName: string,
+    options: {
+      texCoordParam?: string;
+      transform?: {
+        scale?: string;
+        offset?: string;
+        rotation?: string;
+      };
+      scaleParam?: string;
+      strengthParam?: string;
+      onAssign: (info: any) => void;
+    }
+  ) => void,
+  material: Gltf2MaterialEx
+) {
+  const diffuseTransmissionExtension: Record<string, unknown> = {};
+  let diffuseTransmissionExtensionUsed = false;
+  const markDiffuseTransmissionExtensionUsed = () => {
+    if (!diffuseTransmissionExtensionUsed) {
+      diffuseTransmissionExtensionUsed = true;
+      ensureExtensionUsed('KHR_materials_diffuse_transmission');
+    }
+  };
+
+  const diffuseTransmissionFactor = coerceNumber(rnMaterial.getParameter('diffuseTransmissionFactor'));
+  if (Is.exist(diffuseTransmissionFactor)) {
+    diffuseTransmissionExtension.diffuseTransmissionFactor = diffuseTransmissionFactor;
+    if (diffuseTransmissionFactor !== 0) {
+      markDiffuseTransmissionExtensionUsed();
+    }
+  }
+
+  applyTexture('diffuseTransmissionTexture', {
+    texCoordParam: 'diffuseTransmissionTexcoordIndex',
+    transform: {
+      scale: 'diffuseTransmissionTextureTransformScale',
+      offset: 'diffuseTransmissionTextureTransformOffset',
+      rotation: 'diffuseTransmissionTextureTransformRotation',
+    },
+    onAssign: info => {
+      diffuseTransmissionExtension.diffuseTransmissionTexture = info;
+      markDiffuseTransmissionExtensionUsed();
+    },
+  });
+
+  const diffuseTransmissionColorFactor = coerceVec3(rnMaterial.getParameter('diffuseTransmissionColorFactor'));
+  if (Is.exist(diffuseTransmissionColorFactor)) {
+    diffuseTransmissionExtension.diffuseTransmissionColorFactor = diffuseTransmissionColorFactor;
+    if (
+      diffuseTransmissionColorFactor[0] !== 1 ||
+      diffuseTransmissionColorFactor[1] !== 1 ||
+      diffuseTransmissionColorFactor[2] !== 1
+    ) {
+      markDiffuseTransmissionExtensionUsed();
+    }
+  }
+
+  applyTexture('diffuseTransmissionColorTexture', {
+    texCoordParam: 'diffuseTransmissionColorTexcoordIndex',
+    transform: {
+      scale: 'diffuseTransmissionColorTextureTransformScale',
+      offset: 'diffuseTransmissionColorTextureTransformOffset',
+      rotation: 'diffuseTransmissionColorTextureTransformRotation',
+    },
+    onAssign: info => {
+      diffuseTransmissionExtension.diffuseTransmissionColorTexture = info;
+      markDiffuseTransmissionExtensionUsed();
+    },
+  });
+
+  const shouldAttachDiffuseTransmissionExtension =
+    diffuseTransmissionExtensionUsed ||
+    Is.exist(diffuseTransmissionExtension.diffuseTransmissionTexture) ||
+    Is.exist(diffuseTransmissionExtension.diffuseTransmissionColorTexture);
+
+  if (shouldAttachDiffuseTransmissionExtension) {
+    material.extensions = material.extensions ?? {};
+    material.extensions.KHR_materials_diffuse_transmission = diffuseTransmissionExtension;
+    ensureExtensionUsed('KHR_materials_diffuse_transmission');
   }
 }
 
