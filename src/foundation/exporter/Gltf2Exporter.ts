@@ -2,8 +2,11 @@ import {
   type Gltf2,
   type Gltf2Camera,
   type Gltf2Mesh,
+  type Gltf2Node,
   type Gltf2Texture,
   type Gltf2TextureSampler,
+  type KHR_lights_punctual,
+  type KHR_lights_punctual_Light,
   isSameGlTF2TextureSampler,
 } from '../../types/glTF2';
 import type { Gltf2Ex, Gltf2ImageEx, Gltf2MaterialEx } from '../../types/glTF2ForOutput';
@@ -11,7 +14,7 @@ import { VERSION } from '../../version';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { EntityRepository } from '../core/EntityRepository';
 import type { Tag } from '../core/RnObject';
-import { CameraType, TextureParameter } from '../definitions';
+import { CameraType, LightType, TextureParameter } from '../definitions';
 import type { Mesh } from '../geometry/Mesh';
 import type { IAnimationEntity, IMeshEntity, ISceneGraphEntity, ISkeletalEntity } from '../helpers/EntityHelper';
 import type { Material } from '../materials/core/Material';
@@ -325,6 +328,7 @@ export class Gltf2Exporter {
     const sceneNodeIndices = new Set<number>();
     const parentNodeIndices: Array<number | undefined> = new Array(entities.length);
     const skinnedMeshNodeIndices: number[] = [];
+
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
       (entity as any).gltfNodeIndex = i;
@@ -451,6 +455,7 @@ export class Gltf2Exporter {
         json.cameras.push(glTF2Camera!);
         node.camera = json.cameras.length - 1;
       }
+      this.__exportLight(json, entity, node as Gltf2Node);
     }
 
     // According to glTF specification, nodes with both skin and mesh should be placed directly under the root.
@@ -498,6 +503,100 @@ export class Gltf2Exporter {
         sceneNodeIndices.add(idx);
       }
     });
+  }
+
+  private static __exportLight(json: Gltf2Ex, entity: ISceneGraphEntity, node: Gltf2Node) {
+    const lightComponent = entity.tryToGetLight?.();
+    if (Is.not.exist(lightComponent) || lightComponent.enable !== true) {
+      return;
+    }
+
+    let lightType: KHR_lights_punctual_Light['type'] | undefined;
+    if (lightComponent.type === LightType.Point) {
+      lightType = 'point';
+    } else if (lightComponent.type === LightType.Directional) {
+      lightType = 'directional';
+    } else if (lightComponent.type === LightType.Spot) {
+      lightType = 'spot';
+    }
+
+    if (Is.not.exist(lightType)) {
+      return;
+    }
+
+    const color = lightComponent.color;
+    const colorArray: [number, number, number] = [
+      Number.isFinite(color.x) ? color.x : 1,
+      Number.isFinite(color.y) ? color.y : 1,
+      Number.isFinite(color.z) ? color.z : 1,
+    ];
+
+    const gltfLight: KHR_lights_punctual_Light = {
+      type: lightType,
+      color: colorArray,
+    };
+
+    if (Is.exist(entity.uniqueName) && entity.uniqueName.length > 0) {
+      gltfLight.name = entity.uniqueName;
+    }
+
+    const intensity = lightComponent.intensity;
+    if (Number.isFinite(intensity)) {
+      gltfLight.intensity = intensity;
+    }
+
+    if (lightType !== 'directional') {
+      const range = lightComponent.range;
+      if (Number.isFinite(range) && range > 0) {
+        gltfLight.range = range;
+      }
+    }
+
+    if (lightType === 'spot') {
+      const outer = Number.isFinite(lightComponent.outerConeAngle) ? lightComponent.outerConeAngle : Math.PI / 4;
+      const inner = Number.isFinite(lightComponent.innerConeAngle) ? lightComponent.innerConeAngle : 0;
+      const clampedOuter = Math.max(0, Math.min(outer, Math.PI / 2));
+      const clampedInner = Math.max(0, Math.min(inner, clampedOuter));
+      gltfLight.spot = {
+        innerConeAngle: clampedInner,
+        outerConeAngle: clampedOuter,
+      };
+    }
+
+    const lightsExtension = this.__ensureLightsExtension(json);
+    const lightIndex = lightsExtension.lights.length;
+    lightsExtension.lights.push(gltfLight);
+
+    this.__ensureExtensionUsed(json, 'KHR_lights_punctual');
+
+    if (Is.not.exist(node.extensions)) {
+      node.extensions = {};
+    }
+    node.extensions.KHR_lights_punctual = {
+      light: lightIndex,
+    };
+  }
+
+  private static __ensureLightsExtension(json: Gltf2Ex): KHR_lights_punctual {
+    if (Is.not.exist(json.extensions)) {
+      json.extensions = {};
+    }
+    const rootExtensions = json.extensions as {
+      KHR_lights_punctual?: KHR_lights_punctual;
+      [key: string]: unknown;
+    };
+    if (Is.not.exist(rootExtensions.KHR_lights_punctual)) {
+      rootExtensions.KHR_lights_punctual = {
+        lights: [],
+      };
+    }
+    return rootExtensions.KHR_lights_punctual!;
+  }
+
+  private static __ensureExtensionUsed(json: Gltf2Ex, extensionName: string) {
+    if (json.extensionsUsed.indexOf(extensionName) === -1) {
+      json.extensionsUsed.push(extensionName);
+    }
   }
 
   /**

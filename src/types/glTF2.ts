@@ -344,11 +344,11 @@ export interface Gltf2Accessor {
 export type PointType = 'directional' | 'point' | 'spot';
 
 export type KHR_lights_punctual_Light = {
-  color: Array3<number>;
+  color?: Array3<number>;
   type: PointType;
   name?: string;
   intensity?: number;
-  range: number;
+  range?: number;
   spot?: {
     innerConeAngle?: number;
     outerConeAngle?: number;
