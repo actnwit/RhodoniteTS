@@ -2436,6 +2436,15 @@ export function __collectUsedTexCoordSetIndices(material: Gltf2MaterialEx): Set<
     registerTexcoord(sheenExtension.sheenRoughnessTexture);
   }
 
+  const iridescenceExtension = extensions?.KHR_materials_iridescence as {
+    iridescenceTexture?: { texCoord?: number; index?: number };
+    iridescenceThicknessTexture?: { texCoord?: number; index?: number };
+  };
+  if (Is.exist(iridescenceExtension)) {
+    registerTexcoord(iridescenceExtension.iridescenceTexture);
+    registerTexcoord(iridescenceExtension.iridescenceThicknessTexture);
+  }
+
   const anisotropyExtension = extensions?.KHR_materials_anisotropy as {
     anisotropyTexture?: { texCoord?: number; index?: number };
   };
@@ -2827,6 +2836,109 @@ export function __outputKhrMaterialsSheenInfo(
     material.extensions = material.extensions ?? {};
     material.extensions.KHR_materials_sheen = sheenExtension;
     ensureExtensionUsed('KHR_materials_sheen');
+  }
+}
+
+export function __outputKhrMaterialsIridescenceInfo(
+  ensureExtensionUsed: (extensionName: string) => void,
+  coerceNumber: (value: any) => number | undefined,
+  rnMaterial: Material,
+  applyTexture: (
+    paramName: string,
+    options: {
+      texCoordParam?: string;
+      transform?: {
+        scale?: string;
+        offset?: string;
+        rotation?: string;
+      };
+      scaleParam?: string;
+      strengthParam?: string;
+      onAssign: (info: any) => void;
+    }
+  ) => void,
+  material: Gltf2MaterialEx
+) {
+  const iridescenceExtension: Record<string, unknown> = {};
+  let iridescenceExtensionUsed = false;
+  const markIridescenceExtensionUsed = () => {
+    if (!iridescenceExtensionUsed) {
+      iridescenceExtensionUsed = true;
+      ensureExtensionUsed('KHR_materials_iridescence');
+    }
+  };
+
+  const defaultFactor = 0.0;
+  const factor = coerceNumber(rnMaterial.getParameter('iridescenceFactor'));
+  if (Is.exist(factor)) {
+    iridescenceExtension.iridescenceFactor = factor;
+    if (Math.abs(factor - defaultFactor) > 1e-6) {
+      markIridescenceExtensionUsed();
+    }
+  }
+
+  applyTexture('iridescenceTexture', {
+    texCoordParam: 'iridescenceTexcoordIndex',
+    transform: {
+      scale: 'iridescenceTextureTransformScale',
+      offset: 'iridescenceTextureTransformOffset',
+      rotation: 'iridescenceTextureTransformRotation',
+    },
+    onAssign: info => {
+      iridescenceExtension.iridescenceTexture = info;
+      markIridescenceExtensionUsed();
+    },
+  });
+
+  const defaultIor = 1.3;
+  const rawIor = coerceNumber(rnMaterial.getParameter('iridescenceIor'));
+  if (Is.exist(rawIor)) {
+    const clampedIor = Math.max(1.0, rawIor);
+    iridescenceExtension.iridescenceIor = clampedIor;
+    if (Math.abs(clampedIor - defaultIor) > 1e-6) {
+      markIridescenceExtensionUsed();
+    }
+  }
+
+  const defaultThicknessMinimum = 100.0;
+  const thicknessMinimum = coerceNumber(rnMaterial.getParameter('iridescenceThicknessMinimum'));
+  if (Is.exist(thicknessMinimum)) {
+    iridescenceExtension.iridescenceThicknessMinimum = thicknessMinimum;
+    if (Math.abs(thicknessMinimum - defaultThicknessMinimum) > 1e-6) {
+      markIridescenceExtensionUsed();
+    }
+  }
+
+  const defaultThicknessMaximum = 400.0;
+  const thicknessMaximum = coerceNumber(rnMaterial.getParameter('iridescenceThicknessMaximum'));
+  if (Is.exist(thicknessMaximum)) {
+    iridescenceExtension.iridescenceThicknessMaximum = thicknessMaximum;
+    if (Math.abs(thicknessMaximum - defaultThicknessMaximum) > 1e-6) {
+      markIridescenceExtensionUsed();
+    }
+  }
+
+  applyTexture('iridescenceThicknessTexture', {
+    texCoordParam: 'iridescenceThicknessTexcoordIndex',
+    transform: {
+      scale: 'iridescenceThicknessTextureTransformScale',
+      offset: 'iridescenceThicknessTextureTransformOffset',
+      rotation: 'iridescenceThicknessTextureTransformRotation',
+    },
+    onAssign: info => {
+      iridescenceExtension.iridescenceThicknessTexture = info;
+      markIridescenceExtensionUsed();
+    },
+  });
+
+  const shouldAttachIridescenceExtension =
+    iridescenceExtensionUsed ||
+    Is.exist(iridescenceExtension.iridescenceTexture) ||
+    Is.exist(iridescenceExtension.iridescenceThicknessTexture);
+  if (shouldAttachIridescenceExtension) {
+    material.extensions = material.extensions ?? {};
+    material.extensions.KHR_materials_iridescence = iridescenceExtension;
+    ensureExtensionUsed('KHR_materials_iridescence');
   }
 }
 
