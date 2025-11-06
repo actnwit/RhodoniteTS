@@ -9,6 +9,7 @@ import type {
   Gltf2AnimationPathName,
   Gltf2AnimationSampler,
 } from '../../types/glTF2';
+import type { Gltf2AttributeBlendShapes, Gltf2Attributes, Gltf2Primitive } from '../../types/glTF2';
 import type { Gltf2AccessorEx, Gltf2BufferViewEx, Gltf2Ex } from '../../types/glTF2ForOutput';
 import type { ComponentTypeEnum, CompositionTypeEnum } from '../definitions';
 import { ComponentType, type Gltf2AccessorComponentType } from '../definitions/ComponentType';
@@ -17,6 +18,8 @@ import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import type { VertexAttributeSemanticsJoinedString } from '../definitions/VertexAttribute';
 import { VertexAttribute } from '../definitions/VertexAttribute';
 import type { Primitive } from '../geometry/Primitive';
+import type { IMeshEntity } from '../helpers/EntityHelper';
+import type { Material } from '../materials/core/Material';
 import { Accessor } from '../memory/Accessor';
 import { Buffer } from '../memory/Buffer';
 import { BufferView } from '../memory/BufferView';
@@ -1799,4 +1802,91 @@ export function createOrReuseGltf2BufferViewForVertexAttributeBuffer(
     }
   }
   return gltf2BufferView;
+}
+
+/**
+ * Checks if a Rhodonite material requires tangent vectors.
+ *
+ * Determines if the material uses normal mapping or clearcoat normal mapping,
+ * which require tangent vectors for proper rendering.
+ *
+ * @param material - The material to check, or undefined
+ * @returns True if the material requires tangents, false otherwise
+ */
+export function doesRhodoniteMaterialRequireTangents(material: Material | undefined): boolean {
+  if (Is.not.exist(material)) {
+    return false;
+  }
+
+  const normalTextureParam = material.getTextureParameter('normalTexture') as any;
+  if (Is.exist(normalTextureParam?.[1])) {
+    return true;
+  }
+
+  const clearcoatNormalTextureParam = material.getTextureParameter('clearcoatNormalTexture') as any;
+  return Is.exist(clearcoatNormalTextureParam?.[1]);
+}
+
+/**
+ * Sets up blend shape (morph target) data for a primitive.
+ *
+ * Processes blend shape targets from Rhodonite format to glTF2 morph targets,
+ * creating the necessary accessors and buffer views for vertex attribute deltas.
+ *
+ * @param entity - The mesh entity containing blend shape data
+ * @param rnPrimitive - The Rhodonite primitive with blend shape targets
+ * @param primitive - The glTF2 primitive to populate with morph targets
+ * @param json - The glTF2 JSON document
+ * @param existingUniqueRnBuffers - Buffer deduplication cache
+ * @param existingUniqueRnBufferViews - BufferView deduplication cache
+ * @param existingUniqueRnAccessors - Accessor deduplication cache
+ */
+export function setupBlendShapeData(
+  entity: IMeshEntity,
+  rnPrimitive: Primitive,
+  primitive: Gltf2Primitive,
+  json: Gltf2Ex,
+  existingUniqueRnBuffers: Buffer[],
+  existingUniqueRnBufferViews: BufferView[],
+  existingUniqueRnAccessors: Accessor[]
+): void {
+  const blendShapeComponent = entity.tryToGetBlendShape();
+  if (Is.exist(blendShapeComponent)) {
+    const targets = rnPrimitive.getBlendShapeTargets();
+    if (Is.not.exist(primitive.targets)) {
+      primitive.targets = [] as Gltf2AttributeBlendShapes;
+    }
+
+    const targetNames = blendShapeComponent.targetNames;
+    if (targets.length > 0) {
+      const limitedTargetNames = targets.map((_, idx) => targetNames[idx] ?? `MorphTarget_${idx}`);
+      primitive.extras = primitive.extras ?? {};
+      primitive.extras.targetNames = limitedTargetNames;
+    }
+
+    for (const target of targets) {
+      const targetJson = {} as Gltf2Attributes;
+      for (const [attributeName, rnAccessor] of target.entries()) {
+        const gltf2BufferView = createOrReuseGltf2BufferView(
+          json,
+          existingUniqueRnBuffers,
+          existingUniqueRnBufferViews,
+          rnAccessor.bufferView,
+          GL_ARRAY_BUFFER
+        );
+
+        const gltf2Accessor = createOrReuseGltf2Accessor(
+          json,
+          json.bufferViews.indexOf(gltf2BufferView),
+          existingUniqueRnAccessors,
+          rnAccessor
+        );
+        const accessorIdx = json.accessors.indexOf(gltf2Accessor);
+        const attributeJoinedString = attributeName;
+        const attribute = attributeJoinedString.split('.')[0];
+        targetJson[attribute] = accessorIdx;
+      }
+      primitive.targets.push(targetJson);
+    }
+  }
 }

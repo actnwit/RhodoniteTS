@@ -97,6 +97,7 @@ import {
   createOrReuseGltf2BufferViewForVertexAttributeBuffer,
   createTemporaryVec4Accessor,
   createUnsignedTypedArray,
+  doesRhodoniteMaterialRequireTangents,
   findBufferViewIdx,
   findPrimaryTexcoordAccessor,
   generateGlbArrayBuffer,
@@ -112,6 +113,7 @@ import {
   resolveVertexAttributeByteStride,
   sanitizeSkinWeight,
   scaleSkinWeightElementToUnsigned,
+  setupBlendShapeData,
 } from './Gltf2ExporterOps';
 
 export const GLTF2_EXPORT_GLTF = 'glTF';
@@ -2188,20 +2190,6 @@ function __createBufferViewsAndAccessorsOfSkin(
   }
 }
 
-function doesRhodoniteMaterialRequireTangents(material: Material | undefined): boolean {
-  if (Is.not.exist(material)) {
-    return false;
-  }
-
-  const normalTextureParam = material.getTextureParameter('normalTexture') as any;
-  if (Is.exist(normalTextureParam?.[1])) {
-    return true;
-  }
-
-  const clearcoatNormalTextureParam = material.getTextureParameter('clearcoatNormalTexture') as any;
-  return Is.exist(clearcoatNormalTextureParam?.[1]);
-}
-
 /**
  * Creates BufferViews and Accessors for mesh geometry data.
  *
@@ -2326,70 +2314,6 @@ function __createBufferViewsAndAccessorsOfMesh(
         mesh.primitives[j] = primitive;
       }
       json.meshes.push(mesh);
-    }
-  }
-}
-
-/**
- * Sets up blend shape (morph target) data for a primitive.
- *
- * Processes blend shape targets from Rhodonite format to glTF2 morph targets,
- * creating the necessary accessors and buffer views for vertex attribute deltas.
- *
- * @param entity - The mesh entity containing blend shape data
- * @param rnPrimitive - The Rhodonite primitive with blend shape targets
- * @param primitive - The glTF2 primitive to populate with morph targets
- * @param json - The glTF2 JSON document
- * @param existingUniqueRnBuffers - Buffer deduplication cache
- * @param existingUniqueRnBufferViews - BufferView deduplication cache
- * @param existingUniqueRnAccessors - Accessor deduplication cache
- */
-function setupBlendShapeData(
-  entity: IMeshEntity,
-  rnPrimitive: Primitive,
-  primitive: Gltf2Primitive,
-  json: Gltf2Ex,
-  existingUniqueRnBuffers: Buffer[],
-  existingUniqueRnBufferViews: BufferView[],
-  existingUniqueRnAccessors: Accessor[]
-) {
-  const blendShapeComponent = entity.tryToGetBlendShape();
-  if (Is.exist(blendShapeComponent)) {
-    const targets = rnPrimitive.getBlendShapeTargets();
-    if (Is.not.exist(primitive.targets)) {
-      primitive.targets = [] as Gltf2AttributeBlendShapes;
-    }
-
-    const targetNames = blendShapeComponent.targetNames;
-    if (targets.length > 0) {
-      const limitedTargetNames = targets.map((_, idx) => targetNames[idx] ?? `MorphTarget_${idx}`);
-      primitive.extras = primitive.extras ?? {};
-      primitive.extras.targetNames = limitedTargetNames;
-    }
-
-    for (const target of targets) {
-      const targetJson = {} as Gltf2Attributes;
-      for (const [attributeName, rnAccessor] of target.entries()) {
-        const gltf2BufferView = createOrReuseGltf2BufferView(
-          json,
-          existingUniqueRnBuffers,
-          existingUniqueRnBufferViews,
-          rnAccessor.bufferView,
-          GL_ARRAY_BUFFER
-        );
-
-        const gltf2Accessor = createOrReuseGltf2Accessor(
-          json,
-          json.bufferViews.indexOf(gltf2BufferView),
-          existingUniqueRnAccessors,
-          rnAccessor
-        );
-        const accessorIdx = json.accessors.indexOf(gltf2Accessor);
-        const attributeJoinedString = attributeName;
-        const attribute = attributeJoinedString.split('.')[0];
-        targetJson[attribute] = accessorIdx;
-      }
-      primitive.targets.push(targetJson);
     }
   }
 }
