@@ -39,7 +39,6 @@ import { CameraType, type ComponentTypeEnum, type CompositionTypeEnum, TexturePa
 import { ComponentType, type Gltf2AccessorComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
 import { PrimitiveMode } from '../definitions/PrimitiveMode';
-import { ShaderSemantics } from '../definitions/ShaderSemantics';
 import { VertexAttribute } from '../definitions/VertexAttribute';
 import type { VertexAttributeSemanticsJoinedString } from '../definitions/VertexAttribute';
 import type { Mesh } from '../geometry/Mesh';
@@ -59,7 +58,13 @@ import type { AbstractTexture } from '../textures/AbstractTexture';
 import type { Sampler } from '../textures/Sampler';
 import type { Texture } from '../textures/Texture';
 import { createEffekseer } from './Gltf2ExporterEffekseer';
-import { createAndAddGltf2BufferView } from './Gltf2ExporterOps';
+import {
+  accumulateBufferViewByteLength,
+  alignAccessorByteOffsetTo4Bytes,
+  alignBufferViewByteStrideTo4Bytes,
+  convertToGltfAnimationPathName,
+  createAndAddGltf2BufferView,
+} from './Gltf2ExporterOps';
 
 export const GLTF2_EXPORT_GLTF = 'glTF';
 export const GLTF2_EXPORT_GLB = 'glTF-Binary';
@@ -2903,50 +2908,6 @@ function calcBufferIdxToSet(existingUniqueRnBuffers: Buffer[], rnBuffer: Buffer)
 }
 
 /**
- * Accumulates buffer view byte length for proper memory layout.
- *
- * @param bufferViewByteLengthAccumulatedArray - Array tracking accumulated lengths
- * @param bufferIdxToSet - Index of the buffer being processed
- * @param gltf2BufferView - The buffer view to add
- * @returns Updated accumulated byte length
- */
-function accumulateBufferViewByteLength(
-  bufferViewByteLengthAccumulatedArray: number[],
-  bufferIdxToSet: number,
-  gltf2BufferView: Gltf2BufferViewEx
-) {
-  const bufferViewLengthAligned = Is.exist(bufferViewByteLengthAccumulatedArray[bufferIdxToSet])
-    ? bufferViewByteLengthAccumulatedArray[bufferIdxToSet] + DataUtil.addPaddingBytes(gltf2BufferView.byteLength, 4)
-    : DataUtil.addPaddingBytes(gltf2BufferView.byteLength, 4);
-
-  return bufferViewLengthAligned;
-}
-
-/**
- * Converts Rhodonite animation path names to glTF2 format.
- *
- * @param path - The Rhodonite animation path name
- * @returns The corresponding glTF2 animation path name
- * @throws Error if the path name is invalid
- */
-function convertToGltfAnimationPathName(path: AnimationPathName): Gltf2AnimationPathName {
-  switch (path) {
-    case 'translate':
-      return 'translation';
-    case 'quaternion':
-      return 'rotation';
-    case 'scale':
-      return 'scale';
-    case 'weights':
-      return 'weights';
-    // case 'effekseer':
-    //   return 'effekseer';
-    default:
-      throw new Error('Invalid Path Name');
-  }
-}
-
-/**
  * Creates a glTF2 animation channel from Rhodonite animation data.
  *
  * @param channel - The Rhodonite animation channel
@@ -3211,46 +3172,6 @@ function calcBufferViewByteLengthAndByteOffset({
     fixedBufferViewByteLength,
     fixedBufferViewByteOffset: alignedBufferViewByteOffset,
   };
-}
-
-/**
- * Aligns accessor byte offset to 4-byte boundaries.
- *
- * For performance and compatibility reasons, each element of a vertex attribute
- * must be aligned to 4-byte boundaries inside a bufferView.
- *
- * @param byteOffset - Byte offset that may not be aligned
- * @returns Aligned byte offset
- *
- * @see https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#data-alignment
- */
-function alignAccessorByteOffsetTo4Bytes(byteOffset: Byte): Byte {
-  const alignSize = 4;
-  if (byteOffset % 4 === 0) {
-    return byteOffset;
-  }
-  return byteOffset + (alignSize - (byteOffset % alignSize));
-}
-
-/**
- * Aligns buffer view byte stride to 4-byte boundaries.
- *
- * For performance and compatibility reasons, bufferView.byteStride must be
- * a multiple of 4 for vertex attributes.
- *
- * @param byteStride - Byte stride that may not be aligned
- * @returns Aligned byte stride
- *
- * @see https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#data-alignment
- */
-function alignBufferViewByteStrideTo4Bytes(byteStride: Byte): Byte {
-  const alignSize = 4;
-  if (byteStride % 4 === 0) {
-    return byteStride;
-  }
-  const byteStrideAlgined = byteStride + (alignSize - (byteStride % alignSize));
-
-  return byteStrideAlgined;
 }
 
 /**
