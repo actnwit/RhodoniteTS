@@ -2480,3 +2480,425 @@ export function __pruneUnusedVertexAttributes(primitive: Gltf2Primitive, materia
     }
   }
 }
+
+export function __outputKhrMaterialsTransmissionInfo(
+  ensureExtensionUsed: (extensionName: string) => void,
+  coerceNumber: (value: any) => number | undefined,
+  rnMaterial: Material,
+  applyTexture: (
+    paramName: string,
+    options: {
+      texCoordParam?: string;
+      transform?: {
+        scale?: string;
+        offset?: string;
+        rotation?: string;
+      };
+      scaleParam?: string;
+      strengthParam?: string;
+      onAssign: (info: any) => void;
+    }
+  ) => void,
+  material: Gltf2MaterialEx
+) {
+  const transmissionExtension: Record<string, unknown> = {};
+  let transmissionExtensionUsed = false;
+  const markTransmissionExtensionUsed = () => {
+    if (!transmissionExtensionUsed) {
+      transmissionExtensionUsed = true;
+      ensureExtensionUsed('KHR_materials_transmission');
+    }
+  };
+
+  const transmissionFactor = coerceNumber(rnMaterial.getParameter('transmissionFactor'));
+  if (Is.exist(transmissionFactor)) {
+    transmissionExtension.transmissionFactor = transmissionFactor;
+    if (transmissionFactor !== 0) {
+      markTransmissionExtensionUsed();
+    }
+  }
+
+  applyTexture('transmissionTexture', {
+    texCoordParam: 'transmissionTexcoordIndex',
+    transform: {
+      scale: 'transmissionTextureTransformScale',
+      offset: 'transmissionTextureTransformOffset',
+      rotation: 'transmissionTextureTransformRotation',
+    },
+    onAssign: info => {
+      transmissionExtension.transmissionTexture = info;
+      markTransmissionExtensionUsed();
+    },
+  });
+
+  const shouldAttachTransmissionExtension =
+    transmissionExtensionUsed || Is.exist(transmissionExtension.transmissionTexture);
+  if (shouldAttachTransmissionExtension) {
+    material.extensions = material.extensions ?? {};
+    material.extensions.KHR_materials_transmission = transmissionExtension;
+    ensureExtensionUsed('KHR_materials_transmission');
+  }
+}
+
+export function __outputKhrMaterialsVolumeInfo(
+  ensureExtensionUsed: (extensionName: string) => void,
+  coerceNumber: (value: any) => number | undefined,
+  coerceVec3: (value: any) => [number, number, number] | undefined,
+  rnMaterial: Material,
+  applyTexture: (
+    paramName: string,
+    options: {
+      texCoordParam?: string;
+      transform?: {
+        scale?: string;
+        offset?: string;
+        rotation?: string;
+      };
+      scaleParam?: string;
+      strengthParam?: string;
+      onAssign: (info: any) => void;
+    }
+  ) => void,
+  material: Gltf2MaterialEx
+) {
+  const volumeExtension: Record<string, unknown> = {};
+  let volumeExtensionUsed = false;
+  const markVolumeExtensionUsed = () => {
+    if (!volumeExtensionUsed) {
+      volumeExtensionUsed = true;
+      ensureExtensionUsed('KHR_materials_volume');
+    }
+  };
+
+  const thicknessFactor = coerceNumber(rnMaterial.getParameter('thicknessFactor'));
+  if (Is.exist(thicknessFactor)) {
+    volumeExtension.thicknessFactor = thicknessFactor;
+    if (thicknessFactor !== 0) {
+      markVolumeExtensionUsed();
+    }
+  }
+
+  applyTexture('thicknessTexture', {
+    texCoordParam: 'thicknessTexcoordIndex',
+    transform: {
+      scale: 'thicknessTextureTransformScale',
+      offset: 'thicknessTextureTransformOffset',
+      rotation: 'thicknessTextureTransformRotation',
+    },
+    onAssign: info => {
+      volumeExtension.thicknessTexture = info;
+      markVolumeExtensionUsed();
+    },
+  });
+
+  const attenuationDistance = coerceNumber(rnMaterial.getParameter('attenuationDistance'));
+  if (Is.exist(attenuationDistance)) {
+    volumeExtension.attenuationDistance = attenuationDistance;
+    if (attenuationDistance !== 0) {
+      markVolumeExtensionUsed();
+    }
+  }
+
+  const attenuationColor = coerceVec3(rnMaterial.getParameter('attenuationColor'));
+  if (Is.exist(attenuationColor)) {
+    volumeExtension.attenuationColor = attenuationColor;
+    if (attenuationColor.some(v => v !== 1)) {
+      markVolumeExtensionUsed();
+    }
+  }
+
+  const shouldAttachVolumeExtension =
+    volumeExtensionUsed ||
+    Is.exist(volumeExtension.thicknessTexture) ||
+    (Is.exist(volumeExtension.thicknessFactor) && (volumeExtension.thicknessFactor as number) !== 0) ||
+    (Is.exist(volumeExtension.attenuationDistance) && (volumeExtension.attenuationDistance as number) !== 0) ||
+    (Is.exist(volumeExtension.attenuationColor) &&
+      (volumeExtension.attenuationColor as [number, number, number]).some(v => v !== 1));
+  if (shouldAttachVolumeExtension) {
+    material.extensions = material.extensions ?? {};
+    material.extensions.KHR_materials_volume = volumeExtension;
+    ensureExtensionUsed('KHR_materials_volume');
+  }
+}
+
+export function __outputKhrMaterialsIorInfo(
+  ensureExtensionUsed: (extensionName: string) => void,
+  coerceNumber: (value: any) => number | undefined,
+  rnMaterial: Material,
+  material: Gltf2MaterialEx
+) {
+  const rawIor = coerceNumber(rnMaterial.getParameter('ior'));
+  if (Is.not.exist(rawIor)) {
+    return;
+  }
+
+  const clampedIor = Math.max(1.0, rawIor);
+  const defaultIor = 1.5;
+  if (Math.abs(clampedIor - defaultIor) < 1e-6) {
+    return;
+  }
+
+  material.extensions = material.extensions ?? {};
+  material.extensions.KHR_materials_ior = {
+    ior: clampedIor,
+  };
+  ensureExtensionUsed('KHR_materials_ior');
+}
+
+export function __outputKhrMaterialsClearcoatInfo(
+  ensureExtensionUsed: (extensionName: string) => void,
+  coerceNumber: (value: any) => number | undefined,
+  rnMaterial: Material,
+  applyTexture: (
+    paramName: string,
+    options: {
+      texCoordParam?: string;
+      transform?: {
+        scale?: string;
+        offset?: string;
+        rotation?: string;
+      };
+      scaleParam?: string;
+      strengthParam?: string;
+      onAssign: (info: any) => void;
+    }
+  ) => void,
+  material: Gltf2MaterialEx
+) {
+  const clearcoatExtension: Record<string, unknown> = {};
+  let clearcoatExtensionUsed = false;
+  const markClearcoatExtensionUsed = () => {
+    if (!clearcoatExtensionUsed) {
+      clearcoatExtensionUsed = true;
+      ensureExtensionUsed('KHR_materials_clearcoat');
+    }
+  };
+
+  const clearcoatFactor = coerceNumber(rnMaterial.getParameter('clearcoatFactor'));
+  if (Is.exist(clearcoatFactor)) {
+    clearcoatExtension.clearcoatFactor = clearcoatFactor;
+    if (clearcoatFactor !== 0) {
+      markClearcoatExtensionUsed();
+    }
+  }
+
+  const clearcoatRoughnessFactor = coerceNumber(rnMaterial.getParameter('clearcoatRoughnessFactor'));
+  if (Is.exist(clearcoatRoughnessFactor)) {
+    clearcoatExtension.clearcoatRoughnessFactor = clearcoatRoughnessFactor;
+    if (clearcoatRoughnessFactor !== 0) {
+      markClearcoatExtensionUsed();
+    }
+  }
+
+  applyTexture('clearcoatTexture', {
+    texCoordParam: 'clearcoatTexcoordIndex',
+    transform: {
+      scale: 'clearcoatTextureTransformScale',
+      offset: 'clearcoatTextureTransformOffset',
+      rotation: 'clearcoatTextureTransformRotation',
+    },
+    onAssign: info => {
+      clearcoatExtension.clearcoatTexture = info;
+      markClearcoatExtensionUsed();
+    },
+  });
+
+  applyTexture('clearcoatRoughnessTexture', {
+    texCoordParam: 'clearcoatRoughnessTexcoordIndex',
+    transform: {
+      scale: 'clearcoatRoughnessTextureTransformScale',
+      offset: 'clearcoatRoughnessTextureTransformOffset',
+      rotation: 'clearcoatRoughnessTextureTransformRotation',
+    },
+    onAssign: info => {
+      clearcoatExtension.clearcoatRoughnessTexture = info;
+      markClearcoatExtensionUsed();
+    },
+  });
+
+  applyTexture('clearcoatNormalTexture', {
+    texCoordParam: 'clearcoatNormalTexcoordIndex',
+    transform: {
+      scale: 'clearcoatNormalTextureTransformScale',
+      offset: 'clearcoatNormalTextureTransformOffset',
+      rotation: 'clearcoatNormalTextureTransformRotation',
+    },
+    onAssign: info => {
+      const clearcoatNormalScale =
+        coerceNumber(rnMaterial.getParameter('clearcoatNormalScale')) ??
+        coerceNumber(rnMaterial.getParameter('clearcoatNormalTextureScale'));
+      if (Is.exist(clearcoatNormalScale)) {
+        info.scale = clearcoatNormalScale;
+      }
+      clearcoatExtension.clearcoatNormalTexture = info;
+      markClearcoatExtensionUsed();
+    },
+  });
+
+  const shouldAttachClearcoatExtension =
+    clearcoatExtensionUsed ||
+    Is.exist(clearcoatExtension.clearcoatTexture) ||
+    Is.exist(clearcoatExtension.clearcoatRoughnessTexture) ||
+    Is.exist(clearcoatExtension.clearcoatNormalTexture);
+  if (shouldAttachClearcoatExtension) {
+    material.extensions = material.extensions ?? {};
+    material.extensions.KHR_materials_clearcoat = clearcoatExtension;
+    ensureExtensionUsed('KHR_materials_clearcoat');
+  }
+}
+
+export function __outputKhrMaterialsSheenInfo(
+  ensureExtensionUsed: (extensionName: string) => void,
+  coerceNumber: (value: any) => number | undefined,
+  coerceVec3: (value: any) => [number, number, number] | undefined,
+  rnMaterial: Material,
+  applyTexture: (
+    paramName: string,
+    options: {
+      texCoordParam?: string;
+      transform?: {
+        scale?: string;
+        offset?: string;
+        rotation?: string;
+      };
+      scaleParam?: string;
+      strengthParam?: string;
+      onAssign: (info: any) => void;
+    }
+  ) => void,
+  material: Gltf2MaterialEx
+) {
+  const sheenExtension: Record<string, unknown> = {};
+  let sheenExtensionUsed = false;
+  const markSheenExtensionUsed = () => {
+    if (!sheenExtensionUsed) {
+      sheenExtensionUsed = true;
+      ensureExtensionUsed('KHR_materials_sheen');
+    }
+  };
+
+  const sheenColorFactor = coerceVec3(rnMaterial.getParameter('sheenColorFactor'));
+  if (Is.exist(sheenColorFactor)) {
+    sheenExtension.sheenColorFactor = sheenColorFactor;
+    if (sheenColorFactor.some(v => v !== 0)) {
+      markSheenExtensionUsed();
+    }
+  }
+
+  const sheenRoughnessFactor = coerceNumber(rnMaterial.getParameter('sheenRoughnessFactor'));
+  if (Is.exist(sheenRoughnessFactor)) {
+    sheenExtension.sheenRoughnessFactor = sheenRoughnessFactor;
+    if (sheenRoughnessFactor !== 0) {
+      markSheenExtensionUsed();
+    }
+  }
+
+  applyTexture('sheenColorTexture', {
+    texCoordParam: 'sheenColorTexcoordIndex',
+    transform: {
+      scale: 'sheenColorTextureTransformScale',
+      offset: 'sheenColorTextureTransformOffset',
+      rotation: 'sheenColorTextureTransformRotation',
+    },
+    onAssign: info => {
+      sheenExtension.sheenColorTexture = info;
+      markSheenExtensionUsed();
+    },
+  });
+
+  applyTexture('sheenRoughnessTexture', {
+    texCoordParam: 'sheenRoughnessTexcoordIndex',
+    transform: {
+      scale: 'sheenRoughnessTextureTransformScale',
+      offset: 'sheenRoughnessTextureTransformOffset',
+      rotation: 'sheenRoughnessTextureTransformRotation',
+    },
+    onAssign: info => {
+      sheenExtension.sheenRoughnessTexture = info;
+      markSheenExtensionUsed();
+    },
+  });
+
+  const shouldAttachSheenExtension =
+    sheenExtensionUsed || Is.exist(sheenExtension.sheenColorTexture) || Is.exist(sheenExtension.sheenRoughnessTexture);
+  if (shouldAttachSheenExtension) {
+    material.extensions = material.extensions ?? {};
+    material.extensions.KHR_materials_sheen = sheenExtension;
+    ensureExtensionUsed('KHR_materials_sheen');
+  }
+}
+
+export function __outputKhrMaterialsAnisotropyInfo(
+  ensureExtensionUsed: (extensionName: string) => void,
+  coerceNumber: (value: any) => number | undefined,
+  coerceVec2: (value: any) => [number, number] | undefined,
+  rnMaterial: Material,
+  applyTexture: (
+    paramName: string,
+    options: {
+      texCoordParam?: string;
+      transform?: {
+        scale?: string;
+        offset?: string;
+        rotation?: string;
+      };
+      scaleParam?: string;
+      strengthParam?: string;
+      onAssign: (info: any) => void;
+    }
+  ) => void,
+  material: Gltf2MaterialEx
+) {
+  const anisotropyExtension: Record<string, unknown> = {};
+  let anisotropyExtensionUsed = false;
+  const markAnisotropyExtensionUsed = () => {
+    if (!anisotropyExtensionUsed) {
+      anisotropyExtensionUsed = true;
+      ensureExtensionUsed('KHR_materials_anisotropy');
+    }
+  };
+
+  const anisotropyStrength = coerceNumber(rnMaterial.getParameter('anisotropyStrength'));
+  if (Is.exist(anisotropyStrength)) {
+    anisotropyExtension.anisotropyStrength = anisotropyStrength;
+    if (anisotropyStrength !== 0) {
+      markAnisotropyExtensionUsed();
+    }
+  }
+
+  const anisotropyRotationVector = coerceVec2(rnMaterial.getParameter('anisotropyRotation'));
+  if (Is.exist(anisotropyRotationVector)) {
+    const [x, y] = anisotropyRotationVector;
+    const rotation = Math.atan2(y, x);
+    if (Number.isFinite(rotation)) {
+      anisotropyExtension.anisotropyRotation = rotation;
+      if (rotation !== 0) {
+        markAnisotropyExtensionUsed();
+      }
+    }
+  }
+
+  applyTexture('anisotropyTexture', {
+    texCoordParam: 'anisotropyTexcoordIndex',
+    transform: {
+      scale: 'anisotropyTextureTransformScale',
+      offset: 'anisotropyTextureTransformOffset',
+      rotation: 'anisotropyTextureTransformRotation',
+    },
+    onAssign: info => {
+      anisotropyExtension.anisotropyTexture = info;
+      markAnisotropyExtensionUsed();
+    },
+  });
+
+  const shouldAttachAnisotropyExtension =
+    anisotropyExtensionUsed ||
+    Is.exist(anisotropyExtension.anisotropyTexture) ||
+    (Is.exist(anisotropyExtension.anisotropyStrength) && (anisotropyExtension.anisotropyStrength as number) !== 0) ||
+    (Is.exist(anisotropyExtension.anisotropyRotation) && (anisotropyExtension.anisotropyRotation as number) !== 0);
+  if (shouldAttachAnisotropyExtension) {
+    material.extensions = material.extensions ?? {};
+    material.extensions.KHR_materials_anisotropy = anisotropyExtension;
+    ensureExtensionUsed('KHR_materials_anisotropy');
+  }
+}
