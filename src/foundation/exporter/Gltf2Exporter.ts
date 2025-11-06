@@ -63,10 +63,18 @@ import {
   type Gltf2AccessorDesc,
   type Gltf2BufferViewDesc,
   type NumericArrayBufferView,
+  SKIN_WEIGHT_DIFF_EPSILON,
+  SKIN_WEIGHT_RESIDUAL_TOLERANCE,
+  SKIN_WEIGHT_SUM_EPSILON,
+  TANGENT_EPSILON,
+  type WeightTypedArray,
   accumulateBufferViewByteLength,
+  accumulateVector3,
+  adjustWeightsForResidual,
   alignAccessorByteOffsetTo4Bytes,
   alignBufferViewByteLength,
   alignBufferViewByteStrideTo4Bytes,
+  buildOrthonormalVector,
   calcAccessorIdxToSet,
   calcBufferIdxToSet,
   calcBufferViewByteLengthAndByteOffset,
@@ -82,8 +90,13 @@ import {
   generateGlbArrayBuffer,
   getNormalizedUnsignedComponentMax,
   isNumericArrayBufferView,
+  normalizeSkinWeightElement,
+  normalizeTangentVector,
+  processSkinWeightElement,
+  rebalanceScaledSkinWeights,
   resolveVertexAttributeByteStride,
   sanitizeSkinWeight,
+  scaleSkinWeightElementToUnsigned,
 } from './Gltf2ExporterOps';
 
 export const GLTF2_EXPORT_GLTF = 'glTF';
@@ -2304,8 +2317,6 @@ function __createBufferViewsAndAccessorsOfMesh(
 
 const exportTangentAccessorCache = new WeakMap<Primitive, Accessor>();
 
-const TANGENT_EPSILON = 1e-6;
-
 function getExportTangentAccessorForPrimitive(primitive: Primitive): Accessor | undefined {
   if (exportTangentAccessorCache.has(primitive)) {
     return exportTangentAccessorCache.get(primitive);
@@ -2490,99 +2501,6 @@ function createTemporaryVec4Accessor(count: number): Accessor {
       count,
     })
     .unwrapForce();
-}
-
-function accumulateVector3(array: Float32Array, index: number, x: number, y: number, z: number) {
-  array[index * 3 + 0] += x;
-  array[index * 3 + 1] += y;
-  array[index * 3 + 2] += z;
-}
-
-function normalizeTangentVector(
-  tangent: { x: number; y: number; z: number; w: number },
-  normal?: { x: number; y: number; z: number },
-  bitangent?: { x: number; y: number; z: number }
-) {
-  let tx = tangent.x;
-  let ty = tangent.y;
-  let tz = tangent.z;
-
-  if (normal) {
-    const dotNT = normal.x * tx + normal.y * ty + normal.z * tz;
-    tx -= normal.x * dotNT;
-    ty -= normal.y * dotNT;
-    tz -= normal.z * dotNT;
-  }
-
-  let length = Math.hypot(tx, ty, tz);
-  if (length <= TANGENT_EPSILON) {
-    const fallback = buildOrthonormalVector(normal);
-    tx = fallback.x;
-    ty = fallback.y;
-    tz = fallback.z;
-    length = 1;
-  } else {
-    tx /= length;
-    ty /= length;
-    tz /= length;
-  }
-
-  let w = tangent.w !== 0 ? (tangent.w >= 0 ? 1 : -1) : 1;
-  if (normal && bitangent) {
-    const crossX = normal.y * tz - normal.z * ty;
-    const crossY = normal.z * tx - normal.x * tz;
-    const crossZ = normal.x * ty - normal.y * tx;
-    const handedness = crossX * bitangent.x + crossY * bitangent.y + crossZ * bitangent.z;
-    if (handedness < 0) {
-      w = -1;
-    }
-  }
-
-  return { x: tx, y: ty, z: tz, w };
-}
-
-function buildOrthonormalVector(normal?: { x: number; y: number; z: number }) {
-  if (!normal) {
-    return { x: 1, y: 0, z: 0 };
-  }
-
-  const nx = normal.x;
-  const ny = normal.y;
-  const nz = normal.z;
-  const normalLength = Math.hypot(nx, ny, nz);
-
-  let ux = 0;
-  let uy = 0;
-  let uz = 1;
-
-  if (normalLength > TANGENT_EPSILON) {
-    const invLength = 1 / normalLength;
-    const nnx = nx * invLength;
-    const nny = ny * invLength;
-    const nnz = nz * invLength;
-
-    if (Math.abs(nnx) < 0.999) {
-      ux = 1;
-      uy = 0;
-      uz = 0;
-    } else {
-      ux = 0;
-      uy = 1;
-      uz = 0;
-    }
-
-    // tangent = normalize(cross(up, normal))
-    const tx = uy * nnz - uz * nny;
-    const ty = uz * nnx - ux * nnz;
-    const tz = ux * nny - uy * nnx;
-    const tLength = Math.hypot(tx, ty, tz);
-    if (tLength > TANGENT_EPSILON) {
-      const inv = 1 / tLength;
-      return { x: tx * inv, y: ty * inv, z: tz * inv };
-    }
-  }
-
-  return { x: 1, y: 0, z: 0 };
 }
 
 /**
@@ -3194,12 +3112,6 @@ function normalizeNormals(accessor: Accessor): Accessor {
   return newAccessor;
 }
 
-type WeightTypedArray = Float32Array | Uint8Array | Uint16Array | Uint32Array;
-
-const SKIN_WEIGHT_SUM_EPSILON = 1e-6;
-const SKIN_WEIGHT_DIFF_EPSILON = 1e-6;
-const SKIN_WEIGHT_RESIDUAL_TOLERANCE = 1e-6;
-
 function normalizeSkinWeights(accessor: Accessor): Accessor {
   const componentCount = accessor.compositionType.getNumberOfComponents();
   const elementCount = accessor.elementCount;
@@ -3278,67 +3190,6 @@ function createNormalizedFloatWeights(
   return { data: floatData, mutated };
 }
 
-function processSkinWeightElement(
-  accessor: Accessor,
-  elementIndex: number,
-  baseIndex: number,
-  componentCount: number,
-  treatAsNormalizedUnsignedInt: boolean,
-  normalizationDenominator: number,
-  floatData: Float32Array
-): boolean {
-  let mutated = false;
-  let sum = 0;
-
-  for (let componentIndex = 0; componentIndex < componentCount; componentIndex++) {
-    const offset = componentIndex * accessor.componentSizeInBytes;
-    const rawValue = accessor.getScalarAt(elementIndex, offset, {});
-    const scaled = treatAsNormalizedUnsignedInt ? rawValue / normalizationDenominator : rawValue;
-    const sanitized = sanitizeSkinWeight(scaled);
-    if (sanitized.mutated) {
-      mutated = true;
-    }
-    floatData[baseIndex + componentIndex] = sanitized.value;
-    sum += sanitized.value;
-  }
-
-  if (normalizeSkinWeightElement(floatData, baseIndex, componentCount, sum)) {
-    mutated = true;
-  }
-
-  return mutated;
-}
-
-function normalizeSkinWeightElement(
-  floatData: Float32Array,
-  baseIndex: number,
-  componentCount: number,
-  sum: number
-): boolean {
-  if (sum > SKIN_WEIGHT_SUM_EPSILON) {
-    if (Math.abs(sum - 1) > SKIN_WEIGHT_DIFF_EPSILON) {
-      const invSum = 1 / sum;
-      let normalizedSum = 0;
-      for (let componentIndex = 0; componentIndex < componentCount; componentIndex++) {
-        const normalized = Math.fround(floatData[baseIndex + componentIndex] * invSum);
-        floatData[baseIndex + componentIndex] = normalized;
-        normalizedSum += normalized;
-      }
-      const residual = 1 - normalizedSum;
-      adjustWeightsForResidual(floatData, baseIndex, componentCount, residual, SKIN_WEIGHT_RESIDUAL_TOLERANCE);
-      return true;
-    }
-    return false;
-  }
-  if (sum !== 0) {
-    for (let componentIndex = 0; componentIndex < componentCount; componentIndex++) {
-      floatData[baseIndex + componentIndex] = 0;
-    }
-    return true;
-  }
-  return false;
-}
-
 function convertNormalizedWeightsToUnsigned(
   floatData: Float32Array,
   accessor: Accessor,
@@ -3355,76 +3206,6 @@ function convertNormalizedWeightsToUnsigned(
   }
 
   return createAccessorFromWeightsTypedArray(typedArray, accessor, accessor.componentType, true);
-}
-
-function scaleSkinWeightElementToUnsigned(
-  floatData: Float32Array,
-  baseIndex: number,
-  componentCount: number,
-  typedArray: WeightTypedArray,
-  maxValue: number
-) {
-  const scaled = new Array<number>(componentCount);
-  let total = 0;
-
-  for (let componentIndex = 0; componentIndex < componentCount; componentIndex++) {
-    const clamped = Math.max(0, Math.min(floatData[baseIndex + componentIndex], 1));
-    const value = Math.round(clamped * maxValue);
-    scaled[componentIndex] = value;
-    total += value;
-  }
-
-  let diff = maxValue - total;
-  if (diff !== 0) {
-    rebalanceScaledSkinWeights(diff, scaled, componentCount, maxValue, floatData, baseIndex);
-  }
-
-  for (let componentIndex = 0; componentIndex < componentCount; componentIndex++) {
-    typedArray[baseIndex + componentIndex] = scaled[componentIndex];
-  }
-}
-
-function rebalanceScaledSkinWeights(
-  diff: number,
-  scaled: number[],
-  componentCount: number,
-  maxValue: number,
-  floatData: Float32Array,
-  baseIndex: number
-) {
-  const indices = Array.from({ length: componentCount }, (_, idx) => idx).sort(
-    (a, b) => floatData[baseIndex + b] - floatData[baseIndex + a]
-  );
-
-  for (const idx of indices) {
-    if (diff === 0) {
-      break;
-    }
-    if (diff > 0) {
-      const available = maxValue - scaled[idx];
-      if (available <= 0) {
-        continue;
-      }
-      const delta = Math.min(available, diff);
-      scaled[idx] += delta;
-      diff -= delta;
-    } else {
-      const available = scaled[idx];
-      if (available <= 0) {
-        continue;
-      }
-      const delta = Math.min(available, -diff);
-      scaled[idx] -= delta;
-      diff += delta;
-    }
-  }
-
-  if (diff !== 0 && indices.length > 0) {
-    const idx = indices[0];
-    const baseValue = scaled[idx];
-    const newValue = Math.max(0, Math.min(maxValue, baseValue + diff));
-    scaled[idx] = newValue;
-  }
 }
 
 function createAccessorFromWeightsTypedArray(
@@ -3461,39 +3242,4 @@ function createAccessorFromWeightsTypedArray(
   });
 
   return newAccessor;
-}
-
-function adjustWeightsForResidual(
-  data: Float32Array,
-  offset: number,
-  componentCount: number,
-  residual: number,
-  tolerance: number
-) {
-  if (componentCount === 0 || Math.abs(residual) <= tolerance) {
-    return;
-  }
-
-  const indices = Array.from({ length: componentCount }, (_, idx) => idx).sort(
-    (a, b) => data[offset + b] - data[offset + a]
-  );
-
-  let remaining = residual;
-  for (const localIndex of indices) {
-    if (Math.abs(remaining) <= tolerance) {
-      break;
-    }
-    const idx = offset + localIndex;
-    const before = data[idx];
-    const candidate = clampWeight(before + remaining);
-    data[idx] = candidate;
-    remaining -= candidate - before;
-  }
-
-  if (Math.abs(remaining) > tolerance) {
-    const idx = offset + indices[0];
-    const before = data[idx];
-    const candidate = clampWeight(before + remaining);
-    data[idx] = candidate;
-  }
 }
