@@ -19,7 +19,13 @@ import type {
   Gltf2Primitive,
   Gltf2Skin,
 } from '../../types/glTF2';
-import type { Gltf2AccessorEx, Gltf2BufferViewEx, Gltf2Ex, Gltf2ImageEx } from '../../types/glTF2ForOutput';
+import type {
+  Gltf2AccessorEx,
+  Gltf2BufferViewEx,
+  Gltf2Ex,
+  Gltf2ImageEx,
+  Gltf2MaterialEx,
+} from '../../types/glTF2ForOutput';
 import type { ComponentTypeEnum, CompositionTypeEnum } from '../definitions';
 import { ComponentType, type Gltf2AccessorComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
@@ -2242,4 +2248,235 @@ export function __createBufferViewsAndAccessorsOfAnimation(json: Gltf2Ex, entiti
     }
   }
   json.extras.bufferViewByteLengthAccumulatedArray.push(sumOfBufferViewByteLengthAccumulated);
+}
+
+/**
+ * Removes empty arrays from the glTF2 JSON to optimize output size.
+ *
+ * According to glTF2 specification, empty arrays should be omitted rather than
+ * included as empty arrays to reduce file size and improve parsing performance.
+ *
+ * @param json - The glTF2 JSON object to clean up
+ */
+export function __deleteEmptyArrays(json: Gltf2Ex): void {
+  if (json.accessors.length === 0) {
+    (json as Gltf2).accessors = undefined;
+  }
+  if (json.bufferViews.length === 0) {
+    (json as Gltf2).bufferViews = undefined;
+  }
+  if (json.materials.length === 0) {
+    (json as Gltf2).materials = undefined;
+  }
+  if (json.meshes.length === 0) {
+    (json as Gltf2).meshes = undefined;
+  }
+  if (json.skins.length === 0) {
+    (json as Gltf2).skins = undefined;
+  }
+  if (json.textures.length === 0) {
+    (json as Gltf2).textures = undefined;
+  }
+  if (json.images.length === 0) {
+    (json as Gltf2).images = undefined;
+  }
+  if (json.animations.length === 0) {
+    (json as Gltf2).animations = undefined;
+  }
+  if (Is.exist(json.extensionsUsed) && json.extensionsUsed.length === 0) {
+    (json as Gltf2).extensionsUsed = undefined;
+  }
+  if (json.cameras.length === 0) {
+    (json as Gltf2).cameras = undefined;
+  }
+  (json as Gltf2).extras = undefined;
+}
+
+/**
+ * Extracts a scalar parameter value from various input types.
+ *
+ * Handles extraction of numeric values from different parameter formats,
+ * including direct numbers, objects with x property, arrays, typed arrays,
+ * and nested internal structures.
+ *
+ * @param value - The value to extract a scalar from
+ * @returns The extracted scalar value or undefined if not found
+ */
+export function __extractScalarParameter(value: unknown): number | undefined {
+  if (typeof value === 'number') {
+    return value;
+  }
+
+  const candidateWithX = (value as { x?: number })?.x;
+  if (typeof candidateWithX === 'number') {
+    return candidateWithX;
+  }
+
+  if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'number') {
+    return value[0];
+  }
+
+  if (ArrayBuffer.isView(value)) {
+    const view = value as ArrayBufferView;
+    if (isNumericArrayBufferView(view) && view.length > 0) {
+      return view[0];
+    }
+  }
+
+  const internal = (value as { _v?: unknown })._v;
+  if (Array.isArray(internal) && internal.length > 0 && typeof internal[0] === 'number') {
+    return internal[0];
+  }
+  if (ArrayBuffer.isView(internal)) {
+    const view = internal as ArrayBufferView;
+    if (isNumericArrayBufferView(view) && view.length > 0) {
+      return view[0];
+    }
+  }
+
+  return undefined;
+}
+
+/**
+ * Checks if a glTF2 material requires tangent vectors.
+ *
+ * Determines if the material uses normal mapping, clearcoat normal mapping,
+ * or anisotropy features that require tangent vectors for proper rendering.
+ *
+ * @param material - The glTF2 material to check
+ * @returns True if the material requires tangents, false otherwise
+ */
+export function __doesMaterialRequireTangents(material: Gltf2MaterialEx): boolean {
+  if (Is.exist(material.normalTexture)) {
+    return true;
+  }
+  const extensions = material.extensions as Record<string, any> | undefined;
+  const clearcoatExtension = extensions?.KHR_materials_clearcoat as { clearcoatNormalTexture?: unknown } | undefined;
+  if (Is.exist(clearcoatExtension?.clearcoatNormalTexture)) {
+    return true;
+  }
+  const anisotropyExtension = extensions?.KHR_materials_anisotropy as {
+    anisotropyTexture?: unknown;
+    anisotropyStrength?: number;
+  };
+  if (Is.exist(anisotropyExtension)) {
+    if (Is.exist(anisotropyExtension.anisotropyTexture)) {
+      return true;
+    }
+    if (Is.exist(anisotropyExtension.anisotropyStrength) && anisotropyExtension.anisotropyStrength !== 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Collects used texture coordinate set indices from a glTF2 material.
+ *
+ * Scans the material and its extensions to identify which texture coordinate
+ * sets (TEXCOORD_0, TEXCOORD_1, etc.) are actually used by textures.
+ *
+ * @param material - The glTF2 material to analyze
+ * @returns Set of used texture coordinate set indices
+ */
+export function __collectUsedTexCoordSetIndices(material: Gltf2MaterialEx): Set<number> {
+  const usedTexCoords = new Set<number>();
+  const registerTexcoord = (info: { texCoord?: number; index?: number } | undefined) => {
+    if (Is.not.exist(info) || typeof info.index !== 'number') {
+      return;
+    }
+    const texCoord = typeof info.texCoord === 'number' ? info.texCoord : 0;
+    usedTexCoords.add(texCoord);
+  };
+
+  const pbr = material.pbrMetallicRoughness;
+  if (Is.exist(pbr)) {
+    registerTexcoord(pbr.baseColorTexture);
+    registerTexcoord(pbr.metallicRoughnessTexture);
+  }
+
+  registerTexcoord(material.normalTexture);
+  registerTexcoord(material.occlusionTexture);
+  registerTexcoord(material.emissiveTexture);
+
+  const extensions = material.extensions as Record<string, any> | undefined;
+  const clearcoatExtension = extensions?.KHR_materials_clearcoat as {
+    clearcoatTexture?: { texCoord?: number; index?: number };
+    clearcoatRoughnessTexture?: { texCoord?: number; index?: number };
+    clearcoatNormalTexture?: { texCoord?: number; index?: number };
+  };
+  if (Is.exist(clearcoatExtension)) {
+    registerTexcoord(clearcoatExtension.clearcoatTexture);
+    registerTexcoord(clearcoatExtension.clearcoatRoughnessTexture);
+    registerTexcoord(clearcoatExtension.clearcoatNormalTexture);
+  }
+
+  const transmissionExtension = extensions?.KHR_materials_transmission as {
+    transmissionTexture?: { texCoord?: number; index?: number };
+  };
+  if (Is.exist(transmissionExtension)) {
+    registerTexcoord(transmissionExtension.transmissionTexture);
+  }
+
+  const volumeExtension = extensions?.KHR_materials_volume as {
+    thicknessTexture?: { texCoord?: number; index?: number };
+  };
+  if (Is.exist(volumeExtension)) {
+    registerTexcoord(volumeExtension.thicknessTexture);
+  }
+
+  const sheenExtension = extensions?.KHR_materials_sheen as {
+    sheenColorTexture?: { texCoord?: number; index?: number };
+    sheenRoughnessTexture?: { texCoord?: number; index?: number };
+  };
+  if (Is.exist(sheenExtension)) {
+    registerTexcoord(sheenExtension.sheenColorTexture);
+    registerTexcoord(sheenExtension.sheenRoughnessTexture);
+  }
+
+  const anisotropyExtension = extensions?.KHR_materials_anisotropy as {
+    anisotropyTexture?: { texCoord?: number; index?: number };
+  };
+  if (Is.exist(anisotropyExtension)) {
+    registerTexcoord(anisotropyExtension.anisotropyTexture);
+  }
+
+  return usedTexCoords;
+}
+
+/**
+ * Prunes unused vertex attributes from a primitive based on material requirements.
+ *
+ * Removes vertex attributes that are not needed by the material, such as
+ * TANGENT if not required, and unused TEXCOORD sets to optimize the output.
+ *
+ * @param primitive - The glTF2 primitive to prune attributes from
+ * @param material - The glTF2 material to check requirements against
+ */
+export function __pruneUnusedVertexAttributes(primitive: Gltf2Primitive, material: Gltf2MaterialEx): void {
+  const attributes = primitive.attributes as Record<string, number | undefined>;
+
+  if (!__doesMaterialRequireTangents(material) && Is.exist(attributes.TANGENT)) {
+    attributes.TANGENT = undefined;
+  }
+
+  const usedTexCoords = __collectUsedTexCoordSetIndices(material);
+  if (usedTexCoords.size === 0) {
+    for (const attributeName of Object.keys(attributes)) {
+      if (attributeName.startsWith('TEXCOORD_')) {
+        delete attributes[attributeName];
+      }
+    }
+    return;
+  }
+
+  for (const attributeName of Object.keys(attributes)) {
+    if (!attributeName.startsWith('TEXCOORD_')) {
+      continue;
+    }
+    const texCoordIndex = Number(attributeName.substring('TEXCOORD_'.length));
+    if (Number.isNaN(texCoordIndex) || !usedTexCoords.has(texCoordIndex)) {
+      delete attributes[attributeName];
+    }
+  }
 }

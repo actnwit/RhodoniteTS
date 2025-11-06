@@ -68,9 +68,14 @@ import {
   SKIN_WEIGHT_SUM_EPSILON,
   TANGENT_EPSILON,
   type WeightTypedArray,
+  __collectUsedTexCoordSetIndices,
   __createBufferViewsAndAccessorsOfAnimation,
   __createBufferViewsAndAccessorsOfMesh,
   __createBufferViewsAndAccessorsOfSkin,
+  __deleteEmptyArrays,
+  __doesMaterialRequireTangents,
+  __extractScalarParameter,
+  __pruneUnusedVertexAttributes,
   accumulateBufferViewByteLength,
   accumulateVector3,
   adjustWeightsForResidual,
@@ -199,7 +204,7 @@ export class Gltf2Exporter {
 
     const arraybuffer = this.__createBinary(json);
 
-    this.__deleteEmptyArrays(json);
+    __deleteEmptyArrays(json);
 
     const glbArrayBuffer = generateGlbArrayBuffer(json, arraybuffer);
 
@@ -210,48 +215,6 @@ export class Gltf2Exporter {
     }
 
     return glbArrayBuffer;
-  }
-
-  /**
-   * Removes empty arrays from the glTF2 JSON to optimize output size.
-   *
-   * According to glTF2 specification, empty arrays should be omitted rather than
-   * included as empty arrays to reduce file size and improve parsing performance.
-   *
-   * @param json - The glTF2 JSON object to clean up
-   */
-  private static __deleteEmptyArrays(json: Gltf2Ex) {
-    if (json.accessors.length === 0) {
-      (json as Gltf2).accessors = undefined;
-    }
-    if (json.bufferViews.length === 0) {
-      (json as Gltf2).bufferViews = undefined;
-    }
-    if (json.materials.length === 0) {
-      (json as Gltf2).materials = undefined;
-    }
-    if (json.meshes.length === 0) {
-      (json as Gltf2).meshes = undefined;
-    }
-    if (json.skins.length === 0) {
-      (json as Gltf2).skins = undefined;
-    }
-    if (json.textures.length === 0) {
-      (json as Gltf2).textures = undefined;
-    }
-    if (json.images.length === 0) {
-      (json as Gltf2).images = undefined;
-    }
-    if (json.animations.length === 0) {
-      (json as Gltf2).animations = undefined;
-    }
-    if (Is.exist(json.extensionsUsed) && json.extensionsUsed.length === 0) {
-      (json as Gltf2).extensionsUsed = undefined;
-    }
-    if (json.cameras.length === 0) {
-      (json as Gltf2).cameras = undefined;
-    }
-    (json as Gltf2).extras = undefined;
   }
 
   /**
@@ -647,125 +610,8 @@ export class Gltf2Exporter {
       const materialIndex = json.materials.length;
       json.materials.push(material);
       primitive.material = materialIndex;
-      this.__pruneUnusedVertexAttributes(primitive, material);
+      __pruneUnusedVertexAttributes(primitive, material);
     }
-  }
-
-  private static __pruneUnusedVertexAttributes(primitive: Gltf2Primitive, material: Gltf2MaterialEx) {
-    const attributes = primitive.attributes as Record<string, number | undefined>;
-
-    if (!this.__doesMaterialRequireTangents(material) && Is.exist(attributes.TANGENT)) {
-      attributes.TANGENT = undefined;
-    }
-
-    const usedTexCoords = this.__collectUsedTexCoordSetIndices(material);
-    if (usedTexCoords.size === 0) {
-      for (const attributeName of Object.keys(attributes)) {
-        if (attributeName.startsWith('TEXCOORD_')) {
-          delete attributes[attributeName];
-        }
-      }
-      return;
-    }
-
-    for (const attributeName of Object.keys(attributes)) {
-      if (!attributeName.startsWith('TEXCOORD_')) {
-        continue;
-      }
-      const texCoordIndex = Number(attributeName.substring('TEXCOORD_'.length));
-      if (Number.isNaN(texCoordIndex) || !usedTexCoords.has(texCoordIndex)) {
-        delete attributes[attributeName];
-      }
-    }
-  }
-
-  private static __doesMaterialRequireTangents(material: Gltf2MaterialEx): boolean {
-    if (Is.exist(material.normalTexture)) {
-      return true;
-    }
-    const extensions = material.extensions as Record<string, any> | undefined;
-    const clearcoatExtension = extensions?.KHR_materials_clearcoat as { clearcoatNormalTexture?: unknown } | undefined;
-    if (Is.exist(clearcoatExtension?.clearcoatNormalTexture)) {
-      return true;
-    }
-    const anisotropyExtension = extensions?.KHR_materials_anisotropy as {
-      anisotropyTexture?: unknown;
-      anisotropyStrength?: number;
-    };
-    if (Is.exist(anisotropyExtension)) {
-      if (Is.exist(anisotropyExtension.anisotropyTexture)) {
-        return true;
-      }
-      if (Is.exist(anisotropyExtension.anisotropyStrength) && anisotropyExtension.anisotropyStrength !== 0) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private static __collectUsedTexCoordSetIndices(material: Gltf2MaterialEx): Set<number> {
-    const usedTexCoords = new Set<number>();
-    const registerTexcoord = (info: { texCoord?: number; index?: number } | undefined) => {
-      if (Is.not.exist(info) || typeof info.index !== 'number') {
-        return;
-      }
-      const texCoord = typeof info.texCoord === 'number' ? info.texCoord : 0;
-      usedTexCoords.add(texCoord);
-    };
-
-    const pbr = material.pbrMetallicRoughness;
-    if (Is.exist(pbr)) {
-      registerTexcoord(pbr.baseColorTexture);
-      registerTexcoord(pbr.metallicRoughnessTexture);
-    }
-
-    registerTexcoord(material.normalTexture);
-    registerTexcoord(material.occlusionTexture);
-    registerTexcoord(material.emissiveTexture);
-
-    const extensions = material.extensions as Record<string, any> | undefined;
-    const clearcoatExtension = extensions?.KHR_materials_clearcoat as {
-      clearcoatTexture?: { texCoord?: number; index?: number };
-      clearcoatRoughnessTexture?: { texCoord?: number; index?: number };
-      clearcoatNormalTexture?: { texCoord?: number; index?: number };
-    };
-    if (Is.exist(clearcoatExtension)) {
-      registerTexcoord(clearcoatExtension.clearcoatTexture);
-      registerTexcoord(clearcoatExtension.clearcoatRoughnessTexture);
-      registerTexcoord(clearcoatExtension.clearcoatNormalTexture);
-    }
-
-    const transmissionExtension = extensions?.KHR_materials_transmission as {
-      transmissionTexture?: { texCoord?: number; index?: number };
-    };
-    if (Is.exist(transmissionExtension)) {
-      registerTexcoord(transmissionExtension.transmissionTexture);
-    }
-
-    const volumeExtension = extensions?.KHR_materials_volume as {
-      thicknessTexture?: { texCoord?: number; index?: number };
-    };
-    if (Is.exist(volumeExtension)) {
-      registerTexcoord(volumeExtension.thicknessTexture);
-    }
-
-    const sheenExtension = extensions?.KHR_materials_sheen as {
-      sheenColorTexture?: { texCoord?: number; index?: number };
-      sheenRoughnessTexture?: { texCoord?: number; index?: number };
-    };
-    if (Is.exist(sheenExtension)) {
-      registerTexcoord(sheenExtension.sheenColorTexture);
-      registerTexcoord(sheenExtension.sheenRoughnessTexture);
-    }
-
-    const anisotropyExtension = extensions?.KHR_materials_anisotropy as {
-      anisotropyTexture?: { texCoord?: number; index?: number };
-    };
-    if (Is.exist(anisotropyExtension)) {
-      registerTexcoord(anisotropyExtension.anisotropyTexture);
-    }
-
-    return usedTexCoords;
   }
 
   private static async __createMaterialFromRhodonite(
@@ -787,41 +633,6 @@ export class Gltf2Exporter {
     }
 
     return material;
-  }
-
-  private static __extractScalarParameter(value: unknown): number | undefined {
-    if (typeof value === 'number') {
-      return value;
-    }
-
-    const candidateWithX = (value as { x?: number })?.x;
-    if (typeof candidateWithX === 'number') {
-      return candidateWithX;
-    }
-
-    if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'number') {
-      return value[0];
-    }
-
-    if (ArrayBuffer.isView(value)) {
-      const view = value as ArrayBufferView;
-      if (isNumericArrayBufferView(view) && view.length > 0) {
-        return view[0];
-      }
-    }
-
-    const internal = (value as { _v?: unknown })._v;
-    if (Array.isArray(internal) && internal.length > 0 && typeof internal[0] === 'number') {
-      return internal[0];
-    }
-    if (ArrayBuffer.isView(internal)) {
-      const view = internal as ArrayBufferView;
-      if (isNumericArrayBufferView(view) && view.length > 0) {
-        return view[0];
-      }
-    }
-
-    return undefined;
   }
 
   private static __setupMaterialBasicProperties(material: Gltf2MaterialEx, rnMaterial: Material, json: Gltf2Ex) {
@@ -846,12 +657,12 @@ export class Gltf2Exporter {
       baseColorParam.w,
     ];
 
-    const metallicValue = this.__extractScalarParameter(rnMaterial.getParameter('metallicFactor'));
+    const metallicValue = __extractScalarParameter(rnMaterial.getParameter('metallicFactor'));
     if (Is.exist(metallicValue)) {
       material.pbrMetallicRoughness.metallicFactor = metallicValue as number;
     }
 
-    const roughnessValue = this.__extractScalarParameter(rnMaterial.getParameter('roughnessFactor'));
+    const roughnessValue = __extractScalarParameter(rnMaterial.getParameter('roughnessFactor'));
     if (Is.exist(roughnessValue)) {
       material.pbrMetallicRoughness.roughnessFactor = roughnessValue as number;
     }
