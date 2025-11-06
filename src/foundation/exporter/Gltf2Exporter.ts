@@ -68,6 +68,11 @@ import {
   SKIN_WEIGHT_SUM_EPSILON,
   TANGENT_EPSILON,
   type WeightTypedArray,
+  __collectAccessorIndicesFromAnimations,
+  __collectAccessorIndicesFromMeshes,
+  __collectAccessorIndicesFromSkins,
+  __collectUsedAccessorIndices,
+  __collectUsedBufferViewIndices,
   __collectUsedTexCoordSetIndices,
   __createBufferViewsAndAccessorsOfAnimation,
   __createBufferViewsAndAccessorsOfMesh,
@@ -75,6 +80,8 @@ import {
   __deleteEmptyArrays,
   __doesMaterialRequireTangents,
   __extractScalarParameter,
+  __filterItemsByUsage,
+  __outputBaseMaterialInfo,
   __outputKhrMaterialsAnisotropyInfo,
   __outputKhrMaterialsClearcoatInfo,
   __outputKhrMaterialsIorInfo,
@@ -82,6 +89,13 @@ import {
   __outputKhrMaterialsTransmissionInfo,
   __outputKhrMaterialsVolumeInfo,
   __pruneUnusedVertexAttributes,
+  __recalculateBufferViewAccumulators,
+  __remapAccessorAttributeRecord,
+  __remapAccessorReferences,
+  __remapBufferViewReferences,
+  __removeUnusedAccessors,
+  __removeUnusedAccessorsAndBufferViews,
+  __removeUnusedBufferViews,
   accumulateBufferViewByteLength,
   accumulateVector3,
   adjustWeightsForResidual,
@@ -206,7 +220,7 @@ export class Gltf2Exporter {
 
     createEffekseer(json, collectedEntities);
 
-    this.__removeUnusedAccessorsAndBufferViews(json);
+    __removeUnusedAccessorsAndBufferViews(json);
 
     const arraybuffer = this.__createBinary(json);
 
@@ -641,46 +655,6 @@ export class Gltf2Exporter {
     return material;
   }
 
-  private static __setupMaterialBasicProperties(material: Gltf2MaterialEx, rnMaterial: Material, json: Gltf2Ex) {
-    if (Is.false(rnMaterial.isLighting)) {
-      if (Is.not.exist(material.extensions)) {
-        material.extensions = {};
-      }
-      material.extensions.KHR_materials_unlit = {};
-      if (json.extensionsUsed.indexOf('KHR_materials_unlit') < 0) {
-        json.extensionsUsed.push('KHR_materials_unlit');
-      }
-    }
-
-    const baseColorParam =
-      (rnMaterial.getParameter('baseColorFactor') as Vector4 | undefined) ??
-      (rnMaterial.getParameter('diffuseColorFactor') as Vector4 | undefined) ??
-      Vector4.fromCopy4(1, 1, 1, 1);
-    material.pbrMetallicRoughness.baseColorFactor = [
-      baseColorParam.x,
-      baseColorParam.y,
-      baseColorParam.z,
-      baseColorParam.w,
-    ];
-
-    const metallicValue = __extractScalarParameter(rnMaterial.getParameter('metallicFactor'));
-    if (Is.exist(metallicValue)) {
-      material.pbrMetallicRoughness.metallicFactor = metallicValue as number;
-    }
-
-    const roughnessValue = __extractScalarParameter(rnMaterial.getParameter('roughnessFactor'));
-    if (Is.exist(roughnessValue)) {
-      material.pbrMetallicRoughness.roughnessFactor = roughnessValue as number;
-    }
-
-    const emissiveParam = rnMaterial.getParameter('emissiveFactor') as Vector3 | undefined;
-    if (Is.exist(emissiveParam)) {
-      material.emissiveFactor = [emissiveParam.x, emissiveParam.y, emissiveParam.z];
-    }
-
-    material.alphaMode = rnMaterial.alphaMode.toGltfString();
-  }
-
   private static async __setupMaterial(
     material: Gltf2MaterialEx,
     rnMaterial: Material,
@@ -988,7 +962,7 @@ export class Gltf2Exporter {
       options.onAssign(info);
     };
 
-    Gltf2Exporter.__outputBaseMaterialInfo(rnMaterial, applyTexture, material, json);
+    __outputBaseMaterialInfo(rnMaterial, applyTexture, material, json);
 
     __outputKhrMaterialsTransmissionInfo(ensureExtensionUsed, coerceNumber, rnMaterial, applyTexture, material);
 
@@ -1008,362 +982,6 @@ export class Gltf2Exporter {
       applyTexture,
       material
     );
-  }
-
-  private static __outputBaseMaterialInfo(
-    rnMaterial: Material,
-    applyTexture: (
-      paramName: string,
-      options: {
-        texCoordParam?: string;
-        transform?: {
-          scale?: string;
-          offset?: string;
-          rotation?: string;
-        };
-        scaleParam?: string;
-        strengthParam?: string;
-        onAssign: (info: any) => void;
-      }
-    ) => void,
-    material: Gltf2MaterialEx,
-    json: Gltf2Ex
-  ) {
-    Gltf2Exporter.__setupMaterialBasicProperties(material, rnMaterial, json);
-
-    const hasBaseColorTexture = Is.exist(rnMaterial.getTextureParameter('baseColorTexture'));
-
-    applyTexture('baseColorTexture', {
-      texCoordParam: 'baseColorTexcoordIndex',
-      transform: {
-        scale: 'baseColorTextureTransformScale',
-        offset: 'baseColorTextureTransformOffset',
-        rotation: 'baseColorTextureTransformRotation',
-      },
-      onAssign: info => {
-        material.pbrMetallicRoughness.baseColorTexture = info;
-      },
-    });
-
-    if (!hasBaseColorTexture) {
-      applyTexture('diffuseColorTexture', {
-        texCoordParam: 'baseColorTexcoordIndex',
-        transform: {
-          scale: 'baseColorTextureTransformScale',
-          offset: 'baseColorTextureTransformOffset',
-          rotation: 'baseColorTextureTransformRotation',
-        },
-        onAssign: info => {
-          if (Is.not.exist(material.pbrMetallicRoughness.baseColorTexture)) {
-            material.pbrMetallicRoughness.baseColorTexture = info;
-          }
-        },
-      });
-    }
-
-    applyTexture('metallicRoughnessTexture', {
-      texCoordParam: 'metallicRoughnessTexcoordIndex',
-      transform: {
-        scale: 'metallicRoughnessTextureTransformScale',
-        offset: 'metallicRoughnessTextureTransformOffset',
-        rotation: 'metallicRoughnessTextureTransformRotation',
-      },
-      onAssign: info => {
-        material.pbrMetallicRoughness.metallicRoughnessTexture = info;
-      },
-    });
-
-    applyTexture('normalTexture', {
-      texCoordParam: 'normalTexcoordIndex',
-      transform: {
-        scale: 'normalTextureTransformScale',
-        offset: 'normalTextureTransformOffset',
-        rotation: 'normalTextureTransformRotation',
-      },
-      scaleParam: 'normalScale',
-      onAssign: info => {
-        material.normalTexture = info;
-      },
-    });
-
-    applyTexture('occlusionTexture', {
-      texCoordParam: 'occlusionTexcoordIndex',
-      transform: {
-        scale: 'occlusionTextureTransformScale',
-        offset: 'occlusionTextureTransformOffset',
-        rotation: 'occlusionTextureTransformRotation',
-      },
-      strengthParam: 'occlusionStrength',
-      onAssign: info => {
-        material.occlusionTexture = info;
-      },
-    });
-
-    applyTexture('emissiveTexture', {
-      texCoordParam: 'emissiveTexcoordIndex',
-      transform: {
-        scale: 'emissiveTextureTransformScale',
-        offset: 'emissiveTextureTransformOffset',
-        rotation: 'emissiveTextureTransformRotation',
-      },
-      onAssign: info => {
-        material.emissiveTexture = info;
-      },
-    });
-  }
-
-  private static __removeUnusedAccessorsAndBufferViews(json: Gltf2Ex) {
-    if (json.accessors.length === 0) {
-      this.__recalculateBufferViewAccumulators(json);
-      return;
-    }
-
-    this.__removeUnusedAccessors(json);
-
-    if (json.bufferViews.length === 0) {
-      this.__recalculateBufferViewAccumulators(json);
-      return;
-    }
-
-    this.__removeUnusedBufferViews(json);
-    this.__recalculateBufferViewAccumulators(json);
-  }
-
-  private static __removeUnusedAccessors(json: Gltf2Ex) {
-    const usedAccessorIndices = this.__collectUsedAccessorIndices(json);
-    const result = this.__filterItemsByUsage(json.accessors, usedAccessorIndices);
-    if (!result) {
-      return;
-    }
-
-    const { filtered, indexMap } = result;
-    json.accessors = filtered;
-    this.__remapAccessorReferences(json, indexMap);
-  }
-
-  private static __collectUsedAccessorIndices(json: Gltf2Ex) {
-    const usedAccessorIndices = new Set<number>();
-    const registerAccessor = (candidate: unknown) => {
-      if (typeof candidate === 'number' && candidate >= 0) {
-        usedAccessorIndices.add(candidate);
-      }
-    };
-
-    this.__collectAccessorIndicesFromMeshes(json, registerAccessor);
-    this.__collectAccessorIndicesFromSkins(json, registerAccessor);
-    this.__collectAccessorIndicesFromAnimations(json, registerAccessor);
-
-    return usedAccessorIndices;
-  }
-
-  private static __collectAccessorIndicesFromMeshes(json: Gltf2Ex, register: (candidate: unknown) => void) {
-    if (Is.not.exist(json.meshes)) {
-      return;
-    }
-    for (const mesh of json.meshes) {
-      if (Is.not.exist(mesh?.primitives)) {
-        continue;
-      }
-      for (const primitive of mesh.primitives) {
-        register(primitive.indices);
-        const attributes = primitive.attributes as Record<string, number | undefined> | undefined;
-        if (Is.exist(attributes)) {
-          for (const key of Object.keys(attributes)) {
-            register(attributes[key]);
-          }
-        }
-        if (Array.isArray(primitive.targets)) {
-          for (const target of primitive.targets) {
-            const targetAttributes = target as Record<string, number | undefined>;
-            for (const key of Object.keys(targetAttributes)) {
-              register(targetAttributes[key]);
-            }
-          }
-        }
-      }
-    }
-  }
-
-  private static __collectAccessorIndicesFromSkins(json: Gltf2Ex, register: (candidate: unknown) => void) {
-    if (Is.not.exist(json.skins)) {
-      return;
-    }
-    for (const skin of json.skins) {
-      register(skin.inverseBindMatrices);
-    }
-  }
-
-  private static __collectAccessorIndicesFromAnimations(json: Gltf2Ex, register: (candidate: unknown) => void) {
-    if (Is.not.exist(json.animations)) {
-      return;
-    }
-    for (const animation of json.animations) {
-      if (Is.not.exist(animation?.samplers)) {
-        continue;
-      }
-      for (const sampler of animation.samplers) {
-        register(sampler.input);
-        register(sampler.output);
-      }
-    }
-  }
-
-  private static __remapAccessorReferences(json: Gltf2Ex, indexMap: Map<number, number>) {
-    const mapAccessorIndex = (candidate: unknown): number | undefined => {
-      if (typeof candidate !== 'number') {
-        return undefined;
-      }
-      return indexMap.get(candidate);
-    };
-
-    if (Is.exist(json.meshes)) {
-      for (const mesh of json.meshes) {
-        if (Is.not.exist(mesh?.primitives)) {
-          continue;
-        }
-        for (const primitive of mesh.primitives) {
-          if (typeof primitive.indices === 'number') {
-            const mapped = mapAccessorIndex(primitive.indices);
-            primitive.indices = typeof mapped === 'number' ? mapped : undefined;
-          }
-          const attributes = primitive.attributes as Record<string, number | undefined> | undefined;
-          this.__remapAccessorAttributeRecord(attributes, mapAccessorIndex);
-          if (Array.isArray(primitive.targets)) {
-            for (const target of primitive.targets) {
-              this.__remapAccessorAttributeRecord(target as Record<string, number | undefined>, mapAccessorIndex);
-            }
-          }
-        }
-      }
-    }
-
-    if (Is.exist(json.skins)) {
-      for (const skin of json.skins) {
-        if (typeof skin.inverseBindMatrices === 'number') {
-          const mapped = mapAccessorIndex(skin.inverseBindMatrices);
-          skin.inverseBindMatrices = typeof mapped === 'number' ? mapped : undefined;
-        }
-      }
-    }
-
-    if (Is.exist(json.animations)) {
-      for (const animation of json.animations) {
-        if (Is.not.exist(animation?.samplers)) {
-          continue;
-        }
-        for (const sampler of animation.samplers) {
-          const mappedInput = mapAccessorIndex(sampler.input);
-          const mappedOutput = mapAccessorIndex(sampler.output);
-          if (typeof mappedInput === 'number') {
-            sampler.input = mappedInput;
-          }
-          if (typeof mappedOutput === 'number') {
-            sampler.output = mappedOutput;
-          }
-        }
-      }
-    }
-  }
-
-  private static __remapAccessorAttributeRecord(
-    attributes: Record<string, number | undefined> | undefined,
-    mapAccessorIndex: (candidate: unknown) => number | undefined
-  ) {
-    if (Is.not.exist(attributes)) {
-      return;
-    }
-    for (const key of Object.keys(attributes)) {
-      const mapped = mapAccessorIndex(attributes[key]);
-      if (typeof mapped === 'number') {
-        attributes[key] = mapped;
-      } else {
-        delete attributes[key];
-      }
-    }
-  }
-
-  private static __removeUnusedBufferViews(json: Gltf2Ex) {
-    const usedBufferViewIndices = this.__collectUsedBufferViewIndices(json);
-    const result = this.__filterItemsByUsage(json.bufferViews, usedBufferViewIndices);
-    if (!result) {
-      return;
-    }
-
-    const { filtered, indexMap } = result;
-    json.bufferViews = filtered;
-    this.__remapBufferViewReferences(json, indexMap);
-  }
-
-  private static __collectUsedBufferViewIndices(json: Gltf2Ex) {
-    const usedBufferViewIndices = new Set<number>();
-    for (const accessor of json.accessors) {
-      if (typeof accessor.bufferView === 'number') {
-        usedBufferViewIndices.add(accessor.bufferView);
-      }
-    }
-    if (Is.exist(json.images)) {
-      for (const image of json.images) {
-        if (typeof image.bufferView === 'number') {
-          usedBufferViewIndices.add(image.bufferView);
-        }
-      }
-    }
-    return usedBufferViewIndices;
-  }
-
-  private static __remapBufferViewReferences(json: Gltf2Ex, indexMap: Map<number, number>) {
-    for (const accessor of json.accessors) {
-      if (typeof accessor.bufferView === 'number') {
-        const mapped = indexMap.get(accessor.bufferView);
-        accessor.bufferView = typeof mapped === 'number' ? mapped : undefined;
-      }
-    }
-
-    if (Is.exist(json.images)) {
-      for (const image of json.images) {
-        if (typeof image.bufferView === 'number') {
-          const mapped = indexMap.get(image.bufferView);
-          image.bufferView = typeof mapped === 'number' ? mapped : undefined;
-        }
-      }
-    }
-  }
-
-  private static __filterItemsByUsage<T>(
-    items: T[],
-    usedIndices: Set<number>
-  ): { filtered: T[]; indexMap: Map<number, number> } | undefined {
-    if (usedIndices.size === items.length) {
-      return undefined;
-    }
-
-    const filtered: T[] = [];
-    const indexMap = new Map<number, number>();
-    items.forEach((item, idx) => {
-      if (usedIndices.has(idx)) {
-        indexMap.set(idx, filtered.length);
-        filtered.push(item);
-      }
-    });
-
-    return { filtered, indexMap };
-  }
-
-  private static __recalculateBufferViewAccumulators(json: Gltf2Ex) {
-    if (Is.not.exist(json.buffers) || json.buffers.length === 0) {
-      json.extras.bufferViewByteLengthAccumulatedArray = [];
-      return;
-    }
-
-    const accumulators = new Array(json.buffers.length).fill(0);
-    for (const bufferView of json.bufferViews) {
-      const bufferIdx = typeof bufferView.buffer === 'number' ? bufferView.buffer : 0;
-      const sourceLength = bufferView.extras?.uint8Array?.byteLength;
-      const effectiveLength = Math.max(bufferView.byteLength, Is.exist(sourceLength) ? sourceLength! : 0);
-      const alignedLength = DataUtil.addPaddingBytes(effectiveLength, 4);
-      accumulators[bufferIdx] += alignedLength;
-    }
-    json.extras.bufferViewByteLengthAccumulatedArray = accumulators;
   }
 
   /**
@@ -1486,7 +1104,3 @@ export class Gltf2Exporter {
     }
   }
 }
-
-///
-/// BufferView and Accessor Creaters
-///

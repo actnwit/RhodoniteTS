@@ -35,6 +35,8 @@ import { VertexAttribute } from '../definitions/VertexAttribute';
 import type { Primitive } from '../geometry/Primitive';
 import type { IAnimationEntity, IMeshEntity, ISkeletalEntity } from '../helpers/EntityHelper';
 import type { Material } from '../materials/core/Material';
+import type { Vector3 } from '../math/Vector3';
+import { Vector4 } from '../math/Vector4';
 import { Accessor } from '../memory/Accessor';
 import { Buffer } from '../memory/Buffer';
 import { BufferView } from '../memory/BufferView';
@@ -2901,4 +2903,400 @@ export function __outputKhrMaterialsAnisotropyInfo(
     material.extensions.KHR_materials_anisotropy = anisotropyExtension;
     ensureExtensionUsed('KHR_materials_anisotropy');
   }
+}
+
+export function __removeUnusedAccessorsAndBufferViews(json: Gltf2Ex) {
+  if (json.accessors.length === 0) {
+    __recalculateBufferViewAccumulators(json);
+    return;
+  }
+
+  __removeUnusedAccessors(json);
+
+  if (json.bufferViews.length === 0) {
+    __recalculateBufferViewAccumulators(json);
+    return;
+  }
+
+  __removeUnusedBufferViews(json);
+  __recalculateBufferViewAccumulators(json);
+}
+
+export function __removeUnusedAccessors(json: Gltf2Ex) {
+  const usedAccessorIndices = __collectUsedAccessorIndices(json);
+  const result = __filterItemsByUsage(json.accessors, usedAccessorIndices);
+  if (!result) {
+    return;
+  }
+
+  const { filtered, indexMap } = result;
+  json.accessors = filtered;
+  __remapAccessorReferences(json, indexMap);
+}
+
+export function __collectUsedAccessorIndices(json: Gltf2Ex) {
+  const usedAccessorIndices = new Set<number>();
+  const registerAccessor = (candidate: unknown) => {
+    if (typeof candidate === 'number' && candidate >= 0) {
+      usedAccessorIndices.add(candidate);
+    }
+  };
+
+  __collectAccessorIndicesFromMeshes(json, registerAccessor);
+  __collectAccessorIndicesFromSkins(json, registerAccessor);
+  __collectAccessorIndicesFromAnimations(json, registerAccessor);
+
+  return usedAccessorIndices;
+}
+
+export function __collectAccessorIndicesFromMeshes(json: Gltf2Ex, register: (candidate: unknown) => void) {
+  if (Is.not.exist(json.meshes)) {
+    return;
+  }
+  for (const mesh of json.meshes) {
+    if (Is.not.exist(mesh?.primitives)) {
+      continue;
+    }
+    for (const primitive of mesh.primitives) {
+      register(primitive.indices);
+      const attributes = primitive.attributes as Record<string, number | undefined> | undefined;
+      if (Is.exist(attributes)) {
+        for (const key of Object.keys(attributes)) {
+          register(attributes[key]);
+        }
+      }
+      if (Array.isArray(primitive.targets)) {
+        for (const target of primitive.targets) {
+          const targetAttributes = target as Record<string, number | undefined>;
+          for (const key of Object.keys(targetAttributes)) {
+            register(targetAttributes[key]);
+          }
+        }
+      }
+    }
+  }
+}
+
+export function __collectAccessorIndicesFromSkins(json: Gltf2Ex, register: (candidate: unknown) => void) {
+  if (Is.not.exist(json.skins)) {
+    return;
+  }
+  for (const skin of json.skins) {
+    register(skin.inverseBindMatrices);
+  }
+}
+
+export function __collectAccessorIndicesFromAnimations(json: Gltf2Ex, register: (candidate: unknown) => void) {
+  if (Is.not.exist(json.animations)) {
+    return;
+  }
+  for (const animation of json.animations) {
+    if (Is.not.exist(animation?.samplers)) {
+      continue;
+    }
+    for (const sampler of animation.samplers) {
+      register(sampler.input);
+      register(sampler.output);
+    }
+  }
+}
+
+export function __remapAccessorReferences(json: Gltf2Ex, indexMap: Map<number, number>) {
+  const mapAccessorIndex = (candidate: unknown): number | undefined => {
+    if (typeof candidate !== 'number') {
+      return undefined;
+    }
+    return indexMap.get(candidate);
+  };
+
+  if (Is.exist(json.meshes)) {
+    for (const mesh of json.meshes) {
+      if (Is.not.exist(mesh?.primitives)) {
+        continue;
+      }
+      for (const primitive of mesh.primitives) {
+        if (typeof primitive.indices === 'number') {
+          const mapped = mapAccessorIndex(primitive.indices);
+          primitive.indices = typeof mapped === 'number' ? mapped : undefined;
+        }
+        const attributes = primitive.attributes as Record<string, number | undefined> | undefined;
+        __remapAccessorAttributeRecord(attributes, mapAccessorIndex);
+        if (Array.isArray(primitive.targets)) {
+          for (const target of primitive.targets) {
+            __remapAccessorAttributeRecord(target as Record<string, number | undefined>, mapAccessorIndex);
+          }
+        }
+      }
+    }
+  }
+
+  if (Is.exist(json.skins)) {
+    for (const skin of json.skins) {
+      if (typeof skin.inverseBindMatrices === 'number') {
+        const mapped = mapAccessorIndex(skin.inverseBindMatrices);
+        skin.inverseBindMatrices = typeof mapped === 'number' ? mapped : undefined;
+      }
+    }
+  }
+
+  if (Is.exist(json.animations)) {
+    for (const animation of json.animations) {
+      if (Is.not.exist(animation?.samplers)) {
+        continue;
+      }
+      for (const sampler of animation.samplers) {
+        const mappedInput = mapAccessorIndex(sampler.input);
+        const mappedOutput = mapAccessorIndex(sampler.output);
+        if (typeof mappedInput === 'number') {
+          sampler.input = mappedInput;
+        }
+        if (typeof mappedOutput === 'number') {
+          sampler.output = mappedOutput;
+        }
+      }
+    }
+  }
+}
+
+export function __remapAccessorAttributeRecord(
+  attributes: Record<string, number | undefined> | undefined,
+  mapAccessorIndex: (candidate: unknown) => number | undefined
+) {
+  if (Is.not.exist(attributes)) {
+    return;
+  }
+  for (const key of Object.keys(attributes)) {
+    const mapped = mapAccessorIndex(attributes[key]);
+    if (typeof mapped === 'number') {
+      attributes[key] = mapped;
+    } else {
+      delete attributes[key];
+    }
+  }
+}
+
+export function __removeUnusedBufferViews(json: Gltf2Ex) {
+  const usedBufferViewIndices = __collectUsedBufferViewIndices(json);
+  const result = __filterItemsByUsage(json.bufferViews, usedBufferViewIndices);
+  if (!result) {
+    return;
+  }
+
+  const { filtered, indexMap } = result;
+  json.bufferViews = filtered;
+  __remapBufferViewReferences(json, indexMap);
+}
+
+export function __collectUsedBufferViewIndices(json: Gltf2Ex) {
+  const usedBufferViewIndices = new Set<number>();
+  for (const accessor of json.accessors) {
+    if (typeof accessor.bufferView === 'number') {
+      usedBufferViewIndices.add(accessor.bufferView);
+    }
+  }
+  if (Is.exist(json.images)) {
+    for (const image of json.images) {
+      if (typeof image.bufferView === 'number') {
+        usedBufferViewIndices.add(image.bufferView);
+      }
+    }
+  }
+  return usedBufferViewIndices;
+}
+
+export function __remapBufferViewReferences(json: Gltf2Ex, indexMap: Map<number, number>) {
+  for (const accessor of json.accessors) {
+    if (typeof accessor.bufferView === 'number') {
+      const mapped = indexMap.get(accessor.bufferView);
+      accessor.bufferView = typeof mapped === 'number' ? mapped : undefined;
+    }
+  }
+
+  if (Is.exist(json.images)) {
+    for (const image of json.images) {
+      if (typeof image.bufferView === 'number') {
+        const mapped = indexMap.get(image.bufferView);
+        image.bufferView = typeof mapped === 'number' ? mapped : undefined;
+      }
+    }
+  }
+}
+
+export function __filterItemsByUsage<T>(
+  items: T[],
+  usedIndices: Set<number>
+): { filtered: T[]; indexMap: Map<number, number> } | undefined {
+  if (usedIndices.size === items.length) {
+    return undefined;
+  }
+
+  const filtered: T[] = [];
+  const indexMap = new Map<number, number>();
+  items.forEach((item, idx) => {
+    if (usedIndices.has(idx)) {
+      indexMap.set(idx, filtered.length);
+      filtered.push(item);
+    }
+  });
+
+  return { filtered, indexMap };
+}
+
+export function __recalculateBufferViewAccumulators(json: Gltf2Ex) {
+  if (Is.not.exist(json.buffers) || json.buffers.length === 0) {
+    json.extras.bufferViewByteLengthAccumulatedArray = [];
+    return;
+  }
+
+  const accumulators = new Array(json.buffers.length).fill(0);
+  for (const bufferView of json.bufferViews) {
+    const bufferIdx = typeof bufferView.buffer === 'number' ? bufferView.buffer : 0;
+    const sourceLength = bufferView.extras?.uint8Array?.byteLength;
+    const effectiveLength = Math.max(bufferView.byteLength, Is.exist(sourceLength) ? sourceLength! : 0);
+    const alignedLength = DataUtil.addPaddingBytes(effectiveLength, 4);
+    accumulators[bufferIdx] += alignedLength;
+  }
+  json.extras.bufferViewByteLengthAccumulatedArray = accumulators;
+}
+
+export function __setupMaterialBasicProperties(material: Gltf2MaterialEx, rnMaterial: Material, json: Gltf2Ex) {
+  if (Is.false(rnMaterial.isLighting)) {
+    if (Is.not.exist(material.extensions)) {
+      material.extensions = {};
+    }
+    material.extensions.KHR_materials_unlit = {};
+    if (json.extensionsUsed.indexOf('KHR_materials_unlit') < 0) {
+      json.extensionsUsed.push('KHR_materials_unlit');
+    }
+  }
+
+  const baseColorParam =
+    (rnMaterial.getParameter('baseColorFactor') as Vector4 | undefined) ??
+    (rnMaterial.getParameter('diffuseColorFactor') as Vector4 | undefined) ??
+    Vector4.fromCopy4(1, 1, 1, 1);
+  material.pbrMetallicRoughness.baseColorFactor = [
+    baseColorParam.x,
+    baseColorParam.y,
+    baseColorParam.z,
+    baseColorParam.w,
+  ];
+
+  const metallicValue = __extractScalarParameter(rnMaterial.getParameter('metallicFactor'));
+  if (Is.exist(metallicValue)) {
+    material.pbrMetallicRoughness.metallicFactor = metallicValue as number;
+  }
+
+  const roughnessValue = __extractScalarParameter(rnMaterial.getParameter('roughnessFactor'));
+  if (Is.exist(roughnessValue)) {
+    material.pbrMetallicRoughness.roughnessFactor = roughnessValue as number;
+  }
+
+  const emissiveParam = rnMaterial.getParameter('emissiveFactor') as Vector3 | undefined;
+  if (Is.exist(emissiveParam)) {
+    material.emissiveFactor = [emissiveParam.x, emissiveParam.y, emissiveParam.z];
+  }
+
+  material.alphaMode = rnMaterial.alphaMode.toGltfString();
+}
+
+export function __outputBaseMaterialInfo(
+  rnMaterial: Material,
+  applyTexture: (
+    paramName: string,
+    options: {
+      texCoordParam?: string;
+      transform?: {
+        scale?: string;
+        offset?: string;
+        rotation?: string;
+      };
+      scaleParam?: string;
+      strengthParam?: string;
+      onAssign: (info: any) => void;
+    }
+  ) => void,
+  material: Gltf2MaterialEx,
+  json: Gltf2Ex
+) {
+  __setupMaterialBasicProperties(material, rnMaterial, json);
+
+  const hasBaseColorTexture = Is.exist(rnMaterial.getTextureParameter('baseColorTexture'));
+
+  applyTexture('baseColorTexture', {
+    texCoordParam: 'baseColorTexcoordIndex',
+    transform: {
+      scale: 'baseColorTextureTransformScale',
+      offset: 'baseColorTextureTransformOffset',
+      rotation: 'baseColorTextureTransformRotation',
+    },
+    onAssign: info => {
+      material.pbrMetallicRoughness.baseColorTexture = info;
+    },
+  });
+
+  if (!hasBaseColorTexture) {
+    applyTexture('diffuseColorTexture', {
+      texCoordParam: 'baseColorTexcoordIndex',
+      transform: {
+        scale: 'baseColorTextureTransformScale',
+        offset: 'baseColorTextureTransformOffset',
+        rotation: 'baseColorTextureTransformRotation',
+      },
+      onAssign: info => {
+        if (Is.not.exist(material.pbrMetallicRoughness.baseColorTexture)) {
+          material.pbrMetallicRoughness.baseColorTexture = info;
+        }
+      },
+    });
+  }
+
+  applyTexture('metallicRoughnessTexture', {
+    texCoordParam: 'metallicRoughnessTexcoordIndex',
+    transform: {
+      scale: 'metallicRoughnessTextureTransformScale',
+      offset: 'metallicRoughnessTextureTransformOffset',
+      rotation: 'metallicRoughnessTextureTransformRotation',
+    },
+    onAssign: info => {
+      material.pbrMetallicRoughness.metallicRoughnessTexture = info;
+    },
+  });
+
+  applyTexture('normalTexture', {
+    texCoordParam: 'normalTexcoordIndex',
+    transform: {
+      scale: 'normalTextureTransformScale',
+      offset: 'normalTextureTransformOffset',
+      rotation: 'normalTextureTransformRotation',
+    },
+    scaleParam: 'normalScale',
+    onAssign: info => {
+      material.normalTexture = info;
+    },
+  });
+
+  applyTexture('occlusionTexture', {
+    texCoordParam: 'occlusionTexcoordIndex',
+    transform: {
+      scale: 'occlusionTextureTransformScale',
+      offset: 'occlusionTextureTransformOffset',
+      rotation: 'occlusionTextureTransformRotation',
+    },
+    strengthParam: 'occlusionStrength',
+    onAssign: info => {
+      material.occlusionTexture = info;
+    },
+  });
+
+  applyTexture('emissiveTexture', {
+    texCoordParam: 'emissiveTexcoordIndex',
+    transform: {
+      scale: 'emissiveTextureTransformScale',
+      offset: 'emissiveTextureTransformOffset',
+      rotation: 'emissiveTextureTransformRotation',
+    },
+    onAssign: info => {
+      material.emissiveTexture = info;
+    },
+  });
 }
