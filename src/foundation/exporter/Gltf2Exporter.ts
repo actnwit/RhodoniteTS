@@ -41,6 +41,7 @@ import {
   __extractScalarParameter,
   __filterItemsByUsage,
   __outputBaseMaterialInfo,
+  __outputKhrMaterialsDiffuseTransmissionInfo,
   __outputKhrMaterialsAnisotropyInfo,
   __outputKhrMaterialsClearcoatInfo,
   __outputKhrMaterialsDispersionInfo,
@@ -880,6 +881,15 @@ export class Gltf2Exporter {
     };
 
     __outputBaseMaterialInfo(rnMaterial, applyTexture, material, json);
+
+    __outputKhrMaterialsDiffuseTransmissionInfo(
+      ensureExtensionUsed,
+      coerceNumber,
+      coerceVec3,
+      rnMaterial,
+      applyTexture,
+      material
+    );
 
     __outputKhrMaterialsTransmissionInfo(ensureExtensionUsed, coerceNumber, rnMaterial, applyTexture, material);
 
