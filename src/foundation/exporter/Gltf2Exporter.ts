@@ -883,22 +883,27 @@ export class Gltf2Exporter {
     };
 
     const processTexture = (rnTexture: AbstractTexture, rnSampler?: Sampler) => {
-      if (rnTexture?.isTextureReady && !rnTexture.isDummyTexture && rnTexture.width >= 1 && rnTexture.height >= 1) {
-        const samplerIdx = processSampler(rnSampler);
-        const imageIndex = processImage(rnTexture);
-
-        const gltf2Texture: Gltf2Texture = {
-          sampler: samplerIdx,
-          source: imageIndex,
-        };
-        const textureIdx = json.textures.indexOf(gltf2Texture);
-        if (textureIdx === -1) {
-          json.textures.push(gltf2Texture);
-        }
-
-        return json.textures.indexOf(gltf2Texture);
+      const texture = rnTexture;
+      if (!texture) {
+        return void 0;
       }
-      return void 0;
+      if (!texture.isTextureReady || texture.isDummyTexture || texture.width < 1 || texture.height < 1) {
+        return void 0;
+      }
+
+      const samplerIdx = processSampler(rnSampler);
+      const imageIndex = processImage(texture);
+
+      const gltf2Texture: Gltf2Texture = {
+        sampler: samplerIdx,
+        source: imageIndex,
+      };
+      const textureIdx = json.textures.indexOf(gltf2Texture);
+      if (textureIdx === -1) {
+        json.textures.push(gltf2Texture);
+      }
+
+      return json.textures.indexOf(gltf2Texture);
     };
 
     this.__processParameters(json, material, rnMaterial, processTexture);
