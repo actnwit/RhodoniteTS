@@ -59,11 +59,18 @@ import type { Sampler } from '../textures/Sampler';
 import type { Texture } from '../textures/Texture';
 import { createEffekseer } from './Gltf2ExporterEffekseer';
 import {
+  type NumericArrayBufferView,
   accumulateBufferViewByteLength,
   alignAccessorByteOffsetTo4Bytes,
+  alignBufferViewByteLength,
   alignBufferViewByteStrideTo4Bytes,
   convertToGltfAnimationPathName,
   createAndAddGltf2BufferView,
+  createGltf2AnimationChannel,
+  createGltf2AnimationSampler,
+  generateGlbArrayBuffer,
+  isNumericArrayBufferView,
+  resolveVertexAttributeByteStride,
 } from './Gltf2ExporterOps';
 
 export const GLTF2_EXPORT_GLTF = 'glTF';
@@ -2066,68 +2073,6 @@ export class Gltf2Exporter {
   }
 }
 
-type NumericArrayBufferView = ArrayBufferView & { length: number; [index: number]: number };
-
-function isNumericArrayBufferView(view: ArrayBufferView): view is NumericArrayBufferView {
-  return typeof (view as any).length === 'number';
-}
-
-/**
- * Generates a complete glTF2 Binary (.glb) ArrayBuffer from JSON and binary data.
- *
- * Combines the glTF2 JSON document and binary buffer into a single .glb file
- * following the glTF2 binary format specification. Handles proper chunk
- * alignment and header construction.
- *
- * @param json - The glTF2 JSON document to embed
- * @param arraybuffer - Binary data buffer to include
- * @returns Complete .glb file as ArrayBuffer
- */
-function generateGlbArrayBuffer(json: Gltf2, arraybuffer: ArrayBuffer) {
-  const headerBytes = 12; // 12byte-header
-
-  // .glb file
-  json.buffers![0].uri = undefined;
-  let jsonStr = JSON.stringify(json, null, 2);
-  let jsonArrayBuffer = DataUtil.stringToBuffer(jsonStr);
-  const paddingBytes = DataUtil.calcPaddingBytes(jsonArrayBuffer.byteLength, 4);
-  if (paddingBytes > 0) {
-    for (let i = 0; i < paddingBytes; i++) {
-      jsonStr += ' ';
-    }
-    jsonArrayBuffer = DataUtil.stringToBuffer(jsonStr);
-  }
-  const jsonChunkLength = jsonArrayBuffer.byteLength;
-  const headerAndChunk0 = headerBytes + 4 + 4 + jsonChunkLength; // Chunk-0
-  const totalBytes = headerAndChunk0 + 4 + 4 + arraybuffer.byteLength; // Chunk-1
-
-  const glbArrayBuffer = new ArrayBuffer(totalBytes);
-  const dataView = new DataView(glbArrayBuffer);
-  dataView.setUint32(0, 0x46546c67, true);
-  dataView.setUint32(4, 2, true);
-  dataView.setUint32(8, totalBytes, true);
-  dataView.setUint32(12, jsonArrayBuffer.byteLength, true);
-  dataView.setUint32(16, 0x4e4f534a, true);
-
-  DataUtil.copyArrayBufferAs4Bytes({
-    src: jsonArrayBuffer,
-    dist: glbArrayBuffer,
-    srcByteOffset: 0,
-    copyByteLength: jsonArrayBuffer.byteLength,
-    distByteOffset: 20,
-  });
-  DataUtil.copyArrayBufferAs4Bytes({
-    src: arraybuffer,
-    dist: glbArrayBuffer,
-    srcByteOffset: 0,
-    copyByteLength: arraybuffer.byteLength,
-    distByteOffset: 20 + jsonChunkLength + 8,
-  });
-  dataView.setUint32(headerAndChunk0, arraybuffer.byteLength, true);
-  dataView.setUint32(headerAndChunk0 + 4, 0x004e4942, true);
-  return glbArrayBuffer;
-}
-
 /**
  * Creates glTF2 skins from skeletal animation data.
  *
@@ -2908,56 +2853,6 @@ function calcBufferIdxToSet(existingUniqueRnBuffers: Buffer[], rnBuffer: Buffer)
 }
 
 /**
- * Creates a glTF2 animation channel from Rhodonite animation data.
- *
- * @param channel - The Rhodonite animation channel
- * @param samplerIdx - Current sampler index
- * @param animation - The glTF2 animation to add the channel to
- * @param entityIdx - Index of the target entity
- * @returns Updated sampler index
- */
-function createGltf2AnimationChannel(
-  channel: AnimationChannel,
-  samplerIdx: Index,
-  animation: Gltf2Animation,
-  entityIdx: Index
-) {
-  const pathName = channel.target.pathName as AnimationPathName;
-
-  const channelJson: Gltf2AnimationChannel = {
-    sampler: samplerIdx++,
-    target: {
-      path: convertToGltfAnimationPathName(pathName),
-      node: entityIdx,
-    },
-  };
-  animation.channels.push(channelJson);
-  return samplerIdx;
-}
-
-/**
- * Creates a glTF2 animation sampler from Rhodonite sampler data.
- *
- * @param inputAccessorIdx - Index of the input (time) accessor
- * @param outputAccessorIdx - Index of the output (value) accessor
- * @param sampler - The Rhodonite animation sampler
- * @param animation - The glTF2 animation to add the sampler to
- */
-function createGltf2AnimationSampler(
-  inputAccessorIdx: number,
-  outputAccessorIdx: number,
-  sampler: AnimationSampler,
-  animation: Gltf2Animation
-) {
-  const samplerJson: Gltf2AnimationSampler = {
-    input: inputAccessorIdx,
-    output: outputAccessorIdx,
-    interpolation: sampler.interpolationMethod.GltfString,
-  };
-  animation.samplers.push(samplerJson);
-}
-
-/**
  * Creates BufferView and Accessor for animation input (time) data.
  *
  * @param json - The glTF2 JSON document
@@ -3093,20 +2988,6 @@ type BufferViewByteLengthDesc = {
 };
 
 /**
- * Aligns buffer view byte length to proper boundaries.
- *
- * @param bufferViewByteLengthAccumulated - Current accumulated byte length
- * @param bufferView - The buffer view to align
- * @returns Aligned byte length with padding
- */
-function alignBufferViewByteLength(bufferViewByteLengthAccumulated: number, bufferView: Gltf2BufferViewEx) {
-  const bufferViewEnd = bufferView.byteOffset + bufferView.byteLength;
-  const alignedEnd = bufferViewEnd + DataUtil.calcPaddingBytes(bufferViewEnd, 4);
-  const delta = alignedEnd - bufferViewByteLengthAccumulated;
-  return delta >= 0 ? delta : 0;
-}
-
-/**
  * Calculates BufferView byte length and byte offset according to glTF2 specification.
  *
  * Ensures proper data alignment for performance and compatibility. Each element
@@ -3172,42 +3053,6 @@ function calcBufferViewByteLengthAndByteOffset({
     fixedBufferViewByteLength,
     fixedBufferViewByteOffset: alignedBufferViewByteOffset,
   };
-}
-
-/**
- * Resolves the byteStride to be written to a glTF bufferView for vertex attributes.
- *
- * Prefers the bufferView's explicit stride or accessor stride when available and
- * guarantees the result is large enough for the accessor's element width and aligned
- * to 4 bytes to satisfy glTF requirements.
- *
- * @param rnBufferView - Source buffer view
- * @param rnAccessor - Accessor that references the buffer view
- * @returns The resolved stride in bytes or undefined when stride should be omitted
- */
-function resolveVertexAttributeByteStride(rnBufferView: BufferView, rnAccessor: Accessor): Byte | undefined {
-  const candidates: number[] = [];
-  const defaultStride = rnBufferView.defaultByteStride;
-  if (defaultStride > 0) {
-    candidates.push(defaultStride);
-  }
-  const accessorStride = rnAccessor.byteStride;
-  if (accessorStride > 0) {
-    candidates.push(accessorStride);
-  }
-  const elementSize = rnAccessor.elementSizeInBytes;
-  if (elementSize > 0) {
-    candidates.push(elementSize);
-  }
-
-  if (candidates.length === 0) {
-    return undefined;
-  }
-
-  const resolved = Math.max(...candidates);
-  const aligned = alignBufferViewByteStrideTo4Bytes(resolved as Byte);
-
-  return aligned < elementSize ? elementSize : aligned;
 }
 
 /**
