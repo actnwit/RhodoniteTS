@@ -1,5 +1,5 @@
 import type { AnimationChannel, AnimationPathName, AnimationSampler } from '../../types/AnimationTypes';
-import type { Array1to4, Byte, Count, Index } from '../../types/CommonTypes';
+import type { Array1to4, Byte, Count, Index, VectorAndSquareMatrixComponentN } from '../../types/CommonTypes';
 import type {
   Gltf2,
   Gltf2AccessorCompositionTypeString,
@@ -1342,4 +1342,214 @@ export function normalizeSkinWeights(accessor: Accessor): Accessor {
     componentTypeForFloat,
     normalizedFlagForFloat
   );
+}
+
+/**
+ * Creates BufferView and Accessor for animation input (time) data.
+ *
+ * @param json - The glTF2 JSON document
+ * @param sampler - The animation sampler containing input data
+ * @param bufferIdx - Index of the target buffer
+ * @param bufferViewByteLengthAccumulated - Current accumulated byte length
+ * @returns Object containing accessor index and updated byte length
+ */
+export function createGltf2BufferViewAndGltf2AccessorForInput(
+  json: Gltf2Ex,
+  sampler: AnimationSampler,
+  bufferIdx: Index,
+  bufferViewByteLengthAccumulated: Byte
+): {
+  inputAccessorIdx: Index;
+  inputBufferViewByteLengthAccumulated: Byte;
+} {
+  const componentType = ComponentType.fromTypedArray(
+    ArrayBuffer.isView(sampler.input) ? sampler.input : new Float32Array(sampler.input)
+  );
+  const accessorCount = sampler.input.length;
+  // create a Gltf2BufferView
+  const gltf2BufferView: Gltf2BufferViewEx = createGltf2BufferViewForAnimation({
+    bufferIdx,
+    bufferViewByteOffset: bufferViewByteLengthAccumulated,
+    accessorByteOffset: 0,
+    accessorCount,
+    bufferViewByteStride: ComponentType.Float.getSizeInBytes(),
+    componentType,
+    compositionType: CompositionType.Scalar,
+    uint8Array: new Uint8Array(
+      ArrayBuffer.isView(sampler.input) ? sampler.input.buffer : new Float32Array(sampler.input).buffer
+    ),
+  });
+  json.bufferViews.push(gltf2BufferView);
+
+  // create a Gltf2Accessor
+  const gltf2Accessor: Gltf2AccessorEx = createGltf2AccessorForAnimation({
+    bufferViewIdx: json.bufferViews.indexOf(gltf2BufferView),
+    accessorByteOffset: 0,
+    componentType,
+    count: accessorCount,
+    compositionType: CompositionType.Scalar,
+    min: [sampler.input[0]],
+    max: [sampler.input[sampler.input.length - 1]],
+  });
+  json.accessors.push(gltf2Accessor);
+
+  // register
+  bufferViewByteLengthAccumulated = alignBufferViewByteLength(bufferViewByteLengthAccumulated, gltf2BufferView);
+  const inputAccessorIdx = json.accessors.indexOf(gltf2Accessor);
+  return {
+    inputAccessorIdx,
+    inputBufferViewByteLengthAccumulated: bufferViewByteLengthAccumulated,
+  };
+}
+
+/**
+ * Creates BufferView and Accessor for animation output (value) data.
+ *
+ * @param json - The glTF2 JSON document
+ * @param sampler - The animation sampler containing output data
+ * @param pathName - The animation path name
+ * @param bufferIdx - Index of the target buffer
+ * @param bufferViewByteLengthAccumulated - Current accumulated byte length
+ * @returns Object containing accessor index and updated byte length
+ */
+export function createGltf2BufferViewAndGltf2AccessorForOutput(
+  json: Gltf2Ex,
+  sampler: AnimationSampler,
+  pathName: AnimationPathName,
+  bufferIdx: Index,
+  bufferViewByteLengthAccumulated: Byte
+): {
+  outputAccessorIdx: Index;
+  outputBufferViewByteLengthAccumulated: Byte;
+} {
+  const componentType = ComponentType.fromTypedArray(
+    ArrayBuffer.isView(sampler.output) ? sampler.output : new Float32Array(sampler.output)
+  );
+
+  const compositionType =
+    pathName === 'weights'
+      ? CompositionType.Scalar
+      : CompositionType.toGltf2AnimationAccessorCompositionType(sampler.outputComponentN);
+  const accessorCount =
+    pathName === 'weights' ? sampler.output.length : sampler.output.length / sampler.outputComponentN;
+
+  // create a Gltf2BufferView
+  const gltf2BufferView = createGltf2BufferViewForAnimation({
+    bufferIdx,
+    bufferViewByteOffset: bufferViewByteLengthAccumulated,
+    accessorByteOffset: 0,
+    accessorCount,
+    bufferViewByteStride: componentType.getSizeInBytes() * sampler.outputComponentN,
+    componentType,
+    compositionType,
+    uint8Array: new Uint8Array(
+      ArrayBuffer.isView(sampler.output) ? sampler.output.buffer : new Float32Array(sampler.output).buffer
+    ),
+  });
+  json.bufferViews.push(gltf2BufferView);
+
+  // create a Gltf2Accessor
+  const gltf2Accessor: Gltf2AccessorEx = createGltf2AccessorForAnimation({
+    bufferViewIdx: json.bufferViews.indexOf(gltf2BufferView),
+    accessorByteOffset: 0,
+    componentType,
+    count: accessorCount,
+    compositionType,
+  });
+  json.accessors.push(gltf2Accessor);
+
+  // register
+  bufferViewByteLengthAccumulated = alignBufferViewByteLength(bufferViewByteLengthAccumulated, gltf2BufferView);
+  const outputAccessorIdx = json.accessors.indexOf(gltf2Accessor);
+  return {
+    outputAccessorIdx,
+    outputBufferViewByteLengthAccumulated: bufferViewByteLengthAccumulated,
+  };
+}
+
+/**
+ * Creates or reuses a glTF2 BufferView for general use.
+ *
+ * @param json - The glTF2 JSON document
+ * @param existingUniqueRnBuffers - Buffer deduplication cache
+ * @param existingUniqueRnBufferViews - BufferView deduplication cache
+ * @param rnBufferView - The Rhodonite buffer view to convert
+ * @param target - Optional target binding (e.g., ARRAY_BUFFER)
+ * @returns The created or existing glTF2 buffer view
+ */
+export function createOrReuseGltf2BufferView(
+  json: Gltf2Ex,
+  existingUniqueRnBuffers: Buffer[],
+  existingUniqueRnBufferViews: BufferView[],
+  rnBufferView: BufferView,
+  target?: number
+): Gltf2BufferViewEx {
+  const bufferViewIdx = findBufferViewIdx(existingUniqueRnBufferViews, rnBufferView);
+  if (bufferViewIdx === -1) {
+    const bufferIdxToSet = calcBufferIdxToSet(existingUniqueRnBuffers, rnBufferView.buffer);
+    const gltf2BufferView: Gltf2BufferViewEx = {
+      buffer: bufferIdxToSet,
+      byteLength: rnBufferView.byteLength,
+      byteOffset: rnBufferView.byteOffsetInBuffer,
+      extras: {
+        uint8Array: rnBufferView.getUint8Array(),
+      },
+    };
+    if (Is.exist(target)) {
+      gltf2BufferView.target = target;
+    }
+
+    json.extras.bufferViewByteLengthAccumulatedArray[bufferIdxToSet] = accumulateBufferViewByteLength(
+      json.extras.bufferViewByteLengthAccumulatedArray,
+      bufferIdxToSet,
+      gltf2BufferView
+    );
+    existingUniqueRnBufferViews.push(rnBufferView);
+    json.bufferViews.push(gltf2BufferView);
+    return gltf2BufferView;
+  }
+  const gltf2BufferView = json.bufferViews[bufferViewIdx];
+  return gltf2BufferView;
+}
+
+/**
+ * Creates or reuses a glTF2 Accessor with deduplication.
+ *
+ * @param json - The glTF2 JSON document
+ * @param bufferViewIdxToSet - Index of the buffer view to use
+ * @param existingUniqueRnAccessors - Accessor deduplication cache
+ * @param rnAccessor - The Rhodonite accessor to convert
+ * @returns The created or existing glTF2 accessor
+ */
+export function createOrReuseGltf2Accessor(
+  json: Gltf2Ex,
+  bufferViewIdxToSet: Index,
+  existingUniqueRnAccessors: Accessor[],
+  rnAccessor: Accessor
+): Gltf2AccessorEx {
+  const accessorIdx = calcAccessorIdxToSet(existingUniqueRnAccessors, rnAccessor);
+  if (accessorIdx === -1) {
+    // create a Gltf2Accessor
+    const gltf2Accessor: Gltf2AccessorEx = {
+      bufferView: bufferViewIdxToSet,
+      byteOffset: rnAccessor.byteOffsetInBufferView,
+      componentType: ComponentType.toGltf2AccessorComponentType(rnAccessor.componentType as Gltf2AccessorComponentType),
+      count: rnAccessor.elementCount,
+      type: CompositionType.toGltf2AccessorCompositionTypeString(
+        rnAccessor.compositionType.getNumberOfComponents() as VectorAndSquareMatrixComponentN
+      ),
+      extras: {
+        uint8Array: undefined,
+      },
+    };
+    if (rnAccessor.compositionType.getNumberOfComponents() <= 4) {
+      gltf2Accessor.max = rnAccessor.max;
+      gltf2Accessor.min = rnAccessor.min;
+    }
+    existingUniqueRnAccessors.push(rnAccessor);
+    json.accessors.push(gltf2Accessor);
+    return gltf2Accessor;
+  }
+  const gltf2Accessor = json.accessors[accessorIdx];
+  return gltf2Accessor;
 }
