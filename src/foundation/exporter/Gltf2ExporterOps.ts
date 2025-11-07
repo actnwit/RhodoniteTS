@@ -2510,6 +2510,37 @@ export function __pruneUnusedVertexAttributes(primitive: Gltf2Primitive, materia
   }
 }
 
+export function __outputKhrMaterialsEmissiveStrengthInfo(
+  ensureExtensionUsed: (extensionName: string) => void,
+  coerceNumber: (value: any) => number | undefined,
+  rnMaterial: Material,
+  material: Gltf2MaterialEx
+) {
+  if (Is.false(rnMaterial.isLighting)) {
+    return;
+  }
+
+  if ((material.extensions as Record<string, unknown> | undefined)?.KHR_materials_unlit) {
+    return;
+  }
+
+  const rawStrength = coerceNumber(rnMaterial.getParameter('emissiveStrength'));
+  if (Is.not.exist(rawStrength)) {
+    return;
+  }
+
+  const emissiveStrength = Math.max(0, rawStrength);
+  if (!Number.isFinite(emissiveStrength) || emissiveStrength === 1) {
+    return;
+  }
+
+  material.extensions = material.extensions ?? {};
+  material.extensions.KHR_materials_emissive_strength = {
+    emissiveStrength,
+  };
+  ensureExtensionUsed('KHR_materials_emissive_strength');
+}
+
 export function __outputKhrMaterialsDiffuseTransmissionInfo(
   ensureExtensionUsed: (extensionName: string) => void,
   coerceNumber: (value: any) => number | undefined,
