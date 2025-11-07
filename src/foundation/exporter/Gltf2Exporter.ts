@@ -118,7 +118,7 @@ export class Gltf2Exporter {
   private static __materialToGltfMaterialIndices: Map<Material, number[]> = new Map();
   private static __lightComponentToLightIndex: Map<LightComponent, number> = new Map();
   private static __cameraComponentToCameraIndex: Map<CameraComponent, number> = new Map();
-  private static __pointerAnimatedValues: Set<IAnimatedValue> = new Set();
+  private static __pointerAnimatedValuesByTrack: Map<string, Set<IAnimatedValue>> = new Map();
   private static __warnedMaterialSemantics: Set<string> = new Set();
 
   /**
@@ -152,7 +152,7 @@ export class Gltf2Exporter {
     this.__materialToGltfMaterialIndices.clear();
     this.__lightComponentToLightIndex.clear();
     this.__cameraComponentToCameraIndex.clear();
-    this.__pointerAnimatedValues.clear();
+    this.__pointerAnimatedValuesByTrack.clear();
     this.__warnedMaterialSemantics.clear();
 
     const { json, fileName }: { json: Gltf2Ex; fileName: string } = this.__createJsonBase(filename);
@@ -336,7 +336,7 @@ export class Gltf2Exporter {
 
   private static __createAnimationData(json: Gltf2Ex, entities: IAnimationEntity[]) {
     const animationOptions: AnimationExportOptions = {
-      shouldExportChannel: (channel: AnimationChannel) => this.__shouldExportAnimationChannel(channel),
+      shouldExportChannel: ({ channel, trackName }) => this.__shouldExportAnimationChannel(channel, trackName),
       resolveAnimationTarget: ({ channel }) => this.__resolveAnimationTarget(json, channel),
     };
 
@@ -647,16 +647,21 @@ export class Gltf2Exporter {
     indices.push(materialIndex);
   }
 
-  private static __shouldExportAnimationChannel(channel: AnimationChannel): boolean {
+  private static __shouldExportAnimationChannel(channel: AnimationChannel, trackName: string): boolean {
     const pathName = channel.target.pathName as AnimationPathName;
     if (!this.__isPointerPath(pathName)) {
       return true;
     }
     const animatedValue = channel.animatedValue;
-    if (this.__pointerAnimatedValues.has(animatedValue)) {
+    let animatedValues = this.__pointerAnimatedValuesByTrack.get(trackName);
+    if (Is.not.exist(animatedValues)) {
+      animatedValues = new Set();
+      this.__pointerAnimatedValuesByTrack.set(trackName, animatedValues);
+    }
+    if (animatedValues.has(animatedValue)) {
       return false;
     }
-    this.__pointerAnimatedValues.add(animatedValue);
+    animatedValues.add(animatedValue);
     return true;
   }
 
