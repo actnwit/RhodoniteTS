@@ -163,9 +163,9 @@ export class Gltf2Exporter {
 
     await this.__createMaterials(json, collectedEntities as unknown as IMeshEntity[], option);
 
-    createEffekseer(json, collectedEntities);
-
     this.__createAnimationData(json, collectedEntities as unknown as IAnimationEntity[]);
+
+    createEffekseer(json, collectedEntities);
 
     __removeUnusedAccessorsAndBufferViews(json);
 
