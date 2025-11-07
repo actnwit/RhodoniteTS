@@ -388,11 +388,15 @@ export class SceneGraphComponent extends Component {
    * @param sg - The SceneGraph component to add as a child
    */
   public addChild(sg: SceneGraphComponent, keepPositionInWorldSpace = false): void {
-    // When we need to keep the child's world pose, capture its world matrix before reparenting.
-    let worldMatrixBeforeReparent: MutableMatrix44 | undefined;
+    // When we need to keep the child's world pose, capture its world transform before reparenting.
+    let worldPositionBeforeReparent: MutableVector3 | undefined;
+    let worldRotationBeforeReparent: IQuaternion | undefined;
+    let worldScaleBeforeReparent: MutableVector3 | undefined;
 
     if (keepPositionInWorldSpace) {
-      worldMatrixBeforeReparent = sg.matrix;
+      worldPositionBeforeReparent = MutableVector3.fromCopyVector3(sg.position);
+      worldRotationBeforeReparent = sg.rotation.clone();
+      worldScaleBeforeReparent = MutableVector3.fromCopyVector3(sg.scale);
     }
 
     if (Is.exist(sg.__parent)) {
@@ -401,24 +405,15 @@ export class SceneGraphComponent extends Component {
     sg.__parent = this;
     this.__children.push(sg);
 
-    if (keepPositionInWorldSpace && Is.exist(worldMatrixBeforeReparent)) {
-      const transform = sg.entity.getTransform();
-
-      if (Is.exist(transform)) {
-        // Convert the stored world matrix into a new local matrix using the new parent's world matrix.
-        const parentWorldMatrix = this.matrixInner;
-        const invertedParentWorldMatrix = Matrix44.invertTo(parentWorldMatrix, SceneGraphComponent.__tmp_mat4_2);
-        const localMatrix = Matrix44.multiplyTo(
-          invertedParentWorldMatrix,
-          worldMatrixBeforeReparent,
-          SceneGraphComponent.__tmp_mat4_3
-        );
-
-        transform.localMatrix = localMatrix;
-
-        // Keep physics representation in-sync with the preserved world position/rotation.
-        sg.setPositionToPhysics(worldMatrixBeforeReparent.getTranslate());
-        sg.setRotationToPhysics(Quaternion.fromMatrix(worldMatrixBeforeReparent));
+    if (keepPositionInWorldSpace) {
+      if (Is.exist(worldPositionBeforeReparent)) {
+        sg.position = worldPositionBeforeReparent;
+      }
+      if (Is.exist(worldRotationBeforeReparent)) {
+        sg.rotation = worldRotationBeforeReparent;
+      }
+      if (Is.exist(worldScaleBeforeReparent)) {
+        sg.scale = worldScaleBeforeReparent;
       }
     }
 
