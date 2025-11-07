@@ -947,10 +947,7 @@ export class SceneGraphComponent extends Component {
       return;
     }
 
-    this.matrixInner;
-    this.normalMatrixInner;
-
-    this.__updateGizmos();
+    this.logicForce();
 
     // const meshComponent = this.entity.tryToGetMesh();
     // if (meshComponent != null) {
@@ -969,6 +966,12 @@ export class SceneGraphComponent extends Component {
     // }
 
     this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
+  }
+
+  logicForce() {
+    this.matrixInner;
+    this.normalMatrixInner;
+    this.__updateGizmos();
   }
 
   /**
