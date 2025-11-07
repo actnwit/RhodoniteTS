@@ -3226,12 +3226,11 @@ function setup_KHR_materials_volume(
         'thicknessTextureTransformRotation'
       );
     }
+    const INF = 1e20;
     const attenuationDistance = KHR_materials_volume.attenuationDistance
       ? KHR_materials_volume.attenuationDistance
-      : 0.0;
-    if (attenuationDistance != null) {
-      material.setParameter('attenuationDistance', attenuationDistance);
-    }
+      : INF;
+    material.setParameter('attenuationDistance', attenuationDistance);
     const attenuationColor = KHR_materials_volume.attenuationColor
       ? Vector3.fromCopyArray3(KHR_materials_volume.attenuationColor)
       : Vector3.fromCopy3(1.0, 1.0, 1.0);
