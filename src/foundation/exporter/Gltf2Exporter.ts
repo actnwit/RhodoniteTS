@@ -981,7 +981,15 @@ export class Gltf2Exporter {
       options.onAssign(info);
     };
 
-    __outputBaseMaterialInfo(rnMaterial, applyTexture, material, json);
+    const isUnlitMaterial = Is.false(rnMaterial.isLighting);
+
+    __outputBaseMaterialInfo(rnMaterial, applyTexture, material, json, {
+      skipAdditionalTextures: isUnlitMaterial,
+    });
+
+    if (isUnlitMaterial) {
+      return;
+    }
 
     __outputKhrMaterialsEmissiveStrengthInfo(ensureExtensionUsed, coerceNumber, rnMaterial, material);
 

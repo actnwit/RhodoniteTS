@@ -3518,7 +3518,9 @@ export function __recalculateBufferViewAccumulators(json: Gltf2Ex) {
 }
 
 export function __setupMaterialBasicProperties(material: Gltf2MaterialEx, rnMaterial: Material, json: Gltf2Ex) {
-  if (Is.false(rnMaterial.isLighting)) {
+  const isUnlitMaterial = Is.false(rnMaterial.isLighting);
+
+  if (isUnlitMaterial) {
     if (Is.not.exist(material.extensions)) {
       material.extensions = {};
     }
@@ -3555,6 +3557,13 @@ export function __setupMaterialBasicProperties(material: Gltf2MaterialEx, rnMate
   }
 
   material.alphaMode = rnMaterial.alphaMode.toGltfString();
+
+  if (isUnlitMaterial) {
+    material.pbrMetallicRoughness.metallicFactor = 0;
+    const currentRoughness = material.pbrMetallicRoughness.roughnessFactor ?? 1;
+    material.pbrMetallicRoughness.roughnessFactor = Math.max(currentRoughness, 0.5);
+    material.emissiveFactor = [0, 0, 0];
+  }
 }
 
 export function __outputBaseMaterialInfo(
@@ -3574,8 +3583,13 @@ export function __outputBaseMaterialInfo(
     }
   ) => void,
   material: Gltf2MaterialEx,
-  json: Gltf2Ex
+  json: Gltf2Ex,
+  options?: {
+    skipAdditionalTextures?: boolean;
+  }
 ) {
+  const skipAdditionalTextures = options?.skipAdditionalTextures ?? false;
+
   __setupMaterialBasicProperties(material, rnMaterial, json);
 
   const hasBaseColorTexture = Is.exist(rnMaterial.getTextureParameter('baseColorTexture'));
@@ -3606,6 +3620,10 @@ export function __outputBaseMaterialInfo(
         }
       },
     });
+  }
+
+  if (skipAdditionalTextures) {
+    return;
   }
 
   applyTexture('metallicRoughnessTexture', {
