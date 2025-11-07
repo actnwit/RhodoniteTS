@@ -2282,6 +2282,9 @@ export function __deleteEmptyArrays(json: Gltf2Ex): void {
   if (json.images.length === 0) {
     (json as Gltf2).images = undefined;
   }
+  if (json.samplers.length === 0) {
+    (json as Gltf2).samplers = undefined;
+  }
   if (json.animations.length === 0) {
     (json as Gltf2).animations = undefined;
   }
