@@ -48,6 +48,7 @@ import {
   __outputKhrMaterialsClearcoatInfo,
   __outputKhrMaterialsDiffuseTransmissionInfo,
   __outputKhrMaterialsDispersionInfo,
+  __outputKhrMaterialsEmissiveStrengthInfo,
   __outputKhrMaterialsIorInfo,
   __outputKhrMaterialsIridescenceInfo,
   __outputKhrMaterialsSheenInfo,
@@ -981,6 +982,8 @@ export class Gltf2Exporter {
     };
 
     __outputBaseMaterialInfo(rnMaterial, applyTexture, material, json);
+
+    __outputKhrMaterialsEmissiveStrengthInfo(ensureExtensionUsed, coerceNumber, rnMaterial, material);
 
     __outputKhrMaterialsDiffuseTransmissionInfo(
       ensureExtensionUsed,
