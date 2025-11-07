@@ -359,6 +359,31 @@ export type KHR_lights_punctual = {
   lights: KHR_lights_punctual_Light[];
 };
 
+export interface KHR_materials_variants_Variant {
+  name?: string;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
+}
+
+export interface KHR_materials_variants_Mapping {
+  material: number;
+  variants: number[];
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
+}
+
+export interface KHR_materials_variants_PrimitiveExtension {
+  mappings: KHR_materials_variants_Mapping[];
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
+}
+
+export interface KHR_materials_variants {
+  variants: KHR_materials_variants_Variant[];
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
+}
+
 export type GltfFileBuffers = {
   [s: string]: ArrayBuffer;
   //        "foo.gltf": content of file as ArrayBuffer,
