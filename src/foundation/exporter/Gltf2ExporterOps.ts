@@ -2743,11 +2743,9 @@ export function __outputKhrMaterialsVolumeInfo(
   });
 
   const attenuationDistance = coerceNumber(rnMaterial.getParameter('attenuationDistance'));
-  if (Is.exist(attenuationDistance)) {
+  if (Is.exist(attenuationDistance) && attenuationDistance > 0) {
     volumeExtension.attenuationDistance = attenuationDistance;
-    if (attenuationDistance !== 0) {
-      markVolumeExtensionUsed();
-    }
+    markVolumeExtensionUsed();
   }
 
   const attenuationColor = coerceVec3(rnMaterial.getParameter('attenuationColor'));

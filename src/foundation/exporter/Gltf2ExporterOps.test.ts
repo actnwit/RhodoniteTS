@@ -4,10 +4,15 @@ import type { Material } from '../materials/core/Material';
 import {
   __outputBaseMaterialInfo,
   __outputKhrMaterialsEmissiveStrengthInfo,
+  __outputKhrMaterialsVolumeInfo,
   __setupMaterialBasicProperties,
 } from './Gltf2ExporterOps';
 
 const coerceNumber = (value: unknown) => (typeof value === 'number' ? value : undefined);
+const coerceVec3 = (value: unknown) =>
+  Array.isArray(value) && value.length === 3 && value.every(component => typeof component === 'number')
+    ? (value as [number, number, number])
+    : undefined;
 
 const createMaterialStub = (
   params: Record<string, unknown>,
@@ -139,5 +144,61 @@ describe('__outputKhrMaterialsEmissiveStrengthInfo', () => {
 
     __outputKhrMaterialsEmissiveStrengthInfo(ensureExtensionUsed, coerceNumber, rnNoLighting, noLightingMaterial);
     expect(noLightingMaterial.extensions?.KHR_materials_emissive_strength).toBeUndefined();
+  });
+});
+
+describe('__outputKhrMaterialsVolumeInfo', () => {
+  const noopApplyTexture: Parameters<typeof __outputKhrMaterialsVolumeInfo>[4] = (_paramName, _options) => {
+    /* noop */
+  };
+
+  test('omits attenuationDistance when value is not positive', () => {
+    const ensureLog: string[] = [];
+    const ensureExtensionUsed = (name: string) => ensureLog.push(name);
+    const rnMaterial = createMaterialStub({
+      thicknessFactor: 0.25,
+      attenuationDistance: 0,
+    });
+    const material: Gltf2MaterialEx = {
+      pbrMetallicRoughness: {},
+    };
+
+    __outputKhrMaterialsVolumeInfo(
+      ensureExtensionUsed,
+      coerceNumber,
+      coerceVec3,
+      rnMaterial,
+      noopApplyTexture,
+      material
+    );
+
+    const volumeExtension = material.extensions?.KHR_materials_volume as Record<string, unknown> | undefined;
+    expect(volumeExtension).toBeDefined();
+    expect(volumeExtension?.attenuationDistance).toBeUndefined();
+    expect(ensureLog).toContain('KHR_materials_volume');
+  });
+
+  test('exports attenuationDistance only for positive values', () => {
+    const ensureLog: string[] = [];
+    const ensureExtensionUsed = (name: string) => ensureLog.push(name);
+    const rnMaterial = createMaterialStub({
+      attenuationDistance: 5,
+    });
+    const material: Gltf2MaterialEx = {
+      pbrMetallicRoughness: {},
+    };
+
+    __outputKhrMaterialsVolumeInfo(
+      ensureExtensionUsed,
+      coerceNumber,
+      coerceVec3,
+      rnMaterial,
+      noopApplyTexture,
+      material
+    );
+
+    const volumeExtension = material.extensions?.KHR_materials_volume as Record<string, unknown> | undefined;
+    expect(volumeExtension?.attenuationDistance).toBe(5);
+    expect(ensureLog).toContain('KHR_materials_volume');
   });
 });
