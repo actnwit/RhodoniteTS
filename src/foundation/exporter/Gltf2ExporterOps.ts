@@ -190,6 +190,22 @@ export function isNumericArrayBufferView(view: ArrayBufferView): view is Numeric
   return typeof (view as any).length === 'number';
 }
 
+export interface AnimationChannelTargetResolution {
+  path: Gltf2AnimationPathName;
+  node?: number;
+  extensions?: Record<string, unknown>;
+}
+
+export type AnimationChannelTargetOverride = AnimationChannelTargetResolution | AnimationChannelTargetResolution[];
+
+export interface AnimationExportOptions {
+  resolveAnimationTarget?: (args: {
+    channel: AnimationChannel;
+    entityIdx: Index;
+    trackName: string;
+  }) => AnimationChannelTargetOverride | null | undefined;
+}
+
 /**
  * Creates a glTF2 animation channel from Rhodonite animation data.
  *
@@ -203,19 +219,40 @@ export function createGltf2AnimationChannel(
   channel: AnimationChannel,
   samplerIdx: Index,
   animation: Gltf2Animation,
-  entityIdx: Index
+  entityIdx: Index,
+  targetOverride?: AnimationChannelTargetOverride
 ): Index {
   const pathName = channel.target.pathName as AnimationPathName;
+  const overrides = Array.isArray(targetOverride) ? targetOverride : targetOverride ? [targetOverride] : undefined;
 
-  const channelJson: Gltf2AnimationChannel = {
-    sampler: samplerIdx++,
-    target: {
-      path: convertToGltfAnimationPathName(pathName),
-      node: entityIdx,
-    },
-  };
-  animation.channels.push(channelJson);
-  return samplerIdx;
+  if (overrides?.length) {
+    for (const override of overrides) {
+      const target: Gltf2AnimationChannel['target'] = {
+        path: override.path,
+      };
+      if (typeof override.node === 'number') {
+        target.node = override.node;
+      }
+      if (Is.exist(override.extensions)) {
+        target.extensions = override.extensions;
+      }
+      animation.channels.push({
+        sampler: samplerIdx,
+        target,
+      });
+    }
+  } else {
+    const channelJson: Gltf2AnimationChannel = {
+      sampler: samplerIdx,
+      target: {
+        path: convertToGltfAnimationPathName(pathName),
+        node: entityIdx,
+      },
+    };
+    animation.channels.push(channelJson);
+  }
+
+  return samplerIdx + 1;
 }
 
 /**
@@ -2174,7 +2211,11 @@ export function __createBufferViewsAndAccessorsOfMesh(
  * @param json - The glTF2 JSON document to populate with animation data
  * @param entities - Animation entities to process
  */
-export function __createBufferViewsAndAccessorsOfAnimation(json: Gltf2Ex, entities: IAnimationEntity[]): void {
+export function __createBufferViewsAndAccessorsOfAnimation(
+  json: Gltf2Ex,
+  entities: IAnimationEntity[],
+  options?: AnimationExportOptions
+): void {
   let sumOfBufferViewByteLengthAccumulated = 0;
   const bufferIdx = json.extras.bufferViewByteLengthAccumulatedArray.length;
   const animationRegistry = new Map<AnimationTrackName, { animation: Gltf2Animation; samplerIdx: number }>();
@@ -2211,6 +2252,16 @@ export function __createBufferViewsAndAccessorsOfAnimation(json: Gltf2Ex, entiti
           const animationEntry = acquireAnimation(trackName);
           const animation = animationEntry.animation;
 
+          const targetOverride = options?.resolveAnimationTarget?.({
+            channel: rnChannel,
+            entityIdx: i,
+            trackName,
+          });
+
+          if (targetOverride === null) {
+            continue;
+          }
+
           // create and register Gltf2BufferView and Gltf2Accessor
           //   and set Input animation data as Uint8Array to the Gltf2Accessor
           const { inputAccessorIdx, inputBufferViewByteLengthAccumulated } =
@@ -2236,7 +2287,13 @@ export function __createBufferViewsAndAccessorsOfAnimation(json: Gltf2Ex, entiti
           sumOfBufferViewByteLengthAccumulated += outputBufferViewByteLengthAccumulated;
 
           // Create Gltf2AnimationChannel
-          animationEntry.samplerIdx = createGltf2AnimationChannel(rnChannel, animationEntry.samplerIdx, animation, i);
+          animationEntry.samplerIdx = createGltf2AnimationChannel(
+            rnChannel,
+            animationEntry.samplerIdx,
+            animation,
+            i,
+            targetOverride ?? undefined
+          );
 
           // Create Gltf2AnimationSampler
           createGltf2AnimationSampler(

@@ -1,3 +1,4 @@
+import type { AnimationChannel, AnimationPathName } from '../../types/AnimationTypes';
 import {
   type Gltf2,
   type Gltf2Camera,
@@ -13,6 +14,8 @@ import {
 } from '../../types/glTF2';
 import type { Gltf2Ex, Gltf2ImageEx, Gltf2MaterialEx } from '../../types/glTF2ForOutput';
 import { VERSION } from '../../version';
+import type { CameraComponent } from '../components/Camera/CameraComponent';
+import type { LightComponent } from '../components/Light/LightComponent';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { EntityRepository } from '../core/EntityRepository';
 import type { Tag } from '../core/RnObject';
@@ -21,6 +24,7 @@ import type { Mesh } from '../geometry/Mesh';
 import type { Primitive } from '../geometry/Primitive';
 import type { IAnimationEntity, IMeshEntity, ISceneGraphEntity, ISkeletalEntity } from '../helpers/EntityHelper';
 import type { Material } from '../materials/core/Material';
+import type { IAnimatedValue } from '../math/IAnimatedValue';
 import { MathUtil } from '../math/MathUtil';
 import { Quaternion } from '../math/Quaternion';
 import type { Accessor } from '../memory/Accessor';
@@ -28,11 +32,15 @@ import type { Buffer } from '../memory/Buffer';
 import type { BufferView } from '../memory/BufferView';
 import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
+import { Logger } from '../misc/Logger';
 import type { AbstractTexture } from '../textures/AbstractTexture';
 import type { Sampler } from '../textures/Sampler';
 import type { Texture } from '../textures/Texture';
 import { createEffekseer } from './Gltf2ExporterEffekseer';
 import {
+  type AnimationChannelTargetOverride,
+  type AnimationChannelTargetResolution,
+  type AnimationExportOptions,
   __collectAccessorIndicesFromAnimations,
   __collectAccessorIndicesFromMeshes,
   __collectAccessorIndicesFromSkins,
@@ -108,6 +116,12 @@ export interface Gltf2ExporterArguments {
 export class Gltf2Exporter {
   private constructor() {}
 
+  private static __materialToGltfMaterialIndices: Map<Material, number[]> = new Map();
+  private static __lightComponentToLightIndex: Map<LightComponent, number> = new Map();
+  private static __cameraComponentToCameraIndex: Map<CameraComponent, number> = new Map();
+  private static __exportedPointerTargetsByTrack: Map<string, Set<string>> = new Map();
+  private static __warnedMaterialSemantics: Set<string> = new Set();
+
   /**
    * Exports scene data from the Rhodonite system in glTF2 format.
    *
@@ -136,6 +150,12 @@ export class Gltf2Exporter {
   ) {
     const { collectedEntities, topLevelEntities } = this.__collectEntities(option);
 
+    this.__materialToGltfMaterialIndices.clear();
+    this.__lightComponentToLightIndex.clear();
+    this.__cameraComponentToCameraIndex.clear();
+    this.__exportedPointerTargetsByTrack.clear();
+    this.__warnedMaterialSemantics.clear();
+
     const { json, fileName }: { json: Gltf2Ex; fileName: string } = this.__createJsonBase(filename);
 
     this.__createBufferViewsAndAccessors(json, collectedEntities);
@@ -143,6 +163,8 @@ export class Gltf2Exporter {
     this.__createNodes(json, collectedEntities, topLevelEntities);
 
     await this.__createMaterials(json, collectedEntities as unknown as IMeshEntity[], option);
+
+    this.__createAnimationData(json, collectedEntities as unknown as IAnimationEntity[]);
 
     createEffekseer(json, collectedEntities);
 
@@ -304,8 +326,6 @@ export class Gltf2Exporter {
       existingUniqueRnAccessors
     );
 
-    __createBufferViewsAndAccessorsOfAnimation(json, entities as IAnimationEntity[]);
-
     __createBufferViewsAndAccessorsOfSkin(
       json,
       entities as ISkeletalEntity[],
@@ -313,6 +333,14 @@ export class Gltf2Exporter {
       existingUniqueRnBufferViews,
       existingUniqueRnAccessors
     );
+  }
+
+  private static __createAnimationData(json: Gltf2Ex, entities: IAnimationEntity[]) {
+    const animationOptions: AnimationExportOptions = {
+      resolveAnimationTarget: ({ channel, trackName }) => this.__resolveAnimationTarget(json, channel, trackName),
+    };
+
+    __createBufferViewsAndAccessorsOfAnimation(json, entities, animationOptions);
   }
 
   /**
@@ -459,6 +487,7 @@ export class Gltf2Exporter {
         }
         json.cameras.push(glTF2Camera!);
         node.camera = json.cameras.length - 1;
+        this.__cameraComponentToCameraIndex.set(cameraComponent, node.camera);
       }
       this.__exportLight(json, entity, node as Gltf2Node);
     }
@@ -572,6 +601,8 @@ export class Gltf2Exporter {
     const lightIndex = lightsExtension.lights.length;
     lightsExtension.lights.push(gltfLight);
 
+    this.__lightComponentToLightIndex.set(lightComponent, lightIndex);
+
     this.__ensureExtensionUsed(json, 'KHR_lights_punctual');
 
     if (Is.not.exist(node.extensions)) {
@@ -601,6 +632,232 @@ export class Gltf2Exporter {
   private static __ensureExtensionUsed(json: Gltf2Ex, extensionName: string) {
     if (json.extensionsUsed.indexOf(extensionName) === -1) {
       json.extensionsUsed.push(extensionName);
+    }
+  }
+
+  private static __registerMaterialIndex(rnMaterial: Material | undefined, materialIndex: number) {
+    if (Is.not.exist(rnMaterial)) {
+      return;
+    }
+    let indices = this.__materialToGltfMaterialIndices.get(rnMaterial);
+    if (Is.not.exist(indices)) {
+      indices = [];
+      this.__materialToGltfMaterialIndices.set(rnMaterial, indices);
+    }
+    indices.push(materialIndex);
+  }
+
+  private static __shouldEmitPointerTarget(trackName: string, pointer: string): boolean {
+    let exportedPointers = this.__exportedPointerTargetsByTrack.get(trackName);
+    if (Is.not.exist(exportedPointers)) {
+      exportedPointers = new Set();
+      this.__exportedPointerTargetsByTrack.set(trackName, exportedPointers);
+    }
+    if (exportedPointers.has(pointer)) {
+      return false;
+    }
+    exportedPointers.add(pointer);
+    return true;
+  }
+
+  private static __resolveAnimationTarget(
+    json: Gltf2Ex,
+    channel: AnimationChannel,
+    trackName: string
+  ): AnimationChannelTargetOverride | null | undefined {
+    const pathName = channel.target.pathName as AnimationPathName;
+    if (typeof pathName !== 'string') {
+      return undefined;
+    }
+
+    if (pathName.startsWith('material/')) {
+      const semantic = pathName.substring('material/'.length);
+      return this.__resolveMaterialAnimationTarget(json, channel, semantic, trackName);
+    }
+
+    if (pathName.startsWith('light_')) {
+      return this.__resolveLightAnimationTarget(json, channel, pathName, trackName);
+    }
+
+    if (pathName.startsWith('camera_')) {
+      return this.__resolveCameraAnimationTarget(json, channel, pathName, trackName);
+    }
+
+    return undefined;
+  }
+
+  private static __resolveMaterialAnimationTarget(
+    json: Gltf2Ex,
+    channel: AnimationChannel,
+    semantic: string,
+    trackName: string
+  ): AnimationChannelTargetOverride | null {
+    const indices = this.__findMaterialIndicesForAnimatedValue(semantic, channel.animatedValue);
+    if (indices.length === 0) {
+      this.__logUnsupportedMaterialSemantic(semantic, true);
+      return null;
+    }
+
+    const pointerSuffix = this.__getMaterialPointerSuffix(semantic);
+    if (Is.not.exist(pointerSuffix)) {
+      this.__logUnsupportedMaterialSemantic(semantic, false);
+      return null;
+    }
+
+    this.__ensureExtensionUsed(json, 'KHR_animation_pointer');
+
+    const targets: AnimationChannelTargetResolution[] = [];
+    for (const materialIndex of indices) {
+      const pointer = `/materials/${materialIndex}${pointerSuffix}`;
+      if (!this.__shouldEmitPointerTarget(trackName, pointer)) {
+        continue;
+      }
+      targets.push({
+        path: 'pointer',
+        extensions: {
+          KHR_animation_pointer: {
+            pointer,
+          },
+        },
+      });
+    }
+
+    return targets.length > 0 ? targets : null;
+  }
+
+  private static __findMaterialIndicesForAnimatedValue(semantic: string, animatedValue: IAnimatedValue) {
+    const indices: number[] = [];
+    for (const [rnMaterial, gltfIndices] of this.__materialToGltfMaterialIndices.entries()) {
+      const parameter = rnMaterial.getParameter(semantic);
+      if (parameter === animatedValue) {
+        indices.push(...gltfIndices);
+      }
+    }
+    return Array.from(new Set(indices));
+  }
+
+  private static __resolveLightAnimationTarget(
+    json: Gltf2Ex,
+    channel: AnimationChannel,
+    pathName: string,
+    trackName: string
+  ): AnimationChannelTargetOverride | null {
+    const lightComponent = channel.target.entity.tryToGetLight?.();
+    if (Is.not.exist(lightComponent)) {
+      return null;
+    }
+    const lightIndex = this.__lightComponentToLightIndex.get(lightComponent as LightComponent);
+    if (Is.not.exist(lightIndex)) {
+      return null;
+    }
+
+    const suffix = LIGHT_POINTER_SUFFIX_MAP[pathName];
+    if (Is.not.exist(suffix)) {
+      return null;
+    }
+
+    const pointer = `/extensions/KHR_lights_punctual/lights/${lightIndex}${suffix}`;
+    if (!this.__shouldEmitPointerTarget(trackName, pointer)) {
+      return null;
+    }
+
+    this.__ensureExtensionUsed(json, 'KHR_animation_pointer');
+
+    return {
+      path: 'pointer',
+      extensions: {
+        KHR_animation_pointer: {
+          pointer,
+        },
+      },
+    };
+  }
+
+  private static __resolveCameraAnimationTarget(
+    json: Gltf2Ex,
+    channel: AnimationChannel,
+    pathName: string,
+    trackName: string
+  ): AnimationChannelTargetOverride | null {
+    const cameraComponent = channel.target.entity.tryToGetCamera?.();
+    if (Is.not.exist(cameraComponent)) {
+      return null;
+    }
+    const cameraIndex = this.__cameraComponentToCameraIndex.get(cameraComponent as CameraComponent);
+    if (Is.not.exist(cameraIndex)) {
+      return null;
+    }
+
+    const suffix = this.__getCameraPointerSuffix(pathName, cameraComponent as CameraComponent);
+    if (Is.not.exist(suffix)) {
+      return null;
+    }
+
+    const pointer = `/cameras/${cameraIndex}${suffix}`;
+    if (!this.__shouldEmitPointerTarget(trackName, pointer)) {
+      return null;
+    }
+
+    this.__ensureExtensionUsed(json, 'KHR_animation_pointer');
+
+    return {
+      path: 'pointer',
+      extensions: {
+        KHR_animation_pointer: {
+          pointer,
+        },
+      },
+    };
+  }
+
+  private static __getMaterialPointerSuffix(semantic: string): string | undefined {
+    const direct = MATERIAL_POINTER_SUFFIX_MAP[semantic];
+    if (Is.exist(direct)) {
+      return direct;
+    }
+
+    const transformMatch = semantic.match(/^(.*)Transform(Offset|Scale|Rotation)$/);
+    if (transformMatch) {
+      const textureName = transformMatch[1];
+      const transformType = transformMatch[2];
+      const texturePath = MATERIAL_TEXTURE_PATHS[textureName];
+      if (Is.not.exist(texturePath)) {
+        return undefined;
+      }
+      const property = transformType.toLowerCase();
+      return `${texturePath}/extensions/KHR_texture_transform/${property}`;
+    }
+
+    return undefined;
+  }
+
+  private static __logUnsupportedMaterialSemantic(semantic: string, missingMaterial: boolean) {
+    if (this.__warnedMaterialSemantics.has(semantic)) {
+      return;
+    }
+    this.__warnedMaterialSemantics.add(semantic);
+    if (missingMaterial) {
+      Logger.warn(`KHR_animation_pointer: No material parameter found for semantic "${semantic}".`);
+    } else {
+      Logger.warn(`KHR_animation_pointer: Unsupported material semantic "${semantic}". Animation skipped.`);
+    }
+  }
+
+  private static __getCameraPointerSuffix(pathName: string, cameraComponent: CameraComponent): string | undefined {
+    const type = cameraComponent.type;
+    switch (pathName) {
+      case 'camera_znear':
+        return type === CameraType.Perspective ? '/perspective/znear' : '/orthographic/znear';
+      case 'camera_zfar':
+        return type === CameraType.Perspective ? '/perspective/zfar' : '/orthographic/zfar';
+      case 'camera_fovy':
+        return type === CameraType.Perspective ? '/perspective/yfov' : undefined;
+      case 'camera_xmag':
+        return type === CameraType.Orthographic ? '/orthographic/xmag' : undefined;
+      case 'camera_ymag':
+        return type === CameraType.Orthographic ? '/orthographic/ymag' : undefined;
+      default:
+        return undefined;
     }
   }
 
@@ -662,6 +919,7 @@ export class Gltf2Exporter {
       const materialIndex = json.materials.length;
       json.materials.push(material);
       primitive.material = materialIndex;
+      this.__registerMaterialIndex(rnMaterial, materialIndex);
       __pruneUnusedVertexAttributes(primitive, material);
 
       await this.__exportMaterialVariants(
@@ -714,6 +972,7 @@ export class Gltf2Exporter {
         );
         materialIndex = json.materials.length;
         json.materials.push(gltfVariantMaterial);
+        this.__registerMaterialIndex(variantMaterial, materialIndex);
       }
 
       const variantIndex = this.__ensureVariantIndex(json, variantName, variantNameToIndex);
@@ -1273,3 +1532,65 @@ export class Gltf2Exporter {
     }
   }
 }
+
+const MATERIAL_POINTER_SUFFIX_MAP: Record<string, string> = {
+  baseColorFactor: '/pbrMetallicRoughness/baseColorFactor',
+  metallicFactor: '/pbrMetallicRoughness/metallicFactor',
+  roughnessFactor: '/pbrMetallicRoughness/roughnessFactor',
+  emissiveFactor: '/emissiveFactor',
+  emissiveStrength: '/extensions/KHR_materials_emissive_strength/emissiveStrength',
+  diffuseTransmissionFactor: '/extensions/KHR_materials_diffuse_transmission/diffuseTransmissionFactor',
+  diffuseTransmissionColorFactor: '/extensions/KHR_materials_diffuse_transmission/diffuseTransmissionColorFactor',
+  transmissionFactor: '/extensions/KHR_materials_transmission/transmissionFactor',
+  thicknessFactor: '/extensions/KHR_materials_volume/thicknessFactor',
+  attenuationDistance: '/extensions/KHR_materials_volume/attenuationDistance',
+  attenuationColor: '/extensions/KHR_materials_volume/attenuationColor',
+  dispersion: '/extensions/KHR_materials_dispersion/dispersion',
+  ior: '/extensions/KHR_materials_ior/ior',
+  iridescenceFactor: '/extensions/KHR_materials_iridescence/iridescenceFactor',
+  iridescenceIor: '/extensions/KHR_materials_iridescence/iridescenceIor',
+  iridescenceThicknessMinimum: '/extensions/KHR_materials_iridescence/iridescenceThicknessMinimum',
+  iridescenceThicknessMaximum: '/extensions/KHR_materials_iridescence/iridescenceThicknessMaximum',
+  clearcoatFactor: '/extensions/KHR_materials_clearcoat/clearcoatFactor',
+  clearcoatRoughnessFactor: '/extensions/KHR_materials_clearcoat/clearcoatRoughnessFactor',
+  clearcoatNormalScale: '/extensions/KHR_materials_clearcoat/clearcoatNormalTexture/scale',
+  clearcoatNormalTextureScale: '/extensions/KHR_materials_clearcoat/clearcoatNormalTexture/scale',
+  sheenColorFactor: '/extensions/KHR_materials_sheen/sheenColorFactor',
+  sheenRoughnessFactor: '/extensions/KHR_materials_sheen/sheenRoughnessFactor',
+  specularFactor: '/extensions/KHR_materials_specular/specularFactor',
+  specularColorFactor: '/extensions/KHR_materials_specular/specularColorFactor',
+  anisotropyStrength: '/extensions/KHR_materials_anisotropy/anisotropyStrength',
+  anisotropyRotation: '/extensions/KHR_materials_anisotropy/anisotropyRotation',
+  normalScale: '/normalTexture/scale',
+  occlusionStrength: '/occlusionTexture/strength',
+};
+
+const MATERIAL_TEXTURE_PATHS: Record<string, string> = {
+  baseColorTexture: '/pbrMetallicRoughness/baseColorTexture',
+  metallicRoughnessTexture: '/pbrMetallicRoughness/metallicRoughnessTexture',
+  normalTexture: '/normalTexture',
+  occlusionTexture: '/occlusionTexture',
+  emissiveTexture: '/emissiveTexture',
+  diffuseTransmissionTexture: '/extensions/KHR_materials_diffuse_transmission/diffuseTransmissionTexture',
+  diffuseTransmissionColorTexture: '/extensions/KHR_materials_diffuse_transmission/diffuseTransmissionColorTexture',
+  transmissionTexture: '/extensions/KHR_materials_transmission/transmissionTexture',
+  thicknessTexture: '/extensions/KHR_materials_volume/thicknessTexture',
+  clearcoatTexture: '/extensions/KHR_materials_clearcoat/clearcoatTexture',
+  clearcoatRoughnessTexture: '/extensions/KHR_materials_clearcoat/clearcoatRoughnessTexture',
+  clearcoatNormalTexture: '/extensions/KHR_materials_clearcoat/clearcoatNormalTexture',
+  sheenColorTexture: '/extensions/KHR_materials_sheen/sheenColorTexture',
+  sheenRoughnessTexture: '/extensions/KHR_materials_sheen/sheenRoughnessTexture',
+  specularTexture: '/extensions/KHR_materials_specular/specularTexture',
+  specularColorTexture: '/extensions/KHR_materials_specular/specularColorTexture',
+  iridescenceTexture: '/extensions/KHR_materials_iridescence/iridescenceTexture',
+  iridescenceThicknessTexture: '/extensions/KHR_materials_iridescence/iridescenceThicknessTexture',
+  anisotropyTexture: '/extensions/KHR_materials_anisotropy/anisotropyTexture',
+};
+
+const LIGHT_POINTER_SUFFIX_MAP: Record<string, string> = {
+  light_color: '/color',
+  light_intensity: '/intensity',
+  light_range: '/range',
+  light_spot_innerConeAngle: '/spot/innerConeAngle',
+  light_spot_outerConeAngle: '/spot/outerConeAngle',
+};
