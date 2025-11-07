@@ -671,7 +671,8 @@ export class Gltf2Exporter {
         promises,
         bufferIdx,
         option,
-        variantNameToIndex
+        variantNameToIndex,
+        materialIndex
       );
     }
   }
@@ -683,7 +684,8 @@ export class Gltf2Exporter {
     promises: Promise<any>[],
     bufferIdx: number,
     option: Gltf2ExporterArguments,
-    variantNameToIndex: Map<string, number>
+    variantNameToIndex: Map<string, number>,
+    baseMaterialIndex: number
   ) {
     const variantNames = rnPrimitive.getVariantNames();
     if (variantNames.length === 0) {
@@ -701,15 +703,18 @@ export class Gltf2Exporter {
         continue;
       }
 
-      const gltfVariantMaterial = await this.__createMaterialFromRhodonite(
-        json,
-        variantMaterial,
-        promises,
-        bufferIdx,
-        option
-      );
-      const materialIndex = json.materials.length;
-      json.materials.push(gltfVariantMaterial);
+      let materialIndex = baseMaterialIndex;
+      if (variantMaterial !== rnPrimitive.material) {
+        const gltfVariantMaterial = await this.__createMaterialFromRhodonite(
+          json,
+          variantMaterial,
+          promises,
+          bufferIdx,
+          option
+        );
+        materialIndex = json.materials.length;
+        json.materials.push(gltfVariantMaterial);
+      }
 
       const variantIndex = this.__ensureVariantIndex(json, variantName, variantNameToIndex);
       mappings.push({
