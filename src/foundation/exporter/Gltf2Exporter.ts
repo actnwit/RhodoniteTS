@@ -39,6 +39,7 @@ import type { Texture } from '../textures/Texture';
 import { createEffekseer } from './Gltf2ExporterEffekseer';
 import {
   type AnimationChannelTargetOverride,
+  type AnimationChannelTargetResolution,
   type AnimationExportOptions,
   __collectAccessorIndicesFromAnimations,
   __collectAccessorIndicesFromMeshes,
@@ -118,7 +119,7 @@ export class Gltf2Exporter {
   private static __materialToGltfMaterialIndices: Map<Material, number[]> = new Map();
   private static __lightComponentToLightIndex: Map<LightComponent, number> = new Map();
   private static __cameraComponentToCameraIndex: Map<CameraComponent, number> = new Map();
-  private static __pointerAnimatedValuesByTrack: Map<string, Set<IAnimatedValue>> = new Map();
+  private static __exportedPointerTargetsByTrack: Map<string, Set<string>> = new Map();
   private static __warnedMaterialSemantics: Set<string> = new Set();
 
   /**
@@ -152,7 +153,7 @@ export class Gltf2Exporter {
     this.__materialToGltfMaterialIndices.clear();
     this.__lightComponentToLightIndex.clear();
     this.__cameraComponentToCameraIndex.clear();
-    this.__pointerAnimatedValuesByTrack.clear();
+    this.__exportedPointerTargetsByTrack.clear();
     this.__warnedMaterialSemantics.clear();
 
     const { json, fileName }: { json: Gltf2Ex; fileName: string } = this.__createJsonBase(filename);
@@ -336,8 +337,7 @@ export class Gltf2Exporter {
 
   private static __createAnimationData(json: Gltf2Ex, entities: IAnimationEntity[]) {
     const animationOptions: AnimationExportOptions = {
-      shouldExportChannel: ({ channel, trackName }) => this.__shouldExportAnimationChannel(channel, trackName),
-      resolveAnimationTarget: ({ channel }) => this.__resolveAnimationTarget(json, channel),
+      resolveAnimationTarget: ({ channel, trackName }) => this.__resolveAnimationTarget(json, channel, trackName),
     };
 
     __createBufferViewsAndAccessorsOfAnimation(json, entities, animationOptions);
@@ -647,34 +647,23 @@ export class Gltf2Exporter {
     indices.push(materialIndex);
   }
 
-  private static __shouldExportAnimationChannel(channel: AnimationChannel, trackName: string): boolean {
-    const pathName = channel.target.pathName as AnimationPathName;
-    if (!this.__isPointerPath(pathName)) {
-      return true;
+  private static __shouldEmitPointerTarget(trackName: string, pointer: string): boolean {
+    let exportedPointers = this.__exportedPointerTargetsByTrack.get(trackName);
+    if (Is.not.exist(exportedPointers)) {
+      exportedPointers = new Set();
+      this.__exportedPointerTargetsByTrack.set(trackName, exportedPointers);
     }
-    const animatedValue = channel.animatedValue;
-    let animatedValues = this.__pointerAnimatedValuesByTrack.get(trackName);
-    if (Is.not.exist(animatedValues)) {
-      animatedValues = new Set();
-      this.__pointerAnimatedValuesByTrack.set(trackName, animatedValues);
-    }
-    if (animatedValues.has(animatedValue)) {
+    if (exportedPointers.has(pointer)) {
       return false;
     }
-    animatedValues.add(animatedValue);
+    exportedPointers.add(pointer);
     return true;
-  }
-
-  private static __isPointerPath(pathName: AnimationPathName): boolean {
-    if (typeof pathName !== 'string') {
-      return false;
-    }
-    return pathName.startsWith('material/') || pathName.startsWith('light_') || pathName.startsWith('camera_');
   }
 
   private static __resolveAnimationTarget(
     json: Gltf2Ex,
-    channel: AnimationChannel
+    channel: AnimationChannel,
+    trackName: string
   ): AnimationChannelTargetOverride | null | undefined {
     const pathName = channel.target.pathName as AnimationPathName;
     if (typeof pathName !== 'string') {
@@ -683,15 +672,15 @@ export class Gltf2Exporter {
 
     if (pathName.startsWith('material/')) {
       const semantic = pathName.substring('material/'.length);
-      return this.__resolveMaterialAnimationTarget(json, channel, semantic);
+      return this.__resolveMaterialAnimationTarget(json, channel, semantic, trackName);
     }
 
     if (pathName.startsWith('light_')) {
-      return this.__resolveLightAnimationTarget(json, channel, pathName);
+      return this.__resolveLightAnimationTarget(json, channel, pathName, trackName);
     }
 
     if (pathName.startsWith('camera_')) {
-      return this.__resolveCameraAnimationTarget(json, channel, pathName);
+      return this.__resolveCameraAnimationTarget(json, channel, pathName, trackName);
     }
 
     return undefined;
@@ -700,7 +689,8 @@ export class Gltf2Exporter {
   private static __resolveMaterialAnimationTarget(
     json: Gltf2Ex,
     channel: AnimationChannel,
-    semantic: string
+    semantic: string,
+    trackName: string
   ): AnimationChannelTargetOverride | null {
     const indices = this.__findMaterialIndicesForAnimatedValue(semantic, channel.animatedValue);
     if (indices.length === 0) {
@@ -716,14 +706,23 @@ export class Gltf2Exporter {
 
     this.__ensureExtensionUsed(json, 'KHR_animation_pointer');
 
-    return indices.map(materialIndex => ({
-      path: 'pointer',
-      extensions: {
-        KHR_animation_pointer: {
-          pointer: `/materials/${materialIndex}${pointerSuffix}`,
+    const targets: AnimationChannelTargetResolution[] = [];
+    for (const materialIndex of indices) {
+      const pointer = `/materials/${materialIndex}${pointerSuffix}`;
+      if (!this.__shouldEmitPointerTarget(trackName, pointer)) {
+        continue;
+      }
+      targets.push({
+        path: 'pointer',
+        extensions: {
+          KHR_animation_pointer: {
+            pointer,
+          },
         },
-      },
-    }));
+      });
+    }
+
+    return targets.length > 0 ? targets : null;
   }
 
   private static __findMaterialIndicesForAnimatedValue(semantic: string, animatedValue: IAnimatedValue) {
@@ -740,7 +739,8 @@ export class Gltf2Exporter {
   private static __resolveLightAnimationTarget(
     json: Gltf2Ex,
     channel: AnimationChannel,
-    pathName: string
+    pathName: string,
+    trackName: string
   ): AnimationChannelTargetOverride | null {
     const lightComponent = channel.target.entity.tryToGetLight?.();
     if (Is.not.exist(lightComponent)) {
@@ -756,13 +756,18 @@ export class Gltf2Exporter {
       return null;
     }
 
+    const pointer = `/extensions/KHR_lights_punctual/lights/${lightIndex}${suffix}`;
+    if (!this.__shouldEmitPointerTarget(trackName, pointer)) {
+      return null;
+    }
+
     this.__ensureExtensionUsed(json, 'KHR_animation_pointer');
 
     return {
       path: 'pointer',
       extensions: {
         KHR_animation_pointer: {
-          pointer: `/extensions/KHR_lights_punctual/lights/${lightIndex}${suffix}`,
+          pointer,
         },
       },
     };
@@ -771,7 +776,8 @@ export class Gltf2Exporter {
   private static __resolveCameraAnimationTarget(
     json: Gltf2Ex,
     channel: AnimationChannel,
-    pathName: string
+    pathName: string,
+    trackName: string
   ): AnimationChannelTargetOverride | null {
     const cameraComponent = channel.target.entity.tryToGetCamera?.();
     if (Is.not.exist(cameraComponent)) {
@@ -787,13 +793,18 @@ export class Gltf2Exporter {
       return null;
     }
 
+    const pointer = `/cameras/${cameraIndex}${suffix}`;
+    if (!this.__shouldEmitPointerTarget(trackName, pointer)) {
+      return null;
+    }
+
     this.__ensureExtensionUsed(json, 'KHR_animation_pointer');
 
     return {
       path: 'pointer',
       extensions: {
         KHR_animation_pointer: {
-          pointer: `/cameras/${cameraIndex}${suffix}`,
+          pointer,
         },
       },
     };

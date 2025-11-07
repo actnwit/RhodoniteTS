@@ -199,7 +199,6 @@ export interface AnimationChannelTargetResolution {
 export type AnimationChannelTargetOverride = AnimationChannelTargetResolution | AnimationChannelTargetResolution[];
 
 export interface AnimationExportOptions {
-  shouldExportChannel?: (args: { channel: AnimationChannel; entityIdx: Index; trackName: string }) => boolean;
   resolveAnimationTarget?: (args: {
     channel: AnimationChannel;
     entityIdx: Index;
@@ -2252,13 +2251,6 @@ export function __createBufferViewsAndAccessorsOfAnimation(
         for (const trackName of trackNames) {
           const animationEntry = acquireAnimation(trackName);
           const animation = animationEntry.animation;
-
-          if (
-            options?.shouldExportChannel &&
-            !options.shouldExportChannel({ channel: rnChannel, entityIdx: i, trackName })
-          ) {
-            continue;
-          }
 
           const targetOverride = options?.resolveAnimationTarget?.({
             channel: rnChannel,
