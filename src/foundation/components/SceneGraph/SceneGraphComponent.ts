@@ -387,12 +387,42 @@ export class SceneGraphComponent extends Component {
    * Adds a SceneGraph component as a child of this node.
    * @param sg - The SceneGraph component to add as a child
    */
-  public addChild(sg: SceneGraphComponent): void {
+  public addChild(sg: SceneGraphComponent, keepPositionInWorldSpace = false): void {
+    // When we need to keep the child's world pose, capture its world matrix before reparenting.
+    let worldMatrixBeforeReparent: MutableMatrix44 | undefined;
+
+    if (keepPositionInWorldSpace) {
+      worldMatrixBeforeReparent = sg.matrix;
+    }
+
     if (Is.exist(sg.__parent)) {
       sg.__parent.removeChild(sg);
     }
     sg.__parent = this;
     this.__children.push(sg);
+
+    if (keepPositionInWorldSpace && Is.exist(worldMatrixBeforeReparent)) {
+      const transform = sg.entity.getTransform();
+
+      if (Is.exist(transform)) {
+        // Convert the stored world matrix into a new local matrix using the new parent's world matrix.
+        const parentWorldMatrix = this.matrixInner;
+        const invertedParentWorldMatrix = Matrix44.invertTo(parentWorldMatrix, SceneGraphComponent.__tmp_mat4_2);
+        const localMatrix = Matrix44.multiplyTo(
+          invertedParentWorldMatrix,
+          worldMatrixBeforeReparent,
+          SceneGraphComponent.__tmp_mat4_3
+        );
+
+        transform.localMatrix = localMatrix;
+
+        // Keep physics representation in-sync with the preserved world position/rotation.
+        sg.setPositionToPhysics(worldMatrixBeforeReparent.getTranslate());
+        sg.setRotationToPhysics(Quaternion.fromMatrix(worldMatrixBeforeReparent));
+      }
+    }
+
+    sg.setWorldMatrixDirtyRecursively();
   }
 
   /**
