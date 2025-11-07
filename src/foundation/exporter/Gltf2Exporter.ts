@@ -1,3 +1,4 @@
+import type { AnimationChannel, AnimationPathName } from '../../types/AnimationTypes';
 import {
   type Gltf2,
   type Gltf2Camera,
@@ -11,12 +12,11 @@ import {
   type KHR_materials_variants_PrimitiveExtension,
   isSameGlTF2TextureSampler,
 } from '../../types/glTF2';
-import type { AnimationChannel, AnimationPathName } from '../../types/AnimationTypes';
 import type { Gltf2Ex, Gltf2ImageEx, Gltf2MaterialEx } from '../../types/glTF2ForOutput';
 import { VERSION } from '../../version';
 import type { CameraComponent } from '../components/Camera/CameraComponent';
-import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import type { LightComponent } from '../components/Light/LightComponent';
+import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { EntityRepository } from '../core/EntityRepository';
 import type { Tag } from '../core/RnObject';
 import { CameraType, LightType, TextureParameter } from '../definitions';
@@ -24,9 +24,9 @@ import type { Mesh } from '../geometry/Mesh';
 import type { Primitive } from '../geometry/Primitive';
 import type { IAnimationEntity, IMeshEntity, ISceneGraphEntity, ISkeletalEntity } from '../helpers/EntityHelper';
 import type { Material } from '../materials/core/Material';
+import type { IAnimatedValue } from '../math/IAnimatedValue';
 import { MathUtil } from '../math/MathUtil';
 import { Quaternion } from '../math/Quaternion';
-import type { IAnimatedValue } from '../math/IAnimatedValue';
 import type { Accessor } from '../memory/Accessor';
 import type { Buffer } from '../memory/Buffer';
 import type { BufferView } from '../memory/BufferView';
@@ -38,6 +38,8 @@ import type { Sampler } from '../textures/Sampler';
 import type { Texture } from '../textures/Texture';
 import { createEffekseer } from './Gltf2ExporterEffekseer';
 import {
+  type AnimationChannelTargetOverride,
+  type AnimationExportOptions,
   __collectAccessorIndicesFromAnimations,
   __collectAccessorIndicesFromMeshes,
   __collectAccessorIndicesFromSkins,
@@ -74,8 +76,6 @@ import {
   generateGlbArrayBuffer,
   handleTextureImage,
   isNumericArrayBufferView,
-  type AnimationChannelTargetOverride,
-  type AnimationExportOptions,
 } from './Gltf2ExporterOps';
 
 export const GLTF2_EXPORT_GLTF = 'glTF';
@@ -1556,8 +1556,7 @@ const MATERIAL_TEXTURE_PATHS: Record<string, string> = {
   occlusionTexture: '/occlusionTexture',
   emissiveTexture: '/emissiveTexture',
   diffuseTransmissionTexture: '/extensions/KHR_materials_diffuse_transmission/diffuseTransmissionTexture',
-  diffuseTransmissionColorTexture:
-    '/extensions/KHR_materials_diffuse_transmission/diffuseTransmissionColorTexture',
+  diffuseTransmissionColorTexture: '/extensions/KHR_materials_diffuse_transmission/diffuseTransmissionColorTexture',
   transmissionTexture: '/extensions/KHR_materials_transmission/transmissionTexture',
   thicknessTexture: '/extensions/KHR_materials_volume/thicknessTexture',
   clearcoatTexture: '/extensions/KHR_materials_clearcoat/clearcoatTexture',

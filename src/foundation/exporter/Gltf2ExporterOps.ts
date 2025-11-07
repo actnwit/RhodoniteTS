@@ -196,9 +196,7 @@ export interface AnimationChannelTargetResolution {
   extensions?: Record<string, unknown>;
 }
 
-export type AnimationChannelTargetOverride =
-  | AnimationChannelTargetResolution
-  | AnimationChannelTargetResolution[];
+export type AnimationChannelTargetOverride = AnimationChannelTargetResolution | AnimationChannelTargetResolution[];
 
 export interface AnimationExportOptions {
   shouldExportChannel?: (channel: AnimationChannel, entityIdx: Index) => boolean;
@@ -225,11 +223,7 @@ export function createGltf2AnimationChannel(
   targetOverride?: AnimationChannelTargetOverride
 ): Index {
   const pathName = channel.target.pathName as AnimationPathName;
-  const overrides = Array.isArray(targetOverride)
-    ? targetOverride
-    : targetOverride
-      ? [targetOverride]
-      : undefined;
+  const overrides = Array.isArray(targetOverride) ? targetOverride : targetOverride ? [targetOverride] : undefined;
 
   if (overrides?.length) {
     for (const override of overrides) {
