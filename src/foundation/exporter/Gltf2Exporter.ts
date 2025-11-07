@@ -7,6 +7,8 @@ import {
   type Gltf2TextureSampler,
   type KHR_lights_punctual,
   type KHR_lights_punctual_Light,
+  type KHR_materials_variants,
+  type KHR_materials_variants_PrimitiveExtension,
   isSameGlTF2TextureSampler,
 } from '../../types/glTF2';
 import type { Gltf2Ex, Gltf2ImageEx, Gltf2MaterialEx } from '../../types/glTF2ForOutput';
@@ -16,6 +18,7 @@ import { EntityRepository } from '../core/EntityRepository';
 import type { Tag } from '../core/RnObject';
 import { CameraType, LightType, TextureParameter } from '../definitions';
 import type { Mesh } from '../geometry/Mesh';
+import type { Primitive } from '../geometry/Primitive';
 import type { IAnimationEntity, IMeshEntity, ISceneGraphEntity, ISkeletalEntity } from '../helpers/EntityHelper';
 import type { Material } from '../materials/core/Material';
 import { MathUtil } from '../math/MathUtil';
@@ -616,6 +619,7 @@ export class Gltf2Exporter {
   static async __createMaterials(json: Gltf2Ex, entities: IMeshEntity[], option: Gltf2ExporterArguments) {
     let countMesh = 0;
     const promises: Promise<any>[] = [];
+    const variantNameToIndex = new Map<string, number>();
     json.extras.bufferViewByteLengthAccumulatedArray.push(0);
     const bufferIdx = json.extras.bufferViewByteLengthAccumulatedArray.length - 1;
 
@@ -624,7 +628,15 @@ export class Gltf2Exporter {
       const meshComponent = entity.tryToGetMesh();
       if (meshComponent?.mesh) {
         const gltf2Mesh = json.meshes![countMesh++];
-        await this.__processMeshPrimitives(json, meshComponent.mesh, gltf2Mesh, promises, bufferIdx, option);
+        await this.__processMeshPrimitives(
+          json,
+          meshComponent.mesh,
+          gltf2Mesh,
+          promises,
+          bufferIdx,
+          option,
+          variantNameToIndex
+        );
       }
     }
 
@@ -637,7 +649,8 @@ export class Gltf2Exporter {
     gltf2Mesh: Gltf2Mesh,
     promises: Promise<any>[],
     bufferIdx: number,
-    option: Gltf2ExporterArguments
+    option: Gltf2ExporterArguments,
+    variantNameToIndex: Map<string, number>
   ) {
     const primitiveCount = mesh.getPrimitiveNumber();
     for (let j = 0; j < primitiveCount; j++) {
@@ -650,7 +663,118 @@ export class Gltf2Exporter {
       json.materials.push(material);
       primitive.material = materialIndex;
       __pruneUnusedVertexAttributes(primitive, material);
+
+      await this.__exportMaterialVariants(
+        json,
+        rnPrimitive,
+        primitive,
+        promises,
+        bufferIdx,
+        option,
+        variantNameToIndex
+      );
     }
+  }
+
+  private static async __exportMaterialVariants(
+    json: Gltf2Ex,
+    rnPrimitive: Primitive,
+    primitive: Gltf2Mesh['primitives'][number],
+    promises: Promise<any>[],
+    bufferIdx: number,
+    option: Gltf2ExporterArguments,
+    variantNameToIndex: Map<string, number>
+  ) {
+    const variantNames = rnPrimitive.getVariantNames();
+    if (variantNames.length === 0) {
+      return;
+    }
+
+    const mappings: KHR_materials_variants_PrimitiveExtension['mappings'] = [];
+
+    for (const variantName of variantNames) {
+      if (Is.not.exist(variantName) || variantName.length === 0) {
+        continue;
+      }
+      const variantMaterial = rnPrimitive.getVariantMaterial(variantName);
+      if (variantMaterial == null) {
+        continue;
+      }
+
+      const gltfVariantMaterial = await this.__createMaterialFromRhodonite(
+        json,
+        variantMaterial,
+        promises,
+        bufferIdx,
+        option
+      );
+      const materialIndex = json.materials.length;
+      json.materials.push(gltfVariantMaterial);
+
+      const variantIndex = this.__ensureVariantIndex(json, variantName, variantNameToIndex);
+      mappings.push({
+        material: materialIndex,
+        variants: [variantIndex],
+      });
+    }
+
+    if (mappings.length === 0) {
+      return;
+    }
+
+    primitive.extensions = primitive.extensions ?? {};
+    const primitiveExtensions = primitive.extensions as {
+      KHR_materials_variants?: KHR_materials_variants_PrimitiveExtension;
+      [key: string]: unknown;
+    };
+
+    if (Is.exist(primitiveExtensions.KHR_materials_variants)) {
+      primitiveExtensions.KHR_materials_variants!.mappings.push(...mappings);
+    } else {
+      primitiveExtensions.KHR_materials_variants = {
+        mappings,
+      };
+    }
+
+    this.__ensureExtensionUsed(json, 'KHR_materials_variants');
+  }
+
+  private static __ensureVariantIndex(
+    json: Gltf2Ex,
+    variantName: string,
+    variantNameToIndex: Map<string, number>
+  ) {
+    let variantIndex = variantNameToIndex.get(variantName);
+    if (variantIndex !== undefined) {
+      return variantIndex;
+    }
+
+    const materialVariantsExtension = this.__ensureMaterialVariantsExtension(json);
+    variantIndex = materialVariantsExtension.variants.length;
+    materialVariantsExtension.variants.push({
+      name: variantName,
+    });
+    variantNameToIndex.set(variantName, variantIndex);
+    return variantIndex;
+  }
+
+  private static __ensureMaterialVariantsExtension(json: Gltf2Ex): KHR_materials_variants {
+    if (Is.not.exist(json.extensions)) {
+      json.extensions = {};
+    }
+
+    const rootExtensions = json.extensions as {
+      KHR_materials_variants?: KHR_materials_variants;
+      [key: string]: unknown;
+    };
+
+    if (Is.not.exist(rootExtensions.KHR_materials_variants)) {
+      rootExtensions.KHR_materials_variants = {
+        variants: [],
+      };
+    }
+
+    return rootExtensions.KHR_materials_variants;
   }
 
   private static async __createMaterialFromRhodonite(
