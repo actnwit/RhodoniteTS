@@ -744,11 +744,7 @@ export class Gltf2Exporter {
     this.__ensureExtensionUsed(json, 'KHR_materials_variants');
   }
 
-  private static __ensureVariantIndex(
-    json: Gltf2Ex,
-    variantName: string,
-    variantNameToIndex: Map<string, number>
-  ) {
+  private static __ensureVariantIndex(json: Gltf2Ex, variantName: string, variantNameToIndex: Map<string, number>) {
     let variantIndex = variantNameToIndex.get(variantName);
     if (variantIndex !== undefined) {
       return variantIndex;
