@@ -1452,9 +1452,9 @@ export class SceneGraphComponent extends Component {
        * Adds a child scene graph component to this entity.
        * @param sg - The scene graph component to add as a child
        */
-      addChild(sg: SceneGraphComponent): void {
+      addChild(sg: SceneGraphComponent, keepPositionInWorldSpace = false): void {
         const sceneGraph = this.getSceneGraph();
-        sceneGraph.addChild(sg);
+        sceneGraph.addChild(sg, keepPositionInWorldSpace);
       }
 
       /**

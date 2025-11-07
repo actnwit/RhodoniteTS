@@ -15,7 +15,7 @@ export interface ISceneGraphEntityMethods {
   rotation: IQuaternion;
   rotationRest: IQuaternion;
 
-  addChild(sg: SceneGraphComponent): void;
+  addChild(sg: SceneGraphComponent, keepPositionInWorldSpace?: boolean): void;
   children: SceneGraphComponent[];
   removeChild(sg: SceneGraphComponent): void;
 }
