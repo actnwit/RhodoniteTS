@@ -477,6 +477,20 @@ export class TransformComponent extends Component {
    */
   set localMatrix(mat: IMatrix44) {
     this.__pose.matrix = mat;
+    const sceneGraph = this.entity.tryToGetSceneGraph();
+    if (sceneGraph !== undefined) {
+      const parent = sceneGraph.parent;
+      if (parent !== undefined) {
+        sceneGraph.setMatrixToPhysics(Matrix44.multiply(parent.matrix, mat));
+      } else {
+        sceneGraph.setMatrixToPhysics(mat);
+      }
+    }
+    TransformComponent.__updateCount++;
+  }
+
+  set localMatrixWithoutPhysics(mat: IMatrix44) {
+    this.__pose.matrix = mat;
     TransformComponent.__updateCount++;
   }
 

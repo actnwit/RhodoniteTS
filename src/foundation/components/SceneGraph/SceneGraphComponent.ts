@@ -74,6 +74,7 @@ export class SceneGraphComponent extends Component {
   private static __tmp_mat4 = MutableMatrix44.identity();
   private static __tmp_mat4_2 = MutableMatrix44.identity();
   private static __tmp_mat4_3 = MutableMatrix44.identity();
+  private static __tmp_mat4_4 = MutableMatrix44.identity();
   private static __tmp_quat_0 = MutableQuaternion.identity();
   private static __tmp_quat_1 = MutableQuaternion.identity();
 
@@ -389,14 +390,10 @@ export class SceneGraphComponent extends Component {
    */
   public addChild(sg: SceneGraphComponent, keepPositionInWorldSpace = false): void {
     // When we need to keep the child's world pose, capture its world transform before reparenting.
-    let worldPositionBeforeReparent: MutableVector3 | undefined;
-    let worldRotationBeforeReparent: IQuaternion | undefined;
-    let worldScaleBeforeReparent: MutableVector3 | undefined;
+    let worldMatrixBeforeReparent: MutableMatrix44 | undefined;
 
     if (keepPositionInWorldSpace) {
-      worldPositionBeforeReparent = MutableVector3.fromCopyVector3(sg.position);
-      worldRotationBeforeReparent = sg.rotation.clone();
-      worldScaleBeforeReparent = MutableVector3.fromCopyVector3(sg.scale);
+      worldMatrixBeforeReparent = sg.matrix;
     }
 
     if (Is.exist(sg.__parent)) {
@@ -406,14 +403,8 @@ export class SceneGraphComponent extends Component {
     this.__children.push(sg);
 
     if (keepPositionInWorldSpace) {
-      if (Is.exist(worldPositionBeforeReparent)) {
-        sg.position = worldPositionBeforeReparent;
-      }
-      if (Is.exist(worldRotationBeforeReparent)) {
-        sg.rotation = worldRotationBeforeReparent;
-      }
-      if (Is.exist(worldScaleBeforeReparent)) {
-        sg.scale = worldScaleBeforeReparent;
+      if (Is.exist(worldMatrixBeforeReparent)) {
+        sg.matrix = worldMatrixBeforeReparent;
       }
     }
 
@@ -484,6 +475,42 @@ export class SceneGraphComponent extends Component {
    */
   get matrix() {
     return this.matrixInner.clone();
+  }
+
+  setMatrixWithoutPhysics(matrix: IMatrix44) {
+    if (Is.not.exist(this.__parent)) {
+      this.entity.getTransform().localMatrixWithoutPhysics = matrix;
+    } else {
+      const parent = this.__parent;
+      const invMatrix = Matrix44.invertTo(parent.matrixInner, SceneGraphComponent.__tmp_mat4_4);
+      this.entity.getTransform().localMatrixWithoutPhysics = Matrix44.multiplyTo(
+        invMatrix,
+        matrix,
+        SceneGraphComponent.__tmp_mat4_3
+      ).clone();
+    }
+  }
+
+  setMatrixToPhysics(matrix: IMatrix44) {
+    const physicsComponent = this.entity.tryToGetPhysics();
+    if (physicsComponent !== undefined) {
+      if (physicsComponent.strategy !== undefined) {
+        if (physicsComponent.strategy instanceof OimoPhysicsStrategy) {
+          const sceneGraphComponent = this.entity.tryToGetSceneGraph();
+          if (sceneGraphComponent !== undefined) {
+            const eulerAngles = Quaternion.fromMatrix(matrix).toEulerAngles();
+            physicsComponent.strategy.setEulerAngle(eulerAngles);
+            physicsComponent.strategy.setPosition(matrix.getTranslate());
+            physicsComponent.strategy.setScale(matrix.getScale());
+          }
+        }
+      }
+    }
+  }
+
+  set matrix(matrix: MutableMatrix44) {
+    this.setMatrixWithoutPhysics(matrix);
+    this.setMatrixToPhysics(matrix);
   }
 
   /**
