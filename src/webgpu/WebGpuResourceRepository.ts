@@ -1639,9 +1639,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       }
     }
 
-    const depthTestEnabled = renderPass.isDepthTest && material.depthTestEnabled;
-    const pipeDepthWriteEnabled = depthTestEnabled && zWrite;
-
     const pipeline = gpuDevice.createRenderPipeline({
       layout: pipelineLayout,
       vertex: {
@@ -1664,8 +1661,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         depthStencilFormat == null
           ? undefined
           : {
-              depthWriteEnabled: pipeDepthWriteEnabled,
-              depthCompare: depthTestEnabled ? 'less' : 'always',
+              depthWriteEnabled: zWrite,
+              depthCompare: renderPass.isDepthTest ? 'less' : 'always',
               format: depthStencilFormat,
             },
       multisample: {

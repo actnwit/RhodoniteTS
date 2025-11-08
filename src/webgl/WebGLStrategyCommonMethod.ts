@@ -28,8 +28,6 @@ let lastFrontFaceCCW = true;
 let lastCullFaceBack = true;
 let lastAlphaToCoverage = false;
 let lastColorWriteMask: boolean[] = [true, true, true, true];
-let lastDepthTestEnabled = true;
-let lastDepthMaskEnabled = true;
 
 /**
  * Sets WebGL rendering parameters for the given material.
@@ -38,12 +36,11 @@ let lastDepthMaskEnabled = true;
  * @param material - The material containing rendering parameters to apply
  * @param gl - The WebGL rendering context
  */
-function setWebGLParameters(material: Material, gl: WebGLRenderingContext, renderPass: RenderPass) {
+function setWebGLParameters(material: Material, gl: WebGLRenderingContext) {
   setCull(material, gl);
   setBlendSettings(material, gl);
   setAlphaToCoverage(material, gl);
   setColorWriteMask(material, gl);
-  applyMaterialDepthState(material, gl, renderPass);
 }
 
 /**
@@ -238,28 +235,6 @@ function setColorWriteMask(material: Material, gl: WebGLRenderingContext) {
   }
 }
 
-function applyMaterialDepthState(
-  material: Material,
-  gl: WebGLRenderingContext | WebGL2RenderingContext,
-  renderPass: RenderPass
-) {
-  const desiredDepthTest = renderPass.isDepthTest && material.depthTestEnabled;
-  if (desiredDepthTest !== lastDepthTestEnabled) {
-    if (desiredDepthTest) {
-      gl.enable(gl.DEPTH_TEST);
-    } else {
-      gl.disable(gl.DEPTH_TEST);
-    }
-    lastDepthTestEnabled = desiredDepthTest;
-  }
-
-  const desiredDepthMask = renderPass.depthWriteMask && material.depthWriteEnabled;
-  if (desiredDepthMask !== lastDepthMaskEnabled) {
-    gl.depthMask(desiredDepthMask);
-    lastDepthMaskEnabled = desiredDepthMask;
-  }
-}
-
 /**
  * Gets the viewport configuration for the given render pass.
  * If the render pass doesn't specify a viewport, returns the default viewport from the WebGL context.
@@ -400,5 +375,4 @@ export default Object.freeze({
   getDisplayCount,
   isVrMainPass,
   getPointSpriteShaderSemanticsInfoArray,
-  applyMaterialDepthState,
 });

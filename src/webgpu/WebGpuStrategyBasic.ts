@@ -544,7 +544,7 @@ ${indexStr}
       // Draw Blend primitives without ZWrite
       for (let i = renderPass._lastBlendWithZWriteIndex + 1; i <= renderPass._lastBlendWithoutZWriteIndex; i++) {
         const primitiveUid = primitiveUids[i];
-        const rendered = this.renderInner(primitiveUid, renderPass, isZWrite, displayIdx);
+        const rendered = this.renderInner(primitiveUid, renderPass, false, displayIdx);
         renderedSomething ||= rendered;
       }
     }
@@ -615,8 +615,7 @@ ${indexStr}
       primitiveIdxHasMorph,
       primitive.targets.length
     );
-    const depthWrite = zWrite && material.depthWriteEnabled;
-    webGpuResourceRepository.draw(primitive, material, renderPass, cameraSID, depthWrite, displayIdx);
+    webGpuResourceRepository.draw(primitive, material, renderPass, cameraSID, zWrite, displayIdx);
     return true;
   }
 

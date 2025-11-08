@@ -147,8 +147,6 @@ export class JointGizmo extends Gizmo {
     const gizmoMaterial = MaterialHelper.createClassicUberMaterial({ additionalName: 'JointGizmo' });
     gizmoMaterial.alphaMode = AlphaMode.Blend;
     gizmoMaterial.zWriteWhenBlend = false;
-    gizmoMaterial.depthTestEnabled = false;
-    gizmoMaterial.depthWriteEnabled = false;
     gizmoMaterial.cullFace = false;
     primitive.material = gizmoMaterial;
     mesh.addPrimitive(primitive);

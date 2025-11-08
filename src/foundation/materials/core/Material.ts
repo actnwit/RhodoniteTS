@@ -122,8 +122,6 @@ export class Material extends RnObject {
   public cullFace = true; // If true, enable gl.CULL_FACE
   public cullFrontFaceCCW = true;
   public cullFaceBack = true; // if true, cull back face. if false, cull front face
-  private __depthTestEnabled = true;
-  private __depthWriteEnabled = true;
   private __alphaToCoverage = false;
   private __blendEquationMode = Blend.EquationFuncAdd; // gl.FUNC_ADD
   private __blendEquationModeAlpha = Blend.EquationFuncAdd; // gl.FUNC_ADD
@@ -227,8 +225,6 @@ export class Material extends RnObject {
     str += this.cullFace ? '1' : '0';
     str += this.cullFrontFaceCCW ? '1' : '0';
     str += this.cullFaceBack ? '1' : '0';
-    str += this.__depthTestEnabled ? '1' : '0';
-    str += this.__depthWriteEnabled ? '1' : '0';
 
     // for (const [key, value] of this._autoFieldVariablesOnly) {
     //   if (CompositionType.isTexture(value.info.compositionType)) {
@@ -877,42 +873,6 @@ export class Material extends RnObject {
     this.__stateVersion++;
     Material.__stateVersion++;
     this.calcFingerPrint();
-  }
-
-  /**
-   * Enables or disables depth testing for this material.
-   * When disabled, primitives rendered with this material bypass the depth-test stage.
-   */
-  set depthTestEnabled(flag: boolean) {
-    if (this.__depthTestEnabled === flag) {
-      return;
-    }
-    this.__depthTestEnabled = flag;
-    this.__stateVersion++;
-    Material.__stateVersion++;
-    this.calcFingerPrint();
-  }
-
-  get depthTestEnabled() {
-    return this.__depthTestEnabled;
-  }
-
-  /**
-   * Enables or disables depth writing for this material.
-   * Useful for overlays or gizmos that should not modify the depth buffer.
-   */
-  set depthWriteEnabled(flag: boolean) {
-    if (this.__depthWriteEnabled === flag) {
-      return;
-    }
-    this.__depthWriteEnabled = flag;
-    this.__stateVersion++;
-    Material.__stateVersion++;
-    this.calcFingerPrint();
-  }
-
-  get depthWriteEnabled() {
-    return this.__depthWriteEnabled;
   }
 
   // setMaterialNode(materialNode: AbstractMaterialNode) {

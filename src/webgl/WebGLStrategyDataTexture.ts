@@ -1030,6 +1030,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     }
 
     if (renderPass._toRenderBlendWithoutZWritePrimitives) {
+      // disable depth write for blend primitives
+      gl.depthMask(false);
+
       // Draw Blend primitives without ZWrite
       for (let i = renderPass._lastBlendWithZWriteIndex + 1; i <= renderPass._lastBlendWithoutZWriteIndex; i++) {
         const primitiveUid = primitiveUids[i];
@@ -1091,7 +1094,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       (shaderProgram as any)._gl.uniform2iv((shaderProgram as any).vrState, vrState._v);
     }
 
-    WebGLStrategyCommonMethod.setWebGLParameters(material, gl, renderPass);
+    WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
 
     material._setParametersToGpuWebGLWithOutInternalSetting({
       shaderProgram,
@@ -1218,7 +1221,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     if (firstTimeForMaterial) {
       this.__setCurrentComponentSIDsForEachPrimitive(gl, material, WebGLStrategyDataTexture.__shaderProgram);
 
-      WebGLStrategyCommonMethod.setWebGLParameters(material, gl, renderPass);
+      WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
 
       material._setParametersToGpuWebGL({
         material: material,
