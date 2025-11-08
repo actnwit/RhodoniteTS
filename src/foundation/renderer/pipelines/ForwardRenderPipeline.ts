@@ -91,6 +91,7 @@ export class ForwardRenderPipeline extends RnObject {
 
   /** main expressions */
   private __expressions: Expression[] = [];
+  private __gizmoExpression: Expression = new Expression();
 
   private __oGenerateMipmapsExpression: Option<Expression> = new None();
   private __oMultiViewBlitBackBufferExpression: Option<Expression> = new None();
@@ -361,6 +362,10 @@ export class ForwardRenderPipeline extends RnObject {
       ) as ISceneGraphEntity[];
       this.__shadowExpressions = this.__oShadowSystem.get().getExpressions(entities);
     }
+  }
+
+  public setGizmoExpression(expression: Expression) {
+    this.__gizmoExpression = expression;
   }
 
   /**
@@ -1281,6 +1286,11 @@ export class ForwardRenderPipeline extends RnObject {
     // tone mapping for HDR to LDR conversion
     if (!this.__isSimple && this.__oToneMappingExpression.has()) {
       frame.addExpression(this.getToneMappingExpression()!);
+    }
+
+    // gizmo expression for rendering gizmos
+    if (this.__gizmoExpression.renderPasses.length > 0) {
+      frame.addExpression(this.__gizmoExpression);
     }
   }
 }

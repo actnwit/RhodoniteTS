@@ -264,6 +264,29 @@ export class SkeletalComponent extends Component {
   }
 
   /**
+   * Sets the visibility of the joint gizmo that visualizes skeletal joints.
+   * @param flg - True to show the joint gizmo, false to hide it
+   */
+  set isJointGizmosVisible(flg: boolean) {
+    for (let i = 0; i < this.__joints.length; i++) {
+      this.__joints[i].isJointGizmoVisible = flg;
+    }
+  }
+
+  /**
+   * Gets the visibility state of the joint gizmo.
+   * @returns True if the joint gizmo is visible, false otherwise
+   */
+  get isJointGizmosVisible() {
+    for (let i = 0; i < this.__joints.length; i++) {
+      if (this.__joints[i].isJointGizmoVisible) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Performs the logic update for skeletal animation.
    * Calculates joint transformations and updates bone data arrays based on the configured bone data type.
    * This method is called during the Logic processing stage.

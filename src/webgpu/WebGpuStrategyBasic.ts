@@ -511,8 +511,6 @@ ${indexStr}
 
     let renderedSomething = false;
     const isZWrite = renderPass.isDepthTest && renderPass.depthWriteMask;
-    const isZWrite2 =
-      renderPass.isDepthTest && renderPass.depthWriteMask && MeshRendererComponent.isDepthMaskTrueForBlendPrimitives;
     // For opaque primitives
     if (renderPass._toRenderOpaquePrimitives) {
       for (let i = renderPass._lastOpaqueIndex; i >= 0; i--) {
@@ -546,7 +544,7 @@ ${indexStr}
       // Draw Blend primitives without ZWrite
       for (let i = renderPass._lastBlendWithZWriteIndex + 1; i <= renderPass._lastBlendWithoutZWriteIndex; i++) {
         const primitiveUid = primitiveUids[i];
-        const rendered = this.renderInner(primitiveUid, renderPass, isZWrite2, displayIdx);
+        const rendered = this.renderInner(primitiveUid, renderPass, false, displayIdx);
         renderedSomething ||= rendered;
       }
     }

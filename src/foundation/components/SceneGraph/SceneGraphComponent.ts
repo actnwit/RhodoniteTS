@@ -7,6 +7,7 @@ import { ComponentType } from '../../definitions/ComponentType';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import type { RaycastResultEx2 } from '../../geometry/types/GeometryTypes';
 import { AABBGizmo } from '../../gizmos/AABBGizmo';
+import { JointGizmo } from '../../gizmos/JointGizmo';
 import { LocatorGizmo } from '../../gizmos/LocatorGizmo';
 import { ScaleGizmo } from '../../gizmos/ScaleGizmo';
 import { TranslationGizmo } from '../../gizmos/TranslationGizmo';
@@ -56,6 +57,7 @@ export class SceneGraphComponent extends Component {
   private __locatorGizmo?: LocatorGizmo;
   private __translationGizmo?: TranslationGizmo;
   private __scaleGizmo?: ScaleGizmo;
+  private __jointGizmo?: JointGizmo;
   private __transformGizmoSpace: 'local' | 'world' = 'world';
   private __latestPrimitivePositionAccessorVersion = 0;
   public toMakeWorldMatrixTheSameAsLocalMatrix = false;
@@ -291,6 +293,33 @@ export class SceneGraphComponent extends Component {
   get isScaleGizmoVisible() {
     if (Is.exist(this.__scaleGizmo)) {
       return this.__scaleGizmo.isVisible;
+    }
+    return false;
+  }
+
+  /**
+   * Sets the visibility of the joint gizmo that visualizes skeletal joints.
+   * @param flg - True to show the joint gizmo, false to hide it
+   */
+  set isJointGizmoVisible(flg: boolean) {
+    if (flg) {
+      if (Is.not.defined(this.__jointGizmo)) {
+        this.__jointGizmo = new JointGizmo(this.entity);
+        this.__jointGizmo._setup();
+      }
+      this.__jointGizmo.isVisible = true;
+    } else if (Is.exist(this.__jointGizmo)) {
+      this.__jointGizmo.isVisible = false;
+    }
+  }
+
+  /**
+   * Gets the visibility state of the joint gizmo.
+   * @returns True if the joint gizmo is visible, false otherwise
+   */
+  get isJointGizmoVisible() {
+    if (Is.exist(this.__jointGizmo)) {
+      return this.__jointGizmo.isVisible;
     }
     return false;
   }
@@ -992,6 +1021,9 @@ export class SceneGraphComponent extends Component {
     if (Is.exist(this.__scaleGizmo) && this.__scaleGizmo.isSetup && this.__scaleGizmo.isVisible) {
       this.__scaleGizmo._update();
     }
+    if (Is.exist(this.__jointGizmo) && this.__jointGizmo.isSetup && this.__jointGizmo.isVisible) {
+      this.__jointGizmo._update();
+    }
   }
 
   /**
@@ -1328,6 +1360,7 @@ export class SceneGraphComponent extends Component {
     this.__locatorGizmo?._destroy();
     this.__translationGizmo?._destroy();
     this.__scaleGizmo?._destroy();
+    this.__jointGizmo?._destroy();
     // this.__entityRepository.removeEntity(this.__entityUid);
     this.parent?.removeChild(this);
     this.children.forEach(child => child.parent?.removeChild(child));

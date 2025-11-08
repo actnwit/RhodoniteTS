@@ -29,9 +29,11 @@ import {
   type PrimitiveSortKeyOffset,
   PrimitiveSortKey_BitLength_Material,
   PrimitiveSortKey_BitLength_PrimitiveType,
+  PrimitiveSortKey_BitLength_RenderQueue,
   PrimitiveSortKey_BitLength_TranslucencyType,
   PrimitiveSortKey_BitOffset_Material,
   PrimitiveSortKey_BitOffset_PrimitiveType,
+  PrimitiveSortKey_BitOffset_RenderQueue,
   PrimitiveSortKey_BitOffset_TranslucencyType,
   type RaycastResult,
   type RaycastResultEx1,
@@ -298,6 +300,18 @@ export class Primitive extends RnObject {
     this._sortkey &= ~(mask << offset);
     // Writes a value to the specified offset
     this._sortkey |= (value & mask) << offset;
+  }
+
+  /**
+   * Sets the render queue value of this primitive.
+   * Higher values draw later within the same translucency bucket.
+   * The queue is encoded into the viewport-layer bits of the sort key.
+   * @param queue - Value between 0 and 2^3-1 representing relative draw order
+   */
+  setRenderQueue(queue: number) {
+    const maxQueue = (1 << PrimitiveSortKey_BitLength_RenderQueue) - 1;
+    const clamped = Math.max(0, Math.min(maxQueue, queue | 0));
+    this.setSortKey(PrimitiveSortKey_BitOffset_RenderQueue, PrimitiveSortKey_BitLength_RenderQueue, clamped);
   }
 
   /**

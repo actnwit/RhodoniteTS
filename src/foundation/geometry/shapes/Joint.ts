@@ -1,6 +1,8 @@
 import { PrimitiveMode } from '../../definitions/PrimitiveMode';
 import { VertexAttribute } from '../../definitions/VertexAttribute';
+import type { IVector3 } from '../../math/IVector';
 import { Vector3 } from '../../math/Vector3';
+import type { Accessor } from '../../memory/Accessor';
 import { type IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
 import { IShape } from './IShape';
 
@@ -21,6 +23,12 @@ export class Joint extends IShape {
   /** The width of the arrow shape */
   private __width = 1;
 
+  private static readonly __lineSegmentCount = 12;
+  private static readonly __componentsPerVertex = 3;
+  private __positionsBuffer = new Float32Array(Joint.__lineSegmentCount * 2 * Joint.__componentsPerVertex);
+
+  private __positionAccessor?: Accessor;
+
   /**
    * Generates a 3D joint visualization as an arrow-like shape connecting two points.
    * The joint is rendered as a combination of pyramidal shapes and connecting lines,
@@ -36,6 +44,46 @@ export class Joint extends IShape {
    * All rendered as line segments for wireframe visualization
    */
   public generate(desc: JointDescriptor): void {
+    const positions = this.__updatePositionsBuffer();
+
+    this.copyVertexData({
+      attributes: [positions],
+      attributeSemantics: [VertexAttribute.Position.XYZ],
+      primitiveMode: PrimitiveMode.Lines,
+      material: desc?.material,
+    });
+
+    this.__positionAccessor = this.getAttribute(VertexAttribute.Position.XYZ);
+  }
+
+  /**
+   * Updates the joint geometry to connect the specified world positions.
+   * @param worldPositionOfThisJoint - world-space position of this joint
+   * @param worldPositionOfParentJoint - world-space position of the parent joint
+   * @param width - optional width override for the joint visualization
+   */
+  setWorldPositions(worldPositionOfThisJoint: IVector3, worldPositionOfParentJoint: IVector3, width?: number): void {
+    this.__worldPositionOfThisJoint = Vector3.fromCopyVector3(worldPositionOfThisJoint);
+    this.__worldPositionOfParentJoint = Vector3.fromCopyVector3(worldPositionOfParentJoint);
+    if (width !== undefined) {
+      this.__width = width;
+    }
+    this.__applyPositionsToAccessor();
+  }
+
+  private __applyPositionsToAccessor() {
+    if (this.__positionAccessor == null) {
+      return;
+    }
+    const positions = this.__updatePositionsBuffer();
+    const vertexCount = positions.length / Joint.__componentsPerVertex;
+    for (let i = 0; i < vertexCount; i++) {
+      const baseIndex = i * Joint.__componentsPerVertex;
+      this.__positionAccessor.setVec3(i, positions[baseIndex], positions[baseIndex + 1], positions[baseIndex + 2], {});
+    }
+  }
+
+  private __updatePositionsBuffer(): Float32Array {
     const length = Vector3.lengthBtw(this.__worldPositionOfThisJoint, this.__worldPositionOfParentJoint);
     const arrowWidth = this.__width;
     const arrowheadLength = length / 7.5;
@@ -79,60 +127,38 @@ export class Joint extends IShape {
     const crossPosition3 = Vector3.add(arrowStickPosition, crossVector3);
     const crossPosition4 = Vector3.add(arrowStickPosition, crossVector4);
 
-    const pos: Vector3[] = [];
+    const buffer = this.__positionsBuffer;
+    let offset = 0;
+
+    const writeVector = (vec: Vector3) => {
+      buffer[offset++] = vec.x;
+      buffer[offset++] = vec.y;
+      buffer[offset++] = vec.z;
+    };
+
+    const writeLine = (start: Vector3, end: Vector3) => {
+      writeVector(start);
+      writeVector(end);
+    };
 
     // Long Pyramid
-    pos.push(this.__worldPositionOfThisJoint);
-    pos.push(crossPosition);
-
-    pos.push(this.__worldPositionOfThisJoint);
-    pos.push(crossPosition2);
-
-    pos.push(this.__worldPositionOfThisJoint);
-    pos.push(crossPosition3);
-
-    pos.push(this.__worldPositionOfThisJoint);
-    pos.push(crossPosition4);
+    writeLine(this.__worldPositionOfThisJoint, crossPosition);
+    writeLine(this.__worldPositionOfThisJoint, crossPosition2);
+    writeLine(this.__worldPositionOfThisJoint, crossPosition3);
+    writeLine(this.__worldPositionOfThisJoint, crossPosition4);
 
     // Plane
-    pos.push(crossPosition);
-    pos.push(crossPosition2);
-
-    pos.push(crossPosition2);
-    pos.push(crossPosition3);
-    pos.push(crossPosition3);
-    pos.push(crossPosition4);
-    pos.push(crossPosition4);
-    pos.push(crossPosition);
+    writeLine(crossPosition, crossPosition2);
+    writeLine(crossPosition2, crossPosition3);
+    writeLine(crossPosition3, crossPosition4);
+    writeLine(crossPosition4, crossPosition);
 
     // Short Pyramid
-    pos.push(this.__worldPositionOfParentJoint);
-    pos.push(crossPosition);
+    writeLine(this.__worldPositionOfParentJoint, crossPosition);
+    writeLine(this.__worldPositionOfParentJoint, crossPosition2);
+    writeLine(this.__worldPositionOfParentJoint, crossPosition3);
+    writeLine(this.__worldPositionOfParentJoint, crossPosition4);
 
-    pos.push(this.__worldPositionOfParentJoint);
-    pos.push(crossPosition2);
-
-    pos.push(this.__worldPositionOfParentJoint);
-    pos.push(crossPosition3);
-
-    pos.push(this.__worldPositionOfParentJoint);
-    pos.push(crossPosition4);
-
-    const positions: number[] = [];
-    pos.map(vec => {
-      Array.prototype.push.apply(positions, vec.flattenAsArray());
-    });
-
-    const attributes = [new Float32Array(positions)];
-
-    // Check Size
-    const attributeSemantics = [VertexAttribute.Position.XYZ];
-
-    this.copyVertexData({
-      attributes,
-      attributeSemantics,
-      primitiveMode: PrimitiveMode.Lines,
-      material: desc?.material,
-    });
+    return buffer;
   }
 }

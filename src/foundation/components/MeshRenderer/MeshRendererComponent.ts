@@ -46,7 +46,6 @@ export class MeshRendererComponent extends Component {
   private __rotationOfCubeMap = 0;
 
   private static __cgApiRenderingStrategy?: CGAPIStrategy;
-  public static isDepthMaskTrueForBlendPrimitives = false;
   static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> = new Map();
   private __updateCount = 0;
   private static __updateCount = 0;
