@@ -74,6 +74,7 @@ export class SceneGraphComponent extends Component {
   private static __tmp_mat4 = MutableMatrix44.identity();
   private static __tmp_mat4_2 = MutableMatrix44.identity();
   private static __tmp_mat4_3 = MutableMatrix44.identity();
+  private static __tmp_mat4_4 = MutableMatrix44.identity();
   private static __tmp_quat_0 = MutableQuaternion.identity();
   private static __tmp_quat_1 = MutableQuaternion.identity();
 
@@ -386,13 +387,30 @@ export class SceneGraphComponent extends Component {
   /**
    * Adds a SceneGraph component as a child of this node.
    * @param sg - The SceneGraph component to add as a child
+   * @param keepPoseInWorldSpace - Whether to keep the child's world pose
    */
-  public addChild(sg: SceneGraphComponent): void {
+  public addChild(sg: SceneGraphComponent, keepPoseInWorldSpace = false): void {
+    // When we need to keep the child's world pose, capture its world transform before reparenting.
+    let worldMatrixBeforeReparent: MutableMatrix44 | undefined;
+
+    if (keepPoseInWorldSpace) {
+      sg.logicForce();
+      worldMatrixBeforeReparent = sg.matrix;
+    }
+
     if (Is.exist(sg.__parent)) {
       sg.__parent.removeChild(sg);
     }
     sg.__parent = this;
     this.__children.push(sg);
+
+    if (keepPoseInWorldSpace) {
+      if (Is.exist(worldMatrixBeforeReparent)) {
+        sg.matrix = worldMatrixBeforeReparent;
+      }
+    }
+
+    sg.setWorldMatrixDirtyRecursively();
   }
 
   /**
@@ -459,6 +477,42 @@ export class SceneGraphComponent extends Component {
    */
   get matrix() {
     return this.matrixInner.clone();
+  }
+
+  setMatrixWithoutPhysics(matrix: IMatrix44) {
+    if (Is.not.exist(this.__parent)) {
+      this.entity.getTransform().localMatrixWithoutPhysics = matrix;
+    } else {
+      const parent = this.__parent;
+      const invMatrix = Matrix44.invertTo(parent.matrixInner, SceneGraphComponent.__tmp_mat4_4);
+      this.entity.getTransform().localMatrixWithoutPhysics = Matrix44.multiplyTo(
+        invMatrix,
+        matrix,
+        SceneGraphComponent.__tmp_mat4_3
+      ).clone();
+    }
+  }
+
+  setMatrixToPhysics(matrix: IMatrix44) {
+    const physicsComponent = this.entity.tryToGetPhysics();
+    if (physicsComponent !== undefined) {
+      if (physicsComponent.strategy !== undefined) {
+        if (physicsComponent.strategy instanceof OimoPhysicsStrategy) {
+          const sceneGraphComponent = this.entity.tryToGetSceneGraph();
+          if (sceneGraphComponent !== undefined) {
+            const eulerAngles = Quaternion.fromMatrix(matrix).toEulerAngles();
+            physicsComponent.strategy.setEulerAngle(eulerAngles);
+            physicsComponent.strategy.setPosition(matrix.getTranslate());
+            physicsComponent.strategy.setScale(matrix.getScale());
+          }
+        }
+      }
+    }
+  }
+
+  set matrix(matrix: MutableMatrix44) {
+    this.setMatrixWithoutPhysics(matrix);
+    this.setMatrixToPhysics(matrix);
   }
 
   /**
@@ -895,10 +949,7 @@ export class SceneGraphComponent extends Component {
       return;
     }
 
-    this.matrixInner;
-    this.normalMatrixInner;
-
-    this.__updateGizmos();
+    this.logicForce();
 
     // const meshComponent = this.entity.tryToGetMesh();
     // if (meshComponent != null) {
@@ -917,6 +968,12 @@ export class SceneGraphComponent extends Component {
     // }
 
     this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
+  }
+
+  logicForce() {
+    this.matrixInner;
+    this.normalMatrixInner;
+    this.__updateGizmos();
   }
 
   /**
@@ -1421,10 +1478,11 @@ export class SceneGraphComponent extends Component {
       /**
        * Adds a child scene graph component to this entity.
        * @param sg - The scene graph component to add as a child
+       * @param keepPoseInWorldSpace - Whether to keep the child's world pose
        */
-      addChild(sg: SceneGraphComponent): void {
+      addChild(sg: SceneGraphComponent, keepPoseInWorldSpace = false): void {
         const sceneGraph = this.getSceneGraph();
-        sceneGraph.addChild(sg);
+        sceneGraph.addChild(sg, keepPoseInWorldSpace);
       }
 
       /**
