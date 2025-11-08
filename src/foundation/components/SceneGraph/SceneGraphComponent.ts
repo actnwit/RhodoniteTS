@@ -387,12 +387,13 @@ export class SceneGraphComponent extends Component {
   /**
    * Adds a SceneGraph component as a child of this node.
    * @param sg - The SceneGraph component to add as a child
+   * @param keepPoseInWorldSpace - Whether to keep the child's world pose
    */
-  public addChild(sg: SceneGraphComponent, keepPositionInWorldSpace = false): void {
+  public addChild(sg: SceneGraphComponent, keepPoseInWorldSpace = false): void {
     // When we need to keep the child's world pose, capture its world transform before reparenting.
     let worldMatrixBeforeReparent: MutableMatrix44 | undefined;
 
-    if (keepPositionInWorldSpace) {
+    if (keepPoseInWorldSpace) {
       worldMatrixBeforeReparent = sg.matrix;
     }
 
@@ -402,7 +403,7 @@ export class SceneGraphComponent extends Component {
     sg.__parent = this;
     this.__children.push(sg);
 
-    if (keepPositionInWorldSpace) {
+    if (keepPoseInWorldSpace) {
       if (Is.exist(worldMatrixBeforeReparent)) {
         sg.matrix = worldMatrixBeforeReparent;
       }
@@ -1476,10 +1477,11 @@ export class SceneGraphComponent extends Component {
       /**
        * Adds a child scene graph component to this entity.
        * @param sg - The scene graph component to add as a child
+       * @param keepPoseInWorldSpace - Whether to keep the child's world pose
        */
-      addChild(sg: SceneGraphComponent, keepPositionInWorldSpace = false): void {
+      addChild(sg: SceneGraphComponent, keepPoseInWorldSpace = false): void {
         const sceneGraph = this.getSceneGraph();
-        sceneGraph.addChild(sg, keepPositionInWorldSpace);
+        sceneGraph.addChild(sg, keepPoseInWorldSpace);
       }
 
       /**
