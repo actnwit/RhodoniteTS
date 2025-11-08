@@ -1030,11 +1030,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     }
 
     if (renderPass._toRenderBlendWithoutZWritePrimitives) {
-      if (!MeshRendererComponent.isDepthMaskTrueForBlendPrimitives) {
-        // disable depth write for blend primitives
-        gl.depthMask(false);
-      }
-
       // Draw Blend primitives without ZWrite
       for (let i = renderPass._lastBlendWithZWriteIndex + 1; i <= renderPass._lastBlendWithoutZWriteIndex; i++) {
         const primitiveUid = primitiveUids[i];
