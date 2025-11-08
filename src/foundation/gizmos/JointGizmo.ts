@@ -15,8 +15,8 @@ import { Is } from '../misc/Is';
 import { Gizmo } from './Gizmo';
 
 type JointVisual = {
-  joint: SceneGraphComponent;
   parent: SceneGraphComponent;
+  child: SceneGraphComponent;
   primitive: Joint;
   entity: IMeshEntity;
 };
@@ -59,7 +59,7 @@ export class JointGizmo extends Gizmo {
 
     const jointPairs = this.__collectJointPairs(targetSceneGraph);
     for (const pair of jointPairs) {
-      const visual = this.__createJointVisual(pair.joint, pair.parent);
+      const visual = this.__createJointVisual(pair.parent, pair.child);
       if (visual) {
         this.__jointVisuals.push(visual);
       }
@@ -76,15 +76,15 @@ export class JointGizmo extends Gizmo {
 
     for (const visual of this.__jointVisuals) {
       const parent = visual.parent;
-      const joint = visual.joint;
-      if (!joint.isJoint() || !parent.isJoint()) {
+      const child = visual.child;
+      if (!child.isJoint() || !parent.isJoint()) {
         visual.entity.getSceneGraph()!.isVisible = false;
         continue;
       }
 
-      const jointPos = joint.getPositionTo(JointGizmo.__tmpJointPosition);
+      const childPos = child.getPositionTo(JointGizmo.__tmpJointPosition);
       const parentPos = parent.getPositionTo(JointGizmo.__tmpParentPosition);
-      const direction = JointGizmo.__tmpDirection.copyComponents(parentPos).subtract(jointPos);
+      const direction = JointGizmo.__tmpDirection.copyComponents(parentPos).subtract(childPos);
       const length = direction.length();
       if (length < Number.EPSILON) {
         visual.entity.getSceneGraph()!.isVisible = false;
@@ -99,7 +99,7 @@ export class JointGizmo extends Gizmo {
       const scale = JointGizmo.__tmpScale.setComponents(width, length, width);
 
       const transform = visual.entity.getTransform()!;
-      transform.localPosition = jointPos;
+      transform.localPosition = childPos;
       transform.localRotation = JointGizmo.__tmpQuaternion;
       transform.localScale = scale;
     }
@@ -112,38 +112,29 @@ export class JointGizmo extends Gizmo {
     this.__jointVisuals = [];
   }
 
-  private __collectJointPairs(sceneGraph: SceneGraphComponent): Array<{ joint: SceneGraphComponent; parent: SceneGraphComponent }> {
+  private __collectJointPairs(sceneGraph: SceneGraphComponent): Array<{ parent: SceneGraphComponent; child: SceneGraphComponent }> {
     const joints = flattenHierarchy(sceneGraph, true);
-    const pairs: Array<{ joint: SceneGraphComponent; parent: SceneGraphComponent }> = [];
+    const jointSet = new Set(joints);
+    const pairs: Array<{ parent: SceneGraphComponent; child: SceneGraphComponent }> = [];
 
     for (const joint of joints) {
-      const parentJoint = this.__findParentJoint(joint);
-      if (parentJoint) {
-        pairs.push({ joint, parent: parentJoint });
+      for (const child of joint.children) {
+        if (jointSet.has(child) && child.isJoint()) {
+          pairs.push({ parent: joint, child });
+        }
       }
     }
 
     return pairs;
   }
 
-  private __findParentJoint(joint: SceneGraphComponent): SceneGraphComponent | undefined {
-    let parent = joint.parent;
-    while (Is.exist(parent)) {
-      if (parent.isJoint()) {
-        return parent;
-      }
-      parent = parent.parent;
-    }
-    return undefined;
-  }
-
-  private __createJointVisual(joint: SceneGraphComponent, parent: SceneGraphComponent): JointVisual | undefined {
+  private __createJointVisual(parent: SceneGraphComponent, child: SceneGraphComponent): JointVisual | undefined {
     if (!Is.exist(this.__topEntity)) {
       return undefined;
     }
 
     const meshEntity = createMeshEntity();
-    meshEntity.tryToSetUniqueName(`JointGizmo_segment_${joint.entity.uniqueName}`, true);
+    meshEntity.tryToSetUniqueName(`JointGizmo_segment_${parent.entity.uniqueName}_${child.entity.uniqueName}`, true);
     meshEntity.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix = true;
 
     const meshComponent = meshEntity.getMesh();
@@ -166,8 +157,8 @@ export class JointGizmo extends Gizmo {
 
     return {
       entity: meshEntity,
-      joint,
       parent,
+      child,
       primitive,
     };
   }
