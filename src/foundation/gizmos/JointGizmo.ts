@@ -18,6 +18,9 @@ type JointVisual = {
   child: SceneGraphComponent;
   primitive: Joint;
   entity: IMeshEntity;
+  localPosition: MutableVector3;
+  localScale: MutableVector3;
+  localRotation: MutableQuaternion;
 };
 
 /**
@@ -98,9 +101,12 @@ export class JointGizmo extends Gizmo {
       const scale = JointGizmo.__tmpScale.setComponents(width, length, width);
 
       const transform = visual.entity.getTransform()!;
-      transform.localPosition = childPos;
-      transform.localRotation = JointGizmo.__tmpQuaternion;
-      transform.localScale = scale;
+      const position = visual.localPosition.copyComponents(childPos);
+      const rotation = visual.localRotation.copyComponents(JointGizmo.__tmpQuaternion);
+      const scaled = visual.localScale.copyComponents(scale);
+      transform.localPosition = position;
+      transform.localRotation = rotation;
+      transform.localScale = scaled;
     }
   }
 
@@ -159,6 +165,9 @@ export class JointGizmo extends Gizmo {
       parent,
       child,
       primitive,
+      localPosition: MutableVector3.zero(),
+      localScale: MutableVector3.one(),
+      localRotation: MutableQuaternion.identity(),
     };
   }
 }
