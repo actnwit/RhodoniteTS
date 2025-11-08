@@ -113,7 +113,6 @@ export abstract class Gizmo extends RnObject {
   protected setGizmoTag() {
     if (this.__topEntity) {
       this.__topEntity.tryToSetTag({ tag: 'Being', value: 'gizmo' });
-      this.__topEntity.tryToSetTag({ tag: 'Gizmo', value: 'top' });
 
       const sceneGraphs = flattenHierarchy(this.__topEntity.getSceneGraph()!, false);
       for (const sg of sceneGraphs) {

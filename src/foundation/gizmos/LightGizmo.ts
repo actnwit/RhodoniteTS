@@ -56,6 +56,7 @@ export class LightGizmo extends Gizmo {
     meshComponent.setMesh(LightGizmo.__mesh);
 
     this.setGizmoTag();
+    this.__topEntity.tryToSetTag({ tag: 'Gizmo', value: 'Light' });
   }
 
   /**
