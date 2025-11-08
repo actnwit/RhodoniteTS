@@ -1,6 +1,5 @@
 import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import { flattenHierarchy } from '../components/SceneGraph/SceneGraphOps';
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
 import { AlphaMode } from '../definitions/AlphaMode';
 import { Mesh } from '../geometry/Mesh';
@@ -115,15 +114,15 @@ export class JointGizmo extends Gizmo {
   private __collectJointPairs(
     sceneGraph: SceneGraphComponent
   ): Array<{ parent: SceneGraphComponent; child: SceneGraphComponent }> {
-    const joints = flattenHierarchy(sceneGraph, true);
-    const jointSet = new Set(joints);
     const pairs: Array<{ parent: SceneGraphComponent; child: SceneGraphComponent }> = [];
 
-    for (const joint of joints) {
-      for (const child of joint.children) {
-        if (jointSet.has(child) && child.isJoint()) {
-          pairs.push({ parent: joint, child });
-        }
+    if (!sceneGraph.isJoint()) {
+      return pairs;
+    }
+
+    for (const child of sceneGraph.children) {
+      if (child.isJoint()) {
+        pairs.push({ parent: sceneGraph, child });
       }
     }
 
