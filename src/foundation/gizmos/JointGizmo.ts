@@ -150,11 +150,6 @@ export class JointGizmo extends Gizmo {
     primitive.generate({});
     primitive.setWorldPositions(JointGizmo.__origin, JointGizmo.__unitY, 1);
     primitive.setRenderQueue(7);
-    const gizmoMaterial = MaterialHelper.createClassicUberMaterial({ additionalName: 'JointGizmo' });
-    gizmoMaterial.alphaMode = AlphaMode.Blend;
-    gizmoMaterial.zWriteWhenBlend = false;
-    gizmoMaterial.cullFace = false;
-    primitive.material = gizmoMaterial;
     mesh.addPrimitive(primitive);
     meshComponent.setMesh(mesh);
 
