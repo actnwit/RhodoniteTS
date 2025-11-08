@@ -571,7 +571,8 @@ ${indexStr}
       0,
       0
     );
-    webGpuResourceRepository.draw(primitive, material, renderPass, 0, true, 0);
+    const isZWrite = renderPass.isDepthTest && renderPass.depthWriteMask;
+    webGpuResourceRepository.draw(primitive, material, renderPass, 0, isZWrite, 0);
   }
 
   /**
