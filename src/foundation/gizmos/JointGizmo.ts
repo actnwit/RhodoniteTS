@@ -68,6 +68,7 @@ export class JointGizmo extends Gizmo {
     }
 
     this.setGizmoTag();
+    this.__topEntity.tryToSetTag({ tag: 'Gizmo', value: 'Joint' });
     this._update();
   }
 

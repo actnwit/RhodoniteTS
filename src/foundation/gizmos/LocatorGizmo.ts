@@ -76,6 +76,7 @@ export class LocatorGizmo extends Gizmo {
     sceneGraphComponent.setMesh(LocatorGizmo.__mesh);
 
     this.setGizmoTag();
+    this.__topEntity.tryToSetTag({ tag: 'Gizmo', value: 'Locator' });
   }
 
   /**

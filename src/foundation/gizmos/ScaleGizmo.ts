@@ -289,6 +289,7 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__latestTargetEntity = this.__target;
 
     this.setGizmoTag();
+    this.__topEntity.tryToSetTag({ tag: 'Gizmo', value: 'Scale' });
   }
 
   /**
