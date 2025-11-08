@@ -5,6 +5,7 @@ import { flattenHierarchy } from '../components/SceneGraph/SceneGraphOps';
 import { Mesh } from '../geometry/Mesh';
 import { Joint } from '../geometry/shapes/Joint';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
+import { Vector3 } from '../math/Vector3';
 import { Is } from '../misc/Is';
 import { Gizmo } from './Gizmo';
 
@@ -60,22 +61,17 @@ export class JointGizmo extends Gizmo {
       return;
     }
 
-    const targetSceneGraph = this.__target.getSceneGraph();
-    if (!targetSceneGraph) {
-      return;
-    }
-
-    const aabb = targetSceneGraph.worldMergedAABBWithSkeletal;
-    const maxSize = Math.max(aabb.sizeX, aabb.sizeY, aabb.sizeZ);
-    const width = maxSize > 0 ? maxSize * 0.01 : 0.02;
-
     for (const visual of this.__jointVisuals) {
       const parent = visual.parent;
       const joint = visual.joint;
       if (!joint.isJoint() || !parent.isJoint()) {
         continue;
       }
-      visual.primitive.setWorldPositions(joint.position, parent.position, width);
+      const jointPos = joint.position;
+      const parentPos = parent.position;
+      const distance = Vector3.lengthBtw(jointPos, parentPos);
+      const width = Math.max(distance * 0.15, 0.002);
+      visual.primitive.setWorldPositions(jointPos, parentPos, width);
     }
   }
 
