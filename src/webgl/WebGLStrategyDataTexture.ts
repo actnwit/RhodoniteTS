@@ -993,6 +993,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
     if (renderPass.isBufferLessRenderingMode()) {
       this.__renderWithoutBuffers(gl, renderPass, isVRMainPass);
+      gl.depthMask(true);
       return true;
     }
 

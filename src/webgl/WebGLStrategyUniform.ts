@@ -438,6 +438,7 @@ bool get_isBillboard(float instanceId) {
 
     if (renderPass.isBufferLessRenderingMode()) {
       this.__renderWithoutBuffers(gl, renderPass);
+      gl.depthMask(true);
       return true;
     }
 
