@@ -298,7 +298,7 @@ export class SkeletalComponent extends Component {
 
     for (let i = 0; i < this.__joints.length; i++) {
       const joint = this.__joints[i];
-      const globalJointTransform = joint.isVisible ? joint.matrixInner : joint.matrixRestInner;
+      const globalJointTransform = joint.matrixInner;
 
       MutableMatrix44.multiplyTypedArrayTo(
         globalJointTransform,
