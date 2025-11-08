@@ -46,12 +46,12 @@ export interface RaycastResultEx2 {
  *
  * See: http://realtimecollisiondetection.net/blog/?p=86
  *
- * Bit Field Layout (lower 18 bits of the sort key clock-wise from LSB):
+ * Bit Field Layout (lower 18 bits of the sort key from LSB):
  * --- 0
  *  3 bits: Primitive Type (0: POINTS, 1: LINES, 2: LINE_LOOP, 3: LINE_STRIP, 4: TRIANGLES, 5: TRIANGLE_STRIP, 6: TRIANGLE_FAN)
  * 10 bits: Material UID
+ *  3 bits: Render queue / viewport layer (larger value draws later inside the same translucency bucket)
  *  2 bits: Translucency type (0: Opaque, 1: Translucent, 2: Blend with ZWrite, 3: Blend without ZWrite)
- *  3 bits: Render queue / viewport layer (higher value draws later within the same translucency bucket)
  * --- 17
  *
  * Depth Field:
@@ -65,12 +65,12 @@ export const PrimitiveSortKey_BitLength_ViewportLayer = 3;
 
 export const PrimitiveSortKey_BitOffset_PrimitiveType = 0;
 export const PrimitiveSortKey_BitOffset_Material = PrimitiveSortKey_BitLength_PrimitiveType;
-export const PrimitiveSortKey_BitOffset_TranslucencyType =
-  PrimitiveSortKey_BitLength_PrimitiveType + PrimitiveSortKey_BitLength_Material;
 export const PrimitiveSortKey_BitOffset_ViewportLayer =
+  PrimitiveSortKey_BitLength_PrimitiveType + PrimitiveSortKey_BitLength_Material;
+export const PrimitiveSortKey_BitOffset_TranslucencyType =
   PrimitiveSortKey_BitLength_PrimitiveType +
   PrimitiveSortKey_BitLength_Material +
-  PrimitiveSortKey_BitLength_TranslucencyType;
+  PrimitiveSortKey_BitLength_ViewportLayer;
 
 export type PrimitiveSortKeyLength =
   | typeof PrimitiveSortKey_BitLength_Material
