@@ -617,7 +617,8 @@ ${indexStr}
       primitiveIdxHasMorph,
       primitive.targets.length
     );
-    webGpuResourceRepository.draw(primitive, material, renderPass, cameraSID, zWrite, displayIdx);
+    const depthWrite = zWrite && material.depthWriteEnabled;
+    webGpuResourceRepository.draw(primitive, material, renderPass, cameraSID, depthWrite, displayIdx);
     return true;
   }
 

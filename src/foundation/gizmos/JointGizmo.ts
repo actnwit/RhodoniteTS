@@ -5,6 +5,7 @@ import { flattenHierarchy } from '../components/SceneGraph/SceneGraphOps';
 import { Mesh } from '../geometry/Mesh';
 import { Joint } from '../geometry/shapes/Joint';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
+import { MaterialHelper } from '../helpers/MaterialHelper';
 import { MutableQuaternion } from '../math/MutableQuaternion';
 import { MutableVector3 } from '../math/MutableVector3';
 import { Quaternion } from '../math/Quaternion';
@@ -150,6 +151,11 @@ export class JointGizmo extends Gizmo {
     primitive.generate({});
     primitive.setWorldPositions(JointGizmo.__origin, JointGizmo.__unitY, 1);
     primitive.setRenderQueue(7);
+    const gizmoMaterial = MaterialHelper.createClassicUberMaterial({ additionalName: 'JointGizmo' });
+    gizmoMaterial.depthTestEnabled = false;
+    gizmoMaterial.depthWriteEnabled = false;
+    gizmoMaterial.cullFace = false;
+    primitive.material = gizmoMaterial;
     mesh.addPrimitive(primitive);
     meshComponent.setMesh(mesh);
 
