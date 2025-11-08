@@ -50,7 +50,7 @@ export interface RaycastResultEx2 {
  * --- 0
  *  3 bits: Primitive Type (0: POINTS, 1: LINES, 2: LINE_LOOP, 3: LINE_STRIP, 4: TRIANGLES, 5: TRIANGLE_STRIP, 6: TRIANGLE_FAN)
  * 10 bits: Material UID
- *  3 bits: Render queue / viewport layer (larger value draws later inside the same translucency bucket)
+ *  3 bits: Render queue (larger value draws later inside the same translucency bucket)
  *  2 bits: Translucency type (0: Opaque, 1: Translucent, 2: Blend with ZWrite, 3: Blend without ZWrite)
  * --- 17
  *
@@ -61,26 +61,26 @@ export type PrimitiveSortKey = number;
 export const PrimitiveSortKey_BitLength_TranslucencyType = 2;
 export const PrimitiveSortKey_BitLength_Material = 10;
 export const PrimitiveSortKey_BitLength_PrimitiveType = 3;
-export const PrimitiveSortKey_BitLength_ViewportLayer = 3;
+export const PrimitiveSortKey_BitLength_RenderQueue = 3;
 
 export const PrimitiveSortKey_BitOffset_PrimitiveType = 0;
 export const PrimitiveSortKey_BitOffset_Material = PrimitiveSortKey_BitLength_PrimitiveType;
-export const PrimitiveSortKey_BitOffset_ViewportLayer =
+export const PrimitiveSortKey_BitOffset_RenderQueue =
   PrimitiveSortKey_BitLength_PrimitiveType + PrimitiveSortKey_BitLength_Material;
 export const PrimitiveSortKey_BitOffset_TranslucencyType =
   PrimitiveSortKey_BitLength_PrimitiveType +
   PrimitiveSortKey_BitLength_Material +
-  PrimitiveSortKey_BitLength_ViewportLayer;
+  PrimitiveSortKey_BitLength_RenderQueue;
 
 export type PrimitiveSortKeyLength =
   | typeof PrimitiveSortKey_BitLength_Material
   | typeof PrimitiveSortKey_BitLength_TranslucencyType
   | typeof PrimitiveSortKey_BitLength_PrimitiveType
-  | typeof PrimitiveSortKey_BitLength_ViewportLayer;
+  | typeof PrimitiveSortKey_BitLength_RenderQueue;
 export type PrimitiveSortKeyOffset =
   | typeof PrimitiveSortKey_BitOffset_Material
   | typeof PrimitiveSortKey_BitOffset_TranslucencyType
-  | typeof PrimitiveSortKey_BitOffset_ViewportLayer;
+  | typeof PrimitiveSortKey_BitOffset_RenderQueue;
 
 export const PrimitiveSortKey_BitLength_Depth = 32;
 

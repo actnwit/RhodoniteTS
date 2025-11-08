@@ -25,9 +25,7 @@ export class Joint extends IShape {
 
   private static readonly __lineSegmentCount = 12;
   private static readonly __componentsPerVertex = 3;
-  private __positionsBuffer = new Float32Array(
-    Joint.__lineSegmentCount * 2 * Joint.__componentsPerVertex
-  );
+  private __positionsBuffer = new Float32Array(Joint.__lineSegmentCount * 2 * Joint.__componentsPerVertex);
 
   private __positionAccessor?: Accessor;
 
@@ -64,11 +62,7 @@ export class Joint extends IShape {
    * @param worldPositionOfParentJoint - world-space position of the parent joint
    * @param width - optional width override for the joint visualization
    */
-  setWorldPositions(
-    worldPositionOfThisJoint: IVector3,
-    worldPositionOfParentJoint: IVector3,
-    width?: number
-  ): void {
+  setWorldPositions(worldPositionOfThisJoint: IVector3, worldPositionOfParentJoint: IVector3, width?: number): void {
     this.__worldPositionOfThisJoint = Vector3.fromCopyVector3(worldPositionOfThisJoint);
     this.__worldPositionOfParentJoint = Vector3.fromCopyVector3(worldPositionOfParentJoint);
     if (width !== undefined) {
@@ -85,13 +79,7 @@ export class Joint extends IShape {
     const vertexCount = positions.length / Joint.__componentsPerVertex;
     for (let i = 0; i < vertexCount; i++) {
       const baseIndex = i * Joint.__componentsPerVertex;
-      this.__positionAccessor.setVec3(
-        i,
-        positions[baseIndex],
-        positions[baseIndex + 1],
-        positions[baseIndex + 2],
-        {}
-      );
+      this.__positionAccessor.setVec3(i, positions[baseIndex], positions[baseIndex + 1], positions[baseIndex + 2], {});
     }
   }
 
