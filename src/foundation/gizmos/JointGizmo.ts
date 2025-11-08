@@ -2,6 +2,7 @@ import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
 import { flattenHierarchy } from '../components/SceneGraph/SceneGraphOps';
+import { AlphaMode } from '../definitions/AlphaMode';
 import { Mesh } from '../geometry/Mesh';
 import { Joint } from '../geometry/shapes/Joint';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
@@ -152,6 +153,8 @@ export class JointGizmo extends Gizmo {
     primitive.setWorldPositions(JointGizmo.__origin, JointGizmo.__unitY, 1);
     primitive.setRenderQueue(7);
     const gizmoMaterial = MaterialHelper.createClassicUberMaterial({ additionalName: 'JointGizmo' });
+    gizmoMaterial.alphaMode = AlphaMode.Blend;
+    gizmoMaterial.zWriteWhenBlend = false;
     gizmoMaterial.depthTestEnabled = false;
     gizmoMaterial.depthWriteEnabled = false;
     gizmoMaterial.cullFace = false;
