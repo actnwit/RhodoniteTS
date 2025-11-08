@@ -68,7 +68,6 @@ export class SceneGraphComponent extends Component {
   private static readonly __originVector3 = Vector3.zero();
   private static returnVector3 = MutableVector3.zero();
   private static __sceneGraphs: WeakRef<SceneGraphComponent>[] = [];
-  private static isJointAABBShouldBeCalculated = false;
   private static invertedMatrix44 = MutableMatrix44.fromCopyArray16ColumnMajor([
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   ]);
@@ -302,7 +301,7 @@ export class SceneGraphComponent extends Component {
    * @param flg - True to show the joint gizmo, false to hide it
    */
   set isJointGizmoVisible(flg: boolean) {
-    if (flg) {
+    if (flg && this.isJoint()) {
       if (Is.not.defined(this.__jointGizmo)) {
         this.__jointGizmo = new JointGizmo(this.entity);
         this.__jointGizmo._setup();
