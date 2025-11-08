@@ -5,6 +5,9 @@ import { flattenHierarchy } from '../components/SceneGraph/SceneGraphOps';
 import { Mesh } from '../geometry/Mesh';
 import { Joint } from '../geometry/shapes/Joint';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
+import { MutableQuaternion } from '../math/MutableQuaternion';
+import { MutableVector3 } from '../math/MutableVector3';
+import { Quaternion } from '../math/Quaternion';
 import { Vector3 } from '../math/Vector3';
 import { Is } from '../misc/Is';
 import { Gizmo } from './Gizmo';
@@ -24,6 +27,14 @@ export class JointGizmo extends Gizmo {
   protected declare __topEntity?: ISceneGraphEntity;
 
   private __jointVisuals: JointVisual[] = [];
+
+  private static readonly __unitY = Vector3.fromCopyArray3([0, 1, 0]);
+  private static readonly __origin = Vector3.fromCopyArray3([0, 0, 0]);
+  private static readonly __tmpJointPosition = MutableVector3.zero();
+  private static readonly __tmpParentPosition = MutableVector3.zero();
+  private static readonly __tmpDirection = MutableVector3.zero();
+  private static readonly __tmpScale = MutableVector3.one();
+  private static readonly __tmpQuaternion = MutableQuaternion.identity();
 
   get isSetup(): boolean {
     return Is.exist(this.__topEntity);
@@ -65,13 +76,30 @@ export class JointGizmo extends Gizmo {
       const parent = visual.parent;
       const joint = visual.joint;
       if (!joint.isJoint() || !parent.isJoint()) {
+        visual.entity.getSceneGraph()!.isVisible = false;
         continue;
       }
-      const jointPos = joint.position;
-      const parentPos = parent.position;
-      const distance = Vector3.lengthBtw(jointPos, parentPos);
-      const width = Math.max(distance * 0.15, 0.002);
-      visual.primitive.setWorldPositions(jointPos, parentPos, width);
+
+      const jointPos = joint.getPositionTo(JointGizmo.__tmpJointPosition);
+      const parentPos = parent.getPositionTo(JointGizmo.__tmpParentPosition);
+      const direction = JointGizmo.__tmpDirection.copyComponents(parentPos).subtract(jointPos);
+      const length = direction.length();
+      if (length < Number.EPSILON) {
+        visual.entity.getSceneGraph()!.isVisible = false;
+        continue;
+      }
+      visual.entity.getSceneGraph()!.isVisible = true;
+
+      direction.divide(length);
+      Quaternion.fromToRotationTo(JointGizmo.__unitY, direction, JointGizmo.__tmpQuaternion);
+
+      const width = Math.max(length * 0.15, 0.002);
+      const scale = JointGizmo.__tmpScale.setComponents(width, length, width);
+
+      const transform = visual.entity.getTransform()!;
+      transform.localPosition = jointPos;
+      transform.localRotation = JointGizmo.__tmpQuaternion;
+      transform.localScale = scale;
     }
   }
 
@@ -120,6 +148,7 @@ export class JointGizmo extends Gizmo {
     const mesh = new Mesh();
     const primitive = new Joint();
     primitive.generate({});
+    primitive.setWorldPositions(JointGizmo.__origin, JointGizmo.__unitY, 1);
     mesh.addPrimitive(primitive);
     meshComponent.setMesh(mesh);
 
