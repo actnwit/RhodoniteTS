@@ -149,6 +149,7 @@ export class JointGizmo extends Gizmo {
     const primitive = new Joint();
     primitive.generate({});
     primitive.setWorldPositions(JointGizmo.__origin, JointGizmo.__unitY, 1);
+    primitive.setRenderQueue(7);
     mesh.addPrimitive(primitive);
     meshComponent.setMesh(mesh);
 
