@@ -515,7 +515,7 @@ bool get_isBillboard(float instanceId) {
 
     this.bindDataTexture(gl, shaderProgram);
 
-    WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
+    WebGLStrategyCommonMethod.setWebGLParameters(material, gl, renderPass);
     material._setParametersToGpuWebGLWithOutInternalSetting({
       shaderProgram,
       firstTime: true,
@@ -573,7 +573,6 @@ bool get_isBillboard(float instanceId) {
     const mesh = primitive.mesh as Mesh;
     const meshEntities = mesh.meshEntitiesInner;
 
-    WebGLStrategyCommonMethod.applyMaterialDepthState(material, gl, renderPass);
     let renderedSomething = false;
     const isVrMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
     const displayCount = WebGLStrategyCommonMethod.getDisplayCount(isVrMainPass, WebGLStrategyUniform.__webxrSystem);
@@ -652,7 +651,7 @@ bool get_isBillboard(float instanceId) {
         }
 
         if (firstTimeForMaterial) {
-          WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
+          WebGLStrategyCommonMethod.setWebGLParameters(material, gl, renderPass);
           material._setParametersToGpuWebGL({
             material,
             shaderProgram,

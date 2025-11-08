@@ -38,11 +38,12 @@ let lastDepthMaskEnabled = true;
  * @param material - The material containing rendering parameters to apply
  * @param gl - The WebGL rendering context
  */
-function setWebGLParameters(material: Material, gl: WebGLRenderingContext) {
+function setWebGLParameters(material: Material, gl: WebGLRenderingContext, renderPass: RenderPass) {
   setCull(material, gl);
   setBlendSettings(material, gl);
   setAlphaToCoverage(material, gl);
   setColorWriteMask(material, gl);
+  applyMaterialDepthState(material, gl, renderPass);
 }
 
 /**

@@ -1096,7 +1096,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       (shaderProgram as any)._gl.uniform2iv((shaderProgram as any).vrState, vrState._v);
     }
 
-    WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
+    WebGLStrategyCommonMethod.setWebGLParameters(material, gl, renderPass);
 
     material._setParametersToGpuWebGLWithOutInternalSetting({
       shaderProgram,
@@ -1223,7 +1223,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     if (firstTimeForMaterial) {
       this.__setCurrentComponentSIDsForEachPrimitive(gl, material, WebGLStrategyDataTexture.__shaderProgram);
 
-      WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
+      WebGLStrategyCommonMethod.setWebGLParameters(material, gl, renderPass);
 
       material._setParametersToGpuWebGL({
         material: material,
@@ -1280,7 +1280,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
     this.__lastShader = shaderProgramUid;
 
-    WebGLStrategyCommonMethod.applyMaterialDepthState(material, gl, renderPass);
     return true;
   }
 
