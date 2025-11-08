@@ -394,6 +394,7 @@ export class SceneGraphComponent extends Component {
     let worldMatrixBeforeReparent: MutableMatrix44 | undefined;
 
     if (keepPoseInWorldSpace) {
+      sg.logicForce();
       worldMatrixBeforeReparent = sg.matrix;
     }
 
