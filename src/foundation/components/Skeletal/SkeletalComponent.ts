@@ -263,6 +263,12 @@ export class SkeletalComponent extends Component {
     return !this.__isWorldMatrixVanilla;
   }
 
+  setJointGizmoVisible(flg: boolean) {
+    for (let i = 0; i < this.__joints.length; i++) {
+      this.__joints[i].isJointGizmoVisible = flg;
+    }
+  }
+
   /**
    * Performs the logic update for skeletal animation.
    * Calculates joint transformations and updates bone data arrays based on the configured bone data type.
