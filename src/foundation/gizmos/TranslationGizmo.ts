@@ -9,11 +9,11 @@ import { VertexAttribute } from '../definitions/VertexAttribute';
 import { Mesh } from '../geometry/Mesh';
 import { Primitive } from '../geometry/Primitive';
 import type { RaycastResultEx1 } from '../geometry/types/GeometryTypes';
-import { Cone } from '../geometry/shapes/Cone';
 import { Cube } from '../geometry/shapes/Cube';
 import { Plane } from '../geometry/shapes/Plane';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
 import { MaterialHelper } from '../helpers/MaterialHelper';
+import { MeshHelper } from '../helpers/MeshHelper';
 import type { Material } from '../materials/core/Material';
 import type { IMatrix44 } from '../math/IMatrix';
 import type { IQuaternion } from '../math/IQuaternion';
@@ -55,12 +55,6 @@ export class TranslationGizmo extends Gizmo {
   private static __xConeEntity: IMeshEntity;
   private static __yConeEntity: IMeshEntity;
   private static __zConeEntity: IMeshEntity;
-  private static __xConeMesh: Mesh;
-  private static __yConeMesh: Mesh;
-  private static __zConeMesh: Mesh;
-  private static __xConePrimitive: Cone;
-  private static __yConePrimitive: Cone;
-  private static __zConePrimitive: Cone;
   private static __xyPlaneEntity: IMeshEntity;
   private static __yzPlaneEntity: IMeshEntity;
   private static __zxPlaneEntity: IMeshEntity;
@@ -295,7 +289,12 @@ export class TranslationGizmo extends Gizmo {
 
     // x Cone
     if (Is.not.exist(TranslationGizmo.__xConeEntity)) {
-      TranslationGizmo.__xConeEntity = createMeshEntity();
+      TranslationGizmo.__xConeEntity = MeshHelper.createCone({
+        radius: coneRadius,
+        height: coneHeight,
+        radialSegments: coneSegments,
+        material: TranslationGizmo.__xCubeMaterial,
+      });
       TranslationGizmo.__xConeEntity.tryToSetUniqueName('TranslationGizmo_xCone', true);
       TranslationGizmo.__xConeEntity.getTransform().localPosition = Vector3.fromCopy3(1.5, 0, 0);
       TranslationGizmo.__xConeEntity.getTransform().localEulerAngles = Vector3.fromCopy3(
@@ -303,38 +302,28 @@ export class TranslationGizmo extends Gizmo {
         0,
         -MathUtil.degreeToRadian(90)
       );
-      TranslationGizmo.__xConeMesh = new Mesh();
-      TranslationGizmo.__xConePrimitive = new Cone();
-      TranslationGizmo.__xConePrimitive.generate({
-        radius: coneRadius,
-        height: coneHeight,
-        radialSegments: coneSegments,
-        material: TranslationGizmo.__xCubeMaterial,
-      });
-      TranslationGizmo.__xConeMesh.addPrimitive(TranslationGizmo.__xConePrimitive);
-      TranslationGizmo.__xConeEntity.getMesh().setMesh(TranslationGizmo.__xConeMesh);
     }
 
     // y Cone
     if (Is.not.exist(TranslationGizmo.__yConeEntity)) {
-      TranslationGizmo.__yConeEntity = createMeshEntity();
-      TranslationGizmo.__yConeEntity.tryToSetUniqueName('TranslationGizmo_yCone', true);
-      TranslationGizmo.__yConeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 1.5, 0);
-      TranslationGizmo.__yConeMesh = new Mesh();
-      TranslationGizmo.__yConePrimitive = new Cone();
-      TranslationGizmo.__yConePrimitive.generate({
+      TranslationGizmo.__yConeEntity = MeshHelper.createCone({
         radius: coneRadius,
         height: coneHeight,
         radialSegments: coneSegments,
         material: TranslationGizmo.__yCubeMaterial,
       });
-      TranslationGizmo.__yConeMesh.addPrimitive(TranslationGizmo.__yConePrimitive);
-      TranslationGizmo.__yConeEntity.getMesh().setMesh(TranslationGizmo.__yConeMesh);
+      TranslationGizmo.__yConeEntity.tryToSetUniqueName('TranslationGizmo_yCone', true);
+      TranslationGizmo.__yConeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 1.5, 0);
     }
 
     // z Cone
     if (Is.not.exist(TranslationGizmo.__zConeEntity)) {
-      TranslationGizmo.__zConeEntity = createMeshEntity();
+      TranslationGizmo.__zConeEntity = MeshHelper.createCone({
+        radius: coneRadius,
+        height: coneHeight,
+        radialSegments: coneSegments,
+        material: TranslationGizmo.__zCubeMaterial,
+      });
       TranslationGizmo.__zConeEntity.tryToSetUniqueName('TranslationGizmo_zCone', true);
       TranslationGizmo.__zConeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 1.5);
       TranslationGizmo.__zConeEntity.getTransform().localEulerAngles = Vector3.fromCopy3(
@@ -342,16 +331,6 @@ export class TranslationGizmo extends Gizmo {
         0,
         0
       );
-      TranslationGizmo.__zConeMesh = new Mesh();
-      TranslationGizmo.__zConePrimitive = new Cone();
-      TranslationGizmo.__zConePrimitive.generate({
-        radius: coneRadius,
-        height: coneHeight,
-        radialSegments: coneSegments,
-        material: TranslationGizmo.__zCubeMaterial,
-      });
-      TranslationGizmo.__zConeMesh.addPrimitive(TranslationGizmo.__zConePrimitive);
-      TranslationGizmo.__zConeEntity.getMesh().setMesh(TranslationGizmo.__zConeMesh);
     }
 
     // xy Plane
