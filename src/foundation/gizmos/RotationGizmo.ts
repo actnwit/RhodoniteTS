@@ -419,10 +419,7 @@ export class RotationGizmo extends Gizmo {
       return true;
     }
 
-    const tangentWorld = this.__transformDirectionFromGroupLocal(
-      tangentLocal,
-      RotationGizmo.__tmpVector3_9
-    );
+    const tangentWorld = this.__transformDirectionFromGroupLocal(tangentLocal, RotationGizmo.__tmpVector3_9);
     if (tangentWorld.lengthSquared() === 0) {
       this.__dragScreenDirection.setComponents(1, 0);
       return true;
@@ -497,8 +494,7 @@ export class RotationGizmo extends Gizmo {
       return;
     }
 
-    const scalar =
-      deltaX * this.__dragScreenDirection.x + deltaY * this.__dragScreenDirection.y;
+    const scalar = -deltaX * this.__dragScreenDirection.x - deltaY * this.__dragScreenDirection.y;
     if (scalar === 0) {
       return;
     }
