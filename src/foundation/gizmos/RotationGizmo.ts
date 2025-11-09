@@ -14,7 +14,11 @@ import { MaterialHelper } from '../helpers/MaterialHelper';
 import type { Material } from '../materials/core/Material';
 import type { IQuaternion } from '../math/IQuaternion';
 import type { IVector3 } from '../math/IVector';
+import { MathClassUtil } from '../math/MathClassUtil';
 import { Matrix33 } from '../math/Matrix33';
+import { Matrix44 } from '../math/Matrix44';
+import { MutableMatrix44 } from '../math/MutableMatrix44';
+import { MutableVector3 } from '../math/MutableVector3';
 import { Quaternion } from '../math/Quaternion';
 import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
@@ -52,6 +56,15 @@ export class RotationGizmo extends Gizmo {
   private static readonly __unitX = Vector3.fromCopy3(1, 0, 0);
   private static readonly __unitY = Vector3.fromCopy3(0, 1, 0);
   private static readonly __unitZ = Vector3.fromCopy3(0, 0, 1);
+  private static readonly __tmpMatrix44_0 = MutableMatrix44.zero();
+  private static readonly __tmpMatrix44_1 = MutableMatrix44.zero();
+  private static readonly __tmpVector3_0 = MutableVector3.zero();
+  private static readonly __tmpVector3_1 = MutableVector3.zero();
+  private static readonly __tmpVector3_2 = MutableVector3.zero();
+  private static readonly __tmpVector3_3 = MutableVector3.zero();
+  private static readonly __tmpVector3_4 = MutableVector3.zero();
+  private static readonly __tmpVector3_5 = MutableVector3.zero();
+  private static readonly __tmpVector3_6 = MutableVector3.zero();
 
   private __isPointerDown = false;
   private __startVector = Vector3.zero();
@@ -310,13 +323,12 @@ export class RotationGizmo extends Gizmo {
       return;
     }
 
-    const { axisResult } = this.__pickActiveAxis(evt, RotationGizmo.__activeAxis);
-    if (!axisResult.result) {
+    const localIntersection = this.__intersectPointerWithAxisPlane(evt, RotationGizmo.__activeAxis);
+    if (!localIntersection) {
       return;
     }
-    assertExist(axisResult.data);
 
-    const projected = RotationGizmo.__projectToPlane(axisResult.data.position, RotationGizmo.__activeAxis);
+    const projected = RotationGizmo.__projectToPlane(localIntersection, RotationGizmo.__activeAxis);
     if (projected.lengthSquared() === 0) {
       return;
     }
@@ -365,20 +377,74 @@ export class RotationGizmo extends Gizmo {
     this.__isCameraControllerDisabled = false;
   }
 
-  private __pickActiveAxis(evt: PointerEvent, axis: Axis) {
-    const results = RotationGizmo.__castRay(evt, true);
-    let axisResult: RaycastResultEx1;
-    switch (axis) {
-      case 'x':
-        axisResult = results.xResult;
-        break;
-      case 'y':
-        axisResult = results.yResult;
-        break;
-      default:
-        axisResult = results.zResult;
+  private __intersectPointerWithAxisPlane(evt: PointerEvent, axis: Axis): MutableVector3 | undefined {
+    let element = evt.target as HTMLElement | null;
+    if (!element || !element.getBoundingClientRect) {
+      element = Config.eventTargetDom ?? null;
     }
-    return { axisResult };
+    if (!element) {
+      return undefined;
+    }
+
+    const rect = element.getBoundingClientRect();
+    const width = element.clientWidth;
+    const height = element.clientHeight;
+    if (width === 0 || height === 0) {
+      return undefined;
+    }
+    const x = evt.clientX - rect.left;
+    const y = rect.height - (evt.clientY - rect.top);
+    const viewport = Vector4.fromCopy4(0, 0, width, height) as Vector4;
+    const activeCamera = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as
+      | CameraComponent
+      | undefined;
+    const groupSceneGraph = RotationGizmo.__groupEntity?.getSceneGraph();
+    if (!activeCamera || !groupSceneGraph) {
+      return undefined;
+    }
+
+    const invPV = MutableMatrix44.multiplyTo(
+      activeCamera.projectionMatrix,
+      activeCamera.viewMatrix,
+      RotationGizmo.__tmpMatrix44_0
+    ).invert();
+    const nearPoint = MathClassUtil.unProjectTo(
+      x,
+      y,
+      0,
+      invPV,
+      viewport,
+      RotationGizmo.__tmpVector3_0
+    );
+    const farPoint = MathClassUtil.unProjectTo(
+      x,
+      y,
+      1,
+      invPV,
+      viewport,
+      RotationGizmo.__tmpVector3_1
+    );
+
+    const invGroupMatrix = Matrix44.invertTo(groupSceneGraph.matrixInner, RotationGizmo.__tmpMatrix44_1);
+    const nearLocal = invGroupMatrix.multiplyVector3To(nearPoint, RotationGizmo.__tmpVector3_2);
+    const farLocal = invGroupMatrix.multiplyVector3To(farPoint, RotationGizmo.__tmpVector3_3);
+    const directionLocal = Vector3.subtractTo(farLocal, nearLocal, RotationGizmo.__tmpVector3_4);
+    if (directionLocal.lengthSquared() === 0) {
+      return undefined;
+    }
+
+    const denom = axis === 'x' ? directionLocal.x : axis === 'y' ? directionLocal.y : directionLocal.z;
+    if (Math.abs(denom) < 1e-6) {
+      return undefined;
+    }
+    const originCoord = axis === 'x' ? nearLocal.x : axis === 'y' ? nearLocal.y : nearLocal.z;
+    const t = -originCoord / denom;
+    if (!Number.isFinite(t) || t < 0) {
+      return undefined;
+    }
+
+    const scaledDir = Vector3.multiplyTo(directionLocal, t, RotationGizmo.__tmpVector3_5);
+    return Vector3.addTo(nearLocal, scaledDir, RotationGizmo.__tmpVector3_6) as MutableVector3;
   }
 
   private static __projectToPlane(position: IVector3, axis: Axis): Vector3 {
