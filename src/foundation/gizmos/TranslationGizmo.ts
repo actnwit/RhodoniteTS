@@ -8,6 +8,8 @@ import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import { VertexAttribute } from '../definitions/VertexAttribute';
 import { Mesh } from '../geometry/Mesh';
 import { Primitive } from '../geometry/Primitive';
+import type { RaycastResultEx1 } from '../geometry/types/GeometryTypes';
+import { Cone } from '../geometry/shapes/Cone';
 import { Cube } from '../geometry/shapes/Cube';
 import { Plane } from '../geometry/shapes/Plane';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
@@ -50,6 +52,15 @@ export class TranslationGizmo extends Gizmo {
   private static __xCubeMaterial: Material;
   private static __yCubeMaterial: Material;
   private static __zCubeMaterial: Material;
+  private static __xConeEntity: IMeshEntity;
+  private static __yConeEntity: IMeshEntity;
+  private static __zConeEntity: IMeshEntity;
+  private static __xConeMesh: Mesh;
+  private static __yConeMesh: Mesh;
+  private static __zConeMesh: Mesh;
+  private static __xConePrimitive: Cone;
+  private static __yConePrimitive: Cone;
+  private static __zConePrimitive: Cone;
   private static __xyPlaneEntity: IMeshEntity;
   private static __yzPlaneEntity: IMeshEntity;
   private static __zxPlaneEntity: IMeshEntity;
@@ -228,6 +239,9 @@ export class TranslationGizmo extends Gizmo {
     this.__target.getSceneGraph()._addGizmoChild(this.__topEntity!.getSceneGraph());
 
     // setup the mesh
+    const coneRadius = 0.08;
+    const coneHeight = 0.3;
+    const coneSegments = 16;
     // x
     if (Is.not.exist(TranslationGizmo.__xCubeEntity)) {
       TranslationGizmo.__xCubeEntity = createMeshEntity();
@@ -277,6 +291,67 @@ export class TranslationGizmo extends Gizmo {
       });
       TranslationGizmo.__zCubeMesh.addPrimitive(TranslationGizmo.__zCubePrimitive);
       TranslationGizmo.__zCubeEntity.getMesh().setMesh(TranslationGizmo.__zCubeMesh);
+    }
+
+    // x Cone
+    if (Is.not.exist(TranslationGizmo.__xConeEntity)) {
+      TranslationGizmo.__xConeEntity = createMeshEntity();
+      TranslationGizmo.__xConeEntity.tryToSetUniqueName('TranslationGizmo_xCone', true);
+      TranslationGizmo.__xConeEntity.getTransform().localPosition = Vector3.fromCopy3(1.5, 0, 0);
+      TranslationGizmo.__xConeEntity.getTransform().localEulerAngles = Vector3.fromCopy3(
+        0,
+        0,
+        -MathUtil.degreeToRadian(90)
+      );
+      TranslationGizmo.__xConeMesh = new Mesh();
+      TranslationGizmo.__xConePrimitive = new Cone();
+      TranslationGizmo.__xConePrimitive.generate({
+        radius: coneRadius,
+        height: coneHeight,
+        radialSegments: coneSegments,
+        material: TranslationGizmo.__xCubeMaterial,
+      });
+      TranslationGizmo.__xConeMesh.addPrimitive(TranslationGizmo.__xConePrimitive);
+      TranslationGizmo.__xConeEntity.getMesh().setMesh(TranslationGizmo.__xConeMesh);
+    }
+
+    // y Cone
+    if (Is.not.exist(TranslationGizmo.__yConeEntity)) {
+      TranslationGizmo.__yConeEntity = createMeshEntity();
+      TranslationGizmo.__yConeEntity.tryToSetUniqueName('TranslationGizmo_yCone', true);
+      TranslationGizmo.__yConeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 1.5, 0);
+      TranslationGizmo.__yConeMesh = new Mesh();
+      TranslationGizmo.__yConePrimitive = new Cone();
+      TranslationGizmo.__yConePrimitive.generate({
+        radius: coneRadius,
+        height: coneHeight,
+        radialSegments: coneSegments,
+        material: TranslationGizmo.__yCubeMaterial,
+      });
+      TranslationGizmo.__yConeMesh.addPrimitive(TranslationGizmo.__yConePrimitive);
+      TranslationGizmo.__yConeEntity.getMesh().setMesh(TranslationGizmo.__yConeMesh);
+    }
+
+    // z Cone
+    if (Is.not.exist(TranslationGizmo.__zConeEntity)) {
+      TranslationGizmo.__zConeEntity = createMeshEntity();
+      TranslationGizmo.__zConeEntity.tryToSetUniqueName('TranslationGizmo_zCone', true);
+      TranslationGizmo.__zConeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 1.5);
+      TranslationGizmo.__zConeEntity.getTransform().localEulerAngles = Vector3.fromCopy3(
+        MathUtil.degreeToRadian(90),
+        0,
+        0
+      );
+      TranslationGizmo.__zConeMesh = new Mesh();
+      TranslationGizmo.__zConePrimitive = new Cone();
+      TranslationGizmo.__zConePrimitive.generate({
+        radius: coneRadius,
+        height: coneHeight,
+        radialSegments: coneSegments,
+        material: TranslationGizmo.__zCubeMaterial,
+      });
+      TranslationGizmo.__zConeMesh.addPrimitive(TranslationGizmo.__zConePrimitive);
+      TranslationGizmo.__zConeEntity.getMesh().setMesh(TranslationGizmo.__zConeMesh);
     }
 
     // xy Plane
@@ -370,6 +445,9 @@ export class TranslationGizmo extends Gizmo {
     TranslationGizmo.__groupEntity.getSceneGraph().addChild(TranslationGizmo.__xCubeEntity.getSceneGraph());
     TranslationGizmo.__groupEntity.getSceneGraph().addChild(TranslationGizmo.__yCubeEntity.getSceneGraph());
     TranslationGizmo.__groupEntity.getSceneGraph().addChild(TranslationGizmo.__zCubeEntity.getSceneGraph());
+    TranslationGizmo.__groupEntity.getSceneGraph().addChild(TranslationGizmo.__xConeEntity.getSceneGraph());
+    TranslationGizmo.__groupEntity.getSceneGraph().addChild(TranslationGizmo.__yConeEntity.getSceneGraph());
+    TranslationGizmo.__groupEntity.getSceneGraph().addChild(TranslationGizmo.__zConeEntity.getSceneGraph());
     TranslationGizmo.__groupEntity.getSceneGraph().addChild(TranslationGizmo.__xyPlaneEntity.getSceneGraph());
     TranslationGizmo.__groupEntity.getSceneGraph().addChild(TranslationGizmo.__yzPlaneEntity.getSceneGraph());
     TranslationGizmo.__groupEntity.getSceneGraph().addChild(TranslationGizmo.__zxPlaneEntity.getSceneGraph());
@@ -688,6 +766,33 @@ export class TranslationGizmo extends Gizmo {
     return result;
   }
 
+  private static __castFromEntities(
+    x: number,
+    y: number,
+    camera: CameraComponent,
+    viewport: Vector4,
+    ...entities: Array<IMeshEntity | undefined>
+  ): RaycastResultEx1 {
+    let closestResult: RaycastResultEx1 = { result: false };
+    for (const entity of entities) {
+      if (Is.not.exist(entity)) {
+        continue;
+      }
+      const result = entity
+        .getMesh()
+        .castRayFromScreenInWorld(x, y, camera, viewport, 0.0);
+      if (!result.result) {
+        continue;
+      }
+      const currentDistance = result.data?.t ?? Number.POSITIVE_INFINITY;
+      const closestDistance = closestResult.data?.t ?? Number.POSITIVE_INFINITY;
+      if (!closestResult.result || currentDistance < closestDistance) {
+        closestResult = result;
+      }
+    }
+    return closestResult;
+  }
+
   /**
    * Performs ray casting against individual gizmo axis entities.
    * Tests intersection with X, Y, and Z axis cubes separately to determine
@@ -705,15 +810,30 @@ export class TranslationGizmo extends Gizmo {
     const activeCamera = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as
       | CameraComponent
       | undefined;
-    const xResult = TranslationGizmo.__xCubeEntity
-      .getMesh()
-      .castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
-    const yResult = TranslationGizmo.__yCubeEntity
-      .getMesh()
-      .castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
-    const zResult = TranslationGizmo.__zCubeEntity
-      .getMesh()
-      .castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
+    const xResult = TranslationGizmo.__castFromEntities(
+      x,
+      y,
+      activeCamera!,
+      viewport,
+      TranslationGizmo.__xCubeEntity,
+      TranslationGizmo.__xConeEntity
+    );
+    const yResult = TranslationGizmo.__castFromEntities(
+      x,
+      y,
+      activeCamera!,
+      viewport,
+      TranslationGizmo.__yCubeEntity,
+      TranslationGizmo.__yConeEntity
+    );
+    const zResult = TranslationGizmo.__castFromEntities(
+      x,
+      y,
+      activeCamera!,
+      viewport,
+      TranslationGizmo.__zCubeEntity,
+      TranslationGizmo.__zConeEntity
+    );
     return { xResult, yResult, zResult };
   }
 
