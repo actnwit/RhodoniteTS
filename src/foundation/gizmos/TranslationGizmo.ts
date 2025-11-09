@@ -645,6 +645,8 @@ export class TranslationGizmo extends Gizmo {
       const deltaDeltaVector3 = Vector3.add(this.__targetPointBackup, rotMat.multiplyVector(deltaVector3));
       this.__deltaPoint = deltaDeltaVector3;
     }
+
+    this._update();
   }
 
   /**

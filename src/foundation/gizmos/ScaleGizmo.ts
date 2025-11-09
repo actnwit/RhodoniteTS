@@ -781,6 +781,8 @@ export class ScaleGizmo extends Gizmo {
       //   Math.max(this.__deltaPoint.z, 0.01)
       // );
     }
+
+    this._update();
   }
 
   /**
