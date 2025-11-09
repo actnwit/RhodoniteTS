@@ -122,6 +122,7 @@ export interface InputHandlerInfo {
 export const INPUT_HANDLING_STATE_NONE = 'None';
 export const INPUT_HANDLING_STATE_CAMERA_CONTROLLER = 'CameraController';
 export const INPUT_HANDLING_STATE_GIZMO_TRANSLATION = 'GizmoTranslation';
+export const INPUT_HANDLING_STATE_GIZMO_ROTATION = 'GizmoRotation';
 export const INPUT_HANDLING_STATE_GIZMO_SCALE = 'GizmoScale';
 
 /**
@@ -131,6 +132,7 @@ export type InputHandlingState =
   | typeof INPUT_HANDLING_STATE_NONE
   | typeof INPUT_HANDLING_STATE_CAMERA_CONTROLLER
   | typeof INPUT_HANDLING_STATE_GIZMO_TRANSLATION
+  | typeof INPUT_HANDLING_STATE_GIZMO_ROTATION
   | typeof INPUT_HANDLING_STATE_GIZMO_SCALE;
 
 /**
@@ -254,8 +256,13 @@ export class InputManager {
 
     if (inputHandlingState === INPUT_HANDLING_STATE_GIZMO_TRANSLATION && active) {
       this.__activeMap.set(INPUT_HANDLING_STATE_GIZMO_SCALE, false);
+      this.__activeMap.set(INPUT_HANDLING_STATE_GIZMO_ROTATION, false);
+    } else if (inputHandlingState === INPUT_HANDLING_STATE_GIZMO_ROTATION && active) {
+      this.__activeMap.set(INPUT_HANDLING_STATE_GIZMO_TRANSLATION, false);
+      this.__activeMap.set(INPUT_HANDLING_STATE_GIZMO_SCALE, false);
     } else if (inputHandlingState === INPUT_HANDLING_STATE_GIZMO_SCALE && active) {
       this.__activeMap.set(INPUT_HANDLING_STATE_GIZMO_TRANSLATION, false);
+      this.__activeMap.set(INPUT_HANDLING_STATE_GIZMO_ROTATION, false);
     }
 
     this.__processEventListeners();
@@ -315,32 +322,44 @@ export class InputManager {
    *
    * The processing order is:
    * 1. Camera controller (base level)
-   * 2. Translation gizmo (overrides camera, excludes scale gizmo)
-   * 3. Scale gizmo (overrides camera, excludes translation gizmo)
+   * 2. Translation gizmo (overrides camera, excludes rotation and scale gizmos)
+   * 3. Rotation gizmo (overrides camera, excludes translation and scale gizmos)
+   * 4. Scale gizmo (overrides camera, excludes translation and rotation gizmos)
    *
    * @private
    */
   static __processEventListeners() {
-    const translationGizmoActive = InputManager.__inputHandlingStateMap.get(INPUT_HANDLING_STATE_GIZMO_TRANSLATION);
-    const scaleGizmoActive = InputManager.__inputHandlingStateMap.get(INPUT_HANDLING_STATE_GIZMO_SCALE);
-    const cameraControllerActive = InputManager.__inputHandlingStateMap.get(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
+    const translationHandlers = InputManager.__inputHandlingStateMap.get(INPUT_HANDLING_STATE_GIZMO_TRANSLATION);
+    const rotationHandlers = InputManager.__inputHandlingStateMap.get(INPUT_HANDLING_STATE_GIZMO_ROTATION);
+    const scaleHandlers = InputManager.__inputHandlingStateMap.get(INPUT_HANDLING_STATE_GIZMO_SCALE);
+    const cameraHandlers = InputManager.__inputHandlingStateMap.get(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
+    const translationActive = (InputManager.__activeMap.get(INPUT_HANDLING_STATE_GIZMO_TRANSLATION) ?? false) && Is.exist(translationHandlers);
+    const rotationActive = (InputManager.__activeMap.get(INPUT_HANDLING_STATE_GIZMO_ROTATION) ?? false) && Is.exist(rotationHandlers);
+    const scaleActive = (InputManager.__activeMap.get(INPUT_HANDLING_STATE_GIZMO_SCALE) ?? false) && Is.exist(scaleHandlers);
+    const cameraActive = (InputManager.__activeMap.get(INPUT_HANDLING_STATE_CAMERA_CONTROLLER) ?? false) && Is.exist(cameraHandlers);
 
-    if (cameraControllerActive) {
+    if (cameraActive) {
       this.__addEventListeners(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
       this.__currentState = INPUT_HANDLING_STATE_CAMERA_CONTROLLER;
     }
 
-    // If translationGizmo enabled
-    if (translationGizmoActive) {
+    if (translationActive) {
       this.__addEventListeners(INPUT_HANDLING_STATE_GIZMO_TRANSLATION);
-      // this.__removeEventListeners(INPUT_HANDLING_STATE_CAMERACONTROLLER);
+      this.__removeEventListeners(INPUT_HANDLING_STATE_GIZMO_ROTATION);
       this.__removeEventListeners(INPUT_HANDLING_STATE_GIZMO_SCALE);
       this.__currentState = INPUT_HANDLING_STATE_GIZMO_TRANSLATION;
     }
 
-    if (scaleGizmoActive) {
+    if (rotationActive) {
+      this.__addEventListeners(INPUT_HANDLING_STATE_GIZMO_ROTATION);
+      this.__removeEventListeners(INPUT_HANDLING_STATE_GIZMO_TRANSLATION);
+      this.__removeEventListeners(INPUT_HANDLING_STATE_GIZMO_SCALE);
+      this.__currentState = INPUT_HANDLING_STATE_GIZMO_ROTATION;
+    }
+
+    if (scaleActive) {
       this.__addEventListeners(INPUT_HANDLING_STATE_GIZMO_SCALE);
-      // this.__removeEventListeners(INPUT_HANDLING_STATE_CAMERACONTROLLER);
+      this.__removeEventListeners(INPUT_HANDLING_STATE_GIZMO_ROTATION);
       this.__removeEventListeners(INPUT_HANDLING_STATE_GIZMO_TRANSLATION);
       this.__currentState = INPUT_HANDLING_STATE_GIZMO_SCALE;
     }

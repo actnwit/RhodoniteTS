@@ -2,7 +2,7 @@ import type { Count } from '../../../types/CommonTypes';
 import { PrimitiveMode } from '../../definitions/PrimitiveMode';
 import { VertexAttribute } from '../../definitions/VertexAttribute';
 import { IShape } from './IShape';
-import { type IAnyPrimitiveDescriptor } from '../Primitive';
+import type { IAnyPrimitiveDescriptor } from '../Primitive';
 
 /**
  * Descriptor for generating a cone primitive.
