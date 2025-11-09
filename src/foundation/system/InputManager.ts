@@ -334,10 +334,14 @@ export class InputManager {
     const rotationHandlers = InputManager.__inputHandlingStateMap.get(INPUT_HANDLING_STATE_GIZMO_ROTATION);
     const scaleHandlers = InputManager.__inputHandlingStateMap.get(INPUT_HANDLING_STATE_GIZMO_SCALE);
     const cameraHandlers = InputManager.__inputHandlingStateMap.get(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
-    const translationActive = (InputManager.__activeMap.get(INPUT_HANDLING_STATE_GIZMO_TRANSLATION) ?? false) && Is.exist(translationHandlers);
-    const rotationActive = (InputManager.__activeMap.get(INPUT_HANDLING_STATE_GIZMO_ROTATION) ?? false) && Is.exist(rotationHandlers);
-    const scaleActive = (InputManager.__activeMap.get(INPUT_HANDLING_STATE_GIZMO_SCALE) ?? false) && Is.exist(scaleHandlers);
-    const cameraActive = (InputManager.__activeMap.get(INPUT_HANDLING_STATE_CAMERA_CONTROLLER) ?? false) && Is.exist(cameraHandlers);
+    const translationActive =
+      (InputManager.__activeMap.get(INPUT_HANDLING_STATE_GIZMO_TRANSLATION) ?? false) && Is.exist(translationHandlers);
+    const rotationActive =
+      (InputManager.__activeMap.get(INPUT_HANDLING_STATE_GIZMO_ROTATION) ?? false) && Is.exist(rotationHandlers);
+    const scaleActive =
+      (InputManager.__activeMap.get(INPUT_HANDLING_STATE_GIZMO_SCALE) ?? false) && Is.exist(scaleHandlers);
+    const cameraActive =
+      (InputManager.__activeMap.get(INPUT_HANDLING_STATE_CAMERA_CONTROLLER) ?? false) && Is.exist(cameraHandlers);
 
     if (!translationActive && Is.exist(translationHandlers)) {
       this.__removeEventListeners(INPUT_HANDLING_STATE_GIZMO_TRANSLATION);

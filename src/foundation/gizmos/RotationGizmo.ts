@@ -408,22 +408,8 @@ export class RotationGizmo extends Gizmo {
       activeCamera.viewMatrix,
       RotationGizmo.__tmpMatrix44_0
     ).invert();
-    const nearPoint = MathClassUtil.unProjectTo(
-      x,
-      y,
-      0,
-      invPV,
-      viewport,
-      RotationGizmo.__tmpVector3_0
-    );
-    const farPoint = MathClassUtil.unProjectTo(
-      x,
-      y,
-      1,
-      invPV,
-      viewport,
-      RotationGizmo.__tmpVector3_1
-    );
+    const nearPoint = MathClassUtil.unProjectTo(x, y, 0, invPV, viewport, RotationGizmo.__tmpVector3_0);
+    const farPoint = MathClassUtil.unProjectTo(x, y, 1, invPV, viewport, RotationGizmo.__tmpVector3_1);
 
     const invGroupMatrix = Matrix44.invertTo(groupSceneGraph.matrixInner, RotationGizmo.__tmpMatrix44_1);
     const nearLocal = invGroupMatrix.multiplyVector3To(nearPoint, RotationGizmo.__tmpVector3_2);

@@ -8,9 +8,9 @@ import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import { VertexAttribute } from '../definitions/VertexAttribute';
 import { Mesh } from '../geometry/Mesh';
 import { Primitive } from '../geometry/Primitive';
-import type { RaycastResultEx1 } from '../geometry/types/GeometryTypes';
 import { Cube } from '../geometry/shapes/Cube';
 import { Plane } from '../geometry/shapes/Plane';
+import type { RaycastResultEx1 } from '../geometry/types/GeometryTypes';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
 import { MaterialHelper } from '../helpers/MaterialHelper';
 import { MeshHelper } from '../helpers/MeshHelper';
@@ -783,9 +783,7 @@ export class TranslationGizmo extends Gizmo {
       if (Is.not.exist(entity)) {
         continue;
       }
-      const result = entity
-        .getMesh()
-        .castRayFromScreenInWorld(x, y, camera, viewport, 0.0);
+      const result = entity.getMesh().castRayFromScreenInWorld(x, y, camera, viewport, 0.0);
       if (!result.result) {
         continue;
       }
