@@ -90,7 +90,6 @@ export class RotationGizmo extends Gizmo {
   private __rotationAxisForQuaternion = MutableVector3.zero();
   private __dragScale = 0;
   private __accumulatedAngle = 0;
-  private __isDragMappingReady = false;
   private __activePointerElement?: HTMLElement;
 
   ///
@@ -308,7 +307,6 @@ export class RotationGizmo extends Gizmo {
   private __onPointerDown(evt: PointerEvent) {
     evt.preventDefault();
     this.__isPointerDown = true;
-    this.__isDragMappingReady = false;
     this.__activePointerElement = undefined;
     this.__pointerPrev.setComponents(0, 0);
     this.__dragScreenDirection.setComponents(0, 0);
@@ -339,7 +337,7 @@ export class RotationGizmo extends Gizmo {
     this.__disableCameraController();
     this.__targetRotationBackup = Quaternion.fromCopyQuaternion(this.__target.getTransform().localRotation);
     this.__deltaQuaternion = Quaternion.fromCopyQuaternion(this.__targetRotationBackup);
-    this.__isDragMappingReady = this.__prepareLinearDragMapping(evt, RotationGizmo.__activeAxis);
+    this.__prepareLinearDragMapping(evt, RotationGizmo.__activeAxis);
   }
 
   private __onPointerMove(evt: PointerEvent) {
@@ -353,12 +351,7 @@ export class RotationGizmo extends Gizmo {
       return;
     }
 
-    if (this.__isDragMappingReady) {
-      this.__handleLinearDrag(evt);
-      return;
-    }
-
-    this.__handleArcDrag(evt, activeAxis);
+    this.__handleLinearDrag(evt);
   }
 
   private __onPointerUp(evt: PointerEvent) {
@@ -370,7 +363,6 @@ export class RotationGizmo extends Gizmo {
     this.__targetRotationBackup = Quaternion.fromCopyQuaternion(this.__target.getTransform().localRotation);
     this.__deltaQuaternion = Quaternion.fromCopyQuaternion(this.__targetRotationBackup);
     this.__activePointerElement = undefined;
-    this.__isDragMappingReady = false;
     this.__pointerPrev.setComponents(0, 0);
     this.__dragScreenDirection.setComponents(0, 0);
     this.__rotationAxisForQuaternion.setComponents(0, 0, 0);
@@ -378,26 +370,27 @@ export class RotationGizmo extends Gizmo {
     this.__accumulatedAngle = 0;
   }
 
-  private __prepareLinearDragMapping(evt: PointerEvent, axis: Axis): boolean {
+  private __prepareLinearDragMapping(evt: PointerEvent, axis: Axis) {
     this.__dragScreenDirection.setComponents(0, 0);
 
     const element = this.__resolvePointerElement(evt);
-    if (!element) {
-      return false;
+    let width = 1;
+    let height = 1;
+    let pointerX = 0;
+    let pointerY = 0;
+    if (element) {
+      const rect = element.getBoundingClientRect();
+      width = rect.width || element.clientWidth || 1;
+      height = rect.height || element.clientHeight || 1;
+      pointerX = evt.clientX - rect.left;
+      pointerY = evt.clientY - rect.top;
+      this.__activePointerElement = element;
+    } else {
+      this.__activePointerElement = undefined;
     }
 
-    const rect = element.getBoundingClientRect();
-    const width = element.clientWidth;
-    const height = element.clientHeight;
-    if (width === 0 || height === 0) {
-      return false;
-    }
-
-    const pointerX = evt.clientX - rect.left;
-    const pointerY = evt.clientY - rect.top;
-    this.__activePointerElement = element;
     this.__pointerPrev.setComponents(pointerX, pointerY);
-    this.__dragScale = (2 * Math.PI) / Math.max(width, height);
+    this.__dragScale = (2 * Math.PI) / Math.max(width, height, 1);
     this.__accumulatedAngle = 0;
 
     const axisForQuat = this.__getAxisForQuaternion(axis);
@@ -407,22 +400,28 @@ export class RotationGizmo extends Gizmo {
       | CameraComponent
       | undefined;
     const groupSceneGraph = RotationGizmo.__groupEntity?.getSceneGraph();
-    if (!activeCamera || !groupSceneGraph) {
-      this.__dragScreenDirection.setComponents(1, 0);
-      return true;
+    if (!element || !activeCamera || !groupSceneGraph) {
+      this.__setDefaultDragDirection(axis);
+      return;
     }
 
     const axisLocal = RotationGizmo.__getAxisVector(axis);
     const tangentLocal = Vector3.crossTo(this.__startVector, axisLocal, RotationGizmo.__tmpVector3_8);
-    if (tangentLocal.lengthSquared() === 0) {
-      this.__dragScreenDirection.setComponents(1, 0);
-      return true;
+    if (tangentLocal.lengthSquared() < 1e-10) {
+      this.__setFallbackLocalTangent(axis, tangentLocal);
     }
+    Vector3.normalizeTo(tangentLocal, tangentLocal);
 
-    const tangentWorld = this.__transformDirectionFromGroupLocal(tangentLocal, RotationGizmo.__tmpVector3_9);
-    if (tangentWorld.lengthSquared() === 0) {
-      this.__dragScreenDirection.setComponents(1, 0);
-      return true;
+    const tangentWorld = this.__transformDirectionFromGroupLocal(
+      tangentLocal,
+      RotationGizmo.__tmpVector3_9
+    );
+    if (tangentWorld.lengthSquared() < 1e-10) {
+      this.__setFallbackWorldDirection(axisLocal, activeCamera, tangentWorld);
+    }
+    if (tangentWorld.lengthSquared() < 1e-10) {
+      this.__setDefaultDragDirection(axis);
+      return;
     }
     Vector3.normalizeTo(tangentWorld, tangentWorld);
 
@@ -450,8 +449,8 @@ export class RotationGizmo extends Gizmo {
     const w0 = clipCenter.w;
     const w1 = clipTangent.w;
     if (w0 === 0 || w1 === 0) {
-      this.__dragScreenDirection.setComponents(1, 0);
-      return true;
+      this.__setDefaultDragDirection(axis);
+      return;
     }
 
     const ndcCenterX = clipCenter.x / w0;
@@ -463,12 +462,59 @@ export class RotationGizmo extends Gizmo {
     const screenTangentY = -(ndcTangentY - ndcCenterY) * height * 0.5;
     const length = Math.hypot(screenTangentX, screenTangentY);
     if (length < 1e-5) {
-      this.__dragScreenDirection.setComponents(1, 0);
-      return true;
+      this.__setDefaultDragDirection(axis);
+      return;
     }
 
     this.__dragScreenDirection.setComponents(screenTangentX / length, screenTangentY / length);
-    return true;
+  }
+
+  private __setDefaultDragDirection(axis: Axis) {
+    if (axis === 'x') {
+      this.__dragScreenDirection.setComponents(0, -1);
+    } else if (axis === 'y') {
+      this.__dragScreenDirection.setComponents(1, 0);
+    } else {
+      this.__dragScreenDirection.setComponents(1, 0);
+    }
+  }
+
+  private __setFallbackLocalTangent(axis: Axis, out: MutableVector3) {
+    if (axis === 'x') {
+      out.setComponents(0, 0, 1);
+    } else if (axis === 'y') {
+      out.setComponents(0, 0, 1);
+    } else {
+      out.setComponents(0, 1, 0);
+    }
+  }
+
+  private __setFallbackWorldDirection(axisLocal: Vector3, camera: CameraComponent, out: MutableVector3) {
+    const axisWorld = this.__transformDirectionFromGroupLocal(axisLocal, RotationGizmo.__tmpVector3_6);
+    if (axisWorld.lengthSquared() < 1e-10) {
+      out.setComponents(1, 0, 0);
+      return;
+    }
+    Vector3.normalizeTo(axisWorld, axisWorld);
+
+    Vector3.crossTo(axisWorld, camera.directionInner, out);
+    if (out.lengthSquared() < 1e-10) {
+      Vector3.crossTo(camera.upInner, axisWorld, out);
+    }
+    if (out.lengthSquared() < 1e-10) {
+      this.__chooseAnyPerpendicular(axisWorld, out);
+    }
+  }
+
+  private __chooseAnyPerpendicular(axis: IVector3, out: MutableVector3) {
+    if (Math.abs(axis.x) < 0.9) {
+      out.setComponents(0, -axis.z, axis.y);
+    } else {
+      out.setComponents(-axis.y, axis.x, 0);
+    }
+    if (out.lengthSquared() < 1e-10) {
+      out.setComponents(1, 0, 0);
+    }
   }
 
   private __handleLinearDrag(evt: PointerEvent) {
@@ -507,35 +553,6 @@ export class RotationGizmo extends Gizmo {
     this.__accumulatedAngle += deltaAngle;
     const deltaQuat = Quaternion.fromAxisAngle(this.__rotationAxisForQuaternion, this.__accumulatedAngle);
     this.__deltaQuaternion = Quaternion.multiply(deltaQuat, this.__targetRotationBackup);
-    this._update();
-  }
-
-  private __handleArcDrag(evt: PointerEvent, axis: Axis) {
-    const localIntersection = this.__intersectPointerWithAxisPlane(evt, axis);
-    if (!localIntersection) {
-      return;
-    }
-
-    const projected = RotationGizmo.__projectToPlane(localIntersection, axis);
-    if (projected.lengthSquared() === 0) {
-      return;
-    }
-
-    const currentVector = Vector3.normalize(projected);
-    const angle = Vector3.angleOfVectors(this.__startVector, currentVector);
-    if (!Number.isFinite(angle) || angle === 0) {
-      return;
-    }
-
-    const axisVector = RotationGizmo.__getAxisVector(axis);
-    const cross = Vector3.cross(this.__startVector, currentVector);
-    const sign = Math.sign(Vector3.dot(cross, axisVector)) || 1;
-    const signedAngle = angle * sign;
-
-    const rotationAxis = this.__getAxisForQuaternion(axis);
-    const deltaQuat = Quaternion.fromAxisAngle(rotationAxis, signedAngle);
-    this.__deltaQuaternion = Quaternion.multiply(deltaQuat, this.__targetRotationBackup);
-
     this._update();
   }
 
