@@ -9,6 +9,7 @@ import type { RaycastResultEx2 } from '../../geometry/types/GeometryTypes';
 import { AABBGizmo } from '../../gizmos/AABBGizmo';
 import { JointGizmo } from '../../gizmos/JointGizmo';
 import { LocatorGizmo } from '../../gizmos/LocatorGizmo';
+import { RotationGizmo } from '../../gizmos/RotationGizmo';
 import { ScaleGizmo } from '../../gizmos/ScaleGizmo';
 import { TranslationGizmo } from '../../gizmos/TranslationGizmo';
 import { type IMeshEntity, type ISceneGraphEntity, ITransformEntity } from '../../helpers/EntityHelper';
@@ -56,6 +57,7 @@ export class SceneGraphComponent extends Component {
   private __aabbGizmo?: AABBGizmo;
   private __locatorGizmo?: LocatorGizmo;
   private __translationGizmo?: TranslationGizmo;
+  private __rotationGizmo?: RotationGizmo;
   private __scaleGizmo?: ScaleGizmo;
   private __jointGizmo?: JointGizmo;
   private __transformGizmoSpace: 'local' | 'world' = 'world';
@@ -249,6 +251,9 @@ export class SceneGraphComponent extends Component {
         this.__translationGizmo._setup();
       }
       this.__translationGizmo.isVisible = true;
+      if (this.__translationGizmo.isSetup) {
+        this.__translationGizmo._update();
+      }
     } else {
       if (Is.exist(this.__translationGizmo)) {
         this.__translationGizmo.isVisible = false;
@@ -268,6 +273,37 @@ export class SceneGraphComponent extends Component {
   }
 
   /**
+   * Sets the visibility of the rotation gizmo.
+   * @param flg - True to show the rotation gizmo, false to hide it
+   */
+  set isRotationGizmoVisible(flg: boolean) {
+    if (flg) {
+      if (Is.not.defined(this.__rotationGizmo)) {
+        this.__rotationGizmo = new RotationGizmo(this.entity as IMeshEntity);
+        this.__rotationGizmo._setup();
+        this.__rotationGizmo.setSpace(this.__transformGizmoSpace);
+      }
+      this.__rotationGizmo.isVisible = true;
+      if (this.__rotationGizmo.isSetup) {
+        this.__rotationGizmo._update();
+      }
+    } else if (Is.exist(this.__rotationGizmo)) {
+      this.__rotationGizmo.isVisible = false;
+    }
+  }
+
+  /**
+   * Gets the visibility state of the rotation gizmo.
+   * @returns True if the rotation gizmo is visible, false otherwise
+   */
+  get isRotationGizmoVisible() {
+    if (Is.exist(this.__rotationGizmo)) {
+      return this.__rotationGizmo.isVisible;
+    }
+    return false;
+  }
+
+  /**
    * Sets the visibility of the scale gizmo.
    * @param flg - True to show the scale gizmo, false to hide it
    */
@@ -278,6 +314,9 @@ export class SceneGraphComponent extends Component {
         this.__scaleGizmo._setup();
       }
       this.__scaleGizmo.isVisible = true;
+      if (this.__scaleGizmo.isSetup) {
+        this.__scaleGizmo._update();
+      }
     } else {
       if (Is.exist(this.__scaleGizmo)) {
         this.__scaleGizmo.isVisible = false;
@@ -1017,6 +1056,9 @@ export class SceneGraphComponent extends Component {
     if (Is.exist(this.__translationGizmo) && this.__translationGizmo.isSetup && this.__translationGizmo.isVisible) {
       this.__translationGizmo._update();
     }
+    if (Is.exist(this.__rotationGizmo) && this.__rotationGizmo.isSetup && this.__rotationGizmo.isVisible) {
+      this.__rotationGizmo._update();
+    }
     if (Is.exist(this.__scaleGizmo) && this.__scaleGizmo.isSetup && this.__scaleGizmo.isVisible) {
       this.__scaleGizmo._update();
     }
@@ -1347,6 +1389,7 @@ export class SceneGraphComponent extends Component {
   setTransformGizmoSpace(space: 'local' | 'world') {
     this.__transformGizmoSpace = space;
     this.__translationGizmo?.setSpace(space);
+    this.__rotationGizmo?.setSpace(space);
     this.__scaleGizmo?.setSpace(space);
   }
 
@@ -1358,6 +1401,7 @@ export class SceneGraphComponent extends Component {
     this.__aabbGizmo?._destroy();
     this.__locatorGizmo?._destroy();
     this.__translationGizmo?._destroy();
+    this.__rotationGizmo?._destroy();
     this.__scaleGizmo?._destroy();
     this.__jointGizmo?._destroy();
     // this.__entityRepository.removeEntity(this.__entityUid);

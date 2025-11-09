@@ -1,4 +1,5 @@
 export * from './Axis';
+export * from './Cone';
 export * from './Cube';
 export * from './Grid';
 export * from './IShape';

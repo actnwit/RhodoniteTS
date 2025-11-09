@@ -5,6 +5,7 @@ import { PhysicsShape } from '../definitions/PhysicsShapeType';
 import { Mesh } from '../geometry/Mesh';
 import type { AxisDescriptor } from '../geometry/shapes/Axis';
 import { Axis } from '../geometry/shapes/Axis';
+import { Cone, type ConeDescriptor } from '../geometry/shapes/Cone';
 import { Cube, type CubeDescriptor } from '../geometry/shapes/Cube';
 import { Grid, type GridDescriptor } from '../geometry/shapes/Grid';
 import type { IShape } from '../geometry/shapes/IShape';
@@ -90,6 +91,28 @@ const createLine = (desc: LineDescriptor = {}) => {
  */
 const createGrid = (desc: GridDescriptor = {}) => {
   const primitive = new Grid();
+  primitive.generate(desc);
+  const entity = createShape(primitive);
+  return entity;
+};
+
+/**
+ * Creates a cone mesh entity.
+ *
+ * @param desc - Configuration object for the cone geometry
+ * @returns A mesh entity representing the cone
+ *
+ * @example
+ * ```typescript
+ * const cone = createCone({
+ *   radius: 0.2,
+ *   height: 0.5,
+ *   includeBase: false,
+ * });
+ * ```
+ */
+const createCone = (desc: ConeDescriptor = {}) => {
+  const primitive = new Cone();
   primitive.generate(desc);
   const entity = createShape(primitive);
   return entity;
@@ -389,6 +412,7 @@ export const MeshHelper = Object.freeze({
   createPlane,
   createLine,
   createGrid,
+  createCone,
   createCube,
   createCubes,
   createSphere,

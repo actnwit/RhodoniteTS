@@ -988,7 +988,7 @@ export class Primitive extends RnObject {
         break;
       }
 
-      for (let i = 0; i < elementCount; i += incrementNum) {
+      for (let i = 0; i + 2 < elementCount; i += incrementNum) {
         const pos0IndexBase = i;
         const pos1IndexBase = i + 1;
         const pos2IndexBase = i + 2;

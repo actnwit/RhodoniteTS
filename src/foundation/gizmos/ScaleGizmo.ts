@@ -75,6 +75,7 @@ export class ScaleGizmo extends Gizmo {
   private __deltaPoint = Vector3.one();
   private __targetScaleBackup = Vector3.one();
   private __isPointerDown = false;
+  private __isCameraControllerDisabled = false;
   private static __activeAxis: 'none' | 'x' | 'y' | 'z' = 'none';
   private static __space: 'local' | 'world' = 'world';
   private static __latestTargetEntity?: ISceneGraphEntity;
@@ -384,7 +385,7 @@ export class ScaleGizmo extends Gizmo {
   private zMesh() {
     ScaleGizmo.__zCubeEntity = createMeshEntity();
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_zCube', true);
-    ScaleGizmo.__zCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 1);
+    ScaleGizmo.__zCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 0.5);
     ScaleGizmo.__zCubeMesh = new Mesh();
     ScaleGizmo.__zCubeMaterial = MaterialHelper.createClassicUberMaterial();
     ScaleGizmo.__zCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0, 1, 1]));
@@ -404,7 +405,7 @@ export class ScaleGizmo extends Gizmo {
   private yMesh() {
     ScaleGizmo.__yCubeEntity = createMeshEntity();
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_yCube', true);
-    ScaleGizmo.__yCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 1, 0);
+    ScaleGizmo.__yCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0.5, 0);
     ScaleGizmo.__yCubeMesh = new Mesh();
     ScaleGizmo.__yCubeMaterial = MaterialHelper.createClassicUberMaterial();
     ScaleGizmo.__yCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 1, 0, 1]));
@@ -424,7 +425,7 @@ export class ScaleGizmo extends Gizmo {
   private xMesh() {
     ScaleGizmo.__xCubeEntity = createMeshEntity();
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_xCube', true);
-    ScaleGizmo.__xCubeEntity.getTransform().localPosition = Vector3.fromCopy3(1, 0, 0);
+    ScaleGizmo.__xCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0.5, 0, 0);
     ScaleGizmo.__xCubeMesh = new Mesh();
     ScaleGizmo.__xCubeMaterial = MaterialHelper.createClassicUberMaterial();
     ScaleGizmo.__xCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([1, 0, 0, 1]));
@@ -444,11 +445,11 @@ export class ScaleGizmo extends Gizmo {
   private xEdgeMesh() {
     ScaleGizmo.__xEdgeCubeEntity = createMeshEntity();
     ScaleGizmo.__xEdgeCubeEntity.tryToSetUniqueName('ScaleGizmo_xEdgeCube', true);
-    ScaleGizmo.__xEdgeCubeEntity.getTransform().localPosition = Vector3.fromCopy3(1, 0, 0);
+    ScaleGizmo.__xEdgeCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0.5, 0, 0);
     ScaleGizmo.__xEdgeCubeMesh = new Mesh();
     ScaleGizmo.__xEdgeCubePrimitive = new Cube();
     ScaleGizmo.__xEdgeCubePrimitive.generate({
-      widthVector: Vector3.fromCopy3(0.1, 0.1, 0.1),
+      widthVector: Vector3.fromCopy3(0.15, 0.15, 0.15),
       material: ScaleGizmo.__xCubeMaterial,
     });
     ScaleGizmo.__xEdgeCubeMesh.addPrimitive(ScaleGizmo.__xEdgeCubePrimitive);
@@ -464,11 +465,11 @@ export class ScaleGizmo extends Gizmo {
   private yEdgeMesh() {
     ScaleGizmo.__yEdgeCubeEntity = createMeshEntity();
     ScaleGizmo.__yEdgeCubeEntity.tryToSetUniqueName('ScaleGizmo_yEdgeCube', true);
-    ScaleGizmo.__yEdgeCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 1, 0);
+    ScaleGizmo.__yEdgeCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0.5, 0);
     ScaleGizmo.__yEdgeCubeMesh = new Mesh();
     ScaleGizmo.__yEdgeCubePrimitive = new Cube();
     ScaleGizmo.__yEdgeCubePrimitive.generate({
-      widthVector: Vector3.fromCopy3(0.1, 0.1, 0.1),
+      widthVector: Vector3.fromCopy3(0.15, 0.15, 0.15),
       material: ScaleGizmo.__yCubeMaterial,
     });
     ScaleGizmo.__yEdgeCubeMesh.addPrimitive(ScaleGizmo.__yEdgeCubePrimitive);
@@ -484,11 +485,11 @@ export class ScaleGizmo extends Gizmo {
   private zEdgeMesh() {
     ScaleGizmo.__zEdgeCubeEntity = createMeshEntity();
     ScaleGizmo.__zEdgeCubeEntity.tryToSetUniqueName('ScaleGizmo_zEdgeCube', true);
-    ScaleGizmo.__zEdgeCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 1);
+    ScaleGizmo.__zEdgeCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 0.5);
     ScaleGizmo.__zEdgeCubeMesh = new Mesh();
     ScaleGizmo.__zEdgeCubePrimitive = new Cube();
     ScaleGizmo.__zEdgeCubePrimitive.generate({
-      widthVector: Vector3.fromCopy3(0.1, 0.1, 0.1),
+      widthVector: Vector3.fromCopy3(0.15, 0.15, 0.15),
       material: ScaleGizmo.__zCubeMaterial,
     });
     ScaleGizmo.__zEdgeCubeMesh.addPrimitive(ScaleGizmo.__zEdgeCubePrimitive);
@@ -594,6 +595,7 @@ export class ScaleGizmo extends Gizmo {
   private __onPointerDown(evt: PointerEvent) {
     evt.preventDefault();
     this.__isPointerDown = true;
+    ScaleGizmo.__activeAxis = 'none';
     ScaleGizmo.__originalX = evt.clientX;
     ScaleGizmo.__originalY = evt.clientY;
 
@@ -620,24 +622,35 @@ export class ScaleGizmo extends Gizmo {
     }
 
     const { xResult, yResult, zResult } = ScaleGizmo.castRay(evt);
+    let axisPicked = false;
     if (xResult.result) {
       assertExist(xResult.data);
       this.__pickStatedPoint = rotMat.multiplyVector(xResult.data.position.clone());
       Logger.debug(`Down:${this.__pickStatedPoint.toStringApproximately()}`);
       ScaleGizmo.__activeAxis = 'x';
+      axisPicked = true;
     }
     if (yResult.result) {
       assertExist(yResult.data);
       this.__pickStatedPoint = rotMat.multiplyVector(yResult.data.position.clone());
       Logger.debug(`Down:${this.__pickStatedPoint.toStringApproximately()}`);
       ScaleGizmo.__activeAxis = 'y';
+      axisPicked = true;
     }
     if (zResult.result) {
       assertExist(zResult.data);
       this.__pickStatedPoint = rotMat.multiplyVector(zResult.data.position.clone());
       Logger.debug(`Down:${this.__pickStatedPoint.toStringApproximately()}`);
       ScaleGizmo.__activeAxis = 'z';
+      axisPicked = true;
     }
+
+    if (ScaleGizmo.__activeAxis === 'none' || axisPicked === false) {
+      this.__isPointerDown = false;
+      return;
+    }
+
+    this.__disableCameraController();
 
     if (ScaleGizmo.__latestTargetEntity === this.__target) {
       this.__targetScaleBackup = this.__target.getTransform().localScale;
@@ -693,7 +706,6 @@ export class ScaleGizmo extends Gizmo {
         // pickInMovingPoint = Vector3.fromCopy3(xResult.data.position.x, pickInMovingPoint.y, pickInMovingPoint.z);
         Logger.debug(`Move:${xResult.data.position.toStringApproximately()}`);
       }
-      InputManager.disableCameraController();
     }
     if (ScaleGizmo.__activeAxis === 'y') {
       const yResult = ScaleGizmo.__xyPlaneEntity.getMesh().castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
@@ -704,7 +716,6 @@ export class ScaleGizmo extends Gizmo {
         // pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, yResult.data.position.y, pickInMovingPoint.z);
         Logger.debug(`Move:${yResult.data.position.toStringApproximately()}`);
       }
-      InputManager.disableCameraController();
     }
     if (ScaleGizmo.__activeAxis === 'z') {
       const zResult = ScaleGizmo.__yzPlaneEntity.getMesh().castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
@@ -715,7 +726,6 @@ export class ScaleGizmo extends Gizmo {
         // pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, pickInMovingPoint.y, zResult.data.position.z);
         Logger.debug(`Move:${zResult.data.position.toStringApproximately()}`);
       }
-      InputManager.disableCameraController();
     }
 
     const sg = this.__target.getSceneGraph()!;
@@ -781,6 +791,8 @@ export class ScaleGizmo extends Gizmo {
       //   Math.max(this.__deltaPoint.z, 0.01)
       // );
     }
+
+    this._update();
   }
 
   /**
@@ -792,11 +804,27 @@ export class ScaleGizmo extends Gizmo {
     evt.preventDefault();
     this.__isPointerDown = false;
     ScaleGizmo.__activeAxis = 'none';
-    InputManager.enableCameraController();
+    this.__enableCameraControllerIfNeeded();
 
     if (ScaleGizmo.__latestTargetEntity === this.__target) {
       this.__targetScaleBackup = this.__target.getTransform().localScale;
     }
+  }
+
+  private __disableCameraController() {
+    if (this.__isCameraControllerDisabled) {
+      return;
+    }
+    InputManager.disableCameraController();
+    this.__isCameraControllerDisabled = true;
+  }
+
+  private __enableCameraControllerIfNeeded() {
+    if (!this.__isCameraControllerDisabled) {
+      return;
+    }
+    InputManager.enableCameraController();
+    this.__isCameraControllerDisabled = false;
   }
 
   /**
