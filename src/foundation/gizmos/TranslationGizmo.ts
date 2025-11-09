@@ -79,6 +79,7 @@ export class TranslationGizmo extends Gizmo {
   private __onPointerDownFunc = this.__onPointerDown.bind(this);
   private __onPointerMoveFunc = this.__onPointerMove.bind(this);
   private __onPointerUpFunc = this.__onPointerUp.bind(this);
+  private __isCameraControllerDisabled = false;
 
   private static __length = 1;
 
@@ -535,6 +536,7 @@ export class TranslationGizmo extends Gizmo {
   private __onPointerDown(evt: PointerEvent) {
     evt.preventDefault();
     this.__isPointerDown = true;
+    TranslationGizmo.__activeAxis = 'none';
     TranslationGizmo.__originalX = evt.clientX;
     TranslationGizmo.__originalY = evt.clientY;
 
@@ -563,24 +565,35 @@ export class TranslationGizmo extends Gizmo {
     }
 
     const { xResult, yResult, zResult } = TranslationGizmo.castRay(evt);
+    let axisPicked = false;
     if (xResult.result) {
       assertExist(xResult.data);
       this.__pickStatedPoint = rotMat.multiplyVector(xResult.data.position.clone());
       Logger.debug(`Down:${this.__pickStatedPoint.toStringApproximately()}`);
       TranslationGizmo.__activeAxis = 'x';
+      axisPicked = true;
     }
     if (yResult.result) {
       assertExist(yResult.data);
       this.__pickStatedPoint = rotMat.multiplyVector(yResult.data.position.clone());
       Logger.debug(`Down:${this.__pickStatedPoint.toStringApproximately()}`);
       TranslationGizmo.__activeAxis = 'y';
+      axisPicked = true;
     }
     if (zResult.result) {
       assertExist(zResult.data);
       this.__pickStatedPoint = rotMat.multiplyVector(zResult.data.position.clone());
       Logger.debug(`Down:${this.__pickStatedPoint.toStringApproximately()}`);
       TranslationGizmo.__activeAxis = 'z';
+      axisPicked = true;
     }
+
+    if (TranslationGizmo.__activeAxis === 'none' || axisPicked === false) {
+      this.__isPointerDown = false;
+      return;
+    }
+
+    this.__disableCameraController();
 
     if (this.__latestTargetEntity === this.__target) {
       this.__targetPointBackup = this.__target.getTransform().localPosition;
@@ -642,7 +655,6 @@ export class TranslationGizmo extends Gizmo {
         pickInMovingPoint = Vector3.fromCopy3(position.x, pickInMovingPoint.y, pickInMovingPoint.z);
         // console.log('Move:' + xResult.data.position.toStringApproximately());
       }
-      InputManager.disableCameraController();
     }
     if (TranslationGizmo.__activeAxis === 'y') {
       const yResult = TranslationGizmo.__xyPlaneEntity
@@ -654,7 +666,6 @@ export class TranslationGizmo extends Gizmo {
         pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, position.y, pickInMovingPoint.z);
         // console.log('Move:' + yResult.data.position.toStringApproximately());
       }
-      InputManager.disableCameraController();
     }
     if (TranslationGizmo.__activeAxis === 'z') {
       const zResult = TranslationGizmo.__yzPlaneEntity
@@ -666,7 +677,6 @@ export class TranslationGizmo extends Gizmo {
         pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, pickInMovingPoint.y, position.z);
         // console.log('Move:' + zResult.data.position.toStringApproximately());
       }
-      InputManager.disableCameraController();
     }
 
     const deltaVector3 = Vector3.subtract(pickInMovingPoint, this.__pickStatedPoint);
@@ -716,11 +726,27 @@ export class TranslationGizmo extends Gizmo {
     evt.preventDefault();
     this.__isPointerDown = false;
     TranslationGizmo.__activeAxis = 'none';
-    InputManager.enableCameraController();
+    this.__enableCameraControllerIfNeeded();
 
     if (this.__latestTargetEntity === this.__target) {
       this.__targetPointBackup = this.__target.getTransform().localPosition;
     }
+  }
+
+  private __disableCameraController() {
+    if (this.__isCameraControllerDisabled) {
+      return;
+    }
+    InputManager.disableCameraController();
+    this.__isCameraControllerDisabled = true;
+  }
+
+  private __enableCameraControllerIfNeeded() {
+    if (!this.__isCameraControllerDisabled) {
+      return;
+    }
+    InputManager.enableCameraController();
+    this.__isCameraControllerDisabled = false;
   }
 
   /**

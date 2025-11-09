@@ -75,6 +75,7 @@ export class ScaleGizmo extends Gizmo {
   private __deltaPoint = Vector3.one();
   private __targetScaleBackup = Vector3.one();
   private __isPointerDown = false;
+  private __isCameraControllerDisabled = false;
   private static __activeAxis: 'none' | 'x' | 'y' | 'z' = 'none';
   private static __space: 'local' | 'world' = 'world';
   private static __latestTargetEntity?: ISceneGraphEntity;
@@ -594,6 +595,7 @@ export class ScaleGizmo extends Gizmo {
   private __onPointerDown(evt: PointerEvent) {
     evt.preventDefault();
     this.__isPointerDown = true;
+    ScaleGizmo.__activeAxis = 'none';
     ScaleGizmo.__originalX = evt.clientX;
     ScaleGizmo.__originalY = evt.clientY;
 
@@ -620,24 +622,35 @@ export class ScaleGizmo extends Gizmo {
     }
 
     const { xResult, yResult, zResult } = ScaleGizmo.castRay(evt);
+    let axisPicked = false;
     if (xResult.result) {
       assertExist(xResult.data);
       this.__pickStatedPoint = rotMat.multiplyVector(xResult.data.position.clone());
       Logger.debug(`Down:${this.__pickStatedPoint.toStringApproximately()}`);
       ScaleGizmo.__activeAxis = 'x';
+      axisPicked = true;
     }
     if (yResult.result) {
       assertExist(yResult.data);
       this.__pickStatedPoint = rotMat.multiplyVector(yResult.data.position.clone());
       Logger.debug(`Down:${this.__pickStatedPoint.toStringApproximately()}`);
       ScaleGizmo.__activeAxis = 'y';
+      axisPicked = true;
     }
     if (zResult.result) {
       assertExist(zResult.data);
       this.__pickStatedPoint = rotMat.multiplyVector(zResult.data.position.clone());
       Logger.debug(`Down:${this.__pickStatedPoint.toStringApproximately()}`);
       ScaleGizmo.__activeAxis = 'z';
+      axisPicked = true;
     }
+
+    if (ScaleGizmo.__activeAxis === 'none' || axisPicked === false) {
+      this.__isPointerDown = false;
+      return;
+    }
+
+    this.__disableCameraController();
 
     if (ScaleGizmo.__latestTargetEntity === this.__target) {
       this.__targetScaleBackup = this.__target.getTransform().localScale;
@@ -693,7 +706,6 @@ export class ScaleGizmo extends Gizmo {
         // pickInMovingPoint = Vector3.fromCopy3(xResult.data.position.x, pickInMovingPoint.y, pickInMovingPoint.z);
         Logger.debug(`Move:${xResult.data.position.toStringApproximately()}`);
       }
-      InputManager.disableCameraController();
     }
     if (ScaleGizmo.__activeAxis === 'y') {
       const yResult = ScaleGizmo.__xyPlaneEntity.getMesh().castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
@@ -704,7 +716,6 @@ export class ScaleGizmo extends Gizmo {
         // pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, yResult.data.position.y, pickInMovingPoint.z);
         Logger.debug(`Move:${yResult.data.position.toStringApproximately()}`);
       }
-      InputManager.disableCameraController();
     }
     if (ScaleGizmo.__activeAxis === 'z') {
       const zResult = ScaleGizmo.__yzPlaneEntity.getMesh().castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
@@ -715,7 +726,6 @@ export class ScaleGizmo extends Gizmo {
         // pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, pickInMovingPoint.y, zResult.data.position.z);
         Logger.debug(`Move:${zResult.data.position.toStringApproximately()}`);
       }
-      InputManager.disableCameraController();
     }
 
     const sg = this.__target.getSceneGraph()!;
@@ -794,11 +804,27 @@ export class ScaleGizmo extends Gizmo {
     evt.preventDefault();
     this.__isPointerDown = false;
     ScaleGizmo.__activeAxis = 'none';
-    InputManager.enableCameraController();
+    this.__enableCameraControllerIfNeeded();
 
     if (ScaleGizmo.__latestTargetEntity === this.__target) {
       this.__targetScaleBackup = this.__target.getTransform().localScale;
     }
+  }
+
+  private __disableCameraController() {
+    if (this.__isCameraControllerDisabled) {
+      return;
+    }
+    InputManager.disableCameraController();
+    this.__isCameraControllerDisabled = true;
+  }
+
+  private __enableCameraControllerIfNeeded() {
+    if (!this.__isCameraControllerDisabled) {
+      return;
+    }
+    InputManager.enableCameraController();
+    this.__isCameraControllerDisabled = false;
   }
 
   /**

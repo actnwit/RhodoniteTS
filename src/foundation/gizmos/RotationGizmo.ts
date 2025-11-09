@@ -61,6 +61,7 @@ export class RotationGizmo extends Gizmo {
   private __onPointerDownFunc = this.__onPointerDown.bind(this);
   private __onPointerMoveFunc = this.__onPointerMove.bind(this);
   private __onPointerUpFunc = this.__onPointerUp.bind(this);
+  private __isCameraControllerDisabled = false;
 
   ///
   ///
@@ -298,6 +299,7 @@ export class RotationGizmo extends Gizmo {
       return;
     }
 
+    this.__disableCameraController();
     this.__targetRotationBackup = Quaternion.fromCopyQuaternion(this.__target.getTransform().localRotation);
     this.__deltaQuaternion = Quaternion.fromCopyQuaternion(this.__targetRotationBackup);
   }
@@ -334,7 +336,6 @@ export class RotationGizmo extends Gizmo {
     const deltaQuat = Quaternion.fromAxisAngle(rotationAxis, signedAngle);
     this.__deltaQuaternion = Quaternion.multiply(deltaQuat, this.__targetRotationBackup);
 
-    InputManager.disableCameraController();
     this._update();
   }
 
@@ -342,10 +343,26 @@ export class RotationGizmo extends Gizmo {
     evt.preventDefault();
     this.__isPointerDown = false;
     RotationGizmo.__activeAxis = 'none';
-    InputManager.enableCameraController();
+    this.__enableCameraControllerIfNeeded();
     this.__startVector = Vector3.zero();
     this.__targetRotationBackup = Quaternion.fromCopyQuaternion(this.__target.getTransform().localRotation);
     this.__deltaQuaternion = Quaternion.fromCopyQuaternion(this.__targetRotationBackup);
+  }
+
+  private __disableCameraController() {
+    if (this.__isCameraControllerDisabled) {
+      return;
+    }
+    InputManager.disableCameraController();
+    this.__isCameraControllerDisabled = true;
+  }
+
+  private __enableCameraControllerIfNeeded() {
+    if (!this.__isCameraControllerDisabled) {
+      return;
+    }
+    InputManager.enableCameraController();
+    this.__isCameraControllerDisabled = false;
   }
 
   private __pickActiveAxis(evt: PointerEvent, axis: Axis) {
