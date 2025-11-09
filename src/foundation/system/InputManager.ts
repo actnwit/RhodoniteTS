@@ -224,6 +224,7 @@ export class InputManager {
    * ```
    */
   static unregister(inputHandlingState: InputHandlingState) {
+    this.__removeEventListeners(inputHandlingState);
     this.__activeMap.set(inputHandlingState, false);
     this.__inputHandlingStateMap.delete(inputHandlingState);
     this.__processEventListeners();
@@ -337,6 +338,22 @@ export class InputManager {
     const rotationActive = (InputManager.__activeMap.get(INPUT_HANDLING_STATE_GIZMO_ROTATION) ?? false) && Is.exist(rotationHandlers);
     const scaleActive = (InputManager.__activeMap.get(INPUT_HANDLING_STATE_GIZMO_SCALE) ?? false) && Is.exist(scaleHandlers);
     const cameraActive = (InputManager.__activeMap.get(INPUT_HANDLING_STATE_CAMERA_CONTROLLER) ?? false) && Is.exist(cameraHandlers);
+
+    if (!translationActive && Is.exist(translationHandlers)) {
+      this.__removeEventListeners(INPUT_HANDLING_STATE_GIZMO_TRANSLATION);
+    }
+
+    if (!rotationActive && Is.exist(rotationHandlers)) {
+      this.__removeEventListeners(INPUT_HANDLING_STATE_GIZMO_ROTATION);
+    }
+
+    if (!scaleActive && Is.exist(scaleHandlers)) {
+      this.__removeEventListeners(INPUT_HANDLING_STATE_GIZMO_SCALE);
+    }
+
+    if (!cameraActive && Is.exist(cameraHandlers)) {
+      this.__removeEventListeners(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
+    }
 
     if (cameraActive) {
       this.__addEventListeners(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
