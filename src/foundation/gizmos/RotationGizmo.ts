@@ -213,9 +213,7 @@ export class RotationGizmo extends Gizmo {
     if (Is.not.exist(RotationGizmo.__xRingEntity)) {
       RotationGizmo.__xRingEntity = createMeshEntity();
       RotationGizmo.__xRingEntity.tryToSetUniqueName('RotationGizmo_xRing', true);
-      RotationGizmo.__xRingMaterial = MaterialHelper.createClassicUberMaterial();
-      RotationGizmo.__xRingMaterial.alphaMode = AlphaMode.Blend;
-      RotationGizmo.__xRingMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([1, 0, 0, 0.85]));
+      RotationGizmo.__xRingMaterial = RotationGizmo.__createRingMaterial(Vector4.fromCopyArray4([1, 0, 0, 0.85]));
       RotationGizmo.__xRingMesh = new Mesh();
       RotationGizmo.__xRingPrimitive = RotationGizmo.__createRingPrimitive('x', RotationGizmo.__xRingMaterial);
       RotationGizmo.__xRingMesh.addPrimitive(RotationGizmo.__xRingPrimitive);
@@ -225,9 +223,7 @@ export class RotationGizmo extends Gizmo {
     if (Is.not.exist(RotationGizmo.__yRingEntity)) {
       RotationGizmo.__yRingEntity = createMeshEntity();
       RotationGizmo.__yRingEntity.tryToSetUniqueName('RotationGizmo_yRing', true);
-      RotationGizmo.__yRingMaterial = MaterialHelper.createClassicUberMaterial();
-      RotationGizmo.__yRingMaterial.alphaMode = AlphaMode.Blend;
-      RotationGizmo.__yRingMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 1, 0, 0.85]));
+      RotationGizmo.__yRingMaterial = RotationGizmo.__createRingMaterial(Vector4.fromCopyArray4([0, 1, 0, 0.85]));
       RotationGizmo.__yRingMesh = new Mesh();
       RotationGizmo.__yRingPrimitive = RotationGizmo.__createRingPrimitive('y', RotationGizmo.__yRingMaterial);
       RotationGizmo.__yRingMesh.addPrimitive(RotationGizmo.__yRingPrimitive);
@@ -237,9 +233,7 @@ export class RotationGizmo extends Gizmo {
     if (Is.not.exist(RotationGizmo.__zRingEntity)) {
       RotationGizmo.__zRingEntity = createMeshEntity();
       RotationGizmo.__zRingEntity.tryToSetUniqueName('RotationGizmo_zRing', true);
-      RotationGizmo.__zRingMaterial = MaterialHelper.createClassicUberMaterial();
-      RotationGizmo.__zRingMaterial.alphaMode = AlphaMode.Blend;
-      RotationGizmo.__zRingMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0, 1, 0.85]));
+      RotationGizmo.__zRingMaterial = RotationGizmo.__createRingMaterial(Vector4.fromCopyArray4([0, 0, 1, 0.85]));
       RotationGizmo.__zRingMesh = new Mesh();
       RotationGizmo.__zRingPrimitive = RotationGizmo.__createRingPrimitive('z', RotationGizmo.__zRingMaterial);
       RotationGizmo.__zRingMesh.addPrimitive(RotationGizmo.__zRingPrimitive);
@@ -535,5 +529,13 @@ export class RotationGizmo extends Gizmo {
       }
     }
     return closest;
+  }
+
+  private static __createRingMaterial(color: Vector4): Material {
+    const material = MaterialHelper.createClassicUberMaterial();
+    material.alphaMode = AlphaMode.Blend;
+    material.cullFace = false;
+    material.setParameter('diffuseColorFactor', color);
+    return material;
   }
 }
