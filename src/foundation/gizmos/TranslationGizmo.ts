@@ -691,26 +691,13 @@ export class TranslationGizmo extends Gizmo {
       this.__deltaPoint = Vector3.add(deltaVector3, this.__targetPointBackup);
     } else if (TranslationGizmo.__space === 'world') {
       const parent = this.__target.getSceneGraph().parent;
-      let worldMatrix: IMatrix44 = Matrix44.identity();
+      let deltaInLocal = deltaVector3;
       if (Is.exist(parent)) {
-        worldMatrix = parent.matrix.getRotate();
+        const parentRotation = parent.getQuaternionRecursively();
+        const inverseParentRotation = Quaternion.invert(parentRotation);
+        deltaInLocal = inverseParentRotation.transformVector3(deltaVector3);
       }
-
-      const scaleVec = Vector3.one();
-      let rotMat = Matrix33.fromCopy9RowMajor(
-        scaleVec.x * worldMatrix.m00,
-        scaleVec.x * worldMatrix.m01,
-        scaleVec.x * worldMatrix.m02,
-        scaleVec.y * worldMatrix.m10,
-        scaleVec.y * worldMatrix.m11,
-        scaleVec.y * worldMatrix.m12,
-        scaleVec.z * worldMatrix.m20,
-        scaleVec.z * worldMatrix.m21,
-        scaleVec.z * worldMatrix.m22
-      );
-      rotMat = Matrix33.transpose(rotMat) as Matrix33;
-      const deltaDeltaVector3 = Vector3.add(this.__targetPointBackup, rotMat.multiplyVector(deltaVector3));
-      this.__deltaPoint = deltaDeltaVector3;
+      this.__deltaPoint = Vector3.add(this.__targetPointBackup, deltaInLocal);
     }
 
     this._update();
