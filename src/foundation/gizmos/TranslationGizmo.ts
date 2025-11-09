@@ -240,7 +240,7 @@ export class TranslationGizmo extends Gizmo {
     if (Is.not.exist(TranslationGizmo.__xCubeEntity)) {
       TranslationGizmo.__xCubeEntity = createMeshEntity();
       TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_xCube', true);
-      TranslationGizmo.__xCubeEntity.getTransform().localPosition = Vector3.fromCopy3(1, 0, 0);
+      TranslationGizmo.__xCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0.5, 0, 0);
       TranslationGizmo.__xCubeMesh = new Mesh();
       TranslationGizmo.__xCubeMaterial = MaterialHelper.createClassicUberMaterial();
       TranslationGizmo.__xCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([1, 0, 0, 1]));
@@ -257,7 +257,7 @@ export class TranslationGizmo extends Gizmo {
     if (Is.not.exist(TranslationGizmo.__yCubeEntity)) {
       TranslationGizmo.__yCubeEntity = createMeshEntity();
       TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_yCube', true);
-      TranslationGizmo.__yCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 1, 0);
+      TranslationGizmo.__yCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0.5, 0);
       TranslationGizmo.__yCubeMesh = new Mesh();
       TranslationGizmo.__yCubeMaterial = MaterialHelper.createClassicUberMaterial();
       TranslationGizmo.__yCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 1, 0, 1]));
@@ -274,7 +274,7 @@ export class TranslationGizmo extends Gizmo {
     if (Is.not.exist(TranslationGizmo.__zCubeEntity)) {
       TranslationGizmo.__zCubeEntity = createMeshEntity();
       TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_zCube', true);
-      TranslationGizmo.__zCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 1);
+      TranslationGizmo.__zCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 0.5);
       TranslationGizmo.__zCubeMesh = new Mesh();
       TranslationGizmo.__zCubeMaterial = MaterialHelper.createClassicUberMaterial();
       TranslationGizmo.__zCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0, 1, 1]));
