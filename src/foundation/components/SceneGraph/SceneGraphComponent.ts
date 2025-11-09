@@ -251,6 +251,9 @@ export class SceneGraphComponent extends Component {
         this.__translationGizmo._setup();
       }
       this.__translationGizmo.isVisible = true;
+      if (this.__translationGizmo.isSetup) {
+        this.__translationGizmo._update();
+      }
     } else {
       if (Is.exist(this.__translationGizmo)) {
         this.__translationGizmo.isVisible = false;
@@ -281,6 +284,9 @@ export class SceneGraphComponent extends Component {
         this.__rotationGizmo.setSpace(this.__transformGizmoSpace);
       }
       this.__rotationGizmo.isVisible = true;
+      if (this.__rotationGizmo.isSetup) {
+        this.__rotationGizmo._update();
+      }
     } else if (Is.exist(this.__rotationGizmo)) {
       this.__rotationGizmo.isVisible = false;
     }
@@ -308,6 +314,9 @@ export class SceneGraphComponent extends Component {
         this.__scaleGizmo._setup();
       }
       this.__scaleGizmo.isVisible = true;
+      if (this.__scaleGizmo.isSetup) {
+        this.__scaleGizmo._update();
+      }
     } else {
       if (Is.exist(this.__scaleGizmo)) {
         this.__scaleGizmo.isVisible = false;
