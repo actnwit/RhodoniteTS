@@ -384,7 +384,7 @@ export class ScaleGizmo extends Gizmo {
   private zMesh() {
     ScaleGizmo.__zCubeEntity = createMeshEntity();
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_zCube', true);
-    ScaleGizmo.__zCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 1);
+    ScaleGizmo.__zCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 0.5);
     ScaleGizmo.__zCubeMesh = new Mesh();
     ScaleGizmo.__zCubeMaterial = MaterialHelper.createClassicUberMaterial();
     ScaleGizmo.__zCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0, 1, 1]));
@@ -404,7 +404,7 @@ export class ScaleGizmo extends Gizmo {
   private yMesh() {
     ScaleGizmo.__yCubeEntity = createMeshEntity();
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_yCube', true);
-    ScaleGizmo.__yCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 1, 0);
+    ScaleGizmo.__yCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0.5, 0);
     ScaleGizmo.__yCubeMesh = new Mesh();
     ScaleGizmo.__yCubeMaterial = MaterialHelper.createClassicUberMaterial();
     ScaleGizmo.__yCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 1, 0, 1]));
@@ -424,7 +424,7 @@ export class ScaleGizmo extends Gizmo {
   private xMesh() {
     ScaleGizmo.__xCubeEntity = createMeshEntity();
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_xCube', true);
-    ScaleGizmo.__xCubeEntity.getTransform().localPosition = Vector3.fromCopy3(1, 0, 0);
+    ScaleGizmo.__xCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0.5, 0, 0);
     ScaleGizmo.__xCubeMesh = new Mesh();
     ScaleGizmo.__xCubeMaterial = MaterialHelper.createClassicUberMaterial();
     ScaleGizmo.__xCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([1, 0, 0, 1]));
@@ -444,7 +444,7 @@ export class ScaleGizmo extends Gizmo {
   private xEdgeMesh() {
     ScaleGizmo.__xEdgeCubeEntity = createMeshEntity();
     ScaleGizmo.__xEdgeCubeEntity.tryToSetUniqueName('ScaleGizmo_xEdgeCube', true);
-    ScaleGizmo.__xEdgeCubeEntity.getTransform().localPosition = Vector3.fromCopy3(1, 0, 0);
+    ScaleGizmo.__xEdgeCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0.5, 0, 0);
     ScaleGizmo.__xEdgeCubeMesh = new Mesh();
     ScaleGizmo.__xEdgeCubePrimitive = new Cube();
     ScaleGizmo.__xEdgeCubePrimitive.generate({
@@ -464,7 +464,7 @@ export class ScaleGizmo extends Gizmo {
   private yEdgeMesh() {
     ScaleGizmo.__yEdgeCubeEntity = createMeshEntity();
     ScaleGizmo.__yEdgeCubeEntity.tryToSetUniqueName('ScaleGizmo_yEdgeCube', true);
-    ScaleGizmo.__yEdgeCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 1, 0);
+    ScaleGizmo.__yEdgeCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0.5, 0);
     ScaleGizmo.__yEdgeCubeMesh = new Mesh();
     ScaleGizmo.__yEdgeCubePrimitive = new Cube();
     ScaleGizmo.__yEdgeCubePrimitive.generate({
@@ -484,7 +484,7 @@ export class ScaleGizmo extends Gizmo {
   private zEdgeMesh() {
     ScaleGizmo.__zEdgeCubeEntity = createMeshEntity();
     ScaleGizmo.__zEdgeCubeEntity.tryToSetUniqueName('ScaleGizmo_zEdgeCube', true);
-    ScaleGizmo.__zEdgeCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 1);
+    ScaleGizmo.__zEdgeCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 0.5);
     ScaleGizmo.__zEdgeCubeMesh = new Mesh();
     ScaleGizmo.__zEdgeCubePrimitive = new Cube();
     ScaleGizmo.__zEdgeCubePrimitive.generate({
