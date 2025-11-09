@@ -18,7 +18,9 @@ import { MathClassUtil } from '../math/MathClassUtil';
 import { Matrix33 } from '../math/Matrix33';
 import { Matrix44 } from '../math/Matrix44';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
+import { MutableVector2 } from '../math/MutableVector2';
 import { MutableVector3 } from '../math/MutableVector3';
+import { MutableVector4 } from '../math/MutableVector4';
 import { Quaternion } from '../math/Quaternion';
 import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
@@ -58,6 +60,11 @@ export class RotationGizmo extends Gizmo {
   private static readonly __unitZ = Vector3.fromCopy3(0, 0, 1);
   private static readonly __tmpMatrix44_0 = MutableMatrix44.zero();
   private static readonly __tmpMatrix44_1 = MutableMatrix44.zero();
+  private static readonly __tmpMatrix44_2 = MutableMatrix44.zero();
+  private static readonly __tmpVector4_0 = MutableVector4.zero();
+  private static readonly __tmpVector4_1 = MutableVector4.zero();
+  private static readonly __tmpVector4_2 = MutableVector4.zero();
+  private static readonly __tmpVector4_3 = MutableVector4.zero();
   private static readonly __tmpVector3_0 = MutableVector3.zero();
   private static readonly __tmpVector3_1 = MutableVector3.zero();
   private static readonly __tmpVector3_2 = MutableVector3.zero();
@@ -65,6 +72,9 @@ export class RotationGizmo extends Gizmo {
   private static readonly __tmpVector3_4 = MutableVector3.zero();
   private static readonly __tmpVector3_5 = MutableVector3.zero();
   private static readonly __tmpVector3_6 = MutableVector3.zero();
+  private static readonly __tmpVector3_7 = MutableVector3.zero();
+  private static readonly __tmpVector3_8 = MutableVector3.zero();
+  private static readonly __tmpVector3_9 = MutableVector3.zero();
 
   private __isPointerDown = false;
   private __startVector = Vector3.zero();
@@ -75,6 +85,12 @@ export class RotationGizmo extends Gizmo {
   private __onPointerMoveFunc = this.__onPointerMove.bind(this);
   private __onPointerUpFunc = this.__onPointerUp.bind(this);
   private __isCameraControllerDisabled = false;
+  private __pointerPrev = MutableVector2.zero();
+  private __dragScreenDirection = MutableVector2.zero();
+  private __rotationAxisForQuaternion = MutableVector3.zero();
+  private __dragScale = 0;
+  private __accumulatedAngle = 0;
+  private __activePointerElement?: HTMLElement;
 
   ///
   ///
@@ -291,6 +307,12 @@ export class RotationGizmo extends Gizmo {
   private __onPointerDown(evt: PointerEvent) {
     evt.preventDefault();
     this.__isPointerDown = true;
+    this.__activePointerElement = undefined;
+    this.__pointerPrev.setComponents(0, 0);
+    this.__dragScreenDirection.setComponents(0, 0);
+    this.__dragScale = 0;
+    this.__accumulatedAngle = 0;
+    this.__rotationAxisForQuaternion.setComponents(0, 0, 0);
 
     const { xResult, yResult, zResult } = RotationGizmo.__castRay(evt, true);
     RotationGizmo.__activeAxis = 'none';
@@ -315,40 +337,21 @@ export class RotationGizmo extends Gizmo {
     this.__disableCameraController();
     this.__targetRotationBackup = Quaternion.fromCopyQuaternion(this.__target.getTransform().localRotation);
     this.__deltaQuaternion = Quaternion.fromCopyQuaternion(this.__targetRotationBackup);
+    this.__prepareLinearDragMapping(evt, RotationGizmo.__activeAxis);
   }
 
   private __onPointerMove(evt: PointerEvent) {
     evt.preventDefault();
-    if (Is.false(this.__isPointerDown) || RotationGizmo.__activeAxis === 'none') {
+    if (Is.false(this.__isPointerDown)) {
       return;
     }
 
-    const localIntersection = this.__intersectPointerWithAxisPlane(evt, RotationGizmo.__activeAxis);
-    if (!localIntersection) {
+    const activeAxis = RotationGizmo.__activeAxis;
+    if (activeAxis === 'none') {
       return;
     }
 
-    const projected = RotationGizmo.__projectToPlane(localIntersection, RotationGizmo.__activeAxis);
-    if (projected.lengthSquared() === 0) {
-      return;
-    }
-
-    const currentVector = Vector3.normalize(projected);
-    const angle = Vector3.angleOfVectors(this.__startVector, currentVector);
-    if (!Number.isFinite(angle) || angle === 0) {
-      return;
-    }
-
-    const axisVector = RotationGizmo.__getAxisVector(RotationGizmo.__activeAxis);
-    const cross = Vector3.cross(this.__startVector, currentVector);
-    const sign = Math.sign(Vector3.dot(cross, axisVector)) || 1;
-    const signedAngle = angle * sign;
-
-    const rotationAxis = this.__getAxisForQuaternion(RotationGizmo.__activeAxis);
-    const deltaQuat = Quaternion.fromAxisAngle(rotationAxis, signedAngle);
-    this.__deltaQuaternion = Quaternion.multiply(deltaQuat, this.__targetRotationBackup);
-
-    this._update();
+    this.__handleLinearDrag(evt);
   }
 
   private __onPointerUp(evt: PointerEvent) {
@@ -359,6 +362,224 @@ export class RotationGizmo extends Gizmo {
     this.__startVector = Vector3.zero();
     this.__targetRotationBackup = Quaternion.fromCopyQuaternion(this.__target.getTransform().localRotation);
     this.__deltaQuaternion = Quaternion.fromCopyQuaternion(this.__targetRotationBackup);
+    this.__activePointerElement = undefined;
+    this.__pointerPrev.setComponents(0, 0);
+    this.__dragScreenDirection.setComponents(0, 0);
+    this.__rotationAxisForQuaternion.setComponents(0, 0, 0);
+    this.__dragScale = 0;
+    this.__accumulatedAngle = 0;
+  }
+
+  private __prepareLinearDragMapping(evt: PointerEvent, axis: Axis) {
+    this.__dragScreenDirection.setComponents(0, 0);
+
+    const element = this.__resolvePointerElement(evt);
+    let width = 1;
+    let height = 1;
+    let pointerX = 0;
+    let pointerY = 0;
+    if (element) {
+      const rect = element.getBoundingClientRect();
+      width = rect.width || element.clientWidth || 1;
+      height = rect.height || element.clientHeight || 1;
+      pointerX = evt.clientX - rect.left;
+      pointerY = evt.clientY - rect.top;
+      this.__activePointerElement = element;
+    } else {
+      this.__activePointerElement = undefined;
+    }
+
+    this.__pointerPrev.setComponents(pointerX, pointerY);
+    this.__dragScale = (2 * Math.PI) / Math.max(width, height, 1);
+    this.__accumulatedAngle = 0;
+
+    const axisForQuat = this.__getAxisForQuaternion(axis);
+    Vector3.normalizeTo(axisForQuat, this.__rotationAxisForQuaternion);
+
+    const activeCamera = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as
+      | CameraComponent
+      | undefined;
+    const groupSceneGraph = RotationGizmo.__groupEntity?.getSceneGraph();
+    if (!element || !activeCamera || !groupSceneGraph) {
+      this.__setDefaultDragDirection(axis);
+      return;
+    }
+
+    const axisLocal = RotationGizmo.__getAxisVector(axis);
+    const tangentLocal = Vector3.crossTo(this.__startVector, axisLocal, RotationGizmo.__tmpVector3_8);
+    if (tangentLocal.lengthSquared() < 1e-10) {
+      this.__setFallbackLocalTangent(axis, tangentLocal);
+    }
+    Vector3.normalizeTo(tangentLocal, tangentLocal);
+
+    const tangentWorld = this.__transformDirectionFromGroupLocal(tangentLocal, RotationGizmo.__tmpVector3_9);
+    if (tangentWorld.lengthSquared() < 1e-10) {
+      this.__setFallbackWorldDirection(axisLocal, activeCamera, tangentWorld);
+    }
+    if (tangentWorld.lengthSquared() < 1e-10) {
+      this.__setDefaultDragDirection(axis);
+      return;
+    }
+    Vector3.normalizeTo(tangentWorld, tangentWorld);
+
+    const centerWorld = groupSceneGraph.matrixInner.getTranslateTo(RotationGizmo.__tmpVector3_7);
+    const pvMatrix = MutableMatrix44.multiplyTo(
+      activeCamera.projectionMatrix,
+      activeCamera.viewMatrix,
+      RotationGizmo.__tmpMatrix44_2
+    );
+
+    const clipCenter = pvMatrix.multiplyVectorTo(
+      RotationGizmo.__tmpVector4_0.setComponents(centerWorld.x, centerWorld.y, centerWorld.z, 1),
+      RotationGizmo.__tmpVector4_2
+    );
+    const clipTangent = pvMatrix.multiplyVectorTo(
+      RotationGizmo.__tmpVector4_1.setComponents(
+        centerWorld.x + tangentWorld.x,
+        centerWorld.y + tangentWorld.y,
+        centerWorld.z + tangentWorld.z,
+        1
+      ),
+      RotationGizmo.__tmpVector4_3
+    );
+
+    const w0 = clipCenter.w;
+    const w1 = clipTangent.w;
+    if (w0 === 0 || w1 === 0) {
+      this.__setDefaultDragDirection(axis);
+      return;
+    }
+
+    const ndcCenterX = clipCenter.x / w0;
+    const ndcCenterY = clipCenter.y / w0;
+    const ndcTangentX = clipTangent.x / w1;
+    const ndcTangentY = clipTangent.y / w1;
+
+    const screenTangentX = (ndcTangentX - ndcCenterX) * width * 0.5;
+    const screenTangentY = -(ndcTangentY - ndcCenterY) * height * 0.5;
+    const length = Math.hypot(screenTangentX, screenTangentY);
+    if (length < 1e-5) {
+      this.__setDefaultDragDirection(axis);
+      return;
+    }
+
+    this.__dragScreenDirection.setComponents(screenTangentX / length, screenTangentY / length);
+  }
+
+  private __setDefaultDragDirection(axis: Axis) {
+    if (axis === 'x') {
+      this.__dragScreenDirection.setComponents(0, -1);
+    } else if (axis === 'y') {
+      this.__dragScreenDirection.setComponents(1, 0);
+    } else {
+      this.__dragScreenDirection.setComponents(1, 0);
+    }
+  }
+
+  private __setFallbackLocalTangent(axis: Axis, out: MutableVector3) {
+    if (axis === 'x') {
+      out.setComponents(0, 0, 1);
+    } else if (axis === 'y') {
+      out.setComponents(0, 0, 1);
+    } else {
+      out.setComponents(0, 1, 0);
+    }
+  }
+
+  private __setFallbackWorldDirection(axisLocal: Vector3, camera: CameraComponent, out: MutableVector3) {
+    const axisWorld = this.__transformDirectionFromGroupLocal(axisLocal, RotationGizmo.__tmpVector3_6);
+    if (axisWorld.lengthSquared() < 1e-10) {
+      out.setComponents(1, 0, 0);
+      return;
+    }
+    Vector3.normalizeTo(axisWorld, axisWorld);
+
+    Vector3.crossTo(axisWorld, camera.directionInner, out);
+    if (out.lengthSquared() < 1e-10) {
+      Vector3.crossTo(camera.upInner, axisWorld, out);
+    }
+    if (out.lengthSquared() < 1e-10) {
+      this.__chooseAnyPerpendicular(axisWorld, out);
+    }
+  }
+
+  private __chooseAnyPerpendicular(axis: IVector3, out: MutableVector3) {
+    if (Math.abs(axis.x) < 0.9) {
+      out.setComponents(0, -axis.z, axis.y);
+    } else {
+      out.setComponents(-axis.y, axis.x, 0);
+    }
+    if (out.lengthSquared() < 1e-10) {
+      out.setComponents(1, 0, 0);
+    }
+  }
+
+  private __handleLinearDrag(evt: PointerEvent) {
+    const element = this.__activePointerElement;
+    if (!element || this.__dragScale === 0) {
+      return;
+    }
+
+    const rect = element.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) {
+      return;
+    }
+
+    const currentX = evt.clientX - rect.left;
+    const currentY = evt.clientY - rect.top;
+    const deltaX = currentX - this.__pointerPrev.x;
+    const deltaY = currentY - this.__pointerPrev.y;
+    this.__pointerPrev.setComponents(currentX, currentY);
+    if (!Number.isFinite(deltaX) || !Number.isFinite(deltaY)) {
+      return;
+    }
+    if (deltaX === 0 && deltaY === 0) {
+      return;
+    }
+
+    const scalar = -deltaX * this.__dragScreenDirection.x - deltaY * this.__dragScreenDirection.y;
+    if (scalar === 0) {
+      return;
+    }
+
+    const deltaAngle = scalar * this.__dragScale;
+    if (!Number.isFinite(deltaAngle) || deltaAngle === 0) {
+      return;
+    }
+
+    this.__accumulatedAngle += deltaAngle;
+    const deltaQuat = Quaternion.fromAxisAngle(this.__rotationAxisForQuaternion, this.__accumulatedAngle);
+    this.__deltaQuaternion = Quaternion.multiply(deltaQuat, this.__targetRotationBackup);
+    this._update();
+  }
+
+  private __transformDirectionFromGroupLocal(vec: IVector3, out: MutableVector3): MutableVector3 {
+    const groupSceneGraph = RotationGizmo.__groupEntity?.getSceneGraph();
+    if (!groupSceneGraph) {
+      return out.setComponents(vec.x, vec.y, vec.z);
+    }
+
+    const matrix = groupSceneGraph.matrixInner;
+    const x = vec.x;
+    const y = vec.y;
+    const z = vec.z;
+
+    const worldX = matrix.m00 * x + matrix.m01 * y + matrix.m02 * z;
+    const worldY = matrix.m10 * x + matrix.m11 * y + matrix.m12 * z;
+    const worldZ = matrix.m20 * x + matrix.m21 * y + matrix.m22 * z;
+
+    return out.setComponents(worldX, worldY, worldZ);
+  }
+
+  private __resolvePointerElement(evt: PointerEvent): HTMLElement | undefined {
+    let element = evt.target as HTMLElement | null;
+    if (!element || !element.getBoundingClientRect) {
+      element = Config.eventTargetDom ?? null;
+    }
+    if (!element || !element.getBoundingClientRect) {
+      return undefined;
+    }
+    return element;
   }
 
   private __disableCameraController() {

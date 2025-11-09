@@ -16,7 +16,6 @@ import type { Material } from '../materials/core/Material';
 import type { IQuaternion } from '../math/IQuaternion';
 import { MathUtil } from '../math/MathUtil';
 import { Matrix33 } from '../math/Matrix33';
-import { Matrix44 } from '../math/Matrix44';
 import { MutableMatrix33 } from '../math/MutableMatrix33';
 import { Quaternion } from '../math/Quaternion';
 import { Vector3 } from '../math/Vector3';
@@ -745,20 +744,15 @@ export class ScaleGizmo extends Gizmo {
         Math.max(this.__deltaPoint.z, 0.01)
       );
     } else if (ScaleGizmo.__space === 'world') {
-      const worldMat = Matrix44.fromCopyQuaternion(this.__target.getSceneGraph().getQuaternionRecursively());
-      const existedScale = Matrix44.multiply(worldMat, Matrix44.scale(this.__targetScaleBackup)).getScale();
-      let scale = Vector4.add(deltaVector3, existedScale);
-      scale = Vector4.fromCopy4(
-        Math.max(scale.x, 0.01),
-        Math.max(scale.y, 0.01),
-        Math.max(scale.z, 0.01),
-        Math.max(scale.w, 0.01)
-      );
-      this.__deltaPoint = Matrix44.multiply(Matrix44.invert(worldMat), Matrix44.scale(scale)).getScale();
+      const worldQuaternion = Quaternion.fromCopyQuaternion(this.__target.getSceneGraph().getQuaternionRecursively());
+      const worldRotation = Matrix33.fromCopyQuaternion(worldQuaternion);
+      const inverseWorldRotation = Matrix33.transpose(worldRotation) as Matrix33;
+      const deltaLocal = inverseWorldRotation.multiplyVector(deltaVector3);
+      const unclampedScale = Vector3.add(this.__targetScaleBackup, deltaLocal);
       this.__deltaPoint = Vector3.fromCopy3(
-        Math.max(this.__deltaPoint.x, 0.01),
-        Math.max(this.__deltaPoint.y, 0.01),
-        Math.max(this.__deltaPoint.z, 0.01)
+        Math.max(unclampedScale.x, 0.01),
+        Math.max(unclampedScale.y, 0.01),
+        Math.max(unclampedScale.z, 0.01)
       );
 
       // const parent = this.__target.getSceneGraph();
