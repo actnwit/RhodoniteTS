@@ -448,7 +448,7 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__xEdgeCubeMesh = new Mesh();
     ScaleGizmo.__xEdgeCubePrimitive = new Cube();
     ScaleGizmo.__xEdgeCubePrimitive.generate({
-      widthVector: Vector3.fromCopy3(0.1, 0.1, 0.1),
+      widthVector: Vector3.fromCopy3(0.15, 0.15, 0.15),
       material: ScaleGizmo.__xCubeMaterial,
     });
     ScaleGizmo.__xEdgeCubeMesh.addPrimitive(ScaleGizmo.__xEdgeCubePrimitive);
@@ -468,7 +468,7 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__yEdgeCubeMesh = new Mesh();
     ScaleGizmo.__yEdgeCubePrimitive = new Cube();
     ScaleGizmo.__yEdgeCubePrimitive.generate({
-      widthVector: Vector3.fromCopy3(0.1, 0.1, 0.1),
+      widthVector: Vector3.fromCopy3(0.15, 0.15, 0.15),
       material: ScaleGizmo.__yCubeMaterial,
     });
     ScaleGizmo.__yEdgeCubeMesh.addPrimitive(ScaleGizmo.__yEdgeCubePrimitive);
@@ -488,7 +488,7 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__zEdgeCubeMesh = new Mesh();
     ScaleGizmo.__zEdgeCubePrimitive = new Cube();
     ScaleGizmo.__zEdgeCubePrimitive.generate({
-      widthVector: Vector3.fromCopy3(0.1, 0.1, 0.1),
+      widthVector: Vector3.fromCopy3(0.15, 0.15, 0.15),
       material: ScaleGizmo.__zCubeMaterial,
     });
     ScaleGizmo.__zEdgeCubeMesh.addPrimitive(ScaleGizmo.__zEdgeCubePrimitive);
