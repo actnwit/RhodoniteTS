@@ -28,6 +28,7 @@ function createScreenDrawRenderPass(material: Material) {
   renderPass.toClearColorBuffer = false;
   renderPass.toClearDepthBuffer = false;
   renderPass.isDepthTest = false;
+  renderPass.depthWriteMask = false;
   renderPass.setBufferLessFullScreenRendering(material);
 
   return renderPass;
@@ -78,6 +79,7 @@ function createScreenDrawRenderPassWithBaseColorTexture(
   renderPass.toClearColorBuffer = false;
   renderPass.toClearDepthBuffer = false;
   renderPass.isDepthTest = false;
+  renderPass.depthWriteMask = false;
   renderPass.setBufferLessFullScreenRendering(material);
 
   return renderPass;
