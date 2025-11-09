@@ -296,7 +296,7 @@ export class TranslationGizmo extends Gizmo {
         material: TranslationGizmo.__xCubeMaterial,
       });
       TranslationGizmo.__xConeEntity.tryToSetUniqueName('TranslationGizmo_xCone', true);
-      TranslationGizmo.__xConeEntity.getTransform().localPosition = Vector3.fromCopy3(1.5, 0, 0);
+      TranslationGizmo.__xConeEntity.getTransform().localPosition = Vector3.fromCopy3(1, 0, 0);
       TranslationGizmo.__xConeEntity.getTransform().localEulerAngles = Vector3.fromCopy3(
         0,
         0,
@@ -313,7 +313,7 @@ export class TranslationGizmo extends Gizmo {
         material: TranslationGizmo.__yCubeMaterial,
       });
       TranslationGizmo.__yConeEntity.tryToSetUniqueName('TranslationGizmo_yCone', true);
-      TranslationGizmo.__yConeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 1.5, 0);
+      TranslationGizmo.__yConeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 1, 0);
     }
 
     // z Cone
@@ -325,7 +325,7 @@ export class TranslationGizmo extends Gizmo {
         material: TranslationGizmo.__zCubeMaterial,
       });
       TranslationGizmo.__zConeEntity.tryToSetUniqueName('TranslationGizmo_zCone', true);
-      TranslationGizmo.__zConeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 1.5);
+      TranslationGizmo.__zConeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 1);
       TranslationGizmo.__zConeEntity.getTransform().localEulerAngles = Vector3.fromCopy3(
         MathUtil.degreeToRadian(90),
         0,
