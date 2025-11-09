@@ -412,10 +412,7 @@ export class RotationGizmo extends Gizmo {
     }
     Vector3.normalizeTo(tangentLocal, tangentLocal);
 
-    const tangentWorld = this.__transformDirectionFromGroupLocal(
-      tangentLocal,
-      RotationGizmo.__tmpVector3_9
-    );
+    const tangentWorld = this.__transformDirectionFromGroupLocal(tangentLocal, RotationGizmo.__tmpVector3_9);
     if (tangentWorld.lengthSquared() < 1e-10) {
       this.__setFallbackWorldDirection(axisLocal, activeCamera, tangentWorld);
     }
