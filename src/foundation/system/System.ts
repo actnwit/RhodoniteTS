@@ -386,12 +386,12 @@ export class System {
                   });
                   renderPass._renderedSomethingBefore = renderedSomething;
                 }
-                if (componentTid === WellKnownComponentTIDs.EffekseerComponentTID) {
-                  for (const entity of renderPass.entities) {
-                    const effekseerComponent = entity.tryToGetEffekseer();
-                    if (effekseerComponent != null) {
-                      effekseerComponent.$render();
-                    }
+              }
+              if (componentTid === WellKnownComponentTIDs.EffekseerComponentTID) {
+                for (const entity of renderPass.entities) {
+                  const effekseerComponent = entity.tryToGetEffekseer();
+                  if (effekseerComponent != null) {
+                    effekseerComponent.$render();
                   }
                 }
               }
