@@ -360,13 +360,12 @@ export class System {
 
               repo.switchDepthTest(renderPass.isDepthTest);
 
-              if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
-                // bind Framebuffer
-                System.bindFramebufferWebGL(renderPass, rnXRModule);
+              // bind Framebuffer
+              System.bindFramebufferWebGL(renderPass, rnXRModule);
 
-                // set Viewport for Normal (Not WebXR)
-                System.setViewportForNormalRendering(renderPass, rnXRModule);
-              }
+              // set Viewport for Normal (Not WebXR)
+              System.setViewportForNormalRendering(renderPass, rnXRModule);
+
               if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
                 // clear Framebuffer
                 this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
@@ -387,9 +386,13 @@ export class System {
                   });
                   renderPass._renderedSomethingBefore = renderedSomething;
                 }
-
-                if (componentTid !== WellKnownComponentTIDs.MeshRendererComponentTID) {
-                  componentClass.process(componentClass, stage);
+                if (componentTid === WellKnownComponentTIDs.EffekseerComponentTID) {
+                  for (const entity of renderPass.entities) {
+                    const effekseerComponent = entity.tryToGetEffekseer();
+                    if (effekseerComponent != null) {
+                      effekseerComponent.$render();
+                    }
+                  }
                 }
               }
               this.__renderPassTickCount++;
