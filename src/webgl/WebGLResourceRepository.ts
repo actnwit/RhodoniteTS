@@ -3207,9 +3207,10 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
 
   setWebGLStateToDefaultForEffekseer() {
     const gl = this.__glw!.getRawContextAsWebGL2();
+    const maxTextureUnits = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS) as number;
 
     // Texture bindings
-    for (let i = 0; i < 16; i++) {
+    for (let i = 0; i < maxTextureUnits; i++) {
       gl.activeTexture(gl.TEXTURE0 + i);
       gl.bindTexture(gl.TEXTURE_2D, null);
       // gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
@@ -3301,6 +3302,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
 
     // Scissor states (default to full viewport - will be set properly when viewport is known)
     const canvas = this.__glw!.canvas;
+    const maxTextureUnits = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS) as number;
     gl.scissor(0, 0, canvas.width, canvas.height);
 
     // Viewport states (default to full canvas)
@@ -3310,7 +3312,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     gl.lineWidth(1.0);
 
     // Texture bindings
-    for (let i = 0; i < 16; i++) {
+    for (let i = 0; i < maxTextureUnits; i++) {
       gl.activeTexture(gl.TEXTURE0 + i);
       gl.bindTexture(gl.TEXTURE_2D, null);
       gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
@@ -3605,7 +3607,8 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     const lineWidth = gl.getParameter(gl.LINE_WIDTH) as number;
 
     // Binding states
-    // Get texture bindings for all texture units (typically 16 units: TEXTURE0 to TEXTURE15)
+    // Get texture bindings for all available texture units
+    const maxTextureUnits = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS) as number;
     const textureBindings: Array<{
       texture2D: WebGLTexture | null;
       textureCubeMap: WebGLTexture | null;
@@ -3616,7 +3619,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
 
     const currentActiveTexture = gl.getParameter(gl.ACTIVE_TEXTURE) as number;
     const activeTexture = currentActiveTexture;
-    for (let i = 0; i < 16; i++) {
+    for (let i = 0; i < maxTextureUnits; i++) {
       gl.activeTexture(gl.TEXTURE0 + i);
       const texture2D = gl.getParameter(gl.TEXTURE_BINDING_2D) as WebGLTexture | null;
       const textureCubeMap = gl.getParameter(gl.TEXTURE_BINDING_CUBE_MAP) as WebGLTexture | null;
@@ -3740,7 +3743,8 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
 
   unbindTextureSamplers() {
     const gl = this.__glw!.getRawContextAsWebGL2();
-    for (let i = 0; i < 16; i++) {
+    const maxTextureUnits = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS) as number;
+    for (let i = 0; i < maxTextureUnits; i++) {
       gl.bindSampler(i, null);
     }
   }
