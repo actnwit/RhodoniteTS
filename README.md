@@ -35,7 +35,7 @@ For example, Rhodonite can handle and blend all morph targets (38 targets) of VR
 ## Viewer
 
 You can try our library via https://editor.librn.com/.
-This viewer supports glTF/VRM files Drag & Drop to display.
+This viewer supports glTF/VRM/efkpkg(Effekseer package) files Drag & Drop to display.
 (Drag & Drop all files if glTF data consists of multiple files.)
 
 Poly model
