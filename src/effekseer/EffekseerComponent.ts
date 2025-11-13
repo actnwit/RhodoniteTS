@@ -301,14 +301,7 @@ export class EffekseerComponent extends Component {
     this.__effect = undefined;
   }
 
-  $render() {
-    // const webGLResourceRepository =
-    //   CGAPIResourceRepository.getWebGLResourceRepository();
-    // webGLResourceRepository.setWebGLStateToDefault();
-    if (Is.not.exist(this.__effect)) {
-      this.moveStageTo(ProcessStage.Load);
-      return;
-    }
+  private __drawEffekseerEffectNormal(): void {
     const cameraComponent = ComponentRepository.getComponent(
       CameraComponent,
       CameraComponent.current
@@ -327,6 +320,34 @@ export class EffekseerComponent extends Component {
       this.__context.setProjectionMatrix(projectionMatrix._v);
       this.__context.setCameraMatrix(viewMatrix._v);
       this.__context.draw();
+    }
+  }
+  private __drawEffekseerEffectWebXR(): void {
+    for (let i = 0; i < 2; i++) {
+      const projectionMatrix = EffekseerComponent.__webxrSystem._getProjectMatrixAt(i);
+      const viewMatrix = EffekseerComponent.__webxrSystem._getViewMatrixAt(i);
+      if (Is.exist(projectionMatrix) && Is.exist(viewMatrix) && Is.exist(this.__context)) {
+        const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+        webGLResourceRepository.setViewport(EffekseerComponent.__webxrSystem._getViewportAt(i));
+        this.__context.setProjectionMatrix(projectionMatrix._v);
+        this.__context.setCameraMatrix(viewMatrix._v);
+        this.__context.draw();
+      }
+    }
+  }
+
+  $render() {
+    // const webGLResourceRepository =
+    //   CGAPIResourceRepository.getWebGLResourceRepository();
+    // webGLResourceRepository.setWebGLStateToDefault();
+    if (Is.not.exist(this.__effect)) {
+      this.moveStageTo(ProcessStage.Load);
+      return;
+    }
+    if (EffekseerComponent.__webxrSystem.isWebXRMode) {
+      this.__drawEffekseerEffectWebXR();
+    } else {
+      this.__drawEffekseerEffectNormal();
     }
 
     this.moveStageTo(ProcessStage.Logic);
