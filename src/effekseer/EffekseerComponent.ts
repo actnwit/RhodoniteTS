@@ -13,7 +13,10 @@ import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
+import { ModuleManager } from '../foundation/system/ModuleManager';
 import type { ComponentSID, ComponentTID, EntityUID, Second } from '../types/CommonTypes';
+import type { WebXRSystem } from '../xr/WebXRSystem';
+import type { RnXR } from '../xr/main';
 
 export class EffekseerComponent extends Component {
   public static readonly ANIMATION_EVENT_PLAY = 0;
@@ -37,6 +40,7 @@ export class EffekseerComponent extends Component {
   private __isInitialized = false;
   private static __tmp_identityMatrix_0: MutableMatrix44 = MutableMatrix44.identity();
   private static __tmp_identityMatrix_1: MutableMatrix44 = MutableMatrix44.identity();
+  private static __webxrSystem: WebXRSystem;
 
   private isLoadEffect = false;
 
@@ -217,6 +221,11 @@ export class EffekseerComponent extends Component {
       this.__effect = this.__context.loadEffect(data as any, 1.0, onLoad.bind(this), onError.bind(this));
     }
 
+    // Get WebXRSystem instance
+    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+    const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+    EffekseerComponent.__webxrSystem = webxrSystem;
+
     return true;
   }
 
@@ -292,14 +301,7 @@ export class EffekseerComponent extends Component {
     this.__effect = undefined;
   }
 
-  $render() {
-    // const webGLResourceRepository =
-    //   CGAPIResourceRepository.getWebGLResourceRepository();
-    // webGLResourceRepository.setWebGLStateToDefault();
-    if (Is.not.exist(this.__effect)) {
-      this.moveStageTo(ProcessStage.Load);
-      return;
-    }
+  private __drawEffekseerEffectNormal(): void {
     const cameraComponent = ComponentRepository.getComponent(
       CameraComponent,
       CameraComponent.current
@@ -318,6 +320,34 @@ export class EffekseerComponent extends Component {
       this.__context.setProjectionMatrix(projectionMatrix._v);
       this.__context.setCameraMatrix(viewMatrix._v);
       this.__context.draw();
+    }
+  }
+  private __drawEffekseerEffectWebXR(): void {
+    for (let i = 0; i < 2; i++) {
+      const projectionMatrix = EffekseerComponent.__webxrSystem._getProjectMatrixAt(i);
+      const viewMatrix = EffekseerComponent.__webxrSystem._getViewMatrixAt(i);
+      if (Is.exist(projectionMatrix) && Is.exist(viewMatrix) && Is.exist(this.__context)) {
+        const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+        webGLResourceRepository.setViewport(EffekseerComponent.__webxrSystem._getViewportAt(i));
+        this.__context.setProjectionMatrix(projectionMatrix._v);
+        this.__context.setCameraMatrix(viewMatrix._v);
+        this.__context.draw();
+      }
+    }
+  }
+
+  $render() {
+    // const webGLResourceRepository =
+    //   CGAPIResourceRepository.getWebGLResourceRepository();
+    // webGLResourceRepository.setWebGLStateToDefault();
+    if (Is.not.exist(this.__effect)) {
+      this.moveStageTo(ProcessStage.Load);
+      return;
+    }
+    if (EffekseerComponent.__webxrSystem.isWebXRMode) {
+      this.__drawEffekseerEffectWebXR();
+    } else {
+      this.__drawEffekseerEffectNormal();
     }
 
     this.moveStageTo(ProcessStage.Logic);
