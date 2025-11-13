@@ -77,7 +77,7 @@ If you get an error like "webxr-input-profiles not found" when building a projec
 ```html
 <body>
   <canvas id="world"></canvas>
-  <script src="../../../dist/umd/rhodonite.min.js"></script>
+  <script src="../../../dist/iife/rhodonite.min.js"></script>
   <script>
   // Init Rhodonite
   await Rn.System.init({
