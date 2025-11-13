@@ -387,13 +387,17 @@ export class System {
                   renderPass._renderedSomethingBefore = renderedSomething;
                 }
               }
-              if (componentTid === WellKnownComponentTIDs.EffekseerComponentTID) {
+              if (componentTid === WellKnownComponentTIDs.EffekseerComponentTID && renderPass.entities.length > 0) {
+                const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+                const currentWebGLStates = webGLResourceRepository.getCurrentWebGLStates();
+                webGLResourceRepository.setWebGLStateToDefault();
                 for (const entity of renderPass.entities) {
                   const effekseerComponent = entity.tryToGetEffekseer();
                   if (effekseerComponent != null) {
                     effekseerComponent.$render();
                   }
                 }
+                webGLResourceRepository.restoreWebGLStates(currentWebGLStates);
               }
               this.__renderPassTickCount++;
 

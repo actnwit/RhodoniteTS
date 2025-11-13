@@ -73,6 +73,100 @@ export type TextureData = {
   buffer: ArrayBufferView;
 };
 
+export type WebGLStates = {
+  // Enabled states (gl.isEnabled)
+  depthTest: boolean;
+  stencilTest: boolean;
+  blend: boolean;
+  dither: boolean;
+  scissorTest: boolean;
+  polygonOffsetFill: boolean;
+  sampleCoverage: boolean;
+  sampleAlphaToCoverage: boolean;
+  cullFace: boolean;
+  rasterizerDiscard: boolean;
+
+  // Depth states
+  depthFunc: number;
+  depthWriteMask: boolean;
+  depthClearValue: number;
+  depthRange: [number, number];
+
+  // Stencil states
+  stencilFunc: number;
+  stencilValueMask: number;
+  stencilRef: number;
+  stencilBackFunc: number;
+  stencilBackValueMask: number;
+  stencilBackRef: number;
+  stencilFail: number;
+  stencilPassDepthFail: number;
+  stencilPassDepthPass: number;
+  stencilBackFail: number;
+  stencilBackPassDepthFail: number;
+  stencilBackPassDepthPass: number;
+  stencilWriteMask: number;
+  stencilBackWriteMask: number;
+  stencilClearValue: number;
+
+  // Blend states
+  blendSrcRgb: number;
+  blendDstRgb: number;
+  blendSrcAlpha: number;
+  blendDstAlpha: number;
+  blendEquationRgb: number;
+  blendEquationAlpha: number;
+  blendColor: [number, number, number, number];
+
+  // Color states
+  colorClearValue: [number, number, number, number];
+  colorWriteMask: [boolean, boolean, boolean, boolean];
+
+  // Cull states
+  cullFaceMode: number;
+  frontFace: number;
+
+  // Polygon offset states
+  polygonOffsetFactor: number;
+  polygonOffsetUnits: number;
+
+  // Sample coverage states
+  sampleCoverageValue: number;
+  sampleCoverageInvert: boolean;
+
+  // Scissor states
+  scissorBox: [number, number, number, number];
+
+  // Viewport states
+  viewport: [number, number, number, number];
+
+  // Line width
+  lineWidth: number;
+
+  // Binding states
+  activeTexture: number;
+  textureBindings: Array<{
+    texture2D: WebGLTexture | null;
+    textureCubeMap: WebGLTexture | null;
+    texture3D: WebGLTexture | null;
+    texture2DArray: WebGLTexture | null;
+    sampler: WebGLSampler | null;
+  }>;
+  arrayBufferBinding: WebGLBuffer | null;
+  elementArrayBufferBinding: WebGLBuffer | null;
+  uniformBufferBinding: WebGLBuffer | null;
+  transformFeedbackBinding: WebGLTransformFeedback | null;
+  copyReadBufferBinding: WebGLBuffer | null;
+  copyWriteBufferBinding: WebGLBuffer | null;
+  pixelPackBufferBinding: WebGLBuffer | null;
+  pixelUnpackBufferBinding: WebGLBuffer | null;
+  readFramebufferBinding: WebGLFramebuffer | null;
+  drawFramebufferBinding: WebGLFramebuffer | null;
+  renderbufferBinding: WebGLRenderbuffer | null;
+  vertexArrayBinding: WebGLVertexArrayObject | null;
+  currentProgram: WebGLProgram | null;
+};
+
 export type WebGLResource =
   | WebGLBuffer
   | WebGLFramebuffer
@@ -3113,15 +3207,44 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
 
   setWebGLStateToDefault() {
     const gl = this.__glw!.getRawContextAsWebGL2();
+
+    // Vertex array binding must be released first to avoid tampering with its state
+    gl.bindVertexArray(null);
+
+    // Buffer bindings
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+    gl.bindBuffer(gl.UNIFORM_BUFFER, null);
+    gl.bindBuffer(gl.COPY_READ_BUFFER, null);
+    gl.bindBuffer(gl.COPY_WRITE_BUFFER, null);
+    gl.bindBuffer(gl.PIXEL_PACK_BUFFER, null);
+    gl.bindBuffer(gl.PIXEL_UNPACK_BUFFER, null);
+
+    // Transform feedback binding
+    gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, null);
+
+    // Framebuffer bindings
+    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, null);
+    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    gl.bindVertexArray(null);
+
+    // Renderbuffer binding
+    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+
+    // Current program
+    gl.useProgram(null);
+
+    // Clear values
     gl.clearColor(0, 0, 0, 0);
     gl.clearDepth(1);
     gl.clearStencil(0);
+
+    // Depth states
     gl.depthFunc(gl.LESS);
+    gl.depthMask(true);
+    gl.depthRange(0, 1);
+
+    // Enabled states
     gl.disable(gl.DEPTH_TEST);
     gl.disable(gl.STENCIL_TEST);
     gl.disable(gl.BLEND);
@@ -3131,27 +3254,471 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     gl.disable(gl.SAMPLE_COVERAGE);
     gl.disable(gl.SAMPLE_ALPHA_TO_COVERAGE);
     gl.disable(gl.CULL_FACE);
+    gl.disable(gl.RASTERIZER_DISCARD);
+
+    // Cull states
     gl.frontFace(gl.CCW);
     gl.cullFace(gl.BACK);
+
+    // Blend states
     gl.blendColor(0, 0, 0, 0);
     gl.blendEquationSeparate(gl.FUNC_ADD, gl.FUNC_ADD);
     gl.blendFuncSeparate(gl.ONE, gl.ZERO, gl.ONE, gl.ZERO);
+
+    // Stencil states
     gl.stencilOpSeparate(gl.FRONT, gl.KEEP, gl.KEEP, gl.KEEP);
     gl.stencilOpSeparate(gl.BACK, gl.KEEP, gl.KEEP, gl.KEEP);
     gl.stencilFuncSeparate(gl.FRONT, gl.ALWAYS, 0, 0xffffffff);
     gl.stencilFuncSeparate(gl.BACK, gl.ALWAYS, 0, 0xffffffff);
     gl.stencilMaskSeparate(gl.FRONT, 0xffffffff);
     gl.stencilMaskSeparate(gl.BACK, 0xffffffff);
+
+    // Color states
     gl.colorMask(true, true, true, true);
-    gl.depthMask(true);
+
+    // Polygon offset states
+    gl.polygonOffset(0, 0);
+
+    // Sample coverage states
     gl.sampleCoverage(1.0, false);
 
+    // Scissor states (default to full viewport - will be set properly when viewport is known)
+    const canvas = this.__glw!.canvas;
+    gl.scissor(0, 0, canvas.width, canvas.height);
+
+    // Viewport states (default to full canvas)
+    gl.viewport(0, 0, canvas.width, canvas.height);
+
+    // Line width
+    gl.lineWidth(1.0);
+
+    // Texture bindings
     for (let i = 0; i < 16; i++) {
       gl.activeTexture(gl.TEXTURE0 + i);
       gl.bindTexture(gl.TEXTURE_2D, null);
       gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+      gl.bindTexture(gl.TEXTURE_3D, null);
+      gl.bindTexture(gl.TEXTURE_2D_ARRAY, null);
       gl.bindSampler(i, null);
     }
+
+    // Restore active texture to TEXTURE0
+    gl.activeTexture(gl.TEXTURE0);
+  }
+
+  restoreWebGLStates(webGLStates: WebGLStates) {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+
+    // Enabled states
+    if (webGLStates.depthTest) {
+      gl.enable(gl.DEPTH_TEST);
+    } else {
+      gl.disable(gl.DEPTH_TEST);
+    }
+    if (webGLStates.stencilTest) {
+      gl.enable(gl.STENCIL_TEST);
+    } else {
+      gl.disable(gl.STENCIL_TEST);
+    }
+    if (webGLStates.blend) {
+      gl.enable(gl.BLEND);
+    } else {
+      gl.disable(gl.BLEND);
+    }
+    if (webGLStates.dither) {
+      gl.enable(gl.DITHER);
+    } else {
+      gl.disable(gl.DITHER);
+    }
+    if (webGLStates.scissorTest) {
+      gl.enable(gl.SCISSOR_TEST);
+    } else {
+      gl.disable(gl.SCISSOR_TEST);
+    }
+    if (webGLStates.polygonOffsetFill) {
+      gl.enable(gl.POLYGON_OFFSET_FILL);
+    } else {
+      gl.disable(gl.POLYGON_OFFSET_FILL);
+    }
+    if (webGLStates.sampleCoverage) {
+      gl.enable(gl.SAMPLE_COVERAGE);
+    } else {
+      gl.disable(gl.SAMPLE_COVERAGE);
+    }
+    if (webGLStates.sampleAlphaToCoverage) {
+      gl.enable(gl.SAMPLE_ALPHA_TO_COVERAGE);
+    } else {
+      gl.disable(gl.SAMPLE_ALPHA_TO_COVERAGE);
+    }
+    if (webGLStates.cullFace) {
+      gl.enable(gl.CULL_FACE);
+    } else {
+      gl.disable(gl.CULL_FACE);
+    }
+    if (webGLStates.rasterizerDiscard) {
+      gl.enable(gl.RASTERIZER_DISCARD);
+    } else {
+      gl.disable(gl.RASTERIZER_DISCARD);
+    }
+
+    // Depth states
+    gl.depthFunc(webGLStates.depthFunc);
+    gl.depthMask(webGLStates.depthWriteMask);
+    gl.clearDepth(webGLStates.depthClearValue);
+    gl.depthRange(webGLStates.depthRange[0], webGLStates.depthRange[1]);
+
+    // Stencil states
+    gl.stencilFuncSeparate(gl.FRONT, webGLStates.stencilFunc, webGLStates.stencilRef, webGLStates.stencilValueMask);
+    gl.stencilFuncSeparate(
+      gl.BACK,
+      webGLStates.stencilBackFunc,
+      webGLStates.stencilBackRef,
+      webGLStates.stencilBackValueMask
+    );
+    gl.stencilOpSeparate(
+      gl.FRONT,
+      webGLStates.stencilFail,
+      webGLStates.stencilPassDepthFail,
+      webGLStates.stencilPassDepthPass
+    );
+    gl.stencilOpSeparate(
+      gl.BACK,
+      webGLStates.stencilBackFail,
+      webGLStates.stencilBackPassDepthFail,
+      webGLStates.stencilBackPassDepthPass
+    );
+    gl.stencilMaskSeparate(gl.FRONT, webGLStates.stencilWriteMask);
+    gl.stencilMaskSeparate(gl.BACK, webGLStates.stencilBackWriteMask);
+    gl.clearStencil(webGLStates.stencilClearValue);
+
+    // Blend states
+    gl.blendFuncSeparate(
+      webGLStates.blendSrcRgb,
+      webGLStates.blendDstRgb,
+      webGLStates.blendSrcAlpha,
+      webGLStates.blendDstAlpha
+    );
+    gl.blendEquationSeparate(webGLStates.blendEquationRgb, webGLStates.blendEquationAlpha);
+    gl.blendColor(
+      webGLStates.blendColor[0],
+      webGLStates.blendColor[1],
+      webGLStates.blendColor[2],
+      webGLStates.blendColor[3]
+    );
+
+    // Color states
+    gl.clearColor(
+      webGLStates.colorClearValue[0],
+      webGLStates.colorClearValue[1],
+      webGLStates.colorClearValue[2],
+      webGLStates.colorClearValue[3]
+    );
+    gl.colorMask(
+      webGLStates.colorWriteMask[0],
+      webGLStates.colorWriteMask[1],
+      webGLStates.colorWriteMask[2],
+      webGLStates.colorWriteMask[3]
+    );
+
+    // Cull states
+    gl.cullFace(webGLStates.cullFaceMode);
+    gl.frontFace(webGLStates.frontFace);
+
+    // Polygon offset states
+    gl.polygonOffset(webGLStates.polygonOffsetFactor, webGLStates.polygonOffsetUnits);
+
+    // Sample coverage states
+    gl.sampleCoverage(webGLStates.sampleCoverageValue, webGLStates.sampleCoverageInvert);
+
+    // Scissor states
+    gl.scissor(
+      webGLStates.scissorBox[0],
+      webGLStates.scissorBox[1],
+      webGLStates.scissorBox[2],
+      webGLStates.scissorBox[3]
+    );
+
+    // Viewport states
+    gl.viewport(webGLStates.viewport[0], webGLStates.viewport[1], webGLStates.viewport[2], webGLStates.viewport[3]);
+
+    // Line width
+    gl.lineWidth(webGLStates.lineWidth);
+
+    // Binding states
+    // Restore texture bindings
+    for (let i = 0; i < webGLStates.textureBindings.length; i++) {
+      gl.activeTexture(gl.TEXTURE0 + i);
+      const binding = webGLStates.textureBindings[i];
+      gl.bindTexture(gl.TEXTURE_2D, binding.texture2D);
+      gl.bindTexture(gl.TEXTURE_CUBE_MAP, binding.textureCubeMap);
+      gl.bindTexture(gl.TEXTURE_3D, binding.texture3D);
+      gl.bindTexture(gl.TEXTURE_2D_ARRAY, binding.texture2DArray);
+      gl.bindSampler(i, binding.sampler);
+    }
+    // Restore active texture
+    gl.activeTexture(webGLStates.activeTexture);
+
+    // Restore buffer bindings (ARRAY_BUFFER and other buffers can be bound before VAO)
+    gl.bindBuffer(gl.ARRAY_BUFFER, webGLStates.arrayBufferBinding);
+    gl.bindBuffer(gl.UNIFORM_BUFFER, webGLStates.uniformBufferBinding);
+    gl.bindBuffer(gl.COPY_READ_BUFFER, webGLStates.copyReadBufferBinding);
+    gl.bindBuffer(gl.COPY_WRITE_BUFFER, webGLStates.copyWriteBufferBinding);
+    gl.bindBuffer(gl.PIXEL_PACK_BUFFER, webGLStates.pixelPackBufferBinding);
+    gl.bindBuffer(gl.PIXEL_UNPACK_BUFFER, webGLStates.pixelUnpackBufferBinding);
+
+    // Restore transform feedback binding
+    gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, webGLStates.transformFeedbackBinding);
+
+    // Restore framebuffer bindings
+    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, webGLStates.readFramebufferBinding);
+    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, webGLStates.drawFramebufferBinding);
+
+    // Restore renderbuffer binding
+    gl.bindRenderbuffer(gl.RENDERBUFFER, webGLStates.renderbufferBinding);
+
+    // Restore vertex array binding
+    // Note: ELEMENT_ARRAY_BUFFER is part of VAO state, so it must be bound after VAO is bound
+    gl.bindVertexArray(webGLStates.vertexArrayBinding);
+
+    // Restore ELEMENT_ARRAY_BUFFER after VAO is bound
+    // If VAO is null, this will set the global ELEMENT_ARRAY_BUFFER binding
+    // If VAO is not null, this will update the VAO's ELEMENT_ARRAY_BUFFER binding
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, webGLStates.elementArrayBufferBinding);
+
+    // Restore current program
+    gl.useProgram(webGLStates.currentProgram);
+  }
+
+  getCurrentWebGLStates(): WebGLStates {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+
+    // Enabled states
+    const depthTest = gl.isEnabled(gl.DEPTH_TEST);
+    const stencilTest = gl.isEnabled(gl.STENCIL_TEST);
+    const blend = gl.isEnabled(gl.BLEND);
+    const dither = gl.isEnabled(gl.DITHER);
+    const scissorTest = gl.isEnabled(gl.SCISSOR_TEST);
+    const polygonOffsetFill = gl.isEnabled(gl.POLYGON_OFFSET_FILL);
+    const sampleCoverage = gl.isEnabled(gl.SAMPLE_COVERAGE);
+    const sampleAlphaToCoverage = gl.isEnabled(gl.SAMPLE_ALPHA_TO_COVERAGE);
+    const cullFace = gl.isEnabled(gl.CULL_FACE);
+    const rasterizerDiscard = gl.isEnabled(gl.RASTERIZER_DISCARD);
+
+    // Depth states
+    const depthFunc = gl.getParameter(gl.DEPTH_FUNC) as number;
+    const depthWriteMask = gl.getParameter(gl.DEPTH_WRITEMASK) as boolean;
+    const depthClearValue = gl.getParameter(gl.DEPTH_CLEAR_VALUE) as number;
+    const depthRange = gl.getParameter(gl.DEPTH_RANGE) as Float32Array;
+    const depthRangeTuple: [number, number] = [depthRange[0], depthRange[1]];
+
+    // Stencil states
+    const stencilFunc = gl.getParameter(gl.STENCIL_FUNC) as number;
+    const stencilValueMask = gl.getParameter(gl.STENCIL_VALUE_MASK) as number;
+    const stencilRef = gl.getParameter(gl.STENCIL_REF) as number;
+    const stencilBackFunc = gl.getParameter(gl.STENCIL_BACK_FUNC) as number;
+    const stencilBackValueMask = gl.getParameter(gl.STENCIL_BACK_VALUE_MASK) as number;
+    const stencilBackRef = gl.getParameter(gl.STENCIL_BACK_REF) as number;
+    const stencilFail = gl.getParameter(gl.STENCIL_FAIL) as number;
+    const stencilPassDepthFail = gl.getParameter(gl.STENCIL_PASS_DEPTH_FAIL) as number;
+    const stencilPassDepthPass = gl.getParameter(gl.STENCIL_PASS_DEPTH_PASS) as number;
+    const stencilBackFail = gl.getParameter(gl.STENCIL_BACK_FAIL) as number;
+    const stencilBackPassDepthFail = gl.getParameter(gl.STENCIL_BACK_PASS_DEPTH_FAIL) as number;
+    const stencilBackPassDepthPass = gl.getParameter(gl.STENCIL_BACK_PASS_DEPTH_PASS) as number;
+    const stencilWriteMask = gl.getParameter(gl.STENCIL_WRITEMASK) as number;
+    const stencilBackWriteMask = gl.getParameter(gl.STENCIL_BACK_WRITEMASK) as number;
+    const stencilClearValue = gl.getParameter(gl.STENCIL_CLEAR_VALUE) as number;
+
+    // Blend states
+    const blendSrcRgb = gl.getParameter(gl.BLEND_SRC_RGB) as number;
+    const blendDstRgb = gl.getParameter(gl.BLEND_DST_RGB) as number;
+    const blendSrcAlpha = gl.getParameter(gl.BLEND_SRC_ALPHA) as number;
+    const blendDstAlpha = gl.getParameter(gl.BLEND_DST_ALPHA) as number;
+    const blendEquationRgb = gl.getParameter(gl.BLEND_EQUATION_RGB) as number;
+    const blendEquationAlpha = gl.getParameter(gl.BLEND_EQUATION_ALPHA) as number;
+    const blendColor = gl.getParameter(gl.BLEND_COLOR) as Float32Array;
+    const blendColorTuple: [number, number, number, number] = [
+      blendColor[0],
+      blendColor[1],
+      blendColor[2],
+      blendColor[3],
+    ];
+
+    // Color states
+    const colorClearValue = gl.getParameter(gl.COLOR_CLEAR_VALUE) as Float32Array;
+    const colorClearValueTuple: [number, number, number, number] = [
+      colorClearValue[0],
+      colorClearValue[1],
+      colorClearValue[2],
+      colorClearValue[3],
+    ];
+    const colorWriteMask = gl.getParameter(gl.COLOR_WRITEMASK) as boolean[];
+    const colorWriteMaskTuple: [boolean, boolean, boolean, boolean] = [
+      colorWriteMask[0],
+      colorWriteMask[1],
+      colorWriteMask[2],
+      colorWriteMask[3],
+    ];
+
+    // Cull states
+    const cullFaceMode = gl.getParameter(gl.CULL_FACE_MODE) as number;
+    const frontFace = gl.getParameter(gl.FRONT_FACE) as number;
+
+    // Polygon offset states
+    const polygonOffsetFactor = gl.getParameter(gl.POLYGON_OFFSET_FACTOR) as number;
+    const polygonOffsetUnits = gl.getParameter(gl.POLYGON_OFFSET_UNITS) as number;
+
+    // Sample coverage states
+    const sampleCoverageValue = gl.getParameter(gl.SAMPLE_COVERAGE_VALUE) as number;
+    const sampleCoverageInvert = gl.getParameter(gl.SAMPLE_COVERAGE_INVERT) as boolean;
+
+    // Scissor states
+    const scissorBox = gl.getParameter(gl.SCISSOR_BOX) as Int32Array;
+    const scissorBoxTuple: [number, number, number, number] = [
+      scissorBox[0],
+      scissorBox[1],
+      scissorBox[2],
+      scissorBox[3],
+    ];
+
+    // Viewport states
+    const viewport = gl.getParameter(gl.VIEWPORT) as Int32Array;
+    const viewportTuple: [number, number, number, number] = [viewport[0], viewport[1], viewport[2], viewport[3]];
+
+    // Line width
+    const lineWidth = gl.getParameter(gl.LINE_WIDTH) as number;
+
+    // Binding states
+    // Get texture bindings for all texture units (typically 16 units: TEXTURE0 to TEXTURE15)
+    const textureBindings: Array<{
+      texture2D: WebGLTexture | null;
+      textureCubeMap: WebGLTexture | null;
+      texture3D: WebGLTexture | null;
+      texture2DArray: WebGLTexture | null;
+      sampler: WebGLSampler | null;
+    }> = [];
+
+    const currentActiveTexture = gl.getParameter(gl.ACTIVE_TEXTURE) as number;
+    const activeTexture = currentActiveTexture;
+    for (let i = 0; i < 16; i++) {
+      gl.activeTexture(gl.TEXTURE0 + i);
+      const texture2D = gl.getParameter(gl.TEXTURE_BINDING_2D) as WebGLTexture | null;
+      const textureCubeMap = gl.getParameter(gl.TEXTURE_BINDING_CUBE_MAP) as WebGLTexture | null;
+      const texture3D = gl.getParameter(gl.TEXTURE_BINDING_3D) as WebGLTexture | null;
+      const texture2DArray = gl.getParameter(gl.TEXTURE_BINDING_2D_ARRAY) as WebGLTexture | null;
+      const sampler = gl.getParameter(gl.SAMPLER_BINDING) as WebGLSampler | null;
+
+      textureBindings.push({
+        texture2D,
+        textureCubeMap,
+        texture3D,
+        texture2DArray,
+        sampler,
+      });
+    }
+    // Restore the original active texture
+    gl.activeTexture(currentActiveTexture);
+
+    const arrayBufferBinding = gl.getParameter(gl.ARRAY_BUFFER_BINDING) as WebGLBuffer | null;
+    const elementArrayBufferBinding = gl.getParameter(gl.ELEMENT_ARRAY_BUFFER_BINDING) as WebGLBuffer | null;
+    const uniformBufferBinding = gl.getParameter(gl.UNIFORM_BUFFER_BINDING) as WebGLBuffer | null;
+    const transformFeedbackBinding = gl.getParameter(gl.TRANSFORM_FEEDBACK_BINDING) as WebGLTransformFeedback | null;
+    const copyReadBufferBinding = gl.getParameter(gl.COPY_READ_BUFFER_BINDING) as WebGLBuffer | null;
+    const copyWriteBufferBinding = gl.getParameter(gl.COPY_WRITE_BUFFER_BINDING) as WebGLBuffer | null;
+    const pixelPackBufferBinding = gl.getParameter(gl.PIXEL_PACK_BUFFER_BINDING) as WebGLBuffer | null;
+    const pixelUnpackBufferBinding = gl.getParameter(gl.PIXEL_UNPACK_BUFFER_BINDING) as WebGLBuffer | null;
+    const readFramebufferBinding = gl.getParameter(gl.READ_FRAMEBUFFER_BINDING) as WebGLFramebuffer | null;
+    const drawFramebufferBinding = gl.getParameter(gl.DRAW_FRAMEBUFFER_BINDING) as WebGLFramebuffer | null;
+    const renderbufferBinding = gl.getParameter(gl.RENDERBUFFER_BINDING) as WebGLRenderbuffer | null;
+    const vertexArrayBinding = gl.getParameter(gl.VERTEX_ARRAY_BINDING) as WebGLVertexArrayObject | null;
+    const currentProgram = gl.getParameter(gl.CURRENT_PROGRAM) as WebGLProgram | null;
+
+    return {
+      // Enabled states
+      depthTest,
+      stencilTest,
+      blend,
+      dither,
+      scissorTest,
+      polygonOffsetFill,
+      sampleCoverage,
+      sampleAlphaToCoverage,
+      cullFace,
+      rasterizerDiscard,
+
+      // Depth states
+      depthFunc,
+      depthWriteMask,
+      depthClearValue,
+      depthRange: depthRangeTuple,
+
+      // Stencil states
+      stencilFunc,
+      stencilValueMask,
+      stencilRef,
+      stencilBackFunc,
+      stencilBackValueMask,
+      stencilBackRef,
+      stencilFail,
+      stencilPassDepthFail,
+      stencilPassDepthPass,
+      stencilBackFail,
+      stencilBackPassDepthFail,
+      stencilBackPassDepthPass,
+      stencilWriteMask,
+      stencilBackWriteMask,
+      stencilClearValue,
+
+      // Blend states
+      blendSrcRgb,
+      blendDstRgb,
+      blendSrcAlpha,
+      blendDstAlpha,
+      blendEquationRgb,
+      blendEquationAlpha,
+      blendColor: blendColorTuple,
+
+      // Color states
+      colorClearValue: colorClearValueTuple,
+      colorWriteMask: colorWriteMaskTuple,
+
+      // Cull states
+      cullFaceMode,
+      frontFace,
+
+      // Polygon offset states
+      polygonOffsetFactor,
+      polygonOffsetUnits,
+
+      // Sample coverage states
+      sampleCoverageValue,
+      sampleCoverageInvert,
+
+      // Scissor states
+      scissorBox: scissorBoxTuple,
+
+      // Viewport states
+      viewport: viewportTuple,
+
+      // Line width
+      lineWidth,
+
+      // Binding states
+      activeTexture,
+      textureBindings,
+      arrayBufferBinding,
+      elementArrayBufferBinding,
+      uniformBufferBinding,
+      transformFeedbackBinding,
+      copyReadBufferBinding,
+      copyWriteBufferBinding,
+      pixelPackBufferBinding,
+      pixelUnpackBufferBinding,
+      readFramebufferBinding,
+      drawFramebufferBinding,
+      renderbufferBinding,
+      vertexArrayBinding,
+      currentProgram,
+    };
   }
 
   unbindTextureSamplers() {
