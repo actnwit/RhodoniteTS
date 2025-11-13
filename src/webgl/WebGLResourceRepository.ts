@@ -3205,6 +3205,55 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     return pixels;
   }
 
+  getCurrentTexture2DBindingsForEffekseer(): {
+    textureBindings: Array<{
+      texture2D: WebGLTexture | null;
+      sampler: WebGLSampler | null;
+    }>;
+    activeTexture: number;
+  } {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const maxTextureUnits = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS) as number;
+    const textureBindings: Array<{
+      texture2D: WebGLTexture | null;
+      sampler: WebGLSampler | null;
+    }> = [];
+    for (let i = 0; i < maxTextureUnits; i++) {
+      gl.activeTexture(gl.TEXTURE0 + i);
+      const texture2D = gl.getParameter(gl.TEXTURE_BINDING_2D) as WebGLTexture | null;
+      const sampler = gl.getParameter(gl.SAMPLER_BINDING) as WebGLSampler | null;
+      textureBindings.push({
+        texture2D,
+        sampler,
+      });
+    }
+
+    const currentActiveTexture = gl.getParameter(gl.ACTIVE_TEXTURE) as number;
+    return {
+      textureBindings: textureBindings,
+      activeTexture: currentActiveTexture,
+    };
+  }
+
+  restoreTexture2DBindingsForEffekseer({
+    textureBindings,
+    activeTexture,
+  }: {
+    textureBindings: Array<{
+      texture2D: WebGLTexture | null;
+      sampler: WebGLSampler | null;
+    }>;
+    activeTexture: number;
+  }) {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    for (let i = 0; i < textureBindings.length; i++) {
+      gl.activeTexture(gl.TEXTURE0 + i);
+      gl.bindTexture(gl.TEXTURE_2D, textureBindings[i].texture2D);
+      gl.bindSampler(i, textureBindings[i].sampler);
+    }
+    gl.activeTexture(activeTexture);
+  }
+
   setWebGLStateToDefaultForEffekseer() {
     const gl = this.__glw!.getRawContextAsWebGL2();
     const maxTextureUnits = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS) as number;

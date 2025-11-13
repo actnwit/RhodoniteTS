@@ -389,7 +389,7 @@ export class System {
               }
               if (componentTid === WellKnownComponentTIDs.EffekseerComponentTID && renderPass.entities.length > 0) {
                 const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-                const currentWebGLStates = webGLResourceRepository.getCurrentWebGLStates();
+                const currentTexture2DBindings = webGLResourceRepository.getCurrentTexture2DBindingsForEffekseer();
                 webGLResourceRepository.setWebGLStateToDefaultForEffekseer();
                 for (const entity of renderPass.entities) {
                   const effekseerComponent = entity.tryToGetEffekseer();
@@ -397,7 +397,7 @@ export class System {
                     effekseerComponent.$render();
                   }
                 }
-                webGLResourceRepository.restoreWebGLStates(currentWebGLStates);
+                webGLResourceRepository.restoreTexture2DBindingsForEffekseer(currentTexture2DBindings);
               }
               this.__renderPassTickCount++;
 
