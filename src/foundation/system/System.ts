@@ -390,7 +390,7 @@ export class System {
               if (componentTid === WellKnownComponentTIDs.EffekseerComponentTID && renderPass.entities.length > 0) {
                 const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
                 const currentWebGLStates = webGLResourceRepository.getCurrentWebGLStates();
-                webGLResourceRepository.setWebGLStateToDefault();
+                webGLResourceRepository.setWebGLStateToDefaultForEffekseer();
                 for (const entity of renderPass.entities) {
                   const effekseerComponent = entity.tryToGetEffekseer();
                   if (effekseerComponent != null) {
