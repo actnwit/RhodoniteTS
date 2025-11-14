@@ -37,142 +37,36 @@ export type ComponentMixinFunction = <EntityBaseClass extends MixinBase>(
   components: (typeof Component)[];
 };
 
-type AllWellKnownComponentMethodsTypes =
-  | IAnimationStateEntityMethods
-  | IAnimationEntityMethods
-  | ITransformEntityMethods
-  | ISceneGraphEntityMethods
-  | IMeshEntityMethods
-  | IMeshRendererEntityMethods
-  | ILightEntityMethods
-  | ICameraEntityMethods
-  | ICameraControllerEntityMethods
-  | ISkeletalEntityMethods
-  | IBlendShapeEntityMethods
-  | IPhysicsEntityMethods
-  | IEffekseerEntityMethods
-  | IVrmEntityMethods;
-
-type IsThisAnimationState<
-  T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes,
-> = T extends typeof AnimationStateComponent
-  ? IAnimationStateEntityMethods
-  : Exclude<Possibles, IAnimationStateEntityMethods>;
-
-type IsThisAnimation<
-  T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes,
-> = T extends typeof AnimationComponent ? IAnimationEntityMethods : Exclude<Possibles, IAnimationEntityMethods>;
-
-type IsThisTransform<
-  T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes,
-> = T extends typeof TransformComponent ? ITransformEntityMethods : Exclude<Possibles, ITransformEntityMethods>;
-
-type IsThisSceneGraph<
-  T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes,
-> = T extends typeof SceneGraphComponent ? ISceneGraphEntityMethods : Exclude<Possibles, ISceneGraphEntityMethods>;
-
-type IsThisMesh<
-  T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes,
-> = T extends typeof MeshComponent ? IMeshEntityMethods : Exclude<Possibles, IMeshEntityMethods>;
-
-type IsThisMeshRenderer<
-  T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes,
-> = T extends typeof MeshRendererComponent
-  ? IMeshRendererEntityMethods
-  : Exclude<Possibles, IMeshRendererEntityMethods>;
-
-type IsThisCameraController<
-  T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes,
-> = T extends typeof CameraControllerComponent
-  ? ICameraControllerEntityMethods
-  : Exclude<Possibles, ICameraControllerEntityMethods>;
-
-type IsThisCamera<
-  T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes,
-> = T extends typeof CameraComponent ? ICameraEntityMethods : Exclude<Possibles, ICameraEntityMethods>;
-
-type IsThisLight<
-  T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes,
-> = T extends typeof LightComponent ? ILightEntityMethods : Exclude<Possibles, ILightEntityMethods>;
-
-type IsThisSkeletal<
-  T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes,
-> = T extends typeof SkeletalComponent ? ISkeletalEntityMethods : Exclude<Possibles, ISkeletalEntityMethods>;
-
-type IsThisBlendShape<
-  T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes,
-> = T extends typeof BlendShapeComponent ? IBlendShapeEntityMethods : Exclude<Possibles, IBlendShapeEntityMethods>;
-
-type IsThisPhysics<
-  T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes,
-> = T extends typeof PhysicsComponent ? IPhysicsEntityMethods : Exclude<Possibles, IPhysicsEntityMethods>;
-
-type IsThisEffekseer<
-  T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes,
-> = T extends typeof EffekseerComponent ? IEffekseerEntityMethods : Exclude<Possibles, IEffekseerEntityMethods>;
-
-type IsThisVrm<
-  T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes,
-> = T extends typeof VrmComponent ? IVrmEntityMethods : Exclude<Possibles, IVrmEntityMethods>;
-
-type IsThisConstraint<
-  T extends typeof Component,
-  Possibles extends AllWellKnownComponentMethodsTypes,
-> = T extends typeof ConstraintComponent ? IConstraintEntityMethods : Exclude<Possibles, IConstraintEntityMethods>;
-
-export type ComponentToComponentMethods<T extends typeof Component> = IsThisConstraint<
-  T,
-  IsThisVrm<
-    T,
-    IsThisEffekseer<
-      T,
-      IsThisPhysics<
-        T,
-        IsThisBlendShape<
-          T,
-          IsThisSkeletal<
-            T,
-            IsThisLight<
-              T,
-              IsThisCamera<
-                T,
-                IsThisCameraController<
-                  T,
-                  IsThisMeshRenderer<
-                    T,
-                    IsThisMesh<
-                      T,
-                      IsThisSceneGraph<
-                        T,
-                        IsThisTransform<
-                          T,
-                          IsThisAnimation<T, IsThisAnimationState<T, AllWellKnownComponentMethodsTypes>>
-                        >
-                      >
-                    >
-                  >
-                >
-              >
-            >
-          >
-        >
-      >
-    >
-  >
->;
+export type ComponentToComponentMethods<T extends typeof Component> = T extends typeof ConstraintComponent
+  ? IConstraintEntityMethods
+  : T extends typeof VrmComponent
+    ? IVrmEntityMethods
+    : T extends typeof EffekseerComponent
+      ? IEffekseerEntityMethods
+      : T extends typeof PhysicsComponent
+        ? IPhysicsEntityMethods
+        : T extends typeof BlendShapeComponent
+          ? IBlendShapeEntityMethods
+          : T extends typeof SkeletalComponent
+            ? ISkeletalEntityMethods
+            : T extends typeof LightComponent
+              ? ILightEntityMethods
+              : T extends typeof CameraComponent
+                ? ICameraEntityMethods
+                : T extends typeof CameraControllerComponent
+                  ? ICameraControllerEntityMethods
+                  : T extends typeof MeshRendererComponent
+                    ? IMeshRendererEntityMethods
+                    : T extends typeof MeshComponent
+                      ? IMeshEntityMethods
+                      : T extends typeof SceneGraphComponent
+                        ? ISceneGraphEntityMethods
+                        : T extends typeof TransformComponent
+                          ? ITransformEntityMethods
+                          : T extends typeof AnimationComponent
+                            ? IAnimationEntityMethods
+                            : T extends typeof AnimationStateComponent
+                              ? IAnimationStateEntityMethods
+                              : never;
 
 type _Foo = ComponentToComponentMethods<typeof TransformComponent>;
