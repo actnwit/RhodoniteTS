@@ -26,7 +26,7 @@ import type {
   Gltf2ImageEx,
   Gltf2MaterialEx,
 } from '../../types/glTF2ForOutput';
-import type { ComponentTypeEnum, CompositionTypeEnum } from '../definitions';
+import { BufferUse, type ComponentTypeEnum, type CompositionTypeEnum } from '../definitions';
 import { ComponentType, type Gltf2AccessorComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
 import { PrimitiveMode } from '../definitions/PrimitiveMode';
@@ -1173,6 +1173,8 @@ export function createAccessorFromWeightsTypedArray(
     buffer: arrayBuffer,
     name: 'NormalizedSkinWeightsBuffer',
     byteAlign: 4,
+    bufferUsage: BufferUse.CPUGeneric,
+    indexOfTheBufferUsage: 0,
   });
   const bufferView = new BufferView({
     buffer,
@@ -1231,6 +1233,8 @@ export function createTemporaryVec4Accessor(count: number): Accessor {
     buffer: new ArrayBuffer(byteLength),
     name: 'Gltf2Exporter_Tangent',
     byteAlign: 4,
+    bufferUsage: BufferUse.CPUGeneric,
+    indexOfTheBufferUsage: 0,
   });
   const bufferView = buffer
     .takeBufferView({
@@ -1321,6 +1325,8 @@ export function normalizeNormals(accessor: Accessor): Accessor {
     buffer: arrayBuffer,
     name: 'NormalizedNormalsBuffer',
     byteAlign: 4,
+    bufferUsage: BufferUse.CPUGeneric,
+    indexOfTheBufferUsage: 0,
   });
   const newBufferView = new BufferView({
     buffer: newBuffer,

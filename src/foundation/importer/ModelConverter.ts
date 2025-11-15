@@ -375,6 +375,8 @@ export class ModelConverter {
         buffer: buffer.buffer as unknown as ArrayBuffer,
         name: `gltf2Buffer_0_(${buffer.uri})`,
         byteAlign: 4,
+        bufferUsage: BufferUse.CPUGeneric,
+        indexOfTheBufferUsage: 0,
       });
       rnBuffers.push(rnBuffer);
     }
@@ -2741,6 +2743,8 @@ export class ModelConverter {
       buffer: new ArrayBuffer(byteLengthOfBufferForDraco),
       name: 'Draco',
       byteAlign: 4,
+      bufferUsage: BufferUse.CPUGeneric,
+      indexOfTheBufferUsage: 0,
     });
   }
 }
