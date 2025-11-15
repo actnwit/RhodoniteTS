@@ -102,6 +102,8 @@ export class MemoryManager {
       buffer: arrayBuffer,
       name: bufferUse.str,
       byteAlign: byteAlign,
+      bufferUsage: bufferUse,
+      indexOfTheBufferUsage: 0,
     });
     this.__buffers[buffer.name] = buffer;
 
@@ -133,7 +135,6 @@ export class MemoryManager {
 
   /**
    * Creates a buffer on-demand with custom size and alignment for a specific object.
-   * These buffers are typically used for UBOs (Uniform Buffer Objects).
    * @param size - The size of the buffer in bytes
    * @param object - The RnObject that will own this buffer
    * @param byteAlign - The byte alignment requirement for the buffer
@@ -144,8 +145,10 @@ export class MemoryManager {
     const buffer = new Buffer({
       byteLength: arrayBuffer.byteLength,
       buffer: arrayBuffer,
-      name: BufferUse.UBOGeneric.toString(),
+      name: BufferUse.CPUGeneric.toString(),
       byteAlign: byteAlign,
+      bufferUsage: BufferUse.CPUGeneric,
+      indexOfTheBufferUsage: 0,
     });
     this.__buffersOnDemand.set(object.objectUID, buffer);
     return buffer;
