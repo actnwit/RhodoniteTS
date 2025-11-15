@@ -1,4 +1,4 @@
-import type { Byte, ObjectUID, Size } from '../../types/CommonTypes';
+import type { Byte, Count, ObjectUID, Size } from '../../types/CommonTypes';
 import { BufferUse, type BufferUseEnum } from '../definitions/BufferUse';
 import { Buffer } from '../memory/Buffer';
 import { MiscUtil } from '../misc/MiscUtil';
@@ -14,6 +14,7 @@ export class MemoryManager {
   //__entityMaxCount: number;
   private __buffers: { [s: string]: Buffer } = {};
   private __memorySizeRatios: { [s: string]: number } = {};
+  private __countOfTheBufferUsageMap: Map<BufferUseEnum, Count> = new Map();
 
   /**
    * Private constructor to ensure singleton pattern.
@@ -149,6 +150,27 @@ export class MemoryManager {
       indexOfTheBufferUsage: 0,
     });
     return buffer;
+  }
+
+  getCountOfTheBufferUsage(bufferUse: BufferUseEnum): Count {
+    const count = this.__countOfTheBufferUsageMap.get(bufferUse);
+    if (count != null) {
+      return count;
+    }
+
+    this.__countOfTheBufferUsageMap.set(bufferUse, 0);
+
+    return 0;
+  }
+
+  incrementCountOfTheBufferUsage(bufferUse: BufferUseEnum): void {
+    const count = this.__countOfTheBufferUsageMap.get(bufferUse);
+    if (count == null) {
+      this.__countOfTheBufferUsageMap.set(bufferUse, 1);
+      return;
+    }
+
+    this.__countOfTheBufferUsageMap.set(bufferUse, count + 1);
   }
 
   /**
