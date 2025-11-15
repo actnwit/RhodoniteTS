@@ -13,7 +13,6 @@ export class MemoryManager {
   private static __instance: MemoryManager;
   //__entityMaxCount: number;
   private __buffers: { [s: string]: Buffer } = {};
-  private __buffersOnDemand: Map<ObjectUID, Buffer> = new Map();
   private __memorySizeRatios: { [s: string]: number } = {};
 
   /**
@@ -136,11 +135,10 @@ export class MemoryManager {
   /**
    * Creates a buffer on-demand with custom size and alignment for a specific object.
    * @param size - The size of the buffer in bytes
-   * @param object - The RnObject that will own this buffer
    * @param byteAlign - The byte alignment requirement for the buffer
    * @returns The newly created Buffer instance
    */
-  public createBufferOnDemand(size: Byte, object: RnObject, byteAlign: Byte) {
+  public createBufferOnDemand(size: Byte, byteAlign: Byte) {
     const arrayBuffer = new ArrayBuffer(size);
     const buffer = new Buffer({
       byteLength: arrayBuffer.byteLength,
@@ -150,17 +148,7 @@ export class MemoryManager {
       bufferUsage: BufferUse.CPUGeneric,
       indexOfTheBufferUsage: 0,
     });
-    this.__buffersOnDemand.set(object.objectUID, buffer);
     return buffer;
-  }
-
-  /**
-   * Retrieves an on-demand buffer associated with a specific object.
-   * @param object - The RnObject whose buffer to retrieve
-   * @returns The Buffer instance if it exists, undefined otherwise
-   */
-  public getBufferOnDemand(object: RnObject) {
-    return this.__buffersOnDemand.get(object.objectUID);
   }
 
   /**
