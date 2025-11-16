@@ -39,7 +39,7 @@ export class Component extends RnObject {
   protected __currentProcessStage: ProcessStageEnum = ProcessStage.Load;
   private static __accessors: Map<Function, Map<string, Accessor>> = new Map();
 
-  private static __memberInfo: Map<Function, MemberInfo[]> = new Map();
+  private static __memberInfo: Map<Function, Map<MemberName, MemberInfo>> = new Map();
 
   /** the entity unique Id which this component belongs to  */
   protected __entityUid: EntityUID;
@@ -397,11 +397,11 @@ export class Component extends RnObject {
     initValues: number[]
   ) {
     if (!Component.__memberInfo.has(this.constructor)) {
-      Component.__memberInfo.set(this.constructor, []);
+      Component.__memberInfo.set(this.constructor, new Map());
     }
     const memberInfoArray = Component.__memberInfo.get(this.constructor);
 
-    memberInfoArray!.push({
+    memberInfoArray!.set(memberName, {
       bufferUse: bufferUse,
       memberName: memberName,
       dataClassType: dataClassType as never,
@@ -575,9 +575,7 @@ export class Component extends RnObject {
    */
   static getCompositionTypeOfMember(memberName: string, componentClass: Function): CompositionTypeEnum | undefined {
     const memberInfoArray = this.__memberInfo.get(componentClass)!;
-    const info = memberInfoArray.find(info => {
-      return info.memberName === memberName;
-    });
+    const info = memberInfoArray.get(memberName);
     if (info != null) {
       return info.compositionType;
     }
@@ -594,9 +592,7 @@ export class Component extends RnObject {
    */
   static getComponentTypeOfMember(memberName: string, componentClass: Function): ComponentTypeEnum | undefined {
     const memberInfoArray = this.__memberInfo.get(componentClass)!;
-    const info = memberInfoArray.find(info => {
-      return info.memberName === memberName;
-    });
+    const info = memberInfoArray.get(memberName);
     if (info != null) {
       return info.componentType;
     }
