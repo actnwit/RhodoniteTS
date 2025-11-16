@@ -116,7 +116,7 @@ export class SceneGraphComponent extends Component {
     this.registerMember(BufferUse.GPUInstanceData, 'isVisible', MutableScalar, ComponentType.Float, [1]);
     this.registerMember(BufferUse.GPUInstanceData, 'isBillboard', MutableScalar, ComponentType.Float, [0]);
 
-    this.submitToAllocation(this.maxNumberOfComponent, isReUse);
+    this.submitToAllocation(isReUse);
   }
 
   /**
