@@ -39,7 +39,6 @@ export class Component extends RnObject {
   protected __currentProcessStage: ProcessStageEnum = ProcessStage.Load;
   private static __bufferViews: Map<Function, BufferView> = new Map();
   private static __accessors: Map<Function, Map<string, Accessor>> = new Map();
-  private static __byteLengthSumOfMembers: Map<Function, Byte> = new Map();
 
   private static __memberInfo: Map<Function, MemberInfo[]> = new Map();
   private static __members: Map<Function, Array<MemberInfo>> = new Map();
@@ -466,13 +465,6 @@ export class Component extends RnObject {
 
       // for each member field, take a BufferView for all entities' the member field.
       const infoArray = member;
-      infoArray.forEach(info => {
-        Component.__byteLengthSumOfMembers.set(
-          componentClass,
-          Component.__byteLengthSumOfMembers.get(componentClass)! +
-            info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes()
-        );
-      });
 
       // take a Accessor for all entities for each member fields (same as BufferView)
       infoArray.forEach(info => {
