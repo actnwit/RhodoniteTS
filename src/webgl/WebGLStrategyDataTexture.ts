@@ -145,7 +145,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   mat4 get_worldMatrix(float instanceId)
   {
     int indices[] = int[](${locationOffsetsForWorldMatrix.join(', ')});
-    int index = indices[int(instanceId) % ${Config.entityCountPerBufferView}] + 4 * int(instanceId);
+    int index = indices[int(instanceId) / ${Config.entityCountPerBufferView}] + 4 * int(instanceId);
     mat4 matrix = fetchMat4(index);
     return matrix;
   }
@@ -153,21 +153,21 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
 
   mat3 get_normalMatrix(float instanceId) {
     int indices[] = int[](${locationOffsetsForNormalMatrix.join(', ')});
-    int index = indices[int(instanceId) % ${Config.entityCountPerBufferView}] * 4 + 9 * int(instanceId);
+    int index = indices[int(instanceId) / ${Config.entityCountPerBufferView}] * 4 + 9 * int(instanceId);
     mat3 matrix = fetchMat3No16BytesAligned(index);
     return matrix;
   }
 
   bool get_isVisible(float instanceId) {
     int indices[] = int[](${locationOffsetsForIsVisible.join(', ')});
-    int index = indices[int(instanceId) % ${Config.entityCountPerBufferView}] * 4 + int(instanceId);
+    int index = indices[int(instanceId) / ${Config.entityCountPerBufferView}] * 4 + int(instanceId);
     float visibility = fetchScalarNo16BytesAligned(index);
     return (visibility > 0.5) ? true : false;
   }
 
   bool get_isBillboard(float instanceId) {
     int indices[] = int[](${locationOffsetsForIsBillboard.join(', ')});
-    int index = indices[int(instanceId) % ${Config.entityCountPerBufferView}] * 4 + int(instanceId);
+    int index = indices[int(instanceId) / ${Config.entityCountPerBufferView}] * 4 + int(instanceId);
     float isBillboard = fetchScalarNo16BytesAligned(index);
     return (isBillboard > 0.5) ? true : false;
   }
