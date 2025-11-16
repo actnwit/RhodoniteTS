@@ -96,7 +96,7 @@ export class MemoryManager {
    */
   private __createBuffer(bufferUse: BufferUseEnum) {
     const memorySize = Config.gpuBufferUnitSize;
-    const arrayBuffer = new ArrayBuffer(this.__makeMultipleOf4byteSize(memorySize));
+    const arrayBuffer = new ArrayBuffer(memorySize);
 
     let byteAlign = 4;
     if (bufferUse === BufferUse.GPUInstanceData || bufferUse === BufferUse.GPUVertexData) {

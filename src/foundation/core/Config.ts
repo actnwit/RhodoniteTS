@@ -9,6 +9,9 @@ import { MiscUtil } from '../misc';
 /**　The maximum number of entities that Rhodonite can handle　*/
 let maxEntityNumber = 5000;
 
+/**　The number of entities per buffer view */
+let entityCountPerBufferView = 2;
+
 /**　The maximum number of lights that Rhodonite can handle */
 let maxLightNumber = 6;
 
@@ -67,7 +70,7 @@ let physicsTimeIntervalScale = 1;
 /**　Whether the device is a mobile device */
 let isMobile = false;
 
-/**　The unit size of the GPU buffer */
+/**　The unit size of the GPU buffer. It must be multiple of 16 bytes. */
 let gpuBufferUnitSize = 4096 ** 2 * 4 /* rgba */ * 4 /* byte */;
 
 if (typeof navigator !== 'undefined') {
@@ -85,6 +88,8 @@ if (typeof navigator !== 'undefined') {
 export const Config = {
   /**　The maximum number of entities that Rhodonite can handle　*/
   maxEntityNumber,
+  /**　The number of entities per buffer view */
+  entityCountPerBufferView,
   /**　The maximum number of lights that Rhodonite can handle */
   maxLightNumber,
   /**　The maximum number of morph targets that Rhodonite can handle */
@@ -125,6 +130,6 @@ export const Config = {
   physicsTimeIntervalScale,
   /**　Whether the device is a mobile device */
   isMobile,
-  /**　The unit size of the GPU buffer */
+  /**　The unit size of the GPU buffer. It must be multiple of 16 bytes. */
   gpuBufferUnitSize,
 };

@@ -225,31 +225,6 @@ export class ComponentRepository {
   }
 
   /**
-   * Calculates the memory begin index for a given component type.
-   * This is used for memory layout calculations in the component system.
-   *
-   * @param componentTid - The ComponentTID to calculate the memory index for
-   * @returns The starting memory index for the component type
-   *
-   * @example
-   * ```typescript
-   * const memoryIndex = ComponentRepository.getMemoryBeginIndex(componentTID);
-   * ```
-   */
-  public static getMemoryBeginIndex(componentTid: ComponentTID) {
-    let memoryBeginIndex = 0;
-    for (let i = 0; i < componentTid; i++) {
-      const componentClass = ComponentRepository.__componentClasses.get(i);
-      if (componentClass != null) {
-        const sizeOfComponent = (componentClass as any).sizeOfThisComponent;
-        const maxEntityNumber = Config.maxEntityNumber;
-        memoryBeginIndex += sizeOfComponent * maxEntityNumber;
-      }
-    }
-    return memoryBeginIndex;
-  }
-
-  /**
    * Retrieves all active (non-null) component instances of the specified type.
    * This method filters out deleted components and returns only valid instances.
    *

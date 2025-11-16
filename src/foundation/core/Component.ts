@@ -1,6 +1,6 @@
 import type { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
 import type { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
-import type { Byte, ComponentSID, Count, EntityUID, TypedArray } from '../../types/CommonTypes';
+import type { Byte, ComponentSID, Count, EntityUID, IndexOf16Bytes, TypedArray } from '../../types/CommonTypes';
 import type { ComponentToComponentMethods } from '../components/ComponentTypes';
 import { MemoryManager } from '../core/MemoryManager';
 import type { BufferUseEnum } from '../definitions/BufferUse';
@@ -26,6 +26,7 @@ type MemberInfo = {
 };
 
 type MemberName = string;
+type IndexOfTheBufferUsage = number;
 
 /**
  * Component is a functional unit that can be added to an Entity instance.
@@ -504,15 +505,6 @@ export class Component extends RnObject {
               info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes()
           );
         });
-        if (infoArray.length > 0) {
-          // const bufferView = Component.takeBufferView(
-          //   bufferUse,
-          //   componentClass,
-          //   byteLengthSumOfMembers.get(bufferUse)!,
-          //   count
-          // );
-          // that.__byteOffsetOfThisComponent = bufferView!.byteOffsetInBuffer;
-        }
       }
 
       // take a Accessor for all entities for each member fields (same as BufferView)

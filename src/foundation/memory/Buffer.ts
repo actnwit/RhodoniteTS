@@ -353,4 +353,12 @@ byteSizeToTake: ${byteLengthToNeed}, the byte length left in the Buffer: ${this.
   isSame(buffer: Buffer): boolean {
     return this.__raw === buffer.__raw;
   }
+
+  get indexOfTheBufferUsage() {
+    return this.__indexOfTheBufferUsage;
+  }
+
+  get bufferUsage() {
+    return this.__bufferUsage;
+  }
 }
