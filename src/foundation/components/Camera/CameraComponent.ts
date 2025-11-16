@@ -42,29 +42,29 @@ import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
  */
 export class CameraComponent extends Component {
   private static readonly _eye: Vector3 = Vector3.zero();
-  private _eyeInner: MutableVector3 = MutableVector3.dummy();
-  private _direction: MutableVector3 = MutableVector3.dummy();
-  private _directionInner: MutableVector3 = MutableVector3.dummy();
-  private _up: MutableVector3 = MutableVector3.dummy();
-  private _upInner: MutableVector3 = MutableVector3.dummy();
+  private _eyeInner: MutableVector3 = MutableVector3.zero();
+  private _direction: MutableVector3 = MutableVector3.fromCopy3(0, 0, -1);
+  private _directionInner: MutableVector3 = MutableVector3.fromCopy3(0, 0, -1);
+  private _up: MutableVector3 = MutableVector3.fromCopy3(0, 1, 0);
+  private _upInner: MutableVector3 = MutableVector3.fromCopy3(0, 1, 0);
   private _filmWidth = 36; // mili meter
   private _filmHeight = 24; // mili meter
   private _focalLength = 20;
   private primitiveMode = false;
   // x: left, y:right, z:top, w: bottom
-  private _corner: MutableVector4 = MutableVector4.dummy();
-  private _cornerInner: MutableVector4 = MutableVector4.dummy();
+  private _corner: MutableVector4 = MutableVector4.fromCopy4(-1, 1, 1, -1);
+  private _cornerInner: MutableVector4 = MutableVector4.fromCopy4(-1, 1, 1, -1);
 
   // x: zNear, y: zFar,
   // if perspective, z: fovy, w: aspect
   // if ortho, z: xmag, w: ymag
-  private _parameters: MutableVector4 = MutableVector4.dummy();
-  private _parametersInner: MutableVector4 = MutableVector4.dummy();
+  private _parameters: MutableVector4 = MutableVector4.fromCopy4(0.1, 10000, 90, 1);
+  private _parametersInner: MutableVector4 = MutableVector4.fromCopy4(0.1, 10000, 90, 1);
   private __type: CameraTypeEnum = CameraType.Perspective;
 
-  private _projectionMatrix: MutableMatrix44 = MutableMatrix44.dummy();
+  private _projectionMatrix: MutableMatrix44 = MutableMatrix44.identity();
   private __isProjectionMatrixUpToDate = false;
-  private _viewMatrix: MutableMatrix44 = MutableMatrix44.dummy();
+  private _viewMatrix: MutableMatrix44 = MutableMatrix44.identity();
   private __isViewMatrixUpToDate = false;
 
   private static __current: ComponentSID = -1;
@@ -141,39 +141,6 @@ export class CameraComponent extends Component {
     if (CameraComponent.current === -1) {
       CameraComponent.current = componentSid;
     }
-
-    this.registerMember(BufferUse.CPUGeneric, 'eyeInner', MutableVector3, ComponentType.Float, [0, 0, 0]);
-    this.registerMember(BufferUse.CPUGeneric, 'direction', MutableVector3, ComponentType.Float, [0, 0, -1]);
-    this.registerMember(BufferUse.CPUGeneric, 'up', MutableVector3, ComponentType.Float, [0, 1, 0]);
-    this.registerMember(BufferUse.CPUGeneric, 'directionInner', MutableVector3, ComponentType.Float, [0, 0, -1]);
-    this.registerMember(BufferUse.CPUGeneric, 'upInner', MutableVector3, ComponentType.Float, [0, 1, 0]);
-    this.registerMember(BufferUse.CPUGeneric, 'corner', MutableVector4, ComponentType.Float, [-1, 1, 1, -1]);
-    this.registerMember(BufferUse.CPUGeneric, 'cornerInner', MutableVector4, ComponentType.Float, [-1, 1, 1, -1]);
-    this.registerMember(BufferUse.CPUGeneric, 'parameters', MutableVector4, ComponentType.Float, [0.1, 10000, 90, 1]);
-    this.registerMember(
-      BufferUse.CPUGeneric,
-      'parametersInner',
-      MutableVector4,
-      ComponentType.Float,
-      [0.1, 10000, 90, 1]
-    );
-
-    this.registerMember(
-      BufferUse.CPUGeneric,
-      'projectionMatrix',
-      MutableMatrix44,
-      ComponentType.Float,
-      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
-    );
-    this.registerMember(
-      BufferUse.CPUGeneric,
-      'viewMatrix',
-      MutableMatrix44,
-      ComponentType.Float,
-      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
-    );
-
-    this.submitToAllocation(Config.maxCameraNumber, isReUse);
 
     if (isReUse) {
       return;
