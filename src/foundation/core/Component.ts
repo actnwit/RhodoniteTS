@@ -435,7 +435,7 @@ export class Component extends RnObject {
     const memberInfoArray = Component.__memberInfo.get(componentClass)!;
 
     // Do this only for the first entity of the component
-    if (this._component_sid % Config.entityCountPerBufferView === 0) {
+    if (this._component_sid === 0) {
       getBufferViewsAndAccessors(this);
     }
 
@@ -454,7 +454,12 @@ export class Component extends RnObject {
 
     // inner function
     function getBufferViewsAndAccessors(that: Component) {
-      const member = Component.__members.get(componentClass)!;
+      let member = Component.__members.get(componentClass)!;
+      if (member == null) {
+        Component.__members.set(componentClass, []);
+        member = Component.__members.get(componentClass)!;
+      }
+
       memberInfoArray.forEach(info => {
         member.push(info);
       });
