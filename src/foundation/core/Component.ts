@@ -25,6 +25,8 @@ type MemberInfo = {
   initValues: number[];
 };
 
+type MemberName = string;
+
 /**
  * Component is a functional unit that can be added to an Entity instance.
  * This is the base class for all components in the ECS (Entity-Component-System) architecture.
@@ -40,7 +42,6 @@ export class Component extends RnObject {
 
   private static __memberInfo: Map<Function, MemberInfo[]> = new Map();
   private static __members: Map<Function, Map<BufferUseEnum, Array<MemberInfo>>> = new Map();
-  private __byteOffsetOfThisComponent: Byte = -1;
 
   /** the entity unique Id which this component belongs to  */
   protected __entityUid: EntityUID;
@@ -53,6 +54,8 @@ export class Component extends RnObject {
 
   /** the MaxComponent Number of entities */
   private __maxComponentNumber: Count = Config.maxEntityNumber;
+
+  public _byteOffsetOfAccessorInBufferOfMembers: Map<MemberName, Byte> = new Map();
 
   public static readonly _processStages: Array<ProcessStageEnum> = [
     // ProcessStage.Create,
@@ -527,7 +530,7 @@ export class Component extends RnObject {
           if (accessorResult.isErr()) {
             throw new RnException(accessorResult.getRnError());
           }
-          (that as any)[`_byteOffsetOfAccessorInBuffer_${info.memberName}`] = accessorResult.get().byteOffsetInBuffer;
+          that._byteOffsetOfAccessorInBufferOfMembers.set(info.memberName, accessorResult.get().byteOffsetInBuffer);
         });
       }
     }
@@ -552,8 +555,8 @@ export class Component extends RnObject {
    * @returns The pixel location offset in the buffer
    */
   static getLocationOffsetOfMemberOfComponent(componentType: typeof Component, memberName: string) {
-    const component = ComponentRepository.getComponent(componentType, 0);
-    return (component as any)[`_byteOffsetOfAccessorInBuffer_${memberName}`] / 4 / 4;
+    const component = ComponentRepository.getComponent(componentType, 0)!;
+    return component._byteOffsetOfAccessorInBufferOfMembers.get(memberName)! / 4 / 4;
   }
 
   /**
