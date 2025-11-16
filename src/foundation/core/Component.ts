@@ -54,9 +54,6 @@ export class Component extends RnObject {
   /** the instance of EntityRepository */
   protected __entityRepository: EntityRepository;
 
-  /** the MaxComponent Number of entities */
-  private __maxComponentNumber: Count = Config.maxEntityNumber;
-
   public static readonly _processStages: Array<ProcessStageEnum> = [
     // ProcessStage.Create,
     ProcessStage.Load,
@@ -97,26 +94,6 @@ export class Component extends RnObject {
     // Component.__dirtyOfArrayOfProcessStages.set(this.__currentProcessStage, false);
     // Component.__dirtyOfArrayOfProcessStages.set(processStage, true);
     this.__currentProcessStage = processStage;
-  }
-
-  /**
-   * Sets the maximum number of components of this type that can exist.
-   * This method is intended to be called by component classes only.
-   *
-   * @internal
-   * @param value - The maximum number of components
-   */
-  _setMaxNumberOfComponent(value: number) {
-    this.__maxComponentNumber = value;
-  }
-
-  /**
-   * Gets the maximum number of components of this type that can exist.
-   *
-   * @returns The maximum number of components
-   */
-  get maxNumberOfComponent() {
-    return this.__maxComponentNumber;
   }
 
   /**
@@ -392,18 +369,9 @@ export class Component extends RnObject {
    * This method is called during component initialization to set up memory layout
    * and allocate space for the specified number of entities.
    *
-   * @param count - The number of entities to allocate memory for
    * @param isReUse - Whether to reuse existing memory allocations
    */
-  submitToAllocation(count: Count, isReUse: boolean): void {
-    if (this._component_sid >= count) {
-      const componentClass = this.constructor;
-      console.error(
-        `%c${componentClass.name}: The number of components is over the limit. This may lead to incorrect processing results. Please consider to increase the limit. You can set the limit on Rn.Config.xxxxxx.`,
-        'color: red; background: yellow; font-size: 2em;'
-      );
-    }
-
+  submitToAllocation(isReUse: boolean): void {
     const componentClass = this.constructor;
     const memberInfoArray = Component.__memberInfo.get(componentClass)!;
 

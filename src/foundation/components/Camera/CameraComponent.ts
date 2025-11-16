@@ -134,8 +134,6 @@ export class CameraComponent extends Component {
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
     super(entityUid, componentSid, entityRepository, isReUse);
 
-    this._setMaxNumberOfComponent(Math.max(10, Math.floor(Config.maxEntityNumber / 100)));
-
     this.setFovyAndChangeFocalLength(90);
 
     if (CameraComponent.current === -1) {

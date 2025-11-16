@@ -51,20 +51,6 @@ export class LightComponent extends Component {
   private __lastTransformUpdateCount = -1;
 
   /**
-   * Creates a new LightComponent instance.
-   *
-   * @param entityUid - The unique identifier of the entity this component belongs to
-   * @param componentSid - The component session identifier
-   * @param entityRepository - The entity repository instance
-   * @param isReUse - Whether this component is being reused
-   */
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
-    super(entityUid, componentSid, entityRepository, isReUse);
-
-    this._setMaxNumberOfComponent(Math.max(10, Math.floor(Config.maxEntityNumber / 100)));
-  }
-
-  /**
    * Gets the component type identifier for LightComponent.
    *
    * @returns The component type identifier
