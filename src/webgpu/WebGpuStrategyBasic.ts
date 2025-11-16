@@ -121,24 +121,30 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
     return `
 fn get_worldMatrix(instanceId: u32) -> mat4x4<f32>
 {
+  let instanceIdOfBufferViews = instanceId / ${Config.entityCountPerBufferView};
+  let instanceIdInBufferView = instanceId % ${Config.entityCountPerBufferView};
   var<function> indices: array<u32, ${locationOffsetsForWorldMatrix.length}> = array<u32, ${locationOffsetsForWorldMatrix.length}>(${locationOffsetsForWorldMatrix.map(offset => `${offset}u`).join(', ')});
-  let index: u32 = indices[instanceId / ${Config.entityCountPerBufferView}] + 4u * instanceId;
+  let index: u32 = indices[instanceIdOfBufferViews] + 4u * instanceIdInBufferView;
   let matrix = fetchMat4(index);
 
   return matrix;
 }
 
 fn get_normalMatrix(instanceId: u32) -> mat3x3<f32> {
+  let instanceIdOfBufferViews = instanceId / ${Config.entityCountPerBufferView};
+  let instanceIdInBufferView = instanceId % ${Config.entityCountPerBufferView};
   var<function> indices: array<u32, ${locationOffsetsForNormalMatrix.length}> = array<u32, ${locationOffsetsForNormalMatrix.length}>(${locationOffsetsForNormalMatrix.map(offset => `${offset}u`).join(', ')});
-  let index: u32 = indices[instanceId / ${Config.entityCountPerBufferView}] * 4u + 9u * instanceId;
+  let index: u32 = indices[instanceIdOfBufferViews] * 4u + 9u * instanceIdInBufferView;
   let matrix = fetchMat3No16BytesAligned(index);
 
   return matrix;
 }
 
 fn get_isVisible(instanceId: u32) -> bool {
+  let instanceIdOfBufferViews = instanceId / ${Config.entityCountPerBufferView};
+  let instanceIdInBufferView = instanceId % ${Config.entityCountPerBufferView};
   var<function> indices: array<u32, ${locationOffsetsForIsVisible.length}> = array<u32, ${locationOffsetsForIsVisible.length}>(${locationOffsetsForIsVisible.map(offset => `${offset}u`).join(', ')});
-  let index: u32 = indices[instanceId / ${Config.entityCountPerBufferView}] * 4u + instanceId;
+  let index: u32 = indices[instanceIdOfBufferViews] * 4u + instanceIdInBufferView;
   let visibility = fetchScalarNo16BytesAligned(index);
   if (visibility > 0.5) {
     return true;
@@ -148,8 +154,10 @@ fn get_isVisible(instanceId: u32) -> bool {
 }
 
 fn get_isBillboard(instanceId: u32) -> bool {
+  let instanceIdOfBufferViews = instanceId / ${Config.entityCountPerBufferView};
+  let instanceIdInBufferView = instanceId % ${Config.entityCountPerBufferView};
   var<function> indices: array<u32, ${locationOffsetsForIsBillboard.length}> = array<u32, ${locationOffsetsForIsBillboard.length}>(${locationOffsetsForIsBillboard.map(offset => `${offset}u`).join(', ')});
-  let index: u32 = indices[instanceId / ${Config.entityCountPerBufferView}] * 4u + instanceId;
+  let index: u32 = indices[instanceIdOfBufferViews] * 4u + instanceIdInBufferView;
   let isBillboard = fetchScalarNo16BytesAligned(index);
   if (isBillboard > 0.5) {
     return true;
