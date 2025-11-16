@@ -37,12 +37,12 @@ export class Component extends RnObject {
   private _component_sid: number;
   _isAlive = true;
   protected __currentProcessStage: ProcessStageEnum = ProcessStage.Load;
-  private static __bufferViews: Map<Function, Map<BufferUseEnum, BufferView>> = new Map();
+  private static __bufferViews: Map<Function, BufferView> = new Map();
   private static __accessors: Map<Function, Map<string, Accessor>> = new Map();
-  private static __byteLengthSumOfMembers: Map<Function, Map<BufferUseEnum, Byte>> = new Map();
+  private static __byteLengthSumOfMembers: Map<Function, Byte> = new Map();
 
   private static __memberInfo: Map<Function, MemberInfo[]> = new Map();
-  private static __members: Map<Function, Map<BufferUseEnum, Array<MemberInfo>>> = new Map();
+  private static __members: Map<Function, Array<MemberInfo>> = new Map();
 
   /** the entity unique Id which this component belongs to  */
   protected __entityUid: EntityUID;
@@ -242,19 +242,6 @@ export class Component extends RnObject {
   }
 
   /**
-   * Gets the total byte length of all member fields for a specific buffer use type
-   * in the given component class.
-   *
-   * @param bufferUse - The buffer use type
-   * @param componentClass - The component class
-   * @returns The total byte length of members
-   */
-  static getByteLengthSumOfMembers(bufferUse: BufferUseEnum, componentClass: Function) {
-    const byteLengthSumOfMembers = this.__byteLengthSumOfMembers.get(componentClass)!;
-    return byteLengthSumOfMembers.get(bufferUse)!;
-  }
-
-  /**
    * Registers a dependency relationship with another component.
    * This method is intended for future use in managing component dependencies.
    *
@@ -374,17 +361,6 @@ export class Component extends RnObject {
   }
 
   /**
-   * Gets the byte offset of the component type's data within the buffer.
-   *
-   * @param bufferUse - The buffer use type
-   * @param componentClass - The component class
-   * @returns The byte offset in the buffer
-   */
-  static getByteOffsetOfThisComponentTypeInBuffer(bufferUse: BufferUseEnum, componentClass: Function): Byte {
-    return this.__bufferViews.get(componentClass)!.get(bufferUse)!.byteOffsetInBuffer;
-  }
-
-  /**
    * Gets the byte offset of the first element of a specific member field within the buffer.
    *
    * @param memberName - The name of the member field
@@ -459,72 +435,55 @@ export class Component extends RnObject {
     const memberInfoArray = Component.__memberInfo.get(componentClass)!;
 
     // Do this only for the first entity of the component
-    if (this._component_sid === 0) {
+    if (this._component_sid % Config.entityCountPerBufferView === 0) {
       getBufferViewsAndAccessors(this);
     }
 
-    const member = Component.__members.get(componentClass)!;
+    let infoArray = Component.__members.get(componentClass)!;
+    if (infoArray == null) {
+      Component.__members.set(componentClass, []);
+      infoArray = Component.__members.get(componentClass)!;
+    }
 
     // take a field value allocation for each entity for each member field
-    for (const bufferUse of member.keys()) {
-      const infoArray = member.get(bufferUse)!;
-      infoArray.forEach(info => {
-        this.takeOne(info.memberName, info.dataClassType, info.initValues, isReUse, this._component_sid);
-      });
-    }
+    infoArray.forEach(info => {
+      this.takeOne(info.memberName, info.dataClassType, info.initValues, isReUse, this._component_sid);
+    });
 
     return;
 
     // inner function
     function getBufferViewsAndAccessors(that: Component) {
-      if (!Component.__members.has(componentClass)) {
-        Component.__members.set(componentClass, new Map());
-      }
       const member = Component.__members.get(componentClass)!;
       memberInfoArray.forEach(info => {
-        member.set(info.bufferUse, []);
-      });
-      memberInfoArray.forEach(info => {
-        member.get(info.bufferUse)!.push(info);
+        member.push(info);
       });
 
       // for each member field, take a BufferView for all entities' the member field.
-      for (const bufferUse of member.keys()) {
-        const infoArray = member.get(bufferUse)!;
-        if (!Component.__byteLengthSumOfMembers.has(componentClass)) {
-          Component.__byteLengthSumOfMembers.set(componentClass, new Map());
-        }
-        const byteLengthSumOfMembers = Component.__byteLengthSumOfMembers.get(componentClass)!;
-        if (!byteLengthSumOfMembers.has(bufferUse)) {
-          byteLengthSumOfMembers.set(bufferUse, 0);
-        }
-        infoArray.forEach(info => {
-          byteLengthSumOfMembers.set(
-            bufferUse,
-            byteLengthSumOfMembers.get(bufferUse)! +
-              info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes()
-          );
-        });
-      }
+      const infoArray = member;
+      infoArray.forEach(info => {
+        Component.__byteLengthSumOfMembers.set(
+          componentClass,
+          Component.__byteLengthSumOfMembers.get(componentClass)! +
+            info.compositionType.getNumberOfComponents() * info.componentType.getSizeInBytes()
+        );
+      });
 
       // take a Accessor for all entities for each member fields (same as BufferView)
-      for (const bufferUse of member.keys()) {
-        const infoArray = member.get(bufferUse)!;
-        infoArray.forEach(info => {
-          const accessorResult = Component.takeAccessor(
-            info.bufferUse,
-            info.memberName,
-            componentClass,
-            info.compositionType,
-            info.componentType,
-            count
-          );
-          if (accessorResult.isErr()) {
-            throw new RnException(accessorResult.getRnError());
-          }
-          that._byteOffsetOfAccessorInBufferOfMembers.set(info.memberName, accessorResult.get().byteOffsetInBuffer);
-        });
-      }
+      infoArray.forEach(info => {
+        const accessorResult = Component.takeAccessor(
+          info.bufferUse,
+          info.memberName,
+          componentClass,
+          info.compositionType,
+          info.componentType,
+          count
+        );
+        if (accessorResult.isErr()) {
+          throw new RnException(accessorResult.getRnError());
+        }
+        that._byteOffsetOfAccessorInBufferOfMembers.set(info.memberName, accessorResult.get().byteOffsetInBuffer);
+      });
     }
   }
 
