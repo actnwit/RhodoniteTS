@@ -529,15 +529,14 @@ export class System {
     if (desc.notToDisplayRnInfoAtInit !== true) {
       this.__displayRnInfo();
     }
-    await ModuleManager.getInstance().loadModule('webgl');
-    await ModuleManager.getInstance().loadModule('webgpu');
     await ModuleManager.getInstance().loadModule('pbr');
     await ModuleManager.getInstance().loadModule('xr');
     Config.eventTargetDom = desc.canvas;
 
-    System.__cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     if (desc.approach === ProcessApproach.WebGPU) {
       // WebGPU
+      await ModuleManager.getInstance().loadModule('webgpu');
+      System.__cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
 
       const requiredBufferSize = MemoryManager.getMemorySize();
 
@@ -576,6 +575,8 @@ export class System {
       webGpuResourceRepository.createBindGroupLayoutForDrawParameters();
     } else {
       // WebGL
+      await ModuleManager.getInstance().loadModule('webgl');
+      System.__cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
       const repo = CGAPIResourceRepository.getWebGLResourceRepository();
       repo.generateWebGLContext(desc.canvas, true, desc.webglOption);
       repo.switchDepthTest(true);
