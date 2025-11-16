@@ -144,30 +144,39 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
 
   mat4 get_worldMatrix(float instanceId)
   {
+    int instanceIdOfBufferViews = int(instanceId) / ${Config.entityCountPerBufferView};
+    int instanceIdInBufferView = int(instanceId) % ${Config.entityCountPerBufferView};
+
     int indices[] = int[](${locationOffsetsForWorldMatrix.join(', ')});
-    int index = indices[int(instanceId) / ${Config.entityCountPerBufferView}] + 4 * int(instanceId);
+    int index = indices[instanceIdOfBufferViews] + 4 * instanceIdInBufferView;
     mat4 matrix = fetchMat4(index);
     return matrix;
   }
 
 
   mat3 get_normalMatrix(float instanceId) {
+    int instanceIdOfBufferViews = int(instanceId) / ${Config.entityCountPerBufferView};
+    int instanceIdInBufferView = int(instanceId) % ${Config.entityCountPerBufferView};
     int indices[] = int[](${locationOffsetsForNormalMatrix.join(', ')});
-    int index = indices[int(instanceId) / ${Config.entityCountPerBufferView}] * 4 + 9 * int(instanceId);
+    int index = indices[instanceIdOfBufferViews] * 4 + 9 * instanceIdInBufferView;
     mat3 matrix = fetchMat3No16BytesAligned(index);
     return matrix;
   }
 
   bool get_isVisible(float instanceId) {
+    int instanceIdOfBufferViews = int(instanceId) / ${Config.entityCountPerBufferView};
+    int instanceIdInBufferView = int(instanceId) % ${Config.entityCountPerBufferView};
     int indices[] = int[](${locationOffsetsForIsVisible.join(', ')});
-    int index = indices[int(instanceId) / ${Config.entityCountPerBufferView}] * 4 + int(instanceId);
+    int index = indices[instanceIdOfBufferViews] * 4 + instanceIdInBufferView;
     float visibility = fetchScalarNo16BytesAligned(index);
     return (visibility > 0.5) ? true : false;
   }
 
   bool get_isBillboard(float instanceId) {
+    int instanceIdOfBufferViews = int(instanceId) / ${Config.entityCountPerBufferView};
+    int instanceIdInBufferView = int(instanceId) % ${Config.entityCountPerBufferView};
     int indices[] = int[](${locationOffsetsForIsBillboard.join(', ')});
-    int index = indices[int(instanceId) / ${Config.entityCountPerBufferView}] * 4 + int(instanceId);
+    int index = indices[instanceIdOfBufferViews] * 4 + instanceIdInBufferView;
     float isBillboard = fetchScalarNo16BytesAligned(index);
     return (isBillboard > 0.5) ? true : false;
   }
