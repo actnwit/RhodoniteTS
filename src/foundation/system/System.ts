@@ -1,4 +1,4 @@
-import type { PrimitiveUID } from '../../types/CommonTypes';
+import type { Byte, PrimitiveUID } from '../../types/CommonTypes';
 import { VERSION } from '../../version';
 import type { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import type { WebGpuDeviceWrapper } from '../../webgpu/WebGpuDeviceWrapper';
@@ -533,6 +533,7 @@ export class System {
     await ModuleManager.getInstance().loadModule('xr');
     Config.eventTargetDom = desc.canvas;
 
+    let maxGPUDataStorageSize: Byte = 0;
     if (desc.approach === ProcessApproach.WebGPU) {
       // WebGPU
       await ModuleManager.getInstance().loadModule('webgpu');
@@ -567,6 +568,7 @@ export class System {
           maxBufferSize,
         },
       });
+      maxGPUDataStorageSize = maxStorageBufferBindingSize;
       const webGpuDeviceWrapper = new WebGpuDeviceWrapperClass(desc.canvas, adapter!, device);
       webGpuResourceRepository.addWebGpuDeviceWrapper(webGpuDeviceWrapper);
       webGpuResourceRepository.recreateSystemDepthTexture();
@@ -580,10 +582,12 @@ export class System {
       const repo = CGAPIResourceRepository.getWebGLResourceRepository();
       repo.generateWebGLContext(desc.canvas, true, desc.webglOption);
       repo.switchDepthTest(true);
+      maxGPUDataStorageSize = repo.currentWebGLContextWrapper!.getMaxTextureSize() ** 2 * 4 /* rgba */ * 4 /* byte */;
     }
 
     // Memory Settings
     MemoryManager.createInstanceIfNotCreated({
+      maxGPUDataStorageSize,
       cpuGeneric: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.cpuGeneric : 0.1,
       gpuInstanceData: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.gpuInstanceData : 0.5,
       gpuVertexData: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.gpuVertexData : 0.5,
