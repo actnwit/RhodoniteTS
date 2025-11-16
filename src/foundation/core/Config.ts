@@ -6,11 +6,8 @@
 import { BoneDataType } from '../definitions/BoneDataType';
 import { MiscUtil } from '../misc';
 
-/**　The maximum number of entities that Rhodonite can handle　*/
-let maxEntityNumber = 5000;
-
 /**　The number of entities per buffer view */
-let entityCountPerBufferView = 2;
+let entityCountPerBufferView = 10;
 
 /**　The maximum number of lights that Rhodonite can handle */
 let maxLightNumber = 6;
@@ -86,8 +83,6 @@ if (typeof navigator !== 'undefined') {
  * Config is a configuration object that contains the configuration for the library.
  */
 export const Config = {
-  /**　The maximum number of entities that Rhodonite can handle　*/
-  maxEntityNumber,
   /**　The number of entities per buffer view */
   entityCountPerBufferView,
   /**　The maximum number of lights that Rhodonite can handle */
