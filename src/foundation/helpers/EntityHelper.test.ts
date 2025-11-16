@@ -8,6 +8,7 @@ import '../components/registerComponents';
 describe('EntityHelper', () => {
   beforeAll(() => {
     MemoryManager.createInstanceIfNotCreated({
+      maxGPUDataStorageSize: 1024 * 1024 * 4 /* rgba */ * 4 /* byte */,
       cpuGeneric: 1,
       gpuInstanceData: 1,
       gpuVertexData: 1,

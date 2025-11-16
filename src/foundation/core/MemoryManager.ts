@@ -1,4 +1,4 @@
-import type { Byte, Count, ObjectUID, Size } from '../../types/CommonTypes';
+import type { Byte, Count, ObjectUID, Ratio, Size } from '../../types/CommonTypes';
 import { BufferUse, type BufferUseEnum } from '../definitions/BufferUse';
 import { Buffer } from '../memory/Buffer';
 import { MiscUtil } from '../misc/MiscUtil';
@@ -15,6 +15,8 @@ export class MemoryManager {
   private __buffers: { [s: string]: Buffer } = {};
   private __memorySizeRatios: { [s: string]: number } = {};
   private __countOfTheBufferUsageMap: Map<BufferUseEnum, Count> = new Map();
+  private __maxGPUDataStorageSize: Byte = 0;
+  private __gpuBufferUnitCount: Count = 0;
 
   /**
    * Private constructor to ensure singleton pattern.
@@ -23,7 +25,9 @@ export class MemoryManager {
    * @param gpuInstanceData - Memory size ratio for GPU instance data
    * @param gpuVertexData - Memory size ratio for GPU vertex data
    */
-  private constructor(cpuGeneric: number, gpuInstanceData: number, gpuVertexData: number) {
+  private constructor(maxGPUDataStorageSize: Byte, cpuGeneric: Ratio, gpuInstanceData: Ratio, gpuVertexData: Ratio) {
+    this.__maxGPUDataStorageSize = maxGPUDataStorageSize;
+    this.__gpuBufferUnitCount = Math.floor(maxGPUDataStorageSize / Config.gpuBufferUnitSize);
     this.__memorySizeRatios[BufferUse.CPUGeneric.str] = cpuGeneric;
     this.__memorySizeRatios[BufferUse.GPUInstanceData.str] = gpuInstanceData;
     this.__memorySizeRatios[BufferUse.GPUVertexData.str] = gpuVertexData;
@@ -39,16 +43,18 @@ export class MemoryManager {
    * @returns The MemoryManager singleton instance
    */
   static createInstanceIfNotCreated({
+    maxGPUDataStorageSize,
     cpuGeneric,
     gpuInstanceData,
     gpuVertexData,
   }: {
-    cpuGeneric: number;
-    gpuInstanceData: number;
-    gpuVertexData: number;
+    maxGPUDataStorageSize: Byte;
+    cpuGeneric: Ratio;
+    gpuInstanceData: Ratio;
+    gpuVertexData: Ratio;
   }) {
     if (!this.__instance) {
-      this.__instance = new MemoryManager(cpuGeneric, gpuInstanceData, gpuVertexData);
+      this.__instance = new MemoryManager(maxGPUDataStorageSize, cpuGeneric, gpuInstanceData, gpuVertexData);
       return this.__instance;
     }
     return this.__instance;
@@ -89,7 +95,7 @@ export class MemoryManager {
    * @returns The newly created Buffer instance
    */
   private __createBuffer(bufferUse: BufferUseEnum) {
-    const memorySize = MemoryManager.getMemorySize() * this.__memorySizeRatios[bufferUse.str];
+    const memorySize = Config.gpuBufferUnitSize;
     const arrayBuffer = new ArrayBuffer(this.__makeMultipleOf4byteSize(memorySize));
 
     let byteAlign = 4;

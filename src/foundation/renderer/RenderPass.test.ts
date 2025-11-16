@@ -6,6 +6,7 @@ function generateEntity() {
 
 test('addEntities and get entities', () => {
   Rn.MemoryManager.createInstanceIfNotCreated({
+    maxGPUDataStorageSize: 1024 * 1024 * 4 /* rgba */ * 4 /* byte */,
     cpuGeneric: 1,
     gpuInstanceData: 1,
     gpuVertexData: 1,
@@ -33,6 +34,7 @@ test('addEntities and get entities', () => {
 
 test('clearEntities and get entities', () => {
   Rn.MemoryManager.createInstanceIfNotCreated({
+    maxGPUDataStorageSize: 1024 * 1024 * 4 /* rgba */ * 4 /* byte */,
     cpuGeneric: 1,
     gpuInstanceData: 1,
     gpuVertexData: 1,
