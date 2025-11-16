@@ -123,43 +123,51 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
    * - get_position: Fetches morphed vertex positions (if morphing is enabled)
    */
   static getVertexShaderMethodDefinitions_dataTexture() {
+    const locationOffsetsForWorldMatrix = Component.getLocationOffsetOfMemberOfComponent(
+      SceneGraphComponent,
+      'worldMatrix'
+    );
+    const locationOffsetsForNormalMatrix = Component.getLocationOffsetOfMemberOfComponent(
+      SceneGraphComponent,
+      'normalMatrix'
+    );
+    const locationOffsetsForIsVisible = Component.getLocationOffsetOfMemberOfComponent(
+      SceneGraphComponent,
+      'isVisible'
+    );
+    const locationOffsetsForIsBillboard = Component.getLocationOffsetOfMemberOfComponent(
+      SceneGraphComponent,
+      'isBillboard'
+    );
+
     return `
 
   mat4 get_worldMatrix(float instanceId)
   {
-    int index = ${Component.getLocationOffsetOfMemberOfComponent(
-      SceneGraphComponent,
-      'worldMatrix'
-    )} + 4 * int(instanceId);
+    int indices[] = int[](${locationOffsetsForWorldMatrix.join(', ')});
+    int index = indices[int(instanceId) % ${Config.entityCountPerBufferView}] + 4 * int(instanceId);
     mat4 matrix = fetchMat4(index);
-
     return matrix;
   }
 
 
   mat3 get_normalMatrix(float instanceId) {
-    int index = ${Component.getLocationOffsetOfMemberOfComponent(
-      SceneGraphComponent,
-      'normalMatrix'
-    )} * 4 + 9 * int(instanceId);
+    int indices[] = int[](${locationOffsetsForNormalMatrix.join(', ')});
+    int index = indices[int(instanceId) % ${Config.entityCountPerBufferView}] * 4 + 9 * int(instanceId);
     mat3 matrix = fetchMat3No16BytesAligned(index);
     return matrix;
   }
 
   bool get_isVisible(float instanceId) {
-    int index = ${Component.getLocationOffsetOfMemberOfComponent(
-      SceneGraphComponent,
-      'isVisible'
-    )} * 4 + int(instanceId);
+    int indices[] = int[](${locationOffsetsForIsVisible.join(', ')});
+    int index = indices[int(instanceId) % ${Config.entityCountPerBufferView}] * 4 + int(instanceId);
     float visibility = fetchScalarNo16BytesAligned(index);
     return (visibility > 0.5) ? true : false;
   }
 
   bool get_isBillboard(float instanceId) {
-    int index = ${Component.getLocationOffsetOfMemberOfComponent(
-      SceneGraphComponent,
-      'isBillboard'
-    )} * 4 + int(instanceId);
+    int indices[] = int[](${locationOffsetsForIsBillboard.join(', ')});
+    int index = indices[int(instanceId) % ${Config.entityCountPerBufferView}] * 4 + int(instanceId);
     float isBillboard = fetchScalarNo16BytesAligned(index);
     return (isBillboard > 0.5) ? true : false;
   }
