@@ -273,10 +273,11 @@ export class Component extends RnObject {
     }
 
     const indexOfTheBufferView = Math.floor(componentSid / Config.entityCountPerBufferView);
+    const indexOfBufferViews = componentSid % Config.entityCountPerBufferView;
     const accessorsOfMember = Component.__accessors.get(this.constructor)!.get(memberName)!;
     let taken: TypedArray | undefined;
     if (isReUse) {
-      taken = accessorsOfMember.get(indexOfTheBufferView)!._takeExistedOne(componentSid);
+      taken = accessorsOfMember.get(indexOfTheBufferView)!._takeExistedOne(indexOfBufferViews);
     } else {
       taken = accessorsOfMember.get(indexOfTheBufferView)!.takeOne();
     }
