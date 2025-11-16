@@ -534,19 +534,11 @@ export class System {
     await ModuleManager.getInstance().loadModule('xr');
     Config.eventTargetDom = desc.canvas;
 
-    // Memory Settings
-    MemoryManager.createInstanceIfNotCreated({
-      cpuGeneric: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.cpuGeneric : 0.1,
-      gpuInstanceData: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.gpuInstanceData : 0.5,
-      gpuVertexData: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.gpuVertexData : 0.5,
-    });
-
     System.__cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     if (desc.approach === ProcessApproach.WebGPU) {
       // WebGPU
 
-      const memoryManager = MemoryManager.getInstance();
-      const requiredBufferSize = memoryManager.getMemorySize();
+      const requiredBufferSize = MemoryManager.getMemorySize();
 
       const webGpuResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository() as WebGpuResourceRepository;
       const webgpuModule = ModuleManager.getInstance().getModule('webgpu');
@@ -587,6 +579,13 @@ export class System {
       repo.generateWebGLContext(desc.canvas, true, desc.webglOption);
       repo.switchDepthTest(true);
     }
+
+    // Memory Settings
+    MemoryManager.createInstanceIfNotCreated({
+      cpuGeneric: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.cpuGeneric : 0.1,
+      gpuInstanceData: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.gpuInstanceData : 0.5,
+      gpuVertexData: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.gpuVertexData : 0.5,
+    });
 
     const globalDataRepository = GlobalDataRepository.getInstance();
     globalDataRepository.initialize(desc.approach);
