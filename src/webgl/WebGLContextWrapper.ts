@@ -105,6 +105,7 @@ export class WebGLContextWrapper {
   #maxConventionUniformBlocks = INVALID_SIZE;
   private __maxVertexUniformVectors = INVALID_SIZE;
   private __maxFragmentUniformVectors = INVALID_SIZE;
+  private __maxTextureSize: Size = INVALID_SIZE;
   private readonly __is_multiview: boolean;
   _isWebXRMode = false;
 
@@ -160,6 +161,7 @@ export class WebGLContextWrapper {
     }
     this.__getUniformBufferInfo();
     this.__getMaxUniformVectors();
+    this.__getMaxTextureSize();
   }
 
   /**
@@ -608,6 +610,22 @@ export class WebGLContextWrapper {
     const gl = this.getRawContext();
     this.__maxVertexUniformVectors = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS) as number;
     this.__maxVertexUniformVectors = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS) as number;
+  }
+
+  /**
+   * Retrieves and caches the maximum texture size.
+   */
+  private __getMaxTextureSize() {
+    const gl = this.getRawContext();
+    this.__maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE) as number;
+  }
+
+  /**
+   * Gets the maximum texture size.
+   * @returns The maximum texture size
+   */
+  getMaxTextureSize() {
+    return this.__maxTextureSize;
   }
 
   /**
