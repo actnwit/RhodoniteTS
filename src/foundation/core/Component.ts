@@ -346,28 +346,6 @@ export class Component extends RnObject {
   }
 
   /**
-   * Gets the byte offset of the first element of a specific member field within the buffer.
-   *
-   * @param memberName - The name of the member field
-   * @param componentClass - The component class
-   * @returns The byte offset in the buffer
-   */
-  static getByteOffsetOfFirstOfThisMemberInBuffer(memberName: string, componentClass: Function): Byte {
-    return this.__accessors.get(componentClass)!.get(memberName)!.byteOffsetInBuffer;
-  }
-
-  /**
-   * Gets the byte offset of the first element of a specific member field within the buffer view.
-   *
-   * @param memberName - The name of the member field
-   * @param componentClass - The component class
-   * @returns The byte offset in the buffer view
-   */
-  static getByteOffsetOfFirstOfThisMemberInBufferView(memberName: string, componentClass: Function): Byte {
-    return this.__accessors.get(componentClass)!.get(memberName)!.byteOffsetInBufferView;
-  }
-
-  /**
    * Registers a member field of the component class for memory allocation.
    * This method defines the memory layout and characteristics of component data members.
    *
