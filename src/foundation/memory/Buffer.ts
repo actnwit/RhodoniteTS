@@ -66,6 +66,8 @@ export class Buffer {
     this.__name = name;
     this.__byteLength = byteLength;
     this.__byteAlign = byteAlign;
+    this.__bufferUsage = bufferUsage;
+    this.__indexOfTheBufferUsage = indexOfTheBufferUsage;
 
     if (buffer instanceof Uint8Array) {
       if (!(buffer.buffer instanceof ArrayBuffer)) {
