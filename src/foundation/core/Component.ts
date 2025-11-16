@@ -37,11 +37,9 @@ export class Component extends RnObject {
   private _component_sid: number;
   _isAlive = true;
   protected __currentProcessStage: ProcessStageEnum = ProcessStage.Load;
-  private static __bufferViews: Map<Function, BufferView> = new Map();
   private static __accessors: Map<Function, Map<string, Accessor>> = new Map();
 
   private static __memberInfo: Map<Function, MemberInfo[]> = new Map();
-  private static __members: Map<Function, Array<MemberInfo>> = new Map();
 
   /** the entity unique Id which this component belongs to  */
   protected __entityUid: EntityUID;
@@ -438,14 +436,8 @@ export class Component extends RnObject {
       getBufferViewsAndAccessors(this);
     }
 
-    let infoArray = Component.__members.get(componentClass)!;
-    if (infoArray == null) {
-      Component.__members.set(componentClass, []);
-      infoArray = Component.__members.get(componentClass)!;
-    }
-
     // take a field value allocation for each entity for each member field
-    infoArray.forEach(info => {
+    memberInfoArray.forEach(info => {
       this.takeOne(info.memberName, info.dataClassType, info.initValues, isReUse, this._component_sid);
     });
 
@@ -453,21 +445,9 @@ export class Component extends RnObject {
 
     // inner function
     function getBufferViewsAndAccessors(that: Component) {
-      let member = Component.__members.get(componentClass)!;
-      if (member == null) {
-        Component.__members.set(componentClass, []);
-        member = Component.__members.get(componentClass)!;
-      }
-
-      memberInfoArray.forEach(info => {
-        member.push(info);
-      });
-
       // for each member field, take a BufferView for all entities' the member field.
-      const infoArray = member;
-
       // take a Accessor for all entities for each member fields (same as BufferView)
-      infoArray.forEach(info => {
+      memberInfoArray.forEach(info => {
         const accessorResult = Component.takeAccessor(
           info.bufferUse,
           info.memberName,
