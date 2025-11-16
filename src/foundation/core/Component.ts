@@ -528,8 +528,6 @@ export class Component extends RnObject {
             throw new RnException(accessorResult.getRnError());
           }
           (that as any)[`_byteOffsetOfAccessorInBuffer_${info.memberName}`] = accessorResult.get().byteOffsetInBuffer;
-          (that as any)[`_byteOffsetOfAccessorInComponent_${info.memberName}`] =
-            accessorResult.get().byteOffsetInBufferView;
         });
       }
     }
