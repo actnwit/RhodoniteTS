@@ -67,6 +67,9 @@ let physicsTimeIntervalScale = 1;
 /**　Whether the device is a mobile device */
 let isMobile = false;
 
+/**　The divider of the GPU data storage size */
+let gpuDataStorageSizeDivider = 8;
+
 if (typeof navigator !== 'undefined') {
   if (MiscUtil.isMobile() || MiscUtil.isMobileVr()) {
     maxMorphTargetNumber = 4;
@@ -122,4 +125,6 @@ export const Config = {
   physicsTimeIntervalScale,
   /**　Whether the device is a mobile device */
   isMobile,
+  /**　The divider of the GPU data storage size */
+  gpuDataStorageSizeDivider,
 };
