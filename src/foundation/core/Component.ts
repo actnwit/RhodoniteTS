@@ -45,6 +45,10 @@ export class Component extends RnObject {
     Function,
     Map<MemberName, Map<IndexOfTheBufferView, Byte>>
   > = new Map();
+
+  /** the state version of the component */
+  private static __stateVersion = 0;
+
   /** the entity unique Id which this component belongs to  */
   protected __entityUid: EntityUID;
 
@@ -326,6 +330,8 @@ export class Component extends RnObject {
 
       accessors.set(indexOfTheBufferView, accessorResult.get());
 
+      Component.__stateVersion++;
+
       return accessorResult;
     }
 
@@ -378,7 +384,7 @@ export class Component extends RnObject {
     // Do this only for the first entity of the component
     const indexOfTheBufferView = Math.floor(this._component_sid / Config.entityCountPerBufferView);
     if (this._component_sid % Config.entityCountPerBufferView === 0) {
-      getBufferViewsAndAccessors(this, indexOfTheBufferView);
+      getBufferViewsAndAccessors(indexOfTheBufferView);
     }
 
     // take a field value allocation for each entity for each member field
@@ -387,7 +393,7 @@ export class Component extends RnObject {
     });
 
     // inner function
-    function getBufferViewsAndAccessors(that: Component, indexOfTheBufferView: IndexOfTheBufferView) {
+    function getBufferViewsAndAccessors(indexOfTheBufferView: IndexOfTheBufferView) {
       // for each member field, take a BufferView for all entities' the member field.
       // take a Accessor for all entities for each member fields (same as BufferView)
       memberInfoArray.forEach(info => {
@@ -579,5 +585,14 @@ export class Component extends RnObject {
    */
   _shallowCopyFrom(_component: Component): void {
     // new Error('Not Implemented');
+  }
+
+  /**
+   * Gets the state version of the component.
+   * This is incremented whenever the component's state changes.
+   * @returns The state version number
+   */
+  static getStateVersion() {
+    return Component.__stateVersion;
   }
 }

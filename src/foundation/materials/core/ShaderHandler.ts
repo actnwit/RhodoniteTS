@@ -31,6 +31,7 @@ import { vertexOutputWgsl } from '../../../webgpu/shaderity_shaders/common/verte
 import { wireframeWgsl } from '../../../webgpu/shaderity_shaders/common/wireframe';
 import type { RnXR } from '../../../xr/main';
 import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
+import { Component } from '../../core/Component';
 import { Config } from '../../core/Config';
 import { BoneDataType } from '../../definitions/BoneDataType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
@@ -218,6 +219,7 @@ export function _createProgramAsSingleOperationWebGL(
     alphaMode += '#define RN_IS_ALPHA_MODE_MASK\n';
   }
   const cacheQuery =
+    Component.getStateVersion() +
     material.__materialTypeName +
     material._materialContent.getMaterialSemanticsVariantName() +
     vertexAttributeDefines +
