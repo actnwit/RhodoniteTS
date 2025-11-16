@@ -434,7 +434,7 @@ export class Primitive extends RnObject {
       bufferSize += DataUtil.addPaddingBytes(indices.byteLength, byteAlign);
     }
 
-    const buffer = MemoryManager.getInstance().createBufferOnDemand(bufferSize, byteAlign);
+    const buffer = MemoryManager.getInstance().createBufferOnDemand(BufferUse.CPUGeneric, bufferSize, byteAlign);
 
     let indicesComponentType: ComponentTypeEnum;
     let indicesAccessor: Accessor;
@@ -869,7 +869,7 @@ export class Primitive extends RnObject {
       bufferSize += indices.length * compositionN * 4 /* bytes */;
     }
 
-    const buffer = MemoryManager.getInstance().createBufferOnDemand(bufferSize, 4 /* bytes */);
+    const buffer = MemoryManager.getInstance().createBufferOnDemand(BufferUse.CPUGeneric, bufferSize, 4 /* bytes */);
     const bufferView = buffer
       .takeBufferView({
         byteLengthToNeed: bufferSize,

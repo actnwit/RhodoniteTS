@@ -97,15 +97,17 @@ export class MemoryManager {
       byteAlign = 16;
     }
 
+    const count = this.getCountOfTheBufferUsage(bufferUse);
     const buffer = new Buffer({
       byteLength: arrayBuffer.byteLength,
       buffer: arrayBuffer,
       name: bufferUse.str,
       byteAlign: byteAlign,
       bufferUsage: bufferUse,
-      indexOfTheBufferUsage: 0,
+      indexOfTheBufferUsage: count,
     });
     this.__buffers[buffer.name] = buffer;
+    this.incrementCountOfTheBufferUsage(bufferUse);
 
     return buffer;
   }
@@ -135,20 +137,23 @@ export class MemoryManager {
 
   /**
    * Creates a buffer on-demand with custom size and alignment for a specific object.
+   * @param bufferUse - The type of buffer to create
    * @param size - The size of the buffer in bytes
    * @param byteAlign - The byte alignment requirement for the buffer
    * @returns The newly created Buffer instance
    */
-  public createBufferOnDemand(size: Byte, byteAlign: Byte) {
+  public createBufferOnDemand(bufferUse: BufferUseEnum, size: Byte, byteAlign: Byte) {
     const arrayBuffer = new ArrayBuffer(size);
+    const count = this.getCountOfTheBufferUsage(bufferUse);
     const buffer = new Buffer({
       byteLength: arrayBuffer.byteLength,
       buffer: arrayBuffer,
-      name: BufferUse.CPUGeneric.toString(),
+      name: bufferUse.toString(),
       byteAlign: byteAlign,
-      bufferUsage: BufferUse.CPUGeneric,
-      indexOfTheBufferUsage: 0,
+      bufferUsage: bufferUse,
+      indexOfTheBufferUsage: count,
     });
+    this.incrementCountOfTheBufferUsage(bufferUse);
     return buffer;
   }
 
