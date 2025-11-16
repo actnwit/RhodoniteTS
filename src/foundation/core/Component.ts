@@ -286,18 +286,6 @@ export class Component extends RnObject {
   }
 
   /**
-   * Gets the memory accessor for a specific member field of a component class.
-   * The accessor provides access to the underlying typed array data.
-   *
-   * @param memberName - The name of the member field
-   * @param componentClass - The component class
-   * @returns The accessor for the member field
-   */
-  static getAccessor(memberName: string, componentClass: Function): Accessor {
-    return this.__accessors.get(componentClass)!.get(memberName)!;
-  }
-
-  /**
    * Creates and configures a memory accessor for a specific member field.
    * This method allocates buffer memory and creates an accessor for efficient data access.
    *
@@ -440,8 +428,6 @@ export class Component extends RnObject {
     memberInfoArray.forEach(info => {
       this.takeOne(info.memberName, info.dataClassType, info.initValues, isReUse, this._component_sid);
     });
-
-    return;
 
     // inner function
     function getBufferViewsAndAccessors(that: Component) {
