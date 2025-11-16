@@ -67,8 +67,8 @@ let physicsTimeIntervalScale = 1;
 /**　Whether the device is a mobile device */
 let isMobile = false;
 
-/**　The divider of the GPU data storage size */
-let gpuDataStorageSizeDivider = 8;
+/**　The unit size of the GPU buffer */
+let gpuBufferUnitSize = 4096 ** 2 * 4 /* rgba */ * 4 /* byte */;
 
 if (typeof navigator !== 'undefined') {
   if (MiscUtil.isMobile() || MiscUtil.isMobileVr()) {
@@ -125,6 +125,6 @@ export const Config = {
   physicsTimeIntervalScale,
   /**　Whether the device is a mobile device */
   isMobile,
-  /**　The divider of the GPU data storage size */
-  gpuDataStorageSizeDivider,
+  /**　The unit size of the GPU buffer */
+  gpuBufferUnitSize,
 };

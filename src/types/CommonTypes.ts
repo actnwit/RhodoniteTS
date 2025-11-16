@@ -42,6 +42,7 @@ export type IndexOf16Bytes = number;
 export type IndexOf4Bytes = number;
 export type Offset = number;
 export type Size = number;
+export type Ratio = number;
 export type Count = number;
 export type Byte = number;
 export type Second = number;
