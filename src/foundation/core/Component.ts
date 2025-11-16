@@ -8,7 +8,7 @@ import { ProcessStage, type ProcessStageEnum } from '../definitions/ProcessStage
 import type { Accessor } from '../memory/Accessor';
 import type { BufferView } from '../memory/BufferView';
 import { RnException } from '../misc';
-import { Err, type Result } from '../misc/Result';
+import { Err, Ok, type Result } from '../misc/Result';
 import type { RenderPass } from '../renderer/RenderPass';
 import { ComponentRepository } from './ComponentRepository';
 import { Config } from './Config';
@@ -41,6 +41,10 @@ export class Component extends RnObject {
 
   private static __memberInfo: Map<Function, Map<MemberName, MemberInfo>> = new Map();
 
+  private static __byteOffsetOfAccessorInBufferOfMembers: Map<
+    Function,
+    Map<MemberName, Map<IndexOfTheBufferView, Byte>>
+  > = new Map();
   /** the entity unique Id which this component belongs to  */
   protected __entityUid: EntityUID;
 
@@ -52,8 +56,6 @@ export class Component extends RnObject {
 
   /** the MaxComponent Number of entities */
   private __maxComponentNumber: Count = Config.maxEntityNumber;
-
-  public _byteOffsetOfAccessorInBufferOfMembers: Map<MemberName, Map<IndexOfTheBufferView, Byte>> = new Map();
 
   public static readonly _processStages: Array<ProcessStageEnum> = [
     // ProcessStage.Create,
@@ -349,10 +351,7 @@ export class Component extends RnObject {
       return accessorResult;
     }
 
-    return new Err({
-      message: 'Already taken',
-      error: undefined,
-    });
+    return new Ok(accessors.get(indexOfTheBufferView)!);
   }
 
   /**
@@ -434,10 +433,18 @@ export class Component extends RnObject {
         if (accessorResult.isErr()) {
           throw new RnException(accessorResult.getRnError());
         }
-        let byteOffsetOfAccessorInBufferOfMember = that._byteOffsetOfAccessorInBufferOfMembers.get(info.memberName);
+        let byteOffsetOfAccessorInBufferOfMembers =
+          Component.__byteOffsetOfAccessorInBufferOfMembers.get(componentClass);
+        if (byteOffsetOfAccessorInBufferOfMembers == null) {
+          byteOffsetOfAccessorInBufferOfMembers = new Map();
+          Component.__byteOffsetOfAccessorInBufferOfMembers.set(componentClass, byteOffsetOfAccessorInBufferOfMembers);
+        }
+        let byteOffsetOfAccessorInBufferOfMember = byteOffsetOfAccessorInBufferOfMembers.get(info.memberName);
         if (byteOffsetOfAccessorInBufferOfMember == null) {
           byteOffsetOfAccessorInBufferOfMember = new Map();
-          that._byteOffsetOfAccessorInBufferOfMembers.set(info.memberName, byteOffsetOfAccessorInBufferOfMember);
+          Component.__byteOffsetOfAccessorInBufferOfMembers
+            .get(componentClass)!
+            .set(info.memberName, byteOffsetOfAccessorInBufferOfMember);
         }
         byteOffsetOfAccessorInBufferOfMember.set(indexOfTheBufferView, accessorResult.get().byteOffsetInBuffer);
       });
@@ -463,10 +470,10 @@ export class Component extends RnObject {
    * @returns The pixel location offset in the buffer
    */
   static getLocationOffsetOfMemberOfComponent(componentType: typeof Component, memberName: string): IndexOf16Bytes[] {
-    const component = ComponentRepository.getComponent(componentType, 0)!;
-
     const locationOffsets = [];
-    const byteOffsetOfAccessorInBufferOfMember = component._byteOffsetOfAccessorInBufferOfMembers.get(memberName)!;
+    const byteOffsetOfAccessorInBufferOfMember = Component.__byteOffsetOfAccessorInBufferOfMembers
+      .get(componentType)!
+      .get(memberName)!;
     for (let key of byteOffsetOfAccessorInBufferOfMember.keys()) {
       locationOffsets.push(byteOffsetOfAccessorInBufferOfMember.get(key)! / 4 / 4);
     }
