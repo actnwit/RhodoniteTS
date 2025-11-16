@@ -101,33 +101,44 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
    * @returns WGSL shader code containing helper functions for storage buffer access
    */
   static getVertexShaderMethodDefinitions_storageBuffer() {
+    const locationOffsetsForWorldMatrix = Component.getLocationOffsetOfMemberOfComponent(
+      SceneGraphComponent,
+      'worldMatrix'
+    );
+    const locationOffsetsForNormalMatrix = Component.getLocationOffsetOfMemberOfComponent(
+      SceneGraphComponent,
+      'normalMatrix'
+    );
+    const locationOffsetsForIsVisible = Component.getLocationOffsetOfMemberOfComponent(
+      SceneGraphComponent,
+      'isVisible'
+    );
+    const locationOffsetsForIsBillboard = Component.getLocationOffsetOfMemberOfComponent(
+      SceneGraphComponent,
+      'isBillboard'
+    );
+
     return `
 fn get_worldMatrix(instanceId: u32) -> mat4x4<f32>
 {
-  let index: u32 = ${Component.getLocationOffsetOfMemberOfComponent(
-    SceneGraphComponent,
-    'worldMatrix'
-  )}u + 4u * instanceId;
+  var<function> indices: array<u32, ${locationOffsetsForWorldMatrix.length}> = array<u32, ${locationOffsetsForWorldMatrix.length}>(${locationOffsetsForWorldMatrix.map(offset => `${offset}u`).join(', ')});
+  let index: u32 = indices[instanceId % ${Config.entityCountPerBufferView}] + 4u * instanceId;
   let matrix = fetchMat4(index);
 
   return matrix;
 }
 
 fn get_normalMatrix(instanceId: u32) -> mat3x3<f32> {
-  let index: u32 = ${Component.getLocationOffsetOfMemberOfComponent(
-    SceneGraphComponent,
-    'normalMatrix'
-  )}u * 4 + 9 * instanceId;
+  var<function> indices: array<u32, ${locationOffsetsForNormalMatrix.length}> = array<u32, ${locationOffsetsForNormalMatrix.length}>(${locationOffsetsForNormalMatrix.map(offset => `${offset}u`).join(', ')});
+  let index: u32 = indices[instanceId % ${Config.entityCountPerBufferView}] * 4u + 9u * instanceId;
   let matrix = fetchMat3No16BytesAligned(index);
 
   return matrix;
 }
 
 fn get_isVisible(instanceId: u32) -> bool {
-  let index: u32 = ${Component.getLocationOffsetOfMemberOfComponent(
-    SceneGraphComponent,
-    'isVisible'
-  )}u * 4u + instanceId;
+  var<function> indices: array<u32, ${locationOffsetsForIsVisible.length}> = array<u32, ${locationOffsetsForIsVisible.length}>(${locationOffsetsForIsVisible.map(offset => `${offset}u`).join(', ')});
+  let index: u32 = indices[instanceId % ${Config.entityCountPerBufferView}] * 4u + instanceId;
   let visibility = fetchScalarNo16BytesAligned(index);
   if (visibility > 0.5) {
     return true;
@@ -137,10 +148,8 @@ fn get_isVisible(instanceId: u32) -> bool {
 }
 
 fn get_isBillboard(instanceId: u32) -> bool {
-  let index: u32 = ${Component.getLocationOffsetOfMemberOfComponent(
-    SceneGraphComponent,
-    'isBillboard'
-  )}u * 4u + instanceId;
+  var<function> indices: array<u32, ${locationOffsetsForIsBillboard.length}> = array<u32, ${locationOffsetsForIsBillboard.length}>(${locationOffsetsForIsBillboard.map(offset => `${offset}u`).join(', ')});
+  let index: u32 = indices[instanceId % ${Config.entityCountPerBufferView}] * 4u + instanceId;
   let isBillboard = fetchScalarNo16BytesAligned(index);
   if (isBillboard > 0.5) {
     return true;
