@@ -400,6 +400,7 @@ export function _createProgramAsSingleOperationWebGpu(
   if (shaderProgramUid) {
     return shaderProgramUid;
   }
+  material.updateStateVersion();
   const { vertexPropertiesStr, pixelPropertiesStr } = material._getProperties(propertySetter, true);
 
   if (Config.boneDataType === BoneDataType.Mat43x1) {
