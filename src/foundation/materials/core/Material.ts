@@ -1107,4 +1107,9 @@ export class Material extends RnObject {
     this.__stateVersion++;
     Material.__stateVersion++;
   }
+
+  updateStateVersion() {
+    this.__stateVersion++;
+    Material.__stateVersion++;
+  }
 }
