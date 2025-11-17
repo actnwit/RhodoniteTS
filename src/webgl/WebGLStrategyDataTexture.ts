@@ -1,3 +1,4 @@
+import { MutableScalar } from '../foundation';
 import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
@@ -24,6 +25,8 @@ import type { Mesh } from '../foundation/geometry/Mesh';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { Material } from '../foundation/materials/core/Material';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
+import { MutableMatrix33 } from '../foundation/math/MutableMatrix33';
+import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import type { Vector2 } from '../foundation/math/Vector2';
 import type { VectorN } from '../foundation/math/VectorN';
 import type { Buffer } from '../foundation/memory/Buffer';
@@ -123,63 +126,64 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
    * - get_position: Fetches morphed vertex positions (if morphing is enabled)
    */
   static getVertexShaderMethodDefinitions_dataTexture() {
-    const locationOffsetsForWorldMatrix = Component.getLocationOffsetOfMemberOfComponent(
-      SceneGraphComponent,
-      'worldMatrix'
-    );
-    const locationOffsetsForNormalMatrix = Component.getLocationOffsetOfMemberOfComponent(
-      SceneGraphComponent,
-      'normalMatrix'
-    );
-    const locationOffsetsForIsVisible = Component.getLocationOffsetOfMemberOfComponent(
-      SceneGraphComponent,
-      'isVisible'
-    );
-    const locationOffsetsForIsBillboard = Component.getLocationOffsetOfMemberOfComponent(
-      SceneGraphComponent,
-      'isBillboard'
-    );
+    let str = '';
+    const memberInfo = Component.getMemberInfo();
+    memberInfo.forEach((mapMemberNameMemberInfo, componentClass) => {
+      mapMemberNameMemberInfo.forEach((memberInfo, memberName) => {
+        let typeStr = '';
+        let fetchTypeStr = '';
+        switch (memberInfo.dataClassType) {
+          case MutableMatrix44:
+            typeStr = 'mat4';
+            fetchTypeStr = 'fetchMat4';
+            break;
+          case MutableMatrix33:
+            typeStr = 'mat3';
+            fetchTypeStr = 'fetchMat3No16BytesAligned';
+            break;
+          case MutableScalar:
+            typeStr = 'float';
+            fetchTypeStr = 'fetchScalarNo16BytesAligned';
+            break;
+          default:
+            throw new Error(`Unsupported data class type: ${memberInfo.dataClassType.name}`);
+        }
+
+        const locationOffsets = Component.getLocationOffsetOfMemberOfComponent(componentClass, memberName);
+        let indexStr = '';
+        switch (memberInfo.dataClassType) {
+          case MutableMatrix44:
+            indexStr = 'int index = indices[instanceIdOfBufferViews] + 4 * instanceIdInBufferView;';
+            break;
+          case MutableMatrix33:
+            indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 9 * instanceIdInBufferView;';
+            break;
+          case MutableScalar:
+            indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + instanceIdInBufferView;';
+            break;
+          default:
+            throw new Error(`Unsupported data class type: ${memberInfo.dataClassType.name}`);
+        }
+        let conversionStr = '';
+        if (memberInfo.convertToBool) {
+          conversionStr = 'return (value > 0.5) ? true : false;';
+        }
+        str += `
+  ${memberInfo.convertToBool ? 'bool' : typeStr} get_${memberName}(float instanceId) {
+    int instanceIdOfBufferViews = int(instanceId) / ${Config.entityCountPerBufferView};
+    int instanceIdInBufferView = int(instanceId) % ${Config.entityCountPerBufferView};
+    int indices[] = int[](${locationOffsets.join(', ')});
+    ${indexStr}
+    ${typeStr} value = ${fetchTypeStr}(index);
+    ${memberInfo.convertToBool ? conversionStr : 'return value;'}
+  }
+`;
+      });
+    });
+    console.log(str);
 
     return `
-
-  mat4 get_worldMatrix(float instanceId)
-  {
-    int instanceIdOfBufferViews = int(instanceId) / ${Config.entityCountPerBufferView};
-    int instanceIdInBufferView = int(instanceId) % ${Config.entityCountPerBufferView};
-
-    int indices[] = int[](${locationOffsetsForWorldMatrix.join(', ')});
-    int index = indices[instanceIdOfBufferViews] + 4 * instanceIdInBufferView;
-    mat4 matrix = fetchMat4(index);
-    return matrix;
-  }
-
-
-  mat3 get_normalMatrix(float instanceId) {
-    int instanceIdOfBufferViews = int(instanceId) / ${Config.entityCountPerBufferView};
-    int instanceIdInBufferView = int(instanceId) % ${Config.entityCountPerBufferView};
-    int indices[] = int[](${locationOffsetsForNormalMatrix.join(', ')});
-    int index = indices[instanceIdOfBufferViews] * 4 + 9 * instanceIdInBufferView;
-    mat3 matrix = fetchMat3No16BytesAligned(index);
-    return matrix;
-  }
-
-  bool get_isVisible(float instanceId) {
-    int instanceIdOfBufferViews = int(instanceId) / ${Config.entityCountPerBufferView};
-    int instanceIdInBufferView = int(instanceId) % ${Config.entityCountPerBufferView};
-    int indices[] = int[](${locationOffsetsForIsVisible.join(', ')});
-    int index = indices[instanceIdOfBufferViews] * 4 + instanceIdInBufferView;
-    float visibility = fetchScalarNo16BytesAligned(index);
-    return (visibility > 0.5) ? true : false;
-  }
-
-  bool get_isBillboard(float instanceId) {
-    int instanceIdOfBufferViews = int(instanceId) / ${Config.entityCountPerBufferView};
-    int instanceIdInBufferView = int(instanceId) % ${Config.entityCountPerBufferView};
-    int indices[] = int[](${locationOffsetsForIsBillboard.join(', ')});
-    int index = indices[instanceIdOfBufferViews] * 4 + instanceIdInBufferView;
-    float isBillboard = fetchScalarNo16BytesAligned(index);
-    return (isBillboard > 0.5) ? true : false;
-  }
+${str}
 
 #ifdef RN_IS_VERTEX_SHADER
   #ifdef RN_IS_MORPHING
