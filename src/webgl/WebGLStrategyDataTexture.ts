@@ -1219,6 +1219,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       worldMatrix: entity.getSceneGraph()!.matrixInner,
       normalMatrix: entity.getSceneGraph()!.normalMatrixInner,
       isBillboard: entity.getSceneGraph().isBillboard,
+      isVisible: entity.getSceneGraph().isVisible,
       lightComponents: this.__lightComponents!,
       renderPass: renderPass,
       primitive: primitive,
