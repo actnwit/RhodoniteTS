@@ -1609,7 +1609,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       : primitive.primitiveMode;
     const topology = mode.getWebGPUTypeStr();
     let stripIndexFormat = undefined;
-    if (topology === 'triangle-strip' || topology === 'line-strip') {
+    if (primitive.hasIndices() && (topology === 'triangle-strip' || topology === 'line-strip')) {
       stripIndexFormat = primitive.getIndexBitSize();
     }
     const framebuffer = renderPass.getFramebuffer();
