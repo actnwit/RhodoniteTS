@@ -111,7 +111,8 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
    * Provides GLSL functions for accessing world matrix, normal matrix, visibility,
    * billboard state, and morphing functionality through uniforms.
    */
-  private static __vertexShaderMethodDefinitions_uniform = `uniform mat4 u_worldMatrix;
+  private static __getVertexShaderMethodDefinitions_uniform() {
+    return `uniform mat4 u_worldMatrix;
 uniform mat3 u_normalMatrix;
 uniform bool u_isBillboard;
 
@@ -176,6 +177,7 @@ bool get_isBillboard(float instanceId) {
 # endif
 #endif
   `;
+  }
 
   /**
    * Sets up shader program for the given material and primitive in this WebGL strategy.
@@ -190,7 +192,7 @@ bool get_isBillboard(float instanceId) {
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
 
     const [programUid, newOne] = material._createProgramWebGL(
-      WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform,
+      WebGLStrategyUniform.__getVertexShaderMethodDefinitions_uniform(),
       ShaderSemantics.getShaderProperty,
       primitive,
       glw.isWebGL2
@@ -631,6 +633,7 @@ bool get_isBillboard(float instanceId) {
           worldMatrix: entity.getSceneGraph().matrix,
           normalMatrix: entity.getSceneGraph().normalMatrix,
           isBillboard: entity.getSceneGraph().isBillboard,
+          isVisible: entity.getSceneGraph().isVisible,
           lightComponents: this.__lightComponents!,
           renderPass: renderPass,
           diffuseCube: entity.tryToGetMeshRenderer()?.diffuseCubeMap,

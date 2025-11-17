@@ -237,6 +237,7 @@ export abstract class AbstractMaterialContent extends RnObject {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
       this.setNormalMatrix(shaderProgram, args.normalMatrix);
       this.setIsBillboard(shaderProgram, args.isBillboard);
+      this.setIsVisible(shaderProgram, args.isVisible);
       if (firstTime || args.isVr) {
         let cameraComponent = args.renderPass.cameraComponent;
         if (cameraComponent == null) {
@@ -287,6 +288,15 @@ export abstract class AbstractMaterialContent extends RnObject {
    */
   protected setIsBillboard(shaderProgram: WebGLProgram, isBillboard: boolean) {
     (shaderProgram as any)._gl.uniform1i((shaderProgram as any).isBillboard, isBillboard ? 1 : 0);
+  }
+
+  /**
+   * Sets the visibility flag uniform in the shader.
+   * @param shaderProgram - The WebGL shader program
+   * @param isVisible - Whether the object should be rendered
+   */
+  protected setIsVisible(shaderProgram: WebGLProgram, isVisible: boolean) {
+    (shaderProgram as any)._gl.uniform1i((shaderProgram as any).isVisible, isVisible ? 1 : 0);
   }
 
   /**

@@ -15,6 +15,7 @@ export type RenderingArgWebGL = {
   worldMatrix: Matrix44;
   normalMatrix: IMatrix33;
   isBillboard: boolean;
+  isVisible: boolean;
   lightComponents: LightComponent[];
   renderPass: RenderPass;
   diffuseCube?: CubeTexture | RenderTargetTextureCube;
