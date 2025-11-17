@@ -5,6 +5,12 @@ import type { ComponentToComponentMethods } from '../components/ComponentTypes';
 import { MemoryManager } from '../core/MemoryManager';
 import type { BufferUseEnum } from '../definitions/BufferUse';
 import { ProcessStage, type ProcessStageEnum } from '../definitions/ProcessStage';
+import type { MutableMatrix33 } from '../math/MutableMatrix33';
+import type { MutableMatrix44 } from '../math/MutableMatrix44';
+import type { MutableQuaternion } from '../math/MutableQuaternion';
+import type { MutableScalar } from '../math/MutableScalar';
+import type { MutableVector3 } from '../math/MutableVector3';
+import type { MutableVector4 } from '../math/MutableVector4';
 import type { Accessor } from '../memory/Accessor';
 import type { BufferView } from '../memory/BufferView';
 import { RnException } from '../misc';
@@ -16,10 +22,18 @@ import type { IEntity } from './Entity';
 import type { EntityRepository } from './EntityRepository';
 import { RnObject } from './RnObject';
 
+type DataClassType =
+  | typeof MutableMatrix44
+  | typeof MutableMatrix33
+  | typeof MutableVector3
+  | typeof MutableVector4
+  | typeof MutableQuaternion
+  | typeof MutableScalar;
+
 type MemberInfo = {
   memberName: string;
   bufferUse: BufferUseEnum;
-  dataClassType: unknown;
+  dataClassType: DataClassType;
   compositionType: CompositionTypeEnum;
   componentType: ComponentTypeEnum;
   initValues: number[];
@@ -351,7 +365,7 @@ export class Component extends RnObject {
   registerMember(
     bufferUse: BufferUseEnum,
     memberName: string,
-    dataClassType: unknown,
+    dataClassType: DataClassType,
     componentType: ComponentTypeEnum,
     initValues: number[]
   ) {
@@ -363,8 +377,8 @@ export class Component extends RnObject {
     memberInfoArray!.set(memberName, {
       bufferUse: bufferUse,
       memberName: memberName,
-      dataClassType: dataClassType as never,
-      compositionType: (dataClassType as any).compositionType,
+      dataClassType: dataClassType,
+      compositionType: dataClassType.compositionType,
       componentType: componentType,
       initValues: initValues,
     });
@@ -565,6 +579,16 @@ export class Component extends RnObject {
       return info.componentType;
     }
     return undefined;
+  }
+
+  /**
+   * Gets the member info of the component.
+   * This is useful for getting the member info of the component.
+   *
+   * @returns The member info of the component
+   */
+  static getMemberInfo(): Map<Function, Map<MemberName, MemberInfo>> {
+    return new Map(this.__memberInfo);
   }
 
   /**
