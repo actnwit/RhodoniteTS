@@ -4,7 +4,6 @@ let p: any;
 
 declare const window: any;
 
-Rn.Config.maxEntityNumber = 200;
 Rn.Config.maxMaterialInstanceForEachType = 30;
 Rn.Config.dataTextureWidth = 2 ** 8;
 Rn.Config.dataTextureHeight = 2 ** 9;
