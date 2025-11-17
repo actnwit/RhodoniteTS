@@ -2,6 +2,7 @@ import { AnimationComponent } from '../foundation/components/Animation/Animation
 import { LightComponent } from '../foundation/components/Light/LightComponent';
 import type { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
+import { Component } from '../foundation/core/Component';
 import { ComponentRepository } from '../foundation/core/ComponentRepository';
 import { Config } from '../foundation/core/Config';
 import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
@@ -18,6 +19,9 @@ import { TextureParameter } from '../foundation/definitions/TextureParameter';
 import type { Mesh } from '../foundation/geometry/Mesh';
 import { Primitive } from '../foundation/geometry/Primitive';
 import type { Material } from '../foundation/materials/core/Material';
+import { MutableMatrix33 } from '../foundation/math/MutableMatrix33';
+import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
+import { MutableScalar } from '../foundation/math/MutableScalar';
 import type { Scalar } from '../foundation/math/Scalar';
 import type { Vector2 } from '../foundation/math/Vector2';
 import type { Buffer } from '../foundation/memory/Buffer';
@@ -99,6 +103,15 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       max: Number.MAX_VALUE,
       isInternalSetting: true,
     },
+    {
+      semantic: 'isVisible',
+      compositionType: CompositionType.Scalar,
+      componentType: ComponentType.Bool,
+      stage: ShaderType.VertexShader,
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      isInternalSetting: true,
+    },
   ];
 
   /**
@@ -112,25 +125,33 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
    * billboard state, and morphing functionality through uniforms.
    */
   private static __getVertexShaderMethodDefinitions_uniform() {
-    return `uniform mat4 u_worldMatrix;
-uniform mat3 u_normalMatrix;
-uniform bool u_isBillboard;
-
-mat4 get_worldMatrix(float instanceId) {
-  return u_worldMatrix;
-}
-
-mat3 get_normalMatrix(float instanceId) {
-  return u_normalMatrix;
-}
-
-bool get_isVisible(float instanceId) {
-  return true; // visibility is handled in CPU side in WebGLStrategyUniform, so this is dummy value.
-}
-
-bool get_isBillboard(float instanceId) {
-  return u_isBillboard;
-}
+    let str = '';
+    const memberInfo = Component.getMemberInfo();
+    memberInfo.forEach((mapMemberNameMemberInfo, _componentClass) => {
+      mapMemberNameMemberInfo.forEach((memberInfo, memberName) => {
+        let typeStr = '';
+        switch (memberInfo.dataClassType) {
+          case MutableMatrix44:
+            typeStr = 'mat4';
+            break;
+          case MutableMatrix33:
+            typeStr = 'mat3';
+            break;
+          case MutableScalar:
+            typeStr = 'float';
+            break;
+          default:
+            throw new Error(`Unsupported data class type: ${memberInfo.dataClassType.name}`);
+        }
+        str += `uniform ${memberInfo.convertToBool ? 'bool' : typeStr} u_${memberName};\n`;
+        str += `${memberInfo.convertToBool ? 'bool' : typeStr} get_${memberName}(float instanceId) {
+  return u_${memberName};
+}\n`;
+      });
+    });
+    console.log(str);
+    return `
+${str}
 
 #ifdef RN_IS_VERTEX_SHADER
 # ifdef RN_IS_MORPHING
