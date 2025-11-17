@@ -110,89 +110,115 @@ export class GlobalDataRepository {
       : Config.maxSkeletalBoneNumber;
 
     // Skinning
-    const boneMatrixInfo = {
-      semantic: 'boneMatrix',
-      compositionType: CompositionType.Mat4x3Array,
-      arrayLength: maxSkeletalBoneNumber,
-      componentType: ComponentType.Float,
-      stage: ShaderType.VertexShader,
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      isInternalSetting: true,
-      soloDatum: true,
-      initialValue: new VectorN(new Float32Array(0)),
-    };
-    const boneQuaternionInfo = {
-      semantic: 'boneQuaternion',
-      compositionType: CompositionType.Vec4Array,
-      arrayLength: maxSkeletalBoneNumber,
-      componentType: ComponentType.Float,
-      stage: ShaderType.VertexShader,
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      isInternalSetting: true,
-      soloDatum: true,
-      initialValue: new VectorN(new Float32Array(0)),
-    };
-    const boneTranslateScaleInfo = {
-      semantic: 'boneTranslateScale',
-      compositionType: CompositionType.Vec4Array,
-      arrayLength: maxSkeletalBoneNumber,
-      componentType: ComponentType.Float,
-      soloDatum: true,
-      stage: ShaderType.VertexShader,
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      isInternalSetting: true,
-      initialValue: new VectorN(new Float32Array(0)),
-    };
-    const boneTranslatePackedQuatInfo = {
-      semantic: 'boneTranslatePackedQuat',
-      compositionType: CompositionType.Vec4Array,
-      arrayLength: maxSkeletalBoneNumber,
-      componentType: ComponentType.Float,
-      stage: ShaderType.VertexShader,
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      isInternalSetting: true,
-      soloDatum: true,
-      initialValue: new VectorN(new Float32Array(0)),
-    };
-    const boneScalePackedQuatInfo = {
-      semantic: 'boneScalePackedQuat',
-      compositionType: CompositionType.Vec4Array,
-      arrayLength: maxSkeletalBoneNumber,
-      componentType: ComponentType.Float,
-      soloDatum: true,
-      stage: ShaderType.VertexShader,
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      isInternalSetting: true,
-      initialValue: new VectorN(new Float32Array(0)),
-    };
-    const boneCompressedChunkInfo = {
-      semantic: 'boneCompressedChunk',
-      compositionType: CompositionType.Vec4Array,
-      arrayLength: maxSkeletalBoneNumber,
-      componentType: ComponentType.Float,
-      soloDatum: true,
-      stage: ShaderType.VertexShader,
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      isInternalSetting: true,
-      initialValue: new VectorN(new Float32Array(0)),
-    };
-    const boneCompressedInfoInfo = {
-      semantic: 'boneCompressedInfo',
-      compositionType: CompositionType.Vec4,
-      componentType: ComponentType.Float,
-      soloDatum: true,
-      stage: ShaderType.VertexShader,
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      isInternalSetting: true,
-      initialValue: Vector4.zero(),
-    };
+    if (Config.boneDataType === BoneDataType.Mat43x1) {
+      const boneMatrixInfo = {
+        semantic: 'boneMatrix',
+        compositionType: CompositionType.Mat4x3Array,
+        arrayLength: maxSkeletalBoneNumber,
+        componentType: ComponentType.Float,
+        stage: ShaderType.VertexShader,
+        min: -Number.MAX_VALUE,
+        max: Number.MAX_VALUE,
+        isInternalSetting: true,
+        soloDatum: true,
+        initialValue: new VectorN(new Float32Array(0)),
+      };
+      this.__registerProperty(boneMatrixInfo, Config.maxSkeletonNumber);
+    } else if (Config.boneDataType === BoneDataType.Vec4x2) {
+      const boneTranslatePackedQuatInfo = {
+        semantic: 'boneTranslatePackedQuat',
+        compositionType: CompositionType.Vec4Array,
+        arrayLength: maxSkeletalBoneNumber,
+        componentType: ComponentType.Float,
+        stage: ShaderType.VertexShader,
+        min: -Number.MAX_VALUE,
+        max: Number.MAX_VALUE,
+        isInternalSetting: true,
+        soloDatum: true,
+        initialValue: new VectorN(new Float32Array(0)),
+      };
+      const boneScalePackedQuatInfo = {
+        semantic: 'boneScalePackedQuat',
+        compositionType: CompositionType.Vec4Array,
+        arrayLength: maxSkeletalBoneNumber,
+        componentType: ComponentType.Float,
+        soloDatum: true,
+        stage: ShaderType.VertexShader,
+        min: -Number.MAX_VALUE,
+        max: Number.MAX_VALUE,
+        isInternalSetting: true,
+        initialValue: new VectorN(new Float32Array(0)),
+      };
+      this.__registerProperty(boneTranslatePackedQuatInfo, Config.maxSkeletonNumber);
+      this.__registerProperty(boneScalePackedQuatInfo, Config.maxSkeletonNumber);
+    } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
+      const boneQuaternionInfo = {
+        semantic: 'boneQuaternion',
+        compositionType: CompositionType.Vec4Array,
+        arrayLength: maxSkeletalBoneNumber,
+        componentType: ComponentType.Float,
+        stage: ShaderType.VertexShader,
+        min: -Number.MAX_VALUE,
+        max: Number.MAX_VALUE,
+        isInternalSetting: true,
+        soloDatum: true,
+        initialValue: new VectorN(new Float32Array(0)),
+      };
+      const boneTranslateScaleInfo = {
+        semantic: 'boneTranslateScale',
+        compositionType: CompositionType.Vec4Array,
+        arrayLength: maxSkeletalBoneNumber,
+        componentType: ComponentType.Float,
+        soloDatum: true,
+        stage: ShaderType.VertexShader,
+        min: -Number.MAX_VALUE,
+        max: Number.MAX_VALUE,
+        isInternalSetting: true,
+        initialValue: new VectorN(new Float32Array(0)),
+      };
+      this.__registerProperty(boneQuaternionInfo, Config.maxSkeletonNumber);
+      this.__registerProperty(boneTranslateScaleInfo, Config.maxSkeletonNumber);
+    } else if (Config.boneDataType === BoneDataType.Vec4x1) {
+      const boneTranslateScaleInfo = {
+        semantic: 'boneTranslateScale',
+        compositionType: CompositionType.Vec4Array,
+        arrayLength: maxSkeletalBoneNumber,
+        componentType: ComponentType.Float,
+        soloDatum: true,
+        stage: ShaderType.VertexShader,
+        min: -Number.MAX_VALUE,
+        max: Number.MAX_VALUE,
+        isInternalSetting: true,
+        initialValue: new VectorN(new Float32Array(0)),
+      };
+      const boneCompressedChunkInfo = {
+        semantic: 'boneCompressedChunk',
+        compositionType: CompositionType.Vec4Array,
+        arrayLength: maxSkeletalBoneNumber,
+        componentType: ComponentType.Float,
+        soloDatum: true,
+        stage: ShaderType.VertexShader,
+        min: -Number.MAX_VALUE,
+        max: Number.MAX_VALUE,
+        isInternalSetting: true,
+        initialValue: new VectorN(new Float32Array(0)),
+      };
+      const boneCompressedInfoInfo = {
+        semantic: 'boneCompressedInfo',
+        compositionType: CompositionType.Vec4,
+        componentType: ComponentType.Float,
+        soloDatum: true,
+        stage: ShaderType.VertexShader,
+        min: -Number.MAX_VALUE,
+        max: Number.MAX_VALUE,
+        isInternalSetting: true,
+        initialValue: Vector4.zero(),
+      };
+      this.__registerProperty(boneTranslateScaleInfo, Config.maxSkeletonNumber);
+      this.__registerProperty(boneCompressedChunkInfo, Config.maxSkeletonNumber);
+      this.__registerProperty(boneCompressedInfoInfo, 1);
+      this.takeOne('boneCompressedInfo');
+    }
     const skeletalComponentSIDInfo = {
       semantic: 'skinningMode',
       compositionType: CompositionType.Scalar,
@@ -203,20 +229,6 @@ export class GlobalDataRepository {
       isInternalSetting: true,
       initialValue: Scalar.fromCopyNumber(-1),
     };
-    if (Config.boneDataType === BoneDataType.Mat43x1) {
-      this.__registerProperty(boneMatrixInfo, Config.maxSkeletonNumber);
-    } else if (Config.boneDataType === BoneDataType.Vec4x2) {
-      this.__registerProperty(boneTranslatePackedQuatInfo, Config.maxSkeletonNumber);
-      this.__registerProperty(boneScalePackedQuatInfo, Config.maxSkeletonNumber);
-    } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
-      this.__registerProperty(boneQuaternionInfo, Config.maxSkeletonNumber);
-      this.__registerProperty(boneTranslateScaleInfo, Config.maxSkeletonNumber);
-    } else if (Config.boneDataType === BoneDataType.Vec4x1) {
-      this.__registerProperty(boneTranslateScaleInfo, Config.maxSkeletonNumber);
-      this.__registerProperty(boneCompressedChunkInfo, Config.maxSkeletonNumber);
-      this.__registerProperty(boneCompressedInfoInfo, 1);
-      this.takeOne('boneCompressedInfo');
-    }
     this.__registerProperty(skeletalComponentSIDInfo, 1);
     this.takeOne('skinningMode');
 
