@@ -67,7 +67,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
    * Defines world matrix, normal matrix, billboard flag, and vertex attributes existence array.
    */
   private static getComponentMatricesInfoArray(): ShaderSemanticsInfo[] {
-    return [
+    const shaderSemanticsInfos: ShaderSemanticsInfo[] = [
       {
         semantic: 'vertexAttributesExistenceArray',
         compositionType: CompositionType.ScalarArray,
@@ -77,43 +77,24 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         max: 1,
         isInternalSetting: true,
       },
-      {
-        semantic: 'worldMatrix',
-        compositionType: CompositionType.Mat4,
-        componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader,
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        isInternalSetting: true,
-      },
-      {
-        semantic: 'normalMatrix',
-        compositionType: CompositionType.Mat3,
-        componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader,
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        isInternalSetting: true,
-      },
-      {
-        semantic: 'isBillboard',
-        compositionType: CompositionType.Scalar,
-        componentType: ComponentType.Bool,
-        stage: ShaderType.VertexShader,
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        isInternalSetting: true,
-      },
-      {
-        semantic: 'isVisible',
-        compositionType: CompositionType.Scalar,
-        componentType: ComponentType.Bool,
-        stage: ShaderType.VertexShader,
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        isInternalSetting: true,
-      },
     ];
+
+    const memberInfo = Component.getMemberInfo();
+    memberInfo.forEach((mapMemberNameMemberInfo, _componentClass) => {
+      mapMemberNameMemberInfo.forEach((memberInfo, memberName) => {
+        shaderSemanticsInfos.push({
+          semantic: memberName,
+          compositionType: memberInfo.compositionType,
+          componentType: memberInfo.convertToBool ? ComponentType.Bool : memberInfo.componentType,
+          stage: ShaderType.VertexShader,
+          min: -Number.MAX_VALUE,
+          max: Number.MAX_VALUE,
+          isInternalSetting: true,
+        });
+      });
+    });
+
+    return shaderSemanticsInfos;
   }
 
   /**
