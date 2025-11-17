@@ -51,12 +51,12 @@ export class Component extends RnObject {
   private _component_sid: number;
   _isAlive = true;
   protected __currentProcessStage: ProcessStageEnum = ProcessStage.Load;
-  private static __accessors: Map<Function, Map<MemberName, Map<IndexOfTheBufferView, Accessor>>> = new Map();
+  private static __accessors: Map<typeof Component, Map<MemberName, Map<IndexOfTheBufferView, Accessor>>> = new Map();
 
-  private static __memberInfo: Map<Function, Map<MemberName, MemberInfo>> = new Map();
+  private static __memberInfo: Map<typeof Component, Map<MemberName, MemberInfo>> = new Map();
 
   private static __byteOffsetOfAccessorInBufferOfMembers: Map<
-    Function,
+    typeof Component,
     Map<MemberName, Map<IndexOfTheBufferView, Byte>>
   > = new Map();
 
@@ -269,7 +269,7 @@ export class Component extends RnObject {
 
     const indexOfTheBufferView = Math.floor(componentSid / Config.entityCountPerBufferView);
     const indexOfBufferViews = componentSid % Config.entityCountPerBufferView;
-    const accessorsOfMember = Component.__accessors.get(this.constructor)!.get(memberName)!;
+    const accessorsOfMember = Component.__accessors.get(this.constructor as typeof Component)!.get(memberName)!;
     let taken: TypedArray | undefined;
     if (isReUse) {
       taken = accessorsOfMember.get(indexOfTheBufferView)!._takeExistedOne(indexOfBufferViews);
@@ -300,7 +300,7 @@ export class Component extends RnObject {
   static takeAccessor(
     bufferUse: BufferUseEnum,
     memberName: string,
-    componentClass: Function,
+    componentClass: typeof Component,
     compositionType: CompositionTypeEnum,
     componentType: ComponentTypeEnum,
     indexOfTheBufferView: IndexOfTheBufferView
@@ -369,10 +369,10 @@ export class Component extends RnObject {
     componentType: ComponentTypeEnum,
     initValues: number[]
   ) {
-    if (!Component.__memberInfo.has(this.constructor)) {
-      Component.__memberInfo.set(this.constructor, new Map());
+    if (!Component.__memberInfo.has(this.constructor as typeof Component)) {
+      Component.__memberInfo.set(this.constructor as typeof Component, new Map());
     }
-    const memberInfoArray = Component.__memberInfo.get(this.constructor);
+    const memberInfoArray = Component.__memberInfo.get(this.constructor as typeof Component);
 
     memberInfoArray!.set(memberName, {
       bufferUse: bufferUse,
@@ -392,7 +392,7 @@ export class Component extends RnObject {
    * @param isReUse - Whether to reuse existing memory allocations
    */
   submitToAllocation(isReUse: boolean): void {
-    const componentClass = this.constructor;
+    const componentClass = this.constructor as typeof Component;
     const memberInfoArray = Component.__memberInfo.get(componentClass)!;
 
     // Do this only for the first entity of the component
@@ -555,7 +555,10 @@ export class Component extends RnObject {
    * @param componentClass - The component class to query
    * @returns The CompositionType of the member or undefined if not found
    */
-  static getCompositionTypeOfMember(memberName: string, componentClass: Function): CompositionTypeEnum | undefined {
+  static getCompositionTypeOfMember(
+    memberName: string,
+    componentClass: typeof Component
+  ): CompositionTypeEnum | undefined {
     const memberInfoArray = this.__memberInfo.get(componentClass)!;
     const info = memberInfoArray.get(memberName);
     if (info != null) {
@@ -572,7 +575,7 @@ export class Component extends RnObject {
    * @param componentClass - The component class to query
    * @returns The ComponentType of the member or undefined if not found
    */
-  static getComponentTypeOfMember(memberName: string, componentClass: Function): ComponentTypeEnum | undefined {
+  static getComponentTypeOfMember(memberName: string, componentClass: typeof Component): ComponentTypeEnum | undefined {
     const memberInfoArray = this.__memberInfo.get(componentClass)!;
     const info = memberInfoArray.get(memberName);
     if (info != null) {
@@ -587,7 +590,7 @@ export class Component extends RnObject {
    *
    * @returns The member info of the component
    */
-  static getMemberInfo(): Map<Function, Map<MemberName, MemberInfo>> {
+  static getMemberInfo(): Map<typeof Component, Map<MemberName, MemberInfo>> {
     return new Map(this.__memberInfo);
   }
 
