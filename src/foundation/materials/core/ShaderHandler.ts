@@ -388,6 +388,8 @@ export function _createProgramAsSingleOperationWebGpu(
     alphaMode += '#define RN_IS_ALPHA_MODE_MASK\n';
   }
   const cacheQuery =
+    Component.getStateVersion() +
+    material.__materialTypeName +
     material._materialContent.getMaterialSemanticsVariantName() +
     vertexAttributeDefines +
     material._getFingerPrint() +
