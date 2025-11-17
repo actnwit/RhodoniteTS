@@ -457,27 +457,6 @@ export class GlobalDataRepository {
   }
 
   /**
-   * Retrieves the complete global property structure for a given property name.
-   * This includes semantic information, values array, max count, and accessor.
-   *
-   * @param propertyName - The name of the property to retrieve
-   * @returns The GlobalPropertyStruct for the specified property, or undefined if not found
-   */
-  getGlobalPropertyStruct(propertyName: ShaderSemanticsName) {
-    return this.__fields.get(propertyName);
-  }
-
-  /**
-   * Returns an array of all registered global property structures.
-   * Useful for iterating over all available global properties.
-   *
-   * @returns An array containing all GlobalPropertyStruct instances
-   */
-  public getGlobalProperties(): GlobalPropertyStruct[] {
-    return Array.from(this.__fields.values());
-  }
-
-  /**
    * Sets up uniform locations for all global properties when using uniform mode.
    * This is used internally by the WebGL resource repository for shader program setup.
    *
@@ -515,23 +494,6 @@ export class GlobalDataRepository {
     webglResourceRepository.setupUniformLocations(shaderProgramUid, semanticsInfoArray, true);
   }
 
-  /**
-   * Sets uniform values for all global properties in the specified shader program.
-   * Iterates through all registered properties and uploads their current values to the GPU.
-   *
-   * @param shaderProgram - The WebGL shader program to set uniform values for
-   */
-  setUniformValues(shaderProgram: WebGLProgram) {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct) => {
-      const info = globalPropertyStruct.shaderSemanticsInfo;
-      const values = globalPropertyStruct.values;
-      for (let i = 0; i < values.length; i++) {
-        webglResourceRepository.setUniformValue(shaderProgram, info.semantic, true, values[i]);
-      }
-    });
-  }
-
   // getLocationOffsetOfProperty(propertyIndex: Index, countIndex: Index) {
   //   const globalPropertyStruct = this.__fields.get(propertyIndex);
   //   if (globalPropertyStruct) {
@@ -554,21 +516,6 @@ export class GlobalDataRepository {
       return globalPropertyStruct.accessor.byteOffsetInBuffer / 4 / 4;
     }
     return -1;
-  }
-
-  /**
-   * Returns the current number of allocated instances for a specific property.
-   * This represents how many instances of the property have been created with takeOne().
-   *
-   * @param propertyName - The name of the property to get the count for
-   * @returns The number of currently allocated instances, or 0 if the property doesn't exist
-   */
-  getCurrentDataNumberOfTheProperty(propertyName: ShaderSemanticsName) {
-    const globalPropertyStruct = this.__fields.get(propertyName);
-    if (globalPropertyStruct) {
-      return globalPropertyStruct.values.length;
-    }
-    return 0;
   }
 
   /**
