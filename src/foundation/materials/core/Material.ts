@@ -9,8 +9,8 @@ import type {
 import type { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
 import type { ShaderSources } from '../../../webgl/WebGLStrategy';
 import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
-import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { Component } from '../../core/Component';
+import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { RnObject } from '../../core/RnObject';
 import { type ShaderSemanticsInfo, TextureParameter } from '../../definitions';
 import { AlphaMode, type AlphaModeEnum } from '../../definitions/AlphaMode';
