@@ -66,53 +66,55 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
    * Shader semantics information for component matrices used in uniform rendering strategy.
    * Defines world matrix, normal matrix, billboard flag, and vertex attributes existence array.
    */
-  private static readonly componentMatrices: ShaderSemanticsInfo[] = [
-    {
-      semantic: 'vertexAttributesExistenceArray',
-      compositionType: CompositionType.ScalarArray,
-      componentType: ComponentType.Int,
-      stage: ShaderType.VertexShader,
-      min: 0,
-      max: 1,
-      isInternalSetting: true,
-    },
-    {
-      semantic: 'worldMatrix',
-      compositionType: CompositionType.Mat4,
-      componentType: ComponentType.Float,
-      stage: ShaderType.VertexShader,
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      isInternalSetting: true,
-    },
-    {
-      semantic: 'normalMatrix',
-      compositionType: CompositionType.Mat3,
-      componentType: ComponentType.Float,
-      stage: ShaderType.VertexShader,
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      isInternalSetting: true,
-    },
-    {
-      semantic: 'isBillboard',
-      compositionType: CompositionType.Scalar,
-      componentType: ComponentType.Bool,
-      stage: ShaderType.VertexShader,
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      isInternalSetting: true,
-    },
-    {
-      semantic: 'isVisible',
-      compositionType: CompositionType.Scalar,
-      componentType: ComponentType.Bool,
-      stage: ShaderType.VertexShader,
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      isInternalSetting: true,
-    },
-  ];
+  private static getComponentMatricesInfoArray(): ShaderSemanticsInfo[] {
+    return [
+      {
+        semantic: 'vertexAttributesExistenceArray',
+        compositionType: CompositionType.ScalarArray,
+        componentType: ComponentType.Int,
+        stage: ShaderType.VertexShader,
+        min: 0,
+        max: 1,
+        isInternalSetting: true,
+      },
+      {
+        semantic: 'worldMatrix',
+        compositionType: CompositionType.Mat4,
+        componentType: ComponentType.Float,
+        stage: ShaderType.VertexShader,
+        min: -Number.MAX_VALUE,
+        max: Number.MAX_VALUE,
+        isInternalSetting: true,
+      },
+      {
+        semantic: 'normalMatrix',
+        compositionType: CompositionType.Mat3,
+        componentType: ComponentType.Float,
+        stage: ShaderType.VertexShader,
+        min: -Number.MAX_VALUE,
+        max: Number.MAX_VALUE,
+        isInternalSetting: true,
+      },
+      {
+        semantic: 'isBillboard',
+        compositionType: CompositionType.Scalar,
+        componentType: ComponentType.Bool,
+        stage: ShaderType.VertexShader,
+        min: -Number.MAX_VALUE,
+        max: Number.MAX_VALUE,
+        isInternalSetting: true,
+      },
+      {
+        semantic: 'isVisible',
+        compositionType: CompositionType.Scalar,
+        componentType: ComponentType.Bool,
+        stage: ShaderType.VertexShader,
+        min: -Number.MAX_VALUE,
+        max: Number.MAX_VALUE,
+        isInternalSetting: true,
+      },
+    ];
+  }
 
   /**
    * Private constructor to enforce singleton pattern.
@@ -224,7 +226,7 @@ ${str}
 
       material._setUniformLocationsOfMaterialNodes(true, primitive);
 
-      const shaderSemanticsInfos = WebGLStrategyUniform.componentMatrices;
+      const shaderSemanticsInfos = WebGLStrategyUniform.getComponentMatricesInfoArray();
       const shaderSemanticsInfosPointSprite = WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray();
 
       material._setupAdditionalUniformLocations(
@@ -267,7 +269,7 @@ ${str}
 
       material._setUniformLocationsOfMaterialNodes(true, primitive);
 
-      const shaderSemanticsInfos = WebGLStrategyUniform.componentMatrices;
+      const shaderSemanticsInfos = WebGLStrategyUniform.getComponentMatricesInfoArray();
       const shaderSemanticsInfosPointSprite = WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray();
 
       material._setupAdditionalUniformLocations(
