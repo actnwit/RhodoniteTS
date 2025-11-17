@@ -5,7 +5,6 @@ let p: any;
 declare const window: any;
 declare const Stats: any;
 
-Rn.Config.maxEntityNumber = 40000;
 Rn.Config.maxMaterialInstanceForEachType = 30;
 // Rn.Config.maxCameraNumber = 3;
 Rn.Config.maxSkeletalBoneNumber = 400;
