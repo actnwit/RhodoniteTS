@@ -10,6 +10,7 @@ import type { WebGLResourceRepository } from '../../../webgl/WebGLResourceReposi
 import type { ShaderSources } from '../../../webgl/WebGLStrategy';
 import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
+import { Component } from '../../core/Component';
 import { RnObject } from '../../core/RnObject';
 import { type ShaderSemanticsInfo, TextureParameter } from '../../definitions';
 import { AlphaMode, type AlphaModeEnum } from '../../definitions/AlphaMode';
@@ -110,6 +111,8 @@ export class Material extends RnObject {
 
   // Ids
   private _shaderProgramUidMap: Map<PrimitiveFingerPrint, CGAPIResourceHandle> = new Map();
+  // Tracks component buffer layout version per primitive to invalidate shaders when new BufferViews are added
+  private _shaderProgramComponentStateVersionMap: Map<PrimitiveFingerPrint, number> = new Map();
   __materialUid: MaterialUID = -1;
   private __materialTid: MaterialTID;
   __materialSid: MaterialSID = -1; // material serial Id in the material type
@@ -416,7 +419,15 @@ export class Material extends RnObject {
    * @returns True if the shader program is ready, false otherwise
    */
   public isShaderProgramReady(primitive: Primitive): boolean {
-    return this._shaderProgramUidMap.has(primitive._getFingerPrint());
+    const primitiveFingerPrint = primitive._getFingerPrint();
+    const componentStateVersion = this._shaderProgramComponentStateVersionMap.get(primitiveFingerPrint);
+    if (componentStateVersion !== Component.getStateVersion()) {
+      this._shaderProgramUidMap.delete(primitiveFingerPrint);
+      this._shaderProgramComponentStateVersionMap.delete(primitiveFingerPrint);
+      return false;
+    }
+
+    return this._shaderProgramUidMap.has(primitiveFingerPrint);
   }
 
   /**
@@ -487,7 +498,9 @@ export class Material extends RnObject {
       vertexShaderMethodDefinitions_uniform,
       isWebGL2
     );
-    this._shaderProgramUidMap.set(primitive._getFingerPrint(), programUid);
+    const primitiveFingerPrint = primitive._getFingerPrint();
+    this._shaderProgramUidMap.set(primitiveFingerPrint, programUid);
+    this._shaderProgramComponentStateVersionMap.set(primitiveFingerPrint, Component.getStateVersion());
 
     Material.__stateVersion++;
 
@@ -512,7 +525,9 @@ export class Material extends RnObject {
       propertySetter
     );
 
-    this._shaderProgramUidMap.set(primitive._getFingerPrint(), programUid);
+    const primitiveFingerPrint = primitive._getFingerPrint();
+    this._shaderProgramUidMap.set(primitiveFingerPrint, programUid);
+    this._shaderProgramComponentStateVersionMap.set(primitiveFingerPrint, Component.getStateVersion());
     Material.__stateVersion++;
   }
 
@@ -536,7 +551,9 @@ export class Material extends RnObject {
       updatedShaderSources,
       onError
     );
-    this._shaderProgramUidMap.set(primitive._getFingerPrint(), programUid);
+    const primitiveFingerPrint = primitive._getFingerPrint();
+    this._shaderProgramUidMap.set(primitiveFingerPrint, programUid);
+    this._shaderProgramComponentStateVersionMap.set(primitiveFingerPrint, Component.getStateVersion());
 
     if (programUid > 0) {
       // this.__updatedShaderSources = updatedShaderSources;
@@ -1104,6 +1121,7 @@ export class Material extends RnObject {
    */
   makeShadersInvalidate() {
     this._shaderProgramUidMap.clear();
+    this._shaderProgramComponentStateVersionMap.clear();
     this.__stateVersion++;
     Material.__stateVersion++;
   }
