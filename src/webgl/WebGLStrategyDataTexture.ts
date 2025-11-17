@@ -180,7 +180,6 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
 `;
       });
     });
-    console.log(str);
 
     return `
 ${str}
