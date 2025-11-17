@@ -37,6 +37,7 @@ type MemberInfo = {
   compositionType: CompositionTypeEnum;
   componentType: ComponentTypeEnum;
   initValues: number[];
+  convertToBool?: boolean;
 };
 
 type MemberName = string;
@@ -367,7 +368,8 @@ export class Component extends RnObject {
     memberName: string,
     dataClassType: DataClassType,
     componentType: ComponentTypeEnum,
-    initValues: number[]
+    initValues: number[],
+    convertToBool?: boolean
   ) {
     if (!Component.__memberInfo.has(this.constructor as typeof Component)) {
       Component.__memberInfo.set(this.constructor as typeof Component, new Map());
@@ -381,6 +383,7 @@ export class Component extends RnObject {
       compositionType: dataClassType.compositionType,
       componentType: componentType,
       initValues: initValues,
+      convertToBool: convertToBool,
     });
   }
 
