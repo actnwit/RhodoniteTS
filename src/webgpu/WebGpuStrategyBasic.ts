@@ -104,22 +104,6 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
    * @returns WGSL shader code containing helper functions for storage buffer access
    */
   static getVertexShaderMethodDefinitions_storageBuffer() {
-    const locationOffsetsForWorldMatrix = Component.getLocationOffsetOfMemberOfComponent(
-      SceneGraphComponent,
-      'worldMatrix'
-    );
-    const locationOffsetsForNormalMatrix = Component.getLocationOffsetOfMemberOfComponent(
-      SceneGraphComponent,
-      'normalMatrix'
-    );
-    const locationOffsetsForIsVisible = Component.getLocationOffsetOfMemberOfComponent(
-      SceneGraphComponent,
-      'isVisible'
-    );
-    const locationOffsetsForIsBillboard = Component.getLocationOffsetOfMemberOfComponent(
-      SceneGraphComponent,
-      'isBillboard'
-    );
     let str = '';
     const memberInfo = Component.getMemberInfo();
     memberInfo.forEach((mapMemberNameMemberInfo, componentClass) => {
