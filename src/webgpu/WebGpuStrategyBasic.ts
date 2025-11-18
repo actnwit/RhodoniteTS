@@ -158,8 +158,8 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
         }
         str += `
   fn get_${memberName}(instanceId: u32) -> ${memberInfo.convertToBool ? 'bool' : typeStr} {
-    let instanceIdOfBufferViews = instanceId / ${Config.entityCountPerBufferView};
-    let instanceIdInBufferView = instanceId % ${Config.entityCountPerBufferView};
+    let instanceIdOfBufferViews = instanceId / ${Config.scenegraphComponentCountPerBufferView};
+    let instanceIdInBufferView = instanceId % ${Config.scenegraphComponentCountPerBufferView};
     var<function> indices: array<u32, ${locationOffsets.length}> = array<u32, ${locationOffsets.length}>(${locationOffsets.map(offset => `${offset}u`).join(', ')});
     let index: u32 = ${indexStr};
     let value = ${fetchTypeStr}(index);
