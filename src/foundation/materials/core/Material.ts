@@ -468,14 +468,16 @@ export class Material extends RnObject {
   /**
    * Creates a WebGL shader program for this material and the given primitive.
    * @internal Called from WebGLStrategyDataTexture and WebGLStrategyUniform
-   * @param componentDataAccessMethodDefinitions - method definitions for component data access
+   * @param componentDataAccessMethodDefinitionsForVertexShader - method definitions for component data access for vertex shader
+   * @param componentDataAccessMethodDefinitionsForPixelShader - method definitions for component data access for pixel shader
    * @param propertySetter - Function to set shader properties
    * @param primitive - The primitive to create the program for
    * @param isWebGL2 - Whether to create a WebGL2 program
    * @returns A tuple containing the program UID and whether it's a new program
    */
   _createProgramWebGL(
-    componentDataAccessMethodDefinitions: string,
+    componentDataAccessMethodDefinitionsForVertexShader: string,
+    componentDataAccessMethodDefinitionsForPixelShader: string,
     propertySetter: getShaderPropertyFunc,
     primitive: Primitive,
     isWebGL2: boolean
@@ -484,7 +486,8 @@ export class Material extends RnObject {
       this,
       propertySetter,
       primitive,
-      componentDataAccessMethodDefinitions,
+      componentDataAccessMethodDefinitionsForVertexShader,
+      componentDataAccessMethodDefinitionsForPixelShader,
       isWebGL2
     );
     this._shaderProgramUidMap.set(primitive._getFingerPrint(), programUid);
@@ -497,18 +500,21 @@ export class Material extends RnObject {
   /**
    * Creates a WebGPU shader program for this material and the given primitive.
    * @param primitive - The primitive to create the program for
-   * @param componentDataAccessMethodDefinitions - method definitions for component data access
+   * @param componentDataAccessMethodDefinitionsForVertexShader - method definitions for component data access for vertex shader
+   * @param componentDataAccessMethodDefinitionsForPixelShader - method definitions for component data access for pixel shader
    * @param propertySetter - Function to set shader properties
    */
   _createProgramWebGpu(
     primitive: Primitive,
-    componentDataAccessMethodDefinitions: string,
+    componentDataAccessMethodDefinitionsForVertexShader: string,
+    componentDataAccessMethodDefinitionsForPixelShader: string,
     propertySetter: getShaderPropertyFunc
   ) {
     const programUid = _createProgramAsSingleOperationWebGpu(
       this,
       primitive,
-      componentDataAccessMethodDefinitions,
+      componentDataAccessMethodDefinitionsForVertexShader,
+      componentDataAccessMethodDefinitionsForPixelShader,
       propertySetter
     );
 

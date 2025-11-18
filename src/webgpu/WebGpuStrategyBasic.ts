@@ -16,6 +16,7 @@ import { ComponentType } from '../foundation/definitions/ComponentType';
 import { CompositionType } from '../foundation/definitions/CompositionType';
 import type { ShaderSemanticsName, getShaderPropertyFunc } from '../foundation/definitions/ShaderSemantics';
 import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
+import { ShaderType, type ShaderTypeEnum } from '../foundation/definitions/ShaderType';
 import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { Material } from '../foundation/materials/core/Material';
@@ -103,11 +104,14 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
    *
    * @returns WGSL shader code containing helper functions for storage buffer access
    */
-  static getVertexShaderMethodDefinitions_storageBuffer() {
+  static getVertexShaderMethodDefinitions_storageBuffer(shaderType: ShaderTypeEnum) {
     let str = '';
     const memberInfo = Component.getMemberInfo();
     memberInfo.forEach((mapMemberNameMemberInfo, componentClass) => {
       mapMemberNameMemberInfo.forEach((memberInfo, memberName) => {
+        if (memberInfo.shaderType !== shaderType && memberInfo.shaderType !== ShaderType.VertexAndPixelShader) {
+          return;
+        }
         let typeStr = '';
         let fetchTypeStr = '';
         switch (memberInfo.dataClassType) {
@@ -157,8 +161,8 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
       });
     });
 
-    return `
-${str}
+    if (shaderType === ShaderType.VertexShader) {
+      const MorphingStr = `
 
 #ifdef RN_IS_VERTEX_SHADER
   #ifdef RN_IS_MORPHING
@@ -184,8 +188,11 @@ ${str}
   }
   #endif
 #endif
-
 `;
+      str += MorphingStr;
+    }
+
+    return str;
   }
 
   /**
@@ -433,7 +440,8 @@ ${indexStr}
       this.setupShaderForMaterial(
         material,
         primitive,
-        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(),
+        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.VertexShader),
+        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.PixelShader),
         WebGpuStrategyBasic.__getShaderProperty
       );
       primitive._backupMaterial();
@@ -443,7 +451,8 @@ ${indexStr}
       this.setupShaderForMaterial(
         primitive.material,
         primitive,
-        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(),
+        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.VertexShader),
+        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.PixelShader),
         WebGpuStrategyBasic.__getShaderProperty
       );
     }
@@ -456,16 +465,23 @@ ${indexStr}
    *
    * @param material - The material to create shader programs for
    * @param primitive - The primitive geometry that will use this material
-   * @param vertexShaderMethodDefinitions - WGSL code containing vertex shader helper methods
+   * @param vertexShaderMethodDefinitionsForVertexShader - WGSL code containing vertex shader helper methods
+   * @param vertexShaderMethodDefinitionsForPixelShader - WGSL code containing pixel shader helper methods
    * @param propertySetter - Function to generate property accessor methods
    */
   public setupShaderForMaterial(
     material: Material,
     primitive: Primitive,
-    vertexShaderMethodDefinitions: string,
+    vertexShaderMethodDefinitionsForVertexShader: string,
+    vertexShaderMethodDefinitionsForPixelShader: string,
     propertySetter: getShaderPropertyFunc
   ): void {
-    material._createProgramWebGpu(primitive, vertexShaderMethodDefinitions, propertySetter);
+    material._createProgramWebGpu(
+      primitive,
+      vertexShaderMethodDefinitionsForVertexShader,
+      vertexShaderMethodDefinitionsForPixelShader,
+      propertySetter
+    );
   }
 
   /**
