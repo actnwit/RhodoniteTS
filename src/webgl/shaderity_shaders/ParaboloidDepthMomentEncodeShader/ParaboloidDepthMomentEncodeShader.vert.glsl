@@ -55,7 +55,7 @@ void main()
   );
 
   int lightIndex = get_lightIndex(materialSID, 0);
-  vec3 lightPosition = get_lightPosition(0.0, lightIndex);
+  vec3 lightPosition = get_lightPosition(float(lightIndex));
   vec3 L = v_position_inWorld.xyz - lightPosition;
   float dist = length(L);
   L = normalize(L);

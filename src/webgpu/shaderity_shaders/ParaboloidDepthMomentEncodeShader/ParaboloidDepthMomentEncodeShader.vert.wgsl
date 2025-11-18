@@ -70,7 +70,7 @@ fn main(
 
   output.position_inWorld = position_inWorld;
   let lightIndex = get_lightIndex(materialSID, 0);
-  let lightPosition: vec3<f32> = get_lightPosition(0, lightIndex);
+  let lightPosition: vec3<f32> = get_lightPosition(lightIndex);
   var L: vec3<f32> = output.position_inWorld.xyz - lightPosition;
   let dist: f32 = length(L);
   L = normalize(L);

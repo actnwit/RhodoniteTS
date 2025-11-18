@@ -371,27 +371,30 @@ export class Component extends RnObject {
    * @param initValues - Initial values for the member field
    * @param convertToBool - Whether to convert the member value to a boolean
    */
-  registerMember({
-    bufferUse,
-    memberName,
-    dataClassType,
-    shaderType,
-    componentType,
-    initValues,
-    convertToBool,
-  }: {
-    bufferUse: BufferUseEnum;
-    memberName: string;
-    dataClassType: DataClassType;
-    shaderType: ShaderTypeEnum;
-    componentType: ComponentTypeEnum;
-    initValues: number[];
-    convertToBool?: boolean;
-  }) {
-    if (!Component.__memberInfo.has(this.constructor as typeof Component)) {
-      Component.__memberInfo.set(this.constructor as typeof Component, new Map());
+  static registerMember(
+    this: typeof Component,
+    {
+      bufferUse,
+      memberName,
+      dataClassType,
+      shaderType,
+      componentType,
+      initValues,
+      convertToBool,
+    }: {
+      bufferUse: BufferUseEnum;
+      memberName: string;
+      dataClassType: DataClassType;
+      shaderType: ShaderTypeEnum;
+      componentType: ComponentTypeEnum;
+      initValues: number[];
+      convertToBool?: boolean;
     }
-    const memberInfoArray = Component.__memberInfo.get(this.constructor as typeof Component);
+  ) {
+    if (!Component.__memberInfo.has(this)) {
+      Component.__memberInfo.set(this, new Map());
+    }
+    const memberInfoArray = Component.__memberInfo.get(this);
 
     memberInfoArray!.set(memberName, {
       bufferUse: bufferUse,
@@ -491,10 +494,12 @@ export class Component extends RnObject {
    */
   static getLocationOffsetOfMemberOfComponent(componentType: typeof Component, memberName: string): IndexOf16Bytes[] {
     const locationOffsets = [];
-    const byteOffsetOfAccessorInBufferOfMember = Component.__byteOffsetOfAccessorInBufferOfMembers
-      .get(componentType)!
-      .get(memberName)!;
-    for (let key of byteOffsetOfAccessorInBufferOfMember.keys()) {
+    const byteOffsetOfAccessorInBuffer = Component.__byteOffsetOfAccessorInBufferOfMembers.get(componentType);
+    if (byteOffsetOfAccessorInBuffer == null) {
+      return [0]; // indicate that this is invalid value
+    }
+    const byteOffsetOfAccessorInBufferOfMember = byteOffsetOfAccessorInBuffer.get(memberName)!;
+    for (let key of byteOffsetOfAccessorInBufferOfMember?.keys() ?? []) {
       locationOffsets.push(byteOffsetOfAccessorInBufferOfMember.get(key)! / 4 / 4);
     }
     return locationOffsets;

@@ -169,9 +169,9 @@ uniform float u_alphaCutoff; // initialValue=(0.01)
 
 /* shaderity: @{getters} */
 
-/* shaderity: @{opticalDefinition} */
-
 /* shaderity: @{matricesGetters} */
+
+/* shaderity: @{opticalDefinition} */
 
 #ifdef RN_USE_SHADOW_MAPPING
   uniform float u_pointLightFarPlane; // initialValue=1000.0
@@ -541,7 +541,7 @@ void main ()
       vec4 shadowCoordVec4 = get_depthBiasPV(materialSID, i) * v_position_inWorld;
       float bias = 0.001;
       vec2 shadowCoord = shadowCoordVec4.xy / shadowCoordVec4.w;
-      vec3 lightDirection = normalize(get_lightDirection(0.0, i));
+      vec3 lightDirection = normalize(get_lightDirection(float(i)));
       vec3 lightPosToWorldPos = normalize(v_position_inWorld.xyz - light.position);
       float dotProduct = dot(lightPosToWorldPos, lightDirection);
       float shadowContribution = 1.0;

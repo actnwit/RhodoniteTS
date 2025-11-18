@@ -29,6 +29,7 @@ import { MutableMatrix33 } from '../foundation/math/MutableMatrix33';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import { MutableScalar } from '../foundation/math/MutableScalar';
 import { MutableVector3 } from '../foundation/math/MutableVector3';
+import { MutableVector4 } from '../foundation/math/MutableVector4';
 import type { Vector2 } from '../foundation/math/Vector2';
 import type { VectorN } from '../foundation/math/VectorN';
 import type { Buffer } from '../foundation/memory/Buffer';
@@ -126,7 +127,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
         if (memberInfo.shaderType !== shaderType && memberInfo.shaderType !== ShaderType.VertexAndPixelShader) {
           return;
         }
-        const componentCountPerBufferView = Component.getComponentCountPerBufferView().get(componentClass)!;
+        const componentCountPerBufferView = Component.getComponentCountPerBufferView().get(componentClass) ?? 1;
         let typeStr = '';
         let fetchTypeStr = '';
         switch (memberInfo.dataClassType) {
@@ -137,6 +138,10 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
           case MutableMatrix33:
             typeStr = 'mat3';
             fetchTypeStr = 'fetchMat3No16BytesAligned';
+            break;
+          case MutableVector4:
+            typeStr = 'vec4';
+            fetchTypeStr = 'fetchVec4';
             break;
           case MutableVector3:
             typeStr = 'vec3';
@@ -158,6 +163,9 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
             break;
           case MutableMatrix33:
             indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 9 * instanceIdInBufferView;';
+            break;
+          case MutableVector4:
+            indexStr = 'int index = indices[instanceIdOfBufferViews] + 1 * instanceIdInBufferView;';
             break;
           case MutableVector3:
             indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 3 * instanceIdInBufferView;';
