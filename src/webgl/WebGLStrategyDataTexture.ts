@@ -561,22 +561,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   }
 
   /**
-   * Creates and updates only the camera-related portion of the data texture.
-   * This optimized method updates only the camera information part of the data texture,
-   * which is useful when only camera data has changed.
-   *
-   * @remarks
-   * This method calculates the position where bone matrix data begins and only
-   * updates the data texture up to that point, covering camera-related information.
-   * This provides better performance when only camera properties need updating.
-   */
-  private __createAndUpdateDataTextureForCameraOnly() {
-    const globalDataRepository = GlobalDataRepository.getInstance();
-    const positionOfBoneMatrixInByte = globalDataRepository.getLocationOffsetOfProperty('boneMatrix') * 16; // camera infos are before boneMatrix
-    this.__createAndUpdateDataTextureInner(positionOfBoneMatrixInByte);
-  }
-
-  /**
    * Internal implementation for creating and updating the data texture.
    * This method handles the actual texture creation, data copying, and GPU upload.
    *
@@ -746,6 +730,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       AnimationComponent.isAnimating ||
       TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
       SceneGraphComponent.updateCount !== this.__lastSceneGraphComponentsUpdateCount ||
+      CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
+      CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
       Material.stateVersion !== this.__lastMaterialsUpdateCount
     ) {
       // Setup GPU Storage (Data Texture & UBO)
@@ -753,14 +739,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__createAndUpdateUBO();
       this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
       this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
-      this.__lastMaterialsUpdateCount = Material.stateVersion;
-    } else if (
-      CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
-      CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount
-    ) {
-      this.__createAndUpdateDataTextureForCameraOnly();
       this.__lastCameraComponentsUpdateCount = CameraComponent.currentCameraUpdateCount;
       this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
+      this.__lastMaterialsUpdateCount = Material.stateVersion;
     }
 
     this.__lightComponents = ComponentRepository.getComponentsWithType(LightComponent) as LightComponent[] | undefined;
