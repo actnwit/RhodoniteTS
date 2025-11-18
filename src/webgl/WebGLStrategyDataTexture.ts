@@ -173,8 +173,8 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
         }
         str += `
   ${memberInfo.convertToBool ? 'bool' : typeStr} get_${memberName}(float instanceId) {
-    int instanceIdOfBufferViews = int(instanceId) / ${Config.entityCountPerBufferView};
-    int instanceIdInBufferView = int(instanceId) % ${Config.entityCountPerBufferView};
+    int instanceIdOfBufferViews = int(instanceId) / ${Config.scenegraphComponentCountPerBufferView};
+    int instanceIdInBufferView = int(instanceId) % ${Config.scenegraphComponentCountPerBufferView};
     int indices[] = int[](${locationOffsets.join(', ')});
     ${indexStr}
     ${typeStr} value = ${fetchTypeStr}(index);
