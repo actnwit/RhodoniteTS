@@ -3,6 +3,7 @@
 /* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
+/* shaderity: @{matricesGetters} */
 
 // #param diffuseColorFactor: vec4<f32>; // initialValue=(1,1,1,1)
 

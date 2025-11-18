@@ -58,10 +58,10 @@ vec3 getLightAttenuated(Light light) {
 }
 
 Light getLight(int lightIdx, vec3 v_position_inWorld) {
-  vec3 lightPosition = get_lightPosition(0.0, lightIdx);
-  vec3 direction_and_w_of_LightObject = get_lightDirection(0.0, lightIdx);
-  vec3 lightIntensity = get_lightIntensity(0.0, lightIdx);
-  vec4 lightProperty = get_lightProperty(0.0, lightIdx);
+  vec3 lightPosition = get_lightPosition(float(lightIdx));
+  vec3 direction_and_w_of_LightObject = get_lightDirection(float(lightIdx));
+  vec3 lightIntensity = get_lightIntensity(float(lightIdx));
+  vec4 lightProperty = get_lightProperty(float(lightIdx));
   Light light;
   light.directionOfLightObject = direction_and_w_of_LightObject;
   float lightType = lightProperty.x;
