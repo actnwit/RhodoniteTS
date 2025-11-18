@@ -193,7 +193,7 @@ fn main(
   @builtin(front_facing) isFront: bool,
 ) -> @location(0) vec4<f32> {
 /* shaderity: @{mainPrerequisites} */
-  let viewPosition = get_viewPosition(cameraSID, 0);
+  let viewPosition = get_viewPosition(cameraSID);
   let viewVector = viewPosition - input.position_inWorld.xyz;
   let viewDirection = normalize(viewVector);
 

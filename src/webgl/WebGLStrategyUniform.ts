@@ -22,6 +22,7 @@ import type { Material } from '../foundation/materials/core/Material';
 import { MutableMatrix33 } from '../foundation/math/MutableMatrix33';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import { MutableScalar } from '../foundation/math/MutableScalar';
+import { MutableVector3 } from '../foundation/math/MutableVector3';
 import type { Scalar } from '../foundation/math/Scalar';
 import type { Vector2 } from '../foundation/math/Vector2';
 import type { Buffer } from '../foundation/memory/Buffer';
@@ -121,6 +122,9 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
             break;
           case MutableMatrix33:
             typeStr = 'mat3';
+            break;
+          case MutableVector3:
+            typeStr = 'vec3';
             break;
           case MutableScalar:
             typeStr = 'float';
