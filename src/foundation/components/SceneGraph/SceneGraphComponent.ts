@@ -5,6 +5,7 @@ import { EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { BufferUse } from '../../definitions/BufferUse';
 import { ComponentType } from '../../definitions/ComponentType';
 import { ProcessStage } from '../../definitions/ProcessStage';
+import { ShaderType } from '../../definitions/ShaderType';
 import type { RaycastResultEx2 } from '../../geometry/types/GeometryTypes';
 import { AABBGizmo } from '../../gizmos/AABBGizmo';
 import { JointGizmo } from '../../gizmos/JointGizmo';
@@ -101,22 +102,40 @@ export class SceneGraphComponent extends Component {
 
     SceneGraphComponent.__sceneGraphs.push(new WeakRef(this));
 
-    this.registerMember(
-      BufferUse.GPUInstanceData,
-      'worldMatrix',
-      MutableMatrix44,
-      ComponentType.Float,
-      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
-    );
-    this.registerMember(
-      BufferUse.GPUInstanceData,
-      'normalMatrix',
-      MutableMatrix33,
-      ComponentType.Float,
-      [1, 0, 0, 0, 1, 0, 0, 0, 1]
-    );
-    this.registerMember(BufferUse.GPUInstanceData, 'isVisible', MutableScalar, ComponentType.Float, [1], true);
-    this.registerMember(BufferUse.GPUInstanceData, 'isBillboard', MutableScalar, ComponentType.Float, [0], true);
+    this.registerMember({
+      bufferUse: BufferUse.GPUInstanceData,
+      memberName: 'worldMatrix',
+      dataClassType: MutableMatrix44,
+      shaderType: ShaderType.VertexAndPixelShader,
+      componentType: ComponentType.Float,
+      initValues: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+    });
+    this.registerMember({
+      bufferUse: BufferUse.GPUInstanceData,
+      memberName: 'normalMatrix',
+      dataClassType: MutableMatrix33,
+      shaderType: ShaderType.VertexAndPixelShader,
+      componentType: ComponentType.Float,
+      initValues: [1, 0, 0, 0, 1, 0, 0, 0, 1],
+    });
+    this.registerMember({
+      bufferUse: BufferUse.GPUInstanceData,
+      memberName: 'isVisible',
+      dataClassType: MutableScalar,
+      shaderType: ShaderType.VertexShader,
+      componentType: ComponentType.Float,
+      initValues: [1],
+      convertToBool: true,
+    });
+    this.registerMember({
+      bufferUse: BufferUse.GPUInstanceData,
+      memberName: 'isBillboard',
+      dataClassType: MutableScalar,
+      shaderType: ShaderType.VertexShader,
+      componentType: ComponentType.Float,
+      initValues: [0],
+      convertToBool: true,
+    });
 
     this.submitToAllocation(isReUse);
   }
