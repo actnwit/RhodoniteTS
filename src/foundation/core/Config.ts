@@ -7,7 +7,7 @@ import { BoneDataType } from '../definitions/BoneDataType';
 import { MiscUtil } from '../misc';
 
 /**　The number of entities per buffer view */
-let entityCountPerBufferView = 10;
+let scenegraphComponentCountPerBufferView = 10;
 
 /**　The maximum number of lights that Rhodonite can handle */
 let maxLightNumber = 6;
@@ -84,7 +84,7 @@ if (typeof navigator !== 'undefined') {
  */
 export const Config = {
   /**　The number of entities per buffer view */
-  entityCountPerBufferView,
+  scenegraphComponentCountPerBufferView,
   /**　The maximum number of lights that Rhodonite can handle */
   maxLightNumber,
   /**　The maximum number of morph targets that Rhodonite can handle */

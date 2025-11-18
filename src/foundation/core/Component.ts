@@ -259,7 +259,7 @@ export class Component extends RnObject {
    * @param componentSid - The component scoped ID
    * @returns null on success
    */
-  takeOne(
+  private __takeOne(
     memberName: string,
     dataClassType: any,
     initValues: number[],
@@ -270,8 +270,8 @@ export class Component extends RnObject {
       return;
     }
 
-    const indexOfTheBufferView = Math.floor(componentSid / Config.entityCountPerBufferView);
-    const indexOfBufferViews = componentSid % Config.entityCountPerBufferView;
+    const indexOfTheBufferView = Math.floor(componentSid / Config.scenegraphComponentCountPerBufferView);
+    const indexOfBufferViews = componentSid % Config.scenegraphComponentCountPerBufferView;
     const accessorsOfMember = Component.__accessors.get(this.constructor as typeof Component)!.get(memberName)!;
     let taken: TypedArray | undefined;
     if (isReUse) {
@@ -300,7 +300,7 @@ export class Component extends RnObject {
    * @param count - The number of components to allocate for
    * @returns Result containing the accessor or an error
    */
-  static takeAccessor(
+  private static __takeAccessor(
     bufferUse: BufferUseEnum,
     memberName: string,
     componentClass: typeof Component,
@@ -323,7 +323,7 @@ export class Component extends RnObject {
       const bytes = compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
       const buffer = MemoryManager.getInstance().createOrGetBuffer(bufferUse);
       const bufferViewResult = buffer.takeBufferView({
-        byteLengthToNeed: bytes * Config.entityCountPerBufferView,
+        byteLengthToNeed: bytes * Config.scenegraphComponentCountPerBufferView,
         byteStride: 0,
       });
       if (bufferViewResult.isErr()) {
@@ -335,7 +335,7 @@ export class Component extends RnObject {
       const accessorResult = bufferViewResult.get().takeAccessor({
         compositionType,
         componentType,
-        count: Config.entityCountPerBufferView,
+        count: Config.scenegraphComponentCountPerBufferView,
         byteStride: bytes,
       });
       if (accessorResult.isErr()) {
@@ -413,14 +413,14 @@ export class Component extends RnObject {
     const memberInfoArray = Component.__memberInfo.get(componentClass)!;
 
     // Do this only for the first entity of the component
-    const indexOfTheBufferView = Math.floor(this._component_sid / Config.entityCountPerBufferView);
-    if (this._component_sid % Config.entityCountPerBufferView === 0) {
+    const indexOfTheBufferView = Math.floor(this._component_sid / Config.scenegraphComponentCountPerBufferView);
+    if (this._component_sid % Config.scenegraphComponentCountPerBufferView === 0) {
       getBufferViewsAndAccessors(indexOfTheBufferView);
     }
 
     // take a field value allocation for each entity for each member field
     memberInfoArray.forEach(info => {
-      this.takeOne(info.memberName, info.dataClassType, info.initValues, isReUse, this._component_sid);
+      this.__takeOne(info.memberName, info.dataClassType, info.initValues, isReUse, this._component_sid);
     });
 
     // inner function
@@ -428,7 +428,7 @@ export class Component extends RnObject {
       // for each member field, take a BufferView for all entities' the member field.
       // take a Accessor for all entities for each member fields (same as BufferView)
       memberInfoArray.forEach(info => {
-        const accessorResult = Component.takeAccessor(
+        const accessorResult = Component.__takeAccessor(
           info.bufferUse,
           info.memberName,
           componentClass,
