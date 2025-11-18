@@ -1,5 +1,6 @@
 import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
+import { Config } from '../../core/Config';
 import type { IEntity } from '../../core/Entity';
 import { EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { BufferUse } from '../../definitions/BufferUse';
@@ -135,7 +136,7 @@ export class SceneGraphComponent extends Component {
       convertToBool: true,
     });
 
-    this.submitToAllocation(isReUse);
+    this.submitToAllocation(Config.scenegraphComponentCountPerBufferView, isReUse);
   }
 
   /**

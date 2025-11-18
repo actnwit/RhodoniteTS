@@ -162,7 +162,7 @@ export class CameraComponent extends Component {
       initValues: [0, 0, 0],
     });
 
-    this.submitToAllocation(isReUse);
+    this.submitToAllocation(Config.cameraComponentCountPerBufferView, isReUse);
   }
 
   /**
