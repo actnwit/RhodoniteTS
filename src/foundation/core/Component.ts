@@ -5,6 +5,7 @@ import type { ComponentToComponentMethods } from '../components/ComponentTypes';
 import { MemoryManager } from '../core/MemoryManager';
 import type { BufferUseEnum } from '../definitions/BufferUse';
 import { ProcessStage, type ProcessStageEnum } from '../definitions/ProcessStage';
+import type { ShaderTypeEnum } from '../definitions/ShaderType';
 import type { MutableMatrix33 } from '../math/MutableMatrix33';
 import type { MutableMatrix44 } from '../math/MutableMatrix44';
 import type { MutableQuaternion } from '../math/MutableQuaternion';
@@ -34,6 +35,7 @@ type MemberInfo = {
   memberName: string;
   bufferUse: BufferUseEnum;
   dataClassType: DataClassType;
+  shaderType: ShaderTypeEnum;
   compositionType: CompositionTypeEnum;
   componentType: ComponentTypeEnum;
   initValues: number[];
@@ -360,17 +362,28 @@ export class Component extends RnObject {
    * @param bufferUse - The intended purpose/type of buffer use
    * @param memberName - The name of the member field
    * @param dataClassType - The class type of the data
+   * @param shaderType - The shader type (e.g., VertexShader, PixelShader)
    * @param componentType - The primitive data type (e.g., Float32, Int32)
    * @param initValues - Initial values for the member field
+   * @param convertToBool - Whether to convert the member value to a boolean
    */
-  registerMember(
-    bufferUse: BufferUseEnum,
-    memberName: string,
-    dataClassType: DataClassType,
-    componentType: ComponentTypeEnum,
-    initValues: number[],
-    convertToBool?: boolean
-  ) {
+  registerMember({
+    bufferUse,
+    memberName,
+    dataClassType,
+    shaderType,
+    componentType,
+    initValues,
+    convertToBool,
+  }: {
+    bufferUse: BufferUseEnum;
+    memberName: string;
+    dataClassType: DataClassType;
+    shaderType: ShaderTypeEnum;
+    componentType: ComponentTypeEnum;
+    initValues: number[];
+    convertToBool?: boolean;
+  }) {
     if (!Component.__memberInfo.has(this.constructor as typeof Component)) {
       Component.__memberInfo.set(this.constructor as typeof Component, new Map());
     }
@@ -380,6 +393,7 @@ export class Component extends RnObject {
       bufferUse: bufferUse,
       memberName: memberName,
       dataClassType: dataClassType,
+      shaderType: shaderType,
       compositionType: dataClassType.compositionType,
       componentType: componentType,
       initValues: initValues,
