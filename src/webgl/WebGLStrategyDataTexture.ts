@@ -1,4 +1,3 @@
-import { MutableScalar } from '../foundation';
 import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
@@ -19,6 +18,7 @@ import { CompositionType } from '../foundation/definitions/CompositionType';
 import { PixelFormat } from '../foundation/definitions/PixelFormat';
 import { ShaderSemantics, type ShaderSemanticsName } from '../foundation/definitions/ShaderSemantics';
 import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
+import { ShaderType, type ShaderTypeEnum } from '../foundation/definitions/ShaderType';
 import { TextureFormat } from '../foundation/definitions/TextureFormat';
 import { TextureParameter } from '../foundation/definitions/TextureParameter';
 import type { Mesh } from '../foundation/geometry/Mesh';
@@ -27,6 +27,7 @@ import { Material } from '../foundation/materials/core/Material';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 import { MutableMatrix33 } from '../foundation/math/MutableMatrix33';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
+import { MutableScalar } from '../foundation/math/MutableScalar';
 import type { Vector2 } from '../foundation/math/Vector2';
 import type { VectorN } from '../foundation/math/VectorN';
 import type { Buffer } from '../foundation/memory/Buffer';
@@ -113,12 +114,17 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   /**
    * method definitions for component data access for data texture-based rendering.
    * Provides GLSL functions for accessing component data through data textures.
+   * @param shaderType - The shader type (VertexShader or PixelShader)
+   * @returns GLSL shader code string for the component data access method definitions
    */
-  static __getComponentDataAccessMethodDefinitions_dataTexture() {
+  static __getComponentDataAccessMethodDefinitions_dataTexture(shaderType: ShaderTypeEnum) {
     let str = '';
     const memberInfo = Component.getMemberInfo();
     memberInfo.forEach((mapMemberNameMemberInfo, componentClass) => {
       mapMemberNameMemberInfo.forEach((memberInfo, memberName) => {
+        if (memberInfo.shaderType !== shaderType && memberInfo.shaderType !== ShaderType.VertexAndPixelShader) {
+          return;
+        }
         let typeStr = '';
         let fetchTypeStr = '';
         switch (memberInfo.dataClassType) {
@@ -170,8 +176,8 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
       });
     });
 
-    return `
-${str}
+    if (shaderType === ShaderType.VertexShader) {
+      const morphingStr = `
 
 #ifdef RN_IS_VERTEX_SHADER
   #ifdef RN_IS_MORPHING
@@ -194,6 +200,10 @@ ${str}
   #endif
 #endif
 `;
+
+      str += morphingStr;
+    }
+    return str;
   }
 
   /**
@@ -218,7 +228,8 @@ ${str}
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
 
     const [programUid, newOne] = material._createProgramWebGL(
-      WebGLStrategyDataTexture.__getComponentDataAccessMethodDefinitions_dataTexture(),
+      WebGLStrategyDataTexture.__getComponentDataAccessMethodDefinitions_dataTexture(ShaderType.VertexShader),
+      WebGLStrategyDataTexture.__getComponentDataAccessMethodDefinitions_dataTexture(ShaderType.PixelShader),
       WebGLStrategyDataTexture.__getShaderProperty,
       primitive,
       glw.isWebGL2
