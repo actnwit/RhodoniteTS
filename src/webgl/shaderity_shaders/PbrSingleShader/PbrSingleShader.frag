@@ -201,7 +201,7 @@ void main ()
 /* shaderity: @{mainPrerequisites} */
 
   // View direction
-  vec3 viewPosition = get_viewPosition(cameraSID, 0);
+  vec3 viewPosition = get_viewPosition(cameraSID);
   vec3 viewVector = viewPosition - v_position_inWorld.xyz;
   vec3 viewDirection = normalize(viewVector);
 

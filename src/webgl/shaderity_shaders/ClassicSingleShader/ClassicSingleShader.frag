@@ -30,6 +30,8 @@ uniform sampler2DShadow u_depthTexture; // initialValue=(2,white)
 
 /* shaderity: @{getters} */
 
+/* shaderity: @{matricesGetters} */
+
 /* shaderity: @{opticalDefinition} */
 
 void main ()
@@ -90,7 +92,7 @@ void main ()
       float shininess = get_shininess(materialSID, 0);
       int shadingModel = get_shadingModel(materialSID, 0);
 
-      vec3 viewPosition = get_viewPosition(cameraSID, 0);
+      vec3 viewPosition = get_viewPosition(cameraSID);
 
       // Specular
       if (shadingModel == 2) {// BLINN

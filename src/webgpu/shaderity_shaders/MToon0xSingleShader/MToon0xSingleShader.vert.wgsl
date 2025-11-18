@@ -47,7 +47,7 @@ fn main(
   let worldMatrix = get_worldMatrix(instanceId);
   var normalMatrix = get_normalMatrix(instanceId);
   let isBillboard = get_isBillboard(instanceId);
-  let viewMatrix = get_viewMatrix(cameraSID, 0);
+  let viewMatrix = get_viewMatrix(cameraSID);
   let skeletalComponentSID = i32(instance_ids.y);
   let blendShapeComponentSID = u32(instance_ids.z);
 
@@ -67,7 +67,7 @@ fn main(
     &normal_inWorld
   );
 
-  let projectionMatrix = get_projectionMatrix(cameraSID, 0);
+  let projectionMatrix = get_projectionMatrix(cameraSID);
   output.position_inWorld = position_inWorld;
   output.normal_inWorld = normal_inWorld;
   output.normal_inView = (viewMatrix * vec4f(normal_inWorld, 0.0)).xyz;
