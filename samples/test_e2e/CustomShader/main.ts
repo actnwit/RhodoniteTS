@@ -67,8 +67,8 @@ function createCustomShader() {
   /* shaderity: @{mainPrerequisites} */
 
     mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
-    mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
-    mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
+    mat4 viewMatrix = get_viewMatrix(cameraSID);
+    mat4 projectionMatrix = get_projectionMatrix(cameraSID);
     mat3 normalMatrix = get_normalMatrix(a_instanceInfo.x);
     bool isBillboard = get_isBillboard(a_instanceInfo.x);
 
@@ -126,6 +126,8 @@ function createCustomShader() {
   /* shaderity: @{renderTargetBegin} */
 
   /* shaderity: @{getters} */
+
+  /* shaderity: @{matricesGetters} */
 
   /* shaderity: @{opticalDefinition} */
 
@@ -187,7 +189,7 @@ function createCustomShader() {
         float shininess = get_shininess(materialSID, 0);
         int shadingModel = get_shadingModel(materialSID, 0);
 
-        vec3 viewPosition = get_viewPosition(cameraSID, 0);
+        vec3 viewPosition = get_viewPosition(cameraSID);
 
         // Specular
         if (shadingModel == 2) {// BLINN
@@ -247,8 +249,8 @@ fn main(
   let instanceId = u32(instance_ids.x);
 
   let worldMatrix = get_worldMatrix(instanceId);
-  let viewMatrix = get_viewMatrix(cameraSID, 0);
-  let projectionMatrix = get_projectionMatrix(cameraSID, 0);
+  let viewMatrix = get_viewMatrix(cameraSID);
+  let projectionMatrix = get_projectionMatrix(cameraSID);
   var normalMatrix = get_normalMatrix(instanceId);
   let isBillboard = get_isBillboard(instanceId);
 
@@ -410,7 +412,7 @@ fn main (
       let shininess = get_shininess(materialSID, 0);
       let shadingModel = get_shadingModel(materialSID, 0);
 
-      let viewPosition = get_viewPosition(cameraSID, 0);
+      let viewPosition = get_viewPosition(cameraSID);
 
       // Specular
       if (shadingModel == 2) {// BLINN

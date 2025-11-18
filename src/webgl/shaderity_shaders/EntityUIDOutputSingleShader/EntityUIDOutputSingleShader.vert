@@ -20,8 +20,8 @@ void main()
 /* shaderity: @{mainPrerequisites} */
 
   mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
-  mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
-  mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
+  mat4 viewMatrix = get_viewMatrix(cameraSID);
+  mat4 projectionMatrix = get_projectionMatrix(cameraSID);
   mat3 normalMatrix = get_normalMatrix(a_instanceInfo.x);
 
   // Skeletal

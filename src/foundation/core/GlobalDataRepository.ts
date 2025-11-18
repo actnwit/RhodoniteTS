@@ -70,41 +70,6 @@ export class GlobalDataRepository {
     this.__registerProperty(currentComponentSIDsInfo, 1);
     this.takeOne('currentComponentSIDs');
 
-    // Camera
-    const viewMatrixInfo = {
-      semantic: 'viewMatrix',
-      compositionType: CompositionType.Mat4,
-      componentType: ComponentType.Float,
-      stage: ShaderType.VertexAndPixelShader,
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      isInternalSetting: true,
-      initialValue: MutableMatrix44.identity(),
-    };
-    const projectionMatrixInfo = {
-      semantic: 'projectionMatrix',
-      compositionType: CompositionType.Mat4,
-      componentType: ComponentType.Float,
-      stage: ShaderType.VertexAndPixelShader,
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      isInternalSetting: true,
-      initialValue: MutableMatrix44.identity(),
-    };
-    const viewPositionInfo = {
-      semantic: 'viewPosition',
-      compositionType: CompositionType.Vec3,
-      componentType: ComponentType.Float,
-      stage: ShaderType.VertexAndPixelShader,
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      isInternalSetting: true,
-      initialValue: Vector3.fromCopyArray([0, 0, 1]),
-    };
-    this.__registerProperty(viewMatrixInfo, Config.maxCameraNumber);
-    this.__registerProperty(projectionMatrixInfo, Config.maxCameraNumber);
-    this.__registerProperty(viewPositionInfo, Config.maxCameraNumber);
-
     const maxSkeletalBoneNumber = ProcessApproach.isUniformApproach(approach)
       ? Config.maxSkeletalBoneNumberForUniformMode
       : Config.maxSkeletalBoneNumber;

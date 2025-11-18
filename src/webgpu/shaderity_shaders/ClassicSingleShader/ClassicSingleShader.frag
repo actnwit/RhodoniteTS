@@ -76,7 +76,7 @@ fn main (
       let shininess = get_shininess(materialSID, 0);
       let shadingModel = get_shadingModel(materialSID, 0);
 
-      let viewPosition = get_viewPosition(cameraSID, 0);
+      let viewPosition = get_viewPosition(cameraSID);
 
       // Specular
       if (shadingModel == 2) {// BLINN

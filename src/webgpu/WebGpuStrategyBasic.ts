@@ -24,6 +24,7 @@ import { MaterialRepository } from '../foundation/materials/core/MaterialReposit
 import { MutableMatrix33 } from '../foundation/math/MutableMatrix33';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import { MutableScalar } from '../foundation/math/MutableScalar';
+import { MutableVector3 } from '../foundation/math/MutableVector3';
 import type { Accessor } from '../foundation/memory/Accessor';
 import type { Buffer } from '../foundation/memory/Buffer';
 import { Logger } from '../foundation/misc/Logger';
@@ -123,6 +124,10 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
             typeStr = 'mat3x3<f32>';
             fetchTypeStr = 'fetchMat3No16BytesAligned';
             break;
+          case MutableVector3:
+            typeStr = 'vec3<f32>';
+            fetchTypeStr = 'fetchVec3No16BytesAligned';
+            break;
           case MutableScalar:
             typeStr = 'f32';
             fetchTypeStr = 'fetchScalarNo16BytesAligned';
@@ -138,8 +143,11 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
           case MutableMatrix33:
             indexStr = 'indices[instanceIdOfBufferViews] * 4u + 9u * instanceIdInBufferView;';
             break;
+          case MutableVector3:
+            indexStr = 'indices[instanceIdOfBufferViews] * 4u + 3u * instanceIdInBufferView;';
+            break;
           case MutableScalar:
-            indexStr = 'indices[instanceIdOfBufferViews] * 4u + instanceIdInBufferView;';
+            indexStr = 'indices[instanceIdOfBufferViews] * 4u + 1u * instanceIdInBufferView;';
             break;
           default:
             throw new Error(`Unsupported data class type: ${memberInfo.dataClassType.name}`);

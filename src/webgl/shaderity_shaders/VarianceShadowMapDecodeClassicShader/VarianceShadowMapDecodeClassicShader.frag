@@ -14,6 +14,8 @@ in vec4 v_projPosition_from_light;
 
 /* shaderity: @{getters} */
 
+/* shaderity: @{matricesGetters} */
+
 /* shaderity: @{opticalDefinition} */
 
 float decodeRGBAToDepth(vec4 RGBA){
@@ -132,7 +134,7 @@ void main ()
 
       diffuse += diffuseColor * max(0.0, dot(normal_inWorld, light.direction)) * light.attenuatedIntensity;
 
-      vec3 viewPosition = get_viewPosition(materialSID, 0);
+      vec3 viewPosition = get_viewPosition(materialSID);
       float shininess = get_shininess(materialSID, 0);
       if (shadingModel == 2) {// BLINN
         // ViewDirection

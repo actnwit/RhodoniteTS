@@ -28,6 +28,7 @@ import { MaterialRepository } from '../foundation/materials/core/MaterialReposit
 import { MutableMatrix33 } from '../foundation/math/MutableMatrix33';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import { MutableScalar } from '../foundation/math/MutableScalar';
+import { MutableVector3 } from '../foundation/math/MutableVector3';
 import type { Vector2 } from '../foundation/math/Vector2';
 import type { VectorN } from '../foundation/math/VectorN';
 import type { Buffer } from '../foundation/memory/Buffer';
@@ -136,6 +137,10 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
             typeStr = 'mat3';
             fetchTypeStr = 'fetchMat3No16BytesAligned';
             break;
+          case MutableVector3:
+            typeStr = 'vec3';
+            fetchTypeStr = 'fetchVec3No16BytesAligned';
+            break;
           case MutableScalar:
             typeStr = 'float';
             fetchTypeStr = 'fetchScalarNo16BytesAligned';
@@ -153,8 +158,11 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
           case MutableMatrix33:
             indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 9 * instanceIdInBufferView;';
             break;
+          case MutableVector3:
+            indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 3 * instanceIdInBufferView;';
+            break;
           case MutableScalar:
-            indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + instanceIdInBufferView;';
+            indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 1 * instanceIdInBufferView;';
             break;
           default:
             throw new Error(`Unsupported data class type: ${memberInfo.dataClassType.name}`);

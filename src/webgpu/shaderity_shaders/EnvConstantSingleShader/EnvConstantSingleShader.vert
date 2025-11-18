@@ -16,8 +16,8 @@ fn main(
   var output : VertexOutput;
 
   let worldMatrix = get_worldMatrix(u32(instance_ids.x));
-  let viewMatrix = get_viewMatrix(cameraSID, 0u);
-  let projectionMatrix = get_projectionMatrix(cameraSID, 0u);
+  let viewMatrix = get_viewMatrix(cameraSID);
+  let projectionMatrix = get_projectionMatrix(cameraSID);
 
   if (get_enableViewMatrix(materialSID, 0u)) {
     var rotateMatrix = viewMatrix;

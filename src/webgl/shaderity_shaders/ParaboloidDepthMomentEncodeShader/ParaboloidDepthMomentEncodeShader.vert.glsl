@@ -32,7 +32,7 @@ void main()
   }
 
   mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
-  mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
+  mat4 viewMatrix = get_viewMatrix(cameraSID);
   mat3 normalMatrix = get_normalMatrix(a_instanceInfo.x);
   bool isBillboard = get_isBillboard(a_instanceInfo.x);
 
