@@ -191,7 +191,7 @@ export function _outputVertexAttributeBindingInfo(attributeNames: string[], attr
  * @param material - The material containing shader templates and properties
  * @param propertySetter - Function for setting shader properties
  * @param primitive - The geometric primitive that defines vertex attributes
- * @param vertexShaderMethodDefinitions_uniform - Uniform-based method definitions for vertex shader
+ * @param componentDataAccessMethodDefinitions - method definitions for component data access
  * @param isWebGL2 - Flag indicating if the current context is WebGL2
  * @returns A tuple containing the shader program handle and a boolean indicating if it's newly created
  */
@@ -199,7 +199,7 @@ export function _createProgramAsSingleOperationWebGL(
   material: Material,
   propertySetter: getShaderPropertyFunc,
   primitive: Primitive,
-  vertexShaderMethodDefinitions_uniform: string,
+  componentDataAccessMethodDefinitions: string,
   isWebGL2: boolean
 ): [CGAPIResourceHandle, boolean] {
   const vertexAttributeDefines = defineAttributes(primitive);
@@ -251,7 +251,7 @@ export function _createProgramAsSingleOperationWebGL(
     definitions: definitions,
     prerequisites: prerequisitesGlsl.code,
     mainPrerequisites: mainPrerequisitesGlsl.code,
-    matricesGetters: vertexShaderMethodDefinitions_uniform,
+    matricesGetters: componentDataAccessMethodDefinitions,
     processGeometry: processGeometryGlsl.code,
     Config,
   });
@@ -265,7 +265,7 @@ export function _createProgramAsSingleOperationWebGL(
     definitions: definitions + alphaMode,
     prerequisites: prerequisitesGlsl.code,
     mainPrerequisites: mainPrerequisitesGlsl.code,
-    matricesGetters: vertexShaderMethodDefinitions_uniform,
+    matricesGetters: componentDataAccessMethodDefinitions,
     opticalDefinition: opticalDefinitionGlsl.code,
     pbrDefinition: pbrDefinitionGlsl.code,
     iblDefinition: iblDefinitionGlsl.code,
@@ -361,14 +361,14 @@ export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, _pri
  *
  * @param material - The material containing shader templates and properties
  * @param primitive - The geometric primitive that defines vertex attributes
- * @param vertexShaderMethodDefinitions - Method definitions for vertex shader
+ * @param componentDataAccessMethodDefinitions - method definitions for component data access
  * @param propertySetter - Function for setting shader properties
  * @returns The handle to the created shader program
  */
 export function _createProgramAsSingleOperationWebGpu(
   material: Material,
   primitive: Primitive,
-  vertexShaderMethodDefinitions: string,
+  componentDataAccessMethodDefinitions: string,
   propertySetter: getShaderPropertyFunc
 ) {
   const vertexAttributeDefines = defineAttributes(primitive);
@@ -422,7 +422,7 @@ export function _createProgramAsSingleOperationWebGpu(
     fullscreen: fullscreenWgsl.code,
     getters: vertexPropertiesStr,
     definitions: `// RN_IS_VERTEX_SHADER\n#define RN_IS_VERTEX_SHADER\n${definitions}`,
-    matricesGetters: vertexShaderMethodDefinitions,
+    matricesGetters: componentDataAccessMethodDefinitions,
     processGeometry: processGeometryWgsl.code,
     Config,
   });
@@ -434,7 +434,7 @@ export function _createProgramAsSingleOperationWebGpu(
     mainPrerequisites: mainPrerequisitesWgsl.code,
     getters: pixelPropertiesStr,
     definitions: `// RN_IS_PIXEL_SHADER\n#define RN_IS_PIXEL_SHADER\n${definitions}${alphaMode}`,
-    matricesGetters: vertexShaderMethodDefinitions,
+    matricesGetters: componentDataAccessMethodDefinitions,
     opticalDefinition: opticalDefinitionWgsl.code,
     pbrDefinition: pbrDefinitionWgsl.code,
     iblDefinition: iblDefinitionWgsl.code,
