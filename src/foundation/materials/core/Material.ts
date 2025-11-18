@@ -468,14 +468,14 @@ export class Material extends RnObject {
   /**
    * Creates a WebGL shader program for this material and the given primitive.
    * @internal Called from WebGLStrategyDataTexture and WebGLStrategyUniform
-   * @param vertexShaderMethodDefinitions_uniform - Vertex shader method definitions for uniforms
+   * @param componentDataAccessMethodDefinitions - method definitions for component data access
    * @param propertySetter - Function to set shader properties
    * @param primitive - The primitive to create the program for
    * @param isWebGL2 - Whether to create a WebGL2 program
    * @returns A tuple containing the program UID and whether it's a new program
    */
   _createProgramWebGL(
-    vertexShaderMethodDefinitions_uniform: string,
+    componentDataAccessMethodDefinitions: string,
     propertySetter: getShaderPropertyFunc,
     primitive: Primitive,
     isWebGL2: boolean
@@ -484,7 +484,7 @@ export class Material extends RnObject {
       this,
       propertySetter,
       primitive,
-      vertexShaderMethodDefinitions_uniform,
+      componentDataAccessMethodDefinitions,
       isWebGL2
     );
     this._shaderProgramUidMap.set(primitive._getFingerPrint(), programUid);
@@ -497,18 +497,18 @@ export class Material extends RnObject {
   /**
    * Creates a WebGPU shader program for this material and the given primitive.
    * @param primitive - The primitive to create the program for
-   * @param vertexShaderMethodDefinitions - Vertex shader method definitions
+   * @param componentDataAccessMethodDefinitions - method definitions for component data access
    * @param propertySetter - Function to set shader properties
    */
   _createProgramWebGpu(
     primitive: Primitive,
-    vertexShaderMethodDefinitions: string,
+    componentDataAccessMethodDefinitions: string,
     propertySetter: getShaderPropertyFunc
   ) {
     const programUid = _createProgramAsSingleOperationWebGpu(
       this,
       primitive,
-      vertexShaderMethodDefinitions,
+      componentDataAccessMethodDefinitions,
       propertySetter
     );
 
