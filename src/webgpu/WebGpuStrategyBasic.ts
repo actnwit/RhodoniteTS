@@ -25,6 +25,7 @@ import { MutableMatrix33 } from '../foundation/math/MutableMatrix33';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import { MutableScalar } from '../foundation/math/MutableScalar';
 import { MutableVector3 } from '../foundation/math/MutableVector3';
+import { MutableVector4 } from '../foundation/math/MutableVector4';
 import type { Accessor } from '../foundation/memory/Accessor';
 import type { Buffer } from '../foundation/memory/Buffer';
 import { Logger } from '../foundation/misc/Logger';
@@ -113,7 +114,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
         if (memberInfo.shaderType !== shaderType && memberInfo.shaderType !== ShaderType.VertexAndPixelShader) {
           return;
         }
-        const componentCountPerBufferView = Component.getComponentCountPerBufferView().get(componentClass)!;
+        const componentCountPerBufferView = Component.getComponentCountPerBufferView().get(componentClass) ?? 1;
         let typeStr = '';
         let fetchTypeStr = '';
         switch (memberInfo.dataClassType) {
@@ -124,6 +125,10 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
           case MutableMatrix33:
             typeStr = 'mat3x3<f32>';
             fetchTypeStr = 'fetchMat3No16BytesAligned';
+            break;
+          case MutableVector4:
+            typeStr = 'vec4<f32>';
+            fetchTypeStr = 'fetchVec4';
             break;
           case MutableVector3:
             typeStr = 'vec3<f32>';
@@ -143,6 +148,9 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
             break;
           case MutableMatrix33:
             indexStr = 'indices[instanceIdOfBufferViews] * 4u + 9u * instanceIdInBufferView;';
+            break;
+          case MutableVector4:
+            indexStr = 'indices[instanceIdOfBufferViews] + 1u * instanceIdInBufferView;';
             break;
           case MutableVector3:
             indexStr = 'indices[instanceIdOfBufferViews] * 4u + 3u * instanceIdInBufferView;';

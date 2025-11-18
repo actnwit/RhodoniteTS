@@ -64,6 +64,7 @@ await Rn.System.init({
   approach: processApproach,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
+Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 const primitive = readyBasicVerticesData();
 

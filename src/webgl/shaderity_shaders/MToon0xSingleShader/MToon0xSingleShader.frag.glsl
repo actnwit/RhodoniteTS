@@ -14,11 +14,10 @@ in vec3 v_normal_inView;
 /* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
+/* shaderity: @{matricesGetters} */
 
 /* shaderity: @{opticalDefinition} */
 /* shaderity: @{pbrDefinition} */
-
-/* shaderity: @{matricesGetters} */
 
 /* shaderity: @{iblDefinition} */
 

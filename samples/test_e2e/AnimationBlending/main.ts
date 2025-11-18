@@ -9,6 +9,7 @@ await Rn.System.init({
   approach: processApproach,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
+Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 const expression = await Rn.GltfImporter.importFromUrl(
   '../../../assets/gltf/glTF-Sample-Assets/Models/Fox/glTF-Binary/Fox.glb'

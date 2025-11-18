@@ -137,31 +137,6 @@ export class CameraComponent extends Component {
       CameraComponent.current = componentSid;
     }
 
-    this.registerMember({
-      bufferUse: BufferUse.GPUInstanceData,
-      memberName: 'viewMatrix',
-      dataClassType: MutableMatrix44,
-      shaderType: ShaderType.VertexAndPixelShader,
-      componentType: ComponentType.Float,
-      initValues: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-    });
-    this.registerMember({
-      bufferUse: BufferUse.GPUInstanceData,
-      memberName: 'projectionMatrix',
-      dataClassType: MutableMatrix44,
-      shaderType: ShaderType.VertexAndPixelShader,
-      componentType: ComponentType.Float,
-      initValues: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-    });
-    this.registerMember({
-      bufferUse: BufferUse.GPUInstanceData,
-      memberName: 'viewPosition',
-      dataClassType: MutableVector3,
-      shaderType: ShaderType.VertexAndPixelShader,
-      componentType: ComponentType.Float,
-      initValues: [0, 0, 0],
-    });
-
     this.submitToAllocation(Config.cameraComponentCountPerBufferView, isReUse);
   }
 
@@ -1260,3 +1235,28 @@ export class CameraComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBaseClass;
   }
 }
+
+CameraComponent.registerMember({
+  bufferUse: BufferUse.GPUInstanceData,
+  memberName: 'viewMatrix',
+  dataClassType: MutableMatrix44,
+  shaderType: ShaderType.VertexAndPixelShader,
+  componentType: ComponentType.Float,
+  initValues: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+});
+CameraComponent.registerMember({
+  bufferUse: BufferUse.GPUInstanceData,
+  memberName: 'projectionMatrix',
+  dataClassType: MutableMatrix44,
+  shaderType: ShaderType.VertexAndPixelShader,
+  componentType: ComponentType.Float,
+  initValues: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+});
+CameraComponent.registerMember({
+  bufferUse: BufferUse.GPUInstanceData,
+  memberName: 'viewPosition',
+  dataClassType: MutableVector3,
+  shaderType: ShaderType.VertexAndPixelShader,
+  componentType: ComponentType.Float,
+  initValues: [0, 0, 0],
+});

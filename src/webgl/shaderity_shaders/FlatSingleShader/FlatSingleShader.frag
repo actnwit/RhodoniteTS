@@ -20,6 +20,8 @@ uniform float u_diffuseColorTextureRotation; // initialValue=0
 
 /* shaderity: @{getters} */
 
+/* shaderity: @{matricesGetters} */
+
 /* shaderity: @{opticalDefinition} */
 
 void main ()

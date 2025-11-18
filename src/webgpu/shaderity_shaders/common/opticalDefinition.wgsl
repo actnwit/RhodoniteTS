@@ -59,10 +59,10 @@ fn getLightAttenuated(light: Light) -> Light {
 }
 
 fn getLight(lightIdx: u32, v_position_inWorld: vec3<f32>) -> Light {
-  let lightPosition: vec3<f32> = get_lightPosition(0u, lightIdx);
-  let direction_and_w_of_LightObject: vec3<f32> = get_lightDirection(0u, lightIdx);
-  let lightIntensity: vec3<f32> = get_lightIntensity(0u, lightIdx);
-  let lightProperty: vec4<f32> = get_lightProperty(0u, lightIdx);
+  let lightPosition: vec3<f32> = get_lightPosition(lightIdx);
+  let direction_and_w_of_LightObject: vec3<f32> = get_lightDirection(lightIdx);
+  let lightIntensity: vec3<f32> = get_lightIntensity(lightIdx);
+  let lightProperty: vec4<f32> = get_lightProperty(lightIdx);
   var light: Light;
   light.directionOfLightObject = direction_and_w_of_LightObject;
   let lightType = lightProperty.x;
