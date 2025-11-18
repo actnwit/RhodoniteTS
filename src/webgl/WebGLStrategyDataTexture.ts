@@ -111,21 +111,10 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   }
 
   /**
-   * Generates vertex shader method definitions for data texture access.
-   * These methods provide standardized ways to fetch transformation matrices,
-   * visibility flags, and other per-instance data from the data texture.
-   *
-   * @returns A string containing GLSL shader method definitions for data texture access
-   *
-   * @remarks
-   * The generated methods include:
-   * - get_worldMatrix: Fetches world transformation matrix
-   * - get_normalMatrix: Fetches normal transformation matrix
-   * - get_isVisible: Fetches visibility flag
-   * - get_isBillboard: Fetches billboard flag
-   * - get_position: Fetches morphed vertex positions (if morphing is enabled)
+   * method definitions for component data access for data texture-based rendering.
+   * Provides GLSL functions for accessing component data through data textures.
    */
-  static getVertexShaderMethodDefinitions_dataTexture() {
+  static __getComponentDataAccessMethodDefinitions_dataTexture() {
     let str = '';
     const memberInfo = Component.getMemberInfo();
     memberInfo.forEach((mapMemberNameMemberInfo, componentClass) => {
@@ -229,7 +218,7 @@ ${str}
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
 
     const [programUid, newOne] = material._createProgramWebGL(
-      WebGLStrategyDataTexture.getVertexShaderMethodDefinitions_dataTexture(),
+      WebGLStrategyDataTexture.__getComponentDataAccessMethodDefinitions_dataTexture(),
       WebGLStrategyDataTexture.__getShaderProperty,
       primitive,
       glw.isWebGL2

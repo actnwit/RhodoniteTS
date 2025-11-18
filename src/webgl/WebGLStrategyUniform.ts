@@ -103,11 +103,10 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   private constructor() {}
 
   /**
-   * Vertex shader method definitions for uniform-based rendering.
-   * Provides GLSL functions for accessing world matrix, normal matrix, visibility,
-   * billboard state, and morphing functionality through uniforms.
+   * method definitions for component data access for uniform-based rendering.
+   * Provides GLSL functions for accessing component data through uniforms.
    */
-  private static __getVertexShaderMethodDefinitions_uniform() {
+  private static __getComponentDataAccessMethodDefinitions_uniform() {
     let str = '';
     const memberInfo = Component.getMemberInfo();
     memberInfo.forEach((mapMemberNameMemberInfo, _componentClass) => {
@@ -196,7 +195,7 @@ ${str}
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
 
     const [programUid, newOne] = material._createProgramWebGL(
-      WebGLStrategyUniform.__getVertexShaderMethodDefinitions_uniform(),
+      WebGLStrategyUniform.__getComponentDataAccessMethodDefinitions_uniform(),
       ShaderSemantics.getShaderProperty,
       primitive,
       glw.isWebGL2
