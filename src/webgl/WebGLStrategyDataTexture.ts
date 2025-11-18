@@ -126,6 +126,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
         if (memberInfo.shaderType !== shaderType && memberInfo.shaderType !== ShaderType.VertexAndPixelShader) {
           return;
         }
+        const componentCountPerBufferView = Component.getComponentCountPerBufferView().get(componentClass)!;
         let typeStr = '';
         let fetchTypeStr = '';
         switch (memberInfo.dataClassType) {
@@ -173,8 +174,8 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
         }
         str += `
   ${memberInfo.convertToBool ? 'bool' : typeStr} get_${memberName}(float instanceId) {
-    int instanceIdOfBufferViews = int(instanceId) / ${Config.scenegraphComponentCountPerBufferView};
-    int instanceIdInBufferView = int(instanceId) % ${Config.scenegraphComponentCountPerBufferView};
+    int instanceIdOfBufferViews = int(instanceId) / ${componentCountPerBufferView};
+    int instanceIdInBufferView = int(instanceId) % ${componentCountPerBufferView};
     int indices[] = int[](${locationOffsets.join(', ')});
     ${indexStr}
     ${typeStr} value = ${fetchTypeStr}(index);

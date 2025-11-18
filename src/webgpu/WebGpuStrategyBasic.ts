@@ -113,6 +113,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
         if (memberInfo.shaderType !== shaderType && memberInfo.shaderType !== ShaderType.VertexAndPixelShader) {
           return;
         }
+        const componentCountPerBufferView = Component.getComponentCountPerBufferView().get(componentClass)!;
         let typeStr = '';
         let fetchTypeStr = '';
         switch (memberInfo.dataClassType) {
@@ -158,8 +159,8 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
         }
         str += `
   fn get_${memberName}(instanceId: u32) -> ${memberInfo.convertToBool ? 'bool' : typeStr} {
-    let instanceIdOfBufferViews = instanceId / ${Config.scenegraphComponentCountPerBufferView};
-    let instanceIdInBufferView = instanceId % ${Config.scenegraphComponentCountPerBufferView};
+    let instanceIdOfBufferViews = instanceId / ${componentCountPerBufferView};
+    let instanceIdInBufferView = instanceId % ${componentCountPerBufferView};
     var<function> indices: array<u32, ${locationOffsets.length}> = array<u32, ${locationOffsets.length}>(${locationOffsets.map(offset => `${offset}u`).join(', ')});
     let index: u32 = ${indexStr};
     let value = ${fetchTypeStr}(index);

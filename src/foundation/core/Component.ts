@@ -57,6 +57,7 @@ export class Component extends RnObject {
   private static __accessors: Map<typeof Component, Map<MemberName, Map<IndexOfTheBufferView, Accessor>>> = new Map();
 
   private static __memberInfo: Map<typeof Component, Map<MemberName, MemberInfo>> = new Map();
+  private static __componentCountPerBufferView: Map<typeof Component, Count> = new Map();
 
   private static __byteOffsetOfAccessorInBufferOfMembers: Map<
     typeof Component,
@@ -257,6 +258,7 @@ export class Component extends RnObject {
    * @param initValues - Initial values to set for the member
    * @param isReUse - Whether to reuse an existing memory slot
    * @param componentSid - The component scoped ID
+   * @param componentCountPerBufferView - The number of components per buffer view
    * @returns null on success
    */
   private __takeOne(
@@ -264,14 +266,15 @@ export class Component extends RnObject {
     dataClassType: any,
     initValues: number[],
     isReUse: boolean,
-    componentSid: ComponentSID
+    componentSid: ComponentSID,
+    componentCountPerBufferView: Count
   ): any {
     if (!(this as any)[`_${memberName}`].isDummy()) {
       return;
     }
 
-    const indexOfTheBufferView = Math.floor(componentSid / Config.scenegraphComponentCountPerBufferView);
-    const indexOfBufferViews = componentSid % Config.scenegraphComponentCountPerBufferView;
+    const indexOfTheBufferView = Math.floor(componentSid / componentCountPerBufferView);
+    const indexOfBufferViews = componentSid % componentCountPerBufferView;
     const accessorsOfMember = Component.__accessors.get(this.constructor as typeof Component)!.get(memberName)!;
     let taken: TypedArray | undefined;
     if (isReUse) {
@@ -306,7 +309,8 @@ export class Component extends RnObject {
     componentClass: typeof Component,
     compositionType: CompositionTypeEnum,
     componentType: ComponentTypeEnum,
-    indexOfTheBufferView: IndexOfTheBufferView
+    indexOfTheBufferView: IndexOfTheBufferView,
+    componentCountPerBufferView: Count
   ): Result<Accessor, undefined> {
     if (!this.__accessors.has(componentClass)) {
       this.__accessors.set(componentClass, new Map());
@@ -323,7 +327,7 @@ export class Component extends RnObject {
       const bytes = compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
       const buffer = MemoryManager.getInstance().createOrGetBuffer(bufferUse);
       const bufferViewResult = buffer.takeBufferView({
-        byteLengthToNeed: bytes * Config.scenegraphComponentCountPerBufferView,
+        byteLengthToNeed: bytes * componentCountPerBufferView,
         byteStride: 0,
       });
       if (bufferViewResult.isErr()) {
@@ -335,7 +339,7 @@ export class Component extends RnObject {
       const accessorResult = bufferViewResult.get().takeAccessor({
         compositionType,
         componentType,
-        count: Config.scenegraphComponentCountPerBufferView,
+        count: componentCountPerBufferView,
         byteStride: bytes,
       });
       if (accessorResult.isErr()) {
@@ -406,21 +410,30 @@ export class Component extends RnObject {
    * This method is called during component initialization to set up memory layout
    * and allocate space for the specified number of entities.
    *
+   * @param componentCountPerBufferView - The number of components per buffer view
    * @param isReUse - Whether to reuse existing memory allocations
    */
-  submitToAllocation(isReUse: boolean): void {
+  submitToAllocation(componentCountPerBufferView: Count, isReUse: boolean): void {
     const componentClass = this.constructor as typeof Component;
+    Component.__componentCountPerBufferView.set(componentClass, componentCountPerBufferView);
     const memberInfoArray = Component.__memberInfo.get(componentClass)!;
 
     // Do this only for the first entity of the component
-    const indexOfTheBufferView = Math.floor(this._component_sid / Config.scenegraphComponentCountPerBufferView);
-    if (this._component_sid % Config.scenegraphComponentCountPerBufferView === 0) {
+    const indexOfTheBufferView = Math.floor(this._component_sid / componentCountPerBufferView);
+    if (this._component_sid % componentCountPerBufferView === 0) {
       getBufferViewsAndAccessors(indexOfTheBufferView);
     }
 
     // take a field value allocation for each entity for each member field
     memberInfoArray.forEach(info => {
-      this.__takeOne(info.memberName, info.dataClassType, info.initValues, isReUse, this._component_sid);
+      this.__takeOne(
+        info.memberName,
+        info.dataClassType,
+        info.initValues,
+        isReUse,
+        this._component_sid,
+        componentCountPerBufferView
+      );
     });
 
     // inner function
@@ -434,7 +447,8 @@ export class Component extends RnObject {
           componentClass,
           info.compositionType,
           info.componentType,
-          indexOfTheBufferView
+          indexOfTheBufferView,
+          componentCountPerBufferView
         );
         if (accessorResult.isErr()) {
           throw new RnException(accessorResult.getRnError());
@@ -609,6 +623,14 @@ export class Component extends RnObject {
    */
   static getMemberInfo(): Map<typeof Component, Map<MemberName, MemberInfo>> {
     return new Map(this.__memberInfo);
+  }
+
+  /**
+   * Gets the number of components per buffer view for the component.
+   * @returns The number of components per buffer view for the component
+   */
+  static getComponentCountPerBufferView(): Map<typeof Component, Count> {
+    return new Map(Component.__componentCountPerBufferView);
   }
 
   /**
