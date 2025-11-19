@@ -16,8 +16,6 @@ import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { dummyBlackCubeTexture } from '../core/DummyTextures';
 import type { Material } from '../core/Material';
 
-const __latestMaterialMeshRenderComponentVersionMap = new Map<string, number>();
-
 /**
  * Custom material content class that extends AbstractMaterialContent to provide
  * custom shader handling and rendering capabilities with support for IBL (Image-Based Lighting),
@@ -214,27 +212,18 @@ export class CustomMaterialContent extends AbstractMaterialContent {
         });
       }
     } else {
-      const meshRenderComponentVersion = __latestMaterialMeshRenderComponentVersionMap.get(
-        `${args.entity.getMeshRenderer().componentSID}_${args.primitive.primitiveUid}`
-      );
-      if (meshRenderComponentVersion !== args.entity.getMeshRenderer().updateCount) {
-        __latestMaterialMeshRenderComponentVersionMap.set(
-          `${args.entity.getMeshRenderer().componentSID}_${args.primitive.primitiveUid}`,
-          args.entity.getMeshRenderer().updateCount
-        );
-        const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
-          CustomMaterialContent.__setupHdriParameters(args);
-        const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
-        tmp_vector4.x = mipmapLevelNumber;
-        tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
-        tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
-        tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
-        material.setParameter('iblParameter', tmp_vector4);
-        const tmp_vector2 = AbstractMaterialContent.__tmp_vector2;
-        tmp_vector2.x = diffuseHdriType;
-        tmp_vector2.y = specularHdriType;
-        material.setParameter('hdriFormat', tmp_vector2);
-      }
+      const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
+        CustomMaterialContent.__setupHdriParameters(args);
+      const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
+      tmp_vector4.x = mipmapLevelNumber;
+      tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
+      tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
+      tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
+      material.setParameter('iblParameter', tmp_vector4);
+      const tmp_vector2 = AbstractMaterialContent.__tmp_vector2;
+      tmp_vector2.x = diffuseHdriType;
+      tmp_vector2.y = specularHdriType;
+      material.setParameter('hdriFormat', tmp_vector2);
     }
   }
 
