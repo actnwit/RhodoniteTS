@@ -133,6 +133,9 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
           case CompositionType.Scalar:
             typeStr = 'float';
             break;
+          case CompositionType.Mat4x3Array:
+            typeStr = 'mat4x3';
+            break;
           default:
             throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
         }

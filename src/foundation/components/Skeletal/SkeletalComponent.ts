@@ -5,8 +5,12 @@ import type { IEntity } from '../../core/Entity';
 import { EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { BoneDataType } from '../../definitions/BoneDataType';
+import { BufferUse } from '../../definitions/BufferUse';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import { ShaderSemantics } from '../../definitions/ShaderSemantics';
+import { ShaderType } from '../../definitions/ShaderType';
 import type { ISkeletalEntity } from '../../helpers/EntityHelper';
 import type { IMatrix44 } from '../../math/IMatrix';
 import { MathUtil } from '../../math/MathUtil';
@@ -15,6 +19,7 @@ import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { MutableQuaternion } from '../../math/MutableQuaternion';
 import { MutableVector3 } from '../../math/MutableVector3';
 import { MutableVector4 } from '../../math/MutableVector4';
+import { VectorN } from '../../math/VectorN';
 import type { Accessor } from '../../memory/Accessor';
 import { Is } from '../../misc';
 import { Logger } from '../../misc/Logger';
@@ -43,6 +48,7 @@ export class SkeletalComponent extends Component {
   private __qtsArray = new Float32Array(0);
   private __qtsInfo = MutableVector4.dummy();
   private __matArray = new Float32Array(0);
+  private _boneMatrix = VectorN.dummy();
   private __worldMatrix = MutableMatrix44.identity();
   private __isWorldMatrixVanilla = true;
   _isCulled = false;
@@ -577,3 +583,13 @@ export class SkeletalComponent extends Component {
     return m;
   }
 }
+
+// SkeletalComponent.registerMember({
+//   bufferUse: BufferUse.GPUInstanceData,
+//   memberName: 'boneMatrix',
+//   dataClassType: VectorN,
+//   shaderType: ShaderType.VertexShader,
+//   compositionType: CompositionType.Mat4x3Array,
+//   componentType: ComponentType.Float,
+//   initValues: new VectorN(new Float32Array(0)),
+// });
