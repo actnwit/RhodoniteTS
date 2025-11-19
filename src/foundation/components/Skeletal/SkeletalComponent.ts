@@ -506,7 +506,7 @@ export class SkeletalComponent extends Component {
     const component = component_ as SkeletalComponent;
 
     this._jointIndices = component._jointIndices.concat();
-    this.setJoints(component.__joints.concat());
+    // this.setJoints(component.__joints.concat());
     // this.setJoints([]);
 
     this.__inverseBindMatricesAccessor = component.__inverseBindMatricesAccessor;
@@ -524,7 +524,7 @@ export class SkeletalComponent extends Component {
     this.__sqArray.set(component.__sqArray);
     this.__qtsArray.set(component.__qtsArray);
     this.__qtsInfo.copyComponents(component.__qtsInfo);
-    this._boneMatrix.copyComponents(component._boneMatrix);
+    // this._boneMatrix.copyComponents(component._boneMatrix);
     this.__worldMatrix.copyComponents(component.__worldMatrix);
     this.__isWorldMatrixVanilla = component.__isWorldMatrixVanilla;
   }
