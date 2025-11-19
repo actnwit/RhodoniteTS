@@ -75,34 +75,7 @@ export class GlobalDataRepository {
       : Config.maxSkeletalBoneNumber;
 
     // Skinning
-    if (Config.boneDataType === BoneDataType.Vec4x2) {
-      const boneTranslatePackedQuatInfo = {
-        semantic: 'boneTranslatePackedQuat',
-        compositionType: CompositionType.Vec4Array,
-        arrayLength: maxSkeletalBoneNumber,
-        componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader,
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        isInternalSetting: true,
-        soloDatum: true,
-        initialValue: new VectorN(new Float32Array(0)),
-      };
-      const boneScalePackedQuatInfo = {
-        semantic: 'boneScalePackedQuat',
-        compositionType: CompositionType.Vec4Array,
-        arrayLength: maxSkeletalBoneNumber,
-        componentType: ComponentType.Float,
-        soloDatum: true,
-        stage: ShaderType.VertexShader,
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        isInternalSetting: true,
-        initialValue: new VectorN(new Float32Array(0)),
-      };
-      this.__registerProperty(boneTranslatePackedQuatInfo, Config.maxSkeletonNumber);
-      this.__registerProperty(boneScalePackedQuatInfo, Config.maxSkeletonNumber);
-    } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
+    if (Config.boneDataType === BoneDataType.Vec4x2Old) {
       const boneQuaternionInfo = {
         semantic: 'boneQuaternion',
         compositionType: CompositionType.Vec4Array,
