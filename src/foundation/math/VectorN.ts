@@ -51,4 +51,8 @@ export class VectorN {
   setAt(i: number, value: number) {
     this._v[i] = value;
   }
+
+  getAt(i: number) {
+    return this._v[i];
+  }
 }

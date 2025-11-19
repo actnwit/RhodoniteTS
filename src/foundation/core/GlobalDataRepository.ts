@@ -70,63 +70,8 @@ export class GlobalDataRepository {
     this.__registerProperty(currentComponentSIDsInfo, 1);
     this.takeOne('currentComponentSIDs');
 
-    const maxSkeletalBoneNumber = ProcessApproach.isUniformApproach(approach)
-      ? Config.maxSkeletalBoneNumberForUniformMode
-      : Config.maxSkeletalBoneNumber;
-
     // Skinning
-    if (Config.boneDataType === BoneDataType.Vec4x2Old) {
-      const boneQuaternionInfo = {
-        semantic: 'boneQuaternion',
-        compositionType: CompositionType.Vec4Array,
-        arrayLength: maxSkeletalBoneNumber,
-        componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader,
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        isInternalSetting: true,
-        soloDatum: true,
-        initialValue: new VectorN(new Float32Array(0)),
-      };
-      const boneTranslateScaleInfo = {
-        semantic: 'boneTranslateScale',
-        compositionType: CompositionType.Vec4Array,
-        arrayLength: maxSkeletalBoneNumber,
-        componentType: ComponentType.Float,
-        soloDatum: true,
-        stage: ShaderType.VertexShader,
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        isInternalSetting: true,
-        initialValue: new VectorN(new Float32Array(0)),
-      };
-      this.__registerProperty(boneQuaternionInfo, Config.maxSkeletonNumber);
-      this.__registerProperty(boneTranslateScaleInfo, Config.maxSkeletonNumber);
-    } else if (Config.boneDataType === BoneDataType.Vec4x1) {
-      const boneTranslateScaleInfo = {
-        semantic: 'boneTranslateScale',
-        compositionType: CompositionType.Vec4Array,
-        arrayLength: maxSkeletalBoneNumber,
-        componentType: ComponentType.Float,
-        soloDatum: true,
-        stage: ShaderType.VertexShader,
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        isInternalSetting: true,
-        initialValue: new VectorN(new Float32Array(0)),
-      };
-      const boneCompressedChunkInfo = {
-        semantic: 'boneCompressedChunk',
-        compositionType: CompositionType.Vec4Array,
-        arrayLength: maxSkeletalBoneNumber,
-        componentType: ComponentType.Float,
-        soloDatum: true,
-        stage: ShaderType.VertexShader,
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        isInternalSetting: true,
-        initialValue: new VectorN(new Float32Array(0)),
-      };
+    if (Config.boneDataType === BoneDataType.Vec4x1) {
       const boneCompressedInfoInfo = {
         semantic: 'boneCompressedInfo',
         compositionType: CompositionType.Vec4,
@@ -138,8 +83,6 @@ export class GlobalDataRepository {
         isInternalSetting: true,
         initialValue: Vector4.zero(),
       };
-      this.__registerProperty(boneTranslateScaleInfo, Config.maxSkeletonNumber);
-      this.__registerProperty(boneCompressedChunkInfo, Config.maxSkeletonNumber);
       this.__registerProperty(boneCompressedInfoInfo, 1);
       this.takeOne('boneCompressedInfo');
     }
