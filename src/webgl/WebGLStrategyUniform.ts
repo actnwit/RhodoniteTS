@@ -117,24 +117,24 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
           return;
         }
         let typeStr = '';
-        switch (memberInfo.dataClassType) {
-          case MutableMatrix44:
+        switch (memberInfo.compositionType) {
+          case CompositionType.Mat4:
             typeStr = 'mat4';
             break;
-          case MutableMatrix33:
+          case CompositionType.Mat3:
             typeStr = 'mat3';
             break;
-          case MutableVector4:
+          case CompositionType.Vec4:
             typeStr = 'vec4';
             break;
-          case MutableVector3:
+          case CompositionType.Vec3:
             typeStr = 'vec3';
             break;
-          case MutableScalar:
+          case CompositionType.Scalar:
             typeStr = 'float';
             break;
           default:
-            throw new Error(`Unsupported data class type: ${memberInfo.dataClassType.name}`);
+            throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
         }
         str += `uniform ${memberInfo.convertToBool ? 'bool' : typeStr} u_${memberName};\n`;
         str += `${memberInfo.convertToBool ? 'bool' : typeStr} get_${memberName}(float instanceId) {
