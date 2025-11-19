@@ -43,4 +43,12 @@ export class VectorN {
     }
     return false;
   }
+
+  copyComponents(vec: VectorN) {
+    this._v.set(vec._v);
+  }
+
+  setAt(i: number, value: number) {
+    this._v[i] = value;
+  }
 }
