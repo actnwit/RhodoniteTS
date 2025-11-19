@@ -6,7 +6,7 @@ import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
-import { Component } from '../foundation/core/Component';
+import { Component, type MemberInfo } from '../foundation/core/Component';
 import { ComponentRepository } from '../foundation/core/ComponentRepository';
 import { Config } from '../foundation/core/Config';
 import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
@@ -115,68 +115,11 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
           return;
         }
         const componentCountPerBufferView = Component.getComponentCountPerBufferView().get(componentClass) ?? 1;
-        let typeStr = '';
-        let fetchTypeStr = '';
-        switch (memberInfo.compositionType) {
-          case CompositionType.Mat4:
-            typeStr = 'mat4x4<f32>';
-            fetchTypeStr = 'fetchMat4';
-            break;
-          case CompositionType.Mat3:
-            typeStr = 'mat3x3<f32>';
-            fetchTypeStr = 'fetchMat3No16BytesAligned';
-            break;
-          case CompositionType.Vec4:
-            typeStr = 'vec4<f32>';
-            fetchTypeStr = 'fetchVec4';
-            break;
-          case CompositionType.Vec3:
-            typeStr = 'vec3<f32>';
-            fetchTypeStr = 'fetchVec3No16BytesAligned';
-            break;
-          case CompositionType.Scalar:
-            typeStr = 'f32';
-            fetchTypeStr = 'fetchScalarNo16BytesAligned';
-            break;
-          default:
-            throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
+        if (CompositionType.isArray(memberInfo.compositionType)) {
+          processForArrayType(memberInfo, componentClass, memberName, componentCountPerBufferView);
+        } else {
+          processForNonArrayType(memberInfo, componentClass, memberName, componentCountPerBufferView);
         }
-
-        const locationOffsets = Component.getLocationOffsetOfMemberOfComponent(componentClass, memberName);
-        let indexStr = '';
-        switch (memberInfo.compositionType) {
-          case CompositionType.Mat4:
-            indexStr = 'indices[instanceIdOfBufferViews] + 4u * instanceIdInBufferView;';
-            break;
-          case CompositionType.Mat3:
-            indexStr = 'indices[instanceIdOfBufferViews] * 4u + 9u * instanceIdInBufferView;';
-            break;
-          case CompositionType.Vec4:
-            indexStr = 'indices[instanceIdOfBufferViews] + 1u * instanceIdInBufferView;';
-            break;
-          case CompositionType.Vec3:
-            indexStr = 'indices[instanceIdOfBufferViews] * 4u + 3u * instanceIdInBufferView;';
-            break;
-          case CompositionType.Scalar:
-            indexStr = 'indices[instanceIdOfBufferViews] * 4u + 1u * instanceIdInBufferView;';
-            break;
-          default:
-            throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
-        }
-        let conversionStr = '';
-        if (memberInfo.convertToBool) {
-          conversionStr = 'if (value > 0.5) { return true; } else { return false; }';
-        }
-        str += `
-  fn get_${memberName}(instanceId: u32) -> ${memberInfo.convertToBool ? 'bool' : typeStr} {
-    let instanceIdOfBufferViews = instanceId / ${componentCountPerBufferView};
-    let instanceIdInBufferView = instanceId % ${componentCountPerBufferView};
-    var<function> indices: array<u32, ${locationOffsets.length}> = array<u32, ${locationOffsets.length}>(${locationOffsets.map(offset => `${offset}u`).join(', ')});
-    let index: u32 = ${indexStr};
-    let value = ${fetchTypeStr}(index);
-    ${memberInfo.convertToBool ? conversionStr : 'return value;'}
-  }
-  `;
       });
     });
 
@@ -212,6 +155,83 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
     }
 
     return str;
+
+    function processForArrayType(
+      memberInfo: MemberInfo,
+      componentClass: typeof Component,
+      memberName: string,
+      componentCountPerBufferView: number
+    ) {}
+
+    function processForNonArrayType(
+      memberInfo: MemberInfo,
+      componentClass: typeof Component,
+      memberName: string,
+      componentCountPerBufferView: number
+    ) {
+      let typeStr = '';
+      let fetchTypeStr = '';
+      switch (memberInfo.compositionType) {
+        case CompositionType.Mat4:
+          typeStr = 'mat4x4<f32>';
+          fetchTypeStr = 'fetchMat4';
+          break;
+        case CompositionType.Mat3:
+          typeStr = 'mat3x3<f32>';
+          fetchTypeStr = 'fetchMat3No16BytesAligned';
+          break;
+        case CompositionType.Vec4:
+          typeStr = 'vec4<f32>';
+          fetchTypeStr = 'fetchVec4';
+          break;
+        case CompositionType.Vec3:
+          typeStr = 'vec3<f32>';
+          fetchTypeStr = 'fetchVec3No16BytesAligned';
+          break;
+        case CompositionType.Scalar:
+          typeStr = 'f32';
+          fetchTypeStr = 'fetchScalarNo16BytesAligned';
+          break;
+        default:
+          throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
+      }
+
+      const locationOffsets = Component.getLocationOffsetOfMemberOfComponent(componentClass, memberName);
+      let indexStr = '';
+      switch (memberInfo.compositionType) {
+        case CompositionType.Mat4:
+          indexStr = 'indices[instanceIdOfBufferViews] + 4u * instanceIdInBufferView;';
+          break;
+        case CompositionType.Mat3:
+          indexStr = 'indices[instanceIdOfBufferViews] * 4u + 9u * instanceIdInBufferView;';
+          break;
+        case CompositionType.Vec4:
+          indexStr = 'indices[instanceIdOfBufferViews] + 1u * instanceIdInBufferView;';
+          break;
+        case CompositionType.Vec3:
+          indexStr = 'indices[instanceIdOfBufferViews] * 4u + 3u * instanceIdInBufferView;';
+          break;
+        case CompositionType.Scalar:
+          indexStr = 'indices[instanceIdOfBufferViews] * 4u + 1u * instanceIdInBufferView;';
+          break;
+        default:
+          throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
+      }
+      let conversionStr = '';
+      if (memberInfo.convertToBool) {
+        conversionStr = 'if (value > 0.5) { return true; } else { return false; }';
+      }
+      str += `
+  fn get_${memberName}(instanceId: u32) -> ${memberInfo.convertToBool ? 'bool' : typeStr} {
+    let instanceIdOfBufferViews = instanceId / ${componentCountPerBufferView};
+    let instanceIdInBufferView = instanceId % ${componentCountPerBufferView};
+    var<function> indices: array<u32, ${locationOffsets.length}> = array<u32, ${locationOffsets.length}>(${locationOffsets.map(offset => `${offset}u`).join(', ')});
+    let index: u32 = ${indexStr};
+    let value = ${fetchTypeStr}(index);
+    ${memberInfo.convertToBool ? conversionStr : 'return value;'}
+  }
+  `;
+    }
   }
 
   /**

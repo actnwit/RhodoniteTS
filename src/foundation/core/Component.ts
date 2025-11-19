@@ -12,6 +12,7 @@ import type { MutableQuaternion } from '../math/MutableQuaternion';
 import type { MutableScalar } from '../math/MutableScalar';
 import type { MutableVector3 } from '../math/MutableVector3';
 import type { MutableVector4 } from '../math/MutableVector4';
+import { VectorN } from '../math/VectorN';
 import type { Accessor } from '../memory/Accessor';
 import type { BufferView } from '../memory/BufferView';
 import { RnException } from '../misc';
@@ -24,6 +25,7 @@ import type { EntityRepository } from './EntityRepository';
 import { RnObject } from './RnObject';
 
 type DataClassType =
+  | typeof VectorN
   | typeof MutableMatrix44
   | typeof MutableMatrix33
   | typeof MutableVector3
@@ -31,14 +33,14 @@ type DataClassType =
   | typeof MutableQuaternion
   | typeof MutableScalar;
 
-type MemberInfo = {
+export type MemberInfo = {
   memberName: string;
   bufferUse: BufferUseEnum;
   dataClassType: DataClassType;
   shaderType: ShaderTypeEnum;
   compositionType: CompositionTypeEnum;
   componentType: ComponentTypeEnum;
-  initValues: number[];
+  initValues: number[] | VectorN;
   convertToBool?: boolean;
 };
 
@@ -264,7 +266,7 @@ export class Component extends RnObject {
   private __takeOne(
     memberName: string,
     dataClassType: any,
-    initValues: number[],
+    initValues: number[] | VectorN,
     isReUse: boolean,
     componentSid: ComponentSID,
     componentCountPerBufferView: Count
@@ -284,8 +286,10 @@ export class Component extends RnObject {
     }
     (this as any)[`_${memberName}`] = new dataClassType(taken, false, true);
 
-    for (let i = 0; i < (this as any)[`_${memberName}`]._v.length; ++i) {
-      (this as any)[`_${memberName}`]._v[i] = initValues[i];
+    if (!(initValues instanceof VectorN)) {
+      for (let i = 0; i < (this as any)[`_${memberName}`]._v.length; ++i) {
+        (this as any)[`_${memberName}`]._v[i] = initValues[i];
+      }
     }
 
     return null;
@@ -389,7 +393,7 @@ export class Component extends RnObject {
       shaderType: ShaderTypeEnum;
       compositionType: CompositionTypeEnum;
       componentType: ComponentTypeEnum;
-      initValues: number[];
+      initValues: number[] | VectorN;
       convertToBool?: boolean;
     }
   ) {

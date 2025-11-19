@@ -7,14 +7,14 @@ import { MeshRendererComponent } from '../foundation/components/MeshRenderer/Mes
 import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
 import { WellKnownComponentTIDs } from '../foundation/components/WellKnownComponentTIDs';
-import { Component } from '../foundation/core/Component';
+import { Component, type MemberInfo } from '../foundation/core/Component';
 import { ComponentRepository } from '../foundation/core/ComponentRepository';
 import { Config } from '../foundation/core/Config';
 import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import { MemoryManager } from '../foundation/core/MemoryManager';
-import { BufferUse } from '../foundation/definitions/BufferUse';
-import { ComponentType } from '../foundation/definitions/ComponentType';
-import { CompositionType } from '../foundation/definitions/CompositionType';
+import { BufferUse, type BufferUseEnum } from '../foundation/definitions/BufferUse';
+import { ComponentType, type ComponentTypeEnum } from '../foundation/definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../foundation/definitions/CompositionType';
 import { PixelFormat } from '../foundation/definitions/PixelFormat';
 import { ShaderSemantics, type ShaderSemanticsName } from '../foundation/definitions/ShaderSemantics';
 import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
@@ -25,11 +25,12 @@ import type { Mesh } from '../foundation/geometry/Mesh';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { Material } from '../foundation/materials/core/Material';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
-import { MutableMatrix33 } from '../foundation/math/MutableMatrix33';
-import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
-import { MutableScalar } from '../foundation/math/MutableScalar';
-import { MutableVector3 } from '../foundation/math/MutableVector3';
-import { MutableVector4 } from '../foundation/math/MutableVector4';
+import type { MutableMatrix33 } from '../foundation/math/MutableMatrix33';
+import type { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
+import type { MutableQuaternion } from '../foundation/math/MutableQuaternion';
+import type { MutableScalar } from '../foundation/math/MutableScalar';
+import type { MutableVector3 } from '../foundation/math/MutableVector3';
+import type { MutableVector4 } from '../foundation/math/MutableVector4';
 import type { Vector2 } from '../foundation/math/Vector2';
 import type { VectorN } from '../foundation/math/VectorN';
 import type { Buffer } from '../foundation/memory/Buffer';
@@ -128,68 +129,11 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
           return;
         }
         const componentCountPerBufferView = Component.getComponentCountPerBufferView().get(componentClass) ?? 1;
-        let typeStr = '';
-        let fetchTypeStr = '';
-        switch (memberInfo.compositionType) {
-          case CompositionType.Mat4:
-            typeStr = 'mat4';
-            fetchTypeStr = 'fetchMat4';
-            break;
-          case CompositionType.Mat3:
-            typeStr = 'mat3';
-            fetchTypeStr = 'fetchMat3No16BytesAligned';
-            break;
-          case CompositionType.Vec4:
-            typeStr = 'vec4';
-            fetchTypeStr = 'fetchVec4';
-            break;
-          case CompositionType.Vec3:
-            typeStr = 'vec3';
-            fetchTypeStr = 'fetchVec3No16BytesAligned';
-            break;
-          case CompositionType.Scalar:
-            typeStr = 'float';
-            fetchTypeStr = 'fetchScalarNo16BytesAligned';
-            break;
-          default:
-            throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
+        if (CompositionType.isArray(memberInfo.compositionType)) {
+          processForArrayType(memberInfo, componentClass, memberName, componentCountPerBufferView);
+        } else {
+          processForNonArrayType(memberInfo, componentClass, memberName, componentCountPerBufferView);
         }
-
-        const locationOffsets = Component.getLocationOffsetOfMemberOfComponent(componentClass, memberName);
-        let indexStr = '';
-        switch (memberInfo.compositionType) {
-          case CompositionType.Mat4:
-            indexStr = 'int index = indices[instanceIdOfBufferViews] + 4 * instanceIdInBufferView;';
-            break;
-          case CompositionType.Mat3:
-            indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 9 * instanceIdInBufferView;';
-            break;
-          case CompositionType.Vec4:
-            indexStr = 'int index = indices[instanceIdOfBufferViews] + 1 * instanceIdInBufferView;';
-            break;
-          case CompositionType.Vec3:
-            indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 3 * instanceIdInBufferView;';
-            break;
-          case CompositionType.Scalar:
-            indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 1 * instanceIdInBufferView;';
-            break;
-          default:
-            throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
-        }
-        let conversionStr = '';
-        if (memberInfo.convertToBool) {
-          conversionStr = 'return (value > 0.5) ? true : false;';
-        }
-        str += `
-  ${memberInfo.convertToBool ? 'bool' : typeStr} get_${memberName}(float instanceId) {
-    int instanceIdOfBufferViews = int(instanceId) / ${componentCountPerBufferView};
-    int instanceIdInBufferView = int(instanceId) % ${componentCountPerBufferView};
-    int indices[] = int[](${locationOffsets.join(', ')});
-    ${indexStr}
-    ${typeStr} value = ${fetchTypeStr}(index);
-    ${memberInfo.convertToBool ? conversionStr : 'return value;'}
-  }
-`;
       });
     });
 
@@ -221,6 +165,82 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
       str += morphingStr;
     }
     return str;
+
+    function processForArrayType(
+      memberInfo: MemberInfo,
+      componentClass: typeof Component,
+      memberName: string,
+      componentCountPerBufferView: number
+    ) {}
+    function processForNonArrayType(
+      memberInfo: MemberInfo,
+      componentClass: typeof Component,
+      memberName: string,
+      componentCountPerBufferView: number
+    ) {
+      let typeStr = '';
+      let fetchTypeStr = '';
+      switch (memberInfo.compositionType) {
+        case CompositionType.Mat4:
+          typeStr = 'mat4';
+          fetchTypeStr = 'fetchMat4';
+          break;
+        case CompositionType.Mat3:
+          typeStr = 'mat3';
+          fetchTypeStr = 'fetchMat3No16BytesAligned';
+          break;
+        case CompositionType.Vec4:
+          typeStr = 'vec4';
+          fetchTypeStr = 'fetchVec4';
+          break;
+        case CompositionType.Vec3:
+          typeStr = 'vec3';
+          fetchTypeStr = 'fetchVec3No16BytesAligned';
+          break;
+        case CompositionType.Scalar:
+          typeStr = 'float';
+          fetchTypeStr = 'fetchScalarNo16BytesAligned';
+          break;
+        default:
+          throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
+      }
+
+      const locationOffsets = Component.getLocationOffsetOfMemberOfComponent(componentClass, memberName);
+      let indexStr = '';
+      switch (memberInfo.compositionType) {
+        case CompositionType.Mat4:
+          indexStr = 'int index = indices[instanceIdOfBufferViews] + 4 * instanceIdInBufferView;';
+          break;
+        case CompositionType.Mat3:
+          indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 9 * instanceIdInBufferView;';
+          break;
+        case CompositionType.Vec4:
+          indexStr = 'int index = indices[instanceIdOfBufferViews] + 1 * instanceIdInBufferView;';
+          break;
+        case CompositionType.Vec3:
+          indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 3 * instanceIdInBufferView;';
+          break;
+        case CompositionType.Scalar:
+          indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 1 * instanceIdInBufferView;';
+          break;
+        default:
+          throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
+      }
+      let conversionStr = '';
+      if (memberInfo.convertToBool) {
+        conversionStr = 'return (value > 0.5) ? true : false;';
+      }
+      str += `
+  ${memberInfo.convertToBool ? 'bool' : typeStr} get_${memberName}(float instanceId) {
+    int instanceIdOfBufferViews = int(instanceId) / ${componentCountPerBufferView};
+    int instanceIdInBufferView = int(instanceId) % ${componentCountPerBufferView};
+    int indices[] = int[](${locationOffsets.join(', ')});
+    ${indexStr}
+    ${typeStr} value = ${fetchTypeStr}(index);
+    ${memberInfo.convertToBool ? conversionStr : 'return value;'}
+  }
+`;
+    }
   }
 
   /**

@@ -22,4 +22,25 @@ export class VectorN {
   clone() {
     return new VectorN(this._v.slice());
   }
+
+  /**
+   * Creates a dummy vector with no components.
+   *
+   * @returns A new dummy VectorN instance
+   */
+  static dummy() {
+    return new VectorN(new Float32Array([]));
+  }
+
+  /**
+   * Checks if this vector is a dummy vector (has no components).
+   *
+   * @returns True if the vector has no components, false otherwise
+   */
+  isDummy() {
+    if (this._v.length === 0) {
+      return true;
+    }
+    return false;
+  }
 }
