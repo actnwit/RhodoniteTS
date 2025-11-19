@@ -4,7 +4,7 @@ import { Config } from '../../core/Config';
 import type { IEntity } from '../../core/Entity';
 import { EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
-import { BoneDataType } from '../../definitions/BoneDataType';
+import { BoneDataType, type BoneDataTypeEnum } from '../../definitions/BoneDataType';
 import { BufferUse } from '../../definitions/BufferUse';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
@@ -50,6 +50,8 @@ export class SkeletalComponent extends Component {
   private _boneCompressedChunk = VectorN.dummy();
   private __worldMatrix = MutableMatrix44.identity();
   private __isWorldMatrixVanilla = true;
+  private __jointCapacity = 0;
+  private __allocatedBoneDataType?: BoneDataTypeEnum;
   _isCulled = false;
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tookGlobalDataNum = 0;
@@ -132,89 +134,18 @@ export class SkeletalComponent extends Component {
       this.__qtsInfo = SkeletalComponent.__globalDataRepository.getValue('boneCompressedInfo', 0);
     }
 
-    if (Config.boneDataType === BoneDataType.Mat43x1) {
-      SkeletalComponent.registerMember({
-        bufferUse: BufferUse.GPUInstanceData,
-        memberName: 'boneMatrix',
-        dataClassType: VectorN,
-        shaderType: ShaderType.VertexShader,
-        compositionType: CompositionType.Mat4x3Array,
-        componentType: ComponentType.Float,
-        arrayLength: joints.length,
-        componentSID: this.componentSID,
-        initValues: new VectorN(new Float32Array(0)),
-      });
-    } else if (Config.boneDataType === BoneDataType.Vec4x2) {
-      SkeletalComponent.registerMember({
-        bufferUse: BufferUse.GPUInstanceData,
-        memberName: 'boneTranslatePackedQuat',
-        dataClassType: VectorN,
-        shaderType: ShaderType.VertexShader,
-        compositionType: CompositionType.Vec4Array,
-        componentType: ComponentType.Float,
-        arrayLength: joints.length,
-        componentSID: this.componentSID,
-        initValues: new VectorN(new Float32Array(0)),
-      });
-      SkeletalComponent.registerMember({
-        bufferUse: BufferUse.GPUInstanceData,
-        memberName: 'boneScalePackedQuat',
-        dataClassType: VectorN,
-        shaderType: ShaderType.VertexShader,
-        compositionType: CompositionType.Vec4Array,
-        componentType: ComponentType.Float,
-        arrayLength: joints.length,
-        componentSID: this.componentSID,
-        initValues: new VectorN(new Float32Array(0)),
-      });
-    } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
-      SkeletalComponent.registerMember({
-        bufferUse: BufferUse.GPUInstanceData,
-        memberName: 'boneQuaternion',
-        dataClassType: VectorN,
-        shaderType: ShaderType.VertexShader,
-        compositionType: CompositionType.Vec4Array,
-        componentType: ComponentType.Float,
-        arrayLength: joints.length,
-        componentSID: this.componentSID,
-        initValues: new VectorN(new Float32Array(0)),
-      });
-      SkeletalComponent.registerMember({
-        bufferUse: BufferUse.GPUInstanceData,
-        memberName: 'boneTranslateScale',
-        dataClassType: VectorN,
-        shaderType: ShaderType.VertexShader,
-        compositionType: CompositionType.Vec4Array,
-        componentType: ComponentType.Float,
-        arrayLength: joints.length,
-        componentSID: this.componentSID,
-        initValues: new VectorN(new Float32Array(0)),
-      });
-    } else if (Config.boneDataType === BoneDataType.Vec4x1) {
-      SkeletalComponent.registerMember({
-        bufferUse: BufferUse.GPUInstanceData,
-        memberName: 'boneTranslateScale',
-        dataClassType: VectorN,
-        shaderType: ShaderType.VertexShader,
-        compositionType: CompositionType.Vec4Array,
-        componentType: ComponentType.Float,
-        arrayLength: joints.length,
-        componentSID: this.componentSID,
-        initValues: new VectorN(new Float32Array(0)),
-      });
-      SkeletalComponent.registerMember({
-        bufferUse: BufferUse.GPUInstanceData,
-        memberName: 'boneCompressedChunk',
-        dataClassType: VectorN,
-        shaderType: ShaderType.VertexShader,
-        compositionType: CompositionType.Vec4Array,
-        componentType: ComponentType.Float,
-        arrayLength: joints.length,
-        componentSID: this.componentSID,
-        initValues: new VectorN(new Float32Array(0)),
-      });
+    const jointCount = joints.length;
+    const boneLayoutChanged = this.__allocatedBoneDataType !== Config.boneDataType;
+    const needsNewAllocation = boneLayoutChanged || jointCount > this.__jointCapacity;
+
+    if (needsNewAllocation) {
+      this.__registerBoneDataMembers(jointCount);
+      this.__allocatedBoneDataType = Config.boneDataType;
+      this.__jointCapacity = jointCount;
     }
-    this.submitToAllocation(Config.skeletalComponentCountPerBufferView, false);
+
+    const shouldReuseAllocation = !needsNewAllocation && this.__jointCapacity > 0;
+    this.submitToAllocation(Config.skeletalComponentCountPerBufferView, shouldReuseAllocation);
   }
 
   /**
@@ -631,6 +562,91 @@ export class SkeletalComponent extends Component {
     const float32Array = this.__inverseBindMatricesAccessor!.getTypedArray() as Float32Array;
     const m = new Matrix44(float32Array.slice(index * 16, index * 16 + 16));
     return m;
+  }
+
+  private __registerBoneDataMembers(arrayLength: number) {
+    if (Config.boneDataType === BoneDataType.Mat43x1) {
+      SkeletalComponent.registerMember({
+        bufferUse: BufferUse.GPUInstanceData,
+        memberName: 'boneMatrix',
+        dataClassType: VectorN,
+        shaderType: ShaderType.VertexShader,
+        compositionType: CompositionType.Mat4x3Array,
+        componentType: ComponentType.Float,
+        arrayLength,
+        componentSID: this.componentSID,
+        initValues: new VectorN(new Float32Array(0)),
+      });
+    } else if (Config.boneDataType === BoneDataType.Vec4x2) {
+      SkeletalComponent.registerMember({
+        bufferUse: BufferUse.GPUInstanceData,
+        memberName: 'boneTranslatePackedQuat',
+        dataClassType: VectorN,
+        shaderType: ShaderType.VertexShader,
+        compositionType: CompositionType.Vec4Array,
+        componentType: ComponentType.Float,
+        arrayLength,
+        componentSID: this.componentSID,
+        initValues: new VectorN(new Float32Array(0)),
+      });
+      SkeletalComponent.registerMember({
+        bufferUse: BufferUse.GPUInstanceData,
+        memberName: 'boneScalePackedQuat',
+        dataClassType: VectorN,
+        shaderType: ShaderType.VertexShader,
+        compositionType: CompositionType.Vec4Array,
+        componentType: ComponentType.Float,
+        arrayLength,
+        componentSID: this.componentSID,
+        initValues: new VectorN(new Float32Array(0)),
+      });
+    } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
+      SkeletalComponent.registerMember({
+        bufferUse: BufferUse.GPUInstanceData,
+        memberName: 'boneQuaternion',
+        dataClassType: VectorN,
+        shaderType: ShaderType.VertexShader,
+        compositionType: CompositionType.Vec4Array,
+        componentType: ComponentType.Float,
+        arrayLength,
+        componentSID: this.componentSID,
+        initValues: new VectorN(new Float32Array(0)),
+      });
+      SkeletalComponent.registerMember({
+        bufferUse: BufferUse.GPUInstanceData,
+        memberName: 'boneTranslateScale',
+        dataClassType: VectorN,
+        shaderType: ShaderType.VertexShader,
+        compositionType: CompositionType.Vec4Array,
+        componentType: ComponentType.Float,
+        arrayLength,
+        componentSID: this.componentSID,
+        initValues: new VectorN(new Float32Array(0)),
+      });
+    } else if (Config.boneDataType === BoneDataType.Vec4x1) {
+      SkeletalComponent.registerMember({
+        bufferUse: BufferUse.GPUInstanceData,
+        memberName: 'boneTranslateScale',
+        dataClassType: VectorN,
+        shaderType: ShaderType.VertexShader,
+        compositionType: CompositionType.Vec4Array,
+        componentType: ComponentType.Float,
+        arrayLength,
+        componentSID: this.componentSID,
+        initValues: new VectorN(new Float32Array(0)),
+      });
+      SkeletalComponent.registerMember({
+        bufferUse: BufferUse.GPUInstanceData,
+        memberName: 'boneCompressedChunk',
+        dataClassType: VectorN,
+        shaderType: ShaderType.VertexShader,
+        compositionType: CompositionType.Vec4Array,
+        componentType: ComponentType.Float,
+        arrayLength,
+        componentSID: this.componentSID,
+        initValues: new VectorN(new Float32Array(0)),
+      });
+    }
   }
 }
 
