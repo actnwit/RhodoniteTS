@@ -5,7 +5,6 @@ const p = document.createElement('p');
 document.body.appendChild(p);
 
 Rn.Config.boneDataType = Rn.BoneDataType.Vec4x2Old;
-Rn.Config.maxSkeletalBoneNumber = 2;
 Rn.Config.cgApiDebugConsoleOutput = true;
 
 await Rn.System.init({

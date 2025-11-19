@@ -6,8 +6,6 @@ declare const window: any;
 declare const Stats: any;
 
 Rn.Config.maxMaterialInstanceForEachType = 30;
-Rn.Config.maxSkeletalBoneNumber = 100;
-Rn.Config.maxSkeletonNumber = 1504;
 Rn.Config.maxSkeletalBoneNumberForUniformMode = 100;
 Rn.Config.dataTextureWidth = 2 ** 12;
 Rn.Config.dataTextureHeight = 2 ** 11;
