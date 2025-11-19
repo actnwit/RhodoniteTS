@@ -70,41 +70,6 @@ export class GlobalDataRepository {
     this.__registerProperty(currentComponentSIDsInfo, 1);
     this.takeOne('currentComponentSIDs');
 
-    // Camera
-    const viewMatrixInfo = {
-      semantic: 'viewMatrix',
-      compositionType: CompositionType.Mat4,
-      componentType: ComponentType.Float,
-      stage: ShaderType.VertexAndPixelShader,
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      isInternalSetting: true,
-      initialValue: MutableMatrix44.identity(),
-    };
-    const projectionMatrixInfo = {
-      semantic: 'projectionMatrix',
-      compositionType: CompositionType.Mat4,
-      componentType: ComponentType.Float,
-      stage: ShaderType.VertexAndPixelShader,
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      isInternalSetting: true,
-      initialValue: MutableMatrix44.identity(),
-    };
-    const viewPositionInfo = {
-      semantic: 'viewPosition',
-      compositionType: CompositionType.Vec3,
-      componentType: ComponentType.Float,
-      stage: ShaderType.VertexAndPixelShader,
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      isInternalSetting: true,
-      initialValue: Vector3.fromCopyArray([0, 0, 1]),
-    };
-    this.__registerProperty(viewMatrixInfo, Config.maxCameraNumber);
-    this.__registerProperty(projectionMatrixInfo, Config.maxCameraNumber);
-    this.__registerProperty(viewPositionInfo, Config.maxCameraNumber);
-
     const maxSkeletalBoneNumber = ProcessApproach.isUniformApproach(approach)
       ? Config.maxSkeletalBoneNumberForUniformMode
       : Config.maxSkeletalBoneNumber;
@@ -233,59 +198,6 @@ export class GlobalDataRepository {
     this.takeOne('skinningMode');
 
     // Lighting
-    const lightPositionInfo = {
-      semantic: 'lightPosition',
-      compositionType: CompositionType.Vec3Array,
-      componentType: ComponentType.Float,
-      stage: ShaderType.VertexAndPixelShader,
-      arrayLength: Config.maxLightNumber,
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      isInternalSetting: true,
-      initialValue: new VectorN(new Float32Array(Config.maxLightNumber)),
-    };
-    const lightDirectionInfo = {
-      semantic: 'lightDirection',
-      compositionType: CompositionType.Vec3Array,
-      componentType: ComponentType.Float,
-      stage: ShaderType.PixelShader,
-      arrayLength: Config.maxLightNumber,
-      min: -1,
-      max: 1,
-      isInternalSetting: true,
-      initialValue: new VectorN(new Float32Array(Config.maxLightNumber)),
-    };
-    const lightIntensityInfo = {
-      semantic: 'lightIntensity',
-      compositionType: CompositionType.Vec3Array,
-      componentType: ComponentType.Float,
-      stage: ShaderType.PixelShader,
-      arrayLength: Config.maxLightNumber,
-      min: 0,
-      max: 10,
-      isInternalSetting: true,
-      initialValue: new VectorN(new Float32Array(Config.maxLightNumber)),
-    };
-    const lightPropertyInfo = {
-      semantic: 'lightProperty',
-      compositionType: CompositionType.Vec4Array,
-      componentType: ComponentType.Float,
-      stage: ShaderType.PixelShader,
-      arrayLength: Config.maxLightNumber,
-      min: 0,
-      max: 10,
-      isInternalSetting: true,
-      initialValue: new VectorN(new Float32Array(Config.maxLightNumber)),
-    };
-    this.__registerProperty(lightPositionInfo, 1);
-    this.__registerProperty(lightDirectionInfo, 1);
-    this.__registerProperty(lightIntensityInfo, 1);
-    this.__registerProperty(lightPropertyInfo, 1);
-    this.takeOne('lightDirection');
-    this.takeOne('lightIntensity');
-    this.takeOne('lightPosition');
-    this.takeOne('lightProperty');
-
     const lightNumberInfo = {
       semantic: 'lightNumber',
       compositionType: CompositionType.Scalar,

@@ -17,8 +17,8 @@ fn main(
   let worldMatrix = get_worldMatrix(instanceId);
   var normalMatrix = get_normalMatrix(instanceId);
   let isBillboard = get_isBillboard(instanceId);
-  let viewMatrix = get_viewMatrix(cameraSID, 0);
-  let projectionMatrix = get_projectionMatrix(cameraSID, 0);
+  let viewMatrix = get_viewMatrix(cameraSID);
+  let projectionMatrix = get_projectionMatrix(cameraSID);
 
   let skeletalComponentSID = i32(instance_ids.y);
 

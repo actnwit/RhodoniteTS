@@ -80,7 +80,7 @@ vec3 getIBLVolumeRefraction(vec3 baseColor, vec3 normal, vec3 view, float camera
     transmissionRayLength = length(transmissionRay);
     vec3 refractedRayExit = v_position_inWorld.xyz + transmissionRay;
 
-    vec4 ndcPos = get_projectionMatrix(cameraSID, 0) * get_viewMatrix(cameraSID, 0) * vec4(refractedRayExit, 1.0);
+    vec4 ndcPos = get_projectionMatrix(cameraSID) * get_viewMatrix(cameraSID) * vec4(refractedRayExit, 1.0);
     vec2 refractionCoords = ndcPos.xy / ndcPos.w;
     refractionCoords += 1.0;
     refractionCoords /= 2.0;
@@ -92,7 +92,7 @@ vec3 getIBLVolumeRefraction(vec3 baseColor, vec3 normal, vec3 view, float camera
   float transmissionRayLength = length(transmissionRay);
   vec3 refractedRayExit = v_position_inWorld.xyz + transmissionRay;
 
-  vec4 ndcPos = get_projectionMatrix(cameraSID, 0) * get_viewMatrix(cameraSID, 0) * vec4(refractedRayExit, 1.0);
+  vec4 ndcPos = get_projectionMatrix(cameraSID) * get_viewMatrix(cameraSID) * vec4(refractedRayExit, 1.0);
   vec2 refractionCoords = ndcPos.xy / ndcPos.w;
   refractionCoords += 1.0;
   refractionCoords /= 2.0;

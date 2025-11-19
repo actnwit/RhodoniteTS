@@ -16,6 +16,7 @@ import { ComponentType } from '../foundation/definitions/ComponentType';
 import { CompositionType } from '../foundation/definitions/CompositionType';
 import type { ShaderSemanticsName, getShaderPropertyFunc } from '../foundation/definitions/ShaderSemantics';
 import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
+import { ShaderType, type ShaderTypeEnum } from '../foundation/definitions/ShaderType';
 import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { Material } from '../foundation/materials/core/Material';
@@ -23,6 +24,8 @@ import { MaterialRepository } from '../foundation/materials/core/MaterialReposit
 import { MutableMatrix33 } from '../foundation/math/MutableMatrix33';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import { MutableScalar } from '../foundation/math/MutableScalar';
+import { MutableVector3 } from '../foundation/math/MutableVector3';
+import { MutableVector4 } from '../foundation/math/MutableVector4';
 import type { Accessor } from '../foundation/memory/Accessor';
 import type { Buffer } from '../foundation/memory/Buffer';
 import { Logger } from '../foundation/misc/Logger';
@@ -103,11 +106,15 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
    *
    * @returns WGSL shader code containing helper functions for storage buffer access
    */
-  static getVertexShaderMethodDefinitions_storageBuffer() {
+  static getVertexShaderMethodDefinitions_storageBuffer(shaderType: ShaderTypeEnum) {
     let str = '';
     const memberInfo = Component.getMemberInfo();
     memberInfo.forEach((mapMemberNameMemberInfo, componentClass) => {
       mapMemberNameMemberInfo.forEach((memberInfo, memberName) => {
+        if (memberInfo.shaderType !== shaderType && memberInfo.shaderType !== ShaderType.VertexAndPixelShader) {
+          return;
+        }
+        const componentCountPerBufferView = Component.getComponentCountPerBufferView().get(componentClass) ?? 1;
         let typeStr = '';
         let fetchTypeStr = '';
         switch (memberInfo.dataClassType) {
@@ -118,6 +125,14 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
           case MutableMatrix33:
             typeStr = 'mat3x3<f32>';
             fetchTypeStr = 'fetchMat3No16BytesAligned';
+            break;
+          case MutableVector4:
+            typeStr = 'vec4<f32>';
+            fetchTypeStr = 'fetchVec4';
+            break;
+          case MutableVector3:
+            typeStr = 'vec3<f32>';
+            fetchTypeStr = 'fetchVec3No16BytesAligned';
             break;
           case MutableScalar:
             typeStr = 'f32';
@@ -134,8 +149,14 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
           case MutableMatrix33:
             indexStr = 'indices[instanceIdOfBufferViews] * 4u + 9u * instanceIdInBufferView;';
             break;
+          case MutableVector4:
+            indexStr = 'indices[instanceIdOfBufferViews] + 1u * instanceIdInBufferView;';
+            break;
+          case MutableVector3:
+            indexStr = 'indices[instanceIdOfBufferViews] * 4u + 3u * instanceIdInBufferView;';
+            break;
           case MutableScalar:
-            indexStr = 'indices[instanceIdOfBufferViews] * 4u + instanceIdInBufferView;';
+            indexStr = 'indices[instanceIdOfBufferViews] * 4u + 1u * instanceIdInBufferView;';
             break;
           default:
             throw new Error(`Unsupported data class type: ${memberInfo.dataClassType.name}`);
@@ -146,8 +167,8 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
         }
         str += `
   fn get_${memberName}(instanceId: u32) -> ${memberInfo.convertToBool ? 'bool' : typeStr} {
-    let instanceIdOfBufferViews = instanceId / ${Config.entityCountPerBufferView};
-    let instanceIdInBufferView = instanceId % ${Config.entityCountPerBufferView};
+    let instanceIdOfBufferViews = instanceId / ${componentCountPerBufferView};
+    let instanceIdInBufferView = instanceId % ${componentCountPerBufferView};
     var<function> indices: array<u32, ${locationOffsets.length}> = array<u32, ${locationOffsets.length}>(${locationOffsets.map(offset => `${offset}u`).join(', ')});
     let index: u32 = ${indexStr};
     let value = ${fetchTypeStr}(index);
@@ -157,8 +178,8 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
       });
     });
 
-    return `
-${str}
+    if (shaderType === ShaderType.VertexShader) {
+      const MorphingStr = `
 
 #ifdef RN_IS_VERTEX_SHADER
   #ifdef RN_IS_MORPHING
@@ -184,8 +205,11 @@ ${str}
   }
   #endif
 #endif
-
 `;
+      str += MorphingStr;
+    }
+
+    return str;
   }
 
   /**
@@ -433,7 +457,8 @@ ${indexStr}
       this.setupShaderForMaterial(
         material,
         primitive,
-        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(),
+        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.VertexShader),
+        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.PixelShader),
         WebGpuStrategyBasic.__getShaderProperty
       );
       primitive._backupMaterial();
@@ -443,7 +468,8 @@ ${indexStr}
       this.setupShaderForMaterial(
         primitive.material,
         primitive,
-        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(),
+        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.VertexShader),
+        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.PixelShader),
         WebGpuStrategyBasic.__getShaderProperty
       );
     }
@@ -456,16 +482,23 @@ ${indexStr}
    *
    * @param material - The material to create shader programs for
    * @param primitive - The primitive geometry that will use this material
-   * @param vertexShaderMethodDefinitions - WGSL code containing vertex shader helper methods
+   * @param vertexShaderMethodDefinitionsForVertexShader - WGSL code containing vertex shader helper methods
+   * @param vertexShaderMethodDefinitionsForPixelShader - WGSL code containing pixel shader helper methods
    * @param propertySetter - Function to generate property accessor methods
    */
   public setupShaderForMaterial(
     material: Material,
     primitive: Primitive,
-    vertexShaderMethodDefinitions: string,
+    vertexShaderMethodDefinitionsForVertexShader: string,
+    vertexShaderMethodDefinitionsForPixelShader: string,
     propertySetter: getShaderPropertyFunc
   ): void {
-    material._createProgramWebGpu(primitive, vertexShaderMethodDefinitions, propertySetter);
+    material._createProgramWebGpu(
+      primitive,
+      vertexShaderMethodDefinitionsForVertexShader,
+      vertexShaderMethodDefinitionsForPixelShader,
+      propertySetter
+    );
   }
 
   /**
@@ -478,19 +511,16 @@ ${indexStr}
       AnimationComponent.isAnimating ||
       TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
       SceneGraphComponent.updateCount !== this.__lastSceneGraphComponentsUpdateCount ||
+      CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
+      CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
       Material.stateVersion !== this.__lastMaterialsUpdateCount
     ) {
       this.__createAndUpdateStorageBuffer();
       this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
       this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
-      this.__lastMaterialsUpdateCount = Material.stateVersion;
-    } else if (
-      CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
-      CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount
-    ) {
-      this.__createAndUpdateStorageBufferForCameraOnly();
       this.__lastCameraComponentsUpdateCount = CameraComponent.currentCameraUpdateCount;
       this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
+      this.__lastMaterialsUpdateCount = Material.stateVersion;
     }
 
     if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForWeights) {
@@ -650,37 +680,6 @@ ${indexStr}
       // Update
       const dataSizeForDataTexture = gpuInstanceDataBuffer!.takenSizeInByte / 4;
       webGpuResourceRepository.updateStorageBuffer(this.__storageBufferUid, float32Array, dataSizeForDataTexture);
-    } else {
-      // Create
-      this.__storageBufferUid = webGpuResourceRepository.createStorageBuffer(float32Array);
-    }
-  }
-
-  /**
-   * Updates only the camera-related portion of the storage buffer for performance optimization.
-   * Used when only camera properties have changed, avoiding unnecessary updates to transform data.
-   */
-  private __createAndUpdateStorageBufferForCameraOnly() {
-    const memoryManager: MemoryManager = MemoryManager.getInstance();
-
-    // the GPU global Storage
-    const gpuInstanceDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUInstanceData);
-
-    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
-    const globalDataRepository = GlobalDataRepository.getInstance();
-    const float32Array = new Float32Array(gpuInstanceDataBuffer!.getArrayBuffer());
-    if (this.__storageBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      // Update
-      const offsetOfStorageBuffer = globalDataRepository.getLocationOffsetOfProperty('viewMatrix') * 16;
-      const offsetOfFloat32Array = offsetOfStorageBuffer / 4;
-      const positionOfBoneMatrix = (globalDataRepository.getLocationOffsetOfProperty('boneMatrix') * 16) / 4; // camera infos are before boneMatrix
-      webGpuResourceRepository.updateStorageBufferPartially(
-        this.__storageBufferUid,
-        float32Array,
-        offsetOfStorageBuffer,
-        offsetOfFloat32Array,
-        positionOfBoneMatrix - offsetOfFloat32Array
-      );
     } else {
       // Create
       this.__storageBufferUid = webGpuResourceRepository.createStorageBuffer(float32Array);

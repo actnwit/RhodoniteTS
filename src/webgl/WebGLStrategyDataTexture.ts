@@ -1,4 +1,3 @@
-import { MutableScalar } from '../foundation';
 import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
@@ -19,6 +18,7 @@ import { CompositionType } from '../foundation/definitions/CompositionType';
 import { PixelFormat } from '../foundation/definitions/PixelFormat';
 import { ShaderSemantics, type ShaderSemanticsName } from '../foundation/definitions/ShaderSemantics';
 import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
+import { ShaderType, type ShaderTypeEnum } from '../foundation/definitions/ShaderType';
 import { TextureFormat } from '../foundation/definitions/TextureFormat';
 import { TextureParameter } from '../foundation/definitions/TextureParameter';
 import type { Mesh } from '../foundation/geometry/Mesh';
@@ -27,6 +27,9 @@ import { Material } from '../foundation/materials/core/Material';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 import { MutableMatrix33 } from '../foundation/math/MutableMatrix33';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
+import { MutableScalar } from '../foundation/math/MutableScalar';
+import { MutableVector3 } from '../foundation/math/MutableVector3';
+import { MutableVector4 } from '../foundation/math/MutableVector4';
 import type { Vector2 } from '../foundation/math/Vector2';
 import type { VectorN } from '../foundation/math/VectorN';
 import type { Buffer } from '../foundation/memory/Buffer';
@@ -111,25 +114,20 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   }
 
   /**
-   * Generates vertex shader method definitions for data texture access.
-   * These methods provide standardized ways to fetch transformation matrices,
-   * visibility flags, and other per-instance data from the data texture.
-   *
-   * @returns A string containing GLSL shader method definitions for data texture access
-   *
-   * @remarks
-   * The generated methods include:
-   * - get_worldMatrix: Fetches world transformation matrix
-   * - get_normalMatrix: Fetches normal transformation matrix
-   * - get_isVisible: Fetches visibility flag
-   * - get_isBillboard: Fetches billboard flag
-   * - get_position: Fetches morphed vertex positions (if morphing is enabled)
+   * method definitions for component data access for data texture-based rendering.
+   * Provides GLSL functions for accessing component data through data textures.
+   * @param shaderType - The shader type (VertexShader or PixelShader)
+   * @returns GLSL shader code string for the component data access method definitions
    */
-  static getVertexShaderMethodDefinitions_dataTexture() {
+  static __getComponentDataAccessMethodDefinitions_dataTexture(shaderType: ShaderTypeEnum) {
     let str = '';
     const memberInfo = Component.getMemberInfo();
     memberInfo.forEach((mapMemberNameMemberInfo, componentClass) => {
       mapMemberNameMemberInfo.forEach((memberInfo, memberName) => {
+        if (memberInfo.shaderType !== shaderType && memberInfo.shaderType !== ShaderType.VertexAndPixelShader) {
+          return;
+        }
+        const componentCountPerBufferView = Component.getComponentCountPerBufferView().get(componentClass) ?? 1;
         let typeStr = '';
         let fetchTypeStr = '';
         switch (memberInfo.dataClassType) {
@@ -140,6 +138,14 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
           case MutableMatrix33:
             typeStr = 'mat3';
             fetchTypeStr = 'fetchMat3No16BytesAligned';
+            break;
+          case MutableVector4:
+            typeStr = 'vec4';
+            fetchTypeStr = 'fetchVec4';
+            break;
+          case MutableVector3:
+            typeStr = 'vec3';
+            fetchTypeStr = 'fetchVec3No16BytesAligned';
             break;
           case MutableScalar:
             typeStr = 'float';
@@ -158,8 +164,14 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
           case MutableMatrix33:
             indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 9 * instanceIdInBufferView;';
             break;
+          case MutableVector4:
+            indexStr = 'int index = indices[instanceIdOfBufferViews] + 1 * instanceIdInBufferView;';
+            break;
+          case MutableVector3:
+            indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 3 * instanceIdInBufferView;';
+            break;
           case MutableScalar:
-            indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + instanceIdInBufferView;';
+            indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 1 * instanceIdInBufferView;';
             break;
           default:
             throw new Error(`Unsupported data class type: ${memberInfo.dataClassType.name}`);
@@ -170,8 +182,8 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
         }
         str += `
   ${memberInfo.convertToBool ? 'bool' : typeStr} get_${memberName}(float instanceId) {
-    int instanceIdOfBufferViews = int(instanceId) / ${Config.entityCountPerBufferView};
-    int instanceIdInBufferView = int(instanceId) % ${Config.entityCountPerBufferView};
+    int instanceIdOfBufferViews = int(instanceId) / ${componentCountPerBufferView};
+    int instanceIdInBufferView = int(instanceId) % ${componentCountPerBufferView};
     int indices[] = int[](${locationOffsets.join(', ')});
     ${indexStr}
     ${typeStr} value = ${fetchTypeStr}(index);
@@ -181,8 +193,8 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
       });
     });
 
-    return `
-${str}
+    if (shaderType === ShaderType.VertexShader) {
+      const morphingStr = `
 
 #ifdef RN_IS_VERTEX_SHADER
   #ifdef RN_IS_MORPHING
@@ -205,6 +217,10 @@ ${str}
   #endif
 #endif
 `;
+
+      str += morphingStr;
+    }
+    return str;
   }
 
   /**
@@ -229,7 +245,8 @@ ${str}
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
 
     const [programUid, newOne] = material._createProgramWebGL(
-      WebGLStrategyDataTexture.getVertexShaderMethodDefinitions_dataTexture(),
+      WebGLStrategyDataTexture.__getComponentDataAccessMethodDefinitions_dataTexture(ShaderType.VertexShader),
+      WebGLStrategyDataTexture.__getComponentDataAccessMethodDefinitions_dataTexture(ShaderType.PixelShader),
       WebGLStrategyDataTexture.__getShaderProperty,
       primitive,
       glw.isWebGL2
@@ -552,22 +569,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   }
 
   /**
-   * Creates and updates only the camera-related portion of the data texture.
-   * This optimized method updates only the camera information part of the data texture,
-   * which is useful when only camera data has changed.
-   *
-   * @remarks
-   * This method calculates the position where bone matrix data begins and only
-   * updates the data texture up to that point, covering camera-related information.
-   * This provides better performance when only camera properties need updating.
-   */
-  private __createAndUpdateDataTextureForCameraOnly() {
-    const globalDataRepository = GlobalDataRepository.getInstance();
-    const positionOfBoneMatrixInByte = globalDataRepository.getLocationOffsetOfProperty('boneMatrix') * 16; // camera infos are before boneMatrix
-    this.__createAndUpdateDataTextureInner(positionOfBoneMatrixInByte);
-  }
-
-  /**
    * Internal implementation for creating and updating the data texture.
    * This method handles the actual texture creation, data copying, and GPU upload.
    *
@@ -737,6 +738,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       AnimationComponent.isAnimating ||
       TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
       SceneGraphComponent.updateCount !== this.__lastSceneGraphComponentsUpdateCount ||
+      CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
+      CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
       Material.stateVersion !== this.__lastMaterialsUpdateCount
     ) {
       // Setup GPU Storage (Data Texture & UBO)
@@ -744,14 +747,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__createAndUpdateUBO();
       this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
       this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
-      this.__lastMaterialsUpdateCount = Material.stateVersion;
-    } else if (
-      CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
-      CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount
-    ) {
-      this.__createAndUpdateDataTextureForCameraOnly();
       this.__lastCameraComponentsUpdateCount = CameraComponent.currentCameraUpdateCount;
       this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
+      this.__lastMaterialsUpdateCount = Material.stateVersion;
     }
 
     this.__lightComponents = ComponentRepository.getComponentsWithType(LightComponent) as LightComponent[] | undefined;

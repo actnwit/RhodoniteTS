@@ -90,7 +90,7 @@ fn main (
   #endif
 
   // view vector
-  let viewPosition: vec3f = get_viewPosition(cameraSID, 0);
+  let viewPosition: vec3f = get_viewPosition(cameraSID);
   let viewVector: vec3f = viewPosition - input.position_inWorld.xyz;
   let viewDirection: vec3f = normalize(viewVector);
 

@@ -5,7 +5,6 @@ import { ComponentRepository } from '../../core/ComponentRepository';
 import { Config } from '../../core/Config';
 import type { IEntity } from '../../core/Entity';
 import { EntityRepository, applyMixins } from '../../core/EntityRepository';
-import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { BufferUse } from '../../definitions/BufferUse';
 import { CameraType, type CameraTypeEnum } from '../../definitions/CameraType';
 import { ComponentType } from '../../definitions/ComponentType';
@@ -13,6 +12,7 @@ import { LightType } from '../../definitions/LightType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import { ShaderSemantics } from '../../definitions/ShaderSemantics';
+import { ShaderType } from '../../definitions/ShaderType';
 import { Frustum } from '../../geometry/Frustum';
 import type { ICameraEntity } from '../../helpers/EntityHelper';
 import { MathUtil } from '../../math/MathUtil';
@@ -62,14 +62,11 @@ export class CameraComponent extends Component {
   private _parametersInner: MutableVector4 = MutableVector4.fromCopy4(0.1, 10000, 90, 1);
   private __type: CameraTypeEnum = CameraType.Perspective;
 
-  private _projectionMatrix: MutableMatrix44 = MutableMatrix44.identity();
-  private __isProjectionMatrixUpToDate = false;
-  private _viewMatrix: MutableMatrix44 = MutableMatrix44.identity();
-  private __isViewMatrixUpToDate = false;
-
+  private _projectionMatrix: MutableMatrix44 = MutableMatrix44.dummy();
+  private _viewMatrix: MutableMatrix44 = MutableMatrix44.dummy();
+  private _viewPosition: MutableVector3 = MutableVector3.dummy();
   private static __current: ComponentSID = -1;
   private static returnVector3 = MutableVector3.zero();
-  private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tmpVector3_0: MutableVector3 = MutableVector3.zero();
   private static __tmpVector3_1: MutableVector3 = MutableVector3.zero();
   private static __tmpVector3_2: MutableVector3 = MutableVector3.zero();
@@ -140,14 +137,7 @@ export class CameraComponent extends Component {
       CameraComponent.current = componentSid;
     }
 
-    if (isReUse) {
-      return;
-    }
-
-    const globalDataRepository = GlobalDataRepository.getInstance();
-    globalDataRepository.takeOne('viewMatrix');
-    globalDataRepository.takeOne('projectionMatrix');
-    globalDataRepository.takeOne('viewPosition');
+    this.submitToAllocation(Config.cameraComponentCountPerBufferView, isReUse);
   }
 
   /**
@@ -1091,12 +1081,10 @@ export class CameraComponent extends Component {
   }
 
   /**
-   * Sets camera values (matrices and position) to the global data repository.
+   * Sets camera values (position) to the viewPosition member.
    */
-  setValuesToGlobalDataRepository() {
-    CameraComponent.__globalDataRepository.setValue('viewMatrix', this.componentSID, this.viewMatrix);
-    CameraComponent.__globalDataRepository.setValue('projectionMatrix', this.componentSID, this.projectionMatrix);
-    CameraComponent.__globalDataRepository.setValue('viewPosition', this.componentSID, this.worldPosition);
+  private __setValuesToViewPosition() {
+    this._viewPosition.copyComponents(this.worldPosition);
   }
 
   /**
@@ -1194,7 +1182,7 @@ export class CameraComponent extends Component {
     if (!this._xrLeft && !this._xrRight) {
       this.calcProjectionMatrix();
     }
-    this.setValuesToGlobalDataRepository();
+    this.__setValuesToViewPosition();
 
     this.__lastUpdateCount = this.__updateCount;
     this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
@@ -1247,3 +1235,28 @@ export class CameraComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBaseClass;
   }
 }
+
+CameraComponent.registerMember({
+  bufferUse: BufferUse.GPUInstanceData,
+  memberName: 'viewMatrix',
+  dataClassType: MutableMatrix44,
+  shaderType: ShaderType.VertexAndPixelShader,
+  componentType: ComponentType.Float,
+  initValues: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+});
+CameraComponent.registerMember({
+  bufferUse: BufferUse.GPUInstanceData,
+  memberName: 'projectionMatrix',
+  dataClassType: MutableMatrix44,
+  shaderType: ShaderType.VertexAndPixelShader,
+  componentType: ComponentType.Float,
+  initValues: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+});
+CameraComponent.registerMember({
+  bufferUse: BufferUse.GPUInstanceData,
+  memberName: 'viewPosition',
+  dataClassType: MutableVector3,
+  shaderType: ShaderType.VertexAndPixelShader,
+  componentType: ComponentType.Float,
+  initValues: [0, 0, 0],
+});

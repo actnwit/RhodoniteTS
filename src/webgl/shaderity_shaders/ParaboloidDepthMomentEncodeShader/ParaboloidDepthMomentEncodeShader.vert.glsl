@@ -32,7 +32,7 @@ void main()
   }
 
   mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
-  mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
+  mat4 viewMatrix = get_viewMatrix(cameraSID);
   mat3 normalMatrix = get_normalMatrix(a_instanceInfo.x);
   bool isBillboard = get_isBillboard(a_instanceInfo.x);
 
@@ -55,7 +55,7 @@ void main()
   );
 
   int lightIndex = get_lightIndex(materialSID, 0);
-  vec3 lightPosition = get_lightPosition(0.0, lightIndex);
+  vec3 lightPosition = get_lightPosition(float(lightIndex));
   vec3 L = v_position_inWorld.xyz - lightPosition;
   float dist = length(L);
   L = normalize(L);

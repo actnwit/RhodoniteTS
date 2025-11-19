@@ -12,11 +12,10 @@ in vec3 v_normal_inView;
 /* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
+/* shaderity: @{matricesGetters} */
 
 /* shaderity: @{opticalDefinition} */
 /* shaderity: @{pbrDefinition} */
-
-/* shaderity: @{matricesGetters} */
 
 /* shaderity: @{iblDefinition} */
 
@@ -166,7 +165,7 @@ void main() {
 #endif
 
   // view vector
-  vec3 viewPosition = get_viewPosition(cameraSID, 0);
+  vec3 viewPosition = get_viewPosition(cameraSID);
   vec3 viewVector = viewPosition - v_position_inWorld.xyz;
   vec3 viewDirection = normalize(viewVector);
 

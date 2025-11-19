@@ -6,8 +6,14 @@
 import { BoneDataType } from '../definitions/BoneDataType';
 import { MiscUtil } from '../misc';
 
-/**　The number of entities per buffer view */
-let entityCountPerBufferView = 10;
+/**　The number of scenegraph components per buffer view */
+let scenegraphComponentCountPerBufferView = 10;
+
+/**　The number of camera components per buffer view */
+let cameraComponentCountPerBufferView = 1;
+
+/**　The number of light components per buffer view */
+let lightComponentCountPerBufferView = 1;
 
 /**　The maximum number of lights that Rhodonite can handle */
 let maxLightNumber = 6;
@@ -27,9 +33,6 @@ let maxMaterialInstanceForEachType = 10;
 
 /**　The maximum number of skeletons that Rhodonite can handle */
 let maxSkeletonNumber = 33;
-
-/**　The maximum number of cameras that Rhodonite can handle */
-let maxCameraNumber = 30;
 
 /**　The maximum number of bones of each skeleton that Rhodonite can handle */
 let maxSkeletalBoneNumber = 300;
@@ -83,8 +86,12 @@ if (typeof navigator !== 'undefined') {
  * Config is a configuration object that contains the configuration for the library.
  */
 export const Config = {
-  /**　The number of entities per buffer view */
-  entityCountPerBufferView,
+  /**　The number of scenegraph components per buffer view */
+  scenegraphComponentCountPerBufferView,
+  /**　The number of camera components per buffer view */
+  cameraComponentCountPerBufferView,
+  /**　The number of light components per buffer view */
+  lightComponentCountPerBufferView,
   /**　The maximum number of lights that Rhodonite can handle */
   maxLightNumber,
   /**　The maximum number of morph targets that Rhodonite can handle */
@@ -101,8 +108,6 @@ export const Config = {
   boneDataType,
   /**　The maximum number of skeletons that Rhodonite can handle */
   maxSkeletonNumber,
-  /**　The maximum number of cameras that Rhodonite can handle */
-  maxCameraNumber,
   /**　The maximum number of bones of each skeleton that Rhodonite can handle */
   maxSkeletalBoneNumber,
   /**　The maximum number of bones of each skeleton that Rhodonite can handle for Uniform Mode */

@@ -9,6 +9,7 @@ import type {
 import type { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
 import type { ShaderSources } from '../../../webgl/WebGLStrategy';
 import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
+import { Component } from '../../core/Component';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { RnObject } from '../../core/RnObject';
 import { type ShaderSemanticsInfo, TextureParameter } from '../../definitions';
@@ -110,6 +111,8 @@ export class Material extends RnObject {
 
   // Ids
   private _shaderProgramUidMap: Map<PrimitiveFingerPrint, CGAPIResourceHandle> = new Map();
+  // Tracks component buffer layout version per primitive to invalidate shaders when new BufferViews are added
+  private _shaderProgramComponentStateVersionMap: Map<PrimitiveFingerPrint, number> = new Map();
   __materialUid: MaterialUID = -1;
   private __materialTid: MaterialTID;
   __materialSid: MaterialSID = -1; // material serial Id in the material type
@@ -416,7 +419,15 @@ export class Material extends RnObject {
    * @returns True if the shader program is ready, false otherwise
    */
   public isShaderProgramReady(primitive: Primitive): boolean {
-    return this._shaderProgramUidMap.has(primitive._getFingerPrint());
+    const primitiveFingerPrint = primitive._getFingerPrint();
+    const componentStateVersion = this._shaderProgramComponentStateVersionMap.get(primitiveFingerPrint);
+    if (componentStateVersion !== Component.getStateVersion()) {
+      this._shaderProgramUidMap.delete(primitiveFingerPrint);
+      this._shaderProgramComponentStateVersionMap.delete(primitiveFingerPrint);
+      return false;
+    }
+
+    return this._shaderProgramUidMap.has(primitiveFingerPrint);
   }
 
   /**
@@ -468,14 +479,16 @@ export class Material extends RnObject {
   /**
    * Creates a WebGL shader program for this material and the given primitive.
    * @internal Called from WebGLStrategyDataTexture and WebGLStrategyUniform
-   * @param vertexShaderMethodDefinitions_uniform - Vertex shader method definitions for uniforms
+   * @param componentDataAccessMethodDefinitionsForVertexShader - method definitions for component data access for vertex shader
+   * @param componentDataAccessMethodDefinitionsForPixelShader - method definitions for component data access for pixel shader
    * @param propertySetter - Function to set shader properties
    * @param primitive - The primitive to create the program for
    * @param isWebGL2 - Whether to create a WebGL2 program
    * @returns A tuple containing the program UID and whether it's a new program
    */
   _createProgramWebGL(
-    vertexShaderMethodDefinitions_uniform: string,
+    componentDataAccessMethodDefinitionsForVertexShader: string,
+    componentDataAccessMethodDefinitionsForPixelShader: string,
     propertySetter: getShaderPropertyFunc,
     primitive: Primitive,
     isWebGL2: boolean
@@ -484,10 +497,13 @@ export class Material extends RnObject {
       this,
       propertySetter,
       primitive,
-      vertexShaderMethodDefinitions_uniform,
+      componentDataAccessMethodDefinitionsForVertexShader,
+      componentDataAccessMethodDefinitionsForPixelShader,
       isWebGL2
     );
-    this._shaderProgramUidMap.set(primitive._getFingerPrint(), programUid);
+    const primitiveFingerPrint = primitive._getFingerPrint();
+    this._shaderProgramUidMap.set(primitiveFingerPrint, programUid);
+    this._shaderProgramComponentStateVersionMap.set(primitiveFingerPrint, Component.getStateVersion());
 
     Material.__stateVersion++;
 
@@ -497,22 +513,27 @@ export class Material extends RnObject {
   /**
    * Creates a WebGPU shader program for this material and the given primitive.
    * @param primitive - The primitive to create the program for
-   * @param vertexShaderMethodDefinitions - Vertex shader method definitions
+   * @param componentDataAccessMethodDefinitionsForVertexShader - method definitions for component data access for vertex shader
+   * @param componentDataAccessMethodDefinitionsForPixelShader - method definitions for component data access for pixel shader
    * @param propertySetter - Function to set shader properties
    */
   _createProgramWebGpu(
     primitive: Primitive,
-    vertexShaderMethodDefinitions: string,
+    componentDataAccessMethodDefinitionsForVertexShader: string,
+    componentDataAccessMethodDefinitionsForPixelShader: string,
     propertySetter: getShaderPropertyFunc
   ) {
     const programUid = _createProgramAsSingleOperationWebGpu(
       this,
       primitive,
-      vertexShaderMethodDefinitions,
+      componentDataAccessMethodDefinitionsForVertexShader,
+      componentDataAccessMethodDefinitionsForPixelShader,
       propertySetter
     );
 
-    this._shaderProgramUidMap.set(primitive._getFingerPrint(), programUid);
+    const primitiveFingerPrint = primitive._getFingerPrint();
+    this._shaderProgramUidMap.set(primitiveFingerPrint, programUid);
+    this._shaderProgramComponentStateVersionMap.set(primitiveFingerPrint, Component.getStateVersion());
     Material.__stateVersion++;
   }
 
@@ -536,7 +557,9 @@ export class Material extends RnObject {
       updatedShaderSources,
       onError
     );
-    this._shaderProgramUidMap.set(primitive._getFingerPrint(), programUid);
+    const primitiveFingerPrint = primitive._getFingerPrint();
+    this._shaderProgramUidMap.set(primitiveFingerPrint, programUid);
+    this._shaderProgramComponentStateVersionMap.set(primitiveFingerPrint, Component.getStateVersion());
 
     if (programUid > 0) {
       // this.__updatedShaderSources = updatedShaderSources;
@@ -1104,6 +1127,7 @@ export class Material extends RnObject {
    */
   makeShadersInvalidate() {
     this._shaderProgramUidMap.clear();
+    this._shaderProgramComponentStateVersionMap.clear();
     this.__stateVersion++;
     Material.__stateVersion++;
   }

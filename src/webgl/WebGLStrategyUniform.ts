@@ -13,7 +13,7 @@ import { CompositionType } from '../foundation/definitions/CompositionType';
 import { PixelFormat } from '../foundation/definitions/PixelFormat';
 import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
 import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
-import { ShaderType } from '../foundation/definitions/ShaderType';
+import { ShaderType, type ShaderTypeEnum } from '../foundation/definitions/ShaderType';
 import { TextureFormat } from '../foundation/definitions/TextureFormat';
 import { TextureParameter } from '../foundation/definitions/TextureParameter';
 import type { Mesh } from '../foundation/geometry/Mesh';
@@ -22,6 +22,8 @@ import type { Material } from '../foundation/materials/core/Material';
 import { MutableMatrix33 } from '../foundation/math/MutableMatrix33';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import { MutableScalar } from '../foundation/math/MutableScalar';
+import { MutableVector3 } from '../foundation/math/MutableVector3';
+import { MutableVector4 } from '../foundation/math/MutableVector4';
 import type { Scalar } from '../foundation/math/Scalar';
 import type { Vector2 } from '../foundation/math/Vector2';
 import type { Buffer } from '../foundation/memory/Buffer';
@@ -103,15 +105,17 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   private constructor() {}
 
   /**
-   * Vertex shader method definitions for uniform-based rendering.
-   * Provides GLSL functions for accessing world matrix, normal matrix, visibility,
-   * billboard state, and morphing functionality through uniforms.
+   * method definitions for component data access for uniform-based rendering.
+   * Provides GLSL functions for accessing component data through uniforms.
    */
-  private static __getVertexShaderMethodDefinitions_uniform() {
+  private static __getComponentDataAccessMethodDefinitions_uniform(shaderType: ShaderTypeEnum) {
     let str = '';
     const memberInfo = Component.getMemberInfo();
     memberInfo.forEach((mapMemberNameMemberInfo, _componentClass) => {
       mapMemberNameMemberInfo.forEach((memberInfo, memberName) => {
+        if (memberInfo.shaderType !== shaderType && memberInfo.shaderType !== ShaderType.VertexAndPixelShader) {
+          return;
+        }
         let typeStr = '';
         switch (memberInfo.dataClassType) {
           case MutableMatrix44:
@@ -119,6 +123,12 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
             break;
           case MutableMatrix33:
             typeStr = 'mat3';
+            break;
+          case MutableVector4:
+            typeStr = 'vec4';
+            break;
+          case MutableVector3:
+            typeStr = 'vec3';
             break;
           case MutableScalar:
             typeStr = 'float';
@@ -132,20 +142,14 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
 }\n`;
       });
     });
-    console.log(str);
-    return `
-${str}
-
+    if (shaderType === ShaderType.VertexShader) {
+      const MorphingStr = `
 #ifdef RN_IS_VERTEX_SHADER
 # ifdef RN_IS_MORPHING
   vec3 get_position(float vertexId, vec3 basePosition) {
     vec3 position = basePosition;
     int scalar_idx = 3 * int(vertexId);
-    #ifdef GLSL_ES3
       int posIn4bytes = scalar_idx % 4;
-    #else
-      int posIn4bytes = int(mod(float(scalar_idx), 4.0));
-    #endif
     for (int i=0; i<${Config.maxMorphTargetNumber}; i++) {
 
       int basePosIn16bytes = u_dataTextureMorphOffsetPosition[i] + (scalar_idx - posIn4bytes)/4;
@@ -181,6 +185,9 @@ ${str}
 # endif
 #endif
   `;
+      str += MorphingStr;
+    }
+    return str;
   }
 
   /**
@@ -196,7 +203,8 @@ ${str}
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
 
     const [programUid, newOne] = material._createProgramWebGL(
-      WebGLStrategyUniform.__getVertexShaderMethodDefinitions_uniform(),
+      WebGLStrategyUniform.__getComponentDataAccessMethodDefinitions_uniform(ShaderType.VertexShader),
+      WebGLStrategyUniform.__getComponentDataAccessMethodDefinitions_uniform(ShaderType.PixelShader),
       ShaderSemantics.getShaderProperty,
       primitive,
       glw.isWebGL2
