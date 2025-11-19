@@ -507,15 +507,7 @@ export class SkeletalComponent extends Component {
 
     this._jointIndices = component._jointIndices.concat();
     this.setJoints(component.__joints.concat());
-    // const joints = [];
-    // for (let i = 0; i < component.__joints.length; i++) {
-    //   if (component.__joints[i].entity._myLatestCopyEntityUID !== -1) {
-    //     joints[i] = EntityRepository.getEntity(
-    //       component.__joints[i].entity._myLatestCopyEntityUID
-    //     ).tryToGetSceneGraph()!;
-    //   }
-    // }
-    this.setJoints([]);
+    // this.setJoints([]);
 
     this.__inverseBindMatricesAccessor = component.__inverseBindMatricesAccessor;
     if (Is.exist(component._bindShapeMatrix)) {
