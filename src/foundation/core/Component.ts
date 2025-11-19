@@ -1,5 +1,5 @@
 import type { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
-import type { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
+import { CompositionType, type CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 import type { Byte, ComponentSID, Count, EntityUID, IndexOf16Bytes, TypedArray } from '../../types/CommonTypes';
 import type { ComponentToComponentMethods } from '../components/ComponentTypes';
 import { MemoryManager } from '../core/MemoryManager';
@@ -15,7 +15,7 @@ import type { MutableVector4 } from '../math/MutableVector4';
 import { VectorN } from '../math/VectorN';
 import type { Accessor } from '../memory/Accessor';
 import type { BufferView } from '../memory/BufferView';
-import { RnException } from '../misc';
+import { Logger, RnException } from '../misc';
 import { Err, Ok, type Result } from '../misc/Result';
 import type { RenderPass } from '../renderer/RenderPass';
 import { ComponentRepository } from './ComponentRepository';
@@ -314,7 +314,8 @@ export class Component extends RnObject {
     compositionType: CompositionTypeEnum,
     componentType: ComponentTypeEnum,
     indexOfTheBufferView: IndexOfTheBufferView,
-    componentCountPerBufferView: Count
+    componentCountPerBufferView: Count,
+    arrayLength: Count
   ): Result<Accessor, undefined> {
     if (!this.__accessors.has(componentClass)) {
       this.__accessors.set(componentClass, new Map());
@@ -328,7 +329,7 @@ export class Component extends RnObject {
       accessorsOfMember.set(memberName, accessors);
     }
     if (!accessorsOfMember.has(memberName) || !accessors.has(indexOfTheBufferView)) {
-      const bytes = compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
+      const bytes = calcAlignedByteLength();
       const buffer = MemoryManager.getInstance().createOrGetBuffer(bufferUse);
       const bufferViewResult = buffer.takeBufferView({
         byteLengthToNeed: bytes * componentCountPerBufferView,
@@ -358,6 +359,20 @@ export class Component extends RnObject {
       Component.__stateVersion++;
 
       return accessorResult;
+    }
+
+    function calcAlignedByteLength() {
+      const compositionNumber = compositionType.getNumberOfComponents();
+      const componentSizeInByte = componentType.getSizeInBytes();
+      const semanticInfoByte = compositionNumber * componentSizeInByte;
+      let alignedByteLength = semanticInfoByte;
+      // if (alignedByteLength % 16 !== 0) {
+      //   alignedByteLength = semanticInfoByte + 16 - (semanticInfoByte % 16);
+      // }
+      if (CompositionType.isArray(compositionType)) {
+        alignedByteLength *= arrayLength;
+      }
+      return alignedByteLength;
     }
 
     return new Ok(accessors.get(indexOfTheBufferView)!);
@@ -422,7 +437,7 @@ export class Component extends RnObject {
    * @param componentCountPerBufferView - The number of components per buffer view
    * @param isReUse - Whether to reuse existing memory allocations
    */
-  submitToAllocation(componentCountPerBufferView: Count, isReUse: boolean): void {
+  submitToAllocation(componentCountPerBufferView: Count, isReUse: boolean, arrayLength: Count = 1): void {
     const componentClass = this.constructor as typeof Component;
     Component.__componentCountPerBufferView.set(componentClass, componentCountPerBufferView);
     const memberInfoArray = Component.__memberInfo.get(componentClass)!;
@@ -457,7 +472,8 @@ export class Component extends RnObject {
           info.compositionType,
           info.componentType,
           indexOfTheBufferView,
-          componentCountPerBufferView
+          componentCountPerBufferView,
+          arrayLength
         );
         if (accessorResult.isErr()) {
           throw new RnException(accessorResult.getRnError());
