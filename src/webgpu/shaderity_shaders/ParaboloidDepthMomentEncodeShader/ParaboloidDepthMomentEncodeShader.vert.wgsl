@@ -68,6 +68,7 @@ fn main(
     &normal_inWorld
   );
 
+  output.position_inWorld = position_inWorld;
   let lightIndex = get_lightIndex(materialSID, 0);
   let lightPosition: vec3<f32> = get_lightPosition(0, lightIndex);
   var L: vec3<f32> = output.position_inWorld.xyz - lightPosition;
