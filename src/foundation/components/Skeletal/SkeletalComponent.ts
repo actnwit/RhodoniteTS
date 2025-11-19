@@ -75,15 +75,7 @@ export class SkeletalComponent extends Component {
       return;
     }
 
-    if (SkeletalComponent.__tookGlobalDataNum < Config.maxSkeletonNumber) {
-      if (Config.boneDataType === BoneDataType.Vec4x1) {
-        SkeletalComponent.__globalDataRepository.takeOne('boneTranslateScale');
-        SkeletalComponent.__globalDataRepository.takeOne('boneCompressedChunk');
-      }
-      SkeletalComponent.__tookGlobalDataNum++;
-    } else {
-      Logger.warn('The actual number of Skeleton generated exceeds Config.maxSkeletonNumber.');
-    }
+    SkeletalComponent.__tookGlobalDataNum++;
   }
 
   /**

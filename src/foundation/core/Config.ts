@@ -34,12 +34,6 @@ let maxMorphPrimitiveNumberInWebGPU = 100;
  */
 let maxMaterialInstanceForEachType = 10;
 
-/**　The maximum number of skeletons that Rhodonite can handle */
-let maxSkeletonNumber = 33;
-
-/**　The maximum number of bones of each skeleton that Rhodonite can handle */
-let maxSkeletalBoneNumber = 300;
-
 /**　The maximum number of bones of each skeleton that Rhodonite can handle for Uniform Mode */
 let maxSkeletalBoneNumberForUniformMode = 50;
 
@@ -79,7 +73,6 @@ let gpuBufferUnitSize = 4096 ** 2 * 4 /* rgba */ * 4 /* byte */;
 if (typeof navigator !== 'undefined') {
   if (MiscUtil.isMobile() || MiscUtil.isMobileVr()) {
     maxMorphTargetNumber = 4;
-    maxSkeletonNumber = 32;
     dataTextureWidth = 2 ** 9;
     dataTextureHeight = 2 ** 9;
   }
@@ -111,10 +104,6 @@ export const Config = {
   maxMaterialInstanceForEachType,
   /**　The data type of the bone */
   boneDataType,
-  /**　The maximum number of skeletons that Rhodonite can handle */
-  maxSkeletonNumber,
-  /**　The maximum number of bones of each skeleton that Rhodonite can handle */
-  maxSkeletalBoneNumber,
   /**　The maximum number of bones of each skeleton that Rhodonite can handle for Uniform Mode */
   maxSkeletalBoneNumberForUniformMode,
   /**　The width of the data texture */
