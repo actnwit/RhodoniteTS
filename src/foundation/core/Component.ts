@@ -41,7 +41,6 @@ export type MemberInfo = {
   compositionType: CompositionTypeEnum;
   componentType: ComponentTypeEnum;
   initValues: number[] | VectorN;
-  arrayLength: Count;
   convertToBool?: boolean;
 };
 
@@ -60,6 +59,7 @@ export class Component extends RnObject {
   private static __accessors: Map<typeof Component, Map<MemberName, Map<IndexOfTheBufferView, Accessor>>> = new Map();
 
   private static __memberInfo: Map<typeof Component, Map<MemberName, MemberInfo>> = new Map();
+  private static __arrayLengthMap: Map<typeof Component, Map<MemberName, Map<ComponentSID, Count>>> = new Map();
   private static __componentCountPerBufferView: Map<typeof Component, Count> = new Map();
 
   private static __byteOffsetOfAccessorInBufferOfMembers: Map<
@@ -316,7 +316,8 @@ export class Component extends RnObject {
     componentType: ComponentTypeEnum,
     indexOfTheBufferView: IndexOfTheBufferView,
     componentCountPerBufferView: Count,
-    arrayLength: Count
+    arrayLength: Count,
+    componentSID: ComponentSID
   ): Result<Accessor, undefined> {
     if (!this.__accessors.has(componentClass)) {
       this.__accessors.set(componentClass, new Map());
@@ -403,6 +404,7 @@ export class Component extends RnObject {
       componentType,
       initValues,
       arrayLength,
+      componentSID,
       convertToBool,
     }: {
       bufferUse: BufferUseEnum;
@@ -413,6 +415,7 @@ export class Component extends RnObject {
       componentType: ComponentTypeEnum;
       initValues: number[] | VectorN;
       arrayLength?: Count | undefined;
+      componentSID?: ComponentSID;
       convertToBool?: boolean;
     }
   ) {
@@ -429,9 +432,19 @@ export class Component extends RnObject {
       compositionType: compositionType,
       componentType: componentType,
       initValues: initValues,
-      arrayLength: arrayLength ?? 1,
       convertToBool: convertToBool,
     });
+
+    if (arrayLength != null && componentSID != null) {
+      if (!Component.__arrayLengthMap.has(this)) {
+        Component.__arrayLengthMap.set(this, new Map());
+      }
+      const arrayLengthMap = Component.__arrayLengthMap.get(this);
+      if (!arrayLengthMap!.has(memberName)) {
+        arrayLengthMap!.set(memberName, new Map());
+      }
+      arrayLengthMap!.get(memberName)!.set(componentSID, arrayLength);
+    }
   }
 
   /**
@@ -450,7 +463,7 @@ export class Component extends RnObject {
     // Do this only for the first entity of the component
     const indexOfTheBufferView = Math.floor(this._component_sid / componentCountPerBufferView);
     if (this._component_sid % componentCountPerBufferView === 0) {
-      getBufferViewsAndAccessors(indexOfTheBufferView);
+      getBufferViewsAndAccessors(indexOfTheBufferView, this._component_sid);
     }
 
     // take a field value allocation for each entity for each member field
@@ -466,10 +479,12 @@ export class Component extends RnObject {
     });
 
     // inner function
-    function getBufferViewsAndAccessors(indexOfTheBufferView: IndexOfTheBufferView) {
+
+    function getBufferViewsAndAccessors(indexOfTheBufferView: IndexOfTheBufferView, componentSID: ComponentSID) {
       // for each member field, take a BufferView for all entities' the member field.
       // take a Accessor for all entities for each member fields (same as BufferView)
       memberInfoArray.forEach(info => {
+        const arrayLength = Component.__arrayLengthMap.get(componentClass)?.get(info.memberName)?.get(componentSID);
         const accessorResult = Component.__takeAccessor(
           info.bufferUse,
           info.memberName,
@@ -478,7 +493,8 @@ export class Component extends RnObject {
           info.componentType,
           indexOfTheBufferView,
           componentCountPerBufferView,
-          info.arrayLength
+          arrayLength ?? 1,
+          componentSID
         );
         if (accessorResult.isErr()) {
           throw new RnException(accessorResult.getRnError());
@@ -663,6 +679,14 @@ export class Component extends RnObject {
    */
   static getComponentCountPerBufferView(): Map<typeof Component, Count> {
     return new Map(Component.__componentCountPerBufferView);
+  }
+
+  /**
+   * Gets the array length of a specific member field in a component class.
+   * @returns The array length map of the component
+   */
+  static getArrayLengthOfMember(): Map<typeof Component, Map<MemberName, Map<ComponentSID, Count>>> {
+    return new Map(Component.__arrayLengthMap);
   }
 
   /**

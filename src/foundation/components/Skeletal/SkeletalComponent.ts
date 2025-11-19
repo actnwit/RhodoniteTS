@@ -154,6 +154,7 @@ export class SkeletalComponent extends Component {
       compositionType: CompositionType.Mat4x3Array,
       componentType: ComponentType.Float,
       arrayLength: joints.length,
+      componentSID: this.componentSID,
       initValues: new VectorN(new Float32Array(0)),
     });
     this.submitToAllocation(Config.skeletalComponentCountPerBufferView, false);
