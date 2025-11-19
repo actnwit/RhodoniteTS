@@ -41,6 +41,7 @@ export type MemberInfo = {
   compositionType: CompositionTypeEnum;
   componentType: ComponentTypeEnum;
   initValues: number[] | VectorN;
+  arrayLength: Count;
   convertToBool?: boolean;
 };
 
@@ -400,6 +401,7 @@ export class Component extends RnObject {
       compositionType,
       componentType,
       initValues,
+      arrayLength,
       convertToBool,
     }: {
       bufferUse: BufferUseEnum;
@@ -409,6 +411,7 @@ export class Component extends RnObject {
       compositionType: CompositionTypeEnum;
       componentType: ComponentTypeEnum;
       initValues: number[] | VectorN;
+      arrayLength?: Count | undefined;
       convertToBool?: boolean;
     }
   ) {
@@ -425,6 +428,7 @@ export class Component extends RnObject {
       compositionType: compositionType,
       componentType: componentType,
       initValues: initValues,
+      arrayLength: arrayLength ?? 1,
       convertToBool: convertToBool,
     });
   }
@@ -437,7 +441,7 @@ export class Component extends RnObject {
    * @param componentCountPerBufferView - The number of components per buffer view
    * @param isReUse - Whether to reuse existing memory allocations
    */
-  submitToAllocation(componentCountPerBufferView: Count, isReUse: boolean, arrayLength: Count = 1): void {
+  submitToAllocation(componentCountPerBufferView: Count, isReUse: boolean): void {
     const componentClass = this.constructor as typeof Component;
     Component.__componentCountPerBufferView.set(componentClass, componentCountPerBufferView);
     const memberInfoArray = Component.__memberInfo.get(componentClass)!;
@@ -473,7 +477,7 @@ export class Component extends RnObject {
           info.componentType,
           indexOfTheBufferView,
           componentCountPerBufferView,
-          arrayLength
+          info.arrayLength
         );
         if (accessorResult.isErr()) {
           throw new RnException(accessorResult.getRnError());

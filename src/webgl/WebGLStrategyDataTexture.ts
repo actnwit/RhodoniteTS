@@ -171,7 +171,59 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
       componentClass: typeof Component,
       memberName: string,
       componentCountPerBufferView: number
-    ) {}
+    ) {
+      let typeStr = '';
+      let fetchTypeStr = '';
+      switch (memberInfo.compositionType) {
+        case CompositionType.Vec4Array:
+          typeStr = 'vec4';
+          fetchTypeStr = 'fetchVec4';
+          break;
+        case CompositionType.Mat4Array:
+          typeStr = 'mat4';
+          fetchTypeStr = 'fetchMat4';
+          break;
+        case CompositionType.Mat4x3Array:
+          typeStr = 'mat4x3';
+          fetchTypeStr = 'fetchVec4';
+          break;
+        default:
+          throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
+      }
+
+      const vec4SizeOfProperty: IndexOf16Bytes = memberInfo.compositionType.getVec4SizeOfProperty();
+      const instanceeSize = vec4SizeOfProperty * memberInfo.arrayLength;
+
+      const locationOffsets_vec4_idx = Component.getLocationOffsetOfMemberOfComponent(componentClass, memberName);
+      let indexStr = '';
+      switch (memberInfo.compositionType) {
+        case CompositionType.Vec4Array:
+          indexStr = `int index = indices[instanceIdOfBufferViews] + instanceIdInBufferView * ${instanceeSize} + ${vec4SizeOfProperty} * idxOfArray;`; // vec4_idx
+          break;
+        case CompositionType.Mat4Array:
+          indexStr = `int index = indices[instanceIdOfBufferViews] + instanceIdInBufferView * ${instanceeSize} + ${vec4SizeOfProperty} * idxOfArray;`; // vec4_idx
+          break;
+        case CompositionType.Mat4x3Array:
+          indexStr = `int index = indices[instanceIdOfBufferViews] + instanceIdInBufferView * ${instanceeSize} + ${vec4SizeOfProperty} * idxOfArray;`; //vec4_idx
+          break;
+        default:
+          throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
+      }
+      let conversionStr = '';
+      if (memberInfo.convertToBool) {
+        conversionStr = 'return (value > 0.5) ? true : false;';
+      }
+      str += `
+  ${memberInfo.convertToBool ? 'bool' : typeStr} get_${memberName}(float instanceId, int idxOfArray) {
+    int instanceIdOfBufferViews = int(instanceId) / ${componentCountPerBufferView};
+    int instanceIdInBufferView = int(instanceId) % ${componentCountPerBufferView};
+    int indices[] = int[](${locationOffsets_vec4_idx.join(', ')});
+    ${indexStr}
+    ${typeStr} value = ${fetchTypeStr}(index);
+    ${memberInfo.convertToBool ? conversionStr : 'return value;'}
+  }
+`;
+    }
     function processForNonArrayType(
       memberInfo: MemberInfo,
       componentClass: typeof Component,
@@ -205,23 +257,23 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
           throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
       }
 
-      const locationOffsets = Component.getLocationOffsetOfMemberOfComponent(componentClass, memberName);
+      const locationOffsets_vec4_idx = Component.getLocationOffsetOfMemberOfComponent(componentClass, memberName);
       let indexStr = '';
       switch (memberInfo.compositionType) {
         case CompositionType.Mat4:
-          indexStr = 'int index = indices[instanceIdOfBufferViews] + 4 * instanceIdInBufferView;';
+          indexStr = 'int index = indices[instanceIdOfBufferViews] + 4 * instanceIdInBufferView;'; // vec4_idx
           break;
         case CompositionType.Mat3:
-          indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 9 * instanceIdInBufferView;';
+          indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 9 * instanceIdInBufferView;'; // scalar_idx
           break;
         case CompositionType.Vec4:
-          indexStr = 'int index = indices[instanceIdOfBufferViews] + 1 * instanceIdInBufferView;';
+          indexStr = 'int index = indices[instanceIdOfBufferViews] + 1 * instanceIdInBufferView;'; // vec4_idx
           break;
         case CompositionType.Vec3:
-          indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 3 * instanceIdInBufferView;';
+          indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 3 * instanceIdInBufferView;'; // scalar_idx
           break;
         case CompositionType.Scalar:
-          indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 1 * instanceIdInBufferView;';
+          indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 1 * instanceIdInBufferView;'; // scalar_idx
           break;
         default:
           throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
@@ -234,7 +286,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   ${memberInfo.convertToBool ? 'bool' : typeStr} get_${memberName}(float instanceId) {
     int instanceIdOfBufferViews = int(instanceId) / ${componentCountPerBufferView};
     int instanceIdInBufferView = int(instanceId) % ${componentCountPerBufferView};
-    int indices[] = int[](${locationOffsets.join(', ')});
+    int indices[] = int[](${locationOffsets_vec4_idx.join(', ')});
     ${indexStr}
     ${typeStr} value = ${fetchTypeStr}(index);
     ${memberInfo.convertToBool ? conversionStr : 'return value;'}
