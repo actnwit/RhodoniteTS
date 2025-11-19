@@ -131,6 +131,9 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
           case CompositionType.Mat4x3Array:
             typeStr = 'mat4x3';
             break;
+          case CompositionType.Vec4Array:
+            typeStr = 'vec4';
+            break;
           default:
             throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
         }
