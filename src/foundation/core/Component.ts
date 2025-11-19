@@ -56,7 +56,10 @@ export class Component extends RnObject {
   private _component_sid: number;
   _isAlive = true;
   protected __currentProcessStage: ProcessStageEnum = ProcessStage.Load;
-  private static __accessors: Map<typeof Component, Map<MemberName, Map<IndexOfTheBufferView, Accessor>>> = new Map();
+  private static __accessors: Map<
+    typeof Component,
+    Map<MemberName, Map<ComponentSID | IndexOfTheBufferView, Accessor>>
+  > = new Map();
 
   private static __memberInfo: Map<typeof Component, Map<MemberName, MemberInfo>> = new Map();
   private static __arrayLengthMap: Map<typeof Component, Map<MemberName, Map<ComponentSID, Count>>> = new Map();
@@ -64,7 +67,7 @@ export class Component extends RnObject {
 
   private static __byteOffsetOfAccessorInBufferOfMembers: Map<
     typeof Component,
-    Map<MemberName, Map<IndexOfTheBufferView, Byte>>
+    Map<MemberName, Map<ComponentSID | IndexOfTheBufferView, Byte>>
   > = new Map();
 
   /** the state version of the component */
@@ -279,11 +282,13 @@ export class Component extends RnObject {
     const indexOfTheBufferView = Math.floor(componentSid / componentCountPerBufferView);
     const indexOfBufferViews = componentSid % componentCountPerBufferView;
     const accessorsOfMember = Component.__accessors.get(this.constructor as typeof Component)!.get(memberName)!;
+    const memberInfo = Component.__memberInfo.get(this.constructor as typeof Component)!.get(memberName)!;
+    const isArray = CompositionType.isArray(memberInfo.compositionType);
     let taken: TypedArray | undefined;
     if (isReUse) {
-      taken = accessorsOfMember.get(indexOfTheBufferView)!._takeExistedOne(indexOfBufferViews);
+      taken = accessorsOfMember.get(isArray ? componentSid : indexOfTheBufferView)!._takeExistedOne(indexOfBufferViews);
     } else {
-      taken = accessorsOfMember.get(indexOfTheBufferView)!.takeOne();
+      taken = accessorsOfMember.get(isArray ? componentSid : indexOfTheBufferView)!.takeOne();
     }
     (this as any)[`_${memberName}`] = new dataClassType(taken, false, true);
 
@@ -330,7 +335,8 @@ export class Component extends RnObject {
       accessors = new Map();
       accessorsOfMember.set(memberName, accessors);
     }
-    if (!accessorsOfMember.has(memberName) || !accessors.has(indexOfTheBufferView)) {
+    const isArray = CompositionType.isArray(compositionType);
+    if (!accessorsOfMember.has(memberName) || isArray || !accessors.has(indexOfTheBufferView)) {
       const bytes = calcAlignedByteLength();
       const buffer = MemoryManager.getInstance().createOrGetBuffer(bufferUse);
       const bufferViewResult = buffer.takeBufferView({
@@ -357,7 +363,7 @@ export class Component extends RnObject {
         });
       }
 
-      accessors.set(indexOfTheBufferView, accessorResult.get());
+      accessors.set(isArray ? componentSID : indexOfTheBufferView, accessorResult.get());
 
       Component.__stateVersion++;
 
@@ -378,7 +384,7 @@ export class Component extends RnObject {
       return alignedByteLength;
     }
 
-    return new Ok(accessors.get(indexOfTheBufferView)!);
+    return new Ok(accessors.get(isArray ? componentSID : indexOfTheBufferView)!);
   }
 
   /**
@@ -512,7 +518,11 @@ export class Component extends RnObject {
             .get(componentClass)!
             .set(info.memberName, byteOffsetOfAccessorInBufferOfMember);
         }
-        byteOffsetOfAccessorInBufferOfMember.set(indexOfTheBufferView, accessorResult.get().byteOffsetInBuffer);
+        const isArray = CompositionType.isArray(info.compositionType);
+        byteOffsetOfAccessorInBufferOfMember.set(
+          isArray ? componentSID : indexOfTheBufferView,
+          accessorResult.get().byteOffsetInBuffer
+        );
       });
     }
   }
