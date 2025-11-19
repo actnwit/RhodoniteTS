@@ -47,7 +47,6 @@ export class SkeletalComponent extends Component {
   private __sqArray = new Float32Array(0);
   private __qtsArray = new Float32Array(0);
   private __qtsInfo = MutableVector4.dummy();
-  private __matArray = new Float32Array(0);
   private _boneMatrix = VectorN.dummy();
   private __worldMatrix = MutableMatrix44.identity();
   private __isWorldMatrixVanilla = true;
@@ -77,9 +76,7 @@ export class SkeletalComponent extends Component {
     }
 
     if (SkeletalComponent.__tookGlobalDataNum < Config.maxSkeletonNumber) {
-      if (Config.boneDataType === BoneDataType.Mat43x1) {
-        SkeletalComponent.__globalDataRepository.takeOne('boneMatrix');
-      } else if (Config.boneDataType === BoneDataType.Vec4x2) {
+      if (Config.boneDataType === BoneDataType.Vec4x2) {
         SkeletalComponent.__globalDataRepository.takeOne('boneTranslatePackedQuat');
         SkeletalComponent.__globalDataRepository.takeOne('boneScalePackedQuat');
       } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
@@ -137,9 +134,7 @@ export class SkeletalComponent extends Component {
     if (this.componentSID < Config.maxSkeletonNumber) {
       index = this.componentSID;
     }
-    if (Config.boneDataType === BoneDataType.Mat43x1) {
-      this.__matArray = SkeletalComponent.__globalDataRepository.getValue('boneMatrix', index)._v;
-    } else if (Config.boneDataType === BoneDataType.Vec4x2) {
+    if (Config.boneDataType === BoneDataType.Vec4x2) {
       this.__tqArray = SkeletalComponent.__globalDataRepository.getValue('boneTranslatePackedQuat', index)._v;
       this.__sqArray = SkeletalComponent.__globalDataRepository.getValue('boneScalePackedQuat', index)._v;
     } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
@@ -150,6 +145,18 @@ export class SkeletalComponent extends Component {
       this.__qtsArray = SkeletalComponent.__globalDataRepository.getValue('boneCompressedChunk', index)._v;
       this.__qtsInfo = SkeletalComponent.__globalDataRepository.getValue('boneCompressedInfo', 0);
     }
+
+    SkeletalComponent.registerMember({
+      bufferUse: BufferUse.GPUInstanceData,
+      memberName: 'boneMatrix',
+      dataClassType: VectorN,
+      shaderType: ShaderType.VertexShader,
+      compositionType: CompositionType.Mat4x3Array,
+      componentType: ComponentType.Float,
+      arrayLength: joints.length,
+      initValues: new VectorN(new Float32Array(0)),
+    });
+    this.submitToAllocation(Config.skeletalComponentCountPerBufferView, false);
   }
 
   /**
@@ -221,7 +228,7 @@ export class SkeletalComponent extends Component {
    * @returns The Float32Array containing joint matrices
    */
   get jointMatricesArray() {
-    return this.__matArray;
+    return this._boneMatrix._v;
   }
 
   /**
@@ -464,18 +471,18 @@ export class SkeletalComponent extends Component {
     // 8  9  10 11
     // 12 13 14 15
 
-    this.__matArray[i * 12 + 0] = m._v[0];
-    this.__matArray[i * 12 + 1] = m._v[1];
-    this.__matArray[i * 12 + 2] = m._v[2];
-    this.__matArray[i * 12 + 3] = m._v[4];
-    this.__matArray[i * 12 + 4] = m._v[5];
-    this.__matArray[i * 12 + 5] = m._v[6];
-    this.__matArray[i * 12 + 6] = m._v[8];
-    this.__matArray[i * 12 + 7] = m._v[9];
-    this.__matArray[i * 12 + 8] = m._v[10];
-    this.__matArray[i * 12 + 9] = m._v[12];
-    this.__matArray[i * 12 + 10] = m._v[13];
-    this.__matArray[i * 12 + 11] = m._v[14];
+    this._boneMatrix.setAt(i * 12 + 0, m._v[0]);
+    this._boneMatrix.setAt(i * 12 + 1, m._v[1]);
+    this._boneMatrix.setAt(i * 12 + 2, m._v[2]);
+    this._boneMatrix.setAt(i * 12 + 3, m._v[4]);
+    this._boneMatrix.setAt(i * 12 + 4, m._v[5]);
+    this._boneMatrix.setAt(i * 12 + 5, m._v[6]);
+    this._boneMatrix.setAt(i * 12 + 6, m._v[8]);
+    this._boneMatrix.setAt(i * 12 + 7, m._v[9]);
+    this._boneMatrix.setAt(i * 12 + 8, m._v[10]);
+    this._boneMatrix.setAt(i * 12 + 9, m._v[12]);
+    this._boneMatrix.setAt(i * 12 + 10, m._v[13]);
+    this._boneMatrix.setAt(i * 12 + 11, m._v[14]);
   }
 
   /**
@@ -524,7 +531,7 @@ export class SkeletalComponent extends Component {
     this.__sqArray.set(component.__sqArray);
     this.__qtsArray.set(component.__qtsArray);
     this.__qtsInfo.copyComponents(component.__qtsInfo);
-    this.__matArray.set(component.__matArray);
+    this._boneMatrix.copyComponents(component._boneMatrix);
     this.__worldMatrix.copyComponents(component.__worldMatrix);
     this.__isWorldMatrixVanilla = component.__isWorldMatrixVanilla;
   }
@@ -584,12 +591,12 @@ export class SkeletalComponent extends Component {
   }
 }
 
-// SkeletalComponent.registerMember({
-//   bufferUse: BufferUse.GPUInstanceData,
-//   memberName: 'boneMatrix',
-//   dataClassType: VectorN,
-//   shaderType: ShaderType.VertexShader,
-//   compositionType: CompositionType.Mat4x3Array,
-//   componentType: ComponentType.Float,
-//   initValues: new VectorN(new Float32Array(0)),
-// });
+SkeletalComponent.registerMember({
+  bufferUse: BufferUse.GPUInstanceData,
+  memberName: 'boneMatrix',
+  dataClassType: VectorN,
+  shaderType: ShaderType.VertexShader,
+  compositionType: CompositionType.Mat4x3Array,
+  componentType: ComponentType.Float,
+  initValues: new VectorN(new Float32Array(0)),
+});
