@@ -19,11 +19,6 @@ import { TextureParameter } from '../foundation/definitions/TextureParameter';
 import type { Mesh } from '../foundation/geometry/Mesh';
 import { Primitive } from '../foundation/geometry/Primitive';
 import type { Material } from '../foundation/materials/core/Material';
-import { MutableMatrix33 } from '../foundation/math/MutableMatrix33';
-import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
-import { MutableScalar } from '../foundation/math/MutableScalar';
-import { MutableVector3 } from '../foundation/math/MutableVector3';
-import { MutableVector4 } from '../foundation/math/MutableVector4';
 import type { Scalar } from '../foundation/math/Scalar';
 import type { Vector2 } from '../foundation/math/Vector2';
 import type { Buffer } from '../foundation/memory/Buffer';
@@ -139,9 +134,10 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
           default:
             throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
         }
-        str += `uniform ${memberInfo.convertToBool ? 'bool' : typeStr} u_${memberName};\n`;
-        str += `${memberInfo.convertToBool ? 'bool' : typeStr} get_${memberName}(float instanceId) {
-  return u_${memberName};
+        const isArray = CompositionType.isArray(memberInfo.compositionType);
+        str += `uniform ${memberInfo.convertToBool ? 'bool' : typeStr} u_${memberName}${isArray ? `[${memberInfo.arrayLength}]` : ''};\n`;
+        str += `${memberInfo.convertToBool ? 'bool' : typeStr} get_${memberName}(float instanceId${isArray ? ', int idxOfArray' : ''}) {
+  return u_${memberName}${isArray ? '[idxOfArray]' : ''};
 }\n`;
       });
     });

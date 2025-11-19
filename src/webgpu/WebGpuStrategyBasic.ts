@@ -189,7 +189,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
         conversionStr = 'if (value > 0.5) { return true; } else { return false; }';
       }
       str += `
-  fn get_${memberName}(instanceId: u32) -> ${memberInfo.convertToBool ? 'bool' : typeStr} {
+  fn get_${memberName}(instanceId: u32, idxOfArray: u32) -> ${memberInfo.convertToBool ? 'bool' : typeStr} {
     let instanceIdOfBufferViews = instanceId / ${componentCountPerBufferView};
     let instanceIdInBufferView = instanceId % ${componentCountPerBufferView};
     var<function> indices: array<u32, ${locationOffsets_vec4_idx.length}> = array<u32, ${locationOffsets_vec4_idx.length}>(${locationOffsets_vec4_idx.map(offset => `${offset}u`).join(', ')});

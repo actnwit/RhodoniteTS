@@ -75,21 +75,7 @@ export class GlobalDataRepository {
       : Config.maxSkeletalBoneNumber;
 
     // Skinning
-    if (Config.boneDataType === BoneDataType.Mat43x1) {
-      const boneMatrixInfo = {
-        semantic: 'boneMatrix',
-        compositionType: CompositionType.Mat4x3Array,
-        arrayLength: maxSkeletalBoneNumber,
-        componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader,
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        isInternalSetting: true,
-        soloDatum: true,
-        initialValue: new VectorN(new Float32Array(0)),
-      };
-      this.__registerProperty(boneMatrixInfo, Config.maxSkeletonNumber);
-    } else if (Config.boneDataType === BoneDataType.Vec4x2) {
+    if (Config.boneDataType === BoneDataType.Vec4x2) {
       const boneTranslatePackedQuatInfo = {
         semantic: 'boneTranslatePackedQuat',
         compositionType: CompositionType.Vec4Array,

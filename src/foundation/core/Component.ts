@@ -347,6 +347,7 @@ export class Component extends RnObject {
         componentType,
         count: componentCountPerBufferView,
         byteStride: bytes,
+        arrayLength: arrayLength,
       });
       if (accessorResult.isErr()) {
         return new Err({
