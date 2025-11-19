@@ -161,7 +161,44 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
       componentClass: typeof Component,
       memberName: string,
       componentCountPerBufferView: number
-    ) {}
+    ) {
+      let typeStr = '';
+      let fetchTypeStr = '';
+      switch (memberInfo.compositionType) {
+        case CompositionType.Vec4Array:
+          typeStr = 'vec4<f32>';
+          fetchTypeStr = 'fetchVec4';
+          break;
+        case CompositionType.Mat4Array:
+          typeStr = 'mat4x4<f32>';
+          fetchTypeStr = 'fetchMat4';
+          break;
+        case CompositionType.Mat4x3Array:
+          typeStr = 'mat4x3<f32>';
+          fetchTypeStr = 'fetchMat4x3';
+          break;
+        default:
+          throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
+      }
+      const locationOffsets_vec4_idx = Component.getLocationOffsetOfMemberOfComponent(componentClass, memberName);
+      const vec4SizeOfProperty: IndexOf16Bytes = memberInfo.compositionType.getVec4SizeOfProperty();
+      const instanceSize = vec4SizeOfProperty * memberInfo.arrayLength;
+      const indexStr = `indices[instanceIdOfBufferViews] + instanceIdInBufferView * ${instanceSize}u + ${vec4SizeOfProperty}u * idxOfArray;`; // vec4_idx
+      let conversionStr = '';
+      if (memberInfo.convertToBool) {
+        conversionStr = 'if (value > 0.5) { return true; } else { return false; }';
+      }
+      str += `
+  fn get_${memberName}(instanceId: u32) -> ${memberInfo.convertToBool ? 'bool' : typeStr} {
+    let instanceIdOfBufferViews = instanceId / ${componentCountPerBufferView};
+    let instanceIdInBufferView = instanceId % ${componentCountPerBufferView};
+    var<function> indices: array<u32, ${locationOffsets_vec4_idx.length}> = array<u32, ${locationOffsets_vec4_idx.length}>(${locationOffsets_vec4_idx.map(offset => `${offset}u`).join(', ')});
+    let index: u32 = ${indexStr};
+    let value = ${fetchTypeStr}(index);
+    ${memberInfo.convertToBool ? conversionStr : 'return value;'}
+  }
+  `;
+    }
 
     function processForNonArrayType(
       memberInfo: MemberInfo,

@@ -185,30 +185,16 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
           break;
         case CompositionType.Mat4x3Array:
           typeStr = 'mat4x3';
-          fetchTypeStr = 'fetchVec4';
+          fetchTypeStr = 'fetchMat4x3';
           break;
         default:
           throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
       }
-
-      const vec4SizeOfProperty: IndexOf16Bytes = memberInfo.compositionType.getVec4SizeOfProperty();
-      const instanceeSize = vec4SizeOfProperty * memberInfo.arrayLength;
 
       const locationOffsets_vec4_idx = Component.getLocationOffsetOfMemberOfComponent(componentClass, memberName);
-      let indexStr = '';
-      switch (memberInfo.compositionType) {
-        case CompositionType.Vec4Array:
-          indexStr = `int index = indices[instanceIdOfBufferViews] + instanceIdInBufferView * ${instanceeSize} + ${vec4SizeOfProperty} * idxOfArray;`; // vec4_idx
-          break;
-        case CompositionType.Mat4Array:
-          indexStr = `int index = indices[instanceIdOfBufferViews] + instanceIdInBufferView * ${instanceeSize} + ${vec4SizeOfProperty} * idxOfArray;`; // vec4_idx
-          break;
-        case CompositionType.Mat4x3Array:
-          indexStr = `int index = indices[instanceIdOfBufferViews] + instanceIdInBufferView * ${instanceeSize} + ${vec4SizeOfProperty} * idxOfArray;`; //vec4_idx
-          break;
-        default:
-          throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
-      }
+      const vec4SizeOfProperty: IndexOf16Bytes = memberInfo.compositionType.getVec4SizeOfProperty();
+      const instanceSize = vec4SizeOfProperty * memberInfo.arrayLength;
+      const indexStr = `int index = indices[instanceIdOfBufferViews] + instanceIdInBufferView * ${instanceSize} + ${vec4SizeOfProperty} * idxOfArray;`; // vec4_idx
       let conversionStr = '';
       if (memberInfo.convertToBool) {
         conversionStr = 'return (value > 0.5) ? true : false;';
