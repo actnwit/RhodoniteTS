@@ -378,6 +378,7 @@ export class Component extends RnObject {
       memberName,
       dataClassType,
       shaderType,
+      compositionType,
       componentType,
       initValues,
       convertToBool,
@@ -386,6 +387,7 @@ export class Component extends RnObject {
       memberName: string;
       dataClassType: DataClassType;
       shaderType: ShaderTypeEnum;
+      compositionType: CompositionTypeEnum;
       componentType: ComponentTypeEnum;
       initValues: number[];
       convertToBool?: boolean;
@@ -401,7 +403,7 @@ export class Component extends RnObject {
       memberName: memberName,
       dataClassType: dataClassType,
       shaderType: shaderType,
-      compositionType: dataClassType.compositionType,
+      compositionType: compositionType,
       componentType: componentType,
       initValues: initValues,
       convertToBool: convertToBool,

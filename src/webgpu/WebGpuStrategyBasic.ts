@@ -117,49 +117,51 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
         const componentCountPerBufferView = Component.getComponentCountPerBufferView().get(componentClass) ?? 1;
         let typeStr = '';
         let fetchTypeStr = '';
-        switch (memberInfo.dataClassType) {
-          case MutableMatrix44:
+        switch (memberInfo.compositionType) {
+          case CompositionType.Mat4:
             typeStr = 'mat4x4<f32>';
             fetchTypeStr = 'fetchMat4';
             break;
-          case MutableMatrix33:
+          case CompositionType.Mat3:
             typeStr = 'mat3x3<f32>';
             fetchTypeStr = 'fetchMat3No16BytesAligned';
             break;
-          case MutableVector4:
+          case CompositionType.Vec4:
             typeStr = 'vec4<f32>';
             fetchTypeStr = 'fetchVec4';
             break;
-          case MutableVector3:
+          case CompositionType.Vec3:
             typeStr = 'vec3<f32>';
             fetchTypeStr = 'fetchVec3No16BytesAligned';
             break;
-          case MutableScalar:
+          case CompositionType.Scalar:
             typeStr = 'f32';
             fetchTypeStr = 'fetchScalarNo16BytesAligned';
             break;
+          default:
+            throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
         }
 
         const locationOffsets = Component.getLocationOffsetOfMemberOfComponent(componentClass, memberName);
         let indexStr = '';
-        switch (memberInfo.dataClassType) {
-          case MutableMatrix44:
+        switch (memberInfo.compositionType) {
+          case CompositionType.Mat4:
             indexStr = 'indices[instanceIdOfBufferViews] + 4u * instanceIdInBufferView;';
             break;
-          case MutableMatrix33:
+          case CompositionType.Mat3:
             indexStr = 'indices[instanceIdOfBufferViews] * 4u + 9u * instanceIdInBufferView;';
             break;
-          case MutableVector4:
+          case CompositionType.Vec4:
             indexStr = 'indices[instanceIdOfBufferViews] + 1u * instanceIdInBufferView;';
             break;
-          case MutableVector3:
+          case CompositionType.Vec3:
             indexStr = 'indices[instanceIdOfBufferViews] * 4u + 3u * instanceIdInBufferView;';
             break;
-          case MutableScalar:
+          case CompositionType.Scalar:
             indexStr = 'indices[instanceIdOfBufferViews] * 4u + 1u * instanceIdInBufferView;';
             break;
           default:
-            throw new Error(`Unsupported data class type: ${memberInfo.dataClassType.name}`);
+            throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
         }
         let conversionStr = '';
         if (memberInfo.convertToBool) {

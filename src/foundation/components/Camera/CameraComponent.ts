@@ -8,6 +8,7 @@ import { EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { BufferUse } from '../../definitions/BufferUse';
 import { CameraType, type CameraTypeEnum } from '../../definitions/CameraType';
 import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
 import { LightType } from '../../definitions/LightType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { ProcessStage } from '../../definitions/ProcessStage';
@@ -1241,6 +1242,7 @@ CameraComponent.registerMember({
   memberName: 'viewMatrix',
   dataClassType: MutableMatrix44,
   shaderType: ShaderType.VertexAndPixelShader,
+  compositionType: CompositionType.Mat4,
   componentType: ComponentType.Float,
   initValues: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
 });
@@ -1249,6 +1251,7 @@ CameraComponent.registerMember({
   memberName: 'projectionMatrix',
   dataClassType: MutableMatrix44,
   shaderType: ShaderType.VertexAndPixelShader,
+  compositionType: CompositionType.Mat4,
   componentType: ComponentType.Float,
   initValues: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
 });
@@ -1257,6 +1260,7 @@ CameraComponent.registerMember({
   memberName: 'viewPosition',
   dataClassType: MutableVector3,
   shaderType: ShaderType.VertexAndPixelShader,
+  compositionType: CompositionType.Vec3,
   componentType: ComponentType.Float,
   initValues: [0, 0, 0],
 });
