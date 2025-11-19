@@ -493,15 +493,18 @@ export class SkeletalComponent extends Component {
     const component = component_ as SkeletalComponent;
 
     this._jointIndices = component._jointIndices.concat();
-    // this.setJoints(component.__joints.concat());
-    // this.setJoints([]);
+    if (component.__joints.length > 0) {
+      this.setJoints(component.__joints.concat());
+      this.__copyBoneBuffersFrom(component);
+    } else {
+      this.__joints = [];
+      this.__jointCapacity = 0;
+      this.__allocatedBoneDataType = undefined;
+    }
 
     this.__inverseBindMatricesAccessor = component.__inverseBindMatricesAccessor;
     if (Is.exist(component._bindShapeMatrix)) {
       this._bindShapeMatrix = component._bindShapeMatrix.clone();
-    }
-    if (Is.exist(component.__jointMatrices)) {
-      this.__jointMatrices = component.__jointMatrices.concat();
     }
     this.topOfJointsHierarchy = component.topOfJointsHierarchy;
     this.isSkinning = component.isSkinning;
@@ -562,6 +565,28 @@ export class SkeletalComponent extends Component {
     const float32Array = this.__inverseBindMatricesAccessor!.getTypedArray() as Float32Array;
     const m = new Matrix44(float32Array.slice(index * 16, index * 16 + 16));
     return m;
+  }
+
+  private __copyBoneBuffersFrom(component: SkeletalComponent) {
+    const copyVector = (target: VectorN, source: VectorN) => {
+      if (target.isDummy() || source.isDummy()) {
+        return;
+      }
+      target.copyComponents(source);
+    };
+
+    if (Is.exist(component.__jointMatrices)) {
+      this.__jointMatrices = component.__jointMatrices!.concat();
+    } else {
+      this.__jointMatrices = undefined;
+    }
+
+    copyVector(this._boneMatrix, component._boneMatrix);
+    copyVector(this._boneTranslatePackedQuat, component._boneTranslatePackedQuat);
+    copyVector(this._boneScalePackedQuat, component._boneScalePackedQuat);
+    copyVector(this._boneQuaternion, component._boneQuaternion);
+    copyVector(this._boneTranslateScale, component._boneTranslateScale);
+    copyVector(this._boneCompressedChunk, component._boneCompressedChunk);
   }
 
   private __registerBoneDataMembers(arrayLength: number) {
