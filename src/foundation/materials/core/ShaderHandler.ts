@@ -227,6 +227,8 @@ export function _createProgramAsSingleOperationWebGL(
     vertexAttributeDefines +
     material._getFingerPrint() +
     definitions +
+    componentDataAccessMethodDefinitionsForVertexShader +
+    componentDataAccessMethodDefinitionsForPixelShader +
     alphaMode;
 
   let shaderProgramUid = __shaderStringMap.get(cacheQuery);
@@ -398,6 +400,8 @@ export function _createProgramAsSingleOperationWebGpu(
     vertexAttributeDefines +
     material._getFingerPrint() +
     definitions +
+    componentDataAccessMethodDefinitionsForVertexShader +
+    componentDataAccessMethodDefinitionsForPixelShader +
     alphaMode;
 
   let shaderProgramUid = __shaderStringMap.get(cacheQuery);
