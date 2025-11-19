@@ -7,6 +7,7 @@ import { EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { BufferUse } from '../../definitions/BufferUse';
 import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
 import { LightType } from '../../definitions/LightType';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import { ShaderType } from '../../definitions/ShaderType';
@@ -317,6 +318,7 @@ LightComponent.registerMember({
   memberName: 'lightPosition',
   dataClassType: MutableVector3,
   shaderType: ShaderType.VertexAndPixelShader,
+  compositionType: CompositionType.Vec3,
   componentType: ComponentType.Float,
   initValues: [0, 0, 0],
 });
@@ -325,6 +327,7 @@ LightComponent.registerMember({
   memberName: 'lightDirection',
   dataClassType: MutableVector3,
   shaderType: ShaderType.VertexAndPixelShader,
+  compositionType: CompositionType.Vec3,
   componentType: ComponentType.Float,
   initValues: [0, 0, 0],
 });
@@ -333,6 +336,7 @@ LightComponent.registerMember({
   memberName: 'lightIntensity',
   dataClassType: MutableVector3,
   shaderType: ShaderType.VertexAndPixelShader,
+  compositionType: CompositionType.Vec3,
   componentType: ComponentType.Float,
   initValues: [0, 0, 0],
 });
@@ -341,6 +345,7 @@ LightComponent.registerMember({
   memberName: 'lightProperty',
   dataClassType: MutableVector4,
   shaderType: ShaderType.VertexAndPixelShader,
+  compositionType: CompositionType.Vec4,
   componentType: ComponentType.Float,
   initValues: [-1, 0, 0, 0],
 });
