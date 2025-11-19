@@ -53,7 +53,7 @@ export class GlobalDataRepository {
    * @param approach - The processing approach that determines
    *                   how data is organized and accessed in shaders
    */
-  initialize(approach: ProcessApproachEnum) {
+  initialize(_approach: ProcessApproachEnum) {
     // CurrentComponentSIDs
     const currentComponentSIDsInfo = {
       semantic: 'currentComponentSIDs',
