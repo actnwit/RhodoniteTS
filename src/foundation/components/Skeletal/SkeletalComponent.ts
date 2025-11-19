@@ -590,7 +590,9 @@ export class SkeletalComponent extends Component {
   }
 
   private __registerBoneDataMembers(arrayLength: number) {
-    if (Config.boneDataType === BoneDataType.Mat43x1) {
+    const boneDataType = Config.boneDataType;
+
+    if (boneDataType === BoneDataType.Mat43x1 || boneDataType === BoneDataType.Vec4x1) {
       SkeletalComponent.registerMember({
         bufferUse: BufferUse.GPUInstanceData,
         memberName: 'boneMatrix',
@@ -602,7 +604,9 @@ export class SkeletalComponent extends Component {
         componentSID: this.componentSID,
         initValues: new VectorN(new Float32Array(0)),
       });
-    } else if (Config.boneDataType === BoneDataType.Vec4x2) {
+    }
+
+    if (boneDataType === BoneDataType.Vec4x2) {
       SkeletalComponent.registerMember({
         bufferUse: BufferUse.GPUInstanceData,
         memberName: 'boneTranslatePackedQuat',
@@ -625,7 +629,7 @@ export class SkeletalComponent extends Component {
         componentSID: this.componentSID,
         initValues: new VectorN(new Float32Array(0)),
       });
-    } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
+    } else if (boneDataType === BoneDataType.Vec4x2Old) {
       SkeletalComponent.registerMember({
         bufferUse: BufferUse.GPUInstanceData,
         memberName: 'boneQuaternion',
@@ -648,7 +652,9 @@ export class SkeletalComponent extends Component {
         componentSID: this.componentSID,
         initValues: new VectorN(new Float32Array(0)),
       });
-    } else if (Config.boneDataType === BoneDataType.Vec4x1) {
+    }
+
+    if (boneDataType === BoneDataType.Vec4x1) {
       SkeletalComponent.registerMember({
         bufferUse: BufferUse.GPUInstanceData,
         memberName: 'boneTranslateScale',
