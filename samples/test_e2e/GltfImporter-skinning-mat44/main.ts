@@ -6,7 +6,6 @@ const p = document.createElement('p');
 document.body.appendChild(p);
 
 Rn.Config.boneDataType = Rn.BoneDataType.Mat43x1;
-Rn.Config.maxSkeletalBoneNumber = 2;
 Rn.Config.cgApiDebugConsoleOutput = true;
 await Rn.System.init({
   approach: Rn.ProcessApproach.Uniform,
