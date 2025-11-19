@@ -79,6 +79,18 @@ export class SkeletalComponent extends Component {
   }
 
   /**
+   * Resets GPU-bound vector fields so they can be re-bound on reuse.
+   */
+  private __resetBoneDataBuffers() {
+    this._boneMatrix = VectorN.dummy();
+    this._boneTranslatePackedQuat = VectorN.dummy();
+    this._boneScalePackedQuat = VectorN.dummy();
+    this._boneQuaternion = VectorN.dummy();
+    this._boneTranslateScale = VectorN.dummy();
+    this._boneCompressedChunk = VectorN.dummy();
+  }
+
+  /**
    * Gets the static component type identifier for SkeletalComponent.
    *
    * @returns The component type identifier
@@ -114,6 +126,7 @@ export class SkeletalComponent extends Component {
    */
   setJoints(joints: SceneGraphComponent[]) {
     this.__joints = joints;
+    this.__resetBoneDataBuffers();
 
     if (Config.boneDataType === BoneDataType.Vec4x1) {
       this.__qtsInfo = SkeletalComponent.__globalDataRepository.getValue('boneCompressedInfo', 0);
