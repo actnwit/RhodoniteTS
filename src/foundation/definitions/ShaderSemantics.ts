@@ -599,14 +599,9 @@ type _UpdateFunc = ({
   args?: object;
 }) => void;
 
-export type getShaderPropertyFuncOfGlobalDataRepository = (
-  info: ShaderSemanticsInfo,
-) => string;
+export type getShaderPropertyFuncOfGlobalDataRepository = (info: ShaderSemanticsInfo) => string;
 
-export type getShaderPropertyFuncOfMaterial = (
-  materialTypeName: string,
-  info: ShaderSemanticsInfo,
-) => string;
+export type getShaderPropertyFuncOfMaterial = (materialTypeName: string, info: ShaderSemanticsInfo) => string;
 
 /**
  * @internal
@@ -616,16 +611,11 @@ export function _getPropertyIndex2(shaderSemantic: ShaderSemanticsEnum) {
   return propertyIndex;
 }
 
-function getShaderPropertyOfMaterial(
-  materialTypeName: string,
-  info: ShaderSemanticsInfo,
-) {
+function getShaderPropertyOfMaterial(_materialTypeName: string, info: ShaderSemanticsInfo) {
   return getShaderPropertyOfGlobalDataRepository(info);
 }
 
-function getShaderPropertyOfGlobalDataRepository(
-  info: ShaderSemanticsInfo,
-) {
+function getShaderPropertyOfGlobalDataRepository(info: ShaderSemanticsInfo) {
   const returnType = info.compositionType.getGlslStr(info.componentType);
 
   let variableName = info.semantic;

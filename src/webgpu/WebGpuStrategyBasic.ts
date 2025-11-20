@@ -14,7 +14,11 @@ import { MemoryManager } from '../foundation/core/MemoryManager';
 import { BufferUse } from '../foundation/definitions/BufferUse';
 import { ComponentType } from '../foundation/definitions/ComponentType';
 import { CompositionType } from '../foundation/definitions/CompositionType';
-import type { ShaderSemanticsName, getShaderPropertyFuncOfGlobalDataRepository, getShaderPropertyFuncOfMaterial } from '../foundation/definitions/ShaderSemantics';
+import type {
+  ShaderSemanticsName,
+  getShaderPropertyFuncOfGlobalDataRepository,
+  getShaderPropertyFuncOfMaterial,
+} from '../foundation/definitions/ShaderSemantics';
 import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
 import { ShaderType, type ShaderTypeEnum } from '../foundation/definitions/ShaderType';
 import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
@@ -556,17 +560,12 @@ ${indexStr}
    * @param materialTypeName - The material type name for material-specific properties
    * @returns The byte offset of the property in the storage buffer, or -1 if not found
    */
-  private static getOffsetOfPropertyOfMaterial(
-    propertyName: ShaderSemanticsName,
-    materialTypeName: string
-  ) {
+  private static getOffsetOfPropertyOfMaterial(propertyName: ShaderSemanticsName, materialTypeName: string) {
     const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyName);
     return dataBeginPos;
   }
 
-  private static getOffsetOfPropertyOfGlobalDataRepository(
-    propertyName: ShaderSemanticsName,
-  ) {
+  private static getOffsetOfPropertyOfGlobalDataRepository(propertyName: ShaderSemanticsName) {
     const globalDataRepository = GlobalDataRepository.getInstance();
     const dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyName);
     return dataBeginPos;
@@ -659,7 +658,7 @@ ${indexStr}
         WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.VertexShader),
         WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.PixelShader),
         WebGpuStrategyBasic.__getShaderPropertyOfGlobalDataRepository,
-        WebGpuStrategyBasic.__getShaderPropertyOfMaterial,
+        WebGpuStrategyBasic.__getShaderPropertyOfMaterial
       );
       primitive._backupMaterial();
     } catch (e) {
@@ -671,7 +670,7 @@ ${indexStr}
         WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.VertexShader),
         WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.PixelShader),
         WebGpuStrategyBasic.__getShaderPropertyOfGlobalDataRepository,
-        WebGpuStrategyBasic.__getShaderPropertyOfMaterial,
+        WebGpuStrategyBasic.__getShaderPropertyOfMaterial
       );
     }
   }
