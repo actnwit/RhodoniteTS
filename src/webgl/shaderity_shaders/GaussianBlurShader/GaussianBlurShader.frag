@@ -17,7 +17,7 @@ void main ()
 {
 /* shaderity: @{mainPrerequisites} */
 
-  vec2 offset = gl_FragCoord.st;
+  vec2 uvBase = v_texcoord_0;
   ivec2 vrState = get_vrState(0.0, 0);
   vec2 framebufferSize = get_framebufferSize(materialSID, 0);
   vec2 blurDirection;
@@ -37,9 +37,9 @@ void main ()
     float strideLength = minStrideLength + float(i);
     vec2 stride = strideLength * blurDirection;
     float gaussianRatio = get_gaussianRatio(materialSID, i);
-    vec2 uv = (offset + stride) * tFrag;
+    vec2 uv = uvBase + stride * tFrag;
     if (vrState.x == 1 && isHorizontal) { // if in VR mode and horizontal blur
-      if (gl_FragCoord.x < framebufferSize.x / 2.0) { // left eye
+      if (uvBase.x < 0.5) { // left eye
         uv.x = min(uv.x, 0.5);
       } else { // right eye
         uv.x = max(uv.x, 0.5);
