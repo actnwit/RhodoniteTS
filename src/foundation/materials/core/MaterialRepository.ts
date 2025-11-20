@@ -129,8 +129,13 @@ export class MaterialRepository {
     ) as number;
     const indexInTheBufferView = countOfThisType % materialCountPerBufferView;
     const indexOfBufferViews = Math.floor(countOfThisType / materialCountPerBufferView);
+    let newlyAllocatedBufferView = false;
     if (indexInTheBufferView === 0) {
-      MaterialRepository.__allocateBufferView(materialTypeName, materialNode, indexOfBufferViews);
+      newlyAllocatedBufferView = MaterialRepository.__allocateBufferView(
+        materialTypeName,
+        materialNode,
+        indexOfBufferViews
+      );
     }
 
     const material = new Material(
@@ -142,6 +147,9 @@ export class MaterialRepository {
     );
 
     this.__initializeMaterial(material, countOfThisType, indexOfBufferViews, indexInTheBufferView);
+    if (newlyAllocatedBufferView && indexOfBufferViews > 0) {
+      MaterialRepository.__makeShaderInvalidateForMaterialType(materialTypeName);
+    }
 
     return material;
   }
@@ -298,14 +306,15 @@ export class MaterialRepository {
    *
    * @param materialTypeName - The name of the material type to allocate memory for
    * @param materialNode - The material node containing semantic information
-   * @returns The allocated BufferView for the material type
+   * @returns Whether a new BufferView was allocated (true) or an existing one was reused (false)
    * @private
    */
   private static __allocateBufferView(
     materialTypeName: string,
     materialNode: AbstractMaterialContent,
     indexOfBufferViews: IndexOfBufferViews
-  ) {
+  ): boolean {
+    let newlyAllocated = false;
     // Calculate a BufferView size to take
     let totalByteLength = 0;
     const alignedByteLengthAndSemanticInfoArray: {
@@ -346,6 +355,7 @@ export class MaterialRepository {
       });
       bufferView = result.unwrapForce();
       this.__bufferViews.get(materialTypeName)!.set(indexOfBufferViews, bufferView);
+      newlyAllocated = true;
     }
 
     // Take Accessors and register it
@@ -396,7 +406,7 @@ export class MaterialRepository {
       }
     }
 
-    return bufferView;
+    return newlyAllocated;
   }
 
   static _getMaterialCountPerBufferView(materialTypeName: string): Count | undefined {
@@ -413,6 +423,17 @@ export class MaterialRepository {
   static _makeShaderInvalidateToAllMaterials() {
     for (const material of MaterialRepository.__materialMap.values()) {
       material.deref()?.makeShadersInvalidate();
+    }
+  }
+
+  private static __makeShaderInvalidateForMaterialType(materialTypeName: string) {
+    const materials = MaterialRepository.__instances.get(materialTypeName);
+    if (materials == null) {
+      return;
+    }
+
+    for (const materialRef of materials.values()) {
+      materialRef.deref()?.makeShadersInvalidate();
     }
   }
 }
