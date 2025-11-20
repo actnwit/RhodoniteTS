@@ -11,7 +11,7 @@ import {
   ShaderSemanticsIndex,
   type ShaderSemanticsName,
   _getPropertyIndex2,
-  type getShaderPropertyFunc,
+  getShaderPropertyFuncOfGlobalDataRepository,
 } from '../definitions/ShaderSemantics';
 import { type ShaderSemanticsInfo, calcAlignedByteLength } from '../definitions/ShaderSemanticsInfo';
 import { ShaderType } from '../definitions/ShaderType';
@@ -347,16 +347,15 @@ export class GlobalDataRepository {
   _addPropertiesStr(
     vertexPropertiesStr: string,
     pixelPropertiesStr: string,
-    propertySetter: getShaderPropertyFunc,
-    isWebGL2: boolean
+    propertySetter: getShaderPropertyFuncOfGlobalDataRepository,
   ) {
     this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct) => {
       const info = globalPropertyStruct.shaderSemanticsInfo;
       if (info!.stage === ShaderType.VertexShader || info!.stage === ShaderType.VertexAndPixelShader) {
-        vertexPropertiesStr += propertySetter('', info!, true, isWebGL2);
+        vertexPropertiesStr += propertySetter(info!);
       }
       if (info!.stage === ShaderType.PixelShader || info!.stage === ShaderType.VertexAndPixelShader) {
-        pixelPropertiesStr += propertySetter('', info!, true, isWebGL2);
+        pixelPropertiesStr += propertySetter(info!);
       }
     });
 
