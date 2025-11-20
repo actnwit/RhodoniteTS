@@ -1,11 +1,4 @@
-import {
-  type Count,
-  Index,
-  type IndexOf16Bytes,
-  type MaterialSID,
-  type MaterialTID,
-  type MaterialUID,
-} from '../../../types/CommonTypes';
+import type { Count, Index, IndexOf16Bytes, MaterialSID, MaterialTID, MaterialUID } from '../../../types/CommonTypes';
 import { Config } from '../../core/Config';
 import { MemoryManager } from '../../core/MemoryManager';
 import { BufferUse } from '../../definitions/BufferUse';
@@ -37,7 +30,8 @@ export class MaterialRepository {
   private static __materialNodes: Map<MaterialTypeName, AbstractMaterialContent | undefined> = new Map();
   private static __materialCountPerBufferViewMap: Map<MaterialTypeName, Count> = new Map();
   private static __bufferViews: Map<MaterialTypeName, Map<IndexOfBufferViews, BufferView>> = new Map();
-  private static __accessors: Map<MaterialTypeName, Map<IndexOfBufferViews, Map<ShaderSemanticsName, Accessor>>> = new Map();
+  private static __accessors: Map<MaterialTypeName, Map<IndexOfBufferViews, Map<ShaderSemanticsName, Accessor>>> =
+    new Map();
   private static __materialTidCount = -1;
   private static __materialUidCount = -1;
 
@@ -127,11 +121,12 @@ export class MaterialRepository {
    * @throws Error if the material type is not registered or maximum instances exceeded
    */
   public static createMaterial(materialTypeName: string, materialNode: AbstractMaterialContent): Material {
-
     // get the count of instance for the material type
     let countOfThisType = MaterialRepository.__materialInstanceCountOfType.get(materialTypeName) as number;
 
-    const materialCountPerBufferView = MaterialRepository.__materialCountPerBufferViewMap.get(materialTypeName) as number;
+    const materialCountPerBufferView = MaterialRepository.__materialCountPerBufferViewMap.get(
+      materialTypeName
+    ) as number;
     const indexInTheBufferView = countOfThisType % materialCountPerBufferView;
     const indexOfBufferViews = Math.floor(countOfThisType / materialCountPerBufferView);
     if (indexInTheBufferView === 0) {
@@ -184,7 +179,12 @@ export class MaterialRepository {
    * @param countOfThisType - The current count of instances for this material type
    * @private
    */
-  private static __initializeMaterial(material: Material, countOfThisType: Count, indexOfBufferViews: Index, indexInTheBufferView: Index) {
+  private static __initializeMaterial(
+    material: Material,
+    countOfThisType: Count,
+    indexOfBufferViews: Index,
+    _indexInTheBufferView: Index
+  ) {
     // Set name
     // material.tryToSetUniqueName(material.__materialTypeName, true);
 
@@ -301,7 +301,11 @@ export class MaterialRepository {
    * @returns The allocated BufferView for the material type
    * @private
    */
-  private static __allocateBufferView(materialTypeName: string, materialNode: AbstractMaterialContent, indexOfBufferViews: IndexOfBufferViews) {
+  private static __allocateBufferView(
+    materialTypeName: string,
+    materialNode: AbstractMaterialContent,
+    indexOfBufferViews: IndexOfBufferViews
+  ) {
     // Calculate a BufferView size to take
     let totalByteLength = 0;
     const alignedByteLengthAndSemanticInfoArray: {

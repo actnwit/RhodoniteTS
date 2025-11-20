@@ -1,4 +1,4 @@
-import { Index } from '../../../types/CommonTypes';
+import type { Index } from '../../../types/CommonTypes';
 import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 
 export type MaterialTypeName = string;

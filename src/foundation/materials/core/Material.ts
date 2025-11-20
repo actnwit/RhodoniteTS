@@ -22,8 +22,8 @@ import {
   ShaderSemanticsIndex,
   type ShaderSemanticsName,
   _getPropertyIndex2,
-  getShaderPropertyFuncOfGlobalDataRepository,
-  getShaderPropertyFuncOfMaterial,
+  type getShaderPropertyFuncOfGlobalDataRepository,
+  type getShaderPropertyFuncOfMaterial,
 } from '../../definitions/ShaderSemantics';
 import { ShaderType } from '../../definitions/ShaderType';
 import type { Primitive } from '../../geometry/Primitive';
@@ -492,7 +492,7 @@ export class Material extends RnObject {
     componentDataAccessMethodDefinitionsForPixelShader: string,
     propertySetterOfGlobalDataRepository: getShaderPropertyFuncOfGlobalDataRepository,
     propertySetterOfMaterial: getShaderPropertyFuncOfMaterial,
-    primitive: Primitive,
+    primitive: Primitive
   ): [CGAPIResourceHandle, boolean] {
     const [programUid, newOne] = _createProgramAsSingleOperationWebGL(
       this,
@@ -500,7 +500,7 @@ export class Material extends RnObject {
       propertySetterOfMaterial,
       primitive,
       componentDataAccessMethodDefinitionsForVertexShader,
-      componentDataAccessMethodDefinitionsForPixelShader,
+      componentDataAccessMethodDefinitionsForPixelShader
     );
     const primitiveFingerPrint = primitive._getFingerPrint();
     this._shaderProgramUidMap.set(primitiveFingerPrint, programUid);
@@ -733,7 +733,10 @@ export class Material extends RnObject {
    * @param propertySetter - Function to set shader properties
    * @returns Object containing vertex and pixel property strings
    */
-  _getProperties(propertySetterOfGlobalDataRepository: getShaderPropertyFuncOfGlobalDataRepository, propertySetterOfMaterial: getShaderPropertyFuncOfMaterial) {
+  _getProperties(
+    propertySetterOfGlobalDataRepository: getShaderPropertyFuncOfGlobalDataRepository,
+    propertySetterOfMaterial: getShaderPropertyFuncOfMaterial
+  ) {
     let vertexPropertiesStr = '';
     let pixelPropertiesStr = '';
     this._allFieldsInfo.forEach(info => {
@@ -748,7 +751,7 @@ export class Material extends RnObject {
     [vertexPropertiesStr, pixelPropertiesStr] = globalDataRepository._addPropertiesStr(
       vertexPropertiesStr,
       pixelPropertiesStr,
-      propertySetterOfGlobalDataRepository,
+      propertySetterOfGlobalDataRepository
     );
     return { vertexPropertiesStr, pixelPropertiesStr };
   }

@@ -35,7 +35,11 @@ import { Component } from '../../core/Component';
 import { Config } from '../../core/Config';
 import { BoneDataType } from '../../definitions/BoneDataType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
-import type { getShaderPropertyFunc, getShaderPropertyFuncOfGlobalDataRepository, getShaderPropertyFuncOfMaterial } from '../../definitions/ShaderSemantics';
+import type {
+  getShaderPropertyFunc,
+  getShaderPropertyFuncOfGlobalDataRepository,
+  getShaderPropertyFuncOfMaterial,
+} from '../../definitions/ShaderSemantics';
 import type { VertexAttributeEnum } from '../../definitions/VertexAttribute';
 import type { Primitive } from '../../geometry/Primitive';
 import { Is } from '../../misc/Is';
@@ -202,7 +206,7 @@ export function _createProgramAsSingleOperationWebGL(
   propertySetterOfMaterial: getShaderPropertyFuncOfMaterial,
   primitive: Primitive,
   componentDataAccessMethodDefinitionsForVertexShader: string,
-  componentDataAccessMethodDefinitionsForPixelShader: string,
+  componentDataAccessMethodDefinitionsForPixelShader: string
 ): [CGAPIResourceHandle, boolean] {
   const vertexAttributeDefines = defineAttributes(primitive);
   const materialNode = material._materialContent;
@@ -236,7 +240,10 @@ export function _createProgramAsSingleOperationWebGL(
     return [shaderProgramUid, false];
   }
 
-  const { vertexPropertiesStr, pixelPropertiesStr } = material._getProperties(propertySetterOfGlobalDataRepository, propertySetterOfMaterial);
+  const { vertexPropertiesStr, pixelPropertiesStr } = material._getProperties(
+    propertySetterOfGlobalDataRepository,
+    propertySetterOfMaterial
+  );
   const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
   // Shader Code Construction
@@ -411,7 +418,10 @@ export function _createProgramAsSingleOperationWebGpu(
     return shaderProgramUid;
   }
   material.updateStateVersion();
-  const { vertexPropertiesStr, pixelPropertiesStr } = material._getProperties(propertySetterOfGlobalDataRepository, propertySetterOfMaterial);
+  const { vertexPropertiesStr, pixelPropertiesStr } = material._getProperties(
+    propertySetterOfGlobalDataRepository,
+    propertySetterOfMaterial
+  );
 
   if (Config.boneDataType === BoneDataType.Mat43x1) {
     definitions += '#define RN_BONE_DATA_TYPE_Mat43x1\n';
