@@ -599,19 +599,33 @@ type _UpdateFunc = ({
   args?: object;
 }) => void;
 
-export type getShaderPropertyFunc = (
-  _materialTypeName: string,
+export type getShaderPropertyFuncOfGlobalDataRepository = (
   info: ShaderSemanticsInfo,
-  _isGlobalData: boolean,
-  _isWebGL2: boolean
 ) => string;
 
-const getShaderProperty: getShaderPropertyFunc = (
-  _materialTypeName: string,
+export type getShaderPropertyFuncOfMaterial = (
+  materialTypeName: string,
   info: ShaderSemanticsInfo,
-  _isGlobalData: boolean,
-  _isWebGL2: boolean
-) => {
+) => string;
+
+/**
+ * @internal
+ */
+export function _getPropertyIndex2(shaderSemantic: ShaderSemanticsEnum) {
+  const propertyIndex = shaderSemantic.index;
+  return propertyIndex;
+}
+
+function getShaderPropertyOfMaterial(
+  materialTypeName: string,
+  info: ShaderSemanticsInfo,
+) {
+  return getShaderPropertyOfGlobalDataRepository(info);
+}
+
+function getShaderPropertyOfGlobalDataRepository(
+  info: ShaderSemanticsInfo,
+) {
   const returnType = info.compositionType.getGlslStr(info.componentType);
 
   let variableName = info.semantic;
@@ -655,20 +669,14 @@ const getShaderProperty: getShaderPropertyFunc = (
   }
 
   return `${varDef}${funcDef}`;
-};
-
-/**
- * @internal
- */
-export function _getPropertyIndex2(shaderSemantic: ShaderSemanticsEnum) {
-  const propertyIndex = shaderSemantic.index;
-  return propertyIndex;
 }
 
 export const ShaderSemantics = Object.freeze({
   from,
   fromString,
   fromStringCaseSensitively,
+  getShaderPropertyOfMaterial,
+  getShaderPropertyOfGlobalDataRepository,
   WorldMatrix,
   ViewMatrix,
   IsBillboard,
@@ -739,7 +747,6 @@ export const ShaderSemantics = Object.freeze({
   ThicknessTexture,
   AttenuationDistance,
   AttenuationColor,
-  getShaderProperty,
   EntityUID,
   MorphTargetNumber,
   DataTextureMorphOffsetPosition,
