@@ -10,7 +10,7 @@ fn main(
 ) -> @location(0) vec4<f32> {
 /* shaderity: @{mainPrerequisites} */
 
-  let offset = input.position.xy;
+  let uvBase = input.texcoord_0;
 
   let framebufferSize: vec2f = get_framebufferSize(materialSID, 0);
   var blurDirection: vec2f;
@@ -32,7 +32,7 @@ fn main(
     let stride: vec2f = strideLength * blurDirection;
 
     let gaussianRatio = get_gaussianRatio(materialSID, i);
-    var uv = (offset + stride) * tFrag;
+    let uv = uvBase + stride * tFrag;
     // uv.y = 1.0 - uv.y;
     color += textureSampleLevel(baseColorTexture, baseColorSampler, uv, 0.0) * gaussianRatio;
   }
