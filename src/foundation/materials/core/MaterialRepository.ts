@@ -1,11 +1,4 @@
-import {
-  type Count,
-  Index,
-  type IndexOf16Bytes,
-  type MaterialSID,
-  type MaterialTID,
-  type MaterialUID,
-} from '../../../types/CommonTypes';
+import type { Count, Index, IndexOf16Bytes, MaterialSID, MaterialTID, MaterialUID } from '../../../types/CommonTypes';
 import { Config } from '../../core/Config';
 import { MemoryManager } from '../../core/MemoryManager';
 import { BufferUse } from '../../definitions/BufferUse';
@@ -20,7 +13,7 @@ import { Is } from '../../misc/Is';
 import { Logger } from '../../misc/Logger';
 import type { AbstractMaterialContent } from './AbstractMaterialContent';
 import { Material } from './Material';
-import type { MaterialTypeName } from './MaterialTypes';
+import type { IndexInTheDataView, IndexOfBufferViews, MaterialTypeName } from './MaterialTypes';
 
 /**
  * Repository class for managing material types and instances.
@@ -35,9 +28,10 @@ export class MaterialRepository {
   private static __materialTids: Map<MaterialTypeName, MaterialTID> = new Map();
   private static __materialInstanceCountOfType: Map<MaterialTypeName, Count> = new Map();
   private static __materialNodes: Map<MaterialTypeName, AbstractMaterialContent | undefined> = new Map();
-  private static __maxInstances: Map<MaterialTypeName, Count> = new Map();
-  private static __bufferViews: Map<MaterialTypeName, BufferView> = new Map();
-  private static __accessors: Map<MaterialTypeName, Map<ShaderSemanticsName, Accessor>> = new Map();
+  private static __materialCountPerBufferViewMap: Map<MaterialTypeName, Count> = new Map();
+  private static __bufferViews: Map<MaterialTypeName, Map<IndexOfBufferViews, BufferView>> = new Map();
+  private static __accessors: Map<MaterialTypeName, Map<IndexOfBufferViews, Map<ShaderSemanticsName, Accessor>>> =
+    new Map();
   private static __materialTidCount = -1;
   private static __materialUidCount = -1;
 
@@ -48,16 +42,16 @@ export class MaterialRepository {
    *
    * @param materialTypeName - The unique name identifier for the material type
    * @param materialNode - The material content definition containing shader semantics and properties
-   * @param maxInstanceNumber - The maximum number of instances that can be created for this material type
+   * @param materialCountPerBufferView - The number of materials per buffer view
    * @returns True if the material type was successfully registered, false if it was already registered
    */
   public static registerMaterial(
     materialTypeName: string,
     materialNode: AbstractMaterialContent,
-    maxInstanceNumber: number = Config.maxMaterialInstanceForEachType
+    materialCountPerBufferView: number = Config.materialCountPerBufferView
   ): boolean {
     if (!MaterialRepository.__materialNodes.has(materialTypeName)) {
-      MaterialRepository.__registerInner(materialTypeName, materialNode, maxInstanceNumber);
+      MaterialRepository.__registerInner(materialTypeName, materialNode, materialCountPerBufferView);
 
       return true;
     }
@@ -72,15 +66,15 @@ export class MaterialRepository {
    *
    * @param materialTypeName - The unique name identifier for the material type
    * @param materialNode - The material content definition containing shader semantics and properties
-   * @param maxInstanceNumber - The maximum number of instances that can be created for this material type
+   * @param materialCountPerBufferView - The number of materials per buffer view
    * @returns Always returns true as the registration is forced
    */
   public static forceRegisterMaterial(
     materialTypeName: string,
     materialNode: AbstractMaterialContent,
-    maxInstanceNumber: number = Config.maxMaterialInstanceForEachType
+    materialCountPerBufferView: number = Config.materialCountPerBufferView
   ): boolean {
-    this.__registerInner(materialTypeName, materialNode, maxInstanceNumber);
+    this.__registerInner(materialTypeName, materialNode, materialCountPerBufferView);
     return true;
   }
 
@@ -129,6 +123,16 @@ export class MaterialRepository {
   public static createMaterial(materialTypeName: string, materialNode: AbstractMaterialContent): Material {
     // get the count of instance for the material type
     let countOfThisType = MaterialRepository.__materialInstanceCountOfType.get(materialTypeName) as number;
+
+    const materialCountPerBufferView = MaterialRepository.__materialCountPerBufferViewMap.get(
+      materialTypeName
+    ) as number;
+    const indexInTheBufferView = countOfThisType % materialCountPerBufferView;
+    const indexOfBufferViews = Math.floor(countOfThisType / materialCountPerBufferView);
+    if (indexInTheBufferView === 0) {
+      MaterialRepository.__allocateBufferView(materialTypeName, materialNode, indexOfBufferViews);
+    }
+
     const material = new Material(
       MaterialRepository.__materialTids.get(materialTypeName)!,
       ++MaterialRepository.__materialUidCount,
@@ -137,23 +141,9 @@ export class MaterialRepository {
       materialNode
     );
 
-    this.__initializeMaterial(material, countOfThisType);
+    this.__initializeMaterial(material, countOfThisType, indexOfBufferViews, indexInTheBufferView);
 
     return material;
-  }
-
-  /**
-   * Checks if the maximum number of instances for a material type has been reached or exceeded.
-   * This is useful for preventing memory overflow by limiting material instance creation.
-   *
-   * @param materialTypeName - The name of the material type to check
-   * @returns True if the material type has reached or exceeded its maximum instance count
-   */
-  public static isFullOrOverOfThisMaterialType(materialTypeName: string): boolean {
-    const countOfThisType = MaterialRepository.__materialInstanceCountOfType.get(materialTypeName)!;
-    const maxCountOfThisType = MaterialRepository.__maxInstances.get(materialTypeName)!;
-
-    return countOfThisType >= maxCountOfThisType;
   }
 
   /**
@@ -189,7 +179,12 @@ export class MaterialRepository {
    * @param countOfThisType - The current count of instances for this material type
    * @private
    */
-  private static __initializeMaterial(material: Material, countOfThisType: Count) {
+  private static __initializeMaterial(
+    material: Material,
+    countOfThisType: Count,
+    indexOfBufferViews: Index,
+    _indexInTheBufferView: Index
+  ) {
     // Set name
     // material.tryToSetUniqueName(material.__materialTypeName, true);
 
@@ -212,11 +207,11 @@ export class MaterialRepository {
     // Set semanticsInfo and shaderVariables to the material instance
     if (Is.exist(material._materialContent)) {
       const semanticsInfoArray = material._materialContent._semanticsInfoArray;
-      const accessorMap = MaterialRepository.__accessors.get(material.materialTypeName);
+      const accessorMap = MaterialRepository.__accessors.get(material.materialTypeName)!.get(indexOfBufferViews)!;
       semanticsInfoArray.forEach(semanticsInfo => {
         material._allFieldsInfo.set(semanticsInfo.semantic, semanticsInfo);
         if (!semanticsInfo.soloDatum) {
-          const accessor = accessorMap!.get(semanticsInfo.semantic) as Accessor;
+          const accessor = accessorMap.get(semanticsInfo.semantic) as Accessor;
           const typedArray = accessor.takeOne() as Float32Array;
           const shaderVariable = {
             info: semanticsInfo,
@@ -249,24 +244,29 @@ export class MaterialRepository {
   static getLocationOffsetOfMemberOfMaterial(
     materialTypeName: string,
     propertyName: ShaderSemanticsName
-  ): IndexOf16Bytes {
+  ): IndexOf16Bytes[] {
     const map = MaterialRepository.__instances.get(materialTypeName)!;
     const materialRef = Array.from(map.values()).find(m => m.deref() !== undefined); // find an actual exist material
     if (Is.not.exist(materialRef?.deref())) {
       Logger.warn(
         `Material is not found. getLocationOffsetOfMemberOfMaterial returns invalid 0 value. materialTypeName: ${materialTypeName}`
       );
-      return 0;
+      return [0];
     }
     const material = materialRef.deref()!;
     const info = material._allFieldsInfo.get(propertyName)!;
     if (info.soloDatum) {
       const value = Material._soloDatumFields.get(material.materialTypeName)!.get(propertyName);
-      return (value!.value._v as Float32Array).byteOffset / 4 / 4;
+      return [(value!.value._v as Float32Array).byteOffset / 4 / 4];
     }
-    const properties = this.__accessors.get(materialTypeName);
-    const accessor = properties!.get(propertyName);
-    return accessor!.byteOffsetInBuffer / 4 / 4;
+    const propertiesOfBufferViews = this.__accessors.get(materialTypeName);
+    const locationOffsets: IndexOf16Bytes[] = [];
+    propertiesOfBufferViews?.forEach(properties => {
+      const accessor = properties.get(propertyName);
+      locationOffsets.push(accessor!.byteOffsetInBuffer / 4 / 4);
+    });
+
+    return locationOffsets;
   }
 
   /**
@@ -276,20 +276,18 @@ export class MaterialRepository {
    *
    * @param materialTypeName - The unique name identifier for the material type
    * @param materialNode - The material content definition
-   * @param maxInstanceNumber - The maximum number of instances allowed
+   * @param materialCountPerBufferView - The number of materials per buffer view
    * @private
    */
   private static __registerInner(
     materialTypeName: string,
     materialNode: AbstractMaterialContent,
-    maxInstanceNumber: number
+    materialCountPerBufferView: number
   ) {
     const materialTid = ++MaterialRepository.__materialTidCount;
     MaterialRepository.__materialNodes.set(materialTypeName, materialNode);
     MaterialRepository.__materialTids.set(materialTypeName, materialTid);
-    MaterialRepository.__maxInstances.set(materialTypeName, maxInstanceNumber);
-
-    MaterialRepository.__allocateBufferView(materialTypeName, materialNode);
+    MaterialRepository.__materialCountPerBufferViewMap.set(materialTypeName, materialCountPerBufferView);
     MaterialRepository.__materialInstanceCountOfType.set(materialTypeName, 0);
   }
 
@@ -303,7 +301,11 @@ export class MaterialRepository {
    * @returns The allocated BufferView for the material type
    * @private
    */
-  private static __allocateBufferView(materialTypeName: string, materialNode: AbstractMaterialContent) {
+  private static __allocateBufferView(
+    materialTypeName: string,
+    materialNode: AbstractMaterialContent,
+    indexOfBufferViews: IndexOfBufferViews
+  ) {
     // Calculate a BufferView size to take
     let totalByteLength = 0;
     const alignedByteLengthAndSemanticInfoArray: {
@@ -314,7 +316,7 @@ export class MaterialRepository {
       const alignedByteLength = calcAlignedByteLength(semanticInfo);
       let dataCount = 1;
       if (!semanticInfo.soloDatum) {
-        dataCount = MaterialRepository.__maxInstances.get(materialTypeName)!;
+        dataCount = MaterialRepository.__materialCountPerBufferViewMap.get(materialTypeName)!;
       }
 
       totalByteLength += alignedByteLength * dataCount;
@@ -332,14 +334,18 @@ export class MaterialRepository {
     const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUInstanceData);
     let bufferView: BufferView | undefined;
     if (this.__bufferViews.has(materialTypeName)) {
-      bufferView = this.__bufferViews.get(materialTypeName);
+      const map = this.__bufferViews.get(materialTypeName)!;
+      bufferView = map.get(indexOfBufferViews);
     } else {
+      this.__bufferViews.set(materialTypeName, new Map());
+    }
+    if (bufferView == null) {
       const result = buffer.takeBufferView({
         byteLengthToNeed: totalByteLength,
         byteStride: 0,
       });
       bufferView = result.unwrapForce();
-      this.__bufferViews.set(materialTypeName, bufferView);
+      this.__bufferViews.get(materialTypeName)!.set(indexOfBufferViews, bufferView);
     }
 
     // Take Accessors and register it
@@ -349,7 +355,7 @@ export class MaterialRepository {
 
       let count = 1;
       if (!semanticInfo.soloDatum) {
-        count = MaterialRepository.__maxInstances.get(materialTypeName)!;
+        count = MaterialRepository.__materialCountPerBufferViewMap.get(materialTypeName)!;
       }
       let maxArrayLength = semanticInfo.arrayLength;
       if (CompositionType.isArray(semanticInfo.compositionType) && maxArrayLength == null) {
@@ -380,12 +386,21 @@ export class MaterialRepository {
         });
       } else {
         // Set an accessor to this.__accessors
-        const properties = this.__accessors.get(materialTypeName)!;
+        let properties = this.__accessors.get(materialTypeName)!.get(indexOfBufferViews);
+        if (properties == null) {
+          const map = new Map();
+          this.__accessors.get(materialTypeName)!.set(indexOfBufferViews, map);
+          properties = map;
+        }
         properties.set(semanticInfo.semantic, accessor);
       }
     }
 
     return bufferView;
+  }
+
+  static _getMaterialCountPerBufferView(materialTypeName: string): Count | undefined {
+    return this.__materialCountPerBufferViewMap.get(materialTypeName);
   }
 
   /**

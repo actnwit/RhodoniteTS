@@ -202,14 +202,14 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
    */
   public setupShaderForMaterial(material: Material, primitive: Primitive): CGAPIResourceHandle {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
-    const glw = webglResourceRepository.currentWebGLContextWrapper!;
+    const _glw = webglResourceRepository.currentWebGLContextWrapper!;
 
     const [programUid, newOne] = material._createProgramWebGL(
       WebGLStrategyUniform.__getComponentDataAccessMethodDefinitions_uniform(ShaderType.VertexShader),
       WebGLStrategyUniform.__getComponentDataAccessMethodDefinitions_uniform(ShaderType.PixelShader),
-      ShaderSemantics.getShaderProperty,
-      primitive,
-      glw.isWebGL2
+      ShaderSemantics.getShaderPropertyOfGlobalDataRepository,
+      ShaderSemantics.getShaderPropertyOfMaterial,
+      primitive
     );
 
     if (newOne) {

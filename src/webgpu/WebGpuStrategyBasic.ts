@@ -14,7 +14,11 @@ import { MemoryManager } from '../foundation/core/MemoryManager';
 import { BufferUse } from '../foundation/definitions/BufferUse';
 import { ComponentType } from '../foundation/definitions/ComponentType';
 import { CompositionType } from '../foundation/definitions/CompositionType';
-import type { ShaderSemanticsName, getShaderPropertyFunc } from '../foundation/definitions/ShaderSemantics';
+import type {
+  ShaderSemanticsName,
+  getShaderPropertyFuncOfGlobalDataRepository,
+  getShaderPropertyFuncOfMaterial,
+} from '../foundation/definitions/ShaderSemantics';
 import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
 import { ShaderType, type ShaderTypeEnum } from '../foundation/definitions/ShaderType';
 import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
@@ -278,16 +282,14 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   }
 
   /**
-   * Generates shader property accessor functions for materials and global data.
+   * Generates shader property accessor functions for global data.
    * Creates WGSL functions that can fetch property values from storage buffers
    * based on shader semantics information.
    *
-   * @param materialTypeName - The name of the material type
    * @param info - Shader semantics information containing type and binding details
-   * @param isGlobalData - Whether this property belongs to global data or material-specific data
    * @returns WGSL shader code for the property accessor function
    */
-  private static __getShaderProperty(materialTypeName: string, info: ShaderSemanticsInfo, isGlobalData: boolean) {
+  private static __getShaderPropertyOfGlobalDataRepository(info: ShaderSemanticsInfo) {
     const returnType = info.compositionType.toWGSLType(info.componentType);
     const methodName = info.semantic.replace('.', '_');
     const isTexture = CompositionType.isTexture(info.compositionType);
@@ -310,10 +312,8 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
     const vec4SizeOfProperty: IndexOf16Bytes = info.compositionType.getVec4SizeOfProperty();
     // for non-`index` property (this is general case)
     const scalarSizeOfProperty: IndexOf4Bytes = info.compositionType.getNumberOfComponents();
-    const offsetOfProperty: IndexOf16Bytes = WebGpuStrategyBasic.getOffsetOfPropertyInShader(
-      isGlobalData,
-      info.semantic,
-      materialTypeName
+    const offsetOfProperty: IndexOf16Bytes = WebGpuStrategyBasic.getOffsetOfPropertyOfGlobalDataRepository(
+      info.semantic
     );
 
     if (offsetOfProperty === -1) {
@@ -417,6 +417,142 @@ ${indexStr}
   }
 
   /**
+   * Generates shader property accessor functions for materials.
+   * Creates WGSL functions that can fetch property values from storage buffers
+   * based on shader semantics information.
+   *
+   * @param materialTypeName - The name of the material type
+   * @param info - Shader semantics information containing type and binding details
+   * @returns WGSL shader code for the property accessor function
+   */
+  private static __getShaderPropertyOfMaterial(materialTypeName: string, info: ShaderSemanticsInfo) {
+    const returnType = info.compositionType.toWGSLType(info.componentType);
+    const methodName = info.semantic.replace('.', '_');
+    const isTexture = CompositionType.isTexture(info.compositionType);
+
+    if (isTexture) {
+      let textureType = 'texture_2d<f32>';
+      if (info.compositionType === CompositionType.TextureCube) {
+        textureType = 'texture_cube<f32>';
+      } else if (info.compositionType === CompositionType.Texture2DArray) {
+        textureType = 'texture_2d_array<f32>';
+      }
+      const samplerName = methodName.replace('Texture', 'Sampler');
+      return `
+@group(1) @binding(${info.initialValue[0]}) var ${methodName}: ${textureType};
+@group(2) @binding(${info.initialValue[0]}) var ${samplerName}: sampler;
+`;
+    }
+
+    // inner contents of 'get_' shader function
+    const vec4SizeOfProperty: IndexOf16Bytes = info.compositionType.getVec4SizeOfProperty();
+    // for non-`index` property (this is general case)
+    const scalarSizeOfProperty: IndexOf4Bytes = info.compositionType.getNumberOfComponents();
+    const offsetOfProperty: IndexOf16Bytes[] = WebGpuStrategyBasic.getOffsetOfPropertyOfMaterial(
+      info.semantic,
+      materialTypeName
+    );
+    const materialCountPerBufferView = MaterialRepository._getMaterialCountPerBufferView(materialTypeName)!;
+
+    const offsetsStr = `var<function> offsets: array<u32, ${offsetOfProperty.length}> = array<u32, ${offsetOfProperty.length}>(${offsetOfProperty.map(offset => `${offset}u`).join(', ')});`;
+
+    let indexStr: string;
+    let instanceSize = vec4SizeOfProperty;
+    indexStr = `  let vec4_idx: u32 = offsets[instanceIdOfBufferViews] + ${instanceSize}u * instanceIdInBufferView;\n`;
+    if (CompositionType.isArray(info.compositionType)) {
+      instanceSize = vec4SizeOfProperty * (info.arrayLength ?? 1);
+      const paddedAsVec4 = Math.ceil(scalarSizeOfProperty / 4) * 4;
+      const instanceSizeInScalar = paddedAsVec4 * (info.arrayLength ?? 1);
+      indexStr = `  let vec4_idx: u32 = offsets[instanceIdOfBufferViews] + ${instanceSize} * instanceIdInBufferView + ${vec4SizeOfProperty}u * idxOfArray;\n`;
+      indexStr += `  let scalar_idx: u32 = offsets[instanceIdOfBufferViews] * 4 + ${instanceSizeInScalar} * instanceIdInBufferView + ${scalarSizeOfProperty}u * idxOfArray;\n`;
+    }
+
+    const firstPartOfInnerFunc = `
+fn get_${methodName}(instanceId: u32, idxOfArray: u32) -> ${returnType} {
+  let instanceIdOfBufferViews = instanceId / ${materialCountPerBufferView};
+  let instanceIdInBufferView = instanceId % ${materialCountPerBufferView};
+${offsetsStr}
+${indexStr}
+`;
+
+    let str = `${firstPartOfInnerFunc}`;
+
+    switch (info.compositionType) {
+      case CompositionType.Vec4:
+      case CompositionType.Vec4Array:
+        str += '  let val = fetchElement(vec4_idx);\n';
+        break;
+      case CompositionType.Vec3:
+        str += '  let col0 = fetchElement(vec4_idx);\n';
+        str += `  let val = ${returnType}(col0.xyz);`;
+        break;
+      case CompositionType.Vec3Array:
+        str += '  let val = fetchVec3No16BytesAligned(scalar_idx);\n';
+        break;
+      case CompositionType.Vec2:
+        str += '  let col0 = fetchElement(vec4_idx);\n';
+        str += `  let val = ${returnType}(col0.xy);`;
+        break;
+      case CompositionType.Vec2Array:
+        str += '  let val = fetchVec2No16BytesAligned(scalar_idx);\n';
+        break;
+      case CompositionType.Scalar:
+        str += '  let col0 = fetchElement(vec4_idx);\n';
+        if (info.componentType === ComponentType.Int) {
+          str += '  let val = i32(col0.x);';
+        } else if (info.componentType === ComponentType.UnsignedInt) {
+          str += '  let val = u32(col0.x);';
+        } else if (info.componentType === ComponentType.Bool) {
+          str += '  let val = col0.x >= 0.5;';
+        } else {
+          str += '  let val = col0.x;';
+        }
+        break;
+      case CompositionType.ScalarArray:
+        str += '  let col0 = fetchScalarNo16BytesAligned(scalar_idx);\n';
+        if (info.componentType === ComponentType.Int) {
+          str += '  let val = i32(col0);';
+        } else if (info.componentType === ComponentType.UnsignedInt) {
+          str += '  let val = u32(col0);';
+        } else if (info.componentType === ComponentType.Bool) {
+          str += '  let val = col0 >= 0.5;';
+        } else {
+          str += '  let val = col0;';
+        }
+        break;
+      case CompositionType.Mat4:
+        str += '  let val = fetchMat4(vec4_idx);\n';
+        break;
+      case CompositionType.Mat4Array:
+        str += '  let val = fetchMat4(vec4_idx);\n';
+        break;
+      case CompositionType.Mat3:
+        str += '  let val = fetchMat3(vec4_idx);\n';
+        break;
+      case CompositionType.Mat3Array:
+        str += '  let val = fetchMat3No16BytesAligned(scalar_idx);\n';
+        break;
+      case CompositionType.Mat2:
+        str += '  let val = fetchMat2(vec4_idx);\n';
+        break;
+      case CompositionType.Mat2Array:
+        str += '  let val = fetchMat2No16BytesAligned(scalar_idx);\n';
+        break;
+      case CompositionType.Mat4x3Array:
+        str += '  let val = fetchMat4x3(vec4_idx);\n';
+        break;
+      default:
+        // Logger.error('unknown composition type', info.compositionType.str, memberName);
+        str += '';
+    }
+    str += `
+  return val;
+}
+`;
+    return str;
+  }
+
+  /**
    * Calculates the memory offset of a shader property within storage buffers.
    *
    * @param isGlobalData - Whether to look in global data repository or material repository
@@ -424,17 +560,14 @@ ${indexStr}
    * @param materialTypeName - The material type name for material-specific properties
    * @returns The byte offset of the property in the storage buffer, or -1 if not found
    */
-  private static getOffsetOfPropertyInShader(
-    isGlobalData: boolean,
-    propertyName: ShaderSemanticsName,
-    materialTypeName: string
-  ) {
-    if (isGlobalData) {
-      const globalDataRepository = GlobalDataRepository.getInstance();
-      const dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyName);
-      return dataBeginPos;
-    }
+  private static getOffsetOfPropertyOfMaterial(propertyName: ShaderSemanticsName, materialTypeName: string) {
     const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyName);
+    return dataBeginPos;
+  }
+
+  private static getOffsetOfPropertyOfGlobalDataRepository(propertyName: ShaderSemanticsName) {
+    const globalDataRepository = GlobalDataRepository.getInstance();
+    const dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyName);
     return dataBeginPos;
   }
 
@@ -524,7 +657,8 @@ ${indexStr}
         primitive,
         WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.VertexShader),
         WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.PixelShader),
-        WebGpuStrategyBasic.__getShaderProperty
+        WebGpuStrategyBasic.__getShaderPropertyOfGlobalDataRepository,
+        WebGpuStrategyBasic.__getShaderPropertyOfMaterial
       );
       primitive._backupMaterial();
     } catch (e) {
@@ -535,7 +669,8 @@ ${indexStr}
         primitive,
         WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.VertexShader),
         WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.PixelShader),
-        WebGpuStrategyBasic.__getShaderProperty
+        WebGpuStrategyBasic.__getShaderPropertyOfGlobalDataRepository,
+        WebGpuStrategyBasic.__getShaderPropertyOfMaterial
       );
     }
   }
@@ -556,13 +691,15 @@ ${indexStr}
     primitive: Primitive,
     vertexShaderMethodDefinitionsForVertexShader: string,
     vertexShaderMethodDefinitionsForPixelShader: string,
-    propertySetter: getShaderPropertyFunc
+    propertySetterOfGlobalDataRepository: getShaderPropertyFuncOfGlobalDataRepository,
+    propertySetterOfMaterial: getShaderPropertyFuncOfMaterial
   ): void {
     material._createProgramWebGpu(
       primitive,
       vertexShaderMethodDefinitionsForVertexShader,
       vertexShaderMethodDefinitionsForPixelShader,
-      propertySetter
+      propertySetterOfGlobalDataRepository,
+      propertySetterOfMaterial
     );
   }
 

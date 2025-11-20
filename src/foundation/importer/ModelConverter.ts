@@ -1777,7 +1777,7 @@ export class ModelConverter {
       }
     }
 
-    const maxMaterialInstanceNumber: number = Config.maxMaterialInstanceForEachType;
+    const maxMaterialInstanceNumber: number = Config.materialCountPerBufferView;
     if (Number.parseFloat(gltfModel.asset?.version) >= 2) {
       const rnLoaderOptions = gltfModel.asset.extras?.rnLoaderOptions ?? {};
       // For glTF 2

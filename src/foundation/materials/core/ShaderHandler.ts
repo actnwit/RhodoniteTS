@@ -35,7 +35,11 @@ import { Component } from '../../core/Component';
 import { Config } from '../../core/Config';
 import { BoneDataType } from '../../definitions/BoneDataType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
-import type { getShaderPropertyFunc } from '../../definitions/ShaderSemantics';
+import type {
+  getShaderPropertyFunc,
+  getShaderPropertyFuncOfGlobalDataRepository,
+  getShaderPropertyFuncOfMaterial,
+} from '../../definitions/ShaderSemantics';
 import type { VertexAttributeEnum } from '../../definitions/VertexAttribute';
 import type { Primitive } from '../../geometry/Primitive';
 import { Is } from '../../misc/Is';
@@ -189,20 +193,20 @@ export function _outputVertexAttributeBindingInfo(attributeNames: string[], attr
  * - Final shader compilation and linking
  *
  * @param material - The material containing shader templates and properties
- * @param propertySetter - Function for setting shader properties
+ * @param propertySetterOfGlobalDataRepository - Function for setting shader properties of global data repository
+ * @param propertySetterOfMaterial - Function for setting shader properties of material
  * @param primitive - The geometric primitive that defines vertex attributes
  * @param componentDataAccessMethodDefinitionsForVertexShader - method definitions for component data access for vertex shader
  * @param componentDataAccessMethodDefinitionsForPixelShader - method definitions for component data access for pixel shader
- * @param isWebGL2 - Flag indicating if the current context is WebGL2
  * @returns A tuple containing the shader program handle and a boolean indicating if it's newly created
  */
 export function _createProgramAsSingleOperationWebGL(
   material: Material,
-  propertySetter: getShaderPropertyFunc,
+  propertySetterOfGlobalDataRepository: getShaderPropertyFuncOfGlobalDataRepository,
+  propertySetterOfMaterial: getShaderPropertyFuncOfMaterial,
   primitive: Primitive,
   componentDataAccessMethodDefinitionsForVertexShader: string,
-  componentDataAccessMethodDefinitionsForPixelShader: string,
-  isWebGL2: boolean
+  componentDataAccessMethodDefinitionsForPixelShader: string
 ): [CGAPIResourceHandle, boolean] {
   const vertexAttributeDefines = defineAttributes(primitive);
   const materialNode = material._materialContent;
@@ -236,7 +240,10 @@ export function _createProgramAsSingleOperationWebGL(
     return [shaderProgramUid, false];
   }
 
-  const { vertexPropertiesStr, pixelPropertiesStr } = material._getProperties(propertySetter, isWebGL2);
+  const { vertexPropertiesStr, pixelPropertiesStr } = material._getProperties(
+    propertySetterOfGlobalDataRepository,
+    propertySetterOfMaterial
+  );
   const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
   // Shader Code Construction
@@ -367,7 +374,8 @@ export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, _pri
  * @param primitive - The geometric primitive that defines vertex attributes
  * @param componentDataAccessMethodDefinitionsForVertexShader - method definitions for component data access for vertex shader
  * @param componentDataAccessMethodDefinitionsForPixelShader - method definitions for component data access for pixel shader
- * @param propertySetter - Function for setting shader properties
+ * @param propertySetterOfGlobalDataRepository - Function for setting shader properties of global data repository
+ * @param propertySetterOfMaterial - Function for setting shader properties of material
  * @returns The handle to the created shader program
  */
 export function _createProgramAsSingleOperationWebGpu(
@@ -375,7 +383,8 @@ export function _createProgramAsSingleOperationWebGpu(
   primitive: Primitive,
   componentDataAccessMethodDefinitionsForVertexShader: string,
   componentDataAccessMethodDefinitionsForPixelShader: string,
-  propertySetter: getShaderPropertyFunc
+  propertySetterOfGlobalDataRepository: getShaderPropertyFuncOfGlobalDataRepository,
+  propertySetterOfMaterial: getShaderPropertyFuncOfMaterial
 ) {
   const vertexAttributeDefines = defineAttributes(primitive);
   const materialNode = material._materialContent;
@@ -409,7 +418,10 @@ export function _createProgramAsSingleOperationWebGpu(
     return shaderProgramUid;
   }
   material.updateStateVersion();
-  const { vertexPropertiesStr, pixelPropertiesStr } = material._getProperties(propertySetter, true);
+  const { vertexPropertiesStr, pixelPropertiesStr } = material._getProperties(
+    propertySetterOfGlobalDataRepository,
+    propertySetterOfMaterial
+  );
 
   if (Config.boneDataType === BoneDataType.Mat43x1) {
     definitions += '#define RN_BONE_DATA_TYPE_Mat43x1\n';

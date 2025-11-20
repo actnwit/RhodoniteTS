@@ -300,14 +300,14 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
    */
   public setupShaderForMaterial(material: Material, primitive: Primitive): CGAPIResourceHandle {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
-    const glw = webglResourceRepository.currentWebGLContextWrapper!;
+    const _glw = webglResourceRepository.currentWebGLContextWrapper!;
 
     const [programUid, newOne] = material._createProgramWebGL(
       WebGLStrategyDataTexture.__getComponentDataAccessMethodDefinitions_dataTexture(ShaderType.VertexShader),
       WebGLStrategyDataTexture.__getComponentDataAccessMethodDefinitions_dataTexture(ShaderType.PixelShader),
-      WebGLStrategyDataTexture.__getShaderProperty,
-      primitive,
-      glw.isWebGL2
+      WebGLStrategyDataTexture.__getShaderPropertyOfGlobalDataRepository,
+      WebGLStrategyDataTexture.__getShaderPropertyOfMaterial,
+      primitive
     );
 
     if (newOne) {
@@ -376,14 +376,11 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   }
 
   /**
-   * Generates GLSL shader code for accessing material and global properties.
+   * Generates GLSL shader code for accessing global properties.
    * This method creates shader functions that can fetch data from either data textures
    * or uniform variables, depending on the property type and rendering configuration.
    *
-   * @param materialTypeName - The name of the material type
    * @param info - Detailed information about the shader semantic property
-   * @param isGlobalData - Whether this property is global data or material-specific
-   * @param isWebGL2 - Whether the target context is WebGL 2.0
    * @returns GLSL shader code string for the property accessor function
    *
    * @remarks
@@ -394,12 +391,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
    * - Properties that require explicit uniform variables
    * The generated code optimizes data access based on the property layout in data textures.
    */
-  private static __getShaderProperty(
-    materialTypeName: string,
-    info: ShaderSemanticsInfo,
-    isGlobalData: boolean,
-    isWebGL2: boolean
-  ) {
+  private static __getShaderPropertyOfGlobalDataRepository(info: ShaderSemanticsInfo) {
     const returnType = info.compositionType.getGlslStr(info.componentType);
 
     let indexStr: string;
@@ -423,10 +415,8 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
     const vec4SizeOfProperty: IndexOf16Bytes = info.compositionType.getVec4SizeOfProperty();
     // for non-`index` property (this is general case)
     const scalarSizeOfProperty: IndexOf4Bytes = info.compositionType.getNumberOfComponents();
-    const offsetOfProperty: IndexOf16Bytes = WebGLStrategyDataTexture.getOffsetOfPropertyInShader(
-      isGlobalData,
-      info.semantic,
-      materialTypeName
+    const offsetOfProperty: IndexOf16Bytes = WebGLStrategyDataTexture.getOffsetOfPropertyOfGlobalDataRepository(
+      info.semantic
     );
 
     if (offsetOfProperty === -1) {
@@ -532,9 +522,167 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       return str;
     }
     if (!isTexture && info.needUniformInDataTextureMode) {
-      if (!isWebGL2 && info.arrayLength) {
-        return `\n${varDef}\n`;
+      let varIndexStr = '';
+      if (info.arrayLength) {
+        varIndexStr = '[idxOfArray]';
       }
+      const str = `${varDef}
+${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
+  return u_${methodName}${varIndexStr};
+}
+`;
+      return str;
+    }
+    return varDef;
+  }
+
+  /**
+   * Generates GLSL shader code for accessing material properties.
+   * This method creates shader functions that can fetch data from either data textures
+   * or uniform variables, depending on the property type and rendering configuration.
+   *
+   * @param info - Detailed information about the shader semantic property
+   * @returns GLSL shader code string for the property accessor function
+   *
+   * @remarks
+   * This method handles different data types including:
+   * - Scalars, vectors, and matrices of various sizes
+   * - Array types with proper indexing
+   * - Texture samplers
+   * - Properties that require explicit uniform variables
+   * The generated code optimizes data access based on the property layout in data textures.
+   */
+  private static __getShaderPropertyOfMaterial(materialTypeName: string, info: ShaderSemanticsInfo) {
+    const returnType = info.compositionType.getGlslStr(info.componentType);
+
+    let indexStr: string;
+
+    const isTexture = CompositionType.isTexture(info.compositionType);
+
+    const methodName = info.semantic.replace('.', '_');
+
+    // definition of uniform variable for texture sampler or what must be explicitly uniform variabl)
+    let varDef = '';
+    const varType = info.compositionType.getGlslStr(info.componentType);
+    let varIndexStr = '';
+    if (info.arrayLength) {
+      varIndexStr = `[${info.arrayLength}]`;
+    }
+    if (info.needUniformInDataTextureMode || isTexture) {
+      varDef = `  uniform ${varType} u_${methodName}${varIndexStr};\n`;
+    }
+
+    // inner contents of 'get_' shader function
+    const vec4SizeOfProperty: IndexOf16Bytes = info.compositionType.getVec4SizeOfProperty();
+    // for non-`index` property (this is general case)
+    const scalarSizeOfProperty: IndexOf4Bytes = info.compositionType.getNumberOfComponents();
+    const offsetOfProperty: IndexOf16Bytes[] = WebGLStrategyDataTexture.getOffsetOfPropertyOfMaterial(
+      info.semantic,
+      materialTypeName
+    );
+    const materialCountPerBufferView = MaterialRepository._getMaterialCountPerBufferView(materialTypeName)!;
+
+    const offsetStr = `int offsets[] = int[](${offsetOfProperty.join(', ')});`;
+
+    let instanceSize = vec4SizeOfProperty;
+    indexStr = `int vec4_idx = offsets[instanceIdOfBufferViews] + ${instanceSize} * instanceIdInBufferView;\n`;
+    if (CompositionType.isArray(info.compositionType)) {
+      instanceSize = vec4SizeOfProperty * (info.arrayLength ?? 1);
+      const paddedAsVec4 = Math.ceil(scalarSizeOfProperty / 4) * 4;
+      const instanceSizeInScalar = paddedAsVec4 * (info.arrayLength ?? 1);
+      indexStr = `int vec4_idx = offsets[instanceIdOfBufferViews] + ${instanceSize} * instanceIdInBufferView + ${vec4SizeOfProperty} * idxOfArray;\n`;
+      indexStr += `int scalar_idx = offsets[instanceIdOfBufferViews] * 4 + ${instanceSizeInScalar} * instanceIdInBufferView + ${scalarSizeOfProperty} * idxOfArray;\n`;
+    }
+
+    let intStr = '';
+    if (info.componentType === ComponentType.Int && info.compositionType !== CompositionType.Scalar) {
+      intStr = 'i';
+    }
+
+    let firstPartOfInnerFunc = '';
+    if (!isTexture && !info.needUniformInDataTextureMode) {
+      firstPartOfInnerFunc += `
+${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
+  int instanceId = int(_instanceId);
+  int instanceIdOfBufferViews = int(instanceId) / ${materialCountPerBufferView};
+  int instanceIdInBufferView = int(instanceId) % ${materialCountPerBufferView};
+  ${offsetStr}
+  ${indexStr}
+  `;
+
+      let str = `${varDef}\n${firstPartOfInnerFunc}`;
+
+      switch (info.compositionType) {
+        case CompositionType.Vec4:
+        case CompositionType.Vec4Array:
+          str += '        highp vec4 val = fetchElement(vec4_idx);\n';
+          break;
+        case CompositionType.Vec3:
+          str += '        vec4 col0 = fetchElement(vec4_idx);\n';
+          str += `        highp ${intStr}vec3 val = ${intStr}vec3(col0.xyz);`;
+          break;
+        case CompositionType.Vec3Array:
+          str += '        vec3 val = fetchVec3No16BytesAligned(scalar_idx);\n';
+          break;
+        case CompositionType.Vec2:
+          str += '        highp vec4 col0 = fetchElement(vec4_idx);\n';
+          str += `        highp ${intStr}vec2 val = ${intStr}vec2(col0.xy);`;
+          break;
+        case CompositionType.Vec2Array:
+          str += '        highp vec2 val = fetchVec2No16BytesAligned(scalar_idx);\n';
+          break;
+        case CompositionType.Scalar:
+          str += '        vec4 col0 = fetchElement(vec4_idx);\n';
+          if (info.componentType === ComponentType.Int) {
+            str += '        int val = int(col0.x);';
+          } else if (info.componentType === ComponentType.Bool) {
+            str += '        bool val = bool(col0.x);';
+          } else {
+            str += '       float val = col0.x;';
+          }
+          break;
+        case CompositionType.ScalarArray:
+          str += '        float col0 = fetchScalarNo16BytesAligned(scalar_idx);\n';
+          if (info.componentType === ComponentType.Int) {
+            str += '        int val = int(col0);';
+          } else if (info.componentType === ComponentType.Bool) {
+            str += '        bool val = bool(col0);';
+          } else {
+            str += '       float val = col0;';
+          }
+          break;
+        case CompositionType.Mat4:
+          str += '        mat4 val = fetchMat4(vec4_idx);\n';
+          break;
+        case CompositionType.Mat4Array:
+          str += '        mat4 val = fetchMat4(vec4_idx);\n';
+          break;
+        case CompositionType.Mat3:
+          str += '        mat3 val = fetchMat3(vec4_idx);\n';
+          break;
+        case CompositionType.Mat3Array:
+          str += '        mat3 val = fetchMat3No16BytesAligned(scalar_idx);\n';
+          break;
+        case CompositionType.Mat2:
+          str += '        mat2 val = fetchMat2(vec4_idx);\n';
+          break;
+        case CompositionType.Mat2Array:
+          str += '        mat2 val = fetchMat2No16BytesAligned(scalar_idx);\n';
+          break;
+        case CompositionType.Mat4x3Array:
+          str += '        mat4x3 val = fetchMat4x3(vec4_idx);\n';
+          break;
+        default:
+          // Logger.error('unknown composition type', info.compositionType.str, memberName);
+          str += '';
+      }
+      str += `
+  return val;
+}
+`;
+      return str;
+    }
+    if (!isTexture && info.needUniformInDataTextureMode) {
       let varIndexStr = '';
       if (info.arrayLength) {
         varIndexStr = '[idxOfArray]';
@@ -563,17 +711,25 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    * This method is essential for generating correct shader code that can access
    * properties from the data texture at the right memory locations.
    */
-  private static getOffsetOfPropertyInShader(
-    isGlobalData: boolean,
-    propertyName: ShaderSemanticsName,
-    materialTypeName: string
-  ) {
-    if (isGlobalData) {
-      const globalDataRepository = GlobalDataRepository.getInstance();
-      const dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyName);
-      return dataBeginPos;
-    }
+  private static getOffsetOfPropertyOfMaterial(propertyName: ShaderSemanticsName, materialTypeName: string) {
     const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyName);
+    return dataBeginPos;
+  }
+
+  /**
+   * Retrieves the offset position of a property within the global data repository.
+   * This method calculates where a specific property is located in the global data repository.
+   *
+   * @param propertyName - The semantic name of the property to locate
+   * @returns The offset position of the property in the global data repository, or -1 if not found
+   *
+   * @remarks
+   * This method is essential for generating correct shader code that can access
+   * properties from the data texture at the right memory locations.
+   */
+  private static getOffsetOfPropertyOfGlobalDataRepository(propertyName: ShaderSemanticsName) {
+    const globalDataRepository = GlobalDataRepository.getInstance();
+    const dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyName);
     return dataBeginPos;
   }
 

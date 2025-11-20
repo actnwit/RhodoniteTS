@@ -28,11 +28,9 @@ let maxMorphTargetNumber = 41;
 let maxMorphPrimitiveNumberInWebGPU = 100;
 
 /**
- * Number of instances of each material type to be placed consecutively in memory.
- * This is on the memory layout, and the number of material instances that can be generated is not limited by this setting.
- * If this limit is exceeded, the material type is internally treated as a separate material type.
+ * The number of materials per buffer view
  */
-let maxMaterialInstanceForEachType = 10;
+let materialCountPerBufferView = 3;
 
 /**　The maximum number of bones of each skeleton that Rhodonite can handle for Uniform Mode */
 let maxSkeletalBoneNumberForUniformMode = 50;
@@ -101,7 +99,7 @@ export const Config = {
    * This is on the memory layout, and the number of material instances that can be generated is not limited by this setting.
    * If this limit is exceeded, the material type is internally treated as a separate material type.
    */
-  maxMaterialInstanceForEachType,
+  materialCountPerBufferView,
   /**　The data type of the bone */
   boneDataType,
   /**　The maximum number of bones of each skeleton that Rhodonite can handle for Uniform Mode */
