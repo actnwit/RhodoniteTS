@@ -5,6 +5,7 @@ import type { IEntity } from '../../core/Entity';
 import { EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { BufferUse } from '../../definitions/BufferUse';
 import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import { ShaderType } from '../../definitions/ShaderType';
 import type { RaycastResultEx2 } from '../../geometry/types/GeometryTypes';
@@ -1574,6 +1575,7 @@ SceneGraphComponent.registerMember({
   memberName: 'worldMatrix',
   dataClassType: MutableMatrix44,
   shaderType: ShaderType.VertexAndPixelShader,
+  compositionType: CompositionType.Mat4,
   componentType: ComponentType.Float,
   initValues: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
 });
@@ -1582,6 +1584,7 @@ SceneGraphComponent.registerMember({
   memberName: 'normalMatrix',
   dataClassType: MutableMatrix33,
   shaderType: ShaderType.VertexAndPixelShader,
+  compositionType: CompositionType.Mat3,
   componentType: ComponentType.Float,
   initValues: [1, 0, 0, 0, 1, 0, 0, 0, 1],
 });
@@ -1590,6 +1593,7 @@ SceneGraphComponent.registerMember({
   memberName: 'isVisible',
   dataClassType: MutableScalar,
   shaderType: ShaderType.VertexShader,
+  compositionType: CompositionType.Scalar,
   componentType: ComponentType.Float,
   initValues: [1],
   convertToBool: true,
@@ -1599,6 +1603,7 @@ SceneGraphComponent.registerMember({
   memberName: 'isBillboard',
   dataClassType: MutableScalar,
   shaderType: ShaderType.VertexShader,
+  compositionType: CompositionType.Scalar,
   componentType: ComponentType.Float,
   initValues: [0],
   convertToBool: true,

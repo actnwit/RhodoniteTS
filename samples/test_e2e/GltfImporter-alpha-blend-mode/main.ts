@@ -10,6 +10,7 @@ await Rn.System.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: world,
 });
+Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // camera
 const cameraEntity = Rn.createCameraControllerEntity();

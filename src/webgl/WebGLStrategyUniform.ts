@@ -19,11 +19,6 @@ import { TextureParameter } from '../foundation/definitions/TextureParameter';
 import type { Mesh } from '../foundation/geometry/Mesh';
 import { Primitive } from '../foundation/geometry/Primitive';
 import type { Material } from '../foundation/materials/core/Material';
-import { MutableMatrix33 } from '../foundation/math/MutableMatrix33';
-import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
-import { MutableScalar } from '../foundation/math/MutableScalar';
-import { MutableVector3 } from '../foundation/math/MutableVector3';
-import { MutableVector4 } from '../foundation/math/MutableVector4';
 import type { Scalar } from '../foundation/math/Scalar';
 import type { Vector2 } from '../foundation/math/Vector2';
 import type { Buffer } from '../foundation/memory/Buffer';
@@ -117,28 +112,35 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
           return;
         }
         let typeStr = '';
-        switch (memberInfo.dataClassType) {
-          case MutableMatrix44:
+        switch (memberInfo.compositionType) {
+          case CompositionType.Mat4:
             typeStr = 'mat4';
             break;
-          case MutableMatrix33:
+          case CompositionType.Mat3:
             typeStr = 'mat3';
             break;
-          case MutableVector4:
+          case CompositionType.Vec4:
             typeStr = 'vec4';
             break;
-          case MutableVector3:
+          case CompositionType.Vec3:
             typeStr = 'vec3';
             break;
-          case MutableScalar:
+          case CompositionType.Scalar:
             typeStr = 'float';
             break;
+          case CompositionType.Mat4x3Array:
+            typeStr = 'mat4x3';
+            break;
+          case CompositionType.Vec4Array:
+            typeStr = 'vec4';
+            break;
           default:
-            throw new Error(`Unsupported data class type: ${memberInfo.dataClassType.name}`);
+            throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
         }
-        str += `uniform ${memberInfo.convertToBool ? 'bool' : typeStr} u_${memberName};\n`;
-        str += `${memberInfo.convertToBool ? 'bool' : typeStr} get_${memberName}(float instanceId) {
-  return u_${memberName};
+        const isArray = CompositionType.isArray(memberInfo.compositionType);
+        str += `uniform ${memberInfo.convertToBool ? 'bool' : typeStr} u_${memberName}${isArray ? `[${Config.maxSkeletalBoneNumberForUniformMode}]` : ''};\n`;
+        str += `${memberInfo.convertToBool ? 'bool' : typeStr} get_${memberName}(float instanceId${isArray ? ', int idxOfArray' : ''}) {
+  return u_${memberName}${isArray ? '[idxOfArray]' : ''};
 }\n`;
       });
     });

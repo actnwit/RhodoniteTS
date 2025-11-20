@@ -4,8 +4,6 @@ let p: any;
 
 declare const window: any;
 
-Rn.Config.maxSkeletalBoneNumber = 10;
-
 const moduleManager = Rn.ModuleManager.getInstance();
 const effekseerModule = await moduleManager.loadModule('effekseer', {
   // Comment out for WASM version

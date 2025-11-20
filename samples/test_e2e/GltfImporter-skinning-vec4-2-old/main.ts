@@ -4,7 +4,7 @@ declare const window: any;
 const p = document.createElement('p');
 document.body.appendChild(p);
 
-Rn.Config.boneDataType = Rn.BoneDataType.Vec4x2;
+Rn.Config.boneDataType = Rn.BoneDataType.Vec4x2Old;
 Rn.Config.cgApiDebugConsoleOutput = true;
 
 await Rn.System.init({
