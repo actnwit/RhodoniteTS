@@ -336,7 +336,8 @@ export class Component extends RnObject {
       accessorsOfMember.set(memberName, accessors);
     }
     const isArray = CompositionType.isArray(compositionType);
-    if (!accessorsOfMember.has(memberName) || isArray || !accessors.has(indexOfTheBufferView)) {
+    const accessorKey = isArray ? componentSID : indexOfTheBufferView;
+    if (!accessorsOfMember.has(memberName) || !accessors.has(accessorKey)) {
       const bytes = calcAlignedByteLength();
       const buffer = MemoryManager.getInstance().createOrGetBuffer(bufferUse);
       const bufferViewResult = buffer.takeBufferView({
@@ -362,13 +363,14 @@ export class Component extends RnObject {
           error: undefined,
         });
       }
-
-      accessors.set(isArray ? componentSID : indexOfTheBufferView, accessorResult.get());
+      accessors.set(accessorKey, accessorResult.get());
 
       Component.__stateVersion++;
 
       return accessorResult;
     }
+
+    return new Ok(accessors.get(accessorKey)!);
 
     function calcAlignedByteLength() {
       const compositionNumber = compositionType.getNumberOfComponents();
