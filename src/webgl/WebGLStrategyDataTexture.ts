@@ -300,14 +300,14 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
    */
   public setupShaderForMaterial(material: Material, primitive: Primitive): CGAPIResourceHandle {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
-    const glw = webglResourceRepository.currentWebGLContextWrapper!;
+    const _glw = webglResourceRepository.currentWebGLContextWrapper!;
 
     const [programUid, newOne] = material._createProgramWebGL(
       WebGLStrategyDataTexture.__getComponentDataAccessMethodDefinitions_dataTexture(ShaderType.VertexShader),
       WebGLStrategyDataTexture.__getComponentDataAccessMethodDefinitions_dataTexture(ShaderType.PixelShader),
       WebGLStrategyDataTexture.__getShaderPropertyOfGlobalDataRepository,
       WebGLStrategyDataTexture.__getShaderPropertyOfMaterial,
-      primitive,
+      primitive
     );
 
     if (newOne) {
@@ -391,9 +391,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
    * - Properties that require explicit uniform variables
    * The generated code optimizes data access based on the property layout in data textures.
    */
-  private static __getShaderPropertyOfGlobalDataRepository(
-    info: ShaderSemanticsInfo
-  ) {
+  private static __getShaderPropertyOfGlobalDataRepository(info: ShaderSemanticsInfo) {
     const returnType = info.compositionType.getGlslStr(info.componentType);
 
     let indexStr: string;
@@ -538,7 +536,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     return varDef;
   }
 
-    /**
+  /**
    * Generates GLSL shader code for accessing material properties.
    * This method creates shader functions that can fetch data from either data textures
    * or uniform variables, depending on the property type and rendering configuration.
@@ -554,10 +552,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    * - Properties that require explicit uniform variables
    * The generated code optimizes data access based on the property layout in data textures.
    */
-  private static __getShaderPropertyOfMaterial(
-    materialTypeName: string,
-    info: ShaderSemanticsInfo
-  ) {
+  private static __getShaderPropertyOfMaterial(materialTypeName: string, info: ShaderSemanticsInfo) {
     const returnType = info.compositionType.getGlslStr(info.componentType);
 
     let indexStr: string;
@@ -716,10 +711,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    * This method is essential for generating correct shader code that can access
    * properties from the data texture at the right memory locations.
    */
-  private static getOffsetOfPropertyOfMaterial(
-    propertyName: ShaderSemanticsName,
-    materialTypeName: string
-  ) {
+  private static getOffsetOfPropertyOfMaterial(propertyName: ShaderSemanticsName, materialTypeName: string) {
     const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyName);
     return dataBeginPos;
   }

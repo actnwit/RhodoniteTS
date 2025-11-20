@@ -11,7 +11,7 @@ import {
   ShaderSemanticsIndex,
   type ShaderSemanticsName,
   _getPropertyIndex2,
-  getShaderPropertyFuncOfGlobalDataRepository,
+  type getShaderPropertyFuncOfGlobalDataRepository,
 } from '../definitions/ShaderSemantics';
 import { type ShaderSemanticsInfo, calcAlignedByteLength } from '../definitions/ShaderSemanticsInfo';
 import { ShaderType } from '../definitions/ShaderType';
@@ -347,7 +347,7 @@ export class GlobalDataRepository {
   _addPropertiesStr(
     vertexPropertiesStr: string,
     pixelPropertiesStr: string,
-    propertySetter: getShaderPropertyFuncOfGlobalDataRepository,
+    propertySetter: getShaderPropertyFuncOfGlobalDataRepository
   ) {
     this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct) => {
       const info = globalPropertyStruct.shaderSemanticsInfo;
