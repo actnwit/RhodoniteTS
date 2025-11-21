@@ -45,6 +45,7 @@ import type {
   CGAPIResourceHandle,
   Count,
   Index,
+  Offset,
   Size,
   TypedArray,
   WebGLResourceHandle,
@@ -2696,12 +2697,16 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     textureData: DirectTextureData,
     {
       level,
+      offsetX,
+      offsetY,
       width,
       height,
       format,
       type,
     }: {
       level: Index;
+      offsetX: Offset;
+      offsetY: Offset;
       width: Size;
       height: Size;
       format: PixelFormatEnum;
@@ -2716,8 +2721,8 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     gl.texSubImage2D(
       gl.TEXTURE_2D,
       level,
-      0,
-      0,
+      offsetX,
+      offsetY,
       width,
       height,
       format.index,

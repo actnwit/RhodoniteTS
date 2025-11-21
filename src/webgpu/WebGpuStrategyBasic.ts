@@ -83,7 +83,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
 
   private __lastBlendShapeComponentsUpdateCountForWeights = -1;
   private __lastBlendShapeComponentsUpdateCountForBlendData = -1;
-  private static __webxrSystem: WebXRSystem;
+  private __lastGpuInstanceDataBufferCount = -1;
 
   private constructor() {}
 
@@ -96,9 +96,6 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   static getInstance() {
     if (!this.__instance) {
       this.__instance = new WebGpuStrategyBasic();
-      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
-      WebGpuStrategyBasic.__webxrSystem = webxrSystem;
     }
     return this.__instance;
   }
@@ -872,19 +869,23 @@ ${indexStr}
     const memoryManager: MemoryManager = MemoryManager.getInstance();
 
     // the GPU global Storage
-    const gpuInstanceDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUInstanceData);
-
+    const gpuInstanceDataBuffers = memoryManager.getBuffers(BufferUse.GPUInstanceData);
+    const gpuInstanceDataBufferCount = gpuInstanceDataBuffers.length;
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+    if (gpuInstanceDataBufferCount !== this.__lastGpuInstanceDataBufferCount) {
+      this.__lastGpuInstanceDataBufferCount = gpuInstanceDataBufferCount;
+      webGpuResourceRepository.destroyStorageBuffer(this.__storageBufferUid);
+      this.__storageBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    }
+
     // const dataTextureByteSize =
     //   MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
-    const float32Array = new Float32Array(gpuInstanceDataBuffer!.getArrayBuffer());
     if (this.__storageBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       // Update
-      const dataSizeForDataTexture = gpuInstanceDataBuffer!.takenSizeInByte / 4;
-      webGpuResourceRepository.updateStorageBuffer(this.__storageBufferUid, float32Array, dataSizeForDataTexture);
+      webGpuResourceRepository.updateStorageBuffer(this.__storageBufferUid, gpuInstanceDataBuffers);
     } else {
       // Create
-      this.__storageBufferUid = webGpuResourceRepository.createStorageBuffer(float32Array);
+      this.__storageBufferUid = webGpuResourceRepository.createStorageBuffer(gpuInstanceDataBuffers);
     }
   }
 
