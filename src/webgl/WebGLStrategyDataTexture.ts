@@ -604,7 +604,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       firstPartOfInnerFunc += `
 ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   int instanceId = int(_instanceId);
-  ${info.soloDatum ? 'instanceId = 0;' : ''}
   int instanceIdOfBufferViews = int(instanceId) / ${materialCountPerBufferView};
   int instanceIdInBufferView = int(instanceId) % ${materialCountPerBufferView};
   ${offsetStr}
