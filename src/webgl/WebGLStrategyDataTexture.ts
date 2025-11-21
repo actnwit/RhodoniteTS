@@ -816,11 +816,10 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       return;
     }
     const dataTextureWidth = glw.getMaxTextureSize();
-    const totalSizeOfTheBuffersInTexel = totalSizeOfTheBuffers / 4 / 4;
-    const dataTextureHeight = Math.ceil(totalSizeOfTheBuffersInTexel / dataTextureWidth);
-
-    const dataTextureByteSize = dataTextureWidth * dataTextureHeight * 4 * 4;
     if (this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const totalSizeOfTheBuffersInTexel = totalSizeOfTheBuffers / 4 / 4;
+      const dataTextureHeight = Math.ceil(totalSizeOfTheBuffersInTexel / dataTextureWidth);
+      const dataTextureByteSize = dataTextureWidth * dataTextureHeight * 4 * 4;
       let copiedHeights = 0;
       for (let i = 0; i < gpuInstanceDataBuffers.length; i++) {
         const gpuInstanceDataBuffer = gpuInstanceDataBuffers[i];
@@ -866,52 +865,55 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         _morphBufferArrayBuffer = morphBuffer.getArrayBuffer();
       }
       let floatDataTextureBuffer: Float32Array;
-      {
-        const morphBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
 
-        // the size of morph buffer.
-        let morphBufferTakenSizeInByte = 0;
-        if (Is.exist(morphBuffer)) {
-          morphBufferTakenSizeInByte = morphBuffer.takenSizeInByte;
-        }
-
-        // the arraybuffer of morph buffer.
-        let morphBufferArrayBuffer = new ArrayBuffer(0);
-        if (Is.exist(morphBuffer)) {
-          morphBufferArrayBuffer = morphBuffer.getArrayBuffer();
-        }
-
-        const srcs = gpuInstanceDataBuffers.map(buffer => buffer.getArrayBuffer());
-        srcs.push(morphBufferArrayBuffer);
-
-        const srcsCopySizes: Byte[] = [];
-        gpuInstanceDataBuffers.forEach(buffer => {
-          // spare padding texel for texture alignment (to edge of the width of texture)
-          const paddingSpaceTexel = dataTextureWidth - ((buffer.takenSizeInByte / 4 / 4) % dataTextureWidth);
-          const paddingSpaceBytes = paddingSpaceTexel * 4 * 4;
-          srcsCopySizes.push(buffer.takenSizeInByte + paddingSpaceBytes);
-        });
-        const srcCopySizesExceptMorphBuffer = srcsCopySizes.slice();
-        srcsCopySizes.push(morphBufferTakenSizeInByte);
-
-        const finalArrayBuffer = MiscUtil.concatArrayBuffers2({
-          finalSize: dataTextureByteSize,
-          srcs: srcs,
-          srcsCopySize: srcsCopySizes,
-          srcsOffset: [0, 0],
-        });
-
-        // warning if the used memory exceeds the size of the data texture.
-        if (srcsCopySizes.reduce((acc, size) => acc + size, 0) > dataTextureByteSize) {
-          Logger.warn('The buffer size exceeds the size of the data texture.');
-        }
-
-        floatDataTextureBuffer = new Float32Array(finalArrayBuffer);
-        SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData = srcCopySizesExceptMorphBuffer.reduce(
-          (acc, size) => acc + size,
-          0
-        );
+      // the size of morph buffer.
+      let morphBufferTakenSizeInByte = 0;
+      if (Is.exist(morphBuffer)) {
+        morphBufferTakenSizeInByte = morphBuffer.takenSizeInByte;
       }
+
+      // the arraybuffer of morph buffer.
+      let morphBufferArrayBuffer = new ArrayBuffer(0);
+      if (Is.exist(morphBuffer)) {
+        morphBufferArrayBuffer = morphBuffer.getArrayBuffer();
+      }
+
+      const srcs = gpuInstanceDataBuffers.map(buffer => buffer.getArrayBuffer());
+      srcs.push(morphBufferArrayBuffer);
+
+      const srcsCopySizes: Byte[] = [];
+      const srcsOffsets: Byte[] = [];
+      gpuInstanceDataBuffers.forEach(buffer => {
+        // spare padding texel for texture alignment (to edge of the width of texture)
+        const paddingSpaceTexel = dataTextureWidth - ((buffer.takenSizeInByte / 4 / 4) % dataTextureWidth);
+        const paddingSpaceBytes = paddingSpaceTexel * 4 * 4;
+        srcsCopySizes.push(buffer.takenSizeInByte + paddingSpaceBytes);
+        srcsOffsets.push(0);
+      });
+      srcsOffsets.push(0);
+      const srcCopySizesExceptMorphBuffer = srcsCopySizes.slice();
+      srcsCopySizes.push(morphBufferTakenSizeInByte);
+
+      const totalSizeOfTheBuffersInTexel = (totalSizeOfTheBuffers + morphBufferTakenSizeInByte) / 4 / 4;
+      const dataTextureHeight = Math.ceil(totalSizeOfTheBuffersInTexel / dataTextureWidth);
+      const dataTextureByteSize = dataTextureWidth * dataTextureHeight * 4 * 4;
+      const finalArrayBuffer = MiscUtil.concatArrayBuffers2({
+        finalSize: dataTextureByteSize,
+        srcs: srcs,
+        srcsCopySize: srcsCopySizes,
+        srcsOffset: srcsOffsets,
+      });
+
+      // warning if the used memory exceeds the size of the data texture.
+      if (srcsCopySizes.reduce((acc, size) => acc + size, 0) > dataTextureByteSize) {
+        Logger.warn('The buffer size exceeds the size of the data texture.');
+      }
+
+      floatDataTextureBuffer = new Float32Array(finalArrayBuffer);
+      SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData = srcCopySizesExceptMorphBuffer.reduce(
+        (acc, size) => acc + size,
+        0
+      );
 
       // write data
       this.__dataTextureUid = this.__webglResourceRepository.createTextureFromTypedArray(floatDataTextureBuffer!, {
