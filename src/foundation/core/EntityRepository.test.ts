@@ -25,12 +25,7 @@ test('The entity repository can provide the component corresponding to the speci
 });
 
 test('shallow copy of entity', () => {
-  MemoryManager.createInstanceIfNotCreated({
-    maxGPUDataStorageSize: 1024 * 1024 * 4 /* rgba */ * 4 /* byte */,
-    cpuGeneric: 1,
-    gpuInstanceData: 1,
-    gpuVertexData: 1,
-  });
+  MemoryManager.createInstanceIfNotCreated(1024 * 1024 * 4 /* rgba */ * 4 /* byte */);
 
   const firstEntity = createEntity();
   EntityRepository.addComponentToEntity(TransformComponent, firstEntity);
