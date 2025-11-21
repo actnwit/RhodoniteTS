@@ -1,8 +1,5 @@
-import { ShaderSemantics } from '../definitions/ShaderSemantics';
 import { TextureFormat } from '../definitions/TextureFormat';
-import { TextureParameter } from '../definitions/TextureParameter';
-import { DetectHighLuminanceMaterialContent } from '../materials/contents/DetectHighLuminanceMaterialContent';
-import { SynthesizeHdrMaterialContent } from '../materials/contents/SynthesizeHdrMaterialContent';
+import type { Material } from '../materials/core/Material';
 import { MathUtil } from '../math/MathUtil';
 import { Vector2 } from '../math/Vector2';
 import { VectorN } from '../math/VectorN';
@@ -16,6 +13,9 @@ import { RenderPassHelper } from './RenderPassHelper';
 import { RenderableHelper } from './RenderableHelper';
 
 export class Bloom {
+  private __mapDetectHighLuminanceMaterial: Map<string, Material> = new Map();
+  private __mapGaussianBlurMaterial: Map<string, Material> = new Map();
+  private __mapSynthesizeMaterial: Map<string, Material> = new Map();
   private __mapReducedFramebuffer: Map<string, FrameBuffer> = new Map();
   private __mapDetectHighLuminanceFramebuffer: Map<string, FrameBuffer> = new Map();
   private __mapSynthesizeFramebuffer: Map<string, FrameBuffer> = new Map();
@@ -117,10 +117,17 @@ export class Bloom {
    * @private
    */
   private __createRenderPassDetectHighLuminance(texture: AbstractTexture, luminanceCriterion: number) {
-    const materialDetectHighLuminance = MaterialHelper.createDetectHighLuminanceMaterial(
-      { maxInstancesNumber: 1 },
-      texture
-    );
+    const materialKey = `${texture.width}_${texture.height}`;
+    let materialDetectHighLuminance = this.__mapDetectHighLuminanceMaterial.get(materialKey);
+    if (materialDetectHighLuminance == null) {
+      materialDetectHighLuminance = MaterialHelper.createDetectHighLuminanceMaterial(
+        { maxInstancesNumber: 1 },
+        texture
+      );
+      this.__mapDetectHighLuminanceMaterial.set(materialKey, materialDetectHighLuminance);
+    } else {
+      materialDetectHighLuminance.setTextureParameter('baseColorTexture', texture);
+    }
     materialDetectHighLuminance.setParameter('luminanceCriterion', luminanceCriterion);
     // materialDetectHighLuminance.setParameter(
     //   DetectHighLuminanceMaterialContent.LuminanceReduce,
@@ -239,7 +246,12 @@ export class Bloom {
     resolutionWidthBlur: number,
     resolutionHeightBlur: number
   ) {
-    const material = MaterialHelper.createGaussianBlurMaterial();
+    const materialKey = `${resolutionWidthBlur}_${resolutionHeightBlur}_${isHorizontal}`;
+    let material = this.__mapGaussianBlurMaterial.get(materialKey);
+    if (material == null) {
+      material = MaterialHelper.createGaussianBlurMaterial();
+      this.__mapGaussianBlurMaterial.set(materialKey, material);
+    }
 
     const gaussianDistributionRatio = MathUtil.computeGaussianDistributionRatioWhoseSumIsOne({
       kernelSize: gaussianKernelSize,
@@ -299,12 +311,22 @@ export class Bloom {
       );
     }
 
-    const materialSynthesizeTextures = MaterialHelper.createSynthesizeHDRMaterial(
-      {
-        maxInstancesNumber: 1,
-      },
-      texturesSynthesize
-    );
+    const materialKey = `${texture.width}_${texture.height}_${texturesSynthesize.length}`;
+    let materialSynthesizeTextures = this.__mapSynthesizeMaterial.get(materialKey);
+    if (materialSynthesizeTextures == null) {
+      materialSynthesizeTextures = MaterialHelper.createSynthesizeHDRMaterial(
+        {
+          maxInstancesNumber: 1,
+        },
+        texturesSynthesize
+      );
+      this.__mapSynthesizeMaterial.set(materialKey, materialSynthesizeTextures);
+    } else {
+      // Update textures in case the input render targets were recreated
+      texturesSynthesize.forEach((tex, idx) => {
+        materialSynthesizeTextures!.setTextureParameter(`synthesizeTexture${idx}` as any, tex);
+      });
+    }
     materialSynthesizeTextures.setParameter('synthesizeCoefficient', synthesizeCoefficient);
     const renderPassSynthesizeGlare = RenderPassHelper.createScreenDrawRenderPass(materialSynthesizeTextures);
     renderPassSynthesizeGlare.tryToSetUniqueName('renderPassSynthesizeGlare', true);
