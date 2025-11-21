@@ -14,48 +14,29 @@ export class MemoryManager {
   private static __instance: MemoryManager;
   //__entityMaxCount: number;
   private __buffers: Map<BufferUseEnum, Map<IndexOfBufferLayer, Buffer>> = new Map();
-  private __memorySizeRatios: { [s: string]: number } = {};
   private __countOfTheBufferUsageMap: Map<BufferUseEnum, Count> = new Map();
   private __maxGPUDataStorageSize: Byte = 0;
-  private __gpuBufferUnitCount: Count = 0;
-  private __BufferSizeDivisionRatios = [1 / 16, 3 / 16, 4 / 16, 8 / 16];
+  private __bufferSizeDivisionRatiosForGPUInstanceDataUsage = [1 / 16, 3 / 16, 8 / 16];
+  private __bufferSizeDivisionRatiosForGPUVertexDataUsage = [4 / 16];
 
   /**
    * Private constructor to ensure singleton pattern.
    * Initializes memory size ratios for different buffer types.
-   * @param cpuGeneric - Memory size ratio for CPU generic data
-   * @param gpuInstanceData - Memory size ratio for GPU instance data
-   * @param gpuVertexData - Memory size ratio for GPU vertex data
+   * @param maxGPUDataStorageSize - The maximum GPU data storage size in bytes
    */
-  private constructor(maxGPUDataStorageSize: Byte, cpuGeneric: Ratio, gpuInstanceData: Ratio, gpuVertexData: Ratio) {
+  private constructor(maxGPUDataStorageSize: Byte) {
     this.__maxGPUDataStorageSize = maxGPUDataStorageSize;
-    this.__memorySizeRatios[BufferUse.CPUGeneric.str] = cpuGeneric;
-    this.__memorySizeRatios[BufferUse.GPUInstanceData.str] = gpuInstanceData;
-    this.__memorySizeRatios[BufferUse.GPUVertexData.str] = gpuVertexData;
   }
 
   /**
    * Creates a MemoryManager instance if it doesn't exist, or returns the existing instance.
    * This method enforces the singleton pattern.
-   * @param config - Configuration object containing memory size ratios
-   * @param config.cpuGeneric - Memory size ratio for CPU generic data
-   * @param config.gpuInstanceData - Memory size ratio for GPU instance data
-   * @param config.gpuVertexData - Memory size ratio for GPU vertex data
+   * @param maxGPUDataStorageSize - The maximum GPU data storage size in bytes
    * @returns The MemoryManager singleton instance
    */
-  static createInstanceIfNotCreated({
-    maxGPUDataStorageSize,
-    cpuGeneric,
-    gpuInstanceData,
-    gpuVertexData,
-  }: {
-    maxGPUDataStorageSize: Byte;
-    cpuGeneric: Ratio;
-    gpuInstanceData: Ratio;
-    gpuVertexData: Ratio;
-  }) {
+  static createInstanceIfNotCreated(maxGPUDataStorageSize: Byte) {
     if (!this.__instance) {
-      this.__instance = new MemoryManager(maxGPUDataStorageSize, cpuGeneric, gpuInstanceData, gpuVertexData);
+      this.__instance = new MemoryManager(maxGPUDataStorageSize);
       return this.__instance;
     }
     return this.__instance;
@@ -97,7 +78,12 @@ export class MemoryManager {
    */
   private __createBuffer(bufferUse: BufferUseEnum) {
     const count = this.getLayerCountOfTheBufferUsage(bufferUse);
-    const rawMemorySize = this.__maxGPUDataStorageSize * this.__BufferSizeDivisionRatios[count];
+    let rawMemorySize = (this.__maxGPUDataStorageSize * 1) / 16;
+    if (bufferUse === BufferUse.GPUInstanceData) {
+      rawMemorySize = this.__maxGPUDataStorageSize * this.__bufferSizeDivisionRatiosForGPUInstanceDataUsage[count];
+    } else if (bufferUse === BufferUse.GPUVertexData) {
+      rawMemorySize = this.__maxGPUDataStorageSize * this.__bufferSizeDivisionRatiosForGPUVertexDataUsage[count];
+    }
     const memorySize = Math.floor(rawMemorySize / 16) * 16;
     const arrayBuffer = new ArrayBuffer(memorySize);
 
