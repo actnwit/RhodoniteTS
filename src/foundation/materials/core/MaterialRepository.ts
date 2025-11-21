@@ -366,15 +366,18 @@ export class MaterialRepository {
     }
     if (bufferView == null) {
       let bufferViewResult: Result<BufferView, { 'Buffer.byteLength': Byte; 'Buffer.takenSizeInByte': Byte }>;
-      let addNewLayer = false;
+      let requireBufferLayerIndex = 0;
       do {
-        const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUInstanceData, addNewLayer);
+        const buffer = MemoryManager.getInstance().createOrGetBuffer(
+          BufferUse.GPUInstanceData,
+          requireBufferLayerIndex
+        );
         bufferViewResult = buffer.takeBufferView({
           byteLengthToNeed: totalByteLength,
           byteStride: 0,
         });
         if (bufferViewResult.isErr()) {
-          addNewLayer = true;
+          requireBufferLayerIndex++;
         }
       } while (bufferViewResult.isErr());
       bufferView = bufferViewResult.get();

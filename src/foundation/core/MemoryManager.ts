@@ -138,11 +138,12 @@ export class MemoryManager {
    * @param bufferUse - The type of buffer to retrieve or create
    * @returns The Buffer instance (existing or newly created)
    */
-  public createOrGetBuffer(bufferUse: BufferUseEnum, addNewLayer = false): Buffer {
-    if (addNewLayer) {
+  public createOrGetBuffer(bufferUse: BufferUseEnum, requireIndexOfTheBufferLayer: Index = 0): Buffer {
+    const currentBufferLayerCount = this.getLayerCountOfTheBufferUsage(bufferUse);
+    if (requireIndexOfTheBufferLayer >= currentBufferLayerCount) {
       return this.__createBuffer(bufferUse);
     }
-    let buffer = this.getBuffer(bufferUse);
+    let buffer = this.getBuffer(bufferUse, Math.min(requireIndexOfTheBufferLayer, currentBufferLayerCount - 1));
     return buffer ?? this.__createBuffer(bufferUse);
   }
 
