@@ -802,10 +802,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
     // the GPU global Storage
     const gpuInstanceDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUInstanceData);
-    const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
-    const uboTotalSize = glw!.getAlignedMaxUniformBlockSize();
 
-    const startOffsetOfDataTextureOnGPUInstanceData = this.__isUboUse() ? uboTotalSize : 0;
     if (gpuInstanceDataBuffer == null) {
       return;
     }
@@ -823,7 +820,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const dataTextureByteSize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
     if (this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       const copySizeInByte = _copySizeInByte ?? gpuInstanceDataBuffer.takenSizeInByte;
-      const bufferSizeForDataTextureInByte = copySizeInByte - startOffsetOfDataTextureOnGPUInstanceData;
+      const bufferSizeForDataTextureInByte = copySizeInByte;
       const height = Math.min(
         Math.ceil(bufferSizeForDataTextureInByte / MemoryManager.bufferWidthLength / 4 / 4),
         MemoryManager.bufferHeightLength
@@ -832,11 +829,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       if (bufferSizeForDataTextureInByte > dataTextureByteSize) {
         Logger.warn('The buffer size exceeds the size of the data texture.');
       }
-      const floatDataTextureBuffer = new Float32Array(
-        gpuInstanceDataBuffer.getArrayBuffer(),
-        startOffsetOfDataTextureOnGPUInstanceData,
-        updateByteSize / 4
-      );
+      const floatDataTextureBuffer = new Float32Array(gpuInstanceDataBuffer.getArrayBuffer(), 0, updateByteSize / 4);
       this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
         level: 0,
         width: MemoryManager.bufferWidthLength,
@@ -875,8 +868,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         }
 
         // the DataTexture size (GPU global storage size - UBO space size)
-        const actualSpaceForDataTextureInByte =
-          gpuInstanceDataBuffer.takenSizeInByte - startOffsetOfDataTextureOnGPUInstanceData;
+        const actualSpaceForDataTextureInByte = gpuInstanceDataBuffer.takenSizeInByte;
 
         // spare padding texel for texture alignment (to edge of the width of texture)
         const paddingSpaceTexel =
@@ -892,7 +884,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
             actualSpaceForDataTextureInByte + paddingSpaceBytes,
             morphBufferTakenSizeInByte,
           ],
-          srcsOffset: [startOffsetOfDataTextureOnGPUInstanceData, 0],
+          srcsOffset: [0, 0],
         });
 
         // warning if the used memory exceeds the size of the data texture.
