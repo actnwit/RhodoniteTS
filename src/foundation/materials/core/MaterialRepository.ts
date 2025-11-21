@@ -281,8 +281,13 @@ export class MaterialRepository {
     const propertiesOfBufferViews = this.__accessors.get(materialTypeName);
     const locationOffsets: IndexOf16Bytes[] = [];
     propertiesOfBufferViews?.forEach(properties => {
-      const accessor = properties.get(propertyName);
-      locationOffsets.push(accessor!.byteOffsetInBuffer / 4 / 4);
+      const accessor = properties.get(propertyName)!;
+      const byteOffsetOfExistingBuffers = MemoryManager.getInstance().getByteOffsetOfExistingBuffers(
+        BufferUse.GPUInstanceData,
+        accessor.bufferView.buffer.indexOfTheBufferUsage
+      );
+      const byteOffset = byteOffsetOfExistingBuffers + accessor.byteOffsetInBuffer;
+      locationOffsets.push(byteOffset / 4 / 4);
     });
 
     return locationOffsets;
