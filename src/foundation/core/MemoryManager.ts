@@ -16,8 +16,22 @@ export class MemoryManager {
   private __buffers: Map<BufferUseEnum, Map<IndexOfBufferLayer, Buffer>> = new Map();
   private __countOfTheBufferUsageMap: Map<BufferUseEnum, Count> = new Map();
   private __maxGPUDataStorageSize: Byte = 0;
-  private __bufferSizeDivisionRatiosForGPUInstanceDataUsage = [1 / 16, 3 / 16, 8 / 16];
-  private __bufferSizeDivisionRatiosForGPUVertexDataUsage = [4 / 16];
+  private __bufferSizeDivisionRatiosForGPUInstanceDataUsage = [1 / 32, 5 / 32, 6 / 32, 12 / 32];
+  // private __bufferSizeDivisionRatiosForGPUInstanceDataUsage = [
+  //   1 / 8192,
+  //   1 / 4096,
+  //   1 / 2048,
+  //   1 / 1024,
+  //   1 / 512,
+  //   1 / 256,
+  //   1 / 128,
+  //   1 / 64,
+  //   1 / 32,
+  //   1 / 16,
+  //   3 / 16,
+  //   8 / 16,
+  // ];
+  private __bufferSizeDivisionRatiosForGPUVertexDataUsage = [8 / 32];
 
   /**
    * Private constructor to ensure singleton pattern.
