@@ -468,8 +468,7 @@ ${indexStr}
     }
 
     const firstPartOfInnerFunc = `
-fn get_${methodName}(instanceIdx: u32, idxOfArray: u32) -> ${returnType} {
-  ${info.soloDatum ? 'let instanceId = 0u;' : 'let instanceId = instanceIdx;'}
+fn get_${methodName}(instanceId: u32, idxOfArray: u32) -> ${returnType} {
   let instanceIdOfBufferViews = instanceId / ${materialCountPerBufferView};
   let instanceIdInBufferView = instanceId % ${materialCountPerBufferView};
 ${offsetsStr}
