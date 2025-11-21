@@ -522,10 +522,15 @@ export class Component extends RnObject {
             .set(info.memberName, byteOffsetOfAccessorInBufferOfMember);
         }
         const isArray = CompositionType.isArray(info.compositionType);
-        byteOffsetOfAccessorInBufferOfMember.set(
-          isArray ? componentSID : indexOfTheBufferView,
-          accessorResult.get().byteOffsetInBuffer
-        );
+
+        const accessor = accessorResult.get();
+        const layerIndexOfBuffers = accessor.bufferView.buffer.indexOfTheBufferUsage;
+        const sizesOfTheBuffers = MemoryManager.getInstance()
+          .getSizesOfTheBuffers(info.bufferUse)
+          .slice(0, layerIndexOfBuffers);
+        const byteOffsetOfExistingBuffers = sizesOfTheBuffers.reduce((acc, size) => acc + size, 0);
+        const byteOffset = byteOffsetOfExistingBuffers + accessor.byteOffsetInBuffer;
+        byteOffsetOfAccessorInBufferOfMember.set(isArray ? componentSID : indexOfTheBufferView, byteOffset);
       });
     }
   }

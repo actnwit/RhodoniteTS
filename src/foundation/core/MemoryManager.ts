@@ -177,10 +177,20 @@ export class MemoryManager {
     return buffer;
   }
 
+  /**
+   * Gets the index of the active buffer layer for the specified buffer use type.
+   * @param bufferUse - The type of buffer to get the active layer index of
+   * @returns The index of the active buffer layer
+   */
   getActiveBufferLayerIndexOfTheBufferUsage(bufferUse: BufferUseEnum): Index {
     return this.getLayerCountOfTheBufferUsage(bufferUse) - 1;
   }
 
+  /**
+   * Gets the count of the buffer layers for the specified buffer use type.
+   * @param bufferUse - The type of buffer to get the count of layers of
+   * @returns The count of the buffer layers
+   */
   getLayerCountOfTheBufferUsage(bufferUse: BufferUseEnum): Count {
     const count = this.__countOfTheBufferUsageMap.get(bufferUse);
     if (count != null) {
@@ -192,6 +202,10 @@ export class MemoryManager {
     return 0;
   }
 
+  /**
+   * Increments the count of the buffer layers for the specified buffer use type.
+   * @param bufferUse - The type of buffer to increment the count of layers of
+   */
   incrementCountOfTheBufferUsage(bufferUse: BufferUseEnum): void {
     const count = this.__countOfTheBufferUsageMap.get(bufferUse);
     if (count == null) {
@@ -202,8 +216,24 @@ export class MemoryManager {
     this.__countOfTheBufferUsageMap.set(bufferUse, count + 1);
   }
 
-  // getSizesOfTheBuffers(bufferUse: BufferUseEnum): Byte[] {
-  // }
+  /**
+   * Gets the sizes of the buffers for the specified buffer use type.
+   * @param bufferUse - The type of buffer to get the sizes of
+   * @returns The sizes of the buffers in bytes
+   */
+  getSizesOfTheBuffers(bufferUse: BufferUseEnum): Byte[] {
+    const sizes: Byte[] = [];
+    const bufferCount = this.getLayerCountOfTheBufferUsage(bufferUse);
+    for (let i = 0; i < bufferCount; i++) {
+      const buffer = this.getBuffer(bufferUse, i);
+      if (buffer == null) {
+        continue;
+      }
+      sizes.push(buffer.byteLength);
+    }
+    return sizes;
+  }
+
   /**
    * Gets the buffer width length from the configuration.
    * @returns The data texture width from Config
