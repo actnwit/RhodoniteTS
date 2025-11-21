@@ -187,15 +187,15 @@ export class GlobalDataRepository {
     const alignedByteLength = calcAlignedByteLength(semanticInfo);
 
     let bufferViewResult: Result<BufferView, { 'Buffer.byteLength': Byte; 'Buffer.takenSizeInByte': Byte }>;
-    let addNewLayer = false;
+    let requireBufferLayerIndex = 0;
     do {
-      const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUInstanceData, addNewLayer);
+      const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUInstanceData, requireBufferLayerIndex);
       bufferViewResult = buffer.takeBufferView({
         byteLengthToNeed: alignedByteLength * maxCount,
         byteStride: 0,
       });
       if (bufferViewResult.isErr()) {
-        addNewLayer = true;
+        requireBufferLayerIndex++;
       }
     } while (bufferViewResult.isErr());
 
