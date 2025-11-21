@@ -89,6 +89,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private __lastSceneGraphComponentsUpdateCount = -1;
   private __lastCameraComponentsUpdateCount = -1;
   private __lastCameraControllerComponentsUpdateCount = -1;
+  private __lastGpuInstanceDataBufferCount = -1;
 
   /**
    * Private constructor to enforce singleton pattern.
@@ -797,51 +798,64 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    * - Provides debug functionality to dump texture contents
    * - Manages texture alignment and padding requirements
    */
-  private __createAndUpdateDataTextureInner(_copySizeInByte?: Byte) {
+  private __createAndUpdateDataTextureInner() {
     const memoryManager: MemoryManager = MemoryManager.getInstance();
 
     // the GPU global Storage
-    const gpuInstanceDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUInstanceData);
+    const sizesOfTheBuffers = memoryManager.getSizesOfTheBuffers(BufferUse.GPUInstanceData);
+    const totalSizeOfTheBuffers = sizesOfTheBuffers.reduce((acc, size) => acc + size, 0);
+    const gpuInstanceDataBuffers = memoryManager.getBuffers(BufferUse.GPUInstanceData);
+    const gpuInstanceDataBufferCount = gpuInstanceDataBuffers.length;
+    if (gpuInstanceDataBufferCount !== this.__lastGpuInstanceDataBufferCount) {
+      this.__lastGpuInstanceDataBufferCount = gpuInstanceDataBufferCount;
+      this.deleteDataTexture();
+    }
 
-    if (gpuInstanceDataBuffer == null) {
+    const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
+    if (glw == null) {
       return;
     }
-    // const morphBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
-    // if all the necessary data fits in the UBO, then no data textures will be created.
-    // if (
-    //   this.__isUboUse() &&
-    //   DataUtil.addPaddingBytes(gpuInstanceDataBuffer.takenSizeInByte, 4) +
-    //     DataUtil.addPaddingBytes(morphBuffer!.takenSizeInByte, 4) <
-    //     uboTotalSize
-    // ) {
-    //   return;
-    // }
+    const dataTextureWidth = glw.getMaxTextureSize();
+    const totalSizeOfTheBuffersInTexel = totalSizeOfTheBuffers / 4 / 4;
+    const dataTextureHeight = Math.ceil(totalSizeOfTheBuffersInTexel / dataTextureWidth);
 
-    const dataTextureByteSize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
+    const dataTextureByteSize = dataTextureWidth * dataTextureHeight * 4 * 4;
     if (this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      const copySizeInByte = _copySizeInByte ?? gpuInstanceDataBuffer.takenSizeInByte;
-      const bufferSizeForDataTextureInByte = copySizeInByte;
-      const height = Math.min(
-        Math.ceil(bufferSizeForDataTextureInByte / MemoryManager.bufferWidthLength / 4 / 4),
-        MemoryManager.bufferHeightLength
-      );
-      const updateByteSize = MemoryManager.bufferWidthLength * height * 4 * 4;
-      if (bufferSizeForDataTextureInByte > dataTextureByteSize) {
-        Logger.warn('The buffer size exceeds the size of the data texture.');
-      }
-      const floatDataTextureBuffer = new Float32Array(gpuInstanceDataBuffer.getArrayBuffer(), 0, updateByteSize / 4);
-      this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-        level: 0,
-        width: MemoryManager.bufferWidthLength,
-        height: height,
-        format: PixelFormat.RGBA,
-        type: ComponentType.Float,
-      });
+      let copiedHeights = 0;
+      for (let i = 0; i < gpuInstanceDataBuffers.length; i++) {
+        const gpuInstanceDataBuffer = gpuInstanceDataBuffers[i];
+        const bufferSizeForDataTextureInByte =
+          i === gpuInstanceDataBuffers.length - 1
+            ? gpuInstanceDataBuffer.takenSizeInByte
+            : gpuInstanceDataBuffer.byteLength;
 
-      // debug
-      if (!WebGLStrategyDataTexture.__isDebugOperationToDataTextureBufferDone) {
-        MiscUtil.downloadTypedArray('Rhodonite_dataTextureBuffer.bin', floatDataTextureBuffer);
-        WebGLStrategyDataTexture.__isDebugOperationToDataTextureBufferDone = true;
+        const dataTextureWidthInByte = dataTextureWidth * 4 * 4;
+        const height = Math.min(
+          Math.ceil(bufferSizeForDataTextureInByte / dataTextureWidthInByte / 4 / 4),
+          dataTextureHeight
+        );
+        const updateByteSize = dataTextureWidth * height * 4 * 4;
+        if (bufferSizeForDataTextureInByte > dataTextureByteSize) {
+          Logger.warn('The buffer size exceeds the size of the data texture.');
+        }
+        const floatDataTextureBuffer = new Float32Array(gpuInstanceDataBuffer.getArrayBuffer(), 0, updateByteSize / 4);
+        this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
+          level: 0,
+          offsetX: 0,
+          offsetY: copiedHeights,
+          width: dataTextureWidth,
+          height: height,
+          format: PixelFormat.RGBA,
+          type: ComponentType.Float,
+        });
+
+        // debug
+        if (!WebGLStrategyDataTexture.__isDebugOperationToDataTextureBufferDone) {
+          MiscUtil.downloadTypedArray('Rhodonite_dataTextureBuffer.bin', floatDataTextureBuffer);
+          WebGLStrategyDataTexture.__isDebugOperationToDataTextureBufferDone = true;
+        }
+
+        copiedHeights += height;
       }
     } else {
       const morphBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
@@ -867,41 +881,43 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
           morphBufferArrayBuffer = morphBuffer.getArrayBuffer();
         }
 
-        // the DataTexture size (GPU global storage size - UBO space size)
-        const actualSpaceForDataTextureInByte = gpuInstanceDataBuffer.takenSizeInByte;
+        const srcs = gpuInstanceDataBuffers.map(buffer => buffer.getArrayBuffer());
+        srcs.push(morphBufferArrayBuffer);
 
-        // spare padding texel for texture alignment (to edge of the width of texture)
-        const paddingSpaceTexel =
-          MemoryManager.bufferWidthLength -
-          ((actualSpaceForDataTextureInByte / 4 / 4) % MemoryManager.bufferWidthLength);
-        const paddingSpaceBytes = paddingSpaceTexel * 4 * 4;
+        const srcsCopySizes: Byte[] = [];
+        gpuInstanceDataBuffers.forEach(buffer => {
+          // spare padding texel for texture alignment (to edge of the width of texture)
+          const paddingSpaceTexel = dataTextureWidth - ((buffer.takenSizeInByte / 4 / 4) % dataTextureWidth);
+          const paddingSpaceBytes = paddingSpaceTexel * 4 * 4;
+          srcsCopySizes.push(buffer.takenSizeInByte + paddingSpaceBytes);
+        });
+        const srcCopySizesExceptMorphBuffer = srcsCopySizes.slice();
+        srcsCopySizes.push(morphBufferTakenSizeInByte);
 
         const finalArrayBuffer = MiscUtil.concatArrayBuffers2({
           finalSize: dataTextureByteSize,
-          srcs: [gpuInstanceDataBuffer.getArrayBuffer(), morphBufferArrayBuffer],
-          srcsCopySize: [
-            // final size =
-            actualSpaceForDataTextureInByte + paddingSpaceBytes,
-            morphBufferTakenSizeInByte,
-          ],
+          srcs: srcs,
+          srcsCopySize: srcsCopySizes,
           srcsOffset: [0, 0],
         });
 
         // warning if the used memory exceeds the size of the data texture.
-        if (actualSpaceForDataTextureInByte + paddingSpaceBytes + morphBufferTakenSizeInByte > dataTextureByteSize) {
+        if (srcsCopySizes.reduce((acc, size) => acc + size, 0) > dataTextureByteSize) {
           Logger.warn('The buffer size exceeds the size of the data texture.');
         }
 
         floatDataTextureBuffer = new Float32Array(finalArrayBuffer);
-        SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData =
-          gpuInstanceDataBuffer.takenSizeInByte + paddingSpaceBytes;
+        SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData = srcCopySizesExceptMorphBuffer.reduce(
+          (acc, size) => acc + size,
+          0
+        );
       }
 
       // write data
       this.__dataTextureUid = this.__webglResourceRepository.createTextureFromTypedArray(floatDataTextureBuffer!, {
         internalFormat: TextureFormat.RGBA32F,
-        width: MemoryManager.bufferWidthLength,
-        height: MemoryManager.bufferHeightLength,
+        width: dataTextureWidth,
+        height: dataTextureHeight,
         format: PixelFormat.RGBA,
         type: ComponentType.Float,
         generateMipmap: false,
