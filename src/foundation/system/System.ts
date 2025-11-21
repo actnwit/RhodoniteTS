@@ -46,11 +46,6 @@ declare const spector: any;
 interface SystemInitDescription {
   approach: ProcessApproachEnum;
   canvas: HTMLCanvasElement;
-  memoryUsageOrder?: {
-    cpuGeneric: number;
-    gpuInstanceData: number;
-    gpuVertexData: number;
-  };
   webglOption?: WebGLContextAttributes;
   notToDisplayRnInfoAtInit?: boolean;
 }
@@ -580,12 +575,7 @@ export class System {
     }
 
     // Memory Settings
-    MemoryManager.createInstanceIfNotCreated({
-      maxGPUDataStorageSize,
-      cpuGeneric: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.cpuGeneric : 0.1,
-      gpuInstanceData: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.gpuInstanceData : 0.5,
-      gpuVertexData: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.gpuVertexData : 0.5,
-    });
+    MemoryManager.createInstanceIfNotCreated(maxGPUDataStorageSize);
 
     const globalDataRepository = GlobalDataRepository.getInstance();
     globalDataRepository.initialize(desc.approach);

@@ -4,12 +4,7 @@ const moduleName = 'webgl';
 const moduleManager = Rn.ModuleManager.getInstance();
 await moduleManager.loadModule(moduleName);
 
-Rn.MemoryManager.createInstanceIfNotCreated({
-  maxGPUDataStorageSize: 1024 * 1024 * 4 /* rgba */ * 4 /* byte */,
-  cpuGeneric: 1,
-  gpuInstanceData: 1,
-  gpuVertexData: 1,
-});
+Rn.MemoryManager.createInstanceIfNotCreated(1024 * 1024 * 4 /* rgba */ * 4 /* byte */);
 
 // Constant 1
 const constant1 = new Rn.ConstantVector4VariableShaderNode(Rn.ComponentType.Float);

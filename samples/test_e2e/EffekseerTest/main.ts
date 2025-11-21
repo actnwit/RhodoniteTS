@@ -14,11 +14,6 @@ Rn.Config.cgApiDebugConsoleOutput = true;
 await Rn.System.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
-  memoryUsageOrder: {
-    cpuGeneric: 0.15,
-    gpuInstanceData: 0.2,
-    gpuVertexData: 0.3,
-  },
 });
 
 // Effekseer

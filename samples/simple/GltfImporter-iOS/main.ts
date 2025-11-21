@@ -13,11 +13,6 @@ Rn.Config.cgApiDebugConsoleOutput = true;
 await Rn.System.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
-  memoryUsageOrder: {
-    cpuGeneric: 1.3,
-    gpuInstanceData: 0.6,
-    gpuVertexData: 0.0,
-  },
 });
 
 // params

@@ -508,9 +508,12 @@ export class Mesh implements IMesh {
         }
 
         const vertexNum = primitive.getVertexCountAsIndicesBased();
-        const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.CPUGeneric);
-
         const tangentAttributeByteSize = (positionAccessor.byteLength * 4) / 3;
+        const buffer = MemoryManager.getInstance().createBufferOnDemand(
+          BufferUse.CPUGeneric,
+          tangentAttributeByteSize,
+          4
+        );
         const tangentBufferView = buffer
           .takeBufferView({
             byteLengthToNeed: tangentAttributeByteSize,
@@ -685,13 +688,17 @@ export class Mesh implements IMesh {
           );
         }
       } else {
-        const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.CPUGeneric);
         const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position.XYZ);
         const positionAccessor = primitive.attributeAccessors[positionIdx];
         const vertexNum = positionAccessor.elementCount;
         const num = vertexNum;
 
         const baryCentricCoordAttributeByteSize = num * 4 /* vec4 */ * 4; /* bytes */
+        const buffer = MemoryManager.getInstance().createBufferOnDemand(
+          BufferUse.CPUGeneric,
+          baryCentricCoordAttributeByteSize,
+          4
+        );
         const baryCentricCoordBufferView = buffer
           .takeBufferView({
             byteLengthToNeed: baryCentricCoordAttributeByteSize,
@@ -747,9 +754,9 @@ export class Mesh implements IMesh {
       }
 
       const vertexNum = primitive.getVertexCountAsIndicesBased();
-      const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.CPUGeneric);
 
       const normalAttributeByteSize = positionAccessor.byteLength;
+      const buffer = MemoryManager.getInstance().createBufferOnDemand(BufferUse.CPUGeneric, normalAttributeByteSize, 4);
       const normalBufferView = buffer
         .takeBufferView({
           byteLengthToNeed: normalAttributeByteSize,
