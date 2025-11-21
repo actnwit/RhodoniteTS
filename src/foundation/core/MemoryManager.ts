@@ -1,60 +1,56 @@
-import type { Byte, Count, ObjectUID, Ratio, Size } from '../../types/CommonTypes';
+import type { Byte, Count, Index, ObjectUID, Ratio, Size } from '../../types/CommonTypes';
 import { BufferUse, type BufferUseEnum } from '../definitions/BufferUse';
 import { Buffer } from '../memory/Buffer';
 import { MiscUtil } from '../misc/MiscUtil';
 import { Config } from './Config';
-import type { RnObject } from './RnObject';
 
 /**
  * MemoryManager is a singleton class that manages the memory allocation and buffers for the Rhodonite library.
  * It handles different types of buffers including CPU generic data, GPU instance data, and GPU vertex data.
  */
+
+type IndexOfBufferLayer = Index;
 export class MemoryManager {
   private static __instance: MemoryManager;
   //__entityMaxCount: number;
-  private __buffers: { [s: string]: Buffer } = {};
-  private __memorySizeRatios: { [s: string]: number } = {};
+  private __buffers: Map<BufferUseEnum, Map<IndexOfBufferLayer, Buffer>> = new Map();
   private __countOfTheBufferUsageMap: Map<BufferUseEnum, Count> = new Map();
   private __maxGPUDataStorageSize: Byte = 0;
-  private __gpuBufferUnitCount: Count = 0;
+  private __bufferSizeDivisionRatiosForGPUInstanceDataUsage = [1 / 32, 5 / 32, 6 / 32, 12 / 32];
+  // private __bufferSizeDivisionRatiosForGPUInstanceDataUsage = [
+  //   1 / 8192,
+  //   1 / 4096,
+  //   1 / 2048,
+  //   1 / 1024,
+  //   1 / 512,
+  //   1 / 256,
+  //   1 / 128,
+  //   1 / 64,
+  //   1 / 32,
+  //   1 / 16,
+  //   3 / 16,
+  //   8 / 16,
+  // ];
+  private __bufferSizeDivisionRatiosForGPUVertexDataUsage = [8 / 32];
 
   /**
    * Private constructor to ensure singleton pattern.
    * Initializes memory size ratios for different buffer types.
-   * @param cpuGeneric - Memory size ratio for CPU generic data
-   * @param gpuInstanceData - Memory size ratio for GPU instance data
-   * @param gpuVertexData - Memory size ratio for GPU vertex data
+   * @param maxGPUDataStorageSize - The maximum GPU data storage size in bytes
    */
-  private constructor(maxGPUDataStorageSize: Byte, cpuGeneric: Ratio, gpuInstanceData: Ratio, gpuVertexData: Ratio) {
+  private constructor(maxGPUDataStorageSize: Byte) {
     this.__maxGPUDataStorageSize = maxGPUDataStorageSize;
-    this.__gpuBufferUnitCount = Math.floor(maxGPUDataStorageSize / Config.gpuBufferUnitSize);
-    this.__memorySizeRatios[BufferUse.CPUGeneric.str] = cpuGeneric;
-    this.__memorySizeRatios[BufferUse.GPUInstanceData.str] = gpuInstanceData;
-    this.__memorySizeRatios[BufferUse.GPUVertexData.str] = gpuVertexData;
   }
 
   /**
    * Creates a MemoryManager instance if it doesn't exist, or returns the existing instance.
    * This method enforces the singleton pattern.
-   * @param config - Configuration object containing memory size ratios
-   * @param config.cpuGeneric - Memory size ratio for CPU generic data
-   * @param config.gpuInstanceData - Memory size ratio for GPU instance data
-   * @param config.gpuVertexData - Memory size ratio for GPU vertex data
+   * @param maxGPUDataStorageSize - The maximum GPU data storage size in bytes
    * @returns The MemoryManager singleton instance
    */
-  static createInstanceIfNotCreated({
-    maxGPUDataStorageSize,
-    cpuGeneric,
-    gpuInstanceData,
-    gpuVertexData,
-  }: {
-    maxGPUDataStorageSize: Byte;
-    cpuGeneric: Ratio;
-    gpuInstanceData: Ratio;
-    gpuVertexData: Ratio;
-  }) {
+  static createInstanceIfNotCreated(maxGPUDataStorageSize: Byte) {
     if (!this.__instance) {
-      this.__instance = new MemoryManager(maxGPUDataStorageSize, cpuGeneric, gpuInstanceData, gpuVertexData);
+      this.__instance = new MemoryManager(maxGPUDataStorageSize);
       return this.__instance;
     }
     return this.__instance;
@@ -79,23 +75,20 @@ export class MemoryManager {
   }
 
   /**
-   * Calculates the total memory size based on buffer dimensions and data format.
-   * @returns The total memory size in bytes (width × height × 4 channels × 4 bytes per channel)
-   */
-  static getMemorySize() {
-    return (
-      MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength /*width*height*/ * 4 /*rgba*/ * 4 /*byte*/
-    );
-  }
-
-  /**
    * Creates a new buffer for the specified buffer use type.
    * Sets appropriate byte alignment based on buffer type (4 bytes for CPU, 16 bytes for GPU).
    * @param bufferUse - The type of buffer to create
    * @returns The newly created Buffer instance
    */
   private __createBuffer(bufferUse: BufferUseEnum) {
-    const memorySize = Config.gpuBufferUnitSize;
+    const count = this.getLayerCountOfTheBufferUsage(bufferUse);
+    let rawMemorySize = (this.__maxGPUDataStorageSize * 1) / 16;
+    if (bufferUse === BufferUse.GPUInstanceData) {
+      rawMemorySize = this.__maxGPUDataStorageSize * this.__bufferSizeDivisionRatiosForGPUInstanceDataUsage[count];
+    } else if (bufferUse === BufferUse.GPUVertexData) {
+      rawMemorySize = this.__maxGPUDataStorageSize * this.__bufferSizeDivisionRatiosForGPUVertexDataUsage[count];
+    }
+    const memorySize = Math.floor(rawMemorySize / 16) * 16;
     const arrayBuffer = new ArrayBuffer(memorySize);
 
     let byteAlign = 4;
@@ -103,7 +96,6 @@ export class MemoryManager {
       byteAlign = 16;
     }
 
-    const count = this.getCountOfTheBufferUsage(bufferUse);
     const buffer = new Buffer({
       byteLength: arrayBuffer.byteLength,
       buffer: arrayBuffer,
@@ -112,7 +104,16 @@ export class MemoryManager {
       bufferUsage: bufferUse,
       indexOfTheBufferUsage: count,
     });
-    this.__buffers[buffer.name] = buffer;
+
+    // add the buffer to the buffer map
+    let bufferMap = this.__buffers.get(bufferUse);
+    if (bufferMap == null) {
+      bufferMap = new Map();
+      this.__buffers.set(bufferUse, bufferMap);
+    }
+    bufferMap.set(count, buffer);
+
+    // increment the count of the buffer usage
     this.incrementCountOfTheBufferUsage(bufferUse);
 
     return buffer;
@@ -123,9 +124,13 @@ export class MemoryManager {
    * @param bufferUse - The type of buffer to retrieve
    * @returns The Buffer instance if it exists, undefined otherwise
    */
-  public getBuffer(bufferUse: BufferUseEnum): Buffer | undefined {
-    const buffer = this.__buffers[bufferUse.toString()];
-    return buffer;
+  public getBuffer(bufferUse: BufferUseEnum, indexOfTheBufferLayer?: Index): Buffer | undefined {
+    const bufferMap = this.__buffers.get(bufferUse);
+    if (bufferMap == null) {
+      return undefined;
+    }
+    const count = indexOfTheBufferLayer ?? this.getActiveBufferLayerIndexOfTheBufferUsage(bufferUse);
+    return bufferMap.get(count);
   }
 
   /**
@@ -133,12 +138,13 @@ export class MemoryManager {
    * @param bufferUse - The type of buffer to retrieve or create
    * @returns The Buffer instance (existing or newly created)
    */
-  public createOrGetBuffer(bufferUse: BufferUseEnum): Buffer {
-    let buffer = this.__buffers[bufferUse.toString()];
-    if (buffer == null) {
-      buffer = this.__createBuffer(bufferUse);
+  public createOrGetBuffer(bufferUse: BufferUseEnum, requireIndexOfTheBufferLayer: Index = 0): Buffer {
+    const currentBufferLayerCount = this.getLayerCountOfTheBufferUsage(bufferUse);
+    if (requireIndexOfTheBufferLayer >= currentBufferLayerCount) {
+      return this.__createBuffer(bufferUse);
     }
-    return buffer;
+    let buffer = this.getBuffer(bufferUse, Math.min(requireIndexOfTheBufferLayer, currentBufferLayerCount - 1));
+    return buffer ?? this.__createBuffer(bufferUse);
   }
 
   /**
@@ -150,7 +156,7 @@ export class MemoryManager {
    */
   public createBufferOnDemand(bufferUse: BufferUseEnum, size: Byte, byteAlign: Byte) {
     const arrayBuffer = new ArrayBuffer(size);
-    const count = this.getCountOfTheBufferUsage(bufferUse);
+    const count = this.getLayerCountOfTheBufferUsage(bufferUse);
     const buffer = new Buffer({
       byteLength: arrayBuffer.byteLength,
       buffer: arrayBuffer,
@@ -163,7 +169,21 @@ export class MemoryManager {
     return buffer;
   }
 
-  getCountOfTheBufferUsage(bufferUse: BufferUseEnum): Count {
+  /**
+   * Gets the index of the active buffer layer for the specified buffer use type.
+   * @param bufferUse - The type of buffer to get the active layer index of
+   * @returns The index of the active buffer layer
+   */
+  getActiveBufferLayerIndexOfTheBufferUsage(bufferUse: BufferUseEnum): Index {
+    return this.getLayerCountOfTheBufferUsage(bufferUse) - 1;
+  }
+
+  /**
+   * Gets the count of the buffer layers for the specified buffer use type.
+   * @param bufferUse - The type of buffer to get the count of layers of
+   * @returns The count of the buffer layers
+   */
+  getLayerCountOfTheBufferUsage(bufferUse: BufferUseEnum): Count {
     const count = this.__countOfTheBufferUsageMap.get(bufferUse);
     if (count != null) {
       return count;
@@ -174,6 +194,10 @@ export class MemoryManager {
     return 0;
   }
 
+  /**
+   * Increments the count of the buffer layers for the specified buffer use type.
+   * @param bufferUse - The type of buffer to increment the count of layers of
+   */
   incrementCountOfTheBufferUsage(bufferUse: BufferUseEnum): void {
     const count = this.__countOfTheBufferUsageMap.get(bufferUse);
     if (count == null) {
@@ -185,19 +209,44 @@ export class MemoryManager {
   }
 
   /**
-   * Gets the buffer width length from the configuration.
-   * @returns The data texture width from Config
+   * Gets the sizes of the buffers for the specified buffer use type.
+   * @param bufferUse - The type of buffer to get the sizes of
+   * @returns The sizes of the buffers in bytes
    */
-  static get bufferWidthLength(): Size {
-    return Config.dataTextureWidth;
+  getSizesOfTheBuffers(bufferUse: BufferUseEnum): Byte[] {
+    const sizes: Byte[] = [];
+    const bufferCount = this.getLayerCountOfTheBufferUsage(bufferUse);
+    for (let i = 0; i < bufferCount; i++) {
+      const buffer = this.getBuffer(bufferUse, i);
+      if (buffer == null) {
+        continue;
+      }
+      sizes.push(buffer.byteLength);
+    }
+    return sizes;
   }
 
+  getBuffers(bufferUse: BufferUseEnum): Buffer[] {
+    const buffers: Buffer[] = [];
+    const bufferCount = this.getLayerCountOfTheBufferUsage(bufferUse);
+    for (let i = 0; i < bufferCount; i++) {
+      const buffer = this.getBuffer(bufferUse, i);
+      if (buffer != null) {
+        buffers.push(buffer);
+      }
+    }
+    return buffers;
+  }
   /**
-   * Gets the buffer height length from the configuration.
-   * @returns The data texture height from Config
+   * Gets the byte offset of the existing buffers for the specified buffer use type and index of the buffer layer.
+   * @param bufferUse - The type of buffer to get the byte offset of
+   * @param indexOfTheBufferLayer - The index of the buffer layer to get the byte offset of
+   * @returns The byte offset of the existing buffers in bytes
    */
-  static get bufferHeightLength(): Size {
-    return Config.dataTextureHeight;
+  getByteOffsetOfExistingBuffers(bufferUse: BufferUseEnum, indexOfTheBufferLayer: Index): Byte {
+    const sizesOfTheBuffers = this.getSizesOfTheBuffers(bufferUse).slice(0, indexOfTheBufferLayer);
+    const byteOffsetOfExistingBuffers = sizesOfTheBuffers.reduce((acc, size) => acc + size, 0);
+    return byteOffsetOfExistingBuffers;
   }
 
   /**
@@ -205,41 +254,38 @@ export class MemoryManager {
    * Shows used bytes, total bytes, and usage percentage for each buffer type.
    */
   public printMemoryUsage() {
-    const cpuGeneric = this.__buffers[BufferUse.CPUGeneric.toString()];
-    const gpuInstanceData = this.__buffers[BufferUse.GPUInstanceData.toString()];
-    const gpuVertexData = this.__buffers[BufferUse.GPUVertexData.toString()];
-    // const uboGeneric = this.__buffers[BufferUse.UBOGeneric.toString()];
+    console.log('Memory Usage in Memory Manager\n');
 
-    console.log('Memory Usage in Memory Manager:');
-    console.log(
-      `CPUGeneric: ${cpuGeneric.takenSizeInByte} byte of ${cpuGeneric.byteLength} bytes. (${
-        (cpuGeneric.takenSizeInByte / cpuGeneric.byteLength) * 100
-      } %) `
-    );
-    console.log(
-      `GPUInstanceData: ${gpuInstanceData.takenSizeInByte} byte of ${
-        gpuInstanceData.byteLength
-      } bytes. (${(gpuInstanceData.takenSizeInByte / gpuInstanceData.byteLength) * 100} %) `
-    );
-    if (gpuVertexData != null) {
-      console.log(
-        `GPUVertexData: ${gpuVertexData.takenSizeInByte} byte of ${
-          gpuVertexData.byteLength
-        } bytes. (${(gpuVertexData.takenSizeInByte / gpuVertexData.byteLength) * 100} %) `
-      );
-    }
-    // console.log(`UBOGeneric: ${uboGeneric.takenSizeInByte} byte of ${uboGeneric.byteLength} bytes. (${uboGeneric.takenSizeInByte / uboGeneric.byteLength * 100} %) `);
+    const printBufferUsage = (bufferUse: BufferUseEnum): void => {
+      const bufferCount = this.getLayerCountOfTheBufferUsage(bufferUse);
+      for (let i = 0; i < bufferCount; i++) {
+        const buffer = this.getBuffer(bufferUse, i);
+        if (buffer == null) {
+          continue;
+        }
+        console.log(
+          `${bufferUse.str} ${i}: ${buffer.takenSizeInByte} byte of ${buffer.byteLength} bytes. (${(buffer.takenSizeInByte / buffer.byteLength) * 100} %) `
+        );
+      }
+    };
+
+    printBufferUsage(BufferUse.CPUGeneric);
+    printBufferUsage(BufferUse.GPUInstanceData);
+    printBufferUsage(BufferUse.GPUVertexData);
   }
 
   /**
    * Dumps the contents of a buffer to a downloadable file for debugging purposes.
    * @param bufferUse - The type of buffer to dump
-   * @returns The Buffer instance that was dumped, or undefined if the buffer doesn't exist
    */
-  public dumpBuffer(bufferUse: BufferUseEnum): Buffer | undefined {
-    const buffer = this.__buffers[bufferUse.toString()];
-
-    MiscUtil.downloadArrayBuffer(bufferUse.toString(), buffer.getArrayBuffer());
-    return buffer;
+  public dumpBuffer(bufferUse: BufferUseEnum): void {
+    const bufferCount = this.getLayerCountOfTheBufferUsage(bufferUse);
+    for (let i = 0; i < bufferCount; i++) {
+      const buffer = this.getBuffer(bufferUse, i);
+      if (buffer == null) {
+        continue;
+      }
+      MiscUtil.downloadArrayBuffer(bufferUse.str + i, buffer.getArrayBuffer());
+    }
   }
 }

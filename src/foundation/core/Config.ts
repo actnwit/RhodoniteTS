@@ -35,12 +35,6 @@ let materialCountPerBufferView = 3;
 /**　The maximum number of bones of each skeleton that Rhodonite can handle for Uniform Mode */
 let maxSkeletalBoneNumberForUniformMode = 50;
 
-/**　The width of the data texture */
-let dataTextureWidth = 2 ** 12;
-
-/**　The height of the data texture */
-let dataTextureHeight = 2 ** 12;
-
 /**　The data type of the bone */
 let boneDataType = BoneDataType.Mat43x1;
 
@@ -65,14 +59,9 @@ let physicsTimeIntervalScale = 1;
 /**　Whether the device is a mobile device */
 let isMobile = false;
 
-/**　The unit size of the GPU buffer. It must be multiple of 16 bytes. */
-let gpuBufferUnitSize = 4096 ** 2 * 4 /* rgba */ * 4 /* byte */;
-
 if (typeof navigator !== 'undefined') {
   if (MiscUtil.isMobile() || MiscUtil.isMobileVr()) {
     maxMorphTargetNumber = 4;
-    dataTextureWidth = 2 ** 9;
-    dataTextureHeight = 2 ** 9;
   }
 }
 
@@ -104,10 +93,6 @@ export const Config = {
   boneDataType,
   /**　The maximum number of bones of each skeleton that Rhodonite can handle for Uniform Mode */
   maxSkeletalBoneNumberForUniformMode,
-  /**　The width of the data texture */
-  dataTextureWidth,
-  /**　The height of the data texture */
-  dataTextureHeight,
   /**　Whether the UBO is enabled */
   isUboEnabled,
   /**　The event target DOM for mouse operation */
@@ -122,6 +107,4 @@ export const Config = {
   physicsTimeIntervalScale,
   /**　Whether the device is a mobile device */
   isMobile,
-  /**　The unit size of the GPU buffer. It must be multiple of 16 bytes. */
-  gpuBufferUnitSize,
 };

@@ -6,7 +6,6 @@ const float Epsilon = 0.0000001;
 
 uniform highp sampler2D u_dataTexture; // skipProcess=true
 /* shaderity: @{widthOfDataTexture} */
-/* shaderity: @{heightOfDataTexture} */
 
 #if defined(GLSL_ES3) && defined(RN_IS_DATATEXTURE_MODE) && defined(RN_IS_UBO_ENABLED)
 /* shaderity: @{dataUBOVec4Size} */
@@ -15,29 +14,19 @@ uniform highp sampler2D u_dataTexture; // skipProcess=true
 
 
 highp vec4 fetchElement(int vec4_idx) {
-#if defined(GLSL_ES3) && defined(RN_IS_DATATEXTURE_MODE) && defined(RN_IS_UBO_ENABLED)
-  if (vec4_idx < dataUBOVec4Size) {
-    return fetchVec4FromVec4Block(vec4_idx);
-  } else {
-    int idxOnDataTex = vec4_idx - dataUBOVec4Size;
-    highp ivec2 uv = ivec2(idxOnDataTex % widthOfDataTexture, idxOnDataTex / widthOfDataTexture);
-    return texelFetch( u_dataTexture, uv, 0 );
-  }
-#elif defined(GLSL_ES3)
   highp ivec2 uv = ivec2(vec4_idx % widthOfDataTexture, vec4_idx / widthOfDataTexture);
   return texelFetch( u_dataTexture, uv, 0 );
-#else
   // This idea from https://qiita.com/YVT/items/c695ab4b3cf7faa93885
-  highp vec2 invSize = vec2(1.0/float(widthOfDataTexture), 1.0/float(heightOfDataTexture));
-  highp float t = (float(vec4_idx) + 0.5) * invSize.x;
-  highp float x = fract(t);
-  highp float y = (floor(t) + 0.5) * invSize.y;
-  #ifdef GLSL_ES3
-  return texture( u_dataTexture, vec2(x, y));
-  #else
-  return texture( u_dataTexture, vec2(x, y));
-  #endif
-#endif
+  // highp vec2 invSize = vec2(1.0/float(widthOfDataTexture), 1.0/float(heightOfDataTexture));
+  // highp float t = (float(vec4_idx) + 0.5) * invSize.x;
+  // highp float x = fract(t);
+  // highp float y = (floor(t) + 0.5) * invSize.y;
+  // #ifdef GLSL_ES3
+  // return texture( u_dataTexture, vec2(x, y));
+  // #else
+  // return texture( u_dataTexture, vec2(x, y));
+  // #endif
+// #endif
 }
 
 vec2 fetchVec2No16BytesAligned(int scalar_idx) {

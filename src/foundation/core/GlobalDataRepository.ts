@@ -1,5 +1,5 @@
 import { ProcessApproach, type ProcessApproachEnum } from '../../foundation/definitions/ProcessApproach';
-import type { CGAPIResourceHandle, Count, Index, IndexOf16Bytes } from '../../types/CommonTypes';
+import type { Byte, CGAPIResourceHandle, Count, Index, IndexOf16Bytes } from '../../types/CommonTypes';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { BoneDataType } from '../definitions/BoneDataType';
 import { BufferUse } from '../definitions/BufferUse';
@@ -23,6 +23,8 @@ import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
 import { VectorN } from '../math/VectorN';
 import type { Accessor } from '../memory/Accessor';
+import type { BufferView } from '../memory/BufferView';
+import type { Result } from '../misc/Result';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { Config } from './Config';
 import { MemoryManager } from './MemoryManager';
@@ -182,23 +184,28 @@ export class GlobalDataRepository {
    * @private
    */
   private __registerProperty(semanticInfo: ShaderSemanticsInfo, maxCount: Count): void {
-    const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUInstanceData);
-
     const alignedByteLength = calcAlignedByteLength(semanticInfo);
 
-    const bufferView = buffer
-      .takeBufferView({
+    let bufferViewResult: Result<BufferView, { 'Buffer.byteLength': Byte; 'Buffer.takenSizeInByte': Byte }>;
+    let requireBufferLayerIndex = 0;
+    do {
+      const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUInstanceData, requireBufferLayerIndex);
+      bufferViewResult = buffer.takeBufferView({
         byteLengthToNeed: alignedByteLength * maxCount,
         byteStride: 0,
-      })
-      .unwrapForce();
+      });
+      if (bufferViewResult.isErr()) {
+        requireBufferLayerIndex++;
+      }
+    } while (bufferViewResult.isErr());
 
     let maxArrayLength = semanticInfo.arrayLength;
     if (CompositionType.isArray(semanticInfo.compositionType) && maxArrayLength == null) {
       maxArrayLength = 100;
     }
 
-    const accessor = bufferView
+    const accessor = bufferViewResult
+      .get()
       .takeAccessor({
         compositionType: semanticInfo.compositionType,
         componentType: ComponentType.Float,
@@ -327,7 +334,14 @@ export class GlobalDataRepository {
   getLocationOffsetOfProperty(propertyName: ShaderSemanticsName): IndexOf16Bytes {
     const globalPropertyStruct = this.__fields.get(propertyName);
     if (globalPropertyStruct) {
-      return globalPropertyStruct.accessor.byteOffsetInBuffer / 4 / 4;
+      const accessor = globalPropertyStruct.accessor;
+      const byteOffsetOfExistingBuffers = MemoryManager.getInstance().getByteOffsetOfExistingBuffers(
+        BufferUse.GPUInstanceData,
+        accessor.bufferView.buffer.indexOfTheBufferUsage
+      );
+
+      const byteOffset = byteOffsetOfExistingBuffers + accessor.byteOffsetInBuffer;
+      return byteOffset / 4 / 4;
     }
     return -1;
   }

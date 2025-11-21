@@ -338,17 +338,20 @@ export class Component extends RnObject {
     const isArray = CompositionType.isArray(compositionType);
     if (!accessorsOfMember.has(memberName) || isArray || !accessors.has(indexOfTheBufferView)) {
       const bytes = calcAlignedByteLength();
-      const buffer = MemoryManager.getInstance().createOrGetBuffer(bufferUse);
-      const bufferViewResult = buffer.takeBufferView({
-        byteLengthToNeed: bytes * componentCountPerBufferView,
-        byteStride: 0,
-      });
-      if (bufferViewResult.isErr()) {
-        return new Err({
-          message: `Failed to take buffer view: ${bufferViewResult.getRnError().message}`,
-          error: undefined,
+
+      let bufferViewResult: Result<BufferView, { 'Buffer.byteLength': Byte; 'Buffer.takenSizeInByte': Byte }>;
+      let requireBufferLayerIndex = 0;
+      do {
+        const buffer = MemoryManager.getInstance().createOrGetBuffer(bufferUse, requireBufferLayerIndex);
+        bufferViewResult = buffer.takeBufferView({
+          byteLengthToNeed: bytes * componentCountPerBufferView,
+          byteStride: 0,
         });
-      }
+        if (bufferViewResult.isErr()) {
+          requireBufferLayerIndex++;
+        }
+      } while (bufferViewResult.isErr());
+
       const accessorResult = bufferViewResult.get().takeAccessor({
         compositionType,
         componentType,
@@ -519,10 +522,14 @@ export class Component extends RnObject {
             .set(info.memberName, byteOffsetOfAccessorInBufferOfMember);
         }
         const isArray = CompositionType.isArray(info.compositionType);
-        byteOffsetOfAccessorInBufferOfMember.set(
-          isArray ? componentSID : indexOfTheBufferView,
-          accessorResult.get().byteOffsetInBuffer
+
+        const accessor = accessorResult.get();
+        const byteOffsetOfExistingBuffers = MemoryManager.getInstance().getByteOffsetOfExistingBuffers(
+          info.bufferUse,
+          accessor.bufferView.buffer.indexOfTheBufferUsage
         );
+        const byteOffset = byteOffsetOfExistingBuffers + accessor.byteOffsetInBuffer;
+        byteOffsetOfAccessorInBufferOfMember.set(isArray ? componentSID : indexOfTheBufferView, byteOffset);
       });
     }
   }

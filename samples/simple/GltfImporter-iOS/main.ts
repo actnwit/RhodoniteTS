@@ -4,20 +4,10 @@ let p: any;
 
 declare const window: any;
 
-// Note: The length of one side of texture must be less than Math.pow(2, 12)
-// This is the limit of iOS13.3 (iPhone 6S)
-Rn.Config.dataTextureWidth = 2 ** 8;
-Rn.Config.dataTextureHeight = 2 ** 9;
-
 Rn.Config.cgApiDebugConsoleOutput = true;
 await Rn.System.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
-  memoryUsageOrder: {
-    cpuGeneric: 1.3,
-    gpuInstanceData: 0.6,
-    gpuVertexData: 0.0,
-  },
 });
 
 // params

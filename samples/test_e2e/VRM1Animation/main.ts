@@ -7,8 +7,6 @@ declare const Stats: any;
 
 // Rn.Config.maxCameraNumber = 3;
 Rn.Config.maxSkeletalBoneNumberForUniformMode = 100;
-Rn.Config.dataTextureWidth = 2 ** 13;
-Rn.Config.dataTextureHeight = 2 ** 12;
 Rn.Config.isUboEnabled = false;
 Rn.Config.cgApiDebugConsoleOutput = true;
 
