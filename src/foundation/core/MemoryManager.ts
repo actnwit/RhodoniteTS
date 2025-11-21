@@ -61,16 +61,6 @@ export class MemoryManager {
   }
 
   /**
-   * Calculates the total memory size based on buffer dimensions and data format.
-   * @returns The total memory size in bytes (width × height × 4 channels × 4 bytes per channel)
-   */
-  static getMemorySize() {
-    return (
-      MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength /*width*height*/ * 4 /*rgba*/ * 4 /*byte*/
-    );
-  }
-
-  /**
    * Creates a new buffer for the specified buffer use type.
    * Sets appropriate byte alignment based on buffer type (4 bytes for CPU, 16 bytes for GPU).
    * @param bufferUse - The type of buffer to create
@@ -242,22 +232,6 @@ export class MemoryManager {
     const sizesOfTheBuffers = this.getSizesOfTheBuffers(bufferUse).slice(0, indexOfTheBufferLayer);
     const byteOffsetOfExistingBuffers = sizesOfTheBuffers.reduce((acc, size) => acc + size, 0);
     return byteOffsetOfExistingBuffers;
-  }
-
-  /**
-   * Gets the buffer width length from the configuration.
-   * @returns The data texture width from Config
-   */
-  static get bufferWidthLength(): Size {
-    return Config.dataTextureWidth;
-  }
-
-  /**
-   * Gets the buffer height length from the configuration.
-   * @returns The data texture height from Config
-   */
-  static get bufferHeightLength(): Size {
-    return Config.dataTextureHeight;
   }
 
   /**
