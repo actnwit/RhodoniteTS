@@ -4,8 +4,6 @@ let p: any;
 
 declare const window: any;
 
-Rn.Config.dataTextureWidth = 2 ** 8;
-Rn.Config.dataTextureHeight = 2 ** 9;
 Rn.Config.isUboEnabled = false;
 Rn.Config.cgApiDebugConsoleOutput = true;
 
