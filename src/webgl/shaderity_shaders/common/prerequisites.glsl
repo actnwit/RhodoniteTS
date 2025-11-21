@@ -26,7 +26,7 @@ highp vec4 fetchElement(int vec4_idx) {
   // #else
   // return texture( u_dataTexture, vec2(x, y));
   // #endif
-#endif
+// #endif
 }
 
 vec2 fetchVec2No16BytesAligned(int scalar_idx) {
