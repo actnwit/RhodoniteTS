@@ -314,10 +314,17 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         return;
       }
 
-      if (buffer.takenSizeInByte / MemoryManager.bufferWidthLength / 4 > MemoryManager.bufferHeightLength) {
+      const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
+      if (glw == null) {
+        return;
+      }
+      const dataTextureWidth = glw.getMaxTextureSize();
+      const dataTextureHeight = dataTextureWidth; // no
+
+      if (buffer.takenSizeInByte / dataTextureWidth / 4 > dataTextureHeight) {
         Logger.warn('The buffer size exceeds the size of the data texture.');
       }
-      const dataTextureByteSize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
+      const dataTextureByteSize = dataTextureWidth * dataTextureHeight * 4 * 4;
       const concatArrayBuffer = MiscUtil.concatArrayBuffers2({
         finalSize: dataTextureByteSize,
         srcs: [buffer.getArrayBuffer()],
@@ -328,8 +335,8 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
 
       this.__dataTextureUid = this.__webglResourceRepository.createTextureFromTypedArray(floatDataTextureBuffer, {
         internalFormat: TextureFormat.RGBA32F,
-        width: MemoryManager.bufferWidthLength,
-        height: MemoryManager.bufferHeightLength,
+        width: dataTextureWidth,
+        height: dataTextureHeight,
         format: PixelFormat.RGBA,
         type: ComponentType.Float,
         generateMipmap: false,

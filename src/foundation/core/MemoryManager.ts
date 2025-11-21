@@ -221,6 +221,17 @@ export class MemoryManager {
     return sizes;
   }
 
+  getBuffers(bufferUse: BufferUseEnum): Buffer[] {
+    const buffers: Buffer[] = [];
+    const bufferCount = this.getLayerCountOfTheBufferUsage(bufferUse);
+    for (let i = 0; i < bufferCount; i++) {
+      const buffer = this.getBuffer(bufferUse, i);
+      if (buffer != null) {
+        buffers.push(buffer);
+      }
+    }
+    return buffers;
+  }
   /**
    * Gets the byte offset of the existing buffers for the specified buffer use type and index of the buffer layer.
    * @param bufferUse - The type of buffer to get the byte offset of
