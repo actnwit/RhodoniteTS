@@ -1,4 +1,12 @@
-import type { Count, Index, IndexOf16Bytes, MaterialSID, MaterialTID, MaterialUID } from '../../../types/CommonTypes';
+import type {
+  Byte,
+  Count,
+  Index,
+  IndexOf16Bytes,
+  MaterialSID,
+  MaterialTID,
+  MaterialUID,
+} from '../../../types/CommonTypes';
 import { Config } from '../../core/Config';
 import { MemoryManager } from '../../core/MemoryManager';
 import { BufferUse } from '../../definitions/BufferUse';
@@ -11,6 +19,7 @@ import type { Accessor } from '../../memory/Accessor';
 import type { BufferView } from '../../memory/BufferView';
 import { Is } from '../../misc/Is';
 import { Logger } from '../../misc/Logger';
+import type { Result } from '../../misc/Result';
 import type { AbstractMaterialContent } from './AbstractMaterialContent';
 import { Material } from './Material';
 import type { IndexInTheDataView, IndexOfBufferViews, MaterialTypeName } from './MaterialTypes';
@@ -343,7 +352,6 @@ export class MaterialRepository {
     }
 
     // take A Buffer View from GPUInstanceData buffer, or reuse it if it already exists
-    const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUInstanceData);
     let bufferView: BufferView | undefined;
     if (this.__bufferViews.has(materialTypeName)) {
       const map = this.__bufferViews.get(materialTypeName)!;
@@ -352,11 +360,18 @@ export class MaterialRepository {
       this.__bufferViews.set(materialTypeName, new Map());
     }
     if (bufferView == null) {
-      const result = buffer.takeBufferView({
-        byteLengthToNeed: totalByteLength,
-        byteStride: 0,
-      });
-      bufferView = result.unwrapForce();
+      let bufferViewResult: Result<BufferView, { 'Buffer.byteLength': Byte; 'Buffer.takenSizeInByte': Byte }>;
+      do {
+        const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUInstanceData);
+        bufferViewResult = buffer.takeBufferView({
+          byteLengthToNeed: totalByteLength,
+          byteStride: 0,
+        });
+        if (bufferViewResult.isErr()) {
+          MemoryManager.getInstance().incrementCountOfTheBufferUsage(BufferUse.GPUInstanceData);
+        }
+      } while (bufferViewResult.isErr());
+      bufferView = bufferViewResult.get();
       this.__bufferViews.get(materialTypeName)!.set(indexOfBufferViews, bufferView);
       newlyAllocated = true;
       // bump buffer view version so shaders pick up new offsets
