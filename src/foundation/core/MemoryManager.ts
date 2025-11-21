@@ -18,6 +18,7 @@ export class MemoryManager {
   private __countOfTheBufferUsageMap: Map<BufferUseEnum, Count> = new Map();
   private __maxGPUDataStorageSize: Byte = 0;
   private __gpuBufferUnitCount: Count = 0;
+  private __BufferSizeDivisionRatios = [1 / 16, 3 / 16, 4 / 16, 8 / 16];
 
   /**
    * Private constructor to ensure singleton pattern.
@@ -28,7 +29,6 @@ export class MemoryManager {
    */
   private constructor(maxGPUDataStorageSize: Byte, cpuGeneric: Ratio, gpuInstanceData: Ratio, gpuVertexData: Ratio) {
     this.__maxGPUDataStorageSize = maxGPUDataStorageSize;
-    this.__gpuBufferUnitCount = Math.floor(maxGPUDataStorageSize / Config.gpuBufferUnitSizeInByte);
     this.__memorySizeRatios[BufferUse.CPUGeneric.str] = cpuGeneric;
     this.__memorySizeRatios[BufferUse.GPUInstanceData.str] = gpuInstanceData;
     this.__memorySizeRatios[BufferUse.GPUVertexData.str] = gpuVertexData;
@@ -96,7 +96,9 @@ export class MemoryManager {
    * @returns The newly created Buffer instance
    */
   private __createBuffer(bufferUse: BufferUseEnum) {
-    const memorySize = Config.gpuBufferUnitSizeInByte;
+    const count = this.getLayerCountOfTheBufferUsage(bufferUse);
+    const rawMemorySize = this.__maxGPUDataStorageSize * this.__BufferSizeDivisionRatios[count];
+    const memorySize = Math.floor(rawMemorySize / 16) * 16;
     const arrayBuffer = new ArrayBuffer(memorySize);
 
     let byteAlign = 4;
@@ -104,7 +106,6 @@ export class MemoryManager {
       byteAlign = 16;
     }
 
-    const count = this.getLayerCountOfTheBufferUsage(bufferUse);
     const buffer = new Buffer({
       byteLength: arrayBuffer.byteLength,
       buffer: arrayBuffer,
