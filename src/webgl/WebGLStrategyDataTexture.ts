@@ -829,10 +829,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
             : gpuInstanceDataBuffer.byteLength;
 
         const dataTextureWidthInByte = dataTextureWidth * 4 * 4;
-        const height = Math.min(
-          Math.ceil(bufferSizeForDataTextureInByte / dataTextureWidthInByte / 4 / 4),
-          dataTextureHeight
-        );
+        const height = Math.min(Math.ceil(bufferSizeForDataTextureInByte / dataTextureWidthInByte), dataTextureHeight);
         const updateByteSize = dataTextureWidth * height * 4 * 4;
         if (bufferSizeForDataTextureInByte > dataTextureByteSize) {
           Logger.warn('The buffer size exceeds the size of the data texture.');
