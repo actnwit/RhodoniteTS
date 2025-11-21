@@ -2,11 +2,7 @@ import Rn from '../../../dist/esm';
 
 describe('Frame Test', () => {
   beforeAll(() => {
-    Rn.MemoryManager.createInstanceIfNotCreated({
-      cpuGeneric: 1,
-      gpuInstanceData: 1,
-      gpuVertexData: 1,
-    });
+    Rn.MemoryManager.createInstanceIfNotCreated(1024 * 1024 * 4 /* rgba */ * 4 /* byte */);
   });
 
   test.skip('Frame', () => {
