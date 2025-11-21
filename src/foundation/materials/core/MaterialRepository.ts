@@ -32,6 +32,8 @@ export class MaterialRepository {
   private static __bufferViews: Map<MaterialTypeName, Map<IndexOfBufferViews, BufferView>> = new Map();
   private static __accessors: Map<MaterialTypeName, Map<IndexOfBufferViews, Map<ShaderSemanticsName, Accessor>>> =
     new Map();
+  /** Tracks version incremented when a new buffer view is allocated for a material type. */
+  private static __bufferViewVersions: Map<MaterialTypeName, number> = new Map();
   private static __materialTidCount = -1;
   private static __materialUidCount = -1;
 
@@ -297,6 +299,7 @@ export class MaterialRepository {
     MaterialRepository.__materialTids.set(materialTypeName, materialTid);
     MaterialRepository.__materialCountPerBufferViewMap.set(materialTypeName, materialCountPerBufferView);
     MaterialRepository.__materialInstanceCountOfType.set(materialTypeName, 0);
+    MaterialRepository.__bufferViewVersions.set(materialTypeName, 0);
   }
 
   /**
@@ -356,6 +359,9 @@ export class MaterialRepository {
       bufferView = result.unwrapForce();
       this.__bufferViews.get(materialTypeName)!.set(indexOfBufferViews, bufferView);
       newlyAllocated = true;
+      // bump buffer view version so shaders pick up new offsets
+      const currentVersion = this.__bufferViewVersions.get(materialTypeName) ?? 0;
+      this.__bufferViewVersions.set(materialTypeName, currentVersion + 1);
     }
 
     // Take Accessors and register it
@@ -411,6 +417,10 @@ export class MaterialRepository {
 
   static _getMaterialCountPerBufferView(materialTypeName: string): Count | undefined {
     return this.__materialCountPerBufferViewMap.get(materialTypeName);
+  }
+
+  static _getBufferViewVersion(materialTypeName: string): number {
+    return this.__bufferViewVersions.get(materialTypeName) ?? 0;
   }
 
   /**

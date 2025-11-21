@@ -48,6 +48,7 @@ import { ModuleManager } from '../../system/ModuleManager';
 import { SystemState } from '../../system/SystemState';
 import type { AbstractMaterialContent } from './AbstractMaterialContent';
 import type { Material } from './Material';
+import { MaterialRepository } from './MaterialRepository';
 import { ShaderityUtilityWebGL } from './ShaderityUtilityWebGL';
 import { ShaderityUtilityWebGPU } from './ShaderityUtilityWebGPU';
 
@@ -226,6 +227,7 @@ export function _createProgramAsSingleOperationWebGL(
   }
   const cacheQuery =
     Component.getStateVersion() +
+    MaterialRepository._getBufferViewVersion(material.__materialTypeName) +
     material.__materialTypeName +
     material._materialContent.getMaterialSemanticsVariantName() +
     vertexAttributeDefines +
@@ -404,6 +406,7 @@ export function _createProgramAsSingleOperationWebGpu(
   }
   const cacheQuery =
     Component.getStateVersion() +
+    MaterialRepository._getBufferViewVersion(material.__materialTypeName) +
     material.__materialTypeName +
     material._materialContent.getMaterialSemanticsVariantName() +
     vertexAttributeDefines +
