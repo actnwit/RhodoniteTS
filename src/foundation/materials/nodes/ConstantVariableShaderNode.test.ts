@@ -2,11 +2,7 @@ import Rn from '../../../../dist/esm';
 
 test('ConstantVariable works correctly 1', async () => {
   await Rn.ModuleManager.getInstance().loadModule('webgl');
-  Rn.MemoryManager.createInstanceIfNotCreated({
-    cpuGeneric: 1,
-    gpuInstanceData: 1,
-    gpuVertexData: 1,
-  });
+  Rn.MemoryManager.createInstanceIfNotCreated(1024 * 1024 * 4 /* rgba */ * 4 /* byte */);
 
   const constant1 = new Rn.ConstantVector4VariableShaderNode(Rn.ComponentType.Float);
   constant1.setDefaultInputValue(Rn.Vector4.fromCopyArray([1, 2, 3, 4]));

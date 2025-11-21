@@ -1,12 +1,7 @@
 import Rn from '../../../../dist/esm/';
 
 test.skip('AttributePosition works correctly 1', async () => {
-  await Rn.ModuleManager.getInstance().loadModule('webgl');
-  Rn.MemoryManager.createInstanceIfNotCreated({
-    cpuGeneric: 1,
-    gpuInstanceData: 1,
-    gpuVertexData: 1,
-  });
+  Rn.MemoryManager.createInstanceIfNotCreated(1024 * 1024 * 4 /* rgba */ * 4 /* byte */);
 
   const materialNode = new Rn.CustomMaterialContent({
     name: 'material test',
