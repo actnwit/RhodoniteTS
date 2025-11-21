@@ -8,12 +8,7 @@ function generateEntity() {
 }
 
 test('Use translate simply', () => {
-  MemoryManager.createInstanceIfNotCreated({
-    maxGPUDataStorageSize: 1024 ** 2 * 4 /* rgba */ * 4 /* byte */,
-    cpuGeneric: 1,
-    gpuInstanceData: 1,
-    gpuVertexData: 1,
-  });
+  MemoryManager.createInstanceIfNotCreated(1024 ** 2 * 4 /* rgba */ * 4 /* byte */);
 
   const firstEntity = generateEntity();
   const transformComponent = firstEntity.getTransform();
