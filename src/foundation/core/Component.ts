@@ -338,17 +338,19 @@ export class Component extends RnObject {
     const isArray = CompositionType.isArray(compositionType);
     if (!accessorsOfMember.has(memberName) || isArray || !accessors.has(indexOfTheBufferView)) {
       const bytes = calcAlignedByteLength();
-      const buffer = MemoryManager.getInstance().createOrGetBuffer(bufferUse);
-      const bufferViewResult = buffer.takeBufferView({
-        byteLengthToNeed: bytes * componentCountPerBufferView,
-        byteStride: 0,
-      });
-      if (bufferViewResult.isErr()) {
-        return new Err({
-          message: `Failed to take buffer view: ${bufferViewResult.getRnError().message}`,
-          error: undefined,
+
+      let bufferViewResult: Result<BufferView, { 'Buffer.byteLength': Byte; 'Buffer.takenSizeInByte': Byte }>;
+      do {
+        const buffer = MemoryManager.getInstance().createOrGetBuffer(bufferUse);
+        bufferViewResult = buffer.takeBufferView({
+          byteLengthToNeed: bytes * componentCountPerBufferView,
+          byteStride: 0,
         });
-      }
+        if (bufferViewResult.isErr()) {
+          MemoryManager.getInstance().incrementCountOfTheBufferUsage(bufferUse);
+        }
+      } while (bufferViewResult.isErr());
+
       const accessorResult = bufferViewResult.get().takeAccessor({
         compositionType,
         componentType,
