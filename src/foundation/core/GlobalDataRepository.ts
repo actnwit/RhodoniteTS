@@ -334,7 +334,14 @@ export class GlobalDataRepository {
   getLocationOffsetOfProperty(propertyName: ShaderSemanticsName): IndexOf16Bytes {
     const globalPropertyStruct = this.__fields.get(propertyName);
     if (globalPropertyStruct) {
-      return globalPropertyStruct.accessor.byteOffsetInBuffer / 4 / 4;
+      const accessor = globalPropertyStruct.accessor;
+      const byteOffsetOfExistingBuffers = MemoryManager.getInstance().getByteOffsetOfExistingBuffers(
+        BufferUse.GPUInstanceData,
+        accessor.bufferView.buffer.indexOfTheBufferUsage
+      );
+
+      const byteOffset = byteOffsetOfExistingBuffers + accessor.byteOffsetInBuffer;
+      return byteOffset / 4 / 4;
     }
     return -1;
   }

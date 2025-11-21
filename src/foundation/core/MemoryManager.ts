@@ -235,6 +235,18 @@ export class MemoryManager {
   }
 
   /**
+   * Gets the byte offset of the existing buffers for the specified buffer use type and index of the buffer layer.
+   * @param bufferUse - The type of buffer to get the byte offset of
+   * @param indexOfTheBufferLayer - The index of the buffer layer to get the byte offset of
+   * @returns The byte offset of the existing buffers in bytes
+   */
+  getByteOffsetOfExistingBuffers(bufferUse: BufferUseEnum, indexOfTheBufferLayer: Index): Byte {
+    const sizesOfTheBuffers = this.getSizesOfTheBuffers(bufferUse).slice(0, indexOfTheBufferLayer);
+    const byteOffsetOfExistingBuffers = sizesOfTheBuffers.reduce((acc, size) => acc + size, 0);
+    return byteOffsetOfExistingBuffers;
+  }
+
+  /**
    * Gets the buffer width length from the configuration.
    * @returns The data texture width from Config
    */
