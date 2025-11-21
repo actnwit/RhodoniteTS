@@ -66,7 +66,7 @@ let physicsTimeIntervalScale = 1;
 let isMobile = false;
 
 /**　The unit size of the GPU buffer. It must be multiple of 16 bytes. */
-let gpuBufferUnitSize = 4096 ** 2 * 4 /* rgba */ * 4 /* byte */;
+let gpuBufferUnitSizeInByte = 4096 ** 2 * 4 /* rgba */ * 4 /* byte */;
 
 if (typeof navigator !== 'undefined') {
   if (MiscUtil.isMobile() || MiscUtil.isMobileVr()) {
@@ -123,5 +123,5 @@ export const Config = {
   /**　Whether the device is a mobile device */
   isMobile,
   /**　The unit size of the GPU buffer. It must be multiple of 16 bytes. */
-  gpuBufferUnitSize,
+  gpuBufferUnitSizeInByte,
 };
