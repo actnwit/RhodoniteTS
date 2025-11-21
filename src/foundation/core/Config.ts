@@ -15,9 +15,6 @@ let cameraComponentCountPerBufferView = 1;
 /**　The number of light components per buffer view */
 let lightComponentCountPerBufferView = 1;
 
-/**　The number of skeletal components per buffer view */
-let skeletalComponentCountPerBufferView = 1;
-
 /**　The maximum number of lights that Rhodonite can handle */
 let maxLightNumber = 6;
 
@@ -75,8 +72,6 @@ export const Config = {
   cameraComponentCountPerBufferView,
   /**　The number of light components per buffer view */
   lightComponentCountPerBufferView,
-  /**　The number of skeletal components per buffer view */
-  skeletalComponentCountPerBufferView,
   /**　The maximum number of lights that Rhodonite can handle */
   maxLightNumber,
   /**　The maximum number of morph targets that Rhodonite can handle */
