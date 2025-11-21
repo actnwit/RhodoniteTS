@@ -340,14 +340,15 @@ export class Component extends RnObject {
       const bytes = calcAlignedByteLength();
 
       let bufferViewResult: Result<BufferView, { 'Buffer.byteLength': Byte; 'Buffer.takenSizeInByte': Byte }>;
+      let addNewLayer = false;
       do {
-        const buffer = MemoryManager.getInstance().createOrGetBuffer(bufferUse);
+        const buffer = MemoryManager.getInstance().createOrGetBuffer(bufferUse, addNewLayer);
         bufferViewResult = buffer.takeBufferView({
           byteLengthToNeed: bytes * componentCountPerBufferView,
           byteStride: 0,
         });
         if (bufferViewResult.isErr()) {
-          MemoryManager.getInstance().incrementCountOfTheBufferUsage(bufferUse);
+          addNewLayer = true;
         }
       } while (bufferViewResult.isErr());
 

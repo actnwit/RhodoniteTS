@@ -361,14 +361,15 @@ export class MaterialRepository {
     }
     if (bufferView == null) {
       let bufferViewResult: Result<BufferView, { 'Buffer.byteLength': Byte; 'Buffer.takenSizeInByte': Byte }>;
+      let addNewLayer = false;
       do {
-        const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUInstanceData);
+        const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUInstanceData, addNewLayer);
         bufferViewResult = buffer.takeBufferView({
           byteLengthToNeed: totalByteLength,
           byteStride: 0,
         });
         if (bufferViewResult.isErr()) {
-          MemoryManager.getInstance().incrementCountOfTheBufferUsage(BufferUse.GPUInstanceData);
+          addNewLayer = true;
         }
       } while (bufferViewResult.isErr());
       bufferView = bufferViewResult.get();
