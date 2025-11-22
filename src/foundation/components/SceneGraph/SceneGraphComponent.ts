@@ -419,9 +419,9 @@ export class SceneGraphComponent extends Component {
    */
   setWorldMatrixRestDirtyRecursively() {
     this.__isWorldMatrixRestUpToDate = false;
-    this.children.forEach(child => {
+    for (const child of this.children) {
       child.setWorldMatrixRestDirtyRecursively();
-    });
+    }
   }
 
   /**
@@ -441,9 +441,9 @@ export class SceneGraphComponent extends Component {
     this.__isWorldRotationUpToDate = false;
     this.__isWorldAABBDirty = true;
 
-    this.children.forEach(child => {
+    for (const child of this.children) {
       child.setWorldMatrixDirtyRecursively();
-    });
+    }
   }
 
   /**
