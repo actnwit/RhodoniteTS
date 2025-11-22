@@ -62,6 +62,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   private __lastShader: CGAPIResourceHandle = -1;
   private __lastMaterial?: WeakRef<Material>;
   private __lastRenderPassTickCount = -1;
+  private __lastMorphMaxIndex = -1;
   private __lastBlendShapeComponentsUpdateCountForWeights = -1;
   private __lastPrimitiveUidIdxHasMorphCount = -1;
   private __lightComponents?: LightComponent[];
@@ -334,6 +335,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
           this.__uniformMorphOffsetsTypedArray![Config.maxMorphTargetNumber * i + j] =
             accessor.byteOffsetInBuffer / 4 / 4;
         }
+        this.__lastMorphMaxIndex = Config.maxMorphTargetNumber * i + primitive.targets.length - 1;
       } else {
         break;
       }
@@ -525,10 +527,18 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   }
 
   common_$load(): void {
-    const primitiveUidIdxHasMorphCount = Primitive._getSizeOfPrimitiveUidIdxHasMorph();
-    if (primitiveUidIdxHasMorphCount !== this.__lastPrimitiveUidIdxHasMorphCount) {
+    let i = 0;
+    let morphMaxIndex = 0;
+    for (; i < Config.maxMorphPrimitiveNumber; i++) {
+      const primitive = Primitive.getPrimitiveHasMorph(i);
+      if (primitive != null) {
+        morphMaxIndex = Config.maxMorphTargetNumber * i + primitive.targets.length - 1;
+      } else {
+        break;
+      }
+    }
+    if (morphMaxIndex !== this.__lastMorphMaxIndex) {
       this.__createAndUpdateMorphOffsetsAndWeightsUniformBuffers();
-      this.__lastPrimitiveUidIdxHasMorphCount = primitiveUidIdxHasMorphCount;
     }
   }
 
