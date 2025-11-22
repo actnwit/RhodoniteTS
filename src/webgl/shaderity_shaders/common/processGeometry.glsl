@@ -207,7 +207,8 @@ bool processGeometry(
 #ifdef RN_IS_MORPHING
   } else {
     float vertexIdx = a_baryCentricCoord.w;
-    position_inLocal = get_position(vertexIdx, inPosition_inLocal.xyz);
+    int blendShapeComponentSID = int(a_instanceInfo.z);
+    position_inLocal = get_position(vertexIdx, inPosition_inLocal.xyz, blendShapeComponentSID);
   }
 #endif
 

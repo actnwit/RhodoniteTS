@@ -13,7 +13,7 @@ uniform highp sampler2D u_dataTexture; // skipProcess=true
 #endif
 
 layout (std140) uniform UniformMorphOffsets {
-  vec4 data[/* shaderity: @{maxMorphDataNumber} */];
+  ivec4 data[/* shaderity: @{maxMorphDataNumber} */];
 } uniformMorphOffsets;
 
 layout (std140) uniform UniformMorphWeights {
