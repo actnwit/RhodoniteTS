@@ -2845,7 +2845,20 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     return data;
   }
 
-  createUniformBuffer(bufferView: TypedArray | DataView) {
+  createUniformBuffer() {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+
+    if (gl == null) {
+      throw new Error('No WebGLRenderingContext set as Default.');
+    }
+
+    const ubo = gl.createBuffer();
+    const resourceHandle = this.__registerResource(ubo!);
+
+    return resourceHandle;
+  }
+
+  createUniformBufferWithBufferView(bufferView: TypedArray | DataView) {
     const gl = this.__glw!.getRawContextAsWebGL2();
 
     if (gl == null) {
@@ -2935,6 +2948,23 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     gl.bindBuffer(gl.UNIFORM_BUFFER, null);
 
     return resourceHandle;
+  }
+
+  setUniformBlockBindingForMorphOffsetsAndWeights(
+    shaderProgramUid: WebGLResourceHandle,
+    morphOffsetsUBOUid: WebGLResourceHandle,
+    morphWeightsUBOUid: WebGLResourceHandle
+  ) {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const shaderProgram = this.getWebGLResource(shaderProgramUid)! as WebGLProgram;
+    const morphOffsetsUBO = this.getWebGLResource(morphOffsetsUBOUid)! as WebGLBuffer;
+    const morphWeightsUBO = this.getWebGLResource(morphWeightsUBOUid)! as WebGLBuffer;
+    const blockOfOffsets = gl.getUniformBlockIndex(shaderProgram, 'UniformMorphOffsets');
+    const blockOfWeights = gl.getUniformBlockIndex(shaderProgram, 'UniformMorphWeights');
+    gl.uniformBlockBinding(shaderProgram, blockOfOffsets, 0);
+    gl.uniformBlockBinding(shaderProgram, blockOfWeights, 1);
+    gl.bindBufferBase(gl.UNIFORM_BUFFER, 0, morphOffsetsUBO);
+    gl.bindBufferBase(gl.UNIFORM_BUFFER, 1, morphWeightsUBO);
   }
 
   getGlslRenderTargetBeginString(renderTargetNumber: number) {
