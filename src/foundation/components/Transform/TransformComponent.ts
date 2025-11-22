@@ -401,7 +401,7 @@ export class TransformComponent extends Component {
     if (sceneGraph !== undefined) {
       const parent = sceneGraph.parent;
       if (parent !== undefined) {
-        sceneGraph.setRotationToPhysics(Quaternion.multiply(parent.rotation, quat));
+        sceneGraph.setRotationToPhysics(Quaternion.multiply(parent.rotationInner, quat));
       } else {
         sceneGraph.setRotationToPhysics(quat);
       }

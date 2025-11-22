@@ -180,11 +180,12 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     // Movement by Collision
     nextTail = this.collision(collisionGroups, nextTail, bone.hitRadius, bone);
 
-    bone.prevTail = bone.currentTail.clone();
-    bone.currentTail =
+    bone.prevTail.copyComponents(bone.currentTail);
+    const currentTail =
       center != null
-        ? center.getLocalPositionOfTo(nextTail, VRMSpringBonePhysicsStrategy.__tmp_process_vec3_9).clone()
-        : nextTail.clone();
+        ? center.getLocalPositionOfTo(nextTail, VRMSpringBonePhysicsStrategy.__tmp_process_vec3_9)
+        : nextTail;
+    bone.currentTail.copyComponents(currentTail);
 
     const resultRotation = this.applyRotation(nextTail, bone);
 
@@ -286,6 +287,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
    * @returns The adjusted tail position after collision resolution
    */
   collision(collisionGroups: VRMColliderGroup[], nextTail: Vector3, boneHitRadius: number, bone: VRMSpringBone) {
+    let hit = false;
     for (const collisionGroup of collisionGroups) {
       for (const collider of collisionGroup.sphereColliders) {
         const { direction, distance } = collider.collision(nextTail, boneHitRadius);
@@ -299,7 +301,12 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
           // normalize bone length
           nextTail = this.normalizeBoneLength(nextTail, bone);
+          hit = true;
+          break;
         }
+      }
+      if (hit) {
+        break;
       }
       for (const collider of collisionGroup.capsuleColliders) {
         const { direction, distance } = collider.collision(nextTail, boneHitRadius);
@@ -313,7 +320,12 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
           // normalize bone length
           nextTail = this.normalizeBoneLength(nextTail, bone);
+          hit = true;
+          break;
         }
+      }
+      if (hit) {
+        break;
       }
     }
 

@@ -1256,11 +1256,15 @@ export class SceneGraphComponent extends Component {
    * @returns The world rotation quaternion
    */
   get rotation(): Quaternion {
+    return this.rotationInner.clone();
+  }
+
+  get rotationInner(): Quaternion {
     if (this.__parent == null || this.toMakeWorldMatrixTheSameAsLocalMatrix) {
       return this.entity.getTransform().localRotationInner;
     }
 
-    return this.__getWorldRotationInner().clone();
+    return this.__getWorldRotationInner();
   }
 
   /**
