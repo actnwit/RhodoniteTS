@@ -12,6 +12,13 @@ uniform highp sampler2D u_dataTexture; // skipProcess=true
 /* shaderity: @{dataUBODefinition} */
 #endif
 
+layout (std140) uniform UniformMorphOffsets {
+  vec4 data[/* shaderity: @{maxMorphDataNumber} */];
+} uniformMorphOffsets;
+
+layout (std140) uniform UniformMorphWeights {
+  vec4 data[/* shaderity: @{maxMorphDataNumber} */];
+} uniformMorphWeights;
 
 highp vec4 fetchElement(int vec4_idx) {
   highp ivec2 uv = ivec2(vec4_idx % widthOfDataTexture, vec4_idx / widthOfDataTexture);

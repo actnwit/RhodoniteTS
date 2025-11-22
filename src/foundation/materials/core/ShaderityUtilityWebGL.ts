@@ -84,6 +84,7 @@ export class ShaderityUtilityWebGL {
       widthOfDataTexture: `const int widthOfDataTexture = ${dataTextureWidth};`,
       dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
       dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
+      maxMorphDataNumber: `${Math.ceil((Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4)}`,
     } as unknown as TemplateObject;
 
     return Shaderity.fillTemplate(step1, templateObject);
