@@ -29,10 +29,10 @@ export class VRMSpringBone extends RnObject {
   node: ISceneGraphEntity;
 
   /** Current tail position in world space coordinates */
-  currentTail: Vector3 = Vector3.zero(); // In World Space
+  currentTail: MutableVector3 = MutableVector3.zero(); // In World Space
 
   /** Previous tail position in world space coordinates */
-  prevTail: Vector3 = Vector3.zero(); // In World Space
+  prevTail: MutableVector3 = MutableVector3.zero(); // In World Space
 
   /** The bone axis direction in local space coordinates */
   boneAxis: Vector3 = Vector3.zero(); // In Local Space
@@ -87,9 +87,11 @@ export class VRMSpringBone extends RnObject {
       }
 
       const initialWorldChildPosition = this.node.matrixInner.multiplyVector3(this.initialLocalChildPosition);
-      this.currentTail =
+
+      const currentTail =
         center != null ? center.getLocalPositionOf(initialWorldChildPosition) : initialWorldChildPosition;
-      this.prevTail = this.currentTail.clone();
+      this.currentTail.setComponents(currentTail.x, currentTail.y, currentTail.z);
+      this.prevTail.setComponents(this.currentTail.x, this.currentTail.y, this.currentTail.z);
       const localPosition =
         this.initialLocalChildPosition.length() > 0
           ? this.initialLocalChildPosition
