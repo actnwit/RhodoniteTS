@@ -63,7 +63,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   private __lastMaterial?: WeakRef<Material>;
   private __lastRenderPassTickCount = -1;
   private __lastBlendShapeComponentsUpdateCountForWeights = -1;
-  private __lastBlendShapeComponentsUpdateCountForBlendData = -1;
+  private __lastPrimitiveUidIdxHasMorphCount = -1;
   private __lightComponents?: LightComponent[];
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __webxrSystem: WebXRSystem;
@@ -525,9 +525,9 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   }
 
   common_$load(): void {
-    if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForBlendData) {
+    if (BlendShapeComponent.updateCount !== this.__lastPrimitiveUidIdxHasMorphCount) {
       this.__createAndUpdateMorphOffsetsAndWeightsUniformBuffers();
-      this.__lastBlendShapeComponentsUpdateCountForBlendData = BlendShapeComponent.updateCount;
+      this.__lastPrimitiveUidIdxHasMorphCount = Primitive._getSizeOfPrimitiveUidIdxHasMorph();
     }
   }
 

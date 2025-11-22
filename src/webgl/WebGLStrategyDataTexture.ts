@@ -92,7 +92,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private __uniformMorphOffsetsTypedArray?: Uint32Array;
   private __uniformMorphWeightsTypedArray?: Float32Array;
   private __lastBlendShapeComponentsUpdateCountForWeights = -1;
-  private __lastBlendShapeComponentsUpdateCountForBlendData = -1;
+  private __lastPrimitiveUidIdxHasMorphCount = -1;
   private __lastMaterialsUpdateCount = -1;
   private __lastTransformComponentsUpdateCount = -1;
   private __lastSceneGraphComponentsUpdateCount = -1;
@@ -839,9 +839,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   }
 
   common_$load(): void {
-    if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForBlendData) {
+    if (BlendShapeComponent.updateCount !== this.__lastPrimitiveUidIdxHasMorphCount) {
       this.__createAndUpdateMorphOffsetsAndWeightsUniformBuffers();
-      this.__lastBlendShapeComponentsUpdateCountForBlendData = BlendShapeComponent.updateCount;
+      this.__lastPrimitiveUidIdxHasMorphCount = Primitive._getSizeOfPrimitiveUidIdxHasMorph();
     }
   }
   /**
