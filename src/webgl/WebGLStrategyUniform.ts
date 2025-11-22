@@ -33,6 +33,7 @@ import type { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
 import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
 import { ModuleManager } from '../foundation/system/ModuleManager';
+import { SystemState } from '../foundation/system/SystemState';
 import type { CGAPIResourceHandle, Count, Index, PrimitiveUID, WebGLResourceHandle } from '../types/CommonTypes';
 import type { WebXRSystem } from '../xr/WebXRSystem';
 import type { RnXR } from '../xr/main';
@@ -333,7 +334,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
           const target = primitive.targets[j];
           const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
           this.__uniformMorphOffsetsTypedArray![Config.maxMorphTargetNumber * i + j] =
-            accessor.byteOffsetInBuffer / 4 / 4;
+            (SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData + accessor.byteOffsetInBuffer) / 4 / 4;
         }
         this.__lastMorphMaxIndex = Config.maxMorphTargetNumber * i + primitive.targets.length - 1;
       } else {
@@ -433,6 +434,8 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       this.__updateUniformMorph();
       this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
     }
+
+    SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
   }
 
   /**
