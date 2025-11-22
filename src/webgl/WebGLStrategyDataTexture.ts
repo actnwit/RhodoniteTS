@@ -93,6 +93,9 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private __uniformMorphWeightsTypedArray?: Float32Array;
   private __lastBlendShapeComponentsUpdateCountForWeights = -1;
   private __lastPrimitiveUidIdxHasMorphCount = -1;
+  private __lastTotalSizeOfGPUShaderDataStorageExceptMorphData = -1;
+  private __lastTotalMorphTargetCount = -1;
+  private __lastMorphMaxIndex = -1;
   private __lastMaterialsUpdateCount = -1;
   private __lastTransformComponentsUpdateCount = -1;
   private __lastSceneGraphComponentsUpdateCount = -1;
@@ -824,6 +827,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
           const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
           this.__uniformMorphOffsetsTypedArray![Config.maxMorphTargetNumber * i + j] =
             (SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData + accessor.byteOffsetInBuffer) / 4 / 4;
+
+          this.__lastMorphMaxIndex = Config.maxMorphTargetNumber * i + j;
         }
       } else {
         break;
@@ -839,10 +844,20 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   }
 
   common_$load(): void {
-    const primitiveUidIdxHasMorphCount = Primitive._getSizeOfPrimitiveUidIdxHasMorph();
-    if (primitiveUidIdxHasMorphCount !== this.__lastPrimitiveUidIdxHasMorphCount) {
+    let i = 0;
+    let morphMaxIndex = 0;
+    for (; i < Config.maxMorphPrimitiveNumber; i++) {
+      const primitive = Primitive.getPrimitiveHasMorph(i);
+      if (primitive != null) {
+        for (let j = 0; j < primitive.targets.length; j++) {
+          morphMaxIndex = Config.maxMorphTargetNumber * i + j;
+        }
+      } else {
+        break;
+      }
+    }
+    if (morphMaxIndex !== this.__lastMorphMaxIndex) {
       this.__createAndUpdateMorphOffsetsAndWeightsUniformBuffers();
-      this.__lastPrimitiveUidIdxHasMorphCount = primitiveUidIdxHasMorphCount;
     }
   }
   /**
