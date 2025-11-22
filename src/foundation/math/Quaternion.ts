@@ -1051,8 +1051,8 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
    * Creates a deep copy of this quaternion.
    * @returns A new quaternion with the same component values
    */
-  clone(): IQuaternion {
-    return Quaternion.fromCopy4(this._v[0], this._v[1], this._v[2], this._v[3]) as IQuaternion;
+  clone(): Quaternion {
+    return Quaternion.fromCopy4(this._v[0], this._v[1], this._v[2], this._v[3]);
   }
 
   /**
