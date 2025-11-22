@@ -850,16 +850,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   }
 
   private __updateMorphOffsetsUniformBuffers() {
-    let i = 0;
-    let morphMaxIndex = 0;
-    for (; i < Config.maxMorphPrimitiveNumber; i++) {
-      const primitive = Primitive.getPrimitiveHasMorph(i);
-      if (primitive != null) {
-        morphMaxIndex = Config.maxMorphTargetNumber * i + primitive.targets.length - 1;
-      } else {
-        break;
-      }
-    }
+    const morphMaxIndex = Primitive.getPrimitiveCountHasMorph();
     if (
       morphMaxIndex !== this.__lastMorphMaxIndex ||
       SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData !==
@@ -868,6 +859,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__updateMorphOffsetsUniformBuffersInner();
       this.__lastTotalSizeOfGPUShaderDataStorageExceptMorphData =
         SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData;
+      this.__lastMorphMaxIndex = morphMaxIndex;
     }
   }
 
