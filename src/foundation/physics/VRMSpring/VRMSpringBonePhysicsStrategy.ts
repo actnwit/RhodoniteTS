@@ -287,6 +287,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
    * @returns The adjusted tail position after collision resolution
    */
   collision(collisionGroups: VRMColliderGroup[], nextTail: Vector3, boneHitRadius: number, bone: VRMSpringBone) {
+    let hit = false;
     for (const collisionGroup of collisionGroups) {
       for (const collider of collisionGroup.sphereColliders) {
         const { direction, distance } = collider.collision(nextTail, boneHitRadius);
@@ -300,7 +301,12 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
           // normalize bone length
           nextTail = this.normalizeBoneLength(nextTail, bone);
+          hit = true;
+          break;
         }
+      }
+      if (hit) {
+        break;
       }
       for (const collider of collisionGroup.capsuleColliders) {
         const { direction, distance } = collider.collision(nextTail, boneHitRadius);
@@ -314,7 +320,12 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
           // normalize bone length
           nextTail = this.normalizeBoneLength(nextTail, bone);
+          hit = true;
+          break;
         }
+      }
+      if (hit) {
+        break;
       }
     }
 
