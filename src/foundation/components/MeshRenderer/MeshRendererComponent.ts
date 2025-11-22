@@ -8,6 +8,8 @@ import type {
   ObjectUID,
   PrimitiveUID,
 } from '../../../types/CommonTypes';
+import type { WebGLStrategyDataTexture } from '../../../webgl/WebGLStrategyDataTexture';
+import type { WebGLStrategyUniform } from '../../../webgl/WebGLStrategyUniform';
 import type { WebGpuStrategyBasic } from '../../../webgpu/WebGpuStrategyBasic';
 import type { RnXR } from '../../../xr/main';
 import { Component } from '../../core/Component';
@@ -234,6 +236,9 @@ export class MeshRendererComponent extends Component {
       const moduleName = 'webgl';
       const webglModule = moduleManager.getModule(moduleName)! as any;
       MeshRendererComponent.__cgApiRenderingStrategy = webglModule.getRenderingStrategy(processApproach);
+      (
+        MeshRendererComponent.__cgApiRenderingStrategy as WebGLStrategyDataTexture | WebGLStrategyUniform
+      ).common_$load();
     }
   }
 

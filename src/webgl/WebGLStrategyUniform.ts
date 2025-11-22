@@ -1,4 +1,5 @@
 import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
+import { BlendShapeComponent } from '../foundation/components/BlendShape/BlendShapeComponent';
 import { LightComponent } from '../foundation/components/Light/LightComponent';
 import type { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
@@ -16,11 +17,13 @@ import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemant
 import { ShaderType, type ShaderTypeEnum } from '../foundation/definitions/ShaderType';
 import { TextureFormat } from '../foundation/definitions/TextureFormat';
 import { TextureParameter } from '../foundation/definitions/TextureParameter';
+import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
 import type { Mesh } from '../foundation/geometry/Mesh';
 import { Primitive } from '../foundation/geometry/Primitive';
 import type { Material } from '../foundation/materials/core/Material';
 import type { Scalar } from '../foundation/math/Scalar';
 import type { Vector2 } from '../foundation/math/Vector2';
+import type { Accessor } from '../foundation/memory/Accessor';
 import type { Buffer } from '../foundation/memory/Buffer';
 import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
@@ -54,9 +57,13 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __morphOffsetsUniformBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __morphWeightsUniformBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __uniformMorphOffsetsTypedArray?: Uint32Array;
+  private __uniformMorphWeightsTypedArray?: Float32Array;
   private __lastShader: CGAPIResourceHandle = -1;
   private __lastMaterial?: WeakRef<Material>;
   private __lastRenderPassTickCount = -1;
+  private __lastBlendShapeComponentsUpdateCountForWeights = -1;
+  private __lastBlendShapeComponentsUpdateCountForBlendData = -1;
   private __lightComponents?: LightComponent[];
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __webxrSystem: WebXRSystem;
@@ -303,9 +310,6 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       mesh._updateVBOAndVAO();
     }
 
-    // create morph offsets and weights uniform buffers
-    this.__createAndUpdateMorphOffsetsAndWeightsUniformBuffers();
-
     return true;
   }
 
@@ -320,6 +324,74 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
     if (this.__morphWeightsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       this.__morphWeightsUniformBufferUid =
         this.__webglResourceRepository.createUniformBufferWithBufferView(inputArray);
+    }
+
+    if (this.__uniformMorphOffsetsTypedArray == null) {
+      this.__uniformMorphOffsetsTypedArray = new Uint32Array(
+        Math.ceil((Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4) * 4
+      );
+    }
+
+    if (this.__uniformMorphWeightsTypedArray == null) {
+      this.__uniformMorphWeightsTypedArray = new Float32Array(
+        Math.ceil((Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4) * 4
+      );
+    }
+
+    let i = 0;
+    for (; i < Config.maxMorphPrimitiveNumberInWebGPU; i++) {
+      const primitive = Primitive.getPrimitiveHasMorph(i);
+      if (primitive != null) {
+        for (let j = 0; j < primitive.targets.length; j++) {
+          const target = primitive.targets[j];
+          const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
+          this.__uniformMorphOffsetsTypedArray![Config.maxMorphTargetNumber * i + j] =
+            accessor.byteOffsetInBuffer / 4 / 4;
+        }
+      } else {
+        break;
+      }
+    }
+    const elementNumToCopy = Config.maxMorphTargetNumber * i;
+    this.__webglResourceRepository.updateUniformBuffer(
+      this.__morphOffsetsUniformBufferUid,
+      this.__uniformMorphOffsetsTypedArray,
+      0,
+      elementNumToCopy * 4
+    );
+  }
+
+  /**
+   * Updates uniform buffers containing morph target weights for blend shape animation.
+   * Copies weight values from blend shape components to GPU-accessible uniform buffers.
+   */
+  private __updateUniformMorph() {
+    const memoryManager: MemoryManager = MemoryManager.getInstance();
+    const blendShapeDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUVertexData);
+    if (blendShapeDataBuffer == null) {
+      return;
+    }
+    if (blendShapeDataBuffer.takenSizeInByte === 0) {
+      return;
+    }
+
+    const blendShapeComponents = ComponentRepository.getComponentsWithType(BlendShapeComponent);
+    for (let i = 0; i < blendShapeComponents.length; i++) {
+      const blendShapeComponent = blendShapeComponents[i] as BlendShapeComponent;
+      const weights = blendShapeComponent!.weights;
+      for (let j = 0; j < weights.length; j++) {
+        this.__uniformMorphWeightsTypedArray![Config.maxMorphTargetNumber * blendShapeComponent.componentSID + j] =
+          weights[j];
+      }
+    }
+    if (blendShapeComponents.length > 0) {
+      const elementNumToCopy = Config.maxMorphTargetNumber * blendShapeComponents.length;
+      this.__webglResourceRepository.updateUniformBuffer(
+        this.__morphWeightsUniformBufferUid,
+        this.__uniformMorphWeightsTypedArray!,
+        0,
+        elementNumToCopy * 4
+      );
     }
   }
 
@@ -367,6 +439,11 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         type: ComponentType.Float,
         generateMipmap: false,
       });
+    }
+
+    if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForWeights) {
+      this.__updateUniformMorph();
+      this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
     }
   }
 
@@ -459,6 +536,13 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
     }
 
     return this.__instance;
+  }
+
+  common_$load(): void {
+    if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForBlendData) {
+      this.__createAndUpdateMorphOffsetsAndWeightsUniformBuffers();
+      this.__lastBlendShapeComponentsUpdateCountForBlendData = BlendShapeComponent.updateCount;
+    }
   }
 
   /**

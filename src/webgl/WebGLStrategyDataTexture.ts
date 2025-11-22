@@ -1,4 +1,5 @@
 import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
+import { BlendShapeComponent } from '../foundation/components/BlendShape/BlendShapeComponent';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
 import { LightComponent } from '../foundation/components/Light/LightComponent';
@@ -21,6 +22,7 @@ import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemant
 import { ShaderType, type ShaderTypeEnum } from '../foundation/definitions/ShaderType';
 import { TextureFormat } from '../foundation/definitions/TextureFormat';
 import { TextureParameter } from '../foundation/definitions/TextureParameter';
+import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
 import type { Mesh } from '../foundation/geometry/Mesh';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { Material } from '../foundation/materials/core/Material';
@@ -86,6 +88,10 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private static __isDebugOperationToDataTextureBufferDone = true;
   private static __webxrSystem: WebXRSystem;
 
+  private __uniformMorphOffsetsTypedArray?: Uint32Array;
+  private __uniformMorphWeightsTypedArray?: Float32Array;
+  private __lastBlendShapeComponentsUpdateCountForWeights = -1;
+  private __lastBlendShapeComponentsUpdateCountForBlendData = -1;
   private __lastMaterialsUpdateCount = -1;
   private __lastTransformComponentsUpdateCount = -1;
   private __lastSceneGraphComponentsUpdateCount = -1;
@@ -775,9 +781,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       mesh._updateVBOAndVAO();
     }
 
-    // create morph offsets and weights uniform buffers
-    this.__createAndUpdateMorphOffsetsAndWeightsUniformBuffers();
-
     return true;
   }
 
@@ -793,8 +796,48 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__morphWeightsUniformBufferUid =
         this.__webglResourceRepository.createUniformBufferWithBufferView(inputArray);
     }
+
+    if (this.__uniformMorphOffsetsTypedArray == null) {
+      this.__uniformMorphOffsetsTypedArray = new Uint32Array(
+        Math.ceil((Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4) * 4
+      );
+    }
+
+    if (this.__uniformMorphWeightsTypedArray == null) {
+      this.__uniformMorphWeightsTypedArray = new Float32Array(
+        Math.ceil((Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4) * 4
+      );
+    }
+
+    let i = 0;
+    for (; i < Config.maxMorphPrimitiveNumberInWebGPU; i++) {
+      const primitive = Primitive.getPrimitiveHasMorph(i);
+      if (primitive != null) {
+        for (let j = 0; j < primitive.targets.length; j++) {
+          const target = primitive.targets[j];
+          const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
+          this.__uniformMorphOffsetsTypedArray![Config.maxMorphTargetNumber * i + j] =
+            accessor.byteOffsetInBuffer / 4 / 4;
+        }
+      } else {
+        break;
+      }
+    }
+    const elementNumToCopy = Config.maxMorphTargetNumber * i;
+    this.__webglResourceRepository.updateUniformBuffer(
+      this.__morphOffsetsUniformBufferUid,
+      this.__uniformMorphOffsetsTypedArray,
+      0,
+      elementNumToCopy * 4
+    );
   }
 
+  common_$load(): void {
+    if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForBlendData) {
+      this.__createAndUpdateMorphOffsetsAndWeightsUniformBuffers();
+      this.__lastBlendShapeComponentsUpdateCountForBlendData = BlendShapeComponent.updateCount;
+    }
+  }
   /**
    * Creates and updates the data texture with current shader data.
    * This is the main entry point for data texture management that handles
@@ -998,7 +1041,46 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__lastMaterialsUpdateCount = Material.stateVersion;
     }
 
+    if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForWeights) {
+      this.__updateUniformMorph();
+      this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
+    }
+
     this.__lightComponents = ComponentRepository.getComponentsWithType(LightComponent) as LightComponent[] | undefined;
+  }
+
+  /**
+   * Updates uniform buffers containing morph target weights for blend shape animation.
+   * Copies weight values from blend shape components to GPU-accessible uniform buffers.
+   */
+  private __updateUniformMorph() {
+    const memoryManager: MemoryManager = MemoryManager.getInstance();
+    const blendShapeDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUVertexData);
+    if (blendShapeDataBuffer == null) {
+      return;
+    }
+    if (blendShapeDataBuffer.takenSizeInByte === 0) {
+      return;
+    }
+
+    const blendShapeComponents = ComponentRepository.getComponentsWithType(BlendShapeComponent);
+    for (let i = 0; i < blendShapeComponents.length; i++) {
+      const blendShapeComponent = blendShapeComponents[i] as BlendShapeComponent;
+      const weights = blendShapeComponent!.weights;
+      for (let j = 0; j < weights.length; j++) {
+        this.__uniformMorphWeightsTypedArray![Config.maxMorphTargetNumber * blendShapeComponent.componentSID + j] =
+          weights[j];
+      }
+    }
+    if (blendShapeComponents.length > 0) {
+      const elementNumToCopy = Config.maxMorphTargetNumber * blendShapeComponents.length;
+      this.__webglResourceRepository.updateUniformBuffer(
+        this.__morphWeightsUniformBufferUid,
+        this.__uniformMorphWeightsTypedArray!,
+        0,
+        elementNumToCopy * 4
+      );
+    }
   }
 
   /**
