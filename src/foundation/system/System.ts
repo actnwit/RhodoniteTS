@@ -3,7 +3,6 @@ import { VERSION } from '../../version';
 import type { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import type { WebGpuDeviceWrapper } from '../../webgpu/WebGpuDeviceWrapper';
 import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
-import { WebGpuStrategyBasic } from '../../webgpu/WebGpuStrategyBasic';
 import type { RnXR } from '../../xr/main';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { CameraComponent } from '../components/Camera/CameraComponent';
