@@ -77,7 +77,7 @@ export class Primitive extends RnObject {
   public _viewDepth = 0;
 
   private static __primitiveUidIdxHasMorph: Map<PrimitiveUID, Index> = new Map();
-  private static __idxPrimitiveUidHasMorph: Map<Index, WeakRef<Primitive>> = new Map();
+  private static __idxPrimitiveUidHasMorph: Map<Index, Primitive> = new Map();
   private static __primitiveCountHasMorph = 0;
 
   private static __tmpVec3_0: MutableVector3 = MutableVector3.zero();
@@ -151,7 +151,7 @@ export class Primitive extends RnObject {
    * @returns The primitive if found and still exists, otherwise undefined
    */
   static getPrimitiveHasMorph(primitiveIdx: Index): Primitive | undefined {
-    return this.__idxPrimitiveUidHasMorph.get(primitiveIdx)?.deref();
+    return this.__idxPrimitiveUidHasMorph.get(primitiveIdx);
   }
 
   /**
@@ -740,7 +740,7 @@ export class Primitive extends RnObject {
         'Primitive.__primitiveUidsHasMorph.size exceeds the Config.maxMorphPrimitiveNumberInWebGPU. Please increase the Config.maxMorphPrimitiveNumberInWebGPU.'
       );
     } else {
-      Primitive.__idxPrimitiveUidHasMorph.set(Primitive.__primitiveCountHasMorph, new WeakRef(this));
+      Primitive.__idxPrimitiveUidHasMorph.set(Primitive.__primitiveCountHasMorph, this);
       Primitive.__primitiveUidIdxHasMorph.set(this.__primitiveUid, Primitive.__primitiveCountHasMorph++);
     }
 
