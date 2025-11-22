@@ -345,7 +345,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       this.__morphOffsetsUniformBufferUid,
       this.__uniformMorphOffsetsTypedArray,
       0,
-      elementNumToCopy * 4
+      elementNumToCopy
     );
   }
 
@@ -378,7 +378,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         this.__morphWeightsUniformBufferUid,
         this.__uniformMorphWeightsTypedArray!,
         0,
-        elementNumToCopy * 4
+        elementNumToCopy
       );
     }
   }

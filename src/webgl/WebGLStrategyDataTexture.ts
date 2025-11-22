@@ -94,6 +94,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private __lastBlendShapeComponentsUpdateCountForWeights = -1;
   private __lastMorphMaxIndex = -1;
   private __lastMaterialsUpdateCount = -1;
+  private __lastTotalSizeOfGPUShaderDataStorageExceptMorphData = -1;
   private __lastTransformComponentsUpdateCount = -1;
   private __lastSceneGraphComponentsUpdateCount = -1;
   private __lastCameraComponentsUpdateCount = -1;
@@ -835,7 +836,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__morphOffsetsUniformBufferUid,
       this.__uniformMorphOffsetsTypedArray,
       0,
-      elementNumToCopy * 4
+      elementNumToCopy
     );
   }
 
@@ -850,8 +851,14 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         break;
       }
     }
-    if (morphMaxIndex !== this.__lastMorphMaxIndex) {
+    if (
+      morphMaxIndex !== this.__lastMorphMaxIndex ||
+      SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData !==
+        this.__lastTotalSizeOfGPUShaderDataStorageExceptMorphData
+    ) {
       this.__createAndUpdateMorphOffsetsAndWeightsUniformBuffers();
+      this.__lastTotalSizeOfGPUShaderDataStorageExceptMorphData =
+        SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData;
     }
   }
   /**
@@ -1094,7 +1101,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         this.__morphWeightsUniformBufferUid,
         this.__uniformMorphWeightsTypedArray!,
         0,
-        elementNumToCopy * 4
+        elementNumToCopy
       );
     }
   }
