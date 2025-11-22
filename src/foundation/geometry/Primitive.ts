@@ -86,8 +86,6 @@ export class Primitive extends RnObject {
   private __positionAccessorVersion = 0;
   private static __variantUpdateCount = 0;
 
-  private static __totalMorphTargetCount = 0;
-
   private __fingerPrint = '';
 
   /**
@@ -747,16 +745,7 @@ export class Primitive extends RnObject {
     }
 
     this.__targets = targets;
-    Primitive.__totalMorphTargetCount = targets.length;
     this.calcFingerPrint();
-  }
-
-  static _getSizeOfPrimitiveUidIdxHasMorph() {
-    return Primitive.__primitiveUidIdxHasMorph.size;
-  }
-
-  static _getTotalMorphTargetCount() {
-    return Primitive.__totalMorphTargetCount;
   }
 
   /**

@@ -82,7 +82,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __lastCameraControllerComponentsUpdateCount = -1;
 
   private __lastBlendShapeComponentsUpdateCountForWeights = -1;
-  private __lastPrimitiveUidIdxHasMorphCount = -1;
+  private __lastMorphMaxIndex = -1;
   private __lastGpuInstanceDataBufferCount = -1;
 
   private constructor() {}
@@ -607,10 +607,18 @@ ${indexStr}
       );
     }
 
-    const primitiveUidIdxHasMorphCount = Primitive._getSizeOfPrimitiveUidIdxHasMorph();
-    if (primitiveUidIdxHasMorphCount !== this.__lastPrimitiveUidIdxHasMorphCount) {
+    let i = 0;
+    let morphMaxIndex = 0;
+    for (; i < Config.maxMorphPrimitiveNumber; i++) {
+      const primitive = Primitive.getPrimitiveHasMorph(i);
+      if (primitive != null) {
+        morphMaxIndex = Config.maxMorphTargetNumber * i + primitive.targets.length - 1;
+      } else {
+        break;
+      }
+    }
+    if (morphMaxIndex !== this.__lastMorphMaxIndex) {
       this.__createOrUpdateStorageBlendShapeBuffer();
-      this.__lastPrimitiveUidIdxHasMorphCount = primitiveUidIdxHasMorphCount;
     }
   }
 
@@ -930,6 +938,7 @@ ${indexStr}
           this.__uniformMorphOffsetsTypedArray![Config.maxMorphTargetNumber * i + j] =
             accessor.byteOffsetInBuffer / 4 / 4;
         }
+        this.__lastMorphMaxIndex = Config.maxMorphTargetNumber * i + primitive.targets.length - 1;
       } else {
         break;
       }
