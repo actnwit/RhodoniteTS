@@ -72,6 +72,8 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __dataUBOUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __morphOffsetsUniformBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __morphWeightsUniformBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __lastShader: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __lastMaterial?: WeakRef<Material>;
   private __lastMaterialStateVersion = -1;
@@ -324,6 +326,12 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
 
       WebGLStrategyDataTexture.__globalDataRepository._setUniformLocationsForDataTextureModeOnly(
         material.getShaderProgramUid(primitive)
+      );
+
+      webglResourceRepository.setUniformBlockBindingForMorphOffsetsAndWeights(
+        programUid,
+        this.__morphOffsetsUniformBufferUid,
+        this.__morphWeightsUniformBufferUid
       );
     }
 
@@ -767,7 +775,24 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       mesh._updateVBOAndVAO();
     }
 
+    // create morph offsets and weights uniform buffers
+    this.__createAndUpdateMorphOffsetsAndWeightsUniformBuffers();
+
     return true;
+  }
+
+  private __createAndUpdateMorphOffsetsAndWeightsUniformBuffers() {
+    const inputArray = new Uint32Array(
+      Math.ceil((Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4) * 4
+    );
+    if (this.__morphOffsetsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      this.__morphOffsetsUniformBufferUid =
+        this.__webglResourceRepository.createUniformBufferWithBufferView(inputArray);
+    }
+    if (this.__morphWeightsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      this.__morphWeightsUniformBufferUid =
+        this.__webglResourceRepository.createUniformBufferWithBufferView(inputArray);
+    }
   }
 
   /**
