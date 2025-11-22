@@ -502,7 +502,7 @@ export abstract class AbstractMaterialContent extends RnObject {
     shaderProgram: WebGLProgram,
     _meshComponent: MeshComponent,
     primitive: Primitive,
-    blendShapeComponent?: BlendShapeComponent
+    _blendShapeComponent?: BlendShapeComponent
   ) {
     if (!this.__isMorphing) {
       return;
@@ -512,26 +512,6 @@ export abstract class AbstractMaterialContent extends RnObject {
     }
 
     (shaderProgram as any)._gl.uniform1i((shaderProgram as any).morphTargetNumber, primitive.targets.length);
-    // const dataTextureMorphOffsetPositionOfTargets: number[] = primitive.targets.map((target: Attributes) => {
-    //   const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
-    //   let offset = 0;
-
-    //   if (ProcessApproach.isDataTextureApproach(SystemState.currentProcessApproach)) {
-    //     offset = SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData;
-    //   }
-    //   return (offset + accessor.byteOffsetInBuffer) / 4 / 4;
-    // });
-    // (shaderProgram as any)._gl.uniform1iv(
-    //   (shaderProgram as any).dataTextureMorphOffsetPosition,
-    //   dataTextureMorphOffsetPositionOfTargets
-    // );
-    // let weights: Float32Array | number[];
-    // if (blendShapeComponent!.weights.length > 0) {
-    //   weights = blendShapeComponent!.weights;
-    // } else {
-    //   weights = new Float32Array(primitive.targets.length);
-    // }
-    // (shaderProgram as any)._gl.uniform1fv((shaderProgram as any).morphWeights, weights);
 
     const primitiveIdx = (primitive.constructor as typeof Primitive).getPrimitiveIdxHasMorph(primitive.primitiveUid)!;
     (shaderProgram as any)._gl.uniform1i((shaderProgram as any).currentPrimitiveIdx, primitiveIdx);

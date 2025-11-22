@@ -2212,7 +2212,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   createUniformMorphOffsetsBuffer() {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const inputArray = new Uint32Array(
-      Math.ceil((Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4) * 4
+      Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
     );
     const uniformBuffer = gpuDevice.createBuffer({
       size: inputArray.byteLength,
@@ -2240,7 +2240,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   createUniformMorphWeightsBuffer() {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const inputArray = new Float32Array(
-      Math.ceil((Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4) * 4
+      Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
     );
     const uniformBuffer = gpuDevice.createBuffer({
       size: inputArray.byteLength,

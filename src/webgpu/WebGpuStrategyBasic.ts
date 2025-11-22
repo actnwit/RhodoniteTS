@@ -597,19 +597,20 @@ ${indexStr}
   common_$load(): void {
     if (this.__uniformMorphOffsetsTypedArray == null) {
       this.__uniformMorphOffsetsTypedArray = new Uint32Array(
-        Math.ceil((Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4) * 4
+        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
       );
     }
 
     if (this.__uniformMorphWeightsTypedArray == null) {
       this.__uniformMorphWeightsTypedArray = new Float32Array(
-        Math.ceil((Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4) * 4
+        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
       );
     }
 
-    if (BlendShapeComponent.updateCount !== this.__lastPrimitiveUidIdxHasMorphCount) {
+    const primitiveUidIdxHasMorphCount = Primitive._getSizeOfPrimitiveUidIdxHasMorph();
+    if (primitiveUidIdxHasMorphCount !== this.__lastPrimitiveUidIdxHasMorphCount) {
       this.__createOrUpdateStorageBlendShapeBuffer();
-      this.__lastPrimitiveUidIdxHasMorphCount = Primitive._getSizeOfPrimitiveUidIdxHasMorph();
+      this.__lastPrimitiveUidIdxHasMorphCount = primitiveUidIdxHasMorphCount;
     }
   }
 
@@ -920,7 +921,7 @@ ${indexStr}
     }
 
     let i = 0;
-    for (; i < Config.maxMorphPrimitiveNumberInWebGPU; i++) {
+    for (; i < Config.maxMorphPrimitiveNumber; i++) {
       const primitive = Primitive.getPrimitiveHasMorph(i);
       if (primitive != null) {
         for (let j = 0; j < primitive.targets.length; j++) {

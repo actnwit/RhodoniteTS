@@ -735,7 +735,7 @@ export class Primitive extends RnObject {
    * @param targets - Array of attribute maps representing morph targets
    */
   setBlendShapeTargets(targets: Array<Attributes>) {
-    if (Primitive.__primitiveUidIdxHasMorph.size > Config.maxMorphPrimitiveNumberInWebGPU) {
+    if (Primitive.__primitiveUidIdxHasMorph.size > Config.maxMorphPrimitiveNumber) {
       Logger.error(
         'Primitive.__primitiveUidsHasMorph.size exceeds the Config.maxMorphPrimitiveNumberInWebGPU. Please increase the Config.maxMorphPrimitiveNumberInWebGPU.'
       );
