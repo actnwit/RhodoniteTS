@@ -319,7 +319,8 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         return;
       }
       const dataTextureWidth = glw.getMaxTextureSize();
-      const dataTextureHeight = dataTextureWidth; // no
+      const totalSizeOfTheBuffersInTexel = buffer.takenSizeInByte / 4 / 4;
+      const dataTextureHeight = Math.ceil(totalSizeOfTheBuffersInTexel / dataTextureWidth);
 
       if (buffer.takenSizeInByte / dataTextureWidth / 4 > dataTextureHeight) {
         Logger.warn('The buffer size exceeds the size of the data texture.');
