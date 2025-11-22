@@ -606,20 +606,6 @@ ${indexStr}
         Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
       );
     }
-
-    let i = 0;
-    let morphMaxIndex = 0;
-    for (; i < Config.maxMorphPrimitiveNumber; i++) {
-      const primitive = Primitive.getPrimitiveHasMorph(i);
-      if (primitive != null) {
-        morphMaxIndex = Config.maxMorphTargetNumber * i + primitive.targets.length - 1;
-      } else {
-        break;
-      }
-    }
-    if (morphMaxIndex !== this.__lastMorphMaxIndex) {
-      this.__createOrUpdateStorageBlendShapeBuffer();
-    }
   }
 
   /**
@@ -730,6 +716,12 @@ ${indexStr}
       this.__lastCameraComponentsUpdateCount = CameraComponent.currentCameraUpdateCount;
       this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
       this.__lastMaterialsUpdateCount = Material.stateVersion;
+    }
+
+    const morphMaxIndex = Primitive.getPrimitiveCountHasMorph();
+    if (morphMaxIndex !== this.__lastMorphMaxIndex) {
+      this.__createOrUpdateStorageBlendShapeBuffer();
+      this.__lastMorphMaxIndex = morphMaxIndex;
     }
 
     if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForWeights) {
