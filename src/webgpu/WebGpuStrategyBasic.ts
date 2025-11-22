@@ -144,6 +144,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
       let idx2 = ${Config.maxMorphTargetNumber}u * blendShapeComponentSID + i;
       let morphWeights: vec4f = uniformMorphWeights.data[ idx2 / 4u];
       let morphWeight: f32 = morphWeights[idx2 % 4u];
+
       position += addPos * morphWeight;
     }
 

@@ -155,45 +155,31 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
     });
     if (shaderType === ShaderType.VertexShader) {
       const MorphingStr = `
+
 #ifdef RN_IS_VERTEX_SHADER
-# ifdef RN_IS_MORPHING
-  vec3 get_position(float vertexId, vec3 basePosition) {
+  #ifdef RN_IS_MORPHING
+  vec3 get_position(float vertexId, vec3 basePosition, int blendShapeComponentSID) {
     vec3 position = basePosition;
     int scalar_idx = 3 * int(vertexId);
-      int posIn4bytes = scalar_idx % 4;
-    for (int i=0; i<${Config.maxMorphTargetNumber}; i++) {
+    for (int i=0; i<u_morphTargetNumber; i++) {
+      int currentPrimitiveIdx = u_currentPrimitiveIdx;
+      int idx = ${Config.maxMorphTargetNumber} * currentPrimitiveIdx + i;
+      ivec4 offsets = uniformMorphOffsets.data[ idx / 4];
+      int offsetPosition = offsets[idx % 4];
 
-      int basePosIn16bytes = u_dataTextureMorphOffsetPosition[i] + (scalar_idx - posIn4bytes)/4;
+      int basePosIn4bytes = offsetPosition * 4 + scalar_idx;
+      vec3 addPos = fetchVec3No16BytesAligned(basePosIn4bytes);
 
-      vec3 addPos = vec3(0.0);
-      if (posIn4bytes == 0) {
-        vec4 val = fetchElement(basePosIn16bytes);
-        addPos = val.xyz;
-      } else if (posIn4bytes == 1) {
-        vec4 val0 = fetchElement(basePosIn16bytes);
-        addPos = vec3(val0.yzw);
-      } else if (posIn4bytes == 2) {
-        vec4 val0 = fetchElement(basePosIn16bytes);
-        vec4 val1 = fetchElement(basePosIn16bytes+1);
-        addPos = vec3(val0.zw, val1.x);
-      } else if (posIn4bytes == 3) {
-        vec4 val0 = fetchElement(basePosIn16bytes);
-        vec4 val1 = fetchElement(basePosIn16bytes+1);
-        addPos = vec3(val0.w, val1.xy);
-      }
+      int idx2 = ${Config.maxMorphTargetNumber} * blendShapeComponentSID + i;
+      vec4 morphWeights = uniformMorphWeights.data[ idx2 / 4];
+      float morphWeight = morphWeights[idx2 % 4];
 
-      // int index = u_dataTextureMorphOffsetPosition[i] + 1 * int(vertexId);
-      // vec3 addPos = fetchElement(u_dataTexture, index, widthOfDataTexture, heightOfDataTexture).xyz;
-
-      position += addPos * u_morphWeights[i];
-      if (i == u_morphTargetNumber-1) {
-        break;
-      }
+      position += addPos * morphWeight;
     }
 
     return position;
   }
-# endif
+  #endif
 #endif
   `;
       str += MorphingStr;

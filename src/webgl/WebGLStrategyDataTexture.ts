@@ -29,6 +29,7 @@ import { Material } from '../foundation/materials/core/Material';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 import type { Vector2 } from '../foundation/math/Vector2';
 import type { VectorN } from '../foundation/math/VectorN';
+import type { Accessor } from '../foundation/memory/Accessor';
 import type { Buffer } from '../foundation/memory/Buffer';
 import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
@@ -145,18 +146,23 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
 
 #ifdef RN_IS_VERTEX_SHADER
   #ifdef RN_IS_MORPHING
-  vec3 get_position(float vertexId, vec3 basePosition) {
+  vec3 get_position(float vertexId, vec3 basePosition, int blendShapeComponentSID) {
     vec3 position = basePosition;
     int scalar_idx = 3 * int(vertexId);
-    for (int i=0; i<${Config.maxMorphTargetNumber}; i++) {
+    for (int i=0; i<u_morphTargetNumber; i++) {
+      int currentPrimitiveIdx = u_currentPrimitiveIdx;
+      int idx = ${Config.maxMorphTargetNumber} * currentPrimitiveIdx + i;
+      ivec4 offsets = uniformMorphOffsets.data[ idx / 4];
+      int offsetPosition = offsets[idx % 4];
 
-      int basePosIn4bytes = u_dataTextureMorphOffsetPosition[i] * 4 + scalar_idx;
+      int basePosIn4bytes = offsetPosition * 4 + scalar_idx;
       vec3 addPos = fetchVec3No16BytesAligned(basePosIn4bytes);
 
-      position += addPos * u_morphWeights[i];
-      if (i == u_morphTargetNumber-1) {
-        break;
-      }
+      int idx2 = ${Config.maxMorphTargetNumber} * blendShapeComponentSID + i;
+      vec4 morphWeights = uniformMorphWeights.data[ idx2 / 4];
+      float morphWeight = morphWeights[idx2 % 4];
+
+      position += addPos * morphWeight;
     }
 
     return position;
@@ -817,7 +823,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
           const target = primitive.targets[j];
           const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
           this.__uniformMorphOffsetsTypedArray![Config.maxMorphTargetNumber * i + j] =
-            accessor.byteOffsetInBuffer / 4 / 4;
+            (SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData + accessor.byteOffsetInBuffer) / 4 / 4;
         }
       } else {
         break;
