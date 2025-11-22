@@ -301,31 +301,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
     return true;
   }
 
-  private __createAndUpdateMorphOffsetsAndWeightsUniformBuffers() {
-    const inputArray = new Uint32Array(
-      Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
-    );
-    if (this.__morphOffsetsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      this.__morphOffsetsUniformBufferUid =
-        this.__webglResourceRepository.createUniformBufferWithBufferView(inputArray);
-    }
-    if (this.__morphWeightsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      this.__morphWeightsUniformBufferUid =
-        this.__webglResourceRepository.createUniformBufferWithBufferView(inputArray);
-    }
-
-    if (this.__uniformMorphOffsetsTypedArray == null) {
-      this.__uniformMorphOffsetsTypedArray = new Uint32Array(
-        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
-      );
-    }
-
-    if (this.__uniformMorphWeightsTypedArray == null) {
-      this.__uniformMorphWeightsTypedArray = new Float32Array(
-        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
-      );
-    }
-
+  private __updateMorphOffsetsUniformBuffersInner() {
     let i = 0;
     for (; i < Config.maxMorphPrimitiveNumber; i++) {
       const primitive = Primitive.getPrimitiveHasMorph(i);
@@ -344,10 +320,39 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
     const elementNumToCopy = Config.maxMorphTargetNumber * i;
     this.__webglResourceRepository.updateUniformBuffer(
       this.__morphOffsetsUniformBufferUid,
-      this.__uniformMorphOffsetsTypedArray,
+      this.__uniformMorphOffsetsTypedArray!,
       0,
       elementNumToCopy
     );
+  }
+
+  private __initMorphUniformBuffers() {
+    if (this.__morphOffsetsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const inputArray = new Uint32Array(
+        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
+      );
+      this.__morphOffsetsUniformBufferUid =
+        this.__webglResourceRepository.createUniformBufferWithBufferView(inputArray);
+    }
+    if (this.__morphWeightsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const inputArray = new Uint32Array(
+        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
+      );
+      this.__morphWeightsUniformBufferUid =
+        this.__webglResourceRepository.createUniformBufferWithBufferView(inputArray);
+    }
+
+    if (this.__uniformMorphOffsetsTypedArray == null) {
+      this.__uniformMorphOffsetsTypedArray = new Uint32Array(
+        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
+      );
+    }
+
+    if (this.__uniformMorphWeightsTypedArray == null) {
+      this.__uniformMorphWeightsTypedArray = new Float32Array(
+        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
+      );
+    }
   }
 
   /**
@@ -428,6 +433,8 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         type: ComponentType.Float,
         generateMipmap: false,
       });
+
+      SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
     }
 
     if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForWeights) {
@@ -435,7 +442,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
     }
 
-    SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
+    this.__updateMorphOffsetsUniformBuffers();
   }
 
   /**
@@ -546,6 +553,10 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   }
 
   common_$load(): void {
+    this.__initMorphUniformBuffers();
+  }
+
+  private __updateMorphOffsetsUniformBuffers() {
     let i = 0;
     let morphMaxIndex = 0;
     for (; i < Config.maxMorphPrimitiveNumber; i++) {
@@ -557,7 +568,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       }
     }
     if (morphMaxIndex !== this.__lastMorphMaxIndex) {
-      this.__createAndUpdateMorphOffsetsAndWeightsUniformBuffers();
+      this.__updateMorphOffsetsUniformBuffersInner();
       this.deleteDataTexture();
     }
   }

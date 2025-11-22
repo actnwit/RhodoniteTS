@@ -791,31 +791,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     return true;
   }
 
-  private __createAndUpdateMorphOffsetsAndWeightsUniformBuffers() {
-    const inputArray = new Uint32Array(
-      Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
-    );
-    if (this.__morphOffsetsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      this.__morphOffsetsUniformBufferUid =
-        this.__webglResourceRepository.createUniformBufferWithBufferView(inputArray);
-    }
-    if (this.__morphWeightsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      this.__morphWeightsUniformBufferUid =
-        this.__webglResourceRepository.createUniformBufferWithBufferView(inputArray);
-    }
-
-    if (this.__uniformMorphOffsetsTypedArray == null) {
-      this.__uniformMorphOffsetsTypedArray = new Uint32Array(
-        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
-      );
-    }
-
-    if (this.__uniformMorphWeightsTypedArray == null) {
-      this.__uniformMorphWeightsTypedArray = new Float32Array(
-        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
-      );
-    }
-
+  private __updateMorphOffsetsUniformBuffersInner() {
     let i = 0;
     for (; i < Config.maxMorphPrimitiveNumber; i++) {
       const primitive = Primitive.getPrimitiveHasMorph(i);
@@ -834,13 +810,46 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const elementNumToCopy = Config.maxMorphTargetNumber * i;
     this.__webglResourceRepository.updateUniformBuffer(
       this.__morphOffsetsUniformBufferUid,
-      this.__uniformMorphOffsetsTypedArray,
+      this.__uniformMorphOffsetsTypedArray!,
       0,
       elementNumToCopy
     );
   }
 
   common_$load(): void {
+    this.__initMorphUniformBuffers();
+  }
+
+  private __initMorphUniformBuffers() {
+    if (this.__morphOffsetsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const inputArray = new Uint32Array(
+        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
+      );
+      this.__morphOffsetsUniformBufferUid =
+        this.__webglResourceRepository.createUniformBufferWithBufferView(inputArray);
+    }
+    if (this.__morphWeightsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const inputArray = new Uint32Array(
+        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
+      );
+      this.__morphWeightsUniformBufferUid =
+        this.__webglResourceRepository.createUniformBufferWithBufferView(inputArray);
+    }
+
+    if (this.__uniformMorphOffsetsTypedArray == null) {
+      this.__uniformMorphOffsetsTypedArray = new Uint32Array(
+        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
+      );
+    }
+
+    if (this.__uniformMorphWeightsTypedArray == null) {
+      this.__uniformMorphWeightsTypedArray = new Float32Array(
+        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
+      );
+    }
+  }
+
+  private __updateMorphOffsetsUniformBuffers() {
     let i = 0;
     let morphMaxIndex = 0;
     for (; i < Config.maxMorphPrimitiveNumber; i++) {
@@ -856,11 +865,12 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData !==
         this.__lastTotalSizeOfGPUShaderDataStorageExceptMorphData
     ) {
-      this.__createAndUpdateMorphOffsetsAndWeightsUniformBuffers();
+      this.__updateMorphOffsetsUniformBuffersInner();
       this.__lastTotalSizeOfGPUShaderDataStorageExceptMorphData =
         SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData;
     }
   }
+
   /**
    * Creates and updates the data texture with current shader data.
    * This is the main entry point for data texture management that handles
@@ -1068,6 +1078,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__updateUniformMorph();
       this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
     }
+
+    this.__updateMorphOffsetsUniformBuffers();
 
     this.__lightComponents = ComponentRepository.getComponentsWithType(LightComponent) as LightComponent[] | undefined;
   }
