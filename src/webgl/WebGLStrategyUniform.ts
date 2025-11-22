@@ -436,6 +436,22 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   }
 
   /**
+   * Deletes the current data texture and frees associated GPU resources.
+   * This method should be called when the data texture needs to be recreated
+   * or when cleaning up resources.
+   *
+   * @remarks
+   * After calling this method, the data texture UID is reset to an invalid state,
+   * and a new data texture will be created on the next rendering cycle.
+   */
+  deleteDataTexture(): void {
+    if (this.__dataTextureUid != null) {
+      this.__webglResourceRepository.deleteTexture(this.__dataTextureUid);
+      this.__dataTextureUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    }
+  }
+
+  /**
    * Attaches GPU data for the primitive.
    * This method is part of the CGAPIStrategy interface but is a no-op in uniform strategy
    * as GPU data is handled differently through data textures.
@@ -539,6 +555,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
     }
     if (morphMaxIndex !== this.__lastMorphMaxIndex) {
       this.__createAndUpdateMorphOffsetsAndWeightsUniformBuffers();
+      this.deleteDataTexture();
     }
   }
 
