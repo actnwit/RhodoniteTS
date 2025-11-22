@@ -557,19 +557,11 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   }
 
   private __updateMorphOffsetsUniformBuffers() {
-    let i = 0;
-    let morphMaxIndex = 0;
-    for (; i < Config.maxMorphPrimitiveNumber; i++) {
-      const primitive = Primitive.getPrimitiveHasMorph(i);
-      if (primitive != null) {
-        morphMaxIndex = Config.maxMorphTargetNumber * i + primitive.targets.length - 1;
-      } else {
-        break;
-      }
-    }
+    const morphMaxIndex = Primitive.getPrimitiveCountHasMorph();
     if (morphMaxIndex !== this.__lastMorphMaxIndex) {
       this.__updateMorphOffsetsUniformBuffersInner();
       this.deleteDataTexture();
+      this.__lastMorphMaxIndex = morphMaxIndex;
     }
   }
 

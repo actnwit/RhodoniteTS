@@ -748,6 +748,10 @@ export class Primitive extends RnObject {
     this.calcFingerPrint();
   }
 
+  static getPrimitiveCountHasMorph() {
+    return this.__primitiveCountHasMorph;
+  }
+
   /**
    * Gets a copy of the blend shape targets for this primitive.
    * @returns A copy of the morph target array
