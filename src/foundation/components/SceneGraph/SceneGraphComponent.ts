@@ -46,9 +46,11 @@ export class SceneGraphComponent extends Component {
   private _worldMatrix: MutableMatrix44 = MutableMatrix44.dummy();
   private _worldMatrixRest: MutableMatrix44 = MutableMatrix44.identity();
   private _normalMatrix: MutableMatrix33 = MutableMatrix33.dummy();
+  private _worldRotation: MutableQuaternion = MutableQuaternion.identity();
   private __isWorldMatrixUpToDate = false;
   private __isWorldMatrixRestUpToDate = false;
   private __isNormalMatrixUpToDate = false;
+  private __isWorldRotationUpToDate = false;
   private __worldMergedAABBWithSkeletal = new AABB();
   private __worldMergedAABB = new AABB();
   private __isWorldAABBDirty = true;
@@ -436,6 +438,7 @@ export class SceneGraphComponent extends Component {
   setWorldMatrixDirtyRecursively() {
     this.__isWorldMatrixUpToDate = false;
     this.__isNormalMatrixUpToDate = false;
+    this.__isWorldRotationUpToDate = false;
     this.__isWorldAABBDirty = true;
 
     this.children.forEach(child => {
@@ -1226,15 +1229,38 @@ export class SceneGraphComponent extends Component {
   }
 
   /**
+   * Updates the cached world rotation if it is dirty.
+   * This avoids repeated recursive traversal across the hierarchy.
+   */
+  private __getWorldRotationInner(): MutableQuaternion {
+    const localRotation = this.entity.getTransform().localRotationInner;
+
+    if (this.__parent == null || this.toMakeWorldMatrixTheSameAsLocalMatrix) {
+      if (!this.__isWorldRotationUpToDate) {
+        this._worldRotation.copyComponents(localRotation);
+        this.__isWorldRotationUpToDate = true;
+      }
+      return this._worldRotation;
+    }
+
+    if (!this.__isWorldRotationUpToDate) {
+      Quaternion.multiplyTo(this.__parent.__getWorldRotationInner(), localRotation, this._worldRotation);
+      this.__isWorldRotationUpToDate = true;
+    }
+
+    return this._worldRotation;
+  }
+
+  /**
    * Gets the world rotation as a quaternion.
    * @returns The world rotation quaternion
    */
   get rotation(): Quaternion {
-    const parent = this.parent;
-    if (parent != null) {
-      return Quaternion.multiply(parent.rotation, this.entity.getTransform().localRotationInner);
+    if (this.__parent == null || this.toMakeWorldMatrixTheSameAsLocalMatrix) {
+      return this.entity.getTransform().localRotationInner;
     }
-    return this.entity.getTransform().localRotationInner;
+
+    return this.__getWorldRotationInner().clone();
   }
 
   /**
@@ -1243,16 +1269,8 @@ export class SceneGraphComponent extends Component {
    * @returns The output quaternion containing the world rotation
    */
   getRotationTo(outQuat: MutableQuaternion): MutableQuaternion {
-    const parent = this.parent;
-    if (parent != null) {
-      return Quaternion.multiplyTo(
-        parent.getRotationTo(SceneGraphComponent.__tmp_quat_0),
-        this.entity.getTransform().localRotationInner,
-        outQuat
-      ) as MutableQuaternion;
-    }
-    const quat = this.entity.getTransform().localRotationInner;
-    outQuat.setComponents(quat._v[0], quat._v[1], quat._v[2], quat._v[3]);
+    const worldRotation = this.__getWorldRotationInner();
+    outQuat.setComponents(worldRotation._v[0], worldRotation._v[1], worldRotation._v[2], worldRotation._v[3]);
     return outQuat;
   }
 
@@ -1359,6 +1377,7 @@ export class SceneGraphComponent extends Component {
     this.__isWorldMatrixUpToDate = false;
     this.__isWorldMatrixRestUpToDate = false;
     this.__isNormalMatrixUpToDate = false;
+    this.__isWorldRotationUpToDate = false;
     this.__worldMergedAABBWithSkeletal = component.__worldMergedAABBWithSkeletal.clone();
     this.__isWorldAABBDirty = true;
     this._isVisible.copyComponents(component._isVisible);
