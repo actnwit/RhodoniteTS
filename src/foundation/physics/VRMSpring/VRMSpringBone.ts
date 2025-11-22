@@ -90,8 +90,8 @@ export class VRMSpringBone extends RnObject {
 
       const currentTail =
         center != null ? center.getLocalPositionOf(initialWorldChildPosition) : initialWorldChildPosition;
-      this.currentTail.setComponents(currentTail.x, currentTail.y, currentTail.z);
-      this.prevTail.setComponents(this.currentTail.x, this.currentTail.y, this.currentTail.z);
+      this.currentTail.copyComponents(currentTail);
+      this.prevTail.copyComponents(this.currentTail);
       const localPosition =
         this.initialLocalChildPosition.length() > 0
           ? this.initialLocalChildPosition

@@ -180,12 +180,12 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     // Movement by Collision
     nextTail = this.collision(collisionGroups, nextTail, bone.hitRadius, bone);
 
-    bone.prevTail.setComponents(bone.currentTail.x, bone.currentTail.y, bone.currentTail.z);
+    bone.prevTail.copyComponents(bone.currentTail);
     const currentTail =
       center != null
         ? center.getLocalPositionOfTo(nextTail, VRMSpringBonePhysicsStrategy.__tmp_process_vec3_9)
         : nextTail;
-    bone.currentTail.setComponents(currentTail.x, currentTail.y, currentTail.z);
+    bone.currentTail.copyComponents(currentTail);
 
     const resultRotation = this.applyRotation(nextTail, bone);
 
