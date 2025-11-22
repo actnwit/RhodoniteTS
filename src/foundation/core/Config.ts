@@ -22,7 +22,7 @@ let maxLightNumber = 6;
 let maxMorphTargetNumber = 41;
 
 /**　The maximum number of morph primitives that Rhodonite can handle in WebGPU */
-let maxMorphPrimitiveNumberInWebGPU = 100;
+let maxMorphPrimitiveNumber = 100;
 
 /**
  * The number of materials per buffer view
@@ -77,7 +77,7 @@ export const Config = {
   /**　The maximum number of morph targets that Rhodonite can handle */
   maxMorphTargetNumber,
   /**　The maximum number of morph primitives that Rhodonite can handle in WebGPU */
-  maxMorphPrimitiveNumberInWebGPU,
+  maxMorphPrimitiveNumber,
   /**
    * Number of instances of each material type to be placed consecutively in memory.
    * This is on the memory layout, and the number of material instances that can be generated is not limited by this setting.

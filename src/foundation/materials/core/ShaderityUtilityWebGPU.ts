@@ -60,7 +60,7 @@ export class ShaderityUtilityWebGPU {
     const step1 = Shaderity.fillTemplate(shaderityObject, args);
 
     const templateObject = {
-      maxMorphDataNumber: `${Math.ceil((Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4)}`,
+      maxMorphDataNumber: `${Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4)}`,
     } as unknown as TemplateObject;
 
     return Shaderity.fillTemplate(step1, templateObject);
