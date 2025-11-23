@@ -433,9 +433,25 @@ export class SceneGraphComponent extends Component {
   }
 
   /**
+   * Marks the world matrix as dirty without checking if the AABB is dirty.
+   */
+  setWorldMatrixDirtyWithoutAABBDirty() {
+    this.setWorldMatrixDirtyRecursively();
+  }
+
+  /**
    * Recursively marks the world matrix as dirty for this node and all children.
    */
   setWorldMatrixDirtyRecursively() {
+    if (
+      !this.__isWorldMatrixUpToDate &&
+      !this.__isNormalMatrixUpToDate &&
+      !this.__isWorldRotationUpToDate &&
+      this.__isWorldAABBDirty
+    ) {
+      return;
+    }
+
     this.__isWorldMatrixUpToDate = false;
     this.__isNormalMatrixUpToDate = false;
     this.__isWorldRotationUpToDate = false;
