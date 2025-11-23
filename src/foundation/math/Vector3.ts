@@ -216,6 +216,21 @@ export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVect
   }
 
   /**
+   * Adds a scaled vector to another vector and stores the result in the output vector.
+   * @param l_vec - The vector to add to
+   * @param r_vec - The vector to add
+   * @param scale - The scale to apply to the second vector
+   * @param out - The output vector to store the result
+   * @returns The output vector containing the sum
+   */
+  static addScaledVectorTo(l_vec: IVector3, r_vec: IVector3, scale: number, out: IMutableVector3) {
+    out._v[0] = l_vec._v[0] + r_vec._v[0] * scale;
+    out._v[1] = l_vec._v[1] + r_vec._v[1] * scale;
+    out._v[2] = l_vec._v[2] + r_vec._v[2] * scale;
+    return out;
+  }
+
+  /**
    * Subtracts the second vector from the first vector (static version).
    * @param l_vec - The vector to subtract from
    * @param r_vec - The vector to subtract

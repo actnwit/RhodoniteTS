@@ -224,14 +224,15 @@ export class Vrm0xImporter {
       const colliders: SphereCollider[] = [];
       const baseSg = gltfModel.asset.extras!.rnEntities![colliderGroup.node].getSceneGraph();
       for (const collider of colliderGroup.colliders) {
-        const sphereCollider = new SphereCollider();
-        sphereCollider.baseSceneGraph = baseSg;
-        sphereCollider.position = Vector3.fromCopyArray([
-          collider.offset.x,
-          collider.offset.y,
-          -collider.offset.z, // z is opposite in VRM0.x
-        ]);
-        sphereCollider.radius = collider.radius;
+        const sphereCollider = new SphereCollider(
+          Vector3.fromCopyArray([
+            collider.offset.x,
+            collider.offset.y,
+            -collider.offset.z, // z is opposite in VRM0.x
+          ]),
+          collider.radius,
+          baseSg
+        );
         colliders.push(sphereCollider);
       }
       vrmColliderGroup.sphereColliders = colliders;

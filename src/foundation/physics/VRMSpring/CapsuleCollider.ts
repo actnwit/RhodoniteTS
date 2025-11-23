@@ -1,4 +1,6 @@
 import type { SceneGraphComponent } from '../../components/SceneGraph/SceneGraphComponent';
+import type { IdentityMatrix44 } from '../../math/IdentityMatrix44';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { Vector3 } from '../../math/Vector3';
 
 /**
@@ -8,16 +10,25 @@ import { Vector3 } from '../../math/Vector3';
  */
 export class CapsuleCollider {
   /** The position of the capsule's head in local space */
-  public position = Vector3.zero();
+  private __position = Vector3.zero();
 
   /** The radius of the capsule */
-  public radius = 0;
+  private __radius = 0;
 
   /** The position of the capsule's tail in local space */
-  public tail = Vector3.zero();
+  private __tail = Vector3.zero();
 
   /** The base scene graph component used for world space transformations */
-  baseSceneGraph?: SceneGraphComponent;
+  private __baseSceneGraph?: SceneGraphComponent;
+
+  private __worldMatrix: MutableMatrix44 | IdentityMatrix44 = MutableMatrix44.dummy();
+
+  constructor(position: Vector3, radius: number, tail: Vector3, baseSceneGraph?: SceneGraphComponent) {
+    this.__position = position;
+    this.__radius = radius;
+    this.__tail = tail;
+    this.__baseSceneGraph = baseSceneGraph;
+  }
 
   /**
    * Calculates collision information between this capsule collider and a spherical bone.
@@ -29,8 +40,9 @@ export class CapsuleCollider {
    *          The direction points from the capsule surface towards the bone center.
    */
   collision(bonePosition: Vector3, boneRadius: number) {
-    const spherePosWorld = this.baseSceneGraph!.getWorldPositionOf(this.position);
-    let tailPosWorld = this.baseSceneGraph!.getWorldPositionOf(this.tail);
+    this.__worldMatrix = this.__baseSceneGraph?.matrixInner ?? MutableMatrix44.identity();
+    const spherePosWorld = this.__worldMatrix.multiplyVector3(this.__position);
+    let tailPosWorld = this.__worldMatrix.multiplyVector3(this.__tail);
     tailPosWorld = Vector3.subtract(tailPosWorld, spherePosWorld);
     const lengthSqCapsule = tailPosWorld.lengthSquared();
     let direction = Vector3.subtract(bonePosition, spherePosWorld);
@@ -48,7 +60,7 @@ export class CapsuleCollider {
       direction = Vector3.subtract(direction, tailPosWorld);
     }
 
-    const radius = this.radius + boneRadius;
+    const radius = this.__radius + boneRadius;
     const distance = direction.length() - radius;
     direction = Vector3.normalize(direction);
 
