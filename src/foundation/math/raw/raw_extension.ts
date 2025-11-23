@@ -753,25 +753,59 @@ const mulThatAndThisToOutAsMat44_offsetAsComposition_fn = function (
   const l = thatOffsetAsComposition * 16;
   const r = thisOffsetAsComposition * 16;
 
-  out[0] = lv[l] * this[r] + lv[l + 4] * this[r + 1] + lv[l + 8] * this[r + 2] + lv[l + 12] * this[r + 3]; // m00
-  out[1] = lv[l + 1] * this[r] + lv[l + 5] * this[r + 1] + lv[l + 9] * this[r + 2] + lv[l + 13] * this[r + 3]; // m10
-  out[2] = lv[l + 2] * this[r] + lv[l + 6] * this[r + 1] + lv[l + 10] * this[r + 2] + lv[l + 14] * this[r + 3]; // m20
-  out[3] = lv[l + 3] * this[r] + lv[l + 7] * this[r + 1] + lv[l + 11] * this[r + 2] + lv[l + 15] * this[r + 3]; // m30
+  const lv0 = lv[l];
+  const lv1 = lv[l + 1];
+  const lv2 = lv[l + 2];
+  const lv3 = lv[l + 3];
+  const lv4 = lv[l + 4];
+  const lv5 = lv[l + 5];
+  const lv6 = lv[l + 6];
+  const lv7 = lv[l + 7];
+  const lv8 = lv[l + 8];
+  const lv9 = lv[l + 9];
+  const lv10 = lv[l + 10];
+  const lv11 = lv[l + 11];
+  const lv12 = lv[l + 12];
+  const lv13 = lv[l + 13];
+  const lv14 = lv[l + 14];
+  const lv15 = lv[l + 15];
 
-  out[4] = lv[l] * this[r + 4] + lv[l + 4] * this[r + 5] + lv[l + 8] * this[r + 6] + lv[l + 12] * this[r + 7]; // m01
-  out[5] = lv[l + 1] * this[r + 4] + lv[l + 5] * this[r + 5] + lv[l + 9] * this[r + 6] + lv[l + 13] * this[r + 7]; // m11
-  out[6] = lv[l + 2] * this[r + 4] + lv[l + 6] * this[r + 5] + lv[l + 10] * this[r + 6] + lv[l + 14] * this[r + 7]; // m21
-  out[7] = lv[l + 3] * this[r + 4] + lv[l + 7] * this[r + 5] + lv[l + 11] * this[r + 6] + lv[l + 15] * this[r + 7]; // m31
+  const this0 = this[r];
+  const this1 = this[r + 1];
+  const this2 = this[r + 2];
+  const this3 = this[r + 3];
+  const this4 = this[r + 4];
+  const this5 = this[r + 5];
+  const this6 = this[r + 6];
+  const this7 = this[r + 7];
+  const this8 = this[r + 8];
+  const this9 = this[r + 9];
+  const this10 = this[r + 10];
+  const this11 = this[r + 11];
+  const this12 = this[r + 12];
+  const this13 = this[r + 13];
+  const this14 = this[r + 14];
+  const this15 = this[r + 15];
 
-  out[8] = lv[l] * this[r + 8] + lv[l + 4] * this[r + 9] + lv[l + 8] * this[r + 10] + lv[l + 12] * this[r + 11]; // m02
-  out[9] = lv[l + 1] * this[r + 8] + lv[l + 5] * this[r + 9] + lv[l + 9] * this[r + 10] + lv[l + 13] * this[r + 11]; // m12
-  out[10] = lv[l + 2] * this[r + 8] + lv[l + 6] * this[r + 9] + lv[l + 10] * this[r + 10] + lv[l + 14] * this[r + 11]; // m22
-  out[11] = lv[l + 3] * this[r + 8] + lv[l + 7] * this[r + 9] + lv[l + 11] * this[r + 10] + lv[l + 15] * this[r + 11]; // m32
+  out[0] = lv0 * this0 + lv4 * this1 + lv8 * this2 + lv12 * this3; // m00
+  out[1] = lv1 * this0 + lv5 * this1 + lv9 * this2 + lv13 * this3; // m10
+  out[2] = lv2 * this0 + lv6 * this1 + lv10 * this2 + lv14 * this3; // m20
+  out[3] = lv3 * this0 + lv7 * this1 + lv11 * this2 + lv15 * this3; // m30
 
-  out[12] = lv[l] * this[r + 12] + lv[l + 4] * this[r + 13] + lv[l + 8] * this[r + 14] + lv[l + 12] * this[r + 15]; // m03
-  out[13] = lv[l + 1] * this[r + 12] + lv[l + 5] * this[r + 13] + lv[l + 9] * this[r + 14] + lv[l + 13] * this[r + 15]; // m13
-  out[14] = lv[l + 2] * this[r + 12] + lv[l + 6] * this[r + 13] + lv[l + 10] * this[r + 14] + lv[l + 14] * this[r + 15]; // m23
-  out[15] = lv[l + 3] * this[r + 12] + lv[l + 7] * this[r + 13] + lv[l + 11] * this[r + 14] + lv[l + 15] * this[r + 15]; // m33
+  out[4] = lv0 * this4 + lv4 * this5 + lv8 * this6 + lv12 * this7; // m01
+  out[5] = lv1 * this4 + lv5 * this5 + lv9 * this6 + lv13 * this7; // m11
+  out[6] = lv2 * this4 + lv6 * this5 + lv10 * this6 + lv14 * this7; // m21
+  out[7] = lv3 * this4 + lv7 * this5 + lv11 * this6 + lv15 * this7; // m31
+
+  out[8] = lv0 * this8 + lv4 * this9 + lv8 * this10 + lv12 * this11; // m02
+  out[9] = lv1 * this8 + lv5 * this9 + lv9 * this10 + lv13 * this11; // m12
+  out[10] = lv2 * this8 + lv6 * this9 + lv10 * this10 + lv14 * this11; // m22
+  out[11] = lv3 * this8 + lv7 * this9 + lv11 * this10 + lv15 * this11; // m32
+
+  out[12] = lv0 * this12 + lv4 * this13 + lv8 * this14 + lv12 * this15; // m03
+  out[13] = lv1 * this12 + lv5 * this13 + lv9 * this14 + lv13 * this15; // m13
+  out[14] = lv2 * this12 + lv6 * this13 + lv10 * this14 + lv14 * this15; // m23
+  out[15] = lv3 * this12 + lv7 * this13 + lv11 * this14 + lv15 * this15; // m33
 };
 
 /**
