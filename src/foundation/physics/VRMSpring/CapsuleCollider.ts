@@ -28,7 +28,6 @@ export class CapsuleCollider {
     this.__radius = radius;
     this.__tail = tail;
     this.__baseSceneGraph = baseSceneGraph;
-    this.__worldMatrix = baseSceneGraph?.matrixInner ?? MutableMatrix44.identity();
   }
 
   /**
@@ -41,6 +40,7 @@ export class CapsuleCollider {
    *          The direction points from the capsule surface towards the bone center.
    */
   collision(bonePosition: Vector3, boneRadius: number) {
+    this.__worldMatrix = this.__baseSceneGraph?.matrixInner ?? MutableMatrix44.identity();
     const spherePosWorld = this.__worldMatrix.multiplyVector3(this.__position);
     let tailPosWorld = this.__worldMatrix.multiplyVector3(this.__tail);
     tailPosWorld = Vector3.subtract(tailPosWorld, spherePosWorld);

@@ -30,7 +30,6 @@ export class SphereCollider {
     this.__position = position;
     this.__radius = radius;
     this.__baseSceneGraph = baseSceneGraph;
-    this.__worldMatrix = baseSceneGraph?.matrixInner ?? Matrix44.identity();
   }
 
   /**
@@ -43,6 +42,7 @@ export class SphereCollider {
    *   - distance: The penetration distance (negative if penetrating, positive if separated)
    */
   collision(bonePosition: Vector3, boneRadius: number) {
+    this.__worldMatrix = this.__baseSceneGraph?.matrixInner ?? MutableMatrix44.identity();
     const spherePosWorld = this.__worldMatrix.multiplyVector3(this.__position);
     const delta = Vector3.subtractTo(bonePosition, spherePosWorld, SphereCollider.__tmp_vec3_1);
     const length = delta.length();
