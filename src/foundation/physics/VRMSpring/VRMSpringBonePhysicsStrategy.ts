@@ -301,10 +301,11 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
         const { direction, distance } = collider.collision(nextTail, boneHitRadius);
         if (distance < 0) {
           // Hit
-          nextTail = Vector3.addTo(
+          nextTail = Vector3.addScaledVectorTo(
             nextTail,
-            Vector3.multiplyTo(direction, -distance, VRMSpringBonePhysicsStrategy.__tmp_collision_vec3_0),
-            VRMSpringBonePhysicsStrategy.__tmp_collision_vec3_1
+            direction,
+            -distance,
+            VRMSpringBonePhysicsStrategy.__tmp_collision_vec3_0
           );
 
           // normalize bone length
@@ -315,10 +316,11 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
         const { direction, distance } = collider.collision(nextTail, boneHitRadius);
         if (distance < 0) {
           // Hit
-          nextTail = Vector3.addTo(
+          nextTail = Vector3.addScaledVectorTo(
             nextTail,
-            Vector3.multiplyTo(direction, -distance, VRMSpringBonePhysicsStrategy.__tmp_collision_vec3_2),
-            VRMSpringBonePhysicsStrategy.__tmp_collision_vec3_3
+            direction,
+            -distance,
+            VRMSpringBonePhysicsStrategy.__tmp_collision_vec3_1
           );
 
           // normalize bone length
