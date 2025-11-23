@@ -110,6 +110,7 @@ export class ForwardRenderPipeline extends RnObject {
   private __bloomHelper: Bloom = new Bloom();
   private __oShadowSystem: Option<ShadowSystem> = new None();
   private __shadowExpressions: Expression[] = [];
+  private __entitiesForShadow: ISceneGraphEntity[] = [];
 
   /**
    * Destroys all allocated 3D API resources including frame buffers and textures.
@@ -411,11 +412,20 @@ export class ForwardRenderPipeline extends RnObject {
 
     this.__oDrawFunc = new Some(func);
 
+    this.__setUpExpressionsForRendering();
+
     System.startRenderLoop(() => {
+      if (this.__oShadowSystem.has()) {
+        // update shadow expressions if shadow mapping is enabled
+        const entities = this.__entitiesForShadow;
+        if (this.__oShadowSystem.get().isLightChanged()) {
+          this.__shadowExpressions = this.__oShadowSystem.get().getExpressions(entities);
+          this.__setUpExpressionsForRendering();
+        }
+        this.__oShadowSystem.get().setDepthBiasPV(entities);
+      }
       func(this.__oFrame.unwrapForce());
     });
-
-    this.__setUpExpressionsForRendering();
 
     return new Ok();
   }
@@ -1289,15 +1299,9 @@ export class ForwardRenderPipeline extends RnObject {
       frame.addExpression(this.__gizmoExpression);
     }
 
-    if (this.__oShadowSystem.has()) {
-      // update shadow expressions if shadow mapping is enabled
-      const entities = this.__expressions.flatMap(expression =>
-        expression.renderPasses.flatMap(renderPass => renderPass.entities)
-      ) as ISceneGraphEntity[];
-      if (this.__oShadowSystem.get().isLightChanged()) {
-        this.__shadowExpressions = this.__oShadowSystem.get().getExpressions(entities);
-      }
-      this.__oShadowSystem.get().setDepthBiasPV(entities);
-    }
+    const entities = this.__expressions.flatMap(expression =>
+      expression.renderPasses.flatMap(renderPass => renderPass.entities)
+    ) as ISceneGraphEntity[];
+    this.__entitiesForShadow = entities;
   }
 }
