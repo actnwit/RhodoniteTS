@@ -206,16 +206,17 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
    * @returns The normalized tail position maintaining the original bone length
    */
   normalizeBoneLength(nextTail: Vector3, bone: VRMSpringBone) {
+    const boneSg = bone.node.getSceneGraph();
     const sub = Vector3.normalizeTo(
       Vector3.subtractTo(
         nextTail,
-        bone.node.getSceneGraph().getPositionTo(VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_4),
+        boneSg.getPositionTo(VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_4),
         VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_0
       ),
       VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_1
     );
     return Vector3.addTo(
-      bone.node.getSceneGraph().getPositionTo(VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_5),
+      boneSg.getPositionTo(VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_5),
       Vector3.multiplyTo(sub, bone.boneLength, VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_2),
       VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_3
     );
