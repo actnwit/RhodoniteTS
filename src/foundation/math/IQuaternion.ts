@@ -1,6 +1,7 @@
 import type { TypedArray } from '../../types/CommonTypes';
 import type { IMatrix44 } from './IMatrix';
 import type { IMutableVector3, IVector3 } from './IVector';
+import type { Vector3 } from './Vector3';
 
 /**
  * Immutable quaternion interface representing a rotation in 3D space.
@@ -124,7 +125,7 @@ export interface IQuaternion {
    * @param out - The output vector to store the result
    * @returns The output vector containing the transformed result
    */
-  transformVector3To(vec: IVector3, out: IMutableVector3): IVector3;
+  transformVector3To(vec: IVector3, out: IMutableVector3): Vector3;
 
   /**
    * Transforms a 3D vector by the inverse of this quaternion rotation.

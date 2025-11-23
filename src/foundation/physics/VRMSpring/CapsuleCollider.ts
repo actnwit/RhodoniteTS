@@ -21,7 +21,7 @@ export class CapsuleCollider {
   private __tail = Vector3.zero();
 
   /** The base scene graph component used for world space transformations */
-  private __baseSceneGraph?: SceneGraphComponent;
+  private __baseSceneGraph: SceneGraphComponent;
 
   private __worldMatrix: MutableMatrix44 = MutableMatrix44.dummy();
   private __worldHead = MutableVector3.zero();
@@ -31,7 +31,7 @@ export class CapsuleCollider {
   private static __tmp_vec3_0 = MutableVector3.zero();
   private static __tmp_vec3_1 = MutableVector3.zero();
 
-  constructor(position: Vector3, radius: number, tail: Vector3, baseSceneGraph?: SceneGraphComponent) {
+  constructor(position: Vector3, radius: number, tail: Vector3, baseSceneGraph: SceneGraphComponent) {
     this.__position = position;
     this.__radius = radius;
     this.__tail = tail;
@@ -43,7 +43,7 @@ export class CapsuleCollider {
    * Should be called once per frame before collision checks.
    */
   updateWorldState() {
-    this.__worldMatrix = this.__baseSceneGraph?.matrixInner ?? MutableMatrix44.fromCopyMatrix44(Matrix44.identity());
+    this.__worldMatrix = this.__baseSceneGraph.matrixInner;
     this.__worldMatrix.multiplyVector3To(this.__position, this.__worldHead);
     this.__worldMatrix.multiplyVector3To(this.__tail, this.__worldTailOffset);
     Vector3.subtractTo(this.__worldTailOffset, this.__worldHead, this.__worldTailOffset);

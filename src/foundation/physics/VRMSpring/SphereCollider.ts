@@ -17,14 +17,14 @@ export class SphereCollider {
   private __radius = 0;
 
   /** The base scene graph component that defines the transform space for this collider */
-  private __baseSceneGraph?: SceneGraphComponent;
+  private __baseSceneGraph: SceneGraphComponent;
 
   private __worldPosition = MutableVector3.zero();
 
   private static __tmp_vec3_1 = MutableVector3.zero();
   private static __tmp_vec3_2 = MutableVector3.zero();
 
-  constructor(position: Vector3, radius: number, baseSceneGraph?: SceneGraphComponent) {
+  constructor(position: Vector3, radius: number, baseSceneGraph: SceneGraphComponent) {
     this.__position = position;
     this.__radius = radius;
     this.__baseSceneGraph = baseSceneGraph;
@@ -35,8 +35,7 @@ export class SphereCollider {
    * Should be called once per frame before collision checks.
    */
   updateWorldState() {
-    const baseMatrix =
-      this.__baseSceneGraph?.matrixInner ?? MutableMatrix44.fromCopyMatrix44(Matrix44.identity());
+    const baseMatrix = this.__baseSceneGraph.matrixInner;
     baseMatrix.multiplyVector3To(this.__position, this.__worldPosition);
   }
 
@@ -52,10 +51,9 @@ export class SphereCollider {
   collision(bonePosition: Vector3, boneRadius: number) {
     const delta = Vector3.subtractTo(bonePosition, this.__worldPosition, SphereCollider.__tmp_vec3_1);
     const length = delta.length();
-    const direction = Vector3.divideTo(delta, length, SphereCollider.__tmp_vec3_2);
     const radius = this.__radius + boneRadius;
     const distance = length - radius;
 
-    return { direction, distance };
+    return { distance, direction: distance < 0 ? Vector3.divideTo(delta, length, SphereCollider.__tmp_vec3_2) : delta };
   }
 }
