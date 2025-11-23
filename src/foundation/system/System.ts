@@ -111,11 +111,11 @@ export class System {
     if (this.__rnXRModule === undefined) {
       this.__rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
     }
+    const webXRSystem = this.__rnXRModule!.WebXRSystem.getInstance();
+    const webARSystem = this.__rnXRModule!.WebARSystem.getInstance();
 
-    this.__animationFrameId = animationFrameObject.requestAnimationFrame(((_time: number, xrFrame: XRFrame) => {
+    const __renderLoopFunc = ((_time: number, xrFrame: XRFrame) => {
       if (this.__rnXRModule !== undefined) {
-        const webXRSystem = this.__rnXRModule.WebXRSystem.getInstance();
-        const webARSystem = this.__rnXRModule.WebARSystem.getInstance();
         if (webXRSystem.isReadyForWebXR) {
           webXRSystem._preRender(_time, xrFrame);
           renderLoopFunc.apply(renderLoopFunc, [_time, ...args]);
@@ -130,9 +130,10 @@ export class System {
       } else {
         renderLoopFunc.apply(renderLoopFunc, [_time, ...args]);
       }
+      this.__animationFrameId = animationFrameObject.requestAnimationFrame(__renderLoopFunc);
+    }) as FrameRequestCallback;
 
-      this.startRenderLoop(renderLoopFunc, ...args);
-    }) as FrameRequestCallback);
+    this.__animationFrameId = animationFrameObject.requestAnimationFrame(__renderLoopFunc);
   }
 
   private static __getAnimationFrameObject(): Window | XRSession {

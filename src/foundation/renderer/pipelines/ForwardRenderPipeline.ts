@@ -273,6 +273,8 @@ export class ForwardRenderPipeline extends RnObject {
       this.setExpressions(this.__expressions);
     }
 
+    this.__setUpExpressionsForRendering();
+
     return new Ok();
   }
 
@@ -362,6 +364,8 @@ export class ForwardRenderPipeline extends RnObject {
       ) as ISceneGraphEntity[];
       this.__shadowExpressions = this.__oShadowSystem.get().getExpressions(entities);
     }
+
+    this.__setUpExpressionsForRendering();
   }
 
   public setGizmoExpression(expression: Expression) {
@@ -408,20 +412,10 @@ export class ForwardRenderPipeline extends RnObject {
     this.__oDrawFunc = new Some(func);
 
     System.startRenderLoop(() => {
-      this.__setExpressions();
-
-      if (this.__oShadowSystem.has()) {
-        // update shadow expressions if shadow mapping is enabled
-        const entities = this.__expressions.flatMap(expression =>
-          expression.renderPasses.flatMap(renderPass => renderPass.entities)
-        ) as ISceneGraphEntity[];
-        if (this.__oShadowSystem.get().isLightChanged()) {
-          this.__shadowExpressions = this.__oShadowSystem.get().getExpressions(entities);
-        }
-        this.__oShadowSystem.get().setDepthBiasPV(entities);
-      }
       func(this.__oFrame.unwrapForce());
     });
+
+    this.__setUpExpressionsForRendering();
 
     return new Ok();
   }
@@ -548,6 +542,8 @@ export class ForwardRenderPipeline extends RnObject {
     }
     this.__setIblInner();
     this.__setIblInnerForTransparentOnly();
+
+    this.__setUpExpressionsForRendering();
   }
 
   /**
@@ -1215,9 +1211,9 @@ export class ForwardRenderPipeline extends RnObject {
    *
    * @internal
    */
-  private __setExpressions() {
+  private __setUpExpressionsForRendering() {
     if (this.__oFrame.doesNotHave()) {
-      console.error('Frame is not set.');
+      console.log('Frame is not set.');
       return;
     }
     const frame = this.__oFrame.get();
@@ -1291,6 +1287,17 @@ export class ForwardRenderPipeline extends RnObject {
     // gizmo expression for rendering gizmos
     if (this.__gizmoExpression.renderPasses.length > 0) {
       frame.addExpression(this.__gizmoExpression);
+    }
+
+    if (this.__oShadowSystem.has()) {
+      // update shadow expressions if shadow mapping is enabled
+      const entities = this.__expressions.flatMap(expression =>
+        expression.renderPasses.flatMap(renderPass => renderPass.entities)
+      ) as ISceneGraphEntity[];
+      if (this.__oShadowSystem.get().isLightChanged()) {
+        this.__shadowExpressions = this.__oShadowSystem.get().getExpressions(entities);
+      }
+      this.__oShadowSystem.get().setDepthBiasPV(entities);
     }
   }
 }
