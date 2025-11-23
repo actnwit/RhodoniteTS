@@ -316,12 +316,27 @@ export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVect
     const resultY = (mat._v[1] * x + mat._v[5] * y + mat._v[9] * z + mat._v[13]) * w;
     const resultZ = (mat._v[2] * x + mat._v[6] * y + mat._v[10] * z + mat._v[14]) * w;
 
-    // const w = 1 / (mat._v[12] * x + mat._v[13] * y + mat._v[14] * z + mat._v[15]);
-    // const resultX = (mat._v[0] * x + mat._v[1] * y + mat._v[2] * z + mat._v[3]) * w;
-    // const resultY = (mat._v[4] * x + mat._v[5] * y + mat._v[6] * z + mat._v[7]) * w;
-    // const resultZ = (mat._v[8] * x + mat._v[9] * y + mat._v[10] * z + mat._v[11]) * w;
-
     return this._fromCopyArray([resultX, resultY, resultZ], type);
+  }
+
+  /**
+   * Transforms a 3D vector by a 4x4 matrix, treating the vector as a point (w=1).
+   * The result is perspective-divided if the w component is not 1.
+   * @param vec - The vector to transform
+   * @param mat - The 4x4 transformation matrix
+   * @param out - The output vector to store the result
+   * @returns A new transformed vector
+   */
+  static multiplyMatrix4To(vec: IVector3, mat: IMatrix44, out: IMutableVector3) {
+    const x = vec._v[0];
+    const y = vec._v[1];
+    const z = vec._v[2];
+    const w = 1 / (mat._v[3] * x + mat._v[7] * y + mat._v[11] * z + mat._v[15]);
+    const resultX = (mat._v[0] * x + mat._v[4] * y + mat._v[8] * z + mat._v[12]) * w;
+    const resultY = (mat._v[1] * x + mat._v[5] * y + mat._v[9] * z + mat._v[13]) * w;
+    const resultZ = (mat._v[2] * x + mat._v[6] * y + mat._v[10] * z + mat._v[14]) * w;
+
+    return out.setComponents(resultX, resultY, resultZ);
   }
 
   /**
