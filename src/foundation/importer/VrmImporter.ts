@@ -222,29 +222,31 @@ export class VrmImporter {
 
           const baseSg = gltfModel.asset.extras!.rnEntities![collider.node].getSceneGraph();
           if (Is.exist(collider.shape.sphere)) {
-            const sphereCollider = new SphereCollider();
-            sphereCollider.baseSceneGraph = baseSg;
-            sphereCollider.position = Vector3.fromCopyArray([
-              collider.shape.sphere.offset[0],
-              collider.shape.sphere.offset[1],
-              collider.shape.sphere.offset[2],
-            ]);
-            sphereCollider.radius = collider.shape.sphere.radius;
+            const sphereCollider = new SphereCollider(
+              Vector3.fromCopyArray([
+                collider.shape.sphere.offset[0],
+                collider.shape.sphere.offset[1],
+                collider.shape.sphere.offset[2],
+              ]),
+              collider.shape.sphere.radius,
+              baseSg
+            );
             vrmColliderGroup.sphereColliders.push(sphereCollider);
           } else if (Is.exist(collider.shape.capsule)) {
-            const capsuleCollider = new CapsuleCollider();
-            capsuleCollider.baseSceneGraph = baseSg;
-            capsuleCollider.position = Vector3.fromCopyArray([
-              collider.shape.capsule.offset[0],
-              collider.shape.capsule.offset[1],
-              collider.shape.capsule.offset[2],
-            ]);
-            capsuleCollider.radius = collider.shape.capsule.radius;
-            capsuleCollider.tail = Vector3.fromCopyArray([
-              collider.shape.capsule.tail[0],
-              collider.shape.capsule.tail[1],
-              collider.shape.capsule.tail[2],
-            ]);
+            const capsuleCollider = new CapsuleCollider(
+              Vector3.fromCopyArray([
+                collider.shape.capsule.offset[0],
+                collider.shape.capsule.offset[1],
+                collider.shape.capsule.offset[2],
+              ]),
+              collider.shape.capsule.radius,
+              Vector3.fromCopyArray([
+                collider.shape.capsule.tail[0],
+                collider.shape.capsule.tail[1],
+                collider.shape.capsule.tail[2],
+              ]),
+              baseSg
+            );
             vrmColliderGroup.capsuleColliders.push(capsuleCollider);
           }
         }

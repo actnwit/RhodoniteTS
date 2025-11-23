@@ -1,4 +1,7 @@
 import type { SceneGraphComponent } from '../../components/SceneGraph/SceneGraphComponent';
+import type { IdentityMatrix44 } from '../../math/IdentityMatrix44';
+import { Matrix44 } from '../../math/Matrix44';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { MutableVector3 } from '../../math/MutableVector3';
 import { Vector3 } from '../../math/Vector3';
 
@@ -9,17 +12,26 @@ import { Vector3 } from '../../math/Vector3';
  */
 export class SphereCollider {
   /** The local position of the sphere collider relative to its base scene graph node */
-  public position = Vector3.zero();
+  private __position = Vector3.zero();
 
   /** The radius of the sphere collider */
-  public radius = 0;
+  private __radius = 0;
 
   /** The base scene graph component that defines the transform space for this collider */
-  baseSceneGraph?: SceneGraphComponent;
+  private __baseSceneGraph?: SceneGraphComponent;
+
+  private __worldMatrix: MutableMatrix44 | IdentityMatrix44 = MutableMatrix44.dummy();
 
   private static __tmp_vec3_0 = MutableVector3.zero();
   private static __tmp_vec3_1 = MutableVector3.zero();
   private static __tmp_vec3_2 = MutableVector3.zero();
+
+  constructor(position: Vector3, radius: number, baseSceneGraph?: SceneGraphComponent) {
+    this.__position = position;
+    this.__radius = radius;
+    this.__baseSceneGraph = baseSceneGraph;
+    this.__worldMatrix = baseSceneGraph?.matrixInner ?? Matrix44.identity();
+  }
 
   /**
    * Calculates collision information between this sphere collider and a bone.
@@ -31,11 +43,11 @@ export class SphereCollider {
    *   - distance: The penetration distance (negative if penetrating, positive if separated)
    */
   collision(bonePosition: Vector3, boneRadius: number) {
-    const spherePosWorld = this.baseSceneGraph!.getWorldPositionOfTo(this.position, SphereCollider.__tmp_vec3_0);
+    const spherePosWorld = this.__worldMatrix.multiplyVector3(this.__position);
     const delta = Vector3.subtractTo(bonePosition, spherePosWorld, SphereCollider.__tmp_vec3_1);
     const length = delta.length();
     const direction = Vector3.divideTo(delta, length, SphereCollider.__tmp_vec3_2);
-    const radius = this.radius + boneRadius;
+    const radius = this.__radius + boneRadius;
     const distance = length - radius;
 
     return { direction, distance };
