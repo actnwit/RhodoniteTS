@@ -191,7 +191,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     const resultRotation = this.applyRotation(nextTail, bone, worldSpacePosition);
 
     bone.node.localRotation = resultRotation;
-    bone.node.getSceneGraph().setWorldMatrixDirty();
+    bone.node.getSceneGraph().setWorldMatrixDirtyWithoutAABBDirty();
   }
 
   /**
