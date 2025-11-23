@@ -192,7 +192,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
         : nextTail;
     bone.currentTail.copyComponents(currentTail);
 
-    const resultRotation = this.applyRotation(nextTail, bone);
+    const resultRotation = this.applyRotation(nextTail, bone, worldSpacePosition);
 
     bone.node.localRotation = resultRotation;
     bone.node.getSceneGraph().setWorldMatrixDirty();
@@ -211,13 +211,15 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
    * @returns The normalized tail position maintaining the original bone length
    */
   normalizeBoneLength(nextTail: Vector3, worldSpacePosition: Vector3, bone: VRMSpringBone) {
-    const sub = Vector3.normalizeTo(
-      Vector3.subtractTo(nextTail, worldSpacePosition, VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_0),
-      VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_1
+    const sub = Vector3.subtractTo(
+      nextTail,
+      worldSpacePosition,
+      VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_0
     );
+    const length = sub.length();
     return Vector3.addTo(
       worldSpacePosition,
-      Vector3.multiplyTo(sub, bone.boneLength, VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_2),
+      Vector3.multiplyTo(sub, bone.boneLength / length, VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_2),
       VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_3
     );
   }
@@ -233,10 +235,10 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
    * @param bone - The spring bone to apply rotation to
    * @returns The calculated local rotation quaternion for the bone
    */
-  applyRotation(nextTail: Vector3, bone: VRMSpringBone) {
+  applyRotation(nextTail: Vector3, bone: VRMSpringBone, worldSpacePosition: Vector3) {
     const sub = Vector3.subtractTo(
       nextTail,
-      bone.node.getSceneGraph().getPositionTo(VRMSpringBonePhysicsStrategy.__tmp_applyRotation_vec3_3),
+      worldSpacePosition,
       VRMSpringBonePhysicsStrategy.__tmp_applyRotation_vec3_0
     );
     let to = Quaternion.invertTo(
