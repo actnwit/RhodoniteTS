@@ -110,6 +110,7 @@ export class ForwardRenderPipeline extends RnObject {
   private __bloomHelper: Bloom = new Bloom();
   private __oShadowSystem: Option<ShadowSystem> = new None();
   private __shadowExpressions: Expression[] = [];
+  private __entitiesForShadow: ISceneGraphEntity[] = [];
 
   /**
    * Destroys all allocated 3D API resources including frame buffers and textures.
@@ -416,9 +417,7 @@ export class ForwardRenderPipeline extends RnObject {
     System.startRenderLoop(() => {
       if (this.__oShadowSystem.has()) {
         // update shadow expressions if shadow mapping is enabled
-        const entities = this.__expressions.flatMap(expression =>
-          expression.renderPasses.flatMap(renderPass => renderPass.entities)
-        ) as ISceneGraphEntity[];
+        const entities = this.__entitiesForShadow;
         if (this.__oShadowSystem.get().isLightChanged()) {
           this.__shadowExpressions = this.__oShadowSystem.get().getExpressions(entities);
           this.__setUpExpressionsForRendering();
@@ -1299,5 +1298,10 @@ export class ForwardRenderPipeline extends RnObject {
     if (this.__gizmoExpression.renderPasses.length > 0) {
       frame.addExpression(this.__gizmoExpression);
     }
+
+    const entities = this.__expressions.flatMap(expression =>
+      expression.renderPasses.flatMap(renderPass => renderPass.entities)
+    ) as ISceneGraphEntity[];
+    this.__entitiesForShadow = entities;
   }
 }
