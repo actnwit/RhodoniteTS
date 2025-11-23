@@ -101,6 +101,15 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
     const collisionGroups = spring.colliderGroups;
 
+    for (const collisionGroup of collisionGroups) {
+      for (const collider of collisionGroup.sphereColliders) {
+        collider.updateWorldState();
+      }
+      for (const collider of collisionGroup.capsuleColliders) {
+        collider.updateWorldState();
+      }
+    }
+
     for (const bone of bones) {
       // setup VRMSpringBone
       bone.setup(center);
@@ -190,7 +199,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
     const resultRotation = this.applyRotation(nextTail, bone, worldSpacePosition);
 
-    bone.node.localRotation = resultRotation;
+    bone.node.getTransform().localRotationWithoutPhysics = resultRotation;
     bone.node.getSceneGraph().setWorldMatrixDirtyWithoutAABBDirty();
   }
 
@@ -213,9 +222,10 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
       VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_0
     );
     const length = sub.length();
-    return Vector3.addTo(
+    return Vector3.addScaledVectorTo(
       worldSpacePosition,
-      Vector3.multiplyTo(sub, bone.boneLength / length, VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_2),
+      sub,
+      bone.boneLength / length,
       VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_3
     );
   }
@@ -245,12 +255,14 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
       ),
       VRMSpringBonePhysicsStrategy.__tmp_applyRotation_quat_1
     ).transformVector3To(sub, VRMSpringBonePhysicsStrategy.__tmp_applyRotation_vec3_1);
-    if (to.length() === 0) {
+    let length = to.length();
+    if (length < Number.EPSILON) {
       to = bone.boneAxis;
+      length = bone.boneAxis.length();
     }
     const rot = Quaternion.fromToRotationTo(
       bone.boneAxis,
-      Vector3.normalizeTo(to, VRMSpringBonePhysicsStrategy.__tmp_applyRotation_vec3_2),
+      Vector3.divideTo(to, length, VRMSpringBonePhysicsStrategy.__tmp_applyRotation_vec3_2),
       VRMSpringBonePhysicsStrategy.__tmp_applyRotation_quat_2
     );
     const result = Quaternion.multiplyTo(
