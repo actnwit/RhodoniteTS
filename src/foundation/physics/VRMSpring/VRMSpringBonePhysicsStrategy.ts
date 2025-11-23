@@ -156,22 +156,18 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
       bone.node.localRotationRestInner,
       VRMSpringBonePhysicsStrategy.__tmp_process_quat_0
     );
-    const stiffness = Vector3.multiplyTo(
-      rotation.transformVector3To(bone.boneAxis, VRMSpringBonePhysicsStrategy.__tmp_process_vec3_4),
-      stiffnessForce,
-      VRMSpringBonePhysicsStrategy.__tmp_process_vec3_5
-    );
 
-    // Calculate the nextTail
-    const external = Vector3.multiplyTo(
+    const stiffnessAxis = rotation.transformVector3To(bone.boneAxis, VRMSpringBonePhysicsStrategy.__tmp_process_vec3_4);
+
+    let nextTail = Vector3.addScaledVectorTo(
+      Vector3.addScaledVectorTo(
+        currentTailWithInertiaInWorld,
+        stiffnessAxis,
+        stiffnessForce,
+        VRMSpringBonePhysicsStrategy.__tmp_process_vec3_7
+      ),
       bone.gravityDir,
       bone.gravityPower * Time.intervalProcessBegin * Config.physicsTimeIntervalScale,
-      VRMSpringBonePhysicsStrategy.__tmp_process_vec3_6
-    );
-
-    let nextTail = Vector3.addTo(
-      Vector3.addTo(currentTailWithInertiaInWorld, stiffness, VRMSpringBonePhysicsStrategy.__tmp_process_vec3_7),
-      external,
       VRMSpringBonePhysicsStrategy.__tmp_process_vec3_8
     ) as IVector3;
 
