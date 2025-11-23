@@ -20,7 +20,7 @@ export class SphereCollider {
   /** The base scene graph component that defines the transform space for this collider */
   private __baseSceneGraph?: SceneGraphComponent;
 
-  private __worldMatrix: MutableMatrix44 | IdentityMatrix44 = MutableMatrix44.dummy();
+  private __worldMatrix: MutableMatrix44 = MutableMatrix44.dummy();
 
   private static __tmp_vec3_0 = MutableVector3.zero();
   private static __tmp_vec3_1 = MutableVector3.zero();
@@ -42,8 +42,8 @@ export class SphereCollider {
    *   - distance: The penetration distance (negative if penetrating, positive if separated)
    */
   collision(bonePosition: Vector3, boneRadius: number) {
-    this.__worldMatrix = this.__baseSceneGraph?.matrixInner ?? MutableMatrix44.identity();
-    const spherePosWorld = this.__worldMatrix.multiplyVector3(this.__position);
+    this.__worldMatrix = this.__baseSceneGraph?.matrixInner ?? MutableMatrix44.fromCopyMatrix44(Matrix44.identity());
+    const spherePosWorld = this.__worldMatrix.multiplyVector3To(this.__position, SphereCollider.__tmp_vec3_0);
     const delta = Vector3.subtractTo(bonePosition, spherePosWorld, SphereCollider.__tmp_vec3_1);
     const length = delta.length();
     const direction = Vector3.divideTo(delta, length, SphereCollider.__tmp_vec3_2);
