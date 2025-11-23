@@ -1,6 +1,8 @@
 import type { SceneGraphComponent } from '../../components/SceneGraph/SceneGraphComponent';
 import type { IdentityMatrix44 } from '../../math/IdentityMatrix44';
+import { Matrix44 } from '../../math/Matrix44';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
+import { MutableVector3 } from '../../math/MutableVector3';
 import { Vector3 } from '../../math/Vector3';
 
 /**
@@ -21,13 +23,31 @@ export class CapsuleCollider {
   /** The base scene graph component used for world space transformations */
   private __baseSceneGraph?: SceneGraphComponent;
 
-  private __worldMatrix: MutableMatrix44 | IdentityMatrix44 = MutableMatrix44.dummy();
+  private __worldMatrix: MutableMatrix44 = MutableMatrix44.dummy();
+  private __worldHead = MutableVector3.zero();
+  private __worldTailOffset = MutableVector3.zero();
+  private __lengthSqCapsule = 0;
+
+  private static __tmp_vec3_0 = MutableVector3.zero();
+  private static __tmp_vec3_1 = MutableVector3.zero();
 
   constructor(position: Vector3, radius: number, tail: Vector3, baseSceneGraph?: SceneGraphComponent) {
     this.__position = position;
     this.__radius = radius;
     this.__tail = tail;
     this.__baseSceneGraph = baseSceneGraph;
+  }
+
+  /**
+   * Updates cached world positions for the capsule.
+   * Should be called once per frame before collision checks.
+   */
+  updateWorldState() {
+    this.__worldMatrix = this.__baseSceneGraph?.matrixInner ?? MutableMatrix44.fromCopyMatrix44(Matrix44.identity());
+    this.__worldMatrix.multiplyVector3To(this.__position, this.__worldHead);
+    this.__worldMatrix.multiplyVector3To(this.__tail, this.__worldTailOffset);
+    Vector3.subtractTo(this.__worldTailOffset, this.__worldHead, this.__worldTailOffset);
+    this.__lengthSqCapsule = this.__worldTailOffset.lengthSquared();
   }
 
   /**
@@ -40,29 +60,26 @@ export class CapsuleCollider {
    *          The direction points from the capsule surface towards the bone center.
    */
   collision(bonePosition: Vector3, boneRadius: number) {
-    this.__worldMatrix = this.__baseSceneGraph?.matrixInner ?? MutableMatrix44.identity();
-    const spherePosWorld = this.__worldMatrix.multiplyVector3(this.__position);
-    let tailPosWorld = this.__worldMatrix.multiplyVector3(this.__tail);
-    tailPosWorld = Vector3.subtract(tailPosWorld, spherePosWorld);
-    const lengthSqCapsule = tailPosWorld.lengthSquared();
-    let direction = Vector3.subtract(bonePosition, spherePosWorld);
+    const spherePosWorld = this.__worldHead;
+    const tailPosWorld = this.__worldTailOffset;
+    let direction = Vector3.subtractTo(bonePosition, spherePosWorld, CapsuleCollider.__tmp_vec3_0);
     const dot = tailPosWorld.dot(direction);
 
     if (dot <= 0.0) {
       // if bone is near from the head
       // do nothing
-    } else if (lengthSqCapsule <= dot) {
+    } else if (this.__lengthSqCapsule <= dot) {
       // if bone is near from the tail
-      direction = Vector3.subtract(direction, tailPosWorld);
+      direction = Vector3.subtractTo(direction, tailPosWorld, CapsuleCollider.__tmp_vec3_0);
     } else {
       // if bone is between two ends
-      tailPosWorld = Vector3.multiply(tailPosWorld, dot / lengthSqCapsule);
-      direction = Vector3.subtract(direction, tailPosWorld);
+      Vector3.multiplyTo(tailPosWorld, dot / this.__lengthSqCapsule, CapsuleCollider.__tmp_vec3_1);
+      direction = Vector3.subtractTo(direction, CapsuleCollider.__tmp_vec3_1, CapsuleCollider.__tmp_vec3_0);
     }
 
     const radius = this.__radius + boneRadius;
     const distance = direction.length() - radius;
-    direction = Vector3.normalize(direction);
+    direction = Vector3.normalizeTo(direction, direction);
 
     return { direction, distance };
   }

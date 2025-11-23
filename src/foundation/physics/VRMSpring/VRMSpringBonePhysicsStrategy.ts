@@ -101,6 +101,15 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
     const collisionGroups = spring.colliderGroups;
 
+    for (const collisionGroup of collisionGroups) {
+      for (const collider of collisionGroup.sphereColliders) {
+        collider.updateWorldState();
+      }
+      for (const collider of collisionGroup.capsuleColliders) {
+        collider.updateWorldState();
+      }
+    }
+
     for (const bone of bones) {
       // setup VRMSpringBone
       bone.setup(center);
