@@ -111,8 +111,8 @@ export class System {
     if (this.__rnXRModule === undefined) {
       this.__rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
     }
-    const webXRSystem = this.__rnXRModule!.WebXRSystem.getInstance();
-    const webARSystem = this.__rnXRModule!.WebARSystem.getInstance();
+    const webXRSystem = this.__rnXRModule.WebXRSystem.getInstance();
+    const webARSystem = this.__rnXRModule.WebARSystem.getInstance();
 
     const __renderLoopFunc = ((_time: number, xrFrame: XRFrame) => {
       if (this.__rnXRModule !== undefined) {
