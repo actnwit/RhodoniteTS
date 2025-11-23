@@ -155,7 +155,7 @@ fn getIBLVolumeRefraction(baseColor: vec3f, normal: vec3f, view: vec3f, cameraSI
     transmissionRayLength = length(transmissionRay);
     let refractedRayExit = position_inWorld + transmissionRay;
 
-    let ndcPos = get_projectionMatrix(cameraSID, 0) * get_viewMatrix(cameraSID, 0) * vec4f(refractedRayExit, 1.0);
+    let ndcPos = get_projectionMatrix(cameraSID) * get_viewMatrix(cameraSID) * vec4f(refractedRayExit, 1.0);
     var refractionCoords = ndcPos.xy / ndcPos.w;
     refractionCoords += 1.0;
     refractionCoords /= 2.0;
@@ -167,7 +167,7 @@ fn getIBLVolumeRefraction(baseColor: vec3f, normal: vec3f, view: vec3f, cameraSI
   let transmissionRayLength = length(transmissionRay);
   let refractedRayExit = position_inWorld + transmissionRay;
 
-  let ndcPos = get_projectionMatrix(cameraSID, 0) * get_viewMatrix(cameraSID, 0) * vec4f(refractedRayExit, 1.0);
+  let ndcPos = get_projectionMatrix(cameraSID) * get_viewMatrix(cameraSID) * vec4f(refractedRayExit, 1.0);
   var refractionCoords = ndcPos.xy / ndcPos.w;
   refractionCoords += 1.0;
   refractionCoords /= 2.0;

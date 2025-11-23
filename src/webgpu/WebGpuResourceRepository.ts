@@ -20,9 +20,6 @@ import type { Mesh } from '../foundation/geometry/Mesh';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { dummyBlackCubeTexture, dummyWhiteTexture } from '../foundation/materials/core/DummyTextures';
 import { Material } from '../foundation/materials/core/Material';
-import { MutableVector2 } from '../foundation/math/MutableVector2';
-import { MutableVector4 } from '../foundation/math/MutableVector4';
-import { Vector2 } from '../foundation/math/Vector2';
 import type { Vector4 } from '../foundation/math/Vector4';
 import type { Accessor } from '../foundation/memory/Accessor';
 import { DataUtil } from '../foundation/misc/DataUtil';
@@ -52,6 +49,7 @@ import type { AttributeNames } from '../webgl/types/CommonTypes';
 import type { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 
 import HDRImage from '../../vendor/hdrpng.js';
+import type { Buffer } from '../foundation/memory/Buffer';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import { TextureArray } from '../foundation/textures/TextureArray';
 import type { WebXRSystem } from '../xr/WebXRSystem';
@@ -2042,17 +2040,24 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * Creates a storage buffer from a Float32Array and registers it as a WebGPU resource.
    * Storage buffers are used for storing large amounts of data accessible from shaders.
    *
-   * @param inputArray - The Float32Array containing the data to store
+   * @param gpuInstanceDataBuffers - The buffers containing the data to store
    * @returns Handle to the created storage buffer resource
    */
-  createStorageBuffer(inputArray: Float32Array) {
+  createStorageBuffer(gpuInstanceDataBuffers: Buffer[]) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const storageBuffer = gpuDevice.createBuffer({
-      size: inputArray.byteLength,
+      size: gpuInstanceDataBuffers.reduce((acc, buffer) => acc + buffer.byteLength, 0),
       usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.STORAGE,
     });
-    WebGpuResourceRepository.__assertArrayBufferView(inputArray);
-    gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray);
+    let offset = 0;
+    for (let i = 0; i < gpuInstanceDataBuffers.length; i++) {
+      const buffer = gpuInstanceDataBuffers[i];
+      const inputArray = new Float32Array(buffer.getArrayBuffer());
+      WebGpuResourceRepository.__assertArrayBufferView(inputArray);
+      const copySize = i === gpuInstanceDataBuffers.length - 1 ? buffer.takenSizeInByte : buffer.byteLength;
+      gpuDevice.queue.writeBuffer(storageBuffer, offset, inputArray, 0, copySize / 4);
+      offset += copySize;
+    }
 
     this.__storageBuffer = storageBuffer;
 
@@ -2066,14 +2071,29 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * Only updates the specified number of components to optimize data transfer.
    *
    * @param storageBufferHandle - Handle to the storage buffer to update
-   * @param inputArray - New data to write to the buffer
-   * @param updateComponentSize - Number of components to update
+   * @param gpuInstanceDataBuffers - New data to write to the buffer
    */
-  updateStorageBuffer(storageBufferHandle: WebGPUResourceHandle, inputArray: Float32Array, updateComponentSize: Count) {
+  updateStorageBuffer(storageBufferHandle: WebGPUResourceHandle, gpuInstanceDataBuffers: Buffer[]) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const storageBuffer = this.__webGpuResources.get(storageBufferHandle) as GPUBuffer;
-    WebGpuResourceRepository.__assertArrayBufferView(inputArray);
-    gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray, 0, updateComponentSize);
+    let offset = 0;
+    for (let i = 0; i < gpuInstanceDataBuffers.length; i++) {
+      const buffer = gpuInstanceDataBuffers[i];
+      const inputArray = new Float32Array(buffer.getArrayBuffer());
+      WebGpuResourceRepository.__assertArrayBufferView(inputArray);
+      const copySize = i === gpuInstanceDataBuffers.length - 1 ? buffer.takenSizeInByte : buffer.byteLength;
+      gpuDevice.queue.writeBuffer(storageBuffer, offset, inputArray, 0, copySize / 4);
+      offset += copySize;
+    }
+  }
+
+  destroyStorageBuffer(storageBufferHandle: WebGPUResourceHandle) {
+    const storageBuffer = this.__webGpuResources.get(storageBufferHandle) as GPUBuffer;
+    if (storageBuffer == null) {
+      return;
+    }
+    storageBuffer.destroy();
+    this.__webGpuResources.delete(storageBufferHandle);
   }
 
   /**
@@ -2192,7 +2212,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   createUniformMorphOffsetsBuffer() {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const inputArray = new Uint32Array(
-      Math.ceil((Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4) * 4
+      Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
     );
     const uniformBuffer = gpuDevice.createBuffer({
       size: inputArray.byteLength,
@@ -2220,7 +2240,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   createUniformMorphWeightsBuffer() {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const inputArray = new Float32Array(
-      Math.ceil((Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4) * 4
+      Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
     );
     const uniformBuffer = gpuDevice.createBuffer({
       size: inputArray.byteLength,

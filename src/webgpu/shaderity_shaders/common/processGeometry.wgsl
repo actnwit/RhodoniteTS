@@ -128,7 +128,7 @@ fn getSkinMatrix(skeletalComponentSID: u32, joint: vec4<u32>, weight: vec4<f32>)
   let boneCompressedChunksW = get_boneCompressedChunk(skeletalComponentSID, joint.w);
 
   let criteria = vec2<f32>(4096.0, 4096.0);
-  let boneCompressedInfo = get_boneCompressedInfo(0.0, 0);
+  let boneCompressedInfo = get_boneCompressedInfo(0u, 0u);
 
   let ts_x = unpackedVec2ToNormalizedVec4(boneCompressedChunksX.zw, criteria.y)*boneCompressedInfo;
   var skinMat: mat4x4<f32> = weight.x * createMatrixFromQuaternionTranslationScale(

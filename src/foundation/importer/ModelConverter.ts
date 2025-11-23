@@ -375,6 +375,8 @@ export class ModelConverter {
         buffer: buffer.buffer as unknown as ArrayBuffer,
         name: `gltf2Buffer_0_(${buffer.uri})`,
         byteAlign: 4,
+        bufferUsage: BufferUse.CPUGeneric,
+        indexOfTheBufferUsage: 0,
       });
       rnBuffers.push(rnBuffer);
     }
@@ -1775,7 +1777,7 @@ export class ModelConverter {
       }
     }
 
-    const maxMaterialInstanceNumber: number = Config.maxMaterialInstanceForEachType;
+    const maxMaterialInstanceNumber: number = Config.materialCountPerBufferView;
     if (Number.parseFloat(gltfModel.asset?.version) >= 2) {
       const rnLoaderOptions = gltfModel.asset.extras?.rnLoaderOptions ?? {};
       // For glTF 2
@@ -2741,6 +2743,8 @@ export class ModelConverter {
       buffer: new ArrayBuffer(byteLengthOfBufferForDraco),
       name: 'Draco',
       byteAlign: 4,
+      bufferUsage: BufferUse.CPUGeneric,
+      indexOfTheBufferUsage: 0,
     });
   }
 }

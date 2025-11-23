@@ -1,9 +1,8 @@
-import type { PrimitiveUID } from '../../types/CommonTypes';
+import type { Byte, PrimitiveUID } from '../../types/CommonTypes';
 import { VERSION } from '../../version';
 import type { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import type { WebGpuDeviceWrapper } from '../../webgpu/WebGpuDeviceWrapper';
 import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
-import { WebGpuStrategyBasic } from '../../webgpu/WebGpuStrategyBasic';
 import type { RnXR } from '../../xr/main';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { CameraComponent } from '../components/Camera/CameraComponent';
@@ -46,11 +45,6 @@ declare const spector: any;
 interface SystemInitDescription {
   approach: ProcessApproachEnum;
   canvas: HTMLCanvasElement;
-  memoryUsageOrder?: {
-    cpuGeneric: number;
-    gpuInstanceData: number;
-    gpuVertexData: number;
-  };
   webglOption?: WebGLContextAttributes;
   notToDisplayRnInfoAtInit?: boolean;
 }
@@ -529,34 +523,21 @@ export class System {
     if (desc.notToDisplayRnInfoAtInit !== true) {
       this.__displayRnInfo();
     }
-    await ModuleManager.getInstance().loadModule('webgl');
-    await ModuleManager.getInstance().loadModule('webgpu');
     await ModuleManager.getInstance().loadModule('pbr');
     await ModuleManager.getInstance().loadModule('xr');
     Config.eventTargetDom = desc.canvas;
 
-    // Memory Settings
-    MemoryManager.createInstanceIfNotCreated({
-      cpuGeneric: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.cpuGeneric : 0.1,
-      gpuInstanceData: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.gpuInstanceData : 0.5,
-      gpuVertexData: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.gpuVertexData : 0.5,
-    });
-
-    System.__cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    let maxGPUDataStorageSize: Byte = 0;
     if (desc.approach === ProcessApproach.WebGPU) {
       // WebGPU
-
-      const memoryManager = MemoryManager.getInstance();
-      const requiredBufferSize = memoryManager.getMemorySize();
+      await ModuleManager.getInstance().loadModule('webgpu');
+      System.__cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
 
       const webGpuResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository() as WebGpuResourceRepository;
       const webgpuModule = ModuleManager.getInstance().getModule('webgpu');
       const WebGpuDeviceWrapperClass = webgpuModule.WebGpuDeviceWrapper as typeof WebGpuDeviceWrapper;
       const adapter = await navigator.gpu.requestAdapter({ xrCompatible: true });
       const { maxBufferSize, maxStorageBufferBindingSize } = adapter!.limits;
-      if (maxBufferSize < requiredBufferSize || maxStorageBufferBindingSize < requiredBufferSize) {
-        throw new Error('The required buffer size is too large for this device.');
-      }
       const features: GPUFeatureName[] = [];
       function addFeature(feature: GPUFeatureName) {
         if (adapter!.features.has(feature)) {
@@ -576,6 +557,7 @@ export class System {
           maxBufferSize,
         },
       });
+      maxGPUDataStorageSize = maxStorageBufferBindingSize;
       const webGpuDeviceWrapper = new WebGpuDeviceWrapperClass(desc.canvas, adapter!, device);
       webGpuResourceRepository.addWebGpuDeviceWrapper(webGpuDeviceWrapper);
       webGpuResourceRepository.recreateSystemDepthTexture();
@@ -584,10 +566,16 @@ export class System {
       webGpuResourceRepository.createBindGroupLayoutForDrawParameters();
     } else {
       // WebGL
+      await ModuleManager.getInstance().loadModule('webgl');
+      System.__cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
       const repo = CGAPIResourceRepository.getWebGLResourceRepository();
       repo.generateWebGLContext(desc.canvas, true, desc.webglOption);
       repo.switchDepthTest(true);
+      maxGPUDataStorageSize = repo.currentWebGLContextWrapper!.getMaxTextureSize() ** 2 * 4 /* rgba */ * 4 /* byte */;
     }
+
+    // Memory Settings
+    MemoryManager.createInstanceIfNotCreated(maxGPUDataStorageSize);
 
     const globalDataRepository = GlobalDataRepository.getInstance();
     globalDataRepository.initialize(desc.approach);

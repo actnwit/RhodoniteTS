@@ -1,8 +1,9 @@
 import { ComponentType, type ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
-import type { Byte, TypedArray } from '../../types/CommonTypes';
+import type { Byte, Index, TypedArray } from '../../types/CommonTypes';
 import { BufferView } from './BufferView';
 
+import { BufferUse, type BufferUseEnum } from '../definitions/BufferUse';
 import { DataUtil } from '../misc/DataUtil';
 import { Logger } from '../misc/Logger';
 import { Err, Ok, type Result } from '../misc/Result';
@@ -35,6 +36,8 @@ export class Buffer {
   private __raw: ArrayBuffer;
   private __name = '';
   private __bufferViews: Array<BufferView> = [];
+  private __bufferUsage: BufferUseEnum = BufferUse.CPUGeneric;
+  private __indexOfTheBufferUsage: Index = 0;
 
   /**
    * Creates a new Buffer instance.
@@ -50,15 +53,21 @@ export class Buffer {
     buffer,
     name,
     byteAlign,
+    bufferUsage,
+    indexOfTheBufferUsage,
   }: {
     byteLength: Byte;
     buffer: ArrayBuffer | Uint8Array;
     name: string;
     byteAlign: Byte;
+    bufferUsage: BufferUseEnum;
+    indexOfTheBufferUsage: Index;
   }) {
     this.__name = name;
     this.__byteLength = byteLength;
     this.__byteAlign = byteAlign;
+    this.__bufferUsage = bufferUsage;
+    this.__indexOfTheBufferUsage = indexOfTheBufferUsage;
 
     if (buffer instanceof Uint8Array) {
       if (!(buffer.buffer instanceof ArrayBuffer)) {
@@ -343,5 +352,13 @@ byteSizeToTake: ${byteLengthToNeed}, the byte length left in the Buffer: ${this.
    */
   isSame(buffer: Buffer): boolean {
     return this.__raw === buffer.__raw;
+  }
+
+  get indexOfTheBufferUsage() {
+    return this.__indexOfTheBufferUsage;
+  }
+
+  get bufferUsage() {
+    return this.__bufferUsage;
   }
 }

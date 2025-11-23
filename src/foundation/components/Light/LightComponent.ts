@@ -5,10 +5,15 @@ import { Config } from '../../core/Config';
 import type { IEntity } from '../../core/Entity';
 import { EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
+import { BufferUse } from '../../definitions/BufferUse';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
 import { LightType } from '../../definitions/LightType';
 import { ProcessStage } from '../../definitions/ProcessStage';
+import { ShaderType } from '../../definitions/ShaderType';
 import { LightGizmo } from '../../gizmos/LightGizmo';
 import type { ILightEntity } from '../../helpers/EntityHelper';
+import { MutableVector3 } from '../../math';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { Scalar } from '../../math/Scalar';
 import { Vector3 } from '../../math/Vector3';
@@ -39,10 +44,11 @@ export class LightComponent extends Component {
   public castShadow = false;
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tmp_vec4 = MutableVector4.zero();
-  private static __lightPositions = new VectorN(new Float32Array(0));
-  private static __lightDirections = new VectorN(new Float32Array(0));
-  private static __lightIntensities = new VectorN(new Float32Array(0));
-  private static __lightProperties = new VectorN(new Float32Array(0));
+
+  private _lightPosition = MutableVector4.dummy();
+  private _lightDirection = MutableVector4.dummy();
+  private _lightIntensity = MutableVector4.dummy();
+  private _lightProperty = MutableVector4.dummy();
   private static __lightNumber = Scalar.zero();
   private __lightGizmo?: LightGizmo;
 
@@ -51,17 +57,17 @@ export class LightComponent extends Component {
   private __lastTransformUpdateCount = -1;
 
   /**
-   * Creates a new LightComponent instance.
+   * Creates a new CameraComponent instance.
    *
    * @param entityUid - The unique identifier of the entity this component belongs to
-   * @param componentSid - The component session identifier
+   * @param componentSid - The component system identifier
    * @param entityRepository - The entity repository instance
-   * @param isReUse - Whether this component is being reused
+   * @param isReUse - Whether this component is being reused from a pool
    */
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
     super(entityUid, componentSid, entityRepository, isReUse);
 
-    this._setMaxNumberOfComponent(Math.max(10, Math.floor(Config.maxEntityNumber / 100)));
+    this.submitToAllocation(Config.lightComponentCountPerBufferView, isReUse);
   }
 
   /**
@@ -188,10 +194,6 @@ export class LightComponent extends Component {
    * This method is called during the component loading phase.
    */
   $load() {
-    LightComponent.__lightPositions = LightComponent.__globalDataRepository.getValue('lightPosition', 0);
-    LightComponent.__lightDirections = LightComponent.__globalDataRepository.getValue('lightDirection', 0);
-    LightComponent.__lightIntensities = LightComponent.__globalDataRepository.getValue('lightIntensity', 0);
-    LightComponent.__lightProperties = LightComponent.__globalDataRepository.getValue('lightProperty', 0);
     LightComponent.__lightNumber = LightComponent.__globalDataRepository.getValue('lightNumber', 0);
 
     this.moveStageTo(ProcessStage.Logic);
@@ -244,23 +246,23 @@ export class LightComponent extends Component {
     const innerConeCos = Math.cos(this.innerConeAngle);
     const outerConeCos = Math.cos(this.outerConeAngle);
 
-    LightComponent.__lightDirections._v[3 * this.componentSID + 0] = this.__direction.x;
-    LightComponent.__lightDirections._v[3 * this.componentSID + 1] = this.__direction.y;
-    LightComponent.__lightDirections._v[3 * this.componentSID + 2] = this.__direction.z;
+    this._lightDirection._v[0] = this.__direction.x;
+    this._lightDirection._v[1] = this.__direction.y;
+    this._lightDirection._v[2] = this.__direction.z;
 
     const lightPosition = sceneGraphComponent.worldPosition;
-    LightComponent.__lightPositions._v[3 * this.componentSID + 0] = lightPosition.x;
-    LightComponent.__lightPositions._v[3 * this.componentSID + 1] = lightPosition.y;
-    LightComponent.__lightPositions._v[3 * this.componentSID + 2] = lightPosition.z;
+    this._lightPosition._v[0] = lightPosition.x;
+    this._lightPosition._v[1] = lightPosition.y;
+    this._lightPosition._v[2] = lightPosition.z;
 
-    LightComponent.__lightIntensities._v[3 * this.componentSID + 0] = this.__color.x * this.__intensity;
-    LightComponent.__lightIntensities._v[3 * this.componentSID + 1] = this.__color.y * this.__intensity;
-    LightComponent.__lightIntensities._v[3 * this.componentSID + 2] = this.__color.z * this.__intensity;
+    this._lightIntensity._v[0] = this.__color.x * this.__intensity;
+    this._lightIntensity._v[1] = this.__color.y * this.__intensity;
+    this._lightIntensity._v[2] = this.__color.z * this.__intensity;
 
-    LightComponent.__lightProperties._v[4 * this.componentSID + 0] = this.enable ? this.type.index : -1;
-    LightComponent.__lightProperties._v[4 * this.componentSID + 1] = this.range;
-    LightComponent.__lightProperties._v[4 * this.componentSID + 2] = innerConeCos;
-    LightComponent.__lightProperties._v[4 * this.componentSID + 3] = outerConeCos;
+    this._lightProperty._v[0] = this.enable ? this.type.index : -1;
+    this._lightProperty._v[1] = this.range;
+    this._lightProperty._v[2] = innerConeCos;
+    this._lightProperty._v[3] = outerConeCos;
 
     this.__updateGizmo();
 
@@ -276,9 +278,6 @@ export class LightComponent extends Component {
    */
   _destroy() {
     super._destroy();
-    LightComponent.__lightIntensities._v[3 * this.componentSID + 0] = 0;
-    LightComponent.__lightIntensities._v[3 * this.componentSID + 1] = 0;
-    LightComponent.__lightIntensities._v[3 * this.componentSID + 2] = 0;
   }
 
   /**
@@ -313,3 +312,40 @@ export class LightComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
+
+LightComponent.registerMember({
+  bufferUse: BufferUse.GPUInstanceData,
+  memberName: 'lightPosition',
+  dataClassType: MutableVector3,
+  shaderType: ShaderType.VertexAndPixelShader,
+  compositionType: CompositionType.Vec3,
+  componentType: ComponentType.Float,
+  initValues: [0, 0, 0],
+});
+LightComponent.registerMember({
+  bufferUse: BufferUse.GPUInstanceData,
+  memberName: 'lightDirection',
+  dataClassType: MutableVector3,
+  shaderType: ShaderType.VertexAndPixelShader,
+  compositionType: CompositionType.Vec3,
+  componentType: ComponentType.Float,
+  initValues: [0, 0, 0],
+});
+LightComponent.registerMember({
+  bufferUse: BufferUse.GPUInstanceData,
+  memberName: 'lightIntensity',
+  dataClassType: MutableVector3,
+  shaderType: ShaderType.VertexAndPixelShader,
+  compositionType: CompositionType.Vec3,
+  componentType: ComponentType.Float,
+  initValues: [0, 0, 0],
+});
+LightComponent.registerMember({
+  bufferUse: BufferUse.GPUInstanceData,
+  memberName: 'lightProperty',
+  dataClassType: MutableVector4,
+  shaderType: ShaderType.VertexAndPixelShader,
+  compositionType: CompositionType.Vec4,
+  componentType: ComponentType.Float,
+  initValues: [-1, 0, 0, 0],
+});

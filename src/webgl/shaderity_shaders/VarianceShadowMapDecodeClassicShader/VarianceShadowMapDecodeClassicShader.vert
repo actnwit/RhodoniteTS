@@ -22,7 +22,7 @@ void main(){
 
   mat3 normalMatrix = get_normalMatrix(a_instanceInfo.x);
   mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
-  mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
+  mat4 viewMatrix = get_viewMatrix(cameraSID);
 
   bool isSkinning = false;
   isSkinning = processGeometry(
@@ -39,7 +39,7 @@ void main(){
     v_normal_inWorld
   );
 
-  mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
+  mat4 projectionMatrix = get_projectionMatrix(cameraSID);
   gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
 
 

@@ -1,4 +1,5 @@
 import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
+import { BlendShapeComponent } from '../foundation/components/BlendShape/BlendShapeComponent';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
 import { LightComponent } from '../foundation/components/Light/LightComponent';
@@ -7,25 +8,28 @@ import { MeshRendererComponent } from '../foundation/components/MeshRenderer/Mes
 import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
 import { WellKnownComponentTIDs } from '../foundation/components/WellKnownComponentTIDs';
-import { Component } from '../foundation/core/Component';
+import { Component, type MemberInfo } from '../foundation/core/Component';
 import { ComponentRepository } from '../foundation/core/ComponentRepository';
 import { Config } from '../foundation/core/Config';
 import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import { MemoryManager } from '../foundation/core/MemoryManager';
-import { BufferUse } from '../foundation/definitions/BufferUse';
-import { ComponentType } from '../foundation/definitions/ComponentType';
-import { CompositionType } from '../foundation/definitions/CompositionType';
+import { BufferUse, type BufferUseEnum } from '../foundation/definitions/BufferUse';
+import { ComponentType, type ComponentTypeEnum } from '../foundation/definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../foundation/definitions/CompositionType';
 import { PixelFormat } from '../foundation/definitions/PixelFormat';
 import { ShaderSemantics, type ShaderSemanticsName } from '../foundation/definitions/ShaderSemantics';
 import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
+import { ShaderType, type ShaderTypeEnum } from '../foundation/definitions/ShaderType';
 import { TextureFormat } from '../foundation/definitions/TextureFormat';
 import { TextureParameter } from '../foundation/definitions/TextureParameter';
+import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
 import type { Mesh } from '../foundation/geometry/Mesh';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { Material } from '../foundation/materials/core/Material';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 import type { Vector2 } from '../foundation/math/Vector2';
 import type { VectorN } from '../foundation/math/VectorN';
+import type { Accessor } from '../foundation/memory/Accessor';
 import type { Buffer } from '../foundation/memory/Buffer';
 import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
@@ -71,6 +75,8 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __dataUBOUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __morphOffsetsUniformBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __morphWeightsUniformBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __lastShader: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __lastMaterial?: WeakRef<Material>;
   private __lastMaterialStateVersion = -1;
@@ -83,11 +89,17 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private static __isDebugOperationToDataTextureBufferDone = true;
   private static __webxrSystem: WebXRSystem;
 
+  private __uniformMorphOffsetsTypedArray?: Uint32Array;
+  private __uniformMorphWeightsTypedArray?: Float32Array;
+  private __lastBlendShapeComponentsUpdateCountForWeights = -1;
+  private __lastMorphMaxIndex = -1;
   private __lastMaterialsUpdateCount = -1;
+  private __lastTotalSizeOfGPUShaderDataStorageExceptMorphData = -1;
   private __lastTransformComponentsUpdateCount = -1;
   private __lastSceneGraphComponentsUpdateCount = -1;
   private __lastCameraComponentsUpdateCount = -1;
   private __lastCameraControllerComponentsUpdateCount = -1;
+  private __lastGpuInstanceDataBufferCount = -1;
 
   /**
    * Private constructor to enforce singleton pattern.
@@ -108,76 +120,50 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   }
 
   /**
-   * Generates vertex shader method definitions for data texture access.
-   * These methods provide standardized ways to fetch transformation matrices,
-   * visibility flags, and other per-instance data from the data texture.
-   *
-   * @returns A string containing GLSL shader method definitions for data texture access
-   *
-   * @remarks
-   * The generated methods include:
-   * - get_worldMatrix: Fetches world transformation matrix
-   * - get_normalMatrix: Fetches normal transformation matrix
-   * - get_isVisible: Fetches visibility flag
-   * - get_isBillboard: Fetches billboard flag
-   * - get_position: Fetches morphed vertex positions (if morphing is enabled)
+   * method definitions for component data access for data texture-based rendering.
+   * Provides GLSL functions for accessing component data through data textures.
+   * @param shaderType - The shader type (VertexShader or PixelShader)
+   * @returns GLSL shader code string for the component data access method definitions
    */
-  static getVertexShaderMethodDefinitions_dataTexture() {
-    return `
+  static __getComponentDataAccessMethodDefinitions_dataTexture(shaderType: ShaderTypeEnum) {
+    let str = '';
+    const memberInfo = Component.getMemberInfo();
+    memberInfo.forEach((mapMemberNameMemberInfo, componentClass) => {
+      mapMemberNameMemberInfo.forEach((memberInfo, memberName) => {
+        if (memberInfo.shaderType !== shaderType && memberInfo.shaderType !== ShaderType.VertexAndPixelShader) {
+          return;
+        }
+        const componentCountPerBufferView = Component.getComponentCountPerBufferView().get(componentClass) ?? 1;
+        if (CompositionType.isArray(memberInfo.compositionType)) {
+          processForArrayType(memberInfo, componentClass, memberName, componentCountPerBufferView);
+        } else {
+          processForNonArrayType(memberInfo, componentClass, memberName, componentCountPerBufferView);
+        }
+      });
+    });
 
-  mat4 get_worldMatrix(float instanceId)
-  {
-    int index = ${Component.getLocationOffsetOfMemberOfComponent(
-      SceneGraphComponent,
-      'worldMatrix'
-    )} + 4 * int(instanceId);
-    mat4 matrix = fetchMat4(index);
-
-    return matrix;
-  }
-
-
-  mat3 get_normalMatrix(float instanceId) {
-    int index = ${Component.getLocationOffsetOfMemberOfComponent(
-      SceneGraphComponent,
-      'normalMatrix'
-    )} * 4 + 9 * int(instanceId);
-    mat3 matrix = fetchMat3No16BytesAligned(index);
-    return matrix;
-  }
-
-  bool get_isVisible(float instanceId) {
-    int index = ${Component.getLocationOffsetOfMemberOfComponent(
-      SceneGraphComponent,
-      'isVisible'
-    )} * 4 + int(instanceId);
-    float visibility = fetchScalarNo16BytesAligned(index);
-    return (visibility > 0.5) ? true : false;
-  }
-
-  bool get_isBillboard(float instanceId) {
-    int index = ${Component.getLocationOffsetOfMemberOfComponent(
-      SceneGraphComponent,
-      'isBillboard'
-    )} * 4 + int(instanceId);
-    float isBillboard = fetchScalarNo16BytesAligned(index);
-    return (isBillboard > 0.5) ? true : false;
-  }
+    if (shaderType === ShaderType.VertexShader) {
+      const morphingStr = `
 
 #ifdef RN_IS_VERTEX_SHADER
   #ifdef RN_IS_MORPHING
-  vec3 get_position(float vertexId, vec3 basePosition) {
+  vec3 get_position(float vertexId, vec3 basePosition, int blendShapeComponentSID) {
     vec3 position = basePosition;
     int scalar_idx = 3 * int(vertexId);
-    for (int i=0; i<${Config.maxMorphTargetNumber}; i++) {
+    for (int i=0; i<u_morphTargetNumber; i++) {
+      int currentPrimitiveIdx = u_currentPrimitiveIdx;
+      int idx = ${Config.maxMorphTargetNumber} * currentPrimitiveIdx + i;
+      ivec4 offsets = uniformMorphOffsets.data[ idx / 4];
+      int offsetPosition = offsets[idx % 4];
 
-      int basePosIn4bytes = u_dataTextureMorphOffsetPosition[i] * 4 + scalar_idx;
+      int basePosIn4bytes = offsetPosition * 4 + scalar_idx;
       vec3 addPos = fetchVec3No16BytesAligned(basePosIn4bytes);
 
-      position += addPos * u_morphWeights[i];
-      if (i == u_morphTargetNumber-1) {
-        break;
-      }
+      int idx2 = ${Config.maxMorphTargetNumber} * blendShapeComponentSID + i;
+      vec4 morphWeights = uniformMorphWeights.data[ idx2 / 4];
+      float morphWeight = morphWeights[idx2 % 4];
+
+      position += addPos * morphWeight;
     }
 
     return position;
@@ -185,6 +171,130 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   #endif
 #endif
 `;
+
+      str += morphingStr;
+    }
+    return str;
+
+    function processForArrayType(
+      memberInfo: MemberInfo,
+      componentClass: typeof Component,
+      memberName: string,
+      componentCountPerBufferView: number
+    ) {
+      let typeStr = '';
+      let fetchTypeStr = '';
+      switch (memberInfo.compositionType) {
+        case CompositionType.Vec4Array:
+          typeStr = 'vec4';
+          fetchTypeStr = 'fetchVec4';
+          break;
+        case CompositionType.Mat4Array:
+          typeStr = 'mat4';
+          fetchTypeStr = 'fetchMat4';
+          break;
+        case CompositionType.Mat4x3Array:
+          typeStr = 'mat4x3';
+          fetchTypeStr = 'fetchMat4x3';
+          break;
+        default:
+          throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
+      }
+
+      const locationOffsets_vec4_idx = Component.getLocationOffsetOfMemberOfComponent(componentClass, memberName);
+      const vec4SizeOfProperty: IndexOf16Bytes = memberInfo.compositionType.getVec4SizeOfProperty();
+      const arrayLengthMap = Component.getArrayLengthOfMember().get(componentClass)?.get(memberName) ?? new Map();
+      const arrayLengthArray = Array.from(arrayLengthMap.values());
+      if (arrayLengthArray.length === 0) {
+        arrayLengthArray[0] = 0;
+      }
+      const arrayLengthArrayStr = `int arrayLengthArray[] = int[](${arrayLengthArray.join(', ')});`;
+      const indexStr = `int index = indices[instanceIdOfBufferViews] + instanceIdInBufferView * ${vec4SizeOfProperty} * arrayLengthArray[int(instanceId)] + ${vec4SizeOfProperty} * idxOfArray;`; // vec4_idx
+      let conversionStr = '';
+      if (memberInfo.convertToBool) {
+        conversionStr = 'return (value > 0.5) ? true : false;';
+      }
+      str += `
+  ${memberInfo.convertToBool ? 'bool' : typeStr} get_${memberName}(float instanceId, int idxOfArray) {
+    int instanceIdOfBufferViews = int(instanceId) / ${componentCountPerBufferView};
+    int instanceIdInBufferView = int(instanceId) % ${componentCountPerBufferView};
+    int indices[] = int[](${locationOffsets_vec4_idx.join(', ')});
+    ${arrayLengthArrayStr}
+    ${indexStr}
+    ${typeStr} value = ${fetchTypeStr}(index);
+    ${memberInfo.convertToBool ? conversionStr : 'return value;'}
+  }
+`;
+    }
+    function processForNonArrayType(
+      memberInfo: MemberInfo,
+      componentClass: typeof Component,
+      memberName: string,
+      componentCountPerBufferView: number
+    ) {
+      let typeStr = '';
+      let fetchTypeStr = '';
+      switch (memberInfo.compositionType) {
+        case CompositionType.Mat4:
+          typeStr = 'mat4';
+          fetchTypeStr = 'fetchMat4';
+          break;
+        case CompositionType.Mat3:
+          typeStr = 'mat3';
+          fetchTypeStr = 'fetchMat3No16BytesAligned';
+          break;
+        case CompositionType.Vec4:
+          typeStr = 'vec4';
+          fetchTypeStr = 'fetchVec4';
+          break;
+        case CompositionType.Vec3:
+          typeStr = 'vec3';
+          fetchTypeStr = 'fetchVec3No16BytesAligned';
+          break;
+        case CompositionType.Scalar:
+          typeStr = 'float';
+          fetchTypeStr = 'fetchScalarNo16BytesAligned';
+          break;
+        default:
+          throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
+      }
+
+      const locationOffsets_vec4_idx = Component.getLocationOffsetOfMemberOfComponent(componentClass, memberName);
+      let indexStr = '';
+      switch (memberInfo.compositionType) {
+        case CompositionType.Mat4:
+          indexStr = 'int index = indices[instanceIdOfBufferViews] + 4 * instanceIdInBufferView;'; // vec4_idx
+          break;
+        case CompositionType.Mat3:
+          indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 9 * instanceIdInBufferView;'; // scalar_idx
+          break;
+        case CompositionType.Vec4:
+          indexStr = 'int index = indices[instanceIdOfBufferViews] + 1 * instanceIdInBufferView;'; // vec4_idx
+          break;
+        case CompositionType.Vec3:
+          indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 3 * instanceIdInBufferView;'; // scalar_idx
+          break;
+        case CompositionType.Scalar:
+          indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 1 * instanceIdInBufferView;'; // scalar_idx
+          break;
+        default:
+          throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
+      }
+      let conversionStr = '';
+      if (memberInfo.convertToBool) {
+        conversionStr = 'return (value > 0.5) ? true : false;';
+      }
+      str += `
+  ${memberInfo.convertToBool ? 'bool' : typeStr} get_${memberName}(float instanceId) {
+    int instanceIdOfBufferViews = int(instanceId) / ${componentCountPerBufferView};
+    int instanceIdInBufferView = int(instanceId) % ${componentCountPerBufferView};
+    int indices[] = int[](${locationOffsets_vec4_idx.join(', ')});
+    ${indexStr}
+    ${typeStr} value = ${fetchTypeStr}(index);
+    ${memberInfo.convertToBool ? conversionStr : 'return value;'}
+  }
+`;
+    }
   }
 
   /**
@@ -206,13 +316,14 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
    */
   public setupShaderForMaterial(material: Material, primitive: Primitive): CGAPIResourceHandle {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
-    const glw = webglResourceRepository.currentWebGLContextWrapper!;
+    const _glw = webglResourceRepository.currentWebGLContextWrapper!;
 
     const [programUid, newOne] = material._createProgramWebGL(
-      WebGLStrategyDataTexture.getVertexShaderMethodDefinitions_dataTexture(),
-      WebGLStrategyDataTexture.__getShaderProperty,
-      primitive,
-      glw.isWebGL2
+      WebGLStrategyDataTexture.__getComponentDataAccessMethodDefinitions_dataTexture(ShaderType.VertexShader),
+      WebGLStrategyDataTexture.__getComponentDataAccessMethodDefinitions_dataTexture(ShaderType.PixelShader),
+      WebGLStrategyDataTexture.__getShaderPropertyOfGlobalDataRepository,
+      WebGLStrategyDataTexture.__getShaderPropertyOfMaterial,
+      primitive
     );
 
     if (newOne) {
@@ -228,6 +339,12 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
 
       WebGLStrategyDataTexture.__globalDataRepository._setUniformLocationsForDataTextureModeOnly(
         material.getShaderProgramUid(primitive)
+      );
+
+      webglResourceRepository.setUniformBlockBindingForMorphOffsetsAndWeights(
+        programUid,
+        this.__morphOffsetsUniformBufferUid,
+        this.__morphWeightsUniformBufferUid
       );
     }
 
@@ -281,14 +398,11 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   }
 
   /**
-   * Generates GLSL shader code for accessing material and global properties.
+   * Generates GLSL shader code for accessing global properties.
    * This method creates shader functions that can fetch data from either data textures
    * or uniform variables, depending on the property type and rendering configuration.
    *
-   * @param materialTypeName - The name of the material type
    * @param info - Detailed information about the shader semantic property
-   * @param isGlobalData - Whether this property is global data or material-specific
-   * @param isWebGL2 - Whether the target context is WebGL 2.0
    * @returns GLSL shader code string for the property accessor function
    *
    * @remarks
@@ -299,12 +413,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
    * - Properties that require explicit uniform variables
    * The generated code optimizes data access based on the property layout in data textures.
    */
-  private static __getShaderProperty(
-    materialTypeName: string,
-    info: ShaderSemanticsInfo,
-    isGlobalData: boolean,
-    isWebGL2: boolean
-  ) {
+  private static __getShaderPropertyOfGlobalDataRepository(info: ShaderSemanticsInfo) {
     const returnType = info.compositionType.getGlslStr(info.componentType);
 
     let indexStr: string;
@@ -328,10 +437,8 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
     const vec4SizeOfProperty: IndexOf16Bytes = info.compositionType.getVec4SizeOfProperty();
     // for non-`index` property (this is general case)
     const scalarSizeOfProperty: IndexOf4Bytes = info.compositionType.getNumberOfComponents();
-    const offsetOfProperty: IndexOf16Bytes = WebGLStrategyDataTexture.getOffsetOfPropertyInShader(
-      isGlobalData,
-      info.semantic,
-      materialTypeName
+    const offsetOfProperty: IndexOf16Bytes = WebGLStrategyDataTexture.getOffsetOfPropertyOfGlobalDataRepository(
+      info.semantic
     );
 
     if (offsetOfProperty === -1) {
@@ -437,9 +544,167 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       return str;
     }
     if (!isTexture && info.needUniformInDataTextureMode) {
-      if (!isWebGL2 && info.arrayLength) {
-        return `\n${varDef}\n`;
+      let varIndexStr = '';
+      if (info.arrayLength) {
+        varIndexStr = '[idxOfArray]';
       }
+      const str = `${varDef}
+${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
+  return u_${methodName}${varIndexStr};
+}
+`;
+      return str;
+    }
+    return varDef;
+  }
+
+  /**
+   * Generates GLSL shader code for accessing material properties.
+   * This method creates shader functions that can fetch data from either data textures
+   * or uniform variables, depending on the property type and rendering configuration.
+   *
+   * @param info - Detailed information about the shader semantic property
+   * @returns GLSL shader code string for the property accessor function
+   *
+   * @remarks
+   * This method handles different data types including:
+   * - Scalars, vectors, and matrices of various sizes
+   * - Array types with proper indexing
+   * - Texture samplers
+   * - Properties that require explicit uniform variables
+   * The generated code optimizes data access based on the property layout in data textures.
+   */
+  private static __getShaderPropertyOfMaterial(materialTypeName: string, info: ShaderSemanticsInfo) {
+    const returnType = info.compositionType.getGlslStr(info.componentType);
+
+    let indexStr: string;
+
+    const isTexture = CompositionType.isTexture(info.compositionType);
+
+    const methodName = info.semantic.replace('.', '_');
+
+    // definition of uniform variable for texture sampler or what must be explicitly uniform variabl)
+    let varDef = '';
+    const varType = info.compositionType.getGlslStr(info.componentType);
+    let varIndexStr = '';
+    if (info.arrayLength) {
+      varIndexStr = `[${info.arrayLength}]`;
+    }
+    if (info.needUniformInDataTextureMode || isTexture) {
+      varDef = `  uniform ${varType} u_${methodName}${varIndexStr};\n`;
+    }
+
+    // inner contents of 'get_' shader function
+    const vec4SizeOfProperty: IndexOf16Bytes = info.compositionType.getVec4SizeOfProperty();
+    // for non-`index` property (this is general case)
+    const scalarSizeOfProperty: IndexOf4Bytes = info.compositionType.getNumberOfComponents();
+    const offsetOfProperty: IndexOf16Bytes[] = WebGLStrategyDataTexture.getOffsetOfPropertyOfMaterial(
+      info.semantic,
+      materialTypeName
+    );
+    const materialCountPerBufferView = MaterialRepository._getMaterialCountPerBufferView(materialTypeName)!;
+
+    const offsetStr = `int offsets[] = int[](${offsetOfProperty.join(', ')});`;
+
+    let instanceSize = vec4SizeOfProperty;
+    indexStr = `int vec4_idx = offsets[instanceIdOfBufferViews] + ${instanceSize} * instanceIdInBufferView;\n`;
+    if (CompositionType.isArray(info.compositionType)) {
+      instanceSize = vec4SizeOfProperty * (info.arrayLength ?? 1);
+      const paddedAsVec4 = Math.ceil(scalarSizeOfProperty / 4) * 4;
+      const instanceSizeInScalar = paddedAsVec4 * (info.arrayLength ?? 1);
+      indexStr = `int vec4_idx = offsets[instanceIdOfBufferViews] + ${instanceSize} * instanceIdInBufferView + ${vec4SizeOfProperty} * idxOfArray;\n`;
+      indexStr += `int scalar_idx = offsets[instanceIdOfBufferViews] * 4 + ${instanceSizeInScalar} * instanceIdInBufferView + ${scalarSizeOfProperty} * idxOfArray;\n`;
+    }
+
+    let intStr = '';
+    if (info.componentType === ComponentType.Int && info.compositionType !== CompositionType.Scalar) {
+      intStr = 'i';
+    }
+
+    let firstPartOfInnerFunc = '';
+    if (!isTexture && !info.needUniformInDataTextureMode) {
+      firstPartOfInnerFunc += `
+${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
+  int instanceId = int(_instanceId);
+  int instanceIdOfBufferViews = int(instanceId) / ${materialCountPerBufferView};
+  int instanceIdInBufferView = int(instanceId) % ${materialCountPerBufferView};
+  ${offsetStr}
+  ${indexStr}
+  `;
+
+      let str = `${varDef}\n${firstPartOfInnerFunc}`;
+
+      switch (info.compositionType) {
+        case CompositionType.Vec4:
+        case CompositionType.Vec4Array:
+          str += '        highp vec4 val = fetchElement(vec4_idx);\n';
+          break;
+        case CompositionType.Vec3:
+          str += '        vec4 col0 = fetchElement(vec4_idx);\n';
+          str += `        highp ${intStr}vec3 val = ${intStr}vec3(col0.xyz);`;
+          break;
+        case CompositionType.Vec3Array:
+          str += '        vec3 val = fetchVec3No16BytesAligned(scalar_idx);\n';
+          break;
+        case CompositionType.Vec2:
+          str += '        highp vec4 col0 = fetchElement(vec4_idx);\n';
+          str += `        highp ${intStr}vec2 val = ${intStr}vec2(col0.xy);`;
+          break;
+        case CompositionType.Vec2Array:
+          str += '        highp vec2 val = fetchVec2No16BytesAligned(scalar_idx);\n';
+          break;
+        case CompositionType.Scalar:
+          str += '        vec4 col0 = fetchElement(vec4_idx);\n';
+          if (info.componentType === ComponentType.Int) {
+            str += '        int val = int(col0.x);';
+          } else if (info.componentType === ComponentType.Bool) {
+            str += '        bool val = bool(col0.x);';
+          } else {
+            str += '       float val = col0.x;';
+          }
+          break;
+        case CompositionType.ScalarArray:
+          str += '        float col0 = fetchScalarNo16BytesAligned(scalar_idx);\n';
+          if (info.componentType === ComponentType.Int) {
+            str += '        int val = int(col0);';
+          } else if (info.componentType === ComponentType.Bool) {
+            str += '        bool val = bool(col0);';
+          } else {
+            str += '       float val = col0;';
+          }
+          break;
+        case CompositionType.Mat4:
+          str += '        mat4 val = fetchMat4(vec4_idx);\n';
+          break;
+        case CompositionType.Mat4Array:
+          str += '        mat4 val = fetchMat4(vec4_idx);\n';
+          break;
+        case CompositionType.Mat3:
+          str += '        mat3 val = fetchMat3(vec4_idx);\n';
+          break;
+        case CompositionType.Mat3Array:
+          str += '        mat3 val = fetchMat3No16BytesAligned(scalar_idx);\n';
+          break;
+        case CompositionType.Mat2:
+          str += '        mat2 val = fetchMat2(vec4_idx);\n';
+          break;
+        case CompositionType.Mat2Array:
+          str += '        mat2 val = fetchMat2No16BytesAligned(scalar_idx);\n';
+          break;
+        case CompositionType.Mat4x3Array:
+          str += '        mat4x3 val = fetchMat4x3(vec4_idx);\n';
+          break;
+        default:
+          // Logger.error('unknown composition type', info.compositionType.str, memberName);
+          str += '';
+      }
+      str += `
+  return val;
+}
+`;
+      return str;
+    }
+    if (!isTexture && info.needUniformInDataTextureMode) {
       let varIndexStr = '';
       if (info.arrayLength) {
         varIndexStr = '[idxOfArray]';
@@ -468,17 +733,25 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    * This method is essential for generating correct shader code that can access
    * properties from the data texture at the right memory locations.
    */
-  private static getOffsetOfPropertyInShader(
-    isGlobalData: boolean,
-    propertyName: ShaderSemanticsName,
-    materialTypeName: string
-  ) {
-    if (isGlobalData) {
-      const globalDataRepository = GlobalDataRepository.getInstance();
-      const dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyName);
-      return dataBeginPos;
-    }
+  private static getOffsetOfPropertyOfMaterial(propertyName: ShaderSemanticsName, materialTypeName: string) {
     const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyName);
+    return dataBeginPos;
+  }
+
+  /**
+   * Retrieves the offset position of a property within the global data repository.
+   * This method calculates where a specific property is located in the global data repository.
+   *
+   * @param propertyName - The semantic name of the property to locate
+   * @returns The offset position of the property in the global data repository, or -1 if not found
+   *
+   * @remarks
+   * This method is essential for generating correct shader code that can access
+   * properties from the data texture at the right memory locations.
+   */
+  private static getOffsetOfPropertyOfGlobalDataRepository(propertyName: ShaderSemanticsName) {
+    const globalDataRepository = GlobalDataRepository.getInstance();
+    const dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyName);
     return dataBeginPos;
   }
 
@@ -518,6 +791,78 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     return true;
   }
 
+  private __updateMorphOffsetsUniformBuffersInner() {
+    let i = 0;
+    for (; i < Config.maxMorphPrimitiveNumber; i++) {
+      const primitive = Primitive.getPrimitiveHasMorph(i);
+      if (primitive != null) {
+        for (let j = 0; j < primitive.targets.length; j++) {
+          const target = primitive.targets[j];
+          const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
+          this.__uniformMorphOffsetsTypedArray![Config.maxMorphTargetNumber * i + j] =
+            (SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData + accessor.byteOffsetInBuffer) / 4 / 4;
+        }
+        this.__lastMorphMaxIndex = Config.maxMorphTargetNumber * i + primitive.targets.length - 1;
+      } else {
+        break;
+      }
+    }
+    const elementNumToCopy = Config.maxMorphTargetNumber * i;
+    this.__webglResourceRepository.updateUniformBuffer(
+      this.__morphOffsetsUniformBufferUid,
+      this.__uniformMorphOffsetsTypedArray!,
+      0,
+      elementNumToCopy
+    );
+  }
+
+  common_$load(): void {
+    this.__initMorphUniformBuffers();
+  }
+
+  private __initMorphUniformBuffers() {
+    if (this.__morphOffsetsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const inputArray = new Uint32Array(
+        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
+      );
+      this.__morphOffsetsUniformBufferUid =
+        this.__webglResourceRepository.createUniformBufferWithBufferView(inputArray);
+    }
+    if (this.__morphWeightsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const inputArray = new Uint32Array(
+        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
+      );
+      this.__morphWeightsUniformBufferUid =
+        this.__webglResourceRepository.createUniformBufferWithBufferView(inputArray);
+    }
+
+    if (this.__uniformMorphOffsetsTypedArray == null) {
+      this.__uniformMorphOffsetsTypedArray = new Uint32Array(
+        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
+      );
+    }
+
+    if (this.__uniformMorphWeightsTypedArray == null) {
+      this.__uniformMorphWeightsTypedArray = new Float32Array(
+        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
+      );
+    }
+  }
+
+  private __updateMorphOffsetsUniformBuffers() {
+    const morphMaxIndex = Primitive.getPrimitiveCountHasMorph();
+    if (
+      morphMaxIndex !== this.__lastMorphMaxIndex ||
+      SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData !==
+        this.__lastTotalSizeOfGPUShaderDataStorageExceptMorphData
+    ) {
+      this.__updateMorphOffsetsUniformBuffersInner();
+      this.__lastTotalSizeOfGPUShaderDataStorageExceptMorphData =
+        SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData;
+      this.__lastMorphMaxIndex = morphMaxIndex;
+    }
+  }
+
   /**
    * Creates and updates the data texture with current shader data.
    * This is the main entry point for data texture management that handles
@@ -529,22 +874,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    */
   private __createAndUpdateDataTexture() {
     this.__createAndUpdateDataTextureInner();
-  }
-
-  /**
-   * Creates and updates only the camera-related portion of the data texture.
-   * This optimized method updates only the camera information part of the data texture,
-   * which is useful when only camera data has changed.
-   *
-   * @remarks
-   * This method calculates the position where bone matrix data begins and only
-   * updates the data texture up to that point, covering camera-related information.
-   * This provides better performance when only camera properties need updating.
-   */
-  private __createAndUpdateDataTextureForCameraOnly() {
-    const globalDataRepository = GlobalDataRepository.getInstance();
-    const positionOfBoneMatrixInByte = globalDataRepository.getLocationOffsetOfProperty('boneMatrix') * 16; // camera infos are before boneMatrix
-    this.__createAndUpdateDataTextureInner(positionOfBoneMatrixInByte);
   }
 
   /**
@@ -562,58 +891,60 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    * - Provides debug functionality to dump texture contents
    * - Manages texture alignment and padding requirements
    */
-  private __createAndUpdateDataTextureInner(_copySizeInByte?: Byte) {
+  private __createAndUpdateDataTextureInner() {
     const memoryManager: MemoryManager = MemoryManager.getInstance();
 
     // the GPU global Storage
-    const gpuInstanceDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUInstanceData);
-    const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
-    const uboTotalSize = glw!.getAlignedMaxUniformBlockSize();
+    const sizesOfTheBuffers = memoryManager.getSizesOfTheBuffers(BufferUse.GPUInstanceData);
+    const totalSizeOfTheBuffers = sizesOfTheBuffers.reduce((acc, size) => acc + size, 0);
+    const gpuInstanceDataBuffers = memoryManager.getBuffers(BufferUse.GPUInstanceData);
+    const gpuInstanceDataBufferCount = gpuInstanceDataBuffers.length;
+    if (gpuInstanceDataBufferCount !== this.__lastGpuInstanceDataBufferCount) {
+      this.__lastGpuInstanceDataBufferCount = gpuInstanceDataBufferCount;
+      this.deleteDataTexture();
+    }
 
-    const startOffsetOfDataTextureOnGPUInstanceData = this.__isUboUse() ? uboTotalSize : 0;
-    if (gpuInstanceDataBuffer == null) {
+    const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
+    if (glw == null) {
       return;
     }
-    // const morphBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
-    // if all the necessary data fits in the UBO, then no data textures will be created.
-    // if (
-    //   this.__isUboUse() &&
-    //   DataUtil.addPaddingBytes(gpuInstanceDataBuffer.takenSizeInByte, 4) +
-    //     DataUtil.addPaddingBytes(morphBuffer!.takenSizeInByte, 4) <
-    //     uboTotalSize
-    // ) {
-    //   return;
-    // }
-
-    const dataTextureByteSize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
+    const dataTextureWidth = glw.getMaxTextureSize();
     if (this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      const copySizeInByte = _copySizeInByte ?? gpuInstanceDataBuffer.takenSizeInByte;
-      const bufferSizeForDataTextureInByte = copySizeInByte - startOffsetOfDataTextureOnGPUInstanceData;
-      const height = Math.min(
-        Math.ceil(bufferSizeForDataTextureInByte / MemoryManager.bufferWidthLength / 4 / 4),
-        MemoryManager.bufferHeightLength
-      );
-      const updateByteSize = MemoryManager.bufferWidthLength * height * 4 * 4;
-      if (bufferSizeForDataTextureInByte > dataTextureByteSize) {
-        Logger.warn('The buffer size exceeds the size of the data texture.');
-      }
-      const floatDataTextureBuffer = new Float32Array(
-        gpuInstanceDataBuffer.getArrayBuffer(),
-        startOffsetOfDataTextureOnGPUInstanceData,
-        updateByteSize / 4
-      );
-      this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
-        level: 0,
-        width: MemoryManager.bufferWidthLength,
-        height: height,
-        format: PixelFormat.RGBA,
-        type: ComponentType.Float,
-      });
+      const totalSizeOfTheBuffersInTexel = totalSizeOfTheBuffers / 4 / 4;
+      const dataTextureHeight = Math.ceil(totalSizeOfTheBuffersInTexel / dataTextureWidth);
+      const dataTextureByteSize = dataTextureWidth * dataTextureHeight * 4 * 4;
+      let copiedHeights = 0;
+      for (let i = 0; i < gpuInstanceDataBuffers.length; i++) {
+        const gpuInstanceDataBuffer = gpuInstanceDataBuffers[i];
+        const bufferSizeForDataTextureInByte =
+          i === gpuInstanceDataBuffers.length - 1
+            ? gpuInstanceDataBuffer.takenSizeInByte
+            : gpuInstanceDataBuffer.byteLength;
 
-      // debug
-      if (!WebGLStrategyDataTexture.__isDebugOperationToDataTextureBufferDone) {
-        MiscUtil.downloadTypedArray('Rhodonite_dataTextureBuffer.bin', floatDataTextureBuffer);
-        WebGLStrategyDataTexture.__isDebugOperationToDataTextureBufferDone = true;
+        const dataTextureWidthInByte = dataTextureWidth * 4 * 4;
+        const height = Math.min(Math.ceil(bufferSizeForDataTextureInByte / dataTextureWidthInByte), dataTextureHeight);
+        const updateByteSize = dataTextureWidth * height * 4 * 4;
+        if (bufferSizeForDataTextureInByte > dataTextureByteSize) {
+          Logger.warn('The buffer size exceeds the size of the data texture.');
+        }
+        const floatDataTextureBuffer = new Float32Array(gpuInstanceDataBuffer.getArrayBuffer(), 0, updateByteSize / 4);
+        this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
+          level: 0,
+          offsetX: 0,
+          offsetY: copiedHeights,
+          width: dataTextureWidth,
+          height: height,
+          format: PixelFormat.RGBA,
+          type: ComponentType.Float,
+        });
+
+        // debug
+        if (!WebGLStrategyDataTexture.__isDebugOperationToDataTextureBufferDone) {
+          MiscUtil.downloadTypedArray('Rhodonite_dataTextureBuffer.bin', floatDataTextureBuffer);
+          WebGLStrategyDataTexture.__isDebugOperationToDataTextureBufferDone = true;
+        }
+
+        copiedHeights += height;
       }
     } else {
       const morphBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
@@ -624,57 +955,61 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         _morphBufferArrayBuffer = morphBuffer.getArrayBuffer();
       }
       let floatDataTextureBuffer: Float32Array;
-      {
-        const morphBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
 
-        // the size of morph buffer.
-        let morphBufferTakenSizeInByte = 0;
-        if (Is.exist(morphBuffer)) {
-          morphBufferTakenSizeInByte = morphBuffer.takenSizeInByte;
-        }
-
-        // the arraybuffer of morph buffer.
-        let morphBufferArrayBuffer = new ArrayBuffer(0);
-        if (Is.exist(morphBuffer)) {
-          morphBufferArrayBuffer = morphBuffer.getArrayBuffer();
-        }
-
-        // the DataTexture size (GPU global storage size - UBO space size)
-        const actualSpaceForDataTextureInByte =
-          gpuInstanceDataBuffer.takenSizeInByte - startOffsetOfDataTextureOnGPUInstanceData;
-
-        // spare padding texel for texture alignment (to edge of the width of texture)
-        const paddingSpaceTexel =
-          MemoryManager.bufferWidthLength -
-          ((actualSpaceForDataTextureInByte / 4 / 4) % MemoryManager.bufferWidthLength);
-        const paddingSpaceBytes = paddingSpaceTexel * 4 * 4;
-
-        const finalArrayBuffer = MiscUtil.concatArrayBuffers2({
-          finalSize: dataTextureByteSize,
-          srcs: [gpuInstanceDataBuffer.getArrayBuffer(), morphBufferArrayBuffer],
-          srcsCopySize: [
-            // final size =
-            actualSpaceForDataTextureInByte + paddingSpaceBytes,
-            morphBufferTakenSizeInByte,
-          ],
-          srcsOffset: [startOffsetOfDataTextureOnGPUInstanceData, 0],
-        });
-
-        // warning if the used memory exceeds the size of the data texture.
-        if (actualSpaceForDataTextureInByte + paddingSpaceBytes + morphBufferTakenSizeInByte > dataTextureByteSize) {
-          Logger.warn('The buffer size exceeds the size of the data texture.');
-        }
-
-        floatDataTextureBuffer = new Float32Array(finalArrayBuffer);
-        SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData =
-          gpuInstanceDataBuffer.takenSizeInByte + paddingSpaceBytes;
+      // the size of morph buffer.
+      let morphBufferTakenSizeInByte = 0;
+      if (Is.exist(morphBuffer)) {
+        morphBufferTakenSizeInByte = morphBuffer.takenSizeInByte;
       }
+
+      // the arraybuffer of morph buffer.
+      let morphBufferArrayBuffer = new ArrayBuffer(0);
+      if (Is.exist(morphBuffer)) {
+        morphBufferArrayBuffer = morphBuffer.getArrayBuffer();
+      }
+
+      const srcs = gpuInstanceDataBuffers.map(buffer => buffer.getArrayBuffer());
+      srcs.push(morphBufferArrayBuffer);
+
+      const srcsCopySizes: Byte[] = [];
+      const srcsOffsets: Byte[] = [];
+      gpuInstanceDataBuffers.forEach(buffer => {
+        // spare padding texel for texture alignment (to edge of the width of texture)
+        const paddingSpaceTexel = dataTextureWidth - ((buffer.takenSizeInByte / 4 / 4) % dataTextureWidth);
+        const paddingSpaceBytes = paddingSpaceTexel * 4 * 4;
+        srcsCopySizes.push(buffer.takenSizeInByte + paddingSpaceBytes);
+        srcsOffsets.push(0);
+      });
+      srcsOffsets.push(0);
+      const srcCopySizesExceptMorphBuffer = srcsCopySizes.slice();
+      srcsCopySizes.push(morphBufferTakenSizeInByte);
+
+      const totalSizeOfTheBuffersInTexel = (totalSizeOfTheBuffers + morphBufferTakenSizeInByte) / 4 / 4;
+      const dataTextureHeight = Math.ceil(totalSizeOfTheBuffersInTexel / dataTextureWidth);
+      const dataTextureByteSize = dataTextureWidth * dataTextureHeight * 4 * 4;
+      const finalArrayBuffer = MiscUtil.concatArrayBuffers2({
+        finalSize: dataTextureByteSize,
+        srcs: srcs,
+        srcsCopySize: srcsCopySizes,
+        srcsOffset: srcsOffsets,
+      });
+
+      // warning if the used memory exceeds the size of the data texture.
+      if (srcsCopySizes.reduce((acc, size) => acc + size, 0) > dataTextureByteSize) {
+        Logger.warn('The buffer size exceeds the size of the data texture.');
+      }
+
+      floatDataTextureBuffer = new Float32Array(finalArrayBuffer);
+      SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData = srcCopySizesExceptMorphBuffer.reduce(
+        (acc, size) => acc + size,
+        0
+      );
 
       // write data
       this.__dataTextureUid = this.__webglResourceRepository.createTextureFromTypedArray(floatDataTextureBuffer!, {
         internalFormat: TextureFormat.RGBA32F,
-        width: MemoryManager.bufferWidthLength,
-        height: MemoryManager.bufferHeightLength,
+        width: dataTextureWidth,
+        height: dataTextureHeight,
         format: PixelFormat.RGBA,
         type: ComponentType.Float,
         generateMipmap: false,
@@ -717,6 +1052,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       AnimationComponent.isAnimating ||
       TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
       SceneGraphComponent.updateCount !== this.__lastSceneGraphComponentsUpdateCount ||
+      CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
+      CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
       Material.stateVersion !== this.__lastMaterialsUpdateCount
     ) {
       // Setup GPU Storage (Data Texture & UBO)
@@ -724,17 +1061,53 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__createAndUpdateUBO();
       this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
       this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
-      this.__lastMaterialsUpdateCount = Material.stateVersion;
-    } else if (
-      CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
-      CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount
-    ) {
-      this.__createAndUpdateDataTextureForCameraOnly();
       this.__lastCameraComponentsUpdateCount = CameraComponent.currentCameraUpdateCount;
       this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
+      this.__lastMaterialsUpdateCount = Material.stateVersion;
     }
 
+    if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForWeights) {
+      this.__updateUniformMorph();
+      this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
+    }
+
+    this.__updateMorphOffsetsUniformBuffers();
+
     this.__lightComponents = ComponentRepository.getComponentsWithType(LightComponent) as LightComponent[] | undefined;
+  }
+
+  /**
+   * Updates uniform buffers containing morph target weights for blend shape animation.
+   * Copies weight values from blend shape components to GPU-accessible uniform buffers.
+   */
+  private __updateUniformMorph() {
+    const memoryManager: MemoryManager = MemoryManager.getInstance();
+    const blendShapeDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUVertexData);
+    if (blendShapeDataBuffer == null) {
+      return;
+    }
+    if (blendShapeDataBuffer.takenSizeInByte === 0) {
+      return;
+    }
+
+    const blendShapeComponents = ComponentRepository.getComponentsWithType(BlendShapeComponent);
+    for (let i = 0; i < blendShapeComponents.length; i++) {
+      const blendShapeComponent = blendShapeComponents[i] as BlendShapeComponent;
+      const weights = blendShapeComponent!.weights;
+      for (let j = 0; j < weights.length; j++) {
+        this.__uniformMorphWeightsTypedArray![Config.maxMorphTargetNumber * blendShapeComponent.componentSID + j] =
+          weights[j];
+      }
+    }
+    if (blendShapeComponents.length > 0) {
+      const elementNumToCopy = Config.maxMorphTargetNumber * blendShapeComponents.length;
+      this.__webglResourceRepository.updateUniformBuffer(
+        this.__morphWeightsUniformBufferUid,
+        this.__uniformMorphWeightsTypedArray!,
+        0,
+        elementNumToCopy
+      );
+    }
   }
 
   /**
@@ -1199,6 +1572,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       worldMatrix: entity.getSceneGraph()!.matrixInner,
       normalMatrix: entity.getSceneGraph()!.normalMatrixInner,
       isBillboard: entity.getSceneGraph().isBillboard,
+      isVisible: entity.getSceneGraph().isVisible,
       lightComponents: this.__lightComponents!,
       renderPass: renderPass,
       primitive: primitive,

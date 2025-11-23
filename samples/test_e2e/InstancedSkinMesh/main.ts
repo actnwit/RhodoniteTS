@@ -5,10 +5,6 @@ declare const window: any;
 declare const Stats: any;
 
 //-------------------------------
-Rn.Config.maxEntityNumber = 20000;
-Rn.Config.dataTextureWidth = 2 ** 13;
-Rn.Config.dataTextureHeight = 2 ** 13;
-Rn.Config.maxSkeletonNumber = 200;
 Rn.Config.cgApiDebugConsoleOutput = true;
 await Rn.System.init({
   approach: Rn.ProcessApproach.DataTexture,

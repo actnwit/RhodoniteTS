@@ -237,6 +237,7 @@ export abstract class AbstractMaterialContent extends RnObject {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
       this.setNormalMatrix(shaderProgram, args.normalMatrix);
       this.setIsBillboard(shaderProgram, args.isBillboard);
+      this.setIsVisible(shaderProgram, args.isVisible);
       if (firstTime || args.isVr) {
         let cameraComponent = args.renderPass.cameraComponent;
         if (cameraComponent == null) {
@@ -287,6 +288,15 @@ export abstract class AbstractMaterialContent extends RnObject {
    */
   protected setIsBillboard(shaderProgram: WebGLProgram, isBillboard: boolean) {
     (shaderProgram as any)._gl.uniform1i((shaderProgram as any).isBillboard, isBillboard ? 1 : 0);
+  }
+
+  /**
+   * Sets the visibility flag uniform in the shader.
+   * @param shaderProgram - The WebGL shader program
+   * @param isVisible - Whether the object should be rendered
+   */
+  protected setIsVisible(shaderProgram: WebGLProgram, isVisible: boolean) {
+    (shaderProgram as any)._gl.uniform1i((shaderProgram as any).isVisible, isVisible ? 1 : 0);
   }
 
   /**
@@ -492,7 +502,7 @@ export abstract class AbstractMaterialContent extends RnObject {
     shaderProgram: WebGLProgram,
     _meshComponent: MeshComponent,
     primitive: Primitive,
-    blendShapeComponent?: BlendShapeComponent
+    _blendShapeComponent?: BlendShapeComponent
   ) {
     if (!this.__isMorphing) {
       return;
@@ -502,26 +512,9 @@ export abstract class AbstractMaterialContent extends RnObject {
     }
 
     (shaderProgram as any)._gl.uniform1i((shaderProgram as any).morphTargetNumber, primitive.targets.length);
-    const dataTextureMorphOffsetPositionOfTargets: number[] = primitive.targets.map((target: Attributes) => {
-      const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
-      let offset = 0;
 
-      if (ProcessApproach.isDataTextureApproach(SystemState.currentProcessApproach)) {
-        offset = SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData;
-      }
-      return (offset + accessor.byteOffsetInBuffer) / 4 / 4;
-    });
-    (shaderProgram as any)._gl.uniform1iv(
-      (shaderProgram as any).dataTextureMorphOffsetPosition,
-      dataTextureMorphOffsetPositionOfTargets
-    );
-    let weights: Float32Array | number[];
-    if (blendShapeComponent!.weights.length > 0) {
-      weights = blendShapeComponent!.weights;
-    } else {
-      weights = new Float32Array(primitive.targets.length);
-    }
-    (shaderProgram as any)._gl.uniform1fv((shaderProgram as any).morphWeights, weights);
+    const primitiveIdx = (primitive.constructor as typeof Primitive).getPrimitiveIdxHasMorph(primitive.primitiveUid)!;
+    (shaderProgram as any)._gl.uniform1i((shaderProgram as any).currentPrimitiveIdx, primitiveIdx);
   }
 
   /**

@@ -45,6 +45,7 @@ import type {
   CGAPIResourceHandle,
   Count,
   Index,
+  Offset,
   Size,
   TypedArray,
   WebGLResourceHandle,
@@ -2696,12 +2697,16 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     textureData: DirectTextureData,
     {
       level,
+      offsetX,
+      offsetY,
       width,
       height,
       format,
       type,
     }: {
       level: Index;
+      offsetX: Offset;
+      offsetY: Offset;
       width: Size;
       height: Size;
       format: PixelFormatEnum;
@@ -2716,8 +2721,8 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     gl.texSubImage2D(
       gl.TEXTURE_2D,
       level,
-      0,
-      0,
+      offsetX,
+      offsetY,
       width,
       height,
       format.index,
@@ -2840,7 +2845,20 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     return data;
   }
 
-  createUniformBuffer(bufferView: TypedArray | DataView) {
+  createUniformBuffer() {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+
+    if (gl == null) {
+      throw new Error('No WebGLRenderingContext set as Default.');
+    }
+
+    const ubo = gl.createBuffer();
+    const resourceHandle = this.__registerResource(ubo!);
+
+    return resourceHandle;
+  }
+
+  createUniformBufferWithBufferView(bufferView: TypedArray | DataView) {
     const gl = this.__glw!.getRawContextAsWebGL2();
 
     if (gl == null) {
@@ -2930,6 +2948,23 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     gl.bindBuffer(gl.UNIFORM_BUFFER, null);
 
     return resourceHandle;
+  }
+
+  setUniformBlockBindingForMorphOffsetsAndWeights(
+    shaderProgramUid: WebGLResourceHandle,
+    morphOffsetsUBOUid: WebGLResourceHandle,
+    morphWeightsUBOUid: WebGLResourceHandle
+  ) {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const shaderProgram = this.getWebGLResource(shaderProgramUid)! as WebGLProgram;
+    const morphOffsetsUBO = this.getWebGLResource(morphOffsetsUBOUid)! as WebGLBuffer;
+    const morphWeightsUBO = this.getWebGLResource(morphWeightsUBOUid)! as WebGLBuffer;
+    const blockOfOffsets = gl.getUniformBlockIndex(shaderProgram, 'UniformMorphOffsets');
+    const blockOfWeights = gl.getUniformBlockIndex(shaderProgram, 'UniformMorphWeights');
+    gl.uniformBlockBinding(shaderProgram, blockOfOffsets, 0);
+    gl.uniformBlockBinding(shaderProgram, blockOfWeights, 1);
+    gl.bindBufferBase(gl.UNIFORM_BUFFER, 0, morphOffsetsUBO);
+    gl.bindBufferBase(gl.UNIFORM_BUFFER, 1, morphWeightsUBO);
   }
 
   getGlslRenderTargetBeginString(renderTargetNumber: number) {

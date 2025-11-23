@@ -5,14 +5,8 @@ let p: any;
 declare const window: any;
 declare const Stats: any;
 
-Rn.Config.maxEntityNumber = 40000;
-Rn.Config.maxMaterialInstanceForEachType = 30;
 // Rn.Config.maxCameraNumber = 3;
-Rn.Config.maxSkeletalBoneNumber = 400;
-Rn.Config.maxSkeletonNumber = 1504;
 Rn.Config.maxSkeletalBoneNumberForUniformMode = 100;
-Rn.Config.dataTextureWidth = 2 ** 13;
-Rn.Config.dataTextureHeight = 2 ** 12;
 Rn.Config.isUboEnabled = false;
 Rn.Config.cgApiDebugConsoleOutput = true;
 
@@ -20,6 +14,7 @@ await Rn.System.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
+Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // params
 

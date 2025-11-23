@@ -104,29 +104,16 @@ const g_sampler = new Sampler({
 
 /**
  * Creates a new material with the specified material content and maximum instances.
- * This function automatically manages material grouping when instance limits are reached.
  *
  * @param materialContent - The material content that defines the material's properties and shaders
- * @param maxInstancesNumber - The maximum number of instances that can use this material
+ * @param materialCountPerBufferView - the material count per buffer view
  * @returns A newly created Material instance
- * @throws Error if material creation fails after exhausting all groups
  */
-function createMaterial(materialContent: AbstractMaterialContent, maxInstancesNumber?: Count): Material {
-  let group = 0;
-  let isFull = false;
+function createMaterial(materialContent: AbstractMaterialContent, materialCountPerBufferView?: Count): Material {
   const materialSemanticsVariantName = materialContent.getMaterialSemanticsVariantName();
-  do {
-    const actualMaterialTypeName = `${materialSemanticsVariantName}__group${group}`;
-    isFull = MaterialRepository.isFullOrOverOfThisMaterialType(actualMaterialTypeName);
-    if (!isFull) {
-      MaterialRepository.registerMaterial(actualMaterialTypeName, materialContent, maxInstancesNumber!);
-      const material = MaterialRepository.createMaterial(actualMaterialTypeName, materialContent);
-      return material;
-    }
-    group++;
-  } while (isFull);
-
-  throw new Error('Failed to create material');
+  MaterialRepository.registerMaterial(materialSemanticsVariantName, materialContent, materialCountPerBufferView);
+  const material = MaterialRepository.createMaterial(materialSemanticsVariantName, materialContent);
+  return material;
 }
 
 /**
@@ -135,13 +122,13 @@ function createMaterial(materialContent: AbstractMaterialContent, maxInstancesNu
  *
  * @param currentMaterial - The existing material to potentially reuse
  * @param materialContent - The new material content to apply
- * @param maxInstancesNumber - The maximum number of instances for the material
+ * @param materialCountPerBufferView - the material count per buffer view
  * @returns The reused or newly created Material instance
  */
 function reuseOrRecreateMaterial(
   currentMaterial: Material,
   materialContent: AbstractMaterialContent,
-  maxInstancesNumber: Count
+  materialCountPerBufferView: Count
 ): Material {
   let material = currentMaterial;
   if (MaterialRepository.isMaterialCompatible(material, materialContent)) {
@@ -150,7 +137,7 @@ function reuseOrRecreateMaterial(
     return material;
   }
   const materialSemanticsVariantName = materialContent.getMaterialSemanticsVariantName();
-  MaterialRepository.registerMaterial(materialSemanticsVariantName, materialContent, maxInstancesNumber);
+  MaterialRepository.registerMaterial(materialSemanticsVariantName, materialContent, materialCountPerBufferView);
   material = MaterialRepository.createMaterial(materialSemanticsVariantName, materialContent);
   return material;
 }
@@ -160,12 +147,12 @@ function reuseOrRecreateMaterial(
  * Use this when you need to ensure a completely fresh material instance.
  *
  * @param materialContent - The material content for the new material
- * @param maxInstancesNumber - The maximum number of instances for the material
+ * @param materialCountPerBufferView - the material count per buffer view
  * @returns A newly recreated Material instance
  */
-function recreateMaterial(materialContent: AbstractMaterialContent, maxInstancesNumber?: Count): Material {
+function recreateMaterial(materialContent: AbstractMaterialContent, materialCountPerBufferView?: Count): Material {
   const materialSemanticsVariantName = materialContent.getMaterialSemanticsVariantName();
-  MaterialRepository.forceRegisterMaterial(materialSemanticsVariantName, materialContent, maxInstancesNumber!);
+  MaterialRepository.forceRegisterMaterial(materialSemanticsVariantName, materialContent, materialCountPerBufferView);
 
   const material = MaterialRepository.createMaterial(materialSemanticsVariantName, materialContent);
   return material;
@@ -217,7 +204,7 @@ function createPbrUberMaterial({
   isDiffuseTransmission = false,
   isShadow = false,
   useNormalTexture = true,
-  maxInstancesNumber = Config.maxMaterialInstanceForEachType,
+  maxInstancesNumber = Config.materialCountPerBufferView,
 } = {}) {
   const materialName = `PbrUber_${additionalName}_`;
 
@@ -568,7 +555,7 @@ function createClassicUberMaterial({
   isLighting = false,
   isMorphing = false,
   isShadow = false,
-  maxInstancesNumber = Config.maxMaterialInstanceForEachType,
+  maxInstancesNumber = Config.materialCountPerBufferView,
 } = {}) {
   const materialName = `ClassicUber_${additionalName}_`;
   const additionalShaderSemanticInfo = [
@@ -639,7 +626,7 @@ function createParaboloidDepthMomentEncodeMaterial({
   additionalName = '',
   isSkinning = true,
   isMorphing = false,
-  maxInstancesNumber = Config.maxMaterialInstanceForEachType,
+  maxInstancesNumber = Config.materialCountPerBufferView,
 } = {}) {
   const materialName = `ParaboloidDepthMomentEncode_${additionalName}_`;
 
@@ -703,7 +690,7 @@ function createDepthMomentEncodeMaterial({
   additionalName = '',
   isSkinning = true,
   isMorphing = false,
-  maxInstancesNumber = Config.maxMaterialInstanceForEachType,
+  maxInstancesNumber = Config.materialCountPerBufferView,
 } = {}) {
   const materialName = `DepthMomentEncode_${additionalName}_`;
 
@@ -767,7 +754,7 @@ function createFlatMaterial({
   additionalName = '',
   isSkinning = true,
   isMorphing = false,
-  maxInstancesNumber = Config.maxMaterialInstanceForEachType,
+  maxInstancesNumber = Config.materialCountPerBufferView,
 } = {}) {
   const materialName = `Flat_${additionalName}_`;
 
@@ -1494,7 +1481,7 @@ function createMToon0xMaterial({
   textures,
   samplers,
   debugMode,
-  maxInstancesNumber = Config.maxMaterialInstanceForEachType,
+  maxInstancesNumber = Config.materialCountPerBufferView,
   makeOutputSrgb = true,
 }: {
   additionalName?: string;
@@ -1573,7 +1560,7 @@ function createMToon1Material({
   isLighting = true,
   isOutline = false,
   materialJson,
-  maxInstancesNumber = Config.maxMaterialInstanceForEachType,
+  maxInstancesNumber = Config.materialCountPerBufferView,
   makeOutputSrgb = true,
 }: {
   additionalName?: string;
@@ -1643,7 +1630,7 @@ function reuseOrRecreateCustomMaterial(
   vertexShaderStr: string,
   pixelShaderStr: string,
   {
-    maxInstancesNumber = Config.maxMaterialInstanceForEachType,
+    maxInstancesNumber = Config.materialCountPerBufferView,
     isSkinning = true,
     isLighting = true,
     isMorphing = true,

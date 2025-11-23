@@ -11,11 +11,7 @@ describe('SceneGraphComponent', () => {
   }
 
   beforeAll(() => {
-    MemoryManager.createInstanceIfNotCreated({
-      cpuGeneric: 1,
-      gpuInstanceData: 1,
-      gpuVertexData: 1,
-    });
+    MemoryManager.createInstanceIfNotCreated(1024 * 1024 * 4 /* rgba */ * 4 /* byte */);
   });
 
   test('create Parents and children.', () => {

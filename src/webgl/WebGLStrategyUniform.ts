@@ -1,7 +1,9 @@
 import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
+import { BlendShapeComponent } from '../foundation/components/BlendShape/BlendShapeComponent';
 import { LightComponent } from '../foundation/components/Light/LightComponent';
 import type { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
+import { Component } from '../foundation/core/Component';
 import { ComponentRepository } from '../foundation/core/ComponentRepository';
 import { Config } from '../foundation/core/Config';
 import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
@@ -12,14 +14,16 @@ import { CompositionType } from '../foundation/definitions/CompositionType';
 import { PixelFormat } from '../foundation/definitions/PixelFormat';
 import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
 import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
-import { ShaderType } from '../foundation/definitions/ShaderType';
+import { ShaderType, type ShaderTypeEnum } from '../foundation/definitions/ShaderType';
 import { TextureFormat } from '../foundation/definitions/TextureFormat';
 import { TextureParameter } from '../foundation/definitions/TextureParameter';
+import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
 import type { Mesh } from '../foundation/geometry/Mesh';
 import { Primitive } from '../foundation/geometry/Primitive';
 import type { Material } from '../foundation/materials/core/Material';
 import type { Scalar } from '../foundation/math/Scalar';
 import type { Vector2 } from '../foundation/math/Vector2';
+import type { Accessor } from '../foundation/memory/Accessor';
 import type { Buffer } from '../foundation/memory/Buffer';
 import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
@@ -29,6 +33,7 @@ import type { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
 import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
 import { ModuleManager } from '../foundation/system/ModuleManager';
+import { SystemState } from '../foundation/system/SystemState';
 import type { CGAPIResourceHandle, Count, Index, PrimitiveUID, WebGLResourceHandle } from '../types/CommonTypes';
 import type { WebXRSystem } from '../xr/WebXRSystem';
 import type { RnXR } from '../xr/main';
@@ -51,9 +56,16 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __morphOffsetsUniformBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __morphWeightsUniformBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __uniformMorphOffsetsTypedArray?: Uint32Array;
+  private __uniformMorphWeightsTypedArray?: Float32Array;
   private __lastShader: CGAPIResourceHandle = -1;
   private __lastMaterial?: WeakRef<Material>;
   private __lastRenderPassTickCount = -1;
+  private __lastMorphMaxIndex = -1;
+  private __lastBlendShapeComponentsUpdateCountForWeights = -1;
+  private __lastPrimitiveUidIdxHasMorphCount = -1;
   private __lightComponents?: LightComponent[];
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __webxrSystem: WebXRSystem;
@@ -62,44 +74,36 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
    * Shader semantics information for component matrices used in uniform rendering strategy.
    * Defines world matrix, normal matrix, billboard flag, and vertex attributes existence array.
    */
-  private static readonly componentMatrices: ShaderSemanticsInfo[] = [
-    {
-      semantic: 'vertexAttributesExistenceArray',
-      compositionType: CompositionType.ScalarArray,
-      componentType: ComponentType.Int,
-      stage: ShaderType.VertexShader,
-      min: 0,
-      max: 1,
-      isInternalSetting: true,
-    },
-    {
-      semantic: 'worldMatrix',
-      compositionType: CompositionType.Mat4,
-      componentType: ComponentType.Float,
-      stage: ShaderType.VertexShader,
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      isInternalSetting: true,
-    },
-    {
-      semantic: 'normalMatrix',
-      compositionType: CompositionType.Mat3,
-      componentType: ComponentType.Float,
-      stage: ShaderType.VertexShader,
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      isInternalSetting: true,
-    },
-    {
-      semantic: 'isBillboard',
-      compositionType: CompositionType.Scalar,
-      componentType: ComponentType.Bool,
-      stage: ShaderType.VertexShader,
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      isInternalSetting: true,
-    },
-  ];
+  private static getComponentMatricesInfoArray(): ShaderSemanticsInfo[] {
+    const shaderSemanticsInfos: ShaderSemanticsInfo[] = [
+      {
+        semantic: 'vertexAttributesExistenceArray',
+        compositionType: CompositionType.ScalarArray,
+        componentType: ComponentType.Int,
+        stage: ShaderType.VertexShader,
+        min: 0,
+        max: 1,
+        isInternalSetting: true,
+      },
+    ];
+
+    const memberInfo = Component.getMemberInfo();
+    memberInfo.forEach((mapMemberNameMemberInfo, _componentClass) => {
+      mapMemberNameMemberInfo.forEach((memberInfo, memberName) => {
+        shaderSemanticsInfos.push({
+          semantic: memberName,
+          compositionType: memberInfo.compositionType,
+          componentType: memberInfo.convertToBool ? ComponentType.Bool : memberInfo.componentType,
+          stage: ShaderType.VertexShader,
+          min: -Number.MAX_VALUE,
+          max: Number.MAX_VALUE,
+          isInternalSetting: true,
+        });
+      });
+    });
+
+    return shaderSemanticsInfos;
+  }
 
   /**
    * Private constructor to enforce singleton pattern.
@@ -107,75 +111,83 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   private constructor() {}
 
   /**
-   * Vertex shader method definitions for uniform-based rendering.
-   * Provides GLSL functions for accessing world matrix, normal matrix, visibility,
-   * billboard state, and morphing functionality through uniforms.
+   * method definitions for component data access for uniform-based rendering.
+   * Provides GLSL functions for accessing component data through uniforms.
    */
-  private static __vertexShaderMethodDefinitions_uniform = `uniform mat4 u_worldMatrix;
-uniform mat3 u_normalMatrix;
-uniform bool u_isBillboard;
-
-mat4 get_worldMatrix(float instanceId) {
-  return u_worldMatrix;
-}
-
-mat3 get_normalMatrix(float instanceId) {
-  return u_normalMatrix;
-}
-
-bool get_isVisible(float instanceId) {
-  return true; // visibility is handled in CPU side in WebGLStrategyUniform, so this is dummy value.
-}
-
-bool get_isBillboard(float instanceId) {
-  return u_isBillboard;
-}
+  private static __getComponentDataAccessMethodDefinitions_uniform(shaderType: ShaderTypeEnum) {
+    let str = '';
+    const memberInfo = Component.getMemberInfo();
+    memberInfo.forEach((mapMemberNameMemberInfo, _componentClass) => {
+      mapMemberNameMemberInfo.forEach((memberInfo, memberName) => {
+        if (memberInfo.shaderType !== shaderType && memberInfo.shaderType !== ShaderType.VertexAndPixelShader) {
+          return;
+        }
+        let typeStr = '';
+        switch (memberInfo.compositionType) {
+          case CompositionType.Mat4:
+            typeStr = 'mat4';
+            break;
+          case CompositionType.Mat3:
+            typeStr = 'mat3';
+            break;
+          case CompositionType.Vec4:
+            typeStr = 'vec4';
+            break;
+          case CompositionType.Vec3:
+            typeStr = 'vec3';
+            break;
+          case CompositionType.Scalar:
+            typeStr = 'float';
+            break;
+          case CompositionType.Mat4x3Array:
+            typeStr = 'mat4x3';
+            break;
+          case CompositionType.Vec4Array:
+            typeStr = 'vec4';
+            break;
+          default:
+            throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
+        }
+        const isArray = CompositionType.isArray(memberInfo.compositionType);
+        str += `uniform ${memberInfo.convertToBool ? 'bool' : typeStr} u_${memberName}${isArray ? `[${Config.maxSkeletalBoneNumberForUniformMode}]` : ''};\n`;
+        str += `${memberInfo.convertToBool ? 'bool' : typeStr} get_${memberName}(float instanceId${isArray ? ', int idxOfArray' : ''}) {
+  return u_${memberName}${isArray ? '[idxOfArray]' : ''};
+}\n`;
+      });
+    });
+    if (shaderType === ShaderType.VertexShader) {
+      const MorphingStr = `
 
 #ifdef RN_IS_VERTEX_SHADER
-# ifdef RN_IS_MORPHING
-  vec3 get_position(float vertexId, vec3 basePosition) {
+  #ifdef RN_IS_MORPHING
+  vec3 get_position(float vertexId, vec3 basePosition, int blendShapeComponentSID) {
     vec3 position = basePosition;
     int scalar_idx = 3 * int(vertexId);
-    #ifdef GLSL_ES3
-      int posIn4bytes = scalar_idx % 4;
-    #else
-      int posIn4bytes = int(mod(float(scalar_idx), 4.0));
-    #endif
-    for (int i=0; i<${Config.maxMorphTargetNumber}; i++) {
+    for (int i=0; i<u_morphTargetNumber; i++) {
+      int currentPrimitiveIdx = u_currentPrimitiveIdx;
+      int idx = ${Config.maxMorphTargetNumber} * currentPrimitiveIdx + i;
+      ivec4 offsets = uniformMorphOffsets.data[ idx / 4];
+      int offsetPosition = offsets[idx % 4];
 
-      int basePosIn16bytes = u_dataTextureMorphOffsetPosition[i] + (scalar_idx - posIn4bytes)/4;
+      int basePosIn4bytes = offsetPosition * 4 + scalar_idx;
+      vec3 addPos = fetchVec3No16BytesAligned(basePosIn4bytes);
 
-      vec3 addPos = vec3(0.0);
-      if (posIn4bytes == 0) {
-        vec4 val = fetchElement(basePosIn16bytes);
-        addPos = val.xyz;
-      } else if (posIn4bytes == 1) {
-        vec4 val0 = fetchElement(basePosIn16bytes);
-        addPos = vec3(val0.yzw);
-      } else if (posIn4bytes == 2) {
-        vec4 val0 = fetchElement(basePosIn16bytes);
-        vec4 val1 = fetchElement(basePosIn16bytes+1);
-        addPos = vec3(val0.zw, val1.x);
-      } else if (posIn4bytes == 3) {
-        vec4 val0 = fetchElement(basePosIn16bytes);
-        vec4 val1 = fetchElement(basePosIn16bytes+1);
-        addPos = vec3(val0.w, val1.xy);
-      }
+      int idx2 = ${Config.maxMorphTargetNumber} * blendShapeComponentSID + i;
+      vec4 morphWeights = uniformMorphWeights.data[ idx2 / 4];
+      float morphWeight = morphWeights[idx2 % 4];
 
-      // int index = u_dataTextureMorphOffsetPosition[i] + 1 * int(vertexId);
-      // vec3 addPos = fetchElement(u_dataTexture, index, widthOfDataTexture, heightOfDataTexture).xyz;
-
-      position += addPos * u_morphWeights[i];
-      if (i == u_morphTargetNumber-1) {
-        break;
-      }
+      position += addPos * morphWeight;
     }
 
     return position;
   }
-# endif
+  #endif
 #endif
   `;
+      str += MorphingStr;
+    }
+    return str;
+  }
 
   /**
    * Sets up shader program for the given material and primitive in this WebGL strategy.
@@ -187,13 +199,14 @@ bool get_isBillboard(float instanceId) {
    */
   public setupShaderForMaterial(material: Material, primitive: Primitive): CGAPIResourceHandle {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
-    const glw = webglResourceRepository.currentWebGLContextWrapper!;
+    const _glw = webglResourceRepository.currentWebGLContextWrapper!;
 
     const [programUid, newOne] = material._createProgramWebGL(
-      WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform,
-      ShaderSemantics.getShaderProperty,
-      primitive,
-      glw.isWebGL2
+      WebGLStrategyUniform.__getComponentDataAccessMethodDefinitions_uniform(ShaderType.VertexShader),
+      WebGLStrategyUniform.__getComponentDataAccessMethodDefinitions_uniform(ShaderType.PixelShader),
+      ShaderSemantics.getShaderPropertyOfGlobalDataRepository,
+      ShaderSemantics.getShaderPropertyOfMaterial,
+      primitive
     );
 
     if (newOne) {
@@ -201,7 +214,7 @@ bool get_isBillboard(float instanceId) {
 
       material._setUniformLocationsOfMaterialNodes(true, primitive);
 
-      const shaderSemanticsInfos = WebGLStrategyUniform.componentMatrices;
+      const shaderSemanticsInfos = WebGLStrategyUniform.getComponentMatricesInfoArray();
       const shaderSemanticsInfosPointSprite = WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray();
 
       material._setupAdditionalUniformLocations(
@@ -212,6 +225,12 @@ bool get_isBillboard(float instanceId) {
 
       WebGLStrategyUniform.__globalDataRepository._setUniformLocationsForUniformModeOnly(
         material.getShaderProgramUid(primitive)
+      );
+
+      webglResourceRepository.setUniformBlockBindingForMorphOffsetsAndWeights(
+        programUid,
+        this.__morphOffsetsUniformBufferUid,
+        this.__morphWeightsUniformBufferUid
       );
     }
 
@@ -244,7 +263,7 @@ bool get_isBillboard(float instanceId) {
 
       material._setUniformLocationsOfMaterialNodes(true, primitive);
 
-      const shaderSemanticsInfos = WebGLStrategyUniform.componentMatrices;
+      const shaderSemanticsInfos = WebGLStrategyUniform.getComponentMatricesInfoArray();
       const shaderSemanticsInfosPointSprite = WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray();
 
       material._setupAdditionalUniformLocations(
@@ -282,6 +301,94 @@ bool get_isBillboard(float instanceId) {
     return true;
   }
 
+  private __updateMorphOffsetsUniformBuffersInner() {
+    let i = 0;
+    for (; i < Config.maxMorphPrimitiveNumber; i++) {
+      const primitive = Primitive.getPrimitiveHasMorph(i);
+      if (primitive != null) {
+        for (let j = 0; j < primitive.targets.length; j++) {
+          const target = primitive.targets[j];
+          const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
+          this.__uniformMorphOffsetsTypedArray![Config.maxMorphTargetNumber * i + j] =
+            (SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData + accessor.byteOffsetInBuffer) / 4 / 4;
+        }
+        this.__lastMorphMaxIndex = Config.maxMorphTargetNumber * i + primitive.targets.length - 1;
+      } else {
+        break;
+      }
+    }
+    const elementNumToCopy = Config.maxMorphTargetNumber * i;
+    this.__webglResourceRepository.updateUniformBuffer(
+      this.__morphOffsetsUniformBufferUid,
+      this.__uniformMorphOffsetsTypedArray!,
+      0,
+      elementNumToCopy
+    );
+  }
+
+  private __initMorphUniformBuffers() {
+    if (this.__morphOffsetsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const inputArray = new Uint32Array(
+        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
+      );
+      this.__morphOffsetsUniformBufferUid =
+        this.__webglResourceRepository.createUniformBufferWithBufferView(inputArray);
+    }
+    if (this.__morphWeightsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const inputArray = new Uint32Array(
+        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
+      );
+      this.__morphWeightsUniformBufferUid =
+        this.__webglResourceRepository.createUniformBufferWithBufferView(inputArray);
+    }
+
+    if (this.__uniformMorphOffsetsTypedArray == null) {
+      this.__uniformMorphOffsetsTypedArray = new Uint32Array(
+        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
+      );
+    }
+
+    if (this.__uniformMorphWeightsTypedArray == null) {
+      this.__uniformMorphWeightsTypedArray = new Float32Array(
+        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
+      );
+    }
+  }
+
+  /**
+   * Updates uniform buffers containing morph target weights for blend shape animation.
+   * Copies weight values from blend shape components to GPU-accessible uniform buffers.
+   */
+  private __updateUniformMorph() {
+    const memoryManager: MemoryManager = MemoryManager.getInstance();
+    const blendShapeDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUVertexData);
+    if (blendShapeDataBuffer == null) {
+      return;
+    }
+    if (blendShapeDataBuffer.takenSizeInByte === 0) {
+      return;
+    }
+
+    const blendShapeComponents = ComponentRepository.getComponentsWithType(BlendShapeComponent);
+    for (let i = 0; i < blendShapeComponents.length; i++) {
+      const blendShapeComponent = blendShapeComponents[i] as BlendShapeComponent;
+      const weights = blendShapeComponent!.weights;
+      for (let j = 0; j < weights.length; j++) {
+        this.__uniformMorphWeightsTypedArray![Config.maxMorphTargetNumber * blendShapeComponent.componentSID + j] =
+          weights[j];
+      }
+    }
+    if (blendShapeComponents.length > 0) {
+      const elementNumToCopy = Config.maxMorphTargetNumber * blendShapeComponents.length;
+      this.__webglResourceRepository.updateUniformBuffer(
+        this.__morphWeightsUniformBufferUid,
+        this.__uniformMorphWeightsTypedArray!,
+        0,
+        elementNumToCopy
+      );
+    }
+  }
+
   /**
    * Performs pre-rendering setup operations.
    * Initializes light components, sets up data texture for GPU vertex data,
@@ -298,10 +405,18 @@ bool get_isBillboard(float instanceId) {
         return;
       }
 
-      if (buffer.takenSizeInByte / MemoryManager.bufferWidthLength / 4 > MemoryManager.bufferHeightLength) {
+      const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
+      if (glw == null) {
+        return;
+      }
+      const dataTextureWidth = glw.getMaxTextureSize();
+      const totalSizeOfTheBuffersInTexel = buffer.takenSizeInByte / 4 / 4;
+      const dataTextureHeight = Math.ceil(totalSizeOfTheBuffersInTexel / dataTextureWidth);
+
+      if (buffer.takenSizeInByte / dataTextureWidth / 4 > dataTextureHeight) {
         Logger.warn('The buffer size exceeds the size of the data texture.');
       }
-      const dataTextureByteSize = MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
+      const dataTextureByteSize = dataTextureWidth * dataTextureHeight * 4 * 4;
       const concatArrayBuffer = MiscUtil.concatArrayBuffers2({
         finalSize: dataTextureByteSize,
         srcs: [buffer.getArrayBuffer()],
@@ -312,12 +427,37 @@ bool get_isBillboard(float instanceId) {
 
       this.__dataTextureUid = this.__webglResourceRepository.createTextureFromTypedArray(floatDataTextureBuffer, {
         internalFormat: TextureFormat.RGBA32F,
-        width: MemoryManager.bufferWidthLength,
-        height: MemoryManager.bufferHeightLength,
+        width: dataTextureWidth,
+        height: dataTextureHeight,
         format: PixelFormat.RGBA,
         type: ComponentType.Float,
         generateMipmap: false,
       });
+
+      SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
+    }
+
+    if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForWeights) {
+      this.__updateUniformMorph();
+      this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
+    }
+
+    this.__updateMorphOffsetsUniformBuffers();
+  }
+
+  /**
+   * Deletes the current data texture and frees associated GPU resources.
+   * This method should be called when the data texture needs to be recreated
+   * or when cleaning up resources.
+   *
+   * @remarks
+   * After calling this method, the data texture UID is reset to an invalid state,
+   * and a new data texture will be created on the next rendering cycle.
+   */
+  deleteDataTexture(): void {
+    if (this.__dataTextureUid != null) {
+      this.__webglResourceRepository.deleteTexture(this.__dataTextureUid);
+      this.__dataTextureUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     }
   }
 
@@ -410,6 +550,19 @@ bool get_isBillboard(float instanceId) {
     }
 
     return this.__instance;
+  }
+
+  common_$load(): void {
+    this.__initMorphUniformBuffers();
+  }
+
+  private __updateMorphOffsetsUniformBuffers() {
+    const morphMaxIndex = Primitive.getPrimitiveCountHasMorph();
+    if (morphMaxIndex !== this.__lastMorphMaxIndex) {
+      this.__updateMorphOffsetsUniformBuffersInner();
+      this.deleteDataTexture();
+      this.__lastMorphMaxIndex = morphMaxIndex;
+    }
   }
 
   /**
@@ -631,6 +784,7 @@ bool get_isBillboard(float instanceId) {
           worldMatrix: entity.getSceneGraph().matrix,
           normalMatrix: entity.getSceneGraph().normalMatrix,
           isBillboard: entity.getSceneGraph().isBillboard,
+          isVisible: entity.getSceneGraph().isVisible,
           lightComponents: this.__lightComponents!,
           renderPass: renderPass,
           diffuseCube: entity.tryToGetMeshRenderer()?.diffuseCubeMap,

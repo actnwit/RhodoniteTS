@@ -5,14 +5,15 @@ import { ComponentRepository } from '../../core/ComponentRepository';
 import { Config } from '../../core/Config';
 import type { IEntity } from '../../core/Entity';
 import { EntityRepository, applyMixins } from '../../core/EntityRepository';
-import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { BufferUse } from '../../definitions/BufferUse';
 import { CameraType, type CameraTypeEnum } from '../../definitions/CameraType';
 import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
 import { LightType } from '../../definitions/LightType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import { ShaderSemantics } from '../../definitions/ShaderSemantics';
+import { ShaderType } from '../../definitions/ShaderType';
 import { Frustum } from '../../geometry/Frustum';
 import type { ICameraEntity } from '../../helpers/EntityHelper';
 import { MathUtil } from '../../math/MathUtil';
@@ -42,34 +43,31 @@ import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
  */
 export class CameraComponent extends Component {
   private static readonly _eye: Vector3 = Vector3.zero();
-  private _eyeInner: MutableVector3 = MutableVector3.dummy();
-  private _direction: MutableVector3 = MutableVector3.dummy();
-  private _directionInner: MutableVector3 = MutableVector3.dummy();
-  private _up: MutableVector3 = MutableVector3.dummy();
-  private _upInner: MutableVector3 = MutableVector3.dummy();
+  private _eyeInner: MutableVector3 = MutableVector3.zero();
+  private _direction: MutableVector3 = MutableVector3.fromCopy3(0, 0, -1);
+  private _directionInner: MutableVector3 = MutableVector3.fromCopy3(0, 0, -1);
+  private _up: MutableVector3 = MutableVector3.fromCopy3(0, 1, 0);
+  private _upInner: MutableVector3 = MutableVector3.fromCopy3(0, 1, 0);
   private _filmWidth = 36; // mili meter
   private _filmHeight = 24; // mili meter
   private _focalLength = 20;
   private primitiveMode = false;
   // x: left, y:right, z:top, w: bottom
-  private _corner: MutableVector4 = MutableVector4.dummy();
-  private _cornerInner: MutableVector4 = MutableVector4.dummy();
+  private _corner: MutableVector4 = MutableVector4.fromCopy4(-1, 1, 1, -1);
+  private _cornerInner: MutableVector4 = MutableVector4.fromCopy4(-1, 1, 1, -1);
 
   // x: zNear, y: zFar,
   // if perspective, z: fovy, w: aspect
   // if ortho, z: xmag, w: ymag
-  private _parameters: MutableVector4 = MutableVector4.dummy();
-  private _parametersInner: MutableVector4 = MutableVector4.dummy();
+  private _parameters: MutableVector4 = MutableVector4.fromCopy4(0.1, 10000, 90, 1);
+  private _parametersInner: MutableVector4 = MutableVector4.fromCopy4(0.1, 10000, 90, 1);
   private __type: CameraTypeEnum = CameraType.Perspective;
 
   private _projectionMatrix: MutableMatrix44 = MutableMatrix44.dummy();
-  private __isProjectionMatrixUpToDate = false;
   private _viewMatrix: MutableMatrix44 = MutableMatrix44.dummy();
-  private __isViewMatrixUpToDate = false;
-
+  private _viewPosition: MutableVector3 = MutableVector3.dummy();
   private static __current: ComponentSID = -1;
   private static returnVector3 = MutableVector3.zero();
-  private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tmpVector3_0: MutableVector3 = MutableVector3.zero();
   private static __tmpVector3_1: MutableVector3 = MutableVector3.zero();
   private static __tmpVector3_2: MutableVector3 = MutableVector3.zero();
@@ -134,55 +132,13 @@ export class CameraComponent extends Component {
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
     super(entityUid, componentSid, entityRepository, isReUse);
 
-    this._setMaxNumberOfComponent(Math.max(10, Math.floor(Config.maxEntityNumber / 100)));
-
     this.setFovyAndChangeFocalLength(90);
 
     if (CameraComponent.current === -1) {
       CameraComponent.current = componentSid;
     }
 
-    this.registerMember(BufferUse.CPUGeneric, 'eyeInner', MutableVector3, ComponentType.Float, [0, 0, 0]);
-    this.registerMember(BufferUse.CPUGeneric, 'direction', MutableVector3, ComponentType.Float, [0, 0, -1]);
-    this.registerMember(BufferUse.CPUGeneric, 'up', MutableVector3, ComponentType.Float, [0, 1, 0]);
-    this.registerMember(BufferUse.CPUGeneric, 'directionInner', MutableVector3, ComponentType.Float, [0, 0, -1]);
-    this.registerMember(BufferUse.CPUGeneric, 'upInner', MutableVector3, ComponentType.Float, [0, 1, 0]);
-    this.registerMember(BufferUse.CPUGeneric, 'corner', MutableVector4, ComponentType.Float, [-1, 1, 1, -1]);
-    this.registerMember(BufferUse.CPUGeneric, 'cornerInner', MutableVector4, ComponentType.Float, [-1, 1, 1, -1]);
-    this.registerMember(BufferUse.CPUGeneric, 'parameters', MutableVector4, ComponentType.Float, [0.1, 10000, 90, 1]);
-    this.registerMember(
-      BufferUse.CPUGeneric,
-      'parametersInner',
-      MutableVector4,
-      ComponentType.Float,
-      [0.1, 10000, 90, 1]
-    );
-
-    this.registerMember(
-      BufferUse.CPUGeneric,
-      'projectionMatrix',
-      MutableMatrix44,
-      ComponentType.Float,
-      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
-    );
-    this.registerMember(
-      BufferUse.CPUGeneric,
-      'viewMatrix',
-      MutableMatrix44,
-      ComponentType.Float,
-      [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
-    );
-
-    this.submitToAllocation(Config.maxCameraNumber, isReUse);
-
-    if (isReUse) {
-      return;
-    }
-
-    const globalDataRepository = GlobalDataRepository.getInstance();
-    globalDataRepository.takeOne('viewMatrix');
-    globalDataRepository.takeOne('projectionMatrix');
-    globalDataRepository.takeOne('viewPosition');
+    this.submitToAllocation(Config.cameraComponentCountPerBufferView, isReUse);
   }
 
   /**
@@ -1126,12 +1082,10 @@ export class CameraComponent extends Component {
   }
 
   /**
-   * Sets camera values (matrices and position) to the global data repository.
+   * Sets camera values (position) to the viewPosition member.
    */
-  setValuesToGlobalDataRepository() {
-    CameraComponent.__globalDataRepository.setValue('viewMatrix', this.componentSID, this.viewMatrix);
-    CameraComponent.__globalDataRepository.setValue('projectionMatrix', this.componentSID, this.projectionMatrix);
-    CameraComponent.__globalDataRepository.setValue('viewPosition', this.componentSID, this.worldPosition);
+  private __setValuesToViewPosition() {
+    this._viewPosition.copyComponents(this.worldPosition);
   }
 
   /**
@@ -1229,7 +1183,7 @@ export class CameraComponent extends Component {
     if (!this._xrLeft && !this._xrRight) {
       this.calcProjectionMatrix();
     }
-    this.setValuesToGlobalDataRepository();
+    this.__setValuesToViewPosition();
 
     this.__lastUpdateCount = this.__updateCount;
     this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
@@ -1282,3 +1236,31 @@ export class CameraComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBaseClass;
   }
 }
+
+CameraComponent.registerMember({
+  bufferUse: BufferUse.GPUInstanceData,
+  memberName: 'viewMatrix',
+  dataClassType: MutableMatrix44,
+  shaderType: ShaderType.VertexAndPixelShader,
+  compositionType: CompositionType.Mat4,
+  componentType: ComponentType.Float,
+  initValues: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+});
+CameraComponent.registerMember({
+  bufferUse: BufferUse.GPUInstanceData,
+  memberName: 'projectionMatrix',
+  dataClassType: MutableMatrix44,
+  shaderType: ShaderType.VertexAndPixelShader,
+  compositionType: CompositionType.Mat4,
+  componentType: ComponentType.Float,
+  initValues: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+});
+CameraComponent.registerMember({
+  bufferUse: BufferUse.GPUInstanceData,
+  memberName: 'viewPosition',
+  dataClassType: MutableVector3,
+  shaderType: ShaderType.VertexAndPixelShader,
+  compositionType: CompositionType.Vec3,
+  componentType: ComponentType.Float,
+  initValues: [0, 0, 0],
+});

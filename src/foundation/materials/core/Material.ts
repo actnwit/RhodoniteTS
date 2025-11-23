@@ -9,6 +9,7 @@ import type {
 import type { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
 import type { ShaderSources } from '../../../webgl/WebGLStrategy';
 import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
+import { Component } from '../../core/Component';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { RnObject } from '../../core/RnObject';
 import { type ShaderSemanticsInfo, TextureParameter } from '../../definitions';
@@ -21,7 +22,8 @@ import {
   ShaderSemanticsIndex,
   type ShaderSemanticsName,
   _getPropertyIndex2,
-  type getShaderPropertyFunc,
+  type getShaderPropertyFuncOfGlobalDataRepository,
+  type getShaderPropertyFuncOfMaterial,
 } from '../../definitions/ShaderSemantics';
 import { ShaderType } from '../../definitions/ShaderType';
 import type { Primitive } from '../../geometry/Primitive';
@@ -110,6 +112,8 @@ export class Material extends RnObject {
 
   // Ids
   private _shaderProgramUidMap: Map<PrimitiveFingerPrint, CGAPIResourceHandle> = new Map();
+  // Tracks component buffer layout version per primitive to invalidate shaders when new BufferViews are added
+  private _shaderProgramComponentStateVersionMap: Map<PrimitiveFingerPrint, number> = new Map();
   __materialUid: MaterialUID = -1;
   private __materialTid: MaterialTID;
   __materialSid: MaterialSID = -1; // material serial Id in the material type
@@ -416,7 +420,15 @@ export class Material extends RnObject {
    * @returns True if the shader program is ready, false otherwise
    */
   public isShaderProgramReady(primitive: Primitive): boolean {
-    return this._shaderProgramUidMap.has(primitive._getFingerPrint());
+    const primitiveFingerPrint = primitive._getFingerPrint();
+    const componentStateVersion = this._shaderProgramComponentStateVersionMap.get(primitiveFingerPrint);
+    if (componentStateVersion !== Component.getStateVersion()) {
+      this._shaderProgramUidMap.delete(primitiveFingerPrint);
+      this._shaderProgramComponentStateVersionMap.delete(primitiveFingerPrint);
+      return false;
+    }
+
+    return this._shaderProgramUidMap.has(primitiveFingerPrint);
   }
 
   /**
@@ -468,26 +480,31 @@ export class Material extends RnObject {
   /**
    * Creates a WebGL shader program for this material and the given primitive.
    * @internal Called from WebGLStrategyDataTexture and WebGLStrategyUniform
-   * @param vertexShaderMethodDefinitions_uniform - Vertex shader method definitions for uniforms
-   * @param propertySetter - Function to set shader properties
+   * @param componentDataAccessMethodDefinitionsForVertexShader - method definitions for component data access for vertex shader
+   * @param componentDataAccessMethodDefinitionsForPixelShader - method definitions for component data access for pixel shader
+   * @param propertySetterOfGlobalDataRepository - Function to set shader properties of global data repository
+   * @param propertySetterOfMaterial - Function to set shader properties of material
    * @param primitive - The primitive to create the program for
-   * @param isWebGL2 - Whether to create a WebGL2 program
    * @returns A tuple containing the program UID and whether it's a new program
    */
   _createProgramWebGL(
-    vertexShaderMethodDefinitions_uniform: string,
-    propertySetter: getShaderPropertyFunc,
-    primitive: Primitive,
-    isWebGL2: boolean
+    componentDataAccessMethodDefinitionsForVertexShader: string,
+    componentDataAccessMethodDefinitionsForPixelShader: string,
+    propertySetterOfGlobalDataRepository: getShaderPropertyFuncOfGlobalDataRepository,
+    propertySetterOfMaterial: getShaderPropertyFuncOfMaterial,
+    primitive: Primitive
   ): [CGAPIResourceHandle, boolean] {
     const [programUid, newOne] = _createProgramAsSingleOperationWebGL(
       this,
-      propertySetter,
+      propertySetterOfGlobalDataRepository,
+      propertySetterOfMaterial,
       primitive,
-      vertexShaderMethodDefinitions_uniform,
-      isWebGL2
+      componentDataAccessMethodDefinitionsForVertexShader,
+      componentDataAccessMethodDefinitionsForPixelShader
     );
-    this._shaderProgramUidMap.set(primitive._getFingerPrint(), programUid);
+    const primitiveFingerPrint = primitive._getFingerPrint();
+    this._shaderProgramUidMap.set(primitiveFingerPrint, programUid);
+    this._shaderProgramComponentStateVersionMap.set(primitiveFingerPrint, Component.getStateVersion());
 
     Material.__stateVersion++;
 
@@ -497,22 +514,29 @@ export class Material extends RnObject {
   /**
    * Creates a WebGPU shader program for this material and the given primitive.
    * @param primitive - The primitive to create the program for
-   * @param vertexShaderMethodDefinitions - Vertex shader method definitions
+   * @param componentDataAccessMethodDefinitionsForVertexShader - method definitions for component data access for vertex shader
+   * @param componentDataAccessMethodDefinitionsForPixelShader - method definitions for component data access for pixel shader
    * @param propertySetter - Function to set shader properties
    */
   _createProgramWebGpu(
     primitive: Primitive,
-    vertexShaderMethodDefinitions: string,
-    propertySetter: getShaderPropertyFunc
+    componentDataAccessMethodDefinitionsForVertexShader: string,
+    componentDataAccessMethodDefinitionsForPixelShader: string,
+    propertySetterOfGlobalDataRepository: getShaderPropertyFuncOfGlobalDataRepository,
+    propertySetterOfMaterial: getShaderPropertyFuncOfMaterial
   ) {
     const programUid = _createProgramAsSingleOperationWebGpu(
       this,
       primitive,
-      vertexShaderMethodDefinitions,
-      propertySetter
+      componentDataAccessMethodDefinitionsForVertexShader,
+      componentDataAccessMethodDefinitionsForPixelShader,
+      propertySetterOfGlobalDataRepository,
+      propertySetterOfMaterial
     );
 
-    this._shaderProgramUidMap.set(primitive._getFingerPrint(), programUid);
+    const primitiveFingerPrint = primitive._getFingerPrint();
+    this._shaderProgramUidMap.set(primitiveFingerPrint, programUid);
+    this._shaderProgramComponentStateVersionMap.set(primitiveFingerPrint, Component.getStateVersion());
     Material.__stateVersion++;
   }
 
@@ -536,7 +560,9 @@ export class Material extends RnObject {
       updatedShaderSources,
       onError
     );
-    this._shaderProgramUidMap.set(primitive._getFingerPrint(), programUid);
+    const primitiveFingerPrint = primitive._getFingerPrint();
+    this._shaderProgramUidMap.set(primitiveFingerPrint, programUid);
+    this._shaderProgramComponentStateVersionMap.set(primitiveFingerPrint, Component.getStateVersion());
 
     if (programUid > 0) {
       // this.__updatedShaderSources = updatedShaderSources;
@@ -705,26 +731,27 @@ export class Material extends RnObject {
    * Gets shader property strings for vertex and pixel shaders.
    * @internal
    * @param propertySetter - Function to set shader properties
-   * @param isWebGL2 - Whether to generate WebGL2-compatible properties
    * @returns Object containing vertex and pixel property strings
    */
-  _getProperties(propertySetter: getShaderPropertyFunc, isWebGL2: boolean) {
+  _getProperties(
+    propertySetterOfGlobalDataRepository: getShaderPropertyFuncOfGlobalDataRepository,
+    propertySetterOfMaterial: getShaderPropertyFuncOfMaterial
+  ) {
     let vertexPropertiesStr = '';
     let pixelPropertiesStr = '';
     this._allFieldsInfo.forEach(info => {
       if (info!.stage === ShaderType.VertexShader || info!.stage === ShaderType.VertexAndPixelShader) {
-        vertexPropertiesStr += propertySetter(this.__materialTypeName, info!, false, isWebGL2);
+        vertexPropertiesStr += propertySetterOfMaterial(this.__materialTypeName, info!);
       }
       if (info!.stage === ShaderType.PixelShader || info!.stage === ShaderType.VertexAndPixelShader) {
-        pixelPropertiesStr += propertySetter(this.__materialTypeName, info!, false, isWebGL2);
+        pixelPropertiesStr += propertySetterOfMaterial(this.__materialTypeName, info!);
       }
     });
     const globalDataRepository = GlobalDataRepository.getInstance();
     [vertexPropertiesStr, pixelPropertiesStr] = globalDataRepository._addPropertiesStr(
       vertexPropertiesStr,
       pixelPropertiesStr,
-      propertySetter,
-      isWebGL2
+      propertySetterOfGlobalDataRepository
     );
     return { vertexPropertiesStr, pixelPropertiesStr };
   }
@@ -1104,6 +1131,12 @@ export class Material extends RnObject {
    */
   makeShadersInvalidate() {
     this._shaderProgramUidMap.clear();
+    this._shaderProgramComponentStateVersionMap.clear();
+    this.__stateVersion++;
+    Material.__stateVersion++;
+  }
+
+  updateStateVersion() {
     this.__stateVersion++;
     Material.__stateVersion++;
   }

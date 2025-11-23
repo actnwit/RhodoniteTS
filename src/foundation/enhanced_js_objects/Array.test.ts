@@ -17,11 +17,7 @@ function generateEntity() {
 
 test('array[GetComponentFromEntities]', () => {
   enhanceArray();
-  MemoryManager.createInstanceIfNotCreated({
-    cpuGeneric: 1,
-    gpuInstanceData: 1,
-    gpuVertexData: 1,
-  });
+  MemoryManager.createInstanceIfNotCreated(1024 * 1024 * 4 /* rgba */ * 4 /* byte */);
 
   const entities: IEntity[] = [];
   entities.push(generateEntity());

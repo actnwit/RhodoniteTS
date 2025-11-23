@@ -74,12 +74,17 @@ export class ShaderityUtilityWebGL {
   public static fillTemplate(shaderityObject: ShaderityObject, args: FillArgsObject): ShaderityObject {
     const step1 = Shaderity.fillTemplate(shaderityObject, args);
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const glw = webglResourceRepository.currentWebGLContextWrapper;
+    if (glw == null) {
+      return step1;
+    }
+    const dataTextureWidth = glw.getMaxTextureSize();
     const templateObject = {
       WellKnownComponentTIDs,
-      widthOfDataTexture: `const int widthOfDataTexture = ${MemoryManager.bufferWidthLength};`,
-      heightOfDataTexture: `const int heightOfDataTexture = ${MemoryManager.bufferHeightLength};`,
+      widthOfDataTexture: `const int widthOfDataTexture = ${dataTextureWidth};`,
       dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
       dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
+      maxMorphDataNumber: `${Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4)}`,
     } as unknown as TemplateObject;
 
     return Shaderity.fillTemplate(step1, templateObject);

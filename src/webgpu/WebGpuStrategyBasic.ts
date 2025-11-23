@@ -6,7 +6,7 @@ import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
-import { Component } from '../foundation/core/Component';
+import { Component, type MemberInfo } from '../foundation/core/Component';
 import { ComponentRepository } from '../foundation/core/ComponentRepository';
 import { Config } from '../foundation/core/Config';
 import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
@@ -14,12 +14,22 @@ import { MemoryManager } from '../foundation/core/MemoryManager';
 import { BufferUse } from '../foundation/definitions/BufferUse';
 import { ComponentType } from '../foundation/definitions/ComponentType';
 import { CompositionType } from '../foundation/definitions/CompositionType';
-import type { ShaderSemanticsName, getShaderPropertyFunc } from '../foundation/definitions/ShaderSemantics';
+import type {
+  ShaderSemanticsName,
+  getShaderPropertyFuncOfGlobalDataRepository,
+  getShaderPropertyFuncOfMaterial,
+} from '../foundation/definitions/ShaderSemantics';
 import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
+import { ShaderType, type ShaderTypeEnum } from '../foundation/definitions/ShaderType';
 import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { Material } from '../foundation/materials/core/Material';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
+import { MutableMatrix33 } from '../foundation/math/MutableMatrix33';
+import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
+import { MutableScalar } from '../foundation/math/MutableScalar';
+import { MutableVector3 } from '../foundation/math/MutableVector3';
+import { MutableVector4 } from '../foundation/math/MutableVector4';
 import type { Accessor } from '../foundation/memory/Accessor';
 import type { Buffer } from '../foundation/memory/Buffer';
 import { Logger } from '../foundation/misc/Logger';
@@ -72,8 +82,8 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __lastCameraControllerComponentsUpdateCount = -1;
 
   private __lastBlendShapeComponentsUpdateCountForWeights = -1;
-  private __lastBlendShapeComponentsUpdateCountForBlendData = -1;
-  private static __webxrSystem: WebXRSystem;
+  private __lastMorphMaxIndex = -1;
+  private __lastGpuInstanceDataBufferCount = -1;
 
   private constructor() {}
 
@@ -86,9 +96,6 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   static getInstance() {
     if (!this.__instance) {
       this.__instance = new WebGpuStrategyBasic();
-      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
-      WebGpuStrategyBasic.__webxrSystem = webxrSystem;
     }
     return this.__instance;
   }
@@ -100,54 +107,25 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
    *
    * @returns WGSL shader code containing helper functions for storage buffer access
    */
-  static getVertexShaderMethodDefinitions_storageBuffer() {
-    return `
-fn get_worldMatrix(instanceId: u32) -> mat4x4<f32>
-{
-  let index: u32 = ${Component.getLocationOffsetOfMemberOfComponent(
-    SceneGraphComponent,
-    'worldMatrix'
-  )}u + 4u * instanceId;
-  let matrix = fetchMat4(index);
+  static getVertexShaderMethodDefinitions_storageBuffer(shaderType: ShaderTypeEnum) {
+    let str = '';
+    const memberInfo = Component.getMemberInfo();
+    memberInfo.forEach((mapMemberNameMemberInfo, componentClass) => {
+      mapMemberNameMemberInfo.forEach((memberInfo, memberName) => {
+        if (memberInfo.shaderType !== shaderType && memberInfo.shaderType !== ShaderType.VertexAndPixelShader) {
+          return;
+        }
+        const componentCountPerBufferView = Component.getComponentCountPerBufferView().get(componentClass) ?? 1;
+        if (CompositionType.isArray(memberInfo.compositionType)) {
+          processForArrayType(memberInfo, componentClass, memberName, componentCountPerBufferView);
+        } else {
+          processForNonArrayType(memberInfo, componentClass, memberName, componentCountPerBufferView);
+        }
+      });
+    });
 
-  return matrix;
-}
-
-fn get_normalMatrix(instanceId: u32) -> mat3x3<f32> {
-  let index: u32 = ${Component.getLocationOffsetOfMemberOfComponent(
-    SceneGraphComponent,
-    'normalMatrix'
-  )}u * 4 + 9 * instanceId;
-  let matrix = fetchMat3No16BytesAligned(index);
-
-  return matrix;
-}
-
-fn get_isVisible(instanceId: u32) -> bool {
-  let index: u32 = ${Component.getLocationOffsetOfMemberOfComponent(
-    SceneGraphComponent,
-    'isVisible'
-  )}u * 4u + instanceId;
-  let visibility = fetchScalarNo16BytesAligned(index);
-  if (visibility > 0.5) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-fn get_isBillboard(instanceId: u32) -> bool {
-  let index: u32 = ${Component.getLocationOffsetOfMemberOfComponent(
-    SceneGraphComponent,
-    'isBillboard'
-  )}u * 4u + instanceId;
-  let isBillboard = fetchScalarNo16BytesAligned(index);
-  if (isBillboard > 0.5) {
-    return true;
-  } else {
-    return false;
-  }
-}
+    if (shaderType === ShaderType.VertexShader) {
+      const MorphingStr = `
 
 #ifdef RN_IS_VERTEX_SHADER
   #ifdef RN_IS_MORPHING
@@ -166,6 +144,7 @@ fn get_isBillboard(instanceId: u32) -> bool {
       let idx2 = ${Config.maxMorphTargetNumber}u * blendShapeComponentSID + i;
       let morphWeights: vec4f = uniformMorphWeights.data[ idx2 / 4u];
       let morphWeight: f32 = morphWeights[idx2 % 4u];
+
       position += addPos * morphWeight;
     }
 
@@ -173,21 +152,142 @@ fn get_isBillboard(instanceId: u32) -> bool {
   }
   #endif
 #endif
-
 `;
+      str += MorphingStr;
+    }
+
+    return str;
+
+    function processForArrayType(
+      memberInfo: MemberInfo,
+      componentClass: typeof Component,
+      memberName: string,
+      componentCountPerBufferView: number
+    ) {
+      let typeStr = '';
+      let fetchTypeStr = '';
+      switch (memberInfo.compositionType) {
+        case CompositionType.Vec4Array:
+          typeStr = 'vec4<f32>';
+          fetchTypeStr = 'fetchVec4';
+          break;
+        case CompositionType.Mat4Array:
+          typeStr = 'mat4x4<f32>';
+          fetchTypeStr = 'fetchMat4';
+          break;
+        case CompositionType.Mat4x3Array:
+          typeStr = 'mat4x3<f32>';
+          fetchTypeStr = 'fetchMat4x3';
+          break;
+        default:
+          throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
+      }
+      const locationOffsets_vec4_idx = Component.getLocationOffsetOfMemberOfComponent(componentClass, memberName);
+      const vec4SizeOfProperty: IndexOf16Bytes = memberInfo.compositionType.getVec4SizeOfProperty();
+      const arrayLengthMap = Component.getArrayLengthOfMember().get(componentClass)?.get(memberName) ?? new Map();
+      const arrayLengthArray = Array.from(arrayLengthMap.values());
+      if (arrayLengthArray.length === 0) {
+        arrayLengthArray[0] = 0;
+      }
+      const arrayLengthArrayStr = `var<function> arrayLengthArray: array<u32, ${arrayLengthArray.length}> = array<u32, ${arrayLengthArray.length}>(${arrayLengthArray.map(length => `${length}u`).join(', ')});`;
+      const indexStr = `indices[instanceIdOfBufferViews] + instanceIdInBufferView * ${vec4SizeOfProperty}u * arrayLengthArray[instanceId] + ${vec4SizeOfProperty}u * idxOfArray;`; // vec4_idx
+      let conversionStr = '';
+      if (memberInfo.convertToBool) {
+        conversionStr = 'if (value > 0.5) { return true; } else { return false; }';
+      }
+      str += `
+  fn get_${memberName}(instanceId: u32, idxOfArray: u32) -> ${memberInfo.convertToBool ? 'bool' : typeStr} {
+    let instanceIdOfBufferViews = instanceId / ${componentCountPerBufferView};
+    let instanceIdInBufferView = instanceId % ${componentCountPerBufferView};
+    var<function> indices: array<u32, ${locationOffsets_vec4_idx.length}> = array<u32, ${locationOffsets_vec4_idx.length}>(${locationOffsets_vec4_idx.map(offset => `${offset}u`).join(', ')});
+    ${arrayLengthArrayStr}
+    let index: u32 = ${indexStr};
+    let value = ${fetchTypeStr}(index);
+    ${memberInfo.convertToBool ? conversionStr : 'return value;'}
+  }
+  `;
+    }
+
+    function processForNonArrayType(
+      memberInfo: MemberInfo,
+      componentClass: typeof Component,
+      memberName: string,
+      componentCountPerBufferView: number
+    ) {
+      let typeStr = '';
+      let fetchTypeStr = '';
+      switch (memberInfo.compositionType) {
+        case CompositionType.Mat4:
+          typeStr = 'mat4x4<f32>';
+          fetchTypeStr = 'fetchMat4';
+          break;
+        case CompositionType.Mat3:
+          typeStr = 'mat3x3<f32>';
+          fetchTypeStr = 'fetchMat3No16BytesAligned';
+          break;
+        case CompositionType.Vec4:
+          typeStr = 'vec4<f32>';
+          fetchTypeStr = 'fetchVec4';
+          break;
+        case CompositionType.Vec3:
+          typeStr = 'vec3<f32>';
+          fetchTypeStr = 'fetchVec3No16BytesAligned';
+          break;
+        case CompositionType.Scalar:
+          typeStr = 'f32';
+          fetchTypeStr = 'fetchScalarNo16BytesAligned';
+          break;
+        default:
+          throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
+      }
+
+      const locationOffsets = Component.getLocationOffsetOfMemberOfComponent(componentClass, memberName);
+      let indexStr = '';
+      switch (memberInfo.compositionType) {
+        case CompositionType.Mat4:
+          indexStr = 'indices[instanceIdOfBufferViews] + 4u * instanceIdInBufferView;';
+          break;
+        case CompositionType.Mat3:
+          indexStr = 'indices[instanceIdOfBufferViews] * 4u + 9u * instanceIdInBufferView;';
+          break;
+        case CompositionType.Vec4:
+          indexStr = 'indices[instanceIdOfBufferViews] + 1u * instanceIdInBufferView;';
+          break;
+        case CompositionType.Vec3:
+          indexStr = 'indices[instanceIdOfBufferViews] * 4u + 3u * instanceIdInBufferView;';
+          break;
+        case CompositionType.Scalar:
+          indexStr = 'indices[instanceIdOfBufferViews] * 4u + 1u * instanceIdInBufferView;';
+          break;
+        default:
+          throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
+      }
+      let conversionStr = '';
+      if (memberInfo.convertToBool) {
+        conversionStr = 'if (value > 0.5) { return true; } else { return false; }';
+      }
+      str += `
+  fn get_${memberName}(instanceId: u32) -> ${memberInfo.convertToBool ? 'bool' : typeStr} {
+    let instanceIdOfBufferViews = instanceId / ${componentCountPerBufferView};
+    let instanceIdInBufferView = instanceId % ${componentCountPerBufferView};
+    var<function> indices: array<u32, ${locationOffsets.length}> = array<u32, ${locationOffsets.length}>(${locationOffsets.map(offset => `${offset}u`).join(', ')});
+    let index: u32 = ${indexStr};
+    let value = ${fetchTypeStr}(index);
+    ${memberInfo.convertToBool ? conversionStr : 'return value;'}
+  }
+  `;
+    }
   }
 
   /**
-   * Generates shader property accessor functions for materials and global data.
+   * Generates shader property accessor functions for global data.
    * Creates WGSL functions that can fetch property values from storage buffers
    * based on shader semantics information.
    *
-   * @param materialTypeName - The name of the material type
    * @param info - Shader semantics information containing type and binding details
-   * @param isGlobalData - Whether this property belongs to global data or material-specific data
    * @returns WGSL shader code for the property accessor function
    */
-  private static __getShaderProperty(materialTypeName: string, info: ShaderSemanticsInfo, isGlobalData: boolean) {
+  private static __getShaderPropertyOfGlobalDataRepository(info: ShaderSemanticsInfo) {
     const returnType = info.compositionType.toWGSLType(info.componentType);
     const methodName = info.semantic.replace('.', '_');
     const isTexture = CompositionType.isTexture(info.compositionType);
@@ -210,10 +310,8 @@ fn get_isBillboard(instanceId: u32) -> bool {
     const vec4SizeOfProperty: IndexOf16Bytes = info.compositionType.getVec4SizeOfProperty();
     // for non-`index` property (this is general case)
     const scalarSizeOfProperty: IndexOf4Bytes = info.compositionType.getNumberOfComponents();
-    const offsetOfProperty: IndexOf16Bytes = WebGpuStrategyBasic.getOffsetOfPropertyInShader(
-      isGlobalData,
-      info.semantic,
-      materialTypeName
+    const offsetOfProperty: IndexOf16Bytes = WebGpuStrategyBasic.getOffsetOfPropertyOfGlobalDataRepository(
+      info.semantic
     );
 
     if (offsetOfProperty === -1) {
@@ -317,6 +415,142 @@ ${indexStr}
   }
 
   /**
+   * Generates shader property accessor functions for materials.
+   * Creates WGSL functions that can fetch property values from storage buffers
+   * based on shader semantics information.
+   *
+   * @param materialTypeName - The name of the material type
+   * @param info - Shader semantics information containing type and binding details
+   * @returns WGSL shader code for the property accessor function
+   */
+  private static __getShaderPropertyOfMaterial(materialTypeName: string, info: ShaderSemanticsInfo) {
+    const returnType = info.compositionType.toWGSLType(info.componentType);
+    const methodName = info.semantic.replace('.', '_');
+    const isTexture = CompositionType.isTexture(info.compositionType);
+
+    if (isTexture) {
+      let textureType = 'texture_2d<f32>';
+      if (info.compositionType === CompositionType.TextureCube) {
+        textureType = 'texture_cube<f32>';
+      } else if (info.compositionType === CompositionType.Texture2DArray) {
+        textureType = 'texture_2d_array<f32>';
+      }
+      const samplerName = methodName.replace('Texture', 'Sampler');
+      return `
+@group(1) @binding(${info.initialValue[0]}) var ${methodName}: ${textureType};
+@group(2) @binding(${info.initialValue[0]}) var ${samplerName}: sampler;
+`;
+    }
+
+    // inner contents of 'get_' shader function
+    const vec4SizeOfProperty: IndexOf16Bytes = info.compositionType.getVec4SizeOfProperty();
+    // for non-`index` property (this is general case)
+    const scalarSizeOfProperty: IndexOf4Bytes = info.compositionType.getNumberOfComponents();
+    const offsetOfProperty: IndexOf16Bytes[] = WebGpuStrategyBasic.getOffsetOfPropertyOfMaterial(
+      info.semantic,
+      materialTypeName
+    );
+    const materialCountPerBufferView = MaterialRepository._getMaterialCountPerBufferView(materialTypeName)!;
+
+    const offsetsStr = `var<function> offsets: array<u32, ${offsetOfProperty.length}> = array<u32, ${offsetOfProperty.length}>(${offsetOfProperty.map(offset => `${offset}u`).join(', ')});`;
+
+    let indexStr: string;
+    let instanceSize = vec4SizeOfProperty;
+    indexStr = `  let vec4_idx: u32 = offsets[instanceIdOfBufferViews] + ${instanceSize}u * instanceIdInBufferView;\n`;
+    if (CompositionType.isArray(info.compositionType)) {
+      instanceSize = vec4SizeOfProperty * (info.arrayLength ?? 1);
+      const paddedAsVec4 = Math.ceil(scalarSizeOfProperty / 4) * 4;
+      const instanceSizeInScalar = paddedAsVec4 * (info.arrayLength ?? 1);
+      indexStr = `  let vec4_idx: u32 = offsets[instanceIdOfBufferViews] + ${instanceSize} * instanceIdInBufferView + ${vec4SizeOfProperty}u * idxOfArray;\n`;
+      indexStr += `  let scalar_idx: u32 = offsets[instanceIdOfBufferViews] * 4 + ${instanceSizeInScalar} * instanceIdInBufferView + ${scalarSizeOfProperty}u * idxOfArray;\n`;
+    }
+
+    const firstPartOfInnerFunc = `
+fn get_${methodName}(instanceId: u32, idxOfArray: u32) -> ${returnType} {
+  let instanceIdOfBufferViews = instanceId / ${materialCountPerBufferView};
+  let instanceIdInBufferView = instanceId % ${materialCountPerBufferView};
+${offsetsStr}
+${indexStr}
+`;
+
+    let str = `${firstPartOfInnerFunc}`;
+
+    switch (info.compositionType) {
+      case CompositionType.Vec4:
+      case CompositionType.Vec4Array:
+        str += '  let val = fetchElement(vec4_idx);\n';
+        break;
+      case CompositionType.Vec3:
+        str += '  let col0 = fetchElement(vec4_idx);\n';
+        str += `  let val = ${returnType}(col0.xyz);`;
+        break;
+      case CompositionType.Vec3Array:
+        str += '  let val = fetchVec3No16BytesAligned(scalar_idx);\n';
+        break;
+      case CompositionType.Vec2:
+        str += '  let col0 = fetchElement(vec4_idx);\n';
+        str += `  let val = ${returnType}(col0.xy);`;
+        break;
+      case CompositionType.Vec2Array:
+        str += '  let val = fetchVec2No16BytesAligned(scalar_idx);\n';
+        break;
+      case CompositionType.Scalar:
+        str += '  let col0 = fetchElement(vec4_idx);\n';
+        if (info.componentType === ComponentType.Int) {
+          str += '  let val = i32(col0.x);';
+        } else if (info.componentType === ComponentType.UnsignedInt) {
+          str += '  let val = u32(col0.x);';
+        } else if (info.componentType === ComponentType.Bool) {
+          str += '  let val = col0.x >= 0.5;';
+        } else {
+          str += '  let val = col0.x;';
+        }
+        break;
+      case CompositionType.ScalarArray:
+        str += '  let col0 = fetchScalarNo16BytesAligned(scalar_idx);\n';
+        if (info.componentType === ComponentType.Int) {
+          str += '  let val = i32(col0);';
+        } else if (info.componentType === ComponentType.UnsignedInt) {
+          str += '  let val = u32(col0);';
+        } else if (info.componentType === ComponentType.Bool) {
+          str += '  let val = col0 >= 0.5;';
+        } else {
+          str += '  let val = col0;';
+        }
+        break;
+      case CompositionType.Mat4:
+        str += '  let val = fetchMat4(vec4_idx);\n';
+        break;
+      case CompositionType.Mat4Array:
+        str += '  let val = fetchMat4(vec4_idx);\n';
+        break;
+      case CompositionType.Mat3:
+        str += '  let val = fetchMat3(vec4_idx);\n';
+        break;
+      case CompositionType.Mat3Array:
+        str += '  let val = fetchMat3No16BytesAligned(scalar_idx);\n';
+        break;
+      case CompositionType.Mat2:
+        str += '  let val = fetchMat2(vec4_idx);\n';
+        break;
+      case CompositionType.Mat2Array:
+        str += '  let val = fetchMat2No16BytesAligned(scalar_idx);\n';
+        break;
+      case CompositionType.Mat4x3Array:
+        str += '  let val = fetchMat4x3(vec4_idx);\n';
+        break;
+      default:
+        // Logger.error('unknown composition type', info.compositionType.str, memberName);
+        str += '';
+    }
+    str += `
+  return val;
+}
+`;
+    return str;
+  }
+
+  /**
    * Calculates the memory offset of a shader property within storage buffers.
    *
    * @param isGlobalData - Whether to look in global data repository or material repository
@@ -324,17 +558,14 @@ ${indexStr}
    * @param materialTypeName - The material type name for material-specific properties
    * @returns The byte offset of the property in the storage buffer, or -1 if not found
    */
-  private static getOffsetOfPropertyInShader(
-    isGlobalData: boolean,
-    propertyName: ShaderSemanticsName,
-    materialTypeName: string
-  ) {
-    if (isGlobalData) {
-      const globalDataRepository = GlobalDataRepository.getInstance();
-      const dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyName);
-      return dataBeginPos;
-    }
+  private static getOffsetOfPropertyOfMaterial(propertyName: ShaderSemanticsName, materialTypeName: string) {
     const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyName);
+    return dataBeginPos;
+  }
+
+  private static getOffsetOfPropertyOfGlobalDataRepository(propertyName: ShaderSemanticsName) {
+    const globalDataRepository = GlobalDataRepository.getInstance();
+    const dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyName);
     return dataBeginPos;
   }
 
@@ -366,19 +597,14 @@ ${indexStr}
   common_$load(): void {
     if (this.__uniformMorphOffsetsTypedArray == null) {
       this.__uniformMorphOffsetsTypedArray = new Uint32Array(
-        Math.ceil((Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4) * 4
+        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
       );
     }
 
     if (this.__uniformMorphWeightsTypedArray == null) {
       this.__uniformMorphWeightsTypedArray = new Float32Array(
-        Math.ceil((Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4) * 4
+        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
       );
-    }
-
-    if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForBlendData) {
-      this.__createOrUpdateStorageBlendShapeBuffer();
-      this.__lastBlendShapeComponentsUpdateCountForBlendData = BlendShapeComponent.updateCount;
     }
   }
 
@@ -422,8 +648,10 @@ ${indexStr}
       this.setupShaderForMaterial(
         material,
         primitive,
-        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(),
-        WebGpuStrategyBasic.__getShaderProperty
+        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.VertexShader),
+        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.PixelShader),
+        WebGpuStrategyBasic.__getShaderPropertyOfGlobalDataRepository,
+        WebGpuStrategyBasic.__getShaderPropertyOfMaterial
       );
       primitive._backupMaterial();
     } catch (e) {
@@ -432,8 +660,10 @@ ${indexStr}
       this.setupShaderForMaterial(
         primitive.material,
         primitive,
-        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(),
-        WebGpuStrategyBasic.__getShaderProperty
+        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.VertexShader),
+        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.PixelShader),
+        WebGpuStrategyBasic.__getShaderPropertyOfGlobalDataRepository,
+        WebGpuStrategyBasic.__getShaderPropertyOfMaterial
       );
     }
   }
@@ -445,16 +675,25 @@ ${indexStr}
    *
    * @param material - The material to create shader programs for
    * @param primitive - The primitive geometry that will use this material
-   * @param vertexShaderMethodDefinitions - WGSL code containing vertex shader helper methods
+   * @param vertexShaderMethodDefinitionsForVertexShader - WGSL code containing vertex shader helper methods
+   * @param vertexShaderMethodDefinitionsForPixelShader - WGSL code containing pixel shader helper methods
    * @param propertySetter - Function to generate property accessor methods
    */
   public setupShaderForMaterial(
     material: Material,
     primitive: Primitive,
-    vertexShaderMethodDefinitions: string,
-    propertySetter: getShaderPropertyFunc
+    vertexShaderMethodDefinitionsForVertexShader: string,
+    vertexShaderMethodDefinitionsForPixelShader: string,
+    propertySetterOfGlobalDataRepository: getShaderPropertyFuncOfGlobalDataRepository,
+    propertySetterOfMaterial: getShaderPropertyFuncOfMaterial
   ): void {
-    material._createProgramWebGpu(primitive, vertexShaderMethodDefinitions, propertySetter);
+    material._createProgramWebGpu(
+      primitive,
+      vertexShaderMethodDefinitionsForVertexShader,
+      vertexShaderMethodDefinitionsForPixelShader,
+      propertySetterOfGlobalDataRepository,
+      propertySetterOfMaterial
+    );
   }
 
   /**
@@ -467,19 +706,22 @@ ${indexStr}
       AnimationComponent.isAnimating ||
       TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
       SceneGraphComponent.updateCount !== this.__lastSceneGraphComponentsUpdateCount ||
+      CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
+      CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
       Material.stateVersion !== this.__lastMaterialsUpdateCount
     ) {
       this.__createAndUpdateStorageBuffer();
       this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
       this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
-      this.__lastMaterialsUpdateCount = Material.stateVersion;
-    } else if (
-      CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
-      CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount
-    ) {
-      this.__createAndUpdateStorageBufferForCameraOnly();
       this.__lastCameraComponentsUpdateCount = CameraComponent.currentCameraUpdateCount;
       this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
+      this.__lastMaterialsUpdateCount = Material.stateVersion;
+    }
+
+    const morphMaxIndex = Primitive.getPrimitiveCountHasMorph();
+    if (morphMaxIndex !== this.__lastMorphMaxIndex) {
+      this.__createOrUpdateStorageBlendShapeBuffer();
+      this.__lastMorphMaxIndex = morphMaxIndex;
     }
 
     if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForWeights) {
@@ -629,50 +871,23 @@ ${indexStr}
     const memoryManager: MemoryManager = MemoryManager.getInstance();
 
     // the GPU global Storage
-    const gpuInstanceDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUInstanceData);
-
+    const gpuInstanceDataBuffers = memoryManager.getBuffers(BufferUse.GPUInstanceData);
+    const gpuInstanceDataBufferCount = gpuInstanceDataBuffers.length;
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+    if (gpuInstanceDataBufferCount !== this.__lastGpuInstanceDataBufferCount) {
+      this.__lastGpuInstanceDataBufferCount = gpuInstanceDataBufferCount;
+      webGpuResourceRepository.destroyStorageBuffer(this.__storageBufferUid);
+      this.__storageBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    }
+
     // const dataTextureByteSize =
     //   MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
-    const float32Array = new Float32Array(gpuInstanceDataBuffer!.getArrayBuffer());
     if (this.__storageBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       // Update
-      const dataSizeForDataTexture = gpuInstanceDataBuffer!.takenSizeInByte / 4;
-      webGpuResourceRepository.updateStorageBuffer(this.__storageBufferUid, float32Array, dataSizeForDataTexture);
+      webGpuResourceRepository.updateStorageBuffer(this.__storageBufferUid, gpuInstanceDataBuffers);
     } else {
       // Create
-      this.__storageBufferUid = webGpuResourceRepository.createStorageBuffer(float32Array);
-    }
-  }
-
-  /**
-   * Updates only the camera-related portion of the storage buffer for performance optimization.
-   * Used when only camera properties have changed, avoiding unnecessary updates to transform data.
-   */
-  private __createAndUpdateStorageBufferForCameraOnly() {
-    const memoryManager: MemoryManager = MemoryManager.getInstance();
-
-    // the GPU global Storage
-    const gpuInstanceDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUInstanceData);
-
-    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
-    const globalDataRepository = GlobalDataRepository.getInstance();
-    const float32Array = new Float32Array(gpuInstanceDataBuffer!.getArrayBuffer());
-    if (this.__storageBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      // Update
-      const offsetOfStorageBuffer = globalDataRepository.getLocationOffsetOfProperty('viewMatrix') * 16;
-      const offsetOfFloat32Array = offsetOfStorageBuffer / 4;
-      const positionOfBoneMatrix = (globalDataRepository.getLocationOffsetOfProperty('boneMatrix') * 16) / 4; // camera infos are before boneMatrix
-      webGpuResourceRepository.updateStorageBufferPartially(
-        this.__storageBufferUid,
-        float32Array,
-        offsetOfStorageBuffer,
-        offsetOfFloat32Array,
-        positionOfBoneMatrix - offsetOfFloat32Array
-      );
-    } else {
-      // Create
-      this.__storageBufferUid = webGpuResourceRepository.createStorageBuffer(float32Array);
+      this.__storageBufferUid = webGpuResourceRepository.createStorageBuffer(gpuInstanceDataBuffers);
     }
   }
 
@@ -706,7 +921,7 @@ ${indexStr}
     }
 
     let i = 0;
-    for (; i < Config.maxMorphPrimitiveNumberInWebGPU; i++) {
+    for (; i < Config.maxMorphPrimitiveNumber; i++) {
       const primitive = Primitive.getPrimitiveHasMorph(i);
       if (primitive != null) {
         for (let j = 0; j < primitive.targets.length; j++) {
@@ -715,6 +930,7 @@ ${indexStr}
           this.__uniformMorphOffsetsTypedArray![Config.maxMorphTargetNumber * i + j] =
             accessor.byteOffsetInBuffer / 4 / 4;
         }
+        this.__lastMorphMaxIndex = Config.maxMorphTargetNumber * i + primitive.targets.length - 1;
       } else {
         break;
       }
