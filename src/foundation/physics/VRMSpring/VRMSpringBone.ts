@@ -58,7 +58,8 @@ export class VRMSpringBone extends RnObject {
   /** Temporary vector for internal calculations */
   private static __tmp_vec3_3 = MutableVector3.zero();
 
-  private static __tmp_mat44_0 = MutableMatrix44.identity();
+  /** Temporary vector for internal calculations */
+  private static __tmp_vec3_4 = MutableVector3.zero();
 
   /**
    * Creates a new VRM Spring Bone instance.
@@ -140,9 +141,13 @@ export class VRMSpringBone extends RnObject {
       v3B = children[0].matrixInner.getTranslateTo(VRMSpringBone.__tmp_vec3_1);
     } else {
       // v3B = this.node.getSceneGraph().matrixInner.multiplyVector3(this.initialLocalChildPosition);
-      v3B = Vector3.multiplyMatrix4(this.initialLocalChildPosition, this.node.getSceneGraph().matrixInner);
+      v3B = Vector3.multiplyMatrix4To(
+        this.initialLocalChildPosition,
+        this.node.getSceneGraph().matrixInner,
+        VRMSpringBone.__tmp_vec3_3
+      );
     }
 
-    this.boneLength = Vector3.subtractTo(v3A, v3B, VRMSpringBone.__tmp_vec3_3).length();
+    this.boneLength = Vector3.subtractTo(v3A, v3B, VRMSpringBone.__tmp_vec3_4).length();
   }
 }
