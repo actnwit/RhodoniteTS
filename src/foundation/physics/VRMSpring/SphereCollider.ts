@@ -33,9 +33,10 @@ export class SphereCollider {
   collision(bonePosition: Vector3, boneRadius: number) {
     const spherePosWorld = this.baseSceneGraph!.getWorldPositionOfTo(this.position, SphereCollider.__tmp_vec3_0);
     const delta = Vector3.subtractTo(bonePosition, spherePosWorld, SphereCollider.__tmp_vec3_1);
-    const direction = Vector3.normalizeTo(delta, SphereCollider.__tmp_vec3_2);
+    const length = delta.length();
+    const direction = Vector3.divideTo(delta, length, SphereCollider.__tmp_vec3_2);
     const radius = this.radius + boneRadius;
-    const distance = delta.length() - radius;
+    const distance = length - radius;
 
     return { direction, distance };
   }
