@@ -1,7 +1,7 @@
 import type { SceneGraphComponent } from '../../components';
 import { RnObject } from '../../core/RnObject';
 import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
-import { type IMatrix44, IVector3, Matrix44, MutableVector3, Quaternion } from '../../math';
+import { type IMatrix44, IVector3, Matrix44, MutableMatrix44, MutableVector3, Quaternion } from '../../math';
 import { Vector3 } from '../../math/Vector3';
 
 /**
@@ -54,6 +54,11 @@ export class VRMSpringBone extends RnObject {
 
   /** Temporary zero vector for internal calculations */
   private static __tmp_vec3_2_zero = Vector3.zero();
+
+  /** Temporary vector for internal calculations */
+  private static __tmp_vec3_3 = MutableVector3.zero();
+
+  private static __tmp_mat44_0 = MutableMatrix44.identity();
 
   /**
    * Creates a new VRM Spring Bone instance.
@@ -138,6 +143,6 @@ export class VRMSpringBone extends RnObject {
       v3B = Vector3.multiplyMatrix4(this.initialLocalChildPosition, this.node.getSceneGraph().matrixInner);
     }
 
-    this.boneLength = Vector3.subtract(v3A, v3B).length();
+    this.boneLength = Vector3.subtractTo(v3A, v3B, VRMSpringBone.__tmp_vec3_3).length();
   }
 }
