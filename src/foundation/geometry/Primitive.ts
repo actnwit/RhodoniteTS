@@ -735,14 +735,8 @@ export class Primitive extends RnObject {
    * @param targets - Array of attribute maps representing morph targets
    */
   setBlendShapeTargets(targets: Array<Attributes>) {
-    if (Primitive.__primitiveUidIdxHasMorph.size > Config.maxMorphPrimitiveNumber) {
-      Logger.error(
-        'Primitive.__primitiveUidsHasMorph.size exceeds the Config.maxMorphPrimitiveNumberInWebGPU. Please increase the Config.maxMorphPrimitiveNumberInWebGPU.'
-      );
-    } else {
-      Primitive.__idxPrimitiveUidHasMorph.set(Primitive.__primitiveCountHasMorph, this);
-      Primitive.__primitiveUidIdxHasMorph.set(this.__primitiveUid, Primitive.__primitiveCountHasMorph++);
-    }
+    Primitive.__idxPrimitiveUidHasMorph.set(Primitive.__primitiveCountHasMorph, this);
+    Primitive.__primitiveUidIdxHasMorph.set(this.__primitiveUid, Primitive.__primitiveCountHasMorph++);
 
     this.__targets = targets;
     this.calcFingerPrint();

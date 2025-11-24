@@ -98,33 +98,6 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
 
     if (isMorphing) {
       this.__definitions += '#define RN_IS_MORPHING\n';
-
-      shaderSemanticsInfoArray.push(
-        {
-          semantic: 'dataTextureMorphOffsetPosition',
-          componentType: ComponentType.Int,
-          compositionType: CompositionType.ScalarArray,
-          arrayLength: Config.maxMorphTargetNumber,
-          stage: ShaderType.VertexShader,
-          isInternalSetting: true,
-          initialValue: new VectorN(new Int32Array(Config.maxMorphTargetNumber)),
-          min: -Number.MAX_VALUE,
-          max: Number.MAX_VALUE,
-          needUniformInDataTextureMode: true,
-        },
-        {
-          semantic: 'morphWeights',
-          componentType: ComponentType.Float,
-          compositionType: CompositionType.ScalarArray,
-          arrayLength: Config.maxMorphTargetNumber,
-          stage: ShaderType.VertexShader,
-          isInternalSetting: true,
-          initialValue: new VectorN(new Float32Array(Config.maxMorphTargetNumber)),
-          min: -Number.MAX_VALUE,
-          max: Number.MAX_VALUE,
-          needUniformInDataTextureMode: true,
-        }
-      );
     }
 
     if (isOutline) {

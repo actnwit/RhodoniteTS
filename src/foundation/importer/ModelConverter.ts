@@ -1354,17 +1354,8 @@ export class ModelConverter {
         // morph targets
         if (primitive.targets != null) {
           // set default number
-          let maxMorphTargetNumber = Config.maxMorphTargetNumber;
-          if (rnLoaderOptions?.maxMorphTargetNumber != null) {
-            maxMorphTargetNumber = rnLoaderOptions.maxMorphTargetNumber;
-          }
-
           const targets: Array<Map<VertexAttributeSemanticsJoinedString, Accessor>> = [];
           for (let i = 0; i < primitive.targetsObjects!.length; i++) {
-            if (i >= maxMorphTargetNumber) {
-              break;
-            }
-
             const target = primitive.targetsObjects![i];
             const targetMap: Map<VertexAttributeSemanticsJoinedString, Accessor> = new Map();
             for (const attributeName in target) {

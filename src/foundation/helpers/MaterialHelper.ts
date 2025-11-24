@@ -208,35 +208,7 @@ function createPbrUberMaterial({
 } = {}) {
   const materialName = `PbrUber_${additionalName}_`;
 
-  let additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
-  additionalShaderSemanticInfo = [
-    {
-      semantic: 'dataTextureMorphOffsetPosition',
-      componentType: ComponentType.Int,
-      compositionType: CompositionType.ScalarArray,
-      arrayLength: Config.maxMorphTargetNumber,
-      stage: ShaderType.VertexShader,
-      isInternalSetting: true,
-      soloDatum: true,
-      initialValue: new VectorN(new Int32Array(Config.maxMorphTargetNumber)),
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      needUniformInDataTextureMode: true,
-    },
-    {
-      semantic: 'morphWeights',
-      componentType: ComponentType.Float,
-      compositionType: CompositionType.ScalarArray,
-      arrayLength: Config.maxMorphTargetNumber,
-      stage: ShaderType.VertexShader,
-      isInternalSetting: true,
-      soloDatum: true,
-      initialValue: new VectorN(new Float32Array(Config.maxMorphTargetNumber)),
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      needUniformInDataTextureMode: true,
-    },
-  ];
+  const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
 
   if (!g_sampler.created) {
     g_sampler.create();
@@ -558,34 +530,7 @@ function createClassicUberMaterial({
   maxInstancesNumber = Config.materialCountPerBufferView,
 } = {}) {
   const materialName = `ClassicUber_${additionalName}_`;
-  const additionalShaderSemanticInfo = [
-    {
-      semantic: 'dataTextureMorphOffsetPosition',
-      componentType: ComponentType.Int,
-      compositionType: CompositionType.ScalarArray,
-      arrayLength: Config.maxMorphTargetNumber,
-      stage: ShaderType.VertexShader,
-      isInternalSetting: true,
-      soloDatum: true,
-      initialValue: new VectorN(new Int32Array(Config.maxMorphTargetNumber)),
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      needUniformInDataTextureMode: true,
-    },
-    {
-      semantic: 'morphWeights',
-      componentType: ComponentType.Float,
-      compositionType: CompositionType.ScalarArray,
-      arrayLength: Config.maxMorphTargetNumber,
-      stage: ShaderType.VertexShader,
-      isInternalSetting: true,
-      soloDatum: true,
-      initialValue: new VectorN(new Float32Array(Config.maxMorphTargetNumber)),
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      needUniformInDataTextureMode: true,
-    },
-  ];
+  const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
 
   const materialContent = new CustomMaterialContent({
     name: materialName,
@@ -630,34 +575,7 @@ function createParaboloidDepthMomentEncodeMaterial({
 } = {}) {
   const materialName = `ParaboloidDepthMomentEncode_${additionalName}_`;
 
-  const additionalShaderSemanticInfo = [
-    {
-      semantic: 'dataTextureMorphOffsetPosition',
-      componentType: ComponentType.Int,
-      compositionType: CompositionType.ScalarArray,
-      arrayLength: Config.maxMorphTargetNumber,
-      stage: ShaderType.VertexShader,
-      isInternalSetting: true,
-      soloDatum: true,
-      initialValue: new VectorN(new Int32Array(Config.maxMorphTargetNumber)),
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      needUniformInDataTextureMode: true,
-    },
-    {
-      semantic: 'morphWeights',
-      componentType: ComponentType.Float,
-      compositionType: CompositionType.ScalarArray,
-      arrayLength: Config.maxMorphTargetNumber,
-      stage: ShaderType.VertexShader,
-      isInternalSetting: true,
-      soloDatum: true,
-      initialValue: new VectorN(new Float32Array(Config.maxMorphTargetNumber)),
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      needUniformInDataTextureMode: true,
-    },
-  ];
+  const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
   const materialContent = new CustomMaterialContent({
     name: materialName,
     isSkinning,
@@ -694,34 +612,7 @@ function createDepthMomentEncodeMaterial({
 } = {}) {
   const materialName = `DepthMomentEncode_${additionalName}_`;
 
-  const additionalShaderSemanticInfo = [
-    {
-      semantic: 'dataTextureMorphOffsetPosition',
-      componentType: ComponentType.Int,
-      compositionType: CompositionType.ScalarArray,
-      arrayLength: Config.maxMorphTargetNumber,
-      stage: ShaderType.VertexShader,
-      isInternalSetting: true,
-      soloDatum: true,
-      initialValue: new VectorN(new Int32Array(Config.maxMorphTargetNumber)),
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      needUniformInDataTextureMode: true,
-    },
-    {
-      semantic: 'morphWeights',
-      componentType: ComponentType.Float,
-      compositionType: CompositionType.ScalarArray,
-      arrayLength: Config.maxMorphTargetNumber,
-      stage: ShaderType.VertexShader,
-      isInternalSetting: true,
-      soloDatum: true,
-      initialValue: new VectorN(new Float32Array(Config.maxMorphTargetNumber)),
-      min: -Number.MAX_VALUE,
-      max: Number.MAX_VALUE,
-      needUniformInDataTextureMode: true,
-    },
-  ];
+  const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
   const materialContent = new CustomMaterialContent({
     name: materialName,
     isSkinning,
@@ -1639,37 +1530,7 @@ function reuseOrRecreateCustomMaterial(
   const hash = DataUtil.toCRC32(vertexShaderStr + pixelShaderStr);
   const materialName = `Custom_${hash}`;
 
-  let additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
-  if (isMorphing) {
-    additionalShaderSemanticInfo = [
-      {
-        semantic: 'dataTextureMorphOffsetPosition',
-        componentType: ComponentType.Int,
-        compositionType: CompositionType.ScalarArray,
-        arrayLength: Config.maxMorphTargetNumber,
-        stage: ShaderType.VertexShader,
-        isInternalSetting: true,
-        soloDatum: true,
-        initialValue: new VectorN(new Int32Array(Config.maxMorphTargetNumber)),
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        needUniformInDataTextureMode: true,
-      },
-      {
-        semantic: 'morphWeights',
-        componentType: ComponentType.Float,
-        compositionType: CompositionType.ScalarArray,
-        arrayLength: Config.maxMorphTargetNumber,
-        stage: ShaderType.VertexShader,
-        isInternalSetting: true,
-        soloDatum: true,
-        initialValue: new VectorN(new Float32Array(Config.maxMorphTargetNumber)),
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        needUniformInDataTextureMode: true,
-      },
-    ];
-  }
+  const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
 
   const definitions = [];
   if (isLighting) {
