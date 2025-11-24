@@ -483,7 +483,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         return;
       }
       const dataTextureWidth = glw.getMaxTextureSize();
-      const totalSizeOfTheBuffersInTexel = buffers.reduce((acc, buffer) => acc + buffer.takenSizeInByte, 0) / 4 / 4;
+      const totalSizeOfTheBuffersInTexel = buffers.reduce((acc, buffer) => acc + buffer.byteLength, 0) / 4 / 4;
       const dataTextureHeight = Math.ceil(totalSizeOfTheBuffersInTexel / dataTextureWidth);
 
       const dataTextureByteSize = dataTextureWidth * dataTextureHeight * 4 * 4;
