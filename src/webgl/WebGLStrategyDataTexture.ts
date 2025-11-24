@@ -802,7 +802,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
           this.__uniformMorphOffsetsTypedArray![Config.maxMorphTargetNumber * i + j] =
             (SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData + accessor.byteOffsetInBuffer) / 4 / 4;
         }
-        this.__lastMorphMaxIndex = Config.maxMorphTargetNumber * i + primitive.targets.length - 1;
       } else {
         break;
       }

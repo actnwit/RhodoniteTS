@@ -930,7 +930,6 @@ ${indexStr}
           this.__uniformMorphOffsetsTypedArray![Config.maxMorphTargetNumber * i + j] =
             accessor.byteOffsetInBuffer / 4 / 4;
         }
-        this.__lastMorphMaxIndex = Config.maxMorphTargetNumber * i + primitive.targets.length - 1;
       } else {
         break;
       }
