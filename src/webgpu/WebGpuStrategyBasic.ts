@@ -635,12 +635,12 @@ ${indexStr}
       this.__lastMorphOffsetsUniformDataSize = morphOffsetsUniformDataSize;
       if (this.__morphOffsetsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
         const inputArrayOffsets = new Uint32Array(morphOffsetsUniformDataSize);
+        this.__uniformMorphOffsetsTypedArray = inputArrayOffsets;
         this.__morphOffsetsUniformBufferUid =
           webGpuResourceRepository.createUniformMorphOffsetsBuffer(inputArrayOffsets);
-      }
-      // create the new morph offsets typed array
-      this.__uniformMorphOffsetsTypedArray = new Uint32Array(morphOffsetsUniformDataSize);
 
+        this.__updateMorphOffsetsUniformBuffer();
+      }
       this.__lastMorphOffsetsUniformDataSize = morphOffsetsUniformDataSize;
     }
 
@@ -663,12 +663,13 @@ ${indexStr}
       // create the new morph weights uniform buffer
       if (this.__morphWeightsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
         const inputArrayWeights = new Float32Array(blendShapeWeightsUniformDataSize);
+        this.__uniformMorphWeightsTypedArray = inputArrayWeights;
+
         this.__morphWeightsUniformBufferUid =
           webGpuResourceRepository.createUniformMorphWeightsBuffer(inputArrayWeights);
-      }
 
-      // create the new morph weights typed array
-      this.__uniformMorphWeightsTypedArray = new Float32Array(blendShapeWeightsUniformDataSize);
+        this.__updateMorphWeightsUniformBuffer();
+      }
 
       // create the new morph weights uniform buffer
       this.__lastMorphWeightsUniformDataSize = blendShapeWeightsUniformDataSize;
@@ -796,7 +797,7 @@ ${indexStr}
     }
 
     if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForWeights) {
-      this.__updateUniformMorph();
+      this.__updateMorphWeightsUniformBuffer();
       this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
     }
   }
@@ -991,6 +992,11 @@ ${indexStr}
       this.__storageBlendShapeBufferUid = webGpuResourceRepository.createStorageBlendShapeBuffer(float32Array);
     }
 
+    this.__updateMorphOffsetsUniformBuffer();
+  }
+
+  private __updateMorphOffsetsUniformBuffer() {
+    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
     const morphUniformDataOffsets = Primitive.getMorphUniformDataOffsets();
     for (let i = 0; i < Primitive.getPrimitiveCountHasMorph(); i++) {
       const primitive = Primitive.getPrimitiveHasMorph(i);
@@ -1012,7 +1018,7 @@ ${indexStr}
    * Updates uniform buffers containing morph target weights for blend shape animation.
    * Copies weight values from blend shape components to GPU-accessible uniform buffers.
    */
-  private __updateUniformMorph() {
+  private __updateMorphWeightsUniformBuffer() {
     const memoryManager: MemoryManager = MemoryManager.getInstance();
     const blendShapeDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUVertexData);
     if (blendShapeDataBuffer == null) {
