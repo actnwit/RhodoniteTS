@@ -3,7 +3,6 @@ import { BlendShapeComponent } from '../foundation/components/BlendShape/BlendSh
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
 import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
-import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
 import { Component, type MemberInfo } from '../foundation/core/Component';
@@ -25,11 +24,6 @@ import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { Material } from '../foundation/materials/core/Material';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
-import { MutableMatrix33 } from '../foundation/math/MutableMatrix33';
-import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
-import { MutableScalar } from '../foundation/math/MutableScalar';
-import { MutableVector3 } from '../foundation/math/MutableVector3';
-import { MutableVector4 } from '../foundation/math/MutableVector4';
 import type { Accessor } from '../foundation/memory/Accessor';
 import type { Buffer } from '../foundation/memory/Buffer';
 import { Logger } from '../foundation/misc/Logger';
@@ -84,6 +78,10 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __lastBlendShapeComponentsUpdateCountForWeights = -1;
   private __lastMorphMaxIndex = -1;
   private __lastGpuInstanceDataBufferCount = -1;
+  private __lastMorphOffsetsUniformDataSize = -1;
+  private __lastMorphWeightsUniformDataSize = -1;
+  private __morphOffsetsUniformBufferUid = -1;
+  private __morphWeightsUniformBufferUid = -1;
 
   private constructor() {}
 
@@ -614,16 +612,66 @@ ${indexStr}
    * Initializes morph target arrays and updates blend shape storage buffers when needed.
    */
   common_$load(): void {
-    if (this.__uniformMorphOffsetsTypedArray == null) {
-      this.__uniformMorphOffsetsTypedArray = new Uint32Array(
-        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
-      );
+    this.__initMorphUniformBuffers();
+  }
+
+  private __initMorphUniformBuffers() {
+    const morphUniformDataOffsets = Primitive.getMorphUniformDataOffsets();
+    const morphOffsetsUniformDataSize = Math.max(
+      Math.ceil(morphUniformDataOffsets[morphUniformDataOffsets.length - 1] / 4) * 4 * 4,
+      4
+    );
+
+    if (morphOffsetsUniformDataSize !== this.__lastMorphOffsetsUniformDataSize) {
+      const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+      // delete the old morph offsets uniform buffer
+      if (this.__morphOffsetsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+        webGpuResourceRepository.flush();
+        webGpuResourceRepository.clearCache();
+        webGpuResourceRepository.deleteUniformBuffer(this.__morphOffsetsUniformBufferUid);
+        this.__morphOffsetsUniformBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+      }
+      // create the new morph offsets uniform buffer
+      this.__lastMorphOffsetsUniformDataSize = morphOffsetsUniformDataSize;
+      if (this.__morphOffsetsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+        const inputArrayOffsets = new Uint32Array(morphOffsetsUniformDataSize);
+        this.__morphOffsetsUniformBufferUid =
+          webGpuResourceRepository.createUniformMorphOffsetsBuffer(inputArrayOffsets);
+      }
+      // create the new morph offsets typed array
+      this.__uniformMorphOffsetsTypedArray = new Uint32Array(morphOffsetsUniformDataSize);
+
+      this.__lastMorphOffsetsUniformDataSize = morphOffsetsUniformDataSize;
     }
 
-    if (this.__uniformMorphWeightsTypedArray == null) {
-      this.__uniformMorphWeightsTypedArray = new Float32Array(
-        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
-      );
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
+    const blendShapeWeightsUniformDataSize = Math.max(
+      Math.ceil(blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1] / 4) * 4 * 4,
+      4
+    );
+
+    if (blendShapeWeightsUniformDataSize !== this.__lastMorphWeightsUniformDataSize) {
+      const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+      // delete the old morph weights uniform buffer
+      if (this.__morphWeightsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+        webGpuResourceRepository.flush();
+        webGpuResourceRepository.clearCache();
+        webGpuResourceRepository.deleteUniformBuffer(this.__morphWeightsUniformBufferUid);
+        this.__morphWeightsUniformBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+      }
+
+      // create the new morph weights uniform buffer
+      if (this.__morphWeightsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+        const inputArrayWeights = new Float32Array(blendShapeWeightsUniformDataSize);
+        this.__morphWeightsUniformBufferUid =
+          webGpuResourceRepository.createUniformMorphWeightsBuffer(inputArrayWeights);
+      }
+
+      // create the new morph weights typed array
+      this.__uniformMorphWeightsTypedArray = new Float32Array(blendShapeWeightsUniformDataSize);
+
+      // create the new morph weights uniform buffer
+      this.__lastMorphWeightsUniformDataSize = blendShapeWeightsUniformDataSize;
     }
   }
 
