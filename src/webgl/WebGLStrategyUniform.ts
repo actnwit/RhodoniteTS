@@ -365,11 +365,11 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       this.__lastMorphOffsetsUniformDataSize = morphOffsetsUniformDataSize;
       if (this.__morphOffsetsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
         const inputArrayOffsets = new Uint32Array(morphOffsetsUniformDataSize);
+        this.__uniformMorphOffsetsTypedArray = inputArrayOffsets;
         this.__morphOffsetsUniformBufferUid =
           this.__webglResourceRepository.createUniformBufferWithBufferView(inputArrayOffsets);
+        this.__updateMorphOffsetsUniformBuffersInner();
       }
-      // create the new morph offsets typed array
-      this.__uniformMorphOffsetsTypedArray = new Uint32Array(morphOffsetsUniformDataSize);
 
       this.__lastMorphOffsetsUniformDataSize = morphOffsetsUniformDataSize;
       needsRebindMorphUniformBuffers = true;
@@ -391,14 +391,12 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       // create the new morph weights uniform buffer
       if (this.__morphWeightsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
         const inputArrayWeights = new Float32Array(blendShapeWeightsUniformDataSize);
+        this.__uniformMorphWeightsTypedArray = inputArrayWeights;
         this.__morphWeightsUniformBufferUid =
           this.__webglResourceRepository.createUniformBufferWithBufferView(inputArrayWeights);
+        this.__updateMorphWeightsUniformBuffer();
       }
 
-      // create the new morph weights typed array
-      this.__uniformMorphWeightsTypedArray = new Float32Array(blendShapeWeightsUniformDataSize);
-
-      // create the new morph weights uniform buffer
       this.__lastMorphWeightsUniformDataSize = blendShapeWeightsUniformDataSize;
       needsRebindMorphUniformBuffers = true;
     }
@@ -424,7 +422,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
    * Updates uniform buffers containing morph target weights for blend shape animation.
    * Copies weight values from blend shape components to GPU-accessible uniform buffers.
    */
-  private __updateUniformMorph() {
+  private __updateMorphWeightsUniformBuffer() {
     const memoryManager: MemoryManager = MemoryManager.getInstance();
     const blendShapeDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUVertexData);
     if (blendShapeDataBuffer == null) {
@@ -502,7 +500,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
     }
 
     if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForWeights) {
-      this.__updateUniformMorph();
+      this.__updateMorphWeightsUniformBuffer();
       this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
     }
 

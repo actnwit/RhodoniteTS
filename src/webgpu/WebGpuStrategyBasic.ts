@@ -639,9 +639,9 @@ ${indexStr}
         this.__morphOffsetsUniformBufferUid = webGpuResourceRepository.createUniformMorphOffsetsBuffer(
           morphOffsetsUniformDataSize * 4
         );
-
         this.__updateMorphOffsetsUniformBuffer();
       }
+
       this.__lastMorphOffsetsUniformDataSize = morphOffsetsUniformDataSize;
     }
 
@@ -665,15 +665,12 @@ ${indexStr}
       if (this.__morphWeightsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
         const inputArrayWeights = new Float32Array(blendShapeWeightsUniformDataSize);
         this.__uniformMorphWeightsTypedArray = inputArrayWeights;
-
         this.__morphWeightsUniformBufferUid = webGpuResourceRepository.createUniformMorphWeightsBuffer(
           blendShapeWeightsUniformDataSize * 4
         );
-
         this.__updateMorphWeightsUniformBuffer();
       }
 
-      // create the new morph weights uniform buffer
       this.__lastMorphWeightsUniformDataSize = blendShapeWeightsUniformDataSize;
     }
   }
