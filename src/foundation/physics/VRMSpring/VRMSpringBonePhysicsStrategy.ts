@@ -306,13 +306,13 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   ) {
     for (const collisionGroup of collisionGroups) {
       for (const collider of collisionGroup.sphereColliders) {
-        const { direction, distance } = collider.collision(nextTail, boneHitRadius);
+        const { delta, distance, length } = collider.collision(nextTail, boneHitRadius);
         if (distance < 0) {
           // Hit
           nextTail = Vector3.addScaledVectorTo(
             nextTail,
-            direction,
-            -distance,
+            delta,
+            (1 / length) * -distance,
             VRMSpringBonePhysicsStrategy.__tmp_collision_vec3_0
           );
 

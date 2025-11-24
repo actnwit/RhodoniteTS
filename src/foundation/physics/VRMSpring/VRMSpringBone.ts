@@ -134,18 +134,15 @@ export class VRMSpringBone extends RnObject {
    * of the bone and its child (or estimated child position).
    */
   _calcWorldSpaceBoneLength(): void {
-    const v3A = this.node.getSceneGraph().matrixInner.getTranslateTo(VRMSpringBone.__tmp_vec3_0);
+    const mat = this.node.getSceneGraph().matrixInner;
+    const v3A = mat.getTranslateTo(VRMSpringBone.__tmp_vec3_0);
     let v3B = VRMSpringBone.__tmp_vec3_2_zero;
     const children = this.node.getSceneGraph().children;
     if (children.length > 0) {
       v3B = children[0].matrixInner.getTranslateTo(VRMSpringBone.__tmp_vec3_1);
     } else {
       // v3B = this.node.getSceneGraph().matrixInner.multiplyVector3(this.initialLocalChildPosition);
-      v3B = Vector3.multiplyMatrix4To(
-        this.initialLocalChildPosition,
-        this.node.getSceneGraph().matrixInner,
-        VRMSpringBone.__tmp_vec3_3
-      );
+      v3B = Vector3.multiplyMatrix4To(this.initialLocalChildPosition, mat, VRMSpringBone.__tmp_vec3_3);
     }
 
     this.boneLength = Vector3.subtractTo(v3A, v3B, VRMSpringBone.__tmp_vec3_4).length();
