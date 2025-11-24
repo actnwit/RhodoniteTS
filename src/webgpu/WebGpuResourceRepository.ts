@@ -2141,6 +2141,15 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     return storageBufferHandle;
   }
 
+  deleteStorageBlendShapeBuffer(storageBufferHandle: WebGPUResourceHandle) {
+    const storageBuffer = this.__webGpuResources.get(storageBufferHandle) as GPUBuffer;
+    if (storageBuffer == null) {
+      return;
+    }
+    storageBuffer.destroy();
+    this.__webGpuResources.delete(storageBufferHandle);
+  }
+
   updateStorageBlendShapeBuffer(
     storageBufferHandle: WebGPUResourceHandle,
     inputArray: Float32Array,

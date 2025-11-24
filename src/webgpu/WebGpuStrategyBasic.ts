@@ -82,6 +82,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __lastMorphWeightsUniformDataSize = -1;
   private __morphOffsetsUniformBufferUid = -1;
   private __morphWeightsUniformBufferUid = -1;
+  private __storageBlendShapeBufferByteLength = -1;
 
   private constructor() {}
 
@@ -970,17 +971,33 @@ ${indexStr}
     const memoryManager: MemoryManager = MemoryManager.getInstance();
 
     // the GPU global Storage
-    const blendShapeDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUVertexData);
+    const blendShapeDataBuffers: Buffer[] = memoryManager.getBuffers(BufferUse.GPUVertexData);
 
-    if (blendShapeDataBuffer == null) {
+    if (blendShapeDataBuffers.length === 0) {
       return;
     }
 
+    const blendShapeDataBufferByteLength = blendShapeDataBuffers.reduce((acc, buffer) => acc + buffer.byteLength, 0);
+
+    if (blendShapeDataBufferByteLength !== this.__storageBlendShapeBufferByteLength) {
+      WebGpuResourceRepository.getInstance().deleteStorageBlendShapeBuffer(this.__storageBlendShapeBufferUid);
+      this.__storageBlendShapeBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+      this.__storageBlendShapeBufferByteLength = blendShapeDataBufferByteLength;
+    }
+
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
-    const float32Array = new Float32Array(blendShapeDataBuffer!.getArrayBuffer());
+    const float32Array = new Float32Array(blendShapeDataBufferByteLength / 4);
+    // copy the data from the blendShapeDataBuffers to the float32Array
+    let offset = 0;
+    for (let i = 0; i < blendShapeDataBuffers.length; i++) {
+      const buffer = blendShapeDataBuffers[i];
+      float32Array.set(new Float32Array(buffer.getArrayBuffer()), offset);
+      offset += buffer.byteLength / 4;
+    }
+
     if (this.__storageBlendShapeBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       // Update
-      const componentSizeForDataTexture = blendShapeDataBuffer!.takenSizeInByte / 4;
+      const componentSizeForDataTexture = blendShapeDataBufferByteLength / 4;
       webGpuResourceRepository.updateStorageBlendShapeBuffer(
         this.__storageBlendShapeBufferUid,
         float32Array,
@@ -1003,7 +1020,12 @@ ${indexStr}
         for (let j = 0; j < primitive.targets.length; j++) {
           const target = primitive.targets[j];
           const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
-          this.__uniformMorphOffsetsTypedArray![morphUniformDataOffsets[i] + j] = accessor.byteOffsetInBuffer / 4 / 4;
+          const byteOffsetOfExistingBuffer = MemoryManager.getInstance().getByteOffsetOfExistingBuffers(
+            BufferUse.GPUVertexData,
+            accessor.bufferView.buffer.indexOfTheBufferUsage
+          );
+          this.__uniformMorphOffsetsTypedArray![morphUniformDataOffsets[i] + j] =
+            (byteOffsetOfExistingBuffer + accessor.byteOffsetInBuffer) / 4 / 4;
         }
       } else {
         break;
