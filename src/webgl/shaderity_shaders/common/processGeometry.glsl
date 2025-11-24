@@ -201,13 +201,13 @@ bool processGeometry(
 
   vec3 position_inLocal;
 #ifdef RN_IS_MORPHING
-  if (u_morphTargetNumber == 0) {
+  int blendShapeComponentSID = int(a_instanceInfo.z);
+  if (blendShapeComponentSID == -1) {
 #endif
     position_inLocal = inPosition_inLocal.xyz;
 #ifdef RN_IS_MORPHING
   } else {
     float vertexIdx = a_baryCentricCoord.w;
-    int blendShapeComponentSID = int(a_instanceInfo.z);
     position_inLocal = get_position(vertexIdx, inPosition_inLocal.xyz, blendShapeComponentSID);
   }
 #endif
