@@ -1,5 +1,6 @@
-import type { ComponentSID, ComponentTID, EntityUID, Index } from '../../../types/CommonTypes';
+import type { ComponentSID, ComponentTID, EntityUID, Index, Offset } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
+import { ComponentRepository } from '../../core/ComponentRepository';
 import type { IEntity } from '../../core/Entity';
 import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
@@ -101,6 +102,18 @@ export class BlendShapeComponent extends Component {
   setWeightByIndex(index: Index, weight: number) {
     this.__weights[index] = weight;
     BlendShapeComponent.__updateCount++;
+  }
+
+  static getOffsetsInUniform(): Offset[] {
+    const blendShapeComponents = ComponentRepository.getComponentsWithType(
+      BlendShapeComponent
+    ) as BlendShapeComponent[];
+    const offsets: number[] = [0];
+    for (let i = 0; i < blendShapeComponents.length; i++) {
+      offsets.push(offsets[offsets.length - 1] + blendShapeComponents[i].weights.length);
+    }
+
+    return offsets;
   }
 
   /**

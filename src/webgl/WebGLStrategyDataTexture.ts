@@ -274,6 +274,10 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
     const morphUniformDataOffsetsStr = `
     int morphUniformDataOffsets[] = int[](${morphUniformDataOffsets.join(', ')});
     `;
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
+    const blendShapeUniformDataOffsetsStr = `
+    int blendShapeUniformDataOffsets[] = int[](${blendShapeUniformDataOffsets.join(', ')});
+    `;
 
     const morphingStr = `
     #ifdef RN_IS_VERTEX_SHADER
@@ -281,9 +285,10 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
       vec3 get_position(float vertexId, vec3 basePosition, int blendShapeComponentSID) {
         ${morphUniformDataTargetNumbersStr}
         ${morphUniformDataOffsetsStr}
+        ${blendShapeUniformDataOffsetsStr}
         int currentPrimitiveIdx = u_currentPrimitiveIdx;
         int offsetInUniform = morphUniformDataOffsets[currentPrimitiveIdx];
-        int offsetInUniform2 = morphUniformDataOffsets[blendShapeComponentSID];
+        int offsetInUniform2 = blendShapeUniformDataOffsets[blendShapeComponentSID];
         vec3 position = basePosition;
         int scalar_idx = 3 * int(vertexId);
         for (int i=0; i<morphUniformDataTargetNumbers[currentPrimitiveIdx]; i++) {
@@ -294,7 +299,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
           int basePosIn4bytes = offsetPosition * 4 + scalar_idx;
           vec3 addPos = fetchVec3No16BytesAligned(basePosIn4bytes);
 
-          int idx2 = ${Config.maxMorphTargetNumber} * blendShapeComponentSID + i;
+          int idx2 = offsetInUniform2 + i;
           vec4 morphWeights = uniformMorphWeights.data[ idx2 / 4];
           float morphWeight = morphWeights[idx2 % 4];
 
@@ -807,7 +812,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
   private __updateMorphOffsetsUniformBuffersInner() {
     const morphUniformDataOffsets = Primitive.getMorphUniformDataOffsets();
-    for (let i = 0; i < morphUniformDataOffsets.length - 1; i++) {
+    for (let i = 0; i < Primitive.getPrimitiveCountHasMorph(); i++) {
       const primitive = Primitive.getPrimitiveHasMorph(i);
       if (primitive != null) {
         for (let j = 0; j < primitive.targets.length; j++) {
@@ -1103,18 +1108,19 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       return;
     }
 
-    const morphUniformDataOffsets = Primitive.getMorphUniformDataOffsets();
-    const blendShapeComponents = ComponentRepository.getComponentsWithType(BlendShapeComponent);
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
+    const blendShapeComponents = ComponentRepository.getComponentsWithType(
+      BlendShapeComponent
+    ) as BlendShapeComponent[];
     for (let i = 0; i < blendShapeComponents.length; i++) {
-      const blendShapeComponent = blendShapeComponents[i] as BlendShapeComponent;
+      const blendShapeComponent = blendShapeComponents[i];
       const weights = blendShapeComponent.weights;
       for (let j = 0; j < weights.length; j++) {
-        this.__uniformMorphWeightsTypedArray![Config.maxMorphTargetNumber * blendShapeComponent.componentSID + j] =
-          weights[j];
+        this.__uniformMorphWeightsTypedArray![blendShapeUniformDataOffsets[i] + j] = weights[j];
       }
     }
     if (blendShapeComponents.length > 0) {
-      const elementNumToCopy = morphUniformDataOffsets[morphUniformDataOffsets.length - 1];
+      const elementNumToCopy = blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1];
       this.__webglResourceRepository.updateUniformBuffer(
         this.__morphWeightsUniformBufferUid,
         this.__uniformMorphWeightsTypedArray!,
