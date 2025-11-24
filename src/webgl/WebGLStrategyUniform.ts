@@ -21,6 +21,7 @@ import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
 import type { Mesh } from '../foundation/geometry/Mesh';
 import { Primitive } from '../foundation/geometry/Primitive';
 import type { Material } from '../foundation/materials/core/Material';
+import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 import type { Scalar } from '../foundation/math/Scalar';
 import type { Vector2 } from '../foundation/math/Vector2';
 import type { Accessor } from '../foundation/memory/Accessor';
@@ -441,12 +442,13 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
     }
 
     const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
-    const blendShapeComponents = ComponentRepository.getComponentsWithType(
-      BlendShapeComponent
-    ) as BlendShapeComponent[];
+    const blendShapeComponents = ComponentRepository.getComponentsWithTypeWithoutFiltering(BlendShapeComponent) as (
+      | BlendShapeComponent
+      | undefined
+    )[];
     for (let i = 0; i < blendShapeComponents.length; i++) {
       const blendShapeComponent = blendShapeComponents[i];
-      const weights = blendShapeComponent.weights;
+      const weights = blendShapeComponent != null ? blendShapeComponent!.weights : [];
       for (let j = 0; j < weights.length; j++) {
         this.__uniformMorphWeightsTypedArray![blendShapeUniformDataOffsets[i] + j] = weights[j];
       }
@@ -514,6 +516,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       this.__updateMorphWeightsUniformBuffer();
       this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
       this.__countOfBlendShapeComponents = BlendShapeComponent.getCountOfBlendShapeComponents();
+      MaterialRepository._makeShaderInvalidateToAllMaterials();
     }
 
     this.__updateMorphOffsetsUniformBuffers();

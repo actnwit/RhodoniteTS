@@ -83,6 +83,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __morphOffsetsUniformBufferUid = -1;
   private __morphWeightsUniformBufferUid = -1;
   private __storageBlendShapeBufferByteLength = -1;
+  private __countOfBlendShapeComponents = -1;
 
   private constructor() {}
 
@@ -796,9 +797,14 @@ ${indexStr}
       this.__lastMorphMaxIndex = morphMaxIndex;
     }
 
-    if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForWeights) {
+    if (
+      BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForWeights ||
+      BlendShapeComponent.getCountOfBlendShapeComponents() !== this.__countOfBlendShapeComponents
+    ) {
       this.__updateMorphWeightsUniformBuffer();
       this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
+      this.__countOfBlendShapeComponents = BlendShapeComponent.getCountOfBlendShapeComponents();
+      MaterialRepository._makeShaderInvalidateToAllMaterials();
     }
   }
 
@@ -1050,12 +1056,13 @@ ${indexStr}
     }
 
     const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
-    const blendShapeComponents = ComponentRepository.getComponentsWithType(
-      BlendShapeComponent
-    ) as BlendShapeComponent[];
+    const blendShapeComponents = ComponentRepository.getComponentsWithTypeWithoutFiltering(BlendShapeComponent) as (
+      | BlendShapeComponent
+      | undefined
+    )[];
     for (let i = 0; i < blendShapeComponents.length; i++) {
       const blendShapeComponent = blendShapeComponents[i];
-      const weights = blendShapeComponent.weights;
+      const weights = blendShapeComponent != null ? blendShapeComponent!.weights : [];
       for (let j = 0; j < weights.length; j++) {
         this.__uniformMorphWeightsTypedArray![blendShapeUniformDataOffsets[i] + j] = weights[j];
       }
