@@ -124,38 +124,6 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
       });
     });
 
-    if (shaderType === ShaderType.VertexShader) {
-      const MorphingStr = `
-
-#ifdef RN_IS_VERTEX_SHADER
-  #ifdef RN_IS_MORPHING
-  fn get_position(vertexId: u32, basePosition: vec3<f32>, blendShapeComponentSID: u32) -> vec3<f32> {
-    var position = basePosition;
-    let scalar_idx = 3u * vertexId;
-    for (var i=0u; i<uniformDrawParameters.morphTargetNumber; i++) {
-      let currentPrimitiveIdx = uniformDrawParameters.currentPrimitiveIdx;
-      let idx = ${Config.maxMorphTargetNumber}u * currentPrimitiveIdx + i;
-      let offsets = uniformMorphOffsets.data[ idx / 4u];
-      let offsetPosition = offsets[idx % 4u];
-
-      let basePosIn4bytes = offsetPosition * 4u + scalar_idx;
-      let addPos = fetchVec3No16BytesAlignedFromBlendShapeBuffer(basePosIn4bytes);
-
-      let idx2 = ${Config.maxMorphTargetNumber}u * blendShapeComponentSID + i;
-      let morphWeights: vec4f = uniformMorphWeights.data[ idx2 / 4u];
-      let morphWeight: f32 = morphWeights[idx2 % 4u];
-
-      position += addPos * morphWeight;
-    }
-
-    return position;
-  }
-  #endif
-#endif
-`;
-      str += MorphingStr;
-    }
-
     return str;
 
     function processForArrayType(
@@ -277,6 +245,57 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   }
   `;
     }
+  }
+
+  private static __getMorphedPositionGetter(): string {
+    const morphUniformDataTargetNumbers = Primitive.getMorphUniformDataTargetNumbers();
+    const morphUniformDataTargetNumbersStr = `
+    var<function> morphUniformDataTargetNumbers: array<u32, ${morphUniformDataTargetNumbers.length}> = array<u32, ${morphUniformDataTargetNumbers.length}>(${morphUniformDataTargetNumbers.map(num => `${num}u`).join(', ')});
+    `;
+    const morphUniformDataOffsets = Primitive.getMorphUniformDataOffsets();
+    const morphUniformDataOffsetsStr = `
+    var<function> morphUniformDataOffsets: array<u32, ${morphUniformDataOffsets.length}> = array<u32, ${morphUniformDataOffsets.length}>(${morphUniformDataOffsets.map(offset => `${offset}u`).join(', ')});
+    `;
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
+    const blendShapeUniformDataOffsetsStr = `
+    var<function> blendShapeUniformDataOffsets: array<u32, ${blendShapeUniformDataOffsets.length}> = array<u32, ${blendShapeUniformDataOffsets.length}>(${blendShapeUniformDataOffsets.map(offset => `${offset}u`).join(', ')});
+    `;
+
+    const morphingStr = `
+
+    #ifdef RN_IS_VERTEX_SHADER
+    #ifdef RN_IS_MORPHING
+    fn get_position(vertexId: u32, basePosition: vec3<f32>, blendShapeComponentSID: u32) -> vec3<f32> {
+      ${morphUniformDataTargetNumbersStr}
+      ${morphUniformDataOffsetsStr}
+      ${blendShapeUniformDataOffsetsStr}
+      let currentPrimitiveIdx = uniformDrawParameters.currentPrimitiveIdx;
+      let offsetInUniform = morphUniformDataOffsets[currentPrimitiveIdx];
+      let offsetInUniform2 = blendShapeUniformDataOffsets[blendShapeComponentSID];
+      var position = basePosition;
+      let scalar_idx = 3u * vertexId;
+      for (var i=0u; i<morphUniformDataTargetNumbers[currentPrimitiveIdx]; i++) {
+        let idx = offsetInUniform + i;
+        let offsets = uniformMorphOffsets.data[ idx / 4u];
+        let offsetPosition = offsets[idx % 4u];
+
+        let basePosIn4bytes = offsetPosition * 4u + scalar_idx;
+        let addPos = fetchVec3No16BytesAlignedFromBlendShapeBuffer(basePosIn4bytes);
+
+        let idx2 = offsetInUniform2 + i;
+        let morphWeights: vec4f = uniformMorphWeights.data[ idx2 / 4u];
+        let morphWeight: f32 = morphWeights[idx2 % 4u];
+
+        position += addPos * morphWeight;
+      }
+
+      return position;
+    }
+    #endif
+  #endif
+    `;
+
+    return morphingStr;
   }
 
   /**
@@ -651,7 +670,8 @@ ${indexStr}
         WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.VertexShader),
         WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.PixelShader),
         WebGpuStrategyBasic.__getShaderPropertyOfGlobalDataRepository,
-        WebGpuStrategyBasic.__getShaderPropertyOfMaterial
+        WebGpuStrategyBasic.__getShaderPropertyOfMaterial,
+        WebGpuStrategyBasic.__getMorphedPositionGetter()
       );
       primitive._backupMaterial();
     } catch (e) {
@@ -663,7 +683,8 @@ ${indexStr}
         WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.VertexShader),
         WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.PixelShader),
         WebGpuStrategyBasic.__getShaderPropertyOfGlobalDataRepository,
-        WebGpuStrategyBasic.__getShaderPropertyOfMaterial
+        WebGpuStrategyBasic.__getShaderPropertyOfMaterial,
+        WebGpuStrategyBasic.__getMorphedPositionGetter()
       );
     }
   }
@@ -685,14 +706,16 @@ ${indexStr}
     vertexShaderMethodDefinitionsForVertexShader: string,
     vertexShaderMethodDefinitionsForPixelShader: string,
     propertySetterOfGlobalDataRepository: getShaderPropertyFuncOfGlobalDataRepository,
-    propertySetterOfMaterial: getShaderPropertyFuncOfMaterial
+    propertySetterOfMaterial: getShaderPropertyFuncOfMaterial,
+    morphedPositionGetter: string
   ): void {
     material._createProgramWebGpu(
       primitive,
       vertexShaderMethodDefinitionsForVertexShader,
       vertexShaderMethodDefinitionsForPixelShader,
       propertySetterOfGlobalDataRepository,
-      propertySetterOfMaterial
+      propertySetterOfMaterial,
+      morphedPositionGetter
     );
   }
 
@@ -920,21 +943,20 @@ ${indexStr}
       this.__storageBlendShapeBufferUid = webGpuResourceRepository.createStorageBlendShapeBuffer(float32Array);
     }
 
-    let i = 0;
-    for (; i < Config.maxMorphPrimitiveNumber; i++) {
+    const morphUniformDataOffsets = Primitive.getMorphUniformDataOffsets();
+    for (let i = 0; i < Primitive.getPrimitiveCountHasMorph(); i++) {
       const primitive = Primitive.getPrimitiveHasMorph(i);
       if (primitive != null) {
         for (let j = 0; j < primitive.targets.length; j++) {
           const target = primitive.targets[j];
           const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
-          this.__uniformMorphOffsetsTypedArray![Config.maxMorphTargetNumber * i + j] =
-            accessor.byteOffsetInBuffer / 4 / 4;
+          this.__uniformMorphOffsetsTypedArray![morphUniformDataOffsets[i] + j] = accessor.byteOffsetInBuffer / 4 / 4;
         }
       } else {
         break;
       }
     }
-    const elementNumToCopy = Config.maxMorphTargetNumber * i;
+    const elementNumToCopy = morphUniformDataOffsets[morphUniformDataOffsets.length - 1];
     webGpuResourceRepository.updateUniformMorphOffsetsBuffer(this.__uniformMorphOffsetsTypedArray!, elementNumToCopy);
   }
 
@@ -948,20 +970,24 @@ ${indexStr}
     if (blendShapeDataBuffer == null) {
       return;
     }
+    if (blendShapeDataBuffer.takenSizeInByte === 0) {
+      return;
+    }
 
-    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
-
-    const blendShapeComponents = ComponentRepository.getComponentsWithType(BlendShapeComponent);
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
+    const blendShapeComponents = ComponentRepository.getComponentsWithType(
+      BlendShapeComponent
+    ) as BlendShapeComponent[];
     for (let i = 0; i < blendShapeComponents.length; i++) {
-      const blendShapeComponent = blendShapeComponents[i] as BlendShapeComponent;
-      const weights = blendShapeComponent!.weights;
+      const blendShapeComponent = blendShapeComponents[i];
+      const weights = blendShapeComponent.weights;
       for (let j = 0; j < weights.length; j++) {
-        this.__uniformMorphWeightsTypedArray![Config.maxMorphTargetNumber * blendShapeComponent.componentSID + j] =
-          weights[j];
+        this.__uniformMorphWeightsTypedArray![blendShapeUniformDataOffsets[i] + j] = weights[j];
       }
     }
     if (blendShapeComponents.length > 0) {
-      const elementNumToCopy = Config.maxMorphTargetNumber * blendShapeComponents.length;
+      const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+      const elementNumToCopy = blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1];
       webGpuResourceRepository.updateUniformMorphWeightsBuffer(this.__uniformMorphWeightsTypedArray!, elementNumToCopy);
     }
   }

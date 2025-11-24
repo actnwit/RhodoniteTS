@@ -519,14 +519,17 @@ export class Material extends RnObject {
    * @param primitive - The primitive to create the program for
    * @param componentDataAccessMethodDefinitionsForVertexShader - method definitions for component data access for vertex shader
    * @param componentDataAccessMethodDefinitionsForPixelShader - method definitions for component data access for pixel shader
-   * @param propertySetter - Function to set shader properties
+   * @param propertySetterOfGlobalDataRepository - Function to set shader properties of global data repository
+   * @param propertySetterOfMaterial - Function to set shader properties of material
+   * @param morphedPositionGetter - Function to get the morphed position
    */
   _createProgramWebGpu(
     primitive: Primitive,
     componentDataAccessMethodDefinitionsForVertexShader: string,
     componentDataAccessMethodDefinitionsForPixelShader: string,
     propertySetterOfGlobalDataRepository: getShaderPropertyFuncOfGlobalDataRepository,
-    propertySetterOfMaterial: getShaderPropertyFuncOfMaterial
+    propertySetterOfMaterial: getShaderPropertyFuncOfMaterial,
+    morphedPositionGetter: string
   ) {
     const programUid = _createProgramAsSingleOperationWebGpu(
       this,
@@ -534,7 +537,8 @@ export class Material extends RnObject {
       componentDataAccessMethodDefinitionsForVertexShader,
       componentDataAccessMethodDefinitionsForPixelShader,
       propertySetterOfGlobalDataRepository,
-      propertySetterOfMaterial
+      propertySetterOfMaterial,
+      morphedPositionGetter
     );
 
     const primitiveFingerPrint = primitive._getFingerPrint();

@@ -42,7 +42,7 @@ import type {
   getShaderPropertyFuncOfMaterial,
 } from '../../definitions/ShaderSemantics';
 import type { VertexAttributeEnum } from '../../definitions/VertexAttribute';
-import { Primitive } from '../../geometry/Primitive';
+import type { Primitive } from '../../geometry/Primitive';
 import { Is } from '../../misc/Is';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import { ModuleManager } from '../../system/ModuleManager';
@@ -229,10 +229,6 @@ export function _createProgramAsSingleOperationWebGL(
     alphaMode += '#define RN_IS_ALPHA_MODE_MASK\n';
   }
 
-  const morphUniformDataOffsets = Primitive.getMorphUniformDataOffsets();
-  const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
-  const maxMorphOffsetsDataNumber = morphUniformDataOffsets[morphUniformDataOffsets.length - 1];
-  const maxMorphWeightsDataNumber = blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1];
   const cacheQuery =
     Component.getStateVersion() +
     MaterialRepository._getBufferViewVersion(material.__materialTypeName) +
@@ -242,10 +238,9 @@ export function _createProgramAsSingleOperationWebGL(
     material._getFingerPrint() +
     definitions +
     morphedPositionGetter +
-    maxMorphOffsetsDataNumber +
-    maxMorphWeightsDataNumber +
     componentDataAccessMethodDefinitionsForVertexShader +
     componentDataAccessMethodDefinitionsForPixelShader +
+    morphedPositionGetter +
     alphaMode;
 
   let shaderProgramUid = __shaderStringMap.get(cacheQuery);
@@ -389,6 +384,7 @@ export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, _pri
  * @param componentDataAccessMethodDefinitionsForPixelShader - method definitions for component data access for pixel shader
  * @param propertySetterOfGlobalDataRepository - Function for setting shader properties of global data repository
  * @param propertySetterOfMaterial - Function for setting shader properties of material
+ * @param morphedPositionGetter - Function to get the morphed position
  * @returns The handle to the created shader program
  */
 export function _createProgramAsSingleOperationWebGpu(
@@ -397,7 +393,8 @@ export function _createProgramAsSingleOperationWebGpu(
   componentDataAccessMethodDefinitionsForVertexShader: string,
   componentDataAccessMethodDefinitionsForPixelShader: string,
   propertySetterOfGlobalDataRepository: getShaderPropertyFuncOfGlobalDataRepository,
-  propertySetterOfMaterial: getShaderPropertyFuncOfMaterial
+  propertySetterOfMaterial: getShaderPropertyFuncOfMaterial,
+  morphedPositionGetter: string
 ) {
   const vertexAttributeDefines = defineAttributes(primitive);
   const materialNode = material._materialContent;
@@ -425,6 +422,7 @@ export function _createProgramAsSingleOperationWebGpu(
     definitions +
     componentDataAccessMethodDefinitionsForVertexShader +
     componentDataAccessMethodDefinitionsForPixelShader +
+    morphedPositionGetter +
     alphaMode;
 
   let shaderProgramUid = __shaderStringMap.get(cacheQuery);
@@ -456,7 +454,7 @@ export function _createProgramAsSingleOperationWebGpu(
     fullscreen: fullscreenWgsl.code,
     getters: vertexPropertiesStr,
     definitions: `// RN_IS_VERTEX_SHADER\n#define RN_IS_VERTEX_SHADER\n${definitions}`,
-    matricesGetters: componentDataAccessMethodDefinitionsForVertexShader,
+    matricesGetters: componentDataAccessMethodDefinitionsForVertexShader + morphedPositionGetter,
     processGeometry: processGeometryWgsl.code,
     Config,
   });
