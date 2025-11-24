@@ -362,12 +362,13 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
       WebGLStrategyDataTexture.__globalDataRepository._setUniformLocationsForDataTextureModeOnly(
         material.getShaderProgramUid(primitive)
       );
+
+      webglResourceRepository.setUniformBlockBindingForMorphOffsetsAndWeights(
+        programUid,
+        this.__morphOffsetsUniformBufferUid,
+        this.__morphWeightsUniformBufferUid
+      );
     }
-    webglResourceRepository.setUniformBlockBindingForMorphOffsetsAndWeights(
-      programUid,
-      this.__morphOffsetsUniformBufferUid,
-      this.__morphWeightsUniformBufferUid
-    );
 
     return programUid;
   }
@@ -839,9 +840,10 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   common_$load(): void {}
 
   private __initMorphUniformBuffers() {
+    let needsRebindMorphUniformBuffers = false;
     const morphUniformDataOffsets = Primitive.getMorphUniformDataOffsets();
     const morphOffsetsUniformDataSize = Math.max(
-      Math.ceil(morphUniformDataOffsets[morphUniformDataOffsets.length - 1] / 4) * 4,
+      Math.ceil(morphUniformDataOffsets[morphUniformDataOffsets.length - 1] / 4) * 4 * 4,
       4
     );
 
@@ -862,11 +864,12 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__uniformMorphOffsetsTypedArray = new Uint32Array(morphOffsetsUniformDataSize);
 
       this.__lastMorphOffsetsUniformDataSize = morphOffsetsUniformDataSize;
+      needsRebindMorphUniformBuffers = true;
     }
 
     const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
     const blendShapeWeightsUniformDataSize = Math.max(
-      Math.ceil(blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1] / 4) * 4,
+      Math.ceil(blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1] / 4) * 4 * 4,
       4
     );
 
@@ -889,6 +892,32 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
       // create the new morph weights uniform buffer
       this.__lastMorphWeightsUniformDataSize = blendShapeWeightsUniformDataSize;
+      needsRebindMorphUniformBuffers = true;
+    }
+
+    if (needsRebindMorphUniformBuffers) {
+      this.__bindMorphUniformBuffers();
+    }
+  }
+
+  private __bindMorphUniformBuffers() {
+    const gl = this.__webglResourceRepository.currentWebGLContextWrapper?.getRawContextAsWebGL2();
+    if (gl == null) {
+      return;
+    }
+
+    if (this.__morphOffsetsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const morphOffsetsUBO = this.__webglResourceRepository.getWebGLResource(
+        this.__morphOffsetsUniformBufferUid
+      ) as WebGLBuffer;
+      gl.bindBufferBase(gl.UNIFORM_BUFFER, 0, morphOffsetsUBO);
+    }
+
+    if (this.__morphWeightsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const morphWeightsUBO = this.__webglResourceRepository.getWebGLResource(
+        this.__morphWeightsUniformBufferUid
+      ) as WebGLBuffer;
+      gl.bindBufferBase(gl.UNIFORM_BUFFER, 1, morphWeightsUBO);
     }
   }
 
