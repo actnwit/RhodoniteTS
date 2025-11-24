@@ -2967,6 +2967,17 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     gl.bindBufferBase(gl.UNIFORM_BUFFER, 1, morphWeightsUBO);
   }
 
+  setUniformBlockBindingForMorphOffsetsAndWeightsWithoutShaderProgram(
+    morphOffsetsUBOUid: WebGLResourceHandle,
+    morphWeightsUBOUid: WebGLResourceHandle
+  ) {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const morphOffsetsUBO = this.getWebGLResource(morphOffsetsUBOUid)! as WebGLBuffer;
+    const morphWeightsUBO = this.getWebGLResource(morphWeightsUBOUid)! as WebGLBuffer;
+    gl.bindBufferBase(gl.UNIFORM_BUFFER, 0, morphOffsetsUBO);
+    gl.bindBufferBase(gl.UNIFORM_BUFFER, 1, morphWeightsUBO);
+  }
+
   getGlslRenderTargetBeginString(renderTargetNumber: number) {
     let text = '';
     for (let i = 0; i < renderTargetNumber; i++) {

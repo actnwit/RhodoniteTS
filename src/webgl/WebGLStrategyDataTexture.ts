@@ -837,7 +837,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     );
   }
 
-  common_$load(): void {}
+  common_$load(): void {
+    this.__initMorphUniformBuffers();
+  }
 
   private __initMorphUniformBuffers() {
     let needsRebindMorphUniformBuffers = false;
@@ -901,23 +903,14 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   }
 
   private __bindMorphUniformBuffers() {
-    const gl = this.__webglResourceRepository.currentWebGLContextWrapper?.getRawContextAsWebGL2();
-    if (gl == null) {
-      return;
-    }
-
-    if (this.__morphOffsetsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      const morphOffsetsUBO = this.__webglResourceRepository.getWebGLResource(
-        this.__morphOffsetsUniformBufferUid
-      ) as WebGLBuffer;
-      gl.bindBufferBase(gl.UNIFORM_BUFFER, 0, morphOffsetsUBO);
-    }
-
-    if (this.__morphWeightsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      const morphWeightsUBO = this.__webglResourceRepository.getWebGLResource(
+    if (
+      this.__morphOffsetsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid &&
+      this.__morphWeightsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid
+    ) {
+      this.__webglResourceRepository.setUniformBlockBindingForMorphOffsetsAndWeightsWithoutShaderProgram(
+        this.__morphOffsetsUniformBufferUid,
         this.__morphWeightsUniformBufferUid
-      ) as WebGLBuffer;
-      gl.bindBufferBase(gl.UNIFORM_BUFFER, 1, morphWeightsUBO);
+      );
     }
   }
 
@@ -1137,8 +1130,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
       this.__lastMaterialsUpdateCount = Material.stateVersion;
     }
-
-    this.__initMorphUniformBuffers();
 
     if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForWeights) {
       this.__updateUniformMorph();
