@@ -331,8 +331,16 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         for (let j = 0; j < primitive.targets.length; j++) {
           const target = primitive.targets[j];
           const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
+          const byteOffsetOfExistingBuffer = MemoryManager.getInstance().getByteOffsetOfExistingBuffers(
+            BufferUse.GPUVertexData,
+            accessor.bufferView.buffer.indexOfTheBufferUsage
+          );
           this.__uniformMorphOffsetsTypedArray![morphUniformDataOffsets[i] + j] =
-            (SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData + accessor.byteOffsetInBuffer) / 4 / 4;
+            (SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData +
+              byteOffsetOfExistingBuffer +
+              accessor.byteOffsetInBuffer) /
+            4 /
+            4;
         }
       } else {
         break;
@@ -465,8 +473,8 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
     // Setup Data Texture
     if (this.__dataTextureUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       const memoryManager: MemoryManager = MemoryManager.getInstance();
-      const buffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUVertexData);
-      if (buffer == null) {
+      const buffers: Buffer[] = memoryManager.getBuffers(BufferUse.GPUVertexData);
+      if (buffers.length === 0) {
         return;
       }
 
@@ -475,15 +483,15 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         return;
       }
       const dataTextureWidth = glw.getMaxTextureSize();
-      const totalSizeOfTheBuffersInTexel = buffer.takenSizeInByte / 4 / 4;
+      const totalSizeOfTheBuffersInTexel = buffers.reduce((acc, buffer) => acc + buffer.takenSizeInByte, 0) / 4 / 4;
       const dataTextureHeight = Math.ceil(totalSizeOfTheBuffersInTexel / dataTextureWidth);
 
       const dataTextureByteSize = dataTextureWidth * dataTextureHeight * 4 * 4;
       const concatArrayBuffer = MiscUtil.concatArrayBuffers2({
         finalSize: dataTextureByteSize,
-        srcs: [buffer.getArrayBuffer()],
-        srcsCopySize: [buffer.takenSizeInByte],
-        srcsOffset: [0],
+        srcs: buffers.map(buffer => buffer.getArrayBuffer()),
+        srcsCopySize: buffers.map(buffer => buffer.byteLength),
+        srcsOffset: buffers.map(_buffer => 0),
       });
       const floatDataTextureBuffer = new Float32Array(concatArrayBuffer);
 
