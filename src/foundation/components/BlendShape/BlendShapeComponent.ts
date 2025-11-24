@@ -105,12 +105,15 @@ export class BlendShapeComponent extends Component {
   }
 
   static getOffsetsInUniform(): Offset[] {
-    const blendShapeComponents = ComponentRepository.getComponentsWithType(
-      BlendShapeComponent
-    ) as BlendShapeComponent[];
+    const blendShapeComponents = ComponentRepository.getComponentsWithTypeWithoutFiltering(BlendShapeComponent) as (
+      | BlendShapeComponent
+      | undefined
+    )[];
     const offsets: number[] = [0];
     for (let i = 0; i < blendShapeComponents.length; i++) {
-      offsets.push(offsets[offsets.length - 1] + blendShapeComponents[i].weights.length);
+      offsets.push(
+        offsets[offsets.length - 1] + (blendShapeComponents[i] != null ? blendShapeComponents[i]!.weights.length : 0)
+      );
     }
 
     return offsets;
