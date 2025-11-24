@@ -1,4 +1,4 @@
-import type { Count, Index, PrimitiveUID, TypedArray } from '../../types/CommonTypes';
+import type { Count, Index, Offset, PrimitiveUID, TypedArray } from '../../types/CommonTypes';
 import type { VertexHandles } from '../../webgl/WebGLResourceRepository';
 import { Config } from '../core/Config';
 import { MemoryManager } from '../core/MemoryManager';
@@ -746,6 +746,30 @@ export class Primitive extends RnObject {
 
     this.__targets = targets;
     this.calcFingerPrint();
+  }
+
+  static getMorphUniformDataTargetNumbers(): Count[] {
+    const targetNumbers: Count[] = [];
+    for (let i = 0; i < Primitive.getPrimitiveCountHasMorph(); i++) {
+      const primitive = Primitive.getPrimitiveHasMorph(i)!;
+      targetNumbers.push(primitive.targets.length);
+    }
+
+    if (targetNumbers.length === 0) {
+      return [0];
+    }
+
+    return targetNumbers;
+  }
+
+  static getMorphUniformDataOffsets(): Offset[] {
+    const offsets: Offset[] = [0];
+    for (let i = 0; i < Primitive.getPrimitiveCountHasMorph(); i++) {
+      const primitive = Primitive.getPrimitiveHasMorph(i)!;
+      offsets.push(offsets[offsets.length - 1] + primitive.targets.length);
+    }
+
+    return offsets;
   }
 
   static getPrimitiveCountHasMorph() {

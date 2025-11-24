@@ -484,6 +484,7 @@ export class Material extends RnObject {
    * @param componentDataAccessMethodDefinitionsForPixelShader - method definitions for component data access for pixel shader
    * @param propertySetterOfGlobalDataRepository - Function to set shader properties of global data repository
    * @param propertySetterOfMaterial - Function to set shader properties of material
+   * @param morphedPositionGetter - Function to get the morphed position
    * @param primitive - The primitive to create the program for
    * @returns A tuple containing the program UID and whether it's a new program
    */
@@ -492,15 +493,17 @@ export class Material extends RnObject {
     componentDataAccessMethodDefinitionsForPixelShader: string,
     propertySetterOfGlobalDataRepository: getShaderPropertyFuncOfGlobalDataRepository,
     propertySetterOfMaterial: getShaderPropertyFuncOfMaterial,
+    morphedPositionGetter: string,
     primitive: Primitive
   ): [CGAPIResourceHandle, boolean] {
     const [programUid, newOne] = _createProgramAsSingleOperationWebGL(
       this,
+      componentDataAccessMethodDefinitionsForVertexShader,
+      componentDataAccessMethodDefinitionsForPixelShader,
       propertySetterOfGlobalDataRepository,
       propertySetterOfMaterial,
-      primitive,
-      componentDataAccessMethodDefinitionsForVertexShader,
-      componentDataAccessMethodDefinitionsForPixelShader
+      morphedPositionGetter,
+      primitive
     );
     const primitiveFingerPrint = primitive._getFingerPrint();
     this._shaderProgramUidMap.set(primitiveFingerPrint, programUid);

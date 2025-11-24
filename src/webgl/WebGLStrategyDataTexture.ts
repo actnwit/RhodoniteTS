@@ -142,38 +142,6 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
       });
     });
 
-    if (shaderType === ShaderType.VertexShader) {
-      const morphingStr = `
-
-#ifdef RN_IS_VERTEX_SHADER
-  #ifdef RN_IS_MORPHING
-  vec3 get_position(float vertexId, vec3 basePosition, int blendShapeComponentSID) {
-    vec3 position = basePosition;
-    int scalar_idx = 3 * int(vertexId);
-    for (int i=0; i<u_morphTargetNumber; i++) {
-      int currentPrimitiveIdx = u_currentPrimitiveIdx;
-      int idx = ${Config.maxMorphTargetNumber} * currentPrimitiveIdx + i;
-      ivec4 offsets = uniformMorphOffsets.data[ idx / 4];
-      int offsetPosition = offsets[idx % 4];
-
-      int basePosIn4bytes = offsetPosition * 4 + scalar_idx;
-      vec3 addPos = fetchVec3No16BytesAligned(basePosIn4bytes);
-
-      int idx2 = ${Config.maxMorphTargetNumber} * blendShapeComponentSID + i;
-      vec4 morphWeights = uniformMorphWeights.data[ idx2 / 4];
-      float morphWeight = morphWeights[idx2 % 4];
-
-      position += addPos * morphWeight;
-    }
-
-    return position;
-  }
-  #endif
-#endif
-`;
-
-      str += morphingStr;
-    }
     return str;
 
     function processForArrayType(
@@ -297,6 +265,51 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
     }
   }
 
+  private static __getMorphedPositionGetter(): string {
+    const morphUniformDataTargetNumbers = Primitive.getMorphUniformDataTargetNumbers();
+    const morphUniformDataTargetNumbersStr = `
+    int morphUniformDataTargetNumbers[] = int[](${morphUniformDataTargetNumbers.join(', ')});
+    `;
+    const morphUniformDataOffsets = Primitive.getMorphUniformDataOffsets();
+    const morphUniformDataOffsetsStr = `
+    int morphUniformDataOffsets[] = int[](${morphUniformDataOffsets.join(', ')});
+    `;
+
+    const morphingStr = `
+    #ifdef RN_IS_VERTEX_SHADER
+      #ifdef RN_IS_MORPHING
+      vec3 get_position(float vertexId, vec3 basePosition, int blendShapeComponentSID) {
+        ${morphUniformDataTargetNumbersStr}
+        ${morphUniformDataOffsetsStr}
+        int currentPrimitiveIdx = u_currentPrimitiveIdx;
+        int offsetInUniform = morphUniformDataOffsets[currentPrimitiveIdx];
+        int offsetInUniform2 = morphUniformDataOffsets[blendShapeComponentSID];
+        vec3 position = basePosition;
+        int scalar_idx = 3 * int(vertexId);
+        for (int i=0; i<morphUniformDataTargetNumbers[currentPrimitiveIdx]; i++) {
+          int idx = offsetInUniform + i;
+          ivec4 offsets = uniformMorphOffsets.data[ idx / 4];
+          int offsetPosition = offsets[idx % 4];
+
+          int basePosIn4bytes = offsetPosition * 4 + scalar_idx;
+          vec3 addPos = fetchVec3No16BytesAligned(basePosIn4bytes);
+
+          int idx2 = ${Config.maxMorphTargetNumber} * blendShapeComponentSID + i;
+          vec4 morphWeights = uniformMorphWeights.data[ idx2 / 4];
+          float morphWeight = morphWeights[idx2 % 4];
+
+          position += addPos * morphWeight;
+        }
+
+        return position;
+      }
+      #endif
+    #endif
+    `;
+
+    return morphingStr;
+  }
+
   /**
    * Sets up a shader program for the specified material and primitive.
    * This method creates and configures the complete shader program including
@@ -323,6 +336,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
       WebGLStrategyDataTexture.__getComponentDataAccessMethodDefinitions_dataTexture(ShaderType.PixelShader),
       WebGLStrategyDataTexture.__getShaderPropertyOfGlobalDataRepository,
       WebGLStrategyDataTexture.__getShaderPropertyOfMaterial,
+      WebGLStrategyDataTexture.__getMorphedPositionGetter(),
       primitive
     );
 
@@ -792,21 +806,21 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   }
 
   private __updateMorphOffsetsUniformBuffersInner() {
-    let i = 0;
-    for (; i < Config.maxMorphPrimitiveNumber; i++) {
+    const morphUniformDataOffsets = Primitive.getMorphUniformDataOffsets();
+    for (let i = 0; i < morphUniformDataOffsets.length - 1; i++) {
       const primitive = Primitive.getPrimitiveHasMorph(i);
       if (primitive != null) {
         for (let j = 0; j < primitive.targets.length; j++) {
           const target = primitive.targets[j];
           const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
-          this.__uniformMorphOffsetsTypedArray![Config.maxMorphTargetNumber * i + j] =
+          this.__uniformMorphOffsetsTypedArray![morphUniformDataOffsets[i] + j] =
             (SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData + accessor.byteOffsetInBuffer) / 4 / 4;
         }
       } else {
         break;
       }
     }
-    const elementNumToCopy = Config.maxMorphTargetNumber * i;
+    const elementNumToCopy = morphUniformDataOffsets[morphUniformDataOffsets.length - 1];
     this.__webglResourceRepository.updateUniformBuffer(
       this.__morphOffsetsUniformBufferUid,
       this.__uniformMorphOffsetsTypedArray!,
@@ -1089,17 +1103,18 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       return;
     }
 
+    const morphUniformDataOffsets = Primitive.getMorphUniformDataOffsets();
     const blendShapeComponents = ComponentRepository.getComponentsWithType(BlendShapeComponent);
     for (let i = 0; i < blendShapeComponents.length; i++) {
       const blendShapeComponent = blendShapeComponents[i] as BlendShapeComponent;
-      const weights = blendShapeComponent!.weights;
+      const weights = blendShapeComponent.weights;
       for (let j = 0; j < weights.length; j++) {
         this.__uniformMorphWeightsTypedArray![Config.maxMorphTargetNumber * blendShapeComponent.componentSID + j] =
           weights[j];
       }
     }
     if (blendShapeComponents.length > 0) {
-      const elementNumToCopy = Config.maxMorphTargetNumber * blendShapeComponents.length;
+      const elementNumToCopy = morphUniformDataOffsets[morphUniformDataOffsets.length - 1];
       this.__webglResourceRepository.updateUniformBuffer(
         this.__morphWeightsUniformBufferUid,
         this.__uniformMorphWeightsTypedArray!,

@@ -194,20 +194,22 @@ export function _outputVertexAttributeBindingInfo(attributeNames: string[], attr
  * - Final shader compilation and linking
  *
  * @param material - The material containing shader templates and properties
- * @param propertySetterOfGlobalDataRepository - Function for setting shader properties of global data repository
- * @param propertySetterOfMaterial - Function for setting shader properties of material
- * @param primitive - The geometric primitive that defines vertex attributes
  * @param componentDataAccessMethodDefinitionsForVertexShader - method definitions for component data access for vertex shader
  * @param componentDataAccessMethodDefinitionsForPixelShader - method definitions for component data access for pixel shader
+ * @param propertySetterOfGlobalDataRepository - Function for setting shader properties of global data repository
+ * @param propertySetterOfMaterial - Function for setting shader properties of material
+ * @param morphedPositionGetter - Function to get the morphed position
+ * @param primitive - The geometric primitive that defines vertex attributes
  * @returns A tuple containing the shader program handle and a boolean indicating if it's newly created
  */
 export function _createProgramAsSingleOperationWebGL(
   material: Material,
+  componentDataAccessMethodDefinitionsForVertexShader: string,
+  componentDataAccessMethodDefinitionsForPixelShader: string,
   propertySetterOfGlobalDataRepository: getShaderPropertyFuncOfGlobalDataRepository,
   propertySetterOfMaterial: getShaderPropertyFuncOfMaterial,
-  primitive: Primitive,
-  componentDataAccessMethodDefinitionsForVertexShader: string,
-  componentDataAccessMethodDefinitionsForPixelShader: string
+  morphedPositionGetter: string,
+  primitive: Primitive
 ): [CGAPIResourceHandle, boolean] {
   const vertexAttributeDefines = defineAttributes(primitive);
   const materialNode = material._materialContent;
@@ -233,6 +235,7 @@ export function _createProgramAsSingleOperationWebGL(
     vertexAttributeDefines +
     material._getFingerPrint() +
     definitions +
+    morphedPositionGetter +
     componentDataAccessMethodDefinitionsForVertexShader +
     componentDataAccessMethodDefinitionsForPixelShader +
     alphaMode;
@@ -264,7 +267,7 @@ export function _createProgramAsSingleOperationWebGL(
     definitions: definitions,
     prerequisites: prerequisitesGlsl.code,
     mainPrerequisites: mainPrerequisitesGlsl.code,
-    matricesGetters: componentDataAccessMethodDefinitionsForVertexShader,
+    matricesGetters: componentDataAccessMethodDefinitionsForVertexShader + morphedPositionGetter,
     processGeometry: processGeometryGlsl.code,
     Config,
   });
