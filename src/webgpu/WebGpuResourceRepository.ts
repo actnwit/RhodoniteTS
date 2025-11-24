@@ -2209,14 +2209,12 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     gpuDevice.queue.writeBuffer(uniformBuffer, 0, WebGpuResourceRepository.__drawParametersUint32Array);
   }
 
-  createUniformMorphOffsetsBuffer(inputArray: Uint32Array) {
+  createUniformMorphOffsetsBuffer(sizeInByte: Count) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const uniformBuffer = gpuDevice.createBuffer({
-      size: inputArray.byteLength,
+      size: sizeInByte,
       usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM,
     });
-    WebGpuResourceRepository.__assertArrayBufferView(inputArray);
-    gpuDevice.queue.writeBuffer(uniformBuffer, 0, inputArray);
 
     this.__uniformMorphOffsetsBuffer = uniformBuffer;
 
@@ -2234,14 +2232,12 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     gpuDevice.queue.writeBuffer(this.__uniformMorphOffsetsBuffer, 0, inputArray, 0, elementNum);
   }
 
-  createUniformMorphWeightsBuffer(inputArray: Float32Array) {
+  createUniformMorphWeightsBuffer(sizeInByte: Count) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const uniformBuffer = gpuDevice.createBuffer({
-      size: inputArray.byteLength,
+      size: sizeInByte,
       usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM,
     });
-    WebGpuResourceRepository.__assertArrayBufferView(inputArray);
-    gpuDevice.queue.writeBuffer(uniformBuffer, 0, inputArray);
 
     this.__uniformMorphWeightsBuffer = uniformBuffer;
 

@@ -636,8 +636,9 @@ ${indexStr}
       if (this.__morphOffsetsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
         const inputArrayOffsets = new Uint32Array(morphOffsetsUniformDataSize);
         this.__uniformMorphOffsetsTypedArray = inputArrayOffsets;
-        this.__morphOffsetsUniformBufferUid =
-          webGpuResourceRepository.createUniformMorphOffsetsBuffer(inputArrayOffsets);
+        this.__morphOffsetsUniformBufferUid = webGpuResourceRepository.createUniformMorphOffsetsBuffer(
+          morphOffsetsUniformDataSize * 4
+        );
 
         this.__updateMorphOffsetsUniformBuffer();
       }
@@ -665,8 +666,9 @@ ${indexStr}
         const inputArrayWeights = new Float32Array(blendShapeWeightsUniformDataSize);
         this.__uniformMorphWeightsTypedArray = inputArrayWeights;
 
-        this.__morphWeightsUniformBufferUid =
-          webGpuResourceRepository.createUniformMorphWeightsBuffer(inputArrayWeights);
+        this.__morphWeightsUniformBufferUid = webGpuResourceRepository.createUniformMorphWeightsBuffer(
+          blendShapeWeightsUniformDataSize * 4
+        );
 
         this.__updateMorphWeightsUniformBuffer();
       }
