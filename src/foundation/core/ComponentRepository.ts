@@ -260,7 +260,11 @@ export class ComponentRepository {
     if (components == null) {
       return [];
     }
-    return components.map(component => (component != null ? component : undefined));
+    const componentsWithoutFiltering: Array<Component | undefined> = [];
+    for (let i = 0; i < components.length; i++) {
+      componentsWithoutFiltering.push(components[i]);
+    }
+    return componentsWithoutFiltering;
   }
 
   /**

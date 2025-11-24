@@ -70,7 +70,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   private __lightComponents?: LightComponent[];
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __webxrSystem: WebXRSystem;
-
+  private __countOfBlendShapeComponents = -1;
   /**
    * Shader semantics information for component matrices used in uniform rendering strategy.
    * Defines world matrix, normal matrix, billboard flag, and vertex attributes existence array.
@@ -507,9 +507,13 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
     }
 
-    if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForWeights) {
+    if (
+      BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForWeights ||
+      BlendShapeComponent.getCountOfBlendShapeComponents() !== this.__countOfBlendShapeComponents
+    ) {
       this.__updateMorphWeightsUniformBuffer();
       this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
+      this.__countOfBlendShapeComponents = BlendShapeComponent.getCountOfBlendShapeComponents();
     }
 
     this.__updateMorphOffsetsUniformBuffers();

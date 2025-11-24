@@ -103,6 +103,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
 
   private __lastMorphOffsetsUniformDataSize = -1;
   private __lastMorphWeightsUniformDataSize = -1;
+  private __countOfBlendShapeComponents = -1;
 
   /**
    * Private constructor to enforce singleton pattern.
@@ -1124,9 +1125,14 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__lastMaterialsUpdateCount = Material.stateVersion;
     }
 
-    if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForWeights) {
+    if (
+      BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForWeights ||
+      BlendShapeComponent.getCountOfBlendShapeComponents() !== this.__countOfBlendShapeComponents
+    ) {
       this.__updateMorphWeightsUniformBuffer();
       this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
+      this.__countOfBlendShapeComponents = BlendShapeComponent.getCountOfBlendShapeComponents();
+      MaterialRepository._makeShaderInvalidateToAllMaterials();
     }
 
     this.__updateMorphOffsetsUniformBuffers();
@@ -1149,12 +1155,13 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     }
 
     const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
-    const blendShapeComponents = ComponentRepository.getComponentsWithType(
-      BlendShapeComponent
-    ) as BlendShapeComponent[];
+    const blendShapeComponents = ComponentRepository.getComponentsWithTypeWithoutFiltering(BlendShapeComponent) as (
+      | BlendShapeComponent
+      | undefined
+    )[];
     for (let i = 0; i < blendShapeComponents.length; i++) {
       const blendShapeComponent = blendShapeComponents[i];
-      const weights = blendShapeComponent.weights;
+      const weights = blendShapeComponent != null ? blendShapeComponent!.weights : [];
       for (let j = 0; j < weights.length; j++) {
         this.__uniformMorphWeightsTypedArray![blendShapeUniformDataOffsets[i] + j] = weights[j];
       }
