@@ -30,6 +30,7 @@ import { vertexInputWgsl } from '../../../webgpu/shaderity_shaders/common/vertex
 import { vertexOutputWgsl } from '../../../webgpu/shaderity_shaders/common/vertexOutput';
 import { wireframeWgsl } from '../../../webgpu/shaderity_shaders/common/wireframe';
 import type { RnXR } from '../../../xr/main';
+import { BlendShapeComponent } from '../../components/BlendShape';
 import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
 import { Component } from '../../core/Component';
 import { Config } from '../../core/Config';
@@ -41,7 +42,7 @@ import type {
   getShaderPropertyFuncOfMaterial,
 } from '../../definitions/ShaderSemantics';
 import type { VertexAttributeEnum } from '../../definitions/VertexAttribute';
-import type { Primitive } from '../../geometry/Primitive';
+import { Primitive } from '../../geometry/Primitive';
 import { Is } from '../../misc/Is';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import { ModuleManager } from '../../system/ModuleManager';
@@ -227,6 +228,11 @@ export function _createProgramAsSingleOperationWebGL(
   if (material.isMask()) {
     alphaMode += '#define RN_IS_ALPHA_MODE_MASK\n';
   }
+
+  const morphUniformDataOffsets = Primitive.getMorphUniformDataOffsets();
+  const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
+  const maxMorphOffsetsDataNumber = morphUniformDataOffsets[morphUniformDataOffsets.length - 1];
+  const maxMorphWeightsDataNumber = blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1];
   const cacheQuery =
     Component.getStateVersion() +
     MaterialRepository._getBufferViewVersion(material.__materialTypeName) +
@@ -236,6 +242,8 @@ export function _createProgramAsSingleOperationWebGL(
     material._getFingerPrint() +
     definitions +
     morphedPositionGetter +
+    maxMorphOffsetsDataNumber +
+    maxMorphWeightsDataNumber +
     componentDataAccessMethodDefinitionsForVertexShader +
     componentDataAccessMethodDefinitionsForPixelShader +
     alphaMode;

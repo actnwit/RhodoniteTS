@@ -1,5 +1,6 @@
 import ShaderityModule, { type Reflection, type ShaderityObject, type TemplateObject } from 'shaderity';
 import { mainPrerequisitesGlsl } from '../../../webgl/shaderity_shaders/common/mainPrerequisites';
+import { BlendShapeComponent } from '../../components/BlendShape';
 import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
 import { Config } from '../../core/Config';
 import { MemoryManager } from '../../core/MemoryManager';
@@ -8,6 +9,7 @@ import { CompositionType, type CompositionTypeEnum } from '../../definitions/Com
 import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { ShaderType } from '../../definitions/ShaderType';
 import { VertexAttribute, type VertexAttributeEnum } from '../../definitions/VertexAttribute';
+import { Primitive } from '../../geometry/Primitive';
 import { MutableMatrix22 } from '../../math/MutableMatrix22';
 import { MutableMatrix33 } from '../../math/MutableMatrix33';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
@@ -79,12 +81,16 @@ export class ShaderityUtilityWebGL {
       return step1;
     }
     const dataTextureWidth = glw.getMaxTextureSize();
+
+    const morphUniformDataOffsets = Primitive.getMorphUniformDataOffsets();
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
     const templateObject = {
       WellKnownComponentTIDs,
       widthOfDataTexture: `const int widthOfDataTexture = ${dataTextureWidth};`,
       dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
       dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
-      maxMorphDataNumber: `${Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4)}`,
+      maxMorphOffsetsDataNumber: `${Math.max(Math.ceil(morphUniformDataOffsets[morphUniformDataOffsets.length - 1] / 4), 1)}`,
+      maxMorphWeightsDataNumber: `${Math.max(Math.ceil(blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1] / 4), 1)}`,
     } as unknown as TemplateObject;
 
     return Shaderity.fillTemplate(step1, templateObject);

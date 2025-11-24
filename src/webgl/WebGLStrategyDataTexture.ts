@@ -101,6 +101,9 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private __lastCameraControllerComponentsUpdateCount = -1;
   private __lastGpuInstanceDataBufferCount = -1;
 
+  private __lastMorphOffsetsUniformDataSize = -1;
+  private __lastMorphWeightsUniformDataSize = -1;
+
   /**
    * Private constructor to enforce singleton pattern.
    */
@@ -359,13 +362,12 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
       WebGLStrategyDataTexture.__globalDataRepository._setUniformLocationsForDataTextureModeOnly(
         material.getShaderProgramUid(primitive)
       );
-
-      webglResourceRepository.setUniformBlockBindingForMorphOffsetsAndWeights(
-        programUid,
-        this.__morphOffsetsUniformBufferUid,
-        this.__morphWeightsUniformBufferUid
-      );
     }
+    webglResourceRepository.setUniformBlockBindingForMorphOffsetsAndWeights(
+      programUid,
+      this.__morphOffsetsUniformBufferUid,
+      this.__morphWeightsUniformBufferUid
+    );
 
     return programUid;
   }
@@ -834,36 +836,59 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     );
   }
 
-  common_$load(): void {
-    this.__initMorphUniformBuffers();
-  }
+  common_$load(): void {}
 
   private __initMorphUniformBuffers() {
-    if (this.__morphOffsetsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      const inputArray = new Uint32Array(
-        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
-      );
-      this.__morphOffsetsUniformBufferUid =
-        this.__webglResourceRepository.createUniformBufferWithBufferView(inputArray);
-    }
-    if (this.__morphWeightsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      const inputArray = new Uint32Array(
-        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
-      );
-      this.__morphWeightsUniformBufferUid =
-        this.__webglResourceRepository.createUniformBufferWithBufferView(inputArray);
+    const morphUniformDataOffsets = Primitive.getMorphUniformDataOffsets();
+    const morphOffsetsUniformDataSize = Math.max(
+      Math.ceil(morphUniformDataOffsets[morphUniformDataOffsets.length - 1] / 4) * 4,
+      4
+    );
+
+    if (morphOffsetsUniformDataSize !== this.__lastMorphOffsetsUniformDataSize) {
+      // delete the old morph offsets uniform buffer
+      if (this.__morphOffsetsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+        this.__webglResourceRepository.deleteUniformBuffer(this.__morphOffsetsUniformBufferUid);
+        this.__morphOffsetsUniformBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+      }
+      // create the new morph offsets uniform buffer
+      this.__lastMorphOffsetsUniformDataSize = morphOffsetsUniformDataSize;
+      if (this.__morphOffsetsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+        const inputArrayOffsets = new Uint32Array(morphOffsetsUniformDataSize);
+        this.__morphOffsetsUniformBufferUid =
+          this.__webglResourceRepository.createUniformBufferWithBufferView(inputArrayOffsets);
+      }
+      // create the new morph offsets typed array
+      this.__uniformMorphOffsetsTypedArray = new Uint32Array(morphOffsetsUniformDataSize);
+
+      this.__lastMorphOffsetsUniformDataSize = morphOffsetsUniformDataSize;
     }
 
-    if (this.__uniformMorphOffsetsTypedArray == null) {
-      this.__uniformMorphOffsetsTypedArray = new Uint32Array(
-        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
-      );
-    }
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
+    const blendShapeWeightsUniformDataSize = Math.max(
+      Math.ceil(blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1] / 4) * 4,
+      4
+    );
 
-    if (this.__uniformMorphWeightsTypedArray == null) {
-      this.__uniformMorphWeightsTypedArray = new Float32Array(
-        Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4) * 4
-      );
+    if (blendShapeWeightsUniformDataSize !== this.__lastMorphWeightsUniformDataSize) {
+      // delete the old morph weights uniform buffer
+      if (this.__morphWeightsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+        this.__webglResourceRepository.deleteUniformBuffer(this.__morphWeightsUniformBufferUid);
+        this.__morphWeightsUniformBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+      }
+
+      // create the new morph weights uniform buffer
+      if (this.__morphWeightsUniformBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+        const inputArrayWeights = new Float32Array(blendShapeWeightsUniformDataSize);
+        this.__morphWeightsUniformBufferUid =
+          this.__webglResourceRepository.createUniformBufferWithBufferView(inputArrayWeights);
+      }
+
+      // create the new morph weights typed array
+      this.__uniformMorphWeightsTypedArray = new Float32Array(blendShapeWeightsUniformDataSize);
+
+      // create the new morph weights uniform buffer
+      this.__lastMorphWeightsUniformDataSize = blendShapeWeightsUniformDataSize;
     }
   }
 
@@ -1083,6 +1108,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
       this.__lastMaterialsUpdateCount = Material.stateVersion;
     }
+
+    this.__initMorphUniformBuffers();
 
     if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForWeights) {
       this.__updateUniformMorph();
