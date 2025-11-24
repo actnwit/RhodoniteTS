@@ -30,14 +30,12 @@ import { vertexInputWgsl } from '../../../webgpu/shaderity_shaders/common/vertex
 import { vertexOutputWgsl } from '../../../webgpu/shaderity_shaders/common/vertexOutput';
 import { wireframeWgsl } from '../../../webgpu/shaderity_shaders/common/wireframe';
 import type { RnXR } from '../../../xr/main';
-import { BlendShapeComponent } from '../../components/BlendShape';
 import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
 import { Component } from '../../core/Component';
 import { Config } from '../../core/Config';
 import { BoneDataType } from '../../definitions/BoneDataType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type {
-  getShaderPropertyFunc,
   getShaderPropertyFuncOfGlobalDataRepository,
   getShaderPropertyFuncOfMaterial,
 } from '../../definitions/ShaderSemantics';
@@ -260,7 +258,7 @@ export function _createProgramAsSingleOperationWebGL(
   let pixelShader = _setupGlobalShaderDefinitionWebGL(material.__materialTypeName, primitive);
   pixelShader += '#define RN_IS_PIXEL_SHADER\n';
 
-  const vertexShaderityObject = ShaderityUtilityWebGL.fillTemplate(materialNode.vertexShaderityObject!, {
+  const vertexShaderityObject = ShaderityUtilityWebGL.fillTemplate(materialNode.vertexShaderityObject!, primitive, {
     enableVertexExtensions: enableVertexExtensionsGlsl.code,
     glslPrecision: glslPrecisionGlsl.code,
     vertexInOut: vertexInOutGlsl.code,
@@ -275,7 +273,7 @@ export function _createProgramAsSingleOperationWebGL(
     Config,
   });
 
-  const pixelShaderityObject = ShaderityUtilityWebGL.fillTemplate(materialNode.pixelShaderityObject!, {
+  const pixelShaderityObject = ShaderityUtilityWebGL.fillTemplate(materialNode.pixelShaderityObject!, primitive, {
     glslPrecision: glslPrecisionGlsl.code,
     WellKnownComponentTIDs,
     vertexIn: vertexInGlsl.code,
@@ -445,7 +443,7 @@ export function _createProgramAsSingleOperationWebGpu(
     definitions += '#define RN_BONE_DATA_TYPE_VEC4X1\n';
   }
 
-  const vertexShaderityObject = ShaderityUtilityWebGPU.fillTemplate(materialNode.vertexShaderityObject!, {
+  const vertexShaderityObject = ShaderityUtilityWebGPU.fillTemplate(materialNode.vertexShaderityObject!, primitive, {
     WellKnownComponentTIDs,
     vertexInput: vertexInputWgsl.code,
     vertexOutput: vertexOutputWgsl.code,
@@ -459,7 +457,7 @@ export function _createProgramAsSingleOperationWebGpu(
     Config,
   });
 
-  const pixelShaderityObject = ShaderityUtilityWebGPU.fillTemplate(materialNode.pixelShaderityObject!, {
+  const pixelShaderityObject = ShaderityUtilityWebGPU.fillTemplate(materialNode.pixelShaderityObject!, primitive, {
     WellKnownComponentTIDs,
     vertexOutput: vertexOutputWgsl.code,
     prerequisites: prerequisitesWgsl.code,

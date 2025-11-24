@@ -1,6 +1,5 @@
 import type { Count, Index, Offset, PrimitiveUID, TypedArray } from '../../types/CommonTypes';
 import type { VertexHandles } from '../../webgl/WebGLResourceRepository';
-import { Config } from '../core/Config';
 import { MemoryManager } from '../core/MemoryManager';
 import { RnObject } from '../core/RnObject';
 import { BufferUse } from '../definitions/BufferUse';
@@ -17,7 +16,6 @@ import { Vector3 } from '../math/Vector3';
 import type { Accessor } from '../memory/Accessor';
 import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
-import { Logger } from '../misc/Logger';
 import { None, type Option, Some } from '../misc/Option';
 import { RnException } from '../misc/RnException';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
