@@ -54,6 +54,6 @@ export class SphereCollider {
     const radius = this.__radius + boneRadius;
     const distance = length - radius;
 
-    return { distance, direction: distance < 0 ? Vector3.divideTo(delta, length, SphereCollider.__tmp_vec3_2) : delta };
+    return { distance, delta: delta, length };
   }
 }
