@@ -2445,7 +2445,7 @@ export class ModelConverter {
 
   private static __copyRnAccessorAndBufferViewForMorphData(srcRnAccessor: Accessor) {
     const byteSize = srcRnAccessor.elementCount * 3 /* vec4 */ * 4; /* bytes */
-    const dstRnBuffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUVertexData);
+    const dstRnBuffer = MemoryManager.getInstance().createBufferOnDemand(BufferUse.GPUVertexData, byteSize, 16);
     const dstRnBufferView = dstRnBuffer
       .takeBufferView({
         byteLengthToNeed: byteSize,

@@ -136,6 +136,7 @@ export class MemoryManager {
   /**
    * Gets an existing buffer or creates a new one if it doesn't exist.
    * @param bufferUse - The type of buffer to retrieve or create
+   * @param requireIndexOfTheBufferLayer - The index of the buffer layer to retrieve or create
    * @returns The Buffer instance (existing or newly created)
    */
   public createOrGetBuffer(bufferUse: BufferUseEnum, requireIndexOfTheBufferLayer: Index = 0): Buffer {
@@ -165,6 +166,15 @@ export class MemoryManager {
       bufferUsage: bufferUse,
       indexOfTheBufferUsage: count,
     });
+
+    // add the buffer to the buffer map
+    let bufferMap = this.__buffers.get(bufferUse);
+    if (bufferMap == null) {
+      bufferMap = new Map();
+      this.__buffers.set(bufferUse, bufferMap);
+    }
+    bufferMap.set(count, buffer);
+
     this.incrementCountOfTheBufferUsage(bufferUse);
     return buffer;
   }

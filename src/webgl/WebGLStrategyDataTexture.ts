@@ -821,8 +821,16 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         for (let j = 0; j < primitive.targets.length; j++) {
           const target = primitive.targets[j];
           const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
+          const byteOffsetOfExistingBuffer = MemoryManager.getInstance().getByteOffsetOfExistingBuffers(
+            BufferUse.GPUVertexData,
+            accessor.bufferView.buffer.indexOfTheBufferUsage
+          );
           this.__uniformMorphOffsetsTypedArray![morphUniformDataOffsets[i] + j] =
-            (SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData + accessor.byteOffsetInBuffer) / 4 / 4;
+            (SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData +
+              byteOffsetOfExistingBuffer +
+              accessor.byteOffsetInBuffer) /
+            4 /
+            4;
         }
       } else {
         break;
@@ -1012,29 +1020,11 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         copiedHeights += height;
       }
     } else {
-      const morphBuffer = memoryManager.getBuffer(BufferUse.GPUVertexData);
-      let _morphBufferTakenSizeInByte = 0;
-      let _morphBufferArrayBuffer = new ArrayBuffer(0);
-      if (Is.exist(morphBuffer)) {
-        _morphBufferTakenSizeInByte = morphBuffer.takenSizeInByte;
-        _morphBufferArrayBuffer = morphBuffer.getArrayBuffer();
-      }
-      let floatDataTextureBuffer: Float32Array;
-
-      // the size of morph buffer.
-      let morphBufferTakenSizeInByte = 0;
-      if (Is.exist(morphBuffer)) {
-        morphBufferTakenSizeInByte = morphBuffer.takenSizeInByte;
-      }
-
-      // the arraybuffer of morph buffer.
-      let morphBufferArrayBuffer = new ArrayBuffer(0);
-      if (Is.exist(morphBuffer)) {
-        morphBufferArrayBuffer = morphBuffer.getArrayBuffer();
-      }
+      const morphBuffers = memoryManager.getBuffers(BufferUse.GPUVertexData);
+      const morphBufferArrayBuffers = morphBuffers.map(buffer => buffer.getArrayBuffer());
 
       const srcs = gpuInstanceDataBuffers.map(buffer => buffer.getArrayBuffer());
-      srcs.push(morphBufferArrayBuffer);
+      srcs.push(...morphBufferArrayBuffers);
 
       const srcsCopySizes: Byte[] = [];
       const srcsOffsets: Byte[] = [];
@@ -1045,11 +1035,14 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         srcsCopySizes.push(buffer.takenSizeInByte + paddingSpaceBytes);
         srcsOffsets.push(0);
       });
-      srcsOffsets.push(0);
       const srcCopySizesExceptMorphBuffer = srcsCopySizes.slice();
-      srcsCopySizes.push(morphBufferTakenSizeInByte);
+      morphBuffers.forEach(buffer => {
+        srcsCopySizes.push(buffer.byteLength);
+        srcsOffsets.push(0);
+      });
 
-      const totalSizeOfTheBuffersInTexel = (totalSizeOfTheBuffers + morphBufferTakenSizeInByte) / 4 / 4;
+      const morphBufferByteLength = morphBuffers.reduce((acc, buffer) => acc + buffer.byteLength, 0);
+      const totalSizeOfTheBuffersInTexel = (totalSizeOfTheBuffers + morphBufferByteLength) / 4 / 4;
       const dataTextureHeight = Math.ceil(totalSizeOfTheBuffersInTexel / dataTextureWidth);
       const dataTextureByteSize = dataTextureWidth * dataTextureHeight * 4 * 4;
       const finalArrayBuffer = MiscUtil.concatArrayBuffers2({
@@ -1064,7 +1057,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         Logger.warn('The buffer size exceeds the size of the data texture.');
       }
 
-      floatDataTextureBuffer = new Float32Array(finalArrayBuffer);
+      const floatDataTextureBuffer = new Float32Array(finalArrayBuffer);
       SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData = srcCopySizesExceptMorphBuffer.reduce(
         (acc, size) => acc + size,
         0
