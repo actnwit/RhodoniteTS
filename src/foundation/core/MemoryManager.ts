@@ -1,6 +1,7 @@
 import type { Byte, Count, Index, ObjectUID, Ratio, Size } from '../../types/CommonTypes';
 import { BufferUse, type BufferUseEnum } from '../definitions/BufferUse';
 import { Buffer } from '../memory/Buffer';
+import { DataUtil } from '../misc/DataUtil';
 import { MiscUtil } from '../misc/MiscUtil';
 import { Config } from './Config';
 
@@ -156,7 +157,8 @@ export class MemoryManager {
    * @returns The newly created Buffer instance
    */
   public createBufferOnDemand(bufferUse: BufferUseEnum, size: Byte, byteAlign: Byte) {
-    const arrayBuffer = new ArrayBuffer(size);
+    const alignedSize = DataUtil.addPaddingBytes(size, byteAlign);
+    const arrayBuffer = new ArrayBuffer(alignedSize);
     const count = this.getLayerCountOfTheBufferUsage(bufferUse);
     const buffer = new Buffer({
       byteLength: arrayBuffer.byteLength,
