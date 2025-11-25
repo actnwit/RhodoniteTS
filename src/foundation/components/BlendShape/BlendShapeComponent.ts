@@ -1,14 +1,8 @@
-import type {
-  ComponentSID,
-  ComponentTID,
-  EntityUID,
-  Index,
-  Offset,
-} from '../../../types/CommonTypes';
+import type { ComponentSID, ComponentTID, EntityUID, Index, Offset } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import type { IEntity } from '../../core/Entity';
-import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
+import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
@@ -31,12 +25,7 @@ export class BlendShapeComponent extends Component {
    * @param entityComponent - The entity repository for component management
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(
-    entityUid: EntityUID,
-    componentSid: ComponentSID,
-    entityComponent: EntityRepository,
-    isReUse: boolean
-  ) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean) {
     super(entityUid, componentSid, entityComponent, isReUse);
 
     this.moveStageTo(ProcessStage.Logic);
@@ -171,9 +160,7 @@ export class BlendShapeComponent extends Component {
        * @returns The BlendShapeComponent instance or undefined if not attached
        */
       getBlendShape() {
-        return this.getComponentByComponentTID(
-          WellKnownComponentTIDs.BlendShapeComponentTID
-        ) as BlendShapeComponent;
+        return this.getComponentByComponentTID(WellKnownComponentTIDs.BlendShapeComponentTID) as BlendShapeComponent;
       }
     }
     applyMixins(base, BlendShapeEntity);
