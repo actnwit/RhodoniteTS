@@ -511,8 +511,6 @@ export abstract class AbstractMaterialContent extends RnObject {
       return;
     }
 
-    (shaderProgram as any)._gl.uniform1i((shaderProgram as any).morphTargetNumber, primitive.targets.length);
-
     const primitiveIdx = (primitive.constructor as typeof Primitive).getPrimitiveIdxHasMorph(primitive.primitiveUid)!;
     (shaderProgram as any)._gl.uniform1i((shaderProgram as any).currentPrimitiveIdx, primitiveIdx);
   }

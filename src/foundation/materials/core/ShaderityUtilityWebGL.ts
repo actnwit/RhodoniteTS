@@ -1,13 +1,12 @@
 import ShaderityModule, { type Reflection, type ShaderityObject, type TemplateObject } from 'shaderity';
-import { mainPrerequisitesGlsl } from '../../../webgl/shaderity_shaders/common/mainPrerequisites';
+import { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
 import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
-import { Config } from '../../core/Config';
-import { MemoryManager } from '../../core/MemoryManager';
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { ShaderType } from '../../definitions/ShaderType';
 import { VertexAttribute, type VertexAttributeEnum } from '../../definitions/VertexAttribute';
+import type { Primitive } from '../../geometry/Primitive';
 import { MutableMatrix22 } from '../../math/MutableMatrix22';
 import { MutableMatrix33 } from '../../math/MutableMatrix33';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
@@ -71,7 +70,11 @@ export class ShaderityUtilityWebGL {
    * @param args - Key-value pairs of template arguments to fill in the shader
    * @returns A new ShaderityObject with all template placeholders replaced
    */
-  public static fillTemplate(shaderityObject: ShaderityObject, args: FillArgsObject): ShaderityObject {
+  public static fillTemplate(
+    shaderityObject: ShaderityObject,
+    primitive: Primitive,
+    args: FillArgsObject
+  ): ShaderityObject {
     const step1 = Shaderity.fillTemplate(shaderityObject, args);
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webglResourceRepository.currentWebGLContextWrapper;
@@ -79,12 +82,16 @@ export class ShaderityUtilityWebGL {
       return step1;
     }
     const dataTextureWidth = glw.getMaxTextureSize();
+
+    const morphUniformDataOffsets = (primitive.constructor as typeof Primitive).getMorphUniformDataOffsets();
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
     const templateObject = {
       WellKnownComponentTIDs,
       widthOfDataTexture: `const int widthOfDataTexture = ${dataTextureWidth};`,
       dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
       dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
-      maxMorphDataNumber: `${Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4)}`,
+      maxMorphOffsetsDataNumber: `${Math.max(Math.ceil(morphUniformDataOffsets[morphUniformDataOffsets.length - 1] / 4), 1)}`,
+      maxMorphWeightsDataNumber: `${Math.max(Math.ceil(blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1] / 4), 1)}`,
     } as unknown as TemplateObject;
 
     return Shaderity.fillTemplate(step1, templateObject);

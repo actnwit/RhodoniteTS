@@ -36,7 +36,6 @@ import { Config } from '../../core/Config';
 import { BoneDataType } from '../../definitions/BoneDataType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type {
-  getShaderPropertyFunc,
   getShaderPropertyFuncOfGlobalDataRepository,
   getShaderPropertyFuncOfMaterial,
 } from '../../definitions/ShaderSemantics';
@@ -194,20 +193,22 @@ export function _outputVertexAttributeBindingInfo(attributeNames: string[], attr
  * - Final shader compilation and linking
  *
  * @param material - The material containing shader templates and properties
- * @param propertySetterOfGlobalDataRepository - Function for setting shader properties of global data repository
- * @param propertySetterOfMaterial - Function for setting shader properties of material
- * @param primitive - The geometric primitive that defines vertex attributes
  * @param componentDataAccessMethodDefinitionsForVertexShader - method definitions for component data access for vertex shader
  * @param componentDataAccessMethodDefinitionsForPixelShader - method definitions for component data access for pixel shader
+ * @param propertySetterOfGlobalDataRepository - Function for setting shader properties of global data repository
+ * @param propertySetterOfMaterial - Function for setting shader properties of material
+ * @param morphedPositionGetter - Function to get the morphed position
+ * @param primitive - The geometric primitive that defines vertex attributes
  * @returns A tuple containing the shader program handle and a boolean indicating if it's newly created
  */
 export function _createProgramAsSingleOperationWebGL(
   material: Material,
+  componentDataAccessMethodDefinitionsForVertexShader: string,
+  componentDataAccessMethodDefinitionsForPixelShader: string,
   propertySetterOfGlobalDataRepository: getShaderPropertyFuncOfGlobalDataRepository,
   propertySetterOfMaterial: getShaderPropertyFuncOfMaterial,
-  primitive: Primitive,
-  componentDataAccessMethodDefinitionsForVertexShader: string,
-  componentDataAccessMethodDefinitionsForPixelShader: string
+  morphedPositionGetter: string,
+  primitive: Primitive
 ): [CGAPIResourceHandle, boolean] {
   const vertexAttributeDefines = defineAttributes(primitive);
   const materialNode = material._materialContent;
@@ -225,6 +226,7 @@ export function _createProgramAsSingleOperationWebGL(
   if (material.isMask()) {
     alphaMode += '#define RN_IS_ALPHA_MODE_MASK\n';
   }
+
   const cacheQuery =
     Component.getStateVersion() +
     MaterialRepository._getBufferViewVersion(material.__materialTypeName) +
@@ -233,8 +235,10 @@ export function _createProgramAsSingleOperationWebGL(
     vertexAttributeDefines +
     material._getFingerPrint() +
     definitions +
+    morphedPositionGetter +
     componentDataAccessMethodDefinitionsForVertexShader +
     componentDataAccessMethodDefinitionsForPixelShader +
+    morphedPositionGetter +
     alphaMode;
 
   let shaderProgramUid = __shaderStringMap.get(cacheQuery);
@@ -254,7 +258,7 @@ export function _createProgramAsSingleOperationWebGL(
   let pixelShader = _setupGlobalShaderDefinitionWebGL(material.__materialTypeName, primitive);
   pixelShader += '#define RN_IS_PIXEL_SHADER\n';
 
-  const vertexShaderityObject = ShaderityUtilityWebGL.fillTemplate(materialNode.vertexShaderityObject!, {
+  const vertexShaderityObject = ShaderityUtilityWebGL.fillTemplate(materialNode.vertexShaderityObject!, primitive, {
     enableVertexExtensions: enableVertexExtensionsGlsl.code,
     glslPrecision: glslPrecisionGlsl.code,
     vertexInOut: vertexInOutGlsl.code,
@@ -264,12 +268,12 @@ export function _createProgramAsSingleOperationWebGL(
     definitions: definitions,
     prerequisites: prerequisitesGlsl.code,
     mainPrerequisites: mainPrerequisitesGlsl.code,
-    matricesGetters: componentDataAccessMethodDefinitionsForVertexShader,
+    matricesGetters: componentDataAccessMethodDefinitionsForVertexShader + morphedPositionGetter,
     processGeometry: processGeometryGlsl.code,
     Config,
   });
 
-  const pixelShaderityObject = ShaderityUtilityWebGL.fillTemplate(materialNode.pixelShaderityObject!, {
+  const pixelShaderityObject = ShaderityUtilityWebGL.fillTemplate(materialNode.pixelShaderityObject!, primitive, {
     glslPrecision: glslPrecisionGlsl.code,
     WellKnownComponentTIDs,
     vertexIn: vertexInGlsl.code,
@@ -378,6 +382,7 @@ export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, _pri
  * @param componentDataAccessMethodDefinitionsForPixelShader - method definitions for component data access for pixel shader
  * @param propertySetterOfGlobalDataRepository - Function for setting shader properties of global data repository
  * @param propertySetterOfMaterial - Function for setting shader properties of material
+ * @param morphedPositionGetter - Function to get the morphed position
  * @returns The handle to the created shader program
  */
 export function _createProgramAsSingleOperationWebGpu(
@@ -386,7 +391,8 @@ export function _createProgramAsSingleOperationWebGpu(
   componentDataAccessMethodDefinitionsForVertexShader: string,
   componentDataAccessMethodDefinitionsForPixelShader: string,
   propertySetterOfGlobalDataRepository: getShaderPropertyFuncOfGlobalDataRepository,
-  propertySetterOfMaterial: getShaderPropertyFuncOfMaterial
+  propertySetterOfMaterial: getShaderPropertyFuncOfMaterial,
+  morphedPositionGetter: string
 ) {
   const vertexAttributeDefines = defineAttributes(primitive);
   const materialNode = material._materialContent;
@@ -414,6 +420,7 @@ export function _createProgramAsSingleOperationWebGpu(
     definitions +
     componentDataAccessMethodDefinitionsForVertexShader +
     componentDataAccessMethodDefinitionsForPixelShader +
+    morphedPositionGetter +
     alphaMode;
 
   let shaderProgramUid = __shaderStringMap.get(cacheQuery);
@@ -436,7 +443,7 @@ export function _createProgramAsSingleOperationWebGpu(
     definitions += '#define RN_BONE_DATA_TYPE_VEC4X1\n';
   }
 
-  const vertexShaderityObject = ShaderityUtilityWebGPU.fillTemplate(materialNode.vertexShaderityObject!, {
+  const vertexShaderityObject = ShaderityUtilityWebGPU.fillTemplate(materialNode.vertexShaderityObject!, primitive, {
     WellKnownComponentTIDs,
     vertexInput: vertexInputWgsl.code,
     vertexOutput: vertexOutputWgsl.code,
@@ -445,12 +452,12 @@ export function _createProgramAsSingleOperationWebGpu(
     fullscreen: fullscreenWgsl.code,
     getters: vertexPropertiesStr,
     definitions: `// RN_IS_VERTEX_SHADER\n#define RN_IS_VERTEX_SHADER\n${definitions}`,
-    matricesGetters: componentDataAccessMethodDefinitionsForVertexShader,
+    matricesGetters: componentDataAccessMethodDefinitionsForVertexShader + morphedPositionGetter,
     processGeometry: processGeometryWgsl.code,
     Config,
   });
 
-  const pixelShaderityObject = ShaderityUtilityWebGPU.fillTemplate(materialNode.pixelShaderityObject!, {
+  const pixelShaderityObject = ShaderityUtilityWebGPU.fillTemplate(materialNode.pixelShaderityObject!, primitive, {
     WellKnownComponentTIDs,
     vertexOutput: vertexOutputWgsl.code,
     prerequisites: prerequisitesWgsl.code,

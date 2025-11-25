@@ -1354,23 +1354,15 @@ export class ModelConverter {
         // morph targets
         if (primitive.targets != null) {
           // set default number
-          let maxMorphTargetNumber = Config.maxMorphTargetNumber;
-          if (rnLoaderOptions?.maxMorphTargetNumber != null) {
-            maxMorphTargetNumber = rnLoaderOptions.maxMorphTargetNumber;
-          }
-
           const targets: Array<Map<VertexAttributeSemanticsJoinedString, Accessor>> = [];
           for (let i = 0; i < primitive.targetsObjects!.length; i++) {
-            if (i >= maxMorphTargetNumber) {
-              break;
-            }
-
             const target = primitive.targetsObjects![i];
             const targetMap: Map<VertexAttributeSemanticsJoinedString, Accessor> = new Map();
             for (const attributeName in target) {
               const attributeAccessor = target[attributeName];
               const attributeRnAccessor = this.__getRnBufferViewAndRnAccessor(attributeAccessor, rnBuffers);
-              const attributeRnAccessorInGPUVertexData = this.__copyRnAccessorAndBufferView(attributeRnAccessor);
+              const attributeRnAccessorInGPUVertexData =
+                this.__copyRnAccessorAndBufferViewForMorphData(attributeRnAccessor);
               const vertexAttribute = VertexAttribute.fromString(attributeName);
               const joinedString = VertexAttribute.toVertexAttributeSemanticJoinedStringAsGltfStyle(vertexAttribute);
               targetMap.set(joinedString, attributeRnAccessorInGPUVertexData);
@@ -2403,14 +2395,14 @@ export class ModelConverter {
     } else {
       // if accessor.bufferView is not defined, the accessor MUST be initialized with zeros.
       // See: https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_accessor_bufferview
-      const rnBuffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUVertexData);
-
       const compositionType = CompositionType.fromString(accessor.type);
       const componentType = ComponentType.from(accessor.componentType);
-
+      const byteLengthToNeed =
+        accessor.count * compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
+      const rnBuffer = MemoryManager.getInstance().createBufferOnDemand(BufferUse.CPUGeneric, byteLengthToNeed, 4);
       const rnBufferView = rnBuffer
         .takeBufferView({
-          byteLengthToNeed: accessor.count * compositionType.getNumberOfComponents() * componentType.getSizeInBytes(),
+          byteLengthToNeed: byteLengthToNeed,
           byteStride: compositionType.getNumberOfComponents() * componentType.getSizeInBytes(),
         })
         .unwrapForce();
@@ -2451,9 +2443,9 @@ export class ModelConverter {
     return rnAccessor;
   }
 
-  private static __copyRnAccessorAndBufferView(srcRnAccessor: Accessor) {
+  private static __copyRnAccessorAndBufferViewForMorphData(srcRnAccessor: Accessor) {
     const byteSize = srcRnAccessor.elementCount * 3 /* vec4 */ * 4; /* bytes */
-    const dstRnBuffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUVertexData);
+    const dstRnBuffer = MemoryManager.getInstance().createBufferOnDemand(BufferUse.GPUVertexData, byteSize, 16);
     const dstRnBufferView = dstRnBuffer
       .takeBufferView({
         byteLengthToNeed: byteSize,

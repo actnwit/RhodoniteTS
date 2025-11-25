@@ -484,6 +484,7 @@ export class Material extends RnObject {
    * @param componentDataAccessMethodDefinitionsForPixelShader - method definitions for component data access for pixel shader
    * @param propertySetterOfGlobalDataRepository - Function to set shader properties of global data repository
    * @param propertySetterOfMaterial - Function to set shader properties of material
+   * @param morphedPositionGetter - Function to get the morphed position
    * @param primitive - The primitive to create the program for
    * @returns A tuple containing the program UID and whether it's a new program
    */
@@ -492,15 +493,17 @@ export class Material extends RnObject {
     componentDataAccessMethodDefinitionsForPixelShader: string,
     propertySetterOfGlobalDataRepository: getShaderPropertyFuncOfGlobalDataRepository,
     propertySetterOfMaterial: getShaderPropertyFuncOfMaterial,
+    morphedPositionGetter: string,
     primitive: Primitive
   ): [CGAPIResourceHandle, boolean] {
     const [programUid, newOne] = _createProgramAsSingleOperationWebGL(
       this,
+      componentDataAccessMethodDefinitionsForVertexShader,
+      componentDataAccessMethodDefinitionsForPixelShader,
       propertySetterOfGlobalDataRepository,
       propertySetterOfMaterial,
-      primitive,
-      componentDataAccessMethodDefinitionsForVertexShader,
-      componentDataAccessMethodDefinitionsForPixelShader
+      morphedPositionGetter,
+      primitive
     );
     const primitiveFingerPrint = primitive._getFingerPrint();
     this._shaderProgramUidMap.set(primitiveFingerPrint, programUid);
@@ -516,14 +519,17 @@ export class Material extends RnObject {
    * @param primitive - The primitive to create the program for
    * @param componentDataAccessMethodDefinitionsForVertexShader - method definitions for component data access for vertex shader
    * @param componentDataAccessMethodDefinitionsForPixelShader - method definitions for component data access for pixel shader
-   * @param propertySetter - Function to set shader properties
+   * @param propertySetterOfGlobalDataRepository - Function to set shader properties of global data repository
+   * @param propertySetterOfMaterial - Function to set shader properties of material
+   * @param morphedPositionGetter - Function to get the morphed position
    */
   _createProgramWebGpu(
     primitive: Primitive,
     componentDataAccessMethodDefinitionsForVertexShader: string,
     componentDataAccessMethodDefinitionsForPixelShader: string,
     propertySetterOfGlobalDataRepository: getShaderPropertyFuncOfGlobalDataRepository,
-    propertySetterOfMaterial: getShaderPropertyFuncOfMaterial
+    propertySetterOfMaterial: getShaderPropertyFuncOfMaterial,
+    morphedPositionGetter: string
   ) {
     const programUid = _createProgramAsSingleOperationWebGpu(
       this,
@@ -531,7 +537,8 @@ export class Material extends RnObject {
       componentDataAccessMethodDefinitionsForVertexShader,
       componentDataAccessMethodDefinitionsForPixelShader,
       propertySetterOfGlobalDataRepository,
-      propertySetterOfMaterial
+      propertySetterOfMaterial,
+      morphedPositionGetter
     );
 
     const primitiveFingerPrint = primitive._getFingerPrint();

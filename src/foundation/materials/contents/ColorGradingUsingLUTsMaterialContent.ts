@@ -18,7 +18,6 @@ import { Sampler } from '../../textures/Sampler';
 import { Texture } from '../../textures/Texture';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { dummyBlackTexture } from '../core/DummyTextures';
-import type { Material } from '../core/Material';
 
 /**
  * Material content for color grading using Look-Up Tables (LUTs).

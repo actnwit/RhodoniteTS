@@ -1,15 +1,12 @@
 import ShaderityModule, { Reflection, type ShaderityObject, type TemplateObject } from 'shaderity';
-import { prerequisitesWgsl } from '../../../webgpu/shaderity_shaders/common/prerequisites';
-import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
-import { Config } from '../../core/Config';
-import { MemoryManager } from '../../core/MemoryManager';
+import { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
 import { TextureParameter } from '../../definitions';
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
-import { ShaderSemantics, ShaderSemanticsClass, ShaderSemanticsName } from '../../definitions/ShaderSemantics';
 import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { ShaderType } from '../../definitions/ShaderType';
-import { VertexAttribute, type VertexAttributeEnum } from '../../definitions/VertexAttribute';
+import type { VertexAttributeEnum } from '../../definitions/VertexAttribute';
+import type { Primitive } from '../../geometry/Primitive';
 import { MutableMatrix22 } from '../../math/MutableMatrix22';
 import { MutableMatrix33 } from '../../math/MutableMatrix33';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
@@ -56,11 +53,18 @@ export class ShaderityUtilityWebGPU {
    * @param args - Object containing template arguments to fill
    * @returns A new ShaderityObject with templates filled
    */
-  public static fillTemplate(shaderityObject: ShaderityObject, args: FillArgsObject): ShaderityObject {
+  public static fillTemplate(
+    shaderityObject: ShaderityObject,
+    primitive: Primitive,
+    args: FillArgsObject
+  ): ShaderityObject {
     const step1 = Shaderity.fillTemplate(shaderityObject, args);
 
+    const morphUniformDataOffsets = (primitive.constructor as typeof Primitive).getMorphUniformDataOffsets();
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
     const templateObject = {
-      maxMorphDataNumber: `${Math.ceil((Config.maxMorphPrimitiveNumber * Config.maxMorphTargetNumber) / 4)}`,
+      maxMorphOffsetsDataNumber: `${Math.max(Math.ceil(morphUniformDataOffsets[morphUniformDataOffsets.length - 1] / 4), 1)}`,
+      maxMorphWeightsDataNumber: `${Math.max(Math.ceil(blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1] / 4), 1)}`,
     } as unknown as TemplateObject;
 
     return Shaderity.fillTemplate(step1, templateObject);

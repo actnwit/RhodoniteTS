@@ -248,6 +248,26 @@ export class ComponentRepository {
   }
 
   /**
+   * Gets an array of all component instances of the specified type.
+   * This is an internal method that includes undefined slots in the array.
+   *
+   * @internal
+   * @param componentClass - The component class to retrieve instances for
+   * @returns Array of component instances with potential undefined elements, or undefined if type not found
+   */
+  public static getComponentsWithTypeWithoutFiltering(componentType: typeof Component): Array<Component | undefined> {
+    const components = this.__components.get(componentType.componentTID);
+    if (components == null) {
+      return [];
+    }
+    const componentsWithoutFiltering: Array<Component | undefined> = [];
+    for (let i = 0; i < components.length; i++) {
+      componentsWithoutFiltering.push(components[i]);
+    }
+    return componentsWithoutFiltering;
+  }
+
+  /**
    * Updates the internal lists of component type IDs and rendering component type IDs.
    * This method maintains sorted arrays of ComponentTIDs for efficient iteration and processing.
    *

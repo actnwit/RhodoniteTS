@@ -6,7 +6,6 @@ declare const window: any;
 declare const Stats: any;
 
 Rn.Config.maxSkeletalBoneNumberForUniformMode = 100;
-Rn.Config.maxMorphTargetNumber = 1;
 Rn.Config.isUboEnabled = false;
 Rn.Config.cgApiDebugConsoleOutput = true;
 

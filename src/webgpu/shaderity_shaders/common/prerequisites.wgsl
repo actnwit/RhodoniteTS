@@ -7,11 +7,11 @@ struct BlendShapeData {
 }
 @group(0) @binding(1) var<storage> blendShapeData: BlendShapeData;
 struct UniformMorphOffsets {
-  data: array<vec4<u32>, /* shaderity: @{maxMorphDataNumber} */ >,
+  data: array<vec4<u32>, /* shaderity: @{maxMorphOffsetsDataNumber} */ >,
 }
 @group(0) @binding(2) var<uniform> uniformMorphOffsets: UniformMorphOffsets;
 struct UniformMorphWeights {
-  data: array<vec4<f32>, /* shaderity: @{maxMorphDataNumber} */ >,
+  data: array<vec4<f32>, /* shaderity: @{maxMorphWeightsDataNumber} */ >,
 }
 @group(0) @binding(3) var<uniform> uniformMorphWeights: UniformMorphWeights;
 

@@ -1,6 +1,5 @@
-import type { Count, Index, PrimitiveUID, TypedArray } from '../../types/CommonTypes';
+import type { Count, Index, Offset, PrimitiveUID, TypedArray } from '../../types/CommonTypes';
 import type { VertexHandles } from '../../webgl/WebGLResourceRepository';
-import { Config } from '../core/Config';
 import { MemoryManager } from '../core/MemoryManager';
 import { RnObject } from '../core/RnObject';
 import { BufferUse } from '../definitions/BufferUse';
@@ -17,7 +16,6 @@ import { Vector3 } from '../math/Vector3';
 import type { Accessor } from '../memory/Accessor';
 import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
-import { Logger } from '../misc/Logger';
 import { None, type Option, Some } from '../misc/Option';
 import { RnException } from '../misc/RnException';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
@@ -735,17 +733,35 @@ export class Primitive extends RnObject {
    * @param targets - Array of attribute maps representing morph targets
    */
   setBlendShapeTargets(targets: Array<Attributes>) {
-    if (Primitive.__primitiveUidIdxHasMorph.size > Config.maxMorphPrimitiveNumber) {
-      Logger.error(
-        'Primitive.__primitiveUidsHasMorph.size exceeds the Config.maxMorphPrimitiveNumberInWebGPU. Please increase the Config.maxMorphPrimitiveNumberInWebGPU.'
-      );
-    } else {
-      Primitive.__idxPrimitiveUidHasMorph.set(Primitive.__primitiveCountHasMorph, this);
-      Primitive.__primitiveUidIdxHasMorph.set(this.__primitiveUid, Primitive.__primitiveCountHasMorph++);
-    }
+    Primitive.__idxPrimitiveUidHasMorph.set(Primitive.__primitiveCountHasMorph, this);
+    Primitive.__primitiveUidIdxHasMorph.set(this.__primitiveUid, Primitive.__primitiveCountHasMorph++);
 
     this.__targets = targets;
     this.calcFingerPrint();
+  }
+
+  static getMorphUniformDataTargetNumbers(): Count[] {
+    const targetNumbers: Count[] = [];
+    for (let i = 0; i < Primitive.getPrimitiveCountHasMorph(); i++) {
+      const primitive = Primitive.getPrimitiveHasMorph(i)!;
+      targetNumbers.push(primitive.targets.length);
+    }
+
+    if (targetNumbers.length === 0) {
+      return [0];
+    }
+
+    return targetNumbers;
+  }
+
+  static getMorphUniformDataOffsets(): Offset[] {
+    const offsets: Offset[] = [0];
+    for (let i = 0; i < Primitive.getPrimitiveCountHasMorph(); i++) {
+      const primitive = Primitive.getPrimitiveHasMorph(i)!;
+      offsets.push(offsets[offsets.length - 1] + primitive.targets.length);
+    }
+
+    return offsets;
   }
 
   static getPrimitiveCountHasMorph() {

@@ -1,6 +1,7 @@
 import type { Byte, Count, Index, ObjectUID, Ratio, Size } from '../../types/CommonTypes';
 import { BufferUse, type BufferUseEnum } from '../definitions/BufferUse';
 import { Buffer } from '../memory/Buffer';
+import { DataUtil } from '../misc/DataUtil';
 import { MiscUtil } from '../misc/MiscUtil';
 import { Config } from './Config';
 
@@ -136,6 +137,7 @@ export class MemoryManager {
   /**
    * Gets an existing buffer or creates a new one if it doesn't exist.
    * @param bufferUse - The type of buffer to retrieve or create
+   * @param requireIndexOfTheBufferLayer - The index of the buffer layer to retrieve or create
    * @returns The Buffer instance (existing or newly created)
    */
   public createOrGetBuffer(bufferUse: BufferUseEnum, requireIndexOfTheBufferLayer: Index = 0): Buffer {
@@ -155,7 +157,8 @@ export class MemoryManager {
    * @returns The newly created Buffer instance
    */
   public createBufferOnDemand(bufferUse: BufferUseEnum, size: Byte, byteAlign: Byte) {
-    const arrayBuffer = new ArrayBuffer(size);
+    const alignedSize = DataUtil.addPaddingBytes(size, byteAlign);
+    const arrayBuffer = new ArrayBuffer(alignedSize);
     const count = this.getLayerCountOfTheBufferUsage(bufferUse);
     const buffer = new Buffer({
       byteLength: arrayBuffer.byteLength,
@@ -165,6 +168,15 @@ export class MemoryManager {
       bufferUsage: bufferUse,
       indexOfTheBufferUsage: count,
     });
+
+    // add the buffer to the buffer map
+    let bufferMap = this.__buffers.get(bufferUse);
+    if (bufferMap == null) {
+      bufferMap = new Map();
+      this.__buffers.set(bufferUse, bufferMap);
+    }
+    bufferMap.set(count, buffer);
+
     this.incrementCountOfTheBufferUsage(bufferUse);
     return buffer;
   }
