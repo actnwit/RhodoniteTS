@@ -804,7 +804,7 @@ ${indexStr}
       this.__updateMorphWeightsUniformBuffer();
       this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
       this.__countOfBlendShapeComponents = BlendShapeComponent.getCountOfBlendShapeComponents();
-      MaterialRepository._makeShaderInvalidateToAllMaterials();
+      MaterialRepository._makeShaderInvalidateToMorphMaterials();
     }
   }
 

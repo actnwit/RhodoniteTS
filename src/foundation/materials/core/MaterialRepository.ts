@@ -460,6 +460,30 @@ export class MaterialRepository {
     }
   }
 
+  /**
+   * Invalidates shader programs only for materials that are affected by morph changes.
+   * Affected materials are those that support morphing and are currently used by primitives
+   * with morph targets.
+   *
+   * @internal
+   */
+  static _makeShaderInvalidateToMorphMaterials() {
+    for (const materialRef of MaterialRepository.__materialMap.values()) {
+      const material = materialRef.deref();
+      if (material == null || material.isMorphing === false) {
+        continue;
+      }
+
+      const primitives = material.getBelongPrimitives();
+      for (const primitive of primitives.values()) {
+        if (primitive.targets.length > 0) {
+          material.makeShadersInvalidate();
+          break;
+        }
+      }
+    }
+  }
+
   private static __makeShaderInvalidateForMaterialType(materialTypeName: string) {
     const materials = MaterialRepository.__instances.get(materialTypeName);
     if (materials == null) {

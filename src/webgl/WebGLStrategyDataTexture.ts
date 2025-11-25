@@ -1132,7 +1132,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__updateMorphWeightsUniformBuffer();
       this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
       this.__countOfBlendShapeComponents = BlendShapeComponent.getCountOfBlendShapeComponents();
-      MaterialRepository._makeShaderInvalidateToAllMaterials();
+      MaterialRepository._makeShaderInvalidateToMorphMaterials();
     }
 
     this.__updateMorphOffsetsUniformBuffers();
