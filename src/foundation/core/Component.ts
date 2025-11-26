@@ -286,9 +286,9 @@ export class Component extends RnObject {
     const isArray = CompositionType.isArray(memberInfo.compositionType);
     let taken: TypedArray | undefined;
     if (isReUse) {
-      taken = accessorsOfMember.get(isArray ? componentSid : indexOfTheBufferView)!._takeExistedOne(indexOfBufferViews);
+      taken = accessorsOfMember.get(indexOfTheBufferView)!._takeExistedOne(indexOfBufferViews);
     } else {
-      taken = accessorsOfMember.get(isArray ? componentSid : indexOfTheBufferView)!.takeOne();
+      taken = accessorsOfMember.get(indexOfTheBufferView)!.takeOne();
     }
     (this as any)[`_${memberName}`] = new dataClassType(taken, false, true);
 
@@ -336,7 +336,7 @@ export class Component extends RnObject {
       accessorsOfMember.set(memberName, accessors);
     }
     const isArray = CompositionType.isArray(compositionType);
-    if (!accessorsOfMember.has(memberName) || isArray || !accessors.has(indexOfTheBufferView)) {
+    if (!accessorsOfMember.has(memberName) || !accessors.has(indexOfTheBufferView)) {
       const bytes = calcAlignedByteLength();
 
       let bufferViewResult: Result<BufferView, { 'Buffer.byteLength': Byte; 'Buffer.takenSizeInByte': Byte }>;
@@ -366,7 +366,7 @@ export class Component extends RnObject {
         });
       }
 
-      accessors.set(isArray ? componentSID : indexOfTheBufferView, accessorResult.get());
+      accessors.set(indexOfTheBufferView, accessorResult.get());
 
       Component.__stateVersion++;
 
@@ -387,7 +387,7 @@ export class Component extends RnObject {
       return alignedByteLength;
     }
 
-    return new Ok(accessors.get(isArray ? componentSID : indexOfTheBufferView)!);
+    return new Ok(accessors.get(indexOfTheBufferView)!);
   }
 
   /**

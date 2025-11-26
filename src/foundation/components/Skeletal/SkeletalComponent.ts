@@ -148,7 +148,7 @@ export class SkeletalComponent extends Component {
     }
 
     const shouldReuseAllocation = !needsNewAllocation && this.__jointCapacity > 0;
-    const skeletalComponentCountPerBufferView = 1; // Since the number of bone data varies per component, skeletalComponentCountPerBufferView must be fixed to 1 to maintain data consistency.
+    const skeletalComponentCountPerBufferView = 400; // Since the number of bone data varies per component, skeletalComponentCountPerBufferView must be fixed to 1 to maintain data consistency.
     this.submitToAllocation(skeletalComponentCountPerBufferView, shouldReuseAllocation);
     console.count('SkeletalComponent.setJoints - FINAL TEST');
   }
