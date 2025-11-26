@@ -494,13 +494,14 @@ export class SkeletalComponent extends Component {
     const component = component_ as SkeletalComponent;
 
     this._jointIndices = component._jointIndices.concat();
+    // Note: setJoints will be called later in EntityRepository.__setJoints 
+    // to avoid duplicate calls during shallowCopy process
+    this.__joints = component.__joints.concat();
+    this.__jointCapacity = component.__jointCapacity;
+    this.__allocatedBoneDataType = component.__allocatedBoneDataType;
+    
     if (component.__joints.length > 0) {
-      this.setJoints(component.__joints.concat());
       this.__copyBoneBuffersFrom(component);
-    } else {
-      this.__joints = [];
-      this.__jointCapacity = 0;
-      this.__allocatedBoneDataType = undefined;
     }
 
     this.__inverseBindMatricesAccessor = component.__inverseBindMatricesAccessor;

@@ -190,10 +190,12 @@ export class EntityRepository {
     ) as SkeletalComponent;
     if (Is.exist(skeletalComponentOfNew) && Is.exist(skeletalComponentOfOriginal)) {
       const jointsOriginal = skeletalComponentOfOriginal.getJoints();
-      const jointsNew = jointsOriginal.map(joint => {
-        return EntityRepository.getEntity(joint.entity._myLatestCopyEntityUID).tryToGetSceneGraph()!;
-      });
-      skeletalComponentOfNew.setJoints(jointsNew);
+      if (jointsOriginal.length > 0) {
+        const jointsNew = jointsOriginal.map(joint => {
+          return EntityRepository.getEntity(joint.entity._myLatestCopyEntityUID).tryToGetSceneGraph()!;
+        });
+        skeletalComponentOfNew.setJoints(jointsNew);
+      }
     }
 
     const sceneGraph = entity.tryToGetSceneGraph();
