@@ -52,6 +52,7 @@ export class SkeletalComponent extends Component {
   private __isWorldMatrixVanilla = true;
   private __jointCapacity = 0;
   private __allocatedBoneDataType?: BoneDataTypeEnum;
+  private __jointsRemappingRequired = false;
   _isCulled = false;
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tookGlobalDataNum = 0;
@@ -74,9 +75,11 @@ export class SkeletalComponent extends Component {
     this.moveStageTo(ProcessStage.Logic);
 
     if (isReUse) {
+      this.__jointsRemappingRequired = false;
       return;
     }
 
+    this.__jointsRemappingRequired = false;
     SkeletalComponent.__tookGlobalDataNum++;
   }
 
@@ -147,6 +150,16 @@ export class SkeletalComponent extends Component {
     const shouldReuseAllocation = !needsNewAllocation && this.__jointCapacity > 0;
     const skeletalComponentCountPerBufferView = 1; // Since the number of bone data varies per component, skeletalComponentCountPerBufferView must be fixed to 1 to maintain data consistency.
     this.submitToAllocation(skeletalComponentCountPerBufferView, shouldReuseAllocation);
+    console.count('SkeletalComponent.setJoints - FINAL TEST');
+  }
+
+  /**
+   * Lightweight joint update for remapping during shallow copy.
+   * Only updates joint references without reinitializing buffers.
+   */
+  updateJointsLightweight(joints: SceneGraphComponent[]) {
+    this.__joints = joints;
+    console.count('SkeletalComponent.updateJointsLightweight - FINAL TEST');
   }
 
   /**
@@ -494,14 +507,21 @@ export class SkeletalComponent extends Component {
     const component = component_ as SkeletalComponent;
 
     this._jointIndices = component._jointIndices.concat();
-    // Note: setJoints will be called later in EntityRepository.__setJoints 
-    // to avoid duplicate calls during shallowCopy process
-    this.__joints = component.__joints.concat();
-    this.__jointCapacity = component.__jointCapacity;
-    this.__allocatedBoneDataType = component.__allocatedBoneDataType;
     
     if (component.__joints.length > 0) {
+      // Properly initialize by calling setJoints to ensure all buffers are correctly allocated
+      console.log('_shallowCopyFrom calling setJoints for proper initialization, entity:', this.__entityUid);
+      this.setJoints(component.__joints.concat());
       this.__copyBoneBuffersFrom(component);
+      
+      // Mark that joints will need remapping to new entities later
+      this.__jointsRemappingRequired = true;
+      console.log('_shallowCopyFrom set remapping flag, entity:', this.__entityUid);
+    } else {
+      this.__joints = [];
+      this.__jointCapacity = 0;
+      this.__allocatedBoneDataType = undefined;
+      this.__jointsRemappingRequired = false;
     }
 
     this.__inverseBindMatricesAccessor = component.__inverseBindMatricesAccessor;

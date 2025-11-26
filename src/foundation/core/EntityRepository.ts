@@ -190,11 +190,14 @@ export class EntityRepository {
     ) as SkeletalComponent;
     if (Is.exist(skeletalComponentOfNew) && Is.exist(skeletalComponentOfOriginal)) {
       const jointsOriginal = skeletalComponentOfOriginal.getJoints();
-      if (jointsOriginal.length > 0) {
+      if (jointsOriginal.length > 0 && (skeletalComponentOfNew as any).__jointsRemappingRequired) {
         const jointsNew = jointsOriginal.map(joint => {
           return EntityRepository.getEntity(joint.entity._myLatestCopyEntityUID).tryToGetSceneGraph()!;
         });
-        skeletalComponentOfNew.setJoints(jointsNew);
+        console.log('__setJoints: lightweight joint update for entity:', newEntity.entityUID);
+        // Use lightweight update that only changes joint references without reinitializing buffers
+        (skeletalComponentOfNew as any).updateJointsLightweight(jointsNew);
+        (skeletalComponentOfNew as any).__jointsRemappingRequired = false;
       }
     }
 
