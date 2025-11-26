@@ -460,18 +460,18 @@ export class SkeletalComponent extends Component {
     // 8  9  10 11
     // 12 13 14 15
 
-    this._boneMatrix.setAt(i * 12 + 0, m._v[0]);
-    this._boneMatrix.setAt(i * 12 + 1, m._v[1]);
-    this._boneMatrix.setAt(i * 12 + 2, m._v[2]);
-    this._boneMatrix.setAt(i * 12 + 3, m._v[4]);
-    this._boneMatrix.setAt(i * 12 + 4, m._v[5]);
-    this._boneMatrix.setAt(i * 12 + 5, m._v[6]);
-    this._boneMatrix.setAt(i * 12 + 6, m._v[8]);
-    this._boneMatrix.setAt(i * 12 + 7, m._v[9]);
-    this._boneMatrix.setAt(i * 12 + 8, m._v[10]);
-    this._boneMatrix.setAt(i * 12 + 9, m._v[12]);
-    this._boneMatrix.setAt(i * 12 + 10, m._v[13]);
-    this._boneMatrix.setAt(i * 12 + 11, m._v[14]);
+    this._boneMatrix._v[i * 12 + 0] = m._v[0];
+    this._boneMatrix._v[i * 12 + 1] = m._v[1];
+    this._boneMatrix._v[i * 12 + 2] = m._v[2];
+    this._boneMatrix._v[i * 12 + 3] = m._v[4];
+    this._boneMatrix._v[i * 12 + 4] = m._v[5];
+    this._boneMatrix._v[i * 12 + 5] = m._v[6];
+    this._boneMatrix._v[i * 12 + 6] = m._v[8];
+    this._boneMatrix._v[i * 12 + 7] = m._v[9];
+    this._boneMatrix._v[i * 12 + 8] = m._v[10];
+    this._boneMatrix._v[i * 12 + 9] = m._v[12];
+    this._boneMatrix._v[i * 12 + 10] = m._v[13];
+    this._boneMatrix._v[i * 12 + 11] = m._v[14];
   }
 
   /**
