@@ -62,7 +62,7 @@ export class Component extends RnObject {
   > = new Map();
 
   private static __memberInfo: Map<typeof Component, Map<MemberName, MemberInfo>> = new Map();
-  private static __arrayLengthMap: Map<typeof Component, Map<MemberName, Map<ComponentSID, Count>>> = new Map();
+  private static __arrayLengthMap: Map<typeof Component, Map<MemberName, Count>> = new Map();
   private static __componentCountPerBufferView: Map<typeof Component, Count> = new Map();
 
   private static __byteOffsetOfAccessorInBufferOfMembers: Map<
@@ -450,9 +450,8 @@ export class Component extends RnObject {
       }
       const arrayLengthMap = Component.__arrayLengthMap.get(this);
       if (!arrayLengthMap!.has(memberName)) {
-        arrayLengthMap!.set(memberName, new Map());
+        arrayLengthMap!.set(memberName, arrayLength);
       }
-      arrayLengthMap!.get(memberName)!.set(componentSID, arrayLength);
     }
   }
 
@@ -493,7 +492,7 @@ export class Component extends RnObject {
       // for each member field, take a BufferView for all entities' the member field.
       // take a Accessor for all entities for each member fields (same as BufferView)
       memberInfoArray.forEach(info => {
-        const arrayLength = Component.__arrayLengthMap.get(componentClass)?.get(info.memberName)?.get(componentSID);
+        const arrayLength = Component.__arrayLengthMap.get(componentClass)?.get(info.memberName);
         const accessorResult = Component.__takeAccessor(
           info.bufferUse,
           info.memberName,
@@ -702,7 +701,7 @@ export class Component extends RnObject {
    * Gets the array length of a specific member field in a component class.
    * @returns The array length map of the component
    */
-  static getArrayLengthOfMember(): Map<typeof Component, Map<MemberName, Map<ComponentSID, Count>>> {
+  static getArrayLengthOfMember(): Map<typeof Component, Map<MemberName, Count>> {
     return new Map(Component.__arrayLengthMap);
   }
 

@@ -152,13 +152,9 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
       }
       const locationOffsets_vec4_idx = Component.getLocationOffsetOfMemberOfComponent(componentClass, memberName);
       const vec4SizeOfProperty: IndexOf16Bytes = memberInfo.compositionType.getVec4SizeOfProperty();
-      const arrayLengthMap = Component.getArrayLengthOfMember().get(componentClass)?.get(memberName) ?? new Map();
-      const arrayLengthArray = Array.from(arrayLengthMap.values());
-      if (arrayLengthArray.length === 0) {
-        arrayLengthArray[0] = 0;
-      }
-      const arrayLengthArrayStr = `var<function> arrayLengthArray: array<u32, ${arrayLengthArray.length}> = array<u32, ${arrayLengthArray.length}>(${arrayLengthArray.map(length => `${length}u`).join(', ')});`;
-      const indexStr = `indices[instanceIdOfBufferViews] + instanceIdInBufferView * ${vec4SizeOfProperty}u * arrayLengthArray[instanceId] + ${vec4SizeOfProperty}u * idxOfArray;`; // vec4_idx
+      const arrayLength = Component.getArrayLengthOfMember().get(componentClass)?.get(memberName) ?? 0;
+      const arrayLengthStr = `let arrayLength: u32 = ${arrayLength}u;`;
+      const indexStr = `indices[instanceIdOfBufferViews] + instanceIdInBufferView * ${vec4SizeOfProperty}u * arrayLength + ${vec4SizeOfProperty}u * idxOfArray;`; // vec4_idx
       let conversionStr = '';
       if (memberInfo.convertToBool) {
         conversionStr = 'if (value > 0.5) { return true; } else { return false; }';
@@ -168,7 +164,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
     let instanceIdOfBufferViews = instanceId / ${componentCountPerBufferView};
     let instanceIdInBufferView = instanceId % ${componentCountPerBufferView};
     var<function> indices: array<u32, ${locationOffsets_vec4_idx.length}> = array<u32, ${locationOffsets_vec4_idx.length}>(${locationOffsets_vec4_idx.map(offset => `${offset}u`).join(', ')});
-    ${arrayLengthArrayStr}
+    ${arrayLengthStr}
     let index: u32 = ${indexStr};
     let value = ${fetchTypeStr}(index);
     ${memberInfo.convertToBool ? conversionStr : 'return value;'}
