@@ -19,11 +19,6 @@ export class BlendShapeComponent extends Component {
   private static __updateCount = 0;
   private static __weightsLengthBySid: number[] = [];
 
-  /** keeps latest weight length even if component slot becomes undefined */
-  private static __rememberLength(componentSid: ComponentSID, length: number) {
-    BlendShapeComponent.__weightsLengthBySid[componentSid] = length;
-  }
-
   /**
    * Creates a new BlendShapeComponent instance.
    * @param entityUid - The unique identifier of the entity this component belongs to
@@ -71,7 +66,7 @@ export class BlendShapeComponent extends Component {
    */
   set weights(weights: number[]) {
     this.__weights = weights;
-    BlendShapeComponent.__rememberLength(this.componentSID, weights.length);
+    BlendShapeComponent.__weightsLengthBySid[this.componentSID] = weights.length;
     BlendShapeComponent.__updateCount++;
   }
 
@@ -108,7 +103,6 @@ export class BlendShapeComponent extends Component {
    */
   setWeightByIndex(index: Index, weight: number) {
     this.__weights[index] = weight;
-    BlendShapeComponent.__rememberLength(this.componentSID, this.__weights.length);
     BlendShapeComponent.__updateCount++;
   }
 
