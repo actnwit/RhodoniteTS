@@ -8,6 +8,7 @@ declare const Stats: any;
 Rn.Config.maxSkeletalBoneNumberForUniformMode = 100;
 Rn.Config.isUboEnabled = false;
 Rn.Config.cgApiDebugConsoleOutput = true;
+Rn.setUpAsMemoryBoostMode();
 
 await Rn.System.init({
   approach: Rn.ProcessApproach.DataTexture,

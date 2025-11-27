@@ -60,6 +60,12 @@ export class MeshComponent extends Component {
    * @param mesh - The mesh to be assigned to this component
    */
   setMesh(mesh: Mesh) {
+    if (this.__mesh === mesh) {
+      return;
+    }
+    if (this.__mesh) {
+      this.__mesh._removeMeshComponent(this);
+    }
     this.__mesh = mesh;
     mesh._belongToMeshComponent(this);
   }
@@ -72,6 +78,7 @@ export class MeshComponent extends Component {
     if (this.__mesh == null) {
       return false;
     }
+    this.__mesh._removeMeshComponent(this);
     this.__mesh = void 0;
 
     return true;
@@ -343,11 +350,20 @@ export class MeshComponent extends Component {
 
   /**
    * Destroys the component and cleans up resources.
+   * Properly releases GPU resources to prevent memory leaks and display corruption.
    * @protected
    */
   _destroy(): void {
     super._destroy();
     if (this.__mesh) {
+      const mesh = this.__mesh;
+      mesh._removeMeshComponent(this);
+      const isShared = mesh.meshEntitiesInner.length > 0;
+      if (!isShared) {
+        // Delete GPU vertex data (VBO, VAO, skeletal attributes) only when no other component uses this mesh
+        mesh.delete3DAPIVertexData();
+        mesh.deleteVAO();
+      }
       this.__mesh = undefined;
     }
   }

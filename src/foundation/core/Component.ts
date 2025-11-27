@@ -55,6 +55,7 @@ type IndexOfTheBufferView = number;
 export class Component extends RnObject {
   private _component_sid: number;
   _isAlive = true;
+  protected __isReUse = false;
   protected __currentProcessStage: ProcessStageEnum = ProcessStage.Load;
   private static __accessors: Map<
     typeof Component,
@@ -62,7 +63,7 @@ export class Component extends RnObject {
   > = new Map();
 
   private static __memberInfo: Map<typeof Component, Map<MemberName, MemberInfo>> = new Map();
-  private static __arrayLengthMap: Map<typeof Component, Map<MemberName, Map<ComponentSID, Count>>> = new Map();
+  private static __arrayLengthMap: Map<typeof Component, Map<MemberName, Count>> = new Map();
   private static __componentCountPerBufferView: Map<typeof Component, Count> = new Map();
 
   private static __byteOffsetOfAccessorInBufferOfMembers: Map<
@@ -102,7 +103,7 @@ export class Component extends RnObject {
    * @param entityRepository - The instance of the EntityRepository class (Dependency Injection)
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, _isReUse: boolean) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
     super();
 
     this.__entityUid = entityUid;
@@ -110,6 +111,10 @@ export class Component extends RnObject {
 
     this.__memoryManager = MemoryManager.getInstance();
     this.__entityRepository = entityRepository;
+
+    if (isReUse) {
+      this.__isReUse = true;
+    }
   }
 
   /**
@@ -282,13 +287,11 @@ export class Component extends RnObject {
     const indexOfTheBufferView = Math.floor(componentSid / componentCountPerBufferView);
     const indexOfBufferViews = componentSid % componentCountPerBufferView;
     const accessorsOfMember = Component.__accessors.get(this.constructor as typeof Component)!.get(memberName)!;
-    const memberInfo = Component.__memberInfo.get(this.constructor as typeof Component)!.get(memberName)!;
-    const isArray = CompositionType.isArray(memberInfo.compositionType);
     let taken: TypedArray | undefined;
     if (isReUse) {
-      taken = accessorsOfMember.get(isArray ? componentSid : indexOfTheBufferView)!._takeExistedOne(indexOfBufferViews);
+      taken = accessorsOfMember.get(indexOfTheBufferView)!._takeExistedOne(indexOfBufferViews);
     } else {
-      taken = accessorsOfMember.get(isArray ? componentSid : indexOfTheBufferView)!.takeOne();
+      taken = accessorsOfMember.get(indexOfTheBufferView)!.takeOne();
     }
     (this as any)[`_${memberName}`] = new dataClassType(taken, false, true);
 
@@ -321,8 +324,7 @@ export class Component extends RnObject {
     componentType: ComponentTypeEnum,
     indexOfTheBufferView: IndexOfTheBufferView,
     componentCountPerBufferView: Count,
-    arrayLength: Count,
-    componentSID: ComponentSID
+    arrayLength: Count
   ): Result<Accessor, undefined> {
     if (!this.__accessors.has(componentClass)) {
       this.__accessors.set(componentClass, new Map());
@@ -335,43 +337,50 @@ export class Component extends RnObject {
       accessors = new Map();
       accessorsOfMember.set(memberName, accessors);
     }
-    const isArray = CompositionType.isArray(compositionType);
-    if (!accessorsOfMember.has(memberName) || isArray || !accessors.has(indexOfTheBufferView)) {
-      const bytes = calcAlignedByteLength();
-
-      let bufferViewResult: Result<BufferView, { 'Buffer.byteLength': Byte; 'Buffer.takenSizeInByte': Byte }>;
-      let requireBufferLayerIndex = 0;
-      do {
-        const buffer = MemoryManager.getInstance().createOrGetBuffer(bufferUse, requireBufferLayerIndex);
-        bufferViewResult = buffer.takeBufferView({
-          byteLengthToNeed: bytes * componentCountPerBufferView,
-          byteStride: 0,
-        });
-        if (bufferViewResult.isErr()) {
-          requireBufferLayerIndex++;
-        }
-      } while (bufferViewResult.isErr());
-
-      const accessorResult = bufferViewResult.get().takeAccessor({
-        compositionType,
-        componentType,
-        count: componentCountPerBufferView,
-        byteStride: bytes,
-        arrayLength: arrayLength,
-      });
-      if (accessorResult.isErr()) {
-        return new Err({
-          message: `Failed to take accessor: ${accessorResult.getRnError().message}`,
-          error: undefined,
-        });
-      }
-
-      accessors.set(isArray ? componentSID : indexOfTheBufferView, accessorResult.get());
-
-      Component.__stateVersion++;
-
-      return accessorResult;
+    const bytes = calcAlignedByteLength();
+    const existingAccessor = accessors.get(indexOfTheBufferView);
+    const accessorIsCompatible =
+      existingAccessor != null &&
+      existingAccessor.elementCount === componentCountPerBufferView &&
+      existingAccessor.byteStride === bytes &&
+      existingAccessor.compositionType === compositionType &&
+      existingAccessor.componentType === componentType;
+    if (accessorIsCompatible) {
+      return new Ok(existingAccessor);
     }
+
+    let bufferViewResult: Result<BufferView, { 'Buffer.byteLength': Byte; 'Buffer.takenSizeInByte': Byte }>;
+    let requireBufferLayerIndex = 0;
+    do {
+      const buffer = MemoryManager.getInstance().createOrGetBuffer(bufferUse, requireBufferLayerIndex);
+      bufferViewResult = buffer.takeBufferView({
+        byteLengthToNeed: bytes * componentCountPerBufferView,
+        byteStride: 0,
+      });
+      if (bufferViewResult.isErr()) {
+        requireBufferLayerIndex++;
+      }
+    } while (bufferViewResult.isErr());
+
+    const accessorResult = bufferViewResult.get().takeAccessor({
+      compositionType,
+      componentType,
+      count: componentCountPerBufferView,
+      byteStride: bytes,
+      arrayLength: arrayLength,
+    });
+    if (accessorResult.isErr()) {
+      return new Err({
+        message: `Failed to take accessor: ${accessorResult.getRnError().message}`,
+        error: undefined,
+      });
+    }
+
+    accessors.set(indexOfTheBufferView, accessorResult.get());
+
+    Component.__stateVersion++;
+
+    return accessorResult;
 
     function calcAlignedByteLength() {
       const compositionNumber = compositionType.getNumberOfComponents();
@@ -386,8 +395,6 @@ export class Component extends RnObject {
       }
       return alignedByteLength;
     }
-
-    return new Ok(accessors.get(isArray ? componentSID : indexOfTheBufferView)!);
   }
 
   /**
@@ -448,11 +455,12 @@ export class Component extends RnObject {
       if (!Component.__arrayLengthMap.has(this)) {
         Component.__arrayLengthMap.set(this, new Map());
       }
-      const arrayLengthMap = Component.__arrayLengthMap.get(this);
-      if (!arrayLengthMap!.has(memberName)) {
-        arrayLengthMap!.set(memberName, new Map());
+      const arrayLengthMap = Component.__arrayLengthMap.get(this)!;
+      const currentLength = arrayLengthMap.get(memberName);
+      if (currentLength == null || arrayLength > currentLength) {
+        // Keep the maximum requested length so dynamically sized components (e.g. SkeletalComponent) allocate enough space
+        arrayLengthMap.set(memberName, arrayLength);
       }
-      arrayLengthMap!.get(memberName)!.set(componentSID, arrayLength);
     }
   }
 
@@ -472,7 +480,7 @@ export class Component extends RnObject {
     // Do this only for the first entity of the component
     const indexOfTheBufferView = Math.floor(this._component_sid / componentCountPerBufferView);
     if (this._component_sid % componentCountPerBufferView === 0) {
-      getBufferViewsAndAccessors(indexOfTheBufferView, this._component_sid);
+      getBufferViewsAndAccessors(indexOfTheBufferView);
     }
 
     // take a field value allocation for each entity for each member field
@@ -489,11 +497,11 @@ export class Component extends RnObject {
 
     // inner function
 
-    function getBufferViewsAndAccessors(indexOfTheBufferView: IndexOfTheBufferView, componentSID: ComponentSID) {
+    function getBufferViewsAndAccessors(indexOfTheBufferView: IndexOfTheBufferView) {
       // for each member field, take a BufferView for all entities' the member field.
       // take a Accessor for all entities for each member fields (same as BufferView)
       memberInfoArray.forEach(info => {
-        const arrayLength = Component.__arrayLengthMap.get(componentClass)?.get(info.memberName)?.get(componentSID);
+        const arrayLength = Component.__arrayLengthMap.get(componentClass)?.get(info.memberName);
         const accessorResult = Component.__takeAccessor(
           info.bufferUse,
           info.memberName,
@@ -502,8 +510,7 @@ export class Component extends RnObject {
           info.componentType,
           indexOfTheBufferView,
           componentCountPerBufferView,
-          arrayLength ?? 1,
-          componentSID
+          arrayLength ?? 1
         );
         if (accessorResult.isErr()) {
           throw new RnException(accessorResult.getRnError());
@@ -521,15 +528,13 @@ export class Component extends RnObject {
             .get(componentClass)!
             .set(info.memberName, byteOffsetOfAccessorInBufferOfMember);
         }
-        const isArray = CompositionType.isArray(info.compositionType);
-
         const accessor = accessorResult.get();
         const byteOffsetOfExistingBuffers = MemoryManager.getInstance().getByteOffsetOfExistingBuffers(
           info.bufferUse,
           accessor.bufferView.buffer.indexOfTheBufferUsage
         );
         const byteOffset = byteOffsetOfExistingBuffers + accessor.byteOffsetInBuffer;
-        byteOffsetOfAccessorInBufferOfMember.set(isArray ? componentSID : indexOfTheBufferView, byteOffset);
+        byteOffsetOfAccessorInBufferOfMember.set(indexOfTheBufferView, byteOffset);
       });
     }
   }
@@ -702,7 +707,7 @@ export class Component extends RnObject {
    * Gets the array length of a specific member field in a component class.
    * @returns The array length map of the component
    */
-  static getArrayLengthOfMember(): Map<typeof Component, Map<MemberName, Map<ComponentSID, Count>>> {
+  static getArrayLengthOfMember(): Map<typeof Component, Map<MemberName, Count>> {
     return new Map(Component.__arrayLengthMap);
   }
 
@@ -714,6 +719,23 @@ export class Component extends RnObject {
    */
   _destroy(): void {
     this._isAlive = false;
+    // const componentCountPerBufferView = Component.__componentCountPerBufferView.get(
+    //   this.constructor as typeof Component
+    // )!;
+    // const accessorsOfTheComponent = Component.__accessors.get(this.constructor as typeof Component);
+    // if (accessorsOfTheComponent != null) {
+    //   accessorsOfTheComponent.forEach(accessorsOfMember => {
+    //     accessorsOfMember.delete(Math.floor(this._component_sid / componentCountPerBufferView));
+    //   });
+    // }
+    // const byteOffsetOfAccessorInBufferOfMembers = Component.__byteOffsetOfAccessorInBufferOfMembers.get(
+    //   this.constructor as typeof Component
+    // );
+    // if (byteOffsetOfAccessorInBufferOfMembers != null) {
+    //   byteOffsetOfAccessorInBufferOfMembers.forEach(byteOffsetOfAccessorInBufferOfMember => {
+    //     byteOffsetOfAccessorInBufferOfMember.delete(Math.floor(this._component_sid / componentCountPerBufferView));
+    //   });
+    // }
   }
 
   /**

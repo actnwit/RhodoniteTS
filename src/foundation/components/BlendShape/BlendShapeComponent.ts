@@ -17,6 +17,8 @@ export class BlendShapeComponent extends Component {
   private __targetNames: string[] = [];
 
   private static __updateCount = 0;
+  // Keep weight lengths per componentSID so offsets stay consistent even if a slot becomes undefined
+  private static __weightsLengthBySid: number[] = [];
 
   /**
    * Creates a new BlendShapeComponent instance.
@@ -65,6 +67,7 @@ export class BlendShapeComponent extends Component {
    */
   set weights(weights: number[]) {
     this.__weights = weights;
+    BlendShapeComponent.__weightsLengthBySid[this.componentSID] = weights.length;
     BlendShapeComponent.__updateCount++;
   }
 
@@ -111,9 +114,12 @@ export class BlendShapeComponent extends Component {
     )[];
     const offsets: number[] = [0];
     for (let i = 0; i < blendShapeComponents.length; i++) {
-      offsets.push(
-        offsets[offsets.length - 1] + (blendShapeComponents[i] != null ? blendShapeComponents[i]!.weights.length : 0)
-      );
+      // Keep the original slot length even if the component was deleted (undefined) to avoid offset collapse
+      const len =
+        blendShapeComponents[i] != null
+          ? blendShapeComponents[i]!.weights.length
+          : (BlendShapeComponent.__weightsLengthBySid[i] ?? 0);
+      offsets.push(offsets[offsets.length - 1] + len);
     }
 
     return offsets;

@@ -135,6 +135,16 @@ export class Mesh implements IMesh {
   }
 
   /**
+   * Removes the association with a mesh component.
+   * @param meshComponent - The mesh component to remove
+   * @internal
+   */
+  _removeMeshComponent(meshComponent: MeshComponent) {
+    const entity = meshComponent.entity;
+    this.__belongToEntities = this.__belongToEntities.filter(belongToEntity => belongToEntity !== entity);
+  }
+
+  /**
    * Adds primitive.
    * @param primitive The primitive object.
    */
