@@ -760,7 +760,8 @@ export class SkeletalComponent extends Component {
   }
 
   private static __buildJointListKey(joints: SceneGraphComponent[]) {
-    return joints.map(joint => joint.entityUID).join(',');
+    // Prefer glTF node indices (jointIndex) so skins sharing the same node list map to the same key.
+    return joints.map(joint => (joint.jointIndex >= 0 ? joint.jointIndex : -1)).join(',');
   }
 
   private static __hashBytes(uint8Array: Uint8Array) {
@@ -815,7 +816,7 @@ export class SkeletalComponent extends Component {
 
     const accessorSignature = SkeletalComponent.__getAccessorSignature(this.__inverseBindMatricesAccessor);
     // const bindShapeSignature = SkeletalComponent.__getBindShapeSignature(this._bindShapeMatrix);
-    this.__skinCacheKey = `${this.__jointListKey}|${accessorSignature}`; //|${bindShapeSignature}`;
+    this.__skinCacheKey = `${this.__jointListKey}|${accessorSignature}${this.__entityUid}`; //|${bindShapeSignature}`;
   }
 
   private __createSkinningCache(updateCount: number): SkinningCache {
@@ -829,7 +830,7 @@ export class SkeletalComponent extends Component {
       boneQuaternion: this._boneQuaternion.isDummy() ? undefined : this._boneQuaternion._v,
       boneTranslateScale: this._boneTranslateScale.isDummy() ? undefined : this._boneTranslateScale._v,
       boneCompressedChunk: this._boneCompressedChunk.isDummy() ? undefined : this._boneCompressedChunk._v,
-      worldMatrix: this.__worldMatrix._v.slice(),
+      worldMatrix: this.__worldMatrix._v,
       isWorldMatrixVanilla: this.__isWorldMatrixVanilla,
       qtsInfo: hasQtsInfo
         ? [this.__qtsInfo._v[0], this.__qtsInfo._v[1], this.__qtsInfo._v[2], this.__qtsInfo._v[3]]
