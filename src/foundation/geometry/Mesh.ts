@@ -141,7 +141,7 @@ export class Mesh implements IMesh {
    */
   _removeMeshComponent(meshComponent: MeshComponent) {
     const entity = meshComponent.entity;
-    this.__belongToEntities = this.__belongToEntities.filter((belongToEntity) => belongToEntity !== entity);
+    this.__belongToEntities = this.__belongToEntities.filter(belongToEntity => belongToEntity !== entity);
   }
 
   /**

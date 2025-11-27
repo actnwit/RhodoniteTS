@@ -287,8 +287,6 @@ export class Component extends RnObject {
     const indexOfTheBufferView = Math.floor(componentSid / componentCountPerBufferView);
     const indexOfBufferViews = componentSid % componentCountPerBufferView;
     const accessorsOfMember = Component.__accessors.get(this.constructor as typeof Component)!.get(memberName)!;
-    const memberInfo = Component.__memberInfo.get(this.constructor as typeof Component)!.get(memberName)!;
-    const isArray = CompositionType.isArray(memberInfo.compositionType);
     let taken: TypedArray | undefined;
     if (isReUse) {
       taken = accessorsOfMember.get(indexOfTheBufferView)!._takeExistedOne(indexOfBufferViews);
@@ -326,8 +324,7 @@ export class Component extends RnObject {
     componentType: ComponentTypeEnum,
     indexOfTheBufferView: IndexOfTheBufferView,
     componentCountPerBufferView: Count,
-    arrayLength: Count,
-    componentSID: ComponentSID
+    arrayLength: Count
   ): Result<Accessor, undefined> {
     if (!this.__accessors.has(componentClass)) {
       this.__accessors.set(componentClass, new Map());
@@ -483,7 +480,7 @@ export class Component extends RnObject {
     // Do this only for the first entity of the component
     const indexOfTheBufferView = Math.floor(this._component_sid / componentCountPerBufferView);
     if (this._component_sid % componentCountPerBufferView === 0) {
-      getBufferViewsAndAccessors(indexOfTheBufferView, this._component_sid);
+      getBufferViewsAndAccessors(indexOfTheBufferView);
     }
 
     // take a field value allocation for each entity for each member field
@@ -500,7 +497,7 @@ export class Component extends RnObject {
 
     // inner function
 
-    function getBufferViewsAndAccessors(indexOfTheBufferView: IndexOfTheBufferView, componentSID: ComponentSID) {
+    function getBufferViewsAndAccessors(indexOfTheBufferView: IndexOfTheBufferView) {
       // for each member field, take a BufferView for all entities' the member field.
       // take a Accessor for all entities for each member fields (same as BufferView)
       memberInfoArray.forEach(info => {
@@ -513,8 +510,7 @@ export class Component extends RnObject {
           info.componentType,
           indexOfTheBufferView,
           componentCountPerBufferView,
-          arrayLength ?? 1,
-          componentSID
+          arrayLength ?? 1
         );
         if (accessorResult.isErr()) {
           throw new RnException(accessorResult.getRnError());
