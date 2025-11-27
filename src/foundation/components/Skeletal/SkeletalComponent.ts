@@ -72,6 +72,7 @@ export class SkeletalComponent extends Component {
   private static __bindShapeSignatureMap: WeakMap<Matrix44, string> = new WeakMap();
   private __jointListKey?: string;
   private __skinCacheKey?: string;
+  private __inverseBindMatricesSignature?: string;
   private static __tookGlobalDataNum = 0;
   private static __tmpVec3_0 = MutableVector3.zero();
   private static __tmp_mat4 = MutableMatrix44.identity();
@@ -105,6 +106,7 @@ export class SkeletalComponent extends Component {
       this.isSkinning = true;
       this.__jointListKey = undefined;
       this.__skinCacheKey = undefined;
+      this.__inverseBindMatricesSignature = undefined;
       return;
     }
 
@@ -171,6 +173,7 @@ export class SkeletalComponent extends Component {
    */
   setInverseBindMatricesAccessor(inverseBindMatricesAccessor: Accessor) {
     this.__inverseBindMatricesAccessor = inverseBindMatricesAccessor;
+    this.__inverseBindMatricesSignature = SkeletalComponent.__getAccessorSignature(inverseBindMatricesAccessor);
     this.__updateSkinCacheKey();
   }
 
@@ -588,6 +591,7 @@ export class SkeletalComponent extends Component {
     this.__qtsInfo.copyComponents(component.__qtsInfo);
     this.__worldMatrix.copyComponents(component.__worldMatrix);
     this.__isWorldMatrixVanilla = component.__isWorldMatrixVanilla;
+    this.__inverseBindMatricesSignature = component.__inverseBindMatricesSignature;
     this.__jointListKey = component.__jointListKey;
     this.__updateSkinCacheKey();
   }
@@ -783,14 +787,14 @@ export class SkeletalComponent extends Component {
     const typedArray = accessor.getTypedArray();
     const view = new Uint8Array(typedArray.buffer, typedArray.byteOffset, typedArray.byteLength);
     const hash = this.__hashBytes(view);
-    const signature = [
-      typedArray.byteLength,
-      hash.toString(16),
-      accessor.componentType.valueOf(),
-      accessor.compositionType.valueOf(),
-      accessor.byteStride,
-    ].join(':');
-
+    // const signature = [
+    // typedArray.byteLength,
+    // hash.toString(16),
+    // accessor.componentType.valueOf(),
+    // accessor.compositionType.valueOf(),
+    // accessor.byteStride,
+    // ].join(':');
+    const signature = hash.toString(16);
     this.__accessorSignatureCache.set(accessor, signature);
     return signature;
   }
@@ -822,9 +826,13 @@ export class SkeletalComponent extends Component {
       return;
     }
 
-    const accessorSignature = SkeletalComponent.__getAccessorSignature(this.__inverseBindMatricesAccessor);
-    // const bindShapeSignature = SkeletalComponent.__getBindShapeSignature(this._bindShapeMatrix);
-    this.__skinCacheKey = `${this.__jointListKey}|${accessorSignature}|${this.__getVrmComponentUid()}`; //|${bindShapeSignature}`;
+    if (!this.__inverseBindMatricesSignature) {
+      this.__inverseBindMatricesSignature = SkeletalComponent.__getAccessorSignature(
+        this.__inverseBindMatricesAccessor
+      );
+    }
+    const accessorSignature = this.__inverseBindMatricesSignature;
+    this.__skinCacheKey = `${this.__jointListKey}|${accessorSignature}|${this.__getVrmComponentUid()}`;
   }
 
   private __createSkinningCache(updateCount: number): SkinningCache {
@@ -852,18 +860,22 @@ export class SkeletalComponent extends Component {
 
     if (Config.boneDataType === BoneDataType.Mat43x1) {
       this._boneMatrix._v.set(cache.boneMatrix!);
+      return;
     }
     if (Config.boneDataType === BoneDataType.Vec4x2) {
       this._boneTranslatePackedQuat._v.set(cache.boneTranslatePackedQuat!);
       this._boneScalePackedQuat._v.set(cache.boneScalePackedQuat!);
+      return;
     }
     if (Config.boneDataType === BoneDataType.Vec4x2) {
       this._boneTranslatePackedQuat._v.set(cache.boneTranslatePackedQuat!);
       this._boneScalePackedQuat._v.set(cache.boneScalePackedQuat!);
+      return;
     }
     if (Config.boneDataType === BoneDataType.Vec4x2Old) {
       this._boneQuaternion._v.set(cache.boneQuaternion!);
       this._boneTranslateScale._v.set(cache.boneTranslateScale!);
+      return;
     }
     if (Config.boneDataType === BoneDataType.Vec4x1) {
       this._boneTranslateScale._v.set(cache.boneTranslateScale!);
