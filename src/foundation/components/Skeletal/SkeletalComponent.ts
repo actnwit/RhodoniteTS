@@ -857,29 +857,28 @@ export class SkeletalComponent extends Component {
   private __applySkinningCache(cache: SkinningCache) {
     this.__isWorldMatrixVanilla = cache.isWorldMatrixVanilla;
     this.__worldMatrix._v.set(cache.worldMatrix);
-
+    const jointCount = this.__joints.length;
     if (Config.boneDataType === BoneDataType.Mat43x1) {
-      this._boneMatrix._v.set(cache.boneMatrix!);
+      const dataCount = jointCount * 12;
+      this._boneMatrix._v.set(cache.boneMatrix!.subarray(0, dataCount));
       return;
     }
     if (Config.boneDataType === BoneDataType.Vec4x2) {
-      this._boneTranslatePackedQuat._v.set(cache.boneTranslatePackedQuat!);
-      this._boneScalePackedQuat._v.set(cache.boneScalePackedQuat!);
-      return;
-    }
-    if (Config.boneDataType === BoneDataType.Vec4x2) {
-      this._boneTranslatePackedQuat._v.set(cache.boneTranslatePackedQuat!);
-      this._boneScalePackedQuat._v.set(cache.boneScalePackedQuat!);
+      const dataCount = jointCount * 4;
+      this._boneTranslatePackedQuat._v.set(cache.boneTranslatePackedQuat!.subarray(0, dataCount));
+      this._boneScalePackedQuat._v.set(cache.boneScalePackedQuat!.subarray(0, dataCount));
       return;
     }
     if (Config.boneDataType === BoneDataType.Vec4x2Old) {
-      this._boneQuaternion._v.set(cache.boneQuaternion!);
-      this._boneTranslateScale._v.set(cache.boneTranslateScale!);
+      const dataCount = jointCount * 4;
+      this._boneQuaternion._v.set(cache.boneQuaternion!.subarray(0, dataCount));
+      this._boneTranslateScale._v.set(cache.boneTranslateScale!.subarray(0, dataCount));
       return;
     }
     if (Config.boneDataType === BoneDataType.Vec4x1) {
-      this._boneTranslateScale._v.set(cache.boneTranslateScale!);
-      this._boneCompressedChunk._v.set(cache.boneCompressedChunk!);
+      const dataCount = jointCount * 4;
+      this._boneTranslateScale._v.set(cache.boneTranslateScale!.subarray(0, dataCount));
+      this._boneCompressedChunk._v.set(cache.boneCompressedChunk!.subarray(0, dataCount));
     }
 
     if (cache.qtsInfo) {
