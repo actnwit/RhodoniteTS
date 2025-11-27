@@ -17,6 +17,12 @@ export class BlendShapeComponent extends Component {
   private __targetNames: string[] = [];
 
   private static __updateCount = 0;
+  private static __weightsLengthBySid: number[] = [];
+
+  /** keeps latest weight length even if component slot becomes undefined */
+  private static __rememberLength(componentSid: ComponentSID, length: number) {
+    BlendShapeComponent.__weightsLengthBySid[componentSid] = length;
+  }
 
   /**
    * Creates a new BlendShapeComponent instance.
@@ -65,6 +71,7 @@ export class BlendShapeComponent extends Component {
    */
   set weights(weights: number[]) {
     this.__weights = weights;
+    BlendShapeComponent.__rememberLength(this.componentSID, weights.length);
     BlendShapeComponent.__updateCount++;
   }
 
@@ -101,6 +108,7 @@ export class BlendShapeComponent extends Component {
    */
   setWeightByIndex(index: Index, weight: number) {
     this.__weights[index] = weight;
+    BlendShapeComponent.__rememberLength(this.componentSID, this.__weights.length);
     BlendShapeComponent.__updateCount++;
   }
 
@@ -111,12 +119,32 @@ export class BlendShapeComponent extends Component {
     )[];
     const offsets: number[] = [0];
     for (let i = 0; i < blendShapeComponents.length; i++) {
-      offsets.push(
-        offsets[offsets.length - 1] + (blendShapeComponents[i] != null ? blendShapeComponents[i]!.weights.length : 0)
-      );
+      const len =
+        blendShapeComponents[i] != null
+          ? blendShapeComponents[i]!.weights.length
+          : BlendShapeComponent.__weightsLengthBySid[i] ?? 0;
+      offsets.push(offsets[offsets.length - 1] + len);
     }
 
     return offsets;
+  }
+
+  /**
+   * Zeroes out the weights region for the specified componentSID when the component is absent.
+   * @internal
+   */
+  static _zeroWeightsForSid(
+    componentSid: ComponentSID,
+    offsets: Offset[],
+    uniformArray: Float32Array | undefined
+  ): Float32Array | undefined {
+    const len = BlendShapeComponent.__weightsLengthBySid[componentSid] ?? 0;
+    const start = offsets[componentSid];
+    if (uniformArray == null || len === 0) {
+      return uniformArray;
+    }
+    uniformArray.fill(0, start, start + len);
+    return uniformArray;
   }
 
   static getCountOfBlendShapeComponents() {
