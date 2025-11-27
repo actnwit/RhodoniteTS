@@ -50,7 +50,6 @@ export class SkeletalComponent extends Component {
   private _boneCompressedChunk = VectorN.dummy();
   private __worldMatrix = MutableMatrix44.identity();
   private __isWorldMatrixVanilla = true;
-  private __jointCapacity = 0;
   _isCulled = false;
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tookGlobalDataNum = 0;
@@ -75,8 +74,6 @@ export class SkeletalComponent extends Component {
     if (isReUse) {
       // Reset bone data buffers when reusing component to prevent display corruption
       this.__resetBoneDataBuffers();
-      // Reset joint capacity to force proper reallocation
-      this.__jointCapacity = 0;
       // Reset world matrix to initial state
       this.__worldMatrix = MutableMatrix44.identity();
       this.__isWorldMatrixVanilla = true;
@@ -169,16 +166,12 @@ export class SkeletalComponent extends Component {
     }
 
     const jointCount = joints.length;
-    const needsNewAllocation = jointCount > this.__jointCapacity;
+    this.__registerBoneDataMembers(jointCount);
 
-    if (needsNewAllocation) {
-      this.__registerBoneDataMembers(jointCount);
-      this.__jointCapacity = jointCount;
-    }
-
-    const shouldReuseAllocation = this.__reUseCount > 0;
-    const skeletalComponentCountPerBufferView = 1; // Since the number of bone data varies per component, skeletalComponentCountPerBufferView must be fixed to 1 to maintain data consistency.
-    this.submitToAllocation(skeletalComponentCountPerBufferView, shouldReuseAllocation);
+    // Check if this component is being reused to determine allocation strategy
+    const isComponentReused = this.__reUseCount > 0;
+    const skeletalComponentCountPerBufferView = 2; // Since the number of bone data varies per component, skeletalComponentCountPerBufferView must be fixed to 1 to maintain data consistency.
+    this.submitToAllocation(skeletalComponentCountPerBufferView, isComponentReused);
     console.count('SkeletalComponent.setJoints - FINAL TEST');
   }
 
@@ -538,19 +531,10 @@ export class SkeletalComponent extends Component {
     this._jointIndices = component._jointIndices.concat();
 
     if (component.__joints.length > 0) {
-      // Always reset capacity to ensure proper reallocation
-      this.__jointCapacity = 0;
-
-      // Properly initialize by calling setJoints to ensure all buffers are correctly allocated
-      console.log('_shallowCopyFrom calling setJoints for proper initialization, entity:', this.__entityUid);
       this.setJoints(component.__joints.concat());
       this.__copyBoneBuffersFrom(component);
-
-      // Mark that joints will need remapping to new entities later
-      console.log('_shallowCopyFrom set remapping flag, entity:', this.__entityUid);
     } else {
       this.__joints = [];
-      this.__jointCapacity = 0;
     }
 
     this.__inverseBindMatricesAccessor = component.__inverseBindMatricesAccessor;
