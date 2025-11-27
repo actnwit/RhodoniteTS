@@ -182,22 +182,44 @@ export class EntityRepository {
    */
   private static __setJoints(entity: IEntity) {
     const newEntity = EntityRepository.getEntity(entity._myLatestCopyEntityUID);
+    if (Is.not.exist(newEntity)) {
+      return;
+    }
+
     const skeletalComponentOfNew = newEntity.getComponentByComponentTID(
       WellKnownComponentTIDs.SkeletalComponentTID
     ) as SkeletalComponent;
     const skeletalComponentOfOriginal = entity.getComponentByComponentTID(
       WellKnownComponentTIDs.SkeletalComponentTID
     ) as SkeletalComponent;
+
     if (Is.exist(skeletalComponentOfNew) && Is.exist(skeletalComponentOfOriginal)) {
       const jointsOriginal = skeletalComponentOfOriginal.getJoints();
-      if (jointsOriginal.length > 0 && (skeletalComponentOfNew as any).__jointsRemappingRequired) {
-        const jointsNew = jointsOriginal.map(joint => {
-          return EntityRepository.getEntity(joint.entity._myLatestCopyEntityUID).tryToGetSceneGraph()!;
-        });
-        console.log('__setJoints: lightweight joint update for entity:', newEntity.entityUID);
-        // Use lightweight update that only changes joint references without reinitializing buffers
-        (skeletalComponentOfNew as any).updateJointsLightweight(jointsNew);
-        (skeletalComponentOfNew as any).__jointsRemappingRequired = false;
+      if (jointsOriginal.length > 0) {
+        // Remap every original joint to the corresponding shallow-copied joint entity
+        const remappedJoints: SceneGraphComponent[] = [];
+
+        for (const joint of jointsOriginal) {
+          const copiedJointEntity = EntityRepository.getEntity(joint.entity._myLatestCopyEntityUID);
+          const copiedJointSceneGraph = copiedJointEntity?.tryToGetSceneGraph();
+          if (Is.exist(copiedJointSceneGraph)) {
+            remappedJoints.push(copiedJointSceneGraph);
+          }
+        }
+
+        if (remappedJoints.length === jointsOriginal.length) {
+          skeletalComponentOfNew.updateJointsLightweight(remappedJoints);
+        }
+
+        // Also remap the root of the joint hierarchy to the copied entity
+        const originalTop = skeletalComponentOfOriginal.topOfJointsHierarchy;
+        if (Is.exist(originalTop)) {
+          const copiedTopEntity = EntityRepository.getEntity(originalTop.entity._myLatestCopyEntityUID);
+          const copiedTopSceneGraph = copiedTopEntity?.tryToGetSceneGraph();
+          if (Is.exist(copiedTopSceneGraph)) {
+            skeletalComponentOfNew.topOfJointsHierarchy = copiedTopSceneGraph;
+          }
+        }
       }
     }
 
