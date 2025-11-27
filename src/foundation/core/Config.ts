@@ -105,7 +105,7 @@ export const Config = {
 
 export function setUpAsMemoryBoostMode() {
   Config.bufferSizeDivisionRatiosForGPUInstanceDataUsage = [1 / 4, 1 / 4, 1 / 4, 1 / 4];
-  Config.skeletalComponentCountPerBufferView = 400;
+  Config.skeletalComponentCountPerBufferView = 1000;
   Config.scenegraphComponentCountPerBufferView = 40000;
   Config.materialCountPerBufferView = 30;
 }
