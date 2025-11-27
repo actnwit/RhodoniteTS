@@ -68,9 +68,8 @@ export class SkeletalComponent extends Component {
   _isCulled = false;
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __skinCalculationCache: Map<string, SkinningCache> = new Map();
-  private static __accessorIdMap: WeakMap<Accessor, number> = new WeakMap();
+  private static __accessorSignatureCache: WeakMap<Accessor, string> = new WeakMap();
   private static __bindShapeSignatureMap: WeakMap<Matrix44, string> = new WeakMap();
-  private static __accessorIdSeed = 0;
   private __jointListKey?: string;
   private __skinCacheKey?: string;
   private static __tookGlobalDataNum = 0;
@@ -764,14 +763,35 @@ export class SkeletalComponent extends Component {
     return joints.map(joint => joint.entityUID).join(',');
   }
 
-  private static __getAccessorId(accessor: Accessor) {
-    const existing = this.__accessorIdMap.get(accessor);
-    if (existing !== undefined) {
-      return existing;
+  private static __hashBytes(uint8Array: Uint8Array) {
+    let hash = 0x811c9dc5;
+    for (let i = 0; i < uint8Array.length; i++) {
+      hash ^= uint8Array[i];
+      hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
+      hash >>>= 0;
     }
-    const newId = ++this.__accessorIdSeed;
-    this.__accessorIdMap.set(accessor, newId);
-    return newId;
+    return hash >>> 0;
+  }
+
+  private static __getAccessorSignature(accessor: Accessor) {
+    const cached = this.__accessorSignatureCache.get(accessor);
+    if (cached !== undefined) {
+      return cached;
+    }
+
+    const typedArray = accessor.getTypedArray();
+    const view = new Uint8Array(typedArray.buffer, typedArray.byteOffset, typedArray.byteLength);
+    const hash = this.__hashBytes(view);
+    const signature = [
+      typedArray.byteLength,
+      hash.toString(16),
+      accessor.componentType.valueOf(),
+      accessor.compositionType.valueOf(),
+      accessor.byteStride,
+    ].join(':');
+
+    this.__accessorSignatureCache.set(accessor, signature);
+    return signature;
   }
 
   private static __getBindShapeSignature(bindShapeMatrix?: Matrix44) {
@@ -793,9 +813,9 @@ export class SkeletalComponent extends Component {
       return;
     }
 
-    const accessorId = SkeletalComponent.__getAccessorId(this.__inverseBindMatricesAccessor);
+    const accessorSignature = SkeletalComponent.__getAccessorSignature(this.__inverseBindMatricesAccessor);
     const bindShapeSignature = SkeletalComponent.__getBindShapeSignature(this._bindShapeMatrix);
-    this.__skinCacheKey = `${this.__jointListKey}|${accessorId}|${bindShapeSignature}|${Config.boneDataType}`;
+    this.__skinCacheKey = `${this.__jointListKey}|${accessorSignature}|${bindShapeSignature}|${Config.boneDataType}`;
   }
 
   private __createSkinningCache(updateCount: number): SkinningCache {
