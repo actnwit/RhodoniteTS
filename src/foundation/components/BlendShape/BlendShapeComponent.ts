@@ -129,24 +129,6 @@ export class BlendShapeComponent extends Component {
     return offsets;
   }
 
-  /**
-   * Zeroes out the weights region for the specified componentSID when the component is absent.
-   * @internal
-   */
-  static _zeroWeightsForSid(
-    componentSid: ComponentSID,
-    offsets: Offset[],
-    uniformArray: Float32Array | undefined
-  ): Float32Array | undefined {
-    const len = BlendShapeComponent.__weightsLengthBySid[componentSid] ?? 0;
-    const start = offsets[componentSid];
-    if (uniformArray == null || len === 0) {
-      return uniformArray;
-    }
-    uniformArray.fill(0, start, start + len);
-    return uniformArray;
-  }
-
   static getCountOfBlendShapeComponents() {
     return ComponentRepository.getComponentsWithType(BlendShapeComponent).length;
   }

@@ -1058,17 +1058,9 @@ ${indexStr}
     )[];
     for (let i = 0; i < blendShapeComponents.length; i++) {
       const blendShapeComponent = blendShapeComponents[i];
-      const weights = blendShapeComponent != null ? blendShapeComponent!.weights : undefined;
-      if (weights != null) {
-        for (let j = 0; j < weights.length; j++) {
-          this.__uniformMorphWeightsTypedArray![blendShapeUniformDataOffsets[i] + j] = weights[j];
-        }
-      } else {
-        this.__uniformMorphWeightsTypedArray = BlendShapeComponent._zeroWeightsForSid(
-          i,
-          blendShapeUniformDataOffsets,
-          this.__uniformMorphWeightsTypedArray!
-        )!;
+      const weights = blendShapeComponent != null ? blendShapeComponent!.weights : [];
+      for (let j = 0; j < weights.length; j++) {
+        this.__uniformMorphWeightsTypedArray![blendShapeUniformDataOffsets[i] + j] = weights[j];
       }
     }
     if (blendShapeComponents.length > 0) {
