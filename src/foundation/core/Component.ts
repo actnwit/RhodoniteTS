@@ -458,9 +458,11 @@ export class Component extends RnObject {
       if (!Component.__arrayLengthMap.has(this)) {
         Component.__arrayLengthMap.set(this, new Map());
       }
-      const arrayLengthMap = Component.__arrayLengthMap.get(this);
-      if (!arrayLengthMap!.has(memberName)) {
-        arrayLengthMap!.set(memberName, arrayLength);
+      const arrayLengthMap = Component.__arrayLengthMap.get(this)!;
+      const currentLength = arrayLengthMap.get(memberName);
+      if (currentLength == null || arrayLength > currentLength) {
+        // Keep the maximum requested length so dynamically sized components (e.g. SkeletalComponent) allocate enough space
+        arrayLengthMap.set(memberName, arrayLength);
       }
     }
   }
