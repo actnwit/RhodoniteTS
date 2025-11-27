@@ -814,8 +814,8 @@ export class SkeletalComponent extends Component {
     }
 
     const accessorSignature = SkeletalComponent.__getAccessorSignature(this.__inverseBindMatricesAccessor);
-    const bindShapeSignature = SkeletalComponent.__getBindShapeSignature(this._bindShapeMatrix);
-    this.__skinCacheKey = `${this.__jointListKey}|${accessorSignature}|${bindShapeSignature}|${Config.boneDataType}`;
+    // const bindShapeSignature = SkeletalComponent.__getBindShapeSignature(this._bindShapeMatrix);
+    this.__skinCacheKey = `${this.__jointListKey}|${accessorSignature}`; //|${bindShapeSignature}`;
   }
 
   private __createSkinningCache(updateCount: number): SkinningCache {
@@ -841,23 +841,24 @@ export class SkeletalComponent extends Component {
     this.__isWorldMatrixVanilla = cache.isWorldMatrixVanilla;
     this.__worldMatrix._v.set(cache.worldMatrix);
 
-    if (cache.boneMatrix && !this._boneMatrix.isDummy()) {
-      this._boneMatrix._v.set(cache.boneMatrix);
+    if (Config.boneDataType === BoneDataType.Mat43x1) {
+      this._boneMatrix._v.set(cache.boneMatrix!);
     }
-    if (cache.boneTranslatePackedQuat && !this._boneTranslatePackedQuat.isDummy()) {
-      this._boneTranslatePackedQuat._v.set(cache.boneTranslatePackedQuat);
+    if (Config.boneDataType === BoneDataType.Vec4x2) {
+      this._boneTranslatePackedQuat._v.set(cache.boneTranslatePackedQuat!);
+      this._boneScalePackedQuat._v.set(cache.boneScalePackedQuat!);
     }
-    if (cache.boneScalePackedQuat && !this._boneScalePackedQuat.isDummy()) {
-      this._boneScalePackedQuat._v.set(cache.boneScalePackedQuat);
+    if (Config.boneDataType === BoneDataType.Vec4x2) {
+      this._boneTranslatePackedQuat._v.set(cache.boneTranslatePackedQuat!);
+      this._boneScalePackedQuat._v.set(cache.boneScalePackedQuat!);
     }
-    if (cache.boneQuaternion && !this._boneQuaternion.isDummy()) {
-      this._boneQuaternion._v.set(cache.boneQuaternion);
+    if (Config.boneDataType === BoneDataType.Vec4x2Old) {
+      this._boneQuaternion._v.set(cache.boneQuaternion!);
+      this._boneTranslateScale._v.set(cache.boneTranslateScale!);
     }
-    if (cache.boneTranslateScale && !this._boneTranslateScale.isDummy()) {
-      this._boneTranslateScale._v.set(cache.boneTranslateScale);
-    }
-    if (cache.boneCompressedChunk && !this._boneCompressedChunk.isDummy()) {
-      this._boneCompressedChunk._v.set(cache.boneCompressedChunk);
+    if (Config.boneDataType === BoneDataType.Vec4x1) {
+      this._boneTranslateScale._v.set(cache.boneTranslateScale!);
+      this._boneCompressedChunk._v.set(cache.boneCompressedChunk!);
     }
 
     if (cache.qtsInfo) {
