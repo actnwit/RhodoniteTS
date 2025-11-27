@@ -1,4 +1,4 @@
-import type { ComponentSID, ComponentTID, EntityUID, Index } from '../../../types/CommonTypes';
+import type { ComponentSID, ComponentTID, EntityUID, Index, TypedArray } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
 import { Config } from '../../core/Config';
 import type { IEntity } from '../../core/Entity';
@@ -26,7 +26,22 @@ import { Logger } from '../../misc/Logger';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import type { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import { createGroupEntity } from '../SceneGraph/createGroupEntity';
+import { TransformComponent } from '../Transform/TransformComponent';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
+
+type SkinningCache = {
+  updateCount: number;
+  jointMatrices?: number[];
+  boneMatrix?: TypedArray;
+  boneTranslatePackedQuat?: TypedArray;
+  boneScalePackedQuat?: TypedArray;
+  boneQuaternion?: TypedArray;
+  boneTranslateScale?: TypedArray;
+  boneCompressedChunk?: TypedArray;
+  worldMatrix: Float32Array;
+  isWorldMatrixVanilla: boolean;
+  qtsInfo?: [number, number, number, number];
+};
 
 /**
  * SkeletalComponent manages skeletal animation for entities.
@@ -52,6 +67,12 @@ export class SkeletalComponent extends Component {
   private __isWorldMatrixVanilla = true;
   _isCulled = false;
   private static __globalDataRepository = GlobalDataRepository.getInstance();
+  private static __skinCalculationCache: Map<string, SkinningCache> = new Map();
+  private static __accessorIdMap: WeakMap<Accessor, number> = new WeakMap();
+  private static __bindShapeSignatureMap: WeakMap<Matrix44, string> = new WeakMap();
+  private static __accessorIdSeed = 0;
+  private __jointListKey?: string;
+  private __skinCacheKey?: string;
   private static __tookGlobalDataNum = 0;
   private static __tmpVec3_0 = MutableVector3.zero();
   private static __tmp_mat4 = MutableMatrix44.identity();
@@ -83,6 +104,8 @@ export class SkeletalComponent extends Component {
       this.topOfJointsHierarchy = undefined;
       this._bindShapeMatrix = undefined;
       this.isSkinning = true;
+      this.__jointListKey = undefined;
+      this.__skinCacheKey = undefined;
       return;
     }
 
@@ -149,6 +172,7 @@ export class SkeletalComponent extends Component {
    */
   setInverseBindMatricesAccessor(inverseBindMatricesAccessor: Accessor) {
     this.__inverseBindMatricesAccessor = inverseBindMatricesAccessor;
+    this.__updateSkinCacheKey();
   }
 
   /**
@@ -159,6 +183,8 @@ export class SkeletalComponent extends Component {
    */
   setJoints(joints: SceneGraphComponent[]) {
     this.__joints = joints;
+    this.__jointListKey = SkeletalComponent.__buildJointListKey(joints);
+    this.__updateSkinCacheKey();
     this.__resetBoneDataBuffers();
 
     if (Config.boneDataType === BoneDataType.Vec4x1) {
@@ -181,6 +207,8 @@ export class SkeletalComponent extends Component {
    */
   updateJointsLightweight(joints: SceneGraphComponent[]) {
     this.__joints = joints;
+    this.__jointListKey = SkeletalComponent.__buildJointListKey(joints);
+    this.__updateSkinCacheKey();
     console.count('SkeletalComponent.updateJointsLightweight - FINAL TEST');
   }
 
@@ -334,6 +362,17 @@ export class SkeletalComponent extends Component {
       return;
     }
 
+    this.__updateSkinCacheKey();
+    const cacheKey = this.__skinCacheKey;
+    const currentUpdateCount = TransformComponent.updateCount;
+    if (cacheKey) {
+      const cache = SkeletalComponent.__skinCalculationCache.get(cacheKey);
+      if (cache?.updateCount === currentUpdateCount) {
+        this.__applySkinningCache(cache);
+        return;
+      }
+    }
+
     for (let i = 0; i < this.__joints.length; i++) {
       const joint = this.__joints[i];
       const globalJointTransform = joint.matrixInner;
@@ -479,6 +518,10 @@ export class SkeletalComponent extends Component {
         this._boneCompressedChunk.setAt(i * 4 + 3, vec2TPacked[1]);
       }
     }
+
+    if (cacheKey) {
+      SkeletalComponent.__skinCalculationCache.set(cacheKey, this.__createSkinningCache(currentUpdateCount));
+    }
   }
 
   /**
@@ -546,6 +589,8 @@ export class SkeletalComponent extends Component {
     this.__qtsInfo.copyComponents(component.__qtsInfo);
     this.__worldMatrix.copyComponents(component.__worldMatrix);
     this.__isWorldMatrixVanilla = component.__isWorldMatrixVanilla;
+    this.__jointListKey = component.__jointListKey;
+    this.__updateSkinCacheKey();
   }
 
   /**
@@ -712,6 +757,91 @@ export class SkeletalComponent extends Component {
         componentSID: this.componentSID,
         initValues: new VectorN(new Float32Array(0)),
       });
+    }
+  }
+
+  private static __buildJointListKey(joints: SceneGraphComponent[]) {
+    return joints.map(joint => joint.entityUID).join(',');
+  }
+
+  private static __getAccessorId(accessor: Accessor) {
+    const existing = this.__accessorIdMap.get(accessor);
+    if (existing !== undefined) {
+      return existing;
+    }
+    const newId = ++this.__accessorIdSeed;
+    this.__accessorIdMap.set(accessor, newId);
+    return newId;
+  }
+
+  private static __getBindShapeSignature(bindShapeMatrix?: Matrix44) {
+    if (!bindShapeMatrix) {
+      return 'no_bind_shape';
+    }
+    const cached = this.__bindShapeSignatureMap.get(bindShapeMatrix);
+    if (cached !== undefined) {
+      return cached;
+    }
+    const signature = Array.from(bindShapeMatrix._v).join(',');
+    this.__bindShapeSignatureMap.set(bindShapeMatrix, signature);
+    return signature;
+  }
+
+  private __updateSkinCacheKey() {
+    if (!this.__jointListKey || !this.__inverseBindMatricesAccessor) {
+      this.__skinCacheKey = undefined;
+      return;
+    }
+
+    const accessorId = SkeletalComponent.__getAccessorId(this.__inverseBindMatricesAccessor);
+    const bindShapeSignature = SkeletalComponent.__getBindShapeSignature(this._bindShapeMatrix);
+    this.__skinCacheKey = `${this.__jointListKey}|${accessorId}|${bindShapeSignature}|${Config.boneDataType}`;
+  }
+
+  private __createSkinningCache(updateCount: number): SkinningCache {
+    const hasQtsInfo = this.__qtsInfo != null && this.__qtsInfo._v.length >= 4;
+    return {
+      updateCount,
+      jointMatrices: this.__jointMatrices,
+      boneMatrix: this._boneMatrix.isDummy() ? undefined : this._boneMatrix._v,
+      boneTranslatePackedQuat: this._boneTranslatePackedQuat.isDummy() ? undefined : this._boneTranslatePackedQuat._v,
+      boneScalePackedQuat: this._boneScalePackedQuat.isDummy() ? undefined : this._boneScalePackedQuat._v,
+      boneQuaternion: this._boneQuaternion.isDummy() ? undefined : this._boneQuaternion._v,
+      boneTranslateScale: this._boneTranslateScale.isDummy() ? undefined : this._boneTranslateScale._v,
+      boneCompressedChunk: this._boneCompressedChunk.isDummy() ? undefined : this._boneCompressedChunk._v,
+      worldMatrix: this.__worldMatrix._v.slice(),
+      isWorldMatrixVanilla: this.__isWorldMatrixVanilla,
+      qtsInfo: hasQtsInfo
+        ? [this.__qtsInfo._v[0], this.__qtsInfo._v[1], this.__qtsInfo._v[2], this.__qtsInfo._v[3]]
+        : undefined,
+    };
+  }
+
+  private __applySkinningCache(cache: SkinningCache) {
+    this.__isWorldMatrixVanilla = cache.isWorldMatrixVanilla;
+    this.__worldMatrix._v.set(cache.worldMatrix);
+
+    if (cache.boneMatrix && !this._boneMatrix.isDummy()) {
+      this._boneMatrix._v.set(cache.boneMatrix);
+    }
+    if (cache.boneTranslatePackedQuat && !this._boneTranslatePackedQuat.isDummy()) {
+      this._boneTranslatePackedQuat._v.set(cache.boneTranslatePackedQuat);
+    }
+    if (cache.boneScalePackedQuat && !this._boneScalePackedQuat.isDummy()) {
+      this._boneScalePackedQuat._v.set(cache.boneScalePackedQuat);
+    }
+    if (cache.boneQuaternion && !this._boneQuaternion.isDummy()) {
+      this._boneQuaternion._v.set(cache.boneQuaternion);
+    }
+    if (cache.boneTranslateScale && !this._boneTranslateScale.isDummy()) {
+      this._boneTranslateScale._v.set(cache.boneTranslateScale);
+    }
+    if (cache.boneCompressedChunk && !this._boneCompressedChunk.isDummy()) {
+      this._boneCompressedChunk._v.set(cache.boneCompressedChunk);
+    }
+
+    if (cache.qtsInfo) {
+      this.__qtsInfo.setComponents(cache.qtsInfo[0], cache.qtsInfo[1], cache.qtsInfo[2], cache.qtsInfo[3]);
     }
   }
 }
