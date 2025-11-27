@@ -15,6 +15,7 @@ import {
   type ComponentTID,
   type EntityUID,
   type Index,
+  type Second,
   VectorComponentN,
 } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
@@ -34,6 +35,7 @@ import { MutableQuaternion } from '../../math/MutableQuaternion';
 import { MutableVector3 } from '../../math/MutableVector3';
 import type { Quaternion } from '../../math/Quaternion';
 import type { Vector3 } from '../../math/Vector3';
+import { DataUtil } from '../../misc/DataUtil';
 import { Is } from '../../misc/Is';
 import { valueWithCompensation, valueWithDefault } from '../../misc/MiscUtil';
 import { type EventHandler, EventPubSub } from '../../system/EventPubSub';
@@ -47,6 +49,14 @@ import { __interpolate } from './AnimationOps';
 const ChangeAnimationInfo = Symbol('AnimationComponentEventChangeAnimationInfo');
 const PlayEnd = Symbol('AnimationComponentEventPlayEnd');
 
+type AnimationTrackFeature = {
+  trackName: AnimationTrackName;
+  pathNames: Set<AnimationPathName>;
+  minStartInputTime: Second;
+  maxEndInputTime: Second;
+  totalKeyframes: number;
+};
+
 /**
  * A component that manages animation data and applies animation transformations to entities.
  * This component handles various types of animations including transform, blend shape, material,
@@ -59,6 +69,7 @@ export class AnimationComponent extends Component {
 
   // Animation Data of each AnimationComponent
   private __animationTrack: AnimationTrack = new Map();
+  private __animationTrackFeatureHashes: Map<AnimationTrackName, number> = new Map();
   public static __animationGlobalInfo: Map<AnimationTrackName, AnimationInfo> = new Map();
 
   private __isEffekseerState = -1;
@@ -413,6 +424,7 @@ export class AnimationComponent extends Component {
     }
     // backup the current transform as rest pose
     this.entity.getTransform()._backupTransformAsRest();
+    this.__updateAnimationTrackFeatureHashes();
   }
 
   /**
@@ -810,6 +822,7 @@ export class AnimationComponent extends Component {
     const component = component_ as AnimationComponent;
 
     this.__animationTrack = new Map(component.__animationTrack);
+    this.__animationTrackFeatureHashes = new Map(component.__animationTrackFeatureHashes);
     this.__isEffekseerState = component.__isEffekseerState;
     this.__isAnimating = component.__isAnimating;
   }
@@ -950,6 +963,10 @@ export class AnimationComponent extends Component {
     }
   }
 
+  currentTrackFeatureHash(): number | undefined {
+    return this.__animationTrackFeatureHashes.get(this.getActiveAnimationTrack());
+  }
+
   /**
    * Destroys this component, cleaning up resources and clearing animation data.
    * @override
@@ -957,6 +974,61 @@ export class AnimationComponent extends Component {
   _destroy(): void {
     super._destroy();
     this.__animationTrack.clear();
+    this.__animationTrackFeatureHashes.clear();
     this.__isAnimating = false;
+  }
+
+  private __updateAnimationTrackFeatureHashes() {
+    const featureMap: Map<AnimationTrackName, AnimationTrackFeature> = new Map();
+
+    for (const [pathName, channel] of this.__animationTrack) {
+      for (const trackName of channel.animatedValue.getAllTrackNames()) {
+        const sampler = channel.animatedValue.getAnimationSampler(trackName);
+        let feature = featureMap.get(trackName);
+        if (Is.not.exist(feature)) {
+          feature = {
+            trackName,
+            pathNames: new Set<AnimationPathName>(),
+            minStartInputTime: Number.POSITIVE_INFINITY,
+            maxEndInputTime: Number.NEGATIVE_INFINITY,
+            totalKeyframes: 0,
+          };
+          featureMap.set(trackName, feature);
+        }
+
+        feature.pathNames.add(pathName);
+        if (sampler.input.length > 0) {
+          feature.minStartInputTime = Math.min(feature.minStartInputTime, sampler.input[0]);
+          feature.maxEndInputTime = Math.max(feature.maxEndInputTime, sampler.input[sampler.input.length - 1]);
+          feature.totalKeyframes += sampler.input.length;
+        }
+      }
+    }
+
+    for (const [, feature] of featureMap) {
+      if (!Number.isFinite(feature.minStartInputTime)) {
+        feature.minStartInputTime = 0;
+      }
+      if (!Number.isFinite(feature.maxEndInputTime)) {
+        feature.maxEndInputTime = 0;
+      }
+    }
+
+    const hashMap: Map<AnimationTrackName, number> = new Map();
+    const sortedTrackNames = Array.from(featureMap.keys()).sort();
+    for (const trackName of sortedTrackNames) {
+      const feature = featureMap.get(trackName)!;
+      const serialized = [
+        trackName,
+        Array.from(feature.pathNames).sort().join(','),
+        feature.minStartInputTime,
+        feature.maxEndInputTime,
+        feature.totalKeyframes,
+      ].join('|');
+      const hash = DataUtil.toCRC32(serialized);
+      hashMap.set(trackName, hash);
+    }
+
+    this.__animationTrackFeatureHashes = hashMap;
   }
 }

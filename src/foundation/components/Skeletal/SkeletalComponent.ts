@@ -11,7 +11,7 @@ import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import { ShaderSemantics } from '../../definitions/ShaderSemantics';
 import { ShaderType } from '../../definitions/ShaderType';
-import type { ISkeletalEntity } from '../../helpers/EntityHelper';
+import type { ISceneGraphEntity, ISkeletalEntity } from '../../helpers/EntityHelper';
 import type { IMatrix44 } from '../../math/IMatrix';
 import { MathUtil } from '../../math/MathUtil';
 import { Matrix44 } from '../../math/Matrix44';
@@ -77,7 +77,8 @@ export class SkeletalComponent extends Component {
   private static __tmpVec3_0 = MutableVector3.zero();
   private static __tmp_mat4 = MutableMatrix44.identity();
   private static __tmp_q: MutableQuaternion = MutableQuaternion.fromCopy4(0, 0, 0, 1);
-  private static __identityMat = MutableMatrix44.identity();
+  private static __tmp_mat4_2 = MutableMatrix44.identity();
+  private static __tmp_mat4_3 = MutableMatrix44.identity();
 
   /**
    * Creates a new SkeletalComponent instance.
@@ -375,20 +376,25 @@ export class SkeletalComponent extends Component {
       }
     }
 
+    const inverseGlobalTransform = MutableMatrix44.invertTo(this.entity.matrixInner, SkeletalComponent.__tmp_mat4_2);
     for (let i = 0; i < this.__joints.length; i++) {
       const joint = this.__joints[i];
       const globalJointTransform = joint.matrixInner;
 
-      MutableMatrix44.multiplyTypedArrayTo(
-        globalJointTransform,
-        this.__inverseBindMatricesAccessor!.getTypedArray(),
-        SkeletalComponent.__tmp_mat4,
-        i
+      const jointMatrix = MutableMatrix44.multiplyTo(
+        inverseGlobalTransform,
+        MutableMatrix44.multiplyTypedArrayTo(
+          globalJointTransform,
+          this.__inverseBindMatricesAccessor!.getTypedArray(),
+          SkeletalComponent.__tmp_mat4,
+          i
+        ),
+        SkeletalComponent.__tmp_mat4_3
       );
       if (this._bindShapeMatrix) {
         SkeletalComponent.__tmp_mat4.multiply(this._bindShapeMatrix); // only for glTF1
       }
-      const m = SkeletalComponent.__tmp_mat4;
+      const m = jointMatrix;
 
       if (i === 0 && joint.entity.tryToGetAnimation() != null) {
         this.__worldMatrix.copyComponents(m);
@@ -820,6 +826,29 @@ export class SkeletalComponent extends Component {
     return -1;
   }
 
+  private __getAnimationTrackFeatureHash(): number | undefined {
+    if (this.entity.parent == null) {
+      return undefined;
+    }
+    return this.__findAnimationTrackFeatureHash(this.entity.parent.entity);
+  }
+
+  private __findAnimationTrackFeatureHash(target: ISceneGraphEntity): number | undefined {
+    const hash = target.tryToGetAnimation()?.currentTrackFeatureHash();
+    if (hash != null) {
+      return hash;
+    }
+
+    for (const child of target.children) {
+      const childHash = this.__findAnimationTrackFeatureHash(child.entity);
+      if (childHash != null) {
+        return childHash;
+      }
+    }
+
+    return undefined;
+  }
+
   private __updateSkinCacheKey() {
     if (!this.__jointListKey || !this.__inverseBindMatricesAccessor) {
       this.__skinCacheKey = undefined;
@@ -832,7 +861,8 @@ export class SkeletalComponent extends Component {
       );
     }
     const accessorSignature = this.__inverseBindMatricesSignature;
-    this.__skinCacheKey = `${this.__jointListKey}|${accessorSignature}|${this.__getVrmComponentUid()}`;
+    const animationTrackFeatureHash = this.__getAnimationTrackFeatureHash();
+    this.__skinCacheKey = `${this.__jointListKey}|${accessorSignature}|${animationTrackFeatureHash?.toString() ?? 'no_animation_hash'}`;
   }
 
   private __createSkinningCache(updateCount: number): SkinningCache {

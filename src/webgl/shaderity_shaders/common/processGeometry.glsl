@@ -167,6 +167,7 @@ bool skinning(
   in float skeletalComponentSID,
   in uvec4 joint,
   in vec4 weight,
+  in mat4 worldMatrix,
   in mat3 inNormalMatrix,
   out mat3 outNormalMatrix,
   in vec3 inPosition_inLocal,
@@ -176,8 +177,8 @@ bool skinning(
   )
 {
   mat4 skinMat = getSkinMatrix(skeletalComponentSID, joint, weight);
-  outPosition_inWorld = skinMat * vec4(inPosition_inLocal, 1.0);
-  outNormalMatrix = toNormalMatrix(skinMat);
+  outPosition_inWorld = worldMatrix * skinMat * vec4(inPosition_inLocal, 1.0);
+  outNormalMatrix = toNormalMatrix(worldMatrix * skinMat);
   outNormal_inWorld = normalize(outNormalMatrix * inNormal_inLocal);
 
   return true;
@@ -228,7 +229,7 @@ bool processGeometry(
     float skeletalComponentSID = float(get_skinningMode(0.0, 0));
   #endif
   if (skeletalComponentSID >= 0.0) {
-    isSkinning = skinning(skeletalComponentSID, joint, weight, inNormalMatrix, outNormalMatrix, position_inLocal, outPosition_inWorld, inNormal_inLocal, outNormal_inWorld);
+    isSkinning = skinning(skeletalComponentSID, joint, weight, worldMatrixInner, inNormalMatrix, outNormalMatrix, position_inLocal, outPosition_inWorld, inNormal_inLocal, outNormal_inWorld);
   } else {
 #endif
     outNormalMatrix = inNormalMatrix;

@@ -203,6 +203,7 @@ struct GeometryOutput {
 #ifdef RN_IS_SKINNING
 fn skinning(
   skeletalComponentSID: u32,
+  worldMatrix: mat4x4<f32>,
   inNormalMatrix: mat3x3<f32>,
   inPosition_inLocal: vec3<f32>,
   inNormal_inLocal: vec3<f32>,
@@ -212,8 +213,8 @@ fn skinning(
 {
   var output: GeometryOutput;
   let skinMat = getSkinMatrix(skeletalComponentSID, joint, weight);
-  output.position_inWorld = skinMat * vec4<f32>(inPosition_inLocal, 1.0);
-  output.normalMatrix = toNormalMatrix(skinMat);
+  output.position_inWorld = worldMatrix * skinMat * vec4<f32>(inPosition_inLocal, 1.0);
+  output.normalMatrix = toNormalMatrix(worldMatrix * skinMat);
   output.normal_inWorld = normalize(output.normalMatrix * inNormal_inLocal);
   output.isSkinning = true;
 
@@ -262,7 +263,7 @@ fn processGeometry(
 #ifdef RN_IS_SKINNING
   let skeletalComponentSID = i32(a_instanceIds.y);
   if (skeletalComponentSID >= 0) {
-    output = skinning(u32(skeletalComponentSID), inNormalMatrix, position_inLocal, inNormal_inLocal, joint, weight);
+    output = skinning(u32(skeletalComponentSID), worldMatrixInner, inNormalMatrix, position_inLocal, inNormal_inLocal, joint, weight);
   } else {
 #endif
     output.normalMatrix = inNormalMatrix;
