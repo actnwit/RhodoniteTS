@@ -340,9 +340,17 @@ export class Component extends RnObject {
       accessors = new Map();
       accessorsOfMember.set(memberName, accessors);
     }
-    const isArray = CompositionType.isArray(compositionType);
-    // if (!accessorsOfMember.has(memberName) || !accessors.has(indexOfTheBufferView)) {
     const bytes = calcAlignedByteLength();
+    const existingAccessor = accessors.get(indexOfTheBufferView);
+    const accessorIsCompatible =
+      existingAccessor != null &&
+      existingAccessor.elementCount === componentCountPerBufferView &&
+      existingAccessor.byteStride === bytes &&
+      existingAccessor.compositionType === compositionType &&
+      existingAccessor.componentType === componentType;
+    if (accessorIsCompatible) {
+      return new Ok(existingAccessor);
+    }
 
     let bufferViewResult: Result<BufferView, { 'Buffer.byteLength': Byte; 'Buffer.takenSizeInByte': Byte }>;
     let requireBufferLayerIndex = 0;
@@ -376,7 +384,6 @@ export class Component extends RnObject {
     Component.__stateVersion++;
 
     return accessorResult;
-    // }
 
     function calcAlignedByteLength() {
       const compositionNumber = compositionType.getNumberOfComponents();
@@ -391,8 +398,6 @@ export class Component extends RnObject {
       }
       return alignedByteLength;
     }
-
-    // return new Ok(accessors.get(indexOfTheBufferView)!);
   }
 
   /**
@@ -525,8 +530,6 @@ export class Component extends RnObject {
             .get(componentClass)!
             .set(info.memberName, byteOffsetOfAccessorInBufferOfMember);
         }
-        const isArray = CompositionType.isArray(info.compositionType);
-
         const accessor = accessorResult.get();
         const byteOffsetOfExistingBuffers = MemoryManager.getInstance().getByteOffsetOfExistingBuffers(
           info.bufferUse,
