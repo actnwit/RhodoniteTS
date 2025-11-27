@@ -55,6 +55,7 @@ type IndexOfTheBufferView = number;
 export class Component extends RnObject {
   private _component_sid: number;
   _isAlive = true;
+  protected __reUseCount = 0;
   protected __currentProcessStage: ProcessStageEnum = ProcessStage.Load;
   private static __accessors: Map<
     typeof Component,
@@ -102,7 +103,7 @@ export class Component extends RnObject {
    * @param entityRepository - The instance of the EntityRepository class (Dependency Injection)
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, _isReUse: boolean) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
     super();
 
     this.__entityUid = entityUid;
@@ -110,6 +111,10 @@ export class Component extends RnObject {
 
     this.__memoryManager = MemoryManager.getInstance();
     this.__entityRepository = entityRepository;
+
+    if (isReUse) {
+      this.__reUseCount++;
+    }
   }
 
   /**
@@ -336,42 +341,42 @@ export class Component extends RnObject {
       accessorsOfMember.set(memberName, accessors);
     }
     const isArray = CompositionType.isArray(compositionType);
-    if (!accessorsOfMember.has(memberName) || !accessors.has(indexOfTheBufferView)) {
-      const bytes = calcAlignedByteLength();
+    // if (!accessorsOfMember.has(memberName) || !accessors.has(indexOfTheBufferView)) {
+    const bytes = calcAlignedByteLength();
 
-      let bufferViewResult: Result<BufferView, { 'Buffer.byteLength': Byte; 'Buffer.takenSizeInByte': Byte }>;
-      let requireBufferLayerIndex = 0;
-      do {
-        const buffer = MemoryManager.getInstance().createOrGetBuffer(bufferUse, requireBufferLayerIndex);
-        bufferViewResult = buffer.takeBufferView({
-          byteLengthToNeed: bytes * componentCountPerBufferView,
-          byteStride: 0,
-        });
-        if (bufferViewResult.isErr()) {
-          requireBufferLayerIndex++;
-        }
-      } while (bufferViewResult.isErr());
-
-      const accessorResult = bufferViewResult.get().takeAccessor({
-        compositionType,
-        componentType,
-        count: componentCountPerBufferView,
-        byteStride: bytes,
-        arrayLength: arrayLength,
+    let bufferViewResult: Result<BufferView, { 'Buffer.byteLength': Byte; 'Buffer.takenSizeInByte': Byte }>;
+    let requireBufferLayerIndex = 0;
+    do {
+      const buffer = MemoryManager.getInstance().createOrGetBuffer(bufferUse, requireBufferLayerIndex);
+      bufferViewResult = buffer.takeBufferView({
+        byteLengthToNeed: bytes * componentCountPerBufferView,
+        byteStride: 0,
       });
-      if (accessorResult.isErr()) {
-        return new Err({
-          message: `Failed to take accessor: ${accessorResult.getRnError().message}`,
-          error: undefined,
-        });
+      if (bufferViewResult.isErr()) {
+        requireBufferLayerIndex++;
       }
+    } while (bufferViewResult.isErr());
 
-      accessors.set(indexOfTheBufferView, accessorResult.get());
-
-      Component.__stateVersion++;
-
-      return accessorResult;
+    const accessorResult = bufferViewResult.get().takeAccessor({
+      compositionType,
+      componentType,
+      count: componentCountPerBufferView,
+      byteStride: bytes,
+      arrayLength: arrayLength,
+    });
+    if (accessorResult.isErr()) {
+      return new Err({
+        message: `Failed to take accessor: ${accessorResult.getRnError().message}`,
+        error: undefined,
+      });
     }
+
+    accessors.set(indexOfTheBufferView, accessorResult.get());
+
+    Component.__stateVersion++;
+
+    return accessorResult;
+    // }
 
     function calcAlignedByteLength() {
       const compositionNumber = compositionType.getNumberOfComponents();
@@ -387,7 +392,7 @@ export class Component extends RnObject {
       return alignedByteLength;
     }
 
-    return new Ok(accessors.get(indexOfTheBufferView)!);
+    // return new Ok(accessors.get(indexOfTheBufferView)!);
   }
 
   /**
@@ -528,7 +533,7 @@ export class Component extends RnObject {
           accessor.bufferView.buffer.indexOfTheBufferUsage
         );
         const byteOffset = byteOffsetOfExistingBuffers + accessor.byteOffsetInBuffer;
-        byteOffsetOfAccessorInBufferOfMember.set(isArray ? componentSID : indexOfTheBufferView, byteOffset);
+        byteOffsetOfAccessorInBufferOfMember.set(indexOfTheBufferView, byteOffset);
       });
     }
   }
@@ -713,6 +718,23 @@ export class Component extends RnObject {
    */
   _destroy(): void {
     this._isAlive = false;
+    // const componentCountPerBufferView = Component.__componentCountPerBufferView.get(
+    //   this.constructor as typeof Component
+    // )!;
+    // const accessorsOfTheComponent = Component.__accessors.get(this.constructor as typeof Component);
+    // if (accessorsOfTheComponent != null) {
+    //   accessorsOfTheComponent.forEach(accessorsOfMember => {
+    //     accessorsOfMember.delete(Math.floor(this._component_sid / componentCountPerBufferView));
+    //   });
+    // }
+    // const byteOffsetOfAccessorInBufferOfMembers = Component.__byteOffsetOfAccessorInBufferOfMembers.get(
+    //   this.constructor as typeof Component
+    // );
+    // if (byteOffsetOfAccessorInBufferOfMembers != null) {
+    //   byteOffsetOfAccessorInBufferOfMembers.forEach(byteOffsetOfAccessorInBufferOfMember => {
+    //     byteOffsetOfAccessorInBufferOfMember.delete(Math.floor(this._component_sid / componentCountPerBufferView));
+    //   });
+    // }
   }
 
   /**
