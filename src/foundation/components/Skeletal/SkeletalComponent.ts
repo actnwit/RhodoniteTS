@@ -38,7 +38,7 @@ type SkinningCache = {
   boneQuaternion?: TypedArray;
   boneTranslateScale?: TypedArray;
   boneCompressedChunk?: TypedArray;
-  worldMatrix: Float32Array;
+  jointMatrix: Float32Array;
   isWorldMatrixVanilla: boolean;
   qtsInfo?: [number, number, number, number];
 };
@@ -63,7 +63,7 @@ export class SkeletalComponent extends Component {
   private _boneQuaternion = VectorN.dummy();
   private _boneTranslateScale = VectorN.dummy();
   private _boneCompressedChunk = VectorN.dummy();
-  private __worldMatrix = MutableMatrix44.identity();
+  private __jointMatrix = MutableMatrix44.identity();
   private __isWorldMatrixVanilla = true;
   _isCulled = false;
   private static __globalDataRepository = GlobalDataRepository.getInstance();
@@ -79,6 +79,7 @@ export class SkeletalComponent extends Component {
   private static __tmp_q: MutableQuaternion = MutableQuaternion.fromCopy4(0, 0, 0, 1);
   private static __tmp_mat4_2 = MutableMatrix44.identity();
   private static __tmp_mat4_3 = MutableMatrix44.identity();
+  private static __tmp_mat4_4 = MutableMatrix44.identity();
 
   /**
    * Creates a new SkeletalComponent instance.
@@ -97,7 +98,7 @@ export class SkeletalComponent extends Component {
       // Reset bone data buffers when reusing component to prevent display corruption
       this.__resetBoneDataBuffers();
       // Reset world matrix to initial state
-      this.__worldMatrix = MutableMatrix44.identity();
+      this.__jointMatrix = MutableMatrix44.identity();
       this.__isWorldMatrixVanilla = true;
       // Clear joint-related state
       this.__joints = [];
@@ -311,7 +312,7 @@ export class SkeletalComponent extends Component {
    * @returns A cloned copy of the world matrix
    */
   get worldMatrix() {
-    return this.__worldMatrix.clone();
+    return this.__jointMatrix.clone();
   }
 
   /**
@@ -320,7 +321,7 @@ export class SkeletalComponent extends Component {
    * @returns The internal world matrix
    */
   get worldMatrixInner() {
-    return this.__worldMatrix;
+    return MutableMatrix44.multiplyTo(this.entity.matrixInner, this.__jointMatrix, SkeletalComponent.__tmp_mat4_4);
   }
 
   /**
@@ -397,11 +398,11 @@ export class SkeletalComponent extends Component {
       const m = jointMatrix;
 
       if (i === 0 && joint.entity.tryToGetAnimation() != null) {
-        this.__worldMatrix.copyComponents(m);
+        this.__jointMatrix.copyComponents(m);
       }
       if (i === 1 && this.__joints[0].entity.tryToGetAnimation() == null) {
         // if the first joint has no animation (e.g. Root joint), expect the second joint to have a significant matrix
-        this.__worldMatrix.copyComponents(m);
+        this.__jointMatrix.copyComponents(m);
       }
 
       this.__isWorldMatrixVanilla = false;
@@ -595,7 +596,7 @@ export class SkeletalComponent extends Component {
     this.topOfJointsHierarchy = component.topOfJointsHierarchy;
     this.isSkinning = component.isSkinning;
     this.__qtsInfo.copyComponents(component.__qtsInfo);
-    this.__worldMatrix.copyComponents(component.__worldMatrix);
+    this.__jointMatrix.copyComponents(component.__jointMatrix);
     this.__isWorldMatrixVanilla = component.__isWorldMatrixVanilla;
     this.__inverseBindMatricesSignature = component.__inverseBindMatricesSignature;
     this.__jointListKey = component.__jointListKey;
@@ -818,14 +819,6 @@ export class SkeletalComponent extends Component {
     return signature;
   }
 
-  private __getVrmComponentUid() {
-    const vrm = this.entity.parent?.entity.tryToGetVrm();
-    if (vrm != null) {
-      return vrm.entityUID;
-    }
-    return -1;
-  }
-
   private __getAnimationTrackFeatureHash(): number | undefined {
     if (this.entity.parent == null) {
       return undefined;
@@ -876,7 +869,7 @@ export class SkeletalComponent extends Component {
       boneQuaternion: this._boneQuaternion.isDummy() ? undefined : this._boneQuaternion._v,
       boneTranslateScale: this._boneTranslateScale.isDummy() ? undefined : this._boneTranslateScale._v,
       boneCompressedChunk: this._boneCompressedChunk.isDummy() ? undefined : this._boneCompressedChunk._v,
-      worldMatrix: this.__worldMatrix._v,
+      jointMatrix: this.__jointMatrix._v,
       isWorldMatrixVanilla: this.__isWorldMatrixVanilla,
       qtsInfo: hasQtsInfo
         ? [this.__qtsInfo._v[0], this.__qtsInfo._v[1], this.__qtsInfo._v[2], this.__qtsInfo._v[3]]
@@ -886,7 +879,7 @@ export class SkeletalComponent extends Component {
 
   private __applySkinningCache(cache: SkinningCache) {
     this.__isWorldMatrixVanilla = cache.isWorldMatrixVanilla;
-    this.__worldMatrix._v.set(cache.worldMatrix);
+    this.__jointMatrix._v.set(cache.jointMatrix);
     const jointCount = this.__joints.length;
     if (Config.boneDataType === BoneDataType.Mat43x1) {
       const dataCount = jointCount * 12;
