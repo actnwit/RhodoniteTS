@@ -383,7 +383,7 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
    * @returns The count of taken elements
    */
   get takenCount(): Count {
-    return this.takenCount;
+    return this.__takenCount;
   }
 
   /**
