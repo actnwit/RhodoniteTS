@@ -9,6 +9,9 @@ import { MiscUtil } from '../misc';
 /**　The number of scenegraph components per buffer view */
 let scenegraphComponentCountPerBufferView = 10;
 
+/**　The number of skeletal components per buffer view */
+let skeletalComponentCountPerBufferView = 1;
+
 /**　The number of camera components per buffer view */
 let cameraComponentCountPerBufferView = 1;
 
@@ -17,6 +20,9 @@ let lightComponentCountPerBufferView = 1;
 
 /**　The maximum number of lights that Rhodonite can handle */
 let maxLightNumber = 6;
+
+/**　The maximum number of bones that Rhodonite can handle for Memory Boost Mode */
+let maxBoneNumberForMemoryBoostMode = 500;
 
 /**
  * The number of materials per buffer view
@@ -50,18 +56,25 @@ let physicsTimeIntervalScale = 1;
 /**　Whether the device is a mobile device */
 let isMobile = false;
 
+/** The buffer size division ratios for GPU instance data usage */
+let bufferSizeDivisionRatiosForGPUInstanceDataUsage = [1 / 32, 5 / 32, 6 / 32, 12 / 32];
+
 /**
  * Config is a configuration object that contains the configuration for the library.
  */
 export const Config = {
   /**　The number of scenegraph components per buffer view */
   scenegraphComponentCountPerBufferView,
+  /**　The number of skeletal components per buffer view */
+  skeletalComponentCountPerBufferView,
   /**　The number of camera components per buffer view */
   cameraComponentCountPerBufferView,
   /**　The number of light components per buffer view */
   lightComponentCountPerBufferView,
   /**　The maximum number of lights that Rhodonite can handle */
   maxLightNumber,
+  /**　The maximum number of bones that Rhodonite can handle for Memory Boost Mode */
+  maxBoneNumberForMemoryBoostMode,
   /**
    * Number of instances of each material type to be placed consecutively in memory.
    * This is on the memory layout, and the number of material instances that can be generated is not limited by this setting.
@@ -86,4 +99,13 @@ export const Config = {
   physicsTimeIntervalScale,
   /**　Whether the device is a mobile device */
   isMobile,
+  /** The buffer size division ratios for GPU instance data usage */
+  bufferSizeDivisionRatiosForGPUInstanceDataUsage,
 };
+
+export function setUpAsMemoryBoostMode() {
+  Config.bufferSizeDivisionRatiosForGPUInstanceDataUsage = [1 / 4, 1 / 4, 1 / 4, 1 / 4];
+  Config.skeletalComponentCountPerBufferView = 400;
+  Config.scenegraphComponentCountPerBufferView = 40000;
+  Config.materialCountPerBufferView = 30;
+}

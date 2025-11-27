@@ -55,7 +55,7 @@ type IndexOfTheBufferView = number;
 export class Component extends RnObject {
   private _component_sid: number;
   _isAlive = true;
-  protected __reUseCount = 0;
+  protected __isReUse = false;
   protected __currentProcessStage: ProcessStageEnum = ProcessStage.Load;
   private static __accessors: Map<
     typeof Component,
@@ -113,7 +113,7 @@ export class Component extends RnObject {
     this.__entityRepository = entityRepository;
 
     if (isReUse) {
-      this.__reUseCount++;
+      this.__isReUse = true;
     }
   }
 

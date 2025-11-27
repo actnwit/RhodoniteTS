@@ -165,13 +165,13 @@ export class SkeletalComponent extends Component {
       this.__qtsInfo = SkeletalComponent.__globalDataRepository.getValue('boneCompressedInfo', 0);
     }
 
-    const jointCount = joints.length;
+    const jointCount =
+      Config.skeletalComponentCountPerBufferView === 1 ? joints.length : Config.maxBoneNumberForMemoryBoostMode;
     this.__registerBoneDataMembers(jointCount);
 
     // Check if this component is being reused to determine allocation strategy
-    const isComponentReused = this.__reUseCount > 0;
-    const skeletalComponentCountPerBufferView = 2; // Since the number of bone data varies per component, skeletalComponentCountPerBufferView must be fixed to 1 to maintain data consistency.
-    this.submitToAllocation(skeletalComponentCountPerBufferView, isComponentReused);
+    const isComponentReused = this.__isReUse;
+    this.submitToAllocation(Config.skeletalComponentCountPerBufferView, isComponentReused);
     console.count('SkeletalComponent.setJoints - FINAL TEST');
   }
 
