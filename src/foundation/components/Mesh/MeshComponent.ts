@@ -343,11 +343,15 @@ export class MeshComponent extends Component {
 
   /**
    * Destroys the component and cleans up resources.
+   * Properly releases GPU resources to prevent memory leaks and display corruption.
    * @protected
    */
   _destroy(): void {
     super._destroy();
     if (this.__mesh) {
+      // Delete GPU vertex data (VBO, VAO, skeletal attributes) before releasing reference
+      this.__mesh.delete3DAPIVertexData();
+      this.__mesh.deleteVAO();
       this.__mesh = undefined;
     }
   }
