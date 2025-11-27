@@ -808,6 +808,14 @@ export class SkeletalComponent extends Component {
     return signature;
   }
 
+  private __getVrmComponentUid() {
+    const vrm = this.entity.parent?.entity.tryToGetVrm();
+    if (vrm != null) {
+      return vrm.entityUID;
+    }
+    return -1;
+  }
+
   private __updateSkinCacheKey() {
     if (!this.__jointListKey || !this.__inverseBindMatricesAccessor) {
       this.__skinCacheKey = undefined;
@@ -816,7 +824,7 @@ export class SkeletalComponent extends Component {
 
     const accessorSignature = SkeletalComponent.__getAccessorSignature(this.__inverseBindMatricesAccessor);
     // const bindShapeSignature = SkeletalComponent.__getBindShapeSignature(this._bindShapeMatrix);
-    this.__skinCacheKey = `${this.__jointListKey}|${accessorSignature}${this.__entityUid}`; //|${bindShapeSignature}`;
+    this.__skinCacheKey = `${this.__jointListKey}|${accessorSignature}|${this.__getVrmComponentUid()}`; //|${bindShapeSignature}`;
   }
 
   private __createSkinningCache(updateCount: number): SkinningCache {
