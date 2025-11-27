@@ -73,6 +73,19 @@ export class SkeletalComponent extends Component {
     this.moveStageTo(ProcessStage.Logic);
 
     if (isReUse) {
+      // Reset bone data buffers when reusing component to prevent display corruption
+      this.__resetBoneDataBuffers();
+      // Reset joint capacity to force proper reallocation
+      this.__jointCapacity = 0;
+      // Reset world matrix to initial state
+      this.__worldMatrix = MutableMatrix44.identity();
+      this.__isWorldMatrixVanilla = true;
+      // Clear joint-related state
+      this.__joints = [];
+      this.__jointMatrices = undefined;
+      this.topOfJointsHierarchy = undefined;
+      this._bindShapeMatrix = undefined;
+      this.isSkinning = true;
       return;
     }
 
@@ -81,8 +94,30 @@ export class SkeletalComponent extends Component {
 
   /**
    * Resets GPU-bound vector fields so they can be re-bound on reuse.
+   * Clears any existing data to prevent contamination from previous models.
    */
   private __resetBoneDataBuffers() {
+    // Clear existing data if present before resetting to dummy
+    if (!this._boneMatrix.isDummy()) {
+      this._boneMatrix._v.fill(0);
+    }
+    if (!this._boneTranslatePackedQuat.isDummy()) {
+      this._boneTranslatePackedQuat._v.fill(0);
+    }
+    if (!this._boneScalePackedQuat.isDummy()) {
+      this._boneScalePackedQuat._v.fill(0);
+    }
+    if (!this._boneQuaternion.isDummy()) {
+      this._boneQuaternion._v.fill(0);
+    }
+    if (!this._boneTranslateScale.isDummy()) {
+      this._boneTranslateScale._v.fill(0);
+    }
+    if (!this._boneCompressedChunk.isDummy()) {
+      this._boneCompressedChunk._v.fill(0);
+    }
+
+    // Reset to dummy objects for re-binding
     this._boneMatrix = VectorN.dummy();
     this._boneTranslatePackedQuat = VectorN.dummy();
     this._boneScalePackedQuat = VectorN.dummy();
@@ -503,6 +538,9 @@ export class SkeletalComponent extends Component {
     this._jointIndices = component._jointIndices.concat();
 
     if (component.__joints.length > 0) {
+      // Always reset capacity to ensure proper reallocation
+      this.__jointCapacity = 0;
+
       // Properly initialize by calling setJoints to ensure all buffers are correctly allocated
       console.log('_shallowCopyFrom calling setJoints for proper initialization, entity:', this.__entityUid);
       this.setJoints(component.__joints.concat());
