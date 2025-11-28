@@ -110,43 +110,38 @@ export class AnimationComponent extends Component {
 
   /**
    * Component logic lifecycle method. Applies animation if animation is enabled.
-   * For VRM models with identical skinning structure and animation features,
-   * early return if SkeletalComponent's skinning cache will hit for this animation.
+   *
+   * ## Early Return Optimization for VRM Models with Shared Skeleton
+   *
+   * When multiple VRM models share the same skeleton (joint entities), animation
+   * calculations only need to be performed once per frame. This optimization works
+   * by checking if the SkeletalComponent's skinning cache will be used for this entity.
+   *
+   * The optimization flow:
+   * 1. SkeletalComponent tracks which joint EntityUIDs had skinning cache hits
+   * 2. Joints belonging to "leader" SkeletalComponents (those that compute skinning)
+   *    are excluded from this tracking
+   * 3. AnimationComponent checks if its entity is in the cached list
+   * 4. If cached, early return skips animation calculation (skinning result will be reused)
+   *
+   * This significantly reduces CPU overhead when many VRM models share the same skeleton.
    */
-  private static __loggedFrameCount = 0;
-  private static __lastLogTime = -1;
-  private static __frameAnimCount = 0;
-  private static __frameEarlyReturnCount = 0;
-
   $logic() {
+    // Skip if animation is globally or locally disabled
     if (!AnimationComponent.isAnimating || !this.isAnimating) {
       return;
     }
 
-    // Debug logging - count per frame
-    const isNewFrame = AnimationComponent.__lastLogTime !== AnimationComponent.globalTime;
-    if (isNewFrame) {
-      if (AnimationComponent.__loggedFrameCount > 0 && AnimationComponent.__loggedFrameCount <= 5) {
-        console.log(
-          `[AnimationComponent] Frame ${AnimationComponent.__loggedFrameCount} summary: total=${AnimationComponent.__frameAnimCount}, earlyReturn=${AnimationComponent.__frameEarlyReturnCount}`
-        );
-      }
-      AnimationComponent.__lastLogTime = AnimationComponent.globalTime;
-      AnimationComponent.__loggedFrameCount++;
-      AnimationComponent.__frameAnimCount = 0;
-      AnimationComponent.__frameEarlyReturnCount = 0;
-    }
-    AnimationComponent.__frameAnimCount++;
-
-    // Check if this entity's SkeletalComponent had a skinning cache hit in the previous frame
-    // If so, we can skip animation calculation as the cached skinning data will be reused
-    const isCached = SkeletalComponent.isEntityCached(this.__entityUid);
-    if (isCached) {
-      AnimationComponent.__frameEarlyReturnCount++;
-      // Early return: SkeletalComponent will use cached skinning data
+    // Early return optimization: Check if this entity's SkeletalComponent had a
+    // skinning cache hit in the previous frame. If so, we can skip animation
+    // calculation because the cached skinning data will be reused.
+    // Note: Leader joints (those that compute the original skinning) are excluded
+    // from caching to ensure at least one animation source continues to update.
+    if (SkeletalComponent.isEntityCached(this.__entityUid)) {
       return;
     }
 
+    // Apply animation calculations (update joint transforms)
     this.__applyAnimation();
   }
 

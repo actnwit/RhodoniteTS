@@ -72,16 +72,52 @@ export class SkeletalComponent extends Component {
   private static __accessorSignatureCache: WeakMap<Accessor, string> = new WeakMap();
   private static __bindShapeSignatureMap: WeakMap<Matrix44, string> = new WeakMap();
 
-  // Track entity UIDs of joints whose SkeletalComponent had skinning cache hits
-  // Used by AnimationComponent to determine if early return is possible
-  // We use previous frame's data because AnimationComponent.$logic runs before SkeletalComponent.$logic
+  // ============================================================================
+  // AnimationComponent Early Return Optimization
+  // ============================================================================
+  // These static members enable AnimationComponent to skip animation calculations
+  // for joints whose skinning results are cached. This significantly improves
+  // performance when multiple VRM models share the same skeleton (joint entities).
+  //
+  // The optimization uses a "leader/follower" pattern:
+  // - Leaders: SkeletalComponents that compute skinning (cache miss)
+  // - Followers: SkeletalComponents that reuse cached skinning (cache hit)
+  // Only follower joints can skip animation; leader joints must continue animating.
+  // ============================================================================
+
+  /**
+   * Joint EntityUIDs that can skip animation in the CURRENT frame.
+   * Populated during SkeletalComponent.$logic when cache hits occur.
+   * Excludes leader joints to ensure animation continues for at least one source.
+   */
   private static __currentFrameCachedEntityUIDs: Set<EntityUID> = new Set();
+
+  /**
+   * Joint EntityUIDs that can skip animation - from the PREVIOUS frame.
+   * AnimationComponent checks this set because it runs before SkeletalComponent.
+   * Swapped from __currentFrameCachedEntityUIDs at each frame transition.
+   */
   private static __previousFrameCachedEntityUIDs: Set<EntityUID> = new Set();
+
+  /**
+   * Tracks the last frame's global time to detect frame transitions.
+   * Used to trigger the swap of current/previous cached EntityUIDs.
+   */
   private static __lastCacheFrameGlobalTime = -1;
-  // Track the "leader" SkeletalComponent for each cache key (the one that computes skinning, not uses cache)
-  // Leader's joints should not be registered for early return, as they need to continue animating
+
+  /**
+   * Maps each cache key to the EntityUID of its "leader" SkeletalComponent.
+   * The leader is the first SkeletalComponent to compute skinning for a given cache key.
+   * Used to identify which SkeletalComponent owns the cached skinning result.
+   */
   private static __cacheLeaders: Map<string, EntityUID> = new Map();
-  // Track the joint EntityUIDs of leaders - these should never be registered for early return
+
+  /**
+   * Set of joint EntityUIDs belonging to leader SkeletalComponents.
+   * These joints are "protected" - they will never be added to __currentFrameCachedEntityUIDs.
+   * This ensures that at least one set of AnimationComponents continues to animate,
+   * providing the animation data source for all followers.
+   */
   private static __leaderJointEntityUIDs: Set<EntityUID> = new Set();
   private __jointListKey?: string;
   private __skinCacheKey?: string;
@@ -373,91 +409,83 @@ export class SkeletalComponent extends Component {
    * Performs the logic update for skeletal animation.
    * Calculates joint transformations and updates bone data arrays based on the configured bone data type.
    * This method is called during the Logic processing stage.
+   *
+   * ## Skinning Cache and AnimationComponent Early Return Optimization
+   *
+   * This method implements a two-level optimization for VRM models with shared skeleton:
+   *
+   * ### Level 1: Skinning Cache (existing feature)
+   * SkeletalComponents with the same joint structure and animation state share skinning results.
+   * The first SkeletalComponent ("leader") computes skinning, others reuse the cached result.
+   *
+   * ### Level 2: AnimationComponent Early Return (new feature)
+   * When skinning cache hits, we track the joint EntityUIDs. In the next frame,
+   * AnimationComponent can early return for these joints, skipping animation calculations.
+   *
+   * Key concepts:
+   * - **Leader**: The SkeletalComponent that computes skinning (cache miss)
+   * - **Follower**: SkeletalComponents that reuse skinning cache (cache hit)
+   * - **Leader Joints**: Joints belonging to leaders - these MUST continue animating
+   * - **Cached Entity UIDs**: Follower joints that can skip animation in the next frame
+   *
+   * The leader's joints are protected (__leaderJointEntityUIDs) to ensure animation continues.
+   * Only follower joints are registered for early return (__currentFrameCachedEntityUIDs).
    */
-  private static __skeletalLoggedFrameCount = 0;
-  private static __skeletalLastLogTime = -1;
-  private static __frameCacheHitCount = 0;
-  private static __frameCacheMissCount = 0;
-  private static __frameRegisteredEntityCount = 0;
-
   $logic() {
+    // Skip if skinning is disabled or entity is culled
     if (!this.isSkinning || this._isCulled) {
       return;
     }
 
-    // Swap cached entity UIDs when global time changes (new frame)
-    // Previous frame's cache hits become available for AnimationComponent's early return
+    // --- Frame Transition: Swap cached entity UIDs ---
+    // When a new frame starts, move current frame's cached UIDs to previous frame.
+    // AnimationComponent uses previous frame's data because it runs before SkeletalComponent.
     const currentGlobalTime = AnimationComponent.globalTime;
-    const isNewFrame = SkeletalComponent.__lastCacheFrameGlobalTime !== currentGlobalTime;
-    if (isNewFrame) {
-      // Log previous frame summary
-      if (SkeletalComponent.__skeletalLoggedFrameCount > 0 && SkeletalComponent.__skeletalLoggedFrameCount <= 5) {
-        console.log(
-          `[SkeletalComponent] Frame ${SkeletalComponent.__skeletalLoggedFrameCount} summary: cacheHit=${SkeletalComponent.__frameCacheHitCount}, cacheMiss=${SkeletalComponent.__frameCacheMissCount}, registeredEntities=${SkeletalComponent.__frameRegisteredEntityCount}, previousUIDsSize=${SkeletalComponent.__currentFrameCachedEntityUIDs.size}`
-        );
-      }
-      SkeletalComponent.__skeletalLastLogTime = AnimationComponent.globalTime;
-      SkeletalComponent.__skeletalLoggedFrameCount++;
-      SkeletalComponent.__frameCacheHitCount = 0;
-      SkeletalComponent.__frameCacheMissCount = 0;
-      SkeletalComponent.__frameRegisteredEntityCount = 0;
-
+    if (SkeletalComponent.__lastCacheFrameGlobalTime !== currentGlobalTime) {
       SkeletalComponent.__previousFrameCachedEntityUIDs = SkeletalComponent.__currentFrameCachedEntityUIDs;
       SkeletalComponent.__currentFrameCachedEntityUIDs = new Set();
       SkeletalComponent.__lastCacheFrameGlobalTime = currentGlobalTime;
     }
 
+    // --- Skinning Cache Lookup ---
     this.__updateSkinCacheKey();
     const cacheKey = this.__skinCacheKey;
     const currentUpdateCount = TransformComponent.updateCount;
 
-    // Debug: log unique cache keys and leader info (first 3 frames)
-    const shouldLogDebug = SkeletalComponent.__skeletalLoggedFrameCount <= 3;
-
     if (cacheKey) {
       const cache = SkeletalComponent.__skinCalculationCache.get(cacheKey);
-      if (cache?.updateCount === currentUpdateCount) {
-        // Check if this SkeletalComponent is the leader for this cache key
-        // Leaders should not register their joints, as they need to continue animating
-        const leaderEntityUID = SkeletalComponent.__cacheLeaders.get(cacheKey);
-        const isLeader = leaderEntityUID === this.entityUID;
 
-        if (shouldLogDebug && SkeletalComponent.__frameCacheHitCount < 5) {
-          console.log(
-            `[SkeletalComponent] CACHE HIT: entityUID=${this.entityUID}, cacheKey=${cacheKey.substring(0, 50)}..., leaderUID=${leaderEntityUID}, isLeader=${isLeader}`
-          );
-        }
+      // --- Cache Hit: Reuse existing skinning result ---
+      if (cache?.updateCount === currentUpdateCount) {
+        // Check if this SkeletalComponent is the "leader" for this cache key.
+        // Leaders computed the skinning result, so their joints must continue animating.
+        const isLeader = SkeletalComponent.__cacheLeaders.get(cacheKey) === this.entityUID;
 
         if (!isLeader) {
-          // Track joint entity UIDs for cache hit (will be used in next frame)
-          // Skip joints that belong to a leader (they need to continue animating)
-          SkeletalComponent.__frameCacheHitCount++;
+          // This is a "follower" - register its joints for AnimationComponent early return.
+          // Skip leader joints to ensure at least one animation source continues updating.
           for (const joint of this.__joints) {
-            // Only register joints that are NOT leader joints
             if (!SkeletalComponent.__leaderJointEntityUIDs.has(joint.entityUID)) {
               SkeletalComponent.__currentFrameCachedEntityUIDs.add(joint.entityUID);
-              SkeletalComponent.__frameRegisteredEntityCount++;
             }
           }
         }
+
+        // Apply cached skinning result and return early
         this.__applySkinningCache(cache);
         return;
-      } else {
-        SkeletalComponent.__frameCacheMissCount++;
-        // This SkeletalComponent will compute skinning - register as leader for this cache key
-        if (shouldLogDebug && SkeletalComponent.__frameCacheMissCount <= 3) {
-          console.log(
-            `[SkeletalComponent] CACHE MISS (new leader): entityUID=${this.entityUID}, cacheKey=${cacheKey.substring(0, 50)}...`
-          );
-        }
-        SkeletalComponent.__cacheLeaders.set(cacheKey, this.entityUID);
-        // Register leader's joints as protected - they should never be registered for early return
-        for (const joint of this.__joints) {
-          SkeletalComponent.__leaderJointEntityUIDs.add(joint.entityUID);
-        }
       }
-    } else {
-      SkeletalComponent.__frameCacheMissCount++;
+
+      // --- Cache Miss: This SkeletalComponent becomes the "leader" ---
+      // Register as leader for this cache key
+      SkeletalComponent.__cacheLeaders.set(cacheKey, this.entityUID);
+
+      // Protect leader's joints from early return registration.
+      // These joints MUST continue to have their AnimationComponent process animations,
+      // otherwise no animation updates would occur for this skeleton structure.
+      for (const joint of this.__joints) {
+        SkeletalComponent.__leaderJointEntityUIDs.add(joint.entityUID);
+      }
     }
 
     const inverseGlobalTransform = MutableMatrix44.invertTo(this.entity.matrixInner, SkeletalComponent.__tmp_mat4_2);
@@ -705,22 +733,32 @@ export class SkeletalComponent extends Component {
   }
 
   /**
-   * Checks if an entity had a skinning cache hit in the previous frame.
-   * Used by AnimationComponent to determine if early return is possible.
-   * This method also handles frame transition since AnimationComponent.$logic runs before SkeletalComponent.$logic.
+   * Checks if an entity's AnimationComponent can perform early return.
    *
-   * @param entityUID - The entity UID to check
-   * @returns True if the entity's SkeletalComponent had a cache hit in the previous frame, false otherwise
+   * This is called by AnimationComponent.$logic to determine if animation calculations
+   * can be skipped. An entity is considered "cached" if:
+   * 1. Its SkeletalComponent had a skinning cache hit in the previous frame
+   * 2. It is NOT a "leader" joint (leaders must continue animating)
+   *
+   * This method also handles the frame transition (swapping current/previous cached UIDs)
+   * since AnimationComponent.$logic runs before SkeletalComponent.$logic in each frame.
+   *
+   * @param entityUID - The entity UID to check (typically a joint/bone entity)
+   * @returns True if the entity can skip animation calculation, false if it must animate
    */
   static isEntityCached(entityUID: EntityUID): boolean {
-    // Ensure frame transition happens before checking
-    // This is needed because AnimationComponent.$logic runs before SkeletalComponent.$logic
+    // Handle frame transition: swap cached entity UIDs when a new frame starts.
+    // This must happen here because AnimationComponent.$logic runs BEFORE SkeletalComponent.$logic.
+    // Without this, AnimationComponent would check stale data from the wrong frame.
     const currentGlobalTime = AnimationComponent.globalTime;
     if (SkeletalComponent.__lastCacheFrameGlobalTime !== currentGlobalTime) {
       SkeletalComponent.__previousFrameCachedEntityUIDs = SkeletalComponent.__currentFrameCachedEntityUIDs;
       SkeletalComponent.__currentFrameCachedEntityUIDs = new Set();
       SkeletalComponent.__lastCacheFrameGlobalTime = currentGlobalTime;
     }
+
+    // Check if this entity was registered as "cacheable" in the previous frame.
+    // Leader joints are NOT in this set, so they will return false and continue animating.
     return SkeletalComponent.__previousFrameCachedEntityUIDs.has(entityUID);
   }
 
