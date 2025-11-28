@@ -15,6 +15,7 @@ import {
   type ComponentTID,
   type EntityUID,
   type Index,
+  type Second,
   VectorComponentN,
 } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
@@ -34,18 +35,28 @@ import { MutableQuaternion } from '../../math/MutableQuaternion';
 import { MutableVector3 } from '../../math/MutableVector3';
 import type { Quaternion } from '../../math/Quaternion';
 import type { Vector3 } from '../../math/Vector3';
+import { DataUtil } from '../../misc/DataUtil';
 import { Is } from '../../misc/Is';
 import { valueWithCompensation, valueWithDefault } from '../../misc/MiscUtil';
 import { type EventHandler, EventPubSub } from '../../system/EventPubSub';
 import type { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import type { IAnimationRetarget } from '../Skeletal';
+import { SkeletalComponent } from '../Skeletal/SkeletalComponent';
 import type { TransformComponent } from '../Transform/TransformComponent';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { __interpolate } from './AnimationOps';
 
 const ChangeAnimationInfo = Symbol('AnimationComponentEventChangeAnimationInfo');
 const PlayEnd = Symbol('AnimationComponentEventPlayEnd');
+
+type AnimationTrackFeature = {
+  trackName: AnimationTrackName;
+  pathNames: Set<AnimationPathName>;
+  minStartInputTime: Second;
+  maxEndInputTime: Second;
+  totalKeyframes: number;
+};
 
 /**
  * A component that manages animation data and applies animation transformations to entities.
@@ -59,6 +70,7 @@ export class AnimationComponent extends Component {
 
   // Animation Data of each AnimationComponent
   private __animationTrack: AnimationTrack = new Map();
+  private __animationTrackFeatureHashes: Map<AnimationTrackName, number> = new Map();
   public static __animationGlobalInfo: Map<AnimationTrackName, AnimationInfo> = new Map();
 
   private __isEffekseerState = -1;
@@ -98,12 +110,53 @@ export class AnimationComponent extends Component {
 
   /**
    * Component logic lifecycle method. Applies animation if animation is enabled.
+   *
+   * ## Early Return Optimization for VRM Models with Shared Skeleton
+   *
+   * When multiple VRM models share the same skeleton (joint entities), animation
+   * calculations only need to be performed once per frame. This optimization works
+   * by checking if the SkeletalComponent's skinning cache will be used for this entity.
+   *
+   * The optimization flow:
+   * 1. SkeletalComponent tracks which joint EntityUIDs had skinning cache hits
+   * 2. Joints belonging to "leader" SkeletalComponents (those that compute skinning)
+   *    are excluded from this tracking
+   * 3. AnimationComponent checks if its entity is in the cached list
+   * 4. If cached, early return skips animation calculation (skinning result will be reused)
+   *
+   * This significantly reduces CPU overhead when many VRM models share the same skeleton.
    */
   $logic() {
+    // Skip if animation is globally or locally disabled
     if (!AnimationComponent.isAnimating || !this.isAnimating) {
       return;
     }
 
+    // ============================================================================
+    // Early Return Optimization for VRM Models with Shared Skeleton
+    // ============================================================================
+    // When multiple VRM models share the same animation (same skeleton structure),
+    // only one model (the "leader") needs to compute animation values.
+    // Other models ("followers") can skip animation calculation entirely because
+    // their SkeletalComponent will reuse the cached skinning result from the leader.
+    //
+    // How it works:
+    // 1. SkeletalComponent tracks which joints had skinning cache hits in the previous frame
+    // 2. Joints belonging to "leader" SkeletalComponents are excluded (must continue animating)
+    // 3. Joints belonging to "follower" SkeletalComponents are registered for early return
+    // 4. This AnimationComponent checks if its entity is registered
+    //
+    // Two scenarios:
+    // - shallowCopy: Joints are shared (same entityUID) → no early return needed
+    //   (the same AnimationComponent instance processes the shared joint once)
+    // - Separate load: Joints are different (different entityUID, same jointIndex)
+    //   → early return enabled, significantly reducing CPU overhead
+    // ============================================================================
+    if (SkeletalComponent.isEntityCached(this.__entityUid)) {
+      return;
+    }
+
+    // Apply animation calculations (update joint transforms)
     this.__applyAnimation();
   }
 
@@ -413,6 +466,7 @@ export class AnimationComponent extends Component {
     }
     // backup the current transform as rest pose
     this.entity.getTransform()._backupTransformAsRest();
+    this.__updateAnimationTrackFeatureHashes();
   }
 
   /**
@@ -810,6 +864,7 @@ export class AnimationComponent extends Component {
     const component = component_ as AnimationComponent;
 
     this.__animationTrack = new Map(component.__animationTrack);
+    this.__animationTrackFeatureHashes = new Map(component.__animationTrackFeatureHashes);
     this.__isEffekseerState = component.__isEffekseerState;
     this.__isAnimating = component.__isAnimating;
   }
@@ -881,7 +936,7 @@ export class AnimationComponent extends Component {
       const outputsTranslation = new Float32Array(input.length * 3);
       for (let i = 0; i < input.length; i++) {
         srcAnim.time = input[i];
-        srcAnim.__applyAnimation();
+        (srcAnim as any).__applyAnimation();
         const outputTranslation = retarget.retargetTranslate(dstEntity);
         outputsTranslation[i * 3 + 0] = outputTranslation.x;
         outputsTranslation[i * 3 + 1] = outputTranslation.y;
@@ -894,7 +949,7 @@ export class AnimationComponent extends Component {
       const outputsQuaternion = new Float32Array(input.length * 4);
       for (let i = 0; i < input.length; i++) {
         srcAnim.time = input[i];
-        srcAnim.__applyAnimation();
+        (srcAnim as any).__applyAnimation();
         const outputQuaternion = retarget.retargetQuaternion(dstEntity);
         outputsQuaternion[i * 4 + 0] = outputQuaternion.x;
         outputsQuaternion[i * 4 + 1] = outputQuaternion.y;
@@ -908,7 +963,7 @@ export class AnimationComponent extends Component {
       const outputsScale = new Float32Array(input.length * 3);
       for (let i = 0; i < input.length; i++) {
         srcAnim.time = input[i];
-        srcAnim.__applyAnimation();
+        (srcAnim as any).__applyAnimation();
         const outputScale = retarget.retargetScale(dstEntity);
         outputsScale[i * 3 + 0] = outputScale.x;
         outputsScale[i * 3 + 1] = outputScale.y;
@@ -950,6 +1005,10 @@ export class AnimationComponent extends Component {
     }
   }
 
+  currentTrackFeatureHash(): number | undefined {
+    return this.__animationTrackFeatureHashes.get(this.getActiveAnimationTrack());
+  }
+
   /**
    * Destroys this component, cleaning up resources and clearing animation data.
    * @override
@@ -957,6 +1016,61 @@ export class AnimationComponent extends Component {
   _destroy(): void {
     super._destroy();
     this.__animationTrack.clear();
+    this.__animationTrackFeatureHashes.clear();
     this.__isAnimating = false;
+  }
+
+  private __updateAnimationTrackFeatureHashes() {
+    const featureMap: Map<AnimationTrackName, AnimationTrackFeature> = new Map();
+
+    for (const [pathName, channel] of this.__animationTrack) {
+      for (const trackName of channel.animatedValue.getAllTrackNames()) {
+        const sampler = channel.animatedValue.getAnimationSampler(trackName);
+        let feature = featureMap.get(trackName);
+        if (Is.not.exist(feature)) {
+          feature = {
+            trackName,
+            pathNames: new Set<AnimationPathName>(),
+            minStartInputTime: Number.POSITIVE_INFINITY,
+            maxEndInputTime: Number.NEGATIVE_INFINITY,
+            totalKeyframes: 0,
+          };
+          featureMap.set(trackName, feature);
+        }
+
+        feature.pathNames.add(pathName);
+        if (sampler.input.length > 0) {
+          feature.minStartInputTime = Math.min(feature.minStartInputTime, sampler.input[0]);
+          feature.maxEndInputTime = Math.max(feature.maxEndInputTime, sampler.input[sampler.input.length - 1]);
+          feature.totalKeyframes += sampler.input.length;
+        }
+      }
+    }
+
+    for (const [, feature] of featureMap) {
+      if (!Number.isFinite(feature.minStartInputTime)) {
+        feature.minStartInputTime = 0;
+      }
+      if (!Number.isFinite(feature.maxEndInputTime)) {
+        feature.maxEndInputTime = 0;
+      }
+    }
+
+    const hashMap: Map<AnimationTrackName, number> = new Map();
+    const sortedTrackNames = Array.from(featureMap.keys()).sort();
+    for (const trackName of sortedTrackNames) {
+      const feature = featureMap.get(trackName)!;
+      const serialized = [
+        trackName,
+        Array.from(feature.pathNames).sort().join(','),
+        feature.minStartInputTime,
+        feature.maxEndInputTime,
+        feature.totalKeyframes,
+      ].join('|');
+      const hash = DataUtil.toCRC32(serialized);
+      hashMap.set(trackName, hash);
+    }
+
+    this.__animationTrackFeatureHashes = hashMap;
   }
 }

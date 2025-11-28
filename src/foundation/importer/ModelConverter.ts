@@ -1007,6 +1007,10 @@ export class ModelConverter {
         if (Is.exist(node.skinObject.bindShapeMatrix)) {
           skeletalComponent._bindShapeMatrix = Matrix44.fromCopyArrayColumnMajor(node.skinObject.bindShapeMatrix);
         }
+        for (const joint_i of node.skinObject.joints) {
+          const sg = rnEntities[joint_i].getSceneGraph()!;
+          sg.jointIndex = joint_i;
+        }
         if (Is.exist(node.skinObject.skeleton)) {
           sg.isRootJoint = true;
           if (Is.exist(node.mesh)) {
@@ -1021,10 +1025,6 @@ export class ModelConverter {
               skeletalComponent!.topOfJointsHierarchy = joints[0];
             }
           }
-        }
-        for (const joint_i of node.skinObject.joints) {
-          const sg = rnEntities[joint_i].getSceneGraph()!;
-          sg.jointIndex = joint_i;
         }
 
         const inverseBindMatAccessor = node.skinObject.inverseBindMatricesObject;
