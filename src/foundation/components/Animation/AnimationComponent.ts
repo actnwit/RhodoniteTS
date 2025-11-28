@@ -113,15 +113,36 @@ export class AnimationComponent extends Component {
    * For VRM models with identical skinning structure and animation features,
    * early return if SkeletalComponent's skinning cache will hit for this animation.
    */
+  private static __loggedFrameCount = 0;
+  private static __lastLogTime = -1;
+  private static __frameAnimCount = 0;
+  private static __frameEarlyReturnCount = 0;
+
   $logic() {
     if (!AnimationComponent.isAnimating || !this.isAnimating) {
       return;
     }
 
-    // Check if SkeletalComponent has a skinning cache hit for this animation feature
-    // If so, we can skip animation calculation as the previous frame's result will be reused
-    const featureHash = this.currentTrackFeatureHash();
-    if (featureHash != null && SkeletalComponent.isAnimationHashCached(featureHash)) {
+    // Debug logging - count per frame
+    const isNewFrame = AnimationComponent.__lastLogTime !== AnimationComponent.globalTime;
+    if (isNewFrame) {
+      if (AnimationComponent.__loggedFrameCount > 0 && AnimationComponent.__loggedFrameCount <= 5) {
+        console.log(
+          `[AnimationComponent] Frame ${AnimationComponent.__loggedFrameCount} summary: total=${AnimationComponent.__frameAnimCount}, earlyReturn=${AnimationComponent.__frameEarlyReturnCount}`
+        );
+      }
+      AnimationComponent.__lastLogTime = AnimationComponent.globalTime;
+      AnimationComponent.__loggedFrameCount++;
+      AnimationComponent.__frameAnimCount = 0;
+      AnimationComponent.__frameEarlyReturnCount = 0;
+    }
+    AnimationComponent.__frameAnimCount++;
+
+    // Check if this entity's SkeletalComponent had a skinning cache hit in the previous frame
+    // If so, we can skip animation calculation as the cached skinning data will be reused
+    const isCached = SkeletalComponent.isEntityCached(this.__entityUid);
+    if (isCached) {
+      AnimationComponent.__frameEarlyReturnCount++;
       // Early return: SkeletalComponent will use cached skinning data
       return;
     }

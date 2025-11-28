@@ -72,12 +72,17 @@ export class SkeletalComponent extends Component {
   private static __accessorSignatureCache: WeakMap<Accessor, string> = new WeakMap();
   private static __bindShapeSignatureMap: WeakMap<Matrix44, string> = new WeakMap();
 
-  // Track animation feature hashes that had skinning cache hits
+  // Track entity UIDs of joints whose SkeletalComponent had skinning cache hits
   // Used by AnimationComponent to determine if early return is possible
   // We use previous frame's data because AnimationComponent.$logic runs before SkeletalComponent.$logic
-  private static __currentFrameCachedHashes: Set<number> = new Set();
-  private static __previousFrameCachedHashes: Set<number> = new Set();
+  private static __currentFrameCachedEntityUIDs: Set<EntityUID> = new Set();
+  private static __previousFrameCachedEntityUIDs: Set<EntityUID> = new Set();
   private static __lastCacheFrameGlobalTime = -1;
+  // Track the "leader" SkeletalComponent for each cache key (the one that computes skinning, not uses cache)
+  // Leader's joints should not be registered for early return, as they need to continue animating
+  private static __cacheLeaders: Map<string, EntityUID> = new Map();
+  // Track the joint EntityUIDs of leaders - these should never be registered for early return
+  private static __leaderJointEntityUIDs: Set<EntityUID> = new Set();
   private __jointListKey?: string;
   private __skinCacheKey?: string;
   private __inverseBindMatricesSignature?: string;
@@ -369,34 +374,90 @@ export class SkeletalComponent extends Component {
    * Calculates joint transformations and updates bone data arrays based on the configured bone data type.
    * This method is called during the Logic processing stage.
    */
+  private static __skeletalLoggedFrameCount = 0;
+  private static __skeletalLastLogTime = -1;
+  private static __frameCacheHitCount = 0;
+  private static __frameCacheMissCount = 0;
+  private static __frameRegisteredEntityCount = 0;
+
   $logic() {
     if (!this.isSkinning || this._isCulled) {
       return;
     }
 
-    // Swap cached hashes when global time changes (new frame)
+    // Swap cached entity UIDs when global time changes (new frame)
     // Previous frame's cache hits become available for AnimationComponent's early return
     const currentGlobalTime = AnimationComponent.globalTime;
-    if (SkeletalComponent.__lastCacheFrameGlobalTime !== currentGlobalTime) {
-      SkeletalComponent.__previousFrameCachedHashes = SkeletalComponent.__currentFrameCachedHashes;
-      SkeletalComponent.__currentFrameCachedHashes = new Set();
+    const isNewFrame = SkeletalComponent.__lastCacheFrameGlobalTime !== currentGlobalTime;
+    if (isNewFrame) {
+      // Log previous frame summary
+      if (SkeletalComponent.__skeletalLoggedFrameCount > 0 && SkeletalComponent.__skeletalLoggedFrameCount <= 5) {
+        console.log(
+          `[SkeletalComponent] Frame ${SkeletalComponent.__skeletalLoggedFrameCount} summary: cacheHit=${SkeletalComponent.__frameCacheHitCount}, cacheMiss=${SkeletalComponent.__frameCacheMissCount}, registeredEntities=${SkeletalComponent.__frameRegisteredEntityCount}, previousUIDsSize=${SkeletalComponent.__currentFrameCachedEntityUIDs.size}`
+        );
+      }
+      SkeletalComponent.__skeletalLastLogTime = AnimationComponent.globalTime;
+      SkeletalComponent.__skeletalLoggedFrameCount++;
+      SkeletalComponent.__frameCacheHitCount = 0;
+      SkeletalComponent.__frameCacheMissCount = 0;
+      SkeletalComponent.__frameRegisteredEntityCount = 0;
+
+      SkeletalComponent.__previousFrameCachedEntityUIDs = SkeletalComponent.__currentFrameCachedEntityUIDs;
+      SkeletalComponent.__currentFrameCachedEntityUIDs = new Set();
       SkeletalComponent.__lastCacheFrameGlobalTime = currentGlobalTime;
     }
 
     this.__updateSkinCacheKey();
     const cacheKey = this.__skinCacheKey;
     const currentUpdateCount = TransformComponent.updateCount;
+
+    // Debug: log unique cache keys and leader info (first 3 frames)
+    const shouldLogDebug = SkeletalComponent.__skeletalLoggedFrameCount <= 3;
+
     if (cacheKey) {
       const cache = SkeletalComponent.__skinCalculationCache.get(cacheKey);
       if (cache?.updateCount === currentUpdateCount) {
-        // Track animation feature hash for cache hit (will be used in next frame)
-        const animHash = this.__getAnimationTrackFeatureHash();
-        if (animHash != null) {
-          SkeletalComponent.__currentFrameCachedHashes.add(animHash);
+        // Check if this SkeletalComponent is the leader for this cache key
+        // Leaders should not register their joints, as they need to continue animating
+        const leaderEntityUID = SkeletalComponent.__cacheLeaders.get(cacheKey);
+        const isLeader = leaderEntityUID === this.entityUID;
+
+        if (shouldLogDebug && SkeletalComponent.__frameCacheHitCount < 5) {
+          console.log(
+            `[SkeletalComponent] CACHE HIT: entityUID=${this.entityUID}, cacheKey=${cacheKey.substring(0, 50)}..., leaderUID=${leaderEntityUID}, isLeader=${isLeader}`
+          );
+        }
+
+        if (!isLeader) {
+          // Track joint entity UIDs for cache hit (will be used in next frame)
+          // Skip joints that belong to a leader (they need to continue animating)
+          SkeletalComponent.__frameCacheHitCount++;
+          for (const joint of this.__joints) {
+            // Only register joints that are NOT leader joints
+            if (!SkeletalComponent.__leaderJointEntityUIDs.has(joint.entityUID)) {
+              SkeletalComponent.__currentFrameCachedEntityUIDs.add(joint.entityUID);
+              SkeletalComponent.__frameRegisteredEntityCount++;
+            }
+          }
         }
         this.__applySkinningCache(cache);
         return;
+      } else {
+        SkeletalComponent.__frameCacheMissCount++;
+        // This SkeletalComponent will compute skinning - register as leader for this cache key
+        if (shouldLogDebug && SkeletalComponent.__frameCacheMissCount <= 3) {
+          console.log(
+            `[SkeletalComponent] CACHE MISS (new leader): entityUID=${this.entityUID}, cacheKey=${cacheKey.substring(0, 50)}...`
+          );
+        }
+        SkeletalComponent.__cacheLeaders.set(cacheKey, this.entityUID);
+        // Register leader's joints as protected - they should never be registered for early return
+        for (const joint of this.__joints) {
+          SkeletalComponent.__leaderJointEntityUIDs.add(joint.entityUID);
+        }
       }
+    } else {
+      SkeletalComponent.__frameCacheMissCount++;
     }
 
     const inverseGlobalTransform = MutableMatrix44.invertTo(this.entity.matrixInner, SkeletalComponent.__tmp_mat4_2);
@@ -644,15 +705,23 @@ export class SkeletalComponent extends Component {
   }
 
   /**
-   * Checks if an animation feature hash had a skinning cache hit in the previous frame.
+   * Checks if an entity had a skinning cache hit in the previous frame.
    * Used by AnimationComponent to determine if early return is possible.
-   * We use previous frame's data because AnimationComponent.$logic runs before SkeletalComponent.$logic.
+   * This method also handles frame transition since AnimationComponent.$logic runs before SkeletalComponent.$logic.
    *
-   * @param hash - The animation feature hash to check
-   * @returns True if the hash had a cache hit in the previous frame, false otherwise
+   * @param entityUID - The entity UID to check
+   * @returns True if the entity's SkeletalComponent had a cache hit in the previous frame, false otherwise
    */
-  static isAnimationHashCached(hash: number): boolean {
-    return SkeletalComponent.__previousFrameCachedHashes.has(hash);
+  static isEntityCached(entityUID: EntityUID): boolean {
+    // Ensure frame transition happens before checking
+    // This is needed because AnimationComponent.$logic runs before SkeletalComponent.$logic
+    const currentGlobalTime = AnimationComponent.globalTime;
+    if (SkeletalComponent.__lastCacheFrameGlobalTime !== currentGlobalTime) {
+      SkeletalComponent.__previousFrameCachedEntityUIDs = SkeletalComponent.__currentFrameCachedEntityUIDs;
+      SkeletalComponent.__currentFrameCachedEntityUIDs = new Set();
+      SkeletalComponent.__lastCacheFrameGlobalTime = currentGlobalTime;
+    }
+    return SkeletalComponent.__previousFrameCachedEntityUIDs.has(entityUID);
   }
 
   /**
