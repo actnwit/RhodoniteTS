@@ -253,18 +253,17 @@ export class SkeletalComponent extends Component {
     // Check if this component is being reused to determine allocation strategy
     const isComponentReused = this.__isReUse;
     this.submitToAllocation(Config.skeletalComponentCountPerBufferView, isComponentReused);
-    console.count('SkeletalComponent.setJoints - FINAL TEST');
   }
 
   /**
    * Lightweight joint update for remapping during shallow copy.
    * Only updates joint references without reinitializing buffers.
+   * Used when joints are remapped to new entities during shallow copy.
    */
   updateJointsLightweight(joints: SceneGraphComponent[]) {
     this.__joints = joints;
     this.__jointListKey = SkeletalComponent.__buildJointListKey(joints);
     this.__updateSkinCacheKey();
-    console.count('SkeletalComponent.updateJointsLightweight - FINAL TEST');
   }
 
   /**
@@ -457,57 +456,49 @@ export class SkeletalComponent extends Component {
     // the cache even within the same frame. globalTime only changes once per frame.
     // Note: currentGlobalTime is already declared above for frame transition.
 
+    // ============================================================================
+    // Skinning Cache Hit/Miss Logic with Leader/Follower Pattern
+    // ============================================================================
+    // This implements an optimization for multiple VRM models with identical skeleton
+    // structures (e.g., same model loaded multiple times or shallowCopied).
+    //
+    // Key concepts:
+    // - "Leader": The first SkeletalComponent to compute skinning for a given cache key.
+    //   Its joints MUST continue animating to provide animation data for all models.
+    // - "Follower": Subsequent SkeletalComponents that reuse the leader's skinning result.
+    //   Their joints can skip animation calculation (early return in AnimationComponent).
+    //
+    // The jointIndex-based comparison allows:
+    // - shallowCopy: Same entityUID for joints → joints are shared, no registration needed
+    // - Separate load: Different entityUID but same jointIndex → register for early return
+    // ============================================================================
+
     if (cacheKey) {
       const cache = SkeletalComponent.__skinCalculationCache.get(cacheKey);
 
-      // Debug log
-      if (SkeletalComponent.__cacheKeyLogCount < 30) {
-        console.log(
-          `[SkeletalComponent] $logic: entityUID=${this.entityUID}, cacheKey=${cacheKey}, cacheExists=${!!cache}, cacheGlobalTime=${cache?.globalTime}, currentGlobalTime=${currentGlobalTime}`
-        );
-      }
-
       // --- Cache Hit: Reuse existing skinning result ---
+      // Check if a valid cache exists for this frame (same globalTime)
       if (cache?.globalTime === currentGlobalTime) {
-        // Check if this SkeletalComponent is the "leader" for this cache key.
+        // Determine if this SkeletalComponent is the "leader" for this cache key.
         // Leaders computed the skinning result, so their joints must continue animating.
         const isLeader = SkeletalComponent.__cacheLeaders.get(cacheKey) === this.entityUID;
 
         if (!isLeader) {
           // This is a "follower" - register its joints for AnimationComponent early return.
-          // Compare by jointIndex (structure) to identify separately loaded models.
-          // - If same jointIndex exists in leader AND entityUID is DIFFERENT → register (separate load)
-          // - If same jointIndex exists in leader AND entityUID is SAME → skip (shallowCopy)
-          let registeredCount = 0;
-          let skippedCount = 0;
-          const sampleJoints: string[] = [];
+          // Use jointIndex (skeleton structure) to compare with leader's joints.
           for (const joint of this.__joints) {
-            if (sampleJoints.length < 5) {
-              sampleJoints.push(`${joint.jointIndex}:${joint.entityUID}`);
-            }
             const leaderEntityUID = SkeletalComponent.__leaderJointIndexToEntityUID.get(joint.jointIndex);
+            // Register only if:
+            // 1. Same jointIndex exists in leader (same skeleton structure)
+            // 2. EntityUID is DIFFERENT (separately loaded model, not shallowCopy)
             if (leaderEntityUID !== undefined && leaderEntityUID !== joint.entityUID) {
-              // Same structure (jointIndex) but different entity → separately loaded model
-              // Register for early return
               SkeletalComponent.__currentFrameCachedEntityUIDs.add(joint.entityUID);
-              registeredCount++;
-            } else {
-              // Same entity (shallowCopy) or no matching jointIndex → skip
-              skippedCount++;
             }
-          }
-          if (SkeletalComponent.__cacheKeyLogCount < 30) {
-            console.log(
-              `[SkeletalComponent] CACHE HIT (follower): entityUID=${this.entityUID}, registered=${registeredCount}, skipped=${skippedCount}, sampleJoints=[${sampleJoints.join(',')}], leaderMappingsSize=${SkeletalComponent.__leaderJointIndexToEntityUID.size}`
-            );
-            SkeletalComponent.__cacheKeyLogCount++;
-          }
-        } else {
-          if (SkeletalComponent.__cacheKeyLogCount < 30) {
-            console.log(`[SkeletalComponent] CACHE HIT (leader): entityUID=${this.entityUID}`);
-            SkeletalComponent.__cacheKeyLogCount++;
+            // If entityUID is the SAME, this is a shallowCopy case.
+            // The joint is shared with leader, so no registration needed.
           }
         }
+        // Leader case: Do not register joints - leader must continue animating
 
         // Apply cached skinning result and return early
         this.__applySkinningCache(cache);
@@ -515,24 +506,14 @@ export class SkeletalComponent extends Component {
       }
 
       // --- Cache Miss: This SkeletalComponent becomes the "leader" ---
-      // Register as leader for this cache key
+      // Register this component as the leader for this cache key
       SkeletalComponent.__cacheLeaders.set(cacheKey, this.entityUID);
 
-      // Register leader's joints by jointIndex → entityUID mapping.
-      // This allows followers to compare by jointIndex (structure) rather than entityUID.
-      // If a follower's jointIndex matches but entityUID differs, it's a separately loaded model.
-      const sampleLeaderJoints: string[] = [];
+      // Build jointIndex → entityUID mapping for this leader's joints.
+      // Followers will use this to compare their joints by structure (jointIndex)
+      // rather than by identity (entityUID).
       for (const joint of this.__joints) {
-        if (sampleLeaderJoints.length < 5) {
-          sampleLeaderJoints.push(`${joint.jointIndex}:${joint.entityUID}`);
-        }
         SkeletalComponent.__leaderJointIndexToEntityUID.set(joint.jointIndex, joint.entityUID);
-      }
-      if (SkeletalComponent.__cacheKeyLogCount < 30) {
-        console.log(
-          `[SkeletalComponent] CACHE MISS (new leader): entityUID=${this.entityUID}, sampleLeaderJoints=[${sampleLeaderJoints.join(',')}], totalLeaderJointMappings=${SkeletalComponent.__leaderJointIndexToEntityUID.size}`
-        );
-        SkeletalComponent.__cacheKeyLogCount++;
       }
     }
 
@@ -814,13 +795,6 @@ export class SkeletalComponent extends Component {
   }
 
   /**
-   * Debug helper: Returns the size of the previous frame's cached entity UIDs set.
-   */
-  static getPreviousCachedSize(): number {
-    return SkeletalComponent.__previousFrameCachedEntityUIDs.size;
-  }
-
-  /**
    * Adds this component to an entity, extending it with skeletal functionality.
    * This method uses mixins to add skeletal-specific methods to the target entity.
    *
@@ -1041,48 +1015,39 @@ export class SkeletalComponent extends Component {
     return undefined;
   }
 
-  private static __cacheKeyLogCount = 0;
-
+  /**
+   * Updates the skinning cache key based on current animation state.
+   *
+   * The cache key determines which SkeletalComponents can share skinning results:
+   *
+   * ## With Animation Applied
+   * - Uses format: `anim|{animationHash}`
+   * - animationHash is computed from animation track features (keyframes, timings, etc.)
+   * - Enables cache sharing across all models with the same animation
+   * - VRM1 retargeting creates intermediate models with different joint counts,
+   *   but they can still share cache via animation hash
+   *
+   * ## Without Animation
+   * - Uses format: `{jointListKey}|{accessorSignature}|no_animation`
+   * - EntityUID-based key prevents incorrect sharing between unrelated models
+   * - Each model maintains its own cache
+   */
   private __updateSkinCacheKey() {
     if (!this.__inverseBindMatricesAccessor) {
       this.__skinCacheKey = undefined;
       return;
     }
 
-    // Get animation feature hash - this is the key differentiator for cache sharing
     const animationTrackFeatureHash = this.__getAnimationTrackFeatureHash();
 
-    // For VRM models with the same animation, we want to share skinning cache even if
-    // they were loaded separately (different EntityUIDs, different jointIndex values).
-    // VRM models that can share the same animation have the same Humanoid bone structure,
-    // so using joint count + animation hash is safe for cache sharing.
-    //
-    // Cache key format: jointCount|animationHash
-    // - jointCount: Number of joints (same for VRM models with same bone structure)
-    // - animationHash: Animation feature hash (same for VRM models with same animation)
-    //
-    // Note: We only enable cache sharing when animation is applied (animHash is not undefined).
-    // Without animation, each model keeps its own cache to avoid incorrect sharing.
     if (animationTrackFeatureHash != null) {
       // Animation is applied - use animation hash only for maximum cache sharing
-      // VRM1 animation retargeting creates intermediate VRM models with different joint counts,
-      // but they share the same animation. By using only the animation hash, we can share
-      // skinning cache across models with different mesh configurations.
-      //
-      // Note: __applySkinningCache uses subarray(0, jointCount) so it's safe to apply
-      // a larger cache to a smaller model.
+      // This enables cache sharing across VRM models with the same animation,
+      // regardless of their mesh configuration or joint count.
       this.__skinCacheKey = `anim|${animationTrackFeatureHash.toString()}`;
-
-      // Debug log
-      if (SkeletalComponent.__cacheKeyLogCount < 20) {
-        console.log(
-          `[SkeletalComponent] CacheKey (with anim): entityUID=${this.entityUID}, key=${this.__skinCacheKey}, jointCount=${this.__joints.length}`
-        );
-        SkeletalComponent.__cacheKeyLogCount++;
-      }
     } else {
-      // No animation - use the original detailed cache key (EntityUID-based)
-      // This prevents incorrect cache sharing between unrelated models
+      // No animation - use detailed EntityUID-based cache key
+      // This prevents incorrect cache sharing between unrelated static models
       if (!this.__jointListKey) {
         this.__skinCacheKey = undefined;
         return;
@@ -1093,14 +1058,6 @@ export class SkeletalComponent extends Component {
         );
       }
       this.__skinCacheKey = `${this.__jointListKey}|${this.__inverseBindMatricesSignature}|no_animation`;
-
-      // Debug log
-      if (SkeletalComponent.__cacheKeyLogCount < 20) {
-        console.log(
-          `[SkeletalComponent] CacheKey (no anim): entityUID=${this.entityUID}, animHash=${animationTrackFeatureHash}`
-        );
-        SkeletalComponent.__cacheKeyLogCount++;
-      }
     }
   }
 

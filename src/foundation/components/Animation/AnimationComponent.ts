@@ -126,35 +126,33 @@ export class AnimationComponent extends Component {
    *
    * This significantly reduces CPU overhead when many VRM models share the same skeleton.
    */
-  private static __animLogCount = 0;
-  private static __animLogLastTime = -1;
-
   $logic() {
     // Skip if animation is globally or locally disabled
     if (!AnimationComponent.isAnimating || !this.isAnimating) {
       return;
     }
 
-    // Debug log - log once per frame
-    const shouldLog =
-      AnimationComponent.__animLogLastTime !== AnimationComponent.globalTime && AnimationComponent.__animLogCount < 10;
-    if (shouldLog) {
-      AnimationComponent.__animLogLastTime = AnimationComponent.globalTime;
-      AnimationComponent.__animLogCount++;
-    }
-
-    // Early return optimization: Check if this entity's SkeletalComponent had a
-    // skinning cache hit in the previous frame. If so, we can skip animation
-    // calculation because the cached skinning data will be reused.
-    // Note: Leader joints (those that compute the original skinning) are excluded
-    // from caching to ensure at least one animation source continues to update.
-    const isCached = SkeletalComponent.isEntityCached(this.__entityUid);
-    if (shouldLog) {
-      console.log(
-        `[AnimationComponent] $logic: entityUID=${this.__entityUid}, isCached=${isCached}, previousCachedSize=${SkeletalComponent.getPreviousCachedSize()}`
-      );
-    }
-    if (isCached) {
+    // ============================================================================
+    // Early Return Optimization for VRM Models with Shared Skeleton
+    // ============================================================================
+    // When multiple VRM models share the same animation (same skeleton structure),
+    // only one model (the "leader") needs to compute animation values.
+    // Other models ("followers") can skip animation calculation entirely because
+    // their SkeletalComponent will reuse the cached skinning result from the leader.
+    //
+    // How it works:
+    // 1. SkeletalComponent tracks which joints had skinning cache hits in the previous frame
+    // 2. Joints belonging to "leader" SkeletalComponents are excluded (must continue animating)
+    // 3. Joints belonging to "follower" SkeletalComponents are registered for early return
+    // 4. This AnimationComponent checks if its entity is registered
+    //
+    // Two scenarios:
+    // - shallowCopy: Joints are shared (same entityUID) → no early return needed
+    //   (the same AnimationComponent instance processes the shared joint once)
+    // - Separate load: Joints are different (different entityUID, same jointIndex)
+    //   → early return enabled, significantly reducing CPU overhead
+    // ============================================================================
+    if (SkeletalComponent.isEntityCached(this.__entityUid)) {
       return;
     }
 
