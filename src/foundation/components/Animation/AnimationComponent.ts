@@ -126,10 +126,21 @@ export class AnimationComponent extends Component {
    *
    * This significantly reduces CPU overhead when many VRM models share the same skeleton.
    */
+  private static __animLogCount = 0;
+  private static __animLogLastTime = -1;
+
   $logic() {
     // Skip if animation is globally or locally disabled
     if (!AnimationComponent.isAnimating || !this.isAnimating) {
       return;
+    }
+
+    // Debug log - log once per frame
+    const shouldLog =
+      AnimationComponent.__animLogLastTime !== AnimationComponent.globalTime && AnimationComponent.__animLogCount < 10;
+    if (shouldLog) {
+      AnimationComponent.__animLogLastTime = AnimationComponent.globalTime;
+      AnimationComponent.__animLogCount++;
     }
 
     // Early return optimization: Check if this entity's SkeletalComponent had a
@@ -137,7 +148,13 @@ export class AnimationComponent extends Component {
     // calculation because the cached skinning data will be reused.
     // Note: Leader joints (those that compute the original skinning) are excluded
     // from caching to ensure at least one animation source continues to update.
-    if (SkeletalComponent.isEntityCached(this.__entityUid)) {
+    const isCached = SkeletalComponent.isEntityCached(this.__entityUid);
+    if (shouldLog) {
+      console.log(
+        `[AnimationComponent] $logic: entityUID=${this.__entityUid}, isCached=${isCached}, previousCachedSize=${SkeletalComponent.getPreviousCachedSize()}`
+      );
+    }
+    if (isCached) {
       return;
     }
 
