@@ -42,6 +42,7 @@ import { type EventHandler, EventPubSub } from '../../system/EventPubSub';
 import type { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import type { IAnimationRetarget } from '../Skeletal';
+import { SkeletalComponent } from '../Skeletal/SkeletalComponent';
 import type { TransformComponent } from '../Transform/TransformComponent';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { __interpolate } from './AnimationOps';
@@ -109,9 +110,19 @@ export class AnimationComponent extends Component {
 
   /**
    * Component logic lifecycle method. Applies animation if animation is enabled.
+   * For VRM models with identical skinning structure and animation features,
+   * early return if SkeletalComponent's skinning cache will hit for this animation.
    */
   $logic() {
     if (!AnimationComponent.isAnimating || !this.isAnimating) {
+      return;
+    }
+
+    // Check if SkeletalComponent has a skinning cache hit for this animation feature
+    // If so, we can skip animation calculation as the previous frame's result will be reused
+    const featureHash = this.currentTrackFeatureHash();
+    if (featureHash != null && SkeletalComponent.isAnimationHashCached(featureHash)) {
+      // Early return: SkeletalComponent will use cached skinning data
       return;
     }
 
@@ -894,7 +905,7 @@ export class AnimationComponent extends Component {
       const outputsTranslation = new Float32Array(input.length * 3);
       for (let i = 0; i < input.length; i++) {
         srcAnim.time = input[i];
-        srcAnim.__applyAnimation();
+        (srcAnim as any).__applyAnimation();
         const outputTranslation = retarget.retargetTranslate(dstEntity);
         outputsTranslation[i * 3 + 0] = outputTranslation.x;
         outputsTranslation[i * 3 + 1] = outputTranslation.y;
@@ -907,7 +918,7 @@ export class AnimationComponent extends Component {
       const outputsQuaternion = new Float32Array(input.length * 4);
       for (let i = 0; i < input.length; i++) {
         srcAnim.time = input[i];
-        srcAnim.__applyAnimation();
+        (srcAnim as any).__applyAnimation();
         const outputQuaternion = retarget.retargetQuaternion(dstEntity);
         outputsQuaternion[i * 4 + 0] = outputQuaternion.x;
         outputsQuaternion[i * 4 + 1] = outputQuaternion.y;
@@ -921,7 +932,7 @@ export class AnimationComponent extends Component {
       const outputsScale = new Float32Array(input.length * 3);
       for (let i = 0; i < input.length; i++) {
         srcAnim.time = input[i];
-        srcAnim.__applyAnimation();
+        (srcAnim as any).__applyAnimation();
         const outputScale = retarget.retargetScale(dstEntity);
         outputsScale[i * 3 + 0] = outputScale.x;
         outputsScale[i * 3 + 1] = outputScale.y;

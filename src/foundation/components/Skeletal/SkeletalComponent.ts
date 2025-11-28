@@ -23,6 +23,7 @@ import { VectorN } from '../../math/VectorN';
 import type { Accessor } from '../../memory/Accessor';
 import { Is } from '../../misc';
 import { Logger } from '../../misc/Logger';
+import { AnimationComponent } from '../Animation/AnimationComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import type { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import { createGroupEntity } from '../SceneGraph/createGroupEntity';
@@ -70,6 +71,13 @@ export class SkeletalComponent extends Component {
   private static __skinCalculationCache: Map<string, SkinningCache> = new Map();
   private static __accessorSignatureCache: WeakMap<Accessor, string> = new WeakMap();
   private static __bindShapeSignatureMap: WeakMap<Matrix44, string> = new WeakMap();
+
+  // Track animation feature hashes that had skinning cache hits
+  // Used by AnimationComponent to determine if early return is possible
+  // We use previous frame's data because AnimationComponent.$logic runs before SkeletalComponent.$logic
+  private static __currentFrameCachedHashes: Set<number> = new Set();
+  private static __previousFrameCachedHashes: Set<number> = new Set();
+  private static __lastCacheFrameGlobalTime = -1;
   private __jointListKey?: string;
   private __skinCacheKey?: string;
   private __inverseBindMatricesSignature?: string;
@@ -366,12 +374,26 @@ export class SkeletalComponent extends Component {
       return;
     }
 
+    // Swap cached hashes when global time changes (new frame)
+    // Previous frame's cache hits become available for AnimationComponent's early return
+    const currentGlobalTime = AnimationComponent.globalTime;
+    if (SkeletalComponent.__lastCacheFrameGlobalTime !== currentGlobalTime) {
+      SkeletalComponent.__previousFrameCachedHashes = SkeletalComponent.__currentFrameCachedHashes;
+      SkeletalComponent.__currentFrameCachedHashes = new Set();
+      SkeletalComponent.__lastCacheFrameGlobalTime = currentGlobalTime;
+    }
+
     this.__updateSkinCacheKey();
     const cacheKey = this.__skinCacheKey;
     const currentUpdateCount = TransformComponent.updateCount;
     if (cacheKey) {
       const cache = SkeletalComponent.__skinCalculationCache.get(cacheKey);
       if (cache?.updateCount === currentUpdateCount) {
+        // Track animation feature hash for cache hit (will be used in next frame)
+        const animHash = this.__getAnimationTrackFeatureHash();
+        if (animHash != null) {
+          SkeletalComponent.__currentFrameCachedHashes.add(animHash);
+        }
         this.__applySkinningCache(cache);
         return;
       }
@@ -619,6 +641,18 @@ export class SkeletalComponent extends Component {
    */
   _destroy(): void {
     super._destroy();
+  }
+
+  /**
+   * Checks if an animation feature hash had a skinning cache hit in the previous frame.
+   * Used by AnimationComponent to determine if early return is possible.
+   * We use previous frame's data because AnimationComponent.$logic runs before SkeletalComponent.$logic.
+   *
+   * @param hash - The animation feature hash to check
+   * @returns True if the hash had a cache hit in the previous frame, false otherwise
+   */
+  static isAnimationHashCached(hash: number): boolean {
+    return SkeletalComponent.__previousFrameCachedHashes.has(hash);
   }
 
   /**
