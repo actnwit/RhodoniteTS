@@ -57,7 +57,7 @@ function readyBasicVerticesData() {
 }
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -129,7 +129,7 @@ const draw = () => {
   stats.begin();
 
   //      console.log(date.getTime());
-  Rn.System.process([expression]);
+  Rn.Engine.process([expression]);
 
   stats.end();
   count++;

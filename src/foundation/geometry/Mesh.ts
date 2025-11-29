@@ -19,7 +19,7 @@ import type { Accessor } from '../memory/Accessor';
 import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { SystemState } from '../system/SystemState';
+import { EngineState } from '../system/EngineState';
 import type { Primitive } from './Primitive';
 import {
   type IMesh,
@@ -926,7 +926,7 @@ export class Mesh implements IMesh {
     }
     this.updateVariationVBO();
 
-    if (SystemState.currentProcessApproach !== ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach !== ProcessApproach.WebGPU) {
       this.updateVAO();
     }
   }

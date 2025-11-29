@@ -23,7 +23,7 @@ await Promise.all([
 // prepare memory
 Rn.Config.cgApiDebugConsoleOutput = true;
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: rnCanvasElement,
 });
@@ -179,6 +179,6 @@ function draw(expressions: Rn.Expression[], entityDepthCamera: Rn.ICameraEntity,
   Rn.MutableVector3.multiplyTo(lightPosition, -1, directionLight).normalize();
   entityDepthCamera.getCamera().direction = directionLight;
 
-  Rn.System.process(expressions);
+  Rn.Engine.process(expressions);
   requestAnimationFrame(draw.bind(null, expressions, entityDepthCamera, directionLight));
 }

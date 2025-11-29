@@ -6,7 +6,7 @@ import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFor
 import { TextureParameter, type TextureParameterEnum } from '../definitions/TextureParameter';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import type { FrameBuffer } from '../renderer/FrameBuffer';
-import { SystemState } from '../system/SystemState';
+import { EngineState } from '../system/EngineState';
 import type { IRenderable } from './IRenderable';
 
 /**
@@ -89,7 +89,7 @@ export class RenderBuffer extends RnObject implements IRenderable {
       sampleCountMSAA
     );
 
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2d(
         this._textureResourceUid
       );

@@ -18,8 +18,8 @@ import type { Material } from '../materials/core/Material';
 import type { Vector4 } from '../math/Vector4';
 import type { Accessor } from '../memory/Accessor';
 import type { FrameBuffer } from '../renderer/FrameBuffer';
+import { EngineState } from '../system/EngineState';
 import { ModuleManager } from '../system/ModuleManager';
-import { SystemState } from '../system/SystemState';
 import type { IRenderable } from '../textures/IRenderable';
 import type { Sampler } from '../textures/Sampler';
 import type { RenderPass } from './RenderPass';
@@ -54,7 +54,7 @@ export abstract class CGAPIResourceRepository {
    * @throws Error if the required module is not available
    */
   static getCgApiResourceRepository(): ICGAPIResourceRepository {
-    const moduleName = ProcessApproach.isWebGL2Approach(SystemState.currentProcessApproach) ? 'webgl' : 'webgpu';
+    const moduleName = ProcessApproach.isWebGL2Approach(EngineState.currentProcessApproach) ? 'webgl' : 'webgpu';
     // const moduleName = 'webgl';
     const moduleManager = ModuleManager.getInstance();
     const cgApiModule = moduleManager.getModule(moduleName)! as any;

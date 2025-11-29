@@ -14,13 +14,13 @@
 import Rn from 'rhodonite';
 
 // Basic initialization
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('canvas') as HTMLCanvasElement,
 });
 
 // Advanced initialization with WebGPU
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: canvas,
   webgpuOptions: {
@@ -66,7 +66,7 @@ transform.localPosition = Rn.Vector3.fromCopy3(1, 2, 3);
 transform.localEulerAngles = Rn.Vector3.fromCopy3(0, Math.PI, 0);
 transform.localScale = Rn.Vector3.fromCopy3(2, 2, 2);
 
-// Mesh Component  
+// Mesh Component
 const mesh = entity.getMesh();
 mesh.setMesh(primitive);
 
@@ -87,7 +87,7 @@ class CustomComponent extends Rn.Component {
   constructor(entityUid: number, componentSid: number, entityRepository: Rn.EntityRepository) {
     super(entityUid, componentSid, entityRepository);
   }
-  
+
   // Implement required methods
   $load(): void { /* ... */ }
   $logic(): void { /* ... */ }
@@ -135,7 +135,7 @@ const transform = translation.multiply(rotation).multiply(scale);
 // View and projection matrices
 const view = Rn.Matrix44.lookAt(
   Rn.Vector3.fromCopy3(0, 0, 5), // eye
-  Rn.Vector3.fromCopy3(0, 0, 0), // target  
+  Rn.Vector3.fromCopy3(0, 0, 0), // target
   Rn.Vector3.fromCopy3(0, 1, 0)  // up
 );
 
@@ -180,7 +180,7 @@ renderPass.clearDepth = 1.0;
 renderPass.addEntities([meshEntity1, meshEntity2]);
 
 // Execute render pass
-Rn.System.process([renderPass]);
+Rn.Engine.process([renderPass]);
 ```
 
 ### Frame Buffer Management
@@ -209,14 +209,14 @@ const isWebGL2Supported = Rn.Config.cgApiDebugMode === 'webgl2';
 // API-specific configuration
 if (isWebGPUSupported) {
   // WebGPU-specific setup
-  await Rn.System.init({
+  await Rn.Engine.init({
     approach: Rn.ProcessApproach.DataTexture,
     canvas: canvas,
     webgpuOptions: { /* WebGPU options */ }
   });
 } else {
   // WebGL2 fallback
-  await Rn.System.init({
+  await Rn.Engine.init({
     approach: Rn.ProcessApproach.DataTexture,
     canvas: canvas,
   });
@@ -240,7 +240,7 @@ const expression = await gltfImporter.import('path/to/model.gltf', {
   }],
 });
 
-// Load VRM file  
+// Load VRM file
 const vrmImporter = Rn.VrmImporter.getInstance();
 const vrmExpression = await vrmImporter.import('path/to/avatar.vrm', {
   files: files,
@@ -319,7 +319,7 @@ class CustomMaterialContent extends Rn.AbstractMaterialContent {
     `;
   }
 
-  // Implement fragment shader  
+  // Implement fragment shader
   _getPixelShaderMethodDefinitions() {
     return `
       vec4 getBaseColor() {
@@ -347,7 +347,7 @@ const outputNode = new Rn.OutColorShaderNode();
 
 // Connect nodes
 material.addShaderNode(baseColorNode);
-material.addShaderNode(normalNode);  
+material.addShaderNode(normalNode);
 material.addShaderNode(outputNode);
 
 // Define connections
@@ -502,7 +502,7 @@ const finalResult = result
 
 ```typescript
 try {
-  await Rn.System.init(config);
+  await Rn.Engine.init(config);
 } catch (error) {
   if (error instanceof Rn.RnException) {
     console.error('Rhodonite error:', error.message);
@@ -529,7 +529,7 @@ const memoryInfo = Rn.MemoryManager.getMemoryInfo();
 console.log('Memory usage:', memoryInfo);
 
 // Performance monitoring
-const stats = Rn.System.getPerformanceStats();
+const stats = Rn.Engine.getPerformanceStats();
 console.log('Frame time:', stats.frameTime);
 console.log('Draw calls:', stats.drawCalls);
 ```
@@ -563,7 +563,7 @@ await webXRSystem.setupWebXRSession({
 // XR render loop
 webXRSystem.startRenderLoop(() => {
   // XR-specific rendering
-  Rn.System.processAuto();
+  Rn.Engine.processAuto();
 });
 ```
 

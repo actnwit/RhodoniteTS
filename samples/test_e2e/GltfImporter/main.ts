@@ -7,7 +7,7 @@ declare const window: any;
 Rn.Config.isUboEnabled = false;
 Rn.Config.cgApiDebugConsoleOutput = true;
 
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -65,7 +65,7 @@ lightComponent.color = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
 lightEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, 0, Math.PI / 8]);
 
 let count = 0;
-Rn.System.startRenderLoop(() => {
+Rn.Engine.startRenderLoop(() => {
   if (p == null && count > 0) {
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');
@@ -77,7 +77,7 @@ Rn.System.startRenderLoop(() => {
     // const date = new Date();
   }
 
-  Rn.System.process(expressions);
+  Rn.Engine.process(expressions);
 
   count++;
 });

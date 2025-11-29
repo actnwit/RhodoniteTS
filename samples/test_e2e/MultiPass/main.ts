@@ -3,7 +3,7 @@ import Rn from '../../../dist/esmdev/index.js';
 declare const window: any;
 declare const Stats: any;
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -121,7 +121,7 @@ const stats = new Stats();
 stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
 document.body.appendChild(stats.domElement);
 
-Rn.System.startRenderLoop(() => {
+Rn.Engine.startRenderLoop(() => {
   if (p == null && count > 0) {
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');
@@ -143,7 +143,7 @@ Rn.System.startRenderLoop(() => {
   stats.begin();
 
   //      console.log(date.getTime());
-  Rn.System.process([expression]);
+  Rn.Engine.process([expression]);
 
   stats.end();
   count++;

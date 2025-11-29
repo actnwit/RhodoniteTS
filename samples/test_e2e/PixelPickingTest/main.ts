@@ -61,7 +61,7 @@ const canvas = document.getElementById('world') as HTMLCanvasElement;
 window.canvas = canvas;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas,
 });
@@ -128,7 +128,7 @@ Rn.CameraComponent.current = 0;
 let startTime = Date.now();
 let count = 0;
 
-Rn.System.startRenderLoop(async () => {
+Rn.Engine.startRenderLoop(async () => {
   if (p == null && count > 0) {
     window._pickedEntityUID = await pick({ offsetX: 300, offsetY: 300 });
 
@@ -150,7 +150,7 @@ Rn.System.startRenderLoop(async () => {
     //rootGroup.getTransform().localPosition = rootGroup.getTransform().localPosition;
   }
 
-  Rn.System.process([expression]);
+  Rn.Engine.process([expression]);
   count++;
 });
 

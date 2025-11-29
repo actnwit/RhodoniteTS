@@ -2,7 +2,7 @@ import Rn from '../../../dist/esmdev/index.js';
 declare const window: any;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -29,7 +29,7 @@ let startTime = Date.now();
 
 Rn.AnimationComponent.globalTime = 0.05;
 
-Rn.System.startRenderLoop(() => {
+Rn.Engine.startRenderLoop(() => {
   if (count > 0) {
     window._rendered = true;
   }
@@ -43,7 +43,7 @@ Rn.System.startRenderLoop(() => {
     }
   }
 
-  Rn.System.process([expression]);
+  Rn.Engine.process([expression]);
 
   count++;
 });

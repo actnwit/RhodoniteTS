@@ -7,7 +7,7 @@ import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFor
 import { Vector4 } from '../math/Vector4';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import type { FrameBuffer } from '../renderer/FrameBuffer';
-import { SystemState } from '../system/SystemState';
+import { EngineState } from '../system/EngineState';
 import { AbstractTexture } from './AbstractTexture';
 import type { IRenderable } from './IRenderable';
 
@@ -102,7 +102,7 @@ export class RenderTargetTexture2DArray extends AbstractTexture implements IRend
     });
     this._textureResourceUid = texture;
 
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2dArray(
         this._textureResourceUid,
         this.__arrayLength
@@ -119,7 +119,7 @@ export class RenderTargetTexture2DArray extends AbstractTexture implements IRend
    * @param layerIndex - The index of the layer to target for rendering
    */
   public changeRenderTargetLayerWebGPU(layerIndex: Index) {
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
       this._textureViewAsRenderTargetResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository

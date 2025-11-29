@@ -49,7 +49,7 @@ const load = async () => {
   Rn.Config.cgApiDebugConsoleOutput = true;
   const canvas = document.getElementById('world') as HTMLCanvasElement;
   window.canvas = canvas;
-  await Rn.System.init({
+  await Rn.Engine.init({
     approach: Rn.ProcessApproach.Uniform,
     canvas,
   });
@@ -110,7 +110,7 @@ const load = async () => {
       //rootGroup.getTransform().localPosition = rootGroup.getTransform().localPosition;
     }
 
-    Rn.System.process([expression]);
+    Rn.Engine.process([expression]);
     count++;
 
     requestAnimationFrame(draw);

@@ -25,8 +25,8 @@ import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
 import { Is } from '../../misc/Is';
 import { RenderPass } from '../../renderer/RenderPass';
+import { EngineState } from '../../system/EngineState';
 import { ModuleManager } from '../../system/ModuleManager';
-import { SystemState } from '../../system/SystemState';
 import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { createGroupEntity } from '../SceneGraph/createGroupEntity';
@@ -800,12 +800,12 @@ export class CameraComponent extends Component {
     const zNear = this._parametersInner.x;
     const zFar = this._parametersInner.y;
 
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (this.type === CameraType.Perspective) {
         const fovy = this._parametersInner.z;
         let aspect = this._parametersInner.w;
         if (aspect < 0) {
-          aspect = SystemState.viewportAspectRatio;
+          aspect = EngineState.viewportAspectRatio;
         }
         const yscale = 1.0 / Math.tan((0.5 * fovy * Math.PI) / 180);
         const xscale = yscale / aspect;
@@ -882,7 +882,7 @@ export class CameraComponent extends Component {
         const fovy = this._parametersInner.z;
         let aspect = this._parametersInner.w;
         if (aspect < 0) {
-          aspect = SystemState.viewportAspectRatio;
+          aspect = EngineState.viewportAspectRatio;
         }
         const yscale = 1.0 / Math.tan((0.5 * fovy * Math.PI) / 180);
         const xscale = yscale / aspect;
@@ -1067,7 +1067,7 @@ export class CameraComponent extends Component {
    */
   get biasViewProjectionMatrix() {
     MutableMatrix44.multiplyTo(this._projectionMatrix, this._viewMatrix, CameraComponent.__tmpMatrix44_0);
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return MutableMatrix44.multiplyTo(
         CameraComponent.__biasMatrixWebGPU,
         CameraComponent.__tmpMatrix44_0,

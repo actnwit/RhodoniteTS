@@ -1,16 +1,16 @@
 import { ProcessApproach, type ProcessApproachEnum } from '../definitions/ProcessApproach';
 
 /**
- * The current process approach used by the system for rendering operations.
+ * The current process approach used by the engine for rendering operations.
  * Defaults to ProcessApproach.None when no specific approach is set.
  */
 const currentProcessApproach: ProcessApproachEnum = ProcessApproach.None;
 
 /**
- * Global system state object that holds various runtime configuration and state information.
- * This object contains system-wide settings that affect rendering behavior and performance.
+ * Global engine state object that holds various runtime configuration and state information.
+ * This object contains engine-wide settings that affect rendering behavior and performance.
  */
-export const SystemState = {
+export const EngineState = {
   /**
    * The current process approach being used for rendering operations.
    * Determines whether to use WebGL2 uniform approach, data texture approach, WebGPU, or none.

@@ -8,7 +8,7 @@ import { TextureFormat } from '../definitions/TextureFormat';
 import { TextureParameter } from '../definitions/TextureParameter';
 import { Logger } from '../misc/Logger';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { SystemState } from '../system/SystemState';
+import { EngineState } from '../system/EngineState';
 import { AbstractTexture } from './AbstractTexture';
 
 /**
@@ -99,7 +99,7 @@ export class TextureArray extends AbstractTexture implements Disposable {
     );
     this.__setTextureResourceUid(resourceUid, this.uniqueName);
 
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2dArray(
         this._textureResourceUid,
         Config.maxLightNumber

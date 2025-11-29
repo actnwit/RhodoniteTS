@@ -13,7 +13,7 @@ import { ShaderSemantics, ShaderSemanticsClass, type ShaderSemanticsEnum } from 
 import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { ShaderType } from '../../definitions/ShaderType';
 import { Scalar } from '../../math/Scalar';
-import { SystemState } from '../../system/SystemState';
+import { EngineState } from '../../system/EngineState';
 import type { AbstractTexture } from '../../textures/AbstractTexture';
 import { Sampler } from '../../textures/Sampler';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
@@ -82,7 +82,7 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
       },
     ];
 
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this.setVertexShaderityObject(DetectHighLuminanceAndCorrectShaderVertexWebGpu);
       this.setPixelShaderityObject(DetectHighLuminanceAndCorrectShaderFragmentWebGpu);
     } else {

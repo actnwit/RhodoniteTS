@@ -7,7 +7,7 @@ declare const window: any;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
 Rn.Logger.logLevel = Rn.LogLevel.Debug;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -84,7 +84,7 @@ mainExpression.addRenderPasses([mainRenderPass]);
 
 let count = 0;
 let angle = 0;
-Rn.System.startRenderLoop(() => {
+Rn.Engine.startRenderLoop(() => {
   if (count > 0) {
     p.id = 'rendered';
     p.innerText = 'Rendered.';
@@ -93,8 +93,8 @@ Rn.System.startRenderLoop(() => {
     rotateObject(pointGroupEntity, angle);
     angle += 0.01;
   }
-  Rn.System.process([shadowMapExpression, blurExpression, mainExpression]);
-  // Rn.System.process([shadowMapExpression, mainExpression]);
+  Rn.Engine.process([shadowMapExpression, blurExpression, mainExpression]);
+  // Rn.Engine.process([shadowMapExpression, mainExpression]);
 
   count++;
 });

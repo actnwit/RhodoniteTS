@@ -6,7 +6,7 @@ document.body.appendChild(p);
 const world = document.getElementById('world') as HTMLCanvasElement;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: world,
 });
@@ -39,13 +39,13 @@ const expression = await Rn.GltfImporter.importFromUrl(
 
 let count = 0;
 
-Rn.System.startRenderLoop(() => {
+Rn.Engine.startRenderLoop(() => {
   if (count > 0) {
     p.id = 'rendered';
     p.innerText = 'Rendered.';
   }
 
-  Rn.System.process([expression]);
+  Rn.Engine.process([expression]);
 
   count++;
 });

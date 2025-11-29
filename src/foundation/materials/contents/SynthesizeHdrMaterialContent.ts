@@ -14,7 +14,7 @@ import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo'
 import { ShaderType } from '../../definitions/ShaderType';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import { VectorN } from '../../math/VectorN';
-import { SystemState } from '../../system/SystemState';
+import { EngineState } from '../../system/EngineState';
 import type { AbstractTexture } from '../../textures/AbstractTexture';
 import { Sampler } from '../../textures/Sampler';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
@@ -156,7 +156,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
       },
     ];
 
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this.setVertexShaderityObject(SynthesizeHDRTextureShaderVertexWebGpu);
       this.setPixelShaderityObject(SynthesizeHDRTextureShaderFragmentWebGpu);
     } else {

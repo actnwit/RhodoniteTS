@@ -17,7 +17,7 @@ import {
 import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
 import { Logger } from '../../foundation/misc/Logger';
 import { CGAPIResourceRepository } from '../../foundation/renderer/CGAPIResourceRepository';
-import { SystemState } from '../../foundation/system/SystemState';
+import { EngineState } from '../../foundation/system/EngineState';
 import type {
   BasisLzEtc1sImageTranscoder,
   MSC_TRANSCODER_TYPE,
@@ -359,7 +359,7 @@ export class KTX2TextureLoader {
         : transcoderModule.TextureFormat.ETC1S;
 
     const { transcodeTargetStr, compressionTextureType } =
-      SystemState.currentProcessApproach === ProcessApproach.WebGPU
+      EngineState.currentProcessApproach === ProcessApproach.WebGPU
         ? this.__getDeviceDependentParametersWebGPU(hasAlpha)
         : this.__getDeviceDependentParametersWebGL(hasAlpha);
 

@@ -35,14 +35,14 @@ import { CGAPIResourceRepository, type ICGAPIResourceRepository } from '../rende
 import { Expression } from '../renderer/Expression';
 import { Frame } from '../renderer/Frame';
 import { RenderPass } from '../renderer/RenderPass';
+import { EngineState } from './EngineState';
 import { ModuleManager } from './ModuleManager';
-import { SystemState } from './SystemState';
 declare const spector: any;
 
 /**
- * The argument type for System.init() method.
+ * The argument type for Engine.init() method.
  */
-interface SystemInitDescription {
+interface EngineInitDescription {
   approach: ProcessApproachEnum;
   canvas: HTMLCanvasElement;
   webglOption?: WebGLContextAttributes;
@@ -54,19 +54,19 @@ interface SystemInitDescription {
  *
  * @example
  * ```
- * await Rn.System.init({
+ * await Rn.Engine.init({
  *   approach: Rn.ProcessApproach.DataTexture,
  *   canvas: document.getElementById('world') as HTMLCanvasElement,
  * });
  *
  * ... (create something) ...
  *
- * Rn.System.startRenderLoop((time, _myArg1, _myArg2) => {
- *   Rn.System.process([expression]);
+ * Rn.Engine.startRenderLoop((time, _myArg1, _myArg2) => {
+ *   Rn.Engine.process([expression]);
  * }, myArg1, myArg2);
  * ```
  */
-export class System {
+export class Engine {
   private static __expressionForProcessAuto?: Expression;
   private static __renderPassForProcessAuto?: RenderPass;
   private static __processApproach: ProcessApproachEnum = ProcessApproach.None;
@@ -90,8 +90,8 @@ export class System {
    *
    * @example
    * ```
-   * Rn.System.startRenderLoop((time, _myArg1, _myArg2) => {
-   *   Rn.System.process([expression]);
+   * Rn.Engine.startRenderLoop((time, _myArg1, _myArg2) => {
+   *   Rn.Engine.process([expression]);
    * }, myArg1, myArg2);
    * ```
    *
@@ -176,7 +176,7 @@ export class System {
    * @param clearColor - color to clear the canvas
    */
   public static processAuto(clearColor = Vector4.fromCopy4(0, 0, 0, 1)) {
-    if (Is.not.exist(System.__expressionForProcessAuto)) {
+    if (Is.not.exist(Engine.__expressionForProcessAuto)) {
       const expression = new Expression();
       const renderPassInit = new RenderPass();
       renderPassInit.toClearColorBuffer = true;
@@ -184,13 +184,13 @@ export class System {
       renderPassInit.clearColor = clearColor;
       const renderPassMain = new RenderPass();
       expression.addRenderPasses([renderPassInit, renderPassMain]);
-      System.__expressionForProcessAuto = expression;
-      System.__renderPassForProcessAuto = renderPassMain;
+      Engine.__expressionForProcessAuto = expression;
+      Engine.__renderPassForProcessAuto = renderPassMain;
     }
-    System.__renderPassForProcessAuto!.clearEntities();
+    Engine.__renderPassForProcessAuto!.clearEntities();
     const entities = EntityRepository._getEntities();
-    System.__renderPassForProcessAuto!.addEntities(entities as unknown as ISceneGraphEntity[]);
-    this.process([System.__expressionForProcessAuto]);
+    Engine.__renderPassForProcessAuto!.addEntities(entities as unknown as ISceneGraphEntity[]);
+    this.process([Engine.__expressionForProcessAuto]);
   }
 
   /**
@@ -211,7 +211,7 @@ export class System {
     }
 
     if (CameraComponent.current === Component.InvalidObjectUID) {
-      System.createCamera();
+      Engine.createCamera();
     }
 
     const time = GlobalDataRepository.getInstance().getValue('time', 0) as Scalar;
@@ -238,7 +238,7 @@ export class System {
         MeshRendererComponent.common_$prerender();
         const isWebXRMode = webxrSystem.isWebXRMode;
         const isMultiView = webxrSystem.isMultiView();
-        const xrPose = SystemState.xrPoseWebGPU;
+        const xrPose = EngineState.xrPoseWebGPU;
         const displayCount = isWebXRMode && !isMultiView && xrPose != null ? xrPose.views.length : 1;
         const renderPassTickCountMap = new Map<number, number>();
         const primitiveUidsMap = new Map<number, PrimitiveUID[]>();
@@ -269,7 +269,7 @@ export class System {
               let doRender = renderPass._renderedSomethingBefore;
               if (doRender) {
                 doRender = !webGpuResourceRepository.renderWithRenderBundle(renderPass, displayIdx);
-                SystemState.webgpuRenderBundleMode ||= doRender;
+                EngineState.webgpuRenderBundleMode ||= doRender;
               }
 
               if (doRender) {
@@ -300,7 +300,7 @@ export class System {
         webGpuResourceRepository.flush();
       } else {
         if (
-          !SystemState.webgpuRenderBundleMode ||
+          !EngineState.webgpuRenderBundleMode ||
           AnimationComponent.isAnimating ||
           TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
           CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
@@ -356,10 +356,10 @@ export class System {
               repo.switchDepthTest(renderPass.isDepthTest);
 
               // bind Framebuffer
-              System.bindFramebufferWebGL(renderPass, rnXRModule);
+              Engine.bindFramebufferWebGL(renderPass, rnXRModule);
 
               // set Viewport for Normal (Not WebXR)
-              System.setViewportForNormalRendering(renderPass, rnXRModule);
+              Engine.setViewportForNormalRendering(renderPass, rnXRModule);
 
               if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
                 // clear Framebuffer
@@ -508,7 +508,7 @@ export class System {
    *
    * @example
    * ```
-   * await Rn.System.init({
+   * await Rn.Engine.init({
    *   approach: Rn.ProcessApproach.DataTexture,
    *   canvas: document.getElementById('world') as HTMLCanvasElement,
    * });
@@ -517,9 +517,9 @@ export class System {
    * @param desc
    * @returns
    */
-  public static async init(desc: SystemInitDescription): Promise<void> {
+  public static async init(desc: EngineInitDescription): Promise<void> {
     this.__processApproach = desc.approach;
-    SystemState.currentProcessApproach = desc.approach;
+    EngineState.currentProcessApproach = desc.approach;
     if (desc.notToDisplayRnInfoAtInit !== true) {
       this.__displayRnInfo();
     }
@@ -531,7 +531,7 @@ export class System {
     if (desc.approach === ProcessApproach.WebGPU) {
       // WebGPU
       await ModuleManager.getInstance().loadModule('webgpu');
-      System.__cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+      Engine.__cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
 
       const webGpuResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository() as WebGpuResourceRepository;
       const webgpuModule = ModuleManager.getInstance().getModule('webgpu');
@@ -565,7 +565,7 @@ export class System {
     } else {
       // WebGL
       await ModuleManager.getInstance().loadModule('webgl');
-      System.__cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+      Engine.__cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
       const repo = CGAPIResourceRepository.getWebGLResourceRepository();
       repo.generateWebGLContext(desc.canvas, true, desc.webglOption);
       repo.switchDepthTest(true);
@@ -606,7 +606,7 @@ export class System {
 
     await initDefaultTextures();
 
-    SystemState.viewportAspectRatio = desc.canvas.width / desc.canvas.height;
+    EngineState.viewportAspectRatio = desc.canvas.width / desc.canvas.height;
   }
 
   public static get processApproach() {
@@ -616,7 +616,7 @@ export class System {
   public static resizeCanvas(width: number, height: number) {
     const repo = CGAPIResourceRepository.getCgApiResourceRepository();
     repo.resizeCanvas(width, height);
-    SystemState.viewportAspectRatio = width / height;
+    EngineState.viewportAspectRatio = width / height;
   }
 
   public static getCanvasSize() {

@@ -13,10 +13,10 @@ createCamera(group);
 
 // Rendering Loop
 let count = 0;
-Rn.System.startRenderLoop(() => {
+Rn.Engine.startRenderLoop(() => {
   [p, count] = checkFinished({ p: p!, count });
 
-  Rn.System.processAuto();
+  Rn.Engine.processAuto();
 
   count++;
 });
@@ -125,7 +125,7 @@ function createCapsule() {
 
 async function setupRhodonite() {
   Rn.Config.cgApiDebugConsoleOutput = true;
-  await Rn.System.init({
+  await Rn.Engine.init({
     approach: Rn.ProcessApproach.Uniform,
     canvas: document.getElementById('world') as HTMLCanvasElement,
   });

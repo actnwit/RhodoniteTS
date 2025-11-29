@@ -37,7 +37,7 @@ declare const window: any;
   promises.push(Rn.ModuleManager.getInstance().loadModule('pbr'));
   Promise.all(promises).then(async () => {
     Rn.Config.cgApiDebugConsoleOutput = true;
-    await Rn.System.init({
+    await Rn.Engine.init({
       approach: Rn.ProcessApproach.WebGPU,
       canvas: document.getElementById('world') as HTMLCanvasElement,
     });
@@ -85,10 +85,10 @@ declare const window: any;
       }
 
       //      console.log(date.getTime());
-      Rn.System.process([expression]);
+      Rn.Engine.process([expression]);
 
-      const t0 = Rn.System.timeAtProcessBegin;
-      const t1 = Rn.System.timeAtProcessEnd;
+      const t0 = Rn.Engine.timeAtProcessBegin;
+      const t1 = Rn.Engine.timeAtProcessEnd;
       const msec = t1 - t0;
       const sec = msec / 1000;
       const virtualFps = 1.0 / sec;

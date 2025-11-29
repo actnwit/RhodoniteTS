@@ -62,14 +62,14 @@ await createMainExpression(expressions);
 await setIBL();
 
 // Render Loop
-Rn.System.startRenderLoop(() => {
-  Rn.System.process(expressions);
+Rn.Engine.startRenderLoop(() => {
+  Rn.Engine.process(expressions);
 });
 
 async function initRn() {
   Rn.Config.cgApiDebugConsoleOutput = true;
   const canvas = document.getElementById('world') as HTMLCanvasElement;
-  await Rn.System.init({
+  await Rn.Engine.init({
     approach: Rn.ProcessApproach.DataTexture,
     canvas,
     webglOption: { antialias: false },

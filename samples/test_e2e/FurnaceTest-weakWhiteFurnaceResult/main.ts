@@ -18,7 +18,7 @@ declare global {
 // prepare memory
 Rn.Config.cgApiDebugConsoleOutput = true;
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: rnCanvasElement,
 });
@@ -115,7 +115,7 @@ function createExpression(renderPasses: Rn.RenderPass[]) {
 }
 
 function draw(expressions: Rn.Expression[], createPElem = false) {
-  Rn.System.process(expressions);
+  Rn.Engine.process(expressions);
 
   // for e2e-test
   if (createPElem) {

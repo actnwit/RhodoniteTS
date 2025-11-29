@@ -5,7 +5,7 @@ import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFor
 import { Vector4 } from '../math/Vector4';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import type { FrameBuffer } from '../renderer/FrameBuffer';
-import { SystemState } from '../system/SystemState';
+import { EngineState } from '../system/EngineState';
 import { AbstractTexture } from './AbstractTexture';
 import type { IRenderable } from './IRenderable';
 
@@ -85,7 +85,7 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     });
     this._textureResourceUid = texture;
 
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2d(
         this._textureResourceUid
       );

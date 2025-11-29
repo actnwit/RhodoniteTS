@@ -2,7 +2,7 @@ import Rn from '../../../dist/esmdev/index.js';
 let p: any;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -43,7 +43,7 @@ largeBoardEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Mat
 
 let count = 0;
 
-Rn.System.startRenderLoop(() => {
+Rn.Engine.startRenderLoop(() => {
   if (p == null && count > 0) {
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');
@@ -51,7 +51,7 @@ Rn.System.startRenderLoop(() => {
     document.body.appendChild(p);
   }
 
-  Rn.System.process([expression]);
+  Rn.Engine.process([expression]);
 
   count++;
 });

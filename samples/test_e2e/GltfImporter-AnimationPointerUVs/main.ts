@@ -6,7 +6,7 @@ declare const window: any;
 Rn.Config.isUboEnabled = false;
 Rn.Config.cgApiDebugConsoleOutput = true;
 const canvas = document.getElementById('world') as HTMLCanvasElement;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.WebGPU,
   canvas,
 });
@@ -88,7 +88,7 @@ const draw = frame => {
     Rn.AnimationComponent.setIsAnimating(false);
   }
 
-  Rn.System.process(frame);
+  Rn.Engine.process(frame);
 
   count++;
 };

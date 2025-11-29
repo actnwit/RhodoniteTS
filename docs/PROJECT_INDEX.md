@@ -22,7 +22,7 @@
 ```
 ┌─ Foundation Layer ─────────────────────────────┐
 │  Core ECS │ Math │ Memory │ Components │ Utils  │
-├─ API Abstraction Layer ───────────────────────┤  
+├─ API Abstraction Layer ───────────────────────┤
 │          WebGL2 │ WebGPU │ Strategy            │
 ├─ Rendering Pipeline ──────────────────────────┤
 │    Materials │ Shaders │ Passes │ Pipelines   │
@@ -87,7 +87,7 @@
 ```
 AbstractMaterialContent ──┐
                          ├── PBRMaterialContent
-                         ├── MToonMaterialContent  
+                         ├── MToonMaterialContent
                          ├── MatCapMaterialContent
                          └── CustomMaterialContent
 ```
@@ -142,7 +142,7 @@ Scene Graph → Culling → Material Sorting → Render Passes → GPU Commands
 src/
 ├── foundation/           # Core library functionality
 │   ├── core/            # ECS system and memory management
-│   ├── components/      # Built-in ECS components  
+│   ├── components/      # Built-in ECS components
 │   ├── math/           # Mathematical primitives
 │   ├── materials/      # Material and shader system
 │   ├── renderer/       # Rendering pipeline
@@ -155,7 +155,7 @@ src/
 │   ├── helpers/        # Utility functions
 │   └── misc/           # Miscellaneous utilities
 ├── webgl/              # WebGL2-specific implementation
-├── webgpu/             # WebGPU-specific implementation  
+├── webgpu/             # WebGPU-specific implementation
 ├── types/              # TypeScript type definitions
 ├── effekseer/          # Effekseer particle system
 └── xr/                 # WebXR support
@@ -182,7 +182,7 @@ dist/
 yarn watch-esm-dev         # Watch mode for library development
 yarn start                 # Development server (port 8082)
 
-# Building  
+# Building
 yarn build                 # Build all targets
 yarn build-samples         # Compile samples
 
@@ -199,7 +199,7 @@ yarn doc                   # Generate API documentation
 ### Development Workflow
 
 1. **Setup**: `yarn install` (Node.js 22+ required)
-2. **Watch**: `yarn watch-esm-dev` for live development  
+2. **Watch**: `yarn watch-esm-dev` for live development
 3. **Test**: `yarn test-unit` for validation
 4. **Quality**: `yarn check:fix` before commits
 5. **Build**: `yarn build && yarn test` before PRs
@@ -219,9 +219,9 @@ yarn doc                   # Generate API documentation
 
 1. **Install**: `npm install rhodonite`
 2. **Import**: `import Rn from 'rhodonite'`
-3. **Initialize**: `await Rn.System.init({...})`
+3. **Initialize**: `await Rn.Engine.init({...})`
 4. **Create**: Use helper functions or ECS directly
-5. **Render**: `Rn.System.startRenderLoop()`
+5. **Render**: `Rn.Engine.startRenderLoop()`
 
 ### For Contributors
 
@@ -252,7 +252,7 @@ yarn doc                   # Generate API documentation
 ### Key Concepts
 
 - **Blittable Memory Architecture**: Data pre-allocation for GPU efficiency
-- **Component-Oriented Design**: ECS pattern for modularity  
+- **Component-Oriented Design**: ECS pattern for modularity
 - **Multi-API Support**: WebGL2 and WebGPU compatibility
 - **Node-Based Materials**: Flexible shader composition
 - **Asset Pipeline**: Comprehensive format support (glTF, VRM, etc.)

@@ -2,7 +2,7 @@ import type { ComponentTypeEnum } from '../../../foundation/definitions/Componen
 import type { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { ProcessApproach } from '../../../foundation/definitions/ProcessApproach';
 import type { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
-import { SystemState } from '../../../foundation/system/SystemState';
+import { EngineState } from '../../../foundation/system/EngineState';
 import type { AttributeNames } from '../../types/CommonTypes';
 import { CommonShaderPart } from '../CommonShaderPart';
 
@@ -26,7 +26,7 @@ export class UniformDataShader extends CommonShaderPart {
   }
 
   get vertexShaderDefinitions() {
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
 // #param ${this.__variableName}: ${this.__compositionType.toWGSLType(
         this.__componentType
@@ -53,7 +53,7 @@ void ${this.__functionName}(out ${this.__compositionType.getGlslStr(this.__compo
   }
 
   get pixelShaderDefinitions() {
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
 // #param ${this.__variableName}: ${this.__compositionType.toWGSLType(
         this.__componentType

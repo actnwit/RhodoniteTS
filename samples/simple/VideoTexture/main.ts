@@ -5,7 +5,7 @@ let p: any;
 declare const window: any;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -68,7 +68,7 @@ expression.addRenderPasses([renderPass]);
 Rn.CameraComponent.current = 0;
 let startTime = Date.now();
 let count = 0;
-Rn.System.startRenderLoop(() => {
+Rn.Engine.startRenderLoop(() => {
   if (p == null && count > 0) {
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');
@@ -88,7 +88,7 @@ Rn.System.startRenderLoop(() => {
     //rootGroup.getTransform().localPosition = rootGroup.getTransform().localPosition;
   }
   texture.updateTexture();
-  Rn.System.process([expression]);
+  Rn.Engine.process([expression]);
   count++;
 });
 

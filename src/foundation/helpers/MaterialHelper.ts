@@ -90,7 +90,7 @@ import { Vector2 } from '../math/Vector2';
 import { VectorN } from '../math/VectorN';
 import { DataUtil } from '../misc/DataUtil';
 import type { RenderPass } from '../renderer/RenderPass';
-import { SystemState } from '../system/SystemState';
+import { EngineState } from '../system/EngineState';
 import type { AbstractTexture } from '../textures/AbstractTexture';
 import { Sampler } from '../textures/Sampler';
 import type { Texture } from '../textures/Texture';
@@ -1544,7 +1544,7 @@ function reuseOrRecreateCustomMaterial(
   }
 
   let materialContent: CustomMaterialContent;
-  if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+  if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
     materialContent = new CustomMaterialContent({
       name: materialName,
       isSkinning,

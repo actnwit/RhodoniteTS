@@ -23,7 +23,7 @@ const synthesizeCoefficient = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0] as [number, number,
 // prepare memory
 Rn.Config.cgApiDebugConsoleOutput = true;
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: rnCanvasElement,
 });
@@ -211,6 +211,6 @@ function draw(expressions: Rn.Expression[], loopCount: number, pElem?: HTMLEleme
     document.body.appendChild(pElem);
   }
 
-  Rn.System.process(expressions);
+  Rn.Engine.process(expressions);
   requestAnimationFrame(draw.bind(null, expressions, loopCount + 1, pElem));
 }

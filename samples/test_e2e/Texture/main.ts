@@ -6,7 +6,7 @@ declare const window: any;
 // Init Rhodonite
 Rn.Config.cgApiDebugConsoleOutput = true;
 const processApproach = getProcessApproach(Rn);
-await Rn.System.init({
+await Rn.Engine.init({
   approach: processApproach,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -82,7 +82,7 @@ expression.addRenderPasses([renderPass]);
 // Render Loop
 let count = 0;
 
-Rn.System.startRenderLoop(() => {
+Rn.Engine.startRenderLoop(() => {
   if (!window._rendered && count > 0) {
     window._rendered = true;
     const p = document.createElement('p');
@@ -91,6 +91,6 @@ Rn.System.startRenderLoop(() => {
     document.body.appendChild(p);
   }
 
-  Rn.System.process([expression]);
+  Rn.Engine.process([expression]);
   count++;
 });

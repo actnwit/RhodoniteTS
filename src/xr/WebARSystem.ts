@@ -10,8 +10,8 @@ import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
 import { None, type Option, Some } from '../foundation/misc/Option';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
+import { Engine } from '../foundation/system/Engine';
 import { ModuleManager } from '../foundation/system/ModuleManager';
-import { System } from '../foundation/system/System';
 import type { WebGLContextWrapper } from '../webgl/WebGLContextWrapper';
 
 const defaultUserPositionInVR = Vector3.fromCopyArray([0.0, 1.1, 0]);
@@ -181,8 +181,8 @@ export class WebARSystem {
         this.__isWebARMode = false;
         this.__defaultPositionInLocalSpaceMode = defaultUserPositionInVR;
         Logger.info('XRSession ends.');
-        System.stopRenderLoop();
-        System.restartRenderLoop();
+        Engine.stopRenderLoop();
+        Engine.restartRenderLoop();
         callbackOnXrSessionEnd();
       });
 
@@ -190,10 +190,10 @@ export class WebARSystem {
       this.__spaceType = 'local';
       this.__defaultPositionInLocalSpaceMode = initialUserPosition ?? defaultUserPositionInVR;
       this.__oArReferenceSpace = new Some(referenceSpace);
-      System.stopRenderLoop();
+      Engine.stopRenderLoop();
       await this.__setupWebGLLayer(session, callbackOnXrSessionStart);
       this.__requestedToEnterWebAR = true;
-      System.restartRenderLoop();
+      Engine.restartRenderLoop();
       Logger.warn('End of enterWebXR.');
       return;
     }

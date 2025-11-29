@@ -5,7 +5,7 @@ const p = document.createElement('p');
 document.body.appendChild(p);
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -38,7 +38,7 @@ lightEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 10.0, 
 let count = 0;
 Rn.AnimationComponent.globalTime = 0.33;
 
-Rn.System.startRenderLoop(() => {
+Rn.Engine.startRenderLoop(() => {
   if (count > 0) {
     p.id = 'rendered';
     p.innerText = 'Rendered.';
@@ -51,7 +51,7 @@ Rn.System.startRenderLoop(() => {
     }
   }
 
-  Rn.System.process([expression]);
+  Rn.Engine.process([expression]);
 
   count++;
 });

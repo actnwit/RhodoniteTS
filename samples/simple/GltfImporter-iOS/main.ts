@@ -5,7 +5,7 @@ let p: any;
 declare const window: any;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -124,7 +124,7 @@ lightEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0.0, 0.0
 
 let count = 0;
 let startTime = Date.now();
-Rn.System.startRenderLoop(() => {
+Rn.Engine.startRenderLoop(() => {
   if (p == null && count > 0) {
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');
@@ -141,7 +141,7 @@ Rn.System.startRenderLoop(() => {
     }
   }
 
-  Rn.System.process(expressions);
+  Rn.Engine.process(expressions);
 
   count++;
 });

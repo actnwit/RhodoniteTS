@@ -60,7 +60,7 @@ function readyBasicVerticesData() {
 
 Rn.Config.cgApiDebugConsoleOutput = true;
 const processApproach = getProcessApproach(Rn);
-await Rn.System.init({
+await Rn.Engine.init({
   approach: processApproach,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -135,7 +135,7 @@ const draw = () => {
   stats.begin();
 
   //      console.log(date.getTime());
-  Rn.System.process([expression]);
+  Rn.Engine.process([expression]);
 
   stats.end();
   count++;

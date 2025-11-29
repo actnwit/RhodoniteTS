@@ -7,7 +7,7 @@ import { Scalar } from '../../math/Scalar';
 import { Vector2 } from '../../math/Vector2';
 import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
-import { SystemState } from '../../system/SystemState';
+import { EngineState } from '../../system/EngineState';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
 
@@ -117,7 +117,7 @@ export class AddShaderNode extends AbstractShaderNode {
    * @throws {Error} Throws an error if the input socket type combination is not implemented
    */
   getShaderFunctionNameDerivative() {
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (
         this.__inputs[0].compositionType === CompositionType.Scalar &&
         this.__inputs[1].compositionType === CompositionType.Scalar

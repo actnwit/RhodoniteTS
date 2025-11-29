@@ -10,7 +10,7 @@ Rn.Config.isUboEnabled = false;
 Rn.Config.cgApiDebugConsoleOutput = true;
 Rn.setUpAsMemoryBoostMode();
 
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -82,7 +82,7 @@ document.body.appendChild(stats.domElement);
 let count = 0;
 let startTime = Date.now();
 
-Rn.System.startRenderLoop(() => {
+Rn.Engine.startRenderLoop(() => {
   if (p == null && count > 0) {
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');
@@ -100,7 +100,7 @@ Rn.System.startRenderLoop(() => {
   }
 
   stats.begin();
-  Rn.System.process(expressions);
+  Rn.Engine.process(expressions);
   stats.end();
 
   count++;

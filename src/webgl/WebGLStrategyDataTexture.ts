@@ -38,8 +38,8 @@ import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRep
 import type { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
 import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
+import { EngineState } from '../foundation/system/EngineState';
 import { ModuleManager } from '../foundation/system/ModuleManager';
-import { SystemState } from '../foundation/system/SystemState';
 import type {
   Byte,
   CGAPIResourceHandle,
@@ -824,7 +824,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
             accessor.bufferView.buffer.indexOfTheBufferUsage
           );
           this.__uniformMorphOffsetsTypedArray![morphUniformDataOffsets[i] + j] =
-            (SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData +
+            (EngineState.totalSizeOfGPUShaderDataStorageExceptMorphData +
               byteOffsetOfExistingBuffer +
               accessor.byteOffsetInBuffer) /
             4 /
@@ -924,12 +924,12 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const morphMaxIndex = Primitive.getPrimitiveCountHasMorph();
     if (
       morphMaxIndex !== this.__lastMorphMaxIndex ||
-      SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData !==
+      EngineState.totalSizeOfGPUShaderDataStorageExceptMorphData !==
         this.__lastTotalSizeOfGPUShaderDataStorageExceptMorphData
     ) {
       this.__updateMorphOffsetsUniformBuffersInner();
       this.__lastTotalSizeOfGPUShaderDataStorageExceptMorphData =
-        SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData;
+        EngineState.totalSizeOfGPUShaderDataStorageExceptMorphData;
       this.__lastMorphMaxIndex = morphMaxIndex;
     }
   }
@@ -1056,7 +1056,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       }
 
       const floatDataTextureBuffer = new Float32Array(finalArrayBuffer);
-      SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData = srcCopySizesExceptMorphBuffer.reduce(
+      EngineState.totalSizeOfGPUShaderDataStorageExceptMorphData = srcCopySizesExceptMorphBuffer.reduce(
         (acc, size) => acc + size,
         0
       );

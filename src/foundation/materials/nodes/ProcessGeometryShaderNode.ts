@@ -2,7 +2,7 @@ import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { Scalar } from '../../math/Scalar';
-import { SystemState } from '../../system/SystemState';
+import { EngineState } from '../../system/EngineState';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
 
@@ -146,7 +146,7 @@ export class ProcessGeometryShaderNode extends AbstractShaderNode {
     let rowStr = '';
     if (varInputNames[i].length > 0 && varOutputNames[i].length > 0) {
       const dummyOutputVarDefines =
-        SystemState.currentProcessApproach === ProcessApproach.WebGPU
+        EngineState.currentProcessApproach === ProcessApproach.WebGPU
           ? [
               `var dummyNormalMatrix_${i}: mat3x3<f32>;`,
               `var dummyPositionInWorld_${i}: vec4<f32>;`,
@@ -170,7 +170,7 @@ export class ProcessGeometryShaderNode extends AbstractShaderNode {
         }
       }
 
-      if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
         for (let i = 0; i < dummyOutputArguments.length; i++) {
           dummyOutputArguments[i] = `&${dummyOutputArguments[i]}`;
         }

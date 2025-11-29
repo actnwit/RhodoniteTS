@@ -43,8 +43,8 @@ import type { VertexAttributeEnum } from '../../definitions/VertexAttribute';
 import type { Primitive } from '../../geometry/Primitive';
 import { Is } from '../../misc/Is';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import { EngineState } from '../../system/EngineState';
 import { ModuleManager } from '../../system/ModuleManager';
-import { SystemState } from '../../system/SystemState';
 import type { AbstractMaterialContent } from './AbstractMaterialContent';
 import type { Material } from './Material';
 import { MaterialRepository } from './MaterialRepository';
@@ -336,7 +336,7 @@ export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, _pri
     }
   }
   definitions += `// RN_MATERIAL_TYPE_NAME: ${materialTypeName}\n`;
-  if (ProcessApproach.isDataTextureApproach(SystemState.currentProcessApproach)) {
+  if (ProcessApproach.isDataTextureApproach(EngineState.currentProcessApproach)) {
     definitions += '#define RN_IS_DATATEXTURE_MODE\n';
   } else {
     definitions += '#define RN_IS_UNIFORM_MODE\n';

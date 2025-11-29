@@ -7,7 +7,7 @@ window.Rn = Rn;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
 const processApproach = getProcessApproach(Rn);
-await Rn.System.init({
+await Rn.Engine.init({
   approach: processApproach,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -485,10 +485,10 @@ const draw = () => {
   }
 
   //      console.log(date.getTime());
-  Rn.System.process(expressions);
+  Rn.Engine.process(expressions);
 
-  const t0 = Rn.System.timeAtProcessBegin;
-  const t1 = Rn.System.timeAtProcessEnd;
+  const t0 = Rn.Engine.timeAtProcessBegin;
+  const t1 = Rn.Engine.timeAtProcessEnd;
   const msec = t1 - t0;
   const sec = msec / 1000;
   const virtualFps = 1.0 / sec;

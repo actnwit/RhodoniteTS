@@ -34,7 +34,7 @@ import {
 } from '../foundation/renderer/CGAPIResourceRepository';
 import type { FrameBuffer } from '../foundation/renderer/FrameBuffer';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
-import { SystemState } from '../foundation/system/SystemState';
+import { EngineState } from '../foundation/system/EngineState';
 import type { AbstractTexture } from '../foundation/textures/AbstractTexture';
 import { CubeTexture } from '../foundation/textures/CubeTexture';
 import type { IRenderable } from '../foundation/textures/IRenderable';
@@ -1028,8 +1028,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           });
         }
       } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
-        const view = SystemState.xrPoseWebGPU!.views[displayIdx];
-        const subImage = SystemState.xrGpuBinding.getViewSubImage(SystemState.xrProjectionLayerWebGPU!, view);
+        const view = EngineState.xrPoseWebGPU!.views[displayIdx];
+        const subImage = EngineState.xrGpuBinding.getViewSubImage(EngineState.xrProjectionLayerWebGPU!, view);
         colorAttachments.push({
           view: subImage.colorTexture.createView(subImage.getViewDescriptor()),
           clearValue: {
@@ -1071,8 +1071,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           depthStoreOp: 'store',
         };
       } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
-        const view = SystemState.xrPoseWebGPU!.views[displayIdx];
-        const subImage = SystemState.xrGpuBinding.getViewSubImage(SystemState.xrProjectionLayerWebGPU!, view);
+        const view = EngineState.xrPoseWebGPU!.views[displayIdx];
+        const subImage = EngineState.xrGpuBinding.getViewSubImage(EngineState.xrProjectionLayerWebGPU!, view);
         depthStencilAttachment = {
           view: subImage.depthStencilTexture.createView(subImage.getViewDescriptor()),
           depthClearValue: renderPass.clearDepth,
@@ -1251,8 +1251,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         depthStencilFormat = undefined;
       }
     } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
-      const view = SystemState.xrPoseWebGPU!.views[displayIdx];
-      const subImage = SystemState.xrGpuBinding.getViewSubImage(SystemState.xrProjectionLayerWebGPU!, view);
+      const view = EngineState.xrPoseWebGPU!.views[displayIdx];
+      const subImage = EngineState.xrGpuBinding.getViewSubImage(EngineState.xrProjectionLayerWebGPU!, view);
       colorFormats = [subImage.colorTexture.format];
       depthStencilFormat = subImage.depthStencilTexture.format;
     } else {
@@ -1396,8 +1396,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       this.__renderPassEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
     } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
       const colorAttachments: GPURenderPassColorAttachment[] = [];
-      const view = SystemState.xrPoseWebGPU!.views[displayIdx];
-      const subImage = SystemState.xrGpuBinding.getViewSubImage(SystemState.xrProjectionLayerWebGPU!, view);
+      const view = EngineState.xrPoseWebGPU!.views[displayIdx];
+      const subImage = EngineState.xrGpuBinding.getViewSubImage(EngineState.xrProjectionLayerWebGPU!, view);
       colorAttachments.push({
         view: subImage.colorTexture.createView(subImage.getViewDescriptor()),
         clearValue: clearValue,
@@ -1450,7 +1450,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       MeshRendererComponent.updateCount !== this.__lastMeshRendererComponentsUpdateCount
     ) {
       this.__renderBundles.clear();
-      SystemState.webgpuRenderBundleMode = false;
+      EngineState.webgpuRenderBundleMode = false;
       this.__lastCurrentCameraComponentSid = CameraComponent.current;
       this.__lastMaterialsUpdateCount = Material.stateVersion;
       this.__lastEntityRepositoryUpdateCount = EntityRepository.updateCount;

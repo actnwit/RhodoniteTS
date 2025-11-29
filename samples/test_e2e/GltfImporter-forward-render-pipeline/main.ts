@@ -7,7 +7,7 @@ Rn.Config.isUboEnabled = false;
 Rn.Config.cgApiDebugConsoleOutput = true;
 const processApproach = getProcessApproach(Rn);
 const canvas = document.getElementById('world') as HTMLCanvasElement;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: processApproach,
   canvas,
 });
@@ -87,7 +87,7 @@ const draw = frame => {
     Rn.AnimationComponent.setIsAnimating(false);
   }
 
-  Rn.System.process(frame);
+  Rn.Engine.process(frame);
 
   count++;
 };

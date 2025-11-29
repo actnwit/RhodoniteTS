@@ -5,7 +5,7 @@ const p = document.createElement('p');
 document.body.appendChild(p);
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -72,13 +72,13 @@ lightComponent.color = Rn.Vector3.fromCopyArray([0.5, 0.5, 0.5]);
 
 let count = 0;
 
-Rn.System.startRenderLoop(() => {
+Rn.Engine.startRenderLoop(() => {
   if (count > 1) {
     p.setAttribute('id', 'rendered');
     p.innerText = 'Rendered.';
   }
 
-  Rn.System.process(expressions);
+  Rn.Engine.process(expressions);
   count++;
 });
 

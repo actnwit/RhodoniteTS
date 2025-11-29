@@ -6,7 +6,7 @@ document.body.appendChild(p);
 declare const window: any;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -103,12 +103,12 @@ window.download = () => {
 
 let count = 0;
 
-Rn.System.startRenderLoop(() => {
+Rn.Engine.startRenderLoop(() => {
   if (count > 0) {
     p.id = 'rendered';
     p.innerText = 'Rendered.';
   }
-  Rn.System.process([expression]);
+  Rn.Engine.process([expression]);
 
   const float32Array = new Float32Array(Rn.Config.maxLightNumber * 16);
   const spotLightComponentSid = spotLight.getLight().componentSID;

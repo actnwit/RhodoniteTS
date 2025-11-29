@@ -37,7 +37,7 @@ import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
 import { VectorN } from '../../math/VectorN';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
-import { SystemState } from '../../system/SystemState';
+import { EngineState } from '../../system/EngineState';
 import { Sampler } from '../../textures/Sampler';
 import type { Texture } from '../../textures/Texture';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
@@ -801,7 +801,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
    * @private
    */
   private static __initializeUsableBlendEquationModeAlpha() {
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       MToon0xMaterialContent.usableBlendEquationModeAlpha = 32776; // gl.MAX
     } else {
       const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();

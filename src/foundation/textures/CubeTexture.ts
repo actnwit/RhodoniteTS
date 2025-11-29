@@ -6,7 +6,7 @@ import { ProcessApproach } from '../definitions/ProcessApproach';
 import { TextureParameter } from '../definitions/TextureParameter';
 import { Logger } from '../misc/Logger';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { SystemState } from '../system/SystemState';
+import { EngineState } from '../system/EngineState';
 import { AbstractTexture } from './AbstractTexture';
 
 declare const BASIS: BASIS_TYPE;
@@ -117,7 +117,7 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     this._recommendedTextureSampler = sampler;
     this._samplerResourceUid = sampler._samplerResourceUid;
 
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureViewCube(
         this._textureResourceUid
       );
@@ -234,7 +234,7 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     this._recommendedTextureSampler = sampler;
     this._samplerResourceUid = sampler._samplerResourceUid;
 
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (
         cgApiResourceRepository as unknown as WebGpuResourceRepository
       ).createTextureViewCube(this._textureResourceUid);

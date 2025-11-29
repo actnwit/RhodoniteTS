@@ -10,7 +10,7 @@ const cubeMapSize = 512;
 // Init Rhodonite
 Rn.Config.cgApiDebugConsoleOutput = true;
 const processApproach = getProcessApproach(Rn);
-await Rn.System.init({
+await Rn.Engine.init({
   approach: processApproach,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -127,7 +127,7 @@ const renderIBL = () => {
   for (let i = 0; i < 6; i++) {
     panoramaToCubeMaterial.setParameter('cubeMapFaceId', i);
     panoramaToCubeFramebuffer.setColorAttachmentCubeAt(0, i, 0, panoramaToCubeRenderTargetCube);
-    Rn.System.process([panoramaToCubeExpression]);
+    Rn.Engine.process([panoramaToCubeExpression]);
   }
 
   panoramaToCubeRenderTargetCube.generateMipmaps();
@@ -139,7 +139,7 @@ const renderIBL = () => {
   for (let i = 0; i < 6; i++) {
     prefilterIblMaterial.setParameter('cubeMapFaceId', i);
     diffuseIblFramebuffer.setColorAttachmentCubeAt(0, i, 0, diffuseIblRenderTargetCube);
-    Rn.System.process([prefilterIblExpression]);
+    Rn.Engine.process([prefilterIblExpression]);
     diffuseIblRenderTargetCube.setIsTextureReady();
   }
 
@@ -156,7 +156,7 @@ const renderIBL = () => {
         prefilterIblMaterial.setParameter('cubeMapFaceId', face);
         specularIblFramebuffer.setColorAttachmentCubeAt(0, face, i, specularIblRenderTargetCube);
         prefilterIblRenderPass.setViewport(Rn.Vector4.fromCopy4(0, 0, cubeMapSize >> i, cubeMapSize >> i));
-        Rn.System.process([prefilterIblExpression]);
+        Rn.Engine.process([prefilterIblExpression]);
       }
     }
     specularIblRenderTargetCube.setIsTextureReady();
@@ -175,7 +175,7 @@ const renderIBL = () => {
         prefilterIblMaterial.setParameter('cubeMapFaceId', face);
         sheenIblFramebuffer.setColorAttachmentCubeAt(0, face, i, sheenIblRenderTargetCube);
         prefilterIblRenderPass.setViewport(Rn.Vector4.fromCopy4(0, 0, cubeMapSize >> i, cubeMapSize >> i));
-        Rn.System.process([prefilterIblExpression]);
+        Rn.Engine.process([prefilterIblExpression]);
       }
     }
     sheenIblRenderTargetCube.setIsTextureReady();
@@ -223,7 +223,7 @@ for (const meshRendererComponent of meshRendererComponents) {
   );
 }
 
-Rn.System.startRenderLoop(() => {
+Rn.Engine.startRenderLoop(() => {
   if (!window._rendered && count > 0) {
     window._rendered = true;
     const p = document.createElement('p');
@@ -232,8 +232,8 @@ Rn.System.startRenderLoop(() => {
     document.body.appendChild(p);
   }
 
-  Rn.System.process(expressions);
-  // Rn.System.process([debugExpression]);
+  Rn.Engine.process(expressions);
+  // Rn.Engine.process([debugExpression]);
 
   count++;
 });

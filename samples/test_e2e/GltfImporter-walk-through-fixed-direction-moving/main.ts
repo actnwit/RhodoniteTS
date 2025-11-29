@@ -4,7 +4,7 @@ const p = document.createElement('p');
 document.body.appendChild(p);
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -39,7 +39,7 @@ controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 let count = 0;
 let tmpSpeed = controller.horizontalSpeed;
 
-Rn.System.startRenderLoop(() => {
+Rn.Engine.startRenderLoop(() => {
   switch (count) {
     case 1:
       controller.horizontalSpeed = 10.0;
@@ -90,7 +90,7 @@ Rn.System.startRenderLoop(() => {
       p.innerText = 'Moved.';
   }
 
-  Rn.System.process(expressions);
+  Rn.Engine.process(expressions);
 
   count++;
 });

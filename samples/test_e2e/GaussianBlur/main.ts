@@ -10,7 +10,7 @@ const gaussianVariance = 8.0;
 // prepare memory
 Rn.Config.cgApiDebugConsoleOutput = true;
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: rnCanvasElement,
 });
@@ -139,6 +139,6 @@ function draw(expressions: Rn.Expression[], isFirstLoop: boolean, pElem?: HTMLEl
     document.body.appendChild(pElem);
   }
 
-  Rn.System.process(expressions);
+  Rn.Engine.process(expressions);
   requestAnimationFrame(draw.bind(null, expressions, false, pElem));
 }

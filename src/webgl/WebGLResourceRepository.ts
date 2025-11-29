@@ -29,7 +29,7 @@ import {
 } from '../foundation/renderer/CGAPIResourceRepository';
 import type { FrameBuffer } from '../foundation/renderer/FrameBuffer';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
-import { SystemState } from '../foundation/system/SystemState';
+import { EngineState } from '../foundation/system/EngineState.js';
 import type { AbstractTexture } from '../foundation/textures/AbstractTexture';
 import type { CubeTexture } from '../foundation/textures/CubeTexture';
 import type { IRenderable } from '../foundation/textures/IRenderable';
@@ -3108,10 +3108,10 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
   setViewport(viewport?: Vector4) {
     if (viewport) {
       this.__glw?.setViewportAsVector4(viewport);
-      SystemState.viewportAspectRatio = (viewport.z - viewport.x) / (viewport.w - viewport.y);
+      EngineState.viewportAspectRatio = (viewport.z - viewport.x) / (viewport.w - viewport.y);
     } else {
       this.__glw?.setViewport(0, 0, this.__glw!.width, this.__glw!.height);
-      SystemState.viewportAspectRatio = this.__glw!.width / this.__glw!.height;
+      EngineState.viewportAspectRatio = this.__glw!.width / this.__glw!.height;
     }
   }
 
@@ -3209,7 +3209,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
       return false;
     }
 
-    const processApproach = SystemState.currentProcessApproach;
+    const processApproach = EngineState.currentProcessApproach;
     const renderingStrategy = getRenderingStrategy(processApproach);
 
     const modifiedVertexSourceCode = updatedVertexSourceCode.replace(/! =/g, '!=');
@@ -3845,7 +3845,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
   }
 
   isSupportMultiViewVRRendering(): boolean {
-    if (SystemState.currentProcessApproach === ProcessApproach.DataTexture) {
+    if (EngineState.currentProcessApproach === ProcessApproach.DataTexture) {
       return this.__glw!.isMultiview();
     }
     return false;

@@ -29,8 +29,8 @@ import { MutableVector4 } from '../../math/MutableVector4';
 import { Vector3 } from '../../math/Vector3';
 import type { Accessor } from '../../memory/Accessor';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import { EngineState } from '../../system/EngineState';
 import { ModuleManager } from '../../system/ModuleManager';
-import { SystemState } from '../../system/SystemState';
 import type { Material } from './Material';
 import { ShaderityUtilityWebGL } from './ShaderityUtilityWebGL';
 import { ShaderityUtilityWebGPU } from './ShaderityUtilityWebGPU';
@@ -584,7 +584,7 @@ export abstract class AbstractMaterialContent extends RnObject {
       shaderSemanticsInfoArray: ShaderSemanticsInfo[];
       shaderityObject: ShaderityObject;
     };
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       const preprocessedVertexShader = Shaderity.processPragma(vertexShaderWebGpu!, definitions);
       const preprocessedPixelShader = Shaderity.processPragma(pixelShaderWebGpu!, definitions);
 

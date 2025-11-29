@@ -5,7 +5,7 @@ const p = document.createElement('p');
 document.body.appendChild(p);
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -38,6 +38,6 @@ controller.dolly = 0.78;
 p.id = 'rendered';
 p.innerText = 'Rendered.';
 
-Rn.System.startRenderLoop(() => {
-  Rn.System.process([expression]);
+Rn.Engine.startRenderLoop(() => {
+  Rn.Engine.process([expression]);
 });

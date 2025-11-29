@@ -14,9 +14,9 @@ import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
+import { Engine } from '../foundation/system/Engine';
+import { EngineState } from '../foundation/system/EngineState';
 import { ModuleManager } from '../foundation/system/ModuleManager';
-import { System } from '../foundation/system/System';
-import { SystemState } from '../foundation/system/SystemState';
 import type { Index } from '../types/CommonTypes';
 import type { WebGLContextWrapper } from '../webgl/WebGLContextWrapper';
 import type { WebGLResourceRepository } from '../webgl/WebGLResourceRepository';
@@ -130,7 +130,7 @@ export class WebXRSystem {
     this.__basePath = basePath;
     await ModuleManager.getInstance().loadModule('xr');
 
-    const isWebGPU = SystemState.currentProcessApproach === ProcessApproach.WebGPU;
+    const isWebGPU = EngineState.currentProcessApproach === ProcessApproach.WebGPU;
     if (isWebGPU) {
       const webgpuDeviceWrapper = CGAPIResourceRepository.getWebGpuResourceRepository().getWebGpuDeviceWrapper();
       if (webgpuDeviceWrapper == null) {
@@ -218,7 +218,7 @@ export class WebXRSystem {
 
     if (cgApiResourceRepository != null && this.__isReadyForWebXR) {
       let referenceSpace: XRReferenceSpace;
-      const isWebGPU = SystemState.currentProcessApproach === ProcessApproach.WebGPU;
+      const isWebGPU = EngineState.currentProcessApproach === ProcessApproach.WebGPU;
       const requiredFeatures: string[] = isWebGPU ? ['webgpu'] : [];
       const xrSession = (await navigator.xr!.requestSession('immersive-vr', { requiredFeatures })) as XRSession;
 
@@ -239,8 +239,8 @@ export class WebXRSystem {
         MaterialRepository._makeShaderInvalidateToAllMaterials();
         this.__defaultPositionInLocalSpaceMode = defaultUserPositionInVR;
         Logger.info('XRSession ends.');
-        System.stopRenderLoop();
-        System.restartRenderLoop();
+        Engine.stopRenderLoop();
+        Engine.restartRenderLoop();
         callbackOnXrSessionEnd();
       });
 
@@ -265,7 +265,7 @@ export class WebXRSystem {
       this.__xrReferenceSpace = referenceSpace;
 
       this.__xrSession = xrSession;
-      System.stopRenderLoop();
+      Engine.stopRenderLoop();
       if (isWebGPU) {
         const webgpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
         const webgpuDeviceWrapper = webgpuResourceRepository.getWebGpuDeviceWrapper();
@@ -282,7 +282,7 @@ export class WebXRSystem {
         await this.__setupWebGLLayer(xrSession, callbackOnXrSessionStart);
       }
       this.__requestedToEnterWebXR = true;
-      System.restartRenderLoop();
+      Engine.restartRenderLoop();
       Logger.warn('End of enterWebXR.');
       return promise;
     }
@@ -843,7 +843,7 @@ export class WebXRSystem {
     let resolvedHeight = projectionLayerTyped?.textureHeight ?? 0;
 
     if (resolvedWidth <= 0 || resolvedHeight <= 0) {
-      const [currentWidth, currentHeight] = System.getCanvasSize();
+      const [currentWidth, currentHeight] = Engine.getCanvasSize();
       resolvedWidth = currentWidth;
       resolvedHeight = currentHeight;
     }
@@ -876,7 +876,7 @@ export class WebXRSystem {
   private __updateView(xrFrame: XRFrame) {
     this.__xrViewerPose = xrFrame.getViewerPose(this.__xrReferenceSpace!);
     this.__setCameraInfoFromXRViews(this.__xrViewerPose!);
-    const isWebGPU = SystemState.currentProcessApproach === ProcessApproach.WebGPU;
+    const isWebGPU = EngineState.currentProcessApproach === ProcessApproach.WebGPU;
     if (isWebGPU) {
       const view = this.__xrViewerPose!.views[0];
       const subImage = this.__xrGpuBinding!.getViewSubImage(this.__xrProjectionLayerWebGPU!, view);
@@ -891,9 +891,9 @@ export class WebXRSystem {
       } else {
         Logger.warn('XRWebGPU subImage returned zero-sized extent. Skipping canvas resize for this frame.');
       }
-      SystemState.xrPoseWebGPU = this.__xrViewerPose;
-      SystemState.xrGpuBinding = this.__xrGpuBinding;
-      SystemState.xrProjectionLayerWebGPU = this.__xrProjectionLayerWebGPU;
+      EngineState.xrPoseWebGPU = this.__xrViewerPose;
+      EngineState.xrGpuBinding = this.__xrGpuBinding;
+      EngineState.xrProjectionLayerWebGPU = this.__xrProjectionLayerWebGPU;
     }
   }
 

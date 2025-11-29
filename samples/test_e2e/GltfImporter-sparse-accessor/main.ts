@@ -4,7 +4,7 @@ const p = document.createElement('p');
 document.body.appendChild(p);
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -30,7 +30,7 @@ const expression = await Rn.GltfImporter.importFromUrl(
   }
 );
 
-Rn.System.process([expression]);
+Rn.Engine.process([expression]);
 
 p.id = 'rendered';
 p.innerText = 'Rendered.';

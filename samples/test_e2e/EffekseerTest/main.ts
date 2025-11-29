@@ -11,7 +11,7 @@ const effekseerModule = await moduleManager.loadModule('effekseer', {
 });
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -62,7 +62,7 @@ Rn.CameraComponent.current = 0;
 let count = 0;
 let setTimeDone = false;
 
-Rn.System.startRenderLoop(() => {
+Rn.Engine.startRenderLoop(() => {
   if (count > 0 && window._rendered !== true && setTimeDone) {
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');
@@ -81,6 +81,6 @@ Rn.System.startRenderLoop(() => {
     count = 0;
   }
 
-  Rn.System.process([expression]);
+  Rn.Engine.process([expression]);
   count++;
 });

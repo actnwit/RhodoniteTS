@@ -16,8 +16,8 @@ import { Is } from '../../misc/Is';
 import { Logger } from '../../misc/Logger';
 import { None, type Option, Some, assertHas } from '../../misc/Option';
 import { Err, Ok } from '../../misc/Result';
+import { Engine } from '../../system/Engine';
 import { ModuleManager } from '../../system/ModuleManager';
-import { System } from '../../system/System';
 import type { CubeTexture } from '../../textures/CubeTexture';
 import type { RenderTargetTexture } from '../../textures/RenderTargetTexture';
 import type { RenderTargetTexture2DArray } from '../../textures/RenderTargetTexture2DArray';
@@ -69,7 +69,7 @@ type DrawFunc = (frame: Frame) => void;
  *
  * // Start the render loop
  * forwardRenderPipeline.startRenderLoop((frame) => {
- *   Rn.System.process(frame);
+ *   Rn.Engine.process(frame);
  * });
  * ```
  */
@@ -390,7 +390,7 @@ export class ForwardRenderPipeline extends RnObject {
    * ```typescript
    * const result = pipeline.startRenderLoop((frame) => {
    *   // Update scene
-   *   Rn.System.process(frame);
+   *   Rn.Engine.process(frame);
    *
    *   // Custom per-frame logic
    *   updateAnimations();
@@ -414,7 +414,7 @@ export class ForwardRenderPipeline extends RnObject {
 
     this.__setUpExpressionsForRendering();
 
-    System.startRenderLoop(() => {
+    Engine.startRenderLoop(() => {
       if (this.__oShadowSystem.has()) {
         // update shadow expressions if shadow mapping is enabled
         const entities = this.__entitiesForShadow;
@@ -488,7 +488,7 @@ export class ForwardRenderPipeline extends RnObject {
       let fallbackWidth = this.__width;
       let fallbackHeight = this.__height;
       if (fallbackWidth <= 0 || fallbackHeight <= 0) {
-        const [currentWidth, currentHeight] = System.getCanvasSize();
+        const [currentWidth, currentHeight] = Engine.getCanvasSize();
         fallbackWidth = currentWidth;
         fallbackHeight = currentHeight;
       }
@@ -503,7 +503,7 @@ export class ForwardRenderPipeline extends RnObject {
       height = fallbackHeight;
     }
 
-    System.resizeCanvas(width, height);
+    Engine.resizeCanvas(width, height);
 
     this.__destroyResources();
     this.setup(width, height, {

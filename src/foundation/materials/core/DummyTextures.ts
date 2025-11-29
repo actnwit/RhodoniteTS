@@ -1,5 +1,5 @@
 import { ProcessApproach } from '../../definitions/ProcessApproach';
-import { SystemState } from '../../system/SystemState';
+import { EngineState } from '../../system/EngineState';
 import { CubeTexture } from '../../textures/CubeTexture';
 import { Texture } from '../../textures/Texture';
 import { TextureArray } from '../../textures/TextureArray';

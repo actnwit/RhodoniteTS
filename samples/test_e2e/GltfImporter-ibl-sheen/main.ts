@@ -4,7 +4,7 @@ const p = document.createElement('p');
 document.body.appendChild(p);
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -90,7 +90,7 @@ await setIBL();
 
 let count = 0;
 
-Rn.System.startRenderLoop(() => {
+Rn.Engine.startRenderLoop(() => {
   if (count > 0) {
     p.id = 'rendered';
     p.innerText = 'Rendered.';
@@ -99,7 +99,7 @@ Rn.System.startRenderLoop(() => {
     p.innerText = 'Started.';
   }
 
-  Rn.System.process(expressions);
+  Rn.Engine.process(expressions);
 
   count++;
 });

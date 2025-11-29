@@ -11,7 +11,7 @@ let renderPassMain: Rn.RenderPass;
 
 const canvas = document.getElementById('world') as HTMLCanvasElement;
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas,
   webglOption: { antialias: false },
@@ -58,7 +58,7 @@ Rn.CameraComponent.current = 0;
 let startTime = Date.now();
 let count = 0;
 
-Rn.System.startRenderLoop(() => {
+Rn.Engine.startRenderLoop(() => {
   if (count > 0) {
     window._rendered = true;
   }
@@ -71,7 +71,7 @@ Rn.System.startRenderLoop(() => {
     }
   }
 
-  Rn.System.process(frame);
+  Rn.Engine.process(frame);
   count++;
 });
 

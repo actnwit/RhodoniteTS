@@ -6,7 +6,7 @@ declare const Stats: any;
 
 //-------------------------------
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -64,7 +64,7 @@ document.body.appendChild(stats.domElement);
 let startTime = Date.now();
 let count = 0;
 
-Rn.System.startRenderLoop(() => {
+Rn.Engine.startRenderLoop(() => {
   if (p == null && count > 0) {
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');
@@ -82,7 +82,7 @@ Rn.System.startRenderLoop(() => {
   }
 
   stats.begin();
-  Rn.System.process([expression]);
+  Rn.Engine.process([expression]);
   stats.end();
 
   count++;

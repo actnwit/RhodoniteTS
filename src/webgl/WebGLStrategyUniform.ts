@@ -33,8 +33,8 @@ import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRep
 import type { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
 import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
+import { EngineState } from '../foundation/system/EngineState';
 import { ModuleManager } from '../foundation/system/ModuleManager';
-import { SystemState } from '../foundation/system/SystemState';
 import type { CGAPIResourceHandle, Count, Index, PrimitiveUID, WebGLResourceHandle } from '../types/CommonTypes';
 import type { WebXRSystem } from '../xr/WebXRSystem';
 import type { RnXR } from '../xr/main';
@@ -337,7 +337,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
             accessor.bufferView.buffer.indexOfTheBufferUsage
           );
           this.__uniformMorphOffsetsTypedArray![morphUniformDataOffsets[i] + j] =
-            (SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData +
+            (EngineState.totalSizeOfGPUShaderDataStorageExceptMorphData +
               byteOffsetOfExistingBuffer +
               accessor.byteOffsetInBuffer) /
             4 /
@@ -506,7 +506,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         generateMipmap: false,
       });
 
-      SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
+      EngineState.totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
     }
 
     if (

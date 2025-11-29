@@ -22,8 +22,8 @@ import type { Primitive } from '../../geometry/Primitive';
 import { isBlend, isBlendWithZWrite, isBlendWithoutZWrite, isTranslucent } from '../../geometry/types/GeometryTypes';
 import type { CGAPIStrategy } from '../../renderer/CGAPIStrategy';
 import type { RenderPass } from '../../renderer/RenderPass';
+import { EngineState } from '../../system/EngineState';
 import { ModuleManager } from '../../system/ModuleManager';
-import { SystemState } from '../../system/SystemState';
 import type { CubeTexture } from '../../textures/CubeTexture';
 import type { RenderTargetTextureCube } from '../../textures/RenderTargetTextureCube';
 import { CameraComponent } from '../Camera/CameraComponent';
@@ -487,7 +487,7 @@ export class MeshRendererComponent extends Component {
   static common_$prerender() {
     if (MeshRendererComponent.__cgApiRenderingStrategy == null) {
       // Possible if there is no mesh entity in the scene
-      const processApproach = SystemState.currentProcessApproach;
+      const processApproach = EngineState.currentProcessApproach;
       this.common_$load({ processApproach });
     }
     // Call common_$prerender of WebGLRenderingStrategy
