@@ -4,10 +4,8 @@ import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
 import { ComponentRepository } from '../core/ComponentRepository';
 import { Config } from '../core/Config';
 import { AlphaMode } from '../definitions/AlphaMode';
-import { PrimitiveMode } from '../definitions/PrimitiveMode';
-import { VertexAttribute } from '../definitions/VertexAttribute';
 import { Mesh } from '../geometry/Mesh';
-import { Primitive } from '../geometry/Primitive';
+import { Ring } from '../geometry/shapes/Ring';
 import type { RaycastResultEx1 } from '../geometry/types/GeometryTypes';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
 import { MaterialHelper } from '../helpers/MaterialHelper';
@@ -49,9 +47,9 @@ export class RotationGizmo extends Gizmo {
   private static __xRingMaterial: Material;
   private static __yRingMaterial: Material;
   private static __zRingMaterial: Material;
-  private static __xRingPrimitive: Primitive;
-  private static __yRingPrimitive: Primitive;
-  private static __zRingPrimitive: Primitive;
+  private static __xRingPrimitive: Ring;
+  private static __yRingPrimitive: Ring;
+  private static __zRingPrimitive: Ring;
   private static __activeAxis: Axis | 'none' = 'none';
   private static __space: 'local' | 'world' = 'world';
   private static __length = 1;
@@ -772,37 +770,17 @@ export class RotationGizmo extends Gizmo {
     return closestResult;
   }
 
-  private static __createRingPrimitive(axis: Axis, material: Material) {
-    const segments = 64;
+  private static __createRingPrimitive(axis: Axis, material: Material): Ring {
     const radius = RotationGizmo.__length;
-    const thickness = radius * 0.1;
-    const attributes: number[] = [];
-
-    for (let i = 0; i <= segments; i++) {
-      const theta = (i / segments) * Math.PI * 2;
-      const cos = Math.cos(theta);
-      const sin = Math.sin(theta);
-      const outer = radius + thickness;
-      const inner = Math.max(radius - thickness, 0.0001);
-
-      if (axis === 'x') {
-        attributes.push(0, outer * cos, outer * sin);
-        attributes.push(0, inner * cos, inner * sin);
-      } else if (axis === 'y') {
-        attributes.push(outer * cos, 0, outer * sin);
-        attributes.push(inner * cos, 0, inner * sin);
-      } else {
-        attributes.push(outer * cos, outer * sin, 0);
-        attributes.push(inner * cos, inner * sin, 0);
-      }
-    }
-
-    return Primitive.createPrimitive({
-      attributeSemantics: [VertexAttribute.Position.XYZ],
-      attributes: [new Float32Array(attributes)],
-      primitiveMode: PrimitiveMode.TriangleStrip,
+    const ring = new Ring();
+    ring.generate({
+      radius,
+      thickness: radius * 0.1,
+      segments: 64,
+      axis,
       material,
     });
+    return ring;
   }
 
   private static __selectClosestAxis(

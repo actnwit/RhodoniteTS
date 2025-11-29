@@ -6,4 +6,5 @@ export * from './IShape';
 export * from './Joint';
 export * from './Line';
 export * from './Plane';
+export * from './Ring';
 export * from './Sphere';
