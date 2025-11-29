@@ -348,4 +348,23 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   setSpring(sgs: VRMSpring) {
     this.__spring = sgs;
   }
+
+  /**
+   * Sets the visibility of all sphere colliders in this physics strategy.
+   * This creates visualization spheres for each collider if they don't exist yet.
+   *
+   * @param visible - Whether the colliders should be visible
+   */
+  setCollidersVisible(visible: boolean): void {
+    const spring = this.__spring;
+    if (Is.not.exist(spring)) {
+      return;
+    }
+
+    for (const collisionGroup of spring.colliderGroups) {
+      for (const collider of collisionGroup.sphereColliders) {
+        collider.setVisualizationVisible(visible);
+      }
+    }
+  }
 }

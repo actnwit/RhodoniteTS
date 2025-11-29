@@ -82,6 +82,18 @@ export class PhysicsComponent extends Component {
   }
 
   /**
+   * Sets the visibility of all colliders managed by this physics component.
+   * This is useful for debugging and visualizing collision boundaries.
+   * Note: This only works if the physics strategy supports collider visualization
+   * (e.g., VRMSpringBonePhysicsStrategy).
+   *
+   * @param visible - Whether the colliders should be visible
+   */
+  setCollidersVisible(visible: boolean): void {
+    this.__strategy?.setCollidersVisible?.(visible);
+  }
+
+  /**
    * Destroys this physics component and cleans up resources.
    * Calls the parent destroy method and clears the physics strategy reference.
    * @override
