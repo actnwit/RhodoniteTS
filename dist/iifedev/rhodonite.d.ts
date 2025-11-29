@@ -21418,11 +21418,10 @@ declare class SkeletalComponent extends Component {
      * The cache key determines which SkeletalComponents can share skinning results:
      *
      * ## With Animation Applied
-     * - Uses format: `anim|{animationHash}`
+     * - Uses format: `anim|{animationHash}|{inverseBindMatricesSignature}`
      * - animationHash is computed from animation track features (keyframes, timings, etc.)
-     * - Enables cache sharing across all models with the same animation
-     * - VRM1 retargeting creates intermediate models with different joint counts,
-     *   but they can still share cache via animation hash
+     * - inverseBindMatricesSignature ensures models with different bone structures don't share cache
+     * - Only models with BOTH same animation AND same inverseBindMatrices can share skinning results
      *
      * ## Without Animation
      * - Uses format: `{jointListKey}|{accessorSignature}|no_animation`
@@ -25497,80 +25496,329 @@ interface IMeshRendererEntityMethods {
     getMeshRenderer(): MeshRendererComponent;
 }
 
-interface PhysicsStrategy {
-    update(): void;
+/**
+ * Abstract Gizmo class that provides a foundation for creating interactive gizmo objects
+ * in 3D scenes. Gizmos are typically used for manipulation tools like transform handles,
+ * rotation rings, or other interactive visual aids.
+ */
+declare abstract class Gizmo extends RnObject {
+    /**
+     * The top entity of this gizmo group.
+     * A programmer who implements a gizmo class has to make this entity
+     * a child of the target entity's scene graph component
+     * that the gizmo will belong to manually.
+     */
+    protected __topEntity?: IMeshEntity | ISceneGraphEntity;
+    /** the target entity which this gizmo belong to */
+    protected __target: ISceneGraphEntity;
+    protected __isVisible: boolean;
+    /**
+     * Creates a new Gizmo instance
+     * @param target - The entity that this gizmo will be associated with and manipulate
+     */
+    constructor(target: ISceneGraphEntity);
+    /**
+     * Sets the visibility state of the gizmo
+     * @param flg - True to make the gizmo visible, false to hide it
+     */
+    set isVisible(flg: boolean);
+    /**
+     * Gets the current visibility state of the gizmo
+     * @returns True if the gizmo is visible, false otherwise
+     */
+    get isVisible(): boolean;
+    /**
+     * Internal method to set the visibility of the gizmo and all its child entities
+     * @param flg - True to show the gizmo, false to hide it
+     */
+    protected __setVisible(flg: boolean): void;
+    /**
+     * Indicates whether the gizmo has been set up and is ready for use
+     * Must be implemented by concrete gizmo classes
+     */
+    abstract isSetup: boolean;
+    /**
+     * Sets up the entities and components required for the gizmo
+     * This method is called internally and should only be executed once
+     * @internal
+     */
+    abstract _setup(): void;
+    /**
+     * Updates the gizmo's transform, appearance, and other properties
+     * This method is typically called every frame to keep the gizmo synchronized
+     * with its target entity
+     * @internal
+     */
+    abstract _update(): void;
+    /**
+     * Cleans up and destroys the gizmo, releasing all associated resources
+     * @internal
+     */
+    abstract _destroy(): void;
+    /**
+     * Determines whether the gizmo setup should be skipped
+     * @returns True if setup should be skipped, false otherwise
+     */
+    protected __toSkipSetup(): boolean;
+    /**
+     * Applies appropriate tags to the gizmo entities for identification and categorization
+     * This method ensures that all gizmo entities are properly tagged for rendering
+     * and processing pipelines
+     */
+    protected setGizmoTag(): void;
 }
 
 /**
- * PhysicsComponent is a component that manages the physics simulation for an entity.
- * It provides integration with physics engines through the strategy pattern and handles
- * physics updates during the logic processing stage.
+ * CapsuleColliderGizmo renders a capsule collider visualization for debugging purposes.
+ * The visualization is a semi-transparent green wireframe capsule that shows the collider's bounds.
  */
-declare class PhysicsComponent extends Component {
-    private __strategy?;
+declare class CapsuleColliderGizmo extends Gizmo {
+    protected __topEntity?: ISceneGraphEntity;
+    private __capsuleCollider;
+    private __capsuleEntity?;
+    private static __tmpVec3_0;
+    private static __tmpVec3_1;
+    private static __tmpQuat;
     /**
-     * Creates a new PhysicsComponent instance.
-     * @param entityUid - The unique identifier of the entity this component belongs to
-     * @param componentSid - The component's serial identifier
-     * @param entityComponent - The entity repository managing this component
-     * @param isReUse - Whether this component is being reused from a pool
+     * Creates a new CapsuleColliderGizmo instance
+     * @param capsuleCollider - The capsule collider to visualize
      */
-    constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean);
-    /**
-     * Gets the component type identifier for PhysicsComponent.
-     * @returns The component type ID for physics components
-     */
-    static get componentTID(): ComponentTID;
-    /**
-     * Gets the component type identifier for this instance.
-     * @returns The component type ID for physics components
-     */
-    get componentTID(): ComponentTID;
-    /**
-     * Sets the physics strategy for this component.
-     * The strategy defines how physics calculations and updates are performed.
-     * @param strategy - The physics strategy to use for this component
-     */
-    setStrategy(strategy: PhysicsStrategy): void;
-    /**
-     * Gets the current physics strategy used by this component.
-     * @returns The physics strategy instance, or undefined if none is set
-     */
-    get strategy(): PhysicsStrategy | undefined;
-    /**
-     * Common logic method that updates the global physics simulation.
-     * This is called once per frame for all physics components and handles
-     * the overall physics world update using the Oimo physics engine.
-     */
-    static common_$logic(): void;
-    /**
-     * Instance-specific logic method that updates this component's physics.
-     * Called during the logic processing stage to update individual physics entities.
-     */
-    $logic(): void;
-    /**
-     * Destroys this physics component and cleans up resources.
-     * Calls the parent destroy method and clears the physics strategy reference.
-     * @override
-     */
+    constructor(capsuleCollider: CapsuleCollider);
+    get isSetup(): boolean;
+    _setup(): void;
+    _update(): void;
     _destroy(): void;
     /**
-     * Adds physics functionality to an entity by mixing in physics-specific methods.
-     * This method extends the base entity class with physics-related capabilities,
-     * allowing the entity to access its physics component through a convenient getter.
-     * @template EntityBase - The base entity type to extend
-     * @template SomeComponentClass - The component class type
-     * @param base - The target entity to add physics functionality to
-     * @param _componentClass - The component class being added (used for type inference)
-     * @returns The enhanced entity with physics methods and the original entity functionality
-     * @override
+     * Gets the capsule collider being visualized.
+     * @returns The capsule collider instance
      */
-    addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): ComponentToComponentMethods<SomeComponentClass> & EntityBase;
+    get capsuleCollider(): CapsuleCollider;
 }
 
-interface IPhysicsEntityMethods {
-    getPhysics(): PhysicsComponent;
+/**
+ * A capsule-shaped collider used for VRM spring bone physics simulation.
+ * The capsule is defined by a position (head), tail position, and radius.
+ * It can detect collisions with spherical objects like bones.
+ */
+declare class CapsuleCollider {
+    /** The position of the capsule's head in local space */
+    private __position;
+    /** The radius of the capsule */
+    private __radius;
+    /** The position of the capsule's tail in local space */
+    private __tail;
+    /** The base scene graph component used for world space transformations */
+    private __baseSceneGraph;
+    private __worldMatrix;
+    private __worldHead;
+    private __worldTailOffset;
+    private __lengthSqCapsule;
+    /** The gizmo used to visualize this collider */
+    private __gizmo?;
+    private static __tmp_vec3_0;
+    private static __tmp_vec3_1;
+    constructor(position: Vector3, radius: number, tail: Vector3, baseSceneGraph: SceneGraphComponent);
+    /**
+     * Updates cached world positions for the capsule.
+     * Should be called once per frame before collision checks.
+     */
+    updateWorldState(): void;
+    /**
+     * Calculates collision information between this capsule collider and a spherical bone.
+     *
+     * @param bonePosition - The world position of the bone
+     * @param boneRadius - The radius of the bone sphere
+     * @returns An object containing the collision direction vector and penetration distance.
+     *          If distance is negative, the bone is penetrating the capsule.
+     *          The direction points from the capsule surface towards the bone center.
+     */
+    collision(bonePosition: Vector3, boneRadius: number): {
+        direction: IMutableVector3;
+        distance: number;
+    };
+    /**
+     * Gets the local position of the capsule's head.
+     * @returns The local position vector
+     */
+    get position(): Vector3;
+    /**
+     * Gets the local position of the capsule's tail.
+     * @returns The local tail position vector
+     */
+    get tail(): Vector3;
+    /**
+     * Gets the radius of the capsule.
+     * @returns The radius value
+     */
+    get radius(): number;
+    /**
+     * Gets the base scene graph component.
+     * @returns The base scene graph component
+     */
+    get baseSceneGraph(): SceneGraphComponent;
+    /**
+     * Gets the gizmo used to visualize this collider.
+     * @returns The gizmo instance, or undefined if not set
+     */
+    get gizmo(): CapsuleColliderGizmo | undefined;
+    /**
+     * Sets the gizmo used to visualize this collider.
+     * @param gizmo - The gizmo instance to set
+     */
+    set gizmo(gizmo: CapsuleColliderGizmo | undefined);
+    /**
+     * Sets the visibility of the collider's gizmo.
+     * If the gizmo exists, it will be shown or hidden accordingly.
+     * @param visible - Whether the gizmo should be visible
+     */
+    setGizmoVisible(visible: boolean): void;
+    /**
+     * Gets whether the gizmo is currently visible.
+     * @returns True if the gizmo exists and is visible
+     */
+    get isGizmoVisible(): boolean;
+    /**
+     * Destroys the gizmo if it exists.
+     */
+    destroyGizmo(): void;
 }
+
+/**
+ * SphereColliderGizmo renders a sphere collider visualization for debugging purposes.
+ * The visualization is a semi-transparent green sphere that shows the collider's bounds.
+ */
+declare class SphereColliderGizmo extends Gizmo {
+    protected __topEntity?: ISceneGraphEntity;
+    private __sphereCollider;
+    private __sphereEntity?;
+    /**
+     * Creates a new SphereColliderGizmo instance
+     * @param sphereCollider - The sphere collider to visualize
+     */
+    constructor(sphereCollider: SphereCollider);
+    get isSetup(): boolean;
+    _setup(): void;
+    _update(): void;
+    _destroy(): void;
+    /**
+     * Gets the sphere collider being visualized.
+     * @returns The sphere collider instance
+     */
+    get sphereCollider(): SphereCollider;
+}
+
+/**
+ * A sphere collider used for VRM spring bone physics simulation.
+ * This collider represents a spherical collision volume that can interact with bones
+ * to prevent them from penetrating through solid objects.
+ */
+declare class SphereCollider {
+    /** The local position of the sphere collider relative to its base scene graph node */
+    private __position;
+    /** The radius of the sphere collider */
+    private __radius;
+    /** The base scene graph component that defines the transform space for this collider */
+    private __baseSceneGraph;
+    private __worldPosition;
+    /** The gizmo used to visualize this collider */
+    private __gizmo?;
+    private static __tmp_vec3_1;
+    constructor(position: Vector3, radius: number, baseSceneGraph: SceneGraphComponent);
+    /**
+     * Updates the cached world position of the collider.
+     * Should be called once per frame before collision checks.
+     */
+    updateWorldState(): void;
+    /**
+     * Calculates collision information between this sphere collider and a bone.
+     *
+     * @param bonePosition - The world position of the bone
+     * @param boneRadius - The radius of the bone for collision detection
+     * @returns An object containing the collision direction and penetration distance
+     *   - direction: The normalized vector pointing from the sphere center to the bone
+     *   - distance: The penetration distance (negative if penetrating, positive if separated)
+     */
+    collision(bonePosition: Vector3, boneRadius: number): {
+        distance: number;
+        delta: IMutableVector3;
+        length: number;
+    };
+    /**
+     * Gets the local position of the collider.
+     * @returns The local position vector
+     */
+    get position(): Vector3;
+    /**
+     * Gets the world position of the collider.
+     * @returns The world position vector
+     */
+    get worldPosition(): Vector3;
+    /**
+     * Gets the radius of the collider.
+     * @returns The radius value
+     */
+    get radius(): number;
+    /**
+     * Gets the base scene graph component.
+     * @returns The base scene graph component
+     */
+    get baseSceneGraph(): SceneGraphComponent;
+    /**
+     * Gets the gizmo used to visualize this collider.
+     * @returns The gizmo instance, or undefined if not set
+     */
+    get gizmo(): SphereColliderGizmo | undefined;
+    /**
+     * Sets the gizmo used to visualize this collider.
+     * @param gizmo - The gizmo instance to set
+     */
+    set gizmo(gizmo: SphereColliderGizmo | undefined);
+    /**
+     * Sets the visibility of the collider's gizmo.
+     * If the gizmo exists, it will be shown or hidden accordingly.
+     * @param visible - Whether the gizmo should be visible
+     */
+    setGizmoVisible(visible: boolean): void;
+    /**
+     * Gets whether the gizmo is currently visible.
+     * @returns True if the gizmo exists and is visible
+     */
+    get isGizmoVisible(): boolean;
+    /**
+     * Destroys the gizmo if it exists.
+     */
+    destroyGizmo(): void;
+}
+
+/**
+ * A group of colliders used in VRM spring bone physics simulation.
+ * This class manages collections of sphere and capsule colliders that can interact
+ * with spring bones to provide collision detection and response.
+ */
+declare class VRMColliderGroup {
+    /**
+     * Array of sphere colliders in this group.
+     * Sphere colliders are used for simple spherical collision detection.
+     */
+    sphereColliders: SphereCollider[];
+    /**
+     * Array of capsule colliders in this group.
+     * Capsule colliders are used for cylindrical collision detection with rounded ends.
+     */
+    capsuleColliders: CapsuleCollider[];
+}
+
+declare const defaultAnimationTrackName = "Default";
+
+declare function createCameraEntity(): ICameraEntity;
+
+declare function createCameraControllerEntity(): ICameraControllerEntity;
+
+declare function createLightEntity(): ILightEntity;
+
+declare function createMeshEntity(): IMeshEntity;
+
+declare function createPhysicsEntity(): IPhysicsEntity;
 
 interface ISceneGraphEntityMethods {
     getSceneGraph(): SceneGraphComponent;
@@ -25588,9 +25836,14 @@ interface ISceneGraphEntityMethods {
     removeChild(sg: SceneGraphComponent): void;
 }
 
-interface ISkeletalEntityMethods {
-    getSkeletal(): SkeletalComponent;
-}
+declare function createGroupEntity(): ISceneGraphEntity;
+
+/**
+ * Collects children and itself from specified sceneGraphComponent.
+ * @param sceneGraphComponent collects children and itself from the sceneGraphComponent
+ * @param isJointMode collects joints only
+ */
+declare function flattenHierarchy(sceneGraphComponent: SceneGraphComponent, isJointMode: boolean): SceneGraphComponent[];
 
 /**
  * Expression class manages the rendering pipeline by defining the order and sequence of render passes.
@@ -26903,42 +27156,6 @@ declare class Axis extends IShape {
      * @public
      */
     generate(_desc: AxisDescriptor): void;
-}
-
-/**
- * Descriptor for generating a cone primitive.
- */
-interface ConeDescriptor extends IAnyPrimitiveDescriptor {
-    /**
-     * Radius of the cone base.
-     * @defaultValue 0.1
-     */
-    radius?: number;
-    /**
-     * Height of the cone measured along the +Y axis.
-     * @defaultValue 0.25
-     */
-    height?: number;
-    /**
-     * Number of radial segments that form the cone circumference.
-     * @defaultValue 12
-     */
-    radialSegments?: Count;
-    /**
-     * Whether to generate a base disk that caps the cone.
-     * @defaultValue true
-     */
-    includeBase?: boolean;
-}
-/**
- * Cone primitive aligned along the +Y axis (base on the XZ plane, tip along +Y).
- */
-declare class Cone extends IShape {
-    /**
-     * Generates vertex buffers for a cone shape.
-     * @param _desc - Cone descriptor with geometry options.
-     */
-    generate(_desc: ConeDescriptor): void;
 }
 
 type PhysicsShapeTypeEnum = EnumIO;
@@ -30425,6 +30642,109 @@ type PhysicsProperty = {
 };
 
 /**
+ * The argument descriptor for Capsule primitives
+ */
+interface CapsuleDescriptor extends IAnyPrimitiveDescriptor {
+    /**
+     * The radius of the capsule (half-spheres and cylinder).
+     * @default 0.5
+     */
+    radius?: number;
+    /**
+     * The height of the capsule (distance between the centers of the two half-spheres).
+     * @default 1
+     */
+    height?: number;
+    /**
+     * The number of segments that define the capsule's width (horizontal divisions).
+     * @default 16
+     */
+    widthSegments?: Count;
+    /**
+     * The number of segments that define the capsule's height (vertical divisions for each half-sphere).
+     * @default 8
+     */
+    heightSegments?: Count;
+    /**
+     * Physics properties associated with the capsule, such as mass and collision settings.
+     */
+    physics?: PhysicsProperty;
+}
+/**
+ * Capsule class for generating capsule geometry with customizable parameters.
+ * A capsule consists of a cylinder with hemispherical caps at both ends.
+ * The capsule is oriented along the Y-axis, with the center at the origin.
+ */
+declare class Capsule extends IShape {
+    /**
+     * Generates capsule geometry with the specified parameters
+     *
+     * @param _desc - The capsule descriptor containing generation parameters
+     * @param _desc.radius - The radius of the capsule (default: 0.5)
+     * @param _desc.height - The height of the cylinder part (default: 1)
+     * @param _desc.widthSegments - The number of horizontal segments (default: 16)
+     * @param _desc.heightSegments - The number of vertical segments for each hemisphere (default: 8)
+     * @param _desc.material - The material to apply to the capsule
+     *
+     * @remarks
+     * This method generates vertex positions, texture coordinates, normals, and indices
+     * for a capsule shape. The capsule is centered at the origin with its axis along the Y-axis.
+     * The total height of the capsule is (height + 2 * radius).
+     *
+     * If the radius is zero or nearly zero, it will be clamped to 0.001 for safety.
+     *
+     * @example
+     * ```typescript
+     * const capsule = new Capsule();
+     * capsule.generate({
+     *   radius: 0.5,
+     *   height: 2.0,
+     *   widthSegments: 24,
+     *   heightSegments: 12,
+     *   material: myMaterial
+     * });
+     * ```
+     */
+    generate(_desc: CapsuleDescriptor): void;
+}
+
+/**
+ * Descriptor for generating a cone primitive.
+ */
+interface ConeDescriptor extends IAnyPrimitiveDescriptor {
+    /**
+     * Radius of the cone base.
+     * @defaultValue 0.1
+     */
+    radius?: number;
+    /**
+     * Height of the cone measured along the +Y axis.
+     * @defaultValue 0.25
+     */
+    height?: number;
+    /**
+     * Number of radial segments that form the cone circumference.
+     * @defaultValue 12
+     */
+    radialSegments?: Count;
+    /**
+     * Whether to generate a base disk that caps the cone.
+     * @defaultValue true
+     */
+    includeBase?: boolean;
+}
+/**
+ * Cone primitive aligned along the +Y axis (base on the XZ plane, tip along +Y).
+ */
+declare class Cone extends IShape {
+    /**
+     * Generates vertex buffers for a cone shape.
+     * @param _desc - Cone descriptor with geometry options.
+     */
+    generate(_desc: ConeDescriptor): void;
+}
+
+/**
  * Descriptor interface for creating a cube primitive
  */
 interface CubeDescriptor extends IAnyPrimitiveDescriptor {
@@ -30666,6 +30986,63 @@ declare class Plane extends IShape {
 }
 
 /**
+ * Type definition for ring axis orientation
+ */
+type RingAxis = 'x' | 'y' | 'z';
+/**
+ * Descriptor for generating a ring primitive.
+ */
+interface RingDescriptor extends IAnyPrimitiveDescriptor {
+    /**
+     * The radius of the ring (distance from center to middle of the ring band).
+     * @defaultValue 1
+     */
+    radius?: number;
+    /**
+     * The thickness of the ring band (half-width on each side of the radius).
+     * @defaultValue 0.1
+     */
+    thickness?: number;
+    /**
+     * Number of segments that form the ring circumference.
+     * @defaultValue 64
+     */
+    segments?: Count;
+    /**
+     * The axis perpendicular to the ring plane.
+     * - 'x': Ring lies in the YZ plane
+     * - 'y': Ring lies in the XZ plane
+     * - 'z': Ring lies in the XY plane
+     * @defaultValue 'y'
+     */
+    axis?: RingAxis;
+}
+/**
+ * Ring primitive that creates a flat ring (annulus) shape.
+ *
+ * The ring is generated as a triangle strip with an outer and inner edge,
+ * lying flat perpendicular to the specified axis.
+ *
+ * @example
+ * ```typescript
+ * const ring = new Ring();
+ * ring.generate({
+ *   radius: 2,
+ *   thickness: 0.3,
+ *   segments: 32,
+ *   axis: 'y'
+ * });
+ * ```
+ */
+declare class Ring extends IShape {
+    /**
+     * Generates vertex buffers for a ring shape.
+     * @param _desc - Ring descriptor with geometry options.
+     */
+    generate(_desc: RingDescriptor): void;
+}
+
+/**
  * The argument descriptor for Sphere primitives
  */
 interface SphereDescriptor extends IAnyPrimitiveDescriptor {
@@ -30758,8 +31135,10 @@ declare const MeshHelper: Readonly<{
     createCubes: (numberToCreate: number, desc?: CubeDescriptor) => IMeshEntity[];
     createSphere: (desc?: SphereDescriptor) => IMeshEntity;
     createSpheres: (numberToCreate: number, desc?: SphereDescriptor) => IMeshEntity[];
+    createCapsule: (desc?: CapsuleDescriptor) => IMeshEntity;
     createJoint: (desc?: JointDescriptor) => IMeshEntity;
     createAxis: (desc?: AxisDescriptor) => IMeshEntity;
+    createRing: (desc?: RingDescriptor) => IMeshEntity;
     createShape: typeof createShape;
 }>;
 
@@ -31832,6 +32211,171 @@ declare class AssetLoader {
  */
 declare const defaultAssetLoader: AssetLoader;
 
+interface IAnimationRetarget {
+    retargetQuaternion(dstEntity: ISceneGraphEntity): IQuaternion;
+    retargetTranslate(dstEntity: ISceneGraphEntity): IVector3;
+    retargetScale(dstEntity: ISceneGraphEntity): IVector3;
+    getEntity(): ISceneGraphEntity;
+}
+
+/**
+ * Global retargeting implementation for animation retargeting.
+ * This class handles retargeting of animations from one entity to another using global space transformations.
+ */
+declare class GlobalRetarget implements IAnimationRetarget {
+    private __srcEntity;
+    /**
+     * Creates a new GlobalRetarget instance.
+     * @param srcEntity - The source entity to retarget animations from
+     */
+    constructor(srcEntity: ISceneGraphEntity);
+    /**
+     * Gets the source entity for retargeting.
+     * @returns The source scene graph entity
+     */
+    getEntity(): ISceneGraphEntity;
+    /**
+     * Gets the parent's global rest quaternion for the source entity.
+     * This is used to transform from local space to global space for the source.
+     * @param srcEntity - The source entity to get parent global rest quaternion for
+     * @returns The parent's global rest quaternion, or identity if no parent exists
+     */
+    getSrcPGRestQ(srcEntity: ISceneGraphEntity): IQuaternion;
+    /**
+     * Gets the parent's global rest quaternion for the destination entity.
+     * This is used to transform from global space to local space for the destination.
+     * @param dstEntity - The destination entity to get parent global rest quaternion for
+     * @returns The parent's global rest quaternion, or identity if no parent exists
+     */
+    getDstPGRestQ(dstEntity: ISceneGraphEntity): IQuaternion;
+    /**
+     * Retargets rotation from the source entity to the destination entity.
+     * The method extracts the global animation quaternion from the source and applies it to the destination.
+     * @param dstEntity - The destination entity to apply the retargeted rotation to
+     * @returns The retargeted local rotation quaternion for the destination entity
+     */
+    retargetQuaternion(dstEntity: ISceneGraphEntity): IQuaternion;
+    /**
+     * Retargets translation from the source entity to the destination entity.
+     * The method extracts the global animation translation from the source, scales it appropriately,
+     * and applies it to the destination entity.
+     * @param dstEntity - The destination entity to apply the retargeted translation to
+     * @returns The retargeted local position vector for the destination entity
+     */
+    retargetTranslate(dstEntity: ISceneGraphEntity): IVector3;
+    /**
+     * Retargets scale from the source entity to the destination entity.
+     * Currently returns the source entity's local scale directly without modification.
+     * @param dstEntity - The destination entity (not used in current implementation)
+     * @returns The source entity's local scale vector
+     */
+    retargetScale(_dstEntity: ISceneGraphEntity): IVector3;
+}
+
+/**
+ * Global retarget reverse implementation for animation retargeting.
+ * This class handles the reverse retargeting of animations from source to destination entities
+ * with global coordinate system considerations and 180-degree rotation reversal.
+ */
+declare class GlobalRetargetReverse implements IAnimationRetarget {
+    private __srcEntity;
+    static readonly __rev: Quaternion;
+    /**
+     * Creates a new GlobalRetargetReverse instance.
+     * @param srcEntity - The source entity from which animation data will be retargeted
+     */
+    constructor(srcEntity: ISceneGraphEntity);
+    /**
+     * Gets the source entity used for retargeting.
+     * @returns The source scene graph entity
+     */
+    getEntity(): ISceneGraphEntity;
+    /**
+     * Gets the parent global rest quaternion for the source entity.
+     * This method traverses up the hierarchy to find the parent's rest rotation
+     * for entities that have VRM components.
+     * @param srcEntity - The source entity to get parent global rest quaternion for
+     * @returns The parent global rest quaternion, or identity quaternion if no parent exists
+     */
+    getSrcPGRestQ(srcEntity: ISceneGraphEntity): IQuaternion;
+    /**
+     * Gets the parent global rest quaternion for the destination entity.
+     * This method traverses up the hierarchy to find the parent's rest rotation
+     * for entities that have VRM components.
+     * @param dstEntity - The destination entity to get parent global rest quaternion for
+     * @returns The parent global rest quaternion, or identity quaternion if no parent exists
+     */
+    getDstPGRestQ(dstEntity: ISceneGraphEntity): IQuaternion;
+    /**
+     * Retargets the quaternion rotation from source entity to destination entity.
+     * This method extracts the global animation quaternion from the source entity,
+     * then applies it to the destination entity's local coordinate system with
+     * a 180-degree Y-axis rotation reversal.
+     * @param dstEntity - The destination entity to apply the retargeted rotation to
+     * @returns The retargeted quaternion with reverse rotation applied
+     */
+    retargetQuaternion(dstEntity: ISceneGraphEntity): IQuaternion;
+    /**
+     * Retargets the translation from source entity to destination entity.
+     * This method extracts the global animation translation from the source entity,
+     * scales it according to the destination entity's proportions, then applies
+     * a 180-degree Y-axis rotation reversal.
+     * @param dstEntity - The destination entity to apply the retargeted translation to
+     * @returns The retargeted translation vector with reverse rotation applied
+     */
+    retargetTranslate(dstEntity: ISceneGraphEntity): IVector3;
+    /**
+     * Retargets the scale from source entity to destination entity.
+     * Currently, this method simply returns the source entity's local scale
+     * without any modifications or transformations.
+     * @param dstEntity - The destination entity (currently unused)
+     * @returns The source entity's local scale vector
+     */
+    retargetScale(_dstEntity: ISceneGraphEntity): IVector3;
+}
+
+/**
+ * Animation retargeting implementation that uses absolute transform values.
+ * This class directly returns the source entity's transform values without any modifications.
+ */
+declare class AbsoluteAnimation implements IAnimationRetarget {
+    private __srcEntity;
+    /**
+     * Creates a new AbsoluteAnimation instance.
+     * @param srcEntity - The source entity whose transform values will be used for retargeting
+     */
+    constructor(srcEntity: ISceneGraphEntity);
+    /**
+     * Gets the source entity associated with this animation retarget.
+     * @returns The source scene graph entity
+     */
+    getEntity(): ISceneGraphEntity;
+    /**
+     * Retargets rotation by returning the source entity's local rotation quaternion.
+     * @param dstEntity - The destination entity (unused in absolute animation)
+     * @returns The source entity's local rotation quaternion
+     */
+    retargetQuaternion(_dstEntity: ISceneGraphEntity): IQuaternion;
+    /**
+     * Retargets translation by returning the source entity's local position.
+     * @param dstEntity - The destination entity (unused in absolute animation)
+     * @returns The source entity's local position vector
+     */
+    retargetTranslate(_dstEntity: ISceneGraphEntity): IVector3;
+    /**
+     * Retargets scale by returning the source entity's local scale.
+     * @param dstEntity - The destination entity (unused in absolute animation)
+     * @returns The source entity's local scale vector
+     */
+    retargetScale(_dstEntity: ISceneGraphEntity): IVector3;
+}
+
+interface ISkeletalEntityMethods {
+    getSkeletal(): SkeletalComponent;
+}
+
+declare function createSkeletalEntity(): ISkeletalEntity;
+
 /**
  * TransformComponent is a component that manages the transform of an entity.
  * It handles position, rotation, scale, and transformation matrices for 3D objects.
@@ -32152,6 +32696,8 @@ interface ITransformEntityMethods {
     localMatrixRestInner: IMatrix44;
 }
 
+declare function createTransformEntity(): ITransformEntity;
+
 type VrmExpressionName = string;
 type VrmExpressionMorphBind = {
     entityIdx: Index;
@@ -32241,6 +32787,224 @@ declare class VrmComponent extends Component {
 
 interface IVrmEntityMethods {
     getVrm(): VrmComponent;
+}
+
+declare const WellKnownComponentTIDs: Readonly<{
+    AnimationStateComponentTID: 1;
+    AnimationComponentTID: 2;
+    TransformComponentTID: 3;
+    SceneGraphComponentTID: 4;
+    MeshComponentTID: 5;
+    MeshRendererComponentTID: 6;
+    LightComponentTID: 7;
+    CameraControllerComponentTID: 8;
+    CameraComponentTID: 9;
+    SkeletalComponentTID: 10;
+    BlendShapeComponentTID: 11;
+    PhysicsComponentTID: 12;
+    EffekseerComponentTID: 13;
+    VrmComponentTID: 14;
+    ConstraintComponentTID: 15;
+    maxWellKnownTidNumber: 15;
+}>;
+
+/**
+ * VRM Spring Bone implementation for physics-based bone animation.
+ * This class handles the physics simulation of spring bones commonly used in VRM models
+ * for secondary animation like hair, clothes, and accessories.
+ */
+declare class VRMSpringBone extends RnObject {
+    /** The stiffness force that controls how quickly the bone returns to its rest position */
+    stiffnessForce: number;
+    /** The power of gravity affecting the bone movement */
+    gravityPower: number;
+    /** The direction vector of gravity force */
+    gravityDir: Vector3;
+    /** The drag force that dampens the bone movement */
+    dragForce: number;
+    /** The radius used for collision detection */
+    hitRadius: number;
+    /** The scene graph entity node that this spring bone is attached to */
+    node: ISceneGraphEntity;
+    /** Current tail position in world space coordinates */
+    currentTail: MutableVector3;
+    /** Previous tail position in world space coordinates */
+    prevTail: MutableVector3;
+    /** The bone axis direction in local space coordinates */
+    boneAxis: Vector3;
+    /** The length of the bone in world space units */
+    boneLength: number;
+    /** The initial local position of the child bone */
+    initialLocalChildPosition: Vector3;
+    /** Flag indicating whether the spring bone has been initialized */
+    initialized: boolean;
+    /** Temporary vector for internal calculations */
+    private static __tmp_vec3_0;
+    /** Temporary vector for internal calculations */
+    private static __tmp_vec3_1;
+    /** Temporary zero vector for internal calculations */
+    private static __tmp_vec3_2_zero;
+    /** Temporary vector for internal calculations */
+    private static __tmp_vec3_3;
+    /** Temporary vector for internal calculations */
+    private static __tmp_vec3_4;
+    /**
+     * Creates a new VRM Spring Bone instance.
+     * @param node - The scene graph entity node to attach this spring bone to
+     */
+    constructor(node: ISceneGraphEntity);
+    /**
+     * Initializes the spring bone with default values and calculates initial positions.
+     * This method should be called once before starting the physics simulation.
+     * @param center - Optional center component for coordinate transformation
+     */
+    setup(center?: SceneGraphComponent): void;
+    /**
+     * Gets the transformation matrix from center space to world space.
+     * @param center - Optional center component for coordinate transformation
+     * @returns The transformation matrix from center to world space
+     */
+    _getMatrixCenterToWorld(center?: SceneGraphComponent): IMatrix44;
+    /**
+     * Gets the transformation matrix from world space to center space.
+     * @param center - Optional center component for coordinate transformation
+     * @returns The transformation matrix from world to center space
+     */
+    _getMatrixWorldToCenter(center?: SceneGraphComponent): IMatrix44;
+    /**
+     * Calculates the bone length in world space coordinates.
+     * This method updates the boneLength property based on the current world positions
+     * of the bone and its child (or estimated child position).
+     */
+    _calcWorldSpaceBoneLength(): void;
+}
+
+/**
+ * Represents a VRM spring bone system that manages physics simulation for character bones.
+ * This class handles the configuration and management of spring bones, collider groups,
+ * and their interactions within the VRM specification.
+ *
+ * @example
+ * ```typescript
+ * const rootBone = sceneGraphComponent;
+ * const vrmSpring = new VRMSpring(rootBone);
+ * vrmSpring.bones.push(new VRMSpringBone());
+ * vrmSpring.colliderGroups.push(new VRMColliderGroup());
+ * ```
+ */
+declare class VRMSpring extends RnObject {
+    /** The root bone component that serves as the base for the spring bone system */
+    rootBone: SceneGraphComponent;
+    /** Array of spring bones that will be affected by physics simulation */
+    bones: VRMSpringBone[];
+    /** Array of collider groups that define collision boundaries for spring bones */
+    colliderGroups: VRMColliderGroup[];
+    /** Optional center reference point for spring bone calculations */
+    center: SceneGraphComponent | undefined;
+    /**
+     * Creates a new VRMSpring instance with the specified root bone.
+     *
+     * @param rootBone - The scene graph component that will serve as the root bone
+     *                   for this spring bone system
+     */
+    constructor(rootBone: SceneGraphComponent);
+}
+
+interface PhysicsStrategy {
+    update(): void;
+    /**
+     * Sets the visibility of all colliders in this physics strategy.
+     * This is optional and only implemented by strategies that support collider visualization.
+     * @param visible - Whether the colliders should be visible
+     */
+    setCollidersVisible?(visible: boolean): void;
+    /**
+     * Gets the VRM spring system managed by this physics strategy.
+     * This is optional and only implemented by strategies that support VRM spring bones.
+     * @returns The VRM spring system, or undefined if not supported
+     */
+    getVrmSpring?(): VRMSpring | undefined;
+}
+
+/**
+ * PhysicsComponent is a component that manages the physics simulation for an entity.
+ * It provides integration with physics engines through the strategy pattern and handles
+ * physics updates during the logic processing stage.
+ */
+declare class PhysicsComponent extends Component {
+    private __strategy?;
+    /**
+     * Creates a new PhysicsComponent instance.
+     * @param entityUid - The unique identifier of the entity this component belongs to
+     * @param componentSid - The component's serial identifier
+     * @param entityComponent - The entity repository managing this component
+     * @param isReUse - Whether this component is being reused from a pool
+     */
+    constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean);
+    /**
+     * Gets the component type identifier for PhysicsComponent.
+     * @returns The component type ID for physics components
+     */
+    static get componentTID(): ComponentTID;
+    /**
+     * Gets the component type identifier for this instance.
+     * @returns The component type ID for physics components
+     */
+    get componentTID(): ComponentTID;
+    /**
+     * Sets the physics strategy for this component.
+     * The strategy defines how physics calculations and updates are performed.
+     * @param strategy - The physics strategy to use for this component
+     */
+    setStrategy(strategy: PhysicsStrategy): void;
+    /**
+     * Gets the current physics strategy used by this component.
+     * @returns The physics strategy instance, or undefined if none is set
+     */
+    get strategy(): PhysicsStrategy | undefined;
+    getVrmSpring(): VRMSpring | undefined;
+    /**
+     * Common logic method that updates the global physics simulation.
+     * This is called once per frame for all physics components and handles
+     * the overall physics world update using the Oimo physics engine.
+     */
+    static common_$logic(): void;
+    /**
+     * Instance-specific logic method that updates this component's physics.
+     * Called during the logic processing stage to update individual physics entities.
+     */
+    $logic(): void;
+    /**
+     * Sets the visibility of all colliders managed by this physics component.
+     * This is useful for debugging and visualizing collision boundaries.
+     * Note: This only works if the physics strategy supports collider visualization
+     * (e.g., VRMSpringBonePhysicsStrategy).
+     *
+     * @param visible - Whether the colliders should be visible
+     */
+    setCollidersVisible(visible: boolean): void;
+    /**
+     * Destroys this physics component and cleans up resources.
+     * Calls the parent destroy method and clears the physics strategy reference.
+     * @override
+     */
+    _destroy(): void;
+    /**
+     * Adds physics functionality to an entity by mixing in physics-specific methods.
+     * This method extends the base entity class with physics-related capabilities,
+     * allowing the entity to access its physics component through a convenient getter.
+     * @template EntityBase - The base entity type to extend
+     * @template SomeComponentClass - The component class type
+     * @param base - The target entity to add physics functionality to
+     * @param _componentClass - The component class being added (used for type inference)
+     * @returns The enhanced entity with physics methods and the original entity functionality
+     * @override
+     */
+    addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): ComponentToComponentMethods<SomeComponentClass> & EntityBase;
+}
+
+interface IPhysicsEntityMethods {
+    getPhysics(): PhysicsComponent;
 }
 
 type ComponentMixinFunction = <EntityBaseClass extends MixinBase>(baseClass: EntityBaseClass, components: (typeof Component)[]) => {
@@ -32818,167 +33582,6 @@ declare class EventPubSub implements IEventPubSub {
      */
     publishSync(type: EventType, event?: any): CalledSubscriberNumber;
 }
-
-interface IAnimationRetarget {
-    retargetQuaternion(dstEntity: ISceneGraphEntity): IQuaternion;
-    retargetTranslate(dstEntity: ISceneGraphEntity): IVector3;
-    retargetScale(dstEntity: ISceneGraphEntity): IVector3;
-    getEntity(): ISceneGraphEntity;
-}
-
-/**
- * Global retargeting implementation for animation retargeting.
- * This class handles retargeting of animations from one entity to another using global space transformations.
- */
-declare class GlobalRetarget implements IAnimationRetarget {
-    private __srcEntity;
-    /**
-     * Creates a new GlobalRetarget instance.
-     * @param srcEntity - The source entity to retarget animations from
-     */
-    constructor(srcEntity: ISceneGraphEntity);
-    /**
-     * Gets the source entity for retargeting.
-     * @returns The source scene graph entity
-     */
-    getEntity(): ISceneGraphEntity;
-    /**
-     * Gets the parent's global rest quaternion for the source entity.
-     * This is used to transform from local space to global space for the source.
-     * @param srcEntity - The source entity to get parent global rest quaternion for
-     * @returns The parent's global rest quaternion, or identity if no parent exists
-     */
-    getSrcPGRestQ(srcEntity: ISceneGraphEntity): IQuaternion;
-    /**
-     * Gets the parent's global rest quaternion for the destination entity.
-     * This is used to transform from global space to local space for the destination.
-     * @param dstEntity - The destination entity to get parent global rest quaternion for
-     * @returns The parent's global rest quaternion, or identity if no parent exists
-     */
-    getDstPGRestQ(dstEntity: ISceneGraphEntity): IQuaternion;
-    /**
-     * Retargets rotation from the source entity to the destination entity.
-     * The method extracts the global animation quaternion from the source and applies it to the destination.
-     * @param dstEntity - The destination entity to apply the retargeted rotation to
-     * @returns The retargeted local rotation quaternion for the destination entity
-     */
-    retargetQuaternion(dstEntity: ISceneGraphEntity): IQuaternion;
-    /**
-     * Retargets translation from the source entity to the destination entity.
-     * The method extracts the global animation translation from the source, scales it appropriately,
-     * and applies it to the destination entity.
-     * @param dstEntity - The destination entity to apply the retargeted translation to
-     * @returns The retargeted local position vector for the destination entity
-     */
-    retargetTranslate(dstEntity: ISceneGraphEntity): IVector3;
-    /**
-     * Retargets scale from the source entity to the destination entity.
-     * Currently returns the source entity's local scale directly without modification.
-     * @param dstEntity - The destination entity (not used in current implementation)
-     * @returns The source entity's local scale vector
-     */
-    retargetScale(_dstEntity: ISceneGraphEntity): IVector3;
-}
-
-/**
- * Global retarget reverse implementation for animation retargeting.
- * This class handles the reverse retargeting of animations from source to destination entities
- * with global coordinate system considerations and 180-degree rotation reversal.
- */
-declare class GlobalRetargetReverse implements IAnimationRetarget {
-    private __srcEntity;
-    static readonly __rev: Quaternion;
-    /**
-     * Creates a new GlobalRetargetReverse instance.
-     * @param srcEntity - The source entity from which animation data will be retargeted
-     */
-    constructor(srcEntity: ISceneGraphEntity);
-    /**
-     * Gets the source entity used for retargeting.
-     * @returns The source scene graph entity
-     */
-    getEntity(): ISceneGraphEntity;
-    /**
-     * Gets the parent global rest quaternion for the source entity.
-     * This method traverses up the hierarchy to find the parent's rest rotation
-     * for entities that have VRM components.
-     * @param srcEntity - The source entity to get parent global rest quaternion for
-     * @returns The parent global rest quaternion, or identity quaternion if no parent exists
-     */
-    getSrcPGRestQ(srcEntity: ISceneGraphEntity): IQuaternion;
-    /**
-     * Gets the parent global rest quaternion for the destination entity.
-     * This method traverses up the hierarchy to find the parent's rest rotation
-     * for entities that have VRM components.
-     * @param dstEntity - The destination entity to get parent global rest quaternion for
-     * @returns The parent global rest quaternion, or identity quaternion if no parent exists
-     */
-    getDstPGRestQ(dstEntity: ISceneGraphEntity): IQuaternion;
-    /**
-     * Retargets the quaternion rotation from source entity to destination entity.
-     * This method extracts the global animation quaternion from the source entity,
-     * then applies it to the destination entity's local coordinate system with
-     * a 180-degree Y-axis rotation reversal.
-     * @param dstEntity - The destination entity to apply the retargeted rotation to
-     * @returns The retargeted quaternion with reverse rotation applied
-     */
-    retargetQuaternion(dstEntity: ISceneGraphEntity): IQuaternion;
-    /**
-     * Retargets the translation from source entity to destination entity.
-     * This method extracts the global animation translation from the source entity,
-     * scales it according to the destination entity's proportions, then applies
-     * a 180-degree Y-axis rotation reversal.
-     * @param dstEntity - The destination entity to apply the retargeted translation to
-     * @returns The retargeted translation vector with reverse rotation applied
-     */
-    retargetTranslate(dstEntity: ISceneGraphEntity): IVector3;
-    /**
-     * Retargets the scale from source entity to destination entity.
-     * Currently, this method simply returns the source entity's local scale
-     * without any modifications or transformations.
-     * @param dstEntity - The destination entity (currently unused)
-     * @returns The source entity's local scale vector
-     */
-    retargetScale(_dstEntity: ISceneGraphEntity): IVector3;
-}
-
-/**
- * Animation retargeting implementation that uses absolute transform values.
- * This class directly returns the source entity's transform values without any modifications.
- */
-declare class AbsoluteAnimation implements IAnimationRetarget {
-    private __srcEntity;
-    /**
-     * Creates a new AbsoluteAnimation instance.
-     * @param srcEntity - The source entity whose transform values will be used for retargeting
-     */
-    constructor(srcEntity: ISceneGraphEntity);
-    /**
-     * Gets the source entity associated with this animation retarget.
-     * @returns The source scene graph entity
-     */
-    getEntity(): ISceneGraphEntity;
-    /**
-     * Retargets rotation by returning the source entity's local rotation quaternion.
-     * @param dstEntity - The destination entity (unused in absolute animation)
-     * @returns The source entity's local rotation quaternion
-     */
-    retargetQuaternion(_dstEntity: ISceneGraphEntity): IQuaternion;
-    /**
-     * Retargets translation by returning the source entity's local position.
-     * @param dstEntity - The destination entity (unused in absolute animation)
-     * @returns The source entity's local position vector
-     */
-    retargetTranslate(_dstEntity: ISceneGraphEntity): IVector3;
-    /**
-     * Retargets scale by returning the source entity's local scale.
-     * @param dstEntity - The destination entity (unused in absolute animation)
-     * @returns The source entity's local scale vector
-     */
-    retargetScale(_dstEntity: ISceneGraphEntity): IVector3;
-}
-
-declare function createSkeletalEntity(): ISkeletalEntity;
 
 /**
  * A component that manages animation data and applies animation transformations to entities.
@@ -35538,48 +36141,6 @@ declare class WalkThroughCameraController extends AbstractCameraController imple
     set allInfo(arg: any);
 }
 
-declare const defaultAnimationTrackName = "Default";
-
-declare function createCameraEntity(): ICameraEntity;
-
-declare function createCameraControllerEntity(): ICameraControllerEntity;
-
-declare function createLightEntity(): ILightEntity;
-
-declare function createMeshEntity(): IMeshEntity;
-
-declare function createPhysicsEntity(): IPhysicsEntity;
-
-declare function createGroupEntity(): ISceneGraphEntity;
-
-/**
- * Collects children and itself from specified sceneGraphComponent.
- * @param sceneGraphComponent collects children and itself from the sceneGraphComponent
- * @param isJointMode collects joints only
- */
-declare function flattenHierarchy(sceneGraphComponent: SceneGraphComponent, isJointMode: boolean): SceneGraphComponent[];
-
-declare function createTransformEntity(): ITransformEntity;
-
-declare const WellKnownComponentTIDs: Readonly<{
-    AnimationStateComponentTID: 1;
-    AnimationComponentTID: 2;
-    TransformComponentTID: 3;
-    SceneGraphComponentTID: 4;
-    MeshComponentTID: 5;
-    MeshRendererComponentTID: 6;
-    LightComponentTID: 7;
-    CameraControllerComponentTID: 8;
-    CameraComponentTID: 9;
-    SkeletalComponentTID: 10;
-    BlendShapeComponentTID: 11;
-    PhysicsComponentTID: 12;
-    EffekseerComponentTID: 13;
-    VrmComponentTID: 14;
-    ConstraintComponentTID: 15;
-    maxWellKnownTidNumber: 15;
-}>;
-
 /**
  * The repository class that manages all component classes and their instances.
  * This class provides functionality to register component classes, create component instances,
@@ -36226,78 +36787,6 @@ declare class SimpleVertexAttribute implements ISemanticVertexAttribute {
 }
 
 /**
- * Abstract Gizmo class that provides a foundation for creating interactive gizmo objects
- * in 3D scenes. Gizmos are typically used for manipulation tools like transform handles,
- * rotation rings, or other interactive visual aids.
- */
-declare abstract class Gizmo extends RnObject {
-    /**
-     * The top entity of this gizmo group.
-     * A programmer who implements a gizmo class has to make this entity
-     * a child of the target entity's scene graph component
-     * that the gizmo will belong to manually.
-     */
-    protected __topEntity?: IMeshEntity | ISceneGraphEntity;
-    /** the target entity which this gizmo belong to */
-    protected __target: ISceneGraphEntity;
-    protected __isVisible: boolean;
-    /**
-     * Creates a new Gizmo instance
-     * @param target - The entity that this gizmo will be associated with and manipulate
-     */
-    constructor(target: ISceneGraphEntity);
-    /**
-     * Sets the visibility state of the gizmo
-     * @param flg - True to make the gizmo visible, false to hide it
-     */
-    set isVisible(flg: boolean);
-    /**
-     * Gets the current visibility state of the gizmo
-     * @returns True if the gizmo is visible, false otherwise
-     */
-    get isVisible(): boolean;
-    /**
-     * Internal method to set the visibility of the gizmo and all its child entities
-     * @param flg - True to show the gizmo, false to hide it
-     */
-    protected __setVisible(flg: boolean): void;
-    /**
-     * Indicates whether the gizmo has been set up and is ready for use
-     * Must be implemented by concrete gizmo classes
-     */
-    abstract isSetup: boolean;
-    /**
-     * Sets up the entities and components required for the gizmo
-     * This method is called internally and should only be executed once
-     * @internal
-     */
-    abstract _setup(): void;
-    /**
-     * Updates the gizmo's transform, appearance, and other properties
-     * This method is typically called every frame to keep the gizmo synchronized
-     * with its target entity
-     * @internal
-     */
-    abstract _update(): void;
-    /**
-     * Cleans up and destroys the gizmo, releasing all associated resources
-     * @internal
-     */
-    abstract _destroy(): void;
-    /**
-     * Determines whether the gizmo setup should be skipped
-     * @returns True if setup should be skipped, false otherwise
-     */
-    protected __toSkipSetup(): boolean;
-    /**
-     * Applies appropriate tags to the gizmo entities for identification and categorization
-     * This method ensures that all gizmo entities are properly tagged for rendering
-     * and processing pipelines
-     */
-    protected setGizmoTag(): void;
-}
-
-/**
  * AABB Gizmo class that visualizes the Axis-Aligned Bounding Box of a target entity.
  * This gizmo renders a wireframe box around the target entity showing its spatial boundaries.
  */
@@ -36482,6 +36971,7 @@ declare class RotationGizmo extends Gizmo {
     get isSetup(): boolean;
     set length(val: number);
     get length(): number;
+    get isVisible(): boolean;
     set isVisible(flg: boolean);
     setSpace(space: 'local' | 'world'): void;
     _setup(): void;
@@ -41325,204 +41815,6 @@ declare class OimoPhysicsStrategy implements PhysicsStrategy {
 }
 
 /**
- * A capsule-shaped collider used for VRM spring bone physics simulation.
- * The capsule is defined by a position (head), tail position, and radius.
- * It can detect collisions with spherical objects like bones.
- */
-declare class CapsuleCollider {
-    /** The position of the capsule's head in local space */
-    private __position;
-    /** The radius of the capsule */
-    private __radius;
-    /** The position of the capsule's tail in local space */
-    private __tail;
-    /** The base scene graph component used for world space transformations */
-    private __baseSceneGraph;
-    private __worldMatrix;
-    private __worldHead;
-    private __worldTailOffset;
-    private __lengthSqCapsule;
-    private static __tmp_vec3_0;
-    private static __tmp_vec3_1;
-    constructor(position: Vector3, radius: number, tail: Vector3, baseSceneGraph: SceneGraphComponent);
-    /**
-     * Updates cached world positions for the capsule.
-     * Should be called once per frame before collision checks.
-     */
-    updateWorldState(): void;
-    /**
-     * Calculates collision information between this capsule collider and a spherical bone.
-     *
-     * @param bonePosition - The world position of the bone
-     * @param boneRadius - The radius of the bone sphere
-     * @returns An object containing the collision direction vector and penetration distance.
-     *          If distance is negative, the bone is penetrating the capsule.
-     *          The direction points from the capsule surface towards the bone center.
-     */
-    collision(bonePosition: Vector3, boneRadius: number): {
-        direction: IMutableVector3;
-        distance: number;
-    };
-}
-
-/**
- * A sphere collider used for VRM spring bone physics simulation.
- * This collider represents a spherical collision volume that can interact with bones
- * to prevent them from penetrating through solid objects.
- */
-declare class SphereCollider {
-    /** The local position of the sphere collider relative to its base scene graph node */
-    private __position;
-    /** The radius of the sphere collider */
-    private __radius;
-    /** The base scene graph component that defines the transform space for this collider */
-    private __baseSceneGraph;
-    private __worldPosition;
-    private static __tmp_vec3_1;
-    private static __tmp_vec3_2;
-    constructor(position: Vector3, radius: number, baseSceneGraph: SceneGraphComponent);
-    /**
-     * Updates the cached world position of the collider.
-     * Should be called once per frame before collision checks.
-     */
-    updateWorldState(): void;
-    /**
-     * Calculates collision information between this sphere collider and a bone.
-     *
-     * @param bonePosition - The world position of the bone
-     * @param boneRadius - The radius of the bone for collision detection
-     * @returns An object containing the collision direction and penetration distance
-     *   - direction: The normalized vector pointing from the sphere center to the bone
-     *   - distance: The penetration distance (negative if penetrating, positive if separated)
-     */
-    collision(bonePosition: Vector3, boneRadius: number): {
-        distance: number;
-        delta: IMutableVector3;
-        length: number;
-    };
-}
-
-/**
- * A group of colliders used in VRM spring bone physics simulation.
- * This class manages collections of sphere and capsule colliders that can interact
- * with spring bones to provide collision detection and response.
- */
-declare class VRMColliderGroup {
-    /**
-     * Array of sphere colliders in this group.
-     * Sphere colliders are used for simple spherical collision detection.
-     */
-    sphereColliders: SphereCollider[];
-    /**
-     * Array of capsule colliders in this group.
-     * Capsule colliders are used for cylindrical collision detection with rounded ends.
-     */
-    capsuleColliders: CapsuleCollider[];
-}
-
-/**
- * VRM Spring Bone implementation for physics-based bone animation.
- * This class handles the physics simulation of spring bones commonly used in VRM models
- * for secondary animation like hair, clothes, and accessories.
- */
-declare class VRMSpringBone extends RnObject {
-    /** The stiffness force that controls how quickly the bone returns to its rest position */
-    stiffnessForce: number;
-    /** The power of gravity affecting the bone movement */
-    gravityPower: number;
-    /** The direction vector of gravity force */
-    gravityDir: Vector3;
-    /** The drag force that dampens the bone movement */
-    dragForce: number;
-    /** The radius used for collision detection */
-    hitRadius: number;
-    /** The scene graph entity node that this spring bone is attached to */
-    node: ISceneGraphEntity;
-    /** Current tail position in world space coordinates */
-    currentTail: MutableVector3;
-    /** Previous tail position in world space coordinates */
-    prevTail: MutableVector3;
-    /** The bone axis direction in local space coordinates */
-    boneAxis: Vector3;
-    /** The length of the bone in world space units */
-    boneLength: number;
-    /** The initial local position of the child bone */
-    initialLocalChildPosition: Vector3;
-    /** Flag indicating whether the spring bone has been initialized */
-    initialized: boolean;
-    /** Temporary vector for internal calculations */
-    private static __tmp_vec3_0;
-    /** Temporary vector for internal calculations */
-    private static __tmp_vec3_1;
-    /** Temporary zero vector for internal calculations */
-    private static __tmp_vec3_2_zero;
-    /** Temporary vector for internal calculations */
-    private static __tmp_vec3_3;
-    /** Temporary vector for internal calculations */
-    private static __tmp_vec3_4;
-    /**
-     * Creates a new VRM Spring Bone instance.
-     * @param node - The scene graph entity node to attach this spring bone to
-     */
-    constructor(node: ISceneGraphEntity);
-    /**
-     * Initializes the spring bone with default values and calculates initial positions.
-     * This method should be called once before starting the physics simulation.
-     * @param center - Optional center component for coordinate transformation
-     */
-    setup(center?: SceneGraphComponent): void;
-    /**
-     * Gets the transformation matrix from center space to world space.
-     * @param center - Optional center component for coordinate transformation
-     * @returns The transformation matrix from center to world space
-     */
-    _getMatrixCenterToWorld(center?: SceneGraphComponent): IMatrix44;
-    /**
-     * Gets the transformation matrix from world space to center space.
-     * @param center - Optional center component for coordinate transformation
-     * @returns The transformation matrix from world to center space
-     */
-    _getMatrixWorldToCenter(center?: SceneGraphComponent): IMatrix44;
-    /**
-     * Calculates the bone length in world space coordinates.
-     * This method updates the boneLength property based on the current world positions
-     * of the bone and its child (or estimated child position).
-     */
-    _calcWorldSpaceBoneLength(): void;
-}
-
-/**
- * Represents a VRM spring bone system that manages physics simulation for character bones.
- * This class handles the configuration and management of spring bones, collider groups,
- * and their interactions within the VRM specification.
- *
- * @example
- * ```typescript
- * const rootBone = sceneGraphComponent;
- * const vrmSpring = new VRMSpring(rootBone);
- * vrmSpring.bones.push(new VRMSpringBone());
- * vrmSpring.colliderGroups.push(new VRMColliderGroup());
- * ```
- */
-declare class VRMSpring extends RnObject {
-    /** The root bone component that serves as the base for the spring bone system */
-    rootBone: SceneGraphComponent;
-    /** Array of spring bones that will be affected by physics simulation */
-    bones: VRMSpringBone[];
-    /** Array of collider groups that define collision boundaries for spring bones */
-    colliderGroups: VRMColliderGroup[];
-    /** Optional center reference point for spring bone calculations */
-    center: SceneGraphComponent | undefined;
-    /**
-     * Creates a new VRMSpring instance with the specified root bone.
-     *
-     * @param rootBone - The scene graph component that will serve as the root bone
-     *                   for this spring bone system
-     */
-    constructor(rootBone: SceneGraphComponent);
-}
-
-/**
  * Physics strategy implementation for VRM spring bone simulation.
  *
  * This class handles the physics simulation of VRM spring bones, which are used
@@ -41655,6 +41947,14 @@ declare class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
      * @param sgs - The VRM spring system containing bones and configuration
      */
     setSpring(sgs: VRMSpring): void;
+    /**
+     * Sets the visibility of all sphere colliders in this physics strategy.
+     * This creates visualization spheres for each collider if they don't exist yet.
+     *
+     * @param visible - Whether the colliders should be visible
+     */
+    setCollidersVisible(visible: boolean): void;
+    getVrmSpring(): VRMSpring | undefined;
 }
 
 type ColorAttachmentIndex = number;
@@ -44879,4 +45179,4 @@ type RnXR = typeof XR;
 
 declare const VERSION: any;
 
-export { AABB, AABBGizmo, AbsoluteAnimation, AbstractArrayBufferBaseMathNumber, AbstractCameraController, AbstractMaterialContent, AbstractMatrix, AbstractQuaternion, AbstractShaderNode, AbstractTexture, AbstractVector, Accessor, AddShaderNode, AlphaMode, type AlphaModeEnum, AnimatedQuaternion, AnimatedScalar, AnimatedVector2, AnimatedVector3, AnimatedVector4, AnimatedVectorN, AnimationAssigner, AnimationAttribute, type AnimationAttributeEnum, type AnimationChannel, type AnimationChannelTarget, AnimationComponent, type AnimationComponentEventType, type AnimationInfo, AnimationInterpolation, type AnimationInterpolationEnum, type AnimationPathName, type AnimationSampler, type AnimationSamplers, type AnimationTrack, type AnimationTrackName, type Array1, type Array16, type Array1to4, type Array2, type Array3, type Array4, type Array9, type ArrayAsRn, type ArrayType, AssetLoader, type AssetLoaderConfig, AttributeColorShaderNode, type AttributeName, type AttributeNames, AttributeNormalShaderNode, AttributePositionShaderNode, AttributeTexcoordShaderNode, type Attributes, Axis, type AxisDescriptor, type BASIS_TYPE, BasisCompressionType, type BasisCompressionTypeEnum, type BasisFile, BasisLzEtc1sImageTranscoder, type BasisTranscoder, BlendShapeComponent, BlockBeginShader, BlockBeginShaderNode, BlockEndShader, BlockEndShaderNode, Bloom, BoneDataType, type BoneDataTypeEnum, Buffer, BufferUse, type BufferUseEnum, BufferView, type Byte$1 as Byte, type CGAPIResourceHandle, CGAPIResourceRepository, Cache, type CalledSubscriberNumber, CameraComponent, CameraControllerComponent, CameraControllerType, type CameraControllerTypeEnum, type CameraSID, CameraType, type CameraTypeEnum, CapsuleCollider, type ChangeAnimationInfoEvent, ClassicShadingShader, type ColorComponentLetter, ColorGradingUsingLUTsMaterialContent, ColorRgb, ColorRgba, CommonShaderPart, ComplexVertexAttribute, Component, type ComponentMixinFunction, ComponentRepository, type ComponentSID, type ComponentTID, type ComponentToComponentMethods, ComponentType, type ComponentTypeEnum, CompositionType, type CompositionTypeEnum, CompressionTextureType, type CompressionTextureTypeEnum, Cone, type ConeDescriptor, Config, ConstRgbaBlack, ConstRgbaWhite, ConstVector2_0_0, ConstVector2_1_1, ConstVector3_0_0_0, ConstVector3_1_1_1, ConstVector4_0_0_0_0, ConstVector4_0_0_0_1, ConstVector4_1_1_1_1, ConstantScalarVariableShaderNode, ConstantVariableShader, ConstantVector2VariableShaderNode, ConstantVector3VariableShaderNode, ConstantVector4VariableShaderNode, type Count, Cube, type CubeDescriptor, CubeTexture, CustomMaterialContent, DataUtil, DefaultTextures, DepthEncodeMaterialContent, DetectHighLuminanceMaterialContent, type DirectTextureData, DotProductShaderNode, DrcPointCloudImporter, EVENT_CLICK, EVENT_KEY_DOWN, EVENT_KEY_PRESS, EVENT_KEY_UP, EVENT_MOUSE_DOWN, EVENT_MOUSE_ENTER, EVENT_MOUSE_LEAVE, EVENT_MOUSE_MOVE, EVENT_MOUSE_OVER, EVENT_MOUSE_UP, EVENT_MOUSE_WHEEL, EVENT_MSPOINTER_DOWN, EVENT_MSPOINTER_MOVE, EVENT_MSPOINTER_UP, EVENT_ORIENTATION_CHANGE, EVENT_POINTER_CANCEL, EVENT_POINTER_DOWN, EVENT_POINTER_ENTER, EVENT_POINTER_LEAVE, EVENT_POINTER_MOVE, EVENT_POINTER_OUT, EVENT_POINTER_OVER, EVENT_POINTER_UP, EVENT_RESIZE, EVENT_TOUCH_CANCEL, EVENT_TOUCH_DOUBLE_TAP, EVENT_TOUCH_DRAG, EVENT_TOUCH_END, EVENT_TOUCH_ENTER, EVENT_TOUCH_HOLD, EVENT_TOUCH_LEAVE, EVENT_TOUCH_LONG_TAP, EVENT_TOUCH_MOVE, EVENT_TOUCH_OUT, EVENT_TOUCH_OVER, EVENT_TOUCH_PINCH, EVENT_TOUCH_START, EVENT_TOUCH_SWIPE, EVENT_TOUCH_TAP, Effekseer, EffekseerComponent, EndShader, Entity, EntityRepository, type EntityUID, EntityUIDOutputMaterialContent, EnumClass, type EnumIO, Err, type EventHandler, EventPubSub, type EventSubscriberIndex, type EventType, Expression, FileType, type FileTypeEnum, type FillArgsObject, type FloatTypedArray, type FloatTypedArrayConstructor, ForwardRenderPipeline, Frame, FrameBuffer, type FrameBufferCubeMapDescriptor, type FrameBufferDescriptor, type FrameBufferMSAADescriptor, type FrameBufferTextureArrayDescriptor, type FrameBufferTextureArrayForMultiViewDescriptor, Frustum, FurnaceTestMaterialContent, GLTF2_EXPORT_DRACO, GLTF2_EXPORT_EMBEDDED, GLTF2_EXPORT_GLB, GLTF2_EXPORT_GLTF, GLTF2_EXPORT_NO_DOWNLOAD, GL_ACTIVE_ATTRIBUTES, GL_ACTIVE_TEXTURE, GL_ACTIVE_UNIFORMS, GL_ACTIVE_UNIFORM_BLOCKS, GL_ALIASED_LINE_WIDTH_RANGE, GL_ALIASED_POINT_SIZE_RANGE, GL_ALPHA, GL_ALPHA_BITS, GL_ALREADY_SIGNALED, GL_ALWAYS, GL_ANY_SAMPLES_PASSED, GL_ANY_SAMPLES_PASSED_CONSERVATIVE, GL_ARRAY_BUFFER, GL_ARRAY_BUFFER_BINDING, GL_ATTACHED_SHADERS, GL_BACK, GL_BLEND, GL_BLEND_COLOR, GL_BLEND_DST_ALPHA, GL_BLEND_DST_RGB, GL_BLEND_EQUATION, GL_BLEND_EQUATION_ALPHA, GL_BLEND_EQUATION_RGB, GL_BLEND_SRC_ALPHA, GL_BLEND_SRC_RGB, GL_BLUE_BITS, GL_BOOL, GL_BOOL_VEC2, GL_BOOL_VEC3, GL_BOOL_VEC4, GL_BROWSER_DEFAULT_WEBGL, GL_BUFFER_SIZE, GL_BUFFER_USAGE, GL_CCW, GL_CLAMP_TO_EDGE, GL_COLOR, GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT0_WEBGL, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT10, GL_COLOR_ATTACHMENT10_WEBGL, GL_COLOR_ATTACHMENT11, GL_COLOR_ATTACHMENT11_WEBGL, GL_COLOR_ATTACHMENT12, GL_COLOR_ATTACHMENT12_WEBGL, GL_COLOR_ATTACHMENT13, GL_COLOR_ATTACHMENT13_WEBGL, GL_COLOR_ATTACHMENT14, GL_COLOR_ATTACHMENT14_WEBGL, GL_COLOR_ATTACHMENT15, GL_COLOR_ATTACHMENT15_WEBGL, GL_COLOR_ATTACHMENT1_WEBGL, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT2_WEBGL, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT3_WEBGL, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT4_WEBGL, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT5_WEBGL, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT6_WEBGL, GL_COLOR_ATTACHMENT7, GL_COLOR_ATTACHMENT7_WEBGL, GL_COLOR_ATTACHMENT8, GL_COLOR_ATTACHMENT8_WEBGL, GL_COLOR_ATTACHMENT9, GL_COLOR_ATTACHMENT9_WEBGL, GL_COLOR_BUFFER_BIT, GL_COLOR_CLEAR_VALUE, GL_COLOR_WRITEMASK, GL_COMPARE_REF_TO_TEXTURE, GL_COMPILE_STATUS, GL_COMPRESSED_R11_EAC, GL_COMPRESSED_RG11_EAC, GL_COMPRESSED_RGB8_ETC2, GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2, GL_COMPRESSED_RGBA8_ETC2_EAC, GL_COMPRESSED_RGBA_ASTC_10X10_KHR, GL_COMPRESSED_RGBA_ASTC_10X5_KHR, GL_COMPRESSED_RGBA_ASTC_10X6_KHR, GL_COMPRESSED_RGBA_ASTC_10X8_KHR, GL_COMPRESSED_RGBA_ASTC_12X10_KHR, GL_COMPRESSED_RGBA_ASTC_12X12_KHR, GL_COMPRESSED_RGBA_ASTC_4X4_KHR, GL_COMPRESSED_RGBA_ASTC_5X4_KHR, GL_COMPRESSED_RGBA_ASTC_5X5_KHR, GL_COMPRESSED_RGBA_ASTC_6X5_KHR, GL_COMPRESSED_RGBA_ASTC_6X6_KHR, GL_COMPRESSED_RGBA_ASTC_8X5_KHR, GL_COMPRESSED_RGBA_ASTC_8X6_KHR, GL_COMPRESSED_RGBA_ASTC_8X8_KHR, GL_COMPRESSED_RGBA_ATC_EXPLICIT_ALPHA_WEBGL, GL_COMPRESSED_RGBA_ATC_INTERPOLATED_ALPHA_WEBGL, GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, GL_COMPRESSED_RGB_ATC_WEBGL, GL_COMPRESSED_RGB_ETC1_WEBGL, GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, GL_COMPRESSED_RGB_S3TC_DXT1_EXT, GL_COMPRESSED_SIGNED_R11_EAC, GL_COMPRESSED_SIGNED_RG11_EAC, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X10_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X5_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X6_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X8_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X10_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X12_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4X4_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X4_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X5_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X5_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X6_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X5_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X6_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X8_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC, GL_COMPRESSED_SRGB8_ETC2, GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2, GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT, GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT, GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT, GL_COMPRESSED_SRGB_S3TC_DXT1_EXT, GL_COMPRESSED_TEXTURE_FORMATS, GL_CONDITION_SATISFIED, GL_CONSTANT_ALPHA, GL_CONSTANT_COLOR, GL_CONTEXT_LOST_WEBGL, GL_COPY_READ_BUFFER, GL_COPY_READ_BUFFER_BINDING, GL_COPY_WRITE_BUFFER, GL_COPY_WRITE_BUFFER_BINDING, GL_CULL_FACE, GL_CULL_FACE_MODE, GL_CURRENT_PROGRAM, GL_CURRENT_QUERY, GL_CURRENT_QUERY_EXT, GL_CURRENT_VERTEX_ATTRIB, GL_CW, GL_DATA_BYTE, GL_DATA_FLOAT, GL_DATA_INT, GL_DATA_SHORT, GL_DATA_UNSIGNED_BYTE, GL_DATA_UNSIGNED_INT, GL_DATA_UNSIGNED_SHORT, GL_DECR, GL_DECR_WRAP, GL_DELETE_STATUS, GL_DEPTH, GL_DEPTH24_STENCIL8, GL_DEPTH32F_STENCIL8, GL_DEPTH_ATTACHMENT, GL_DEPTH_BITS, GL_DEPTH_BUFFER_BIT, GL_DEPTH_CLEAR_VALUE, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT32F, GL_DEPTH_FUNC, GL_DEPTH_RANGE, GL_DEPTH_STENCIL, GL_DEPTH_STENCIL_ATTACHMENT, GL_DEPTH_TEST, GL_DEPTH_WRITEMASK, GL_DITHER, GL_DONT_CARE, GL_DRAW_BUFFER0, GL_DRAW_BUFFER0_WEBGL, GL_DRAW_BUFFER1, GL_DRAW_BUFFER10, GL_DRAW_BUFFER10_WEBGL, GL_DRAW_BUFFER11, GL_DRAW_BUFFER11_WEBGL, GL_DRAW_BUFFER12, GL_DRAW_BUFFER12_WEBGL, GL_DRAW_BUFFER13, GL_DRAW_BUFFER13_WEBGL, GL_DRAW_BUFFER14, GL_DRAW_BUFFER14_WEBGL, GL_DRAW_BUFFER15, GL_DRAW_BUFFER15_WEBGL, GL_DRAW_BUFFER1_WEBGL, GL_DRAW_BUFFER2, GL_DRAW_BUFFER2_WEBGL, GL_DRAW_BUFFER3, GL_DRAW_BUFFER3_WEBGL, GL_DRAW_BUFFER4, GL_DRAW_BUFFER4_WEBGL, GL_DRAW_BUFFER5, GL_DRAW_BUFFER5_WEBGL, GL_DRAW_BUFFER6, GL_DRAW_BUFFER6_WEBGL, GL_DRAW_BUFFER7, GL_DRAW_BUFFER7_WEBGL, GL_DRAW_BUFFER8, GL_DRAW_BUFFER8_WEBGL, GL_DRAW_BUFFER9, GL_DRAW_BUFFER9_WEBGL, GL_DRAW_FRAMEBUFFER, GL_DRAW_FRAMEBUFFER_BINDING, GL_DST_ALPHA, GL_DST_COLOR, GL_DYNAMIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ, GL_ELEMENT_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER_BINDING, GL_EQUAL, GL_FASTEST, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, GL_FLOAT_MAT2, GL_FLOAT_MAT2X3, GL_FLOAT_MAT2X4, GL_FLOAT_MAT3, GL_FLOAT_MAT3X2, GL_FLOAT_MAT3X4, GL_FLOAT_MAT4, GL_FLOAT_MAT4X2, GL_FLOAT_MAT4X3, GL_FLOAT_VEC2, GL_FLOAT_VEC3, GL_FLOAT_VEC4, GL_FRAGMENT_SHADER, GL_FRAGMENT_SHADER_DERIVATIVE_HINT, GL_FRAGMENT_SHADER_DERIVATIVE_HINT_OES, GL_FRAMEBUFFER, GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING_EXT, GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE, GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE_EXT, GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE, GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER, GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL, GL_FRAMEBUFFER_BINDING, GL_FRAMEBUFFER_COMPLETE, GL_FRAMEBUFFER_DEFAULT, GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT, GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS, GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT, GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE, GL_FRAMEBUFFER_UNSUPPORTED, GL_FRONT, GL_FRONT_AND_BACK, GL_FRONT_FACE, GL_FUNC_ADD, GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_SUBSTRACT, GL_GENERATE_MIPMAP_HINT, GL_GEQUAL, GL_GPU_DISJOINT_EXT, GL_GREATER, GL_GREEN_BITS, GL_HALF_FLOAT, GL_HALF_FLOAT_OES, GL_HIGH_FLOAT, GL_HIGH_INT, GL_IMPLEMENTATION_COLOR_READ_FORMAT, GL_IMPLEMENTATION_COLOR_READ_TYPE, GL_INCR, GL_INCR_WRAP, GL_INTERLEAVED_ATTRIBS, GL_INT_2_10_10_10_REV, GL_INT_SAMPLER_2D, GL_INT_SAMPLER_2D_ARRAY, GL_INT_SAMPLER_3D, GL_INT_SAMPLER_CUBE, GL_INT_VEC2, GL_INT_VEC3, GL_INT_VEC4, GL_INVALID_ENUM, GL_INVALID_FRAMEBUFFER_OPERATION, GL_INVALID_INDEX, GL_INVALID_OPERATION, GL_INVALID_VALUE, GL_INVERT, GL_KEEP, GL_LEQUAL, GL_LESS, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR_MIPMAP_NEAREST, GL_LINES, GL_LINE_LOOP, GL_LINE_STRIP, GL_LINE_WIDTH, GL_LINK_STATUS, GL_LOW_FLOAT, GL_LOW_INT, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_MAX, GL_MAX_3D_TEXTURE_SIZE, GL_MAX_ARRAY_TEXTURE_LAYERS, GL_MAX_CLIENT_WAIT_TIMEOUT_WEBGL, GL_MAX_COLOR_ATTACHMENTS, GL_MAX_COLOR_ATTACHMENTS_WEBGL, GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS, GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, GL_MAX_COMBINED_UNIFORM_BLOCKS, GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS, GL_MAX_CUBE_MAP_TEXTURE_SIZE, GL_MAX_DRAW_BUFFERS, GL_MAX_DRAW_BUFFERS_WEBGL, GL_MAX_ELEMENTS_INDICES, GL_MAX_ELEMENTS_VERTICES, GL_MAX_ELEMENT_INDEX, GL_MAX_EXT, GL_MAX_FRAGMENT_INPUT_COMPONENTS, GL_MAX_FRAGMENT_UNIFORM_BLOCKS, GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, GL_MAX_FRAGMENT_UNIFORM_VECTORS, GL_MAX_PROGRAM_TEXEL_OFFSET, GL_MAX_RENDERBUFFER_SIZE, GL_MAX_SAMPLES, GL_MAX_SERVER_WAIT_TIMEOUT, GL_MAX_TEXTURE_IMAGE_UNITS, GL_MAX_TEXTURE_LOD_BIAS, GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, GL_MAX_TEXTURE_SIZE, GL_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS, GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS, GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS, GL_MAX_UNIFORM_BLOCK_SIZE, GL_MAX_UNIFORM_BUFFER_BINDINGS, GL_MAX_VARYING_COMPONENTS, GL_MAX_VARYING_VECTORS, GL_MAX_VERTEX_ATTRIBS, GL_MAX_VERTEX_OUTPUT_COMPONENTS, GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, GL_MAX_VERTEX_UNIFORM_BLOCKS, GL_MAX_VERTEX_UNIFORM_COMPONENTS, GL_MAX_VERTEX_UNIFORM_VECTORS, GL_MAX_VIEWPORT_DIMS, GL_MEDIUM_FLOAT, GL_MEDIUM_INT, GL_MIN, GL_MIN_EXT, GL_MIN_PROGRAM_TEXEL_OFFSET, GL_MIRRORED_REPEAT, GL_NEAREST, GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST_MIPMAP_NEAREST, GL_NEVER, GL_NICEST, GL_NONE, GL_NOTEQUAL, GL_NO_ERROR, GL_OBJECT_TYPE, GL_ONE, GL_ONE_MINUS_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_COLOR, GL_ONE_MINUS_DST_ALPHA, GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR, GL_OUT_OF_MEMORY, GL_PACK_ALIGNMENT, GL_PACK_ROW_LENGTH, GL_PACK_SKIP_PIXELS, GL_PACK_SKIP_ROWS, GL_PIXEL_PACK_BUFFER, GL_PIXEL_PACK_BUFFER_BINDING, GL_PIXEL_UNPACK_BUFFER, GL_PIXEL_UNPACK_BUFFER_BINDING, GL_PIXEL_UNSIGNED_BYTE, GL_PIXEL_UNSIGNED_SHORT_4_4_4_4, GL_PIXEL_UNSIGNED_SHORT_5_5_5_1, GL_PIXEL_UNSIGNED_SHORT_5_6_5, GL_POINTS, GL_POLYGON_OFFSET_FACTOR, GL_POLYGON_OFFSET_FILL, GL_POLYGON_OFFSET_UNITS, GL_QUERY_COUNTER_BITS_EXT, GL_QUERY_RESULT, GL_QUERY_RESULT_AVAILABLE, GL_QUERY_RESULT_AVAILABLE_EXT, GL_QUERY_RESULT_EXT, GL_R11F_G11F_B10F, GL_R16F, GL_R16I, GL_R16UI, GL_R32F, GL_R32I, GL_R32UI, GL_R8, GL_R8I, GL_R8UI, GL_R8_SNORM, GL_RASTERIZER_DISCARD, GL_READ_BUFFER, GL_READ_FRAMEBUFFER, GL_READ_FRAMEBUFFER_BINDING, GL_RED, GL_RED_BITS, GL_RED_INTEGER, GL_RENDERBUFFER, GL_RENDERBUFFER_ALPHA_SIZE, GL_RENDERBUFFER_BINDING, GL_RENDERBUFFER_BLUE_SIZE, GL_RENDERBUFFER_DEPTH_SIZE, GL_RENDERBUFFER_GREEN_SIZE, GL_RENDERBUFFER_HEIGHT, GL_RENDERBUFFER_INTERNAL_FORMAT, GL_RENDERBUFFER_RED_SIZE, GL_RENDERBUFFER_SAMPLES, GL_RENDERBUFFER_STENCIL_SIZE, GL_RENDERBUFFER_WIDTH, GL_RENDERER, GL_REPEAT, GL_REPLACE, GL_RG, GL_RG16F, GL_RG16I, GL_RG16UI, GL_RG32F, GL_RG32I, GL_RG32UI, GL_RG8, GL_RG8I, GL_RG8UI, GL_RG8_SNORM, GL_RGB, GL_RGB10_A2, GL_RGB10_A2UI, GL_RGB16F, GL_RGB16I, GL_RGB16UI, GL_RGB32F, GL_RGB32F_EXT, GL_RGB32I, GL_RGB32UI, GL_RGB565, GL_RGB5_A1, GL_RGB8, GL_RGB8I, GL_RGB8UI, GL_RGB8_SNORM, GL_RGB9_E5, GL_RGBA, GL_RGBA16F, GL_RGBA16I, GL_RGBA16UI, GL_RGBA32F, GL_RGBA32F_EXT, GL_RGBA32I, GL_RGBA32UI, GL_RGBA4, GL_RGBA8, GL_RGBA8I, GL_RGBA8UI, GL_RGBA8_SNORM, GL_RGBA_INTEGER, GL_RGB_INTEGER, GL_RG_INTEGER, GL_SAMPLER_2D, GL_SAMPLER_2D_ARRAY, GL_SAMPLER_2D_ARRAY_SHADOW, GL_SAMPLER_2D_SHADOW, GL_SAMPLER_3D, GL_SAMPLER_BINDING, GL_SAMPLER_CUBE, GL_SAMPLER_CUBE_SHADOW, GL_SAMPLES, GL_SAMPLE_ALPHA_TO_COVERAGE, GL_SAMPLE_BUFFERS, GL_SAMPLE_COVERAGE, GL_SAMPLE_COVERAGE_INVERT, GL_SAMPLE_COVERAGE_VALUE, GL_SCISSOR_BOX, GL_SCISSOR_TEST, GL_SEPARATE_ATTRIBS, GL_SHADER_TYPE, GL_SHADING_LANGUAGE_VERSION, GL_SIGNALED, GL_SIGNED_NORMALIZED, GL_SRC_ALPHA, GL_SRC_ALPHA_SATURATE, GL_SRC_COLOR, GL_SRGB, GL_SRGB8, GL_SRGB8_ALPHA8, GL_SRGB8_ALPHA8_EXT, GL_SRGB_ALPHA_EXT, GL_SRGB_EXT, GL_STATIC_COPY, GL_STATIC_DRAW, GL_STATIC_READ, GL_STENCIL, GL_STENCIL_ATTACHMENT, GL_STENCIL_BACK_FAIL, GL_STENCIL_BACK_FUNC, GL_STENCIL_BACK_PASS_DEPTH_FAIL, GL_STENCIL_BACK_PASS_DEPTH_PASS, GL_STENCIL_BACK_REF, GL_STENCIL_BACK_VALUE_MASK, GL_STENCIL_BACK_WRITEMASK, GL_STENCIL_BITS, GL_STENCIL_BUFFER_BIT, GL_STENCIL_CLEAR_VALUE, GL_STENCIL_FAIL, GL_STENCIL_FUNC, GL_STENCIL_INDEX, GL_STENCIL_INDEX8, GL_STENCIL_PASS_DEPTH_FAIL, GL_STENCIL_PASS_DEPTH_PASS, GL_STENCIL_REF, GL_STENCIL_TEST, GL_STENCIL_VALUE_MASK, GL_STENCIL_WRITEMASK, GL_STREAM_COPY, GL_STREAM_DRAW, GL_STREAM_READ, GL_SUBPIXEL_BITS, GL_SYNC_CONDITION, GL_SYNC_FENCE, GL_SYNC_FLAGS, GL_SYNC_FLUSH_COMMANDS_BIT, GL_SYNC_GPU_COMMANDS_COMPLETE, GL_SYNC_STATUS, GL_TEXTURE, GL_TEXTURE0, GL_TEXTURE1, GL_TEXTURE10, GL_TEXTURE11, GL_TEXTURE12, GL_TEXTURE13, GL_TEXTURE14, GL_TEXTURE15, GL_TEXTURE16, GL_TEXTURE17, GL_TEXTURE18, GL_TEXTURE19, GL_TEXTURE2, GL_TEXTURE20, GL_TEXTURE21, GL_TEXTURE22, GL_TEXTURE23, GL_TEXTURE24, GL_TEXTURE25, GL_TEXTURE26, GL_TEXTURE27, GL_TEXTURE28, GL_TEXTURE29, GL_TEXTURE3, GL_TEXTURE30, GL_TEXTURE31, GL_TEXTURE4, GL_TEXTURE5, GL_TEXTURE6, GL_TEXTURE7, GL_TEXTURE8, GL_TEXTURE9, GL_TEXTURE_2D, GL_TEXTURE_2D_ARRAY, GL_TEXTURE_3D, GL_TEXTURE_BASE_LEVEL, GL_TEXTURE_BINDING_2D, GL_TEXTURE_BINDING_2D_ARRAY, GL_TEXTURE_BINDING_3D, GL_TEXTURE_BINDING_CUBE_MAP, GL_TEXTURE_COMPARE_FUNC, GL_TEXTURE_COMPARE_MODE, GL_TEXTURE_CUBE_MAP, GL_TEXTURE_CUBE_MAP_NEGATIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_IMMUTABLE_FORMAT, GL_TEXTURE_IMMUTABLE_LEVELS, GL_TEXTURE_MAG_FILTER, GL_TEXTURE_MAX_ANISOTROPY_EXT, GL_TEXTURE_MAX_LEVEL, GL_TEXTURE_MAX_LOD, GL_TEXTURE_MIN_FILTER, GL_TEXTURE_MIN_LOD, GL_TEXTURE_WRAP_R, GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T, GL_TIMEOUT_EXPIRED, GL_TIMEOUT_IGNORED, GL_TIMESTAMP_EXT, GL_TIME_ELAPSED_EXT, GL_TRANSFORM_FEEDBACK, GL_TRANSFORM_FEEDBACK_ACTIVE, GL_TRANSFORM_FEEDBACK_BINDING, GL_TRANSFORM_FEEDBACK_BUFFER, GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, GL_TRANSFORM_FEEDBACK_BUFFER_MODE, GL_TRANSFORM_FEEDBACK_BUFFER_SIZE, GL_TRANSFORM_FEEDBACK_BUFFER_START, GL_TRANSFORM_FEEDBACK_PAUSED, GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, GL_TRANSFORM_FEEDBACK_VARYINGS, GL_TRIANGLES, GL_TRIANGLE_FAN, GL_TRIANGLE_STRIP, GL_UNIFORM_ARRAY_STRIDE, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, GL_UNIFORM_BLOCK_BINDING, GL_UNIFORM_BLOCK_DATA_SIZE, GL_UNIFORM_BLOCK_INDEX, GL_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER, GL_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER, GL_UNIFORM_BUFFER, GL_UNIFORM_BUFFER_BINDING, GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, GL_UNIFORM_BUFFER_SIZE, GL_UNIFORM_BUFFER_START, GL_UNIFORM_IS_ROW_MAJOR, GL_UNIFORM_MATRIX_STRIDE, GL_UNIFORM_OFFSET, GL_UNIFORM_SIZE, GL_UNIFORM_TYPE, GL_UNMASKED_RENDERER_WEBGL, GL_UNMASKED_VENDOR_WEBGL, GL_UNPACK_ALIGNMENT, GL_UNPACK_COLORSPACE_CONVERSION_WEBGL, GL_UNPACK_FLIP_Y_WEBGL, GL_UNPACK_IMAGE_HEIGHT, GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL, GL_UNPACK_ROW_LENGTH, GL_UNPACK_SKIP_IMAGES, GL_UNPACK_SKIP_PIXELS, GL_UNPACK_SKIP_ROWS, GL_UNSIGNALED, GL_UNSIGNED_INT_10F_11F_11F_REV, GL_UNSIGNED_INT_24_8, GL_UNSIGNED_INT_24_8_WEBGL, GL_UNSIGNED_INT_2_10_10_10_REV, GL_UNSIGNED_INT_5_9_9_9_REV, GL_UNSIGNED_INT_SAMPLER_2D, GL_UNSIGNED_INT_SAMPLER_2D_ARRAY, GL_UNSIGNED_INT_SAMPLER_3D, GL_UNSIGNED_INT_SAMPLER_CUBE, GL_UNSIGNED_INT_VEC2, GL_UNSIGNED_INT_VEC3, GL_UNSIGNED_INT_VEC4, GL_UNSIGNED_NORMALIZED, GL_UNSIGNED_NORMALIZED_EXT, GL_VALIDATE_STATUS, GL_VENDOR, GL_VERSION, GL_VERTEX_ARRAY_BINDING, GL_VERTEX_ARRAY_BINDING_OES, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, GL_VERTEX_ATTRIB_ARRAY_DIVISOR, GL_VERTEX_ATTRIB_ARRAY_DIVISOR_ANGLE, GL_VERTEX_ATTRIB_ARRAY_ENABLED, GL_VERTEX_ATTRIB_ARRAY_INTEGER, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, GL_VERTEX_ATTRIB_ARRAY_POINTER, GL_VERTEX_ATTRIB_ARRAY_SIZE, GL_VERTEX_ATTRIB_ARRAY_STRIDE, GL_VERTEX_ATTRIB_ARRAY_TYPE, GL_VERTEX_SHADER, GL_VIEWPORT, GL_WAIT_FAILED, GL_ZERO, GaussianBlur, GetComponentFromEntities, type GetInstance, type GetProps, Gizmo, GlobalDataRepository, GlobalRetarget, GlobalRetargetReverse, type Gltf1AnyObject, type Gltf2, type Gltf2Accessor, type Gltf2AccessorComponentType, type Gltf2AccessorComponentTypeNumber, type Gltf2AccessorCompositionType, type Gltf2AccessorCompositionTypeString, type Gltf2AccessorEx, type Gltf2AccessorIndex, type Gltf2Animation, type Gltf2AnimationAccessorCompositionType, type Gltf2AnimationAccessorCompositionTypeString, type Gltf2AnimationChannel, type Gltf2AnimationChannelTarget, type Gltf2AnimationPathName, type Gltf2AnimationSampler, type Gltf2AnimationSamplerInterpolation, type Gltf2AnyObject, type Gltf2Asset, type Gltf2AttributeAccessors, type Gltf2AttributeBlendShapes, type Gltf2AttributeBlendShapesAccessors, type Gltf2Attributes, type Gltf2Buffer, type Gltf2BufferView, type Gltf2BufferViewEx, type Gltf2Camera, type Gltf2CameraOrthographic, type Gltf2CameraPerspective, type Gltf2Ex, type Gltf2ExportType, Gltf2Exporter, type Gltf2ExporterArguments, type Gltf2Image, type Gltf2ImageEx, Gltf2Importer, type Gltf2Material, type Gltf2MaterialEx, type Gltf2Mesh, type Gltf2Node, type Gltf2NormalTextureInfo, type Gltf2OcclusionTextureInfo, type Gltf2PbrMetallicRoughness, type Gltf2PbrMetallicRoughnessEx, type Gltf2Primitive, type Gltf2Scene, type Gltf2Skin, type Gltf2Sparse, type Gltf2SparseIndices, type Gltf2SparseValues, type Gltf2Texture, type Gltf2TextureInfo, type Gltf2TextureSampler, type GltfFileBuffers, GltfImporter, type GltfLoadOption, GreaterShaderNode, Grid, type GridDescriptor, HdriFormat, type HdriFormatEnum, type IAnimationEntity, type IAnimationEntityMethods, type IAnimationRetarget, type IAnimationStateEntity, type IAnyPrimitiveDescriptor, type IArrayBufferBasedMathNumber, type IBlendShapeEntity, type IBlendShapeEntityMethods, type ICGAPIResourceRepository, type ICameraController, type ICameraControllerEntity, type ICameraControllerEntityMethods, type ICameraEntity, type ICameraEntityMethods, type IColorRgb, type IColorRgba, type IConstraintEntity, type IEffekseerEntityMethods, type IEnhancedArrayMethods, type IEntity, type IEventPubSub, type ILightEntity, type ILightEntityMethods, type ILoaderExtension, type ILogQuaternion, type IMatrix, type IMatrix22, type IMatrix33, type IMatrix44, type IMesh, type IMeshEntity, type IMeshEntityMethods, type IMeshRendererEntityMethods, type IMutableColorRgb, type IMutableColorRgba, type IMutableMatrix, type IMutableMatrix22, type IMutableMatrix33, type IMutableMatrix44, type IMutableQuaternion, type IMutableScalar, type IMutableVector, type IMutableVector2, type IMutableVector3, type IMutableVector4, INPUT_HANDLING_STATE_CAMERA_CONTROLLER, INPUT_HANDLING_STATE_GIZMO_ROTATION, INPUT_HANDLING_STATE_GIZMO_SCALE, INPUT_HANDLING_STATE_GIZMO_TRANSLATION, INPUT_HANDLING_STATE_NONE, type IPhysicsEntity, type IPhysicsEntityMethods, type IQuaternion, type IRenderable, type IRnObject, type IScalar, type ISceneGraphEntity, type ISceneGraphEntityMethods, type ISemanticVertexAttribute, IShape, type ISkeletalEntity, type ISkeletalEntityMethods, type ITransformEntity, type ITransformEntityMethods, type IVector, type IVector2, type IVector3, type IVector4, type IVrmEntityMethods, type IWeakOption, IdentityMatrix33, IdentityMatrix44, IfStatementShader, IfStatementShaderNode, type ImageBitmapData, ImageInfo, ImageUtil, type Index, type IndexInTheDataView, type IndexOf16Bytes, type IndexOf4Bytes, type IndexOfBufferViews, type IndicesAccessOption, type InputHandlerInfo, type InputHandlingState, InputManager, type IntegerTypedArray, Is, IsObj, type IsType, Joint, type JointDescriptor, JointGizmo, type KHR_interactivity, type KHR_interactivity_Configuration, type KHR_interactivity_Declaration, type KHR_interactivity_Event, type KHR_interactivity_Flow, type KHR_interactivity_Graph, type KHR_interactivity_Node, type KHR_interactivity_Type, type KHR_interactivity_Value, type KHR_interactivity_Variable, type KHR_interactivity_value_type, type KHR_lights_punctual, type KHR_lights_punctual_Light, type KHR_materials_variants, type KHR_materials_variants_Mapping, type KHR_materials_variants_PrimitiveExtension, type KHR_materials_variants_Variant, KTX2TextureLoader, LightComponent, LightGizmo, LightType, type LightTypeEnum, Line, type LineDescriptor, type LoadImageToMipLevelDescriptor, LocatorGizmo, LogLevel, LogQuaternion, Logger, type MSC_TRANSCODER_TYPE, MToon0xMaterialContent, MToon1MaterialContent, MatCapMaterialContent, Material, MaterialHelper, type MaterialNodeUID$1 as MaterialNodeUID, MaterialRepository, type MaterialSID, type MaterialTID, type MaterialTypeName, type MaterialUID, MathClassUtil, MathUtil, Matrix22, Matrix33, Matrix44, type MemberInfo, MemoryManager, type MergeCtor, MergeVectorShaderNode, Mesh, MeshComponent, MeshHelper, MeshRendererComponent, type MeshUID, type MilliSecond, MiscUtil, type MixinBase, ModelConverter, ModuleManager, type MscTranscoderModule, MultiplyShaderNode, MutableColorRgb, MutableColorRgba, MutableMatrix22, MutableMatrix33, MutableMatrix44, MutableQuaternion, MutableScalar, MutableScalar_, MutableScalard, type MutableScalarf, MutableVector2, MutableVector2_, MutableVector2d, type MutableVector2f, MutableVector3, MutableVector3_, MutableVector3d, type MutableVector3f, MutableVector4, MutableVector4_, MutableVector4d, type MutableVector4f, None, NormalMatrixShaderNode, NormalizeShaderNode, type ObjectUID, type Offset, OimoPhysicsStrategy, Ok, type Option, OrbitCameraController, OutColorShaderNode, OutPositionShaderNode, type PartialRequire, PhysicsComponent, type PhysicsProperty, type PhysicsPropertyInner, type PhysicsStrategy, type PhysicsWorldProperty, PixelFormat, type PixelFormatEnum, Plane, type PlaneDescriptor, PointShadowMap, type PointType, Primitive, type PrimitiveDescriptor, PrimitiveMode, type PrimitiveModeEnum, type PrimitiveSortKey, type PrimitiveSortKeyLength, type PrimitiveSortKeyOffset, PrimitiveSortKey_BitLength_Depth, PrimitiveSortKey_BitLength_Material, PrimitiveSortKey_BitLength_PrimitiveType, PrimitiveSortKey_BitLength_RenderQueue, PrimitiveSortKey_BitLength_TranslucencyType, PrimitiveSortKey_BitOffset_Material, PrimitiveSortKey_BitOffset_PrimitiveType, PrimitiveSortKey_BitOffset_RenderQueue, PrimitiveSortKey_BitOffset_TranslucencyType, type PrimitiveUID, ProcessApproach, ProcessApproachClass, type ProcessApproachEnum, ProcessStage, type ProcessStageEnum, ProjectionMatrixShaderNode, Quaternion, type Ratio, type RaycastResult, type RaycastResultEx1, type RaycastResultEx2, RenderBuffer, RenderBufferTarget, type RenderBufferTargetEnum, RenderPass, RenderPassHelper, type RenderPassUID, RenderTargetTexture, RenderTargetTexture2DArray, RenderTargetTextureCube, RenderableHelper, type RenderingArgWebGL, type RenderingArgWebGpu, type RequireOne, type Result, RhodoniteImportExtension, type RnError, RnException, type RnM2, type RnM2Accessor, type RnM2Animation, type RnM2AnimationChannel, type RnM2AnimationChannelTarget, type RnM2AnimationSampler, type RnM2Asset, type RnM2AttributeAccessors, type RnM2AttributeBlendShapes, type RnM2AttributeBlendShapesAccessors, type RnM2Attributes, type RnM2AttributesObject, type RnM2Buffer, type RnM2BufferView, type RnM2Camera, type RnM2CameraOrthographic, type RnM2CameraPerspective, type RnM2ExtensionEffekseer, type RnM2ExtensionsEffekseerEffect, type RnM2ExtensionsEffekseerTimeline, type RnM2ExtensionsEffekseerTimelineItem, type RnM2Image, type RnM2Material, type RnM2MaterialVariant, type RnM2Mesh, type RnM2Node, type RnM2NormalTextureInfo, type RnM2OcclusionTextureInfo, type RnM2PbrMetallicRoughness, type RnM2Primitive, type RnM2Scene, type RnM2Skin, type RnM2Sparse, type RnM2SparseIndices, type RnM2SparseValues, type RnM2Texture, type RnM2TextureInfo, type RnM2TextureSampler, type RnM2Vrma, RnObject, RnPromise, type RnPromiseCallback, type RnPromiseCallbackObj, type RnTags, type RnWebGLProgram, type RnWebGLTexture, type RnXR, RotationGizmo, Sampler, type SamplerDescriptor, Scalar, Scalar_, Scalard, type Scalarf, ScaleGizmo, SceneGraphComponent, type Second, type ShaderAttributeOrSemanticsOrString, ShaderGraphResolver, ShaderNode, type ShaderNodeEnum, type ShaderNodeJson, type ShaderNodeJsonConnection, type ShaderNodeJsonNode, type ShaderNodeJsonNodeInput, type ShaderNodeJsonNodeOutput, type ShaderNodeUID, ShaderSemantics, ShaderSemanticsClass, type ShaderSemanticsEnum, type ShaderSemanticsIndex, type ShaderSemanticsInfo, type ShaderSemanticsName, type ShaderSocket, type ShaderSources, ShaderType, type ShaderTypeEnum, type ShaderVariable, ShaderVariableType, type ShaderVariableTypeEnum, ShaderityUtilityWebGL, ShadingModel, type ShadingModelEnum, ShadowMap, ShadowMapDecodeClassicMaterialContent, type ShadowMapEnum, ShadowMapType, ShadowSystem, SimpleVertexAttribute, type Size, SkeletalComponent, Some, Sphere, SphereCollider, type SphereDescriptor, SplitVectorShaderNode, type SquareMatrixComponentN, SymbolWeakMap, SynthesizeHdrMaterialContent, System, SystemState, type Tag, TagGltf2NodeIndex, Texture, type TextureData, TextureDataFloat, TextureFetchShader, TextureFormat$1 as TextureFormat, type TextureFormatEnum, TextureParameter, type TextureParameterEnum, type TextureParameters, type TextureUID, Time, ToneMappingType, type ToneMappingTypeEnum, type TranscodeTarget, type TranscodedImage, Transform3D, TransformComponent, TranslationGizmo, type TypedArray, type TypedArrayConstructor, UastcImageTranscoder, UniformDataShader, UniformDataShaderNode, VERSION, type VRM0x_Extension, VRMColliderGroup, VRMSpring, VRMSpringBone, VRMSpringBonePhysicsStrategy, VarianceShadowMapDecodeClassicMaterialContent, VaryingVariableShader, Vector2, Vector2_, Vector2d, type Vector2f, Vector3, Vector3_, Vector3d, type Vector3f, Vector4, Vector4_, Vector4d, type Vector4f, type VectorAndSquareMatrixComponentN, type VectorComponentN, type VectorCompositionTypes, VectorN, VertexAttribute, VertexAttributeClass, type VertexAttributeComponent, type VertexAttributeEnum, type VertexAttributeSemanticsJoinedString, type VertexAttributeTypeName, type VertexAttributesLayout, type VertexHandles, VideoTexture, type VideoTextureArguments, ViewMatrixShaderNode, Visibility, type VisibilityEnum, type Vrm0x, type Vrm0xBlendShapeBind, type Vrm0xBlendShapeGroup, type Vrm0xBoneGroup, type Vrm0xCollider, type Vrm0xColliderGroup, type Vrm0xHumanBone, Vrm0xImporter, type Vrm0xLookAt, type Vrm0xMaterialProperty, VrmComponent, type VrmExpression, type VrmExpressionMorphBind, type VrmExpressionName, VrmImporter, VrmaImporter, WalkThroughCameraController, WeakNone, WeakOption, WeakSome, WebGLContextWrapper, WebGLExtension, type WebGLExtensionEnum, type WebGLResource, type WebGLResourceHandle, WebGLResourceRepository, type WebGLStates, type WebGLStrategy, WebGLStrategyDataTexture, WebGLStrategyUniform, type WebGPUResourceHandle, WebGpuDeviceWrapper, type WebGpuResource, WebGpuResourceRepository, WebGpuStrategyBasic, WebXRSystem, WellKnownComponentTIDs, WireframeMaterialNode, WorldMatrixShaderNode, _from, _fromString, _fromStringCaseSensitively, _getPropertyIndex2, add2, add2_offset, add3, add3_offset, add4, add4_offset, addLineNumberToCode, applyMixins, array2_lerp_offsetAsComposition, array3_lerp_offsetAsComposition, array4_lerp_offsetAsComposition, arrayN_lerp_offsetAsComposition, assertDoesNotHave, assertExist, assertHas, assertIsErr, assertIsOk, calcAlignedByteLength, checkVersionOfGltf, combineImages, convertHTMLImageElementToCanvas, createCameraControllerEntity, createCameraEntity, createEffekseer, createEntity, createGroupEntity, createLightEntity, createLightWithCameraEntity, createMeshEntity, createMotionController, createPhysicsEntity, createSkeletalEntity, createTransformEntity, deepCopyUsingJsonStringify, defaultAnimationTrackName, defaultAssetLoader, defaultValue, detectFormatByArrayBuffers, detectFormatByUri, downloadArrayBuffer, downloadTypedArray, dummyAnisotropyTexture, dummyBlackCubeTexture, dummyBlackTexture, dummyBlueTexture, dummyDepthMomentTextureArray, dummySRGBGrayTexture, dummyWhiteTexture, dummyZeroTexture, enhanceArray, flattenHierarchy, fromTensorToCompositionType, get1, get1_offset, get1_offsetAsComposition, get2, get2_offset, get2_offsetAsComposition, get3, get3_offset, get3_offsetAsComposition, get4, get4_offset, get4_offsetAsComposition, getEvent, getMotionController, getN_offset, getN_offsetAsComposition, type getShaderPropertyFuncOfGlobalDataRepository, type getShaderPropertyFuncOfMaterial, getWebXRSystem, type glTF1, greaterThan, ifDefinedThen, ifDefinedThenWithReturn, ifExistsThen, ifExistsThenWithReturn, ifNotExistsThen, ifNotExistsThenWithReturn, ifUndefinedThen, ifUndefinedThenWithReturn, initDefaultTextures, isBlend, isBlendWithZWrite, isBlendWithoutZWrite, isOpaque, isSameGlTF2TextureSampler, isSkipDrawing, isTranslucent, lessThan, mulArray3WithScalar_offset, mulArray4WithScalar_offset, mulArrayNWithScalar_offset, mulThatAndThisToOutAsMat44_offsetAsComposition, normalizeArray4, nullishToEmptyArray, nullishToEmptyMap, objectCachify, primitiveCachify1, type primitives, qlerp_offsetAsComposition, scalar_lerp_offsetAsComposition, setUpAsMemoryBoostMode, setupShaderProgram, sheenLutTexture, updateGamePad, updateMotionControllerModel, valueWithCompensation, valueWithDefault };
+export { AABB, AABBGizmo, AbsoluteAnimation, AbstractArrayBufferBaseMathNumber, AbstractCameraController, AbstractMaterialContent, AbstractMatrix, AbstractQuaternion, AbstractShaderNode, AbstractTexture, AbstractVector, Accessor, AddShaderNode, AlphaMode, type AlphaModeEnum, AnimatedQuaternion, AnimatedScalar, AnimatedVector2, AnimatedVector3, AnimatedVector4, AnimatedVectorN, AnimationAssigner, AnimationAttribute, type AnimationAttributeEnum, type AnimationChannel, type AnimationChannelTarget, AnimationComponent, type AnimationComponentEventType, type AnimationInfo, AnimationInterpolation, type AnimationInterpolationEnum, type AnimationPathName, type AnimationSampler, type AnimationSamplers, type AnimationTrack, type AnimationTrackName, type Array1, type Array16, type Array1to4, type Array2, type Array3, type Array4, type Array9, type ArrayAsRn, type ArrayType, AssetLoader, type AssetLoaderConfig, AttributeColorShaderNode, type AttributeName, type AttributeNames, AttributeNormalShaderNode, AttributePositionShaderNode, AttributeTexcoordShaderNode, type Attributes, Axis, type AxisDescriptor, type BASIS_TYPE, BasisCompressionType, type BasisCompressionTypeEnum, type BasisFile, BasisLzEtc1sImageTranscoder, type BasisTranscoder, BlendShapeComponent, BlockBeginShader, BlockBeginShaderNode, BlockEndShader, BlockEndShaderNode, Bloom, BoneDataType, type BoneDataTypeEnum, Buffer, BufferUse, type BufferUseEnum, BufferView, type Byte$1 as Byte, type CGAPIResourceHandle, CGAPIResourceRepository, Cache, type CalledSubscriberNumber, CameraComponent, CameraControllerComponent, CameraControllerType, type CameraControllerTypeEnum, type CameraSID, CameraType, type CameraTypeEnum, Capsule, CapsuleCollider, CapsuleColliderGizmo, type CapsuleDescriptor, type ChangeAnimationInfoEvent, ClassicShadingShader, type ColorComponentLetter, ColorGradingUsingLUTsMaterialContent, ColorRgb, ColorRgba, CommonShaderPart, ComplexVertexAttribute, Component, type ComponentMixinFunction, ComponentRepository, type ComponentSID, type ComponentTID, type ComponentToComponentMethods, ComponentType, type ComponentTypeEnum, CompositionType, type CompositionTypeEnum, CompressionTextureType, type CompressionTextureTypeEnum, Cone, type ConeDescriptor, Config, ConstRgbaBlack, ConstRgbaWhite, ConstVector2_0_0, ConstVector2_1_1, ConstVector3_0_0_0, ConstVector3_1_1_1, ConstVector4_0_0_0_0, ConstVector4_0_0_0_1, ConstVector4_1_1_1_1, ConstantScalarVariableShaderNode, ConstantVariableShader, ConstantVector2VariableShaderNode, ConstantVector3VariableShaderNode, ConstantVector4VariableShaderNode, type Count, Cube, type CubeDescriptor, CubeTexture, CustomMaterialContent, DataUtil, DefaultTextures, DepthEncodeMaterialContent, DetectHighLuminanceMaterialContent, type DirectTextureData, DotProductShaderNode, DrcPointCloudImporter, EVENT_CLICK, EVENT_KEY_DOWN, EVENT_KEY_PRESS, EVENT_KEY_UP, EVENT_MOUSE_DOWN, EVENT_MOUSE_ENTER, EVENT_MOUSE_LEAVE, EVENT_MOUSE_MOVE, EVENT_MOUSE_OVER, EVENT_MOUSE_UP, EVENT_MOUSE_WHEEL, EVENT_MSPOINTER_DOWN, EVENT_MSPOINTER_MOVE, EVENT_MSPOINTER_UP, EVENT_ORIENTATION_CHANGE, EVENT_POINTER_CANCEL, EVENT_POINTER_DOWN, EVENT_POINTER_ENTER, EVENT_POINTER_LEAVE, EVENT_POINTER_MOVE, EVENT_POINTER_OUT, EVENT_POINTER_OVER, EVENT_POINTER_UP, EVENT_RESIZE, EVENT_TOUCH_CANCEL, EVENT_TOUCH_DOUBLE_TAP, EVENT_TOUCH_DRAG, EVENT_TOUCH_END, EVENT_TOUCH_ENTER, EVENT_TOUCH_HOLD, EVENT_TOUCH_LEAVE, EVENT_TOUCH_LONG_TAP, EVENT_TOUCH_MOVE, EVENT_TOUCH_OUT, EVENT_TOUCH_OVER, EVENT_TOUCH_PINCH, EVENT_TOUCH_START, EVENT_TOUCH_SWIPE, EVENT_TOUCH_TAP, Effekseer, EffekseerComponent, EndShader, Entity, EntityRepository, type EntityUID, EntityUIDOutputMaterialContent, EnumClass, type EnumIO, Err, type EventHandler, EventPubSub, type EventSubscriberIndex, type EventType, Expression, FileType, type FileTypeEnum, type FillArgsObject, type FloatTypedArray, type FloatTypedArrayConstructor, ForwardRenderPipeline, Frame, FrameBuffer, type FrameBufferCubeMapDescriptor, type FrameBufferDescriptor, type FrameBufferMSAADescriptor, type FrameBufferTextureArrayDescriptor, type FrameBufferTextureArrayForMultiViewDescriptor, Frustum, FurnaceTestMaterialContent, GLTF2_EXPORT_DRACO, GLTF2_EXPORT_EMBEDDED, GLTF2_EXPORT_GLB, GLTF2_EXPORT_GLTF, GLTF2_EXPORT_NO_DOWNLOAD, GL_ACTIVE_ATTRIBUTES, GL_ACTIVE_TEXTURE, GL_ACTIVE_UNIFORMS, GL_ACTIVE_UNIFORM_BLOCKS, GL_ALIASED_LINE_WIDTH_RANGE, GL_ALIASED_POINT_SIZE_RANGE, GL_ALPHA, GL_ALPHA_BITS, GL_ALREADY_SIGNALED, GL_ALWAYS, GL_ANY_SAMPLES_PASSED, GL_ANY_SAMPLES_PASSED_CONSERVATIVE, GL_ARRAY_BUFFER, GL_ARRAY_BUFFER_BINDING, GL_ATTACHED_SHADERS, GL_BACK, GL_BLEND, GL_BLEND_COLOR, GL_BLEND_DST_ALPHA, GL_BLEND_DST_RGB, GL_BLEND_EQUATION, GL_BLEND_EQUATION_ALPHA, GL_BLEND_EQUATION_RGB, GL_BLEND_SRC_ALPHA, GL_BLEND_SRC_RGB, GL_BLUE_BITS, GL_BOOL, GL_BOOL_VEC2, GL_BOOL_VEC3, GL_BOOL_VEC4, GL_BROWSER_DEFAULT_WEBGL, GL_BUFFER_SIZE, GL_BUFFER_USAGE, GL_CCW, GL_CLAMP_TO_EDGE, GL_COLOR, GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT0_WEBGL, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT10, GL_COLOR_ATTACHMENT10_WEBGL, GL_COLOR_ATTACHMENT11, GL_COLOR_ATTACHMENT11_WEBGL, GL_COLOR_ATTACHMENT12, GL_COLOR_ATTACHMENT12_WEBGL, GL_COLOR_ATTACHMENT13, GL_COLOR_ATTACHMENT13_WEBGL, GL_COLOR_ATTACHMENT14, GL_COLOR_ATTACHMENT14_WEBGL, GL_COLOR_ATTACHMENT15, GL_COLOR_ATTACHMENT15_WEBGL, GL_COLOR_ATTACHMENT1_WEBGL, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT2_WEBGL, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT3_WEBGL, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT4_WEBGL, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT5_WEBGL, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT6_WEBGL, GL_COLOR_ATTACHMENT7, GL_COLOR_ATTACHMENT7_WEBGL, GL_COLOR_ATTACHMENT8, GL_COLOR_ATTACHMENT8_WEBGL, GL_COLOR_ATTACHMENT9, GL_COLOR_ATTACHMENT9_WEBGL, GL_COLOR_BUFFER_BIT, GL_COLOR_CLEAR_VALUE, GL_COLOR_WRITEMASK, GL_COMPARE_REF_TO_TEXTURE, GL_COMPILE_STATUS, GL_COMPRESSED_R11_EAC, GL_COMPRESSED_RG11_EAC, GL_COMPRESSED_RGB8_ETC2, GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2, GL_COMPRESSED_RGBA8_ETC2_EAC, GL_COMPRESSED_RGBA_ASTC_10X10_KHR, GL_COMPRESSED_RGBA_ASTC_10X5_KHR, GL_COMPRESSED_RGBA_ASTC_10X6_KHR, GL_COMPRESSED_RGBA_ASTC_10X8_KHR, GL_COMPRESSED_RGBA_ASTC_12X10_KHR, GL_COMPRESSED_RGBA_ASTC_12X12_KHR, GL_COMPRESSED_RGBA_ASTC_4X4_KHR, GL_COMPRESSED_RGBA_ASTC_5X4_KHR, GL_COMPRESSED_RGBA_ASTC_5X5_KHR, GL_COMPRESSED_RGBA_ASTC_6X5_KHR, GL_COMPRESSED_RGBA_ASTC_6X6_KHR, GL_COMPRESSED_RGBA_ASTC_8X5_KHR, GL_COMPRESSED_RGBA_ASTC_8X6_KHR, GL_COMPRESSED_RGBA_ASTC_8X8_KHR, GL_COMPRESSED_RGBA_ATC_EXPLICIT_ALPHA_WEBGL, GL_COMPRESSED_RGBA_ATC_INTERPOLATED_ALPHA_WEBGL, GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, GL_COMPRESSED_RGB_ATC_WEBGL, GL_COMPRESSED_RGB_ETC1_WEBGL, GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, GL_COMPRESSED_RGB_S3TC_DXT1_EXT, GL_COMPRESSED_SIGNED_R11_EAC, GL_COMPRESSED_SIGNED_RG11_EAC, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X10_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X5_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X6_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X8_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X10_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X12_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4X4_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X4_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X5_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X5_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X6_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X5_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X6_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X8_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC, GL_COMPRESSED_SRGB8_ETC2, GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2, GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT, GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT, GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT, GL_COMPRESSED_SRGB_S3TC_DXT1_EXT, GL_COMPRESSED_TEXTURE_FORMATS, GL_CONDITION_SATISFIED, GL_CONSTANT_ALPHA, GL_CONSTANT_COLOR, GL_CONTEXT_LOST_WEBGL, GL_COPY_READ_BUFFER, GL_COPY_READ_BUFFER_BINDING, GL_COPY_WRITE_BUFFER, GL_COPY_WRITE_BUFFER_BINDING, GL_CULL_FACE, GL_CULL_FACE_MODE, GL_CURRENT_PROGRAM, GL_CURRENT_QUERY, GL_CURRENT_QUERY_EXT, GL_CURRENT_VERTEX_ATTRIB, GL_CW, GL_DATA_BYTE, GL_DATA_FLOAT, GL_DATA_INT, GL_DATA_SHORT, GL_DATA_UNSIGNED_BYTE, GL_DATA_UNSIGNED_INT, GL_DATA_UNSIGNED_SHORT, GL_DECR, GL_DECR_WRAP, GL_DELETE_STATUS, GL_DEPTH, GL_DEPTH24_STENCIL8, GL_DEPTH32F_STENCIL8, GL_DEPTH_ATTACHMENT, GL_DEPTH_BITS, GL_DEPTH_BUFFER_BIT, GL_DEPTH_CLEAR_VALUE, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT32F, GL_DEPTH_FUNC, GL_DEPTH_RANGE, GL_DEPTH_STENCIL, GL_DEPTH_STENCIL_ATTACHMENT, GL_DEPTH_TEST, GL_DEPTH_WRITEMASK, GL_DITHER, GL_DONT_CARE, GL_DRAW_BUFFER0, GL_DRAW_BUFFER0_WEBGL, GL_DRAW_BUFFER1, GL_DRAW_BUFFER10, GL_DRAW_BUFFER10_WEBGL, GL_DRAW_BUFFER11, GL_DRAW_BUFFER11_WEBGL, GL_DRAW_BUFFER12, GL_DRAW_BUFFER12_WEBGL, GL_DRAW_BUFFER13, GL_DRAW_BUFFER13_WEBGL, GL_DRAW_BUFFER14, GL_DRAW_BUFFER14_WEBGL, GL_DRAW_BUFFER15, GL_DRAW_BUFFER15_WEBGL, GL_DRAW_BUFFER1_WEBGL, GL_DRAW_BUFFER2, GL_DRAW_BUFFER2_WEBGL, GL_DRAW_BUFFER3, GL_DRAW_BUFFER3_WEBGL, GL_DRAW_BUFFER4, GL_DRAW_BUFFER4_WEBGL, GL_DRAW_BUFFER5, GL_DRAW_BUFFER5_WEBGL, GL_DRAW_BUFFER6, GL_DRAW_BUFFER6_WEBGL, GL_DRAW_BUFFER7, GL_DRAW_BUFFER7_WEBGL, GL_DRAW_BUFFER8, GL_DRAW_BUFFER8_WEBGL, GL_DRAW_BUFFER9, GL_DRAW_BUFFER9_WEBGL, GL_DRAW_FRAMEBUFFER, GL_DRAW_FRAMEBUFFER_BINDING, GL_DST_ALPHA, GL_DST_COLOR, GL_DYNAMIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ, GL_ELEMENT_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER_BINDING, GL_EQUAL, GL_FASTEST, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, GL_FLOAT_MAT2, GL_FLOAT_MAT2X3, GL_FLOAT_MAT2X4, GL_FLOAT_MAT3, GL_FLOAT_MAT3X2, GL_FLOAT_MAT3X4, GL_FLOAT_MAT4, GL_FLOAT_MAT4X2, GL_FLOAT_MAT4X3, GL_FLOAT_VEC2, GL_FLOAT_VEC3, GL_FLOAT_VEC4, GL_FRAGMENT_SHADER, GL_FRAGMENT_SHADER_DERIVATIVE_HINT, GL_FRAGMENT_SHADER_DERIVATIVE_HINT_OES, GL_FRAMEBUFFER, GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING_EXT, GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE, GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE_EXT, GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE, GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER, GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL, GL_FRAMEBUFFER_BINDING, GL_FRAMEBUFFER_COMPLETE, GL_FRAMEBUFFER_DEFAULT, GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT, GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS, GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT, GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE, GL_FRAMEBUFFER_UNSUPPORTED, GL_FRONT, GL_FRONT_AND_BACK, GL_FRONT_FACE, GL_FUNC_ADD, GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_SUBSTRACT, GL_GENERATE_MIPMAP_HINT, GL_GEQUAL, GL_GPU_DISJOINT_EXT, GL_GREATER, GL_GREEN_BITS, GL_HALF_FLOAT, GL_HALF_FLOAT_OES, GL_HIGH_FLOAT, GL_HIGH_INT, GL_IMPLEMENTATION_COLOR_READ_FORMAT, GL_IMPLEMENTATION_COLOR_READ_TYPE, GL_INCR, GL_INCR_WRAP, GL_INTERLEAVED_ATTRIBS, GL_INT_2_10_10_10_REV, GL_INT_SAMPLER_2D, GL_INT_SAMPLER_2D_ARRAY, GL_INT_SAMPLER_3D, GL_INT_SAMPLER_CUBE, GL_INT_VEC2, GL_INT_VEC3, GL_INT_VEC4, GL_INVALID_ENUM, GL_INVALID_FRAMEBUFFER_OPERATION, GL_INVALID_INDEX, GL_INVALID_OPERATION, GL_INVALID_VALUE, GL_INVERT, GL_KEEP, GL_LEQUAL, GL_LESS, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR_MIPMAP_NEAREST, GL_LINES, GL_LINE_LOOP, GL_LINE_STRIP, GL_LINE_WIDTH, GL_LINK_STATUS, GL_LOW_FLOAT, GL_LOW_INT, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_MAX, GL_MAX_3D_TEXTURE_SIZE, GL_MAX_ARRAY_TEXTURE_LAYERS, GL_MAX_CLIENT_WAIT_TIMEOUT_WEBGL, GL_MAX_COLOR_ATTACHMENTS, GL_MAX_COLOR_ATTACHMENTS_WEBGL, GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS, GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, GL_MAX_COMBINED_UNIFORM_BLOCKS, GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS, GL_MAX_CUBE_MAP_TEXTURE_SIZE, GL_MAX_DRAW_BUFFERS, GL_MAX_DRAW_BUFFERS_WEBGL, GL_MAX_ELEMENTS_INDICES, GL_MAX_ELEMENTS_VERTICES, GL_MAX_ELEMENT_INDEX, GL_MAX_EXT, GL_MAX_FRAGMENT_INPUT_COMPONENTS, GL_MAX_FRAGMENT_UNIFORM_BLOCKS, GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, GL_MAX_FRAGMENT_UNIFORM_VECTORS, GL_MAX_PROGRAM_TEXEL_OFFSET, GL_MAX_RENDERBUFFER_SIZE, GL_MAX_SAMPLES, GL_MAX_SERVER_WAIT_TIMEOUT, GL_MAX_TEXTURE_IMAGE_UNITS, GL_MAX_TEXTURE_LOD_BIAS, GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, GL_MAX_TEXTURE_SIZE, GL_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS, GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS, GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS, GL_MAX_UNIFORM_BLOCK_SIZE, GL_MAX_UNIFORM_BUFFER_BINDINGS, GL_MAX_VARYING_COMPONENTS, GL_MAX_VARYING_VECTORS, GL_MAX_VERTEX_ATTRIBS, GL_MAX_VERTEX_OUTPUT_COMPONENTS, GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, GL_MAX_VERTEX_UNIFORM_BLOCKS, GL_MAX_VERTEX_UNIFORM_COMPONENTS, GL_MAX_VERTEX_UNIFORM_VECTORS, GL_MAX_VIEWPORT_DIMS, GL_MEDIUM_FLOAT, GL_MEDIUM_INT, GL_MIN, GL_MIN_EXT, GL_MIN_PROGRAM_TEXEL_OFFSET, GL_MIRRORED_REPEAT, GL_NEAREST, GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST_MIPMAP_NEAREST, GL_NEVER, GL_NICEST, GL_NONE, GL_NOTEQUAL, GL_NO_ERROR, GL_OBJECT_TYPE, GL_ONE, GL_ONE_MINUS_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_COLOR, GL_ONE_MINUS_DST_ALPHA, GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR, GL_OUT_OF_MEMORY, GL_PACK_ALIGNMENT, GL_PACK_ROW_LENGTH, GL_PACK_SKIP_PIXELS, GL_PACK_SKIP_ROWS, GL_PIXEL_PACK_BUFFER, GL_PIXEL_PACK_BUFFER_BINDING, GL_PIXEL_UNPACK_BUFFER, GL_PIXEL_UNPACK_BUFFER_BINDING, GL_PIXEL_UNSIGNED_BYTE, GL_PIXEL_UNSIGNED_SHORT_4_4_4_4, GL_PIXEL_UNSIGNED_SHORT_5_5_5_1, GL_PIXEL_UNSIGNED_SHORT_5_6_5, GL_POINTS, GL_POLYGON_OFFSET_FACTOR, GL_POLYGON_OFFSET_FILL, GL_POLYGON_OFFSET_UNITS, GL_QUERY_COUNTER_BITS_EXT, GL_QUERY_RESULT, GL_QUERY_RESULT_AVAILABLE, GL_QUERY_RESULT_AVAILABLE_EXT, GL_QUERY_RESULT_EXT, GL_R11F_G11F_B10F, GL_R16F, GL_R16I, GL_R16UI, GL_R32F, GL_R32I, GL_R32UI, GL_R8, GL_R8I, GL_R8UI, GL_R8_SNORM, GL_RASTERIZER_DISCARD, GL_READ_BUFFER, GL_READ_FRAMEBUFFER, GL_READ_FRAMEBUFFER_BINDING, GL_RED, GL_RED_BITS, GL_RED_INTEGER, GL_RENDERBUFFER, GL_RENDERBUFFER_ALPHA_SIZE, GL_RENDERBUFFER_BINDING, GL_RENDERBUFFER_BLUE_SIZE, GL_RENDERBUFFER_DEPTH_SIZE, GL_RENDERBUFFER_GREEN_SIZE, GL_RENDERBUFFER_HEIGHT, GL_RENDERBUFFER_INTERNAL_FORMAT, GL_RENDERBUFFER_RED_SIZE, GL_RENDERBUFFER_SAMPLES, GL_RENDERBUFFER_STENCIL_SIZE, GL_RENDERBUFFER_WIDTH, GL_RENDERER, GL_REPEAT, GL_REPLACE, GL_RG, GL_RG16F, GL_RG16I, GL_RG16UI, GL_RG32F, GL_RG32I, GL_RG32UI, GL_RG8, GL_RG8I, GL_RG8UI, GL_RG8_SNORM, GL_RGB, GL_RGB10_A2, GL_RGB10_A2UI, GL_RGB16F, GL_RGB16I, GL_RGB16UI, GL_RGB32F, GL_RGB32F_EXT, GL_RGB32I, GL_RGB32UI, GL_RGB565, GL_RGB5_A1, GL_RGB8, GL_RGB8I, GL_RGB8UI, GL_RGB8_SNORM, GL_RGB9_E5, GL_RGBA, GL_RGBA16F, GL_RGBA16I, GL_RGBA16UI, GL_RGBA32F, GL_RGBA32F_EXT, GL_RGBA32I, GL_RGBA32UI, GL_RGBA4, GL_RGBA8, GL_RGBA8I, GL_RGBA8UI, GL_RGBA8_SNORM, GL_RGBA_INTEGER, GL_RGB_INTEGER, GL_RG_INTEGER, GL_SAMPLER_2D, GL_SAMPLER_2D_ARRAY, GL_SAMPLER_2D_ARRAY_SHADOW, GL_SAMPLER_2D_SHADOW, GL_SAMPLER_3D, GL_SAMPLER_BINDING, GL_SAMPLER_CUBE, GL_SAMPLER_CUBE_SHADOW, GL_SAMPLES, GL_SAMPLE_ALPHA_TO_COVERAGE, GL_SAMPLE_BUFFERS, GL_SAMPLE_COVERAGE, GL_SAMPLE_COVERAGE_INVERT, GL_SAMPLE_COVERAGE_VALUE, GL_SCISSOR_BOX, GL_SCISSOR_TEST, GL_SEPARATE_ATTRIBS, GL_SHADER_TYPE, GL_SHADING_LANGUAGE_VERSION, GL_SIGNALED, GL_SIGNED_NORMALIZED, GL_SRC_ALPHA, GL_SRC_ALPHA_SATURATE, GL_SRC_COLOR, GL_SRGB, GL_SRGB8, GL_SRGB8_ALPHA8, GL_SRGB8_ALPHA8_EXT, GL_SRGB_ALPHA_EXT, GL_SRGB_EXT, GL_STATIC_COPY, GL_STATIC_DRAW, GL_STATIC_READ, GL_STENCIL, GL_STENCIL_ATTACHMENT, GL_STENCIL_BACK_FAIL, GL_STENCIL_BACK_FUNC, GL_STENCIL_BACK_PASS_DEPTH_FAIL, GL_STENCIL_BACK_PASS_DEPTH_PASS, GL_STENCIL_BACK_REF, GL_STENCIL_BACK_VALUE_MASK, GL_STENCIL_BACK_WRITEMASK, GL_STENCIL_BITS, GL_STENCIL_BUFFER_BIT, GL_STENCIL_CLEAR_VALUE, GL_STENCIL_FAIL, GL_STENCIL_FUNC, GL_STENCIL_INDEX, GL_STENCIL_INDEX8, GL_STENCIL_PASS_DEPTH_FAIL, GL_STENCIL_PASS_DEPTH_PASS, GL_STENCIL_REF, GL_STENCIL_TEST, GL_STENCIL_VALUE_MASK, GL_STENCIL_WRITEMASK, GL_STREAM_COPY, GL_STREAM_DRAW, GL_STREAM_READ, GL_SUBPIXEL_BITS, GL_SYNC_CONDITION, GL_SYNC_FENCE, GL_SYNC_FLAGS, GL_SYNC_FLUSH_COMMANDS_BIT, GL_SYNC_GPU_COMMANDS_COMPLETE, GL_SYNC_STATUS, GL_TEXTURE, GL_TEXTURE0, GL_TEXTURE1, GL_TEXTURE10, GL_TEXTURE11, GL_TEXTURE12, GL_TEXTURE13, GL_TEXTURE14, GL_TEXTURE15, GL_TEXTURE16, GL_TEXTURE17, GL_TEXTURE18, GL_TEXTURE19, GL_TEXTURE2, GL_TEXTURE20, GL_TEXTURE21, GL_TEXTURE22, GL_TEXTURE23, GL_TEXTURE24, GL_TEXTURE25, GL_TEXTURE26, GL_TEXTURE27, GL_TEXTURE28, GL_TEXTURE29, GL_TEXTURE3, GL_TEXTURE30, GL_TEXTURE31, GL_TEXTURE4, GL_TEXTURE5, GL_TEXTURE6, GL_TEXTURE7, GL_TEXTURE8, GL_TEXTURE9, GL_TEXTURE_2D, GL_TEXTURE_2D_ARRAY, GL_TEXTURE_3D, GL_TEXTURE_BASE_LEVEL, GL_TEXTURE_BINDING_2D, GL_TEXTURE_BINDING_2D_ARRAY, GL_TEXTURE_BINDING_3D, GL_TEXTURE_BINDING_CUBE_MAP, GL_TEXTURE_COMPARE_FUNC, GL_TEXTURE_COMPARE_MODE, GL_TEXTURE_CUBE_MAP, GL_TEXTURE_CUBE_MAP_NEGATIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_IMMUTABLE_FORMAT, GL_TEXTURE_IMMUTABLE_LEVELS, GL_TEXTURE_MAG_FILTER, GL_TEXTURE_MAX_ANISOTROPY_EXT, GL_TEXTURE_MAX_LEVEL, GL_TEXTURE_MAX_LOD, GL_TEXTURE_MIN_FILTER, GL_TEXTURE_MIN_LOD, GL_TEXTURE_WRAP_R, GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T, GL_TIMEOUT_EXPIRED, GL_TIMEOUT_IGNORED, GL_TIMESTAMP_EXT, GL_TIME_ELAPSED_EXT, GL_TRANSFORM_FEEDBACK, GL_TRANSFORM_FEEDBACK_ACTIVE, GL_TRANSFORM_FEEDBACK_BINDING, GL_TRANSFORM_FEEDBACK_BUFFER, GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, GL_TRANSFORM_FEEDBACK_BUFFER_MODE, GL_TRANSFORM_FEEDBACK_BUFFER_SIZE, GL_TRANSFORM_FEEDBACK_BUFFER_START, GL_TRANSFORM_FEEDBACK_PAUSED, GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, GL_TRANSFORM_FEEDBACK_VARYINGS, GL_TRIANGLES, GL_TRIANGLE_FAN, GL_TRIANGLE_STRIP, GL_UNIFORM_ARRAY_STRIDE, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, GL_UNIFORM_BLOCK_BINDING, GL_UNIFORM_BLOCK_DATA_SIZE, GL_UNIFORM_BLOCK_INDEX, GL_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER, GL_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER, GL_UNIFORM_BUFFER, GL_UNIFORM_BUFFER_BINDING, GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, GL_UNIFORM_BUFFER_SIZE, GL_UNIFORM_BUFFER_START, GL_UNIFORM_IS_ROW_MAJOR, GL_UNIFORM_MATRIX_STRIDE, GL_UNIFORM_OFFSET, GL_UNIFORM_SIZE, GL_UNIFORM_TYPE, GL_UNMASKED_RENDERER_WEBGL, GL_UNMASKED_VENDOR_WEBGL, GL_UNPACK_ALIGNMENT, GL_UNPACK_COLORSPACE_CONVERSION_WEBGL, GL_UNPACK_FLIP_Y_WEBGL, GL_UNPACK_IMAGE_HEIGHT, GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL, GL_UNPACK_ROW_LENGTH, GL_UNPACK_SKIP_IMAGES, GL_UNPACK_SKIP_PIXELS, GL_UNPACK_SKIP_ROWS, GL_UNSIGNALED, GL_UNSIGNED_INT_10F_11F_11F_REV, GL_UNSIGNED_INT_24_8, GL_UNSIGNED_INT_24_8_WEBGL, GL_UNSIGNED_INT_2_10_10_10_REV, GL_UNSIGNED_INT_5_9_9_9_REV, GL_UNSIGNED_INT_SAMPLER_2D, GL_UNSIGNED_INT_SAMPLER_2D_ARRAY, GL_UNSIGNED_INT_SAMPLER_3D, GL_UNSIGNED_INT_SAMPLER_CUBE, GL_UNSIGNED_INT_VEC2, GL_UNSIGNED_INT_VEC3, GL_UNSIGNED_INT_VEC4, GL_UNSIGNED_NORMALIZED, GL_UNSIGNED_NORMALIZED_EXT, GL_VALIDATE_STATUS, GL_VENDOR, GL_VERSION, GL_VERTEX_ARRAY_BINDING, GL_VERTEX_ARRAY_BINDING_OES, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, GL_VERTEX_ATTRIB_ARRAY_DIVISOR, GL_VERTEX_ATTRIB_ARRAY_DIVISOR_ANGLE, GL_VERTEX_ATTRIB_ARRAY_ENABLED, GL_VERTEX_ATTRIB_ARRAY_INTEGER, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, GL_VERTEX_ATTRIB_ARRAY_POINTER, GL_VERTEX_ATTRIB_ARRAY_SIZE, GL_VERTEX_ATTRIB_ARRAY_STRIDE, GL_VERTEX_ATTRIB_ARRAY_TYPE, GL_VERTEX_SHADER, GL_VIEWPORT, GL_WAIT_FAILED, GL_ZERO, GaussianBlur, GetComponentFromEntities, type GetInstance, type GetProps, Gizmo, GlobalDataRepository, GlobalRetarget, GlobalRetargetReverse, type Gltf1AnyObject, type Gltf2, type Gltf2Accessor, type Gltf2AccessorComponentType, type Gltf2AccessorComponentTypeNumber, type Gltf2AccessorCompositionType, type Gltf2AccessorCompositionTypeString, type Gltf2AccessorEx, type Gltf2AccessorIndex, type Gltf2Animation, type Gltf2AnimationAccessorCompositionType, type Gltf2AnimationAccessorCompositionTypeString, type Gltf2AnimationChannel, type Gltf2AnimationChannelTarget, type Gltf2AnimationPathName, type Gltf2AnimationSampler, type Gltf2AnimationSamplerInterpolation, type Gltf2AnyObject, type Gltf2Asset, type Gltf2AttributeAccessors, type Gltf2AttributeBlendShapes, type Gltf2AttributeBlendShapesAccessors, type Gltf2Attributes, type Gltf2Buffer, type Gltf2BufferView, type Gltf2BufferViewEx, type Gltf2Camera, type Gltf2CameraOrthographic, type Gltf2CameraPerspective, type Gltf2Ex, type Gltf2ExportType, Gltf2Exporter, type Gltf2ExporterArguments, type Gltf2Image, type Gltf2ImageEx, Gltf2Importer, type Gltf2Material, type Gltf2MaterialEx, type Gltf2Mesh, type Gltf2Node, type Gltf2NormalTextureInfo, type Gltf2OcclusionTextureInfo, type Gltf2PbrMetallicRoughness, type Gltf2PbrMetallicRoughnessEx, type Gltf2Primitive, type Gltf2Scene, type Gltf2Skin, type Gltf2Sparse, type Gltf2SparseIndices, type Gltf2SparseValues, type Gltf2Texture, type Gltf2TextureInfo, type Gltf2TextureSampler, type GltfFileBuffers, GltfImporter, type GltfLoadOption, GreaterShaderNode, Grid, type GridDescriptor, HdriFormat, type HdriFormatEnum, type IAnimationEntity, type IAnimationEntityMethods, type IAnimationRetarget, type IAnimationStateEntity, type IAnyPrimitiveDescriptor, type IArrayBufferBasedMathNumber, type IBlendShapeEntity, type IBlendShapeEntityMethods, type ICGAPIResourceRepository, type ICameraController, type ICameraControllerEntity, type ICameraControllerEntityMethods, type ICameraEntity, type ICameraEntityMethods, type IColorRgb, type IColorRgba, type IConstraintEntity, type IEffekseerEntityMethods, type IEnhancedArrayMethods, type IEntity, type IEventPubSub, type ILightEntity, type ILightEntityMethods, type ILoaderExtension, type ILogQuaternion, type IMatrix, type IMatrix22, type IMatrix33, type IMatrix44, type IMesh, type IMeshEntity, type IMeshEntityMethods, type IMeshRendererEntityMethods, type IMutableColorRgb, type IMutableColorRgba, type IMutableMatrix, type IMutableMatrix22, type IMutableMatrix33, type IMutableMatrix44, type IMutableQuaternion, type IMutableScalar, type IMutableVector, type IMutableVector2, type IMutableVector3, type IMutableVector4, INPUT_HANDLING_STATE_CAMERA_CONTROLLER, INPUT_HANDLING_STATE_GIZMO_ROTATION, INPUT_HANDLING_STATE_GIZMO_SCALE, INPUT_HANDLING_STATE_GIZMO_TRANSLATION, INPUT_HANDLING_STATE_NONE, type IPhysicsEntity, type IPhysicsEntityMethods, type IQuaternion, type IRenderable, type IRnObject, type IScalar, type ISceneGraphEntity, type ISceneGraphEntityMethods, type ISemanticVertexAttribute, IShape, type ISkeletalEntity, type ISkeletalEntityMethods, type ITransformEntity, type ITransformEntityMethods, type IVector, type IVector2, type IVector3, type IVector4, type IVrmEntityMethods, type IWeakOption, IdentityMatrix33, IdentityMatrix44, IfStatementShader, IfStatementShaderNode, type ImageBitmapData, ImageInfo, ImageUtil, type Index, type IndexInTheDataView, type IndexOf16Bytes, type IndexOf4Bytes, type IndexOfBufferViews, type IndicesAccessOption, type InputHandlerInfo, type InputHandlingState, InputManager, type IntegerTypedArray, Is, IsObj, type IsType, Joint, type JointDescriptor, JointGizmo, type KHR_interactivity, type KHR_interactivity_Configuration, type KHR_interactivity_Declaration, type KHR_interactivity_Event, type KHR_interactivity_Flow, type KHR_interactivity_Graph, type KHR_interactivity_Node, type KHR_interactivity_Type, type KHR_interactivity_Value, type KHR_interactivity_Variable, type KHR_interactivity_value_type, type KHR_lights_punctual, type KHR_lights_punctual_Light, type KHR_materials_variants, type KHR_materials_variants_Mapping, type KHR_materials_variants_PrimitiveExtension, type KHR_materials_variants_Variant, KTX2TextureLoader, LightComponent, LightGizmo, LightType, type LightTypeEnum, Line, type LineDescriptor, type LoadImageToMipLevelDescriptor, LocatorGizmo, LogLevel, LogQuaternion, Logger, type MSC_TRANSCODER_TYPE, MToon0xMaterialContent, MToon1MaterialContent, MatCapMaterialContent, Material, MaterialHelper, type MaterialNodeUID$1 as MaterialNodeUID, MaterialRepository, type MaterialSID, type MaterialTID, type MaterialTypeName, type MaterialUID, MathClassUtil, MathUtil, Matrix22, Matrix33, Matrix44, type MemberInfo, MemoryManager, type MergeCtor, MergeVectorShaderNode, Mesh, MeshComponent, MeshHelper, MeshRendererComponent, type MeshUID, type MilliSecond, MiscUtil, type MixinBase, ModelConverter, ModuleManager, type MscTranscoderModule, MultiplyShaderNode, MutableColorRgb, MutableColorRgba, MutableMatrix22, MutableMatrix33, MutableMatrix44, MutableQuaternion, MutableScalar, MutableScalar_, MutableScalard, type MutableScalarf, MutableVector2, MutableVector2_, MutableVector2d, type MutableVector2f, MutableVector3, MutableVector3_, MutableVector3d, type MutableVector3f, MutableVector4, MutableVector4_, MutableVector4d, type MutableVector4f, None, NormalMatrixShaderNode, NormalizeShaderNode, type ObjectUID, type Offset, OimoPhysicsStrategy, Ok, type Option, OrbitCameraController, OutColorShaderNode, OutPositionShaderNode, type PartialRequire, PhysicsComponent, type PhysicsProperty, type PhysicsPropertyInner, type PhysicsStrategy, type PhysicsWorldProperty, PixelFormat, type PixelFormatEnum, Plane, type PlaneDescriptor, PointShadowMap, type PointType, Primitive, type PrimitiveDescriptor, PrimitiveMode, type PrimitiveModeEnum, type PrimitiveSortKey, type PrimitiveSortKeyLength, type PrimitiveSortKeyOffset, PrimitiveSortKey_BitLength_Depth, PrimitiveSortKey_BitLength_Material, PrimitiveSortKey_BitLength_PrimitiveType, PrimitiveSortKey_BitLength_RenderQueue, PrimitiveSortKey_BitLength_TranslucencyType, PrimitiveSortKey_BitOffset_Material, PrimitiveSortKey_BitOffset_PrimitiveType, PrimitiveSortKey_BitOffset_RenderQueue, PrimitiveSortKey_BitOffset_TranslucencyType, type PrimitiveUID, ProcessApproach, ProcessApproachClass, type ProcessApproachEnum, ProcessStage, type ProcessStageEnum, ProjectionMatrixShaderNode, Quaternion, type Ratio, type RaycastResult, type RaycastResultEx1, type RaycastResultEx2, RenderBuffer, RenderBufferTarget, type RenderBufferTargetEnum, RenderPass, RenderPassHelper, type RenderPassUID, RenderTargetTexture, RenderTargetTexture2DArray, RenderTargetTextureCube, RenderableHelper, type RenderingArgWebGL, type RenderingArgWebGpu, type RequireOne, type Result, RhodoniteImportExtension, Ring, type RingAxis, type RingDescriptor, type RnError, RnException, type RnM2, type RnM2Accessor, type RnM2Animation, type RnM2AnimationChannel, type RnM2AnimationChannelTarget, type RnM2AnimationSampler, type RnM2Asset, type RnM2AttributeAccessors, type RnM2AttributeBlendShapes, type RnM2AttributeBlendShapesAccessors, type RnM2Attributes, type RnM2AttributesObject, type RnM2Buffer, type RnM2BufferView, type RnM2Camera, type RnM2CameraOrthographic, type RnM2CameraPerspective, type RnM2ExtensionEffekseer, type RnM2ExtensionsEffekseerEffect, type RnM2ExtensionsEffekseerTimeline, type RnM2ExtensionsEffekseerTimelineItem, type RnM2Image, type RnM2Material, type RnM2MaterialVariant, type RnM2Mesh, type RnM2Node, type RnM2NormalTextureInfo, type RnM2OcclusionTextureInfo, type RnM2PbrMetallicRoughness, type RnM2Primitive, type RnM2Scene, type RnM2Skin, type RnM2Sparse, type RnM2SparseIndices, type RnM2SparseValues, type RnM2Texture, type RnM2TextureInfo, type RnM2TextureSampler, type RnM2Vrma, RnObject, RnPromise, type RnPromiseCallback, type RnPromiseCallbackObj, type RnTags, type RnWebGLProgram, type RnWebGLTexture, type RnXR, RotationGizmo, Sampler, type SamplerDescriptor, Scalar, Scalar_, Scalard, type Scalarf, ScaleGizmo, SceneGraphComponent, type Second, type ShaderAttributeOrSemanticsOrString, ShaderGraphResolver, ShaderNode, type ShaderNodeEnum, type ShaderNodeJson, type ShaderNodeJsonConnection, type ShaderNodeJsonNode, type ShaderNodeJsonNodeInput, type ShaderNodeJsonNodeOutput, type ShaderNodeUID, ShaderSemantics, ShaderSemanticsClass, type ShaderSemanticsEnum, type ShaderSemanticsIndex, type ShaderSemanticsInfo, type ShaderSemanticsName, type ShaderSocket, type ShaderSources, ShaderType, type ShaderTypeEnum, type ShaderVariable, ShaderVariableType, type ShaderVariableTypeEnum, ShaderityUtilityWebGL, ShadingModel, type ShadingModelEnum, ShadowMap, ShadowMapDecodeClassicMaterialContent, type ShadowMapEnum, ShadowMapType, ShadowSystem, SimpleVertexAttribute, type Size, SkeletalComponent, Some, Sphere, SphereCollider, SphereColliderGizmo, type SphereDescriptor, SplitVectorShaderNode, type SquareMatrixComponentN, SymbolWeakMap, SynthesizeHdrMaterialContent, System, SystemState, type Tag, TagGltf2NodeIndex, Texture, type TextureData, TextureDataFloat, TextureFetchShader, TextureFormat$1 as TextureFormat, type TextureFormatEnum, TextureParameter, type TextureParameterEnum, type TextureParameters, type TextureUID, Time, ToneMappingType, type ToneMappingTypeEnum, type TranscodeTarget, type TranscodedImage, Transform3D, TransformComponent, TranslationGizmo, type TypedArray, type TypedArrayConstructor, UastcImageTranscoder, UniformDataShader, UniformDataShaderNode, VERSION, type VRM0x_Extension, VRMColliderGroup, VRMSpring, VRMSpringBone, VRMSpringBonePhysicsStrategy, VarianceShadowMapDecodeClassicMaterialContent, VaryingVariableShader, Vector2, Vector2_, Vector2d, type Vector2f, Vector3, Vector3_, Vector3d, type Vector3f, Vector4, Vector4_, Vector4d, type Vector4f, type VectorAndSquareMatrixComponentN, type VectorComponentN, type VectorCompositionTypes, VectorN, VertexAttribute, VertexAttributeClass, type VertexAttributeComponent, type VertexAttributeEnum, type VertexAttributeSemanticsJoinedString, type VertexAttributeTypeName, type VertexAttributesLayout, type VertexHandles, VideoTexture, type VideoTextureArguments, ViewMatrixShaderNode, Visibility, type VisibilityEnum, type Vrm0x, type Vrm0xBlendShapeBind, type Vrm0xBlendShapeGroup, type Vrm0xBoneGroup, type Vrm0xCollider, type Vrm0xColliderGroup, type Vrm0xHumanBone, Vrm0xImporter, type Vrm0xLookAt, type Vrm0xMaterialProperty, VrmComponent, type VrmExpression, type VrmExpressionMorphBind, type VrmExpressionName, VrmImporter, VrmaImporter, WalkThroughCameraController, WeakNone, WeakOption, WeakSome, WebGLContextWrapper, WebGLExtension, type WebGLExtensionEnum, type WebGLResource, type WebGLResourceHandle, WebGLResourceRepository, type WebGLStates, type WebGLStrategy, WebGLStrategyDataTexture, WebGLStrategyUniform, type WebGPUResourceHandle, WebGpuDeviceWrapper, type WebGpuResource, WebGpuResourceRepository, WebGpuStrategyBasic, WebXRSystem, WellKnownComponentTIDs, WireframeMaterialNode, WorldMatrixShaderNode, _from, _fromString, _fromStringCaseSensitively, _getPropertyIndex2, add2, add2_offset, add3, add3_offset, add4, add4_offset, addLineNumberToCode, applyMixins, array2_lerp_offsetAsComposition, array3_lerp_offsetAsComposition, array4_lerp_offsetAsComposition, arrayN_lerp_offsetAsComposition, assertDoesNotHave, assertExist, assertHas, assertIsErr, assertIsOk, calcAlignedByteLength, checkVersionOfGltf, combineImages, convertHTMLImageElementToCanvas, createCameraControllerEntity, createCameraEntity, createEffekseer, createEntity, createGroupEntity, createLightEntity, createLightWithCameraEntity, createMeshEntity, createMotionController, createPhysicsEntity, createSkeletalEntity, createTransformEntity, deepCopyUsingJsonStringify, defaultAnimationTrackName, defaultAssetLoader, defaultValue, detectFormatByArrayBuffers, detectFormatByUri, downloadArrayBuffer, downloadTypedArray, dummyAnisotropyTexture, dummyBlackCubeTexture, dummyBlackTexture, dummyBlueTexture, dummyDepthMomentTextureArray, dummySRGBGrayTexture, dummyWhiteTexture, dummyZeroTexture, enhanceArray, flattenHierarchy, fromTensorToCompositionType, get1, get1_offset, get1_offsetAsComposition, get2, get2_offset, get2_offsetAsComposition, get3, get3_offset, get3_offsetAsComposition, get4, get4_offset, get4_offsetAsComposition, getEvent, getMotionController, getN_offset, getN_offsetAsComposition, type getShaderPropertyFuncOfGlobalDataRepository, type getShaderPropertyFuncOfMaterial, getWebXRSystem, type glTF1, greaterThan, ifDefinedThen, ifDefinedThenWithReturn, ifExistsThen, ifExistsThenWithReturn, ifNotExistsThen, ifNotExistsThenWithReturn, ifUndefinedThen, ifUndefinedThenWithReturn, initDefaultTextures, isBlend, isBlendWithZWrite, isBlendWithoutZWrite, isOpaque, isSameGlTF2TextureSampler, isSkipDrawing, isTranslucent, lessThan, mulArray3WithScalar_offset, mulArray4WithScalar_offset, mulArrayNWithScalar_offset, mulThatAndThisToOutAsMat44_offsetAsComposition, normalizeArray4, nullishToEmptyArray, nullishToEmptyMap, objectCachify, primitiveCachify1, type primitives, qlerp_offsetAsComposition, scalar_lerp_offsetAsComposition, setUpAsMemoryBoostMode, setupShaderProgram, sheenLutTexture, updateGamePad, updateMotionControllerModel, valueWithCompensation, valueWithDefault };

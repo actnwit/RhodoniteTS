@@ -21418,11 +21418,10 @@ declare class SkeletalComponent extends Component {
      * The cache key determines which SkeletalComponents can share skinning results:
      *
      * ## With Animation Applied
-     * - Uses format: `anim|{animationHash}`
+     * - Uses format: `anim|{animationHash}|{inverseBindMatricesSignature}`
      * - animationHash is computed from animation track features (keyframes, timings, etc.)
-     * - Enables cache sharing across all models with the same animation
-     * - VRM1 retargeting creates intermediate models with different joint counts,
-     *   but they can still share cache via animation hash
+     * - inverseBindMatricesSignature ensures models with different bone structures don't share cache
+     * - Only models with BOTH same animation AND same inverseBindMatrices can share skinning results
      *
      * ## Without Animation
      * - Uses format: `{jointListKey}|{accessorSignature}|no_animation`
@@ -25497,80 +25496,329 @@ interface IMeshRendererEntityMethods {
     getMeshRenderer(): MeshRendererComponent;
 }
 
-interface PhysicsStrategy {
-    update(): void;
+/**
+ * Abstract Gizmo class that provides a foundation for creating interactive gizmo objects
+ * in 3D scenes. Gizmos are typically used for manipulation tools like transform handles,
+ * rotation rings, or other interactive visual aids.
+ */
+declare abstract class Gizmo extends RnObject {
+    /**
+     * The top entity of this gizmo group.
+     * A programmer who implements a gizmo class has to make this entity
+     * a child of the target entity's scene graph component
+     * that the gizmo will belong to manually.
+     */
+    protected __topEntity?: IMeshEntity | ISceneGraphEntity;
+    /** the target entity which this gizmo belong to */
+    protected __target: ISceneGraphEntity;
+    protected __isVisible: boolean;
+    /**
+     * Creates a new Gizmo instance
+     * @param target - The entity that this gizmo will be associated with and manipulate
+     */
+    constructor(target: ISceneGraphEntity);
+    /**
+     * Sets the visibility state of the gizmo
+     * @param flg - True to make the gizmo visible, false to hide it
+     */
+    set isVisible(flg: boolean);
+    /**
+     * Gets the current visibility state of the gizmo
+     * @returns True if the gizmo is visible, false otherwise
+     */
+    get isVisible(): boolean;
+    /**
+     * Internal method to set the visibility of the gizmo and all its child entities
+     * @param flg - True to show the gizmo, false to hide it
+     */
+    protected __setVisible(flg: boolean): void;
+    /**
+     * Indicates whether the gizmo has been set up and is ready for use
+     * Must be implemented by concrete gizmo classes
+     */
+    abstract isSetup: boolean;
+    /**
+     * Sets up the entities and components required for the gizmo
+     * This method is called internally and should only be executed once
+     * @internal
+     */
+    abstract _setup(): void;
+    /**
+     * Updates the gizmo's transform, appearance, and other properties
+     * This method is typically called every frame to keep the gizmo synchronized
+     * with its target entity
+     * @internal
+     */
+    abstract _update(): void;
+    /**
+     * Cleans up and destroys the gizmo, releasing all associated resources
+     * @internal
+     */
+    abstract _destroy(): void;
+    /**
+     * Determines whether the gizmo setup should be skipped
+     * @returns True if setup should be skipped, false otherwise
+     */
+    protected __toSkipSetup(): boolean;
+    /**
+     * Applies appropriate tags to the gizmo entities for identification and categorization
+     * This method ensures that all gizmo entities are properly tagged for rendering
+     * and processing pipelines
+     */
+    protected setGizmoTag(): void;
 }
 
 /**
- * PhysicsComponent is a component that manages the physics simulation for an entity.
- * It provides integration with physics engines through the strategy pattern and handles
- * physics updates during the logic processing stage.
+ * CapsuleColliderGizmo renders a capsule collider visualization for debugging purposes.
+ * The visualization is a semi-transparent green wireframe capsule that shows the collider's bounds.
  */
-declare class PhysicsComponent extends Component {
-    private __strategy?;
+declare class CapsuleColliderGizmo extends Gizmo {
+    protected __topEntity?: ISceneGraphEntity;
+    private __capsuleCollider;
+    private __capsuleEntity?;
+    private static __tmpVec3_0;
+    private static __tmpVec3_1;
+    private static __tmpQuat;
     /**
-     * Creates a new PhysicsComponent instance.
-     * @param entityUid - The unique identifier of the entity this component belongs to
-     * @param componentSid - The component's serial identifier
-     * @param entityComponent - The entity repository managing this component
-     * @param isReUse - Whether this component is being reused from a pool
+     * Creates a new CapsuleColliderGizmo instance
+     * @param capsuleCollider - The capsule collider to visualize
      */
-    constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean);
-    /**
-     * Gets the component type identifier for PhysicsComponent.
-     * @returns The component type ID for physics components
-     */
-    static get componentTID(): ComponentTID;
-    /**
-     * Gets the component type identifier for this instance.
-     * @returns The component type ID for physics components
-     */
-    get componentTID(): ComponentTID;
-    /**
-     * Sets the physics strategy for this component.
-     * The strategy defines how physics calculations and updates are performed.
-     * @param strategy - The physics strategy to use for this component
-     */
-    setStrategy(strategy: PhysicsStrategy): void;
-    /**
-     * Gets the current physics strategy used by this component.
-     * @returns The physics strategy instance, or undefined if none is set
-     */
-    get strategy(): PhysicsStrategy | undefined;
-    /**
-     * Common logic method that updates the global physics simulation.
-     * This is called once per frame for all physics components and handles
-     * the overall physics world update using the Oimo physics engine.
-     */
-    static common_$logic(): void;
-    /**
-     * Instance-specific logic method that updates this component's physics.
-     * Called during the logic processing stage to update individual physics entities.
-     */
-    $logic(): void;
-    /**
-     * Destroys this physics component and cleans up resources.
-     * Calls the parent destroy method and clears the physics strategy reference.
-     * @override
-     */
+    constructor(capsuleCollider: CapsuleCollider);
+    get isSetup(): boolean;
+    _setup(): void;
+    _update(): void;
     _destroy(): void;
     /**
-     * Adds physics functionality to an entity by mixing in physics-specific methods.
-     * This method extends the base entity class with physics-related capabilities,
-     * allowing the entity to access its physics component through a convenient getter.
-     * @template EntityBase - The base entity type to extend
-     * @template SomeComponentClass - The component class type
-     * @param base - The target entity to add physics functionality to
-     * @param _componentClass - The component class being added (used for type inference)
-     * @returns The enhanced entity with physics methods and the original entity functionality
-     * @override
+     * Gets the capsule collider being visualized.
+     * @returns The capsule collider instance
      */
-    addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): ComponentToComponentMethods<SomeComponentClass> & EntityBase;
+    get capsuleCollider(): CapsuleCollider;
 }
 
-interface IPhysicsEntityMethods {
-    getPhysics(): PhysicsComponent;
+/**
+ * A capsule-shaped collider used for VRM spring bone physics simulation.
+ * The capsule is defined by a position (head), tail position, and radius.
+ * It can detect collisions with spherical objects like bones.
+ */
+declare class CapsuleCollider {
+    /** The position of the capsule's head in local space */
+    private __position;
+    /** The radius of the capsule */
+    private __radius;
+    /** The position of the capsule's tail in local space */
+    private __tail;
+    /** The base scene graph component used for world space transformations */
+    private __baseSceneGraph;
+    private __worldMatrix;
+    private __worldHead;
+    private __worldTailOffset;
+    private __lengthSqCapsule;
+    /** The gizmo used to visualize this collider */
+    private __gizmo?;
+    private static __tmp_vec3_0;
+    private static __tmp_vec3_1;
+    constructor(position: Vector3, radius: number, tail: Vector3, baseSceneGraph: SceneGraphComponent);
+    /**
+     * Updates cached world positions for the capsule.
+     * Should be called once per frame before collision checks.
+     */
+    updateWorldState(): void;
+    /**
+     * Calculates collision information between this capsule collider and a spherical bone.
+     *
+     * @param bonePosition - The world position of the bone
+     * @param boneRadius - The radius of the bone sphere
+     * @returns An object containing the collision direction vector and penetration distance.
+     *          If distance is negative, the bone is penetrating the capsule.
+     *          The direction points from the capsule surface towards the bone center.
+     */
+    collision(bonePosition: Vector3, boneRadius: number): {
+        direction: IMutableVector3;
+        distance: number;
+    };
+    /**
+     * Gets the local position of the capsule's head.
+     * @returns The local position vector
+     */
+    get position(): Vector3;
+    /**
+     * Gets the local position of the capsule's tail.
+     * @returns The local tail position vector
+     */
+    get tail(): Vector3;
+    /**
+     * Gets the radius of the capsule.
+     * @returns The radius value
+     */
+    get radius(): number;
+    /**
+     * Gets the base scene graph component.
+     * @returns The base scene graph component
+     */
+    get baseSceneGraph(): SceneGraphComponent;
+    /**
+     * Gets the gizmo used to visualize this collider.
+     * @returns The gizmo instance, or undefined if not set
+     */
+    get gizmo(): CapsuleColliderGizmo | undefined;
+    /**
+     * Sets the gizmo used to visualize this collider.
+     * @param gizmo - The gizmo instance to set
+     */
+    set gizmo(gizmo: CapsuleColliderGizmo | undefined);
+    /**
+     * Sets the visibility of the collider's gizmo.
+     * If the gizmo exists, it will be shown or hidden accordingly.
+     * @param visible - Whether the gizmo should be visible
+     */
+    setGizmoVisible(visible: boolean): void;
+    /**
+     * Gets whether the gizmo is currently visible.
+     * @returns True if the gizmo exists and is visible
+     */
+    get isGizmoVisible(): boolean;
+    /**
+     * Destroys the gizmo if it exists.
+     */
+    destroyGizmo(): void;
 }
+
+/**
+ * SphereColliderGizmo renders a sphere collider visualization for debugging purposes.
+ * The visualization is a semi-transparent green sphere that shows the collider's bounds.
+ */
+declare class SphereColliderGizmo extends Gizmo {
+    protected __topEntity?: ISceneGraphEntity;
+    private __sphereCollider;
+    private __sphereEntity?;
+    /**
+     * Creates a new SphereColliderGizmo instance
+     * @param sphereCollider - The sphere collider to visualize
+     */
+    constructor(sphereCollider: SphereCollider);
+    get isSetup(): boolean;
+    _setup(): void;
+    _update(): void;
+    _destroy(): void;
+    /**
+     * Gets the sphere collider being visualized.
+     * @returns The sphere collider instance
+     */
+    get sphereCollider(): SphereCollider;
+}
+
+/**
+ * A sphere collider used for VRM spring bone physics simulation.
+ * This collider represents a spherical collision volume that can interact with bones
+ * to prevent them from penetrating through solid objects.
+ */
+declare class SphereCollider {
+    /** The local position of the sphere collider relative to its base scene graph node */
+    private __position;
+    /** The radius of the sphere collider */
+    private __radius;
+    /** The base scene graph component that defines the transform space for this collider */
+    private __baseSceneGraph;
+    private __worldPosition;
+    /** The gizmo used to visualize this collider */
+    private __gizmo?;
+    private static __tmp_vec3_1;
+    constructor(position: Vector3, radius: number, baseSceneGraph: SceneGraphComponent);
+    /**
+     * Updates the cached world position of the collider.
+     * Should be called once per frame before collision checks.
+     */
+    updateWorldState(): void;
+    /**
+     * Calculates collision information between this sphere collider and a bone.
+     *
+     * @param bonePosition - The world position of the bone
+     * @param boneRadius - The radius of the bone for collision detection
+     * @returns An object containing the collision direction and penetration distance
+     *   - direction: The normalized vector pointing from the sphere center to the bone
+     *   - distance: The penetration distance (negative if penetrating, positive if separated)
+     */
+    collision(bonePosition: Vector3, boneRadius: number): {
+        distance: number;
+        delta: IMutableVector3;
+        length: number;
+    };
+    /**
+     * Gets the local position of the collider.
+     * @returns The local position vector
+     */
+    get position(): Vector3;
+    /**
+     * Gets the world position of the collider.
+     * @returns The world position vector
+     */
+    get worldPosition(): Vector3;
+    /**
+     * Gets the radius of the collider.
+     * @returns The radius value
+     */
+    get radius(): number;
+    /**
+     * Gets the base scene graph component.
+     * @returns The base scene graph component
+     */
+    get baseSceneGraph(): SceneGraphComponent;
+    /**
+     * Gets the gizmo used to visualize this collider.
+     * @returns The gizmo instance, or undefined if not set
+     */
+    get gizmo(): SphereColliderGizmo | undefined;
+    /**
+     * Sets the gizmo used to visualize this collider.
+     * @param gizmo - The gizmo instance to set
+     */
+    set gizmo(gizmo: SphereColliderGizmo | undefined);
+    /**
+     * Sets the visibility of the collider's gizmo.
+     * If the gizmo exists, it will be shown or hidden accordingly.
+     * @param visible - Whether the gizmo should be visible
+     */
+    setGizmoVisible(visible: boolean): void;
+    /**
+     * Gets whether the gizmo is currently visible.
+     * @returns True if the gizmo exists and is visible
+     */
+    get isGizmoVisible(): boolean;
+    /**
+     * Destroys the gizmo if it exists.
+     */
+    destroyGizmo(): void;
+}
+
+/**
+ * A group of colliders used in VRM spring bone physics simulation.
+ * This class manages collections of sphere and capsule colliders that can interact
+ * with spring bones to provide collision detection and response.
+ */
+declare class VRMColliderGroup {
+    /**
+     * Array of sphere colliders in this group.
+     * Sphere colliders are used for simple spherical collision detection.
+     */
+    sphereColliders: SphereCollider[];
+    /**
+     * Array of capsule colliders in this group.
+     * Capsule colliders are used for cylindrical collision detection with rounded ends.
+     */
+    capsuleColliders: CapsuleCollider[];
+}
+
+declare const defaultAnimationTrackName = "Default";
+
+declare function createCameraEntity(): ICameraEntity;
+
+declare function createCameraControllerEntity(): ICameraControllerEntity;
+
+declare function createLightEntity(): ILightEntity;
+
+declare function createMeshEntity(): IMeshEntity;
+
+declare function createPhysicsEntity(): IPhysicsEntity;
 
 interface ISceneGraphEntityMethods {
     getSceneGraph(): SceneGraphComponent;
@@ -25588,9 +25836,14 @@ interface ISceneGraphEntityMethods {
     removeChild(sg: SceneGraphComponent): void;
 }
 
-interface ISkeletalEntityMethods {
-    getSkeletal(): SkeletalComponent;
-}
+declare function createGroupEntity(): ISceneGraphEntity;
+
+/**
+ * Collects children and itself from specified sceneGraphComponent.
+ * @param sceneGraphComponent collects children and itself from the sceneGraphComponent
+ * @param isJointMode collects joints only
+ */
+declare function flattenHierarchy(sceneGraphComponent: SceneGraphComponent, isJointMode: boolean): SceneGraphComponent[];
 
 /**
  * Expression class manages the rendering pipeline by defining the order and sequence of render passes.
@@ -26903,42 +27156,6 @@ declare class Axis extends IShape {
      * @public
      */
     generate(_desc: AxisDescriptor): void;
-}
-
-/**
- * Descriptor for generating a cone primitive.
- */
-interface ConeDescriptor extends IAnyPrimitiveDescriptor {
-    /**
-     * Radius of the cone base.
-     * @defaultValue 0.1
-     */
-    radius?: number;
-    /**
-     * Height of the cone measured along the +Y axis.
-     * @defaultValue 0.25
-     */
-    height?: number;
-    /**
-     * Number of radial segments that form the cone circumference.
-     * @defaultValue 12
-     */
-    radialSegments?: Count;
-    /**
-     * Whether to generate a base disk that caps the cone.
-     * @defaultValue true
-     */
-    includeBase?: boolean;
-}
-/**
- * Cone primitive aligned along the +Y axis (base on the XZ plane, tip along +Y).
- */
-declare class Cone extends IShape {
-    /**
-     * Generates vertex buffers for a cone shape.
-     * @param _desc - Cone descriptor with geometry options.
-     */
-    generate(_desc: ConeDescriptor): void;
 }
 
 type PhysicsShapeTypeEnum = EnumIO;
@@ -30425,6 +30642,109 @@ type PhysicsProperty = {
 };
 
 /**
+ * The argument descriptor for Capsule primitives
+ */
+interface CapsuleDescriptor extends IAnyPrimitiveDescriptor {
+    /**
+     * The radius of the capsule (half-spheres and cylinder).
+     * @default 0.5
+     */
+    radius?: number;
+    /**
+     * The height of the capsule (distance between the centers of the two half-spheres).
+     * @default 1
+     */
+    height?: number;
+    /**
+     * The number of segments that define the capsule's width (horizontal divisions).
+     * @default 16
+     */
+    widthSegments?: Count;
+    /**
+     * The number of segments that define the capsule's height (vertical divisions for each half-sphere).
+     * @default 8
+     */
+    heightSegments?: Count;
+    /**
+     * Physics properties associated with the capsule, such as mass and collision settings.
+     */
+    physics?: PhysicsProperty;
+}
+/**
+ * Capsule class for generating capsule geometry with customizable parameters.
+ * A capsule consists of a cylinder with hemispherical caps at both ends.
+ * The capsule is oriented along the Y-axis, with the center at the origin.
+ */
+declare class Capsule extends IShape {
+    /**
+     * Generates capsule geometry with the specified parameters
+     *
+     * @param _desc - The capsule descriptor containing generation parameters
+     * @param _desc.radius - The radius of the capsule (default: 0.5)
+     * @param _desc.height - The height of the cylinder part (default: 1)
+     * @param _desc.widthSegments - The number of horizontal segments (default: 16)
+     * @param _desc.heightSegments - The number of vertical segments for each hemisphere (default: 8)
+     * @param _desc.material - The material to apply to the capsule
+     *
+     * @remarks
+     * This method generates vertex positions, texture coordinates, normals, and indices
+     * for a capsule shape. The capsule is centered at the origin with its axis along the Y-axis.
+     * The total height of the capsule is (height + 2 * radius).
+     *
+     * If the radius is zero or nearly zero, it will be clamped to 0.001 for safety.
+     *
+     * @example
+     * ```typescript
+     * const capsule = new Capsule();
+     * capsule.generate({
+     *   radius: 0.5,
+     *   height: 2.0,
+     *   widthSegments: 24,
+     *   heightSegments: 12,
+     *   material: myMaterial
+     * });
+     * ```
+     */
+    generate(_desc: CapsuleDescriptor): void;
+}
+
+/**
+ * Descriptor for generating a cone primitive.
+ */
+interface ConeDescriptor extends IAnyPrimitiveDescriptor {
+    /**
+     * Radius of the cone base.
+     * @defaultValue 0.1
+     */
+    radius?: number;
+    /**
+     * Height of the cone measured along the +Y axis.
+     * @defaultValue 0.25
+     */
+    height?: number;
+    /**
+     * Number of radial segments that form the cone circumference.
+     * @defaultValue 12
+     */
+    radialSegments?: Count;
+    /**
+     * Whether to generate a base disk that caps the cone.
+     * @defaultValue true
+     */
+    includeBase?: boolean;
+}
+/**
+ * Cone primitive aligned along the +Y axis (base on the XZ plane, tip along +Y).
+ */
+declare class Cone extends IShape {
+    /**
+     * Generates vertex buffers for a cone shape.
+     * @param _desc - Cone descriptor with geometry options.
+     */
+    generate(_desc: ConeDescriptor): void;
+}
+
+/**
  * Descriptor interface for creating a cube primitive
  */
 interface CubeDescriptor extends IAnyPrimitiveDescriptor {
@@ -30666,6 +30986,63 @@ declare class Plane extends IShape {
 }
 
 /**
+ * Type definition for ring axis orientation
+ */
+type RingAxis = 'x' | 'y' | 'z';
+/**
+ * Descriptor for generating a ring primitive.
+ */
+interface RingDescriptor extends IAnyPrimitiveDescriptor {
+    /**
+     * The radius of the ring (distance from center to middle of the ring band).
+     * @defaultValue 1
+     */
+    radius?: number;
+    /**
+     * The thickness of the ring band (half-width on each side of the radius).
+     * @defaultValue 0.1
+     */
+    thickness?: number;
+    /**
+     * Number of segments that form the ring circumference.
+     * @defaultValue 64
+     */
+    segments?: Count;
+    /**
+     * The axis perpendicular to the ring plane.
+     * - 'x': Ring lies in the YZ plane
+     * - 'y': Ring lies in the XZ plane
+     * - 'z': Ring lies in the XY plane
+     * @defaultValue 'y'
+     */
+    axis?: RingAxis;
+}
+/**
+ * Ring primitive that creates a flat ring (annulus) shape.
+ *
+ * The ring is generated as a triangle strip with an outer and inner edge,
+ * lying flat perpendicular to the specified axis.
+ *
+ * @example
+ * ```typescript
+ * const ring = new Ring();
+ * ring.generate({
+ *   radius: 2,
+ *   thickness: 0.3,
+ *   segments: 32,
+ *   axis: 'y'
+ * });
+ * ```
+ */
+declare class Ring extends IShape {
+    /**
+     * Generates vertex buffers for a ring shape.
+     * @param _desc - Ring descriptor with geometry options.
+     */
+    generate(_desc: RingDescriptor): void;
+}
+
+/**
  * The argument descriptor for Sphere primitives
  */
 interface SphereDescriptor extends IAnyPrimitiveDescriptor {
@@ -30758,8 +31135,10 @@ declare const MeshHelper: Readonly<{
     createCubes: (numberToCreate: number, desc?: CubeDescriptor) => IMeshEntity[];
     createSphere: (desc?: SphereDescriptor) => IMeshEntity;
     createSpheres: (numberToCreate: number, desc?: SphereDescriptor) => IMeshEntity[];
+    createCapsule: (desc?: CapsuleDescriptor) => IMeshEntity;
     createJoint: (desc?: JointDescriptor) => IMeshEntity;
     createAxis: (desc?: AxisDescriptor) => IMeshEntity;
+    createRing: (desc?: RingDescriptor) => IMeshEntity;
     createShape: typeof createShape;
 }>;
 
@@ -31832,6 +32211,171 @@ declare class AssetLoader {
  */
 declare const defaultAssetLoader: AssetLoader;
 
+interface IAnimationRetarget {
+    retargetQuaternion(dstEntity: ISceneGraphEntity): IQuaternion;
+    retargetTranslate(dstEntity: ISceneGraphEntity): IVector3;
+    retargetScale(dstEntity: ISceneGraphEntity): IVector3;
+    getEntity(): ISceneGraphEntity;
+}
+
+/**
+ * Global retargeting implementation for animation retargeting.
+ * This class handles retargeting of animations from one entity to another using global space transformations.
+ */
+declare class GlobalRetarget implements IAnimationRetarget {
+    private __srcEntity;
+    /**
+     * Creates a new GlobalRetarget instance.
+     * @param srcEntity - The source entity to retarget animations from
+     */
+    constructor(srcEntity: ISceneGraphEntity);
+    /**
+     * Gets the source entity for retargeting.
+     * @returns The source scene graph entity
+     */
+    getEntity(): ISceneGraphEntity;
+    /**
+     * Gets the parent's global rest quaternion for the source entity.
+     * This is used to transform from local space to global space for the source.
+     * @param srcEntity - The source entity to get parent global rest quaternion for
+     * @returns The parent's global rest quaternion, or identity if no parent exists
+     */
+    getSrcPGRestQ(srcEntity: ISceneGraphEntity): IQuaternion;
+    /**
+     * Gets the parent's global rest quaternion for the destination entity.
+     * This is used to transform from global space to local space for the destination.
+     * @param dstEntity - The destination entity to get parent global rest quaternion for
+     * @returns The parent's global rest quaternion, or identity if no parent exists
+     */
+    getDstPGRestQ(dstEntity: ISceneGraphEntity): IQuaternion;
+    /**
+     * Retargets rotation from the source entity to the destination entity.
+     * The method extracts the global animation quaternion from the source and applies it to the destination.
+     * @param dstEntity - The destination entity to apply the retargeted rotation to
+     * @returns The retargeted local rotation quaternion for the destination entity
+     */
+    retargetQuaternion(dstEntity: ISceneGraphEntity): IQuaternion;
+    /**
+     * Retargets translation from the source entity to the destination entity.
+     * The method extracts the global animation translation from the source, scales it appropriately,
+     * and applies it to the destination entity.
+     * @param dstEntity - The destination entity to apply the retargeted translation to
+     * @returns The retargeted local position vector for the destination entity
+     */
+    retargetTranslate(dstEntity: ISceneGraphEntity): IVector3;
+    /**
+     * Retargets scale from the source entity to the destination entity.
+     * Currently returns the source entity's local scale directly without modification.
+     * @param dstEntity - The destination entity (not used in current implementation)
+     * @returns The source entity's local scale vector
+     */
+    retargetScale(_dstEntity: ISceneGraphEntity): IVector3;
+}
+
+/**
+ * Global retarget reverse implementation for animation retargeting.
+ * This class handles the reverse retargeting of animations from source to destination entities
+ * with global coordinate system considerations and 180-degree rotation reversal.
+ */
+declare class GlobalRetargetReverse implements IAnimationRetarget {
+    private __srcEntity;
+    static readonly __rev: Quaternion;
+    /**
+     * Creates a new GlobalRetargetReverse instance.
+     * @param srcEntity - The source entity from which animation data will be retargeted
+     */
+    constructor(srcEntity: ISceneGraphEntity);
+    /**
+     * Gets the source entity used for retargeting.
+     * @returns The source scene graph entity
+     */
+    getEntity(): ISceneGraphEntity;
+    /**
+     * Gets the parent global rest quaternion for the source entity.
+     * This method traverses up the hierarchy to find the parent's rest rotation
+     * for entities that have VRM components.
+     * @param srcEntity - The source entity to get parent global rest quaternion for
+     * @returns The parent global rest quaternion, or identity quaternion if no parent exists
+     */
+    getSrcPGRestQ(srcEntity: ISceneGraphEntity): IQuaternion;
+    /**
+     * Gets the parent global rest quaternion for the destination entity.
+     * This method traverses up the hierarchy to find the parent's rest rotation
+     * for entities that have VRM components.
+     * @param dstEntity - The destination entity to get parent global rest quaternion for
+     * @returns The parent global rest quaternion, or identity quaternion if no parent exists
+     */
+    getDstPGRestQ(dstEntity: ISceneGraphEntity): IQuaternion;
+    /**
+     * Retargets the quaternion rotation from source entity to destination entity.
+     * This method extracts the global animation quaternion from the source entity,
+     * then applies it to the destination entity's local coordinate system with
+     * a 180-degree Y-axis rotation reversal.
+     * @param dstEntity - The destination entity to apply the retargeted rotation to
+     * @returns The retargeted quaternion with reverse rotation applied
+     */
+    retargetQuaternion(dstEntity: ISceneGraphEntity): IQuaternion;
+    /**
+     * Retargets the translation from source entity to destination entity.
+     * This method extracts the global animation translation from the source entity,
+     * scales it according to the destination entity's proportions, then applies
+     * a 180-degree Y-axis rotation reversal.
+     * @param dstEntity - The destination entity to apply the retargeted translation to
+     * @returns The retargeted translation vector with reverse rotation applied
+     */
+    retargetTranslate(dstEntity: ISceneGraphEntity): IVector3;
+    /**
+     * Retargets the scale from source entity to destination entity.
+     * Currently, this method simply returns the source entity's local scale
+     * without any modifications or transformations.
+     * @param dstEntity - The destination entity (currently unused)
+     * @returns The source entity's local scale vector
+     */
+    retargetScale(_dstEntity: ISceneGraphEntity): IVector3;
+}
+
+/**
+ * Animation retargeting implementation that uses absolute transform values.
+ * This class directly returns the source entity's transform values without any modifications.
+ */
+declare class AbsoluteAnimation implements IAnimationRetarget {
+    private __srcEntity;
+    /**
+     * Creates a new AbsoluteAnimation instance.
+     * @param srcEntity - The source entity whose transform values will be used for retargeting
+     */
+    constructor(srcEntity: ISceneGraphEntity);
+    /**
+     * Gets the source entity associated with this animation retarget.
+     * @returns The source scene graph entity
+     */
+    getEntity(): ISceneGraphEntity;
+    /**
+     * Retargets rotation by returning the source entity's local rotation quaternion.
+     * @param dstEntity - The destination entity (unused in absolute animation)
+     * @returns The source entity's local rotation quaternion
+     */
+    retargetQuaternion(_dstEntity: ISceneGraphEntity): IQuaternion;
+    /**
+     * Retargets translation by returning the source entity's local position.
+     * @param dstEntity - The destination entity (unused in absolute animation)
+     * @returns The source entity's local position vector
+     */
+    retargetTranslate(_dstEntity: ISceneGraphEntity): IVector3;
+    /**
+     * Retargets scale by returning the source entity's local scale.
+     * @param dstEntity - The destination entity (unused in absolute animation)
+     * @returns The source entity's local scale vector
+     */
+    retargetScale(_dstEntity: ISceneGraphEntity): IVector3;
+}
+
+interface ISkeletalEntityMethods {
+    getSkeletal(): SkeletalComponent;
+}
+
+declare function createSkeletalEntity(): ISkeletalEntity;
+
 /**
  * TransformComponent is a component that manages the transform of an entity.
  * It handles position, rotation, scale, and transformation matrices for 3D objects.
@@ -32152,6 +32696,8 @@ interface ITransformEntityMethods {
     localMatrixRestInner: IMatrix44;
 }
 
+declare function createTransformEntity(): ITransformEntity;
+
 type VrmExpressionName = string;
 type VrmExpressionMorphBind = {
     entityIdx: Index;
@@ -32241,6 +32787,224 @@ declare class VrmComponent extends Component {
 
 interface IVrmEntityMethods {
     getVrm(): VrmComponent;
+}
+
+declare const WellKnownComponentTIDs: Readonly<{
+    AnimationStateComponentTID: 1;
+    AnimationComponentTID: 2;
+    TransformComponentTID: 3;
+    SceneGraphComponentTID: 4;
+    MeshComponentTID: 5;
+    MeshRendererComponentTID: 6;
+    LightComponentTID: 7;
+    CameraControllerComponentTID: 8;
+    CameraComponentTID: 9;
+    SkeletalComponentTID: 10;
+    BlendShapeComponentTID: 11;
+    PhysicsComponentTID: 12;
+    EffekseerComponentTID: 13;
+    VrmComponentTID: 14;
+    ConstraintComponentTID: 15;
+    maxWellKnownTidNumber: 15;
+}>;
+
+/**
+ * VRM Spring Bone implementation for physics-based bone animation.
+ * This class handles the physics simulation of spring bones commonly used in VRM models
+ * for secondary animation like hair, clothes, and accessories.
+ */
+declare class VRMSpringBone extends RnObject {
+    /** The stiffness force that controls how quickly the bone returns to its rest position */
+    stiffnessForce: number;
+    /** The power of gravity affecting the bone movement */
+    gravityPower: number;
+    /** The direction vector of gravity force */
+    gravityDir: Vector3;
+    /** The drag force that dampens the bone movement */
+    dragForce: number;
+    /** The radius used for collision detection */
+    hitRadius: number;
+    /** The scene graph entity node that this spring bone is attached to */
+    node: ISceneGraphEntity;
+    /** Current tail position in world space coordinates */
+    currentTail: MutableVector3;
+    /** Previous tail position in world space coordinates */
+    prevTail: MutableVector3;
+    /** The bone axis direction in local space coordinates */
+    boneAxis: Vector3;
+    /** The length of the bone in world space units */
+    boneLength: number;
+    /** The initial local position of the child bone */
+    initialLocalChildPosition: Vector3;
+    /** Flag indicating whether the spring bone has been initialized */
+    initialized: boolean;
+    /** Temporary vector for internal calculations */
+    private static __tmp_vec3_0;
+    /** Temporary vector for internal calculations */
+    private static __tmp_vec3_1;
+    /** Temporary zero vector for internal calculations */
+    private static __tmp_vec3_2_zero;
+    /** Temporary vector for internal calculations */
+    private static __tmp_vec3_3;
+    /** Temporary vector for internal calculations */
+    private static __tmp_vec3_4;
+    /**
+     * Creates a new VRM Spring Bone instance.
+     * @param node - The scene graph entity node to attach this spring bone to
+     */
+    constructor(node: ISceneGraphEntity);
+    /**
+     * Initializes the spring bone with default values and calculates initial positions.
+     * This method should be called once before starting the physics simulation.
+     * @param center - Optional center component for coordinate transformation
+     */
+    setup(center?: SceneGraphComponent): void;
+    /**
+     * Gets the transformation matrix from center space to world space.
+     * @param center - Optional center component for coordinate transformation
+     * @returns The transformation matrix from center to world space
+     */
+    _getMatrixCenterToWorld(center?: SceneGraphComponent): IMatrix44;
+    /**
+     * Gets the transformation matrix from world space to center space.
+     * @param center - Optional center component for coordinate transformation
+     * @returns The transformation matrix from world to center space
+     */
+    _getMatrixWorldToCenter(center?: SceneGraphComponent): IMatrix44;
+    /**
+     * Calculates the bone length in world space coordinates.
+     * This method updates the boneLength property based on the current world positions
+     * of the bone and its child (or estimated child position).
+     */
+    _calcWorldSpaceBoneLength(): void;
+}
+
+/**
+ * Represents a VRM spring bone system that manages physics simulation for character bones.
+ * This class handles the configuration and management of spring bones, collider groups,
+ * and their interactions within the VRM specification.
+ *
+ * @example
+ * ```typescript
+ * const rootBone = sceneGraphComponent;
+ * const vrmSpring = new VRMSpring(rootBone);
+ * vrmSpring.bones.push(new VRMSpringBone());
+ * vrmSpring.colliderGroups.push(new VRMColliderGroup());
+ * ```
+ */
+declare class VRMSpring extends RnObject {
+    /** The root bone component that serves as the base for the spring bone system */
+    rootBone: SceneGraphComponent;
+    /** Array of spring bones that will be affected by physics simulation */
+    bones: VRMSpringBone[];
+    /** Array of collider groups that define collision boundaries for spring bones */
+    colliderGroups: VRMColliderGroup[];
+    /** Optional center reference point for spring bone calculations */
+    center: SceneGraphComponent | undefined;
+    /**
+     * Creates a new VRMSpring instance with the specified root bone.
+     *
+     * @param rootBone - The scene graph component that will serve as the root bone
+     *                   for this spring bone system
+     */
+    constructor(rootBone: SceneGraphComponent);
+}
+
+interface PhysicsStrategy {
+    update(): void;
+    /**
+     * Sets the visibility of all colliders in this physics strategy.
+     * This is optional and only implemented by strategies that support collider visualization.
+     * @param visible - Whether the colliders should be visible
+     */
+    setCollidersVisible?(visible: boolean): void;
+    /**
+     * Gets the VRM spring system managed by this physics strategy.
+     * This is optional and only implemented by strategies that support VRM spring bones.
+     * @returns The VRM spring system, or undefined if not supported
+     */
+    getVrmSpring?(): VRMSpring | undefined;
+}
+
+/**
+ * PhysicsComponent is a component that manages the physics simulation for an entity.
+ * It provides integration with physics engines through the strategy pattern and handles
+ * physics updates during the logic processing stage.
+ */
+declare class PhysicsComponent extends Component {
+    private __strategy?;
+    /**
+     * Creates a new PhysicsComponent instance.
+     * @param entityUid - The unique identifier of the entity this component belongs to
+     * @param componentSid - The component's serial identifier
+     * @param entityComponent - The entity repository managing this component
+     * @param isReUse - Whether this component is being reused from a pool
+     */
+    constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean);
+    /**
+     * Gets the component type identifier for PhysicsComponent.
+     * @returns The component type ID for physics components
+     */
+    static get componentTID(): ComponentTID;
+    /**
+     * Gets the component type identifier for this instance.
+     * @returns The component type ID for physics components
+     */
+    get componentTID(): ComponentTID;
+    /**
+     * Sets the physics strategy for this component.
+     * The strategy defines how physics calculations and updates are performed.
+     * @param strategy - The physics strategy to use for this component
+     */
+    setStrategy(strategy: PhysicsStrategy): void;
+    /**
+     * Gets the current physics strategy used by this component.
+     * @returns The physics strategy instance, or undefined if none is set
+     */
+    get strategy(): PhysicsStrategy | undefined;
+    getVrmSpring(): VRMSpring | undefined;
+    /**
+     * Common logic method that updates the global physics simulation.
+     * This is called once per frame for all physics components and handles
+     * the overall physics world update using the Oimo physics engine.
+     */
+    static common_$logic(): void;
+    /**
+     * Instance-specific logic method that updates this component's physics.
+     * Called during the logic processing stage to update individual physics entities.
+     */
+    $logic(): void;
+    /**
+     * Sets the visibility of all colliders managed by this physics component.
+     * This is useful for debugging and visualizing collision boundaries.
+     * Note: This only works if the physics strategy supports collider visualization
+     * (e.g., VRMSpringBonePhysicsStrategy).
+     *
+     * @param visible - Whether the colliders should be visible
+     */
+    setCollidersVisible(visible: boolean): void;
+    /**
+     * Destroys this physics component and cleans up resources.
+     * Calls the parent destroy method and clears the physics strategy reference.
+     * @override
+     */
+    _destroy(): void;
+    /**
+     * Adds physics functionality to an entity by mixing in physics-specific methods.
+     * This method extends the base entity class with physics-related capabilities,
+     * allowing the entity to access its physics component through a convenient getter.
+     * @template EntityBase - The base entity type to extend
+     * @template SomeComponentClass - The component class type
+     * @param base - The target entity to add physics functionality to
+     * @param _componentClass - The component class being added (used for type inference)
+     * @returns The enhanced entity with physics methods and the original entity functionality
+     * @override
+     */
+    addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): ComponentToComponentMethods<SomeComponentClass> & EntityBase;
+}
+
+interface IPhysicsEntityMethods {
+    getPhysics(): PhysicsComponent;
 }
 
 type ComponentMixinFunction = <EntityBaseClass extends MixinBase>(baseClass: EntityBaseClass, components: (typeof Component)[]) => {
@@ -32818,167 +33582,6 @@ declare class EventPubSub implements IEventPubSub {
      */
     publishSync(type: EventType, event?: any): CalledSubscriberNumber;
 }
-
-interface IAnimationRetarget {
-    retargetQuaternion(dstEntity: ISceneGraphEntity): IQuaternion;
-    retargetTranslate(dstEntity: ISceneGraphEntity): IVector3;
-    retargetScale(dstEntity: ISceneGraphEntity): IVector3;
-    getEntity(): ISceneGraphEntity;
-}
-
-/**
- * Global retargeting implementation for animation retargeting.
- * This class handles retargeting of animations from one entity to another using global space transformations.
- */
-declare class GlobalRetarget implements IAnimationRetarget {
-    private __srcEntity;
-    /**
-     * Creates a new GlobalRetarget instance.
-     * @param srcEntity - The source entity to retarget animations from
-     */
-    constructor(srcEntity: ISceneGraphEntity);
-    /**
-     * Gets the source entity for retargeting.
-     * @returns The source scene graph entity
-     */
-    getEntity(): ISceneGraphEntity;
-    /**
-     * Gets the parent's global rest quaternion for the source entity.
-     * This is used to transform from local space to global space for the source.
-     * @param srcEntity - The source entity to get parent global rest quaternion for
-     * @returns The parent's global rest quaternion, or identity if no parent exists
-     */
-    getSrcPGRestQ(srcEntity: ISceneGraphEntity): IQuaternion;
-    /**
-     * Gets the parent's global rest quaternion for the destination entity.
-     * This is used to transform from global space to local space for the destination.
-     * @param dstEntity - The destination entity to get parent global rest quaternion for
-     * @returns The parent's global rest quaternion, or identity if no parent exists
-     */
-    getDstPGRestQ(dstEntity: ISceneGraphEntity): IQuaternion;
-    /**
-     * Retargets rotation from the source entity to the destination entity.
-     * The method extracts the global animation quaternion from the source and applies it to the destination.
-     * @param dstEntity - The destination entity to apply the retargeted rotation to
-     * @returns The retargeted local rotation quaternion for the destination entity
-     */
-    retargetQuaternion(dstEntity: ISceneGraphEntity): IQuaternion;
-    /**
-     * Retargets translation from the source entity to the destination entity.
-     * The method extracts the global animation translation from the source, scales it appropriately,
-     * and applies it to the destination entity.
-     * @param dstEntity - The destination entity to apply the retargeted translation to
-     * @returns The retargeted local position vector for the destination entity
-     */
-    retargetTranslate(dstEntity: ISceneGraphEntity): IVector3;
-    /**
-     * Retargets scale from the source entity to the destination entity.
-     * Currently returns the source entity's local scale directly without modification.
-     * @param dstEntity - The destination entity (not used in current implementation)
-     * @returns The source entity's local scale vector
-     */
-    retargetScale(_dstEntity: ISceneGraphEntity): IVector3;
-}
-
-/**
- * Global retarget reverse implementation for animation retargeting.
- * This class handles the reverse retargeting of animations from source to destination entities
- * with global coordinate system considerations and 180-degree rotation reversal.
- */
-declare class GlobalRetargetReverse implements IAnimationRetarget {
-    private __srcEntity;
-    static readonly __rev: Quaternion;
-    /**
-     * Creates a new GlobalRetargetReverse instance.
-     * @param srcEntity - The source entity from which animation data will be retargeted
-     */
-    constructor(srcEntity: ISceneGraphEntity);
-    /**
-     * Gets the source entity used for retargeting.
-     * @returns The source scene graph entity
-     */
-    getEntity(): ISceneGraphEntity;
-    /**
-     * Gets the parent global rest quaternion for the source entity.
-     * This method traverses up the hierarchy to find the parent's rest rotation
-     * for entities that have VRM components.
-     * @param srcEntity - The source entity to get parent global rest quaternion for
-     * @returns The parent global rest quaternion, or identity quaternion if no parent exists
-     */
-    getSrcPGRestQ(srcEntity: ISceneGraphEntity): IQuaternion;
-    /**
-     * Gets the parent global rest quaternion for the destination entity.
-     * This method traverses up the hierarchy to find the parent's rest rotation
-     * for entities that have VRM components.
-     * @param dstEntity - The destination entity to get parent global rest quaternion for
-     * @returns The parent global rest quaternion, or identity quaternion if no parent exists
-     */
-    getDstPGRestQ(dstEntity: ISceneGraphEntity): IQuaternion;
-    /**
-     * Retargets the quaternion rotation from source entity to destination entity.
-     * This method extracts the global animation quaternion from the source entity,
-     * then applies it to the destination entity's local coordinate system with
-     * a 180-degree Y-axis rotation reversal.
-     * @param dstEntity - The destination entity to apply the retargeted rotation to
-     * @returns The retargeted quaternion with reverse rotation applied
-     */
-    retargetQuaternion(dstEntity: ISceneGraphEntity): IQuaternion;
-    /**
-     * Retargets the translation from source entity to destination entity.
-     * This method extracts the global animation translation from the source entity,
-     * scales it according to the destination entity's proportions, then applies
-     * a 180-degree Y-axis rotation reversal.
-     * @param dstEntity - The destination entity to apply the retargeted translation to
-     * @returns The retargeted translation vector with reverse rotation applied
-     */
-    retargetTranslate(dstEntity: ISceneGraphEntity): IVector3;
-    /**
-     * Retargets the scale from source entity to destination entity.
-     * Currently, this method simply returns the source entity's local scale
-     * without any modifications or transformations.
-     * @param dstEntity - The destination entity (currently unused)
-     * @returns The source entity's local scale vector
-     */
-    retargetScale(_dstEntity: ISceneGraphEntity): IVector3;
-}
-
-/**
- * Animation retargeting implementation that uses absolute transform values.
- * This class directly returns the source entity's transform values without any modifications.
- */
-declare class AbsoluteAnimation implements IAnimationRetarget {
-    private __srcEntity;
-    /**
-     * Creates a new AbsoluteAnimation instance.
-     * @param srcEntity - The source entity whose transform values will be used for retargeting
-     */
-    constructor(srcEntity: ISceneGraphEntity);
-    /**
-     * Gets the source entity associated with this animation retarget.
-     * @returns The source scene graph entity
-     */
-    getEntity(): ISceneGraphEntity;
-    /**
-     * Retargets rotation by returning the source entity's local rotation quaternion.
-     * @param dstEntity - The destination entity (unused in absolute animation)
-     * @returns The source entity's local rotation quaternion
-     */
-    retargetQuaternion(_dstEntity: ISceneGraphEntity): IQuaternion;
-    /**
-     * Retargets translation by returning the source entity's local position.
-     * @param dstEntity - The destination entity (unused in absolute animation)
-     * @returns The source entity's local position vector
-     */
-    retargetTranslate(_dstEntity: ISceneGraphEntity): IVector3;
-    /**
-     * Retargets scale by returning the source entity's local scale.
-     * @param dstEntity - The destination entity (unused in absolute animation)
-     * @returns The source entity's local scale vector
-     */
-    retargetScale(_dstEntity: ISceneGraphEntity): IVector3;
-}
-
-declare function createSkeletalEntity(): ISkeletalEntity;
 
 /**
  * A component that manages animation data and applies animation transformations to entities.
@@ -35538,48 +36141,6 @@ declare class WalkThroughCameraController extends AbstractCameraController imple
     set allInfo(arg: any);
 }
 
-declare const defaultAnimationTrackName = "Default";
-
-declare function createCameraEntity(): ICameraEntity;
-
-declare function createCameraControllerEntity(): ICameraControllerEntity;
-
-declare function createLightEntity(): ILightEntity;
-
-declare function createMeshEntity(): IMeshEntity;
-
-declare function createPhysicsEntity(): IPhysicsEntity;
-
-declare function createGroupEntity(): ISceneGraphEntity;
-
-/**
- * Collects children and itself from specified sceneGraphComponent.
- * @param sceneGraphComponent collects children and itself from the sceneGraphComponent
- * @param isJointMode collects joints only
- */
-declare function flattenHierarchy(sceneGraphComponent: SceneGraphComponent, isJointMode: boolean): SceneGraphComponent[];
-
-declare function createTransformEntity(): ITransformEntity;
-
-declare const WellKnownComponentTIDs: Readonly<{
-    AnimationStateComponentTID: 1;
-    AnimationComponentTID: 2;
-    TransformComponentTID: 3;
-    SceneGraphComponentTID: 4;
-    MeshComponentTID: 5;
-    MeshRendererComponentTID: 6;
-    LightComponentTID: 7;
-    CameraControllerComponentTID: 8;
-    CameraComponentTID: 9;
-    SkeletalComponentTID: 10;
-    BlendShapeComponentTID: 11;
-    PhysicsComponentTID: 12;
-    EffekseerComponentTID: 13;
-    VrmComponentTID: 14;
-    ConstraintComponentTID: 15;
-    maxWellKnownTidNumber: 15;
-}>;
-
 /**
  * The repository class that manages all component classes and their instances.
  * This class provides functionality to register component classes, create component instances,
@@ -36226,78 +36787,6 @@ declare class SimpleVertexAttribute implements ISemanticVertexAttribute {
 }
 
 /**
- * Abstract Gizmo class that provides a foundation for creating interactive gizmo objects
- * in 3D scenes. Gizmos are typically used for manipulation tools like transform handles,
- * rotation rings, or other interactive visual aids.
- */
-declare abstract class Gizmo extends RnObject {
-    /**
-     * The top entity of this gizmo group.
-     * A programmer who implements a gizmo class has to make this entity
-     * a child of the target entity's scene graph component
-     * that the gizmo will belong to manually.
-     */
-    protected __topEntity?: IMeshEntity | ISceneGraphEntity;
-    /** the target entity which this gizmo belong to */
-    protected __target: ISceneGraphEntity;
-    protected __isVisible: boolean;
-    /**
-     * Creates a new Gizmo instance
-     * @param target - The entity that this gizmo will be associated with and manipulate
-     */
-    constructor(target: ISceneGraphEntity);
-    /**
-     * Sets the visibility state of the gizmo
-     * @param flg - True to make the gizmo visible, false to hide it
-     */
-    set isVisible(flg: boolean);
-    /**
-     * Gets the current visibility state of the gizmo
-     * @returns True if the gizmo is visible, false otherwise
-     */
-    get isVisible(): boolean;
-    /**
-     * Internal method to set the visibility of the gizmo and all its child entities
-     * @param flg - True to show the gizmo, false to hide it
-     */
-    protected __setVisible(flg: boolean): void;
-    /**
-     * Indicates whether the gizmo has been set up and is ready for use
-     * Must be implemented by concrete gizmo classes
-     */
-    abstract isSetup: boolean;
-    /**
-     * Sets up the entities and components required for the gizmo
-     * This method is called internally and should only be executed once
-     * @internal
-     */
-    abstract _setup(): void;
-    /**
-     * Updates the gizmo's transform, appearance, and other properties
-     * This method is typically called every frame to keep the gizmo synchronized
-     * with its target entity
-     * @internal
-     */
-    abstract _update(): void;
-    /**
-     * Cleans up and destroys the gizmo, releasing all associated resources
-     * @internal
-     */
-    abstract _destroy(): void;
-    /**
-     * Determines whether the gizmo setup should be skipped
-     * @returns True if setup should be skipped, false otherwise
-     */
-    protected __toSkipSetup(): boolean;
-    /**
-     * Applies appropriate tags to the gizmo entities for identification and categorization
-     * This method ensures that all gizmo entities are properly tagged for rendering
-     * and processing pipelines
-     */
-    protected setGizmoTag(): void;
-}
-
-/**
  * AABB Gizmo class that visualizes the Axis-Aligned Bounding Box of a target entity.
  * This gizmo renders a wireframe box around the target entity showing its spatial boundaries.
  */
@@ -36482,6 +36971,7 @@ declare class RotationGizmo extends Gizmo {
     get isSetup(): boolean;
     set length(val: number);
     get length(): number;
+    get isVisible(): boolean;
     set isVisible(flg: boolean);
     setSpace(space: 'local' | 'world'): void;
     _setup(): void;
@@ -41325,204 +41815,6 @@ declare class OimoPhysicsStrategy implements PhysicsStrategy {
 }
 
 /**
- * A capsule-shaped collider used for VRM spring bone physics simulation.
- * The capsule is defined by a position (head), tail position, and radius.
- * It can detect collisions with spherical objects like bones.
- */
-declare class CapsuleCollider {
-    /** The position of the capsule's head in local space */
-    private __position;
-    /** The radius of the capsule */
-    private __radius;
-    /** The position of the capsule's tail in local space */
-    private __tail;
-    /** The base scene graph component used for world space transformations */
-    private __baseSceneGraph;
-    private __worldMatrix;
-    private __worldHead;
-    private __worldTailOffset;
-    private __lengthSqCapsule;
-    private static __tmp_vec3_0;
-    private static __tmp_vec3_1;
-    constructor(position: Vector3, radius: number, tail: Vector3, baseSceneGraph: SceneGraphComponent);
-    /**
-     * Updates cached world positions for the capsule.
-     * Should be called once per frame before collision checks.
-     */
-    updateWorldState(): void;
-    /**
-     * Calculates collision information between this capsule collider and a spherical bone.
-     *
-     * @param bonePosition - The world position of the bone
-     * @param boneRadius - The radius of the bone sphere
-     * @returns An object containing the collision direction vector and penetration distance.
-     *          If distance is negative, the bone is penetrating the capsule.
-     *          The direction points from the capsule surface towards the bone center.
-     */
-    collision(bonePosition: Vector3, boneRadius: number): {
-        direction: IMutableVector3;
-        distance: number;
-    };
-}
-
-/**
- * A sphere collider used for VRM spring bone physics simulation.
- * This collider represents a spherical collision volume that can interact with bones
- * to prevent them from penetrating through solid objects.
- */
-declare class SphereCollider {
-    /** The local position of the sphere collider relative to its base scene graph node */
-    private __position;
-    /** The radius of the sphere collider */
-    private __radius;
-    /** The base scene graph component that defines the transform space for this collider */
-    private __baseSceneGraph;
-    private __worldPosition;
-    private static __tmp_vec3_1;
-    private static __tmp_vec3_2;
-    constructor(position: Vector3, radius: number, baseSceneGraph: SceneGraphComponent);
-    /**
-     * Updates the cached world position of the collider.
-     * Should be called once per frame before collision checks.
-     */
-    updateWorldState(): void;
-    /**
-     * Calculates collision information between this sphere collider and a bone.
-     *
-     * @param bonePosition - The world position of the bone
-     * @param boneRadius - The radius of the bone for collision detection
-     * @returns An object containing the collision direction and penetration distance
-     *   - direction: The normalized vector pointing from the sphere center to the bone
-     *   - distance: The penetration distance (negative if penetrating, positive if separated)
-     */
-    collision(bonePosition: Vector3, boneRadius: number): {
-        distance: number;
-        delta: IMutableVector3;
-        length: number;
-    };
-}
-
-/**
- * A group of colliders used in VRM spring bone physics simulation.
- * This class manages collections of sphere and capsule colliders that can interact
- * with spring bones to provide collision detection and response.
- */
-declare class VRMColliderGroup {
-    /**
-     * Array of sphere colliders in this group.
-     * Sphere colliders are used for simple spherical collision detection.
-     */
-    sphereColliders: SphereCollider[];
-    /**
-     * Array of capsule colliders in this group.
-     * Capsule colliders are used for cylindrical collision detection with rounded ends.
-     */
-    capsuleColliders: CapsuleCollider[];
-}
-
-/**
- * VRM Spring Bone implementation for physics-based bone animation.
- * This class handles the physics simulation of spring bones commonly used in VRM models
- * for secondary animation like hair, clothes, and accessories.
- */
-declare class VRMSpringBone extends RnObject {
-    /** The stiffness force that controls how quickly the bone returns to its rest position */
-    stiffnessForce: number;
-    /** The power of gravity affecting the bone movement */
-    gravityPower: number;
-    /** The direction vector of gravity force */
-    gravityDir: Vector3;
-    /** The drag force that dampens the bone movement */
-    dragForce: number;
-    /** The radius used for collision detection */
-    hitRadius: number;
-    /** The scene graph entity node that this spring bone is attached to */
-    node: ISceneGraphEntity;
-    /** Current tail position in world space coordinates */
-    currentTail: MutableVector3;
-    /** Previous tail position in world space coordinates */
-    prevTail: MutableVector3;
-    /** The bone axis direction in local space coordinates */
-    boneAxis: Vector3;
-    /** The length of the bone in world space units */
-    boneLength: number;
-    /** The initial local position of the child bone */
-    initialLocalChildPosition: Vector3;
-    /** Flag indicating whether the spring bone has been initialized */
-    initialized: boolean;
-    /** Temporary vector for internal calculations */
-    private static __tmp_vec3_0;
-    /** Temporary vector for internal calculations */
-    private static __tmp_vec3_1;
-    /** Temporary zero vector for internal calculations */
-    private static __tmp_vec3_2_zero;
-    /** Temporary vector for internal calculations */
-    private static __tmp_vec3_3;
-    /** Temporary vector for internal calculations */
-    private static __tmp_vec3_4;
-    /**
-     * Creates a new VRM Spring Bone instance.
-     * @param node - The scene graph entity node to attach this spring bone to
-     */
-    constructor(node: ISceneGraphEntity);
-    /**
-     * Initializes the spring bone with default values and calculates initial positions.
-     * This method should be called once before starting the physics simulation.
-     * @param center - Optional center component for coordinate transformation
-     */
-    setup(center?: SceneGraphComponent): void;
-    /**
-     * Gets the transformation matrix from center space to world space.
-     * @param center - Optional center component for coordinate transformation
-     * @returns The transformation matrix from center to world space
-     */
-    _getMatrixCenterToWorld(center?: SceneGraphComponent): IMatrix44;
-    /**
-     * Gets the transformation matrix from world space to center space.
-     * @param center - Optional center component for coordinate transformation
-     * @returns The transformation matrix from world to center space
-     */
-    _getMatrixWorldToCenter(center?: SceneGraphComponent): IMatrix44;
-    /**
-     * Calculates the bone length in world space coordinates.
-     * This method updates the boneLength property based on the current world positions
-     * of the bone and its child (or estimated child position).
-     */
-    _calcWorldSpaceBoneLength(): void;
-}
-
-/**
- * Represents a VRM spring bone system that manages physics simulation for character bones.
- * This class handles the configuration and management of spring bones, collider groups,
- * and their interactions within the VRM specification.
- *
- * @example
- * ```typescript
- * const rootBone = sceneGraphComponent;
- * const vrmSpring = new VRMSpring(rootBone);
- * vrmSpring.bones.push(new VRMSpringBone());
- * vrmSpring.colliderGroups.push(new VRMColliderGroup());
- * ```
- */
-declare class VRMSpring extends RnObject {
-    /** The root bone component that serves as the base for the spring bone system */
-    rootBone: SceneGraphComponent;
-    /** Array of spring bones that will be affected by physics simulation */
-    bones: VRMSpringBone[];
-    /** Array of collider groups that define collision boundaries for spring bones */
-    colliderGroups: VRMColliderGroup[];
-    /** Optional center reference point for spring bone calculations */
-    center: SceneGraphComponent | undefined;
-    /**
-     * Creates a new VRMSpring instance with the specified root bone.
-     *
-     * @param rootBone - The scene graph component that will serve as the root bone
-     *                   for this spring bone system
-     */
-    constructor(rootBone: SceneGraphComponent);
-}
-
-/**
  * Physics strategy implementation for VRM spring bone simulation.
  *
  * This class handles the physics simulation of VRM spring bones, which are used
@@ -41655,6 +41947,14 @@ declare class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
      * @param sgs - The VRM spring system containing bones and configuration
      */
     setSpring(sgs: VRMSpring): void;
+    /**
+     * Sets the visibility of all sphere colliders in this physics strategy.
+     * This creates visualization spheres for each collider if they don't exist yet.
+     *
+     * @param visible - Whether the colliders should be visible
+     */
+    setCollidersVisible(visible: boolean): void;
+    getVrmSpring(): VRMSpring | undefined;
 }
 
 type ColorAttachmentIndex = number;
@@ -45004,8 +45304,13 @@ type Rn_CameraControllerTypeEnum = CameraControllerTypeEnum;
 type Rn_CameraSID = CameraSID;
 declare const Rn_CameraType: typeof CameraType;
 type Rn_CameraTypeEnum = CameraTypeEnum;
+type Rn_Capsule = Capsule;
+declare const Rn_Capsule: typeof Capsule;
 type Rn_CapsuleCollider = CapsuleCollider;
 declare const Rn_CapsuleCollider: typeof CapsuleCollider;
+type Rn_CapsuleColliderGizmo = CapsuleColliderGizmo;
+declare const Rn_CapsuleColliderGizmo: typeof CapsuleColliderGizmo;
+type Rn_CapsuleDescriptor = CapsuleDescriptor;
 type Rn_ChangeAnimationInfoEvent = ChangeAnimationInfoEvent;
 type Rn_ClassicShadingShader = ClassicShadingShader;
 declare const Rn_ClassicShadingShader: typeof ClassicShadingShader;
@@ -46234,6 +46539,10 @@ type Rn_RequireOne<T, K extends keyof T = keyof T> = RequireOne<T, K>;
 type Rn_Result<T, ErrObj> = Result<T, ErrObj>;
 type Rn_RhodoniteImportExtension = RhodoniteImportExtension;
 declare const Rn_RhodoniteImportExtension: typeof RhodoniteImportExtension;
+type Rn_Ring = Ring;
+declare const Rn_Ring: typeof Ring;
+type Rn_RingAxis = RingAxis;
+type Rn_RingDescriptor = RingDescriptor;
 type Rn_RnError<ErrObj> = RnError<ErrObj>;
 type Rn_RnException<ErrObj> = RnException<ErrObj>;
 declare const Rn_RnException: typeof RnException;
@@ -46351,6 +46660,8 @@ type Rn_Sphere = Sphere;
 declare const Rn_Sphere: typeof Sphere;
 type Rn_SphereCollider = SphereCollider;
 declare const Rn_SphereCollider: typeof SphereCollider;
+type Rn_SphereColliderGizmo = SphereColliderGizmo;
+declare const Rn_SphereColliderGizmo: typeof SphereColliderGizmo;
 type Rn_SphereDescriptor = SphereDescriptor;
 type Rn_SplitVectorShaderNode = SplitVectorShaderNode;
 declare const Rn_SplitVectorShaderNode: typeof SplitVectorShaderNode;
@@ -46623,7 +46934,7 @@ declare const Rn_updateMotionControllerModel: typeof updateMotionControllerModel
 declare const Rn_valueWithCompensation: typeof valueWithCompensation;
 declare const Rn_valueWithDefault: typeof valueWithDefault;
 declare namespace Rn {
-  export { Rn_AABB as AABB, Rn_AABBGizmo as AABBGizmo, Rn_AbsoluteAnimation as AbsoluteAnimation, Rn_AbstractArrayBufferBaseMathNumber as AbstractArrayBufferBaseMathNumber, Rn_AbstractCameraController as AbstractCameraController, Rn_AbstractMaterialContent as AbstractMaterialContent, Rn_AbstractMatrix as AbstractMatrix, Rn_AbstractQuaternion as AbstractQuaternion, Rn_AbstractShaderNode as AbstractShaderNode, Rn_AbstractTexture as AbstractTexture, Rn_AbstractVector as AbstractVector, Rn_Accessor as Accessor, Rn_AddShaderNode as AddShaderNode, Rn_AlphaMode as AlphaMode, type Rn_AlphaModeEnum as AlphaModeEnum, Rn_AnimatedQuaternion as AnimatedQuaternion, Rn_AnimatedScalar as AnimatedScalar, Rn_AnimatedVector2 as AnimatedVector2, Rn_AnimatedVector3 as AnimatedVector3, Rn_AnimatedVector4 as AnimatedVector4, Rn_AnimatedVectorN as AnimatedVectorN, Rn_AnimationAssigner as AnimationAssigner, Rn_AnimationAttribute as AnimationAttribute, type Rn_AnimationAttributeEnum as AnimationAttributeEnum, type Rn_AnimationChannel as AnimationChannel, type Rn_AnimationChannelTarget as AnimationChannelTarget, Rn_AnimationComponent as AnimationComponent, type Rn_AnimationComponentEventType as AnimationComponentEventType, type Rn_AnimationInfo as AnimationInfo, Rn_AnimationInterpolation as AnimationInterpolation, type Rn_AnimationInterpolationEnum as AnimationInterpolationEnum, type Rn_AnimationPathName as AnimationPathName, type Rn_AnimationSampler as AnimationSampler, type Rn_AnimationSamplers as AnimationSamplers, type Rn_AnimationTrack as AnimationTrack, type Rn_AnimationTrackName as AnimationTrackName, type Rn_Array1 as Array1, type Rn_Array16 as Array16, type Rn_Array1to4 as Array1to4, type Rn_Array2 as Array2, type Rn_Array3 as Array3, type Rn_Array4 as Array4, type Rn_Array9 as Array9, type Rn_ArrayAsRn as ArrayAsRn, type Rn_ArrayType as ArrayType, Rn_AssetLoader as AssetLoader, type Rn_AssetLoaderConfig as AssetLoaderConfig, Rn_AttributeColorShaderNode as AttributeColorShaderNode, type Rn_AttributeName as AttributeName, type Rn_AttributeNames as AttributeNames, Rn_AttributeNormalShaderNode as AttributeNormalShaderNode, Rn_AttributePositionShaderNode as AttributePositionShaderNode, Rn_AttributeTexcoordShaderNode as AttributeTexcoordShaderNode, type Rn_Attributes as Attributes, Rn_Axis as Axis, type Rn_AxisDescriptor as AxisDescriptor, type Rn_BASIS_TYPE as BASIS_TYPE, Rn_BasisCompressionType as BasisCompressionType, type Rn_BasisCompressionTypeEnum as BasisCompressionTypeEnum, type Rn_BasisFile as BasisFile, Rn_BasisLzEtc1sImageTranscoder as BasisLzEtc1sImageTranscoder, type Rn_BasisTranscoder as BasisTranscoder, Rn_BlendShapeComponent as BlendShapeComponent, Rn_BlockBeginShader as BlockBeginShader, Rn_BlockBeginShaderNode as BlockBeginShaderNode, Rn_BlockEndShader as BlockEndShader, Rn_BlockEndShaderNode as BlockEndShaderNode, Rn_Bloom as Bloom, Rn_BoneDataType as BoneDataType, type Rn_BoneDataTypeEnum as BoneDataTypeEnum, Rn_Buffer as Buffer, Rn_BufferUse as BufferUse, type Rn_BufferUseEnum as BufferUseEnum, Rn_BufferView as BufferView, type Byte$1 as Byte, type Rn_CGAPIResourceHandle as CGAPIResourceHandle, Rn_CGAPIResourceRepository as CGAPIResourceRepository, Rn_Cache as Cache, type Rn_CalledSubscriberNumber as CalledSubscriberNumber, Rn_CameraComponent as CameraComponent, Rn_CameraControllerComponent as CameraControllerComponent, Rn_CameraControllerType as CameraControllerType, type Rn_CameraControllerTypeEnum as CameraControllerTypeEnum, type Rn_CameraSID as CameraSID, Rn_CameraType as CameraType, type Rn_CameraTypeEnum as CameraTypeEnum, Rn_CapsuleCollider as CapsuleCollider, type Rn_ChangeAnimationInfoEvent as ChangeAnimationInfoEvent, Rn_ClassicShadingShader as ClassicShadingShader, type Rn_ColorComponentLetter as ColorComponentLetter, Rn_ColorGradingUsingLUTsMaterialContent as ColorGradingUsingLUTsMaterialContent, Rn_ColorRgb as ColorRgb, Rn_ColorRgba as ColorRgba, Rn_CommonShaderPart as CommonShaderPart, Rn_ComplexVertexAttribute as ComplexVertexAttribute, Rn_Component as Component, type Rn_ComponentMixinFunction as ComponentMixinFunction, Rn_ComponentRepository as ComponentRepository, type Rn_ComponentSID as ComponentSID, type Rn_ComponentTID as ComponentTID, type Rn_ComponentToComponentMethods as ComponentToComponentMethods, Rn_ComponentType as ComponentType, type Rn_ComponentTypeEnum as ComponentTypeEnum, Rn_CompositionType as CompositionType, type Rn_CompositionTypeEnum as CompositionTypeEnum, Rn_CompressionTextureType as CompressionTextureType, type Rn_CompressionTextureTypeEnum as CompressionTextureTypeEnum, Rn_Cone as Cone, type Rn_ConeDescriptor as ConeDescriptor, Rn_Config as Config, Rn_ConstRgbaBlack as ConstRgbaBlack, Rn_ConstRgbaWhite as ConstRgbaWhite, Rn_ConstVector2_0_0 as ConstVector2_0_0, Rn_ConstVector2_1_1 as ConstVector2_1_1, Rn_ConstVector3_0_0_0 as ConstVector3_0_0_0, Rn_ConstVector3_1_1_1 as ConstVector3_1_1_1, Rn_ConstVector4_0_0_0_0 as ConstVector4_0_0_0_0, Rn_ConstVector4_0_0_0_1 as ConstVector4_0_0_0_1, Rn_ConstVector4_1_1_1_1 as ConstVector4_1_1_1_1, Rn_ConstantScalarVariableShaderNode as ConstantScalarVariableShaderNode, Rn_ConstantVariableShader as ConstantVariableShader, Rn_ConstantVector2VariableShaderNode as ConstantVector2VariableShaderNode, Rn_ConstantVector3VariableShaderNode as ConstantVector3VariableShaderNode, Rn_ConstantVector4VariableShaderNode as ConstantVector4VariableShaderNode, type Rn_Count as Count, Rn_Cube as Cube, type Rn_CubeDescriptor as CubeDescriptor, Rn_CubeTexture as CubeTexture, Rn_CustomMaterialContent as CustomMaterialContent, Rn_DataUtil as DataUtil, Rn_DefaultTextures as DefaultTextures, Rn_DepthEncodeMaterialContent as DepthEncodeMaterialContent, Rn_DetectHighLuminanceMaterialContent as DetectHighLuminanceMaterialContent, type Rn_DirectTextureData as DirectTextureData, Rn_DotProductShaderNode as DotProductShaderNode, Rn_DrcPointCloudImporter as DrcPointCloudImporter, Rn_EVENT_CLICK as EVENT_CLICK, Rn_EVENT_KEY_DOWN as EVENT_KEY_DOWN, Rn_EVENT_KEY_PRESS as EVENT_KEY_PRESS, Rn_EVENT_KEY_UP as EVENT_KEY_UP, Rn_EVENT_MOUSE_DOWN as EVENT_MOUSE_DOWN, Rn_EVENT_MOUSE_ENTER as EVENT_MOUSE_ENTER, Rn_EVENT_MOUSE_LEAVE as EVENT_MOUSE_LEAVE, Rn_EVENT_MOUSE_MOVE as EVENT_MOUSE_MOVE, Rn_EVENT_MOUSE_OVER as EVENT_MOUSE_OVER, Rn_EVENT_MOUSE_UP as EVENT_MOUSE_UP, Rn_EVENT_MOUSE_WHEEL as EVENT_MOUSE_WHEEL, Rn_EVENT_MSPOINTER_DOWN as EVENT_MSPOINTER_DOWN, Rn_EVENT_MSPOINTER_MOVE as EVENT_MSPOINTER_MOVE, Rn_EVENT_MSPOINTER_UP as EVENT_MSPOINTER_UP, Rn_EVENT_ORIENTATION_CHANGE as EVENT_ORIENTATION_CHANGE, Rn_EVENT_POINTER_CANCEL as EVENT_POINTER_CANCEL, Rn_EVENT_POINTER_DOWN as EVENT_POINTER_DOWN, Rn_EVENT_POINTER_ENTER as EVENT_POINTER_ENTER, Rn_EVENT_POINTER_LEAVE as EVENT_POINTER_LEAVE, Rn_EVENT_POINTER_MOVE as EVENT_POINTER_MOVE, Rn_EVENT_POINTER_OUT as EVENT_POINTER_OUT, Rn_EVENT_POINTER_OVER as EVENT_POINTER_OVER, Rn_EVENT_POINTER_UP as EVENT_POINTER_UP, Rn_EVENT_RESIZE as EVENT_RESIZE, Rn_EVENT_TOUCH_CANCEL as EVENT_TOUCH_CANCEL, Rn_EVENT_TOUCH_DOUBLE_TAP as EVENT_TOUCH_DOUBLE_TAP, Rn_EVENT_TOUCH_DRAG as EVENT_TOUCH_DRAG, Rn_EVENT_TOUCH_END as EVENT_TOUCH_END, Rn_EVENT_TOUCH_ENTER as EVENT_TOUCH_ENTER, Rn_EVENT_TOUCH_HOLD as EVENT_TOUCH_HOLD, Rn_EVENT_TOUCH_LEAVE as EVENT_TOUCH_LEAVE, Rn_EVENT_TOUCH_LONG_TAP as EVENT_TOUCH_LONG_TAP, Rn_EVENT_TOUCH_MOVE as EVENT_TOUCH_MOVE, Rn_EVENT_TOUCH_OUT as EVENT_TOUCH_OUT, Rn_EVENT_TOUCH_OVER as EVENT_TOUCH_OVER, Rn_EVENT_TOUCH_PINCH as EVENT_TOUCH_PINCH, Rn_EVENT_TOUCH_START as EVENT_TOUCH_START, Rn_EVENT_TOUCH_SWIPE as EVENT_TOUCH_SWIPE, Rn_EVENT_TOUCH_TAP as EVENT_TOUCH_TAP, Rn_Effekseer as Effekseer, Rn_EffekseerComponent as EffekseerComponent, Rn_EndShader as EndShader, Rn_Entity as Entity, Rn_EntityRepository as EntityRepository, type Rn_EntityUID as EntityUID, Rn_EntityUIDOutputMaterialContent as EntityUIDOutputMaterialContent, Rn_EnumClass as EnumClass, type Rn_EnumIO as EnumIO, Rn_Err as Err, type Rn_EventHandler as EventHandler, Rn_EventPubSub as EventPubSub, type Rn_EventSubscriberIndex as EventSubscriberIndex, type Rn_EventType as EventType, Rn_Expression as Expression, Rn_FileType as FileType, type Rn_FileTypeEnum as FileTypeEnum, type Rn_FillArgsObject as FillArgsObject, type Rn_FloatTypedArray as FloatTypedArray, type Rn_FloatTypedArrayConstructor as FloatTypedArrayConstructor, Rn_ForwardRenderPipeline as ForwardRenderPipeline, Rn_Frame as Frame, Rn_FrameBuffer as FrameBuffer, type Rn_FrameBufferCubeMapDescriptor as FrameBufferCubeMapDescriptor, type Rn_FrameBufferDescriptor as FrameBufferDescriptor, type Rn_FrameBufferMSAADescriptor as FrameBufferMSAADescriptor, type Rn_FrameBufferTextureArrayDescriptor as FrameBufferTextureArrayDescriptor, type Rn_FrameBufferTextureArrayForMultiViewDescriptor as FrameBufferTextureArrayForMultiViewDescriptor, Rn_Frustum as Frustum, Rn_FurnaceTestMaterialContent as FurnaceTestMaterialContent, Rn_GLTF2_EXPORT_DRACO as GLTF2_EXPORT_DRACO, Rn_GLTF2_EXPORT_EMBEDDED as GLTF2_EXPORT_EMBEDDED, Rn_GLTF2_EXPORT_GLB as GLTF2_EXPORT_GLB, Rn_GLTF2_EXPORT_GLTF as GLTF2_EXPORT_GLTF, Rn_GLTF2_EXPORT_NO_DOWNLOAD as GLTF2_EXPORT_NO_DOWNLOAD, Rn_GL_ACTIVE_ATTRIBUTES as GL_ACTIVE_ATTRIBUTES, Rn_GL_ACTIVE_TEXTURE as GL_ACTIVE_TEXTURE, Rn_GL_ACTIVE_UNIFORMS as GL_ACTIVE_UNIFORMS, Rn_GL_ACTIVE_UNIFORM_BLOCKS as GL_ACTIVE_UNIFORM_BLOCKS, Rn_GL_ALIASED_LINE_WIDTH_RANGE as GL_ALIASED_LINE_WIDTH_RANGE, Rn_GL_ALIASED_POINT_SIZE_RANGE as GL_ALIASED_POINT_SIZE_RANGE, Rn_GL_ALPHA as GL_ALPHA, Rn_GL_ALPHA_BITS as GL_ALPHA_BITS, Rn_GL_ALREADY_SIGNALED as GL_ALREADY_SIGNALED, Rn_GL_ALWAYS as GL_ALWAYS, Rn_GL_ANY_SAMPLES_PASSED as GL_ANY_SAMPLES_PASSED, Rn_GL_ANY_SAMPLES_PASSED_CONSERVATIVE as GL_ANY_SAMPLES_PASSED_CONSERVATIVE, Rn_GL_ARRAY_BUFFER as GL_ARRAY_BUFFER, Rn_GL_ARRAY_BUFFER_BINDING as GL_ARRAY_BUFFER_BINDING, Rn_GL_ATTACHED_SHADERS as GL_ATTACHED_SHADERS, Rn_GL_BACK as GL_BACK, Rn_GL_BLEND as GL_BLEND, Rn_GL_BLEND_COLOR as GL_BLEND_COLOR, Rn_GL_BLEND_DST_ALPHA as GL_BLEND_DST_ALPHA, Rn_GL_BLEND_DST_RGB as GL_BLEND_DST_RGB, Rn_GL_BLEND_EQUATION as GL_BLEND_EQUATION, Rn_GL_BLEND_EQUATION_ALPHA as GL_BLEND_EQUATION_ALPHA, Rn_GL_BLEND_EQUATION_RGB as GL_BLEND_EQUATION_RGB, Rn_GL_BLEND_SRC_ALPHA as GL_BLEND_SRC_ALPHA, Rn_GL_BLEND_SRC_RGB as GL_BLEND_SRC_RGB, Rn_GL_BLUE_BITS as GL_BLUE_BITS, Rn_GL_BOOL as GL_BOOL, Rn_GL_BOOL_VEC2 as GL_BOOL_VEC2, Rn_GL_BOOL_VEC3 as GL_BOOL_VEC3, Rn_GL_BOOL_VEC4 as GL_BOOL_VEC4, Rn_GL_BROWSER_DEFAULT_WEBGL as GL_BROWSER_DEFAULT_WEBGL, Rn_GL_BUFFER_SIZE as GL_BUFFER_SIZE, Rn_GL_BUFFER_USAGE as GL_BUFFER_USAGE, Rn_GL_CCW as GL_CCW, Rn_GL_CLAMP_TO_EDGE as GL_CLAMP_TO_EDGE, Rn_GL_COLOR as GL_COLOR, Rn_GL_COLOR_ATTACHMENT0 as GL_COLOR_ATTACHMENT0, Rn_GL_COLOR_ATTACHMENT0_WEBGL as GL_COLOR_ATTACHMENT0_WEBGL, Rn_GL_COLOR_ATTACHMENT1 as GL_COLOR_ATTACHMENT1, Rn_GL_COLOR_ATTACHMENT10 as GL_COLOR_ATTACHMENT10, Rn_GL_COLOR_ATTACHMENT10_WEBGL as GL_COLOR_ATTACHMENT10_WEBGL, Rn_GL_COLOR_ATTACHMENT11 as GL_COLOR_ATTACHMENT11, Rn_GL_COLOR_ATTACHMENT11_WEBGL as GL_COLOR_ATTACHMENT11_WEBGL, Rn_GL_COLOR_ATTACHMENT12 as GL_COLOR_ATTACHMENT12, Rn_GL_COLOR_ATTACHMENT12_WEBGL as GL_COLOR_ATTACHMENT12_WEBGL, Rn_GL_COLOR_ATTACHMENT13 as GL_COLOR_ATTACHMENT13, Rn_GL_COLOR_ATTACHMENT13_WEBGL as GL_COLOR_ATTACHMENT13_WEBGL, Rn_GL_COLOR_ATTACHMENT14 as GL_COLOR_ATTACHMENT14, Rn_GL_COLOR_ATTACHMENT14_WEBGL as GL_COLOR_ATTACHMENT14_WEBGL, Rn_GL_COLOR_ATTACHMENT15 as GL_COLOR_ATTACHMENT15, Rn_GL_COLOR_ATTACHMENT15_WEBGL as GL_COLOR_ATTACHMENT15_WEBGL, Rn_GL_COLOR_ATTACHMENT1_WEBGL as GL_COLOR_ATTACHMENT1_WEBGL, Rn_GL_COLOR_ATTACHMENT2 as GL_COLOR_ATTACHMENT2, Rn_GL_COLOR_ATTACHMENT2_WEBGL as GL_COLOR_ATTACHMENT2_WEBGL, Rn_GL_COLOR_ATTACHMENT3 as GL_COLOR_ATTACHMENT3, Rn_GL_COLOR_ATTACHMENT3_WEBGL as GL_COLOR_ATTACHMENT3_WEBGL, Rn_GL_COLOR_ATTACHMENT4 as GL_COLOR_ATTACHMENT4, Rn_GL_COLOR_ATTACHMENT4_WEBGL as GL_COLOR_ATTACHMENT4_WEBGL, Rn_GL_COLOR_ATTACHMENT5 as GL_COLOR_ATTACHMENT5, Rn_GL_COLOR_ATTACHMENT5_WEBGL as GL_COLOR_ATTACHMENT5_WEBGL, Rn_GL_COLOR_ATTACHMENT6 as GL_COLOR_ATTACHMENT6, Rn_GL_COLOR_ATTACHMENT6_WEBGL as GL_COLOR_ATTACHMENT6_WEBGL, Rn_GL_COLOR_ATTACHMENT7 as GL_COLOR_ATTACHMENT7, Rn_GL_COLOR_ATTACHMENT7_WEBGL as GL_COLOR_ATTACHMENT7_WEBGL, Rn_GL_COLOR_ATTACHMENT8 as GL_COLOR_ATTACHMENT8, Rn_GL_COLOR_ATTACHMENT8_WEBGL as GL_COLOR_ATTACHMENT8_WEBGL, Rn_GL_COLOR_ATTACHMENT9 as GL_COLOR_ATTACHMENT9, Rn_GL_COLOR_ATTACHMENT9_WEBGL as GL_COLOR_ATTACHMENT9_WEBGL, Rn_GL_COLOR_BUFFER_BIT as GL_COLOR_BUFFER_BIT, Rn_GL_COLOR_CLEAR_VALUE as GL_COLOR_CLEAR_VALUE, Rn_GL_COLOR_WRITEMASK as GL_COLOR_WRITEMASK, Rn_GL_COMPARE_REF_TO_TEXTURE as GL_COMPARE_REF_TO_TEXTURE, Rn_GL_COMPILE_STATUS as GL_COMPILE_STATUS, Rn_GL_COMPRESSED_R11_EAC as GL_COMPRESSED_R11_EAC, Rn_GL_COMPRESSED_RG11_EAC as GL_COMPRESSED_RG11_EAC, Rn_GL_COMPRESSED_RGB8_ETC2 as GL_COMPRESSED_RGB8_ETC2, Rn_GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2 as GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2, Rn_GL_COMPRESSED_RGBA8_ETC2_EAC as GL_COMPRESSED_RGBA8_ETC2_EAC, Rn_GL_COMPRESSED_RGBA_ASTC_10X10_KHR as GL_COMPRESSED_RGBA_ASTC_10X10_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_10X5_KHR as GL_COMPRESSED_RGBA_ASTC_10X5_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_10X6_KHR as GL_COMPRESSED_RGBA_ASTC_10X6_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_10X8_KHR as GL_COMPRESSED_RGBA_ASTC_10X8_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_12X10_KHR as GL_COMPRESSED_RGBA_ASTC_12X10_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_12X12_KHR as GL_COMPRESSED_RGBA_ASTC_12X12_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_4X4_KHR as GL_COMPRESSED_RGBA_ASTC_4X4_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_5X4_KHR as GL_COMPRESSED_RGBA_ASTC_5X4_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_5X5_KHR as GL_COMPRESSED_RGBA_ASTC_5X5_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_6X5_KHR as GL_COMPRESSED_RGBA_ASTC_6X5_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_6X6_KHR as GL_COMPRESSED_RGBA_ASTC_6X6_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_8X5_KHR as GL_COMPRESSED_RGBA_ASTC_8X5_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_8X6_KHR as GL_COMPRESSED_RGBA_ASTC_8X6_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_8X8_KHR as GL_COMPRESSED_RGBA_ASTC_8X8_KHR, Rn_GL_COMPRESSED_RGBA_ATC_EXPLICIT_ALPHA_WEBGL as GL_COMPRESSED_RGBA_ATC_EXPLICIT_ALPHA_WEBGL, Rn_GL_COMPRESSED_RGBA_ATC_INTERPOLATED_ALPHA_WEBGL as GL_COMPRESSED_RGBA_ATC_INTERPOLATED_ALPHA_WEBGL, Rn_GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG as GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG, Rn_GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG as GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, Rn_GL_COMPRESSED_RGBA_S3TC_DXT1_EXT as GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, Rn_GL_COMPRESSED_RGBA_S3TC_DXT3_EXT as GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, Rn_GL_COMPRESSED_RGBA_S3TC_DXT5_EXT as GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, Rn_GL_COMPRESSED_RGB_ATC_WEBGL as GL_COMPRESSED_RGB_ATC_WEBGL, Rn_GL_COMPRESSED_RGB_ETC1_WEBGL as GL_COMPRESSED_RGB_ETC1_WEBGL, Rn_GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG as GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG, Rn_GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG as GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, Rn_GL_COMPRESSED_RGB_S3TC_DXT1_EXT as GL_COMPRESSED_RGB_S3TC_DXT1_EXT, Rn_GL_COMPRESSED_SIGNED_R11_EAC as GL_COMPRESSED_SIGNED_R11_EAC, Rn_GL_COMPRESSED_SIGNED_RG11_EAC as GL_COMPRESSED_SIGNED_RG11_EAC, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X10_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X10_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X5_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X5_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X6_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X6_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X8_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X8_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X10_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X10_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X12_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X12_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4X4_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4X4_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X4_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X4_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X5_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X5_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X5_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X5_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X6_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X6_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X5_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X5_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X6_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X6_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X8_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X8_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC as GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC, Rn_GL_COMPRESSED_SRGB8_ETC2 as GL_COMPRESSED_SRGB8_ETC2, Rn_GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2 as GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2, Rn_GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT as GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT, Rn_GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT as GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT, Rn_GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT as GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT, Rn_GL_COMPRESSED_SRGB_S3TC_DXT1_EXT as GL_COMPRESSED_SRGB_S3TC_DXT1_EXT, Rn_GL_COMPRESSED_TEXTURE_FORMATS as GL_COMPRESSED_TEXTURE_FORMATS, Rn_GL_CONDITION_SATISFIED as GL_CONDITION_SATISFIED, Rn_GL_CONSTANT_ALPHA as GL_CONSTANT_ALPHA, Rn_GL_CONSTANT_COLOR as GL_CONSTANT_COLOR, Rn_GL_CONTEXT_LOST_WEBGL as GL_CONTEXT_LOST_WEBGL, Rn_GL_COPY_READ_BUFFER as GL_COPY_READ_BUFFER, Rn_GL_COPY_READ_BUFFER_BINDING as GL_COPY_READ_BUFFER_BINDING, Rn_GL_COPY_WRITE_BUFFER as GL_COPY_WRITE_BUFFER, Rn_GL_COPY_WRITE_BUFFER_BINDING as GL_COPY_WRITE_BUFFER_BINDING, Rn_GL_CULL_FACE as GL_CULL_FACE, Rn_GL_CULL_FACE_MODE as GL_CULL_FACE_MODE, Rn_GL_CURRENT_PROGRAM as GL_CURRENT_PROGRAM, Rn_GL_CURRENT_QUERY as GL_CURRENT_QUERY, Rn_GL_CURRENT_QUERY_EXT as GL_CURRENT_QUERY_EXT, Rn_GL_CURRENT_VERTEX_ATTRIB as GL_CURRENT_VERTEX_ATTRIB, Rn_GL_CW as GL_CW, Rn_GL_DATA_BYTE as GL_DATA_BYTE, Rn_GL_DATA_FLOAT as GL_DATA_FLOAT, Rn_GL_DATA_INT as GL_DATA_INT, Rn_GL_DATA_SHORT as GL_DATA_SHORT, Rn_GL_DATA_UNSIGNED_BYTE as GL_DATA_UNSIGNED_BYTE, Rn_GL_DATA_UNSIGNED_INT as GL_DATA_UNSIGNED_INT, Rn_GL_DATA_UNSIGNED_SHORT as GL_DATA_UNSIGNED_SHORT, Rn_GL_DECR as GL_DECR, Rn_GL_DECR_WRAP as GL_DECR_WRAP, Rn_GL_DELETE_STATUS as GL_DELETE_STATUS, Rn_GL_DEPTH as GL_DEPTH, Rn_GL_DEPTH24_STENCIL8 as GL_DEPTH24_STENCIL8, Rn_GL_DEPTH32F_STENCIL8 as GL_DEPTH32F_STENCIL8, Rn_GL_DEPTH_ATTACHMENT as GL_DEPTH_ATTACHMENT, Rn_GL_DEPTH_BITS as GL_DEPTH_BITS, Rn_GL_DEPTH_BUFFER_BIT as GL_DEPTH_BUFFER_BIT, Rn_GL_DEPTH_CLEAR_VALUE as GL_DEPTH_CLEAR_VALUE, Rn_GL_DEPTH_COMPONENT as GL_DEPTH_COMPONENT, Rn_GL_DEPTH_COMPONENT16 as GL_DEPTH_COMPONENT16, Rn_GL_DEPTH_COMPONENT24 as GL_DEPTH_COMPONENT24, Rn_GL_DEPTH_COMPONENT32F as GL_DEPTH_COMPONENT32F, Rn_GL_DEPTH_FUNC as GL_DEPTH_FUNC, Rn_GL_DEPTH_RANGE as GL_DEPTH_RANGE, Rn_GL_DEPTH_STENCIL as GL_DEPTH_STENCIL, Rn_GL_DEPTH_STENCIL_ATTACHMENT as GL_DEPTH_STENCIL_ATTACHMENT, Rn_GL_DEPTH_TEST as GL_DEPTH_TEST, Rn_GL_DEPTH_WRITEMASK as GL_DEPTH_WRITEMASK, Rn_GL_DITHER as GL_DITHER, Rn_GL_DONT_CARE as GL_DONT_CARE, Rn_GL_DRAW_BUFFER0 as GL_DRAW_BUFFER0, Rn_GL_DRAW_BUFFER0_WEBGL as GL_DRAW_BUFFER0_WEBGL, Rn_GL_DRAW_BUFFER1 as GL_DRAW_BUFFER1, Rn_GL_DRAW_BUFFER10 as GL_DRAW_BUFFER10, Rn_GL_DRAW_BUFFER10_WEBGL as GL_DRAW_BUFFER10_WEBGL, Rn_GL_DRAW_BUFFER11 as GL_DRAW_BUFFER11, Rn_GL_DRAW_BUFFER11_WEBGL as GL_DRAW_BUFFER11_WEBGL, Rn_GL_DRAW_BUFFER12 as GL_DRAW_BUFFER12, Rn_GL_DRAW_BUFFER12_WEBGL as GL_DRAW_BUFFER12_WEBGL, Rn_GL_DRAW_BUFFER13 as GL_DRAW_BUFFER13, Rn_GL_DRAW_BUFFER13_WEBGL as GL_DRAW_BUFFER13_WEBGL, Rn_GL_DRAW_BUFFER14 as GL_DRAW_BUFFER14, Rn_GL_DRAW_BUFFER14_WEBGL as GL_DRAW_BUFFER14_WEBGL, Rn_GL_DRAW_BUFFER15 as GL_DRAW_BUFFER15, Rn_GL_DRAW_BUFFER15_WEBGL as GL_DRAW_BUFFER15_WEBGL, Rn_GL_DRAW_BUFFER1_WEBGL as GL_DRAW_BUFFER1_WEBGL, Rn_GL_DRAW_BUFFER2 as GL_DRAW_BUFFER2, Rn_GL_DRAW_BUFFER2_WEBGL as GL_DRAW_BUFFER2_WEBGL, Rn_GL_DRAW_BUFFER3 as GL_DRAW_BUFFER3, Rn_GL_DRAW_BUFFER3_WEBGL as GL_DRAW_BUFFER3_WEBGL, Rn_GL_DRAW_BUFFER4 as GL_DRAW_BUFFER4, Rn_GL_DRAW_BUFFER4_WEBGL as GL_DRAW_BUFFER4_WEBGL, Rn_GL_DRAW_BUFFER5 as GL_DRAW_BUFFER5, Rn_GL_DRAW_BUFFER5_WEBGL as GL_DRAW_BUFFER5_WEBGL, Rn_GL_DRAW_BUFFER6 as GL_DRAW_BUFFER6, Rn_GL_DRAW_BUFFER6_WEBGL as GL_DRAW_BUFFER6_WEBGL, Rn_GL_DRAW_BUFFER7 as GL_DRAW_BUFFER7, Rn_GL_DRAW_BUFFER7_WEBGL as GL_DRAW_BUFFER7_WEBGL, Rn_GL_DRAW_BUFFER8 as GL_DRAW_BUFFER8, Rn_GL_DRAW_BUFFER8_WEBGL as GL_DRAW_BUFFER8_WEBGL, Rn_GL_DRAW_BUFFER9 as GL_DRAW_BUFFER9, Rn_GL_DRAW_BUFFER9_WEBGL as GL_DRAW_BUFFER9_WEBGL, Rn_GL_DRAW_FRAMEBUFFER as GL_DRAW_FRAMEBUFFER, Rn_GL_DRAW_FRAMEBUFFER_BINDING as GL_DRAW_FRAMEBUFFER_BINDING, Rn_GL_DST_ALPHA as GL_DST_ALPHA, Rn_GL_DST_COLOR as GL_DST_COLOR, Rn_GL_DYNAMIC_COPY as GL_DYNAMIC_COPY, Rn_GL_DYNAMIC_DRAW as GL_DYNAMIC_DRAW, Rn_GL_DYNAMIC_READ as GL_DYNAMIC_READ, Rn_GL_ELEMENT_ARRAY_BUFFER as GL_ELEMENT_ARRAY_BUFFER, Rn_GL_ELEMENT_ARRAY_BUFFER_BINDING as GL_ELEMENT_ARRAY_BUFFER_BINDING, Rn_GL_EQUAL as GL_EQUAL, Rn_GL_FASTEST as GL_FASTEST, Rn_GL_FLOAT_32_UNSIGNED_INT_24_8_REV as GL_FLOAT_32_UNSIGNED_INT_24_8_REV, Rn_GL_FLOAT_MAT2 as GL_FLOAT_MAT2, Rn_GL_FLOAT_MAT2X3 as GL_FLOAT_MAT2X3, Rn_GL_FLOAT_MAT2X4 as GL_FLOAT_MAT2X4, Rn_GL_FLOAT_MAT3 as GL_FLOAT_MAT3, Rn_GL_FLOAT_MAT3X2 as GL_FLOAT_MAT3X2, Rn_GL_FLOAT_MAT3X4 as GL_FLOAT_MAT3X4, Rn_GL_FLOAT_MAT4 as GL_FLOAT_MAT4, Rn_GL_FLOAT_MAT4X2 as GL_FLOAT_MAT4X2, Rn_GL_FLOAT_MAT4X3 as GL_FLOAT_MAT4X3, Rn_GL_FLOAT_VEC2 as GL_FLOAT_VEC2, Rn_GL_FLOAT_VEC3 as GL_FLOAT_VEC3, Rn_GL_FLOAT_VEC4 as GL_FLOAT_VEC4, Rn_GL_FRAGMENT_SHADER as GL_FRAGMENT_SHADER, Rn_GL_FRAGMENT_SHADER_DERIVATIVE_HINT as GL_FRAGMENT_SHADER_DERIVATIVE_HINT, Rn_GL_FRAGMENT_SHADER_DERIVATIVE_HINT_OES as GL_FRAGMENT_SHADER_DERIVATIVE_HINT_OES, Rn_GL_FRAMEBUFFER as GL_FRAMEBUFFER, Rn_GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE as GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, Rn_GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE as GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, Rn_GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING as GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, Rn_GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING_EXT as GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING_EXT, Rn_GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE as GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE, Rn_GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE_EXT as GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE_EXT, Rn_GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE as GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, Rn_GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE as GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, Rn_GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME as GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, Rn_GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE as GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, Rn_GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE as GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, Rn_GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE as GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, Rn_GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE as GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE, Rn_GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER as GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER, Rn_GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL as GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL, Rn_GL_FRAMEBUFFER_BINDING as GL_FRAMEBUFFER_BINDING, Rn_GL_FRAMEBUFFER_COMPLETE as GL_FRAMEBUFFER_COMPLETE, Rn_GL_FRAMEBUFFER_DEFAULT as GL_FRAMEBUFFER_DEFAULT, Rn_GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT as GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT, Rn_GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS as GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS, Rn_GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT as GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT, Rn_GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE as GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE, Rn_GL_FRAMEBUFFER_UNSUPPORTED as GL_FRAMEBUFFER_UNSUPPORTED, Rn_GL_FRONT as GL_FRONT, Rn_GL_FRONT_AND_BACK as GL_FRONT_AND_BACK, Rn_GL_FRONT_FACE as GL_FRONT_FACE, Rn_GL_FUNC_ADD as GL_FUNC_ADD, Rn_GL_FUNC_REVERSE_SUBTRACT as GL_FUNC_REVERSE_SUBTRACT, Rn_GL_FUNC_SUBSTRACT as GL_FUNC_SUBSTRACT, Rn_GL_GENERATE_MIPMAP_HINT as GL_GENERATE_MIPMAP_HINT, Rn_GL_GEQUAL as GL_GEQUAL, Rn_GL_GPU_DISJOINT_EXT as GL_GPU_DISJOINT_EXT, Rn_GL_GREATER as GL_GREATER, Rn_GL_GREEN_BITS as GL_GREEN_BITS, Rn_GL_HALF_FLOAT as GL_HALF_FLOAT, Rn_GL_HALF_FLOAT_OES as GL_HALF_FLOAT_OES, Rn_GL_HIGH_FLOAT as GL_HIGH_FLOAT, Rn_GL_HIGH_INT as GL_HIGH_INT, Rn_GL_IMPLEMENTATION_COLOR_READ_FORMAT as GL_IMPLEMENTATION_COLOR_READ_FORMAT, Rn_GL_IMPLEMENTATION_COLOR_READ_TYPE as GL_IMPLEMENTATION_COLOR_READ_TYPE, Rn_GL_INCR as GL_INCR, Rn_GL_INCR_WRAP as GL_INCR_WRAP, Rn_GL_INTERLEAVED_ATTRIBS as GL_INTERLEAVED_ATTRIBS, Rn_GL_INT_2_10_10_10_REV as GL_INT_2_10_10_10_REV, Rn_GL_INT_SAMPLER_2D as GL_INT_SAMPLER_2D, Rn_GL_INT_SAMPLER_2D_ARRAY as GL_INT_SAMPLER_2D_ARRAY, Rn_GL_INT_SAMPLER_3D as GL_INT_SAMPLER_3D, Rn_GL_INT_SAMPLER_CUBE as GL_INT_SAMPLER_CUBE, Rn_GL_INT_VEC2 as GL_INT_VEC2, Rn_GL_INT_VEC3 as GL_INT_VEC3, Rn_GL_INT_VEC4 as GL_INT_VEC4, Rn_GL_INVALID_ENUM as GL_INVALID_ENUM, Rn_GL_INVALID_FRAMEBUFFER_OPERATION as GL_INVALID_FRAMEBUFFER_OPERATION, Rn_GL_INVALID_INDEX as GL_INVALID_INDEX, Rn_GL_INVALID_OPERATION as GL_INVALID_OPERATION, Rn_GL_INVALID_VALUE as GL_INVALID_VALUE, Rn_GL_INVERT as GL_INVERT, Rn_GL_KEEP as GL_KEEP, Rn_GL_LEQUAL as GL_LEQUAL, Rn_GL_LESS as GL_LESS, Rn_GL_LINEAR as GL_LINEAR, Rn_GL_LINEAR_MIPMAP_LINEAR as GL_LINEAR_MIPMAP_LINEAR, Rn_GL_LINEAR_MIPMAP_NEAREST as GL_LINEAR_MIPMAP_NEAREST, Rn_GL_LINES as GL_LINES, Rn_GL_LINE_LOOP as GL_LINE_LOOP, Rn_GL_LINE_STRIP as GL_LINE_STRIP, Rn_GL_LINE_WIDTH as GL_LINE_WIDTH, Rn_GL_LINK_STATUS as GL_LINK_STATUS, Rn_GL_LOW_FLOAT as GL_LOW_FLOAT, Rn_GL_LOW_INT as GL_LOW_INT, Rn_GL_LUMINANCE as GL_LUMINANCE, Rn_GL_LUMINANCE_ALPHA as GL_LUMINANCE_ALPHA, Rn_GL_MAX as GL_MAX, Rn_GL_MAX_3D_TEXTURE_SIZE as GL_MAX_3D_TEXTURE_SIZE, Rn_GL_MAX_ARRAY_TEXTURE_LAYERS as GL_MAX_ARRAY_TEXTURE_LAYERS, Rn_GL_MAX_CLIENT_WAIT_TIMEOUT_WEBGL as GL_MAX_CLIENT_WAIT_TIMEOUT_WEBGL, Rn_GL_MAX_COLOR_ATTACHMENTS as GL_MAX_COLOR_ATTACHMENTS, Rn_GL_MAX_COLOR_ATTACHMENTS_WEBGL as GL_MAX_COLOR_ATTACHMENTS_WEBGL, Rn_GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS as GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS, Rn_GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS as GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, Rn_GL_MAX_COMBINED_UNIFORM_BLOCKS as GL_MAX_COMBINED_UNIFORM_BLOCKS, Rn_GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS as GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS, Rn_GL_MAX_CUBE_MAP_TEXTURE_SIZE as GL_MAX_CUBE_MAP_TEXTURE_SIZE, Rn_GL_MAX_DRAW_BUFFERS as GL_MAX_DRAW_BUFFERS, Rn_GL_MAX_DRAW_BUFFERS_WEBGL as GL_MAX_DRAW_BUFFERS_WEBGL, Rn_GL_MAX_ELEMENTS_INDICES as GL_MAX_ELEMENTS_INDICES, Rn_GL_MAX_ELEMENTS_VERTICES as GL_MAX_ELEMENTS_VERTICES, Rn_GL_MAX_ELEMENT_INDEX as GL_MAX_ELEMENT_INDEX, Rn_GL_MAX_EXT as GL_MAX_EXT, Rn_GL_MAX_FRAGMENT_INPUT_COMPONENTS as GL_MAX_FRAGMENT_INPUT_COMPONENTS, Rn_GL_MAX_FRAGMENT_UNIFORM_BLOCKS as GL_MAX_FRAGMENT_UNIFORM_BLOCKS, Rn_GL_MAX_FRAGMENT_UNIFORM_COMPONENTS as GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, Rn_GL_MAX_FRAGMENT_UNIFORM_VECTORS as GL_MAX_FRAGMENT_UNIFORM_VECTORS, Rn_GL_MAX_PROGRAM_TEXEL_OFFSET as GL_MAX_PROGRAM_TEXEL_OFFSET, Rn_GL_MAX_RENDERBUFFER_SIZE as GL_MAX_RENDERBUFFER_SIZE, Rn_GL_MAX_SAMPLES as GL_MAX_SAMPLES, Rn_GL_MAX_SERVER_WAIT_TIMEOUT as GL_MAX_SERVER_WAIT_TIMEOUT, Rn_GL_MAX_TEXTURE_IMAGE_UNITS as GL_MAX_TEXTURE_IMAGE_UNITS, Rn_GL_MAX_TEXTURE_LOD_BIAS as GL_MAX_TEXTURE_LOD_BIAS, Rn_GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT as GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, Rn_GL_MAX_TEXTURE_SIZE as GL_MAX_TEXTURE_SIZE, Rn_GL_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS as GL_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS, Rn_GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS as GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS, Rn_GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS as GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS, Rn_GL_MAX_UNIFORM_BLOCK_SIZE as GL_MAX_UNIFORM_BLOCK_SIZE, Rn_GL_MAX_UNIFORM_BUFFER_BINDINGS as GL_MAX_UNIFORM_BUFFER_BINDINGS, Rn_GL_MAX_VARYING_COMPONENTS as GL_MAX_VARYING_COMPONENTS, Rn_GL_MAX_VARYING_VECTORS as GL_MAX_VARYING_VECTORS, Rn_GL_MAX_VERTEX_ATTRIBS as GL_MAX_VERTEX_ATTRIBS, Rn_GL_MAX_VERTEX_OUTPUT_COMPONENTS as GL_MAX_VERTEX_OUTPUT_COMPONENTS, Rn_GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS as GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, Rn_GL_MAX_VERTEX_UNIFORM_BLOCKS as GL_MAX_VERTEX_UNIFORM_BLOCKS, Rn_GL_MAX_VERTEX_UNIFORM_COMPONENTS as GL_MAX_VERTEX_UNIFORM_COMPONENTS, Rn_GL_MAX_VERTEX_UNIFORM_VECTORS as GL_MAX_VERTEX_UNIFORM_VECTORS, Rn_GL_MAX_VIEWPORT_DIMS as GL_MAX_VIEWPORT_DIMS, Rn_GL_MEDIUM_FLOAT as GL_MEDIUM_FLOAT, Rn_GL_MEDIUM_INT as GL_MEDIUM_INT, Rn_GL_MIN as GL_MIN, Rn_GL_MIN_EXT as GL_MIN_EXT, Rn_GL_MIN_PROGRAM_TEXEL_OFFSET as GL_MIN_PROGRAM_TEXEL_OFFSET, Rn_GL_MIRRORED_REPEAT as GL_MIRRORED_REPEAT, Rn_GL_NEAREST as GL_NEAREST, Rn_GL_NEAREST_MIPMAP_LINEAR as GL_NEAREST_MIPMAP_LINEAR, Rn_GL_NEAREST_MIPMAP_NEAREST as GL_NEAREST_MIPMAP_NEAREST, Rn_GL_NEVER as GL_NEVER, Rn_GL_NICEST as GL_NICEST, Rn_GL_NONE as GL_NONE, Rn_GL_NOTEQUAL as GL_NOTEQUAL, Rn_GL_NO_ERROR as GL_NO_ERROR, Rn_GL_OBJECT_TYPE as GL_OBJECT_TYPE, Rn_GL_ONE as GL_ONE, Rn_GL_ONE_MINUS_CONSTANT_ALPHA as GL_ONE_MINUS_CONSTANT_ALPHA, Rn_GL_ONE_MINUS_CONSTANT_COLOR as GL_ONE_MINUS_CONSTANT_COLOR, Rn_GL_ONE_MINUS_DST_ALPHA as GL_ONE_MINUS_DST_ALPHA, Rn_GL_ONE_MINUS_DST_COLOR as GL_ONE_MINUS_DST_COLOR, Rn_GL_ONE_MINUS_SRC_ALPHA as GL_ONE_MINUS_SRC_ALPHA, Rn_GL_ONE_MINUS_SRC_COLOR as GL_ONE_MINUS_SRC_COLOR, Rn_GL_OUT_OF_MEMORY as GL_OUT_OF_MEMORY, Rn_GL_PACK_ALIGNMENT as GL_PACK_ALIGNMENT, Rn_GL_PACK_ROW_LENGTH as GL_PACK_ROW_LENGTH, Rn_GL_PACK_SKIP_PIXELS as GL_PACK_SKIP_PIXELS, Rn_GL_PACK_SKIP_ROWS as GL_PACK_SKIP_ROWS, Rn_GL_PIXEL_PACK_BUFFER as GL_PIXEL_PACK_BUFFER, Rn_GL_PIXEL_PACK_BUFFER_BINDING as GL_PIXEL_PACK_BUFFER_BINDING, Rn_GL_PIXEL_UNPACK_BUFFER as GL_PIXEL_UNPACK_BUFFER, Rn_GL_PIXEL_UNPACK_BUFFER_BINDING as GL_PIXEL_UNPACK_BUFFER_BINDING, Rn_GL_PIXEL_UNSIGNED_BYTE as GL_PIXEL_UNSIGNED_BYTE, Rn_GL_PIXEL_UNSIGNED_SHORT_4_4_4_4 as GL_PIXEL_UNSIGNED_SHORT_4_4_4_4, Rn_GL_PIXEL_UNSIGNED_SHORT_5_5_5_1 as GL_PIXEL_UNSIGNED_SHORT_5_5_5_1, Rn_GL_PIXEL_UNSIGNED_SHORT_5_6_5 as GL_PIXEL_UNSIGNED_SHORT_5_6_5, Rn_GL_POINTS as GL_POINTS, Rn_GL_POLYGON_OFFSET_FACTOR as GL_POLYGON_OFFSET_FACTOR, Rn_GL_POLYGON_OFFSET_FILL as GL_POLYGON_OFFSET_FILL, Rn_GL_POLYGON_OFFSET_UNITS as GL_POLYGON_OFFSET_UNITS, Rn_GL_QUERY_COUNTER_BITS_EXT as GL_QUERY_COUNTER_BITS_EXT, Rn_GL_QUERY_RESULT as GL_QUERY_RESULT, Rn_GL_QUERY_RESULT_AVAILABLE as GL_QUERY_RESULT_AVAILABLE, Rn_GL_QUERY_RESULT_AVAILABLE_EXT as GL_QUERY_RESULT_AVAILABLE_EXT, Rn_GL_QUERY_RESULT_EXT as GL_QUERY_RESULT_EXT, Rn_GL_R11F_G11F_B10F as GL_R11F_G11F_B10F, Rn_GL_R16F as GL_R16F, Rn_GL_R16I as GL_R16I, Rn_GL_R16UI as GL_R16UI, Rn_GL_R32F as GL_R32F, Rn_GL_R32I as GL_R32I, Rn_GL_R32UI as GL_R32UI, Rn_GL_R8 as GL_R8, Rn_GL_R8I as GL_R8I, Rn_GL_R8UI as GL_R8UI, Rn_GL_R8_SNORM as GL_R8_SNORM, Rn_GL_RASTERIZER_DISCARD as GL_RASTERIZER_DISCARD, Rn_GL_READ_BUFFER as GL_READ_BUFFER, Rn_GL_READ_FRAMEBUFFER as GL_READ_FRAMEBUFFER, Rn_GL_READ_FRAMEBUFFER_BINDING as GL_READ_FRAMEBUFFER_BINDING, Rn_GL_RED as GL_RED, Rn_GL_RED_BITS as GL_RED_BITS, Rn_GL_RED_INTEGER as GL_RED_INTEGER, Rn_GL_RENDERBUFFER as GL_RENDERBUFFER, Rn_GL_RENDERBUFFER_ALPHA_SIZE as GL_RENDERBUFFER_ALPHA_SIZE, Rn_GL_RENDERBUFFER_BINDING as GL_RENDERBUFFER_BINDING, Rn_GL_RENDERBUFFER_BLUE_SIZE as GL_RENDERBUFFER_BLUE_SIZE, Rn_GL_RENDERBUFFER_DEPTH_SIZE as GL_RENDERBUFFER_DEPTH_SIZE, Rn_GL_RENDERBUFFER_GREEN_SIZE as GL_RENDERBUFFER_GREEN_SIZE, Rn_GL_RENDERBUFFER_HEIGHT as GL_RENDERBUFFER_HEIGHT, Rn_GL_RENDERBUFFER_INTERNAL_FORMAT as GL_RENDERBUFFER_INTERNAL_FORMAT, Rn_GL_RENDERBUFFER_RED_SIZE as GL_RENDERBUFFER_RED_SIZE, Rn_GL_RENDERBUFFER_SAMPLES as GL_RENDERBUFFER_SAMPLES, Rn_GL_RENDERBUFFER_STENCIL_SIZE as GL_RENDERBUFFER_STENCIL_SIZE, Rn_GL_RENDERBUFFER_WIDTH as GL_RENDERBUFFER_WIDTH, Rn_GL_RENDERER as GL_RENDERER, Rn_GL_REPEAT as GL_REPEAT, Rn_GL_REPLACE as GL_REPLACE, Rn_GL_RG as GL_RG, Rn_GL_RG16F as GL_RG16F, Rn_GL_RG16I as GL_RG16I, Rn_GL_RG16UI as GL_RG16UI, Rn_GL_RG32F as GL_RG32F, Rn_GL_RG32I as GL_RG32I, Rn_GL_RG32UI as GL_RG32UI, Rn_GL_RG8 as GL_RG8, Rn_GL_RG8I as GL_RG8I, Rn_GL_RG8UI as GL_RG8UI, Rn_GL_RG8_SNORM as GL_RG8_SNORM, Rn_GL_RGB as GL_RGB, Rn_GL_RGB10_A2 as GL_RGB10_A2, Rn_GL_RGB10_A2UI as GL_RGB10_A2UI, Rn_GL_RGB16F as GL_RGB16F, Rn_GL_RGB16I as GL_RGB16I, Rn_GL_RGB16UI as GL_RGB16UI, Rn_GL_RGB32F as GL_RGB32F, Rn_GL_RGB32F_EXT as GL_RGB32F_EXT, Rn_GL_RGB32I as GL_RGB32I, Rn_GL_RGB32UI as GL_RGB32UI, Rn_GL_RGB565 as GL_RGB565, Rn_GL_RGB5_A1 as GL_RGB5_A1, Rn_GL_RGB8 as GL_RGB8, Rn_GL_RGB8I as GL_RGB8I, Rn_GL_RGB8UI as GL_RGB8UI, Rn_GL_RGB8_SNORM as GL_RGB8_SNORM, Rn_GL_RGB9_E5 as GL_RGB9_E5, Rn_GL_RGBA as GL_RGBA, Rn_GL_RGBA16F as GL_RGBA16F, Rn_GL_RGBA16I as GL_RGBA16I, Rn_GL_RGBA16UI as GL_RGBA16UI, Rn_GL_RGBA32F as GL_RGBA32F, Rn_GL_RGBA32F_EXT as GL_RGBA32F_EXT, Rn_GL_RGBA32I as GL_RGBA32I, Rn_GL_RGBA32UI as GL_RGBA32UI, Rn_GL_RGBA4 as GL_RGBA4, Rn_GL_RGBA8 as GL_RGBA8, Rn_GL_RGBA8I as GL_RGBA8I, Rn_GL_RGBA8UI as GL_RGBA8UI, Rn_GL_RGBA8_SNORM as GL_RGBA8_SNORM, Rn_GL_RGBA_INTEGER as GL_RGBA_INTEGER, Rn_GL_RGB_INTEGER as GL_RGB_INTEGER, Rn_GL_RG_INTEGER as GL_RG_INTEGER, Rn_GL_SAMPLER_2D as GL_SAMPLER_2D, Rn_GL_SAMPLER_2D_ARRAY as GL_SAMPLER_2D_ARRAY, Rn_GL_SAMPLER_2D_ARRAY_SHADOW as GL_SAMPLER_2D_ARRAY_SHADOW, Rn_GL_SAMPLER_2D_SHADOW as GL_SAMPLER_2D_SHADOW, Rn_GL_SAMPLER_3D as GL_SAMPLER_3D, Rn_GL_SAMPLER_BINDING as GL_SAMPLER_BINDING, Rn_GL_SAMPLER_CUBE as GL_SAMPLER_CUBE, Rn_GL_SAMPLER_CUBE_SHADOW as GL_SAMPLER_CUBE_SHADOW, Rn_GL_SAMPLES as GL_SAMPLES, Rn_GL_SAMPLE_ALPHA_TO_COVERAGE as GL_SAMPLE_ALPHA_TO_COVERAGE, Rn_GL_SAMPLE_BUFFERS as GL_SAMPLE_BUFFERS, Rn_GL_SAMPLE_COVERAGE as GL_SAMPLE_COVERAGE, Rn_GL_SAMPLE_COVERAGE_INVERT as GL_SAMPLE_COVERAGE_INVERT, Rn_GL_SAMPLE_COVERAGE_VALUE as GL_SAMPLE_COVERAGE_VALUE, Rn_GL_SCISSOR_BOX as GL_SCISSOR_BOX, Rn_GL_SCISSOR_TEST as GL_SCISSOR_TEST, Rn_GL_SEPARATE_ATTRIBS as GL_SEPARATE_ATTRIBS, Rn_GL_SHADER_TYPE as GL_SHADER_TYPE, Rn_GL_SHADING_LANGUAGE_VERSION as GL_SHADING_LANGUAGE_VERSION, Rn_GL_SIGNALED as GL_SIGNALED, Rn_GL_SIGNED_NORMALIZED as GL_SIGNED_NORMALIZED, Rn_GL_SRC_ALPHA as GL_SRC_ALPHA, Rn_GL_SRC_ALPHA_SATURATE as GL_SRC_ALPHA_SATURATE, Rn_GL_SRC_COLOR as GL_SRC_COLOR, Rn_GL_SRGB as GL_SRGB, Rn_GL_SRGB8 as GL_SRGB8, Rn_GL_SRGB8_ALPHA8 as GL_SRGB8_ALPHA8, Rn_GL_SRGB8_ALPHA8_EXT as GL_SRGB8_ALPHA8_EXT, Rn_GL_SRGB_ALPHA_EXT as GL_SRGB_ALPHA_EXT, Rn_GL_SRGB_EXT as GL_SRGB_EXT, Rn_GL_STATIC_COPY as GL_STATIC_COPY, Rn_GL_STATIC_DRAW as GL_STATIC_DRAW, Rn_GL_STATIC_READ as GL_STATIC_READ, Rn_GL_STENCIL as GL_STENCIL, Rn_GL_STENCIL_ATTACHMENT as GL_STENCIL_ATTACHMENT, Rn_GL_STENCIL_BACK_FAIL as GL_STENCIL_BACK_FAIL, Rn_GL_STENCIL_BACK_FUNC as GL_STENCIL_BACK_FUNC, Rn_GL_STENCIL_BACK_PASS_DEPTH_FAIL as GL_STENCIL_BACK_PASS_DEPTH_FAIL, Rn_GL_STENCIL_BACK_PASS_DEPTH_PASS as GL_STENCIL_BACK_PASS_DEPTH_PASS, Rn_GL_STENCIL_BACK_REF as GL_STENCIL_BACK_REF, Rn_GL_STENCIL_BACK_VALUE_MASK as GL_STENCIL_BACK_VALUE_MASK, Rn_GL_STENCIL_BACK_WRITEMASK as GL_STENCIL_BACK_WRITEMASK, Rn_GL_STENCIL_BITS as GL_STENCIL_BITS, Rn_GL_STENCIL_BUFFER_BIT as GL_STENCIL_BUFFER_BIT, Rn_GL_STENCIL_CLEAR_VALUE as GL_STENCIL_CLEAR_VALUE, Rn_GL_STENCIL_FAIL as GL_STENCIL_FAIL, Rn_GL_STENCIL_FUNC as GL_STENCIL_FUNC, Rn_GL_STENCIL_INDEX as GL_STENCIL_INDEX, Rn_GL_STENCIL_INDEX8 as GL_STENCIL_INDEX8, Rn_GL_STENCIL_PASS_DEPTH_FAIL as GL_STENCIL_PASS_DEPTH_FAIL, Rn_GL_STENCIL_PASS_DEPTH_PASS as GL_STENCIL_PASS_DEPTH_PASS, Rn_GL_STENCIL_REF as GL_STENCIL_REF, Rn_GL_STENCIL_TEST as GL_STENCIL_TEST, Rn_GL_STENCIL_VALUE_MASK as GL_STENCIL_VALUE_MASK, Rn_GL_STENCIL_WRITEMASK as GL_STENCIL_WRITEMASK, Rn_GL_STREAM_COPY as GL_STREAM_COPY, Rn_GL_STREAM_DRAW as GL_STREAM_DRAW, Rn_GL_STREAM_READ as GL_STREAM_READ, Rn_GL_SUBPIXEL_BITS as GL_SUBPIXEL_BITS, Rn_GL_SYNC_CONDITION as GL_SYNC_CONDITION, Rn_GL_SYNC_FENCE as GL_SYNC_FENCE, Rn_GL_SYNC_FLAGS as GL_SYNC_FLAGS, Rn_GL_SYNC_FLUSH_COMMANDS_BIT as GL_SYNC_FLUSH_COMMANDS_BIT, Rn_GL_SYNC_GPU_COMMANDS_COMPLETE as GL_SYNC_GPU_COMMANDS_COMPLETE, Rn_GL_SYNC_STATUS as GL_SYNC_STATUS, Rn_GL_TEXTURE as GL_TEXTURE, Rn_GL_TEXTURE0 as GL_TEXTURE0, Rn_GL_TEXTURE1 as GL_TEXTURE1, Rn_GL_TEXTURE10 as GL_TEXTURE10, Rn_GL_TEXTURE11 as GL_TEXTURE11, Rn_GL_TEXTURE12 as GL_TEXTURE12, Rn_GL_TEXTURE13 as GL_TEXTURE13, Rn_GL_TEXTURE14 as GL_TEXTURE14, Rn_GL_TEXTURE15 as GL_TEXTURE15, Rn_GL_TEXTURE16 as GL_TEXTURE16, Rn_GL_TEXTURE17 as GL_TEXTURE17, Rn_GL_TEXTURE18 as GL_TEXTURE18, Rn_GL_TEXTURE19 as GL_TEXTURE19, Rn_GL_TEXTURE2 as GL_TEXTURE2, Rn_GL_TEXTURE20 as GL_TEXTURE20, Rn_GL_TEXTURE21 as GL_TEXTURE21, Rn_GL_TEXTURE22 as GL_TEXTURE22, Rn_GL_TEXTURE23 as GL_TEXTURE23, Rn_GL_TEXTURE24 as GL_TEXTURE24, Rn_GL_TEXTURE25 as GL_TEXTURE25, Rn_GL_TEXTURE26 as GL_TEXTURE26, Rn_GL_TEXTURE27 as GL_TEXTURE27, Rn_GL_TEXTURE28 as GL_TEXTURE28, Rn_GL_TEXTURE29 as GL_TEXTURE29, Rn_GL_TEXTURE3 as GL_TEXTURE3, Rn_GL_TEXTURE30 as GL_TEXTURE30, Rn_GL_TEXTURE31 as GL_TEXTURE31, Rn_GL_TEXTURE4 as GL_TEXTURE4, Rn_GL_TEXTURE5 as GL_TEXTURE5, Rn_GL_TEXTURE6 as GL_TEXTURE6, Rn_GL_TEXTURE7 as GL_TEXTURE7, Rn_GL_TEXTURE8 as GL_TEXTURE8, Rn_GL_TEXTURE9 as GL_TEXTURE9, Rn_GL_TEXTURE_2D as GL_TEXTURE_2D, Rn_GL_TEXTURE_2D_ARRAY as GL_TEXTURE_2D_ARRAY, Rn_GL_TEXTURE_3D as GL_TEXTURE_3D, Rn_GL_TEXTURE_BASE_LEVEL as GL_TEXTURE_BASE_LEVEL, Rn_GL_TEXTURE_BINDING_2D as GL_TEXTURE_BINDING_2D, Rn_GL_TEXTURE_BINDING_2D_ARRAY as GL_TEXTURE_BINDING_2D_ARRAY, Rn_GL_TEXTURE_BINDING_3D as GL_TEXTURE_BINDING_3D, Rn_GL_TEXTURE_BINDING_CUBE_MAP as GL_TEXTURE_BINDING_CUBE_MAP, Rn_GL_TEXTURE_COMPARE_FUNC as GL_TEXTURE_COMPARE_FUNC, Rn_GL_TEXTURE_COMPARE_MODE as GL_TEXTURE_COMPARE_MODE, Rn_GL_TEXTURE_CUBE_MAP as GL_TEXTURE_CUBE_MAP, Rn_GL_TEXTURE_CUBE_MAP_NEGATIVE_X as GL_TEXTURE_CUBE_MAP_NEGATIVE_X, Rn_GL_TEXTURE_CUBE_MAP_NEGATIVE_Y as GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, Rn_GL_TEXTURE_CUBE_MAP_NEGATIVE_Z as GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, Rn_GL_TEXTURE_CUBE_MAP_POSITIVE_X as GL_TEXTURE_CUBE_MAP_POSITIVE_X, Rn_GL_TEXTURE_CUBE_MAP_POSITIVE_Y as GL_TEXTURE_CUBE_MAP_POSITIVE_Y, Rn_GL_TEXTURE_CUBE_MAP_POSITIVE_Z as GL_TEXTURE_CUBE_MAP_POSITIVE_Z, Rn_GL_TEXTURE_IMMUTABLE_FORMAT as GL_TEXTURE_IMMUTABLE_FORMAT, Rn_GL_TEXTURE_IMMUTABLE_LEVELS as GL_TEXTURE_IMMUTABLE_LEVELS, Rn_GL_TEXTURE_MAG_FILTER as GL_TEXTURE_MAG_FILTER, Rn_GL_TEXTURE_MAX_ANISOTROPY_EXT as GL_TEXTURE_MAX_ANISOTROPY_EXT, Rn_GL_TEXTURE_MAX_LEVEL as GL_TEXTURE_MAX_LEVEL, Rn_GL_TEXTURE_MAX_LOD as GL_TEXTURE_MAX_LOD, Rn_GL_TEXTURE_MIN_FILTER as GL_TEXTURE_MIN_FILTER, Rn_GL_TEXTURE_MIN_LOD as GL_TEXTURE_MIN_LOD, Rn_GL_TEXTURE_WRAP_R as GL_TEXTURE_WRAP_R, Rn_GL_TEXTURE_WRAP_S as GL_TEXTURE_WRAP_S, Rn_GL_TEXTURE_WRAP_T as GL_TEXTURE_WRAP_T, Rn_GL_TIMEOUT_EXPIRED as GL_TIMEOUT_EXPIRED, Rn_GL_TIMEOUT_IGNORED as GL_TIMEOUT_IGNORED, Rn_GL_TIMESTAMP_EXT as GL_TIMESTAMP_EXT, Rn_GL_TIME_ELAPSED_EXT as GL_TIME_ELAPSED_EXT, Rn_GL_TRANSFORM_FEEDBACK as GL_TRANSFORM_FEEDBACK, Rn_GL_TRANSFORM_FEEDBACK_ACTIVE as GL_TRANSFORM_FEEDBACK_ACTIVE, Rn_GL_TRANSFORM_FEEDBACK_BINDING as GL_TRANSFORM_FEEDBACK_BINDING, Rn_GL_TRANSFORM_FEEDBACK_BUFFER as GL_TRANSFORM_FEEDBACK_BUFFER, Rn_GL_TRANSFORM_FEEDBACK_BUFFER_BINDING as GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, Rn_GL_TRANSFORM_FEEDBACK_BUFFER_MODE as GL_TRANSFORM_FEEDBACK_BUFFER_MODE, Rn_GL_TRANSFORM_FEEDBACK_BUFFER_SIZE as GL_TRANSFORM_FEEDBACK_BUFFER_SIZE, Rn_GL_TRANSFORM_FEEDBACK_BUFFER_START as GL_TRANSFORM_FEEDBACK_BUFFER_START, Rn_GL_TRANSFORM_FEEDBACK_PAUSED as GL_TRANSFORM_FEEDBACK_PAUSED, Rn_GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN as GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, Rn_GL_TRANSFORM_FEEDBACK_VARYINGS as GL_TRANSFORM_FEEDBACK_VARYINGS, Rn_GL_TRIANGLES as GL_TRIANGLES, Rn_GL_TRIANGLE_FAN as GL_TRIANGLE_FAN, Rn_GL_TRIANGLE_STRIP as GL_TRIANGLE_STRIP, Rn_GL_UNIFORM_ARRAY_STRIDE as GL_UNIFORM_ARRAY_STRIDE, Rn_GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS as GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, Rn_GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES as GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, Rn_GL_UNIFORM_BLOCK_BINDING as GL_UNIFORM_BLOCK_BINDING, Rn_GL_UNIFORM_BLOCK_DATA_SIZE as GL_UNIFORM_BLOCK_DATA_SIZE, Rn_GL_UNIFORM_BLOCK_INDEX as GL_UNIFORM_BLOCK_INDEX, Rn_GL_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER as GL_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER, Rn_GL_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER as GL_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER, Rn_GL_UNIFORM_BUFFER as GL_UNIFORM_BUFFER, Rn_GL_UNIFORM_BUFFER_BINDING as GL_UNIFORM_BUFFER_BINDING, Rn_GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT as GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, Rn_GL_UNIFORM_BUFFER_SIZE as GL_UNIFORM_BUFFER_SIZE, Rn_GL_UNIFORM_BUFFER_START as GL_UNIFORM_BUFFER_START, Rn_GL_UNIFORM_IS_ROW_MAJOR as GL_UNIFORM_IS_ROW_MAJOR, Rn_GL_UNIFORM_MATRIX_STRIDE as GL_UNIFORM_MATRIX_STRIDE, Rn_GL_UNIFORM_OFFSET as GL_UNIFORM_OFFSET, Rn_GL_UNIFORM_SIZE as GL_UNIFORM_SIZE, Rn_GL_UNIFORM_TYPE as GL_UNIFORM_TYPE, Rn_GL_UNMASKED_RENDERER_WEBGL as GL_UNMASKED_RENDERER_WEBGL, Rn_GL_UNMASKED_VENDOR_WEBGL as GL_UNMASKED_VENDOR_WEBGL, Rn_GL_UNPACK_ALIGNMENT as GL_UNPACK_ALIGNMENT, Rn_GL_UNPACK_COLORSPACE_CONVERSION_WEBGL as GL_UNPACK_COLORSPACE_CONVERSION_WEBGL, Rn_GL_UNPACK_FLIP_Y_WEBGL as GL_UNPACK_FLIP_Y_WEBGL, Rn_GL_UNPACK_IMAGE_HEIGHT as GL_UNPACK_IMAGE_HEIGHT, Rn_GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL as GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL, Rn_GL_UNPACK_ROW_LENGTH as GL_UNPACK_ROW_LENGTH, Rn_GL_UNPACK_SKIP_IMAGES as GL_UNPACK_SKIP_IMAGES, Rn_GL_UNPACK_SKIP_PIXELS as GL_UNPACK_SKIP_PIXELS, Rn_GL_UNPACK_SKIP_ROWS as GL_UNPACK_SKIP_ROWS, Rn_GL_UNSIGNALED as GL_UNSIGNALED, Rn_GL_UNSIGNED_INT_10F_11F_11F_REV as GL_UNSIGNED_INT_10F_11F_11F_REV, Rn_GL_UNSIGNED_INT_24_8 as GL_UNSIGNED_INT_24_8, Rn_GL_UNSIGNED_INT_24_8_WEBGL as GL_UNSIGNED_INT_24_8_WEBGL, Rn_GL_UNSIGNED_INT_2_10_10_10_REV as GL_UNSIGNED_INT_2_10_10_10_REV, Rn_GL_UNSIGNED_INT_5_9_9_9_REV as GL_UNSIGNED_INT_5_9_9_9_REV, Rn_GL_UNSIGNED_INT_SAMPLER_2D as GL_UNSIGNED_INT_SAMPLER_2D, Rn_GL_UNSIGNED_INT_SAMPLER_2D_ARRAY as GL_UNSIGNED_INT_SAMPLER_2D_ARRAY, Rn_GL_UNSIGNED_INT_SAMPLER_3D as GL_UNSIGNED_INT_SAMPLER_3D, Rn_GL_UNSIGNED_INT_SAMPLER_CUBE as GL_UNSIGNED_INT_SAMPLER_CUBE, Rn_GL_UNSIGNED_INT_VEC2 as GL_UNSIGNED_INT_VEC2, Rn_GL_UNSIGNED_INT_VEC3 as GL_UNSIGNED_INT_VEC3, Rn_GL_UNSIGNED_INT_VEC4 as GL_UNSIGNED_INT_VEC4, Rn_GL_UNSIGNED_NORMALIZED as GL_UNSIGNED_NORMALIZED, Rn_GL_UNSIGNED_NORMALIZED_EXT as GL_UNSIGNED_NORMALIZED_EXT, Rn_GL_VALIDATE_STATUS as GL_VALIDATE_STATUS, Rn_GL_VENDOR as GL_VENDOR, Rn_GL_VERSION as GL_VERSION, Rn_GL_VERTEX_ARRAY_BINDING as GL_VERTEX_ARRAY_BINDING, Rn_GL_VERTEX_ARRAY_BINDING_OES as GL_VERTEX_ARRAY_BINDING_OES, Rn_GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING as GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, Rn_GL_VERTEX_ATTRIB_ARRAY_DIVISOR as GL_VERTEX_ATTRIB_ARRAY_DIVISOR, Rn_GL_VERTEX_ATTRIB_ARRAY_DIVISOR_ANGLE as GL_VERTEX_ATTRIB_ARRAY_DIVISOR_ANGLE, Rn_GL_VERTEX_ATTRIB_ARRAY_ENABLED as GL_VERTEX_ATTRIB_ARRAY_ENABLED, Rn_GL_VERTEX_ATTRIB_ARRAY_INTEGER as GL_VERTEX_ATTRIB_ARRAY_INTEGER, Rn_GL_VERTEX_ATTRIB_ARRAY_NORMALIZED as GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, Rn_GL_VERTEX_ATTRIB_ARRAY_POINTER as GL_VERTEX_ATTRIB_ARRAY_POINTER, Rn_GL_VERTEX_ATTRIB_ARRAY_SIZE as GL_VERTEX_ATTRIB_ARRAY_SIZE, Rn_GL_VERTEX_ATTRIB_ARRAY_STRIDE as GL_VERTEX_ATTRIB_ARRAY_STRIDE, Rn_GL_VERTEX_ATTRIB_ARRAY_TYPE as GL_VERTEX_ATTRIB_ARRAY_TYPE, Rn_GL_VERTEX_SHADER as GL_VERTEX_SHADER, Rn_GL_VIEWPORT as GL_VIEWPORT, Rn_GL_WAIT_FAILED as GL_WAIT_FAILED, Rn_GL_ZERO as GL_ZERO, Rn_GaussianBlur as GaussianBlur, Rn_GetComponentFromEntities as GetComponentFromEntities, type Rn_GetInstance as GetInstance, type Rn_GetProps as GetProps, Rn_Gizmo as Gizmo, Rn_GlobalDataRepository as GlobalDataRepository, Rn_GlobalRetarget as GlobalRetarget, Rn_GlobalRetargetReverse as GlobalRetargetReverse, type Rn_Gltf1AnyObject as Gltf1AnyObject, type Rn_Gltf2 as Gltf2, type Rn_Gltf2Accessor as Gltf2Accessor, type Rn_Gltf2AccessorComponentType as Gltf2AccessorComponentType, type Rn_Gltf2AccessorComponentTypeNumber as Gltf2AccessorComponentTypeNumber, type Rn_Gltf2AccessorCompositionType as Gltf2AccessorCompositionType, type Rn_Gltf2AccessorCompositionTypeString as Gltf2AccessorCompositionTypeString, type Rn_Gltf2AccessorEx as Gltf2AccessorEx, type Rn_Gltf2AccessorIndex as Gltf2AccessorIndex, type Rn_Gltf2Animation as Gltf2Animation, type Rn_Gltf2AnimationAccessorCompositionType as Gltf2AnimationAccessorCompositionType, type Rn_Gltf2AnimationAccessorCompositionTypeString as Gltf2AnimationAccessorCompositionTypeString, type Rn_Gltf2AnimationChannel as Gltf2AnimationChannel, type Rn_Gltf2AnimationChannelTarget as Gltf2AnimationChannelTarget, type Rn_Gltf2AnimationPathName as Gltf2AnimationPathName, type Rn_Gltf2AnimationSampler as Gltf2AnimationSampler, type Rn_Gltf2AnimationSamplerInterpolation as Gltf2AnimationSamplerInterpolation, type Rn_Gltf2AnyObject as Gltf2AnyObject, type Rn_Gltf2Asset as Gltf2Asset, type Rn_Gltf2AttributeAccessors as Gltf2AttributeAccessors, type Rn_Gltf2AttributeBlendShapes as Gltf2AttributeBlendShapes, type Rn_Gltf2AttributeBlendShapesAccessors as Gltf2AttributeBlendShapesAccessors, type Rn_Gltf2Attributes as Gltf2Attributes, type Rn_Gltf2Buffer as Gltf2Buffer, type Rn_Gltf2BufferView as Gltf2BufferView, type Rn_Gltf2BufferViewEx as Gltf2BufferViewEx, type Rn_Gltf2Camera as Gltf2Camera, type Rn_Gltf2CameraOrthographic as Gltf2CameraOrthographic, type Rn_Gltf2CameraPerspective as Gltf2CameraPerspective, type Rn_Gltf2Ex as Gltf2Ex, type Rn_Gltf2ExportType as Gltf2ExportType, Rn_Gltf2Exporter as Gltf2Exporter, type Rn_Gltf2ExporterArguments as Gltf2ExporterArguments, type Rn_Gltf2Image as Gltf2Image, type Rn_Gltf2ImageEx as Gltf2ImageEx, Rn_Gltf2Importer as Gltf2Importer, type Rn_Gltf2Material as Gltf2Material, type Rn_Gltf2MaterialEx as Gltf2MaterialEx, type Rn_Gltf2Mesh as Gltf2Mesh, type Rn_Gltf2Node as Gltf2Node, type Rn_Gltf2NormalTextureInfo as Gltf2NormalTextureInfo, type Rn_Gltf2OcclusionTextureInfo as Gltf2OcclusionTextureInfo, type Rn_Gltf2PbrMetallicRoughness as Gltf2PbrMetallicRoughness, type Rn_Gltf2PbrMetallicRoughnessEx as Gltf2PbrMetallicRoughnessEx, type Rn_Gltf2Primitive as Gltf2Primitive, type Rn_Gltf2Scene as Gltf2Scene, type Rn_Gltf2Skin as Gltf2Skin, type Rn_Gltf2Sparse as Gltf2Sparse, type Rn_Gltf2SparseIndices as Gltf2SparseIndices, type Rn_Gltf2SparseValues as Gltf2SparseValues, type Rn_Gltf2Texture as Gltf2Texture, type Rn_Gltf2TextureInfo as Gltf2TextureInfo, type Rn_Gltf2TextureSampler as Gltf2TextureSampler, type Rn_GltfFileBuffers as GltfFileBuffers, Rn_GltfImporter as GltfImporter, type Rn_GltfLoadOption as GltfLoadOption, Rn_GreaterShaderNode as GreaterShaderNode, Rn_Grid as Grid, type Rn_GridDescriptor as GridDescriptor, Rn_HdriFormat as HdriFormat, type Rn_HdriFormatEnum as HdriFormatEnum, type Rn_IAnimationEntity as IAnimationEntity, type Rn_IAnimationEntityMethods as IAnimationEntityMethods, type Rn_IAnimationRetarget as IAnimationRetarget, type Rn_IAnimationStateEntity as IAnimationStateEntity, type Rn_IAnyPrimitiveDescriptor as IAnyPrimitiveDescriptor, type Rn_IArrayBufferBasedMathNumber as IArrayBufferBasedMathNumber, type Rn_IBlendShapeEntity as IBlendShapeEntity, type Rn_IBlendShapeEntityMethods as IBlendShapeEntityMethods, type Rn_ICGAPIResourceRepository as ICGAPIResourceRepository, type Rn_ICameraController as ICameraController, type Rn_ICameraControllerEntity as ICameraControllerEntity, type Rn_ICameraControllerEntityMethods as ICameraControllerEntityMethods, type Rn_ICameraEntity as ICameraEntity, type Rn_ICameraEntityMethods as ICameraEntityMethods, type Rn_IColorRgb as IColorRgb, type Rn_IColorRgba as IColorRgba, type Rn_IConstraintEntity as IConstraintEntity, type Rn_IEffekseerEntityMethods as IEffekseerEntityMethods, type Rn_IEnhancedArrayMethods as IEnhancedArrayMethods, type Rn_IEntity as IEntity, type Rn_IEventPubSub as IEventPubSub, type Rn_ILightEntity as ILightEntity, type Rn_ILightEntityMethods as ILightEntityMethods, type Rn_ILoaderExtension as ILoaderExtension, type Rn_ILogQuaternion as ILogQuaternion, type Rn_IMatrix as IMatrix, type Rn_IMatrix22 as IMatrix22, type Rn_IMatrix33 as IMatrix33, type Rn_IMatrix44 as IMatrix44, type Rn_IMesh as IMesh, type Rn_IMeshEntity as IMeshEntity, type Rn_IMeshEntityMethods as IMeshEntityMethods, type Rn_IMeshRendererEntityMethods as IMeshRendererEntityMethods, type Rn_IMutableColorRgb as IMutableColorRgb, type Rn_IMutableColorRgba as IMutableColorRgba, type Rn_IMutableMatrix as IMutableMatrix, type Rn_IMutableMatrix22 as IMutableMatrix22, type Rn_IMutableMatrix33 as IMutableMatrix33, type Rn_IMutableMatrix44 as IMutableMatrix44, type Rn_IMutableQuaternion as IMutableQuaternion, type Rn_IMutableScalar as IMutableScalar, type Rn_IMutableVector as IMutableVector, type Rn_IMutableVector2 as IMutableVector2, type Rn_IMutableVector3 as IMutableVector3, type Rn_IMutableVector4 as IMutableVector4, Rn_INPUT_HANDLING_STATE_CAMERA_CONTROLLER as INPUT_HANDLING_STATE_CAMERA_CONTROLLER, Rn_INPUT_HANDLING_STATE_GIZMO_ROTATION as INPUT_HANDLING_STATE_GIZMO_ROTATION, Rn_INPUT_HANDLING_STATE_GIZMO_SCALE as INPUT_HANDLING_STATE_GIZMO_SCALE, Rn_INPUT_HANDLING_STATE_GIZMO_TRANSLATION as INPUT_HANDLING_STATE_GIZMO_TRANSLATION, Rn_INPUT_HANDLING_STATE_NONE as INPUT_HANDLING_STATE_NONE, type Rn_IPhysicsEntity as IPhysicsEntity, type Rn_IPhysicsEntityMethods as IPhysicsEntityMethods, type Rn_IQuaternion as IQuaternion, type Rn_IRenderable as IRenderable, type Rn_IRnObject as IRnObject, type Rn_IScalar as IScalar, type Rn_ISceneGraphEntity as ISceneGraphEntity, type Rn_ISceneGraphEntityMethods as ISceneGraphEntityMethods, type Rn_ISemanticVertexAttribute as ISemanticVertexAttribute, Rn_IShape as IShape, type Rn_ISkeletalEntity as ISkeletalEntity, type Rn_ISkeletalEntityMethods as ISkeletalEntityMethods, type Rn_ITransformEntity as ITransformEntity, type Rn_ITransformEntityMethods as ITransformEntityMethods, type Rn_IVector as IVector, type Rn_IVector2 as IVector2, type Rn_IVector3 as IVector3, type Rn_IVector4 as IVector4, type Rn_IVrmEntityMethods as IVrmEntityMethods, type Rn_IWeakOption as IWeakOption, Rn_IdentityMatrix33 as IdentityMatrix33, Rn_IdentityMatrix44 as IdentityMatrix44, Rn_IfStatementShader as IfStatementShader, Rn_IfStatementShaderNode as IfStatementShaderNode, type Rn_ImageBitmapData as ImageBitmapData, Rn_ImageInfo as ImageInfo, Rn_ImageUtil as ImageUtil, type Rn_Index as Index, type Rn_IndexInTheDataView as IndexInTheDataView, type Rn_IndexOf16Bytes as IndexOf16Bytes, type Rn_IndexOf4Bytes as IndexOf4Bytes, type Rn_IndexOfBufferViews as IndexOfBufferViews, type Rn_IndicesAccessOption as IndicesAccessOption, type Rn_InputHandlerInfo as InputHandlerInfo, type Rn_InputHandlingState as InputHandlingState, Rn_InputManager as InputManager, type Rn_IntegerTypedArray as IntegerTypedArray, Rn_Is as Is, Rn_IsObj as IsObj, type Rn_IsType as IsType, Rn_Joint as Joint, type Rn_JointDescriptor as JointDescriptor, Rn_JointGizmo as JointGizmo, type Rn_KHR_interactivity as KHR_interactivity, type Rn_KHR_interactivity_Configuration as KHR_interactivity_Configuration, type Rn_KHR_interactivity_Declaration as KHR_interactivity_Declaration, type Rn_KHR_interactivity_Event as KHR_interactivity_Event, type Rn_KHR_interactivity_Flow as KHR_interactivity_Flow, type Rn_KHR_interactivity_Graph as KHR_interactivity_Graph, type Rn_KHR_interactivity_Node as KHR_interactivity_Node, type Rn_KHR_interactivity_Type as KHR_interactivity_Type, type Rn_KHR_interactivity_Value as KHR_interactivity_Value, type Rn_KHR_interactivity_Variable as KHR_interactivity_Variable, type Rn_KHR_interactivity_value_type as KHR_interactivity_value_type, type Rn_KHR_lights_punctual as KHR_lights_punctual, type Rn_KHR_lights_punctual_Light as KHR_lights_punctual_Light, type Rn_KHR_materials_variants as KHR_materials_variants, type Rn_KHR_materials_variants_Mapping as KHR_materials_variants_Mapping, type Rn_KHR_materials_variants_PrimitiveExtension as KHR_materials_variants_PrimitiveExtension, type Rn_KHR_materials_variants_Variant as KHR_materials_variants_Variant, Rn_KTX2TextureLoader as KTX2TextureLoader, Rn_LightComponent as LightComponent, Rn_LightGizmo as LightGizmo, Rn_LightType as LightType, type Rn_LightTypeEnum as LightTypeEnum, Rn_Line as Line, type Rn_LineDescriptor as LineDescriptor, type Rn_LoadImageToMipLevelDescriptor as LoadImageToMipLevelDescriptor, Rn_LocatorGizmo as LocatorGizmo, Rn_LogLevel as LogLevel, Rn_LogQuaternion as LogQuaternion, Rn_Logger as Logger, type Rn_MSC_TRANSCODER_TYPE as MSC_TRANSCODER_TYPE, Rn_MToon0xMaterialContent as MToon0xMaterialContent, Rn_MToon1MaterialContent as MToon1MaterialContent, Rn_MatCapMaterialContent as MatCapMaterialContent, Rn_Material as Material, Rn_MaterialHelper as MaterialHelper, type MaterialNodeUID$1 as MaterialNodeUID, Rn_MaterialRepository as MaterialRepository, type Rn_MaterialSID as MaterialSID, type Rn_MaterialTID as MaterialTID, type Rn_MaterialTypeName as MaterialTypeName, type Rn_MaterialUID as MaterialUID, Rn_MathClassUtil as MathClassUtil, Rn_MathUtil as MathUtil, Rn_Matrix22 as Matrix22, Rn_Matrix33 as Matrix33, Rn_Matrix44 as Matrix44, type Rn_MemberInfo as MemberInfo, Rn_MemoryManager as MemoryManager, type Rn_MergeCtor as MergeCtor, Rn_MergeVectorShaderNode as MergeVectorShaderNode, Rn_Mesh as Mesh, Rn_MeshComponent as MeshComponent, Rn_MeshHelper as MeshHelper, Rn_MeshRendererComponent as MeshRendererComponent, type Rn_MeshUID as MeshUID, type Rn_MilliSecond as MilliSecond, Rn_MiscUtil as MiscUtil, type Rn_MixinBase as MixinBase, Rn_ModelConverter as ModelConverter, Rn_ModuleManager as ModuleManager, type Rn_MscTranscoderModule as MscTranscoderModule, Rn_MultiplyShaderNode as MultiplyShaderNode, Rn_MutableColorRgb as MutableColorRgb, Rn_MutableColorRgba as MutableColorRgba, Rn_MutableMatrix22 as MutableMatrix22, Rn_MutableMatrix33 as MutableMatrix33, Rn_MutableMatrix44 as MutableMatrix44, Rn_MutableQuaternion as MutableQuaternion, Rn_MutableScalar as MutableScalar, Rn_MutableScalar_ as MutableScalar_, Rn_MutableScalard as MutableScalard, type Rn_MutableScalarf as MutableScalarf, Rn_MutableVector2 as MutableVector2, Rn_MutableVector2_ as MutableVector2_, Rn_MutableVector2d as MutableVector2d, type Rn_MutableVector2f as MutableVector2f, Rn_MutableVector3 as MutableVector3, Rn_MutableVector3_ as MutableVector3_, Rn_MutableVector3d as MutableVector3d, type Rn_MutableVector3f as MutableVector3f, Rn_MutableVector4 as MutableVector4, Rn_MutableVector4_ as MutableVector4_, Rn_MutableVector4d as MutableVector4d, type Rn_MutableVector4f as MutableVector4f, Rn_None as None, Rn_NormalMatrixShaderNode as NormalMatrixShaderNode, Rn_NormalizeShaderNode as NormalizeShaderNode, type Rn_ObjectUID as ObjectUID, type Rn_Offset as Offset, Rn_OimoPhysicsStrategy as OimoPhysicsStrategy, Rn_Ok as Ok, type Rn_Option as Option, Rn_OrbitCameraController as OrbitCameraController, Rn_OutColorShaderNode as OutColorShaderNode, Rn_OutPositionShaderNode as OutPositionShaderNode, type Rn_PartialRequire as PartialRequire, Rn_PhysicsComponent as PhysicsComponent, type Rn_PhysicsProperty as PhysicsProperty, type Rn_PhysicsPropertyInner as PhysicsPropertyInner, type Rn_PhysicsStrategy as PhysicsStrategy, type Rn_PhysicsWorldProperty as PhysicsWorldProperty, Rn_PixelFormat as PixelFormat, type Rn_PixelFormatEnum as PixelFormatEnum, Rn_Plane as Plane, type Rn_PlaneDescriptor as PlaneDescriptor, Rn_PointShadowMap as PointShadowMap, type Rn_PointType as PointType, Rn_Primitive as Primitive, type Rn_PrimitiveDescriptor as PrimitiveDescriptor, Rn_PrimitiveMode as PrimitiveMode, type Rn_PrimitiveModeEnum as PrimitiveModeEnum, type Rn_PrimitiveSortKey as PrimitiveSortKey, type Rn_PrimitiveSortKeyLength as PrimitiveSortKeyLength, type Rn_PrimitiveSortKeyOffset as PrimitiveSortKeyOffset, Rn_PrimitiveSortKey_BitLength_Depth as PrimitiveSortKey_BitLength_Depth, Rn_PrimitiveSortKey_BitLength_Material as PrimitiveSortKey_BitLength_Material, Rn_PrimitiveSortKey_BitLength_PrimitiveType as PrimitiveSortKey_BitLength_PrimitiveType, Rn_PrimitiveSortKey_BitLength_RenderQueue as PrimitiveSortKey_BitLength_RenderQueue, Rn_PrimitiveSortKey_BitLength_TranslucencyType as PrimitiveSortKey_BitLength_TranslucencyType, Rn_PrimitiveSortKey_BitOffset_Material as PrimitiveSortKey_BitOffset_Material, Rn_PrimitiveSortKey_BitOffset_PrimitiveType as PrimitiveSortKey_BitOffset_PrimitiveType, Rn_PrimitiveSortKey_BitOffset_RenderQueue as PrimitiveSortKey_BitOffset_RenderQueue, Rn_PrimitiveSortKey_BitOffset_TranslucencyType as PrimitiveSortKey_BitOffset_TranslucencyType, type Rn_PrimitiveUID as PrimitiveUID, Rn_ProcessApproach as ProcessApproach, Rn_ProcessApproachClass as ProcessApproachClass, type Rn_ProcessApproachEnum as ProcessApproachEnum, Rn_ProcessStage as ProcessStage, type Rn_ProcessStageEnum as ProcessStageEnum, Rn_ProjectionMatrixShaderNode as ProjectionMatrixShaderNode, Rn_Quaternion as Quaternion, type Rn_Ratio as Ratio, type Rn_RaycastResult as RaycastResult, type Rn_RaycastResultEx1 as RaycastResultEx1, type Rn_RaycastResultEx2 as RaycastResultEx2, Rn_RenderBuffer as RenderBuffer, Rn_RenderBufferTarget as RenderBufferTarget, type Rn_RenderBufferTargetEnum as RenderBufferTargetEnum, Rn_RenderPass as RenderPass, Rn_RenderPassHelper as RenderPassHelper, type Rn_RenderPassUID as RenderPassUID, Rn_RenderTargetTexture as RenderTargetTexture, Rn_RenderTargetTexture2DArray as RenderTargetTexture2DArray, Rn_RenderTargetTextureCube as RenderTargetTextureCube, Rn_RenderableHelper as RenderableHelper, type Rn_RenderingArgWebGL as RenderingArgWebGL, type Rn_RenderingArgWebGpu as RenderingArgWebGpu, type Rn_RequireOne as RequireOne, type Rn_Result as Result, Rn_RhodoniteImportExtension as RhodoniteImportExtension, type Rn_RnError as RnError, Rn_RnException as RnException, type Rn_RnM2 as RnM2, type Rn_RnM2Accessor as RnM2Accessor, type Rn_RnM2Animation as RnM2Animation, type Rn_RnM2AnimationChannel as RnM2AnimationChannel, type Rn_RnM2AnimationChannelTarget as RnM2AnimationChannelTarget, type Rn_RnM2AnimationSampler as RnM2AnimationSampler, type Rn_RnM2Asset as RnM2Asset, type Rn_RnM2AttributeAccessors as RnM2AttributeAccessors, type Rn_RnM2AttributeBlendShapes as RnM2AttributeBlendShapes, type Rn_RnM2AttributeBlendShapesAccessors as RnM2AttributeBlendShapesAccessors, type Rn_RnM2Attributes as RnM2Attributes, type Rn_RnM2AttributesObject as RnM2AttributesObject, type Rn_RnM2Buffer as RnM2Buffer, type Rn_RnM2BufferView as RnM2BufferView, type Rn_RnM2Camera as RnM2Camera, type Rn_RnM2CameraOrthographic as RnM2CameraOrthographic, type Rn_RnM2CameraPerspective as RnM2CameraPerspective, type Rn_RnM2ExtensionEffekseer as RnM2ExtensionEffekseer, type Rn_RnM2ExtensionsEffekseerEffect as RnM2ExtensionsEffekseerEffect, type Rn_RnM2ExtensionsEffekseerTimeline as RnM2ExtensionsEffekseerTimeline, type Rn_RnM2ExtensionsEffekseerTimelineItem as RnM2ExtensionsEffekseerTimelineItem, type Rn_RnM2Image as RnM2Image, type Rn_RnM2Material as RnM2Material, type Rn_RnM2MaterialVariant as RnM2MaterialVariant, type Rn_RnM2Mesh as RnM2Mesh, type Rn_RnM2Node as RnM2Node, type Rn_RnM2NormalTextureInfo as RnM2NormalTextureInfo, type Rn_RnM2OcclusionTextureInfo as RnM2OcclusionTextureInfo, type Rn_RnM2PbrMetallicRoughness as RnM2PbrMetallicRoughness, type Rn_RnM2Primitive as RnM2Primitive, type Rn_RnM2Scene as RnM2Scene, type Rn_RnM2Skin as RnM2Skin, type Rn_RnM2Sparse as RnM2Sparse, type Rn_RnM2SparseIndices as RnM2SparseIndices, type Rn_RnM2SparseValues as RnM2SparseValues, type Rn_RnM2Texture as RnM2Texture, type Rn_RnM2TextureInfo as RnM2TextureInfo, type Rn_RnM2TextureSampler as RnM2TextureSampler, type Rn_RnM2Vrma as RnM2Vrma, Rn_RnObject as RnObject, Rn_RnPromise as RnPromise, type Rn_RnPromiseCallback as RnPromiseCallback, type Rn_RnPromiseCallbackObj as RnPromiseCallbackObj, type Rn_RnTags as RnTags, type Rn_RnWebGLProgram as RnWebGLProgram, type Rn_RnWebGLTexture as RnWebGLTexture, type Rn_RnXR as RnXR, Rn_RotationGizmo as RotationGizmo, Rn_Sampler as Sampler, type Rn_SamplerDescriptor as SamplerDescriptor, Rn_Scalar as Scalar, Rn_Scalar_ as Scalar_, Rn_Scalard as Scalard, type Rn_Scalarf as Scalarf, Rn_ScaleGizmo as ScaleGizmo, Rn_SceneGraphComponent as SceneGraphComponent, type Rn_Second as Second, type Rn_ShaderAttributeOrSemanticsOrString as ShaderAttributeOrSemanticsOrString, Rn_ShaderGraphResolver as ShaderGraphResolver, Rn_ShaderNode as ShaderNode, type Rn_ShaderNodeEnum as ShaderNodeEnum, type Rn_ShaderNodeJson as ShaderNodeJson, type Rn_ShaderNodeJsonConnection as ShaderNodeJsonConnection, type Rn_ShaderNodeJsonNode as ShaderNodeJsonNode, type Rn_ShaderNodeJsonNodeInput as ShaderNodeJsonNodeInput, type Rn_ShaderNodeJsonNodeOutput as ShaderNodeJsonNodeOutput, type Rn_ShaderNodeUID as ShaderNodeUID, Rn_ShaderSemantics as ShaderSemantics, Rn_ShaderSemanticsClass as ShaderSemanticsClass, type Rn_ShaderSemanticsEnum as ShaderSemanticsEnum, type Rn_ShaderSemanticsIndex as ShaderSemanticsIndex, type Rn_ShaderSemanticsInfo as ShaderSemanticsInfo, type Rn_ShaderSemanticsName as ShaderSemanticsName, type Rn_ShaderSocket as ShaderSocket, type Rn_ShaderSources as ShaderSources, Rn_ShaderType as ShaderType, type Rn_ShaderTypeEnum as ShaderTypeEnum, type Rn_ShaderVariable as ShaderVariable, Rn_ShaderVariableType as ShaderVariableType, type Rn_ShaderVariableTypeEnum as ShaderVariableTypeEnum, Rn_ShaderityUtilityWebGL as ShaderityUtilityWebGL, Rn_ShadingModel as ShadingModel, type Rn_ShadingModelEnum as ShadingModelEnum, Rn_ShadowMap as ShadowMap, Rn_ShadowMapDecodeClassicMaterialContent as ShadowMapDecodeClassicMaterialContent, type Rn_ShadowMapEnum as ShadowMapEnum, Rn_ShadowMapType as ShadowMapType, Rn_ShadowSystem as ShadowSystem, Rn_SimpleVertexAttribute as SimpleVertexAttribute, type Rn_Size as Size, Rn_SkeletalComponent as SkeletalComponent, Rn_Some as Some, Rn_Sphere as Sphere, Rn_SphereCollider as SphereCollider, type Rn_SphereDescriptor as SphereDescriptor, Rn_SplitVectorShaderNode as SplitVectorShaderNode, type Rn_SquareMatrixComponentN as SquareMatrixComponentN, Rn_SymbolWeakMap as SymbolWeakMap, Rn_SynthesizeHdrMaterialContent as SynthesizeHdrMaterialContent, Rn_System as System, Rn_SystemState as SystemState, type Rn_Tag as Tag, Rn_TagGltf2NodeIndex as TagGltf2NodeIndex, Rn_Texture as Texture, type Rn_TextureData as TextureData, Rn_TextureDataFloat as TextureDataFloat, Rn_TextureFetchShader as TextureFetchShader, TextureFormat$1 as TextureFormat, type Rn_TextureFormatEnum as TextureFormatEnum, Rn_TextureParameter as TextureParameter, type Rn_TextureParameterEnum as TextureParameterEnum, type Rn_TextureParameters as TextureParameters, type Rn_TextureUID as TextureUID, Rn_Time as Time, Rn_ToneMappingType as ToneMappingType, type Rn_ToneMappingTypeEnum as ToneMappingTypeEnum, type Rn_TranscodeTarget as TranscodeTarget, type Rn_TranscodedImage as TranscodedImage, Rn_Transform3D as Transform3D, Rn_TransformComponent as TransformComponent, Rn_TranslationGizmo as TranslationGizmo, type Rn_TypedArray as TypedArray, type Rn_TypedArrayConstructor as TypedArrayConstructor, Rn_UastcImageTranscoder as UastcImageTranscoder, Rn_UniformDataShader as UniformDataShader, Rn_UniformDataShaderNode as UniformDataShaderNode, Rn_VERSION as VERSION, type Rn_VRM0x_Extension as VRM0x_Extension, Rn_VRMColliderGroup as VRMColliderGroup, Rn_VRMSpring as VRMSpring, Rn_VRMSpringBone as VRMSpringBone, Rn_VRMSpringBonePhysicsStrategy as VRMSpringBonePhysicsStrategy, Rn_VarianceShadowMapDecodeClassicMaterialContent as VarianceShadowMapDecodeClassicMaterialContent, Rn_VaryingVariableShader as VaryingVariableShader, Rn_Vector2 as Vector2, Rn_Vector2_ as Vector2_, Rn_Vector2d as Vector2d, type Rn_Vector2f as Vector2f, Rn_Vector3 as Vector3, Rn_Vector3_ as Vector3_, Rn_Vector3d as Vector3d, type Rn_Vector3f as Vector3f, Rn_Vector4 as Vector4, Rn_Vector4_ as Vector4_, Rn_Vector4d as Vector4d, type Rn_Vector4f as Vector4f, type Rn_VectorAndSquareMatrixComponentN as VectorAndSquareMatrixComponentN, type Rn_VectorComponentN as VectorComponentN, type Rn_VectorCompositionTypes as VectorCompositionTypes, Rn_VectorN as VectorN, Rn_VertexAttribute as VertexAttribute, Rn_VertexAttributeClass as VertexAttributeClass, type Rn_VertexAttributeComponent as VertexAttributeComponent, type Rn_VertexAttributeEnum as VertexAttributeEnum, type Rn_VertexAttributeSemanticsJoinedString as VertexAttributeSemanticsJoinedString, type Rn_VertexAttributeTypeName as VertexAttributeTypeName, type Rn_VertexAttributesLayout as VertexAttributesLayout, type Rn_VertexHandles as VertexHandles, Rn_VideoTexture as VideoTexture, type Rn_VideoTextureArguments as VideoTextureArguments, Rn_ViewMatrixShaderNode as ViewMatrixShaderNode, Rn_Visibility as Visibility, type Rn_VisibilityEnum as VisibilityEnum, type Rn_Vrm0x as Vrm0x, type Rn_Vrm0xBlendShapeBind as Vrm0xBlendShapeBind, type Rn_Vrm0xBlendShapeGroup as Vrm0xBlendShapeGroup, type Rn_Vrm0xBoneGroup as Vrm0xBoneGroup, type Rn_Vrm0xCollider as Vrm0xCollider, type Rn_Vrm0xColliderGroup as Vrm0xColliderGroup, type Rn_Vrm0xHumanBone as Vrm0xHumanBone, Rn_Vrm0xImporter as Vrm0xImporter, type Rn_Vrm0xLookAt as Vrm0xLookAt, type Rn_Vrm0xMaterialProperty as Vrm0xMaterialProperty, Rn_VrmComponent as VrmComponent, type Rn_VrmExpression as VrmExpression, type Rn_VrmExpressionMorphBind as VrmExpressionMorphBind, type Rn_VrmExpressionName as VrmExpressionName, Rn_VrmImporter as VrmImporter, Rn_VrmaImporter as VrmaImporter, Rn_WalkThroughCameraController as WalkThroughCameraController, Rn_WeakNone as WeakNone, Rn_WeakOption as WeakOption, Rn_WeakSome as WeakSome, Rn_WebGLContextWrapper as WebGLContextWrapper, Rn_WebGLExtension as WebGLExtension, type Rn_WebGLExtensionEnum as WebGLExtensionEnum, type Rn_WebGLResource as WebGLResource, type Rn_WebGLResourceHandle as WebGLResourceHandle, Rn_WebGLResourceRepository as WebGLResourceRepository, type Rn_WebGLStates as WebGLStates, type Rn_WebGLStrategy as WebGLStrategy, Rn_WebGLStrategyDataTexture as WebGLStrategyDataTexture, Rn_WebGLStrategyUniform as WebGLStrategyUniform, type Rn_WebGPUResourceHandle as WebGPUResourceHandle, Rn_WebGpuDeviceWrapper as WebGpuDeviceWrapper, type Rn_WebGpuResource as WebGpuResource, Rn_WebGpuResourceRepository as WebGpuResourceRepository, Rn_WebGpuStrategyBasic as WebGpuStrategyBasic, Rn_WebXRSystem as WebXRSystem, Rn_WellKnownComponentTIDs as WellKnownComponentTIDs, Rn_WireframeMaterialNode as WireframeMaterialNode, Rn_WorldMatrixShaderNode as WorldMatrixShaderNode, Rn__from as _from, Rn__fromString as _fromString, Rn__fromStringCaseSensitively as _fromStringCaseSensitively, Rn__getPropertyIndex2 as _getPropertyIndex2, Rn_add2 as add2, Rn_add2_offset as add2_offset, Rn_add3 as add3, Rn_add3_offset as add3_offset, Rn_add4 as add4, Rn_add4_offset as add4_offset, Rn_addLineNumberToCode as addLineNumberToCode, Rn_applyMixins as applyMixins, Rn_array2_lerp_offsetAsComposition as array2_lerp_offsetAsComposition, Rn_array3_lerp_offsetAsComposition as array3_lerp_offsetAsComposition, Rn_array4_lerp_offsetAsComposition as array4_lerp_offsetAsComposition, Rn_arrayN_lerp_offsetAsComposition as arrayN_lerp_offsetAsComposition, Rn_assertDoesNotHave as assertDoesNotHave, Rn_assertExist as assertExist, Rn_assertHas as assertHas, Rn_assertIsErr as assertIsErr, Rn_assertIsOk as assertIsOk, Rn_calcAlignedByteLength as calcAlignedByteLength, Rn_checkVersionOfGltf as checkVersionOfGltf, Rn_combineImages as combineImages, Rn_convertHTMLImageElementToCanvas as convertHTMLImageElementToCanvas, Rn_createCameraControllerEntity as createCameraControllerEntity, Rn_createCameraEntity as createCameraEntity, Rn_createEffekseer as createEffekseer, Rn_createEntity as createEntity, Rn_createGroupEntity as createGroupEntity, Rn_createLightEntity as createLightEntity, Rn_createLightWithCameraEntity as createLightWithCameraEntity, Rn_createMeshEntity as createMeshEntity, Rn_createMotionController as createMotionController, Rn_createPhysicsEntity as createPhysicsEntity, Rn_createSkeletalEntity as createSkeletalEntity, Rn_createTransformEntity as createTransformEntity, Rn_deepCopyUsingJsonStringify as deepCopyUsingJsonStringify, Rn_defaultAnimationTrackName as defaultAnimationTrackName, Rn_defaultAssetLoader as defaultAssetLoader, Rn_defaultValue as defaultValue, Rn_detectFormatByArrayBuffers as detectFormatByArrayBuffers, Rn_detectFormatByUri as detectFormatByUri, Rn_downloadArrayBuffer as downloadArrayBuffer, Rn_downloadTypedArray as downloadTypedArray, Rn_dummyAnisotropyTexture as dummyAnisotropyTexture, Rn_dummyBlackCubeTexture as dummyBlackCubeTexture, Rn_dummyBlackTexture as dummyBlackTexture, Rn_dummyBlueTexture as dummyBlueTexture, Rn_dummyDepthMomentTextureArray as dummyDepthMomentTextureArray, Rn_dummySRGBGrayTexture as dummySRGBGrayTexture, Rn_dummyWhiteTexture as dummyWhiteTexture, Rn_dummyZeroTexture as dummyZeroTexture, Rn_enhanceArray as enhanceArray, Rn_flattenHierarchy as flattenHierarchy, Rn_fromTensorToCompositionType as fromTensorToCompositionType, Rn_get1 as get1, Rn_get1_offset as get1_offset, Rn_get1_offsetAsComposition as get1_offsetAsComposition, Rn_get2 as get2, Rn_get2_offset as get2_offset, Rn_get2_offsetAsComposition as get2_offsetAsComposition, Rn_get3 as get3, Rn_get3_offset as get3_offset, Rn_get3_offsetAsComposition as get3_offsetAsComposition, Rn_get4 as get4, Rn_get4_offset as get4_offset, Rn_get4_offsetAsComposition as get4_offsetAsComposition, Rn_getEvent as getEvent, Rn_getMotionController as getMotionController, Rn_getN_offset as getN_offset, Rn_getN_offsetAsComposition as getN_offsetAsComposition, type Rn_getShaderPropertyFuncOfGlobalDataRepository as getShaderPropertyFuncOfGlobalDataRepository, type Rn_getShaderPropertyFuncOfMaterial as getShaderPropertyFuncOfMaterial, Rn_getWebXRSystem as getWebXRSystem, type Rn_glTF1 as glTF1, Rn_greaterThan as greaterThan, Rn_ifDefinedThen as ifDefinedThen, Rn_ifDefinedThenWithReturn as ifDefinedThenWithReturn, Rn_ifExistsThen as ifExistsThen, Rn_ifExistsThenWithReturn as ifExistsThenWithReturn, Rn_ifNotExistsThen as ifNotExistsThen, Rn_ifNotExistsThenWithReturn as ifNotExistsThenWithReturn, Rn_ifUndefinedThen as ifUndefinedThen, Rn_ifUndefinedThenWithReturn as ifUndefinedThenWithReturn, Rn_initDefaultTextures as initDefaultTextures, Rn_isBlend as isBlend, Rn_isBlendWithZWrite as isBlendWithZWrite, Rn_isBlendWithoutZWrite as isBlendWithoutZWrite, Rn_isOpaque as isOpaque, Rn_isSameGlTF2TextureSampler as isSameGlTF2TextureSampler, Rn_isSkipDrawing as isSkipDrawing, Rn_isTranslucent as isTranslucent, Rn_lessThan as lessThan, Rn_mulArray3WithScalar_offset as mulArray3WithScalar_offset, Rn_mulArray4WithScalar_offset as mulArray4WithScalar_offset, Rn_mulArrayNWithScalar_offset as mulArrayNWithScalar_offset, Rn_mulThatAndThisToOutAsMat44_offsetAsComposition as mulThatAndThisToOutAsMat44_offsetAsComposition, Rn_normalizeArray4 as normalizeArray4, Rn_nullishToEmptyArray as nullishToEmptyArray, Rn_nullishToEmptyMap as nullishToEmptyMap, Rn_objectCachify as objectCachify, Rn_primitiveCachify1 as primitiveCachify1, type Rn_primitives as primitives, Rn_qlerp_offsetAsComposition as qlerp_offsetAsComposition, Rn_scalar_lerp_offsetAsComposition as scalar_lerp_offsetAsComposition, Rn_setUpAsMemoryBoostMode as setUpAsMemoryBoostMode, Rn_setupShaderProgram as setupShaderProgram, Rn_sheenLutTexture as sheenLutTexture, Rn_updateGamePad as updateGamePad, Rn_updateMotionControllerModel as updateMotionControllerModel, Rn_valueWithCompensation as valueWithCompensation, Rn_valueWithDefault as valueWithDefault };
+  export { Rn_AABB as AABB, Rn_AABBGizmo as AABBGizmo, Rn_AbsoluteAnimation as AbsoluteAnimation, Rn_AbstractArrayBufferBaseMathNumber as AbstractArrayBufferBaseMathNumber, Rn_AbstractCameraController as AbstractCameraController, Rn_AbstractMaterialContent as AbstractMaterialContent, Rn_AbstractMatrix as AbstractMatrix, Rn_AbstractQuaternion as AbstractQuaternion, Rn_AbstractShaderNode as AbstractShaderNode, Rn_AbstractTexture as AbstractTexture, Rn_AbstractVector as AbstractVector, Rn_Accessor as Accessor, Rn_AddShaderNode as AddShaderNode, Rn_AlphaMode as AlphaMode, type Rn_AlphaModeEnum as AlphaModeEnum, Rn_AnimatedQuaternion as AnimatedQuaternion, Rn_AnimatedScalar as AnimatedScalar, Rn_AnimatedVector2 as AnimatedVector2, Rn_AnimatedVector3 as AnimatedVector3, Rn_AnimatedVector4 as AnimatedVector4, Rn_AnimatedVectorN as AnimatedVectorN, Rn_AnimationAssigner as AnimationAssigner, Rn_AnimationAttribute as AnimationAttribute, type Rn_AnimationAttributeEnum as AnimationAttributeEnum, type Rn_AnimationChannel as AnimationChannel, type Rn_AnimationChannelTarget as AnimationChannelTarget, Rn_AnimationComponent as AnimationComponent, type Rn_AnimationComponentEventType as AnimationComponentEventType, type Rn_AnimationInfo as AnimationInfo, Rn_AnimationInterpolation as AnimationInterpolation, type Rn_AnimationInterpolationEnum as AnimationInterpolationEnum, type Rn_AnimationPathName as AnimationPathName, type Rn_AnimationSampler as AnimationSampler, type Rn_AnimationSamplers as AnimationSamplers, type Rn_AnimationTrack as AnimationTrack, type Rn_AnimationTrackName as AnimationTrackName, type Rn_Array1 as Array1, type Rn_Array16 as Array16, type Rn_Array1to4 as Array1to4, type Rn_Array2 as Array2, type Rn_Array3 as Array3, type Rn_Array4 as Array4, type Rn_Array9 as Array9, type Rn_ArrayAsRn as ArrayAsRn, type Rn_ArrayType as ArrayType, Rn_AssetLoader as AssetLoader, type Rn_AssetLoaderConfig as AssetLoaderConfig, Rn_AttributeColorShaderNode as AttributeColorShaderNode, type Rn_AttributeName as AttributeName, type Rn_AttributeNames as AttributeNames, Rn_AttributeNormalShaderNode as AttributeNormalShaderNode, Rn_AttributePositionShaderNode as AttributePositionShaderNode, Rn_AttributeTexcoordShaderNode as AttributeTexcoordShaderNode, type Rn_Attributes as Attributes, Rn_Axis as Axis, type Rn_AxisDescriptor as AxisDescriptor, type Rn_BASIS_TYPE as BASIS_TYPE, Rn_BasisCompressionType as BasisCompressionType, type Rn_BasisCompressionTypeEnum as BasisCompressionTypeEnum, type Rn_BasisFile as BasisFile, Rn_BasisLzEtc1sImageTranscoder as BasisLzEtc1sImageTranscoder, type Rn_BasisTranscoder as BasisTranscoder, Rn_BlendShapeComponent as BlendShapeComponent, Rn_BlockBeginShader as BlockBeginShader, Rn_BlockBeginShaderNode as BlockBeginShaderNode, Rn_BlockEndShader as BlockEndShader, Rn_BlockEndShaderNode as BlockEndShaderNode, Rn_Bloom as Bloom, Rn_BoneDataType as BoneDataType, type Rn_BoneDataTypeEnum as BoneDataTypeEnum, Rn_Buffer as Buffer, Rn_BufferUse as BufferUse, type Rn_BufferUseEnum as BufferUseEnum, Rn_BufferView as BufferView, type Byte$1 as Byte, type Rn_CGAPIResourceHandle as CGAPIResourceHandle, Rn_CGAPIResourceRepository as CGAPIResourceRepository, Rn_Cache as Cache, type Rn_CalledSubscriberNumber as CalledSubscriberNumber, Rn_CameraComponent as CameraComponent, Rn_CameraControllerComponent as CameraControllerComponent, Rn_CameraControllerType as CameraControllerType, type Rn_CameraControllerTypeEnum as CameraControllerTypeEnum, type Rn_CameraSID as CameraSID, Rn_CameraType as CameraType, type Rn_CameraTypeEnum as CameraTypeEnum, Rn_Capsule as Capsule, Rn_CapsuleCollider as CapsuleCollider, Rn_CapsuleColliderGizmo as CapsuleColliderGizmo, type Rn_CapsuleDescriptor as CapsuleDescriptor, type Rn_ChangeAnimationInfoEvent as ChangeAnimationInfoEvent, Rn_ClassicShadingShader as ClassicShadingShader, type Rn_ColorComponentLetter as ColorComponentLetter, Rn_ColorGradingUsingLUTsMaterialContent as ColorGradingUsingLUTsMaterialContent, Rn_ColorRgb as ColorRgb, Rn_ColorRgba as ColorRgba, Rn_CommonShaderPart as CommonShaderPart, Rn_ComplexVertexAttribute as ComplexVertexAttribute, Rn_Component as Component, type Rn_ComponentMixinFunction as ComponentMixinFunction, Rn_ComponentRepository as ComponentRepository, type Rn_ComponentSID as ComponentSID, type Rn_ComponentTID as ComponentTID, type Rn_ComponentToComponentMethods as ComponentToComponentMethods, Rn_ComponentType as ComponentType, type Rn_ComponentTypeEnum as ComponentTypeEnum, Rn_CompositionType as CompositionType, type Rn_CompositionTypeEnum as CompositionTypeEnum, Rn_CompressionTextureType as CompressionTextureType, type Rn_CompressionTextureTypeEnum as CompressionTextureTypeEnum, Rn_Cone as Cone, type Rn_ConeDescriptor as ConeDescriptor, Rn_Config as Config, Rn_ConstRgbaBlack as ConstRgbaBlack, Rn_ConstRgbaWhite as ConstRgbaWhite, Rn_ConstVector2_0_0 as ConstVector2_0_0, Rn_ConstVector2_1_1 as ConstVector2_1_1, Rn_ConstVector3_0_0_0 as ConstVector3_0_0_0, Rn_ConstVector3_1_1_1 as ConstVector3_1_1_1, Rn_ConstVector4_0_0_0_0 as ConstVector4_0_0_0_0, Rn_ConstVector4_0_0_0_1 as ConstVector4_0_0_0_1, Rn_ConstVector4_1_1_1_1 as ConstVector4_1_1_1_1, Rn_ConstantScalarVariableShaderNode as ConstantScalarVariableShaderNode, Rn_ConstantVariableShader as ConstantVariableShader, Rn_ConstantVector2VariableShaderNode as ConstantVector2VariableShaderNode, Rn_ConstantVector3VariableShaderNode as ConstantVector3VariableShaderNode, Rn_ConstantVector4VariableShaderNode as ConstantVector4VariableShaderNode, type Rn_Count as Count, Rn_Cube as Cube, type Rn_CubeDescriptor as CubeDescriptor, Rn_CubeTexture as CubeTexture, Rn_CustomMaterialContent as CustomMaterialContent, Rn_DataUtil as DataUtil, Rn_DefaultTextures as DefaultTextures, Rn_DepthEncodeMaterialContent as DepthEncodeMaterialContent, Rn_DetectHighLuminanceMaterialContent as DetectHighLuminanceMaterialContent, type Rn_DirectTextureData as DirectTextureData, Rn_DotProductShaderNode as DotProductShaderNode, Rn_DrcPointCloudImporter as DrcPointCloudImporter, Rn_EVENT_CLICK as EVENT_CLICK, Rn_EVENT_KEY_DOWN as EVENT_KEY_DOWN, Rn_EVENT_KEY_PRESS as EVENT_KEY_PRESS, Rn_EVENT_KEY_UP as EVENT_KEY_UP, Rn_EVENT_MOUSE_DOWN as EVENT_MOUSE_DOWN, Rn_EVENT_MOUSE_ENTER as EVENT_MOUSE_ENTER, Rn_EVENT_MOUSE_LEAVE as EVENT_MOUSE_LEAVE, Rn_EVENT_MOUSE_MOVE as EVENT_MOUSE_MOVE, Rn_EVENT_MOUSE_OVER as EVENT_MOUSE_OVER, Rn_EVENT_MOUSE_UP as EVENT_MOUSE_UP, Rn_EVENT_MOUSE_WHEEL as EVENT_MOUSE_WHEEL, Rn_EVENT_MSPOINTER_DOWN as EVENT_MSPOINTER_DOWN, Rn_EVENT_MSPOINTER_MOVE as EVENT_MSPOINTER_MOVE, Rn_EVENT_MSPOINTER_UP as EVENT_MSPOINTER_UP, Rn_EVENT_ORIENTATION_CHANGE as EVENT_ORIENTATION_CHANGE, Rn_EVENT_POINTER_CANCEL as EVENT_POINTER_CANCEL, Rn_EVENT_POINTER_DOWN as EVENT_POINTER_DOWN, Rn_EVENT_POINTER_ENTER as EVENT_POINTER_ENTER, Rn_EVENT_POINTER_LEAVE as EVENT_POINTER_LEAVE, Rn_EVENT_POINTER_MOVE as EVENT_POINTER_MOVE, Rn_EVENT_POINTER_OUT as EVENT_POINTER_OUT, Rn_EVENT_POINTER_OVER as EVENT_POINTER_OVER, Rn_EVENT_POINTER_UP as EVENT_POINTER_UP, Rn_EVENT_RESIZE as EVENT_RESIZE, Rn_EVENT_TOUCH_CANCEL as EVENT_TOUCH_CANCEL, Rn_EVENT_TOUCH_DOUBLE_TAP as EVENT_TOUCH_DOUBLE_TAP, Rn_EVENT_TOUCH_DRAG as EVENT_TOUCH_DRAG, Rn_EVENT_TOUCH_END as EVENT_TOUCH_END, Rn_EVENT_TOUCH_ENTER as EVENT_TOUCH_ENTER, Rn_EVENT_TOUCH_HOLD as EVENT_TOUCH_HOLD, Rn_EVENT_TOUCH_LEAVE as EVENT_TOUCH_LEAVE, Rn_EVENT_TOUCH_LONG_TAP as EVENT_TOUCH_LONG_TAP, Rn_EVENT_TOUCH_MOVE as EVENT_TOUCH_MOVE, Rn_EVENT_TOUCH_OUT as EVENT_TOUCH_OUT, Rn_EVENT_TOUCH_OVER as EVENT_TOUCH_OVER, Rn_EVENT_TOUCH_PINCH as EVENT_TOUCH_PINCH, Rn_EVENT_TOUCH_START as EVENT_TOUCH_START, Rn_EVENT_TOUCH_SWIPE as EVENT_TOUCH_SWIPE, Rn_EVENT_TOUCH_TAP as EVENT_TOUCH_TAP, Rn_Effekseer as Effekseer, Rn_EffekseerComponent as EffekseerComponent, Rn_EndShader as EndShader, Rn_Entity as Entity, Rn_EntityRepository as EntityRepository, type Rn_EntityUID as EntityUID, Rn_EntityUIDOutputMaterialContent as EntityUIDOutputMaterialContent, Rn_EnumClass as EnumClass, type Rn_EnumIO as EnumIO, Rn_Err as Err, type Rn_EventHandler as EventHandler, Rn_EventPubSub as EventPubSub, type Rn_EventSubscriberIndex as EventSubscriberIndex, type Rn_EventType as EventType, Rn_Expression as Expression, Rn_FileType as FileType, type Rn_FileTypeEnum as FileTypeEnum, type Rn_FillArgsObject as FillArgsObject, type Rn_FloatTypedArray as FloatTypedArray, type Rn_FloatTypedArrayConstructor as FloatTypedArrayConstructor, Rn_ForwardRenderPipeline as ForwardRenderPipeline, Rn_Frame as Frame, Rn_FrameBuffer as FrameBuffer, type Rn_FrameBufferCubeMapDescriptor as FrameBufferCubeMapDescriptor, type Rn_FrameBufferDescriptor as FrameBufferDescriptor, type Rn_FrameBufferMSAADescriptor as FrameBufferMSAADescriptor, type Rn_FrameBufferTextureArrayDescriptor as FrameBufferTextureArrayDescriptor, type Rn_FrameBufferTextureArrayForMultiViewDescriptor as FrameBufferTextureArrayForMultiViewDescriptor, Rn_Frustum as Frustum, Rn_FurnaceTestMaterialContent as FurnaceTestMaterialContent, Rn_GLTF2_EXPORT_DRACO as GLTF2_EXPORT_DRACO, Rn_GLTF2_EXPORT_EMBEDDED as GLTF2_EXPORT_EMBEDDED, Rn_GLTF2_EXPORT_GLB as GLTF2_EXPORT_GLB, Rn_GLTF2_EXPORT_GLTF as GLTF2_EXPORT_GLTF, Rn_GLTF2_EXPORT_NO_DOWNLOAD as GLTF2_EXPORT_NO_DOWNLOAD, Rn_GL_ACTIVE_ATTRIBUTES as GL_ACTIVE_ATTRIBUTES, Rn_GL_ACTIVE_TEXTURE as GL_ACTIVE_TEXTURE, Rn_GL_ACTIVE_UNIFORMS as GL_ACTIVE_UNIFORMS, Rn_GL_ACTIVE_UNIFORM_BLOCKS as GL_ACTIVE_UNIFORM_BLOCKS, Rn_GL_ALIASED_LINE_WIDTH_RANGE as GL_ALIASED_LINE_WIDTH_RANGE, Rn_GL_ALIASED_POINT_SIZE_RANGE as GL_ALIASED_POINT_SIZE_RANGE, Rn_GL_ALPHA as GL_ALPHA, Rn_GL_ALPHA_BITS as GL_ALPHA_BITS, Rn_GL_ALREADY_SIGNALED as GL_ALREADY_SIGNALED, Rn_GL_ALWAYS as GL_ALWAYS, Rn_GL_ANY_SAMPLES_PASSED as GL_ANY_SAMPLES_PASSED, Rn_GL_ANY_SAMPLES_PASSED_CONSERVATIVE as GL_ANY_SAMPLES_PASSED_CONSERVATIVE, Rn_GL_ARRAY_BUFFER as GL_ARRAY_BUFFER, Rn_GL_ARRAY_BUFFER_BINDING as GL_ARRAY_BUFFER_BINDING, Rn_GL_ATTACHED_SHADERS as GL_ATTACHED_SHADERS, Rn_GL_BACK as GL_BACK, Rn_GL_BLEND as GL_BLEND, Rn_GL_BLEND_COLOR as GL_BLEND_COLOR, Rn_GL_BLEND_DST_ALPHA as GL_BLEND_DST_ALPHA, Rn_GL_BLEND_DST_RGB as GL_BLEND_DST_RGB, Rn_GL_BLEND_EQUATION as GL_BLEND_EQUATION, Rn_GL_BLEND_EQUATION_ALPHA as GL_BLEND_EQUATION_ALPHA, Rn_GL_BLEND_EQUATION_RGB as GL_BLEND_EQUATION_RGB, Rn_GL_BLEND_SRC_ALPHA as GL_BLEND_SRC_ALPHA, Rn_GL_BLEND_SRC_RGB as GL_BLEND_SRC_RGB, Rn_GL_BLUE_BITS as GL_BLUE_BITS, Rn_GL_BOOL as GL_BOOL, Rn_GL_BOOL_VEC2 as GL_BOOL_VEC2, Rn_GL_BOOL_VEC3 as GL_BOOL_VEC3, Rn_GL_BOOL_VEC4 as GL_BOOL_VEC4, Rn_GL_BROWSER_DEFAULT_WEBGL as GL_BROWSER_DEFAULT_WEBGL, Rn_GL_BUFFER_SIZE as GL_BUFFER_SIZE, Rn_GL_BUFFER_USAGE as GL_BUFFER_USAGE, Rn_GL_CCW as GL_CCW, Rn_GL_CLAMP_TO_EDGE as GL_CLAMP_TO_EDGE, Rn_GL_COLOR as GL_COLOR, Rn_GL_COLOR_ATTACHMENT0 as GL_COLOR_ATTACHMENT0, Rn_GL_COLOR_ATTACHMENT0_WEBGL as GL_COLOR_ATTACHMENT0_WEBGL, Rn_GL_COLOR_ATTACHMENT1 as GL_COLOR_ATTACHMENT1, Rn_GL_COLOR_ATTACHMENT10 as GL_COLOR_ATTACHMENT10, Rn_GL_COLOR_ATTACHMENT10_WEBGL as GL_COLOR_ATTACHMENT10_WEBGL, Rn_GL_COLOR_ATTACHMENT11 as GL_COLOR_ATTACHMENT11, Rn_GL_COLOR_ATTACHMENT11_WEBGL as GL_COLOR_ATTACHMENT11_WEBGL, Rn_GL_COLOR_ATTACHMENT12 as GL_COLOR_ATTACHMENT12, Rn_GL_COLOR_ATTACHMENT12_WEBGL as GL_COLOR_ATTACHMENT12_WEBGL, Rn_GL_COLOR_ATTACHMENT13 as GL_COLOR_ATTACHMENT13, Rn_GL_COLOR_ATTACHMENT13_WEBGL as GL_COLOR_ATTACHMENT13_WEBGL, Rn_GL_COLOR_ATTACHMENT14 as GL_COLOR_ATTACHMENT14, Rn_GL_COLOR_ATTACHMENT14_WEBGL as GL_COLOR_ATTACHMENT14_WEBGL, Rn_GL_COLOR_ATTACHMENT15 as GL_COLOR_ATTACHMENT15, Rn_GL_COLOR_ATTACHMENT15_WEBGL as GL_COLOR_ATTACHMENT15_WEBGL, Rn_GL_COLOR_ATTACHMENT1_WEBGL as GL_COLOR_ATTACHMENT1_WEBGL, Rn_GL_COLOR_ATTACHMENT2 as GL_COLOR_ATTACHMENT2, Rn_GL_COLOR_ATTACHMENT2_WEBGL as GL_COLOR_ATTACHMENT2_WEBGL, Rn_GL_COLOR_ATTACHMENT3 as GL_COLOR_ATTACHMENT3, Rn_GL_COLOR_ATTACHMENT3_WEBGL as GL_COLOR_ATTACHMENT3_WEBGL, Rn_GL_COLOR_ATTACHMENT4 as GL_COLOR_ATTACHMENT4, Rn_GL_COLOR_ATTACHMENT4_WEBGL as GL_COLOR_ATTACHMENT4_WEBGL, Rn_GL_COLOR_ATTACHMENT5 as GL_COLOR_ATTACHMENT5, Rn_GL_COLOR_ATTACHMENT5_WEBGL as GL_COLOR_ATTACHMENT5_WEBGL, Rn_GL_COLOR_ATTACHMENT6 as GL_COLOR_ATTACHMENT6, Rn_GL_COLOR_ATTACHMENT6_WEBGL as GL_COLOR_ATTACHMENT6_WEBGL, Rn_GL_COLOR_ATTACHMENT7 as GL_COLOR_ATTACHMENT7, Rn_GL_COLOR_ATTACHMENT7_WEBGL as GL_COLOR_ATTACHMENT7_WEBGL, Rn_GL_COLOR_ATTACHMENT8 as GL_COLOR_ATTACHMENT8, Rn_GL_COLOR_ATTACHMENT8_WEBGL as GL_COLOR_ATTACHMENT8_WEBGL, Rn_GL_COLOR_ATTACHMENT9 as GL_COLOR_ATTACHMENT9, Rn_GL_COLOR_ATTACHMENT9_WEBGL as GL_COLOR_ATTACHMENT9_WEBGL, Rn_GL_COLOR_BUFFER_BIT as GL_COLOR_BUFFER_BIT, Rn_GL_COLOR_CLEAR_VALUE as GL_COLOR_CLEAR_VALUE, Rn_GL_COLOR_WRITEMASK as GL_COLOR_WRITEMASK, Rn_GL_COMPARE_REF_TO_TEXTURE as GL_COMPARE_REF_TO_TEXTURE, Rn_GL_COMPILE_STATUS as GL_COMPILE_STATUS, Rn_GL_COMPRESSED_R11_EAC as GL_COMPRESSED_R11_EAC, Rn_GL_COMPRESSED_RG11_EAC as GL_COMPRESSED_RG11_EAC, Rn_GL_COMPRESSED_RGB8_ETC2 as GL_COMPRESSED_RGB8_ETC2, Rn_GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2 as GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2, Rn_GL_COMPRESSED_RGBA8_ETC2_EAC as GL_COMPRESSED_RGBA8_ETC2_EAC, Rn_GL_COMPRESSED_RGBA_ASTC_10X10_KHR as GL_COMPRESSED_RGBA_ASTC_10X10_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_10X5_KHR as GL_COMPRESSED_RGBA_ASTC_10X5_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_10X6_KHR as GL_COMPRESSED_RGBA_ASTC_10X6_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_10X8_KHR as GL_COMPRESSED_RGBA_ASTC_10X8_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_12X10_KHR as GL_COMPRESSED_RGBA_ASTC_12X10_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_12X12_KHR as GL_COMPRESSED_RGBA_ASTC_12X12_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_4X4_KHR as GL_COMPRESSED_RGBA_ASTC_4X4_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_5X4_KHR as GL_COMPRESSED_RGBA_ASTC_5X4_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_5X5_KHR as GL_COMPRESSED_RGBA_ASTC_5X5_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_6X5_KHR as GL_COMPRESSED_RGBA_ASTC_6X5_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_6X6_KHR as GL_COMPRESSED_RGBA_ASTC_6X6_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_8X5_KHR as GL_COMPRESSED_RGBA_ASTC_8X5_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_8X6_KHR as GL_COMPRESSED_RGBA_ASTC_8X6_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_8X8_KHR as GL_COMPRESSED_RGBA_ASTC_8X8_KHR, Rn_GL_COMPRESSED_RGBA_ATC_EXPLICIT_ALPHA_WEBGL as GL_COMPRESSED_RGBA_ATC_EXPLICIT_ALPHA_WEBGL, Rn_GL_COMPRESSED_RGBA_ATC_INTERPOLATED_ALPHA_WEBGL as GL_COMPRESSED_RGBA_ATC_INTERPOLATED_ALPHA_WEBGL, Rn_GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG as GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG, Rn_GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG as GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, Rn_GL_COMPRESSED_RGBA_S3TC_DXT1_EXT as GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, Rn_GL_COMPRESSED_RGBA_S3TC_DXT3_EXT as GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, Rn_GL_COMPRESSED_RGBA_S3TC_DXT5_EXT as GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, Rn_GL_COMPRESSED_RGB_ATC_WEBGL as GL_COMPRESSED_RGB_ATC_WEBGL, Rn_GL_COMPRESSED_RGB_ETC1_WEBGL as GL_COMPRESSED_RGB_ETC1_WEBGL, Rn_GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG as GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG, Rn_GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG as GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, Rn_GL_COMPRESSED_RGB_S3TC_DXT1_EXT as GL_COMPRESSED_RGB_S3TC_DXT1_EXT, Rn_GL_COMPRESSED_SIGNED_R11_EAC as GL_COMPRESSED_SIGNED_R11_EAC, Rn_GL_COMPRESSED_SIGNED_RG11_EAC as GL_COMPRESSED_SIGNED_RG11_EAC, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X10_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X10_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X5_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X5_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X6_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X6_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X8_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X8_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X10_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X10_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X12_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X12_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4X4_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4X4_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X4_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X4_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X5_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X5_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X5_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X5_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X6_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X6_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X5_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X5_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X6_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X6_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X8_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X8_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC as GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC, Rn_GL_COMPRESSED_SRGB8_ETC2 as GL_COMPRESSED_SRGB8_ETC2, Rn_GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2 as GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2, Rn_GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT as GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT, Rn_GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT as GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT, Rn_GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT as GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT, Rn_GL_COMPRESSED_SRGB_S3TC_DXT1_EXT as GL_COMPRESSED_SRGB_S3TC_DXT1_EXT, Rn_GL_COMPRESSED_TEXTURE_FORMATS as GL_COMPRESSED_TEXTURE_FORMATS, Rn_GL_CONDITION_SATISFIED as GL_CONDITION_SATISFIED, Rn_GL_CONSTANT_ALPHA as GL_CONSTANT_ALPHA, Rn_GL_CONSTANT_COLOR as GL_CONSTANT_COLOR, Rn_GL_CONTEXT_LOST_WEBGL as GL_CONTEXT_LOST_WEBGL, Rn_GL_COPY_READ_BUFFER as GL_COPY_READ_BUFFER, Rn_GL_COPY_READ_BUFFER_BINDING as GL_COPY_READ_BUFFER_BINDING, Rn_GL_COPY_WRITE_BUFFER as GL_COPY_WRITE_BUFFER, Rn_GL_COPY_WRITE_BUFFER_BINDING as GL_COPY_WRITE_BUFFER_BINDING, Rn_GL_CULL_FACE as GL_CULL_FACE, Rn_GL_CULL_FACE_MODE as GL_CULL_FACE_MODE, Rn_GL_CURRENT_PROGRAM as GL_CURRENT_PROGRAM, Rn_GL_CURRENT_QUERY as GL_CURRENT_QUERY, Rn_GL_CURRENT_QUERY_EXT as GL_CURRENT_QUERY_EXT, Rn_GL_CURRENT_VERTEX_ATTRIB as GL_CURRENT_VERTEX_ATTRIB, Rn_GL_CW as GL_CW, Rn_GL_DATA_BYTE as GL_DATA_BYTE, Rn_GL_DATA_FLOAT as GL_DATA_FLOAT, Rn_GL_DATA_INT as GL_DATA_INT, Rn_GL_DATA_SHORT as GL_DATA_SHORT, Rn_GL_DATA_UNSIGNED_BYTE as GL_DATA_UNSIGNED_BYTE, Rn_GL_DATA_UNSIGNED_INT as GL_DATA_UNSIGNED_INT, Rn_GL_DATA_UNSIGNED_SHORT as GL_DATA_UNSIGNED_SHORT, Rn_GL_DECR as GL_DECR, Rn_GL_DECR_WRAP as GL_DECR_WRAP, Rn_GL_DELETE_STATUS as GL_DELETE_STATUS, Rn_GL_DEPTH as GL_DEPTH, Rn_GL_DEPTH24_STENCIL8 as GL_DEPTH24_STENCIL8, Rn_GL_DEPTH32F_STENCIL8 as GL_DEPTH32F_STENCIL8, Rn_GL_DEPTH_ATTACHMENT as GL_DEPTH_ATTACHMENT, Rn_GL_DEPTH_BITS as GL_DEPTH_BITS, Rn_GL_DEPTH_BUFFER_BIT as GL_DEPTH_BUFFER_BIT, Rn_GL_DEPTH_CLEAR_VALUE as GL_DEPTH_CLEAR_VALUE, Rn_GL_DEPTH_COMPONENT as GL_DEPTH_COMPONENT, Rn_GL_DEPTH_COMPONENT16 as GL_DEPTH_COMPONENT16, Rn_GL_DEPTH_COMPONENT24 as GL_DEPTH_COMPONENT24, Rn_GL_DEPTH_COMPONENT32F as GL_DEPTH_COMPONENT32F, Rn_GL_DEPTH_FUNC as GL_DEPTH_FUNC, Rn_GL_DEPTH_RANGE as GL_DEPTH_RANGE, Rn_GL_DEPTH_STENCIL as GL_DEPTH_STENCIL, Rn_GL_DEPTH_STENCIL_ATTACHMENT as GL_DEPTH_STENCIL_ATTACHMENT, Rn_GL_DEPTH_TEST as GL_DEPTH_TEST, Rn_GL_DEPTH_WRITEMASK as GL_DEPTH_WRITEMASK, Rn_GL_DITHER as GL_DITHER, Rn_GL_DONT_CARE as GL_DONT_CARE, Rn_GL_DRAW_BUFFER0 as GL_DRAW_BUFFER0, Rn_GL_DRAW_BUFFER0_WEBGL as GL_DRAW_BUFFER0_WEBGL, Rn_GL_DRAW_BUFFER1 as GL_DRAW_BUFFER1, Rn_GL_DRAW_BUFFER10 as GL_DRAW_BUFFER10, Rn_GL_DRAW_BUFFER10_WEBGL as GL_DRAW_BUFFER10_WEBGL, Rn_GL_DRAW_BUFFER11 as GL_DRAW_BUFFER11, Rn_GL_DRAW_BUFFER11_WEBGL as GL_DRAW_BUFFER11_WEBGL, Rn_GL_DRAW_BUFFER12 as GL_DRAW_BUFFER12, Rn_GL_DRAW_BUFFER12_WEBGL as GL_DRAW_BUFFER12_WEBGL, Rn_GL_DRAW_BUFFER13 as GL_DRAW_BUFFER13, Rn_GL_DRAW_BUFFER13_WEBGL as GL_DRAW_BUFFER13_WEBGL, Rn_GL_DRAW_BUFFER14 as GL_DRAW_BUFFER14, Rn_GL_DRAW_BUFFER14_WEBGL as GL_DRAW_BUFFER14_WEBGL, Rn_GL_DRAW_BUFFER15 as GL_DRAW_BUFFER15, Rn_GL_DRAW_BUFFER15_WEBGL as GL_DRAW_BUFFER15_WEBGL, Rn_GL_DRAW_BUFFER1_WEBGL as GL_DRAW_BUFFER1_WEBGL, Rn_GL_DRAW_BUFFER2 as GL_DRAW_BUFFER2, Rn_GL_DRAW_BUFFER2_WEBGL as GL_DRAW_BUFFER2_WEBGL, Rn_GL_DRAW_BUFFER3 as GL_DRAW_BUFFER3, Rn_GL_DRAW_BUFFER3_WEBGL as GL_DRAW_BUFFER3_WEBGL, Rn_GL_DRAW_BUFFER4 as GL_DRAW_BUFFER4, Rn_GL_DRAW_BUFFER4_WEBGL as GL_DRAW_BUFFER4_WEBGL, Rn_GL_DRAW_BUFFER5 as GL_DRAW_BUFFER5, Rn_GL_DRAW_BUFFER5_WEBGL as GL_DRAW_BUFFER5_WEBGL, Rn_GL_DRAW_BUFFER6 as GL_DRAW_BUFFER6, Rn_GL_DRAW_BUFFER6_WEBGL as GL_DRAW_BUFFER6_WEBGL, Rn_GL_DRAW_BUFFER7 as GL_DRAW_BUFFER7, Rn_GL_DRAW_BUFFER7_WEBGL as GL_DRAW_BUFFER7_WEBGL, Rn_GL_DRAW_BUFFER8 as GL_DRAW_BUFFER8, Rn_GL_DRAW_BUFFER8_WEBGL as GL_DRAW_BUFFER8_WEBGL, Rn_GL_DRAW_BUFFER9 as GL_DRAW_BUFFER9, Rn_GL_DRAW_BUFFER9_WEBGL as GL_DRAW_BUFFER9_WEBGL, Rn_GL_DRAW_FRAMEBUFFER as GL_DRAW_FRAMEBUFFER, Rn_GL_DRAW_FRAMEBUFFER_BINDING as GL_DRAW_FRAMEBUFFER_BINDING, Rn_GL_DST_ALPHA as GL_DST_ALPHA, Rn_GL_DST_COLOR as GL_DST_COLOR, Rn_GL_DYNAMIC_COPY as GL_DYNAMIC_COPY, Rn_GL_DYNAMIC_DRAW as GL_DYNAMIC_DRAW, Rn_GL_DYNAMIC_READ as GL_DYNAMIC_READ, Rn_GL_ELEMENT_ARRAY_BUFFER as GL_ELEMENT_ARRAY_BUFFER, Rn_GL_ELEMENT_ARRAY_BUFFER_BINDING as GL_ELEMENT_ARRAY_BUFFER_BINDING, Rn_GL_EQUAL as GL_EQUAL, Rn_GL_FASTEST as GL_FASTEST, Rn_GL_FLOAT_32_UNSIGNED_INT_24_8_REV as GL_FLOAT_32_UNSIGNED_INT_24_8_REV, Rn_GL_FLOAT_MAT2 as GL_FLOAT_MAT2, Rn_GL_FLOAT_MAT2X3 as GL_FLOAT_MAT2X3, Rn_GL_FLOAT_MAT2X4 as GL_FLOAT_MAT2X4, Rn_GL_FLOAT_MAT3 as GL_FLOAT_MAT3, Rn_GL_FLOAT_MAT3X2 as GL_FLOAT_MAT3X2, Rn_GL_FLOAT_MAT3X4 as GL_FLOAT_MAT3X4, Rn_GL_FLOAT_MAT4 as GL_FLOAT_MAT4, Rn_GL_FLOAT_MAT4X2 as GL_FLOAT_MAT4X2, Rn_GL_FLOAT_MAT4X3 as GL_FLOAT_MAT4X3, Rn_GL_FLOAT_VEC2 as GL_FLOAT_VEC2, Rn_GL_FLOAT_VEC3 as GL_FLOAT_VEC3, Rn_GL_FLOAT_VEC4 as GL_FLOAT_VEC4, Rn_GL_FRAGMENT_SHADER as GL_FRAGMENT_SHADER, Rn_GL_FRAGMENT_SHADER_DERIVATIVE_HINT as GL_FRAGMENT_SHADER_DERIVATIVE_HINT, Rn_GL_FRAGMENT_SHADER_DERIVATIVE_HINT_OES as GL_FRAGMENT_SHADER_DERIVATIVE_HINT_OES, Rn_GL_FRAMEBUFFER as GL_FRAMEBUFFER, Rn_GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE as GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, Rn_GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE as GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, Rn_GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING as GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, Rn_GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING_EXT as GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING_EXT, Rn_GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE as GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE, Rn_GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE_EXT as GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE_EXT, Rn_GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE as GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, Rn_GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE as GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, Rn_GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME as GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, Rn_GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE as GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, Rn_GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE as GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, Rn_GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE as GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, Rn_GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE as GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE, Rn_GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER as GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER, Rn_GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL as GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL, Rn_GL_FRAMEBUFFER_BINDING as GL_FRAMEBUFFER_BINDING, Rn_GL_FRAMEBUFFER_COMPLETE as GL_FRAMEBUFFER_COMPLETE, Rn_GL_FRAMEBUFFER_DEFAULT as GL_FRAMEBUFFER_DEFAULT, Rn_GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT as GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT, Rn_GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS as GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS, Rn_GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT as GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT, Rn_GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE as GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE, Rn_GL_FRAMEBUFFER_UNSUPPORTED as GL_FRAMEBUFFER_UNSUPPORTED, Rn_GL_FRONT as GL_FRONT, Rn_GL_FRONT_AND_BACK as GL_FRONT_AND_BACK, Rn_GL_FRONT_FACE as GL_FRONT_FACE, Rn_GL_FUNC_ADD as GL_FUNC_ADD, Rn_GL_FUNC_REVERSE_SUBTRACT as GL_FUNC_REVERSE_SUBTRACT, Rn_GL_FUNC_SUBSTRACT as GL_FUNC_SUBSTRACT, Rn_GL_GENERATE_MIPMAP_HINT as GL_GENERATE_MIPMAP_HINT, Rn_GL_GEQUAL as GL_GEQUAL, Rn_GL_GPU_DISJOINT_EXT as GL_GPU_DISJOINT_EXT, Rn_GL_GREATER as GL_GREATER, Rn_GL_GREEN_BITS as GL_GREEN_BITS, Rn_GL_HALF_FLOAT as GL_HALF_FLOAT, Rn_GL_HALF_FLOAT_OES as GL_HALF_FLOAT_OES, Rn_GL_HIGH_FLOAT as GL_HIGH_FLOAT, Rn_GL_HIGH_INT as GL_HIGH_INT, Rn_GL_IMPLEMENTATION_COLOR_READ_FORMAT as GL_IMPLEMENTATION_COLOR_READ_FORMAT, Rn_GL_IMPLEMENTATION_COLOR_READ_TYPE as GL_IMPLEMENTATION_COLOR_READ_TYPE, Rn_GL_INCR as GL_INCR, Rn_GL_INCR_WRAP as GL_INCR_WRAP, Rn_GL_INTERLEAVED_ATTRIBS as GL_INTERLEAVED_ATTRIBS, Rn_GL_INT_2_10_10_10_REV as GL_INT_2_10_10_10_REV, Rn_GL_INT_SAMPLER_2D as GL_INT_SAMPLER_2D, Rn_GL_INT_SAMPLER_2D_ARRAY as GL_INT_SAMPLER_2D_ARRAY, Rn_GL_INT_SAMPLER_3D as GL_INT_SAMPLER_3D, Rn_GL_INT_SAMPLER_CUBE as GL_INT_SAMPLER_CUBE, Rn_GL_INT_VEC2 as GL_INT_VEC2, Rn_GL_INT_VEC3 as GL_INT_VEC3, Rn_GL_INT_VEC4 as GL_INT_VEC4, Rn_GL_INVALID_ENUM as GL_INVALID_ENUM, Rn_GL_INVALID_FRAMEBUFFER_OPERATION as GL_INVALID_FRAMEBUFFER_OPERATION, Rn_GL_INVALID_INDEX as GL_INVALID_INDEX, Rn_GL_INVALID_OPERATION as GL_INVALID_OPERATION, Rn_GL_INVALID_VALUE as GL_INVALID_VALUE, Rn_GL_INVERT as GL_INVERT, Rn_GL_KEEP as GL_KEEP, Rn_GL_LEQUAL as GL_LEQUAL, Rn_GL_LESS as GL_LESS, Rn_GL_LINEAR as GL_LINEAR, Rn_GL_LINEAR_MIPMAP_LINEAR as GL_LINEAR_MIPMAP_LINEAR, Rn_GL_LINEAR_MIPMAP_NEAREST as GL_LINEAR_MIPMAP_NEAREST, Rn_GL_LINES as GL_LINES, Rn_GL_LINE_LOOP as GL_LINE_LOOP, Rn_GL_LINE_STRIP as GL_LINE_STRIP, Rn_GL_LINE_WIDTH as GL_LINE_WIDTH, Rn_GL_LINK_STATUS as GL_LINK_STATUS, Rn_GL_LOW_FLOAT as GL_LOW_FLOAT, Rn_GL_LOW_INT as GL_LOW_INT, Rn_GL_LUMINANCE as GL_LUMINANCE, Rn_GL_LUMINANCE_ALPHA as GL_LUMINANCE_ALPHA, Rn_GL_MAX as GL_MAX, Rn_GL_MAX_3D_TEXTURE_SIZE as GL_MAX_3D_TEXTURE_SIZE, Rn_GL_MAX_ARRAY_TEXTURE_LAYERS as GL_MAX_ARRAY_TEXTURE_LAYERS, Rn_GL_MAX_CLIENT_WAIT_TIMEOUT_WEBGL as GL_MAX_CLIENT_WAIT_TIMEOUT_WEBGL, Rn_GL_MAX_COLOR_ATTACHMENTS as GL_MAX_COLOR_ATTACHMENTS, Rn_GL_MAX_COLOR_ATTACHMENTS_WEBGL as GL_MAX_COLOR_ATTACHMENTS_WEBGL, Rn_GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS as GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS, Rn_GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS as GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, Rn_GL_MAX_COMBINED_UNIFORM_BLOCKS as GL_MAX_COMBINED_UNIFORM_BLOCKS, Rn_GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS as GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS, Rn_GL_MAX_CUBE_MAP_TEXTURE_SIZE as GL_MAX_CUBE_MAP_TEXTURE_SIZE, Rn_GL_MAX_DRAW_BUFFERS as GL_MAX_DRAW_BUFFERS, Rn_GL_MAX_DRAW_BUFFERS_WEBGL as GL_MAX_DRAW_BUFFERS_WEBGL, Rn_GL_MAX_ELEMENTS_INDICES as GL_MAX_ELEMENTS_INDICES, Rn_GL_MAX_ELEMENTS_VERTICES as GL_MAX_ELEMENTS_VERTICES, Rn_GL_MAX_ELEMENT_INDEX as GL_MAX_ELEMENT_INDEX, Rn_GL_MAX_EXT as GL_MAX_EXT, Rn_GL_MAX_FRAGMENT_INPUT_COMPONENTS as GL_MAX_FRAGMENT_INPUT_COMPONENTS, Rn_GL_MAX_FRAGMENT_UNIFORM_BLOCKS as GL_MAX_FRAGMENT_UNIFORM_BLOCKS, Rn_GL_MAX_FRAGMENT_UNIFORM_COMPONENTS as GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, Rn_GL_MAX_FRAGMENT_UNIFORM_VECTORS as GL_MAX_FRAGMENT_UNIFORM_VECTORS, Rn_GL_MAX_PROGRAM_TEXEL_OFFSET as GL_MAX_PROGRAM_TEXEL_OFFSET, Rn_GL_MAX_RENDERBUFFER_SIZE as GL_MAX_RENDERBUFFER_SIZE, Rn_GL_MAX_SAMPLES as GL_MAX_SAMPLES, Rn_GL_MAX_SERVER_WAIT_TIMEOUT as GL_MAX_SERVER_WAIT_TIMEOUT, Rn_GL_MAX_TEXTURE_IMAGE_UNITS as GL_MAX_TEXTURE_IMAGE_UNITS, Rn_GL_MAX_TEXTURE_LOD_BIAS as GL_MAX_TEXTURE_LOD_BIAS, Rn_GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT as GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, Rn_GL_MAX_TEXTURE_SIZE as GL_MAX_TEXTURE_SIZE, Rn_GL_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS as GL_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS, Rn_GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS as GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS, Rn_GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS as GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS, Rn_GL_MAX_UNIFORM_BLOCK_SIZE as GL_MAX_UNIFORM_BLOCK_SIZE, Rn_GL_MAX_UNIFORM_BUFFER_BINDINGS as GL_MAX_UNIFORM_BUFFER_BINDINGS, Rn_GL_MAX_VARYING_COMPONENTS as GL_MAX_VARYING_COMPONENTS, Rn_GL_MAX_VARYING_VECTORS as GL_MAX_VARYING_VECTORS, Rn_GL_MAX_VERTEX_ATTRIBS as GL_MAX_VERTEX_ATTRIBS, Rn_GL_MAX_VERTEX_OUTPUT_COMPONENTS as GL_MAX_VERTEX_OUTPUT_COMPONENTS, Rn_GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS as GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, Rn_GL_MAX_VERTEX_UNIFORM_BLOCKS as GL_MAX_VERTEX_UNIFORM_BLOCKS, Rn_GL_MAX_VERTEX_UNIFORM_COMPONENTS as GL_MAX_VERTEX_UNIFORM_COMPONENTS, Rn_GL_MAX_VERTEX_UNIFORM_VECTORS as GL_MAX_VERTEX_UNIFORM_VECTORS, Rn_GL_MAX_VIEWPORT_DIMS as GL_MAX_VIEWPORT_DIMS, Rn_GL_MEDIUM_FLOAT as GL_MEDIUM_FLOAT, Rn_GL_MEDIUM_INT as GL_MEDIUM_INT, Rn_GL_MIN as GL_MIN, Rn_GL_MIN_EXT as GL_MIN_EXT, Rn_GL_MIN_PROGRAM_TEXEL_OFFSET as GL_MIN_PROGRAM_TEXEL_OFFSET, Rn_GL_MIRRORED_REPEAT as GL_MIRRORED_REPEAT, Rn_GL_NEAREST as GL_NEAREST, Rn_GL_NEAREST_MIPMAP_LINEAR as GL_NEAREST_MIPMAP_LINEAR, Rn_GL_NEAREST_MIPMAP_NEAREST as GL_NEAREST_MIPMAP_NEAREST, Rn_GL_NEVER as GL_NEVER, Rn_GL_NICEST as GL_NICEST, Rn_GL_NONE as GL_NONE, Rn_GL_NOTEQUAL as GL_NOTEQUAL, Rn_GL_NO_ERROR as GL_NO_ERROR, Rn_GL_OBJECT_TYPE as GL_OBJECT_TYPE, Rn_GL_ONE as GL_ONE, Rn_GL_ONE_MINUS_CONSTANT_ALPHA as GL_ONE_MINUS_CONSTANT_ALPHA, Rn_GL_ONE_MINUS_CONSTANT_COLOR as GL_ONE_MINUS_CONSTANT_COLOR, Rn_GL_ONE_MINUS_DST_ALPHA as GL_ONE_MINUS_DST_ALPHA, Rn_GL_ONE_MINUS_DST_COLOR as GL_ONE_MINUS_DST_COLOR, Rn_GL_ONE_MINUS_SRC_ALPHA as GL_ONE_MINUS_SRC_ALPHA, Rn_GL_ONE_MINUS_SRC_COLOR as GL_ONE_MINUS_SRC_COLOR, Rn_GL_OUT_OF_MEMORY as GL_OUT_OF_MEMORY, Rn_GL_PACK_ALIGNMENT as GL_PACK_ALIGNMENT, Rn_GL_PACK_ROW_LENGTH as GL_PACK_ROW_LENGTH, Rn_GL_PACK_SKIP_PIXELS as GL_PACK_SKIP_PIXELS, Rn_GL_PACK_SKIP_ROWS as GL_PACK_SKIP_ROWS, Rn_GL_PIXEL_PACK_BUFFER as GL_PIXEL_PACK_BUFFER, Rn_GL_PIXEL_PACK_BUFFER_BINDING as GL_PIXEL_PACK_BUFFER_BINDING, Rn_GL_PIXEL_UNPACK_BUFFER as GL_PIXEL_UNPACK_BUFFER, Rn_GL_PIXEL_UNPACK_BUFFER_BINDING as GL_PIXEL_UNPACK_BUFFER_BINDING, Rn_GL_PIXEL_UNSIGNED_BYTE as GL_PIXEL_UNSIGNED_BYTE, Rn_GL_PIXEL_UNSIGNED_SHORT_4_4_4_4 as GL_PIXEL_UNSIGNED_SHORT_4_4_4_4, Rn_GL_PIXEL_UNSIGNED_SHORT_5_5_5_1 as GL_PIXEL_UNSIGNED_SHORT_5_5_5_1, Rn_GL_PIXEL_UNSIGNED_SHORT_5_6_5 as GL_PIXEL_UNSIGNED_SHORT_5_6_5, Rn_GL_POINTS as GL_POINTS, Rn_GL_POLYGON_OFFSET_FACTOR as GL_POLYGON_OFFSET_FACTOR, Rn_GL_POLYGON_OFFSET_FILL as GL_POLYGON_OFFSET_FILL, Rn_GL_POLYGON_OFFSET_UNITS as GL_POLYGON_OFFSET_UNITS, Rn_GL_QUERY_COUNTER_BITS_EXT as GL_QUERY_COUNTER_BITS_EXT, Rn_GL_QUERY_RESULT as GL_QUERY_RESULT, Rn_GL_QUERY_RESULT_AVAILABLE as GL_QUERY_RESULT_AVAILABLE, Rn_GL_QUERY_RESULT_AVAILABLE_EXT as GL_QUERY_RESULT_AVAILABLE_EXT, Rn_GL_QUERY_RESULT_EXT as GL_QUERY_RESULT_EXT, Rn_GL_R11F_G11F_B10F as GL_R11F_G11F_B10F, Rn_GL_R16F as GL_R16F, Rn_GL_R16I as GL_R16I, Rn_GL_R16UI as GL_R16UI, Rn_GL_R32F as GL_R32F, Rn_GL_R32I as GL_R32I, Rn_GL_R32UI as GL_R32UI, Rn_GL_R8 as GL_R8, Rn_GL_R8I as GL_R8I, Rn_GL_R8UI as GL_R8UI, Rn_GL_R8_SNORM as GL_R8_SNORM, Rn_GL_RASTERIZER_DISCARD as GL_RASTERIZER_DISCARD, Rn_GL_READ_BUFFER as GL_READ_BUFFER, Rn_GL_READ_FRAMEBUFFER as GL_READ_FRAMEBUFFER, Rn_GL_READ_FRAMEBUFFER_BINDING as GL_READ_FRAMEBUFFER_BINDING, Rn_GL_RED as GL_RED, Rn_GL_RED_BITS as GL_RED_BITS, Rn_GL_RED_INTEGER as GL_RED_INTEGER, Rn_GL_RENDERBUFFER as GL_RENDERBUFFER, Rn_GL_RENDERBUFFER_ALPHA_SIZE as GL_RENDERBUFFER_ALPHA_SIZE, Rn_GL_RENDERBUFFER_BINDING as GL_RENDERBUFFER_BINDING, Rn_GL_RENDERBUFFER_BLUE_SIZE as GL_RENDERBUFFER_BLUE_SIZE, Rn_GL_RENDERBUFFER_DEPTH_SIZE as GL_RENDERBUFFER_DEPTH_SIZE, Rn_GL_RENDERBUFFER_GREEN_SIZE as GL_RENDERBUFFER_GREEN_SIZE, Rn_GL_RENDERBUFFER_HEIGHT as GL_RENDERBUFFER_HEIGHT, Rn_GL_RENDERBUFFER_INTERNAL_FORMAT as GL_RENDERBUFFER_INTERNAL_FORMAT, Rn_GL_RENDERBUFFER_RED_SIZE as GL_RENDERBUFFER_RED_SIZE, Rn_GL_RENDERBUFFER_SAMPLES as GL_RENDERBUFFER_SAMPLES, Rn_GL_RENDERBUFFER_STENCIL_SIZE as GL_RENDERBUFFER_STENCIL_SIZE, Rn_GL_RENDERBUFFER_WIDTH as GL_RENDERBUFFER_WIDTH, Rn_GL_RENDERER as GL_RENDERER, Rn_GL_REPEAT as GL_REPEAT, Rn_GL_REPLACE as GL_REPLACE, Rn_GL_RG as GL_RG, Rn_GL_RG16F as GL_RG16F, Rn_GL_RG16I as GL_RG16I, Rn_GL_RG16UI as GL_RG16UI, Rn_GL_RG32F as GL_RG32F, Rn_GL_RG32I as GL_RG32I, Rn_GL_RG32UI as GL_RG32UI, Rn_GL_RG8 as GL_RG8, Rn_GL_RG8I as GL_RG8I, Rn_GL_RG8UI as GL_RG8UI, Rn_GL_RG8_SNORM as GL_RG8_SNORM, Rn_GL_RGB as GL_RGB, Rn_GL_RGB10_A2 as GL_RGB10_A2, Rn_GL_RGB10_A2UI as GL_RGB10_A2UI, Rn_GL_RGB16F as GL_RGB16F, Rn_GL_RGB16I as GL_RGB16I, Rn_GL_RGB16UI as GL_RGB16UI, Rn_GL_RGB32F as GL_RGB32F, Rn_GL_RGB32F_EXT as GL_RGB32F_EXT, Rn_GL_RGB32I as GL_RGB32I, Rn_GL_RGB32UI as GL_RGB32UI, Rn_GL_RGB565 as GL_RGB565, Rn_GL_RGB5_A1 as GL_RGB5_A1, Rn_GL_RGB8 as GL_RGB8, Rn_GL_RGB8I as GL_RGB8I, Rn_GL_RGB8UI as GL_RGB8UI, Rn_GL_RGB8_SNORM as GL_RGB8_SNORM, Rn_GL_RGB9_E5 as GL_RGB9_E5, Rn_GL_RGBA as GL_RGBA, Rn_GL_RGBA16F as GL_RGBA16F, Rn_GL_RGBA16I as GL_RGBA16I, Rn_GL_RGBA16UI as GL_RGBA16UI, Rn_GL_RGBA32F as GL_RGBA32F, Rn_GL_RGBA32F_EXT as GL_RGBA32F_EXT, Rn_GL_RGBA32I as GL_RGBA32I, Rn_GL_RGBA32UI as GL_RGBA32UI, Rn_GL_RGBA4 as GL_RGBA4, Rn_GL_RGBA8 as GL_RGBA8, Rn_GL_RGBA8I as GL_RGBA8I, Rn_GL_RGBA8UI as GL_RGBA8UI, Rn_GL_RGBA8_SNORM as GL_RGBA8_SNORM, Rn_GL_RGBA_INTEGER as GL_RGBA_INTEGER, Rn_GL_RGB_INTEGER as GL_RGB_INTEGER, Rn_GL_RG_INTEGER as GL_RG_INTEGER, Rn_GL_SAMPLER_2D as GL_SAMPLER_2D, Rn_GL_SAMPLER_2D_ARRAY as GL_SAMPLER_2D_ARRAY, Rn_GL_SAMPLER_2D_ARRAY_SHADOW as GL_SAMPLER_2D_ARRAY_SHADOW, Rn_GL_SAMPLER_2D_SHADOW as GL_SAMPLER_2D_SHADOW, Rn_GL_SAMPLER_3D as GL_SAMPLER_3D, Rn_GL_SAMPLER_BINDING as GL_SAMPLER_BINDING, Rn_GL_SAMPLER_CUBE as GL_SAMPLER_CUBE, Rn_GL_SAMPLER_CUBE_SHADOW as GL_SAMPLER_CUBE_SHADOW, Rn_GL_SAMPLES as GL_SAMPLES, Rn_GL_SAMPLE_ALPHA_TO_COVERAGE as GL_SAMPLE_ALPHA_TO_COVERAGE, Rn_GL_SAMPLE_BUFFERS as GL_SAMPLE_BUFFERS, Rn_GL_SAMPLE_COVERAGE as GL_SAMPLE_COVERAGE, Rn_GL_SAMPLE_COVERAGE_INVERT as GL_SAMPLE_COVERAGE_INVERT, Rn_GL_SAMPLE_COVERAGE_VALUE as GL_SAMPLE_COVERAGE_VALUE, Rn_GL_SCISSOR_BOX as GL_SCISSOR_BOX, Rn_GL_SCISSOR_TEST as GL_SCISSOR_TEST, Rn_GL_SEPARATE_ATTRIBS as GL_SEPARATE_ATTRIBS, Rn_GL_SHADER_TYPE as GL_SHADER_TYPE, Rn_GL_SHADING_LANGUAGE_VERSION as GL_SHADING_LANGUAGE_VERSION, Rn_GL_SIGNALED as GL_SIGNALED, Rn_GL_SIGNED_NORMALIZED as GL_SIGNED_NORMALIZED, Rn_GL_SRC_ALPHA as GL_SRC_ALPHA, Rn_GL_SRC_ALPHA_SATURATE as GL_SRC_ALPHA_SATURATE, Rn_GL_SRC_COLOR as GL_SRC_COLOR, Rn_GL_SRGB as GL_SRGB, Rn_GL_SRGB8 as GL_SRGB8, Rn_GL_SRGB8_ALPHA8 as GL_SRGB8_ALPHA8, Rn_GL_SRGB8_ALPHA8_EXT as GL_SRGB8_ALPHA8_EXT, Rn_GL_SRGB_ALPHA_EXT as GL_SRGB_ALPHA_EXT, Rn_GL_SRGB_EXT as GL_SRGB_EXT, Rn_GL_STATIC_COPY as GL_STATIC_COPY, Rn_GL_STATIC_DRAW as GL_STATIC_DRAW, Rn_GL_STATIC_READ as GL_STATIC_READ, Rn_GL_STENCIL as GL_STENCIL, Rn_GL_STENCIL_ATTACHMENT as GL_STENCIL_ATTACHMENT, Rn_GL_STENCIL_BACK_FAIL as GL_STENCIL_BACK_FAIL, Rn_GL_STENCIL_BACK_FUNC as GL_STENCIL_BACK_FUNC, Rn_GL_STENCIL_BACK_PASS_DEPTH_FAIL as GL_STENCIL_BACK_PASS_DEPTH_FAIL, Rn_GL_STENCIL_BACK_PASS_DEPTH_PASS as GL_STENCIL_BACK_PASS_DEPTH_PASS, Rn_GL_STENCIL_BACK_REF as GL_STENCIL_BACK_REF, Rn_GL_STENCIL_BACK_VALUE_MASK as GL_STENCIL_BACK_VALUE_MASK, Rn_GL_STENCIL_BACK_WRITEMASK as GL_STENCIL_BACK_WRITEMASK, Rn_GL_STENCIL_BITS as GL_STENCIL_BITS, Rn_GL_STENCIL_BUFFER_BIT as GL_STENCIL_BUFFER_BIT, Rn_GL_STENCIL_CLEAR_VALUE as GL_STENCIL_CLEAR_VALUE, Rn_GL_STENCIL_FAIL as GL_STENCIL_FAIL, Rn_GL_STENCIL_FUNC as GL_STENCIL_FUNC, Rn_GL_STENCIL_INDEX as GL_STENCIL_INDEX, Rn_GL_STENCIL_INDEX8 as GL_STENCIL_INDEX8, Rn_GL_STENCIL_PASS_DEPTH_FAIL as GL_STENCIL_PASS_DEPTH_FAIL, Rn_GL_STENCIL_PASS_DEPTH_PASS as GL_STENCIL_PASS_DEPTH_PASS, Rn_GL_STENCIL_REF as GL_STENCIL_REF, Rn_GL_STENCIL_TEST as GL_STENCIL_TEST, Rn_GL_STENCIL_VALUE_MASK as GL_STENCIL_VALUE_MASK, Rn_GL_STENCIL_WRITEMASK as GL_STENCIL_WRITEMASK, Rn_GL_STREAM_COPY as GL_STREAM_COPY, Rn_GL_STREAM_DRAW as GL_STREAM_DRAW, Rn_GL_STREAM_READ as GL_STREAM_READ, Rn_GL_SUBPIXEL_BITS as GL_SUBPIXEL_BITS, Rn_GL_SYNC_CONDITION as GL_SYNC_CONDITION, Rn_GL_SYNC_FENCE as GL_SYNC_FENCE, Rn_GL_SYNC_FLAGS as GL_SYNC_FLAGS, Rn_GL_SYNC_FLUSH_COMMANDS_BIT as GL_SYNC_FLUSH_COMMANDS_BIT, Rn_GL_SYNC_GPU_COMMANDS_COMPLETE as GL_SYNC_GPU_COMMANDS_COMPLETE, Rn_GL_SYNC_STATUS as GL_SYNC_STATUS, Rn_GL_TEXTURE as GL_TEXTURE, Rn_GL_TEXTURE0 as GL_TEXTURE0, Rn_GL_TEXTURE1 as GL_TEXTURE1, Rn_GL_TEXTURE10 as GL_TEXTURE10, Rn_GL_TEXTURE11 as GL_TEXTURE11, Rn_GL_TEXTURE12 as GL_TEXTURE12, Rn_GL_TEXTURE13 as GL_TEXTURE13, Rn_GL_TEXTURE14 as GL_TEXTURE14, Rn_GL_TEXTURE15 as GL_TEXTURE15, Rn_GL_TEXTURE16 as GL_TEXTURE16, Rn_GL_TEXTURE17 as GL_TEXTURE17, Rn_GL_TEXTURE18 as GL_TEXTURE18, Rn_GL_TEXTURE19 as GL_TEXTURE19, Rn_GL_TEXTURE2 as GL_TEXTURE2, Rn_GL_TEXTURE20 as GL_TEXTURE20, Rn_GL_TEXTURE21 as GL_TEXTURE21, Rn_GL_TEXTURE22 as GL_TEXTURE22, Rn_GL_TEXTURE23 as GL_TEXTURE23, Rn_GL_TEXTURE24 as GL_TEXTURE24, Rn_GL_TEXTURE25 as GL_TEXTURE25, Rn_GL_TEXTURE26 as GL_TEXTURE26, Rn_GL_TEXTURE27 as GL_TEXTURE27, Rn_GL_TEXTURE28 as GL_TEXTURE28, Rn_GL_TEXTURE29 as GL_TEXTURE29, Rn_GL_TEXTURE3 as GL_TEXTURE3, Rn_GL_TEXTURE30 as GL_TEXTURE30, Rn_GL_TEXTURE31 as GL_TEXTURE31, Rn_GL_TEXTURE4 as GL_TEXTURE4, Rn_GL_TEXTURE5 as GL_TEXTURE5, Rn_GL_TEXTURE6 as GL_TEXTURE6, Rn_GL_TEXTURE7 as GL_TEXTURE7, Rn_GL_TEXTURE8 as GL_TEXTURE8, Rn_GL_TEXTURE9 as GL_TEXTURE9, Rn_GL_TEXTURE_2D as GL_TEXTURE_2D, Rn_GL_TEXTURE_2D_ARRAY as GL_TEXTURE_2D_ARRAY, Rn_GL_TEXTURE_3D as GL_TEXTURE_3D, Rn_GL_TEXTURE_BASE_LEVEL as GL_TEXTURE_BASE_LEVEL, Rn_GL_TEXTURE_BINDING_2D as GL_TEXTURE_BINDING_2D, Rn_GL_TEXTURE_BINDING_2D_ARRAY as GL_TEXTURE_BINDING_2D_ARRAY, Rn_GL_TEXTURE_BINDING_3D as GL_TEXTURE_BINDING_3D, Rn_GL_TEXTURE_BINDING_CUBE_MAP as GL_TEXTURE_BINDING_CUBE_MAP, Rn_GL_TEXTURE_COMPARE_FUNC as GL_TEXTURE_COMPARE_FUNC, Rn_GL_TEXTURE_COMPARE_MODE as GL_TEXTURE_COMPARE_MODE, Rn_GL_TEXTURE_CUBE_MAP as GL_TEXTURE_CUBE_MAP, Rn_GL_TEXTURE_CUBE_MAP_NEGATIVE_X as GL_TEXTURE_CUBE_MAP_NEGATIVE_X, Rn_GL_TEXTURE_CUBE_MAP_NEGATIVE_Y as GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, Rn_GL_TEXTURE_CUBE_MAP_NEGATIVE_Z as GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, Rn_GL_TEXTURE_CUBE_MAP_POSITIVE_X as GL_TEXTURE_CUBE_MAP_POSITIVE_X, Rn_GL_TEXTURE_CUBE_MAP_POSITIVE_Y as GL_TEXTURE_CUBE_MAP_POSITIVE_Y, Rn_GL_TEXTURE_CUBE_MAP_POSITIVE_Z as GL_TEXTURE_CUBE_MAP_POSITIVE_Z, Rn_GL_TEXTURE_IMMUTABLE_FORMAT as GL_TEXTURE_IMMUTABLE_FORMAT, Rn_GL_TEXTURE_IMMUTABLE_LEVELS as GL_TEXTURE_IMMUTABLE_LEVELS, Rn_GL_TEXTURE_MAG_FILTER as GL_TEXTURE_MAG_FILTER, Rn_GL_TEXTURE_MAX_ANISOTROPY_EXT as GL_TEXTURE_MAX_ANISOTROPY_EXT, Rn_GL_TEXTURE_MAX_LEVEL as GL_TEXTURE_MAX_LEVEL, Rn_GL_TEXTURE_MAX_LOD as GL_TEXTURE_MAX_LOD, Rn_GL_TEXTURE_MIN_FILTER as GL_TEXTURE_MIN_FILTER, Rn_GL_TEXTURE_MIN_LOD as GL_TEXTURE_MIN_LOD, Rn_GL_TEXTURE_WRAP_R as GL_TEXTURE_WRAP_R, Rn_GL_TEXTURE_WRAP_S as GL_TEXTURE_WRAP_S, Rn_GL_TEXTURE_WRAP_T as GL_TEXTURE_WRAP_T, Rn_GL_TIMEOUT_EXPIRED as GL_TIMEOUT_EXPIRED, Rn_GL_TIMEOUT_IGNORED as GL_TIMEOUT_IGNORED, Rn_GL_TIMESTAMP_EXT as GL_TIMESTAMP_EXT, Rn_GL_TIME_ELAPSED_EXT as GL_TIME_ELAPSED_EXT, Rn_GL_TRANSFORM_FEEDBACK as GL_TRANSFORM_FEEDBACK, Rn_GL_TRANSFORM_FEEDBACK_ACTIVE as GL_TRANSFORM_FEEDBACK_ACTIVE, Rn_GL_TRANSFORM_FEEDBACK_BINDING as GL_TRANSFORM_FEEDBACK_BINDING, Rn_GL_TRANSFORM_FEEDBACK_BUFFER as GL_TRANSFORM_FEEDBACK_BUFFER, Rn_GL_TRANSFORM_FEEDBACK_BUFFER_BINDING as GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, Rn_GL_TRANSFORM_FEEDBACK_BUFFER_MODE as GL_TRANSFORM_FEEDBACK_BUFFER_MODE, Rn_GL_TRANSFORM_FEEDBACK_BUFFER_SIZE as GL_TRANSFORM_FEEDBACK_BUFFER_SIZE, Rn_GL_TRANSFORM_FEEDBACK_BUFFER_START as GL_TRANSFORM_FEEDBACK_BUFFER_START, Rn_GL_TRANSFORM_FEEDBACK_PAUSED as GL_TRANSFORM_FEEDBACK_PAUSED, Rn_GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN as GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, Rn_GL_TRANSFORM_FEEDBACK_VARYINGS as GL_TRANSFORM_FEEDBACK_VARYINGS, Rn_GL_TRIANGLES as GL_TRIANGLES, Rn_GL_TRIANGLE_FAN as GL_TRIANGLE_FAN, Rn_GL_TRIANGLE_STRIP as GL_TRIANGLE_STRIP, Rn_GL_UNIFORM_ARRAY_STRIDE as GL_UNIFORM_ARRAY_STRIDE, Rn_GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS as GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, Rn_GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES as GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, Rn_GL_UNIFORM_BLOCK_BINDING as GL_UNIFORM_BLOCK_BINDING, Rn_GL_UNIFORM_BLOCK_DATA_SIZE as GL_UNIFORM_BLOCK_DATA_SIZE, Rn_GL_UNIFORM_BLOCK_INDEX as GL_UNIFORM_BLOCK_INDEX, Rn_GL_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER as GL_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER, Rn_GL_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER as GL_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER, Rn_GL_UNIFORM_BUFFER as GL_UNIFORM_BUFFER, Rn_GL_UNIFORM_BUFFER_BINDING as GL_UNIFORM_BUFFER_BINDING, Rn_GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT as GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, Rn_GL_UNIFORM_BUFFER_SIZE as GL_UNIFORM_BUFFER_SIZE, Rn_GL_UNIFORM_BUFFER_START as GL_UNIFORM_BUFFER_START, Rn_GL_UNIFORM_IS_ROW_MAJOR as GL_UNIFORM_IS_ROW_MAJOR, Rn_GL_UNIFORM_MATRIX_STRIDE as GL_UNIFORM_MATRIX_STRIDE, Rn_GL_UNIFORM_OFFSET as GL_UNIFORM_OFFSET, Rn_GL_UNIFORM_SIZE as GL_UNIFORM_SIZE, Rn_GL_UNIFORM_TYPE as GL_UNIFORM_TYPE, Rn_GL_UNMASKED_RENDERER_WEBGL as GL_UNMASKED_RENDERER_WEBGL, Rn_GL_UNMASKED_VENDOR_WEBGL as GL_UNMASKED_VENDOR_WEBGL, Rn_GL_UNPACK_ALIGNMENT as GL_UNPACK_ALIGNMENT, Rn_GL_UNPACK_COLORSPACE_CONVERSION_WEBGL as GL_UNPACK_COLORSPACE_CONVERSION_WEBGL, Rn_GL_UNPACK_FLIP_Y_WEBGL as GL_UNPACK_FLIP_Y_WEBGL, Rn_GL_UNPACK_IMAGE_HEIGHT as GL_UNPACK_IMAGE_HEIGHT, Rn_GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL as GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL, Rn_GL_UNPACK_ROW_LENGTH as GL_UNPACK_ROW_LENGTH, Rn_GL_UNPACK_SKIP_IMAGES as GL_UNPACK_SKIP_IMAGES, Rn_GL_UNPACK_SKIP_PIXELS as GL_UNPACK_SKIP_PIXELS, Rn_GL_UNPACK_SKIP_ROWS as GL_UNPACK_SKIP_ROWS, Rn_GL_UNSIGNALED as GL_UNSIGNALED, Rn_GL_UNSIGNED_INT_10F_11F_11F_REV as GL_UNSIGNED_INT_10F_11F_11F_REV, Rn_GL_UNSIGNED_INT_24_8 as GL_UNSIGNED_INT_24_8, Rn_GL_UNSIGNED_INT_24_8_WEBGL as GL_UNSIGNED_INT_24_8_WEBGL, Rn_GL_UNSIGNED_INT_2_10_10_10_REV as GL_UNSIGNED_INT_2_10_10_10_REV, Rn_GL_UNSIGNED_INT_5_9_9_9_REV as GL_UNSIGNED_INT_5_9_9_9_REV, Rn_GL_UNSIGNED_INT_SAMPLER_2D as GL_UNSIGNED_INT_SAMPLER_2D, Rn_GL_UNSIGNED_INT_SAMPLER_2D_ARRAY as GL_UNSIGNED_INT_SAMPLER_2D_ARRAY, Rn_GL_UNSIGNED_INT_SAMPLER_3D as GL_UNSIGNED_INT_SAMPLER_3D, Rn_GL_UNSIGNED_INT_SAMPLER_CUBE as GL_UNSIGNED_INT_SAMPLER_CUBE, Rn_GL_UNSIGNED_INT_VEC2 as GL_UNSIGNED_INT_VEC2, Rn_GL_UNSIGNED_INT_VEC3 as GL_UNSIGNED_INT_VEC3, Rn_GL_UNSIGNED_INT_VEC4 as GL_UNSIGNED_INT_VEC4, Rn_GL_UNSIGNED_NORMALIZED as GL_UNSIGNED_NORMALIZED, Rn_GL_UNSIGNED_NORMALIZED_EXT as GL_UNSIGNED_NORMALIZED_EXT, Rn_GL_VALIDATE_STATUS as GL_VALIDATE_STATUS, Rn_GL_VENDOR as GL_VENDOR, Rn_GL_VERSION as GL_VERSION, Rn_GL_VERTEX_ARRAY_BINDING as GL_VERTEX_ARRAY_BINDING, Rn_GL_VERTEX_ARRAY_BINDING_OES as GL_VERTEX_ARRAY_BINDING_OES, Rn_GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING as GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, Rn_GL_VERTEX_ATTRIB_ARRAY_DIVISOR as GL_VERTEX_ATTRIB_ARRAY_DIVISOR, Rn_GL_VERTEX_ATTRIB_ARRAY_DIVISOR_ANGLE as GL_VERTEX_ATTRIB_ARRAY_DIVISOR_ANGLE, Rn_GL_VERTEX_ATTRIB_ARRAY_ENABLED as GL_VERTEX_ATTRIB_ARRAY_ENABLED, Rn_GL_VERTEX_ATTRIB_ARRAY_INTEGER as GL_VERTEX_ATTRIB_ARRAY_INTEGER, Rn_GL_VERTEX_ATTRIB_ARRAY_NORMALIZED as GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, Rn_GL_VERTEX_ATTRIB_ARRAY_POINTER as GL_VERTEX_ATTRIB_ARRAY_POINTER, Rn_GL_VERTEX_ATTRIB_ARRAY_SIZE as GL_VERTEX_ATTRIB_ARRAY_SIZE, Rn_GL_VERTEX_ATTRIB_ARRAY_STRIDE as GL_VERTEX_ATTRIB_ARRAY_STRIDE, Rn_GL_VERTEX_ATTRIB_ARRAY_TYPE as GL_VERTEX_ATTRIB_ARRAY_TYPE, Rn_GL_VERTEX_SHADER as GL_VERTEX_SHADER, Rn_GL_VIEWPORT as GL_VIEWPORT, Rn_GL_WAIT_FAILED as GL_WAIT_FAILED, Rn_GL_ZERO as GL_ZERO, Rn_GaussianBlur as GaussianBlur, Rn_GetComponentFromEntities as GetComponentFromEntities, type Rn_GetInstance as GetInstance, type Rn_GetProps as GetProps, Rn_Gizmo as Gizmo, Rn_GlobalDataRepository as GlobalDataRepository, Rn_GlobalRetarget as GlobalRetarget, Rn_GlobalRetargetReverse as GlobalRetargetReverse, type Rn_Gltf1AnyObject as Gltf1AnyObject, type Rn_Gltf2 as Gltf2, type Rn_Gltf2Accessor as Gltf2Accessor, type Rn_Gltf2AccessorComponentType as Gltf2AccessorComponentType, type Rn_Gltf2AccessorComponentTypeNumber as Gltf2AccessorComponentTypeNumber, type Rn_Gltf2AccessorCompositionType as Gltf2AccessorCompositionType, type Rn_Gltf2AccessorCompositionTypeString as Gltf2AccessorCompositionTypeString, type Rn_Gltf2AccessorEx as Gltf2AccessorEx, type Rn_Gltf2AccessorIndex as Gltf2AccessorIndex, type Rn_Gltf2Animation as Gltf2Animation, type Rn_Gltf2AnimationAccessorCompositionType as Gltf2AnimationAccessorCompositionType, type Rn_Gltf2AnimationAccessorCompositionTypeString as Gltf2AnimationAccessorCompositionTypeString, type Rn_Gltf2AnimationChannel as Gltf2AnimationChannel, type Rn_Gltf2AnimationChannelTarget as Gltf2AnimationChannelTarget, type Rn_Gltf2AnimationPathName as Gltf2AnimationPathName, type Rn_Gltf2AnimationSampler as Gltf2AnimationSampler, type Rn_Gltf2AnimationSamplerInterpolation as Gltf2AnimationSamplerInterpolation, type Rn_Gltf2AnyObject as Gltf2AnyObject, type Rn_Gltf2Asset as Gltf2Asset, type Rn_Gltf2AttributeAccessors as Gltf2AttributeAccessors, type Rn_Gltf2AttributeBlendShapes as Gltf2AttributeBlendShapes, type Rn_Gltf2AttributeBlendShapesAccessors as Gltf2AttributeBlendShapesAccessors, type Rn_Gltf2Attributes as Gltf2Attributes, type Rn_Gltf2Buffer as Gltf2Buffer, type Rn_Gltf2BufferView as Gltf2BufferView, type Rn_Gltf2BufferViewEx as Gltf2BufferViewEx, type Rn_Gltf2Camera as Gltf2Camera, type Rn_Gltf2CameraOrthographic as Gltf2CameraOrthographic, type Rn_Gltf2CameraPerspective as Gltf2CameraPerspective, type Rn_Gltf2Ex as Gltf2Ex, type Rn_Gltf2ExportType as Gltf2ExportType, Rn_Gltf2Exporter as Gltf2Exporter, type Rn_Gltf2ExporterArguments as Gltf2ExporterArguments, type Rn_Gltf2Image as Gltf2Image, type Rn_Gltf2ImageEx as Gltf2ImageEx, Rn_Gltf2Importer as Gltf2Importer, type Rn_Gltf2Material as Gltf2Material, type Rn_Gltf2MaterialEx as Gltf2MaterialEx, type Rn_Gltf2Mesh as Gltf2Mesh, type Rn_Gltf2Node as Gltf2Node, type Rn_Gltf2NormalTextureInfo as Gltf2NormalTextureInfo, type Rn_Gltf2OcclusionTextureInfo as Gltf2OcclusionTextureInfo, type Rn_Gltf2PbrMetallicRoughness as Gltf2PbrMetallicRoughness, type Rn_Gltf2PbrMetallicRoughnessEx as Gltf2PbrMetallicRoughnessEx, type Rn_Gltf2Primitive as Gltf2Primitive, type Rn_Gltf2Scene as Gltf2Scene, type Rn_Gltf2Skin as Gltf2Skin, type Rn_Gltf2Sparse as Gltf2Sparse, type Rn_Gltf2SparseIndices as Gltf2SparseIndices, type Rn_Gltf2SparseValues as Gltf2SparseValues, type Rn_Gltf2Texture as Gltf2Texture, type Rn_Gltf2TextureInfo as Gltf2TextureInfo, type Rn_Gltf2TextureSampler as Gltf2TextureSampler, type Rn_GltfFileBuffers as GltfFileBuffers, Rn_GltfImporter as GltfImporter, type Rn_GltfLoadOption as GltfLoadOption, Rn_GreaterShaderNode as GreaterShaderNode, Rn_Grid as Grid, type Rn_GridDescriptor as GridDescriptor, Rn_HdriFormat as HdriFormat, type Rn_HdriFormatEnum as HdriFormatEnum, type Rn_IAnimationEntity as IAnimationEntity, type Rn_IAnimationEntityMethods as IAnimationEntityMethods, type Rn_IAnimationRetarget as IAnimationRetarget, type Rn_IAnimationStateEntity as IAnimationStateEntity, type Rn_IAnyPrimitiveDescriptor as IAnyPrimitiveDescriptor, type Rn_IArrayBufferBasedMathNumber as IArrayBufferBasedMathNumber, type Rn_IBlendShapeEntity as IBlendShapeEntity, type Rn_IBlendShapeEntityMethods as IBlendShapeEntityMethods, type Rn_ICGAPIResourceRepository as ICGAPIResourceRepository, type Rn_ICameraController as ICameraController, type Rn_ICameraControllerEntity as ICameraControllerEntity, type Rn_ICameraControllerEntityMethods as ICameraControllerEntityMethods, type Rn_ICameraEntity as ICameraEntity, type Rn_ICameraEntityMethods as ICameraEntityMethods, type Rn_IColorRgb as IColorRgb, type Rn_IColorRgba as IColorRgba, type Rn_IConstraintEntity as IConstraintEntity, type Rn_IEffekseerEntityMethods as IEffekseerEntityMethods, type Rn_IEnhancedArrayMethods as IEnhancedArrayMethods, type Rn_IEntity as IEntity, type Rn_IEventPubSub as IEventPubSub, type Rn_ILightEntity as ILightEntity, type Rn_ILightEntityMethods as ILightEntityMethods, type Rn_ILoaderExtension as ILoaderExtension, type Rn_ILogQuaternion as ILogQuaternion, type Rn_IMatrix as IMatrix, type Rn_IMatrix22 as IMatrix22, type Rn_IMatrix33 as IMatrix33, type Rn_IMatrix44 as IMatrix44, type Rn_IMesh as IMesh, type Rn_IMeshEntity as IMeshEntity, type Rn_IMeshEntityMethods as IMeshEntityMethods, type Rn_IMeshRendererEntityMethods as IMeshRendererEntityMethods, type Rn_IMutableColorRgb as IMutableColorRgb, type Rn_IMutableColorRgba as IMutableColorRgba, type Rn_IMutableMatrix as IMutableMatrix, type Rn_IMutableMatrix22 as IMutableMatrix22, type Rn_IMutableMatrix33 as IMutableMatrix33, type Rn_IMutableMatrix44 as IMutableMatrix44, type Rn_IMutableQuaternion as IMutableQuaternion, type Rn_IMutableScalar as IMutableScalar, type Rn_IMutableVector as IMutableVector, type Rn_IMutableVector2 as IMutableVector2, type Rn_IMutableVector3 as IMutableVector3, type Rn_IMutableVector4 as IMutableVector4, Rn_INPUT_HANDLING_STATE_CAMERA_CONTROLLER as INPUT_HANDLING_STATE_CAMERA_CONTROLLER, Rn_INPUT_HANDLING_STATE_GIZMO_ROTATION as INPUT_HANDLING_STATE_GIZMO_ROTATION, Rn_INPUT_HANDLING_STATE_GIZMO_SCALE as INPUT_HANDLING_STATE_GIZMO_SCALE, Rn_INPUT_HANDLING_STATE_GIZMO_TRANSLATION as INPUT_HANDLING_STATE_GIZMO_TRANSLATION, Rn_INPUT_HANDLING_STATE_NONE as INPUT_HANDLING_STATE_NONE, type Rn_IPhysicsEntity as IPhysicsEntity, type Rn_IPhysicsEntityMethods as IPhysicsEntityMethods, type Rn_IQuaternion as IQuaternion, type Rn_IRenderable as IRenderable, type Rn_IRnObject as IRnObject, type Rn_IScalar as IScalar, type Rn_ISceneGraphEntity as ISceneGraphEntity, type Rn_ISceneGraphEntityMethods as ISceneGraphEntityMethods, type Rn_ISemanticVertexAttribute as ISemanticVertexAttribute, Rn_IShape as IShape, type Rn_ISkeletalEntity as ISkeletalEntity, type Rn_ISkeletalEntityMethods as ISkeletalEntityMethods, type Rn_ITransformEntity as ITransformEntity, type Rn_ITransformEntityMethods as ITransformEntityMethods, type Rn_IVector as IVector, type Rn_IVector2 as IVector2, type Rn_IVector3 as IVector3, type Rn_IVector4 as IVector4, type Rn_IVrmEntityMethods as IVrmEntityMethods, type Rn_IWeakOption as IWeakOption, Rn_IdentityMatrix33 as IdentityMatrix33, Rn_IdentityMatrix44 as IdentityMatrix44, Rn_IfStatementShader as IfStatementShader, Rn_IfStatementShaderNode as IfStatementShaderNode, type Rn_ImageBitmapData as ImageBitmapData, Rn_ImageInfo as ImageInfo, Rn_ImageUtil as ImageUtil, type Rn_Index as Index, type Rn_IndexInTheDataView as IndexInTheDataView, type Rn_IndexOf16Bytes as IndexOf16Bytes, type Rn_IndexOf4Bytes as IndexOf4Bytes, type Rn_IndexOfBufferViews as IndexOfBufferViews, type Rn_IndicesAccessOption as IndicesAccessOption, type Rn_InputHandlerInfo as InputHandlerInfo, type Rn_InputHandlingState as InputHandlingState, Rn_InputManager as InputManager, type Rn_IntegerTypedArray as IntegerTypedArray, Rn_Is as Is, Rn_IsObj as IsObj, type Rn_IsType as IsType, Rn_Joint as Joint, type Rn_JointDescriptor as JointDescriptor, Rn_JointGizmo as JointGizmo, type Rn_KHR_interactivity as KHR_interactivity, type Rn_KHR_interactivity_Configuration as KHR_interactivity_Configuration, type Rn_KHR_interactivity_Declaration as KHR_interactivity_Declaration, type Rn_KHR_interactivity_Event as KHR_interactivity_Event, type Rn_KHR_interactivity_Flow as KHR_interactivity_Flow, type Rn_KHR_interactivity_Graph as KHR_interactivity_Graph, type Rn_KHR_interactivity_Node as KHR_interactivity_Node, type Rn_KHR_interactivity_Type as KHR_interactivity_Type, type Rn_KHR_interactivity_Value as KHR_interactivity_Value, type Rn_KHR_interactivity_Variable as KHR_interactivity_Variable, type Rn_KHR_interactivity_value_type as KHR_interactivity_value_type, type Rn_KHR_lights_punctual as KHR_lights_punctual, type Rn_KHR_lights_punctual_Light as KHR_lights_punctual_Light, type Rn_KHR_materials_variants as KHR_materials_variants, type Rn_KHR_materials_variants_Mapping as KHR_materials_variants_Mapping, type Rn_KHR_materials_variants_PrimitiveExtension as KHR_materials_variants_PrimitiveExtension, type Rn_KHR_materials_variants_Variant as KHR_materials_variants_Variant, Rn_KTX2TextureLoader as KTX2TextureLoader, Rn_LightComponent as LightComponent, Rn_LightGizmo as LightGizmo, Rn_LightType as LightType, type Rn_LightTypeEnum as LightTypeEnum, Rn_Line as Line, type Rn_LineDescriptor as LineDescriptor, type Rn_LoadImageToMipLevelDescriptor as LoadImageToMipLevelDescriptor, Rn_LocatorGizmo as LocatorGizmo, Rn_LogLevel as LogLevel, Rn_LogQuaternion as LogQuaternion, Rn_Logger as Logger, type Rn_MSC_TRANSCODER_TYPE as MSC_TRANSCODER_TYPE, Rn_MToon0xMaterialContent as MToon0xMaterialContent, Rn_MToon1MaterialContent as MToon1MaterialContent, Rn_MatCapMaterialContent as MatCapMaterialContent, Rn_Material as Material, Rn_MaterialHelper as MaterialHelper, type MaterialNodeUID$1 as MaterialNodeUID, Rn_MaterialRepository as MaterialRepository, type Rn_MaterialSID as MaterialSID, type Rn_MaterialTID as MaterialTID, type Rn_MaterialTypeName as MaterialTypeName, type Rn_MaterialUID as MaterialUID, Rn_MathClassUtil as MathClassUtil, Rn_MathUtil as MathUtil, Rn_Matrix22 as Matrix22, Rn_Matrix33 as Matrix33, Rn_Matrix44 as Matrix44, type Rn_MemberInfo as MemberInfo, Rn_MemoryManager as MemoryManager, type Rn_MergeCtor as MergeCtor, Rn_MergeVectorShaderNode as MergeVectorShaderNode, Rn_Mesh as Mesh, Rn_MeshComponent as MeshComponent, Rn_MeshHelper as MeshHelper, Rn_MeshRendererComponent as MeshRendererComponent, type Rn_MeshUID as MeshUID, type Rn_MilliSecond as MilliSecond, Rn_MiscUtil as MiscUtil, type Rn_MixinBase as MixinBase, Rn_ModelConverter as ModelConverter, Rn_ModuleManager as ModuleManager, type Rn_MscTranscoderModule as MscTranscoderModule, Rn_MultiplyShaderNode as MultiplyShaderNode, Rn_MutableColorRgb as MutableColorRgb, Rn_MutableColorRgba as MutableColorRgba, Rn_MutableMatrix22 as MutableMatrix22, Rn_MutableMatrix33 as MutableMatrix33, Rn_MutableMatrix44 as MutableMatrix44, Rn_MutableQuaternion as MutableQuaternion, Rn_MutableScalar as MutableScalar, Rn_MutableScalar_ as MutableScalar_, Rn_MutableScalard as MutableScalard, type Rn_MutableScalarf as MutableScalarf, Rn_MutableVector2 as MutableVector2, Rn_MutableVector2_ as MutableVector2_, Rn_MutableVector2d as MutableVector2d, type Rn_MutableVector2f as MutableVector2f, Rn_MutableVector3 as MutableVector3, Rn_MutableVector3_ as MutableVector3_, Rn_MutableVector3d as MutableVector3d, type Rn_MutableVector3f as MutableVector3f, Rn_MutableVector4 as MutableVector4, Rn_MutableVector4_ as MutableVector4_, Rn_MutableVector4d as MutableVector4d, type Rn_MutableVector4f as MutableVector4f, Rn_None as None, Rn_NormalMatrixShaderNode as NormalMatrixShaderNode, Rn_NormalizeShaderNode as NormalizeShaderNode, type Rn_ObjectUID as ObjectUID, type Rn_Offset as Offset, Rn_OimoPhysicsStrategy as OimoPhysicsStrategy, Rn_Ok as Ok, type Rn_Option as Option, Rn_OrbitCameraController as OrbitCameraController, Rn_OutColorShaderNode as OutColorShaderNode, Rn_OutPositionShaderNode as OutPositionShaderNode, type Rn_PartialRequire as PartialRequire, Rn_PhysicsComponent as PhysicsComponent, type Rn_PhysicsProperty as PhysicsProperty, type Rn_PhysicsPropertyInner as PhysicsPropertyInner, type Rn_PhysicsStrategy as PhysicsStrategy, type Rn_PhysicsWorldProperty as PhysicsWorldProperty, Rn_PixelFormat as PixelFormat, type Rn_PixelFormatEnum as PixelFormatEnum, Rn_Plane as Plane, type Rn_PlaneDescriptor as PlaneDescriptor, Rn_PointShadowMap as PointShadowMap, type Rn_PointType as PointType, Rn_Primitive as Primitive, type Rn_PrimitiveDescriptor as PrimitiveDescriptor, Rn_PrimitiveMode as PrimitiveMode, type Rn_PrimitiveModeEnum as PrimitiveModeEnum, type Rn_PrimitiveSortKey as PrimitiveSortKey, type Rn_PrimitiveSortKeyLength as PrimitiveSortKeyLength, type Rn_PrimitiveSortKeyOffset as PrimitiveSortKeyOffset, Rn_PrimitiveSortKey_BitLength_Depth as PrimitiveSortKey_BitLength_Depth, Rn_PrimitiveSortKey_BitLength_Material as PrimitiveSortKey_BitLength_Material, Rn_PrimitiveSortKey_BitLength_PrimitiveType as PrimitiveSortKey_BitLength_PrimitiveType, Rn_PrimitiveSortKey_BitLength_RenderQueue as PrimitiveSortKey_BitLength_RenderQueue, Rn_PrimitiveSortKey_BitLength_TranslucencyType as PrimitiveSortKey_BitLength_TranslucencyType, Rn_PrimitiveSortKey_BitOffset_Material as PrimitiveSortKey_BitOffset_Material, Rn_PrimitiveSortKey_BitOffset_PrimitiveType as PrimitiveSortKey_BitOffset_PrimitiveType, Rn_PrimitiveSortKey_BitOffset_RenderQueue as PrimitiveSortKey_BitOffset_RenderQueue, Rn_PrimitiveSortKey_BitOffset_TranslucencyType as PrimitiveSortKey_BitOffset_TranslucencyType, type Rn_PrimitiveUID as PrimitiveUID, Rn_ProcessApproach as ProcessApproach, Rn_ProcessApproachClass as ProcessApproachClass, type Rn_ProcessApproachEnum as ProcessApproachEnum, Rn_ProcessStage as ProcessStage, type Rn_ProcessStageEnum as ProcessStageEnum, Rn_ProjectionMatrixShaderNode as ProjectionMatrixShaderNode, Rn_Quaternion as Quaternion, type Rn_Ratio as Ratio, type Rn_RaycastResult as RaycastResult, type Rn_RaycastResultEx1 as RaycastResultEx1, type Rn_RaycastResultEx2 as RaycastResultEx2, Rn_RenderBuffer as RenderBuffer, Rn_RenderBufferTarget as RenderBufferTarget, type Rn_RenderBufferTargetEnum as RenderBufferTargetEnum, Rn_RenderPass as RenderPass, Rn_RenderPassHelper as RenderPassHelper, type Rn_RenderPassUID as RenderPassUID, Rn_RenderTargetTexture as RenderTargetTexture, Rn_RenderTargetTexture2DArray as RenderTargetTexture2DArray, Rn_RenderTargetTextureCube as RenderTargetTextureCube, Rn_RenderableHelper as RenderableHelper, type Rn_RenderingArgWebGL as RenderingArgWebGL, type Rn_RenderingArgWebGpu as RenderingArgWebGpu, type Rn_RequireOne as RequireOne, type Rn_Result as Result, Rn_RhodoniteImportExtension as RhodoniteImportExtension, Rn_Ring as Ring, type Rn_RingAxis as RingAxis, type Rn_RingDescriptor as RingDescriptor, type Rn_RnError as RnError, Rn_RnException as RnException, type Rn_RnM2 as RnM2, type Rn_RnM2Accessor as RnM2Accessor, type Rn_RnM2Animation as RnM2Animation, type Rn_RnM2AnimationChannel as RnM2AnimationChannel, type Rn_RnM2AnimationChannelTarget as RnM2AnimationChannelTarget, type Rn_RnM2AnimationSampler as RnM2AnimationSampler, type Rn_RnM2Asset as RnM2Asset, type Rn_RnM2AttributeAccessors as RnM2AttributeAccessors, type Rn_RnM2AttributeBlendShapes as RnM2AttributeBlendShapes, type Rn_RnM2AttributeBlendShapesAccessors as RnM2AttributeBlendShapesAccessors, type Rn_RnM2Attributes as RnM2Attributes, type Rn_RnM2AttributesObject as RnM2AttributesObject, type Rn_RnM2Buffer as RnM2Buffer, type Rn_RnM2BufferView as RnM2BufferView, type Rn_RnM2Camera as RnM2Camera, type Rn_RnM2CameraOrthographic as RnM2CameraOrthographic, type Rn_RnM2CameraPerspective as RnM2CameraPerspective, type Rn_RnM2ExtensionEffekseer as RnM2ExtensionEffekseer, type Rn_RnM2ExtensionsEffekseerEffect as RnM2ExtensionsEffekseerEffect, type Rn_RnM2ExtensionsEffekseerTimeline as RnM2ExtensionsEffekseerTimeline, type Rn_RnM2ExtensionsEffekseerTimelineItem as RnM2ExtensionsEffekseerTimelineItem, type Rn_RnM2Image as RnM2Image, type Rn_RnM2Material as RnM2Material, type Rn_RnM2MaterialVariant as RnM2MaterialVariant, type Rn_RnM2Mesh as RnM2Mesh, type Rn_RnM2Node as RnM2Node, type Rn_RnM2NormalTextureInfo as RnM2NormalTextureInfo, type Rn_RnM2OcclusionTextureInfo as RnM2OcclusionTextureInfo, type Rn_RnM2PbrMetallicRoughness as RnM2PbrMetallicRoughness, type Rn_RnM2Primitive as RnM2Primitive, type Rn_RnM2Scene as RnM2Scene, type Rn_RnM2Skin as RnM2Skin, type Rn_RnM2Sparse as RnM2Sparse, type Rn_RnM2SparseIndices as RnM2SparseIndices, type Rn_RnM2SparseValues as RnM2SparseValues, type Rn_RnM2Texture as RnM2Texture, type Rn_RnM2TextureInfo as RnM2TextureInfo, type Rn_RnM2TextureSampler as RnM2TextureSampler, type Rn_RnM2Vrma as RnM2Vrma, Rn_RnObject as RnObject, Rn_RnPromise as RnPromise, type Rn_RnPromiseCallback as RnPromiseCallback, type Rn_RnPromiseCallbackObj as RnPromiseCallbackObj, type Rn_RnTags as RnTags, type Rn_RnWebGLProgram as RnWebGLProgram, type Rn_RnWebGLTexture as RnWebGLTexture, type Rn_RnXR as RnXR, Rn_RotationGizmo as RotationGizmo, Rn_Sampler as Sampler, type Rn_SamplerDescriptor as SamplerDescriptor, Rn_Scalar as Scalar, Rn_Scalar_ as Scalar_, Rn_Scalard as Scalard, type Rn_Scalarf as Scalarf, Rn_ScaleGizmo as ScaleGizmo, Rn_SceneGraphComponent as SceneGraphComponent, type Rn_Second as Second, type Rn_ShaderAttributeOrSemanticsOrString as ShaderAttributeOrSemanticsOrString, Rn_ShaderGraphResolver as ShaderGraphResolver, Rn_ShaderNode as ShaderNode, type Rn_ShaderNodeEnum as ShaderNodeEnum, type Rn_ShaderNodeJson as ShaderNodeJson, type Rn_ShaderNodeJsonConnection as ShaderNodeJsonConnection, type Rn_ShaderNodeJsonNode as ShaderNodeJsonNode, type Rn_ShaderNodeJsonNodeInput as ShaderNodeJsonNodeInput, type Rn_ShaderNodeJsonNodeOutput as ShaderNodeJsonNodeOutput, type Rn_ShaderNodeUID as ShaderNodeUID, Rn_ShaderSemantics as ShaderSemantics, Rn_ShaderSemanticsClass as ShaderSemanticsClass, type Rn_ShaderSemanticsEnum as ShaderSemanticsEnum, type Rn_ShaderSemanticsIndex as ShaderSemanticsIndex, type Rn_ShaderSemanticsInfo as ShaderSemanticsInfo, type Rn_ShaderSemanticsName as ShaderSemanticsName, type Rn_ShaderSocket as ShaderSocket, type Rn_ShaderSources as ShaderSources, Rn_ShaderType as ShaderType, type Rn_ShaderTypeEnum as ShaderTypeEnum, type Rn_ShaderVariable as ShaderVariable, Rn_ShaderVariableType as ShaderVariableType, type Rn_ShaderVariableTypeEnum as ShaderVariableTypeEnum, Rn_ShaderityUtilityWebGL as ShaderityUtilityWebGL, Rn_ShadingModel as ShadingModel, type Rn_ShadingModelEnum as ShadingModelEnum, Rn_ShadowMap as ShadowMap, Rn_ShadowMapDecodeClassicMaterialContent as ShadowMapDecodeClassicMaterialContent, type Rn_ShadowMapEnum as ShadowMapEnum, Rn_ShadowMapType as ShadowMapType, Rn_ShadowSystem as ShadowSystem, Rn_SimpleVertexAttribute as SimpleVertexAttribute, type Rn_Size as Size, Rn_SkeletalComponent as SkeletalComponent, Rn_Some as Some, Rn_Sphere as Sphere, Rn_SphereCollider as SphereCollider, Rn_SphereColliderGizmo as SphereColliderGizmo, type Rn_SphereDescriptor as SphereDescriptor, Rn_SplitVectorShaderNode as SplitVectorShaderNode, type Rn_SquareMatrixComponentN as SquareMatrixComponentN, Rn_SymbolWeakMap as SymbolWeakMap, Rn_SynthesizeHdrMaterialContent as SynthesizeHdrMaterialContent, Rn_System as System, Rn_SystemState as SystemState, type Rn_Tag as Tag, Rn_TagGltf2NodeIndex as TagGltf2NodeIndex, Rn_Texture as Texture, type Rn_TextureData as TextureData, Rn_TextureDataFloat as TextureDataFloat, Rn_TextureFetchShader as TextureFetchShader, TextureFormat$1 as TextureFormat, type Rn_TextureFormatEnum as TextureFormatEnum, Rn_TextureParameter as TextureParameter, type Rn_TextureParameterEnum as TextureParameterEnum, type Rn_TextureParameters as TextureParameters, type Rn_TextureUID as TextureUID, Rn_Time as Time, Rn_ToneMappingType as ToneMappingType, type Rn_ToneMappingTypeEnum as ToneMappingTypeEnum, type Rn_TranscodeTarget as TranscodeTarget, type Rn_TranscodedImage as TranscodedImage, Rn_Transform3D as Transform3D, Rn_TransformComponent as TransformComponent, Rn_TranslationGizmo as TranslationGizmo, type Rn_TypedArray as TypedArray, type Rn_TypedArrayConstructor as TypedArrayConstructor, Rn_UastcImageTranscoder as UastcImageTranscoder, Rn_UniformDataShader as UniformDataShader, Rn_UniformDataShaderNode as UniformDataShaderNode, Rn_VERSION as VERSION, type Rn_VRM0x_Extension as VRM0x_Extension, Rn_VRMColliderGroup as VRMColliderGroup, Rn_VRMSpring as VRMSpring, Rn_VRMSpringBone as VRMSpringBone, Rn_VRMSpringBonePhysicsStrategy as VRMSpringBonePhysicsStrategy, Rn_VarianceShadowMapDecodeClassicMaterialContent as VarianceShadowMapDecodeClassicMaterialContent, Rn_VaryingVariableShader as VaryingVariableShader, Rn_Vector2 as Vector2, Rn_Vector2_ as Vector2_, Rn_Vector2d as Vector2d, type Rn_Vector2f as Vector2f, Rn_Vector3 as Vector3, Rn_Vector3_ as Vector3_, Rn_Vector3d as Vector3d, type Rn_Vector3f as Vector3f, Rn_Vector4 as Vector4, Rn_Vector4_ as Vector4_, Rn_Vector4d as Vector4d, type Rn_Vector4f as Vector4f, type Rn_VectorAndSquareMatrixComponentN as VectorAndSquareMatrixComponentN, type Rn_VectorComponentN as VectorComponentN, type Rn_VectorCompositionTypes as VectorCompositionTypes, Rn_VectorN as VectorN, Rn_VertexAttribute as VertexAttribute, Rn_VertexAttributeClass as VertexAttributeClass, type Rn_VertexAttributeComponent as VertexAttributeComponent, type Rn_VertexAttributeEnum as VertexAttributeEnum, type Rn_VertexAttributeSemanticsJoinedString as VertexAttributeSemanticsJoinedString, type Rn_VertexAttributeTypeName as VertexAttributeTypeName, type Rn_VertexAttributesLayout as VertexAttributesLayout, type Rn_VertexHandles as VertexHandles, Rn_VideoTexture as VideoTexture, type Rn_VideoTextureArguments as VideoTextureArguments, Rn_ViewMatrixShaderNode as ViewMatrixShaderNode, Rn_Visibility as Visibility, type Rn_VisibilityEnum as VisibilityEnum, type Rn_Vrm0x as Vrm0x, type Rn_Vrm0xBlendShapeBind as Vrm0xBlendShapeBind, type Rn_Vrm0xBlendShapeGroup as Vrm0xBlendShapeGroup, type Rn_Vrm0xBoneGroup as Vrm0xBoneGroup, type Rn_Vrm0xCollider as Vrm0xCollider, type Rn_Vrm0xColliderGroup as Vrm0xColliderGroup, type Rn_Vrm0xHumanBone as Vrm0xHumanBone, Rn_Vrm0xImporter as Vrm0xImporter, type Rn_Vrm0xLookAt as Vrm0xLookAt, type Rn_Vrm0xMaterialProperty as Vrm0xMaterialProperty, Rn_VrmComponent as VrmComponent, type Rn_VrmExpression as VrmExpression, type Rn_VrmExpressionMorphBind as VrmExpressionMorphBind, type Rn_VrmExpressionName as VrmExpressionName, Rn_VrmImporter as VrmImporter, Rn_VrmaImporter as VrmaImporter, Rn_WalkThroughCameraController as WalkThroughCameraController, Rn_WeakNone as WeakNone, Rn_WeakOption as WeakOption, Rn_WeakSome as WeakSome, Rn_WebGLContextWrapper as WebGLContextWrapper, Rn_WebGLExtension as WebGLExtension, type Rn_WebGLExtensionEnum as WebGLExtensionEnum, type Rn_WebGLResource as WebGLResource, type Rn_WebGLResourceHandle as WebGLResourceHandle, Rn_WebGLResourceRepository as WebGLResourceRepository, type Rn_WebGLStates as WebGLStates, type Rn_WebGLStrategy as WebGLStrategy, Rn_WebGLStrategyDataTexture as WebGLStrategyDataTexture, Rn_WebGLStrategyUniform as WebGLStrategyUniform, type Rn_WebGPUResourceHandle as WebGPUResourceHandle, Rn_WebGpuDeviceWrapper as WebGpuDeviceWrapper, type Rn_WebGpuResource as WebGpuResource, Rn_WebGpuResourceRepository as WebGpuResourceRepository, Rn_WebGpuStrategyBasic as WebGpuStrategyBasic, Rn_WebXRSystem as WebXRSystem, Rn_WellKnownComponentTIDs as WellKnownComponentTIDs, Rn_WireframeMaterialNode as WireframeMaterialNode, Rn_WorldMatrixShaderNode as WorldMatrixShaderNode, Rn__from as _from, Rn__fromString as _fromString, Rn__fromStringCaseSensitively as _fromStringCaseSensitively, Rn__getPropertyIndex2 as _getPropertyIndex2, Rn_add2 as add2, Rn_add2_offset as add2_offset, Rn_add3 as add3, Rn_add3_offset as add3_offset, Rn_add4 as add4, Rn_add4_offset as add4_offset, Rn_addLineNumberToCode as addLineNumberToCode, Rn_applyMixins as applyMixins, Rn_array2_lerp_offsetAsComposition as array2_lerp_offsetAsComposition, Rn_array3_lerp_offsetAsComposition as array3_lerp_offsetAsComposition, Rn_array4_lerp_offsetAsComposition as array4_lerp_offsetAsComposition, Rn_arrayN_lerp_offsetAsComposition as arrayN_lerp_offsetAsComposition, Rn_assertDoesNotHave as assertDoesNotHave, Rn_assertExist as assertExist, Rn_assertHas as assertHas, Rn_assertIsErr as assertIsErr, Rn_assertIsOk as assertIsOk, Rn_calcAlignedByteLength as calcAlignedByteLength, Rn_checkVersionOfGltf as checkVersionOfGltf, Rn_combineImages as combineImages, Rn_convertHTMLImageElementToCanvas as convertHTMLImageElementToCanvas, Rn_createCameraControllerEntity as createCameraControllerEntity, Rn_createCameraEntity as createCameraEntity, Rn_createEffekseer as createEffekseer, Rn_createEntity as createEntity, Rn_createGroupEntity as createGroupEntity, Rn_createLightEntity as createLightEntity, Rn_createLightWithCameraEntity as createLightWithCameraEntity, Rn_createMeshEntity as createMeshEntity, Rn_createMotionController as createMotionController, Rn_createPhysicsEntity as createPhysicsEntity, Rn_createSkeletalEntity as createSkeletalEntity, Rn_createTransformEntity as createTransformEntity, Rn_deepCopyUsingJsonStringify as deepCopyUsingJsonStringify, Rn_defaultAnimationTrackName as defaultAnimationTrackName, Rn_defaultAssetLoader as defaultAssetLoader, Rn_defaultValue as defaultValue, Rn_detectFormatByArrayBuffers as detectFormatByArrayBuffers, Rn_detectFormatByUri as detectFormatByUri, Rn_downloadArrayBuffer as downloadArrayBuffer, Rn_downloadTypedArray as downloadTypedArray, Rn_dummyAnisotropyTexture as dummyAnisotropyTexture, Rn_dummyBlackCubeTexture as dummyBlackCubeTexture, Rn_dummyBlackTexture as dummyBlackTexture, Rn_dummyBlueTexture as dummyBlueTexture, Rn_dummyDepthMomentTextureArray as dummyDepthMomentTextureArray, Rn_dummySRGBGrayTexture as dummySRGBGrayTexture, Rn_dummyWhiteTexture as dummyWhiteTexture, Rn_dummyZeroTexture as dummyZeroTexture, Rn_enhanceArray as enhanceArray, Rn_flattenHierarchy as flattenHierarchy, Rn_fromTensorToCompositionType as fromTensorToCompositionType, Rn_get1 as get1, Rn_get1_offset as get1_offset, Rn_get1_offsetAsComposition as get1_offsetAsComposition, Rn_get2 as get2, Rn_get2_offset as get2_offset, Rn_get2_offsetAsComposition as get2_offsetAsComposition, Rn_get3 as get3, Rn_get3_offset as get3_offset, Rn_get3_offsetAsComposition as get3_offsetAsComposition, Rn_get4 as get4, Rn_get4_offset as get4_offset, Rn_get4_offsetAsComposition as get4_offsetAsComposition, Rn_getEvent as getEvent, Rn_getMotionController as getMotionController, Rn_getN_offset as getN_offset, Rn_getN_offsetAsComposition as getN_offsetAsComposition, type Rn_getShaderPropertyFuncOfGlobalDataRepository as getShaderPropertyFuncOfGlobalDataRepository, type Rn_getShaderPropertyFuncOfMaterial as getShaderPropertyFuncOfMaterial, Rn_getWebXRSystem as getWebXRSystem, type Rn_glTF1 as glTF1, Rn_greaterThan as greaterThan, Rn_ifDefinedThen as ifDefinedThen, Rn_ifDefinedThenWithReturn as ifDefinedThenWithReturn, Rn_ifExistsThen as ifExistsThen, Rn_ifExistsThenWithReturn as ifExistsThenWithReturn, Rn_ifNotExistsThen as ifNotExistsThen, Rn_ifNotExistsThenWithReturn as ifNotExistsThenWithReturn, Rn_ifUndefinedThen as ifUndefinedThen, Rn_ifUndefinedThenWithReturn as ifUndefinedThenWithReturn, Rn_initDefaultTextures as initDefaultTextures, Rn_isBlend as isBlend, Rn_isBlendWithZWrite as isBlendWithZWrite, Rn_isBlendWithoutZWrite as isBlendWithoutZWrite, Rn_isOpaque as isOpaque, Rn_isSameGlTF2TextureSampler as isSameGlTF2TextureSampler, Rn_isSkipDrawing as isSkipDrawing, Rn_isTranslucent as isTranslucent, Rn_lessThan as lessThan, Rn_mulArray3WithScalar_offset as mulArray3WithScalar_offset, Rn_mulArray4WithScalar_offset as mulArray4WithScalar_offset, Rn_mulArrayNWithScalar_offset as mulArrayNWithScalar_offset, Rn_mulThatAndThisToOutAsMat44_offsetAsComposition as mulThatAndThisToOutAsMat44_offsetAsComposition, Rn_normalizeArray4 as normalizeArray4, Rn_nullishToEmptyArray as nullishToEmptyArray, Rn_nullishToEmptyMap as nullishToEmptyMap, Rn_objectCachify as objectCachify, Rn_primitiveCachify1 as primitiveCachify1, type Rn_primitives as primitives, Rn_qlerp_offsetAsComposition as qlerp_offsetAsComposition, Rn_scalar_lerp_offsetAsComposition as scalar_lerp_offsetAsComposition, Rn_setUpAsMemoryBoostMode as setUpAsMemoryBoostMode, Rn_setupShaderProgram as setupShaderProgram, Rn_sheenLutTexture as sheenLutTexture, Rn_updateGamePad as updateGamePad, Rn_updateMotionControllerModel as updateMotionControllerModel, Rn_valueWithCompensation as valueWithCompensation, Rn_valueWithDefault as valueWithDefault };
 }
 
 export { Rn as default };
