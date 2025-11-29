@@ -34,6 +34,7 @@ function createGroupOfShapes(): Rn.IMeshEntity {
     createSphere,
     createCone,
     createRing,
+    createCapsule,
   ];
   for (const creator of creators) {
     const shape = creator();
@@ -110,6 +111,14 @@ function createRing() {
   const shape = Rn.MeshHelper.createRing();
   shape.localEulerAngles = Rn.Vector3.fromCopy3(90, 0, 0);
   shape.localPosition = Rn.Vector3.fromCopy3(6, 0, 0);
+
+  return shape;
+}
+
+function createCapsule() {
+  const shape = Rn.MeshHelper.createCapsule();
+  shape.localEulerAngles = Rn.Vector3.fromCopy3(90, 0, 0);
+  shape.localPosition = Rn.Vector3.fromCopy3(9, 0, 0);
 
   return shape;
 }

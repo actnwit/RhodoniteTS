@@ -5,6 +5,7 @@ import { PhysicsShape } from '../definitions/PhysicsShapeType';
 import { Mesh } from '../geometry/Mesh';
 import type { AxisDescriptor } from '../geometry/shapes/Axis';
 import { Axis } from '../geometry/shapes/Axis';
+import { Capsule, type CapsuleDescriptor } from '../geometry/shapes/Capsule';
 import { Cone, type ConeDescriptor } from '../geometry/shapes/Cone';
 import { Cube, type CubeDescriptor } from '../geometry/shapes/Cube';
 import { Grid, type GridDescriptor } from '../geometry/shapes/Grid';
@@ -418,6 +419,38 @@ const createRing = (desc: RingDescriptor = {}) => {
 };
 
 /**
+ * Creates a capsule mesh entity.
+ * A capsule is a cylinder with hemispherical caps at both ends.
+ *
+ * @param desc - Configuration object for the capsule geometry
+ * @param desc.radius - The radius of the capsule (hemispheres and cylinder). Defaults to 0.5
+ * @param desc.height - The height of the cylinder part (distance between hemisphere centers). Defaults to 1
+ * @param desc.widthSegments - Number of horizontal segments. Defaults to 16
+ * @param desc.heightSegments - Number of vertical segments for each hemisphere. Defaults to 8
+ * @returns A mesh entity representing the capsule
+ *
+ * @example
+ * ```typescript
+ * // Create a simple capsule
+ * const capsule = createCapsule({ radius: 0.5, height: 2.0 });
+ *
+ * // Create a detailed capsule
+ * const detailedCapsule = createCapsule({
+ *   radius: 0.3,
+ *   height: 1.5,
+ *   widthSegments: 24,
+ *   heightSegments: 12
+ * });
+ * ```
+ */
+const createCapsule = (desc: CapsuleDescriptor = {}) => {
+  const primitive = new Capsule();
+  primitive.generate(desc);
+  const entity = createShape(primitive);
+  return entity;
+};
+
+/**
  * Creates a mesh entity from a primitive shape.
  * This is a utility function used internally by other creation methods.
  *
@@ -449,6 +482,7 @@ export const MeshHelper = Object.freeze({
   createCubes,
   createSphere,
   createSpheres,
+  createCapsule,
   createJoint,
   createAxis,
   createRing,
