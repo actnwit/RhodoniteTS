@@ -7,7 +7,7 @@ import { IPhysicsEntity } from '../../helpers/EntityHelper';
 import { Is } from '../../misc/Is';
 import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
 import type { PhysicsStrategy } from '../../physics/PhysicsStrategy';
-import type { VRMSpringBonePhysicsStrategy } from '../../physics/VRMSpring/VRMSpringBonePhysicsStrategy';
+import { VRMSpringBonePhysicsStrategy } from '../../physics/VRMSpring/VRMSpringBonePhysicsStrategy';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
@@ -67,12 +67,12 @@ export class PhysicsComponent extends Component {
   }
 
   getVrmSpring() {
-    const strategy = this.__strategy as VRMSpringBonePhysicsStrategy;
-    if (Is.not.exist(strategy)) {
+    const strategy = this.__strategy;
+    if (Is.not.exist(strategy) || !(strategy instanceof VRMSpringBonePhysicsStrategy)) {
       return undefined;
     }
 
-    return strategy.getVrmSpring?.();
+    return strategy.getVrmSpring();
   }
 
   /**
