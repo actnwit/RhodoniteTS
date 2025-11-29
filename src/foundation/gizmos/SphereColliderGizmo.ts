@@ -3,6 +3,7 @@ import { AlphaMode } from '../definitions/AlphaMode';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
 import { MaterialHelper } from '../helpers/MaterialHelper';
 import { MeshHelper } from '../helpers/MeshHelper';
+import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
 import { Is } from '../misc/Is';
 import type { SphereCollider } from '../physics/VRMSpring/SphereCollider';
@@ -47,26 +48,25 @@ export class SphereColliderGizmo extends Gizmo {
     targetSceneGraph._addGizmoChild(this.__topEntity.getSceneGraph()!);
 
     // Create a sphere mesh with the same radius as the collider
+    const material = MaterialHelper.createPbrUberMaterial({
+      isLighting: false,
+      isSkinning: false,
+      isMorphing: false,
+    });
+    material.addShaderDefine('RN_USE_WIREFRAME');
+    material.setParameter('wireframe', Vector3.fromCopy3(1, 0, 1));
+    // Set semi-transparent green color
+    material.setParameter('baseColorFactor', Vector4.fromCopy4(0.0, 1.0, 0.0, 1.0));
     const sphereEntity = MeshHelper.createSphere({
       radius: this.__sphereCollider.radius,
       widthSegments: 16,
       heightSegments: 12,
+      material: material,
     });
 
     // Set up a semi-transparent material for visualization
     const meshComponent = sphereEntity.getMesh();
-    const mesh = meshComponent.mesh;
-    if (mesh != null) {
-      const primitive = mesh.getPrimitiveAt(0);
-      const material = MaterialHelper.createFlatMaterial({
-        isSkinning: false,
-        isMorphing: false,
-      });
-      // Set semi-transparent green color
-      material.setParameter('baseColorFactor', Vector4.fromCopy4(0.0, 1.0, 0.0, 1.0));
-      // material.alphaMode = AlphaMode.Blend;
-      primitive.material = material;
-    }
+    meshComponent.calcBaryCentricCoord();
 
     // Set local position relative to the base scene graph
     sphereEntity.localPosition = this.__sphereCollider.position;
@@ -86,7 +86,7 @@ export class SphereColliderGizmo extends Gizmo {
     }
 
     // Update the sphere position to match the collider's local position
-    this.__sphereEntity.localPosition = this.__sphereCollider.position;
+    this.__sphereEntity.position = this.__sphereCollider.worldPosition;
   }
 
   _destroy(): void {
