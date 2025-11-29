@@ -108,6 +108,10 @@ export class RotationGizmo extends Gizmo {
     return RotationGizmo.__length;
   }
 
+  get isVisible(): boolean {
+    return this.__isVisible;
+  }
+
   set isVisible(flg: boolean) {
     if (this.__isVisible === false && flg === true) {
       let eventTargetDom = window;
