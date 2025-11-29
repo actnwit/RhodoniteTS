@@ -116,10 +116,18 @@ export class SphereCollider {
 
   /**
    * Sets the visibility of the visualization sphere.
+   * If the visualization has not been created yet and visible is true,
+   * it will be created automatically.
    * @param visible - Whether the visualization should be visible
    */
   setVisualizationVisible(visible: boolean): void {
     this.__isVisualizationVisible = visible;
+
+    // Automatically create visualization when first shown
+    if (visible && this.__visualizationEntity == null) {
+      this.createVisualization();
+    }
+
     if (this.__visualizationEntity != null) {
       this.__visualizationEntity.getSceneGraph().isVisible = visible;
     }
