@@ -1021,11 +1021,10 @@ export class SkeletalComponent extends Component {
    * The cache key determines which SkeletalComponents can share skinning results:
    *
    * ## With Animation Applied
-   * - Uses format: `anim|{animationHash}`
+   * - Uses format: `anim|{animationHash}|{inverseBindMatricesSignature}`
    * - animationHash is computed from animation track features (keyframes, timings, etc.)
-   * - Enables cache sharing across all models with the same animation
-   * - VRM1 retargeting creates intermediate models with different joint counts,
-   *   but they can still share cache via animation hash
+   * - inverseBindMatricesSignature ensures models with different bone structures don't share cache
+   * - Only models with BOTH same animation AND same inverseBindMatrices can share skinning results
    *
    * ## Without Animation
    * - Uses format: `{jointListKey}|{accessorSignature}|no_animation`
@@ -1038,24 +1037,27 @@ export class SkeletalComponent extends Component {
       return;
     }
 
+    // Ensure inverseBindMatricesSignature is computed
+    if (!this.__inverseBindMatricesSignature) {
+      this.__inverseBindMatricesSignature = SkeletalComponent.__getAccessorSignature(
+        this.__inverseBindMatricesAccessor
+      );
+    }
+
     const animationTrackFeatureHash = this.__getAnimationTrackFeatureHash();
 
     if (animationTrackFeatureHash != null) {
-      // Animation is applied - use animation hash only for maximum cache sharing
-      // This enables cache sharing across VRM models with the same animation,
-      // regardless of their mesh configuration or joint count.
-      this.__skinCacheKey = `anim|${animationTrackFeatureHash.toString()}`;
+      // Animation is applied - use animation hash AND inverseBindMatrices signature
+      // Different VRM models may have the same animation but different bone structures
+      // (different inverseBindMatrices), so we must include the signature to prevent
+      // incorrect cache sharing that would cause rendering corruption.
+      this.__skinCacheKey = `anim|${animationTrackFeatureHash.toString()}|${this.__inverseBindMatricesSignature}`;
     } else {
       // No animation - use detailed EntityUID-based cache key
       // This prevents incorrect cache sharing between unrelated static models
       if (!this.__jointListKey) {
         this.__skinCacheKey = undefined;
         return;
-      }
-      if (!this.__inverseBindMatricesSignature) {
-        this.__inverseBindMatricesSignature = SkeletalComponent.__getAccessorSignature(
-          this.__inverseBindMatricesAccessor
-        );
       }
       this.__skinCacheKey = `${this.__jointListKey}|${this.__inverseBindMatricesSignature}|no_animation`;
     }
