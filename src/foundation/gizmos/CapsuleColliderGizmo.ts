@@ -175,4 +175,3 @@ export class CapsuleColliderGizmo extends Gizmo {
     return this.__capsuleCollider;
   }
 }
-
