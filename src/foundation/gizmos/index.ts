@@ -4,5 +4,6 @@ export * from './LocatorGizmo';
 export * from './LightGizmo';
 export * from './RotationGizmo';
 export * from './ScaleGizmo';
+export * from './SphereColliderGizmo';
 export * from './TranslationGizmo';
 export * from './JointGizmo';

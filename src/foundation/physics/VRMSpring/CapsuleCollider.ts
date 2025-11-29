@@ -83,4 +83,8 @@ export class CapsuleCollider {
 
     return { direction, distance };
   }
+
+  get baseSceneGraph(): SceneGraphComponent {
+    return this.__baseSceneGraph;
+  }
 }

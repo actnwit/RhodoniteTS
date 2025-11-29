@@ -4,8 +4,10 @@ import type { IEntity } from '../../core/Entity';
 import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import { IPhysicsEntity } from '../../helpers/EntityHelper';
+import { Is } from '../../misc/Is';
 import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
 import type { PhysicsStrategy } from '../../physics/PhysicsStrategy';
+import { VRMSpringBonePhysicsStrategy } from '../../physics/VRMSpring/VRMSpringBonePhysicsStrategy';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
@@ -64,6 +66,15 @@ export class PhysicsComponent extends Component {
     return this.__strategy;
   }
 
+  getVrmSpring() {
+    const strategy = this.__strategy;
+    if (Is.not.exist(strategy) || !(strategy instanceof VRMSpringBonePhysicsStrategy)) {
+      return undefined;
+    }
+
+    return strategy.getVrmSpring();
+  }
+
   /**
    * Common logic method that updates the global physics simulation.
    * This is called once per frame for all physics components and handles
@@ -79,6 +90,18 @@ export class PhysicsComponent extends Component {
    */
   $logic() {
     this.__strategy?.update();
+  }
+
+  /**
+   * Sets the visibility of all colliders managed by this physics component.
+   * This is useful for debugging and visualizing collision boundaries.
+   * Note: This only works if the physics strategy supports collider visualization
+   * (e.g., VRMSpringBonePhysicsStrategy).
+   *
+   * @param visible - Whether the colliders should be visible
+   */
+  setCollidersVisible(visible: boolean): void {
+    this.__strategy?.setCollidersVisible?.(visible);
   }
 
   /**
