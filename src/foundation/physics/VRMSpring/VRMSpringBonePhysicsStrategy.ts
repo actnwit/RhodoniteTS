@@ -365,6 +365,9 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
       for (const collider of collisionGroup.sphereColliders) {
         collider.setGizmoVisible(visible);
       }
+      for (const collider of collisionGroup.capsuleColliders) {
+        collider.setGizmoVisible(visible);
+      }
     }
   }
 
