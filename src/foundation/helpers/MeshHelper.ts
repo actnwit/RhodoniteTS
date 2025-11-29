@@ -12,6 +12,7 @@ import type { IShape } from '../geometry/shapes/IShape';
 import { Joint, type JointDescriptor } from '../geometry/shapes/Joint';
 import { Line, type LineDescriptor } from '../geometry/shapes/Line';
 import { Plane, type PlaneDescriptor } from '../geometry/shapes/Plane';
+import { Ring, type RingDescriptor } from '../geometry/shapes/Ring';
 import { Sphere, type SphereDescriptor } from '../geometry/shapes/Sphere';
 import { Vector3 } from '../math/Vector3';
 import { Is } from '../misc';
@@ -386,6 +387,37 @@ const createAxis = (desc: AxisDescriptor = {}) => {
 };
 
 /**
+ * Creates a ring (annulus) mesh entity.
+ *
+ * @param desc - Configuration object for the ring geometry
+ * @param desc.radius - The radius of the ring (center to middle of band). Defaults to 1
+ * @param desc.thickness - The thickness of the ring band. Defaults to 0.1
+ * @param desc.segments - Number of segments forming the circumference. Defaults to 64
+ * @param desc.axis - The axis perpendicular to the ring plane ('x', 'y', or 'z'). Defaults to 'y'
+ * @returns A mesh entity representing the ring
+ *
+ * @example
+ * ```typescript
+ * // Create a horizontal ring (default, in XZ plane)
+ * const ring = createRing({ radius: 2, thickness: 0.2 });
+ *
+ * // Create a vertical ring in YZ plane
+ * const verticalRing = createRing({
+ *   radius: 1.5,
+ *   thickness: 0.1,
+ *   segments: 32,
+ *   axis: 'x'
+ * });
+ * ```
+ */
+const createRing = (desc: RingDescriptor = {}) => {
+  const primitive = new Ring();
+  primitive.generate(desc);
+  const entity = createShape(primitive);
+  return entity;
+};
+
+/**
  * Creates a mesh entity from a primitive shape.
  * This is a utility function used internally by other creation methods.
  *
@@ -419,5 +451,6 @@ export const MeshHelper = Object.freeze({
   createSpheres,
   createJoint,
   createAxis,
+  createRing,
   createShape,
 });
