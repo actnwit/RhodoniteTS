@@ -40,8 +40,8 @@ export class Cone extends IShape {
    */
   public generate(_desc: ConeDescriptor): void {
     const desc = {
-      radius: _desc.radius ?? 0.1,
-      height: _desc.height ?? 0.25,
+      radius: _desc.radius ?? 0.4,
+      height: _desc.height ?? 1,
       radialSegments: Math.max(3, _desc.radialSegments ?? 12),
       includeBase: _desc.includeBase ?? true,
       material: _desc.material,

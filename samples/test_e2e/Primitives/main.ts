@@ -24,7 +24,17 @@ Rn.System.startRenderLoop(() => {
 function createGroupOfShapes(): Rn.IMeshEntity {
   const group = Rn.createGroupEntity();
 
-  const creators = [createPlane, createGrid, createCube, createAxis, createJoint, createLine, createSphere];
+  const creators = [
+    createPlane,
+    createGrid,
+    createCube,
+    createAxis,
+    createJoint,
+    createLine,
+    createSphere,
+    createCone,
+    createRing,
+  ];
   for (const creator of creators) {
     const shape = creator();
     group.getSceneGraph().addChild(shape.getSceneGraph());
@@ -84,6 +94,22 @@ function createSphere() {
   const shape = Rn.MeshHelper.createSphere();
   shape.localEulerAngles = Rn.Vector3.fromCopy3(90, 0, 0);
   shape.localPosition = Rn.Vector3.fromCopy3(6, 6, 0);
+
+  return shape;
+}
+
+function createCone() {
+  const shape = Rn.MeshHelper.createCone();
+  shape.localEulerAngles = Rn.Vector3.fromCopy3(90, 0, 0);
+  shape.localPosition = Rn.Vector3.fromCopy3(3, 6, 0);
+
+  return shape;
+}
+
+function createRing() {
+  const shape = Rn.MeshHelper.createRing();
+  shape.localEulerAngles = Rn.Vector3.fromCopy3(90, 0, 0);
+  shape.localPosition = Rn.Vector3.fromCopy3(6, 0, 0);
 
   return shape;
 }
