@@ -367,4 +367,8 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
       }
     }
   }
+
+  getVrmSpring(): VRMSpring | undefined {
+    return this.__spring;
+  }
 }

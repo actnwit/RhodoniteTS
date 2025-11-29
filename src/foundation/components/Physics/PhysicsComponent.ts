@@ -4,8 +4,10 @@ import type { IEntity } from '../../core/Entity';
 import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import { IPhysicsEntity } from '../../helpers/EntityHelper';
+import { Is } from '../../misc/Is';
 import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
 import type { PhysicsStrategy } from '../../physics/PhysicsStrategy';
+import type { VRMSpringBonePhysicsStrategy } from '../../physics/VRMSpring/VRMSpringBonePhysicsStrategy';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
@@ -62,6 +64,15 @@ export class PhysicsComponent extends Component {
    */
   get strategy() {
     return this.__strategy;
+  }
+
+  getVrmSpring() {
+    const strategy = this.__strategy as VRMSpringBonePhysicsStrategy;
+    if (Is.not.exist(strategy)) {
+      return undefined;
+    }
+
+    return strategy.getVrmSpring?.();
   }
 
   /**

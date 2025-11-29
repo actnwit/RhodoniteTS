@@ -1,3 +1,5 @@
+import type { VRMSpring } from './VRMSpring/VRMSpring';
+
 export interface PhysicsStrategy {
   update(): void;
 
@@ -7,4 +9,11 @@ export interface PhysicsStrategy {
    * @param visible - Whether the colliders should be visible
    */
   setCollidersVisible?(visible: boolean): void;
+
+  /**
+   * Gets the VRM spring system managed by this physics strategy.
+   * This is optional and only implemented by strategies that support VRM spring bones.
+   * @returns The VRM spring system, or undefined if not supported
+   */
+  getVrmSpring?(): VRMSpring | undefined;
 }
