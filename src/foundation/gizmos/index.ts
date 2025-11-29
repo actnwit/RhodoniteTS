@@ -1,4 +1,5 @@
 export * from './AABBGizmo';
+export * from './CapsuleColliderGizmo';
 export * from './Gizmo';
 export * from './LocatorGizmo';
 export * from './LightGizmo';

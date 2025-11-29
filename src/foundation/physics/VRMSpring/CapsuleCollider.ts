@@ -1,9 +1,9 @@
 import type { SceneGraphComponent } from '../../components/SceneGraph/SceneGraphComponent';
-import type { IdentityMatrix44 } from '../../math/IdentityMatrix44';
-import { Matrix44 } from '../../math/Matrix44';
+import { CapsuleColliderGizmo } from '../../gizmos/CapsuleColliderGizmo';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { MutableVector3 } from '../../math/MutableVector3';
 import { Vector3 } from '../../math/Vector3';
+import { Is } from '../../misc/Is';
 
 /**
  * A capsule-shaped collider used for VRM spring bone physics simulation.
@@ -28,6 +28,9 @@ export class CapsuleCollider {
   private __worldTailOffset = MutableVector3.zero();
   private __lengthSqCapsule = 0;
 
+  /** The gizmo used to visualize this collider */
+  private __gizmo?: CapsuleColliderGizmo;
+
   private static __tmp_vec3_0 = MutableVector3.zero();
   private static __tmp_vec3_1 = MutableVector3.zero();
 
@@ -48,6 +51,9 @@ export class CapsuleCollider {
     this.__worldMatrix.multiplyVector3To(this.__tail, this.__worldTailOffset);
     Vector3.subtractTo(this.__worldTailOffset, this.__worldHead, this.__worldTailOffset);
     this.__lengthSqCapsule = this.__worldTailOffset.lengthSquared();
+    if (Is.exist(this.__gizmo) && this.__gizmo.isVisible) {
+      this.__gizmo._update();
+    }
   }
 
   /**
@@ -84,7 +90,82 @@ export class CapsuleCollider {
     return { direction, distance };
   }
 
+  /**
+   * Gets the local position of the capsule's head.
+   * @returns The local position vector
+   */
+  get position(): Vector3 {
+    return this.__position;
+  }
+
+  /**
+   * Gets the local position of the capsule's tail.
+   * @returns The local tail position vector
+   */
+  get tail(): Vector3 {
+    return this.__tail;
+  }
+
+  /**
+   * Gets the radius of the capsule.
+   * @returns The radius value
+   */
+  get radius(): number {
+    return this.__radius;
+  }
+
+  /**
+   * Gets the base scene graph component.
+   * @returns The base scene graph component
+   */
   get baseSceneGraph(): SceneGraphComponent {
     return this.__baseSceneGraph;
+  }
+
+  /**
+   * Gets the gizmo used to visualize this collider.
+   * @returns The gizmo instance, or undefined if not set
+   */
+  get gizmo(): CapsuleColliderGizmo | undefined {
+    return this.__gizmo;
+  }
+
+  /**
+   * Sets the gizmo used to visualize this collider.
+   * @param gizmo - The gizmo instance to set
+   */
+  set gizmo(gizmo: CapsuleColliderGizmo | undefined) {
+    this.__gizmo = gizmo;
+  }
+
+  /**
+   * Sets the visibility of the collider's gizmo.
+   * If the gizmo exists, it will be shown or hidden accordingly.
+   * @param visible - Whether the gizmo should be visible
+   */
+  setGizmoVisible(visible: boolean): void {
+    if (this.__gizmo == null) {
+      this.__gizmo = new CapsuleColliderGizmo(this);
+      this.__gizmo._setup();
+    }
+    this.__gizmo.isVisible = visible;
+  }
+
+  /**
+   * Gets whether the gizmo is currently visible.
+   * @returns True if the gizmo exists and is visible
+   */
+  get isGizmoVisible(): boolean {
+    return this.__gizmo?.isVisible ?? false;
+  }
+
+  /**
+   * Destroys the gizmo if it exists.
+   */
+  destroyGizmo(): void {
+    if (this.__gizmo != null) {
+      this.__gizmo._destroy();
+      this.__gizmo = undefined;
+    }
   }
 }
