@@ -224,7 +224,7 @@ export class LightComponent extends Component {
    *
    * @static
    */
-  static common_$logic(engine: Engine) {
+  static common_$logic({ engine }: { engine: Engine }) {
     const lightComponents = engine.componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
     LightComponent.__lightNumber._v[0] = lightComponents.length;
   }
