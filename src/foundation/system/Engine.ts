@@ -245,7 +245,7 @@ export class Engine {
       const methodName = stage.methodName;
       const commonMethodName = `common_${methodName}`;
       if (stage === ProcessStage.Render) {
-        MeshRendererComponent.common_$prerender();
+        MeshRendererComponent.common_$prerender(this);
         const isWebXRMode = webxrSystem.isWebXRMode;
         const isMultiView = webxrSystem.isMultiView();
         const xrPose = EngineState.xrPoseWebGPU;
@@ -328,6 +328,7 @@ export class Engine {
                 processStage: stage,
                 renderPassTickCount: this.__renderPassTickCount,
                 displayIdx: 0,
+                engine: this,
               });
             }
 
@@ -352,7 +353,7 @@ export class Engine {
       const methodName = stage.methodName;
       const commonMethodName = `common_${methodName}`;
       if (stage === ProcessStage.Render) {
-        MeshRendererComponent.common_$prerender();
+        MeshRendererComponent.common_$prerender(this);
         for (const exp of expressions) {
           for (const componentTid of renderingComponentTids) {
             const componentClass: typeof Component = ComponentRepository.getComponentClass(componentTid)!;

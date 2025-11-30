@@ -64,7 +64,6 @@ import { WebGpuResourceRepository } from './WebGpuResourceRepository';
  * ```
  */
 export class WebGpuStrategyBasic implements CGAPIStrategy {
-  private static __instance: WebGpuStrategyBasic;
   private __engine: Engine;
   private __storageBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __storageBlendShapeBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -97,11 +96,8 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
    *
    * @returns The singleton instance of WebGpuStrategyBasic
    */
-  static getInstance(engine: Engine) {
-    if (!this.__instance) {
-      this.__instance = new WebGpuStrategyBasic(engine);
-    }
-    return this.__instance;
+  static init(engine: Engine) {
+    return new WebGpuStrategyBasic(engine);
   }
 
   /**
@@ -767,6 +763,7 @@ ${indexStr}
     morphedPositionGetter: string
   ): void {
     material._createProgramWebGpu(
+      this.__engine,
       primitive,
       vertexShaderMethodDefinitionsForVertexShader,
       vertexShaderMethodDefinitionsForPixelShader,

@@ -231,14 +231,16 @@ export class MeshRendererComponent extends Component {
    * This method sets up either WebGPU or WebGL rendering strategies.
    * @param processApproach - The graphics API approach to use (WebGPU or WebGL)
    */
-  static common_$load({ processApproach }: { processApproach: ProcessApproachEnum }) {
+  static common_$load({ processApproach, engine }: { processApproach: ProcessApproachEnum; engine: Engine }) {
     const moduleManager = ModuleManager.getInstance();
 
     // Strategy
     if (processApproach === ProcessApproach.WebGPU) {
       const moduleName = 'webgpu';
       const webgpuModule = moduleManager.getModule(moduleName)! as any;
-      MeshRendererComponent.__cgApiRenderingStrategy = webgpuModule.WebGpuStrategyBasic.getInstance();
+      if (MeshRendererComponent.__cgApiRenderingStrategy == null) {
+        MeshRendererComponent.__cgApiRenderingStrategy = webgpuModule.WebGpuStrategyBasic.init(engine);
+      }
       (MeshRendererComponent.__cgApiRenderingStrategy as WebGpuStrategyBasic).common_$load();
     } else {
       const moduleName = 'webgl';
@@ -496,11 +498,11 @@ export class MeshRendererComponent extends Component {
    * Common pre-rendering setup method that prepares the rendering strategy.
    * Initializes the rendering strategy if not already set and calls its prerender method.
    */
-  static common_$prerender() {
+  static common_$prerender(engine: Engine) {
     if (MeshRendererComponent.__cgApiRenderingStrategy == null) {
       // Possible if there is no mesh entity in the scene
       const processApproach = EngineState.currentProcessApproach;
-      this.common_$load({ processApproach });
+      this.common_$load({ processApproach, engine });
     }
     // Call common_$prerender of WebGLRenderingStrategy
     MeshRendererComponent.__cgApiRenderingStrategy!.prerender();

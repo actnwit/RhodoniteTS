@@ -43,6 +43,7 @@ import type { VertexAttributeEnum } from '../../definitions/VertexAttribute';
 import type { Primitive } from '../../geometry/Primitive';
 import { Is } from '../../misc/Is';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import type { Engine } from '../../system/Engine';
 import { EngineState } from '../../system/EngineState';
 import { ModuleManager } from '../../system/ModuleManager';
 import type { AbstractMaterialContent } from './AbstractMaterialContent';
@@ -376,6 +377,7 @@ export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, _pri
  * - Pragma preprocessing with Shaderity
  * - WebGPU-specific definitions and configurations
  *
+ * @param engine - The engine instance
  * @param material - The material containing shader templates and properties
  * @param primitive - The geometric primitive that defines vertex attributes
  * @param componentDataAccessMethodDefinitionsForVertexShader - method definitions for component data access for vertex shader
@@ -386,6 +388,7 @@ export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, _pri
  * @returns The handle to the created shader program
  */
 export function _createProgramAsSingleOperationWebGpu(
+  engine: Engine,
   material: Material,
   primitive: Primitive,
   componentDataAccessMethodDefinitionsForVertexShader: string,
@@ -429,6 +432,7 @@ export function _createProgramAsSingleOperationWebGpu(
   }
   material.updateStateVersion();
   const { vertexPropertiesStr, pixelPropertiesStr } = material._getProperties(
+    engine,
     propertySetterOfGlobalDataRepository,
     propertySetterOfMaterial
   );
@@ -443,36 +447,46 @@ export function _createProgramAsSingleOperationWebGpu(
     definitions += '#define RN_BONE_DATA_TYPE_VEC4X1\n';
   }
 
-  const vertexShaderityObject = ShaderityUtilityWebGPU.fillTemplate(materialNode.vertexShaderityObject!, primitive, {
-    WellKnownComponentTIDs,
-    vertexInput: vertexInputWgsl.code,
-    vertexOutput: vertexOutputWgsl.code,
-    prerequisites: prerequisitesWgsl.code,
-    mainPrerequisites: mainPrerequisitesWgsl.code,
-    fullscreen: fullscreenWgsl.code,
-    getters: vertexPropertiesStr,
-    definitions: `// RN_IS_VERTEX_SHADER\n#define RN_IS_VERTEX_SHADER\n${definitions}`,
-    matricesGetters: componentDataAccessMethodDefinitionsForVertexShader + morphedPositionGetter,
-    processGeometry: processGeometryWgsl.code,
-    Config,
-  });
+  const vertexShaderityObject = ShaderityUtilityWebGPU.fillTemplate(
+    engine,
+    materialNode.vertexShaderityObject!,
+    primitive,
+    {
+      WellKnownComponentTIDs,
+      vertexInput: vertexInputWgsl.code,
+      vertexOutput: vertexOutputWgsl.code,
+      prerequisites: prerequisitesWgsl.code,
+      mainPrerequisites: mainPrerequisitesWgsl.code,
+      fullscreen: fullscreenWgsl.code,
+      getters: vertexPropertiesStr,
+      definitions: `// RN_IS_VERTEX_SHADER\n#define RN_IS_VERTEX_SHADER\n${definitions}`,
+      matricesGetters: componentDataAccessMethodDefinitionsForVertexShader + morphedPositionGetter,
+      processGeometry: processGeometryWgsl.code,
+      Config,
+    }
+  );
 
-  const pixelShaderityObject = ShaderityUtilityWebGPU.fillTemplate(materialNode.pixelShaderityObject!, primitive, {
-    WellKnownComponentTIDs,
-    vertexOutput: vertexOutputWgsl.code,
-    prerequisites: prerequisitesWgsl.code,
-    mainPrerequisites: mainPrerequisitesWgsl.code,
-    getters: pixelPropertiesStr,
-    definitions: `// RN_IS_PIXEL_SHADER\n#define RN_IS_PIXEL_SHADER\n${definitions}${alphaMode}`,
-    matricesGetters: componentDataAccessMethodDefinitionsForPixelShader,
-    opticalDefinition: opticalDefinitionWgsl.code,
-    pbrDefinition: pbrDefinitionWgsl.code,
-    iblDefinition: iblDefinitionWgsl.code,
-    alphaProcess: alphaProcessWgsl.code,
-    outputSrgb: outputSrgbWgsl.code,
-    wireframe: wireframeWgsl.code,
-    Config,
-  });
+  const pixelShaderityObject = ShaderityUtilityWebGPU.fillTemplate(
+    engine,
+    materialNode.pixelShaderityObject!,
+    primitive,
+    {
+      WellKnownComponentTIDs,
+      vertexOutput: vertexOutputWgsl.code,
+      prerequisites: prerequisitesWgsl.code,
+      mainPrerequisites: mainPrerequisitesWgsl.code,
+      getters: pixelPropertiesStr,
+      definitions: `// RN_IS_PIXEL_SHADER\n#define RN_IS_PIXEL_SHADER\n${definitions}${alphaMode}`,
+      matricesGetters: componentDataAccessMethodDefinitionsForPixelShader,
+      opticalDefinition: opticalDefinitionWgsl.code,
+      pbrDefinition: pbrDefinitionWgsl.code,
+      iblDefinition: iblDefinitionWgsl.code,
+      alphaProcess: alphaProcessWgsl.code,
+      outputSrgb: outputSrgbWgsl.code,
+      wireframe: wireframeWgsl.code,
+      Config,
+    }
+  );
 
   const preprocessedVertex = Shaderity.processPragma(vertexShaderityObject);
   const preprocessedPixel = Shaderity.processPragma(pixelShaderityObject);

@@ -525,6 +525,7 @@ export class Material extends RnObject {
    * @param morphedPositionGetter - Function to get the morphed position
    */
   _createProgramWebGpu(
+    engine: Engine,
     primitive: Primitive,
     componentDataAccessMethodDefinitionsForVertexShader: string,
     componentDataAccessMethodDefinitionsForPixelShader: string,
@@ -533,6 +534,7 @@ export class Material extends RnObject {
     morphedPositionGetter: string
   ) {
     const programUid = _createProgramAsSingleOperationWebGpu(
+      engine,
       this,
       primitive,
       componentDataAccessMethodDefinitionsForVertexShader,
