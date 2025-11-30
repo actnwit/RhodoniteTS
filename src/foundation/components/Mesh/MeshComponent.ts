@@ -373,7 +373,7 @@ export class MeshComponent extends Component {
    * @returns The entity which has this component as an IMeshEntity
    */
   get entity(): IMeshEntity {
-    return EntityRepository.getEntity(this.__entityUid) as unknown as IMeshEntity;
+    return this.__engine.entityRepository.getEntity(this.__entityUid) as unknown as IMeshEntity;
   }
 
   /**

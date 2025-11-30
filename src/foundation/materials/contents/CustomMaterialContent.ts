@@ -11,6 +11,7 @@ import { TextureParameter } from '../../definitions/TextureParameter';
 import { MutableVector2 } from '../../math/MutableVector2';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import type { Engine } from '../../system/Engine';
 import { Sampler } from '../../textures/Sampler';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { dummyBlackCubeTexture } from '../core/DummyTextures';
@@ -158,11 +159,13 @@ export class CustomMaterialContent extends AbstractMaterialContent {
    * @param params.args - WebGL rendering arguments containing matrices, entities, and rendering context
    */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
+    engine,
     material,
     shaderProgram,
     firstTime,
     args,
   }: {
+    engine: Engine;
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
@@ -176,7 +179,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       if (firstTime || args.isVr) {
         let cameraComponent = args.renderPass.cameraComponent;
         if (cameraComponent == null) {
-          cameraComponent = ComponentRepository.getComponent(
+          cameraComponent = engine.componentRepository.getComponent(
             CameraComponent,
             CameraComponent.current
           ) as CameraComponent;

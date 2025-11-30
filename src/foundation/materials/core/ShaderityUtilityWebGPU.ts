@@ -15,6 +15,7 @@ import { MutableVector2 } from '../../math/MutableVector2';
 import { MutableVector3 } from '../../math/MutableVector3';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { Logger } from '../../misc/Logger';
+import type { Engine } from '../../system/Engine';
 import { Sampler } from '../../textures/Sampler';
 import { DefaultTextures, dummyBlackTexture, dummyWhiteTexture } from './DummyTextures';
 
@@ -54,6 +55,7 @@ export class ShaderityUtilityWebGPU {
    * @returns A new ShaderityObject with templates filled
    */
   public static fillTemplate(
+    engine: Engine,
     shaderityObject: ShaderityObject,
     primitive: Primitive,
     args: FillArgsObject
@@ -61,7 +63,7 @@ export class ShaderityUtilityWebGPU {
     const step1 = Shaderity.fillTemplate(shaderityObject, args);
 
     const morphUniformDataOffsets = (primitive.constructor as typeof Primitive).getMorphUniformDataOffsets();
-    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform(engine);
     const templateObject = {
       maxMorphOffsetsDataNumber: `${Math.max(Math.ceil(morphUniformDataOffsets[morphUniformDataOffsets.length - 1] / 4), 1)}`,
       maxMorphWeightsDataNumber: `${Math.max(Math.ceil(blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1] / 4), 1)}`,

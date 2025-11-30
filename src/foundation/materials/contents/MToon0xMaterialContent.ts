@@ -37,6 +37,7 @@ import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
 import { VectorN } from '../../math/VectorN';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import type { Engine } from '../../system/Engine';
 import { EngineState } from '../../system/EngineState';
 import { Sampler } from '../../textures/Sampler';
 import type { Texture } from '../../textures/Texture';
@@ -827,13 +828,15 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
    * @param params.args - WebGPU rendering arguments
    */
   _setInternalSettingParametersToGpuWebGpu({
+    engine,
     material,
     args,
   }: {
+    engine: Engine;
     material: Material;
     args: RenderingArgWebGpu;
   }) {
-    let cameraComponent = ComponentRepository.getComponentFromComponentTID(
+    let cameraComponent = engine.componentRepository.getComponentFromComponentTID(
       WellKnownComponentTIDs.CameraComponentTID,
       args.cameraComponentSid
     ) as CameraComponent;
@@ -928,17 +931,20 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
    * morphing, skinning, and other per-material uniforms.
    *
    * @param params - Object containing rendering parameters
+   * @param params.engine - The engine instance
    * @param params.material - The material instance
    * @param params.shaderProgram - The WebGL shader program
    * @param params.firstTime - Whether this is the first time setup
    * @param params.args - WebGL rendering arguments
    */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
+    engine,
     material,
     shaderProgram,
     firstTime,
     args,
   }: {
+    engine: Engine;
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
@@ -946,7 +952,10 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
   }) {
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
+      cameraComponent = engine.componentRepository.getComponent(
+        CameraComponent,
+        CameraComponent.current
+      ) as CameraComponent;
     }
 
     if (args.setUniform) {

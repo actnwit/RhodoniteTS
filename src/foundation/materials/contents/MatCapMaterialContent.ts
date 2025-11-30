@@ -11,6 +11,7 @@ import { ShaderType } from '../../definitions/ShaderType';
 import { Scalar } from '../../math/Scalar';
 import { Vector3 } from '../../math/Vector3';
 import { Logger } from '../../misc/Logger';
+import type { Engine } from '../../system/Engine';
 import { AbstractTexture } from '../../textures/AbstractTexture';
 import type { Sampler } from '../../textures/Sampler';
 import { Texture } from '../../textures/Texture';
@@ -108,13 +109,16 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
    * including world transformations, camera settings, and skeletal animation support.
    *
    * @param params - Configuration object containing rendering parameters
+   * @param params.engine - The engine instance
    * @param params.shaderProgram - The WebGL shader program to configure
    * @param params.args - WebGL rendering arguments containing matrices, camera, and entity data
    */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
+    engine,
     shaderProgram,
     args,
   }: {
+    engine: Engine;
     shaderProgram: WebGLProgram;
     args: RenderingArgWebGL;
   }) {
@@ -125,7 +129,10 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
       /// Matrices
       let cameraComponent = args.renderPass.cameraComponent;
       if (cameraComponent == null) {
-        cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
+        cameraComponent = engine.componentRepository.getComponent(
+          CameraComponent,
+          CameraComponent.current
+        ) as CameraComponent;
       }
       this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
       this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);

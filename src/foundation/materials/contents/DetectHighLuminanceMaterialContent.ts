@@ -13,6 +13,7 @@ import { ShaderSemantics, ShaderSemanticsClass, type ShaderSemanticsEnum } from 
 import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { ShaderType } from '../../definitions/ShaderType';
 import { Scalar } from '../../math/Scalar';
+import type { Engine } from '../../system/Engine';
 import { EngineState } from '../../system/EngineState';
 import type { AbstractTexture } from '../../textures/AbstractTexture';
 import { Sampler } from '../../textures/Sampler';
@@ -104,9 +105,11 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
    * @param params.args - WebGL rendering arguments including world matrix, render pass, and camera info
    */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
+    engine,
     shaderProgram,
     args,
   }: {
+    engine: Engine;
     shaderProgram: WebGLProgram;
     args: RenderingArgWebGL;
   }) {
@@ -115,7 +118,10 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
       /// Matrices
       let cameraComponent = args.renderPass.cameraComponent;
       if (cameraComponent == null) {
-        cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
+        cameraComponent = engine.componentRepository.getComponent(
+          CameraComponent,
+          CameraComponent.current
+        ) as CameraComponent;
       }
       if (cameraComponent) {
         this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);

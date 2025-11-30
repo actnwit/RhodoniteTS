@@ -9,6 +9,7 @@ import { Scalar } from '../foundation/math/Scalar';
 import { Vector3 } from '../foundation/math/Vector3';
 import type { Vector4 } from '../foundation/math/Vector4';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
+import type { Engine } from '../foundation/system/Engine';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import { type Index, IndexOf16Bytes } from '../types/CommonTypes';
 import type { WebXRSystem } from '../xr/WebXRSystem';
@@ -258,10 +259,9 @@ function getViewport(renderPass: RenderPass) {
  * @param renderPass - The render pass being processed
  * @param displayIdx - The index of the display/eye (0 for left eye, 1 for right eye)
  */
-function setVRViewport(_renderPass: RenderPass, displayIdx: Index) {
+function setVRViewport(engine: Engine, _renderPass: RenderPass, displayIdx: Index) {
   const webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
-  const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-  const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+  const webxrSystem = engine.webXRSystem;
   if (webxrSystem.isWebXRMode) {
     webglResourceRepository.setViewport(webxrSystem._getViewportAt(displayIdx));
   }
@@ -296,9 +296,9 @@ function getDisplayCount(isVRMainPass: boolean, webxrSystem: WebXRSystem): 1 | 2
  * @param renderPass - The render pass to check
  * @returns True if this is a VR main pass, false otherwise
  */
-function isVrMainPass(renderPass: RenderPass) {
-  const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-  const isVRMainPass = rnXRModule?.WebXRSystem.getInstance().isWebXRMode && renderPass.isVrRendering;
+function isVrMainPass(engine: Engine, renderPass: RenderPass) {
+  const webxrSystem = engine.webXRSystem;
+  const isVRMainPass = webxrSystem.isWebXRMode && renderPass.isVrRendering;
   return isVRMainPass;
 }
 

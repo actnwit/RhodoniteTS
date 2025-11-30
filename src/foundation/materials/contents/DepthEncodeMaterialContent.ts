@@ -10,6 +10,7 @@ import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo'
 import { ShaderType } from '../../definitions/ShaderType';
 import { Scalar } from '../../math/Scalar';
 import { Vector3 } from '../../math/Vector3';
+import type { Engine } from '../../system/Engine';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import type { Material } from '../core/Material';
 
@@ -128,11 +129,13 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
    * @param params.args - WebGL rendering arguments containing camera and entity data
    */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
+    engine,
     material,
     shaderProgram,
     firstTime,
     args,
   }: {
+    engine: Engine;
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
@@ -140,7 +143,10 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
   }) {
     let cameraComponent = args.renderPass.cameraComponent as CameraComponent;
     if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
+      cameraComponent = engine.componentRepository.getComponent(
+        CameraComponent,
+        CameraComponent.current
+      ) as CameraComponent;
     }
 
     if (args.setUniform) {

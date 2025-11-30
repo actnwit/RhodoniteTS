@@ -22,6 +22,7 @@ import type { Primitive } from '../../geometry/Primitive';
 import { isBlend, isBlendWithZWrite, isBlendWithoutZWrite, isTranslucent } from '../../geometry/types/GeometryTypes';
 import type { CGAPIStrategy } from '../../renderer/CGAPIStrategy';
 import type { RenderPass } from '../../renderer/RenderPass';
+import type { Engine } from '../../system/Engine';
 import { EngineState } from '../../system/EngineState';
 import { ModuleManager } from '../../system/ModuleManager';
 import type { CubeTexture } from '../../textures/CubeTexture';
@@ -57,13 +58,20 @@ export class MeshRendererComponent extends Component {
 
   /**
    * Creates a new MeshRendererComponent instance.
+   * @param engine - The engine instance
    * @param entityUid - The unique identifier of the entity this component belongs to
    * @param componentSid - The component's system identifier
    * @param entityRepository - The repository managing entities
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
-    super(entityUid, componentSid, entityRepository, isReUse);
+  constructor(
+    engine: Engine,
+    entityUid: EntityUID,
+    componentSid: ComponentSID,
+    entityRepository: EntityRepository,
+    isReUse: boolean
+  ) {
+    super(engine, entityUid, componentSid, entityRepository, isReUse);
     this.calcFingerPrint();
   }
 
@@ -256,10 +264,11 @@ export class MeshRendererComponent extends Component {
   /**
    * Sorts and filters mesh components for rendering based on camera frustum and material properties.
    * Performs frustum culling and sorts primitives by render order and depth.
+   * @param engine - The engine instance
    * @param renderPass - The render pass containing mesh components and rendering context
    * @returns Array of primitive UIDs sorted for optimal rendering
    */
-  static sort_$render(renderPass: RenderPass): ComponentSID[] {
+  static sort_$render(engine: Engine, renderPass: RenderPass): ComponentSID[] {
     if (
       TransformComponent.updateCount === renderPass._lastTransformComponentsUpdateCount &&
       CameraControllerComponent.updateCount === renderPass._lastCameraControllerComponentsUpdateCount &&
@@ -272,17 +281,20 @@ export class MeshRendererComponent extends Component {
     let cameraComponent = renderPass.cameraComponent;
     // If the renderPass doesn't have a cameraComponent, then we get it of the main camera
     if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
+      cameraComponent = engine.componentRepository.getComponent(
+        CameraComponent,
+        CameraComponent.current
+      ) as CameraComponent;
     }
     if (cameraComponent == null) {
-      const cameraComponents = ComponentRepository.getComponentsWithType(CameraComponent) as CameraComponent[];
+      const cameraComponents = engine.componentRepository.getComponentsWithType(CameraComponent) as CameraComponent[];
       cameraComponent = cameraComponents.find(c => c?._isAlive)!;
       CameraComponent.current = cameraComponent.componentSID;
     }
     if (renderPass.isVrRendering) {
       const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
       if (rnXRModule != null) {
-        const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+        const webxrSystem = engine.webXRSystem;
         if (webxrSystem.isWebXRMode) {
           cameraComponent = webxrSystem._getCameraComponentAt(0) as CameraComponent;
         }

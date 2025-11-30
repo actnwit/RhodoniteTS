@@ -10,7 +10,7 @@ import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
 import { None, type Option, Some } from '../foundation/misc/Option';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
-import { Engine } from '../foundation/system/Engine';
+import type { Engine } from '../foundation/system/Engine';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import type { WebGLContextWrapper } from '../webgl/WebGLContextWrapper';
 
@@ -46,7 +46,8 @@ export class WebARSystem {
   private __defaultPositionInLocalSpaceMode = defaultUserPositionInVR;
   private __canvasWidthForAR = 0;
   private __canvasHeightForAR = 0;
-  private _cameraEntity: ICameraEntity = createCameraEntity();
+  private _cameraEntity: ICameraEntity;
+  private __engine: Engine;
   private __viewerTranslate = MutableVector3.zero();
   private __viewerAzimuthAngle = MutableScalar.zero();
   private __viewerOrientation = MutableQuaternion.identity();
@@ -58,7 +59,9 @@ export class WebARSystem {
    *
    * @private Use getInstance() to get the singleton instance instead.
    */
-  constructor() {
+  constructor(engine: Engine) {
+    this.__engine = engine;
+    this._cameraEntity = createCameraEntity(engine);
     this._cameraEntity.tryToSetUniqueName('WebAR Viewer', true);
     this._cameraEntity.tryToSetTag({
       tag: 'type',
@@ -72,12 +75,8 @@ export class WebARSystem {
    *
    * @returns The singleton WebARSystem instance
    */
-  static getInstance() {
-    if (!this.__instance) {
-      this.__instance = new WebARSystem();
-    }
-
-    return this.__instance;
+  static init(engine: Engine): WebARSystem {
+    return new WebARSystem(engine);
   }
 
   /**
@@ -181,8 +180,8 @@ export class WebARSystem {
         this.__isWebARMode = false;
         this.__defaultPositionInLocalSpaceMode = defaultUserPositionInVR;
         Logger.info('XRSession ends.');
-        Engine.stopRenderLoop();
-        Engine.restartRenderLoop();
+        this._cameraEntity.engine.stopRenderLoop();
+        this._cameraEntity.engine.restartRenderLoop();
         callbackOnXrSessionEnd();
       });
 
@@ -190,10 +189,10 @@ export class WebARSystem {
       this.__spaceType = 'local';
       this.__defaultPositionInLocalSpaceMode = initialUserPosition ?? defaultUserPositionInVR;
       this.__oArReferenceSpace = new Some(referenceSpace);
-      Engine.stopRenderLoop();
+      this._cameraEntity.engine.stopRenderLoop();
       await this.__setupWebGLLayer(session, callbackOnXrSessionStart);
       this.__requestedToEnterWebAR = true;
-      Engine.restartRenderLoop();
+      this._cameraEntity.engine.restartRenderLoop();
       Logger.warn('End of enterWebXR.');
       return;
     }

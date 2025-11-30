@@ -29,6 +29,7 @@ import {
 } from '../foundation/renderer/CGAPIResourceRepository';
 import type { FrameBuffer } from '../foundation/renderer/FrameBuffer';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
+import type { Engine } from '../foundation/system/Engine.js';
 import { EngineState } from '../foundation/system/EngineState.js';
 import type { AbstractTexture } from '../foundation/textures/AbstractTexture';
 import type { CubeTexture } from '../foundation/textures/CubeTexture';
@@ -3115,7 +3116,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     }
   }
 
-  clearFrameBuffer(renderPass: RenderPass, _ = 0) {
+  clearFrameBuffer(_engine: Engine, renderPass: RenderPass, _ = 0) {
     const gl = this.__glw!.getRawContext();
     let bufferBit = 0;
     if (renderPass.toClearColorBuffer) {

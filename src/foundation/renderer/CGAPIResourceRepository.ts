@@ -18,6 +18,7 @@ import type { Material } from '../materials/core/Material';
 import type { Vector4 } from '../math/Vector4';
 import type { Accessor } from '../memory/Accessor';
 import type { FrameBuffer } from '../renderer/FrameBuffer';
+import type { Engine } from '../system/Engine';
 import { EngineState } from '../system/EngineState';
 import { ModuleManager } from '../system/ModuleManager';
 import type { IRenderable } from '../textures/IRenderable';
@@ -128,7 +129,7 @@ export interface ICGAPIResourceRepository {
    *
    * @param renderPass - The render pass containing clear configuration
    */
-  clearFrameBuffer(renderPass: RenderPass, displayIdx?: number): void;
+  clearFrameBuffer(engine: Engine, renderPass: RenderPass, displayIdx?: number): void;
 
   /**
    * Creates a texture from image bitmap data with specified parameters.

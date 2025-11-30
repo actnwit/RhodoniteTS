@@ -11,6 +11,7 @@ import { TextureParameter } from '../../definitions/TextureParameter';
 import { VectorN } from '../../math/VectorN';
 import { Expression } from '../../renderer/Expression';
 import type { FrameBuffer } from '../../renderer/FrameBuffer';
+import type { Engine } from '../../system/Engine';
 import type { RenderTargetTexture } from '../../textures/RenderTargetTexture';
 import { Sampler } from '../../textures/Sampler';
 import type { ISceneGraphEntity } from '../EntityHelper';
@@ -24,6 +25,7 @@ import { ShadowMap } from './ShadowMap';
  * Handles both directional/spot light shadows and point light shadows with Gaussian blur post-processing.
  */
 export class ShadowSystem {
+  private __engine: Engine;
   private __shadowMap: ShadowMap;
   private __pointShadowMap: PointShadowMap;
   private __gaussianBlur: GaussianBlur;
@@ -38,7 +40,8 @@ export class ShadowSystem {
    * Initializes shadow map and point shadow map systems, along with framebuffers for texture arrays.
    * @param shadowMapSize - The resolution (width and height) of shadow maps in pixels
    */
-  constructor(shadowMapSize: number) {
+  constructor(engine: Engine, shadowMapSize: number) {
+    this.__engine = engine;
     this.__shadowMap = new ShadowMap();
     this.__pointShadowMap = new PointShadowMap();
     this.__gaussianBlur = new GaussianBlur();
@@ -80,7 +83,7 @@ export class ShadowSystem {
 
     let depthTextureCount = 0;
     let pointDepthTextureCount = 0;
-    const lightComponents = ComponentRepository.getComponentsWithType(LightComponent) as LightComponent[];
+    const lightComponents = this.__engine.componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
     for (let i = 0; i < lightComponents.length; i++) {
       const lightComponent = lightComponents[i];
       this.__lightTypes[i] = lightComponent.type;
@@ -245,7 +248,7 @@ export class ShadowSystem {
   public setDepthBiasPV(entities: ISceneGraphEntity[]) {
     const float32Array = new Float32Array(Config.maxLightNumber * 16);
 
-    const lightComponents = ComponentRepository.getComponentsWithType(LightComponent) as LightComponent[];
+    const lightComponents = this.__engine.componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
 
     for (let i = 0; i < lightComponents.length; i++) {
       const lightComponent = lightComponents[i];
@@ -278,7 +281,7 @@ export class ShadowSystem {
    * @returns True if any light has changed its type, enable state, or shadow casting state; false otherwise
    */
   public isLightChanged() {
-    const lightComponents = ComponentRepository.getComponentsWithType(LightComponent) as LightComponent[];
+    const lightComponents = this.__engine.componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
 
     if (this.__lightTypes.length !== lightComponents.length) {
       return true;

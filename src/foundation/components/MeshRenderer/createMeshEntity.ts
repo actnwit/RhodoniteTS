@@ -1,15 +1,15 @@
-import { EntityRepository } from '../../core/EntityRepository';
 import type { IMeshEntity } from '../../helpers/EntityHelper';
+import type { Engine } from '../../system/Engine';
 import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
-export function createMeshEntity(): IMeshEntity {
-  const entity = createGroupEntity();
-  const entityAddedComponent = EntityRepository.tryToAddComponentToEntityByTID(
+export function createMeshEntity(engine: Engine): IMeshEntity {
+  const entity = createGroupEntity(engine);
+  const entityAddedComponent = engine.entityRepository.tryToAddComponentToEntityByTID(
     WellKnownComponentTIDs.MeshComponentTID,
     entity
   );
-  const entityAddedComponent2 = EntityRepository.tryToAddComponentToEntityByTID(
+  const entityAddedComponent2 = engine.entityRepository.tryToAddComponentToEntityByTID(
     WellKnownComponentTIDs.MeshRendererComponentTID,
     entityAddedComponent
   ) as IMeshEntity;

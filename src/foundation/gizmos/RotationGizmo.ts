@@ -24,6 +24,7 @@ import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
 import { Is } from '../misc/Is';
 import { assertExist } from '../misc/MiscUtil';
+import type { Engine } from '../system/Engine';
 import { INPUT_HANDLING_STATE_GIZMO_ROTATION, InputManager, getEvent } from '../system/InputManager';
 import { Gizmo } from './Gizmo';
 
@@ -187,7 +188,7 @@ export class RotationGizmo extends Gizmo {
       return;
     }
 
-    this.__topEntity = createGroupEntity();
+    this.__topEntity = createGroupEntity(this.__engine);
     this.__topEntity.tryToSetUniqueName(`RotationGizmo_of_${this.__target.uniqueName}`, true);
     this.__topEntity.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix = true;
     targetSceneGraph._addGizmoChild(this.__topEntity.getSceneGraph()!);
@@ -195,7 +196,7 @@ export class RotationGizmo extends Gizmo {
     this.__createRingEntities();
 
     if (Is.not.exist(RotationGizmo.__groupEntity)) {
-      RotationGizmo.__groupEntity = createGroupEntity();
+      RotationGizmo.__groupEntity = createGroupEntity(this.__engine);
     }
 
     this.__attachSharedGroup();
@@ -243,7 +244,7 @@ export class RotationGizmo extends Gizmo {
 
   private __createRingEntities() {
     if (Is.not.exist(RotationGizmo.__xRingEntity)) {
-      RotationGizmo.__xRingEntity = createMeshEntity();
+      RotationGizmo.__xRingEntity = createMeshEntity(this.__engine);
       RotationGizmo.__xRingEntity.tryToSetUniqueName('RotationGizmo_xRing', true);
       RotationGizmo.__xRingMaterial = RotationGizmo.__createRingMaterial(Vector4.fromCopyArray4([1, 0, 0, 0.85]));
       RotationGizmo.__xRingMesh = new Mesh();
@@ -253,7 +254,7 @@ export class RotationGizmo extends Gizmo {
     }
 
     if (Is.not.exist(RotationGizmo.__yRingEntity)) {
-      RotationGizmo.__yRingEntity = createMeshEntity();
+      RotationGizmo.__yRingEntity = createMeshEntity(this.__engine);
       RotationGizmo.__yRingEntity.tryToSetUniqueName('RotationGizmo_yRing', true);
       RotationGizmo.__yRingMaterial = RotationGizmo.__createRingMaterial(Vector4.fromCopyArray4([0, 1, 0, 0.85]));
       RotationGizmo.__yRingMesh = new Mesh();
@@ -263,7 +264,7 @@ export class RotationGizmo extends Gizmo {
     }
 
     if (Is.not.exist(RotationGizmo.__zRingEntity)) {
-      RotationGizmo.__zRingEntity = createMeshEntity();
+      RotationGizmo.__zRingEntity = createMeshEntity(this.__engine);
       RotationGizmo.__zRingEntity.tryToSetUniqueName('RotationGizmo_zRing', true);
       RotationGizmo.__zRingMaterial = RotationGizmo.__createRingMaterial(Vector4.fromCopyArray4([0, 0, 1, 0.85]));
       RotationGizmo.__zRingMesh = new Mesh();
@@ -278,7 +279,7 @@ export class RotationGizmo extends Gizmo {
       return;
     }
     if (Is.not.exist(RotationGizmo.__groupEntity)) {
-      RotationGizmo.__groupEntity = createGroupEntity();
+      RotationGizmo.__groupEntity = createGroupEntity(this.__engine);
     }
     const topSceneGraph = this.__topEntity!.getSceneGraph();
     const groupSceneGraph = RotationGizmo.__groupEntity!.getSceneGraph();
@@ -316,7 +317,7 @@ export class RotationGizmo extends Gizmo {
     this.__accumulatedAngle = 0;
     this.__rotationAxisForQuaternion.setComponents(0, 0, 0);
 
-    const { xResult, yResult, zResult } = RotationGizmo.__castRay(evt, true);
+    const { xResult, yResult, zResult } = RotationGizmo.__castRay(this.__engine, evt, true);
     RotationGizmo.__activeAxis = 'none';
 
     const picked = RotationGizmo.__selectClosestAxis([
@@ -398,7 +399,7 @@ export class RotationGizmo extends Gizmo {
     const axisForQuat = this.__getAxisForQuaternion(axis);
     Vector3.normalizeTo(axisForQuat, this.__rotationAxisForQuaternion);
 
-    const activeCamera = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as
+    const activeCamera = this.__engine.componentRepository.getComponent(CameraComponent, CameraComponent.current) as
       | CameraComponent
       | undefined;
     const groupSceneGraph = RotationGizmo.__groupEntity?.getSceneGraph();
@@ -618,7 +619,7 @@ export class RotationGizmo extends Gizmo {
     const x = evt.clientX - rect.left;
     const y = rect.height - (evt.clientY - rect.top);
     const viewport = Vector4.fromCopy4(0, 0, width, height) as Vector4;
-    const activeCamera = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as
+    const activeCamera = this.__engine.componentRepository.getComponent(CameraComponent, CameraComponent.current) as
       | CameraComponent
       | undefined;
     const groupSceneGraph = RotationGizmo.__groupEntity?.getSceneGraph();
@@ -700,14 +701,14 @@ export class RotationGizmo extends Gizmo {
     }
   }
 
-  private static __castRay(evt: PointerEvent, local = false) {
+  private static __castRay(engine: Engine, evt: PointerEvent, local = false) {
     const rect = (evt.target as HTMLElement).getBoundingClientRect();
     const width = (evt.target as HTMLElement).clientWidth;
     const height = (evt.target as HTMLElement).clientHeight;
     const x = evt.clientX - rect.left;
     const y = rect.height - (evt.clientY - rect.top);
     const viewport = Vector4.fromCopy4(0, 0, width, height) as Vector4;
-    const activeCamera = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as
+    const activeCamera = engine.componentRepository.getComponent(CameraComponent, CameraComponent.current) as
       | CameraComponent
       | undefined;
 

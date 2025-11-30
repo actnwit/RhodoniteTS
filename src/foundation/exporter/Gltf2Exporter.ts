@@ -33,6 +33,7 @@ import type { BufferView } from '../memory/BufferView';
 import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
+import type { Engine } from '../system/Engine';
 import type { AbstractTexture } from '../textures/AbstractTexture';
 import type { Sampler } from '../textures/Sampler';
 import type { Texture } from '../textures/Texture';
@@ -142,13 +143,14 @@ export class Gltf2Exporter {
    * ```
    */
   static async export(
+    engine: Engine,
     filename: string,
     option: Gltf2ExporterArguments = {
       entities: undefined,
       type: GLTF2_EXPORT_GLB,
     }
   ) {
-    const { collectedEntities, topLevelEntities } = this.__collectEntities(option);
+    const { collectedEntities, topLevelEntities } = this.__collectEntities(engine, option);
 
     this.__materialToGltfMaterialIndices.clear();
     this.__lightComponentToLightIndex.clear();
@@ -195,7 +197,7 @@ export class Gltf2Exporter {
    * @param option - Export configuration options containing entity filters
    * @returns Object containing collected entities and top-level entities
    */
-  private static __collectEntities(option: Gltf2ExporterArguments | undefined) {
+  private static __collectEntities(engine: Engine, option: Gltf2ExporterArguments | undefined) {
     const checkPassOrNotWithTags = (entity: ISceneGraphEntity) => {
       if (Is.exist(option) && Is.exist(option.excludeTags)) {
         for (const tag of option.excludeTags) {
@@ -249,7 +251,7 @@ export class Gltf2Exporter {
       }
       return { collectedEntities, topLevelEntities };
     }
-    let collectedEntities = EntityRepository._getEntities() as unknown as ISceneGraphEntity[];
+    let collectedEntities = engine.entityRepository._getEntities() as unknown as ISceneGraphEntity[];
     collectedEntities = collectedEntities.filter(entity => checkPassOrNotWithTags(entity));
     let topLevelEntities = SceneGraphComponent.getTopLevelComponents().flatMap(c => c.entity);
     topLevelEntities = topLevelEntities.filter(entity => checkPassOrNotWithTags(entity));

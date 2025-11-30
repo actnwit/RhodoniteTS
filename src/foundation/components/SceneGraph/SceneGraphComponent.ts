@@ -2,7 +2,7 @@ import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/Commo
 import { Component } from '../../core/Component';
 import { Config } from '../../core/Config';
 import type { IEntity } from '../../core/Entity';
-import { EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { BufferUse } from '../../definitions/BufferUse';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
@@ -31,6 +31,7 @@ import { Vector3 } from '../../math/Vector3';
 import type { Vector4 } from '../../math/Vector4';
 import { Is } from '../../misc/Is';
 import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
+import type { Engine } from '../../system/Engine';
 import type { CameraComponent } from '../Camera/CameraComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import type { MeshComponent } from '../Mesh/MeshComponent';
@@ -94,13 +95,20 @@ export class SceneGraphComponent extends Component {
 
   /**
    * Creates a new SceneGraphComponent instance.
+   * @param engine - The engine instance
    * @param entityUid - The unique identifier of the entity this component belongs to
    * @param componentSid - The component instance identifier
    * @param entityRepository - The entity repository managing this component
    * @param isReUse - Whether this component is being reused
    */
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
-    super(entityUid, componentSid, entityRepository, isReUse);
+  constructor(
+    engine: Engine,
+    entityUid: EntityUID,
+    componentSid: ComponentSID,
+    entityRepository: EntityRepository,
+    isReUse: boolean
+  ) {
+    super(engine, entityUid, componentSid, entityRepository, isReUse);
 
     SceneGraphComponent.__sceneGraphs.push(new WeakRef(this));
 
@@ -177,7 +185,7 @@ export class SceneGraphComponent extends Component {
   set isAABBGizmoVisible(flg: boolean) {
     if (flg) {
       if (Is.not.defined(this.__aabbGizmo)) {
-        this.__aabbGizmo = new AABBGizmo(this.entity);
+        this.__aabbGizmo = new AABBGizmo(this.entity.engine, this.entity);
         this.__aabbGizmo._setup();
       }
       this.__aabbGizmo.isVisible = true;
@@ -206,7 +214,7 @@ export class SceneGraphComponent extends Component {
   set isLocatorGizmoVisible(flg: boolean) {
     if (flg) {
       if (Is.not.defined(this.__locatorGizmo)) {
-        this.__locatorGizmo = new LocatorGizmo(this.entity as IMeshEntity);
+        this.__locatorGizmo = new LocatorGizmo(this.entity.engine, this.entity);
         this.__locatorGizmo._setup();
       }
       this.__locatorGizmo.isVisible = true;
@@ -235,7 +243,7 @@ export class SceneGraphComponent extends Component {
   set isTranslationGizmoVisible(flg: boolean) {
     if (flg) {
       if (Is.not.defined(this.__translationGizmo)) {
-        this.__translationGizmo = new TranslationGizmo(this.entity as IMeshEntity);
+        this.__translationGizmo = new TranslationGizmo(this.entity.engine, this.entity);
         this.__translationGizmo._setup();
       }
       this.__translationGizmo.isVisible = true;
@@ -267,7 +275,7 @@ export class SceneGraphComponent extends Component {
   set isRotationGizmoVisible(flg: boolean) {
     if (flg) {
       if (Is.not.defined(this.__rotationGizmo)) {
-        this.__rotationGizmo = new RotationGizmo(this.entity as IMeshEntity);
+        this.__rotationGizmo = new RotationGizmo(this.entity.engine, this.entity);
         this.__rotationGizmo._setup();
         this.__rotationGizmo.setSpace(this.__transformGizmoSpace);
       }
@@ -298,7 +306,7 @@ export class SceneGraphComponent extends Component {
   set isScaleGizmoVisible(flg: boolean) {
     if (flg) {
       if (Is.not.defined(this.__scaleGizmo)) {
-        this.__scaleGizmo = new ScaleGizmo(this.entity as IMeshEntity);
+        this.__scaleGizmo = new ScaleGizmo(this.entity.engine, this.entity);
         this.__scaleGizmo._setup();
       }
       this.__scaleGizmo.isVisible = true;
@@ -330,7 +338,7 @@ export class SceneGraphComponent extends Component {
   set isJointGizmoVisible(flg: boolean) {
     if (flg && this.isJoint()) {
       if (Is.not.defined(this.__jointGizmo)) {
-        this.__jointGizmo = new JointGizmo(this.entity);
+        this.__jointGizmo = new JointGizmo(this.entity.engine, this.entity);
         this.__jointGizmo._setup();
       }
       this.__jointGizmo.isVisible = true;
@@ -1357,7 +1365,7 @@ export class SceneGraphComponent extends Component {
    * @returns A new scene graph entity with copied component
    */
   private __copyChild(child: SceneGraphComponent): ISceneGraphEntity {
-    const newChild = EntityRepository._shallowCopyEntityInner(child.entity) as ISceneGraphEntity;
+    const newChild = child.entity.engine.entityRepository._shallowCopyEntityInner(child.entity) as ISceneGraphEntity;
     newChild.getSceneGraph().__parent = this;
     return newChild;
   }
@@ -1404,7 +1412,7 @@ export class SceneGraphComponent extends Component {
    * @returns The entity which has this component
    */
   get entity(): ISceneGraphEntity {
-    return EntityRepository.getEntity(this.__entityUid) as unknown as ISceneGraphEntity;
+    return this.__engine.entityRepository.getEntity(this.__entityUid) as unknown as ISceneGraphEntity;
   }
 
   /**

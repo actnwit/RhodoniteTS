@@ -14,7 +14,7 @@ import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
-import { Engine } from '../foundation/system/Engine';
+import type { Engine } from '../foundation/system/Engine';
 import { EngineState } from '../foundation/system/EngineState';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import type { Index } from '../types/CommonTypes';
@@ -45,7 +45,7 @@ const defaultUserPositionInVR = Vector3.fromCopyArray([0.0, 1.1, 0]);
  * ```
  */
 export class WebXRSystem {
-  private static __instance: WebXRSystem;
+  private __engine: Engine;
   private __xrSession?: XRSession;
   private __xrReferenceSpace?: XRReferenceSpace;
   private __webglLayer?: XRWebGLLayer;
@@ -78,15 +78,16 @@ export class WebXRSystem {
    * Initializes the viewer entity and left/right camera entities for stereo rendering.
    * Sets up the scene graph hierarchy with cameras as children of the viewer entity.
    */
-  private constructor() {
-    this.__viewerEntity = createGroupEntity();
+  private constructor(engine: Engine) {
+    this.__engine = engine;
+    this.__viewerEntity = createGroupEntity(engine);
     this.__viewerEntity.tryToSetUniqueName('WebXR Viewer', true);
     this.__viewerEntity.tryToSetTag({
       tag: 'type',
       value: 'background-assets',
     });
 
-    this.__leftCameraEntity = createCameraEntity();
+    this.__leftCameraEntity = createCameraEntity(engine);
     this.__leftCameraEntity.tryToSetUniqueName('WebXR Left Camera', true);
     this.__leftCameraEntity.tryToSetTag({
       tag: 'type',
@@ -94,7 +95,7 @@ export class WebXRSystem {
     });
     this.__leftCameraEntity.getCamera()._xrLeft = true;
 
-    this.__rightCameraEntity = createCameraEntity();
+    this.__rightCameraEntity = createCameraEntity(engine);
     this.__rightCameraEntity.tryToSetUniqueName('WebXR Right Camera', true);
     this.__rightCameraEntity.tryToSetTag({
       tag: 'type',
@@ -239,8 +240,8 @@ export class WebXRSystem {
         MaterialRepository._makeShaderInvalidateToAllMaterials();
         this.__defaultPositionInLocalSpaceMode = defaultUserPositionInVR;
         Logger.info('XRSession ends.');
-        Engine.stopRenderLoop();
-        Engine.restartRenderLoop();
+        this.__engine.stopRenderLoop();
+        this.__engine.restartRenderLoop();
         callbackOnXrSessionEnd();
       });
 
@@ -265,7 +266,7 @@ export class WebXRSystem {
       this.__xrReferenceSpace = referenceSpace;
 
       this.__xrSession = xrSession;
-      Engine.stopRenderLoop();
+      this.__engine.stopRenderLoop();
       if (isWebGPU) {
         const webgpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
         const webgpuDeviceWrapper = webgpuResourceRepository.getWebGpuDeviceWrapper();
@@ -282,7 +283,7 @@ export class WebXRSystem {
         await this.__setupWebGLLayer(xrSession, callbackOnXrSessionStart);
       }
       this.__requestedToEnterWebXR = true;
-      Engine.restartRenderLoop();
+      this.__engine.restartRenderLoop();
       Logger.warn('End of enterWebXR.');
       return promise;
     }
@@ -477,12 +478,8 @@ export class WebXRSystem {
    *
    * @returns The singleton WebXRSystem instance.
    */
-  static getInstance() {
-    if (!this.__instance) {
-      this.__instance = new WebXRSystem();
-    }
-
-    return this.__instance;
+  static init(engine: Engine): WebXRSystem {
+    return new WebXRSystem(engine);
   }
 
   /// Friend methods
@@ -695,7 +692,12 @@ export class WebXRSystem {
     this.__xrInputSources.length = 0;
     for (const xrInputSource of event.added) {
       this.__xrInputSources.push(xrInputSource);
-      const controller = await createMotionController(xrInputSource, this.__basePath as string, profilePriorities);
+      const controller = await createMotionController(
+        this.__engine,
+        xrInputSource,
+        this.__basePath as string,
+        profilePriorities
+      );
       if (Is.exist(controller)) {
         this.__controllerEntities.push(controller);
         this.__viewerEntity.getSceneGraph()!.addChild(controller.getSceneGraph()!);
@@ -843,7 +845,7 @@ export class WebXRSystem {
     let resolvedHeight = projectionLayerTyped?.textureHeight ?? 0;
 
     if (resolvedWidth <= 0 || resolvedHeight <= 0) {
-      const [currentWidth, currentHeight] = Engine.getCanvasSize();
+      const [currentWidth, currentHeight] = this.__engine.getCanvasSize();
       resolvedWidth = currentWidth;
       resolvedHeight = currentHeight;
     }

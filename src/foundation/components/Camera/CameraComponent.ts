@@ -4,7 +4,7 @@ import { Component } from '../../core/Component';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { Config } from '../../core/Config';
 import type { IEntity } from '../../core/Entity';
-import { EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { BufferUse } from '../../definitions/BufferUse';
 import { CameraType, type CameraTypeEnum } from '../../definitions/CameraType';
 import { ComponentType } from '../../definitions/ComponentType';
@@ -25,6 +25,7 @@ import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
 import { Is } from '../../misc/Is';
 import { RenderPass } from '../../renderer/RenderPass';
+import type { Engine } from '../../system/Engine';
 import { EngineState } from '../../system/EngineState';
 import { ModuleManager } from '../../system/ModuleManager';
 import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';
@@ -124,13 +125,20 @@ export class CameraComponent extends Component {
   /**
    * Creates a new CameraComponent instance.
    *
+   * @param engine - The engine instance
    * @param entityUid - The unique identifier of the entity this component belongs to
    * @param componentSid - The component system identifier
    * @param entityRepository - The entity repository instance
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
-    super(entityUid, componentSid, entityRepository, isReUse);
+  constructor(
+    engine: Engine,
+    entityUid: EntityUID,
+    componentSid: ComponentSID,
+    entityRepository: EntityRepository,
+    isReUse: boolean
+  ) {
+    super(engine, entityUid, componentSid, entityRepository, isReUse);
 
     this.setFovyAndChangeFocalLength(90);
 
@@ -173,11 +181,11 @@ export class CameraComponent extends Component {
    *
    * @returns The update count of the current camera, or 0 if no camera is active
    */
-  static get currentCameraUpdateCount() {
-    const currentCameraComponent = ComponentRepository.getComponent(
+  static getCurrentCameraUpdateCount(engine: Engine) {
+    const currentCameraComponent = engine.componentRepository.getComponent(
       CameraComponent,
       CameraComponent.current
-    ) as CameraComponent;
+    ) as unknown as CameraComponent;
     return currentCameraComponent?.updateCount ?? 0;
   }
 
@@ -1027,9 +1035,8 @@ export class CameraComponent extends Component {
    */
   get projectionMatrix() {
     if (this._xrLeft || this._xrRight) {
-      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-      if (rnXRModule?.WebXRSystem.getInstance().isWebXRMode) {
-        const webXRSystem = rnXRModule.WebXRSystem.getInstance();
+      const webXRSystem = this.__engine.webXRSystem;
+      if (webXRSystem.isWebXRMode) {
         if (this._xrLeft) {
           return webXRSystem.leftProjectionMatrix;
         }
@@ -1192,22 +1199,12 @@ export class CameraComponent extends Component {
   }
 
   /**
-   * Gets the entity that has the current active camera component.
-   *
-   * @returns The entity with the current camera component
-   */
-  static getCurrentCameraEntity() {
-    const currentCameraComponent = ComponentRepository.getComponent(this, this.current) as CameraComponent;
-    return currentCameraComponent.entity;
-  }
-
-  /**
    * Gets the entity which has this camera component.
    *
    * @returns The entity which has this component
    */
   get entity(): ICameraEntity {
-    return EntityRepository.getEntity(this.__entityUid) as unknown as ICameraEntity;
+    return this.__engine.entityRepository.getEntity(this.__entityUid) as unknown as ICameraEntity;
   }
 
   /**

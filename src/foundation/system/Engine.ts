@@ -38,6 +38,8 @@ import { RenderPass } from '../renderer/RenderPass';
 import { EngineState } from './EngineState';
 import { ModuleManager } from './ModuleManager';
 declare const spector: any;
+import type { WebARSystem } from '../../xr/WebARSystem';
+import type { WebXRSystem } from '../../xr/WebXRSystem';
 
 /**
  * The argument type for Engine.init() method.
@@ -54,36 +56,47 @@ interface EngineInitDescription {
  *
  * @example
  * ```
- * await Rn.Engine.init({
+ * const engine = await Rn.Engine.init({
  *   approach: Rn.ProcessApproach.DataTexture,
  *   canvas: document.getElementById('world') as HTMLCanvasElement,
  * });
  *
  * ... (create something) ...
  *
- * Rn.Engine.startRenderLoop((time, _myArg1, _myArg2) => {
+ * engine.startRenderLoop((time, _myArg1, _myArg2) => {
  *   Rn.Engine.process([expression]);
  * }, myArg1, myArg2);
  * ```
  */
 export class Engine {
-  private static __expressionForProcessAuto?: Expression;
-  private static __renderPassForProcessAuto?: RenderPass;
-  private static __processApproach: ProcessApproachEnum = ProcessApproach.None;
-  private static __cgApiResourceRepository: ICGAPIResourceRepository;
-  private static __renderPassTickCount = 0;
-  private static __animationFrameId = -1;
+  private __expressionForProcessAuto?: Expression;
+  private __renderPassForProcessAuto?: RenderPass;
+  private __processApproach: ProcessApproachEnum = ProcessApproach.None;
+  private __cgApiResourceRepository: ICGAPIResourceRepository;
+  private __renderPassTickCount = 0;
+  private __animationFrameId = -1;
 
-  private static __renderLoopFunc?: (time: number, ...args: any[]) => void;
-  private static __args: unknown[] = [];
-  private static __rnXRModule?: RnXR;
+  private __renderLoopFunc?: (time: number, ...args: any[]) => void;
+  private __args: unknown[] = [];
+  private __rnXRModule?: RnXR;
+  private __webXRSystem: WebXRSystem;
+  private __webARSystem: WebARSystem;
+  private __entityRepository: EntityRepository;
+  private __componentRepository: ComponentRepository;
+  private __lastCameraComponentsUpdateCount = -1;
+  private __lastCameraControllerComponentsUpdateCount = -1;
+  private __lastTransformComponentsUpdateCount = -1;
+  private __lastPrimitiveCount = -1;
 
-  private static __lastCameraComponentsUpdateCount = -1;
-  private static __lastCameraControllerComponentsUpdateCount = -1;
-  private static __lastTransformComponentsUpdateCount = -1;
-  private static __lastPrimitiveCount = -1;
-
-  private constructor() {}
+  private constructor(processApproach: ProcessApproachEnum, cgApiResourceRepository: ICGAPIResourceRepository) {
+    this.__processApproach = processApproach;
+    this.__cgApiResourceRepository = cgApiResourceRepository;
+    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+    this.__webXRSystem = rnXRModule.WebXRSystem.init(this);
+    this.__webARSystem = rnXRModule.WebARSystem.init(this);
+    this.__componentRepository = new ComponentRepository(this);
+    this.__entityRepository = new EntityRepository(this);
+  }
 
   /**
    * Starts a render loop.
@@ -98,29 +111,22 @@ export class Engine {
    * @param renderLoopFunc - function to be called in each frame
    * @param args - arguments you want to be passed to renderLoopFunc
    */
-  public static startRenderLoop(renderLoopFunc: (time: number, ...args: any[]) => void, ...args: any[]) {
+  public startRenderLoop(renderLoopFunc: (time: number, ...args: any[]) => void, ...args: any[]) {
     this.__renderLoopFunc = renderLoopFunc;
     this.__args = args;
     const animationFrameObject = this.__getAnimationFrameObject();
-    if (this.__rnXRModule === undefined) {
-      this.__rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    }
-    const webXRSystem = this.__rnXRModule.WebXRSystem.getInstance();
-    const webARSystem = this.__rnXRModule.WebARSystem.getInstance();
+    const webXRSystem = this.__webXRSystem;
+    const webARSystem = this.__webARSystem;
 
     const __renderLoopFunc = ((_time: number, xrFrame: XRFrame) => {
-      if (this.__rnXRModule !== undefined) {
-        if (webXRSystem.isReadyForWebXR) {
-          webXRSystem._preRender(_time, xrFrame);
-          renderLoopFunc.apply(renderLoopFunc, [_time, ...args]);
-          webXRSystem._postRender();
-        } else if (webARSystem.isReadyForWebAR) {
-          webARSystem._preRender(_time, xrFrame);
-          renderLoopFunc.apply(renderLoopFunc, [_time, ...args]);
-          webARSystem._preRender(_time, xrFrame);
-        } else {
-          renderLoopFunc.apply(renderLoopFunc, [_time, ...args]);
-        }
+      if (webXRSystem.isReadyForWebXR) {
+        webXRSystem._preRender(_time, xrFrame);
+        renderLoopFunc.apply(renderLoopFunc, [_time, ...args]);
+        webXRSystem._postRender();
+      } else if (webARSystem.isReadyForWebAR) {
+        webARSystem._preRender(_time, xrFrame);
+        renderLoopFunc.apply(renderLoopFunc, [_time, ...args]);
+        webARSystem._preRender(_time, xrFrame);
       } else {
         renderLoopFunc.apply(renderLoopFunc, [_time, ...args]);
       }
@@ -130,20 +136,17 @@ export class Engine {
     this.__animationFrameId = animationFrameObject.requestAnimationFrame(__renderLoopFunc);
   }
 
-  private static __getAnimationFrameObject(): Window | XRSession {
+  private __getAnimationFrameObject(): Window | XRSession {
     let animationFrameObject: Window | XRSession | undefined = window;
-    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR | undefined;
-    if (Is.exist(rnXRModule)) {
-      const webXRSystem = rnXRModule.WebXRSystem.getInstance();
-      const webARSystem = rnXRModule.WebARSystem.getInstance();
-      if (webXRSystem.requestedToEnterWebXR) {
-        animationFrameObject = webXRSystem.xrSession;
-      } else if (webARSystem.requestedToEnterWebAR) {
-        animationFrameObject = webARSystem.arSession;
-      }
-      if (Is.not.exist(animationFrameObject)) {
-        return window;
-      }
+    const webXRSystem = this.__webXRSystem;
+    const webARSystem = this.__webARSystem;
+    if (webXRSystem.requestedToEnterWebXR) {
+      animationFrameObject = webXRSystem.xrSession;
+    } else if (webARSystem.requestedToEnterWebAR) {
+      animationFrameObject = webARSystem.arSession;
+    }
+    if (Is.not.exist(animationFrameObject)) {
+      return window;
     }
     return animationFrameObject;
   }
@@ -151,7 +154,7 @@ export class Engine {
   /**
    * Stops a existing render loop.
    */
-  public static stopRenderLoop() {
+  public stopRenderLoop() {
     const animationFrameObject = this.__getAnimationFrameObject();
     animationFrameObject.cancelAnimationFrame(this.__animationFrameId);
     this.__animationFrameId = -1;
@@ -160,7 +163,7 @@ export class Engine {
   /**
    * Restart a render loop.
    */
-  public static restartRenderLoop() {
+  public restartRenderLoop() {
     if (this.__renderLoopFunc != null) {
       this.startRenderLoop(this.__renderLoopFunc, 0, this.__args);
     }
@@ -175,8 +178,8 @@ export class Engine {
    *
    * @param clearColor - color to clear the canvas
    */
-  public static processAuto(clearColor = Vector4.fromCopy4(0, 0, 0, 1)) {
-    if (Is.not.exist(Engine.__expressionForProcessAuto)) {
+  public processAuto(clearColor = Vector4.fromCopy4(0, 0, 0, 1)) {
+    if (Is.not.exist(this.__expressionForProcessAuto)) {
       const expression = new Expression();
       const renderPassInit = new RenderPass();
       renderPassInit.toClearColorBuffer = true;
@@ -184,13 +187,13 @@ export class Engine {
       renderPassInit.clearColor = clearColor;
       const renderPassMain = new RenderPass();
       expression.addRenderPasses([renderPassInit, renderPassMain]);
-      Engine.__expressionForProcessAuto = expression;
-      Engine.__renderPassForProcessAuto = renderPassMain;
+      this.__expressionForProcessAuto = expression;
+      this.__renderPassForProcessAuto = renderPassMain;
     }
-    Engine.__renderPassForProcessAuto!.clearEntities();
-    const entities = EntityRepository._getEntities();
-    Engine.__renderPassForProcessAuto!.addEntities(entities as unknown as ISceneGraphEntity[]);
-    this.process([Engine.__expressionForProcessAuto]);
+    this.__renderPassForProcessAuto!.clearEntities();
+    const entities = this.__entityRepository._getEntities();
+    this.__renderPassForProcessAuto!.addEntities(entities as unknown as ISceneGraphEntity[]);
+    this.process([this.__expressionForProcessAuto]);
   }
 
   /**
@@ -201,9 +204,9 @@ export class Engine {
    *
    * @param frame/expression - a frame/expression object
    */
-  public static process(frame: Frame): void;
-  public static process(expressions: Expression[]): void;
-  public static process(value: any) {
+  public process(frame: Frame): void;
+  public process(expressions: Expression[]): void;
+  public process(value: any) {
     Time._processBegin();
     let expressions: Expression[] = value;
     if (value instanceof Frame) {
@@ -211,7 +214,7 @@ export class Engine {
     }
 
     if (CameraComponent.current === Component.InvalidObjectUID) {
-      Engine.createCamera();
+      Engine.createCamera(this);
     }
 
     const time = GlobalDataRepository.getInstance().getValue('time', 0) as Scalar;
@@ -226,11 +229,10 @@ export class Engine {
     Time._processEnd();
   }
 
-  private static _processWebGPU(expressions: Expression[]) {
-    const componentTids = ComponentRepository.getComponentTIDs();
+  private _processWebGPU(expressions: Expression[]) {
+    const componentTids = this.__componentRepository.getComponentTIDs();
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
-    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+    const webxrSystem = this.__webXRSystem;
     for (const stage of Component._processStages) {
       const methodName = stage.methodName;
       const commonMethodName = `common_${methodName}`;
@@ -252,23 +254,23 @@ export class Engine {
                 renderPassTickCount = this.__renderPassTickCount;
                 renderPassTickCountMap.set(renderPassUid, renderPassTickCount);
                 renderPass._isChangedSortRenderResult = false;
-                primitiveUidsMap.set(renderPassUid, MeshRendererComponent.sort_$render(renderPass));
+                primitiveUidsMap.set(renderPassUid, MeshRendererComponent.sort_$render(this, renderPass));
               }
 
               const primitiveUids =
-                primitiveUidsMap.get(renderPassUid) ?? MeshRendererComponent.sort_$render(renderPass);
+                primitiveUidsMap.get(renderPassUid) ?? MeshRendererComponent.sort_$render(this, renderPass);
 
               // Run pre-render hook per-eye (ensures per-view framebuffer adjustments)
               renderPass.doPreRender();
 
               // clear Framebuffer
-              webGpuResourceRepository.clearFrameBuffer(renderPass, displayIdx);
+              webGpuResourceRepository.clearFrameBuffer(this, renderPass, displayIdx);
 
-              webGpuResourceRepository.createRenderBundleEncoder(renderPass, displayIdx);
+              webGpuResourceRepository.createRenderBundleEncoder(this, renderPass, displayIdx);
 
               let doRender = renderPass._renderedSomethingBefore;
               if (doRender) {
-                doRender = !webGpuResourceRepository.renderWithRenderBundle(renderPass, displayIdx);
+                doRender = !webGpuResourceRepository.renderWithRenderBundle(this, renderPass, displayIdx);
                 EngineState.webgpuRenderBundleMode ||= doRender;
               }
 
@@ -281,7 +283,7 @@ export class Engine {
                 });
                 renderPass._renderedSomethingBefore = renderedSomething;
                 if (renderedSomething) {
-                  webGpuResourceRepository.finishRenderBundleEncoder(renderPass, displayIdx);
+                  webGpuResourceRepository.finishRenderBundleEncoder(this, renderPass, displayIdx);
                 }
               }
 
@@ -303,7 +305,7 @@ export class Engine {
           !EngineState.webgpuRenderBundleMode ||
           AnimationComponent.isAnimating ||
           TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
-          CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
+          CameraComponent.getCurrentCameraUpdateCount(this) !== this.__lastCameraComponentsUpdateCount ||
           CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
           Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount
         ) {
@@ -321,24 +323,23 @@ export class Engine {
               });
             }
 
-            componentClass.process(componentClass, stage);
+            componentClass.process(this, componentClass, stage);
           }
         }
       }
     }
-    this.__lastCameraComponentsUpdateCount = CameraComponent.currentCameraUpdateCount;
+    this.__lastCameraComponentsUpdateCount = CameraComponent.getCurrentCameraUpdateCount(this);
     this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
     this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
     this.__lastPrimitiveCount = Primitive.getPrimitiveCount();
   }
 
-  private static _processWebGL(expressions: Expression[]) {
+  private _processWebGL(expressions: Expression[]) {
     // WebGL
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();
-    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR | undefined;
 
-    const componentTids = ComponentRepository.getComponentTIDs();
-    const renderingComponentTids = ComponentRepository.getRenderingComponentTIDs();
+    const componentTids = this.__componentRepository.getComponentTIDs();
+    const renderingComponentTids = this.__componentRepository.getRenderingComponentTIDs();
     for (const stage of Component._processStages) {
       const methodName = stage.methodName;
       const commonMethodName = `common_${methodName}`;
@@ -356,18 +357,18 @@ export class Engine {
               repo.switchDepthTest(renderPass.isDepthTest);
 
               // bind Framebuffer
-              Engine.bindFramebufferWebGL(renderPass, rnXRModule);
+              this.bindFramebufferWebGL(renderPass);
 
               // set Viewport for Normal (Not WebXR)
-              Engine.setViewportForNormalRendering(renderPass, rnXRModule);
+              this.setViewportForNormalRendering(renderPass);
 
               if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
                 // clear Framebuffer
-                this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
+                this.__cgApiResourceRepository.clearFrameBuffer(this, renderPass);
               }
 
               renderPass._isChangedSortRenderResult = false;
-              const primitiveUids = MeshRendererComponent.sort_$render(renderPass);
+              const primitiveUids = MeshRendererComponent.sort_$render(this, renderPass);
               let doRender = renderPass._renderedSomethingBefore;
               if (doRender) {
                 const componentClass_commonMethod = (componentClass as any)[commonMethodName];
@@ -406,7 +407,7 @@ export class Engine {
         if (
           AnimationComponent.isAnimating ||
           TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
-          CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
+          CameraComponent.getCurrentCameraUpdateCount(this) !== this.__lastCameraComponentsUpdateCount ||
           CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
           Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount
         ) {
@@ -423,12 +424,12 @@ export class Engine {
               });
             }
 
-            componentClass.process(componentClass, stage);
+            componentClass.process(this, componentClass, stage);
           }
         }
       }
     }
-    this.__lastCameraComponentsUpdateCount = CameraComponent.currentCameraUpdateCount;
+    this.__lastCameraComponentsUpdateCount = CameraComponent.getCurrentCameraUpdateCount(this);
     this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
     this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
     this.__lastPrimitiveCount = Primitive.getPrimitiveCount();
@@ -446,8 +447,8 @@ export class Engine {
     return Time.timeAtProcessEndMilliseconds;
   }
 
-  private static createCamera() {
-    const cameraEntity = createCameraEntity();
+  public static createCamera(engine: Engine) {
+    const cameraEntity = createCameraEntity(engine);
     cameraEntity.getTransform()!.localPosition = Vector3.fromCopyArray([0, 0, 1]);
     cameraEntity.getCamera().type = CameraType.Orthographic;
     cameraEntity.getCamera().zNear = 0.1;
@@ -458,17 +459,17 @@ export class Engine {
     cameraEntity.getCamera().yMag = 1;
   }
 
-  private static setViewportForNormalRendering(renderPass: RenderPass, rnXRModule?: RnXR) {
-    const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
-    const webARSystem = rnXRModule?.WebARSystem.getInstance();
-    if ((!webXRSystem?.isWebXRMode || !renderPass.isVrRendering) && !webARSystem?.isWebARMode) {
+  private setViewportForNormalRendering(renderPass: RenderPass) {
+    const webXRSystem = this.__webXRSystem;
+    const webARSystem = this.__webARSystem;
+    if ((!webXRSystem.isWebXRMode || !renderPass.isVrRendering) && !webARSystem.isWebARMode) {
       (this.__cgApiResourceRepository as WebGLResourceRepository).setViewport(renderPass.getViewport());
     }
   }
 
-  private static bindFramebufferWebGL(renderPass: RenderPass, rnXRModule?: RnXR) {
-    const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
-    const webARSystem = rnXRModule?.WebARSystem.getInstance();
+  private bindFramebufferWebGL(renderPass: RenderPass) {
+    const webXRSystem = this.__webXRSystem;
+    const webARSystem = this.__webARSystem;
     if (webXRSystem?.isWebXRMode && renderPass.isOutputForVr) {
       const glw = (this.__cgApiResourceRepository as WebGLResourceRepository).currentWebGLContextWrapper!;
       const gl = glw.getRawContext();
@@ -483,7 +484,7 @@ export class Engine {
     }
   }
 
-  private static __displayRnInfo() {
+  private __displayRnInfo() {
     console.log(
       `%cRhodonite%cWeb3D Library%c %cversion%c${VERSION.version}%c %cbranch%c${VERSION.branch}%c %cmode%c${this.__processApproach.str}`,
       'font-weight: bold; padding: 4px 8px; border-radius: 6px 0px 0px 6px; background: linear-gradient(to right, #ff0084 0%,#ff0022 100%);',
@@ -508,7 +509,7 @@ export class Engine {
    *
    * @example
    * ```
-   * await Rn.Engine.init({
+   * const engine = await Rn.Engine.init({
    *   approach: Rn.ProcessApproach.DataTexture,
    *   canvas: document.getElementById('world') as HTMLCanvasElement,
    * });
@@ -517,12 +518,10 @@ export class Engine {
    * @param desc
    * @returns
    */
-  public static async init(desc: EngineInitDescription): Promise<void> {
-    this.__processApproach = desc.approach;
+  public static async init(desc: EngineInitDescription): Promise<Engine> {
+    let engine: Engine | undefined;
+
     EngineState.currentProcessApproach = desc.approach;
-    if (desc.notToDisplayRnInfoAtInit !== true) {
-      this.__displayRnInfo();
-    }
     await ModuleManager.getInstance().loadModule('pbr');
     await ModuleManager.getInstance().loadModule('xr');
     Config.eventTargetDom = desc.canvas;
@@ -531,7 +530,7 @@ export class Engine {
     if (desc.approach === ProcessApproach.WebGPU) {
       // WebGPU
       await ModuleManager.getInstance().loadModule('webgpu');
-      Engine.__cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+      engine = new Engine(desc.approach, CGAPIResourceRepository.getCgApiResourceRepository());
 
       const webGpuResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository() as WebGpuResourceRepository;
       const webgpuModule = ModuleManager.getInstance().getModule('webgpu');
@@ -565,11 +564,16 @@ export class Engine {
     } else {
       // WebGL
       await ModuleManager.getInstance().loadModule('webgl');
-      Engine.__cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+      engine = new Engine(desc.approach, CGAPIResourceRepository.getCgApiResourceRepository());
+
       const repo = CGAPIResourceRepository.getWebGLResourceRepository();
       repo.generateWebGLContext(desc.canvas, true, desc.webglOption);
       repo.switchDepthTest(true);
       maxGPUDataStorageSize = repo.currentWebGLContextWrapper!.getMaxTextureSize() ** 2 * 4 /* rgba */ * 4 /* byte */;
+    }
+
+    if (desc.notToDisplayRnInfoAtInit !== true) {
+      engine.__displayRnInfo();
     }
 
     // Memory Settings
@@ -590,7 +594,7 @@ export class Engine {
       ((event: Event) => {
         // Calling preventDefault signals to the page that you intent to handle context restoration.
         event.preventDefault();
-        this.stopRenderLoop();
+        engine.stopRenderLoop();
         Logger.error('WebGL context lost occurred.');
       }).bind(this)
     );
@@ -601,30 +605,48 @@ export class Engine {
       Logger.error('WebGL context restored.');
       // TODO: Implement restoring the previous graphics resources
       // loadSceneGraphics(gl);
-      this.restartRenderLoop();
+      engine.restartRenderLoop();
     });
 
     await initDefaultTextures();
 
     EngineState.viewportAspectRatio = desc.canvas.width / desc.canvas.height;
+
+    return engine;
   }
 
-  public static get processApproach() {
+  public get processApproach() {
     return this.__processApproach;
   }
 
-  public static resizeCanvas(width: number, height: number) {
+  public resizeCanvas(width: number, height: number) {
     const repo = CGAPIResourceRepository.getCgApiResourceRepository();
     repo.resizeCanvas(width, height);
     EngineState.viewportAspectRatio = width / height;
   }
 
-  public static getCanvasSize() {
+  public getCanvasSize() {
     const repo = CGAPIResourceRepository.getCgApiResourceRepository();
     return repo.getCanvasSize();
   }
 
-  public static getCurrentWebGLContextWrapper() {
+  public getCurrentWebGLContextWrapper() {
     return (this.__cgApiResourceRepository as WebGLResourceRepository).currentWebGLContextWrapper;
+  }
+
+  public get entityRepository() {
+    return this.__entityRepository;
+  }
+
+  public get componentRepository() {
+    return this.__componentRepository;
+  }
+
+  public get webXRSystem() {
+    return this.__webXRSystem;
+  }
+
+  public get webARSystem() {
+    return this.__webARSystem;
   }
 }

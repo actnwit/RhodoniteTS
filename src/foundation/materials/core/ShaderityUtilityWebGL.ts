@@ -16,6 +16,7 @@ import { MutableVector3 } from '../../math/MutableVector3';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { Logger } from '../../misc/Logger';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import type { Engine } from '../../system/Engine';
 import { DefaultTextures, dummyBlackTexture, dummyWhiteTexture } from './DummyTextures';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
@@ -71,6 +72,7 @@ export class ShaderityUtilityWebGL {
    * @returns A new ShaderityObject with all template placeholders replaced
    */
   public static fillTemplate(
+    engine: Engine,
     shaderityObject: ShaderityObject,
     primitive: Primitive,
     args: FillArgsObject
@@ -84,7 +86,7 @@ export class ShaderityUtilityWebGL {
     const dataTextureWidth = glw.getMaxTextureSize();
 
     const morphUniformDataOffsets = (primitive.constructor as typeof Primitive).getMorphUniformDataOffsets();
-    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform(engine);
     const templateObject = {
       WellKnownComponentTIDs,
       widthOfDataTexture: `const int widthOfDataTexture = ${dataTextureWidth};`,

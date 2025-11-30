@@ -16,13 +16,13 @@ import { AnimatedQuaternion } from '../math/AnimatedQuaternion';
 import { AnimatedVector3 } from '../math/AnimatedVector3';
 import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
+import type { Engine } from '../system/Engine';
 import { ModelConverter } from './ModelConverter';
 
 type RetargetMode = 'none' | 'global' | 'absolute';
 
 export class AnimationAssigner {
-  private static __instance: AnimationAssigner;
-
+  constructor(private readonly __engine: Engine) {}
   /**
    * Assigns animation data from a glTF model to a root entity with optional retargeting.
    * This method handles both same-skeleton and cross-skeleton animation assignment.
@@ -58,7 +58,7 @@ export class AnimationAssigner {
    * @returns An array of animation track names that were created
    */
   assignAnimationWithVrma(rootEntity: ISceneGraphEntity, vrmaModel: RnM2Vrma, postfixToTrackName?: string) {
-    const entityVrma = ModelConverter.convertToRhodoniteObjectSimple(vrmaModel);
+    const entityVrma = ModelConverter.convertToRhodoniteObjectSimple(this.__engine, vrmaModel);
 
     this.__resetAnimationAndPose(rootEntity, postfixToTrackName);
 
@@ -68,7 +68,7 @@ export class AnimationAssigner {
         return;
       }
 
-      EntityRepository.addComponentToEntity(AnimationStateComponent, rootEntity);
+      this.__engine.entityRepository.addComponentToEntity(AnimationStateComponent, rootEntity);
 
       for (const animation of vrma.animations) {
         for (const sampler of animation.samplers) {
@@ -83,7 +83,7 @@ export class AnimationAssigner {
           // const node = gltfModel.nodes[channel.target!.node!];
           const rnEntity = this.__getCorrespondingEntityWithVrma(rootEntity, vrma, channel.target!.node!);
           if (rnEntity) {
-            const newRnEntity = EntityRepository.addComponentToEntity(AnimationComponent, rnEntity);
+            const newRnEntity = this.__engine.entityRepository.addComponentToEntity(AnimationComponent, rnEntity);
             const animationComponent = newRnEntity.getAnimation();
 
             const gltfEntity = vrma.extras.rnEntities[channel.target!.node!];
@@ -109,12 +109,10 @@ export class AnimationAssigner {
     // Set retarget
     setRetarget(vrmaModel);
 
-    EntityRepository.deleteEntityRecursively(entityVrma.entityUID);
+    this.__engine.entityRepository.deleteEntityRecursively(entityVrma.entityUID);
 
     return Array.from(trackNames);
   }
-
-  private constructor() {}
 
   /**
    * Resets animation tracks and restores entities to their rest pose.
@@ -139,19 +137,6 @@ export class AnimationAssigner {
       }
     }
     resetAnimationAndPose(rootEntity, postfixToTrackName);
-  }
-
-  /**
-   * Gets the singleton instance of the AnimationAssigner class.
-   * Creates a new instance if one doesn't exist.
-   *
-   * @returns The singleton instance of AnimationAssigner
-   */
-  static getInstance(): AnimationAssigner {
-    if (!this.__instance) {
-      this.__instance = new AnimationAssigner();
-    }
-    return this.__instance;
   }
 
   /**
@@ -310,7 +295,7 @@ export class AnimationAssigner {
       return;
     }
 
-    EntityRepository.addComponentToEntity(AnimationStateComponent, rootEntity);
+    this.__engine.entityRepository.addComponentToEntity(AnimationStateComponent, rootEntity);
 
     for (const animation of gltfModel.animations) {
       for (const sampler of animation.samplers) {
@@ -338,7 +323,7 @@ export class AnimationAssigner {
           isSameSkeleton
         );
         if (rnEntity) {
-          const newRnEntity = EntityRepository.addComponentToEntity(AnimationComponent, rnEntity);
+          const newRnEntity = this.__engine.entityRepository.addComponentToEntity(AnimationComponent, rnEntity);
           const animationComponent = newRnEntity.getAnimation();
 
           if (retargetMode === 'none') {

@@ -31,6 +31,7 @@ import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRep
 import type { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
 import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
+import type { Engine } from '../foundation/system/Engine';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import type {
   CGAPIResourceHandle,
@@ -64,6 +65,7 @@ import { WebGpuResourceRepository } from './WebGpuResourceRepository';
  */
 export class WebGpuStrategyBasic implements CGAPIStrategy {
   private static __instance: WebGpuStrategyBasic;
+  private __engine: Engine;
   private __storageBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __storageBlendShapeBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __uniformMorphOffsetsTypedArray?: Uint32Array;
@@ -85,7 +87,9 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __storageBlendShapeBufferByteLength = -1;
   private __countOfBlendShapeComponents = -1;
 
-  private constructor() {}
+  private constructor(engine: Engine) {
+    this.__engine = engine;
+  }
 
   /**
    * Gets the singleton instance of WebGpuStrategyBasic.
@@ -93,9 +97,9 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
    *
    * @returns The singleton instance of WebGpuStrategyBasic
    */
-  static getInstance() {
+  static getInstance(engine: Engine) {
     if (!this.__instance) {
-      this.__instance = new WebGpuStrategyBasic();
+      this.__instance = new WebGpuStrategyBasic(engine);
     }
     return this.__instance;
   }
@@ -243,7 +247,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
     }
   }
 
-  private static __getMorphedPositionGetter(): string {
+  private static __getMorphedPositionGetter(engine: Engine): string {
     const morphUniformDataTargetNumbers = Primitive.getMorphUniformDataTargetNumbers();
     const morphUniformDataTargetNumbersStr = `
     var<function> morphUniformDataTargetNumbers: array<u32, ${morphUniformDataTargetNumbers.length}> = array<u32, ${morphUniformDataTargetNumbers.length}>(${morphUniformDataTargetNumbers.map(num => `${num}u`).join(', ')});
@@ -252,7 +256,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
     const morphUniformDataOffsetsStr = `
     var<function> morphUniformDataOffsets: array<u32, ${morphUniformDataOffsets.length}> = array<u32, ${morphUniformDataOffsets.length}>(${morphUniformDataOffsets.map(offset => `${offset}u`).join(', ')});
     `;
-    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform(engine);
     const blendShapeUniformDataOffsetsStr = `
     var<function> blendShapeUniformDataOffsets: array<u32, ${blendShapeUniformDataOffsets.length}> = array<u32, ${blendShapeUniformDataOffsets.length}>(${blendShapeUniformDataOffsets.map(offset => `${offset}u`).join(', ')});
     `;
@@ -643,7 +647,7 @@ ${indexStr}
       this.__lastMorphOffsetsUniformDataSize = morphOffsetsUniformDataSize;
     }
 
-    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform(this.__engine);
     const blendShapeWeightsUniformDataSize = Math.max(
       Math.ceil(blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1] / 4) * 4 * 4,
       4
@@ -717,7 +721,7 @@ ${indexStr}
         WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.PixelShader),
         WebGpuStrategyBasic.__getShaderPropertyOfGlobalDataRepository,
         WebGpuStrategyBasic.__getShaderPropertyOfMaterial,
-        WebGpuStrategyBasic.__getMorphedPositionGetter()
+        WebGpuStrategyBasic.__getMorphedPositionGetter(this.__engine)
       );
       primitive._backupMaterial();
     } catch (e) {
@@ -730,7 +734,7 @@ ${indexStr}
         WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.PixelShader),
         WebGpuStrategyBasic.__getShaderPropertyOfGlobalDataRepository,
         WebGpuStrategyBasic.__getShaderPropertyOfMaterial,
-        WebGpuStrategyBasic.__getMorphedPositionGetter()
+        WebGpuStrategyBasic.__getMorphedPositionGetter(this.__engine)
       );
     }
   }
@@ -775,14 +779,14 @@ ${indexStr}
       AnimationComponent.isAnimating ||
       TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
       SceneGraphComponent.updateCount !== this.__lastSceneGraphComponentsUpdateCount ||
-      CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
+      CameraComponent.getCurrentCameraUpdateCount(this.__engine) !== this.__lastCameraComponentsUpdateCount ||
       CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
       Material.stateVersion !== this.__lastMaterialsUpdateCount
     ) {
       this.__createAndUpdateStorageBuffer();
       this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
       this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
-      this.__lastCameraComponentsUpdateCount = CameraComponent.currentCameraUpdateCount;
+      this.__lastCameraComponentsUpdateCount = CameraComponent.getCurrentCameraUpdateCount(this.__engine);
       this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
       this.__lastMaterialsUpdateCount = Material.stateVersion;
     }
@@ -795,11 +799,11 @@ ${indexStr}
 
     if (
       BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForWeights ||
-      BlendShapeComponent.getCountOfBlendShapeComponents() !== this.__countOfBlendShapeComponents
+      BlendShapeComponent.getCountOfBlendShapeComponents(this.__engine) !== this.__countOfBlendShapeComponents
     ) {
       this.__updateMorphWeightsUniformBuffer();
       this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
-      this.__countOfBlendShapeComponents = BlendShapeComponent.getCountOfBlendShapeComponents();
+      this.__countOfBlendShapeComponents = BlendShapeComponent.getCountOfBlendShapeComponents(this.__engine);
       MaterialRepository._makeShaderInvalidateToMorphMaterials();
     }
   }
@@ -916,8 +920,7 @@ ${indexStr}
     }
 
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
-    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+    const webxrSystem = this.__engine.webXRSystem;
     const cameraSID = this.__getAppropriateCameraComponentSID(
       renderPass,
       displayIdx as 0 | 1,
@@ -1051,11 +1054,10 @@ ${indexStr}
       return;
     }
 
-    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
-    const blendShapeComponents = ComponentRepository.getComponentsWithTypeWithoutFiltering(BlendShapeComponent) as (
-      | BlendShapeComponent
-      | undefined
-    )[];
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform(this.__engine);
+    const blendShapeComponents = this.__engine.componentRepository.getComponentsWithTypeWithoutFiltering(
+      BlendShapeComponent
+    ) as (BlendShapeComponent | undefined)[];
     for (let i = 0; i < blendShapeComponents.length; i++) {
       const blendShapeComponent = blendShapeComponents[i];
       const weights = blendShapeComponent != null ? blendShapeComponent!.weights : [];
@@ -1081,8 +1083,7 @@ ${indexStr}
    */
   private __getAppropriateCameraComponentSID(renderPass: RenderPass, displayIdx: 0 | 1, isVRMainPass: boolean): number {
     if (isVRMainPass) {
-      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+      const webxrSystem = this.__engine.webXRSystem;
       let cameraComponentSid = -1;
       if (webxrSystem.isWebXRMode) {
         if (webxrSystem.isMultiView()) {
@@ -1097,7 +1098,10 @@ ${indexStr}
     let cameraComponent = renderPass.cameraComponent;
     if (cameraComponent == null) {
       // if the renderPass has no cameraComponent, try to get the current cameraComponent
-      cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
+      cameraComponent = this.__engine.componentRepository.getComponent(
+        CameraComponent,
+        CameraComponent.current
+      ) as CameraComponent;
     }
     if (cameraComponent) {
       return cameraComponent.componentSID;

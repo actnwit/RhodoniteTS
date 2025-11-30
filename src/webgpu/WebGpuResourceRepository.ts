@@ -50,6 +50,7 @@ import type { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 
 import HDRImage from '../../vendor/hdrpng.js';
 import type { Buffer } from '../foundation/memory/Buffer';
+import type { Engine } from '../foundation/system/Engine';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import { TextureArray } from '../foundation/textures/TextureArray';
 import type { WebXRSystem } from '../xr/WebXRSystem';
@@ -992,7 +993,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    *
    * @param renderPass - The render pass containing clear settings and target framebuffer
    */
-  clearFrameBuffer(renderPass: RenderPass, displayIdx: number) {
+  clearFrameBuffer(engine: Engine, renderPass: RenderPass, displayIdx: number) {
     if (renderPass.entities.length > 0) {
       return;
     }
@@ -1006,8 +1007,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     const context = this.__webGpuDeviceWrapper!.context;
     const colorAttachments: GPURenderPassColorAttachment[] = [];
     let depthStencilAttachment: GPURenderPassDepthStencilAttachment | undefined;
-    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+    const webxrSystem = engine.webXRSystem;
     if (renderPass.toClearColorBuffer) {
       const framebuffer = renderPass.getFramebuffer();
       if (framebuffer != null) {
@@ -1206,14 +1206,17 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    *
    * @param renderPass - The render pass that will use this render bundle encoder
    */
-  private __getRenderBundleDescriptor(renderPass: RenderPass, displayIdx: number): GPURenderBundleEncoderDescriptor {
+  private __getRenderBundleDescriptor(
+    engine: Engine,
+    renderPass: RenderPass,
+    displayIdx: number
+  ): GPURenderBundleEncoderDescriptor {
     const framebuffer = renderPass.getFramebuffer();
     const resolveFramebuffer = renderPass.getResolveFramebuffer();
     let colorFormats: GPUTextureFormat[] = [];
     let depthStencilFormat: GPUTextureFormat | undefined;
     let sampleCount = 1;
-    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+    const webxrSystem = engine.webXRSystem;
     if (framebuffer != null) {
       for (const colorAttachment of framebuffer.colorAttachments) {
         if (colorAttachment == null) {
@@ -1272,9 +1275,9 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     };
   }
 
-  createRenderBundleEncoder(renderPass: RenderPass, displayIdx: number) {
+  createRenderBundleEncoder(engine: Engine, renderPass: RenderPass, displayIdx: number) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-    const renderBundleDescriptor = this.__getRenderBundleDescriptor(renderPass, displayIdx);
+    const renderBundleDescriptor = this.__getRenderBundleDescriptor(engine, renderPass, displayIdx);
     const descriptorKey = JSON.stringify({
       colorFormats: renderBundleDescriptor.colorFormats,
       depthStencilFormat: renderBundleDescriptor.depthStencilFormat ?? null,
@@ -1293,9 +1296,11 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * Creates a render pass encoder for immediate rendering commands.
    * This encoder is used for recording rendering commands that will be executed immediately.
    *
+   * @param engine - The engine instance
    * @param renderPass - The render pass configuration including targets and clear values
+   * @param displayIdx - The display index for stereo rendering (0 for left eye, 1 for right eye)
    */
-  private createRenderPassEncoder(renderPass: RenderPass, displayIdx: number) {
+  private createRenderPassEncoder(engine: Engine, renderPass: RenderPass, displayIdx: number) {
     if (this.__renderPassEncoder != null) {
       return;
     }
@@ -1313,8 +1318,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       : undefined;
     const depthClearValue = renderPass.toClearDepthBuffer ? renderPass.clearDepth : undefined;
 
-    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+    const webxrSystem = engine.webXRSystem;
 
     if (resolveFramebuffer != null && framebuffer != null) {
       let depthTextureView = this.__systemDepthTextureView!;
@@ -1459,7 +1463,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     }
   }
 
-  renderWithRenderBundle(renderPass: RenderPass, displayIdx: number) {
+  renderWithRenderBundle(engine: Engine, renderPass: RenderPass, displayIdx: number) {
     this.__toClearRenderBundles();
     if (renderPass._isChangedSortRenderResult || !Config.cacheWebGpuRenderBundles) {
       this.__renderBundles.clear();
@@ -1468,7 +1472,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     const renderBundleKey = `${renderPass.renderPassUID}-${displayIdx}`;
     let renderBundle = this.__renderBundles.get(renderBundleKey);
     if (renderBundle != null) {
-      this.createRenderPassEncoder(renderPass, displayIdx);
+      this.createRenderPassEncoder(engine, renderPass, displayIdx);
 
       if (this.__renderPassEncoder != null) {
         this.__renderPassEncoder.executeBundles([renderBundle]);
@@ -1482,8 +1486,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     return false;
   }
 
-  finishRenderBundleEncoder(renderPass: RenderPass, displayIdx: number) {
-    this.createRenderPassEncoder(renderPass, displayIdx);
+  finishRenderBundleEncoder(engine: Engine, renderPass: RenderPass, displayIdx: number) {
+    this.createRenderPassEncoder(engine, renderPass, displayIdx);
 
     if (this.__renderPassEncoder != null && this.__renderBundleEncoder != null) {
       const renderBundle = this.__renderBundleEncoder.finish();

@@ -38,6 +38,7 @@ import type { Vector3 } from '../../math/Vector3';
 import { DataUtil } from '../../misc/DataUtil';
 import { Is } from '../../misc/Is';
 import { valueWithCompensation, valueWithDefault } from '../../misc/MiscUtil';
+import type { Engine } from '../../system/Engine';
 import { type EventHandler, EventPubSub } from '../../system/EventPubSub';
 import type { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
@@ -371,8 +372,8 @@ export class AnimationComponent extends Component {
    * Sets the active animation track for all animation components.
    * @param animationTrackName - The name of the animation track to activate
    */
-  static setActiveAnimationForAll(animationTrackName: AnimationTrackName) {
-    const components = ComponentRepository.getComponentsWithType(AnimationComponent) as AnimationComponent[];
+  static setActiveAnimationForAll(engine: Engine, animationTrackName: AnimationTrackName) {
+    const components = engine.componentRepository.getComponentsWithType(AnimationComponent) as AnimationComponent[];
     for (const component of components) {
       component.setActiveAnimationTrack(animationTrackName);
     }
@@ -544,8 +545,8 @@ export class AnimationComponent extends Component {
    * Gets the global start input value for all animation components.
    * @returns The start input value
    */
-  static get startInputValue() {
-    const components = ComponentRepository.getComponentsWithType(AnimationComponent) as AnimationComponent[];
+  static getStartInputValue(engine: Engine) {
+    const components = engine.componentRepository.getComponentsWithType(AnimationComponent) as AnimationComponent[];
     if (components.length === 0) {
       return 0;
     }
@@ -558,8 +559,8 @@ export class AnimationComponent extends Component {
    * Gets the global end input value for all animation components.
    * @returns The end input value
    */
-  static get endInputValue() {
-    const components = ComponentRepository.getComponentsWithType(AnimationComponent) as AnimationComponent[];
+  static getEndInputValue(engine: Engine) {
+    const components = engine.componentRepository.getComponentsWithType(AnimationComponent) as AnimationComponent[];
     if (components.length === 0) {
       return 0;
     }
@@ -589,7 +590,7 @@ export class AnimationComponent extends Component {
    * @returns The entity which has this component
    */
   get entity(): IAnimationEntity {
-    return EntityRepository.getEntity(this.__entityUid) as unknown as IAnimationEntity;
+    return this.__engine.entityRepository.getEntity(this.__entityUid) as unknown as IAnimationEntity;
   }
 
   /**

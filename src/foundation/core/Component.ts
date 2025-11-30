@@ -18,6 +18,7 @@ import type { BufferView } from '../memory/BufferView';
 import { Logger, RnException } from '../misc';
 import { Err, Ok, type Result } from '../misc/Result';
 import type { RenderPass } from '../renderer/RenderPass';
+import type { Engine } from '../system/Engine';
 import { ComponentRepository } from './ComponentRepository';
 import { Config } from './Config';
 import type { IEntity } from './Entity';
@@ -56,6 +57,7 @@ export class Component extends RnObject {
   private _component_sid: number;
   _isAlive = true;
   protected __isReUse = false;
+  protected __engine: Engine;
   protected __currentProcessStage: ProcessStageEnum = ProcessStage.Load;
   private static __accessors: Map<
     typeof Component,
@@ -98,14 +100,22 @@ export class Component extends RnObject {
    * When creating a Component, use the createComponent method of the ComponentRepository class
    * instead of directly calling this constructor.
    *
+   * @param engine - The engine instance
    * @param entityUid - Unique ID of the corresponding entity
    * @param componentSid - Scoped ID of the Component
    * @param entityRepository - The instance of the EntityRepository class (Dependency Injection)
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
+  constructor(
+    engine: Engine,
+    entityUid: EntityUID,
+    componentSid: ComponentSID,
+    entityRepository: EntityRepository,
+    isReUse: boolean
+  ) {
     super();
 
+    this.__engine = engine;
     this.__entityUid = entityUid;
     this._component_sid = componentSid;
 
@@ -217,13 +227,13 @@ export class Component extends RnObject {
    * @param componentType - The component class to process
    * @param processStage - The process stage to execute
    */
-  static process(componentType: typeof Component, processStage: ProcessStageEnum) {
+  static process(engine: Engine, componentType: typeof Component, processStage: ProcessStageEnum) {
     if (!Component.doesTheProcessStageMethodExist(componentType, processStage)) {
       return;
     }
 
     const methodName = processStage.methodName;
-    const components: Component[] | undefined = ComponentRepository.getComponentsWithType(componentType)!;
+    const components: Component[] | undefined = engine.componentRepository.getComponentsWithType(componentType)!;
     for (const component of components) {
       if (processStage === component.__currentProcessStage) {
         (component as any)[methodName]();

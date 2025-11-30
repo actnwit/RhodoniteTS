@@ -21,14 +21,13 @@ import { AnimatedScalar } from '../math/AnimatedScalar';
 import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
+import type { Engine } from '../system/Engine';
 
 /**
  * Extension class for importing Rhodonite-specific features from RnM2 format files.
  * Handles billboard and Effekseer effect imports.
  */
 export class RhodoniteImportExtension {
-  private static __instance: RhodoniteImportExtension;
-
   /**
    * Imports billboard configuration from RnM2 format and applies it to scene graph entities.
    * Processes the RHODONITE_billboard extension to enable billboard rendering for specified nodes.
@@ -68,7 +67,7 @@ export class RhodoniteImportExtension {
    * @param gltfJson - The RnM2 format JSON data containing Effekseer extension information
    * @param rootGroup - The root scene graph entity that contains all imported entities
    */
-  static importEffect(gltfJson: RnM2, rootGroup: ISceneGraphEntity) {
+  static importEffect(engine: Engine, gltfJson: RnM2, rootGroup: ISceneGraphEntity) {
     const RHODONITE_effekseer = 'RHODONITE_effekseer';
     if (
       Is.not.exist(gltfJson.extensions) ||
@@ -84,7 +83,7 @@ export class RhodoniteImportExtension {
 
     for (const effect of effects) {
       const entity = entities[effect.node];
-      const effekseerEntity = EntityRepository.addComponentToEntity(EffekseerComponent, entity);
+      const effekseerEntity = engine.entityRepository.addComponentToEntity(EffekseerComponent, entity);
       const effekseerComponent = effekseerEntity.getEffekseer();
       effekseerComponent.playJustAfterLoaded = true;
       // effekseerComponent.randomSeed = 1;
@@ -110,7 +109,7 @@ export class RhodoniteImportExtension {
         Logger.error('No real effect data.');
       }
 
-      createEffekseerAnimation(effekseerEntity, effect);
+      createEffekseerAnimation(engine, effekseerEntity, effect);
     }
   }
 }
@@ -123,6 +122,7 @@ export class RhodoniteImportExtension {
  * @param effect - The effect data containing timeline information
  */
 function createEffekseerAnimation(
+  engine: Engine,
   entity: IEntity & ITransformEntityMethods & ISceneGraphEntityMethods & IEffekseerEntityMethods,
   effect: RnM2ExtensionsEffekseerEffect
 ) {
@@ -153,7 +153,7 @@ function createEffekseerAnimation(
               IAnimationEntityMethods)
           | undefined;
         if (Is.not.exist(animationComponent)) {
-          animationEntity = EntityRepository.addComponentToEntity(AnimationComponent, entity);
+          animationEntity = engine.entityRepository.addComponentToEntity(AnimationComponent, entity);
         }
         animationComponent = animationEntity!.getAnimation();
         const animationSamplers = new Map<AnimationTrackName, AnimationSampler>();

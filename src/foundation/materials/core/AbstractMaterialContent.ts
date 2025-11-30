@@ -29,6 +29,7 @@ import { MutableVector4 } from '../../math/MutableVector4';
 import { Vector3 } from '../../math/Vector3';
 import type { Accessor } from '../../memory/Accessor';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import type { Engine } from '../../system/Engine';
 import { EngineState } from '../../system/EngineState';
 import { ModuleManager } from '../../system/ModuleManager';
 import type { Material } from './Material';
@@ -227,6 +228,7 @@ export abstract class AbstractMaterialContent extends RnObject {
    * @param CameraComponentClass - The camera component class
    */
   protected setupBasicInfo(
+    engine: Engine,
     args: RenderingArgWebGL,
     shaderProgram: WebGLProgram,
     firstTime: boolean,
@@ -241,7 +243,7 @@ export abstract class AbstractMaterialContent extends RnObject {
       if (firstTime || args.isVr) {
         let cameraComponent = args.renderPass.cameraComponent;
         if (cameraComponent == null) {
-          cameraComponent = ComponentRepository.getComponent(
+          cameraComponent = engine.componentRepository.getComponent(
             CameraComponentClass,
             CameraComponentClass.current
           ) as CameraComponent;
@@ -315,8 +317,7 @@ export abstract class AbstractMaterialContent extends RnObject {
     let viewMatrix: Matrix44;
     let cameraPosition: IVector3;
     if (isVr) {
-      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+      const webxrSystem = cameraComponent.entity.engine.webXRSystem;
       if (webxrSystem.isWebXRMode) {
         viewMatrix = webxrSystem._getViewMatrixAt(displayIdx);
         cameraPosition = webxrSystem._getCameraWorldPositionAt(displayIdx);
@@ -348,8 +349,7 @@ export abstract class AbstractMaterialContent extends RnObject {
   ) {
     let projectionMatrix: Matrix44;
     if (isVr) {
-      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+      const webxrSystem = cameraComponent.entity.engine.webXRSystem;
       if (webxrSystem.isWebXRMode) {
         projectionMatrix = webxrSystem._getProjectMatrixAt(displayIdx);
       }

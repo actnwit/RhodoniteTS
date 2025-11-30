@@ -4,6 +4,7 @@ import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { MutableVector3 } from '../../math/MutableVector3';
 import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
+import type { Engine } from '../../system/Engine';
 
 /**
  * A capsule-shaped collider used for VRM spring bone physics simulation.
@@ -11,6 +12,7 @@ import { Is } from '../../misc/Is';
  * It can detect collisions with spherical objects like bones.
  */
 export class CapsuleCollider {
+  private __engine: Engine;
   /** The position of the capsule's head in local space */
   private __position = Vector3.zero();
 
@@ -34,7 +36,8 @@ export class CapsuleCollider {
   private static __tmp_vec3_0 = MutableVector3.zero();
   private static __tmp_vec3_1 = MutableVector3.zero();
 
-  constructor(position: Vector3, radius: number, tail: Vector3, baseSceneGraph: SceneGraphComponent) {
+  constructor(engine: Engine, position: Vector3, radius: number, tail: Vector3, baseSceneGraph: SceneGraphComponent) {
+    this.__engine = engine;
     this.__position = position;
     this.__radius = radius;
     this.__tail = tail;
@@ -145,7 +148,7 @@ export class CapsuleCollider {
    */
   setGizmoVisible(visible: boolean): void {
     if (this.__gizmo == null) {
-      this.__gizmo = new CapsuleColliderGizmo(this);
+      this.__gizmo = new CapsuleColliderGizmo(this.__engine, this);
       this.__gizmo._setup();
     }
     this.__gizmo.isVisible = visible;

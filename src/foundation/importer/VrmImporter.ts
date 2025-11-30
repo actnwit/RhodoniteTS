@@ -21,6 +21,7 @@ import { VRMSpring } from '../physics/VRMSpring/VRMSpring';
 import { VRMSpringBone } from '../physics/VRMSpring/VRMSpringBone';
 import { VRMSpringBonePhysicsStrategy } from '../physics/VRMSpring/VRMSpringBonePhysicsStrategy';
 import { RenderPass } from '../renderer/RenderPass';
+import type { Engine } from '../system/Engine';
 import { Sampler } from '../textures/Sampler';
 import { Texture } from '../textures/Texture';
 import { Gltf2Importer } from './Gltf2Importer';
@@ -39,11 +40,12 @@ export class VrmImporter {
    * Imports a VRM model from a glTF structure and sets up all VRM-specific components.
    * This method processes materials, spring bones, expressions, constraints, and humanoid data.
    *
+   * @param engine - The engine instance
    * @param gltfModel - The parsed glTF model containing VRM extensions
    * @param renderPasses - Array of render passes to add the imported model to
    * @returns Promise that resolves when the import process is complete
    */
-  static async __importVRM(gltfModel: RnM2, renderPasses: RenderPass[]): Promise<void> {
+  static async __importVRM(engine: Engine, gltfModel: RnM2, renderPasses: RenderPass[]): Promise<void> {
     // process defaultMaterialHelperArgumentArray
     const defaultMaterialHelperArgumentArray = gltfModel.asset.extras?.rnLoaderOptions
       ?.defaultMaterialHelperArgumentArray ?? [{}];
@@ -68,17 +70,17 @@ export class VrmImporter {
         renderPassOutline: renderPassOutline,
       };
 
-      rootGroup = await ModelConverter.convertToRhodoniteObject(gltfModel);
+      rootGroup = await ModelConverter.convertToRhodoniteObject(engine, gltfModel);
       renderPassOutline.addEntities([rootGroup]);
     } else {
-      rootGroup = await ModelConverter.convertToRhodoniteObject(gltfModel);
+      rootGroup = await ModelConverter.convertToRhodoniteObject(engine, gltfModel);
     }
 
     const renderPassMain = renderPasses[0];
     renderPassMain.tryToSetUniqueName('VRM Main RenderPass', true);
     renderPassMain.addEntities([rootGroup]);
 
-    this._readSpringBone(gltfModel as Vrm1);
+    this._readSpringBone(engine, gltfModel as Vrm1);
     this._readVRMHumanoidInfo(gltfModel as Vrm1, rootGroup);
     this._readExpressions(gltfModel as Vrm1, rootGroup);
     this._readConstraints(gltfModel as Vrm1);
@@ -104,7 +106,7 @@ export class VrmImporter {
           const roll = constraint.roll;
           const dstEntity_ = gltfModel.extras.rnEntities[i];
           const srcEntity = gltfModel.extras.rnEntities[roll.source];
-          const dstEntity = EntityRepository.addComponentToEntity(ConstraintComponent, dstEntity_);
+          const dstEntity = dstEntity_.engine.entityRepository.addComponentToEntity(ConstraintComponent, dstEntity_);
           const rollConstraint = new VrmRollConstraint(
             srcEntity,
             roll.rollAxis,
@@ -116,7 +118,7 @@ export class VrmImporter {
           const aim = constraint.aim;
           const dstEntity_ = gltfModel.extras.rnEntities[i];
           const srcEntity = gltfModel.extras.rnEntities[aim.source];
-          const dstEntity = EntityRepository.addComponentToEntity(ConstraintComponent, dstEntity_);
+          const dstEntity = dstEntity_.engine.entityRepository.addComponentToEntity(ConstraintComponent, dstEntity_);
           const aimConstraint = new VrmAimConstraint(
             srcEntity,
             aim.aimAxis,
@@ -128,7 +130,7 @@ export class VrmImporter {
           const rotation = constraint.rotation;
           const dstEntity_ = gltfModel.extras.rnEntities[i];
           const srcEntity = gltfModel.extras.rnEntities[rotation.source];
-          const dstEntity = EntityRepository.addComponentToEntity(ConstraintComponent, dstEntity_);
+          const dstEntity = dstEntity_.engine.entityRepository.addComponentToEntity(ConstraintComponent, dstEntity_);
           const rotationConstraint = new VrmRotationConstraint(
             srcEntity,
             Is.exist(rotation.weight) ? rotation.weight : 1.0,
@@ -176,7 +178,7 @@ export class VrmImporter {
       };
       vrmExpressions.push(vrmExpression);
     }
-    const vrmEntity = EntityRepository.addComponentToEntity(VrmComponent, rootEntity);
+    const vrmEntity = rootEntity.engine.entityRepository.addComponentToEntity(VrmComponent, rootEntity);
     vrmEntity.getVrm().setVrmExpressions(vrmExpressions);
     vrmEntity.getVrm()._version = '1.0';
   }
@@ -207,9 +209,10 @@ export class VrmImporter {
    * Reads and processes VRM spring bone physics data from the model.
    * Sets up collider groups, spring bones, and physics components for dynamic hair and cloth simulation.
    *
+   * @param engine - The engine instance
    * @param gltfModel - The VRM model containing spring bone data
    */
-  static _readSpringBone(gltfModel: Vrm1): void {
+  static _readSpringBone(engine: Engine, gltfModel: Vrm1): void {
     const colliderGroups: VRMColliderGroup[] = [];
     if (Is.exist(gltfModel.extensions.VRMC_springBone?.colliderGroups)) {
       for (const colliderGroupIdx in gltfModel.extensions.VRMC_springBone.colliderGroups) {
@@ -223,6 +226,7 @@ export class VrmImporter {
           const baseSg = gltfModel.asset.extras!.rnEntities![collider.node].getSceneGraph();
           if (Is.exist(collider.shape.sphere)) {
             const sphereCollider = new SphereCollider(
+              engine,
               Vector3.fromCopyArray([
                 collider.shape.sphere.offset[0],
                 collider.shape.sphere.offset[1],
@@ -234,6 +238,7 @@ export class VrmImporter {
             vrmColliderGroup.sphereColliders.push(sphereCollider);
           } else if (Is.exist(collider.shape.capsule)) {
             const capsuleCollider = new CapsuleCollider(
+              engine,
               Vector3.fromCopyArray([
                 collider.shape.capsule.offset[0],
                 collider.shape.capsule.offset[1],
@@ -332,7 +337,7 @@ export class VrmImporter {
    */
   private static __addPhysicsComponent(spring: VRMSpring, sg: SceneGraphComponent): void {
     const entity = sg.entity;
-    const newEntity = EntityRepository.addComponentToEntity(PhysicsComponent, entity);
+    const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, entity);
     const physicsComponent = newEntity.getPhysics();
     const strategy = new VRMSpringBonePhysicsStrategy();
     strategy.setSpring(spring);

@@ -94,6 +94,7 @@ import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import type { RenderPass } from '../renderer/RenderPass';
+import type { Engine } from '../system/Engine';
 import { Sampler } from '../textures/Sampler';
 import { Texture } from '../textures/Texture';
 import { ILoaderExtension } from './ILoaderExtension';
@@ -112,8 +113,8 @@ export class ModelConverter {
    * @param gltfModel - The glTF model data
    * @returns A scene graph entity configured as a group
    */
-  private static __generateGroupEntity(gltfModel: RnM2): ISceneGraphEntity {
-    const entity = createGroupEntity();
+  private static __generateGroupEntity(engine: Engine, gltfModel: RnM2): ISceneGraphEntity {
+    const entity = createGroupEntity(engine);
     this.addTags(entity, gltfModel);
     return entity;
   }
@@ -136,33 +137,36 @@ export class ModelConverter {
 
   /**
    * Generates a mesh entity for the glTF model
+   * @param engine - The engine instance
    * @param gltfModel - The glTF model data
    * @returns A mesh entity with appropriate tags
    */
-  private static __generateMeshEntity(gltfModel: RnM2): IMeshEntity {
-    const entity = createMeshEntity();
+  private static __generateMeshEntity(engine: Engine, gltfModel: RnM2): IMeshEntity {
+    const entity = createMeshEntity(engine);
     this.addTags(entity, gltfModel);
     return entity;
   }
 
   /**
    * Generates a camera entity for the glTF model
+   * @param engine - The engine instance
    * @param gltfModel - The glTF model data
    * @returns A camera entity with appropriate tags
    */
-  private static __generateCameraEntity(gltfModel: RnM2): ICameraEntity {
-    const entity = createCameraEntity();
+  private static __generateCameraEntity(engine: Engine, gltfModel: RnM2): ICameraEntity {
+    const entity = createCameraEntity(engine);
     this.addTags(entity, gltfModel);
     return entity;
   }
 
   /**
    * Generates a light entity for the glTF model
+   * @param engine - The engine instance
    * @param gltfModel - The glTF model data
    * @returns A light entity with appropriate tags
    */
-  private static __generateLightEntity(gltfModel: RnM2): ILightEntity {
-    const entity = createLightEntity();
+  private static __generateLightEntity(engine: Engine, gltfModel: RnM2): ILightEntity {
+    const entity = createLightEntity(engine);
     this.addTags(entity, gltfModel);
     return entity;
   }
@@ -222,7 +226,7 @@ export class ModelConverter {
    * @param gltfModel - The glTF model data to convert
    * @returns The root group entity containing the converted scene
    */
-  static convertToRhodoniteObjectSimple(gltfModel: RnM2) {
+  static convertToRhodoniteObjectSimple(engine: Engine, gltfModel: RnM2) {
     (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx = [];
 
     const rnBuffers = this.__createRnBuffer(gltfModel);
@@ -236,6 +240,7 @@ export class ModelConverter {
 
     // Mesh, Camera, Group, ...
     const { rnEntities, rnEntitiesByNames } = this.__setupObjects(
+      engine,
       gltfModel,
       rnBuffers,
       rnMaterials,
@@ -247,7 +252,7 @@ export class ModelConverter {
     // Transform
     this._setupTransform(gltfModel, rnEntities);
 
-    const rootGroup = this.__generateGroupEntity(gltfModel);
+    const rootGroup = this.__generateGroupEntity(engine, gltfModel);
 
     // Animation
     this._setupAnimation(gltfModel, rnEntities, rnBuffers, rootGroup, rnMaterials);
@@ -279,7 +284,7 @@ export class ModelConverter {
    * @param gltfModel - The glTF model data to convert
    * @returns Promise resolving to the root group entity containing the converted scene
    */
-  static async convertToRhodoniteObject(gltfModel: RnM2) {
+  static async convertToRhodoniteObject(engine: Engine, gltfModel: RnM2) {
     (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx = [];
 
     const rnBuffers = this.__createRnBuffer(gltfModel);
@@ -293,6 +298,7 @@ export class ModelConverter {
 
     // Mesh, Camera, Group, ...
     const { rnEntities, rnEntitiesByNames } = this.__setupObjects(
+      engine,
       gltfModel,
       rnBuffers,
       rnMaterials,
@@ -304,7 +310,7 @@ export class ModelConverter {
     // Transform
     this._setupTransform(gltfModel, rnEntities);
 
-    const rootGroup = this.__generateGroupEntity(gltfModel);
+    const rootGroup = this.__generateGroupEntity(engine, gltfModel);
 
     // Animation
     this._setupAnimation(gltfModel, rnEntities, rnBuffers, rootGroup, rnMaterials);
@@ -348,7 +354,7 @@ export class ModelConverter {
     gltfModel.extras.rnEntitiesByNames = rnEntitiesByNames;
 
     // Effekseer
-    RhodoniteImportExtension.importEffect(gltfModel, rootGroup);
+    RhodoniteImportExtension.importEffect(rootGroup.engine, gltfModel, rootGroup);
 
     // Billboard
     RhodoniteImportExtension.importBillboard(gltfModel, rnEntities);
@@ -460,7 +466,7 @@ export class ModelConverter {
       return;
     }
 
-    EntityRepository.addComponentToEntity(AnimationStateComponent, rootGroup);
+    rootGroup.engine.entityRepository.addComponentToEntity(AnimationStateComponent, rootGroup);
 
     for (const animation of gltfModel.animations) {
       for (const sampler of animation.samplers) {
@@ -664,7 +670,7 @@ export class ModelConverter {
 
         let animationComponent = rnEntity.tryToGetAnimation();
         if (Is.not.exist(animationComponent)) {
-          const newRnEntity = EntityRepository.addComponentToEntity(AnimationComponent, rnEntity);
+          const newRnEntity = rnEntity.engine.entityRepository.addComponentToEntity(AnimationComponent, rnEntity);
           animationComponent = newRnEntity.getAnimation();
         }
 
@@ -746,7 +752,7 @@ export class ModelConverter {
 
           let animationComponent = rnEntity.tryToGetAnimation();
           if (Is.not.exist(animationComponent)) {
-            const newRnEntity = EntityRepository.addComponentToEntity(AnimationComponent, rnEntity);
+            const newRnEntity = rnEntity.engine.entityRepository.addComponentToEntity(AnimationComponent, rnEntity);
             animationComponent = newRnEntity.getAnimation();
           }
 
@@ -830,7 +836,7 @@ export class ModelConverter {
     }
     let animationComponent = rnEntity.tryToGetAnimation();
     if (Is.not.exist(animationComponent)) {
-      const newRnEntity = EntityRepository.addComponentToEntity(AnimationComponent, rnEntity);
+      const newRnEntity = rnEntity.engine.entityRepository.addComponentToEntity(AnimationComponent, rnEntity);
       animationComponent = newRnEntity.getAnimation();
     }
     if (pointer.includes('rotation')) {
@@ -919,7 +925,7 @@ export class ModelConverter {
         for (const rnEntity of meshEntities) {
           let animationComponent = rnEntity.tryToGetAnimation();
           if (Is.not.exist(animationComponent)) {
-            const newRnEntity = EntityRepository.addComponentToEntity(AnimationComponent, rnEntity);
+            const newRnEntity = rnEntity.engine.entityRepository.addComponentToEntity(AnimationComponent, rnEntity);
             animationComponent = newRnEntity.getAnimation();
           }
           animationComponent.setAnimation(`material/${shaderSemanticName}`, animatedValue);
@@ -953,7 +959,7 @@ export class ModelConverter {
     if (Is.exist(rnEntity)) {
       let animationComponent = rnEntity.tryToGetAnimation();
       if (Is.not.exist(animationComponent)) {
-        const newRnEntity = EntityRepository.addComponentToEntity(AnimationComponent, rnEntity);
+        const newRnEntity = rnEntity.engine.entityRepository.addComponentToEntity(AnimationComponent, rnEntity);
         animationComponent = newRnEntity.getAnimation();
       }
       if (Is.exist(animationComponent)) {
@@ -1002,7 +1008,7 @@ export class ModelConverter {
       let skeletalComponent: SkeletalComponent;
       if (Is.exist(node.skinObject)) {
         const rnEntity = rnEntities[node_i];
-        const newRnEntity = EntityRepository.addComponentToEntity(SkeletalComponent, rnEntity);
+        const newRnEntity = rnEntity.engine.entityRepository.addComponentToEntity(SkeletalComponent, rnEntity);
         skeletalComponent = newRnEntity.getSkeletal();
         if (Is.exist(node.skinObject.bindShapeMatrix)) {
           skeletalComponent._bindShapeMatrix = Matrix44.fromCopyArrayColumnMajor(node.skinObject.bindShapeMatrix);
@@ -1049,6 +1055,7 @@ export class ModelConverter {
    * @returns Object containing arrays of entities and entities by name
    */
   private static __setupObjects(
+    engine: Engine,
     gltfModel: RnM2,
     rnBuffers: Buffer[],
     rnMaterials: Material[],
@@ -1064,6 +1071,7 @@ export class ModelConverter {
       if (node.mesh != null) {
         const meshIdx = node.mesh;
         const meshEntity = this.__setupMesh(
+          engine,
           node.meshObject!,
           meshIdx,
           rnBuffers,
@@ -1081,16 +1089,16 @@ export class ModelConverter {
         }
         entity = meshEntity;
       } else if (node.cameraObject != null) {
-        const cameraEntity = this.__setupCamera(node.cameraObject, gltfModel);
+        const cameraEntity = this.__setupCamera(engine, node.cameraObject, gltfModel);
         if (node.name) {
           cameraEntity.tryToSetUniqueName(node.name, true);
         }
         entity = cameraEntity;
       } else if (node.extensions?.KHR_lights_punctual) {
-        const lightEntity = this.__setupLight(node.extensions.KHR_lights_punctual.light, gltfModel);
+        const lightEntity = this.__setupLight(engine, node.extensions.KHR_lights_punctual.light, gltfModel);
         entity = lightEntity;
       } else {
-        const group = this.__generateGroupEntity(gltfModel);
+        const group = this.__generateGroupEntity(engine, gltfModel);
         if (node.name) {
           group.tryToSetUniqueName(node.name, true);
         }
@@ -1115,7 +1123,7 @@ export class ModelConverter {
           }
           weights = new Array(targetNum).fill(0);
         }
-        entity = EntityRepository.addComponentToEntity(BlendShapeComponent, entity);
+        entity = entity.engine.entityRepository.addComponentToEntity(BlendShapeComponent, entity);
         const blendShapeComponent = (entity as unknown as IBlendShapeEntityMethods).getBlendShape();
         blendShapeComponent.weights = weights;
         if (node.meshObject?.primitives[0].extras?.targetNames) {
@@ -1151,8 +1159,8 @@ export class ModelConverter {
    * @param gltfModel - The glTF model data
    * @returns Configured light entity
    */
-  private static __setupLight(light: KHR_lights_punctual_Light, gltfModel: RnM2): ILightEntity {
-    const lightEntity = this.__generateLightEntity(gltfModel);
+  private static __setupLight(engine: Engine, light: KHR_lights_punctual_Light, gltfModel: RnM2): ILightEntity {
+    const lightEntity = this.__generateLightEntity(engine, gltfModel);
     const lightComponent = lightEntity.getComponent(LightComponent)! as LightComponent;
     if (light.name != null) {
       lightComponent.tryToSetUniqueName(light.name, true);
@@ -1188,8 +1196,8 @@ export class ModelConverter {
    * @param gltfModel - The glTF model data
    * @returns Configured camera entity
    */
-  private static __setupCamera(camera: RnM2Camera, gltfModel: RnM2): ICameraEntity {
-    const cameraEntity = this.__generateCameraEntity(gltfModel);
+  private static __setupCamera(engine: Engine, camera: RnM2Camera, gltfModel: RnM2): ICameraEntity {
+    const cameraEntity = this.__generateCameraEntity(engine, gltfModel);
     const cameraComponent = cameraEntity.getCamera();
     cameraComponent.direction = Vector3.fromCopyArray([0, 0, -1]);
     if (gltfModel.asset && (gltfModel.asset as any).LastSaved_ApplicationVendor) {
@@ -1231,6 +1239,7 @@ export class ModelConverter {
 
   /**
    * Sets up a mesh entity from glTF mesh data
+   * @param engine - The engine instance
    * @param mesh - The glTF mesh data
    * @param meshIndex - Index of the mesh in the glTF model
    * @param rnBuffers - Array of Rhodonite buffers
@@ -1241,6 +1250,7 @@ export class ModelConverter {
    * @returns Configured mesh entity
    */
   private static __setupMesh(
+    engine: Engine,
     mesh: RnM2Mesh,
     meshIndex: Index,
     rnBuffers: Buffer[],
@@ -1249,7 +1259,7 @@ export class ModelConverter {
     rnTextures: Texture[],
     rnSamplers: Sampler[]
   ) {
-    const meshEntity = this.__generateMeshEntity(gltfModel);
+    const meshEntity = this.__generateMeshEntity(engine, gltfModel);
     const existingRnMesh = (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[meshIndex]?.deref() as Mesh | undefined;
     let rnPrimitiveMode = PrimitiveMode.Triangles;
     const meshComponent = meshEntity.getMesh();

@@ -12,6 +12,7 @@ import { ShaderType } from '../../definitions/ShaderType';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import { Logger } from '../../misc/Logger';
 import type { RenderPass } from '../../renderer/RenderPass';
+import type { Engine } from '../../system/Engine';
 import type { IRenderable } from '../../textures';
 import { AbstractTexture } from '../../textures/AbstractTexture';
 import { Sampler } from '../../textures/Sampler';
@@ -131,9 +132,11 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
    * This method is called internally during the rendering pipeline.
    */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
+    engine,
     shaderProgram,
     args,
   }: {
+    engine: Engine;
     shaderProgram: WebGLProgram;
     args: RenderingArgWebGL;
   }) {
@@ -144,7 +147,10 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
     /// Matrices
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
+      cameraComponent = engine.componentRepository.getComponent(
+        CameraComponent,
+        CameraComponent.current
+      ) as CameraComponent;
     }
     if (cameraComponent) {
       this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);

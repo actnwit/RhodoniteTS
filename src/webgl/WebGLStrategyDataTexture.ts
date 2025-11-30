@@ -38,6 +38,7 @@ import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRep
 import type { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
 import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
+import type { Engine } from '../foundation/system/Engine';
 import { EngineState } from '../foundation/system/EngineState';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import type {
@@ -72,6 +73,7 @@ declare const spector: any;
  */
 export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private static __instance: WebGLStrategyDataTexture;
+  private __engine: Engine;
   private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __dataUBOUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -108,7 +110,9 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   /**
    * Private constructor to enforce singleton pattern.
    */
-  private constructor() {}
+  private constructor(engine: Engine) {
+    this.__engine = engine;
+  }
 
   /**
    * Initiates the dumping of the data texture buffer for debugging purposes.
@@ -266,7 +270,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
     }
   }
 
-  private static __getMorphedPositionGetter(): string {
+  private static __getMorphedPositionGetter(engine: Engine): string {
     const morphUniformDataTargetNumbers = Primitive.getMorphUniformDataTargetNumbers();
     const morphUniformDataTargetNumbersStr = `
     int morphUniformDataTargetNumbers[] = int[](${morphUniformDataTargetNumbers.join(', ')});
@@ -275,7 +279,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
     const morphUniformDataOffsetsStr = `
     int morphUniformDataOffsets[] = int[](${morphUniformDataOffsets.join(', ')});
     `;
-    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform(engine);
     const blendShapeUniformDataOffsetsStr = `
     int blendShapeUniformDataOffsets[] = int[](${blendShapeUniformDataOffsets.join(', ')});
     `;
@@ -342,7 +346,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
       WebGLStrategyDataTexture.__getComponentDataAccessMethodDefinitions_dataTexture(ShaderType.PixelShader),
       WebGLStrategyDataTexture.__getShaderPropertyOfGlobalDataRepository,
       WebGLStrategyDataTexture.__getShaderPropertyOfMaterial,
-      WebGLStrategyDataTexture.__getMorphedPositionGetter(),
+      WebGLStrategyDataTexture.__getMorphedPositionGetter(this.__engine),
       primitive
     );
 
@@ -876,7 +880,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       needsRebindMorphUniformBuffers = true;
     }
 
-    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform(this.__engine);
     const blendShapeWeightsUniformDataSize = Math.max(
       Math.ceil(blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1] / 4) * 4 * 4,
       4
@@ -1108,7 +1112,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       AnimationComponent.isAnimating ||
       TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
       SceneGraphComponent.updateCount !== this.__lastSceneGraphComponentsUpdateCount ||
-      CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
+      CameraComponent.getCurrentCameraUpdateCount(this.__engine) !== this.__lastCameraComponentsUpdateCount ||
       CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
       Material.stateVersion !== this.__lastMaterialsUpdateCount
     ) {
@@ -1117,24 +1121,26 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__createAndUpdateUBO();
       this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
       this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
-      this.__lastCameraComponentsUpdateCount = CameraComponent.currentCameraUpdateCount;
+      this.__lastCameraComponentsUpdateCount = CameraComponent.getCurrentCameraUpdateCount(this.__engine);
       this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
       this.__lastMaterialsUpdateCount = Material.stateVersion;
     }
 
     if (
       BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForWeights ||
-      BlendShapeComponent.getCountOfBlendShapeComponents() !== this.__countOfBlendShapeComponents
+      BlendShapeComponent.getCountOfBlendShapeComponents(this.__engine) !== this.__countOfBlendShapeComponents
     ) {
       this.__updateMorphWeightsUniformBuffer();
       this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
-      this.__countOfBlendShapeComponents = BlendShapeComponent.getCountOfBlendShapeComponents();
+      this.__countOfBlendShapeComponents = BlendShapeComponent.getCountOfBlendShapeComponents(this.__engine);
       MaterialRepository._makeShaderInvalidateToMorphMaterials();
     }
 
     this.__updateMorphOffsetsUniformBuffers();
 
-    this.__lightComponents = ComponentRepository.getComponentsWithType(LightComponent) as LightComponent[] | undefined;
+    this.__lightComponents = this.__engine.componentRepository.getComponentsWithType(LightComponent) as
+      | LightComponent[]
+      | undefined;
   }
 
   /**
@@ -1151,11 +1157,10 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       return;
     }
 
-    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
-    const blendShapeComponents = ComponentRepository.getComponentsWithTypeWithoutFiltering(BlendShapeComponent) as (
-      | BlendShapeComponent
-      | undefined
-    )[];
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform(this.__engine);
+    const blendShapeComponents = this.__engine.componentRepository.getComponentsWithTypeWithoutFiltering(
+      BlendShapeComponent
+    ) as (BlendShapeComponent | undefined)[];
     for (let i = 0; i < blendShapeComponents.length; i++) {
       const blendShapeComponent = blendShapeComponents[i];
       const weights = blendShapeComponent != null ? blendShapeComponent!.weights : [];
@@ -1304,12 +1309,10 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    * This method ensures only one instance of the strategy exists throughout the application
    * and properly initializes the WebXR system for VR/AR rendering capabilities.
    */
-  static getInstance() {
+  static getInstance(engine: Engine) {
     if (!this.__instance) {
-      this.__instance = new WebGLStrategyDataTexture();
-      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
-      WebGLStrategyDataTexture.__webxrSystem = webxrSystem;
+      this.__instance = new WebGLStrategyDataTexture(engine);
+      WebGLStrategyDataTexture.__webxrSystem = engine.webXRSystem;
     }
 
     return this.__instance;
@@ -1350,7 +1353,10 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       let cameraComponent = renderPass.cameraComponent;
       if (cameraComponent == null) {
         // if the renderPass has no cameraComponent, try to get the current cameraComponent
-        cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
+        cameraComponent = this.__engine.componentRepository.getComponent(
+          CameraComponent,
+          CameraComponent.current
+        ) as CameraComponent;
       }
       if (cameraComponent) {
         WebGLStrategyDataTexture.__currentComponentSIDs!._v[WellKnownComponentTIDs.CameraComponentTID] =
@@ -1422,7 +1428,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContextAsWebGL2();
 
-    const isVRMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
+    const isVRMainPass = WebGLStrategyCommonMethod.isVrMainPass(this.__engine, renderPass);
     const displayCount = WebGLStrategyCommonMethod.getDisplayCount(
       isVRMainPass,
       WebGLStrategyDataTexture.__webxrSystem
@@ -1678,7 +1684,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
     for (let displayIdx = 0; displayIdx < displayCount; displayIdx++) {
       if (isVRMainPass) {
-        WebGLStrategyCommonMethod.setVRViewport(renderPass, displayIdx);
+        WebGLStrategyCommonMethod.setVRViewport(this.__engine, renderPass, displayIdx);
       }
       this.__setCurrentComponentSIDsForEachDisplayIdx(renderPass, displayIdx as 0 | 1, isVRMainPass);
 

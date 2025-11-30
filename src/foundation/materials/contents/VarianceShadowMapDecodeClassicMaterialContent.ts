@@ -20,6 +20,7 @@ import { VectorN } from '../../math/VectorN';
 import { Logger } from '../../misc/Logger';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import type { RenderPass } from '../../renderer/RenderPass';
+import type { Engine } from '../../system/Engine';
 import type { IRenderable } from '../../textures/IRenderable';
 import type { Texture } from '../../textures/Texture';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
@@ -363,17 +364,22 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
    * The method optimizes performance by caching zNear and zFar values to avoid unnecessary uniform updates.
    */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
+    engine,
     material,
     shaderProgram,
     args,
   }: {
+    engine: Engine;
     material: Material;
     shaderProgram: WebGLProgram;
     args: RenderingArgWebGL;
   }) {
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
+      cameraComponent = engine.componentRepository.getComponent(
+        CameraComponent,
+        CameraComponent.current
+      ) as CameraComponent;
     }
 
     const encodedDepthCameraComponent =

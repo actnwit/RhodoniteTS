@@ -45,7 +45,7 @@ export class LightGizmo extends Gizmo {
       return;
     }
 
-    this.__topEntity = createMeshEntity();
+    this.__topEntity = createMeshEntity(this.__engine);
     this.__topEntity.tryToSetUniqueName(`LightGizmo_of_${this.__target.uniqueName}`, true);
     this.__topEntity.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix = true;
     this.__target.getSceneGraph()._addGizmoChild(this.__topEntity!.getSceneGraph());

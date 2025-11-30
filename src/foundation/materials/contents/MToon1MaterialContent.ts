@@ -20,6 +20,7 @@ import { MutableVector2 } from '../../math/MutableVector2';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { VectorN } from '../../math/VectorN';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import type { Engine } from '../../system/Engine';
 import { Sampler } from '../../textures/Sampler';
 import { dummyBlackCubeTexture } from '../core/DummyTextures';
 import type { Material } from '../core/Material';
@@ -234,17 +235,20 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
    * skeletal animation data, IBL parameters, and morphing data.
    *
    * @param params - Object containing material, shader program and rendering context
+   * @param params.engine - The engine instance
    * @param params.material - The material instance being rendered
    * @param params.shaderProgram - The compiled WebGL shader program
    * @param params.firstTime - Whether this is the first time setting parameters for this material
    * @param params.args - WebGL rendering arguments with entity and environment data
    */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
+    engine,
     material,
     shaderProgram,
     firstTime,
     args,
   }: {
+    engine: Engine;
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
@@ -257,7 +261,7 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
       if (firstTime || args.isVr) {
         let cameraComponent = args.renderPass.cameraComponent;
         if (cameraComponent == null) {
-          cameraComponent = ComponentRepository.getComponent(
+          cameraComponent = engine.componentRepository.getComponent(
             CameraComponent,
             CameraComponent.current
           ) as CameraComponent;

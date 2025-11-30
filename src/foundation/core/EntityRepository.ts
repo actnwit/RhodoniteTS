@@ -7,6 +7,7 @@ import type { ISceneGraphEntity } from '../helpers';
 import { Logger } from '../misc';
 import { Is } from '../misc/Is';
 import { valueWithCompensation } from '../misc/MiscUtil';
+import type { Engine } from '../system/Engine';
 import type { Component } from './Component';
 import { ComponentRepository } from './ComponentRepository';
 import { Entity, type IEntity } from './Entity';
@@ -20,12 +21,15 @@ import { Entity, type IEntity } from './Entity';
  * It also provides functionality for entity copying and cleanup operations.
  */
 export class EntityRepository {
-  private static __entity_uid_count: number = Entity.invalidEntityUID;
-  private static __entities: Array<IEntity | undefined> = [];
-  static _components: Array<Map<ComponentTID, Component>> = []; // index is EntityUID
+  private __engine: Engine;
+  private __entity_uid_count: number = Entity.invalidEntityUID;
+  private __entities: Array<IEntity | undefined> = [];
+  _components: Array<Map<ComponentTID, Component>> = []; // index is EntityUID
   private static __updateCount = 0;
 
-  private constructor() {}
+  public constructor(engine: Engine) {
+    this.__engine = engine;
+  }
 
   /**
    * Creates a new entity with a unique entity UID.
@@ -42,7 +46,7 @@ export class EntityRepository {
    * console.log(entity.entityUID); // Output: unique entity ID
    * ```
    */
-  public static createEntity(): IEntity {
+  public createEntity(): IEntity {
     // check dead entity
     let deadUid = -1;
     for (let i = 0; i < this.__entities.length; i++) {
@@ -60,10 +64,10 @@ export class EntityRepository {
       entityUid = deadUid;
     }
 
-    const entity = new Entity(entityUid, true);
+    const entity = new Entity(this.__engine, entityUid, true);
     this.__entities[entityUid] = entity;
 
-    this.__updateCount++;
+    EntityRepository.__updateCount++;
 
     return entity;
   }
@@ -83,7 +87,7 @@ export class EntityRepository {
    * EntityRepository.deleteEntity(entity.entityUID);
    * ```
    */
-  public static deleteEntity(entityUid: EntityUID): void {
+  public deleteEntity(entityUid: EntityUID): void {
     if (Is.not.exist(this._components[entityUid])) {
       return;
     }
@@ -92,16 +96,16 @@ export class EntityRepository {
         const sceneGraph = component as unknown as ISceneGraphEntity;
         const children = sceneGraph.children.concat();
         for (const child of children) {
-          EntityRepository.deleteEntity(child.entity.entityUID);
+          this.deleteEntity(child.entity.entityUID);
         }
       }
-      ComponentRepository.deleteComponent(component);
+      this.__engine.componentRepository.deleteComponent(component);
     }
     this.__entities[entityUid]?._destroy();
     delete this.__entities[entityUid];
     delete this._components[entityUid];
 
-    this.__updateCount++;
+    EntityRepository.__updateCount++;
   }
 
   /**
@@ -120,7 +124,7 @@ export class EntityRepository {
    * EntityRepository.deleteEntityRecursively(parentEntity.entityUID);
    * ```
    */
-  public static deleteEntityRecursively(entityUid: EntityUID): void {
+  public deleteEntityRecursively(entityUid: EntityUID): void {
     const entity = this.getEntity(entityUid);
     const entities: IEntity[] = [];
     const sg = entity.tryToGetSceneGraph();
@@ -139,7 +143,7 @@ export class EntityRepository {
     }
 
     for (const entity of entities) {
-      EntityRepository.deleteEntity(entity.entityUID);
+      this.deleteEntity(entity.entityUID);
     }
   }
 
@@ -160,8 +164,8 @@ export class EntityRepository {
    * const copiedEntity = EntityRepository.shallowCopyEntity(originalEntity);
    * ```
    */
-  public static shallowCopyEntity(entity: IEntity): IEntity {
-    const newEntity = EntityRepository._shallowCopyEntityInner(entity);
+  public shallowCopyEntity(entity: IEntity): IEntity {
+    const newEntity = this._shallowCopyEntityInner(entity);
 
     this.__setJoints(entity);
     this.__handleTagData(newEntity as unknown as Entity);
@@ -180,8 +184,8 @@ export class EntityRepository {
    * @internal
    * @param entity - The original entity whose joints need to be set up in the copy
    */
-  private static __setJoints(entity: IEntity) {
-    const newEntity = EntityRepository.getEntity(entity._myLatestCopyEntityUID);
+  private __setJoints(entity: IEntity) {
+    const newEntity = this.getEntity(entity._myLatestCopyEntityUID);
     if (Is.not.exist(newEntity)) {
       return;
     }
@@ -200,7 +204,7 @@ export class EntityRepository {
         const remappedJoints: SceneGraphComponent[] = [];
 
         for (const joint of jointsOriginal) {
-          const copiedJointEntity = EntityRepository.getEntity(joint.entity._myLatestCopyEntityUID);
+          const copiedJointEntity = this.getEntity(joint.entity._myLatestCopyEntityUID);
           const copiedJointSceneGraph = copiedJointEntity?.tryToGetSceneGraph();
           if (Is.exist(copiedJointSceneGraph)) {
             remappedJoints.push(copiedJointSceneGraph);
@@ -214,7 +218,7 @@ export class EntityRepository {
         // Also remap the root of the joint hierarchy to the copied entity
         const originalTop = skeletalComponentOfOriginal.topOfJointsHierarchy;
         if (Is.exist(originalTop)) {
-          const copiedTopEntity = EntityRepository.getEntity(originalTop.entity._myLatestCopyEntityUID);
+          const copiedTopEntity = this.getEntity(originalTop.entity._myLatestCopyEntityUID);
           const copiedTopSceneGraph = copiedTopEntity?.tryToGetSceneGraph();
           if (Is.exist(copiedTopSceneGraph)) {
             skeletalComponentOfNew.topOfJointsHierarchy = copiedTopSceneGraph;
@@ -226,7 +230,7 @@ export class EntityRepository {
     const sceneGraph = entity.tryToGetSceneGraph();
     if (Is.exist(sceneGraph)) {
       sceneGraph.children.forEach(child => {
-        EntityRepository.__setJoints(child.entity);
+        this.__setJoints(child.entity);
       });
     }
   }
@@ -242,7 +246,7 @@ export class EntityRepository {
    * @param entity - The entity to shallow copy
    * @returns A new entity that is a shallow copy of the input entity
    */
-  static _shallowCopyEntityInner(entity: IEntity): IEntity {
+  public _shallowCopyEntityInner(entity: IEntity): IEntity {
     const newEntity = this.createEntity();
     (newEntity as Entity)._tags = Object.assign({}, (entity as Entity)._tags);
 
@@ -271,7 +275,7 @@ export class EntityRepository {
    * @internal
    * @param newEntity - The newly copied entity whose tag data needs processing
    */
-  private static __handleTagData(newEntity: Entity) {
+  private __handleTagData(newEntity: Entity) {
     const tags = newEntity._tags;
     if (Is.exist(tags)) {
       const tagKeys = Object.keys(tags);
@@ -279,7 +283,7 @@ export class EntityRepository {
         if (tagKey === 'rnEntities') {
           const entities = newEntity.getTagValue('rnEntities') as ISceneGraphEntity[];
           const newEntities = entities.map(entity => {
-            return EntityRepository.getEntity(entity._myLatestCopyEntityUID);
+            return this.getEntity(entity._myLatestCopyEntityUID);
           });
           newEntity.tryToSetTag({
             tag: 'rnEntities',
@@ -290,7 +294,7 @@ export class EntityRepository {
           const map = newEntity.getTagValue('rnEntitiesByNames') as Map<string, ISceneGraphEntity>;
           for (const name of Object.keys(map)) {
             const entity = map.get(name) as ISceneGraphEntity;
-            map.set(name, EntityRepository.getEntity(entity._myLatestCopyEntityUID) as ISceneGraphEntity);
+            map.set(name, this.getEntity(entity._myLatestCopyEntityUID) as ISceneGraphEntity);
           }
           newEntity.tryToSetTag({
             tag: 'rnEntitiesByNames',
@@ -303,7 +307,7 @@ export class EntityRepository {
     const sceneGraph = newEntity.tryToGetSceneGraph();
     if (Is.exist(sceneGraph)) {
       sceneGraph.children.forEach(child => {
-        EntityRepository.__handleTagData(child.entity as unknown as Entity);
+        this.__handleTagData(child.entity as unknown as Entity);
       });
     }
   }
@@ -329,7 +333,7 @@ export class EntityRepository {
    * );
    * ```
    */
-  public static tryToAddComponentToEntityByTID(componentTID: ComponentTID, entity: IEntity): IEntity {
+  public tryToAddComponentToEntityByTID(componentTID: ComponentTID, entity: IEntity): IEntity {
     const componentClass = ComponentRepository.getComponentClass(componentTID);
     if (Is.not.exist(componentClass)) {
       return entity;
@@ -362,7 +366,7 @@ export class EntityRepository {
    * // enhancedEntity now has transform-related methods
    * ```
    */
-  public static addComponentToEntity<ComponentType extends typeof Component, EntityType extends IEntity>(
+  public addComponentToEntity<ComponentType extends typeof Component, EntityType extends IEntity>(
     componentClass: ComponentType,
     entity: EntityType
   ): EntityType & ComponentToComponentMethods<ComponentType> {
@@ -372,7 +376,11 @@ export class EntityRepository {
     }
 
     // Create Component
-    const component = ComponentRepository.createComponent(componentClass.componentTID, entity.entityUID, this);
+    const component = this.__engine.componentRepository.createComponent(
+      componentClass.componentTID,
+      entity.entityUID,
+      this
+    );
 
     // set this component to this._components' map
     const map = valueWithCompensation({
@@ -388,7 +396,7 @@ export class EntityRepository {
     const entityClass = component.addThisComponentToEntity(entity, componentClass);
     entity._setComponent(componentClass, component);
 
-    this.__updateCount++;
+    EntityRepository.__updateCount++;
 
     return entity as unknown as typeof entityClass;
   }
@@ -412,7 +420,7 @@ export class EntityRepository {
    * EntityRepository.removeComponentFromEntity(TransformComponent, entity);
    * ```
    */
-  public static removeComponentFromEntity(componentClass: typeof Component, entity: IEntity): IEntity {
+  public removeComponentFromEntity(componentClass: typeof Component, entity: IEntity): IEntity {
     let map = this._components[entity.entityUID];
     if (map == null) {
       map = new Map();
@@ -425,30 +433,9 @@ export class EntityRepository {
       entity._removeComponent(componentClass.componentTID);
     }
 
-    this.__updateCount++;
+    EntityRepository.__updateCount++;
 
     return entity as IEntity;
-  }
-
-  /**
-   * Retrieves an entity by its unique identifier.
-   *
-   * @remarks
-   * This is a static method that provides access to entities by their UID.
-   * The method assumes the entity exists and will throw if the entity is not found.
-   *
-   * @param entityUid - The unique identifier of the entity to retrieve
-   * @returns The entity corresponding to the given UID
-   *
-   * @throws Will throw if the entity with the given UID does not exist
-   *
-   * @example
-   * ```typescript
-   * const entity = EntityRepository.getEntity(entityUID);
-   * ```
-   */
-  public static getEntity(entityUid: EntityUID): IEntity {
-    return this.__entities[entityUid]!;
   }
 
   /**
@@ -464,7 +451,7 @@ export class EntityRepository {
    * @throws Will throw if the entity with the given UID does not exist
    */
   public getEntity(entityUid: EntityUID): IEntity {
-    return EntityRepository.__entities[entityUid]!;
+    return this.__entities[entityUid]!;
   }
 
   /**
@@ -489,7 +476,7 @@ export class EntityRepository {
    * }
    * ```
    */
-  public static getComponentOfEntity(entityUid: EntityUID, componentType: typeof Component): Component | null {
+  public getComponentOfEntity(entityUid: EntityUID, componentType: typeof Component): Component | null {
     const entity = this._components[entityUid];
     let component = null;
     if (entity != null) {
@@ -520,7 +507,7 @@ export class EntityRepository {
    * });
    * ```
    */
-  public static searchByTags(tags: RnTags) {
+  public searchByTags(tags: RnTags) {
     const matchEntities = [];
     for (const entity of this.__entities) {
       if (entity?.matchTags(tags)) {
@@ -548,7 +535,7 @@ export class EntityRepository {
    * }
    * ```
    */
-  public static getEntityByUniqueName(uniqueName: string): IEntity | undefined {
+  public getEntityByUniqueName(uniqueName: string): IEntity | undefined {
     for (const entity of this.__entities) {
       if (entity != null && entity.uniqueName === uniqueName) {
         return entity;
@@ -568,7 +555,7 @@ export class EntityRepository {
    * @internal
    * @returns Array of all alive entities
    */
-  public static _getEntities(): IEntity[] {
+  public _getEntities(): IEntity[] {
     return this.__entities.filter(entity => entity != null && entity!._isAlive) as IEntity[];
   }
 
@@ -586,7 +573,7 @@ export class EntityRepository {
    * console.log(`Active entities: ${EntityRepository.getEntitiesNumber()}`);
    * ```
    */
-  public static getEntitiesNumber(): number {
+  public getEntitiesNumber(): number {
     const entities = this.__entities.filter(entity => entity != null && entity!._isAlive);
     return entities.length;
   }
@@ -603,6 +590,10 @@ export class EntityRepository {
    */
   public static get updateCount() {
     return this.__updateCount;
+  }
+
+  get engine() {
+    return this.__engine;
   }
 }
 
@@ -627,25 +618,4 @@ export function applyMixins(derivedCtor: IEntity, baseCtor: any) {
       Object.getOwnPropertyDescriptor(baseCtor.prototype, name) || Object.create(null)
     );
   });
-}
-
-/**
- * Convenience function to create a new entity.
- *
- * @remarks
- * This is a simple wrapper around EntityRepository.createEntity() that provides
- * a more convenient API for entity creation without needing to reference the
- * full EntityRepository class.
- *
- * @returns A newly created entity with a unique UID
- *
- * @example
- * ```typescript
- * import { createEntity } from './EntityRepository';
- *
- * const entity = createEntity();
- * ```
- */
-export function createEntity(): IEntity {
-  return EntityRepository.createEntity();
 }

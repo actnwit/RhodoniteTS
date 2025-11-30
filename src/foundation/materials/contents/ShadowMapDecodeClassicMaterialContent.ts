@@ -20,6 +20,7 @@ import { VectorN } from '../../math/VectorN';
 import { Logger } from '../../misc/Logger';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import type { RenderPass } from '../../renderer/RenderPass';
+import type { Engine } from '../../system/Engine';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { dummyBlueTexture, dummyWhiteTexture } from '../core/DummyTextures';
 import type { Material } from '../core/Material';
@@ -304,17 +305,22 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
    * @internal This method is called internally during the rendering pipeline
    */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
+    engine,
     material,
     shaderProgram,
     args,
   }: {
+    engine: Engine;
     material: Material;
     shaderProgram: WebGLProgram;
     args: RenderingArgWebGL;
   }) {
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
+      cameraComponent = engine.componentRepository.getComponent(
+        CameraComponent,
+        CameraComponent.current
+      ) as CameraComponent;
     }
 
     const encodedDepthCameraComponent = this.__encodedDepthRenderPass.cameraComponent as CameraComponent;

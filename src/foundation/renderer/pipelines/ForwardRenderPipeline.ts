@@ -16,7 +16,7 @@ import { Is } from '../../misc/Is';
 import { Logger } from '../../misc/Logger';
 import { None, type Option, Some, assertHas } from '../../misc/Option';
 import { Err, Ok } from '../../misc/Result';
-import { Engine } from '../../system/Engine';
+import type { Engine } from '../../system/Engine';
 import { ModuleManager } from '../../system/ModuleManager';
 import type { CubeTexture } from '../../textures/CubeTexture';
 import type { RenderTargetTexture } from '../../textures/RenderTargetTexture';
@@ -111,6 +111,12 @@ export class ForwardRenderPipeline extends RnObject {
   private __oShadowSystem: Option<ShadowSystem> = new None();
   private __shadowExpressions: Expression[] = [];
   private __entitiesForShadow: ISceneGraphEntity[] = [];
+  private __engine: Engine;
+
+  constructor(engine: Engine) {
+    super();
+    this.__engine = engine;
+  }
 
   /**
    * Destroys all allocated 3D API resources including frame buffers and textures.
@@ -220,7 +226,7 @@ export class ForwardRenderPipeline extends RnObject {
 
       // depth moment FrameBuffer
       if (isShadow) {
-        this.__oShadowSystem = new Some(new ShadowSystem(shadowMapSize));
+        this.__oShadowSystem = new Some(new ShadowSystem(this.__engine, shadowMapSize));
       }
 
       if (this.__oFrameBufferResolveForReference.has()) {
@@ -414,7 +420,7 @@ export class ForwardRenderPipeline extends RnObject {
 
     this.__setUpExpressionsForRendering();
 
-    Engine.startRenderLoop(() => {
+    this.__engine.startRenderLoop(() => {
       if (this.__oShadowSystem.has()) {
         // update shadow expressions if shadow mapping is enabled
         const entities = this.__entitiesForShadow;
@@ -488,7 +494,7 @@ export class ForwardRenderPipeline extends RnObject {
       let fallbackWidth = this.__width;
       let fallbackHeight = this.__height;
       if (fallbackWidth <= 0 || fallbackHeight <= 0) {
-        const [currentWidth, currentHeight] = Engine.getCanvasSize();
+        const [currentWidth, currentHeight] = this.__engine.getCanvasSize();
         fallbackWidth = currentWidth;
         fallbackHeight = currentHeight;
       }
@@ -503,7 +509,7 @@ export class ForwardRenderPipeline extends RnObject {
       height = fallbackHeight;
     }
 
-    Engine.resizeCanvas(width, height);
+    this.__engine.resizeCanvas(width, height);
 
     this.__destroyResources();
     this.setup(width, height, {
@@ -860,8 +866,7 @@ export class ForwardRenderPipeline extends RnObject {
    * @internal
    */
   private __createRenderTargets(canvasWidth: number, canvasHeight: number) {
-    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR | undefined;
-    const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
+    const webXRSystem = this.__engine.webXRSystem;
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     if (Is.exist(webXRSystem) && webXRSystem.isWebXRMode && cgApiResourceRepository.isSupportMultiViewVRRendering()) {
       const framebufferMultiView = RenderableHelper.createFrameBufferTextureArrayForMultiView({

@@ -2,7 +2,7 @@ import type { ComponentSID, ComponentTID, EntityUID, Index, TypedArray } from '.
 import { Component } from '../../core/Component';
 import { Config } from '../../core/Config';
 import type { IEntity } from '../../core/Entity';
-import { EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { BoneDataType, type BoneDataTypeEnum } from '../../definitions/BoneDataType';
 import { BufferUse } from '../../definitions/BufferUse';
@@ -23,6 +23,7 @@ import { VectorN } from '../../math/VectorN';
 import type { Accessor } from '../../memory/Accessor';
 import { Is } from '../../misc';
 import { Logger } from '../../misc/Logger';
+import type { Engine } from '../../system/Engine';
 import { AnimationComponent } from '../Animation/AnimationComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import type { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
@@ -136,13 +137,20 @@ export class SkeletalComponent extends Component {
    * Creates a new SkeletalComponent instance.
    * Initializes the component with skeletal animation capabilities and reserves global data resources.
    *
+   * @param engine - The engine instance
    * @param entityUid - The unique identifier of the entity this component belongs to
    * @param componentSid - The component's system identifier
    * @param entityRepository - The repository managing entities
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
-    super(entityUid, componentSid, entityRepository, isReUse);
+  constructor(
+    engine: Engine,
+    entityUid: EntityUID,
+    componentSid: ComponentSID,
+    entityRepository: EntityRepository,
+    isReUse: boolean
+  ) {
+    super(engine, entityUid, componentSid, entityRepository, isReUse);
     this.moveStageTo(ProcessStage.Logic);
 
     if (isReUse) {
@@ -749,7 +757,7 @@ export class SkeletalComponent extends Component {
    * @returns The entity with skeletal capabilities that has this component
    */
   get entity(): ISkeletalEntity {
-    return EntityRepository.getEntity(this.__entityUid) as unknown as ISkeletalEntity;
+    return this.__engine.entityRepository.getEntity(this.__entityUid) as unknown as ISkeletalEntity;
   }
 
   /**

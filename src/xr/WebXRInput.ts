@@ -16,6 +16,7 @@ import { Vector3 } from '../foundation/math/Vector3';
 import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
 import { valueWithDefault } from '../foundation/misc/MiscUtil';
+import type { Engine } from '../foundation/system/Engine';
 // const oculusProfile = require('webxr-input-profiles/packages/registry/profiles/oculus/oculus-touch.json');
 
 /**
@@ -127,6 +128,7 @@ wellKnownMapping.set('touchpad', GeneralType.TOUCHPAD);
  * @returns Promise that resolves to the root entity of the controller model
  */
 export async function createMotionController(
+  engine: Engine,
   xrInputSource: XRInputSource,
   basePath: string,
   _profilePriorities: string[]
@@ -135,7 +137,7 @@ export async function createMotionController(
   const motionController = new MotionController(xrInputSource, profile, assetPath!);
   motionControllers.set(xrInputSource, motionController);
   const result = await addMotionControllerToScene(motionController);
-  const rootGroup = await ModelConverter.convertToRhodoniteObject(result);
+  const rootGroup = await ModelConverter.convertToRhodoniteObject(engine, result);
   return rootGroup;
 }
 
