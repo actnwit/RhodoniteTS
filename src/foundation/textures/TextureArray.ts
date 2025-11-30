@@ -79,7 +79,11 @@ export class TextureArray extends AbstractTexture implements Disposable {
     const canvas = document.createElement('canvas');
     canvas.width = 1;
     canvas.height = 1;
-    const ctx = canvas.getContext('2d')!;
+    const ctx = canvas.getContext('2d');
+    if (ctx == null) {
+      Logger.error('Failed to get canvas context.');
+      return;
+    }
     ctx.fillStyle = rgbaStr;
     ctx.fillRect(0, 0, 1, 1);
     const imageData = ctx.getImageData(0, 0, 1, 1);

@@ -404,7 +404,11 @@ export class Texture extends AbstractTexture implements Disposable {
     canvas.height = 1;
     this.__width = 1;
     this.__height = 1;
-    const ctx = canvas.getContext('2d')!;
+    const ctx = canvas.getContext('2d');
+    if (ctx == null) {
+      Logger.error('Failed to get canvas context.');
+      return;
+    }
     ctx.fillStyle = rgbaStr;
     ctx.fillRect(0, 0, 1, 1);
 
@@ -442,7 +446,11 @@ export class Texture extends AbstractTexture implements Disposable {
     const moduleManager = ModuleManager.getInstance();
     const pbrModule = moduleManager.getModule(moduleName)! as any;
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    const textureHandle = await cgApiResourceRepository!.createTextureFromDataUri(pbrModule.sheen_E_and_DGTerm, {
+    if (cgApiResourceRepository == null) {
+      Logger.error('Failed to get CGAPIResourceRepository.');
+      return;
+    }
+    const textureHandle = await cgApiResourceRepository.createTextureFromDataUri(pbrModule.sheen_E_and_DGTerm, {
       level: 0,
       internalFormat: TextureFormat.RGBA8,
       border: 0,

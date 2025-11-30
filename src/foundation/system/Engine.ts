@@ -597,29 +597,34 @@ export class Engine {
       );
     }
 
-    // Deal with WebGL context lost and restore
-    desc.canvas.addEventListener(
-      'webglcontextlost',
-      ((event: Event) => {
-        // Calling preventDefault signals to the page that you intent to handle context restoration.
-        event.preventDefault();
-        engine.stopRenderLoop();
-        Logger.error('WebGL context lost occurred.');
-      }).bind(this)
-    );
+    if (
+      desc.canvas != null &&
+      (desc.approach === ProcessApproach.DataTexture || desc.approach === ProcessApproach.Uniform)
+    ) {
+      // Deal with WebGL context lost and restore
+      desc.canvas.addEventListener(
+        'webglcontextlost',
+        ((event: Event) => {
+          // Calling preventDefault signals to the page that you intent to handle context restoration.
+          event.preventDefault();
+          engine.stopRenderLoop();
+          Logger.error('WebGL context lost occurred.');
+        }).bind(this)
+      );
 
-    desc.canvas.addEventListener('webglcontextrestored', () => {
-      // Once this function is called the gl context will be restored but any graphics resources
-      // that were previously loaded will be lost, so the scene should be reloaded.
-      Logger.error('WebGL context restored.');
-      // TODO: Implement restoring the previous graphics resources
-      // loadSceneGraphics(gl);
-      engine.restartRenderLoop();
-    });
+      desc.canvas.addEventListener('webglcontextrestored', () => {
+        // Once this function is called the gl context will be restored but any graphics resources
+        // that were previously loaded will be lost, so the scene should be reloaded.
+        Logger.error('WebGL context restored.');
+        // TODO: Implement restoring the previous graphics resources
+        // loadSceneGraphics(gl);
+        engine.restartRenderLoop();
+      });
+    }
 
     await initDefaultTextures();
 
-    EngineState.viewportAspectRatio = desc.canvas.width / desc.canvas.height;
+    EngineState.viewportAspectRatio = desc.canvas != null ? desc.canvas.width / desc.canvas.height : 1;
 
     return engine;
   }
