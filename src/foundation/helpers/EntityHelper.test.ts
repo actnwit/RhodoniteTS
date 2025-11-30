@@ -2,11 +2,8 @@ import Rn from '../../../dist/esm';
 
 describe('EntityHelper', async () => {
   const engine = await Rn.Engine.init({
-    approach: Rn.ProcessApproach.DataTexture,
+    approach: Rn.ProcessApproach.None,
     canvas: document.getElementById('world') as HTMLCanvasElement,
-  });
-  beforeAll(async () => {
-    Rn.MemoryManager.createInstanceIfNotCreated(1024 * 1024 * 4 /* rgba */ * 4 /* byte */);
   });
 
   test('EntityHelper', () => {

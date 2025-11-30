@@ -1,20 +1,19 @@
 import Rn from '../../../dist/esm';
 
 const engine = await Rn.Engine.init({
-  approach: Rn.ProcessApproach.DataTexture,
+  approach: Rn.ProcessApproach.None,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
 test('getEntitiesNumber', () => {
+  const currentEntitiesNumber = engine.entityRepository.getEntitiesNumber();
   engine.entityRepository.createEntity();
-  expect(engine.entityRepository.getEntitiesNumber()).toBe(1);
+  expect(engine.entityRepository.getEntitiesNumber()).toBe(currentEntitiesNumber + 1);
   engine.entityRepository.createEntity();
-  expect(engine.entityRepository.getEntitiesNumber()).toBe(2);
+  expect(engine.entityRepository.getEntitiesNumber()).toBe(currentEntitiesNumber + 2);
 });
 
 test('The entity repository can provide the component corresponding to the specified entityUID and componentTID', () => {
-  Rn.MemoryManager.createInstanceIfNotCreated(1024 * 1024 * 4 /* rgba */ * 4 /* byte */);
-
   const firstEntity = Rn.createGroupEntity(engine);
   const sceneGraphComponent = engine.entityRepository.getComponentOfEntity(
     firstEntity.entityUID,
@@ -25,8 +24,6 @@ test('The entity repository can provide the component corresponding to the speci
 });
 
 test('shallow copy of entity', () => {
-  Rn.MemoryManager.createInstanceIfNotCreated(1024 * 1024 * 4 /* rgba */ * 4 /* byte */);
-
   const firstEntity = engine.entityRepository.createEntity();
   engine.entityRepository.addComponentToEntity(Rn.TransformComponent, firstEntity);
   engine.entityRepository.addComponentToEntity(Rn.SceneGraphComponent, firstEntity);

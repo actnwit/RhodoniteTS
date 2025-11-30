@@ -1,25 +1,23 @@
 import Rn from '../../../dist/esm';
 
-const engine = await Rn.Engine.init({
-  approach: Rn.ProcessApproach.DataTexture,
-  canvas: document.getElementById('world') as HTMLCanvasElement,
-});
-
-function generateEntity() {
+function generateEntity(engine: Rn.Engine) {
   return Rn.createMeshEntity(engine);
 }
 
-test('addEntities and get entities', () => {
-  Rn.MemoryManager.createInstanceIfNotCreated(1024 * 1024 * 4 /* rgba */ * 4 /* byte */);
+test('addEntities and get entities', async () => {
+  const engine = await Rn.Engine.init({
+    approach: Rn.ProcessApproach.None,
+    canvas: document.getElementById('world') as HTMLCanvasElement,
+  });
 
-  const entity1st = generateEntity(); // Uid is 0
-  const entity2nd = generateEntity(); // Uid is 1
-  const entityChildOf1st = generateEntity(); // Uid is 2
+  const entity1st = generateEntity(engine); // Uid is 0
+  const entity2nd = generateEntity(engine); // Uid is 1
+  const entityChildOf1st = generateEntity(engine); // Uid is 2
   entity1st.getSceneGraph().addChild(entityChildOf1st.getSceneGraph());
-  const entityGrandChildOf1st = generateEntity(); // Uid is 3
+  const entityGrandChildOf1st = generateEntity(engine); // Uid is 3
   entityChildOf1st.getSceneGraph().addChild(entityGrandChildOf1st.getSceneGraph());
 
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.addEntities([entity1st, entity2nd]);
 
   const entities = renderPass.entities;
@@ -27,18 +25,27 @@ test('addEntities and get entities', () => {
     return entity.entityUID;
   });
 
-  // console.log(JSON.stringify(entitieUids));
-
-  expect(JSON.stringify(entitieUids) === JSON.stringify([0, 2, 3, 1])).toBe(true);
+  expect(
+    JSON.stringify(entitieUids) ===
+      JSON.stringify([
+        entity1st.entityUID,
+        entityChildOf1st.entityUID,
+        entityGrandChildOf1st.entityUID,
+        entity2nd.entityUID,
+      ])
+  ).toBe(true);
 });
 
-test('clearEntities and get entities', () => {
-  Rn.MemoryManager.createInstanceIfNotCreated(1024 * 1024 * 4 /* rgba */ * 4 /* byte */);
+test('clearEntities and get entities', async () => {
+  const engine = await Rn.Engine.init({
+    approach: Rn.ProcessApproach.None,
+    canvas: document.getElementById('world') as HTMLCanvasElement,
+  });
 
-  const entity1st = generateEntity(); // Uid is 0
-  const entity2nd = generateEntity(); // Uid is 1
+  const entity1st = generateEntity(engine); // Uid is 0
+  const entity2nd = generateEntity(engine); // Uid is 1
 
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.addEntities([entity1st, entity2nd]);
 
   expect(renderPass.entities.length).toBe(2);

@@ -1,7 +1,7 @@
 import Rn from '../../../../dist/esm';
 
 const engine = await Rn.Engine.init({
-  approach: Rn.ProcessApproach.DataTexture,
+  approach: Rn.ProcessApproach.None,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
@@ -10,8 +10,6 @@ function generateEntity() {
 }
 
 test('Use translate simply', () => {
-  Rn.MemoryManager.createInstanceIfNotCreated(1024 ** 2 * 4 /* rgba */ * 4 /* byte */);
-
   const firstEntity = generateEntity();
   const transformComponent = firstEntity.getTransform();
   transformComponent.localPosition = Rn.Vector3.fromCopyArray([1, 0, 0]);

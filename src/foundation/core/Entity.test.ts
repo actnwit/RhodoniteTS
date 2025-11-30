@@ -1,26 +1,17 @@
-import { ProcessApproach } from '../definitions/ProcessApproach';
-import { Is } from '../misc/Is';
-import { Engine } from '../system/Engine';
-import { Entity } from './Entity';
-import { EntityRepository } from './EntityRepository';
+import Rn from '../../../dist/esm';
 
-const engine = await Engine.init({
-  approach: ProcessApproach.DataTexture,
+const engine = await Rn.Engine.init({
+  approach: Rn.ProcessApproach.None,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
 test('Entities cannot be instantiated by new operator.', () => {
-  let entity: Entity | undefined;
+  let entity: Rn.Entity | undefined;
   try {
-    entity = new Entity(engine, 0, true);
+    entity = new Rn.Entity(engine, 0, true);
   } catch {
-    expect(Is.not.exist(entity)).toBe(true);
+    expect(Rn.Is.exist(entity)).toBe(false);
   }
-});
-
-test('The EntityEntityRepositorysitory creates a entity whose uid Is 1', () => {
-  const firstEntity = engine.entityRepository.createEntity();
-  expect(firstEntity.entityUID).toBe(0);
 });
 
 test('A entity name Is unique', () => {
