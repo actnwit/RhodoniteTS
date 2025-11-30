@@ -68,7 +68,6 @@ export class SkeletalComponent extends Component {
   private __jointMatrix = MutableMatrix44.identity();
   private __isWorldMatrixVanilla = true;
   _isCulled = false;
-  private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __skinCalculationCache: Map<string, SkinningCache> = new Map();
   private static __accessorSignatureCache: WeakMap<Accessor, string> = new WeakMap();
   private static __bindShapeSignatureMap: WeakMap<Matrix44, string> = new WeakMap();
@@ -251,7 +250,7 @@ export class SkeletalComponent extends Component {
     this.__resetBoneDataBuffers();
 
     if (Config.boneDataType === BoneDataType.Vec4x1) {
-      this.__qtsInfo = SkeletalComponent.__globalDataRepository.getValue('boneCompressedInfo', 0);
+      this.__qtsInfo = this.__engine.globalDataRepository.getValue('boneCompressedInfo', 0);
     }
 
     const jointCount =

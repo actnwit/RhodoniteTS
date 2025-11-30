@@ -20,6 +20,7 @@ import type { BufferView } from '../../memory/BufferView';
 import { Is } from '../../misc/Is';
 import { Logger } from '../../misc/Logger';
 import type { Result } from '../../misc/Result';
+import type { Engine } from '../../system/Engine';
 import type { AbstractMaterialContent } from './AbstractMaterialContent';
 import { Material } from './Material';
 import type { IndexInTheDataView, IndexOfBufferViews, MaterialTypeName } from './MaterialTypes';
@@ -131,7 +132,11 @@ export class MaterialRepository {
    * @returns A new Material instance with proper initialization
    * @throws Error if the material type is not registered or maximum instances exceeded
    */
-  public static createMaterial(materialTypeName: string, materialNode: AbstractMaterialContent): Material {
+  public static createMaterial(
+    engine: Engine,
+    materialTypeName: string,
+    materialNode: AbstractMaterialContent
+  ): Material {
     // get the count of instance for the material type
     let countOfThisType = MaterialRepository.__materialInstanceCountOfType.get(materialTypeName) as number;
 
@@ -143,6 +148,7 @@ export class MaterialRepository {
     let newlyAllocatedBufferView = false;
     if (indexInTheBufferView === 0) {
       newlyAllocatedBufferView = MaterialRepository.__allocateBufferView(
+        engine,
         materialTypeName,
         materialNode,
         indexOfBufferViews
@@ -256,11 +262,13 @@ export class MaterialRepository {
    * The offset is calculated in 16-byte aligned units for GPU buffer access.
    * This is used for efficient GPU memory access in shaders.
    *
+   * @param engine - The engine instance
    * @param materialTypeName - The name of the material type
    * @param propertyName - The shader semantic name of the property
    * @returns The byte offset divided by 16 (IndexOf16Bytes) for the property location
    */
   static getLocationOffsetOfMemberOfMaterial(
+    engine: Engine,
     materialTypeName: string,
     propertyName: ShaderSemanticsName
   ): IndexOf16Bytes[] {
@@ -282,7 +290,7 @@ export class MaterialRepository {
     const locationOffsets: IndexOf16Bytes[] = [];
     propertiesOfBufferViews?.forEach(properties => {
       const accessor = properties.get(propertyName)!;
-      const byteOffsetOfExistingBuffers = MemoryManager.getInstance().getByteOffsetOfExistingBuffers(
+      const byteOffsetOfExistingBuffers = engine.memoryManager.getByteOffsetOfExistingBuffers(
         BufferUse.GPUInstanceData,
         accessor.bufferView.buffer.indexOfTheBufferUsage
       );
@@ -327,6 +335,7 @@ export class MaterialRepository {
    * @private
    */
   private static __allocateBufferView(
+    engine: Engine,
     materialTypeName: string,
     materialNode: AbstractMaterialContent,
     indexOfBufferViews: IndexOfBufferViews
@@ -368,10 +377,7 @@ export class MaterialRepository {
       let bufferViewResult: Result<BufferView, { 'Buffer.byteLength': Byte; 'Buffer.takenSizeInByte': Byte }>;
       let requireBufferLayerIndex = 0;
       do {
-        const buffer = MemoryManager.getInstance().createOrGetBuffer(
-          BufferUse.GPUInstanceData,
-          requireBufferLayerIndex
-        );
+        const buffer = engine.memoryManager.createOrGetBuffer(BufferUse.GPUInstanceData, requireBufferLayerIndex);
         bufferViewResult = buffer.takeBufferView({
           byteLengthToNeed: totalByteLength,
           byteStride: 0,

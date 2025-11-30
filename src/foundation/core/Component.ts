@@ -2,7 +2,7 @@ import type { ComponentTypeEnum } from '../../foundation/definitions/ComponentTy
 import { CompositionType, type CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 import type { Byte, ComponentSID, Count, EntityUID, IndexOf16Bytes, TypedArray } from '../../types/CommonTypes';
 import type { ComponentToComponentMethods } from '../components/ComponentTypes';
-import { MemoryManager } from '../core/MemoryManager';
+import type { MemoryManager } from '../core/MemoryManager';
 import type { BufferUseEnum } from '../definitions/BufferUse';
 import { ProcessStage, type ProcessStageEnum } from '../definitions/ProcessStage';
 import type { ShaderTypeEnum } from '../definitions/ShaderType';
@@ -117,7 +117,7 @@ export class Component extends RnObject {
     this.__entityUid = entityUid;
     this._component_sid = componentSid;
 
-    this.__memoryManager = MemoryManager.getInstance();
+    this.__memoryManager = engine.memoryManager;
     this.__entityRepository = entityRepository;
 
     if (isReUse) {
@@ -325,6 +325,7 @@ export class Component extends RnObject {
    * @returns Result containing the accessor or an error
    */
   private static __takeAccessor(
+    engine: Engine,
     bufferUse: BufferUseEnum,
     memberName: string,
     componentClass: typeof Component,
@@ -360,7 +361,7 @@ export class Component extends RnObject {
     let bufferViewResult: Result<BufferView, { 'Buffer.byteLength': Byte; 'Buffer.takenSizeInByte': Byte }>;
     let requireBufferLayerIndex = 0;
     do {
-      const buffer = MemoryManager.getInstance().createOrGetBuffer(bufferUse, requireBufferLayerIndex);
+      const buffer = engine.memoryManager.createOrGetBuffer(bufferUse, requireBufferLayerIndex);
       bufferViewResult = buffer.takeBufferView({
         byteLengthToNeed: bytes * componentCountPerBufferView,
         byteStride: 0,
@@ -504,13 +505,14 @@ export class Component extends RnObject {
     });
 
     // inner function
-
+    const engine = this.__engine;
     function getBufferViewsAndAccessors(indexOfTheBufferView: IndexOfTheBufferView) {
       // for each member field, take a BufferView for all entities' the member field.
       // take a Accessor for all entities for each member fields (same as BufferView)
       memberInfoArray.forEach(info => {
         const arrayLength = Component.__arrayLengthMap.get(componentClass)?.get(info.memberName);
         const accessorResult = Component.__takeAccessor(
+          engine,
           info.bufferUse,
           info.memberName,
           componentClass,
@@ -537,7 +539,7 @@ export class Component extends RnObject {
             .set(info.memberName, byteOffsetOfAccessorInBufferOfMember);
         }
         const accessor = accessorResult.get();
-        const byteOffsetOfExistingBuffers = MemoryManager.getInstance().getByteOffsetOfExistingBuffers(
+        const byteOffsetOfExistingBuffers = engine.memoryManager.getByteOffsetOfExistingBuffers(
           info.bufferUse,
           accessor.bufferView.buffer.indexOfTheBufferUsage
         );

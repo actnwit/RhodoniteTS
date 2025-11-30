@@ -83,19 +83,27 @@ export class Engine {
   private __webARSystem: WebARSystem;
   private __entityRepository: EntityRepository;
   private __componentRepository: ComponentRepository;
+  private __memoryManager?: MemoryManager;
+  private __globalDataRepository: GlobalDataRepository;
   private __lastCameraComponentsUpdateCount = -1;
   private __lastCameraControllerComponentsUpdateCount = -1;
   private __lastTransformComponentsUpdateCount = -1;
   private __lastPrimitiveCount = -1;
 
-  private constructor(processApproach: ProcessApproachEnum, cgApiResourceRepository: ICGAPIResourceRepository) {
+  private constructor(
+    processApproach: ProcessApproachEnum,
+    cgApiResourceRepository: ICGAPIResourceRepository,
+    maxGPUDataStorageSize: Byte
+  ) {
     this.__processApproach = processApproach;
     this.__cgApiResourceRepository = cgApiResourceRepository;
     const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
     this.__componentRepository = new ComponentRepository(this);
     this.__entityRepository = new EntityRepository(this);
+    this.__memoryManager = MemoryManager.createInstanceIfNotCreated(this, maxGPUDataStorageSize);
     this.__webXRSystem = rnXRModule.WebXRSystem.init(this);
     this.__webARSystem = rnXRModule.WebARSystem.init(this);
+    this.__globalDataRepository = GlobalDataRepository.init(this);
   }
 
   /**
@@ -181,11 +189,11 @@ export class Engine {
   public processAuto(clearColor = Vector4.fromCopy4(0, 0, 0, 1)) {
     if (Is.not.exist(this.__expressionForProcessAuto)) {
       const expression = new Expression();
-      const renderPassInit = new RenderPass();
+      const renderPassInit = new RenderPass(this);
       renderPassInit.toClearColorBuffer = true;
       renderPassInit.toClearDepthBuffer = true;
       renderPassInit.clearColor = clearColor;
-      const renderPassMain = new RenderPass();
+      const renderPassMain = new RenderPass(this);
       expression.addRenderPasses([renderPassInit, renderPassMain]);
       this.__expressionForProcessAuto = expression;
       this.__renderPassForProcessAuto = renderPassMain;
@@ -217,7 +225,7 @@ export class Engine {
       Engine.createCamera(this);
     }
 
-    const time = GlobalDataRepository.getInstance().getValue('time', 0) as Scalar;
+    const time = this.__globalDataRepository.getValue('time', 0) as Scalar;
     time._v[0] = Time.timeFromSystemStart;
 
     if (this.processApproach === ProcessApproach.WebGPU) {
@@ -519,8 +527,6 @@ export class Engine {
    * @returns
    */
   public static async init(desc: EngineInitDescription): Promise<Engine> {
-    let engine: Engine | undefined;
-
     EngineState.currentProcessApproach = desc.approach;
     await ModuleManager.getInstance().loadModule('pbr');
     await ModuleManager.getInstance().loadModule('xr');
@@ -530,7 +536,6 @@ export class Engine {
     if (desc.approach === ProcessApproach.WebGPU) {
       // WebGPU
       await ModuleManager.getInstance().loadModule('webgpu');
-      engine = new Engine(desc.approach, CGAPIResourceRepository.getCgApiResourceRepository());
 
       const webGpuResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository() as WebGpuResourceRepository;
       const webgpuModule = ModuleManager.getInstance().getModule('webgpu');
@@ -561,25 +566,29 @@ export class Engine {
       webGpuResourceRepository.addWebGpuDeviceWrapper(webGpuDeviceWrapper);
       webGpuResourceRepository.recreateSystemDepthTexture();
       webGpuResourceRepository.createBindGroupLayoutForDrawParameters();
-    } else {
+    } else if (desc.approach === ProcessApproach.Uniform || desc.approach === ProcessApproach.DataTexture) {
       // WebGL
       await ModuleManager.getInstance().loadModule('webgl');
-      engine = new Engine(desc.approach, CGAPIResourceRepository.getCgApiResourceRepository());
 
       const repo = CGAPIResourceRepository.getWebGLResourceRepository();
       repo.generateWebGLContext(desc.canvas, true, desc.webglOption);
       repo.switchDepthTest(true);
       maxGPUDataStorageSize = repo.currentWebGLContextWrapper!.getMaxTextureSize() ** 2 * 4 /* rgba */ * 4 /* byte */;
+    } else {
+      maxGPUDataStorageSize = 1024 ** 2 * 4 /* rgba */ * 4 /* byte */;
     }
+
+    const engine = new Engine(
+      desc.approach,
+      CGAPIResourceRepository.getCgApiResourceRepository(),
+      maxGPUDataStorageSize
+    );
 
     if (desc.notToDisplayRnInfoAtInit !== true) {
       engine.__displayRnInfo();
     }
 
-    // Memory Settings
-    MemoryManager.createInstanceIfNotCreated(maxGPUDataStorageSize);
-
-    const globalDataRepository = GlobalDataRepository.getInstance();
+    const globalDataRepository = engine.__globalDataRepository;
     globalDataRepository.initialize(desc.approach);
 
     if (MiscUtil.isMobile() && ProcessApproach.isUniformApproach(desc.approach)) {
@@ -648,5 +657,13 @@ export class Engine {
 
   public get webARSystem() {
     return this.__webARSystem;
+  }
+
+  public get memoryManager() {
+    return this.__memoryManager!;
+  }
+
+  public get globalDataRepository() {
+    return this.__globalDataRepository;
   }
 }

@@ -306,7 +306,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
    * @param info - Shader semantics information containing type and binding details
    * @returns WGSL shader code for the property accessor function
    */
-  private static __getShaderPropertyOfGlobalDataRepository(info: ShaderSemanticsInfo) {
+  private static __getShaderPropertyOfGlobalDataRepository(engine: Engine, info: ShaderSemanticsInfo) {
     const returnType = info.compositionType.toWGSLType(info.componentType);
     const methodName = info.semantic.replace('.', '_');
     const isTexture = CompositionType.isTexture(info.compositionType);
@@ -330,6 +330,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
     // for non-`index` property (this is general case)
     const scalarSizeOfProperty: IndexOf4Bytes = info.compositionType.getNumberOfComponents();
     const offsetOfProperty: IndexOf16Bytes = WebGpuStrategyBasic.getOffsetOfPropertyOfGlobalDataRepository(
+      engine,
       info.semantic
     );
 
@@ -442,7 +443,7 @@ ${indexStr}
    * @param info - Shader semantics information containing type and binding details
    * @returns WGSL shader code for the property accessor function
    */
-  private static __getShaderPropertyOfMaterial(materialTypeName: string, info: ShaderSemanticsInfo) {
+  private static __getShaderPropertyOfMaterial(engine: Engine, materialTypeName: string, info: ShaderSemanticsInfo) {
     const returnType = info.compositionType.toWGSLType(info.componentType);
     const methodName = info.semantic.replace('.', '_');
     const isTexture = CompositionType.isTexture(info.compositionType);
@@ -466,6 +467,7 @@ ${indexStr}
     // for non-`index` property (this is general case)
     const scalarSizeOfProperty: IndexOf4Bytes = info.compositionType.getNumberOfComponents();
     const offsetOfProperty: IndexOf16Bytes[] = WebGpuStrategyBasic.getOffsetOfPropertyOfMaterial(
+      engine,
       info.semantic,
       materialTypeName
     );
@@ -572,18 +574,23 @@ ${indexStr}
   /**
    * Calculates the memory offset of a shader property within storage buffers.
    *
+   * @param engine - The engine instance
    * @param isGlobalData - Whether to look in global data repository or material repository
    * @param propertyName - The semantic name of the property
    * @param materialTypeName - The material type name for material-specific properties
    * @returns The byte offset of the property in the storage buffer, or -1 if not found
    */
-  private static getOffsetOfPropertyOfMaterial(propertyName: ShaderSemanticsName, materialTypeName: string) {
-    const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyName);
+  private static getOffsetOfPropertyOfMaterial(
+    engine: Engine,
+    propertyName: ShaderSemanticsName,
+    materialTypeName: string
+  ) {
+    const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(engine, materialTypeName, propertyName);
     return dataBeginPos;
   }
 
-  private static getOffsetOfPropertyOfGlobalDataRepository(propertyName: ShaderSemanticsName) {
-    const globalDataRepository = GlobalDataRepository.getInstance();
+  private static getOffsetOfPropertyOfGlobalDataRepository(engine: Engine, propertyName: ShaderSemanticsName) {
+    const globalDataRepository = engine.globalDataRepository;
     const dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyName);
     return dataBeginPos;
   }
@@ -945,7 +952,7 @@ ${indexStr}
    * required for rendering all objects in the scene.
    */
   private __createAndUpdateStorageBuffer() {
-    const memoryManager: MemoryManager = MemoryManager.getInstance();
+    const memoryManager = this.__engine.memoryManager;
 
     // the GPU global Storage
     const gpuInstanceDataBuffers = memoryManager.getBuffers(BufferUse.GPUInstanceData);
@@ -973,7 +980,7 @@ ${indexStr}
    * This buffer holds morph target positions and other vertex attributes needed for blend shape animation.
    */
   private __createOrUpdateStorageBlendShapeBuffer() {
-    const memoryManager: MemoryManager = MemoryManager.getInstance();
+    const memoryManager = this.__engine.memoryManager;
 
     // the GPU global Storage
     const blendShapeDataBuffers: Buffer[] = memoryManager.getBuffers(BufferUse.GPUVertexData);
@@ -1025,7 +1032,7 @@ ${indexStr}
         for (let j = 0; j < primitive.targets.length; j++) {
           const target = primitive.targets[j];
           const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
-          const byteOffsetOfExistingBuffer = MemoryManager.getInstance().getByteOffsetOfExistingBuffers(
+          const byteOffsetOfExistingBuffer = this.__engine.memoryManager.getByteOffsetOfExistingBuffers(
             BufferUse.GPUVertexData,
             accessor.bufferView.buffer.indexOfTheBufferUsage
           );
@@ -1045,7 +1052,7 @@ ${indexStr}
    * Copies weight values from blend shape components to GPU-accessible uniform buffers.
    */
   private __updateMorphWeightsUniformBuffer() {
-    const memoryManager: MemoryManager = MemoryManager.getInstance();
+    const memoryManager = this.__engine.memoryManager;
     const blendShapeDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUVertexData);
     if (blendShapeDataBuffer == null) {
       return;

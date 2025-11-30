@@ -60,10 +60,11 @@ export class CapsuleColliderGizmo extends Gizmo {
     const height = Vector3.subtract(tailPos, headPos).length();
 
     // Create a capsule mesh with the same dimensions as the collider
-    const material = MaterialHelper.createPbrUberMaterial({
+    const material = MaterialHelper.createPbrUberMaterial(this.__engine, {
       isLighting: false,
       isSkinning: false,
       isMorphing: false,
+      maxInstancesNumber: 1,
     });
     material.addShaderDefine('RN_USE_WIREFRAME');
     material.setParameter('wireframe', Vector3.fromCopy3(1, 0, 1));

@@ -51,7 +51,7 @@ export class GltfImporter {
 
         const renderPasses = options.expression?.renderPasses || [];
         if (renderPasses.length === 0) {
-          renderPasses.push(new RenderPass());
+          renderPasses.push(new RenderPass(engine));
         }
 
         const r_arrayBuffer = await DataUtil.fetchArrayBuffer(url);
@@ -102,7 +102,7 @@ export class GltfImporter {
 
         const renderPasses = options.expression?.renderPasses || [];
         if (renderPasses.length === 0) {
-          renderPasses.push(new RenderPass());
+          renderPasses.push(new RenderPass(engine));
         }
 
         for (const fileName in files) {

@@ -19,6 +19,7 @@ import { Is } from '../misc/Is';
 import { None, type Option, Some } from '../misc/Option';
 import { RnException } from '../misc/RnException';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import type { Engine } from '../system/Engine';
 import type { Mesh } from './Mesh';
 import {
   type IMesh,
@@ -56,6 +57,7 @@ export interface PrimitiveDescriptor extends IAnyPrimitiveDescriptor {
  * A primitive is the basic building block for rendering 3D geometry.
  */
 export class Primitive extends RnObject {
+  private __engine: Engine;
   private __mode: PrimitiveModeEnum = PrimitiveMode.Unknown;
   private static __defaultMaterial?: Material;
   private __material: Material;
@@ -90,11 +92,11 @@ export class Primitive extends RnObject {
    * Creates a new Primitive instance.
    * Initializes the primitive with a default material if none exists.
    */
-  constructor() {
+  constructor(engine: Engine) {
     super();
-
+    this.__engine = engine;
     if (Primitive.__defaultMaterial == null) {
-      Primitive.__defaultMaterial = MaterialHelper.createClassicUberMaterial({
+      Primitive.__defaultMaterial = MaterialHelper.createClassicUberMaterial(this.__engine, {
         isSkinning: true,
         isLighting: true,
       });
@@ -402,7 +404,7 @@ export class Primitive extends RnObject {
     if (material != null) {
       this.material = material;
     } else {
-      this.material = MaterialHelper.createClassicUberMaterial({
+      this.material = MaterialHelper.createClassicUberMaterial(this.__engine, {
         isSkinning: true,
         isLighting: true,
       });
@@ -432,7 +434,7 @@ export class Primitive extends RnObject {
       bufferSize += DataUtil.addPaddingBytes(indices.byteLength, byteAlign);
     }
 
-    const buffer = MemoryManager.getInstance().createBufferOnDemand(BufferUse.CPUGeneric, bufferSize, byteAlign);
+    const buffer = this.__engine.memoryManager.createBufferOnDemand(BufferUse.CPUGeneric, bufferSize, byteAlign);
 
     let indicesComponentType: ComponentTypeEnum;
     let indicesAccessor: Accessor;
@@ -502,8 +504,8 @@ export class Primitive extends RnObject {
    * @param desc - The primitive descriptor with vertex data and configuration
    * @returns A new primitive instance with the specified data
    */
-  static createPrimitive(desc: PrimitiveDescriptor) {
-    const primitive = new Primitive();
+  static createPrimitive(engine: Engine, desc: PrimitiveDescriptor) {
+    const primitive = new Primitive(engine);
     primitive.copyVertexData(desc);
     return primitive;
   }
@@ -889,7 +891,7 @@ export class Primitive extends RnObject {
       bufferSize += indices.length * compositionN * 4 /* bytes */;
     }
 
-    const buffer = MemoryManager.getInstance().createBufferOnDemand(BufferUse.CPUGeneric, bufferSize, 4 /* bytes */);
+    const buffer = this.__engine.memoryManager.createBufferOnDemand(BufferUse.CPUGeneric, bufferSize, 4 /* bytes */);
     const bufferView = buffer
       .takeBufferView({
         byteLengthToNeed: bufferSize,

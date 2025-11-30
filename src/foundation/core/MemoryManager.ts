@@ -3,6 +3,7 @@ import { BufferUse, type BufferUseEnum } from '../definitions/BufferUse';
 import { Buffer } from '../memory/Buffer';
 import { DataUtil } from '../misc/DataUtil';
 import { MiscUtil } from '../misc/MiscUtil';
+import type { Engine } from '../system/Engine';
 import { Config } from './Config';
 
 /**
@@ -12,8 +13,7 @@ import { Config } from './Config';
 
 type IndexOfBufferLayer = Index;
 export class MemoryManager {
-  private static __instance: MemoryManager;
-  //__entityMaxCount: number;
+  private __engine: Engine;
   private __buffers: Map<BufferUseEnum, Map<IndexOfBufferLayer, Buffer>> = new Map();
   private __countOfTheBufferUsageMap: Map<BufferUseEnum, Count> = new Map();
   private __maxGPUDataStorageSize: Byte = 0;
@@ -39,7 +39,8 @@ export class MemoryManager {
    * Initializes memory size ratios for different buffer types.
    * @param maxGPUDataStorageSize - The maximum GPU data storage size in bytes
    */
-  private constructor(maxGPUDataStorageSize: Byte) {
+  private constructor(engine: Engine, maxGPUDataStorageSize: Byte) {
+    this.__engine = engine;
     this.__maxGPUDataStorageSize = maxGPUDataStorageSize;
   }
 
@@ -49,12 +50,8 @@ export class MemoryManager {
    * @param maxGPUDataStorageSize - The maximum GPU data storage size in bytes
    * @returns The MemoryManager singleton instance
    */
-  static createInstanceIfNotCreated(maxGPUDataStorageSize: Byte) {
-    if (!this.__instance) {
-      this.__instance = new MemoryManager(maxGPUDataStorageSize);
-      return this.__instance;
-    }
-    return this.__instance;
+  static createInstanceIfNotCreated(engine: Engine, maxGPUDataStorageSize: Byte) {
+    return new MemoryManager(engine, maxGPUDataStorageSize);
   }
 
   /**
@@ -64,15 +61,6 @@ export class MemoryManager {
    */
   private __makeMultipleOf4byteSize(memorySize: number) {
     return memorySize + (memorySize % 4 === 0 ? 0 : 4 - (memorySize % 4));
-  }
-
-  /**
-   * Gets the singleton instance of MemoryManager.
-   * @returns The MemoryManager instance
-   * @throws Error if the instance has not been created yet
-   */
-  static getInstance() {
-    return this.__instance;
   }
 
   /**

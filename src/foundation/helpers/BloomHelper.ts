@@ -6,6 +6,7 @@ import { VectorN } from '../math/VectorN';
 import { Expression } from '../renderer/Expression';
 import type { FrameBuffer } from '../renderer/FrameBuffer';
 import type { RenderPass } from '../renderer/RenderPass';
+import type { Engine } from '../system/Engine';
 import type { AbstractTexture } from '../textures/AbstractTexture';
 import type { RenderTargetTexture } from '../textures/RenderTargetTexture';
 import { MaterialHelper } from './MaterialHelper';
@@ -13,6 +14,7 @@ import { RenderPassHelper } from './RenderPassHelper';
 import { RenderableHelper } from './RenderableHelper';
 
 export class Bloom {
+  private __engine: Engine;
   private __mapDetectHighLuminanceMaterial: Map<string, Material> = new Map();
   private __mapGaussianBlurMaterial: Map<string, Material> = new Map();
   private __mapSynthesizeMaterial: Map<string, Material> = new Map();
@@ -20,6 +22,14 @@ export class Bloom {
   private __mapDetectHighLuminanceFramebuffer: Map<string, FrameBuffer> = new Map();
   private __mapSynthesizeFramebuffer: Map<string, FrameBuffer> = new Map();
 
+  /**
+   * Constructor for the Bloom helper.
+   *
+   * @param engine - The engine instance to use for creating the bloom effect
+   */
+  constructor(engine: Engine) {
+    this.__engine = engine;
+  }
   /**
    * Creates a complete bloom effect expression with all required render passes.
    *
@@ -121,6 +131,7 @@ export class Bloom {
     let materialDetectHighLuminance = this.__mapDetectHighLuminanceMaterial.get(materialKey);
     if (materialDetectHighLuminance == null) {
       materialDetectHighLuminance = MaterialHelper.createDetectHighLuminanceMaterial(
+        this.__engine,
         { maxInstancesNumber: 1 },
         texture
       );
@@ -134,7 +145,10 @@ export class Bloom {
     //   luminanceReduce
     // );
 
-    const renderPassDetectHighLuminance = RenderPassHelper.createScreenDrawRenderPass(materialDetectHighLuminance);
+    const renderPassDetectHighLuminance = RenderPassHelper.createScreenDrawRenderPass(
+      this.__engine,
+      materialDetectHighLuminance
+    );
     renderPassDetectHighLuminance.tryToSetUniqueName('renderPassDetectHighLuminance', true);
 
     const key = `${texture.width}_${texture.height}`;
@@ -249,7 +263,7 @@ export class Bloom {
     const materialKey = `${resolutionWidthBlur}_${resolutionHeightBlur}_${isHorizontal}`;
     let material = this.__mapGaussianBlurMaterial.get(materialKey);
     if (material == null) {
-      material = MaterialHelper.createGaussianBlurMaterial();
+      material = MaterialHelper.createGaussianBlurMaterial(this.__engine);
       this.__mapGaussianBlurMaterial.set(materialKey, material);
     }
 
@@ -267,7 +281,11 @@ export class Bloom {
 
     const framebufferTarget = renderPassBlurTarget.getFramebuffer()!;
     const TextureTarget = framebufferTarget.colorAttachments[0] as RenderTargetTexture;
-    const renderPass = RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(material, TextureTarget);
+    const renderPass = RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+      this.__engine,
+      material,
+      TextureTarget
+    );
 
     const key = `${resolutionWidthBlur}_${resolutionHeightBlur}_${isHorizontal}`;
     let framebuffer = this.__mapReducedFramebuffer.get(key);
@@ -315,6 +333,7 @@ export class Bloom {
     let materialSynthesizeTextures = this.__mapSynthesizeMaterial.get(materialKey);
     if (materialSynthesizeTextures == null) {
       materialSynthesizeTextures = MaterialHelper.createSynthesizeHDRMaterial(
+        this.__engine,
         {
           maxInstancesNumber: 1,
         },
@@ -328,7 +347,10 @@ export class Bloom {
       });
     }
     materialSynthesizeTextures.setParameter('synthesizeCoefficient', synthesizeCoefficient);
-    const renderPassSynthesizeGlare = RenderPassHelper.createScreenDrawRenderPass(materialSynthesizeTextures);
+    const renderPassSynthesizeGlare = RenderPassHelper.createScreenDrawRenderPass(
+      this.__engine,
+      materialSynthesizeTextures
+    );
     renderPassSynthesizeGlare.tryToSetUniqueName('renderPassSynthesizeGlare', true);
     const key = `${texture.width}_${texture.height}`;
     let framebufferSynthesizeImages = this.__mapSynthesizeFramebuffer.get(key);

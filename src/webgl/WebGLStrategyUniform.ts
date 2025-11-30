@@ -71,7 +71,6 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   private __lastMorphOffsetsUniformDataSize = -1;
   private __lastMorphWeightsUniformDataSize = -1;
   private __lightComponents?: LightComponent[];
-  private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __webxrSystem: WebXRSystem;
   private __countOfBlendShapeComponents = -1;
   /**
@@ -250,7 +249,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         primitive
       );
 
-      WebGLStrategyUniform.__globalDataRepository._setUniformLocationsForUniformModeOnly(
+      this.__engine.globalDataRepository._setUniformLocationsForUniformModeOnly(
         material.getShaderProgramUid(primitive)
       );
 
@@ -300,9 +299,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       );
     }
 
-    WebGLStrategyUniform.__globalDataRepository._setUniformLocationsForUniformModeOnly(
-      material.getShaderProgramUid(primitive)
-    );
+    this.__engine.globalDataRepository._setUniformLocationsForUniformModeOnly(material.getShaderProgramUid(primitive));
 
     return programUid;
   }
@@ -336,7 +333,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         for (let j = 0; j < primitive.targets.length; j++) {
           const target = primitive.targets[j];
           const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
-          const byteOffsetOfExistingBuffer = MemoryManager.getInstance().getByteOffsetOfExistingBuffers(
+          const byteOffsetOfExistingBuffer = this.__engine.memoryManager.getByteOffsetOfExistingBuffers(
             BufferUse.GPUVertexData,
             accessor.bufferView.buffer.indexOfTheBufferUsage
           );
@@ -436,7 +433,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
    * Copies weight values from blend shape components to GPU-accessible uniform buffers.
    */
   private __updateMorphWeightsUniformBuffer() {
-    const memoryManager: MemoryManager = MemoryManager.getInstance();
+    const memoryManager = this.__engine.memoryManager;
     const blendShapeDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUVertexData);
     if (blendShapeDataBuffer == null) {
       return;
@@ -479,7 +476,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
 
     // Setup Data Texture
     if (this.__dataTextureUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      const memoryManager: MemoryManager = MemoryManager.getInstance();
+      const memoryManager = this.__engine.memoryManager;
       const buffers: Buffer[] = memoryManager.getBuffers(BufferUse.GPUVertexData);
       if (buffers.length === 0) {
         return;
@@ -756,7 +753,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
 
     const isVrMainPass = WebGLStrategyCommonMethod.isVrMainPass(this.__engine, renderPass);
     if ((shaderProgram as any).vrState != null && isVrMainPass) {
-      const vrState = GlobalDataRepository.getInstance().getValue('vrState', 0) as Vector2;
+      const vrState = this.__engine.globalDataRepository.getValue('vrState', 0) as Vector2;
       vrState._v[0] = isVrMainPass ? 1 : 0;
       vrState._v[1] = 0;
       (shaderProgram as any)._gl.uniform2iv((shaderProgram as any).vrState, vrState._v);
@@ -839,7 +836,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         this.bindDataTexture(gl, shaderProgram);
 
         if (AnimationComponent.isAnimating) {
-          const time = GlobalDataRepository.getInstance().getValue('time', 0) as Scalar;
+          const time = this.__engine.globalDataRepository.getValue('time', 0) as Scalar;
           (shaderProgram as any)._gl.uniform1f((shaderProgram as any).time, time._v[0]);
         }
 
@@ -900,7 +897,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         });
 
         if ((shaderProgram as any).vrState != null && isVrMainPass) {
-          const vrState = GlobalDataRepository.getInstance().getValue('vrState', 0) as Vector2;
+          const vrState = this.__engine.globalDataRepository.getValue('vrState', 0) as Vector2;
           vrState._v[0] = isVrMainPass ? 1 : 0;
           vrState._v[1] = displayIdx;
           (shaderProgram as any)._gl.uniform2iv((shaderProgram as any).vrState, vrState._v);

@@ -42,9 +42,9 @@ export class ShadowSystem {
    */
   constructor(engine: Engine, shadowMapSize: number) {
     this.__engine = engine;
-    this.__shadowMap = new ShadowMap();
-    this.__pointShadowMap = new PointShadowMap();
-    this.__gaussianBlur = new GaussianBlur();
+    this.__shadowMap = new ShadowMap(engine);
+    this.__pointShadowMap = new PointShadowMap(engine);
+    this.__gaussianBlur = new GaussianBlur(engine);
 
     const [shadowMapArrayFramebuffer, _shadowMapArrayRenderTargetTexture] =
       RenderableHelper.createFrameBufferTextureArray({

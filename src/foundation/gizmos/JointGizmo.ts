@@ -146,8 +146,8 @@ export class JointGizmo extends Gizmo {
     meshEntity.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix = true;
 
     const meshComponent = meshEntity.getMesh();
-    const mesh = new Mesh();
-    const primitive = new Joint();
+    const mesh = new Mesh(this.__engine);
+    const primitive = new Joint(this.__engine);
     primitive.generate({});
     primitive.setWorldPositions(JointGizmo.__origin, JointGizmo.__unitY, 1);
     primitive.setRenderQueue(7);

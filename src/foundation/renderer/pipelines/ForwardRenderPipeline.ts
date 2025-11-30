@@ -107,7 +107,7 @@ export class ForwardRenderPipeline extends RnObject {
   private __oSheenCubeTexture: Option<CubeTexture> = new None();
   private __oSamplerForBackBuffer: Option<Sampler> = new None();
   private __toneMappingType = ToneMappingType.GT_ToneMap;
-  private __bloomHelper: Bloom = new Bloom();
+  private __bloomHelper: Bloom;
   private __oShadowSystem: Option<ShadowSystem> = new None();
   private __shadowExpressions: Expression[] = [];
   private __entitiesForShadow: ISceneGraphEntity[] = [];
@@ -116,6 +116,7 @@ export class ForwardRenderPipeline extends RnObject {
   constructor(engine: Engine) {
     super();
     this.__engine = engine;
+    this.__bloomHelper = new Bloom(engine);
   }
 
   /**
@@ -830,7 +831,7 @@ export class ForwardRenderPipeline extends RnObject {
     expression.tryToSetUniqueName('Initial', true);
 
     // render pass to clear buffers of render texture
-    const initialRenderPass = new RenderPass();
+    const initialRenderPass = new RenderPass(this.__engine);
     initialRenderPass.clearColor = Vector4.fromCopyArray4([0.0, 0.0, 0.0, 0.0]);
     initialRenderPass.toClearColorBuffer = true;
     initialRenderPass.toClearDepthBuffer = true;
@@ -840,7 +841,7 @@ export class ForwardRenderPipeline extends RnObject {
 
     // render pass to clear buffers of framebuffer
     if (!this.__isSimple) {
-      const initialRenderPassForFrameBuffer = new RenderPass();
+      const initialRenderPassForFrameBuffer = new RenderPass(this.__engine);
       initialRenderPassForFrameBuffer.clearColor = Vector4.fromCopyArray4([0.0, 0.0, 0.0, 0.0]);
       initialRenderPassForFrameBuffer.toClearColorBuffer = true;
       initialRenderPassForFrameBuffer.toClearDepthBuffer = true;
@@ -959,7 +960,7 @@ export class ForwardRenderPipeline extends RnObject {
   private __setupGenerateMipmapsExpression(resolveFramebuffer2: FrameBuffer) {
     const expression = new Expression();
     expression.tryToSetUniqueName('GenerateMipmaps', true);
-    const renderPass = new RenderPass();
+    const renderPass = new RenderPass(this.__engine);
     expression.addRenderPasses([renderPass]);
     renderPass.tryToSetUniqueName('GenerateMipmaps', true);
 
@@ -985,7 +986,7 @@ export class ForwardRenderPipeline extends RnObject {
   private __setupMultiViewBlitBackBufferExpression(multiViewFrameBuffer: FrameBuffer) {
     const expression = new Expression();
     expression.tryToSetUniqueName('MultiViewBlitBackBuffer', true);
-    const renderPass = new RenderPass();
+    const renderPass = new RenderPass(this.__engine);
     expression.addRenderPasses([renderPass]);
     renderPass.tryToSetUniqueName('MultiViewBlitBackBuffer', true);
 
@@ -1017,7 +1018,7 @@ export class ForwardRenderPipeline extends RnObject {
   private __setupMultiViewBlitExpression(multiViewFrameBuffer: FrameBuffer) {
     const expression = new Expression();
     expression.tryToSetUniqueName('MultiViewBlit', true);
-    const renderPass = new RenderPass();
+    const renderPass = new RenderPass(this.__engine);
     expression.addRenderPasses([renderPass]);
     renderPass.tryToSetUniqueName('MultiViewBlit', true);
 
@@ -1052,12 +1053,13 @@ export class ForwardRenderPipeline extends RnObject {
    */
   private __setupToneMappingExpression(toneMappingTargetRenderTargetTexture: RenderTargetTexture) {
     const expressionToneMappingEffect = new Expression();
-    const materialToneMapping = MaterialHelper.createToneMappingMaterial();
+    const materialToneMapping = MaterialHelper.createToneMappingMaterial(this.__engine);
     this.__oToneMappingMaterial = new Some(materialToneMapping);
     this.setToneMappingType(this.__toneMappingType);
 
     // Rendering for Canvas Frame Buffer
     const renderPassToneMapping = RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+      this.__engine,
       materialToneMapping,
       toneMappingTargetRenderTargetTexture
     );
@@ -1071,6 +1073,7 @@ export class ForwardRenderPipeline extends RnObject {
 
     // Rendering for VR HeadSet Frame Buffer
     const renderPassToneMappingVr = RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+      this.__engine,
       materialToneMapping,
       toneMappingTargetRenderTargetTexture
     );

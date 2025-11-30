@@ -6,6 +6,7 @@ import { Primitive } from '../geometry/Primitive';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Vector3 } from '../math/Vector3';
 import { Is } from '../misc/Is';
+import type { Engine } from '../system/Engine';
 import { Gizmo } from './Gizmo';
 
 /**
@@ -55,8 +56,8 @@ export class AABBGizmo extends Gizmo {
     this.__target.getSceneGraph()!._addGizmoChild(this.__topEntity!.getSceneGraph()!);
 
     const meshComponent = this.__topEntity!.tryToGetMesh()!;
-    AABBGizmo.__mesh = new Mesh();
-    AABBGizmo.__mesh.addPrimitive(AABBGizmo.generatePrimitive());
+    AABBGizmo.__mesh = new Mesh(this.__engine);
+    AABBGizmo.__mesh.addPrimitive(AABBGizmo.generatePrimitive(this.__engine));
     meshComponent.setMesh(AABBGizmo.__mesh);
 
     this.setGizmoTag();
@@ -71,7 +72,7 @@ export class AABBGizmo extends Gizmo {
    * appropriately during rendering.
    * @returns A primitive object containing the wireframe geometry for the AABB
    */
-  private static generatePrimitive() {
+  private static generatePrimitive(engine: Engine) {
     const indices = new Uint32Array([
       // XY Plane on -Z
       0, 1, 1, 2, 2, 3, 3, 0,
@@ -137,7 +138,7 @@ export class AABBGizmo extends Gizmo {
       length,
     ]);
 
-    const primitive = Primitive.createPrimitive({
+    const primitive = Primitive.createPrimitive(engine, {
       indices: indices,
       attributeSemantics: [VertexAttribute.Position.XYZ],
       attributes: [positions],

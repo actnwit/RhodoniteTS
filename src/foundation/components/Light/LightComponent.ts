@@ -43,7 +43,6 @@ export class LightComponent extends Component {
   public enable = true;
   public shadowAreaSizeForDirectionalLight = 10;
   public castShadow = false;
-  private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tmp_vec4 = MutableVector4.zero();
 
   private _lightPosition = MutableVector4.dummy();
@@ -202,7 +201,7 @@ export class LightComponent extends Component {
    * This method is called during the component loading phase.
    */
   $load() {
-    LightComponent.__lightNumber = LightComponent.__globalDataRepository.getValue('lightNumber', 0);
+    LightComponent.__lightNumber = this.entity.engine.globalDataRepository.getValue('lightNumber', 0);
 
     this.moveStageTo(ProcessStage.Logic);
   }

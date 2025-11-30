@@ -38,6 +38,7 @@ import { MathClassUtil } from '../../math/MathClassUtil';
 import { Is } from '../../misc/Is';
 import { Logger } from '../../misc/Logger';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import type { Engine } from '../../system/Engine';
 import { Texture } from '../../textures';
 import type { AbstractTexture } from '../../textures/AbstractTexture';
 import { Sampler } from '../../textures/Sampler';
@@ -741,6 +742,7 @@ export class Material extends RnObject {
    * @returns Object containing vertex and pixel property strings
    */
   _getProperties(
+    engine: Engine,
     propertySetterOfGlobalDataRepository: getShaderPropertyFuncOfGlobalDataRepository,
     propertySetterOfMaterial: getShaderPropertyFuncOfMaterial
   ) {
@@ -748,13 +750,13 @@ export class Material extends RnObject {
     let pixelPropertiesStr = '';
     this._allFieldsInfo.forEach(info => {
       if (info!.stage === ShaderType.VertexShader || info!.stage === ShaderType.VertexAndPixelShader) {
-        vertexPropertiesStr += propertySetterOfMaterial(this.__materialTypeName, info!);
+        vertexPropertiesStr += propertySetterOfMaterial(engine, this.__materialTypeName, info!);
       }
       if (info!.stage === ShaderType.PixelShader || info!.stage === ShaderType.VertexAndPixelShader) {
-        pixelPropertiesStr += propertySetterOfMaterial(this.__materialTypeName, info!);
+        pixelPropertiesStr += propertySetterOfMaterial(engine, this.__materialTypeName, info!);
       }
     });
-    const globalDataRepository = GlobalDataRepository.getInstance();
+    const globalDataRepository = engine.globalDataRepository;
     [vertexPropertiesStr, pixelPropertiesStr] = globalDataRepository._addPropertiesStr(
       vertexPropertiesStr,
       pixelPropertiesStr,

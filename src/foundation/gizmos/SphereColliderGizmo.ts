@@ -50,7 +50,7 @@ export class SphereColliderGizmo extends Gizmo {
     targetSceneGraph._addGizmoChild(this.__topEntity.getSceneGraph()!);
 
     // Create a sphere mesh with the same radius as the collider
-    const material = MaterialHelper.createPbrUberMaterial({
+    const material = MaterialHelper.createPbrUberMaterial(this.__engine, {
       isLighting: false,
       isSkinning: false,
       isMorphing: false,

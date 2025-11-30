@@ -43,7 +43,7 @@ const createPlane = (
     direction?: 'xz' | 'xy' | 'yz';
   } = {}
 ) => {
-  const primitive = new Plane();
+  const primitive = new Plane(engine);
   primitive.generate(desc);
   const entity = createShape(engine, primitive);
 
@@ -75,7 +75,7 @@ const createPlane = (
  * ```
  */
 const createLine = (engine: Engine, desc: LineDescriptor = {}) => {
-  const primitive = new Line();
+  const primitive = new Line(engine);
   primitive.generate(desc);
   const entity = createShape(engine, primitive);
   return entity;
@@ -97,7 +97,7 @@ const createLine = (engine: Engine, desc: LineDescriptor = {}) => {
  * ```
  */
 const createGrid = (engine: Engine, desc: GridDescriptor = {}) => {
-  const primitive = new Grid();
+  const primitive = new Grid(engine);
   primitive.generate(desc);
   const entity = createShape(engine, primitive);
   return entity;
@@ -120,7 +120,7 @@ const createGrid = (engine: Engine, desc: GridDescriptor = {}) => {
  * ```
  */
 const createCone = (engine: Engine, desc: ConeDescriptor = {}) => {
-  const primitive = new Cone();
+  const primitive = new Cone(engine);
   primitive.generate(desc);
   const entity = createShape(engine, primitive);
   return entity;
@@ -152,7 +152,7 @@ const createCone = (engine: Engine, desc: ConeDescriptor = {}) => {
  * ```
  */
 const createCube = (engine: Engine, desc: CubeDescriptor = {}) => {
-  const primitive = new Cube();
+  const primitive = new Cube(engine);
   primitive.generate(desc);
   const entity = createShape(engine, primitive);
 
@@ -200,9 +200,9 @@ const createCube = (engine: Engine, desc: CubeDescriptor = {}) => {
  * ```
  */
 const createCubes = (engine: Engine, numberToCreate: number, desc: CubeDescriptor = {}) => {
-  const primitive = new Cube();
+  const primitive = new Cube(engine);
   primitive.generate(desc);
-  const mesh = new Mesh();
+  const mesh = new Mesh(engine);
   mesh.addPrimitive(primitive);
 
   const entities = [];
@@ -261,7 +261,7 @@ const createCubes = (engine: Engine, numberToCreate: number, desc: CubeDescripto
  * ```
  */
 const createSphere = (engine: Engine, desc: SphereDescriptor = {}) => {
-  const primitive = new Sphere();
+  const primitive = new Sphere(engine);
   primitive.generate(desc);
   const entity = createShape(engine, primitive);
 
@@ -315,9 +315,9 @@ const createSphere = (engine: Engine, desc: SphereDescriptor = {}) => {
  * ```
  */
 const createSpheres = (engine: Engine, numberToCreate: number, desc: SphereDescriptor = {}) => {
-  const primitive = new Sphere();
+  const primitive = new Sphere(engine);
   primitive.generate(desc);
-  const mesh = new Mesh();
+  const mesh = new Mesh(engine);
   mesh.addPrimitive(primitive);
 
   const entities = [];
@@ -368,7 +368,7 @@ const createSpheres = (engine: Engine, numberToCreate: number, desc: SphereDescr
  * ```
  */
 const createJoint = (engine: Engine, desc: JointDescriptor = {}) => {
-  const primitive = new Joint();
+  const primitive = new Joint(engine);
   primitive.generate(desc);
   const entity = createShape(engine, primitive);
   return entity;
@@ -391,7 +391,7 @@ const createJoint = (engine: Engine, desc: JointDescriptor = {}) => {
  * ```
  */
 const createAxis = (engine: Engine, desc: AxisDescriptor = {}) => {
-  const primitive = new Axis();
+  const primitive = new Axis(engine);
   primitive.generate(desc);
   const entity = createShape(engine, primitive);
   return entity;
@@ -423,7 +423,7 @@ const createAxis = (engine: Engine, desc: AxisDescriptor = {}) => {
  * ```
  */
 const createRing = (engine: Engine, desc: RingDescriptor = {}) => {
-  const primitive = new Ring();
+  const primitive = new Ring(engine);
   primitive.generate(desc);
   const entity = createShape(engine, primitive);
   return entity;
@@ -456,7 +456,7 @@ const createRing = (engine: Engine, desc: RingDescriptor = {}) => {
  * ```
  */
 const createCapsule = (engine: Engine, desc: CapsuleDescriptor = {}) => {
-  const primitive = new Capsule();
+  const primitive = new Capsule(engine);
   primitive.generate(desc);
   const entity = createShape(engine, primitive);
   return entity;
@@ -480,7 +480,7 @@ const createCapsule = (engine: Engine, desc: CapsuleDescriptor = {}) => {
 function createShape(engine: Engine, primitive: IShape) {
   const entity = createMeshEntity(engine);
   const meshComponent = entity.getMesh();
-  const mesh = new Mesh();
+  const mesh = new Mesh(engine);
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);
   return entity;

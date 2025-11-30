@@ -23,7 +23,6 @@ import type { Material } from '../core/Material';
  * morphing, skinning, and various shader semantics.
  */
 export class CustomMaterialContent extends AbstractMaterialContent {
-  private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __diffuseIblCubeMapSampler = new Sampler({
     minFilter: TextureParameter.Linear,
     magFilter: TextureParameter.Linear,

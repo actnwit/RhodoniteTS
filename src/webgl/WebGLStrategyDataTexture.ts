@@ -85,7 +85,6 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private static __shaderProgram: WebGLProgram;
   private __lastRenderPassTickCount = -1;
   private __lightComponents?: LightComponent[];
-  private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __currentComponentSIDs?: VectorN;
   public _totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
   private static __isDebugOperationToDataTextureBufferDone = true;
@@ -361,7 +360,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
         primitive
       );
 
-      WebGLStrategyDataTexture.__globalDataRepository._setUniformLocationsForDataTextureModeOnly(
+      this.__engine.globalDataRepository._setUniformLocationsForDataTextureModeOnly(
         material.getShaderProgramUid(primitive)
       );
 
@@ -414,7 +413,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
       );
     }
 
-    WebGLStrategyDataTexture.__globalDataRepository._setUniformLocationsForDataTextureModeOnly(
+    this.__engine.globalDataRepository._setUniformLocationsForDataTextureModeOnly(
       material.getShaderProgramUid(primitive)
     );
 
@@ -437,7 +436,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
    * - Properties that require explicit uniform variables
    * The generated code optimizes data access based on the property layout in data textures.
    */
-  private static __getShaderPropertyOfGlobalDataRepository(info: ShaderSemanticsInfo) {
+  private static __getShaderPropertyOfGlobalDataRepository(engine: Engine, info: ShaderSemanticsInfo) {
     const returnType = info.compositionType.getGlslStr(info.componentType);
 
     let indexStr: string;
@@ -462,6 +461,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
     // for non-`index` property (this is general case)
     const scalarSizeOfProperty: IndexOf4Bytes = info.compositionType.getNumberOfComponents();
     const offsetOfProperty: IndexOf16Bytes = WebGLStrategyDataTexture.getOffsetOfPropertyOfGlobalDataRepository(
+      engine,
       info.semantic
     );
 
@@ -598,7 +598,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    * - Properties that require explicit uniform variables
    * The generated code optimizes data access based on the property layout in data textures.
    */
-  private static __getShaderPropertyOfMaterial(materialTypeName: string, info: ShaderSemanticsInfo) {
+  private static __getShaderPropertyOfMaterial(engine: Engine, materialTypeName: string, info: ShaderSemanticsInfo) {
     const returnType = info.compositionType.getGlslStr(info.componentType);
 
     let indexStr: string;
@@ -623,6 +623,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     // for non-`index` property (this is general case)
     const scalarSizeOfProperty: IndexOf4Bytes = info.compositionType.getNumberOfComponents();
     const offsetOfProperty: IndexOf16Bytes[] = WebGLStrategyDataTexture.getOffsetOfPropertyOfMaterial(
+      engine,
       info.semantic,
       materialTypeName
     );
@@ -757,8 +758,12 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    * This method is essential for generating correct shader code that can access
    * properties from the data texture at the right memory locations.
    */
-  private static getOffsetOfPropertyOfMaterial(propertyName: ShaderSemanticsName, materialTypeName: string) {
-    const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyName);
+  private static getOffsetOfPropertyOfMaterial(
+    engine: Engine,
+    propertyName: ShaderSemanticsName,
+    materialTypeName: string
+  ) {
+    const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(engine, materialTypeName, propertyName);
     return dataBeginPos;
   }
 
@@ -773,8 +778,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    * This method is essential for generating correct shader code that can access
    * properties from the data texture at the right memory locations.
    */
-  private static getOffsetOfPropertyOfGlobalDataRepository(propertyName: ShaderSemanticsName) {
-    const globalDataRepository = GlobalDataRepository.getInstance();
+  private static getOffsetOfPropertyOfGlobalDataRepository(engine: Engine, propertyName: ShaderSemanticsName) {
+    const globalDataRepository = engine.globalDataRepository;
     const dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyName);
     return dataBeginPos;
   }
@@ -801,7 +806,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       return false;
     }
 
-    WebGLStrategyDataTexture.__currentComponentSIDs = WebGLStrategyDataTexture.__globalDataRepository.getValue(
+    WebGLStrategyDataTexture.__currentComponentSIDs = this.__engine.globalDataRepository.getValue(
       'currentComponentSIDs',
       0
     );
@@ -823,7 +828,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         for (let j = 0; j < primitive.targets.length; j++) {
           const target = primitive.targets[j];
           const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
-          const byteOffsetOfExistingBuffer = MemoryManager.getInstance().getByteOffsetOfExistingBuffers(
+          const byteOffsetOfExistingBuffer = this.__engine.memoryManager.getByteOffsetOfExistingBuffers(
             BufferUse.GPUVertexData,
             accessor.bufferView.buffer.indexOfTheBufferUsage
           );
@@ -967,7 +972,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    * - Manages texture alignment and padding requirements
    */
   private __createAndUpdateDataTextureInner() {
-    const memoryManager: MemoryManager = MemoryManager.getInstance();
+    const memoryManager = this.__engine.memoryManager;
 
     // the GPU global Storage
     const sizesOfTheBuffers = memoryManager.getSizesOfTheBuffers(BufferUse.GPUInstanceData);
@@ -1148,7 +1153,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    * Copies weight values from blend shape components to GPU-accessible uniform buffers.
    */
   private __updateMorphWeightsUniformBuffer() {
-    const memoryManager: MemoryManager = MemoryManager.getInstance();
+    const memoryManager = this.__engine.memoryManager;
     const blendShapeDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUVertexData);
     if (blendShapeDataBuffer == null) {
       return;
@@ -1209,7 +1214,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
       const alignedMaxUniformBlockSize = glw!.getAlignedMaxUniformBlockSize();
       const maxConventionBlocks = glw!.getMaxConventionUniformBlocks();
-      const memoryManager: MemoryManager = MemoryManager.getInstance();
+      const memoryManager = this.__engine.memoryManager;
       const buffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUInstanceData);
       if (this.__dataUBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
         this.__dataUBOUid = this.__webglResourceRepository.setupUniformBufferDataArea(
@@ -1386,7 +1391,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     _shaderProgram: WebGLProgram
   ) {
     if (WebGLStrategyDataTexture.__currentComponentSIDs == null) {
-      WebGLStrategyDataTexture.__currentComponentSIDs = WebGLStrategyDataTexture.__globalDataRepository.getValue(
+      WebGLStrategyDataTexture.__currentComponentSIDs = this.__engine.globalDataRepository.getValue(
         'currentComponentSIDs',
         0
       );
@@ -1532,7 +1537,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     );
 
     if ((shaderProgram as any).vrState != null && isVRMainPass) {
-      const vrState = GlobalDataRepository.getInstance().getValue('vrState', 0) as Vector2;
+      const vrState = this.__engine.globalDataRepository.getValue('vrState', 0) as Vector2;
       vrState._v[0] = isVRMainPass ? 1 : 0;
       vrState._v[1] = 0;
       (shaderProgram as any)._gl.uniform2iv((shaderProgram as any).vrState, vrState._v);
@@ -1694,7 +1699,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       );
 
       if ((WebGLStrategyDataTexture.__shaderProgram as any).vrState != null && isVRMainPass && displayCount > 1) {
-        const vrState = GlobalDataRepository.getInstance().getValue('vrState', 0) as Vector2;
+        const vrState = this.__engine.globalDataRepository.getValue('vrState', 0) as Vector2;
         vrState._v[0] = isVRMainPass ? 1 : 0;
         vrState._v[1] = displayIdx;
         (WebGLStrategyDataTexture.__shaderProgram as any)._gl.uniform2iv(

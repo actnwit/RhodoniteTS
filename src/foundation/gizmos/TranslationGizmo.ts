@@ -243,10 +243,10 @@ export class TranslationGizmo extends Gizmo {
       TranslationGizmo.__xCubeEntity = createMeshEntity(this.__engine);
       TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_xCube', true);
       TranslationGizmo.__xCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0.5, 0, 0);
-      TranslationGizmo.__xCubeMesh = new Mesh();
-      TranslationGizmo.__xCubeMaterial = MaterialHelper.createClassicUberMaterial();
+      TranslationGizmo.__xCubeMesh = new Mesh(this.__engine);
+      TranslationGizmo.__xCubeMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
       TranslationGizmo.__xCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([1, 0, 0, 1]));
-      TranslationGizmo.__xCubePrimitive = new Cube();
+      TranslationGizmo.__xCubePrimitive = new Cube(this.__engine);
       TranslationGizmo.__xCubePrimitive.generate({
         widthVector: Vector3.fromCopy3(1, 0.05, 0.05),
         material: TranslationGizmo.__xCubeMaterial,
@@ -260,10 +260,10 @@ export class TranslationGizmo extends Gizmo {
       TranslationGizmo.__yCubeEntity = createMeshEntity(this.__engine);
       TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_yCube', true);
       TranslationGizmo.__yCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0.5, 0);
-      TranslationGizmo.__yCubeMesh = new Mesh();
-      TranslationGizmo.__yCubeMaterial = MaterialHelper.createClassicUberMaterial();
+      TranslationGizmo.__yCubeMesh = new Mesh(this.__engine);
+      TranslationGizmo.__yCubeMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
       TranslationGizmo.__yCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 1, 0, 1]));
-      TranslationGizmo.__yCubePrimitive = new Cube();
+      TranslationGizmo.__yCubePrimitive = new Cube(this.__engine);
       TranslationGizmo.__yCubePrimitive.generate({
         widthVector: Vector3.fromCopy3(0.05, 1, 0.05),
         material: TranslationGizmo.__yCubeMaterial,
@@ -277,10 +277,10 @@ export class TranslationGizmo extends Gizmo {
       TranslationGizmo.__zCubeEntity = createMeshEntity(this.__engine);
       TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_zCube', true);
       TranslationGizmo.__zCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 0.5);
-      TranslationGizmo.__zCubeMesh = new Mesh();
-      TranslationGizmo.__zCubeMaterial = MaterialHelper.createClassicUberMaterial();
+      TranslationGizmo.__zCubeMesh = new Mesh(this.__engine);
+      TranslationGizmo.__zCubeMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
       TranslationGizmo.__zCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0, 1, 1]));
-      TranslationGizmo.__zCubePrimitive = new Cube();
+      TranslationGizmo.__zCubePrimitive = new Cube(this.__engine);
       TranslationGizmo.__zCubePrimitive.generate({
         widthVector: Vector3.fromCopy3(0.05, 0.05, 1),
         material: TranslationGizmo.__zCubeMaterial,
@@ -346,11 +346,11 @@ export class TranslationGizmo extends Gizmo {
         0,
         0
       );
-      TranslationGizmo.__xyPlaneMaterial = MaterialHelper.createClassicUberMaterial();
+      TranslationGizmo.__xyPlaneMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
       TranslationGizmo.__xyPlaneMaterial.alphaMode = AlphaMode.Blend;
       TranslationGizmo.__xyPlaneMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0, 0.5, 0]));
-      TranslationGizmo.__xyPlaneMesh = new Mesh();
-      TranslationGizmo.__xyPlanePrimitive = new Plane();
+      TranslationGizmo.__xyPlaneMesh = new Mesh(this.__engine);
+      TranslationGizmo.__xyPlanePrimitive = new Plane(this.__engine);
       TranslationGizmo.__xyPlanePrimitive.generate({
         width: 100000,
         height: 100000,
@@ -375,11 +375,11 @@ export class TranslationGizmo extends Gizmo {
         0,
         MathUtil.degreeToRadian(90)
       );
-      TranslationGizmo.__yzPlaneMaterial = MaterialHelper.createClassicUberMaterial();
+      TranslationGizmo.__yzPlaneMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
       TranslationGizmo.__yzPlaneMaterial.alphaMode = AlphaMode.Blend;
       TranslationGizmo.__yzPlaneMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0.5, 0, 0, 0]));
-      TranslationGizmo.__yzPlaneMesh = new Mesh();
-      TranslationGizmo.__yzPlanePrimitive = new Plane();
+      TranslationGizmo.__yzPlaneMesh = new Mesh(this.__engine);
+      TranslationGizmo.__yzPlanePrimitive = new Plane(this.__engine);
       TranslationGizmo.__yzPlanePrimitive.generate({
         width: 100000,
         height: 100000,
@@ -399,11 +399,11 @@ export class TranslationGizmo extends Gizmo {
       TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_zxPlane', true);
       TranslationGizmo.__zxPlaneEntity.getSceneGraph().isVisible = false;
       // Vector3.fromCopy3(90, 0, 0);
-      TranslationGizmo.__zxPlaneMaterial = MaterialHelper.createClassicUberMaterial();
+      TranslationGizmo.__zxPlaneMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
       TranslationGizmo.__zxPlaneMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0.5, 0, 0]));
       TranslationGizmo.__zxPlaneMaterial.alphaMode = AlphaMode.Blend;
-      TranslationGizmo.__zxPlaneMesh = new Mesh();
-      TranslationGizmo.__zxPlanePrimitive = new Plane();
+      TranslationGizmo.__zxPlaneMesh = new Mesh(this.__engine);
+      TranslationGizmo.__zxPlanePrimitive = new Plane(this.__engine);
       TranslationGizmo.__zxPlanePrimitive.generate({
         width: 100000,
         height: 100000,
@@ -481,7 +481,7 @@ export class TranslationGizmo extends Gizmo {
    * Creates geometry for X, Y, and Z axis lines with appropriate colors.
    * @returns A primitive containing the line geometry for the gizmo axes
    */
-  private static __generatePrimitive(): Primitive {
+  private static __generatePrimitive(engine: Engine): Primitive {
     const positions = new Float32Array([
       // X axis
       0,
@@ -519,7 +519,7 @@ export class TranslationGizmo extends Gizmo {
       0, 0, 1, 0, 0, 1,
     ]);
 
-    const primitive = Primitive.createPrimitive({
+    const primitive = Primitive.createPrimitive(engine, {
       attributeSemantics: [VertexAttribute.Position.XYZ, VertexAttribute.Color0.XYZ],
       attributes: [positions, color],
       primitiveMode: PrimitiveMode.Lines,

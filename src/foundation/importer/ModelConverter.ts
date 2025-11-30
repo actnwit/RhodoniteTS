@@ -178,11 +178,11 @@ export class ModelConverter {
    * @param rnSamplers - Array of Rhodonite samplers
    * @returns Array of configured Rhodonite materials
    */
-  private static __setupMaterials(gltfModel: RnM2, rnTextures: Texture[], rnSamplers: Sampler[]) {
+  private static __setupMaterials(engine: Engine, gltfModel: RnM2, rnTextures: Texture[], rnSamplers: Sampler[]) {
     const rnMaterials: Material[] = [];
     if (gltfModel.materials != null) {
       for (const material of gltfModel.materials) {
-        const rnMaterial = this.__setupMaterial(gltfModel, rnTextures, rnSamplers, material);
+        const rnMaterial = this.__setupMaterial(engine, gltfModel, rnTextures, rnSamplers, material);
         rnMaterials.push(rnMaterial);
       }
     }
@@ -236,7 +236,7 @@ export class ModelConverter {
     const rnSamplers: Sampler[] = [];
 
     // Materials
-    const rnMaterials = this.__setupMaterials(gltfModel, rnTextures, rnSamplers);
+    const rnMaterials = this.__setupMaterials(engine, gltfModel, rnTextures, rnSamplers);
 
     // Mesh, Camera, Group, ...
     const { rnEntities, rnEntitiesByNames } = this.__setupObjects(
@@ -255,10 +255,10 @@ export class ModelConverter {
     const rootGroup = this.__generateGroupEntity(engine, gltfModel);
 
     // Animation
-    this._setupAnimation(gltfModel, rnEntities, rnBuffers, rootGroup, rnMaterials);
+    this._setupAnimation(engine, gltfModel, rnEntities, rnBuffers, rootGroup, rnMaterials);
 
     // Skeleton
-    this._setupSkeleton(gltfModel, rnEntities, rnBuffers);
+    this._setupSkeleton(engine, gltfModel, rnEntities, rnBuffers);
 
     // Hierarchy
     this._setupHierarchy(gltfModel, rnEntities);
@@ -294,7 +294,7 @@ export class ModelConverter {
     const rnSamplers = this.__createSamplers(gltfModel);
 
     // Materials
-    const rnMaterials = this.__setupMaterials(gltfModel, rnTextures, rnSamplers);
+    const rnMaterials = this.__setupMaterials(engine, gltfModel, rnTextures, rnSamplers);
 
     // Mesh, Camera, Group, ...
     const { rnEntities, rnEntitiesByNames } = this.__setupObjects(
@@ -313,10 +313,10 @@ export class ModelConverter {
     const rootGroup = this.__generateGroupEntity(engine, gltfModel);
 
     // Animation
-    this._setupAnimation(gltfModel, rnEntities, rnBuffers, rootGroup, rnMaterials);
+    this._setupAnimation(engine, gltfModel, rnEntities, rnBuffers, rootGroup, rnMaterials);
 
     // Skeleton
-    this._setupSkeleton(gltfModel, rnEntities, rnBuffers);
+    this._setupSkeleton(engine, gltfModel, rnEntities, rnBuffers);
 
     // Hierarchy
     this._setupHierarchy(gltfModel, rnEntities);
@@ -456,6 +456,7 @@ export class ModelConverter {
    * @internal
    */
   static _setupAnimation(
+    engine: Engine,
     gltfModel: RnM2,
     rnEntities: ISceneGraphEntity[],
     rnBuffers: Buffer[],
@@ -470,8 +471,8 @@ export class ModelConverter {
 
     for (const animation of gltfModel.animations) {
       for (const sampler of animation.samplers) {
-        this._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.inputObject!, rnBuffers);
-        this._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.outputObject!, rnBuffers);
+        this._readBinaryFromAccessorAndSetItToAccessorExtras(engine, sampler.inputObject!, rnBuffers);
+        this._readBinaryFromAccessorAndSetItToAccessorExtras(engine, sampler.outputObject!, rnBuffers);
       }
     }
 
@@ -997,7 +998,7 @@ export class ModelConverter {
    * @param rnEntities - Array of Rhodonite entities
    * @param rnBuffers - Array of Rhodonite buffers
    */
-  static _setupSkeleton(gltfModel: RnM2, rnEntities: ISceneGraphEntity[], rnBuffers: Buffer[]) {
+  static _setupSkeleton(engine: Engine, gltfModel: RnM2, rnEntities: ISceneGraphEntity[], rnBuffers: Buffer[]) {
     if (gltfModel.skins == null) {
       return;
     }
@@ -1008,7 +1009,7 @@ export class ModelConverter {
       let skeletalComponent: SkeletalComponent;
       if (Is.exist(node.skinObject)) {
         const rnEntity = rnEntities[node_i];
-        const newRnEntity = rnEntity.engine.entityRepository.addComponentToEntity(SkeletalComponent, rnEntity);
+        const newRnEntity = engine.entityRepository.addComponentToEntity(SkeletalComponent, rnEntity);
         skeletalComponent = newRnEntity.getSkeletal();
         if (Is.exist(node.skinObject.bindShapeMatrix)) {
           skeletalComponent._bindShapeMatrix = Matrix44.fromCopyArrayColumnMajor(node.skinObject.bindShapeMatrix);
@@ -1036,6 +1037,7 @@ export class ModelConverter {
         const inverseBindMatAccessor = node.skinObject.inverseBindMatricesObject;
         if (Is.exist(inverseBindMatAccessor)) {
           const rnBufferOfInverseBindMatAccessor = this.__getRnBufferViewAndRnAccessor(
+            engine,
             inverseBindMatAccessor,
             rnBuffers
           );
@@ -1267,7 +1269,7 @@ export class ModelConverter {
     if (existingRnMesh != null) {
       meshComponent.setMesh(existingRnMesh);
     } else {
-      const rnMesh = new Mesh();
+      const rnMesh = new Mesh(engine);
       // set flag to rnMesh with options
       const rnLoaderOptions = gltfModel.asset.extras!.rnLoaderOptions;
       if (rnLoaderOptions?.tangentCalculationMode != null) {
@@ -1294,12 +1296,12 @@ export class ModelConverter {
           rnPrimitiveMode = PrimitiveMode.from(primitive.mode)!;
         }
 
-        const rnPrimitive = new Primitive();
+        const rnPrimitive = new Primitive(engine);
 
         const rnMaterial =
           primitive.material != null
             ? rnMaterials[primitive.material]
-            : this.__setupMaterial(gltfModel, rnTextures, rnSamplers);
+            : this.__setupMaterial(engine, gltfModel, rnTextures, rnSamplers);
         setupMaterialVariants(rnPrimitive, primitive);
 
         if (rnMaterial.materialTypeName.indexOf('MToon') !== -1) {
@@ -1319,7 +1321,7 @@ export class ModelConverter {
         let indicesRnAccessor: Accessor | undefined;
         const map: Map<VertexAttributeSemanticsJoinedString, Accessor> = new Map();
         if (primitive.extensions?.KHR_draco_mesh_compression) {
-          indicesRnAccessor = this.__decodeDraco(primitive, rnBuffers, gltfModel, map);
+          indicesRnAccessor = this.__decodeDraco(engine, primitive, rnBuffers, gltfModel, map);
 
           if (Is.not.exist(indicesRnAccessor)) {
             break;
@@ -1327,7 +1329,7 @@ export class ModelConverter {
         } else {
           // indices
           if (Is.exist(primitive.indices)) {
-            indicesRnAccessor = this.__getRnBufferViewAndRnAccessor(primitive.indicesObject!, rnBuffers);
+            indicesRnAccessor = this.__getRnBufferViewAndRnAccessor(engine, primitive.indicesObject!, rnBuffers);
           }
 
           // attributes
@@ -1350,7 +1352,7 @@ export class ModelConverter {
                 })
                 .unwrapForce();
             }
-            const attributeRnAccessor = this.__getRnAccessor(rnm2attribute, rnBufferView);
+            const attributeRnAccessor = this.__getRnAccessor(engine, rnm2attribute, rnBufferView);
 
             const joinedString = VertexAttribute.toVertexAttributeSemanticJoinedStringAsGltfStyle(
               VertexAttribute.fromString(attributeName)
@@ -1370,9 +1372,11 @@ export class ModelConverter {
             const targetMap: Map<VertexAttributeSemanticsJoinedString, Accessor> = new Map();
             for (const attributeName in target) {
               const attributeAccessor = target[attributeName];
-              const attributeRnAccessor = this.__getRnBufferViewAndRnAccessor(attributeAccessor, rnBuffers);
-              const attributeRnAccessorInGPUVertexData =
-                this.__copyRnAccessorAndBufferViewForMorphData(attributeRnAccessor);
+              const attributeRnAccessor = this.__getRnBufferViewAndRnAccessor(engine, attributeAccessor, rnBuffers);
+              const attributeRnAccessorInGPUVertexData = this.__copyRnAccessorAndBufferViewForMorphData(
+                engine,
+                attributeRnAccessor
+              );
               const vertexAttribute = VertexAttribute.fromString(attributeName);
               const joinedString = VertexAttribute.toVertexAttributeSemanticJoinedStringAsGltfStyle(vertexAttribute);
               targetMap.set(joinedString, attributeRnAccessorInGPUVertexData);
@@ -1458,6 +1462,7 @@ export class ModelConverter {
    * @returns Configured material or undefined if not VRM 1.0
    */
   private static __setVRM1Material(
+    engine: Engine,
     gltfModel: RnM2,
     materialJson: Vrm1_Material,
     rnLoaderOptions: GltfLoadOption
@@ -1493,7 +1498,7 @@ export class ModelConverter {
       if (renderPassOutline != null) {
         let outlineMaterial: Material | undefined;
         if (VRMC_materials_mtoon.outlineWidthMode !== 'none') {
-          outlineMaterial = MaterialHelper.createMToon1Material({
+          outlineMaterial = MaterialHelper.createMToon1Material(engine, {
             additionalName,
             isMorphing,
             isSkinning,
@@ -1514,7 +1519,7 @@ export class ModelConverter {
         }
       }
 
-      const material = MaterialHelper.createMToon1Material({
+      const material = MaterialHelper.createMToon1Material(engine, {
         additionalName,
         isMorphing,
         isSkinning,
@@ -1644,6 +1649,7 @@ export class ModelConverter {
    * @returns Configured material or undefined if not VRM 0.x
    */
   private static __setVRM0xMaterial(
+    engine: Engine,
     gltfModel: RnM2,
     materialJson: RnM2Material,
     rnLoaderOptions: GltfLoadOption
@@ -1680,7 +1686,7 @@ export class ModelConverter {
       if (renderPassOutline != null) {
         let outlineMaterial: Material | undefined;
         if (materialProperties.floatProperties._OutlineWidthMode !== 0) {
-          outlineMaterial = MaterialHelper.createMToon0xMaterial({
+          outlineMaterial = MaterialHelper.createMToon0xMaterial(engine, {
             additionalName,
             isMorphing,
             isSkinning,
@@ -1702,7 +1708,7 @@ export class ModelConverter {
         }
       }
 
-      const material = MaterialHelper.createMToon0xMaterial({
+      const material = MaterialHelper.createMToon0xMaterial(engine, {
         additionalName,
         isMorphing,
         isSkinning,
@@ -1732,7 +1738,7 @@ export class ModelConverter {
    * @param materialJson - The material JSON data (optional)
    * @returns Generated material
    */
-  private static __generateAppropriateMaterial(gltfModel: RnM2, materialJson?: RnM2Material): Material {
+  private static __generateAppropriateMaterial(engine: Engine, gltfModel: RnM2, materialJson?: RnM2Material): Material {
     const isTranslucent = Is.exist(materialJson?.extensions?.KHR_materials_transmission);
     // if rnLoaderOptions is set something, do special deal
     if (gltfModel.asset.extras?.rnLoaderOptions != null) {
@@ -1748,7 +1754,7 @@ export class ModelConverter {
 
       // For VRM0x
       if (rnLoaderOptions.__isImportVRM0x) {
-        const material = this.__setVRM0xMaterial(gltfModel, materialJson!, rnLoaderOptions);
+        const material = this.__setVRM0xMaterial(engine, gltfModel, materialJson!, rnLoaderOptions);
         if (Is.exist(material)) {
           material.isTranslucent = isTranslucent;
           return material;
@@ -1771,7 +1777,7 @@ export class ModelConverter {
     if (Is.exist(materialJson)) {
       if (materialJson.extensions?.VRMC_materials_mtoon != null) {
         const rnLoaderOptions = gltfModel.asset.extras!.rnLoaderOptions!;
-        const material = this.__setVRM1Material(gltfModel, materialJson as Vrm1_Material, rnLoaderOptions);
+        const material = this.__setVRM1Material(engine, gltfModel, materialJson as Vrm1_Material, rnLoaderOptions);
         if (Is.exist(material)) {
           material.isTranslucent = isTranslucent;
           return material;
@@ -1785,7 +1791,7 @@ export class ModelConverter {
       // For glTF 2
       const _useTangentAttribute = true; //this.__useTangentAttribute(gltfModel, primitive);
       const useNormalTexture = materialJson?.normalTexture != null;
-      const material = MaterialHelper.createPbrUberMaterial({
+      const material = MaterialHelper.createPbrUberMaterial(engine, {
         isMorphing,
         isSkinning,
         isLighting,
@@ -1814,7 +1820,7 @@ export class ModelConverter {
       return material;
     }
     // For glTF 1
-    const material = MaterialHelper.createClassicUberMaterial({
+    const material = MaterialHelper.createClassicUberMaterial(engine, {
       isSkinning,
       isLighting,
       additionalName: additionalName,
@@ -1883,12 +1889,13 @@ export class ModelConverter {
   }
 
   private static __setupMaterial(
+    engine: Engine,
     gltfModel: RnM2,
     rnTextures: Texture[],
     rnSamplers: Sampler[],
     materialJson?: RnM2Material
   ): Material {
-    const material: Material = this.__generateAppropriateMaterial(gltfModel, materialJson);
+    const material: Material = this.__generateAppropriateMaterial(engine, gltfModel, materialJson);
     if (materialJson == null) return material;
 
     ModelConverter.setParametersToMaterial(materialJson, gltfModel, material, rnTextures, rnSamplers, false);
@@ -2193,7 +2200,11 @@ export class ModelConverter {
     return !!new Uint8Array(new Uint16Array([0x00ff]).buffer)[0];
   }
 
-  static _readBinaryFromAccessorAndSetItToAccessorExtras(accessor: RnM2Accessor, rnBuffers?: Buffer[]): Float32Array {
+  static _readBinaryFromAccessorAndSetItToAccessorExtras(
+    engine: Engine,
+    accessor: RnM2Accessor,
+    rnBuffers?: Buffer[]
+  ): Float32Array {
     const bufferView = accessor.bufferViewObject!;
     let byteOffsetFromBuffer: number = (bufferView.byteOffset ?? 0) + (accessor.byteOffset ?? 0);
     const buffer = bufferView.bufferObject!;
@@ -2223,7 +2234,7 @@ export class ModelConverter {
     if (Is.exist(rnBuffers)) {
       const rnBuffer = rnBuffers[accessor.bufferViewObject!.buffer!];
       const rnBufferView = this.__getRnBufferView(bufferView, rnBuffer);
-      const rnAccessor = this.__getRnAccessor(accessor, rnBufferView);
+      const rnAccessor = this.__getRnAccessor(engine, accessor, rnBufferView);
       uint8Array = rnAccessor.getUint8Array();
       byteOffsetFromBuffer = 0;
     }
@@ -2387,7 +2398,7 @@ export class ModelConverter {
    * @param rnBuffer
    * @returns
    */
-  private static __getRnAccessor(accessor: RnM2Accessor, rnBufferView?: BufferView) {
+  private static __getRnAccessor(engine: Engine, accessor: RnM2Accessor, rnBufferView?: BufferView) {
     let rnAccessor: Accessor;
     if (rnBufferView != null) {
       rnAccessor = rnBufferView
@@ -2409,7 +2420,7 @@ export class ModelConverter {
       const componentType = ComponentType.from(accessor.componentType);
       const byteLengthToNeed =
         accessor.count * compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
-      const rnBuffer = MemoryManager.getInstance().createBufferOnDemand(BufferUse.CPUGeneric, byteLengthToNeed, 4);
+      const rnBuffer = engine.memoryManager.createBufferOnDemand(BufferUse.CPUGeneric, byteLengthToNeed, 4);
       const rnBufferView = rnBuffer
         .takeBufferView({
           byteLengthToNeed: byteLengthToNeed,
@@ -2442,20 +2453,20 @@ export class ModelConverter {
    * @param rnBuffer
    * @returns
    */
-  private static __getRnBufferViewAndRnAccessor(accessor: RnM2Accessor, rnBuffers: Buffer[]) {
+  private static __getRnBufferViewAndRnAccessor(engine: Engine, accessor: RnM2Accessor, rnBuffers: Buffer[]) {
     const gltfBufferView = accessor.bufferViewObject;
     let rnBufferView: BufferView | undefined;
     if (gltfBufferView != null) {
       const rnBuffer = rnBuffers[gltfBufferView.buffer!];
       rnBufferView = this.__getRnBufferView(gltfBufferView, rnBuffer);
     }
-    const rnAccessor = this.__getRnAccessor(accessor, rnBufferView);
+    const rnAccessor = this.__getRnAccessor(engine, accessor, rnBufferView);
     return rnAccessor;
   }
 
-  private static __copyRnAccessorAndBufferViewForMorphData(srcRnAccessor: Accessor) {
+  private static __copyRnAccessorAndBufferViewForMorphData(engine: Engine, srcRnAccessor: Accessor) {
     const byteSize = srcRnAccessor.elementCount * 3 /* vec4 */ * 4; /* bytes */
-    const dstRnBuffer = MemoryManager.getInstance().createBufferOnDemand(BufferUse.GPUVertexData, byteSize, 16);
+    const dstRnBuffer = engine.memoryManager.createBufferOnDemand(BufferUse.GPUVertexData, byteSize, 16);
     const dstRnBufferView = dstRnBuffer
       .takeBufferView({
         byteLengthToNeed: byteSize,
@@ -2480,6 +2491,7 @@ export class ModelConverter {
   }
 
   private static __takeRnBufferViewAndRnAccessorForDraco(
+    engine: Engine,
     accessor: RnM2Accessor,
     compositionNum: Count,
     rnBuffer: Buffer
@@ -2491,7 +2503,7 @@ export class ModelConverter {
       })
       .unwrapForce();
 
-    const rnAccessor = this.__getRnAccessor(accessor, rnBufferView);
+    const rnAccessor = this.__getRnAccessor(engine, accessor, rnBufferView);
     return rnAccessor;
   }
 
@@ -2575,6 +2587,7 @@ export class ModelConverter {
   }
 
   private static __decodeDraco(
+    engine: Engine,
     primitive: RnM2Primitive,
     rnBuffers: Buffer[],
     gltfModel: RnM2,
@@ -2605,6 +2618,7 @@ export class ModelConverter {
 
     const indices = this.__getIndicesFromDraco(draco, decoder, dracoGeometry, isTriangleStrip)!;
     const indicesRnAccessor = this.__takeRnBufferViewAndRnAccessorForDraco(
+      engine,
       primitive.indicesObject!,
       1,
       rnBufferForDraco
@@ -2623,12 +2637,13 @@ export class ModelConverter {
       if (Is.not.exist(dracoAttributeId)) {
         // non-encoded data
 
-        attributeRnAccessor = this.__getRnBufferViewAndRnAccessor(attributeGltf2Accessor!, rnBuffers);
+        attributeRnAccessor = this.__getRnBufferViewAndRnAccessor(engine, attributeGltf2Accessor!, rnBuffers);
       } else {
         // encoded data
 
         const compositionNum = CompositionType.fromString(attributeGltf2Accessor!.type).getNumberOfComponents();
         attributeRnAccessor = this.__takeRnBufferViewAndRnAccessorForDraco(
+          engine,
           attributeGltf2Accessor!,
           compositionNum,
           rnBufferForDraco

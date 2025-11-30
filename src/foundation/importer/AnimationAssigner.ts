@@ -72,8 +72,8 @@ export class AnimationAssigner {
 
       for (const animation of vrma.animations) {
         for (const sampler of animation.samplers) {
-          ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.inputObject!);
-          ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.outputObject!);
+          ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(this.__engine, sampler.inputObject!);
+          ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(this.__engine, sampler.outputObject!);
         }
       }
 
@@ -299,8 +299,8 @@ export class AnimationAssigner {
 
     for (const animation of gltfModel.animations) {
       for (const sampler of animation.samplers) {
-        ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.inputObject!);
-        ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.outputObject!);
+        ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(this.__engine, sampler.inputObject!);
+        ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(this.__engine, sampler.outputObject!);
       }
     }
 

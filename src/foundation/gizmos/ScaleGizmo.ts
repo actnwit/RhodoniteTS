@@ -304,11 +304,11 @@ export class ScaleGizmo extends Gizmo {
     // TranslationGizmo.__zxPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
     // TranslationGizmo.__zxPlaneEntity.getTransform().localEulerAngles =
     // Vector3.fromCopy3(90, 0, 0);
-    ScaleGizmo.__zxPlaneMaterial = MaterialHelper.createClassicUberMaterial();
+    ScaleGizmo.__zxPlaneMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
     ScaleGizmo.__zxPlaneMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0.5, 0, 0]));
     ScaleGizmo.__zxPlaneMaterial.alphaMode = AlphaMode.Blend;
-    ScaleGizmo.__zxPlaneMesh = new Mesh();
-    ScaleGizmo.__zxPlanePrimitive = new Plane();
+    ScaleGizmo.__zxPlaneMesh = new Mesh(this.__engine);
+    ScaleGizmo.__zxPlanePrimitive = new Plane(this.__engine);
     ScaleGizmo.__zxPlanePrimitive.generate({
       width: 100000,
       height: 100000,
@@ -332,11 +332,11 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__yzPlaneEntity.getSceneGraph().isVisible = false;
     // TranslationGizmo.__yzPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
     ScaleGizmo.__yzPlaneEntity.getTransform().localEulerAngles = Vector3.fromCopy3(0, 0, MathUtil.degreeToRadian(90));
-    ScaleGizmo.__yzPlaneMaterial = MaterialHelper.createClassicUberMaterial();
+    ScaleGizmo.__yzPlaneMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
     ScaleGizmo.__yzPlaneMaterial.alphaMode = AlphaMode.Blend;
     ScaleGizmo.__yzPlaneMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0.5, 0, 0, 0]));
-    ScaleGizmo.__yzPlaneMesh = new Mesh();
-    ScaleGizmo.__yzPlanePrimitive = new Plane();
+    ScaleGizmo.__yzPlaneMesh = new Mesh(this.__engine);
+    ScaleGizmo.__yzPlanePrimitive = new Plane(this.__engine);
     ScaleGizmo.__yzPlanePrimitive.generate({
       width: 100000,
       height: 100000,
@@ -360,11 +360,11 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__xyPlaneEntity.getSceneGraph().isVisible = false;
     // TranslationGizmo.__xyPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
     ScaleGizmo.__xyPlaneEntity.getTransform().localEulerAngles = Vector3.fromCopy3(MathUtil.degreeToRadian(90), 0, 0);
-    ScaleGizmo.__xyPlaneMaterial = MaterialHelper.createClassicUberMaterial();
+    ScaleGizmo.__xyPlaneMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
     ScaleGizmo.__xyPlaneMaterial.alphaMode = AlphaMode.Blend;
     ScaleGizmo.__xyPlaneMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0, 0.5, 0]));
-    ScaleGizmo.__xyPlaneMesh = new Mesh();
-    ScaleGizmo.__xyPlanePrimitive = new Plane();
+    ScaleGizmo.__xyPlaneMesh = new Mesh(this.__engine);
+    ScaleGizmo.__xyPlanePrimitive = new Plane(this.__engine);
     ScaleGizmo.__xyPlanePrimitive.generate({
       width: 100000,
       height: 100000,
@@ -386,10 +386,10 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__zCubeEntity = createMeshEntity(this.__engine);
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_zCube', true);
     ScaleGizmo.__zCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 0.5);
-    ScaleGizmo.__zCubeMesh = new Mesh();
-    ScaleGizmo.__zCubeMaterial = MaterialHelper.createClassicUberMaterial();
+    ScaleGizmo.__zCubeMesh = new Mesh(this.__engine);
+    ScaleGizmo.__zCubeMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
     ScaleGizmo.__zCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0, 1, 1]));
-    ScaleGizmo.__zCubePrimitive = new Cube();
+    ScaleGizmo.__zCubePrimitive = new Cube(this.__engine);
     ScaleGizmo.__zCubePrimitive.generate({
       widthVector: Vector3.fromCopy3(0.05, 0.05, 1),
       material: ScaleGizmo.__zCubeMaterial,
@@ -406,10 +406,10 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__yCubeEntity = createMeshEntity(this.__engine);
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_yCube', true);
     ScaleGizmo.__yCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0.5, 0);
-    ScaleGizmo.__yCubeMesh = new Mesh();
-    ScaleGizmo.__yCubeMaterial = MaterialHelper.createClassicUberMaterial();
+    ScaleGizmo.__yCubeMesh = new Mesh(this.__engine);
+    ScaleGizmo.__yCubeMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
     ScaleGizmo.__yCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 1, 0, 1]));
-    ScaleGizmo.__yCubePrimitive = new Cube();
+    ScaleGizmo.__yCubePrimitive = new Cube(this.__engine);
     ScaleGizmo.__yCubePrimitive.generate({
       widthVector: Vector3.fromCopy3(0.05, 1, 0.05),
       material: ScaleGizmo.__yCubeMaterial,
@@ -426,10 +426,10 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__xCubeEntity = createMeshEntity(this.__engine);
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_xCube', true);
     ScaleGizmo.__xCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0.5, 0, 0);
-    ScaleGizmo.__xCubeMesh = new Mesh();
-    ScaleGizmo.__xCubeMaterial = MaterialHelper.createClassicUberMaterial();
+    ScaleGizmo.__xCubeMesh = new Mesh(this.__engine);
+    ScaleGizmo.__xCubeMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
     ScaleGizmo.__xCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([1, 0, 0, 1]));
-    ScaleGizmo.__xCubePrimitive = new Cube();
+    ScaleGizmo.__xCubePrimitive = new Cube(this.__engine);
     ScaleGizmo.__xCubePrimitive.generate({
       widthVector: Vector3.fromCopy3(1, 0.05, 0.05),
       material: ScaleGizmo.__xCubeMaterial,
@@ -446,8 +446,8 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__xEdgeCubeEntity = createMeshEntity(this.__engine);
     ScaleGizmo.__xEdgeCubeEntity.tryToSetUniqueName('ScaleGizmo_xEdgeCube', true);
     ScaleGizmo.__xEdgeCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0.5, 0, 0);
-    ScaleGizmo.__xEdgeCubeMesh = new Mesh();
-    ScaleGizmo.__xEdgeCubePrimitive = new Cube();
+    ScaleGizmo.__xEdgeCubeMesh = new Mesh(this.__engine);
+    ScaleGizmo.__xEdgeCubePrimitive = new Cube(this.__engine);
     ScaleGizmo.__xEdgeCubePrimitive.generate({
       widthVector: Vector3.fromCopy3(0.15, 0.15, 0.15),
       material: ScaleGizmo.__xCubeMaterial,
@@ -466,8 +466,8 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__yEdgeCubeEntity = createMeshEntity(this.__engine);
     ScaleGizmo.__yEdgeCubeEntity.tryToSetUniqueName('ScaleGizmo_yEdgeCube', true);
     ScaleGizmo.__yEdgeCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0.5, 0);
-    ScaleGizmo.__yEdgeCubeMesh = new Mesh();
-    ScaleGizmo.__yEdgeCubePrimitive = new Cube();
+    ScaleGizmo.__yEdgeCubeMesh = new Mesh(this.__engine);
+    ScaleGizmo.__yEdgeCubePrimitive = new Cube(this.__engine);
     ScaleGizmo.__yEdgeCubePrimitive.generate({
       widthVector: Vector3.fromCopy3(0.15, 0.15, 0.15),
       material: ScaleGizmo.__yCubeMaterial,
@@ -486,8 +486,8 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__zEdgeCubeEntity = createMeshEntity(this.__engine);
     ScaleGizmo.__zEdgeCubeEntity.tryToSetUniqueName('ScaleGizmo_zEdgeCube', true);
     ScaleGizmo.__zEdgeCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 0.5);
-    ScaleGizmo.__zEdgeCubeMesh = new Mesh();
-    ScaleGizmo.__zEdgeCubePrimitive = new Cube();
+    ScaleGizmo.__zEdgeCubeMesh = new Mesh(this.__engine);
+    ScaleGizmo.__zEdgeCubePrimitive = new Cube(this.__engine);
     ScaleGizmo.__zEdgeCubePrimitive.generate({
       widthVector: Vector3.fromCopy3(0.15, 0.15, 0.15),
       material: ScaleGizmo.__zCubeMaterial,
@@ -540,7 +540,7 @@ export class ScaleGizmo extends Gizmo {
    * @returns A primitive containing position and color data for axis lines
    * @private
    */
-  private static __generatePrimitive(): Primitive {
+  private static __generatePrimitive(engine: Engine): Primitive {
     const positions = new Float32Array([
       // X axis
       0,
@@ -578,7 +578,7 @@ export class ScaleGizmo extends Gizmo {
       0, 0, 1, 0, 0, 1,
     ]);
 
-    const primitive = Primitive.createPrimitive({
+    const primitive = Primitive.createPrimitive(engine, {
       attributeSemantics: [VertexAttribute.Position.XYZ, VertexAttribute.Color0.XYZ],
       attributes: [positions, color],
       primitiveMode: PrimitiveMode.Lines,

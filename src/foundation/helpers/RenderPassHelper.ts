@@ -3,6 +3,7 @@ import { TextureParameter } from '../definitions/TextureParameter';
 import type { Material } from '../materials/core/Material';
 import { Is } from '../misc/Is';
 import { RenderPass } from '../renderer/RenderPass';
+import type { Engine } from '../system/Engine';
 import type { AbstractTexture } from '../textures/AbstractTexture';
 import { Sampler } from '../textures/Sampler';
 import { MeshHelper } from './MeshHelper';
@@ -23,8 +24,8 @@ let _sampler: Sampler | undefined;
  * const renderPass = RenderPassHelper.createScreenDrawRenderPass(material);
  * ```
  */
-function createScreenDrawRenderPass(material: Material) {
-  const renderPass = new RenderPass();
+function createScreenDrawRenderPass(engine: Engine, material: Material) {
+  const renderPass = new RenderPass(engine);
   renderPass.toClearColorBuffer = false;
   renderPass.toClearDepthBuffer = false;
   renderPass.isDepthTest = false;
@@ -60,6 +61,7 @@ function createScreenDrawRenderPass(material: Material) {
  * ```
  */
 function createScreenDrawRenderPassWithBaseColorTexture(
+  engine: Engine,
   material: Material,
   texture: AbstractTexture,
   sampler?: Sampler
@@ -75,7 +77,7 @@ function createScreenDrawRenderPassWithBaseColorTexture(
   }
   material.setTextureParameter('baseColorTexture', texture, sampler ?? _sampler);
 
-  const renderPass = new RenderPass();
+  const renderPass = new RenderPass(engine);
   renderPass.toClearColorBuffer = false;
   renderPass.toClearDepthBuffer = false;
   renderPass.isDepthTest = false;

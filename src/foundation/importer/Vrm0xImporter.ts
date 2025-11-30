@@ -123,7 +123,7 @@ export class Vrm0xImporter {
     let rootGroup: ISceneGraphEntity;
     const existOutline = this._existOutlineMaterial(gltfModel.extensions.VRM);
     if (existOutline) {
-      renderPasses[1] = renderPasses[1] ?? new RenderPass();
+      renderPasses[1] = renderPasses[1] ?? new RenderPass(engine);
       const renderPassOutline = renderPasses[1];
       renderPassOutline.toClearColorBuffer = false;
       renderPassOutline.toClearDepthBuffer = false;

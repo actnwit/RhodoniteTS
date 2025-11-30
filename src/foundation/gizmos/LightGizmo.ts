@@ -6,6 +6,7 @@ import { Primitive } from '../geometry/Primitive';
 import { IMeshEntity, type ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Vector3 } from '../math/Vector3';
 import { Is } from '../misc/Is';
+import type { Engine } from '../system/Engine';
 import { Gizmo } from './Gizmo';
 
 export class LightGizmo extends Gizmo {
@@ -51,8 +52,8 @@ export class LightGizmo extends Gizmo {
     this.__target.getSceneGraph()._addGizmoChild(this.__topEntity!.getSceneGraph());
 
     const meshComponent = this.__topEntity!.tryToGetMesh()!;
-    LightGizmo.__mesh = new Mesh();
-    LightGizmo.__mesh.addPrimitive(LightGizmo.__generatePrimitive());
+    LightGizmo.__mesh = new Mesh(this.__engine);
+    LightGizmo.__mesh.addPrimitive(LightGizmo.__generatePrimitive(this.__engine));
     meshComponent.setMesh(LightGizmo.__mesh);
 
     this.setGizmoTag();
@@ -110,7 +111,7 @@ export class LightGizmo extends Gizmo {
    * @returns A primitive object containing the line geometry for the light gizmo
    * @private
    */
-  private static __generatePrimitive(): Primitive {
+  private static __generatePrimitive(engine: Engine): Primitive {
     const positions = new Float32Array([
       // Z axis
       0,
@@ -137,7 +138,7 @@ export class LightGizmo extends Gizmo {
       -this.__length + 0.2,
     ]);
 
-    const primitive = Primitive.createPrimitive({
+    const primitive = Primitive.createPrimitive(engine, {
       attributeSemantics: [VertexAttribute.Position.XYZ],
       attributes: [positions],
       primitiveMode: PrimitiveMode.Lines,

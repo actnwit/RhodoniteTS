@@ -246,9 +246,16 @@ export class RotationGizmo extends Gizmo {
     if (Is.not.exist(RotationGizmo.__xRingEntity)) {
       RotationGizmo.__xRingEntity = createMeshEntity(this.__engine);
       RotationGizmo.__xRingEntity.tryToSetUniqueName('RotationGizmo_xRing', true);
-      RotationGizmo.__xRingMaterial = RotationGizmo.__createRingMaterial(Vector4.fromCopyArray4([1, 0, 0, 0.85]));
-      RotationGizmo.__xRingMesh = new Mesh();
-      RotationGizmo.__xRingPrimitive = RotationGizmo.__createRingPrimitive('x', RotationGizmo.__xRingMaterial);
+      RotationGizmo.__xRingMaterial = RotationGizmo.__createRingMaterial(
+        this.__engine,
+        Vector4.fromCopyArray4([1, 0, 0, 0.85])
+      );
+      RotationGizmo.__xRingMesh = new Mesh(this.__engine);
+      RotationGizmo.__xRingPrimitive = RotationGizmo.__createRingPrimitive(
+        this.__engine,
+        'x',
+        RotationGizmo.__xRingMaterial
+      );
       RotationGizmo.__xRingMesh.addPrimitive(RotationGizmo.__xRingPrimitive);
       RotationGizmo.__xRingEntity.getMesh().setMesh(RotationGizmo.__xRingMesh);
     }
@@ -256,9 +263,16 @@ export class RotationGizmo extends Gizmo {
     if (Is.not.exist(RotationGizmo.__yRingEntity)) {
       RotationGizmo.__yRingEntity = createMeshEntity(this.__engine);
       RotationGizmo.__yRingEntity.tryToSetUniqueName('RotationGizmo_yRing', true);
-      RotationGizmo.__yRingMaterial = RotationGizmo.__createRingMaterial(Vector4.fromCopyArray4([0, 1, 0, 0.85]));
-      RotationGizmo.__yRingMesh = new Mesh();
-      RotationGizmo.__yRingPrimitive = RotationGizmo.__createRingPrimitive('y', RotationGizmo.__yRingMaterial);
+      RotationGizmo.__yRingMaterial = RotationGizmo.__createRingMaterial(
+        this.__engine,
+        Vector4.fromCopyArray4([0, 1, 0, 0.85])
+      );
+      RotationGizmo.__yRingMesh = new Mesh(this.__engine);
+      RotationGizmo.__yRingPrimitive = RotationGizmo.__createRingPrimitive(
+        this.__engine,
+        'y',
+        RotationGizmo.__yRingMaterial
+      );
       RotationGizmo.__yRingMesh.addPrimitive(RotationGizmo.__yRingPrimitive);
       RotationGizmo.__yRingEntity.getMesh().setMesh(RotationGizmo.__yRingMesh);
     }
@@ -266,9 +280,16 @@ export class RotationGizmo extends Gizmo {
     if (Is.not.exist(RotationGizmo.__zRingEntity)) {
       RotationGizmo.__zRingEntity = createMeshEntity(this.__engine);
       RotationGizmo.__zRingEntity.tryToSetUniqueName('RotationGizmo_zRing', true);
-      RotationGizmo.__zRingMaterial = RotationGizmo.__createRingMaterial(Vector4.fromCopyArray4([0, 0, 1, 0.85]));
-      RotationGizmo.__zRingMesh = new Mesh();
-      RotationGizmo.__zRingPrimitive = RotationGizmo.__createRingPrimitive('z', RotationGizmo.__zRingMaterial);
+      RotationGizmo.__zRingMaterial = RotationGizmo.__createRingMaterial(
+        this.__engine,
+        Vector4.fromCopyArray4([0, 0, 1, 0.85])
+      );
+      RotationGizmo.__zRingMesh = new Mesh(this.__engine);
+      RotationGizmo.__zRingPrimitive = RotationGizmo.__createRingPrimitive(
+        this.__engine,
+        'z',
+        RotationGizmo.__zRingMaterial
+      );
       RotationGizmo.__zRingMesh.addPrimitive(RotationGizmo.__zRingPrimitive);
       RotationGizmo.__zRingEntity.getMesh().setMesh(RotationGizmo.__zRingMesh);
     }
@@ -775,9 +796,9 @@ export class RotationGizmo extends Gizmo {
     return closestResult;
   }
 
-  private static __createRingPrimitive(axis: Axis, material: Material): Ring {
+  private static __createRingPrimitive(engine: Engine, axis: Axis, material: Material): Ring {
     const radius = RotationGizmo.__length;
-    const ring = new Ring();
+    const ring = new Ring(engine);
     ring.generate({
       radius,
       thickness: radius * 0.1,
@@ -804,8 +825,8 @@ export class RotationGizmo extends Gizmo {
     return closest;
   }
 
-  private static __createRingMaterial(color: Vector4): Material {
-    const material = MaterialHelper.createClassicUberMaterial();
+  private static __createRingMaterial(engine: Engine, color: Vector4): Material {
+    const material = MaterialHelper.createClassicUberMaterial(engine);
     material.alphaMode = AlphaMode.Blend;
     material.cullFace = false;
     material.setParameter('diffuseColorFactor', color);

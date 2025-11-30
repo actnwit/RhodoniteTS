@@ -1,6 +1,7 @@
 import { Index } from '../../types/CommonTypes';
 import type { Material } from '../materials/core/Material';
 import { EnumClass, type EnumIO, _from, _fromString, _fromStringCaseSensitively } from '../misc/EnumIO';
+import type { Engine } from '../system/Engine';
 import { CompositionType } from './CompositionType';
 import type { ShaderSemanticsInfo } from './ShaderSemanticsInfo';
 
@@ -599,9 +600,13 @@ type _UpdateFunc = ({
   args?: object;
 }) => void;
 
-export type getShaderPropertyFuncOfGlobalDataRepository = (info: ShaderSemanticsInfo) => string;
+export type getShaderPropertyFuncOfGlobalDataRepository = (engine: Engine, info: ShaderSemanticsInfo) => string;
 
-export type getShaderPropertyFuncOfMaterial = (materialTypeName: string, info: ShaderSemanticsInfo) => string;
+export type getShaderPropertyFuncOfMaterial = (
+  engine: Engine,
+  materialTypeName: string,
+  info: ShaderSemanticsInfo
+) => string;
 
 /**
  * @internal
@@ -611,11 +616,11 @@ export function _getPropertyIndex2(shaderSemantic: ShaderSemanticsEnum) {
   return propertyIndex;
 }
 
-function getShaderPropertyOfMaterial(_materialTypeName: string, info: ShaderSemanticsInfo) {
-  return getShaderPropertyOfGlobalDataRepository(info);
+function getShaderPropertyOfMaterial(engine: Engine, _materialTypeName: string, info: ShaderSemanticsInfo) {
+  return getShaderPropertyOfGlobalDataRepository(engine, info);
 }
 
-function getShaderPropertyOfGlobalDataRepository(info: ShaderSemanticsInfo) {
+function getShaderPropertyOfGlobalDataRepository(_engine: Engine, info: ShaderSemanticsInfo) {
   const returnType = info.compositionType.getGlslStr(info.componentType);
 
   let variableName = info.semantic;
