@@ -341,6 +341,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
     const _glw = webglResourceRepository.currentWebGLContextWrapper!;
 
     const [programUid, newOne] = material._createProgramWebGL(
+      this.__engine,
       WebGLStrategyDataTexture.__getComponentDataAccessMethodDefinitions_dataTexture(ShaderType.VertexShader),
       WebGLStrategyDataTexture.__getComponentDataAccessMethodDefinitions_dataTexture(ShaderType.PixelShader),
       WebGLStrategyDataTexture.__getShaderPropertyOfGlobalDataRepository,
@@ -1314,13 +1315,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    * This method ensures only one instance of the strategy exists throughout the application
    * and properly initializes the WebXR system for VR/AR rendering capabilities.
    */
-  static getInstance(engine: Engine) {
-    if (!this.__instance) {
-      this.__instance = new WebGLStrategyDataTexture(engine);
-      WebGLStrategyDataTexture.__webxrSystem = engine.webXRSystem;
-    }
-
-    return this.__instance;
+  static init(engine: Engine) {
+    return new WebGLStrategyDataTexture(engine);
   }
 
   /**
@@ -1434,10 +1430,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const gl = glw.getRawContextAsWebGL2();
 
     const isVRMainPass = WebGLStrategyCommonMethod.isVrMainPass(this.__engine, renderPass);
-    const displayCount = WebGLStrategyCommonMethod.getDisplayCount(
-      isVRMainPass,
-      WebGLStrategyDataTexture.__webxrSystem
-    );
+    const displayCount = WebGLStrategyCommonMethod.getDisplayCount(isVRMainPass, this.__engine.webXRSystem);
 
     if (renderPass.isBufferLessRenderingMode()) {
       this.__renderWithoutBuffers(gl, renderPass, isVRMainPass);
@@ -1674,6 +1667,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
 
       material._setParametersToGpuWebGL({
+        engine: this.__engine,
         material: material,
         shaderProgram: WebGLStrategyDataTexture.__shaderProgram,
         firstTime: firstTimeForMaterial,

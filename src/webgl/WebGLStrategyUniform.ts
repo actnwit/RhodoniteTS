@@ -227,6 +227,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
     const _glw = webglResourceRepository.currentWebGLContextWrapper!;
 
     const [programUid, newOne] = material._createProgramWebGL(
+      this.__engine,
       WebGLStrategyUniform.__getComponentDataAccessMethodDefinitions_uniform(ShaderType.VertexShader),
       WebGLStrategyUniform.__getComponentDataAccessMethodDefinitions_uniform(ShaderType.PixelShader),
       ShaderSemantics.getShaderPropertyOfGlobalDataRepository,
@@ -620,13 +621,8 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
    *
    * @returns The singleton instance of WebGLStrategyUniform
    */
-  static getInstance(engine: Engine) {
-    if (!this.__instance) {
-      this.__instance = new WebGLStrategyUniform(engine);
-      WebGLStrategyUniform.__webxrSystem = engine.webXRSystem;
-    }
-
-    return this.__instance;
+  static init(engine: Engine) {
+    return new WebGLStrategyUniform(engine);
   }
 
   common_$load(): void {
@@ -883,6 +879,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         if (firstTimeForMaterial) {
           WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
           material._setParametersToGpuWebGL({
+            engine: this.__engine,
             material,
             shaderProgram,
             firstTime: firstTimeForMaterial,

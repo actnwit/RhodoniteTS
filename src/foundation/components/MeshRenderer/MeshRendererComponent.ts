@@ -10,7 +10,9 @@ import type {
 } from '../../../types/CommonTypes';
 import type { WebGLStrategyDataTexture } from '../../../webgl/WebGLStrategyDataTexture';
 import type { WebGLStrategyUniform } from '../../../webgl/WebGLStrategyUniform';
+import type { RnWebGL, WebGLStrategy } from '../../../webgl/main';
 import type { WebGpuStrategyBasic } from '../../../webgpu/WebGpuStrategyBasic';
+import type { RnWebGpu } from '../../../webgpu/main';
 import type { RnXR } from '../../../xr/main';
 import { Component } from '../../core/Component';
 import { ComponentRepository } from '../../core/ComponentRepository';
@@ -237,18 +239,18 @@ export class MeshRendererComponent extends Component {
     // Strategy
     if (processApproach === ProcessApproach.WebGPU) {
       const moduleName = 'webgpu';
-      const webgpuModule = moduleManager.getModule(moduleName)! as any;
+      const webgpuModule = moduleManager.getModule(moduleName)! as RnWebGpu;
       if (MeshRendererComponent.__cgApiRenderingStrategy == null) {
         MeshRendererComponent.__cgApiRenderingStrategy = webgpuModule.WebGpuStrategyBasic.init(engine);
       }
       (MeshRendererComponent.__cgApiRenderingStrategy as WebGpuStrategyBasic).common_$load();
     } else {
       const moduleName = 'webgl';
-      const webglModule = moduleManager.getModule(moduleName)! as any;
-      MeshRendererComponent.__cgApiRenderingStrategy = webglModule.getRenderingStrategy(processApproach);
-      (
-        MeshRendererComponent.__cgApiRenderingStrategy as WebGLStrategyDataTexture | WebGLStrategyUniform
-      ).common_$load();
+      const webglModule = moduleManager.getModule(moduleName)! as RnWebGL;
+      if (MeshRendererComponent.__cgApiRenderingStrategy == null) {
+        MeshRendererComponent.__cgApiRenderingStrategy = webglModule.getRenderingStrategy(engine, processApproach);
+      }
+      (MeshRendererComponent.__cgApiRenderingStrategy as WebGLStrategy).common_$load();
     }
   }
 

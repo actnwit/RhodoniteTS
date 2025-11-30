@@ -562,6 +562,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    * @throws Error if no WebGL context is available
    */
   createShaderProgram({
+    engine,
     material,
     primitive,
     vertexShaderStr,
@@ -570,6 +571,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     attributeSemantics,
     onError,
   }: {
+    engine: Engine;
     material: Material;
     primitive: Primitive;
     vertexShaderStr: string;
@@ -604,6 +606,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     }
 
     const shaderProgram = gl.createProgram()! as RnWebGLProgram;
+    shaderProgram._engine = engine;
     shaderProgram._gl = gl;
     shaderProgram._materialTypeName = material.materialTypeName;
     if (isDebugMode) {
@@ -3211,7 +3214,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     }
 
     const processApproach = EngineState.currentProcessApproach;
-    const renderingStrategy = getRenderingStrategy(processApproach);
+    const renderingStrategy = getRenderingStrategy(this._engine, processApproach);
 
     const modifiedVertexSourceCode = updatedVertexSourceCode.replace(/! =/g, '!=');
     const modifiedPixelSourceCode = updatedFragmentSourceCode.replace(/! =/g, '!=');

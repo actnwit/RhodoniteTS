@@ -388,6 +388,8 @@ export class Engine {
                     processStage: stage,
                     renderPassTickCount: this.__renderPassTickCount,
                     primitiveUids,
+                    displayIdx: 0,
+                    engine: this,
                   });
                   renderPass._renderedSomethingBefore = renderedSomething;
                 }
@@ -430,6 +432,8 @@ export class Engine {
                 renderPass: void 0,
                 processStage: stage,
                 renderPassTickCount: this.__renderPassTickCount,
+                displayIdx: 0,
+                engine: this,
               });
             }
 

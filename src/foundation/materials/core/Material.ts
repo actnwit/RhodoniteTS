@@ -490,6 +490,7 @@ export class Material extends RnObject {
    * @returns A tuple containing the program UID and whether it's a new program
    */
   _createProgramWebGL(
+    engine: Engine,
     componentDataAccessMethodDefinitionsForVertexShader: string,
     componentDataAccessMethodDefinitionsForPixelShader: string,
     propertySetterOfGlobalDataRepository: getShaderPropertyFuncOfGlobalDataRepository,
@@ -498,6 +499,7 @@ export class Material extends RnObject {
     primitive: Primitive
   ): [CGAPIResourceHandle, boolean] {
     const [programUid, newOne] = _createProgramAsSingleOperationWebGL(
+      engine,
       this,
       componentDataAccessMethodDefinitionsForVertexShader,
       componentDataAccessMethodDefinitionsForPixelShader,
@@ -636,11 +638,13 @@ export class Material extends RnObject {
    * @param params - Object containing rendering parameters
    */
   _setParametersToGpuWebGL({
+    engine,
     material,
     shaderProgram,
     firstTime,
     args,
   }: {
+    engine: Engine;
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
@@ -651,6 +655,7 @@ export class Material extends RnObject {
 
     // For Custom Setting Parameters
     this._materialContent._setInternalSettingParametersToGpuWebGLPerMaterial({
+      engine,
       material,
       shaderProgram,
       firstTime,
