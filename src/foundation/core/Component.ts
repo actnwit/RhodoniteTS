@@ -485,6 +485,7 @@ export class Component extends RnObject {
     const componentClass = this.constructor as typeof Component;
     Component.__componentCountPerBufferView.set(componentClass, componentCountPerBufferView);
     const memberInfoArray = Component.__memberInfo.get(componentClass)!;
+    const engine = this.__engine;
 
     // Do this only for the first entity of the component
     const indexOfTheBufferView = Math.floor(this._component_sid / componentCountPerBufferView);
@@ -505,7 +506,6 @@ export class Component extends RnObject {
     });
 
     // inner function
-    const engine = this.__engine;
     function getBufferViewsAndAccessors(indexOfTheBufferView: IndexOfTheBufferView) {
       // for each member field, take a BufferView for all entities' the member field.
       // take a Accessor for all entities for each member fields (same as BufferView)
