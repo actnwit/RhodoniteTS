@@ -19,8 +19,6 @@ import { Logger, RnException } from '../misc';
 import { Err, Ok, type Result } from '../misc/Result';
 import type { RenderPass } from '../renderer/RenderPass';
 import type { Engine } from '../system/Engine';
-import { ComponentRepository } from './ComponentRepository';
-import { Config } from './Config';
 import type { IEntity } from './Entity';
 import type { EntityRepository } from './EntityRepository';
 import { RnObject } from './RnObject';

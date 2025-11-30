@@ -1,7 +1,12 @@
 import Rn from '../../../dist/esm';
 
+const engine = await Rn.Engine.init({
+  approach: Rn.ProcessApproach.DataTexture,
+  canvas: document.getElementById('world') as HTMLCanvasElement,
+});
+
 function generateEntity() {
-  return Rn.createMeshEntity();
+  return Rn.createMeshEntity(engine);
 }
 
 test('addEntities and get entities', () => {

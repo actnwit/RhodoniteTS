@@ -92,10 +92,10 @@ export class Engine {
     this.__processApproach = processApproach;
     this.__cgApiResourceRepository = cgApiResourceRepository;
     const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    this.__webXRSystem = rnXRModule.WebXRSystem.init(this);
-    this.__webARSystem = rnXRModule.WebARSystem.init(this);
     this.__componentRepository = new ComponentRepository(this);
     this.__entityRepository = new EntityRepository(this);
+    this.__webXRSystem = rnXRModule.WebXRSystem.init(this);
+    this.__webARSystem = rnXRModule.WebARSystem.init(this);
   }
 
   /**

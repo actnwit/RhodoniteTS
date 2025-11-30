@@ -1,21 +1,23 @@
-import { MemoryManager } from '../../core/MemoryManager';
-import { Vector3 } from '../../math/Vector3';
-import { createTransformEntity } from './createTransformEntity';
-import '../registerComponents';
+import Rn from '../../../../dist/esm';
+
+const engine = await Rn.Engine.init({
+  approach: Rn.ProcessApproach.DataTexture,
+  canvas: document.getElementById('world') as HTMLCanvasElement,
+});
 
 function generateEntity() {
-  return createTransformEntity();
+  return Rn.createTransformEntity(engine);
 }
 
 test('Use translate simply', () => {
-  MemoryManager.createInstanceIfNotCreated(1024 ** 2 * 4 /* rgba */ * 4 /* byte */);
+  Rn.MemoryManager.createInstanceIfNotCreated(1024 ** 2 * 4 /* rgba */ * 4 /* byte */);
 
   const firstEntity = generateEntity();
   const transformComponent = firstEntity.getTransform();
-  transformComponent.localPosition = Vector3.fromCopyArray([1, 0, 0]);
-  expect(transformComponent.localPosition.isEqual(Vector3.fromCopyArray([1, 0, 0]))).toBe(true);
-  firstEntity.localScale = Vector3.fromCopyArray([2, 1, 1]);
-  expect(transformComponent.localPosition.isEqual(Vector3.fromCopyArray([1, 0, 0]))).toBe(true);
+  transformComponent.localPosition = Rn.Vector3.fromCopyArray([1, 0, 0]);
+  expect(transformComponent.localPosition.isEqual(Rn.Vector3.fromCopyArray([1, 0, 0]))).toBe(true);
+  firstEntity.localScale = Rn.Vector3.fromCopyArray([2, 1, 1]);
+  expect(transformComponent.localPosition.isEqual(Rn.Vector3.fromCopyArray([1, 0, 0]))).toBe(true);
 
-  expect(transformComponent.localScale.isEqual(Vector3.fromCopyArray([2, 1, 1]))).toBe(true);
+  expect(transformComponent.localScale.isEqual(Rn.Vector3.fromCopyArray([2, 1, 1]))).toBe(true);
 });

@@ -1,4 +1,3 @@
-import { EntityRepository } from '../../core/EntityRepository';
 import type { ITransformEntity } from '../../helpers/EntityHelper';
 import type { Engine } from '../../system/Engine';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
