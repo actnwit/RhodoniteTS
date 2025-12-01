@@ -142,9 +142,6 @@ export class Material extends RnObject {
 
   private __shaderDefines: Set<string> = new Set();
 
-  // static fields
-  static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsName, ShaderVariable>> = new Map();
-
   /**
    * Creates a new Material instance.
    * @param materialTid - The material type ID
@@ -286,7 +283,9 @@ export class Material extends RnObject {
     if (info != null) {
       let valueObj: ShaderVariable | undefined;
       if (info.soloDatum) {
-        valueObj = Material._soloDatumFields.get(this.__materialTypeName)!.get(shaderSemanticName);
+        valueObj = this.__engine.materialRepository._soloDatumFields
+          .get(this.__materialTypeName)!
+          .get(shaderSemanticName);
       } else {
         valueObj = this._allFieldVariables.get(shaderSemanticName);
       }
@@ -407,7 +406,8 @@ export class Material extends RnObject {
     const info = this._allFieldsInfo.get(shaderSemantic);
     if (info != null) {
       if (info.soloDatum) {
-        return Material._soloDatumFields.get(this.__materialTypeName)!.get(shaderSemantic)?.value;
+        return this.__engine.materialRepository._soloDatumFields.get(this.__materialTypeName)!.get(shaderSemantic)
+          ?.value;
       }
       return this._allFieldVariables.get(shaderSemantic)?.value;
     }
@@ -826,7 +826,7 @@ export class Material extends RnObject {
   }) {
     const webglResourceRepository = this.__engine.webglResourceRepository;
     const materialTypeName = this.__materialTypeName;
-    const map = Material._soloDatumFields.get(materialTypeName);
+    const map = this.__engine.materialRepository._soloDatumFields.get(materialTypeName);
     if (map == null) return;
     const values = map.values();
     for (const value of values) {

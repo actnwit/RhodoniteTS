@@ -23,7 +23,7 @@ import type { Result } from '../../misc/Result';
 import type { Engine } from '../../system/Engine';
 import type { AbstractMaterialContent } from './AbstractMaterialContent';
 import { Material } from './Material';
-import type { IndexInTheDataView, IndexOfBufferViews, MaterialTypeName } from './MaterialTypes';
+import type { IndexInTheDataView, IndexOfBufferViews, MaterialTypeName, ShaderVariable } from './MaterialTypes';
 
 /**
  * Repository class for managing material types and instances.
@@ -40,6 +40,8 @@ export class MaterialRepository {
   private __accessors: Map<MaterialTypeName, Map<IndexOfBufferViews, Map<ShaderSemanticsName, Accessor>>> = new Map();
   /** Tracks version incremented when a new buffer view is allocated for a material type. */
   private __bufferViewVersions: Map<MaterialTypeName, number> = new Map();
+  /** Solo datum fields for each material type (engine-specific, not shared across engines) */
+  _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsName, ShaderVariable>> = new Map();
   private static __materialTidCount = -1;
   private static __materialUidCount = -1;
 
@@ -275,7 +277,7 @@ export class MaterialRepository {
     const material = materialRef.deref()!;
     const info = material._allFieldsInfo.get(propertyName)!;
     if (info.soloDatum) {
-      const value = Material._soloDatumFields.get(material.materialTypeName)!.get(propertyName);
+      const value = this._soloDatumFields.get(material.materialTypeName)!.get(propertyName);
       return [(value!.value._v as Float32Array).byteOffset / 4 / 4];
     }
     const propertiesOfBufferViews = this.__accessors.get(materialTypeName);
@@ -412,10 +414,10 @@ export class MaterialRepository {
 
       if (semanticInfo.soloDatum) {
         const typedArray = accessor.takeOne() as Float32Array;
-        let map = Material._soloDatumFields.get(materialTypeName);
+        let map = this._soloDatumFields.get(materialTypeName);
         if (map == null) {
           map = new Map();
-          Material._soloDatumFields.set(materialTypeName, map);
+          this._soloDatumFields.set(materialTypeName, map);
         }
 
         map.set(semanticInfo.semantic, {
