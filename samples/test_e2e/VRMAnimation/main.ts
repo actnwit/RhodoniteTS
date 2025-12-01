@@ -10,7 +10,7 @@ Rn.Config.isUboEnabled = false;
 Rn.Config.cgApiDebugConsoleOutput = true;
 Rn.setUpAsMemoryBoostMode();
 
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -19,7 +19,7 @@ Rn.Logger.logLevel = Rn.LogLevel.Info;
 // params
 
 // camera
-const cameraEntity = Rn.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity(engine);
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000.0;
@@ -28,7 +28,7 @@ cameraComponent.aspect = 1.0;
 
 // vrm
 const assets = await Rn.defaultAssetLoader.load({
-  vrmModel: Rn.GltfImporter.importFromUrl('../../../assets/vrm/test.vrm', {
+  vrmModel: Rn.GltfImporter.importFromUrl(engine, '../../../assets/vrm/test.vrm', {
     cameraComponent: cameraComponent,
   }),
   vrmAnimation: Rn.VrmaImporter.importFromUrl('../../../assets/vrma/CC0animationrotate01.vrma'),
@@ -43,12 +43,12 @@ vrmMainRenderPass.toClearColorBuffer = true;
 const vrmRootEntity = vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity;
 
 // animation
-const animationAssigner = Rn.AnimationAssigner.getInstance();
+const animationAssigner = new Rn.AnimationAssigner(engine);
 animationAssigner.assignAnimationWithVrma(vrmRootEntity, assets.vrmAnimation);
 
 for (let i = 0; i < 1; i++) {
   for (let j = 0; j < 1; j++) {
-    const vrmRootEntity2nd = Rn.EntityRepository.shallowCopyEntity(vrmRootEntity) as Rn.ISceneGraphEntity;
+    const vrmRootEntity2nd = engine.entityRepository.shallowCopyEntity(vrmRootEntity) as Rn.ISceneGraphEntity;
     vrmRootEntity2nd.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, Math.PI, 0.0]);
     vrmRootEntity2nd.getTransform().localPosition = Rn.Vector3.fromCopyArray([i, 0, j]);
     vrmMainRenderPass.addEntities([vrmRootEntity2nd]);
@@ -57,7 +57,7 @@ for (let i = 0; i < 1; i++) {
 }
 
 //set default camera
-Rn.CameraComponent.current = 0;
+Rn.CameraComponent.current = cameraComponent.componentSID;
 
 // camera controller
 const vrmMainCameraComponent = vrmMainRenderPass.cameraComponent;
@@ -69,7 +69,7 @@ controller.setTarget(vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity);
 // controller.autoUpdate = false;
 
 // Lights
-const lightEntity = Rn.createLightEntity();
+const lightEntity = Rn.createLightEntity(engine);
 const lightComponent = lightEntity.getLight();
 lightComponent.type = Rn.LightType.Directional;
 lightComponent.color = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
@@ -82,7 +82,7 @@ document.body.appendChild(stats.domElement);
 let count = 0;
 let startTime = Date.now();
 
-Rn.Engine.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (p == null && count > 0) {
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');
@@ -94,18 +94,18 @@ Rn.Engine.startRenderLoop(() => {
     const date = new Date();
     const time = (date.getTime() - startTime) / 1000;
     Rn.AnimationComponent.globalTime = time;
-    if (time > Rn.AnimationComponent.endInputValue) {
+    if (time > Rn.AnimationComponent.getEndInputValue(engine)) {
       startTime = date.getTime();
     }
   }
 
   stats.begin();
-  Rn.Engine.process(expressions);
+  engine.process(expressions);
   stats.end();
 
   count++;
 });
 
 window.exportGltf2 = () => {
-  Rn.Gltf2Exporter.export('Rhodonite');
+  Rn.Gltf2Exporter.export(engine, 'Rhodonite');
 };
