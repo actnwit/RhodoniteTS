@@ -1,4 +1,4 @@
-import type { Byte, PrimitiveUID } from '../../types/CommonTypes';
+import type { Byte, ObjectUID, PrimitiveUID } from '../../types/CommonTypes';
 import { VERSION } from '../../version';
 import type { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import type { WebGpuDeviceWrapper } from '../../webgpu/WebGpuDeviceWrapper';
@@ -40,6 +40,7 @@ import { ModuleManager } from './ModuleManager';
 declare const spector: any;
 import type { WebARSystem } from '../../xr/WebARSystem';
 import type { WebXRSystem } from '../../xr/WebXRSystem';
+import { RnObject } from '../core/RnObject';
 
 /**
  * The argument type for Engine.init() method.
@@ -68,7 +69,7 @@ interface EngineInitDescription {
  * }, myArg1, myArg2);
  * ```
  */
-export class Engine {
+export class Engine extends RnObject {
   private __expressionForProcessAuto?: Expression;
   private __renderPassForProcessAuto?: RenderPass;
   private __processApproach: ProcessApproachEnum = ProcessApproach.None;
@@ -89,12 +90,14 @@ export class Engine {
   private __lastCameraControllerComponentsUpdateCount = -1;
   private __lastTransformComponentsUpdateCount = -1;
   private __lastPrimitiveCount = -1;
+  private static __engines: Map<ObjectUID, Engine> = new Map();
 
   private constructor(
     processApproach: ProcessApproachEnum,
     cgApiResourceRepository: ICGAPIResourceRepository,
     maxGPUDataStorageSize: Byte
   ) {
+    super();
     this.__processApproach = processApproach;
     this.__cgApiResourceRepository = cgApiResourceRepository;
     const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
@@ -104,6 +107,21 @@ export class Engine {
     this.__webXRSystem = rnXRModule.WebXRSystem.init(this);
     this.__webARSystem = rnXRModule.WebARSystem.init(this);
     this.__globalDataRepository = GlobalDataRepository.init(this);
+  }
+
+  public static getEngine(objectUid: ObjectUID) {
+    const engine = Engine.__engines.get(objectUid);
+    if (Is.not.exist(engine)) {
+      return undefined;
+    }
+    return engine;
+  }
+
+  public destroy() {
+    Engine.__engines.delete(this.objectUID);
+    this.unregister();
+
+    // TODO: Destroy all entities and components and other resources
   }
 
   /**
