@@ -63,8 +63,8 @@ export class Component extends RnObject {
     Map<typeof Component, Map<MemberName, Map<IndexOfTheBufferView, Accessor>>>
   > = new Map();
 
-  private static __memberInfo: Map<EngineObjectUID, Map<typeof Component, Map<MemberName, MemberInfo>>> = new Map();
-  private static __arrayLengthMap: Map<EngineObjectUID, Map<typeof Component, Map<MemberName, Count>>> = new Map();
+  private static __memberInfo: Map<typeof Component, Map<MemberName, MemberInfo>> = new Map();
+  private static __arrayLengthMap: Map<typeof Component, Map<MemberName, Count>> = new Map();
   private static __componentCountPerBufferView: Map<EngineObjectUID, Map<typeof Component, Count>> = new Map();
 
   private static __byteOffsetOfAccessorInBufferOfMembers: Map<
@@ -121,11 +121,15 @@ export class Component extends RnObject {
     this.__memoryManager = engine.memoryManager;
     this.__entityRepository = entityRepository;
 
-    Component.__accessors.set(engine.objectUID, new Map());
-    Component.__memberInfo.set(engine.objectUID, new Map());
-    Component.__arrayLengthMap.set(engine.objectUID, new Map());
-    Component.__componentCountPerBufferView.set(engine.objectUID, new Map());
-    Component.__byteOffsetOfAccessorInBufferOfMembers.set(engine.objectUID, new Map());
+    if (!Component.__accessors.has(engine.objectUID)) {
+      Component.__accessors.set(engine.objectUID, new Map());
+    }
+    if (!Component.__componentCountPerBufferView.has(engine.objectUID)) {
+      Component.__componentCountPerBufferView.set(engine.objectUID, new Map());
+    }
+    if (!Component.__byteOffsetOfAccessorInBufferOfMembers.has(engine.objectUID)) {
+      Component.__byteOffsetOfAccessorInBufferOfMembers.set(engine.objectUID, new Map());
+    }
 
     if (isReUse) {
       this.__isReUse = true;
@@ -322,12 +326,6 @@ export class Component extends RnObject {
   get _accessors() {
     return Component.__accessors.get(this.__engine.objectUID)!;
   }
-  get _memberInfo() {
-    return Component.__memberInfo.get(this.__engine.objectUID)!;
-  }
-  get _arrayLengthMap() {
-    return Component.__arrayLengthMap.get(this.__engine.objectUID)!;
-  }
   get _componentCountPerBufferView() {
     return Component.__componentCountPerBufferView.get(this.__engine.objectUID)!;
   }
@@ -443,7 +441,6 @@ export class Component extends RnObject {
    */
   static registerMember(
     this: typeof Component,
-    engine: Engine,
     {
       bufferUse,
       memberName,
@@ -468,10 +465,10 @@ export class Component extends RnObject {
       convertToBool?: boolean;
     }
   ) {
-    if (!Component.__memberInfo.get(engine.objectUID)!.has(this)) {
-      Component.__memberInfo.get(engine.objectUID)!.set(this, new Map());
+    if (!Component.__memberInfo.has(this)) {
+      Component.__memberInfo.set(this, new Map());
     }
-    const memberInfoArray = Component.__memberInfo.get(engine.objectUID)!.get(this);
+    const memberInfoArray = Component.__memberInfo.get(this);
 
     memberInfoArray!.set(memberName, {
       bufferUse: bufferUse,
@@ -485,10 +482,10 @@ export class Component extends RnObject {
     });
 
     if (arrayLength != null && componentSID != null) {
-      if (!Component.__arrayLengthMap.get(engine.objectUID)!.has(this)) {
-        Component.__arrayLengthMap.get(engine.objectUID)!.set(this, new Map());
+      if (!Component.__arrayLengthMap.has(this)) {
+        Component.__arrayLengthMap.set(this, new Map());
       }
-      const arrayLengthMap = Component.__arrayLengthMap.get(engine.objectUID)!.get(this)!;
+      const arrayLengthMap = Component.__arrayLengthMap.get(this)!;
       const currentLength = arrayLengthMap.get(memberName);
       if (currentLength == null || arrayLength > currentLength) {
         // Keep the maximum requested length so dynamically sized components (e.g. SkeletalComponent) allocate enough space
@@ -508,7 +505,7 @@ export class Component extends RnObject {
   submitToAllocation(componentCountPerBufferView: Count, isReUse: boolean): void {
     const componentClass = this.constructor as typeof Component;
     this._componentCountPerBufferView.set(componentClass, componentCountPerBufferView);
-    const memberInfoArray = this._memberInfo.get(componentClass)!;
+    const memberInfoArray = Component.__memberInfo.get(componentClass)!;
     const engine = this.__engine;
 
     const that = this;
@@ -535,7 +532,7 @@ export class Component extends RnObject {
       // for each member field, take a BufferView for all entities' the member field.
       // take a Accessor for all entities for each member fields (same as BufferView)
       memberInfoArray.forEach(info => {
-        const arrayLength = that._arrayLengthMap.get(componentClass)?.get(info.memberName);
+        const arrayLength = Component.__arrayLengthMap.get(componentClass)?.get(info.memberName);
         const accessorResult = Component.__takeAccessor(
           engine,
           info.bufferUse,
@@ -703,7 +700,7 @@ export class Component extends RnObject {
     memberName: string,
     componentClass: typeof Component
   ): CompositionTypeEnum | undefined {
-    const memberInfoArray = Component.__memberInfo.get(engine.objectUID)!.get(componentClass)!;
+    const memberInfoArray = Component.__memberInfo.get(componentClass)!;
     const info = memberInfoArray.get(memberName);
     if (info != null) {
       return info.compositionType;
@@ -724,7 +721,7 @@ export class Component extends RnObject {
     memberName: string,
     componentClass: typeof Component
   ): ComponentTypeEnum | undefined {
-    const memberInfoArray = Component.__memberInfo.get(engine.objectUID)!.get(componentClass)!;
+    const memberInfoArray = Component.__memberInfo.get(componentClass)!;
     const info = memberInfoArray.get(memberName);
     if (info != null) {
       return info.componentType;
@@ -739,7 +736,7 @@ export class Component extends RnObject {
    * @returns The member info of the component
    */
   static getMemberInfo(engine: Engine): Map<typeof Component, Map<MemberName, MemberInfo>> {
-    return new Map(Component.__memberInfo.get(engine.objectUID)!);
+    return new Map(Component.__memberInfo);
   }
 
   /**
@@ -755,7 +752,7 @@ export class Component extends RnObject {
    * @returns The array length map of the component
    */
   static getArrayLengthOfMember(engine: Engine): Map<typeof Component, Map<MemberName, Count>> {
-    return new Map(Component.__arrayLengthMap.get(engine.objectUID)!);
+    return new Map(Component.__arrayLengthMap);
   }
 
   /**

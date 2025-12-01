@@ -145,33 +145,6 @@ export class CameraComponent extends Component {
     if (CameraComponent.current === -1) {
       CameraComponent.current = componentSid;
     }
-    CameraComponent.registerMember(engine, {
-      bufferUse: BufferUse.GPUInstanceData,
-      memberName: 'viewMatrix',
-      dataClassType: MutableMatrix44,
-      shaderType: ShaderType.VertexAndPixelShader,
-      compositionType: CompositionType.Mat4,
-      componentType: ComponentType.Float,
-      initValues: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-    });
-    CameraComponent.registerMember(engine, {
-      bufferUse: BufferUse.GPUInstanceData,
-      memberName: 'projectionMatrix',
-      dataClassType: MutableMatrix44,
-      shaderType: ShaderType.VertexAndPixelShader,
-      compositionType: CompositionType.Mat4,
-      componentType: ComponentType.Float,
-      initValues: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-    });
-    CameraComponent.registerMember(engine, {
-      bufferUse: BufferUse.GPUInstanceData,
-      memberName: 'viewPosition',
-      dataClassType: MutableVector3,
-      shaderType: ShaderType.VertexAndPixelShader,
-      compositionType: CompositionType.Vec3,
-      componentType: ComponentType.Float,
-      initValues: [0, 0, 0],
-    });
 
     this.submitToAllocation(Config.cameraComponentCountPerBufferView, isReUse);
   }
@@ -1260,3 +1233,31 @@ export class CameraComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBaseClass;
   }
 }
+
+CameraComponent.registerMember({
+  bufferUse: BufferUse.GPUInstanceData,
+  memberName: 'viewMatrix',
+  dataClassType: MutableMatrix44,
+  shaderType: ShaderType.VertexAndPixelShader,
+  compositionType: CompositionType.Mat4,
+  componentType: ComponentType.Float,
+  initValues: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+});
+CameraComponent.registerMember({
+  bufferUse: BufferUse.GPUInstanceData,
+  memberName: 'projectionMatrix',
+  dataClassType: MutableMatrix44,
+  shaderType: ShaderType.VertexAndPixelShader,
+  compositionType: CompositionType.Mat4,
+  componentType: ComponentType.Float,
+  initValues: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+});
+CameraComponent.registerMember({
+  bufferUse: BufferUse.GPUInstanceData,
+  memberName: 'viewPosition',
+  dataClassType: MutableVector3,
+  shaderType: ShaderType.VertexAndPixelShader,
+  compositionType: CompositionType.Vec3,
+  componentType: ComponentType.Float,
+  initValues: [0, 0, 0],
+});

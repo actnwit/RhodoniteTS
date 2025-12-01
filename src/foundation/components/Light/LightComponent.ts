@@ -74,43 +74,6 @@ export class LightComponent extends Component {
   ) {
     super(engine, entityUid, componentSid, entityRepository, isReUse);
 
-    LightComponent.registerMember(engine, {
-      bufferUse: BufferUse.GPUInstanceData,
-      memberName: 'lightPosition',
-      dataClassType: MutableVector3,
-      shaderType: ShaderType.VertexAndPixelShader,
-      compositionType: CompositionType.Vec3,
-      componentType: ComponentType.Float,
-      initValues: [0, 0, 0],
-    });
-    LightComponent.registerMember(engine, {
-      bufferUse: BufferUse.GPUInstanceData,
-      memberName: 'lightDirection',
-      dataClassType: MutableVector3,
-      shaderType: ShaderType.VertexAndPixelShader,
-      compositionType: CompositionType.Vec3,
-      componentType: ComponentType.Float,
-      initValues: [0, 0, 0],
-    });
-    LightComponent.registerMember(engine, {
-      bufferUse: BufferUse.GPUInstanceData,
-      memberName: 'lightIntensity',
-      dataClassType: MutableVector3,
-      shaderType: ShaderType.VertexAndPixelShader,
-      compositionType: CompositionType.Vec3,
-      componentType: ComponentType.Float,
-      initValues: [0, 0, 0],
-    });
-    LightComponent.registerMember(engine, {
-      bufferUse: BufferUse.GPUInstanceData,
-      memberName: 'lightProperty',
-      dataClassType: MutableVector4,
-      shaderType: ShaderType.VertexAndPixelShader,
-      compositionType: CompositionType.Vec4,
-      componentType: ComponentType.Float,
-      initValues: [-1, 0, 0, 0],
-    });
-
     this.submitToAllocation(Config.lightComponentCountPerBufferView, isReUse);
   }
 
@@ -356,3 +319,39 @@ export class LightComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
+LightComponent.registerMember({
+  bufferUse: BufferUse.GPUInstanceData,
+  memberName: 'lightPosition',
+  dataClassType: MutableVector3,
+  shaderType: ShaderType.VertexAndPixelShader,
+  compositionType: CompositionType.Vec3,
+  componentType: ComponentType.Float,
+  initValues: [0, 0, 0],
+});
+LightComponent.registerMember({
+  bufferUse: BufferUse.GPUInstanceData,
+  memberName: 'lightDirection',
+  dataClassType: MutableVector3,
+  shaderType: ShaderType.VertexAndPixelShader,
+  compositionType: CompositionType.Vec3,
+  componentType: ComponentType.Float,
+  initValues: [0, 0, 0],
+});
+LightComponent.registerMember({
+  bufferUse: BufferUse.GPUInstanceData,
+  memberName: 'lightIntensity',
+  dataClassType: MutableVector3,
+  shaderType: ShaderType.VertexAndPixelShader,
+  compositionType: CompositionType.Vec3,
+  componentType: ComponentType.Float,
+  initValues: [0, 0, 0],
+});
+LightComponent.registerMember({
+  bufferUse: BufferUse.GPUInstanceData,
+  memberName: 'lightProperty',
+  dataClassType: MutableVector4,
+  shaderType: ShaderType.VertexAndPixelShader,
+  compositionType: CompositionType.Vec4,
+  componentType: ComponentType.Float,
+  initValues: [-1, 0, 0, 0],
+});
