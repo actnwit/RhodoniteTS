@@ -71,7 +71,6 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   private __lastMorphOffsetsUniformDataSize = -1;
   private __lastMorphWeightsUniformDataSize = -1;
   private __lightComponents?: LightComponent[];
-  private static __webxrSystem: WebXRSystem;
   private __countOfBlendShapeComponents = -1;
   /**
    * Shader semantics information for component matrices used in uniform rendering strategy.
@@ -800,7 +799,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
 
     let renderedSomething = false;
     const isVrMainPass = WebGLStrategyCommonMethod.isVrMainPass(this.__engine, renderPass);
-    const displayCount = WebGLStrategyCommonMethod.getDisplayCount(isVrMainPass, WebGLStrategyUniform.__webxrSystem);
+    const displayCount = WebGLStrategyCommonMethod.getDisplayCount(isVrMainPass, this.__engine.webXRSystem);
     for (const entity of meshEntities) {
       if (entity.getSceneGraph()._isCulled) {
         continue;

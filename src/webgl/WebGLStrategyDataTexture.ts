@@ -88,7 +88,6 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private static __currentComponentSIDs?: VectorN;
   public _totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
   private static __isDebugOperationToDataTextureBufferDone = true;
-  private static __webxrSystem: WebXRSystem;
 
   private __uniformMorphOffsetsTypedArray?: Uint32Array;
   private __uniformMorphWeightsTypedArray?: Float32Array;
@@ -1339,7 +1338,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   private __setCurrentComponentSIDsForEachDisplayIdx(renderPass: RenderPass, displayIdx: 0 | 1, isVRMainPass: boolean) {
     if (isVRMainPass) {
       let cameraComponentSid = -1;
-      const webxrSystem = WebGLStrategyDataTexture.__webxrSystem;
+      const webxrSystem = this.__engine.webXRSystem;
       if (webxrSystem.isWebXRMode) {
         if (webxrSystem.isMultiView()) {
           cameraComponentSid = webxrSystem._getCameraComponentSIDAt(0);
