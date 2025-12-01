@@ -1110,6 +1110,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @param zWrite - Whether to enable depth writing during rendering
    */
   draw(
+    engine: Engine,
     primitive: Primitive,
     material: Material,
     renderPass: RenderPass,
@@ -1133,6 +1134,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       const meshRendererComponent = entity.getMeshRenderer()!;
 
       material._setInternalSettingParametersToGpuWebGpu({
+        engine,
         material: material,
         args: {
           cameraComponentSid: cameraId,

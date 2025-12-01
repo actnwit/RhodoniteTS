@@ -620,13 +620,16 @@ export class Material extends RnObject {
    * @param params - Object containing material and rendering arguments
    */
   _setInternalSettingParametersToGpuWebGpu({
+    engine,
     material,
     args,
   }: {
+    engine: Engine;
     material: Material;
     args: RenderingArgWebGpu;
   }) {
     this._materialContent._setInternalSettingParametersToGpuWebGpu({
+      engine,
       material,
       args,
     });

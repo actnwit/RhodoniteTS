@@ -900,7 +900,7 @@ ${indexStr}
       0
     );
     const isZWrite = renderPass.isDepthTest && renderPass.depthWriteMask;
-    webGpuResourceRepository.draw(primitive, material, renderPass, 0, isZWrite, 0);
+    webGpuResourceRepository.draw(this.__engine, primitive, material, renderPass, 0, isZWrite, 0);
   }
 
   /**
@@ -943,7 +943,7 @@ ${indexStr}
       primitiveIdxHasMorph,
       primitive.targets.length
     );
-    webGpuResourceRepository.draw(primitive, material, renderPass, cameraSID, zWrite, displayIdx);
+    webGpuResourceRepository.draw(this.__engine, primitive, material, renderPass, cameraSID, zWrite, displayIdx);
     return true;
   }
 
