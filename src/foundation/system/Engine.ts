@@ -1,4 +1,4 @@
-import type { Byte, ObjectUID, PrimitiveUID } from '../../types/CommonTypes';
+import type { Byte, Index, ObjectUID, PrimitiveUID } from '../../types/CommonTypes';
 import { VERSION } from '../../version';
 import type { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import type { WebGpuDeviceWrapper } from '../../webgpu/WebGpuDeviceWrapper';
@@ -95,6 +95,8 @@ export class Engine extends RnObject {
   private __lastTransformComponentsUpdateCount = -1;
   private __lastPrimitiveCount = -1;
   private static __engines: Map<ObjectUID, Engine> = new Map();
+  private static __engineCount = 0;
+  private __engineUid: Index = -1;
 
   private constructor(
     processApproach: ProcessApproachEnum,
@@ -102,6 +104,7 @@ export class Engine extends RnObject {
     maxGPUDataStorageSize: Byte
   ) {
     super();
+    this.__engineUid = Engine.__engineCount;
     this.__processApproach = processApproach;
     this.__cgApiResourceRepository = cgApiResourceRepository;
     const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
@@ -112,6 +115,11 @@ export class Engine extends RnObject {
     this.__webXRSystem = rnXRModule.WebXRSystem.init(this);
     this.__webARSystem = rnXRModule.WebARSystem.init(this);
     this.__globalDataRepository = GlobalDataRepository.init(this);
+    Engine.__engineCount++;
+  }
+
+  public get engineUid() {
+    return this.__engineUid;
   }
 
   public static getEngine(objectUid: ObjectUID) {
