@@ -237,7 +237,7 @@ export class WebXRSystem {
         this.__requestedToEnterWebXR = false;
         this.__xrInputSources.length = 0;
         this.__setWebXRMode(false);
-        MaterialRepository._makeShaderInvalidateToAllMaterials();
+        this.__engine.materialRepository._makeShaderInvalidateToAllMaterials();
         this.__defaultPositionInLocalSpaceMode = defaultUserPositionInVR;
         Logger.info('XRSession ends.');
         this.__engine.stopRenderLoop();
@@ -819,7 +819,7 @@ export class WebXRSystem {
       // this.__webglStereoUtil = new WebGLStereoUtil(gl);
       // }
 
-      MaterialRepository._makeShaderInvalidateToAllMaterials();
+      this.__engine.materialRepository._makeShaderInvalidateToAllMaterials();
 
       webglResourceRepository.resizeCanvas(this.__canvasWidthForVR, this.__canvasHeightForVR);
       this.__setWebXRMode(true);
@@ -863,7 +863,7 @@ export class WebXRSystem {
       Logger.warn('Unable to resolve XR canvas size during WebGPU layer setup. Deferring resize until first frame.');
     }
 
-    MaterialRepository._makeShaderInvalidateToAllMaterials();
+    this.__engine.materialRepository._makeShaderInvalidateToAllMaterials();
     this.__setWebXRMode(true);
     callbackOnXrSessionStart();
   }

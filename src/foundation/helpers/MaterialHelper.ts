@@ -116,8 +116,8 @@ function createMaterial(
   materialCountPerBufferView?: Count
 ): Material {
   const materialSemanticsVariantName = materialContent.getMaterialSemanticsVariantName();
-  MaterialRepository.registerMaterial(materialSemanticsVariantName, materialContent, materialCountPerBufferView);
-  const material = MaterialRepository.createMaterial(engine, materialSemanticsVariantName, materialContent);
+  engine.materialRepository.registerMaterial(materialSemanticsVariantName, materialContent, materialCountPerBufferView);
+  const material = engine.materialRepository.createMaterial(engine, materialSemanticsVariantName, materialContent);
   return material;
 }
 
@@ -138,14 +138,14 @@ function reuseOrRecreateMaterial(
   materialCountPerBufferView: Count
 ): Material {
   let material = currentMaterial;
-  if (MaterialRepository.isMaterialCompatible(material, materialContent)) {
+  if (engine.materialRepository.isMaterialCompatible(material, materialContent)) {
     material._materialContent = materialContent;
     material.makeShadersInvalidate();
     return material;
   }
   const materialSemanticsVariantName = materialContent.getMaterialSemanticsVariantName();
-  MaterialRepository.registerMaterial(materialSemanticsVariantName, materialContent, materialCountPerBufferView);
-  material = MaterialRepository.createMaterial(engine, materialSemanticsVariantName, materialContent);
+  engine.materialRepository.registerMaterial(materialSemanticsVariantName, materialContent, materialCountPerBufferView);
+  material = engine.materialRepository.createMaterial(engine, materialSemanticsVariantName, materialContent);
   return material;
 }
 
@@ -164,9 +164,13 @@ function recreateMaterial(
   materialCountPerBufferView?: Count
 ): Material {
   const materialSemanticsVariantName = materialContent.getMaterialSemanticsVariantName();
-  MaterialRepository.forceRegisterMaterial(materialSemanticsVariantName, materialContent, materialCountPerBufferView);
+  engine.materialRepository.forceRegisterMaterial(
+    materialSemanticsVariantName,
+    materialContent,
+    materialCountPerBufferView
+  );
 
-  const material = MaterialRepository.createMaterial(engine, materialSemanticsVariantName, materialContent);
+  const material = engine.materialRepository.createMaterial(engine, materialSemanticsVariantName, materialContent);
   return material;
 }
 

@@ -30,20 +30,16 @@ import type { IndexInTheDataView, IndexOfBufferViews, MaterialTypeName } from '.
  * Handles registration, creation, and lifecycle management of materials.
  */
 export class MaterialRepository {
-  ///
-  /// static members
-  ///
-  private static __materialMap: Map<MaterialUID, WeakRef<Material>> = new Map();
-  private static __instances: Map<MaterialTypeName, Map<MaterialSID, WeakRef<Material>>> = new Map();
-  private static __materialTids: Map<MaterialTypeName, MaterialTID> = new Map();
-  private static __materialInstanceCountOfType: Map<MaterialTypeName, Count> = new Map();
-  private static __materialNodes: Map<MaterialTypeName, AbstractMaterialContent | undefined> = new Map();
-  private static __materialCountPerBufferViewMap: Map<MaterialTypeName, Count> = new Map();
-  private static __bufferViews: Map<MaterialTypeName, Map<IndexOfBufferViews, BufferView>> = new Map();
-  private static __accessors: Map<MaterialTypeName, Map<IndexOfBufferViews, Map<ShaderSemanticsName, Accessor>>> =
-    new Map();
+  private __materialMap: Map<MaterialUID, WeakRef<Material>> = new Map();
+  private __instances: Map<MaterialTypeName, Map<MaterialSID, WeakRef<Material>>> = new Map();
+  private __materialTids: Map<MaterialTypeName, MaterialTID> = new Map();
+  private __materialInstanceCountOfType: Map<MaterialTypeName, Count> = new Map();
+  private __materialNodes: Map<MaterialTypeName, AbstractMaterialContent | undefined> = new Map();
+  private __materialCountPerBufferViewMap: Map<MaterialTypeName, Count> = new Map();
+  private __bufferViews: Map<MaterialTypeName, Map<IndexOfBufferViews, BufferView>> = new Map();
+  private __accessors: Map<MaterialTypeName, Map<IndexOfBufferViews, Map<ShaderSemanticsName, Accessor>>> = new Map();
   /** Tracks version incremented when a new buffer view is allocated for a material type. */
-  private static __bufferViewVersions: Map<MaterialTypeName, number> = new Map();
+  private __bufferViewVersions: Map<MaterialTypeName, number> = new Map();
   private static __materialTidCount = -1;
   private static __materialUidCount = -1;
 
@@ -57,13 +53,13 @@ export class MaterialRepository {
    * @param materialCountPerBufferView - The number of materials per buffer view
    * @returns True if the material type was successfully registered, false if it was already registered
    */
-  public static registerMaterial(
+  public registerMaterial(
     materialTypeName: string,
     materialNode: AbstractMaterialContent,
     materialCountPerBufferView: number = Config.materialCountPerBufferView
   ): boolean {
-    if (!MaterialRepository.__materialNodes.has(materialTypeName)) {
-      MaterialRepository.__registerInner(materialTypeName, materialNode, materialCountPerBufferView);
+    if (!this.__materialNodes.has(materialTypeName)) {
+      this.__registerInner(materialTypeName, materialNode, materialCountPerBufferView);
 
       return true;
     }
@@ -81,7 +77,7 @@ export class MaterialRepository {
    * @param materialCountPerBufferView - The number of materials per buffer view
    * @returns Always returns true as the registration is forced
    */
-  public static forceRegisterMaterial(
+  public forceRegisterMaterial(
     materialTypeName: string,
     materialNode: AbstractMaterialContent,
     materialCountPerBufferView: number = Config.materialCountPerBufferView
@@ -96,8 +92,8 @@ export class MaterialRepository {
    * @param materialTypeName - The name of the material type to check
    * @returns True if the material type is registered, false otherwise
    */
-  public static isRegisteredMaterialType(materialTypeName: string) {
-    return MaterialRepository.__materialNodes.has(materialTypeName);
+  public isRegisteredMaterialType(materialTypeName: string) {
+    return this.__materialNodes.has(materialTypeName);
   }
 
   /**
@@ -107,7 +103,7 @@ export class MaterialRepository {
    * @param materialUid - The unique identifier of the material to retrieve
    * @returns The material instance if found and still alive, undefined otherwise
    */
-  public static getMaterialByMaterialUid(materialUid: MaterialSID): Material | undefined {
+  public getMaterialByMaterialUid(materialUid: MaterialSID): Material | undefined {
     return this.__materialMap.get(materialUid)?.deref();
   }
 
@@ -118,8 +114,8 @@ export class MaterialRepository {
    *
    * @returns Array of WeakRef objects pointing to all registered materials
    */
-  public static getAllMaterials() {
-    return Array.from(MaterialRepository.__materialMap.values());
+  public getAllMaterials() {
+    return Array.from(this.__materialMap.values());
   }
 
   /**
@@ -132,31 +128,20 @@ export class MaterialRepository {
    * @returns A new Material instance with proper initialization
    * @throws Error if the material type is not registered or maximum instances exceeded
    */
-  public static createMaterial(
-    engine: Engine,
-    materialTypeName: string,
-    materialNode: AbstractMaterialContent
-  ): Material {
+  public createMaterial(engine: Engine, materialTypeName: string, materialNode: AbstractMaterialContent): Material {
     // get the count of instance for the material type
-    let countOfThisType = MaterialRepository.__materialInstanceCountOfType.get(materialTypeName) as number;
+    let countOfThisType = this.__materialInstanceCountOfType.get(materialTypeName) as number;
 
-    const materialCountPerBufferView = MaterialRepository.__materialCountPerBufferViewMap.get(
-      materialTypeName
-    ) as number;
+    const materialCountPerBufferView = this.__materialCountPerBufferViewMap.get(materialTypeName) as number;
     const indexInTheBufferView = countOfThisType % materialCountPerBufferView;
     const indexOfBufferViews = Math.floor(countOfThisType / materialCountPerBufferView);
     let newlyAllocatedBufferView = false;
     if (indexInTheBufferView === 0) {
-      newlyAllocatedBufferView = MaterialRepository.__allocateBufferView(
-        engine,
-        materialTypeName,
-        materialNode,
-        indexOfBufferViews
-      );
+      newlyAllocatedBufferView = this.__allocateBufferView(engine, materialTypeName, materialNode, indexOfBufferViews);
     }
 
     const material = new Material(
-      MaterialRepository.__materialTids.get(materialTypeName)!,
+      this.__materialTids.get(materialTypeName)!,
       ++MaterialRepository.__materialUidCount,
       countOfThisType++,
       materialTypeName,
@@ -165,7 +150,7 @@ export class MaterialRepository {
 
     this.__initializeMaterial(material, countOfThisType, indexOfBufferViews, indexInTheBufferView);
     if (newlyAllocatedBufferView && indexOfBufferViews > 0) {
-      MaterialRepository.__makeShaderInvalidateForMaterialType(materialTypeName);
+      this.__makeShaderInvalidateForMaterialType(materialTypeName);
     }
 
     return material;
@@ -180,8 +165,8 @@ export class MaterialRepository {
    * @param newMaterialNode - The new material node to check for compatibility
    * @returns True if the materials are compatible, false otherwise
    */
-  static isMaterialCompatible(currentMaterial: Material, newMaterialNode: AbstractMaterialContent): boolean {
-    const existingMaterial = MaterialRepository.__materialMap.get(currentMaterial.materialUID)?.deref();
+  isMaterialCompatible(currentMaterial: Material, newMaterialNode: AbstractMaterialContent): boolean {
+    const existingMaterial = this.__materialMap.get(currentMaterial.materialUID)?.deref();
     if (Is.not.exist(existingMaterial)) {
       return false;
     }
@@ -204,7 +189,7 @@ export class MaterialRepository {
    * @param countOfThisType - The current count of instances for this material type
    * @private
    */
-  private static __initializeMaterial(
+  private __initializeMaterial(
     material: Material,
     countOfThisType: Count,
     indexOfBufferViews: Index,
@@ -215,24 +200,24 @@ export class MaterialRepository {
 
     // Set meta data to MaterialRepository
     {
-      MaterialRepository.__materialMap.set(material.materialUID, new WeakRef(material));
+      this.__materialMap.set(material.materialUID, new WeakRef(material));
 
       // set this material instance for the material type
-      let map = MaterialRepository.__instances.get(material.__materialTypeName);
+      let map = this.__instances.get(material.__materialTypeName);
       if (Is.not.exist(map)) {
         map = new Map();
-        MaterialRepository.__instances.set(material.materialTypeName, map);
+        this.__instances.set(material.materialTypeName, map);
       }
       map.set(material.materialSID, new WeakRef(material));
 
       // set the count of instance for the material type
-      MaterialRepository.__materialInstanceCountOfType.set(material.materialTypeName, countOfThisType);
+      this.__materialInstanceCountOfType.set(material.materialTypeName, countOfThisType);
     }
 
     // Set semanticsInfo and shaderVariables to the material instance
     if (Is.exist(material._materialContent)) {
       const semanticsInfoArray = material._materialContent._semanticsInfoArray;
-      const accessorMap = MaterialRepository.__accessors.get(material.materialTypeName)!.get(indexOfBufferViews)!;
+      const accessorMap = this.__accessors.get(material.materialTypeName)!.get(indexOfBufferViews)!;
       semanticsInfoArray.forEach(semanticsInfo => {
         material._allFieldsInfo.set(semanticsInfo.semantic, semanticsInfo);
         if (!semanticsInfo.soloDatum) {
@@ -267,12 +252,12 @@ export class MaterialRepository {
    * @param propertyName - The shader semantic name of the property
    * @returns The byte offset divided by 16 (IndexOf16Bytes) for the property location
    */
-  static getLocationOffsetOfMemberOfMaterial(
+  getLocationOffsetOfMemberOfMaterial(
     engine: Engine,
     materialTypeName: string,
     propertyName: ShaderSemanticsName
   ): IndexOf16Bytes[] {
-    const map = MaterialRepository.__instances.get(materialTypeName)!;
+    const map = this.__instances.get(materialTypeName)!;
     const materialRef = Array.from(map.values()).find(m => m.deref() !== undefined); // find an actual exist material
     if (Is.not.exist(materialRef?.deref())) {
       Logger.warn(
@@ -311,17 +296,17 @@ export class MaterialRepository {
    * @param materialCountPerBufferView - The number of materials per buffer view
    * @private
    */
-  private static __registerInner(
+  private __registerInner(
     materialTypeName: string,
     materialNode: AbstractMaterialContent,
     materialCountPerBufferView: number
   ) {
     const materialTid = ++MaterialRepository.__materialTidCount;
-    MaterialRepository.__materialNodes.set(materialTypeName, materialNode);
-    MaterialRepository.__materialTids.set(materialTypeName, materialTid);
-    MaterialRepository.__materialCountPerBufferViewMap.set(materialTypeName, materialCountPerBufferView);
-    MaterialRepository.__materialInstanceCountOfType.set(materialTypeName, 0);
-    MaterialRepository.__bufferViewVersions.set(materialTypeName, 0);
+    this.__materialNodes.set(materialTypeName, materialNode);
+    this.__materialTids.set(materialTypeName, materialTid);
+    this.__materialCountPerBufferViewMap.set(materialTypeName, materialCountPerBufferView);
+    this.__materialInstanceCountOfType.set(materialTypeName, 0);
+    this.__bufferViewVersions.set(materialTypeName, 0);
   }
 
   /**
@@ -334,7 +319,7 @@ export class MaterialRepository {
    * @returns Whether a new BufferView was allocated (true) or an existing one was reused (false)
    * @private
    */
-  private static __allocateBufferView(
+  private __allocateBufferView(
     engine: Engine,
     materialTypeName: string,
     materialNode: AbstractMaterialContent,
@@ -351,7 +336,7 @@ export class MaterialRepository {
       const alignedByteLength = calcAlignedByteLength(semanticInfo);
       let dataCount = 1;
       if (!semanticInfo.soloDatum) {
-        dataCount = MaterialRepository.__materialCountPerBufferViewMap.get(materialTypeName)!;
+        dataCount = this.__materialCountPerBufferViewMap.get(materialTypeName)!;
       }
 
       totalByteLength += alignedByteLength * dataCount;
@@ -401,7 +386,7 @@ export class MaterialRepository {
 
       let count = 1;
       if (!semanticInfo.soloDatum) {
-        count = MaterialRepository.__materialCountPerBufferViewMap.get(materialTypeName)!;
+        count = this.__materialCountPerBufferViewMap.get(materialTypeName)!;
       }
       let maxArrayLength = semanticInfo.arrayLength;
       if (CompositionType.isArray(semanticInfo.compositionType) && maxArrayLength == null) {
@@ -445,11 +430,11 @@ export class MaterialRepository {
     return newlyAllocated;
   }
 
-  static _getMaterialCountPerBufferView(materialTypeName: string): Count | undefined {
+  _getMaterialCountPerBufferView(materialTypeName: string): Count | undefined {
     return this.__materialCountPerBufferViewMap.get(materialTypeName);
   }
 
-  static _getBufferViewVersion(materialTypeName: string): number {
+  _getBufferViewVersion(materialTypeName: string): number {
     return this.__bufferViewVersions.get(materialTypeName) ?? 0;
   }
 
@@ -460,8 +445,8 @@ export class MaterialRepository {
    *
    * @internal
    */
-  static _makeShaderInvalidateToAllMaterials() {
-    for (const material of MaterialRepository.__materialMap.values()) {
+  _makeShaderInvalidateToAllMaterials() {
+    for (const material of this.__materialMap.values()) {
       material.deref()?.makeShadersInvalidate();
     }
   }
@@ -473,8 +458,8 @@ export class MaterialRepository {
    *
    * @internal
    */
-  static _makeShaderInvalidateToMorphMaterials() {
-    for (const materialRef of MaterialRepository.__materialMap.values()) {
+  _makeShaderInvalidateToMorphMaterials() {
+    for (const materialRef of this.__materialMap.values()) {
       const material = materialRef.deref();
       if (material == null || material.isMorphing === false) {
         continue;
@@ -490,8 +475,8 @@ export class MaterialRepository {
     }
   }
 
-  private static __makeShaderInvalidateForMaterialType(materialTypeName: string) {
-    const materials = MaterialRepository.__instances.get(materialTypeName);
+  private __makeShaderInvalidateForMaterialType(materialTypeName: string) {
+    const materials = this.__instances.get(materialTypeName);
     if (materials == null) {
       return;
     }

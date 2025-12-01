@@ -25,13 +25,13 @@ test('MaterialTID are processed correctly', () => {
   });
 
   // 0st
-  Rn.MaterialRepository.registerMaterial('MyMaterial0', materialNode);
-  const _material0 = Rn.MaterialRepository.createMaterial(engine, 'MyMaterial0', materialNode)!;
+  engine.materialRepository.registerMaterial('MyMaterial0', materialNode);
+  const _material0 = engine.materialRepository.createMaterial(engine, 'MyMaterial0', materialNode)!;
 
   // 1st
-  Rn.MaterialRepository.registerMaterial('MyMaterial1', materialNode);
-  const _material1a = Rn.MaterialRepository.createMaterial(engine, 'MyMaterial1', materialNode)!;
-  const material1b = Rn.MaterialRepository.createMaterial(engine, 'MyMaterial1', materialNode)!;
+  engine.materialRepository.registerMaterial('MyMaterial1', materialNode);
+  const _material1a = engine.materialRepository.createMaterial(engine, 'MyMaterial1', materialNode)!;
+  const material1b = engine.materialRepository.createMaterial(engine, 'MyMaterial1', materialNode)!;
 
   expect(material1b.materialTID).toEqual(1);
 });

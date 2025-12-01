@@ -232,7 +232,7 @@ export function _createProgramAsSingleOperationWebGL(
 
   const cacheQuery =
     Component.getStateVersion() +
-    MaterialRepository._getBufferViewVersion(material.__materialTypeName) +
+    engine.materialRepository._getBufferViewVersion(material.__materialTypeName) +
     material.__materialTypeName +
     material._materialContent.getMaterialSemanticsVariantName() +
     vertexAttributeDefines +
@@ -427,7 +427,7 @@ export function _createProgramAsSingleOperationWebGpu(
   }
   const cacheQuery =
     Component.getStateVersion() +
-    MaterialRepository._getBufferViewVersion(material.__materialTypeName) +
+    engine.materialRepository._getBufferViewVersion(material.__materialTypeName) +
     material.__materialTypeName +
     material._materialContent.getMaterialSemanticsVariantName() +
     vertexAttributeDefines +

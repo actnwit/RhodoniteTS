@@ -627,7 +627,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       info.semantic,
       materialTypeName
     );
-    const materialCountPerBufferView = MaterialRepository._getMaterialCountPerBufferView(materialTypeName)!;
+    const materialCountPerBufferView = engine.materialRepository._getMaterialCountPerBufferView(materialTypeName)!;
 
     const offsetStr = `int offsets[] = int[](${offsetOfProperty.join(', ')});`;
 
@@ -763,7 +763,11 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     propertyName: ShaderSemanticsName,
     materialTypeName: string
   ) {
-    const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(engine, materialTypeName, propertyName);
+    const dataBeginPos = engine.materialRepository.getLocationOffsetOfMemberOfMaterial(
+      engine,
+      materialTypeName,
+      propertyName
+    );
     return dataBeginPos;
   }
 
@@ -1138,7 +1142,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__updateMorphWeightsUniformBuffer();
       this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
       this.__countOfBlendShapeComponents = BlendShapeComponent.getCountOfBlendShapeComponents(this.__engine);
-      MaterialRepository._makeShaderInvalidateToMorphMaterials();
+      this.__engine.materialRepository._makeShaderInvalidateToMorphMaterials();
     }
 
     this.__updateMorphOffsetsUniformBuffers();

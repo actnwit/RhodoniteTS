@@ -467,7 +467,7 @@ ${indexStr}
       info.semantic,
       materialTypeName
     );
-    const materialCountPerBufferView = MaterialRepository._getMaterialCountPerBufferView(materialTypeName)!;
+    const materialCountPerBufferView = engine.materialRepository._getMaterialCountPerBufferView(materialTypeName)!;
 
     const offsetsStr = `var<function> offsets: array<u32, ${offsetOfProperty.length}> = array<u32, ${offsetOfProperty.length}>(${offsetOfProperty.map(offset => `${offset}u`).join(', ')});`;
 
@@ -581,7 +581,11 @@ ${indexStr}
     propertyName: ShaderSemanticsName,
     materialTypeName: string
   ) {
-    const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(engine, materialTypeName, propertyName);
+    const dataBeginPos = engine.materialRepository.getLocationOffsetOfMemberOfMaterial(
+      engine,
+      materialTypeName,
+      propertyName
+    );
     return dataBeginPos;
   }
 
@@ -808,7 +812,7 @@ ${indexStr}
       this.__updateMorphWeightsUniformBuffer();
       this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
       this.__countOfBlendShapeComponents = BlendShapeComponent.getCountOfBlendShapeComponents(this.__engine);
-      MaterialRepository._makeShaderInvalidateToMorphMaterials();
+      this.__engine.materialRepository._makeShaderInvalidateToMorphMaterials();
     }
   }
 

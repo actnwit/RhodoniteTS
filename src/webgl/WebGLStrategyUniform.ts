@@ -518,7 +518,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       this.__updateMorphWeightsUniformBuffer();
       this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
       this.__countOfBlendShapeComponents = BlendShapeComponent.getCountOfBlendShapeComponents(this.__engine);
-      MaterialRepository._makeShaderInvalidateToMorphMaterials();
+      this.__engine.materialRepository._makeShaderInvalidateToMorphMaterials();
     }
 
     this.__updateMorphOffsetsUniformBuffers();

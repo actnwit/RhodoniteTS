@@ -41,6 +41,7 @@ declare const spector: any;
 import type { WebARSystem } from '../../xr/WebARSystem';
 import type { WebXRSystem } from '../../xr/WebXRSystem';
 import { RnObject } from '../core/RnObject';
+import { MaterialRepository } from '../materials/core/MaterialRepository';
 
 /**
  * The argument type for Engine.init() method.
@@ -85,6 +86,7 @@ export class Engine extends RnObject {
   private __entityRepository: EntityRepository;
   private __componentRepository: ComponentRepository;
   private __memoryManager?: MemoryManager;
+  private __materialRepository: MaterialRepository;
   private __globalDataRepository: GlobalDataRepository;
   private __lastCameraComponentsUpdateCount = -1;
   private __lastCameraControllerComponentsUpdateCount = -1;
@@ -103,6 +105,7 @@ export class Engine extends RnObject {
     const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
     this.__componentRepository = new ComponentRepository(this);
     this.__entityRepository = new EntityRepository(this);
+    this.__materialRepository = new MaterialRepository();
     this.__memoryManager = MemoryManager.createInstanceIfNotCreated(this, maxGPUDataStorageSize);
     this.__webXRSystem = rnXRModule.WebXRSystem.init(this);
     this.__webARSystem = rnXRModule.WebARSystem.init(this);
@@ -693,5 +696,9 @@ export class Engine extends RnObject {
 
   public get globalDataRepository() {
     return this.__globalDataRepository;
+  }
+
+  public get materialRepository() {
+    return this.__materialRepository;
   }
 }

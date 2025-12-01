@@ -272,10 +272,7 @@ export class ForwardRenderPipeline extends RnObject {
     const initialExpression = this.__setupInitialExpression();
     this.__oInitialExpression = new Some(initialExpression);
 
-    const rnXRModule = await ModuleManager.getInstance().getModule('xr');
-    if (Is.exist(rnXRModule)) {
-      this.__oWebXRSystem = new Some(rnXRModule.WebXRSystem.getInstance());
-    }
+    this.__oWebXRSystem = new Some(this.__engine.webXRSystem);
 
     if (this.__expressions.length > 0) {
       this.setExpressions(this.__expressions);
