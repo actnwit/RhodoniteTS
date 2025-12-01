@@ -232,7 +232,7 @@ export function _createProgramAsSingleOperationWebGL(
   }
 
   const cacheQuery =
-    Component.getStateVersion() +
+    Component.getStateVersion(engine) +
     engine.materialRepository._getBufferViewVersion(material.__materialTypeName) +
     material.__materialTypeName +
     material._materialContent.getMaterialSemanticsVariantName() +
@@ -427,7 +427,7 @@ export function _createProgramAsSingleOperationWebGpu(
     alphaMode += '#define RN_IS_ALPHA_MODE_MASK\n';
   }
   const cacheQuery =
-    Component.getStateVersion() +
+    Component.getStateVersion(engine) +
     engine.materialRepository._getBufferViewVersion(material.__materialTypeName) +
     material.__materialTypeName +
     material._materialContent.getMaterialSemanticsVariantName() +

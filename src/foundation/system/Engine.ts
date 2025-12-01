@@ -12,6 +12,7 @@ import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererCo
 import { TransformComponent } from '../components/Transform/TransformComponent';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { Component } from '../core/Component';
+import { ComponentMemoryRegistry } from '../core/ComponentMemoryRegistry';
 import { ComponentRepository } from '../core/ComponentRepository';
 import { Config } from '../core/Config';
 import { EntityRepository } from '../core/EntityRepository';
@@ -86,6 +87,7 @@ export class Engine extends RnObject {
   private __webARSystem: WebARSystem;
   private __entityRepository: EntityRepository;
   private __componentRepository: ComponentRepository;
+  private __componentMemoryRegistry: ComponentMemoryRegistry;
   private __memoryManager?: MemoryManager;
   private __materialRepository: MaterialRepository;
   private __globalDataRepository: GlobalDataRepository;
@@ -108,6 +110,7 @@ export class Engine extends RnObject {
     this.__processApproach = processApproach;
     this.__cgApiResourceRepository = cgApiResourceRepository;
     const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+    this.__componentMemoryRegistry = new ComponentMemoryRegistry();
     this.__componentRepository = new ComponentRepository(this);
     this.__entityRepository = new EntityRepository(this);
     this.__materialRepository = new MaterialRepository();
@@ -701,6 +704,10 @@ export class Engine extends RnObject {
 
   public get componentRepository() {
     return this.__componentRepository;
+  }
+
+  public get componentMemoryRegistry() {
+    return this.__componentMemoryRegistry;
   }
 
   public get webXRSystem() {

@@ -413,7 +413,7 @@ export class Material extends RnObject {
   public isShaderProgramReady(primitive: Primitive): boolean {
     const primitiveFingerPrint = primitive._getFingerPrint();
     const componentStateVersion = this._shaderProgramComponentStateVersionMap.get(primitiveFingerPrint);
-    if (componentStateVersion !== Component.getStateVersion()) {
+    if (componentStateVersion !== Component.getStateVersion(this.__engine)) {
       this._shaderProgramUidMap.delete(primitiveFingerPrint);
       this._shaderProgramComponentStateVersionMap.delete(primitiveFingerPrint);
       return false;
@@ -500,7 +500,7 @@ export class Material extends RnObject {
     );
     const primitiveFingerPrint = primitive._getFingerPrint();
     this._shaderProgramUidMap.set(primitiveFingerPrint, programUid);
-    this._shaderProgramComponentStateVersionMap.set(primitiveFingerPrint, Component.getStateVersion());
+    this._shaderProgramComponentStateVersionMap.set(primitiveFingerPrint, Component.getStateVersion(engine));
 
     this.__engine.materialRepository._incrementStateVersion();
 
@@ -538,7 +538,7 @@ export class Material extends RnObject {
 
     const primitiveFingerPrint = primitive._getFingerPrint();
     this._shaderProgramUidMap.set(primitiveFingerPrint, programUid);
-    this._shaderProgramComponentStateVersionMap.set(primitiveFingerPrint, Component.getStateVersion());
+    this._shaderProgramComponentStateVersionMap.set(primitiveFingerPrint, Component.getStateVersion(engine));
     this.__engine.materialRepository._incrementStateVersion();
   }
 
@@ -564,7 +564,7 @@ export class Material extends RnObject {
     );
     const primitiveFingerPrint = primitive._getFingerPrint();
     this._shaderProgramUidMap.set(primitiveFingerPrint, programUid);
-    this._shaderProgramComponentStateVersionMap.set(primitiveFingerPrint, Component.getStateVersion());
+    this._shaderProgramComponentStateVersionMap.set(primitiveFingerPrint, Component.getStateVersion(this.__engine));
 
     if (programUid > 0) {
       // this.__updatedShaderSources = updatedShaderSources;
