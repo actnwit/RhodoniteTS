@@ -41,7 +41,8 @@ const controller = cameraControllerComponent.controller as Rn.OrbitCameraControl
 controller.setTargets(entities);
 controller.dolly = 0.78;
 
-Rn.CameraComponent.current = 0;
+// Set the active camera to the sample's camera
+Rn.CameraComponent.current = cameraComponent.componentSID;
 let count = 0;
 let startTime = Date.now();
 
