@@ -16,7 +16,7 @@ const displayResolution = 800;
 const vrmModelRotation = Rn.Vector3.fromCopyArray([0, (3 / 4) * Math.PI, 0.0]);
 
 // camera
-const cameraEntity = Rn.createCameraEntity(engine);
+const cameraEntity = Rn.createCameraEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000.0;
@@ -179,7 +179,7 @@ function createPostEffectRenderPass(material: Rn.Material, cameraComponent: Rn.C
 }
 
 function createPostEffectCameraEntity() {
-  const cameraEntity = Rn.createCameraEntity(engine);
+  const cameraEntity = Rn.createCameraEntity(engine, false);
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNearInner = 0.5;
   cameraComponent.zFarInner = 2.0;

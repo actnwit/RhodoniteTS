@@ -185,7 +185,7 @@ const renderIBL = () => {
 };
 
 // camera
-const cameraEntity = Rn.createCameraControllerEntity(engine);
+const cameraEntity = Rn.createCameraControllerEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.001;
 cameraComponent.zFar = 100.0;

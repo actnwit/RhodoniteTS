@@ -11,7 +11,7 @@ const engine = await Rn.Engine.init({
 });
 
 // camera
-const cameraEntity = Rn.createCameraControllerEntity(engine);
+const cameraEntity = Rn.createCameraControllerEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zFar = 1000.0;
 cameraComponent.setFovyAndChangeFocalLength(25.0);

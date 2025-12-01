@@ -81,7 +81,7 @@ renderPass.addEntities(entities);
 Rn.createLightEntity(engine);
 
 // Camera
-const cameraEntity = Rn.createCameraControllerEntity(engine);
+const cameraEntity = Rn.createCameraControllerEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera();
 //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
 cameraComponent.zNear = 0.1;

@@ -461,7 +461,7 @@ export class Engine {
   }
 
   public static createCamera(engine: Engine) {
-    const cameraEntity = createCameraEntity(engine);
+    const cameraEntity = createCameraEntity(engine, true);
     cameraEntity.getTransform()!.localPosition = Vector3.fromCopyArray([0, 0, 1]);
     cameraEntity.getCamera().type = CameraType.Orthographic;
     cameraEntity.getCamera().zNear = 0.1;

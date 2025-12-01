@@ -41,7 +41,7 @@ planeMeshComponent.setMesh(planeMesh);
 planeEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
 
 // Camera
-const cameraEntity = Rn.createCameraControllerEntity(engine);
+const cameraEntity = Rn.createCameraControllerEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera();
 //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
 cameraComponent.zNear = 0.1;

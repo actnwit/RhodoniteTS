@@ -23,7 +23,7 @@ draw(expressions, true);
 // ---functions-----------------------------------------------------------------------------------------
 
 function createEntityMainCamera() {
-  const entityCamera = Rn.createCameraEntity(engine);
+  const entityCamera = Rn.createCameraEntity(engine, true);
   const transformCamera = entityCamera.getTransform();
   transformCamera.localPosition = Rn.Vector3.fromCopyArray([-0.1, -0.1, 10.0]);
 

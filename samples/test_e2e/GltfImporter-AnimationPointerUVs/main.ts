@@ -97,7 +97,7 @@ const draw = frame => {
 forwardRenderPipeline.startRenderLoop(draw);
 
 function createCamera() {
-  const cameraEntity = Rn.createCameraControllerEntity(engine);
+  const cameraEntity = Rn.createCameraControllerEntity(engine, true);
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000.0;

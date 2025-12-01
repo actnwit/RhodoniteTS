@@ -12,7 +12,7 @@ const engine = await Rn.Engine.init({
 Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // Camera
-const cameraEntity = Rn.createCameraControllerEntity(engine);
+const cameraEntity = Rn.createCameraControllerEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000;
@@ -41,8 +41,6 @@ const controller = cameraControllerComponent.controller as Rn.OrbitCameraControl
 controller.setTargets(entities);
 controller.dolly = 0.78;
 
-// Set the active camera to the sample's camera
-Rn.CameraComponent.current = cameraComponent.componentSID;
 let count = 0;
 let startTime = Date.now();
 

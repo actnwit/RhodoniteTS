@@ -141,7 +141,7 @@ async function createEntityEnvironmentCube() {
 }
 
 function createEntityMainCamera(entityCameraTarget: Rn.ISceneGraphEntity) {
-  const entityCamera = Rn.createCameraControllerEntity(engine);
+  const entityCamera = Rn.createCameraControllerEntity(engine, true);
   const cameraControllerComponent = entityCamera.getCameraController();
   const controller = cameraControllerComponent.controller;
   controller.setTarget(entityCameraTarget);

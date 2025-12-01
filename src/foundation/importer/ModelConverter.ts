@@ -154,7 +154,7 @@ export class ModelConverter {
    * @returns A camera entity with appropriate tags
    */
   private static __generateCameraEntity(engine: Engine, gltfModel: RnM2): ICameraEntity {
-    const entity = createCameraEntity(engine);
+    const entity = createCameraEntity(engine, true);
     this.addTags(entity, gltfModel);
     return entity;
   }

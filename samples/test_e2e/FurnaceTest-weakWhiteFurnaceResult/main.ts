@@ -39,7 +39,7 @@ attachGlobalFunctions(expressions);
 // ---functions-----------------------------------------------------------------------------------------
 
 function createEntityMainCamera() {
-  const entityCamera = Rn.createCameraEntity(engine);
+  const entityCamera = Rn.createCameraEntity(engine, true);
   const cameraComponent = entityCamera.getCamera();
   cameraComponent.type = Rn.CameraType.Orthographic;
 

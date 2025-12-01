@@ -20,7 +20,7 @@ spotLight.localEulerAngles = Rn.Vector3.fromCopy3(-Math.PI / 2, 0, 0);
 spotLight.localPosition = Rn.Vector3.fromCopy3(0.0, 1.0, 0);
 
 // Main Camera
-const mainCameraEntity = Rn.createCameraControllerEntity(engine);
+const mainCameraEntity = Rn.createCameraControllerEntity(engine, true);
 mainCameraEntity.localPosition = Rn.Vector3.fromCopyArray([0.0, 3, 0.0]);
 mainCameraEntity.localEulerAngles = Rn.Vector3.fromCopy3(-Math.PI / 2, 0, 0);
 

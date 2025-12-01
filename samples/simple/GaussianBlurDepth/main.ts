@@ -44,7 +44,7 @@ draw(expressions);
 // ---functions-----------------------------------------------------------------------------------------
 
 function createEntityDepthCamera() {
-  const entityCamera = Rn.createCameraEntity(engine);
+  const entityCamera = Rn.createCameraEntity(engine, false);
   const transformCamera = entityCamera.getTransform();
   transformCamera.localPosition = Rn.Vector3.fromCopyArray([10.0, 15.0, 20.0]);
 

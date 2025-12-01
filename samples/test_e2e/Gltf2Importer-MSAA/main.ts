@@ -67,7 +67,7 @@ draw([expression], 0);
 // ---functions-----------------------------------------------------------------------------------------
 
 function createEntityMainCamera() {
-  const entityCamera = Rn.createCameraControllerEntity(engine);
+  const entityCamera = Rn.createCameraControllerEntity(engine, true);
   const cameraComponent = entityCamera.getCamera();
   cameraComponent.setFovyAndChangeFocalLength(30);
 

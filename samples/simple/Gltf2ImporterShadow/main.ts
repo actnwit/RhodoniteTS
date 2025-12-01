@@ -56,7 +56,7 @@ draw([expression]);
 // ---functions-----------------------------------------------------------------------------------------
 
 function createEntityDepthCamera() {
-  const entityCamera = Rn.createCameraEntity(engine);
+  const entityCamera = Rn.createCameraEntity(engine, false);
 
   const transformCamera = entityCamera.getTransform();
   transformCamera.localPosition = lightPosition;
@@ -72,7 +72,7 @@ function createEntityDepthCamera() {
 }
 
 function createEntityMainCamera() {
-  const entityCamera = Rn.createCameraControllerEntity(engine);
+  const entityCamera = Rn.createCameraControllerEntity(engine, true);
   return entityCamera;
 }
 

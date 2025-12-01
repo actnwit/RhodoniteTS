@@ -61,7 +61,7 @@ export class WebARSystem {
    */
   constructor(engine: Engine) {
     this.__engine = engine;
-    this._cameraEntity = createCameraEntity(engine);
+    this._cameraEntity = createCameraEntity(engine, false);
     this._cameraEntity.tryToSetUniqueName('WebAR Viewer', true);
     this._cameraEntity.tryToSetTag({
       tag: 'type',

@@ -57,7 +57,7 @@ export class LightComponent extends Component {
   private __lastTransformUpdateCount = -1;
 
   /**
-   * Creates a new CameraComponent instance.
+   * Creates a new LightComponent instance.
    *
    * @param engine - The engine instance
    * @param entityUid - The unique identifier of the entity this component belongs to

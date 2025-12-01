@@ -80,7 +80,7 @@ draw([expression], cameraComponentDepth.entity, directionLight);
 // ---functions-----------------------------------------------------------------------------------------
 
 function createEntityDepthCamera(directionLight: Rn.MutableVector3) {
-  const entityCamera = Rn.createCameraEntity(engine);
+  const entityCamera = Rn.createCameraEntity(engine, true);
   const transformCamera = entityCamera.getTransform();
   transformCamera.localPosition = lightPosition;
 
@@ -94,7 +94,7 @@ function createEntityDepthCamera(directionLight: Rn.MutableVector3) {
 }
 
 function createEntityMainCamera() {
-  const entityCamera = Rn.createCameraControllerEntity(engine);
+  const entityCamera = Rn.createCameraControllerEntity(engine, true);
   return entityCamera;
 }
 

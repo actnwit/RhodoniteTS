@@ -57,7 +57,7 @@ const load = async () => {
   const expression = new Rn.Expression();
 
   // Camera
-  const cameraEntity = Rn.createCameraControllerEntity(engine);
+  const cameraEntity = Rn.createCameraControllerEntity(engine, true);
   const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent) as Rn.CameraComponent;
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000;

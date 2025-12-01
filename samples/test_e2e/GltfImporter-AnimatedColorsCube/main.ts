@@ -8,7 +8,7 @@ const engine = await Rn.Engine.init({
 });
 
 // camera
-const cameraEntity = Rn.createCameraControllerEntity(engine);
+const cameraEntity = Rn.createCameraControllerEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera();
 
 const lightEntity = Rn.createLightEntity(engine);

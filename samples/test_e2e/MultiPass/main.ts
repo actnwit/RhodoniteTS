@@ -8,7 +8,7 @@ const engine = await Rn.Engine.init({
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
-const cameraEntity = Rn.createCameraControllerEntity(engine);
+const cameraEntity = Rn.createCameraControllerEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera();
 
 const expression = new Rn.Expression();

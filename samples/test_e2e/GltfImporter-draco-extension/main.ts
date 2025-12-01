@@ -14,7 +14,7 @@ const engine = await Rn.Engine.init({
 const expressions = [];
 
 // camera
-const cameraEntity = Rn.createCameraEntity(engine);
+const cameraEntity = Rn.createCameraEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000.0;

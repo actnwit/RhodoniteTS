@@ -16,7 +16,7 @@ light.getLight().color = Rn.Vector3.fromCopyArray([1, 1, 1]);
 light.getLight().intensity = 10;
 
 // Camera
-const cameraEntity = Rn.createCameraControllerEntity(engine);
+const cameraEntity = Rn.createCameraControllerEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera();
 //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
 cameraComponent.zNear = 0.1;
@@ -54,8 +54,6 @@ renderPass.addEntities(groups);
 // expression
 const expression = new Rn.Expression();
 expression.addRenderPasses([renderPass]);
-
-Rn.CameraComponent.current = 0;
 
 const stats = new Stats();
 stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom

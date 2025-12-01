@@ -30,15 +30,17 @@ const expression = new Rn.Expression();
 expression.addRenderPasses([renderPassDepth, renderPassMain]);
 
 //main
-const entitySmallBoardForDepth = createBoardEntityWithMaterial('createDepthEncodeMaterial', [{}]);
-const entityLargeBoardForDepth = createBoardEntityWithMaterial('createDepthEncodeMaterial', [{}]);
+const entitySmallBoardForDepth = createBoardEntityWithMaterial('createDepthEncodeMaterial', [engine, {}]);
+const entityLargeBoardForDepth = createBoardEntityWithMaterial('createDepthEncodeMaterial', [engine, {}]);
 renderPassDepth.addEntities([entitySmallBoardForDepth, entityLargeBoardForDepth]);
 
 const entitySmallBoard = createBoardEntityWithMaterial('createShadowMapDecodeClassicSingleMaterial', [
+  engine,
   { isDebugging: true },
   renderPassDepth,
 ]);
 const entityLargeBoard = createBoardEntityWithMaterial('createShadowMapDecodeClassicSingleMaterial', [
+  engine,
   { isDebugging: true },
   renderPassDepth,
 ]);
@@ -120,13 +122,13 @@ function createBoardEntityWithMaterial(materialHelperFunctionStr, arrayOfHelperF
 }
 
 function createCameraComponent() {
-  const cameraEntity = Rn.createCameraEntity(engine);
+  const cameraEntity = Rn.createCameraEntity(engine, false);
   const cameraComponent = cameraEntity.getCamera();
   return cameraComponent;
 }
 
 function createCameraControllerComponent() {
-  const cameraEntity = Rn.createCameraControllerEntity(engine);
+  const cameraEntity = Rn.createCameraControllerEntity(engine, true);
   const cameraComponent = cameraEntity.getCamera();
   return cameraComponent;
 }

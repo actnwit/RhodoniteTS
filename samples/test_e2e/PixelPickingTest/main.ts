@@ -71,7 +71,7 @@ Rn.Logger.logLevel = Rn.LogLevel.Info;
 const expression = new Rn.Expression();
 
 // Camera
-const cameraEntity = Rn.createCameraControllerEntity(engine);
+const cameraEntity = Rn.createCameraControllerEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera() as Rn.CameraComponent;
 //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
 cameraComponent.zNear = 0.1;
@@ -125,7 +125,6 @@ expression.addRenderPasses([renderPassEntityUidOutput, renderPassRendering]);
 const cameraControllerComponent = cameraEntity.getCameraController() as Rn.CameraControllerComponent;
 (cameraControllerComponent.controller as Rn.OrbitCameraController).setTarget(rootGroup);
 
-Rn.CameraComponent.current = 0;
 let startTime = Date.now();
 let count = 0;
 

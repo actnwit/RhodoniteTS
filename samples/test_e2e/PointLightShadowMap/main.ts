@@ -28,7 +28,7 @@ pointGroupEntity.localPosition = Rn.Vector3.fromCopyArray([2, 0, 2]);
 pointLight.localPosition = Rn.Vector3.fromCopyArray([2, 0, 0]);
 
 // Main Camera
-const mainCameraEntity = Rn.createCameraControllerEntity(engine);
+const mainCameraEntity = Rn.createCameraControllerEntity(engine, true);
 mainCameraEntity.localPosition = Rn.Vector3.fromCopyArray([0, 0, 10]);
 
 // Scene

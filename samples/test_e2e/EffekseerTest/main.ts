@@ -17,7 +17,7 @@ const engine = await Rn.Engine.init({
 });
 
 // Effekseer
-const effekseerEntity = effekseerModule.createEffekseerEntity();
+const effekseerEntity = effekseerModule.createEffekseerEntity(engine);
 const effekseerComponent = effekseerEntity.getComponent(effekseerModule.EffekseerComponent) as Rn.EffekseerComponent;
 effekseerComponent.playJustAfterLoaded = true;
 effekseerComponent.randomSeed = 1;
@@ -28,7 +28,7 @@ effekseerComponent.uri = '../../../assets/effekseer/Laser01.efk';
 // effekseerEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, 1.54, 0]);
 
 // Camera
-const cameraEntity = Rn.createCameraControllerEntity(engine);
+const cameraEntity = Rn.createCameraControllerEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000;
@@ -58,7 +58,6 @@ renderPass.addEntities([rootGroup, effekseerEntity]);
 const expression = new Rn.Expression();
 expression.addRenderPasses([renderPass]);
 
-Rn.CameraComponent.current = 0;
 let count = 0;
 let setTimeDone = false;
 

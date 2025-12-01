@@ -87,7 +87,7 @@ export class WebXRSystem {
       value: 'background-assets',
     });
 
-    this.__leftCameraEntity = createCameraEntity(engine);
+    this.__leftCameraEntity = createCameraEntity(engine, false);
     this.__leftCameraEntity.tryToSetUniqueName('WebXR Left Camera', true);
     this.__leftCameraEntity.tryToSetTag({
       tag: 'type',
@@ -95,7 +95,7 @@ export class WebXRSystem {
     });
     this.__leftCameraEntity.getCamera()._xrLeft = true;
 
-    this.__rightCameraEntity = createCameraEntity(engine);
+    this.__rightCameraEntity = createCameraEntity(engine, false);
     this.__rightCameraEntity.tryToSetUniqueName('WebXR Right Camera', true);
     this.__rightCameraEntity.tryToSetTag({
       tag: 'type',

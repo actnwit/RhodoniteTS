@@ -64,10 +64,8 @@ declare const window: any;
 
     let count = 0;
 
-    const camera = Rn.createCameraEntity(engine);
+    const camera = Rn.createCameraEntity(engine, true);
     camera.position = Rn.Vector3.fromCopy3(0.0, 0.0, 2.0);
-    const camera2 = Rn.createCameraEntity(engine);
-    camera2.position = Rn.Vector3.fromCopy3(1.0, 0.0, 2.0);
 
     // renderPass
     const renderPass = new Rn.RenderPass(engine);

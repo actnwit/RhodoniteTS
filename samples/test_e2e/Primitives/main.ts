@@ -133,7 +133,7 @@ async function setupRhodonite() {
 }
 
 function createCamera(group: Rn.IMeshEntity) {
-  const cameraEntity = Rn.createCameraControllerEntity(engine);
+  const cameraEntity = Rn.createCameraControllerEntity(engine, true);
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 10;

@@ -10,7 +10,7 @@ const engine = await Rn.Engine.init({
 });
 
 // camera
-const cameraEntity = Rn.createCameraEntity(engine);
+const cameraEntity = Rn.createCameraEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.type = Rn.CameraType.Orthographic;
 

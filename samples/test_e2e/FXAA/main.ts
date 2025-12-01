@@ -54,7 +54,6 @@ frame.resolve();
 
 activeExpression = expressionWithFXAA;
 
-Rn.CameraComponent.current = 0;
 let startTime = Date.now();
 let count = 0;
 
@@ -123,7 +122,7 @@ async function setupRenderPassMain() {
   sphereMesh.addPrimitive(spherePrimitive);
   sphereMeshComponent.setMesh(sphereMesh);
   // Camera
-  const cameraEntity = Rn.createCameraControllerEntity(engine);
+  const cameraEntity = Rn.createCameraControllerEntity(engine, true);
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000;

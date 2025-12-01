@@ -77,7 +77,7 @@ function createBoardEntityWithDepthEncodeMaterial() {
 }
 
 function createCameraComponent() {
-  const cameraEntity = Rn.createCameraEntity(engine);
+  const cameraEntity = Rn.createCameraEntity(engine, true);
   // For debug
   // const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent]);
   const cameraComponent = cameraEntity.getCamera();
