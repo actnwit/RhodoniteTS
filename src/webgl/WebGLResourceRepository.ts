@@ -450,7 +450,8 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    * @param textureUid - The handle of the texture to bind
    */
   bindTexture2D(textureSlotIndex: Index, textureUid: CGAPIResourceHandle) {
-    const texture = this.getWebGLResource(textureUid) as WebGLTexture;
+    // const texture = this.getWebGLResource(textureUid) as WebGLTexture;
+    const texture = this.__webglResources.get(textureUid) as WebGLTexture;
     this.__glw!.bindTexture2D(textureSlotIndex, texture);
   }
 

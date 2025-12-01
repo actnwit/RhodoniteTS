@@ -80,10 +80,10 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private __lastShader: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __lastMaterial?: WeakRef<Material>;
   private __lastMaterialStateVersion = -1;
-  private static __shaderProgram: WebGLProgram;
+  private __shaderProgram?: WebGLProgram;
   private __lastRenderPassTickCount = -1;
   private __lightComponents?: LightComponent[];
-  private static __currentComponentSIDs?: VectorN;
+  private __currentComponentSIDs?: VectorN;
   public _totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
   private static __isDebugOperationToDataTextureBufferDone = true;
 
@@ -822,10 +822,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       return false;
     }
 
-    WebGLStrategyDataTexture.__currentComponentSIDs = this.__engine.globalDataRepository.getValue(
-      'currentComponentSIDs',
-      0
-    );
+    this.__currentComponentSIDs = this.__engine.globalDataRepository.getValue('currentComponentSIDs', 0);
 
     // update VBO and VAO
     if (!mesh.isSetUpDone()) {
@@ -1365,8 +1362,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
           cameraComponentSid = webxrSystem._getCameraComponentSIDAt(displayIdx);
         }
       }
-      WebGLStrategyDataTexture.__currentComponentSIDs!._v[WellKnownComponentTIDs.CameraComponentTID] =
-        cameraComponentSid;
+      this.__currentComponentSIDs!._v[WellKnownComponentTIDs.CameraComponentTID] = cameraComponentSid;
     } else {
       // Non-VR Rendering
       let cameraComponent = renderPass.cameraComponent;
@@ -1378,10 +1374,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         ) as CameraComponent;
       }
       if (cameraComponent) {
-        WebGLStrategyDataTexture.__currentComponentSIDs!._v[WellKnownComponentTIDs.CameraComponentTID] =
-          cameraComponent.componentSID;
+        this.__currentComponentSIDs!._v[WellKnownComponentTIDs.CameraComponentTID] = cameraComponent.componentSID;
       } else {
-        WebGLStrategyDataTexture.__currentComponentSIDs!._v[WellKnownComponentTIDs.CameraComponentTID] = -1;
+        this.__currentComponentSIDs!._v[WellKnownComponentTIDs.CameraComponentTID] = -1;
       }
     }
   }
@@ -1404,14 +1399,11 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     material: Material,
     _shaderProgram: WebGLProgram
   ) {
-    if (WebGLStrategyDataTexture.__currentComponentSIDs == null) {
-      WebGLStrategyDataTexture.__currentComponentSIDs = this.__engine.globalDataRepository.getValue(
-        'currentComponentSIDs',
-        0
-      );
+    if (this.__currentComponentSIDs == null) {
+      this.__currentComponentSIDs = this.__engine.globalDataRepository.getValue('currentComponentSIDs', 0);
     }
 
-    WebGLStrategyDataTexture.__currentComponentSIDs!._v[0] = material.materialSID;
+    this.__currentComponentSIDs!._v[0] = material.materialSID;
   }
 
   /**
@@ -1542,10 +1534,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
     this.__setCurrentComponentSIDsForEachPrimitive(gl, material, shaderProgram);
 
-    gl.uniform1fv(
-      (shaderProgram as any).currentComponentSIDs,
-      WebGLStrategyDataTexture.__currentComponentSIDs!._v as Float32Array
-    );
+    gl.uniform1fv((shaderProgram as any).currentComponentSIDs, this.__currentComponentSIDs!._v as Float32Array);
 
     if ((shaderProgram as any).vrState != null && isVRMainPass) {
       const vrState = this.__engine.globalDataRepository.getValue('vrState', 0) as Vector2;
@@ -1639,7 +1628,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
       // gl.uniform1i((shaderProgram as any).isMainVr, isVRMainPass ? 1 : 0); // VR MultiView is not supported yet
 
-      WebGLStrategyDataTexture.__shaderProgram = shaderProgram;
+      this.__shaderProgram = shaderProgram;
       firstTimeForShaderProgram = true;
       firstTimeForMaterial = true;
     }
@@ -1674,28 +1663,28 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       material._setParametersToGpuWebGLPerShaderProgram({
         engine: this.__engine,
         material,
-        shaderProgram: WebGLStrategyDataTexture.__shaderProgram,
+        shaderProgram: this.__shaderProgram!,
         firstTime: firstTimeForShaderProgram,
         args: renderingArg,
       });
     }
 
     if (firstTimeForMaterial) {
-      this.__setCurrentComponentSIDsForEachPrimitive(gl, material, WebGLStrategyDataTexture.__shaderProgram);
+      this.__setCurrentComponentSIDsForEachPrimitive(gl, material, this.__shaderProgram!);
 
       WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
 
       material._setParametersToGpuWebGL({
         engine: this.__engine,
         material: material,
-        shaderProgram: WebGLStrategyDataTexture.__shaderProgram,
+        shaderProgram: this.__shaderProgram!,
         firstTime: firstTimeForMaterial,
         args: renderingArg,
       });
     }
     material._setParametersToGpuWebGLPerPrimitive({
       material: material,
-      shaderProgram: WebGLStrategyDataTexture.__shaderProgram,
+      shaderProgram: this.__shaderProgram!,
       firstTime: firstTimeForMaterial,
       args: renderingArg,
     });
@@ -1707,18 +1696,15 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__setCurrentComponentSIDsForEachDisplayIdx(renderPass, displayIdx as 0 | 1, isVRMainPass);
 
       gl.uniform1fv(
-        (WebGLStrategyDataTexture.__shaderProgram as any).currentComponentSIDs,
-        WebGLStrategyDataTexture.__currentComponentSIDs!._v as Float32Array
+        (this.__shaderProgram as any).currentComponentSIDs,
+        this.__currentComponentSIDs!._v as Float32Array
       );
 
-      if ((WebGLStrategyDataTexture.__shaderProgram as any).vrState != null && isVRMainPass && displayCount > 1) {
+      if ((this.__shaderProgram as any).vrState != null && isVRMainPass && displayCount > 1) {
         const vrState = this.__engine.globalDataRepository.getValue('vrState', 0) as Vector2;
         vrState._v[0] = isVRMainPass ? 1 : 0;
         vrState._v[1] = displayIdx;
-        (WebGLStrategyDataTexture.__shaderProgram as any)._gl.uniform2iv(
-          (WebGLStrategyDataTexture.__shaderProgram as any).vrState,
-          vrState._v
-        );
+        (this.__shaderProgram as any)._gl.uniform2iv((this.__shaderProgram as any).vrState, vrState._v);
       }
 
       if (primitive.indicesAccessor) {

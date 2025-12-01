@@ -50,7 +50,7 @@ export class MeshRendererComponent extends Component {
   private __specularCubeMapContribution = 1.0;
   private __rotationOfCubeMap = 0;
 
-  private static __cgApiRenderingStrategy?: CGAPIStrategy;
+  private static __cgApiRenderingStrategyMap: Map<ObjectUID, CGAPIStrategy> = new Map();
   static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> = new Map();
   private __updateCount = 0;
   private static __updateCount = 0;
@@ -235,22 +235,23 @@ export class MeshRendererComponent extends Component {
    */
   static common_$load({ processApproach, engine }: { processApproach: ProcessApproachEnum; engine: Engine }) {
     const moduleManager = ModuleManager.getInstance();
+    const engineUid = engine.objectUID;
 
     // Strategy
     if (processApproach === ProcessApproach.WebGPU) {
       const moduleName = 'webgpu';
       const webgpuModule = moduleManager.getModule(moduleName)! as RnWebGpu;
-      if (MeshRendererComponent.__cgApiRenderingStrategy == null) {
-        MeshRendererComponent.__cgApiRenderingStrategy = webgpuModule.WebGpuStrategyBasic.init(engine);
+      if (!MeshRendererComponent.__cgApiRenderingStrategyMap.has(engineUid)) {
+        MeshRendererComponent.__cgApiRenderingStrategyMap.set(engineUid, webgpuModule.WebGpuStrategyBasic.init(engine));
       }
-      (MeshRendererComponent.__cgApiRenderingStrategy as WebGpuStrategyBasic).common_$load();
+      (MeshRendererComponent.__cgApiRenderingStrategyMap.get(engineUid) as WebGpuStrategyBasic).common_$load();
     } else {
       const moduleName = 'webgl';
       const webglModule = moduleManager.getModule(moduleName)! as RnWebGL;
-      if (MeshRendererComponent.__cgApiRenderingStrategy == null) {
-        MeshRendererComponent.__cgApiRenderingStrategy = webglModule.getRenderingStrategy(engine, processApproach);
+      if (!MeshRendererComponent.__cgApiRenderingStrategyMap.has(engineUid)) {
+        MeshRendererComponent.__cgApiRenderingStrategyMap.set(engineUid, webglModule.getRenderingStrategy(engine, processApproach));
       }
-      (MeshRendererComponent.__cgApiRenderingStrategy as WebGLStrategy).common_$load();
+      (MeshRendererComponent.__cgApiRenderingStrategyMap.get(engineUid) as WebGLStrategy).common_$load();
     }
   }
 
@@ -259,7 +260,8 @@ export class MeshRendererComponent extends Component {
    * Sets up the component for rendering by loading the associated mesh.
    */
   $load() {
-    const ready = MeshRendererComponent.__cgApiRenderingStrategy!.$load(this.entity.tryToGetMesh()!);
+    const strategy = MeshRendererComponent.__cgApiRenderingStrategyMap.get(this.__engine.objectUID);
+    const ready = strategy!.$load(this.entity.tryToGetMesh()!);
     if (ready) {
       this.moveStageTo(ProcessStage.Unknown);
     }
@@ -501,13 +503,14 @@ export class MeshRendererComponent extends Component {
    * Initializes the rendering strategy if not already set and calls its prerender method.
    */
   static common_$prerender(engine: Engine) {
-    if (MeshRendererComponent.__cgApiRenderingStrategy == null) {
+    const engineUid = engine.objectUID;
+    if (!MeshRendererComponent.__cgApiRenderingStrategyMap.has(engineUid)) {
       // Possible if there is no mesh entity in the scene
       const processApproach = EngineState.currentProcessApproach;
       this.common_$load({ processApproach, engine });
     }
     // Call common_$prerender of WebGLRenderingStrategy
-    MeshRendererComponent.__cgApiRenderingStrategy!.prerender();
+    MeshRendererComponent.__cgApiRenderingStrategyMap.get(engineUid)!.prerender();
   }
 
   /**
@@ -517,6 +520,7 @@ export class MeshRendererComponent extends Component {
    * @param renderPassTickCount - The tick count for this render pass
    * @param primitiveUids - Array of primitive UIDs to render
    * @param displayIdx - The index of the display to render to
+   * @param engine - The engine instance
    * @returns True if rendering was successful, false otherwise
    */
   static common_$render({
@@ -524,14 +528,16 @@ export class MeshRendererComponent extends Component {
     renderPassTickCount,
     primitiveUids,
     displayIdx,
+    engine,
   }: {
     renderPass: RenderPass;
     renderPassTickCount: Count;
     primitiveUids: PrimitiveUID[];
     displayIdx: Index;
+    engine: Engine;
   }): boolean {
     // Call common_$render of WebGLRenderingStrategy
-    return MeshRendererComponent.__cgApiRenderingStrategy!.common_$render(
+    return MeshRendererComponent.__cgApiRenderingStrategyMap.get(engine.objectUID)!.common_$render(
       primitiveUids,
       renderPass,
       renderPassTickCount,

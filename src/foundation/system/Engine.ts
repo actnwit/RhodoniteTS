@@ -319,6 +319,7 @@ export class Engine extends RnObject {
                   renderPassTickCount,
                   primitiveUids,
                   displayIdx,
+                  engine: this,
                 });
                 renderPass._renderedSomethingBefore = renderedSomething;
                 if (renderedSomething) {

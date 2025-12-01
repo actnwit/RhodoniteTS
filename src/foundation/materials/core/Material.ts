@@ -142,7 +142,6 @@ export class Material extends RnObject {
 
   private __shaderDefines: Set<string> = new Set();
 
-  private static __webglResourceRepository?: WebGLResourceRepository;
   // static fields
   static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsName, ShaderVariable>> = new Map();
 
@@ -787,10 +786,7 @@ export class Material extends RnObject {
    * @param shaderProgram - The WebGL shader program
    */
   private __setAutoParametersToGpuWebGL(isUniformMode: boolean, firstTime: boolean, shaderProgram: WebGLProgram) {
-    if (Material.__webglResourceRepository == null) {
-      Material.__webglResourceRepository = this.__engine.webglResourceRepository;
-    }
-    const webglResourceRepository = Material.__webglResourceRepository!;
+    const webglResourceRepository = this.__engine.webglResourceRepository;
     if (isUniformMode) {
       this._autoFieldVariablesOnly.forEach(value => {
         const info = value.info;
