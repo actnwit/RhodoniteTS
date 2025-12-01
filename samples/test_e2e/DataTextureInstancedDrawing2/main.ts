@@ -46,7 +46,7 @@ function readyBasicVerticesData() {
     0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
   ]);
 
-  const primitive = Rn.Primitive.createPrimitive({
+  const primitive = Rn.Primitive.createPrimitive(engine, {
     indices: indices,
     attributeSemantics: [Rn.VertexAttribute.Position.XYZ, Rn.VertexAttribute.Color0.XYZ],
     attributes: [positions, colors],
@@ -57,7 +57,7 @@ function readyBasicVerticesData() {
 }
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -66,13 +66,13 @@ const primitive = readyBasicVerticesData();
 
 const entities = [];
 const entityNumber = 100;
-const originalMesh = new Rn.Mesh();
+const originalMesh = new Rn.Mesh(engine);
 originalMesh.addPrimitive(primitive);
-const entityOrig = Rn.createMeshEntity();
+const entityOrig = Rn.createMeshEntity(engine);
 entityOrig.getMesh().setMesh(originalMesh);
 for (let i = 0; i < entityNumber; i++) {
   const sqrtEntityNumber = Math.floor(Math.sqrt(entityNumber));
-  const entity = Rn.EntityRepository.shallowCopyEntity(entityOrig) as Rn.ISceneGraphEntity;
+  const entity = engine.entityRepository.shallowCopyEntity(entityOrig) as Rn.ISceneGraphEntity;
 
   entities.push(entity);
 
@@ -97,7 +97,7 @@ const rotationVec3 = Rn.MutableVector3.zero();
 let count = 0;
 
 // renderPass
-const renderPass = new Rn.RenderPass();
+const renderPass = new Rn.RenderPass(engine);
 renderPass.toClearColorBuffer = true;
 renderPass.toClearDepthBuffer = true;
 renderPass.addEntities(entities);
@@ -129,7 +129,7 @@ const draw = () => {
   stats.begin();
 
   //      console.log(date.getTime());
-  Rn.Engine.process([expression]);
+  engine.process([expression]);
 
   stats.end();
   count++;
@@ -139,5 +139,5 @@ const draw = () => {
 draw();
 
 window.exportGltf2 = () => {
-  Rn.Gltf2Exporter.export('Rhodonite');
+  Rn.Gltf2Exporter.export(engine, 'Rhodonite');
 };

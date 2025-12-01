@@ -17,7 +17,7 @@ await Promise.all([
 // prepare memory
 Rn.Config.cgApiDebugConsoleOutput = true;
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: rnCanvasElement,
 });
@@ -28,12 +28,12 @@ rootGroup.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([-Math.PI /
 setPointSizeRecursively(rootGroup, pointSize);
 
 // set camera
-const entityCamera = Rn.createCameraControllerEntity();
+const entityCamera = Rn.createCameraControllerEntity(engine);
 const cameraControllerComponent = entityCamera.getCameraController();
 cameraControllerComponent.controller.setTarget(rootGroup);
 
 //prepare render pass and expression
-const renderPass = new Rn.RenderPass();
+const renderPass = new Rn.RenderPass(engine);
 renderPass.addEntities([rootGroup]);
 renderPass.cameraComponent = entityCamera.getCamera();
 
@@ -47,12 +47,12 @@ draw([expression]);
 
 async function createEntityPointCloud(pointCloudDrcUri: string): Promise<Rn.IMeshEntity> {
   const importer = Rn.DrcPointCloudImporter.getInstance();
-  const primitive = await importer.importPointCloudToPrimitive(pointCloudDrcUri);
+  const primitive = await importer.importPointCloudToPrimitive(engine, pointCloudDrcUri);
 
-  const mesh = new Rn.Mesh();
+  const mesh = new Rn.Mesh(engine);
   mesh.addPrimitive(primitive);
 
-  const entity = Rn.createMeshEntity();
+  const entity = Rn.createMeshEntity(engine);
   const meshComponent = entity.getMesh();
   meshComponent.setMesh(mesh);
 
@@ -117,6 +117,6 @@ function setPointSizeRecursively(entity: Rn.IMeshEntity, pointSize: number) {
 }
 
 function draw(expressions: Rn.Expression[]) {
-  Rn.Engine.process(expressions);
+  engine.process(expressions);
   requestAnimationFrame(draw.bind(null, expressions));
 }

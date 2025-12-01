@@ -4,8 +4,9 @@ export class PointShadowMap {
   private __shadowMomentFramebuffer: Rn.FrameBuffer;
   private __shadowMomentFrontMaterial: Rn.Material;
   private __shadowMomentBackMaterial: Rn.Material;
-
-  constructor() {
+  private __engine: Rn.Engine;
+  constructor(engine: Rn.Engine) {
+    this.__engine = engine;
     this.__shadowMomentFramebuffer = Rn.RenderableHelper.createFrameBuffer({
       width: 1024,
       height: 1024,
@@ -15,16 +16,16 @@ export class PointShadowMap {
       depthTextureFormat: Rn.TextureFormat.Depth32F,
     });
 
-    this.__shadowMomentFrontMaterial = Rn.MaterialHelper.createParaboloidDepthMomentEncodeMaterial();
+    this.__shadowMomentFrontMaterial = Rn.MaterialHelper.createParaboloidDepthMomentEncodeMaterial(engine);
     this.__shadowMomentFrontMaterial.colorWriteMask = [true, true, false, false];
 
-    this.__shadowMomentBackMaterial = Rn.MaterialHelper.createParaboloidDepthMomentEncodeMaterial();
+    this.__shadowMomentBackMaterial = Rn.MaterialHelper.createParaboloidDepthMomentEncodeMaterial(engine);
     this.__shadowMomentBackMaterial.colorWriteMask = [false, false, true, true];
     this.__shadowMomentBackMaterial.setParameter('frontHemisphere', false);
   }
 
   public getRenderPasses(entities: Rn.ISceneGraphEntity[]) {
-    const shadowMomentFrontRenderPass = new Rn.RenderPass();
+    const shadowMomentFrontRenderPass = new Rn.RenderPass(this.__engine);
     shadowMomentFrontRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
     shadowMomentFrontRenderPass.toClearColorBuffer = true;
     shadowMomentFrontRenderPass.toClearDepthBuffer = true;
@@ -32,7 +33,7 @@ export class PointShadowMap {
     shadowMomentFrontRenderPass.setFramebuffer(this.__shadowMomentFramebuffer);
     shadowMomentFrontRenderPass.setMaterial(this.__shadowMomentFrontMaterial);
 
-    const shadowMomentBackRenderPass = new Rn.RenderPass();
+    const shadowMomentBackRenderPass = new Rn.RenderPass(this.__engine);
     shadowMomentBackRenderPass.toClearColorBuffer = false;
     shadowMomentBackRenderPass.toClearDepthBuffer = true;
     shadowMomentBackRenderPass.addEntities(entities);

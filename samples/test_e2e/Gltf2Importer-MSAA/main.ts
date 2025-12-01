@@ -10,7 +10,7 @@ const basePathIBL = '../../../assets/ibl/shanghai_bund';
 // prepare memory
 Rn.Config.cgApiDebugConsoleOutput = true;
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: rnCanvasElement,
 });
@@ -48,8 +48,9 @@ const entityMainCamera = createEntityMainCamera();
 const renderPassMain = await createRenderPassMain(uriGltf, entityMainCamera);
 createAndSetFrameBufferAndMSAAFramebuffer(renderPassMain, rnCanvasElement.width);
 
-const materialGamma = Rn.MaterialHelper.createGammaCorrectionMaterial();
+const materialGamma = Rn.MaterialHelper.createGammaCorrectionMaterial(engine);
 const renderPassGamma = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+  engine,
   materialGamma,
   renderPassMain.getResolveFramebuffer().colorAttachments[0] as Rn.RenderTargetTexture
 );
@@ -66,7 +67,7 @@ draw([expression], 0);
 // ---functions-----------------------------------------------------------------------------------------
 
 function createEntityMainCamera() {
-  const entityCamera = Rn.createCameraControllerEntity();
+  const entityCamera = Rn.createCameraControllerEntity(engine);
   const cameraComponent = entityCamera.getCamera();
   cameraComponent.setFovyAndChangeFocalLength(30);
 
@@ -77,7 +78,7 @@ async function createRenderPassMain(uriGltf: string, entityCamera: Rn.ICameraEnt
   const entityEnvironmentCube = await createEntityEnvironmentCube();
   const entityRootGroup = await createEntityGltf2(uriGltf);
 
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.cameraComponent = entityCamera.getCamera();
   renderPass.addEntities([entityEnvironmentCube, entityRootGroup]);
 
@@ -89,7 +90,7 @@ async function createRenderPassMain(uriGltf: string, entityCamera: Rn.ICameraEnt
 }
 
 async function createEntityEnvironmentCube() {
-  const materialSphere = Rn.MaterialHelper.createEnvConstantMaterial({
+  const materialSphere = Rn.MaterialHelper.createEnvConstantMaterial(engine, {
     makeOutputSrgb: false,
   });
   materialSphere.setParameter('envHdriFormat', Rn.HdriFormat.HDR_LINEAR.index);
@@ -101,17 +102,17 @@ async function createEntityEnvironmentCube() {
   });
   materialSphere.setTextureParameter('colorEnvTexture', assets.environment, sampler);
 
-  const primitiveSphere = new Rn.Sphere();
+  const primitiveSphere = new Rn.Sphere(engine);
   primitiveSphere.generate({
     radius: 2500,
     widthSegments: 40,
     heightSegments: 40,
     material: materialSphere,
   });
-  const meshSphere = new Rn.Mesh();
+  const meshSphere = new Rn.Mesh(engine);
   meshSphere.addPrimitive(primitiveSphere);
 
-  const entitySphere = Rn.createMeshEntity();
+  const entitySphere = Rn.createMeshEntity(engine);
   const meshComponentSphere = entitySphere.getMesh();
   meshComponentSphere.setMesh(meshSphere);
 
@@ -125,7 +126,7 @@ async function createEntityGltf2(uriGltf: string) {
   const gltf2JSON = await Rn.Gltf2Importer.importFromUrl(uriGltf, {
     defaultMaterialHelperArgumentArray: [{ makeOutputSrgb: false }],
   });
-  const entityRootGroup = await Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
+  const entityRootGroup = await Rn.ModelConverter.convertToRhodoniteObject(engine, gltf2JSON);
   return entityRootGroup;
 }
 
@@ -151,7 +152,7 @@ function createAndSetFrameBufferAndMSAAFramebuffer(renderPass: Rn.RenderPass, re
 }
 
 async function setIBLTexture() {
-  const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
+  const meshRendererComponents = engine.componentRepository.getComponentsWithType(
     Rn.MeshRendererComponent
   ) as Rn.MeshRendererComponent[];
 
@@ -169,6 +170,6 @@ function draw(expressions: Rn.Expression[], loopCount: number, pElem?: HTMLEleme
     document.body.appendChild(pElem);
   }
 
-  Rn.Engine.process(expressions);
+  engine.process(expressions);
   requestAnimationFrame(draw.bind(null, expressions, loopCount + 1, pElem));
 }

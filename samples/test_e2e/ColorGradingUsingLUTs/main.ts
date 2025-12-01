@@ -5,7 +5,7 @@ declare const window: any;
 // prepare memory
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: rnCanvasElement,
 });
@@ -36,7 +36,7 @@ draw(expressions, true);
 // ---functions-----------------------------------------------------------------------------------------
 
 function createEntityMainCamera() {
-  const entityCamera = Rn.createCameraEntity();
+  const entityCamera = Rn.createCameraEntity(engine);
   const transformCamera = entityCamera.getTransform();
   transformCamera.localPosition = Rn.Vector3.fromCopyArray([10.0, 15.0, 20.0]);
 
@@ -47,7 +47,7 @@ function createEntityMainCamera() {
 }
 
 function createRenderPassMain(cameraComponent: Rn.CameraComponent) {
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.toClearColorBuffer = true;
   renderPass.cameraComponent = cameraComponent;
 
@@ -67,7 +67,7 @@ function createRenderPassMain(cameraComponent: Rn.CameraComponent) {
 }
 
 function createEntityColoredBoard(diffuseColor: Rn.Vector4) {
-  const primitive = new Rn.Plane();
+  const primitive = new Rn.Plane(engine);
   primitive.generate({
     width: 20,
     height: 20,
@@ -77,9 +77,9 @@ function createEntityColoredBoard(diffuseColor: Rn.Vector4) {
   });
   primitive.material.setParameter('diffuseColorFactor', diffuseColor);
 
-  const entity = Rn.createMeshEntity();
+  const entity = Rn.createMeshEntity(engine);
   const meshComponent = entity.getMesh();
-  const mesh = new Rn.Mesh();
+  const mesh = new Rn.Mesh(engine);
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);
   return entity;
@@ -98,7 +98,7 @@ function createAndSetFramebuffer(renderPass: Rn.RenderPass, resolution: number, 
 }
 
 function createEntityPostEffectCamera() {
-  const entityCamera = Rn.createCameraEntity();
+  const entityCamera = Rn.createCameraEntity(engine);
 
   const cameraComponent = entityCamera.getCamera();
   cameraComponent.zNearInner = 0.5;
@@ -108,9 +108,9 @@ function createEntityPostEffectCamera() {
 }
 
 function createRenderPassColorGrading(uri: string, renderPassMain: Rn.RenderPass, cameraComponent: Rn.CameraComponent) {
-  const material = Rn.MaterialHelper.createColorGradingUsingLUTsMaterial({ uri }, renderPassMain);
+  const material = Rn.MaterialHelper.createColorGradingUsingLUTsMaterial(engine, { uri }, renderPassMain);
 
-  const boardPrimitive = new Rn.Plane();
+  const boardPrimitive = new Rn.Plane(engine);
   boardPrimitive.generate({
     width: 1,
     height: 1,
@@ -120,16 +120,16 @@ function createRenderPassColorGrading(uri: string, renderPassMain: Rn.RenderPass
     material,
   });
 
-  const boardMesh = new Rn.Mesh();
+  const boardMesh = new Rn.Mesh(engine);
   boardMesh.addPrimitive(boardPrimitive);
 
-  const boardEntity = Rn.createMeshEntity();
+  const boardEntity = Rn.createMeshEntity(engine);
   boardEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
   boardEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
   const boardMeshComponent = boardEntity.getMesh();
   boardMeshComponent.setMesh(boardMesh);
 
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.toClearColorBuffer = false;
   renderPass.cameraComponent = cameraComponent;
   renderPass.addEntities([boardEntity]);
@@ -149,6 +149,6 @@ function draw(expressions: Rn.Expression[], isFirstLoop: boolean) {
     window._rendered = true;
   }
 
-  Rn.Engine.process(expressions);
+  engine.process(expressions);
   requestAnimationFrame(draw.bind(null, expressions, false));
 }

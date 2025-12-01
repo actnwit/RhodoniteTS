@@ -6,17 +6,17 @@ declare const Stats: any;
 
 //-------------------------------
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
-const light = Rn.createLightEntity();
+const light = Rn.createLightEntity(engine);
 light.getLight().color = Rn.Vector3.fromCopyArray([1, 1, 1]);
 light.getLight().intensity = 10;
 
 // Camera
-const cameraEntity = Rn.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity(engine);
 const cameraComponent = cameraEntity.getCamera();
 //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
 cameraComponent.zNear = 0.1;
@@ -31,21 +31,21 @@ const rnm = await Rn.Gltf2Importer.importFromUrl(
   '../../../assets/gltf/glTF-Sample-Assets/Models/BrainStem/glTF-Binary/BrainStem.glb'
 );
 
-const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(rnm);
+const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(engine, rnm);
 //rootGroup.getTransform().localPosition = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
 rootGroup.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, 1.0, 0.0]);
 
 const groups = [];
 for (let i = 0; i < 2; i++) {
   for (let j = 0; j < 2; j++) {
-    const newGroup = Rn.EntityRepository.shallowCopyEntity(rootGroup) as Rn.ISceneGraphEntity;
+    const newGroup = engine.entityRepository.shallowCopyEntity(rootGroup) as Rn.ISceneGraphEntity;
     newGroup.getTransform().localPosition = Rn.Vector3.fromCopyArray([i * 2, 0, j * 2]);
     groups.push(newGroup);
   }
 }
 
 // renderPass
-const renderPass = new Rn.RenderPass();
+const renderPass = new Rn.RenderPass(engine);
 renderPass.toClearColorBuffer = true;
 renderPass.toClearDepthBuffer = true;
 renderPass.addEntities([rootGroup]);
@@ -64,7 +64,7 @@ document.body.appendChild(stats.domElement);
 let startTime = Date.now();
 let count = 0;
 
-Rn.Engine.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (p == null && count > 0) {
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');
@@ -76,18 +76,18 @@ Rn.Engine.startRenderLoop(() => {
     const date = new Date();
     const time = (date.getTime() - startTime) / 1000;
     Rn.AnimationComponent.globalTime = time;
-    if (time > Rn.AnimationComponent.endInputValue) {
+    if (time > Rn.AnimationComponent.getEndInputValue(engine)) {
       startTime = date.getTime();
     }
   }
 
   stats.begin();
-  Rn.Engine.process([expression]);
+  engine.process([expression]);
   stats.end();
 
   count++;
 });
 
 window.exportGltf2 = () => {
-  Rn.Gltf2Exporter.export('Rhodonite');
+  Rn.Gltf2Exporter.export(engine, 'Rhodonite');
 };

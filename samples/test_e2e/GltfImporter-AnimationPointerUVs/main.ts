@@ -6,7 +6,7 @@ declare const window: any;
 Rn.Config.isUboEnabled = false;
 Rn.Config.cgApiDebugConsoleOutput = true;
 const canvas = document.getElementById('world') as HTMLCanvasElement;
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.WebGPU,
   canvas,
 });
@@ -17,6 +17,7 @@ const { cameraComponent, cameraEntity } = createCamera();
 
 const assets = await Rn.defaultAssetLoader.load({
   mainExpression: Rn.GltfImporter.importFromUrl(
+    engine,
     './../../../assets/gltf/glTF-Sample-Assets/Models/AnimationPointerUVs/glTF-Binary/AnimationPointerUVs.glb',
     {
       cameraComponent: cameraComponent,
@@ -48,7 +49,7 @@ const assets = await Rn.defaultAssetLoader.load({
 });
 
 // create ForwardRenderPipeline
-const forwardRenderPipeline = new Rn.ForwardRenderPipeline();
+const forwardRenderPipeline = new Rn.ForwardRenderPipeline(engine);
 forwardRenderPipeline.setup(canvas.width, canvas.height, {
   isBloom: false,
   isShadow: false,
@@ -81,14 +82,14 @@ const draw = frame => {
     const date = new Date();
     const time = (date.getTime() - startTime) / 1000;
     Rn.AnimationComponent.globalTime = time;
-    if (time > Rn.AnimationComponent.endInputValue) {
+    if (time > Rn.AnimationComponent.getEndInputValue(engine)) {
       startTime = date.getTime();
     }
   } else {
     Rn.AnimationComponent.setIsAnimating(false);
   }
 
-  Rn.Engine.process(frame);
+  engine.process(frame);
 
   count++;
 };
@@ -96,7 +97,7 @@ const draw = frame => {
 forwardRenderPipeline.startRenderLoop(draw);
 
 function createCamera() {
-  const cameraEntity = Rn.createCameraControllerEntity();
+  const cameraEntity = Rn.createCameraControllerEntity(engine);
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000.0;
@@ -106,7 +107,7 @@ function createCamera() {
 }
 
 async function createEnvCubeExpression(cameraEntity) {
-  const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
+  const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial(engine);
   const sampler = new Rn.Sampler({
     wrapS: Rn.TextureParameter.ClampToEdge,
     wrapT: Rn.TextureParameter.ClampToEdge,
@@ -116,7 +117,7 @@ async function createEnvCubeExpression(cameraEntity) {
   sphereMaterial.setTextureParameter('colorEnvTexture', assets.environment, sampler);
   sphereMaterial.setParameter('envHdriFormat', Rn.HdriFormat.LDR_SRGB.index);
 
-  const spherePrimitive = new Rn.Sphere();
+  const spherePrimitive = new Rn.Sphere(engine);
   spherePrimitive.generate({
     radius: 80,
     widthSegments: 40,
@@ -124,17 +125,17 @@ async function createEnvCubeExpression(cameraEntity) {
     material: sphereMaterial,
   });
 
-  const sphereMesh = new Rn.Mesh();
+  const sphereMesh = new Rn.Mesh(engine);
   sphereMesh.addPrimitive(spherePrimitive);
 
-  const sphereEntity = Rn.createMeshEntity();
+  const sphereEntity = Rn.createMeshEntity(engine);
   sphereEntity.getTransform().localScale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
   sphereEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0, 0, 0]);
 
   const sphereMeshComponent = sphereEntity.getMesh();
   sphereMeshComponent.setMesh(sphereMesh);
 
-  const sphereRenderPass = new Rn.RenderPass();
+  const sphereRenderPass = new Rn.RenderPass(engine);
   sphereRenderPass.tryToSetUniqueName('envCube', true);
   sphereRenderPass.addEntities([sphereEntity]);
   sphereRenderPass.cameraComponent = cameraEntity.getCamera();

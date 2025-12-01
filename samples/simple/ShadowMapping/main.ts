@@ -23,7 +23,7 @@ await Promise.all([
 // prepare memory
 Rn.Config.cgApiDebugConsoleOutput = true;
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: rnCanvasElement,
 });
@@ -80,7 +80,7 @@ draw([expression], cameraComponentDepth.entity, directionLight);
 // ---functions-----------------------------------------------------------------------------------------
 
 function createEntityDepthCamera(directionLight: Rn.MutableVector3) {
-  const entityCamera = Rn.createCameraEntity();
+  const entityCamera = Rn.createCameraEntity(engine);
   const transformCamera = entityCamera.getTransform();
   transformCamera.localPosition = lightPosition;
 
@@ -94,17 +94,17 @@ function createEntityDepthCamera(directionLight: Rn.MutableVector3) {
 }
 
 function createEntityMainCamera() {
-  const entityCamera = Rn.createCameraControllerEntity();
+  const entityCamera = Rn.createCameraControllerEntity(engine);
   return entityCamera;
 }
 
 function createRenderPassDepth(cameraComponentDepth: Rn.CameraComponent, entitiesRenderTarget: Rn.ISceneGraphEntity[]) {
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.toClearColorBuffer = true;
   renderPass.cameraComponent = cameraComponentDepth;
   renderPass.addEntities(entitiesRenderTarget);
 
-  const material = Rn.MaterialHelper.createDepthEncodeMaterial();
+  const material = Rn.MaterialHelper.createDepthEncodeMaterial(engine);
   renderPass.setMaterial(material);
   return renderPass;
 }
@@ -115,12 +115,12 @@ function createRenderPassMain(
   entitySmallBoard: Rn.IMeshEntity,
   entityLargeBoard: Rn.IMeshEntity
 ) {
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.toClearColorBuffer = true;
   renderPass.cameraComponent = cameraComponent;
   renderPass.addEntities([entitySmallBoard, entityLargeBoard]);
 
-  const materialSmallBoard = Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial({}, renderPassDepth);
+  const materialSmallBoard = Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial(engine, {}, renderPassDepth);
   materialSmallBoard.setParameter('diffuseColorFactor', diffuseColorFactorSmallBoard);
 
   const meshComponentSmallBoard = entitySmallBoard.getMesh();
@@ -128,7 +128,7 @@ function createRenderPassMain(
   const primitiveSmallBoard = meshSmallBoard.primitives[0];
   renderPass.setMaterialForPrimitive(materialSmallBoard, primitiveSmallBoard);
 
-  const materialLargeBoard = Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial({}, renderPassDepth);
+  const materialLargeBoard = Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial(engine, {}, renderPassDepth);
   materialLargeBoard.setParameter('diffuseColorFactor', diffuseColorFactorLargeBoard);
   materialLargeBoard.setParameter('shadowColorFactor', shadowColorFactorLargeBoard);
 
@@ -141,7 +141,7 @@ function createRenderPassMain(
 }
 
 function createEntityBoard() {
-  const primitive = new Rn.Plane();
+  const primitive = new Rn.Plane(engine);
   primitive.generate({
     width: 1,
     height: 1,
@@ -150,9 +150,9 @@ function createEntityBoard() {
     isUVRepeat: false,
   });
 
-  const entity = Rn.createMeshEntity();
+  const entity = Rn.createMeshEntity(engine);
   const meshComponent = entity.getMesh();
-  const mesh = new Rn.Mesh();
+  const mesh = new Rn.Mesh(engine);
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);
 
@@ -179,6 +179,6 @@ function draw(expressions: Rn.Expression[], entityDepthCamera: Rn.ICameraEntity,
   Rn.MutableVector3.multiplyTo(lightPosition, -1, directionLight).normalize();
   entityDepthCamera.getCamera().direction = directionLight;
 
-  Rn.Engine.process(expressions);
+  engine.process(expressions);
   requestAnimationFrame(draw.bind(null, expressions, entityDepthCamera, directionLight));
 }

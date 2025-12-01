@@ -3,14 +3,14 @@ import Rn from '../../../dist/esmdev/index.js';
 let p: any;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // camera
-const cameraEntity = Rn.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity(engine);
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000.0;
@@ -19,6 +19,7 @@ cameraComponent.aspect = 1.0;
 
 const assets = await Rn.defaultAssetLoader.load({
   mainExpression: Rn.GltfImporter.importFromUrl(
+    engine,
     '../../../assets/gltf/glTF-Sample-Assets/Models/MetalRoughSpheresNoTextures/glTF-Binary/MetalRoughSpheresNoTextures.glb',
     {
       cameraComponent: cameraComponent,
@@ -74,8 +75,9 @@ for (const renderPass of assets.mainExpression.renderPasses) {
 assets.mainExpression.renderPasses[0].toClearColorBuffer = true;
 assets.mainExpression.renderPasses[0].toClearDepthBuffer = true;
 
-const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial();
+const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial(engine);
 const gammaCorrectionRenderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+  engine,
   gammaCorrectionMaterial,
   gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)
 );
@@ -93,7 +95,7 @@ await setIBL();
 
 let count = 0;
 
-Rn.Engine.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (p == null && count > 0) {
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');
@@ -101,13 +103,13 @@ Rn.Engine.startRenderLoop(() => {
     document.body.appendChild(p);
   }
 
-  Rn.Engine.process(expressions);
+  engine.process(expressions);
 
   count++;
 });
 
 async function setIBL() {
-  const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
+  const meshRendererComponents = engine.componentRepository.getComponentsWithType(
     Rn.MeshRendererComponent
   ) as Rn.MeshRendererComponent[];
   for (const meshRendererComponent of meshRendererComponents) {

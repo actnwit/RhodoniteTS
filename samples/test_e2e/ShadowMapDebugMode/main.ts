@@ -3,7 +3,7 @@ import Rn from '../../../dist/esmdev/index.js';
 let p: any;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -87,22 +87,22 @@ entityLargeBoard.getTransform().localEulerAngles = rotateBigBoard;
 
 let count = 0;
 
-Rn.Engine.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (p == null && count > 0) {
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');
     p.innerText = 'Rendered.';
     document.body.appendChild(p);
   }
-  Rn.Engine.process([expression]);
+  engine.process([expression]);
 
   count++;
 });
 
 function createBoardEntityWithMaterial(materialHelperFunctionStr, arrayOfHelperFunctionArgument = []) {
-  const entity = Rn.createMeshEntity();
+  const entity = Rn.createMeshEntity(engine);
 
-  const primitive = new Rn.Plane();
+  const primitive = new Rn.Plane(engine);
   primitive.generate({
     width: 1,
     height: 1,
@@ -113,20 +113,20 @@ function createBoardEntityWithMaterial(materialHelperFunctionStr, arrayOfHelperF
   });
 
   const meshComponent = entity.getMesh();
-  const mesh = new Rn.Mesh();
+  const mesh = new Rn.Mesh(engine);
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);
   return entity;
 }
 
 function createCameraComponent() {
-  const cameraEntity = Rn.createCameraEntity();
+  const cameraEntity = Rn.createCameraEntity(engine);
   const cameraComponent = cameraEntity.getCamera();
   return cameraComponent;
 }
 
 function createCameraControllerComponent() {
-  const cameraEntity = Rn.createCameraControllerEntity();
+  const cameraEntity = Rn.createCameraControllerEntity(engine);
   const cameraComponent = cameraEntity.getCamera();
   return cameraComponent;
 }
@@ -144,7 +144,7 @@ function createFramebuffer(renderPass, height, width, textureNum) {
 }
 
 function createRenderPassSpecifyingCameraComponent(cameraComponent) {
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.toClearColorBuffer = true;
   renderPass.cameraComponent = cameraComponent;
   return renderPass;

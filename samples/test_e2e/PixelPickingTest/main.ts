@@ -3,12 +3,13 @@ import Rn from '../../../dist/esmdev/index.js';
 declare const window: any;
 
 const setupRenderPassEntityUidOutput = (
+  engine: Rn.Engine,
   rootGroup: Rn.ISceneGraphEntity,
   cameraComponent: Rn.CameraComponent,
   canvas: HTMLCanvasElement
 ) => {
-  const renderPass = new Rn.RenderPass();
-  const entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
+  const renderPass = new Rn.RenderPass(engine);
+  const entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial(engine);
 
   renderPass.setMaterial(entityUidOutputMaterial);
   renderPass.cameraComponent = cameraComponent;
@@ -33,7 +34,7 @@ const setupRenderPassEntityUidOutput = (
 };
 
 const setupRenderPassRendering = (rootGroup: Rn.ISceneGraphEntity, cameraComponent: Rn.CameraComponent) => {
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.cameraComponent = cameraComponent;
   renderPass.addEntities([rootGroup]);
 
@@ -61,7 +62,7 @@ const canvas = document.getElementById('world') as HTMLCanvasElement;
 window.canvas = canvas;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas,
 });
@@ -70,7 +71,7 @@ Rn.Logger.logLevel = Rn.LogLevel.Info;
 const expression = new Rn.Expression();
 
 // Camera
-const cameraEntity = Rn.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity(engine);
 const cameraComponent = cameraEntity.getCamera() as Rn.CameraComponent;
 //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
 cameraComponent.zNear = 0.1;
@@ -83,7 +84,7 @@ cameraEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0, 0.
 // const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
 // lightEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([1.0, 100000.0, 1.0]);
 // lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
-const lightEntity2 = Rn.createLightEntity();
+const lightEntity2 = Rn.createLightEntity(engine);
 lightEntity2.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, 10.0]);
 (lightEntity2.getLight() as Rn.LightComponent).color = Rn.Vector3.fromCopyArray([1, 1, 1]);
 (lightEntity2.getLight() as Rn.LightComponent).intensity = 40;
@@ -107,12 +108,12 @@ const rnm = await Rn.Gltf2Importer.importFromUrl(
   '../../../assets/gltf/glTF-Sample-Assets/Models/BoxAnimated/glTF-Binary/BoxAnimated.glb'
 );
 //const response = await importer.importFromUrl('../../../assets/gltf/glTF-Sample-Models/1.0/BrainStem/glTF/BrainStem.gltf');
-const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(rnm);
+const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(engine, rnm);
 //rootGroup.getTransform().localPosition = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
 //  rootGroup.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, 1.0, 0.0]);
 //  rootGroup.getTransform().scale = Rn.Vector3.fromCopyArray([0.01, 0.01, 0.01]);
 
-const renderPassEntityUidOutput = setupRenderPassEntityUidOutput(rootGroup, cameraComponent, canvas);
+const renderPassEntityUidOutput = setupRenderPassEntityUidOutput(engine, rootGroup, cameraComponent, canvas);
 window.renderPassEntityUidOutput = renderPassEntityUidOutput;
 const renderPassRendering = setupRenderPassRendering(rootGroup, cameraComponent);
 // expression.addRenderPasses([renderPassEntityUidOutput]);
@@ -128,7 +129,7 @@ Rn.CameraComponent.current = 0;
 let startTime = Date.now();
 let count = 0;
 
-Rn.Engine.startRenderLoop(async () => {
+engine.startRenderLoop(async () => {
   if (p == null && count > 0) {
     window._pickedEntityUID = await pick({ offsetX: 300, offsetY: 300 });
 
@@ -142,7 +143,7 @@ Rn.Engine.startRenderLoop(async () => {
     const date = new Date();
     const time = (date.getTime() - startTime) / 1000;
     Rn.AnimationComponent.globalTime = time;
-    if (time > Rn.AnimationComponent.endInputValue) {
+    if (time > Rn.AnimationComponent.getEndInputValue(engine)) {
       startTime = date.getTime();
     }
     //console.log(time);
@@ -150,12 +151,12 @@ Rn.Engine.startRenderLoop(async () => {
     //rootGroup.getTransform().localPosition = rootGroup.getTransform().localPosition;
   }
 
-  Rn.Engine.process([expression]);
+  engine.process([expression]);
   count++;
 });
 
 canvas.addEventListener('mousedown', pick);
 
 window.exportGltf2 = () => {
-  Rn.Gltf2Exporter.export('Rhodonite');
+  Rn.Gltf2Exporter.export(engine, 'Rhodonite');
 };

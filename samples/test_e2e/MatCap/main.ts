@@ -3,7 +3,7 @@ import Rn from '../../../dist/esmdev/index.js';
 // prepare memory
 Rn.Config.cgApiDebugConsoleOutput = true;
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: rnCanvasElement,
 });
@@ -23,7 +23,7 @@ draw(expressions, true);
 // ---functions-----------------------------------------------------------------------------------------
 
 function createEntityMainCamera() {
-  const entityCamera = Rn.createCameraEntity();
+  const entityCamera = Rn.createCameraEntity(engine);
   const transformCamera = entityCamera.getTransform();
   transformCamera.localPosition = Rn.Vector3.fromCopyArray([-0.1, -0.1, 10.0]);
 
@@ -34,7 +34,7 @@ function createEntityMainCamera() {
 }
 
 async function createRenderPassMain(cameraComponent: Rn.CameraComponent, uriMatCap: string) {
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.toClearColorBuffer = true;
   renderPass.cameraComponent = cameraComponent;
 
@@ -66,36 +66,36 @@ async function createRenderPassMain(cameraComponent: Rn.CameraComponent, uriMatC
 }
 
 function createEntityMatCapSphere(texture: Rn.Texture, sampler: Rn.Sampler) {
-  const primitive = new Rn.Sphere();
+  const primitive = new Rn.Sphere(engine);
   primitive.generate({
     radius: 10,
     widthSegments: 20,
     heightSegments: 20,
-    material: Rn.MaterialHelper.createMatCapMaterial({ texture, sampler }),
+    material: Rn.MaterialHelper.createMatCapMaterial(engine, { texture, sampler }),
   });
 
-  const entity = Rn.createMeshEntity();
+  const entity = Rn.createMeshEntity(engine);
   const meshComponent = entity.getMesh();
-  const mesh = new Rn.Mesh();
+  const mesh = new Rn.Mesh(engine);
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);
   return entity;
 }
 
 function createEntityMatCapBoard(texture: Rn.Texture) {
-  const primitive = new Rn.Plane();
+  const primitive = new Rn.Plane(engine);
   primitive.generate({
     width: 20,
     height: 20,
     uSpan: 1,
     vSpan: 1,
     isUVRepeat: false,
-    material: Rn.MaterialHelper.createMatCapMaterial({ texture }),
+    material: Rn.MaterialHelper.createMatCapMaterial(engine, { texture }),
   });
 
-  const entity = Rn.createMeshEntity();
+  const entity = Rn.createMeshEntity(engine);
   const meshComponent = entity.getMesh();
-  const mesh = new Rn.Mesh();
+  const mesh = new Rn.Mesh(engine);
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);
   return entity;
@@ -116,6 +116,6 @@ function draw(expressions: Rn.Expression[], isFirstLoop: boolean, pElem?: HTMLEl
     document.body.appendChild(pElem);
   }
 
-  Rn.Engine.process(expressions);
+  engine.process(expressions);
   requestAnimationFrame(draw.bind(null, expressions, false, pElem));
 }

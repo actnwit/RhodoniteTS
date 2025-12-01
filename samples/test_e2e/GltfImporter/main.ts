@@ -7,7 +7,7 @@ declare const window: any;
 Rn.Config.isUboEnabled = false;
 Rn.Config.cgApiDebugConsoleOutput = true;
 
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -16,7 +16,7 @@ await Rn.Engine.init({
 const vrmModelRotation = Rn.Vector3.fromCopyArray([0, (3 / 4) * Math.PI, 0]);
 
 // camera
-const cameraEntity = Rn.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity(engine);
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000.0;
@@ -27,7 +27,7 @@ cameraComponent.aspect = 1.0;
 const expressions = [];
 
 // vrm
-const vrmExpression = await Rn.GltfImporter.importFromUrl('../../../assets/vrm/test.vrm', {
+const vrmExpression = await Rn.GltfImporter.importFromUrl(engine, '../../../assets/vrm/test.vrm', {
   defaultMaterialHelperArgumentArray: [
     {
       isSkinning: false,
@@ -58,14 +58,14 @@ controller.dolly = 0.8;
 controller.setTarget(vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
 // Lights
-const lightEntity = Rn.createLightEntity();
+const lightEntity = Rn.createLightEntity(engine);
 const lightComponent = lightEntity.getLight();
 lightComponent.type = Rn.LightType.Directional;
 lightComponent.color = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
 lightEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, 0, Math.PI / 8]);
 
 let count = 0;
-Rn.Engine.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (p == null && count > 0) {
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');
@@ -77,11 +77,11 @@ Rn.Engine.startRenderLoop(() => {
     // const date = new Date();
   }
 
-  Rn.Engine.process(expressions);
+  engine.process(expressions);
 
   count++;
 });
 
 window.exportGltf2 = () => {
-  Rn.Gltf2Exporter.export('Rhodonite');
+  Rn.Gltf2Exporter.export(engine, 'Rhodonite');
 };

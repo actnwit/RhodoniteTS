@@ -5,7 +5,7 @@ let p: any;
 declare const window: any;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -25,11 +25,11 @@ const sampler = new Rn.Sampler({
   wrapT: Rn.TextureParameter.Repeat,
 });
 sampler.create();
-const modelMaterial = Rn.MaterialHelper.createClassicUberMaterial();
+const modelMaterial = Rn.MaterialHelper.createClassicUberMaterial(engine);
 modelMaterial.setTextureParameter('diffuseColorTexture', texture, sampler);
 
-const planeEntity = Rn.createMeshEntity();
-const planePrimitive = new Rn.Plane();
+const planeEntity = Rn.createMeshEntity(engine);
+const planePrimitive = new Rn.Plane(engine);
 planePrimitive.generate({
   width: 2,
   height: 2,
@@ -40,14 +40,14 @@ planePrimitive.generate({
   material: modelMaterial,
 });
 const planeMeshComponent = planeEntity.getMesh();
-const planeMesh = new Rn.Mesh();
+const planeMesh = new Rn.Mesh(engine);
 planeMesh.addPrimitive(planePrimitive);
 planeMeshComponent.setMesh(planeMesh);
 planeEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
 
-const sphereEntity = Rn.createMeshEntity();
-const spherePrimitive = new Rn.Sphere();
-const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
+const sphereEntity = Rn.createMeshEntity(engine);
+const spherePrimitive = new Rn.Sphere(engine);
+const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial(engine);
 spherePrimitive.generate({
   radius: -100,
   widthSegments: 40,
@@ -69,12 +69,12 @@ const samplerSphere = new Rn.Sampler({
 });
 sphereMaterial.setTextureParameter('colorEnvTexture', environmentCubeTexture, samplerSphere);
 const sphereMeshComponent = sphereEntity.getMesh();
-const sphereMesh = new Rn.Mesh();
+const sphereMesh = new Rn.Mesh(engine);
 sphereMesh.addPrimitive(spherePrimitive);
 sphereMeshComponent.setMesh(sphereMesh);
 
 // Camera
-const cameraEntity = Rn.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity(engine);
 const cameraComponent = cameraEntity.getCamera();
 //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
 cameraComponent.zNear = 0.1;
@@ -90,7 +90,7 @@ const controller = cameraControllerComponent.controller as Rn.OrbitCameraControl
 controller.setTarget(planeEntity);
 
 // renderPass
-const renderPass = new Rn.RenderPass();
+const renderPass = new Rn.RenderPass(engine);
 renderPass.toClearColorBuffer = true;
 renderPass.addEntities([planeEntity, sphereEntity]);
 
@@ -102,7 +102,7 @@ Rn.CameraComponent.current = 0;
 let startTime = Date.now();
 let count = 0;
 
-Rn.Engine.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (p == null && count > 0) {
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');
@@ -114,7 +114,7 @@ Rn.Engine.startRenderLoop(() => {
     const date = new Date();
     const time = (date.getTime() - startTime) / 1000;
     Rn.AnimationComponent.globalTime = time;
-    if (time > Rn.AnimationComponent.endInputValue) {
+    if (time > Rn.AnimationComponent.getEndInputValue(engine)) {
       startTime = date.getTime();
     }
     //console.log(time);
@@ -122,6 +122,6 @@ Rn.Engine.startRenderLoop(() => {
     //rootGroup.getTransform().localPosition = rootGroup.getTransform().localPosition;
   }
 
-  Rn.Engine.process([expression]);
+  engine.process([expression]);
   count++;
 });

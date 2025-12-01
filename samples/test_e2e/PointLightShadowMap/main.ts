@@ -7,14 +7,14 @@ declare const window: any;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
 Rn.Logger.logLevel = Rn.LogLevel.Debug;
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
 // Point Light
-let pointLight = Rn.MeshHelper.createSphere() as Rn.IMeshEntity & Rn.ILightEntityMethods;
-pointLight = Rn.EntityRepository.tryToAddComponentToEntityByTID(
+let pointLight = Rn.MeshHelper.createSphere(engine) as Rn.IMeshEntity & Rn.ILightEntityMethods;
+pointLight = engine.entityRepository.tryToAddComponentToEntityByTID(
   Rn.WellKnownComponentTIDs.LightComponentTID,
   pointLight
 ) as Rn.IMeshEntity & Rn.ILightEntityMethods;
@@ -22,13 +22,13 @@ pointLight.getLight().type = Rn.LightType.Point;
 pointLight.getLight().color = Rn.Vector3.fromCopyArray([1, 1, 1]);
 pointLight.getLight().intensity = 20;
 pointLight.scale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
-const pointGroupEntity = Rn.createGroupEntity();
+const pointGroupEntity = Rn.createGroupEntity(engine);
 pointGroupEntity.addChild(pointLight.getSceneGraph());
 pointGroupEntity.localPosition = Rn.Vector3.fromCopyArray([2, 0, 2]);
 pointLight.localPosition = Rn.Vector3.fromCopyArray([2, 0, 0]);
 
 // Main Camera
-const mainCameraEntity = Rn.createCameraControllerEntity();
+const mainCameraEntity = Rn.createCameraControllerEntity(engine);
 mainCameraEntity.localPosition = Rn.Vector3.fromCopyArray([0, 0, 10]);
 
 // Scene
@@ -48,10 +48,10 @@ const [pointShadowMapArrayFramebuffer, _pointShadowMapArrayRenderTargetTexture] 
     type: Rn.ComponentType.Float,
   });
 const shadowMapExpression = new Rn.Expression();
-const pointShadowMap = new PointShadowMap();
+const pointShadowMap = new PointShadowMap(engine);
 const renderPasses = pointShadowMap.getRenderPasses([groupEntity, backgroundEntity]);
 shadowMapExpression.addRenderPasses(renderPasses);
-const gaussianBlur = new Rn.GaussianBlur();
+const gaussianBlur = new Rn.GaussianBlur(engine);
 const { blurExpression, blurredRenderTarget } = gaussianBlur.createGaussianBlurExpression({
   textureToBlur: pointShadowMap.getShadowMomentFramebuffer().getColorAttachedRenderTargetTexture(0)!,
   parameters: {
@@ -66,7 +66,7 @@ const { blurExpression, blurredRenderTarget } = gaussianBlur.createGaussianBlurE
 });
 
 const mainExpression = new Rn.Expression();
-const mainRenderPass = new Rn.RenderPass();
+const mainRenderPass = new Rn.RenderPass(engine);
 mainRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
 mainRenderPass.toClearColorBuffer = true;
 mainRenderPass.toClearDepthBuffer = true;
@@ -84,7 +84,7 @@ mainExpression.addRenderPasses([mainRenderPass]);
 
 let count = 0;
 let angle = 0;
-Rn.Engine.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (count > 0) {
     p.id = 'rendered';
     p.innerText = 'Rendered.';
@@ -93,7 +93,7 @@ Rn.Engine.startRenderLoop(() => {
     rotateObject(pointGroupEntity, angle);
     angle += 0.01;
   }
-  Rn.Engine.process([shadowMapExpression, blurExpression, mainExpression]);
+  engine.process([shadowMapExpression, blurExpression, mainExpression]);
   // Rn.Engine.process([shadowMapExpression, mainExpression]);
 
   count++;
@@ -120,20 +120,20 @@ function setParaboloidBlurredShadowMap(blurredRenderTarget: Rn.RenderTargetTextu
 }
 
 function createObjects() {
-  const material = Rn.MaterialHelper.createPbrUberMaterial({ isShadow: true });
+  const material = Rn.MaterialHelper.createPbrUberMaterial(engine, { isShadow: true });
   material.setParameter('baseColorFactor', Rn.Vector4.fromCopyArray([1, 0, 0, 1]));
-  const cubesGroupEntity = Rn.createGroupEntity();
-  const cube0Entity = Rn.MeshHelper.createCube({ material });
+  const cubesGroupEntity = Rn.createGroupEntity(engine);
+  const cube0Entity = Rn.MeshHelper.createCube(engine, { material });
   cube0Entity.localPosition = Rn.Vector3.fromCopyArray([2, 0, 2]);
-  const cube1Entity = Rn.MeshHelper.createCube({ material });
+  const cube1Entity = Rn.MeshHelper.createCube(engine, { material });
   cube1Entity.localPosition = Rn.Vector3.fromCopyArray([-2, 0, 2]);
-  const cube2Entity = Rn.MeshHelper.createSphere({
+  const cube2Entity = Rn.MeshHelper.createSphere(engine, {
     widthSegments: 40,
     heightSegments: 40,
     material,
   });
   cube2Entity.localPosition = Rn.Vector3.fromCopyArray([2, 0, -2]);
-  const cube3Entity = Rn.MeshHelper.createSphere({
+  const cube3Entity = Rn.MeshHelper.createSphere(engine, {
     widthSegments: 40,
     heightSegments: 40,
     material,
@@ -148,10 +148,10 @@ function createObjects() {
 }
 
 function createBackground() {
-  const material = Rn.MaterialHelper.createPbrUberMaterial({ isShadow: true });
+  const material = Rn.MaterialHelper.createPbrUberMaterial(engine, { isShadow: true });
   material.cullFaceBack = false;
   material.setParameter('baseColorFactor', Rn.Vector4.fromCopyArray([1.0, 1.0, 1.0, 1]));
-  const backgroundEntity = Rn.MeshHelper.createSphere({
+  const backgroundEntity = Rn.MeshHelper.createSphere(engine, {
     widthSegments: 50,
     heightSegments: 50,
     inverseNormal: true,

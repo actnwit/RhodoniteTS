@@ -5,21 +5,22 @@ declare const window: any;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
 const processApproach = getProcessApproach(Rn);
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: processApproach,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 const expression = await Rn.GltfImporter.importFromUrl(
+  engine,
   '../../../assets/gltf/glTF-Sample-Assets/Models/Fox/glTF-Binary/Fox.glb'
 );
 // camera
-const cameraEntity = Rn.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity(engine);
 const cameraController = cameraEntity.getCameraController();
 cameraController.controller.setTarget(expression.renderPasses[0].entities[0] as Rn.ISceneGraphEntity);
 
-const light = Rn.createLightEntity();
+const light = Rn.createLightEntity(engine);
 light.getLight().type = Rn.LightType.Directional;
 
 let count = 0;
@@ -40,7 +41,7 @@ if (animationStateComponent != null) {
 
 const endInputValue = 1.16;
 
-Rn.Engine.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (count > 0) {
     window._rendered = true;
   }
@@ -48,11 +49,11 @@ Rn.Engine.startRenderLoop(() => {
   if (window.isAnimating) {
     Rn.AnimationComponent.globalTime += 0.016;
     if (Rn.AnimationComponent.globalTime > endInputValue) {
-      Rn.AnimationComponent.globalTime -= endInputValue - Rn.AnimationComponent.startInputValue;
+      Rn.AnimationComponent.globalTime -= endInputValue - Rn.AnimationComponent.getStartInputValue(engine);
     }
   }
 
-  Rn.Engine.process([expression]);
+  engine.process([expression]);
 
   count++;
 });

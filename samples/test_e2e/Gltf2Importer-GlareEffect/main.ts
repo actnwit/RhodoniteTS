@@ -23,7 +23,7 @@ const synthesizeCoefficient = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0] as [number, number,
 // prepare memory
 Rn.Config.cgApiDebugConsoleOutput = true;
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: rnCanvasElement,
 });
@@ -65,7 +65,7 @@ createAndSetFramebuffer(renderPassMain, rnCanvasElement.width, rnCanvasElement.h
 });
 renderPassMain.clearColor = Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 1.0]);
 
-const bloomHelper = new Rn.Bloom();
+const bloomHelper = new Rn.Bloom(engine);
 const { bloomExpression, bloomedRenderTarget } = bloomHelper.createBloomExpression({
   textureToBloom: renderPassMain.getFramebuffer().colorAttachments[0] as unknown as Rn.AbstractTexture,
   parameters: {
@@ -77,8 +77,9 @@ const { bloomExpression, bloomedRenderTarget } = bloomHelper.createBloomExpressi
   },
 });
 
-const materialGamma = Rn.MaterialHelper.createGammaCorrectionMaterial();
+const materialGamma = Rn.MaterialHelper.createGammaCorrectionMaterial(engine);
 const renderPassGamma = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+  engine,
   materialGamma,
   bloomedRenderTarget
 );
@@ -102,12 +103,12 @@ async function createEntityGltf2(uriGltf: string) {
     defaultMaterialHelperArgumentArray: [{ makeOutputSrgb: false }],
   });
 
-  const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
+  const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(engine, gltf2JSON);
   return rootGroup;
 }
 
 async function createEntityEnvironmentCube() {
-  const materialSphere = Rn.MaterialHelper.createEnvConstantMaterial({
+  const materialSphere = Rn.MaterialHelper.createEnvConstantMaterial(engine, {
     makeOutputSrgb: false,
   });
   materialSphere.setParameter('envHdriFormat', Rn.HdriFormat.HDR_LINEAR.index);
@@ -119,17 +120,17 @@ async function createEntityEnvironmentCube() {
   });
   materialSphere.setTextureParameter('colorEnvTexture', assets.environment, samplerSphere);
 
-  const primitiveSphere = new Rn.Sphere();
+  const primitiveSphere = new Rn.Sphere(engine);
   primitiveSphere.generate({
     radius: 2500,
     widthSegments: 40,
     heightSegments: 40,
     material: materialSphere,
   });
-  const meshSphere = new Rn.Mesh();
+  const meshSphere = new Rn.Mesh(engine);
   meshSphere.addPrimitive(primitiveSphere);
 
-  const entitySphere = Rn.createMeshEntity();
+  const entitySphere = Rn.createMeshEntity(engine);
   const meshComponentSphere = entitySphere.getMesh();
   meshComponentSphere.setMesh(meshSphere);
 
@@ -140,7 +141,7 @@ async function createEntityEnvironmentCube() {
 }
 
 function createEntityMainCamera(entityCameraTarget: Rn.ISceneGraphEntity) {
-  const entityCamera = Rn.createCameraControllerEntity();
+  const entityCamera = Rn.createCameraControllerEntity(engine);
   const cameraControllerComponent = entityCamera.getCameraController();
   const controller = cameraControllerComponent.controller;
   controller.setTarget(entityCameraTarget);
@@ -149,7 +150,7 @@ function createEntityMainCamera(entityCameraTarget: Rn.ISceneGraphEntity) {
 }
 
 async function createRenderPassMain(cameraComponent: Rn.CameraComponent, entityRenderTargets: Rn.ISceneGraphEntity[]) {
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.tryToSetUniqueName('renderPassMain', true);
   renderPass.toClearColorBuffer = true;
   renderPass.cameraComponent = cameraComponent;
@@ -193,7 +194,7 @@ function createExpression(renderPasses: Rn.RenderPass[]) {
 }
 
 async function setIBLTexture() {
-  const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
+  const meshRendererComponents = engine.componentRepository.getComponentsWithType(
     Rn.MeshRendererComponent
   ) as Rn.MeshRendererComponent[];
 
@@ -211,6 +212,6 @@ function draw(expressions: Rn.Expression[], loopCount: number, pElem?: HTMLEleme
     document.body.appendChild(pElem);
   }
 
-  Rn.Engine.process(expressions);
+  engine.process(expressions);
   requestAnimationFrame(draw.bind(null, expressions, loopCount + 1, pElem));
 }

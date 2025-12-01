@@ -7,14 +7,14 @@ declare const window: any;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
 Rn.Logger.logLevel = Rn.LogLevel.Debug;
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
 // Point Light 1
-let pointLight = Rn.MeshHelper.createSphere() as Rn.IMeshEntity & Rn.ILightEntityMethods;
-pointLight = Rn.EntityRepository.tryToAddComponentToEntityByTID(
+let pointLight = Rn.MeshHelper.createSphere(engine) as Rn.IMeshEntity & Rn.ILightEntityMethods;
+pointLight = engine.entityRepository.tryToAddComponentToEntityByTID(
   Rn.WellKnownComponentTIDs.LightComponentTID,
   pointLight
 ) as Rn.IMeshEntity & Rn.ILightEntityMethods;
@@ -23,14 +23,14 @@ pointLight.getLight().castShadow = true;
 pointLight.getLight().color = Rn.Vector3.fromCopyArray([1, 1, 1]);
 pointLight.getLight().intensity = 20;
 pointLight.scale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
-const pointGroupEntity = Rn.createGroupEntity();
+const pointGroupEntity = Rn.createGroupEntity(engine);
 pointGroupEntity.addChild(pointLight.getSceneGraph());
 pointGroupEntity.localPosition = Rn.Vector3.fromCopyArray([2, 0, 2]);
 pointLight.localPosition = Rn.Vector3.fromCopyArray([2, 0, 0]);
 
 // Point Light 2
-let pointLight2 = Rn.MeshHelper.createSphere() as Rn.IMeshEntity & Rn.ILightEntityMethods;
-pointLight2 = Rn.EntityRepository.tryToAddComponentToEntityByTID(
+let pointLight2 = Rn.MeshHelper.createSphere(engine) as Rn.IMeshEntity & Rn.ILightEntityMethods;
+pointLight2 = engine.entityRepository.tryToAddComponentToEntityByTID(
   Rn.WellKnownComponentTIDs.LightComponentTID,
   pointLight2
 ) as Rn.IMeshEntity & Rn.ILightEntityMethods;
@@ -39,18 +39,18 @@ pointLight2.getLight().castShadow = true;
 pointLight2.getLight().color = Rn.Vector3.fromCopyArray([1, 1, 1]);
 pointLight2.getLight().intensity = 20;
 pointLight2.scale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
-const pointGroupEntity2 = Rn.createGroupEntity();
+const pointGroupEntity2 = Rn.createGroupEntity(engine);
 pointGroupEntity2.addChild(pointLight2.getSceneGraph());
 pointGroupEntity2.localPosition = Rn.Vector3.fromCopyArray([-2, 0, 2]);
 pointLight2.localPosition = Rn.Vector3.fromCopyArray([-2, 0, 0]);
 
 // Spot Light 1
-let spotLight = Rn.MeshHelper.createSphere() as Rn.IMeshEntity & Rn.ILightEntityMethods & Rn.ICameraEntityMethods;
-spotLight = Rn.EntityRepository.tryToAddComponentToEntityByTID(
+let spotLight = Rn.MeshHelper.createSphere(engine) as Rn.IMeshEntity & Rn.ILightEntityMethods & Rn.ICameraEntityMethods;
+spotLight = engine.entityRepository.tryToAddComponentToEntityByTID(
   Rn.WellKnownComponentTIDs.LightComponentTID,
   spotLight
 ) as Rn.IMeshEntity & Rn.ILightEntityMethods & Rn.ICameraEntityMethods;
-spotLight = Rn.EntityRepository.tryToAddComponentToEntityByTID(
+spotLight = engine.entityRepository.tryToAddComponentToEntityByTID(
   Rn.WellKnownComponentTIDs.CameraComponentTID,
   spotLight
 ) as Rn.IMeshEntity & Rn.ILightEntityMethods & Rn.ICameraEntityMethods;
@@ -64,12 +64,14 @@ spotLight.localEulerAngles = Rn.Vector3.fromCopy3(-Math.PI / 2, 0, 0);
 spotLight.localPosition = Rn.Vector3.fromCopy3(0.0, 6.0, 0.0);
 
 // Spot Light 2
-let spotLight2 = Rn.MeshHelper.createSphere() as Rn.IMeshEntity & Rn.ILightEntityMethods & Rn.ICameraEntityMethods;
-spotLight2 = Rn.EntityRepository.tryToAddComponentToEntityByTID(
+let spotLight2 = Rn.MeshHelper.createSphere(engine) as Rn.IMeshEntity &
+  Rn.ILightEntityMethods &
+  Rn.ICameraEntityMethods;
+spotLight2 = engine.entityRepository.tryToAddComponentToEntityByTID(
   Rn.WellKnownComponentTIDs.LightComponentTID,
   spotLight2
 ) as Rn.IMeshEntity & Rn.ILightEntityMethods & Rn.ICameraEntityMethods;
-spotLight2 = Rn.EntityRepository.tryToAddComponentToEntityByTID(
+spotLight2 = engine.entityRepository.tryToAddComponentToEntityByTID(
   Rn.WellKnownComponentTIDs.CameraComponentTID,
   spotLight2
 ) as Rn.IMeshEntity & Rn.ILightEntityMethods & Rn.ICameraEntityMethods;
@@ -83,7 +85,7 @@ spotLight2.localEulerAngles = Rn.Vector3.fromCopy3(Math.PI / 2, 0, 0);
 spotLight2.localPosition = Rn.Vector3.fromCopy3(0.0, -6.0, 0.0);
 
 // Main Camera
-const mainCameraEntity = Rn.createCameraControllerEntity();
+const mainCameraEntity = Rn.createCameraControllerEntity(engine);
 mainCameraEntity.localPosition = Rn.Vector3.fromCopyArray([0, 0, 10]);
 
 // Scene
@@ -91,11 +93,11 @@ const groupEntity = createObjects();
 mainCameraEntity.getCameraController().controller.setTarget(groupEntity);
 const backgroundEntity = createBackground();
 
-const shadowSystem = new Rn.ShadowSystem(1024);
+const shadowSystem = new Rn.ShadowSystem(engine, 1024);
 const shadowExpressions = shadowSystem.getExpressions([groupEntity, backgroundEntity]);
 
 const mainExpression = new Rn.Expression();
-const mainRenderPass = new Rn.RenderPass();
+const mainRenderPass = new Rn.RenderPass(engine);
 mainRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
 mainRenderPass.toClearColorBuffer = true;
 mainRenderPass.toClearDepthBuffer = true;
@@ -105,7 +107,7 @@ mainExpression.addRenderPasses([mainRenderPass]);
 
 let count = 0;
 let angle = 0;
-Rn.Engine.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (count > 0) {
     p.id = 'rendered';
     p.innerText = 'Rendered.';
@@ -116,26 +118,26 @@ Rn.Engine.startRenderLoop(() => {
     angle += 0.01;
   }
   shadowSystem.setDepthBiasPV([groupEntity, backgroundEntity]);
-  Rn.Engine.process([...shadowExpressions, mainExpression]);
+  engine.process([...shadowExpressions, mainExpression]);
 
   count++;
 });
 
 function createObjects() {
-  const material = Rn.MaterialHelper.createPbrUberMaterial({ isShadow: true });
+  const material = Rn.MaterialHelper.createPbrUberMaterial(engine, { isShadow: true });
   material.setParameter('baseColorFactor', Rn.Vector4.fromCopyArray([1, 0, 0, 1]));
-  const cubesGroupEntity = Rn.createGroupEntity();
-  const cube0Entity = Rn.MeshHelper.createCube({ material });
+  const cubesGroupEntity = Rn.createGroupEntity(engine);
+  const cube0Entity = Rn.MeshHelper.createCube(engine, { material });
   cube0Entity.localPosition = Rn.Vector3.fromCopyArray([2, 0, 2]);
-  const cube1Entity = Rn.MeshHelper.createCube({ material });
+  const cube1Entity = Rn.MeshHelper.createCube(engine, { material });
   cube1Entity.localPosition = Rn.Vector3.fromCopyArray([-2, 0, 2]);
-  const cube2Entity = Rn.MeshHelper.createSphere({
+  const cube2Entity = Rn.MeshHelper.createSphere(engine, {
     widthSegments: 40,
     heightSegments: 40,
     material,
   });
   cube2Entity.localPosition = Rn.Vector3.fromCopyArray([2, 0, -2]);
-  const cube3Entity = Rn.MeshHelper.createSphere({
+  const cube3Entity = Rn.MeshHelper.createSphere(engine, {
     widthSegments: 40,
     heightSegments: 40,
     material,
@@ -150,10 +152,10 @@ function createObjects() {
 }
 
 function createBackground() {
-  const material = Rn.MaterialHelper.createPbrUberMaterial({ isShadow: true });
+  const material = Rn.MaterialHelper.createPbrUberMaterial(engine, { isShadow: true });
   material.cullFaceBack = false;
   material.setParameter('baseColorFactor', Rn.Vector4.fromCopyArray([1.0, 1.0, 1.0, 1]));
-  const backgroundEntity = Rn.MeshHelper.createSphere({
+  const backgroundEntity = Rn.MeshHelper.createSphere(engine, {
     widthSegments: 50,
     heightSegments: 50,
     inverseNormal: true,

@@ -4,13 +4,13 @@ const p = document.createElement('p');
 document.body.appendChild(p);
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
 // camera
-const cameraEntity = Rn.createCameraEntity();
+const cameraEntity = Rn.createCameraEntity(engine);
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000.0;
@@ -22,6 +22,7 @@ cameraTransform.localPosition = Rn.Vector3.fromCopyArray([0, 0, 5.5]);
 
 // gltf
 const expression = await Rn.GltfImporter.importFromUrl(
+  engine,
   '../../../assets/gltf/glTF-Sample-Assets/Models/TextureTransformTest/glTF/TextureTransformTest.gltf',
   {
     cameraComponent: cameraComponent,
@@ -35,13 +36,13 @@ const expression = await Rn.GltfImporter.importFromUrl(
 
 let count = 0;
 
-Rn.Engine.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (count > 0) {
     p.id = 'rendered';
     p.innerText = 'Rendered.';
   }
 
-  Rn.Engine.process([expression]);
+  engine.process([expression]);
 
   count++;
 });

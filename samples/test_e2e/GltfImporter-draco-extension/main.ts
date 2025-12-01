@@ -5,7 +5,7 @@ const p = document.createElement('p');
 document.body.appendChild(p);
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -14,7 +14,7 @@ await Rn.Engine.init({
 const expressions = [];
 
 // camera
-const cameraEntity = Rn.createCameraEntity();
+const cameraEntity = Rn.createCameraEntity(engine);
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000.0;
@@ -23,6 +23,7 @@ cameraComponent.aspect = 1.0;
 
 // gltf
 const mainExpression = await Rn.GltfImporter.importFromUrl(
+  engine,
   '../../../assets/gltf/glTF-Sample-Assets/Models/BarramundiFish/glTF-Draco/BarramundiFish.gltf',
   {
     cameraComponent: cameraComponent,
@@ -57,31 +58,32 @@ const rootTransFormComponent = rootGroup.getTransform();
 rootTransFormComponent.localEulerAngles = Rn.Vector3.fromCopyArray([0, Math.PI / 2.0, 0.0]);
 rootTransFormComponent.localPosition = Rn.Vector3.fromCopyArray([0, -0.13, -1.5]);
 
-const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial();
+const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial(engine);
 const gammaCorrectionRenderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+  engine,
   gammaCorrectionMaterial,
   gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)
 );
 expressionPostEffect.addRenderPasses([gammaCorrectionRenderPass]);
 
 // lighting
-const lightEntity = Rn.createLightEntity();
+const lightEntity = Rn.createLightEntity(engine);
 const lightComponent = lightEntity.getLight();
 lightComponent.type = Rn.LightType.Directional;
 lightComponent.color = Rn.Vector3.fromCopyArray([0.5, 0.5, 0.5]);
 
 let count = 0;
 
-Rn.Engine.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (count > 1) {
     p.setAttribute('id', 'rendered');
     p.innerText = 'Rendered.';
   }
 
-  Rn.Engine.process(expressions);
+  engine.process(expressions);
   count++;
 });
 
 window.exportGltf2 = () => {
-  Rn.Gltf2Exporter.export('Rhodonite');
+  Rn.Gltf2Exporter.export(engine, 'Rhodonite');
 };

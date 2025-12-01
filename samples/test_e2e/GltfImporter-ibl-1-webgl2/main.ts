@@ -5,14 +5,14 @@ document.body.appendChild(p);
 
 Rn.Config.isUboEnabled = false;
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // camera
-const cameraEntity = Rn.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity(engine);
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000.0;
@@ -21,6 +21,7 @@ cameraComponent.aspect = 1.0;
 
 const assets = await Rn.defaultAssetLoader.load({
   mainExpression: Rn.GltfImporter.importFromUrl(
+    engine,
     '../../../assets/gltf/glTF-Sample-Assets/Models/FlightHelmet/glTF/FlightHelmet.gltf',
     {
       cameraComponent: cameraComponent,
@@ -73,8 +74,9 @@ mainRenderPass.setFramebuffer(gammaTargetFramebuffer);
 mainRenderPass.toClearColorBuffer = true;
 mainRenderPass.toClearDepthBuffer = true;
 
-const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial();
+const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial(engine);
 const gammaCorrectionRenderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+  engine,
   gammaCorrectionMaterial,
   gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)
 );
@@ -91,7 +93,7 @@ await setIBL();
 
 let count = 0;
 
-Rn.Engine.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (count > 100) {
     p.id = 'rendered';
     p.innerText = 'Rendered.';
@@ -100,13 +102,13 @@ Rn.Engine.startRenderLoop(() => {
     p.innerText = 'Started.';
   }
 
-  Rn.Engine.process(expressions);
+  engine.process(expressions);
 
   count++;
 });
 
 async function setIBL() {
-  const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
+  const meshRendererComponents = engine.componentRepository.getComponentsWithType(
     Rn.MeshRendererComponent
   ) as Rn.MeshRendererComponent[];
   for (const meshRendererComponent of meshRendererComponents) {

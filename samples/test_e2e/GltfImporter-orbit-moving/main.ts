@@ -4,14 +4,14 @@ const p = document.createElement('p');
 document.body.appendChild(p);
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // camera
-const cameraEntity = Rn.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity(engine);
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000.0;
@@ -20,6 +20,7 @@ cameraComponent.aspect = 1.0;
 
 const assets = await Rn.defaultAssetLoader.load({
   mainExpression: Rn.GltfImporter.importFromUrl(
+    engine,
     '../../../assets/gltf/glTF-Sample-Assets/Models/BarramundiFish/glTF-Binary/BarramundiFish.glb',
     {
       cameraComponent: cameraComponent,
@@ -80,10 +81,11 @@ assets.mainExpression.renderPasses[0].toClearColorBuffer = true;
 assets.mainExpression.renderPasses[0].toClearDepthBuffer = true;
 assets.mainExpression.renderPasses[0].clearColor = Rn.Vector4.fromCopyArray([0, 0, 0, 0]);
 
-const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial();
+const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial(engine);
 gammaCorrectionMaterial.alphaMode = Rn.AlphaMode.Blend;
 
 const gammaCorrectionRenderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+  engine,
   gammaCorrectionMaterial,
   gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)
 );
@@ -101,7 +103,7 @@ await setIBL();
 
 let count = 0;
 
-Rn.Engine.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   switch (count) {
     case 1:
       p.setAttribute('id', 'rendered');
@@ -113,12 +115,12 @@ Rn.Engine.startRenderLoop(() => {
       break;
   }
 
-  Rn.Engine.process(expressions);
+  engine.process(expressions);
   count++;
 });
 
 async function createEnvCubeExpression() {
-  const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
+  const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial(engine);
   const sampler = new Rn.Sampler({
     wrapS: Rn.TextureParameter.ClampToEdge,
     wrapT: Rn.TextureParameter.ClampToEdge,
@@ -128,7 +130,7 @@ async function createEnvCubeExpression() {
   sphereMaterial.setTextureParameter('colorEnvTexture', assets.environment, sampler);
   sphereMaterial.setParameter('envHdriFormat', Rn.HdriFormat.LDR_SRGB.index);
 
-  const spherePrimitive = new Rn.Sphere();
+  const spherePrimitive = new Rn.Sphere(engine);
   spherePrimitive.generate({
     radius: 50,
     widthSegments: 40,
@@ -136,16 +138,16 @@ async function createEnvCubeExpression() {
     material: sphereMaterial,
   });
 
-  const sphereMesh = new Rn.Mesh();
+  const sphereMesh = new Rn.Mesh(engine);
   sphereMesh.addPrimitive(spherePrimitive);
 
-  const sphereEntity = Rn.createMeshEntity();
+  const sphereEntity = Rn.createMeshEntity(engine);
   sphereEntity.getTransform().localScale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
 
   const sphereMeshComponent = sphereEntity.getMesh();
   sphereMeshComponent.setMesh(sphereMesh);
 
-  const sphereRenderPass = new Rn.RenderPass();
+  const sphereRenderPass = new Rn.RenderPass(engine);
   sphereRenderPass.addEntities([sphereEntity]);
 
   const sphereExpression = new Rn.Expression();
@@ -155,7 +157,7 @@ async function createEnvCubeExpression() {
 }
 
 async function setIBL() {
-  const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
+  const meshRendererComponents = engine.componentRepository.getComponentsWithType(
     Rn.MeshRendererComponent
   ) as Rn.MeshRendererComponent[];
   for (const meshRendererComponent of meshRendererComponents) {

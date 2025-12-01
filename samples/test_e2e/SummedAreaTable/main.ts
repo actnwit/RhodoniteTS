@@ -7,10 +7,10 @@ let _framebuffer: Rn.FrameBuffer;
 let _renderPassMain: Rn.RenderPass;
 
 // Init Rhodonite
-await initRn();
+const engine = await initRn();
 
 // Main Camera
-const cameraEntity = Rn.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity(engine);
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000.0;
@@ -20,6 +20,7 @@ cameraComponent.aspect = 1.0;
 // Assets
 const assets = await Rn.defaultAssetLoader.load({
   mainExpression: Rn.GltfImporter.importFromUrl(
+    engine,
     '../../../assets/gltf/glTF-Sample-Assets/Models/AntiqueCamera/glTF-Binary/AntiqueCamera.glb',
     {
       cameraComponent: cameraComponent,
@@ -62,25 +63,26 @@ await createMainExpression(expressions);
 await setIBL();
 
 // Render Loop
-Rn.Engine.startRenderLoop(() => {
-  Rn.Engine.process(expressions);
+engine.startRenderLoop(() => {
+  engine.process(expressions);
 });
 
 async function initRn() {
   Rn.Config.cgApiDebugConsoleOutput = true;
   const canvas = document.getElementById('world') as HTMLCanvasElement;
-  await Rn.Engine.init({
+  const engine = await Rn.Engine.init({
     approach: Rn.ProcessApproach.DataTexture,
     canvas,
     webglOption: { antialias: false },
   });
   Rn.Logger.logLevel = Rn.LogLevel.Info;
+  return engine;
 }
 
 function _createSat(expressions: Rn.Expression[]) {
   const expressionSat = new Rn.Expression();
-  const materialSat = Rn.MaterialHelper.createSummedAreaTableMaterial();
-  const renderPassSat = Rn.RenderPassHelper.createScreenDrawRenderPass(materialSat);
+  const materialSat = Rn.MaterialHelper.createSummedAreaTableMaterial(engine);
+  const renderPassSat = Rn.RenderPassHelper.createScreenDrawRenderPass(engine, materialSat);
   expressionSat.addRenderPasses([renderPassSat]);
   expressions.push(expressionSat);
 }
@@ -96,7 +98,7 @@ async function createMainExpression(expressions: Rn.Expression[]) {
 }
 
 async function createBackgroundEnvCubeExpression() {
-  const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
+  const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial(engine);
   const sampler = new Rn.Sampler({
     magFilter: Rn.TextureParameter.Linear,
     minFilter: Rn.TextureParameter.Linear,
@@ -106,7 +108,7 @@ async function createBackgroundEnvCubeExpression() {
   sphereMaterial.setTextureParameter('colorEnvTexture', assets.environment, sampler);
   sphereMaterial.setParameter('envHdriFormat', Rn.HdriFormat.LDR_SRGB.index);
 
-  const sphereEntity = Rn.MeshHelper.createSphere({
+  const sphereEntity = Rn.MeshHelper.createSphere(engine, {
     radius: 50,
     widthSegments: 40,
     heightSegments: 40,
@@ -115,7 +117,7 @@ async function createBackgroundEnvCubeExpression() {
   sphereEntity.localScale = Rn.Vector3.fromCopy3(-1, 1, 1);
   sphereEntity.localPosition = Rn.Vector3.fromCopy3(0, 20, -20);
 
-  const sphereRenderPass = new Rn.RenderPass();
+  const sphereRenderPass = new Rn.RenderPass(engine);
   sphereRenderPass.addEntities([sphereEntity]);
 
   const sphereExpression = new Rn.Expression();
@@ -126,7 +128,7 @@ async function createBackgroundEnvCubeExpression() {
 
 async function setIBL() {
   // Get all meshRenderComponents and set IBL cube maps to them
-  const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
+  const meshRendererComponents = engine.componentRepository.getComponentsWithType(
     Rn.MeshRendererComponent
   ) as Rn.MeshRendererComponent[];
   for (const meshRendererComponent of meshRendererComponents) {

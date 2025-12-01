@@ -6,7 +6,7 @@ declare const window: any;
 // Init Rhodonite
 Rn.Config.cgApiDebugConsoleOutput = true;
 const processApproach = getProcessApproach(Rn);
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: processApproach,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -54,7 +54,7 @@ texture.loadImageToMipLevel({
   type: imageComponentType,
 });
 
-const material = Rn.MaterialHelper.createClassicUberMaterial();
+const material = Rn.MaterialHelper.createClassicUberMaterial(engine);
 const sampler = new Rn.Sampler({
   wrapS: Rn.TextureParameter.ClampToEdge,
   wrapT: Rn.TextureParameter.ClampToEdge,
@@ -64,7 +64,7 @@ const sampler = new Rn.Sampler({
 material.setTextureParameter('diffuseColorTexture', texture, sampler);
 
 // Plane
-const planeEntity = Rn.MeshHelper.createPlane({
+const planeEntity = Rn.MeshHelper.createPlane(engine, {
   material: material,
 });
 planeEntity.localEulerAngles = Rn.Vector3.fromCopy3(Math.PI * 0.5, 0, 0);
@@ -72,7 +72,7 @@ planeEntity.localScale = Rn.Vector3.fromCopy3(1, 1, 1);
 planeEntity.localPosition = Rn.Vector3.fromCopy3(0, 0, 0.5);
 
 const expression = new Rn.Expression();
-const renderPass = new Rn.RenderPass();
+const renderPass = new Rn.RenderPass(engine);
 renderPass.addEntities([planeEntity]);
 renderPass.toClearColorBuffer = true;
 renderPass.toClearDepthBuffer = true;
@@ -82,7 +82,7 @@ expression.addRenderPasses([renderPass]);
 // Render Loop
 let count = 0;
 
-Rn.Engine.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (!window._rendered && count > 0) {
     window._rendered = true;
     const p = document.createElement('p');
@@ -91,6 +91,6 @@ Rn.Engine.startRenderLoop(() => {
     document.body.appendChild(p);
   }
 
-  Rn.Engine.process([expression]);
+  engine.process([expression]);
   count++;
 });

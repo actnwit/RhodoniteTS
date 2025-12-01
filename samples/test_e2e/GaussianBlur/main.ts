@@ -10,7 +10,7 @@ const gaussianVariance = 8.0;
 // prepare memory
 Rn.Config.cgApiDebugConsoleOutput = true;
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: rnCanvasElement,
 });
@@ -37,7 +37,7 @@ draw(expressions, true);
 
 // ---functions-----------------------------------------------------------------------------------------
 function createEntityMainCamera() {
-  const entityCamera = Rn.createCameraEntity();
+  const entityCamera = Rn.createCameraEntity(engine);
 
   const transformCamera = entityCamera.getTransform();
   transformCamera.localPosition = Rn.Vector3.fromCopyArray([10.0, 15.0, 20.0]);
@@ -49,7 +49,7 @@ function createEntityMainCamera() {
 }
 
 function createRenderPassMain(cameraComponent: Rn.CameraComponent) {
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.toClearColorBuffer = true;
   renderPass.cameraComponent = cameraComponent;
 
@@ -69,7 +69,7 @@ function createRenderPassMain(cameraComponent: Rn.CameraComponent) {
 }
 
 function createEntityColoredBoard(boardColor: Rn.Vector4) {
-  const primitive = new Rn.Plane();
+  const primitive = new Rn.Plane(engine);
   primitive.generate({
     width: 20,
     height: 20,
@@ -79,9 +79,9 @@ function createEntityColoredBoard(boardColor: Rn.Vector4) {
   });
   primitive.material.setParameter('diffuseColorFactor', boardColor);
 
-  const entity = Rn.createMeshEntity();
+  const entity = Rn.createMeshEntity(engine);
   const meshComponent = entity.getMesh();
-  const mesh = new Rn.Mesh();
+  const mesh = new Rn.Mesh(engine);
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);
   return entity;
@@ -100,7 +100,7 @@ function createAndSetFramebuffer(renderPass: Rn.RenderPass, resolution: number, 
 }
 
 function createRenderPassGaussianBlur(renderPassBlurTarget: Rn.RenderPass, isHorizontal: boolean) {
-  const material = Rn.MaterialHelper.createGaussianBlurMaterial({
+  const material = Rn.MaterialHelper.createGaussianBlurMaterial(engine, {
     additionalName: '',
     maxInstancesNumber: 10,
   });
@@ -119,7 +119,11 @@ function createRenderPassGaussianBlur(renderPassBlurTarget: Rn.RenderPass, isHor
   const framebufferTarget = renderPassBlurTarget.getFramebuffer();
   material.setParameter('framebufferSize', Rn.Vector2.fromCopy2(framebufferTarget.width, framebufferTarget.height));
   const TextureTarget = framebufferTarget.colorAttachments[0] as Rn.RenderTargetTexture;
-  const renderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(material, TextureTarget);
+  const renderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+    engine,
+    material,
+    TextureTarget
+  );
 
   return renderPass;
 }
@@ -139,6 +143,6 @@ function draw(expressions: Rn.Expression[], isFirstLoop: boolean, pElem?: HTMLEl
     document.body.appendChild(pElem);
   }
 
-  Rn.Engine.process(expressions);
+  engine.process(expressions);
   requestAnimationFrame(draw.bind(null, expressions, false, pElem));
 }

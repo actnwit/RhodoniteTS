@@ -3,13 +3,13 @@ import Rn from '../../../dist/esmdev/index.js';
 declare const window: any;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
 // camera
-const cameraEntity = Rn.createCameraEntity();
+const cameraEntity = Rn.createCameraEntity(engine);
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000.0;
@@ -22,6 +22,7 @@ cameraTransform.localEulerAngles = Rn.Vector3.fromCopyArray([0, Math.PI / 4, 0])
 
 // gltf
 const expression = await Rn.GltfImporter.importFromUrl(
+  engine,
   '../../../assets/gltf/glTF-Sample-Assets/Models/AnimatedMorphCube/glTF-Binary/AnimatedMorphCube.glb',
   {
     cameraComponent: cameraComponent,
@@ -29,7 +30,7 @@ const expression = await Rn.GltfImporter.importFromUrl(
 );
 
 // Lights
-const lightEntity = Rn.createLightEntity();
+const lightEntity = Rn.createLightEntity(engine);
 lightEntity.getLight().color = Rn.Vector3.fromCopyArray([1, 1, 1]);
 lightEntity.getLight().intensity = 20;
 lightEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([4.0, 0.0, 5.0]);
@@ -37,23 +38,24 @@ lightEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([4.0, 0.0, 5
 let count = 0;
 Rn.AnimationComponent.globalTime = 3.6;
 
-Rn.Engine.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (count > 0) {
     window._rendered = true;
   }
 
   if (window.isAnimating) {
     Rn.AnimationComponent.globalTime += 0.016;
-    if (Rn.AnimationComponent.globalTime > Rn.AnimationComponent.endInputValue) {
-      Rn.AnimationComponent.globalTime -= Rn.AnimationComponent.endInputValue - Rn.AnimationComponent.startInputValue;
+    if (Rn.AnimationComponent.globalTime > Rn.AnimationComponent.getEndInputValue(engine)) {
+      Rn.AnimationComponent.globalTime -=
+        Rn.AnimationComponent.getEndInputValue(engine) - Rn.AnimationComponent.getStartInputValue(engine);
     }
   }
 
-  Rn.Engine.process([expression]);
+  engine.process([expression]);
 
   count++;
 });
 
 window.exportGltf2 = () => {
-  Rn.Gltf2Exporter.export('Rhodonite');
+  Rn.Gltf2Exporter.export(engine, 'Rhodonite');
 };

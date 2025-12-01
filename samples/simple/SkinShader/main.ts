@@ -3,12 +3,13 @@ import Rn from '../../../dist/esmdev/index.js';
 declare const window: any;
 
 const setupRenderPassEntityUidOutput = (
+  engine: Rn.Engine,
   rootGroup: Rn.ISceneGraphEntity,
   cameraComponent: Rn.CameraComponent,
   canvas: HTMLCanvasElement
 ) => {
-  const renderPass = new Rn.RenderPass();
-  const entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
+  const renderPass = new Rn.RenderPass(engine);
+  const entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial(engine);
 
   renderPass.setMaterial(entityUidOutputMaterial);
   renderPass.cameraComponent = cameraComponent;
@@ -32,8 +33,8 @@ const setupRenderPassEntityUidOutput = (
   return renderPass;
 };
 
-const setupRenderPassRendering = (rootGroup, cameraComponent) => {
-  const renderPass = new Rn.RenderPass();
+const setupRenderPassRendering = (engine: Rn.Engine, rootGroup, cameraComponent) => {
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.cameraComponent = cameraComponent;
   renderPass.addEntities([rootGroup]);
   renderPass.toClearColorBuffer = true;
@@ -49,14 +50,14 @@ const load = async () => {
   Rn.Config.cgApiDebugConsoleOutput = true;
   const canvas = document.getElementById('world') as HTMLCanvasElement;
   window.canvas = canvas;
-  await Rn.Engine.init({
+  const engine = await Rn.Engine.init({
     approach: Rn.ProcessApproach.Uniform,
     canvas,
   });
   const expression = new Rn.Expression();
 
   // Camera
-  const cameraEntity = Rn.createCameraControllerEntity();
+  const cameraEntity = Rn.createCameraControllerEntity(engine);
   const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent) as Rn.CameraComponent;
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000;
@@ -65,17 +66,17 @@ const load = async () => {
   cameraEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
 
   // Lights
-  const lightEntity2 = Rn.createLightEntity();
+  const lightEntity2 = Rn.createLightEntity(engine);
   lightEntity2.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, 10.0]);
   (lightEntity2.getComponent(Rn.LightComponent) as Rn.LightComponent).color = Rn.Vector3.fromCopyArray([1, 1, 1]);
 
   // Please download a model from https://www.3dscanstore.com/blog/Free-3D-Head-Model or others
   const response = await Rn.Gltf2Importer.importFromUrl('');
-  const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(response);
+  const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(engine, response);
 
-  const renderPassEntityUidOutput = setupRenderPassEntityUidOutput(rootGroup, cameraComponent, canvas);
+  const renderPassEntityUidOutput = setupRenderPassEntityUidOutput(engine, rootGroup, cameraComponent, canvas);
   window.renderPassEntityUidOutput = renderPassEntityUidOutput;
-  const renderPassRendering = setupRenderPassRendering(rootGroup, cameraComponent);
+  const renderPassRendering = setupRenderPassRendering(engine, rootGroup, cameraComponent);
   // expression.addRenderPasses([renderPassEntityUidOutput]);
   // expression.addRenderPasses([renderPassRendering]);
   expression.addRenderPasses([renderPassEntityUidOutput, renderPassRendering]);
@@ -102,7 +103,7 @@ const load = async () => {
       const date = new Date();
       const time = (date.getTime() - startTime) / 1000;
       Rn.AnimationComponent.globalTime = time;
-      if (time > Rn.AnimationComponent.endInputValue) {
+      if (time > Rn.AnimationComponent.getEndInputValue(engine)) {
         startTime = date.getTime();
       }
       //console.log(time);
@@ -110,7 +111,7 @@ const load = async () => {
       //rootGroup.getTransform().localPosition = rootGroup.getTransform().localPosition;
     }
 
-    Rn.Engine.process([expression]);
+    engine.process([expression]);
     count++;
 
     requestAnimationFrame(draw);

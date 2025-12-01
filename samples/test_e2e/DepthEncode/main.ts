@@ -2,7 +2,7 @@ import Rn from '../../../dist/esmdev/index.js';
 let p: any;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -43,7 +43,7 @@ largeBoardEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Mat
 
 let count = 0;
 
-Rn.Engine.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (p == null && count > 0) {
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');
@@ -51,33 +51,33 @@ Rn.Engine.startRenderLoop(() => {
     document.body.appendChild(p);
   }
 
-  Rn.Engine.process([expression]);
+  engine.process([expression]);
 
   count++;
 });
 
 function createBoardEntityWithDepthEncodeMaterial() {
-  const entity = Rn.createMeshEntity();
+  const entity = Rn.createMeshEntity(engine);
 
-  const primitive = new Rn.Plane();
+  const primitive = new Rn.Plane(engine);
   primitive.generate({
     width: 1,
     height: 1,
     uSpan: 1,
     vSpan: 1,
     isUVRepeat: false,
-    material: Rn.MaterialHelper.createDepthEncodeMaterial({}),
+    material: Rn.MaterialHelper.createDepthEncodeMaterial(engine, {}),
   });
 
   const meshComponent = entity.getMesh();
-  const mesh = new Rn.Mesh();
+  const mesh = new Rn.Mesh(engine);
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);
   return entity;
 }
 
 function createCameraComponent() {
-  const cameraEntity = Rn.createCameraEntity();
+  const cameraEntity = Rn.createCameraEntity(engine);
   // For debug
   // const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent]);
   const cameraComponent = cameraEntity.getCamera();
@@ -85,7 +85,7 @@ function createCameraComponent() {
 }
 
 function createRenderPassSpecifyingCameraComponent(cameraComponent) {
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.toClearColorBuffer = true;
   renderPass.cameraComponent = cameraComponent;
   return renderPass;
