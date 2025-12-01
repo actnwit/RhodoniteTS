@@ -632,7 +632,7 @@ ${indexStr}
     );
 
     if (morphOffsetsUniformDataSize !== this.__lastMorphOffsetsUniformDataSize) {
-      const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+      const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
       // delete the old morph offsets uniform buffer
       if (this.__morphOffsetsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
         webGpuResourceRepository.flush();
@@ -661,7 +661,7 @@ ${indexStr}
     );
 
     if (blendShapeWeightsUniformDataSize !== this.__lastMorphWeightsUniformDataSize) {
-      const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+      const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
       // delete the old morph weights uniform buffer
       if (this.__morphWeightsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
         webGpuResourceRepository.flush();
@@ -891,7 +891,7 @@ ${indexStr}
     const primitive = renderPass._dummyPrimitiveForBufferLessRendering;
     this._setupShaderProgram(material, primitive);
 
-    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+    const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
     webGpuResourceRepository.updateUniformBufferForDrawParameters(
       `${renderPass.renderPassUID}-${primitive.primitiveUid}-${0}`,
       material.materialSID,
@@ -927,7 +927,7 @@ ${indexStr}
       return false;
     }
 
-    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+    const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
     const webxrSystem = this.__engine.webXRSystem;
     const cameraSID = this.__getAppropriateCameraComponentSID(
       renderPass,
@@ -958,7 +958,7 @@ ${indexStr}
     // the GPU global Storage
     const gpuInstanceDataBuffers = memoryManager.getBuffers(BufferUse.GPUInstanceData);
     const gpuInstanceDataBufferCount = gpuInstanceDataBuffers.length;
-    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+    const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
     if (gpuInstanceDataBufferCount !== this.__lastGpuInstanceDataBufferCount) {
       this.__lastGpuInstanceDataBufferCount = gpuInstanceDataBufferCount;
       webGpuResourceRepository.destroyStorageBuffer(this.__storageBufferUid);
@@ -993,12 +993,12 @@ ${indexStr}
     const blendShapeDataBufferByteLength = blendShapeDataBuffers.reduce((acc, buffer) => acc + buffer.byteLength, 0);
 
     if (blendShapeDataBufferByteLength !== this.__storageBlendShapeBufferByteLength) {
-      WebGpuResourceRepository.getInstance().deleteStorageBlendShapeBuffer(this.__storageBlendShapeBufferUid);
+      this.__engine.webGpuResourceRepository.deleteStorageBlendShapeBuffer(this.__storageBlendShapeBufferUid);
       this.__storageBlendShapeBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
       this.__storageBlendShapeBufferByteLength = blendShapeDataBufferByteLength;
     }
 
-    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+    const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
     const float32Array = new Float32Array(blendShapeDataBufferByteLength / 4);
     // copy the data from the blendShapeDataBuffers to the float32Array
     let offset = 0;
@@ -1025,7 +1025,7 @@ ${indexStr}
   }
 
   private __updateMorphOffsetsUniformBuffer() {
-    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+    const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
     const morphUniformDataOffsets = Primitive.getMorphUniformDataOffsets();
     for (let i = 0; i < Primitive.getPrimitiveCountHasMorph(); i++) {
       const primitive = Primitive.getPrimitiveHasMorph(i);
@@ -1074,7 +1074,7 @@ ${indexStr}
       }
     }
     if (blendShapeComponents.length > 0) {
-      const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+      const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
       const elementNumToCopy = blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1];
       webGpuResourceRepository.updateUniformMorphWeightsBuffer(this.__uniformMorphWeightsTypedArray!, elementNumToCopy);
     }

@@ -90,7 +90,6 @@ type DRAW_PARAMETERS_IDENTIFIER = string;
  * @implements ICGAPIResourceRepository
  */
 export class WebGpuResourceRepository extends CGAPIResourceRepository implements ICGAPIResourceRepository {
-  private static __instance: WebGpuResourceRepository;
   private __webGpuResources: Map<WebGLResourceHandle, WebGpuResource> = new Map();
   private __resourceCounter: number = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __webGpuDeviceWrapper?: WebGpuDeviceWrapper;
@@ -134,7 +133,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   private __bindGroupsForGeneratingMipmaps: Map<GPUTexture, Array<Array<GPUBindGroup>>> = new Map();
 
   private static __drawParametersUint32Array: Uint32Array = new Uint32Array(4);
-  private static __webxrSystem: WebXRSystem;
 
   private constructor() {
     super();
@@ -189,11 +187,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    *
    * @returns The singleton instance
    */
-  static getInstance(): WebGpuResourceRepository {
-    if (!this.__instance) {
-      this.__instance = new WebGpuResourceRepository();
-    }
-    return this.__instance;
+  static init(): WebGpuResourceRepository {
+    return new WebGpuResourceRepository();
   }
 
   /**

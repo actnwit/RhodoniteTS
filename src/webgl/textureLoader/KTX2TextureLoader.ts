@@ -269,8 +269,8 @@ export class KTX2TextureLoader {
    * @returns An object containing the transcoding target string and compression type
    * @private
    */
-  private __getDeviceDependentParametersWebGPU(hasAlpha: boolean) {
-    const webGpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
+  private __getDeviceDependentParametersWebGPU(engine: Engine, hasAlpha: boolean) {
+    const webGpuResourceRepository = engine.webGpuResourceRepository;
     const adapter = webGpuResourceRepository.getWebGpuDeviceWrapper().gpuAdapter;
 
     const astc = adapter.features.has('texture-compression-astc');
@@ -361,7 +361,7 @@ export class KTX2TextureLoader {
 
     const { transcodeTargetStr, compressionTextureType } =
       EngineState.currentProcessApproach === ProcessApproach.WebGPU
-        ? this.__getDeviceDependentParametersWebGPU(hasAlpha)
+        ? this.__getDeviceDependentParametersWebGPU(engine, hasAlpha)
         : this.__getDeviceDependentParametersWebGL(engine, hasAlpha);
 
     const transcodeTarget = transcoderModule.TranscodeTarget[transcodeTargetStr];

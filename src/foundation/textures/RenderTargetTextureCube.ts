@@ -165,7 +165,7 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
    */
   createCubeTextureViewAsRenderTarget(faceIdx: Index, mipLevel: Index): void {
     if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
-      const webGpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
+      const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
       this._textureViewAsRenderTargetResourceUid = webGpuResourceRepository.createCubeTextureViewAsRenderTarget(
         this._textureResourceUid,
         faceIdx,

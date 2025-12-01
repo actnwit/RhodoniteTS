@@ -641,7 +641,7 @@ export class RenderPass extends RnObject {
     if (this.__resolveFrameBuffer == null || this.__resolveFrameBuffer2 == null) {
       return;
     }
-    const webGpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
+    const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
     for (let i = 0; i < this.__resolveFrameBuffer.colorAttachments.length; i++) {
       if (
         this.__resolveFrameBuffer.colorAttachments[i] == null ||

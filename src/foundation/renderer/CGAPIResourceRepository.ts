@@ -4,6 +4,7 @@ import type { TextureData, VertexHandles, WebGLResourceRepository } from '../../
 import type { RnWebGL } from '../../webgl/main';
 import type { AttributeNames } from '../../webgl/types/CommonTypes';
 import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
+import type { RnWebGpu } from '../../webgpu/main';
 import {
   type CompressionTextureTypeEnum,
   type HdriFormatEnum,
@@ -95,8 +96,8 @@ export abstract class CGAPIResourceRepository {
   static getWebGpuResourceRepository(): WebGpuResourceRepository {
     const moduleName = 'webgpu';
     const moduleManager = ModuleManager.getInstance();
-    const webgpuModule = moduleManager.getModule(moduleName)! as any;
-    const webGpuResourceRepository: WebGpuResourceRepository = webgpuModule.WebGpuResourceRepository.getInstance();
+    const webgpuModule = moduleManager.getModule(moduleName)! as RnWebGpu;
+    const webGpuResourceRepository: WebGpuResourceRepository = webgpuModule.WebGpuResourceRepository.init();
     return webGpuResourceRepository;
   }
 }

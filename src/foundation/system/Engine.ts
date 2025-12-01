@@ -2,7 +2,7 @@ import type { Byte, ObjectUID, PrimitiveUID } from '../../types/CommonTypes';
 import { VERSION } from '../../version';
 import type { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import type { WebGpuDeviceWrapper } from '../../webgpu/WebGpuDeviceWrapper';
-import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
+import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import type { RnXR } from '../../xr/main';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { CameraComponent } from '../components/Camera/CameraComponent';
@@ -76,6 +76,7 @@ export class Engine extends RnObject {
   private __processApproach: ProcessApproachEnum = ProcessApproach.None;
   private __cgApiResourceRepository: ICGAPIResourceRepository;
   private __webglResourceRepository?: WebGLResourceRepository;
+  private __webGpuResourceRepository?: WebGpuResourceRepository;
   private __renderPassTickCount = 0;
   private __animationFrameId = -1;
 
@@ -261,7 +262,7 @@ export class Engine extends RnObject {
 
   private _processWebGPU(expressions: Expression[]) {
     const componentTids = this.__componentRepository.getComponentTIDs();
-    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+    const webGpuResourceRepository = this.webGpuResourceRepository;
     const webxrSystem = this.__webXRSystem;
     for (const stage of Component._processStages) {
       const methodName = stage.methodName;
@@ -595,6 +596,7 @@ export class Engine extends RnObject {
       webGpuResourceRepository.addWebGpuDeviceWrapper(webGpuDeviceWrapper);
       webGpuResourceRepository.recreateSystemDepthTexture();
       webGpuResourceRepository.createBindGroupLayoutForDrawParameters();
+      cgApiResourceRepository = webGpuResourceRepository;
     } else if (desc.approach === ProcessApproach.Uniform || desc.approach === ProcessApproach.DataTexture) {
       // WebGL
       await ModuleManager.getInstance().loadModule('webgl');
@@ -612,6 +614,9 @@ export class Engine extends RnObject {
 
     const engine = new Engine(desc.approach, cgApiResourceRepository!, maxGPUDataStorageSize);
 
+    if (desc.approach === ProcessApproach.WebGPU) {
+      engine.__webGpuResourceRepository = cgApiResourceRepository as WebGpuResourceRepository;
+    }
     if (desc.approach === ProcessApproach.Uniform || desc.approach === ProcessApproach.DataTexture) {
       engine.__webglResourceRepository = cgApiResourceRepository as WebGLResourceRepository;
     }
@@ -715,6 +720,10 @@ export class Engine extends RnObject {
 
   public get cgApiResourceRepository() {
     return this.__cgApiResourceRepository;
+  }
+
+  public get webGpuResourceRepository() {
+    return this.__webGpuResourceRepository!;
   }
 
   public get dummyTextures() {

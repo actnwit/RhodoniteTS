@@ -173,8 +173,14 @@ export class MaterialRepository {
     }
 
     const existingShaderSemanticsInfoList = Array.from(existingMaterial._allFieldsInfo.values());
+    const existingShaderSemanticsInfoListString = existingShaderSemanticsInfoList
+      .map(info => info.semantic + info.compositionType.str + info.componentType.str)
+      .join('');
     const newShaderSemanticsInfoList = newMaterialNode._semanticsInfoArray;
-    if (JSON.stringify(existingShaderSemanticsInfoList) !== JSON.stringify(newShaderSemanticsInfoList)) {
+    const newShaderSemanticsInfoListString = newShaderSemanticsInfoList
+      .map(info => info.semantic + info.compositionType.str + info.componentType.str)
+      .join('');
+    if (existingShaderSemanticsInfoListString !== newShaderSemanticsInfoListString) {
       return false;
     }
 
