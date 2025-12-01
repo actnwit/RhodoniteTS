@@ -107,15 +107,15 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
    *
    * @returns WGSL shader code containing helper functions for storage buffer access
    */
-  static getVertexShaderMethodDefinitions_storageBuffer(shaderType: ShaderTypeEnum) {
+  static getVertexShaderMethodDefinitions_storageBuffer(engine: Engine, shaderType: ShaderTypeEnum) {
     let str = '';
-    const memberInfo = Component.getMemberInfo();
+    const memberInfo = Component.getMemberInfo(engine);
     memberInfo.forEach((mapMemberNameMemberInfo, componentClass) => {
       mapMemberNameMemberInfo.forEach((memberInfo, memberName) => {
         if (memberInfo.shaderType !== shaderType && memberInfo.shaderType !== ShaderType.VertexAndPixelShader) {
           return;
         }
-        const componentCountPerBufferView = Component.getComponentCountPerBufferView().get(componentClass) ?? 1;
+        const componentCountPerBufferView = Component.getComponentCountPerBufferView(engine).get(componentClass) ?? 1;
         if (CompositionType.isArray(memberInfo.compositionType)) {
           processForArrayType(memberInfo, componentClass, memberName, componentCountPerBufferView);
         } else {
@@ -150,9 +150,13 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
         default:
           throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
       }
-      const locationOffsets_vec4_idx = Component.getLocationOffsetOfMemberOfComponent(componentClass, memberName);
+      const locationOffsets_vec4_idx = Component.getLocationOffsetOfMemberOfComponent(
+        engine,
+        componentClass,
+        memberName
+      );
       const vec4SizeOfProperty: IndexOf16Bytes = memberInfo.compositionType.getVec4SizeOfProperty();
-      const arrayLength = Component.getArrayLengthOfMember().get(componentClass)?.get(memberName) ?? 0;
+      const arrayLength = Component.getArrayLengthOfMember(engine).get(componentClass)?.get(memberName) ?? 0;
       const arrayLengthStr = `let arrayLength: u32 = ${arrayLength}u;`;
       const indexStr = `indices[instanceIdOfBufferViews] + instanceIdInBufferView * ${vec4SizeOfProperty}u * arrayLength + ${vec4SizeOfProperty}u * idxOfArray;`; // vec4_idx
       let conversionStr = '';
@@ -205,7 +209,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
           throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
       }
 
-      const locationOffsets = Component.getLocationOffsetOfMemberOfComponent(componentClass, memberName);
+      const locationOffsets = Component.getLocationOffsetOfMemberOfComponent(engine, componentClass, memberName);
       let indexStr = '';
       switch (memberInfo.compositionType) {
         case CompositionType.Mat4:
@@ -724,8 +728,8 @@ ${indexStr}
       this.setupShaderForMaterial(
         material,
         primitive,
-        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.VertexShader),
-        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.PixelShader),
+        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(this.__engine, ShaderType.VertexShader),
+        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(this.__engine, ShaderType.PixelShader),
         WebGpuStrategyBasic.__getShaderPropertyOfGlobalDataRepository,
         WebGpuStrategyBasic.__getShaderPropertyOfMaterial,
         WebGpuStrategyBasic.__getMorphedPositionGetter(this.__engine)
@@ -737,8 +741,8 @@ ${indexStr}
       this.setupShaderForMaterial(
         primitive.material,
         primitive,
-        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.VertexShader),
-        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.PixelShader),
+        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(this.__engine, ShaderType.VertexShader),
+        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(this.__engine, ShaderType.PixelShader),
         WebGpuStrategyBasic.__getShaderPropertyOfGlobalDataRepository,
         WebGpuStrategyBasic.__getShaderPropertyOfMaterial,
         WebGpuStrategyBasic.__getMorphedPositionGetter(this.__engine)

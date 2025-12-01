@@ -112,6 +112,45 @@ export class SceneGraphComponent extends Component {
 
     SceneGraphComponent.__sceneGraphs.push(new WeakRef(this));
 
+    SceneGraphComponent.registerMember(engine, {
+      bufferUse: BufferUse.GPUInstanceData,
+      memberName: 'worldMatrix',
+      dataClassType: MutableMatrix44,
+      shaderType: ShaderType.VertexAndPixelShader,
+      compositionType: CompositionType.Mat4,
+      componentType: ComponentType.Float,
+      initValues: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+    });
+    SceneGraphComponent.registerMember(engine, {
+      bufferUse: BufferUse.GPUInstanceData,
+      memberName: 'normalMatrix',
+      dataClassType: MutableMatrix33,
+      shaderType: ShaderType.VertexAndPixelShader,
+      compositionType: CompositionType.Mat3,
+      componentType: ComponentType.Float,
+      initValues: [1, 0, 0, 0, 1, 0, 0, 0, 1],
+    });
+    SceneGraphComponent.registerMember(engine, {
+      bufferUse: BufferUse.GPUInstanceData,
+      memberName: 'isVisible',
+      dataClassType: MutableScalar,
+      shaderType: ShaderType.VertexShader,
+      compositionType: CompositionType.Scalar,
+      componentType: ComponentType.Float,
+      initValues: [1],
+      convertToBool: true,
+    });
+    SceneGraphComponent.registerMember(engine, {
+      bufferUse: BufferUse.GPUInstanceData,
+      memberName: 'isBillboard',
+      dataClassType: MutableScalar,
+      shaderType: ShaderType.VertexShader,
+      compositionType: CompositionType.Scalar,
+      componentType: ComponentType.Float,
+      initValues: [0],
+      convertToBool: true,
+    });
+
     this.submitToAllocation(Config.scenegraphComponentCountPerBufferView, isReUse);
   }
 
@@ -1616,42 +1655,3 @@ export class SceneGraphComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
-
-SceneGraphComponent.registerMember({
-  bufferUse: BufferUse.GPUInstanceData,
-  memberName: 'worldMatrix',
-  dataClassType: MutableMatrix44,
-  shaderType: ShaderType.VertexAndPixelShader,
-  compositionType: CompositionType.Mat4,
-  componentType: ComponentType.Float,
-  initValues: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-});
-SceneGraphComponent.registerMember({
-  bufferUse: BufferUse.GPUInstanceData,
-  memberName: 'normalMatrix',
-  dataClassType: MutableMatrix33,
-  shaderType: ShaderType.VertexAndPixelShader,
-  compositionType: CompositionType.Mat3,
-  componentType: ComponentType.Float,
-  initValues: [1, 0, 0, 0, 1, 0, 0, 0, 1],
-});
-SceneGraphComponent.registerMember({
-  bufferUse: BufferUse.GPUInstanceData,
-  memberName: 'isVisible',
-  dataClassType: MutableScalar,
-  shaderType: ShaderType.VertexShader,
-  compositionType: CompositionType.Scalar,
-  componentType: ComponentType.Float,
-  initValues: [1],
-  convertToBool: true,
-});
-SceneGraphComponent.registerMember({
-  bufferUse: BufferUse.GPUInstanceData,
-  memberName: 'isBillboard',
-  dataClassType: MutableScalar,
-  shaderType: ShaderType.VertexShader,
-  compositionType: CompositionType.Scalar,
-  componentType: ComponentType.Float,
-  initValues: [0],
-  convertToBool: true,
-});

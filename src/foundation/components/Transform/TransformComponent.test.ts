@@ -1,4 +1,4 @@
-import Rn from '../../../../dist/esm';
+import Rn from '../../../../dist/esmdev';
 
 const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.None,

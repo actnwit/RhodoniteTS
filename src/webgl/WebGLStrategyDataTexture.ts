@@ -129,15 +129,15 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
    * @param shaderType - The shader type (VertexShader or PixelShader)
    * @returns GLSL shader code string for the component data access method definitions
    */
-  static __getComponentDataAccessMethodDefinitions_dataTexture(shaderType: ShaderTypeEnum) {
+  static __getComponentDataAccessMethodDefinitions_dataTexture(engine: Engine, shaderType: ShaderTypeEnum) {
     let str = '';
-    const memberInfo = Component.getMemberInfo();
+    const memberInfo = Component.getMemberInfo(engine);
     memberInfo.forEach((mapMemberNameMemberInfo, componentClass) => {
       mapMemberNameMemberInfo.forEach((memberInfo, memberName) => {
         if (memberInfo.shaderType !== shaderType && memberInfo.shaderType !== ShaderType.VertexAndPixelShader) {
           return;
         }
-        const componentCountPerBufferView = Component.getComponentCountPerBufferView().get(componentClass) ?? 1;
+        const componentCountPerBufferView = Component.getComponentCountPerBufferView(engine).get(componentClass) ?? 1;
         if (CompositionType.isArray(memberInfo.compositionType)) {
           processForArrayType(memberInfo, componentClass, memberName, componentCountPerBufferView);
         } else {
@@ -173,9 +173,13 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
           throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
       }
 
-      const locationOffsets_vec4_idx = Component.getLocationOffsetOfMemberOfComponent(componentClass, memberName);
+      const locationOffsets_vec4_idx = Component.getLocationOffsetOfMemberOfComponent(
+        engine,
+        componentClass,
+        memberName
+      );
       const vec4SizeOfProperty: IndexOf16Bytes = memberInfo.compositionType.getVec4SizeOfProperty();
-      const arrayLengthMap = Component.getArrayLengthOfMember().get(componentClass) ?? new Map<string, number>();
+      const arrayLengthMap = Component.getArrayLengthOfMember(engine).get(componentClass) ?? new Map<string, number>();
       const arrayLength = arrayLengthMap.get(memberName) ?? 0;
       const arrayLengthStr = `int arrayLength = ${arrayLength};`;
       const indexStr = `int index = indices[instanceIdOfBufferViews] + instanceIdInBufferView * ${vec4SizeOfProperty} * arrayLength + ${vec4SizeOfProperty} * idxOfArray;`; // vec4_idx
@@ -228,7 +232,11 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
           throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
       }
 
-      const locationOffsets_vec4_idx = Component.getLocationOffsetOfMemberOfComponent(componentClass, memberName);
+      const locationOffsets_vec4_idx = Component.getLocationOffsetOfMemberOfComponent(
+        engine,
+        componentClass,
+        memberName
+      );
       let indexStr = '';
       switch (memberInfo.compositionType) {
         case CompositionType.Mat4:
@@ -339,8 +347,14 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
 
     const [programUid, newOne] = material._createProgramWebGL(
       this.__engine,
-      WebGLStrategyDataTexture.__getComponentDataAccessMethodDefinitions_dataTexture(ShaderType.VertexShader),
-      WebGLStrategyDataTexture.__getComponentDataAccessMethodDefinitions_dataTexture(ShaderType.PixelShader),
+      WebGLStrategyDataTexture.__getComponentDataAccessMethodDefinitions_dataTexture(
+        this.__engine,
+        ShaderType.VertexShader
+      ),
+      WebGLStrategyDataTexture.__getComponentDataAccessMethodDefinitions_dataTexture(
+        this.__engine,
+        ShaderType.PixelShader
+      ),
       WebGLStrategyDataTexture.__getShaderPropertyOfGlobalDataRepository,
       WebGLStrategyDataTexture.__getShaderPropertyOfMaterial,
       WebGLStrategyDataTexture.__getMorphedPositionGetter(this.__engine),

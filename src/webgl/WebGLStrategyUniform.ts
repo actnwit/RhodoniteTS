@@ -74,7 +74,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
    * Shader semantics information for component matrices used in uniform rendering strategy.
    * Defines world matrix, normal matrix, billboard flag, and vertex attributes existence array.
    */
-  private static getComponentMatricesInfoArray(): ShaderSemanticsInfo[] {
+  private static getComponentMatricesInfoArray(engine: Engine): ShaderSemanticsInfo[] {
     const shaderSemanticsInfos: ShaderSemanticsInfo[] = [
       {
         semantic: 'vertexAttributesExistenceArray',
@@ -87,7 +87,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       },
     ];
 
-    const memberInfo = Component.getMemberInfo();
+    const memberInfo = Component.getMemberInfo(engine);
     memberInfo.forEach((mapMemberNameMemberInfo, _componentClass) => {
       mapMemberNameMemberInfo.forEach((memberInfo, memberName) => {
         shaderSemanticsInfos.push({
@@ -116,9 +116,9 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
    * method definitions for component data access for uniform-based rendering.
    * Provides GLSL functions for accessing component data through uniforms.
    */
-  private static __getComponentDataAccessMethodDefinitions_uniform(shaderType: ShaderTypeEnum) {
+  private static __getComponentDataAccessMethodDefinitions_uniform(engine: Engine, shaderType: ShaderTypeEnum) {
     let str = '';
-    const memberInfo = Component.getMemberInfo();
+    const memberInfo = Component.getMemberInfo(engine);
     memberInfo.forEach((mapMemberNameMemberInfo, _componentClass) => {
       mapMemberNameMemberInfo.forEach((memberInfo, memberName) => {
         if (memberInfo.shaderType !== shaderType && memberInfo.shaderType !== ShaderType.VertexAndPixelShader) {
@@ -225,8 +225,8 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
 
     const [programUid, newOne] = material._createProgramWebGL(
       this.__engine,
-      WebGLStrategyUniform.__getComponentDataAccessMethodDefinitions_uniform(ShaderType.VertexShader),
-      WebGLStrategyUniform.__getComponentDataAccessMethodDefinitions_uniform(ShaderType.PixelShader),
+      WebGLStrategyUniform.__getComponentDataAccessMethodDefinitions_uniform(this.__engine, ShaderType.VertexShader),
+      WebGLStrategyUniform.__getComponentDataAccessMethodDefinitions_uniform(this.__engine, ShaderType.PixelShader),
       ShaderSemantics.getShaderPropertyOfGlobalDataRepository,
       ShaderSemantics.getShaderPropertyOfMaterial,
       WebGLStrategyUniform.__getMorphedPositionGetter(this.__engine),
@@ -238,7 +238,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
 
       material._setUniformLocationsOfMaterialNodes(true, primitive);
 
-      const shaderSemanticsInfos = WebGLStrategyUniform.getComponentMatricesInfoArray();
+      const shaderSemanticsInfos = WebGLStrategyUniform.getComponentMatricesInfoArray(this.__engine);
       const shaderSemanticsInfosPointSprite = WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray();
 
       material._setupAdditionalUniformLocations(
@@ -287,7 +287,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
 
       material._setUniformLocationsOfMaterialNodes(true, primitive);
 
-      const shaderSemanticsInfos = WebGLStrategyUniform.getComponentMatricesInfoArray();
+      const shaderSemanticsInfos = WebGLStrategyUniform.getComponentMatricesInfoArray(this.__engine);
       const shaderSemanticsInfosPointSprite = WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray();
 
       material._setupAdditionalUniformLocations(
