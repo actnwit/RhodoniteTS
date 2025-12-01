@@ -133,7 +133,7 @@ export class WebXRSystem {
 
     const isWebGPU = EngineState.currentProcessApproach === ProcessApproach.WebGPU;
     if (isWebGPU) {
-      const webgpuDeviceWrapper = CGAPIResourceRepository.getWebGpuResourceRepository().getWebGpuDeviceWrapper();
+      const webgpuDeviceWrapper = this.__engine.webGpuResourceRepository.getWebGpuDeviceWrapper();
       if (webgpuDeviceWrapper == null) {
         Logger.error('WebGPU Device Wrapper is not ready yet.');
         return [];
@@ -160,7 +160,7 @@ export class WebXRSystem {
         paragraph.appendChild(anchor);
 
         if (isWebGPU) {
-          const canvas = CGAPIResourceRepository.getWebGpuResourceRepository().getWebGpuDeviceWrapper().canvas;
+          const canvas = this.__engine.webGpuResourceRepository.getWebGpuDeviceWrapper().canvas;
           canvas.parentNode!.insertBefore(paragraph, canvas);
           window.addEventListener('click', this.enterWebXR.bind(this) as any);
         } else {
@@ -268,7 +268,7 @@ export class WebXRSystem {
       this.__xrSession = xrSession;
       this.__engine.stopRenderLoop();
       if (isWebGPU) {
-        const webgpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
+        const webgpuResourceRepository = this.__engine.webGpuResourceRepository;
         const webgpuDeviceWrapper = webgpuResourceRepository.getWebGpuDeviceWrapper();
         const webgpuDevice = webgpuDeviceWrapper.gpuDevice;
         const xrGpuBinding = new window.XRGPUBinding(xrSession, webgpuDevice);
@@ -836,7 +836,7 @@ export class WebXRSystem {
   ) {
     xrSession.updateRenderState({ layers: [projectionLayer] });
 
-    const webgpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
+    const webgpuResourceRepository = this.__engine.webGpuResourceRepository;
     const webgpuDeviceWrapper = webgpuResourceRepository.getWebGpuDeviceWrapper();
     const canvas = webgpuDeviceWrapper.canvas;
     const projectionLayerTyped = projectionLayer as XRProjectionLayer;
@@ -888,7 +888,7 @@ export class WebXRSystem {
       if (resolvedWidth > 0 && resolvedHeight > 0) {
         this.__canvasWidthForVR = resolvedWidth;
         this.__canvasHeightForVR = resolvedHeight;
-        const webgpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
+        const webgpuResourceRepository = this.__engine.webGpuResourceRepository;
         webgpuResourceRepository.resizeCanvas(this.__canvasWidthForVR, this.__canvasHeightForVR);
       } else {
         Logger.warn('XRWebGPU subImage returned zero-sized extent. Skipping canvas resize for this frame.');
