@@ -8,6 +8,7 @@ import { TextureFormat } from '../definitions/TextureFormat';
 import { TextureParameter } from '../definitions/TextureParameter';
 import { Logger } from '../misc/Logger';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import type { Engine } from '../system/Engine';
 import { EngineState } from '../system/EngineState';
 import { AbstractTexture } from './AbstractTexture';
 
@@ -16,6 +17,7 @@ import { AbstractTexture } from './AbstractTexture';
  */
 type FinalizationRegistryObject = {
   textureResourceUid: CGAPIResourceHandle;
+  engine: Engine;
   uniqueName: string;
 };
 
@@ -34,7 +36,7 @@ export class TextureArray extends AbstractTexture implements Disposable {
       Logger.info(
         `WebGL/WebGPU texture array "${texObj.uniqueName}" was automatically released along with GC. But explicit release is recommended.`
       );
-      TextureArray.__deleteInternalTexture(texObj.textureResourceUid);
+      TextureArray.__deleteInternalTexture(texObj.engine, texObj.textureResourceUid);
     });
 
   /**
@@ -47,7 +49,7 @@ export class TextureArray extends AbstractTexture implements Disposable {
    */
   private __setTextureResourceUid(textureResourceUid: CGAPIResourceHandle, uniqueName: string) {
     this._textureResourceUid = textureResourceUid;
-    TextureArray.managedRegistry.register(this, { textureResourceUid, uniqueName }, this);
+    TextureArray.managedRegistry.register(this, { textureResourceUid, engine: this.__engine, uniqueName }, this);
   }
 
   /**
@@ -57,8 +59,8 @@ export class TextureArray extends AbstractTexture implements Disposable {
    * @param textureResourceUid - The unique identifier of the texture resource to delete
    * @private
    */
-  private static __deleteInternalTexture(textureResourceUid: CGAPIResourceHandle) {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+  private static __deleteInternalTexture(engine: Engine, textureResourceUid: CGAPIResourceHandle) {
+    const cgApiResourceRepository = engine.cgApiResourceRepository;
     cgApiResourceRepository.deleteTexture(textureResourceUid);
   }
 
@@ -89,7 +91,7 @@ export class TextureArray extends AbstractTexture implements Disposable {
     const imageData = ctx.getImageData(0, 0, 1, 1);
     const uint8Array = new Uint8Array(imageData.data.buffer);
 
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
 
     const resourceUid = cgApiResourceRepository.createTextureArray(
       1,
@@ -119,7 +121,7 @@ export class TextureArray extends AbstractTexture implements Disposable {
    * After calling this method, the texture cannot be used until reloaded.
    */
   destroy3DAPIResources() {
-    TextureArray.__deleteInternalTexture(this._textureResourceUid);
+    TextureArray.__deleteInternalTexture(this.__engine, this._textureResourceUid);
     this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     this.__isTextureReady = false;
     this.__startedToLoad = false;

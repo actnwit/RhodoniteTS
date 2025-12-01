@@ -16,7 +16,6 @@ import { AbstractTexture } from '../../textures/AbstractTexture';
 import type { Sampler } from '../../textures/Sampler';
 import { Texture } from '../../textures/Texture';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { dummyBlackTexture } from '../core/DummyTextures';
 import type { Material } from '../core/Material';
 
 /**
@@ -30,18 +29,26 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
   /**
    * Creates a new MatCap material content instance.
    *
+   * @param engine - The engine instance
    * @param materialName - The name identifier for this material
    * @param isSkinning - Whether this material supports skeletal animation/skinning
    * @param uri - Optional URI to load the MatCap texture from
    * @param texture - Optional pre-existing texture to use as the MatCap texture
    * @param sampler - Optional sampler settings for texture sampling behavior
    */
-  constructor(materialName: string, isSkinning: boolean, uri?: string, texture?: AbstractTexture, sampler?: Sampler) {
+  constructor(
+    engine: Engine,
+    materialName: string,
+    isSkinning: boolean,
+    uri?: string,
+    texture?: AbstractTexture,
+    sampler?: Sampler
+  ) {
     super(materialName, { isSkinning: isSkinning }, MatCapShaderVertex, MatCapShaderFragment);
 
     let matCapTexture: any;
     if (typeof uri === 'string') {
-      matCapTexture = new Texture();
+      matCapTexture = new Texture(engine);
       (async (uri: string) => {
         await matCapTexture.generateTextureFromUrl(uri, {
           type: ComponentType.UnsignedByte,
@@ -51,7 +58,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
       matCapTexture = texture;
     } else {
       Logger.warn('no matcap texture');
-      matCapTexture = dummyBlackTexture;
+      matCapTexture = engine.dummyTextures.dummyBlackTexture;
     }
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];

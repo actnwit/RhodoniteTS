@@ -190,7 +190,7 @@ export class EffekseerComponent extends Component {
       Logger.error('Effekseer context creation fails');
       return false;
     }
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = this.__engine.webglResourceRepository;
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
     this.__isInitialized = true;
     const gl = glw!.getRawContext();
@@ -328,7 +328,7 @@ export class EffekseerComponent extends Component {
       const projectionMatrix = EffekseerComponent.__webxrSystem._getProjectMatrixAt(i);
       const viewMatrix = EffekseerComponent.__webxrSystem._getViewMatrixAt(i);
       if (Is.exist(projectionMatrix) && Is.exist(viewMatrix) && Is.exist(this.__context)) {
-        const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+        const webGLResourceRepository = this.__engine.webglResourceRepository;
         webGLResourceRepository.setViewport(EffekseerComponent.__webxrSystem._getViewportAt(i));
         this.__context.setProjectionMatrix(projectionMatrix._v);
         this.__context.setCameraMatrix(viewMatrix._v);

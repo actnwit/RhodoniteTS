@@ -90,7 +90,7 @@ export class RenderTargetTexture2DArray extends AbstractTexture implements IRend
    * @private
    */
   private __createRenderTargetTextureArray() {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     const texture = cgApiResourceRepository.createRenderTargetTextureArray({
       width: this.__width,
       height: this.__height,
@@ -120,7 +120,7 @@ export class RenderTargetTexture2DArray extends AbstractTexture implements IRend
    */
   public changeRenderTargetLayerWebGPU(layerIndex: Index) {
     if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
-      const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+      const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
       this._textureViewAsRenderTargetResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository
       ).createTextureView2dArrayAsRenderTarget(this._textureResourceUid, layerIndex, 0);
@@ -146,7 +146,7 @@ export class RenderTargetTexture2DArray extends AbstractTexture implements IRend
    * @returns True if resources were successfully destroyed
    */
   destroy3DAPIResources() {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     cgApiResourceRepository.deleteTexture(this._textureResourceUid);
     this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
@@ -159,7 +159,7 @@ export class RenderTargetTexture2DArray extends AbstractTexture implements IRend
    * @returns Promise that resolves to a Uint8Array containing the pixel data
    */
   async getTexturePixelData() {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     const data = cgApiResourceRepository.getTexturePixelData(
       this._textureResourceUid,
       this.__width,
@@ -231,7 +231,7 @@ export class RenderTargetTexture2DArray extends AbstractTexture implements IRend
    * and quality when the texture is viewed at different distances.
    */
   generateMipmaps() {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     cgApiResourceRepository.generateMipmaps2d(this._textureResourceUid, this.width, this.height);
   }
 
@@ -244,7 +244,7 @@ export class RenderTargetTexture2DArray extends AbstractTexture implements IRend
     if (this.__arrayLength === 0) {
       return;
     }
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = this.__engine.webglResourceRepository;
     webglResourceRepository.blitToTexture2dFromTexture2dArray(
       this._textureResourceUid,
       targetTexture2D.__fbo!.cgApiResourceUid,
@@ -262,7 +262,7 @@ export class RenderTargetTexture2DArray extends AbstractTexture implements IRend
     if (this.__arrayLength === 0) {
       return;
     }
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = this.__engine.webglResourceRepository;
     webglResourceRepository.blitToTexture2dFromTexture2dArrayFake(
       this._textureResourceUid,
       targetTexture2D.__fbo!.cgApiResourceUid,
@@ -280,7 +280,7 @@ export class RenderTargetTexture2DArray extends AbstractTexture implements IRend
     if (this.__arrayLength === 0) {
       return;
     }
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = this.__engine.webglResourceRepository;
     webglResourceRepository.blitToTexture2dFromTexture2dArray2(
       this._textureResourceUid,
       targetTexture2D._textureResourceUid,

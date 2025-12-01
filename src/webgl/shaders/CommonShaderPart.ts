@@ -17,7 +17,6 @@ import type { AttributeNames } from '../types/CommonTypes';
  */
 export abstract class CommonShaderPart {
   static __instance: CommonShaderPart;
-  __webglResourceRepository?: WebGLResourceRepository = WebGLResourceRepository.getInstance();
 
   /**
    * Generates the main function beginning code for vertex or fragment shaders.

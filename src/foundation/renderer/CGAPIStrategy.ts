@@ -1,6 +1,7 @@
 import { CGAPIResourceHandle, type Count, type Index, type PrimitiveUID } from '../../types/CommonTypes';
 import type { MeshComponent } from '../components/Mesh/MeshComponent';
 import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
+import type { Engine } from '../system/Engine';
 import type { RenderPass } from './RenderPass';
 
 /**

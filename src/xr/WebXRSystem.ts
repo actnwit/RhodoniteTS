@@ -139,7 +139,7 @@ export class WebXRSystem {
         return [];
       }
     } else {
-      const glw = CGAPIResourceRepository.getWebGLResourceRepository().currentWebGLContextWrapper;
+      const glw = this.__engine.webglResourceRepository.currentWebGLContextWrapper;
       if (glw == null) {
         Logger.error('WebGL Context is not ready yet.');
         return [];
@@ -215,7 +215,7 @@ export class WebXRSystem {
     callbackOnXrSessionEnd: () => void;
     profilePriorities: string[];
   }) {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
 
     if (cgApiResourceRepository != null && this.__isReadyForWebXR) {
       let referenceSpace: XRReferenceSpace;
@@ -408,7 +408,7 @@ export class WebXRSystem {
    * @returns True if multiview VR rendering is supported.
    */
   isMultiView() {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     return cgApiResourceRepository.isSupportMultiViewVRRendering();
   }
 
@@ -802,7 +802,7 @@ export class WebXRSystem {
         depthNear: 0.01,
         depthFar: 1000,
       });
-      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const webglResourceRepository = this.__engine.webglResourceRepository;
       this.__canvasWidthForVR = webglLayer.framebufferWidth;
       this.__canvasHeightForVR = webglLayer.framebufferHeight;
       Logger.info(this.__canvasWidthForVR.toString());

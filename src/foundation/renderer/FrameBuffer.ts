@@ -2,6 +2,7 @@ import type { CGAPIResourceHandle, Index, Size } from '../../types/CommonTypes';
 import { RnObject } from '../core/RnObject';
 import { ProcessApproach } from '../definitions/ProcessApproach';
 import { RenderBufferTarget, type RenderBufferTargetEnum } from '../definitions/RenderBufferTarget';
+import type { Engine } from '../system/Engine';
 import { EngineState } from '../system/EngineState';
 import type { IRenderable } from '../textures/IRenderable';
 import { RenderTargetTexture } from '../textures/RenderTargetTexture';
@@ -15,6 +16,7 @@ import { CGAPIResourceRepository } from './CGAPIResourceRepository';
  * and provides methods to configure and manage the framebuffer state.
  */
 export class FrameBuffer extends RnObject {
+  private __engine: Engine;
   private __colorAttachments: Array<IRenderable> = [];
   private __depthAttachment?: IRenderable;
   private __stencilAttachment?: IRenderable;
@@ -24,6 +26,10 @@ export class FrameBuffer extends RnObject {
   public height: Size = 0;
   private __colorAttachmentMap: Map<RenderBufferTargetEnum, IRenderable> = new Map();
 
+  constructor(engine: Engine) {
+    super();
+    this.__engine = engine;
+  }
   /**
    * Gets the render buffer targets for all color attachments.
    * @returns Array of render buffer target enums for color attachments
@@ -107,7 +113,7 @@ export class FrameBuffer extends RnObject {
   create(width: Size, height: Size) {
     this.width = width;
     this.height = height;
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     this.cgApiResourceUid = cgApiResourceRepository.createFrameBufferObject();
 
     return this.cgApiResourceUid;
@@ -133,7 +139,7 @@ export class FrameBuffer extends RnObject {
     }
     this.__colorAttachments[index] = renderable;
 
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     cgApiResourceRepository.attachColorBufferToFrameBufferObject(this, index, renderable);
 
     this.__colorAttachmentMap.set(RenderBufferTarget.from(index), renderable);
@@ -155,7 +161,7 @@ export class FrameBuffer extends RnObject {
     }
     this.__colorAttachments[index] = renderable;
 
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (renderable instanceof RenderTargetTexture2DArray) {
         renderable.changeRenderTargetLayerWebGPU(layerIndex);
@@ -183,7 +189,7 @@ export class FrameBuffer extends RnObject {
     }
     this.__colorAttachments[attachmentIndex] = renderable;
 
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     cgApiResourceRepository.attachColorBufferCubeToFrameBufferObject(
       this,
       attachmentIndex,
@@ -210,7 +216,7 @@ export class FrameBuffer extends RnObject {
     }
     this.__depthAttachment = renderable;
 
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     cgApiResourceRepository.attachDepthBufferToFrameBufferObject(this, renderable);
 
     return true;
@@ -227,7 +233,7 @@ export class FrameBuffer extends RnObject {
     }
     this.__stencilAttachment = renderable;
 
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     cgApiResourceRepository.attachStencilBufferToFrameBufferObject(this, renderable);
 
     return true;
@@ -244,7 +250,7 @@ export class FrameBuffer extends RnObject {
     }
     this.__depthStencilAttachment = renderable;
 
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     cgApiResourceRepository.attachDepthStencilBufferToFrameBufferObject(this, renderable);
 
     return true;
@@ -258,7 +264,7 @@ export class FrameBuffer extends RnObject {
    */
   resize(width: Size, height: Size) {
     // this.destroy3DAPIResources();
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     cgApiResourceRepository.deleteFrameBufferObject(this.cgApiResourceUid);
     this.cgApiResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     this.width = 0;
@@ -291,7 +297,7 @@ export class FrameBuffer extends RnObject {
    * After calling this method, the framebuffer is no longer usable until recreated.
    */
   destroy3DAPIResources() {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     cgApiResourceRepository.deleteFrameBufferObject(this.cgApiResourceUid);
     this.cgApiResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     this.width = 0;

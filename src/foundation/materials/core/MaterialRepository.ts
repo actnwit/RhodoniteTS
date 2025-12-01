@@ -141,6 +141,7 @@ export class MaterialRepository {
     }
 
     const material = new Material(
+      engine,
       this.__materialTids.get(materialTypeName)!,
       ++MaterialRepository.__materialUidCount,
       countOfThisType++,

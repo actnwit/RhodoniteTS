@@ -22,7 +22,6 @@ import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository'
 import type { RenderPass } from '../../renderer/RenderPass';
 import type { Engine } from '../../system/Engine';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { dummyBlueTexture, dummyWhiteTexture } from '../core/DummyTextures';
 import type { Material } from '../core/Material';
 
 /**
@@ -84,6 +83,7 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
    * This constructor initializes the shadow mapping material with comprehensive configuration options
    * for various rendering features and sets up the necessary shader semantics for shadow decoding.
    *
+   * @param engine - The engine instance
    * @param materialName - The unique name identifier for this material
    * @param options - Configuration object containing rendering feature flags and settings
    * @param options.isMorphing - Enables morphing/blend shape animation support
@@ -94,6 +94,7 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
    * @param encodedDepthRenderPass - The render pass containing depth information from DepthEncodeMaterialContent
    */
   constructor(
+    engine: Engine,
     materialName: string,
     {
       isMorphing,
@@ -208,7 +209,7 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,
-        initialValue: [0, dummyBlueTexture],
+        initialValue: [0, engine.dummyTextures.dummyBlueTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -226,7 +227,7 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,
-        initialValue: [1, dummyWhiteTexture],
+        initialValue: [1, engine.dummyTextures.dummyWhiteTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -340,7 +341,7 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
         (shaderProgram as any)._gl.uniform1f((shaderProgram as any).zFarInner, encodedDepthCameraComponent.zFarInner);
         ShadowMapDecodeClassicMaterialContent.__lastZFar = encodedDepthCameraComponent.zFarInner;
       }
-      const __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const __webglResourceRepository = engine.webglResourceRepository;
       __webglResourceRepository.setUniformValue(
         shaderProgram,
         ShaderSemantics.LightViewProjectionMatrix.str,

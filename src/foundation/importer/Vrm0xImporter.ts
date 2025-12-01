@@ -49,8 +49,8 @@ export class Vrm0xImporter {
     const result = await Gltf2Importer.importFromUrl(url, options);
 
     const gltfModel = result;
-    const textures = await Vrm0xImporter._createTextures(gltfModel);
-    const samplers = Vrm0xImporter._createSamplers(gltfModel);
+    const textures = await Vrm0xImporter._createTextures(engine, gltfModel);
+    const samplers = Vrm0xImporter._createSamplers(engine, gltfModel);
     const defaultMaterialHelperArgumentArray =
       gltfModel.asset.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray;
     if (Is.exist(defaultMaterialHelperArgumentArray)) {
@@ -110,8 +110,8 @@ export class Vrm0xImporter {
     // process defaultMaterialHelperArgumentArray
     const defaultMaterialHelperArgumentArray =
       gltfModel.asset.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray;
-    const textures = await this._createTextures(gltfModel);
-    const samplers = this._createSamplers(gltfModel);
+    const textures = await this._createTextures(engine, gltfModel);
+    const samplers = this._createSamplers(engine, gltfModel);
     if (Is.exist(defaultMaterialHelperArgumentArray)) {
       defaultMaterialHelperArgumentArray[0].textures = defaultMaterialHelperArgumentArray[0].textures ?? textures;
       defaultMaterialHelperArgumentArray[0].samplers = defaultMaterialHelperArgumentArray[0].samplers ?? samplers;
@@ -340,21 +340,21 @@ export class Vrm0xImporter {
    * @param gltfModel - The GLTF model containing texture definitions
    * @returns A promise that resolves to an array of created textures
    */
-  static async _createTextures(gltfModel: RnM2): Promise<Texture[]> {
+  static async _createTextures(engine: Engine, gltfModel: RnM2): Promise<Texture[]> {
     if (!gltfModel.textures) gltfModel.textures = [];
 
     const gltfTextures = gltfModel.textures;
     const rnTextures: Texture[] = [];
     for (let i = 0; i < gltfTextures.length; i++) {
-      const rnTexture = await ModelConverter._createTexture(gltfTextures[i].sourceObject!, gltfModel);
+      const rnTexture = await ModelConverter._createTexture(engine, gltfTextures[i].sourceObject!, gltfModel);
       rnTextures[i] = rnTexture;
     }
 
-    const dummyWhiteTexture = new Texture();
+    const dummyWhiteTexture = new Texture(engine);
     await dummyWhiteTexture.generate1x1TextureFrom();
     dummyWhiteTexture.markAsDummyTexture();
     rnTextures.push(dummyWhiteTexture);
-    const dummyBlackTexture = new Texture();
+    const dummyBlackTexture = new Texture(engine);
     await dummyBlackTexture.generate1x1TextureFrom('rgba(0, 0, 0, 1)');
     dummyBlackTexture.markAsDummyTexture();
     rnTextures.push(dummyBlackTexture);
@@ -370,17 +370,17 @@ export class Vrm0xImporter {
    * @param gltfModel - The GLTF model containing sampler definitions
    * @returns An array of created sampler objects
    */
-  static _createSamplers(gltfModel: RnM2): Sampler[] {
+  static _createSamplers(engine: Engine, gltfModel: RnM2): Sampler[] {
     if (!gltfModel.textures) gltfModel.textures = [];
 
     const gltfTextures = gltfModel.textures;
     const rnSamplers: Sampler[] = [];
     for (let i = 0; i < gltfTextures.length; i++) {
-      const rnSampler = ModelConverter._createSampler(gltfTextures[i].samplerObject!);
+      const rnSampler = ModelConverter._createSampler(engine, gltfTextures[i].samplerObject!);
       rnSamplers[i] = rnSampler;
     }
 
-    const dummySampler = new Sampler({
+    const dummySampler = new Sampler(engine, {
       wrapS: TextureParameter.ClampToEdge,
       wrapT: TextureParameter.ClampToEdge,
       minFilter: TextureParameter.Linear,

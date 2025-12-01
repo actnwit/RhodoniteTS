@@ -601,7 +601,7 @@ export class RenderPass extends RnObject {
     if (resolveFrameBuffer == null) {
       return;
     }
-    const repo = WebGLResourceRepository.getInstance();
+    const repo = this.__engine.webglResourceRepository;
     const webGLResourceFrameBuffer = repo.getWebGLResource(this.__frameBuffer!.cgApiResourceUid) as WebGLFramebuffer;
     const webGLResourceResolveFramebuffer = repo.getWebGLResource(
       resolveFrameBuffer!.cgApiResourceUid

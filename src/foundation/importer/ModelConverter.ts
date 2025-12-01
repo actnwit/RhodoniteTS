@@ -194,11 +194,11 @@ export class ModelConverter {
    * @param gltfModel - The glTF model data
    * @returns Promise resolving to array of Rhodonite textures
    */
-  private static async __setupTextures(gltfModel: RnM2) {
+  private static async __setupTextures(engine: Engine, gltfModel: RnM2) {
     const rnTextures: Texture[] = [];
     if (gltfModel.images != null) {
       for (const image of gltfModel.images) {
-        const rnTexture = await this._createTexture(image, gltfModel);
+        const rnTexture = await this._createTexture(engine, image, gltfModel);
         rnTextures.push(rnTexture);
       }
     }
@@ -207,14 +207,15 @@ export class ModelConverter {
 
   /**
    * Creates samplers from the glTF model
+   * @param engine - The engine instance
    * @param gltfModel - The glTF model data
    * @returns Array of Rhodonite samplers
    */
-  private static __createSamplers(gltfModel: RnM2) {
+  private static __createSamplers(engine: Engine, gltfModel: RnM2) {
     const rnSamplers: Sampler[] = [];
     if (gltfModel.samplers != null) {
       for (const sampler of gltfModel.samplers) {
-        const rnSampler = this._createSampler(sampler);
+        const rnSampler = this._createSampler(engine, sampler);
         rnSamplers.push(rnSampler);
       }
     }
@@ -290,8 +291,8 @@ export class ModelConverter {
     const rnBuffers = this.__createRnBuffer(gltfModel);
     gltfModel.asset.extras!.rnMaterials = {};
 
-    const rnTextures = await this.__setupTextures(gltfModel);
-    const rnSamplers = this.__createSamplers(gltfModel);
+    const rnTextures = await this.__setupTextures(engine, gltfModel);
+    const rnSamplers = this.__createSamplers(engine, gltfModel);
 
     // Materials
     const rnMaterials = this.__setupMaterials(engine, gltfModel, rnTextures, rnSamplers);
@@ -2034,8 +2035,8 @@ export class ModelConverter {
     }
   }
 
-  static _createSampler(sampler: RnM2TextureSampler) {
-    const rnSampler = new Sampler({
+  static _createSampler(engine: Engine, sampler: RnM2TextureSampler) {
+    const rnSampler = new Sampler(engine, {
       magFilter: Is.exist(sampler.magFilter) ? TextureParameter.from(sampler.magFilter) : TextureParameter.Linear,
       minFilter: Is.exist(sampler.minFilter) ? TextureParameter.from(sampler.minFilter) : TextureParameter.Linear,
       wrapS: Is.exist(sampler.wrapS) ? TextureParameter.from(sampler.wrapS) : TextureParameter.Repeat,
@@ -2046,10 +2047,15 @@ export class ModelConverter {
     return rnSampler;
   }
 
-  static async _createTexture(image: RnM2Image, gltfModel: RnM2, { autoDetectTransparency = false } = {}) {
+  static async _createTexture(
+    engine: Engine,
+    image: RnM2Image,
+    gltfModel: RnM2,
+    { autoDetectTransparency = false } = {}
+  ) {
     const _options = gltfModel.asset.extras?.rnLoaderOptions;
 
-    const rnTexture = new Texture();
+    const rnTexture = new Texture(engine);
     rnTexture.autoDetectTransparency = autoDetectTransparency;
 
     if (image.image) {

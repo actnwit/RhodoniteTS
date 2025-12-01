@@ -67,7 +67,7 @@ function createScreenDrawRenderPassWithBaseColorTexture(
   sampler?: Sampler
 ) {
   if (_sampler === undefined) {
-    _sampler = new Sampler({
+    _sampler = new Sampler(engine, {
       magFilter: TextureParameter.Linear,
       minFilter: TextureParameter.Linear,
       wrapS: TextureParameter.ClampToEdge,

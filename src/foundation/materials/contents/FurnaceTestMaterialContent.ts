@@ -12,7 +12,6 @@ import { Scalar } from '../../math/Scalar';
 import { Vector2 } from '../../math/Vector2';
 import type { Engine } from '../../system/Engine';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { dummyWhiteTexture } from '../core/DummyTextures';
 import type { Material } from '../core/Material';
 
 /**
@@ -30,9 +29,10 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
   /**
    * Creates a new FurnaceTestMaterialContent instance.
    *
+   * @param engine - The engine instance
    * @param materialName - The name identifier for this material
    */
-  constructor(materialName: string) {
+  constructor(engine: Engine, materialName: string) {
     super(materialName, {}, FurnaceTestShaderVertex, FurnaceTestShaderFragment);
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
@@ -104,7 +104,7 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        initialValue: [1, dummyWhiteTexture],
+        initialValue: [1, engine.dummyTextures.dummyWhiteTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },

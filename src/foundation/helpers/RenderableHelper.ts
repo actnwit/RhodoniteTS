@@ -3,6 +3,7 @@ import { PixelFormat, type PixelFormatEnum } from '../definitions/PixelFormat';
 import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFormat';
 import { TextureParameter, type TextureParameterEnum } from '../definitions/TextureParameter';
 import { FrameBuffer } from '../renderer/FrameBuffer';
+import type { Engine } from '../system/Engine';
 import { RenderTargetTexture2DArray, RenderTargetTextureCube } from '../textures';
 import { RenderBuffer } from '../textures/RenderBuffer';
 import { RenderTargetTexture } from '../textures/RenderTargetTexture';
@@ -42,12 +43,12 @@ export interface FrameBufferDescriptor {
  * @param desc - Frame buffer descriptor containing width, height, texture formats, and other options
  * @returns A configured FrameBuffer instance with color and optional depth attachments
  */
-function createFrameBuffer(desc: FrameBufferDescriptor) {
-  const frameBuffer = new FrameBuffer();
+function createFrameBuffer(engine: Engine, desc: FrameBufferDescriptor) {
+  const frameBuffer = new FrameBuffer(engine);
   frameBuffer.create(desc.width, desc.height);
 
   for (let i = 0; i < desc.textureNum; i++) {
-    const renderTargetTexture = new RenderTargetTexture();
+    const renderTargetTexture = new RenderTargetTexture(engine);
 
     renderTargetTexture.create({
       width: desc.width,
@@ -59,7 +60,7 @@ function createFrameBuffer(desc: FrameBufferDescriptor) {
   }
 
   if (desc.createDepthBuffer) {
-    const depthTexture = new RenderTargetTexture();
+    const depthTexture = new RenderTargetTexture(engine);
     const depthBufferInternalFormat = desc.depthTextureFormat ?? TextureFormat.Depth32F;
 
     depthTexture.create({
@@ -97,12 +98,12 @@ export interface FrameBufferMSAADescriptor {
  * @param desc - MSAA frame buffer descriptor containing dimensions, sample count, and buffer formats
  * @returns A configured FrameBuffer instance with MSAA render buffers
  */
-function createFrameBufferMSAA(desc: FrameBufferMSAADescriptor) {
-  const frameBuffer = new FrameBuffer();
+function createFrameBufferMSAA(engine: Engine, desc: FrameBufferMSAADescriptor) {
+  const frameBuffer = new FrameBuffer(engine);
   frameBuffer.create(desc.width, desc.height);
 
   for (let i = 0; i < desc.colorBufferNum; i++) {
-    const renderBuffer = new RenderBuffer();
+    const renderBuffer = new RenderBuffer(engine);
     renderBuffer.create(desc.width, desc.height, desc.colorFormats[i], {
       isMSAA: true,
       sampleCountMSAA: desc.sampleCountMSAA,
@@ -110,7 +111,7 @@ function createFrameBufferMSAA(desc: FrameBufferMSAADescriptor) {
     frameBuffer.setColorAttachmentAt(i, renderBuffer);
   }
 
-  const renderBuffer = new RenderBuffer();
+  const renderBuffer = new RenderBuffer(engine);
   renderBuffer.create(desc.width, desc.height, desc.depthBufferFormat, {
     isMSAA: true,
     sampleCountMSAA: desc.sampleCountMSAA,
@@ -146,12 +147,13 @@ export interface FrameBufferTextureArrayDescriptor {
  * @returns A tuple containing the FrameBuffer and RenderTargetTexture2DArray
  */
 function createFrameBufferTextureArray(
+  engine: Engine,
   desc: FrameBufferTextureArrayDescriptor
 ): [FrameBuffer, RenderTargetTexture2DArray] {
-  const frameBuffer = new FrameBuffer();
+  const frameBuffer = new FrameBuffer(engine);
   frameBuffer.create(desc.width, desc.height);
 
-  const renderTargetTexture = new RenderTargetTexture2DArray();
+  const renderTargetTexture = new RenderTargetTexture2DArray(engine);
   renderTargetTexture.create({
     width: desc.width,
     height: desc.height,
@@ -191,11 +193,14 @@ export interface FrameBufferTextureArrayForMultiViewDescriptor {
  * @param desc - Multi-view frame buffer descriptor
  * @returns A configured FrameBuffer with color and depth-stencil texture arrays
  */
-function createFrameBufferTextureArrayForMultiView(desc: FrameBufferTextureArrayForMultiViewDescriptor) {
-  const frameBuffer = new FrameBuffer();
+function createFrameBufferTextureArrayForMultiView(
+  engine: Engine,
+  desc: FrameBufferTextureArrayForMultiViewDescriptor
+) {
+  const frameBuffer = new FrameBuffer(engine);
   frameBuffer.create(desc.width, desc.height);
 
-  const renderTargetTexture = new RenderTargetTexture2DArray();
+  const renderTargetTexture = new RenderTargetTexture2DArray(engine);
   renderTargetTexture.create({
     width: desc.width,
     height: desc.height,
@@ -207,7 +212,7 @@ function createFrameBufferTextureArrayForMultiView(desc: FrameBufferTextureArray
   });
   frameBuffer.setColorAttachmentAt(0, renderTargetTexture);
 
-  const renderTargetDepthStencilTexture = new RenderTargetTexture2DArray();
+  const renderTargetDepthStencilTexture = new RenderTargetTexture2DArray(engine);
   renderTargetDepthStencilTexture.create({
     width: desc.width,
     height: desc.height,
@@ -242,11 +247,14 @@ export interface FrameBufferCubeMapDescriptor {
  * @param desc - Cube map frame buffer descriptor
  * @returns A tuple containing the FrameBuffer and RenderTargetTextureCube
  */
-function createFrameBufferCubeMap(desc: FrameBufferCubeMapDescriptor): [FrameBuffer, RenderTargetTextureCube] {
-  const frameBuffer = new FrameBuffer();
+function createFrameBufferCubeMap(
+  engine: Engine,
+  desc: FrameBufferCubeMapDescriptor
+): [FrameBuffer, RenderTargetTextureCube] {
+  const frameBuffer = new FrameBuffer(engine);
   frameBuffer.create(desc.width, desc.height);
 
-  const renderTargetTexture = new RenderTargetTextureCube();
+  const renderTargetTexture = new RenderTargetTextureCube(engine);
 
   renderTargetTexture.create({
     width: desc.width,
@@ -269,11 +277,16 @@ function createFrameBufferCubeMap(desc: FrameBufferCubeMapDescriptor): [FrameBuf
  * @param options.internalFormat - Internal format for the depth texture (default: Depth32F)
  * @returns A FrameBuffer configured with only a depth attachment
  */
-function createDepthBuffer(width: number, height: number, { _level = 0, internalFormat = TextureFormat.Depth32F }) {
-  const frameBuffer = new FrameBuffer();
+function createDepthBuffer(
+  engine: Engine,
+  width: number,
+  height: number,
+  { _level = 0, internalFormat = TextureFormat.Depth32F }
+) {
+  const frameBuffer = new FrameBuffer(engine);
   frameBuffer.create(width, height);
 
-  const depthTexture = new RenderTargetTexture();
+  const depthTexture = new RenderTargetTexture(engine);
   depthTexture.create({
     width,
     height,

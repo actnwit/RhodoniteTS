@@ -226,7 +226,7 @@ export class GaussianBlur {
       const key = `${texture.width}x${texture.height}_${textureFormat.str}`;
       framebufferSynthesizeImages = this.__mapSynthesizeFramebuffer.get(key);
       if (framebufferSynthesizeImages == null) {
-        framebufferSynthesizeImages = RenderableHelper.createFrameBuffer({
+        framebufferSynthesizeImages = RenderableHelper.createFrameBuffer(this.__engine, {
           width: texture.width,
           height: texture.height,
           textureNum: 1,
@@ -298,7 +298,7 @@ export class GaussianBlur {
     const key = `${resolutionWidthBlur}x${resolutionHeightBlur}_${textureFormat.str}_${isHorizontal}`;
     let framebuffer = this.__mapReducedFramebuffer.get(key);
     if (framebuffer == null) {
-      framebuffer = RenderableHelper.createFrameBuffer({
+      framebuffer = RenderableHelper.createFrameBuffer(this.__engine, {
         width: resolutionWidthBlur,
         height: resolutionHeightBlur,
         textureNum: 1,

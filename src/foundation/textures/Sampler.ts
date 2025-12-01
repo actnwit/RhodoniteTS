@@ -1,6 +1,7 @@
 import type { CGAPIResourceHandle } from '../../types/CommonTypes';
 import { TextureParameter, type TextureParameterEnum } from '../definitions';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import type { Engine } from '../system/Engine';
 
 /**
  * Descriptor object for configuring a texture sampler.
@@ -27,6 +28,7 @@ export type SamplerDescriptor = {
  * A sampler encapsulates filtering and wrapping parameters for texture sampling operations.
  */
 export class Sampler {
+  private __engine: Engine;
   private __minFilter: TextureParameterEnum;
   private __magFilter: TextureParameterEnum;
   private __wrapS: TextureParameterEnum;
@@ -40,7 +42,8 @@ export class Sampler {
    * Creates a new Sampler instance with the specified configuration.
    * @param desc - The sampler descriptor containing filtering and wrapping parameters
    */
-  constructor(desc: SamplerDescriptor) {
+  constructor(engine: Engine, desc: SamplerDescriptor) {
+    this.__engine = engine;
     this.__minFilter = desc.minFilter;
     this.__magFilter = desc.magFilter;
     this.__wrapS = desc.wrapS;
@@ -55,7 +58,7 @@ export class Sampler {
    * This method must be called before the sampler can be used for rendering.
    */
   create() {
-    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webGLResourceRepository = this.__engine.cgApiResourceRepository;
     this.__samplerResourceUid = webGLResourceRepository?.createTextureSampler({
       minFilter: this.__minFilter,
       magFilter: this.__magFilter,

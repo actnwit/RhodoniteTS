@@ -72,9 +72,7 @@ declare const spector: any;
  * The strategy is particularly useful for rendering many instances with unique properties.
  */
 export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
-  private static __instance: WebGLStrategyDataTexture;
   private __engine: Engine;
-  private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __dataUBOUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __morphOffsetsUniformBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -336,7 +334,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
    * - Configuring data texture-specific uniform locations
    */
   public setupShaderForMaterial(material: Material, primitive: Primitive): CGAPIResourceHandle {
-    const webglResourceRepository = WebGLResourceRepository.getInstance();
+    const webglResourceRepository = this.__engine.webglResourceRepository;
     const _glw = webglResourceRepository.currentWebGLContextWrapper!;
 
     const [programUid, newOne] = material._createProgramWebGL(
@@ -848,7 +846,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       }
     }
     const elementNumToCopy = morphUniformDataOffsets[morphUniformDataOffsets.length - 1];
-    this.__webglResourceRepository.updateUniformBuffer(
+    this.__engine.webglResourceRepository.updateUniformBuffer(
       this.__morphOffsetsUniformBufferUid,
       this.__uniformMorphOffsetsTypedArray!,
       0,
@@ -871,7 +869,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     if (morphOffsetsUniformDataSize !== this.__lastMorphOffsetsUniformDataSize) {
       // delete the old morph offsets uniform buffer
       if (this.__morphOffsetsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-        this.__webglResourceRepository.deleteUniformBuffer(this.__morphOffsetsUniformBufferUid);
+        this.__engine.webglResourceRepository.deleteUniformBuffer(this.__morphOffsetsUniformBufferUid);
         this.__morphOffsetsUniformBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
       }
       // create the new morph offsets uniform buffer
@@ -880,7 +878,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         const inputArrayOffsets = new Uint32Array(morphOffsetsUniformDataSize);
         this.__uniformMorphOffsetsTypedArray = inputArrayOffsets;
         this.__morphOffsetsUniformBufferUid =
-          this.__webglResourceRepository.createUniformBufferWithBufferView(inputArrayOffsets);
+          this.__engine.webglResourceRepository.createUniformBufferWithBufferView(inputArrayOffsets);
         this.__updateMorphOffsetsUniformBuffersInner();
       }
 
@@ -898,7 +896,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     if (blendShapeWeightsUniformDataSize !== this.__lastMorphWeightsUniformDataSize) {
       // delete the old morph weights uniform buffer
       if (this.__morphWeightsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-        this.__webglResourceRepository.deleteUniformBuffer(this.__morphWeightsUniformBufferUid);
+        this.__engine.webglResourceRepository.deleteUniformBuffer(this.__morphWeightsUniformBufferUid);
         this.__morphWeightsUniformBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
       }
 
@@ -907,7 +905,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         const inputArrayWeights = new Float32Array(blendShapeWeightsUniformDataSize);
         this.__uniformMorphWeightsTypedArray = inputArrayWeights;
         this.__morphWeightsUniformBufferUid =
-          this.__webglResourceRepository.createUniformBufferWithBufferView(inputArrayWeights);
+          this.__engine.webglResourceRepository.createUniformBufferWithBufferView(inputArrayWeights);
         this.__updateMorphWeightsUniformBuffer();
       }
 
@@ -926,7 +924,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__morphOffsetsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid &&
       this.__morphWeightsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid
     ) {
-      this.__webglResourceRepository.setUniformBlockBindingForMorphOffsetsAndWeightsWithoutShaderProgram(
+      this.__engine.webglResourceRepository.setUniformBlockBindingForMorphOffsetsAndWeightsWithoutShaderProgram(
         this.__morphOffsetsUniformBufferUid,
         this.__morphWeightsUniformBufferUid
       );
@@ -988,7 +986,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.deleteDataTexture();
     }
 
-    const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
+    const glw = this.__engine.webglResourceRepository.currentWebGLContextWrapper;
     if (glw == null) {
       return;
     }
@@ -1012,7 +1010,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
           Logger.warn('The buffer size exceeds the size of the data texture.');
         }
         const floatDataTextureBuffer = new Float32Array(gpuInstanceDataBuffer.getArrayBuffer(), 0, updateByteSize / 4);
-        this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
+        this.__engine.webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
           level: 0,
           offsetX: 0,
           offsetY: copiedHeights,
@@ -1075,14 +1073,17 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       );
 
       // write data
-      this.__dataTextureUid = this.__webglResourceRepository.createTextureFromTypedArray(floatDataTextureBuffer!, {
-        internalFormat: TextureFormat.RGBA32F,
-        width: dataTextureWidth,
-        height: dataTextureHeight,
-        format: PixelFormat.RGBA,
-        type: ComponentType.Float,
-        generateMipmap: false,
-      });
+      this.__dataTextureUid = this.__engine.webglResourceRepository.createTextureFromTypedArray(
+        floatDataTextureBuffer!,
+        {
+          internalFormat: TextureFormat.RGBA32F,
+          width: dataTextureWidth,
+          height: dataTextureHeight,
+          format: PixelFormat.RGBA,
+          type: ComponentType.Float,
+          generateMipmap: false,
+        }
+      );
     }
   }
 
@@ -1097,7 +1098,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    */
   deleteDataTexture(): void {
     if (this.__dataTextureUid != null) {
-      this.__webglResourceRepository.deleteTexture(this.__dataTextureUid);
+      this.__engine.webglResourceRepository.deleteTexture(this.__dataTextureUid);
       this.__dataTextureUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     }
   }
@@ -1179,7 +1180,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     }
     if (blendShapeComponents.length > 0) {
       const elementNumToCopy = blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1];
-      this.__webglResourceRepository.updateUniformBuffer(
+      this.__engine.webglResourceRepository.updateUniformBuffer(
         this.__morphWeightsUniformBufferUid,
         this.__uniformMorphWeightsTypedArray!,
         0,
@@ -1199,7 +1200,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    * and can store larger amounts of uniform data compared to individual uniforms.
    */
   private __isUboUse() {
-    return this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 && Config.isUboEnabled;
+    return this.__engine.webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 && Config.isUboEnabled;
   }
 
   /**
@@ -1215,18 +1216,18 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    */
   private __createAndUpdateUBO() {
     if (this.__isUboUse()) {
-      const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
+      const glw = this.__engine.webglResourceRepository.currentWebGLContextWrapper;
       const alignedMaxUniformBlockSize = glw!.getAlignedMaxUniformBlockSize();
       const maxConventionBlocks = glw!.getMaxConventionUniformBlocks();
       const memoryManager = this.__engine.memoryManager;
       const buffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUInstanceData);
       if (this.__dataUBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-        this.__dataUBOUid = this.__webglResourceRepository.setupUniformBufferDataArea(
+        this.__dataUBOUid = this.__engine.webglResourceRepository.setupUniformBufferDataArea(
           new Float32Array(buffer!.getArrayBuffer())
         );
       } else {
         const array = new Float32Array(buffer!.getArrayBuffer());
-        this.__webglResourceRepository.updateUniformBuffer(
+        this.__engine.webglResourceRepository.updateUniformBuffer(
           this.__dataUBOUid,
           array,
           0,
@@ -1294,15 +1295,15 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     _instanceIDBufferUid: WebGLResourceHandle
   ): void {
     // bind
-    const vao = this.__webglResourceRepository.getWebGLResource(
+    const vao = this.__engine.webglResourceRepository.getWebGLResource(
       mesh.getVaoUids(primitiveIndex)
     ) as WebGLVertexArrayObjectOES;
     if (vao != null) {
       glw.bindVertexArray(vao);
     } else {
       const vertexHandles = primitive.vertexHandles!;
-      this.__webglResourceRepository.setVertexDataToPipeline(vertexHandles, primitive, mesh._variationVBOUid);
-      const ibo = this.__webglResourceRepository.getWebGLResource(vertexHandles.iboHandle!) as WebGLBuffer;
+      this.__engine.webglResourceRepository.setVertexDataToPipeline(vertexHandles, primitive, mesh._variationVBOUid);
+      const ibo = this.__engine.webglResourceRepository.getWebGLResource(vertexHandles.iboHandle!) as WebGLBuffer;
       const gl = glw.getRawContext();
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
     }
@@ -1429,7 +1430,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     if (typeof spector !== 'undefined') {
       spector.setMarker('|  |  DataTexture:common_$render#');
     }
-    const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+    const glw = this.__engine.webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContextAsWebGL2();
 
     const isVRMainPass = WebGLStrategyCommonMethod.isVrMainPass(this.__engine, renderPass);
@@ -1518,7 +1519,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     setupShaderProgram(material, primitive, this);
 
     const shaderProgramUid = material.getShaderProgramUid(primitive);
-    const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
+    const shaderProgram = this.__engine.webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
     gl.useProgram(shaderProgram);
     this.__lastShader = shaderProgramUid;
 
@@ -1553,7 +1554,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       gl.depthMask(false);
     }
 
-    this.__webglResourceRepository.setViewport(renderPass.getViewport());
+    this.__engine.webglResourceRepository.setViewport(renderPass.getViewport());
 
     gl.drawArrays(
       renderPass._primitiveModeForBufferLessRendering.index,
@@ -1616,7 +1617,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         return false;
       }
 
-      const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
+      const shaderProgram = this.__engine.webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
       gl.useProgram(shaderProgram);
       (gl as any).__changedProgram = false;
       // Bind DataTexture
@@ -1657,6 +1658,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
     if (firstTimeForShaderProgram) {
       material._setParametersToGpuWebGLPerShaderProgram({
+        engine: this.__engine,
         material,
         shaderProgram: WebGLStrategyDataTexture.__shaderProgram,
         firstTime: firstTimeForShaderProgram,
@@ -1747,9 +1749,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    */
   private bindDataTexture(gl: WebGLRenderingContext | WebGL2RenderingContext, shaderProgram: WebGLProgram) {
     gl.uniform1i((shaderProgram as any).dataTexture, 7);
-    this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
-    const samplerUid = this.__webglResourceRepository.createOrGetTextureSamplerRepeatNearest();
-    this.__webglResourceRepository.bindTextureSampler(7, samplerUid);
+    this.__engine.webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
+    const samplerUid = this.__engine.webglResourceRepository.createOrGetTextureSamplerRepeatNearest();
+    this.__engine.webglResourceRepository.bindTextureSampler(7, samplerUid);
   }
   // $render(): void {}
 }

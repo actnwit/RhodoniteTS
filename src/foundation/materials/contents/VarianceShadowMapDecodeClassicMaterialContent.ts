@@ -3,8 +3,6 @@ import VarianceShadowMapDecodeClassicShaderFragment from '../../../webgl/shaderi
 import VarianceShadowMapDecodeClassicShaderVertex from '../../../webgl/shaderity_shaders/VarianceShadowMapDecodeClassicShader/VarianceShadowMapDecodeClassicShader.vert';
 import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
-import { ComponentRepository } from '../../core/ComponentRepository';
-import { Config } from '../../core/Config';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ShaderSemantics, ShaderSemanticsClass, type ShaderSemanticsEnum } from '../../definitions/ShaderSemantics';
@@ -16,15 +14,12 @@ import type { MutableVector4 } from '../../math/MutableVector4';
 import { Scalar } from '../../math/Scalar';
 import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
-import { VectorN } from '../../math/VectorN';
 import { Logger } from '../../misc/Logger';
-import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import type { RenderPass } from '../../renderer/RenderPass';
 import type { Engine } from '../../system/Engine';
 import type { IRenderable } from '../../textures/IRenderable';
 import type { Texture } from '../../textures/Texture';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { dummyBlackTexture, dummyBlueTexture, dummyWhiteTexture } from '../core/DummyTextures';
 import type { Material } from '../core/Material';
 
 export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMaterialContent {
@@ -61,6 +56,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
    * This material content handles the decoding and rendering of variance shadow maps, which provide
    * soft shadows with reduced aliasing compared to traditional shadow mapping techniques.
    *
+   * @param engine - The engine instance
    * @param materialName - The name identifier for this material
    * @param options - Configuration options for the material
    * @param options.isMorphing - Whether to enable morphing/blend shape support
@@ -75,6 +71,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
    * @throws Will log a warning if depthCameraComponent is not provided
    */
   constructor(
+    engine: Engine,
     materialName: string,
     {
       isMorphing,
@@ -124,7 +121,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
       depthTexture = depthFramebuffer.colorAttachments[colorAttachmentsNumberDepth];
     } else {
       Logger.warn('renderPass of depth does not have framebuffer');
-      depthTexture = dummyBlackTexture;
+      depthTexture = engine.dummyTextures.dummyBlackTexture;
     }
 
     let squareDepthTexture: IRenderable | Texture;
@@ -133,7 +130,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
       squareDepthTexture = squareDepthFramebuffer.colorAttachments[colorAttachmentsNumberSquareDepth];
     } else {
       Logger.warn('renderPass of square depth does not have framebuffer');
-      squareDepthTexture = dummyBlackTexture;
+      squareDepthTexture = engine.dummyTextures.dummyBlackTexture;
     }
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
@@ -271,7 +268,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,
-        initialValue: [0, dummyBlueTexture],
+        initialValue: [0, engine.dummyTextures.dummyBlueTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -280,7 +277,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,
-        initialValue: [1, dummyWhiteTexture],
+        initialValue: [1, engine.dummyTextures.dummyWhiteTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -400,7 +397,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         (shaderProgram as any)._gl.uniform1f((shaderProgram as any).zFarInner, encodedDepthCameraComponent.zFarInner);
         VarianceShadowMapDecodeClassicMaterialContent.__lastZFar = encodedDepthCameraComponent.zFarInner;
       }
-      const __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const __webglResourceRepository = engine.webglResourceRepository;
       __webglResourceRepository.setUniformValue(
         shaderProgram,
         ShaderSemantics.LightViewProjectionMatrix.str,
@@ -424,7 +421,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
     const blendShapeComponent = args.entity.tryToGetBlendShape();
     this.setMorphInfo(shaderProgram, args.entity.getMesh(), args.primitive, blendShapeComponent);
 
-    const __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const __webglResourceRepository = engine.webglResourceRepository;
     __webglResourceRepository.setUniformValue(
       shaderProgram,
       ShaderSemantics.LightViewProjectionMatrix.str,

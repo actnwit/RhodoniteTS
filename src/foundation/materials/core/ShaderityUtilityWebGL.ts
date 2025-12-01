@@ -15,9 +15,7 @@ import { MutableVector2 } from '../../math/MutableVector2';
 import { MutableVector3 } from '../../math/MutableVector3';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { Logger } from '../../misc/Logger';
-import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import type { Engine } from '../../system/Engine';
-import { DefaultTextures, dummyBlackTexture, dummyWhiteTexture } from './DummyTextures';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 
@@ -78,7 +76,7 @@ export class ShaderityUtilityWebGL {
     args: FillArgsObject
   ): ShaderityObject {
     const step1 = Shaderity.fillTemplate(shaderityObject, args);
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = engine.webglResourceRepository;
     const glw = webglResourceRepository.currentWebGLContextWrapper;
     if (glw == null) {
       return step1;
@@ -172,7 +170,10 @@ export class ShaderityUtilityWebGL {
    * @param shaderityObject - The shader object to analyze for uniform declarations
    * @returns An object containing an array of shader semantic info and a modified shader object with uniforms removed
    */
-  public static getShaderDataReflection(shaderityObject: ShaderityObject): {
+  public static getShaderDataReflection(
+    engine: Engine,
+    shaderityObject: ShaderityObject
+  ): {
     shaderSemanticsInfoArray: ShaderSemanticsInfo[];
     shaderityObject: ShaderityObject;
   } {
@@ -197,6 +198,7 @@ export class ShaderityUtilityWebGL {
         }
 
         const shaderSemanticsInfo = this.__createShaderSemanticsInfo(
+          engine,
           type,
           variableName,
           info,
@@ -264,6 +266,7 @@ export class ShaderityUtilityWebGL {
    * @private
    */
   private static __createShaderSemanticsInfo(
+    engine: Engine,
     type: string,
     variableName: string,
     info: string,
@@ -286,7 +289,7 @@ export class ShaderityUtilityWebGL {
       stage,
     };
 
-    this.__setRhodoniteOriginalParametersTo(shaderSemanticsInfo, info);
+    this.__setRhodoniteOriginalParametersTo(engine, shaderSemanticsInfo, info);
 
     return shaderSemanticsInfo;
   }
@@ -300,7 +303,11 @@ export class ShaderityUtilityWebGL {
    * @param info - The comment string containing parameter definitions
    * @private
    */
-  private static __setRhodoniteOriginalParametersTo(shaderSemanticsInfo: ShaderSemanticsInfo, info: string) {
+  private static __setRhodoniteOriginalParametersTo(
+    engine: Engine,
+    shaderSemanticsInfo: ShaderSemanticsInfo,
+    info: string
+  ) {
     const soloDatum = info.match(/soloDatum[\t ]*=[\t ]*(\w+)[,\t ]*/);
     let isSoloDatumFlg = false;
     if (soloDatum?.[1] === 'true') {
@@ -318,9 +325,9 @@ export class ShaderityUtilityWebGL {
     const initialValue = info.match(/initialValue[\t ]*=[\t ]*(.+)[,\t ]*/);
     if (initialValue) {
       const initialValueText = initialValue[1];
-      shaderSemanticsInfo.initialValue = this.__getInitialValueFromText(shaderSemanticsInfo, initialValueText);
+      shaderSemanticsInfo.initialValue = this.__getInitialValueFromText(engine, shaderSemanticsInfo, initialValueText);
     } else {
-      shaderSemanticsInfo.initialValue = this.__getDefaultInitialValue(shaderSemanticsInfo);
+      shaderSemanticsInfo.initialValue = this.__getDefaultInitialValue(engine, shaderSemanticsInfo);
     }
 
     const needUniformInDataTextureMode = info.match(/needUniformInDataTextureMode[\t ]*=[\t ]*(.+)[,\t ]*/);
@@ -343,7 +350,11 @@ export class ShaderityUtilityWebGL {
    * @returns The parsed initial value as the appropriate Rhodonite math type or texture array
    * @private
    */
-  private static __getInitialValueFromText(shaderSemanticsInfo: ShaderSemanticsInfo, initialValueText: string) {
+  private static __getInitialValueFromText(
+    engine: Engine,
+    shaderSemanticsInfo: ShaderSemanticsInfo,
+    initialValueText: string
+  ) {
     const tuple = initialValueText.match(/\(([\d\w., ]+)\)/);
     const checkCompositionNumber = (expected: CompositionTypeEnum) => {
       if (shaderSemanticsInfo.compositionType !== expected) {
@@ -379,10 +390,10 @@ export class ShaderityUtilityWebGL {
             shaderSemanticsInfo.compositionType === CompositionType.Texture2DShadow
           ) {
             const color = split[1].charAt(0).toUpperCase() + split[1].slice(1);
-            initialValue = [Number.parseInt(split[0]), (DefaultTextures as any)[`dummy${color}Texture`]];
+            initialValue = [Number.parseInt(split[0]), (engine.dummyTextures as any)[`dummy${color}Texture`]];
           } else if (shaderSemanticsInfo.compositionType === CompositionType.TextureCube) {
             const color = split[1].charAt(0).toUpperCase() + split[1].slice(1);
-            initialValue = [Number.parseInt(split[0]), (DefaultTextures as any)[`dummy${color}CubeTexture`]];
+            initialValue = [Number.parseInt(split[0]), (engine.dummyTextures as any)[`dummy${color}CubeTexture`]];
           } else {
             checkCompositionNumber(CompositionType.Vec2);
             initialValue = MutableVector2.fromCopyArray([Number.parseFloat(split[0]), Number.parseFloat(split[1])]);
@@ -466,7 +477,7 @@ export class ShaderityUtilityWebGL {
    * @returns The default initial value appropriate for the uniform's type
    * @private
    */
-  private static __getDefaultInitialValue(shaderSemanticsInfo: ShaderSemanticsInfo) {
+  private static __getDefaultInitialValue(engine: Engine, shaderSemanticsInfo: ShaderSemanticsInfo) {
     if (shaderSemanticsInfo.compositionType === CompositionType.Scalar) {
       return new MutableScalar(new Float32Array([0]));
     }
@@ -489,13 +500,13 @@ export class ShaderityUtilityWebGL {
       return MutableMatrix44.identity();
     }
     if (shaderSemanticsInfo.compositionType === CompositionType.Texture2D) {
-      return [0, dummyWhiteTexture];
+      return [0, engine.dummyTextures.dummyWhiteTexture];
     }
     if (shaderSemanticsInfo.compositionType === CompositionType.Texture2DShadow) {
-      return [0, dummyWhiteTexture];
+      return [0, engine.dummyTextures.dummyWhiteTexture];
     }
     if (shaderSemanticsInfo.compositionType === CompositionType.TextureCube) {
-      return [0, dummyBlackTexture];
+      return [0, engine.dummyTextures.dummyBlackTexture];
     }
 
     Logger.warn('initial value is not found');

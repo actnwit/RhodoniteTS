@@ -154,7 +154,7 @@ export class Bloom {
     const key = `${texture.width}_${texture.height}`;
     let framebufferDetectHighLuminance = this.__mapDetectHighLuminanceFramebuffer.get(key);
     if (framebufferDetectHighLuminance == null) {
-      framebufferDetectHighLuminance = RenderableHelper.createFrameBuffer({
+      framebufferDetectHighLuminance = RenderableHelper.createFrameBuffer(this.__engine, {
         width: texture.width,
         height: texture.height,
         textureNum: 1,
@@ -290,7 +290,7 @@ export class Bloom {
     const key = `${resolutionWidthBlur}_${resolutionHeightBlur}_${isHorizontal}`;
     let framebuffer = this.__mapReducedFramebuffer.get(key);
     if (framebuffer == null) {
-      framebuffer = RenderableHelper.createFrameBuffer({
+      framebuffer = RenderableHelper.createFrameBuffer(this.__engine, {
         width: resolutionWidthBlur,
         height: resolutionHeightBlur,
         textureNum: 1,
@@ -355,7 +355,7 @@ export class Bloom {
     const key = `${texture.width}_${texture.height}`;
     let framebufferSynthesizeImages = this.__mapSynthesizeFramebuffer.get(key);
     if (framebufferSynthesizeImages == null) {
-      framebufferSynthesizeImages = RenderableHelper.createFrameBuffer({
+      framebufferSynthesizeImages = RenderableHelper.createFrameBuffer(this.__engine, {
         width: texture.width,
         height: texture.height,
         textureNum: 1,

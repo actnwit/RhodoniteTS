@@ -562,6 +562,7 @@ export abstract class AbstractMaterialContent extends RnObject {
    * @returns Array of shader semantics information
    */
   protected doShaderReflection(
+    engine: Engine,
     vertexShader: ShaderityObject,
     pixelShader: ShaderityObject,
     vertexShaderWebGpu: ShaderityObject,
@@ -588,10 +589,10 @@ export abstract class AbstractMaterialContent extends RnObject {
       const preprocessedVertexShader = Shaderity.processPragma(vertexShaderWebGpu!, definitions);
       const preprocessedPixelShader = Shaderity.processPragma(pixelShaderWebGpu!, definitions);
 
-      preprocessedVertexShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(preprocessedVertexShader);
-      preprocessedPixelShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(preprocessedPixelShader);
-      const vertexShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(vertexShaderWebGpu!);
-      const pixelShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(pixelShaderWebGpu!);
+      preprocessedVertexShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(engine, preprocessedVertexShader);
+      preprocessedPixelShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(engine, preprocessedPixelShader);
+      const vertexShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(engine, vertexShaderWebGpu!);
+      const pixelShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(engine, pixelShaderWebGpu!);
 
       this.setVertexShaderityObject(vertexShaderData.shaderityObject);
       this.setPixelShaderityObject(pixelShaderData.shaderityObject);
@@ -599,11 +600,11 @@ export abstract class AbstractMaterialContent extends RnObject {
       const preprocessedVertexShader = Shaderity.processPragma(vertexShader, definitions);
       const preprocessedPixelShader = Shaderity.processPragma(pixelShader, definitions);
 
-      preprocessedVertexShaderData = ShaderityUtilityWebGL.getShaderDataReflection(preprocessedVertexShader);
-      preprocessedPixelShaderData = ShaderityUtilityWebGL.getShaderDataReflection(preprocessedPixelShader);
+      preprocessedVertexShaderData = ShaderityUtilityWebGL.getShaderDataReflection(engine, preprocessedVertexShader);
+      preprocessedPixelShaderData = ShaderityUtilityWebGL.getShaderDataReflection(engine, preprocessedPixelShader);
 
-      const vertexShaderData = ShaderityUtilityWebGL.getShaderDataReflection(vertexShader);
-      const pixelShaderData = ShaderityUtilityWebGL.getShaderDataReflection(pixelShader);
+      const vertexShaderData = ShaderityUtilityWebGL.getShaderDataReflection(engine, vertexShader);
+      const pixelShaderData = ShaderityUtilityWebGL.getShaderDataReflection(engine, pixelShader);
 
       this.setVertexShaderityObject(vertexShaderData.shaderityObject);
       this.setPixelShaderityObject(pixelShaderData.shaderityObject);

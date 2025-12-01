@@ -213,7 +213,7 @@ export class ForwardRenderPipeline extends RnObject {
 
     if (!this.__isSimple) {
       const oSamplerForBackBuffer = new Some(
-        new Sampler({
+        new Sampler(this.__engine, {
           wrapS: TextureParameter.Repeat,
           wrapT: TextureParameter.Repeat,
           minFilter: TextureParameter.LinearMipmapLinear,
@@ -865,9 +865,9 @@ export class ForwardRenderPipeline extends RnObject {
    */
   private __createRenderTargets(canvasWidth: number, canvasHeight: number) {
     const webXRSystem = this.__engine.webXRSystem;
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     if (Is.exist(webXRSystem) && webXRSystem.isWebXRMode && cgApiResourceRepository.isSupportMultiViewVRRendering()) {
-      const framebufferMultiView = RenderableHelper.createFrameBufferTextureArrayForMultiView({
+      const framebufferMultiView = RenderableHelper.createFrameBufferTextureArrayForMultiView(this.__engine, {
         width: canvasWidth / 2,
         height: canvasHeight,
         arrayLength: 2,
@@ -877,7 +877,7 @@ export class ForwardRenderPipeline extends RnObject {
         type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
       });
       framebufferMultiView.tryToSetUniqueName('FramebufferTargetOfToneMappingMultiView', true);
-      const framebufferMultiViewBlit = RenderableHelper.createFrameBuffer({
+      const framebufferMultiViewBlit = RenderableHelper.createFrameBuffer(this.__engine, {
         width: canvasWidth,
         height: canvasHeight,
         textureNum: 1,
@@ -887,7 +887,7 @@ export class ForwardRenderPipeline extends RnObject {
 
       framebufferMultiViewBlit.tryToSetUniqueName('FramebufferTargetOfToneMappingMultiViewBlit', true);
 
-      const framebufferMultiViewBlitBackBuffer = RenderableHelper.createFrameBuffer({
+      const framebufferMultiViewBlitBackBuffer = RenderableHelper.createFrameBuffer(this.__engine, {
         width: canvasWidth,
         height: canvasHeight,
         textureNum: 1,
@@ -905,7 +905,7 @@ export class ForwardRenderPipeline extends RnObject {
     } else {
       console.log(`canvasWidth: ${canvasWidth}, canvasHeight: ${canvasHeight}`);
       // MSAA depth
-      const framebufferMsaa = RenderableHelper.createFrameBufferMSAA({
+      const framebufferMsaa = RenderableHelper.createFrameBufferMSAA(this.__engine, {
         width: canvasWidth,
         height: canvasHeight,
         colorBufferNum: 1,
@@ -916,7 +916,7 @@ export class ForwardRenderPipeline extends RnObject {
       framebufferMsaa.tryToSetUniqueName('FramebufferTargetOfToneMappingMsaa', true);
 
       // Resolve Color 1
-      const framebufferResolve = RenderableHelper.createFrameBuffer({
+      const framebufferResolve = RenderableHelper.createFrameBuffer(this.__engine, {
         width: canvasWidth,
         height: canvasHeight,
         textureNum: 1,
@@ -927,7 +927,7 @@ export class ForwardRenderPipeline extends RnObject {
       framebufferResolve.tryToSetUniqueName('FramebufferTargetOfToneMappingResolve', true);
 
       // Resolve Color 2
-      const framebufferResolveForReference = RenderableHelper.createFrameBuffer({
+      const framebufferResolveForReference = RenderableHelper.createFrameBuffer(this.__engine, {
         width: canvasWidth,
         height: canvasHeight,
         textureNum: 1,
@@ -1097,7 +1097,7 @@ export class ForwardRenderPipeline extends RnObject {
    */
   private __setupDepthMomentFramebuffer(shadowMapSize: number) {
     return new Some(
-      RenderableHelper.createFrameBuffer({
+      RenderableHelper.createFrameBuffer(this.__engine, {
         width: shadowMapSize,
         height: shadowMapSize,
         textureNum: 1,

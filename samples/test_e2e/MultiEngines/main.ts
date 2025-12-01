@@ -9,7 +9,7 @@ Rn.Config.cgApiDebugConsoleOutput = true;
 
 async function createCanvasScene(canvas: HTMLCanvasElement) {
   const engine = await Rn.Engine.init({
-    approach: Rn.ProcessApproach.WebGPU,
+    approach: Rn.ProcessApproach.DataTexture,
     canvas: canvas,
   });
 

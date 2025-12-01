@@ -42,7 +42,6 @@ import { EngineState } from '../../system/EngineState';
 import { Sampler } from '../../textures/Sampler';
 import type { Texture } from '../../textures/Texture';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { dummyBlackCubeTexture, dummyBlackTexture, dummyWhiteTexture } from '../core/DummyTextures';
 import type { Material } from '../core/Material';
 
 /**
@@ -51,20 +50,8 @@ import type { Material } from '../core/Material';
  * which are commonly used for toon-style rendering in VRM models.
  */
 export class MToon0xMaterialContent extends AbstractMaterialContent {
-  private static __diffuseIblCubeMapSampler = new Sampler({
-    minFilter: TextureParameter.Linear,
-    magFilter: TextureParameter.Linear,
-    wrapS: TextureParameter.ClampToEdge,
-    wrapT: TextureParameter.ClampToEdge,
-    wrapR: TextureParameter.ClampToEdge,
-  });
-  private static __specularIblCubeMapSampler = new Sampler({
-    minFilter: TextureParameter.LinearMipmapLinear,
-    magFilter: TextureParameter.Linear,
-    wrapS: TextureParameter.ClampToEdge,
-    wrapT: TextureParameter.ClampToEdge,
-    wrapR: TextureParameter.ClampToEdge,
-  });
+  private __diffuseIblCubeMapSampler: Sampler;
+  private __specularIblCubeMapSampler: Sampler;
   static readonly _Cutoff = new ShaderSemanticsClass({ str: 'cutoff' });
   static readonly _Color = new ShaderSemanticsClass({ str: 'litColor' });
   static readonly _ShadeColor = new ShaderSemanticsClass({ str: 'shadeColor' });
@@ -146,6 +133,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
   /**
    * Creates a new MToon 0.x material content instance.
    *
+   * @param engine - The engine instance
    * @param isOutline - Whether this material is for outline rendering
    * @param materialProperties - VRM material properties from the glTF file
    * @param textures - Array of textures used by the material
@@ -160,6 +148,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
    * @param definitions - Additional shader preprocessor definitions
    */
   constructor(
+    engine: Engine,
     isOutline: boolean,
     materialProperties: Vrm0xMaterialProperty | undefined,
     textures: any,
@@ -180,6 +169,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
     });
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = this.doShaderReflection(
+      engine,
       mToonSingleShaderVertex,
       mToonSingleShaderFragment,
       mToonSingleShaderVertexWebGpu,
@@ -187,12 +177,26 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
       definitions
     );
 
-    if (!MToon0xMaterialContent.__diffuseIblCubeMapSampler.created) {
-      MToon0xMaterialContent.__diffuseIblCubeMapSampler.create();
+    this.__diffuseIblCubeMapSampler = new Sampler(engine, {
+      minFilter: TextureParameter.Linear,
+      magFilter: TextureParameter.Linear,
+      wrapS: TextureParameter.ClampToEdge,
+      wrapT: TextureParameter.ClampToEdge,
+      wrapR: TextureParameter.ClampToEdge,
+    });
+    this.__specularIblCubeMapSampler = new Sampler(engine, {
+      minFilter: TextureParameter.LinearMipmapLinear,
+      magFilter: TextureParameter.Linear,
+      wrapS: TextureParameter.ClampToEdge,
+      wrapT: TextureParameter.ClampToEdge,
+      wrapR: TextureParameter.ClampToEdge,
+    });
+    if (!this.__diffuseIblCubeMapSampler.created) {
+      this.__diffuseIblCubeMapSampler.create();
     }
 
-    if (!MToon0xMaterialContent.__specularIblCubeMapSampler.created) {
-      MToon0xMaterialContent.__specularIblCubeMapSampler.create();
+    if (!this.__specularIblCubeMapSampler.created) {
+      this.__specularIblCubeMapSampler.create();
     }
 
     if (materialProperties != null) {
@@ -557,7 +561,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
       //textures.length - 2 is dummyTexture
       this.__definitions += '#define RN_MTOON_HAS_OUTLINE_WIDTH_TEXTURE\n';
     }
-    textures = [dummyWhiteTexture, dummyBlackTexture];
+    textures = [engine.dummyTextures.dummyWhiteTexture, engine.dummyTextures.dummyBlackTexture];
     this.__textureProperties._BumpMap = 0;
     this.__textureProperties._EmissionMap = 1;
     this.__textureProperties._MainTex = 0;
@@ -728,9 +732,9 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
    * @param material - The material instance to configure
    * @param isOutline - Whether this is an outline material
    */
-  setMaterialParameters(material: Material, isOutline: boolean) {
+  setMaterialParameters(engine: Engine, material: Material, isOutline: boolean) {
     if (MToon0xMaterialContent.usableBlendEquationModeAlpha == null) {
-      MToon0xMaterialContent.__initializeUsableBlendEquationModeAlpha();
+      MToon0xMaterialContent.__initializeUsableBlendEquationModeAlpha(engine);
     }
 
     if (this.__floatProperties._BlendMode !== 0) {
@@ -801,11 +805,11 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
    *
    * @private
    */
-  private static __initializeUsableBlendEquationModeAlpha() {
+  private static __initializeUsableBlendEquationModeAlpha(engine: Engine) {
     if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       MToon0xMaterialContent.usableBlendEquationModeAlpha = 32776; // gl.MAX
     } else {
-      const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const webGLResourceRepository = engine.webglResourceRepository;
       const glw = webGLResourceRepository.currentWebGLContextWrapper;
       const gl = glw!.getRawContextAsWebGL2();
       if (glw!.isWebGL2) {
@@ -890,24 +894,26 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
    * @param params.args - WebGL rendering arguments
    */
   _setInternalSettingParametersToGpuWebGLPerShaderProgram({
+    engine,
     shaderProgram,
     args,
   }: {
+    engine: Engine;
     shaderProgram: WebGLProgram;
     args: RenderingArgWebGL;
   }) {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = engine.webglResourceRepository;
     // IBL Env map
     if (args.diffuseCube?.isTextureReady) {
       webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
         5,
         args.diffuseCube,
-        MToon0xMaterialContent.__diffuseIblCubeMapSampler,
+        this.__diffuseIblCubeMapSampler,
       ]);
     } else {
       webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
         5,
-        dummyBlackCubeTexture,
+        engine.dummyTextures.dummyBlackCubeTexture,
       ]);
     }
     // if (args.specularCube && args.specularCube.isTextureReady) {
@@ -985,7 +991,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
       }
     }
 
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = engine.webglResourceRepository;
     // IBL Parameters
     if (args.setUniform) {
       if (firstTime) {

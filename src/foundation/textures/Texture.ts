@@ -14,6 +14,7 @@ import { TextureParameter, type TextureParameterEnum } from '../definitions/Text
 import { DataUtil } from '../misc/DataUtil';
 import { Logger } from '../misc/Logger';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import type { Engine } from '../system/Engine';
 import { EngineState } from '../system/EngineState';
 import { ModuleManager } from '../system/ModuleManager';
 import { AbstractTexture } from './AbstractTexture';
@@ -44,6 +45,7 @@ export interface LoadImageToMipLevelDescriptor {
 
 type FinalizationRegistryObject = {
   textureResourceUid: CGAPIResourceHandle;
+  engine: Engine;
   uniqueName: string;
 };
 
@@ -95,7 +97,7 @@ export class Texture extends AbstractTexture implements Disposable {
       Logger.info(
         `WebGL/WebGPU 2D texture "${texObj.uniqueName}" was automatically released along with GC. But explicit release is recommended.`
       );
-      Texture.__deleteInternalTexture(texObj.textureResourceUid);
+      Texture.__deleteInternalTexture(texObj.engine, texObj.textureResourceUid);
     });
 
   /**
@@ -105,7 +107,7 @@ export class Texture extends AbstractTexture implements Disposable {
    */
   private __setTextureResourceUid(textureResourceUid: CGAPIResourceHandle, uniqueName: string) {
     this._textureResourceUid = textureResourceUid;
-    Texture.managedRegistry.register(this, { textureResourceUid, uniqueName }, this);
+    Texture.managedRegistry.register(this, { textureResourceUid, engine: this.__engine, uniqueName }, this);
   }
 
   /**
@@ -196,7 +198,7 @@ export class Texture extends AbstractTexture implements Disposable {
       return;
     }
 
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     const texture = cgApiResourceRepository.createCompressedTextureFromBasis(basisFile, {
       border: 0,
       format,
@@ -228,7 +230,7 @@ export class Texture extends AbstractTexture implements Disposable {
   async generateTextureFromKTX2(uint8Array: Uint8Array) {
     this.__startedToLoad = true;
 
-    const transcodedData = await KTX2TextureLoader.getInstance().transcode(uint8Array);
+    const transcodedData = await KTX2TextureLoader.getInstance().transcode(this.__engine, uint8Array);
     this.__width = transcodedData.width;
     this.__height = transcodedData.height;
     await this.generateCompressedTextureWithMipmapFromTypedArray(
@@ -277,7 +279,7 @@ export class Texture extends AbstractTexture implements Disposable {
     this.__width = img.width;
     this.__height = img.height;
 
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     let texture: CGAPIResourceHandle;
     if (img instanceof HTMLImageElement) {
       texture = await cgApiResourceRepository.createTextureFromHTMLImageElement(img, {
@@ -352,7 +354,7 @@ export class Texture extends AbstractTexture implements Disposable {
         this.__width = img.width;
         this.__height = img.height;
 
-        const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+        const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
 
         let texture: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
         (async () => {
@@ -412,7 +414,7 @@ export class Texture extends AbstractTexture implements Disposable {
     ctx.fillStyle = rgbaStr;
     ctx.fillRect(0, 0, 1, 1);
 
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     const textureHandle = await cgApiResourceRepository.createTextureFromImageBitmapData(canvas, {
       level: 0,
       internalFormat: TextureFormat.RGBA8,
@@ -445,7 +447,7 @@ export class Texture extends AbstractTexture implements Disposable {
     const moduleName = 'pbr';
     const moduleManager = ModuleManager.getInstance();
     const pbrModule = moduleManager.getModule(moduleName)! as any;
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     if (cgApiResourceRepository == null) {
       Logger.error('Failed to get CGAPIResourceRepository.');
       return;
@@ -493,7 +495,7 @@ export class Texture extends AbstractTexture implements Disposable {
     height: number;
     format: TextureFormatEnum;
   }) {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
 
     desc.mipLevelCount = desc.mipLevelCount ?? Math.floor(Math.log2(Math.max(desc.width, desc.height))) + 1;
 
@@ -538,7 +540,7 @@ export class Texture extends AbstractTexture implements Disposable {
    * ```
    */
   async loadImageToMipLevel(desc: LoadImageToMipLevelDescriptor) {
-    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webGLResourceRepository = this.__engine.cgApiResourceRepository;
 
     await webGLResourceRepository.loadImageToMipLevelOfTexture2D({
       mipLevel: desc.mipLevel,
@@ -594,7 +596,7 @@ export class Texture extends AbstractTexture implements Disposable {
       buffer: typedArray,
     } as TextureData;
 
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     const textureHandle = await cgApiResourceRepository.createCompressedTexture([textureData], compressionTextureType);
 
     this.__setTextureResourceUid(textureHandle, this.uniqueName);
@@ -641,7 +643,7 @@ export class Texture extends AbstractTexture implements Disposable {
     this.__width = originalTextureData.width;
     this.__height = originalTextureData.height;
 
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     const textureHandle = await cgApiResourceRepository.createCompressedTexture(
       textureDataArray,
       compressionTextureType
@@ -668,7 +670,7 @@ export class Texture extends AbstractTexture implements Disposable {
    * ```
    */
   generateMipmaps() {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     cgApiResourceRepository.generateMipmaps2d(this._textureResourceUid, this.__width, this.__height);
   }
 
@@ -691,7 +693,7 @@ export class Texture extends AbstractTexture implements Disposable {
   importWebGLTextureDirectly(webGLTexture: WebGLTexture, width = 0, height = 0) {
     this.__width = width;
     this.__height = height;
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = this.__engine.webglResourceRepository;
     const texture = webGLResourceRepository.setWebGLTextureDirectly(webGLTexture);
     this.__setTextureResourceUid(texture, this.uniqueName);
     this.__startedToLoad = true;
@@ -705,7 +707,7 @@ export class Texture extends AbstractTexture implements Disposable {
    * @returns Always returns true
    */
   destroy3DAPIResources() {
-    Texture.__deleteInternalTexture(this._textureResourceUid);
+    Texture.__deleteInternalTexture(this.__engine, this._textureResourceUid);
     this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     this.__isTextureReady = false;
     this.__startedToLoad = false;
@@ -717,8 +719,8 @@ export class Texture extends AbstractTexture implements Disposable {
    * Internal method to delete a texture resource from the graphics API.
    * @param textureResourceUid - The texture resource handle to delete
    */
-  private static __deleteInternalTexture(textureResourceUid: CGAPIResourceHandle) {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+  private static __deleteInternalTexture(engine: Engine, textureResourceUid: CGAPIResourceHandle) {
+    const cgApiResourceRepository = engine.cgApiResourceRepository;
     cgApiResourceRepository.deleteTexture(textureResourceUid);
   }
 
@@ -764,6 +766,7 @@ export class Texture extends AbstractTexture implements Disposable {
    * ```
    */
   static async loadFromUrl(
+    engine: Engine,
     uri: string,
     {
       level = 0,
@@ -773,7 +776,7 @@ export class Texture extends AbstractTexture implements Disposable {
       generateMipmap = true,
     } = {}
   ) {
-    const texture = new Texture();
+    const texture = new Texture(engine);
     await texture.generateTextureFromUrl(uri, {
       level,
       internalFormat,

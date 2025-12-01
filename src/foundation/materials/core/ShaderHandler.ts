@@ -77,6 +77,7 @@ export class ShaderHandler {
    * @returns A tuple containing the shader program handle and a boolean indicating if it's newly created
    */
   static _createShaderProgramWithCache(
+    engine: Engine,
     material: Material,
     primitive: Primitive,
     vertexShader: string,
@@ -92,7 +93,7 @@ export class ShaderHandler {
       return [shaderProgramUid, false];
     }
 
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = engine.cgApiResourceRepository;
     shaderProgramUid = cgApiResourceRepository.createShaderProgram({
       material,
       primitive,
@@ -254,7 +255,7 @@ export function _createProgramAsSingleOperationWebGL(
     propertySetterOfGlobalDataRepository,
     propertySetterOfMaterial
   );
-  const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+  const webglResourceRepository = engine.webglResourceRepository;
 
   // Shader Code Construction
   let vertexShader = _setupGlobalShaderDefinitionWebGL(engine, material.__materialTypeName, primitive);
@@ -313,7 +314,7 @@ export function _createProgramAsSingleOperationWebGL(
   const vertexAttributesBinding = _outputVertexAttributeBindingInfo(attributeNames, attributeSemantics);
   vertexShader += vertexAttributesBinding;
 
-  const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+  const cgApiResourceRepository = engine.cgApiResourceRepository;
   shaderProgramUid = cgApiResourceRepository.createShaderProgram({
     material,
     primitive,
@@ -341,7 +342,7 @@ export function _createProgramAsSingleOperationWebGL(
  */
 export function _setupGlobalShaderDefinitionWebGL(engine: Engine, materialTypeName: string, _primitive: Primitive) {
   let definitions = '';
-  const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+  const webglResourceRepository = engine.webglResourceRepository;
   const glw = webglResourceRepository.currentWebGLContextWrapper as WebGLContextWrapper;
   if (glw.isWebGL2) {
     definitions += '#version 300 es\n#define GLSL_ES3\n';
@@ -503,7 +504,7 @@ export function _createProgramAsSingleOperationWebGpu(
   const preprocessedVertex = Shaderity.processPragma(vertexShaderityObject);
   const preprocessedPixel = Shaderity.processPragma(pixelShaderityObject);
 
-  const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+  const cgApiResourceRepository = engine.cgApiResourceRepository;
   shaderProgramUid = cgApiResourceRepository.createShaderProgram({
     material,
     primitive,

@@ -6,6 +6,7 @@ import { ProcessApproach } from '../definitions/ProcessApproach';
 import { TextureParameter } from '../definitions/TextureParameter';
 import { Logger } from '../misc/Logger';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import type { Engine } from '../system/Engine';
 import { EngineState } from '../system/EngineState';
 import { AbstractTexture } from './AbstractTexture';
 
@@ -13,6 +14,7 @@ declare const BASIS: BASIS_TYPE;
 
 type FinalizationRegistryObject = {
   textureResourceUid: CGAPIResourceHandle;
+  engine: Engine;
   uniqueName: string;
 };
 
@@ -53,7 +55,7 @@ export class CubeTexture extends AbstractTexture implements Disposable {
       Logger.info(
         `WebGL/WebGPU cube texture "${texObj.uniqueName}" was automatically released along with GC. But explicit release is recommended.`
       );
-      CubeTexture.__deleteInternalTexture(texObj.textureResourceUid);
+      CubeTexture.__deleteInternalTexture(texObj.engine, texObj.textureResourceUid);
     });
 
   /**
@@ -66,7 +68,7 @@ export class CubeTexture extends AbstractTexture implements Disposable {
    */
   private __setTextureResourceUid(textureResourceUid: CGAPIResourceHandle, uniqueName: string) {
     this._textureResourceUid = textureResourceUid;
-    CubeTexture.managedRegistry.register(this, { textureResourceUid, uniqueName }, this);
+    CubeTexture.managedRegistry.register(this, { textureResourceUid, engine: this.__engine, uniqueName }, this);
   }
 
   /**
@@ -106,8 +108,9 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     this.mipmapLevelNumber = mipmapLevelNumber;
     this.hdriFormat = hdriFormat;
 
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     const [cubeTextureUid, sampler] = await cgApiResourceRepository.createCubeTextureFromFiles(
+      this.__engine,
       baseUrl,
       mipmapLevelNumber,
       isNamePosNeg,
@@ -177,7 +180,7 @@ export class CubeTexture extends AbstractTexture implements Disposable {
         return;
       }
 
-      const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const webGLResourceRepository = this.__engine.webglResourceRepository;
       const texture = webGLResourceRepository.createCubeTextureFromBasis(basisFile, {
         magFilter: magFilter,
         minFilter: minFilter,
@@ -217,9 +220,10 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     }
     ctx.fillStyle = rgbaStr;
     ctx.fillRect(0, 0, 1, 1);
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
 
     const [resourceUid, sampler] = cgApiResourceRepository.createCubeTexture(
+      this.__engine,
       1,
       [
         {
@@ -283,9 +287,10 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     baseLevelWidth: Size,
     baseLevelHeight: Size
   ) {
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = this.__engine.webglResourceRepository;
 
     const [resourceId, sampler] = webGLResourceRepository.createCubeTexture(
+      this.__engine,
       typedArrayImages.length,
       typedArrayImages,
       baseLevelWidth,
@@ -316,7 +321,7 @@ export class CubeTexture extends AbstractTexture implements Disposable {
   importWebGLTextureDirectly(webGLTexture: WebGLTexture, width = 0, height = 0) {
     this.__width = width;
     this.__height = height;
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = this.__engine.webglResourceRepository;
     const texture = webGLResourceRepository.setWebGLTextureDirectly(webGLTexture);
     this.__setTextureResourceUid(texture, this.uniqueName);
     this.__startedToLoad = true;
@@ -327,11 +332,12 @@ export class CubeTexture extends AbstractTexture implements Disposable {
    * Deletes the internal texture resource from the graphics API.
    * This is a static utility method used internally for cleanup.
    *
+   * @param engine - The engine instance
    * @param textureResourceUid - The unique identifier of the texture resource to delete
    * @private
    */
-  private static __deleteInternalTexture(textureResourceUid: CGAPIResourceHandle) {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+  private static __deleteInternalTexture(engine: Engine, textureResourceUid: CGAPIResourceHandle) {
+    const cgApiResourceRepository = engine.cgApiResourceRepository;
     cgApiResourceRepository.deleteTexture(textureResourceUid);
   }
 
@@ -341,7 +347,7 @@ export class CubeTexture extends AbstractTexture implements Disposable {
    * After calling this method, the texture cannot be used for rendering until reloaded.
    */
   destroy3DAPIResources() {
-    CubeTexture.__deleteInternalTexture(this._textureResourceUid);
+    CubeTexture.__deleteInternalTexture(this.__engine, this._textureResourceUid);
     this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     this.__isTextureReady = false;
     this.__startedToLoad = false;
@@ -394,18 +400,21 @@ export class CubeTexture extends AbstractTexture implements Disposable {
    * });
    * ```
    */
-  static async loadFromUrl({
-    baseUrl,
-    mipmapLevelNumber,
-    isNamePosNeg,
-    hdriFormat,
-  }: {
-    baseUrl: string;
-    mipmapLevelNumber: number;
-    isNamePosNeg: boolean;
-    hdriFormat: HdriFormatEnum;
-  }) {
-    const cubeTexture = new CubeTexture();
+  static async loadFromUrl(
+    engine: Engine,
+    {
+      baseUrl,
+      mipmapLevelNumber,
+      isNamePosNeg,
+      hdriFormat,
+    }: {
+      baseUrl: string;
+      mipmapLevelNumber: number;
+      isNamePosNeg: boolean;
+      hdriFormat: HdriFormatEnum;
+    }
+  ) {
+    const cubeTexture = new CubeTexture(engine);
     await cubeTexture.loadTextureImages({
       baseUrl,
       mipmapLevelNumber,

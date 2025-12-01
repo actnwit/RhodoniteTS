@@ -240,11 +240,12 @@ function setColorWriteMask(material: Material, gl: WebGLRenderingContext) {
  * Gets the viewport configuration for the given render pass.
  * If the render pass doesn't specify a viewport, returns the default viewport from the WebGL context.
  *
+ * @param engine - The engine instance
  * @param renderPass - The render pass to get viewport for
  * @returns The viewport as a Vector4 containing [x, y, width, height]
  */
-function getViewport(renderPass: RenderPass) {
-  const webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
+function getViewport(engine: Engine, renderPass: RenderPass) {
+  const webglResourceRepository = engine.webglResourceRepository;
   let viewport = renderPass.getViewport() as Vector4;
   if (viewport == null) {
     viewport = webglResourceRepository.currentWebGLContextWrapper!.defaultViewport;
@@ -256,11 +257,12 @@ function getViewport(renderPass: RenderPass) {
  * Sets the viewport for VR rendering based on the specified display index.
  * Only applies viewport changes when in WebXR mode.
  *
+ * @param engine - The engine instance
  * @param renderPass - The render pass being processed
  * @param displayIdx - The index of the display/eye (0 for left eye, 1 for right eye)
  */
 function setVRViewport(engine: Engine, _renderPass: RenderPass, displayIdx: Index) {
-  const webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
+  const webglResourceRepository = engine.webglResourceRepository;
   const webxrSystem = engine.webXRSystem;
   if (webxrSystem.isWebXRMode) {
     webglResourceRepository.setViewport(webxrSystem._getViewportAt(displayIdx));

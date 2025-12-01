@@ -1,6 +1,7 @@
 import type { BasisFile } from '../../types/BasisTexture';
 import type { CGAPIResourceHandle, Count, Index, Size, TypedArray } from '../../types/CommonTypes';
 import type { TextureData, VertexHandles, WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
+import type { RnWebGL } from '../../webgl/main';
 import type { AttributeNames } from '../../webgl/types/CommonTypes';
 import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import {
@@ -61,7 +62,7 @@ export abstract class CGAPIResourceRepository {
     const cgApiModule = moduleManager.getModule(moduleName)! as any;
 
     if (moduleName === 'webgl') {
-      const webGLResourceRepository: ICGAPIResourceRepository = cgApiModule.WebGLResourceRepository.getInstance();
+      const webGLResourceRepository: ICGAPIResourceRepository = (cgApiModule as RnWebGL).WebGLResourceRepository.init();
       return webGLResourceRepository;
     }
     // WebGPU
@@ -79,8 +80,8 @@ export abstract class CGAPIResourceRepository {
   static getWebGLResourceRepository(): WebGLResourceRepository {
     const moduleName = 'webgl';
     const moduleManager = ModuleManager.getInstance();
-    const webglModule = moduleManager.getModule(moduleName)! as any;
-    const webGLResourceRepository: WebGLResourceRepository = webglModule.WebGLResourceRepository.getInstance();
+    const webglModule = moduleManager.getModule(moduleName)! as RnWebGL;
+    const webGLResourceRepository: WebGLResourceRepository = webglModule.WebGLResourceRepository.init();
     return webGLResourceRepository;
   }
 
@@ -355,6 +356,7 @@ export interface ICGAPIResourceRepository {
    * @returns Promise resolving to a tuple of [texture handle, sampler]
    */
   createCubeTextureFromFiles(
+    engine: Engine,
     baseUri: string,
     mipLevelCount: Count,
     isNamePosNeg: boolean,
@@ -428,6 +430,7 @@ export interface ICGAPIResourceRepository {
    * Creates a cube texture from provided image data for all six faces.
    * This method assembles a complete cube texture from individual face images.
    *
+   * @param engine - The engine instance
    * @param mipLevelCount - Number of mipmap levels to generate
    * @param images - Array of image data objects, each containing all six cube faces
    * @param width - Width of each cube face in pixels
@@ -435,6 +438,7 @@ export interface ICGAPIResourceRepository {
    * @returns Tuple containing [texture handle, sampler]
    */
   createCubeTexture(
+    engine: Engine,
     mipLevelCount: Count,
     images: Array<{
       posX: DirectTextureData;

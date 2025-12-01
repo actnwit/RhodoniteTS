@@ -814,7 +814,7 @@ export class Primitive extends RnObject {
     if (this.__vertexHandles != null) {
       return false;
     }
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     this.__vertexHandles = cgApiResourceRepository.createVertexBufferAndIndexBuffer(this);
 
     return true;
@@ -831,7 +831,7 @@ export class Primitive extends RnObject {
       return false;
     }
 
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     cgApiResourceRepository.updateVertexBufferAndIndexBuffer(this, vertexHandles);
 
     return true;
@@ -846,7 +846,7 @@ export class Primitive extends RnObject {
     if (this.__vertexHandles == null) {
       return false;
     }
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     cgApiResourceRepository.deleteVertexDataResources(this.__vertexHandles);
     this.__vertexHandles = undefined;
 

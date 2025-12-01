@@ -18,7 +18,6 @@ import { TextureParameter, type TextureParameterEnum } from '../foundation/defin
 import { VertexAttribute, type VertexAttributeEnum } from '../foundation/definitions/VertexAttribute';
 import type { Mesh } from '../foundation/geometry/Mesh';
 import { Primitive } from '../foundation/geometry/Primitive';
-import { dummyBlackCubeTexture, dummyWhiteTexture } from '../foundation/materials/core/DummyTextures';
 import { Material } from '../foundation/materials/core/Material';
 import type { Vector4 } from '../foundation/math/Vector4';
 import type { Accessor } from '../foundation/memory/Accessor';
@@ -1154,7 +1153,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     const bindGroupId = `${renderPipelineId} ${material.stateVersion} ${material.__materialSid}`;
 
     if (!this.__bindGroupTextureMap.has(bindGroupId)) {
-      this.__createBindGroup(bindGroupId, material, diffuseCubeMap, specularCubeMap, sheenCubeMap);
+      this.__createBindGroup(engine, bindGroupId, material, diffuseCubeMap, specularCubeMap, sheenCubeMap);
     }
 
     const [pipeline, _recreated] = this.getOrCreateRenderPipeline(
@@ -1721,6 +1720,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @returns the WebGLResourceHandle for the generated Cube Texture
    */
   async createCubeTextureFromFiles(
+    engine: Engine,
     baseUri: string,
     mipLevelCount: Count,
     isNamePosNeg: boolean,
@@ -1867,7 +1867,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         }
       );
     }
-    return this.createCubeTexture(mipLevelCount, imageArgs, width, height);
+    return this.createCubeTexture(engine, mipLevelCount, imageArgs, width, height);
   }
 
   /**
@@ -1880,6 +1880,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @returns resource handle
    */
   createCubeTexture(
+    engine: Engine,
     mipLevelCount: Count,
     images: Array<{
       posX: DirectTextureData;
@@ -1980,7 +1981,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     const minFilter = mipLevelCount === 1 ? TextureParameter.Linear : TextureParameter.LinearMipmapLinear;
     const magFilter = TextureParameter.Linear;
 
-    const sampler = new Sampler({ wrapS, wrapT, minFilter, magFilter, anisotropy: false });
+    const sampler = new Sampler(engine, { wrapS, wrapT, minFilter, magFilter, anisotropy: false });
     sampler.create();
 
     return [handle, sampler];
@@ -2280,6 +2281,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   }
 
   private __createBindGroup(
+    engine: Engine,
     bindGroupId: string,
     material: Material,
     diffuseCubeMap?: CubeTexture | RenderTargetTextureCube,
@@ -2423,13 +2425,19 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           let gpuTextureView = this.__webGpuResources.get(texture._textureViewResourceUid) as GPUTextureView;
           if (gpuTextureView == null) {
             if (texture instanceof CubeTexture || texture instanceof RenderTargetTextureCube) {
-              const gpuTexture = this.__webGpuResources.get(dummyBlackCubeTexture._textureResourceUid) as GPUTexture;
+              const gpuTexture = this.__webGpuResources.get(
+                engine.dummyTextures.dummyBlackCubeTexture._textureResourceUid
+              ) as GPUTexture;
               gpuTextureView = gpuTexture.createView({ dimension: 'cube' });
             } else if (texture instanceof TextureArray || texture instanceof RenderTargetTexture2DArray) {
-              const gpuTexture = this.__webGpuResources.get(dummyWhiteTexture._textureResourceUid) as GPUTexture;
+              const gpuTexture = this.__webGpuResources.get(
+                engine.dummyTextures.dummyWhiteTexture._textureResourceUid
+              ) as GPUTexture;
               gpuTextureView = gpuTexture.createView({ dimension: '2d-array' });
             } else {
-              const gpuTexture = this.__webGpuResources.get(dummyWhiteTexture._textureResourceUid) as GPUTexture;
+              const gpuTexture = this.__webGpuResources.get(
+                engine.dummyTextures.dummyWhiteTexture._textureResourceUid
+              ) as GPUTexture;
               gpuTextureView = gpuTexture.createView();
             }
           }
@@ -2478,7 +2486,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           });
         } else {
           const dummyCubeTextureView = this.__webGpuResources.get(
-            dummyBlackCubeTexture._textureViewResourceUid
+            engine.dummyTextures.dummyBlackCubeTexture._textureViewResourceUid
           ) as GPUTextureView;
           entriesForTexture.push({
             binding: diffuseEnvSlot,
@@ -2501,7 +2509,9 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
             resource: diffuseCubeSampler,
           });
         } else {
-          const dummyCubeSampler = this.__webGpuResources.get(dummyBlackCubeTexture._samplerResourceUid) as GPUSampler;
+          const dummyCubeSampler = this.__webGpuResources.get(
+            engine.dummyTextures.dummyBlackCubeTexture._samplerResourceUid
+          ) as GPUSampler;
           entriesForSampler.push({
             binding: diffuseEnvSlot,
             resource: dummyCubeSampler,
@@ -2530,7 +2540,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           });
         } else {
           const dummyCubeTextureView = this.__webGpuResources.get(
-            dummyBlackCubeTexture._textureViewResourceUid
+            engine.dummyTextures.dummyBlackCubeTexture._textureViewResourceUid
           ) as GPUTextureView;
           entriesForTexture.push({
             binding: specularEnvSlot,
@@ -2553,7 +2563,9 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
             resource: specularCubeSampler,
           });
         } else {
-          const dummyCubeSampler = this.__webGpuResources.get(dummyBlackCubeTexture._samplerResourceUid) as GPUSampler;
+          const dummyCubeSampler = this.__webGpuResources.get(
+            engine.dummyTextures.dummyBlackCubeTexture._samplerResourceUid
+          ) as GPUSampler;
           entriesForSampler.push({
             binding: specularEnvSlot,
             resource: dummyCubeSampler,
@@ -2590,7 +2602,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           });
         } else {
           const dummyCubeTextureView = this.__webGpuResources.get(
-            dummyBlackCubeTexture._textureViewResourceUid
+            engine.dummyTextures.dummyBlackCubeTexture._textureViewResourceUid
           ) as GPUTextureView;
           entriesForTexture.push({
             binding: sheenEnvSlot,
@@ -2617,7 +2629,9 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
             resource: sheenCubeSampler,
           });
         } else {
-          const dummyCubeSampler = this.__webGpuResources.get(dummyBlackCubeTexture._samplerResourceUid) as GPUSampler;
+          const dummyCubeSampler = this.__webGpuResources.get(
+            engine.dummyTextures.dummyBlackCubeTexture._samplerResourceUid
+          ) as GPUSampler;
           entriesForSampler.push({
             binding: sheenEnvSlot,
             resource: dummyCubeSampler,

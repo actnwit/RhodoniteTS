@@ -47,7 +47,7 @@ export class ShadowSystem {
     this.__gaussianBlur = new GaussianBlur(engine);
 
     const [shadowMapArrayFramebuffer, _shadowMapArrayRenderTargetTexture] =
-      RenderableHelper.createFrameBufferTextureArray({
+      RenderableHelper.createFrameBufferTextureArray(engine, {
         width: shadowMapSize,
         height: shadowMapSize,
         arrayLength: Config.maxLightNumber,
@@ -59,7 +59,7 @@ export class ShadowSystem {
     this.__shadowMapArrayFramebuffer = shadowMapArrayFramebuffer;
 
     const [pointShadowMapArrayFramebuffer, _pointShadowMapArrayRenderTargetTexture] =
-      RenderableHelper.createFrameBufferTextureArray({
+      RenderableHelper.createFrameBufferTextureArray(engine, {
         width: shadowMapSize,
         height: shadowMapSize,
         arrayLength: Config.maxLightNumber,
@@ -173,7 +173,7 @@ export class ShadowSystem {
    * @private
    */
   private __setBlurredShadowMap(blurredRenderTarget: RenderTargetTexture, entities: ISceneGraphEntity[]) {
-    const sampler = new Sampler({
+    const sampler = new Sampler(this.__engine, {
       minFilter: TextureParameter.Linear,
       magFilter: TextureParameter.Linear,
       wrapS: TextureParameter.ClampToEdge,
@@ -201,7 +201,7 @@ export class ShadowSystem {
    * @private
    */
   private __setParaboloidBlurredShadowMap(blurredRenderTarget: RenderTargetTexture, entities: ISceneGraphEntity[]) {
-    const sampler = new Sampler({
+    const sampler = new Sampler(this.__engine, {
       minFilter: TextureParameter.Linear,
       magFilter: TextureParameter.Linear,
       wrapS: TextureParameter.ClampToEdge,

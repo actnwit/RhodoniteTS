@@ -39,13 +39,14 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
   /**
    * Creates a new DetectHighLuminanceMaterialContent instance.
    *
+   * @param engine - The engine instance
    * @param materialName - The name identifier for this material
    * @param textureToDetectHighLuminance - The source texture to analyze for high luminance areas
    */
-  constructor(materialName: string, textureToDetectHighLuminance: AbstractTexture) {
+  constructor(engine: Engine, materialName: string, textureToDetectHighLuminance: AbstractTexture) {
     super(materialName, {});
 
-    const sampler = new Sampler({
+    const sampler = new Sampler(engine, {
       wrapS: TextureParameter.ClampToEdge,
       wrapT: TextureParameter.ClampToEdge,
       minFilter: TextureParameter.Linear,

@@ -81,7 +81,7 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
    * @private
    */
   private __createRenderTargetTexture() {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     const texture = cgApiResourceRepository.createRenderTargetTextureCube({
       width: this.__width,
       height: this.__height,
@@ -111,7 +111,7 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
    * to ensure proper mipmap generation from the rendered content.
    */
   generateMipmaps() {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     cgApiResourceRepository.generateMipmapsCube(this._textureResourceUid, this.width, this.height);
   }
 
@@ -145,7 +145,7 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
    * This is automatically called during resize operations.
    */
   destroy3DAPIResources() {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     cgApiResourceRepository.deleteTexture(this._textureResourceUid);
     this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 

@@ -11,6 +11,7 @@ import type { MutableVector4 } from '../math/MutableVector4';
 import type { Vector3 } from '../math/Vector3';
 import type { Vector4 } from '../math/Vector4';
 import { Is } from '../misc/Is';
+import type { Engine } from '../system/Engine';
 import type { Sampler } from './Sampler';
 import { TextureDataFloat } from './TextureDataFloat';
 
@@ -23,6 +24,7 @@ import { TextureDataFloat } from './TextureDataFloat';
  * @extends RnObject
  */
 export abstract class AbstractTexture extends RnObject {
+  protected __engine: Engine;
   protected __width: Size = 0;
   protected __height: Size = 0;
   protected __level: Index = 0;
@@ -55,9 +57,10 @@ export abstract class AbstractTexture extends RnObject {
    * Creates a new AbstractTexture instance.
    * Automatically assigns a unique texture UID to this texture.
    */
-  constructor() {
+  constructor(engine: Engine) {
     super();
     this.__textureUid = ++AbstractTexture.__textureUidCount;
+    this.__engine = engine;
   }
 
   /**
