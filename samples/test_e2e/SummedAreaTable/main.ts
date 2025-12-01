@@ -26,19 +26,19 @@ const assets = await Rn.defaultAssetLoader.load({
       cameraComponent: cameraComponent,
     }
   ),
-  environment: Rn.CubeTexture.loadFromUrl({
+  environment: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: './../../../assets/ibl/papermill/environment/environment',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.LDR_SRGB,
   }),
-  diffuse: Rn.CubeTexture.loadFromUrl({
+  diffuse: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: './../../../assets/ibl/papermill/diffuse/diffuse',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.RGBE_PNG,
   }),
-  specular: Rn.CubeTexture.loadFromUrl({
+  specular: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: './../../../assets/ibl/papermill/specular/specular',
     mipmapLevelNumber: 10,
     isNamePosNeg: true,
@@ -99,7 +99,7 @@ async function createMainExpression(expressions: Rn.Expression[]) {
 
 async function createBackgroundEnvCubeExpression() {
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial(engine);
-  const sampler = new Rn.Sampler({
+  const sampler = new Rn.Sampler(engine, {
     magFilter: Rn.TextureParameter.Linear,
     minFilter: Rn.TextureParameter.Linear,
     wrapS: Rn.TextureParameter.ClampToEdge,

@@ -31,19 +31,19 @@ const assets = await Rn.defaultAssetLoader.load({
       ],
     }
   ),
-  environment: Rn.CubeTexture.loadFromUrl({
+  environment: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: './../../../assets/ibl/shanghai_bund/environment/environment',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.LDR_SRGB,
   }),
-  diffuse: Rn.CubeTexture.loadFromUrl({
+  diffuse: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: './../../../assets/ibl/shanghai_bund/diffuse/diffuse',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.LDR_SRGB,
   }),
-  specular: Rn.CubeTexture.loadFromUrl({
+  specular: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: './../../../assets/ibl/shanghai_bund/specular/specular',
     mipmapLevelNumber: 10,
     isNamePosNeg: true,
@@ -62,7 +62,7 @@ expressions.push(expressionPostEffect);
 
 // gamma correction (and super sampling)
 const mainRenderPass = assets.mainExpression.renderPasses[0];
-const gammaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer({
+const gammaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer(engine, {
   width: 600,
   height: 600,
   textureNum: 1,

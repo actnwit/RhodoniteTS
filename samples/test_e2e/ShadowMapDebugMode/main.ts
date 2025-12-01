@@ -134,7 +134,7 @@ function createCameraControllerComponent() {
 }
 
 function createFramebuffer(renderPass, height, width, textureNum) {
-  const framebuffer = Rn.RenderableHelper.createFrameBuffer({
+  const framebuffer = Rn.RenderableHelper.createFrameBuffer(engine, {
     width,
     height,
     textureNum,

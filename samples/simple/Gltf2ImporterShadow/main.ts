@@ -86,7 +86,7 @@ async function createEntityGltf2(uriGltf: string) {
 }
 
 async function createEntityEnvironmentCube(basePathIBL: string) {
-  const cubeTextureEnvironment = new Rn.CubeTexture();
+  const cubeTextureEnvironment = new Rn.CubeTexture(engine);
   await cubeTextureEnvironment.loadTextureImages({
     baseUrl: `${basePathIBL}/environment/environment`,
     mipmapLevelNumber: 1,
@@ -96,7 +96,7 @@ async function createEntityEnvironmentCube(basePathIBL: string) {
 
   const materialSphere = Rn.MaterialHelper.createEnvConstantMaterial(engine);
   materialSphere.setParameter('envHdriFormat', Rn.HdriFormat.HDR_LINEAR.index);
-  const samplerSphere = new Rn.Sampler({
+  const samplerSphere = new Rn.Sampler(engine, {
     magFilter: Rn.TextureParameter.Linear,
     minFilter: Rn.TextureParameter.LinearMipmapLinear,
     wrapS: Rn.TextureParameter.ClampToEdge,
@@ -168,7 +168,7 @@ function createRenderPassDepth(cameraComponentDepth: Rn.CameraComponent, entityR
 }
 
 function createAndSetFramebuffer(renderPass: Rn.RenderPass, resolution: number, textureNum: number) {
-  const framebuffer = Rn.RenderableHelper.createFrameBuffer({
+  const framebuffer = Rn.RenderableHelper.createFrameBuffer(engine, {
     width: resolution,
     height: resolution,
     textureNum: textureNum,
@@ -186,7 +186,7 @@ function createExpression(renderPasses: Rn.RenderPass[]) {
 }
 
 async function setIBLTexture(basePathIBL: string) {
-  const cubeTextureSpecular = new Rn.CubeTexture();
+  const cubeTextureSpecular = new Rn.CubeTexture(engine);
   await cubeTextureSpecular.loadTextureImages({
     baseUrl: `${basePathIBL}/specular/specular`,
     mipmapLevelNumber: 10,
@@ -194,7 +194,7 @@ async function setIBLTexture(basePathIBL: string) {
     hdriFormat: Rn.HdriFormat.RGBE_PNG,
   });
 
-  const cubeTextureDiffuse = new Rn.CubeTexture();
+  const cubeTextureDiffuse = new Rn.CubeTexture(engine);
   await cubeTextureDiffuse.loadTextureImages({
     baseUrl: `${basePathIBL}/diffuse/diffuse`,
     mipmapLevelNumber: 1,

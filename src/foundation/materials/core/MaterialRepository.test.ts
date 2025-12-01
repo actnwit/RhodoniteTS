@@ -6,7 +6,7 @@ const engine = await Rn.Engine.init({
 });
 
 test('MaterialTID are processed correctly', () => {
-  const materialNode = new Rn.CustomMaterialContent({
+  const materialNode = new Rn.CustomMaterialContent(engine, {
     name: 'material test',
     isSkinning: false,
     isLighting: false,

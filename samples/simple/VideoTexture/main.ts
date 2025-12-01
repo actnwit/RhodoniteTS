@@ -11,10 +11,10 @@ const engine = await Rn.Engine.init({
 });
 
 // Plane
-const texture = new Rn.VideoTexture();
+const texture = new Rn.VideoTexture(engine);
 texture.generateTextureFromUri('../../../assets/videos/video.mp4');
 const modelMaterial = Rn.MaterialHelper.createClassicUberMaterial(engine);
-const sampler = new Rn.Sampler({
+const sampler = new Rn.Sampler(engine, {
   magFilter: Rn.TextureParameter.Linear,
   minFilter: Rn.TextureParameter.LinearMipmapLinear,
   wrapS: Rn.TextureParameter.Repeat,

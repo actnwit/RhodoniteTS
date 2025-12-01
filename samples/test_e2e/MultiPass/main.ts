@@ -19,7 +19,7 @@ const renderPass2 = new Rn.RenderPass(engine);
 renderPass2.toClearColorBuffer = true;
 renderPass2.cameraComponent = cameraComponent;
 
-const framebuffer = Rn.RenderableHelper.createFrameBuffer({
+const framebuffer = Rn.RenderableHelper.createFrameBuffer(engine, {
   width: 600,
   height: 600,
   textureNum: 1,
@@ -27,7 +27,7 @@ const framebuffer = Rn.RenderableHelper.createFrameBuffer({
   createDepthBuffer: true,
 });
 renderPass1.setFramebuffer(framebuffer);
-const framebuffer_fxaatarget = Rn.RenderableHelper.createFrameBuffer({
+const framebuffer_fxaatarget = Rn.RenderableHelper.createFrameBuffer(engine, {
   width: 600,
   height: 600,
   textureNum: 1,
@@ -91,7 +91,7 @@ primitive2.generate({
   isUVRepeat: false,
 });
 primitive2.material = Rn.MaterialHelper.createClassicUberMaterial(engine, {});
-const sampler = new Rn.Sampler({
+const sampler = new Rn.Sampler(engine, {
   magFilter: Rn.TextureParameter.Linear,
   minFilter: Rn.TextureParameter.Linear,
   wrapS: Rn.TextureParameter.Repeat,

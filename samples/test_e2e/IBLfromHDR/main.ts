@@ -22,7 +22,7 @@ const arrayBuffer = await response.arrayBuffer();
 const data = await loadHDR(new Uint8Array(arrayBuffer));
 
 // Create HDR texture
-const hdrTexture = new Rn.Texture();
+const hdrTexture = new Rn.Texture(engine);
 hdrTexture.allocate({
   width: data.width,
   height: data.height,
@@ -57,12 +57,15 @@ panoramaToCubeMaterial.setParameter('cubeMapFaceId', 0);
 // Create expression
 const panoramaToCubeExpression = new Rn.Expression();
 
-const [panoramaToCubeFramebuffer, panoramaToCubeRenderTargetCube] = Rn.RenderableHelper.createFrameBufferCubeMap({
-  width: cubeMapSize,
-  height: cubeMapSize,
-  textureFormat: Rn.TextureFormat.RGBA32F,
-  // mipLevelCount: 1,
-});
+const [panoramaToCubeFramebuffer, panoramaToCubeRenderTargetCube] = Rn.RenderableHelper.createFrameBufferCubeMap(
+  engine,
+  {
+    width: cubeMapSize,
+    height: cubeMapSize,
+    textureFormat: Rn.TextureFormat.RGBA32F,
+    // mipLevelCount: 1,
+  }
+);
 
 // Create renderPass and set hdrTexture to panoramaToCubeMaterial
 const panoramaToCubeRenderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
@@ -82,24 +85,24 @@ prefilterIblMaterial.setParameter('cubeMapFaceId', 0);
 
 const prefilterIblExpression = new Rn.Expression();
 
-const [diffuseIblFramebuffer, diffuseIblRenderTargetCube] = Rn.RenderableHelper.createFrameBufferCubeMap({
+const [diffuseIblFramebuffer, diffuseIblRenderTargetCube] = Rn.RenderableHelper.createFrameBufferCubeMap(engine, {
   width: cubeMapSize,
   height: cubeMapSize,
   textureFormat: Rn.TextureFormat.RGBA32F,
   mipLevelCount: 1,
 });
-const [specularIblFramebuffer, specularIblRenderTargetCube] = Rn.RenderableHelper.createFrameBufferCubeMap({
+const [specularIblFramebuffer, specularIblRenderTargetCube] = Rn.RenderableHelper.createFrameBufferCubeMap(engine, {
   width: cubeMapSize,
   height: cubeMapSize,
   textureFormat: Rn.TextureFormat.RGBA32F,
 });
-const [sheenIblFramebuffer, sheenIblRenderTargetCube] = Rn.RenderableHelper.createFrameBufferCubeMap({
+const [sheenIblFramebuffer, sheenIblRenderTargetCube] = Rn.RenderableHelper.createFrameBufferCubeMap(engine, {
   width: cubeMapSize,
   height: cubeMapSize,
   textureFormat: Rn.TextureFormat.RGBA32F,
 });
 
-const sampler = new Rn.Sampler({
+const sampler = new Rn.Sampler(engine, {
   magFilter: Rn.TextureParameter.Linear,
   minFilter: Rn.TextureParameter.LinearMipmapLinear,
   wrapS: Rn.TextureParameter.ClampToEdge,

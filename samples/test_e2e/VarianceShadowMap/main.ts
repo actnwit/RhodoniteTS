@@ -53,7 +53,7 @@ renderPassDepth.setMaterial(Rn.MaterialHelper.createDepthMomentEncodeMaterial(en
 
 const gaussianBlur = new Rn.GaussianBlur(engine);
 const [pointShadowMapArrayFramebuffer, _pointShadowMapArrayRenderTargetTexture] =
-  Rn.RenderableHelper.createFrameBufferTextureArray({
+  Rn.RenderableHelper.createFrameBufferTextureArray(engine, {
     width: 1024,
     height: 1024,
     arrayLength: 1,
@@ -154,7 +154,7 @@ function createBoardEntityWithMaterial() {
 }
 
 function createFramebuffer(renderPass, height, width) {
-  const framebuffer = Rn.RenderableHelper.createFrameBuffer({
+  const framebuffer = Rn.RenderableHelper.createFrameBuffer(engine, {
     width,
     height,
     textureNum: 1,
@@ -189,7 +189,7 @@ function setTextureParameterForMeshComponent(
   const mesh = meshComponent.mesh;
   const primitiveNumber = mesh.getPrimitiveNumber();
 
-  const sampler = new Rn.Sampler({
+  const sampler = new Rn.Sampler(engine, {
     magFilter: Rn.TextureParameter.Linear,
     minFilter: Rn.TextureParameter.Linear,
     wrapS: Rn.TextureParameter.ClampToEdge,

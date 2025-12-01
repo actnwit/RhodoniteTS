@@ -9,26 +9,26 @@ const assetLoader = new Rn.AssetLoader({
   timeout: 30000,
 });
 
-async function loadAssetsWithAssetLoader() {
+async function loadAssetsWithAssetLoader(engine: Rn.Engine) {
   console.log('Loading assets using AssetLoader...');
 
   try {
     // Main usage: Load promises in object format
     console.log('Loading promises in object format');
     const assets = await assetLoader.load({
-      environment: Rn.CubeTexture.loadFromUrl({
+      environment: Rn.CubeTexture.loadFromUrl(engine, {
         baseUrl: `${basePathIBL}/environment/environment`,
         mipmapLevelNumber: 1,
         isNamePosNeg: true,
         hdriFormat: Rn.HdriFormat.HDR_LINEAR,
       }),
-      specular: Rn.CubeTexture.loadFromUrl({
+      specular: Rn.CubeTexture.loadFromUrl(engine, {
         baseUrl: `${basePathIBL}/specular/specular`,
         mipmapLevelNumber: 10,
         isNamePosNeg: true,
         hdriFormat: Rn.HdriFormat.RGBE_PNG,
       }),
-      diffuse: Rn.CubeTexture.loadFromUrl({
+      diffuse: Rn.CubeTexture.loadFromUrl(engine, {
         baseUrl: `${basePathIBL}/diffuse/diffuse`,
         mipmapLevelNumber: 1,
         isNamePosNeg: true,
@@ -43,7 +43,7 @@ async function loadAssetsWithAssetLoader() {
     // Method 2: Load a single promise
     console.log('Method 2: Loading a single promise');
     const singleTexture = await assetLoader.loadSingle(
-      Rn.CubeTexture.loadFromUrl({
+      Rn.CubeTexture.loadFromUrl(engine, {
         baseUrl: `${basePathIBL}/environment/environment`,
         mipmapLevelNumber: 1,
         isNamePosNeg: true,
@@ -56,14 +56,14 @@ async function loadAssetsWithAssetLoader() {
     console.log('Method 2.5: Loading a single promise with retry');
     const singleTextureWithRetry = await assetLoader.loadWithRetrySingle([
       () =>
-        Rn.CubeTexture.loadFromUrl({
+        Rn.CubeTexture.loadFromUrl(engine, {
           baseUrl: `${basePathIBL}/environment/environment`,
           mipmapLevelNumber: 1,
           isNamePosNeg: true,
           hdriFormat: Rn.HdriFormat.HDR_LINEAR,
         }),
       () =>
-        Rn.CubeTexture.loadFromUrl({
+        Rn.CubeTexture.loadFromUrl(engine, {
           baseUrl: `${basePathIBL}/environment/environment`,
           mipmapLevelNumber: 2, // Retry with different parameters
           isNamePosNeg: true,
@@ -75,13 +75,13 @@ async function loadAssetsWithAssetLoader() {
     // Method 3: Load multiple promises in array format
     console.log('Method 3: Loading multiple promises in array format');
     const [texture1, texture2] = await assetLoader.loadArray([
-      Rn.CubeTexture.loadFromUrl({
+      Rn.CubeTexture.loadFromUrl(engine, {
         baseUrl: `${basePathIBL}/specular/specular`,
         mipmapLevelNumber: 10,
         isNamePosNeg: true,
         hdriFormat: Rn.HdriFormat.RGBE_PNG,
       }),
-      Rn.CubeTexture.loadFromUrl({
+      Rn.CubeTexture.loadFromUrl(engine, {
         baseUrl: `${basePathIBL}/diffuse/diffuse`,
         mipmapLevelNumber: 1,
         isNamePosNeg: true,
@@ -95,13 +95,13 @@ async function loadAssetsWithAssetLoader() {
 
     // Promise to create a texture
     const createTexturePromise = async () => {
-      const texture = new Rn.Texture();
+      const texture = new Rn.Texture(engine);
       await texture.generate1x1TextureFrom('rgba(255, 255, 255, 1)');
       return texture;
     };
 
     const mixedAssets = await assetLoader.load({
-      cubeTexture: Rn.CubeTexture.loadFromUrl({
+      cubeTexture: Rn.CubeTexture.loadFromUrl(engine, {
         baseUrl: `${basePathIBL}/environment/environment`,
         mipmapLevelNumber: 1,
         isNamePosNeg: true,
@@ -117,7 +117,7 @@ async function loadAssetsWithAssetLoader() {
       [
         // First attempt: Main server
         () =>
-          Rn.CubeTexture.loadFromUrl({
+          Rn.CubeTexture.loadFromUrl(engine, {
             baseUrl: `${basePathIBL}/environment/environment`,
             mipmapLevelNumber: 1,
             isNamePosNeg: true,
@@ -125,7 +125,7 @@ async function loadAssetsWithAssetLoader() {
           }),
         // First retry: Attempt with different parameters
         () =>
-          Rn.CubeTexture.loadFromUrl({
+          Rn.CubeTexture.loadFromUrl(engine, {
             baseUrl: `${basePathIBL}/environment/environment`,
             mipmapLevelNumber: 2, // Different mipmap level for retry
             isNamePosNeg: true,
@@ -133,7 +133,7 @@ async function loadAssetsWithAssetLoader() {
           }),
         // Second retry: Attempt with different format
         () =>
-          Rn.CubeTexture.loadFromUrl({
+          Rn.CubeTexture.loadFromUrl(engine, {
             baseUrl: `${basePathIBL}/environment/environment`,
             mipmapLevelNumber: 1,
             isNamePosNeg: true,
@@ -143,7 +143,7 @@ async function loadAssetsWithAssetLoader() {
       [
         // Similar multiple retry strategies for specular texture
         () =>
-          Rn.CubeTexture.loadFromUrl({
+          Rn.CubeTexture.loadFromUrl(engine, {
             baseUrl: `${basePathIBL}/specular/specular`,
             mipmapLevelNumber: 10,
             isNamePosNeg: true,
@@ -151,7 +151,7 @@ async function loadAssetsWithAssetLoader() {
           }),
         // Attempt backup path
         () =>
-          Rn.CubeTexture.loadFromUrl({
+          Rn.CubeTexture.loadFromUrl(engine, {
             baseUrl: `${basePathIBL}/specular/specular_backup`,
             mipmapLevelNumber: 10,
             isNamePosNeg: true,
@@ -167,7 +167,7 @@ async function loadAssetsWithAssetLoader() {
       environment: [
         // First attempt
         () =>
-          Rn.CubeTexture.loadFromUrl({
+          Rn.CubeTexture.loadFromUrl(engine, {
             baseUrl: `${basePathIBL}/environment/environment`,
             mipmapLevelNumber: 1,
             isNamePosNeg: true,
@@ -175,7 +175,7 @@ async function loadAssetsWithAssetLoader() {
           }),
         // Retry 1: Different mipmap level
         () =>
-          Rn.CubeTexture.loadFromUrl({
+          Rn.CubeTexture.loadFromUrl(engine, {
             baseUrl: `${basePathIBL}/environment/environment`,
             mipmapLevelNumber: 2,
             isNamePosNeg: true,
@@ -185,7 +185,7 @@ async function loadAssetsWithAssetLoader() {
       specular: [
         // First attempt
         () =>
-          Rn.CubeTexture.loadFromUrl({
+          Rn.CubeTexture.loadFromUrl(engine, {
             baseUrl: `${basePathIBL}/specular/specular`,
             mipmapLevelNumber: 10,
             isNamePosNeg: true,
@@ -193,7 +193,7 @@ async function loadAssetsWithAssetLoader() {
           }),
         // Retry 1: Backup path
         () =>
-          Rn.CubeTexture.loadFromUrl({
+          Rn.CubeTexture.loadFromUrl(engine, {
             baseUrl: `${basePathIBL}/specular/specular_backup`,
             mipmapLevelNumber: 10,
             isNamePosNeg: true,
@@ -201,7 +201,7 @@ async function loadAssetsWithAssetLoader() {
           }),
         // Retry 2: Different format
         () =>
-          Rn.CubeTexture.loadFromUrl({
+          Rn.CubeTexture.loadFromUrl(engine, {
             baseUrl: `${basePathIBL}/specular/specular`,
             mipmapLevelNumber: 10,
             isNamePosNeg: true,
@@ -289,7 +289,7 @@ async function loadAssetsWithAssetLoader() {
 }
 
 // Example of replacing original code with AssetLoader
-async function replaceOriginalCodeWithAssetLoader() {
+async function replaceOriginalCodeWithAssetLoader(engine: Rn.Engine) {
   console.log('Replacing original code with AssetLoader');
 
   // Original code:
@@ -301,19 +301,19 @@ async function replaceOriginalCodeWithAssetLoader() {
 
   // Replacement using AssetLoader (object format):
   const assets = await assetLoader.load({
-    environment: Rn.CubeTexture.loadFromUrl({
+    environment: Rn.CubeTexture.loadFromUrl(engine, {
       baseUrl: `${basePathIBL}/environment/environment`,
       mipmapLevelNumber: 1,
       isNamePosNeg: true,
       hdriFormat: Rn.HdriFormat.HDR_LINEAR,
     }),
-    specular: Rn.CubeTexture.loadFromUrl({
+    specular: Rn.CubeTexture.loadFromUrl(engine, {
       baseUrl: `${basePathIBL}/specular/specular`,
       mipmapLevelNumber: 10,
       isNamePosNeg: true,
       hdriFormat: Rn.HdriFormat.RGBE_PNG,
     }),
-    diffuse: Rn.CubeTexture.loadFromUrl({
+    diffuse: Rn.CubeTexture.loadFromUrl(engine, {
       baseUrl: `${basePathIBL}/diffuse/diffuse`,
       mipmapLevelNumber: 1,
       isNamePosNeg: true,
@@ -330,20 +330,20 @@ async function replaceOriginalCodeWithAssetLoader() {
 }
 
 // Demonstration of type safety
-function demonstrateTypeSafety() {
+function demonstrateTypeSafety(engine: Rn.Engine) {
   console.log('Demonstration of type safety');
 
   // TypeScript's type inference correctly infers the return type
   assetLoader
     .load({
-      environment: Rn.CubeTexture.loadFromUrl({
+      environment: Rn.CubeTexture.loadFromUrl(engine, {
         baseUrl: `${basePathIBL}/environment/environment`,
         mipmapLevelNumber: 1,
         isNamePosNeg: true,
         hdriFormat: Rn.HdriFormat.HDR_LINEAR,
       }),
       texture: (async () => {
-        const texture = new Rn.Texture();
+        const texture = new Rn.Texture(engine);
         await texture.generate1x1TextureFrom();
         return texture;
       })(),
@@ -362,16 +362,20 @@ function demonstrateTypeSafety() {
 // Main execution function
 async function main() {
   try {
+    const engine = await Rn.Engine.init({
+      approach: Rn.ProcessApproach.Uniform,
+      canvas: document.getElementById('world') as HTMLCanvasElement,
+    });
     console.log('=== AssetLoader example ===');
 
     // Loading using AssetLoader
-    await loadAssetsWithAssetLoader();
+    await loadAssetsWithAssetLoader(engine);
 
     console.log('\n=== Example of replacing original code ===');
-    await replaceOriginalCodeWithAssetLoader();
+    await replaceOriginalCodeWithAssetLoader(engine);
 
     console.log('\n=== Demonstration of type safety ===');
-    demonstrateTypeSafety();
+    demonstrateTypeSafety(engine);
 
     console.log('\nLoading complete!');
   } catch (error) {

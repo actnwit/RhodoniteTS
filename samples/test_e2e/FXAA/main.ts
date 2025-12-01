@@ -19,7 +19,7 @@ const engine = await Rn.Engine.init({
 
 // setup the Main RenderPass
 renderPassMain = await setupRenderPassMain();
-framebuffer = Rn.RenderableHelper.createFrameBuffer({
+framebuffer = Rn.RenderableHelper.createFrameBuffer(engine, {
   width: canvas.clientWidth,
   height: canvas.clientHeight,
   textureNum: 1,
@@ -101,7 +101,7 @@ async function setupRenderPassMain() {
     heightSegments: 40,
     material: sphereMaterial,
   });
-  const environmentCubeTexture = new Rn.CubeTexture();
+  const environmentCubeTexture = new Rn.CubeTexture(engine);
   {
     const response = await fetch('../../../assets/images/cubemap_test.basis');
     const buffer = await response.arrayBuffer();
@@ -109,7 +109,7 @@ async function setupRenderPassMain() {
     environmentCubeTexture.loadTextureImagesFromBasis(uint8Array);
     environmentCubeTexture.hdriFormat = Rn.HdriFormat.LDR_SRGB;
   }
-  const samplerSphere = new Rn.Sampler({
+  const samplerSphere = new Rn.Sampler(engine, {
     magFilter: Rn.TextureParameter.Linear,
     minFilter: Rn.TextureParameter.LinearMipmapLinear,
     wrapS: Rn.TextureParameter.ClampToEdge,

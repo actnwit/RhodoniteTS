@@ -452,7 +452,7 @@ fn main (
     shaderStage: 'fragment',
     isFragmentShader: true,
   };
-  const materialContent = new Rn.CustomMaterialContent({
+  const materialContent = new Rn.CustomMaterialContent(engine, {
     name: 'CustomShader',
     isMorphing: false,
     isSkinning: true,

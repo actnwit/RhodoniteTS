@@ -59,7 +59,7 @@ controller.registerEventListeners(document.getElementById('world'));
 
 // prepare render passes
 const renderPassDepth = createRenderPassDepth(cameraComponentDepth, entitiesRenderTarget);
-const framebufferDepth = Rn.RenderableHelper.createFrameBuffer({
+const framebufferDepth = Rn.RenderableHelper.createFrameBuffer(engine, {
   width: resolutionDepthCamera,
   height: resolutionDepthCamera,
   textureNum: 1,

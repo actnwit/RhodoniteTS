@@ -31,19 +31,19 @@ const assets = await Rn.defaultAssetLoader.load({
       ],
     }
   ),
-  environment: Rn.CubeTexture.loadFromUrl({
+  environment: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: './../../../assets/ibl/papermill/environment/environment',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.LDR_SRGB,
   }),
-  diffuse: Rn.CubeTexture.loadFromUrl({
+  diffuse: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: './../../../assets/ibl/papermill/diffuse/diffuse',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.RGBE_PNG,
   }),
-  specular: Rn.CubeTexture.loadFromUrl({
+  specular: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: './../../../assets/ibl/papermill/specular/specular',
     mipmapLevelNumber: 10,
     isNamePosNeg: true,
@@ -65,7 +65,7 @@ const expressionPostEffect = new Rn.Expression();
 expressions.push(expressionPostEffect);
 
 // gamma correction
-const gammaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer({
+const gammaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer(engine, {
   width: 600,
   height: 600,
   textureNum: 1,
@@ -121,7 +121,7 @@ engine.startRenderLoop(() => {
 
 async function createEnvCubeExpression() {
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial(engine);
-  const sampler = new Rn.Sampler({
+  const sampler = new Rn.Sampler(engine, {
     wrapS: Rn.TextureParameter.ClampToEdge,
     wrapT: Rn.TextureParameter.ClampToEdge,
     minFilter: Rn.TextureParameter.Linear,

@@ -113,7 +113,7 @@ function createEntityBoard() {
 }
 
 function createAndSetFramebuffer(renderPass: Rn.RenderPass, resolution: number, textureNum: number) {
-  const framebuffer = Rn.RenderableHelper.createFrameBuffer({
+  const framebuffer = Rn.RenderableHelper.createFrameBuffer(engine, {
     width: resolution,
     height: resolution,
     textureNum: textureNum,

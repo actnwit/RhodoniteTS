@@ -29,19 +29,19 @@ const engine = await Rn.Engine.init({
 });
 
 const assets = await Rn.defaultAssetLoader.load({
-  environment: Rn.CubeTexture.loadFromUrl({
+  environment: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: `${basePathIBL}/environment/environment`,
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.HDR_LINEAR,
   }),
-  specular: Rn.CubeTexture.loadFromUrl({
+  specular: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: `${basePathIBL}/specular/specular`,
     mipmapLevelNumber: 10,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.RGBE_PNG,
   }),
-  diffuse: Rn.CubeTexture.loadFromUrl({
+  diffuse: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: `${basePathIBL}/diffuse/diffuse`,
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
@@ -112,7 +112,7 @@ async function createEntityEnvironmentCube() {
     makeOutputSrgb: false,
   });
   materialSphere.setParameter('envHdriFormat', Rn.HdriFormat.HDR_LINEAR.index);
-  const samplerSphere = new Rn.Sampler({
+  const samplerSphere = new Rn.Sampler(engine, {
     magFilter: Rn.TextureParameter.Linear,
     minFilter: Rn.TextureParameter.Linear,
     wrapS: Rn.TextureParameter.ClampToEdge,
@@ -176,7 +176,7 @@ function createAndSetFramebuffer(
     isMSAA?: boolean | undefined;
   }
 ) {
-  const framebuffer = Rn.RenderableHelper.createFrameBuffer({
+  const framebuffer = Rn.RenderableHelper.createFrameBuffer(engine, {
     width: resolutionWidth,
     height: resolutionHeight,
     textureNum,

@@ -12,8 +12,8 @@ declare const window: any;
 
     const flatMaterial = Rn.MaterialHelper.createFlatMaterial(engine);
 
-    const texture = await Rn.Texture.loadFromUrl('../../../assets/images/Rn.png');
-    const sampler = new Rn.Sampler({
+    const texture = await Rn.Texture.loadFromUrl(engine, '../../../assets/images/Rn.png');
+    const sampler = new Rn.Sampler(engine, {
       minFilter: Rn.TextureParameter.Linear,
       magFilter: Rn.TextureParameter.Linear,
       wrapS: Rn.TextureParameter.Repeat,

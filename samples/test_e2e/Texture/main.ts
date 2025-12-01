@@ -18,7 +18,7 @@ const imageDataHeight = 256;
 const componentSize: number = 4;
 const imageComponentType = Rn.ComponentType.Float;
 
-const texture = new Rn.Texture();
+const texture = new Rn.Texture(engine);
 texture.tryToSetUniqueName('checkerTexture', true);
 texture.allocate({
   width: textureWidth,
@@ -55,7 +55,7 @@ texture.loadImageToMipLevel({
 });
 
 const material = Rn.MaterialHelper.createClassicUberMaterial(engine);
-const sampler = new Rn.Sampler({
+const sampler = new Rn.Sampler(engine, {
   wrapS: Rn.TextureParameter.ClampToEdge,
   wrapT: Rn.TextureParameter.ClampToEdge,
   magFilter: Rn.TextureParameter.Nearest,

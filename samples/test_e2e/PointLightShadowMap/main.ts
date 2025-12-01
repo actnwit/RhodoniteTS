@@ -38,7 +38,7 @@ const backgroundEntity = createBackground();
 
 // Expression
 const [pointShadowMapArrayFramebuffer, _pointShadowMapArrayRenderTargetTexture] =
-  Rn.RenderableHelper.createFrameBufferTextureArray({
+  Rn.RenderableHelper.createFrameBufferTextureArray(engine, {
     width: 1024,
     height: 1024,
     arrayLength: 1,
@@ -100,7 +100,7 @@ engine.startRenderLoop(() => {
 });
 
 function setParaboloidBlurredShadowMap(blurredRenderTarget: Rn.RenderTargetTexture, entities: Rn.ISceneGraphEntity[]) {
-  const sampler = new Rn.Sampler({
+  const sampler = new Rn.Sampler(engine, {
     minFilter: Rn.TextureParameter.Linear,
     magFilter: Rn.TextureParameter.Linear,
     wrapS: Rn.TextureParameter.ClampToEdge,

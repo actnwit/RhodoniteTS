@@ -7,7 +7,7 @@ export class PointShadowMap {
   private __engine: Rn.Engine;
   constructor(engine: Rn.Engine) {
     this.__engine = engine;
-    this.__shadowMomentFramebuffer = Rn.RenderableHelper.createFrameBuffer({
+    this.__shadowMomentFramebuffer = Rn.RenderableHelper.createFrameBuffer(engine, {
       width: 1024,
       height: 1024,
       textureNum: 1,

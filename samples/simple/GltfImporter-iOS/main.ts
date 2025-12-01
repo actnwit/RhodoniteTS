@@ -48,7 +48,7 @@ const expressionPostEffect = new Rn.Expression();
 expressions.push(expressionPostEffect);
 
 // gamma correction
-const gammaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer({
+const gammaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer(engine, {
   width: displayResolution,
   height: displayResolution,
   textureNum: 1,
@@ -76,7 +76,7 @@ setTextureParameterForMeshComponents(
 );
 
 // fxaa
-const fxaaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer({
+const fxaaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer(engine, {
   width: displayResolution,
   height: displayResolution,
   textureNum: 1,
@@ -88,7 +88,7 @@ gammaCorrectionRenderPass.setFramebuffer(fxaaTargetFramebuffer);
 const fxaaRenderPass = createRenderPassSharingEntitiesAndCamera(gammaCorrectionRenderPass);
 const fxaaMaterial = Rn.MaterialHelper.createFXAA3QualityMaterial(engine);
 fxaaMaterial.setParameter('screenInfo', Rn.Vector2.fromCopyArray2([displayResolution, displayResolution]));
-const sampler = new Rn.Sampler({
+const sampler = new Rn.Sampler(engine, {
   magFilter: Rn.TextureParameter.Linear,
   minFilter: Rn.TextureParameter.Linear,
   wrapS: Rn.TextureParameter.ClampToEdge,
@@ -199,7 +199,7 @@ function setTextureParameterForMeshComponents(
   shaderSemantic: string,
   value: Rn.RenderTargetTexture
 ) {
-  const sampler = new Rn.Sampler({
+  const sampler = new Rn.Sampler(engine, {
     magFilter: Rn.TextureParameter.Linear,
     minFilter: Rn.TextureParameter.Linear,
     wrapS: Rn.TextureParameter.ClampToEdge,

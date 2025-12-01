@@ -14,7 +14,7 @@ const setupRenderPassEntityUidOutput = (
   renderPass.setMaterial(entityUidOutputMaterial);
   renderPass.cameraComponent = cameraComponent;
 
-  const framebuffer = Rn.RenderableHelper.createFrameBuffer({
+  const framebuffer = Rn.RenderableHelper.createFrameBuffer(engine, {
     width: canvas.clientWidth,
     height: canvas.clientHeight,
     textureNum: 1,

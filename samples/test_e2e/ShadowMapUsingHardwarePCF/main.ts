@@ -125,7 +125,7 @@ function createBoardEntityWithMaterial() {
 }
 
 function createFramebuffer(renderPass, height, width) {
-  const framebuffer = Rn.RenderableHelper.createDepthBuffer(height, width, {});
+  const framebuffer = Rn.RenderableHelper.createDepthBuffer(engine, height, width, {});
   renderPass.setFramebuffer(framebuffer);
   return framebuffer;
 }
@@ -151,7 +151,7 @@ function setTextureParameterForMeshComponent(
   shaderSemantic: string,
   value: Rn.RenderTargetTexture
 ) {
-  const sampler = new Rn.Sampler({
+  const sampler = new Rn.Sampler(engine, {
     magFilter: Rn.TextureParameter.Nearest,
     minFilter: Rn.TextureParameter.Nearest,
     wrapS: Rn.TextureParameter.ClampToEdge,

@@ -11,14 +11,14 @@ const engine = await Rn.Engine.init({
 });
 
 // Plane
-const texture = new Rn.Texture();
+const texture = new Rn.Texture(engine);
 {
   const response = await fetch('../../../assets/images/Rn.basis');
   const buffer = await response.arrayBuffer();
   const uint8Array = new Uint8Array(buffer);
   texture.generateTextureFromBasis(uint8Array, {});
 }
-const sampler = new Rn.Sampler({
+const sampler = new Rn.Sampler(engine, {
   magFilter: Rn.TextureParameter.Linear,
   minFilter: Rn.TextureParameter.LinearMipmapLinear,
   wrapS: Rn.TextureParameter.Repeat,
@@ -54,14 +54,14 @@ spherePrimitive.generate({
   heightSegments: 40,
   material: sphereMaterial,
 });
-const environmentCubeTexture = new Rn.CubeTexture();
+const environmentCubeTexture = new Rn.CubeTexture(engine);
 {
   const response = await fetch('../../../assets/images/cubemap_test.basis');
   const buffer = await response.arrayBuffer();
   const uint8Array = new Uint8Array(buffer);
   environmentCubeTexture.loadTextureImagesFromBasis(uint8Array);
 }
-const samplerSphere = new Rn.Sampler({
+const samplerSphere = new Rn.Sampler(engine, {
   magFilter: Rn.TextureParameter.Linear,
   minFilter: Rn.TextureParameter.LinearMipmapLinear,
   wrapS: Rn.TextureParameter.ClampToEdge,

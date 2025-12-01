@@ -21,19 +21,19 @@ const engine = await Rn.Engine.init({
 Rn.Config.isUboEnabled = false;
 
 const assets = await Rn.defaultAssetLoader.load({
-  environment: Rn.CubeTexture.loadFromUrl({
+  environment: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: `${basePathIBL}/environment/environment`,
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.LDR_SRGB,
   }),
-  specular: Rn.CubeTexture.loadFromUrl({
+  specular: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: `${basePathIBL}/specular/specular`,
     mipmapLevelNumber: 10,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.RGBE_PNG,
   }),
-  diffuse: Rn.CubeTexture.loadFromUrl({
+  diffuse: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: `${basePathIBL}/diffuse/diffuse`,
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
@@ -94,7 +94,7 @@ async function createEntityEnvironmentCube() {
     makeOutputSrgb: false,
   });
   materialSphere.setParameter('envHdriFormat', Rn.HdriFormat.HDR_LINEAR.index);
-  const sampler = new Rn.Sampler({
+  const sampler = new Rn.Sampler(engine, {
     wrapS: Rn.TextureParameter.ClampToEdge,
     wrapT: Rn.TextureParameter.ClampToEdge,
     minFilter: Rn.TextureParameter.Linear,
@@ -131,7 +131,7 @@ async function createEntityGltf2(uriGltf: string) {
 }
 
 function createAndSetFrameBufferAndMSAAFramebuffer(renderPass: Rn.RenderPass, resolutionFramebuffer: number) {
-  const framebuffer = Rn.RenderableHelper.createFrameBufferMSAA({
+  const framebuffer = Rn.RenderableHelper.createFrameBufferMSAA(engine, {
     width: resolutionFramebuffer,
     height: resolutionFramebuffer,
     colorBufferNum: 1,
@@ -141,7 +141,7 @@ function createAndSetFrameBufferAndMSAAFramebuffer(renderPass: Rn.RenderPass, re
   });
   renderPass.setFramebuffer(framebuffer);
 
-  const framebufferMSAA = Rn.RenderableHelper.createFrameBuffer({
+  const framebufferMSAA = Rn.RenderableHelper.createFrameBuffer(engine, {
     width: resolutionFramebuffer,
     height: resolutionFramebuffer,
     textureNum: 1,
