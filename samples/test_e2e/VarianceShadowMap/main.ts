@@ -6,21 +6,21 @@ document.body.appendChild(p);
 declare const window: any;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // Spot Light
-const spotLight = Rn.createLightWithCameraEntity();
+const spotLight = Rn.createLightWithCameraEntity(engine);
 spotLight.getLight().type = Rn.LightType.Spot;
 spotLight.getLight().outerConeAngle = Rn.MathUtil.degreeToRadian(120);
 spotLight.localEulerAngles = Rn.Vector3.fromCopy3(-Math.PI / 2, 0, 0);
 spotLight.localPosition = Rn.Vector3.fromCopy3(0.0, 1.0, 0);
 
 // Main Camera
-const mainCameraEntity = Rn.createCameraControllerEntity();
+const mainCameraEntity = Rn.createCameraControllerEntity(engine);
 mainCameraEntity.localPosition = Rn.Vector3.fromCopyArray([0.0, 3, 0.0]);
 mainCameraEntity.localEulerAngles = Rn.Vector3.fromCopy3(-Math.PI / 2, 0, 0);
 
@@ -49,9 +49,9 @@ renderPassDepth.addEntities([entitySmallBoard, entityLargeBoard]);
 renderPassMain.addEntities([entitySmallBoard, entityLargeBoard]);
 
 // set depth shader to depth render pass
-renderPassDepth.setMaterial(Rn.MaterialHelper.createDepthMomentEncodeMaterial());
+renderPassDepth.setMaterial(Rn.MaterialHelper.createDepthMomentEncodeMaterial(engine));
 
-const gaussianBlur = new Rn.GaussianBlur();
+const gaussianBlur = new Rn.GaussianBlur(engine);
 const [pointShadowMapArrayFramebuffer, _pointShadowMapArrayRenderTargetTexture] =
   Rn.RenderableHelper.createFrameBufferTextureArray({
     width: 1024,
@@ -103,12 +103,12 @@ window.download = () => {
 
 let count = 0;
 
-Rn.Engine.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (count > 0) {
     p.id = 'rendered';
     p.innerText = 'Rendered.';
   }
-  Rn.Engine.process([expression]);
+  engine.process([expression]);
 
   const float32Array = new Float32Array(Rn.Config.maxLightNumber * 16);
   const spotLightComponentSid = spotLight.getLight().componentSID;
@@ -127,11 +127,11 @@ Rn.Engine.startRenderLoop(() => {
 });
 
 function createBallEntityWithMaterial() {
-  const ballEntity = Rn.MeshHelper.createSphere({
+  const ballEntity = Rn.MeshHelper.createSphere(engine, {
     radius: 1.0,
     widthSegments: 40,
     heightSegments: 40,
-    material: Rn.MaterialHelper.createPbrUberMaterial({
+    material: Rn.MaterialHelper.createPbrUberMaterial(engine, {
       isShadow: true,
     }),
   });
@@ -140,13 +140,13 @@ function createBallEntityWithMaterial() {
 }
 
 function createBoardEntityWithMaterial() {
-  const entity = Rn.MeshHelper.createPlane({
+  const entity = Rn.MeshHelper.createPlane(engine, {
     width: 1,
     height: 1,
     uSpan: 1,
     vSpan: 1,
     isUVRepeat: false,
-    material: Rn.MaterialHelper.createPbrUberMaterial({
+    material: Rn.MaterialHelper.createPbrUberMaterial(engine, {
       isShadow: true,
     }),
   });
@@ -166,7 +166,7 @@ function createFramebuffer(renderPass, height, width) {
 }
 
 function createRenderPassSpecifyingCameraComponent(lightWithCameraEntity: Rn.ICameraEntityMethods) {
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.toClearColorBuffer = true;
   renderPass.cameraComponent = lightWithCameraEntity.getCamera();
   return renderPass;
