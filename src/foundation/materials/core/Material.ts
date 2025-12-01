@@ -137,7 +137,6 @@ export class Material extends RnObject {
   private __blendFuncAlphaDstFactor = Blend.OneMinusSrcAlpha; // gl.ONE_MINUS_SRC_ALPHA
 
   private __stateVersion = 0;
-  private static __stateVersion = 0;
   private __fingerPrint = '';
 
   private __shaderDefines: Set<string> = new Set();
@@ -243,15 +242,6 @@ export class Material extends RnObject {
     return this.__fingerPrint;
   }
 
-  /**
-   * Gets the global state version for all materials.
-   * This is incremented whenever any material's state changes.
-   * @returns The global state version number
-   */
-  static get stateVersion() {
-    return Material.__stateVersion;
-  }
-
   ///
   /// Parameter Setters
   ///
@@ -293,13 +283,13 @@ export class Material extends RnObject {
         value.setFloat32Array(valueObj!.value._v);
         valueObj!.value = value;
         this.__stateVersion++;
-        Material.__stateVersion++;
+        this.__engine.materialRepository._incrementStateVersion();
         this.calcFingerPrint();
       } else {
         const updated = MathClassUtil._setForce(valueObj!.value, value);
         if (updated) {
           this.__stateVersion++;
-          Material.__stateVersion++;
+          this.__engine.materialRepository._incrementStateVersion();
           this.calcFingerPrint();
         }
       }
@@ -346,7 +336,7 @@ export class Material extends RnObject {
         }
       }
       this.__stateVersion++;
-      Material.__stateVersion++;
+      this.__engine.materialRepository._incrementStateVersion();
       this.calcFingerPrint();
     }
   }
@@ -392,7 +382,7 @@ export class Material extends RnObject {
         }
       }
       this.__stateVersion++;
-      Material.__stateVersion++;
+      this.__engine.materialRepository._incrementStateVersion();
       this.calcFingerPrint();
     });
   }
@@ -512,7 +502,7 @@ export class Material extends RnObject {
     this._shaderProgramUidMap.set(primitiveFingerPrint, programUid);
     this._shaderProgramComponentStateVersionMap.set(primitiveFingerPrint, Component.getStateVersion());
 
-    Material.__stateVersion++;
+    this.__engine.materialRepository._incrementStateVersion();
 
     return [programUid, newOne];
   }
@@ -549,7 +539,7 @@ export class Material extends RnObject {
     const primitiveFingerPrint = primitive._getFingerPrint();
     this._shaderProgramUidMap.set(primitiveFingerPrint, programUid);
     this._shaderProgramComponentStateVersionMap.set(primitiveFingerPrint, Component.getStateVersion());
-    Material.__stateVersion++;
+    this.__engine.materialRepository._incrementStateVersion();
   }
 
   /**
@@ -580,7 +570,7 @@ export class Material extends RnObject {
       // this.__updatedShaderSources = updatedShaderSources;
     }
 
-    Material.__stateVersion++;
+    this.__engine.materialRepository._incrementStateVersion();
     return [programUid, newOne];
   }
 
@@ -856,7 +846,7 @@ export class Material extends RnObject {
     this.__treatForMinMax();
 
     this.__stateVersion++;
-    Material.__stateVersion++;
+    this.__engine.materialRepository._incrementStateVersion();
     this.calcFingerPrint();
   }
 
@@ -898,7 +888,7 @@ export class Material extends RnObject {
     this.__treatForMinMax();
 
     this.__stateVersion++;
-    Material.__stateVersion++;
+    this.__engine.materialRepository._incrementStateVersion();
     this.calcFingerPrint();
   }
 
@@ -917,7 +907,7 @@ export class Material extends RnObject {
     this.__treatForMinMax();
 
     this.__stateVersion++;
-    Material.__stateVersion++;
+    this.__engine.materialRepository._incrementStateVersion();
     this.calcFingerPrint();
   }
 
@@ -1152,11 +1142,11 @@ export class Material extends RnObject {
     this._shaderProgramUidMap.clear();
     this._shaderProgramComponentStateVersionMap.clear();
     this.__stateVersion++;
-    Material.__stateVersion++;
+    this.__engine.materialRepository._incrementStateVersion();
   }
 
   updateStateVersion() {
     this.__stateVersion++;
-    Material.__stateVersion++;
+    this.__engine.materialRepository._incrementStateVersion();
   }
 }

@@ -18,7 +18,7 @@ import { TextureParameter, type TextureParameterEnum } from '../foundation/defin
 import { VertexAttribute, type VertexAttributeEnum } from '../foundation/definitions/VertexAttribute';
 import type { Mesh } from '../foundation/geometry/Mesh';
 import { Primitive } from '../foundation/geometry/Primitive';
-import { Material } from '../foundation/materials/core/Material';
+import type { Material } from '../foundation/materials/core/Material';
 import type { Vector4 } from '../foundation/math/Vector4';
 import type { Accessor } from '../foundation/memory/Accessor';
 import { DataUtil } from '../foundation/misc/DataUtil';
@@ -1441,9 +1441,9 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     }
   }
 
-  private __toClearRenderBundles() {
+  private __toClearRenderBundles(engine: Engine) {
     if (
-      Material.stateVersion !== this.__lastMaterialsUpdateCount ||
+      engine.materialRepository.stateVersion !== this.__lastMaterialsUpdateCount ||
       CameraComponent.current !== this.__lastCurrentCameraComponentSid ||
       EntityRepository.updateCount !== this.__lastEntityRepositoryUpdateCount ||
       Primitive.variantUpdateCount !== this.__lastPrimitivesMaterialVariantUpdateCount ||
@@ -1452,7 +1452,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       this.__renderBundles.clear();
       EngineState.webgpuRenderBundleMode = false;
       this.__lastCurrentCameraComponentSid = CameraComponent.current;
-      this.__lastMaterialsUpdateCount = Material.stateVersion;
+      this.__lastMaterialsUpdateCount = engine.materialRepository.stateVersion;
       this.__lastEntityRepositoryUpdateCount = EntityRepository.updateCount;
       this.__lastPrimitivesMaterialVariantUpdateCount = Primitive.variantUpdateCount;
       this.__lastMeshRendererComponentsUpdateCount = MeshRendererComponent.updateCount;
@@ -1460,7 +1460,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   }
 
   renderWithRenderBundle(engine: Engine, renderPass: RenderPass, displayIdx: number) {
-    this.__toClearRenderBundles();
+    this.__toClearRenderBundles(engine);
     if (renderPass._isChangedSortRenderResult || !Config.cacheWebGpuRenderBundles) {
       this.__renderBundles.clear();
     }

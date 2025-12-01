@@ -25,7 +25,7 @@ import { TextureParameter } from '../foundation/definitions/TextureParameter';
 import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
 import type { Mesh } from '../foundation/geometry/Mesh';
 import { Primitive } from '../foundation/geometry/Primitive';
-import { Material } from '../foundation/materials/core/Material';
+import type { Material } from '../foundation/materials/core/Material';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 import type { Vector2 } from '../foundation/math/Vector2';
 import type { VectorN } from '../foundation/math/VectorN';
@@ -1135,7 +1135,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       SceneGraphComponent.updateCount !== this.__lastSceneGraphComponentsUpdateCount ||
       CameraComponent.getCurrentCameraUpdateCount(this.__engine) !== this.__lastCameraComponentsUpdateCount ||
       CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
-      Material.stateVersion !== this.__lastMaterialsUpdateCount
+      this.__engine.materialRepository.stateVersion !== this.__lastMaterialsUpdateCount
     ) {
       // Setup GPU Storage (Data Texture & UBO)
       this.__createAndUpdateDataTexture();
@@ -1144,7 +1144,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
       this.__lastCameraComponentsUpdateCount = CameraComponent.getCurrentCameraUpdateCount(this.__engine);
       this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
-      this.__lastMaterialsUpdateCount = Material.stateVersion;
+      this.__lastMaterialsUpdateCount = this.__engine.materialRepository.stateVersion;
     }
 
     if (

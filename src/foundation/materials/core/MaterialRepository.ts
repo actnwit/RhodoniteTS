@@ -42,6 +42,8 @@ export class MaterialRepository {
   private __bufferViewVersions: Map<MaterialTypeName, number> = new Map();
   /** Solo datum fields for each material type (engine-specific, not shared across engines) */
   _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsName, ShaderVariable>> = new Map();
+  /** State version counter for tracking material changes (engine-specific) */
+  private __stateVersion = 0;
   private static __materialTidCount = -1;
   private static __materialUidCount = -1;
 
@@ -493,5 +495,23 @@ export class MaterialRepository {
     for (const materialRef of materials.values()) {
       materialRef.deref()?.makeShadersInvalidate();
     }
+  }
+
+  /**
+   * Gets the current state version for materials in this repository.
+   * This version is incremented whenever any material's state changes.
+   * @returns The current state version number
+   */
+  get stateVersion(): number {
+    return this.__stateVersion;
+  }
+
+  /**
+   * Increments the state version counter.
+   * Called when a material's state changes.
+   * @internal
+   */
+  _incrementStateVersion(): void {
+    this.__stateVersion++;
   }
 }
