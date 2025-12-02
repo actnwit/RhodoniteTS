@@ -1130,7 +1130,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    */
   prerender(): void {
     if (
-      AnimationComponent.getIsAnimatingForEngine(this.__engine) ||
+      AnimationComponent.getIsAnimating(this.__engine) ||
       TransformComponent.getUpdateCount(this.__engine) !== this.__lastTransformComponentsUpdateCount ||
       SceneGraphComponent.updateCount !== this.__lastSceneGraphComponentsUpdateCount ||
       CameraComponent.getCurrentCameraUpdateCount(this.__engine) !== this.__lastCameraComponentsUpdateCount ||

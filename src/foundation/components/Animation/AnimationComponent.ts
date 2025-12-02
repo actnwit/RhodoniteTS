@@ -131,7 +131,7 @@ export class AnimationComponent extends Component {
    */
   $logic() {
     // Skip if animation is globally or locally disabled
-    if (!AnimationComponent.getIsAnimatingForEngine(this.__engine) || !this.isAnimating) {
+    if (!AnimationComponent.getIsAnimating(this.__engine) || !this.isAnimating) {
       return;
     }
 
@@ -188,7 +188,7 @@ export class AnimationComponent extends Component {
   private __applyAnimation() {
     let time = this.time;
     if (this.useGlobalTime) {
-      time = AnimationComponent.getGlobalTimeForEngine(this.__engine);
+      time = AnimationComponent.getGlobalTime(this.__engine);
     }
 
     const transformComponent = (this.entity as unknown as ISceneGraphEntity).getTransform();
@@ -635,7 +635,7 @@ export class AnimationComponent extends Component {
     const animatedValue = channel.animatedValue;
 
     const i = AnimationAttribute.fromString(pathName).index;
-    const globalTime = AnimationComponent.getGlobalTimeForEngine(this.__engine);
+    const globalTime = AnimationComponent.getGlobalTime(this.__engine);
     const output = __interpolate(animatedValue.getAnimationSampler(trackName), globalTime, i);
 
     if (animatedValue.getAnimationSampler(trackName).input.length === 0) {
@@ -856,7 +856,7 @@ export class AnimationComponent extends Component {
    * @param engine - The engine instance to set the animation state for
    * @param flag - True to enable animation, false to disable
    */
-  static setIsAnimatingForEngine(engine: Engine, flag: boolean) {
+  static setIsAnimating(engine: Engine, flag: boolean) {
     this.__isAnimatingMap.set(engine, flag);
   }
 
@@ -865,7 +865,7 @@ export class AnimationComponent extends Component {
    * @param engine - The engine instance to get the animation state for
    * @returns True if animation is enabled for the engine, defaults to true if not set
    */
-  static getIsAnimatingForEngine(engine: Engine): boolean {
+  static getIsAnimating(engine: Engine): boolean {
     return this.__isAnimatingMap.get(engine) ?? true;
   }
 
@@ -874,7 +874,7 @@ export class AnimationComponent extends Component {
    * @param engine - The engine instance to set the global time for
    * @param time - The global animation time in seconds
    */
-  static setGlobalTimeForEngine(engine: Engine, time: number) {
+  static setGlobalTime(engine: Engine, time: number) {
     this.__globalTimeMap.set(engine, time);
   }
 
@@ -883,7 +883,7 @@ export class AnimationComponent extends Component {
    * @param engine - The engine instance to get the global time for
    * @returns The global animation time for the engine, defaults to 0 if not set
    */
-  static getGlobalTimeForEngine(engine: Engine): number {
+  static getGlobalTime(engine: Engine): number {
     return this.__globalTimeMap.get(engine) ?? 0;
   }
 

@@ -489,7 +489,7 @@ export class SkeletalComponent extends Component {
     // --- Frame Transition: Swap cached entity UIDs ---
     // When a new frame starts, move current frame's cached UIDs to previous frame.
     // AnimationComponent uses previous frame's data because it runs before SkeletalComponent.
-    const currentGlobalTime = AnimationComponent.getGlobalTimeForEngine(this.__engine);
+    const currentGlobalTime = AnimationComponent.getGlobalTime(this.__engine);
     const lastCacheFrameGlobalTime = SkeletalComponent.__lastCacheFrameGlobalTimeMap.get(this.__engine) ?? -1;
     if (lastCacheFrameGlobalTime !== currentGlobalTime) {
       const currentFrameSet = SkeletalComponent.__getOrCreateCurrentFrameCachedEntityUIDs(this.__engine);
@@ -834,7 +834,7 @@ export class SkeletalComponent extends Component {
     // Handle frame transition: swap cached entity UIDs when a new frame starts.
     // This must happen here because AnimationComponent.$logic runs BEFORE SkeletalComponent.$logic.
     // Without this, AnimationComponent would check stale data from the wrong frame.
-    const currentGlobalTime = AnimationComponent.getGlobalTimeForEngine(engine);
+    const currentGlobalTime = AnimationComponent.getGlobalTime(engine);
     const lastCacheFrameGlobalTime = SkeletalComponent.__lastCacheFrameGlobalTimeMap.get(engine) ?? -1;
     if (lastCacheFrameGlobalTime !== currentGlobalTime) {
       const currentFrameSet = SkeletalComponent.__getOrCreateCurrentFrameCachedEntityUIDs(engine);

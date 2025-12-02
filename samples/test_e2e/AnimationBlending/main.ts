@@ -47,10 +47,10 @@ engine.startRenderLoop(() => {
   }
 
   if (window.isAnimating) {
-    const currentTime = Rn.AnimationComponent.getGlobalTimeForEngine(engine);
-    Rn.AnimationComponent.setGlobalTimeForEngine(engine, currentTime + 0.016);
+    const currentTime = Rn.AnimationComponent.getGlobalTime(engine);
+    Rn.AnimationComponent.setGlobalTime(engine, currentTime + 0.016);
     if (currentTime + 0.016 > endInputValue) {
-      Rn.AnimationComponent.setGlobalTimeForEngine(
+      Rn.AnimationComponent.setGlobalTime(
         engine,
         currentTime + 0.016 - endInputValue + Rn.AnimationComponent.getStartInputValue(engine)
       );

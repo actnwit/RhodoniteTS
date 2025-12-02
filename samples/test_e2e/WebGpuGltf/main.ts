@@ -86,19 +86,19 @@ const draw = () => {
   }
 
   if (window.isAnimating) {
-    Rn.AnimationComponent.setIsAnimatingForEngine(engine, true);
+    Rn.AnimationComponent.setIsAnimating(engine, true);
     const date = new Date();
     const _rotation = 0.001 * (date.getTime() - startTime);
     //rotationVec3._v[0] = 0.1;
     //rotationVec3._v[1] = rotation;
     //rotationVec3._v[2] = 0.1;
     const time = (date.getTime() - startTime) / 1000;
-    Rn.AnimationComponent.setGlobalTimeForEngine(engine, time);
+    Rn.AnimationComponent.setGlobalTime(engine, time);
     if (time > Rn.AnimationComponent.getEndInputValue(engine)) {
       startTime = date.getTime();
     }
   } else {
-    Rn.AnimationComponent.setIsAnimatingForEngine(engine, false);
+    Rn.AnimationComponent.setIsAnimating(engine, false);
   }
 
   //      console.log(date.getTime());

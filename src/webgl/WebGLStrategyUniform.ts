@@ -833,7 +833,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         gl.useProgram(shaderProgram);
         this.bindDataTexture(gl, shaderProgram);
 
-        if (AnimationComponent.getIsAnimatingForEngine(this.__engine)) {
+        if (AnimationComponent.getIsAnimating(this.__engine)) {
           const time = this.__engine.globalDataRepository.getValue('time', 0) as Scalar;
           (shaderProgram as any)._gl.uniform1f((shaderProgram as any).time, time._v[0]);
         }
