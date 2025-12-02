@@ -1,5 +1,4 @@
 import type { Size } from '../../../types';
-import type { RnXR } from '../../../xr/main';
 import { RnObject } from '../../core/RnObject';
 import { ComponentType, PixelFormat, ToneMappingType, type ToneMappingTypeEnum } from '../../definitions';
 import { TextureFormat } from '../../definitions/TextureFormat';
@@ -1285,6 +1284,27 @@ export class ForwardRenderPipeline extends RnObject {
       frame.addExpression(exp);
     }
 
+    // gizmo expression for rendering gizmos
+    // In non-simple mode, gizmos are rendered to the offscreen framebuffer (before tone mapping)
+    // to have proper depth testing. In simple mode, gizmos are rendered to the back buffer.
+    if (this.__gizmoExpression.renderPasses.length > 0) {
+      if (!this.__isSimple) {
+        // Set framebuffer for gizmo render passes so they render to the same FBO as the main scene
+        // Use __getMainFrameBuffer() (MSAA framebuffer) to share the same depth buffer with the main scene.
+        // Note: __getMainFrameBufferResolve() doesn't work because depth is not resolved in WebGPU MSAA resolve.
+        const mainFrameBuffer = this.__getMainFrameBuffer();
+        if (mainFrameBuffer.has()) {
+          for (const rp of this.__gizmoExpression.renderPasses) {
+            rp.setFramebuffer(mainFrameBuffer.get());
+            if (this.__oFrameBufferMsaa.has()) {
+              rp.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
+            }
+          }
+        }
+      }
+      frame.addExpression(this.__gizmoExpression);
+    }
+
     // multi-view blitting for VR rendering
     if (!this.__isSimple && this.__oMultiViewBlitExpression.has()) {
       frame.addExpression(this.__oMultiViewBlitExpression.get());
@@ -1298,11 +1318,6 @@ export class ForwardRenderPipeline extends RnObject {
     // tone mapping for HDR to LDR conversion
     if (!this.__isSimple && this.__oToneMappingExpression.has()) {
       frame.addExpression(this.getToneMappingExpression()!);
-    }
-
-    // gizmo expression for rendering gizmos
-    if (this.__gizmoExpression.renderPasses.length > 0) {
-      frame.addExpression(this.__gizmoExpression);
     }
 
     const entities = this.__expressions.flatMap(expression =>
