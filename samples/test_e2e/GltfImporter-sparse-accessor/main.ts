@@ -4,13 +4,13 @@ const p = document.createElement('p');
 document.body.appendChild(p);
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
 // camera
-const cameraEntity = Rn.createCameraEntity();
+const cameraEntity = Rn.createCameraEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.type = Rn.CameraType.Orthographic;
 
@@ -24,13 +24,14 @@ cameraTransform.localPosition = Rn.Vector3.fromCopyArray([3, 2, 1]);
 
 // gltf
 const expression = await Rn.GltfImporter.importFromUrl(
+  engine,
   '../../../assets/gltf/glTF-Sample-Assets/Models/SimpleSparseAccessor/glTF-Embedded/SimpleSparseAccessor.gltf',
   {
     cameraComponent: cameraComponent,
   }
 );
 
-Rn.System.process([expression]);
+engine.process([expression]);
 
 p.id = 'rendered';
 p.innerText = 'Rendered.';

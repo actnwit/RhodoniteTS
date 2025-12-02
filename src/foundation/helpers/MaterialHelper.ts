@@ -74,33 +74,17 @@ import { ShadowMapDecodeClassicMaterialContent } from '../materials/contents/Sha
 import { SynthesizeHdrMaterialContent as SynthesizeHDRMaterialContent } from '../materials/contents/SynthesizeHdrMaterialContent';
 import { VarianceShadowMapDecodeClassicMaterialContent } from '../materials/contents/VarianceShadowMapDecodeClassicMaterialContent';
 import type { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
-import {
-  dummyAnisotropyTexture,
-  dummyBlackCubeTexture,
-  dummyBlackTexture,
-  dummyBlueTexture,
-  dummyDepthMomentTextureArray,
-  dummyWhiteTexture,
-  sheenLutTexture,
-} from '../materials/core/DummyTextures';
 import type { Material } from '../materials/core/Material';
-import { MaterialRepository } from '../materials/core/MaterialRepository';
 import { Scalar } from '../math/Scalar';
 import { Vector2 } from '../math/Vector2';
 import { VectorN } from '../math/VectorN';
 import { DataUtil } from '../misc/DataUtil';
 import type { RenderPass } from '../renderer/RenderPass';
-import { SystemState } from '../system/SystemState';
+import type { Engine } from '../system/Engine';
+import { EngineState } from '../system/EngineState';
 import type { AbstractTexture } from '../textures/AbstractTexture';
 import { Sampler } from '../textures/Sampler';
 import type { Texture } from '../textures/Texture';
-
-const g_sampler = new Sampler({
-  minFilter: TextureParameter.Linear,
-  magFilter: TextureParameter.Linear,
-  wrapS: TextureParameter.ClampToEdge,
-  wrapT: TextureParameter.ClampToEdge,
-});
 
 /**
  * Creates a new material with the specified material content and maximum instances.
@@ -109,10 +93,14 @@ const g_sampler = new Sampler({
  * @param materialCountPerBufferView - the material count per buffer view
  * @returns A newly created Material instance
  */
-function createMaterial(materialContent: AbstractMaterialContent, materialCountPerBufferView?: Count): Material {
+function createMaterial(
+  engine: Engine,
+  materialContent: AbstractMaterialContent,
+  materialCountPerBufferView?: Count
+): Material {
   const materialSemanticsVariantName = materialContent.getMaterialSemanticsVariantName();
-  MaterialRepository.registerMaterial(materialSemanticsVariantName, materialContent, materialCountPerBufferView);
-  const material = MaterialRepository.createMaterial(materialSemanticsVariantName, materialContent);
+  engine.materialRepository.registerMaterial(materialSemanticsVariantName, materialContent, materialCountPerBufferView);
+  const material = engine.materialRepository.createMaterial(engine, materialSemanticsVariantName, materialContent);
   return material;
 }
 
@@ -120,25 +108,27 @@ function createMaterial(materialContent: AbstractMaterialContent, materialCountP
  * Reuses an existing material if compatible with the new content, or recreates it if incompatible.
  * This function optimizes performance by avoiding unnecessary material recreation.
  *
+ * @param engine - The engine instance
  * @param currentMaterial - The existing material to potentially reuse
  * @param materialContent - The new material content to apply
  * @param materialCountPerBufferView - the material count per buffer view
  * @returns The reused or newly created Material instance
  */
 function reuseOrRecreateMaterial(
+  engine: Engine,
   currentMaterial: Material,
   materialContent: AbstractMaterialContent,
   materialCountPerBufferView: Count
 ): Material {
   let material = currentMaterial;
-  if (MaterialRepository.isMaterialCompatible(material, materialContent)) {
+  if (engine.materialRepository.isMaterialCompatible(material, materialContent)) {
     material._materialContent = materialContent;
     material.makeShadersInvalidate();
     return material;
   }
   const materialSemanticsVariantName = materialContent.getMaterialSemanticsVariantName();
-  MaterialRepository.registerMaterial(materialSemanticsVariantName, materialContent, materialCountPerBufferView);
-  material = MaterialRepository.createMaterial(materialSemanticsVariantName, materialContent);
+  engine.materialRepository.registerMaterial(materialSemanticsVariantName, materialContent, materialCountPerBufferView);
+  material = engine.materialRepository.createMaterial(engine, materialSemanticsVariantName, materialContent);
   return material;
 }
 
@@ -146,15 +136,24 @@ function reuseOrRecreateMaterial(
  * Forces recreation of a material with the specified content, bypassing compatibility checks.
  * Use this when you need to ensure a completely fresh material instance.
  *
+ * @param engine - The engine instance
  * @param materialContent - The material content for the new material
  * @param materialCountPerBufferView - the material count per buffer view
  * @returns A newly recreated Material instance
  */
-function recreateMaterial(materialContent: AbstractMaterialContent, materialCountPerBufferView?: Count): Material {
+function recreateMaterial(
+  engine: Engine,
+  materialContent: AbstractMaterialContent,
+  materialCountPerBufferView?: Count
+): Material {
   const materialSemanticsVariantName = materialContent.getMaterialSemanticsVariantName();
-  MaterialRepository.forceRegisterMaterial(materialSemanticsVariantName, materialContent, materialCountPerBufferView);
+  engine.materialRepository.forceRegisterMaterial(
+    materialSemanticsVariantName,
+    materialContent,
+    materialCountPerBufferView
+  );
 
-  const material = MaterialRepository.createMaterial(materialSemanticsVariantName, materialContent);
+  const material = engine.materialRepository.createMaterial(engine, materialSemanticsVariantName, materialContent);
   return material;
 }
 
@@ -185,34 +184,42 @@ function recreateMaterial(materialContent: AbstractMaterialContent, materialCoun
  * @param options.maxInstancesNumber - Maximum number of material instances
  * @returns A configured PBR Uber Material instance
  */
-function createPbrUberMaterial({
-  additionalName = '',
-  isMorphing = true,
-  isSkinning = true,
-  isLighting = true,
-  isOcclusion = false,
-  isEmissive = false,
-  isClearCoat = false,
-  isTransmission = false,
-  isVolume = false,
-  isSheen = false,
-  isSpecular = false,
-  isIridescence = false,
-  isAnisotropy = false,
-  isDispersion = false,
-  isEmissiveStrength = false,
-  isDiffuseTransmission = false,
-  isShadow = false,
-  useNormalTexture = true,
-  maxInstancesNumber = Config.materialCountPerBufferView,
-} = {}) {
+function createPbrUberMaterial(
+  engine: Engine,
+  {
+    additionalName = '',
+    isMorphing = true,
+    isSkinning = true,
+    isLighting = true,
+    isOcclusion = false,
+    isEmissive = false,
+    isClearCoat = false,
+    isTransmission = false,
+    isVolume = false,
+    isSheen = false,
+    isSpecular = false,
+    isIridescence = false,
+    isAnisotropy = false,
+    isDispersion = false,
+    isEmissiveStrength = false,
+    isDiffuseTransmission = false,
+    isShadow = false,
+    useNormalTexture = true,
+    maxInstancesNumber = Config.materialCountPerBufferView,
+  } = {}
+) {
   const materialName = `PbrUber_${additionalName}_`;
 
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
 
-  if (!g_sampler.created) {
-    g_sampler.create();
-  }
+  const sampler = new Sampler(engine, {
+    minFilter: TextureParameter.Linear,
+    magFilter: TextureParameter.Linear,
+    wrapS: TextureParameter.ClampToEdge,
+    wrapT: TextureParameter.ClampToEdge,
+  });
+
+  sampler.create();
 
   let textureSlotIdx = 8;
   if (isClearCoat) {
@@ -221,7 +228,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, g_sampler],
+      initialValue: [textureSlotIdx++, engine.dummyTextures.dummyWhiteTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -230,7 +237,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, g_sampler],
+      initialValue: [textureSlotIdx++, engine.dummyTextures.dummyWhiteTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -239,7 +246,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyBlueTexture, g_sampler],
+      initialValue: [textureSlotIdx++, engine.dummyTextures.dummyBlueTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -251,7 +258,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, g_sampler],
+      initialValue: [textureSlotIdx++, engine.dummyTextures.dummyWhiteTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -260,7 +267,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyBlackTexture, g_sampler],
+      initialValue: [textureSlotIdx++, engine.dummyTextures.dummyBlackTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -272,7 +279,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, g_sampler],
+      initialValue: [textureSlotIdx++, engine.dummyTextures.dummyWhiteTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -284,7 +291,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, g_sampler],
+      initialValue: [textureSlotIdx++, engine.dummyTextures.dummyWhiteTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -293,7 +300,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, g_sampler],
+      initialValue: [textureSlotIdx++, engine.dummyTextures.dummyWhiteTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -302,7 +309,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, sheenLutTexture, g_sampler],
+      initialValue: [textureSlotIdx++, engine.dummyTextures.sheenLutTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -312,7 +319,7 @@ function createPbrUberMaterial({
       compositionType: CompositionType.TextureCube,
       stage: ShaderType.PixelShader,
       isInternalSetting: true,
-      initialValue: [textureSlotIdx++, dummyBlackCubeTexture, g_sampler],
+      initialValue: [textureSlotIdx++, engine.dummyTextures.dummyBlackCubeTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -324,7 +331,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, g_sampler],
+      initialValue: [textureSlotIdx++, engine.dummyTextures.dummyWhiteTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -333,7 +340,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, g_sampler],
+      initialValue: [textureSlotIdx++, engine.dummyTextures.dummyWhiteTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -345,7 +352,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, g_sampler],
+      initialValue: [textureSlotIdx++, engine.dummyTextures.dummyWhiteTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -354,7 +361,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, g_sampler],
+      initialValue: [textureSlotIdx++, engine.dummyTextures.dummyWhiteTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -365,7 +372,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyAnisotropyTexture, g_sampler],
+      initialValue: [textureSlotIdx++, engine.dummyTextures.dummyAnisotropyTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -376,7 +383,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, g_sampler],
+      initialValue: [textureSlotIdx++, engine.dummyTextures.dummyWhiteTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -385,7 +392,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, g_sampler],
+      initialValue: [textureSlotIdx++, engine.dummyTextures.dummyWhiteTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -397,7 +404,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2DArray,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyDepthMomentTextureArray, g_sampler],
+      initialValue: [textureSlotIdx++, engine.dummyTextures.dummyDepthMomentTextureArray, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -406,7 +413,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2DArray,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyDepthMomentTextureArray, g_sampler],
+      initialValue: [textureSlotIdx++, engine.dummyTextures.dummyDepthMomentTextureArray, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -486,7 +493,7 @@ function createPbrUberMaterial({
     definitions.push('RN_USE_DIFFUSE_TRANSMISSION');
   }
 
-  const materialContent = new CustomMaterialContent({
+  const materialContent = new CustomMaterialContent(engine, {
     name: materialName,
     isSkinning,
     isLighting,
@@ -499,7 +506,7 @@ function createPbrUberMaterial({
     definitions,
   });
 
-  const material = createMaterial(materialContent, maxInstancesNumber);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
 
   for (const definition of definitions) {
     material.addShaderDefine(definition);
@@ -521,18 +528,21 @@ function createPbrUberMaterial({
  * @param options.maxInstancesNumber - Maximum number of material instances
  * @returns A configured Classic Uber Material instance
  */
-function createClassicUberMaterial({
-  additionalName = '',
-  isSkinning = true,
-  isLighting = false,
-  isMorphing = false,
-  isShadow = false,
-  maxInstancesNumber = Config.materialCountPerBufferView,
-} = {}) {
+function createClassicUberMaterial(
+  engine: Engine,
+  {
+    additionalName = '',
+    isSkinning = true,
+    isLighting = false,
+    isMorphing = false,
+    isShadow = false,
+    maxInstancesNumber = Config.materialCountPerBufferView,
+  } = {}
+) {
   const materialName = `ClassicUber_${additionalName}_`;
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
 
-  const materialContent = new CustomMaterialContent({
+  const materialContent = new CustomMaterialContent(engine, {
     name: materialName,
     isSkinning,
     isLighting,
@@ -543,7 +553,7 @@ function createClassicUberMaterial({
     pixelShaderWebGpu: ClassicSingleShaderFragmentWebgpu,
     additionalShaderSemanticInfo,
   });
-  const material = createMaterial(materialContent, maxInstancesNumber);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
   if (isLighting) {
     material.addShaderDefine('RN_IS_LIGHTING');
   }
@@ -567,16 +577,19 @@ function createClassicUberMaterial({
  * @param options.maxInstancesNumber - Maximum number of material instances
  * @returns A configured Paraboloid Depth Moment Encode Material instance
  */
-function createParaboloidDepthMomentEncodeMaterial({
-  additionalName = '',
-  isSkinning = true,
-  isMorphing = false,
-  maxInstancesNumber = Config.materialCountPerBufferView,
-} = {}) {
+function createParaboloidDepthMomentEncodeMaterial(
+  engine: Engine,
+  {
+    additionalName = '',
+    isSkinning = true,
+    isMorphing = false,
+    maxInstancesNumber = Config.materialCountPerBufferView,
+  } = {}
+) {
   const materialName = `ParaboloidDepthMomentEncode_${additionalName}_`;
 
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
-  const materialContent = new CustomMaterialContent({
+  const materialContent = new CustomMaterialContent(engine, {
     name: materialName,
     isSkinning,
     isLighting: true,
@@ -587,7 +600,7 @@ function createParaboloidDepthMomentEncodeMaterial({
     pixelShaderWebGpu: ParaboloidDepthMomentEncodeShaderFragmentWebGpu,
     additionalShaderSemanticInfo,
   });
-  const material = createMaterial(materialContent, maxInstancesNumber);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
   material.addShaderDefine('RN_IS_SKINNING');
 
   return material;
@@ -604,16 +617,19 @@ function createParaboloidDepthMomentEncodeMaterial({
  * @param options.maxInstancesNumber - Maximum number of material instances
  * @returns A configured Depth Moment Encode Material instance
  */
-function createDepthMomentEncodeMaterial({
-  additionalName = '',
-  isSkinning = true,
-  isMorphing = false,
-  maxInstancesNumber = Config.materialCountPerBufferView,
-} = {}) {
+function createDepthMomentEncodeMaterial(
+  engine: Engine,
+  {
+    additionalName = '',
+    isSkinning = true,
+    isMorphing = false,
+    maxInstancesNumber = Config.materialCountPerBufferView,
+  } = {}
+) {
   const materialName = `DepthMomentEncode_${additionalName}_`;
 
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
-  const materialContent = new CustomMaterialContent({
+  const materialContent = new CustomMaterialContent(engine, {
     name: materialName,
     isSkinning,
     isLighting: false,
@@ -624,7 +640,7 @@ function createDepthMomentEncodeMaterial({
     pixelShaderWebGpu: DepthMomentEncodeShaderFragmentWebGpu,
     additionalShaderSemanticInfo,
   });
-  const material = createMaterial(materialContent, maxInstancesNumber);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
   material.addShaderDefine('RN_IS_SKINNING');
 
   return material;
@@ -641,15 +657,18 @@ function createDepthMomentEncodeMaterial({
  * @param options.maxInstancesNumber - Maximum number of material instances
  * @returns A configured Flat Material instance
  */
-function createFlatMaterial({
-  additionalName = '',
-  isSkinning = true,
-  isMorphing = false,
-  maxInstancesNumber = Config.materialCountPerBufferView,
-} = {}) {
+function createFlatMaterial(
+  engine: Engine,
+  {
+    additionalName = '',
+    isSkinning = true,
+    isMorphing = false,
+    maxInstancesNumber = Config.materialCountPerBufferView,
+  } = {}
+) {
   const materialName = `Flat_${additionalName}_`;
 
-  const materialContent = new CustomMaterialContent({
+  const materialContent = new CustomMaterialContent(engine, {
     name: materialName,
     isSkinning,
     isLighting: false,
@@ -660,7 +679,7 @@ function createFlatMaterial({
     vertexShaderWebGpu: FlatSingleShaderVertexWebGpu,
     pixelShaderWebGpu: FlatSingleShaderFragmentWebGpu,
   });
-  const material = createMaterial(materialContent, maxInstancesNumber);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
   material.addShaderDefine('RN_IS_SKINNING');
 
   return material;
@@ -676,10 +695,13 @@ function createFlatMaterial({
  * @param options.makeOutputSrgb - Whether to convert output to sRGB color space
  * @returns A configured Environment Constant Material instance
  */
-function createEnvConstantMaterial({ additionalName = '', maxInstancesNumber = 5, makeOutputSrgb = true } = {}) {
+function createEnvConstantMaterial(
+  engine: Engine,
+  { additionalName = '', maxInstancesNumber = 5, makeOutputSrgb = true } = {}
+) {
   const materialName = `EnvConstant_${additionalName}`;
 
-  const materialContent = new CustomMaterialContent({
+  const materialContent = new CustomMaterialContent(engine, {
     name: materialName,
     isSkinning: false,
     isLighting: false,
@@ -690,7 +712,7 @@ function createEnvConstantMaterial({ additionalName = '', maxInstancesNumber = 5
     pixelShaderWebGpu: EnvConstantSingleShaderFragmentWebGpu,
     additionalShaderSemanticInfo: [],
   });
-  const material = createMaterial(materialContent, maxInstancesNumber);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
   material.setParameter('makeOutputSrgb', makeOutputSrgb ? 1 : 0);
   return material;
 }
@@ -704,10 +726,10 @@ function createEnvConstantMaterial({ additionalName = '', maxInstancesNumber = 5
  * @param options.maxInstancesNumber - Maximum number of material instances
  * @returns A configured FXAA3 Quality Material instance
  */
-function createFXAA3QualityMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
+function createFXAA3QualityMaterial(engine: Engine, { additionalName = '', maxInstancesNumber = 1 } = {}): Material {
   const materialName = `FXAA3Quality_${additionalName}`;
 
-  const materialContent = new CustomMaterialContent({
+  const materialContent = new CustomMaterialContent(engine, {
     name: materialName,
     isSkinning: false,
     isLighting: false,
@@ -716,7 +738,7 @@ function createFXAA3QualityMaterial({ additionalName = '', maxInstancesNumber = 
     pixelShader: FXAA3QualityShaderFragment,
     additionalShaderSemanticInfo: [],
   });
-  const material = createMaterial(materialContent, maxInstancesNumber);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
 
   return material;
 }
@@ -730,10 +752,10 @@ function createFXAA3QualityMaterial({ additionalName = '', maxInstancesNumber = 
  * @param options.maxInstancesNumber - Maximum number of material instances
  * @returns A configured Furnace Test Material instance
  */
-function createFurnaceTestMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
+function createFurnaceTestMaterial(engine: Engine, { additionalName = '', maxInstancesNumber = 1 } = {}): Material {
   const materialName = `FurnaceTest_${additionalName}`;
-  const materialContent = new FurnaceTestMaterialContent(materialName);
-  const material = createMaterial(materialContent, maxInstancesNumber);
+  const materialContent = new FurnaceTestMaterialContent(engine, materialName);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
 
   return material;
 }
@@ -749,18 +771,16 @@ function createFurnaceTestMaterial({ additionalName = '', maxInstancesNumber = 1
  * @param options.maxInstancesNumber - Maximum number of material instances
  * @returns A configured Depth Encode Material instance
  */
-function createDepthEncodeMaterial({
-  additionalName = '',
-  isSkinning = false,
-  depthPow = 1.0,
-  maxInstancesNumber = 10,
-} = {}) {
+function createDepthEncodeMaterial(
+  engine: Engine,
+  { additionalName = '', isSkinning = false, depthPow = 1.0, maxInstancesNumber = 10 } = {}
+) {
   const materialName = `DepthEncode_${additionalName}_`;
 
   const materialContent = new DepthEncodeMaterialContent(materialName, depthPow, {
     isSkinning,
   });
-  const material = createMaterial(materialContent, maxInstancesNumber);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
   if (isSkinning) {
     material.addShaderDefine('RN_IS_SKINNING');
   }
@@ -784,6 +804,7 @@ function createDepthEncodeMaterial({
  * @returns A configured Shadow Map Decode Classic Material instance
  */
 function createShadowMapDecodeClassicSingleMaterial(
+  engine: Engine,
   {
     additionalName = '',
     isMorphing = false,
@@ -798,6 +819,7 @@ function createShadowMapDecodeClassicSingleMaterial(
   const materialName = `ShadowMapDecodeClassic_${additionalName}_`;
 
   const materialContent = new ShadowMapDecodeClassicMaterialContent(
+    engine,
     materialName,
     {
       isMorphing,
@@ -808,7 +830,7 @@ function createShadowMapDecodeClassicSingleMaterial(
     },
     depthEncodeRenderPass
   );
-  const material = createMaterial(materialContent, maxInstancesNumber);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
   if (isSkinning) {
     material.addShaderDefine('RN_IS_SKINNING');
   }
@@ -834,7 +856,10 @@ function createShadowMapDecodeClassicSingleMaterial(
  * @param options.maxInstancesNumber - Maximum number of material instances
  * @returns A configured Gaussian Blur for Encoded Depth Material instance
  */
-function createGaussianBlurForEncodedDepthMaterial({ additionalName = '', maxInstancesNumber = 10 } = {}) {
+function createGaussianBlurForEncodedDepthMaterial(
+  engine: Engine,
+  { additionalName = '', maxInstancesNumber = 10 } = {}
+) {
   const materialName = `GaussianBlurForEncodedDepth_${additionalName}`;
 
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
@@ -883,13 +908,13 @@ function createGaussianBlurForEncodedDepthMaterial({ additionalName = '', maxIns
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [0, dummyBlackTexture],
+      initialValue: [0, engine.dummyTextures.dummyBlackTexture],
       min: 0,
       max: Number.MAX_SAFE_INTEGER,
     }
   );
 
-  const materialContent = new CustomMaterialContent({
+  const materialContent = new CustomMaterialContent(engine, {
     name: materialName,
     isSkinning: false,
     isLighting: false,
@@ -899,7 +924,7 @@ function createGaussianBlurForEncodedDepthMaterial({ additionalName = '', maxIns
     additionalShaderSemanticInfo,
   });
 
-  const material = createMaterial(materialContent, maxInstancesNumber);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
 
   return material;
 }
@@ -922,6 +947,7 @@ function createGaussianBlurForEncodedDepthMaterial({ additionalName = '', maxIns
  * @returns A configured Variance Shadow Map Decode Classic Material instance
  */
 function createVarianceShadowMapDecodeClassicSingleMaterial(
+  engine: Engine,
   {
     additionalName = '',
     isMorphing = false,
@@ -947,6 +973,7 @@ function createVarianceShadowMapDecodeClassicSingleMaterial(
 ) {
   const materialName = `VarianceShadowMapDecodeClassic_${additionalName}_`;
   const materialContent = new VarianceShadowMapDecodeClassicMaterialContent(
+    engine,
     materialName,
     {
       isMorphing,
@@ -959,7 +986,7 @@ function createVarianceShadowMapDecodeClassicSingleMaterial(
     },
     encodedDepthRenderPasses
   );
-  const material = createMaterial(materialContent, maxInstancesNumber);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
   if (isSkinning) {
     material.addShaderDefine('RN_IS_SKINNING');
   }
@@ -986,12 +1013,13 @@ function createVarianceShadowMapDecodeClassicSingleMaterial(
  * @returns A configured Detect High Luminance Material instance
  */
 function createDetectHighLuminanceMaterial(
+  engine: Engine,
   { additionalName = '', maxInstancesNumber = 5 },
   textureToDetectHighLuminance: AbstractTexture
 ) {
   const materialName = `DetectHighLuminance_${additionalName}_`;
-  const materialContent = new DetectHighLuminanceMaterialContent(materialName, textureToDetectHighLuminance);
-  const material = createMaterial(materialContent, maxInstancesNumber);
+  const materialContent = new DetectHighLuminanceMaterialContent(engine, materialName, textureToDetectHighLuminance);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
   return material;
 }
 
@@ -1004,7 +1032,7 @@ function createDetectHighLuminanceMaterial(
  * @param options.maxInstancesNumber - Maximum number of material instances
  * @returns A configured Gaussian Blur Material instance
  */
-function createGaussianBlurMaterial({ additionalName = '', maxInstancesNumber = 10 } = {}): Material {
+function createGaussianBlurMaterial(engine: Engine, { additionalName = '', maxInstancesNumber = 10 } = {}): Material {
   const materialName = `GaussianBlur_${additionalName}`;
 
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
@@ -1053,13 +1081,13 @@ function createGaussianBlurMaterial({ additionalName = '', maxInstancesNumber = 
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [0, dummyBlackTexture],
+      initialValue: [0, engine.dummyTextures.dummyBlackTexture],
       min: 0,
       max: Number.MAX_SAFE_INTEGER,
     }
   );
 
-  const materialContent = new CustomMaterialContent({
+  const materialContent = new CustomMaterialContent(engine, {
     name: materialName,
     isSkinning: false,
     isLighting: false,
@@ -1070,7 +1098,7 @@ function createGaussianBlurMaterial({ additionalName = '', maxInstancesNumber = 
     pixelShaderWebGpu: GaussianBlurSingleShaderFragmentWebGpu,
     additionalShaderSemanticInfo,
   });
-  const material = createMaterial(materialContent, maxInstancesNumber);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
 
   return material;
 }
@@ -1086,6 +1114,7 @@ function createGaussianBlurMaterial({ additionalName = '', maxInstancesNumber = 
  * @returns A configured Synthesize HDR Material instance
  */
 function createSynthesizeHDRMaterial(
+  engine: Engine,
   {
     additionalName = '',
     maxInstancesNumber = 1,
@@ -1097,8 +1126,8 @@ function createSynthesizeHDRMaterial(
 ) {
   const materialName = `SynthesizeHDR_${additionalName}`;
 
-  const materialContent = new SynthesizeHDRMaterialContent(materialName, synthesizeTextures);
-  const material = createMaterial(materialContent, maxInstancesNumber);
+  const materialContent = new SynthesizeHDRMaterialContent(engine, materialName, synthesizeTextures);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
 
   return material;
 }
@@ -1117,6 +1146,7 @@ function createSynthesizeHDRMaterial(
  * @returns A configured Color Grading using LUTs Material instance
  */
 function createColorGradingUsingLUTsMaterial(
+  engine: Engine,
   {
     additionalName = '',
     colorAttachmentsNumber = 0,
@@ -1135,13 +1165,14 @@ function createColorGradingUsingLUTsMaterial(
   const materialName = `ColorGradingUsingLUTs_${additionalName}`;
 
   const materialContent = new ColorGradingUsingLUTsMaterialContent(
+    engine,
     materialName,
     targetRenderPass,
     colorAttachmentsNumber,
     uri,
     texture
   );
-  const material = createMaterial(materialContent, maxInstancesNumber);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
 
   return material;
 }
@@ -1155,10 +1186,10 @@ function createColorGradingUsingLUTsMaterial(
  * @param options.maxInstancesNumber - Maximum number of material instances
  * @returns A configured Gamma Correction Material instance
  */
-function createGammaCorrectionMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
+function createGammaCorrectionMaterial(engine: Engine, { additionalName = '', maxInstancesNumber = 1 } = {}): Material {
   const materialName = `GammaCorrection_${additionalName}`;
 
-  const materialContent = new CustomMaterialContent({
+  const materialContent = new CustomMaterialContent(engine, {
     name: materialName,
     isSkinning: false,
     isLighting: false,
@@ -1169,7 +1200,7 @@ function createGammaCorrectionMaterial({ additionalName = '', maxInstancesNumber
     pixelShaderWebGpu: GammaCorrectionShaderFragmentWebGpu,
     additionalShaderSemanticInfo: [],
   });
-  const material = createMaterial(materialContent, maxInstancesNumber);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
 
   return material;
 }
@@ -1183,10 +1214,10 @@ function createGammaCorrectionMaterial({ additionalName = '', maxInstancesNumber
  * @param options.maxInstancesNumber - Maximum number of material instances
  * @returns A configured Tone Mapping Material instance
  */
-function createToneMappingMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
+function createToneMappingMaterial(engine: Engine, { additionalName = '', maxInstancesNumber = 1 } = {}): Material {
   const materialName = `ToneMapping_${additionalName}`;
 
-  const materialContent = new CustomMaterialContent({
+  const materialContent = new CustomMaterialContent(engine, {
     name: materialName,
     isSkinning: false,
     isLighting: false,
@@ -1197,7 +1228,7 @@ function createToneMappingMaterial({ additionalName = '', maxInstancesNumber = 1
     pixelShaderWebGpu: ToneMappingShaderFragmentWGSL,
     additionalShaderSemanticInfo: [],
   });
-  const material = createMaterial(materialContent, maxInstancesNumber);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
   material.addShaderDefine('RN_USE_GT_TONEMAP');
 
   return material;
@@ -1212,10 +1243,10 @@ function createToneMappingMaterial({ additionalName = '', maxInstancesNumber = 1
  * @param options.maxInstancesNumber - Maximum number of material instances
  * @returns A configured Summed Area Table Material instance
  */
-function createSummedAreaTableMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
+function createSummedAreaTableMaterial(engine: Engine, { additionalName = '', maxInstancesNumber = 1 } = {}): Material {
   const materialName = `SummedAreaTable_${additionalName}`;
 
-  const materialContent = new CustomMaterialContent({
+  const materialContent = new CustomMaterialContent(engine, {
     name: materialName,
     isSkinning: false,
     isLighting: false,
@@ -1224,7 +1255,7 @@ function createSummedAreaTableMaterial({ additionalName = '', maxInstancesNumber
     pixelShader: SummedAreaTableShaderFragment,
     additionalShaderSemanticInfo: [],
   });
-  const material = createMaterial(materialContent, maxInstancesNumber);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
 
   return material;
 }
@@ -1238,10 +1269,10 @@ function createSummedAreaTableMaterial({ additionalName = '', maxInstancesNumber
  * @param options.maxInstancesNumber - Maximum number of material instances
  * @returns A configured Panorama to Cube Material instance
  */
-function createPanoramaToCubeMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
+function createPanoramaToCubeMaterial(engine: Engine, { additionalName = '', maxInstancesNumber = 1 } = {}): Material {
   const materialName = `PanoramaToCube_${additionalName}`;
 
-  const materialContent = new CustomMaterialContent({
+  const materialContent = new CustomMaterialContent(engine, {
     name: materialName,
     isSkinning: false,
     isLighting: false,
@@ -1252,7 +1283,7 @@ function createPanoramaToCubeMaterial({ additionalName = '', maxInstancesNumber 
     pixelShaderWebGpu: PanoramaToCubeShaderFragmentWebGpu,
     additionalShaderSemanticInfo: [],
   });
-  const material = createMaterial(materialContent, maxInstancesNumber);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
 
   return material;
 }
@@ -1266,10 +1297,10 @@ function createPanoramaToCubeMaterial({ additionalName = '', maxInstancesNumber 
  * @param options.maxInstancesNumber - Maximum number of material instances
  * @returns A configured Prefilter IBL Material instance
  */
-function createPrefilterIBLMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
+function createPrefilterIBLMaterial(engine: Engine, { additionalName = '', maxInstancesNumber = 1 } = {}): Material {
   const materialName = `PrefilterIBL_${additionalName}`;
 
-  const materialContent = new CustomMaterialContent({
+  const materialContent = new CustomMaterialContent(engine, {
     name: materialName,
     isSkinning: false,
     isLighting: false,
@@ -1280,7 +1311,7 @@ function createPrefilterIBLMaterial({ additionalName = '', maxInstancesNumber = 
     pixelShaderWebGpu: PrefilterIBLShaderFragmentWebGpu,
     additionalShaderSemanticInfo: [],
   });
-  const material = createMaterial(materialContent, maxInstancesNumber);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
 
   return material;
 }
@@ -1298,25 +1329,28 @@ function createPrefilterIBLMaterial({ additionalName = '', maxInstancesNumber = 
  * @param options.maxInstancesNumber - Maximum number of material instances
  * @returns A configured MatCap Material instance
  */
-function createMatCapMaterial({
-  additionalName = '',
-  isSkinning = false,
-  uri,
-  texture,
-  sampler,
-  maxInstancesNumber = 10,
-}: {
-  additionalName?: string;
-  isSkinning?: boolean;
-  uri?: string;
-  texture?: Texture;
-  sampler?: Sampler;
-  maxInstancesNumber?: Count;
-}) {
+function createMatCapMaterial(
+  engine: Engine,
+  {
+    additionalName = '',
+    isSkinning = false,
+    uri,
+    texture,
+    sampler,
+    maxInstancesNumber = 10,
+  }: {
+    additionalName?: string;
+    isSkinning?: boolean;
+    uri?: string;
+    texture?: Texture;
+    sampler?: Sampler;
+    maxInstancesNumber?: Count;
+  }
+) {
   const materialName = `MatCap_${additionalName}`;
 
-  const materialContent = new MatCapMaterialContent(materialName, isSkinning, uri, texture, sampler);
-  const material = createMaterial(materialContent, maxInstancesNumber);
+  const materialContent = new MatCapMaterialContent(engine, materialName, isSkinning, uri, texture, sampler);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
   if (isSkinning) {
     material.addShaderDefine('RN_IS_SKINNING');
   }
@@ -1333,11 +1367,14 @@ function createMatCapMaterial({
  * @param options.maxInstancesNumber - Maximum number of material instances
  * @returns A configured Entity UID Output Material instance
  */
-function createEntityUIDOutputMaterial({ additionalName = '', maxInstancesNumber = 10 } = {}): Material {
+function createEntityUIDOutputMaterial(
+  engine: Engine,
+  { additionalName = '', maxInstancesNumber = 10 } = {}
+): Material {
   const materialName = `EntityUIDOutput_${additionalName}`;
 
   const materialContent = new EntityUIDOutputMaterialContent(materialName);
-  const material = createMaterial(materialContent, maxInstancesNumber);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
   material.addShaderDefine('RN_IS_SKINNING');
   return material;
 }
@@ -1361,33 +1398,36 @@ function createEntityUIDOutputMaterial({ additionalName = '', maxInstancesNumber
  * @param options.makeOutputSrgb - Whether to convert output to sRGB color space
  * @returns A configured MToon 0.x Material instance
  */
-function createMToon0xMaterial({
-  additionalName = '',
-  isMorphing = false,
-  isSkinning = false,
-  isLighting = true,
-  useTangentAttribute = false,
-  isOutline = false,
-  materialProperties,
-  textures,
-  samplers,
-  debugMode,
-  maxInstancesNumber = Config.materialCountPerBufferView,
-  makeOutputSrgb = true,
-}: {
-  additionalName?: string;
-  isMorphing?: boolean;
-  isSkinning?: boolean;
-  isLighting?: boolean;
-  useTangentAttribute?: boolean;
-  isOutline?: boolean;
-  materialProperties?: Vrm0xMaterialProperty;
-  textures?: any[];
-  samplers?: Sampler[];
-  debugMode?: any;
-  maxInstancesNumber?: Count;
-  makeOutputSrgb?: boolean;
-}) {
+function createMToon0xMaterial(
+  engine: Engine,
+  {
+    additionalName = '',
+    isMorphing = false,
+    isSkinning = false,
+    isLighting = true,
+    useTangentAttribute = false,
+    isOutline = false,
+    materialProperties,
+    textures,
+    samplers,
+    debugMode,
+    maxInstancesNumber = Config.materialCountPerBufferView,
+    makeOutputSrgb = true,
+  }: {
+    additionalName?: string;
+    isMorphing?: boolean;
+    isSkinning?: boolean;
+    isLighting?: boolean;
+    useTangentAttribute?: boolean;
+    isOutline?: boolean;
+    materialProperties?: Vrm0xMaterialProperty;
+    textures?: any[];
+    samplers?: Sampler[];
+    debugMode?: any;
+    maxInstancesNumber?: Count;
+    makeOutputSrgb?: boolean;
+  }
+) {
   const materialName = `MToon0x_${additionalName}_`;
 
   const definitions = [];
@@ -1405,6 +1445,7 @@ function createMToon0xMaterial({
   }
 
   const materialContent = new MToon0xMaterialContent(
+    engine,
     isOutline,
     materialProperties,
     textures,
@@ -1419,8 +1460,8 @@ function createMToon0xMaterial({
     definitions
   );
 
-  const material = createMaterial(materialContent, maxInstancesNumber);
-  materialContent.setMaterialParameters(material, isOutline);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
+  materialContent.setMaterialParameters(engine, material, isOutline);
 
   return material;
 }
@@ -1444,29 +1485,32 @@ function createMToon0xMaterial({
  * @param options.makeOutputSrgb - Whether to convert output to sRGB color space
  * @returns A configured MToon 1.0 Material instance
  */
-function createMToon1Material({
-  additionalName = '',
-  isMorphing = false,
-  isSkinning = false,
-  isLighting = true,
-  isOutline = false,
-  materialJson,
-  maxInstancesNumber = Config.materialCountPerBufferView,
-  makeOutputSrgb = true,
-}: {
-  additionalName?: string;
-  isMorphing?: boolean;
-  isSkinning?: boolean;
-  isLighting?: boolean;
-  useTangentAttribute?: boolean;
-  isOutline?: boolean;
-  materialJson: Vrm1_Material;
-  textures?: any[];
-  samplers?: Sampler[];
-  debugMode?: any;
-  maxInstancesNumber?: Count;
-  makeOutputSrgb?: boolean;
-}) {
+function createMToon1Material(
+  engine: Engine,
+  {
+    additionalName = '',
+    isMorphing = false,
+    isSkinning = false,
+    isLighting = true,
+    isOutline = false,
+    materialJson,
+    maxInstancesNumber = Config.materialCountPerBufferView,
+    makeOutputSrgb = true,
+  }: {
+    additionalName?: string;
+    isMorphing?: boolean;
+    isSkinning?: boolean;
+    isLighting?: boolean;
+    useTangentAttribute?: boolean;
+    isOutline?: boolean;
+    materialJson: Vrm1_Material;
+    textures?: any[];
+    samplers?: Sampler[];
+    debugMode?: any;
+    maxInstancesNumber?: Count;
+    makeOutputSrgb?: boolean;
+  }
+) {
   const materialName = `MToon1_${additionalName}_`;
 
   const definitions = [];
@@ -1484,6 +1528,7 @@ function createMToon1Material({
   }
 
   const materialContent = new MToon1MaterialContent(
+    engine,
     materialName,
     isMorphing,
     isSkinning,
@@ -1492,7 +1537,7 @@ function createMToon1Material({
     definitions
   );
 
-  const material = createMaterial(materialContent, maxInstancesNumber);
+  const material = createMaterial(engine, materialContent, maxInstancesNumber);
   materialContent.setMaterialParameters(material, isOutline, materialJson);
   material.setParameter('makeOutputSrgb', Scalar.fromCopyNumber(makeOutputSrgb ? 1.0 : 0.0));
   material.zWriteWhenBlend = materialJson.extensions.VRMC_materials_mtoon.transparentWithZWrite;
@@ -1517,6 +1562,7 @@ function createMToon1Material({
  * @returns A reused or newly created Custom Material instance
  */
 function reuseOrRecreateCustomMaterial(
+  engine: Engine,
   currentMaterial: Material,
   vertexShaderStr: string,
   pixelShaderStr: string,
@@ -1544,8 +1590,8 @@ function reuseOrRecreateCustomMaterial(
   }
 
   let materialContent: CustomMaterialContent;
-  if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-    materialContent = new CustomMaterialContent({
+  if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    materialContent = new CustomMaterialContent(engine, {
       name: materialName,
       isSkinning,
       isLighting,
@@ -1564,7 +1610,7 @@ function reuseOrRecreateCustomMaterial(
       definitions,
     });
   } else {
-    materialContent = new CustomMaterialContent({
+    materialContent = new CustomMaterialContent(engine, {
       name: materialName,
       isSkinning,
       isLighting,
@@ -1584,7 +1630,7 @@ function reuseOrRecreateCustomMaterial(
     });
   }
 
-  const material = reuseOrRecreateMaterial(currentMaterial, materialContent, maxInstancesNumber);
+  const material = reuseOrRecreateMaterial(engine, currentMaterial, materialContent, maxInstancesNumber);
 
   for (const definition of definitions) {
     material.addShaderDefine(definition);

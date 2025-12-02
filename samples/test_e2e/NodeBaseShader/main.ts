@@ -7,7 +7,7 @@ window.Rn = Rn;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
 const processApproach = getProcessApproach(Rn);
-await Rn.System.init({
+const engine = await Rn.Engine.init({
   approach: processApproach,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -433,13 +433,13 @@ const rnm = await Rn.Gltf2Importer.importFromUrl(
   '../../../assets/gltf/glTF-Sample-Assets/Models/DamagedHelmet/glTF-Binary/DamagedHelmet.glb'
 );
 //---------------------------
-const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(rnm);
+const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(engine, rnm);
 rootGroup.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, 1.0, 0.0]);
 
 applyShader(rootGroup);
 
 // CameraComponent
-const cameraEntity = Rn.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera();
 // cameraComponent.type = Rn.CameraTyp]e.Orthographic;
 cameraComponent.zNear = 0.1;
@@ -452,7 +452,7 @@ cameraControllerComponent.controller.setTarget(rootGroup);
 (cameraControllerComponent.controller as Rn.OrbitCameraController).autoUpdate = false;
 
 // renderPass
-const renderPass = new Rn.RenderPass();
+const renderPass = new Rn.RenderPass(engine);
 renderPass.clearColor = Rn.Vector4.fromCopy4(0.5, 0.5, 0.5, 1.0);
 // renderPass.toClearColorBuffer = true;
 renderPass.toClearDepthBuffer = true;
@@ -473,22 +473,22 @@ const draw = () => {
   }
 
   if (window.isAnimating) {
-    Rn.AnimationComponent.isAnimating = true;
+    Rn.AnimationComponent.setIsAnimating(engine, true);
     const date = new Date();
     const time = (date.getTime() - startTime) / 1000;
-    Rn.AnimationComponent.globalTime = time;
-    if (time > Rn.AnimationComponent.endInputValue) {
+    Rn.AnimationComponent.setGlobalTime(engine, time);
+    if (time > Rn.AnimationComponent.getEndInputValue(engine)) {
       startTime = date.getTime();
     }
   } else {
-    Rn.AnimationComponent.isAnimating = false;
+    Rn.AnimationComponent.setIsAnimating(engine, false);
   }
 
   //      console.log(date.getTime());
-  Rn.System.process(expressions);
+  engine.process(expressions);
 
-  const t0 = Rn.System.timeAtProcessBegin;
-  const t1 = Rn.System.timeAtProcessEnd;
+  const t0 = Rn.Engine.timeAtProcessBegin;
+  const t1 = Rn.Engine.timeAtProcessEnd;
   const msec = t1 - t0;
   const sec = msec / 1000;
   const virtualFps = 1.0 / sec;
@@ -505,7 +505,7 @@ const draw = () => {
 draw();
 
 window.exportGltf2 = () => {
-  Rn.Gltf2Exporter.export('Rhodonite');
+  Rn.Gltf2Exporter.export(engine, 'Rhodonite');
 };
 
 function applyShader(entity: Rn.ISceneGraphEntity) {
@@ -516,6 +516,7 @@ function applyShader(entity: Rn.ISceneGraphEntity) {
       const primitive = meshComponent.mesh!.getPrimitiveAt(i);
       if (primitive.material != null) {
         const newMaterial = Rn.MaterialHelper.reuseOrRecreateCustomMaterial(
+          engine,
           primitive.material,
           result.vertexShader,
           result.pixelShader,

@@ -10,7 +10,7 @@ const cubeMapSize = 512;
 // Init Rhodonite
 Rn.Config.cgApiDebugConsoleOutput = true;
 const processApproach = getProcessApproach(Rn);
-await Rn.System.init({
+const engine = await Rn.Engine.init({
   approach: processApproach,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -22,7 +22,7 @@ const arrayBuffer = await response.arrayBuffer();
 const data = await loadHDR(new Uint8Array(arrayBuffer));
 
 // Create HDR texture
-const hdrTexture = new Rn.Texture();
+const hdrTexture = new Rn.Texture(engine);
 hdrTexture.allocate({
   width: data.width,
   height: data.height,
@@ -51,21 +51,25 @@ hdrTexture.loadImageToMipLevel({
 });
 
 // Create material
-const panoramaToCubeMaterial = Rn.MaterialHelper.createPanoramaToCubeMaterial();
+const panoramaToCubeMaterial = Rn.MaterialHelper.createPanoramaToCubeMaterial(engine);
 panoramaToCubeMaterial.setParameter('cubeMapFaceId', 0);
 
 // Create expression
 const panoramaToCubeExpression = new Rn.Expression();
 
-const [panoramaToCubeFramebuffer, panoramaToCubeRenderTargetCube] = Rn.RenderableHelper.createFrameBufferCubeMap({
-  width: cubeMapSize,
-  height: cubeMapSize,
-  textureFormat: Rn.TextureFormat.RGBA32F,
-  // mipLevelCount: 1,
-});
+const [panoramaToCubeFramebuffer, panoramaToCubeRenderTargetCube] = Rn.RenderableHelper.createFrameBufferCubeMap(
+  engine,
+  {
+    width: cubeMapSize,
+    height: cubeMapSize,
+    textureFormat: Rn.TextureFormat.RGBA32F,
+    // mipLevelCount: 1,
+  }
+);
 
 // Create renderPass and set hdrTexture to panoramaToCubeMaterial
 const panoramaToCubeRenderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+  engine,
   panoramaToCubeMaterial,
   hdrTexture
 );
@@ -76,29 +80,29 @@ panoramaToCubeRenderPass.isDepthTest = false;
 panoramaToCubeRenderPass.setFramebuffer(panoramaToCubeFramebuffer);
 panoramaToCubeExpression.addRenderPasses([panoramaToCubeRenderPass]);
 
-const prefilterIblMaterial = Rn.MaterialHelper.createPrefilterIBLMaterial();
+const prefilterIblMaterial = Rn.MaterialHelper.createPrefilterIBLMaterial(engine);
 prefilterIblMaterial.setParameter('cubeMapFaceId', 0);
 
 const prefilterIblExpression = new Rn.Expression();
 
-const [diffuseIblFramebuffer, diffuseIblRenderTargetCube] = Rn.RenderableHelper.createFrameBufferCubeMap({
+const [diffuseIblFramebuffer, diffuseIblRenderTargetCube] = Rn.RenderableHelper.createFrameBufferCubeMap(engine, {
   width: cubeMapSize,
   height: cubeMapSize,
   textureFormat: Rn.TextureFormat.RGBA32F,
   mipLevelCount: 1,
 });
-const [specularIblFramebuffer, specularIblRenderTargetCube] = Rn.RenderableHelper.createFrameBufferCubeMap({
+const [specularIblFramebuffer, specularIblRenderTargetCube] = Rn.RenderableHelper.createFrameBufferCubeMap(engine, {
   width: cubeMapSize,
   height: cubeMapSize,
   textureFormat: Rn.TextureFormat.RGBA32F,
 });
-const [sheenIblFramebuffer, sheenIblRenderTargetCube] = Rn.RenderableHelper.createFrameBufferCubeMap({
+const [sheenIblFramebuffer, sheenIblRenderTargetCube] = Rn.RenderableHelper.createFrameBufferCubeMap(engine, {
   width: cubeMapSize,
   height: cubeMapSize,
   textureFormat: Rn.TextureFormat.RGBA32F,
 });
 
-const sampler = new Rn.Sampler({
+const sampler = new Rn.Sampler(engine, {
   magFilter: Rn.TextureParameter.Linear,
   minFilter: Rn.TextureParameter.LinearMipmapLinear,
   wrapS: Rn.TextureParameter.ClampToEdge,
@@ -107,6 +111,7 @@ const sampler = new Rn.Sampler({
 });
 sampler.create();
 const prefilterIblRenderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+  engine,
   prefilterIblMaterial,
   panoramaToCubeRenderTargetCube,
   sampler
@@ -127,7 +132,7 @@ const renderIBL = () => {
   for (let i = 0; i < 6; i++) {
     panoramaToCubeMaterial.setParameter('cubeMapFaceId', i);
     panoramaToCubeFramebuffer.setColorAttachmentCubeAt(0, i, 0, panoramaToCubeRenderTargetCube);
-    Rn.System.process([panoramaToCubeExpression]);
+    engine.process([panoramaToCubeExpression]);
   }
 
   panoramaToCubeRenderTargetCube.generateMipmaps();
@@ -139,7 +144,7 @@ const renderIBL = () => {
   for (let i = 0; i < 6; i++) {
     prefilterIblMaterial.setParameter('cubeMapFaceId', i);
     diffuseIblFramebuffer.setColorAttachmentCubeAt(0, i, 0, diffuseIblRenderTargetCube);
-    Rn.System.process([prefilterIblExpression]);
+    engine.process([prefilterIblExpression]);
     diffuseIblRenderTargetCube.setIsTextureReady();
   }
 
@@ -156,7 +161,7 @@ const renderIBL = () => {
         prefilterIblMaterial.setParameter('cubeMapFaceId', face);
         specularIblFramebuffer.setColorAttachmentCubeAt(0, face, i, specularIblRenderTargetCube);
         prefilterIblRenderPass.setViewport(Rn.Vector4.fromCopy4(0, 0, cubeMapSize >> i, cubeMapSize >> i));
-        Rn.System.process([prefilterIblExpression]);
+        engine.process([prefilterIblExpression]);
       }
     }
     specularIblRenderTargetCube.setIsTextureReady();
@@ -175,7 +180,7 @@ const renderIBL = () => {
         prefilterIblMaterial.setParameter('cubeMapFaceId', face);
         sheenIblFramebuffer.setColorAttachmentCubeAt(0, face, i, sheenIblRenderTargetCube);
         prefilterIblRenderPass.setViewport(Rn.Vector4.fromCopy4(0, 0, cubeMapSize >> i, cubeMapSize >> i));
-        Rn.System.process([prefilterIblExpression]);
+        engine.process([prefilterIblExpression]);
       }
     }
     sheenIblRenderTargetCube.setIsTextureReady();
@@ -183,7 +188,7 @@ const renderIBL = () => {
 };
 
 // camera
-const cameraEntity = Rn.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.001;
 cameraComponent.zFar = 100.0;
@@ -193,6 +198,7 @@ cameraComponent.aspect = 1.0;
 const expressions = [];
 
 const mainExpression = await Rn.GltfImporter.importFromUrl(
+  engine,
   '../../../assets/gltf/glTF-Sample-Assets/Models/ToyCar/glTF-Binary/ToyCar.glb',
   {
     cameraComponent: cameraComponent,
@@ -212,7 +218,7 @@ controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
 renderIBL();
 
-const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
+const meshRendererComponents = engine.componentRepository.getComponentsWithType(
   Rn.MeshRendererComponent
 ) as Rn.MeshRendererComponent[];
 for (const meshRendererComponent of meshRendererComponents) {
@@ -223,7 +229,7 @@ for (const meshRendererComponent of meshRendererComponents) {
   );
 }
 
-Rn.System.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (!window._rendered && count > 0) {
     window._rendered = true;
     const p = document.createElement('p');
@@ -232,8 +238,8 @@ Rn.System.startRenderLoop(() => {
     document.body.appendChild(p);
   }
 
-  Rn.System.process(expressions);
-  // Rn.System.process([debugExpression]);
+  engine.process(expressions);
+  // Rn.Engine.process([debugExpression]);
 
   count++;
 });

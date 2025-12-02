@@ -18,10 +18,12 @@ import { Sphere, type SphereDescriptor } from '../geometry/shapes/Sphere';
 import { Vector3 } from '../math/Vector3';
 import { Is } from '../misc';
 import { OimoPhysicsStrategy } from '../physics/Oimo/OimoPhysicsStrategy';
+import type { Engine } from '../system/Engine';
 
 /**
  * Creates a plane mesh entity with configurable orientation.
  *
+ * @param engine - The engine instance
  * @param desc - Configuration object for the plane
  * @param desc.direction - The orientation of the plane ('xz', 'xy', or 'yz'). Defaults to 'xz'
  * @returns A mesh entity representing the plane
@@ -36,13 +38,14 @@ import { OimoPhysicsStrategy } from '../physics/Oimo/OimoPhysicsStrategy';
  * ```
  */
 const createPlane = (
+  engine: Engine,
   desc: PlaneDescriptor & {
     direction?: 'xz' | 'xy' | 'yz';
   } = {}
 ) => {
-  const primitive = new Plane();
+  const primitive = new Plane(engine);
   primitive.generate(desc);
-  const entity = createShape(primitive);
+  const entity = createShape(engine, primitive);
 
   if (Is.not.exist(desc.direction)) {
     desc.direction = 'xz';
@@ -59,6 +62,7 @@ const createPlane = (
 /**
  * Creates a line mesh entity.
  *
+ * @param engine - The engine instance
  * @param desc - Configuration object for the line geometry
  * @returns A mesh entity representing the line
  *
@@ -70,16 +74,17 @@ const createPlane = (
  * });
  * ```
  */
-const createLine = (desc: LineDescriptor = {}) => {
-  const primitive = new Line();
+const createLine = (engine: Engine, desc: LineDescriptor = {}) => {
+  const primitive = new Line(engine);
   primitive.generate(desc);
-  const entity = createShape(primitive);
+  const entity = createShape(engine, primitive);
   return entity;
 };
 
 /**
  * Creates a grid mesh entity for visual reference.
  *
+ * @param engine - The engine instance
  * @param desc - Configuration object for the grid geometry
  * @returns A mesh entity representing the grid
  *
@@ -91,16 +96,17 @@ const createLine = (desc: LineDescriptor = {}) => {
  * });
  * ```
  */
-const createGrid = (desc: GridDescriptor = {}) => {
-  const primitive = new Grid();
+const createGrid = (engine: Engine, desc: GridDescriptor = {}) => {
+  const primitive = new Grid(engine);
   primitive.generate(desc);
-  const entity = createShape(primitive);
+  const entity = createShape(engine, primitive);
   return entity;
 };
 
 /**
  * Creates a cone mesh entity.
  *
+ * @param engine - The engine instance
  * @param desc - Configuration object for the cone geometry
  * @returns A mesh entity representing the cone
  *
@@ -113,16 +119,17 @@ const createGrid = (desc: GridDescriptor = {}) => {
  * });
  * ```
  */
-const createCone = (desc: ConeDescriptor = {}) => {
-  const primitive = new Cone();
+const createCone = (engine: Engine, desc: ConeDescriptor = {}) => {
+  const primitive = new Cone(engine);
   primitive.generate(desc);
-  const entity = createShape(primitive);
+  const entity = createShape(engine, primitive);
   return entity;
 };
 
 /**
  * Creates a cube mesh entity with optional physics simulation.
  *
+ * @param engine - The engine instance
  * @param desc - Configuration object for the cube geometry and physics properties
  * @returns A mesh entity representing the cube, with physics component if specified
  *
@@ -144,13 +151,13 @@ const createCone = (desc: ConeDescriptor = {}) => {
  * });
  * ```
  */
-const createCube = (desc: CubeDescriptor = {}) => {
-  const primitive = new Cube();
+const createCube = (engine: Engine, desc: CubeDescriptor = {}) => {
+  const primitive = new Cube(engine);
   primitive.generate(desc);
-  const entity = createShape(primitive);
+  const entity = createShape(engine, primitive);
 
   if (Is.exist(desc.physics) && desc.physics.use) {
-    const newEntity = EntityRepository.addComponentToEntity(PhysicsComponent, entity);
+    const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, entity);
     const physicsComponent = newEntity.getPhysics();
     const strategy = new OimoPhysicsStrategy();
     const property = {
@@ -192,21 +199,21 @@ const createCube = (desc: CubeDescriptor = {}) => {
  * });
  * ```
  */
-const createCubes = (numberToCreate: number, desc: CubeDescriptor = {}) => {
-  const primitive = new Cube();
+const createCubes = (engine: Engine, numberToCreate: number, desc: CubeDescriptor = {}) => {
+  const primitive = new Cube(engine);
   primitive.generate(desc);
-  const mesh = new Mesh();
+  const mesh = new Mesh(engine);
   mesh.addPrimitive(primitive);
 
   const entities = [];
 
   for (let i = 0; i < numberToCreate; i++) {
-    const entity = createMeshEntity();
+    const entity = createMeshEntity(engine);
     const meshComponent = entity.getMesh();
     meshComponent.setMesh(mesh);
 
     if (Is.exist(desc.physics) && desc.physics.use) {
-      const newEntity = EntityRepository.addComponentToEntity(PhysicsComponent, entity);
+      const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, entity);
       const physicsComponent = newEntity.getPhysics();
       const strategy = new OimoPhysicsStrategy();
       const property = {
@@ -231,6 +238,7 @@ const createCubes = (numberToCreate: number, desc: CubeDescriptor = {}) => {
 /**
  * Creates a sphere mesh entity with optional physics simulation.
  *
+ * @param engine - The engine instance
  * @param desc - Configuration object for the sphere geometry and physics properties
  * @returns A mesh entity representing the sphere, with physics component if specified
  *
@@ -252,13 +260,13 @@ const createCubes = (numberToCreate: number, desc: CubeDescriptor = {}) => {
  * });
  * ```
  */
-const createSphere = (desc: SphereDescriptor = {}) => {
-  const primitive = new Sphere();
+const createSphere = (engine: Engine, desc: SphereDescriptor = {}) => {
+  const primitive = new Sphere(engine);
   primitive.generate(desc);
-  const entity = createShape(primitive);
+  const entity = createShape(engine, primitive);
 
   if (Is.exist(desc.physics) && desc.physics.use) {
-    const newEntity = EntityRepository.addComponentToEntity(PhysicsComponent, entity);
+    const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, entity);
     const physicsComponent = newEntity.getPhysics();
     const strategy = new OimoPhysicsStrategy();
     const property = {
@@ -306,21 +314,21 @@ const createSphere = (desc: SphereDescriptor = {}) => {
  * });
  * ```
  */
-const createSpheres = (numberToCreate: number, desc: SphereDescriptor = {}) => {
-  const primitive = new Sphere();
+const createSpheres = (engine: Engine, numberToCreate: number, desc: SphereDescriptor = {}) => {
+  const primitive = new Sphere(engine);
   primitive.generate(desc);
-  const mesh = new Mesh();
+  const mesh = new Mesh(engine);
   mesh.addPrimitive(primitive);
 
   const entities = [];
 
   for (let i = 0; i < numberToCreate; i++) {
-    const entity = createMeshEntity();
+    const entity = createMeshEntity(engine);
     const meshComponent = entity.getMesh();
     meshComponent.setMesh(mesh);
 
     if (Is.exist(desc.physics) && desc.physics.use) {
-      const newEntity = EntityRepository.addComponentToEntity(PhysicsComponent, entity);
+      const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, entity);
       const physicsComponent = newEntity.getPhysics();
       const strategy = new OimoPhysicsStrategy();
       const property = {
@@ -347,6 +355,7 @@ const createSpheres = (numberToCreate: number, desc: SphereDescriptor = {}) => {
 /**
  * Creates a joint mesh entity for skeletal animation or mechanical connections.
  *
+ * @param engine - The engine instance
  * @param desc - Configuration object for the joint geometry
  * @returns A mesh entity representing the joint
  *
@@ -358,10 +367,10 @@ const createSpheres = (numberToCreate: number, desc: SphereDescriptor = {}) => {
  * });
  * ```
  */
-const createJoint = (desc: JointDescriptor = {}) => {
-  const primitive = new Joint();
+const createJoint = (engine: Engine, desc: JointDescriptor = {}) => {
+  const primitive = new Joint(engine);
   primitive.generate(desc);
-  const entity = createShape(primitive);
+  const entity = createShape(engine, primitive);
   return entity;
 };
 
@@ -369,6 +378,7 @@ const createJoint = (desc: JointDescriptor = {}) => {
  * Creates an axis mesh entity for coordinate system visualization.
  * Typically displays X, Y, and Z axes with different colors.
  *
+ * @param engine - The engine instance
  * @param desc - Configuration object for the axis geometry
  * @returns A mesh entity representing the coordinate axes
  *
@@ -380,16 +390,17 @@ const createJoint = (desc: JointDescriptor = {}) => {
  * });
  * ```
  */
-const createAxis = (desc: AxisDescriptor = {}) => {
-  const primitive = new Axis();
+const createAxis = (engine: Engine, desc: AxisDescriptor = {}) => {
+  const primitive = new Axis(engine);
   primitive.generate(desc);
-  const entity = createShape(primitive);
+  const entity = createShape(engine, primitive);
   return entity;
 };
 
 /**
  * Creates a ring (annulus) mesh entity.
  *
+ * @param engine - The engine instance
  * @param desc - Configuration object for the ring geometry
  * @param desc.radius - The radius of the ring (center to middle of band). Defaults to 1
  * @param desc.thickness - The thickness of the ring band. Defaults to 0.1
@@ -411,10 +422,10 @@ const createAxis = (desc: AxisDescriptor = {}) => {
  * });
  * ```
  */
-const createRing = (desc: RingDescriptor = {}) => {
-  const primitive = new Ring();
+const createRing = (engine: Engine, desc: RingDescriptor = {}) => {
+  const primitive = new Ring(engine);
   primitive.generate(desc);
-  const entity = createShape(primitive);
+  const entity = createShape(engine, primitive);
   return entity;
 };
 
@@ -422,6 +433,7 @@ const createRing = (desc: RingDescriptor = {}) => {
  * Creates a capsule mesh entity.
  * A capsule is a cylinder with hemispherical caps at both ends.
  *
+ * @param engine - The engine instance
  * @param desc - Configuration object for the capsule geometry
  * @param desc.radius - The radius of the capsule (hemispheres and cylinder). Defaults to 0.5
  * @param desc.height - The height of the cylinder part (distance between hemisphere centers). Defaults to 1
@@ -443,10 +455,10 @@ const createRing = (desc: RingDescriptor = {}) => {
  * });
  * ```
  */
-const createCapsule = (desc: CapsuleDescriptor = {}) => {
-  const primitive = new Capsule();
+const createCapsule = (engine: Engine, desc: CapsuleDescriptor = {}) => {
+  const primitive = new Capsule(engine);
   primitive.generate(desc);
-  const entity = createShape(primitive);
+  const entity = createShape(engine, primitive);
   return entity;
 };
 
@@ -454,6 +466,7 @@ const createCapsule = (desc: CapsuleDescriptor = {}) => {
  * Creates a mesh entity from a primitive shape.
  * This is a utility function used internally by other creation methods.
  *
+ * @param engine - The engine instance
  * @param primitive - The primitive shape to convert into a mesh entity
  * @returns A mesh entity containing the primitive shape
  *
@@ -464,10 +477,10 @@ const createCapsule = (desc: CapsuleDescriptor = {}) => {
  * const entity = createShape(customPrimitive);
  * ```
  */
-function createShape(primitive: IShape) {
-  const entity = createMeshEntity();
+function createShape(engine: Engine, primitive: IShape) {
+  const entity = createMeshEntity(engine);
   const meshComponent = entity.getMesh();
-  const mesh = new Mesh();
+  const mesh = new Mesh(engine);
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);
   return entity;

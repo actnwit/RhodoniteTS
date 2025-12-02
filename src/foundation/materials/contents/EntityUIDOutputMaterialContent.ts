@@ -10,6 +10,7 @@ import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo'
 import { ShaderType } from '../../definitions/ShaderType';
 import { Scalar } from '../../math/Scalar';
 import { Vector3 } from '../../math/Vector3';
+import type { Engine } from '../../system/Engine';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import type { Material } from '../core/Material';
 
@@ -84,10 +85,12 @@ export class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
    * @param params.args - WebGL rendering arguments containing matrices, camera, and entity information
    */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
+    engine,
     material,
     shaderProgram,
     args,
   }: {
+    engine: Engine;
     material: Material;
     shaderProgram: WebGLProgram;
     args: RenderingArgWebGL;
@@ -99,7 +102,10 @@ export class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
       /// Matrices
       let cameraComponent = args.renderPass.cameraComponent;
       if (cameraComponent == null) {
-        cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
+        cameraComponent = engine.componentRepository.getComponent(
+          CameraComponent,
+          CameraComponent.getCurrent(engine)
+        ) as CameraComponent;
       }
       this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
       this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);

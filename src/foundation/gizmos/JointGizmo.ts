@@ -54,7 +54,7 @@ export class JointGizmo extends Gizmo {
       return;
     }
 
-    this.__topEntity = createGroupEntity();
+    this.__topEntity = createGroupEntity(this.__engine);
     this.__topEntity.tryToSetUniqueName(`JointGizmo_of_${this.__target.uniqueName}`, true);
     this.__topEntity.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix = true;
     targetSceneGraph._addGizmoChild(this.__topEntity.getSceneGraph()!);
@@ -141,13 +141,13 @@ export class JointGizmo extends Gizmo {
       return undefined;
     }
 
-    const meshEntity = createMeshEntity();
+    const meshEntity = createMeshEntity(this.__engine);
     meshEntity.tryToSetUniqueName(`JointGizmo_segment_${parent.entity.uniqueName}_${child.entity.uniqueName}`, true);
     meshEntity.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix = true;
 
     const meshComponent = meshEntity.getMesh();
-    const mesh = new Mesh();
-    const primitive = new Joint();
+    const mesh = new Mesh(this.__engine);
+    const primitive = new Joint(this.__engine);
     primitive.generate({});
     primitive.setWorldPositions(JointGizmo.__origin, JointGizmo.__unitY, 1);
     primitive.setRenderQueue(7);

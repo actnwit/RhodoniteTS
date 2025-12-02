@@ -3,6 +3,7 @@ import { SphereColliderGizmo } from '../../gizmos/SphereColliderGizmo';
 import { MutableVector3 } from '../../math/MutableVector3';
 import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
+import type { Engine } from '../../system';
 
 /**
  * A sphere collider used for VRM spring bone physics simulation.
@@ -10,6 +11,7 @@ import { Is } from '../../misc/Is';
  * to prevent them from penetrating through solid objects.
  */
 export class SphereCollider {
+  private __engine: Engine;
   /** The local position of the sphere collider relative to its base scene graph node */
   private __position = Vector3.zero();
 
@@ -26,7 +28,8 @@ export class SphereCollider {
 
   private static __tmp_vec3_1 = MutableVector3.zero();
 
-  constructor(position: Vector3, radius: number, baseSceneGraph: SceneGraphComponent) {
+  constructor(engine: Engine, position: Vector3, radius: number, baseSceneGraph: SceneGraphComponent) {
+    this.__engine = engine;
     this.__position = position;
     this.__radius = radius;
     this.__baseSceneGraph = baseSceneGraph;
@@ -117,7 +120,7 @@ export class SphereCollider {
    */
   setGizmoVisible(visible: boolean): void {
     if (this.__gizmo == null) {
-      this.__gizmo = new SphereColliderGizmo(this);
+      this.__gizmo = new SphereColliderGizmo(this.__engine, this);
       this.__gizmo._setup();
     }
     this.__gizmo.isVisible = visible;

@@ -20,8 +20,8 @@ import { MutableVector2 } from '../../math/MutableVector2';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { VectorN } from '../../math/VectorN';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import type { Engine } from '../../system/Engine';
 import { Sampler } from '../../textures/Sampler';
-import { dummyBlackCubeTexture } from '../core/DummyTextures';
 import type { Material } from '../core/Material';
 
 /**
@@ -30,27 +30,12 @@ import type { Material } from '../core/Material';
  * This class handles shader compilation, parameter setup, and rendering for MToon materials.
  */
 export class MToon1MaterialContent extends AbstractMaterialContent {
-  /** Static sampler for diffuse IBL cube map with linear filtering and edge clamping */
-  private static __diffuseIblCubeMapSampler = new Sampler({
-    minFilter: TextureParameter.Linear,
-    magFilter: TextureParameter.Linear,
-    wrapS: TextureParameter.ClampToEdge,
-    wrapT: TextureParameter.ClampToEdge,
-    wrapR: TextureParameter.ClampToEdge,
-  });
-
-  /** Static sampler for specular IBL cube map with mipmap support and edge clamping */
-  private static __specularIblCubeMapSampler = new Sampler({
-    minFilter: TextureParameter.LinearMipmapLinear,
-    magFilter: TextureParameter.Linear,
-    wrapS: TextureParameter.ClampToEdge,
-    wrapT: TextureParameter.ClampToEdge,
-    wrapR: TextureParameter.ClampToEdge,
-  });
-
+  private __diffuseIblCubeMapSampler: Sampler;
+  private __specularIblCubeMapSampler: Sampler;
   /**
    * Constructs a new MToon1MaterialContent instance with specified rendering features.
    *
+   * @param engine - The engine instance
    * @param materialName - The name identifier for this material
    * @param isMorphing - Whether this material supports vertex morphing/blend shapes
    * @param isSkinning - Whether this material supports skeletal animation
@@ -59,6 +44,7 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
    * @param definitions - Additional shader preprocessor definitions
    */
   constructor(
+    engine: Engine,
     materialName: string,
     isMorphing: boolean,
     isSkinning: boolean,
@@ -73,6 +59,7 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
     });
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = this.doShaderReflection(
+      engine,
       mToon1SingleShaderVertex,
       mToon1SingleShaderFragment,
       mToon1SingleShaderVertexWebGpu,
@@ -80,12 +67,29 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
       definitions
     );
 
-    if (!MToon1MaterialContent.__diffuseIblCubeMapSampler.created) {
-      MToon1MaterialContent.__diffuseIblCubeMapSampler.create();
+    /** Sampler for diffuse IBL cube map with linear filtering and edge clamping */
+    this.__diffuseIblCubeMapSampler = new Sampler(engine, {
+      minFilter: TextureParameter.Linear,
+      magFilter: TextureParameter.Linear,
+      wrapS: TextureParameter.ClampToEdge,
+      wrapT: TextureParameter.ClampToEdge,
+      wrapR: TextureParameter.ClampToEdge,
+    });
+
+    /** Static sampler for specular IBL cube map with mipmap support and edge clamping */
+    this.__specularIblCubeMapSampler = new Sampler(engine, {
+      minFilter: TextureParameter.LinearMipmapLinear,
+      magFilter: TextureParameter.Linear,
+      wrapS: TextureParameter.ClampToEdge,
+      wrapT: TextureParameter.ClampToEdge,
+      wrapR: TextureParameter.ClampToEdge,
+    });
+    if (!this.__diffuseIblCubeMapSampler.created) {
+      this.__diffuseIblCubeMapSampler.create();
     }
 
-    if (!MToon1MaterialContent.__specularIblCubeMapSampler.created) {
-      MToon1MaterialContent.__specularIblCubeMapSampler.create();
+    if (!this.__specularIblCubeMapSampler.created) {
+      this.__specularIblCubeMapSampler.create();
     }
 
     if (isLighting) {
@@ -193,24 +197,26 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
    * @param params.args - WebGL rendering arguments with cube map textures
    */
   _setInternalSettingParametersToGpuWebGLPerShaderProgram({
+    engine,
     shaderProgram,
     args,
   }: {
+    engine: Engine;
     shaderProgram: WebGLProgram;
     args: RenderingArgWebGL;
   }) {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = engine.webglResourceRepository;
     // IBL Env map
     if (args.diffuseCube?.isTextureReady) {
       webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
         5,
         args.diffuseCube,
-        MToon1MaterialContent.__diffuseIblCubeMapSampler,
+        this.__diffuseIblCubeMapSampler,
       ]);
     } else {
       webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
         5,
-        dummyBlackCubeTexture,
+        engine.dummyTextures.dummyBlackCubeTexture,
       ]);
     }
     // if (args.specularCube && args.specularCube.isTextureReady) {
@@ -234,17 +240,20 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
    * skeletal animation data, IBL parameters, and morphing data.
    *
    * @param params - Object containing material, shader program and rendering context
+   * @param params.engine - The engine instance
    * @param params.material - The material instance being rendered
    * @param params.shaderProgram - The compiled WebGL shader program
    * @param params.firstTime - Whether this is the first time setting parameters for this material
    * @param params.args - WebGL rendering arguments with entity and environment data
    */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
+    engine,
     material,
     shaderProgram,
     firstTime,
     args,
   }: {
+    engine: Engine;
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
@@ -257,9 +266,9 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
       if (firstTime || args.isVr) {
         let cameraComponent = args.renderPass.cameraComponent;
         if (cameraComponent == null) {
-          cameraComponent = ComponentRepository.getComponent(
+          cameraComponent = engine.componentRepository.getComponent(
             CameraComponent,
-            CameraComponent.current
+            CameraComponent.getCurrent(engine)
           ) as CameraComponent;
         }
         this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
@@ -276,7 +285,7 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
       this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
     }
 
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = engine.webglResourceRepository;
 
     // IBL Parameters
     if (args.setUniform) {

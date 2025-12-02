@@ -7,6 +7,7 @@ import { Err, Ok, type Result, assertIsErr } from '../misc/Result';
 import type { RnPromiseCallback } from '../misc/RnPromise';
 import { Expression } from '../renderer/Expression';
 import { RenderPass } from '../renderer/RenderPass';
+import type { Engine } from '../system/Engine';
 import { DrcPointCloudImporter } from './DrcPointCloudImporter';
 import { detectFormatByArrayBuffers } from './FormatDetector';
 import { Gltf2Importer } from './Gltf2Importer';
@@ -29,6 +30,7 @@ export class GltfImporter {
    * Import GLTF or VRM file from a URL.
    * Automatically detects the file format and uses the appropriate importer.
    *
+   * @param engine - The engine instance
    * @param url - The URL of the glTF/VRM file to import
    * @param options - Optional loading configuration. The files property is ignored for URL imports
    * @param callback - Optional callback function for progress tracking
@@ -37,14 +39,19 @@ export class GltfImporter {
    *          - renderPasses[1]: model outlines (if applicable)
    * @throws Will reject the promise if the file cannot be fetched or parsed
    */
-  static async importFromUrl(url: string, options?: GltfLoadOption, callback?: RnPromiseCallback): Promise<Expression> {
+  static async importFromUrl(
+    engine: Engine,
+    url: string,
+    options?: GltfLoadOption,
+    callback?: RnPromiseCallback
+  ): Promise<Expression> {
     const promise = new Promise<Expression>((resolve, reject) => {
       (async () => {
         options = this.__initOptions(options);
 
         const renderPasses = options.expression?.renderPasses || [];
         if (renderPasses.length === 0) {
-          renderPasses.push(new RenderPass());
+          renderPasses.push(new RenderPass(engine));
         }
 
         const r_arrayBuffer = await DataUtil.fetchArrayBuffer(url);
@@ -55,7 +62,7 @@ export class GltfImporter {
 
         options.files![url] = r_arrayBuffer.get();
 
-        await this.__detectTheModelFileTypeAndImport(url, renderPasses, options, url, callback);
+        await this.__detectTheModelFileTypeAndImport(engine, url, renderPasses, options, url, callback);
 
         if (options?.cameraComponent) {
           for (const renderPass of renderPasses) {
@@ -84,6 +91,7 @@ export class GltfImporter {
    * @throws Will reject the promise if the files cannot be parsed or are in an unsupported format
    */
   static async importFromArrayBuffers(
+    engine: Engine,
     files: GltfFileBuffers,
     options?: GltfLoadOption,
     callback?: RnPromiseCallback
@@ -94,7 +102,7 @@ export class GltfImporter {
 
         const renderPasses = options.expression?.renderPasses || [];
         if (renderPasses.length === 0) {
-          renderPasses.push(new RenderPass());
+          renderPasses.push(new RenderPass(engine));
         }
 
         for (const fileName in files) {
@@ -102,7 +110,7 @@ export class GltfImporter {
           const fileExtension = DataUtil.getExtension(fileName);
           // if the file is main file type?
           if (this.__isValidExtension(fileExtension)) {
-            await this.__detectTheModelFileTypeAndImport(fileName, renderPasses, options, fileName, callback);
+            await this.__detectTheModelFileTypeAndImport(engine, fileName, renderPasses, options, fileName, callback);
           }
         }
 
@@ -260,6 +268,7 @@ export class GltfImporter {
    * @private
    */
   private static async __detectTheModelFileTypeAndImport(
+    engine: Engine,
     fileName: string,
     renderPasses: RenderPass[],
     options: GltfLoadOption,
@@ -278,7 +287,7 @@ export class GltfImporter {
         const json = JSON.parse(gotText);
         const importer = Gltf2Importer;
         const gltfModel = await importer._importGltf(json, options.files!, options, fileName, callback);
-        const rootGroup = await ModelConverter.convertToRhodoniteObject(gltfModel);
+        const rootGroup = await ModelConverter.convertToRhodoniteObject(engine, gltfModel);
         renderPasses[0].addEntities([rootGroup]);
         options.__importedType = 'gltf2';
         return new Ok();
@@ -286,7 +295,7 @@ export class GltfImporter {
       case FileType.GltfBinary: {
         const importer = Gltf2Importer;
         const gltfModel = await importer._importGlb(fileArrayBuffer, options.files!, options);
-        const rootGroup = await ModelConverter.convertToRhodoniteObject(gltfModel);
+        const rootGroup = await ModelConverter.convertToRhodoniteObject(engine, gltfModel);
         renderPasses[0].addEntities([rootGroup]);
         options.__importedType = 'glb2';
         return new Ok();
@@ -301,7 +310,7 @@ export class GltfImporter {
           });
         }
         options.__importedType = 'draco';
-        const rootGroup = await ModelConverter.convertToRhodoniteObject(gltfModel);
+        const rootGroup = await ModelConverter.convertToRhodoniteObject(engine, gltfModel);
         renderPasses[0].addEntities([rootGroup]);
         return new Ok();
       }
@@ -315,10 +324,10 @@ export class GltfImporter {
             options.__isImportVRM0x = false;
             gltfModel.asset.extras!.rnLoaderOptions!.__isImportVRM0x = false;
             options.__importedType = 'vrm1';
-            await VrmImporter.__importVRM(gltfModel, renderPasses);
+            await VrmImporter.__importVRM(engine, gltfModel, renderPasses);
           } else if (gltfModel.extensionsUsed.indexOf('VRM') >= 0) {
             options.__importedType = 'vrm0x';
-            await Vrm0xImporter.__importVRM0x(gltfModel, renderPasses);
+            await Vrm0xImporter.__importVRM0x(engine, gltfModel, renderPasses);
           }
           return new Ok();
         }

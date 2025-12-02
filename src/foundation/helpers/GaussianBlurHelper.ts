@@ -5,6 +5,7 @@ import { VectorN } from '../math/VectorN';
 import { Expression } from '../renderer/Expression';
 import type { FrameBuffer } from '../renderer/FrameBuffer';
 import type { RenderPass } from '../renderer/RenderPass';
+import type { Engine } from '../system/Engine';
 import type { AbstractTexture } from '../textures/AbstractTexture';
 import type { RenderTargetTexture } from '../textures/RenderTargetTexture';
 import { MaterialHelper } from './MaterialHelper';
@@ -17,9 +18,18 @@ import { RenderableHelper } from './RenderableHelper';
  * with customizable parameters including blur levels, kernel size, and variance.
  */
 export class GaussianBlur {
+  private __engine: Engine;
   private __mapReducedFramebuffer: Map<string, FrameBuffer> = new Map();
   private __mapSynthesizeFramebuffer: Map<string, FrameBuffer> = new Map();
 
+  /**
+   * Constructor for the GaussianBlur helper.
+   *
+   * @param engine - The engine instance to use for creating the Gaussian blur effect
+   */
+  constructor(engine: Engine) {
+    this.__engine = engine;
+  }
   /**
    * Creates a complete Gaussian blur expression with multiple blur passes and synthesis.
    * This method generates a series of render passes that apply Gaussian blur at different
@@ -198,13 +208,17 @@ export class GaussianBlur {
     }
 
     const materialSynthesizeTextures = MaterialHelper.createSynthesizeHDRMaterial(
+      this.__engine,
       {
         maxInstancesNumber: 1,
       },
       texturesSynthesize
     );
     materialSynthesizeTextures.setParameter('synthesizeCoefficient', synthesizeCoefficient);
-    const renderPassSynthesizeBlur = RenderPassHelper.createScreenDrawRenderPass(materialSynthesizeTextures);
+    const renderPassSynthesizeBlur = RenderPassHelper.createScreenDrawRenderPass(
+      this.__engine,
+      materialSynthesizeTextures
+    );
     renderPassSynthesizeBlur.tryToSetUniqueName('renderPassSynthesizeBlur', true);
 
     let framebufferSynthesizeImages = outputFrameBuffer;
@@ -212,7 +226,7 @@ export class GaussianBlur {
       const key = `${texture.width}x${texture.height}_${textureFormat.str}`;
       framebufferSynthesizeImages = this.__mapSynthesizeFramebuffer.get(key);
       if (framebufferSynthesizeImages == null) {
-        framebufferSynthesizeImages = RenderableHelper.createFrameBuffer({
+        framebufferSynthesizeImages = RenderableHelper.createFrameBuffer(this.__engine, {
           width: texture.width,
           height: texture.height,
           textureNum: 1,
@@ -261,7 +275,7 @@ export class GaussianBlur {
     resolutionHeightBlur: number,
     textureFormat: TextureFormatEnum
   ) {
-    const material = MaterialHelper.createGaussianBlurMaterial();
+    const material = MaterialHelper.createGaussianBlurMaterial(this.__engine);
 
     const gaussianDistributionRatio = MathUtil.computeGaussianDistributionRatioWhoseSumIsOne({
       kernelSize: gaussianKernelSize,
@@ -275,12 +289,16 @@ export class GaussianBlur {
       material.setParameter('isHorizontal', false);
     }
 
-    const renderPass = RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(material, textureToBlur);
+    const renderPass = RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+      this.__engine,
+      material,
+      textureToBlur
+    );
 
     const key = `${resolutionWidthBlur}x${resolutionHeightBlur}_${textureFormat.str}_${isHorizontal}`;
     let framebuffer = this.__mapReducedFramebuffer.get(key);
     if (framebuffer == null) {
-      framebuffer = RenderableHelper.createFrameBuffer({
+      framebuffer = RenderableHelper.createFrameBuffer(this.__engine, {
         width: resolutionWidthBlur,
         height: resolutionHeightBlur,
         textureNum: 1,

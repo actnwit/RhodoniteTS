@@ -4,7 +4,6 @@ import {
   type AnimationSamplers,
   type AnimationTrackName,
 } from '../../types/AnimationTypes';
-import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { __interpolate } from '../components/Animation/AnimationOps';
 import { AnimationAttribute } from '../definitions/AnimationAttribute';
 import { Logger } from '../misc/Logger';
@@ -89,10 +88,8 @@ export class AnimatedVector3 extends Vector3 implements IVector3, IAnimatedValue
   }
 
   /**
-   * Switches back to using the global animation time instead of a specific time.
-   *
-   * After calling this method, the vector will use AnimationComponent.globalTime
-   * for animation interpolation.
+   * Clears the specific time and uses the default time (0) for animation updates.
+   * When used with AnimationComponent, the time will be set via setTime() during animation processing.
    */
   useGlobalTime() {
     this.__time = undefined;
@@ -168,7 +165,7 @@ export class AnimatedVector3 extends Vector3 implements IVector3, IAnimatedValue
    * to avoid unnecessary recalculations.
    */
   public update() {
-    let time = this.__time ?? AnimationComponent.globalTime;
+    let time = this.__time ?? 0;
     if (this.isLoop) {
       let duration = this.__firstActiveAnimationSampler.input[this.__firstActiveAnimationSampler.input.length - 1];
       if (this.__secondActiveAnimationSampler !== undefined) {

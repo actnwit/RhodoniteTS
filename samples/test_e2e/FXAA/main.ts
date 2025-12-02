@@ -11,7 +11,7 @@ let renderPassMain: Rn.RenderPass;
 
 const canvas = document.getElementById('world') as HTMLCanvasElement;
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas,
   webglOption: { antialias: false },
@@ -19,7 +19,7 @@ await Rn.System.init({
 
 // setup the Main RenderPass
 renderPassMain = await setupRenderPassMain();
-framebuffer = Rn.RenderableHelper.createFrameBuffer({
+framebuffer = Rn.RenderableHelper.createFrameBuffer(engine, {
   width: canvas.clientWidth,
   height: canvas.clientHeight,
   textureNum: 1,
@@ -54,31 +54,30 @@ frame.resolve();
 
 activeExpression = expressionWithFXAA;
 
-Rn.CameraComponent.current = 0;
 let startTime = Date.now();
 let count = 0;
 
-Rn.System.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (count > 0) {
     window._rendered = true;
   }
   if (window.isAnimating) {
     const date = new Date();
     const time = (date.getTime() - startTime) / 1000;
-    Rn.AnimationComponent.globalTime = time;
-    if (time > Rn.AnimationComponent.endInputValue) {
+    Rn.AnimationComponent.setGlobalTime(engine, time);
+    if (time > Rn.AnimationComponent.getEndInputValue(engine)) {
       startTime = date.getTime();
     }
   }
 
-  Rn.System.process(frame);
+  engine.process(frame);
   count++;
 });
 
 async function setupRenderPassMain() {
-  const modelMaterial = Rn.MaterialHelper.createClassicUberMaterial();
-  const planeEntity = Rn.createMeshEntity();
-  const planePrimitive = new Rn.Plane();
+  const modelMaterial = Rn.MaterialHelper.createClassicUberMaterial(engine);
+  const planeEntity = Rn.createMeshEntity(engine);
+  const planePrimitive = new Rn.Plane(engine);
   planePrimitive.generate({
     width: 2,
     height: 2,
@@ -89,20 +88,20 @@ async function setupRenderPassMain() {
     material: modelMaterial,
   });
   const planeMeshComponent = planeEntity.getMesh();
-  const planeMesh = new Rn.Mesh();
+  const planeMesh = new Rn.Mesh(engine);
   planeMesh.addPrimitive(planePrimitive);
   planeMeshComponent.setMesh(planeMesh);
   planeEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, Math.PI / 3]);
-  const sphereEntity = Rn.createMeshEntity();
-  const spherePrimitive = new Rn.Sphere();
-  const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
+  const sphereEntity = Rn.createMeshEntity(engine);
+  const spherePrimitive = new Rn.Sphere(engine);
+  const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial(engine);
   spherePrimitive.generate({
     radius: -100,
     widthSegments: 40,
     heightSegments: 40,
     material: sphereMaterial,
   });
-  const environmentCubeTexture = new Rn.CubeTexture();
+  const environmentCubeTexture = new Rn.CubeTexture(engine);
   {
     const response = await fetch('../../../assets/images/cubemap_test.basis');
     const buffer = await response.arrayBuffer();
@@ -110,7 +109,7 @@ async function setupRenderPassMain() {
     environmentCubeTexture.loadTextureImagesFromBasis(uint8Array);
     environmentCubeTexture.hdriFormat = Rn.HdriFormat.LDR_SRGB;
   }
-  const samplerSphere = new Rn.Sampler({
+  const samplerSphere = new Rn.Sampler(engine, {
     magFilter: Rn.TextureParameter.Linear,
     minFilter: Rn.TextureParameter.LinearMipmapLinear,
     wrapS: Rn.TextureParameter.ClampToEdge,
@@ -119,11 +118,11 @@ async function setupRenderPassMain() {
   sphereMaterial.setTextureParameter('colorEnvTexture', environmentCubeTexture, samplerSphere);
   sphereMaterial.setParameter('envHdriFormat', Rn.HdriFormat.LDR_SRGB.index);
   const sphereMeshComponent = sphereEntity.getMesh();
-  const sphereMesh = new Rn.Mesh();
+  const sphereMesh = new Rn.Mesh(engine);
   sphereMesh.addPrimitive(spherePrimitive);
   sphereMeshComponent.setMesh(sphereMesh);
   // Camera
-  const cameraEntity = Rn.createCameraControllerEntity();
+  const cameraEntity = Rn.createCameraControllerEntity(engine, true);
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000;
@@ -135,15 +134,15 @@ async function setupRenderPassMain() {
   const controller = cameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.setTarget(planeEntity);
   // renderPass
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.toClearColorBuffer = true;
   renderPass.addEntities([planeEntity, sphereEntity]);
   return renderPass;
 }
 
 function setupRenderPassFxaa(renderable: Promise<Rn.AbstractTexture>) {
-  const fxaaMaterial = Rn.MaterialHelper.createFXAA3QualityMaterial();
-  const renderPassFxaa = Rn.RenderPassHelper.createScreenDrawRenderPass(fxaaMaterial);
+  const fxaaMaterial = Rn.MaterialHelper.createFXAA3QualityMaterial(engine);
+  const renderPassFxaa = Rn.RenderPassHelper.createScreenDrawRenderPass(engine, fxaaMaterial);
   fxaaMaterial.setTextureParameterAsPromise('baseColorTexture', renderable);
 
   return renderPassFxaa;

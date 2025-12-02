@@ -8,6 +8,7 @@ import { Is } from '../../misc/Is';
 import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
 import type { PhysicsStrategy } from '../../physics/PhysicsStrategy';
 import { VRMSpringBonePhysicsStrategy } from '../../physics/VRMSpring/VRMSpringBonePhysicsStrategy';
+import type { Engine } from '../../system/Engine';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
@@ -22,13 +23,20 @@ export class PhysicsComponent extends Component {
 
   /**
    * Creates a new PhysicsComponent instance.
+   * @param engine - The engine instance
    * @param entityUid - The unique identifier of the entity this component belongs to
    * @param componentSid - The component's serial identifier
    * @param entityComponent - The entity repository managing this component
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean) {
-    super(entityUid, componentSid, entityComponent, isReUse);
+  constructor(
+    engine: Engine,
+    entityUid: EntityUID,
+    componentSid: ComponentSID,
+    entityComponent: EntityRepository,
+    isReUse: boolean
+  ) {
+    super(engine, entityUid, componentSid, entityComponent, isReUse);
 
     this.moveStageTo(ProcessStage.Logic);
   }

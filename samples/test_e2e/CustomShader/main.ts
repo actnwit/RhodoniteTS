@@ -7,13 +7,13 @@ declare const window: any;
 // Init Rhodonite
 Rn.Config.cgApiDebugConsoleOutput = true;
 const processApproach = getProcessApproach(Rn);
-await Rn.System.init({
+const engine = await Rn.Engine.init({
   approach: processApproach,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 Rn.Logger.logLevel = Rn.LogLevel.Info;
 
-const light = Rn.createLightEntity();
+const light = Rn.createLightEntity(engine);
 light.getLight().type = Rn.LightType.Point;
 light.getLight().color = Rn.Vector3.fromCopyArray([1, 0, 0]);
 light.position = Rn.Vector3.fromCopy3(0, 0, 1);
@@ -22,7 +22,7 @@ light.getLight().intensity = 0.2;
 // Plane
 const material = createCustomShader();
 material.setParameter('shadingModel', 2);
-const planeEntity = Rn.MeshHelper.createPlane({ material });
+const planeEntity = Rn.MeshHelper.createPlane(engine, { material });
 planeEntity.localEulerAngles = Rn.Vector3.fromCopy3(Math.PI * 0.5, 0, 0);
 planeEntity.localScale = Rn.Vector3.fromCopy3(1, 1, 1);
 planeEntity.localPosition = Rn.Vector3.fromCopy3(0, 0, 0.01);
@@ -30,7 +30,7 @@ planeEntity.localPosition = Rn.Vector3.fromCopy3(0, 0, 0.01);
 // Render Loop
 let count = 0;
 
-Rn.System.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (!window._rendered && count > 0) {
     window._rendered = true;
     const p = document.createElement('p');
@@ -39,7 +39,7 @@ Rn.System.startRenderLoop(() => {
     document.body.appendChild(p);
   }
 
-  Rn.System.processAuto();
+  engine.processAuto();
   count++;
 });
 
@@ -452,7 +452,7 @@ fn main (
     shaderStage: 'fragment',
     isFragmentShader: true,
   };
-  const materialContent = new Rn.CustomMaterialContent({
+  const materialContent = new Rn.CustomMaterialContent(engine, {
     name: 'CustomShader',
     isMorphing: false,
     isSkinning: true,
@@ -464,7 +464,7 @@ fn main (
     additionalShaderSemanticInfo: [],
   });
 
-  const material = Rn.MaterialHelper.createMaterial(materialContent);
+  const material = Rn.MaterialHelper.createMaterial(engine, materialContent);
   material.addShaderDefine('RN_IS_LIGHTING');
   material.addShaderDefine('RN_IS_SKINNING');
 

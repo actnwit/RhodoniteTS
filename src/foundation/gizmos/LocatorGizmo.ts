@@ -6,6 +6,7 @@ import { Primitive } from '../geometry/Primitive';
 import type { IMeshEntity } from '../helpers/EntityHelper';
 import { Vector3 } from '../math/Vector3';
 import { Is } from '../misc/Is';
+import type { Engine } from '../system/Engine';
 import { Gizmo } from './Gizmo';
 
 /**
@@ -65,14 +66,14 @@ export class LocatorGizmo extends Gizmo {
       return;
     }
 
-    this.__topEntity = createMeshEntity();
+    this.__topEntity = createMeshEntity(this.__engine);
     this.__topEntity!.tryToSetUniqueName(`LocatorGizmo_of_${this.__target.uniqueName}`, true);
     this.__topEntity!.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix = true;
     this.__target.getSceneGraph()._addGizmoChild(this.__topEntity!.getSceneGraph());
 
     const sceneGraphComponent = this.__topEntity!.tryToGetMesh()!;
-    LocatorGizmo.__mesh = new Mesh();
-    LocatorGizmo.__mesh.addPrimitive(LocatorGizmo.__generatePrimitive());
+    LocatorGizmo.__mesh = new Mesh(this.__engine);
+    LocatorGizmo.__mesh.addPrimitive(LocatorGizmo.__generatePrimitive(this.__engine));
     sceneGraphComponent.setMesh(LocatorGizmo.__mesh);
 
     this.setGizmoTag();
@@ -113,7 +114,7 @@ export class LocatorGizmo extends Gizmo {
    * Creates three colored lines: red for X-axis, green for Y-axis, and blue for Z-axis.
    * @returns The primitive object containing the axis line geometry and colors
    */
-  private static __generatePrimitive(): Primitive {
+  private static __generatePrimitive(engine: Engine): Primitive {
     const positions = new Float32Array([
       // X axis
       0,
@@ -151,7 +152,7 @@ export class LocatorGizmo extends Gizmo {
       0, 0, 1, 0, 0, 1,
     ]);
 
-    const primitive = Primitive.createPrimitive({
+    const primitive = Primitive.createPrimitive(engine, {
       attributeSemantics: [VertexAttribute.Position.XYZ, VertexAttribute.Color0.XYZ],
       attributes: [positions, color],
       primitiveMode: PrimitiveMode.Lines,

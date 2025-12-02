@@ -3,7 +3,7 @@ import MergeVectorShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/no
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
-import { SystemState } from '../../system/SystemState';
+import { EngineState } from '../../system/EngineState';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 /**
@@ -164,7 +164,7 @@ export class MergeVectorShaderNode extends AbstractShaderNode {
     let rowStr = '';
     if (varInputNames[i].length > 0 && varOutputNames[i].length > 0) {
       const dummyOutputVarDefines =
-        SystemState.currentProcessApproach === ProcessApproach.WebGPU
+        EngineState.currentProcessApproach === ProcessApproach.WebGPU
           ? [
               `var dummyXYZW_${i}: vec4<f32>;`,
               `var dummyXYZ_${i}: vec3<f32>;`,
@@ -192,7 +192,7 @@ export class MergeVectorShaderNode extends AbstractShaderNode {
         }
       }
 
-      if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
         for (let i = 0; i < dummyOutputArguments.length; i++) {
           dummyOutputArguments[i] = `&${dummyOutputArguments[i]}`;
         }

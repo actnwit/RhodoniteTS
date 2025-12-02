@@ -14,9 +14,9 @@ import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
+import type { Engine } from '../foundation/system/Engine';
+import { EngineState } from '../foundation/system/EngineState';
 import { ModuleManager } from '../foundation/system/ModuleManager';
-import { System } from '../foundation/system/System';
-import { SystemState } from '../foundation/system/SystemState';
 import type { Index } from '../types/CommonTypes';
 import type { WebGLContextWrapper } from '../webgl/WebGLContextWrapper';
 import type { WebGLResourceRepository } from '../webgl/WebGLResourceRepository';
@@ -45,7 +45,7 @@ const defaultUserPositionInVR = Vector3.fromCopyArray([0.0, 1.1, 0]);
  * ```
  */
 export class WebXRSystem {
-  private static __instance: WebXRSystem;
+  private __engine: Engine;
   private __xrSession?: XRSession;
   private __xrReferenceSpace?: XRReferenceSpace;
   private __webglLayer?: XRWebGLLayer;
@@ -78,15 +78,16 @@ export class WebXRSystem {
    * Initializes the viewer entity and left/right camera entities for stereo rendering.
    * Sets up the scene graph hierarchy with cameras as children of the viewer entity.
    */
-  private constructor() {
-    this.__viewerEntity = createGroupEntity();
+  private constructor(engine: Engine) {
+    this.__engine = engine;
+    this.__viewerEntity = createGroupEntity(engine);
     this.__viewerEntity.tryToSetUniqueName('WebXR Viewer', true);
     this.__viewerEntity.tryToSetTag({
       tag: 'type',
       value: 'background-assets',
     });
 
-    this.__leftCameraEntity = createCameraEntity();
+    this.__leftCameraEntity = createCameraEntity(engine, false);
     this.__leftCameraEntity.tryToSetUniqueName('WebXR Left Camera', true);
     this.__leftCameraEntity.tryToSetTag({
       tag: 'type',
@@ -94,7 +95,7 @@ export class WebXRSystem {
     });
     this.__leftCameraEntity.getCamera()._xrLeft = true;
 
-    this.__rightCameraEntity = createCameraEntity();
+    this.__rightCameraEntity = createCameraEntity(engine, false);
     this.__rightCameraEntity.tryToSetUniqueName('WebXR Right Camera', true);
     this.__rightCameraEntity.tryToSetTag({
       tag: 'type',
@@ -130,15 +131,15 @@ export class WebXRSystem {
     this.__basePath = basePath;
     await ModuleManager.getInstance().loadModule('xr');
 
-    const isWebGPU = SystemState.currentProcessApproach === ProcessApproach.WebGPU;
+    const isWebGPU = EngineState.currentProcessApproach === ProcessApproach.WebGPU;
     if (isWebGPU) {
-      const webgpuDeviceWrapper = CGAPIResourceRepository.getWebGpuResourceRepository().getWebGpuDeviceWrapper();
+      const webgpuDeviceWrapper = this.__engine.webGpuResourceRepository.getWebGpuDeviceWrapper();
       if (webgpuDeviceWrapper == null) {
         Logger.error('WebGPU Device Wrapper is not ready yet.');
         return [];
       }
     } else {
-      const glw = CGAPIResourceRepository.getWebGLResourceRepository().currentWebGLContextWrapper;
+      const glw = this.__engine.webglResourceRepository.currentWebGLContextWrapper;
       if (glw == null) {
         Logger.error('WebGL Context is not ready yet.');
         return [];
@@ -159,7 +160,7 @@ export class WebXRSystem {
         paragraph.appendChild(anchor);
 
         if (isWebGPU) {
-          const canvas = CGAPIResourceRepository.getWebGpuResourceRepository().getWebGpuDeviceWrapper().canvas;
+          const canvas = this.__engine.webGpuResourceRepository.getWebGpuDeviceWrapper().canvas;
           canvas.parentNode!.insertBefore(paragraph, canvas);
           window.addEventListener('click', this.enterWebXR.bind(this) as any);
         } else {
@@ -214,11 +215,11 @@ export class WebXRSystem {
     callbackOnXrSessionEnd: () => void;
     profilePriorities: string[];
   }) {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
 
     if (cgApiResourceRepository != null && this.__isReadyForWebXR) {
       let referenceSpace: XRReferenceSpace;
-      const isWebGPU = SystemState.currentProcessApproach === ProcessApproach.WebGPU;
+      const isWebGPU = EngineState.currentProcessApproach === ProcessApproach.WebGPU;
       const requiredFeatures: string[] = isWebGPU ? ['webgpu'] : [];
       const xrSession = (await navigator.xr!.requestSession('immersive-vr', { requiredFeatures })) as XRSession;
 
@@ -236,11 +237,11 @@ export class WebXRSystem {
         this.__requestedToEnterWebXR = false;
         this.__xrInputSources.length = 0;
         this.__setWebXRMode(false);
-        MaterialRepository._makeShaderInvalidateToAllMaterials();
+        this.__engine.materialRepository._makeShaderInvalidateToAllMaterials();
         this.__defaultPositionInLocalSpaceMode = defaultUserPositionInVR;
         Logger.info('XRSession ends.');
-        System.stopRenderLoop();
-        System.restartRenderLoop();
+        this.__engine.stopRenderLoop();
+        this.__engine.restartRenderLoop();
         callbackOnXrSessionEnd();
       });
 
@@ -265,9 +266,9 @@ export class WebXRSystem {
       this.__xrReferenceSpace = referenceSpace;
 
       this.__xrSession = xrSession;
-      System.stopRenderLoop();
+      this.__engine.stopRenderLoop();
       if (isWebGPU) {
-        const webgpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
+        const webgpuResourceRepository = this.__engine.webGpuResourceRepository;
         const webgpuDeviceWrapper = webgpuResourceRepository.getWebGpuDeviceWrapper();
         const webgpuDevice = webgpuDeviceWrapper.gpuDevice;
         const xrGpuBinding = new window.XRGPUBinding(xrSession, webgpuDevice);
@@ -282,7 +283,7 @@ export class WebXRSystem {
         await this.__setupWebGLLayer(xrSession, callbackOnXrSessionStart);
       }
       this.__requestedToEnterWebXR = true;
-      System.restartRenderLoop();
+      this.__engine.restartRenderLoop();
       Logger.warn('End of enterWebXR.');
       return promise;
     }
@@ -407,7 +408,7 @@ export class WebXRSystem {
    * @returns True if multiview VR rendering is supported.
    */
   isMultiView() {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     return cgApiResourceRepository.isSupportMultiViewVRRendering();
   }
 
@@ -477,12 +478,8 @@ export class WebXRSystem {
    *
    * @returns The singleton WebXRSystem instance.
    */
-  static getInstance() {
-    if (!this.__instance) {
-      this.__instance = new WebXRSystem();
-    }
-
-    return this.__instance;
+  static init(engine: Engine): WebXRSystem {
+    return new WebXRSystem(engine);
   }
 
   /// Friend methods
@@ -695,7 +692,12 @@ export class WebXRSystem {
     this.__xrInputSources.length = 0;
     for (const xrInputSource of event.added) {
       this.__xrInputSources.push(xrInputSource);
-      const controller = await createMotionController(xrInputSource, this.__basePath as string, profilePriorities);
+      const controller = await createMotionController(
+        this.__engine,
+        xrInputSource,
+        this.__basePath as string,
+        profilePriorities
+      );
       if (Is.exist(controller)) {
         this.__controllerEntities.push(controller);
         this.__viewerEntity.getSceneGraph()!.addChild(controller.getSceneGraph()!);
@@ -800,7 +802,7 @@ export class WebXRSystem {
         depthNear: 0.01,
         depthFar: 1000,
       });
-      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const webglResourceRepository = this.__engine.webglResourceRepository;
       this.__canvasWidthForVR = webglLayer.framebufferWidth;
       this.__canvasHeightForVR = webglLayer.framebufferHeight;
       Logger.info(this.__canvasWidthForVR.toString());
@@ -817,7 +819,7 @@ export class WebXRSystem {
       // this.__webglStereoUtil = new WebGLStereoUtil(gl);
       // }
 
-      MaterialRepository._makeShaderInvalidateToAllMaterials();
+      this.__engine.materialRepository._makeShaderInvalidateToAllMaterials();
 
       webglResourceRepository.resizeCanvas(this.__canvasWidthForVR, this.__canvasHeightForVR);
       this.__setWebXRMode(true);
@@ -834,7 +836,7 @@ export class WebXRSystem {
   ) {
     xrSession.updateRenderState({ layers: [projectionLayer] });
 
-    const webgpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
+    const webgpuResourceRepository = this.__engine.webGpuResourceRepository;
     const webgpuDeviceWrapper = webgpuResourceRepository.getWebGpuDeviceWrapper();
     const canvas = webgpuDeviceWrapper.canvas;
     const projectionLayerTyped = projectionLayer as XRProjectionLayer;
@@ -843,7 +845,7 @@ export class WebXRSystem {
     let resolvedHeight = projectionLayerTyped?.textureHeight ?? 0;
 
     if (resolvedWidth <= 0 || resolvedHeight <= 0) {
-      const [currentWidth, currentHeight] = System.getCanvasSize();
+      const [currentWidth, currentHeight] = this.__engine.getCanvasSize();
       resolvedWidth = currentWidth;
       resolvedHeight = currentHeight;
     }
@@ -861,7 +863,7 @@ export class WebXRSystem {
       Logger.warn('Unable to resolve XR canvas size during WebGPU layer setup. Deferring resize until first frame.');
     }
 
-    MaterialRepository._makeShaderInvalidateToAllMaterials();
+    this.__engine.materialRepository._makeShaderInvalidateToAllMaterials();
     this.__setWebXRMode(true);
     callbackOnXrSessionStart();
   }
@@ -876,7 +878,7 @@ export class WebXRSystem {
   private __updateView(xrFrame: XRFrame) {
     this.__xrViewerPose = xrFrame.getViewerPose(this.__xrReferenceSpace!);
     this.__setCameraInfoFromXRViews(this.__xrViewerPose!);
-    const isWebGPU = SystemState.currentProcessApproach === ProcessApproach.WebGPU;
+    const isWebGPU = EngineState.currentProcessApproach === ProcessApproach.WebGPU;
     if (isWebGPU) {
       const view = this.__xrViewerPose!.views[0];
       const subImage = this.__xrGpuBinding!.getViewSubImage(this.__xrProjectionLayerWebGPU!, view);
@@ -886,14 +888,14 @@ export class WebXRSystem {
       if (resolvedWidth > 0 && resolvedHeight > 0) {
         this.__canvasWidthForVR = resolvedWidth;
         this.__canvasHeightForVR = resolvedHeight;
-        const webgpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
+        const webgpuResourceRepository = this.__engine.webGpuResourceRepository;
         webgpuResourceRepository.resizeCanvas(this.__canvasWidthForVR, this.__canvasHeightForVR);
       } else {
         Logger.warn('XRWebGPU subImage returned zero-sized extent. Skipping canvas resize for this frame.');
       }
-      SystemState.xrPoseWebGPU = this.__xrViewerPose;
-      SystemState.xrGpuBinding = this.__xrGpuBinding;
-      SystemState.xrProjectionLayerWebGPU = this.__xrProjectionLayerWebGPU;
+      EngineState.xrPoseWebGPU = this.__xrViewerPose;
+      EngineState.xrGpuBinding = this.__xrGpuBinding;
+      EngineState.xrProjectionLayerWebGPU = this.__xrProjectionLayerWebGPU;
     }
   }
 

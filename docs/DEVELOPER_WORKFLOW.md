@@ -176,7 +176,7 @@ test('YourComponent should initialize correctly', () => {
   const entityRepository = new EntityRepository();
   const entity = entityRepository.createEntity();
   const component = entity.addComponent(YourComponent);
-  
+
   expect(component).toBeDefined();
   expect(component.componentType).toBe(ComponentType.YourComponent);
 });
@@ -185,7 +185,7 @@ test('YourComponent should handle data correctly', () => {
   // Test component logic
   const component = createTestComponent();
   component.setData(testData);
-  
+
   expect(component.getData()).toEqual(expectedData);
 });
 ```
@@ -210,7 +210,7 @@ import Rn from '../../../dist/esmdev/index.js';
 
 export default async function() {
   // Initialize Rhodonite
-  await Rn.System.init({
+  await Rn.Engine.init({
     approach: Rn.ProcessApproach.DataTexture,
     canvas: document.getElementById('world') as HTMLCanvasElement,
   });
@@ -218,10 +218,10 @@ export default async function() {
   // Create your scene
   const entity = Rn.EntityRepository.createEntity();
   const yourComponent = entity.addComponent(YourComponent);
-  
+
   // Setup rendering
-  Rn.System.startRenderLoop(() => {
-    Rn.System.processAuto();
+  Rn.Engine.startRenderLoop(() => {
+    Rn.Engine.processAuto();
   });
 }
 ```
@@ -276,7 +276,7 @@ yarn doc                    # Generate updated API docs (if needed)
 - name: Install dependencies
   run: yarn install
 
-- name: Check code quality  
+- name: Check code quality
   run: yarn check
 
 - name: Build library
@@ -306,7 +306,7 @@ yarn build-esm-dev          # ESM development build
 yarn build-iife-dev         # IIFE development bundle
 
 # Production builds (optimized)
-yarn build-esm-prod         # ESM production build  
+yarn build-esm-prod         # ESM production build
 yarn build-iife-prod        # IIFE production bundle (minified)
 
 # Complete build
@@ -476,7 +476,7 @@ const memoryInfo = Rn.MemoryManager.getMemoryInfo();
 console.log('Memory usage:', memoryInfo);
 
 // Performance monitoring
-const stats = Rn.System.getPerformanceStats();
+const stats = Rn.Engine.getPerformanceStats();
 console.log('Frame time:', stats.frameTime);
 console.log('Draw calls:', stats.drawCalls);
 ```

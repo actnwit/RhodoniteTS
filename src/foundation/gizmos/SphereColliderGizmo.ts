@@ -7,6 +7,7 @@ import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
 import { Is } from '../misc/Is';
 import type { SphereCollider } from '../physics/VRMSpring/SphereCollider';
+import type { Engine } from '../system/Engine';
 import { Gizmo } from './Gizmo';
 
 /**
@@ -21,10 +22,11 @@ export class SphereColliderGizmo extends Gizmo {
 
   /**
    * Creates a new SphereColliderGizmo instance
+   * @param engine - The engine instance
    * @param sphereCollider - The sphere collider to visualize
    */
-  constructor(sphereCollider: SphereCollider) {
-    super(sphereCollider.baseSceneGraph.entity as ISceneGraphEntity);
+  constructor(engine: Engine, sphereCollider: SphereCollider) {
+    super(engine, sphereCollider.baseSceneGraph.entity as ISceneGraphEntity);
     this.__sphereCollider = sphereCollider;
   }
 
@@ -42,13 +44,13 @@ export class SphereColliderGizmo extends Gizmo {
       return;
     }
 
-    this.__topEntity = createGroupEntity();
+    this.__topEntity = createGroupEntity(this.__engine);
     this.__topEntity.tryToSetUniqueName(`SphereColliderGizmo_of_${this.__target.uniqueName}`, true);
     this.__topEntity.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix = true;
     targetSceneGraph._addGizmoChild(this.__topEntity.getSceneGraph()!);
 
     // Create a sphere mesh with the same radius as the collider
-    const material = MaterialHelper.createPbrUberMaterial({
+    const material = MaterialHelper.createPbrUberMaterial(this.__engine, {
       isLighting: false,
       isSkinning: false,
       isMorphing: false,
@@ -57,7 +59,7 @@ export class SphereColliderGizmo extends Gizmo {
     material.setParameter('wireframe', Vector3.fromCopy3(1, 0, 1));
     // Set semi-transparent green color
     material.setParameter('baseColorFactor', Vector4.fromCopy4(0.0, 1.0, 0.0, 1.0));
-    const sphereEntity = MeshHelper.createSphere({
+    const sphereEntity = MeshHelper.createSphere(this.__engine, {
       radius: this.__sphereCollider.radius,
       widthSegments: 16,
       heightSegments: 12,

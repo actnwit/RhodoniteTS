@@ -8,6 +8,7 @@ import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
 import { Is } from '../misc/Is';
 import type { CapsuleCollider } from '../physics/VRMSpring/CapsuleCollider';
+import type { Engine } from '../system/Engine';
 import { Gizmo } from './Gizmo';
 
 /**
@@ -29,8 +30,8 @@ export class CapsuleColliderGizmo extends Gizmo {
    * Creates a new CapsuleColliderGizmo instance
    * @param capsuleCollider - The capsule collider to visualize
    */
-  constructor(capsuleCollider: CapsuleCollider) {
-    super(capsuleCollider.baseSceneGraph.entity as ISceneGraphEntity);
+  constructor(engine: Engine, capsuleCollider: CapsuleCollider) {
+    super(engine, capsuleCollider.baseSceneGraph.entity as ISceneGraphEntity);
     this.__capsuleCollider = capsuleCollider;
   }
 
@@ -48,7 +49,7 @@ export class CapsuleColliderGizmo extends Gizmo {
       return;
     }
 
-    this.__topEntity = createGroupEntity();
+    this.__topEntity = createGroupEntity(this.__engine);
     this.__topEntity.tryToSetUniqueName(`CapsuleColliderGizmo_of_${this.__target.uniqueName}`, true);
     this.__topEntity.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix = true;
     targetSceneGraph._addGizmoChild(this.__topEntity.getSceneGraph()!);
@@ -59,17 +60,18 @@ export class CapsuleColliderGizmo extends Gizmo {
     const height = Vector3.subtract(tailPos, headPos).length();
 
     // Create a capsule mesh with the same dimensions as the collider
-    const material = MaterialHelper.createPbrUberMaterial({
+    const material = MaterialHelper.createPbrUberMaterial(this.__engine, {
       isLighting: false,
       isSkinning: false,
       isMorphing: false,
+      maxInstancesNumber: 1,
     });
     material.addShaderDefine('RN_USE_WIREFRAME');
     material.setParameter('wireframe', Vector3.fromCopy3(1, 0, 1));
     // Set semi-transparent green color
     material.setParameter('baseColorFactor', Vector4.fromCopy4(0.0, 1.0, 0.0, 1.0));
 
-    const capsuleEntity = MeshHelper.createCapsule({
+    const capsuleEntity = MeshHelper.createCapsule(this.__engine, {
       radius: this.__capsuleCollider.radius,
       height: height,
       widthSegments: 16,

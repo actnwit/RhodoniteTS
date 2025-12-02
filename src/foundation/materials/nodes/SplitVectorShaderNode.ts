@@ -3,7 +3,7 @@ import SplitVectorShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/no
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
-import { SystemState } from '../../system/SystemState';
+import { EngineState } from '../../system/EngineState';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 /**
@@ -104,7 +104,7 @@ export class SplitVectorShaderNode extends AbstractShaderNode {
    * @throws {Error} When no valid input connection is found in WebGPU mode
    */
   getShaderFunctionNameDerivative() {
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       for (const inputConnection of this.inputConnections) {
         if (inputConnection != null) {
           if (inputConnection.inputNameOfThis === 'xyzw') {
@@ -146,7 +146,7 @@ export class SplitVectorShaderNode extends AbstractShaderNode {
     let rowStr = '';
     if (varInputNames[i].length > 0 && varOutputNames[i].length > 0) {
       const dummyOutputVarDefines =
-        SystemState.currentProcessApproach === ProcessApproach.WebGPU
+        EngineState.currentProcessApproach === ProcessApproach.WebGPU
           ? [
               `var dummyXYZ_${i}: vec3<f32>;`,
               `var dummyXY_${i}: vec2<f32>;`,
@@ -202,7 +202,7 @@ export class SplitVectorShaderNode extends AbstractShaderNode {
         }
       }
 
-      if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
         for (let i = 0; i < dummyOutputArguments.length; i++) {
           dummyOutputArguments[i] = `&${dummyOutputArguments[i]}`;
         }

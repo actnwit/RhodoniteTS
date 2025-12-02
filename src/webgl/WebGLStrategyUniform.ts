@@ -33,8 +33,9 @@ import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRep
 import type { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
 import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
+import type { Engine } from '../foundation/system/Engine';
+import { EngineState } from '../foundation/system/EngineState';
 import { ModuleManager } from '../foundation/system/ModuleManager';
-import { SystemState } from '../foundation/system/SystemState';
 import type { CGAPIResourceHandle, Count, Index, PrimitiveUID, WebGLResourceHandle } from '../types/CommonTypes';
 import type { WebXRSystem } from '../xr/WebXRSystem';
 import type { RnXR } from '../xr/main';
@@ -54,8 +55,7 @@ declare const spector: any;
  * @implements {WebGLStrategy}
  */
 export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
-  private static __instance: WebGLStrategyUniform;
-  private __webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
+  private __engine: Engine;
   private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __morphOffsetsUniformBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __morphWeightsUniformBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -69,14 +69,12 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   private __lastMorphOffsetsUniformDataSize = -1;
   private __lastMorphWeightsUniformDataSize = -1;
   private __lightComponents?: LightComponent[];
-  private static __globalDataRepository = GlobalDataRepository.getInstance();
-  private static __webxrSystem: WebXRSystem;
   private __countOfBlendShapeComponents = -1;
   /**
    * Shader semantics information for component matrices used in uniform rendering strategy.
    * Defines world matrix, normal matrix, billboard flag, and vertex attributes existence array.
    */
-  private static getComponentMatricesInfoArray(): ShaderSemanticsInfo[] {
+  private static getComponentMatricesInfoArray(engine: Engine): ShaderSemanticsInfo[] {
     const shaderSemanticsInfos: ShaderSemanticsInfo[] = [
       {
         semantic: 'vertexAttributesExistenceArray',
@@ -89,7 +87,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       },
     ];
 
-    const memberInfo = Component.getMemberInfo();
+    const memberInfo = Component.getMemberInfo(engine);
     memberInfo.forEach((mapMemberNameMemberInfo, _componentClass) => {
       mapMemberNameMemberInfo.forEach((memberInfo, memberName) => {
         shaderSemanticsInfos.push({
@@ -110,15 +108,17 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   /**
    * Private constructor to enforce singleton pattern.
    */
-  private constructor() {}
+  private constructor(engine: Engine) {
+    this.__engine = engine;
+  }
 
   /**
    * method definitions for component data access for uniform-based rendering.
    * Provides GLSL functions for accessing component data through uniforms.
    */
-  private static __getComponentDataAccessMethodDefinitions_uniform(shaderType: ShaderTypeEnum) {
+  private static __getComponentDataAccessMethodDefinitions_uniform(engine: Engine, shaderType: ShaderTypeEnum) {
     let str = '';
-    const memberInfo = Component.getMemberInfo();
+    const memberInfo = Component.getMemberInfo(engine);
     memberInfo.forEach((mapMemberNameMemberInfo, _componentClass) => {
       mapMemberNameMemberInfo.forEach((memberInfo, memberName) => {
         if (memberInfo.shaderType !== shaderType && memberInfo.shaderType !== ShaderType.VertexAndPixelShader) {
@@ -161,7 +161,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
     return str;
   }
 
-  private static __getMorphedPositionGetter(): string {
+  private static __getMorphedPositionGetter(engine: Engine): string {
     const morphUniformDataTargetNumbers = Primitive.getMorphUniformDataTargetNumbers();
     const morphUniformDataTargetNumbersStr = `
     int morphUniformDataTargetNumbers[] = int[](${morphUniformDataTargetNumbers.join(', ')});
@@ -170,7 +170,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
     const morphUniformDataOffsetsStr = `
     int morphUniformDataOffsets[] = int[](${morphUniformDataOffsets.join(', ')});
     `;
-    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform(engine);
     const blendShapeUniformDataOffsetsStr = `
     int blendShapeUniformDataOffsets[] = int[](${blendShapeUniformDataOffsets.join(', ')});
     `;
@@ -220,15 +220,16 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
    * @returns The CGAPIResourceHandle of the created or existing shader program
    */
   public setupShaderForMaterial(material: Material, primitive: Primitive): CGAPIResourceHandle {
-    const webglResourceRepository = WebGLResourceRepository.getInstance();
+    const webglResourceRepository = this.__engine.webglResourceRepository;
     const _glw = webglResourceRepository.currentWebGLContextWrapper!;
 
     const [programUid, newOne] = material._createProgramWebGL(
-      WebGLStrategyUniform.__getComponentDataAccessMethodDefinitions_uniform(ShaderType.VertexShader),
-      WebGLStrategyUniform.__getComponentDataAccessMethodDefinitions_uniform(ShaderType.PixelShader),
+      this.__engine,
+      WebGLStrategyUniform.__getComponentDataAccessMethodDefinitions_uniform(this.__engine, ShaderType.VertexShader),
+      WebGLStrategyUniform.__getComponentDataAccessMethodDefinitions_uniform(this.__engine, ShaderType.PixelShader),
       ShaderSemantics.getShaderPropertyOfGlobalDataRepository,
       ShaderSemantics.getShaderPropertyOfMaterial,
-      WebGLStrategyUniform.__getMorphedPositionGetter(),
+      WebGLStrategyUniform.__getMorphedPositionGetter(this.__engine),
       primitive
     );
 
@@ -237,7 +238,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
 
       material._setUniformLocationsOfMaterialNodes(true, primitive);
 
-      const shaderSemanticsInfos = WebGLStrategyUniform.getComponentMatricesInfoArray();
+      const shaderSemanticsInfos = WebGLStrategyUniform.getComponentMatricesInfoArray(this.__engine);
       const shaderSemanticsInfosPointSprite = WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray();
 
       material._setupAdditionalUniformLocations(
@@ -246,7 +247,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         primitive
       );
 
-      WebGLStrategyUniform.__globalDataRepository._setUniformLocationsForUniformModeOnly(
+      this.__engine.globalDataRepository._setUniformLocationsForUniformModeOnly(
         material.getShaderProgramUid(primitive)
       );
 
@@ -286,7 +287,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
 
       material._setUniformLocationsOfMaterialNodes(true, primitive);
 
-      const shaderSemanticsInfos = WebGLStrategyUniform.getComponentMatricesInfoArray();
+      const shaderSemanticsInfos = WebGLStrategyUniform.getComponentMatricesInfoArray(this.__engine);
       const shaderSemanticsInfosPointSprite = WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray();
 
       material._setupAdditionalUniformLocations(
@@ -296,9 +297,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       );
     }
 
-    WebGLStrategyUniform.__globalDataRepository._setUniformLocationsForUniformModeOnly(
-      material.getShaderProgramUid(primitive)
-    );
+    this.__engine.globalDataRepository._setUniformLocationsForUniformModeOnly(material.getShaderProgramUid(primitive));
 
     return programUid;
   }
@@ -324,7 +323,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
     return true;
   }
 
-  private __updateMorphOffsetsUniformBuffersInner() {
+  private __updateMorphOffsetsUniformBuffersInner(engine: Engine) {
     const morphUniformDataOffsets = Primitive.getMorphUniformDataOffsets();
     for (let i = 0; i < Primitive.getPrimitiveCountHasMorph(); i++) {
       const primitive = Primitive.getPrimitiveHasMorph(i);
@@ -332,12 +331,12 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         for (let j = 0; j < primitive.targets.length; j++) {
           const target = primitive.targets[j];
           const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
-          const byteOffsetOfExistingBuffer = MemoryManager.getInstance().getByteOffsetOfExistingBuffers(
+          const byteOffsetOfExistingBuffer = this.__engine.memoryManager.getByteOffsetOfExistingBuffers(
             BufferUse.GPUVertexData,
             accessor.bufferView.buffer.indexOfTheBufferUsage
           );
           this.__uniformMorphOffsetsTypedArray![morphUniformDataOffsets[i] + j] =
-            (SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData +
+            (EngineState.totalSizeOfGPUShaderDataStorageExceptMorphData +
               byteOffsetOfExistingBuffer +
               accessor.byteOffsetInBuffer) /
             4 /
@@ -348,7 +347,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       }
     }
     const elementNumToCopy = morphUniformDataOffsets[morphUniformDataOffsets.length - 1];
-    this.__webglResourceRepository.updateUniformBuffer(
+    engine.webglResourceRepository.updateUniformBuffer(
       this.__morphOffsetsUniformBufferUid,
       this.__uniformMorphOffsetsTypedArray!,
       0,
@@ -356,7 +355,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
     );
   }
 
-  private __initMorphUniformBuffers() {
+  private __initMorphUniformBuffers(engine: Engine) {
     let needsRebindMorphUniformBuffers = false;
     const morphUniformDataOffsets = Primitive.getMorphUniformDataOffsets();
     const morphOffsetsUniformDataSize = Math.max(
@@ -367,7 +366,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
     if (morphOffsetsUniformDataSize !== this.__lastMorphOffsetsUniformDataSize) {
       // delete the old morph offsets uniform buffer
       if (this.__morphOffsetsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-        this.__webglResourceRepository.deleteUniformBuffer(this.__morphOffsetsUniformBufferUid);
+        engine.webglResourceRepository.deleteUniformBuffer(this.__morphOffsetsUniformBufferUid);
         this.__morphOffsetsUniformBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
       }
       // create the new morph offsets uniform buffer
@@ -376,15 +375,15 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         const inputArrayOffsets = new Uint32Array(morphOffsetsUniformDataSize);
         this.__uniformMorphOffsetsTypedArray = inputArrayOffsets;
         this.__morphOffsetsUniformBufferUid =
-          this.__webglResourceRepository.createUniformBufferWithBufferView(inputArrayOffsets);
-        this.__updateMorphOffsetsUniformBuffersInner();
+          engine.webglResourceRepository.createUniformBufferWithBufferView(inputArrayOffsets);
+        this.__updateMorphOffsetsUniformBuffersInner(engine);
       }
 
       this.__lastMorphOffsetsUniformDataSize = morphOffsetsUniformDataSize;
       needsRebindMorphUniformBuffers = true;
     }
 
-    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform(this.__engine);
     const blendShapeWeightsUniformDataSize = Math.max(
       Math.ceil(blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1] / 4) * 4 * 4,
       4
@@ -393,7 +392,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
     if (blendShapeWeightsUniformDataSize !== this.__lastMorphWeightsUniformDataSize) {
       // delete the old morph weights uniform buffer
       if (this.__morphWeightsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-        this.__webglResourceRepository.deleteUniformBuffer(this.__morphWeightsUniformBufferUid);
+        engine.webglResourceRepository.deleteUniformBuffer(this.__morphWeightsUniformBufferUid);
         this.__morphWeightsUniformBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
       }
 
@@ -402,7 +401,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         const inputArrayWeights = new Float32Array(blendShapeWeightsUniformDataSize);
         this.__uniformMorphWeightsTypedArray = inputArrayWeights;
         this.__morphWeightsUniformBufferUid =
-          this.__webglResourceRepository.createUniformBufferWithBufferView(inputArrayWeights);
+          engine.webglResourceRepository.createUniformBufferWithBufferView(inputArrayWeights);
         this.__updateMorphWeightsUniformBuffer();
       }
 
@@ -411,16 +410,16 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
     }
 
     if (needsRebindMorphUniformBuffers) {
-      this.__bindMorphUniformBuffers();
+      this.__bindMorphUniformBuffers(engine);
     }
   }
 
-  private __bindMorphUniformBuffers() {
+  private __bindMorphUniformBuffers(engine: Engine) {
     if (
       this.__morphOffsetsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid &&
       this.__morphWeightsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid
     ) {
-      this.__webglResourceRepository.setUniformBlockBindingForMorphOffsetsAndWeightsWithoutShaderProgram(
+      engine.webglResourceRepository.setUniformBlockBindingForMorphOffsetsAndWeightsWithoutShaderProgram(
         this.__morphOffsetsUniformBufferUid,
         this.__morphWeightsUniformBufferUid
       );
@@ -432,7 +431,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
    * Copies weight values from blend shape components to GPU-accessible uniform buffers.
    */
   private __updateMorphWeightsUniformBuffer() {
-    const memoryManager: MemoryManager = MemoryManager.getInstance();
+    const memoryManager = this.__engine.memoryManager;
     const blendShapeDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUVertexData);
     if (blendShapeDataBuffer == null) {
       return;
@@ -441,11 +440,10 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       return;
     }
 
-    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
-    const blendShapeComponents = ComponentRepository.getComponentsWithTypeWithoutFiltering(BlendShapeComponent) as (
-      | BlendShapeComponent
-      | undefined
-    )[];
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform(this.__engine);
+    const blendShapeComponents = this.__engine.componentRepository.getComponentsWithTypeWithoutFiltering(
+      BlendShapeComponent
+    ) as (BlendShapeComponent | undefined)[];
     for (let i = 0; i < blendShapeComponents.length; i++) {
       const blendShapeComponent = blendShapeComponents[i];
       const weights = blendShapeComponent != null ? blendShapeComponent!.weights : [];
@@ -455,7 +453,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
     }
     if (blendShapeComponents.length > 0) {
       const elementNumToCopy = blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1];
-      this.__webglResourceRepository.updateUniformBuffer(
+      this.__engine.webglResourceRepository.updateUniformBuffer(
         this.__morphWeightsUniformBufferUid,
         this.__uniformMorphWeightsTypedArray!,
         0,
@@ -470,17 +468,19 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
    * and prepares global rendering state.
    */
   prerender(): void {
-    this.__lightComponents = ComponentRepository.getComponentsWithType(LightComponent) as LightComponent[];
+    this.__lightComponents = this.__engine.componentRepository.getComponentsWithType(
+      LightComponent
+    ) as LightComponent[];
 
     // Setup Data Texture
     if (this.__dataTextureUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      const memoryManager: MemoryManager = MemoryManager.getInstance();
+      const memoryManager = this.__engine.memoryManager;
       const buffers: Buffer[] = memoryManager.getBuffers(BufferUse.GPUVertexData);
       if (buffers.length === 0) {
         return;
       }
 
-      const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
+      const glw = this.__engine.webglResourceRepository.currentWebGLContextWrapper;
       if (glw == null) {
         return;
       }
@@ -497,29 +497,32 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       });
       const floatDataTextureBuffer = new Float32Array(concatArrayBuffer);
 
-      this.__dataTextureUid = this.__webglResourceRepository.createTextureFromTypedArray(floatDataTextureBuffer, {
-        internalFormat: TextureFormat.RGBA32F,
-        width: dataTextureWidth,
-        height: dataTextureHeight,
-        format: PixelFormat.RGBA,
-        type: ComponentType.Float,
-        generateMipmap: false,
-      });
+      this.__dataTextureUid = this.__engine.webglResourceRepository.createTextureFromTypedArray(
+        floatDataTextureBuffer,
+        {
+          internalFormat: TextureFormat.RGBA32F,
+          width: dataTextureWidth,
+          height: dataTextureHeight,
+          format: PixelFormat.RGBA,
+          type: ComponentType.Float,
+          generateMipmap: false,
+        }
+      );
 
-      SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
+      EngineState.totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
     }
 
     if (
       BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForWeights ||
-      BlendShapeComponent.getCountOfBlendShapeComponents() !== this.__countOfBlendShapeComponents
+      BlendShapeComponent.getCountOfBlendShapeComponents(this.__engine) !== this.__countOfBlendShapeComponents
     ) {
       this.__updateMorphWeightsUniformBuffer();
       this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
-      this.__countOfBlendShapeComponents = BlendShapeComponent.getCountOfBlendShapeComponents();
-      MaterialRepository._makeShaderInvalidateToMorphMaterials();
+      this.__countOfBlendShapeComponents = BlendShapeComponent.getCountOfBlendShapeComponents(this.__engine);
+      this.__engine.materialRepository._makeShaderInvalidateToMorphMaterials();
     }
 
-    this.__updateMorphOffsetsUniformBuffers();
+    this.__updateMorphOffsetsUniformBuffers(this.__engine);
   }
 
   /**
@@ -531,9 +534,9 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
    * After calling this method, the data texture UID is reset to an invalid state,
    * and a new data texture will be created on the next rendering cycle.
    */
-  deleteDataTexture(): void {
+  deleteDataTexture(engine: Engine): void {
     if (this.__dataTextureUid != null) {
-      this.__webglResourceRepository.deleteTexture(this.__dataTextureUid);
+      engine.webglResourceRepository.deleteTexture(this.__dataTextureUid);
       this.__dataTextureUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     }
   }
@@ -575,13 +578,14 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
    * @param instanceIDBufferUid - Instance ID buffer handle (unused in uniform strategy)
    */
   attachVertexDataInner(
+    engine: Engine,
     mesh: Mesh,
     primitive: Primitive,
     primitiveUid: Index,
     glw: WebGLContextWrapper,
     instanceIDBufferUid: WebGLResourceHandle
   ) {
-    const vao = this.__webglResourceRepository.getWebGLResource(
+    const vao = engine.webglResourceRepository.getWebGLResource(
       mesh.getVaoUidsByPrimitiveUid(primitiveUid)
     ) as WebGLVertexArrayObjectOES;
 
@@ -589,8 +593,8 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       glw.bindVertexArray(vao);
     } else {
       const vaoHandles = primitive.vertexHandles!;
-      this.__webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, instanceIDBufferUid);
-      const ibo = this.__webglResourceRepository.getWebGLResource(vaoHandles.iboHandle!) as WebGLBuffer;
+      engine.webglResourceRepository.setVertexDataToPipeline(vaoHandles, primitive, instanceIDBufferUid);
+      const ibo = engine.webglResourceRepository.getWebGLResource(vaoHandles.iboHandle!) as WebGLBuffer;
       const gl = glw.getRawContext();
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
     }
@@ -618,26 +622,19 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
    *
    * @returns The singleton instance of WebGLStrategyUniform
    */
-  static getInstance() {
-    if (!this.__instance) {
-      this.__instance = new WebGLStrategyUniform();
-      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
-      WebGLStrategyUniform.__webxrSystem = webxrSystem;
-    }
-
-    return this.__instance;
+  static init(engine: Engine) {
+    return new WebGLStrategyUniform(engine);
   }
 
   common_$load(): void {
-    this.__initMorphUniformBuffers();
+    this.__initMorphUniformBuffers(this.__engine);
   }
 
-  private __updateMorphOffsetsUniformBuffers() {
+  private __updateMorphOffsetsUniformBuffers(engine: Engine) {
     const morphMaxIndex = Primitive.getPrimitiveCountHasMorph();
     if (morphMaxIndex !== this.__lastMorphMaxIndex) {
-      this.__updateMorphOffsetsUniformBuffersInner();
-      this.deleteDataTexture();
+      this.__updateMorphOffsetsUniformBuffersInner(engine);
+      this.deleteDataTexture(engine);
       this.__lastMorphMaxIndex = morphMaxIndex;
     }
   }
@@ -663,11 +660,11 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       spector.setMarker('|  |  Uniform:$render#');
     }
 
-    const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+    const glw = this.__engine.webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContextAsWebGL2();
 
     if (renderPass.isBufferLessRenderingMode()) {
-      this.__renderWithoutBuffers(gl, renderPass);
+      this.__renderWithoutBuffers(this.__engine, gl, renderPass);
       gl.depthMask(true);
       return true;
     }
@@ -731,14 +728,14 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
    * @param gl - WebGL2 rendering context
    * @param renderPass - The render pass containing material and rendering configuration
    */
-  private __renderWithoutBuffers(gl: WebGL2RenderingContext, renderPass: RenderPass) {
+  private __renderWithoutBuffers(engine: Engine, gl: WebGL2RenderingContext, renderPass: RenderPass) {
     // setup shader program
     const material: Material = renderPass.material!;
     const primitive: Primitive = renderPass._dummyPrimitiveForBufferLessRendering;
     setupShaderProgram(material, primitive, this);
 
     const shaderProgramUid = material.getShaderProgramUid(primitive);
-    const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
+    const shaderProgram = engine.webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
     gl.useProgram(shaderProgram);
     this.__lastShader = shaderProgramUid;
 
@@ -751,9 +748,9 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       isUniformMode: true,
     });
 
-    const isVrMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
+    const isVrMainPass = WebGLStrategyCommonMethod.isVrMainPass(this.__engine, renderPass);
     if ((shaderProgram as any).vrState != null && isVrMainPass) {
-      const vrState = GlobalDataRepository.getInstance().getValue('vrState', 0) as Vector2;
+      const vrState = this.__engine.globalDataRepository.getValue('vrState', 0) as Vector2;
       vrState._v[0] = isVrMainPass ? 1 : 0;
       vrState._v[1] = 0;
       (shaderProgram as any)._gl.uniform2iv((shaderProgram as any).vrState, vrState._v);
@@ -765,7 +762,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       gl.depthMask(false);
     }
 
-    this.__webglResourceRepository.setViewport(renderPass.getViewport());
+    engine.webglResourceRepository.setViewport(renderPass.getViewport());
 
     gl.drawArrays(
       renderPass._primitiveModeForBufferLessRendering.index,
@@ -803,8 +800,8 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
     const meshEntities = mesh.meshEntitiesInner;
 
     let renderedSomething = false;
-    const isVrMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
-    const displayCount = WebGLStrategyCommonMethod.getDisplayCount(isVrMainPass, WebGLStrategyUniform.__webxrSystem);
+    const isVrMainPass = WebGLStrategyCommonMethod.isVrMainPass(this.__engine, renderPass);
+    const displayCount = WebGLStrategyCommonMethod.getDisplayCount(isVrMainPass, this.__engine.webXRSystem);
     for (const entity of meshEntities) {
       if (entity.getSceneGraph()._isCulled) {
         continue;
@@ -812,6 +809,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       const meshComponent = entity.getMesh();
 
       this.attachVertexDataInner(
+        this.__engine,
         meshComponent.mesh!,
         primitive,
         primitiveUid,
@@ -820,7 +818,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       );
 
       const shaderProgramUid = material.getShaderProgramUid(primitive);
-      const shaderProgram = this.__webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
+      const shaderProgram = this.__engine.webglResourceRepository.getWebGLResource(shaderProgramUid)! as WebGLProgram;
 
       let firstTimeForShaderProgram = true;
       let firstTimeForMaterial = true;
@@ -835,8 +833,8 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         gl.useProgram(shaderProgram);
         this.bindDataTexture(gl, shaderProgram);
 
-        if (AnimationComponent.isAnimating) {
-          const time = GlobalDataRepository.getInstance().getValue('time', 0) as Scalar;
+        if (AnimationComponent.getIsAnimating(this.__engine)) {
+          const time = this.__engine.globalDataRepository.getValue('time', 0) as Scalar;
           (shaderProgram as any)._gl.uniform1f((shaderProgram as any).time, time._v[0]);
         }
 
@@ -850,7 +848,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
 
       for (let displayIdx = 0; displayIdx < displayCount; displayIdx++) {
         if (isVrMainPass) {
-          WebGLStrategyCommonMethod.setVRViewport(renderPass, displayIdx);
+          WebGLStrategyCommonMethod.setVRViewport(this.__engine, renderPass, displayIdx);
         }
 
         const renderingArg = {
@@ -873,6 +871,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
 
         if (firstTimeForShaderProgram) {
           material._setParametersToGpuWebGLPerShaderProgram({
+            engine: this.__engine,
             material,
             shaderProgram,
             firstTime: firstTimeForShaderProgram,
@@ -883,6 +882,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         if (firstTimeForMaterial) {
           WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
           material._setParametersToGpuWebGL({
+            engine: this.__engine,
             material,
             shaderProgram,
             firstTime: firstTimeForMaterial,
@@ -897,7 +897,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         });
 
         if ((shaderProgram as any).vrState != null && isVrMainPass) {
-          const vrState = GlobalDataRepository.getInstance().getValue('vrState', 0) as Vector2;
+          const vrState = this.__engine.globalDataRepository.getValue('vrState', 0) as Vector2;
           vrState._v[0] = isVrMainPass ? 1 : 0;
           vrState._v[1] = displayIdx;
           (shaderProgram as any)._gl.uniform2iv((shaderProgram as any).vrState, vrState._v);
@@ -929,9 +929,9 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
    */
   private bindDataTexture(gl: WebGLRenderingContext | WebGL2RenderingContext, shaderProgram: WebGLProgram) {
     gl.uniform1i((shaderProgram as any).dataTexture, 7);
-    this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
-    const samplerUid = this.__webglResourceRepository.createOrGetTextureSamplerRepeatNearest();
-    this.__webglResourceRepository.bindTextureSampler(7, samplerUid);
+    this.__engine.webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
+    const samplerUid = this.__engine.webglResourceRepository.createOrGetTextureSamplerRepeatNearest();
+    this.__engine.webglResourceRepository.bindTextureSampler(7, samplerUid);
   }
 
   // $render() {}

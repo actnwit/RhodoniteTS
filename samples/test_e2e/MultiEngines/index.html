@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Multi Engines</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <style>
+    main {
+      display: flex;
+    }
+
+    section {
+      background-color: darkgray;
+      padding: 10px;
+      margin: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1 class="header-title">Rhodonite E2E Test - Multi Engines</h1>
+  </header>
+  <main>
+    <div>
+      <h2>Canvas 1</h2>
+      <section class="test">
+        <h2>Rendering Test Image 1</h2>
+        <canvas id="world1" width="600" height="600"></canvas>
+        <div>
+          <button onclick="window.isAnimating = true;">Animate</button>
+          <button onclick="exportCanvas1ToGltf2()" id="exportGltf2Button">Export as glTF2</button>
+        </div>
+      </section>
+      <section class="correct">
+        <h2>Correct PNG Image 1</h2>
+        <img src="__image_snapshots__/test-js-regression-test-multi-engines-1-1-snap.png" />
+      </section>
+    </div>
+    <div>
+      <h2>Canvas 2</h2>
+      <section class="test">
+        <h2>Rendering Test Image 2</h2>
+        <canvas id="world2" width="600" height="600"></canvas>
+        <div>
+          <button onclick="window.isAnimating = true;">Animate</button>
+          <button onclick="exportCanvas2ToGltf2()" id="exportGltf2Button">Export as glTF2</button>
+        </div>
+      </section>
+      <section class="correct">
+        <h2>Correct PNG Image 2</h2>
+        <img src="__image_snapshots__/test-js-regression-test-multi-engines-2-1-snap.png" />
+      </section>
+    </div>
+  </main>
+  <script src="../../assets/navigate.js"></script>
+  <script type="module" src="./main.js"></script>
+</body>
+
+</html>

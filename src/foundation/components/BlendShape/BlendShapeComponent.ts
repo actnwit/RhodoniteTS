@@ -4,6 +4,7 @@ import { ComponentRepository } from '../../core/ComponentRepository';
 import type { IEntity } from '../../core/Entity';
 import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
+import type { Engine } from '../../system/Engine';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
@@ -22,13 +23,20 @@ export class BlendShapeComponent extends Component {
 
   /**
    * Creates a new BlendShapeComponent instance.
+   * @param engine - The engine instance
    * @param entityUid - The unique identifier of the entity this component belongs to
    * @param componentSid - The component system identifier
    * @param entityComponent - The entity repository for component management
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean) {
-    super(entityUid, componentSid, entityComponent, isReUse);
+  constructor(
+    engine: Engine,
+    entityUid: EntityUID,
+    componentSid: ComponentSID,
+    entityComponent: EntityRepository,
+    isReUse: boolean
+  ) {
+    super(engine, entityUid, componentSid, entityComponent, isReUse);
 
     this.moveStageTo(ProcessStage.Logic);
   }
@@ -107,11 +115,10 @@ export class BlendShapeComponent extends Component {
     BlendShapeComponent.__updateCount++;
   }
 
-  static getOffsetsInUniform(): Offset[] {
-    const blendShapeComponents = ComponentRepository.getComponentsWithTypeWithoutFiltering(BlendShapeComponent) as (
-      | BlendShapeComponent
-      | undefined
-    )[];
+  static getOffsetsInUniform(engine: Engine): Offset[] {
+    const blendShapeComponents = engine.componentRepository.getComponentsWithTypeWithoutFiltering(
+      BlendShapeComponent
+    ) as (BlendShapeComponent | undefined)[];
     const offsets: number[] = [0];
     for (let i = 0; i < blendShapeComponents.length; i++) {
       // Keep the original slot length even if the component was deleted (undefined) to avoid offset collapse
@@ -125,8 +132,8 @@ export class BlendShapeComponent extends Component {
     return offsets;
   }
 
-  static getCountOfBlendShapeComponents() {
-    return ComponentRepository.getComponentsWithType(BlendShapeComponent).length;
+  static getCountOfBlendShapeComponents(engine: Engine) {
+    return engine.componentRepository.getComponentsWithType(BlendShapeComponent).length;
   }
 
   /**

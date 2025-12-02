@@ -4,7 +4,7 @@ const p = document.createElement('p');
 document.body.appendChild(p);
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -13,7 +13,7 @@ await Rn.System.init({
 const expressions = [];
 
 // camera
-const cameraEntity = Rn.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000.0;
@@ -22,6 +22,7 @@ cameraComponent.aspect = 1.0;
 
 // gltf
 const mainExpression = await Rn.GltfImporter.importFromUrl(
+  engine,
   '../../../assets/gltf/glTF-Sample-Assets/Models/Triangle/glTF-Embedded/Triangle.gltf',
   {
     cameraComponent: cameraComponent,
@@ -39,7 +40,7 @@ controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 let count = 0;
 let tmpSpeed = controller.horizontalSpeed;
 
-Rn.System.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   switch (count) {
     case 1:
       controller.horizontalSpeed = 10.0;
@@ -90,7 +91,7 @@ Rn.System.startRenderLoop(() => {
       p.innerText = 'Moved.';
   }
 
-  Rn.System.process(expressions);
+  engine.process(expressions);
 
   count++;
 });

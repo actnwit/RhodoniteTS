@@ -5,7 +5,7 @@ let p: any;
 declare const window: any;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -16,7 +16,7 @@ const displayResolution = 800;
 const vrmModelRotation = Rn.Vector3.fromCopyArray([0, (3 / 4) * Math.PI, 0.0]);
 
 // camera
-const cameraEntity = Rn.createCameraEntity();
+const cameraEntity = Rn.createCameraEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000.0;
@@ -27,7 +27,7 @@ cameraComponent.aspect = 1.0;
 const expressions = [];
 
 // vrm
-const vrmExpression = await Rn.GltfImporter.importFromUrl('../../../assets/vrm/test.vrm', {
+const vrmExpression = await Rn.GltfImporter.importFromUrl(engine, '../../../assets/vrm/test.vrm', {
   defaultMaterialHelperArgumentArray: [
     {
       isSkinning: false,
@@ -48,7 +48,7 @@ const expressionPostEffect = new Rn.Expression();
 expressions.push(expressionPostEffect);
 
 // gamma correction
-const gammaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer({
+const gammaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer(engine, {
   width: displayResolution,
   height: displayResolution,
   textureNum: 1,
@@ -66,7 +66,7 @@ vrmExpression.renderPasses[0].toClearDepthBuffer = true;
 const postEffectCameraEntity = createPostEffectCameraEntity();
 const postEffectCameraComponent = postEffectCameraEntity.getCamera();
 
-const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial();
+const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial(engine);
 const gammaCorrectionRenderPass = createPostEffectRenderPass(gammaCorrectionMaterial, postEffectCameraComponent);
 
 setTextureParameterForMeshComponents(
@@ -76,7 +76,7 @@ setTextureParameterForMeshComponents(
 );
 
 // fxaa
-const fxaaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer({
+const fxaaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer(engine, {
   width: displayResolution,
   height: displayResolution,
   textureNum: 1,
@@ -86,9 +86,9 @@ const fxaaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer({
 gammaCorrectionRenderPass.setFramebuffer(fxaaTargetFramebuffer);
 
 const fxaaRenderPass = createRenderPassSharingEntitiesAndCamera(gammaCorrectionRenderPass);
-const fxaaMaterial = Rn.MaterialHelper.createFXAA3QualityMaterial();
+const fxaaMaterial = Rn.MaterialHelper.createFXAA3QualityMaterial(engine);
 fxaaMaterial.setParameter('screenInfo', Rn.Vector2.fromCopyArray2([displayResolution, displayResolution]));
-const sampler = new Rn.Sampler({
+const sampler = new Rn.Sampler(engine, {
   magFilter: Rn.TextureParameter.Linear,
   minFilter: Rn.TextureParameter.Linear,
   wrapS: Rn.TextureParameter.ClampToEdge,
@@ -105,7 +105,7 @@ fxaaRenderPass.setMaterial(fxaaMaterial);
 expressionPostEffect.addRenderPasses([gammaCorrectionRenderPass, fxaaRenderPass]);
 
 //set default camera
-Rn.CameraComponent.current = 0;
+Rn.CameraComponent.setCurrent(engine, 0);
 
 // cameraController
 const vrmMainCameraComponent = vrmMainRenderPass.cameraComponent;
@@ -116,7 +116,7 @@ controller.dolly = 0.8;
 controller.setTarget(vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
 // Lights
-const lightEntity = Rn.createLightEntity();
+const lightEntity = Rn.createLightEntity(engine);
 const lightComponent = lightEntity.getLight();
 lightComponent.type = Rn.LightType.Directional;
 lightComponent.color = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
@@ -124,7 +124,7 @@ lightEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0.0, 0.0
 
 let count = 0;
 let startTime = Date.now();
-Rn.System.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (p == null && count > 0) {
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');
@@ -135,23 +135,23 @@ Rn.System.startRenderLoop(() => {
   if (window.isAnimating) {
     const date = new Date();
     const time = (date.getTime() - startTime) / 1000;
-    Rn.AnimationComponent.globalTime = time;
-    if (time > Rn.AnimationComponent.endInputValue) {
+    Rn.AnimationComponent.setGlobalTime(engine, time);
+    if (time > Rn.AnimationComponent.getEndInputValue(engine)) {
       startTime = date.getTime();
     }
   }
 
-  Rn.System.process(expressions);
+  engine.process(expressions);
 
   count++;
 });
 
 window.exportGltf2 = () => {
-  Rn.Gltf2Exporter.export('Rhodonite');
+  Rn.Gltf2Exporter.export(engine, 'Rhodonite');
 };
 
 function createPostEffectRenderPass(material: Rn.Material, cameraComponent: Rn.CameraComponent) {
-  const boardPrimitive = new Rn.Plane();
+  const boardPrimitive = new Rn.Plane(engine);
   boardPrimitive.generate({
     width: 1,
     height: 1,
@@ -161,16 +161,16 @@ function createPostEffectRenderPass(material: Rn.Material, cameraComponent: Rn.C
     material,
   });
 
-  const boardMesh = new Rn.Mesh();
+  const boardMesh = new Rn.Mesh(engine);
   boardMesh.addPrimitive(boardPrimitive);
 
-  const boardEntity = Rn.createMeshEntity();
+  const boardEntity = Rn.createMeshEntity(engine);
   boardEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
   boardEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
   const boardMeshComponent = boardEntity.getMesh();
   boardMeshComponent.setMesh(boardMesh);
 
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.toClearColorBuffer = false;
   renderPass.cameraComponent = cameraComponent;
   renderPass.addEntities([boardEntity]);
@@ -179,7 +179,7 @@ function createPostEffectRenderPass(material: Rn.Material, cameraComponent: Rn.C
 }
 
 function createPostEffectCameraEntity() {
-  const cameraEntity = Rn.createCameraEntity();
+  const cameraEntity = Rn.createCameraEntity(engine, false);
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNearInner = 0.5;
   cameraComponent.zFarInner = 2.0;
@@ -187,7 +187,7 @@ function createPostEffectCameraEntity() {
 }
 
 function createRenderPassSharingEntitiesAndCamera(originalRenderPass) {
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.addEntities(originalRenderPass.entities);
   renderPass.cameraComponent = originalRenderPass.cameraComponent;
 
@@ -199,7 +199,7 @@ function setTextureParameterForMeshComponents(
   shaderSemantic: string,
   value: Rn.RenderTargetTexture
 ) {
-  const sampler = new Rn.Sampler({
+  const sampler = new Rn.Sampler(engine, {
     magFilter: Rn.TextureParameter.Linear,
     minFilter: Rn.TextureParameter.Linear,
     wrapS: Rn.TextureParameter.ClampToEdge,

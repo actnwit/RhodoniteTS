@@ -38,6 +38,7 @@ import { MathClassUtil } from '../../math/MathClassUtil';
 import { Is } from '../../misc/Is';
 import { Logger } from '../../misc/Logger';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import type { Engine } from '../../system/Engine';
 import { Texture } from '../../textures';
 import type { AbstractTexture } from '../../textures/AbstractTexture';
 import { Sampler } from '../../textures/Sampler';
@@ -100,6 +101,7 @@ type PrimitiveFingerPrint = string;
  * @see {@link Primitive} for geometry that uses materials
  */
 export class Material extends RnObject {
+  private __engine: Engine;
   // Internal Resources
   __materialTypeName: MaterialTypeName;
   _materialContent: AbstractMaterialContent;
@@ -135,22 +137,9 @@ export class Material extends RnObject {
   private __blendFuncAlphaDstFactor = Blend.OneMinusSrcAlpha; // gl.ONE_MINUS_SRC_ALPHA
 
   private __stateVersion = 0;
-  private static __stateVersion = 0;
   private __fingerPrint = '';
 
   private __shaderDefines: Set<string> = new Set();
-
-  private static __webglResourceRepository?: WebGLResourceRepository;
-
-  private static __defaultSampler = new Sampler({
-    magFilter: TextureParameter.Linear,
-    minFilter: TextureParameter.Linear,
-    wrapS: TextureParameter.Repeat,
-    wrapT: TextureParameter.Repeat,
-  });
-
-  // static fields
-  static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsName, ShaderVariable>> = new Map();
 
   /**
    * Creates a new Material instance.
@@ -161,6 +150,7 @@ export class Material extends RnObject {
    * @param materialNode - The abstract material content associated with this material
    */
   constructor(
+    engine: Engine,
     materialTid: Index,
     materialUid: MaterialUID,
     materialSid: MaterialSID,
@@ -168,6 +158,7 @@ export class Material extends RnObject {
     materialNode: AbstractMaterialContent
   ) {
     super();
+    this.__engine = engine;
     this._materialContent = materialNode;
     this.__materialTid = materialTid;
     this.__materialUid = materialUid;
@@ -251,15 +242,6 @@ export class Material extends RnObject {
     return this.__fingerPrint;
   }
 
-  /**
-   * Gets the global state version for all materials.
-   * This is incremented whenever any material's state changes.
-   * @returns The global state version number
-   */
-  static get stateVersion() {
-    return Material.__stateVersion;
-  }
-
   ///
   /// Parameter Setters
   ///
@@ -291,7 +273,9 @@ export class Material extends RnObject {
     if (info != null) {
       let valueObj: ShaderVariable | undefined;
       if (info.soloDatum) {
-        valueObj = Material._soloDatumFields.get(this.__materialTypeName)!.get(shaderSemanticName);
+        valueObj = this.__engine.materialRepository._soloDatumFields
+          .get(this.__materialTypeName)!
+          .get(shaderSemanticName);
       } else {
         valueObj = this._allFieldVariables.get(shaderSemanticName);
       }
@@ -299,13 +283,13 @@ export class Material extends RnObject {
         value.setFloat32Array(valueObj!.value._v);
         valueObj!.value = value;
         this.__stateVersion++;
-        Material.__stateVersion++;
+        this.__engine.materialRepository._incrementStateVersion();
         this.calcFingerPrint();
       } else {
         const updated = MathClassUtil._setForce(valueObj!.value, value);
         if (updated) {
           this.__stateVersion++;
-          Material.__stateVersion++;
+          this.__engine.materialRepository._incrementStateVersion();
           this.calcFingerPrint();
         }
       }
@@ -321,7 +305,13 @@ export class Material extends RnObject {
    */
   public setTextureParameter(shaderSemantic: ShaderSemanticsName, texture: AbstractTexture, sampler?: Sampler): void {
     if (Is.not.exist(sampler)) {
-      sampler = Material.__defaultSampler;
+      const defaultSampler = new Sampler(this.__engine, {
+        magFilter: TextureParameter.Linear,
+        minFilter: TextureParameter.Linear,
+        wrapS: TextureParameter.Repeat,
+        wrapT: TextureParameter.Repeat,
+      });
+      sampler = defaultSampler;
     }
     if (!sampler.created) {
       sampler.create();
@@ -346,7 +336,7 @@ export class Material extends RnObject {
         }
       }
       this.__stateVersion++;
-      Material.__stateVersion++;
+      this.__engine.materialRepository._incrementStateVersion();
       this.calcFingerPrint();
     }
   }
@@ -392,7 +382,7 @@ export class Material extends RnObject {
         }
       }
       this.__stateVersion++;
-      Material.__stateVersion++;
+      this.__engine.materialRepository._incrementStateVersion();
       this.calcFingerPrint();
     });
   }
@@ -406,7 +396,8 @@ export class Material extends RnObject {
     const info = this._allFieldsInfo.get(shaderSemantic);
     if (info != null) {
       if (info.soloDatum) {
-        return Material._soloDatumFields.get(this.__materialTypeName)!.get(shaderSemantic)?.value;
+        return this.__engine.materialRepository._soloDatumFields.get(this.__materialTypeName)!.get(shaderSemantic)
+          ?.value;
       }
       return this._allFieldVariables.get(shaderSemantic)?.value;
     }
@@ -422,7 +413,7 @@ export class Material extends RnObject {
   public isShaderProgramReady(primitive: Primitive): boolean {
     const primitiveFingerPrint = primitive._getFingerPrint();
     const componentStateVersion = this._shaderProgramComponentStateVersionMap.get(primitiveFingerPrint);
-    if (componentStateVersion !== Component.getStateVersion()) {
+    if (componentStateVersion !== Component.getStateVersion(this.__engine)) {
       this._shaderProgramUidMap.delete(primitiveFingerPrint);
       this._shaderProgramComponentStateVersionMap.delete(primitiveFingerPrint);
       return false;
@@ -438,7 +429,7 @@ export class Material extends RnObject {
    * @param primitive - The primitive to set up uniforms for
    */
   _setUniformLocationsOfMaterialNodes(isUniformOnlyMode: boolean, primitive: Primitive) {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = this.__engine.webglResourceRepository;
 
     let array: ShaderSemanticsInfo[] = [];
     if (this._materialContent != null) {
@@ -489,6 +480,7 @@ export class Material extends RnObject {
    * @returns A tuple containing the program UID and whether it's a new program
    */
   _createProgramWebGL(
+    engine: Engine,
     componentDataAccessMethodDefinitionsForVertexShader: string,
     componentDataAccessMethodDefinitionsForPixelShader: string,
     propertySetterOfGlobalDataRepository: getShaderPropertyFuncOfGlobalDataRepository,
@@ -497,6 +489,7 @@ export class Material extends RnObject {
     primitive: Primitive
   ): [CGAPIResourceHandle, boolean] {
     const [programUid, newOne] = _createProgramAsSingleOperationWebGL(
+      engine,
       this,
       componentDataAccessMethodDefinitionsForVertexShader,
       componentDataAccessMethodDefinitionsForPixelShader,
@@ -507,9 +500,9 @@ export class Material extends RnObject {
     );
     const primitiveFingerPrint = primitive._getFingerPrint();
     this._shaderProgramUidMap.set(primitiveFingerPrint, programUid);
-    this._shaderProgramComponentStateVersionMap.set(primitiveFingerPrint, Component.getStateVersion());
+    this._shaderProgramComponentStateVersionMap.set(primitiveFingerPrint, Component.getStateVersion(engine));
 
-    Material.__stateVersion++;
+    this.__engine.materialRepository._incrementStateVersion();
 
     return [programUid, newOne];
   }
@@ -524,6 +517,7 @@ export class Material extends RnObject {
    * @param morphedPositionGetter - Function to get the morphed position
    */
   _createProgramWebGpu(
+    engine: Engine,
     primitive: Primitive,
     componentDataAccessMethodDefinitionsForVertexShader: string,
     componentDataAccessMethodDefinitionsForPixelShader: string,
@@ -532,6 +526,7 @@ export class Material extends RnObject {
     morphedPositionGetter: string
   ) {
     const programUid = _createProgramAsSingleOperationWebGpu(
+      engine,
       this,
       primitive,
       componentDataAccessMethodDefinitionsForVertexShader,
@@ -543,8 +538,8 @@ export class Material extends RnObject {
 
     const primitiveFingerPrint = primitive._getFingerPrint();
     this._shaderProgramUidMap.set(primitiveFingerPrint, programUid);
-    this._shaderProgramComponentStateVersionMap.set(primitiveFingerPrint, Component.getStateVersion());
-    Material.__stateVersion++;
+    this._shaderProgramComponentStateVersionMap.set(primitiveFingerPrint, Component.getStateVersion(engine));
+    this.__engine.materialRepository._incrementStateVersion();
   }
 
   /**
@@ -569,13 +564,13 @@ export class Material extends RnObject {
     );
     const primitiveFingerPrint = primitive._getFingerPrint();
     this._shaderProgramUidMap.set(primitiveFingerPrint, programUid);
-    this._shaderProgramComponentStateVersionMap.set(primitiveFingerPrint, Component.getStateVersion());
+    this._shaderProgramComponentStateVersionMap.set(primitiveFingerPrint, Component.getStateVersion(this.__engine));
 
     if (programUid > 0) {
       // this.__updatedShaderSources = updatedShaderSources;
     }
 
-    Material.__stateVersion++;
+    this.__engine.materialRepository._incrementStateVersion();
     return [programUid, newOne];
   }
 
@@ -585,7 +580,7 @@ export class Material extends RnObject {
    * @param primitive - The primitive to set up uniforms for
    */
   _setupBasicUniformsLocations(primitive: Primitive) {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = this.__engine.webglResourceRepository;
 
     const primitiveFingerPrint = primitive._getFingerPrint();
     const shaderProgramUid = this._shaderProgramUidMap.get(primitiveFingerPrint);
@@ -604,7 +599,7 @@ export class Material extends RnObject {
     isUniformOnlyMode: boolean,
     primitive: Primitive
   ) {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = this.__engine.webglResourceRepository;
     const primitiveFingerPrint = primitive._getFingerPrint();
     const shaderProgramUid = this._shaderProgramUidMap.get(primitiveFingerPrint);
     webglResourceRepository.setupUniformLocations(shaderProgramUid!, shaderSemantics, isUniformOnlyMode);
@@ -615,13 +610,16 @@ export class Material extends RnObject {
    * @param params - Object containing material and rendering arguments
    */
   _setInternalSettingParametersToGpuWebGpu({
+    engine,
     material,
     args,
   }: {
+    engine: Engine;
     material: Material;
     args: RenderingArgWebGpu;
   }) {
     this._materialContent._setInternalSettingParametersToGpuWebGpu({
+      engine,
       material,
       args,
     });
@@ -633,11 +631,13 @@ export class Material extends RnObject {
    * @param params - Object containing rendering parameters
    */
   _setParametersToGpuWebGL({
+    engine,
     material,
     shaderProgram,
     firstTime,
     args,
   }: {
+    engine: Engine;
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
@@ -648,6 +648,7 @@ export class Material extends RnObject {
 
     // For Custom Setting Parameters
     this._materialContent._setInternalSettingParametersToGpuWebGLPerMaterial({
+      engine,
       material,
       shaderProgram,
       firstTime,
@@ -667,11 +668,13 @@ export class Material extends RnObject {
    * @param params - Object containing rendering parameters
    */
   _setParametersToGpuWebGLPerShaderProgram({
+    engine,
     material,
     shaderProgram,
     firstTime,
     args,
   }: {
+    engine: Engine;
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
@@ -679,6 +682,7 @@ export class Material extends RnObject {
   }) {
     // For Custom Setting Parameters
     this._materialContent._setInternalSettingParametersToGpuWebGLPerShaderProgram({
+      engine,
       material,
       shaderProgram,
       firstTime,
@@ -741,6 +745,7 @@ export class Material extends RnObject {
    * @returns Object containing vertex and pixel property strings
    */
   _getProperties(
+    engine: Engine,
     propertySetterOfGlobalDataRepository: getShaderPropertyFuncOfGlobalDataRepository,
     propertySetterOfMaterial: getShaderPropertyFuncOfMaterial
   ) {
@@ -748,13 +753,13 @@ export class Material extends RnObject {
     let pixelPropertiesStr = '';
     this._allFieldsInfo.forEach(info => {
       if (info!.stage === ShaderType.VertexShader || info!.stage === ShaderType.VertexAndPixelShader) {
-        vertexPropertiesStr += propertySetterOfMaterial(this.__materialTypeName, info!);
+        vertexPropertiesStr += propertySetterOfMaterial(engine, this.__materialTypeName, info!);
       }
       if (info!.stage === ShaderType.PixelShader || info!.stage === ShaderType.VertexAndPixelShader) {
-        pixelPropertiesStr += propertySetterOfMaterial(this.__materialTypeName, info!);
+        pixelPropertiesStr += propertySetterOfMaterial(engine, this.__materialTypeName, info!);
       }
     });
-    const globalDataRepository = GlobalDataRepository.getInstance();
+    const globalDataRepository = engine.globalDataRepository;
     [vertexPropertiesStr, pixelPropertiesStr] = globalDataRepository._addPropertiesStr(
       vertexPropertiesStr,
       pixelPropertiesStr,
@@ -771,10 +776,7 @@ export class Material extends RnObject {
    * @param shaderProgram - The WebGL shader program
    */
   private __setAutoParametersToGpuWebGL(isUniformMode: boolean, firstTime: boolean, shaderProgram: WebGLProgram) {
-    if (Material.__webglResourceRepository == null) {
-      Material.__webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    }
-    const webglResourceRepository = Material.__webglResourceRepository!;
+    const webglResourceRepository = this.__engine.webglResourceRepository;
     if (isUniformMode) {
       this._autoFieldVariablesOnly.forEach(value => {
         const info = value.info;
@@ -812,9 +814,9 @@ export class Material extends RnObject {
     firstTime: boolean;
     isUniformMode: boolean;
   }) {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = this.__engine.webglResourceRepository;
     const materialTypeName = this.__materialTypeName;
-    const map = Material._soloDatumFields.get(materialTypeName);
+    const map = this.__engine.materialRepository._soloDatumFields.get(materialTypeName);
     if (map == null) return;
     const values = map.values();
     for (const value of values) {
@@ -844,7 +846,7 @@ export class Material extends RnObject {
     this.__treatForMinMax();
 
     this.__stateVersion++;
-    Material.__stateVersion++;
+    this.__engine.materialRepository._incrementStateVersion();
     this.calcFingerPrint();
   }
 
@@ -886,7 +888,7 @@ export class Material extends RnObject {
     this.__treatForMinMax();
 
     this.__stateVersion++;
-    Material.__stateVersion++;
+    this.__engine.materialRepository._incrementStateVersion();
     this.calcFingerPrint();
   }
 
@@ -905,7 +907,7 @@ export class Material extends RnObject {
     this.__treatForMinMax();
 
     this.__stateVersion++;
-    Material.__stateVersion++;
+    this.__engine.materialRepository._incrementStateVersion();
     this.calcFingerPrint();
   }
 
@@ -1140,11 +1142,11 @@ export class Material extends RnObject {
     this._shaderProgramUidMap.clear();
     this._shaderProgramComponentStateVersionMap.clear();
     this.__stateVersion++;
-    Material.__stateVersion++;
+    this.__engine.materialRepository._incrementStateVersion();
   }
 
   updateStateVersion() {
     this.__stateVersion++;
-    Material.__stateVersion++;
+    this.__engine.materialRepository._incrementStateVersion();
   }
 }

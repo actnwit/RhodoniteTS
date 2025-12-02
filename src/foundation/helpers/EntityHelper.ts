@@ -17,6 +17,7 @@ import type { ISkeletalEntityMethods } from '../components/Skeletal/ISkeletalEnt
 import type { ITransformEntityMethods } from '../components/Transform/ITransformEntity';
 import type { IEntity } from '../core/Entity';
 import { EntityRepository } from '../core/EntityRepository';
+import type { Engine } from '../system/Engine';
 
 /**
  * An entity that has transform capabilities.
@@ -106,13 +107,13 @@ export interface IAnimationStateEntity extends ISceneGraphEntity, IAnimationStat
  * lightCameraEntity.getCamera().fovy = Math.PI / 4;
  * ```
  */
-export function createLightWithCameraEntity(): ILightEntity & ICameraEntityMethods {
-  const entity = createGroupEntity();
-  const entityAddedComponent = EntityRepository.tryToAddComponentToEntityByTID(
+export function createLightWithCameraEntity(engine: Engine): ILightEntity & ICameraEntityMethods {
+  const entity = createGroupEntity(engine);
+  const entityAddedComponent = engine.entityRepository.tryToAddComponentToEntityByTID(
     WellKnownComponentTIDs.LightComponentTID,
     entity
   ) as ILightEntity;
-  const entityAddedComponent2 = EntityRepository.tryToAddComponentToEntityByTID(
+  const entityAddedComponent2 = engine.entityRepository.tryToAddComponentToEntityByTID(
     WellKnownComponentTIDs.CameraComponentTID,
     entityAddedComponent
   ) as ILightEntity & ICameraEntityMethods;

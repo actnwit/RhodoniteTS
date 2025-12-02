@@ -2,20 +2,21 @@ import Rn from '../../../dist/esmdev/index.js';
 declare const window: any;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
 // camera
-const cameraEntity = Rn.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera();
 
-const lightEntity = Rn.createLightEntity();
+const lightEntity = Rn.createLightEntity(engine);
 lightEntity.getLight().type = Rn.LightType.Directional;
 
 // gltf
 const expression = await Rn.GltfImporter.importFromUrl(
+  engine,
   '../../../assets/gltf/glTF-Sample-Assets/Models/AnimatedColorsCube/glTF-Binary/AnimatedColorsCube.glb',
   {
     cameraComponent: cameraComponent,
@@ -27,9 +28,9 @@ cameraEntity.getCameraController().controller.setTargets(expression.renderPasses
 let count = 0;
 let startTime = Date.now();
 
-Rn.AnimationComponent.globalTime = 0.05;
+Rn.AnimationComponent.setGlobalTime(engine, 0.05);
 
-Rn.System.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (count > 0) {
     window._rendered = true;
   }
@@ -37,13 +38,13 @@ Rn.System.startRenderLoop(() => {
   if (window.isAnimating) {
     const date = new Date();
     const time = (date.getTime() - startTime) / 1000;
-    Rn.AnimationComponent.globalTime = time;
-    if (time > Rn.AnimationComponent.endInputValue) {
+    Rn.AnimationComponent.setGlobalTime(engine, time);
+    if (time > Rn.AnimationComponent.getEndInputValue(engine)) {
       startTime = date.getTime();
     }
   }
 
-  Rn.System.process([expression]);
+  engine.process([expression]);
 
   count++;
 });

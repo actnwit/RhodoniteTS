@@ -26,6 +26,7 @@ import type { Accessor } from '../memory/Accessor';
 import type { BufferView } from '../memory/BufferView';
 import type { Result } from '../misc/Result';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import type { Engine } from '../system/Engine';
 import { Config } from './Config';
 import { MemoryManager } from './MemoryManager';
 
@@ -42,10 +43,13 @@ type GlobalPropertyStruct = {
  * bone transformations for skeletal animation, and other shared rendering state.
  */
 export class GlobalDataRepository {
+  private __engine: Engine;
   private static __instance: GlobalDataRepository;
   private __fields: Map<ShaderSemanticsName, GlobalPropertyStruct> = new Map();
 
-  private constructor() {}
+  private constructor(engine: Engine) {
+    this.__engine = engine;
+  }
 
   /**
    * Initializes the GlobalDataRepository with all required global properties.
@@ -168,11 +172,8 @@ export class GlobalDataRepository {
    *
    * @returns The singleton instance of GlobalDataRepository
    */
-  static getInstance() {
-    if (!this.__instance) {
-      this.__instance = new GlobalDataRepository();
-    }
-    return this.__instance;
+  static init(engine: Engine) {
+    return new GlobalDataRepository(engine);
   }
 
   /**
@@ -189,7 +190,7 @@ export class GlobalDataRepository {
     let bufferViewResult: Result<BufferView, { 'Buffer.byteLength': Byte; 'Buffer.takenSizeInByte': Byte }>;
     let requireBufferLayerIndex = 0;
     do {
-      const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUInstanceData, requireBufferLayerIndex);
+      const buffer = this.__engine.memoryManager.createOrGetBuffer(BufferUse.GPUInstanceData, requireBufferLayerIndex);
       bufferViewResult = buffer.takeBufferView({
         byteLengthToNeed: alignedByteLength * maxCount,
         byteStride: 0,
@@ -285,7 +286,7 @@ export class GlobalDataRepository {
    * @internal
    */
   _setUniformLocationsForUniformModeOnly(shaderProgramUid: CGAPIResourceHandle) {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = this.__engine.webglResourceRepository;
     const semanticsInfoArray: ShaderSemanticsInfo[] = [];
     this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct) => {
       const semanticInfo = globalPropertyStruct.shaderSemanticsInfo;
@@ -303,7 +304,7 @@ export class GlobalDataRepository {
    * @internal
    */
   _setUniformLocationsForDataTextureModeOnly(shaderProgramUid: CGAPIResourceHandle) {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = this.__engine.webglResourceRepository;
     const semanticsInfoArray: ShaderSemanticsInfo[] = [];
     this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct) => {
       const semanticInfo = globalPropertyStruct.shaderSemanticsInfo;
@@ -335,7 +336,7 @@ export class GlobalDataRepository {
     const globalPropertyStruct = this.__fields.get(propertyName);
     if (globalPropertyStruct) {
       const accessor = globalPropertyStruct.accessor;
-      const byteOffsetOfExistingBuffers = MemoryManager.getInstance().getByteOffsetOfExistingBuffers(
+      const byteOffsetOfExistingBuffers = this.__engine.memoryManager.getByteOffsetOfExistingBuffers(
         BufferUse.GPUInstanceData,
         accessor.bufferView.buffer.indexOfTheBufferUsage
       );
@@ -366,10 +367,10 @@ export class GlobalDataRepository {
     this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct) => {
       const info = globalPropertyStruct.shaderSemanticsInfo;
       if (info!.stage === ShaderType.VertexShader || info!.stage === ShaderType.VertexAndPixelShader) {
-        vertexPropertiesStr += propertySetter(info!);
+        vertexPropertiesStr += propertySetter(this.__engine, info!);
       }
       if (info!.stage === ShaderType.PixelShader || info!.stage === ShaderType.VertexAndPixelShader) {
-        pixelPropertiesStr += propertySetter(info!);
+        pixelPropertiesStr += propertySetter(this.__engine, info!);
       }
     });
 

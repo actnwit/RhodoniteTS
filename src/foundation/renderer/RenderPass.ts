@@ -15,6 +15,7 @@ import type { Material } from '../materials/core/Material';
 import type { IVector4 } from '../math/IVector';
 import { MutableVector4 } from '../math/MutableVector4';
 import { Vector4 } from '../math/Vector4';
+import type { Engine } from '../system/Engine';
 import { CGAPIResourceRepository } from './CGAPIResourceRepository';
 import type { FrameBuffer } from './FrameBuffer';
 
@@ -34,6 +35,7 @@ type PrimitiveRnObjectUID = number;
  * ```
  */
 export class RenderPass extends RnObject {
+  private readonly __engine: Engine;
   private readonly __renderPassUID: RenderPassUID;
   private __entities: (IMeshEntity | ISceneGraphEntity)[] = [];
   private __sceneGraphDirectlyAdded: SceneGraphComponent[] = [];
@@ -80,7 +82,7 @@ export class RenderPass extends RnObject {
   /** The primitive mode used for buffer-less rendering */
   public _primitiveModeForBufferLessRendering = PrimitiveMode.Triangles;
   /** A dummy primitive used for buffer-less rendering */
-  public _dummyPrimitiveForBufferLessRendering: Primitive = new Primitive();
+  public _dummyPrimitiveForBufferLessRendering: Primitive;
 
   // VR
   /** Whether VR rendering is enabled for this render pass */
@@ -140,8 +142,10 @@ export class RenderPass extends RnObject {
    * Creates a new RenderPass instance.
    * Automatically assigns a unique render pass UID.
    */
-  constructor() {
+  constructor(engine: Engine) {
     super();
+    this.__engine = engine;
+    this._dummyPrimitiveForBufferLessRendering = new Primitive(engine);
     this.__renderPassUID = ++RenderPass.__mesh_uid_count;
   }
 
@@ -229,7 +233,7 @@ export class RenderPass extends RnObject {
    * @returns A new RenderPass instance that is a copy of this one
    */
   clone() {
-    const renderPass = new RenderPass();
+    const renderPass = new RenderPass(this.__engine);
     renderPass.tryToSetUniqueName(`${this.uniqueName}_cloned`, true);
     renderPass.__entities = this.__entities.concat();
     renderPass.__sceneGraphDirectlyAdded = this.__sceneGraphDirectlyAdded.concat();
@@ -597,7 +601,7 @@ export class RenderPass extends RnObject {
     if (resolveFrameBuffer == null) {
       return;
     }
-    const repo = WebGLResourceRepository.getInstance();
+    const repo = this.__engine.webglResourceRepository;
     const webGLResourceFrameBuffer = repo.getWebGLResource(this.__frameBuffer!.cgApiResourceUid) as WebGLFramebuffer;
     const webGLResourceResolveFramebuffer = repo.getWebGLResource(
       resolveFrameBuffer!.cgApiResourceUid
@@ -637,7 +641,7 @@ export class RenderPass extends RnObject {
     if (this.__resolveFrameBuffer == null || this.__resolveFrameBuffer2 == null) {
       return;
     }
-    const webGpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
+    const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
     for (let i = 0; i < this.__resolveFrameBuffer.colorAttachments.length; i++) {
       if (
         this.__resolveFrameBuffer.colorAttachments[i] == null ||

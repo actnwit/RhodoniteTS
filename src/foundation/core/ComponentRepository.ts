@@ -1,6 +1,7 @@
 import type { ComponentSID, ComponentTID, EntityUID } from '../../types/CommonTypes';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { Is } from '../misc/Is';
+import type { Engine } from '../system/Engine';
 import type { Component } from './Component';
 import { Config } from './Config';
 import type { EntityRepository } from './EntityRepository';
@@ -11,12 +12,17 @@ import type { EntityRepository } from './EntityRepository';
  * and manage the lifecycle of components within the ECS (Entity-Component-System) architecture.
  */
 export class ComponentRepository {
-  private static __component_sid_count_map: Map<ComponentTID, number> = new Map();
-  private static __components: Map<ComponentTID, Array<Component>> = new Map(); // index of array Is ComponentSID
-  static __componentClasses: Map<ComponentTID, typeof Component> = new Map();
-  private static __componentTIDs: Array<ComponentTID> = [];
-  private static __renderingComponentTIDs: Array<ComponentTID> = [];
+  private __component_sid_count_map: Map<ComponentTID, number> = new Map();
+  private __components: Map<ComponentTID, Array<Component>> = new Map(); // index of array Is ComponentSID
+  private static __componentClasses: Map<ComponentTID, typeof Component> = new Map();
+  private __componentTIDs: Array<ComponentTID> = [];
+  private __renderingComponentTIDs: Array<ComponentTID> = [];
   static readonly invalidComponentSID = -1;
+  private __engine: Engine;
+
+  constructor(engine: Engine) {
+    this.__engine = engine;
+  }
 
   /**
    * Registers a component class with the repository.
@@ -31,8 +37,7 @@ export class ComponentRepository {
    * ```
    */
   public static registerComponentClass(componentClass: typeof Component) {
-    const thisClass = ComponentRepository;
-    thisClass.__componentClasses.set(componentClass.componentTID, componentClass);
+    this.__componentClasses.set(componentClass.componentTID, componentClass);
   }
 
   /**
@@ -47,8 +52,7 @@ export class ComponentRepository {
    * ```
    */
   public static deregisterComponentClass(componentTID: ComponentTID) {
-    const thisClass = ComponentRepository;
-    thisClass.__componentClasses.delete(componentTID);
+    this.__componentClasses.delete(componentTID);
   }
 
   /**
@@ -88,9 +92,8 @@ export class ComponentRepository {
    * );
    * ```
    */
-  public static createComponent(componentTid: ComponentTID, entityUid: EntityUID, entityRepository: EntityRepository) {
-    const thisClass = ComponentRepository;
-    const componentClass = thisClass.__componentClasses.get(componentTid);
+  public createComponent(componentTid: ComponentTID, entityUid: EntityUID, entityRepository: EntityRepository) {
+    const componentClass = ComponentRepository.__componentClasses.get(componentTid);
     if (componentClass !== undefined) {
       // Update __component_sid_count_map
       let component_sid_count = this.__component_sid_count_map.get(componentTid);
@@ -123,7 +126,13 @@ export class ComponentRepository {
         isReUse = true;
       }
       // create the component
-      const component = new componentClass(entityUid, componentSid, entityRepository, isReUse) as Component;
+      const component = new componentClass(
+        this.__engine,
+        entityUid,
+        componentSid,
+        entityRepository,
+        isReUse
+      ) as Component;
 
       // register the component
       if (!this.__components.has(componentTid)) {
@@ -148,11 +157,10 @@ export class ComponentRepository {
    * ComponentRepository.deleteComponent(myComponent);
    * ```
    */
-  public static deleteComponent(component: Component) {
-    const thisClass = ComponentRepository;
+  public deleteComponent(component: Component) {
     const componentTid = component.componentTID;
     const componentSid = component.componentSID;
-    const array = thisClass.__components.get(componentTid);
+    const array = this.__components.get(componentTid);
     if (array != null) {
       delete array[componentSid];
     }
@@ -170,7 +178,7 @@ export class ComponentRepository {
    * const component = ComponentRepository.getComponent(MyComponent, componentSID);
    * ```
    */
-  public static getComponent(componentClass: typeof Component, componentSid: ComponentSID) {
+  public getComponent(componentClass: typeof Component, componentSid: ComponentSID) {
     return this.getComponentFromComponentTID(componentClass.componentTID, componentSid);
   }
 
@@ -186,7 +194,7 @@ export class ComponentRepository {
    * const component = ComponentRepository.getComponentFromComponentTID(componentTID, componentSID);
    * ```
    */
-  public static getComponentFromComponentTID(componentTid: ComponentTID, componentSid: ComponentSID) {
+  public getComponentFromComponentTID(componentTid: ComponentTID, componentSid: ComponentSID) {
     const map = this.__components.get(componentTid);
     if (map != null) {
       const component = map[componentSid];
@@ -206,7 +214,7 @@ export class ComponentRepository {
    * @param componentClass - The component class to retrieve instances for
    * @returns Array of component instances with potential undefined elements, or undefined if type not found
    */
-  public static _getComponents(componentClass: typeof Component): Array<Component> | undefined {
+  public _getComponents(componentClass: typeof Component): Array<Component> | undefined {
     const components = this.__components.get(componentClass.componentTID);
     return components;
   }
@@ -219,7 +227,7 @@ export class ComponentRepository {
    * @param componentClass - The component class to retrieve instances for
    * @returns Array of component instances including dead components, or undefined if type not found
    */
-  public static _getComponentsIncludingDead(componentClass: typeof Component): Array<Component> | undefined {
+  public _getComponentsIncludingDead(componentClass: typeof Component): Array<Component> | undefined {
     const components = this.__components.get(componentClass.componentTID);
     return components;
   }
@@ -239,7 +247,7 @@ export class ComponentRepository {
    * });
    * ```
    */
-  public static getComponentsWithType(componentType: typeof Component): Array<Component> {
+  public getComponentsWithType(componentType: typeof Component): Array<Component> {
     const components = this.__components.get(componentType.componentTID);
     if (components == null) {
       return [];
@@ -255,7 +263,7 @@ export class ComponentRepository {
    * @param componentClass - The component class to retrieve instances for
    * @returns Array of component instances with potential undefined elements, or undefined if type not found
    */
-  public static getComponentsWithTypeWithoutFiltering(componentType: typeof Component): Array<Component | undefined> {
+  public getComponentsWithTypeWithoutFiltering(componentType: typeof Component): Array<Component | undefined> {
     const components = this.__components.get(componentType.componentTID);
     if (components == null) {
       return [];
@@ -273,7 +281,7 @@ export class ComponentRepository {
    *
    * @private
    */
-  private static __updateComponentTIDs() {
+  private __updateComponentTIDs() {
     const componentTids = Array.from(this.__components.keys());
     componentTids.sort((a, b) => a - b);
     this.__componentTIDs = componentTids;
@@ -299,7 +307,7 @@ export class ComponentRepository {
    * console.log(`Total component types: ${allComponentTIDs.length}`);
    * ```
    */
-  public static getComponentTIDs(): Array<ComponentTID> {
+  public getComponentTIDs(): Array<ComponentTID> {
     return this.__componentTIDs;
   }
 
@@ -315,7 +323,7 @@ export class ComponentRepository {
    * // Process rendering components during render loop
    * ```
    */
-  public static getRenderingComponentTIDs(): Array<ComponentTID> {
+  public getRenderingComponentTIDs(): Array<ComponentTID> {
     return this.__renderingComponentTIDs;
   }
 }

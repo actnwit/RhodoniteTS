@@ -5,6 +5,7 @@ import type { Material } from '../../materials/core/Material';
 import { Vector4 } from '../../math/Vector4';
 import type { FrameBuffer } from '../../renderer/FrameBuffer';
 import { RenderPass } from '../../renderer/RenderPass';
+import type { Engine } from '../../system/Engine';
 import type { ISceneGraphEntity } from '../EntityHelper';
 import { MaterialHelper } from '../MaterialHelper';
 import { RenderableHelper } from '../RenderableHelper';
@@ -19,6 +20,7 @@ import { RenderableHelper } from '../RenderableHelper';
  * better shadow quality and soft shadow effects compared to traditional shadow mapping.
  */
 export class ShadowMap {
+  private __engine: Engine;
   private __shadowMomentFramebuffer: FrameBuffer;
   private __shadowMomentMaterial: Material;
 
@@ -27,8 +29,9 @@ export class ShadowMap {
    * Sets up a 1024x1024 framebuffer with RG16F texture format for storing shadow moments
    * and creates a depth moment encode material for rendering shadows.
    */
-  constructor() {
-    this.__shadowMomentFramebuffer = RenderableHelper.createFrameBuffer({
+  constructor(engine: Engine) {
+    this.__engine = engine;
+    this.__shadowMomentFramebuffer = RenderableHelper.createFrameBuffer(engine, {
       width: 1024,
       height: 1024,
       textureNum: 1,
@@ -37,7 +40,7 @@ export class ShadowMap {
       depthTextureFormat: TextureFormat.Depth32F,
     });
 
-    this.__shadowMomentMaterial = MaterialHelper.createDepthMomentEncodeMaterial();
+    this.__shadowMomentMaterial = MaterialHelper.createDepthMomentEncodeMaterial(engine);
   }
 
   /**
@@ -54,7 +57,7 @@ export class ShadowMap {
     entities: ISceneGraphEntity[],
     lightEntity: ISceneGraphEntity & ILightEntityMethods & ICameraEntityMethods
   ) {
-    const shadowMomentRenderPass = new RenderPass();
+    const shadowMomentRenderPass = new RenderPass(lightEntity.engine);
     shadowMomentRenderPass.clearColor = Vector4.fromCopyArray([1, 1, 1, 1]);
     shadowMomentRenderPass.toClearColorBuffer = true;
     shadowMomentRenderPass.toClearDepthBuffer = true;

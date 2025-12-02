@@ -10,7 +10,9 @@ import type {
 } from '../../../types/CommonTypes';
 import type { WebGLStrategyDataTexture } from '../../../webgl/WebGLStrategyDataTexture';
 import type { WebGLStrategyUniform } from '../../../webgl/WebGLStrategyUniform';
+import type { RnWebGL, WebGLStrategy } from '../../../webgl/main';
 import type { WebGpuStrategyBasic } from '../../../webgpu/WebGpuStrategyBasic';
+import type { RnWebGpu } from '../../../webgpu/main';
 import type { RnXR } from '../../../xr/main';
 import { Component } from '../../core/Component';
 import { ComponentRepository } from '../../core/ComponentRepository';
@@ -22,8 +24,9 @@ import type { Primitive } from '../../geometry/Primitive';
 import { isBlend, isBlendWithZWrite, isBlendWithoutZWrite, isTranslucent } from '../../geometry/types/GeometryTypes';
 import type { CGAPIStrategy } from '../../renderer/CGAPIStrategy';
 import type { RenderPass } from '../../renderer/RenderPass';
+import type { Engine } from '../../system/Engine';
+import { EngineState } from '../../system/EngineState';
 import { ModuleManager } from '../../system/ModuleManager';
-import { SystemState } from '../../system/SystemState';
 import type { CubeTexture } from '../../textures/CubeTexture';
 import type { RenderTargetTextureCube } from '../../textures/RenderTargetTextureCube';
 import { CameraComponent } from '../Camera/CameraComponent';
@@ -47,7 +50,7 @@ export class MeshRendererComponent extends Component {
   private __specularCubeMapContribution = 1.0;
   private __rotationOfCubeMap = 0;
 
-  private static __cgApiRenderingStrategy?: CGAPIStrategy;
+  private static __cgApiRenderingStrategyMap: Map<ObjectUID, CGAPIStrategy> = new Map();
   static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> = new Map();
   private __updateCount = 0;
   private static __updateCount = 0;
@@ -57,13 +60,20 @@ export class MeshRendererComponent extends Component {
 
   /**
    * Creates a new MeshRendererComponent instance.
+   * @param engine - The engine instance
    * @param entityUid - The unique identifier of the entity this component belongs to
    * @param componentSid - The component's system identifier
    * @param entityRepository - The repository managing entities
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
-    super(entityUid, componentSid, entityRepository, isReUse);
+  constructor(
+    engine: Engine,
+    entityUid: EntityUID,
+    componentSid: ComponentSID,
+    entityRepository: EntityRepository,
+    isReUse: boolean
+  ) {
+    super(engine, entityUid, componentSid, entityRepository, isReUse);
     this.calcFingerPrint();
   }
 
@@ -223,22 +233,28 @@ export class MeshRendererComponent extends Component {
    * This method sets up either WebGPU or WebGL rendering strategies.
    * @param processApproach - The graphics API approach to use (WebGPU or WebGL)
    */
-  static common_$load({ processApproach }: { processApproach: ProcessApproachEnum }) {
+  static common_$load({ processApproach, engine }: { processApproach: ProcessApproachEnum; engine: Engine }) {
     const moduleManager = ModuleManager.getInstance();
+    const engineUid = engine.objectUID;
 
     // Strategy
     if (processApproach === ProcessApproach.WebGPU) {
       const moduleName = 'webgpu';
-      const webgpuModule = moduleManager.getModule(moduleName)! as any;
-      MeshRendererComponent.__cgApiRenderingStrategy = webgpuModule.WebGpuStrategyBasic.getInstance();
-      (MeshRendererComponent.__cgApiRenderingStrategy as WebGpuStrategyBasic).common_$load();
+      const webgpuModule = moduleManager.getModule(moduleName)! as RnWebGpu;
+      if (!MeshRendererComponent.__cgApiRenderingStrategyMap.has(engineUid)) {
+        MeshRendererComponent.__cgApiRenderingStrategyMap.set(engineUid, webgpuModule.WebGpuStrategyBasic.init(engine));
+      }
+      (MeshRendererComponent.__cgApiRenderingStrategyMap.get(engineUid) as WebGpuStrategyBasic).common_$load();
     } else {
       const moduleName = 'webgl';
-      const webglModule = moduleManager.getModule(moduleName)! as any;
-      MeshRendererComponent.__cgApiRenderingStrategy = webglModule.getRenderingStrategy(processApproach);
-      (
-        MeshRendererComponent.__cgApiRenderingStrategy as WebGLStrategyDataTexture | WebGLStrategyUniform
-      ).common_$load();
+      const webglModule = moduleManager.getModule(moduleName)! as RnWebGL;
+      if (!MeshRendererComponent.__cgApiRenderingStrategyMap.has(engineUid)) {
+        MeshRendererComponent.__cgApiRenderingStrategyMap.set(
+          engineUid,
+          webglModule.getRenderingStrategy(engine, processApproach)
+        );
+      }
+      (MeshRendererComponent.__cgApiRenderingStrategyMap.get(engineUid) as WebGLStrategy).common_$load();
     }
   }
 
@@ -247,7 +263,8 @@ export class MeshRendererComponent extends Component {
    * Sets up the component for rendering by loading the associated mesh.
    */
   $load() {
-    const ready = MeshRendererComponent.__cgApiRenderingStrategy!.$load(this.entity.tryToGetMesh()!);
+    const strategy = MeshRendererComponent.__cgApiRenderingStrategyMap.get(this.__engine.objectUID);
+    const ready = strategy!.$load(this.entity.tryToGetMesh()!);
     if (ready) {
       this.moveStageTo(ProcessStage.Unknown);
     }
@@ -256,14 +273,15 @@ export class MeshRendererComponent extends Component {
   /**
    * Sorts and filters mesh components for rendering based on camera frustum and material properties.
    * Performs frustum culling and sorts primitives by render order and depth.
+   * @param engine - The engine instance
    * @param renderPass - The render pass containing mesh components and rendering context
    * @returns Array of primitive UIDs sorted for optimal rendering
    */
-  static sort_$render(renderPass: RenderPass): ComponentSID[] {
+  static sort_$render(engine: Engine, renderPass: RenderPass): ComponentSID[] {
     if (
-      TransformComponent.updateCount === renderPass._lastTransformComponentsUpdateCount &&
-      CameraControllerComponent.updateCount === renderPass._lastCameraControllerComponentsUpdateCount &&
-      SceneGraphComponent.updateCount === renderPass._lastSceneGraphComponentsUpdateCount
+      TransformComponent.getUpdateCount(engine) === renderPass._lastTransformComponentsUpdateCount &&
+      CameraControllerComponent.getUpdateCount(engine) === renderPass._lastCameraControllerComponentsUpdateCount &&
+      SceneGraphComponent.getUpdateCount(engine) === renderPass._lastSceneGraphComponentsUpdateCount
     ) {
       return renderPass._lastPrimitiveUids;
     }
@@ -272,17 +290,20 @@ export class MeshRendererComponent extends Component {
     let cameraComponent = renderPass.cameraComponent;
     // If the renderPass doesn't have a cameraComponent, then we get it of the main camera
     if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
+      cameraComponent = engine.componentRepository.getComponent(
+        CameraComponent,
+        CameraComponent.getCurrent(engine)
+      ) as CameraComponent;
     }
     if (cameraComponent == null) {
-      const cameraComponents = ComponentRepository.getComponentsWithType(CameraComponent) as CameraComponent[];
+      const cameraComponents = engine.componentRepository.getComponentsWithType(CameraComponent) as CameraComponent[];
       cameraComponent = cameraComponents.find(c => c?._isAlive)!;
-      CameraComponent.current = cameraComponent.componentSID;
+      CameraComponent.setCurrent(engine, cameraComponent.componentSID);
     }
     if (renderPass.isVrRendering) {
       const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
       if (rnXRModule != null) {
-        const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+        const webxrSystem = engine.webXRSystem;
         if (webxrSystem.isWebXRMode) {
           cameraComponent = webxrSystem._getCameraComponentAt(0) as CameraComponent;
         }
@@ -389,9 +410,9 @@ export class MeshRendererComponent extends Component {
 
     renderPass._lastPrimitiveUids = primitiveUids;
 
-    renderPass._lastTransformComponentsUpdateCount = TransformComponent.updateCount;
-    renderPass._lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
-    renderPass._lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
+    renderPass._lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(engine);
+    renderPass._lastCameraControllerComponentsUpdateCount = CameraControllerComponent.getUpdateCount(engine);
+    renderPass._lastSceneGraphComponentsUpdateCount = SceneGraphComponent.getUpdateCount(engine);
     if (resultChanged) {
       renderPass._renderedSomethingBefore = true;
     }
@@ -484,14 +505,15 @@ export class MeshRendererComponent extends Component {
    * Common pre-rendering setup method that prepares the rendering strategy.
    * Initializes the rendering strategy if not already set and calls its prerender method.
    */
-  static common_$prerender() {
-    if (MeshRendererComponent.__cgApiRenderingStrategy == null) {
+  static common_$prerender(engine: Engine) {
+    const engineUid = engine.objectUID;
+    if (!MeshRendererComponent.__cgApiRenderingStrategyMap.has(engineUid)) {
       // Possible if there is no mesh entity in the scene
-      const processApproach = SystemState.currentProcessApproach;
-      this.common_$load({ processApproach });
+      const processApproach = EngineState.currentProcessApproach;
+      this.common_$load({ processApproach, engine });
     }
     // Call common_$prerender of WebGLRenderingStrategy
-    MeshRendererComponent.__cgApiRenderingStrategy!.prerender();
+    MeshRendererComponent.__cgApiRenderingStrategyMap.get(engineUid)!.prerender();
   }
 
   /**
@@ -501,6 +523,7 @@ export class MeshRendererComponent extends Component {
    * @param renderPassTickCount - The tick count for this render pass
    * @param primitiveUids - Array of primitive UIDs to render
    * @param displayIdx - The index of the display to render to
+   * @param engine - The engine instance
    * @returns True if rendering was successful, false otherwise
    */
   static common_$render({
@@ -508,19 +531,18 @@ export class MeshRendererComponent extends Component {
     renderPassTickCount,
     primitiveUids,
     displayIdx,
+    engine,
   }: {
     renderPass: RenderPass;
     renderPassTickCount: Count;
     primitiveUids: PrimitiveUID[];
     displayIdx: Index;
+    engine: Engine;
   }): boolean {
     // Call common_$render of WebGLRenderingStrategy
-    return MeshRendererComponent.__cgApiRenderingStrategy!.common_$render(
-      primitiveUids,
-      renderPass,
-      renderPassTickCount,
-      displayIdx
-    );
+    return MeshRendererComponent.__cgApiRenderingStrategyMap
+      .get(engine.objectUID)!
+      .common_$render(primitiveUids, renderPass, renderPassTickCount, displayIdx);
   }
 
   /**

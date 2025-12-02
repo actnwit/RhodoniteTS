@@ -15,8 +15,8 @@ import { MutableVector2 } from '../../math/MutableVector2';
 import { MutableVector3 } from '../../math/MutableVector3';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { Logger } from '../../misc/Logger';
+import type { Engine } from '../../system/Engine';
 import { Sampler } from '../../textures/Sampler';
-import { DefaultTextures, dummyBlackTexture, dummyWhiteTexture } from './DummyTextures';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 
@@ -54,6 +54,7 @@ export class ShaderityUtilityWebGPU {
    * @returns A new ShaderityObject with templates filled
    */
   public static fillTemplate(
+    engine: Engine,
     shaderityObject: ShaderityObject,
     primitive: Primitive,
     args: FillArgsObject
@@ -61,7 +62,7 @@ export class ShaderityUtilityWebGPU {
     const step1 = Shaderity.fillTemplate(shaderityObject, args);
 
     const morphUniformDataOffsets = (primitive.constructor as typeof Primitive).getMorphUniformDataOffsets();
-    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform(engine);
     const templateObject = {
       maxMorphOffsetsDataNumber: `${Math.max(Math.ceil(morphUniformDataOffsets[morphUniformDataOffsets.length - 1] / 4), 1)}`,
       maxMorphWeightsDataNumber: `${Math.max(Math.ceil(blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1] / 4), 1)}`,
@@ -78,7 +79,10 @@ export class ShaderityUtilityWebGPU {
    * @param shaderityObject - The Shaderity shader object to analyze
    * @returns Object containing array of shader semantics info and processed shader object
    */
-  public static getShaderDataReflection(shaderityObject: ShaderityObject): {
+  public static getShaderDataReflection(
+    engine: Engine,
+    shaderityObject: ShaderityObject
+  ): {
     shaderSemanticsInfoArray: ShaderSemanticsInfo[];
     shaderityObject: ShaderityObject;
   } {
@@ -105,6 +109,7 @@ export class ShaderityUtilityWebGPU {
         const info = matchUniformDeclaration[4];
 
         const shaderSemanticsInfo = this.__createShaderSemanticsInfo(
+          engine,
           type,
           variableName,
           info,
@@ -119,6 +124,7 @@ export class ShaderityUtilityWebGPU {
         const info = matchTextureDeclaration[4];
 
         const shaderSemanticsInfo = this.__createShaderSemanticInfoForTexture(
+          engine,
           type,
           variableName,
           binding,
@@ -135,7 +141,7 @@ export class ShaderityUtilityWebGPU {
         if (textureMap.has(binding)) {
           const textureShaderSemanticsInfo = textureMap.get(binding);
           if (textureShaderSemanticsInfo) {
-            const sampler = new Sampler({
+            const sampler = new Sampler(engine, {
               magFilter: TextureParameter.Linear,
               minFilter: TextureParameter.Linear,
               wrapS: TextureParameter.Repeat,
@@ -172,6 +178,7 @@ export class ShaderityUtilityWebGPU {
    * @returns A configured ShaderSemanticsInfo object for the texture
    */
   private static __createShaderSemanticInfoForTexture(
+    engine: Engine,
     type: string,
     variableName: string,
     binding: number,
@@ -202,12 +209,13 @@ export class ShaderityUtilityWebGPU {
     if (initialValue) {
       const initialValueText = initialValue[1];
       shaderSemanticsInfo.initialValue = this.__getInitialValueFromTextForTexture(
+        engine,
         shaderSemanticsInfo,
         binding,
         initialValueText
       );
     } else {
-      shaderSemanticsInfo.initialValue = this.__getDefaultInitialValue(shaderSemanticsInfo);
+      shaderSemanticsInfo.initialValue = this.__getDefaultInitialValue(engine, shaderSemanticsInfo);
     }
 
     return shaderSemanticsInfo;
@@ -224,6 +232,7 @@ export class ShaderityUtilityWebGPU {
    * @returns A configured ShaderSemanticsInfo object for the uniform
    */
   private static __createShaderSemanticsInfo(
+    engine: Engine,
     type: string,
     variableName: string,
     info: string,
@@ -243,7 +252,7 @@ export class ShaderityUtilityWebGPU {
       stage,
     };
 
-    this.__setRhodoniteOriginalParametersTo(shaderSemanticsInfo, info);
+    this.__setRhodoniteOriginalParametersTo(engine, shaderSemanticsInfo, info);
 
     return shaderSemanticsInfo;
   }
@@ -256,7 +265,11 @@ export class ShaderityUtilityWebGPU {
    * @param shaderSemanticsInfo - The ShaderSemanticsInfo object to modify
    * @param info - The parameter information string to parse
    */
-  private static __setRhodoniteOriginalParametersTo(shaderSemanticsInfo: ShaderSemanticsInfo, info: string) {
+  private static __setRhodoniteOriginalParametersTo(
+    engine: Engine,
+    shaderSemanticsInfo: ShaderSemanticsInfo,
+    info: string
+  ) {
     const soloDatum = info.match(/soloDatum[\t ]*=[\t ]*(\w+)[,\t ]*/);
     let isSoloDatumFlg = false;
     if (soloDatum?.[1] === 'true') {
@@ -276,7 +289,7 @@ export class ShaderityUtilityWebGPU {
       const initialValueText = initialValue[1];
       shaderSemanticsInfo.initialValue = this.__getInitialValueFromText(shaderSemanticsInfo, initialValueText);
     } else {
-      shaderSemanticsInfo.initialValue = this.__getDefaultInitialValue(shaderSemanticsInfo);
+      shaderSemanticsInfo.initialValue = this.__getDefaultInitialValue(engine, shaderSemanticsInfo);
     }
 
     const needUniformInDataTextureMode = info.match(/needUniformInDataTextureMode[\t ]*=[\t ]*(.+)[,\t ]*/);
@@ -299,12 +312,13 @@ export class ShaderityUtilityWebGPU {
    * @returns An array containing binding, texture, and sampler objects
    */
   private static __getInitialValueFromTextForTexture(
+    engine: Engine,
     shaderSemanticsInfo: ShaderSemanticsInfo,
     binding: number,
     initialValueText: string
   ) {
     let initialValue: any;
-    const sampler = new Sampler({
+    const sampler = new Sampler(engine, {
       magFilter: TextureParameter.Linear,
       minFilter: TextureParameter.Linear,
       wrapS: TextureParameter.ClampToEdge,
@@ -317,10 +331,10 @@ export class ShaderityUtilityWebGPU {
       shaderSemanticsInfo.compositionType === CompositionType.Texture2DShadow
     ) {
       const color = initialValueText.charAt(0).toUpperCase() + initialValueText.slice(1);
-      initialValue = [binding, (DefaultTextures as any)[`dummy${color}Texture`], sampler];
+      initialValue = [binding, (engine.dummyTextures as any)[`dummy${color}Texture`], sampler];
     } else if (shaderSemanticsInfo.compositionType === CompositionType.TextureCube) {
       const color = initialValueText.charAt(0).toUpperCase() + initialValueText.slice(1);
-      initialValue = [binding, (DefaultTextures as any)[`dummy${color}CubeTexture`], sampler];
+      initialValue = [binding, (engine.dummyTextures as any)[`dummy${color}CubeTexture`], sampler];
     }
     return initialValue;
   }
@@ -438,7 +452,7 @@ export class ShaderityUtilityWebGPU {
    * @param shaderSemanticsInfo - The ShaderSemanticsInfo object to get default value for
    * @returns A default initial value appropriate for the given composition type
    */
-  private static __getDefaultInitialValue(shaderSemanticsInfo: ShaderSemanticsInfo) {
+  private static __getDefaultInitialValue(engine: Engine, shaderSemanticsInfo: ShaderSemanticsInfo) {
     if (shaderSemanticsInfo.compositionType === CompositionType.Scalar) {
       return new MutableScalar(new Float32Array([0]));
     }
@@ -461,13 +475,13 @@ export class ShaderityUtilityWebGPU {
       return MutableMatrix44.identity();
     }
     if (shaderSemanticsInfo.compositionType === CompositionType.Texture2D) {
-      return [0, dummyWhiteTexture];
+      return [0, engine.dummyTextures.dummyWhiteTexture];
     }
     if (shaderSemanticsInfo.compositionType === CompositionType.Texture2DShadow) {
-      return [0, dummyWhiteTexture];
+      return [0, engine.dummyTextures.dummyWhiteTexture];
     }
     if (shaderSemanticsInfo.compositionType === CompositionType.TextureCube) {
-      return [0, dummyBlackTexture];
+      return [0, engine.dummyTextures.dummyBlackTexture];
     }
 
     Logger.warn('initial value is not found');

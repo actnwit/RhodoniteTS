@@ -1,20 +1,16 @@
-import { CameraComponent } from '../components/Camera/CameraComponent';
-import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import { TransformComponent } from '../components/Transform/TransformComponent';
-import { EntityRepository } from '../core/EntityRepository';
-import { MemoryManager } from '../core/MemoryManager';
-import '../components/registerComponents';
+import Rn from '../../../dist/esm';
 
-describe('EntityHelper', () => {
-  beforeAll(() => {
-    MemoryManager.createInstanceIfNotCreated(1024 * 1024 * 4 /* rgba */ * 4 /* byte */);
+describe('EntityHelper', async () => {
+  const engine = await Rn.Engine.init({
+    approach: Rn.ProcessApproach.None,
+    canvas: document.getElementById('world') as HTMLCanvasElement,
   });
 
   test('EntityHelper', () => {
-    const entity = EntityRepository.createEntity();
-    const transformEntity = EntityRepository.addComponentToEntity(TransformComponent, entity);
-    const sceneGraphEntity = EntityRepository.addComponentToEntity(SceneGraphComponent, transformEntity);
-    const cameraEntity = EntityRepository.addComponentToEntity(CameraComponent, sceneGraphEntity);
+    const entity = engine.entityRepository.createEntity();
+    const transformEntity = engine.entityRepository.addComponentToEntity(Rn.TransformComponent, entity);
+    const sceneGraphEntity = engine.entityRepository.addComponentToEntity(Rn.SceneGraphComponent, transformEntity);
+    const cameraEntity = engine.entityRepository.addComponentToEntity(Rn.CameraComponent, sceneGraphEntity);
     const _transformComponent = transformEntity.getTransform();
     const _sceneGraphComponent = sceneGraphEntity.getSceneGraph();
 
@@ -23,7 +19,7 @@ describe('EntityHelper', () => {
 
     // You can use these instead, but you should do null check before use.
     const cameraComponent1 = transformEntity.tryToGetCamera();
-    const _cameraComponent2 = transformEntity.getComponent(CameraComponent);
+    const _cameraComponent2 = transformEntity.getComponent(Rn.CameraComponent);
 
     expect(cameraComponent1).toBe(cameraComponent); // got same camera component
   });

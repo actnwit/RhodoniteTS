@@ -3,7 +3,7 @@ import Rn from '../../../dist/esmdev/index.js';
 let p: any;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -30,15 +30,17 @@ const expression = new Rn.Expression();
 expression.addRenderPasses([renderPassDepth, renderPassMain]);
 
 //main
-const entitySmallBoardForDepth = createBoardEntityWithMaterial('createDepthEncodeMaterial', [{}]);
-const entityLargeBoardForDepth = createBoardEntityWithMaterial('createDepthEncodeMaterial', [{}]);
+const entitySmallBoardForDepth = createBoardEntityWithMaterial('createDepthEncodeMaterial', [engine, {}]);
+const entityLargeBoardForDepth = createBoardEntityWithMaterial('createDepthEncodeMaterial', [engine, {}]);
 renderPassDepth.addEntities([entitySmallBoardForDepth, entityLargeBoardForDepth]);
 
 const entitySmallBoard = createBoardEntityWithMaterial('createShadowMapDecodeClassicSingleMaterial', [
+  engine,
   { isDebugging: true },
   renderPassDepth,
 ]);
 const entityLargeBoard = createBoardEntityWithMaterial('createShadowMapDecodeClassicSingleMaterial', [
+  engine,
   { isDebugging: true },
   renderPassDepth,
 ]);
@@ -87,22 +89,22 @@ entityLargeBoard.getTransform().localEulerAngles = rotateBigBoard;
 
 let count = 0;
 
-Rn.System.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (p == null && count > 0) {
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');
     p.innerText = 'Rendered.';
     document.body.appendChild(p);
   }
-  Rn.System.process([expression]);
+  engine.process([expression]);
 
   count++;
 });
 
 function createBoardEntityWithMaterial(materialHelperFunctionStr, arrayOfHelperFunctionArgument = []) {
-  const entity = Rn.createMeshEntity();
+  const entity = Rn.createMeshEntity(engine);
 
-  const primitive = new Rn.Plane();
+  const primitive = new Rn.Plane(engine);
   primitive.generate({
     width: 1,
     height: 1,
@@ -113,26 +115,26 @@ function createBoardEntityWithMaterial(materialHelperFunctionStr, arrayOfHelperF
   });
 
   const meshComponent = entity.getMesh();
-  const mesh = new Rn.Mesh();
+  const mesh = new Rn.Mesh(engine);
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);
   return entity;
 }
 
 function createCameraComponent() {
-  const cameraEntity = Rn.createCameraEntity();
+  const cameraEntity = Rn.createCameraEntity(engine, false);
   const cameraComponent = cameraEntity.getCamera();
   return cameraComponent;
 }
 
 function createCameraControllerComponent() {
-  const cameraEntity = Rn.createCameraControllerEntity();
+  const cameraEntity = Rn.createCameraControllerEntity(engine, true);
   const cameraComponent = cameraEntity.getCamera();
   return cameraComponent;
 }
 
 function createFramebuffer(renderPass, height, width, textureNum) {
-  const framebuffer = Rn.RenderableHelper.createFrameBuffer({
+  const framebuffer = Rn.RenderableHelper.createFrameBuffer(engine, {
     width,
     height,
     textureNum,
@@ -144,7 +146,7 @@ function createFramebuffer(renderPass, height, width, textureNum) {
 }
 
 function createRenderPassSpecifyingCameraComponent(cameraComponent) {
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.toClearColorBuffer = true;
   renderPass.cameraComponent = cameraComponent;
   return renderPass;

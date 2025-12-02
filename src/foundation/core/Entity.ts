@@ -16,6 +16,7 @@ import type { TransformComponent } from '../components/Transform/TransformCompon
 import type { VrmComponent } from '../components/Vrm/VrmComponent';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { Is } from '../misc/Is';
+import type { Engine } from '../system/Engine';
 import type { Component } from './Component';
 import { type IRnObject, RnObject } from './RnObject';
 
@@ -23,6 +24,7 @@ import { type IRnObject, RnObject } from './RnObject';
  * The Interface for an Entity.
  */
 export interface IEntity extends IRnObject {
+  get engine(): Engine;
   entityUID: EntityUID;
   _isAlive: boolean;
   _myLatestCopyEntityUID: EntityUID;
@@ -168,6 +170,7 @@ export interface IEntity extends IRnObject {
  * Entities can acquire various functions by having components on themselves.
  */
 export class Entity extends RnObject implements IEntity {
+  private __engine: Engine;
   /** The Unique ID of Entity */
   private readonly ___entity_uid: number;
 
@@ -192,12 +195,21 @@ export class Entity extends RnObject implements IEntity {
    * @param isAlive - Whether this entity is alive or not
    * @param components - Optional map of existing components to initialize with
    */
-  constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
+  constructor(engine: Engine, entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
     super();
+    this.__engine = engine;
     this.___entity_uid = entityUID;
     this._isAlive = isAlive;
 
     this.__components = Is.exist(components) ? components : new Map();
+  }
+
+  /**
+   * Gets the engine instance.
+   * @returns The engine instance
+   */
+  get engine() {
+    return this.__engine;
   }
 
   /**

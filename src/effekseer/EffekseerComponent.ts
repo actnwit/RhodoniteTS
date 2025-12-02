@@ -13,6 +13,7 @@ import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
+import type { Engine } from '../foundation/system/Engine';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import type { ComponentSID, ComponentTID, EntityUID, Second } from '../types/CommonTypes';
 import type { WebXRSystem } from '../xr/WebXRSystem';
@@ -178,7 +179,7 @@ export class EffekseerComponent extends Component {
     return this.entity.tryToGetTransform()!.localScale;
   }
 
-  private __createEffekseerContext(): boolean {
+  private __createEffekseerContext(engine: Engine): boolean {
     if (Is.not.exist(this.uri) && Is.not.exist(this.arrayBuffer)) {
       // console.error('Effekseer data not found.');
       return false;
@@ -189,7 +190,7 @@ export class EffekseerComponent extends Component {
       Logger.error('Effekseer context creation fails');
       return false;
     }
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = this.__engine.webglResourceRepository;
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
     this.__isInitialized = true;
     const gl = glw!.getRawContext();
@@ -223,7 +224,7 @@ export class EffekseerComponent extends Component {
 
     // Get WebXRSystem instance
     const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+    const webxrSystem = rnXRModule.WebXRSystem.init(engine);
     EffekseerComponent.__webxrSystem = webxrSystem;
 
     return true;
@@ -239,7 +240,7 @@ export class EffekseerComponent extends Component {
         effekseer.initRuntime(
           EffekseerComponent.wasmModuleUri!,
           () => {
-            const succeed = this.__createEffekseerContext();
+            const succeed = this.__createEffekseerContext(this.__engine);
             if (succeed) {
               this.moveStageTo(ProcessStage.Logic);
             }
@@ -249,7 +250,7 @@ export class EffekseerComponent extends Component {
           }
         );
       } else {
-        const succeed = this.__createEffekseerContext();
+        const succeed = this.__createEffekseerContext(this.__engine);
         if (succeed) {
           this.moveStageTo(ProcessStage.Logic);
         }
@@ -302,9 +303,9 @@ export class EffekseerComponent extends Component {
   }
 
   private __drawEffekseerEffectNormal(): void {
-    const cameraComponent = ComponentRepository.getComponent(
+    const cameraComponent = this.__engine.componentRepository.getComponent(
       CameraComponent,
-      CameraComponent.current
+      CameraComponent.getCurrent(this.__engine)
     ) as CameraComponent;
     const viewMatrix = EffekseerComponent.__tmp_identityMatrix_0;
     const projectionMatrix = EffekseerComponent.__tmp_identityMatrix_1;
@@ -327,7 +328,7 @@ export class EffekseerComponent extends Component {
       const projectionMatrix = EffekseerComponent.__webxrSystem._getProjectMatrixAt(i);
       const viewMatrix = EffekseerComponent.__webxrSystem._getViewMatrixAt(i);
       if (Is.exist(projectionMatrix) && Is.exist(viewMatrix) && Is.exist(this.__context)) {
-        const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+        const webGLResourceRepository = this.__engine.webglResourceRepository;
         webGLResourceRepository.setViewport(EffekseerComponent.__webxrSystem._getViewportAt(i));
         this.__context.setProjectionMatrix(projectionMatrix._v);
         this.__context.setCameraMatrix(viewMatrix._v);
@@ -353,11 +354,11 @@ export class EffekseerComponent extends Component {
     this.moveStageTo(ProcessStage.Logic);
   }
 
-  static sort_$render(renderPass: RenderPass): ComponentSID[] {
+  static sort_$render(engine: Engine, renderPass: RenderPass): ComponentSID[] {
     if (Is.false(renderPass.toRenderEffekseerEffects)) {
       return [];
     }
-    const components = ComponentRepository.getComponentsWithType(EffekseerComponent);
+    const components = engine.componentRepository.getComponentsWithType(EffekseerComponent);
     return components.map(c => c.componentSID);
   }
 

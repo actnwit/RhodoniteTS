@@ -19,7 +19,8 @@ import type { Accessor } from '../memory/Accessor';
 import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { SystemState } from '../system/SystemState';
+import type { Engine } from '../system/Engine';
+import { EngineState } from '../system/EngineState';
 import type { Primitive } from './Primitive';
 import {
   type IMesh,
@@ -37,6 +38,7 @@ import {
  * Instanced meshes refer original mesh's primitives when drawing.
  */
 export class Mesh implements IMesh {
+  private readonly __engine: Engine;
   private readonly __meshUID: MeshUID;
   public static readonly invalidateMeshUID = -1;
   public static __mesh_uid_count = Mesh.invalidateMeshUID;
@@ -87,7 +89,8 @@ export class Mesh implements IMesh {
   /**
    * Constructor
    */
-  constructor() {
+  constructor(engine: Engine) {
+    this.__engine = engine;
     this.__meshUID = ++Mesh.__mesh_uid_count;
   }
 
@@ -236,7 +239,7 @@ export class Mesh implements IMesh {
    * @internal
    */
   updateVariationVBO(): boolean {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
 
     if (this.__variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       cgApiResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
@@ -275,7 +278,7 @@ export class Mesh implements IMesh {
    * @internal
    */
   deleteVariationVBO(): boolean {
-    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webglResourceRepository = this.__engine.webglResourceRepository;
     if (this.__variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
       this.__variationVBOUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -289,7 +292,7 @@ export class Mesh implements IMesh {
    * Updates the VAO (Vertex Array Object) for all primitives in this mesh.
    */
   public updateVAO(): void {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = this.__engine.webglResourceRepository;
 
     // create and update VAO
     for (let i = 0; i < this.__primitives.length; i++) {
@@ -325,7 +328,7 @@ export class Mesh implements IMesh {
    * Deletes all VAO (Vertex Array Object) resources for this mesh.
    */
   public deleteVAO() {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = this.__engine.webglResourceRepository;
     for (let i = 0; i < this.__vaoUids.length; i++) {
       webglResourceRepository.deleteVertexArray(this.__vaoUids[i]);
       this.__vaoUids[i] = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -519,7 +522,7 @@ export class Mesh implements IMesh {
 
         const vertexNum = primitive.getVertexCountAsIndicesBased();
         const tangentAttributeByteSize = (positionAccessor.byteLength * 4) / 3;
-        const buffer = MemoryManager.getInstance().createBufferOnDemand(
+        const buffer = this.__engine.memoryManager.createBufferOnDemand(
           BufferUse.CPUGeneric,
           tangentAttributeByteSize,
           4
@@ -704,7 +707,7 @@ export class Mesh implements IMesh {
         const num = vertexNum;
 
         const baryCentricCoordAttributeByteSize = num * 4 /* vec4 */ * 4; /* bytes */
-        const buffer = MemoryManager.getInstance().createBufferOnDemand(
+        const buffer = this.__engine.memoryManager.createBufferOnDemand(
           BufferUse.CPUGeneric,
           baryCentricCoordAttributeByteSize,
           4
@@ -766,7 +769,7 @@ export class Mesh implements IMesh {
       const vertexNum = primitive.getVertexCountAsIndicesBased();
 
       const normalAttributeByteSize = positionAccessor.byteLength;
-      const buffer = MemoryManager.getInstance().createBufferOnDemand(BufferUse.CPUGeneric, normalAttributeByteSize, 4);
+      const buffer = this.__engine.memoryManager.createBufferOnDemand(BufferUse.CPUGeneric, normalAttributeByteSize, 4);
       const normalBufferView = buffer
         .takeBufferView({
           byteLengthToNeed: normalAttributeByteSize,
@@ -926,7 +929,7 @@ export class Mesh implements IMesh {
     }
     this.updateVariationVBO();
 
-    if (SystemState.currentProcessApproach !== ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach !== ProcessApproach.WebGPU) {
       this.updateVAO();
     }
   }

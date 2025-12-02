@@ -48,7 +48,7 @@ function readyBasicVerticesData() {
     0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
   ]);
 
-  const primitive = Rn.Primitive.createPrimitive({
+  const primitive = Rn.Primitive.createPrimitive(engine, {
     indices: indices,
     attributeSemantics: [Rn.VertexAttribute.Position.XYZ, Rn.VertexAttribute.Color0.XYZ],
     attributes: [positions, colors],
@@ -60,7 +60,7 @@ function readyBasicVerticesData() {
 
 Rn.Config.cgApiDebugConsoleOutput = true;
 const processApproach = getProcessApproach(Rn);
-await Rn.System.init({
+const engine = await Rn.Engine.init({
   approach: processApproach,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -70,11 +70,11 @@ const primitive = readyBasicVerticesData();
 
 const entities = [];
 const entityNumber = 100;
-const originalMesh = new Rn.Mesh();
+const originalMesh = new Rn.Mesh(engine);
 originalMesh.addPrimitive(primitive);
 for (let i = 0; i < entityNumber; i++) {
   const sqrtEntityNumber = Math.floor(Math.sqrt(entityNumber));
-  const entity = Rn.createMeshEntity();
+  const entity = Rn.createMeshEntity(engine);
 
   entities.push(entity);
   const meshComponent = entity.getMesh();
@@ -103,7 +103,7 @@ const rotationVec3 = Rn.MutableVector3.zero();
 let count = 0;
 
 // renderPass
-const renderPass = new Rn.RenderPass();
+const renderPass = new Rn.RenderPass(engine);
 renderPass.toClearColorBuffer = true;
 renderPass.toClearDepthBuffer = true;
 renderPass.addEntities(entities);
@@ -135,7 +135,7 @@ const draw = () => {
   stats.begin();
 
   //      console.log(date.getTime());
-  Rn.System.process([expression]);
+  engine.process([expression]);
 
   stats.end();
   count++;
@@ -145,5 +145,5 @@ const draw = () => {
 draw();
 
 window.exportGltf2 = () => {
-  Rn.Gltf2Exporter.export('Rhodonite');
+  Rn.Gltf2Exporter.export(engine, 'Rhodonite');
 };

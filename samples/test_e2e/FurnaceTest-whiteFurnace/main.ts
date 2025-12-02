@@ -18,7 +18,7 @@ declare global {
 // prepare memory
 Rn.Config.cgApiDebugConsoleOutput = true;
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-await Rn.System.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: rnCanvasElement,
 });
@@ -39,7 +39,7 @@ attachGlobalFunctions(expressions);
 // ---functions-----------------------------------------------------------------------------------------
 
 function createEntityMainCamera() {
-  const entityCamera = Rn.createCameraEntity();
+  const entityCamera = Rn.createCameraEntity(engine, true);
 
   const cameraComponent = entityCamera.getCamera();
   cameraComponent.type = Rn.CameraType.Orthographic;
@@ -51,7 +51,7 @@ function createEntityMainCamera() {
 }
 
 function createRenderPassMain(cameraComponent: Rn.CameraComponent) {
-  const material = Rn.MaterialHelper.createFurnaceTestMaterial();
+  const material = Rn.MaterialHelper.createFurnaceTestMaterial(engine);
   material.setParameter('screenInfo', Rn.Vector2.fromCopyArray2([512, 512]));
   window.material = material;
 
@@ -65,7 +65,7 @@ function createRenderPassMain(cameraComponent: Rn.CameraComponent) {
   sceneGraphComponentSphere.isVisible = false;
   window.entitySphere = entitySphere;
 
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.toClearColorBuffer = true;
   renderPass.cameraComponent = cameraComponent;
   renderPass.addEntities([entityBoard, entitySphere]);
@@ -73,7 +73,7 @@ function createRenderPassMain(cameraComponent: Rn.CameraComponent) {
 }
 
 function createEntityBoard(material: Rn.Material) {
-  const primitive = new Rn.Plane();
+  const primitive = new Rn.Plane(engine);
   primitive.generate({
     width: 20,
     height: 20,
@@ -83,16 +83,16 @@ function createEntityBoard(material: Rn.Material) {
     material,
   });
 
-  const entity = Rn.createMeshEntity();
+  const entity = Rn.createMeshEntity(engine);
   const meshComponent = entity.getMesh();
-  const mesh = new Rn.Mesh();
+  const mesh = new Rn.Mesh(engine);
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);
   return entity;
 }
 
 function createEntitySphere(material: Rn.Material) {
-  const primitive = new Rn.Sphere();
+  const primitive = new Rn.Sphere(engine);
   primitive.generate({
     radius: 1,
     widthSegments: 100,
@@ -100,9 +100,9 @@ function createEntitySphere(material: Rn.Material) {
     material,
   });
 
-  const entity = Rn.createMeshEntity();
+  const entity = Rn.createMeshEntity(engine);
   const meshComponent = entity.getMesh();
-  const mesh = new Rn.Mesh();
+  const mesh = new Rn.Mesh(engine);
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);
   return entity;
@@ -115,7 +115,7 @@ function createExpression(renderPasses: Rn.RenderPass[]) {
 }
 
 function draw(expressions: Rn.Expression[], createPElem = false) {
-  Rn.System.process(expressions);
+  engine.process(expressions);
 
   // for e2e-test
   if (createPElem) {

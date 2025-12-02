@@ -8,7 +8,7 @@ import type { Primitive } from '../geometry';
 import { Mesh } from '../geometry/Mesh';
 import type { Material } from '../materials/core/Material';
 import { Is } from '../misc/Is';
-import { SystemState } from '../system/SystemState';
+import { EngineState } from '../system/EngineState';
 
 /**
  * Determines whether drawing should be skipped for a given material and primitive combination.

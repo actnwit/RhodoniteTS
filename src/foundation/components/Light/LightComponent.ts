@@ -3,7 +3,7 @@ import { Component } from '../../core/Component';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { Config } from '../../core/Config';
 import type { IEntity } from '../../core/Entity';
-import { EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { BufferUse } from '../../definitions/BufferUse';
 import { ComponentType } from '../../definitions/ComponentType';
@@ -19,6 +19,7 @@ import { Scalar } from '../../math/Scalar';
 import { Vector3 } from '../../math/Vector3';
 import { VectorN } from '../../math/VectorN';
 import { Is } from '../../misc/Is';
+import type { Engine } from '../../system/Engine';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 import { TransformComponent } from '../Transform';
@@ -42,7 +43,6 @@ export class LightComponent extends Component {
   public enable = true;
   public shadowAreaSizeForDirectionalLight = 10;
   public castShadow = false;
-  private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tmp_vec4 = MutableVector4.zero();
 
   private _lightPosition = MutableVector4.dummy();
@@ -57,15 +57,22 @@ export class LightComponent extends Component {
   private __lastTransformUpdateCount = -1;
 
   /**
-   * Creates a new CameraComponent instance.
+   * Creates a new LightComponent instance.
    *
+   * @param engine - The engine instance
    * @param entityUid - The unique identifier of the entity this component belongs to
    * @param componentSid - The component system identifier
    * @param entityRepository - The entity repository instance
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
-    super(entityUid, componentSid, entityRepository, isReUse);
+  constructor(
+    engine: Engine,
+    entityUid: EntityUID,
+    componentSid: ComponentSID,
+    entityRepository: EntityRepository,
+    isReUse: boolean
+  ) {
+    super(engine, entityUid, componentSid, entityRepository, isReUse);
 
     this.submitToAllocation(Config.lightComponentCountPerBufferView, isReUse);
   }
@@ -165,7 +172,7 @@ export class LightComponent extends Component {
   set isLightGizmoVisible(flg: boolean) {
     if (flg) {
       if (Is.not.defined(this.__lightGizmo)) {
-        this.__lightGizmo = new LightGizmo(this.entity);
+        this.__lightGizmo = new LightGizmo(this.entity.engine, this.entity);
         this.__lightGizmo._setup();
       }
       this.__lightGizmo.isVisible = true;
@@ -194,7 +201,7 @@ export class LightComponent extends Component {
    * This method is called during the component loading phase.
    */
   $load() {
-    LightComponent.__lightNumber = LightComponent.__globalDataRepository.getValue('lightNumber', 0);
+    LightComponent.__lightNumber = this.entity.engine.globalDataRepository.getValue('lightNumber', 0);
 
     this.moveStageTo(ProcessStage.Logic);
   }
@@ -217,8 +224,8 @@ export class LightComponent extends Component {
    *
    * @static
    */
-  static common_$logic() {
-    const lightComponents = ComponentRepository.getComponentsWithType(LightComponent) as LightComponent[];
+  static common_$logic({ engine }: { engine: Engine }) {
+    const lightComponents = engine.componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
     LightComponent.__lightNumber._v[0] = lightComponents.length;
   }
 
@@ -233,7 +240,7 @@ export class LightComponent extends Component {
    */
   $logic() {
     if (
-      TransformComponent.updateCount === this.__lastTransformUpdateCount &&
+      TransformComponent.getUpdateCount(this.__engine) === this.__lastTransformUpdateCount &&
       this.__lastUpdateCount === this.__updateCount
     ) {
       return;
@@ -266,7 +273,7 @@ export class LightComponent extends Component {
 
     this.__updateGizmo();
 
-    this.__lastTransformUpdateCount = TransformComponent.updateCount;
+    this.__lastTransformUpdateCount = TransformComponent.getUpdateCount(this.__engine);
     this.__lastUpdateCount = this.__updateCount;
   }
 
@@ -286,7 +293,7 @@ export class LightComponent extends Component {
    * @returns The light entity instance with light-specific methods
    */
   get entity(): ILightEntity {
-    return EntityRepository.getEntity(this.__entityUid) as unknown as ILightEntity;
+    return this.__engine.entityRepository.getEntity(this.__entityUid) as unknown as ILightEntity;
   }
 
   /**
@@ -312,7 +319,6 @@ export class LightComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
-
 LightComponent.registerMember({
   bufferUse: BufferUse.GPUInstanceData,
   memberName: 'lightPosition',

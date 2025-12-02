@@ -4,16 +4,16 @@ declare const window: any;
 (() => {
   window.Rn = Rn;
   //    import Rn from '../../../dist/rhodonite.mjs';
-  async function readyBasicVerticesData() {
+  async function readyBasicVerticesData(engine: Rn.Engine) {
     // Triangle
     const positions = new Float32Array([-0.5, -0.5, 0.0, 0.5, -0.5, 0.0, 0.0, 0.5, 0.0]);
     const texcoord = new Float32Array([-0.5, -0.5, 0.5, -0.5, 0.0, 0.0]);
     const indices = new Uint32Array([0, 1, 2]);
 
-    const flatMaterial = Rn.MaterialHelper.createFlatMaterial();
+    const flatMaterial = Rn.MaterialHelper.createFlatMaterial(engine);
 
-    const texture = await Rn.Texture.loadFromUrl('../../../assets/images/Rn.png');
-    const sampler = new Rn.Sampler({
+    const texture = await Rn.Texture.loadFromUrl(engine, '../../../assets/images/Rn.png');
+    const sampler = new Rn.Sampler(engine, {
       minFilter: Rn.TextureParameter.Linear,
       magFilter: Rn.TextureParameter.Linear,
       wrapS: Rn.TextureParameter.Repeat,
@@ -21,7 +21,7 @@ declare const window: any;
     });
     sampler.create();
     flatMaterial.setTextureParameter('baseColorTexture', texture, sampler);
-    const primitive = Rn.Primitive.createPrimitive({
+    const primitive = Rn.Primitive.createPrimitive(engine, {
       material: flatMaterial,
       attributeSemantics: [Rn.VertexAttribute.Position.XYZ, Rn.VertexAttribute.Texcoord0.XY],
       indices,
@@ -37,18 +37,19 @@ declare const window: any;
   promises.push(Rn.ModuleManager.getInstance().loadModule('pbr'));
   Promise.all(promises).then(async () => {
     Rn.Config.cgApiDebugConsoleOutput = true;
-    await Rn.System.init({
+    const engine = await Rn.Engine.init({
       approach: Rn.ProcessApproach.WebGPU,
       canvas: document.getElementById('world') as HTMLCanvasElement,
     });
+    window.engine = engine;
     Rn.Logger.logLevel = Rn.LogLevel.Info;
 
-    const primitive = await readyBasicVerticesData();
+    const primitive = await readyBasicVerticesData(engine);
 
     const entities = [];
-    const originalMesh = new Rn.Mesh();
+    const originalMesh = new Rn.Mesh(engine);
     originalMesh.addPrimitive(primitive);
-    const entityOrig = Rn.createMeshEntity();
+    const entityOrig = Rn.createMeshEntity(engine);
     entityOrig.getMesh().setMesh(originalMesh);
     // entityOrig.getTransform().localEulerAngles = Rn.Vector3.fromCopy3(0, 1, 0);
     entities.push(entityOrig);
@@ -63,13 +64,11 @@ declare const window: any;
 
     let count = 0;
 
-    const camera = Rn.createCameraEntity();
+    const camera = Rn.createCameraEntity(engine, true);
     camera.position = Rn.Vector3.fromCopy3(0.0, 0.0, 2.0);
-    const camera2 = Rn.createCameraEntity();
-    camera2.position = Rn.Vector3.fromCopy3(1.0, 0.0, 2.0);
 
     // renderPass
-    const renderPass = new Rn.RenderPass();
+    const renderPass = new Rn.RenderPass(engine);
     renderPass.clearColor = Rn.Vector4.fromCopy4(0.5, 0.5, 0.5, 1.0);
     renderPass.toClearColorBuffer = true;
     renderPass.addEntities(entities);
@@ -85,10 +84,10 @@ declare const window: any;
       }
 
       //      console.log(date.getTime());
-      Rn.System.process([expression]);
+      engine.process([expression]);
 
-      const t0 = Rn.System.timeAtProcessBegin;
-      const t1 = Rn.System.timeAtProcessEnd;
+      const t0 = Rn.Engine.timeAtProcessBegin;
+      const t1 = Rn.Engine.timeAtProcessEnd;
       const msec = t1 - t0;
       const sec = msec / 1000;
       const virtualFps = 1.0 / sec;
@@ -107,5 +106,5 @@ declare const window: any;
 })();
 
 window.exportGltf2 = () => {
-  Rn.Gltf2Exporter.export('Rhodonite');
+  Rn.Gltf2Exporter.export(window.engine, 'Rhodonite');
 };

@@ -13,7 +13,8 @@ import { ShaderSemantics, ShaderSemanticsClass, type ShaderSemanticsEnum } from 
 import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { ShaderType } from '../../definitions/ShaderType';
 import { Scalar } from '../../math/Scalar';
-import { SystemState } from '../../system/SystemState';
+import type { Engine } from '../../system/Engine';
+import { EngineState } from '../../system/EngineState';
 import type { AbstractTexture } from '../../textures/AbstractTexture';
 import { Sampler } from '../../textures/Sampler';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
@@ -38,13 +39,14 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
   /**
    * Creates a new DetectHighLuminanceMaterialContent instance.
    *
+   * @param engine - The engine instance
    * @param materialName - The name identifier for this material
    * @param textureToDetectHighLuminance - The source texture to analyze for high luminance areas
    */
-  constructor(materialName: string, textureToDetectHighLuminance: AbstractTexture) {
+  constructor(engine: Engine, materialName: string, textureToDetectHighLuminance: AbstractTexture) {
     super(materialName, {});
 
-    const sampler = new Sampler({
+    const sampler = new Sampler(engine, {
       wrapS: TextureParameter.ClampToEdge,
       wrapT: TextureParameter.ClampToEdge,
       minFilter: TextureParameter.Linear,
@@ -82,7 +84,7 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
       },
     ];
 
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this.setVertexShaderityObject(DetectHighLuminanceAndCorrectShaderVertexWebGpu);
       this.setPixelShaderityObject(DetectHighLuminanceAndCorrectShaderFragmentWebGpu);
     } else {
@@ -104,9 +106,11 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
    * @param params.args - WebGL rendering arguments including world matrix, render pass, and camera info
    */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
+    engine,
     shaderProgram,
     args,
   }: {
+    engine: Engine;
     shaderProgram: WebGLProgram;
     args: RenderingArgWebGL;
   }) {
@@ -115,7 +119,10 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
       /// Matrices
       let cameraComponent = args.renderPass.cameraComponent;
       if (cameraComponent == null) {
-        cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
+        cameraComponent = engine.componentRepository.getComponent(
+          CameraComponent,
+          CameraComponent.getCurrent(engine)
+        ) as CameraComponent;
       }
       if (cameraComponent) {
         this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);

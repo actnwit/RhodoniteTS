@@ -2,9 +2,10 @@ import type { AnimationTrackName } from '../../../types/AnimationTypes';
 import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
 import type { IEntity } from '../../core/Entity';
-import { EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import type { IAnimationStateEntity, ISceneGraphEntity } from '../../helpers/EntityHelper';
+import type { Engine } from '../../system/Engine';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
@@ -21,13 +22,20 @@ export class AnimationStateComponent extends Component {
 
   /**
    * Creates a new AnimationStateComponent instance.
+   * @param engine - The engine instance
    * @param entityUid - The unique identifier of the entity this component belongs to
    * @param componentSid - The system identifier for this component instance
    * @param entityComponent - The entity repository for component management
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean) {
-    super(entityUid, componentSid, entityComponent, isReUse);
+  constructor(
+    engine: Engine,
+    entityUid: EntityUID,
+    componentSid: ComponentSID,
+    entityComponent: EntityRepository,
+    isReUse: boolean
+  ) {
+    super(engine, entityUid, componentSid, entityComponent, isReUse);
 
     this.moveStageTo(ProcessStage.Logic);
   }
@@ -232,7 +240,7 @@ export class AnimationStateComponent extends Component {
    * @returns The entity which has this component as an IAnimationStateEntity
    */
   get entity(): IAnimationStateEntity {
-    return EntityRepository.getEntity(this.__entityUid) as unknown as IAnimationStateEntity;
+    return this.__engine.entityRepository.getEntity(this.__entityUid) as unknown as IAnimationStateEntity;
   }
 
   /**

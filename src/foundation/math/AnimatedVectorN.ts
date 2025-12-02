@@ -1,5 +1,4 @@
 import type { AnimationSampler, AnimationSamplers, AnimationTrackName } from '../../types/AnimationTypes';
-import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { __interpolate } from '../components/Animation/AnimationOps';
 import { AnimationAttribute } from '../definitions/AnimationAttribute';
 import { Logger } from '../misc/Logger';
@@ -97,7 +96,7 @@ export class AnimatedVectorN extends VectorN implements IAnimatedValue {
    * Handles time looping, interpolation, and blending between multiple tracks.
    */
   public update() {
-    let time = this.__time ?? AnimationComponent.globalTime;
+    let time = this.__time ?? 0;
     if (this.isLoop) {
       let duration = this.__firstActiveAnimationSampler.input[this.__firstActiveAnimationSampler.input.length - 1];
       if (this.__secondActiveAnimationSampler !== undefined) {

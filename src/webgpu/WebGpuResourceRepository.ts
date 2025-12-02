@@ -18,8 +18,7 @@ import { TextureParameter, type TextureParameterEnum } from '../foundation/defin
 import { VertexAttribute, type VertexAttributeEnum } from '../foundation/definitions/VertexAttribute';
 import type { Mesh } from '../foundation/geometry/Mesh';
 import { Primitive } from '../foundation/geometry/Primitive';
-import { dummyBlackCubeTexture, dummyWhiteTexture } from '../foundation/materials/core/DummyTextures';
-import { Material } from '../foundation/materials/core/Material';
+import type { Material } from '../foundation/materials/core/Material';
 import type { Vector4 } from '../foundation/math/Vector4';
 import type { Accessor } from '../foundation/memory/Accessor';
 import { DataUtil } from '../foundation/misc/DataUtil';
@@ -34,7 +33,7 @@ import {
 } from '../foundation/renderer/CGAPIResourceRepository';
 import type { FrameBuffer } from '../foundation/renderer/FrameBuffer';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
-import { SystemState } from '../foundation/system/SystemState';
+import { EngineState } from '../foundation/system/EngineState';
 import type { AbstractTexture } from '../foundation/textures/AbstractTexture';
 import { CubeTexture } from '../foundation/textures/CubeTexture';
 import type { IRenderable } from '../foundation/textures/IRenderable';
@@ -50,6 +49,7 @@ import type { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 
 import HDRImage from '../../vendor/hdrpng.js';
 import type { Buffer } from '../foundation/memory/Buffer';
+import type { Engine } from '../foundation/system/Engine';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import { TextureArray } from '../foundation/textures/TextureArray';
 import type { WebXRSystem } from '../xr/WebXRSystem';
@@ -90,7 +90,6 @@ type DRAW_PARAMETERS_IDENTIFIER = string;
  * @implements ICGAPIResourceRepository
  */
 export class WebGpuResourceRepository extends CGAPIResourceRepository implements ICGAPIResourceRepository {
-  private static __instance: WebGpuResourceRepository;
   private __webGpuResources: Map<WebGLResourceHandle, WebGpuResource> = new Map();
   private __resourceCounter: number = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __webGpuDeviceWrapper?: WebGpuDeviceWrapper;
@@ -134,7 +133,6 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   private __bindGroupsForGeneratingMipmaps: Map<GPUTexture, Array<Array<GPUBindGroup>>> = new Map();
 
   private static __drawParametersUint32Array: Uint32Array = new Uint32Array(4);
-  private static __webxrSystem: WebXRSystem;
 
   private constructor() {
     super();
@@ -189,11 +187,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    *
    * @returns The singleton instance
    */
-  static getInstance(): WebGpuResourceRepository {
-    if (!this.__instance) {
-      this.__instance = new WebGpuResourceRepository();
-    }
-    return this.__instance;
+  static init(): WebGpuResourceRepository {
+    return new WebGpuResourceRepository();
   }
 
   /**
@@ -992,7 +987,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    *
    * @param renderPass - The render pass containing clear settings and target framebuffer
    */
-  clearFrameBuffer(renderPass: RenderPass, displayIdx: number) {
+  clearFrameBuffer(engine: Engine, renderPass: RenderPass, displayIdx: number) {
     if (renderPass.entities.length > 0) {
       return;
     }
@@ -1006,8 +1001,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     const context = this.__webGpuDeviceWrapper!.context;
     const colorAttachments: GPURenderPassColorAttachment[] = [];
     let depthStencilAttachment: GPURenderPassDepthStencilAttachment | undefined;
-    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+    const webxrSystem = engine.webXRSystem;
     if (renderPass.toClearColorBuffer) {
       const framebuffer = renderPass.getFramebuffer();
       if (framebuffer != null) {
@@ -1028,8 +1022,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           });
         }
       } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
-        const view = SystemState.xrPoseWebGPU!.views[displayIdx];
-        const subImage = SystemState.xrGpuBinding.getViewSubImage(SystemState.xrProjectionLayerWebGPU!, view);
+        const view = EngineState.xrPoseWebGPU!.views[displayIdx];
+        const subImage = EngineState.xrGpuBinding.getViewSubImage(EngineState.xrProjectionLayerWebGPU!, view);
         colorAttachments.push({
           view: subImage.colorTexture.createView(subImage.getViewDescriptor()),
           clearValue: {
@@ -1071,8 +1065,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           depthStoreOp: 'store',
         };
       } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
-        const view = SystemState.xrPoseWebGPU!.views[displayIdx];
-        const subImage = SystemState.xrGpuBinding.getViewSubImage(SystemState.xrProjectionLayerWebGPU!, view);
+        const view = EngineState.xrPoseWebGPU!.views[displayIdx];
+        const subImage = EngineState.xrGpuBinding.getViewSubImage(EngineState.xrProjectionLayerWebGPU!, view);
         depthStencilAttachment = {
           view: subImage.depthStencilTexture.createView(subImage.getViewDescriptor()),
           depthClearValue: renderPass.clearDepth,
@@ -1110,6 +1104,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @param zWrite - Whether to enable depth writing during rendering
    */
   draw(
+    engine: Engine,
     primitive: Primitive,
     material: Material,
     renderPass: RenderPass,
@@ -1133,6 +1128,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       const meshRendererComponent = entity.getMeshRenderer()!;
 
       material._setInternalSettingParametersToGpuWebGpu({
+        engine,
         material: material,
         args: {
           cameraComponentSid: cameraId,
@@ -1152,7 +1148,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     const bindGroupId = `${renderPipelineId} ${material.stateVersion} ${material.__materialSid}`;
 
     if (!this.__bindGroupTextureMap.has(bindGroupId)) {
-      this.__createBindGroup(bindGroupId, material, diffuseCubeMap, specularCubeMap, sheenCubeMap);
+      this.__createBindGroup(engine, bindGroupId, material, diffuseCubeMap, specularCubeMap, sheenCubeMap);
     }
 
     const [pipeline, _recreated] = this.getOrCreateRenderPipeline(
@@ -1206,14 +1202,17 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    *
    * @param renderPass - The render pass that will use this render bundle encoder
    */
-  private __getRenderBundleDescriptor(renderPass: RenderPass, displayIdx: number): GPURenderBundleEncoderDescriptor {
+  private __getRenderBundleDescriptor(
+    engine: Engine,
+    renderPass: RenderPass,
+    displayIdx: number
+  ): GPURenderBundleEncoderDescriptor {
     const framebuffer = renderPass.getFramebuffer();
     const resolveFramebuffer = renderPass.getResolveFramebuffer();
     let colorFormats: GPUTextureFormat[] = [];
     let depthStencilFormat: GPUTextureFormat | undefined;
     let sampleCount = 1;
-    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+    const webxrSystem = engine.webXRSystem;
     if (framebuffer != null) {
       for (const colorAttachment of framebuffer.colorAttachments) {
         if (colorAttachment == null) {
@@ -1251,8 +1250,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         depthStencilFormat = undefined;
       }
     } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
-      const view = SystemState.xrPoseWebGPU!.views[displayIdx];
-      const subImage = SystemState.xrGpuBinding.getViewSubImage(SystemState.xrProjectionLayerWebGPU!, view);
+      const view = EngineState.xrPoseWebGPU!.views[displayIdx];
+      const subImage = EngineState.xrGpuBinding.getViewSubImage(EngineState.xrProjectionLayerWebGPU!, view);
       colorFormats = [subImage.colorTexture.format];
       depthStencilFormat = subImage.depthStencilTexture.format;
     } else {
@@ -1272,9 +1271,9 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     };
   }
 
-  createRenderBundleEncoder(renderPass: RenderPass, displayIdx: number) {
+  createRenderBundleEncoder(engine: Engine, renderPass: RenderPass, displayIdx: number) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-    const renderBundleDescriptor = this.__getRenderBundleDescriptor(renderPass, displayIdx);
+    const renderBundleDescriptor = this.__getRenderBundleDescriptor(engine, renderPass, displayIdx);
     const descriptorKey = JSON.stringify({
       colorFormats: renderBundleDescriptor.colorFormats,
       depthStencilFormat: renderBundleDescriptor.depthStencilFormat ?? null,
@@ -1293,9 +1292,11 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * Creates a render pass encoder for immediate rendering commands.
    * This encoder is used for recording rendering commands that will be executed immediately.
    *
+   * @param engine - The engine instance
    * @param renderPass - The render pass configuration including targets and clear values
+   * @param displayIdx - The display index for stereo rendering (0 for left eye, 1 for right eye)
    */
-  private createRenderPassEncoder(renderPass: RenderPass, displayIdx: number) {
+  private createRenderPassEncoder(engine: Engine, renderPass: RenderPass, displayIdx: number) {
     if (this.__renderPassEncoder != null) {
       return;
     }
@@ -1313,8 +1314,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       : undefined;
     const depthClearValue = renderPass.toClearDepthBuffer ? renderPass.clearDepth : undefined;
 
-    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+    const webxrSystem = engine.webXRSystem;
 
     if (resolveFramebuffer != null && framebuffer != null) {
       let depthTextureView = this.__systemDepthTextureView!;
@@ -1396,8 +1396,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       this.__renderPassEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
     } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
       const colorAttachments: GPURenderPassColorAttachment[] = [];
-      const view = SystemState.xrPoseWebGPU!.views[displayIdx];
-      const subImage = SystemState.xrGpuBinding.getViewSubImage(SystemState.xrProjectionLayerWebGPU!, view);
+      const view = EngineState.xrPoseWebGPU!.views[displayIdx];
+      const subImage = EngineState.xrGpuBinding.getViewSubImage(EngineState.xrProjectionLayerWebGPU!, view);
       colorAttachments.push({
         view: subImage.colorTexture.createView(subImage.getViewDescriptor()),
         clearValue: clearValue,
@@ -1441,26 +1441,26 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     }
   }
 
-  private __toClearRenderBundles() {
+  private __toClearRenderBundles(engine: Engine) {
     if (
-      Material.stateVersion !== this.__lastMaterialsUpdateCount ||
-      CameraComponent.current !== this.__lastCurrentCameraComponentSid ||
+      engine.materialRepository.stateVersion !== this.__lastMaterialsUpdateCount ||
+      CameraComponent.getCurrent(engine) !== this.__lastCurrentCameraComponentSid ||
       EntityRepository.updateCount !== this.__lastEntityRepositoryUpdateCount ||
       Primitive.variantUpdateCount !== this.__lastPrimitivesMaterialVariantUpdateCount ||
       MeshRendererComponent.updateCount !== this.__lastMeshRendererComponentsUpdateCount
     ) {
       this.__renderBundles.clear();
-      SystemState.webgpuRenderBundleMode = false;
-      this.__lastCurrentCameraComponentSid = CameraComponent.current;
-      this.__lastMaterialsUpdateCount = Material.stateVersion;
+      EngineState.webgpuRenderBundleMode = false;
+      this.__lastCurrentCameraComponentSid = CameraComponent.getCurrent(engine);
+      this.__lastMaterialsUpdateCount = engine.materialRepository.stateVersion;
       this.__lastEntityRepositoryUpdateCount = EntityRepository.updateCount;
       this.__lastPrimitivesMaterialVariantUpdateCount = Primitive.variantUpdateCount;
       this.__lastMeshRendererComponentsUpdateCount = MeshRendererComponent.updateCount;
     }
   }
 
-  renderWithRenderBundle(renderPass: RenderPass, displayIdx: number) {
-    this.__toClearRenderBundles();
+  renderWithRenderBundle(engine: Engine, renderPass: RenderPass, displayIdx: number) {
+    this.__toClearRenderBundles(engine);
     if (renderPass._isChangedSortRenderResult || !Config.cacheWebGpuRenderBundles) {
       this.__renderBundles.clear();
     }
@@ -1468,7 +1468,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     const renderBundleKey = `${renderPass.renderPassUID}-${displayIdx}`;
     let renderBundle = this.__renderBundles.get(renderBundleKey);
     if (renderBundle != null) {
-      this.createRenderPassEncoder(renderPass, displayIdx);
+      this.createRenderPassEncoder(engine, renderPass, displayIdx);
 
       if (this.__renderPassEncoder != null) {
         this.__renderPassEncoder.executeBundles([renderBundle]);
@@ -1482,8 +1482,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     return false;
   }
 
-  finishRenderBundleEncoder(renderPass: RenderPass, displayIdx: number) {
-    this.createRenderPassEncoder(renderPass, displayIdx);
+  finishRenderBundleEncoder(engine: Engine, renderPass: RenderPass, displayIdx: number) {
+    this.createRenderPassEncoder(engine, renderPass, displayIdx);
 
     if (this.__renderPassEncoder != null && this.__renderBundleEncoder != null) {
       const renderBundle = this.__renderBundleEncoder.finish();
@@ -1715,6 +1715,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @returns the WebGLResourceHandle for the generated Cube Texture
    */
   async createCubeTextureFromFiles(
+    engine: Engine,
     baseUri: string,
     mipLevelCount: Count,
     isNamePosNeg: boolean,
@@ -1861,7 +1862,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         }
       );
     }
-    return this.createCubeTexture(mipLevelCount, imageArgs, width, height);
+    return this.createCubeTexture(engine, mipLevelCount, imageArgs, width, height);
   }
 
   /**
@@ -1874,6 +1875,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @returns resource handle
    */
   createCubeTexture(
+    engine: Engine,
     mipLevelCount: Count,
     images: Array<{
       posX: DirectTextureData;
@@ -1974,7 +1976,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     const minFilter = mipLevelCount === 1 ? TextureParameter.Linear : TextureParameter.LinearMipmapLinear;
     const magFilter = TextureParameter.Linear;
 
-    const sampler = new Sampler({ wrapS, wrapT, minFilter, magFilter, anisotropy: false });
+    const sampler = new Sampler(engine, { wrapS, wrapT, minFilter, magFilter, anisotropy: false });
     sampler.create();
 
     return [handle, sampler];
@@ -2274,6 +2276,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   }
 
   private __createBindGroup(
+    engine: Engine,
     bindGroupId: string,
     material: Material,
     diffuseCubeMap?: CubeTexture | RenderTargetTextureCube,
@@ -2417,13 +2420,19 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           let gpuTextureView = this.__webGpuResources.get(texture._textureViewResourceUid) as GPUTextureView;
           if (gpuTextureView == null) {
             if (texture instanceof CubeTexture || texture instanceof RenderTargetTextureCube) {
-              const gpuTexture = this.__webGpuResources.get(dummyBlackCubeTexture._textureResourceUid) as GPUTexture;
+              const gpuTexture = this.__webGpuResources.get(
+                engine.dummyTextures.dummyBlackCubeTexture._textureResourceUid
+              ) as GPUTexture;
               gpuTextureView = gpuTexture.createView({ dimension: 'cube' });
             } else if (texture instanceof TextureArray || texture instanceof RenderTargetTexture2DArray) {
-              const gpuTexture = this.__webGpuResources.get(dummyWhiteTexture._textureResourceUid) as GPUTexture;
+              const gpuTexture = this.__webGpuResources.get(
+                engine.dummyTextures.dummyWhiteTexture._textureResourceUid
+              ) as GPUTexture;
               gpuTextureView = gpuTexture.createView({ dimension: '2d-array' });
             } else {
-              const gpuTexture = this.__webGpuResources.get(dummyWhiteTexture._textureResourceUid) as GPUTexture;
+              const gpuTexture = this.__webGpuResources.get(
+                engine.dummyTextures.dummyWhiteTexture._textureResourceUid
+              ) as GPUTexture;
               gpuTextureView = gpuTexture.createView();
             }
           }
@@ -2472,7 +2481,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           });
         } else {
           const dummyCubeTextureView = this.__webGpuResources.get(
-            dummyBlackCubeTexture._textureViewResourceUid
+            engine.dummyTextures.dummyBlackCubeTexture._textureViewResourceUid
           ) as GPUTextureView;
           entriesForTexture.push({
             binding: diffuseEnvSlot,
@@ -2495,7 +2504,9 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
             resource: diffuseCubeSampler,
           });
         } else {
-          const dummyCubeSampler = this.__webGpuResources.get(dummyBlackCubeTexture._samplerResourceUid) as GPUSampler;
+          const dummyCubeSampler = this.__webGpuResources.get(
+            engine.dummyTextures.dummyBlackCubeTexture._samplerResourceUid
+          ) as GPUSampler;
           entriesForSampler.push({
             binding: diffuseEnvSlot,
             resource: dummyCubeSampler,
@@ -2524,7 +2535,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           });
         } else {
           const dummyCubeTextureView = this.__webGpuResources.get(
-            dummyBlackCubeTexture._textureViewResourceUid
+            engine.dummyTextures.dummyBlackCubeTexture._textureViewResourceUid
           ) as GPUTextureView;
           entriesForTexture.push({
             binding: specularEnvSlot,
@@ -2547,7 +2558,9 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
             resource: specularCubeSampler,
           });
         } else {
-          const dummyCubeSampler = this.__webGpuResources.get(dummyBlackCubeTexture._samplerResourceUid) as GPUSampler;
+          const dummyCubeSampler = this.__webGpuResources.get(
+            engine.dummyTextures.dummyBlackCubeTexture._samplerResourceUid
+          ) as GPUSampler;
           entriesForSampler.push({
             binding: specularEnvSlot,
             resource: dummyCubeSampler,
@@ -2584,7 +2597,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           });
         } else {
           const dummyCubeTextureView = this.__webGpuResources.get(
-            dummyBlackCubeTexture._textureViewResourceUid
+            engine.dummyTextures.dummyBlackCubeTexture._textureViewResourceUid
           ) as GPUTextureView;
           entriesForTexture.push({
             binding: sheenEnvSlot,
@@ -2611,7 +2624,9 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
             resource: sheenCubeSampler,
           });
         } else {
-          const dummyCubeSampler = this.__webGpuResources.get(dummyBlackCubeTexture._samplerResourceUid) as GPUSampler;
+          const dummyCubeSampler = this.__webGpuResources.get(
+            engine.dummyTextures.dummyBlackCubeTexture._samplerResourceUid
+          ) as GPUSampler;
           entriesForSampler.push({
             binding: sheenEnvSlot,
             resource: dummyCubeSampler,

@@ -5,7 +5,7 @@ import { ProcessApproach } from '../definitions/ProcessApproach';
 import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFormat';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import type { FrameBuffer } from '../renderer/FrameBuffer';
-import { SystemState } from '../system/SystemState';
+import { EngineState } from '../system/EngineState';
 import { AbstractTexture } from './AbstractTexture';
 import type { IRenderable } from './IRenderable';
 
@@ -81,7 +81,7 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
    * @private
    */
   private __createRenderTargetTexture() {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     const texture = cgApiResourceRepository.createRenderTargetTextureCube({
       width: this.__width,
       height: this.__height,
@@ -90,7 +90,7 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
     });
     this._textureResourceUid = texture;
 
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureViewCube(
         this._textureResourceUid
       );
@@ -111,7 +111,7 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
    * to ensure proper mipmap generation from the rendered content.
    */
   generateMipmaps() {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     cgApiResourceRepository.generateMipmapsCube(this._textureResourceUid, this.width, this.height);
   }
 
@@ -145,7 +145,7 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
    * This is automatically called during resize operations.
    */
   destroy3DAPIResources() {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     cgApiResourceRepository.deleteTexture(this._textureResourceUid);
     this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
@@ -164,8 +164,8 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
    * For WebGL, face-specific rendering is handled differently through framebuffer operations.
    */
   createCubeTextureViewAsRenderTarget(faceIdx: Index, mipLevel: Index): void {
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      const webGpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+      const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
       this._textureViewAsRenderTargetResourceUid = webGpuResourceRepository.createCubeTextureViewAsRenderTarget(
         this._textureResourceUid,
         faceIdx,

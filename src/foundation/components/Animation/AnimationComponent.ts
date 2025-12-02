@@ -38,6 +38,7 @@ import type { Vector3 } from '../../math/Vector3';
 import { DataUtil } from '../../misc/DataUtil';
 import { Is } from '../../misc/Is';
 import { valueWithCompensation, valueWithDefault } from '../../misc/MiscUtil';
+import type { Engine } from '../../system/Engine';
 import { type EventHandler, EventPubSub } from '../../system/EventPubSub';
 import type { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
@@ -71,18 +72,21 @@ export class AnimationComponent extends Component {
   // Animation Data of each AnimationComponent
   private __animationTrack: AnimationTrack = new Map();
   private __animationTrackFeatureHashes: Map<AnimationTrackName, number> = new Map();
-  public static __animationGlobalInfo: Map<AnimationTrackName, AnimationInfo> = new Map();
+  /** Map to store animation global info per Engine instance for multi-engine support */
+  private static __animationGlobalInfoMap: Map<Engine, Map<AnimationTrackName, AnimationInfo>> = new Map();
 
   private __isEffekseerState = -1;
 
   /// flags ///
   private __isAnimating = true;
-  static isAnimating = true;
+  /** Map to store isAnimating flag per Engine instance for multi-engine support */
+  private static __isAnimatingMap: Map<Engine, boolean> = new Map();
   public isLoop = true;
 
   // Global animation time in Rhodonite
   public useGlobalTime = true;
-  public static globalTime = 0;
+  /** Map to store globalTime per Engine instance for multi-engine support */
+  private static __globalTimeMap: Map<Engine, number> = new Map();
 
   // animation time in this animation component
   public time = 0;
@@ -128,7 +132,7 @@ export class AnimationComponent extends Component {
    */
   $logic() {
     // Skip if animation is globally or locally disabled
-    if (!AnimationComponent.isAnimating || !this.isAnimating) {
+    if (!AnimationComponent.getIsAnimating(this.__engine) || !this.isAnimating) {
       return;
     }
 
@@ -152,7 +156,7 @@ export class AnimationComponent extends Component {
     // - Separate load: Joints are different (different entityUID, same jointIndex)
     //   → early return enabled, significantly reducing CPU overhead
     // ============================================================================
-    if (SkeletalComponent.isEntityCached(this.__entityUid)) {
+    if (SkeletalComponent.isEntityCached(this.__entityUid, this.__engine)) {
       return;
     }
 
@@ -185,7 +189,7 @@ export class AnimationComponent extends Component {
   private __applyAnimation() {
     let time = this.time;
     if (this.useGlobalTime) {
-      time = AnimationComponent.globalTime;
+      time = AnimationComponent.getGlobalTime(this.__engine);
     }
 
     const transformComponent = (this.entity as unknown as ISceneGraphEntity).getTransform();
@@ -371,8 +375,8 @@ export class AnimationComponent extends Component {
    * Sets the active animation track for all animation components.
    * @param animationTrackName - The name of the animation track to activate
    */
-  static setActiveAnimationForAll(animationTrackName: AnimationTrackName) {
-    const components = ComponentRepository.getComponentsWithType(AnimationComponent) as AnimationComponent[];
+  static setActiveAnimationForAll(engine: Engine, animationTrackName: AnimationTrackName) {
+    const components = engine.componentRepository.getComponentsWithType(AnimationComponent) as AnimationComponent[];
     for (const component of components) {
       component.setActiveAnimationTrack(animationTrackName);
     }
@@ -450,6 +454,7 @@ export class AnimationComponent extends Component {
 
     // update AnimationInfo
     const trackNames = animatedValue.getAllTrackNames();
+    const animationGlobalInfo = AnimationComponent.getAnimationGlobalInfo(this.__engine);
     for (const trackName of trackNames) {
       const newMinStartInputTime = animatedValue.getMinStartInputTime(trackName);
       const newMaxEndInputTime = animatedValue.getMaxEndInputTime(trackName);
@@ -459,9 +464,9 @@ export class AnimationComponent extends Component {
         minStartInputTime: newMinStartInputTime,
         maxEndInputTime: newMaxEndInputTime,
       };
-      AnimationComponent.__animationGlobalInfo.set(trackName, info);
+      animationGlobalInfo.set(trackName, info);
       AnimationComponent.__pubsub.publishAsync(AnimationComponent.Event.ChangeAnimationInfo, {
-        infoMap: new Map(AnimationComponent.__animationGlobalInfo),
+        infoMap: new Map(animationGlobalInfo),
       });
     }
     // backup the current transform as rest pose
@@ -484,7 +489,8 @@ export class AnimationComponent extends Component {
    * @returns The minimum start input time value
    */
   public getStartInputValueOfAnimation(animationTrackName: string): number {
-    return AnimationComponent.__animationGlobalInfo.get(animationTrackName)!.minStartInputTime;
+    const animationGlobalInfo = AnimationComponent.getAnimationGlobalInfo(this.__engine);
+    return animationGlobalInfo.get(animationTrackName)!.minStartInputTime;
   }
 
   /**
@@ -493,23 +499,27 @@ export class AnimationComponent extends Component {
    * @returns The maximum end input time value
    */
   public getEndInputValueOfAnimation(animationTrackName: string): number {
-    return AnimationComponent.__animationGlobalInfo.get(animationTrackName)!.maxEndInputTime;
+    const animationGlobalInfo = AnimationComponent.getAnimationGlobalInfo(this.__engine);
+    return animationGlobalInfo.get(animationTrackName)!.maxEndInputTime;
   }
 
   /**
    * Gets an array of all available animation track names.
+   * @param engine - The engine instance to get the animation list for
    * @returns Array of animation track names
    */
-  static getAnimationList(): AnimationTrackName[] {
-    return Array.from(this.__animationGlobalInfo.keys());
+  static getAnimationList(engine: Engine): AnimationTrackName[] {
+    const animationGlobalInfo = this.getAnimationGlobalInfo(engine);
+    return Array.from(animationGlobalInfo.keys());
   }
 
   /**
    * Gets the animation information for all tracks.
+   * @param engine - The engine instance to get the animation info for
    * @returns A map containing animation track names and their corresponding information
    */
-  static getAnimationInfo(): Map<AnimationTrackName, AnimationInfo> {
-    return new Map(this.__animationGlobalInfo);
+  static getAnimationInfo(engine: Engine): Map<AnimationTrackName, AnimationInfo> {
+    return new Map(this.getAnimationGlobalInfo(engine));
   }
 
   /**
@@ -542,28 +552,38 @@ export class AnimationComponent extends Component {
 
   /**
    * Gets the global start input value for all animation components.
+   * @param engine - The engine instance to get the start input value for
    * @returns The start input value
    */
-  static get startInputValue() {
-    const components = ComponentRepository.getComponentsWithType(AnimationComponent) as AnimationComponent[];
+  static getStartInputValue(engine: Engine) {
+    const components = engine.componentRepository.getComponentsWithType(AnimationComponent) as AnimationComponent[];
     if (components.length === 0) {
       return 0;
     }
-    const infoArray = Array.from(this.__animationGlobalInfo.values());
+    const animationGlobalInfo = this.getAnimationGlobalInfo(engine);
+    const infoArray = Array.from(animationGlobalInfo.values());
+    if (infoArray.length === 0) {
+      return 0;
+    }
     const lastInfo = infoArray[infoArray.length - 1];
     return lastInfo.minStartInputTime;
   }
 
   /**
    * Gets the global end input value for all animation components.
+   * @param engine - The engine instance to get the end input value for
    * @returns The end input value
    */
-  static get endInputValue() {
-    const components = ComponentRepository.getComponentsWithType(AnimationComponent) as AnimationComponent[];
+  static getEndInputValue(engine: Engine) {
+    const components = engine.componentRepository.getComponentsWithType(AnimationComponent) as AnimationComponent[];
     if (components.length === 0) {
       return 0;
     }
-    const infoArray = Array.from(this.__animationGlobalInfo.values());
+    const animationGlobalInfo = this.getAnimationGlobalInfo(engine);
+    const infoArray = Array.from(animationGlobalInfo.values());
+    if (infoArray.length === 0) {
+      return 0;
+    }
     const lastInfo = infoArray[infoArray.length - 1];
     return lastInfo.maxEndInputTime;
   }
@@ -589,7 +609,7 @@ export class AnimationComponent extends Component {
    * @returns The entity which has this component
    */
   get entity(): IAnimationEntity {
-    return EntityRepository.getEntity(this.__entityUid) as unknown as IAnimationEntity;
+    return this.__engine.entityRepository.getEntity(this.__entityUid) as unknown as IAnimationEntity;
   }
 
   /**
@@ -632,7 +652,8 @@ export class AnimationComponent extends Component {
     const animatedValue = channel.animatedValue;
 
     const i = AnimationAttribute.fromString(pathName).index;
-    const output = __interpolate(animatedValue.getAnimationSampler(trackName), AnimationComponent.globalTime, i);
+    const globalTime = AnimationComponent.getGlobalTime(this.__engine);
+    const output = __interpolate(animatedValue.getAnimationSampler(trackName), globalTime, i);
 
     if (animatedValue.getAnimationSampler(trackName).input.length === 0) {
       const inputArray = Array.from(animatedValue.getAnimationSampler(trackName).input);
@@ -848,11 +869,54 @@ export class AnimationComponent extends Component {
   }
 
   /**
-   * Sets the global animation state for all animation components.
-   * @param flag - True to enable animation globally, false to disable
+   * Gets the animation global info map for a specific engine.
+   * Creates a new map if one doesn't exist for the engine.
+   * @param engine - The engine instance to get the animation info for
+   * @returns The animation global info map for the engine
    */
-  static setIsAnimating(flag: boolean) {
-    this.isAnimating = flag;
+  static getAnimationGlobalInfo(engine: Engine): Map<AnimationTrackName, AnimationInfo> {
+    let infoMap = this.__animationGlobalInfoMap.get(engine);
+    if (infoMap == null) {
+      infoMap = new Map();
+      this.__animationGlobalInfoMap.set(engine, infoMap);
+    }
+    return infoMap;
+  }
+
+  /**
+   * Sets the animation state for the specified engine.
+   * @param engine - The engine instance to set the animation state for
+   * @param flag - True to enable animation, false to disable
+   */
+  static setIsAnimating(engine: Engine, flag: boolean) {
+    this.__isAnimatingMap.set(engine, flag);
+  }
+
+  /**
+   * Gets the animation state for the specified engine.
+   * @param engine - The engine instance to get the animation state for
+   * @returns True if animation is enabled for the engine, defaults to true if not set
+   */
+  static getIsAnimating(engine: Engine): boolean {
+    return this.__isAnimatingMap.get(engine) ?? true;
+  }
+
+  /**
+   * Sets the global animation time for the specified engine.
+   * @param engine - The engine instance to set the global time for
+   * @param time - The global animation time in seconds
+   */
+  static setGlobalTime(engine: Engine, time: number) {
+    this.__globalTimeMap.set(engine, time);
+  }
+
+  /**
+   * Gets the global animation time for the specified engine.
+   * @param engine - The engine instance to get the global time for
+   * @returns The global animation time for the engine, defaults to 0 if not set
+   */
+  static getGlobalTime(engine: Engine): number {
+    return this.__globalTimeMap.get(engine) ?? 0;
   }
 
   /**

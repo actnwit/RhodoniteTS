@@ -1,18 +1,14 @@
-import { MemoryManager } from '../../core/MemoryManager';
-import { Matrix44 } from '../../math/Matrix44';
-import { Vector3 } from '../../math/Vector3';
-import { flattenHierarchy } from './SceneGraphOps';
-import { createGroupEntity } from './createGroupEntity';
-import '../registerComponents';
+import Rn from '../../../../dist/esm';
 
-describe('SceneGraphComponent', () => {
-  function generateEntity() {
-    return createGroupEntity();
-  }
-
-  beforeAll(() => {
-    MemoryManager.createInstanceIfNotCreated(1024 * 1024 * 4 /* rgba */ * 4 /* byte */);
+describe('SceneGraphComponent', async () => {
+  const engine = await Rn.Engine.init({
+    approach: Rn.ProcessApproach.None,
+    canvas: document.getElementById('world') as HTMLCanvasElement,
   });
+
+  function generateEntity() {
+    return Rn.createGroupEntity(engine);
+  }
 
   test('create Parents and children.', () => {
     // generate entities
@@ -22,9 +18,9 @@ describe('SceneGraphComponent', () => {
     //  const child2Entity = generateEntity();
 
     // set transform info
-    sceneEntity.position = Vector3.fromCopyArray([1, 0, 0]);
-    parentEntity.position = Vector3.fromCopyArray([1, 0, 0]);
-    childEntity.position = Vector3.fromCopyArray([1, 0, 0]);
+    sceneEntity.position = Rn.Vector3.fromCopyArray([1, 0, 0]);
+    parentEntity.position = Rn.Vector3.fromCopyArray([1, 0, 0]);
+    childEntity.position = Rn.Vector3.fromCopyArray([1, 0, 0]);
     //  child2Entity.getTransform().localPosition = Vector3.fromCopyArray([0, 1, 0]);
 
     // setup scene graph
@@ -47,7 +43,7 @@ describe('SceneGraphComponent', () => {
     expect(
       childEntity
         .getSceneGraph()
-        .matrix.isEqual(Matrix44.fromCopy16RowMajor(1, 0, 0, 3, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1), 0.00001)
+        .matrix.isEqual(Rn.Matrix44.fromCopy16RowMajor(1, 0, 0, 3, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1), 0.00001)
     ).toBe(true);
   });
 
@@ -63,7 +59,7 @@ describe('SceneGraphComponent', () => {
     parentEntity.addChild(child2Entity.getSceneGraph());
     sceneEntity.addChild(parentEntity.getSceneGraph());
 
-    const result = flattenHierarchy(sceneEntity.getSceneGraph(), false);
+    const result = Rn.flattenHierarchy(sceneEntity.getSceneGraph(), false);
 
     expect(result.length).toBe(4);
   });

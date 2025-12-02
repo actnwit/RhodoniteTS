@@ -19,7 +19,7 @@ const resolutionDepthCamera = 1024;
 // prepare memory
 Rn.Config.cgApiDebugConsoleOutput = true;
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-await Rn.System.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: rnCanvasElement,
 });
@@ -35,7 +35,7 @@ const renderPassesDepth = createRenderPassDepth(entityCameraDepth.getCamera(), e
 const entityEnvironmentCube = await createEntityEnvironmentCube(basePathIBL);
 const entityBoardCastedShadow = createEntityBoard(renderPassesDepth);
 
-const renderPassMain = new Rn.RenderPass();
+const renderPassMain = new Rn.RenderPass(engine);
 renderPassMain.cameraComponent = entityCameraMain.getCamera();
 renderPassMain.addEntities([entityEnvironmentCube, entityBoardCastedShadow, entityRootGroup]);
 
@@ -56,7 +56,7 @@ draw([expression]);
 // ---functions-----------------------------------------------------------------------------------------
 
 function createEntityDepthCamera() {
-  const entityCamera = Rn.createCameraEntity();
+  const entityCamera = Rn.createCameraEntity(engine, false);
 
   const transformCamera = entityCamera.getTransform();
   transformCamera.localPosition = lightPosition;
@@ -72,13 +72,13 @@ function createEntityDepthCamera() {
 }
 
 function createEntityMainCamera() {
-  const entityCamera = Rn.createCameraControllerEntity();
+  const entityCamera = Rn.createCameraControllerEntity(engine, true);
   return entityCamera;
 }
 
 async function createEntityGltf2(uriGltf: string) {
   const gltf2JSON = await Rn.Gltf2Importer.importFromUrl(uriGltf);
-  const entityRootGroup = await Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
+  const entityRootGroup = await Rn.ModelConverter.convertToRhodoniteObject(engine, gltf2JSON);
 
   const transformComponent = entityRootGroup.getTransform();
   transformComponent.localScale = rootGroupScale;
@@ -86,7 +86,7 @@ async function createEntityGltf2(uriGltf: string) {
 }
 
 async function createEntityEnvironmentCube(basePathIBL: string) {
-  const cubeTextureEnvironment = new Rn.CubeTexture();
+  const cubeTextureEnvironment = new Rn.CubeTexture(engine);
   await cubeTextureEnvironment.loadTextureImages({
     baseUrl: `${basePathIBL}/environment/environment`,
     mipmapLevelNumber: 1,
@@ -94,9 +94,9 @@ async function createEntityEnvironmentCube(basePathIBL: string) {
     hdriFormat: Rn.HdriFormat.HDR_LINEAR,
   });
 
-  const materialSphere = Rn.MaterialHelper.createEnvConstantMaterial();
+  const materialSphere = Rn.MaterialHelper.createEnvConstantMaterial(engine);
   materialSphere.setParameter('envHdriFormat', Rn.HdriFormat.HDR_LINEAR.index);
-  const samplerSphere = new Rn.Sampler({
+  const samplerSphere = new Rn.Sampler(engine, {
     magFilter: Rn.TextureParameter.Linear,
     minFilter: Rn.TextureParameter.LinearMipmapLinear,
     wrapS: Rn.TextureParameter.ClampToEdge,
@@ -104,17 +104,17 @@ async function createEntityEnvironmentCube(basePathIBL: string) {
   });
   materialSphere.setTextureParameter('colorEnvTexture', cubeTextureEnvironment, samplerSphere);
 
-  const primitiveSphere = new Rn.Sphere();
+  const primitiveSphere = new Rn.Sphere(engine);
   primitiveSphere.generate({
     radius: 2500,
     widthSegments: 40,
     heightSegments: 40,
     material: materialSphere,
   });
-  const meshSphere = new Rn.Mesh();
+  const meshSphere = new Rn.Mesh(engine);
   meshSphere.addPrimitive(primitiveSphere);
 
-  const entitySphere = Rn.createMeshEntity();
+  const entitySphere = Rn.createMeshEntity(engine);
   const meshComponentSphere = entitySphere.getMesh();
   meshComponentSphere.setMesh(meshSphere);
 
@@ -125,12 +125,12 @@ async function createEntityEnvironmentCube(basePathIBL: string) {
 }
 
 function createEntityBoard(renderPassDepth: Rn.RenderPass) {
-  const material = Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial({}, renderPassDepth);
+  const material = Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial(engine, {}, renderPassDepth);
   material.setParameter('diffuseColorFactor', Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.0]));
   material.setParameter('shadowColorFactor', Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.5]));
   material.alphaMode = Rn.AlphaMode.Blend;
 
-  const primitive = new Rn.Plane();
+  const primitive = new Rn.Plane(engine);
   primitive.generate({
     width: 20,
     height: 20,
@@ -140,9 +140,9 @@ function createEntityBoard(renderPassDepth: Rn.RenderPass) {
     material,
   });
 
-  const entity = Rn.createMeshEntity();
+  const entity = Rn.createMeshEntity(engine);
   const meshComponent = entity.getMesh();
-  const mesh = new Rn.Mesh();
+  const mesh = new Rn.Mesh(engine);
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);
 
@@ -154,12 +154,12 @@ function createEntityBoard(renderPassDepth: Rn.RenderPass) {
 }
 
 function createRenderPassDepth(cameraComponentDepth: Rn.CameraComponent, entityRenderTarget: Rn.ISceneGraphEntity) {
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.toClearColorBuffer = true;
   renderPass.cameraComponent = cameraComponentDepth;
   renderPass.addEntities([entityRenderTarget]);
 
-  const material = Rn.MaterialHelper.createDepthEncodeMaterial();
+  const material = Rn.MaterialHelper.createDepthEncodeMaterial(engine);
   renderPass.setMaterial(material);
 
   createAndSetFramebuffer(renderPass, resolutionDepthCamera, 1);
@@ -168,7 +168,7 @@ function createRenderPassDepth(cameraComponentDepth: Rn.CameraComponent, entityR
 }
 
 function createAndSetFramebuffer(renderPass: Rn.RenderPass, resolution: number, textureNum: number) {
-  const framebuffer = Rn.RenderableHelper.createFrameBuffer({
+  const framebuffer = Rn.RenderableHelper.createFrameBuffer(engine, {
     width: resolution,
     height: resolution,
     textureNum: textureNum,
@@ -186,7 +186,7 @@ function createExpression(renderPasses: Rn.RenderPass[]) {
 }
 
 async function setIBLTexture(basePathIBL: string) {
-  const cubeTextureSpecular = new Rn.CubeTexture();
+  const cubeTextureSpecular = new Rn.CubeTexture(engine);
   await cubeTextureSpecular.loadTextureImages({
     baseUrl: `${basePathIBL}/specular/specular`,
     mipmapLevelNumber: 10,
@@ -194,7 +194,7 @@ async function setIBLTexture(basePathIBL: string) {
     hdriFormat: Rn.HdriFormat.RGBE_PNG,
   });
 
-  const cubeTextureDiffuse = new Rn.CubeTexture();
+  const cubeTextureDiffuse = new Rn.CubeTexture(engine);
   await cubeTextureDiffuse.loadTextureImages({
     baseUrl: `${basePathIBL}/diffuse/diffuse`,
     mipmapLevelNumber: 1,
@@ -202,7 +202,7 @@ async function setIBLTexture(basePathIBL: string) {
     hdriFormat: Rn.HdriFormat.RGBE_PNG,
   });
 
-  const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
+  const meshRendererComponents = engine.componentRepository.getComponentsWithType(
     Rn.MeshRendererComponent
   ) as Rn.MeshRendererComponent[];
 
@@ -212,6 +212,6 @@ async function setIBLTexture(basePathIBL: string) {
 }
 
 function draw(expressions: Rn.Expression[]) {
-  Rn.System.process(expressions);
+  engine.process(expressions);
   requestAnimationFrame(draw.bind(null, expressions));
 }

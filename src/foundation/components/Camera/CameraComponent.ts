@@ -4,7 +4,7 @@ import { Component } from '../../core/Component';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { Config } from '../../core/Config';
 import type { IEntity } from '../../core/Entity';
-import { EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { BufferUse } from '../../definitions/BufferUse';
 import { CameraType, type CameraTypeEnum } from '../../definitions/CameraType';
 import { ComponentType } from '../../definitions/ComponentType';
@@ -25,8 +25,9 @@ import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
 import { Is } from '../../misc/Is';
 import { RenderPass } from '../../renderer/RenderPass';
+import type { Engine } from '../../system/Engine';
+import { EngineState } from '../../system/EngineState';
 import { ModuleManager } from '../../system/ModuleManager';
-import { SystemState } from '../../system/SystemState';
 import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { createGroupEntity } from '../SceneGraph/createGroupEntity';
@@ -66,7 +67,7 @@ export class CameraComponent extends Component {
   private _projectionMatrix: MutableMatrix44 = MutableMatrix44.dummy();
   private _viewMatrix: MutableMatrix44 = MutableMatrix44.dummy();
   private _viewPosition: MutableVector3 = MutableVector3.dummy();
-  private static __current: ComponentSID = -1;
+  private static __currentMap: Map<number, ComponentSID> = new Map();
   private static returnVector3 = MutableVector3.zero();
   private static __tmpVector3_0: MutableVector3 = MutableVector3.zero();
   private static __tmpVector3_1: MutableVector3 = MutableVector3.zero();
@@ -124,39 +125,48 @@ export class CameraComponent extends Component {
   /**
    * Creates a new CameraComponent instance.
    *
+   * @param engine - The engine instance
    * @param entityUid - The unique identifier of the entity this component belongs to
    * @param componentSid - The component system identifier
    * @param entityRepository - The entity repository instance
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
-    super(entityUid, componentSid, entityRepository, isReUse);
+  constructor(
+    engine: Engine,
+    entityUid: EntityUID,
+    componentSid: ComponentSID,
+    entityRepository: EntityRepository,
+    isReUse: boolean
+  ) {
+    super(engine, entityUid, componentSid, entityRepository, isReUse);
 
     this.setFovyAndChangeFocalLength(90);
 
-    if (CameraComponent.current === -1) {
-      CameraComponent.current = componentSid;
+    if (CameraComponent.getCurrent(engine) === -1) {
+      CameraComponent.setCurrent(engine, componentSid);
     }
 
     this.submitToAllocation(Config.cameraComponentCountPerBufferView, isReUse);
   }
 
   /**
-   * Sets the current active camera component.
+   * Gets the current active camera component ID for a specific engine.
    *
-   * @param componentSID - The component system identifier of the camera to set as current
+   * @param engine - The engine instance
+   * @returns The component system identifier of the current active camera for the engine
    */
-  static set current(componentSID: ComponentSID) {
-    this.__current = componentSID;
+  static getCurrent(engine: Engine): ComponentSID {
+    return this.__currentMap.get(engine.engineUid) ?? -1;
   }
 
   /**
-   * Gets the current active camera component ID.
+   * Sets the current active camera component for a specific engine.
    *
-   * @returns The component system identifier of the current active camera
+   * @param engine - The engine instance
+   * @param componentSID - The component system identifier of the camera to set as current
    */
-  static get current() {
-    return this.__current;
+  static setCurrent(engine: Engine, componentSID: ComponentSID): void {
+    this.__currentMap.set(engine.engineUid, componentSID);
   }
 
   /**
@@ -171,13 +181,14 @@ export class CameraComponent extends Component {
   /**
    * Gets the update count of the current active camera.
    *
+   * @param engine - The engine instance
    * @returns The update count of the current camera, or 0 if no camera is active
    */
-  static get currentCameraUpdateCount() {
-    const currentCameraComponent = ComponentRepository.getComponent(
+  static getCurrentCameraUpdateCount(engine: Engine) {
+    const currentCameraComponent = engine.componentRepository.getComponent(
       CameraComponent,
-      CameraComponent.current
-    ) as CameraComponent;
+      CameraComponent.getCurrent(engine)
+    ) as unknown as CameraComponent;
     return currentCameraComponent?.updateCount ?? 0;
   }
 
@@ -800,12 +811,12 @@ export class CameraComponent extends Component {
     const zNear = this._parametersInner.x;
     const zFar = this._parametersInner.y;
 
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (this.type === CameraType.Perspective) {
         const fovy = this._parametersInner.z;
         let aspect = this._parametersInner.w;
         if (aspect < 0) {
-          aspect = SystemState.viewportAspectRatio;
+          aspect = EngineState.viewportAspectRatio;
         }
         const yscale = 1.0 / Math.tan((0.5 * fovy * Math.PI) / 180);
         const xscale = yscale / aspect;
@@ -882,7 +893,7 @@ export class CameraComponent extends Component {
         const fovy = this._parametersInner.z;
         let aspect = this._parametersInner.w;
         if (aspect < 0) {
-          aspect = SystemState.viewportAspectRatio;
+          aspect = EngineState.viewportAspectRatio;
         }
         const yscale = 1.0 / Math.tan((0.5 * fovy * Math.PI) / 180);
         const xscale = yscale / aspect;
@@ -1027,9 +1038,8 @@ export class CameraComponent extends Component {
    */
   get projectionMatrix() {
     if (this._xrLeft || this._xrRight) {
-      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-      if (rnXRModule?.WebXRSystem.getInstance().isWebXRMode) {
-        const webXRSystem = rnXRModule.WebXRSystem.getInstance();
+      const webXRSystem = this.__engine.webXRSystem;
+      if (webXRSystem.isWebXRMode) {
         if (this._xrLeft) {
           return webXRSystem.leftProjectionMatrix;
         }
@@ -1067,7 +1077,7 @@ export class CameraComponent extends Component {
    */
   get biasViewProjectionMatrix() {
     MutableMatrix44.multiplyTo(this._projectionMatrix, this._viewMatrix, CameraComponent.__tmpMatrix44_0);
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return MutableMatrix44.multiplyTo(
         CameraComponent.__biasMatrixWebGPU,
         CameraComponent.__tmpMatrix44_0,
@@ -1134,9 +1144,9 @@ export class CameraComponent extends Component {
     let lightComponentUpdateCount = lightComponent != null ? lightComponent.updateCount : -1;
     if (
       this.__lastUpdateCount === this.__updateCount &&
-      this.__lastTransformComponentsUpdateCount === TransformComponent.updateCount &&
+      this.__lastTransformComponentsUpdateCount === TransformComponent.getUpdateCount(this.__engine) &&
       this.__lastLightComponentsUpdateCount === lightComponentUpdateCount &&
-      this.__lastCameraControllerComponentsUpdateCount === CameraControllerComponent.updateCount
+      this.__lastCameraControllerComponentsUpdateCount === CameraControllerComponent.getUpdateCount(this.__engine)
     ) {
       return;
     }
@@ -1186,19 +1196,9 @@ export class CameraComponent extends Component {
     this.__setValuesToViewPosition();
 
     this.__lastUpdateCount = this.__updateCount;
-    this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
+    this.__lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(this.__engine);
     this.__lastLightComponentsUpdateCount = lightComponentUpdateCount;
-    this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
-  }
-
-  /**
-   * Gets the entity that has the current active camera component.
-   *
-   * @returns The entity with the current camera component
-   */
-  static getCurrentCameraEntity() {
-    const currentCameraComponent = ComponentRepository.getComponent(this, this.current) as CameraComponent;
-    return currentCameraComponent.entity;
+    this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.getUpdateCount(this.__engine);
   }
 
   /**
@@ -1207,7 +1207,7 @@ export class CameraComponent extends Component {
    * @returns The entity which has this component
    */
   get entity(): ICameraEntity {
-    return EntityRepository.getEntity(this.__entityUid) as unknown as ICameraEntity;
+    return this.__engine.entityRepository.getEntity(this.__entityUid) as unknown as ICameraEntity;
   }
 
   /**

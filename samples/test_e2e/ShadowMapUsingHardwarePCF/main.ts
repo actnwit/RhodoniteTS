@@ -6,14 +6,14 @@ document.body.appendChild(p);
 declare const window: any;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // Spot Light
-const spotLight = Rn.createLightWithCameraEntity();
+const spotLight = Rn.createLightWithCameraEntity(engine);
 spotLight.getLight().type = Rn.LightType.Spot;
 spotLight.getLight().outerConeAngle = Rn.MathUtil.degreeToRadian(120);
 // spotLight.getLight().range = 0.01;
@@ -23,7 +23,7 @@ spotLight.localEulerAngles = Rn.Vector3.fromCopy3(-Math.PI / 2, 0, 0);
 spotLight.localPosition = Rn.Vector3.fromCopy3(0.0, 1.0, 0);
 
 // Main Camera
-const mainCameraEntity = Rn.createCameraControllerEntity();
+const mainCameraEntity = Rn.createCameraControllerEntity(engine, true);
 mainCameraEntity.localPosition = Rn.Vector3.fromCopyArray([0.5, 3, 0.5]);
 mainCameraEntity.localEulerAngles = Rn.Vector3.fromCopy3(-Math.PI / 2, 0, 0);
 
@@ -58,7 +58,7 @@ renderPassDepth.addEntities([entitySmallBoard, entityLargeBoard]);
 renderPassMain.addEntities([entitySmallBoard, entityLargeBoard]);
 
 // set depth shader to depth render pass
-renderPassDepth.setMaterial(Rn.MaterialHelper.createFlatMaterial());
+renderPassDepth.setMaterial(Rn.MaterialHelper.createFlatMaterial(engine));
 
 // set parameters
 const meshComponentSmallBoard = entitySmallBoard.getMesh();
@@ -90,12 +90,12 @@ window.download = () => {
 
 let count = 0;
 
-Rn.System.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (count > 0) {
     p.id = 'rendered';
     p.innerText = 'Rendered.';
   }
-  Rn.System.process([expression]);
+  engine.process([expression]);
 
   setParameterForMeshComponent(meshComponentSmallBoard, 'depthBiasPV', spotLight.getCamera().biasViewProjectionMatrix);
   setParameterForMeshComponent(meshComponentLargeBoard, 'depthBiasPV', spotLight.getCamera().biasViewProjectionMatrix);
@@ -103,35 +103,35 @@ Rn.System.startRenderLoop(() => {
 });
 
 function createBoardEntityWithMaterial() {
-  const entity = Rn.createMeshEntity();
+  const entity = Rn.createMeshEntity(engine);
 
-  const primitive = new Rn.Plane();
+  const primitive = new Rn.Plane(engine);
   primitive.generate({
     width: 1,
     height: 1,
     uSpan: 1,
     vSpan: 1,
     isUVRepeat: false,
-    material: Rn.MaterialHelper.createClassicUberMaterial({
+    material: Rn.MaterialHelper.createClassicUberMaterial(engine, {
       isShadow: true,
     }),
   });
 
   const meshComponent = entity.getMesh();
-  const mesh = new Rn.Mesh();
+  const mesh = new Rn.Mesh(engine);
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);
   return entity;
 }
 
 function createFramebuffer(renderPass, height, width) {
-  const framebuffer = Rn.RenderableHelper.createDepthBuffer(height, width, {});
+  const framebuffer = Rn.RenderableHelper.createDepthBuffer(engine, height, width, {});
   renderPass.setFramebuffer(framebuffer);
   return framebuffer;
 }
 
 function createRenderPassSpecifyingCameraComponent(lightWithCameraEntity: Rn.ILightEntity & Rn.ICameraEntityMethods) {
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.toClearColorBuffer = true;
   renderPass.cameraComponent = lightWithCameraEntity.getCamera();
   return renderPass;
@@ -151,7 +151,7 @@ function setTextureParameterForMeshComponent(
   shaderSemantic: string,
   value: Rn.RenderTargetTexture
 ) {
-  const sampler = new Rn.Sampler({
+  const sampler = new Rn.Sampler(engine, {
     magFilter: Rn.TextureParameter.Nearest,
     minFilter: Rn.TextureParameter.Nearest,
     wrapS: Rn.TextureParameter.ClampToEdge,

@@ -5,20 +5,21 @@ const p = document.createElement('p');
 document.body.appendChild(p);
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
 // camera
-const cameraEntity = Rn.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zFar = 1000.0;
 cameraComponent.setFovyAndChangeFocalLength(25.0);
 
 // gltf
 const expression = await Rn.GltfImporter.importFromUrl(
-  './../../../assets/gltf/glTF-Sample-Assets/Models/TextureSettingsTest/glTF-Binary/TextureSettingsTest.glb',
+  engine,
+  '../../../assets/gltf/glTF-Sample-Assets/Models/TextureSettingsTest/glTF-Binary/TextureSettingsTest.glb',
   {
     cameraComponent: cameraComponent,
     defaultMaterialHelperArgumentArray: [
@@ -38,6 +39,6 @@ controller.dolly = 0.78;
 p.id = 'rendered';
 p.innerText = 'Rendered.';
 
-Rn.System.startRenderLoop(() => {
-  Rn.System.process([expression]);
+engine.startRenderLoop(() => {
+  engine.process([expression]);
 });

@@ -5,12 +5,12 @@ let p: any;
 declare const window: any;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
-const ground = Rn.MeshHelper.createCube({
+const ground = Rn.MeshHelper.createCube(engine, {
   widthVector: Rn.Vector3.fromCopyArray([20, 0.2, 20]),
   color: Rn.ColorRgba.fromCopy4(0.5, 0.5, 0.5, 1),
   physics: {
@@ -20,11 +20,11 @@ const ground = Rn.MeshHelper.createCube({
     friction: 0.5,
     restitution: 0.2,
   },
-  material: Rn.MaterialHelper.createClassicUberMaterial(),
+  material: Rn.MaterialHelper.createClassicUberMaterial(engine),
 });
 
 function createCubes(numberToCreate: number) {
-  const cubes = Rn.MeshHelper.createCubes(numberToCreate, {
+  const cubes = Rn.MeshHelper.createCubes(engine, numberToCreate, {
     widthVector: Rn.Vector3.fromCopyArray([1, 1, 1]),
     color: Rn.ColorRgba.fromCopy4(1.0, 0.5, 0.5, 1),
     physics: {
@@ -34,7 +34,7 @@ function createCubes(numberToCreate: number) {
       friction: 0.5,
       restitution: 0.2,
     },
-    material: Rn.MaterialHelper.createClassicUberMaterial(),
+    material: Rn.MaterialHelper.createClassicUberMaterial(engine),
   });
 
   for (let i = 0; i < numberToCreate; i++) {
@@ -46,7 +46,7 @@ function createCubes(numberToCreate: number) {
 }
 
 function createSpheres(numberToCreate: number) {
-  const spheres = Rn.MeshHelper.createSpheres(numberToCreate, {
+  const spheres = Rn.MeshHelper.createSpheres(engine, numberToCreate, {
     radius: 1,
     widthSegments: 10,
     heightSegments: 10,
@@ -74,14 +74,14 @@ Array.prototype.push.apply(entities, createSpheres(1000));
 Array.prototype.push.apply(entities, [ground]);
 
 const expression = new Rn.Expression();
-const renderPass = new Rn.RenderPass();
+const renderPass = new Rn.RenderPass(engine);
 expression.addRenderPasses([renderPass]);
 renderPass.addEntities(entities);
 
-Rn.createLightEntity();
+Rn.createLightEntity(engine);
 
 // Camera
-const cameraEntity = Rn.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera();
 //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
 cameraComponent.zNear = 0.1;
@@ -96,10 +96,10 @@ const cameraControllerComponent = cameraEntity.getCameraController();
 const controller = cameraControllerComponent.controller as Rn.OrbitCameraController;
 controller.setTarget(ground);
 
-Rn.CameraComponent.current = 0;
+Rn.CameraComponent.setCurrent(engine, 0);
 let count = 0;
 
-Rn.System.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (p == null && count > 0) {
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');
@@ -116,7 +116,7 @@ Rn.System.startRenderLoop(() => {
       ]);
     }
   }
-  Rn.System.process([expression]);
+  engine.process([expression]);
 
   count++;
 });

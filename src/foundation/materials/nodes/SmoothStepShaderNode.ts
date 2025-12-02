@@ -3,7 +3,7 @@ import StepShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Smo
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
-import { SystemState } from '../../system/SystemState';
+import { EngineState } from '../../system/EngineState';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
 
@@ -73,7 +73,7 @@ export class SmoothStepShaderNode extends AbstractShaderNode {
    * @throws {Error} If the composition type is not supported
    */
   getShaderFunctionNameDerivative() {
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (this.__inputs[0].compositionType === CompositionType.Scalar) {
         return `${this.__shaderFunctionName}F32`;
       }

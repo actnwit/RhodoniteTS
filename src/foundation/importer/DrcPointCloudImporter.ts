@@ -13,6 +13,7 @@ import { ifDefinedThen } from '../misc/MiscUtil';
 import { ifUndefinedThen } from '../misc/MiscUtil';
 import { Err, Ok, type Result } from '../misc/Result';
 import { RnPromise } from '../misc/RnPromise';
+import type { Engine } from '../system/Engine';
 
 declare let DracoDecoderModule: any;
 declare let Rn: any;
@@ -1163,9 +1164,9 @@ export class DrcPointCloudImporter {
    * // Use the primitive directly in Rhodonite
    * ```
    */
-  async importPointCloudToPrimitive(uri: string): Promise<Primitive> {
+  async importPointCloudToPrimitive(engine: Engine, uri: string): Promise<Primitive> {
     const r_arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
-    return this.__decodeDracoToPrimitive(r_arrayBuffer.unwrapForce());
+    return this.__decodeDracoToPrimitive(engine, r_arrayBuffer.unwrapForce());
   }
 
   /**
@@ -1177,7 +1178,7 @@ export class DrcPointCloudImporter {
    * @returns The decoded Rhodonite Primitive
    * @private
    */
-  private __decodeDracoToPrimitive(arrayBuffer: ArrayBuffer) {
+  private __decodeDracoToPrimitive(engine: Engine, arrayBuffer: ArrayBuffer) {
     const draco = new DracoDecoderModule();
     const decoder = new draco.Decoder();
     const dracoGeometry = this.__getGeometryFromDracoBuffer(draco, decoder, arrayBuffer);
@@ -1197,10 +1198,10 @@ export class DrcPointCloudImporter {
     this.__getNormals(draco, decoder, dracoGeometry, attributeCompositionTypes, attributeSemantics, attributes);
     this.__getTextureCoords(draco, decoder, dracoGeometry, attributeCompositionTypes, attributeSemantics, attributes);
 
-    const primitive = Primitive.createPrimitive({
+    const primitive = Primitive.createPrimitive(engine, {
       attributeSemantics: attributeSemantics,
       attributes: attributes,
-      material: MaterialHelper.createClassicUberMaterial({
+      material: MaterialHelper.createClassicUberMaterial(engine, {
         isSkinning: false,
         isLighting: true,
       }),

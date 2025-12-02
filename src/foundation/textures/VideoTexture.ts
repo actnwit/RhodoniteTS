@@ -118,7 +118,7 @@ export class VideoTexture extends AbstractTexture {
   async generateTextureFromVideo(
     video: HTMLVideoElement,
     {
-      level = 0,
+      _level = 0,
       internalFormat = TextureFormat.RGBA8,
       format = PixelFormat.RGBA,
       type = ComponentType.UnsignedByte,
@@ -137,13 +137,13 @@ export class VideoTexture extends AbstractTexture {
     this.__width = img.videoWidth;
     this.__height = img.videoHeight;
 
-    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webGLResourceRepository = this.__engine.webglResourceRepository;
     const textureHandle = await webGLResourceRepository.createTextureFromImageBitmapData(img, {
-      level: level,
+      // level: level,
       internalFormat: internalFormat,
       width: this.__width,
       height: this.__height,
-      border: 0,
+      // border: 0,
       format: format,
       type: type,
       generateMipmap: generateMipmap,
@@ -182,7 +182,7 @@ export class VideoTexture extends AbstractTexture {
   async generateTextureFromUri(
     videoUri: string,
     {
-      level = 0,
+      _level = 0,
       internalFormat = TextureFormat.RGBA8,
       format = PixelFormat.RGBA,
       type = ComponentType.UnsignedByte,
@@ -200,13 +200,13 @@ export class VideoTexture extends AbstractTexture {
         this.__width = video.videoWidth;
         this.__height = video.videoHeight;
 
-        const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+        const webGLResourceRepository = this.__engine.webglResourceRepository;
         const textureHandle = await webGLResourceRepository.createTextureFromImageBitmapData(video, {
-          level: level,
+          // level: level,
           internalFormat: internalFormat,
           width: this.__width,
           height: this.__height,
-          border: 0,
+          // border: 0,
           format: format,
           type: type,
           generateMipmap: generateMipmap,
@@ -274,7 +274,7 @@ export class VideoTexture extends AbstractTexture {
    * ```
    */
   updateTexture() {
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = this.__engine.webglResourceRepository;
     if (this.__isTextureReady && this.#htmlVideoElement) {
       webGLResourceRepository.updateTexture(this._textureResourceUid, this.#htmlVideoElement, {
         level: 0,
@@ -306,7 +306,7 @@ export class VideoTexture extends AbstractTexture {
    */
   getCurrentFramePixelData() {
     let pixel: Uint8Array | undefined = undefined;
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = this.__engine.webglResourceRepository;
     if (this.__isTextureReady && this.#htmlVideoElement) {
       pixel = webGLResourceRepository.getPixelDataFromTexture(this._textureResourceUid, 0, 0, this.width, this.height);
     }

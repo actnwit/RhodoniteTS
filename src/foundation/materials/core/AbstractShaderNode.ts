@@ -6,7 +6,7 @@ import type { CompositionTypeEnum } from '../../definitions/CompositionType';
 import type { ShaderSemanticsEnum } from '../../definitions/ShaderSemantics';
 import { ShaderType, type ShaderTypeEnum } from '../../definitions/ShaderType';
 import type { VertexAttributeEnum } from '../../definitions/VertexAttribute';
-import { SystemState } from '../../system';
+import { EngineState } from '../../system';
 import type { Socket, SocketDefaultValue } from './Socket';
 
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
@@ -153,7 +153,7 @@ export abstract class AbstractShaderNode extends RnObject {
       }
       return this.__commonPart.pixelShaderDefinitions;
     }
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return this.__codeWGSL!;
     }
     return this.__codeGLSL!;
@@ -255,7 +255,7 @@ export abstract class AbstractShaderNode extends RnObject {
           if (k !== 0) {
             rowStr += ', ';
           }
-          if (SystemState.currentProcessApproach === ProcessApproach.WebGPU && k >= varInputNames[i].length) {
+          if (EngineState.currentProcessApproach === ProcessApproach.WebGPU && k >= varInputNames[i].length) {
             rowStr += '&';
           }
           rowStr += varNames[k];

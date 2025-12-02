@@ -11,9 +11,9 @@ import { TextureParameter } from '../../definitions/TextureParameter';
 import { MutableVector2 } from '../../math/MutableVector2';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import type { Engine } from '../../system/Engine';
 import { Sampler } from '../../textures/Sampler';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { dummyBlackCubeTexture } from '../core/DummyTextures';
 import type { Material } from '../core/Material';
 
 /**
@@ -22,22 +22,8 @@ import type { Material } from '../core/Material';
  * morphing, skinning, and various shader semantics.
  */
 export class CustomMaterialContent extends AbstractMaterialContent {
-  private static __globalDataRepository = GlobalDataRepository.getInstance();
-  private static __diffuseIblCubeMapSampler = new Sampler({
-    minFilter: TextureParameter.Linear,
-    magFilter: TextureParameter.Linear,
-    wrapS: TextureParameter.ClampToEdge,
-    wrapT: TextureParameter.ClampToEdge,
-    wrapR: TextureParameter.ClampToEdge,
-  });
-  private static __specularIblCubeMapSampler = new Sampler({
-    minFilter: TextureParameter.LinearMipmapLinear,
-    magFilter: TextureParameter.Linear,
-    wrapS: TextureParameter.ClampToEdge,
-    wrapT: TextureParameter.ClampToEdge,
-    wrapR: TextureParameter.ClampToEdge,
-  });
-
+  private __diffuseIblCubeMapSampler: Sampler;
+  private __specularIblCubeMapSampler: Sampler;
   /**
    * Creates a new CustomMaterialContent instance with custom shaders and configuration.
    *
@@ -53,33 +39,37 @@ export class CustomMaterialContent extends AbstractMaterialContent {
    * @param params.pixelShaderWebGpu - Optional pixel/fragment shader object for WebGPU rendering
    * @param params.definitions - Optional array of preprocessor definitions for shaders
    */
-  constructor({
-    name,
-    isMorphing,
-    isSkinning,
-    isLighting,
-    vertexShader,
-    pixelShader,
-    additionalShaderSemanticInfo,
-    vertexShaderWebGpu,
-    pixelShaderWebGpu,
-    definitions = [],
-  }: {
-    name: string;
-    isMorphing: boolean;
-    isSkinning: boolean;
-    isLighting: boolean;
-    vertexShader?: ShaderityObject;
-    pixelShader?: ShaderityObject;
-    additionalShaderSemanticInfo: ShaderSemanticsInfo[];
-    vertexShaderWebGpu?: ShaderityObject;
-    pixelShaderWebGpu?: ShaderityObject;
-    definitions?: string[];
-  }) {
+  constructor(
+    engine: Engine,
+    {
+      name,
+      isMorphing,
+      isSkinning,
+      isLighting,
+      vertexShader,
+      pixelShader,
+      additionalShaderSemanticInfo,
+      vertexShaderWebGpu,
+      pixelShaderWebGpu,
+      definitions = [],
+    }: {
+      name: string;
+      isMorphing: boolean;
+      isSkinning: boolean;
+      isLighting: boolean;
+      vertexShader?: ShaderityObject;
+      pixelShader?: ShaderityObject;
+      additionalShaderSemanticInfo: ShaderSemanticsInfo[];
+      vertexShaderWebGpu?: ShaderityObject;
+      pixelShaderWebGpu?: ShaderityObject;
+      definitions?: string[];
+    }
+  ) {
     super(name, { isMorphing, isSkinning, isLighting });
 
     // Shader Reflection
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = this.doShaderReflection(
+      engine,
       vertexShader!,
       pixelShader!,
       vertexShaderWebGpu!,
@@ -87,12 +77,26 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       definitions
     );
 
-    if (!CustomMaterialContent.__diffuseIblCubeMapSampler.created) {
-      CustomMaterialContent.__diffuseIblCubeMapSampler.create();
+    this.__diffuseIblCubeMapSampler = new Sampler(engine, {
+      minFilter: TextureParameter.Linear,
+      magFilter: TextureParameter.Linear,
+      wrapS: TextureParameter.ClampToEdge,
+      wrapT: TextureParameter.ClampToEdge,
+      wrapR: TextureParameter.ClampToEdge,
+    });
+    this.__specularIblCubeMapSampler = new Sampler(engine, {
+      minFilter: TextureParameter.LinearMipmapLinear,
+      magFilter: TextureParameter.Linear,
+      wrapS: TextureParameter.ClampToEdge,
+      wrapT: TextureParameter.ClampToEdge,
+      wrapR: TextureParameter.ClampToEdge,
+    });
+    if (!this.__diffuseIblCubeMapSampler.created) {
+      this.__diffuseIblCubeMapSampler.create();
     }
 
-    if (!CustomMaterialContent.__specularIblCubeMapSampler.created) {
-      CustomMaterialContent.__specularIblCubeMapSampler.create();
+    if (!this.__specularIblCubeMapSampler.created) {
+      this.__specularIblCubeMapSampler.create();
     }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray.concat(additionalShaderSemanticInfo));
@@ -158,11 +162,13 @@ export class CustomMaterialContent extends AbstractMaterialContent {
    * @param params.args - WebGL rendering arguments containing matrices, entities, and rendering context
    */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
+    engine,
     material,
     shaderProgram,
     firstTime,
     args,
   }: {
+    engine: Engine;
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
@@ -176,9 +182,9 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       if (firstTime || args.isVr) {
         let cameraComponent = args.renderPass.cameraComponent;
         if (cameraComponent == null) {
-          cameraComponent = ComponentRepository.getComponent(
+          cameraComponent = engine.componentRepository.getComponent(
             CameraComponent,
-            CameraComponent.current
+            CameraComponent.getCurrent(engine)
           ) as CameraComponent;
         }
         this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
@@ -195,7 +201,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
     }
 
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = engine.webglResourceRepository;
     // IBL Parameters
     if (args.setUniform) {
       if (firstTime) {
@@ -239,15 +245,17 @@ export class CustomMaterialContent extends AbstractMaterialContent {
    * @param params.args - WebGL rendering arguments containing cube map textures and rendering context
    */
   _setInternalSettingParametersToGpuWebGLPerShaderProgram({
+    engine,
     material,
     shaderProgram,
     args,
   }: {
+    engine: Engine;
     material: Material;
     shaderProgram: WebGLProgram;
     args: RenderingArgWebGL;
   }) {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = engine.webglResourceRepository;
     // IBL Env map
     // const diffuseEnv = material.getTextureParameter(ShaderSemantics.DiffuseEnvTexture.str);
     // if (diffuseEnv != null) {
@@ -256,12 +264,12 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
         diffuseEnvSlot,
         args.diffuseCube,
-        CustomMaterialContent.__diffuseIblCubeMapSampler,
+        this.__diffuseIblCubeMapSampler,
       ]);
     } else {
       webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
         diffuseEnvSlot,
-        dummyBlackCubeTexture,
+        engine.dummyTextures.dummyBlackCubeTexture,
       ]);
     }
     // }
@@ -272,12 +280,12 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, [
         specularEnvSlot,
         args.specularCube,
-        CustomMaterialContent.__specularIblCubeMapSampler,
+        this.__specularIblCubeMapSampler,
       ]);
     } else {
       webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, [
         specularEnvSlot,
-        dummyBlackCubeTexture,
+        engine.dummyTextures.dummyBlackCubeTexture,
       ]);
     }
     // }
@@ -288,18 +296,18 @@ export class CustomMaterialContent extends AbstractMaterialContent {
         webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.SheenEnvTexture.str, [
           sheenEnvSlot,
           args.sheenCube,
-          CustomMaterialContent.__specularIblCubeMapSampler,
+          this.__specularIblCubeMapSampler,
         ]);
       } else if (args.specularCube?.isTextureReady) {
         webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.SheenEnvTexture.str, [
           sheenEnvSlot,
           args.specularCube,
-          CustomMaterialContent.__specularIblCubeMapSampler,
+          this.__specularIblCubeMapSampler,
         ]);
       } else {
         webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.SheenEnvTexture.str, [
           sheenEnvSlot,
-          dummyBlackCubeTexture,
+          engine.dummyTextures.dummyBlackCubeTexture,
         ]);
       }
     }

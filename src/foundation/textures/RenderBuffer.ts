@@ -6,7 +6,8 @@ import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFor
 import { TextureParameter, type TextureParameterEnum } from '../definitions/TextureParameter';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import type { FrameBuffer } from '../renderer/FrameBuffer';
-import { SystemState } from '../system/SystemState';
+import type { Engine } from '../system/Engine';
+import { EngineState } from '../system/EngineState';
 import type { IRenderable } from './IRenderable';
 
 /**
@@ -15,6 +16,7 @@ import type { IRenderable } from './IRenderable';
  * It implements the IRenderable interface and extends RnObject for resource management.
  */
 export class RenderBuffer extends RnObject implements IRenderable {
+  private __engine: Engine;
   /** The width of the render buffer in pixels */
   width = 0;
   /** The height of the render buffer in pixels */
@@ -34,6 +36,10 @@ export class RenderBuffer extends RnObject implements IRenderable {
   /** The number of samples used for MSAA */
   private __sampleCountMSAA = 4;
 
+  constructor(engine: Engine) {
+    super();
+    this.__engine = engine;
+  }
   /**
    * Sets the associated frame buffer object.
    * @param fbo - The frame buffer object to associate with this render buffer
@@ -80,7 +86,7 @@ export class RenderBuffer extends RnObject implements IRenderable {
     this.__isMSAA = isMSAA;
     this.__sampleCountMSAA = sampleCountMSAA;
     this.__internalFormat = internalFormat;
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     this._textureResourceUid = cgApiResourceRepository.createRenderBuffer(
       width,
       height,
@@ -89,12 +95,12 @@ export class RenderBuffer extends RnObject implements IRenderable {
       sampleCountMSAA
     );
 
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2d(
-        this._textureResourceUid
-      );
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+      this._textureViewResourceUid = (
+        cgApiResourceRepository as unknown as WebGpuResourceRepository
+      ).createTextureView2d(this._textureResourceUid);
       this._textureViewAsRenderTargetResourceUid = (
-        cgApiResourceRepository as WebGpuResourceRepository
+        cgApiResourceRepository as unknown as WebGpuResourceRepository
       ).createTextureViewAsRenderTarget(this._textureResourceUid);
     }
   }
@@ -131,7 +137,7 @@ export class RenderBuffer extends RnObject implements IRenderable {
   destroy3DAPIResources() {
     this.width = 0;
     this.height = 0;
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     cgApiResourceRepository.deleteRenderBuffer(this._textureResourceUid);
     this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     return true;

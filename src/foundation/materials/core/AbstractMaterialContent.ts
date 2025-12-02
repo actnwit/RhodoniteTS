@@ -29,8 +29,9 @@ import { MutableVector4 } from '../../math/MutableVector4';
 import { Vector3 } from '../../math/Vector3';
 import type { Accessor } from '../../memory/Accessor';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import type { Engine } from '../../system/Engine';
+import { EngineState } from '../../system/EngineState';
 import { ModuleManager } from '../../system/ModuleManager';
-import { SystemState } from '../../system/SystemState';
 import type { Material } from './Material';
 import { ShaderityUtilityWebGL } from './ShaderityUtilityWebGL';
 import { ShaderityUtilityWebGPU } from './ShaderityUtilityWebGPU';
@@ -227,6 +228,7 @@ export abstract class AbstractMaterialContent extends RnObject {
    * @param CameraComponentClass - The camera component class
    */
   protected setupBasicInfo(
+    engine: Engine,
     args: RenderingArgWebGL,
     shaderProgram: WebGLProgram,
     firstTime: boolean,
@@ -241,9 +243,9 @@ export abstract class AbstractMaterialContent extends RnObject {
       if (firstTime || args.isVr) {
         let cameraComponent = args.renderPass.cameraComponent;
         if (cameraComponent == null) {
-          cameraComponent = ComponentRepository.getComponent(
+          cameraComponent = engine.componentRepository.getComponent(
             CameraComponentClass,
-            CameraComponentClass.current
+            CameraComponentClass.getCurrent(engine)
           ) as CameraComponent;
         }
         this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
@@ -315,8 +317,7 @@ export abstract class AbstractMaterialContent extends RnObject {
     let viewMatrix: Matrix44;
     let cameraPosition: IVector3;
     if (isVr) {
-      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+      const webxrSystem = cameraComponent.entity.engine.webXRSystem;
       if (webxrSystem.isWebXRMode) {
         viewMatrix = webxrSystem._getViewMatrixAt(displayIdx);
         cameraPosition = webxrSystem._getCameraWorldPositionAt(displayIdx);
@@ -348,8 +349,7 @@ export abstract class AbstractMaterialContent extends RnObject {
   ) {
     let projectionMatrix: Matrix44;
     if (isVr) {
-      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+      const webxrSystem = cameraComponent.entity.engine.webXRSystem;
       if (webxrSystem.isWebXRMode) {
         projectionMatrix = webxrSystem._getProjectMatrixAt(displayIdx);
       }
@@ -562,6 +562,7 @@ export abstract class AbstractMaterialContent extends RnObject {
    * @returns Array of shader semantics information
    */
   protected doShaderReflection(
+    engine: Engine,
     vertexShader: ShaderityObject,
     pixelShader: ShaderityObject,
     vertexShaderWebGpu: ShaderityObject,
@@ -584,14 +585,14 @@ export abstract class AbstractMaterialContent extends RnObject {
       shaderSemanticsInfoArray: ShaderSemanticsInfo[];
       shaderityObject: ShaderityObject;
     };
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       const preprocessedVertexShader = Shaderity.processPragma(vertexShaderWebGpu!, definitions);
       const preprocessedPixelShader = Shaderity.processPragma(pixelShaderWebGpu!, definitions);
 
-      preprocessedVertexShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(preprocessedVertexShader);
-      preprocessedPixelShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(preprocessedPixelShader);
-      const vertexShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(vertexShaderWebGpu!);
-      const pixelShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(pixelShaderWebGpu!);
+      preprocessedVertexShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(engine, preprocessedVertexShader);
+      preprocessedPixelShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(engine, preprocessedPixelShader);
+      const vertexShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(engine, vertexShaderWebGpu!);
+      const pixelShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(engine, pixelShaderWebGpu!);
 
       this.setVertexShaderityObject(vertexShaderData.shaderityObject);
       this.setPixelShaderityObject(pixelShaderData.shaderityObject);
@@ -599,11 +600,11 @@ export abstract class AbstractMaterialContent extends RnObject {
       const preprocessedVertexShader = Shaderity.processPragma(vertexShader, definitions);
       const preprocessedPixelShader = Shaderity.processPragma(pixelShader, definitions);
 
-      preprocessedVertexShaderData = ShaderityUtilityWebGL.getShaderDataReflection(preprocessedVertexShader);
-      preprocessedPixelShaderData = ShaderityUtilityWebGL.getShaderDataReflection(preprocessedPixelShader);
+      preprocessedVertexShaderData = ShaderityUtilityWebGL.getShaderDataReflection(engine, preprocessedVertexShader);
+      preprocessedPixelShaderData = ShaderityUtilityWebGL.getShaderDataReflection(engine, preprocessedPixelShader);
 
-      const vertexShaderData = ShaderityUtilityWebGL.getShaderDataReflection(vertexShader);
-      const pixelShaderData = ShaderityUtilityWebGL.getShaderDataReflection(pixelShader);
+      const vertexShaderData = ShaderityUtilityWebGL.getShaderDataReflection(engine, vertexShader);
+      const pixelShaderData = ShaderityUtilityWebGL.getShaderDataReflection(engine, pixelShader);
 
       this.setVertexShaderityObject(vertexShaderData.shaderityObject);
       this.setPixelShaderityObject(pixelShaderData.shaderityObject);

@@ -2,7 +2,7 @@ import type { ComponentTypeEnum } from '../../foundation/definitions/ComponentTy
 import { CompositionType, type CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 import type { Byte, ComponentSID, Count, EntityUID, IndexOf16Bytes, TypedArray } from '../../types/CommonTypes';
 import type { ComponentToComponentMethods } from '../components/ComponentTypes';
-import { MemoryManager } from '../core/MemoryManager';
+import type { MemoryManager } from '../core/MemoryManager';
 import type { BufferUseEnum } from '../definitions/BufferUse';
 import { ProcessStage, type ProcessStageEnum } from '../definitions/ProcessStage';
 import type { ShaderTypeEnum } from '../definitions/ShaderType';
@@ -18,8 +18,8 @@ import type { BufferView } from '../memory/BufferView';
 import { Logger, RnException } from '../misc';
 import { Err, Ok, type Result } from '../misc/Result';
 import type { RenderPass } from '../renderer/RenderPass';
-import { ComponentRepository } from './ComponentRepository';
-import { Config } from './Config';
+import type { Engine } from '../system/Engine';
+import type { ComponentMemoryRegistry } from './ComponentMemoryRegistry';
 import type { IEntity } from './Entity';
 import type { EntityRepository } from './EntityRepository';
 import { RnObject } from './RnObject';
@@ -56,23 +56,20 @@ export class Component extends RnObject {
   private _component_sid: number;
   _isAlive = true;
   protected __isReUse = false;
+  protected __engine: Engine;
   protected __currentProcessStage: ProcessStageEnum = ProcessStage.Load;
-  private static __accessors: Map<
-    typeof Component,
-    Map<MemberName, Map<ComponentSID | IndexOfTheBufferView, Accessor>>
-  > = new Map();
 
+  /**
+   * Stores member metadata for each component class.
+   * This is class-level static data that doesn't depend on Engine instances.
+   */
   private static __memberInfo: Map<typeof Component, Map<MemberName, MemberInfo>> = new Map();
+
+  /**
+   * Stores array length information for each component class member.
+   * This is class-level static data that doesn't depend on Engine instances.
+   */
   private static __arrayLengthMap: Map<typeof Component, Map<MemberName, Count>> = new Map();
-  private static __componentCountPerBufferView: Map<typeof Component, Count> = new Map();
-
-  private static __byteOffsetOfAccessorInBufferOfMembers: Map<
-    typeof Component,
-    Map<MemberName, Map<ComponentSID | IndexOfTheBufferView, Byte>>
-  > = new Map();
-
-  /** the state version of the component */
-  private static __stateVersion = 0;
 
   /** the entity unique Id which this component belongs to  */
   protected __entityUid: EntityUID;
@@ -98,18 +95,26 @@ export class Component extends RnObject {
    * When creating a Component, use the createComponent method of the ComponentRepository class
    * instead of directly calling this constructor.
    *
+   * @param engine - The engine instance
    * @param entityUid - Unique ID of the corresponding entity
    * @param componentSid - Scoped ID of the Component
    * @param entityRepository - The instance of the EntityRepository class (Dependency Injection)
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean) {
+  constructor(
+    engine: Engine,
+    entityUid: EntityUID,
+    componentSid: ComponentSID,
+    entityRepository: EntityRepository,
+    isReUse: boolean
+  ) {
     super();
 
+    this.__engine = engine;
     this.__entityUid = entityUid;
     this._component_sid = componentSid;
 
-    this.__memoryManager = MemoryManager.getInstance();
+    this.__memoryManager = engine.memoryManager;
     this.__entityRepository = entityRepository;
 
     if (isReUse) {
@@ -217,13 +222,13 @@ export class Component extends RnObject {
    * @param componentType - The component class to process
    * @param processStage - The process stage to execute
    */
-  static process(componentType: typeof Component, processStage: ProcessStageEnum) {
+  static process(engine: Engine, componentType: typeof Component, processStage: ProcessStageEnum) {
     if (!Component.doesTheProcessStageMethodExist(componentType, processStage)) {
       return;
     }
 
     const methodName = processStage.methodName;
-    const components: Component[] | undefined = ComponentRepository.getComponentsWithType(componentType)!;
+    const components: Component[] | undefined = engine.componentRepository.getComponentsWithType(componentType)!;
     for (const component of components) {
       if (processStage === component.__currentProcessStage) {
         (component as any)[methodName]();
@@ -286,12 +291,14 @@ export class Component extends RnObject {
 
     const indexOfTheBufferView = Math.floor(componentSid / componentCountPerBufferView);
     const indexOfBufferViews = componentSid % componentCountPerBufferView;
-    const accessorsOfMember = Component.__accessors.get(this.constructor as typeof Component)!.get(memberName)!;
+    const registry = this._componentMemoryRegistry;
+    const componentClass = this.constructor as typeof Component;
+    const accessor = registry.getAccessor(componentClass, memberName, indexOfTheBufferView)!;
     let taken: TypedArray | undefined;
     if (isReUse) {
-      taken = accessorsOfMember.get(indexOfTheBufferView)!._takeExistedOne(indexOfBufferViews);
+      taken = accessor._takeExistedOne(indexOfBufferViews);
     } else {
-      taken = accessorsOfMember.get(indexOfTheBufferView)!.takeOne();
+      taken = accessor.takeOne();
     }
     (this as any)[`_${memberName}`] = new dataClassType(taken, false, true);
 
@@ -305,18 +312,29 @@ export class Component extends RnObject {
   }
 
   /**
+   * Gets the ComponentMemoryRegistry for this component's engine.
+   */
+  get _componentMemoryRegistry(): ComponentMemoryRegistry {
+    return this.__engine.componentMemoryRegistry;
+  }
+
+  /**
    * Creates and configures a memory accessor for a specific member field.
    * This method allocates buffer memory and creates an accessor for efficient data access.
    *
+   * @param engine - The engine instance
    * @param bufferUse - The intended use of the buffer
    * @param memberName - The name of the member field
    * @param componentClass - The component class
    * @param compositionType - The composition type (e.g., Vec3, Mat4)
    * @param componentType - The component data type (e.g., Float32, Int32)
-   * @param count - The number of components to allocate for
+   * @param indexOfTheBufferView - The buffer view index
+   * @param componentCountPerBufferView - The number of components per buffer view
+   * @param arrayLength - The array length
    * @returns Result containing the accessor or an error
    */
   private static __takeAccessor(
+    engine: Engine,
     bufferUse: BufferUseEnum,
     memberName: string,
     componentClass: typeof Component,
@@ -326,19 +344,10 @@ export class Component extends RnObject {
     componentCountPerBufferView: Count,
     arrayLength: Count
   ): Result<Accessor, undefined> {
-    if (!this.__accessors.has(componentClass)) {
-      this.__accessors.set(componentClass, new Map());
-    }
+    const registry = engine.componentMemoryRegistry;
 
-    const accessorsOfMember = this.__accessors.get(componentClass)!;
-
-    let accessors = accessorsOfMember.get(memberName);
-    if (accessors == null) {
-      accessors = new Map();
-      accessorsOfMember.set(memberName, accessors);
-    }
     const bytes = calcAlignedByteLength();
-    const existingAccessor = accessors.get(indexOfTheBufferView);
+    const existingAccessor = registry.getAccessor(componentClass, memberName, indexOfTheBufferView);
     const accessorIsCompatible =
       existingAccessor != null &&
       existingAccessor.elementCount === componentCountPerBufferView &&
@@ -352,7 +361,7 @@ export class Component extends RnObject {
     let bufferViewResult: Result<BufferView, { 'Buffer.byteLength': Byte; 'Buffer.takenSizeInByte': Byte }>;
     let requireBufferLayerIndex = 0;
     do {
-      const buffer = MemoryManager.getInstance().createOrGetBuffer(bufferUse, requireBufferLayerIndex);
+      const buffer = engine.memoryManager.createOrGetBuffer(bufferUse, requireBufferLayerIndex);
       bufferViewResult = buffer.takeBufferView({
         byteLengthToNeed: bytes * componentCountPerBufferView,
         byteStride: 0,
@@ -376,9 +385,7 @@ export class Component extends RnObject {
       });
     }
 
-    accessors.set(indexOfTheBufferView, accessorResult.get());
-
-    Component.__stateVersion++;
+    registry.setAccessor(componentClass, memberName, indexOfTheBufferView, accessorResult.get());
 
     return accessorResult;
 
@@ -474,8 +481,10 @@ export class Component extends RnObject {
    */
   submitToAllocation(componentCountPerBufferView: Count, isReUse: boolean): void {
     const componentClass = this.constructor as typeof Component;
-    Component.__componentCountPerBufferView.set(componentClass, componentCountPerBufferView);
+    const registry = this._componentMemoryRegistry;
+    registry.setComponentCountPerBufferView(componentClass, componentCountPerBufferView);
     const memberInfoArray = Component.__memberInfo.get(componentClass)!;
+    const engine = this.__engine;
 
     // Do this only for the first entity of the component
     const indexOfTheBufferView = Math.floor(this._component_sid / componentCountPerBufferView);
@@ -496,13 +505,13 @@ export class Component extends RnObject {
     });
 
     // inner function
-
     function getBufferViewsAndAccessors(indexOfTheBufferView: IndexOfTheBufferView) {
       // for each member field, take a BufferView for all entities' the member field.
       // take a Accessor for all entities for each member fields (same as BufferView)
       memberInfoArray.forEach(info => {
         const arrayLength = Component.__arrayLengthMap.get(componentClass)?.get(info.memberName);
         const accessorResult = Component.__takeAccessor(
+          engine,
           info.bufferUse,
           info.memberName,
           componentClass,
@@ -515,26 +524,13 @@ export class Component extends RnObject {
         if (accessorResult.isErr()) {
           throw new RnException(accessorResult.getRnError());
         }
-        let byteOffsetOfAccessorInBufferOfMembers =
-          Component.__byteOffsetOfAccessorInBufferOfMembers.get(componentClass);
-        if (byteOffsetOfAccessorInBufferOfMembers == null) {
-          byteOffsetOfAccessorInBufferOfMembers = new Map();
-          Component.__byteOffsetOfAccessorInBufferOfMembers.set(componentClass, byteOffsetOfAccessorInBufferOfMembers);
-        }
-        let byteOffsetOfAccessorInBufferOfMember = byteOffsetOfAccessorInBufferOfMembers.get(info.memberName);
-        if (byteOffsetOfAccessorInBufferOfMember == null) {
-          byteOffsetOfAccessorInBufferOfMember = new Map();
-          Component.__byteOffsetOfAccessorInBufferOfMembers
-            .get(componentClass)!
-            .set(info.memberName, byteOffsetOfAccessorInBufferOfMember);
-        }
         const accessor = accessorResult.get();
-        const byteOffsetOfExistingBuffers = MemoryManager.getInstance().getByteOffsetOfExistingBuffers(
+        const byteOffsetOfExistingBuffers = engine.memoryManager.getByteOffsetOfExistingBuffers(
           info.bufferUse,
           accessor.bufferView.buffer.indexOfTheBufferUsage
         );
         const byteOffset = byteOffsetOfExistingBuffers + accessor.byteOffsetInBuffer;
-        byteOffsetOfAccessorInBufferOfMember.set(indexOfTheBufferView, byteOffset);
+        registry.setByteOffset(componentClass, info.memberName, indexOfTheBufferView, byteOffset);
       });
     }
   }
@@ -553,19 +549,24 @@ export class Component extends RnObject {
    * Gets the pixel location offset in the buffer for a specific member of a component type.
    * This is useful for GPU texture-based data access where locations are measured in pixels.
    *
+   * @param engine - The engine instance
    * @param componentType - The component class type
    * @param memberName - The name of the member field
    * @returns The pixel location offset in the buffer
    */
-  static getLocationOffsetOfMemberOfComponent(componentType: typeof Component, memberName: string): IndexOf16Bytes[] {
-    const locationOffsets = [];
-    const byteOffsetOfAccessorInBuffer = Component.__byteOffsetOfAccessorInBufferOfMembers.get(componentType);
-    if (byteOffsetOfAccessorInBuffer == null) {
+  static getLocationOffsetOfMemberOfComponent(
+    engine: Engine,
+    componentType: typeof Component,
+    memberName: string
+  ): IndexOf16Bytes[] {
+    const locationOffsets: IndexOf16Bytes[] = [];
+    const registry = engine.componentMemoryRegistry;
+    const byteOffsetMap = registry.getByteOffsetsForMember(componentType, memberName);
+    if (byteOffsetMap == null) {
       return [0]; // indicate that this is invalid value
     }
-    const byteOffsetOfAccessorInBufferOfMember = byteOffsetOfAccessorInBuffer.get(memberName)!;
-    for (let key of byteOffsetOfAccessorInBufferOfMember?.keys() ?? []) {
-      locationOffsets.push(byteOffsetOfAccessorInBufferOfMember.get(key)! / 4 / 4);
+    for (const byteOffset of byteOffsetMap.values()) {
+      locationOffsets.push(byteOffset / 4 / 4);
     }
     return locationOffsets;
   }
@@ -652,15 +653,17 @@ export class Component extends RnObject {
    * Gets the CompositionType of a specific member field in a component class.
    * This is useful for understanding the data structure of component members.
    *
+   * @param engine - The engine instance
    * @param memberName - The name of the member field
    * @param componentClass - The component class to query
    * @returns The CompositionType of the member or undefined if not found
    */
   static getCompositionTypeOfMember(
+    _engine: Engine,
     memberName: string,
     componentClass: typeof Component
   ): CompositionTypeEnum | undefined {
-    const memberInfoArray = this.__memberInfo.get(componentClass)!;
+    const memberInfoArray = Component.__memberInfo.get(componentClass)!;
     const info = memberInfoArray.get(memberName);
     if (info != null) {
       return info.compositionType;
@@ -676,8 +679,12 @@ export class Component extends RnObject {
    * @param componentClass - The component class to query
    * @returns The ComponentType of the member or undefined if not found
    */
-  static getComponentTypeOfMember(memberName: string, componentClass: typeof Component): ComponentTypeEnum | undefined {
-    const memberInfoArray = this.__memberInfo.get(componentClass)!;
+  static getComponentTypeOfMember(
+    _engine: Engine,
+    memberName: string,
+    componentClass: typeof Component
+  ): ComponentTypeEnum | undefined {
+    const memberInfoArray = Component.__memberInfo.get(componentClass)!;
     const info = memberInfoArray.get(memberName);
     if (info != null) {
       return info.componentType;
@@ -691,23 +698,23 @@ export class Component extends RnObject {
    *
    * @returns The member info of the component
    */
-  static getMemberInfo(): Map<typeof Component, Map<MemberName, MemberInfo>> {
-    return new Map(this.__memberInfo);
+  static getMemberInfo(_engine: Engine): Map<typeof Component, Map<MemberName, MemberInfo>> {
+    return new Map(Component.__memberInfo);
   }
 
   /**
    * Gets the number of components per buffer view for the component.
    * @returns The number of components per buffer view for the component
    */
-  static getComponentCountPerBufferView(): Map<typeof Component, Count> {
-    return new Map(Component.__componentCountPerBufferView);
+  static getComponentCountPerBufferView(engine: Engine): Map<typeof Component, Count> {
+    return engine.componentMemoryRegistry.getAllComponentCountPerBufferView();
   }
 
   /**
    * Gets the array length of a specific member field in a component class.
    * @returns The array length map of the component
    */
-  static getArrayLengthOfMember(): Map<typeof Component, Map<MemberName, Count>> {
+  static getArrayLengthOfMember(_engine: Engine): Map<typeof Component, Map<MemberName, Count>> {
     return new Map(Component.__arrayLengthMap);
   }
 
@@ -749,11 +756,13 @@ export class Component extends RnObject {
   }
 
   /**
-   * Gets the state version of the component.
-   * This is incremented whenever the component's state changes.
+   * Gets the state version of the component memory layout.
+   * This is incremented whenever the component's memory layout changes.
+   *
+   * @param engine - The engine instance
    * @returns The state version number
    */
-  static getStateVersion() {
-    return Component.__stateVersion;
+  static getStateVersion(engine: Engine): number {
+    return engine.componentMemoryRegistry.getStateVersion();
   }
 }

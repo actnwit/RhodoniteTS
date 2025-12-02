@@ -10,8 +10,8 @@ import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo'
 import { ShaderType } from '../../definitions/ShaderType';
 import { Scalar } from '../../math/Scalar';
 import { Vector2 } from '../../math/Vector2';
+import type { Engine } from '../../system/Engine';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { dummyWhiteTexture } from '../core/DummyTextures';
 import type { Material } from '../core/Material';
 
 /**
@@ -29,9 +29,10 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
   /**
    * Creates a new FurnaceTestMaterialContent instance.
    *
+   * @param engine - The engine instance
    * @param materialName - The name identifier for this material
    */
-  constructor(materialName: string) {
+  constructor(engine: Engine, materialName: string) {
     super(materialName, {}, FurnaceTestShaderVertex, FurnaceTestShaderFragment);
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
@@ -103,7 +104,7 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        initialValue: [1, dummyWhiteTexture],
+        initialValue: [1, engine.dummyTextures.dummyWhiteTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -117,17 +118,20 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
    * and lighting data required for furnace test rendering.
    *
    * @param params - The rendering parameters object
+   * @param params.engine - The engine instance
    * @param params.material - The material instance being rendered
    * @param params.shaderProgram - The WebGL shader program to configure
    * @param params.firstTime - Whether this is the first time setting up this shader program
    * @param params.args - WebGL rendering arguments containing matrices, camera, and lighting data
    */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
+    engine,
     material,
     shaderProgram,
     firstTime,
     args,
   }: {
+    engine: Engine;
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
@@ -141,9 +145,9 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
         /// Matrices
         let cameraComponent = args.renderPass.cameraComponent;
         if (cameraComponent == null) {
-          cameraComponent = ComponentRepository.getComponent(
+          cameraComponent = engine.componentRepository.getComponent(
             CameraComponent,
-            CameraComponent.current
+            CameraComponent.getCurrent(engine)
           ) as CameraComponent;
         }
         this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);

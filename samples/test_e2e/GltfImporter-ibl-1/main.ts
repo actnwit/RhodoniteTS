@@ -5,14 +5,14 @@ const p = document.createElement('p');
 document.body.appendChild(p);
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // camera
-const cameraEntity = Rn.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000.0;
@@ -21,6 +21,7 @@ cameraComponent.aspect = 1.0;
 
 const assets = await Rn.defaultAssetLoader.load({
   mainExpression: Rn.GltfImporter.importFromUrl(
+    engine,
     '../../../assets/gltf/glTF-Sample-Assets/Models/FlightHelmet/glTF/FlightHelmet.gltf',
     {
       cameraComponent: cameraComponent,
@@ -31,19 +32,19 @@ const assets = await Rn.defaultAssetLoader.load({
       ],
     }
   ),
-  environment: Rn.CubeTexture.loadFromUrl({
+  environment: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: './../../../assets/ibl/papermill/environment/environment',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.LDR_SRGB,
   }),
-  diffuse: Rn.CubeTexture.loadFromUrl({
+  diffuse: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: './../../../assets/ibl/papermill/diffuse/diffuse',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.RGBE_PNG,
   }),
-  specular: Rn.CubeTexture.loadFromUrl({
+  specular: Rn.CubeTexture.loadFromUrl(engine, {
     baseUrl: './../../../assets/ibl/papermill/specular/specular',
     mipmapLevelNumber: 10,
     isNamePosNeg: true,
@@ -62,7 +63,7 @@ expressions.push(expressionPostEffect);
 
 // gamma correction (and super sampling)
 const mainRenderPass = assets.mainExpression.renderPasses[0];
-const gammaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer({
+const gammaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer(engine, {
   width: 600,
   height: 600,
   textureNum: 1,
@@ -73,8 +74,9 @@ mainRenderPass.setFramebuffer(gammaTargetFramebuffer);
 mainRenderPass.toClearColorBuffer = true;
 mainRenderPass.toClearDepthBuffer = true;
 
-const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial();
+const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial(engine);
 const gammaCorrectionRenderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+  engine,
   gammaCorrectionMaterial,
   gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)
 );
@@ -92,7 +94,7 @@ await setIBL();
 
 let count = 0;
 
-Rn.System.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (count > 100) {
     p.id = 'rendered';
     p.innerText = 'Rendered.';
@@ -101,13 +103,13 @@ Rn.System.startRenderLoop(() => {
     p.innerText = 'Started.';
   }
 
-  Rn.System.process(expressions);
+  engine.process(expressions);
 
   count++;
 });
 
 async function setIBL() {
-  const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
+  const meshRendererComponents = engine.componentRepository.getComponentsWithType(
     Rn.MeshRendererComponent
   ) as Rn.MeshRendererComponent[];
 
@@ -117,5 +119,5 @@ async function setIBL() {
 }
 
 window.exportGltf2 = () => {
-  Rn.Gltf2Exporter.export('Rhodonite');
+  Rn.Gltf2Exporter.export(engine, 'Rhodonite');
 };

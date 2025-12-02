@@ -10,7 +10,7 @@ const resolutionDepthCamera = 512;
 // prepare memory
 Rn.Config.cgApiDebugConsoleOutput = true;
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-await Rn.System.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: rnCanvasElement,
 });
@@ -53,7 +53,7 @@ draw(expressions, true);
 // ---functions-----------------------------------------------------------------------------------------
 
 function createEntityDepthCamera() {
-  const entityCamera = Rn.createCameraEntity();
+  const entityCamera = Rn.createCameraEntity(engine, false);
   const transformCamera = entityCamera.getTransform();
   transformCamera.localPosition = Rn.Vector3.fromCopyArray([10.0, 15.0, 20.0]);
 
@@ -65,7 +65,7 @@ function createEntityDepthCamera() {
 }
 
 function createEntityMainCamera() {
-  const entityCamera = Rn.createCameraControllerEntity();
+  const entityCamera = Rn.createCameraControllerEntity(engine, true);
   const transformCamera = entityCamera.getTransform();
   transformCamera.localPosition = Rn.Vector3.fromCopyArray([-0.1, -0.1, 10.0]);
 
@@ -94,12 +94,12 @@ function createRenderPassDepthEncode(
   entitiesTarget: Rn.IMeshEntity[],
   isSquareDepth: boolean
 ) {
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.toClearColorBuffer = true;
   renderPass.cameraComponent = cameraComponent;
   renderPass.addEntities(entitiesTarget);
 
-  const material = Rn.MaterialHelper.createDepthEncodeMaterial({
+  const material = Rn.MaterialHelper.createDepthEncodeMaterial(engine, {
     depthPow: isSquareDepth ? 2.0 : 1.0,
   });
   renderPass.setMaterial(material);
@@ -114,13 +114,14 @@ function createRenderPassMain(
   renderPassDepthBlurHV: Rn.RenderPass,
   renderPassSquareDepthBlurHV: Rn.RenderPass
 ) {
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.toClearColorBuffer = true;
   renderPass.cameraComponent = cameraComponent;
   renderPass.addEntities([entitySphere, entityBoard]);
 
   // set variance shadow material for sphere primitive in this render pass
   const materialSphere = Rn.MaterialHelper.createVarianceShadowMapDecodeClassicSingleMaterial(
+    engine,
     { depthCameraComponent: cameraComponentDepth },
     [renderPassDepthBlurHV, renderPassSquareDepthBlurHV]
   );
@@ -132,6 +133,7 @@ function createRenderPassMain(
 
   // set variance shadow material for board primitive in this render pass
   const materialBoard = Rn.MaterialHelper.createVarianceShadowMapDecodeClassicSingleMaterial(
+    engine,
     { depthCameraComponent: cameraComponentDepth },
     [renderPassDepthBlurHV, renderPassSquareDepthBlurHV]
   );
@@ -145,16 +147,16 @@ function createRenderPassMain(
 }
 
 function createEntitySphere() {
-  const primitive = new Rn.Sphere();
+  const primitive = new Rn.Sphere(engine);
   primitive.generate({
     radius: 10,
     widthSegments: 20,
     heightSegments: 20,
   });
 
-  const entity = Rn.createMeshEntity();
+  const entity = Rn.createMeshEntity(engine);
   const meshComponent = entity.getMesh();
-  const mesh = new Rn.Mesh();
+  const mesh = new Rn.Mesh(engine);
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);
 
@@ -167,7 +169,7 @@ function createEntitySphere() {
 }
 
 function createEntityBoard() {
-  const primitive = new Rn.Plane();
+  const primitive = new Rn.Plane(engine);
   primitive.generate({
     width: 20,
     height: 20,
@@ -176,9 +178,9 @@ function createEntityBoard() {
     isUVRepeat: false,
   });
 
-  const entity = Rn.createMeshEntity();
+  const entity = Rn.createMeshEntity(engine);
   const meshComponent = entity.getMesh();
-  const mesh = new Rn.Mesh();
+  const mesh = new Rn.Mesh(engine);
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);
 
@@ -191,7 +193,7 @@ function createEntityBoard() {
 }
 
 function createAndSetFramebuffer(renderPass: Rn.RenderPass, resolution: number, textureNum: number) {
-  const framebuffer = Rn.RenderableHelper.createFrameBuffer({
+  const framebuffer = Rn.RenderableHelper.createFrameBuffer(engine, {
     width: resolution,
     height: resolution,
     textureNum,
@@ -203,7 +205,7 @@ function createAndSetFramebuffer(renderPass: Rn.RenderPass, resolution: number, 
 }
 
 function createRenderPassGaussianBlurForDepth(renderPassBlurTarget: Rn.RenderPass, isHorizontal: boolean) {
-  const material = Rn.MaterialHelper.createGaussianBlurForEncodedDepthMaterial({
+  const material = Rn.MaterialHelper.createGaussianBlurForEncodedDepthMaterial(engine, {
     additionalName: '',
     maxInstancesNumber: 10,
   });
@@ -221,7 +223,11 @@ function createRenderPassGaussianBlurForDepth(renderPassBlurTarget: Rn.RenderPas
   const framebufferTarget = renderPassBlurTarget.getFramebuffer();
   material.setParameter('framebufferSize', Rn.Vector2.fromCopy2(framebufferTarget.width, framebufferTarget.height));
   const TextureTarget = framebufferTarget.colorAttachments[0] as Rn.RenderTargetTexture;
-  const renderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(material, TextureTarget);
+  const renderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+    engine,
+    material,
+    TextureTarget
+  );
 
   return renderPass;
 }
@@ -241,6 +247,6 @@ function draw(expressions: Rn.Expression[], isFirstLoop: boolean, pElem?: HTMLEl
     document.body.appendChild(pElem);
   }
 
-  Rn.System.process(expressions);
+  engine.process(expressions);
   requestAnimationFrame(draw.bind(null, expressions, false, pElem));
 }

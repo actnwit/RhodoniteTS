@@ -43,8 +43,9 @@ import type { VertexAttributeEnum } from '../../definitions/VertexAttribute';
 import type { Primitive } from '../../geometry/Primitive';
 import { Is } from '../../misc/Is';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import type { Engine } from '../../system/Engine';
+import { EngineState } from '../../system/EngineState';
 import { ModuleManager } from '../../system/ModuleManager';
-import { SystemState } from '../../system/SystemState';
 import type { AbstractMaterialContent } from './AbstractMaterialContent';
 import type { Material } from './Material';
 import { MaterialRepository } from './MaterialRepository';
@@ -76,6 +77,7 @@ export class ShaderHandler {
    * @returns A tuple containing the shader program handle and a boolean indicating if it's newly created
    */
   static _createShaderProgramWithCache(
+    engine: Engine,
     material: Material,
     primitive: Primitive,
     vertexShader: string,
@@ -91,7 +93,7 @@ export class ShaderHandler {
       return [shaderProgramUid, false];
     }
 
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = engine.cgApiResourceRepository;
     shaderProgramUid = cgApiResourceRepository.createShaderProgram({
       material,
       primitive,
@@ -192,6 +194,7 @@ export function _outputVertexAttributeBindingInfo(attributeNames: string[], attr
  * - Template filling with runtime values
  * - Final shader compilation and linking
  *
+ * @param engine - The engine instance
  * @param material - The material containing shader templates and properties
  * @param componentDataAccessMethodDefinitionsForVertexShader - method definitions for component data access for vertex shader
  * @param componentDataAccessMethodDefinitionsForPixelShader - method definitions for component data access for pixel shader
@@ -202,6 +205,7 @@ export function _outputVertexAttributeBindingInfo(attributeNames: string[], attr
  * @returns A tuple containing the shader program handle and a boolean indicating if it's newly created
  */
 export function _createProgramAsSingleOperationWebGL(
+  engine: Engine,
   material: Material,
   componentDataAccessMethodDefinitionsForVertexShader: string,
   componentDataAccessMethodDefinitionsForPixelShader: string,
@@ -228,8 +232,8 @@ export function _createProgramAsSingleOperationWebGL(
   }
 
   const cacheQuery =
-    Component.getStateVersion() +
-    MaterialRepository._getBufferViewVersion(material.__materialTypeName) +
+    Component.getStateVersion(engine) +
+    engine.materialRepository._getBufferViewVersion(material.__materialTypeName) +
     material.__materialTypeName +
     material._materialContent.getMaterialSemanticsVariantName() +
     vertexAttributeDefines +
@@ -247,50 +251,61 @@ export function _createProgramAsSingleOperationWebGL(
   }
 
   const { vertexPropertiesStr, pixelPropertiesStr } = material._getProperties(
+    engine,
     propertySetterOfGlobalDataRepository,
     propertySetterOfMaterial
   );
-  const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+  const webglResourceRepository = engine.webglResourceRepository;
 
   // Shader Code Construction
-  let vertexShader = _setupGlobalShaderDefinitionWebGL(material.__materialTypeName, primitive);
+  let vertexShader = _setupGlobalShaderDefinitionWebGL(engine, material.__materialTypeName, primitive);
   vertexShader += '#define RN_IS_VERTEX_SHADER\n';
-  let pixelShader = _setupGlobalShaderDefinitionWebGL(material.__materialTypeName, primitive);
+  let pixelShader = _setupGlobalShaderDefinitionWebGL(engine, material.__materialTypeName, primitive);
   pixelShader += '#define RN_IS_PIXEL_SHADER\n';
 
-  const vertexShaderityObject = ShaderityUtilityWebGL.fillTemplate(materialNode.vertexShaderityObject!, primitive, {
-    enableVertexExtensions: enableVertexExtensionsGlsl.code,
-    glslPrecision: glslPrecisionGlsl.code,
-    vertexInOut: vertexInOutGlsl.code,
-    fullscreen: fullscreenGlsl.code,
-    WellKnownComponentTIDs,
-    getters: vertexPropertiesStr,
-    definitions: definitions,
-    prerequisites: prerequisitesGlsl.code,
-    mainPrerequisites: mainPrerequisitesGlsl.code,
-    matricesGetters: componentDataAccessMethodDefinitionsForVertexShader + morphedPositionGetter,
-    processGeometry: processGeometryGlsl.code,
-    Config,
-  });
+  const vertexShaderityObject = ShaderityUtilityWebGL.fillTemplate(
+    engine,
+    materialNode.vertexShaderityObject!,
+    primitive,
+    {
+      enableVertexExtensions: enableVertexExtensionsGlsl.code,
+      glslPrecision: glslPrecisionGlsl.code,
+      vertexInOut: vertexInOutGlsl.code,
+      fullscreen: fullscreenGlsl.code,
+      WellKnownComponentTIDs,
+      getters: vertexPropertiesStr,
+      definitions: definitions,
+      prerequisites: prerequisitesGlsl.code,
+      mainPrerequisites: mainPrerequisitesGlsl.code,
+      matricesGetters: componentDataAccessMethodDefinitionsForVertexShader + morphedPositionGetter,
+      processGeometry: processGeometryGlsl.code,
+      Config,
+    }
+  );
 
-  const pixelShaderityObject = ShaderityUtilityWebGL.fillTemplate(materialNode.pixelShaderityObject!, primitive, {
-    glslPrecision: glslPrecisionGlsl.code,
-    WellKnownComponentTIDs,
-    vertexIn: vertexInGlsl.code,
-    renderTargetBegin: webglResourceRepository.getGlslRenderTargetBeginString(4),
-    getters: pixelPropertiesStr,
-    definitions: definitions + alphaMode,
-    prerequisites: prerequisitesGlsl.code,
-    mainPrerequisites: mainPrerequisitesGlsl.code,
-    matricesGetters: componentDataAccessMethodDefinitionsForPixelShader,
-    opticalDefinition: opticalDefinitionGlsl.code,
-    pbrDefinition: pbrDefinitionGlsl.code,
-    iblDefinition: iblDefinitionGlsl.code,
-    alphaProcess: alphaProcessGlsl.code,
-    outputSrgb: outputSrgbGlsl.code,
-    wireframe: wireframeGlsl.code,
-    Config,
-  });
+  const pixelShaderityObject = ShaderityUtilityWebGL.fillTemplate(
+    engine,
+    materialNode.pixelShaderityObject!,
+    primitive,
+    {
+      glslPrecision: glslPrecisionGlsl.code,
+      WellKnownComponentTIDs,
+      vertexIn: vertexInGlsl.code,
+      renderTargetBegin: webglResourceRepository.getGlslRenderTargetBeginString(4),
+      getters: pixelPropertiesStr,
+      definitions: definitions + alphaMode,
+      prerequisites: prerequisitesGlsl.code,
+      mainPrerequisites: mainPrerequisitesGlsl.code,
+      matricesGetters: componentDataAccessMethodDefinitionsForPixelShader,
+      opticalDefinition: opticalDefinitionGlsl.code,
+      pbrDefinition: pbrDefinitionGlsl.code,
+      iblDefinition: iblDefinitionGlsl.code,
+      alphaProcess: alphaProcessGlsl.code,
+      outputSrgb: outputSrgbGlsl.code,
+      wireframe: wireframeGlsl.code,
+      Config,
+    }
+  );
 
   vertexShader += vertexShaderityObject.code.replace(/#version\s+(100|300\s+es)/, '');
   pixelShader += pixelShaderityObject.code.replace(/#version\s+(100|300\s+es)/, '');
@@ -299,7 +314,7 @@ export function _createProgramAsSingleOperationWebGL(
   const vertexAttributesBinding = _outputVertexAttributeBindingInfo(attributeNames, attributeSemantics);
   vertexShader += vertexAttributesBinding;
 
-  const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+  const cgApiResourceRepository = engine.cgApiResourceRepository;
   shaderProgramUid = cgApiResourceRepository.createShaderProgram({
     material,
     primitive,
@@ -325,9 +340,9 @@ export function _createProgramAsSingleOperationWebGL(
  * @param primitive - The geometric primitive for context-specific definitions
  * @returns A string containing all global shader definitions
  */
-export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, _primitive: Primitive) {
+export function _setupGlobalShaderDefinitionWebGL(engine: Engine, materialTypeName: string, _primitive: Primitive) {
   let definitions = '';
-  const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+  const webglResourceRepository = engine.webglResourceRepository;
   const glw = webglResourceRepository.currentWebGLContextWrapper as WebGLContextWrapper;
   if (glw.isWebGL2) {
     definitions += '#version 300 es\n#define GLSL_ES3\n';
@@ -336,14 +351,13 @@ export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, _pri
     }
   }
   definitions += `// RN_MATERIAL_TYPE_NAME: ${materialTypeName}\n`;
-  if (ProcessApproach.isDataTextureApproach(SystemState.currentProcessApproach)) {
+  if (ProcessApproach.isDataTextureApproach(EngineState.currentProcessApproach)) {
     definitions += '#define RN_IS_DATATEXTURE_MODE\n';
   } else {
     definitions += '#define RN_IS_UNIFORM_MODE\n';
   }
 
-  const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR | undefined;
-  const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
+  const webXRSystem = engine.webXRSystem;
   if (Is.exist(webXRSystem) && webXRSystem.isWebXRMode && webglResourceRepository.isSupportMultiViewVRRendering()) {
     definitions += '#define WEBGL2_MULTI_VIEW\n';
   }
@@ -376,6 +390,7 @@ export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, _pri
  * - Pragma preprocessing with Shaderity
  * - WebGPU-specific definitions and configurations
  *
+ * @param engine - The engine instance
  * @param material - The material containing shader templates and properties
  * @param primitive - The geometric primitive that defines vertex attributes
  * @param componentDataAccessMethodDefinitionsForVertexShader - method definitions for component data access for vertex shader
@@ -386,6 +401,7 @@ export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, _pri
  * @returns The handle to the created shader program
  */
 export function _createProgramAsSingleOperationWebGpu(
+  engine: Engine,
   material: Material,
   primitive: Primitive,
   componentDataAccessMethodDefinitionsForVertexShader: string,
@@ -411,8 +427,8 @@ export function _createProgramAsSingleOperationWebGpu(
     alphaMode += '#define RN_IS_ALPHA_MODE_MASK\n';
   }
   const cacheQuery =
-    Component.getStateVersion() +
-    MaterialRepository._getBufferViewVersion(material.__materialTypeName) +
+    Component.getStateVersion(engine) +
+    engine.materialRepository._getBufferViewVersion(material.__materialTypeName) +
     material.__materialTypeName +
     material._materialContent.getMaterialSemanticsVariantName() +
     vertexAttributeDefines +
@@ -429,6 +445,7 @@ export function _createProgramAsSingleOperationWebGpu(
   }
   material.updateStateVersion();
   const { vertexPropertiesStr, pixelPropertiesStr } = material._getProperties(
+    engine,
     propertySetterOfGlobalDataRepository,
     propertySetterOfMaterial
   );
@@ -443,41 +460,51 @@ export function _createProgramAsSingleOperationWebGpu(
     definitions += '#define RN_BONE_DATA_TYPE_VEC4X1\n';
   }
 
-  const vertexShaderityObject = ShaderityUtilityWebGPU.fillTemplate(materialNode.vertexShaderityObject!, primitive, {
-    WellKnownComponentTIDs,
-    vertexInput: vertexInputWgsl.code,
-    vertexOutput: vertexOutputWgsl.code,
-    prerequisites: prerequisitesWgsl.code,
-    mainPrerequisites: mainPrerequisitesWgsl.code,
-    fullscreen: fullscreenWgsl.code,
-    getters: vertexPropertiesStr,
-    definitions: `// RN_IS_VERTEX_SHADER\n#define RN_IS_VERTEX_SHADER\n${definitions}`,
-    matricesGetters: componentDataAccessMethodDefinitionsForVertexShader + morphedPositionGetter,
-    processGeometry: processGeometryWgsl.code,
-    Config,
-  });
+  const vertexShaderityObject = ShaderityUtilityWebGPU.fillTemplate(
+    engine,
+    materialNode.vertexShaderityObject!,
+    primitive,
+    {
+      WellKnownComponentTIDs,
+      vertexInput: vertexInputWgsl.code,
+      vertexOutput: vertexOutputWgsl.code,
+      prerequisites: prerequisitesWgsl.code,
+      mainPrerequisites: mainPrerequisitesWgsl.code,
+      fullscreen: fullscreenWgsl.code,
+      getters: vertexPropertiesStr,
+      definitions: `// RN_IS_VERTEX_SHADER\n#define RN_IS_VERTEX_SHADER\n${definitions}`,
+      matricesGetters: componentDataAccessMethodDefinitionsForVertexShader + morphedPositionGetter,
+      processGeometry: processGeometryWgsl.code,
+      Config,
+    }
+  );
 
-  const pixelShaderityObject = ShaderityUtilityWebGPU.fillTemplate(materialNode.pixelShaderityObject!, primitive, {
-    WellKnownComponentTIDs,
-    vertexOutput: vertexOutputWgsl.code,
-    prerequisites: prerequisitesWgsl.code,
-    mainPrerequisites: mainPrerequisitesWgsl.code,
-    getters: pixelPropertiesStr,
-    definitions: `// RN_IS_PIXEL_SHADER\n#define RN_IS_PIXEL_SHADER\n${definitions}${alphaMode}`,
-    matricesGetters: componentDataAccessMethodDefinitionsForPixelShader,
-    opticalDefinition: opticalDefinitionWgsl.code,
-    pbrDefinition: pbrDefinitionWgsl.code,
-    iblDefinition: iblDefinitionWgsl.code,
-    alphaProcess: alphaProcessWgsl.code,
-    outputSrgb: outputSrgbWgsl.code,
-    wireframe: wireframeWgsl.code,
-    Config,
-  });
+  const pixelShaderityObject = ShaderityUtilityWebGPU.fillTemplate(
+    engine,
+    materialNode.pixelShaderityObject!,
+    primitive,
+    {
+      WellKnownComponentTIDs,
+      vertexOutput: vertexOutputWgsl.code,
+      prerequisites: prerequisitesWgsl.code,
+      mainPrerequisites: mainPrerequisitesWgsl.code,
+      getters: pixelPropertiesStr,
+      definitions: `// RN_IS_PIXEL_SHADER\n#define RN_IS_PIXEL_SHADER\n${definitions}${alphaMode}`,
+      matricesGetters: componentDataAccessMethodDefinitionsForPixelShader,
+      opticalDefinition: opticalDefinitionWgsl.code,
+      pbrDefinition: pbrDefinitionWgsl.code,
+      iblDefinition: iblDefinitionWgsl.code,
+      alphaProcess: alphaProcessWgsl.code,
+      outputSrgb: outputSrgbWgsl.code,
+      wireframe: wireframeWgsl.code,
+      Config,
+    }
+  );
 
   const preprocessedVertex = Shaderity.processPragma(vertexShaderityObject);
   const preprocessedPixel = Shaderity.processPragma(pixelShaderityObject);
 
-  const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+  const cgApiResourceRepository = engine.cgApiResourceRepository;
   shaderProgramUid = cgApiResourceRepository.createShaderProgram({
     material,
     primitive,

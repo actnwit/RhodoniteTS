@@ -17,7 +17,8 @@ import {
 import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
 import { Logger } from '../../foundation/misc/Logger';
 import { CGAPIResourceRepository } from '../../foundation/renderer/CGAPIResourceRepository';
-import { SystemState } from '../../foundation/system/SystemState';
+import type { Engine } from '../../foundation/system/Engine';
+import { EngineState } from '../../foundation/system/EngineState';
 import type {
   BasisLzEtc1sImageTranscoder,
   MSC_TRANSCODER_TYPE,
@@ -138,7 +139,7 @@ export class KTX2TextureLoader {
    * const textureData = await loader.transcode(ktx2Data);
    * ```
    */
-  transcode(uint8Array: Uint8Array) {
+  transcode(engine: Engine, uint8Array: Uint8Array) {
     const ktx2Container = this.__parse(uint8Array);
 
     if (ktx2Container.pixelDepth > 0) {
@@ -160,12 +161,12 @@ export class KTX2TextureLoader {
 
       return KTX2TextureLoader.__zstdDecoder.init().then(() => {
         return this.__mscTranscoderPromise.then(() => {
-          return this.__transcodeData(ktx2Container);
+          return this.__transcodeData(engine, ktx2Container);
         });
       });
     }
     return this.__mscTranscoderPromise.then(() => {
-      return this.__transcodeData(ktx2Container);
+      return this.__transcodeData(engine, ktx2Container);
     });
   }
 
@@ -203,8 +204,8 @@ export class KTX2TextureLoader {
    * @returns An object containing the transcoding target string and compression type
    * @private
    */
-  private __getDeviceDependentParametersWebGL(hasAlpha: boolean) {
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+  private __getDeviceDependentParametersWebGL(engine: Engine, hasAlpha: boolean) {
+    const webGLResourceRepository = engine.webglResourceRepository;
     const glw = webGLResourceRepository.currentWebGLContextWrapper as WebGLContextWrapper;
 
     const astc = glw.webgl2ExtCTAstc || glw.webgl1ExtCTAstc;
@@ -268,8 +269,8 @@ export class KTX2TextureLoader {
    * @returns An object containing the transcoding target string and compression type
    * @private
    */
-  private __getDeviceDependentParametersWebGPU(hasAlpha: boolean) {
-    const webGpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
+  private __getDeviceDependentParametersWebGPU(engine: Engine, hasAlpha: boolean) {
+    const webGpuResourceRepository = engine.webGpuResourceRepository;
     const adapter = webGpuResourceRepository.getWebGpuDeviceWrapper().gpuAdapter;
 
     const astc = adapter.features.has('texture-compression-astc');
@@ -334,7 +335,7 @@ export class KTX2TextureLoader {
    * @returns The transcoded texture data with all mipmap levels
    * @private
    */
-  private __transcodeData(ktx2Container: KTX2Container) {
+  private __transcodeData(engine: Engine, ktx2Container: KTX2Container) {
     const width = ktx2Container.pixelWidth;
     const height = ktx2Container.pixelHeight;
     const faceCount = ktx2Container.faceCount; // faceCount is 6 if the transcoded data is a cube map (not support yet)
@@ -359,9 +360,9 @@ export class KTX2TextureLoader {
         : transcoderModule.TextureFormat.ETC1S;
 
     const { transcodeTargetStr, compressionTextureType } =
-      SystemState.currentProcessApproach === ProcessApproach.WebGPU
-        ? this.__getDeviceDependentParametersWebGPU(hasAlpha)
-        : this.__getDeviceDependentParametersWebGL(hasAlpha);
+      EngineState.currentProcessApproach === ProcessApproach.WebGPU
+        ? this.__getDeviceDependentParametersWebGPU(engine, hasAlpha)
+        : this.__getDeviceDependentParametersWebGL(engine, hasAlpha);
 
     const transcodeTarget = transcoderModule.TranscodeTarget[transcodeTargetStr];
 

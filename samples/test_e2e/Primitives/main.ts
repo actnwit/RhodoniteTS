@@ -3,7 +3,7 @@ import { checkFinished } from '../common/testHelpers.js';
 let p: HTMLParagraphElement | undefined;
 
 // setup Rhodonite
-const _system = await setupRhodonite();
+const engine = await setupRhodonite();
 
 // setup shape entities
 const group = createGroupOfShapes();
@@ -13,16 +13,16 @@ createCamera(group);
 
 // Rendering Loop
 let count = 0;
-Rn.System.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   [p, count] = checkFinished({ p: p!, count });
 
-  Rn.System.processAuto();
+  engine.processAuto();
 
   count++;
 });
 
 function createGroupOfShapes(): Rn.IMeshEntity {
-  const group = Rn.createGroupEntity();
+  const group = Rn.createGroupEntity(engine);
 
   const creators = [
     createPlane,
@@ -45,14 +45,14 @@ function createGroupOfShapes(): Rn.IMeshEntity {
 }
 
 function createGrid() {
-  const shape = Rn.MeshHelper.createGrid();
+  const shape = Rn.MeshHelper.createGrid(engine);
   shape.localEulerAngles = Rn.Vector3.fromCopy3(90, 0, 0);
 
   return shape;
 }
 
 function createPlane() {
-  const shape = Rn.MeshHelper.createPlane();
+  const shape = Rn.MeshHelper.createPlane(engine);
   shape.localEulerAngles = Rn.Vector3.fromCopy3(90, 0, 0);
   shape.localPosition = Rn.Vector3.fromCopy3(3, 0, 0);
 
@@ -60,7 +60,7 @@ function createPlane() {
 }
 
 function createCube() {
-  const shape = Rn.MeshHelper.createCube();
+  const shape = Rn.MeshHelper.createCube(engine);
   shape.localEulerAngles = Rn.Vector3.fromCopy3(90, 0, 0);
   shape.localPosition = Rn.Vector3.fromCopy3(0, 3, 0);
 
@@ -68,7 +68,7 @@ function createCube() {
 }
 
 function createAxis() {
-  const shape = Rn.MeshHelper.createAxis();
+  const shape = Rn.MeshHelper.createAxis(engine);
   shape.localEulerAngles = Rn.Vector3.fromCopy3(90, 0, 0);
   shape.localPosition = Rn.Vector3.fromCopy3(0, 6, 0);
 
@@ -76,7 +76,7 @@ function createAxis() {
 }
 
 function createJoint() {
-  const shape = Rn.MeshHelper.createJoint();
+  const shape = Rn.MeshHelper.createJoint(engine);
   shape.localEulerAngles = Rn.Vector3.fromCopy3(90, 0, 0);
   shape.localPosition = Rn.Vector3.fromCopy3(3, 3, 0);
 
@@ -84,7 +84,7 @@ function createJoint() {
 }
 
 function createLine() {
-  const shape = Rn.MeshHelper.createLine();
+  const shape = Rn.MeshHelper.createLine(engine);
   shape.localEulerAngles = Rn.Vector3.fromCopy3(90, 0, 0);
   shape.localPosition = Rn.Vector3.fromCopy3(6, 3, 0);
 
@@ -92,7 +92,7 @@ function createLine() {
 }
 
 function createSphere() {
-  const shape = Rn.MeshHelper.createSphere();
+  const shape = Rn.MeshHelper.createSphere(engine);
   shape.localEulerAngles = Rn.Vector3.fromCopy3(90, 0, 0);
   shape.localPosition = Rn.Vector3.fromCopy3(6, 6, 0);
 
@@ -100,7 +100,7 @@ function createSphere() {
 }
 
 function createCone() {
-  const shape = Rn.MeshHelper.createCone();
+  const shape = Rn.MeshHelper.createCone(engine);
   shape.localEulerAngles = Rn.Vector3.fromCopy3(90, 0, 0);
   shape.localPosition = Rn.Vector3.fromCopy3(3, 6, 0);
 
@@ -108,7 +108,7 @@ function createCone() {
 }
 
 function createRing() {
-  const shape = Rn.MeshHelper.createRing();
+  const shape = Rn.MeshHelper.createRing(engine);
   shape.localEulerAngles = Rn.Vector3.fromCopy3(90, 0, 0);
   shape.localPosition = Rn.Vector3.fromCopy3(6, 0, 0);
 
@@ -116,7 +116,7 @@ function createRing() {
 }
 
 function createCapsule() {
-  const shape = Rn.MeshHelper.createCapsule();
+  const shape = Rn.MeshHelper.createCapsule(engine);
   shape.localEulerAngles = Rn.Vector3.fromCopy3(90, 0, 0);
   shape.localPosition = Rn.Vector3.fromCopy3(9, 0, 0);
 
@@ -125,14 +125,15 @@ function createCapsule() {
 
 async function setupRhodonite() {
   Rn.Config.cgApiDebugConsoleOutput = true;
-  await Rn.System.init({
+  const engine = await Rn.Engine.init({
     approach: Rn.ProcessApproach.Uniform,
     canvas: document.getElementById('world') as HTMLCanvasElement,
   });
+  return engine;
 }
 
 function createCamera(group: Rn.IMeshEntity) {
-  const cameraEntity = Rn.createCameraControllerEntity();
+  const cameraEntity = Rn.createCameraControllerEntity(engine, true);
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 10;

@@ -10,7 +10,7 @@ test('regression test PixelPickingTest', async () => {
   expect(image).toMatchImageSnapshot();
   const windowHandle = await page.evaluateHandle(() => window);
   const valueHandle = await windowHandle.getProperty('_pickedEntityUID');
-  expect(await valueHandle.jsonValue()).toBe(5);
+  expect(await valueHandle.jsonValue()).toBe(9);
 
   await page.close();
 });

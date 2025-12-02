@@ -4,7 +4,7 @@ import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
 import { VertexAttribute, type VertexAttributeEnum } from '../../foundation/definitions/VertexAttribute';
 import { AbstractShaderNode } from '../../foundation/materials/core/AbstractShaderNode';
 import type { Socket, SocketDefaultValue } from '../../foundation/materials/core/Socket';
-import { SystemState } from '../../foundation/system/SystemState';
+import { EngineState } from '../../foundation/system/EngineState';
 import vertexInputWGSL from '../../webgpu/shaderity_shaders/common/vertexInput.wgsl';
 import { WebGLResourceRepository } from '../WebGLResourceRepository';
 import morphVariablesGLSL from '../shaderity_shaders/common/morphVariables.glsl';
@@ -17,7 +17,6 @@ import type { AttributeNames } from '../types/CommonTypes';
  */
 export abstract class CommonShaderPart {
   static __instance: CommonShaderPart;
-  __webglResourceRepository?: WebGLResourceRepository = WebGLResourceRepository.getInstance();
 
   /**
    * Generates the main function beginning code for vertex or fragment shaders.
@@ -27,7 +26,7 @@ export abstract class CommonShaderPart {
    * @returns The shader code string for the main function beginning
    */
   static getMainBegin(isVertexStage: boolean) {
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (isVertexStage) {
         let str = `
 var<private> output : VertexOutput;
@@ -61,7 +60,7 @@ void main() {
    * @returns The shader code string for the main function ending
    */
   static getMainEnd(isVertexStage: boolean) {
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (isVertexStage) {
         return `
   return output;
@@ -86,7 +85,7 @@ void main() {
    * @returns The complete vertex shader prerequisites code string
    */
   static getVertexPrerequisites(shaderNodes: AbstractShaderNode[]) {
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       const varyingVariables = CommonShaderPart.__makeVaryingVariablesWGSL(shaderNodes);
       let vertexShaderPrerequisites = '';
       vertexShaderPrerequisites += `
@@ -191,7 +190,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
    * @returns The complete fragment shader prerequisites code string
    */
   static getPixelPrerequisites(shaderNodes: AbstractShaderNode[]) {
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       const varyingVariables = CommonShaderPart.__makeVaryingVariablesWGSL(shaderNodes);
 
       let pixelShaderPrerequisites = '';
@@ -246,7 +245,7 @@ struct VertexOutput {
     varName: string,
     inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>
   ) {
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       const wgslTypeStr = inputSocket!.compositionType.toWGSLType(inputSocket!.componentType);
       const wgslInitialValue = inputSocket!.compositionType.getWgslInitialValue(inputSocket!.componentType);
       const rowStr = `var ${varName}: ${wgslTypeStr} = ${wgslInitialValue};\n`;
@@ -272,7 +271,7 @@ struct VertexOutput {
     inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>,
     inputNode: AbstractShaderNode
   ) {
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       const wgslTypeStr = inputSocket!.compositionType.toWGSLType(inputSocket!.componentType);
       const rowStr = `var ${varName}: ${wgslTypeStr} = input.${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid};\n`;
       return rowStr;
@@ -292,7 +291,7 @@ struct VertexOutput {
    * @returns The varying variable assignment statement string for vertex shader
    */
   static getAssignmentVaryingStatementInVertexShader(inputNode: AbstractShaderNode, varNames: string[], j: number) {
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `output.${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid} = ${varNames[j]};\n`;
     }
     return `v_${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid} = ${varNames[j]};\n`;

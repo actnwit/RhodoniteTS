@@ -2,9 +2,10 @@ import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/Commo
 import type { IVrmConstraint } from '../../constraints/IVrmConstraint';
 import { Component } from '../../core/Component';
 import type { IEntity } from '../../core/Entity';
-import { EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import type { IConstraintEntity } from '../../helpers/EntityHelper';
+import type { Engine } from '../../system/Engine';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
@@ -19,13 +20,20 @@ export class ConstraintComponent extends Component {
   /**
    * Creates a new ConstraintComponent instance.
    *
+   * @param engine - The engine instance
    * @param entityUid - The unique identifier of the entity this component belongs to
    * @param componentSid - The unique identifier of this component instance
    * @param entityComponent - The entity repository managing this component
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean) {
-    super(entityUid, componentSid, entityComponent, isReUse);
+  constructor(
+    engine: Engine,
+    entityUid: EntityUID,
+    componentSid: ComponentSID,
+    entityComponent: EntityRepository,
+    isReUse: boolean
+  ) {
+    super(engine, entityUid, componentSid, entityComponent, isReUse);
     this.moveStageTo(ProcessStage.Logic);
   }
 
@@ -36,7 +44,7 @@ export class ConstraintComponent extends Component {
    * @returns The entity instance cast as IConstraintEntity
    */
   get entity(): IConstraintEntity {
-    return EntityRepository.getEntity(this.__entityUid) as unknown as IConstraintEntity;
+    return this.__engine.entityRepository.getEntity(this.__entityUid) as unknown as IConstraintEntity;
   }
 
   /**

@@ -11,13 +11,13 @@ const effekseerModule = await moduleManager.loadModule('effekseer', {
 });
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
 // Effekseer
-const effekseerEntity = effekseerModule.createEffekseerEntity();
+const effekseerEntity = effekseerModule.createEffekseerEntity(engine);
 const effekseerComponent = effekseerEntity.getComponent(effekseerModule.EffekseerComponent) as Rn.EffekseerComponent;
 effekseerComponent.playJustAfterLoaded = true;
 effekseerComponent.randomSeed = 1;
@@ -28,7 +28,7 @@ effekseerComponent.uri = '../../../assets/effekseer/Laser01.efk';
 // effekseerEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, 1.54, 0]);
 
 // Camera
-const cameraEntity = Rn.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000;
@@ -39,7 +39,7 @@ cameraComponent.aspect = 1;
 const response = await Rn.Gltf2Importer.importFromUrl(
   '../../../assets/gltf/glTF-Sample-Assets/Models/BoxAnimated/glTF-Binary/BoxAnimated.glb'
 );
-const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(response);
+const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(engine, response);
 // const sphereEntity = createSphere();
 
 // CameraComponent
@@ -48,7 +48,7 @@ const controller = cameraControllerComponent.controller as Rn.OrbitCameraControl
 controller.setTarget(rootGroup);
 
 // renderPass
-const renderPass = new Rn.RenderPass();
+const renderPass = new Rn.RenderPass(engine);
 renderPass.clearColor = Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.01]);
 renderPass.toClearColorBuffer = true;
 // renderPass.addEntities([effekseerEntity]);
@@ -58,11 +58,10 @@ renderPass.addEntities([rootGroup, effekseerEntity]);
 const expression = new Rn.Expression();
 expression.addRenderPasses([renderPass]);
 
-Rn.CameraComponent.current = 0;
 let count = 0;
 let setTimeDone = false;
 
-Rn.System.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (count > 0 && window._rendered !== true && setTimeDone) {
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');
@@ -81,6 +80,6 @@ Rn.System.startRenderLoop(() => {
     count = 0;
   }
 
-  Rn.System.process([expression]);
+  engine.process([expression]);
   count++;
 });

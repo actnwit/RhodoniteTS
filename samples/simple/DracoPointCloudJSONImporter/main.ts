@@ -12,7 +12,7 @@ import Rn from '../../../dist/esmdev/index.js';
   // prepare memory
   Rn.Config.cgApiDebugConsoleOutput = true;
   const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-  await Rn.System.init({
+  const engine = await Rn.Engine.init({
     approach: Rn.ProcessApproach.Uniform,
     canvas: rnCanvasElement,
   });
@@ -23,12 +23,12 @@ import Rn from '../../../dist/esmdev/index.js';
   setPointSizeRecursively(rootGroup, pointSize);
 
   // set camera
-  const entityCamera = Rn.createCameraControllerEntity();
+  const entityCamera = Rn.createCameraControllerEntity(engine, true);
   const cameraControllerComponent = entityCamera.getCameraController();
   cameraControllerComponent.controller.setTarget(rootGroup);
 
   //prepare render pass and expression
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.addEntities([rootGroup]);
   renderPass.cameraComponent = entityCamera.getCamera();
 
@@ -44,7 +44,7 @@ import Rn from '../../../dist/esmdev/index.js';
     const importer = Rn.DrcPointCloudImporter.getInstance();
     const r_gltf2JSON = (await importer.importPointCloud(pointCloudDrcUri)).unwrapForce() as Rn.RnM2;
 
-    const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(r_gltf2JSON);
+    const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(engine, r_gltf2JSON);
     return rootGroup as Rn.IMeshEntity;
   }
 
@@ -100,7 +100,7 @@ import Rn from '../../../dist/esmdev/index.js';
   }
 
   function draw(expressions: Rn.Expression[]) {
-    Rn.System.process(expressions);
+    engine.process(expressions);
     requestAnimationFrame(draw.bind(null, expressions));
   }
 })();

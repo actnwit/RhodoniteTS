@@ -5,7 +5,7 @@ import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFor
 import { Vector4 } from '../math/Vector4';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import type { FrameBuffer } from '../renderer/FrameBuffer';
-import { SystemState } from '../system/SystemState';
+import { EngineState } from '../system/EngineState';
 import { AbstractTexture } from './AbstractTexture';
 import type { IRenderable } from './IRenderable';
 
@@ -76,7 +76,7 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
    * @private
    */
   private __createRenderTargetTexture() {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     const texture = cgApiResourceRepository.createRenderTargetTexture({
       width: this.__width,
       height: this.__height,
@@ -85,7 +85,7 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     });
     this._textureResourceUid = texture;
 
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2d(
         this._textureResourceUid
       );
@@ -116,7 +116,7 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
    * @returns True if the resources were successfully destroyed
    */
   destroy3DAPIResources() {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     cgApiResourceRepository.deleteTexture(this._textureResourceUid);
     this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
@@ -130,7 +130,7 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
    * @returns A promise that resolves to a Uint8Array containing the pixel data
    */
   async getTexturePixelData() {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     const data = cgApiResourceRepository.getTexturePixelData(
       this._textureResourceUid,
       this.__width,
@@ -203,7 +203,7 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
    * a main texture, intended to increase rendering speed and reduce aliasing artifacts.
    */
   generateMipmaps() {
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     cgApiResourceRepository.generateMipmaps2d(this._textureResourceUid, this.width, this.height);
   }
 

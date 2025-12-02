@@ -10,7 +10,7 @@ import { Vector2 } from '../../math/Vector2';
 import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
 import { Logger } from '../../misc/Logger';
-import { SystemState } from '../../system/SystemState';
+import { EngineState } from '../../system/EngineState';
 import { AddShaderNode } from '../nodes/AddShaderNode';
 import { AttributeColorShaderNode } from '../nodes/AttributeColorShaderNode';
 import { AttributeJointShaderNode } from '../nodes/AttributeJointShaderNode';
@@ -281,7 +281,7 @@ export class ShaderGraphResolver {
   private static __defineVaryingVariables(shaderNodes: AbstractShaderNode[], isVertexStage: boolean): string {
     let shaderBody = '';
 
-    if (SystemState.currentProcessApproach !== ProcessApproach.WebGPU) {
+    if (EngineState.currentProcessApproach !== ProcessApproach.WebGPU) {
       for (let i = 0; i < shaderNodes.length; i++) {
         const shaderNode = shaderNodes[i];
         for (let j = 0; j < shaderNode.inputConnections.length; j++) {
@@ -401,7 +401,7 @@ export class ShaderGraphResolver {
       return null;
     }
 
-    const isWebGPU = SystemState.currentProcessApproach === ProcessApproach.WebGPU;
+    const isWebGPU = EngineState.currentProcessApproach === ProcessApproach.WebGPU;
     const isBool = inputSocket.componentType === ComponentType.Bool;
 
     if (isBool) {

@@ -1,13 +1,12 @@
-import { MemoryManager } from '../../core/MemoryManager';
-import { ModuleManager } from '../../system/ModuleManager';
-import { CustomMaterialContent } from '../contents/CustomMaterialContent';
-import { MaterialRepository } from './MaterialRepository';
+import Rn from '../../../../dist/esmdev';
+
+const engine = await Rn.Engine.init({
+  approach: Rn.ProcessApproach.None,
+  canvas: document.getElementById('world') as HTMLCanvasElement,
+});
 
 test('MaterialTID are processed correctly', () => {
-  ModuleManager.getInstance().loadModule('webgl');
-  MemoryManager.createInstanceIfNotCreated(1024 * 1024 * 4 /* rgba */ * 4 /* byte */);
-
-  const materialNode = new CustomMaterialContent({
+  const materialNode = new Rn.CustomMaterialContent(engine, {
     name: 'material test',
     isSkinning: false,
     isLighting: false,
@@ -26,13 +25,13 @@ test('MaterialTID are processed correctly', () => {
   });
 
   // 0st
-  MaterialRepository.registerMaterial('MyMaterial0', materialNode);
-  const _material0 = MaterialRepository.createMaterial('MyMaterial0', materialNode)!;
+  engine.materialRepository.registerMaterial('MyMaterial0', materialNode);
+  const _material0 = engine.materialRepository.createMaterial(engine, 'MyMaterial0', materialNode)!;
 
   // 1st
-  MaterialRepository.registerMaterial('MyMaterial1', materialNode);
-  const _material1a = MaterialRepository.createMaterial('MyMaterial1', materialNode)!;
-  const material1b = MaterialRepository.createMaterial('MyMaterial1', materialNode)!;
+  engine.materialRepository.registerMaterial('MyMaterial1', materialNode);
+  const _material1a = engine.materialRepository.createMaterial(engine, 'MyMaterial1', materialNode)!;
+  const material1b = engine.materialRepository.createMaterial(engine, 'MyMaterial1', materialNode)!;
 
   expect(material1b.materialTID).toEqual(1);
 });

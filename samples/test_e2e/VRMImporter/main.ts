@@ -5,14 +5,14 @@ let p: HTMLParagraphElement | undefined;
 declare const window: any;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // Camera
-const cameraEntity = Rn.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000;
@@ -25,13 +25,13 @@ cameraEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0, 0.
 // const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
 // lightEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([1.0, 100000.0, 1.0]);
 // lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
-const lightEntity2 = Rn.createLightEntity();
+const lightEntity2 = Rn.createLightEntity(engine);
 const lightComponent2 = lightEntity2.getLight();
 lightComponent2.type = Rn.LightType.Directional;
 lightComponent2.color = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
 lightEntity2.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0.0, 0.0, Math.PI / 8]);
 
-const expression = await Rn.GltfImporter.importFromUrl('../../../assets/vrm/test.vrm');
+const expression = await Rn.GltfImporter.importFromUrl(engine, '../../../assets/vrm/test.vrm');
 
 const entities = expression.renderPasses[0].entities;
 expression.renderPasses[0].toClearColorBuffer = true;
@@ -41,11 +41,10 @@ const controller = cameraControllerComponent.controller as Rn.OrbitCameraControl
 controller.setTargets(entities);
 controller.dolly = 0.78;
 
-Rn.CameraComponent.current = 0;
 let count = 0;
 let startTime = Date.now();
 
-Rn.System.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (p == null && count > 0) {
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');
@@ -60,8 +59,8 @@ Rn.System.startRenderLoop(() => {
     //rotationVec3._v[1] = rotation;
     //rotationVec3._v[2] = 0.1;
     const time = (date.getTime() - startTime) / 1000;
-    Rn.AnimationComponent.globalTime = time;
-    if (time > Rn.AnimationComponent.endInputValue) {
+    Rn.AnimationComponent.setGlobalTime(engine, time);
+    if (time > Rn.AnimationComponent.getEndInputValue(engine)) {
       startTime = date.getTime();
     }
     //console.log(time);
@@ -69,10 +68,10 @@ Rn.System.startRenderLoop(() => {
     //rootGroup.getTransform().localPosition = rootGroup.getTransform().localPosition;
   }
 
-  Rn.System.process([expression]);
+  engine.process([expression]);
   count++;
 });
 
 window.exportGltf2 = () => {
-  Rn.Gltf2Exporter.export('Rhodonite');
+  Rn.Gltf2Exporter.export(engine, 'Rhodonite');
 };

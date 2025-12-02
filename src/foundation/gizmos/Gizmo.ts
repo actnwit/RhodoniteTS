@@ -2,6 +2,7 @@ import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponen
 import { flattenHierarchy } from '../components/SceneGraph/SceneGraphOps';
 import { RnObject } from '../core/RnObject';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
+import type { Engine } from '../system/Engine';
 
 /**
  * Abstract Gizmo class that provides a foundation for creating interactive gizmo objects
@@ -21,12 +22,15 @@ export abstract class Gizmo extends RnObject {
 
   protected __isVisible = false;
 
+  protected __engine: Engine;
+
   /**
    * Creates a new Gizmo instance
    * @param target - The entity that this gizmo will be associated with and manipulate
    */
-  constructor(target: ISceneGraphEntity) {
+  constructor(engine: Engine, target: ISceneGraphEntity) {
     super();
+    this.__engine = engine;
     this.__target = target;
     this.setGizmoTag();
   }

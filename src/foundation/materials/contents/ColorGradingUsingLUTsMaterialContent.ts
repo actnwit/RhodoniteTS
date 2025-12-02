@@ -12,12 +12,12 @@ import { ShaderType } from '../../definitions/ShaderType';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import { Logger } from '../../misc/Logger';
 import type { RenderPass } from '../../renderer/RenderPass';
+import type { Engine } from '../../system/Engine';
 import type { IRenderable } from '../../textures';
 import { AbstractTexture } from '../../textures/AbstractTexture';
 import { Sampler } from '../../textures/Sampler';
 import { Texture } from '../../textures/Texture';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { dummyBlackTexture } from '../core/DummyTextures';
 
 /**
  * Material content for color grading using Look-Up Tables (LUTs).
@@ -47,6 +47,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
    * If neither is provided, a dummy black texture will be used and a warning logged.
    */
   constructor(
+    engine: Engine,
     materialName: string,
     targetRenderPass: RenderPass,
     colorAttachmentsNumber: Count,
@@ -60,7 +61,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
     if (framebuffer != null && framebuffer.colorAttachments[colorAttachmentsNumber] != null) {
       targetTexture = framebuffer.colorAttachments[colorAttachmentsNumber];
     } else {
-      targetTexture = dummyBlackTexture;
+      targetTexture = engine.dummyTextures.dummyBlackTexture!;
       if (framebuffer != null) {
         Logger.warn(`renderPass does not have framebuffer.colorAttachments[${colorAttachmentsNumber}]`);
       } else {
@@ -70,7 +71,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
 
     let lookupTableTexture: any;
     if (typeof uri === 'string') {
-      lookupTableTexture = new Texture();
+      lookupTableTexture = new Texture(engine);
       (async (uri: string) => {
         await lookupTableTexture.generateTextureFromUrl(uri, {
           type: ComponentType.UnsignedByte,
@@ -80,10 +81,10 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
       lookupTableTexture = texture;
     } else {
       Logger.warn('no LUT texture is specified');
-      lookupTableTexture = dummyBlackTexture;
+      lookupTableTexture = engine.dummyTextures.dummyBlackTexture!;
     }
 
-    const sampler = new Sampler({
+    const sampler = new Sampler(engine, {
       minFilter: TextureParameter.Nearest,
       magFilter: TextureParameter.Nearest,
       wrapS: TextureParameter.ClampToEdge,
@@ -131,9 +132,11 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
    * This method is called internally during the rendering pipeline.
    */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
+    engine,
     shaderProgram,
     args,
   }: {
+    engine: Engine;
     shaderProgram: WebGLProgram;
     args: RenderingArgWebGL;
   }) {
@@ -144,7 +147,10 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
     /// Matrices
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
+      cameraComponent = engine.componentRepository.getComponent(
+        CameraComponent,
+        CameraComponent.getCurrent(engine)
+      ) as CameraComponent;
     }
     if (cameraComponent) {
       this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);

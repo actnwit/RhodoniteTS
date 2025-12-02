@@ -10,8 +10,8 @@ import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
 import { None, type Option, Some } from '../foundation/misc/Option';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
+import type { Engine } from '../foundation/system/Engine';
 import { ModuleManager } from '../foundation/system/ModuleManager';
-import { System } from '../foundation/system/System';
 import type { WebGLContextWrapper } from '../webgl/WebGLContextWrapper';
 
 const defaultUserPositionInVR = Vector3.fromCopyArray([0.0, 1.1, 0]);
@@ -46,7 +46,8 @@ export class WebARSystem {
   private __defaultPositionInLocalSpaceMode = defaultUserPositionInVR;
   private __canvasWidthForAR = 0;
   private __canvasHeightForAR = 0;
-  private _cameraEntity: ICameraEntity = createCameraEntity();
+  private _cameraEntity: ICameraEntity;
+  private __engine: Engine;
   private __viewerTranslate = MutableVector3.zero();
   private __viewerAzimuthAngle = MutableScalar.zero();
   private __viewerOrientation = MutableQuaternion.identity();
@@ -58,7 +59,9 @@ export class WebARSystem {
    *
    * @private Use getInstance() to get the singleton instance instead.
    */
-  constructor() {
+  constructor(engine: Engine) {
+    this.__engine = engine;
+    this._cameraEntity = createCameraEntity(engine, false);
     this._cameraEntity.tryToSetUniqueName('WebAR Viewer', true);
     this._cameraEntity.tryToSetTag({
       tag: 'type',
@@ -72,12 +75,8 @@ export class WebARSystem {
    *
    * @returns The singleton WebARSystem instance
    */
-  static getInstance() {
-    if (!this.__instance) {
-      this.__instance = new WebARSystem();
-    }
-
-    return this.__instance;
+  static init(engine: Engine): WebARSystem {
+    return new WebARSystem(engine);
   }
 
   /**
@@ -102,7 +101,7 @@ export class WebARSystem {
 
     await ModuleManager.getInstance().loadModule('xr');
 
-    const glw = CGAPIResourceRepository.getWebGLResourceRepository().currentWebGLContextWrapper;
+    const glw = this.__engine.webglResourceRepository.currentWebGLContextWrapper;
     if (glw == null) {
       throw new Error('WebGL Context is not ready yet.');
     }
@@ -162,7 +161,7 @@ export class WebARSystem {
     callbackOnXrSessionStart: () => void;
     callbackOnXrSessionEnd: () => void;
   }) {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = this.__engine.webglResourceRepository;
     const glw = webglResourceRepository.currentWebGLContextWrapper;
 
     if (glw != null && this.__isReadyForWebAR) {
@@ -181,8 +180,8 @@ export class WebARSystem {
         this.__isWebARMode = false;
         this.__defaultPositionInLocalSpaceMode = defaultUserPositionInVR;
         Logger.info('XRSession ends.');
-        System.stopRenderLoop();
-        System.restartRenderLoop();
+        this._cameraEntity.engine.stopRenderLoop();
+        this._cameraEntity.engine.restartRenderLoop();
         callbackOnXrSessionEnd();
       });
 
@@ -190,10 +189,10 @@ export class WebARSystem {
       this.__spaceType = 'local';
       this.__defaultPositionInLocalSpaceMode = initialUserPosition ?? defaultUserPositionInVR;
       this.__oArReferenceSpace = new Some(referenceSpace);
-      System.stopRenderLoop();
+      this._cameraEntity.engine.stopRenderLoop();
       await this.__setupWebGLLayer(session, callbackOnXrSessionStart);
       this.__requestedToEnterWebAR = true;
-      System.restartRenderLoop();
+      this._cameraEntity.engine.restartRenderLoop();
       Logger.warn('End of enterWebXR.');
       return;
     }
@@ -230,7 +229,7 @@ export class WebARSystem {
         depthNear: 0.1,
         depthFar: 10000,
       });
-      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const webglResourceRepository = this.__engine.webglResourceRepository;
       this.__canvasWidthForAR = webglLayer.framebufferWidth;
       this.__canvasHeightForAR = webglLayer.framebufferHeight;
       Logger.info(this.__canvasWidthForAR.toString());

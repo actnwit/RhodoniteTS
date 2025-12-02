@@ -11,11 +11,11 @@ import { ShaderType } from '../../definitions/ShaderType';
 import { Scalar } from '../../math/Scalar';
 import { Vector3 } from '../../math/Vector3';
 import { Logger } from '../../misc/Logger';
+import type { Engine } from '../../system/Engine';
 import { AbstractTexture } from '../../textures/AbstractTexture';
 import type { Sampler } from '../../textures/Sampler';
 import { Texture } from '../../textures/Texture';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { dummyBlackTexture } from '../core/DummyTextures';
 import type { Material } from '../core/Material';
 
 /**
@@ -29,18 +29,26 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
   /**
    * Creates a new MatCap material content instance.
    *
+   * @param engine - The engine instance
    * @param materialName - The name identifier for this material
    * @param isSkinning - Whether this material supports skeletal animation/skinning
    * @param uri - Optional URI to load the MatCap texture from
    * @param texture - Optional pre-existing texture to use as the MatCap texture
    * @param sampler - Optional sampler settings for texture sampling behavior
    */
-  constructor(materialName: string, isSkinning: boolean, uri?: string, texture?: AbstractTexture, sampler?: Sampler) {
+  constructor(
+    engine: Engine,
+    materialName: string,
+    isSkinning: boolean,
+    uri?: string,
+    texture?: AbstractTexture,
+    sampler?: Sampler
+  ) {
     super(materialName, { isSkinning: isSkinning }, MatCapShaderVertex, MatCapShaderFragment);
 
     let matCapTexture: any;
     if (typeof uri === 'string') {
-      matCapTexture = new Texture();
+      matCapTexture = new Texture(engine);
       (async (uri: string) => {
         await matCapTexture.generateTextureFromUrl(uri, {
           type: ComponentType.UnsignedByte,
@@ -50,7 +58,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
       matCapTexture = texture;
     } else {
       Logger.warn('no matcap texture');
-      matCapTexture = dummyBlackTexture;
+      matCapTexture = engine.dummyTextures.dummyBlackTexture;
     }
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
@@ -108,13 +116,16 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
    * including world transformations, camera settings, and skeletal animation support.
    *
    * @param params - Configuration object containing rendering parameters
+   * @param params.engine - The engine instance
    * @param params.shaderProgram - The WebGL shader program to configure
    * @param params.args - WebGL rendering arguments containing matrices, camera, and entity data
    */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
+    engine,
     shaderProgram,
     args,
   }: {
+    engine: Engine;
     shaderProgram: WebGLProgram;
     args: RenderingArgWebGL;
   }) {
@@ -125,7 +136,10 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
       /// Matrices
       let cameraComponent = args.renderPass.cameraComponent;
       if (cameraComponent == null) {
-        cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
+        cameraComponent = engine.componentRepository.getComponent(
+          CameraComponent,
+          CameraComponent.getCurrent(engine)
+        ) as CameraComponent;
       }
       this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
       this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);

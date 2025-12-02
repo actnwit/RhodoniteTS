@@ -10,7 +10,7 @@ const resolutionDepthCamera = 512;
 // prepare memory
 Rn.Config.cgApiDebugConsoleOutput = true;
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-await Rn.System.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: rnCanvasElement,
 });
@@ -44,7 +44,7 @@ draw(expressions);
 // ---functions-----------------------------------------------------------------------------------------
 
 function createEntityDepthCamera() {
-  const entityCamera = Rn.createCameraEntity();
+  const entityCamera = Rn.createCameraEntity(engine, false);
   const transformCamera = entityCamera.getTransform();
   transformCamera.localPosition = Rn.Vector3.fromCopyArray([10.0, 15.0, 20.0]);
 
@@ -56,27 +56,27 @@ function createEntityDepthCamera() {
 }
 
 function createRenderPassDepthEncode(cameraComponent: Rn.CameraComponent, entitiesTarget: Rn.ISceneGraphEntity[]) {
-  const renderPass = new Rn.RenderPass();
+  const renderPass = new Rn.RenderPass(engine);
   renderPass.toClearColorBuffer = true;
   renderPass.cameraComponent = cameraComponent;
   renderPass.addEntities(entitiesTarget);
 
-  const material = Rn.MaterialHelper.createDepthEncodeMaterial();
+  const material = Rn.MaterialHelper.createDepthEncodeMaterial(engine);
   renderPass.setMaterial(material);
   return renderPass;
 }
 
 function createEntitySphere() {
-  const primitive = new Rn.Sphere();
+  const primitive = new Rn.Sphere(engine);
   primitive.generate({
     radius: 10,
     widthSegments: 20,
     heightSegments: 20,
   });
 
-  const entity = Rn.createMeshEntity();
+  const entity = Rn.createMeshEntity(engine);
   const meshComponent = entity.getMesh();
-  const mesh = new Rn.Mesh();
+  const mesh = new Rn.Mesh(engine);
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);
 
@@ -89,7 +89,7 @@ function createEntitySphere() {
 }
 
 function createEntityBoard() {
-  const primitive = new Rn.Plane();
+  const primitive = new Rn.Plane(engine);
   primitive.generate({
     width: 20,
     height: 20,
@@ -98,9 +98,9 @@ function createEntityBoard() {
     isUVRepeat: false,
   });
 
-  const entity = Rn.createMeshEntity();
+  const entity = Rn.createMeshEntity(engine);
   const meshComponent = entity.getMesh();
-  const mesh = new Rn.Mesh();
+  const mesh = new Rn.Mesh(engine);
   mesh.addPrimitive(primitive);
   meshComponent.setMesh(mesh);
 
@@ -113,7 +113,7 @@ function createEntityBoard() {
 }
 
 function createAndSetFramebuffer(renderPass: Rn.RenderPass, resolution: number, textureNum: number) {
-  const framebuffer = Rn.RenderableHelper.createFrameBuffer({
+  const framebuffer = Rn.RenderableHelper.createFrameBuffer(engine, {
     width: resolution,
     height: resolution,
     textureNum: textureNum,
@@ -125,7 +125,7 @@ function createAndSetFramebuffer(renderPass: Rn.RenderPass, resolution: number, 
 }
 
 function createRenderPassGaussianBlurForDepth(renderPassBlurTarget: Rn.RenderPass, isHorizontal: boolean) {
-  const material = Rn.MaterialHelper.createGaussianBlurForEncodedDepthMaterial();
+  const material = Rn.MaterialHelper.createGaussianBlurForEncodedDepthMaterial(engine);
 
   const gaussianDistributionRatio = Rn.MathUtil.computeGaussianDistributionRatioWhoseSumIsOne({
     kernelSize: gaussianKernelSize,
@@ -141,7 +141,12 @@ function createRenderPassGaussianBlurForDepth(renderPassBlurTarget: Rn.RenderPas
   const framebufferTarget = renderPassBlurTarget.getFramebuffer();
   material.setParameter('framebufferSize', Rn.Vector2.fromCopy2(framebufferTarget.width, framebufferTarget.height));
   const TextureTarget = framebufferTarget.colorAttachments[0] as Rn.RenderTargetTexture;
-  const renderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(material, TextureTarget);
+  const renderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+    engine,
+    material,
+    TextureTarget,
+    undefined
+  );
 
   return renderPass;
 }
@@ -153,6 +158,6 @@ function createExpression(renderPasses: Rn.RenderPass[]) {
 }
 
 function draw(expressions: Rn.Expression[]) {
-  Rn.System.process(expressions);
+  engine.process(expressions);
   requestAnimationFrame(draw.bind(null, expressions));
 }

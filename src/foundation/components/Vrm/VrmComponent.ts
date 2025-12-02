@@ -1,9 +1,10 @@
 import type { ComponentSID, ComponentTID, EntityUID, Index } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
 import type { IEntity } from '../../core/Entity';
-import { EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import { Is } from '../../misc';
+import type { Engine } from '../../system/Engine';
 import type { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
@@ -28,19 +29,25 @@ export type VrmExpression = {
 export class VrmComponent extends Component {
   private __expressions: Map<VrmExpressionName, VrmExpression> = new Map();
   private __weights: Map<VrmExpressionName, number> = new Map();
-  private __blendShapeComponent?: BlendShapeComponent;
 
   public _version = '';
 
   /**
    * Creates a new VrmComponent instance.
+   * @param engine - The engine instance
    * @param entityUid - Unique identifier for the entity this component belongs to
    * @param componentSid - Unique identifier for this component instance
    * @param entityComponent - The entity repository managing this component
    * @param isReUse - Whether this component is being reused from a pool
    */
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean) {
-    super(entityUid, componentSid, entityComponent, isReUse);
+  constructor(
+    engine: Engine,
+    entityUid: EntityUID,
+    componentSid: ComponentSID,
+    entityComponent: EntityRepository,
+    isReUse: boolean
+  ) {
+    super(engine, entityUid, componentSid, entityComponent, isReUse);
     this.moveStageTo(ProcessStage.Logic);
   }
 
@@ -85,7 +92,7 @@ export class VrmComponent extends Component {
     }
     this.__weights.set(expressionName, weight);
     for (const bind of expression.binds) {
-      const entity = EntityRepository.getEntity(bind.entityIdx);
+      const entity = this.__engine.entityRepository.getEntity(bind.entityIdx);
       const blendShapeComponent = entity.tryToGetBlendShape();
       if (Is.exist(blendShapeComponent)) {
         blendShapeComponent.setWeightByIndex(bind.blendShapeIdx, weight);

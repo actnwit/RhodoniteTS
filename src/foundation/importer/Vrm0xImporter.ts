@@ -15,6 +15,7 @@ import { VRMSpring } from '../physics/VRMSpring/VRMSpring';
 import { VRMSpringBone } from '../physics/VRMSpring/VRMSpringBone';
 import { VRMSpringBonePhysicsStrategy } from '../physics/VRMSpring/VRMSpringBonePhysicsStrategy';
 import { RenderPass } from '../renderer/RenderPass';
+import type { Engine } from '../system/Engine';
 import { Sampler } from '../textures/Sampler';
 import { Texture } from '../textures/Texture';
 import { Gltf2Importer } from './Gltf2Importer';
@@ -39,6 +40,7 @@ export class Vrm0xImporter {
    * @returns A promise that resolves to an array of scene graph entities (main + optional outline)
    */
   public static async importFromUrl(
+    engine: Engine,
     url: string,
     options?: GltfLoadOption
   ): Promise<Result<ISceneGraphEntity[], Err<RnM2, undefined>>> {
@@ -47,8 +49,8 @@ export class Vrm0xImporter {
     const result = await Gltf2Importer.importFromUrl(url, options);
 
     const gltfModel = result;
-    const textures = await Vrm0xImporter._createTextures(gltfModel);
-    const samplers = Vrm0xImporter._createSamplers(gltfModel);
+    const textures = await Vrm0xImporter._createTextures(engine, gltfModel);
+    const samplers = Vrm0xImporter._createSamplers(engine, gltfModel);
     const defaultMaterialHelperArgumentArray =
       gltfModel.asset.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray;
     if (Is.exist(defaultMaterialHelperArgumentArray)) {
@@ -60,20 +62,20 @@ export class Vrm0xImporter {
 
     // setup rootGroup
     let rootGroups: ISceneGraphEntity[];
-    const rootGroupMain = await ModelConverter.convertToRhodoniteObject(gltfModel!);
+    const rootGroupMain = await ModelConverter.convertToRhodoniteObject(engine, gltfModel!);
 
     const existOutline = Vrm0xImporter._existOutlineMaterial(gltfModel.extensions.VRM);
     if (existOutline) {
       if (Is.exist(defaultMaterialHelperArgumentArray)) {
         defaultMaterialHelperArgumentArray[0].isOutline = true;
       }
-      const rootGroupOutline = await ModelConverter.convertToRhodoniteObject(gltfModel);
+      const rootGroupOutline = await ModelConverter.convertToRhodoniteObject(engine, gltfModel);
 
       rootGroups = [rootGroupMain, rootGroupOutline];
     } else {
       rootGroups = [rootGroupMain];
     }
-    Vrm0xImporter._readSpringBone(gltfModel as Vrm0x);
+    Vrm0xImporter._readSpringBone(engine, gltfModel as Vrm0x);
     Vrm0xImporter._readVRMHumanoidInfo(gltfModel as Vrm0x, rootGroupMain);
 
     return new Ok(rootGroups);
@@ -100,15 +102,16 @@ export class Vrm0xImporter {
    * This method handles the complete VRM processing pipeline including material setup,
    * outline rendering, spring bone physics, and humanoid configuration.
    *
+   * @param engine - The engine instance
    * @param gltfModel - The loaded GLTF model data with VRM extensions
    * @param renderPasses - Array of render passes to add the VRM entities to
    */
-  static async __importVRM0x(gltfModel: RnM2, renderPasses: RenderPass[]): Promise<void> {
+  static async __importVRM0x(engine: Engine, gltfModel: RnM2, renderPasses: RenderPass[]): Promise<void> {
     // process defaultMaterialHelperArgumentArray
     const defaultMaterialHelperArgumentArray =
       gltfModel.asset.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray;
-    const textures = await this._createTextures(gltfModel);
-    const samplers = this._createSamplers(gltfModel);
+    const textures = await this._createTextures(engine, gltfModel);
+    const samplers = this._createSamplers(engine, gltfModel);
     if (Is.exist(defaultMaterialHelperArgumentArray)) {
       defaultMaterialHelperArgumentArray[0].textures = defaultMaterialHelperArgumentArray[0].textures ?? textures;
       defaultMaterialHelperArgumentArray[0].samplers = defaultMaterialHelperArgumentArray[0].samplers ?? samplers;
@@ -120,7 +123,7 @@ export class Vrm0xImporter {
     let rootGroup: ISceneGraphEntity;
     const existOutline = this._existOutlineMaterial(gltfModel.extensions.VRM);
     if (existOutline) {
-      renderPasses[1] = renderPasses[1] ?? new RenderPass();
+      renderPasses[1] = renderPasses[1] ?? new RenderPass(engine);
       const renderPassOutline = renderPasses[1];
       renderPassOutline.toClearColorBuffer = false;
       renderPassOutline.toClearDepthBuffer = false;
@@ -128,17 +131,17 @@ export class Vrm0xImporter {
         renderPassOutline: renderPassOutline,
       };
 
-      rootGroup = await ModelConverter.convertToRhodoniteObject(gltfModel);
+      rootGroup = await ModelConverter.convertToRhodoniteObject(engine, gltfModel);
       renderPassOutline.addEntities([rootGroup]);
     } else {
-      rootGroup = await ModelConverter.convertToRhodoniteObject(gltfModel);
+      rootGroup = await ModelConverter.convertToRhodoniteObject(engine, gltfModel);
     }
 
     const renderPassMain = renderPasses[0];
     renderPassMain.tryToSetUniqueName('VRM Main RenderPass', true);
     renderPassMain.addEntities([rootGroup]);
 
-    this._readSpringBone(gltfModel as Vrm0x);
+    this._readSpringBone(engine, gltfModel as Vrm0x);
     this._readVRMHumanoidInfo(gltfModel as Vrm0x, rootGroup);
     this._readBlendShapeGroup(gltfModel as Vrm0x, rootGroup);
 
@@ -178,7 +181,7 @@ export class Vrm0xImporter {
       };
       vrmExpressions.push(vrmExpression);
     }
-    const vrmEntity = EntityRepository.addComponentToEntity(VrmComponent, rootEntity);
+    const vrmEntity = rootEntity.engine.entityRepository.addComponentToEntity(VrmComponent, rootEntity);
     vrmEntity.getVrm().setVrmExpressions(vrmExpressions);
     vrmEntity.getVrm()._version = '0.x';
   }
@@ -213,9 +216,10 @@ export class Vrm0xImporter {
    * This method handles collider groups, spring bone chains, and physics parameters
    * to enable realistic secondary motion for hair, clothing, and accessories.
    *
+   * @param engine - The engine instance
    * @param gltfModel - The VRM model data containing spring bone and collider definitions
    */
-  static _readSpringBone(gltfModel: Vrm0x): void {
+  static _readSpringBone(engine: Engine, gltfModel: Vrm0x): void {
     const colliderGroups: VRMColliderGroup[] = [];
     for (const colliderGroupIdx in gltfModel.extensions.VRM.secondaryAnimation.colliderGroups) {
       const colliderGroup = gltfModel.extensions.VRM.secondaryAnimation.colliderGroups[colliderGroupIdx];
@@ -225,6 +229,7 @@ export class Vrm0xImporter {
       const baseSg = gltfModel.asset.extras!.rnEntities![colliderGroup.node].getSceneGraph();
       for (const collider of colliderGroup.colliders) {
         const sphereCollider = new SphereCollider(
+          engine,
           Vector3.fromCopyArray([
             collider.offset.x,
             collider.offset.y,
@@ -320,7 +325,7 @@ export class Vrm0xImporter {
    */
   private static __addPhysicsComponent(boneGroup: VRMSpring, sg: SceneGraphComponent): void {
     const entity = sg.entity;
-    const newEntity = EntityRepository.addComponentToEntity(PhysicsComponent, entity);
+    const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, entity);
     const physicsComponent = newEntity.getPhysics();
     const strategy = new VRMSpringBonePhysicsStrategy();
     strategy.setSpring(boneGroup);
@@ -335,21 +340,21 @@ export class Vrm0xImporter {
    * @param gltfModel - The GLTF model containing texture definitions
    * @returns A promise that resolves to an array of created textures
    */
-  static async _createTextures(gltfModel: RnM2): Promise<Texture[]> {
+  static async _createTextures(engine: Engine, gltfModel: RnM2): Promise<Texture[]> {
     if (!gltfModel.textures) gltfModel.textures = [];
 
     const gltfTextures = gltfModel.textures;
     const rnTextures: Texture[] = [];
     for (let i = 0; i < gltfTextures.length; i++) {
-      const rnTexture = await ModelConverter._createTexture(gltfTextures[i].sourceObject!, gltfModel);
+      const rnTexture = await ModelConverter._createTexture(engine, gltfTextures[i].sourceObject!, gltfModel);
       rnTextures[i] = rnTexture;
     }
 
-    const dummyWhiteTexture = new Texture();
+    const dummyWhiteTexture = new Texture(engine);
     await dummyWhiteTexture.generate1x1TextureFrom();
     dummyWhiteTexture.markAsDummyTexture();
     rnTextures.push(dummyWhiteTexture);
-    const dummyBlackTexture = new Texture();
+    const dummyBlackTexture = new Texture(engine);
     await dummyBlackTexture.generate1x1TextureFrom('rgba(0, 0, 0, 1)');
     dummyBlackTexture.markAsDummyTexture();
     rnTextures.push(dummyBlackTexture);
@@ -365,17 +370,17 @@ export class Vrm0xImporter {
    * @param gltfModel - The GLTF model containing sampler definitions
    * @returns An array of created sampler objects
    */
-  static _createSamplers(gltfModel: RnM2): Sampler[] {
+  static _createSamplers(engine: Engine, gltfModel: RnM2): Sampler[] {
     if (!gltfModel.textures) gltfModel.textures = [];
 
     const gltfTextures = gltfModel.textures;
     const rnSamplers: Sampler[] = [];
     for (let i = 0; i < gltfTextures.length; i++) {
-      const rnSampler = ModelConverter._createSampler(gltfTextures[i].samplerObject!);
+      const rnSampler = ModelConverter._createSampler(engine, gltfTextures[i].samplerObject!);
       rnSamplers[i] = rnSampler;
     }
 
-    const dummySampler = new Sampler({
+    const dummySampler = new Sampler(engine, {
       wrapS: TextureParameter.ClampToEdge,
       wrapT: TextureParameter.ClampToEdge,
       minFilter: TextureParameter.Linear,

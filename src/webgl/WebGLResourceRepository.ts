@@ -29,7 +29,8 @@ import {
 } from '../foundation/renderer/CGAPIResourceRepository';
 import type { FrameBuffer } from '../foundation/renderer/FrameBuffer';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
-import { SystemState } from '../foundation/system/SystemState';
+import type { Engine } from '../foundation/system/Engine.js';
+import { EngineState } from '../foundation/system/EngineState.js';
 import type { AbstractTexture } from '../foundation/textures/AbstractTexture';
 import type { CubeTexture } from '../foundation/textures/CubeTexture';
 import type { IRenderable } from '../foundation/textures/IRenderable';
@@ -189,7 +190,6 @@ export type WebGLResource =
  * ```
  */
 export class WebGLResourceRepository extends CGAPIResourceRepository implements ICGAPIResourceRepository {
-  private static __instance: WebGLResourceRepository;
   private __webglContexts: Map<string, WebGLContextWrapper> = new Map();
   private __glw?: WebGLContextWrapper;
   private __resourceCounter: number = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -211,11 +211,8 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    *
    * @returns The singleton instance of WebGLResourceRepository
    */
-  static getInstance(): WebGLResourceRepository {
-    if (!this.__instance) {
-      this.__instance = new WebGLResourceRepository();
-    }
-    return this.__instance;
+  static init(): WebGLResourceRepository {
+    return new WebGLResourceRepository();
   }
 
   /**
@@ -453,7 +450,8 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    * @param textureUid - The handle of the texture to bind
    */
   bindTexture2D(textureSlotIndex: Index, textureUid: CGAPIResourceHandle) {
-    const texture = this.getWebGLResource(textureUid) as WebGLTexture;
+    // const texture = this.getWebGLResource(textureUid) as WebGLTexture;
+    const texture = this.__webglResources.get(textureUid) as WebGLTexture;
     this.__glw!.bindTexture2D(textureSlotIndex, texture);
   }
 
@@ -561,6 +559,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    * @throws Error if no WebGL context is available
    */
   createShaderProgram({
+    engine,
     material,
     primitive,
     vertexShaderStr,
@@ -569,6 +568,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     attributeSemantics,
     onError,
   }: {
+    engine: Engine;
     material: Material;
     primitive: Primitive;
     vertexShaderStr: string;
@@ -603,6 +603,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     }
 
     const shaderProgram = gl.createProgram()! as RnWebGLProgram;
+    shaderProgram._engine = engine;
     shaderProgram._gl = gl;
     shaderProgram._materialTypeName = material.materialTypeName;
     if (isDebugMode) {
@@ -2238,6 +2239,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    * @returns resource handle
    */
   createCubeTexture(
+    engine: Engine,
     mipLevelCount: Count,
     images: Array<{
       posX: DirectTextureData;
@@ -2280,7 +2282,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
       magFilter = TextureParameter.Linear;
     }
 
-    const sampler = new Sampler({ wrapS, wrapT, minFilter, magFilter });
+    const sampler = new Sampler(engine, { wrapS, wrapT, minFilter, magFilter });
     sampler.create();
 
     const loadImageToGPU = (image: DirectTextureData, cubeMapSide: number, i: Index) => {
@@ -2335,6 +2337,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    * @returns the WebGLResourceHandle for the generated Cube Texture
    */
   async createCubeTextureFromFiles(
+    engine: Engine,
     baseUri: string,
     mipLevelCount: Count,
     isNamePosNeg: boolean,
@@ -2473,7 +2476,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
       );
     }
 
-    return this.createCubeTexture(mipLevelCount, imageArgs, width, height);
+    return this.createCubeTexture(engine, mipLevelCount, imageArgs, width, height);
   }
 
   createCubeTextureFromBasis(
@@ -2566,11 +2569,12 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     return resourceHandle;
   }
 
-  createDummyBlackCubeTexture() {
+  createDummyBlackCubeTexture(engine: Engine) {
     const base64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPj/HwADBwIAMCbHYQAAAABJRU5ErkJggg==';
     const arrayBuffer = this.__createDummyTextureInner(base64);
     const typedArray = new Uint8Array(arrayBuffer);
     return this.createCubeTexture(
+      engine,
       1,
       [
         {
@@ -2587,7 +2591,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     );
   }
 
-  createDummyCubeTexture(rgbaStr = 'rgba(0,0,0,1)') {
+  createDummyCubeTexture(engine: Engine, rgbaStr = 'rgba(0,0,0,1)') {
     const canvas = document.createElement('canvas');
     canvas.width = 1;
     canvas.height = 1;
@@ -2596,6 +2600,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     ctx.fillRect(0, 0, 1, 1);
 
     return this.createCubeTexture(
+      engine,
       1,
       [
         {
@@ -3108,14 +3113,14 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
   setViewport(viewport?: Vector4) {
     if (viewport) {
       this.__glw?.setViewportAsVector4(viewport);
-      SystemState.viewportAspectRatio = (viewport.z - viewport.x) / (viewport.w - viewport.y);
+      EngineState.viewportAspectRatio = (viewport.z - viewport.x) / (viewport.w - viewport.y);
     } else {
       this.__glw?.setViewport(0, 0, this.__glw!.width, this.__glw!.height);
-      SystemState.viewportAspectRatio = this.__glw!.width / this.__glw!.height;
+      EngineState.viewportAspectRatio = this.__glw!.width / this.__glw!.height;
     }
   }
 
-  clearFrameBuffer(renderPass: RenderPass, _ = 0) {
+  clearFrameBuffer(_engine: Engine, renderPass: RenderPass, _ = 0) {
     const gl = this.__glw!.getRawContext();
     let bufferBit = 0;
     if (renderPass.toClearColorBuffer) {
@@ -3209,8 +3214,8 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
       return false;
     }
 
-    const processApproach = SystemState.currentProcessApproach;
-    const renderingStrategy = getRenderingStrategy(processApproach);
+    const processApproach = EngineState.currentProcessApproach;
+    const renderingStrategy = getRenderingStrategy(this._engine, processApproach);
 
     const modifiedVertexSourceCode = updatedVertexSourceCode.replace(/! =/g, '!=');
     const modifiedPixelSourceCode = updatedFragmentSourceCode.replace(/! =/g, '!=');
@@ -3228,7 +3233,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
       return false;
     }
 
-    const webglResourceRepository = WebGLResourceRepository.getInstance();
+    const webglResourceRepository = this._engine.webglResourceRepository;
     const program = webglResourceRepository.getWebGLResource(programUid) as RnWebGLProgram;
 
     if (programUid > 0) {
@@ -3845,7 +3850,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
   }
 
   isSupportMultiViewVRRendering(): boolean {
-    if (SystemState.currentProcessApproach === ProcessApproach.DataTexture) {
+    if (EngineState.currentProcessApproach === ProcessApproach.DataTexture) {
       return this.__glw!.isMultiview();
     }
     return false;

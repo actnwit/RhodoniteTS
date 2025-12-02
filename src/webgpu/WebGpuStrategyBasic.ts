@@ -22,7 +22,7 @@ import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemant
 import { ShaderType, type ShaderTypeEnum } from '../foundation/definitions/ShaderType';
 import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
 import { Primitive } from '../foundation/geometry/Primitive';
-import { Material } from '../foundation/materials/core/Material';
+import type { Material } from '../foundation/materials/core/Material';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 import type { Accessor } from '../foundation/memory/Accessor';
 import type { Buffer } from '../foundation/memory/Buffer';
@@ -31,6 +31,7 @@ import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRep
 import type { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
 import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
+import type { Engine } from '../foundation/system/Engine';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import type {
   CGAPIResourceHandle,
@@ -63,7 +64,7 @@ import { WebGpuResourceRepository } from './WebGpuResourceRepository';
  * ```
  */
 export class WebGpuStrategyBasic implements CGAPIStrategy {
-  private static __instance: WebGpuStrategyBasic;
+  private __engine: Engine;
   private __storageBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __storageBlendShapeBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __uniformMorphOffsetsTypedArray?: Uint32Array;
@@ -85,7 +86,9 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __storageBlendShapeBufferByteLength = -1;
   private __countOfBlendShapeComponents = -1;
 
-  private constructor() {}
+  private constructor(engine: Engine) {
+    this.__engine = engine;
+  }
 
   /**
    * Gets the singleton instance of WebGpuStrategyBasic.
@@ -93,11 +96,8 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
    *
    * @returns The singleton instance of WebGpuStrategyBasic
    */
-  static getInstance() {
-    if (!this.__instance) {
-      this.__instance = new WebGpuStrategyBasic();
-    }
-    return this.__instance;
+  static init(engine: Engine) {
+    return new WebGpuStrategyBasic(engine);
   }
 
   /**
@@ -107,15 +107,15 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
    *
    * @returns WGSL shader code containing helper functions for storage buffer access
    */
-  static getVertexShaderMethodDefinitions_storageBuffer(shaderType: ShaderTypeEnum) {
+  static getVertexShaderMethodDefinitions_storageBuffer(engine: Engine, shaderType: ShaderTypeEnum) {
     let str = '';
-    const memberInfo = Component.getMemberInfo();
+    const memberInfo = Component.getMemberInfo(engine);
     memberInfo.forEach((mapMemberNameMemberInfo, componentClass) => {
       mapMemberNameMemberInfo.forEach((memberInfo, memberName) => {
         if (memberInfo.shaderType !== shaderType && memberInfo.shaderType !== ShaderType.VertexAndPixelShader) {
           return;
         }
-        const componentCountPerBufferView = Component.getComponentCountPerBufferView().get(componentClass) ?? 1;
+        const componentCountPerBufferView = Component.getComponentCountPerBufferView(engine).get(componentClass) ?? 1;
         if (CompositionType.isArray(memberInfo.compositionType)) {
           processForArrayType(memberInfo, componentClass, memberName, componentCountPerBufferView);
         } else {
@@ -150,9 +150,13 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
         default:
           throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
       }
-      const locationOffsets_vec4_idx = Component.getLocationOffsetOfMemberOfComponent(componentClass, memberName);
+      const locationOffsets_vec4_idx = Component.getLocationOffsetOfMemberOfComponent(
+        engine,
+        componentClass,
+        memberName
+      );
       const vec4SizeOfProperty: IndexOf16Bytes = memberInfo.compositionType.getVec4SizeOfProperty();
-      const arrayLength = Component.getArrayLengthOfMember().get(componentClass)?.get(memberName) ?? 0;
+      const arrayLength = Component.getArrayLengthOfMember(engine).get(componentClass)?.get(memberName) ?? 0;
       const arrayLengthStr = `let arrayLength: u32 = ${arrayLength}u;`;
       const indexStr = `indices[instanceIdOfBufferViews] + instanceIdInBufferView * ${vec4SizeOfProperty}u * arrayLength + ${vec4SizeOfProperty}u * idxOfArray;`; // vec4_idx
       let conversionStr = '';
@@ -205,7 +209,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
           throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
       }
 
-      const locationOffsets = Component.getLocationOffsetOfMemberOfComponent(componentClass, memberName);
+      const locationOffsets = Component.getLocationOffsetOfMemberOfComponent(engine, componentClass, memberName);
       let indexStr = '';
       switch (memberInfo.compositionType) {
         case CompositionType.Mat4:
@@ -243,7 +247,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
     }
   }
 
-  private static __getMorphedPositionGetter(): string {
+  private static __getMorphedPositionGetter(engine: Engine): string {
     const morphUniformDataTargetNumbers = Primitive.getMorphUniformDataTargetNumbers();
     const morphUniformDataTargetNumbersStr = `
     var<function> morphUniformDataTargetNumbers: array<u32, ${morphUniformDataTargetNumbers.length}> = array<u32, ${morphUniformDataTargetNumbers.length}>(${morphUniformDataTargetNumbers.map(num => `${num}u`).join(', ')});
@@ -252,7 +256,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
     const morphUniformDataOffsetsStr = `
     var<function> morphUniformDataOffsets: array<u32, ${morphUniformDataOffsets.length}> = array<u32, ${morphUniformDataOffsets.length}>(${morphUniformDataOffsets.map(offset => `${offset}u`).join(', ')});
     `;
-    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform(engine);
     const blendShapeUniformDataOffsetsStr = `
     var<function> blendShapeUniformDataOffsets: array<u32, ${blendShapeUniformDataOffsets.length}> = array<u32, ${blendShapeUniformDataOffsets.length}>(${blendShapeUniformDataOffsets.map(offset => `${offset}u`).join(', ')});
     `;
@@ -302,7 +306,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
    * @param info - Shader semantics information containing type and binding details
    * @returns WGSL shader code for the property accessor function
    */
-  private static __getShaderPropertyOfGlobalDataRepository(info: ShaderSemanticsInfo) {
+  private static __getShaderPropertyOfGlobalDataRepository(engine: Engine, info: ShaderSemanticsInfo) {
     const returnType = info.compositionType.toWGSLType(info.componentType);
     const methodName = info.semantic.replace('.', '_');
     const isTexture = CompositionType.isTexture(info.compositionType);
@@ -326,6 +330,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
     // for non-`index` property (this is general case)
     const scalarSizeOfProperty: IndexOf4Bytes = info.compositionType.getNumberOfComponents();
     const offsetOfProperty: IndexOf16Bytes = WebGpuStrategyBasic.getOffsetOfPropertyOfGlobalDataRepository(
+      engine,
       info.semantic
     );
 
@@ -438,7 +443,7 @@ ${indexStr}
    * @param info - Shader semantics information containing type and binding details
    * @returns WGSL shader code for the property accessor function
    */
-  private static __getShaderPropertyOfMaterial(materialTypeName: string, info: ShaderSemanticsInfo) {
+  private static __getShaderPropertyOfMaterial(engine: Engine, materialTypeName: string, info: ShaderSemanticsInfo) {
     const returnType = info.compositionType.toWGSLType(info.componentType);
     const methodName = info.semantic.replace('.', '_');
     const isTexture = CompositionType.isTexture(info.compositionType);
@@ -462,10 +467,11 @@ ${indexStr}
     // for non-`index` property (this is general case)
     const scalarSizeOfProperty: IndexOf4Bytes = info.compositionType.getNumberOfComponents();
     const offsetOfProperty: IndexOf16Bytes[] = WebGpuStrategyBasic.getOffsetOfPropertyOfMaterial(
+      engine,
       info.semantic,
       materialTypeName
     );
-    const materialCountPerBufferView = MaterialRepository._getMaterialCountPerBufferView(materialTypeName)!;
+    const materialCountPerBufferView = engine.materialRepository._getMaterialCountPerBufferView(materialTypeName)!;
 
     const offsetsStr = `var<function> offsets: array<u32, ${offsetOfProperty.length}> = array<u32, ${offsetOfProperty.length}>(${offsetOfProperty.map(offset => `${offset}u`).join(', ')});`;
 
@@ -568,18 +574,27 @@ ${indexStr}
   /**
    * Calculates the memory offset of a shader property within storage buffers.
    *
+   * @param engine - The engine instance
    * @param isGlobalData - Whether to look in global data repository or material repository
    * @param propertyName - The semantic name of the property
    * @param materialTypeName - The material type name for material-specific properties
    * @returns The byte offset of the property in the storage buffer, or -1 if not found
    */
-  private static getOffsetOfPropertyOfMaterial(propertyName: ShaderSemanticsName, materialTypeName: string) {
-    const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(materialTypeName, propertyName);
+  private static getOffsetOfPropertyOfMaterial(
+    engine: Engine,
+    propertyName: ShaderSemanticsName,
+    materialTypeName: string
+  ) {
+    const dataBeginPos = engine.materialRepository.getLocationOffsetOfMemberOfMaterial(
+      engine,
+      materialTypeName,
+      propertyName
+    );
     return dataBeginPos;
   }
 
-  private static getOffsetOfPropertyOfGlobalDataRepository(propertyName: ShaderSemanticsName) {
-    const globalDataRepository = GlobalDataRepository.getInstance();
+  private static getOffsetOfPropertyOfGlobalDataRepository(engine: Engine, propertyName: ShaderSemanticsName) {
+    const globalDataRepository = engine.globalDataRepository;
     const dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyName);
     return dataBeginPos;
   }
@@ -621,7 +636,7 @@ ${indexStr}
     );
 
     if (morphOffsetsUniformDataSize !== this.__lastMorphOffsetsUniformDataSize) {
-      const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+      const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
       // delete the old morph offsets uniform buffer
       if (this.__morphOffsetsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
         webGpuResourceRepository.flush();
@@ -643,14 +658,14 @@ ${indexStr}
       this.__lastMorphOffsetsUniformDataSize = morphOffsetsUniformDataSize;
     }
 
-    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform(this.__engine);
     const blendShapeWeightsUniformDataSize = Math.max(
       Math.ceil(blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1] / 4) * 4 * 4,
       4
     );
 
     if (blendShapeWeightsUniformDataSize !== this.__lastMorphWeightsUniformDataSize) {
-      const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+      const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
       // delete the old morph weights uniform buffer
       if (this.__morphWeightsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
         webGpuResourceRepository.flush();
@@ -713,11 +728,11 @@ ${indexStr}
       this.setupShaderForMaterial(
         material,
         primitive,
-        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.VertexShader),
-        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.PixelShader),
+        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(this.__engine, ShaderType.VertexShader),
+        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(this.__engine, ShaderType.PixelShader),
         WebGpuStrategyBasic.__getShaderPropertyOfGlobalDataRepository,
         WebGpuStrategyBasic.__getShaderPropertyOfMaterial,
-        WebGpuStrategyBasic.__getMorphedPositionGetter()
+        WebGpuStrategyBasic.__getMorphedPositionGetter(this.__engine)
       );
       primitive._backupMaterial();
     } catch (e) {
@@ -726,11 +741,11 @@ ${indexStr}
       this.setupShaderForMaterial(
         primitive.material,
         primitive,
-        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.VertexShader),
-        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(ShaderType.PixelShader),
+        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(this.__engine, ShaderType.VertexShader),
+        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(this.__engine, ShaderType.PixelShader),
         WebGpuStrategyBasic.__getShaderPropertyOfGlobalDataRepository,
         WebGpuStrategyBasic.__getShaderPropertyOfMaterial,
-        WebGpuStrategyBasic.__getMorphedPositionGetter()
+        WebGpuStrategyBasic.__getMorphedPositionGetter(this.__engine)
       );
     }
   }
@@ -756,6 +771,7 @@ ${indexStr}
     morphedPositionGetter: string
   ): void {
     material._createProgramWebGpu(
+      this.__engine,
       primitive,
       vertexShaderMethodDefinitionsForVertexShader,
       vertexShaderMethodDefinitionsForPixelShader,
@@ -772,19 +788,19 @@ ${indexStr}
    */
   prerender(): void {
     if (
-      AnimationComponent.isAnimating ||
-      TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
-      SceneGraphComponent.updateCount !== this.__lastSceneGraphComponentsUpdateCount ||
-      CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
-      CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
-      Material.stateVersion !== this.__lastMaterialsUpdateCount
+      AnimationComponent.getIsAnimating(this.__engine) ||
+      TransformComponent.getUpdateCount(this.__engine) !== this.__lastTransformComponentsUpdateCount ||
+      SceneGraphComponent.getUpdateCount(this.__engine) !== this.__lastSceneGraphComponentsUpdateCount ||
+      CameraComponent.getCurrentCameraUpdateCount(this.__engine) !== this.__lastCameraComponentsUpdateCount ||
+      CameraControllerComponent.getUpdateCount(this.__engine) !== this.__lastCameraControllerComponentsUpdateCount ||
+      this.__engine.materialRepository.stateVersion !== this.__lastMaterialsUpdateCount
     ) {
       this.__createAndUpdateStorageBuffer();
-      this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
-      this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
-      this.__lastCameraComponentsUpdateCount = CameraComponent.currentCameraUpdateCount;
-      this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
-      this.__lastMaterialsUpdateCount = Material.stateVersion;
+      this.__lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(this.__engine);
+      this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.getUpdateCount(this.__engine);
+      this.__lastCameraComponentsUpdateCount = CameraComponent.getCurrentCameraUpdateCount(this.__engine);
+      this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.getUpdateCount(this.__engine);
+      this.__lastMaterialsUpdateCount = this.__engine.materialRepository.stateVersion;
     }
 
     const morphMaxIndex = Primitive.getPrimitiveCountHasMorph();
@@ -795,12 +811,12 @@ ${indexStr}
 
     if (
       BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForWeights ||
-      BlendShapeComponent.getCountOfBlendShapeComponents() !== this.__countOfBlendShapeComponents
+      BlendShapeComponent.getCountOfBlendShapeComponents(this.__engine) !== this.__countOfBlendShapeComponents
     ) {
       this.__updateMorphWeightsUniformBuffer();
       this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
-      this.__countOfBlendShapeComponents = BlendShapeComponent.getCountOfBlendShapeComponents();
-      MaterialRepository._makeShaderInvalidateToMorphMaterials();
+      this.__countOfBlendShapeComponents = BlendShapeComponent.getCountOfBlendShapeComponents(this.__engine);
+      this.__engine.materialRepository._makeShaderInvalidateToMorphMaterials();
     }
   }
 
@@ -879,7 +895,7 @@ ${indexStr}
     const primitive = renderPass._dummyPrimitiveForBufferLessRendering;
     this._setupShaderProgram(material, primitive);
 
-    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+    const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
     webGpuResourceRepository.updateUniformBufferForDrawParameters(
       `${renderPass.renderPassUID}-${primitive.primitiveUid}-${0}`,
       material.materialSID,
@@ -888,7 +904,7 @@ ${indexStr}
       0
     );
     const isZWrite = renderPass.isDepthTest && renderPass.depthWriteMask;
-    webGpuResourceRepository.draw(primitive, material, renderPass, 0, isZWrite, 0);
+    webGpuResourceRepository.draw(this.__engine, primitive, material, renderPass, 0, isZWrite, 0);
   }
 
   /**
@@ -915,9 +931,8 @@ ${indexStr}
       return false;
     }
 
-    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
-    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+    const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
+    const webxrSystem = this.__engine.webXRSystem;
     const cameraSID = this.__getAppropriateCameraComponentSID(
       renderPass,
       displayIdx as 0 | 1,
@@ -932,7 +947,7 @@ ${indexStr}
       primitiveIdxHasMorph,
       primitive.targets.length
     );
-    webGpuResourceRepository.draw(primitive, material, renderPass, cameraSID, zWrite, displayIdx);
+    webGpuResourceRepository.draw(this.__engine, primitive, material, renderPass, cameraSID, zWrite, displayIdx);
     return true;
   }
 
@@ -942,12 +957,12 @@ ${indexStr}
    * required for rendering all objects in the scene.
    */
   private __createAndUpdateStorageBuffer() {
-    const memoryManager: MemoryManager = MemoryManager.getInstance();
+    const memoryManager = this.__engine.memoryManager;
 
     // the GPU global Storage
     const gpuInstanceDataBuffers = memoryManager.getBuffers(BufferUse.GPUInstanceData);
     const gpuInstanceDataBufferCount = gpuInstanceDataBuffers.length;
-    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+    const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
     if (gpuInstanceDataBufferCount !== this.__lastGpuInstanceDataBufferCount) {
       this.__lastGpuInstanceDataBufferCount = gpuInstanceDataBufferCount;
       webGpuResourceRepository.destroyStorageBuffer(this.__storageBufferUid);
@@ -970,7 +985,7 @@ ${indexStr}
    * This buffer holds morph target positions and other vertex attributes needed for blend shape animation.
    */
   private __createOrUpdateStorageBlendShapeBuffer() {
-    const memoryManager: MemoryManager = MemoryManager.getInstance();
+    const memoryManager = this.__engine.memoryManager;
 
     // the GPU global Storage
     const blendShapeDataBuffers: Buffer[] = memoryManager.getBuffers(BufferUse.GPUVertexData);
@@ -982,12 +997,12 @@ ${indexStr}
     const blendShapeDataBufferByteLength = blendShapeDataBuffers.reduce((acc, buffer) => acc + buffer.byteLength, 0);
 
     if (blendShapeDataBufferByteLength !== this.__storageBlendShapeBufferByteLength) {
-      WebGpuResourceRepository.getInstance().deleteStorageBlendShapeBuffer(this.__storageBlendShapeBufferUid);
+      this.__engine.webGpuResourceRepository.deleteStorageBlendShapeBuffer(this.__storageBlendShapeBufferUid);
       this.__storageBlendShapeBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
       this.__storageBlendShapeBufferByteLength = blendShapeDataBufferByteLength;
     }
 
-    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+    const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
     const float32Array = new Float32Array(blendShapeDataBufferByteLength / 4);
     // copy the data from the blendShapeDataBuffers to the float32Array
     let offset = 0;
@@ -1014,7 +1029,7 @@ ${indexStr}
   }
 
   private __updateMorphOffsetsUniformBuffer() {
-    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+    const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
     const morphUniformDataOffsets = Primitive.getMorphUniformDataOffsets();
     for (let i = 0; i < Primitive.getPrimitiveCountHasMorph(); i++) {
       const primitive = Primitive.getPrimitiveHasMorph(i);
@@ -1022,7 +1037,7 @@ ${indexStr}
         for (let j = 0; j < primitive.targets.length; j++) {
           const target = primitive.targets[j];
           const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
-          const byteOffsetOfExistingBuffer = MemoryManager.getInstance().getByteOffsetOfExistingBuffers(
+          const byteOffsetOfExistingBuffer = this.__engine.memoryManager.getByteOffsetOfExistingBuffers(
             BufferUse.GPUVertexData,
             accessor.bufferView.buffer.indexOfTheBufferUsage
           );
@@ -1042,7 +1057,7 @@ ${indexStr}
    * Copies weight values from blend shape components to GPU-accessible uniform buffers.
    */
   private __updateMorphWeightsUniformBuffer() {
-    const memoryManager: MemoryManager = MemoryManager.getInstance();
+    const memoryManager = this.__engine.memoryManager;
     const blendShapeDataBuffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUVertexData);
     if (blendShapeDataBuffer == null) {
       return;
@@ -1051,11 +1066,10 @@ ${indexStr}
       return;
     }
 
-    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform();
-    const blendShapeComponents = ComponentRepository.getComponentsWithTypeWithoutFiltering(BlendShapeComponent) as (
-      | BlendShapeComponent
-      | undefined
-    )[];
+    const blendShapeUniformDataOffsets = BlendShapeComponent.getOffsetsInUniform(this.__engine);
+    const blendShapeComponents = this.__engine.componentRepository.getComponentsWithTypeWithoutFiltering(
+      BlendShapeComponent
+    ) as (BlendShapeComponent | undefined)[];
     for (let i = 0; i < blendShapeComponents.length; i++) {
       const blendShapeComponent = blendShapeComponents[i];
       const weights = blendShapeComponent != null ? blendShapeComponent!.weights : [];
@@ -1064,7 +1078,7 @@ ${indexStr}
       }
     }
     if (blendShapeComponents.length > 0) {
-      const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+      const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
       const elementNumToCopy = blendShapeUniformDataOffsets[blendShapeUniformDataOffsets.length - 1];
       webGpuResourceRepository.updateUniformMorphWeightsBuffer(this.__uniformMorphWeightsTypedArray!, elementNumToCopy);
     }
@@ -1081,8 +1095,7 @@ ${indexStr}
    */
   private __getAppropriateCameraComponentSID(renderPass: RenderPass, displayIdx: 0 | 1, isVRMainPass: boolean): number {
     if (isVRMainPass) {
-      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+      const webxrSystem = this.__engine.webXRSystem;
       let cameraComponentSid = -1;
       if (webxrSystem.isWebXRMode) {
         if (webxrSystem.isMultiView()) {
@@ -1097,7 +1110,10 @@ ${indexStr}
     let cameraComponent = renderPass.cameraComponent;
     if (cameraComponent == null) {
       // if the renderPass has no cameraComponent, try to get the current cameraComponent
-      cameraComponent = ComponentRepository.getComponent(CameraComponent, CameraComponent.current) as CameraComponent;
+      cameraComponent = this.__engine.componentRepository.getComponent(
+        CameraComponent,
+        CameraComponent.getCurrent(this.__engine)
+      ) as CameraComponent;
     }
     if (cameraComponent) {
       return cameraComponent.componentSID;

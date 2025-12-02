@@ -5,16 +5,16 @@ let p: any;
 declare const window: any;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-await Rn.System.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
 // Plane
-const texture = new Rn.VideoTexture();
+const texture = new Rn.VideoTexture(engine);
 texture.generateTextureFromUri('../../../assets/videos/video.mp4');
-const modelMaterial = Rn.MaterialHelper.createClassicUberMaterial();
-const sampler = new Rn.Sampler({
+const modelMaterial = Rn.MaterialHelper.createClassicUberMaterial(engine);
+const sampler = new Rn.Sampler(engine, {
   magFilter: Rn.TextureParameter.Linear,
   minFilter: Rn.TextureParameter.LinearMipmapLinear,
   wrapS: Rn.TextureParameter.Repeat,
@@ -23,8 +23,8 @@ const sampler = new Rn.Sampler({
 modelMaterial.setTextureParameter('diffuseColorTexture', texture, sampler);
 window.texture = texture;
 
-const planeEntity = Rn.createMeshEntity();
-const planePrimitive = new Rn.Plane();
+const planeEntity = Rn.createMeshEntity(engine);
+const planePrimitive = new Rn.Plane(engine);
 planePrimitive.generate({
   width: 2,
   height: 2,
@@ -35,13 +35,13 @@ planePrimitive.generate({
   material: modelMaterial,
 });
 const planeMeshComponent = planeEntity.getMesh();
-const planeMesh = new Rn.Mesh();
+const planeMesh = new Rn.Mesh(engine);
 planeMesh.addPrimitive(planePrimitive);
 planeMeshComponent.setMesh(planeMesh);
 planeEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
 
 // Camera
-const cameraEntity = Rn.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity(engine, true);
 const cameraComponent = cameraEntity.getCamera();
 //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
 cameraComponent.zNear = 0.1;
@@ -57,7 +57,7 @@ const controller = cameraControllerComponent.controller as Rn.OrbitCameraControl
 controller.setTarget(planeEntity);
 
 // renderPass
-const renderPass = new Rn.RenderPass();
+const renderPass = new Rn.RenderPass(engine);
 renderPass.toClearColorBuffer = true;
 renderPass.addEntities([planeEntity]);
 
@@ -65,10 +65,10 @@ renderPass.addEntities([planeEntity]);
 const expression = new Rn.Expression();
 expression.addRenderPasses([renderPass]);
 
-Rn.CameraComponent.current = 0;
+Rn.CameraComponent.setCurrent(engine, 0);
 let startTime = Date.now();
 let count = 0;
-Rn.System.startRenderLoop(() => {
+engine.startRenderLoop(() => {
   if (p == null && count > 0) {
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');
@@ -79,8 +79,8 @@ Rn.System.startRenderLoop(() => {
   if (window.isAnimating) {
     const date = new Date();
     const time = (date.getTime() - startTime) / 1000;
-    Rn.AnimationComponent.globalTime = time;
-    if (time > Rn.AnimationComponent.endInputValue) {
+    Rn.AnimationComponent.setGlobalTime(engine, time);
+    if (time > Rn.AnimationComponent.getEndInputValue(engine)) {
       startTime = date.getTime();
     }
     //console.log(time);
@@ -88,12 +88,12 @@ Rn.System.startRenderLoop(() => {
     //rootGroup.getTransform().localPosition = rootGroup.getTransform().localPosition;
   }
   texture.updateTexture();
-  Rn.System.process([expression]);
+  engine.process([expression]);
   count++;
 });
 
 window.exportGltf2 = () => {
-  Rn.Gltf2Exporter.export('Rhodonite');
+  Rn.Gltf2Exporter.export(engine, 'Rhodonite');
 };
 
 window.downloadFrame = () => {

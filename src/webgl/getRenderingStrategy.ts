@@ -1,19 +1,21 @@
 import { ProcessApproach, type ProcessApproachEnum } from '../foundation/definitions/ProcessApproach';
+import type { Engine } from '../foundation/system/Engine';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import type { WebGLStrategy } from './WebGLStrategy';
+import type { RnWebGL } from './main';
 
-const getRenderingStrategy = (processApproach: ProcessApproachEnum): WebGLStrategy => {
+const getRenderingStrategy = (engine: Engine, processApproach: ProcessApproachEnum): WebGLStrategy => {
   // Strategy
   const moduleName = 'webgl';
   const moduleManager = ModuleManager.getInstance();
-  const webglModule = moduleManager.getModule(moduleName)! as any;
+  const webglModule = moduleManager.getModule(moduleName)! as RnWebGL;
   if (ProcessApproach.isDataTextureApproach(processApproach)) {
-    return webglModule.WebGLStrategyDataTexture.getInstance();
+    return webglModule.WebGLStrategyDataTexture.init(engine);
   }
   if (ProcessApproach.isUniformApproach(processApproach)) {
-    return webglModule.WebGLStrategyUniform.getInstance();
+    return webglModule.WebGLStrategyUniform.init(engine);
   }
-  return webglModule.WebGLStrategyUniform.getInstance();
+  return webglModule.WebGLStrategyUniform.init(engine);
 };
 
 export default getRenderingStrategy;
