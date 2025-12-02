@@ -80,18 +80,18 @@ If you get an error like "webxr-input-profiles not found" when building a projec
   <script src="../../../dist/iife/rhodonite.min.js"></script>
   <script>
   // Init Rhodonite
-  await Rn.Engine.init({
+  const engine = await Rn.Engine.init({
     approach: Rn.ProcessApproach.DataTexture,
     canvas: document.getElementById('world'),
   });
 
   // create a Plane mesh
-  const planeEntity = Rn.MeshHelper.createPlane();
+  const planeEntity = Rn.MeshHelper.createPlane(engine);
   planeEntity.eulerAngles = Rn.Vector3.fromCopy3(Math.PI * 0.5, 0, 0);
 
   // Render Loop
-  Rn.Engine.startRenderLoop(() => {
-    Rn.Engine.processAuto();
+  engine.startRenderLoop(() => {
+    engine.processAuto();
   });
   </script>
 </body>
@@ -115,18 +115,18 @@ import Rn from 'rhodonite/dist/esm/index.js';
 // import Rn from 'rhodonite/dist/esmdev/index.js'; // use this if you want to display the source map or step through the library
 
 // Init Rhodonite
-await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
 // create a Plane mesh
-const planeEntity = Rn.MeshHelper.createPlane();
+const planeEntity = Rn.MeshHelper.createPlane(engine);
 planeEntity.eulerAngles = Rn.Vector3.fromCopy3(Math.PI * 0.5, 0, 0);
 
 // Render Loop
-Rn.Engine.startRenderLoop(() => {
-  Rn.Engine.processAuto();
+engine.startRenderLoop(() => {
+  engine.processAuto();
 });
 ```
 
