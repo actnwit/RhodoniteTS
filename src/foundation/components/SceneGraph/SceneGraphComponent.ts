@@ -1025,7 +1025,7 @@ export class SceneGraphComponent extends Component {
    * Executes logic stage processing including matrix updates and gizmo updates.
    */
   $logic() {
-    if (this.__lastTransformComponentsUpdateCount === TransformComponent.updateCount) {
+    if (this.__lastTransformComponentsUpdateCount === TransformComponent.getUpdateCount(this.__engine)) {
       return;
     }
 
@@ -1047,7 +1047,7 @@ export class SceneGraphComponent extends Component {
     //   }
     // }
 
-    this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
+    this.__lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(this.__engine);
   }
 
   logicForce() {

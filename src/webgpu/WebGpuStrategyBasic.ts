@@ -789,14 +789,14 @@ ${indexStr}
   prerender(): void {
     if (
       AnimationComponent.isAnimating ||
-      TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
+      TransformComponent.getUpdateCount(this.__engine) !== this.__lastTransformComponentsUpdateCount ||
       SceneGraphComponent.updateCount !== this.__lastSceneGraphComponentsUpdateCount ||
       CameraComponent.getCurrentCameraUpdateCount(this.__engine) !== this.__lastCameraComponentsUpdateCount ||
       CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
       this.__engine.materialRepository.stateVersion !== this.__lastMaterialsUpdateCount
     ) {
       this.__createAndUpdateStorageBuffer();
-      this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
+      this.__lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(this.__engine);
       this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
       this.__lastCameraComponentsUpdateCount = CameraComponent.getCurrentCameraUpdateCount(this.__engine);
       this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;

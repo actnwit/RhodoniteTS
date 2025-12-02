@@ -15,6 +15,7 @@ import { Quaternion } from '../../math/Quaternion';
 import { Transform3D } from '../../math/Transform3D';
 import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc';
+import type { Engine } from '../../system/Engine';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
@@ -28,7 +29,8 @@ export class TransformComponent extends Component {
   private __pose = new Transform3D();
   private __updateCountAtLastLogic = 0;
 
-  private static __updateCount = 0;
+  /** Map to store update count per Engine instance for multi-engine support */
+  private static __updateCountMap: Map<Engine, number> = new Map();
 
   /**
    * Gets the number of rendered properties for this component type.
@@ -66,11 +68,22 @@ export class TransformComponent extends Component {
   }
 
   /**
-   * Gets the global update counter for all transform components.
-   * @returns The current update count
+   * Gets the update counter for transform components of the specified engine.
+   * @param engine - The engine instance to get the update count for
+   * @returns The current update count for the specified engine
    */
-  static get updateCount() {
-    return this.__updateCount;
+  static getUpdateCount(engine: Engine): number {
+    return this.__updateCountMap.get(engine) ?? 0;
+  }
+
+  /**
+   * Increments the update counter for the specified engine.
+   * @param engine - The engine instance to increment the update count for
+   * @internal
+   */
+  private static __incrementUpdateCount(engine: Engine): void {
+    const currentCount = this.__updateCountMap.get(engine) ?? 0;
+    this.__updateCountMap.set(engine, currentCount + 1);
   }
 
   /**
@@ -119,7 +132,7 @@ export class TransformComponent extends Component {
       transform.scaleInner,
       MutableQuaternion.fromCopyQuaternion(transform.rotationInner)
     );
-    TransformComponent.__updateCount++;
+    TransformComponent.__incrementUpdateCount(this.__engine);
   }
 
   /**
@@ -143,7 +156,7 @@ export class TransformComponent extends Component {
       transform.scaleInner,
       MutableQuaternion.fromCopyQuaternion(transform.rotationInner)
     );
-    TransformComponent.__updateCount++;
+    TransformComponent.__incrementUpdateCount(this.__engine);
   }
 
   /**
@@ -161,7 +174,7 @@ export class TransformComponent extends Component {
         sceneGraph.setPositionToPhysics(vec);
       }
     }
-    TransformComponent.__updateCount++;
+    TransformComponent.__incrementUpdateCount(this.__engine);
   }
 
   /**
@@ -170,7 +183,7 @@ export class TransformComponent extends Component {
    */
   set localPositionWithoutPhysics(vec: IVector3) {
     this.__pose.position = vec;
-    TransformComponent.__updateCount++;
+    TransformComponent.__incrementUpdateCount(this.__engine);
   }
 
   /**
@@ -179,7 +192,7 @@ export class TransformComponent extends Component {
    */
   setLocalPositionAsArray3(array: Array3<number>) {
     this.__pose.setPositionAsArray3(array);
-    TransformComponent.__updateCount++;
+    TransformComponent.__incrementUpdateCount(this.__engine);
   }
 
   /**
@@ -207,7 +220,7 @@ export class TransformComponent extends Component {
       this.__rest = this.__pose.clone();
     }
     this.__rest.position = vec;
-    TransformComponent.__updateCount++;
+    TransformComponent.__incrementUpdateCount(this.__engine);
   }
 
   /**
@@ -254,7 +267,7 @@ export class TransformComponent extends Component {
         sceneGraph.setRotationToPhysics(rotation);
       }
     }
-    TransformComponent.__updateCount++;
+    TransformComponent.__incrementUpdateCount(this.__engine);
   }
 
   /**
@@ -263,7 +276,7 @@ export class TransformComponent extends Component {
    */
   set localEulerAnglesWithoutPhysics(vec: IVector3) {
     this.__pose.eulerAngles = vec;
-    TransformComponent.__updateCount++;
+    TransformComponent.__incrementUpdateCount(this.__engine);
   }
 
   /**
@@ -291,7 +304,7 @@ export class TransformComponent extends Component {
       this.__rest = this.__pose.clone();
     }
     this.__rest.eulerAngles = vec;
-    TransformComponent.__updateCount++;
+    TransformComponent.__incrementUpdateCount(this.__engine);
   }
 
   /**
@@ -326,7 +339,7 @@ export class TransformComponent extends Component {
         sceneGraph.setScaleToPhysics(vec);
       }
     }
-    TransformComponent.__updateCount++;
+    TransformComponent.__incrementUpdateCount(this.__engine);
   }
 
   /**
@@ -335,7 +348,7 @@ export class TransformComponent extends Component {
    */
   set localScaleWithoutPhysics(vec: IVector3) {
     this.__pose.scale = vec;
-    TransformComponent.__updateCount++;
+    TransformComponent.__incrementUpdateCount(this.__engine);
   }
 
   /**
@@ -344,7 +357,7 @@ export class TransformComponent extends Component {
    */
   setLocalScaleAsArray3(array: Array3<number>) {
     this.__pose.setScaleAsArray3(array);
-    TransformComponent.__updateCount++;
+    TransformComponent.__incrementUpdateCount(this.__engine);
   }
 
   /**
@@ -372,7 +385,7 @@ export class TransformComponent extends Component {
       this.__rest = this.__pose.clone();
     }
     this.__rest.scale = vec;
-    TransformComponent.__updateCount++;
+    TransformComponent.__incrementUpdateCount(this.__engine);
   }
 
   /**
@@ -406,7 +419,7 @@ export class TransformComponent extends Component {
         sceneGraph.setRotationToPhysics(quat);
       }
     }
-    TransformComponent.__updateCount++;
+    TransformComponent.__incrementUpdateCount(this.__engine);
   }
 
   /**
@@ -415,7 +428,7 @@ export class TransformComponent extends Component {
    */
   set localRotationWithoutPhysics(quat: IQuaternion) {
     this.__pose.rotation = quat;
-    TransformComponent.__updateCount++;
+    TransformComponent.__incrementUpdateCount(this.__engine);
   }
 
   /**
@@ -424,7 +437,7 @@ export class TransformComponent extends Component {
    */
   setLocalRotationAsArray4(array: Array4<number>) {
     this.__pose.setRotationAsArray4(array);
-    TransformComponent.__updateCount++;
+    TransformComponent.__incrementUpdateCount(this.__engine);
   }
 
   /**
@@ -452,7 +465,7 @@ export class TransformComponent extends Component {
       this.__rest = this.__pose.clone();
     }
     this.__rest.rotation = quat;
-    TransformComponent.__updateCount++;
+    TransformComponent.__incrementUpdateCount(this.__engine);
   }
 
   /**
@@ -486,12 +499,12 @@ export class TransformComponent extends Component {
         sceneGraph.setMatrixToPhysics(mat);
       }
     }
-    TransformComponent.__updateCount++;
+    TransformComponent.__incrementUpdateCount(this.__engine);
   }
 
   set localMatrixWithoutPhysics(mat: IMatrix44) {
     this.__pose.matrix = mat;
-    TransformComponent.__updateCount++;
+    TransformComponent.__incrementUpdateCount(this.__engine);
   }
 
   /**
@@ -527,7 +540,7 @@ export class TransformComponent extends Component {
       this.__rest = this.__pose.clone();
     }
     this.__rest.matrix = mat;
-    TransformComponent.__updateCount++;
+    TransformComponent.__incrementUpdateCount(this.__engine);
   }
 
   /**
@@ -578,7 +591,7 @@ export class TransformComponent extends Component {
       this.__rest = component.__rest.clone();
     }
     this.__updateCountAtLastLogic = component.__updateCountAtLastLogic;
-    TransformComponent.__updateCount++;
+    TransformComponent.__incrementUpdateCount(this.__engine);
   }
 
   /**

@@ -1131,7 +1131,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   prerender(): void {
     if (
       AnimationComponent.isAnimating ||
-      TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
+      TransformComponent.getUpdateCount(this.__engine) !== this.__lastTransformComponentsUpdateCount ||
       SceneGraphComponent.updateCount !== this.__lastSceneGraphComponentsUpdateCount ||
       CameraComponent.getCurrentCameraUpdateCount(this.__engine) !== this.__lastCameraComponentsUpdateCount ||
       CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
@@ -1140,7 +1140,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       // Setup GPU Storage (Data Texture & UBO)
       this.__createAndUpdateDataTexture();
       this.__createAndUpdateUBO();
-      this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
+      this.__lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(this.__engine);
       this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
       this.__lastCameraComponentsUpdateCount = CameraComponent.getCurrentCameraUpdateCount(this.__engine);
       this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;

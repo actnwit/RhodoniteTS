@@ -240,7 +240,7 @@ export class LightComponent extends Component {
    */
   $logic() {
     if (
-      TransformComponent.updateCount === this.__lastTransformUpdateCount &&
+      TransformComponent.getUpdateCount(this.__engine) === this.__lastTransformUpdateCount &&
       this.__lastUpdateCount === this.__updateCount
     ) {
       return;
@@ -273,7 +273,7 @@ export class LightComponent extends Component {
 
     this.__updateGizmo();
 
-    this.__lastTransformUpdateCount = TransformComponent.updateCount;
+    this.__lastTransformUpdateCount = TransformComponent.getUpdateCount(this.__engine);
     this.__lastUpdateCount = this.__updateCount;
   }
 

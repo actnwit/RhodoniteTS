@@ -1141,7 +1141,7 @@ export class CameraComponent extends Component {
     let lightComponentUpdateCount = lightComponent != null ? lightComponent.updateCount : -1;
     if (
       this.__lastUpdateCount === this.__updateCount &&
-      this.__lastTransformComponentsUpdateCount === TransformComponent.updateCount &&
+      this.__lastTransformComponentsUpdateCount === TransformComponent.getUpdateCount(this.__engine) &&
       this.__lastLightComponentsUpdateCount === lightComponentUpdateCount &&
       this.__lastCameraControllerComponentsUpdateCount === CameraControllerComponent.updateCount
     ) {
@@ -1193,7 +1193,7 @@ export class CameraComponent extends Component {
     this.__setValuesToViewPosition();
 
     this.__lastUpdateCount = this.__updateCount;
-    this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
+    this.__lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(this.__engine);
     this.__lastLightComponentsUpdateCount = lightComponentUpdateCount;
     this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
   }
