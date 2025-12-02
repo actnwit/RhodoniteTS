@@ -255,7 +255,7 @@ export class Engine extends RnObject {
       expressions = value.expressions;
     }
 
-    if (CameraComponent.current === Component.InvalidObjectUID) {
+    if (CameraComponent.getCurrent(this) === Component.InvalidObjectUID) {
       Engine.createCamera(this);
     }
 

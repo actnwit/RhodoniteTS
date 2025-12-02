@@ -305,7 +305,7 @@ export class EffekseerComponent extends Component {
   private __drawEffekseerEffectNormal(): void {
     const cameraComponent = this.__engine.componentRepository.getComponent(
       CameraComponent,
-      CameraComponent.current
+      CameraComponent.getCurrent(this.__engine)
     ) as CameraComponent;
     const viewMatrix = EffekseerComponent.__tmp_identityMatrix_0;
     const projectionMatrix = EffekseerComponent.__tmp_identityMatrix_1;

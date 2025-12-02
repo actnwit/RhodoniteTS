@@ -184,7 +184,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
         if (cameraComponent == null) {
           cameraComponent = engine.componentRepository.getComponent(
             CameraComponent,
-            CameraComponent.current
+            CameraComponent.getCurrent(engine)
           ) as CameraComponent;
         }
         this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);

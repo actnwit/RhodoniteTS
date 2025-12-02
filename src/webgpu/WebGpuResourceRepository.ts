@@ -1444,14 +1444,14 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   private __toClearRenderBundles(engine: Engine) {
     if (
       engine.materialRepository.stateVersion !== this.__lastMaterialsUpdateCount ||
-      CameraComponent.current !== this.__lastCurrentCameraComponentSid ||
+      CameraComponent.getCurrent(engine) !== this.__lastCurrentCameraComponentSid ||
       EntityRepository.updateCount !== this.__lastEntityRepositoryUpdateCount ||
       Primitive.variantUpdateCount !== this.__lastPrimitivesMaterialVariantUpdateCount ||
       MeshRendererComponent.updateCount !== this.__lastMeshRendererComponentsUpdateCount
     ) {
       this.__renderBundles.clear();
       EngineState.webgpuRenderBundleMode = false;
-      this.__lastCurrentCameraComponentSid = CameraComponent.current;
+      this.__lastCurrentCameraComponentSid = CameraComponent.getCurrent(engine);
       this.__lastMaterialsUpdateCount = engine.materialRepository.stateVersion;
       this.__lastEntityRepositoryUpdateCount = EntityRepository.updateCount;
       this.__lastPrimitivesMaterialVariantUpdateCount = Primitive.variantUpdateCount;

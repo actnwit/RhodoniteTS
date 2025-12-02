@@ -375,7 +375,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
     if (cameraComponent == null) {
       cameraComponent = engine.componentRepository.getComponent(
         CameraComponent,
-        CameraComponent.current
+        CameraComponent.getCurrent(engine)
       ) as CameraComponent;
     }
 

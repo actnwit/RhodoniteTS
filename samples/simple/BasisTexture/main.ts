@@ -98,7 +98,7 @@ renderPass.addEntities([planeEntity, sphereEntity]);
 const expression = new Rn.Expression();
 expression.addRenderPasses([renderPass]);
 
-Rn.CameraComponent.current = 0;
+Rn.CameraComponent.setCurrent(engine, 0);
 let startTime = Date.now();
 let count = 0;
 

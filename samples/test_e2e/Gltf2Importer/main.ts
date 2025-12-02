@@ -45,7 +45,7 @@ renderPass.addEntities([rootGroup]);
 const expression = new Rn.Expression();
 expression.addRenderPasses([renderPass]);
 
-Rn.CameraComponent.current = cameraComponent.componentSID;
+Rn.CameraComponent.setCurrent(engine, cameraComponent.componentSID);
 let startTime = Date.now();
 let count = 0;
 engine.startRenderLoop(() => {

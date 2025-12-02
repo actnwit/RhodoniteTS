@@ -57,7 +57,7 @@ for (let i = 0; i < 1; i++) {
 }
 
 //set default camera
-Rn.CameraComponent.current = cameraComponent.componentSID;
+Rn.CameraComponent.setCurrent(engine, cameraComponent.componentSID);
 
 // camera controller
 const vrmMainCameraComponent = vrmMainRenderPass.cameraComponent;

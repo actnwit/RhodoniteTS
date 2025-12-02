@@ -12,7 +12,7 @@ export function createCameraEntity(engine: Engine, switchToThisCamera: boolean):
     entity
   ) as ICameraEntity;
   if (switchToThisCamera) {
-    CameraComponent.current = entityAddedComponent.getCamera().componentSID;
+    CameraComponent.setCurrent(engine, entityAddedComponent.getCamera().componentSID);
   }
   return entityAddedComponent;
 }

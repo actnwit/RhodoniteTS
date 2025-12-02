@@ -47,7 +47,7 @@ async function createCanvasScene(canvasId: string) {
   vrmRootEntity.getTransform().localEulerAngles = vrmModelRotation;
 
   //set default camera
-  Rn.CameraComponent.current = 0;
+  Rn.CameraComponent.setCurrent(engine, 0);
 
   // cameraController
   const vrmMainCameraComponent = vrmMainRenderPass.cameraComponent;

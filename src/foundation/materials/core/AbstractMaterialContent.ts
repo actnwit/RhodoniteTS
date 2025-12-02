@@ -245,7 +245,7 @@ export abstract class AbstractMaterialContent extends RnObject {
         if (cameraComponent == null) {
           cameraComponent = engine.componentRepository.getComponent(
             CameraComponentClass,
-            CameraComponentClass.current
+            CameraComponentClass.getCurrent(engine)
           ) as CameraComponent;
         }
         this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);

@@ -105,7 +105,7 @@ fxaaRenderPass.setMaterial(fxaaMaterial);
 expressionPostEffect.addRenderPasses([gammaCorrectionRenderPass, fxaaRenderPass]);
 
 //set default camera
-Rn.CameraComponent.current = 0;
+Rn.CameraComponent.setCurrent(engine, 0);
 
 // cameraController
 const vrmMainCameraComponent = vrmMainRenderPass.cameraComponent;

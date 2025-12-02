@@ -88,7 +88,7 @@ const load = async () => {
   ) as Rn.CameraControllerComponent;
   (cameraControllerComponent.controller as Rn.OrbitCameraController).setTarget(rootGroup);
 
-  Rn.CameraComponent.current = 0;
+  Rn.CameraComponent.setCurrent(engine, 0);
   let startTime = Date.now();
   let count = 0;
   const draw = () => {

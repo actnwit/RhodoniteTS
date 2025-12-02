@@ -67,7 +67,7 @@ export class CameraComponent extends Component {
   private _projectionMatrix: MutableMatrix44 = MutableMatrix44.dummy();
   private _viewMatrix: MutableMatrix44 = MutableMatrix44.dummy();
   private _viewPosition: MutableVector3 = MutableVector3.dummy();
-  private static __current: ComponentSID = -1;
+  private static __currentMap: Map<number, ComponentSID> = new Map();
   private static returnVector3 = MutableVector3.zero();
   private static __tmpVector3_0: MutableVector3 = MutableVector3.zero();
   private static __tmpVector3_1: MutableVector3 = MutableVector3.zero();
@@ -142,29 +142,31 @@ export class CameraComponent extends Component {
 
     this.setFovyAndChangeFocalLength(90);
 
-    if (CameraComponent.current === -1) {
-      CameraComponent.current = componentSid;
+    if (CameraComponent.getCurrent(engine) === -1) {
+      CameraComponent.setCurrent(engine, componentSid);
     }
 
     this.submitToAllocation(Config.cameraComponentCountPerBufferView, isReUse);
   }
 
   /**
-   * Sets the current active camera component.
+   * Gets the current active camera component ID for a specific engine.
    *
-   * @param componentSID - The component system identifier of the camera to set as current
+   * @param engine - The engine instance
+   * @returns The component system identifier of the current active camera for the engine
    */
-  static set current(componentSID: ComponentSID) {
-    this.__current = componentSID;
+  static getCurrent(engine: Engine): ComponentSID {
+    return this.__currentMap.get(engine.engineUid) ?? -1;
   }
 
   /**
-   * Gets the current active camera component ID.
+   * Sets the current active camera component for a specific engine.
    *
-   * @returns The component system identifier of the current active camera
+   * @param engine - The engine instance
+   * @param componentSID - The component system identifier of the camera to set as current
    */
-  static get current() {
-    return this.__current;
+  static setCurrent(engine: Engine, componentSID: ComponentSID): void {
+    this.__currentMap.set(engine.engineUid, componentSID);
   }
 
   /**
@@ -179,12 +181,13 @@ export class CameraComponent extends Component {
   /**
    * Gets the update count of the current active camera.
    *
+   * @param engine - The engine instance
    * @returns The update count of the current camera, or 0 if no camera is active
    */
   static getCurrentCameraUpdateCount(engine: Engine) {
     const currentCameraComponent = engine.componentRepository.getComponent(
       CameraComponent,
-      CameraComponent.current
+      CameraComponent.getCurrent(engine)
     ) as unknown as CameraComponent;
     return currentCameraComponent?.updateCount ?? 0;
   }

@@ -201,7 +201,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
       if (cameraComponent == null) {
         cameraComponent = engine.componentRepository.getComponent(
           CameraComponent,
-          CameraComponent.current
+          CameraComponent.getCurrent(engine)
         ) as CameraComponent;
       }
       if (cameraComponent) {

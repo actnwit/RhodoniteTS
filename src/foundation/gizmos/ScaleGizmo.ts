@@ -674,9 +674,10 @@ export class ScaleGizmo extends Gizmo {
     const x = evt.clientX - rect.left;
     const y = rect.height - (evt.clientY - rect.top);
     const viewport = Vector4.fromCopy4(0, 0, width, height) as Vector4;
-    const activeCamera = this.__engine.componentRepository.getComponent(CameraComponent, CameraComponent.current) as
-      | CameraComponent
-      | undefined;
+    const activeCamera = this.__engine.componentRepository.getComponent(
+      CameraComponent,
+      CameraComponent.getCurrent(this.__engine)
+    ) as CameraComponent | undefined;
 
     const worldMatrix = this.__target.getSceneGraph().matrix.getRotate();
     const scaleVec = Vector3.one(); //this.__target.getSceneGraph().worldMatrix.getScale();
@@ -835,9 +836,10 @@ export class ScaleGizmo extends Gizmo {
     const x = evt.clientX - rect.left;
     const y = rect.height - (evt.clientY - rect.top);
     const viewport = Vector4.fromCopy4(0, 0, width, height) as Vector4;
-    const activeCamera = engine.componentRepository.getComponent(CameraComponent, CameraComponent.current) as
-      | CameraComponent
-      | undefined;
+    const activeCamera = engine.componentRepository.getComponent(
+      CameraComponent,
+      CameraComponent.getCurrent(engine)
+    ) as CameraComponent | undefined;
     const result = ScaleGizmo.__groupEntity.getSceneGraph().castRayFromScreen(x, y, activeCamera!, viewport, 0.0, []);
     return result;
   }
@@ -855,9 +857,10 @@ export class ScaleGizmo extends Gizmo {
     const x = evt.clientX - rect.left;
     const y = rect.height - (evt.clientY - rect.top);
     const viewport = Vector4.fromCopy4(0, 0, width, height) as Vector4;
-    const activeCamera = engine.componentRepository.getComponent(CameraComponent, CameraComponent.current) as
-      | CameraComponent
-      | undefined;
+    const activeCamera = engine.componentRepository.getComponent(
+      CameraComponent,
+      CameraComponent.getCurrent(engine)
+    ) as CameraComponent | undefined;
     const xResult = ScaleGizmo.__xCubeEntity.getSceneGraph().castRayFromScreen(x, y, activeCamera!, viewport, 0.0);
     const yResult = ScaleGizmo.__yCubeEntity.getSceneGraph().castRayFromScreen(x, y, activeCamera!, viewport, 0.0);
     const zResult = ScaleGizmo.__zCubeEntity.getSceneGraph().castRayFromScreen(x, y, activeCamera!, viewport, 0.0);

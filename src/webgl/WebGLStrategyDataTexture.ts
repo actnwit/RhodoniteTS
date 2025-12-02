@@ -1370,7 +1370,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         // if the renderPass has no cameraComponent, try to get the current cameraComponent
         cameraComponent = this.__engine.componentRepository.getComponent(
           CameraComponent,
-          CameraComponent.current
+          CameraComponent.getCurrent(this.__engine)
         ) as CameraComponent;
       }
       if (cameraComponent) {
