@@ -72,7 +72,8 @@ export class AnimationComponent extends Component {
   // Animation Data of each AnimationComponent
   private __animationTrack: AnimationTrack = new Map();
   private __animationTrackFeatureHashes: Map<AnimationTrackName, number> = new Map();
-  public static __animationGlobalInfo: Map<AnimationTrackName, AnimationInfo> = new Map();
+  /** Map to store animation global info per Engine instance for multi-engine support */
+  private static __animationGlobalInfoMap: Map<Engine, Map<AnimationTrackName, AnimationInfo>> = new Map();
 
   private __isEffekseerState = -1;
 
@@ -453,6 +454,7 @@ export class AnimationComponent extends Component {
 
     // update AnimationInfo
     const trackNames = animatedValue.getAllTrackNames();
+    const animationGlobalInfo = AnimationComponent.getAnimationGlobalInfo(this.__engine);
     for (const trackName of trackNames) {
       const newMinStartInputTime = animatedValue.getMinStartInputTime(trackName);
       const newMaxEndInputTime = animatedValue.getMaxEndInputTime(trackName);
@@ -462,9 +464,9 @@ export class AnimationComponent extends Component {
         minStartInputTime: newMinStartInputTime,
         maxEndInputTime: newMaxEndInputTime,
       };
-      AnimationComponent.__animationGlobalInfo.set(trackName, info);
+      animationGlobalInfo.set(trackName, info);
       AnimationComponent.__pubsub.publishAsync(AnimationComponent.Event.ChangeAnimationInfo, {
-        infoMap: new Map(AnimationComponent.__animationGlobalInfo),
+        infoMap: new Map(animationGlobalInfo),
       });
     }
     // backup the current transform as rest pose
@@ -487,7 +489,8 @@ export class AnimationComponent extends Component {
    * @returns The minimum start input time value
    */
   public getStartInputValueOfAnimation(animationTrackName: string): number {
-    return AnimationComponent.__animationGlobalInfo.get(animationTrackName)!.minStartInputTime;
+    const animationGlobalInfo = AnimationComponent.getAnimationGlobalInfo(this.__engine);
+    return animationGlobalInfo.get(animationTrackName)!.minStartInputTime;
   }
 
   /**
@@ -496,23 +499,27 @@ export class AnimationComponent extends Component {
    * @returns The maximum end input time value
    */
   public getEndInputValueOfAnimation(animationTrackName: string): number {
-    return AnimationComponent.__animationGlobalInfo.get(animationTrackName)!.maxEndInputTime;
+    const animationGlobalInfo = AnimationComponent.getAnimationGlobalInfo(this.__engine);
+    return animationGlobalInfo.get(animationTrackName)!.maxEndInputTime;
   }
 
   /**
    * Gets an array of all available animation track names.
+   * @param engine - The engine instance to get the animation list for
    * @returns Array of animation track names
    */
-  static getAnimationList(): AnimationTrackName[] {
-    return Array.from(this.__animationGlobalInfo.keys());
+  static getAnimationList(engine: Engine): AnimationTrackName[] {
+    const animationGlobalInfo = this.getAnimationGlobalInfo(engine);
+    return Array.from(animationGlobalInfo.keys());
   }
 
   /**
    * Gets the animation information for all tracks.
+   * @param engine - The engine instance to get the animation info for
    * @returns A map containing animation track names and their corresponding information
    */
-  static getAnimationInfo(): Map<AnimationTrackName, AnimationInfo> {
-    return new Map(this.__animationGlobalInfo);
+  static getAnimationInfo(engine: Engine): Map<AnimationTrackName, AnimationInfo> {
+    return new Map(this.getAnimationGlobalInfo(engine));
   }
 
   /**
@@ -545,6 +552,7 @@ export class AnimationComponent extends Component {
 
   /**
    * Gets the global start input value for all animation components.
+   * @param engine - The engine instance to get the start input value for
    * @returns The start input value
    */
   static getStartInputValue(engine: Engine) {
@@ -552,13 +560,18 @@ export class AnimationComponent extends Component {
     if (components.length === 0) {
       return 0;
     }
-    const infoArray = Array.from(this.__animationGlobalInfo.values());
+    const animationGlobalInfo = this.getAnimationGlobalInfo(engine);
+    const infoArray = Array.from(animationGlobalInfo.values());
+    if (infoArray.length === 0) {
+      return 0;
+    }
     const lastInfo = infoArray[infoArray.length - 1];
     return lastInfo.minStartInputTime;
   }
 
   /**
    * Gets the global end input value for all animation components.
+   * @param engine - The engine instance to get the end input value for
    * @returns The end input value
    */
   static getEndInputValue(engine: Engine) {
@@ -566,7 +579,11 @@ export class AnimationComponent extends Component {
     if (components.length === 0) {
       return 0;
     }
-    const infoArray = Array.from(this.__animationGlobalInfo.values());
+    const animationGlobalInfo = this.getAnimationGlobalInfo(engine);
+    const infoArray = Array.from(animationGlobalInfo.values());
+    if (infoArray.length === 0) {
+      return 0;
+    }
     const lastInfo = infoArray[infoArray.length - 1];
     return lastInfo.maxEndInputTime;
   }
@@ -849,6 +866,21 @@ export class AnimationComponent extends Component {
     }
 
     return false;
+  }
+
+  /**
+   * Gets the animation global info map for a specific engine.
+   * Creates a new map if one doesn't exist for the engine.
+   * @param engine - The engine instance to get the animation info for
+   * @returns The animation global info map for the engine
+   */
+  static getAnimationGlobalInfo(engine: Engine): Map<AnimationTrackName, AnimationInfo> {
+    let infoMap = this.__animationGlobalInfoMap.get(engine);
+    if (infoMap == null) {
+      infoMap = new Map();
+      this.__animationGlobalInfoMap.set(engine, infoMap);
+    }
+    return infoMap;
   }
 
   /**
