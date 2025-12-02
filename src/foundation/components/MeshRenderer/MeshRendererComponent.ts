@@ -277,7 +277,7 @@ export class MeshRendererComponent extends Component {
   static sort_$render(engine: Engine, renderPass: RenderPass): ComponentSID[] {
     if (
       TransformComponent.getUpdateCount(engine) === renderPass._lastTransformComponentsUpdateCount &&
-      CameraControllerComponent.updateCount === renderPass._lastCameraControllerComponentsUpdateCount &&
+      CameraControllerComponent.getUpdateCount(engine) === renderPass._lastCameraControllerComponentsUpdateCount &&
       SceneGraphComponent.getUpdateCount(engine) === renderPass._lastSceneGraphComponentsUpdateCount
     ) {
       return renderPass._lastPrimitiveUids;
@@ -408,7 +408,7 @@ export class MeshRendererComponent extends Component {
     renderPass._lastPrimitiveUids = primitiveUids;
 
     renderPass._lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(engine);
-    renderPass._lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
+    renderPass._lastCameraControllerComponentsUpdateCount = CameraControllerComponent.getUpdateCount(engine);
     renderPass._lastSceneGraphComponentsUpdateCount = SceneGraphComponent.getUpdateCount(engine);
     if (resultChanged) {
       renderPass._renderedSomethingBefore = true;

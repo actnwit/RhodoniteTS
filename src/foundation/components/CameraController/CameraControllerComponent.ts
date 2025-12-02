@@ -19,7 +19,9 @@ import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
  */
 export class CameraControllerComponent extends Component {
   private __cameraController: ICameraController;
-  private static __updateCount = 0;
+
+  /** Map to store update count per Engine instance for multi-engine support */
+  private static __updateCountMap: Map<Engine, number> = new Map();
 
   /**
    * Creates a new CameraControllerComponent instance.
@@ -115,21 +117,22 @@ export class CameraControllerComponent extends Component {
   }
 
   /**
-   * Updates the internal update counter.
+   * Updates the internal update counter for the current engine.
    *
    * @param count - The new update count value
    */
   _updateCount(count: number) {
-    CameraControllerComponent.__updateCount = count;
+    CameraControllerComponent.__updateCountMap.set(this.__engine, count);
   }
 
   /**
-   * Gets the current update count.
+   * Gets the update counter for camera controller components of the specified engine.
    *
-   * @returns The current update count
+   * @param engine - The engine instance to get the update count for
+   * @returns The current update count for the specified engine
    */
-  static get updateCount() {
-    return CameraControllerComponent.__updateCount;
+  static getUpdateCount(engine: Engine): number {
+    return CameraControllerComponent.__updateCountMap.get(engine) ?? 0;
   }
 
   /**

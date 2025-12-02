@@ -1146,7 +1146,7 @@ export class CameraComponent extends Component {
       this.__lastUpdateCount === this.__updateCount &&
       this.__lastTransformComponentsUpdateCount === TransformComponent.getUpdateCount(this.__engine) &&
       this.__lastLightComponentsUpdateCount === lightComponentUpdateCount &&
-      this.__lastCameraControllerComponentsUpdateCount === CameraControllerComponent.updateCount
+      this.__lastCameraControllerComponentsUpdateCount === CameraControllerComponent.getUpdateCount(this.__engine)
     ) {
       return;
     }
@@ -1198,7 +1198,7 @@ export class CameraComponent extends Component {
     this.__lastUpdateCount = this.__updateCount;
     this.__lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(this.__engine);
     this.__lastLightComponentsUpdateCount = lightComponentUpdateCount;
-    this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
+    this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.getUpdateCount(this.__engine);
   }
 
   /**

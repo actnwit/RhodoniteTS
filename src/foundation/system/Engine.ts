@@ -349,7 +349,7 @@ export class Engine extends RnObject {
           AnimationComponent.getIsAnimating(this) ||
           TransformComponent.getUpdateCount(this) !== this.__lastTransformComponentsUpdateCount ||
           CameraComponent.getCurrentCameraUpdateCount(this) !== this.__lastCameraComponentsUpdateCount ||
-          CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
+          CameraControllerComponent.getUpdateCount(this) !== this.__lastCameraControllerComponentsUpdateCount ||
           Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount
         ) {
           for (const componentTid of componentTids) {
@@ -373,7 +373,7 @@ export class Engine extends RnObject {
       }
     }
     this.__lastCameraComponentsUpdateCount = CameraComponent.getCurrentCameraUpdateCount(this);
-    this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
+    this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.getUpdateCount(this);
     this.__lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(this);
     this.__lastPrimitiveCount = Primitive.getPrimitiveCount();
   }
@@ -454,7 +454,7 @@ export class Engine extends RnObject {
           AnimationComponent.getIsAnimating(this) ||
           TransformComponent.getUpdateCount(this) !== this.__lastTransformComponentsUpdateCount ||
           CameraComponent.getCurrentCameraUpdateCount(this) !== this.__lastCameraComponentsUpdateCount ||
-          CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
+          CameraControllerComponent.getUpdateCount(this) !== this.__lastCameraControllerComponentsUpdateCount ||
           Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount
         ) {
           for (const componentTid of componentTids) {
@@ -478,7 +478,7 @@ export class Engine extends RnObject {
       }
     }
     this.__lastCameraComponentsUpdateCount = CameraComponent.getCurrentCameraUpdateCount(this);
-    this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
+    this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.getUpdateCount(this);
     this.__lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(this);
     this.__lastPrimitiveCount = Primitive.getPrimitiveCount();
   }
