@@ -992,7 +992,7 @@ export class ForwardRenderPipeline extends RnObject {
 
     // Generate Mipmap of resolve Framebuffer 2
     renderPass.setPostRenderFunction(() => {
-      if (this.__oFrameBufferMultiViewBlitBackBuffer.has()) {
+      if (this.__oFrameBufferMultiViewBlitBackBuffer.has() && !MiscUtil.isMobile()) {
         const texture = this.__oFrameBufferMultiViewBlitBackBuffer.unwrapForce()
           .colorAttachments[0] as RenderTargetTexture2DArray;
         (multiViewFrameBuffer.colorAttachments[0] as RenderTargetTexture2DArray).blitToTexture2dFromTexture2dArrayFake(
@@ -1261,7 +1261,7 @@ export class ForwardRenderPipeline extends RnObject {
     }
 
     // mipmap generation for glTF transmission visual effect
-    if (!this.__isSimple && this.__oGenerateMipmapsExpression.has()) {
+    if (!this.__isSimple && this.__oGenerateMipmapsExpression.has() && !MiscUtil.isMobile()) {
       frame.addExpression(this.__oGenerateMipmapsExpression.get());
     }
 
