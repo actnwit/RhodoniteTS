@@ -35,7 +35,7 @@ const expression = await Rn.GltfImporter.importFromUrl(
 let count = 0;
 let startTime = Date.now();
 
-Rn.AnimationComponent.globalTime = 0.03;
+Rn.AnimationComponent.setGlobalTimeForEngine(engine, 0.03);
 
 engine.startRenderLoop(() => {
   if (count > 0) {
@@ -46,7 +46,7 @@ engine.startRenderLoop(() => {
   if (window.isAnimating) {
     const date = new Date();
     const time = (date.getTime() - startTime) / 1000;
-    Rn.AnimationComponent.globalTime = time;
+    Rn.AnimationComponent.setGlobalTimeForEngine(engine, time);
     if (time > Rn.AnimationComponent.getEndInputValue(engine)) {
       startTime = date.getTime();
     }

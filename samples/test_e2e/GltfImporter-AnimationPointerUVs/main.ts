@@ -78,15 +78,15 @@ const draw = frame => {
   }
 
   if (window.isAnimating) {
-    Rn.AnimationComponent.setIsAnimating(true);
+    Rn.AnimationComponent.setIsAnimatingForEngine(engine, true);
     const date = new Date();
     const time = (date.getTime() - startTime) / 1000;
-    Rn.AnimationComponent.globalTime = time;
+    Rn.AnimationComponent.setGlobalTimeForEngine(engine, time);
     if (time > Rn.AnimationComponent.getEndInputValue(engine)) {
       startTime = date.getTime();
     }
   } else {
-    Rn.AnimationComponent.setIsAnimating(false);
+    Rn.AnimationComponent.setIsAnimatingForEngine(engine, false);
   }
 
   engine.process(frame);

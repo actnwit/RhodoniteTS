@@ -36,7 +36,7 @@ lightEntity.getLight().intensity = 20;
 lightEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([4.0, 0.0, 5.0]);
 
 let count = 0;
-Rn.AnimationComponent.globalTime = 3.6;
+Rn.AnimationComponent.setGlobalTimeForEngine(engine, 3.6);
 
 engine.startRenderLoop(() => {
   if (count > 0) {
@@ -44,10 +44,13 @@ engine.startRenderLoop(() => {
   }
 
   if (window.isAnimating) {
-    Rn.AnimationComponent.globalTime += 0.016;
-    if (Rn.AnimationComponent.globalTime > Rn.AnimationComponent.getEndInputValue(engine)) {
-      Rn.AnimationComponent.globalTime -=
-        Rn.AnimationComponent.getEndInputValue(engine) - Rn.AnimationComponent.getStartInputValue(engine);
+    const currentTime = Rn.AnimationComponent.getGlobalTimeForEngine(engine);
+    Rn.AnimationComponent.setGlobalTimeForEngine(engine, currentTime + 0.016);
+    if (currentTime + 0.016 > Rn.AnimationComponent.getEndInputValue(engine)) {
+      Rn.AnimationComponent.setGlobalTimeForEngine(
+        engine,
+        currentTime + 0.016 - Rn.AnimationComponent.getEndInputValue(engine) + Rn.AnimationComponent.getStartInputValue(engine)
+      );
     }
   }
 

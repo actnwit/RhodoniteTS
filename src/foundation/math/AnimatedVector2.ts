@@ -1,5 +1,4 @@
 import type { AnimationSampler, AnimationSamplers, AnimationTrackName } from '../../types/AnimationTypes';
-import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { __interpolate } from '../components/Animation/AnimationOps';
 import { AnimationAttribute } from '../definitions/AnimationAttribute';
 import { Logger } from '../misc/Logger';
@@ -67,8 +66,8 @@ export class AnimatedVector2 extends Vector2 implements IVector2, IAnimatedValue
   }
 
   /**
-   * Switches back to using the global animation time instead of a specific time.
-   * This will cause the vector to use AnimationComponent.globalTime for updates.
+   * Clears the specific time and uses the default time (0) for animation updates.
+   * When used with AnimationComponent, the time will be set via setTime() during animation processing.
    */
   useGlobalTime() {
     this.__time = undefined;
@@ -126,7 +125,7 @@ export class AnimatedVector2 extends Vector2 implements IVector2, IAnimatedValue
    * Handles looping, blending between tracks, and caching to avoid redundant calculations.
    */
   public update() {
-    let time = this.__time ?? AnimationComponent.globalTime;
+    let time = this.__time ?? 0;
     if (this.isLoop) {
       let duration = this.__firstActiveAnimationSampler.input[this.__firstActiveAnimationSampler.input.length - 1];
       if (this.__secondActiveAnimationSampler !== undefined) {

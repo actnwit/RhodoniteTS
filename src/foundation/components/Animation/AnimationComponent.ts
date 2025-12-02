@@ -78,12 +78,14 @@ export class AnimationComponent extends Component {
 
   /// flags ///
   private __isAnimating = true;
-  static isAnimating = true;
+  /** Map to store isAnimating flag per Engine instance for multi-engine support */
+  private static __isAnimatingMap: Map<Engine, boolean> = new Map();
   public isLoop = true;
 
   // Global animation time in Rhodonite
   public useGlobalTime = true;
-  public static globalTime = 0;
+  /** Map to store globalTime per Engine instance for multi-engine support */
+  private static __globalTimeMap: Map<Engine, number> = new Map();
 
   // animation time in this animation component
   public time = 0;
@@ -129,7 +131,7 @@ export class AnimationComponent extends Component {
    */
   $logic() {
     // Skip if animation is globally or locally disabled
-    if (!AnimationComponent.isAnimating || !this.isAnimating) {
+    if (!AnimationComponent.getIsAnimatingForEngine(this.__engine) || !this.isAnimating) {
       return;
     }
 
@@ -153,7 +155,7 @@ export class AnimationComponent extends Component {
     // - Separate load: Joints are different (different entityUID, same jointIndex)
     //   → early return enabled, significantly reducing CPU overhead
     // ============================================================================
-    if (SkeletalComponent.isEntityCached(this.__entityUid)) {
+    if (SkeletalComponent.isEntityCached(this.__entityUid, this.__engine)) {
       return;
     }
 
@@ -186,7 +188,7 @@ export class AnimationComponent extends Component {
   private __applyAnimation() {
     let time = this.time;
     if (this.useGlobalTime) {
-      time = AnimationComponent.globalTime;
+      time = AnimationComponent.getGlobalTimeForEngine(this.__engine);
     }
 
     const transformComponent = (this.entity as unknown as ISceneGraphEntity).getTransform();
@@ -633,7 +635,8 @@ export class AnimationComponent extends Component {
     const animatedValue = channel.animatedValue;
 
     const i = AnimationAttribute.fromString(pathName).index;
-    const output = __interpolate(animatedValue.getAnimationSampler(trackName), AnimationComponent.globalTime, i);
+    const globalTime = AnimationComponent.getGlobalTimeForEngine(this.__engine);
+    const output = __interpolate(animatedValue.getAnimationSampler(trackName), globalTime, i);
 
     if (animatedValue.getAnimationSampler(trackName).input.length === 0) {
       const inputArray = Array.from(animatedValue.getAnimationSampler(trackName).input);
@@ -849,11 +852,39 @@ export class AnimationComponent extends Component {
   }
 
   /**
-   * Sets the global animation state for all animation components.
-   * @param flag - True to enable animation globally, false to disable
+   * Sets the animation state for the specified engine.
+   * @param engine - The engine instance to set the animation state for
+   * @param flag - True to enable animation, false to disable
    */
-  static setIsAnimating(flag: boolean) {
-    this.isAnimating = flag;
+  static setIsAnimatingForEngine(engine: Engine, flag: boolean) {
+    this.__isAnimatingMap.set(engine, flag);
+  }
+
+  /**
+   * Gets the animation state for the specified engine.
+   * @param engine - The engine instance to get the animation state for
+   * @returns True if animation is enabled for the engine, defaults to true if not set
+   */
+  static getIsAnimatingForEngine(engine: Engine): boolean {
+    return this.__isAnimatingMap.get(engine) ?? true;
+  }
+
+  /**
+   * Sets the global animation time for the specified engine.
+   * @param engine - The engine instance to set the global time for
+   * @param time - The global animation time in seconds
+   */
+  static setGlobalTimeForEngine(engine: Engine, time: number) {
+    this.__globalTimeMap.set(engine, time);
+  }
+
+  /**
+   * Gets the global animation time for the specified engine.
+   * @param engine - The engine instance to get the global time for
+   * @returns The global animation time for the engine, defaults to 0 if not set
+   */
+  static getGlobalTimeForEngine(engine: Engine): number {
+    return this.__globalTimeMap.get(engine) ?? 0;
   }
 
   /**

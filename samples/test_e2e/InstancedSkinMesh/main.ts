@@ -73,7 +73,7 @@ engine.startRenderLoop(() => {
   if (window.isAnimating) {
     const date = new Date();
     const time = (date.getTime() - startTime) / 1000;
-    Rn.AnimationComponent.globalTime = time;
+    Rn.AnimationComponent.setGlobalTimeForEngine(engine, time);
     if (time > Rn.AnimationComponent.getEndInputValue(engine)) {
       startTime = date.getTime();
     }

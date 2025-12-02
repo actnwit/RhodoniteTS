@@ -346,7 +346,7 @@ export class Engine extends RnObject {
       } else {
         if (
           !EngineState.webgpuRenderBundleMode ||
-          AnimationComponent.isAnimating ||
+          AnimationComponent.getIsAnimatingForEngine(this) ||
           TransformComponent.getUpdateCount(this) !== this.__lastTransformComponentsUpdateCount ||
           CameraComponent.getCurrentCameraUpdateCount(this) !== this.__lastCameraComponentsUpdateCount ||
           CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
@@ -451,7 +451,7 @@ export class Engine extends RnObject {
         }
       } else {
         if (
-          AnimationComponent.isAnimating ||
+          AnimationComponent.getIsAnimatingForEngine(this) ||
           TransformComponent.getUpdateCount(this) !== this.__lastTransformComponentsUpdateCount ||
           CameraComponent.getCurrentCameraUpdateCount(this) !== this.__lastCameraComponentsUpdateCount ||
           CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||

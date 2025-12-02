@@ -788,7 +788,7 @@ ${indexStr}
    */
   prerender(): void {
     if (
-      AnimationComponent.isAnimating ||
+      AnimationComponent.getIsAnimatingForEngine(this.__engine) ||
       TransformComponent.getUpdateCount(this.__engine) !== this.__lastTransformComponentsUpdateCount ||
       SceneGraphComponent.updateCount !== this.__lastSceneGraphComponentsUpdateCount ||
       CameraComponent.getCurrentCameraUpdateCount(this.__engine) !== this.__lastCameraComponentsUpdateCount ||

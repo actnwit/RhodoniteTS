@@ -4,7 +4,6 @@ import {
   type AnimationSamplers,
   type AnimationTrackName,
 } from '../../types/AnimationTypes';
-import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { __getOutputValue, __interpolate } from '../components/Animation/AnimationOps';
 import { AnimationAttribute } from '../definitions/AnimationAttribute';
 import { Logger } from '../misc/Logger';
@@ -146,7 +145,7 @@ export class AnimatedQuaternion extends Quaternion implements IQuaternion, IAnim
    * If looping is enabled, the time will wrap around the animation duration.
    */
   public update() {
-    let time = this.__time ?? AnimationComponent.globalTime;
+    let time = this.__time ?? 0;
     if (this.isLoop) {
       let duration = this.__firstActiveAnimationSampler.input[this.__firstActiveAnimationSampler.input.length - 1];
       if (this.__secondActiveAnimationSampler !== undefined) {

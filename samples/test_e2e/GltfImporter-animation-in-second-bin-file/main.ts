@@ -36,7 +36,7 @@ controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 let count = 0;
 let startTime = Date.now();
 
-Rn.AnimationComponent.globalTime = 0.05;
+Rn.AnimationComponent.setGlobalTimeForEngine(engine, 0.05);
 
 engine.startRenderLoop(() => {
   if (p == null && count > 0) {
@@ -49,7 +49,7 @@ engine.startRenderLoop(() => {
   if (window.isAnimating) {
     const date = new Date();
     const time = (date.getTime() - startTime) / 1000;
-    Rn.AnimationComponent.globalTime = time;
+    Rn.AnimationComponent.setGlobalTimeForEngine(engine, time);
     if (time > Rn.AnimationComponent.getEndInputValue(engine)) {
       startTime = date.getTime();
     }
