@@ -78,7 +78,7 @@ const toHalfFloat = (): ((val: number) => number) => {
  * @returns True if the number is a power of two, false otherwise
  */
 function isPowerOfTwo(x: number): boolean {
-  return (x & (x - 1)) === 0;
+  return x > 0 && (x & (x - 1)) === 0;
 }
 
 /**
