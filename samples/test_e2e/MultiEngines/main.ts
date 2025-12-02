@@ -1,16 +1,15 @@
 import Rn from '../../../dist/esmdev/index.js';
 
-let p: any;
-
 declare const window: any;
 
 Rn.Config.isUboEnabled = false;
 Rn.Config.cgApiDebugConsoleOutput = true;
 
-async function createCanvasScene(canvas: HTMLCanvasElement) {
+async function createCanvasScene(canvasId: string) {
+  let p: HTMLParagraphElement | undefined;
   const engine = await Rn.Engine.init({
     approach: Rn.ProcessApproach.DataTexture,
-    canvas: canvas,
+    canvas: document.getElementById(canvasId) as HTMLCanvasElement,
   });
 
   // params
@@ -69,7 +68,7 @@ async function createCanvasScene(canvas: HTMLCanvasElement) {
   engine.startRenderLoop(() => {
     if (p == null && count > 0) {
       p = document.createElement('p');
-      p.setAttribute('id', 'rendered');
+      p.setAttribute('id', `rendered_${canvasId}`);
       p.innerText = 'Rendered.';
       document.body.appendChild(p);
     }
@@ -86,8 +85,8 @@ async function createCanvasScene(canvas: HTMLCanvasElement) {
   return engine;
 }
 
-const engine1 = await createCanvasScene(document.getElementById('world1') as HTMLCanvasElement);
-const engine2 = await createCanvasScene(document.getElementById('world2') as HTMLCanvasElement);
+const engine1 = await createCanvasScene('world1');
+const engine2 = await createCanvasScene('world2');
 
 window.exportCanvas1ToGltf2 = () => {
   Rn.Gltf2Exporter.export(engine1, 'Rhodonite');
