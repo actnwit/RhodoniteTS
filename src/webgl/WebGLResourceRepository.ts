@@ -15,6 +15,7 @@ import { TextureParameter, type TextureParameterEnum } from '../foundation/defin
 import { VertexAttribute, type VertexAttributeEnum } from '../foundation/definitions/VertexAttribute';
 import type { Primitive } from '../foundation/geometry/Primitive';
 import type { Material } from '../foundation/materials/core/Material';
+import { MathUtil } from '../foundation/math/MathUtil';
 import { Vector4 } from '../foundation/math/Vector4';
 import type { Accessor } from '../foundation/memory/Accessor';
 import { DataUtil } from '../foundation/misc/DataUtil';
@@ -2809,7 +2810,11 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     });
   }
 
-  generateMipmaps2d(textureHandle: WebGLResourceHandle, _width: number, _height: number): void {
+  generateMipmaps2d(textureHandle: WebGLResourceHandle, width: number, height: number): void {
+    if (!MathUtil.isPowerOfTwoTexture(width, height) && MiscUtil.isIOS()) {
+      return;
+    }
+
     const gl = this.__glw!.getRawContext();
     const texture = this.getWebGLResource(textureHandle) as WebGLTexture;
     this.__glw!.bindTexture2D(15, texture);
