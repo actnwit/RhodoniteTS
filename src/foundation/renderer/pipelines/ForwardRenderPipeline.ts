@@ -12,6 +12,7 @@ import { RenderableHelper } from '../../helpers/RenderableHelper';
 import { ShadowSystem } from '../../helpers/Shadow/ShadowSystem';
 import type { Material } from '../../materials/core/Material';
 import { Vector4 } from '../../math/Vector4';
+import { MiscUtil } from '../../misc';
 import { Is } from '../../misc/Is';
 import { Logger } from '../../misc/Logger';
 import { None, type Option, Some, assertHas } from '../../misc/Option';
@@ -230,7 +231,7 @@ export class ForwardRenderPipeline extends RnObject {
         this.__oShadowSystem = new Some(new ShadowSystem(this.__engine, shadowMapSize));
       }
 
-      if (this.__oFrameBufferResolveForReference.has()) {
+      if (this.__oFrameBufferResolveForReference.has() && !MiscUtil.isMobile()) {
         // generate mipmaps for process KHR_materials_transmittance
         this.__oGenerateMipmapsExpression = this.__setupGenerateMipmapsExpression(
           this.__oFrameBufferResolveForReference.get()
