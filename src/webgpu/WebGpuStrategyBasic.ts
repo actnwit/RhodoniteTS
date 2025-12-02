@@ -790,14 +790,14 @@ ${indexStr}
     if (
       AnimationComponent.getIsAnimating(this.__engine) ||
       TransformComponent.getUpdateCount(this.__engine) !== this.__lastTransformComponentsUpdateCount ||
-      SceneGraphComponent.updateCount !== this.__lastSceneGraphComponentsUpdateCount ||
+      SceneGraphComponent.getUpdateCount(this.__engine) !== this.__lastSceneGraphComponentsUpdateCount ||
       CameraComponent.getCurrentCameraUpdateCount(this.__engine) !== this.__lastCameraComponentsUpdateCount ||
       CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
       this.__engine.materialRepository.stateVersion !== this.__lastMaterialsUpdateCount
     ) {
       this.__createAndUpdateStorageBuffer();
       this.__lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(this.__engine);
-      this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
+      this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.getUpdateCount(this.__engine);
       this.__lastCameraComponentsUpdateCount = CameraComponent.getCurrentCameraUpdateCount(this.__engine);
       this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
       this.__lastMaterialsUpdateCount = this.__engine.materialRepository.stateVersion;

@@ -278,7 +278,7 @@ export class MeshRendererComponent extends Component {
     if (
       TransformComponent.getUpdateCount(engine) === renderPass._lastTransformComponentsUpdateCount &&
       CameraControllerComponent.updateCount === renderPass._lastCameraControllerComponentsUpdateCount &&
-      SceneGraphComponent.updateCount === renderPass._lastSceneGraphComponentsUpdateCount
+      SceneGraphComponent.getUpdateCount(engine) === renderPass._lastSceneGraphComponentsUpdateCount
     ) {
       return renderPass._lastPrimitiveUids;
     }
@@ -409,7 +409,7 @@ export class MeshRendererComponent extends Component {
 
     renderPass._lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(engine);
     renderPass._lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
-    renderPass._lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
+    renderPass._lastSceneGraphComponentsUpdateCount = SceneGraphComponent.getUpdateCount(engine);
     if (resultChanged) {
       renderPass._renderedSomethingBefore = true;
     }

@@ -1132,7 +1132,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     if (
       AnimationComponent.getIsAnimating(this.__engine) ||
       TransformComponent.getUpdateCount(this.__engine) !== this.__lastTransformComponentsUpdateCount ||
-      SceneGraphComponent.updateCount !== this.__lastSceneGraphComponentsUpdateCount ||
+      SceneGraphComponent.getUpdateCount(this.__engine) !== this.__lastSceneGraphComponentsUpdateCount ||
       CameraComponent.getCurrentCameraUpdateCount(this.__engine) !== this.__lastCameraComponentsUpdateCount ||
       CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
       this.__engine.materialRepository.stateVersion !== this.__lastMaterialsUpdateCount
@@ -1141,7 +1141,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__createAndUpdateDataTexture();
       this.__createAndUpdateUBO();
       this.__lastTransformComponentsUpdateCount = TransformComponent.getUpdateCount(this.__engine);
-      this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
+      this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.getUpdateCount(this.__engine);
       this.__lastCameraComponentsUpdateCount = CameraComponent.getCurrentCameraUpdateCount(this.__engine);
       this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
       this.__lastMaterialsUpdateCount = this.__engine.materialRepository.stateVersion;

@@ -87,7 +87,8 @@ export class SceneGraphComponent extends Component {
   private static __tmp_quat_0 = MutableQuaternion.identity();
   private static __tmp_quat_1 = MutableQuaternion.identity();
 
-  private static __updateCount = -1;
+  /** Map to store update count per Engine instance for multi-engine support */
+  private static __updateCountMap: Map<Engine, number> = new Map();
 
   private static __tmpAABB = new AABB();
 
@@ -121,7 +122,7 @@ export class SceneGraphComponent extends Component {
    */
   set isVisible(flg: boolean) {
     this._isVisible.setValue(flg ? 1 : 0);
-    SceneGraphComponent.__updateCount++;
+    SceneGraphComponent.__incrementUpdateCount(this.__engine);
   }
 
   /**
@@ -133,11 +134,22 @@ export class SceneGraphComponent extends Component {
   }
 
   /**
-   * Gets the current update count for scene graph changes.
-   * @returns The current update count
+   * Gets the update counter for scene graph components of the specified engine.
+   * @param engine - The engine instance to get the update count for
+   * @returns The current update count for the specified engine
    */
-  static get updateCount() {
-    return SceneGraphComponent.__updateCount;
+  static getUpdateCount(engine: Engine): number {
+    return this.__updateCountMap.get(engine) ?? 0;
+  }
+
+  /**
+   * Increments the update counter for the specified engine.
+   * @param engine - The engine instance to increment the update count for
+   * @internal
+   */
+  private static __incrementUpdateCount(engine: Engine): void {
+    const currentCount = this.__updateCountMap.get(engine) ?? 0;
+    this.__updateCountMap.set(engine, currentCount + 1);
   }
 
   /**
