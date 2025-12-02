@@ -1404,15 +1404,28 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
   ): Promise<WebGLResourceHandle> {
     const gl = this.__glw!.getRawContextAsWebGL2();
 
+    // NPOTの場合はPOTサイズに変換
+    let finalImageData: ImageBitmapData = imageData;
+    let finalWidth = width;
+    let finalHeight = height;
+    if (!MathUtil.isPowerOfTwoTexture(width, height) && MiscUtil.isIOS()) {
+      finalWidth = DataUtil.getNearestPowerOfTwo(width);
+      finalHeight = DataUtil.getNearestPowerOfTwo(height);
+      const canvas = new OffscreenCanvas(finalWidth, finalHeight);
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(imageData, 0, 0, finalWidth, finalHeight);
+      finalImageData = await createImageBitmap(canvas);
+    }
+
     const texture = gl.createTexture() as RnWebGLTexture;
     const textureHandle = this.__registerResource(texture);
 
     this.__glw!.bindTexture2D(15, texture);
-    const levels = Math.floor(Math.log2(Math.max(width, height))) + 1;
-    gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
-    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, format.index, type.index, imageData);
+    const levels = Math.floor(Math.log2(Math.max(finalWidth, finalHeight))) + 1;
+    gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, finalWidth, finalHeight);
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, format.index, type.index, finalImageData);
 
-    this.__createTextureInner(gl, width, height, generateMipmap);
+    this.__generateMipmapsAndUnbind(gl, finalWidth, finalHeight, generateMipmap);
 
     return textureHandle;
   }
@@ -1426,7 +1439,12 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    * @param height - Height of the texture
    * @param generateMipmap - Whether to generate mipmaps
    */
-  private __createTextureInner(gl: WebGL2RenderingContext, _width: number, _height: number, _generateMipmap: boolean) {
+  private __generateMipmapsAndUnbind(
+    gl: WebGL2RenderingContext,
+    _width: number,
+    _height: number,
+    _generateMipmap: boolean
+  ) {
     // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
     // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
     // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
@@ -1482,15 +1500,28 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
   ): Promise<WebGLResourceHandle> {
     const gl = this.__glw!.getRawContextAsWebGL2();
 
+    // NPOTの場合はPOTサイズに変換（iOS向け）
+    let finalImageData: ImageBitmapData = imageData;
+    let finalWidth = width;
+    let finalHeight = height;
+    if (!MathUtil.isPowerOfTwoTexture(width, height) && MiscUtil.isIOS()) {
+      finalWidth = DataUtil.getNearestPowerOfTwo(width);
+      finalHeight = DataUtil.getNearestPowerOfTwo(height);
+      const canvas = new OffscreenCanvas(finalWidth, finalHeight);
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(imageData, 0, 0, finalWidth, finalHeight);
+      finalImageData = await createImageBitmap(canvas);
+    }
+
     const texture = gl.createTexture() as RnWebGLTexture;
     const resourceHandle = this.__registerResource(texture);
 
     this.__glw!.bindTexture2D(15, texture);
-    const levels = generateMipmap ? Math.max(Math.log2(width), Math.log2(height)) : 1;
-    gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
-    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, format.index, type.index, imageData);
+    const levels = generateMipmap ? Math.max(Math.log2(finalWidth), Math.log2(finalHeight)) : 1;
+    gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, finalWidth, finalHeight);
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, format.index, type.index, finalImageData);
 
-    this.__createTextureInner(gl, width, height, generateMipmap);
+    this.__generateMipmapsAndUnbind(gl, finalWidth, finalHeight, generateMipmap);
 
     return resourceHandle;
   }
@@ -1703,7 +1734,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
       imageData as any as ArrayBufferView
     );
 
-    this.__createTextureInner(gl, width, height, generateMipmap);
+    this.__generateMipmapsAndUnbind(gl, width, height, generateMipmap);
 
     return resourceHandle;
   }
