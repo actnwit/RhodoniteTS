@@ -50,6 +50,7 @@ declare global {
 /**
  * Gets the appropriate event name based on device capabilities and event type.
  * Automatically detects whether to use touch, pointer, or mouse events based on device support.
+ * Priority order: Pointer events (modern browsers) > MS Pointer events (legacy IE) > Touch events > Mouse events
  *
  * @param type - The type of event to get ('start', 'move', 'end', or 'click')
  * @returns The appropriate event name string for the current device
@@ -57,7 +58,7 @@ declare global {
  *
  * @example
  * ```typescript
- * const startEvent = getEvent('start'); // Returns 'touchstart', 'pointerdown', or 'mousedown'
+ * const startEvent = getEvent('start'); // Returns 'pointerdown', 'touchstart', or 'mousedown'
  * element.addEventListener(startEvent, handler);
  * ```
  */
@@ -66,8 +67,10 @@ export function getEvent(type: 'start' | 'move' | 'end' | 'click'): string {
     throw new Error('This function works in Browser environment');
   }
   const deviceEvents = {
+    // Check for PointerEvent support (modern browsers - Chrome, Firefox, Safari, Edge all support this)
+    // Note: navigator.pointerEnabled is deprecated and removed from modern browsers
+    Pointer: typeof (window as any).PointerEvent !== 'undefined',
     Touch: typeof document.ontouchstart !== 'undefined',
-    Pointer: window.navigator.pointerEnabled,
     MSPointer: window.navigator.msPointerEnabled,
   };
 
