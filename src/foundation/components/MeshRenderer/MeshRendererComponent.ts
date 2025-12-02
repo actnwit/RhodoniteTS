@@ -249,7 +249,10 @@ export class MeshRendererComponent extends Component {
       const moduleName = 'webgl';
       const webglModule = moduleManager.getModule(moduleName)! as RnWebGL;
       if (!MeshRendererComponent.__cgApiRenderingStrategyMap.has(engineUid)) {
-        MeshRendererComponent.__cgApiRenderingStrategyMap.set(engineUid, webglModule.getRenderingStrategy(engine, processApproach));
+        MeshRendererComponent.__cgApiRenderingStrategyMap.set(
+          engineUid,
+          webglModule.getRenderingStrategy(engine, processApproach)
+        );
       }
       (MeshRendererComponent.__cgApiRenderingStrategyMap.get(engineUid) as WebGLStrategy).common_$load();
     }
@@ -537,12 +540,9 @@ export class MeshRendererComponent extends Component {
     engine: Engine;
   }): boolean {
     // Call common_$render of WebGLRenderingStrategy
-    return MeshRendererComponent.__cgApiRenderingStrategyMap.get(engine.objectUID)!.common_$render(
-      primitiveUids,
-      renderPass,
-      renderPassTickCount,
-      displayIdx
-    );
+    return MeshRendererComponent.__cgApiRenderingStrategyMap
+      .get(engine.objectUID)!
+      .common_$render(primitiveUids, renderPass, renderPassTickCount, displayIdx);
   }
 
   /**

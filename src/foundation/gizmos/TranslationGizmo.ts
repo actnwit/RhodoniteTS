@@ -751,10 +751,9 @@ export class TranslationGizmo extends Gizmo {
     const x = evt.clientX - rect.left;
     const y = rect.height - (evt.clientY - rect.top);
     const viewport = Vector4.fromCopy4(0, 0, width, height) as Vector4;
-    const activeCamera = engine.componentRepository.getComponent(
-      CameraComponent,
-      CameraComponent.getCurrent(engine)
-    ) as CameraComponent | undefined;
+    const activeCamera = engine.componentRepository.getComponent(CameraComponent, CameraComponent.getCurrent(engine)) as
+      | CameraComponent
+      | undefined;
     const result = TranslationGizmo.__groupEntity
       .getSceneGraph()
       .castRayFromScreen(x, y, activeCamera!, viewport, 0.0, []);
@@ -800,10 +799,9 @@ export class TranslationGizmo extends Gizmo {
     const x = evt.clientX - rect.left;
     const y = rect.height - (evt.clientY - rect.top);
     const viewport = Vector4.fromCopy4(0, 0, width, height) as Vector4;
-    const activeCamera = engine.componentRepository.getComponent(
-      CameraComponent,
-      CameraComponent.getCurrent(engine)
-    ) as CameraComponent | undefined;
+    const activeCamera = engine.componentRepository.getComponent(CameraComponent, CameraComponent.getCurrent(engine)) as
+      | CameraComponent
+      | undefined;
     const xResult = TranslationGizmo.__castFromEntities(
       x,
       y,

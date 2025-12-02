@@ -118,7 +118,7 @@ export class VideoTexture extends AbstractTexture {
   async generateTextureFromVideo(
     video: HTMLVideoElement,
     {
-      level = 0,
+      _level = 0,
       internalFormat = TextureFormat.RGBA8,
       format = PixelFormat.RGBA,
       type = ComponentType.UnsignedByte,
@@ -182,7 +182,7 @@ export class VideoTexture extends AbstractTexture {
   async generateTextureFromUri(
     videoUri: string,
     {
-      level = 0,
+      _level = 0,
       internalFormat = TextureFormat.RGBA8,
       format = PixelFormat.RGBA,
       type = ComponentType.UnsignedByte,

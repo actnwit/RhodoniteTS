@@ -731,10 +731,9 @@ export class RotationGizmo extends Gizmo {
     const x = evt.clientX - rect.left;
     const y = rect.height - (evt.clientY - rect.top);
     const viewport = Vector4.fromCopy4(0, 0, width, height) as Vector4;
-    const activeCamera = engine.componentRepository.getComponent(
-      CameraComponent,
-      CameraComponent.getCurrent(engine)
-    ) as CameraComponent | undefined;
+    const activeCamera = engine.componentRepository.getComponent(CameraComponent, CameraComponent.getCurrent(engine)) as
+      | CameraComponent
+      | undefined;
 
     const caster = local ? RotationGizmo.__castFromEntitiesLocal : RotationGizmo.__castFromEntities;
     if (Is.not.exist(activeCamera)) {
