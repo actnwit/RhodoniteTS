@@ -107,5 +107,5 @@ export function setUpAsMemoryBoostMode() {
   Config.bufferSizeDivisionRatiosForGPUInstanceDataUsage = [1 / 4, 1 / 4, 1 / 4, 1 / 4];
   Config.skeletalComponentCountPerBufferView = 100;
   Config.scenegraphComponentCountPerBufferView = 1000;
-  Config.materialCountPerBufferView = 30;
+  Config.materialCountPerBufferView = 1000;
 }
