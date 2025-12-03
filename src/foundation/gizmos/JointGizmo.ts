@@ -181,6 +181,10 @@ export class JointGizmo extends Gizmo {
     // Use shared mesh for instanced rendering
     meshComponent.setMesh(sharedMesh);
 
+    // Set 'Gizmo: Joint' tag to prevent being added to BasicGizmos RenderPass
+    // (which would cause double rendering with JointAndColliderGizmos RenderPass)
+    meshEntity.tryToSetTag({ tag: 'Gizmo', value: 'Joint' });
+
     this.__topEntity.getSceneGraph()!.addChild(meshEntity.getSceneGraph());
 
     return {
