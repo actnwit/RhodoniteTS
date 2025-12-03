@@ -27914,6 +27914,7 @@ declare global {
 /**
  * Gets the appropriate event name based on device capabilities and event type.
  * Automatically detects whether to use touch, pointer, or mouse events based on device support.
+ * Priority order: Pointer events (modern browsers) > MS Pointer events (legacy IE) > Touch events > Mouse events
  *
  * @param type - The type of event to get ('start', 'move', 'end', or 'click')
  * @returns The appropriate event name string for the current device
@@ -27921,7 +27922,7 @@ declare global {
  *
  * @example
  * ```typescript
- * const startEvent = getEvent('start'); // Returns 'touchstart', 'pointerdown', or 'mousedown'
+ * const startEvent = getEvent('start'); // Returns 'pointerdown', 'touchstart', or 'mousedown'
  * element.addEventListener(startEvent, handler);
  * ```
  */
@@ -33603,7 +33604,7 @@ declare class WebGLResourceRepository extends CGAPIResourceRepository implements
      * @param height - Height of the texture
      * @param generateMipmap - Whether to generate mipmaps
      */
-    private __createTextureInner;
+    private __generateMipmapsAndUnbind;
     /**
      * Creates a 2D texture from an HTML image element with specified parameters.
      * This method allocates texture storage and uploads the image data to the GPU.
@@ -33923,7 +33924,7 @@ declare class WebGLResourceRepository extends CGAPIResourceRepository implements
     createDummyWhiteTexture(): number;
     createDummyNormalTexture(): number;
     __createDummyTextureInner(base64: string): number;
-    generateMipmaps2d(textureHandle: WebGLResourceHandle, _width: number, _height: number): void;
+    generateMipmaps2d(textureHandle: WebGLResourceHandle, width: number, height: number): void;
     generateMipmapsCube(textureHandle: WebGLResourceHandle, _width: number, _height: number): void;
     getTexturePixelData(_textureHandle: WebGLResourceHandle, width: number, height: number, frameBufferUid: WebGLResourceHandle, colorAttachmentIndex: number): Promise<Uint8Array>;
     createUniformBuffer(): number;
