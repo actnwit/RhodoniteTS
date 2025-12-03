@@ -1,11 +1,10 @@
+import type { ObjectUID } from '../../types/CommonTypes';
 import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
-import { AlphaMode } from '../definitions/AlphaMode';
 import { Mesh } from '../geometry/Mesh';
 import { Joint } from '../geometry/shapes/Joint';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
-import { MaterialHelper } from '../helpers/MaterialHelper';
 import { MutableQuaternion } from '../math/MutableQuaternion';
 import { MutableVector3 } from '../math/MutableVector3';
 import { Quaternion } from '../math/Quaternion';
@@ -16,7 +15,6 @@ import { Gizmo } from './Gizmo';
 type JointVisual = {
   parent: SceneGraphComponent;
   child: SceneGraphComponent;
-  primitive: Joint;
   entity: IMeshEntity;
   localPosition: MutableVector3;
   localScale: MutableVector3;
@@ -26,11 +24,15 @@ type JointVisual = {
 /**
  * JointGizmo renders skeleton joints and their connections for debugging purposes.
  * Each joint pair is visualized using the Joint primitive to highlight skeletal hierarchies.
+ * Uses instanced rendering for efficient drawing of multiple joints.
  */
 export class JointGizmo extends Gizmo {
   protected declare __topEntity?: ISceneGraphEntity;
 
   private __jointVisuals: JointVisual[] = [];
+
+  /** Shared mesh per Engine for instanced rendering */
+  private static __sharedMeshMap: Map<ObjectUID, Mesh> = new Map();
 
   private static readonly __unitY = Vector3.fromCopyArray3([0, 1, 0]);
   private static readonly __origin = Vector3.fromCopyArray3([0, 0, 0]);
@@ -60,8 +62,15 @@ export class JointGizmo extends Gizmo {
     targetSceneGraph._addGizmoChild(this.__topEntity.getSceneGraph()!);
 
     const jointPairs = this.__collectJointPairs(targetSceneGraph);
+    if (jointPairs.length === 0) {
+      return;
+    }
+
+    // Get or create shared mesh for instanced rendering (per Engine)
+    const sharedMesh = JointGizmo.__getOrCreateSharedMesh(this.__engine);
+
     for (const pair of jointPairs) {
-      const visual = this.__createJointVisual(pair.parent, pair.child);
+      const visual = this.__createJointVisual(pair.parent, pair.child, sharedMesh);
       if (visual) {
         this.__jointVisuals.push(visual);
       }
@@ -136,7 +145,30 @@ export class JointGizmo extends Gizmo {
     return pairs;
   }
 
-  private __createJointVisual(parent: SceneGraphComponent, child: SceneGraphComponent): JointVisual | undefined {
+  /**
+   * Gets existing shared mesh for the engine or creates a new one.
+   * This enables instanced rendering by sharing the same mesh across all JointGizmo instances.
+   */
+  private static __getOrCreateSharedMesh(engine: import('../system/Engine').Engine): Mesh {
+    const engineUID = engine.objectUID;
+    let sharedMesh = JointGizmo.__sharedMeshMap.get(engineUID);
+    if (!sharedMesh) {
+      sharedMesh = new Mesh(engine);
+      const primitive = new Joint(engine);
+      primitive.generate({});
+      primitive.setWorldPositions(JointGizmo.__origin, JointGizmo.__unitY, 1);
+      primitive.setRenderQueue(7);
+      sharedMesh.addPrimitive(primitive);
+      JointGizmo.__sharedMeshMap.set(engineUID, sharedMesh);
+    }
+    return sharedMesh;
+  }
+
+  private __createJointVisual(
+    parent: SceneGraphComponent,
+    child: SceneGraphComponent,
+    sharedMesh: Mesh
+  ): JointVisual | undefined {
     if (!Is.exist(this.__topEntity)) {
       return undefined;
     }
@@ -146,13 +178,12 @@ export class JointGizmo extends Gizmo {
     meshEntity.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix = true;
 
     const meshComponent = meshEntity.getMesh();
-    const mesh = new Mesh(this.__engine);
-    const primitive = new Joint(this.__engine);
-    primitive.generate({});
-    primitive.setWorldPositions(JointGizmo.__origin, JointGizmo.__unitY, 1);
-    primitive.setRenderQueue(7);
-    mesh.addPrimitive(primitive);
-    meshComponent.setMesh(mesh);
+    // Use shared mesh for instanced rendering
+    meshComponent.setMesh(sharedMesh);
+
+    // Set 'Gizmo: Joint' tag to prevent being added to BasicGizmos RenderPass
+    // (which would cause double rendering with JointAndColliderGizmos RenderPass)
+    meshEntity.tryToSetTag({ tag: 'Gizmo', value: 'Joint' });
 
     this.__topEntity.getSceneGraph()!.addChild(meshEntity.getSceneGraph());
 
@@ -160,7 +191,6 @@ export class JointGizmo extends Gizmo {
       entity: meshEntity,
       parent,
       child,
-      primitive,
       localPosition: MutableVector3.zero(),
       localScale: MutableVector3.one(),
       localRotation: MutableQuaternion.identity(),
