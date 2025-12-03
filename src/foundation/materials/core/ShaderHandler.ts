@@ -231,6 +231,12 @@ export function _createProgramAsSingleOperationWebGL(
     alphaMode += '#define RN_IS_ALPHA_MODE_MASK\n';
   }
 
+  // Determine if Multi-View rendering is enabled for WebXR
+  const webglResourceRepository = engine.webglResourceRepository;
+  const webXRSystem = engine.webXRSystem;
+  const isMultiViewVRRendering =
+    Is.exist(webXRSystem) && webXRSystem.isWebXRMode && webglResourceRepository.isSupportMultiViewVRRendering();
+
   const cacheQuery =
     Component.getStateVersion(engine) +
     engine.materialRepository._getBufferViewVersion(material.__materialTypeName) +
@@ -243,7 +249,8 @@ export function _createProgramAsSingleOperationWebGL(
     componentDataAccessMethodDefinitionsForVertexShader +
     componentDataAccessMethodDefinitionsForPixelShader +
     morphedPositionGetter +
-    alphaMode;
+    alphaMode +
+    (isMultiViewVRRendering ? 'WEBGL2_MULTI_VIEW' : '');
 
   let shaderProgramUid = __shaderStringMap.get(cacheQuery);
   if (shaderProgramUid) {
@@ -255,7 +262,6 @@ export function _createProgramAsSingleOperationWebGL(
     propertySetterOfGlobalDataRepository,
     propertySetterOfMaterial
   );
-  const webglResourceRepository = engine.webglResourceRepository;
 
   // Shader Code Construction
   let vertexShader = _setupGlobalShaderDefinitionWebGL(engine, material.__materialTypeName, primitive);
