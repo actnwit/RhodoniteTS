@@ -83,6 +83,10 @@ export class CapsuleColliderGizmo extends Gizmo {
     const meshComponent = capsuleEntity.getMesh();
     meshComponent.calcBaryCentricCoord();
 
+    // Set 'Gizmo: CapsuleCollider' tag to prevent being added to BasicGizmos RenderPass
+    // (which would cause double rendering with JointAndColliderGizmos RenderPass)
+    capsuleEntity.tryToSetTag({ tag: 'Gizmo', value: 'CapsuleCollider' });
+
     // Add as a child of the top entity
     this.__topEntity.getSceneGraph()!.addChild(capsuleEntity.getSceneGraph());
 
