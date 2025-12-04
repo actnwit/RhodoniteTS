@@ -58,9 +58,10 @@ export class MaterialRepository {
    * @returns True if the material type was successfully registered, false if it was already registered
    */
   public registerMaterial(
+    engine: Engine,
     materialTypeName: string,
     materialNode: AbstractMaterialContent,
-    materialCountPerBufferView: number = Config.materialCountPerBufferView
+    materialCountPerBufferView: number = engine.config.materialCountPerBufferView
   ): boolean {
     if (!this.__materialNodes.has(materialTypeName)) {
       this.__registerInner(materialTypeName, materialNode, materialCountPerBufferView);
@@ -82,9 +83,10 @@ export class MaterialRepository {
    * @returns Always returns true as the registration is forced
    */
   public forceRegisterMaterial(
+    engine: Engine,
     materialTypeName: string,
     materialNode: AbstractMaterialContent,
-    materialCountPerBufferView: number = Config.materialCountPerBufferView
+    materialCountPerBufferView: number = engine.config.materialCountPerBufferView
   ): boolean {
     this.__registerInner(materialTypeName, materialNode, materialCountPerBufferView);
     return true;

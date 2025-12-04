@@ -2,7 +2,7 @@
 
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
-import { Config } from '../foundation/core/Config';
+import type { Config } from '../foundation/core/Config';
 import { EntityRepository } from '../foundation/core/EntityRepository';
 import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import { AlphaMode } from '../foundation/definitions/AlphaMode';
@@ -939,10 +939,12 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @returns Handle to the shader program containing both modules
    */
   createShaderProgram({
+    config,
     material,
     vertexShaderStr,
     fragmentShaderStr,
   }: {
+    config: Config;
     material: Material;
     vertexShaderStr: string;
     fragmentShaderStr: string;
@@ -952,7 +954,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       code: vertexShaderStr,
       label: `${material.materialTypeName} vertex shader`,
     });
-    if (Config.cgApiDebugConsoleOutput) {
+    if (config.cgApiDebugConsoleOutput) {
       vsModule.getCompilationInfo().then(info => {
         if (info.messages.length > 0) {
           this.__checkShaderCompileStatus(material.materialTypeName, vertexShaderStr, info);
@@ -963,7 +965,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       code: fragmentShaderStr,
       label: `${material.materialTypeName} fragment shader`,
     });
-    if (Config.cgApiDebugConsoleOutput) {
+    if (config.cgApiDebugConsoleOutput) {
       fsModule.getCompilationInfo().then(info => {
         if (info.messages.length > 0) {
           this.__checkShaderCompileStatus(material.materialTypeName, fragmentShaderStr, info);
@@ -1473,7 +1475,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
 
   renderWithRenderBundle(engine: Engine, renderPass: RenderPass, displayIdx: number) {
     this.__toClearRenderBundles(engine);
-    if (renderPass._isChangedSortRenderResult || !Config.cacheWebGpuRenderBundles) {
+    if (renderPass._isChangedSortRenderResult || !engine.config.cacheWebGpuRenderBundles) {
       this.__renderBundles.clear();
     }
 
@@ -1499,7 +1501,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
 
     if (this.__renderPassEncoder != null && this.__renderBundleEncoder != null) {
       const renderBundle = this.__renderBundleEncoder.finish();
-      if (Config.cacheWebGpuRenderBundles) {
+      if (engine.config.cacheWebGpuRenderBundles) {
         const renderBundleKey = `${renderPass.renderPassUID}-${displayIdx}`;
         this.__renderBundles.set(renderBundleKey, renderBundle);
       } else {

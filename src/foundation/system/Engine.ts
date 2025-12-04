@@ -51,6 +51,7 @@ interface EngineInitDescription {
   canvas: HTMLCanvasElement;
   webglOption?: WebGLContextAttributes;
   notToDisplayRnInfoAtInit?: boolean;
+  config?: Config;
 }
 
 /**
@@ -91,6 +92,7 @@ export class Engine extends RnObject {
   private __memoryManager?: MemoryManager;
   private __materialRepository: MaterialRepository;
   private __globalDataRepository: GlobalDataRepository;
+  private __config: Config;
   private __dummyTextures?: DummyTextures;
   private __lastCameraComponentsUpdateCount = -1;
   private __lastCameraControllerComponentsUpdateCount = -1;
@@ -103,9 +105,11 @@ export class Engine extends RnObject {
   private constructor(
     processApproach: ProcessApproachEnum,
     cgApiResourceRepository: ICGAPIResourceRepository,
-    maxGPUDataStorageSize: Byte
+    maxGPUDataStorageSize: Byte,
+    config?: Config
   ) {
     super();
+    this.__config = config ?? new Config();
     this.__engineUid = Engine.__engineCount;
     this.__processApproach = processApproach;
     this.__cgApiResourceRepository = cgApiResourceRepository;
@@ -569,7 +573,6 @@ export class Engine extends RnObject {
   public static async init(desc: EngineInitDescription): Promise<Engine> {
     await ModuleManager.getInstance().loadModule('pbr');
     await ModuleManager.getInstance().loadModule('xr');
-    Config.eventTargetDom = desc.canvas;
 
     let maxGPUDataStorageSize: Byte = 0;
     let cgApiResourceRepository: ICGAPIResourceRepository | undefined;
@@ -613,7 +616,12 @@ export class Engine extends RnObject {
       await ModuleManager.getInstance().loadModule('webgl');
 
       cgApiResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-      (cgApiResourceRepository as WebGLResourceRepository).generateWebGLContext(desc.canvas, true, desc.webglOption);
+      (cgApiResourceRepository as WebGLResourceRepository).generateWebGLContext(
+        desc.config ?? new Config(),
+        desc.canvas,
+        true,
+        desc.webglOption
+      );
       (cgApiResourceRepository as WebGLResourceRepository).switchDepthTest(true);
       maxGPUDataStorageSize =
         (cgApiResourceRepository as WebGLResourceRepository).currentWebGLContextWrapper!.getMaxTextureSize() ** 2 *
@@ -623,8 +631,9 @@ export class Engine extends RnObject {
       maxGPUDataStorageSize = 1024 ** 2 * 4 /* rgba */ * 4 /* byte */;
     }
 
-    const engine = new Engine(desc.approach, cgApiResourceRepository!, maxGPUDataStorageSize);
+    const engine = new Engine(desc.approach, cgApiResourceRepository!, maxGPUDataStorageSize, desc.config);
     engine.__engineState.currentProcessApproach = desc.approach;
+    engine.__config.eventTargetDom = engine.__config.eventTargetDom ?? desc.canvas;
     if (desc.approach === ProcessApproach.WebGPU) {
       engine.__webGpuResourceRepository = cgApiResourceRepository as WebGpuResourceRepository;
     }
@@ -747,5 +756,9 @@ export class Engine extends RnObject {
 
   public get engineState() {
     return this.__engineState;
+  }
+
+  public get config() {
+    return this.__config;
   }
 }

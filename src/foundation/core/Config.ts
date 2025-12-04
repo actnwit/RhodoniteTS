@@ -4,108 +4,54 @@
 
 /* eslint-disable prefer-const */
 import { BoneDataType } from '../definitions/BoneDataType';
-import { MiscUtil } from '../misc';
-
-/**　The number of scenegraph components per buffer view */
-let scenegraphComponentCountPerBufferView = 10;
-
-/**　The number of skeletal components per buffer view */
-let skeletalComponentCountPerBufferView = 1;
-
-/**　The number of camera components per buffer view */
-let cameraComponentCountPerBufferView = 1;
-
-/**　The number of light components per buffer view */
-let lightComponentCountPerBufferView = 1;
-
-/**　The maximum number of lights that Rhodonite can handle */
-let maxLightNumber = 6;
-
-/**　The maximum number of bones that Rhodonite can handle for Memory Boost Mode */
-let maxBoneNumberForMemoryBoostMode = 500;
 
 /**
- * The number of materials per buffer view
+ * Config is a configuration class that contains the configuration for the library.
  */
-let materialCountPerBufferView = 3;
-
-/**　The maximum number of bones of each skeleton that Rhodonite can handle for Uniform Mode */
-let maxSkeletalBoneNumberForUniformMode = 50;
-
-/**　The data type of the bone */
-let boneDataType = BoneDataType.Mat43x1;
-
-/**　Whether the UBO is enabled */
-let isUboEnabled = false;
-
-/**　The event target DOM for mouse operation */
-let eventTargetDom: HTMLElement | undefined;
-
-/**　Whether to cache the WebGPU render bundles */
-let cacheWebGpuRenderBundles = true;
-
-/**　Whether to output the CG API debug console */
-let cgApiDebugConsoleOutput = false;
-
-/**　Whether to enable multi-view extension for WebVR */
-let multiViewForWebVR = false;
-
-/**　The scale of the physics time interval */
-let physicsTimeIntervalScale = 1;
-
-/**　Whether the device is a mobile device */
-let isMobile = false;
-
-/** The buffer size division ratios for GPU instance data usage */
-let bufferSizeDivisionRatiosForGPUInstanceDataUsage = [1 / 32, 5 / 32, 6 / 32, 12 / 32];
-
-/**
- * Config is a configuration object that contains the configuration for the library.
- */
-export const Config = {
+export class Config {
   /**　The number of scenegraph components per buffer view */
-  scenegraphComponentCountPerBufferView,
+  scenegraphComponentCountPerBufferView = 10;
   /**　The number of skeletal components per buffer view */
-  skeletalComponentCountPerBufferView,
+  skeletalComponentCountPerBufferView = 1;
   /**　The number of camera components per buffer view */
-  cameraComponentCountPerBufferView,
+  cameraComponentCountPerBufferView = 1;
   /**　The number of light components per buffer view */
-  lightComponentCountPerBufferView,
+  lightComponentCountPerBufferView = 1;
   /**　The maximum number of lights that Rhodonite can handle */
-  maxLightNumber,
+  maxLightNumber = 6;
   /**　The maximum number of bones that Rhodonite can handle for Memory Boost Mode */
-  maxBoneNumberForMemoryBoostMode,
+  maxBoneNumberForMemoryBoostMode = 500;
   /**
    * Number of instances of each material type to be placed consecutively in memory.
    * This is on the memory layout, and the number of material instances that can be generated is not limited by this setting.
    * If this limit is exceeded, the material type is internally treated as a separate material type.
    */
-  materialCountPerBufferView,
+  materialCountPerBufferView = 3;
   /**　The data type of the bone */
-  boneDataType,
+  boneDataType = BoneDataType.Mat43x1;
   /**　The maximum number of bones of each skeleton that Rhodonite can handle for Uniform Mode */
-  maxSkeletalBoneNumberForUniformMode,
+  maxSkeletalBoneNumberForUniformMode = 50;
   /**　Whether the UBO is enabled */
-  isUboEnabled,
+  isUboEnabled = false;
   /**　The event target DOM for mouse operation */
-  eventTargetDom,
+  eventTargetDom: HTMLElement | undefined;
   /**　Whether to cache the WebGPU render bundles */
-  cacheWebGpuRenderBundles,
+  cacheWebGpuRenderBundles = true;
   /**　Whether to output the CG API debug console */
-  cgApiDebugConsoleOutput,
+  cgApiDebugConsoleOutput = false;
   /**　Whether to enable multi-view extension for WebVR */
-  multiViewForWebVR,
+  multiViewForWebVR = false;
   /**　The scale of the physics time interval */
-  physicsTimeIntervalScale,
+  physicsTimeIntervalScale = 1;
   /**　Whether the device is a mobile device */
-  isMobile,
+  isMobile = false;
   /** The buffer size division ratios for GPU instance data usage */
-  bufferSizeDivisionRatiosForGPUInstanceDataUsage,
-};
+  bufferSizeDivisionRatiosForGPUInstanceDataUsage = [1 / 32, 5 / 32, 6 / 32, 12 / 32];
 
-export function setUpAsMemoryBoostMode() {
-  Config.bufferSizeDivisionRatiosForGPUInstanceDataUsage = [1 / 4, 1 / 4, 1 / 4, 1 / 4];
-  Config.skeletalComponentCountPerBufferView = 100;
-  Config.scenegraphComponentCountPerBufferView = 1000;
-  Config.materialCountPerBufferView = 1000;
+  public setUpAsMemoryBoostMode() {
+    this.bufferSizeDivisionRatiosForGPUInstanceDataUsage = [1 / 4, 1 / 4, 1 / 4, 1 / 4];
+    this.skeletalComponentCountPerBufferView = 100;
+    this.scenegraphComponentCountPerBufferView = 1000;
+    this.materialCountPerBufferView = 1000;
+  }
 }

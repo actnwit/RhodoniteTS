@@ -1211,7 +1211,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    * and can store larger amounts of uniform data compared to individual uniforms.
    */
   private __isUboUse() {
-    return this.__engine.webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 && Config.isUboEnabled;
+    return (
+      this.__engine.webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 && this.__engine.config.isUboEnabled
+    );
   }
 
   /**

@@ -97,7 +97,7 @@ export class PhysicsComponent extends Component {
    * Called during the logic processing stage to update individual physics entities.
    */
   $logic() {
-    this.__strategy?.update();
+    this.__strategy?.update(this.__engine.config);
   }
 
   /**

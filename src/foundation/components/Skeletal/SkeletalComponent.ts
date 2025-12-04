@@ -290,17 +290,19 @@ export class SkeletalComponent extends Component {
     this.__updateSkinCacheKey();
     this.__resetBoneDataBuffers();
 
-    if (Config.boneDataType === BoneDataType.Vec4x1) {
+    if (this.__engine.config.boneDataType === BoneDataType.Vec4x1) {
       this.__qtsInfo = this.__engine.globalDataRepository.getValue('boneCompressedInfo', 0);
     }
 
     const jointCount =
-      Config.skeletalComponentCountPerBufferView === 1 ? joints.length : Config.maxBoneNumberForMemoryBoostMode;
+      this.__engine.config.skeletalComponentCountPerBufferView === 1
+        ? joints.length
+        : this.__engine.config.maxBoneNumberForMemoryBoostMode;
     this.__registerBoneDataMembers(jointCount);
 
     // Check if this component is being reused to determine allocation strategy
     const isComponentReused = this.__isReUse;
-    this.submitToAllocation(Config.skeletalComponentCountPerBufferView, isComponentReused);
+    this.submitToAllocation(this.__engine.config.skeletalComponentCountPerBufferView, isComponentReused);
   }
 
   /**
@@ -601,11 +603,14 @@ export class SkeletalComponent extends Component {
 
       this.__isWorldMatrixVanilla = false;
 
-      if (Config.boneDataType === BoneDataType.Mat43x1 || Config.boneDataType === BoneDataType.Vec4x1) {
+      if (
+        this.__engine.config.boneDataType === BoneDataType.Mat43x1 ||
+        this.__engine.config.boneDataType === BoneDataType.Vec4x1
+      ) {
         this.__copyToMatArray(m, i);
       }
 
-      if (Config.boneDataType !== BoneDataType.Mat43x1) {
+      if (this.__engine.config.boneDataType !== BoneDataType.Mat43x1) {
         const scaleVec = SkeletalComponent.__tmpVec3_0.setComponents(
           Math.hypot(m._v[0], m._v[1], m._v[2]),
           Math.hypot(m._v[4], m._v[5], m._v[6]),
@@ -624,7 +629,10 @@ export class SkeletalComponent extends Component {
 
         const q = SkeletalComponent.__tmp_q.fromMatrix(m);
 
-        if (Config.boneDataType === BoneDataType.Vec4x2Old || Config.boneDataType === BoneDataType.Vec4x1) {
+        if (
+          this.__engine.config.boneDataType === BoneDataType.Vec4x2Old ||
+          this.__engine.config.boneDataType === BoneDataType.Vec4x1
+        ) {
           let maxScale = 1;
           if (Math.abs(scaleVec.x) > Math.abs(scaleVec.y)) {
             if (Math.abs(scaleVec.x) > Math.abs(scaleVec.z)) {
@@ -642,7 +650,7 @@ export class SkeletalComponent extends Component {
           this._boneTranslateScale.setAt(i * 4 + 3, maxScale);
         }
 
-        if (Config.boneDataType === BoneDataType.Vec4x2) {
+        if (this.__engine.config.boneDataType === BoneDataType.Vec4x2) {
           const vec2QPacked = MathUtil.packNormalizedVec4ToVec2(q.x, q.y, q.z, q.w, 2 ** 12);
           this._boneTranslatePackedQuat.setAt(i * 4 + 0, m.m03);
           this._boneTranslatePackedQuat.setAt(i * 4 + 1, m.m13);
@@ -652,7 +660,7 @@ export class SkeletalComponent extends Component {
           this._boneScalePackedQuat.setAt(i * 4 + 2, scaleVec.z);
           this._boneTranslatePackedQuat.setAt(i * 4 + 3, vec2QPacked[0]);
           this._boneScalePackedQuat.setAt(i * 4 + 3, vec2QPacked[1]);
-        } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
+        } else if (this.__engine.config.boneDataType === BoneDataType.Vec4x2Old) {
           this._boneTranslateScale.setAt(i * 4 + 0, m.m03); // m.getTranslate().x
           this._boneTranslateScale.setAt(i * 4 + 1, m.m13); // m.getTranslate().y
           this._boneTranslateScale.setAt(i * 4 + 2, m.m23); // m.getTranslate().z
@@ -662,7 +670,7 @@ export class SkeletalComponent extends Component {
           this._boneQuaternion.setAt(i * 4 + 3, q.w);
         }
 
-        if (Config.boneDataType === BoneDataType.Vec4x1) {
+        if (this.__engine.config.boneDataType === BoneDataType.Vec4x1) {
           // pack quaternion
           this._boneTranslateScale.setAt(i * 4 + 0, m.m03); // m.getTranslate().x
           this._boneTranslateScale.setAt(i * 4 + 1, m.m13); // m.getTranslate().y
@@ -675,7 +683,7 @@ export class SkeletalComponent extends Component {
       }
     }
 
-    if (Config.boneDataType === BoneDataType.Vec4x1) {
+    if (this.__engine.config.boneDataType === BoneDataType.Vec4x1) {
       // const maxScale = Math.max(...scales);
       let maxAbsX = 1;
       let maxAbsY = 1;
@@ -913,7 +921,7 @@ export class SkeletalComponent extends Component {
   }
 
   private __registerBoneDataMembers(arrayLength: number) {
-    const boneDataType = Config.boneDataType;
+    const boneDataType = this.__engine.config.boneDataType;
 
     if (boneDataType === BoneDataType.Mat43x1 || boneDataType === BoneDataType.Vec4x1) {
       SkeletalComponent.registerMember({
@@ -1146,24 +1154,24 @@ export class SkeletalComponent extends Component {
     this.__isWorldMatrixVanilla = cache.isWorldMatrixVanilla;
     this.__jointMatrix._v.set(cache.jointMatrix);
     const jointCount = this.__joints.length;
-    if (Config.boneDataType === BoneDataType.Mat43x1) {
+    if (this.__engine.config.boneDataType === BoneDataType.Mat43x1) {
       const dataCount = jointCount * 12;
       this._boneMatrix._v.set(cache.boneMatrix!.subarray(0, dataCount));
       return;
     }
-    if (Config.boneDataType === BoneDataType.Vec4x2) {
+    if (this.__engine.config.boneDataType === BoneDataType.Vec4x2) {
       const dataCount = jointCount * 4;
       this._boneTranslatePackedQuat._v.set(cache.boneTranslatePackedQuat!.subarray(0, dataCount));
       this._boneScalePackedQuat._v.set(cache.boneScalePackedQuat!.subarray(0, dataCount));
       return;
     }
-    if (Config.boneDataType === BoneDataType.Vec4x2Old) {
+    if (this.__engine.config.boneDataType === BoneDataType.Vec4x2Old) {
       const dataCount = jointCount * 4;
       this._boneQuaternion._v.set(cache.boneQuaternion!.subarray(0, dataCount));
       this._boneTranslateScale._v.set(cache.boneTranslateScale!.subarray(0, dataCount));
       return;
     }
-    if (Config.boneDataType === BoneDataType.Vec4x1) {
+    if (this.__engine.config.boneDataType === BoneDataType.Vec4x1) {
       const dataCount = jointCount * 4;
       this._boneTranslateScale._v.set(cache.boneTranslateScale!.subarray(0, dataCount));
       this._boneCompressedChunk._v.set(cache.boneCompressedChunk!.subarray(0, dataCount));

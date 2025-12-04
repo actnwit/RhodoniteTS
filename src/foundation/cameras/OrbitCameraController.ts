@@ -1,7 +1,7 @@
 import type { Count, Size } from '../../types/CommonTypes';
 import type { CameraComponent } from '../components/Camera/CameraComponent';
 import type { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
-import { Config } from '../core/Config';
+import type { Config } from '../core/Config';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { AABB } from '../math/AABB';
 import { MathUtil } from '../math/MathUtil';
@@ -113,9 +113,9 @@ export class OrbitCameraController extends AbstractCameraController implements I
 
   private __cameraControllerComponent: CameraControllerComponent;
 
-  constructor(cameraControllerComponent: CameraControllerComponent) {
+  constructor(cameraControllerComponent: CameraControllerComponent, config: Config) {
     super();
-    this.registerEventListeners();
+    this.registerEventListeners(config);
     this.__cameraControllerComponent = cameraControllerComponent;
   }
 
@@ -668,10 +668,10 @@ export class OrbitCameraController extends AbstractCameraController implements I
   /**
    * Registers event listeners for mouse, touch, and keyboard events.
    */
-  registerEventListeners() {
+  registerEventListeners(config: Config) {
     let eventTargetDom = window;
-    if (Is.exist(Config.eventTargetDom)) {
-      eventTargetDom = Config.eventTargetDom;
+    if (Is.exist(config.eventTargetDom)) {
+      eventTargetDom = config.eventTargetDom;
     }
 
     if ('ontouchend' in document) {

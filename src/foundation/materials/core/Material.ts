@@ -438,7 +438,7 @@ export class Material extends RnObject {
     }
 
     const shaderProgramUid = this._shaderProgramUidMap.get(primitive._getFingerPrint());
-    webglResourceRepository.setupUniformLocations(shaderProgramUid!, array, isUniformOnlyMode);
+    webglResourceRepository.setupUniformLocations(this.__engine.config, shaderProgramUid!, array, isUniformOnlyMode);
   }
 
   /**
@@ -602,7 +602,12 @@ export class Material extends RnObject {
     const webglResourceRepository = this.__engine.webglResourceRepository;
     const primitiveFingerPrint = primitive._getFingerPrint();
     const shaderProgramUid = this._shaderProgramUidMap.get(primitiveFingerPrint);
-    webglResourceRepository.setupUniformLocations(shaderProgramUid!, shaderSemantics, isUniformOnlyMode);
+    webglResourceRepository.setupUniformLocations(
+      this.__engine.config,
+      shaderProgramUid!,
+      shaderSemantics,
+      isUniformOnlyMode
+    );
   }
 
   /**

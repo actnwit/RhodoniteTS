@@ -74,7 +74,7 @@ export class LightComponent extends Component {
   ) {
     super(engine, entityUid, componentSid, entityRepository, isReUse);
 
-    this.submitToAllocation(Config.lightComponentCountPerBufferView, isReUse);
+    this.submitToAllocation(engine.config.lightComponentCountPerBufferView, isReUse);
   }
 
   /**

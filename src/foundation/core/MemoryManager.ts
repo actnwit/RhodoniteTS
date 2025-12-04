@@ -17,7 +17,7 @@ export class MemoryManager {
   private __buffers: Map<BufferUseEnum, Map<IndexOfBufferLayer, Buffer>> = new Map();
   private __countOfTheBufferUsageMap: Map<BufferUseEnum, Count> = new Map();
   private __maxGPUDataStorageSize: Byte = 0;
-  private __bufferSizeDivisionRatiosForGPUInstanceDataUsage = Config.bufferSizeDivisionRatiosForGPUInstanceDataUsage;
+  private __bufferSizeDivisionRatiosForGPUInstanceDataUsage;
   // private __bufferSizeDivisionRatiosForGPUInstanceDataUsage = [
   //   1 / 8192,
   //   1 / 4096,
@@ -41,6 +41,8 @@ export class MemoryManager {
    */
   private constructor(engine: Engine, maxGPUDataStorageSize: Byte) {
     this.__engine = engine;
+    this.__bufferSizeDivisionRatiosForGPUInstanceDataUsage =
+      engine.config.bufferSizeDivisionRatiosForGPUInstanceDataUsage;
     this.__maxGPUDataStorageSize = maxGPUDataStorageSize;
   }
 

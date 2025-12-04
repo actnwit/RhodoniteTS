@@ -277,12 +277,12 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
 
       if (firstTime) {
         // Lights
-        this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
+        this.setLightsInfo(engine.config, shaderProgram, args.lightComponents, material, args.setUniform);
       }
 
       /// Skinning
       const skeletalComponent = args.entity.tryToGetSkeletal();
-      this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
+      this.setSkinning(engine.config, shaderProgram, args.setUniform, skeletalComponent);
     }
 
     const webglResourceRepository = engine.webglResourceRepository;

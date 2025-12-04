@@ -1,7 +1,8 @@
+import type { Config } from '../core/Config';
 import type { VRMSpring } from './VRMSpring/VRMSpring';
 
 export interface PhysicsStrategy {
-  update(): void;
+  update(config: Config): void;
 
   /**
    * Sets the visibility of all colliders in this physics strategy.

@@ -124,8 +124,8 @@ export class ScaleGizmo extends Gizmo {
   set isVisible(flg: boolean) {
     if (this.__isVisible === false && flg === true) {
       let eventTargetDom = window;
-      if (Is.exist(Config.eventTargetDom)) {
-        eventTargetDom = Config.eventTargetDom;
+      if (Is.exist(this.__engine.config.eventTargetDom)) {
+        eventTargetDom = this.__engine.config.eventTargetDom;
       }
       InputManager.register(INPUT_HANDLING_STATE_GIZMO_SCALE, [
         {

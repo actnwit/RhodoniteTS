@@ -1,4 +1,4 @@
-import { Config } from '../foundation/core/Config';
+import type { Config } from '../foundation/core/Config';
 import type { RenderBufferTargetEnum } from '../foundation/definitions/RenderBufferTarget';
 import { Vector4 } from '../foundation/math/Vector4';
 import { Logger } from '../foundation/misc/Logger';
@@ -113,10 +113,11 @@ export class WebGLContextWrapper {
 
   /**
    * Creates a new WebGLContextWrapper instance.
+   * @param config - The configuration for the WebGL context
    * @param gl - The WebGL2 rendering context to wrap
    * @param canvas - The HTML canvas element associated with the context
    */
-  constructor(gl: WebGL2RenderingContext, canvas: HTMLCanvasElement) {
+  constructor(config: Config, gl: WebGL2RenderingContext, canvas: HTMLCanvasElement) {
     this.__gl = gl;
     this.width = canvas.width;
     this.height = canvas.height;
@@ -128,35 +129,35 @@ export class WebGLContextWrapper {
 
     if (this.__gl.constructor.name === 'WebGL2RenderingContext') {
       this.__webglVersion = 2;
-      this.webgl2ExtTFL = this.__getExtension(WebGLExtension.TextureFloatLinear);
-      this.webgl2ExtTHFL = this.__getExtension(WebGLExtension.TextureHalfFloatLinear);
-      this.webgl2ExtTFA = this.__getExtension(WebGLExtension.TextureFilterAnisotropic);
-      this.webgl2ExtCBF = this.__getExtension(WebGLExtension.ColorBufferFloatWebGL2);
-      this.webgl2ExtCBHF = this.__getExtension(WebGLExtension.ColorBufferHalfFloatWebGL2);
-      this.webgl2ExtCTAstc = this.__getCompressedTextureExtension(WebGLExtension.CompressedTextureAstc);
-      this.webgl2ExtCTS3tc = this.__getCompressedTextureExtension(WebGLExtension.CompressedTextureS3tc);
-      this.webgl2ExtCTPvrtc = this.__getCompressedTextureExtension(WebGLExtension.CompressedTexturePvrtc);
-      this.webgl2ExtCTAtc = this.__getCompressedTextureExtension(WebGLExtension.CompressedTextureAtc);
-      this.webgl2ExtCTEtc = this.__getCompressedTextureExtension(WebGLExtension.CompressedTextureEtc);
-      this.webgl2ExtCTEtc1 = this.__getCompressedTextureExtension(WebGLExtension.CompressedTextureEtc1);
-      this.webgl2ExtCTBptc = this.__getCompressedTextureExtension(WebGLExtension.CompressedTextureBptc);
-      this.webgl2ExtMLTVIEW = this.__getExtension(WebGLExtension.OculusMultiview);
+      this.webgl2ExtTFL = this.__getExtension(config, WebGLExtension.TextureFloatLinear);
+      this.webgl2ExtTHFL = this.__getExtension(config, WebGLExtension.TextureHalfFloatLinear);
+      this.webgl2ExtTFA = this.__getExtension(config, WebGLExtension.TextureFilterAnisotropic);
+      this.webgl2ExtCBF = this.__getExtension(config, WebGLExtension.ColorBufferFloatWebGL2);
+      this.webgl2ExtCBHF = this.__getExtension(config, WebGLExtension.ColorBufferHalfFloatWebGL2);
+      this.webgl2ExtCTAstc = this.__getCompressedTextureExtension(config, WebGLExtension.CompressedTextureAstc);
+      this.webgl2ExtCTS3tc = this.__getCompressedTextureExtension(config, WebGLExtension.CompressedTextureS3tc);
+      this.webgl2ExtCTPvrtc = this.__getCompressedTextureExtension(config, WebGLExtension.CompressedTexturePvrtc);
+      this.webgl2ExtCTAtc = this.__getCompressedTextureExtension(config, WebGLExtension.CompressedTextureAtc);
+      this.webgl2ExtCTEtc = this.__getCompressedTextureExtension(config, WebGLExtension.CompressedTextureEtc);
+      this.webgl2ExtCTEtc1 = this.__getCompressedTextureExtension(config, WebGLExtension.CompressedTextureEtc1);
+      this.webgl2ExtCTBptc = this.__getCompressedTextureExtension(config, WebGLExtension.CompressedTextureBptc);
+      this.webgl2ExtMLTVIEW = this.__getExtension(config, WebGLExtension.OculusMultiview);
       if (this.webgl2ExtMLTVIEW) {
         this.webgl2ExtMLTVIEW.is_multisample = true;
       } else {
-        this.webgl2ExtMLTVIEW = this.__getExtension(WebGLExtension.OvrMultiview2);
+        this.webgl2ExtMLTVIEW = this.__getExtension(config, WebGLExtension.OvrMultiview2);
         if (this.webgl2ExtMLTVIEW) {
           this.webgl2ExtMLTVIEW.is_multisample = false;
         } else {
-          if (Config.cgApiDebugConsoleOutput) {
+          if (config.cgApiDebugConsoleOutput) {
             Logger.info('OCULUS_multiview and OVR_multiview2 extensions are not supported');
           }
           this.__is_multiview = false;
         }
       }
-      this.webgl2ExtClipCtrl = this.__getExtension(WebGLExtension.ClipControl);
-      if (Config.cgApiDebugConsoleOutput) {
-        this.webgl2ExtGmanWM = this.__getExtension(WebGLExtension.GMAN_WEBGL_MEMORY);
+      this.webgl2ExtClipCtrl = this.__getExtension(config, WebGLExtension.ClipControl);
+      if (config.cgApiDebugConsoleOutput) {
+        this.webgl2ExtGmanWM = this.__getExtension(config, WebGLExtension.GMAN_WEBGL_MEMORY);
       }
     }
     this.__getUniformBufferInfo();
@@ -219,8 +220,8 @@ export class WebGLContextWrapper {
    * @param webGLExtension - The WebGL extension to check
    * @returns True if the extension is supported, false otherwise
    */
-  isSupportWebGL1Extension(webGLExtension: WebGLExtensionEnum) {
-    if (this.__getExtension(webGLExtension)) {
+  isSupportWebGL1Extension(config: Config, webGLExtension: WebGLExtensionEnum) {
+    if (this.__getExtension(config, webGLExtension)) {
       return true;
     }
     return false;
@@ -231,8 +232,8 @@ export class WebGLContextWrapper {
    * @param webGLExtension - The WebGL extension to check
    * @returns True if the extension is not supported, false otherwise
    */
-  isNotSupportWebGL1Extension(webGLExtension: WebGLExtensionEnum) {
-    return !this.isSupportWebGL1Extension(webGLExtension);
+  isNotSupportWebGL1Extension(config: Config, webGLExtension: WebGLExtensionEnum) {
+    return !this.isSupportWebGL1Extension(config, webGLExtension);
   }
 
   /**
@@ -496,15 +497,16 @@ export class WebGLContextWrapper {
 
   /**
    * Gets a WebGL extension and caches it for future use.
+   * @param config - The configuration for the WebGL context
    * @param extension - The extension to retrieve
    * @returns The extension object or null if not available
    */
-  private __getExtension(extension: WebGLExtensionEnum) {
+  private __getExtension(config: Config, extension: WebGLExtensionEnum) {
     const gl: any = this.__gl;
 
     if (!this.__extensions.has(extension)) {
       const extObj = gl.getExtension(extension.toString());
-      if (extObj == null && Config.cgApiDebugConsoleOutput) {
+      if (extObj == null && config.cgApiDebugConsoleOutput) {
         const text = `${extension.toString()} Not Available in this environment`;
         Logger.info(text);
       }
@@ -519,7 +521,7 @@ export class WebGLContextWrapper {
    * @param extension - The compressed texture extension to retrieve
    * @returns The extension object or null if not available
    */
-  private __getCompressedTextureExtension(extension: WebGLExtensionEnum) {
+  private __getCompressedTextureExtension(config: Config, extension: WebGLExtensionEnum) {
     const gl = this.__gl as WebGLRenderingContext | WebGL2RenderingContext;
 
     if (!this.__extensions.has(extension)) {
@@ -529,7 +531,7 @@ export class WebGLContextWrapper {
         gl.getExtension(`MOZ_${extensionName}`) ??
         gl.getExtension(`WEBKIT_${extensionName}`);
 
-      if (extObj == null && Config.cgApiDebugConsoleOutput) {
+      if (extObj == null && config.cgApiDebugConsoleOutput) {
         const text = `${extension.toString()} Not Available in this environment`;
         Logger.info(text);
       } else {
@@ -677,7 +679,7 @@ export class WebGLContextWrapper {
    * Checks if multiview rendering is supported and enabled.
    * @returns True if multiview is available and enabled for WebVR
    */
-  isMultiview() {
-    return this.__is_multiview && Config.multiViewForWebVR;
+  isMultiview(config: Config) {
+    return this.__is_multiview && config.multiViewForWebVR;
   }
 }

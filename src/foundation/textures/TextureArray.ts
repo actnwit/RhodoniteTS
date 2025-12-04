@@ -96,7 +96,7 @@ export class TextureArray extends AbstractTexture implements Disposable {
     const resourceUid = cgApiResourceRepository.createTextureArray(
       1,
       1,
-      Config.maxLightNumber,
+      this.__engine.config.maxLightNumber,
       1,
       TextureFormat.RGBA8,
       PixelFormat.RGBA,
@@ -108,7 +108,7 @@ export class TextureArray extends AbstractTexture implements Disposable {
     if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2dArray(
         this._textureResourceUid,
-        Config.maxLightNumber
+        this.__engine.config.maxLightNumber
       );
     }
 

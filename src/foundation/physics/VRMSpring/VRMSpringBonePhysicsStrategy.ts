@@ -1,5 +1,5 @@
 import type { SceneGraphComponent } from '../../components/SceneGraph/SceneGraphComponent';
-import { Config } from '../../core/Config';
+import type { Config } from '../../core/Config';
 import type { IVector3 } from '../../math/IVector';
 import { Matrix44 } from '../../math/Matrix44';
 import { MutableQuaternion } from '../../math/MutableQuaternion';
@@ -83,10 +83,10 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
    * This method is called once per frame and triggers the physics update
    * for all spring bones in the associated VRM spring system.
    */
-  update() {
+  update(config: Config) {
     const spring = this.__spring;
     if (Is.exist(spring)) {
-      this.updateInner(spring.bones, spring);
+      this.updateInner(config, spring.bones, spring);
     }
   }
 
@@ -96,7 +96,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
    * @param bones - Array of VRM spring bones to update
    * @param spring - The VRM spring system containing configuration and colliders
    */
-  updateInner(bones: VRMSpringBone[], spring: VRMSpring) {
+  updateInner(config: Config, bones: VRMSpringBone[], spring: VRMSpring) {
     const center = spring.center;
 
     const collisionGroups = spring.colliderGroups;
@@ -117,7 +117,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
     for (const bone of bones) {
       // update VRMSpringBone
-      this.process(collisionGroups, bone, center);
+      this.process(config, collisionGroups, bone, center);
     }
   }
 
@@ -132,15 +132,16 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
    * 5. Handles collision detection and response
    * 6. Updates bone position and rotation
    *
+   * @param config - The configuration for the physics simulation
    * @param collisionGroups - Array of collision groups for collision detection
    * @param bone - The spring bone to process
    * @param center - Optional center transform for coordinate space conversion
    */
-  process(collisionGroups: VRMColliderGroup[], bone: VRMSpringBone, center?: SceneGraphComponent) {
+  process(config: Config, collisionGroups: VRMColliderGroup[], bone: VRMSpringBone, center?: SceneGraphComponent) {
     bone._calcWorldSpaceBoneLength();
 
     const dragForce = bone.dragForce;
-    const stiffnessForce = bone.stiffnessForce * Time.intervalProcessBegin * Config.physicsTimeIntervalScale;
+    const stiffnessForce = bone.stiffnessForce * Time.intervalProcessBegin * config.physicsTimeIntervalScale;
 
     // Continues the previous frame's movement (there is also attenuation)
     let inertia = MutableVector3.multiplyTo(
@@ -176,7 +177,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
         VRMSpringBonePhysicsStrategy.__tmp_process_vec3_7
       ),
       bone.gravityDir,
-      bone.gravityPower * Time.intervalProcessBegin * Config.physicsTimeIntervalScale,
+      bone.gravityPower * Time.intervalProcessBegin * config.physicsTimeIntervalScale,
       VRMSpringBonePhysicsStrategy.__tmp_process_vec3_8
     ) as IVector3;
 

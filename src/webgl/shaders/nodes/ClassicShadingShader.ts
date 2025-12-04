@@ -69,7 +69,7 @@ export class ClassicShadingShader extends CommonShaderPart {
    *
    * @returns GLSL code string containing shader definitions and the classicShading function
    */
-  getPixelShaderDefinitions(_engine: Engine) {
+  getPixelShaderDefinitions(engine: Engine) {
     return `
 uniform int u_shadingModel;
 uniform float u_shininess;
@@ -79,7 +79,7 @@ struct Light {
   vec4 lightDirection;
   vec4 lightIntensity;
 };
-uniform Light u_lights[${Config.maxLightNumber}];
+uniform Light u_lights[${engine.config.maxLightNumber}];
 uniform int u_lightNumber;
 uniform vec3 u_viewPosition;
 
@@ -97,7 +97,7 @@ bool classicShading(
 
     vec3 diffuse = vec3(0.0, 0.0, 0.0);
     vec3 specular = vec3(0.0, 0.0, 0.0);
-    for (int i = 0; i < ${Config.maxLightNumber}; i++) {
+    for (int i = 0; i < ${engine.config.maxLightNumber}; i++) {
       if (i >= u_lightNumber) {
         break;
       }

@@ -77,7 +77,7 @@ export class GlobalDataRepository {
     this.takeOne('currentComponentSIDs');
 
     // Skinning
-    if (Config.boneDataType === BoneDataType.Vec4x1) {
+    if (this.__engine.config.boneDataType === BoneDataType.Vec4x1) {
       const boneCompressedInfoInfo = {
         semantic: 'boneCompressedInfo',
         compositionType: CompositionType.Vec4,
@@ -293,7 +293,7 @@ export class GlobalDataRepository {
       semanticsInfoArray.push(semanticInfo);
     });
 
-    webglResourceRepository.setupUniformLocations(shaderProgramUid, semanticsInfoArray, true);
+    webglResourceRepository.setupUniformLocations(this.__engine.config, shaderProgramUid, semanticsInfoArray, true);
   }
 
   /**
@@ -313,7 +313,7 @@ export class GlobalDataRepository {
       }
     });
 
-    webglResourceRepository.setupUniformLocations(shaderProgramUid, semanticsInfoArray, true);
+    webglResourceRepository.setupUniformLocations(this.__engine.config, shaderProgramUid, semanticsInfoArray, true);
   }
 
   // getLocationOffsetOfProperty(propertyIndex: Index, countIndex: Index) {
