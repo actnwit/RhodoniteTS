@@ -363,7 +363,11 @@ export function _setupGlobalShaderDefinitionWebGL(engine: Engine, materialTypeNa
   }
 
   const webXRSystem = engine.webXRSystem;
-  if (Is.exist(webXRSystem) && webXRSystem.isWebXRMode && webglResourceRepository.isSupportMultiViewVRRendering(engine)) {
+  if (
+    Is.exist(webXRSystem) &&
+    webXRSystem.isWebXRMode &&
+    webglResourceRepository.isSupportMultiViewVRRendering(engine)
+  ) {
     definitions += '#define WEBGL2_MULTI_VIEW\n';
   }
 
