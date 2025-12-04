@@ -11,7 +11,13 @@ jobs:
       - run: git submodule update -i
       - uses: pnpm/action-setup@v2
         with:
-          version: 9
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+      - name: Install safe-chain
+        run: curl -fsSL https://raw.githubusercontent.com/AikidoSec/safe-chain/main/install-scripts/install-safe-chain.sh | sh -s -- --ci
       - run: pnpm install
       - run: pnpm run build
       - uses: actions/upload-artifact@v4
