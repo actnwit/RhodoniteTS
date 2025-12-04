@@ -556,6 +556,7 @@ export class Material extends RnObject {
     onError?: (message: string) => void
   ): [CGAPIResourceHandle, boolean] {
     const [programUid, newOne] = _createProgramAsSingleOperationByUpdatedSources(
+      this.__engine,
       this,
       primitive,
       this._materialContent,

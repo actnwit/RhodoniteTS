@@ -32,7 +32,7 @@ import { wireframeWgsl } from '../../../webgpu/shaderity_shaders/common/wirefram
 import type { RnXR } from '../../../xr/main';
 import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
 import { Component } from '../../core/Component';
-import { Config } from '../../core/Config';
+import type { Config } from '../../core/Config';
 import { BoneDataType } from '../../definitions/BoneDataType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type {
@@ -125,6 +125,7 @@ function __removeCommentsFromShader(shader: string) {
  * This function is used when shader sources have already been updated
  * and processed through the shader compilation pipeline.
  *
+ * @param engine - The engine instance
  * @param material - The material that will use this shader program
  * @param primitive - The geometric primitive that defines vertex attributes
  * @param materialNode - The material content node containing shader objects
@@ -133,6 +134,7 @@ function __removeCommentsFromShader(shader: string) {
  * @returns A tuple containing the shader program handle and a boolean indicating if it's newly created
  */
 export function _createProgramAsSingleOperationByUpdatedSources(
+  engine: Engine,
   material: Material,
   primitive: Primitive,
   materialNode: AbstractMaterialContent,
@@ -142,6 +144,7 @@ export function _createProgramAsSingleOperationByUpdatedSources(
   const { attributeNames, attributeSemantics } = _getAttributeInfo(materialNode.vertexShaderityObject!);
 
   const [shaderProgramUid, newOne] = ShaderHandler._createShaderProgramWithCache(
+    engine,
     material,
     primitive,
     updatedShaderSources.vertex,
@@ -285,7 +288,7 @@ export function _createProgramAsSingleOperationWebGL(
       mainPrerequisites: mainPrerequisitesGlsl.code,
       matricesGetters: componentDataAccessMethodDefinitionsForVertexShader + morphedPositionGetter,
       processGeometry: processGeometryGlsl.code,
-      Config,
+      Config: engine.config,
     }
   );
 
@@ -309,7 +312,7 @@ export function _createProgramAsSingleOperationWebGL(
       alphaProcess: alphaProcessGlsl.code,
       outputSrgb: outputSrgbGlsl.code,
       wireframe: wireframeGlsl.code,
-      Config,
+      Config: engine.config,
     }
   );
 
@@ -353,7 +356,7 @@ export function _setupGlobalShaderDefinitionWebGL(engine: Engine, materialTypeNa
   const glw = webglResourceRepository.currentWebGLContextWrapper as WebGLContextWrapper;
   if (glw.isWebGL2) {
     definitions += '#version 300 es\n#define GLSL_ES3\n';
-    if (Config.isUboEnabled) {
+    if (engine.config.isUboEnabled) {
       definitions += '#define RN_IS_UBO_ENABLED\n';
     }
   }
@@ -380,13 +383,13 @@ export function _setupGlobalShaderDefinitionWebGL(engine: Engine, materialTypeNa
   if (glw.isWebGL2 || glw.webgl1ExtDRV) {
     definitions += '#define RN_IS_SUPPORTING_STANDARD_DERIVATIVES\n';
   }
-  if (Config.boneDataType === BoneDataType.Mat43x1) {
+  if (engine.config.boneDataType === BoneDataType.Mat43x1) {
     definitions += '#define RN_BONE_DATA_TYPE_Mat43x1\n';
-  } else if (Config.boneDataType === BoneDataType.Vec4x2) {
+  } else if (engine.config.boneDataType === BoneDataType.Vec4x2) {
     definitions += '#define RN_BONE_DATA_TYPE_VEC4X2\n';
-  } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
+  } else if (engine.config.boneDataType === BoneDataType.Vec4x2Old) {
     definitions += '#define RN_BONE_DATA_TYPE_VEC4X2_OLD\n';
-  } else if (Config.boneDataType === BoneDataType.Vec4x1) {
+  } else if (engine.config.boneDataType === BoneDataType.Vec4x1) {
     definitions += '#define RN_BONE_DATA_TYPE_VEC4X1\n';
   }
 
@@ -461,13 +464,13 @@ export function _createProgramAsSingleOperationWebGpu(
     propertySetterOfMaterial
   );
 
-  if (Config.boneDataType === BoneDataType.Mat43x1) {
+  if (engine.config.boneDataType === BoneDataType.Mat43x1) {
     definitions += '#define RN_BONE_DATA_TYPE_Mat43x1\n';
-  } else if (Config.boneDataType === BoneDataType.Vec4x2) {
+  } else if (engine.config.boneDataType === BoneDataType.Vec4x2) {
     definitions += '#define RN_BONE_DATA_TYPE_VEC4X2\n';
-  } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
+  } else if (engine.config.boneDataType === BoneDataType.Vec4x2Old) {
     definitions += '#define RN_BONE_DATA_TYPE_VEC4X2_OLD\n';
-  } else if (Config.boneDataType === BoneDataType.Vec4x1) {
+  } else if (engine.config.boneDataType === BoneDataType.Vec4x1) {
     definitions += '#define RN_BONE_DATA_TYPE_VEC4X1\n';
   }
 
@@ -486,7 +489,7 @@ export function _createProgramAsSingleOperationWebGpu(
       definitions: `// RN_IS_VERTEX_SHADER\n#define RN_IS_VERTEX_SHADER\n${definitions}`,
       matricesGetters: componentDataAccessMethodDefinitionsForVertexShader + morphedPositionGetter,
       processGeometry: processGeometryWgsl.code,
-      Config,
+      Config: engine.config,
     }
   );
 
@@ -508,7 +511,7 @@ export function _createProgramAsSingleOperationWebGpu(
       alphaProcess: alphaProcessWgsl.code,
       outputSrgb: outputSrgbWgsl.code,
       wireframe: wireframeWgsl.code,
-      Config,
+      Config: engine.config,
     }
   );
 

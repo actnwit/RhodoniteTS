@@ -3,7 +3,27 @@
  */
 
 /* eslint-disable prefer-const */
-import { BoneDataType } from '../definitions/BoneDataType';
+import { BoneDataType, type BoneDataTypeEnum } from '../definitions/BoneDataType';
+
+type ConfigInitDescription = {
+  scenegraphComponentCountPerBufferView?: number;
+  skeletalComponentCountPerBufferView?: number;
+  cameraComponentCountPerBufferView?: number;
+  lightComponentCountPerBufferView?: number;
+  maxLightNumber?: number;
+  maxBoneNumberForMemoryBoostMode?: number;
+  materialCountPerBufferView?: number;
+  boneDataType?: BoneDataTypeEnum;
+  maxSkeletalBoneNumberForUniformMode?: number;
+  isUboEnabled?: boolean;
+  eventTargetDom?: HTMLElement;
+  cacheWebGpuRenderBundles?: boolean;
+  cgApiDebugConsoleOutput?: boolean;
+  multiViewForWebVR?: boolean;
+  physicsTimeIntervalScale?: number;
+  isMobile?: boolean;
+  bufferSizeDivisionRatiosForGPUInstanceDataUsage?: number[];
+};
 
 /**
  * Config is a configuration class that contains the configuration for the library.
@@ -48,10 +68,80 @@ export class Config {
   /** The buffer size division ratios for GPU instance data usage */
   bufferSizeDivisionRatiosForGPUInstanceDataUsage = [1 / 32, 5 / 32, 6 / 32, 12 / 32];
 
+  constructor(initDescription: ConfigInitDescription = {}) {
+    if (initDescription.scenegraphComponentCountPerBufferView !== undefined) {
+      this.scenegraphComponentCountPerBufferView = initDescription.scenegraphComponentCountPerBufferView;
+    }
+    if (initDescription.skeletalComponentCountPerBufferView !== undefined) {
+      this.skeletalComponentCountPerBufferView = initDescription.skeletalComponentCountPerBufferView;
+    }
+    if (initDescription.cameraComponentCountPerBufferView !== undefined) {
+      this.cameraComponentCountPerBufferView = initDescription.cameraComponentCountPerBufferView;
+    }
+    if (initDescription.lightComponentCountPerBufferView !== undefined) {
+      this.lightComponentCountPerBufferView = initDescription.lightComponentCountPerBufferView;
+    }
+    if (initDescription.maxLightNumber !== undefined) {
+      this.maxLightNumber = initDescription.maxLightNumber;
+    }
+    if (initDescription.maxBoneNumberForMemoryBoostMode !== undefined) {
+      this.maxBoneNumberForMemoryBoostMode = initDescription.maxBoneNumberForMemoryBoostMode;
+    }
+    if (initDescription.materialCountPerBufferView !== undefined) {
+      this.materialCountPerBufferView = initDescription.materialCountPerBufferView;
+    }
+    if (initDescription.boneDataType !== undefined) {
+      this.boneDataType = initDescription.boneDataType;
+    }
+    if (initDescription.maxSkeletalBoneNumberForUniformMode !== undefined) {
+      this.maxSkeletalBoneNumberForUniformMode = initDescription.maxSkeletalBoneNumberForUniformMode;
+    }
+    if (initDescription.isUboEnabled !== undefined) {
+      this.isUboEnabled = initDescription.isUboEnabled;
+    }
+    if (initDescription.eventTargetDom !== undefined) {
+      this.eventTargetDom = initDescription.eventTargetDom;
+    }
+    if (initDescription.cacheWebGpuRenderBundles !== undefined) {
+      this.cacheWebGpuRenderBundles = initDescription.cacheWebGpuRenderBundles;
+    }
+    if (initDescription.cgApiDebugConsoleOutput !== undefined) {
+      this.cgApiDebugConsoleOutput = initDescription.cgApiDebugConsoleOutput;
+    }
+    if (initDescription.multiViewForWebVR !== undefined) {
+      this.multiViewForWebVR = initDescription.multiViewForWebVR;
+    }
+    if (initDescription.physicsTimeIntervalScale !== undefined) {
+      this.physicsTimeIntervalScale = initDescription.physicsTimeIntervalScale;
+    }
+    if (initDescription.isMobile !== undefined) {
+      this.isMobile = initDescription.isMobile;
+    }
+    if (initDescription.bufferSizeDivisionRatiosForGPUInstanceDataUsage !== undefined) {
+      this.bufferSizeDivisionRatiosForGPUInstanceDataUsage =
+        initDescription.bufferSizeDivisionRatiosForGPUInstanceDataUsage;
+    }
+  }
+
   public setUpAsMemoryBoostMode() {
     this.bufferSizeDivisionRatiosForGPUInstanceDataUsage = [1 / 4, 1 / 4, 1 / 4, 1 / 4];
     this.skeletalComponentCountPerBufferView = 100;
     this.scenegraphComponentCountPerBufferView = 1000;
     this.materialCountPerBufferView = 1000;
   }
+}
+
+/**
+ * Default config instance for backward compatibility.
+ * This instance is used when no config is provided to Engine.init().
+ * Properties can be modified before calling Engine.init().
+ * @deprecated Set config values via Engine.init({config: new Config({...})}) instead.
+ */
+export const DefaultConfig = new Config();
+
+/**
+ * @deprecated Use Config.setUpAsMemoryBoostMode() or pass config to Engine.init() instead.
+ */
+export function setUpAsMemoryBoostMode() {
+  DefaultConfig.setUpAsMemoryBoostMode();
 }
