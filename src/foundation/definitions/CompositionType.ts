@@ -531,7 +531,7 @@ function vectorFrom(componentN: number): CompositionTypeEnum {
       str = 'vec4';
       break;
     default:
-      Logger.error('not found appropriate Vectors');
+      Logger.default.error('not found appropriate Vectors');
   }
   return _fromString({ typeList, str }) as CompositionTypeEnum;
 }

@@ -363,7 +363,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
 
     const length = vec.length();
     if (length === 0) {
-      Logger.error('0 division occurred!');
+      Logger.default.error('0 division occurred!');
     }
 
     this._v[3] = Math.cos(halfAngle);
@@ -512,7 +512,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
       this._v[2] /= value;
       this._v[3] /= value;
     } else {
-      Logger.error('0 division occurred!');
+      Logger.default.error('0 division occurred!');
       this._v[0] = Number.POSITIVE_INFINITY;
       this._v[1] = Number.POSITIVE_INFINITY;
       this._v[2] = Number.POSITIVE_INFINITY;

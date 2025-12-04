@@ -122,7 +122,7 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
 
     const encodedDepthFramebuffer = encodedDepthRenderPass.getFramebuffer();
     if (encodedDepthFramebuffer == null) {
-      Logger.error('encodedDepthRenderPass does not have framebuffer');
+      Logger.default.error('encodedDepthRenderPass does not have framebuffer');
       return;
     }
     const encodedDepthTexture = encodedDepthFramebuffer.colorAttachments[colorAttachmentsNumber];

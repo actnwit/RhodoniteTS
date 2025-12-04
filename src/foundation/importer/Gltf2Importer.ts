@@ -152,7 +152,7 @@ export class Gltf2Importer {
       if (Rn[options.loaderExtensionName] != null) {
         defaultOptions.loaderExtension = Rn[options.loaderExtensionName].getInstance();
       } else {
-        Logger.error(`${options.loaderExtensionName} not found!`);
+        Logger.default.error(`${options.loaderExtensionName} not found!`);
         defaultOptions.loaderExtension = void 0;
       }
     }
@@ -200,7 +200,7 @@ export class Gltf2Importer {
     try {
       await this._loadInner(gltfJson, files, options, uint8array);
     } catch (err) {
-      Logger.info(`this._loadInner error in _loadAsBinaryJson: ${err}`);
+      Logger.default.info(`this._loadInner error in _loadAsBinaryJson: ${err}`);
     }
     return gltfJson;
   }
@@ -239,7 +239,7 @@ export class Gltf2Importer {
     try {
       await this._loadInner(gltfJson, fileArrayBuffers, options, undefined, basePath, callback);
     } catch (err) {
-      Logger.error(`this._loadInner error in _loadAsTextJson: ${err}`);
+      Logger.default.error(`this._loadInner error in _loadAsTextJson: ${err}`);
     }
     return gltfJson;
   }
@@ -907,7 +907,7 @@ export class Gltf2Importer {
           const rnm2BufferView = gltfJson.bufferViews[rnm2Image.bufferView!];
           const bufferInfo = rnm2BufferView.bufferObject;
           if (Is.not.exist(bufferInfo)) {
-            Logger.error('gltf2BufferView.bufferObject not found');
+            Logger.default.error('gltf2BufferView.bufferObject not found');
             continue;
           }
 
@@ -953,7 +953,7 @@ export class Gltf2Importer {
     }
 
     return RnPromise.all(promisesToLoadResources, callback).catch((err: any) => {
-      Logger.error(`Promise.all error: ${err}`);
+      Logger.default.error(`Promise.all error: ${err}`);
     });
   }
 

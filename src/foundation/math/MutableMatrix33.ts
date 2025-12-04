@@ -420,7 +420,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
   invert(): MutableMatrix33 {
     const det = this.determinant();
     if (det === 0) {
-      Logger.error('the determinant is 0!');
+      Logger.default.error('the determinant is 0!');
     }
 
     const m00 = (this._v[4] * this._v[8] - this._v[7] * this._v[5]) / det;

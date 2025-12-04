@@ -570,21 +570,21 @@ export class TranslationGizmo extends Gizmo {
     if (xResult.result) {
       assertExist(xResult.data);
       this.__pickStatedPoint = rotMat.multiplyVector(xResult.data.position.clone());
-      Logger.debug(`Down:${this.__pickStatedPoint.toStringApproximately()}`);
+      Logger.default.debug(`Down:${this.__pickStatedPoint.toStringApproximately()}`);
       TranslationGizmo.__activeAxis = 'x';
       axisPicked = true;
     }
     if (yResult.result) {
       assertExist(yResult.data);
       this.__pickStatedPoint = rotMat.multiplyVector(yResult.data.position.clone());
-      Logger.debug(`Down:${this.__pickStatedPoint.toStringApproximately()}`);
+      Logger.default.debug(`Down:${this.__pickStatedPoint.toStringApproximately()}`);
       TranslationGizmo.__activeAxis = 'y';
       axisPicked = true;
     }
     if (zResult.result) {
       assertExist(zResult.data);
       this.__pickStatedPoint = rotMat.multiplyVector(zResult.data.position.clone());
-      Logger.debug(`Down:${this.__pickStatedPoint.toStringApproximately()}`);
+      Logger.default.debug(`Down:${this.__pickStatedPoint.toStringApproximately()}`);
       TranslationGizmo.__activeAxis = 'z';
       axisPicked = true;
     }
@@ -687,7 +687,7 @@ export class TranslationGizmo extends Gizmo {
       return;
     }
 
-    Logger.debug(`${this.__target.uniqueName}: ${deltaVector3.toStringApproximately()}`);
+    Logger.default.debug(`${this.__target.uniqueName}: ${deltaVector3.toStringApproximately()}`);
 
     if (TranslationGizmo.__space === 'local') {
       this.__deltaPoint = Vector3.add(deltaVector3, this.__targetPointBackup);

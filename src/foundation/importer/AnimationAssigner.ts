@@ -189,7 +189,7 @@ export class AnimationAssigner {
         const rnEntities = rootEntity.getTagValue('rnEntities')! as ISceneGraphEntity[];
         return rnEntities[dstBoneNodeId];
       }
-      Logger.info(`humanoidBoneName: ${humanoidBoneName}, nodeIndex: ${nodeIndex}, nodeName: ${nodeName}`);
+      Logger.default.info(`humanoidBoneName: ${humanoidBoneName}, nodeIndex: ${nodeIndex}, nodeName: ${nodeName}`);
       return void 0;
     }
     if (Is.exist(vrmModel.extensions.VRMC_vrm)) {
@@ -210,7 +210,7 @@ export class AnimationAssigner {
         const rnEntities = rootEntity.getTagValue('rnEntities')! as ISceneGraphEntity[];
         return rnEntities[dstBoneNodeId];
       }
-      Logger.info(`humanoidBoneName: ${humanoidBoneName}, nodeIndex: ${nodeIndex}, nodeName: ${nodeName}`);
+      Logger.default.info(`humanoidBoneName: ${humanoidBoneName}, nodeIndex: ${nodeIndex}, nodeName: ${nodeName}`);
       return void 0;
     }
     return void 0;
@@ -240,7 +240,7 @@ export class AnimationAssigner {
 
       return rnEntity;
     }
-    Logger.info(`humanoidBoneName: ${humanoidBoneName}, nodeIndex: ${nodeIndex}`);
+    Logger.default.info(`humanoidBoneName: ${humanoidBoneName}, nodeIndex: ${nodeIndex}`);
     return void 0;
   }
 

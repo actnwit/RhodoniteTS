@@ -273,7 +273,7 @@ export class MaterialRepository {
     const map = this.__instances.get(materialTypeName)!;
     const materialRef = Array.from(map.values()).find(m => m.deref() !== undefined); // find an actual exist material
     if (Is.not.exist(materialRef?.deref())) {
-      Logger.warn(
+      Logger.default.warn(
         `Material is not found. getLocationOffsetOfMemberOfMaterial returns invalid 0 value. materialTypeName: ${materialTypeName}`
       );
       return [0];

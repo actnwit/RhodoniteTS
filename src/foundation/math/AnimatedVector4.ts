@@ -201,7 +201,7 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
     const animationSampler = this.__animationSamplers.get(this.__firstActiveAnimationTrackName);
     if (animationSampler === undefined) {
       // throw new Error('Animation channel not found');
-      Logger.info('Animation channel not found');
+      Logger.default.info('Animation channel not found');
     } else {
       this.__firstActiveAnimationSampler = animationSampler;
     }
@@ -217,7 +217,7 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
     const animationSampler = this.__animationSamplers.get(this.__secondActiveAnimationTrackName);
     if (animationSampler === undefined) {
       // throw new Error('Animation channel not found');
-      Logger.info('Animation channel not found');
+      Logger.default.info('Animation channel not found');
     } else {
       this.__secondActiveAnimationSampler = animationSampler;
     }

@@ -983,7 +983,7 @@ export class Material extends RnObject {
    */
   set alphaToCoverage(alphaToCoverage: boolean) {
     if (alphaToCoverage && this.alphaMode === AlphaMode.Blend) {
-      Logger.warn(
+      Logger.default.warn(
         'If you set alphaToCoverage = true on a material whose AlphaMode is Translucent, you may get drawing problems.'
       );
     }

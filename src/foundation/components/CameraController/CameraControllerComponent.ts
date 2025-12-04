@@ -56,7 +56,7 @@ export class CameraControllerComponent extends Component {
     } else if (type === CameraControllerType.WalkThrough) {
       this.__cameraController = new WalkThroughCameraController(this);
     } else {
-      Logger.warn('Not support type!');
+      Logger.default.warn('Not support type!');
     }
   }
 

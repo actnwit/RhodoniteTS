@@ -164,7 +164,7 @@ export class Accessor {
     const sizeFromAccessorBeginToArrayBufferEnd = this.__raw.byteLength - this.__byteOffsetInRawArrayBufferOfBuffer;
     const maxLimitSizeToAccess = this.byteStride * this.__count - maxExceededSizeOnAoS;
     if (sizeFromAccessorBeginToArrayBufferEnd < maxLimitSizeToAccess) {
-      Logger.error(
+      Logger.default.error(
         `Requesting a data size that exceeds the remaining capacity of the buffer: ${this.bufferView.buffer.name}.
         Exceeded Size: ${maxLimitSizeToAccess - sizeFromAccessorBeginToArrayBufferEnd}
         this.__raw.byteLength: ${this.__raw.byteLength}
@@ -192,7 +192,7 @@ export class Accessor {
         this.__compositionType.getNumberOfComponents() * this.__count
       );
     } else {
-      Logger.warn(`This Accessor's byteOffsetInRawArrayBufferOfBuffer is not aligned with the typedArrayClass's BYTES_PER_ELEMENT. So we need to copy the buffer.
+      Logger.default.warn(`This Accessor's byteOffsetInRawArrayBufferOfBuffer is not aligned with the typedArrayClass's BYTES_PER_ELEMENT. So we need to copy the buffer.
 So the typedArray data got by getTypedArray() is copied data, not reference to the original buffer.
 `);
       this.__copyBufferDataToTypedArray();
@@ -255,7 +255,7 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
       case ComponentType.Double:
         return Float64Array;
       default:
-        Logger.error('Unexpected ComponentType!');
+        Logger.default.error('Unexpected ComponentType!');
         return void 0;
     }
   }
@@ -284,7 +284,7 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
       case ComponentType.Double:
         return 'getFloat64';
       default:
-        Logger.error('Unexpected ComponentType!');
+        Logger.default.error('Unexpected ComponentType!');
         return 'unknown';
     }
   }
@@ -313,7 +313,7 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
       case ComponentType.Double:
         return 'setFloat64';
       default:
-        Logger.error('Unexpected ComponentType!');
+        Logger.default.error('Unexpected ComponentType!');
     }
     return undefined;
   }
@@ -332,7 +332,7 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
     // }
 
     if (this.__takenCount >= this.__count) {
-      Logger.error('You are trying to allocate more than you have secured.');
+      Logger.default.error('You are trying to allocate more than you have secured.');
     }
     const subTypedArray = new this.__typedArrayClass!(
       arrayBufferOfBufferView,
@@ -362,7 +362,7 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
     const arrayBufferOfBufferView = this.__raw;
 
     if (idx >= this.__count) {
-      Logger.error('You are trying to allocate more than you have secured.');
+      Logger.default.error('You are trying to allocate more than you have secured.');
     }
     const subTypedArray = new this.__typedArrayClass!(
       arrayBufferOfBufferView,

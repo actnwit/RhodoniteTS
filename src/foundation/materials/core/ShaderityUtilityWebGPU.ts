@@ -352,7 +352,7 @@ export class ShaderityUtilityWebGPU {
     const tuple = initialValueText.match(/\(([\d\w., ]+)\)/);
     const checkCompositionNumber = (expected: CompositionTypeEnum) => {
       if (shaderSemanticsInfo.compositionType !== expected) {
-        Logger.error(`component number of initialValue is invalid:${shaderSemanticsInfo.semantic}`);
+        Logger.default.error(`component number of initialValue is invalid:${shaderSemanticsInfo.semantic}`);
       }
     };
 
@@ -428,7 +428,7 @@ export class ShaderityUtilityWebGPU {
           );
           break;
         default:
-          Logger.error('Invalid format');
+          Logger.default.error('Invalid format');
       }
     } else {
       checkCompositionNumber(CompositionType.Scalar);
@@ -484,7 +484,7 @@ export class ShaderityUtilityWebGPU {
       return [0, engine.dummyTextures.dummyBlackTexture];
     }
 
-    Logger.warn('initial value is not found');
+    Logger.default.warn('initial value is not found');
     return;
   }
 

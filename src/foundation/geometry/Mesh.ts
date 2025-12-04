@@ -299,7 +299,7 @@ export class Mesh implements IMesh {
       const primitive = this.__primitives[i];
       const vertexHandles = primitive.vertexHandles as VertexHandles;
       if (Is.undefined(vertexHandles)) {
-        Logger.warn('Need to create 3DAPIVertexData before update VAO');
+        Logger.default.warn('Need to create 3DAPIVertexData before update VAO');
         continue;
       }
 
@@ -649,7 +649,7 @@ export class Mesh implements IMesh {
 
       const validate = Math.abs(abc.x) < Number.EPSILON;
       if (validate) {
-        Logger.assert(validate, 'Polygons or polygons on UV are degenerate!');
+        Logger.default.assert(validate, 'Polygons or polygons on UV are degenerate!');
         return Vector3.fromCopyArray([0, 0, 0]);
       }
 

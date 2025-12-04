@@ -94,7 +94,7 @@ export class Texture extends AbstractTexture implements Disposable {
 
   private static managedRegistry: FinalizationRegistry<FinalizationRegistryObject> =
     new FinalizationRegistry<FinalizationRegistryObject>(texObj => {
-      Logger.info(
+      Logger.default.info(
         `WebGL/WebGPU 2D texture "${texObj.uniqueName}" was automatically released along with GC. But explicit release is recommended.`
       );
       Texture.__deleteInternalTexture(texObj.engine, texObj.textureResourceUid);
@@ -142,7 +142,7 @@ export class Texture extends AbstractTexture implements Disposable {
   ): Promise<void> {
     this.__startedToLoad = true;
     if (typeof BASIS === 'undefined') {
-      Logger.error('Failed to call BASIS() function. Please check to import basis_transcoder.js.');
+      Logger.default.error('Failed to call BASIS() function. Please check to import basis_transcoder.js.');
     }
 
     // download basis_transcoder.wasm once
@@ -192,7 +192,7 @@ export class Texture extends AbstractTexture implements Disposable {
     const basisFile = new Texture.__BasisFile!(uint8Array);
 
     if (!basisFile.startTranscoding()) {
-      Logger.error('failed to start transcoding.');
+      Logger.default.error('failed to start transcoding.');
       basisFile.close();
       basisFile.delete();
       return;
@@ -408,7 +408,7 @@ export class Texture extends AbstractTexture implements Disposable {
     this.__height = 1;
     const ctx = canvas.getContext('2d');
     if (ctx == null) {
-      Logger.error('Failed to get canvas context.');
+      Logger.default.error('Failed to get canvas context.');
       return;
     }
     ctx.fillStyle = rgbaStr;
@@ -449,7 +449,7 @@ export class Texture extends AbstractTexture implements Disposable {
     const pbrModule = moduleManager.getModule(moduleName)! as any;
     const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
     if (cgApiResourceRepository == null) {
-      Logger.error('Failed to get CGAPIResourceRepository.');
+      Logger.default.error('Failed to get CGAPIResourceRepository.');
       return;
     }
     const textureHandle = await cgApiResourceRepository.createTextureFromDataUri(pbrModule.sheen_E_and_DGTerm, {
@@ -729,7 +729,7 @@ export class Texture extends AbstractTexture implements Disposable {
    * Called automatically when using 'using' declarations in TypeScript 5.2+.
    */
   [Symbol.dispose]() {
-    Logger.debug('[Symbol.dispose] is called');
+    Logger.default.debug('[Symbol.dispose] is called');
     this.destroy();
   }
 

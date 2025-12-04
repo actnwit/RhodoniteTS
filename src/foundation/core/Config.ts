@@ -4,6 +4,7 @@
 
 /* eslint-disable prefer-const */
 import { BoneDataType, type BoneDataTypeEnum } from '../definitions/BoneDataType';
+import { LogLevel } from '../misc/Logger';
 
 type ConfigInitDescription = {
   scenegraphComponentCountPerBufferView?: number;
@@ -23,6 +24,7 @@ type ConfigInitDescription = {
   physicsTimeIntervalScale?: number;
   isMobile?: boolean;
   bufferSizeDivisionRatiosForGPUInstanceDataUsage?: number[];
+  logLevel?: LogLevel;
 };
 
 /**
@@ -67,6 +69,8 @@ export class Config {
   isMobile = false;
   /** The buffer size division ratios for GPU instance data usage */
   bufferSizeDivisionRatiosForGPUInstanceDataUsage = [1 / 32, 5 / 32, 6 / 32, 12 / 32];
+  /** The minimum log level that will be output. Messages below this level are ignored. */
+  logLevel: LogLevel = LogLevel.Warn;
 
   constructor(initDescription: ConfigInitDescription = {}) {
     if (initDescription.scenegraphComponentCountPerBufferView !== undefined) {
@@ -120,6 +124,9 @@ export class Config {
     if (initDescription.bufferSizeDivisionRatiosForGPUInstanceDataUsage !== undefined) {
       this.bufferSizeDivisionRatiosForGPUInstanceDataUsage =
         initDescription.bufferSizeDivisionRatiosForGPUInstanceDataUsage;
+    }
+    if (initDescription.logLevel !== undefined) {
+      this.logLevel = initDescription.logLevel;
     }
   }
 

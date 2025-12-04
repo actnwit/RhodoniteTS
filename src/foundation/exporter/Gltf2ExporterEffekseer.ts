@@ -48,7 +48,7 @@ export function createEffekseer(json: Gltf2Ex, entities: ISceneGraphEntity[]) {
       } else if (Is.exist(effekseerComponent.uri)) {
         effekseer.uri = effekseerComponent.uri;
       } else {
-        Logger.error('no real effect data.');
+        Logger.default.error('no real effect data.');
       }
 
       __createEffekseerTimeline(effekseerComponent.entity, effekseer);

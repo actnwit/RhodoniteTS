@@ -335,7 +335,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
     );
 
     if (offsetOfProperty === -1) {
-      Logger.error('Could not get the location offset of the property.');
+      Logger.default.error('Could not get the location offset of the property.');
     }
 
     let indexStr: string;
@@ -424,7 +424,7 @@ ${indexStr}
         str += '  let val = fetchMat4x3(vec4_idx);\n';
         break;
       default:
-        // Logger.error('unknown composition type', info.compositionType.str, memberName);
+        // Logger.default.error('unknown composition type', info.compositionType.str, memberName);
         str += '';
     }
     str += `
@@ -561,7 +561,7 @@ ${indexStr}
         str += '  let val = fetchMat4x3(vec4_idx);\n';
         break;
       default:
-        // Logger.error('unknown composition type', info.compositionType.str, memberName);
+        // Logger.default.error('unknown composition type', info.compositionType.str, memberName);
         str += '';
     }
     str += `
@@ -736,7 +736,7 @@ ${indexStr}
       );
       primitive._backupMaterial();
     } catch (e) {
-      Logger.error(e as string);
+      Logger.default.error(e as string);
       primitive._restoreMaterial();
       this.setupShaderForMaterial(
         primitive.material,

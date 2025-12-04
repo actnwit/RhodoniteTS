@@ -52,7 +52,7 @@ export class CubeTexture extends AbstractTexture implements Disposable {
    */
   private static managedRegistry: FinalizationRegistry<FinalizationRegistryObject> =
     new FinalizationRegistry<FinalizationRegistryObject>(texObj => {
-      Logger.info(
+      Logger.default.info(
         `WebGL/WebGPU cube texture "${texObj.uniqueName}" was automatically released along with GC. But explicit release is recommended.`
       );
       CubeTexture.__deleteInternalTexture(texObj.engine, texObj.textureResourceUid);
@@ -163,7 +163,7 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     this.__startedToLoad = true;
 
     if (typeof BASIS === 'undefined') {
-      Logger.error('Failed to call BASIS() function. Please check to import basis_transcoder.js.');
+      Logger.default.error('Failed to call BASIS() function. Please check to import basis_transcoder.js.');
     }
 
     BASIS().then((basisTransCoder: BasisTranscoder) => {
@@ -174,7 +174,7 @@ export class CubeTexture extends AbstractTexture implements Disposable {
       const basisFile = new BasisFile(uint8Array);
 
       if (!basisFile.startTranscoding()) {
-        Logger.error('failed to start transcoding.');
+        Logger.default.error('failed to start transcoding.');
         basisFile.close();
         basisFile.delete();
         return;
@@ -215,7 +215,7 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     canvas.height = 1;
     const ctx = canvas.getContext('2d');
     if (ctx == null) {
-      Logger.error('Failed to get canvas context.');
+      Logger.default.error('Failed to get canvas context.');
       return;
     }
     ctx.fillStyle = rgbaStr;
@@ -364,7 +364,7 @@ export class CubeTexture extends AbstractTexture implements Disposable {
    * ```
    */
   [Symbol.dispose]() {
-    Logger.debug('[Symbol.dispose] is called');
+    Logger.default.debug('[Symbol.dispose] is called');
     this.destroy();
   }
 

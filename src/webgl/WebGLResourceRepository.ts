@@ -671,12 +671,12 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     const glw = this.__glw!;
     const gl = glw!.getRawContext();
     if (Is.false(gl.getShaderParameter(shader, gl.COMPILE_STATUS)) && Is.false(gl.isContextLost())) {
-      Logger.info(`MaterialTypeName: ${materialTypeName}`);
+      Logger.default.info(`MaterialTypeName: ${materialTypeName}`);
       const lineNumberedShaderText = MiscUtil.addLineNumberToCode(shaderText);
-      Logger.info(lineNumberedShaderText);
+      Logger.default.info(lineNumberedShaderText);
       const log = gl.getShaderInfoLog(shader);
       if (onError === undefined) {
-        Logger.error(`An error occurred compiling the shaders:${log}`);
+        Logger.default.error(`An error occurred compiling the shaders:${log}`);
         return false;
       }
       onError(log!);
@@ -705,13 +705,13 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
 
     // If creating the shader program failed, alert
     if (Is.false(gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) && Is.false(gl.isContextLost())) {
-      Logger.info(`MaterialTypeName: ${materialTypeName}`);
-      Logger.info(MiscUtil.addLineNumberToCode('Vertex Shader:'));
-      Logger.info(MiscUtil.addLineNumberToCode(vertexShaderText));
-      Logger.info(MiscUtil.addLineNumberToCode('Fragment Shader:'));
-      Logger.info(MiscUtil.addLineNumberToCode(fragmentShaderText));
+      Logger.default.info(`MaterialTypeName: ${materialTypeName}`);
+      Logger.default.info(MiscUtil.addLineNumberToCode('Vertex Shader:'));
+      Logger.default.info(MiscUtil.addLineNumberToCode(vertexShaderText));
+      Logger.default.info(MiscUtil.addLineNumberToCode('Fragment Shader:'));
+      Logger.default.info(MiscUtil.addLineNumberToCode(fragmentShaderText));
       const log = gl.getProgramInfoLog(shaderProgram);
-      Logger.error(`Unable to initialize the shader program: ${log}`);
+      Logger.default.error(`Unable to initialize the shader program: ${log}`);
       return false;
     }
 
@@ -761,7 +761,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
         const _shaderProgram = shaderProgram as any;
         _shaderProgram[identifier] = location;
         if (location == null && config.cgApiDebugConsoleOutput) {
-          Logger.info(
+          Logger.default.info(
             `Can not get the uniform location: ${shaderVarName}. The uniform may be unused by other code so implicitly removed.`
           );
         }
@@ -1876,7 +1876,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     const extractSize = basisFile.getImageTranscodedSizeInBytes(imageIndex, levelIndex, basisCompressionType!.index);
     const textureSource = new Uint8Array(extractSize);
     if (!basisFile.transcodeImage(textureSource, imageIndex, levelIndex, basisCompressionType!.index, 0, 0)) {
-      Logger.error('failed to transcode the image.');
+      Logger.default.error('failed to transcode the image.');
     }
     return textureSource;
   }
@@ -2467,7 +2467,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
           images = await loadOneLevel();
         } catch (uri) {
           // Give up
-          Logger.error(`failed to load ${uri}`);
+          Logger.default.error(`failed to load ${uri}`);
         }
       }
       const imageObj: {
@@ -2800,7 +2800,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     if (texture != null) {
       gl.deleteTexture(texture!);
       this.__webglResources.delete(textureHandle);
-      Logger.debug(`gl.deleteTexture called: ${textureHandle}`);
+      Logger.default.debug(`gl.deleteTexture called: ${textureHandle}`);
     }
   }
 
@@ -3254,7 +3254,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     const material = this._material.deref();
     if (Is.not.exist(material)) {
       const warn = 'Material Not found';
-      Logger.warn(warn);
+      Logger.default.warn(warn);
       onError(warn);
       return false;
     }

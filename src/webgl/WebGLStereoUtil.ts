@@ -129,7 +129,7 @@ export class WebGLStereoUtil {
         shader = this.__fragmentShader;
         break;
       default:
-        Logger.error(`Invalid Shader Type: ${type}`);
+        Logger.default.error(`Invalid Shader Type: ${type}`);
         return;
     }
 

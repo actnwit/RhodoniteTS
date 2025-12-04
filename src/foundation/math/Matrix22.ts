@@ -191,7 +191,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
   static invert(mat: IMatrix22) {
     const det = mat.determinant();
     if (det === 0) {
-      Logger.error('the determinant is 0!');
+      Logger.default.error('the determinant is 0!');
     }
 
     const m00 = mat._v[3] / det;
@@ -214,7 +214,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
   static invertTo(mat: Matrix22, outMat: MutableMatrix22) {
     const det = mat.determinant();
     if (det === 0) {
-      Logger.error('the determinant is 0!');
+      Logger.default.error('the determinant is 0!');
     }
 
     const m00 = mat._v[3] / det;

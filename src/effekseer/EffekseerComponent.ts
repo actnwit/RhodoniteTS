@@ -64,11 +64,11 @@ export class EffekseerComponent extends Component {
 
   play() {
     if (Is.not.exist(this.__context)) {
-      Logger.warn('No Effekseer context yet');
+      Logger.default.warn('No Effekseer context yet');
       return false;
     }
     if (Is.not.exist(this.__effect)) {
-      Logger.warn('No Effekseer effect yet');
+      Logger.default.warn('No Effekseer effect yet');
       return false;
     }
 
@@ -186,7 +186,7 @@ export class EffekseerComponent extends Component {
     effekseer.setImageCrossOrigin(this.isImageLoadWithCredential ? 'use-credentials' : '');
     this.__context = effekseer.createContext();
     if (Is.not.exist(this.__context)) {
-      Logger.error('Effekseer context creation fails');
+      Logger.default.error('Effekseer context creation fails');
       return false;
     }
     const webGLResourceRepository = this.__engine.webglResourceRepository;
@@ -203,11 +203,11 @@ export class EffekseerComponent extends Component {
       }
     };
     const onError = (message: string, path: string) => {
-      Logger.error(`${message}, ${path}`);
+      Logger.default.error(`${message}, ${path}`);
     };
     if (this.type === 'efkpkg') {
       if (Is.not.exist(EffekseerComponent.Unzip)) {
-        Logger.error('Please Set an Unzip object to EffekseerComponent.Unzip');
+        Logger.default.error('Please Set an Unzip object to EffekseerComponent.Unzip');
         return false;
       }
       this.__effect = this.__context.loadEffectPackage(
@@ -240,7 +240,7 @@ export class EffekseerComponent extends Component {
             }
           },
           () => {
-            Logger.error('Failed to initialize Effekseer');
+            Logger.default.error('Failed to initialize Effekseer');
           }
         );
       } else {

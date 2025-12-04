@@ -283,7 +283,7 @@ export class MathClassUtil {
 
     const outNonNormalized = inversePVMat44.multiplyVectorTo(input, this.__tmpVector4_1);
     if (outNonNormalized.w === 0) {
-      Logger.error('0 division occurred!');
+      Logger.default.error('0 division occurred!');
     }
 
     return MutableVector3.multiplyTo(outNonNormalized, 1.0 / outNonNormalized.w, out);
@@ -320,7 +320,7 @@ export class MathClassUtil {
       }
       return arr;
     }
-    Logger.error('Non supported type!');
+    Logger.default.error('Non supported type!');
     return;
   }
 
@@ -355,7 +355,7 @@ export class MathClassUtil {
       }
       return arr;
     }
-    Logger.error('Non supported type!');
+    Logger.default.error('Non supported type!');
     return;
   }
 
@@ -390,7 +390,7 @@ export class MathClassUtil {
       }
       return arr;
     }
-    Logger.error('Non supported type!');
+    Logger.default.error('Non supported type!');
     return;
   }
 
@@ -425,7 +425,7 @@ export class MathClassUtil {
       }
       return arr;
     }
-    Logger.error('Non supported type!');
+    Logger.default.error('Non supported type!');
     return;
   }
 
@@ -461,7 +461,7 @@ export class MathClassUtil {
       }
       return arr;
     }
-    Logger.error('Non supported type!');
+    Logger.default.error('Non supported type!');
     return void 0;
   }
 
@@ -560,7 +560,7 @@ export class MathClassUtil {
     } else if (Array.isArray(val) || ArrayBuffer.isView(val) || ArrayBuffer.isView(val._v)) {
       return val;
     } else {
-      Logger.error('Non supported type!');
+      Logger.default.error('Non supported type!');
       return void 0;
     }
     (floatArray as any)._v = void 0;
@@ -711,7 +711,7 @@ export class MathClassUtil {
         }
       }
     } else {
-      Logger.warn('Unknown type _setForce');
+      Logger.default.warn('Unknown type _setForce');
     }
 
     return true;

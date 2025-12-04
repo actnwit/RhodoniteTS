@@ -839,9 +839,9 @@ export class Gltf2Exporter {
     }
     this.__warnedMaterialSemantics.add(semantic);
     if (missingMaterial) {
-      Logger.warn(`KHR_animation_pointer: No material parameter found for semantic "${semantic}".`);
+      Logger.default.warn(`KHR_animation_pointer: No material parameter found for semantic "${semantic}".`);
     } else {
-      Logger.warn(`KHR_animation_pointer: Unsupported material semantic "${semantic}". Animation skipped.`);
+      Logger.default.warn(`KHR_animation_pointer: Unsupported material semantic "${semantic}". Animation skipped.`);
     }
   }
 

@@ -93,6 +93,7 @@ export class Engine extends RnObject {
   private __materialRepository: MaterialRepository;
   private __globalDataRepository: GlobalDataRepository;
   private __config: Config;
+  private __logger: Logger;
   private __dummyTextures?: DummyTextures;
   private __lastCameraComponentsUpdateCount = -1;
   private __lastCameraControllerComponentsUpdateCount = -1;
@@ -110,6 +111,8 @@ export class Engine extends RnObject {
   ) {
     super();
     this.__config = config ?? new Config();
+    this.__logger = new Logger();
+    this.__logger.logLevel = this.__config.logLevel;
     this.__engineUid = Engine.__engineCount;
     this.__processApproach = processApproach;
     this.__cgApiResourceRepository = cgApiResourceRepository;
@@ -650,7 +653,7 @@ export class Engine extends RnObject {
     globalDataRepository.initialize(desc.approach);
 
     if (MiscUtil.isMobile() && ProcessApproach.isUniformApproach(desc.approach)) {
-      Logger.warn(
+      engine.logger.warn(
         'The number of Uniform variables available on mobile devices is limited and may interfere with rendering. Use the DataTexture ProcessApproach for this device.'
       );
     }
@@ -666,14 +669,14 @@ export class Engine extends RnObject {
           // Calling preventDefault signals to the page that you intent to handle context restoration.
           event.preventDefault();
           engine.stopRenderLoop();
-          Logger.error('WebGL context lost occurred.');
+          engine.logger.error('WebGL context lost occurred.');
         }).bind(this)
       );
 
       desc.canvas.addEventListener('webglcontextrestored', () => {
         // Once this function is called the gl context will be restored but any graphics resources
         // that were previously loaded will be lost, so the scene should be reloaded.
-        Logger.error('WebGL context restored.');
+        engine.logger.error('WebGL context restored.');
         // TODO: Implement restoring the previous graphics resources
         // loadSceneGraphics(gl);
         engine.restartRenderLoop();
@@ -760,5 +763,9 @@ export class Engine extends RnObject {
 
   public get config() {
     return this.__config;
+  }
+
+  public get logger() {
+    return this.__logger;
   }
 }

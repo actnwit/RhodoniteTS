@@ -57,7 +57,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
     } else if (texture instanceof AbstractTexture) {
       matCapTexture = texture;
     } else {
-      Logger.warn('no matcap texture');
+      Logger.default.warn('no matcap texture');
       matCapTexture = engine.dummyTextures.dummyBlackTexture;
     }
 

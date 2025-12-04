@@ -150,7 +150,7 @@ export class WebGLContextWrapper {
           this.webgl2ExtMLTVIEW.is_multisample = false;
         } else {
           if (config.cgApiDebugConsoleOutput) {
-            Logger.info('OCULUS_multiview and OVR_multiview2 extensions are not supported');
+            Logger.default.info('OCULUS_multiview and OVR_multiview2 extensions are not supported');
           }
           this.__is_multiview = false;
         }
@@ -508,7 +508,7 @@ export class WebGLContextWrapper {
       const extObj = gl.getExtension(extension.toString());
       if (extObj == null && config.cgApiDebugConsoleOutput) {
         const text = `${extension.toString()} Not Available in this environment`;
-        Logger.info(text);
+        Logger.default.info(text);
       }
       this.__extensions.set(extension, extObj);
       return extObj;
@@ -533,7 +533,7 @@ export class WebGLContextWrapper {
 
       if (extObj == null && config.cgApiDebugConsoleOutput) {
         const text = `${extension.toString()} Not Available in this environment`;
-        Logger.info(text);
+        Logger.default.info(text);
       } else {
         this.__extensions.set(extension, extObj);
       }

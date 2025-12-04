@@ -135,13 +135,13 @@ export class WebXRSystem {
     if (isWebGPU) {
       const webgpuDeviceWrapper = this.__engine.webGpuResourceRepository.getWebGpuDeviceWrapper();
       if (webgpuDeviceWrapper == null) {
-        Logger.error('WebGPU Device Wrapper is not ready yet.');
+        Logger.default.error('WebGPU Device Wrapper is not ready yet.');
         return [];
       }
     } else {
       const glw = this.__engine.webglResourceRepository.currentWebGLContextWrapper;
       if (glw == null) {
-        Logger.error('WebGL Context is not ready yet.');
+        Logger.default.error('WebGL Context is not ready yet.');
         return [];
       }
       this.__glw = glw;
@@ -239,7 +239,7 @@ export class WebXRSystem {
         this.__setWebXRMode(false);
         this.__engine.materialRepository._makeShaderInvalidateToAllMaterials();
         this.__defaultPositionInLocalSpaceMode = defaultUserPositionInVR;
-        Logger.info('XRSession ends.');
+        Logger.default.info('XRSession ends.');
         this.__engine.stopRenderLoop();
         this.__engine.restartRenderLoop();
         callbackOnXrSessionEnd();
@@ -258,7 +258,7 @@ export class WebXRSystem {
       //   this.__defaultPositionInLocalSpaceMode =
       //     initialUserPosition ?? Vector3.zero();
       // } catch (err) {
-      // Logger.error(`Failed to start XRSession: ${err}`);
+      // Logger.default.error(`Failed to start XRSession: ${err}`);
       // eslint-disable-next-line prefer-const
       referenceSpace = await xrSession.requestReferenceSpace('local');
       this.__spaceType = 'local';
@@ -284,10 +284,10 @@ export class WebXRSystem {
       }
       this.__requestedToEnterWebXR = true;
       this.__engine.restartRenderLoop();
-      Logger.warn('End of enterWebXR.');
+      Logger.default.warn('End of enterWebXR.');
       return promise;
     }
-    Logger.error('WebGL/WebGPU context or WebXRSession is not ready yet.');
+    Logger.default.error('WebGL/WebGPU context or WebXRSession is not ready yet.');
     return undefined;
   }
 
@@ -715,7 +715,7 @@ export class WebXRSystem {
    */
   private __setCameraInfoFromXRViews(xrViewerPose: XRViewerPose) {
     if (Is.not.exist(xrViewerPose)) {
-      Logger.warn('xrViewerPose not exist');
+      Logger.default.warn('xrViewerPose not exist');
       return;
     }
     const xrViewLeft = xrViewerPose.views[0];
@@ -805,8 +805,8 @@ export class WebXRSystem {
       const webglResourceRepository = this.__engine.webglResourceRepository;
       this.__canvasWidthForVR = webglLayer.framebufferWidth;
       this.__canvasHeightForVR = webglLayer.framebufferHeight;
-      Logger.info(this.__canvasWidthForVR.toString());
-      Logger.info(this.__canvasHeightForVR.toString());
+      Logger.default.info(this.__canvasWidthForVR.toString());
+      Logger.default.info(this.__canvasHeightForVR.toString());
 
       // if (this.__multiviewFramebufferHandle === -1) {
       // const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
@@ -825,7 +825,7 @@ export class WebXRSystem {
       this.__setWebXRMode(true);
       callbackOnXrSessionStart();
     } else {
-      Logger.error('WebGL context is not ready for WebXR.');
+      Logger.default.error('WebGL context is not ready for WebXR.');
     }
   }
 
@@ -860,7 +860,7 @@ export class WebXRSystem {
       this.__canvasHeightForVR = resolvedHeight;
       webgpuResourceRepository.resizeCanvas(resolvedWidth, resolvedHeight);
     } else {
-      Logger.warn('Unable to resolve XR canvas size during WebGPU layer setup. Deferring resize until first frame.');
+      Logger.default.warn('Unable to resolve XR canvas size during WebGPU layer setup. Deferring resize until first frame.');
     }
 
     this.__engine.materialRepository._makeShaderInvalidateToAllMaterials();
@@ -891,7 +891,7 @@ export class WebXRSystem {
         const webgpuResourceRepository = this.__engine.webGpuResourceRepository;
         webgpuResourceRepository.resizeCanvas(this.__canvasWidthForVR, this.__canvasHeightForVR);
       } else {
-        Logger.warn('XRWebGPU subImage returned zero-sized extent. Skipping canvas resize for this frame.');
+        Logger.default.warn('XRWebGPU subImage returned zero-sized extent. Skipping canvas resize for this frame.');
       }
       this.__engine.engineState.xrPoseWebGPU = this.__xrViewerPose;
       this.__engine.engineState.xrGpuBinding = this.__xrGpuBinding;
@@ -925,7 +925,7 @@ export class WebXRSystem {
             if (Is.exist(motionController)) {
               updateMotionControllerModel(hand, motionController);
             } else {
-              Logger.warn('motionController not found');
+              Logger.default.warn('motionController not found');
             }
           }
         }

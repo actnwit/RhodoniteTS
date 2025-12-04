@@ -161,7 +161,7 @@ export class AnimatedVector2 extends Vector2 implements IVector2, IAnimatedValue
     const animationSampler = this.__animationSamplers.get(this.__firstActiveAnimationTrackName);
     if (animationSampler === undefined) {
       // throw new Error('Animation channel not found');
-      Logger.info('Animation channel not found');
+      Logger.default.info('Animation channel not found');
     } else {
       this.__firstActiveAnimationSampler = animationSampler;
     }
@@ -177,7 +177,7 @@ export class AnimatedVector2 extends Vector2 implements IVector2, IAnimatedValue
     const animationSampler = this.__animationSamplers.get(this.__secondActiveAnimationTrackName);
     if (animationSampler === undefined) {
       // throw new Error('Animation channel not found');
-      Logger.info('Animation channel not found');
+      Logger.default.info('Animation channel not found');
     } else {
       this.__secondActiveAnimationSampler = animationSampler;
     }

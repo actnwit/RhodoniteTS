@@ -36,11 +36,11 @@ declare const window: any;
   promises.push(Rn.ModuleManager.getInstance().loadModule('webgpu'));
   promises.push(Rn.ModuleManager.getInstance().loadModule('pbr'));
   Promise.all(promises).then(async () => {
-        const engine = await Rn.Engine.init({
+    const engine = await Rn.Engine.init({
       approach: Rn.ProcessApproach.WebGPU,
       canvas: document.getElementById('world') as HTMLCanvasElement,
-  config: new Rn.Config({ cgApiDebugConsoleOutput: true }),
-});
+      config: new Rn.Config({ cgApiDebugConsoleOutput: true }),
+    });
     window.engine = engine;
     Rn.Logger.logLevel = Rn.LogLevel.Info;
 

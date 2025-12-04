@@ -98,7 +98,7 @@ export class DrcPointCloudImporter {
     const basePath = `${uri.substring(0, uri.lastIndexOf('/'))}/`; // location of model file as basePath
     const defaultOptions = DataUtil.createDefaultGltfOptions();
     return this.__decodeDraco(arrayBuffer, defaultOptions, basePath, options).catch(err => {
-      Logger.error(`__loadFromArrayBuffer error: ${err}`);
+      Logger.default.error(`__loadFromArrayBuffer error: ${err}`);
     });
   }
 
@@ -130,7 +130,7 @@ export class DrcPointCloudImporter {
       const gotText = DataUtil.arrayBufferToString(arrayBuffer);
       const json = JSON.parse(gotText);
       result = await this._loadAsTextJson(json, options as GltfLoadOption, defaultOptions, basePath).catch(err => {
-        Logger.error(`this.__loadAsTextJson error: ${err}`);
+        Logger.default.error(`this.__loadAsTextJson error: ${err}`);
       });
     } else {
       result = await this._loadAsBinaryJson(
@@ -141,7 +141,7 @@ export class DrcPointCloudImporter {
         defaultOptions,
         basePath
       ).catch(err => {
-        Logger.error(`this.__loadAsBinaryJson error: ${err}`);
+        Logger.default.error(`this.__loadAsBinaryJson error: ${err}`);
       });
     }
     return result;
@@ -172,7 +172,7 @@ export class DrcPointCloudImporter {
       if (Rn[options.loaderExtensionName] != null) {
         defaultOptions.loaderExtension = Rn[options.loaderExtensionName].getInstance();
       } else {
-        Logger.error(`${options.loaderExtensionName} not found!`);
+        Logger.default.error(`${options.loaderExtensionName} not found!`);
         defaultOptions.loaderExtension = void 0;
       }
     }
@@ -222,7 +222,7 @@ export class DrcPointCloudImporter {
     try {
       await this._loadInner(uint8array, basePath, gltfJson, options);
     } catch (err) {
-      Logger.error(`this._loadInner error in _loadAsBinaryJson: ${err}`);
+      Logger.default.error(`this._loadInner error in _loadAsBinaryJson: ${err}`);
     }
     return gltfJson;
   }
@@ -256,7 +256,7 @@ export class DrcPointCloudImporter {
     try {
       await this._loadInner(undefined, basePath, gltfJson, options);
     } catch (err) {
-      Logger.error(`this._loadInner error in _loadAsTextJson: ${err}`);
+      Logger.default.error(`this._loadInner error in _loadAsTextJson: ${err}`);
     }
     return gltfJson;
   }
@@ -825,7 +825,7 @@ export class DrcPointCloudImporter {
     }
 
     return Promise.all(promisesToLoadResources).catch(err => {
-      Logger.error(`Promise.all error: ${err}`);
+      Logger.default.error(`Promise.all error: ${err}`);
     });
   }
 
@@ -858,7 +858,7 @@ export class DrcPointCloudImporter {
       const gotText = JSON.stringify(json);
       const gltfJson = JSON.parse(gotText);
       return this._loadAsTextJson(gltfJson, options as GltfLoadOption, defaultOptions, basePath).catch(err => {
-        Logger.error(`this.__loadAsTextJson error: ${err}`);
+        Logger.default.error(`this.__loadAsTextJson error: ${err}`);
       });
     });
   }
@@ -1020,7 +1020,7 @@ export class DrcPointCloudImporter {
         ];
       })
       .catch(err => {
-        Logger.error(`this.__convertBufferToURI error: ${err}`);
+        Logger.default.error(`this.__convertBufferToURI error: ${err}`);
       });
   }
 
@@ -1238,7 +1238,7 @@ export class DrcPointCloudImporter {
       decodingStatus = decoder.DecodeBufferToPointCloud(buffer, dracoGeometry);
     } else {
       const errorMsg = 'Unknown geometry type.';
-      Logger.error(errorMsg);
+      Logger.default.error(errorMsg);
     }
 
     dracoGeometry.geometryType = geometryType; // store
@@ -1246,7 +1246,7 @@ export class DrcPointCloudImporter {
     if (!decodingStatus.ok() || dracoGeometry.ptr === 0) {
       let errorMsg = 'Decoding failed: ';
       errorMsg += decodingStatus.error_msg();
-      Logger.error(errorMsg);
+      Logger.default.error(errorMsg);
       draco.destroy(decoder);
       draco.destroy(dracoGeometry);
       return void 0;

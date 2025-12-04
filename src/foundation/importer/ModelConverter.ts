@@ -607,7 +607,7 @@ export class ModelConverter {
         gltfModel
       );
     } else {
-      Logger.info('Not Supported Animation Pointer Type');
+      Logger.default.info('Not Supported Animation Pointer Type');
     }
   }
 
@@ -2365,18 +2365,18 @@ export class ModelConverter {
     }
     if (dataViewMethod === 'getInt32') {
       // typedDataArray = new Int32Array(numberArray);
-      Logger.error('Not considered');
+      Logger.default.error('Not considered');
       return new Float32Array();
     }
     if (dataViewMethod === 'getUint32') {
       // typedDataArray = new Uint32Array(numberArray);
-      Logger.error('Not considered');
+      Logger.default.error('Not considered');
       return new Float32Array();
     }
     if (dataViewMethod === 'getFloat32') {
       return new Float32Array(numberArray);
     }
-    Logger.error('Not considered');
+    Logger.default.error('Not considered');
     return new Float32Array();
   }
 
@@ -2539,7 +2539,7 @@ export class ModelConverter {
       decodingStatus = decoder.DecodeBufferToPointCloud(buffer, dracoGeometry);
     } else {
       const errorMsg = 'Unknown geometry type.';
-      Logger.error(errorMsg);
+      Logger.default.error(errorMsg);
     }
 
     dracoGeometry.geometryType = geometryType; // store
@@ -2547,7 +2547,7 @@ export class ModelConverter {
     if (!decodingStatus.ok() || dracoGeometry.ptr === 0) {
       let errorMsg = 'Decoding failed: ';
       errorMsg += decodingStatus.error_msg();
-      Logger.error(errorMsg);
+      Logger.default.error(errorMsg);
       draco.destroy(decoder);
       draco.destroy(dracoGeometry);
       return void 0;

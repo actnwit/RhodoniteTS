@@ -118,7 +118,7 @@ export class Buffer {
   private __padding(byteLengthToNeed: Byte, byteAlign: Byte) {
     const paddingSize = DataUtil.calcPaddingBytes(byteLengthToNeed, byteAlign);
     if (paddingSize > 0) {
-      Logger.info('Padding bytes added to takenBytesIndex.');
+      Logger.default.info('Padding bytes added to takenBytesIndex.');
     }
     return paddingSize;
   }
@@ -322,7 +322,7 @@ byteSizeToTake: ${byteLengthToNeed}, the byte length left in the Buffer: ${this.
     let ret: TypedArray;
     const typedArray = ComponentType.toTypedArray(componentType)!;
     if (typedArray === undefined) {
-      Logger.warn('componentType is Invalid');
+      Logger.default.warn('componentType is Invalid');
     }
     if (CompositionType.isArray(compositionType)) {
       ret = new typedArray(this.__raw, this.__byteOffset + offset4bytesUnit * 4, length);
