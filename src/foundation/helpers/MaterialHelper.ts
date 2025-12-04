@@ -1590,7 +1590,7 @@ function reuseOrRecreateCustomMaterial(
   }
 
   let materialContent: CustomMaterialContent;
-  if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+  if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
     materialContent = new CustomMaterialContent(engine, {
       name: materialName,
       isSkinning,

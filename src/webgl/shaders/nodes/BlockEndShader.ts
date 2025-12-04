@@ -1,6 +1,7 @@
 import type { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import type { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
 import type { ShaderSocket } from '../../../foundation/materials/core/AbstractShaderNode';
+import type { Engine } from '../../../foundation/system/Engine';
 import type { AttributeNames } from '../../types/CommonTypes';
 import { CommonShaderPart } from '../CommonShaderPart';
 
@@ -31,7 +32,7 @@ export class BlockEndShader extends CommonShaderPart {
    *
    * @returns The GLSL function definition string for vertex shaders
    */
-  get vertexShaderDefinitions() {
+  getVertexShaderDefinitions(_engine: Engine) {
     let funcStr = `void ${this.__functionName}(`;
 
     for (let i = 0; i < this.__valueInputs.length; i++) {
@@ -64,8 +65,8 @@ export class BlockEndShader extends CommonShaderPart {
    *
    * @returns The GLSL function definition string for pixel shaders
    */
-  get pixelShaderDefinitions() {
-    return this.vertexShaderDefinitions;
+  getPixelShaderDefinitions(engine: Engine) {
+    return this.getVertexShaderDefinitions(engine);
   }
 
   /**

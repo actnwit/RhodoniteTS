@@ -2,6 +2,7 @@ import type { CompositionTypeEnum } from '../../../foundation/definitions/Compos
 import { ProcessApproach } from '../../../foundation/definitions/ProcessApproach';
 import { ShaderNode } from '../../../foundation/definitions/ShaderNode';
 import type { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
+import type { Engine } from '../../../foundation/system/Engine';
 import { EngineState } from '../../../foundation/system/EngineState';
 import type { AttributeNames } from '../../types/CommonTypes';
 import { CommonShaderPart } from '../CommonShaderPart';
@@ -43,8 +44,8 @@ export class EndShader extends CommonShaderPart {
    *
    * @returns Shader code string containing the outPosition function definition
    */
-  get vertexShaderDefinitions() {
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+  getVertexShaderDefinitions(engine: Engine) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
       fn outPosition(inPosition: vec4<f32>) {
         output.position = inPosition;
@@ -76,8 +77,8 @@ export class EndShader extends CommonShaderPart {
    *
    * @returns Shader code string containing the outColor function definition
    */
-  get pixelShaderDefinitions() {
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+  getPixelShaderDefinitions(engine: Engine) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
       fn outColor(inColor: vec4<f32>) {
         rt0 = inColor;

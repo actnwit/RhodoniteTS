@@ -44,7 +44,6 @@ import type { Primitive } from '../../geometry/Primitive';
 import { Is } from '../../misc/Is';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import type { Engine } from '../../system/Engine';
-import { EngineState } from '../../system/EngineState';
 import { ModuleManager } from '../../system/ModuleManager';
 import type { AbstractMaterialContent } from './AbstractMaterialContent';
 import type { Material } from './Material';
@@ -235,7 +234,7 @@ export function _createProgramAsSingleOperationWebGL(
   const webglResourceRepository = engine.webglResourceRepository;
   const webXRSystem = engine.webXRSystem;
   const isMultiViewVRRendering =
-    Is.exist(webXRSystem) && webXRSystem.isWebXRMode && webglResourceRepository.isSupportMultiViewVRRendering();
+    Is.exist(webXRSystem) && webXRSystem.isWebXRMode && webglResourceRepository.isSupportMultiViewVRRendering(engine);
 
   const cacheQuery =
     Component.getStateVersion(engine) +
@@ -357,14 +356,18 @@ export function _setupGlobalShaderDefinitionWebGL(engine: Engine, materialTypeNa
     }
   }
   definitions += `// RN_MATERIAL_TYPE_NAME: ${materialTypeName}\n`;
-  if (ProcessApproach.isDataTextureApproach(EngineState.currentProcessApproach)) {
+  if (ProcessApproach.isDataTextureApproach(engine.engineState.currentProcessApproach)) {
     definitions += '#define RN_IS_DATATEXTURE_MODE\n';
   } else {
     definitions += '#define RN_IS_UNIFORM_MODE\n';
   }
 
   const webXRSystem = engine.webXRSystem;
-  if (Is.exist(webXRSystem) && webXRSystem.isWebXRMode && webglResourceRepository.isSupportMultiViewVRRendering()) {
+  if (
+    Is.exist(webXRSystem) &&
+    webXRSystem.isWebXRMode &&
+    webglResourceRepository.isSupportMultiViewVRRendering(engine)
+  ) {
     definitions += '#define WEBGL2_MULTI_VIEW\n';
   }
 

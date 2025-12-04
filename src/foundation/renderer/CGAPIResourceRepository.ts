@@ -56,8 +56,8 @@ export abstract class CGAPIResourceRepository {
    * @returns The active ICGAPIResourceRepository implementation
    * @throws Error if the required module is not available
    */
-  static getCgApiResourceRepository(): ICGAPIResourceRepository {
-    const moduleName = ProcessApproach.isWebGL2Approach(EngineState.currentProcessApproach) ? 'webgl' : 'webgpu';
+  static getCgApiResourceRepository(engine: Engine): ICGAPIResourceRepository {
+    const moduleName = ProcessApproach.isWebGL2Approach(engine.engineState.currentProcessApproach) ? 'webgl' : 'webgpu';
     // const moduleName = 'webgl';
     const moduleManager = ModuleManager.getInstance();
     const cgApiModule = moduleManager.getModule(moduleName)! as any;
@@ -829,7 +829,7 @@ export interface ICGAPIResourceRepository {
    *
    * @returns True if multi-view VR rendering is supported, false otherwise
    */
-  isSupportMultiViewVRRendering(): boolean;
+  isSupportMultiViewVRRendering(engine: Engine): boolean;
 
   /**
    * Sets the viewport for rendering operations.
@@ -837,5 +837,5 @@ export interface ICGAPIResourceRepository {
    *
    * @param viewport - Optional viewport rectangle as [x, y, width, height]. If not provided, uses full framebuffer
    */
-  setViewport(viewport?: Vector4): void;
+  setViewport(engine: Engine, viewport?: Vector4): void;
 }

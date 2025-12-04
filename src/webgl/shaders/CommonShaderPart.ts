@@ -4,6 +4,7 @@ import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
 import { VertexAttribute, type VertexAttributeEnum } from '../../foundation/definitions/VertexAttribute';
 import { AbstractShaderNode } from '../../foundation/materials/core/AbstractShaderNode';
 import type { Socket, SocketDefaultValue } from '../../foundation/materials/core/Socket';
+import type { Engine } from '../../foundation/system/Engine';
 import { EngineState } from '../../foundation/system/EngineState';
 import vertexInputWGSL from '../../webgpu/shaderity_shaders/common/vertexInput.wgsl';
 import { WebGLResourceRepository } from '../WebGLResourceRepository';
@@ -25,8 +26,8 @@ export abstract class CommonShaderPart {
    * @param isVertexStage - True if generating code for vertex shader, false for fragment shader
    * @returns The shader code string for the main function beginning
    */
-  static getMainBegin(isVertexStage: boolean) {
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+  static getMainBegin(engine: Engine, isVertexStage: boolean) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (isVertexStage) {
         let str = `
 var<private> output : VertexOutput;
@@ -56,11 +57,12 @@ void main() {
    * Generates the main function ending code for vertex or fragment shaders.
    * Handles differences between WebGL (GLSL) and WebGPU (WGSL) shader languages.
    *
+   * @param engine - The engine instance
    * @param isVertexStage - True if generating code for vertex shader, false for fragment shader
    * @returns The shader code string for the main function ending
    */
-  static getMainEnd(isVertexStage: boolean) {
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+  static getMainEnd(engine: Engine, isVertexStage: boolean) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (isVertexStage) {
         return `
   return output;
@@ -81,11 +83,12 @@ void main() {
    * Generates vertex shader prerequisites including definitions, vertex inputs, and uniform declarations.
    * Creates appropriate code for both WebGL (GLSL) and WebGPU (WGSL) based on the current process approach.
    *
+   * @param engine - The engine instance
    * @param shaderNodes - Array of shader nodes used to generate varying variables for WebGPU
    * @returns The complete vertex shader prerequisites code string
    */
-  static getVertexPrerequisites(shaderNodes: AbstractShaderNode[]) {
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+  static getVertexPrerequisites(engine: Engine, shaderNodes: AbstractShaderNode[]) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       const varyingVariables = CommonShaderPart.__makeVaryingVariablesWGSL(shaderNodes);
       let vertexShaderPrerequisites = '';
       vertexShaderPrerequisites += `
@@ -186,11 +189,12 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
    * Generates fragment/pixel shader prerequisites including definitions and varying variable declarations.
    * Creates appropriate code for both WebGL (GLSL) and WebGPU (WGSL) based on the current process approach.
    *
+   * @param engine - The engine instance
    * @param shaderNodes - Array of shader nodes used to generate varying variables for WebGPU
    * @returns The complete fragment shader prerequisites code string
    */
-  static getPixelPrerequisites(shaderNodes: AbstractShaderNode[]) {
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+  static getPixelPrerequisites(engine: Engine, shaderNodes: AbstractShaderNode[]) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       const varyingVariables = CommonShaderPart.__makeVaryingVariablesWGSL(shaderNodes);
 
       let pixelShaderPrerequisites = '';
@@ -237,15 +241,17 @@ struct VertexOutput {
    * Generates variable assignment statement with proper type declaration.
    * Creates appropriate syntax for both WebGL (GLSL) and WebGPU (WGSL) based on the current process approach.
    *
+   * @param engine - The engine instance
    * @param varName - The name of the variable to declare
    * @param inputSocket - The socket containing type and default value information
    * @returns The variable assignment statement string
    */
   static getAssignmentStatement(
+    engine: Engine,
     varName: string,
     inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>
   ) {
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       const wgslTypeStr = inputSocket!.compositionType.toWGSLType(inputSocket!.componentType);
       const wgslInitialValue = inputSocket!.compositionType.getWgslInitialValue(inputSocket!.componentType);
       const rowStr = `var ${varName}: ${wgslTypeStr} = ${wgslInitialValue};\n`;
@@ -261,17 +267,19 @@ struct VertexOutput {
    * Generates varying variable assignment statement for fragment/pixel shaders.
    * Creates code to read varying variables passed from vertex shader with proper type declaration.
    *
+   * @param engine - The engine instance
    * @param varName - The name of the variable to declare
    * @param inputSocket - The socket containing type information
    * @param inputNode - The shader node that provides the varying variable
    * @returns The varying variable assignment statement string for fragment shader
    */
   static getAssignmentVaryingStatementInPixelShader(
+    engine: Engine,
     varName: string,
     inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>,
     inputNode: AbstractShaderNode
   ) {
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       const wgslTypeStr = inputSocket!.compositionType.toWGSLType(inputSocket!.componentType);
       const rowStr = `var ${varName}: ${wgslTypeStr} = input.${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid};\n`;
       return rowStr;
@@ -285,13 +293,19 @@ struct VertexOutput {
    * Generates varying variable assignment statement for vertex shaders.
    * Creates code to write varying variables that will be passed to fragment shader.
    *
+   * @param engine - The engine instance
    * @param inputNode - The shader node that provides the varying variable
    * @param varNames - Array of variable names to assign
    * @param j - Index of the current variable in the varNames array
    * @returns The varying variable assignment statement string for vertex shader
    */
-  static getAssignmentVaryingStatementInVertexShader(inputNode: AbstractShaderNode, varNames: string[], j: number) {
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+  static getAssignmentVaryingStatementInVertexShader(
+    engine: Engine,
+    inputNode: AbstractShaderNode,
+    varNames: string[],
+    j: number
+  ) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `output.${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid} = ${varNames[j]};\n`;
     }
     return `v_${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid} = ${varNames[j]};\n`;
@@ -327,7 +341,7 @@ struct VertexOutput {
    *
    * @returns Vertex shader definitions code string
    */
-  abstract get vertexShaderDefinitions(): string;
+  abstract getVertexShaderDefinitions(engine: Engine): string;
 
   /**
    * Gets the pixel/fragment shader definitions code.
@@ -335,5 +349,5 @@ struct VertexOutput {
    *
    * @returns Fragment shader definitions code string
    */
-  abstract get pixelShaderDefinitions(): string;
+  abstract getPixelShaderDefinitions(engine: Engine): string;
 }

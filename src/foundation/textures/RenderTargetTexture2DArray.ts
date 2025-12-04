@@ -102,7 +102,7 @@ export class RenderTargetTexture2DArray extends AbstractTexture implements IRend
     });
     this._textureResourceUid = texture;
 
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2dArray(
         this._textureResourceUid,
         this.__arrayLength
@@ -119,7 +119,7 @@ export class RenderTargetTexture2DArray extends AbstractTexture implements IRend
    * @param layerIndex - The index of the layer to target for rendering
    */
   public changeRenderTargetLayerWebGPU(layerIndex: Index) {
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
       this._textureViewAsRenderTargetResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository

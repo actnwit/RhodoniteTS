@@ -41,7 +41,6 @@ export class EffekseerComponent extends Component {
   private __isInitialized = false;
   private static __tmp_identityMatrix_0: MutableMatrix44 = MutableMatrix44.identity();
   private static __tmp_identityMatrix_1: MutableMatrix44 = MutableMatrix44.identity();
-  private static __webxrSystem: WebXRSystem;
 
   private isLoadEffect = false;
 
@@ -179,7 +178,7 @@ export class EffekseerComponent extends Component {
     return this.entity.tryToGetTransform()!.localScale;
   }
 
-  private __createEffekseerContext(engine: Engine): boolean {
+  private __createEffekseerContext(): boolean {
     if (Is.not.exist(this.uri) && Is.not.exist(this.arrayBuffer)) {
       // console.error('Effekseer data not found.');
       return false;
@@ -222,11 +221,6 @@ export class EffekseerComponent extends Component {
       this.__effect = this.__context.loadEffect(data as any, 1.0, onLoad.bind(this), onError.bind(this));
     }
 
-    // Get WebXRSystem instance
-    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-    const webxrSystem = rnXRModule.WebXRSystem.init(engine);
-    EffekseerComponent.__webxrSystem = webxrSystem;
-
     return true;
   }
 
@@ -240,7 +234,7 @@ export class EffekseerComponent extends Component {
         effekseer.initRuntime(
           EffekseerComponent.wasmModuleUri!,
           () => {
-            const succeed = this.__createEffekseerContext(this.__engine);
+            const succeed = this.__createEffekseerContext();
             if (succeed) {
               this.moveStageTo(ProcessStage.Logic);
             }
@@ -250,7 +244,7 @@ export class EffekseerComponent extends Component {
           }
         );
       } else {
-        const succeed = this.__createEffekseerContext(this.__engine);
+        const succeed = this.__createEffekseerContext();
         if (succeed) {
           this.moveStageTo(ProcessStage.Logic);
         }
@@ -325,11 +319,11 @@ export class EffekseerComponent extends Component {
   }
   private __drawEffekseerEffectWebXR(): void {
     for (let i = 0; i < 2; i++) {
-      const projectionMatrix = EffekseerComponent.__webxrSystem._getProjectMatrixAt(i);
-      const viewMatrix = EffekseerComponent.__webxrSystem._getViewMatrixAt(i);
+      const projectionMatrix = this.__engine.webXRSystem._getProjectMatrixAt(i);
+      const viewMatrix = this.__engine.webXRSystem._getViewMatrixAt(i);
       if (Is.exist(projectionMatrix) && Is.exist(viewMatrix) && Is.exist(this.__context)) {
         const webGLResourceRepository = this.__engine.webglResourceRepository;
-        webGLResourceRepository.setViewport(EffekseerComponent.__webxrSystem._getViewportAt(i));
+        webGLResourceRepository.setViewport(this.__engine, this.__engine.webXRSystem._getViewportAt(i));
         this.__context.setProjectionMatrix(projectionMatrix._v);
         this.__context.setCameraMatrix(viewMatrix._v);
         this.__context.draw();
@@ -345,7 +339,7 @@ export class EffekseerComponent extends Component {
       this.moveStageTo(ProcessStage.Load);
       return;
     }
-    if (EffekseerComponent.__webxrSystem.isWebXRMode) {
+    if (this.__engine.webXRSystem.isWebXRMode) {
       this.__drawEffekseerEffectWebXR();
     } else {
       this.__drawEffekseerEffectNormal();

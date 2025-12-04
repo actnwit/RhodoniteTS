@@ -866,7 +866,11 @@ export class ForwardRenderPipeline extends RnObject {
   private __createRenderTargets(canvasWidth: number, canvasHeight: number) {
     const webXRSystem = this.__engine.webXRSystem;
     const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
-    if (Is.exist(webXRSystem) && webXRSystem.isWebXRMode && cgApiResourceRepository.isSupportMultiViewVRRendering()) {
+    if (
+      Is.exist(webXRSystem) &&
+      webXRSystem.isWebXRMode &&
+      cgApiResourceRepository.isSupportMultiViewVRRendering(this.__engine)
+    ) {
       const framebufferMultiView = RenderableHelper.createFrameBufferTextureArrayForMultiView(this.__engine, {
         width: canvasWidth / 2,
         height: canvasHeight,

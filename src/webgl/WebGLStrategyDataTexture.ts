@@ -846,7 +846,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
             accessor.bufferView.buffer.indexOfTheBufferUsage
           );
           this.__uniformMorphOffsetsTypedArray![morphUniformDataOffsets[i] + j] =
-            (EngineState.totalSizeOfGPUShaderDataStorageExceptMorphData +
+            (this.__engine.engineState.totalSizeOfGPUShaderDataStorageExceptMorphData +
               byteOffsetOfExistingBuffer +
               accessor.byteOffsetInBuffer) /
             4 /
@@ -946,12 +946,12 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const morphMaxIndex = Primitive.getPrimitiveCountHasMorph();
     if (
       morphMaxIndex !== this.__lastMorphMaxIndex ||
-      EngineState.totalSizeOfGPUShaderDataStorageExceptMorphData !==
+      this.__engine.engineState.totalSizeOfGPUShaderDataStorageExceptMorphData !==
         this.__lastTotalSizeOfGPUShaderDataStorageExceptMorphData
     ) {
       this.__updateMorphOffsetsUniformBuffersInner();
       this.__lastTotalSizeOfGPUShaderDataStorageExceptMorphData =
-        EngineState.totalSizeOfGPUShaderDataStorageExceptMorphData;
+        this.__engine.engineState.totalSizeOfGPUShaderDataStorageExceptMorphData;
       this.__lastMorphMaxIndex = morphMaxIndex;
     }
   }
@@ -1078,7 +1078,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       }
 
       const floatDataTextureBuffer = new Float32Array(finalArrayBuffer);
-      EngineState.totalSizeOfGPUShaderDataStorageExceptMorphData = srcCopySizesExceptMorphBuffer.reduce(
+      this.__engine.engineState.totalSizeOfGPUShaderDataStorageExceptMorphData = srcCopySizesExceptMorphBuffer.reduce(
         (acc, size) => acc + size,
         0
       );
@@ -1557,7 +1557,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       gl.depthMask(false);
     }
 
-    this.__engine.webglResourceRepository.setViewport(renderPass.getViewport());
+    this.__engine.webglResourceRepository.setViewport(this.__engine, renderPass.getViewport());
 
     gl.drawArrays(
       renderPass._primitiveModeForBufferLessRendering.index,

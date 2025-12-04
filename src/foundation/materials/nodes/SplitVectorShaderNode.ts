@@ -3,6 +3,7 @@ import SplitVectorShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/no
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
+import type { Engine } from '../../system/Engine';
 import { EngineState } from '../../system/EngineState';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
@@ -103,8 +104,8 @@ export class SplitVectorShaderNode extends AbstractShaderNode {
    * @returns The appropriate shader function name for the current input connection and process approach
    * @throws {Error} When no valid input connection is found in WebGPU mode
    */
-  getShaderFunctionNameDerivative() {
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+  getShaderFunctionNameDerivative(engine: Engine) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       for (const inputConnection of this.inputConnections) {
         if (inputConnection != null) {
           if (inputConnection.inputNameOfThis === 'xyzw') {
@@ -136,6 +137,7 @@ export class SplitVectorShaderNode extends AbstractShaderNode {
    * @returns The generated shader code string for the function call
    */
   makeCallStatement(
+    engine: Engine,
     i: number,
     _shaderNode: AbstractShaderNode,
     functionName: string,
@@ -146,7 +148,7 @@ export class SplitVectorShaderNode extends AbstractShaderNode {
     let rowStr = '';
     if (varInputNames[i].length > 0 && varOutputNames[i].length > 0) {
       const dummyOutputVarDefines =
-        EngineState.currentProcessApproach === ProcessApproach.WebGPU
+        engine.engineState.currentProcessApproach === ProcessApproach.WebGPU
           ? [
               `var dummyXYZ_${i}: vec3<f32>;`,
               `var dummyXY_${i}: vec2<f32>;`,
@@ -202,7 +204,7 @@ export class SplitVectorShaderNode extends AbstractShaderNode {
         }
       }
 
-      if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+      if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
         for (let i = 0; i < dummyOutputArguments.length; i++) {
           dummyOutputArguments[i] = `&${dummyOutputArguments[i]}`;
         }

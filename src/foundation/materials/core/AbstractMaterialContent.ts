@@ -585,7 +585,7 @@ export abstract class AbstractMaterialContent extends RnObject {
       shaderSemanticsInfoArray: ShaderSemanticsInfo[];
       shaderityObject: ShaderityObject;
     };
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       const preprocessedVertexShader = Shaderity.processPragma(vertexShaderWebGpu!, definitions);
       const preprocessedPixelShader = Shaderity.processPragma(pixelShaderWebGpu!, definitions);
 

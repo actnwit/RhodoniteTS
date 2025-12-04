@@ -21,7 +21,6 @@ import { MemoryManager } from '../core/MemoryManager';
 import { CameraType } from '../definitions/CameraType';
 import { ProcessApproach, type ProcessApproachEnum } from '../definitions/ProcessApproach';
 import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';
-import { ShaderSemantics } from '../definitions/ShaderSemantics';
 import { Primitive } from '../geometry/Primitive';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { DummyTextures } from '../materials/core/DummyTextures';
@@ -78,6 +77,7 @@ export class Engine extends RnObject {
   private __cgApiResourceRepository: ICGAPIResourceRepository;
   private __webglResourceRepository?: WebGLResourceRepository;
   private __webGpuResourceRepository?: WebGpuResourceRepository;
+  private __engineState = new EngineState();
   private __renderPassTickCount = 0;
   private __animationFrameId = -1;
 
@@ -282,7 +282,7 @@ export class Engine extends RnObject {
         MeshRendererComponent.common_$prerender(this);
         const isWebXRMode = webxrSystem.isWebXRMode;
         const isMultiView = webxrSystem.isMultiView();
-        const xrPose = EngineState.xrPoseWebGPU;
+        const xrPose = this.__engineState.xrPoseWebGPU;
         const displayCount = isWebXRMode && !isMultiView && xrPose != null ? xrPose.views.length : 1;
         const renderPassTickCountMap = new Map<number, number>();
         const primitiveUidsMap = new Map<number, PrimitiveUID[]>();
@@ -313,7 +313,7 @@ export class Engine extends RnObject {
               let doRender = renderPass._renderedSomethingBefore;
               if (doRender) {
                 doRender = !webGpuResourceRepository.renderWithRenderBundle(this, renderPass, displayIdx);
-                EngineState.webgpuRenderBundleMode ||= doRender;
+                this.__engineState.webgpuRenderBundleMode ||= doRender;
               }
 
               if (doRender) {
@@ -345,7 +345,7 @@ export class Engine extends RnObject {
         webGpuResourceRepository.flush();
       } else {
         if (
-          !EngineState.webgpuRenderBundleMode ||
+          !this.__engineState.webgpuRenderBundleMode ||
           AnimationComponent.getIsAnimating(this) ||
           TransformComponent.getUpdateCount(this) !== this.__lastTransformComponentsUpdateCount ||
           CameraComponent.getCurrentCameraUpdateCount(this) !== this.__lastCameraComponentsUpdateCount ||
@@ -511,7 +511,7 @@ export class Engine extends RnObject {
     const webXRSystem = this.__webXRSystem;
     const webARSystem = this.__webARSystem;
     if ((!webXRSystem.isWebXRMode || !renderPass.isVrRendering) && !webARSystem.isWebARMode) {
-      (this.__cgApiResourceRepository as WebGLResourceRepository).setViewport(renderPass.getViewport());
+      (this.__cgApiResourceRepository as WebGLResourceRepository).setViewport(this, renderPass.getViewport());
     }
   }
 
@@ -567,7 +567,6 @@ export class Engine extends RnObject {
    * @returns
    */
   public static async init(desc: EngineInitDescription): Promise<Engine> {
-    EngineState.currentProcessApproach = desc.approach;
     await ModuleManager.getInstance().loadModule('pbr');
     await ModuleManager.getInstance().loadModule('xr');
     Config.eventTargetDom = desc.canvas;
@@ -625,7 +624,7 @@ export class Engine extends RnObject {
     }
 
     const engine = new Engine(desc.approach, cgApiResourceRepository!, maxGPUDataStorageSize);
-
+    engine.__engineState.currentProcessApproach = desc.approach;
     if (desc.approach === ProcessApproach.WebGPU) {
       engine.__webGpuResourceRepository = cgApiResourceRepository as WebGpuResourceRepository;
     }
@@ -674,7 +673,7 @@ export class Engine extends RnObject {
 
     engine.__dummyTextures = await DummyTextures.init(engine);
 
-    EngineState.viewportAspectRatio = desc.canvas != null ? desc.canvas.width / desc.canvas.height : 1;
+    engine.__engineState.viewportAspectRatio = desc.canvas != null ? desc.canvas.width / desc.canvas.height : 1;
 
     return engine;
   }
@@ -686,7 +685,7 @@ export class Engine extends RnObject {
   public resizeCanvas(width: number, height: number) {
     const repo = this.cgApiResourceRepository;
     repo.resizeCanvas(width, height);
-    EngineState.viewportAspectRatio = width / height;
+    this.__engineState.viewportAspectRatio = width / height;
   }
 
   public getCanvasSize() {
@@ -744,5 +743,9 @@ export class Engine extends RnObject {
 
   public get dummyTextures() {
     return this.__dummyTextures!;
+  }
+
+  public get engineState() {
+    return this.__engineState;
   }
 }

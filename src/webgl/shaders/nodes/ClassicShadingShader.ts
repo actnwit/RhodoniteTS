@@ -2,6 +2,7 @@ import { Config } from '../../../foundation/core/Config';
 import type { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { ShaderNode } from '../../../foundation/definitions/ShaderNode';
 import type { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
+import type { Engine } from '../../../foundation/system/Engine';
 import type { AttributeNames } from '../../types/CommonTypes';
 import { CommonShaderPart } from '../CommonShaderPart';
 
@@ -52,7 +53,7 @@ export class ClassicShadingShader extends CommonShaderPart {
    *
    * @returns Empty string for vertex shader definitions
    */
-  get vertexShaderDefinitions() {
+  getVertexShaderDefinitions(_engine: Engine) {
     return `
 
 `;
@@ -68,7 +69,7 @@ export class ClassicShadingShader extends CommonShaderPart {
    *
    * @returns GLSL code string containing shader definitions and the classicShading function
    */
-  get pixelShaderDefinitions() {
+  getPixelShaderDefinitions(_engine: Engine) {
     return `
 uniform int u_shadingModel;
 uniform float u_shininess;

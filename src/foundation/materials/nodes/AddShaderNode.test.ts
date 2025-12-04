@@ -1,9 +1,12 @@
 import Rn from '../../../../dist/esm/';
 
 test.skip('AttributePosition works correctly 1', async () => {
-  Rn.MemoryManager.createInstanceIfNotCreated(1024 * 1024 * 4 /* rgba */ * 4 /* byte */);
+  const engine = await Rn.Engine.init({
+    approach: Rn.ProcessApproach.None,
+    canvas: document.getElementById('world') as HTMLCanvasElement,
+  });
 
-  const materialNode = new Rn.CustomMaterialContent({
+  const materialNode = new Rn.CustomMaterialContent(engine, {
     name: 'material test',
     isSkinning: false,
     isLighting: false,
@@ -22,7 +25,7 @@ test.skip('AttributePosition works correctly 1', async () => {
   });
 
   // Material.registerMaterial('MyMaterial', undefined);
-  const _material = Rn.MaterialRepository.createMaterial('MyMaterial', materialNode)!;
+  const _material = engine.materialRepository.createMaterial(engine, 'MyMaterial', materialNode)!;
 
   const a_position = new Rn.AttributePositionShaderNode();
 
@@ -30,7 +33,7 @@ test.skip('AttributePosition works correctly 1', async () => {
   outPositionNode.addInputConnection(a_position, a_position.getSocketOutput(), outPositionNode.getSocketInput());
 
   // nodes are intentionally made the order random
-  const retVal = Rn.ShaderGraphResolver.createVertexShaderCode([outPositionNode, a_position], [], false);
+  const retVal = Rn.ShaderGraphResolver.createVertexShaderCode(engine, [outPositionNode, a_position], [], false);
 
   expect(retVal!.replace(/\s+/g, '')).toEqual(
     `

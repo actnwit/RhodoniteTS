@@ -131,7 +131,7 @@ export class WebXRSystem {
     this.__basePath = basePath;
     await ModuleManager.getInstance().loadModule('xr');
 
-    const isWebGPU = EngineState.currentProcessApproach === ProcessApproach.WebGPU;
+    const isWebGPU = this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU;
     if (isWebGPU) {
       const webgpuDeviceWrapper = this.__engine.webGpuResourceRepository.getWebGpuDeviceWrapper();
       if (webgpuDeviceWrapper == null) {
@@ -219,7 +219,7 @@ export class WebXRSystem {
 
     if (cgApiResourceRepository != null && this.__isReadyForWebXR) {
       let referenceSpace: XRReferenceSpace;
-      const isWebGPU = EngineState.currentProcessApproach === ProcessApproach.WebGPU;
+      const isWebGPU = this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU;
       const requiredFeatures: string[] = isWebGPU ? ['webgpu'] : [];
       const xrSession = (await navigator.xr!.requestSession('immersive-vr', { requiredFeatures })) as XRSession;
 
@@ -409,7 +409,7 @@ export class WebXRSystem {
    */
   isMultiView() {
     const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
-    return cgApiResourceRepository.isSupportMultiViewVRRendering();
+    return cgApiResourceRepository.isSupportMultiViewVRRendering(this.__engine);
   }
 
   /**
@@ -878,7 +878,7 @@ export class WebXRSystem {
   private __updateView(xrFrame: XRFrame) {
     this.__xrViewerPose = xrFrame.getViewerPose(this.__xrReferenceSpace!);
     this.__setCameraInfoFromXRViews(this.__xrViewerPose!);
-    const isWebGPU = EngineState.currentProcessApproach === ProcessApproach.WebGPU;
+    const isWebGPU = this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU;
     if (isWebGPU) {
       const view = this.__xrViewerPose!.views[0];
       const subImage = this.__xrGpuBinding!.getViewSubImage(this.__xrProjectionLayerWebGPU!, view);
@@ -893,9 +893,9 @@ export class WebXRSystem {
       } else {
         Logger.warn('XRWebGPU subImage returned zero-sized extent. Skipping canvas resize for this frame.');
       }
-      EngineState.xrPoseWebGPU = this.__xrViewerPose;
-      EngineState.xrGpuBinding = this.__xrGpuBinding;
-      EngineState.xrProjectionLayerWebGPU = this.__xrProjectionLayerWebGPU;
+      this.__engine.engineState.xrPoseWebGPU = this.__xrViewerPose;
+      this.__engine.engineState.xrGpuBinding = this.__xrGpuBinding;
+      this.__engine.engineState.xrProjectionLayerWebGPU = this.__xrProjectionLayerWebGPU;
     }
   }
 

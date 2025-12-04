@@ -336,7 +336,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
             accessor.bufferView.buffer.indexOfTheBufferUsage
           );
           this.__uniformMorphOffsetsTypedArray![morphUniformDataOffsets[i] + j] =
-            (EngineState.totalSizeOfGPUShaderDataStorageExceptMorphData +
+            (engine.engineState.totalSizeOfGPUShaderDataStorageExceptMorphData +
               byteOffsetOfExistingBuffer +
               accessor.byteOffsetInBuffer) /
             4 /
@@ -509,7 +509,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         }
       );
 
-      EngineState.totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
+      this.__engine.engineState.totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
     }
 
     if (
@@ -762,7 +762,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       gl.depthMask(false);
     }
 
-    engine.webglResourceRepository.setViewport(renderPass.getViewport());
+    engine.webglResourceRepository.setViewport(engine, renderPass.getViewport());
 
     gl.drawArrays(
       renderPass._primitiveModeForBufferLessRendering.index,

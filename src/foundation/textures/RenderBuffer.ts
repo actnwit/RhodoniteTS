@@ -95,7 +95,7 @@ export class RenderBuffer extends RnObject implements IRenderable {
       sampleCountMSAA
     );
 
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (
         cgApiResourceRepository as unknown as WebGpuResourceRepository
       ).createTextureView2d(this._textureResourceUid);

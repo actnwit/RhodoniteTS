@@ -85,7 +85,7 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     });
     this._textureResourceUid = texture;
 
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2d(
         this._textureResourceUid
       );

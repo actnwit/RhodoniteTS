@@ -4,7 +4,7 @@ import MultiplyShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/
 import MultiplyShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Multiply.wgsl';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
-import { EngineState } from '../../system/EngineState';
+import type { Engine } from '../../system/Engine';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 /**
@@ -67,8 +67,8 @@ export class MultiplyShaderNode extends AbstractShaderNode {
    * - Vec2, Vec3, Vec4: Float vectors
    * - Mat2, Mat3, Mat4: Float matrices
    */
-  getShaderFunctionNameDerivative(): string {
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+  getShaderFunctionNameDerivative(engine: Engine): string {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (
         this.__inputs[0].compositionType === CompositionType.Scalar &&
         this.__inputs[1].compositionType === CompositionType.Scalar

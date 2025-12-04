@@ -427,7 +427,7 @@ const shaderNodeJson = {
   ],
 };
 
-const result = Rn.ShaderGraphResolver.generateShaderCodeFromJson(shaderNodeJson as any);
+const result = Rn.ShaderGraphResolver.generateShaderCodeFromJson(engine, shaderNodeJson as any);
 
 const rnm = await Rn.Gltf2Importer.importFromUrl(
   '../../../assets/gltf/glTF-Sample-Assets/Models/DamagedHelmet/glTF-Binary/DamagedHelmet.glb'

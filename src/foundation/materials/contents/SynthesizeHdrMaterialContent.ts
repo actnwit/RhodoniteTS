@@ -156,7 +156,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
       },
     ];
 
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this.setVertexShaderityObject(SynthesizeHDRTextureShaderVertexWebGpu);
       this.setPixelShaderityObject(SynthesizeHDRTextureShaderFragmentWebGpu);
     } else {

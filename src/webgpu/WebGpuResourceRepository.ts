@@ -1022,8 +1022,11 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           });
         }
       } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
-        const view = EngineState.xrPoseWebGPU!.views[displayIdx];
-        const subImage = EngineState.xrGpuBinding.getViewSubImage(EngineState.xrProjectionLayerWebGPU!, view);
+        const view = engine.engineState.xrPoseWebGPU!.views[displayIdx];
+        const subImage = engine.engineState.xrGpuBinding.getViewSubImage(
+          engine.engineState.xrProjectionLayerWebGPU!,
+          view
+        );
         colorAttachments.push({
           view: subImage.colorTexture.createView(subImage.getViewDescriptor()),
           clearValue: {
@@ -1065,8 +1068,11 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           depthStoreOp: 'store',
         };
       } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
-        const view = EngineState.xrPoseWebGPU!.views[displayIdx];
-        const subImage = EngineState.xrGpuBinding.getViewSubImage(EngineState.xrProjectionLayerWebGPU!, view);
+        const view = engine.engineState.xrPoseWebGPU!.views[displayIdx];
+        const subImage = engine.engineState.xrGpuBinding.getViewSubImage(
+          engine.engineState.xrProjectionLayerWebGPU!,
+          view
+        );
         depthStencilAttachment = {
           view: subImage.depthStencilTexture.createView(subImage.getViewDescriptor()),
           depthClearValue: renderPass.clearDepth,
@@ -1250,8 +1256,11 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         depthStencilFormat = undefined;
       }
     } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
-      const view = EngineState.xrPoseWebGPU!.views[displayIdx];
-      const subImage = EngineState.xrGpuBinding.getViewSubImage(EngineState.xrProjectionLayerWebGPU!, view);
+      const view = engine.engineState.xrPoseWebGPU!.views[displayIdx];
+      const subImage = engine.engineState.xrGpuBinding.getViewSubImage(
+        engine.engineState.xrProjectionLayerWebGPU!,
+        view
+      );
       colorFormats = [subImage.colorTexture.format];
       depthStencilFormat = subImage.depthStencilTexture.format;
     } else {
@@ -1396,8 +1405,11 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       this.__renderPassEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
     } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
       const colorAttachments: GPURenderPassColorAttachment[] = [];
-      const view = EngineState.xrPoseWebGPU!.views[displayIdx];
-      const subImage = EngineState.xrGpuBinding.getViewSubImage(EngineState.xrProjectionLayerWebGPU!, view);
+      const view = engine.engineState.xrPoseWebGPU!.views[displayIdx];
+      const subImage = engine.engineState.xrGpuBinding.getViewSubImage(
+        engine.engineState.xrProjectionLayerWebGPU!,
+        view
+      );
       colorAttachments.push({
         view: subImage.colorTexture.createView(subImage.getViewDescriptor()),
         clearValue: clearValue,
@@ -1450,7 +1462,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       MeshRendererComponent.updateCount !== this.__lastMeshRendererComponentsUpdateCount
     ) {
       this.__renderBundles.clear();
-      EngineState.webgpuRenderBundleMode = false;
+      engine.engineState.webgpuRenderBundleMode = false;
       this.__lastCurrentCameraComponentSid = CameraComponent.getCurrent(engine);
       this.__lastMaterialsUpdateCount = engine.materialRepository.stateVersion;
       this.__lastEntityRepositoryUpdateCount = EntityRepository.updateCount;
@@ -3581,7 +3593,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    *
    * @param viewport - Optional viewport rectangle (x, y, width, height)
    */
-  setViewport(_viewport?: Vector4) {}
+  setViewport(_engine: Engine, _viewport?: Vector4) {}
 
   /**
    * Checks if the implementation supports multi-view VR rendering.

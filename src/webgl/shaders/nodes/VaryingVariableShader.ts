@@ -1,6 +1,7 @@
 import type { ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
 import type { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import type { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
+import type { Engine } from '../../../foundation/system/Engine';
 import type { AttributeNames } from '../../types';
 import { CommonShaderPart } from '../CommonShaderPart';
 
@@ -18,7 +19,7 @@ export class VaryingVariableShader extends CommonShaderPart {
     this.__variableName = name;
   }
 
-  get vertexShaderDefinitions() {
+  getVertexShaderDefinitions(_engine: Engine) {
     return `
     out ${this.__compositionType.getGlslStr(this.__componentType)} ${this.__variableName};
     void ${this.__functionName}(
@@ -28,7 +29,7 @@ export class VaryingVariableShader extends CommonShaderPart {
     `;
   }
 
-  get pixelShaderDefinitions() {
+  getPixelShaderDefinitions(_engine: Engine) {
     return `
     in ${this.__compositionType.getGlslStr(this.__componentType)} ${this.__variableName};
     void ${this.__functionName}(

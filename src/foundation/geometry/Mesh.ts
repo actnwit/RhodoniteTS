@@ -929,7 +929,7 @@ export class Mesh implements IMesh {
     }
     this.updateVariationVBO();
 
-    if (EngineState.currentProcessApproach !== ProcessApproach.WebGPU) {
+    if (this.__engine.engineState.currentProcessApproach !== ProcessApproach.WebGPU) {
       this.updateVAO();
     }
   }
