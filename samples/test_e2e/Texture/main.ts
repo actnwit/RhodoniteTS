@@ -4,11 +4,11 @@ import { getProcessApproach } from '../common/testHelpers.js';
 declare const window: any;
 
 // Init Rhodonite
-Rn.Config.cgApiDebugConsoleOutput = true;
 const processApproach = getProcessApproach(Rn);
 const engine = await Rn.Engine.init({
   approach: processApproach,
   canvas: document.getElementById('world') as HTMLCanvasElement,
+  config: new Rn.Config({ cgApiDebugConsoleOutput: true }),
 });
 
 const textureWidth = 256;

@@ -130,18 +130,3 @@ export class Config {
     this.materialCountPerBufferView = 1000;
   }
 }
-
-/**
- * Default config instance for backward compatibility.
- * This instance is used when no config is provided to Engine.init().
- * Properties can be modified before calling Engine.init().
- * @deprecated Set config values via Engine.init({config: new Config({...})}) instead.
- */
-export const DefaultConfig = new Config();
-
-/**
- * @deprecated Use Config.setUpAsMemoryBoostMode() or pass config to Engine.init() instead.
- */
-export function setUpAsMemoryBoostMode() {
-  DefaultConfig.setUpAsMemoryBoostMode();
-}

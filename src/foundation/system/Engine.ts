@@ -14,7 +14,7 @@ import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { Component } from '../core/Component';
 import { ComponentMemoryRegistry } from '../core/ComponentMemoryRegistry';
 import { ComponentRepository } from '../core/ComponentRepository';
-import { type Config, DefaultConfig } from '../core/Config';
+import { Config } from '../core/Config';
 import { EntityRepository } from '../core/EntityRepository';
 import { GlobalDataRepository } from '../core/GlobalDataRepository';
 import { MemoryManager } from '../core/MemoryManager';
@@ -109,7 +109,7 @@ export class Engine extends RnObject {
     config?: Config
   ) {
     super();
-    this.__config = config ?? DefaultConfig;
+    this.__config = config ?? new Config();
     this.__engineUid = Engine.__engineCount;
     this.__processApproach = processApproach;
     this.__cgApiResourceRepository = cgApiResourceRepository;
@@ -617,7 +617,7 @@ export class Engine extends RnObject {
 
       cgApiResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       (cgApiResourceRepository as WebGLResourceRepository).generateWebGLContext(
-        desc.config ?? DefaultConfig,
+        desc.config ?? new Config(),
         desc.canvas,
         true,
         desc.webglOption

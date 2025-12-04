@@ -1,11 +1,11 @@
 import Rn from '../../../dist/esmdev/index.js';
 
 // prepare memory
-Rn.Config.cgApiDebugConsoleOutput = true;
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
 const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: rnCanvasElement,
+  config: new Rn.Config({ cgApiDebugConsoleOutput: true }),
 });
 Rn.Logger.logLevel = Rn.LogLevel.Info;
 

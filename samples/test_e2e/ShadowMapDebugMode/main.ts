@@ -2,10 +2,10 @@ import Rn from '../../../dist/esmdev/index.js';
 
 let p: any;
 
-Rn.Config.cgApiDebugConsoleOutput = true;
 const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
+  config: new Rn.Config({ cgApiDebugConsoleOutput: true }),
 });
 Rn.Logger.logLevel = Rn.LogLevel.Info;
 

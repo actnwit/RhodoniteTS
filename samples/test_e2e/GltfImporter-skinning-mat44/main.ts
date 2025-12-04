@@ -5,11 +5,10 @@ declare const window: any;
 const p = document.createElement('p');
 document.body.appendChild(p);
 
-Rn.Config.boneDataType = Rn.BoneDataType.Mat43x1;
-Rn.Config.cgApiDebugConsoleOutput = true;
 const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
+  config: new Rn.Config({ boneDataType: Rn.BoneDataType.Mat43x1, cgApiDebugConsoleOutput: true }),
 });
 Rn.Logger.logLevel = Rn.LogLevel.Info;
 

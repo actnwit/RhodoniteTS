@@ -4,10 +4,10 @@ declare const window: any;
 
 // prepare memory
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-Rn.Config.cgApiDebugConsoleOutput = true;
 const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: rnCanvasElement,
+  config: new Rn.Config({ cgApiDebugConsoleOutput: true }),
 });
 Rn.Logger.logLevel = Rn.LogLevel.Info;
 

@@ -10,11 +10,11 @@ let framebuffer: Rn.FrameBuffer;
 let renderPassMain: Rn.RenderPass;
 
 const canvas = document.getElementById('world') as HTMLCanvasElement;
-Rn.Config.cgApiDebugConsoleOutput = true;
 const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas,
   webglOption: { antialias: false },
+  config: new Rn.Config({ cgApiDebugConsoleOutput: true }),
 });
 
 // setup the Main RenderPass

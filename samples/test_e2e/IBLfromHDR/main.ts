@@ -8,11 +8,11 @@ declare const HDRImage: any;
 const cubeMapSize = 512;
 
 // Init Rhodonite
-Rn.Config.cgApiDebugConsoleOutput = true;
 const processApproach = getProcessApproach(Rn);
 const engine = await Rn.Engine.init({
   approach: processApproach,
   canvas: document.getElementById('world') as HTMLCanvasElement,
+  config: new Rn.Config({ cgApiDebugConsoleOutput: true }),
 });
 Rn.Logger.logLevel = Rn.LogLevel.Info;
 

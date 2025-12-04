@@ -61,10 +61,10 @@ let p: any;
 const canvas = document.getElementById('world') as HTMLCanvasElement;
 window.canvas = canvas;
 
-Rn.Config.cgApiDebugConsoleOutput = true;
 const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas,
+  config: new Rn.Config({ cgApiDebugConsoleOutput: true }),
 });
 Rn.Logger.logLevel = Rn.LogLevel.Info;
 
