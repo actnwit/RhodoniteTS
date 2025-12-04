@@ -120,7 +120,7 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     this._recommendedTextureSampler = sampler;
     this._samplerResourceUid = sampler._samplerResourceUid;
 
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureViewCube(
         this._textureResourceUid
       );
@@ -242,7 +242,7 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     this._recommendedTextureSampler = sampler;
     this._samplerResourceUid = sampler._samplerResourceUid;
 
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (
         cgApiResourceRepository as unknown as WebGpuResourceRepository
       ).createTextureViewCube(this._textureResourceUid);

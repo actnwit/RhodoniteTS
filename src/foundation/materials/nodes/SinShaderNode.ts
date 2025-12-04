@@ -3,7 +3,7 @@ import SinShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Sin.
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
-import { EngineState } from '../../system/EngineState';
+import type { Engine } from '../../system/Engine';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
 
@@ -69,11 +69,12 @@ export class SinShaderNode extends AbstractShaderNode {
    * This method ensures that the correct shader function is called based on the
    * composition type and the target graphics API.
    *
+   * @param engine - The engine instance
    * @returns The shader function name to use in the generated shader code
    * @throws {Error} Throws an error if the composition type is not implemented for WebGPU
    */
-  getShaderFunctionNameDerivative() {
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+  getShaderFunctionNameDerivative(engine: Engine) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (this.__inputs[0].compositionType === CompositionType.Scalar) {
         return `${this.__shaderFunctionName}F32`;
       }

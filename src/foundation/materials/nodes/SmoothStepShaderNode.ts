@@ -3,7 +3,7 @@ import StepShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Smo
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
-import { EngineState } from '../../system/EngineState';
+import type { Engine } from '../../system/Engine';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
 
@@ -69,11 +69,12 @@ export class SmoothStepShaderNode extends AbstractShaderNode {
    * For WebGPU, the function name includes a type suffix (F32, Vec2f, Vec3f, Vec4f) to match
    * WGSL naming conventions. For other approaches (WebGL), the base function name is used.
    *
+   * @param engine - The engine instance
    * @returns The shader function name with appropriate type suffix for the current context
    * @throws {Error} If the composition type is not supported
    */
-  getShaderFunctionNameDerivative() {
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+  getShaderFunctionNameDerivative(engine: Engine) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (this.__inputs[0].compositionType === CompositionType.Scalar) {
         return `${this.__shaderFunctionName}F32`;
       }

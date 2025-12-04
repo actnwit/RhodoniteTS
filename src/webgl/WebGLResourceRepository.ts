@@ -3146,13 +3146,13 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     this.__webglResources.delete(transformFeedbackUid);
   }
 
-  setViewport(viewport?: Vector4) {
+  setViewport(engine: Engine, viewport?: Vector4) {
     if (viewport) {
       this.__glw?.setViewportAsVector4(viewport);
-      EngineState.viewportAspectRatio = (viewport.z - viewport.x) / (viewport.w - viewport.y);
+      engine.engineState.viewportAspectRatio = (viewport.z - viewport.x) / (viewport.w - viewport.y);
     } else {
       this.__glw?.setViewport(0, 0, this.__glw!.width, this.__glw!.height);
-      EngineState.viewportAspectRatio = this.__glw!.width / this.__glw!.height;
+      engine.engineState.viewportAspectRatio = this.__glw!.width / this.__glw!.height;
     }
   }
 
@@ -3235,6 +3235,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
 
   rebuildProgramBySpector(
     this: RnWebGLProgram,
+    engine: Engine,
     updatedVertexSourceCode: string, // The new vertex shader source
     updatedFragmentSourceCode: string, // The new fragment shader source
     onCompiled: (program: WebGLProgram) => void, // Callback triggered by your engine when the compilation is successful. It needs to send back the new linked program.
@@ -3250,7 +3251,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
       return false;
     }
 
-    const processApproach = EngineState.currentProcessApproach;
+    const processApproach = engine.engineState.currentProcessApproach;
     const renderingStrategy = getRenderingStrategy(this._engine, processApproach);
 
     const modifiedVertexSourceCode = updatedVertexSourceCode.replace(/! =/g, '!=');
@@ -3885,8 +3886,8 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     }
   }
 
-  isSupportMultiViewVRRendering(): boolean {
-    if (EngineState.currentProcessApproach === ProcessApproach.DataTexture) {
+  isSupportMultiViewVRRendering(engine: Engine): boolean {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.DataTexture) {
       return this.__glw!.isMultiview();
     }
     return false;

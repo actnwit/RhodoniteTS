@@ -5,6 +5,7 @@ import DotProductShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nod
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
+import type { Engine } from '../../system/Engine';
 import { EngineState } from '../../system/EngineState';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
@@ -80,8 +81,8 @@ export class DotProductShaderNode extends AbstractShaderNode {
    * // Returns "dotProductVec3f" for Vec3 inputs in WebGPU context
    * ```
    */
-  getShaderFunctionNameDerivative(): string {
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+  getShaderFunctionNameDerivative(engine: Engine): string {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (this.__inputs[0].compositionType === CompositionType.Vec2) {
         return `${this.__shaderFunctionName}Vec2f`;
       }

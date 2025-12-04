@@ -265,7 +265,7 @@ function setVRViewport(engine: Engine, _renderPass: RenderPass, displayIdx: Inde
   const webglResourceRepository = engine.webglResourceRepository;
   const webxrSystem = engine.webXRSystem;
   if (webxrSystem.isWebXRMode) {
-    webglResourceRepository.setViewport(webxrSystem._getViewportAt(displayIdx));
+    webglResourceRepository.setViewport(engine, webxrSystem._getViewportAt(displayIdx));
   }
 }
 

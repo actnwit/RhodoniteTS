@@ -84,7 +84,7 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
       },
     ];
 
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this.setVertexShaderityObject(DetectHighLuminanceAndCorrectShaderVertexWebGpu);
       this.setPixelShaderityObject(DetectHighLuminanceAndCorrectShaderFragmentWebGpu);
     } else {

@@ -4,7 +4,7 @@ import { ComponentType, type ComponentTypeEnum } from '../../definitions/Compone
 import { CompositionType } from '../../definitions/CompositionType';
 import type { CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
-import { EngineState } from '../../system/EngineState';
+import type { Engine } from '../../system/Engine';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 /**
@@ -70,11 +70,12 @@ export class TransformShaderNode extends AbstractShaderNode {
    * For WebGPU, returns a specific function name based on matrix and vector dimensions.
    * For other approaches, returns the base shader function name.
    *
+   * @param engine - The engine instance
    * @returns The shader function name to use for this transformation
    * @throws {Error} When the matrix-vector combination is not implemented for WebGPU
    */
-  getShaderFunctionNameDerivative(): string {
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+  getShaderFunctionNameDerivative(engine: Engine): string {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (
         this.__inputs[0].compositionType === CompositionType.Mat2 &&
         this.__inputs[1].compositionType === CompositionType.Vec2

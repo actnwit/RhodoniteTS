@@ -6,7 +6,7 @@ import type { CompositionTypeEnum } from '../../definitions/CompositionType';
 import type { ShaderSemanticsEnum } from '../../definitions/ShaderSemantics';
 import { ShaderType, type ShaderTypeEnum } from '../../definitions/ShaderType';
 import type { VertexAttributeEnum } from '../../definitions/VertexAttribute';
-import { EngineState } from '../../system';
+import type { Engine } from '../../system/Engine';
 import type { Socket, SocketDefaultValue } from './Socket';
 
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
@@ -136,24 +136,25 @@ export abstract class AbstractShaderNode extends RnObject {
    * By default, returns the same as the regular function name.
    * @returns The derivative function name used in shader code
    */
-  getShaderFunctionNameDerivative(): string {
+  getShaderFunctionNameDerivative(_engine: Engine): string {
     return this.__shaderFunctionName;
   }
 
   /**
    * Retrieves the shader code for the specified shader stage.
    * Returns appropriate code based on the current rendering approach (WebGL/WebGPU).
+   * @param engine - The engine instance
    * @param shaderStage - The shader stage (vertex or fragment) to get code for
    * @returns The shader code string for the specified stage
    */
-  getShaderCode(shaderStage: ShaderTypeEnum): string {
+  getShaderCode(engine: Engine, shaderStage: ShaderTypeEnum): string {
     if (this.__commonPart != null) {
       if (shaderStage === ShaderType.VertexShader) {
-        return this.__commonPart.vertexShaderDefinitions;
+        return this.__commonPart.getVertexShaderDefinitions(engine);
       }
-      return this.__commonPart.pixelShaderDefinitions;
+      return this.__commonPart.getPixelShaderDefinitions(engine);
     }
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return this.__codeWGSL!;
     }
     return this.__codeGLSL!;
@@ -223,6 +224,7 @@ export abstract class AbstractShaderNode extends RnObject {
    * Generates a function call statement for this shader node in the final shader code.
    * This method constructs the appropriate function call syntax with proper parameter passing
    * for both WebGL and WebGPU rendering approaches.
+   * @param engine - The engine instance
    * @param i - The index of this node in the execution order
    * @param shaderNode - The shader node to generate the call for
    * @param functionName - The name of the function to call
@@ -231,6 +233,7 @@ export abstract class AbstractShaderNode extends RnObject {
    * @returns The generated function call statement string
    */
   makeCallStatement(
+    engine: Engine,
     i: number,
     shaderNode: AbstractShaderNode,
     functionName: string,
@@ -255,7 +258,7 @@ export abstract class AbstractShaderNode extends RnObject {
           if (k !== 0) {
             rowStr += ', ';
           }
-          if (EngineState.currentProcessApproach === ProcessApproach.WebGPU && k >= varInputNames[i].length) {
+          if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU && k >= varInputNames[i].length) {
             rowStr += '&';
           }
           rowStr += varNames[k];

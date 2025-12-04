@@ -10,6 +10,7 @@ import { Vector2 } from '../../math/Vector2';
 import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
 import { Logger } from '../../misc/Logger';
+import type { Engine } from '../../system/Engine';
 import { EngineState } from '../../system/EngineState';
 import { AddShaderNode } from '../nodes/AddShaderNode';
 import { AttributeColorShaderNode } from '../nodes/AttributeColorShaderNode';
@@ -59,6 +60,7 @@ export class ShaderGraphResolver {
    * @returns Complete vertex shader code as a string, or undefined if generation fails
    */
   static createVertexShaderCode(
+    engine: Engine,
     vertexNodes: AbstractShaderNode[],
     varyingNodes: AbstractShaderNode[],
     isFullVersion = true
@@ -80,13 +82,14 @@ export class ShaderGraphResolver {
     const nodes = sortedShaderNodes.concat(varyingNodes);
 
     if (isFullVersion) {
-      vertexShaderPrerequisites += CommonShaderPart.getVertexPrerequisites(nodes);
+      vertexShaderPrerequisites += CommonShaderPart.getVertexPrerequisites(engine, nodes);
     }
 
     let shaderBody = '';
 
     // function definitions
     shaderBody += ShaderGraphResolver.__getFunctionDefinition(
+      engine,
       // sortedShaderNodes,
       sortedShaderNodes.concat(varyingNodes.filter(node => node.getShaderStage() !== 'Fragment')),
       ShaderType.VertexShader
@@ -94,7 +97,7 @@ export class ShaderGraphResolver {
 
     // main process
     try {
-      shaderBody += ShaderGraphResolver.__constructShaderWithNodes(nodes, true, isFullVersion);
+      shaderBody += ShaderGraphResolver.__constructShaderWithNodes(engine, nodes, true, isFullVersion);
     } catch (e) {
       Logger.error(e as string);
       return undefined;
@@ -114,7 +117,7 @@ export class ShaderGraphResolver {
    * @param isFullVersion - Whether to generate a full version with all prerequisites and boilerplate
    * @returns Complete fragment shader code as a string, or undefined if generation fails
    */
-  static createPixelShaderCode(pixelNodes: AbstractShaderNode[], isFullVersion = true) {
+  static createPixelShaderCode(engine: Engine, pixelNodes: AbstractShaderNode[], isFullVersion = true) {
     const shaderNodes = pixelNodes.concat();
 
     // const isValid = this.__validateShaderNodes(shaderNodes);
@@ -128,19 +131,20 @@ export class ShaderGraphResolver {
     // Add additional functions by system
     let pixelShaderPrerequisites = '';
     if (isFullVersion) {
-      pixelShaderPrerequisites += CommonShaderPart.getPixelPrerequisites(sortedShaderNodes);
+      pixelShaderPrerequisites += CommonShaderPart.getPixelPrerequisites(engine, sortedShaderNodes);
     }
     let shaderBody = '';
 
     // function definitions
     shaderBody += ShaderGraphResolver.__getFunctionDefinition(
+      engine,
       sortedShaderNodes.filter(node => node.getShaderStage() !== 'Vertex'),
       ShaderType.PixelShader
     );
 
     // main process
     try {
-      shaderBody += ShaderGraphResolver.__constructShaderWithNodes(sortedShaderNodes, false, isFullVersion);
+      shaderBody += ShaderGraphResolver.__constructShaderWithNodes(engine, sortedShaderNodes, false, isFullVersion);
     } catch (e) {
       Logger.error(e as string);
       return undefined;
@@ -254,12 +258,17 @@ export class ShaderGraphResolver {
    * Collects shader function code from each node type and removes duplicates
    * to create the function definition section of the shader.
    *
+   * @param engine - The engine instance
    * @param shaderNodes - Array of shader nodes to generate functions for
    * @param shaderType - Type of shader (vertex or fragment) being generated
    * @returns String containing all function definitions
    * @private
    */
-  private static __getFunctionDefinition(shaderNodes: AbstractShaderNode[], shaderType: ShaderTypeEnum) {
+  private static __getFunctionDefinition(
+    engine: Engine,
+    shaderNodes: AbstractShaderNode[],
+    shaderType: ShaderTypeEnum
+  ) {
     let shaderText = '';
     const existVertexFunctions: string[] = [];
     for (let i = 0; i < shaderNodes.length; i++) {
@@ -267,7 +276,7 @@ export class ShaderGraphResolver {
       if (existVertexFunctions.indexOf(materialNode.shaderFunctionName) !== -1) {
         continue;
       }
-      shaderText += materialNode.getShaderCode(shaderType);
+      shaderText += materialNode.getShaderCode(engine, shaderType);
       existVertexFunctions.push(materialNode.shaderFunctionName);
     }
 
@@ -278,10 +287,14 @@ export class ShaderGraphResolver {
    * Defines varying variables for vertex-to-fragment communication.
    * @private
    */
-  private static __defineVaryingVariables(shaderNodes: AbstractShaderNode[], isVertexStage: boolean): string {
+  private static __defineVaryingVariables(
+    engine: Engine,
+    shaderNodes: AbstractShaderNode[],
+    isVertexStage: boolean
+  ): string {
     let shaderBody = '';
 
-    if (EngineState.currentProcessApproach !== ProcessApproach.WebGPU) {
+    if (engine.engineState.currentProcessApproach !== ProcessApproach.WebGPU) {
       for (let i = 0; i < shaderNodes.length; i++) {
         const shaderNode = shaderNodes[i];
         for (let j = 0; j < shaderNode.inputConnections.length; j++) {
@@ -309,6 +322,7 @@ export class ShaderGraphResolver {
    * @private
    */
   private static __collectVariableNames(
+    engine: Engine,
     shaderNodes: AbstractShaderNode[],
     isVertexStage: boolean
   ): {
@@ -326,6 +340,7 @@ export class ShaderGraphResolver {
 
     for (let i = 1; i < shaderNodes.length; i++) {
       collectedShaderBody += this.__collectInputsForNode(
+        engine,
         i,
         shaderNodes,
         varInputNames,
@@ -346,6 +361,7 @@ export class ShaderGraphResolver {
    * @private
    */
   private static __collectInputsForNode(
+    engine: Engine,
     nodeIndex: number,
     shaderNodes: AbstractShaderNode[],
     varInputNames: Array<Array<string>>,
@@ -369,7 +385,7 @@ export class ShaderGraphResolver {
     for (let j = 0; j < shaderNode.getInputs().length; j++) {
       const inputConnection = inputConnections[j];
       if (inputConnection == null) {
-        const defaultValue = this.__getDefaultInputValue(shaderNode, j);
+        const defaultValue = this.__getDefaultInputValue(engine, shaderNode, j);
         if (defaultValue) {
           varInputNames[nodeIndex].push(defaultValue);
         }
@@ -377,6 +393,7 @@ export class ShaderGraphResolver {
       }
 
       const { varName, rowStr } = this.__processInputConnection(
+        engine,
         inputConnection,
         shaderNode,
         isVertexStage,
@@ -395,13 +412,17 @@ export class ShaderGraphResolver {
    * Gets default value for an input socket.
    * @private
    */
-  private static __getDefaultInputValue(shaderNode: AbstractShaderNode, inputIndex: number): string | null {
+  private static __getDefaultInputValue(
+    engine: Engine,
+    shaderNode: AbstractShaderNode,
+    inputIndex: number
+  ): string | null {
     const inputSocket = shaderNode.getInputs()[inputIndex];
     if (inputSocket.defaultValue == null) {
       return null;
     }
 
-    const isWebGPU = EngineState.currentProcessApproach === ProcessApproach.WebGPU;
+    const isWebGPU = engine.engineState.currentProcessApproach === ProcessApproach.WebGPU;
     const isBool = inputSocket.componentType === ComponentType.Bool;
 
     if (isBool) {
@@ -416,6 +437,7 @@ export class ShaderGraphResolver {
    * @private
    */
   private static __processInputConnection(
+    engine: Engine,
     inputConnection: any,
     shaderNode: AbstractShaderNode,
     isVertexStage: boolean,
@@ -430,9 +452,14 @@ export class ShaderGraphResolver {
     const inputKey = `${inputNode.shaderNodeUid}_${inputConnection.outputNameOfPrev}`;
 
     if (!existingInputs.has(inputKey)) {
-      rowStr = CommonShaderPart.getAssignmentStatement(varName, inputSocketOfThis!);
+      rowStr = CommonShaderPart.getAssignmentStatement(engine, varName, inputSocketOfThis!);
       if (!isVertexStage && inputNode.getShaderStage() === 'Vertex' && shaderNode.getShaderStage() === 'Fragment') {
-        rowStr = CommonShaderPart.getAssignmentVaryingStatementInPixelShader(varName, inputSocketOfThis!, inputNode);
+        rowStr = CommonShaderPart.getAssignmentVaryingStatementInPixelShader(
+          engine,
+          varName,
+          inputSocketOfThis!,
+          inputNode
+        );
       }
       existingInputs.add(inputKey);
     }
@@ -487,6 +514,7 @@ export class ShaderGraphResolver {
    * @private
    */
   private static __generateShaderCode(
+    engine: Engine,
     shaderNodes: AbstractShaderNode[],
     varInputNames: Array<Array<string>>,
     varOutputNames: Array<Array<string>>,
@@ -513,8 +541,8 @@ export class ShaderGraphResolver {
         varOutputNames[i] = [];
       }
 
-      const functionName = shaderNode.getShaderFunctionNameDerivative();
-      shaderBody += shaderNode.makeCallStatement(i, shaderNode, functionName, varInputNames, varOutputNames);
+      const functionName = shaderNode.getShaderFunctionNameDerivative(engine);
+      shaderBody += shaderNode.makeCallStatement(engine, i, shaderNode, functionName, varInputNames, varOutputNames);
     }
 
     return shaderBody;
@@ -525,6 +553,7 @@ export class ShaderGraphResolver {
    * @private
    */
   private static __handleVertexToFragmentPassing(
+    engine: Engine,
     shaderNodes: AbstractShaderNode[],
     varInputNames: Array<Array<string>>,
     varOutputNames: Array<Array<string>>
@@ -543,7 +572,7 @@ export class ShaderGraphResolver {
 
         const inputNode = AbstractShaderNode.getShaderNodeByUid(inputConnection.shaderNodeUid);
         if (inputNode.getShaderStage() === 'Vertex' && shaderNode.getShaderStage() === 'Fragment') {
-          shaderBody += CommonShaderPart.getAssignmentVaryingStatementInVertexShader(inputNode, varNames, j);
+          shaderBody += CommonShaderPart.getAssignmentVaryingStatementInVertexShader(engine, inputNode, varNames, j);
         }
       }
     }
@@ -567,6 +596,7 @@ export class ShaderGraphResolver {
    * @private
    */
   private static __constructShaderWithNodes(
+    engine: Engine,
     shaderNodes: AbstractShaderNode[],
     isVertexStage: boolean,
     isFullVersion: boolean
@@ -574,9 +604,9 @@ export class ShaderGraphResolver {
     let shaderBody = '';
 
     // Define varying variables
-    shaderBody += this.__defineVaryingVariables(shaderNodes, isVertexStage);
+    shaderBody += this.__defineVaryingVariables(engine, shaderNodes, isVertexStage);
 
-    shaderBody += CommonShaderPart.getMainBegin(isVertexStage);
+    shaderBody += CommonShaderPart.getMainBegin(engine, isVertexStage);
 
     if (isFullVersion) {
       shaderBody += CommonShaderPart.getMainPrerequisites();
@@ -584,20 +614,21 @@ export class ShaderGraphResolver {
 
     // Collect input/output variable names
     const { varInputNames, varOutputNames, collectedShaderBody } = this.__collectVariableNames(
+      engine,
       shaderNodes,
       isVertexStage
     );
     shaderBody += collectedShaderBody;
 
     // Generate shader code
-    shaderBody += this.__generateShaderCode(shaderNodes, varInputNames, varOutputNames, isVertexStage);
+    shaderBody += this.__generateShaderCode(engine, shaderNodes, varInputNames, varOutputNames, isVertexStage);
 
     // Handle vertex-to-fragment data passing
     if (isVertexStage) {
-      shaderBody += this.__handleVertexToFragmentPassing(shaderNodes, varInputNames, varOutputNames);
+      shaderBody += this.__handleVertexToFragmentPassing(engine, shaderNodes, varInputNames, varOutputNames);
     }
 
-    shaderBody += CommonShaderPart.getMainEnd(isVertexStage);
+    shaderBody += CommonShaderPart.getMainEnd(engine, isVertexStage);
 
     return shaderBody;
   }
@@ -620,6 +651,7 @@ export class ShaderGraphResolver {
    * ```
    */
   public static generateShaderCodeFromJson(
+    engine: Engine,
     json: ShaderNodeJson
   ): { vertexShader: string; pixelShader: string } | undefined {
     const constructedNodes = Object.values(constructNodes(json));
@@ -634,8 +666,8 @@ export class ShaderGraphResolver {
       return;
     }
 
-    const vertexRet = ShaderGraphResolver.createVertexShaderCode(vertexNodes, varyingNodes);
-    const pixelRet = ShaderGraphResolver.createPixelShaderCode(pixelNodes);
+    const vertexRet = ShaderGraphResolver.createVertexShaderCode(engine, vertexNodes, varyingNodes);
+    const pixelRet = ShaderGraphResolver.createPixelShaderCode(engine, pixelNodes);
     if (vertexRet == null || pixelRet == null) {
       return;
     }

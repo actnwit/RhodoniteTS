@@ -3,6 +3,7 @@ import type { CompositionTypeEnum } from '../../../foundation/definitions/Compos
 import { ProcessApproach } from '../../../foundation/definitions/ProcessApproach';
 import { VertexAttribute, type VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
 import type { IVector } from '../../../foundation/math/IVector';
+import type { Engine } from '../../../foundation/system/Engine';
 import { EngineState } from '../../../foundation/system/EngineState';
 import type { AttributeNames } from '../../types/CommonTypes';
 import { CommonShaderPart } from '../CommonShaderPart';
@@ -92,8 +93,8 @@ export class ConstantVariableShader extends CommonShaderPart {
    * }
    * ```
    */
-  get vertexShaderDefinitions() {
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+  getVertexShaderDefinitions(engine: Engine) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
       fn ${this.__functionName}(
         outValue: ptr<function, ${this.__compositionType.toWGSLType(this.__componentType)}>) {
@@ -132,8 +133,8 @@ export class ConstantVariableShader extends CommonShaderPart {
    * }
    * ```
    */
-  get pixelShaderDefinitions() {
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+  getPixelShaderDefinitions(engine: Engine) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
       fn ${this.__functionName}(
         outValue: ptr<function, ${this.__compositionType.toWGSLType(this.__componentType)}>) {

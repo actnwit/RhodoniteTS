@@ -811,12 +811,12 @@ export class CameraComponent extends Component {
     const zNear = this._parametersInner.x;
     const zFar = this._parametersInner.y;
 
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (this.type === CameraType.Perspective) {
         const fovy = this._parametersInner.z;
         let aspect = this._parametersInner.w;
         if (aspect < 0) {
-          aspect = EngineState.viewportAspectRatio;
+          aspect = this.__engine.engineState.viewportAspectRatio;
         }
         const yscale = 1.0 / Math.tan((0.5 * fovy * Math.PI) / 180);
         const xscale = yscale / aspect;
@@ -893,7 +893,7 @@ export class CameraComponent extends Component {
         const fovy = this._parametersInner.z;
         let aspect = this._parametersInner.w;
         if (aspect < 0) {
-          aspect = EngineState.viewportAspectRatio;
+          aspect = this.__engine.engineState.viewportAspectRatio;
         }
         const yscale = 1.0 / Math.tan((0.5 * fovy * Math.PI) / 180);
         const xscale = yscale / aspect;
@@ -1077,7 +1077,7 @@ export class CameraComponent extends Component {
    */
   get biasViewProjectionMatrix() {
     MutableMatrix44.multiplyTo(this._projectionMatrix, this._viewMatrix, CameraComponent.__tmpMatrix44_0);
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return MutableMatrix44.multiplyTo(
         CameraComponent.__biasMatrixWebGPU,
         CameraComponent.__tmpMatrix44_0,

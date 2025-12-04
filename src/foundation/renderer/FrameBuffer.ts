@@ -162,7 +162,7 @@ export class FrameBuffer extends RnObject {
     this.__colorAttachments[index] = renderable;
 
     const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (renderable instanceof RenderTargetTexture2DArray) {
         renderable.changeRenderTargetLayerWebGPU(layerIndex);
       }

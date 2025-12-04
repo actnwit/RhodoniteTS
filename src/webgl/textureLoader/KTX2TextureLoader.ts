@@ -360,7 +360,7 @@ export class KTX2TextureLoader {
         : transcoderModule.TextureFormat.ETC1S;
 
     const { transcodeTargetStr, compressionTextureType } =
-      EngineState.currentProcessApproach === ProcessApproach.WebGPU
+      engine.engineState.currentProcessApproach === ProcessApproach.WebGPU
         ? this.__getDeviceDependentParametersWebGPU(engine, hasAlpha)
         : this.__getDeviceDependentParametersWebGL(engine, hasAlpha);
 

@@ -509,7 +509,7 @@ export class MeshRendererComponent extends Component {
     const engineUid = engine.objectUID;
     if (!MeshRendererComponent.__cgApiRenderingStrategyMap.has(engineUid)) {
       // Possible if there is no mesh entity in the scene
-      const processApproach = EngineState.currentProcessApproach;
+      const processApproach = engine.engineState.currentProcessApproach;
       this.common_$load({ processApproach, engine });
     }
     // Call common_$prerender of WebGLRenderingStrategy

@@ -297,7 +297,7 @@ export class Texture extends AbstractTexture implements Disposable {
     }
 
     this.__setTextureResourceUid(texture, this.uniqueName);
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2d(
         this._textureResourceUid
       );
@@ -373,7 +373,7 @@ export class Texture extends AbstractTexture implements Disposable {
             throw new Error('Unsupported image type');
           }
           this.__setTextureResourceUid(texture, this.uniqueName);
-          if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+          if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
             this._textureViewResourceUid = (
               cgApiResourceRepository as unknown as WebGpuResourceRepository
             ).createTextureView2d(this._textureResourceUid);
@@ -427,7 +427,7 @@ export class Texture extends AbstractTexture implements Disposable {
     });
 
     this.__setTextureResourceUid(textureHandle, this.uniqueName);
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (
         cgApiResourceRepository as unknown as WebGpuResourceRepository
       ).createTextureView2d(this._textureResourceUid);
@@ -461,7 +461,7 @@ export class Texture extends AbstractTexture implements Disposable {
       generateMipmap: false,
     });
     this.__setTextureResourceUid(textureHandle, this.uniqueName);
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2d(
         this._textureResourceUid
       );
@@ -507,7 +507,7 @@ export class Texture extends AbstractTexture implements Disposable {
     });
 
     this.__setTextureResourceUid(texture, this.uniqueName);
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2d(
         this._textureResourceUid
       );
@@ -600,7 +600,7 @@ export class Texture extends AbstractTexture implements Disposable {
     const textureHandle = await cgApiResourceRepository.createCompressedTexture([textureData], compressionTextureType);
 
     this.__setTextureResourceUid(textureHandle, this.uniqueName);
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2d(
         this._textureResourceUid
       );
@@ -650,7 +650,7 @@ export class Texture extends AbstractTexture implements Disposable {
     );
 
     this.__setTextureResourceUid(textureHandle, this.uniqueName);
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2d(
         this._textureResourceUid
       );

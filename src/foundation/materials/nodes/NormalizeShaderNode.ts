@@ -3,6 +3,7 @@ import { CompositionType, type CompositionTypeEnum } from '../../../foundation/d
 import NormalizeShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/Normalize.glsl';
 import NormalizeShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Normalize.wgsl';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
+import type { Engine } from '../../system/Engine';
 import { EngineState } from '../../system/EngineState';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
@@ -44,8 +45,8 @@ export class NormalizeShaderNode extends AbstractShaderNode {
    * @returns The appropriate shader function name for the current context
    * @throws {Error} When an unsupported composition type is used with WebGPU
    */
-  getShaderFunctionNameDerivative(): string {
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+  getShaderFunctionNameDerivative(engine: Engine): string {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (this.__inputs[0].compositionType === CompositionType.Vec2) {
         return `${this.__shaderFunctionName}Vec2f`;
       }

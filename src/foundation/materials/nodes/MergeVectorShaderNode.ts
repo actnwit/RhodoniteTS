@@ -3,6 +3,7 @@ import MergeVectorShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/no
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
+import type { Engine } from '../../system/Engine';
 import { EngineState } from '../../system/EngineState';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
@@ -107,10 +108,11 @@ export class MergeVectorShaderNode extends AbstractShaderNode {
    * - ZW + X + Y: Vec2 input with individual X and Y scalars
    * - X + Y + Z + W: Four individual scalar components
    *
+   * @param engine - The engine instance
    * @returns The derivative function name suffix for the shader
    * @throws {Error} When the input connection pattern is not supported
    */
-  getShaderFunctionNameDerivative() {
+  getShaderFunctionNameDerivative(_engine: Engine) {
     if (this.inputConnections[0] != null && this.inputConnections[6] != null) {
       return `${this.__shaderFunctionName}XYZ_W`;
     }
@@ -146,6 +148,7 @@ export class MergeVectorShaderNode extends AbstractShaderNode {
    * that the shader function signature remains consistent regardless of which outputs
    * are actually connected.
    *
+   * @param engine - The engine instance
    * @param i - The node index in the shader graph
    * @param shaderNode - The shader node instance (typically this node)
    * @param functionName - The name of the shader function to call
@@ -154,6 +157,7 @@ export class MergeVectorShaderNode extends AbstractShaderNode {
    * @returns The generated shader code string for the function call
    */
   makeCallStatement(
+    engine: Engine,
     i: number,
     _shaderNode: AbstractShaderNode,
     functionName: string,
@@ -164,7 +168,7 @@ export class MergeVectorShaderNode extends AbstractShaderNode {
     let rowStr = '';
     if (varInputNames[i].length > 0 && varOutputNames[i].length > 0) {
       const dummyOutputVarDefines =
-        EngineState.currentProcessApproach === ProcessApproach.WebGPU
+        engine.engineState.currentProcessApproach === ProcessApproach.WebGPU
           ? [
               `var dummyXYZW_${i}: vec4<f32>;`,
               `var dummyXYZ_${i}: vec3<f32>;`,
@@ -192,7 +196,7 @@ export class MergeVectorShaderNode extends AbstractShaderNode {
         }
       }
 
-      if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+      if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
         for (let i = 0; i < dummyOutputArguments.length; i++) {
           dummyOutputArguments[i] = `&${dummyOutputArguments[i]}`;
         }

@@ -4,7 +4,7 @@ const moduleName = 'webgl';
 const moduleManager = Rn.ModuleManager.getInstance();
 await moduleManager.loadModule(moduleName);
 
-const _engine = await Rn.Engine.init({
+const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -33,10 +33,11 @@ outPositionShaderNode.addInputConnection(
 outColorShaderNode.addInputConnection(constant2, constant2.getSocketOutput(), outColorShaderNode.getSocketInput());
 
 const vertexRet = Rn.ShaderGraphResolver.createVertexShaderCode(
+  engine,
   [outPositionShaderNode, addShaderNode, constant1, constant2],
   []
 );
-const pixelRet = Rn.ShaderGraphResolver.createPixelShaderCode([
+const pixelRet = Rn.ShaderGraphResolver.createPixelShaderCode(engine, [
   outColorShaderNode,
   addShaderNode,
   constant1,

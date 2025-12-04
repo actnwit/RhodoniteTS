@@ -90,7 +90,7 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
     });
     this._textureResourceUid = texture;
 
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureViewCube(
         this._textureResourceUid
       );
@@ -164,7 +164,7 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
    * For WebGL, face-specific rendering is handled differently through framebuffer operations.
    */
   createCubeTextureViewAsRenderTarget(faceIdx: Index, mipLevel: Index): void {
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
       this._textureViewAsRenderTargetResourceUid = webGpuResourceRepository.createCubeTextureViewAsRenderTarget(
         this._textureResourceUid,

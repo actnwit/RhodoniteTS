@@ -2,6 +2,7 @@ import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { Scalar } from '../../math/Scalar';
+import type { Engine } from '../../system/Engine';
 import { EngineState } from '../../system/EngineState';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
@@ -128,6 +129,7 @@ export class ProcessGeometryShaderNode extends AbstractShaderNode {
    * Generates shader code to call the geometry processing function.
    * Creates appropriate variable declarations and function calls for both GLSL and WGSL.
    *
+   * @param engine - The engine instance
    * @param i - The index of the current shader node in the processing chain
    * @param shaderNode - The shader node instance being processed
    * @param functionName - The name of the function to call in the generated shader
@@ -136,6 +138,7 @@ export class ProcessGeometryShaderNode extends AbstractShaderNode {
    * @returns The generated shader code string
    */
   makeCallStatement(
+    engine: Engine,
     i: number,
     _shaderNode: AbstractShaderNode,
     functionName: string,
@@ -146,7 +149,7 @@ export class ProcessGeometryShaderNode extends AbstractShaderNode {
     let rowStr = '';
     if (varInputNames[i].length > 0 && varOutputNames[i].length > 0) {
       const dummyOutputVarDefines =
-        EngineState.currentProcessApproach === ProcessApproach.WebGPU
+        engine.engineState.currentProcessApproach === ProcessApproach.WebGPU
           ? [
               `var dummyNormalMatrix_${i}: mat3x3<f32>;`,
               `var dummyPositionInWorld_${i}: vec4<f32>;`,
@@ -170,7 +173,7 @@ export class ProcessGeometryShaderNode extends AbstractShaderNode {
         }
       }
 
-      if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+      if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
         for (let i = 0; i < dummyOutputArguments.length; i++) {
           dummyOutputArguments[i] = `&${dummyOutputArguments[i]}`;
         }

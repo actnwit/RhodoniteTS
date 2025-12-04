@@ -806,7 +806,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
    * @private
    */
   private static __initializeUsableBlendEquationModeAlpha(engine: Engine) {
-    if (EngineState.currentProcessApproach === ProcessApproach.WebGPU) {
+    if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       MToon0xMaterialContent.usableBlendEquationModeAlpha = 32776; // gl.MAX
     } else {
       const webGLResourceRepository = engine.webglResourceRepository;
