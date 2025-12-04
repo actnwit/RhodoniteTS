@@ -43,10 +43,10 @@ import { type EventHandler, EventPubSub } from '../../system/EventPubSub';
 import type { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import type { IAnimationRetarget } from '../Skeletal';
-import { SkeletalComponent } from '../Skeletal/SkeletalComponent';
 import type { TransformComponent } from '../Transform/TransformComponent';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { __interpolate } from './AnimationOps';
+import { AnimationStateRepository } from './AnimationStateRepository';
 
 const ChangeAnimationInfo = Symbol('AnimationComponentEventChangeAnimationInfo');
 const PlayEnd = Symbol('AnimationComponentEventPlayEnd');
@@ -79,14 +79,10 @@ export class AnimationComponent extends Component {
 
   /// flags ///
   private __isAnimating = true;
-  /** Map to store isAnimating flag per Engine instance for multi-engine support */
-  private static __isAnimatingMap: Map<Engine, boolean> = new Map();
   public isLoop = true;
 
   // Global animation time in Rhodonite
   public useGlobalTime = true;
-  /** Map to store globalTime per Engine instance for multi-engine support */
-  private static __globalTimeMap: Map<Engine, number> = new Map();
 
   // animation time in this animation component
   public time = 0;
@@ -156,7 +152,7 @@ export class AnimationComponent extends Component {
     // - Separate load: Joints are different (different entityUID, same jointIndex)
     //   → early return enabled, significantly reducing CPU overhead
     // ============================================================================
-    if (SkeletalComponent.isEntityCached(this.__entityUid, this.__engine)) {
+    if (AnimationStateRepository.isEntityCached(this.__entityUid, this.__engine)) {
       return;
     }
 
@@ -889,7 +885,7 @@ export class AnimationComponent extends Component {
    * @param flag - True to enable animation, false to disable
    */
   static setIsAnimating(engine: Engine, flag: boolean) {
-    this.__isAnimatingMap.set(engine, flag);
+    AnimationStateRepository.setIsAnimating(engine, flag);
   }
 
   /**
@@ -898,7 +894,7 @@ export class AnimationComponent extends Component {
    * @returns True if animation is enabled for the engine, defaults to true if not set
    */
   static getIsAnimating(engine: Engine): boolean {
-    return this.__isAnimatingMap.get(engine) ?? true;
+    return AnimationStateRepository.getIsAnimating(engine);
   }
 
   /**
@@ -907,7 +903,7 @@ export class AnimationComponent extends Component {
    * @param time - The global animation time in seconds
    */
   static setGlobalTime(engine: Engine, time: number) {
-    this.__globalTimeMap.set(engine, time);
+    AnimationStateRepository.setGlobalTime(engine, time);
   }
 
   /**
@@ -916,7 +912,7 @@ export class AnimationComponent extends Component {
    * @returns The global animation time for the engine, defaults to 0 if not set
    */
   static getGlobalTime(engine: Engine): number {
-    return this.__globalTimeMap.get(engine) ?? 0;
+    return AnimationStateRepository.getGlobalTime(engine);
   }
 
   /**
