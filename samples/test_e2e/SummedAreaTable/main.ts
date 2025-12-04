@@ -73,9 +73,8 @@ async function initRn() {
     approach: Rn.ProcessApproach.DataTexture,
     canvas,
     webglOption: { antialias: false },
-  config: new Rn.Config({ cgApiDebugConsoleOutput: true }),
+  config: new Rn.Config({ cgApiDebugConsoleOutput: true, logLevel: Rn.LogLevel.Info }),
 });
-  Rn.Logger.logLevel = Rn.LogLevel.Info;
   return engine;
 }
 

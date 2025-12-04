@@ -7,9 +7,8 @@ declare const window: any;
 const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
-  config: new Rn.Config({ cgApiDebugConsoleOutput: true }),
+  config: new Rn.Config({ cgApiDebugConsoleOutput: true, logLevel: Rn.LogLevel.Info }),
 });
-Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // Camera
 const cameraEntity = Rn.createCameraControllerEntity(engine, true);

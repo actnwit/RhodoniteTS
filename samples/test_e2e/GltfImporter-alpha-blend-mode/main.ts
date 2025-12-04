@@ -8,9 +8,8 @@ const world = document.getElementById('world') as HTMLCanvasElement;
 const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: world,
-  config: new Rn.Config({ cgApiDebugConsoleOutput: true }),
+  config: new Rn.Config({ cgApiDebugConsoleOutput: true, logLevel: Rn.LogLevel.Info }),
 });
-Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // camera
 const cameraEntity = Rn.createCameraControllerEntity(engine, true);

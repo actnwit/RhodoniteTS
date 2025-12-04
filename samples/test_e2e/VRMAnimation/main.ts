@@ -9,6 +9,7 @@ const config = new Rn.Config({
   maxSkeletalBoneNumberForUniformMode: 100,
   isUboEnabled: false,
   cgApiDebugConsoleOutput: true,
+  logLevel: Rn.LogLevel.Info,
 });
 config.setUpAsMemoryBoostMode();
 
@@ -17,7 +18,6 @@ const engine = await Rn.Engine.init({
   canvas: document.getElementById('world') as HTMLCanvasElement,
   config,
 });
-Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // params
 

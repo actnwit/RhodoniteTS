@@ -9,9 +9,8 @@ const processApproach = getProcessApproach(Rn);
 const engine = await Rn.Engine.init({
   approach: processApproach,
   canvas: document.getElementById('world') as HTMLCanvasElement,
-  config: new Rn.Config({ cgApiDebugConsoleOutput: true }),
+  config: new Rn.Config({ cgApiDebugConsoleOutput: true, logLevel: Rn.LogLevel.Info }),
 });
-Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 let count = 0;
 

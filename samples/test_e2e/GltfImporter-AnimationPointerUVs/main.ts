@@ -7,9 +7,8 @@ const canvas = document.getElementById('world') as HTMLCanvasElement;
 const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.WebGPU,
   canvas,
-  config: new Rn.Config({ isUboEnabled: false, cgApiDebugConsoleOutput: true }),
+  config: new Rn.Config({ isUboEnabled: false, cgApiDebugConsoleOutput: true, logLevel: Rn.LogLevel.Info }),
 });
-Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // camera
 const { cameraComponent, cameraEntity } = createCamera();
