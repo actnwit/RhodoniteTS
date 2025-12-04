@@ -124,11 +124,11 @@ function createCapsule() {
 }
 
 async function setupRhodonite() {
-    const engine = await Rn.Engine.init({
+  const engine = await Rn.Engine.init({
     approach: Rn.ProcessApproach.Uniform,
     canvas: document.getElementById('world') as HTMLCanvasElement,
-  config: new Rn.Config({ cgApiDebugConsoleOutput: true }),
-});
+    config: new Rn.Config({ cgApiDebugConsoleOutput: true }),
+  });
   return engine;
 }
 

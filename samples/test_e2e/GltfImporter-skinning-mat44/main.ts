@@ -8,7 +8,11 @@ document.body.appendChild(p);
 const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
-  config: new Rn.Config({ boneDataType: Rn.BoneDataType.Mat43x1, cgApiDebugConsoleOutput: true, logLevel: Rn.LogLevel.Info }),
+  config: new Rn.Config({
+    boneDataType: Rn.BoneDataType.Mat43x1,
+    cgApiDebugConsoleOutput: true,
+    logLevel: Rn.LogLevel.Info,
+  }),
 });
 
 // camera

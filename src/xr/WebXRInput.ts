@@ -382,9 +382,13 @@ function processButtonInput(
 ) {
   const componentName = wellKnownMapping.get(buttonComponent.rootNodeName);
   if (buttonComponent.values.state === Constants.ComponentState.PRESSED) {
-    Logger.default.info(`${componentName}, ${buttonComponent.values.button}, ${buttonComponent.values.state}, ${handed}`);
+    Logger.default.info(
+      `${componentName}, ${buttonComponent.values.button}, ${buttonComponent.values.state}, ${handed}`
+    );
   } else if (buttonComponent.values.state === Constants.ComponentState.TOUCHED) {
-    Logger.default.info(`${componentName}, ${buttonComponent.values.button}, ${buttonComponent.values.state}, ${handed}`);
+    Logger.default.info(
+      `${componentName}, ${buttonComponent.values.button}, ${buttonComponent.values.state}, ${handed}`
+    );
   }
 }
 

@@ -860,7 +860,9 @@ export class WebXRSystem {
       this.__canvasHeightForVR = resolvedHeight;
       webgpuResourceRepository.resizeCanvas(resolvedWidth, resolvedHeight);
     } else {
-      Logger.default.warn('Unable to resolve XR canvas size during WebGPU layer setup. Deferring resize until first frame.');
+      Logger.default.warn(
+        'Unable to resolve XR canvas size during WebGPU layer setup. Deferring resize until first frame.'
+      );
     }
 
     this.__engine.materialRepository._makeShaderInvalidateToAllMaterials();

@@ -4,7 +4,6 @@ let p: any;
 
 declare const window: any;
 
-
 const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,

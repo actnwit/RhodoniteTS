@@ -4,7 +4,6 @@ declare const window: any;
 const p = document.createElement('p');
 document.body.appendChild(p);
 
-
 const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
