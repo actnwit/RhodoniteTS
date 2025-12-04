@@ -4,12 +4,11 @@ declare const window: any;
 
 window.Rn = Rn;
 
-Rn.Config.cgApiDebugConsoleOutput = true;
 const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.WebGPU,
   canvas: document.getElementById('world') as HTMLCanvasElement,
+  config: new Rn.Config({ cgApiDebugConsoleOutput: true, logLevel: Rn.LogLevel.Info }),
 });
-Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 const assets = await Rn.defaultAssetLoader.load({
   environment: Rn.CubeTexture.loadFromUrl(engine, {

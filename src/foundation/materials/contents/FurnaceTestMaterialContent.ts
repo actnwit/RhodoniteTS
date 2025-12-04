@@ -154,7 +154,7 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
         this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
 
         // Lights
-        this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
+        this.setLightsInfo(engine.config, shaderProgram, args.lightComponents, material, args.setUniform);
       }
     }
   }

@@ -5,6 +5,7 @@ import type { RnWebGL } from '../../webgl/main';
 import type { AttributeNames } from '../../webgl/types/CommonTypes';
 import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import type { RnWebGpu } from '../../webgpu/main';
+import type { Config } from '../core/Config';
 import {
   type CompressionTextureTypeEnum,
   type HdriFormatEnum,
@@ -319,6 +320,7 @@ export interface ICGAPIResourceRepository {
    * This method compiles, links, and validates the shader program for use in rendering.
    *
    * @param options - Shader program creation parameters
+   * @param options.config - Configuration for the shader program
    * @param options.material - Material that will use this shader program
    * @param options.primitive - Primitive geometry that will be rendered with this shader
    * @param options.vertexShaderStr - Vertex shader source code
@@ -329,6 +331,7 @@ export interface ICGAPIResourceRepository {
    * @returns The shader program resource handle
    */
   createShaderProgram({
+    config,
     material,
     primitive,
     vertexShaderStr,
@@ -337,6 +340,7 @@ export interface ICGAPIResourceRepository {
     attributeSemantics,
     onError,
   }: {
+    config: Config;
     material: Material;
     primitive: Primitive;
     vertexShaderStr: string;

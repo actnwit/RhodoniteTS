@@ -3,13 +3,11 @@ import Rn from '../../../dist/esmdev/index.js';
 const p = document.createElement('p');
 document.body.appendChild(p);
 
-Rn.Config.isUboEnabled = false;
-Rn.Config.cgApiDebugConsoleOutput = true;
 const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
+  config: new Rn.Config({ isUboEnabled: false, cgApiDebugConsoleOutput: true, logLevel: Rn.LogLevel.Info }),
 });
-Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // camera
 const cameraEntity = Rn.createCameraControllerEntity(engine, true);

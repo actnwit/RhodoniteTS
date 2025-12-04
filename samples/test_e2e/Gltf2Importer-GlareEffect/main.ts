@@ -21,11 +21,11 @@ const synthesizeCoefficient = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0] as [number, number,
 // ---main algorithm-----------------------------------------------------------------------------------------
 
 // prepare memory
-Rn.Config.cgApiDebugConsoleOutput = true;
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
 const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: rnCanvasElement,
+  config: new Rn.Config({ cgApiDebugConsoleOutput: true }),
 });
 
 const assets = await Rn.defaultAssetLoader.load({

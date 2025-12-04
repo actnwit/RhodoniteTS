@@ -245,7 +245,7 @@ function processTriggerInput(
 
   const componentName = wellKnownMapping.get(triggerComponent.rootNodeName);
   if (triggerComponent.values.state === Constants.ComponentState.PRESSED) {
-    Logger.info(`${componentName}, ${triggerComponent.values.button}, ${handed}`);
+    Logger.default.info(`${componentName}, ${triggerComponent.values.button}, ${handed}`);
     value =
       valueWithDefault({
         value: triggerComponent.values.button,
@@ -253,7 +253,7 @@ function processTriggerInput(
       }) * deltaSec;
     // Fire ray gun
   } else if (triggerComponent.values.state === Constants.ComponentState.TOUCHED) {
-    Logger.info(`${componentName}, ${triggerComponent.values.button}, ${handed}`);
+    Logger.default.info(`${componentName}, ${triggerComponent.values.button}, ${handed}`);
     value =
       valueWithDefault({
         value: triggerComponent.values.button,
@@ -291,10 +291,10 @@ function processSqueezeInput(
 ) {
   const componentName = wellKnownMapping.get(squeezeComponent.rootNodeName);
   if (squeezeComponent.values.state === Constants.ComponentState.PRESSED) {
-    Logger.info(`${componentName}, ${squeezeComponent.values.button}, ${handed}`);
+    Logger.default.info(`${componentName}, ${squeezeComponent.values.button}, ${handed}`);
     // Fire ray gun
   } else if (squeezeComponent.values.state === Constants.ComponentState.TOUCHED) {
-    Logger.info(`${componentName}, ${squeezeComponent.values.button}, ${handed}`);
+    Logger.default.info(`${componentName}, ${squeezeComponent.values.button}, ${handed}`);
     // Show ray gun charging up
   }
 }
@@ -321,7 +321,7 @@ function processThumbstickInput(
   const deltaScaleVertical = 0.1;
   const deltaScaleAzimuthAngle = 0.15;
   if (thumbstickComponent.values.state === Constants.ComponentState.PRESSED) {
-    Logger.info(
+    Logger.default.info(
       `${componentName}, ${thumbstickComponent.values.button}, ${thumbstickComponent.values.state}, ${handed}`
     );
     xAxis =
@@ -382,9 +382,13 @@ function processButtonInput(
 ) {
   const componentName = wellKnownMapping.get(buttonComponent.rootNodeName);
   if (buttonComponent.values.state === Constants.ComponentState.PRESSED) {
-    Logger.info(`${componentName}, ${buttonComponent.values.button}, ${buttonComponent.values.state}, ${handed}`);
+    Logger.default.info(
+      `${componentName}, ${buttonComponent.values.button}, ${buttonComponent.values.state}, ${handed}`
+    );
   } else if (buttonComponent.values.state === Constants.ComponentState.TOUCHED) {
-    Logger.info(`${componentName}, ${buttonComponent.values.button}, ${buttonComponent.values.state}, ${handed}`);
+    Logger.default.info(
+      `${componentName}, ${buttonComponent.values.button}, ${buttonComponent.values.state}, ${handed}`
+    );
   }
 }
 
@@ -445,7 +449,7 @@ export function updateMotionControllerModel(entity: IEntity, motionController: M
       // Find the topmost node in the visualization
       const entity = map.get(visualResponse.valueNodeName);
       if (Is.not.exist(entity)) {
-        Logger.warn("The entity of the controller doesn't exist");
+        Logger.default.warn("The entity of the controller doesn't exist");
         continue;
       }
       // Calculate the new properties based on the weight supplied
@@ -455,7 +459,7 @@ export function updateMotionControllerModel(entity: IEntity, motionController: M
         const minNode = map.get(visualResponse.minNodeName!) as ISceneGraphEntity;
         const maxNode = map.get(visualResponse.maxNodeName!) as ISceneGraphEntity;
         if (Is.not.exist(minNode) || Is.not.exist(maxNode)) {
-          Logger.warn("The min/max Node of the component of the controller doesn't exist");
+          Logger.default.warn("The min/max Node of the component of the controller doesn't exist");
           continue;
         }
 

@@ -3,15 +3,13 @@ import { getGltfFilePath, getProcessApproach } from '../common/testHelpers.js';
 
 declare const window: any;
 
-Rn.Config.isUboEnabled = false;
-Rn.Config.cgApiDebugConsoleOutput = true;
 const processApproach = getProcessApproach(Rn);
 const canvas = document.getElementById('world') as HTMLCanvasElement;
 const engine = await Rn.Engine.init({
   approach: processApproach,
   canvas,
+  config: new Rn.Config({ isUboEnabled: false, cgApiDebugConsoleOutput: true, logLevel: Rn.LogLevel.Info }),
 });
-Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // camera
 const gltfFilePath = getGltfFilePath();

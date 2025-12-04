@@ -56,10 +56,10 @@ function readyBasicVerticesData() {
   return primitive;
 }
 
-Rn.Config.cgApiDebugConsoleOutput = true;
 const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
+  config: new Rn.Config({ cgApiDebugConsoleOutput: true }),
 });
 
 const primitive = readyBasicVerticesData();

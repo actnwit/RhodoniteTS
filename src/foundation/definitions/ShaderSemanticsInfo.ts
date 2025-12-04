@@ -37,7 +37,7 @@ export function calcAlignedByteLength(semanticInfo: ShaderSemanticsInfo) {
     if (maxArrayLength != null) {
       alignedByteLength *= maxArrayLength;
     } else {
-      Logger.error('semanticInfo has invalid maxIndex!');
+      Logger.default.error('semanticInfo has invalid maxIndex!');
       alignedByteLength *= 100;
     }
   }

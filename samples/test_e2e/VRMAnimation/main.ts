@@ -5,16 +5,19 @@ let p: any;
 declare const window: any;
 declare const Stats: any;
 
-Rn.Config.maxSkeletalBoneNumberForUniformMode = 100;
-Rn.Config.isUboEnabled = false;
-Rn.Config.cgApiDebugConsoleOutput = true;
-Rn.setUpAsMemoryBoostMode();
+const config = new Rn.Config({
+  maxSkeletalBoneNumberForUniformMode: 100,
+  isUboEnabled: false,
+  cgApiDebugConsoleOutput: true,
+  logLevel: Rn.LogLevel.Info,
+});
+config.setUpAsMemoryBoostMode();
 
 const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
+  config,
 });
-Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // params
 

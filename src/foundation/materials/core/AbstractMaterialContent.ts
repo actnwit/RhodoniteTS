@@ -9,7 +9,7 @@ import type { LightComponent } from '../../components/Light/LightComponent';
 import type { MeshComponent } from '../../components/Mesh/MeshComponent';
 import type { SkeletalComponent } from '../../components/Skeletal/SkeletalComponent';
 import { ComponentRepository } from '../../core/ComponentRepository';
-import { Config } from '../../core/Config';
+import type { Config } from '../../core/Config';
 import { RnObject } from '../../core/RnObject';
 import { BoneDataType } from '../../definitions/BoneDataType';
 import { ComponentTypeEnum } from '../../definitions/ComponentType';
@@ -253,10 +253,10 @@ export abstract class AbstractMaterialContent extends RnObject {
       }
       if (firstTime) {
         // Lights
-        this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
+        this.setLightsInfo(engine.config, shaderProgram, args.lightComponents, material, args.setUniform);
         /// Skinning
         const skeletalComponent = args.entity.tryToGetSkeletal();
-        this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
+        this.setSkinning(engine.config, shaderProgram, args.setUniform, skeletalComponent);
       }
     }
 
@@ -367,16 +367,21 @@ export abstract class AbstractMaterialContent extends RnObject {
    * @param setUniform - Whether to set uniform values
    * @param skeletalComponent - The skeletal component containing bone data
    */
-  protected setSkinning(shaderProgram: WebGLProgram, setUniform: boolean, skeletalComponent?: SkeletalComponent) {
+  protected setSkinning(
+    config: Config,
+    shaderProgram: WebGLProgram,
+    setUniform: boolean,
+    skeletalComponent?: SkeletalComponent
+  ) {
     if (!this.__isSkinning) {
       return;
     }
     if (skeletalComponent) {
       if (setUniform) {
-        if (Config.boneDataType === BoneDataType.Mat43x1) {
+        if (config.boneDataType === BoneDataType.Mat43x1) {
           const jointMatricesArray = skeletalComponent.jointMatricesArray;
           (shaderProgram as any)._gl.uniformMatrix4x3fv((shaderProgram as any).boneMatrix, false, jointMatricesArray);
-        } else if (Config.boneDataType === BoneDataType.Vec4x2) {
+        } else if (config.boneDataType === BoneDataType.Vec4x2) {
           const jointTranslatePackedQuat = skeletalComponent.jointTranslatePackedQuat;
           const jointScalePackedQuat = skeletalComponent.jointScalePackedQuat;
           (shaderProgram as any)._gl.uniform4fv(
@@ -384,12 +389,12 @@ export abstract class AbstractMaterialContent extends RnObject {
             jointTranslatePackedQuat
           );
           (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneScalePackedQuat, jointScalePackedQuat);
-        } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
+        } else if (config.boneDataType === BoneDataType.Vec4x2Old) {
           const jointQuaternionArray = skeletalComponent.jointQuaternionArray;
           const jointTranslateScaleArray = skeletalComponent.jointTranslateScaleArray;
           (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneQuaternion, jointQuaternionArray);
           (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneTranslateScale, jointTranslateScaleArray);
-        } else if (Config.boneDataType === BoneDataType.Vec4x1) {
+        } else if (config.boneDataType === BoneDataType.Vec4x1) {
           const jointCompressedChunk = skeletalComponent.jointCompressedChunk;
           const jointCompressedInfo = skeletalComponent.jointCompressedInfo;
           (shaderProgram as any)._gl.uniform4fv((shaderProgram as any).boneCompressedChunk, jointCompressedChunk);
@@ -413,6 +418,7 @@ export abstract class AbstractMaterialContent extends RnObject {
    * @param setUniform - Whether to set uniform values
    */
   protected setLightsInfo(
+    config: Config,
     shaderProgram: WebGLProgram,
     lightComponents: LightComponent[],
     _material: Material,
@@ -426,7 +432,7 @@ export abstract class AbstractMaterialContent extends RnObject {
 
       (shaderProgram as any)._gl.uniform1i((shaderProgram as any).lightNumber, lightComponentsEnabled!.length);
 
-      const length = Math.min(lightComponentsEnabled!.length, Config.maxLightNumber);
+      const length = Math.min(lightComponentsEnabled!.length, config.maxLightNumber);
       if (AbstractMaterialContent.__lightPositions.length !== 3 * length) {
         AbstractMaterialContent.__lightPositions = new Float32Array(3 * length);
         AbstractMaterialContent.__lightDirections = new Float32Array(3 * length);
@@ -434,7 +440,7 @@ export abstract class AbstractMaterialContent extends RnObject {
         AbstractMaterialContent.__lightProperties = new Float32Array(4 * length);
       }
       for (let i = 0; i < lightComponentsEnabled!.length; i++) {
-        if (i >= Config.maxLightNumber) {
+        if (i >= config.maxLightNumber) {
           break;
         }
         if ((shaderProgram as any).lightPosition == null) {

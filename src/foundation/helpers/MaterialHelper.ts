@@ -99,7 +99,12 @@ function createMaterial(
   materialCountPerBufferView?: Count
 ): Material {
   const materialSemanticsVariantName = materialContent.getMaterialSemanticsVariantName();
-  engine.materialRepository.registerMaterial(materialSemanticsVariantName, materialContent, materialCountPerBufferView);
+  engine.materialRepository.registerMaterial(
+    engine,
+    materialSemanticsVariantName,
+    materialContent,
+    materialCountPerBufferView
+  );
   const material = engine.materialRepository.createMaterial(engine, materialSemanticsVariantName, materialContent);
   return material;
 }
@@ -127,7 +132,12 @@ function reuseOrRecreateMaterial(
     return material;
   }
   const materialSemanticsVariantName = materialContent.getMaterialSemanticsVariantName();
-  engine.materialRepository.registerMaterial(materialSemanticsVariantName, materialContent, materialCountPerBufferView);
+  engine.materialRepository.registerMaterial(
+    engine,
+    materialSemanticsVariantName,
+    materialContent,
+    materialCountPerBufferView
+  );
   material = engine.materialRepository.createMaterial(engine, materialSemanticsVariantName, materialContent);
   return material;
 }
@@ -148,6 +158,7 @@ function recreateMaterial(
 ): Material {
   const materialSemanticsVariantName = materialContent.getMaterialSemanticsVariantName();
   engine.materialRepository.forceRegisterMaterial(
+    engine,
     materialSemanticsVariantName,
     materialContent,
     materialCountPerBufferView
@@ -205,7 +216,7 @@ function createPbrUberMaterial(
     isDiffuseTransmission = false,
     isShadow = false,
     useNormalTexture = true,
-    maxInstancesNumber = Config.materialCountPerBufferView,
+    maxInstancesNumber = engine.config.materialCountPerBufferView,
   } = {}
 ) {
   const materialName = `PbrUber_${additionalName}_`;
@@ -421,9 +432,9 @@ function createPbrUberMaterial(
       semantic: 'depthTextureIndexList',
       componentType: ComponentType.Int,
       compositionType: CompositionType.ScalarArray,
-      arrayLength: Config.maxLightNumber,
+      arrayLength: engine.config.maxLightNumber,
       stage: ShaderType.PixelShader,
-      initialValue: new VectorN(new Int32Array(Config.maxLightNumber)),
+      initialValue: new VectorN(new Int32Array(engine.config.maxLightNumber)),
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -432,9 +443,9 @@ function createPbrUberMaterial(
       semantic: 'depthBiasPV',
       componentType: ComponentType.Float,
       compositionType: CompositionType.Mat4Array,
-      arrayLength: Config.maxLightNumber,
+      arrayLength: engine.config.maxLightNumber,
       stage: ShaderType.PixelShader,
-      initialValue: new VectorN(new Float32Array(Config.maxLightNumber * 16)),
+      initialValue: new VectorN(new Float32Array(engine.config.maxLightNumber * 16)),
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -536,7 +547,7 @@ function createClassicUberMaterial(
     isLighting = false,
     isMorphing = false,
     isShadow = false,
-    maxInstancesNumber = Config.materialCountPerBufferView,
+    maxInstancesNumber = engine.config.materialCountPerBufferView,
   } = {}
 ) {
   const materialName = `ClassicUber_${additionalName}_`;
@@ -583,7 +594,7 @@ function createParaboloidDepthMomentEncodeMaterial(
     additionalName = '',
     isSkinning = true,
     isMorphing = false,
-    maxInstancesNumber = Config.materialCountPerBufferView,
+    maxInstancesNumber = engine.config.materialCountPerBufferView,
   } = {}
 ) {
   const materialName = `ParaboloidDepthMomentEncode_${additionalName}_`;
@@ -623,7 +634,7 @@ function createDepthMomentEncodeMaterial(
     additionalName = '',
     isSkinning = true,
     isMorphing = false,
-    maxInstancesNumber = Config.materialCountPerBufferView,
+    maxInstancesNumber = engine.config.materialCountPerBufferView,
   } = {}
 ) {
   const materialName = `DepthMomentEncode_${additionalName}_`;
@@ -663,7 +674,7 @@ function createFlatMaterial(
     additionalName = '',
     isSkinning = true,
     isMorphing = false,
-    maxInstancesNumber = Config.materialCountPerBufferView,
+    maxInstancesNumber = engine.config.materialCountPerBufferView,
   } = {}
 ) {
   const materialName = `Flat_${additionalName}_`;
@@ -1411,7 +1422,7 @@ function createMToon0xMaterial(
     textures,
     samplers,
     debugMode,
-    maxInstancesNumber = Config.materialCountPerBufferView,
+    maxInstancesNumber = engine.config.materialCountPerBufferView,
     makeOutputSrgb = true,
   }: {
     additionalName?: string;
@@ -1494,7 +1505,7 @@ function createMToon1Material(
     isLighting = true,
     isOutline = false,
     materialJson,
-    maxInstancesNumber = Config.materialCountPerBufferView,
+    maxInstancesNumber = engine.config.materialCountPerBufferView,
     makeOutputSrgb = true,
   }: {
     additionalName?: string;
@@ -1567,7 +1578,7 @@ function reuseOrRecreateCustomMaterial(
   vertexShaderStr: string,
   pixelShaderStr: string,
   {
-    maxInstancesNumber = Config.materialCountPerBufferView,
+    maxInstancesNumber = engine.config.materialCountPerBufferView,
     isSkinning = true,
     isLighting = true,
     isMorphing = true,

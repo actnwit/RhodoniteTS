@@ -31,31 +31,35 @@ class Log {
  *
  * @example
  * ```typescript
- * // Configure logger
- * Logger.logLevel = LogLevel.Info;
- * Logger.isRichLog = true;
- * Logger.isAccumulateLog = true;
+ * // Create logger instance
+ * const logger = new Logger();
+ * logger.logLevel = LogLevel.Info;
+ * logger.isRichLog = true;
+ * logger.isAccumulateLog = true;
  *
  * // Use logging methods
- * Logger.info("Application started");
- * Logger.warn("This is a warning");
- * Logger.error("An error occurred");
+ * logger.info("Application started");
+ * logger.warn("This is a warning");
+ * logger.error("An error occurred");
  *
  * // Retrieve accumulated logs
- * const logs = Logger.getAccumulatedLog();
+ * const logs = logger.getAccumulatedLog();
  * ```
  */
 export class Logger {
-  private static __messages: Log[] = [];
+  /** The default global Logger instance for code that doesn't have access to an Engine. */
+  static readonly default = new Logger();
+
+  private __messages: Log[] = [];
 
   /** The minimum log level that will be output. Messages below this level are ignored. */
-  static logLevel = LogLevel.Warn;
+  logLevel = LogLevel.Warn;
 
   /** Whether to format log messages with timestamps and log level prefixes. */
-  static isRichLog = false;
+  isRichLog = false;
 
   /** Whether to store log messages in memory for later retrieval. */
-  static isAccumulateLog = false;
+  isAccumulateLog = false;
 
   /**
    * Common processing for all log methods. Handles message formatting and storage.
@@ -65,7 +69,7 @@ export class Logger {
    * @returns The formatted log message
    * @private
    */
-  private static __common(message: string, logLevel: LogLevel): string {
+  private __common(message: string, logLevel: LogLevel): string {
     if (!this.isAccumulateLog && !this.isRichLog) {
       return message;
     }
@@ -85,10 +89,8 @@ export class Logger {
 
   /**
    * Clears all accumulated log messages from memory.
-   *
-   * @private
    */
-  private static __clearAccumulatedLog(): void {
+  public clearAccumulatedLog(): void {
     this.__messages = [];
   }
 
@@ -99,7 +101,7 @@ export class Logger {
    * @returns The formatted log message string
    * @private
    */
-  private static __formatLogs(log: Log): string {
+  private __formatLogs(log: Log): string {
     if (!this.isRichLog) {
       return log.message;
     }
@@ -126,7 +128,7 @@ export class Logger {
    * @returns The string name of the log level
    * @private
    */
-  private static __getLogLevelText(logLevel: LogLevel): string {
+  private __getLogLevelText(logLevel: LogLevel): string {
     return LogLevel[logLevel];
   }
 
@@ -139,10 +141,10 @@ export class Logger {
    *
    * @example
    * ```typescript
-   * Logger.error("Database connection failed");
+   * logger.error("Database connection failed");
    * ```
    */
-  public static error(message: string): string | undefined {
+  public error(message: string): string | undefined {
     if (this.logLevel <= LogLevel.Error) {
       const formattedMessage = this.__common(message, LogLevel.Error);
       console.error(formattedMessage);
@@ -160,10 +162,10 @@ export class Logger {
    *
    * @example
    * ```typescript
-   * Logger.warn("API response time is slower than expected");
+   * logger.warn("API response time is slower than expected");
    * ```
    */
-  public static warn(message: string): string | undefined {
+  public warn(message: string): string | undefined {
     if (this.logLevel <= LogLevel.Warn) {
       const formattedMessage = this.__common(message, LogLevel.Warn);
       console.warn(formattedMessage);
@@ -181,10 +183,10 @@ export class Logger {
    *
    * @example
    * ```typescript
-   * Logger.info("User authentication successful");
+   * logger.info("User authentication successful");
    * ```
    */
-  public static info(message: string): string | undefined {
+  public info(message: string): string | undefined {
     if (this.logLevel <= LogLevel.Info) {
       const formattedMessage = this.__common(message, LogLevel.Info);
       console.info(formattedMessage);
@@ -202,10 +204,10 @@ export class Logger {
    *
    * @example
    * ```typescript
-   * Logger.debug("Processing user input: " + JSON.stringify(input));
+   * logger.debug("Processing user input: " + JSON.stringify(input));
    * ```
    */
-  public static debug(message: string): string | undefined {
+  public debug(message: string): string | undefined {
     if (this.logLevel <= LogLevel.Debug) {
       const formattedMessage = this.__common(message, LogLevel.Debug);
       console.debug(formattedMessage);
@@ -224,10 +226,10 @@ export class Logger {
    *
    * @example
    * ```typescript
-   * Logger.assert(user !== null, "User object should not be null at this point");
+   * logger.assert(user !== null, "User object should not be null at this point");
    * ```
    */
-  public static assert(condition: boolean, message: string): string | undefined {
+  public assert(condition: boolean, message: string): string | undefined {
     if (this.logLevel <= LogLevel.Assert) {
       const formattedMessage = this.__common(message, LogLevel.Assert);
       console.assert(condition, formattedMessage);
@@ -244,15 +246,15 @@ export class Logger {
    *
    * @example
    * ```typescript
-   * Logger.isAccumulateLog = true;
-   * Logger.info("First message");
-   * Logger.warn("Second message");
+   * logger.isAccumulateLog = true;
+   * logger.info("First message");
+   * logger.warn("Second message");
    *
-   * const logs = Logger.getAccumulatedLog();
+   * const logs = logger.getAccumulatedLog();
    * console.log(logs); // Array of formatted log messages
    * ```
    */
-  public static getAccumulatedLog(): string[] {
+  public getAccumulatedLog(): string[] {
     return this.__messages.map(log => this.__formatLogs(log));
   }
 }

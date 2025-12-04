@@ -500,7 +500,7 @@ export class ForwardRenderPipeline extends RnObject {
         fallbackWidth = 1;
         fallbackHeight = 1;
       }
-      Logger.warn(
+      Logger.default.warn(
         `ForwardRenderPipeline.resize received non-positive dimensions (${width}x${height}). Falling back to ${fallbackWidth}x${fallbackHeight}.`
       );
       width = fallbackWidth;

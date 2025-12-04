@@ -2,7 +2,7 @@
 
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
-import { Config } from '../foundation/core/Config';
+import type { Config } from '../foundation/core/Config';
 import { EntityRepository } from '../foundation/core/EntityRepository';
 import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import { AlphaMode } from '../foundation/definitions/AlphaMode';
@@ -916,12 +916,12 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @returns True if compilation was successful, false otherwise
    */
   private __checkShaderCompileStatus(materialTypeName: string, shaderText: string, info: GPUCompilationInfo): boolean {
-    Logger.info(`MaterialTypeName: ${materialTypeName}`);
+    Logger.default.info(`MaterialTypeName: ${materialTypeName}`);
     const lineNumberedShaderText = MiscUtil.addLineNumberToCode(shaderText);
-    Logger.info(lineNumberedShaderText);
+    Logger.default.info(lineNumberedShaderText);
     let isOk = true;
     for (let i = 0; i < info.messages.length; i++) {
-      Logger.info(info.messages[i].message);
+      Logger.default.info(info.messages[i].message);
       isOk = false;
     }
 
@@ -939,10 +939,12 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * @returns Handle to the shader program containing both modules
    */
   createShaderProgram({
+    config,
     material,
     vertexShaderStr,
     fragmentShaderStr,
   }: {
+    config: Config;
     material: Material;
     vertexShaderStr: string;
     fragmentShaderStr: string;
@@ -952,7 +954,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       code: vertexShaderStr,
       label: `${material.materialTypeName} vertex shader`,
     });
-    if (Config.cgApiDebugConsoleOutput) {
+    if (config.cgApiDebugConsoleOutput) {
       vsModule.getCompilationInfo().then(info => {
         if (info.messages.length > 0) {
           this.__checkShaderCompileStatus(material.materialTypeName, vertexShaderStr, info);
@@ -963,7 +965,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       code: fragmentShaderStr,
       label: `${material.materialTypeName} fragment shader`,
     });
-    if (Config.cgApiDebugConsoleOutput) {
+    if (config.cgApiDebugConsoleOutput) {
       fsModule.getCompilationInfo().then(info => {
         if (info.messages.length > 0) {
           this.__checkShaderCompileStatus(material.materialTypeName, fragmentShaderStr, info);
@@ -1473,7 +1475,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
 
   renderWithRenderBundle(engine: Engine, renderPass: RenderPass, displayIdx: number) {
     this.__toClearRenderBundles(engine);
-    if (renderPass._isChangedSortRenderResult || !Config.cacheWebGpuRenderBundles) {
+    if (renderPass._isChangedSortRenderResult || !engine.config.cacheWebGpuRenderBundles) {
       this.__renderBundles.clear();
     }
 
@@ -1499,7 +1501,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
 
     if (this.__renderPassEncoder != null && this.__renderBundleEncoder != null) {
       const renderBundle = this.__renderBundleEncoder.finish();
-      if (Config.cacheWebGpuRenderBundles) {
+      if (engine.config.cacheWebGpuRenderBundles) {
         const renderBundleKey = `${renderPass.renderPassUID}-${displayIdx}`;
         this.__renderBundles.set(renderBundleKey, renderBundle);
       } else {
@@ -1815,7 +1817,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           images = await loadOneLevel();
         } catch (uri) {
           // Give up
-          Logger.error(`failed to load ${uri}`);
+          Logger.default.error(`failed to load ${uri}`);
         }
       }
       const imageBitmaps: ImageBitmap[] | HTMLCanvasElement[] = [];
@@ -2841,7 +2843,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     const extractSize = basisFile.getImageTranscodedSizeInBytes(imageIndex, levelIndex, basisCompressionType!.index);
     const textureSource = new Uint8Array(extractSize);
     if (!basisFile.transcodeImage(textureSource, imageIndex, levelIndex, basisCompressionType!.index, 0, 0)) {
-      Logger.error('failed to transcode the image.');
+      Logger.default.error('failed to transcode the image.');
     }
     return textureSource;
   }
@@ -3066,7 +3068,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     try {
       await gpuDevice.queue.onSubmittedWorkDone();
     } catch (e) {
-      Logger.error(e as string);
+      Logger.default.error(e as string);
     }
   }
 
@@ -3559,7 +3561,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       this.__systemDepthTexture.destroy();
     }
     if (canvas.width <= 0 || canvas.height <= 0) {
-      Logger.warn('Skip recreating system depth texture because the canvas size is zero.');
+      Logger.default.warn('Skip recreating system depth texture because the canvas size is zero.');
       return;
     }
     this.__systemDepthTexture = gpuDevice.createTexture({
@@ -3579,7 +3581,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    */
   resizeCanvas(width: Size, height: Size) {
     if (width <= 0 || height <= 0) {
-      Logger.warn('Skip resizing WebGPU canvas because width or height is zero.');
+      Logger.default.warn('Skip resizing WebGPU canvas because width or height is zero.');
       return;
     }
     const canvas = this.__webGpuDeviceWrapper!.canvas;

@@ -8,13 +8,12 @@ declare const HDRImage: any;
 const cubeMapSize = 512;
 
 // Init Rhodonite
-Rn.Config.cgApiDebugConsoleOutput = true;
 const processApproach = getProcessApproach(Rn);
 const engine = await Rn.Engine.init({
   approach: processApproach,
   canvas: document.getElementById('world') as HTMLCanvasElement,
+  config: new Rn.Config({ cgApiDebugConsoleOutput: true, logLevel: Rn.LogLevel.Info }),
 });
-Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // Load HDR image
 const response = await fetch('../../../assets/hdr/near_the_river_02_1k.hdr');

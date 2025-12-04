@@ -187,7 +187,7 @@ export class AnimatedQuaternion extends Quaternion implements IQuaternion, IAnim
     const animationSampler = this.__animationSamplers.get(this.__firstActiveAnimationTrackName);
     if (animationSampler === undefined) {
       // throw new Error('Animation channel not found');
-      Logger.info('Animation channel not found');
+      Logger.default.info('Animation channel not found');
     } else {
       this.__firstActiveAnimationSampler = animationSampler;
     }
@@ -202,7 +202,7 @@ export class AnimatedQuaternion extends Quaternion implements IQuaternion, IAnim
     const animationSampler = this.__animationSamplers.get(this.__secondActiveAnimationTrackName);
     if (animationSampler === undefined) {
       // throw new Error('Animation channel not found');
-      Logger.info('Animation channel not found');
+      Logger.default.info('Animation channel not found');
     } else {
       this.__secondActiveAnimationSampler = animationSampler;
     }

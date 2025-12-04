@@ -209,7 +209,7 @@ export class MutableVector2_<T extends FloatTypedArrayConstructor> extends Vecto
       this._v[0] /= value;
       this._v[1] /= value;
     } else {
-      Logger.error('0 division occurred!');
+      Logger.default.error('0 division occurred!');
       this._v[0] = Number.POSITIVE_INFINITY;
       this._v[1] = Number.POSITIVE_INFINITY;
     }
@@ -228,7 +228,7 @@ export class MutableVector2_<T extends FloatTypedArrayConstructor> extends Vecto
       this._v[0] /= vec._v[0];
       this._v[1] /= vec._v[1];
     } else {
-      Logger.error('0 division occurred!');
+      Logger.default.error('0 division occurred!');
       this._v[0] = vec._v[0] === 0 ? Number.POSITIVE_INFINITY : this._v[0] / vec._v[0];
       this._v[1] = vec._v[1] === 0 ? Number.POSITIVE_INFINITY : this._v[1] / vec._v[1];
     }

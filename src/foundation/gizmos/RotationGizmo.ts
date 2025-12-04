@@ -116,8 +116,8 @@ export class RotationGizmo extends Gizmo {
   set isVisible(flg: boolean) {
     if (this.__isVisible === false && flg === true) {
       let eventTargetDom = window;
-      if (Is.exist(Config.eventTargetDom)) {
-        eventTargetDom = Config.eventTargetDom;
+      if (Is.exist(this.__engine.config.eventTargetDom)) {
+        eventTargetDom = this.__engine.config.eventTargetDom;
       }
       InputManager.register(INPUT_HANDLING_STATE_GIZMO_ROTATION, [
         {
@@ -599,7 +599,7 @@ export class RotationGizmo extends Gizmo {
   private __resolvePointerElement(evt: PointerEvent): HTMLElement | undefined {
     let element = evt.target as HTMLElement | null;
     if (!element || !element.getBoundingClientRect) {
-      element = Config.eventTargetDom ?? null;
+      element = this.__engine.config.eventTargetDom ?? null;
     }
     if (!element || !element.getBoundingClientRect) {
       return undefined;
@@ -626,7 +626,7 @@ export class RotationGizmo extends Gizmo {
   private __intersectPointerWithAxisPlane(evt: PointerEvent, axis: Axis): MutableVector3 | undefined {
     let element = evt.target as HTMLElement | null;
     if (!element || !element.getBoundingClientRect) {
-      element = Config.eventTargetDom ?? null;
+      element = this.__engine.config.eventTargetDom ?? null;
     }
     if (!element) {
       return undefined;

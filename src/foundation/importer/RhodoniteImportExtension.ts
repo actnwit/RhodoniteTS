@@ -106,7 +106,7 @@ export class RhodoniteImportExtension {
         effekseerComponent.uri = effect.uri;
         effekseerComponent.type = 'efk';
       } else {
-        Logger.error('No real effect data.');
+        Logger.default.error('No real effect data.');
       }
 
       createEffekseerAnimation(engine, effekseerEntity, effect);

@@ -146,7 +146,7 @@ export class CameraComponent extends Component {
       CameraComponent.setCurrent(engine, componentSid);
     }
 
-    this.submitToAllocation(Config.cameraComponentCountPerBufferView, isReUse);
+    this.submitToAllocation(engine.config.cameraComponentCountPerBufferView, isReUse);
   }
 
   /**

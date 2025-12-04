@@ -63,9 +63,9 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
     } else {
       targetTexture = engine.dummyTextures.dummyBlackTexture!;
       if (framebuffer != null) {
-        Logger.warn(`renderPass does not have framebuffer.colorAttachments[${colorAttachmentsNumber}]`);
+        Logger.default.warn(`renderPass does not have framebuffer.colorAttachments[${colorAttachmentsNumber}]`);
       } else {
-        Logger.warn('renderPass does not have framebuffer');
+        Logger.default.warn('renderPass does not have framebuffer');
       }
     }
 
@@ -80,7 +80,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
     } else if (texture instanceof AbstractTexture) {
       lookupTableTexture = texture;
     } else {
-      Logger.warn('no LUT texture is specified');
+      Logger.default.warn('no LUT texture is specified');
       lookupTableTexture = engine.dummyTextures.dummyBlackTexture!;
     }
 

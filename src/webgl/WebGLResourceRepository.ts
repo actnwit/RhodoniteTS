@@ -1,5 +1,5 @@
 import HDRImage from '../../vendor/hdrpng.js';
-import { Config } from '../foundation/core/Config';
+import type { Config } from '../foundation/core/Config';
 import { BasisCompressionType, type BasisCompressionTypeEnum } from '../foundation/definitions/BasisCompressionType';
 import type { ComponentTypeEnum } from '../foundation/definitions/ComponentType';
 import { ComponentType } from '../foundation/definitions/ComponentType';
@@ -219,12 +219,13 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
   /**
    * Adds an existing WebGL2 context to the repository.
    *
+   * @param config - The configuration for the WebGL context
    * @param gl - The WebGL2 rendering context to add
    * @param canvas - The HTML canvas element associated with the context
    * @param asCurrent - Whether to set this context as the current active context
    */
-  addWebGLContext(gl: WebGL2RenderingContext, canvas: HTMLCanvasElement, asCurrent: boolean) {
-    const glw = new WebGLContextWrapper(gl, canvas);
+  addWebGLContext(config: Config, gl: WebGL2RenderingContext, canvas: HTMLCanvasElement, asCurrent: boolean) {
+    const glw = new WebGLContextWrapper(config, gl, canvas);
     this.__webglContexts.set('default', glw);
     if (asCurrent) {
       this.__glw = glw;
@@ -234,19 +235,20 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
   /**
    * Generates a new WebGL2 context for the given canvas element.
    *
+   * @param config - The configuration for the WebGL context
    * @param canvas - The HTML canvas element to create the context for
    * @param asCurrent - Whether to set this context as the current active context
    * @param webglOption - Optional WebGL context attributes for context creation
    * @returns The created WebGL2 rendering context
    */
-  generateWebGLContext(canvas: HTMLCanvasElement, asCurrent: boolean, webglOption?: WebGLContextAttributes) {
+  generateWebGLContext(
+    config: Config,
+    canvas: HTMLCanvasElement,
+    asCurrent: boolean,
+    webglOption?: WebGLContextAttributes
+  ) {
     const gl = canvas.getContext('webgl2', webglOption) as WebGL2RenderingContext;
-    this.addWebGLContext(gl, canvas, asCurrent);
-
-    if (MiscUtil.isSafari()) {
-      // Safari (WebGL2 via Metal) does't support UBO properly at 2022/04/15
-      Config.isUboEnabled = false;
-    }
+    this.addWebGLContext(config, gl, canvas, asCurrent);
 
     return gl;
   }
@@ -549,6 +551,8 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    * This method handles shader compilation, linking, and error reporting.
    *
    * @param params - Configuration object for shader program creation
+   * @param params.config - Configuration for the shader program
+   * @param params.engine - The engine instance
    * @param params.material - The material associated with this shader program
    * @param params.primitive - The primitive that will use this shader program
    * @param params.vertexShaderStr - The vertex shader source code
@@ -560,6 +564,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    * @throws Error if no WebGL context is available
    */
   createShaderProgram({
+    config,
     engine,
     material,
     primitive,
@@ -569,6 +574,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     attributeSemantics,
     onError,
   }: {
+    config: Config;
     engine: Engine;
     material: Material;
     primitive: Primitive;
@@ -583,7 +589,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     if (gl == null) {
       throw new Error('No WebGLRenderingContext set as Default.');
     }
-    const isDebugMode = Config.cgApiDebugConsoleOutput;
+    const isDebugMode = config.cgApiDebugConsoleOutput;
 
     const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
     gl.shaderSource(vertexShader, vertexShaderStr);
@@ -665,12 +671,12 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     const glw = this.__glw!;
     const gl = glw!.getRawContext();
     if (Is.false(gl.getShaderParameter(shader, gl.COMPILE_STATUS)) && Is.false(gl.isContextLost())) {
-      Logger.info(`MaterialTypeName: ${materialTypeName}`);
+      Logger.default.info(`MaterialTypeName: ${materialTypeName}`);
       const lineNumberedShaderText = MiscUtil.addLineNumberToCode(shaderText);
-      Logger.info(lineNumberedShaderText);
+      Logger.default.info(lineNumberedShaderText);
       const log = gl.getShaderInfoLog(shader);
       if (onError === undefined) {
-        Logger.error(`An error occurred compiling the shaders:${log}`);
+        Logger.default.error(`An error occurred compiling the shaders:${log}`);
         return false;
       }
       onError(log!);
@@ -699,13 +705,13 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
 
     // If creating the shader program failed, alert
     if (Is.false(gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) && Is.false(gl.isContextLost())) {
-      Logger.info(`MaterialTypeName: ${materialTypeName}`);
-      Logger.info(MiscUtil.addLineNumberToCode('Vertex Shader:'));
-      Logger.info(MiscUtil.addLineNumberToCode(vertexShaderText));
-      Logger.info(MiscUtil.addLineNumberToCode('Fragment Shader:'));
-      Logger.info(MiscUtil.addLineNumberToCode(fragmentShaderText));
+      Logger.default.info(`MaterialTypeName: ${materialTypeName}`);
+      Logger.default.info(MiscUtil.addLineNumberToCode('Vertex Shader:'));
+      Logger.default.info(MiscUtil.addLineNumberToCode(vertexShaderText));
+      Logger.default.info(MiscUtil.addLineNumberToCode('Fragment Shader:'));
+      Logger.default.info(MiscUtil.addLineNumberToCode(fragmentShaderText));
       const log = gl.getProgramInfoLog(shaderProgram);
-      Logger.error(`Unable to initialize the shader program: ${log}`);
+      Logger.default.error(`Unable to initialize the shader program: ${log}`);
       return false;
     }
 
@@ -717,12 +723,14 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    * This method extracts uniform locations from the compiled shader program and stores them
    * for efficient access during rendering.
    *
+   * @param config - Configuration for the shader program
    * @param shaderProgramUid - The handle of the shader program
    * @param infoArray - Array of shader semantics information
    * @param isUniformOnlyMode - Whether to set up only uniform locations
    * @returns The WebGL program object with configured uniform locations
    */
   setupUniformLocations(
+    config: Config,
     shaderProgramUid: WebGLResourceHandle,
     infoArray: ShaderSemanticsInfo[],
     isUniformOnlyMode: boolean
@@ -752,8 +760,8 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
         const location = gl.getUniformLocation(shaderProgram, shaderVarName);
         const _shaderProgram = shaderProgram as any;
         _shaderProgram[identifier] = location;
-        if (location == null && Config.cgApiDebugConsoleOutput) {
-          Logger.info(
+        if (location == null && config.cgApiDebugConsoleOutput) {
+          Logger.default.info(
             `Can not get the uniform location: ${shaderVarName}. The uniform may be unused by other code so implicitly removed.`
           );
         }
@@ -1868,7 +1876,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     const extractSize = basisFile.getImageTranscodedSizeInBytes(imageIndex, levelIndex, basisCompressionType!.index);
     const textureSource = new Uint8Array(extractSize);
     if (!basisFile.transcodeImage(textureSource, imageIndex, levelIndex, basisCompressionType!.index, 0, 0)) {
-      Logger.error('failed to transcode the image.');
+      Logger.default.error('failed to transcode the image.');
     }
     return textureSource;
   }
@@ -2297,7 +2305,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     let magFilter = TextureParameter.Linear;
     if (
       (images[0].posX as any).hdriFormat === HdriFormat.HDR_LINEAR &&
-      this.__glw!.isNotSupportWebGL1Extension(WebGLExtension.TextureFloatLinear)
+      this.__glw!.isNotSupportWebGL1Extension(engine.config, WebGLExtension.TextureFloatLinear)
     ) {
       if (mipLevelCount >= 2) {
         minFilter = TextureParameter.NearestMipmapNearest;
@@ -2323,7 +2331,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
         gl.texImage2D(
           cubeMapSide,
           i,
-          Config.isMobile ? gl.RGB16F : gl.RGB32F,
+          engine.config.isMobile ? gl.RGB16F : gl.RGB32F,
           (image as any).width,
           (image as any).height,
           0,
@@ -2459,7 +2467,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
           images = await loadOneLevel();
         } catch (uri) {
           // Give up
-          Logger.error(`failed to load ${uri}`);
+          Logger.default.error(`failed to load ${uri}`);
         }
       }
       const imageObj: {
@@ -2792,7 +2800,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     if (texture != null) {
       gl.deleteTexture(texture!);
       this.__webglResources.delete(textureHandle);
-      Logger.debug(`gl.deleteTexture called: ${textureHandle}`);
+      Logger.default.debug(`gl.deleteTexture called: ${textureHandle}`);
     }
   }
 
@@ -3246,7 +3254,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     const material = this._material.deref();
     if (Is.not.exist(material)) {
       const warn = 'Material Not found';
-      Logger.warn(warn);
+      Logger.default.warn(warn);
       onError(warn);
       return false;
     }
@@ -3888,7 +3896,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
 
   isSupportMultiViewVRRendering(engine: Engine): boolean {
     if (engine.engineState.currentProcessApproach === ProcessApproach.DataTexture) {
-      return this.__glw!.isMultiview();
+      return this.__glw!.isMultiview(engine.config);
     }
     return false;
   }

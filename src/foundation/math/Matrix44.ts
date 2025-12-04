@@ -289,7 +289,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
 
     const det = n00 * n11 - n01 * n10 + n02 * n09 + n03 * n08 - n04 * n07 + n05 * n06;
     if (det === 0) {
-      Logger.error('the determinant is 0!');
+      Logger.default.error('the determinant is 0!');
     }
     const invDet = 1 / det;
 
@@ -340,7 +340,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
 
     const det = n00 * n11 - n01 * n10 + n02 * n09 + n03 * n08 - n04 * n07 + n05 * n06;
     if (det === 0) {
-      Logger.error('the determinant is 0!');
+      Logger.default.error('the determinant is 0!');
     }
     const invDet = 1 / det;
 

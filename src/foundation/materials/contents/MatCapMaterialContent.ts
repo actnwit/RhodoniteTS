@@ -57,7 +57,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
     } else if (texture instanceof AbstractTexture) {
       matCapTexture = texture;
     } else {
-      Logger.warn('no matcap texture');
+      Logger.default.warn('no matcap texture');
       matCapTexture = engine.dummyTextures.dummyBlackTexture;
     }
 
@@ -146,7 +146,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
 
       /// Skinning
       const skeletalComponent = args.entity.tryToGetSkeletal();
-      this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
+      this.setSkinning(engine.config, shaderProgram, args.setUniform, skeletalComponent);
     }
   }
 }

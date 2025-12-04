@@ -130,7 +130,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVect
   static angleOfVectors(l_vec: IVector3, r_vec: IVector3) {
     const multipliedLength = l_vec.length() * r_vec.length();
     if (multipliedLength === 0) {
-      Logger.error('length of a vector is 0!');
+      Logger.default.error('length of a vector is 0!');
     }
     const cos_sita = l_vec.dot(r_vec) / multipliedLength;
     const sita = Math.acos(cos_sita);
@@ -371,7 +371,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVect
       y = vec._v[1] / value;
       z = vec._v[2] / value;
     } else {
-      Logger.error('0 division occurred!');
+      Logger.default.error('0 division occurred!');
       x = Number.POSITIVE_INFINITY;
       y = Number.POSITIVE_INFINITY;
       z = Number.POSITIVE_INFINITY;
@@ -393,7 +393,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVect
       out._v[1] = vec._v[1] / value;
       out._v[2] = vec._v[2] / value;
     } else {
-      Logger.error('0 division occurred!');
+      Logger.default.error('0 division occurred!');
       out._v[0] = Number.POSITIVE_INFINITY;
       out._v[1] = Number.POSITIVE_INFINITY;
       out._v[2] = Number.POSITIVE_INFINITY;
@@ -418,7 +418,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVect
       y = l_vec._v[1] / r_vec._v[1];
       z = l_vec._v[2] / r_vec._v[2];
     } else {
-      Logger.error('0 division occurred!');
+      Logger.default.error('0 division occurred!');
       x = r_vec._v[0] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[0] / r_vec._v[0];
       y = r_vec._v[1] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[1] / r_vec._v[1];
       z = r_vec._v[2] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[2] / r_vec._v[2];
@@ -440,7 +440,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVect
       out._v[1] = l_vec._v[1] / r_vec._v[1];
       out._v[2] = l_vec._v[2] / r_vec._v[2];
     } else {
-      Logger.error('0 division occurred!');
+      Logger.default.error('0 division occurred!');
       out._v[0] = r_vec._v[0] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[0] / r_vec._v[0];
       out._v[1] = r_vec._v[1] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[1] / r_vec._v[1];
       out._v[2] = r_vec._v[2] === 0 ? Number.POSITIVE_INFINITY : l_vec._v[2] / r_vec._v[2];

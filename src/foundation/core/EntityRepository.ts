@@ -371,7 +371,7 @@ export class EntityRepository {
     entity: EntityType
   ): EntityType & ComponentToComponentMethods<ComponentType> {
     if (entity.hasComponent(componentClass)) {
-      Logger.info('This entity already has the Component.');
+      Logger.default.info('This entity already has the Component.');
       return entity as EntityType & ComponentToComponentMethods<ComponentType>;
     }
 

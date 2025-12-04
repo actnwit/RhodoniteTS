@@ -47,12 +47,12 @@ const setupRenderPassRendering = (engine: Rn.Engine, rootGroup, cameraComponent)
 let p = null;
 
 const load = async () => {
-  Rn.Config.cgApiDebugConsoleOutput = true;
   const canvas = document.getElementById('world') as HTMLCanvasElement;
   window.canvas = canvas;
   const engine = await Rn.Engine.init({
     approach: Rn.ProcessApproach.Uniform,
     canvas,
+    config: new Rn.Config({ cgApiDebugConsoleOutput: true }),
   });
   const expression = new Rn.Expression();
 

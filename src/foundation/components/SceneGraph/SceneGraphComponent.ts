@@ -113,7 +113,7 @@ export class SceneGraphComponent extends Component {
 
     SceneGraphComponent.__sceneGraphs.push(new WeakRef(this));
 
-    this.submitToAllocation(Config.scenegraphComponentCountPerBufferView, isReUse);
+    this.submitToAllocation(engine.config.scenegraphComponentCountPerBufferView, isReUse);
   }
 
   /**

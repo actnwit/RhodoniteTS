@@ -1,3 +1,4 @@
+import type { Config } from '../../core/Config';
 import type { ISceneGraphEntity } from '../../helpers';
 import { IQuaternion, type IVector3, MathUtil, Quaternion } from '../../math';
 import { Vector3 } from '../../math/Vector3';
@@ -101,7 +102,7 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
    * This method should be called each frame to synchronize the visual representation
    * with the physics simulation results.
    */
-  update(): void {
+  update(_config: Config): void {
     if (this.__entity === undefined) {
       return;
     }

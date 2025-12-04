@@ -2,14 +2,12 @@ import Rn from '../../../dist/esmdev/index.js';
 
 declare const window: any;
 
-Rn.Config.isUboEnabled = false;
-Rn.Config.cgApiDebugConsoleOutput = true;
-
 async function createCanvasScene(canvasId: string) {
   let p: HTMLParagraphElement | undefined;
   const engine = await Rn.Engine.init({
     approach: Rn.ProcessApproach.DataTexture,
     canvas: document.getElementById(canvasId) as HTMLCanvasElement,
+    config: new Rn.Config({ isUboEnabled: false, cgApiDebugConsoleOutput: true }),
   });
 
   // params

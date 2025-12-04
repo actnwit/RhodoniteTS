@@ -36,7 +36,7 @@ export class PointShadowMap {
       createDepthBuffer: true,
       depthTextureFormat: TextureFormat.Depth32F,
     });
-    for (let i = 0; i < Config.maxLightNumber; i++) {
+    for (let i = 0; i < engine.config.maxLightNumber; i++) {
       const shadowMomentFrontMaterial = MaterialHelper.createParaboloidDepthMomentEncodeMaterial(engine);
       shadowMomentFrontMaterial.colorWriteMask = [true, true, false, false];
       this.__shadowMomentFrontMaterials.push(shadowMomentFrontMaterial);

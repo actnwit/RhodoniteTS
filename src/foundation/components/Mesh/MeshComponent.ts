@@ -135,7 +135,7 @@ export class MeshComponent extends Component {
    * @param meshComponent - The mesh component instance to log about
    */
   static alertNoMeshSet(meshComponent: MeshComponent) {
-    Logger.debug(`No mesh is set on this MeshComponent:${meshComponent.componentSID}`);
+    Logger.default.debug(`No mesh is set on this MeshComponent:${meshComponent.componentSID}`);
   }
 
   /**

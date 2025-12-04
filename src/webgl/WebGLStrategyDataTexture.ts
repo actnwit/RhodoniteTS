@@ -478,7 +478,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
     );
 
     if (offsetOfProperty === -1) {
-      Logger.error('Could not get the location offset of the property.');
+      Logger.default.error('Could not get the location offset of the property.');
     }
 
     let instanceSize = vec4SizeOfProperty;
@@ -570,7 +570,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
           str += '        mat4x3 val = fetchMat4x3(vec4_idx);\n';
           break;
         default:
-          // Logger.error('unknown composition type', info.compositionType.str, memberName);
+          // Logger.default.error('unknown composition type', info.compositionType.str, memberName);
           str += '';
       }
       str += `
@@ -732,7 +732,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
           str += '        mat4x3 val = fetchMat4x3(vec4_idx);\n';
           break;
         default:
-          // Logger.error('unknown composition type', info.compositionType.str, memberName);
+          // Logger.default.error('unknown composition type', info.compositionType.str, memberName);
           str += '';
       }
       str += `
@@ -1018,7 +1018,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         const height = Math.min(Math.ceil(bufferSizeForDataTextureInByte / dataTextureWidthInByte), dataTextureHeight);
         const updateByteSize = dataTextureWidth * height * 4 * 4;
         if (bufferSizeForDataTextureInByte > dataTextureByteSize) {
-          Logger.warn('The buffer size exceeds the size of the data texture.');
+          Logger.default.warn('The buffer size exceeds the size of the data texture.');
         }
         const floatDataTextureBuffer = new Float32Array(gpuInstanceDataBuffer.getArrayBuffer(), 0, updateByteSize / 4);
         this.__engine.webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
@@ -1074,7 +1074,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
       // warning if the used memory exceeds the size of the data texture.
       if (srcsCopySizes.reduce((acc, size) => acc + size, 0) > dataTextureByteSize) {
-        Logger.warn('The buffer size exceeds the size of the data texture.');
+        Logger.default.warn('The buffer size exceeds the size of the data texture.');
       }
 
       const floatDataTextureBuffer = new Float32Array(finalArrayBuffer);
@@ -1211,7 +1211,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
    * and can store larger amounts of uniform data compared to individual uniforms.
    */
   private __isUboUse() {
-    return this.__engine.webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 && Config.isUboEnabled;
+    return (
+      this.__engine.webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 && this.__engine.config.isUboEnabled
+    );
   }
 
   /**

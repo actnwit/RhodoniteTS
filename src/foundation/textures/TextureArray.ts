@@ -33,7 +33,7 @@ export class TextureArray extends AbstractTexture implements Disposable {
    */
   private static managedRegistry: FinalizationRegistry<FinalizationRegistryObject> =
     new FinalizationRegistry<FinalizationRegistryObject>(texObj => {
-      Logger.info(
+      Logger.default.info(
         `WebGL/WebGPU texture array "${texObj.uniqueName}" was automatically released along with GC. But explicit release is recommended.`
       );
       TextureArray.__deleteInternalTexture(texObj.engine, texObj.textureResourceUid);
@@ -83,7 +83,7 @@ export class TextureArray extends AbstractTexture implements Disposable {
     canvas.height = 1;
     const ctx = canvas.getContext('2d');
     if (ctx == null) {
-      Logger.error('Failed to get canvas context.');
+      Logger.default.error('Failed to get canvas context.');
       return;
     }
     ctx.fillStyle = rgbaStr;
@@ -96,7 +96,7 @@ export class TextureArray extends AbstractTexture implements Disposable {
     const resourceUid = cgApiResourceRepository.createTextureArray(
       1,
       1,
-      Config.maxLightNumber,
+      this.__engine.config.maxLightNumber,
       1,
       TextureFormat.RGBA8,
       PixelFormat.RGBA,
@@ -108,7 +108,7 @@ export class TextureArray extends AbstractTexture implements Disposable {
     if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureView2dArray(
         this._textureResourceUid,
-        Config.maxLightNumber
+        this.__engine.config.maxLightNumber
       );
     }
 
@@ -133,7 +133,7 @@ export class TextureArray extends AbstractTexture implements Disposable {
    * It provides a standardized way to clean up resources.
    */
   [Symbol.dispose]() {
-    Logger.debug('[Symbol.dispose] is called');
+    Logger.default.debug('[Symbol.dispose] is called');
     this.destroy();
   }
 

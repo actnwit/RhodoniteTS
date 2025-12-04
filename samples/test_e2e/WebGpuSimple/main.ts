@@ -36,13 +36,12 @@ declare const window: any;
   promises.push(Rn.ModuleManager.getInstance().loadModule('webgpu'));
   promises.push(Rn.ModuleManager.getInstance().loadModule('pbr'));
   Promise.all(promises).then(async () => {
-    Rn.Config.cgApiDebugConsoleOutput = true;
     const engine = await Rn.Engine.init({
       approach: Rn.ProcessApproach.WebGPU,
       canvas: document.getElementById('world') as HTMLCanvasElement,
+      config: new Rn.Config({ cgApiDebugConsoleOutput: true, logLevel: Rn.LogLevel.Info }),
     });
     window.engine = engine;
-    Rn.Logger.logLevel = Rn.LogLevel.Info;
 
     const primitive = await readyBasicVerticesData(engine);
 

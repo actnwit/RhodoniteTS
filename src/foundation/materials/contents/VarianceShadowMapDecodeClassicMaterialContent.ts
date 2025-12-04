@@ -100,11 +100,11 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
     );
 
     if (encodedDepthRenderPasses.length !== 2) {
-      Logger.error('invalid length of renderPasses');
+      Logger.default.error('invalid length of renderPasses');
     }
 
     if (depthCameraComponent == null) {
-      Logger.warn('need to set depth camera component');
+      Logger.default.warn('need to set depth camera component');
     } else {
       this.__depthCameraComponent = depthCameraComponent;
     }
@@ -120,7 +120,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
     if (depthFramebuffer) {
       depthTexture = depthFramebuffer.colorAttachments[colorAttachmentsNumberDepth];
     } else {
-      Logger.warn('renderPass of depth does not have framebuffer');
+      Logger.default.warn('renderPass of depth does not have framebuffer');
       depthTexture = engine.dummyTextures.dummyBlackTexture;
     }
 
@@ -129,7 +129,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
     if (squareDepthFramebuffer) {
       squareDepthTexture = squareDepthFramebuffer.colorAttachments[colorAttachmentsNumberSquareDepth];
     } else {
-      Logger.warn('renderPass of square depth does not have framebuffer');
+      Logger.default.warn('renderPass of square depth does not have framebuffer');
       squareDepthTexture = engine.dummyTextures.dummyBlackTexture;
     }
 
@@ -412,10 +412,10 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
 
     /// Skinning
     const skeletalComponent = args.entity.tryToGetSkeletal();
-    this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
+    this.setSkinning(engine.config, shaderProgram, args.setUniform, skeletalComponent);
 
     // Lights
-    this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
+    this.setLightsInfo(engine.config, shaderProgram, args.lightComponents, material, args.setUniform);
 
     // Morph
     const blendShapeComponent = args.entity.tryToGetBlendShape();

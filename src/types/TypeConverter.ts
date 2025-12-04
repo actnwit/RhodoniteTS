@@ -27,7 +27,7 @@ export function fromTensorToCompositionType(vec: any) {
     case 'MutableMatrix44':
       return CompositionType.Mat4;
     default:
-      Logger.error('CompositionType.Unknown');
+      Logger.default.error('CompositionType.Unknown');
       return CompositionType.Unknown;
   }
 }

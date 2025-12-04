@@ -86,7 +86,7 @@ export class Capsule extends IShape {
     };
 
     if (Math.abs(desc.radius) < Number.EPSILON) {
-      Logger.warn(
+      Logger.default.warn(
         'The argument radius is zero / nearly zero. Rn will take the radius as 0.001 for safety. Check your code.'
       );
       desc.radius = 0.001;

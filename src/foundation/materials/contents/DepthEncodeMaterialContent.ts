@@ -171,6 +171,6 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
 
     /// Skinning
     const skeletalComponent = args.entity.tryToGetSkeletal();
-    this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
+    this.setSkinning(engine.config, shaderProgram, args.setUniform, skeletalComponent);
   }
 }

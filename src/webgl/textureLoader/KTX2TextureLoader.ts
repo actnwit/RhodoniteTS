@@ -106,7 +106,7 @@ export class KTX2TextureLoader {
    */
   constructor() {
     if (typeof MSC_TRANSCODER === 'undefined') {
-      Logger.error('Failed to call MSC_TRANSCODER() function. Please check to import msc_basis_transcoder.js.');
+      Logger.default.error('Failed to call MSC_TRANSCODER() function. Please check to import msc_basis_transcoder.js.');
     }
     this.__mscTranscoderPromise = this.__loadMSCTranscoder();
   }

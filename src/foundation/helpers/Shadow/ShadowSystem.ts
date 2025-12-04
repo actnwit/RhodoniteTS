@@ -50,7 +50,7 @@ export class ShadowSystem {
       RenderableHelper.createFrameBufferTextureArray(engine, {
         width: shadowMapSize,
         height: shadowMapSize,
-        arrayLength: Config.maxLightNumber,
+        arrayLength: engine.config.maxLightNumber,
         level: 0,
         internalFormat: TextureFormat.RG16F,
         format: PixelFormat.RG,
@@ -62,7 +62,7 @@ export class ShadowSystem {
       RenderableHelper.createFrameBufferTextureArray(engine, {
         width: shadowMapSize,
         height: shadowMapSize,
-        arrayLength: Config.maxLightNumber,
+        arrayLength: engine.config.maxLightNumber,
         level: 0,
         internalFormat: TextureFormat.RGBA16F,
         format: PixelFormat.RGBA,
@@ -246,7 +246,7 @@ export class ShadowSystem {
    * @param entities - Array of scene graph entities to apply the bias matrices to
    */
   public setDepthBiasPV(entities: ISceneGraphEntity[]) {
-    const float32Array = new Float32Array(Config.maxLightNumber * 16);
+    const float32Array = new Float32Array(this.__engine.config.maxLightNumber * 16);
 
     const lightComponents = this.__engine.componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
 
