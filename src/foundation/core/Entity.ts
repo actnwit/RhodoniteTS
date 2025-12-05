@@ -500,7 +500,8 @@ export class Entity extends RnObject implements IEntity {
    * Destroys this entity and releases all associated resources.
    *
    * @remarks
-   * This method calls the destroy method on all components attached to this entity
+   * This method calls the destroy method on all components attached to this entity,
+   * unregisters the entity from the RnObject tracking system (to clean up unique names),
    * and marks the entity as no longer alive. After calling this method, the entity
    * should not be used.
    */
@@ -508,6 +509,9 @@ export class Entity extends RnObject implements IEntity {
     this.__components.forEach(component => {
       component._destroy();
     });
+    // Unregister from RnObject to clean up unique name registry
+    // This prevents name conflicts when creating new entities with the same name after engine reset
+    this.unregister();
     this._isAlive = false;
   }
 }
