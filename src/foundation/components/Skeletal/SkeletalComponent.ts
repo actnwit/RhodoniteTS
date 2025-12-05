@@ -24,7 +24,7 @@ import type { Accessor } from '../../memory/Accessor';
 import { Is } from '../../misc';
 import { Logger } from '../../misc/Logger';
 import type { Engine } from '../../system/Engine';
-import { AnimationComponent } from '../Animation/AnimationComponent';
+import { AnimationStateRepository } from '../Animation/AnimationStateRepository';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import type { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import { createGroupEntity } from '../SceneGraph/createGroupEntity';
@@ -72,96 +72,6 @@ export class SkeletalComponent extends Component {
   private static __accessorSignatureCache: WeakMap<Accessor, string> = new WeakMap();
   private static __bindShapeSignatureMap: WeakMap<Matrix44, string> = new WeakMap();
 
-  // ============================================================================
-  // AnimationComponent Early Return Optimization
-  // ============================================================================
-  // These static members enable AnimationComponent to skip animation calculations
-  // for joints whose skinning results are cached. This significantly improves
-  // performance when multiple VRM models share the same skeleton (joint entities).
-  //
-  // The optimization uses a "leader/follower" pattern:
-  // - Leaders: SkeletalComponents that compute skinning (cache miss)
-  // - Followers: SkeletalComponents that reuse cached skinning (cache hit)
-  // Only follower joints can skip animation; leader joints must continue animating.
-  // ============================================================================
-
-  /**
-   * Joint EntityUIDs that can skip animation in the CURRENT frame.
-   * Populated during SkeletalComponent.$logic when cache hits occur.
-   * Excludes leader joints to ensure animation continues for at least one source.
-   * Managed per Engine instance for multi-engine support.
-   */
-  private static __currentFrameCachedEntityUIDsMap: Map<Engine, Set<EntityUID>> = new Map();
-
-  /**
-   * Joint EntityUIDs that can skip animation - from the PREVIOUS frame.
-   * AnimationComponent checks this set because it runs before SkeletalComponent.
-   * Swapped from __currentFrameCachedEntityUIDs at each frame transition.
-   * Managed per Engine instance for multi-engine support.
-   */
-  private static __previousFrameCachedEntityUIDsMap: Map<Engine, Set<EntityUID>> = new Map();
-
-  /**
-   * Tracks the last frame's global time to detect frame transitions.
-   * Used to trigger the swap of current/previous cached EntityUIDs.
-   * Managed per Engine instance for multi-engine support.
-   */
-  private static __lastCacheFrameGlobalTimeMap: Map<Engine, number> = new Map();
-
-  /**
-   * Maps each cache key to the EntityUID of its "leader" SkeletalComponent.
-   * The leader is the first SkeletalComponent to compute skinning for a given cache key.
-   * Used to identify which SkeletalComponent owns the cached skinning result.
-   * Managed per Engine instance for multi-engine support.
-   */
-  private static __cacheLeadersMap: Map<Engine, Map<string, EntityUID>> = new Map();
-
-  /**
-   * Maps jointIndex to the leader's joint EntityUID.
-   * Used to compare follower joints with leader joints by structure (jointIndex),
-   * rather than by entityUID alone.
-   * - If follower's jointIndex exists in this map AND entityUID differs → register for early return
-   * - If follower's jointIndex exists in this map AND entityUID is same → shallowCopy, skip
-   * - This enables early return for separately loaded identical VRM models
-   * Managed per Engine instance for multi-engine support.
-   */
-  private static __leaderJointIndexToEntityUIDMap: Map<Engine, Map<number, EntityUID>> = new Map();
-
-  private static __getOrCreateCurrentFrameCachedEntityUIDs(engine: Engine): Set<EntityUID> {
-    let set = this.__currentFrameCachedEntityUIDsMap.get(engine);
-    if (!set) {
-      set = new Set();
-      this.__currentFrameCachedEntityUIDsMap.set(engine, set);
-    }
-    return set;
-  }
-
-  private static __getOrCreatePreviousFrameCachedEntityUIDs(engine: Engine): Set<EntityUID> {
-    let set = this.__previousFrameCachedEntityUIDsMap.get(engine);
-    if (!set) {
-      set = new Set();
-      this.__previousFrameCachedEntityUIDsMap.set(engine, set);
-    }
-    return set;
-  }
-
-  private static __getOrCreateCacheLeaders(engine: Engine): Map<string, EntityUID> {
-    let map = this.__cacheLeadersMap.get(engine);
-    if (!map) {
-      map = new Map();
-      this.__cacheLeadersMap.set(engine, map);
-    }
-    return map;
-  }
-
-  private static __getOrCreateLeaderJointIndexToEntityUID(engine: Engine): Map<number, EntityUID> {
-    let map = this.__leaderJointIndexToEntityUIDMap.get(engine);
-    if (!map) {
-      map = new Map();
-      this.__leaderJointIndexToEntityUIDMap.set(engine, map);
-    }
-    return map;
-  }
   private __jointListKey?: string;
   private __skinCacheKey?: string;
   private __inverseBindMatricesSignature?: string;
@@ -491,14 +401,8 @@ export class SkeletalComponent extends Component {
     // --- Frame Transition: Swap cached entity UIDs ---
     // When a new frame starts, move current frame's cached UIDs to previous frame.
     // AnimationComponent uses previous frame's data because it runs before SkeletalComponent.
-    const currentGlobalTime = AnimationComponent.getGlobalTime(this.__engine);
-    const lastCacheFrameGlobalTime = SkeletalComponent.__lastCacheFrameGlobalTimeMap.get(this.__engine) ?? -1;
-    if (lastCacheFrameGlobalTime !== currentGlobalTime) {
-      const currentFrameSet = SkeletalComponent.__getOrCreateCurrentFrameCachedEntityUIDs(this.__engine);
-      SkeletalComponent.__previousFrameCachedEntityUIDsMap.set(this.__engine, currentFrameSet);
-      SkeletalComponent.__currentFrameCachedEntityUIDsMap.set(this.__engine, new Set());
-      SkeletalComponent.__lastCacheFrameGlobalTimeMap.set(this.__engine, currentGlobalTime);
-    }
+    const currentGlobalTime = AnimationStateRepository.getGlobalTime(this.__engine);
+    AnimationStateRepository.handleFrameTransitionIfNeeded(this.__engine, currentGlobalTime);
 
     // --- Skinning Cache Lookup ---
     this.__updateSkinCacheKey();
@@ -525,9 +429,11 @@ export class SkeletalComponent extends Component {
     // - Separate load: Different entityUID but same jointIndex → register for early return
     // ============================================================================
 
-    const cacheLeaders = SkeletalComponent.__getOrCreateCacheLeaders(this.__engine);
-    const leaderJointIndexToEntityUID = SkeletalComponent.__getOrCreateLeaderJointIndexToEntityUID(this.__engine);
-    const currentFrameCachedEntityUIDs = SkeletalComponent.__getOrCreateCurrentFrameCachedEntityUIDs(this.__engine);
+    const cacheLeaders = AnimationStateRepository.getOrCreateCacheLeaders(this.__engine);
+    const leaderJointIndexToEntityUID = AnimationStateRepository.getOrCreateLeaderJointIndexToEntityUID(this.__engine);
+    const currentFrameCachedEntityUIDs = AnimationStateRepository.getOrCreateCurrentFrameCachedEntityUIDs(
+      this.__engine
+    );
 
     if (cacheKey) {
       const cache = SkeletalComponent.__skinCalculationCache.get(cacheKey);
@@ -839,27 +745,7 @@ export class SkeletalComponent extends Component {
    * @returns True if the entity can skip animation calculation, false if it must animate
    */
   static isEntityCached(entityUID: EntityUID, engine: Engine): boolean {
-    // Handle frame transition: swap cached entity UIDs when a new frame starts.
-    // This must happen here because AnimationComponent.$logic runs BEFORE SkeletalComponent.$logic.
-    // Without this, AnimationComponent would check stale data from the wrong frame.
-    const currentGlobalTime = AnimationComponent.getGlobalTime(engine);
-    const lastCacheFrameGlobalTime = SkeletalComponent.__lastCacheFrameGlobalTimeMap.get(engine) ?? -1;
-    if (lastCacheFrameGlobalTime !== currentGlobalTime) {
-      const currentFrameSet = SkeletalComponent.__getOrCreateCurrentFrameCachedEntityUIDs(engine);
-      SkeletalComponent.__previousFrameCachedEntityUIDsMap.set(engine, currentFrameSet);
-      SkeletalComponent.__currentFrameCachedEntityUIDsMap.set(engine, new Set());
-      // Clear leader tracking for the new frame
-      const cacheLeaders = SkeletalComponent.__getOrCreateCacheLeaders(engine);
-      const leaderJointIndexToEntityUID = SkeletalComponent.__getOrCreateLeaderJointIndexToEntityUID(engine);
-      cacheLeaders.clear();
-      leaderJointIndexToEntityUID.clear();
-      SkeletalComponent.__lastCacheFrameGlobalTimeMap.set(engine, currentGlobalTime);
-    }
-
-    // Check if this entity was registered as "cacheable" in the previous frame.
-    // Leader joints are NOT in this set, so they will return false and continue animating.
-    const previousFrameCachedEntityUIDs = SkeletalComponent.__getOrCreatePreviousFrameCachedEntityUIDs(engine);
-    return previousFrameCachedEntityUIDs.has(entityUID);
+    return AnimationStateRepository.isEntityCached(entityUID, engine);
   }
 
   /**
