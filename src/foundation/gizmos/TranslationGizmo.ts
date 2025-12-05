@@ -34,40 +34,50 @@ import { Gizmo } from './Gizmo';
 declare let window: any;
 
 /**
+ * Internal resources for TranslationGizmo, managed per-Engine.
+ * @internal
+ */
+interface TranslationGizmoResources {
+  groupEntity: ISceneGraphEntity;
+  xCubeEntity: IMeshEntity;
+  yCubeEntity: IMeshEntity;
+  zCubeEntity: IMeshEntity;
+  xCubeMesh: Mesh;
+  yCubeMesh: Mesh;
+  zCubeMesh: Mesh;
+  xCubePrimitive: Cube;
+  yCubePrimitive: Cube;
+  zCubePrimitive: Cube;
+  xCubeMaterial: Material;
+  yCubeMaterial: Material;
+  zCubeMaterial: Material;
+  xConeEntity: IMeshEntity;
+  yConeEntity: IMeshEntity;
+  zConeEntity: IMeshEntity;
+  xyPlaneEntity: IMeshEntity;
+  yzPlaneEntity: IMeshEntity;
+  zxPlaneEntity: IMeshEntity;
+  xyPlaneMesh: Mesh;
+  yzPlaneMesh: Mesh;
+  zxPlaneMesh: Mesh;
+  xyPlanePrimitive: Plane;
+  yzPlanePrimitive: Plane;
+  zxPlanePrimitive: Plane;
+  xyPlaneMaterial: Material;
+  yzPlaneMaterial: Material;
+  zxPlaneMaterial: Material;
+}
+
+/**
  * Translation Gizmo class
  * Provides an interactive 3D translation gizmo for manipulating object positions in 3D space.
  * The gizmo displays colored axes (red for X, green for Y, blue for Z) that can be dragged
  * to translate objects along specific axes or planes.
  */
 export class TranslationGizmo extends Gizmo {
-  private static __groupEntity: ISceneGraphEntity;
-  private static __xCubeEntity: IMeshEntity;
-  private static __yCubeEntity: IMeshEntity;
-  private static __zCubeEntity: IMeshEntity;
-  private static __xCubeMesh: Mesh;
-  private static __yCubeMesh: Mesh;
-  private static __zCubeMesh: Mesh;
-  private static __xCubePrimitive: Cube;
-  private static __yCubePrimitive: Cube;
-  private static __zCubePrimitive: Cube;
-  private static __xCubeMaterial: Material;
-  private static __yCubeMaterial: Material;
-  private static __zCubeMaterial: Material;
-  private static __xConeEntity: IMeshEntity;
-  private static __yConeEntity: IMeshEntity;
-  private static __zConeEntity: IMeshEntity;
-  private static __xyPlaneEntity: IMeshEntity;
-  private static __yzPlaneEntity: IMeshEntity;
-  private static __zxPlaneEntity: IMeshEntity;
-  private static __xyPlaneMesh: Mesh;
-  private static __yzPlaneMesh: Mesh;
-  private static __zxPlaneMesh: Mesh;
-  private static __xyPlanePrimitive: Plane;
-  private static __yzPlanePrimitive: Plane;
-  private static __zxPlanePrimitive: Plane;
-  private static __xyPlaneMaterial: Material;
-  private static __yzPlaneMaterial: Material;
-  private static __zxPlaneMaterial: Material;
+  /** Resources managed per-Engine instance */
+  private static __resourcesMap: Map<number, TranslationGizmoResources> = new Map();
+
   private static __originalX = 0;
   private static __originalY = 0;
   private __pickStatedPoint = Vector3.zero();
@@ -83,6 +93,13 @@ export class TranslationGizmo extends Gizmo {
   private __isCameraControllerDisabled = false;
 
   private static __length = 1;
+
+  /**
+   * Gets the resources for a specific engine, or undefined if not initialized.
+   */
+  private static __getResources(engine: Engine): TranslationGizmoResources | undefined {
+    return TranslationGizmo.__resourcesMap.get(engine.objectUID);
+  }
 
   ///
   ///
@@ -124,6 +141,11 @@ export class TranslationGizmo extends Gizmo {
    * @param flg - True to show the gizmo, false to hide it
    */
   set isVisible(flg: boolean) {
+    const resources = TranslationGizmo.__getResources(this.__engine);
+    if (!resources) {
+      return;
+    }
+
     if (this.__isVisible === false && flg === true) {
       let eventTargetDom = window;
       if (Is.exist(this.__engine.config.eventTargetDom)) {
@@ -159,7 +181,7 @@ export class TranslationGizmo extends Gizmo {
           eventTargetDom: eventTargetDom,
         },
       ]);
-      this.__topEntity!.getSceneGraph().addChild(TranslationGizmo.__groupEntity.getSceneGraph());
+      this.__topEntity!.getSceneGraph().addChild(resources.groupEntity.getSceneGraph());
       this.__latestTargetEntity = this.__target;
       if (TranslationGizmo.__space === 'local') {
         const parent = this.__target.getSceneGraph().parent;
@@ -167,9 +189,9 @@ export class TranslationGizmo extends Gizmo {
         if (Is.exist(parent)) {
           quaternion = parent.getQuaternionRecursively();
         }
-        TranslationGizmo.__groupEntity.getTransform().localRotation = quaternion;
+        resources.groupEntity.getTransform().localRotation = quaternion;
       } else if (TranslationGizmo.__space === 'world') {
-        TranslationGizmo.__groupEntity.getTransform().localRotation = Quaternion.fromCopy4(0, 0, 0, 1);
+        resources.groupEntity.getTransform().localRotation = Quaternion.fromCopy4(0, 0, 0, 1);
       }
     }
 
@@ -185,9 +207,9 @@ export class TranslationGizmo extends Gizmo {
     InputManager.setActive(INPUT_HANDLING_STATE_GIZMO_TRANSLATION, flg);
 
     this.__setVisible(flg);
-    TranslationGizmo.__xyPlaneEntity.getSceneGraph().isVisible = false;
-    TranslationGizmo.__yzPlaneEntity.getSceneGraph().isVisible = false;
-    TranslationGizmo.__zxPlaneEntity.getSceneGraph().isVisible = false;
+    resources.xyPlaneEntity.getSceneGraph().isVisible = false;
+    resources.yzPlaneEntity.getSceneGraph().isVisible = false;
+    resources.zxPlaneEntity.getSceneGraph().isVisible = false;
   }
 
   /**
@@ -234,209 +256,215 @@ export class TranslationGizmo extends Gizmo {
     // add this topEntity to the target as gizmo
     this.__target.getSceneGraph()._addGizmoChild(this.__topEntity!.getSceneGraph());
 
-    // setup the mesh
-    const coneRadius = 0.08;
-    const coneHeight = 0.3;
-    const coneSegments = 16;
-    // x
-    if (Is.not.exist(TranslationGizmo.__xCubeEntity)) {
-      TranslationGizmo.__xCubeEntity = createMeshEntity(this.__engine);
-      TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_xCube', true);
-      TranslationGizmo.__xCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0.5, 0, 0);
-      TranslationGizmo.__xCubeMesh = new Mesh(this.__engine);
-      TranslationGizmo.__xCubeMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
-      TranslationGizmo.__xCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([1, 0, 0, 1]));
-      TranslationGizmo.__xCubePrimitive = new Cube(this.__engine);
-      TranslationGizmo.__xCubePrimitive.generate({
-        widthVector: Vector3.fromCopy3(1, 0.05, 0.05),
-        material: TranslationGizmo.__xCubeMaterial,
-      });
-      TranslationGizmo.__xCubeMesh.addPrimitive(TranslationGizmo.__xCubePrimitive);
-      TranslationGizmo.__xCubeEntity.getMesh().setMesh(TranslationGizmo.__xCubeMesh);
+    // Check if resources already exist for this engine
+    let resources = TranslationGizmo.__getResources(this.__engine);
+    if (!resources) {
+      // Create resources for this engine
+      resources = this.__createResources();
+      TranslationGizmo.__resourcesMap.set(this.__engine.objectUID, resources);
     }
 
-    // y
-    if (Is.not.exist(TranslationGizmo.__yCubeEntity)) {
-      TranslationGizmo.__yCubeEntity = createMeshEntity(this.__engine);
-      TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_yCube', true);
-      TranslationGizmo.__yCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0.5, 0);
-      TranslationGizmo.__yCubeMesh = new Mesh(this.__engine);
-      TranslationGizmo.__yCubeMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
-      TranslationGizmo.__yCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 1, 0, 1]));
-      TranslationGizmo.__yCubePrimitive = new Cube(this.__engine);
-      TranslationGizmo.__yCubePrimitive.generate({
-        widthVector: Vector3.fromCopy3(0.05, 1, 0.05),
-        material: TranslationGizmo.__yCubeMaterial,
-      });
-      TranslationGizmo.__yCubeMesh.addPrimitive(TranslationGizmo.__yCubePrimitive);
-      TranslationGizmo.__yCubeEntity.getMesh().setMesh(TranslationGizmo.__yCubeMesh);
-    }
+    this.__topEntity!.getSceneGraph().addChild(resources.groupEntity.getSceneGraph());
 
-    // z
-    if (Is.not.exist(TranslationGizmo.__zCubeEntity)) {
-      TranslationGizmo.__zCubeEntity = createMeshEntity(this.__engine);
-      TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_zCube', true);
-      TranslationGizmo.__zCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 0.5);
-      TranslationGizmo.__zCubeMesh = new Mesh(this.__engine);
-      TranslationGizmo.__zCubeMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
-      TranslationGizmo.__zCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0, 1, 1]));
-      TranslationGizmo.__zCubePrimitive = new Cube(this.__engine);
-      TranslationGizmo.__zCubePrimitive.generate({
-        widthVector: Vector3.fromCopy3(0.05, 0.05, 1),
-        material: TranslationGizmo.__zCubeMaterial,
-      });
-      TranslationGizmo.__zCubeMesh.addPrimitive(TranslationGizmo.__zCubePrimitive);
-      TranslationGizmo.__zCubeEntity.getMesh().setMesh(TranslationGizmo.__zCubeMesh);
-    }
-
-    // x Cone
-    if (Is.not.exist(TranslationGizmo.__xConeEntity)) {
-      TranslationGizmo.__xConeEntity = MeshHelper.createCone(this.__engine, {
-        radius: coneRadius,
-        height: coneHeight,
-        radialSegments: coneSegments,
-        material: TranslationGizmo.__xCubeMaterial,
-      });
-      TranslationGizmo.__xConeEntity.tryToSetUniqueName('TranslationGizmo_xCone', true);
-      TranslationGizmo.__xConeEntity.getTransform().localPosition = Vector3.fromCopy3(1, 0, 0);
-      TranslationGizmo.__xConeEntity.getTransform().localEulerAngles = Vector3.fromCopy3(
-        0,
-        0,
-        -MathUtil.degreeToRadian(90)
-      );
-    }
-
-    // y Cone
-    if (Is.not.exist(TranslationGizmo.__yConeEntity)) {
-      TranslationGizmo.__yConeEntity = MeshHelper.createCone(this.__engine, {
-        radius: coneRadius,
-        height: coneHeight,
-        radialSegments: coneSegments,
-        material: TranslationGizmo.__yCubeMaterial,
-      });
-      TranslationGizmo.__yConeEntity.tryToSetUniqueName('TranslationGizmo_yCone', true);
-      TranslationGizmo.__yConeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 1, 0);
-    }
-
-    // z Cone
-    if (Is.not.exist(TranslationGizmo.__zConeEntity)) {
-      TranslationGizmo.__zConeEntity = MeshHelper.createCone(this.__engine, {
-        radius: coneRadius,
-        height: coneHeight,
-        radialSegments: coneSegments,
-        material: TranslationGizmo.__zCubeMaterial,
-      });
-      TranslationGizmo.__zConeEntity.tryToSetUniqueName('TranslationGizmo_zCone', true);
-      TranslationGizmo.__zConeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 1);
-      TranslationGizmo.__zConeEntity.getTransform().localEulerAngles = Vector3.fromCopy3(
-        MathUtil.degreeToRadian(90),
-        0,
-        0
-      );
-    }
-
-    // xy Plane
-    if (Is.not.exist(TranslationGizmo.__xyPlaneEntity)) {
-      TranslationGizmo.__xyPlaneEntity = createMeshEntity(this.__engine);
-      TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_xyPlane', true);
-      TranslationGizmo.__xyPlaneEntity.getSceneGraph().isVisible = false;
-      // TranslationGizmo.__xyPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
-      TranslationGizmo.__xyPlaneEntity.getTransform().localEulerAngles = Vector3.fromCopy3(
-        MathUtil.degreeToRadian(90),
-        0,
-        0
-      );
-      TranslationGizmo.__xyPlaneMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
-      TranslationGizmo.__xyPlaneMaterial.alphaMode = AlphaMode.Blend;
-      TranslationGizmo.__xyPlaneMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0, 0.5, 0]));
-      TranslationGizmo.__xyPlaneMesh = new Mesh(this.__engine);
-      TranslationGizmo.__xyPlanePrimitive = new Plane(this.__engine);
-      TranslationGizmo.__xyPlanePrimitive.generate({
-        width: 100000,
-        height: 100000,
-        uSpan: 1,
-        vSpan: 1,
-        isUVRepeat: true,
-        flipTextureCoordinateY: false,
-        material: TranslationGizmo.__xyPlaneMaterial,
-      });
-      TranslationGizmo.__xyPlaneMesh.addPrimitive(TranslationGizmo.__xyPlanePrimitive);
-      TranslationGizmo.__xyPlaneEntity.getMesh().setMesh(TranslationGizmo.__xyPlaneMesh);
-    }
-
-    // yz Plane
-    if (Is.not.exist(TranslationGizmo.__yzPlaneEntity)) {
-      TranslationGizmo.__yzPlaneEntity = createMeshEntity(this.__engine);
-      TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_yzPlane', true);
-      TranslationGizmo.__yzPlaneEntity.getSceneGraph().isVisible = false;
-      // TranslationGizmo.__yzPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
-      TranslationGizmo.__yzPlaneEntity.getTransform().localEulerAngles = Vector3.fromCopy3(
-        0,
-        0,
-        MathUtil.degreeToRadian(90)
-      );
-      TranslationGizmo.__yzPlaneMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
-      TranslationGizmo.__yzPlaneMaterial.alphaMode = AlphaMode.Blend;
-      TranslationGizmo.__yzPlaneMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0.5, 0, 0, 0]));
-      TranslationGizmo.__yzPlaneMesh = new Mesh(this.__engine);
-      TranslationGizmo.__yzPlanePrimitive = new Plane(this.__engine);
-      TranslationGizmo.__yzPlanePrimitive.generate({
-        width: 100000,
-        height: 100000,
-        uSpan: 1,
-        vSpan: 1,
-        isUVRepeat: true,
-        flipTextureCoordinateY: false,
-        material: TranslationGizmo.__yzPlaneMaterial,
-      });
-      TranslationGizmo.__yzPlaneMesh.addPrimitive(TranslationGizmo.__yzPlanePrimitive);
-      TranslationGizmo.__yzPlaneEntity.getMesh().setMesh(TranslationGizmo.__yzPlaneMesh);
-    }
-
-    // zx Plane
-    if (Is.not.exist(TranslationGizmo.__zxPlaneEntity)) {
-      TranslationGizmo.__zxPlaneEntity = createMeshEntity(this.__engine);
-      TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_zxPlane', true);
-      TranslationGizmo.__zxPlaneEntity.getSceneGraph().isVisible = false;
-      // Vector3.fromCopy3(90, 0, 0);
-      TranslationGizmo.__zxPlaneMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
-      TranslationGizmo.__zxPlaneMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0.5, 0, 0]));
-      TranslationGizmo.__zxPlaneMaterial.alphaMode = AlphaMode.Blend;
-      TranslationGizmo.__zxPlaneMesh = new Mesh(this.__engine);
-      TranslationGizmo.__zxPlanePrimitive = new Plane(this.__engine);
-      TranslationGizmo.__zxPlanePrimitive.generate({
-        width: 100000,
-        height: 100000,
-        uSpan: 1,
-        vSpan: 1,
-        isUVRepeat: true,
-        flipTextureCoordinateY: false,
-        material: TranslationGizmo.__zxPlaneMaterial,
-      });
-      TranslationGizmo.__zxPlaneMesh.addPrimitive(TranslationGizmo.__zxPlanePrimitive);
-      TranslationGizmo.__zxPlaneEntity.getMesh().setMesh(TranslationGizmo.__zxPlaneMesh);
-    }
-
-    if (Is.not.exist(TranslationGizmo.__groupEntity)) {
-      TranslationGizmo.__groupEntity = createGroupEntity(this.__engine);
-    }
-
-    this.__topEntity!.getSceneGraph().addChild(TranslationGizmo.__groupEntity.getSceneGraph());
-
-    TranslationGizmo.__groupEntity.getSceneGraph().addChild(TranslationGizmo.__xCubeEntity.getSceneGraph());
-    TranslationGizmo.__groupEntity.getSceneGraph().addChild(TranslationGizmo.__yCubeEntity.getSceneGraph());
-    TranslationGizmo.__groupEntity.getSceneGraph().addChild(TranslationGizmo.__zCubeEntity.getSceneGraph());
-    TranslationGizmo.__groupEntity.getSceneGraph().addChild(TranslationGizmo.__xConeEntity.getSceneGraph());
-    TranslationGizmo.__groupEntity.getSceneGraph().addChild(TranslationGizmo.__yConeEntity.getSceneGraph());
-    TranslationGizmo.__groupEntity.getSceneGraph().addChild(TranslationGizmo.__zConeEntity.getSceneGraph());
-    TranslationGizmo.__groupEntity.getSceneGraph().addChild(TranslationGizmo.__xyPlaneEntity.getSceneGraph());
-    TranslationGizmo.__groupEntity.getSceneGraph().addChild(TranslationGizmo.__yzPlaneEntity.getSceneGraph());
-    TranslationGizmo.__groupEntity.getSceneGraph().addChild(TranslationGizmo.__zxPlaneEntity.getSceneGraph());
+    resources.groupEntity.getSceneGraph().addChild(resources.xCubeEntity.getSceneGraph());
+    resources.groupEntity.getSceneGraph().addChild(resources.yCubeEntity.getSceneGraph());
+    resources.groupEntity.getSceneGraph().addChild(resources.zCubeEntity.getSceneGraph());
+    resources.groupEntity.getSceneGraph().addChild(resources.xConeEntity.getSceneGraph());
+    resources.groupEntity.getSceneGraph().addChild(resources.yConeEntity.getSceneGraph());
+    resources.groupEntity.getSceneGraph().addChild(resources.zConeEntity.getSceneGraph());
+    resources.groupEntity.getSceneGraph().addChild(resources.xyPlaneEntity.getSceneGraph());
+    resources.groupEntity.getSceneGraph().addChild(resources.yzPlaneEntity.getSceneGraph());
+    resources.groupEntity.getSceneGraph().addChild(resources.zxPlaneEntity.getSceneGraph());
 
     this.__latestTargetEntity = this.__target;
 
     this.setGizmoTag();
     this.__topEntity.tryToSetTag({ tag: 'Gizmo', value: 'Translation' });
+  }
+
+  /**
+   * Creates all resources needed for the gizmo.
+   */
+  private __createResources(): TranslationGizmoResources {
+    const coneRadius = 0.08;
+    const coneHeight = 0.3;
+    const coneSegments = 16;
+
+    // X cube
+    const xCubeEntity = createMeshEntity(this.__engine);
+    xCubeEntity.tryToSetUniqueName('TranslationGizmo_xCube', true);
+    xCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0.5, 0, 0);
+    const xCubeMesh = new Mesh(this.__engine);
+    const xCubeMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
+    xCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([1, 0, 0, 1]));
+    const xCubePrimitive = new Cube(this.__engine);
+    xCubePrimitive.generate({
+      widthVector: Vector3.fromCopy3(1, 0.05, 0.05),
+      material: xCubeMaterial,
+    });
+    xCubeMesh.addPrimitive(xCubePrimitive);
+    xCubeEntity.getMesh().setMesh(xCubeMesh);
+
+    // Y cube
+    const yCubeEntity = createMeshEntity(this.__engine);
+    yCubeEntity.tryToSetUniqueName('TranslationGizmo_yCube', true);
+    yCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0.5, 0);
+    const yCubeMesh = new Mesh(this.__engine);
+    const yCubeMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
+    yCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 1, 0, 1]));
+    const yCubePrimitive = new Cube(this.__engine);
+    yCubePrimitive.generate({
+      widthVector: Vector3.fromCopy3(0.05, 1, 0.05),
+      material: yCubeMaterial,
+    });
+    yCubeMesh.addPrimitive(yCubePrimitive);
+    yCubeEntity.getMesh().setMesh(yCubeMesh);
+
+    // Z cube
+    const zCubeEntity = createMeshEntity(this.__engine);
+    zCubeEntity.tryToSetUniqueName('TranslationGizmo_zCube', true);
+    zCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 0.5);
+    const zCubeMesh = new Mesh(this.__engine);
+    const zCubeMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
+    zCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0, 1, 1]));
+    const zCubePrimitive = new Cube(this.__engine);
+    zCubePrimitive.generate({
+      widthVector: Vector3.fromCopy3(0.05, 0.05, 1),
+      material: zCubeMaterial,
+    });
+    zCubeMesh.addPrimitive(zCubePrimitive);
+    zCubeEntity.getMesh().setMesh(zCubeMesh);
+
+    // X cone
+    const xConeEntity = MeshHelper.createCone(this.__engine, {
+      radius: coneRadius,
+      height: coneHeight,
+      radialSegments: coneSegments,
+      material: xCubeMaterial,
+    });
+    xConeEntity.tryToSetUniqueName('TranslationGizmo_xCone', true);
+    xConeEntity.getTransform().localPosition = Vector3.fromCopy3(1, 0, 0);
+    xConeEntity.getTransform().localEulerAngles = Vector3.fromCopy3(0, 0, -MathUtil.degreeToRadian(90));
+
+    // Y cone
+    const yConeEntity = MeshHelper.createCone(this.__engine, {
+      radius: coneRadius,
+      height: coneHeight,
+      radialSegments: coneSegments,
+      material: yCubeMaterial,
+    });
+    yConeEntity.tryToSetUniqueName('TranslationGizmo_yCone', true);
+    yConeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 1, 0);
+
+    // Z cone
+    const zConeEntity = MeshHelper.createCone(this.__engine, {
+      radius: coneRadius,
+      height: coneHeight,
+      radialSegments: coneSegments,
+      material: zCubeMaterial,
+    });
+    zConeEntity.tryToSetUniqueName('TranslationGizmo_zCone', true);
+    zConeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 1);
+    zConeEntity.getTransform().localEulerAngles = Vector3.fromCopy3(MathUtil.degreeToRadian(90), 0, 0);
+
+    // XY plane
+    const xyPlaneEntity = createMeshEntity(this.__engine);
+    xyPlaneEntity.tryToSetUniqueName('TranslationGizmo_xyPlane', true);
+    xyPlaneEntity.getSceneGraph().isVisible = false;
+    xyPlaneEntity.getTransform().localEulerAngles = Vector3.fromCopy3(MathUtil.degreeToRadian(90), 0, 0);
+    const xyPlaneMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
+    xyPlaneMaterial.alphaMode = AlphaMode.Blend;
+    xyPlaneMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0, 0.5, 0]));
+    const xyPlaneMesh = new Mesh(this.__engine);
+    const xyPlanePrimitive = new Plane(this.__engine);
+    xyPlanePrimitive.generate({
+      width: 100000,
+      height: 100000,
+      uSpan: 1,
+      vSpan: 1,
+      isUVRepeat: true,
+      flipTextureCoordinateY: false,
+      material: xyPlaneMaterial,
+    });
+    xyPlaneMesh.addPrimitive(xyPlanePrimitive);
+    xyPlaneEntity.getMesh().setMesh(xyPlaneMesh);
+
+    // YZ plane
+    const yzPlaneEntity = createMeshEntity(this.__engine);
+    yzPlaneEntity.tryToSetUniqueName('TranslationGizmo_yzPlane', true);
+    yzPlaneEntity.getSceneGraph().isVisible = false;
+    yzPlaneEntity.getTransform().localEulerAngles = Vector3.fromCopy3(0, 0, MathUtil.degreeToRadian(90));
+    const yzPlaneMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
+    yzPlaneMaterial.alphaMode = AlphaMode.Blend;
+    yzPlaneMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0.5, 0, 0, 0]));
+    const yzPlaneMesh = new Mesh(this.__engine);
+    const yzPlanePrimitive = new Plane(this.__engine);
+    yzPlanePrimitive.generate({
+      width: 100000,
+      height: 100000,
+      uSpan: 1,
+      vSpan: 1,
+      isUVRepeat: true,
+      flipTextureCoordinateY: false,
+      material: yzPlaneMaterial,
+    });
+    yzPlaneMesh.addPrimitive(yzPlanePrimitive);
+    yzPlaneEntity.getMesh().setMesh(yzPlaneMesh);
+
+    // ZX plane
+    const zxPlaneEntity = createMeshEntity(this.__engine);
+    zxPlaneEntity.tryToSetUniqueName('TranslationGizmo_zxPlane', true);
+    zxPlaneEntity.getSceneGraph().isVisible = false;
+    const zxPlaneMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
+    zxPlaneMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0.5, 0, 0]));
+    zxPlaneMaterial.alphaMode = AlphaMode.Blend;
+    const zxPlaneMesh = new Mesh(this.__engine);
+    const zxPlanePrimitive = new Plane(this.__engine);
+    zxPlanePrimitive.generate({
+      width: 100000,
+      height: 100000,
+      uSpan: 1,
+      vSpan: 1,
+      isUVRepeat: true,
+      flipTextureCoordinateY: false,
+      material: zxPlaneMaterial,
+    });
+    zxPlaneMesh.addPrimitive(zxPlanePrimitive);
+    zxPlaneEntity.getMesh().setMesh(zxPlaneMesh);
+
+    // Group entity
+    const groupEntity = createGroupEntity(this.__engine);
+
+    return {
+      groupEntity,
+      xCubeEntity,
+      yCubeEntity,
+      zCubeEntity,
+      xCubeMesh,
+      yCubeMesh,
+      zCubeMesh,
+      xCubePrimitive,
+      yCubePrimitive,
+      zCubePrimitive,
+      xCubeMaterial,
+      yCubeMaterial,
+      zCubeMaterial,
+      xConeEntity,
+      yConeEntity,
+      zConeEntity,
+      xyPlaneEntity,
+      yzPlaneEntity,
+      zxPlaneEntity,
+      xyPlaneMesh,
+      yzPlaneMesh,
+      zxPlaneMesh,
+      xyPlanePrimitive,
+      yzPlanePrimitive,
+      zxPlanePrimitive,
+      xyPlaneMaterial,
+      yzPlaneMaterial,
+      zxPlaneMaterial,
+    };
   }
 
   /**
@@ -613,6 +641,11 @@ export class TranslationGizmo extends Gizmo {
       return;
     }
 
+    const resources = TranslationGizmo.__getResources(this.__engine);
+    if (!resources) {
+      return;
+    }
+
     const rect = (evt.target as HTMLElement).getBoundingClientRect();
     const width = (evt.target as HTMLElement).clientWidth;
     const height = (evt.target as HTMLElement).clientHeight;
@@ -648,7 +681,7 @@ export class TranslationGizmo extends Gizmo {
     }
     let pickInMovingPoint: Vector3 = this.__pickStatedPoint.clone();
     if (TranslationGizmo.__activeAxis === 'x') {
-      const xResult = TranslationGizmo.__xyPlaneEntity
+      const xResult = resources.xyPlaneEntity
         .getMesh()
         .castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
       if (xResult.result) {
@@ -659,7 +692,7 @@ export class TranslationGizmo extends Gizmo {
       }
     }
     if (TranslationGizmo.__activeAxis === 'y') {
-      const yResult = TranslationGizmo.__xyPlaneEntity
+      const yResult = resources.xyPlaneEntity
         .getMesh()
         .castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
       if (yResult.result) {
@@ -670,7 +703,7 @@ export class TranslationGizmo extends Gizmo {
       }
     }
     if (TranslationGizmo.__activeAxis === 'z') {
-      const zResult = TranslationGizmo.__yzPlaneEntity
+      const zResult = resources.yzPlaneEntity
         .getMesh()
         .castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
       if (zResult.result) {
@@ -745,6 +778,10 @@ export class TranslationGizmo extends Gizmo {
    * @returns Ray casting result containing intersection information
    */
   private static castRay2(engine: Engine, evt: PointerEvent) {
+    const resources = TranslationGizmo.__getResources(engine);
+    if (!resources) {
+      return { result: false };
+    }
     const rect = (evt.target as HTMLElement).getBoundingClientRect();
     const width = (evt.target as HTMLElement).clientWidth;
     const height = (evt.target as HTMLElement).clientHeight;
@@ -754,9 +791,7 @@ export class TranslationGizmo extends Gizmo {
     const activeCamera = engine.componentRepository.getComponent(CameraComponent, CameraComponent.getCurrent(engine)) as
       | CameraComponent
       | undefined;
-    const result = TranslationGizmo.__groupEntity
-      .getSceneGraph()
-      .castRayFromScreen(x, y, activeCamera!, viewport, 0.0, []);
+    const result = resources.groupEntity.getSceneGraph().castRayFromScreen(x, y, activeCamera!, viewport, 0.0, []);
     return result;
   }
 
@@ -793,6 +828,11 @@ export class TranslationGizmo extends Gizmo {
    * @returns Object containing ray casting results for each axis (xResult, yResult, zResult)
    */
   private static castRay(engine: Engine, evt: PointerEvent) {
+    const resources = TranslationGizmo.__getResources(engine);
+    const emptyResult: RaycastResultEx1 = { result: false };
+    if (!resources) {
+      return { xResult: emptyResult, yResult: emptyResult, zResult: emptyResult };
+    }
     const rect = (evt.target as HTMLElement).getBoundingClientRect();
     const width = (evt.target as HTMLElement).clientWidth;
     const height = (evt.target as HTMLElement).clientHeight;
@@ -807,24 +847,24 @@ export class TranslationGizmo extends Gizmo {
       y,
       activeCamera!,
       viewport,
-      TranslationGizmo.__xCubeEntity,
-      TranslationGizmo.__xConeEntity
+      resources.xCubeEntity,
+      resources.xConeEntity
     );
     const yResult = TranslationGizmo.__castFromEntities(
       x,
       y,
       activeCamera!,
       viewport,
-      TranslationGizmo.__yCubeEntity,
-      TranslationGizmo.__yConeEntity
+      resources.yCubeEntity,
+      resources.yConeEntity
     );
     const zResult = TranslationGizmo.__castFromEntities(
       x,
       y,
       activeCamera!,
       viewport,
-      TranslationGizmo.__zCubeEntity,
-      TranslationGizmo.__zConeEntity
+      resources.zCubeEntity,
+      resources.zConeEntity
     );
     return { xResult, yResult, zResult };
   }
@@ -838,5 +878,15 @@ export class TranslationGizmo extends Gizmo {
     if (Is.exist(this.__topEntity)) {
       this.__topEntity._destroy();
     }
+  }
+
+  /**
+   * Cleans up all static resources for a specific Engine.
+   * This removes the resources associated with the engine from the map.
+   * @internal Called from Engine.destroy()
+   */
+  static _cleanupForEngine(engine: Engine): void {
+    TranslationGizmo.__resourcesMap.delete(engine.objectUID);
+    TranslationGizmo.__activeAxis = 'none';
   }
 }

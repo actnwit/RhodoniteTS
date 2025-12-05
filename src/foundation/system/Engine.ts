@@ -44,6 +44,11 @@ import type { WebARSystem } from '../../xr/WebARSystem';
 import type { WebXRSystem } from '../../xr/WebXRSystem';
 import { RnObject } from '../core/RnObject';
 import { MaterialRepository } from '../materials/core/MaterialRepository';
+import { TranslationGizmo } from '../gizmos/TranslationGizmo';
+import { ScaleGizmo } from '../gizmos/ScaleGizmo';
+import { RotationGizmo } from '../gizmos/RotationGizmo';
+import { AABBGizmo } from '../gizmos/AABBGizmo';
+import { LocatorGizmo } from '../gizmos/LocatorGizmo';
 
 /**
  * The argument type for Engine.init() method.
@@ -256,6 +261,13 @@ export class Engine extends RnObject {
     CameraControllerComponent._cleanupForEngine(this);
     CameraComponent._cleanupForEngine(this);
     MeshRendererComponent._cleanupForEngine(this);
+
+    // Clean up gizmo resources that are managed per-Engine
+    TranslationGizmo._cleanupForEngine(this);
+    ScaleGizmo._cleanupForEngine(this);
+    RotationGizmo._cleanupForEngine(this);
+    AABBGizmo._cleanupForEngine(this);
+    LocatorGizmo._cleanupForEngine(this);
 
     // Clear component memory registry
     this.__componentMemoryRegistry.destroy();

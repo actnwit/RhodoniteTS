@@ -170,4 +170,13 @@ export class LocatorGizmo extends Gizmo {
       this.__topEntity._destroy();
     }
   }
+
+  /**
+   * Cleans up all static resources for a specific Engine.
+   * This resets static members so that gizmos can be recreated with a new Engine.
+   * @internal Called from Engine.destroy()
+   */
+  static _cleanupForEngine(_engine: Engine): void {
+    LocatorGizmo.__mesh = undefined as any;
+  }
 }
