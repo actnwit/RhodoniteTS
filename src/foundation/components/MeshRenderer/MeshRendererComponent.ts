@@ -607,6 +607,10 @@ export class MeshRendererComponent extends Component {
    * @internal
    */
   static _cleanupForEngine(engine: Engine): void {
+    const strategy = MeshRendererComponent.__cgApiRenderingStrategyMap.get(engine.objectUID);
+    if (strategy != null) {
+      strategy.destroy();
+    }
     MeshRendererComponent.__cgApiRenderingStrategyMap.delete(engine.objectUID);
   }
 }

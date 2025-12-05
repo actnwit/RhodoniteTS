@@ -934,5 +934,25 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
     this.__engine.webglResourceRepository.bindTextureSampler(7, samplerUid);
   }
 
+  /**
+   * Destroys all GPU resources held by this strategy.
+   * Should be called when the engine is being destroyed.
+   */
+  destroy(): void {
+    const webglResourceRepository = this.__engine.webglResourceRepository;
+    if (this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      webglResourceRepository.deleteTexture(this.__dataTextureUid);
+      this.__dataTextureUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    }
+    if (this.__morphOffsetsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      webglResourceRepository.deleteUniformBuffer(this.__morphOffsetsUniformBufferUid);
+      this.__morphOffsetsUniformBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    }
+    if (this.__morphWeightsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      webglResourceRepository.deleteUniformBuffer(this.__morphWeightsUniformBufferUid);
+      this.__morphWeightsUniformBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    }
+  }
+
   // $render() {}
 }

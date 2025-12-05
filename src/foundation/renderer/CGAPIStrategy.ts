@@ -47,4 +47,11 @@ export interface CGAPIStrategy {
     renderPassTickCount: Count,
     displayIdx: Index
   ): boolean;
+
+  /**
+   * Destroys all GPU resources held by this strategy.
+   * This method should be called when the engine is being destroyed to
+   * properly release all graphics resources and prevent memory leaks.
+   */
+  destroy(): void;
 }

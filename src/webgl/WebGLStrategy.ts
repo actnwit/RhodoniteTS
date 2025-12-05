@@ -35,4 +35,5 @@ export interface WebGLStrategy {
     updatedShaderSources: ShaderSources,
     onError: (message: string) => void
   ): CGAPIResourceHandle;
+  destroy(): void;
 }
