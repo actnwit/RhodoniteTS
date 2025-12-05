@@ -1384,7 +1384,7 @@ function createEntityUIDOutputMaterial(
 ): Material {
   const materialName = `EntityUIDOutput_${additionalName}`;
 
-  const materialContent = new EntityUIDOutputMaterialContent(materialName);
+  const materialContent = new EntityUIDOutputMaterialContent(engine, materialName);
   const material = createMaterial(engine, materialContent, maxInstancesNumber);
   material.addShaderDefine('RN_IS_SKINNING');
   return material;
