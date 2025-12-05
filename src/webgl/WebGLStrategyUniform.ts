@@ -741,7 +741,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
 
     this.bindDataTexture(gl, shaderProgram);
 
-    WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
+    WebGLStrategyCommonMethod.setWebGLParameters(this.__engine, material, gl);
     material._setParametersToGpuWebGLWithOutInternalSetting({
       shaderProgram,
       firstTime: true,
@@ -880,7 +880,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         }
 
         if (firstTimeForMaterial) {
-          WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
+          WebGLStrategyCommonMethod.setWebGLParameters(this.__engine, material, gl);
           material._setParametersToGpuWebGL({
             engine: this.__engine,
             material,

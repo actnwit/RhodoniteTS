@@ -1106,4 +1106,14 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
       specularHdriType,
     };
   }
+
+  /**
+   * Cleans up static resources for Engine destruction.
+   * This resets the blend equation mode so it will be re-initialized
+   * with the new WebGL context on next use.
+   * @internal Called from Engine.destroy()
+   */
+  static _cleanupForEngine(): void {
+    MToon0xMaterialContent.usableBlendEquationModeAlpha = undefined;
+  }
 }

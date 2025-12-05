@@ -133,15 +133,22 @@ export abstract class AbstractMaterialContent extends RnObject {
    * @param options.isLighting - Whether this material supports lighting calculations
    * @param vertexShaderityObject - Optional vertex shader object
    * @param pixelShaderityObject - Optional pixel shader object
+   * @param engine - Optional engine instance for proper shader caching
    */
   constructor(
     materialName: string,
     { isMorphing = false, isSkinning = false, isLighting = false } = {},
     vertexShaderityObject?: ShaderityObject,
-    pixelShaderityObject?: ShaderityObject
+    pixelShaderityObject?: ShaderityObject,
+    engine?: Engine
   ) {
     super();
     this.__materialName = materialName;
+
+    // Set engine if provided (important for proper shader caching)
+    if (engine) {
+      this._engine = engine;
+    }
 
     this.__isMorphing = isMorphing;
     this.__isSkinning = isSkinning;
@@ -149,8 +156,8 @@ export abstract class AbstractMaterialContent extends RnObject {
 
     this.__materialContentUid = AbstractMaterialContent.__materialContentCount++;
 
-    this.setVertexShaderityObject(vertexShaderityObject);
-    this.setPixelShaderityObject(pixelShaderityObject);
+    this.setVertexShaderityObject(vertexShaderityObject, engine);
+    this.setPixelShaderityObject(pixelShaderityObject, engine);
   }
 
   /**
