@@ -96,7 +96,8 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
       materialName,
       { isMorphing, isSkinning, isLighting },
       VarianceShadowMapDecodeClassicShaderVertex,
-      VarianceShadowMapDecodeClassicShaderFragment
+      VarianceShadowMapDecodeClassicShaderFragment,
+      engine
     );
 
     if (encodedDepthRenderPasses.length !== 2) {

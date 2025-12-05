@@ -788,7 +788,7 @@ function createDepthEncodeMaterial(
 ) {
   const materialName = `DepthEncode_${additionalName}_`;
 
-  const materialContent = new DepthEncodeMaterialContent(materialName, depthPow, {
+  const materialContent = new DepthEncodeMaterialContent(engine, materialName, depthPow, {
     isSkinning,
   });
   const material = createMaterial(engine, materialContent, maxInstancesNumber);
