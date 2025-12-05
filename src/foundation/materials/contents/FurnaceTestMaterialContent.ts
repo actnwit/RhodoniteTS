@@ -33,7 +33,7 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
    * @param materialName - The name identifier for this material
    */
   constructor(engine: Engine, materialName: string) {
-    super(materialName, {}, FurnaceTestShaderVertex, FurnaceTestShaderFragment);
+    super(materialName, {}, FurnaceTestShaderVertex, FurnaceTestShaderFragment, engine);
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {

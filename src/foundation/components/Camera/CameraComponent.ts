@@ -1245,6 +1245,15 @@ export class CameraComponent extends Component {
     applyMixins(base, CameraEntity);
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBaseClass;
   }
+
+  /**
+   * Cleans up static resources associated with the specified engine.
+   * @param engine - The engine instance to clean up resources for
+   * @internal
+   */
+  static _cleanupForEngine(engine: Engine): void {
+    CameraComponent.__currentMap.delete(engine.engineUid);
+  }
 }
 
 CameraComponent.registerMember({

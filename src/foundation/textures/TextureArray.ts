@@ -1,17 +1,15 @@
 import type { CGAPIResourceHandle } from '../../types/CommonTypes';
 import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
-import { Config } from '../core/Config';
 import { ComponentType } from '../definitions/ComponentType';
 import { PixelFormat } from '../definitions/PixelFormat';
 import { ProcessApproach } from '../definitions/ProcessApproach';
 import { TextureFormat } from '../definitions/TextureFormat';
-import { TextureParameter } from '../definitions/TextureParameter';
 import { Logger } from '../misc/Logger';
+
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import type { Engine } from '../system/Engine';
 import { EngineState } from '../system/EngineState';
 import { AbstractTexture } from './AbstractTexture';
-
 /**
  * Object type used for finalization registry to track texture resources
  */
@@ -123,6 +121,10 @@ export class TextureArray extends AbstractTexture implements Disposable {
   destroy3DAPIResources() {
     TextureArray.__deleteInternalTexture(this.__engine, this._textureResourceUid);
     this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    this._samplerResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    if (this._recommendedTextureSampler) {
+      this._recommendedTextureSampler.destroy();
+    }
     this.__isTextureReady = false;
     this.__startedToLoad = false;
   }

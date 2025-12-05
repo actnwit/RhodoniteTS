@@ -105,9 +105,14 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
 
   /**
    * Private constructor to enforce singleton pattern.
+   * Immediately initializes __currentComponentSIDs from the engine's GlobalDataRepository
+   * to avoid null reference errors during rendering.
    */
   private constructor(engine: Engine) {
     this.__engine = engine;
+    // Initialize __currentComponentSIDs immediately to prevent null reference errors
+    // This must be done after GlobalDataRepository.initialize() has been called in Engine.init()
+    this.__currentComponentSIDs = this.__engine.globalDataRepository.getValue('currentComponentSIDs', 0);
   }
 
   /**
@@ -1545,7 +1550,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       (shaderProgram as any)._gl.uniform2iv((shaderProgram as any).vrState, vrState._v);
     }
 
-    WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
+    WebGLStrategyCommonMethod.setWebGLParameters(this.__engine, material, gl);
 
     material._setParametersToGpuWebGLWithOutInternalSetting({
       shaderProgram,
@@ -1674,7 +1679,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     if (firstTimeForMaterial) {
       this.__setCurrentComponentSIDsForEachPrimitive(gl, material, this.__shaderProgram!);
 
-      WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
+      WebGLStrategyCommonMethod.setWebGLParameters(this.__engine, material, gl);
 
       material._setParametersToGpuWebGL({
         engine: this.__engine,
@@ -1755,5 +1760,30 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const samplerUid = this.__engine.webglResourceRepository.createOrGetTextureSamplerRepeatNearest();
     this.__engine.webglResourceRepository.bindTextureSampler(7, samplerUid);
   }
+
+  /**
+   * Destroys all GPU resources held by this strategy.
+   * Should be called when the engine is being destroyed.
+   */
+  destroy(): void {
+    const webglResourceRepository = this.__engine.webglResourceRepository;
+    if (this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      webglResourceRepository.deleteTexture(this.__dataTextureUid);
+      this.__dataTextureUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    }
+    if (this.__dataUBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      webglResourceRepository.deleteUniformBuffer(this.__dataUBOUid);
+      this.__dataUBOUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    }
+    if (this.__morphOffsetsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      webglResourceRepository.deleteUniformBuffer(this.__morphOffsetsUniformBufferUid);
+      this.__morphOffsetsUniformBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    }
+    if (this.__morphWeightsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      webglResourceRepository.deleteUniformBuffer(this.__morphWeightsUniformBufferUid);
+      this.__morphWeightsUniformBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    }
+  }
+
   // $render(): void {}
 }

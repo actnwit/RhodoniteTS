@@ -1,14 +1,16 @@
-import { ShaderSemantics } from '../definitions/ShaderSemantics';
+import type { ObjectUID } from '../../types/CommonTypes';
 import { TextureParameter } from '../definitions/TextureParameter';
 import type { Material } from '../materials/core/Material';
 import { Is } from '../misc/Is';
 import { RenderPass } from '../renderer/RenderPass';
+
 import type { Engine } from '../system/Engine';
 import type { AbstractTexture } from '../textures/AbstractTexture';
 import { Sampler } from '../textures/Sampler';
 import { MeshHelper } from './MeshHelper';
 
-let _sampler: Sampler | undefined;
+// cache samplers between engine instances
+const __samplerMap: Map<ObjectUID, Sampler> = new Map();
 
 /**
  * Creates a RenderPass optimized for full-screen rendering without depth testing.
@@ -66,16 +68,18 @@ function createScreenDrawRenderPassWithBaseColorTexture(
   texture: AbstractTexture,
   sampler?: Sampler
 ) {
-  if (_sampler === undefined) {
-    _sampler = new Sampler(engine, {
+  let defaultSampler = __samplerMap.get(engine.objectUID);
+  if (defaultSampler === undefined) {
+    defaultSampler = new Sampler(engine, {
       magFilter: TextureParameter.Linear,
       minFilter: TextureParameter.Linear,
       wrapS: TextureParameter.ClampToEdge,
       wrapT: TextureParameter.ClampToEdge,
     });
-    _sampler.create();
+    defaultSampler.create();
+    __samplerMap.set(engine.objectUID, defaultSampler);
   }
-  material.setTextureParameter('baseColorTexture', texture, sampler ?? _sampler);
+  material.setTextureParameter('baseColorTexture', texture, sampler ?? defaultSampler);
 
   const renderPass = new RenderPass(engine);
   renderPass.toClearColorBuffer = false;
@@ -85,6 +89,21 @@ function createScreenDrawRenderPassWithBaseColorTexture(
   renderPass.setBufferLessFullScreenRendering(material);
 
   return renderPass;
+}
+
+/**
+ * Cleans up the sampler cache for a specific engine instance.
+ * This should be called when an engine is destroyed to prevent memory leaks.
+ *
+ * @param engine - The engine instance being destroyed
+ * @internal
+ */
+export function _cleanupRenderPassHelperForEngine(engine: Engine): void {
+  const sampler = __samplerMap.get(engine.objectUID);
+  if (sampler !== undefined) {
+    sampler.destroy();
+    __samplerMap.delete(engine.objectUID);
+  }
 }
 
 /**

@@ -223,4 +223,23 @@ export class AnimationStateRepository {
     const previousFrameCachedEntityUIDs = this.getOrCreatePreviousFrameCachedEntityUIDs(engine);
     return previousFrameCachedEntityUIDs.has(entityUID);
   }
+
+  // ============================================================================
+  // Cleanup for Engine destruction
+  // ============================================================================
+
+  /**
+   * Cleans up all static resources associated with the specified engine.
+   * Should be called when an engine is being destroyed.
+   * @param engine - The engine instance to clean up resources for
+   */
+  static _cleanupForEngine(engine: Engine): void {
+    this.__globalTimeMap.delete(engine);
+    this.__isAnimatingMap.delete(engine);
+    this.__currentFrameCachedEntityUIDsMap.delete(engine);
+    this.__previousFrameCachedEntityUIDsMap.delete(engine);
+    this.__lastCacheFrameGlobalTimeMap.delete(engine);
+    this.__cacheLeadersMap.delete(engine);
+    this.__leaderJointIndexToEntityUIDMap.delete(engine);
+  }
 }

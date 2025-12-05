@@ -30,45 +30,55 @@ import { Gizmo } from './Gizmo';
 declare let window: any;
 
 /**
+ * Internal resources for ScaleGizmo, managed per-Engine.
+ * @internal
+ */
+interface ScaleGizmoResources {
+  groupEntity: ISceneGraphEntity;
+  xCubeEntity: IMeshEntity;
+  yCubeEntity: IMeshEntity;
+  zCubeEntity: IMeshEntity;
+  xCubeMesh: Mesh;
+  yCubeMesh: Mesh;
+  zCubeMesh: Mesh;
+  xCubePrimitive: Cube;
+  yCubePrimitive: Cube;
+  zCubePrimitive: Cube;
+  xEdgeCubeEntity: IMeshEntity;
+  yEdgeCubeEntity: IMeshEntity;
+  zEdgeCubeEntity: IMeshEntity;
+  xEdgeCubeMesh: Mesh;
+  yEdgeCubeMesh: Mesh;
+  zEdgeCubeMesh: Mesh;
+  xEdgeCubePrimitive: Cube;
+  yEdgeCubePrimitive: Cube;
+  zEdgeCubePrimitive: Cube;
+  xCubeMaterial: Material;
+  yCubeMaterial: Material;
+  zCubeMaterial: Material;
+  xyPlaneEntity: IMeshEntity;
+  yzPlaneEntity: IMeshEntity;
+  zxPlaneEntity: IMeshEntity;
+  xyPlaneMesh: Mesh;
+  yzPlaneMesh: Mesh;
+  zxPlaneMesh: Mesh;
+  xyPlanePrimitive: Plane;
+  yzPlanePrimitive: Plane;
+  zxPlanePrimitive: Plane;
+  xyPlaneMaterial: Material;
+  yzPlaneMaterial: Material;
+  zxPlaneMaterial: Material;
+}
+
+/**
  * Scale Gizmo class for handling object scaling operations in 3D space
  * Provides interactive handles for scaling objects along individual axes (X, Y, Z)
  * or within specific planes (XY, YZ, ZX) in both local and world coordinate spaces
  */
 export class ScaleGizmo extends Gizmo {
-  private static __groupEntity: ISceneGraphEntity;
-  private static __xCubeEntity: IMeshEntity;
-  private static __yCubeEntity: IMeshEntity;
-  private static __zCubeEntity: IMeshEntity;
-  private static __xCubeMesh: Mesh;
-  private static __yCubeMesh: Mesh;
-  private static __zCubeMesh: Mesh;
-  private static __xCubePrimitive: Cube;
-  private static __yCubePrimitive: Cube;
-  private static __zCubePrimitive: Cube;
-  private static __xEdgeCubeEntity: IMeshEntity;
-  private static __yEdgeCubeEntity: IMeshEntity;
-  private static __zEdgeCubeEntity: IMeshEntity;
-  private static __xEdgeCubeMesh: Mesh;
-  private static __yEdgeCubeMesh: Mesh;
-  private static __zEdgeCubeMesh: Mesh;
-  private static __xEdgeCubePrimitive: Cube;
-  private static __yEdgeCubePrimitive: Cube;
-  private static __zEdgeCubePrimitive: Cube;
-  private static __xCubeMaterial: Material;
-  private static __yCubeMaterial: Material;
-  private static __zCubeMaterial: Material;
-  private static __xyPlaneEntity: IMeshEntity;
-  private static __yzPlaneEntity: IMeshEntity;
-  private static __zxPlaneEntity: IMeshEntity;
-  private static __xyPlaneMesh: Mesh;
-  private static __yzPlaneMesh: Mesh;
-  private static __zxPlaneMesh: Mesh;
-  private static __xyPlanePrimitive: Plane;
-  private static __yzPlanePrimitive: Plane;
-  private static __zxPlanePrimitive: Plane;
-  private static __xyPlaneMaterial: Material;
-  private static __yzPlaneMaterial: Material;
-  private static __zxPlaneMaterial: Material;
+  /** Resources managed per-Engine instance */
+  private static __resourcesMap: Map<number, ScaleGizmoResources> = new Map();
+
   private static __originalX = 0;
   private static __originalY = 0;
   private __pickStatedPoint = Vector3.zero();
@@ -83,6 +93,13 @@ export class ScaleGizmo extends Gizmo {
   private __onPointerDownFunc = this.__onPointerDown.bind(this);
   private __onPointerMoveFunc = this.__onPointerMove.bind(this);
   private __onPointerUpFunc = this.__onPointerUp.bind(this);
+
+  /**
+   * Gets the resources for a specific engine, or undefined if not initialized.
+   */
+  private static __getResources(engine: Engine): ScaleGizmoResources | undefined {
+    return ScaleGizmo.__resourcesMap.get(engine.objectUID);
+  }
 
   ///
   ///
@@ -122,6 +139,11 @@ export class ScaleGizmo extends Gizmo {
    * @param flg - True to show the gizmo, false to hide it
    */
   set isVisible(flg: boolean) {
+    const resources = ScaleGizmo.__getResources(this.__engine);
+    if (!resources) {
+      return;
+    }
+
     if (this.__isVisible === false && flg === true) {
       let eventTargetDom = window;
       if (Is.exist(this.__engine.config.eventTargetDom)) {
@@ -157,7 +179,7 @@ export class ScaleGizmo extends Gizmo {
           eventTargetDom: eventTargetDom,
         },
       ]);
-      this.__topEntity!.getSceneGraph().addChild(ScaleGizmo.__groupEntity.getSceneGraph());
+      this.__topEntity!.getSceneGraph().addChild(resources.groupEntity.getSceneGraph());
       ScaleGizmo.__latestTargetEntity = this.__target;
       if (ScaleGizmo.__space === 'local') {
         const parent = this.__target.getSceneGraph();
@@ -165,9 +187,9 @@ export class ScaleGizmo extends Gizmo {
         if (Is.exist(parent)) {
           quaternion = parent.getQuaternionRecursively();
         }
-        ScaleGizmo.__groupEntity.getTransform().localRotation = quaternion;
+        resources.groupEntity.getTransform().localRotation = quaternion;
       } else if (ScaleGizmo.__space === 'world') {
-        ScaleGizmo.__groupEntity.getTransform().localRotation = Quaternion.fromCopy4(0, 0, 0, 1);
+        resources.groupEntity.getTransform().localRotation = Quaternion.fromCopy4(0, 0, 0, 1);
       }
     }
 
@@ -183,9 +205,9 @@ export class ScaleGizmo extends Gizmo {
     InputManager.setActive(INPUT_HANDLING_STATE_GIZMO_SCALE, flg);
 
     this.__setVisible(flg);
-    ScaleGizmo.__xyPlaneEntity.getSceneGraph().isVisible = false;
-    ScaleGizmo.__yzPlaneEntity.getSceneGraph().isVisible = false;
-    ScaleGizmo.__zxPlaneEntity.getSceneGraph().isVisible = false;
+    resources.xyPlaneEntity.getSceneGraph().isVisible = false;
+    resources.yzPlaneEntity.getSceneGraph().isVisible = false;
+    resources.zxPlaneEntity.getSceneGraph().isVisible = false;
   }
 
   /**
@@ -231,61 +253,22 @@ export class ScaleGizmo extends Gizmo {
     // add this topEntity to the target as gizmo
     this.__target.getSceneGraph()._addGizmoChild(this.__topEntity!.getSceneGraph());
 
-    // setup the mesh
-    // x
-    if (Is.not.exist(ScaleGizmo.__xCubeEntity)) {
-      this.xMesh();
-      this.xEdgeMesh();
+    // Check if resources already exist for this engine
+    let resources = ScaleGizmo.__getResources(this.__engine);
+    if (!resources) {
+      // Create resources for this engine
+      resources = this.__createResources();
+      ScaleGizmo.__resourcesMap.set(this.__engine.objectUID, resources);
     }
 
-    // y
-    if (Is.not.exist(ScaleGizmo.__yCubeEntity)) {
-      this.yMesh();
-      this.yEdgeMesh();
-    }
+    this.__topEntity!.getSceneGraph().addChild(resources.groupEntity.getSceneGraph());
 
-    // z
-    if (Is.not.exist(ScaleGizmo.__zCubeEntity)) {
-      this.zMesh();
-      this.zEdgeMesh();
-    }
-
-    // xy Plane
-    if (Is.not.exist(ScaleGizmo.__xyPlaneEntity)) {
-      this.xyPlane();
-    }
-
-    // yz Plane
-    if (Is.not.exist(ScaleGizmo.__yzPlaneEntity)) {
-      this.yzPlane();
-    }
-
-    // zx Plane
-    if (Is.not.exist(ScaleGizmo.__zxPlaneEntity)) {
-      this.zxPlane();
-    }
-
-    if (Is.not.exist(ScaleGizmo.__groupEntity)) {
-      ScaleGizmo.__groupEntity = createGroupEntity(this.__engine);
-    }
-
-    this.__topEntity!.getSceneGraph().addChild(ScaleGizmo.__groupEntity.getSceneGraph());
-
-    ScaleGizmo.__groupEntity.getSceneGraph().addChild(ScaleGizmo.__xCubeEntity.getSceneGraph());
-    ScaleGizmo.__groupEntity.getSceneGraph().addChild(ScaleGizmo.__yCubeEntity.getSceneGraph());
-    ScaleGizmo.__groupEntity.getSceneGraph().addChild(ScaleGizmo.__zCubeEntity.getSceneGraph());
-    // ScaleGizmo.__groupEntity
-    //   .getSceneGraph()
-    //   .addChild(ScaleGizmo.__xEdgeCubeEntity.getSceneGraph());
-    // ScaleGizmo.__groupEntity
-    //   .getSceneGraph()
-    //   .addChild(ScaleGizmo.__yEdgeCubeEntity.getSceneGraph());
-    // ScaleGizmo.__groupEntity
-    //   .getSceneGraph()
-    //   .addChild(ScaleGizmo.__zEdgeCubeEntity.getSceneGraph());
-    ScaleGizmo.__groupEntity.getSceneGraph().addChild(ScaleGizmo.__xyPlaneEntity.getSceneGraph());
-    ScaleGizmo.__groupEntity.getSceneGraph().addChild(ScaleGizmo.__yzPlaneEntity.getSceneGraph());
-    ScaleGizmo.__groupEntity.getSceneGraph().addChild(ScaleGizmo.__zxPlaneEntity.getSceneGraph());
+    resources.groupEntity.getSceneGraph().addChild(resources.xCubeEntity.getSceneGraph());
+    resources.groupEntity.getSceneGraph().addChild(resources.yCubeEntity.getSceneGraph());
+    resources.groupEntity.getSceneGraph().addChild(resources.zCubeEntity.getSceneGraph());
+    resources.groupEntity.getSceneGraph().addChild(resources.xyPlaneEntity.getSceneGraph());
+    resources.groupEntity.getSceneGraph().addChild(resources.yzPlaneEntity.getSceneGraph());
+    resources.groupEntity.getSceneGraph().addChild(resources.zxPlaneEntity.getSceneGraph());
 
     ScaleGizmo.__latestTargetEntity = this.__target;
 
@@ -294,208 +277,200 @@ export class ScaleGizmo extends Gizmo {
   }
 
   /**
-   * Creates the ZX plane entity for plane-based scaling operations
-   * @private
+   * Creates all resources needed for the gizmo.
    */
-  private zxPlane() {
-    ScaleGizmo.__zxPlaneEntity = createMeshEntity(this.__engine);
-    ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_zxPlane', true);
-    ScaleGizmo.__zxPlaneEntity.getSceneGraph().isVisible = false;
-    // TranslationGizmo.__zxPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
-    // TranslationGizmo.__zxPlaneEntity.getTransform().localEulerAngles =
-    // Vector3.fromCopy3(90, 0, 0);
-    ScaleGizmo.__zxPlaneMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
-    ScaleGizmo.__zxPlaneMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0.5, 0, 0]));
-    ScaleGizmo.__zxPlaneMaterial.alphaMode = AlphaMode.Blend;
-    ScaleGizmo.__zxPlaneMesh = new Mesh(this.__engine);
-    ScaleGizmo.__zxPlanePrimitive = new Plane(this.__engine);
-    ScaleGizmo.__zxPlanePrimitive.generate({
-      width: 100000,
-      height: 100000,
-      uSpan: 1,
-      vSpan: 1,
-      isUVRepeat: true,
-      flipTextureCoordinateY: false,
-      material: ScaleGizmo.__zxPlaneMaterial,
-    });
-    ScaleGizmo.__zxPlaneMesh.addPrimitive(ScaleGizmo.__zxPlanePrimitive);
-    ScaleGizmo.__zxPlaneEntity.getMesh().setMesh(ScaleGizmo.__zxPlaneMesh);
-  }
-
-  /**
-   * Creates the YZ plane entity for plane-based scaling operations
-   * @private
-   */
-  private yzPlane() {
-    ScaleGizmo.__yzPlaneEntity = createMeshEntity(this.__engine);
-    ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_yzPlane', true);
-    ScaleGizmo.__yzPlaneEntity.getSceneGraph().isVisible = false;
-    // TranslationGizmo.__yzPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
-    ScaleGizmo.__yzPlaneEntity.getTransform().localEulerAngles = Vector3.fromCopy3(0, 0, MathUtil.degreeToRadian(90));
-    ScaleGizmo.__yzPlaneMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
-    ScaleGizmo.__yzPlaneMaterial.alphaMode = AlphaMode.Blend;
-    ScaleGizmo.__yzPlaneMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0.5, 0, 0, 0]));
-    ScaleGizmo.__yzPlaneMesh = new Mesh(this.__engine);
-    ScaleGizmo.__yzPlanePrimitive = new Plane(this.__engine);
-    ScaleGizmo.__yzPlanePrimitive.generate({
-      width: 100000,
-      height: 100000,
-      uSpan: 1,
-      vSpan: 1,
-      isUVRepeat: true,
-      flipTextureCoordinateY: false,
-      material: ScaleGizmo.__yzPlaneMaterial,
-    });
-    ScaleGizmo.__yzPlaneMesh.addPrimitive(ScaleGizmo.__yzPlanePrimitive);
-    ScaleGizmo.__yzPlaneEntity.getMesh().setMesh(ScaleGizmo.__yzPlaneMesh);
-  }
-
-  /**
-   * Creates the XY plane entity for plane-based scaling operations
-   * @private
-   */
-  private xyPlane() {
-    ScaleGizmo.__xyPlaneEntity = createMeshEntity(this.__engine);
-    ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_xyPlane', true);
-    ScaleGizmo.__xyPlaneEntity.getSceneGraph().isVisible = false;
-    // TranslationGizmo.__xyPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
-    ScaleGizmo.__xyPlaneEntity.getTransform().localEulerAngles = Vector3.fromCopy3(MathUtil.degreeToRadian(90), 0, 0);
-    ScaleGizmo.__xyPlaneMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
-    ScaleGizmo.__xyPlaneMaterial.alphaMode = AlphaMode.Blend;
-    ScaleGizmo.__xyPlaneMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0, 0.5, 0]));
-    ScaleGizmo.__xyPlaneMesh = new Mesh(this.__engine);
-    ScaleGizmo.__xyPlanePrimitive = new Plane(this.__engine);
-    ScaleGizmo.__xyPlanePrimitive.generate({
-      width: 100000,
-      height: 100000,
-      uSpan: 1,
-      vSpan: 1,
-      isUVRepeat: true,
-      flipTextureCoordinateY: false,
-      material: ScaleGizmo.__xyPlaneMaterial,
-    });
-    ScaleGizmo.__xyPlaneMesh.addPrimitive(ScaleGizmo.__xyPlanePrimitive);
-    ScaleGizmo.__xyPlaneEntity.getMesh().setMesh(ScaleGizmo.__xyPlaneMesh);
-  }
-
-  /**
-   * Creates the Z-axis scaling handle mesh and entity
-   * @private
-   */
-  private zMesh() {
-    ScaleGizmo.__zCubeEntity = createMeshEntity(this.__engine);
-    ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_zCube', true);
-    ScaleGizmo.__zCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 0.5);
-    ScaleGizmo.__zCubeMesh = new Mesh(this.__engine);
-    ScaleGizmo.__zCubeMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
-    ScaleGizmo.__zCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0, 1, 1]));
-    ScaleGizmo.__zCubePrimitive = new Cube(this.__engine);
-    ScaleGizmo.__zCubePrimitive.generate({
-      widthVector: Vector3.fromCopy3(0.05, 0.05, 1),
-      material: ScaleGizmo.__zCubeMaterial,
-    });
-    ScaleGizmo.__zCubeMesh.addPrimitive(ScaleGizmo.__zCubePrimitive);
-    ScaleGizmo.__zCubeEntity.getMesh().setMesh(ScaleGizmo.__zCubeMesh);
-  }
-
-  /**
-   * Creates the Y-axis scaling handle mesh and entity
-   * @private
-   */
-  private yMesh() {
-    ScaleGizmo.__yCubeEntity = createMeshEntity(this.__engine);
-    ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_yCube', true);
-    ScaleGizmo.__yCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0.5, 0);
-    ScaleGizmo.__yCubeMesh = new Mesh(this.__engine);
-    ScaleGizmo.__yCubeMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
-    ScaleGizmo.__yCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 1, 0, 1]));
-    ScaleGizmo.__yCubePrimitive = new Cube(this.__engine);
-    ScaleGizmo.__yCubePrimitive.generate({
-      widthVector: Vector3.fromCopy3(0.05, 1, 0.05),
-      material: ScaleGizmo.__yCubeMaterial,
-    });
-    ScaleGizmo.__yCubeMesh.addPrimitive(ScaleGizmo.__yCubePrimitive);
-    ScaleGizmo.__yCubeEntity.getMesh().setMesh(ScaleGizmo.__yCubeMesh);
-  }
-
-  /**
-   * Creates the X-axis scaling handle mesh and entity
-   * @private
-   */
-  private xMesh() {
-    ScaleGizmo.__xCubeEntity = createMeshEntity(this.__engine);
-    ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_xCube', true);
-    ScaleGizmo.__xCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0.5, 0, 0);
-    ScaleGizmo.__xCubeMesh = new Mesh(this.__engine);
-    ScaleGizmo.__xCubeMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
-    ScaleGizmo.__xCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([1, 0, 0, 1]));
-    ScaleGizmo.__xCubePrimitive = new Cube(this.__engine);
-    ScaleGizmo.__xCubePrimitive.generate({
+  private __createResources(): ScaleGizmoResources {
+    // X cube
+    const xCubeEntity = createMeshEntity(this.__engine);
+    xCubeEntity.tryToSetUniqueName('ScaleGizmo_xCube', true);
+    xCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0.5, 0, 0);
+    const xCubeMesh = new Mesh(this.__engine);
+    const xCubeMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
+    xCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([1, 0, 0, 1]));
+    const xCubePrimitive = new Cube(this.__engine);
+    xCubePrimitive.generate({
       widthVector: Vector3.fromCopy3(1, 0.05, 0.05),
-      material: ScaleGizmo.__xCubeMaterial,
+      material: xCubeMaterial,
     });
-    ScaleGizmo.__xCubeMesh.addPrimitive(ScaleGizmo.__xCubePrimitive);
-    ScaleGizmo.__xCubeEntity.getMesh().setMesh(ScaleGizmo.__xCubeMesh);
-  }
+    xCubeMesh.addPrimitive(xCubePrimitive);
+    xCubeEntity.getMesh().setMesh(xCubeMesh);
 
-  /**
-   * Creates the X-axis edge cube for enhanced visual feedback
-   * @private
-   */
-  private xEdgeMesh() {
-    ScaleGizmo.__xEdgeCubeEntity = createMeshEntity(this.__engine);
-    ScaleGizmo.__xEdgeCubeEntity.tryToSetUniqueName('ScaleGizmo_xEdgeCube', true);
-    ScaleGizmo.__xEdgeCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0.5, 0, 0);
-    ScaleGizmo.__xEdgeCubeMesh = new Mesh(this.__engine);
-    ScaleGizmo.__xEdgeCubePrimitive = new Cube(this.__engine);
-    ScaleGizmo.__xEdgeCubePrimitive.generate({
+    // Y cube
+    const yCubeEntity = createMeshEntity(this.__engine);
+    yCubeEntity.tryToSetUniqueName('ScaleGizmo_yCube', true);
+    yCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0.5, 0);
+    const yCubeMesh = new Mesh(this.__engine);
+    const yCubeMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
+    yCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 1, 0, 1]));
+    const yCubePrimitive = new Cube(this.__engine);
+    yCubePrimitive.generate({
+      widthVector: Vector3.fromCopy3(0.05, 1, 0.05),
+      material: yCubeMaterial,
+    });
+    yCubeMesh.addPrimitive(yCubePrimitive);
+    yCubeEntity.getMesh().setMesh(yCubeMesh);
+
+    // Z cube
+    const zCubeEntity = createMeshEntity(this.__engine);
+    zCubeEntity.tryToSetUniqueName('ScaleGizmo_zCube', true);
+    zCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 0.5);
+    const zCubeMesh = new Mesh(this.__engine);
+    const zCubeMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
+    zCubeMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0, 1, 1]));
+    const zCubePrimitive = new Cube(this.__engine);
+    zCubePrimitive.generate({
+      widthVector: Vector3.fromCopy3(0.05, 0.05, 1),
+      material: zCubeMaterial,
+    });
+    zCubeMesh.addPrimitive(zCubePrimitive);
+    zCubeEntity.getMesh().setMesh(zCubeMesh);
+
+    // X edge cube
+    const xEdgeCubeEntity = createMeshEntity(this.__engine);
+    xEdgeCubeEntity.tryToSetUniqueName('ScaleGizmo_xEdgeCube', true);
+    xEdgeCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0.5, 0, 0);
+    const xEdgeCubeMesh = new Mesh(this.__engine);
+    const xEdgeCubePrimitive = new Cube(this.__engine);
+    xEdgeCubePrimitive.generate({
       widthVector: Vector3.fromCopy3(0.15, 0.15, 0.15),
-      material: ScaleGizmo.__xCubeMaterial,
+      material: xCubeMaterial,
     });
-    ScaleGizmo.__xEdgeCubeMesh.addPrimitive(ScaleGizmo.__xEdgeCubePrimitive);
-    ScaleGizmo.__xEdgeCubeEntity.getMesh().setMesh(ScaleGizmo.__xEdgeCubeMesh);
+    xEdgeCubeMesh.addPrimitive(xEdgeCubePrimitive);
+    xEdgeCubeEntity.getMesh().setMesh(xEdgeCubeMesh);
+    xCubeEntity.addChild(xEdgeCubeEntity.getSceneGraph());
 
-    ScaleGizmo.__xCubeEntity.addChild(ScaleGizmo.__xEdgeCubeEntity.getSceneGraph());
-  }
-
-  /**
-   * Creates the Y-axis edge cube for enhanced visual feedback
-   * @private
-   */
-  private yEdgeMesh() {
-    ScaleGizmo.__yEdgeCubeEntity = createMeshEntity(this.__engine);
-    ScaleGizmo.__yEdgeCubeEntity.tryToSetUniqueName('ScaleGizmo_yEdgeCube', true);
-    ScaleGizmo.__yEdgeCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0.5, 0);
-    ScaleGizmo.__yEdgeCubeMesh = new Mesh(this.__engine);
-    ScaleGizmo.__yEdgeCubePrimitive = new Cube(this.__engine);
-    ScaleGizmo.__yEdgeCubePrimitive.generate({
+    // Y edge cube
+    const yEdgeCubeEntity = createMeshEntity(this.__engine);
+    yEdgeCubeEntity.tryToSetUniqueName('ScaleGizmo_yEdgeCube', true);
+    yEdgeCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0.5, 0);
+    const yEdgeCubeMesh = new Mesh(this.__engine);
+    const yEdgeCubePrimitive = new Cube(this.__engine);
+    yEdgeCubePrimitive.generate({
       widthVector: Vector3.fromCopy3(0.15, 0.15, 0.15),
-      material: ScaleGizmo.__yCubeMaterial,
+      material: yCubeMaterial,
     });
-    ScaleGizmo.__yEdgeCubeMesh.addPrimitive(ScaleGizmo.__yEdgeCubePrimitive);
-    ScaleGizmo.__yEdgeCubeEntity.getMesh().setMesh(ScaleGizmo.__yEdgeCubeMesh);
+    yEdgeCubeMesh.addPrimitive(yEdgeCubePrimitive);
+    yEdgeCubeEntity.getMesh().setMesh(yEdgeCubeMesh);
+    yCubeEntity.addChild(yEdgeCubeEntity.getSceneGraph());
 
-    ScaleGizmo.__yCubeEntity.addChild(ScaleGizmo.__yEdgeCubeEntity.getSceneGraph());
-  }
-
-  /**
-   * Creates the Z-axis edge cube for enhanced visual feedback
-   * @private
-   */
-  private zEdgeMesh() {
-    ScaleGizmo.__zEdgeCubeEntity = createMeshEntity(this.__engine);
-    ScaleGizmo.__zEdgeCubeEntity.tryToSetUniqueName('ScaleGizmo_zEdgeCube', true);
-    ScaleGizmo.__zEdgeCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 0.5);
-    ScaleGizmo.__zEdgeCubeMesh = new Mesh(this.__engine);
-    ScaleGizmo.__zEdgeCubePrimitive = new Cube(this.__engine);
-    ScaleGizmo.__zEdgeCubePrimitive.generate({
+    // Z edge cube
+    const zEdgeCubeEntity = createMeshEntity(this.__engine);
+    zEdgeCubeEntity.tryToSetUniqueName('ScaleGizmo_zEdgeCube', true);
+    zEdgeCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 0.5);
+    const zEdgeCubeMesh = new Mesh(this.__engine);
+    const zEdgeCubePrimitive = new Cube(this.__engine);
+    zEdgeCubePrimitive.generate({
       widthVector: Vector3.fromCopy3(0.15, 0.15, 0.15),
-      material: ScaleGizmo.__zCubeMaterial,
+      material: zCubeMaterial,
     });
-    ScaleGizmo.__zEdgeCubeMesh.addPrimitive(ScaleGizmo.__zEdgeCubePrimitive);
-    ScaleGizmo.__zEdgeCubeEntity.getMesh().setMesh(ScaleGizmo.__zEdgeCubeMesh);
+    zEdgeCubeMesh.addPrimitive(zEdgeCubePrimitive);
+    zEdgeCubeEntity.getMesh().setMesh(zEdgeCubeMesh);
+    zCubeEntity.addChild(zEdgeCubeEntity.getSceneGraph());
 
-    ScaleGizmo.__zCubeEntity.addChild(ScaleGizmo.__zEdgeCubeEntity.getSceneGraph());
+    // XY plane
+    const xyPlaneEntity = createMeshEntity(this.__engine);
+    xyPlaneEntity.tryToSetUniqueName('ScaleGizmo_xyPlane', true);
+    xyPlaneEntity.getSceneGraph().isVisible = false;
+    xyPlaneEntity.getTransform().localEulerAngles = Vector3.fromCopy3(MathUtil.degreeToRadian(90), 0, 0);
+    const xyPlaneMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
+    xyPlaneMaterial.alphaMode = AlphaMode.Blend;
+    xyPlaneMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0, 0.5, 0]));
+    const xyPlaneMesh = new Mesh(this.__engine);
+    const xyPlanePrimitive = new Plane(this.__engine);
+    xyPlanePrimitive.generate({
+      width: 100000,
+      height: 100000,
+      uSpan: 1,
+      vSpan: 1,
+      isUVRepeat: true,
+      flipTextureCoordinateY: false,
+      material: xyPlaneMaterial,
+    });
+    xyPlaneMesh.addPrimitive(xyPlanePrimitive);
+    xyPlaneEntity.getMesh().setMesh(xyPlaneMesh);
+
+    // YZ plane
+    const yzPlaneEntity = createMeshEntity(this.__engine);
+    yzPlaneEntity.tryToSetUniqueName('ScaleGizmo_yzPlane', true);
+    yzPlaneEntity.getSceneGraph().isVisible = false;
+    yzPlaneEntity.getTransform().localEulerAngles = Vector3.fromCopy3(0, 0, MathUtil.degreeToRadian(90));
+    const yzPlaneMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
+    yzPlaneMaterial.alphaMode = AlphaMode.Blend;
+    yzPlaneMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0.5, 0, 0, 0]));
+    const yzPlaneMesh = new Mesh(this.__engine);
+    const yzPlanePrimitive = new Plane(this.__engine);
+    yzPlanePrimitive.generate({
+      width: 100000,
+      height: 100000,
+      uSpan: 1,
+      vSpan: 1,
+      isUVRepeat: true,
+      flipTextureCoordinateY: false,
+      material: yzPlaneMaterial,
+    });
+    yzPlaneMesh.addPrimitive(yzPlanePrimitive);
+    yzPlaneEntity.getMesh().setMesh(yzPlaneMesh);
+
+    // ZX plane
+    const zxPlaneEntity = createMeshEntity(this.__engine);
+    zxPlaneEntity.tryToSetUniqueName('ScaleGizmo_zxPlane', true);
+    zxPlaneEntity.getSceneGraph().isVisible = false;
+    const zxPlaneMaterial = MaterialHelper.createClassicUberMaterial(this.__engine);
+    zxPlaneMaterial.setParameter('diffuseColorFactor', Vector4.fromCopyArray4([0, 0.5, 0, 0]));
+    zxPlaneMaterial.alphaMode = AlphaMode.Blend;
+    const zxPlaneMesh = new Mesh(this.__engine);
+    const zxPlanePrimitive = new Plane(this.__engine);
+    zxPlanePrimitive.generate({
+      width: 100000,
+      height: 100000,
+      uSpan: 1,
+      vSpan: 1,
+      isUVRepeat: true,
+      flipTextureCoordinateY: false,
+      material: zxPlaneMaterial,
+    });
+    zxPlaneMesh.addPrimitive(zxPlanePrimitive);
+    zxPlaneEntity.getMesh().setMesh(zxPlaneMesh);
+
+    // Group entity
+    const groupEntity = createGroupEntity(this.__engine);
+
+    return {
+      groupEntity,
+      xCubeEntity,
+      yCubeEntity,
+      zCubeEntity,
+      xCubeMesh,
+      yCubeMesh,
+      zCubeMesh,
+      xCubePrimitive,
+      yCubePrimitive,
+      zCubePrimitive,
+      xEdgeCubeEntity,
+      yEdgeCubeEntity,
+      zEdgeCubeEntity,
+      xEdgeCubeMesh,
+      yEdgeCubeMesh,
+      zEdgeCubeMesh,
+      xEdgeCubePrimitive,
+      yEdgeCubePrimitive,
+      zEdgeCubePrimitive,
+      xCubeMaterial,
+      yCubeMaterial,
+      zCubeMaterial,
+      xyPlaneEntity,
+      yzPlaneEntity,
+      zxPlaneEntity,
+      xyPlaneMesh,
+      yzPlaneMesh,
+      zxPlaneMesh,
+      xyPlanePrimitive,
+      yzPlanePrimitive,
+      zxPlanePrimitive,
+      xyPlaneMaterial,
+      yzPlaneMaterial,
+      zxPlaneMaterial,
+    };
   }
 
   /**
@@ -599,8 +574,6 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__originalX = evt.clientX;
     ScaleGizmo.__originalY = evt.clientY;
 
-    // InputManager.enableCameraController();
-
     const worldMatrix = this.__target.getSceneGraph().matrix.getRotate();
     const scaleVec = Vector3.one();
     let rotMat = Matrix33.fromCopy9RowMajor(
@@ -668,6 +641,11 @@ export class ScaleGizmo extends Gizmo {
       return;
     }
 
+    const resources = ScaleGizmo.__getResources(this.__engine);
+    if (!resources) {
+      return;
+    }
+
     const rect = (evt.target as HTMLElement).getBoundingClientRect();
     const width = (evt.target as HTMLElement).clientWidth;
     const height = (evt.target as HTMLElement).clientHeight;
@@ -680,7 +658,7 @@ export class ScaleGizmo extends Gizmo {
     ) as CameraComponent | undefined;
 
     const worldMatrix = this.__target.getSceneGraph().matrix.getRotate();
-    const scaleVec = Vector3.one(); //this.__target.getSceneGraph().worldMatrix.getScale();
+    const scaleVec = Vector3.one();
     let rotMat = Matrix33.fromCopy9RowMajor(
       scaleVec.x * worldMatrix.m00,
       scaleVec.x * worldMatrix.m01,
@@ -699,32 +677,29 @@ export class ScaleGizmo extends Gizmo {
     }
     let pickInMovingPoint: Vector3 = this.__pickStatedPoint.clone();
     if (ScaleGizmo.__activeAxis === 'x') {
-      const xResult = ScaleGizmo.__xyPlaneEntity.getMesh().castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
+      const xResult = resources.xyPlaneEntity.getMesh().castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
       if (xResult.result) {
         assertExist(xResult.data);
         const position = rotMat.multiplyVector(xResult.data.position);
         pickInMovingPoint = Vector3.fromCopy3(position.x, pickInMovingPoint.y, pickInMovingPoint.z);
-        // pickInMovingPoint = Vector3.fromCopy3(xResult.data.position.x, pickInMovingPoint.y, pickInMovingPoint.z);
         Logger.default.debug(`Move:${xResult.data.position.toStringApproximately()}`);
       }
     }
     if (ScaleGizmo.__activeAxis === 'y') {
-      const yResult = ScaleGizmo.__xyPlaneEntity.getMesh().castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
+      const yResult = resources.xyPlaneEntity.getMesh().castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
       if (yResult.result) {
         assertExist(yResult.data);
         const position = rotMat.multiplyVector(yResult.data.position);
         pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, position.y, pickInMovingPoint.z);
-        // pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, yResult.data.position.y, pickInMovingPoint.z);
         Logger.default.debug(`Move:${yResult.data.position.toStringApproximately()}`);
       }
     }
     if (ScaleGizmo.__activeAxis === 'z') {
-      const zResult = ScaleGizmo.__yzPlaneEntity.getMesh().castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
+      const zResult = resources.yzPlaneEntity.getMesh().castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
       if (zResult.result) {
         assertExist(zResult.data);
         const position = rotMat.multiplyVector(zResult.data.position);
         pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, pickInMovingPoint.y, position.z);
-        // pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, pickInMovingPoint.y, zResult.data.position.z);
         Logger.default.debug(`Move:${zResult.data.position.toStringApproximately()}`);
       }
     }
@@ -756,36 +731,6 @@ export class ScaleGizmo extends Gizmo {
         Math.max(unclampedScale.y, 0.01),
         Math.max(unclampedScale.z, 0.01)
       );
-
-      // const parent = this.__target.getSceneGraph();
-      // let worldMatrix = Matrix44.identity();
-      // if (Is.exist(parent)) {
-      //   worldMatrix = parent.worldMatrix.getRotate();
-      // }
-
-      // const scaleVec = Vector3.one();
-      // let rotMat = Matrix33.fromCopy9RowMajor(
-      //   scaleVec.x * worldMatrix.m00,
-      //   scaleVec.x * worldMatrix.m01,
-      //   scaleVec.x * worldMatrix.m02,
-      //   scaleVec.y * worldMatrix.m10,
-      //   scaleVec.y * worldMatrix.m11,
-      //   scaleVec.y * worldMatrix.m12,
-      //   scaleVec.z * worldMatrix.m20,
-      //   scaleVec.z * worldMatrix.m21,
-      //   scaleVec.z * worldMatrix.m22
-      // );
-      // rotMat = Matrix33.transpose(rotMat);
-      // const deltaDeltaVector3 = Vector3.add(
-      //   this.__targetScaleBackup,
-      //   rotMat.multiplyVector(deltaVector3),
-      // );
-      // this.__deltaPoint = deltaDeltaVector3;
-      // this.__deltaPoint = Vector3.fromCopy3(
-      //   Math.max(this.__deltaPoint.x, 0.01),
-      //   Math.max(this.__deltaPoint.y, 0.01),
-      //   Math.max(this.__deltaPoint.z, 0.01)
-      // );
     }
 
     this._update();
@@ -830,6 +775,10 @@ export class ScaleGizmo extends Gizmo {
    * @private
    */
   private static castRay2(engine: Engine, evt: PointerEvent) {
+    const resources = ScaleGizmo.__getResources(engine);
+    if (!resources) {
+      return { result: false };
+    }
     const rect = (evt.target as HTMLElement).getBoundingClientRect();
     const width = (evt.target as HTMLElement).clientWidth;
     const height = (evt.target as HTMLElement).clientHeight;
@@ -839,7 +788,7 @@ export class ScaleGizmo extends Gizmo {
     const activeCamera = engine.componentRepository.getComponent(CameraComponent, CameraComponent.getCurrent(engine)) as
       | CameraComponent
       | undefined;
-    const result = ScaleGizmo.__groupEntity.getSceneGraph().castRayFromScreen(x, y, activeCamera!, viewport, 0.0, []);
+    const result = resources.groupEntity.getSceneGraph().castRayFromScreen(x, y, activeCamera!, viewport, 0.0, []);
     return result;
   }
 
@@ -850,6 +799,11 @@ export class ScaleGizmo extends Gizmo {
    * @private
    */
   private static castRay(engine: Engine, evt: PointerEvent) {
+    const resources = ScaleGizmo.__getResources(engine);
+    const emptyResult = { result: false as const };
+    if (!resources) {
+      return { xResult: emptyResult, yResult: emptyResult, zResult: emptyResult };
+    }
     const rect = (evt.target as HTMLElement).getBoundingClientRect();
     const width = (evt.target as HTMLElement).clientWidth;
     const height = (evt.target as HTMLElement).clientHeight;
@@ -859,9 +813,9 @@ export class ScaleGizmo extends Gizmo {
     const activeCamera = engine.componentRepository.getComponent(CameraComponent, CameraComponent.getCurrent(engine)) as
       | CameraComponent
       | undefined;
-    const xResult = ScaleGizmo.__xCubeEntity.getSceneGraph().castRayFromScreen(x, y, activeCamera!, viewport, 0.0);
-    const yResult = ScaleGizmo.__yCubeEntity.getSceneGraph().castRayFromScreen(x, y, activeCamera!, viewport, 0.0);
-    const zResult = ScaleGizmo.__zCubeEntity.getSceneGraph().castRayFromScreen(x, y, activeCamera!, viewport, 0.0);
+    const xResult = resources.xCubeEntity.getSceneGraph().castRayFromScreen(x, y, activeCamera!, viewport, 0.0);
+    const yResult = resources.yCubeEntity.getSceneGraph().castRayFromScreen(x, y, activeCamera!, viewport, 0.0);
+    const zResult = resources.zCubeEntity.getSceneGraph().castRayFromScreen(x, y, activeCamera!, viewport, 0.0);
     return { xResult, yResult, zResult };
   }
 
@@ -873,5 +827,15 @@ export class ScaleGizmo extends Gizmo {
     if (Is.exist(this.__topEntity)) {
       this.__topEntity._destroy();
     }
+  }
+
+  /**
+   * Cleans up all static resources for a specific Engine.
+   * This removes the resources associated with the engine from the map.
+   * @internal Called from Engine.destroy()
+   */
+  static _cleanupForEngine(engine: Engine): void {
+    ScaleGizmo.__resourcesMap.delete(engine.objectUID);
+    ScaleGizmo.__activeAxis = 'none';
   }
 }

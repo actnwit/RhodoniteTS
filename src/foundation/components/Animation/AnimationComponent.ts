@@ -1133,4 +1133,13 @@ export class AnimationComponent extends Component {
 
     this.__animationTrackFeatureHashes = hashMap;
   }
+
+  /**
+   * Cleans up static resources associated with the specified engine.
+   * @param engine - The engine instance to clean up resources for
+   * @internal
+   */
+  static _cleanupForEngine(engine: Engine): void {
+    AnimationComponent.__animationGlobalInfoMap.delete(engine);
+  }
 }

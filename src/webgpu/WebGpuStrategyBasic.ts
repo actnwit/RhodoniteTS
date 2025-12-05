@@ -1120,4 +1120,28 @@ ${indexStr}
     }
     return -1;
   }
+
+  /**
+   * Destroys all GPU resources held by this strategy.
+   * Should be called when the engine is being destroyed.
+   */
+  destroy(): void {
+    const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
+    if (this.__storageBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      webGpuResourceRepository.destroyStorageBuffer(this.__storageBufferUid);
+      this.__storageBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    }
+    if (this.__storageBlendShapeBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      webGpuResourceRepository.deleteStorageBlendShapeBuffer(this.__storageBlendShapeBufferUid);
+      this.__storageBlendShapeBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    }
+    if (this.__morphOffsetsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      webGpuResourceRepository.deleteUniformBuffer(this.__morphOffsetsUniformBufferUid);
+      this.__morphOffsetsUniformBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    }
+    if (this.__morphWeightsUniformBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      webGpuResourceRepository.deleteUniformBuffer(this.__morphWeightsUniformBufferUid);
+      this.__morphWeightsUniformBufferUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    }
+  }
 }

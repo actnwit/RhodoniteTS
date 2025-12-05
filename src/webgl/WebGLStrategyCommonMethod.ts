@@ -17,69 +17,110 @@ import type { RnXR } from '../xr/main';
 import { WebGLResourceRepository } from './WebGLResourceRepository';
 import type { WebGLStrategy } from './WebGLStrategy';
 
-let lastIsTransparentMode: boolean;
-let lastBlendEquationMode: number;
-let lastBlendEquationModeAlpha: number;
-let lastBlendFuncSrcFactor: number;
-let lastBlendFuncDstFactor: number;
-let lastBlendFuncAlphaSrcFactor: number;
-let lastBlendFuncAlphaDstFactor: number;
-let lastCullFace = false;
-let lastFrontFaceCCW = true;
-let lastCullFaceBack = true;
-let lastAlphaToCoverage = false;
-let lastColorWriteMask: boolean[] = [true, true, true, true];
+/**
+ * WebGL state cache structure for each Engine instance.
+ * These values are used to minimize redundant WebGL state changes.
+ */
+interface WebGLStateCache {
+  lastIsTransparentMode?: boolean;
+  lastBlendEquationMode?: number;
+  lastBlendEquationModeAlpha?: number;
+  lastBlendFuncSrcFactor?: number;
+  lastBlendFuncDstFactor?: number;
+  lastBlendFuncAlphaSrcFactor?: number;
+  lastBlendFuncAlphaDstFactor?: number;
+  lastCullFace?: boolean;
+  lastFrontFaceCCW?: boolean;
+  lastCullFaceBack?: boolean;
+  lastAlphaToCoverage?: boolean;
+  lastColorWriteMask?: boolean[];
+}
+
+/** WebGL state caches managed per-Engine. Key is Engine.objectUID */
+const __webGLStateCachePerEngine: Map<number, WebGLStateCache> = new Map();
+
+/**
+ * Gets the WebGL state cache for a specific engine.
+ * Creates a new cache with default values if it doesn't exist.
+ */
+function __getStateCache(engine: Engine): WebGLStateCache {
+  let cache = __webGLStateCachePerEngine.get(engine.objectUID);
+  if (!cache) {
+    cache = {
+      lastCullFace: false,
+      lastFrontFaceCCW: true,
+      lastCullFaceBack: true,
+      lastAlphaToCoverage: false,
+      lastColorWriteMask: [true, true, true, true],
+    };
+    __webGLStateCachePerEngine.set(engine.objectUID, cache);
+  }
+  return cache;
+}
+
+/**
+ * Cleans up WebGL state cache for a specific Engine instance.
+ * This should be called when the Engine is destroyed.
+ * @param engine - The Engine instance being destroyed
+ * @internal Called from Engine.destroy()
+ */
+export function _cleanupWebGLStatesCacheForEngine(engine: Engine): void {
+  __webGLStateCachePerEngine.delete(engine.objectUID);
+}
 
 /**
  * Sets WebGL rendering parameters for the given material.
  * This includes culling, blending, alpha-to-coverage, and color write mask settings.
  *
+ * @param engine - The engine instance
  * @param material - The material containing rendering parameters to apply
  * @param gl - The WebGL rendering context
  */
-function setWebGLParameters(material: Material, gl: WebGLRenderingContext) {
-  setCull(material, gl);
-  setBlendSettings(material, gl);
-  setAlphaToCoverage(material, gl);
-  setColorWriteMask(material, gl);
+function setWebGLParameters(engine: Engine, material: Material, gl: WebGLRenderingContext) {
+  const cache = __getStateCache(engine);
+  setCull(cache, material, gl);
+  setBlendSettings(cache, material, gl);
+  setAlphaToCoverage(cache, material, gl);
+  setColorWriteMask(cache, material, gl);
 }
 
 /**
  * Configures face culling settings for the WebGL context based on material properties.
  * Only updates WebGL state when values differ from the last set values to optimize performance.
  *
+ * @param cache - The WebGL state cache for the current engine
  * @param material - The material containing culling configuration
  * @param gl - The WebGL rendering context
  */
-function setCull(material: Material, gl: WebGLRenderingContext) {
+function setCull(cache: WebGLStateCache, material: Material, gl: WebGLRenderingContext) {
   const cullFace = material.cullFace;
   const cullFrontFaceCCW = material.cullFrontFaceCCW;
   const cullFaceBack = material.cullFaceBack;
-  if (lastCullFace !== cullFace) {
+  if (cache.lastCullFace !== cullFace) {
     if (cullFace) {
       gl.enable(gl.CULL_FACE);
     } else {
       gl.disable(gl.CULL_FACE);
     }
-    lastCullFace = cullFace;
+    cache.lastCullFace = cullFace;
   }
 
-  if (cullFace === true && lastFrontFaceCCW !== cullFrontFaceCCW) {
+  if (cullFace === true && cache.lastFrontFaceCCW !== cullFrontFaceCCW) {
     if (cullFrontFaceCCW) {
       gl.frontFace(gl.CCW);
     } else {
       gl.frontFace(gl.CW);
     }
-    lastFrontFaceCCW = cullFrontFaceCCW;
+    cache.lastFrontFaceCCW = cullFrontFaceCCW;
   }
 
-  if (cullFaceBack !== lastCullFaceBack) {
+  if (cullFaceBack !== cache.lastCullFaceBack) {
     if (cullFaceBack) {
       gl.cullFace(gl.BACK);
     } else {
       gl.cullFace(gl.FRONT);
     }
-    lastCullFaceBack = cullFaceBack;
+    cache.lastCullFaceBack = cullFaceBack;
   }
 }
 
@@ -87,23 +128,25 @@ function setCull(material: Material, gl: WebGLRenderingContext) {
  * Configures blending settings for the WebGL context based on material properties.
  * Handles enabling/disabling blending and setting blend equation and function parameters.
  *
+ * @param cache - The WebGL state cache for the current engine
  * @param material - The material containing blending configuration
  * @param gl - The WebGL rendering context
  */
-function setBlendSettings(material: Material, gl: WebGLRenderingContext) {
+function setBlendSettings(cache: WebGLStateCache, material: Material, gl: WebGLRenderingContext) {
   const isBlendMode = material.isBlend();
-  if (lastIsTransparentMode !== isBlendMode) {
+  if (cache.lastIsTransparentMode !== isBlendMode) {
     if (isBlendMode) {
       gl.enable(gl.BLEND);
     } else {
       gl.disable(gl.BLEND);
     }
-    lastIsTransparentMode = isBlendMode;
+    cache.lastIsTransparentMode = isBlendMode;
   }
 
   if (material.alphaMode === AlphaMode.Blend) {
-    setBlendEquationMode(material.blendEquationMode.index, material.blendEquationModeAlpha.index, gl);
+    setBlendEquationMode(cache, material.blendEquationMode.index, material.blendEquationModeAlpha.index, gl);
     setBlendFuncSrcFactor(
+      cache,
       material.blendFuncSrcFactor.index,
       material.blendFuncDstFactor.index,
       material.blendFuncAlphaSrcFactor.index,
@@ -117,35 +160,32 @@ function setBlendSettings(material: Material, gl: WebGLRenderingContext) {
  * Sets the blend equation mode for RGB and alpha channels separately.
  * Only updates WebGL state when values differ from previously set values.
  *
+ * @param cache - The WebGL state cache for the current engine
  * @param blendEquationMode - The blend equation mode for RGB channels
  * @param blendEquationModeAlpha - The blend equation mode for alpha channel
  * @param gl - The WebGL rendering context
  */
-function setBlendEquationMode(blendEquationMode: number, blendEquationModeAlpha: number, gl: WebGLRenderingContext) {
-  const needUpdateBlendEquation = differentWithLastBlendEquation(blendEquationMode, blendEquationModeAlpha);
-  if (needUpdateBlendEquation) {
+function setBlendEquationMode(
+  cache: WebGLStateCache,
+  blendEquationMode: number,
+  blendEquationModeAlpha: number,
+  gl: WebGLRenderingContext
+) {
+  if (
+    cache.lastBlendEquationMode !== blendEquationMode ||
+    cache.lastBlendEquationModeAlpha !== blendEquationModeAlpha
+  ) {
     gl.blendEquationSeparate(blendEquationMode, blendEquationModeAlpha);
-    lastBlendEquationMode = blendEquationMode;
-    lastBlendEquationModeAlpha = blendEquationModeAlpha;
+    cache.lastBlendEquationMode = blendEquationMode;
+    cache.lastBlendEquationModeAlpha = blendEquationModeAlpha;
   }
-}
-
-/**
- * Checks if the current blend equation parameters differ from the last set values.
- *
- * @param equationMode - The blend equation mode for RGB channels
- * @param equationModeAlpha - The blend equation mode for alpha channel
- * @returns True if parameters differ from last set values, false otherwise
- */
-function differentWithLastBlendEquation(equationMode: number, equationModeAlpha: number) {
-  const result = lastBlendEquationMode !== equationMode || lastBlendEquationModeAlpha !== equationModeAlpha;
-  return result;
 }
 
 /**
  * Sets the blend function source and destination factors for RGB and alpha channels.
  * Only updates WebGL state when values differ from previously set values.
  *
+ * @param cache - The WebGL state cache for the current engine
  * @param blendFuncSrcFactor - Source factor for RGB channels
  * @param blendFuncDstFactor - Destination factor for RGB channels
  * @param blendFuncAlphaSrcFactor - Source factor for alpha channel
@@ -153,66 +193,44 @@ function differentWithLastBlendEquation(equationMode: number, equationModeAlpha:
  * @param gl - The WebGL rendering context
  */
 function setBlendFuncSrcFactor(
+  cache: WebGLStateCache,
   blendFuncSrcFactor: number,
   blendFuncDstFactor: number,
   blendFuncAlphaSrcFactor: number,
   blendFuncAlphaDstFactor: number,
   gl: WebGLRenderingContext
 ) {
-  const needUpdateBlendFunc = differentWithLastBlendFuncFactor(
-    blendFuncSrcFactor,
-    blendFuncDstFactor,
-    blendFuncAlphaSrcFactor,
-    blendFuncAlphaDstFactor
-  );
-  if (needUpdateBlendFunc) {
-    gl.blendFuncSeparate(blendFuncSrcFactor, blendFuncDstFactor, blendFuncAlphaSrcFactor, blendFuncAlphaDstFactor!);
-    lastBlendFuncSrcFactor = blendFuncSrcFactor;
-    lastBlendFuncDstFactor = blendFuncDstFactor;
-    lastBlendFuncAlphaSrcFactor = blendFuncAlphaSrcFactor;
-    lastBlendFuncAlphaDstFactor = blendFuncAlphaDstFactor;
+  if (
+    cache.lastBlendFuncSrcFactor !== blendFuncSrcFactor ||
+    cache.lastBlendFuncDstFactor !== blendFuncDstFactor ||
+    cache.lastBlendFuncAlphaSrcFactor !== blendFuncAlphaSrcFactor ||
+    cache.lastBlendFuncAlphaDstFactor !== blendFuncAlphaDstFactor
+  ) {
+    gl.blendFuncSeparate(blendFuncSrcFactor, blendFuncDstFactor, blendFuncAlphaSrcFactor, blendFuncAlphaDstFactor);
+    cache.lastBlendFuncSrcFactor = blendFuncSrcFactor;
+    cache.lastBlendFuncDstFactor = blendFuncDstFactor;
+    cache.lastBlendFuncAlphaSrcFactor = blendFuncAlphaSrcFactor;
+    cache.lastBlendFuncAlphaDstFactor = blendFuncAlphaDstFactor;
   }
-}
-
-/**
- * Checks if the current blend function parameters differ from the last set values.
- *
- * @param srcFactor - Source factor for RGB channels
- * @param dstFactor - Destination factor for RGB channels
- * @param alphaSrcFactor - Source factor for alpha channel
- * @param alphaDstFactor - Destination factor for alpha channel
- * @returns True if parameters differ from last set values, false otherwise
- */
-function differentWithLastBlendFuncFactor(
-  srcFactor: number,
-  dstFactor: number,
-  alphaSrcFactor: number,
-  alphaDstFactor: number
-): boolean {
-  const result =
-    lastBlendFuncSrcFactor !== srcFactor ||
-    lastBlendFuncDstFactor !== dstFactor ||
-    lastBlendFuncAlphaSrcFactor !== alphaSrcFactor ||
-    lastBlendFuncAlphaDstFactor !== alphaDstFactor;
-  return result;
 }
 
 /**
  * Configures alpha-to-coverage multisampling setting based on material properties.
  * Only updates WebGL state when the value differs from the last set value.
  *
+ * @param cache - The WebGL state cache for the current engine
  * @param material - The material containing alpha-to-coverage configuration
  * @param gl - The WebGL rendering context
  */
-function setAlphaToCoverage(material: Material, gl: WebGLRenderingContext) {
+function setAlphaToCoverage(cache: WebGLStateCache, material: Material, gl: WebGLRenderingContext) {
   const alphaToCoverage = material.alphaToCoverage;
-  if (alphaToCoverage !== lastAlphaToCoverage) {
+  if (alphaToCoverage !== cache.lastAlphaToCoverage) {
     if (alphaToCoverage) {
       gl.enable(gl.SAMPLE_ALPHA_TO_COVERAGE);
     } else {
       gl.disable(gl.SAMPLE_ALPHA_TO_COVERAGE);
     }
-    lastAlphaToCoverage = alphaToCoverage;
+    cache.lastAlphaToCoverage = alphaToCoverage;
   }
 }
 
@@ -220,19 +238,21 @@ function setAlphaToCoverage(material: Material, gl: WebGLRenderingContext) {
  * Sets the color write mask to control which color channels are written to the framebuffer.
  * Only updates WebGL state when values differ from previously set values.
  *
+ * @param cache - The WebGL state cache for the current engine
  * @param material - The material containing color write mask configuration
  * @param gl - The WebGL rendering context
  */
-function setColorWriteMask(material: Material, gl: WebGLRenderingContext) {
+function setColorWriteMask(cache: WebGLStateCache, material: Material, gl: WebGLRenderingContext) {
   const colorWriteMask = material.colorWriteMask;
   if (
-    colorWriteMask[0] !== lastColorWriteMask[0] ||
-    colorWriteMask[1] !== lastColorWriteMask[1] ||
-    colorWriteMask[2] !== lastColorWriteMask[2] ||
-    colorWriteMask[3] !== lastColorWriteMask[3]
+    cache.lastColorWriteMask == null ||
+    colorWriteMask[0] !== cache.lastColorWriteMask[0] ||
+    colorWriteMask[1] !== cache.lastColorWriteMask[1] ||
+    colorWriteMask[2] !== cache.lastColorWriteMask[2] ||
+    colorWriteMask[3] !== cache.lastColorWriteMask[3]
   ) {
     gl.colorMask(colorWriteMask[0], colorWriteMask[1], colorWriteMask[2], colorWriteMask[3]);
-    lastColorWriteMask = colorWriteMask;
+    cache.lastColorWriteMask = colorWriteMask;
   }
 }
 

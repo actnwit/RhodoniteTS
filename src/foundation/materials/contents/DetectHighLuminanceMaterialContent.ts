@@ -44,7 +44,7 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
    * @param textureToDetectHighLuminance - The source texture to analyze for high luminance areas
    */
   constructor(engine: Engine, materialName: string, textureToDetectHighLuminance: AbstractTexture) {
-    super(materialName, {});
+    super(materialName, {}, undefined, undefined, engine);
 
     const sampler = new Sampler(engine, {
       wrapS: TextureParameter.ClampToEdge,

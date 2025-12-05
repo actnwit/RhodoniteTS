@@ -65,7 +65,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       definitions?: string[];
     }
   ) {
-    super(name, { isMorphing, isSkinning, isLighting });
+    super(name, { isMorphing, isSkinning, isLighting }, undefined, undefined, engine);
 
     // Shader Reflection
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = this.doShaderReflection(

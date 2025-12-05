@@ -111,4 +111,23 @@ export class DummyTextures {
 
     return dummyTextures;
   }
+
+  /**
+   * Destroys all dummy textures and releases their GPU resources.
+   *
+   * @remarks
+   * This method should be called when the engine is being destroyed
+   * to properly clean up all texture resources.
+   */
+  destroy() {
+    this.dummyWhiteTexture.destroy();
+    this.dummyBlueTexture.destroy();
+    this.dummyBlackTexture.destroy();
+    this.dummyBlackCubeTexture.destroy();
+    this.dummyZeroTexture.destroy();
+    this.sheenLutTexture.destroy();
+    this.dummySRGBGrayTexture.destroy();
+    this.dummyAnisotropyTexture.destroy();
+    this.dummyDepthMomentTextureArray.destroy();
+  }
 }

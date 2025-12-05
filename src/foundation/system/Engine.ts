@@ -5,10 +5,12 @@ import type { WebGpuDeviceWrapper } from '../../webgpu/WebGpuDeviceWrapper';
 import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import type { RnXR } from '../../xr/main';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
+import { AnimationStateRepository } from '../components/Animation/AnimationStateRepository';
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import { createCameraEntity } from '../components/Camera/createCameraEntity';
 import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
 import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
+import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { TransformComponent } from '../components/Transform/TransformComponent';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { Component } from '../core/Component';
@@ -38,9 +40,18 @@ import { RenderPass } from '../renderer/RenderPass';
 import { EngineState } from './EngineState';
 import { ModuleManager } from './ModuleManager';
 declare const spector: any;
+
+import { _cleanupWebGLStatesCacheForEngine } from '../../webgl/WebGLStrategyCommonMethod';
 import type { WebARSystem } from '../../xr/WebARSystem';
 import type { WebXRSystem } from '../../xr/WebXRSystem';
 import { RnObject } from '../core/RnObject';
+import { AABBGizmo } from '../gizmos/AABBGizmo';
+import { LocatorGizmo } from '../gizmos/LocatorGizmo';
+import { RotationGizmo } from '../gizmos/RotationGizmo';
+import { ScaleGizmo } from '../gizmos/ScaleGizmo';
+import { TranslationGizmo } from '../gizmos/TranslationGizmo';
+import { _cleanupRenderPassHelperForEngine } from '../helpers/RenderPassHelper';
+import { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
 import { MaterialRepository } from '../materials/core/MaterialRepository';
 
 /**
@@ -99,6 +110,8 @@ export class Engine extends RnObject {
   private __lastCameraControllerComponentsUpdateCount = -1;
   private __lastTransformComponentsUpdateCount = -1;
   private __lastPrimitiveCount = -1;
+  /** Shader program cache map for this engine instance. Maps shader text to program UIDs. */
+  private __shaderProgramCache: Map<string, number> = new Map();
   private static __engines: Map<ObjectUID, Engine> = new Map();
   private static __engineCount = 0;
   private __engineUid: Index = -1;
@@ -140,11 +153,132 @@ export class Engine extends RnObject {
     return engine;
   }
 
-  public destroy() {
+  /**
+   * Destroys the engine and releases all associated resources.
+   *
+   * @remarks
+   * This method performs a comprehensive cleanup of all engine resources including:
+   * - Stopping the render loop
+   * - Deleting all entities and their components
+   * - Destroying all textures (including dummy textures)
+   * - Clearing material repository data
+   * - Releasing GPU resources (WebGL/WebGPU)
+   * - Clearing memory manager buffers
+   *
+   * After calling this method, the engine instance should not be used.
+   *
+   * @example
+   * ```typescript
+   * const engine = await Rn.Engine.init({ ... });
+   * // ... use the engine ...
+   * engine.destroy(); // Clean up all resources
+   * ```
+   */
+  /**
+   * Destroys the engine and releases all associated resources.
+   *
+   * @remarks
+   * This method performs a comprehensive cleanup of all engine resources including:
+   * - Stopping the render loop
+   * - Invalidating all shader caches in materials
+   * - Deleting all entities and their components
+   * - Destroying all textures (including dummy textures)
+   * - Clearing material repository data
+   * - Releasing GPU resources (WebGL/WebGPU)
+   * - Clearing memory manager buffers
+   *
+   * After calling this method, the engine instance should not be used.
+   */
+  public destroy(): void {
+    this.stopRenderLoop();
+    this.__renderLoopFunc = undefined;
+    this.__args = [];
+    this.__destroyResources();
+  }
+
+  /**
+   * Internal method that performs the actual resource cleanup.
+   * Called after the render loop has fully stopped.
+   */
+  private __destroyResources(): void {
+    // Invalidate all shader caches in materials before deleting entities
+    // This ensures shaders will be recompiled with new WebGL resources on next engine init
+    this.__materialRepository._makeShaderInvalidateToAllMaterials();
+
+    // Delete all entities (this also cleans up all components)
+    const entities = this.__entityRepository._getEntities();
+    for (const entity of entities) {
+      this.__entityRepository.deleteEntity(entity.entityUID);
+    }
+
+    // Destroy dummy textures
+    if (Is.exist(this.__dummyTextures)) {
+      this.__dummyTextures.destroy();
+      this.__dummyTextures = undefined;
+    }
+
+    // Clear WebGPU cache and unconfigure context if using WebGPU
+    if (Is.exist(this.__webGpuResourceRepository)) {
+      this.__webGpuResourceRepository.clearCache();
+      // Unconfigure the WebGPU canvas context to allow it to be reconfigured on next init
+      try {
+        const deviceWrapper = this.__webGpuResourceRepository.getWebGpuDeviceWrapper();
+        if (deviceWrapper) {
+          deviceWrapper.context.unconfigure();
+        }
+      } catch (_e) {
+        // Ignore errors if device wrapper is not available
+      }
+    }
+
+    // Destroy memory manager and release allocated buffers
+    if (Is.exist(this.__memoryManager)) {
+      this.__memoryManager.destroy();
+      this.__memoryManager = undefined;
+    }
+
+    // Clean up static resources in components that use Engine-keyed maps
+    AnimationStateRepository._cleanupForEngine(this);
+    AnimationComponent._cleanupForEngine(this);
+    TransformComponent._cleanupForEngine(this);
+    SceneGraphComponent._cleanupForEngine(this);
+    CameraControllerComponent._cleanupForEngine(this);
+    CameraComponent._cleanupForEngine(this);
+    MeshRendererComponent._cleanupForEngine(this);
+
+    // Clean up gizmo resources that are managed per-Engine
+    TranslationGizmo._cleanupForEngine(this);
+    ScaleGizmo._cleanupForEngine(this);
+    RotationGizmo._cleanupForEngine(this);
+    AABBGizmo._cleanupForEngine(this);
+    LocatorGizmo._cleanupForEngine(this);
+
+    // Clean up material content caches for this engine
+    AbstractMaterialContent._cleanupForEngine(this);
+
+    // Clean up RenderPassHelper sampler cache for this engine
+    _cleanupRenderPassHelperForEngine(this);
+
+    // Clean up WebGL state cache for this engine (blend modes, cull face, etc.)
+    _cleanupWebGLStatesCacheForEngine(this);
+
+    // Clear component memory registry
+    this.__componentMemoryRegistry.destroy();
+
+    // Clear expressions and render passes used for processAuto
+    this.__expressionForProcessAuto = undefined;
+    this.__renderPassForProcessAuto = undefined;
+
+    // Reset internal state
+    this.__renderPassTickCount = 0;
+    this.__lastCameraComponentsUpdateCount = -1;
+    this.__lastCameraControllerComponentsUpdateCount = -1;
+    this.__lastTransformComponentsUpdateCount = -1;
+    this.__lastPrimitiveCount = -1;
+
+    // Remove from static engines map and unregister
     Engine.__engines.delete(this.objectUID);
     this.unregister();
-
-    // TODO: Destroy all entities and components and other resources
   }
 
   /**
@@ -767,5 +901,15 @@ export class Engine extends RnObject {
 
   public get logger() {
     return this.__logger;
+  }
+
+  /**
+   * Gets the shader program cache for this engine instance.
+   * This cache maps shader text to compiled shader program UIDs.
+   * Each engine has its own cache to prevent cross-contamination between WebGL contexts.
+   * @internal
+   */
+  public get shaderProgramCache(): Map<string, number> {
+    return this.__shaderProgramCache;
   }
 }

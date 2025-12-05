@@ -52,20 +52,23 @@ import { ShaderityUtilityWebGL } from './ShaderityUtilityWebGL';
 import { ShaderityUtilityWebGPU } from './ShaderityUtilityWebGPU';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
-const __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
 
 /**
  * Handles shader program creation, caching, and management for the rendering system.
  * Provides utilities for creating shader programs with WebGL and WebGPU backends.
+ *
+ * @remarks
+ * Shader program caching is managed per-Engine instance to prevent cross-contamination
+ * between different WebGL contexts. When an Engine is destroyed, its shader cache
+ * is automatically cleaned up.
  */
 export class ShaderHandler {
-  private static __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
-
   /**
    * Creates a shader program or retrieves it from cache if already compiled.
    * This method implements shader program caching to avoid redundant compilation
-   * of identical shader combinations.
+   * of identical shader combinations. The cache is stored per-Engine instance.
    *
+   * @param engine - The engine instance that owns the shader cache
    * @param material - The material that will use this shader program
    * @param primitive - The geometric primitive that defines vertex attributes
    * @param vertexShader - The vertex shader source code
@@ -85,10 +88,11 @@ export class ShaderHandler {
     attributeSemantics: VertexAttributeEnum[],
     onError?: (message: string) => void
   ): [CGAPIResourceHandle, boolean] {
-    // Cache
+    // Use the engine's shader program cache
+    const shaderCache = engine.shaderProgramCache;
     const wholeShaderText = __removeCommentsFromShader(vertexShader + pixelShader);
-    let shaderProgramUid = this.__shaderStringMap.get(wholeShaderText);
-    if (shaderProgramUid) {
+    let shaderProgramUid = shaderCache.get(wholeShaderText);
+    if (shaderProgramUid != null) {
       return [shaderProgramUid, false];
     }
 
@@ -103,7 +107,7 @@ export class ShaderHandler {
       attributeSemantics: attributeSemantics,
       onError,
     });
-    this.__shaderStringMap.set(wholeShaderText, shaderProgramUid);
+    shaderCache.set(wholeShaderText, shaderProgramUid);
     return [shaderProgramUid, true];
   }
 }
@@ -255,8 +259,10 @@ export function _createProgramAsSingleOperationWebGL(
     alphaMode +
     (isMultiViewVRRendering ? 'WEBGL2_MULTI_VIEW' : '');
 
-  let shaderProgramUid = __shaderStringMap.get(cacheQuery);
-  if (shaderProgramUid) {
+  // Use the engine's shader program cache
+  const shaderCache = engine.shaderProgramCache;
+  let shaderProgramUid = shaderCache.get(cacheQuery);
+  if (shaderProgramUid != null) {
     return [shaderProgramUid, false];
   }
 
@@ -333,7 +339,7 @@ export function _createProgramAsSingleOperationWebGL(
     attributeNames: attributeNames,
     attributeSemantics: attributeSemantics,
   });
-  __shaderStringMap.set(cacheQuery, shaderProgramUid);
+  shaderCache.set(cacheQuery, shaderProgramUid);
   return [shaderProgramUid, true];
 }
 
@@ -453,8 +459,10 @@ export function _createProgramAsSingleOperationWebGpu(
     morphedPositionGetter +
     alphaMode;
 
-  let shaderProgramUid = __shaderStringMap.get(cacheQuery);
-  if (shaderProgramUid) {
+  // Use the engine's shader program cache
+  const shaderCache = engine.shaderProgramCache;
+  let shaderProgramUid = shaderCache.get(cacheQuery);
+  if (shaderProgramUid != null) {
     return shaderProgramUid;
   }
   material.updateStateVersion();
@@ -528,7 +536,7 @@ export function _createProgramAsSingleOperationWebGpu(
     attributeNames: [],
     attributeSemantics: [],
   });
-  __shaderStringMap.set(cacheQuery, shaderProgramUid);
+  shaderCache.set(cacheQuery, shaderProgramUid);
   return shaderProgramUid;
 }
 

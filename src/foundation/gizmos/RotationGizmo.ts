@@ -33,24 +33,34 @@ declare let window: any;
 type Axis = 'x' | 'y' | 'z';
 
 /**
+ * Internal resources for RotationGizmo, managed per-Engine.
+ * @internal
+ */
+interface RotationGizmoResources {
+  groupEntity: ISceneGraphEntity;
+  xRingEntity: IMeshEntity;
+  yRingEntity: IMeshEntity;
+  zRingEntity: IMeshEntity;
+  xRingMesh: Mesh;
+  yRingMesh: Mesh;
+  zRingMesh: Mesh;
+  xRingMaterial: Material;
+  yRingMaterial: Material;
+  zRingMaterial: Material;
+  xRingPrimitive: Ring;
+  yRingPrimitive: Ring;
+  zRingPrimitive: Ring;
+}
+
+/**
  * RotationGizmo provides interactive rotation rings for manipulating entity orientation.
  * It offers three color-coded rings (X: red, Y: green, Z: blue) that respond to pointer
  * drag operations both in world space and in local space aligned to the target hierarchy.
  */
 export class RotationGizmo extends Gizmo {
-  private static __groupEntity: ISceneGraphEntity;
-  private static __xRingEntity: IMeshEntity;
-  private static __yRingEntity: IMeshEntity;
-  private static __zRingEntity: IMeshEntity;
-  private static __xRingMesh: Mesh;
-  private static __yRingMesh: Mesh;
-  private static __zRingMesh: Mesh;
-  private static __xRingMaterial: Material;
-  private static __yRingMaterial: Material;
-  private static __zRingMaterial: Material;
-  private static __xRingPrimitive: Ring;
-  private static __yRingPrimitive: Ring;
-  private static __zRingPrimitive: Ring;
+  /** Resources managed per-Engine instance */
+  private static __resourcesMap: Map<number, RotationGizmoResources> = new Map();
+
   private static __activeAxis: Axis | 'none' = 'none';
   private static __space: 'local' | 'world' = 'world';
   private static __length = 1;
@@ -91,6 +101,13 @@ export class RotationGizmo extends Gizmo {
   private __accumulatedAngle = 0;
   private __activePointerElement?: HTMLElement;
 
+  /**
+   * Gets the resources for a specific engine, or undefined if not initialized.
+   */
+  private static __getResources(engine: Engine): RotationGizmoResources | undefined {
+    return RotationGizmo.__resourcesMap.get(engine.objectUID);
+  }
+
   ///
   ///
   /// Accessors
@@ -114,6 +131,11 @@ export class RotationGizmo extends Gizmo {
   }
 
   set isVisible(flg: boolean) {
+    const resources = RotationGizmo.__getResources(this.__engine);
+    if (!resources) {
+      return;
+    }
+
     if (this.__isVisible === false && flg === true) {
       let eventTargetDom = window;
       if (Is.exist(this.__engine.config.eventTargetDom)) {
@@ -193,10 +215,12 @@ export class RotationGizmo extends Gizmo {
     this.__topEntity.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix = true;
     targetSceneGraph._addGizmoChild(this.__topEntity.getSceneGraph()!);
 
-    this.__createRingEntities();
-
-    if (Is.not.exist(RotationGizmo.__groupEntity)) {
-      RotationGizmo.__groupEntity = createGroupEntity(this.__engine);
+    // Check if resources already exist for this engine
+    let resources = RotationGizmo.__getResources(this.__engine);
+    if (!resources) {
+      // Create resources for this engine
+      resources = this.__createResources();
+      RotationGizmo.__resourcesMap.set(this.__engine.objectUID, resources);
     }
 
     this.__attachSharedGroup();
@@ -205,6 +229,57 @@ export class RotationGizmo extends Gizmo {
     this.setGizmoTag();
     this.__topEntity.tryToSetTag({ tag: 'Gizmo', value: 'Rotation' });
     this._update();
+  }
+
+  /**
+   * Creates all resources needed for the gizmo.
+   */
+  private __createResources(): RotationGizmoResources {
+    // X ring
+    const xRingEntity = createMeshEntity(this.__engine);
+    xRingEntity.tryToSetUniqueName('RotationGizmo_xRing', true);
+    const xRingMaterial = RotationGizmo.__createRingMaterial(this.__engine, Vector4.fromCopyArray4([1, 0, 0, 0.85]));
+    const xRingMesh = new Mesh(this.__engine);
+    const xRingPrimitive = RotationGizmo.__createRingPrimitive(this.__engine, 'x', xRingMaterial);
+    xRingMesh.addPrimitive(xRingPrimitive);
+    xRingEntity.getMesh().setMesh(xRingMesh);
+
+    // Y ring
+    const yRingEntity = createMeshEntity(this.__engine);
+    yRingEntity.tryToSetUniqueName('RotationGizmo_yRing', true);
+    const yRingMaterial = RotationGizmo.__createRingMaterial(this.__engine, Vector4.fromCopyArray4([0, 1, 0, 0.85]));
+    const yRingMesh = new Mesh(this.__engine);
+    const yRingPrimitive = RotationGizmo.__createRingPrimitive(this.__engine, 'y', yRingMaterial);
+    yRingMesh.addPrimitive(yRingPrimitive);
+    yRingEntity.getMesh().setMesh(yRingMesh);
+
+    // Z ring
+    const zRingEntity = createMeshEntity(this.__engine);
+    zRingEntity.tryToSetUniqueName('RotationGizmo_zRing', true);
+    const zRingMaterial = RotationGizmo.__createRingMaterial(this.__engine, Vector4.fromCopyArray4([0, 0, 1, 0.85]));
+    const zRingMesh = new Mesh(this.__engine);
+    const zRingPrimitive = RotationGizmo.__createRingPrimitive(this.__engine, 'z', zRingMaterial);
+    zRingMesh.addPrimitive(zRingPrimitive);
+    zRingEntity.getMesh().setMesh(zRingMesh);
+
+    // Group entity
+    const groupEntity = createGroupEntity(this.__engine);
+
+    return {
+      groupEntity,
+      xRingEntity,
+      yRingEntity,
+      zRingEntity,
+      xRingMesh,
+      yRingMesh,
+      zRingMesh,
+      xRingMaterial,
+      yRingMaterial,
+      zRingMaterial,
+      xRingPrimitive,
+      yRingPrimitive,
+      zRingPrimitive,
+    };
   }
 
   _update(): void {
@@ -242,77 +317,22 @@ export class RotationGizmo extends Gizmo {
   ///
   ///
 
-  private __createRingEntities() {
-    if (Is.not.exist(RotationGizmo.__xRingEntity)) {
-      RotationGizmo.__xRingEntity = createMeshEntity(this.__engine);
-      RotationGizmo.__xRingEntity.tryToSetUniqueName('RotationGizmo_xRing', true);
-      RotationGizmo.__xRingMaterial = RotationGizmo.__createRingMaterial(
-        this.__engine,
-        Vector4.fromCopyArray4([1, 0, 0, 0.85])
-      );
-      RotationGizmo.__xRingMesh = new Mesh(this.__engine);
-      RotationGizmo.__xRingPrimitive = RotationGizmo.__createRingPrimitive(
-        this.__engine,
-        'x',
-        RotationGizmo.__xRingMaterial
-      );
-      RotationGizmo.__xRingMesh.addPrimitive(RotationGizmo.__xRingPrimitive);
-      RotationGizmo.__xRingEntity.getMesh().setMesh(RotationGizmo.__xRingMesh);
-    }
-
-    if (Is.not.exist(RotationGizmo.__yRingEntity)) {
-      RotationGizmo.__yRingEntity = createMeshEntity(this.__engine);
-      RotationGizmo.__yRingEntity.tryToSetUniqueName('RotationGizmo_yRing', true);
-      RotationGizmo.__yRingMaterial = RotationGizmo.__createRingMaterial(
-        this.__engine,
-        Vector4.fromCopyArray4([0, 1, 0, 0.85])
-      );
-      RotationGizmo.__yRingMesh = new Mesh(this.__engine);
-      RotationGizmo.__yRingPrimitive = RotationGizmo.__createRingPrimitive(
-        this.__engine,
-        'y',
-        RotationGizmo.__yRingMaterial
-      );
-      RotationGizmo.__yRingMesh.addPrimitive(RotationGizmo.__yRingPrimitive);
-      RotationGizmo.__yRingEntity.getMesh().setMesh(RotationGizmo.__yRingMesh);
-    }
-
-    if (Is.not.exist(RotationGizmo.__zRingEntity)) {
-      RotationGizmo.__zRingEntity = createMeshEntity(this.__engine);
-      RotationGizmo.__zRingEntity.tryToSetUniqueName('RotationGizmo_zRing', true);
-      RotationGizmo.__zRingMaterial = RotationGizmo.__createRingMaterial(
-        this.__engine,
-        Vector4.fromCopyArray4([0, 0, 1, 0.85])
-      );
-      RotationGizmo.__zRingMesh = new Mesh(this.__engine);
-      RotationGizmo.__zRingPrimitive = RotationGizmo.__createRingPrimitive(
-        this.__engine,
-        'z',
-        RotationGizmo.__zRingMaterial
-      );
-      RotationGizmo.__zRingMesh.addPrimitive(RotationGizmo.__zRingPrimitive);
-      RotationGizmo.__zRingEntity.getMesh().setMesh(RotationGizmo.__zRingMesh);
-    }
-  }
-
   private __attachSharedGroup() {
-    if (!Is.exist(this.__topEntity)) {
+    const resources = RotationGizmo.__getResources(this.__engine);
+    if (!Is.exist(this.__topEntity) || !resources) {
       return;
     }
-    if (Is.not.exist(RotationGizmo.__groupEntity)) {
-      RotationGizmo.__groupEntity = createGroupEntity(this.__engine);
-    }
     const topSceneGraph = this.__topEntity!.getSceneGraph();
-    const groupSceneGraph = RotationGizmo.__groupEntity!.getSceneGraph();
+    const groupSceneGraph = resources.groupEntity.getSceneGraph();
     topSceneGraph.addChild(groupSceneGraph);
-    groupSceneGraph.addChild(RotationGizmo.__xRingEntity!.getSceneGraph());
-    groupSceneGraph.addChild(RotationGizmo.__yRingEntity!.getSceneGraph());
-    groupSceneGraph.addChild(RotationGizmo.__zRingEntity!.getSceneGraph());
+    groupSceneGraph.addChild(resources.xRingEntity.getSceneGraph());
+    groupSceneGraph.addChild(resources.yRingEntity.getSceneGraph());
+    groupSceneGraph.addChild(resources.zRingEntity.getSceneGraph());
   }
 
   private __applySpaceToGroup() {
-    const groupEntity = RotationGizmo.__groupEntity;
-    if (Is.not.exist(groupEntity)) {
+    const resources = RotationGizmo.__getResources(this.__engine);
+    if (!resources) {
       return;
     }
 
@@ -322,9 +342,9 @@ export class RotationGizmo extends Gizmo {
       if (Is.exist(parent)) {
         quaternion = parent.getQuaternionRecursively();
       }
-      groupEntity.getTransform().localRotation = quaternion;
+      resources.groupEntity.getTransform().localRotation = quaternion;
     } else {
-      groupEntity.getTransform().localRotation = Quaternion.fromCopy4(0, 0, 0, 1);
+      resources.groupEntity.getTransform().localRotation = Quaternion.fromCopy4(0, 0, 0, 1);
     }
   }
 
@@ -395,6 +415,11 @@ export class RotationGizmo extends Gizmo {
   }
 
   private __prepareLinearDragMapping(evt: PointerEvent, axis: Axis) {
+    const resources = RotationGizmo.__getResources(this.__engine);
+    if (!resources) {
+      return;
+    }
+
     this.__dragScreenDirection.setComponents(0, 0);
 
     const element = this.__resolvePointerElement(evt);
@@ -424,7 +449,7 @@ export class RotationGizmo extends Gizmo {
       CameraComponent,
       CameraComponent.getCurrent(this.__engine)
     ) as CameraComponent | undefined;
-    const groupSceneGraph = RotationGizmo.__groupEntity?.getSceneGraph();
+    const groupSceneGraph = resources.groupEntity?.getSceneGraph();
     if (!element || !activeCamera || !groupSceneGraph) {
       this.__setDefaultDragDirection(axis);
       return;
@@ -579,7 +604,8 @@ export class RotationGizmo extends Gizmo {
   }
 
   private __transformDirectionFromGroupLocal(vec: IVector3, out: MutableVector3): MutableVector3 {
-    const groupSceneGraph = RotationGizmo.__groupEntity?.getSceneGraph();
+    const resources = RotationGizmo.__getResources(this.__engine);
+    const groupSceneGraph = resources?.groupEntity?.getSceneGraph();
     if (!groupSceneGraph) {
       return out.setComponents(vec.x, vec.y, vec.z);
     }
@@ -621,63 +647,6 @@ export class RotationGizmo extends Gizmo {
     }
     InputManager.enableCameraController();
     this.__isCameraControllerDisabled = false;
-  }
-
-  private __intersectPointerWithAxisPlane(evt: PointerEvent, axis: Axis): MutableVector3 | undefined {
-    let element = evt.target as HTMLElement | null;
-    if (!element || !element.getBoundingClientRect) {
-      element = this.__engine.config.eventTargetDom ?? null;
-    }
-    if (!element) {
-      return undefined;
-    }
-
-    const rect = element.getBoundingClientRect();
-    const width = element.clientWidth;
-    const height = element.clientHeight;
-    if (width === 0 || height === 0) {
-      return undefined;
-    }
-    const x = evt.clientX - rect.left;
-    const y = rect.height - (evt.clientY - rect.top);
-    const viewport = Vector4.fromCopy4(0, 0, width, height) as Vector4;
-    const activeCamera = this.__engine.componentRepository.getComponent(
-      CameraComponent,
-      CameraComponent.getCurrent(this.__engine)
-    ) as CameraComponent | undefined;
-    const groupSceneGraph = RotationGizmo.__groupEntity?.getSceneGraph();
-    if (!activeCamera || !groupSceneGraph) {
-      return undefined;
-    }
-
-    const invPV = MutableMatrix44.multiplyTo(
-      activeCamera.projectionMatrix,
-      activeCamera.viewMatrix,
-      RotationGizmo.__tmpMatrix44_0
-    ).invert();
-    const nearPoint = MathClassUtil.unProjectTo(x, y, 0, invPV, viewport, RotationGizmo.__tmpVector3_0);
-    const farPoint = MathClassUtil.unProjectTo(x, y, 1, invPV, viewport, RotationGizmo.__tmpVector3_1);
-
-    const invGroupMatrix = Matrix44.invertTo(groupSceneGraph.matrixInner, RotationGizmo.__tmpMatrix44_1);
-    const nearLocal = invGroupMatrix.multiplyVector3To(nearPoint, RotationGizmo.__tmpVector3_2);
-    const farLocal = invGroupMatrix.multiplyVector3To(farPoint, RotationGizmo.__tmpVector3_3);
-    const directionLocal = Vector3.subtractTo(farLocal, nearLocal, RotationGizmo.__tmpVector3_4);
-    if (directionLocal.lengthSquared() === 0) {
-      return undefined;
-    }
-
-    const denom = axis === 'x' ? directionLocal.x : axis === 'y' ? directionLocal.y : directionLocal.z;
-    if (Math.abs(denom) < 1e-6) {
-      return undefined;
-    }
-    const originCoord = axis === 'x' ? nearLocal.x : axis === 'y' ? nearLocal.y : nearLocal.z;
-    const t = -originCoord / denom;
-    if (!Number.isFinite(t) || t < 0) {
-      return undefined;
-    }
-
-    const scaledDir = Vector3.multiplyTo(directionLocal, t, RotationGizmo.__tmpVector3_5);
-    return Vector3.addTo(nearLocal, scaledDir, RotationGizmo.__tmpVector3_6) as MutableVector3;
   }
 
   private static __projectToPlane(position: IVector3, axis: Axis): Vector3 {
@@ -725,6 +694,12 @@ export class RotationGizmo extends Gizmo {
   }
 
   private static __castRay(engine: Engine, evt: PointerEvent, local = false) {
+    const resources = RotationGizmo.__getResources(engine);
+    const empty: RaycastResultEx1 = { result: false };
+    if (!resources) {
+      return { xResult: empty, yResult: empty, zResult: empty };
+    }
+
     const rect = (evt.target as HTMLElement).getBoundingClientRect();
     const width = (evt.target as HTMLElement).clientWidth;
     const height = (evt.target as HTMLElement).clientHeight;
@@ -737,13 +712,12 @@ export class RotationGizmo extends Gizmo {
 
     const caster = local ? RotationGizmo.__castFromEntitiesLocal : RotationGizmo.__castFromEntities;
     if (Is.not.exist(activeCamera)) {
-      const empty: RaycastResultEx1 = { result: false };
       return { xResult: empty, yResult: empty, zResult: empty };
     }
 
-    const xResult = caster(x, y, activeCamera, viewport, RotationGizmo.__xRingEntity);
-    const yResult = caster(x, y, activeCamera, viewport, RotationGizmo.__yRingEntity);
-    const zResult = caster(x, y, activeCamera, viewport, RotationGizmo.__zRingEntity);
+    const xResult = caster(x, y, activeCamera, viewport, resources.xRingEntity);
+    const yResult = caster(x, y, activeCamera, viewport, resources.yRingEntity);
+    const zResult = caster(x, y, activeCamera, viewport, resources.zRingEntity);
 
     return { xResult, yResult, zResult };
   }
@@ -833,5 +807,15 @@ export class RotationGizmo extends Gizmo {
     material.cullFace = false;
     material.setParameter('diffuseColorFactor', color);
     return material;
+  }
+
+  /**
+   * Cleans up all static resources for a specific Engine.
+   * This removes the resources associated with the engine from the map.
+   * @internal Called from Engine.destroy()
+   */
+  static _cleanupForEngine(engine: Engine): void {
+    RotationGizmo.__resourcesMap.delete(engine.objectUID);
+    RotationGizmo.__activeAxis = 'none';
   }
 }

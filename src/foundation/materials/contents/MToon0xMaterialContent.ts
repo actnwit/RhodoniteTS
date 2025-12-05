@@ -119,7 +119,6 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
   static readonly Aspect = new ShaderSemanticsClass({ str: 'aspect' });
   static readonly CameraUp = new ShaderSemanticsClass({ str: 'cameraUp' });
 
-  static usableBlendEquationModeAlpha?: number;
   private __OutlineWidthModeIsScreen = false;
 
   private __floatProperties: {
@@ -733,10 +732,6 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
    * @param isOutline - Whether this is an outline material
    */
   setMaterialParameters(engine: Engine, material: Material, isOutline: boolean) {
-    if (MToon0xMaterialContent.usableBlendEquationModeAlpha == null) {
-      MToon0xMaterialContent.__initializeUsableBlendEquationModeAlpha(engine);
-    }
-
     if (this.__floatProperties._BlendMode !== 0) {
       switch (this.__floatProperties._BlendMode) {
         case 1:
@@ -754,7 +749,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
       }
 
       const blendEquationMode = 32774; // gl.FUNC_ADD
-      const blendEquationModeAlpha = MToon0xMaterialContent.usableBlendEquationModeAlpha;
+      const blendEquationModeAlpha = MToon0xMaterialContent.__getUsableBlendEquationModeAlpha(engine);
       const blendFuncSrcFactor = MToon0xMaterialContent.unityBlendEnumCorrespondence(this.__floatProperties._SrcBlend);
       const blendFuncDstFactor = MToon0xMaterialContent.unityBlendEnumCorrespondence(this.__floatProperties._DstBlend);
 
@@ -799,27 +794,28 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
   }
 
   /**
-   * Initializes the usable blend equation mode for alpha blending.
+   * Gets the usable blend equation mode for alpha blending.
    * This method determines the appropriate blend equation mode based on
    * the current rendering API and available extensions.
    *
+   * @param engine - The engine instance
+   * @returns The blend equation mode for alpha channel
    * @private
    */
-  private static __initializeUsableBlendEquationModeAlpha(engine: Engine) {
+  private static __getUsableBlendEquationModeAlpha(engine: Engine): number {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-      MToon0xMaterialContent.usableBlendEquationModeAlpha = 32776; // gl.MAX
-    } else {
-      const webGLResourceRepository = engine.webglResourceRepository;
-      const glw = webGLResourceRepository.currentWebGLContextWrapper;
-      const gl = glw!.getRawContextAsWebGL2();
-      if (glw!.isWebGL2) {
-        MToon0xMaterialContent.usableBlendEquationModeAlpha = gl.MAX;
-      } else if (glw!.webgl1ExtBM) {
-        MToon0xMaterialContent.usableBlendEquationModeAlpha = glw!.webgl1ExtBM.MAX_EXT;
-      } else {
-        MToon0xMaterialContent.usableBlendEquationModeAlpha = gl.FUNC_ADD;
-      }
+      return 32776; // gl.MAX
     }
+    const webGLResourceRepository = engine.webglResourceRepository;
+    const glw = webGLResourceRepository.currentWebGLContextWrapper;
+    const gl = glw!.getRawContextAsWebGL2();
+    if (glw!.isWebGL2) {
+      return gl.MAX;
+    }
+    if (glw!.webgl1ExtBM) {
+      return glw!.webgl1ExtBM.MAX_EXT;
+    }
+    return gl.FUNC_ADD;
   }
 
   /**
