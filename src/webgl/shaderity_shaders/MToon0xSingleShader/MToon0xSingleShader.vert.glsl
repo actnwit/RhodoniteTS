@@ -4,6 +4,10 @@
 
 /* shaderity: @{definitions} */
 
+#ifdef WEBGL2_MULTI_VIEW
+  layout(num_views=2) in;
+#endif
+
 // This shader is based on https://github.com/Santarh/MToon
 
 /* shaderity: @{vertexInOut} */
@@ -92,4 +96,8 @@ void main(){
   v_texcoord_0 = a_texcoord_0;
   v_baryCentricCoord = a_baryCentricCoord.xyz;
   v_instanceInfo = a_instanceInfo.x;
+
+#ifdef WEBGL2_MULTI_VIEW
+  v_displayIdx = float(gl_ViewID_OVR);
+#endif
 }
