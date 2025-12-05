@@ -115,7 +115,8 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
       materialName,
       { isMorphing, isSkinning, isLighting },
       ShadowMapDecodeSingleShaderVertex,
-      ShadowMapDecodeSingleShaderFragment
+      ShadowMapDecodeSingleShaderFragment,
+      engine
     );
 
     this.__encodedDepthRenderPass = encodedDepthRenderPass;

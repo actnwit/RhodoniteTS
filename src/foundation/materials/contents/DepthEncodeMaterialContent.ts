@@ -40,17 +40,19 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
   /**
    * Creates a new DepthEncodeMaterialContent instance.
    *
+   * @param engine - The engine instance
    * @param materialName - The name identifier for this material
    * @param depthPow - The power factor for depth encoding (1.0-2.0 range)
    * @param options - Configuration options for the material
    * @param options.isSkinning - Whether skeletal animation skinning is enabled
    */
-  constructor(materialName: string, depthPow: number, { isSkinning }: { isSkinning: boolean }) {
+  constructor(engine: Engine, materialName: string, depthPow: number, { isSkinning }: { isSkinning: boolean }) {
     super(
       materialName,
       { isMorphing: false, isSkinning, isLighting: false },
       DepthEncodeSingleShaderVertex,
-      DepthEncodeSingleShaderFragment
+      DepthEncodeSingleShaderFragment,
+      engine
     );
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [

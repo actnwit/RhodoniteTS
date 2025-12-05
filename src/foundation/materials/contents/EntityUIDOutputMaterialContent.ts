@@ -23,14 +23,16 @@ export class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
   /**
    * Creates a new EntityUIDOutputMaterialContent instance.
    *
+   * @param engine - The engine instance
    * @param materialName - The name of the material
    */
-  constructor(materialName: string) {
+  constructor(engine: Engine, materialName: string) {
     super(
       materialName,
       { isMorphing: false, isSkinning: true, isLighting: false },
       entityUIDOutputSingleShaderVertex,
-      entityUIDOutputSingleShaderFragment
+      entityUIDOutputSingleShaderFragment,
+      engine
     );
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
