@@ -40,17 +40,19 @@ import { RenderPass } from '../renderer/RenderPass';
 import { EngineState } from './EngineState';
 import { ModuleManager } from './ModuleManager';
 declare const spector: any;
+
+import { _cleanupWebGLStatesCacheForEngine } from '../../webgl/WebGLStrategyCommonMethod';
 import type { WebARSystem } from '../../xr/WebARSystem';
 import type { WebXRSystem } from '../../xr/WebXRSystem';
 import { RnObject } from '../core/RnObject';
-import { MaterialRepository } from '../materials/core/MaterialRepository';
-import { TranslationGizmo } from '../gizmos/TranslationGizmo';
-import { ScaleGizmo } from '../gizmos/ScaleGizmo';
-import { RotationGizmo } from '../gizmos/RotationGizmo';
 import { AABBGizmo } from '../gizmos/AABBGizmo';
 import { LocatorGizmo } from '../gizmos/LocatorGizmo';
+import { RotationGizmo } from '../gizmos/RotationGizmo';
+import { ScaleGizmo } from '../gizmos/ScaleGizmo';
+import { TranslationGizmo } from '../gizmos/TranslationGizmo';
+import { _cleanupRenderPassHelperForEngine } from '../helpers/RenderPassHelper';
 import { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
-import { _cleanupWebGLStatesCacheForEngine } from '../../webgl/WebGLStrategyCommonMethod';
+import { MaterialRepository } from '../materials/core/MaterialRepository';
 
 /**
  * The argument type for Engine.init() method.
@@ -253,6 +255,9 @@ export class Engine extends RnObject {
 
     // Clean up material content caches for this engine
     AbstractMaterialContent._cleanupForEngine(this);
+
+    // Clean up RenderPassHelper sampler cache for this engine
+    _cleanupRenderPassHelperForEngine(this);
 
     // Clean up WebGL state cache for this engine (blend modes, cull face, etc.)
     _cleanupWebGLStatesCacheForEngine(this);
