@@ -7,7 +7,6 @@ import { TextureParameter } from '../definitions/TextureParameter';
 import { Logger } from '../misc/Logger';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import type { Engine } from '../system/Engine';
-import { EngineState } from '../system/EngineState';
 import { AbstractTexture } from './AbstractTexture';
 
 declare const BASIS: BASIS_TYPE;
@@ -349,6 +348,10 @@ export class CubeTexture extends AbstractTexture implements Disposable {
   destroy3DAPIResources() {
     CubeTexture.__deleteInternalTexture(this.__engine, this._textureResourceUid);
     this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    this._samplerResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    if (this._recommendedTextureSampler) {
+      this._recommendedTextureSampler.destroy();
+    }
     this.__isTextureReady = false;
     this.__startedToLoad = false;
   }

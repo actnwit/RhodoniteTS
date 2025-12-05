@@ -1,6 +1,5 @@
 import type { CGAPIResourceHandle } from '../../types/CommonTypes';
 import { TextureParameter, type TextureParameterEnum } from '../definitions';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import type { Engine } from '../system/Engine';
 
 /**
@@ -125,5 +124,14 @@ export class Sampler {
    */
   get _samplerResourceUid(): CGAPIResourceHandle {
     return this.__samplerResourceUid;
+  }
+
+  /**
+   * Destroys the sampler resource and resets its internal state.
+   * This invalidates the sampler resource UID, allowing it to be recreated.
+   * @internal Called from Engine.destroy() or texture cleanup
+   */
+  destroy() {
+    this.__samplerResourceUid = -1;
   }
 }

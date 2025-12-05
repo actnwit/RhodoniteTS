@@ -709,6 +709,10 @@ export class Texture extends AbstractTexture implements Disposable {
   destroy3DAPIResources() {
     Texture.__deleteInternalTexture(this.__engine, this._textureResourceUid);
     this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    this._samplerResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    if (this._recommendedTextureSampler) {
+      this._recommendedTextureSampler.destroy();
+    }
     this.__isTextureReady = false;
     this.__startedToLoad = false;
 
