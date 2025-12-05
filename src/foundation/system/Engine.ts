@@ -101,6 +101,8 @@ export class Engine extends RnObject {
   private __lastCameraControllerComponentsUpdateCount = -1;
   private __lastTransformComponentsUpdateCount = -1;
   private __lastPrimitiveCount = -1;
+  /** Shader program cache map for this engine instance. Maps shader text to program UIDs. */
+  private __shaderProgramCache: Map<string, number> = new Map();
   private static __engines: Map<ObjectUID, Engine> = new Map();
   private static __engineCount = 0;
   private __engineUid: Index = -1;
@@ -163,11 +165,65 @@ export class Engine extends RnObject {
    * engine.destroy(); // Clean up all resources
    * ```
    */
-  public destroy() {
-    // Stop the render loop first
+  /**
+   * Destroys the engine and releases all associated resources.
+   *
+   * @remarks
+   * This method performs a comprehensive cleanup of all engine resources including:
+   * - Stopping the render loop and waiting for the current frame to complete
+   * - Invalidating all shader caches in materials
+   * - Deleting all entities and their components
+   * - Destroying all textures (including dummy textures)
+   * - Clearing material repository data
+   * - Releasing GPU resources (WebGL/WebGPU)
+   * - Clearing memory manager buffers
+   *
+   * After calling this method, the engine instance should not be used.
+   * This method returns a Promise that resolves when all cleanup is complete.
+   *
+   * @returns A Promise that resolves when the engine is fully destroyed
+   */
+  public destroy(): Promise<void> {
+    return new Promise(resolve => {
+      // Stop the render loop first
+      this.stopRenderLoop();
+      this.__renderLoopFunc = undefined;
+      this.__args = [];
+
+      // Wait for any pending animation frame to complete before destroying resources.
+      // We use requestAnimationFrame to ensure we're at the start of a new frame,
+      // which means any previously scheduled frame has completed.
+      requestAnimationFrame(() => {
+        // Additional setTimeout to ensure all microtasks are processed
+        setTimeout(() => {
+          this.__destroyResources();
+          resolve();
+        }, 0);
+      });
+    });
+  }
+
+  /**
+   * Synchronous version of destroy for backwards compatibility.
+   * Prefer using destroy() which returns a Promise for proper cleanup.
+   *
+   * @deprecated Use destroy() instead for proper async cleanup
+   */
+  public destroySync(): void {
     this.stopRenderLoop();
     this.__renderLoopFunc = undefined;
     this.__args = [];
+    this.__destroyResources();
+  }
+
+  /**
+   * Internal method that performs the actual resource cleanup.
+   * Called after the render loop has fully stopped.
+   */
+  private __destroyResources(): void {
+    // Invalidate all shader caches in materials before deleting entities
+    // This ensures shaders will be recompiled with new WebGL resources on next engine init
+    this.__materialRepository._makeShaderInvalidateToAllMaterials();
 
     // Delete all entities (this also cleans up all components)
     const entities = this.__entityRepository._getEntities();
@@ -840,5 +896,15 @@ export class Engine extends RnObject {
 
   public get logger() {
     return this.__logger;
+  }
+
+  /**
+   * Gets the shader program cache for this engine instance.
+   * This cache maps shader text to compiled shader program UIDs.
+   * Each engine has its own cache to prevent cross-contamination between WebGL contexts.
+   * @internal
+   */
+  public get shaderProgramCache(): Map<string, number> {
+    return this.__shaderProgramCache;
   }
 }
