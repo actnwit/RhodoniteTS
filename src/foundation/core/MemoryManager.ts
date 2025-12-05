@@ -290,4 +290,19 @@ export class MemoryManager {
       MiscUtil.downloadArrayBuffer(bufferUse.str + i, buffer.getArrayBuffer());
     }
   }
+
+  /**
+   * Destroys all allocated buffers and clears internal state.
+   *
+   * @remarks
+   * This method clears all buffer maps and resets the buffer usage counters.
+   * After calling this method, the MemoryManager should not be used.
+   */
+  public destroy(): void {
+    // Clear all buffers
+    this.__buffers.clear();
+
+    // Reset all buffer usage counts
+    this.__countOfTheBufferUsageMap.clear();
+  }
 }

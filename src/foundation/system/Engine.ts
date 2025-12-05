@@ -184,6 +184,12 @@ export class Engine extends RnObject {
       this.__webGpuResourceRepository.clearCache();
     }
 
+    // Destroy memory manager and release allocated buffers
+    if (Is.exist(this.__memoryManager)) {
+      this.__memoryManager.destroy();
+      this.__memoryManager = undefined;
+    }
+
     // Clear expressions and render passes used for processAuto
     this.__expressionForProcessAuto = undefined;
     this.__renderPassForProcessAuto = undefined;
