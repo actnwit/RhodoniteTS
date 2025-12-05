@@ -431,7 +431,9 @@ export class SkeletalComponent extends Component {
 
     const cacheLeaders = AnimationStateRepository.getOrCreateCacheLeaders(this.__engine);
     const leaderJointIndexToEntityUID = AnimationStateRepository.getOrCreateLeaderJointIndexToEntityUID(this.__engine);
-    const currentFrameCachedEntityUIDs = AnimationStateRepository.getOrCreateCurrentFrameCachedEntityUIDs(this.__engine);
+    const currentFrameCachedEntityUIDs = AnimationStateRepository.getOrCreateCurrentFrameCachedEntityUIDs(
+      this.__engine
+    );
 
     if (cacheKey) {
       const cache = SkeletalComponent.__skinCalculationCache.get(cacheKey);
