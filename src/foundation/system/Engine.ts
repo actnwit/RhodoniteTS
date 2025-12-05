@@ -50,7 +50,6 @@ import { RotationGizmo } from '../gizmos/RotationGizmo';
 import { AABBGizmo } from '../gizmos/AABBGizmo';
 import { LocatorGizmo } from '../gizmos/LocatorGizmo';
 import { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
-import { MToon0xMaterialContent } from '../materials/contents/MToon0xMaterialContent';
 import { _cleanupWebGLStatesCacheForEngine } from '../../webgl/WebGLStrategyCommonMethod';
 
 /**
@@ -274,9 +273,6 @@ export class Engine extends RnObject {
 
     // Clean up material content caches for this engine
     AbstractMaterialContent._cleanupForEngine(this);
-
-    // Clean up MToon material static state
-    MToon0xMaterialContent._cleanupForEngine();
 
     // Clean up WebGL state cache for this engine (blend modes, cull face, etc.)
     _cleanupWebGLStatesCacheForEngine(this);
