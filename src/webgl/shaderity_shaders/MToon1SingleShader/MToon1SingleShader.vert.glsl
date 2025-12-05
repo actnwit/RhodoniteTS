@@ -4,6 +4,10 @@
 
 /* shaderity: @{definitions} */
 
+#ifdef WEBGL2_MULTI_VIEW
+  layout(num_views=2) in;
+#endif
+
 /* shaderity: @{vertexInOut} */
 out vec3 v_normal_inView;
 
@@ -80,4 +84,8 @@ void main(){
   v_texcoord_2 = a_texcoord_2;
   v_baryCentricCoord = a_baryCentricCoord.xyz;
   v_instanceInfo = a_instanceInfo.x;
+
+#ifdef WEBGL2_MULTI_VIEW
+  v_displayIdx = float(gl_ViewID_OVR);
+#endif
 }
