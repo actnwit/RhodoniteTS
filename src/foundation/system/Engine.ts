@@ -140,11 +140,72 @@ export class Engine extends RnObject {
     return engine;
   }
 
+  /**
+   * Destroys the engine and releases all associated resources.
+   *
+   * @remarks
+   * This method performs a comprehensive cleanup of all engine resources including:
+   * - Stopping the render loop
+   * - Deleting all entities and their components
+   * - Destroying all textures (including dummy textures)
+   * - Clearing material repository data
+   * - Releasing GPU resources (WebGL/WebGPU)
+   * - Clearing memory manager buffers
+   *
+   * After calling this method, the engine instance should not be used.
+   *
+   * @example
+   * ```typescript
+   * const engine = await Rn.Engine.init({ ... });
+   * // ... use the engine ...
+   * engine.destroy(); // Clean up all resources
+   * ```
+   */
   public destroy() {
+    // Stop the render loop first
+    this.stopRenderLoop();
+    this.__renderLoopFunc = undefined;
+    this.__args = [];
+
+    // Delete all entities (this also cleans up all components)
+    const entities = this.__entityRepository._getEntities();
+    for (const entity of entities) {
+      this.__entityRepository.deleteEntity(entity.entityUID);
+    }
+
+    // Destroy dummy textures
+    if (Is.exist(this.__dummyTextures)) {
+      this.__dummyTextures.dummyWhiteTexture.destroy();
+      this.__dummyTextures.dummyBlueTexture.destroy();
+      this.__dummyTextures.dummyBlackTexture.destroy();
+      this.__dummyTextures.dummyBlackCubeTexture.destroy();
+      this.__dummyTextures.dummyZeroTexture.destroy();
+      this.__dummyTextures.sheenLutTexture.destroy();
+      this.__dummyTextures.dummySRGBGrayTexture.destroy();
+      this.__dummyTextures.dummyAnisotropyTexture.destroy();
+      this.__dummyTextures.dummyDepthMomentTextureArray.destroy();
+      this.__dummyTextures = undefined;
+    }
+
+    // Clear WebGPU cache if using WebGPU
+    if (Is.exist(this.__webGpuResourceRepository)) {
+      this.__webGpuResourceRepository.clearCache();
+    }
+
+    // Clear expressions and render passes used for processAuto
+    this.__expressionForProcessAuto = undefined;
+    this.__renderPassForProcessAuto = undefined;
+
+    // Reset internal state
+    this.__renderPassTickCount = 0;
+    this.__lastCameraComponentsUpdateCount = -1;
+    this.__lastCameraControllerComponentsUpdateCount = -1;
+    this.__lastTransformComponentsUpdateCount = -1;
+    this.__lastPrimitiveCount = -1;
+
+    // Remove from static engines map and unregister
     Engine.__engines.delete(this.objectUID);
     this.unregister();
-
-    // TODO: Destroy all entities and components and other resources
   }
 
   /**
