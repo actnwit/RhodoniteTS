@@ -177,7 +177,7 @@ export class Engine extends RnObject {
    *
    * @remarks
    * This method performs a comprehensive cleanup of all engine resources including:
-   * - Stopping the render loop and waiting for the current frame to complete
+   * - Stopping the render loop
    * - Invalidating all shader caches in materials
    * - Deleting all entities and their components
    * - Destroying all textures (including dummy textures)
@@ -186,37 +186,8 @@ export class Engine extends RnObject {
    * - Clearing memory manager buffers
    *
    * After calling this method, the engine instance should not be used.
-   * This method returns a Promise that resolves when all cleanup is complete.
-   *
-   * @returns A Promise that resolves when the engine is fully destroyed
    */
-  public destroy(): Promise<void> {
-    return new Promise(resolve => {
-      // Stop the render loop first
-      this.stopRenderLoop();
-      this.__renderLoopFunc = undefined;
-      this.__args = [];
-
-      // Wait for any pending animation frame to complete before destroying resources.
-      // We use requestAnimationFrame to ensure we're at the start of a new frame,
-      // which means any previously scheduled frame has completed.
-      requestAnimationFrame(() => {
-        // Additional setTimeout to ensure all microtasks are processed
-        setTimeout(() => {
-          this.__destroyResources();
-          resolve();
-        }, 0);
-      });
-    });
-  }
-
-  /**
-   * Synchronous version of destroy for backwards compatibility.
-   * Prefer using destroy() which returns a Promise for proper cleanup.
-   *
-   * @deprecated Use destroy() instead for proper async cleanup
-   */
-  public destroySync(): void {
+  public destroy(): void {
     this.stopRenderLoop();
     this.__renderLoopFunc = undefined;
     this.__args = [];
