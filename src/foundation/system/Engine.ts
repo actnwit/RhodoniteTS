@@ -215,9 +215,18 @@ export class Engine extends RnObject {
       this.__dummyTextures = undefined;
     }
 
-    // Clear WebGPU cache if using WebGPU
+    // Clear WebGPU cache and unconfigure context if using WebGPU
     if (Is.exist(this.__webGpuResourceRepository)) {
       this.__webGpuResourceRepository.clearCache();
+      // Unconfigure the WebGPU canvas context to allow it to be reconfigured on next init
+      try {
+        const deviceWrapper = this.__webGpuResourceRepository.getWebGpuDeviceWrapper();
+        if (deviceWrapper) {
+          deviceWrapper.context.unconfigure();
+        }
+      } catch (_e) {
+        // Ignore errors if device wrapper is not available
+      }
     }
 
     // Destroy memory manager and release allocated buffers
