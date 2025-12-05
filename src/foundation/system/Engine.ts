@@ -175,15 +175,7 @@ export class Engine extends RnObject {
 
     // Destroy dummy textures
     if (Is.exist(this.__dummyTextures)) {
-      this.__dummyTextures.dummyWhiteTexture.destroy();
-      this.__dummyTextures.dummyBlueTexture.destroy();
-      this.__dummyTextures.dummyBlackTexture.destroy();
-      this.__dummyTextures.dummyBlackCubeTexture.destroy();
-      this.__dummyTextures.dummyZeroTexture.destroy();
-      this.__dummyTextures.sheenLutTexture.destroy();
-      this.__dummyTextures.dummySRGBGrayTexture.destroy();
-      this.__dummyTextures.dummyAnisotropyTexture.destroy();
-      this.__dummyTextures.dummyDepthMomentTextureArray.destroy();
+      this.__dummyTextures.destroy();
       this.__dummyTextures = undefined;
     }
 
