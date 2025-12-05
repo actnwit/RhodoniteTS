@@ -805,18 +805,17 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
   private static __getUsableBlendEquationModeAlpha(engine: Engine): number {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return 32776; // gl.MAX
-    } else {
-      const webGLResourceRepository = engine.webglResourceRepository;
-      const glw = webGLResourceRepository.currentWebGLContextWrapper;
-      const gl = glw!.getRawContextAsWebGL2();
-      if (glw!.isWebGL2) {
-        return gl.MAX;
-      } else if (glw!.webgl1ExtBM) {
-        return glw!.webgl1ExtBM.MAX_EXT;
-      } else {
-        return gl.FUNC_ADD;
-      }
     }
+    const webGLResourceRepository = engine.webglResourceRepository;
+    const glw = webGLResourceRepository.currentWebGLContextWrapper;
+    const gl = glw!.getRawContextAsWebGL2();
+    if (glw!.isWebGL2) {
+      return gl.MAX;
+    }
+    if (glw!.webgl1ExtBM) {
+      return glw!.webgl1ExtBM.MAX_EXT;
+    }
+    return gl.FUNC_ADD;
   }
 
   /**
@@ -1103,5 +1102,4 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
       specularHdriType,
     };
   }
-
 }

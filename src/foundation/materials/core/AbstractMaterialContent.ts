@@ -67,14 +67,10 @@ export abstract class AbstractMaterialContent extends RnObject {
   private __materialContentUid: number;
 
   /** Shader caches managed per-Engine. Key is Engine.objectUID */
-  private static __vertexShaderityObjectMapPerEngine: Map<number, Map<string, ShaderityObject>> =
+  private static __vertexShaderityObjectMapPerEngine: Map<number, Map<string, ShaderityObject>> = new Map();
+  private static __pixelShaderityObjectMapPerEngine: Map<number, Map<string, ShaderityObject>> = new Map();
+  private static __reflectedShaderSemanticsInfoArrayMapPerEngine: Map<number, Map<string, ShaderSemanticsInfo[]>> =
     new Map();
-  private static __pixelShaderityObjectMapPerEngine: Map<number, Map<string, ShaderityObject>> =
-    new Map();
-  private static __reflectedShaderSemanticsInfoArrayMapPerEngine: Map<
-    number,
-    Map<string, ShaderSemanticsInfo[]>
-  > = new Map();
 
   /** Fallback maps for cases when engine is not yet set (e.g., during initialization) */
   private static __vertexShaderityObjectFallbackMap: Map<string, ShaderityObject> = new Map();
@@ -113,9 +109,7 @@ export abstract class AbstractMaterialContent extends RnObject {
    * Gets the reflected shader semantics info map for a specific engine.
    * Creates the map if it doesn't exist.
    */
-  private static __getReflectedShaderSemanticsInfoArrayMap(
-    engineUid: number
-  ): Map<string, ShaderSemanticsInfo[]> {
+  private static __getReflectedShaderSemanticsInfoArrayMap(engineUid: number): Map<string, ShaderSemanticsInfo[]> {
     let map = AbstractMaterialContent.__reflectedShaderSemanticsInfoArrayMapPerEngine.get(engineUid);
     if (!map) {
       map = new Map();
@@ -173,10 +167,7 @@ export abstract class AbstractMaterialContent extends RnObject {
         map.set(this.__materialName, vertexShaderityObject);
       }
       // Also store in fallback map for access when engine is not set on the instance
-      AbstractMaterialContent.__vertexShaderityObjectFallbackMap.set(
-        this.__materialName,
-        vertexShaderityObject
-      );
+      AbstractMaterialContent.__vertexShaderityObjectFallbackMap.set(this.__materialName, vertexShaderityObject);
     }
   }
 
@@ -193,10 +184,7 @@ export abstract class AbstractMaterialContent extends RnObject {
         map.set(this.__materialName, pixelShaderityObject);
       }
       // Also store in fallback map for access when engine is not set on the instance
-      AbstractMaterialContent.__pixelShaderityObjectFallbackMap.set(
-        this.__materialName,
-        pixelShaderityObject
-      );
+      AbstractMaterialContent.__pixelShaderityObjectFallbackMap.set(this.__materialName, pixelShaderityObject);
     }
   }
 
@@ -675,9 +663,7 @@ export abstract class AbstractMaterialContent extends RnObject {
     this._engine = engine;
 
     const definitionsStr = definitions.join('');
-    const reflectedMap = AbstractMaterialContent.__getReflectedShaderSemanticsInfoArrayMap(
-      engine.objectUID
-    );
+    const reflectedMap = AbstractMaterialContent.__getReflectedShaderSemanticsInfoArrayMap(engine.objectUID);
     const reflectedShaderSemanticsInfoArray = reflectedMap.get(this.__materialName + definitionsStr);
     if (reflectedShaderSemanticsInfoArray != null) {
       return reflectedShaderSemanticsInfoArray.concat();

@@ -681,9 +681,7 @@ export class TranslationGizmo extends Gizmo {
     }
     let pickInMovingPoint: Vector3 = this.__pickStatedPoint.clone();
     if (TranslationGizmo.__activeAxis === 'x') {
-      const xResult = resources.xyPlaneEntity
-        .getMesh()
-        .castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
+      const xResult = resources.xyPlaneEntity.getMesh().castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
       if (xResult.result) {
         assertExist(xResult.data);
         const position = rotMat.multiplyVector(xResult.data.position);
@@ -692,9 +690,7 @@ export class TranslationGizmo extends Gizmo {
       }
     }
     if (TranslationGizmo.__activeAxis === 'y') {
-      const yResult = resources.xyPlaneEntity
-        .getMesh()
-        .castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
+      const yResult = resources.xyPlaneEntity.getMesh().castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
       if (yResult.result) {
         assertExist(yResult.data);
         const position = rotMat.multiplyVector(yResult.data.position);
@@ -703,9 +699,7 @@ export class TranslationGizmo extends Gizmo {
       }
     }
     if (TranslationGizmo.__activeAxis === 'z') {
-      const zResult = resources.yzPlaneEntity
-        .getMesh()
-        .castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
+      const zResult = resources.yzPlaneEntity.getMesh().castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
       if (zResult.result) {
         assertExist(zResult.data);
         const position = rotMat.multiplyVector(zResult.data.position);
