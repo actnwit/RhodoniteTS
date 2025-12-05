@@ -72,9 +72,6 @@ export abstract class AbstractMaterialContent extends RnObject {
   private static __reflectedShaderSemanticsInfoArrayMapPerEngine: Map<number, Map<string, ShaderSemanticsInfo[]>> =
     new Map();
 
-  /** Fallback maps for cases when engine is not yet set (e.g., during initialization) */
-  private static __vertexShaderityObjectFallbackMap: Map<string, ShaderityObject> = new Map();
-  private static __pixelShaderityObjectFallbackMap: Map<string, ShaderityObject> = new Map();
   public shaderType: ShaderTypeEnum = ShaderType.VertexAndPixelShader;
 
   private __materialSemanticsVariantName = '';
@@ -166,8 +163,6 @@ export abstract class AbstractMaterialContent extends RnObject {
         const map = AbstractMaterialContent.__getVertexShaderityObjectMap(engineToUse.objectUID);
         map.set(this.__materialName, vertexShaderityObject);
       }
-      // Also store in fallback map for access when engine is not set on the instance
-      AbstractMaterialContent.__vertexShaderityObjectFallbackMap.set(this.__materialName, vertexShaderityObject);
     }
   }
 
@@ -183,8 +178,6 @@ export abstract class AbstractMaterialContent extends RnObject {
         const map = AbstractMaterialContent.__getPixelShaderityObjectMap(engineToUse.objectUID);
         map.set(this.__materialName, pixelShaderityObject);
       }
-      // Also store in fallback map for access when engine is not set on the instance
-      AbstractMaterialContent.__pixelShaderityObjectFallbackMap.set(this.__materialName, pixelShaderityObject);
     }
   }
 
@@ -216,13 +209,9 @@ export abstract class AbstractMaterialContent extends RnObject {
   get vertexShaderityObject(): ShaderityObject | undefined {
     if (this._engine) {
       const map = AbstractMaterialContent.__getVertexShaderityObjectMap(this._engine.objectUID);
-      const result = map.get(this.__materialName);
-      if (result) {
-        return result;
-      }
+      return map.get(this.__materialName);
     }
-    // Fallback to global map when engine is not set or not found in engine-specific map
-    return AbstractMaterialContent.__vertexShaderityObjectFallbackMap.get(this.__materialName);
+    return undefined;
   }
 
   /**
@@ -232,13 +221,9 @@ export abstract class AbstractMaterialContent extends RnObject {
   get pixelShaderityObject(): ShaderityObject | undefined {
     if (this._engine) {
       const map = AbstractMaterialContent.__getPixelShaderityObjectMap(this._engine.objectUID);
-      const result = map.get(this.__materialName);
-      if (result) {
-        return result;
-      }
+      return map.get(this.__materialName);
     }
-    // Fallback to global map when engine is not set or not found in engine-specific map
-    return AbstractMaterialContent.__pixelShaderityObjectFallbackMap.get(this.__materialName);
+    return undefined;
   }
 
   /**
@@ -738,10 +723,6 @@ export abstract class AbstractMaterialContent extends RnObject {
     AbstractMaterialContent.__vertexShaderityObjectMapPerEngine.delete(engine.objectUID);
     AbstractMaterialContent.__pixelShaderityObjectMapPerEngine.delete(engine.objectUID);
     AbstractMaterialContent.__reflectedShaderSemanticsInfoArrayMapPerEngine.delete(engine.objectUID);
-
-    // Also clear fallback maps to ensure clean state for new Engine
-    AbstractMaterialContent.__vertexShaderityObjectFallbackMap.clear();
-    AbstractMaterialContent.__pixelShaderityObjectFallbackMap.clear();
 
     // Note: We don't reset __materialContentCount as UIDs should remain unique across engine instances
     // Note: We don't clear materialNodes as they may still be referenced

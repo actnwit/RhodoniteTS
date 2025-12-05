@@ -76,7 +76,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
    * ```
    */
   constructor(engine: Engine, materialName: string, synthesizeTextures: AbstractTexture[]) {
-    super(materialName, {});
+    super(materialName, {}, undefined, undefined, engine);
 
     this.textureNumber = synthesizeTextures.length;
 

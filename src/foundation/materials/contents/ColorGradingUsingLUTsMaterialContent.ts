@@ -54,7 +54,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
     uri?: string,
     texture?: AbstractTexture
   ) {
-    super(materialName, {}, ColorGradingUsingLUTsShaderVertex, ColorGradingUsingLUTsShaderFragment);
+    super(materialName, {}, ColorGradingUsingLUTsShaderVertex, ColorGradingUsingLUTsShaderFragment, engine);
 
     let targetTexture: IRenderable | Texture;
     const framebuffer = targetRenderPass.getFramebuffer();
