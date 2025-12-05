@@ -5,10 +5,12 @@ import type { WebGpuDeviceWrapper } from '../../webgpu/WebGpuDeviceWrapper';
 import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import type { RnXR } from '../../xr/main';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
+import { AnimationStateRepository } from '../components/Animation/AnimationStateRepository';
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import { createCameraEntity } from '../components/Camera/createCameraEntity';
 import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
 import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
+import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { TransformComponent } from '../components/Transform/TransformComponent';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { Component } from '../core/Component';
@@ -189,6 +191,18 @@ export class Engine extends RnObject {
       this.__memoryManager.destroy();
       this.__memoryManager = undefined;
     }
+
+    // Clean up static resources in components that use Engine-keyed maps
+    AnimationStateRepository._cleanupForEngine(this);
+    AnimationComponent._cleanupForEngine(this);
+    TransformComponent._cleanupForEngine(this);
+    SceneGraphComponent._cleanupForEngine(this);
+    CameraControllerComponent._cleanupForEngine(this);
+    CameraComponent._cleanupForEngine(this);
+    MeshRendererComponent._cleanupForEngine(this);
+
+    // Clear component memory registry
+    this.__componentMemoryRegistry.destroy();
 
     // Clear expressions and render passes used for processAuto
     this.__expressionForProcessAuto = undefined;

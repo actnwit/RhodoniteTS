@@ -304,4 +304,17 @@ export class ComponentMemoryRegistry {
   incrementStateVersion(): number {
     return ++this.__stateVersion;
   }
+
+  /**
+   * Clears all stored data and resets the registry to its initial state.
+   * Should be called when the engine is being destroyed.
+   */
+  destroy(): void {
+    this.__accessors.clear();
+    this.__accessorKeysByMember.clear();
+    this.__componentCountPerBufferView.clear();
+    this.__byteOffsetOfAccessorInBuffer.clear();
+    this.__byteOffsetKeysByMember.clear();
+    this.__stateVersion = 0;
+  }
 }

@@ -600,4 +600,13 @@ export class MeshRendererComponent extends Component {
     applyMixins(base, MeshRendererEntity);
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
+
+  /**
+   * Cleans up static resources associated with the specified engine.
+   * @param engine - The engine instance to clean up resources for
+   * @internal
+   */
+  static _cleanupForEngine(engine: Engine): void {
+    MeshRendererComponent.__cgApiRenderingStrategyMap.delete(engine.objectUID);
+  }
 }
