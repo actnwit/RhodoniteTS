@@ -49,6 +49,7 @@ import { ScaleGizmo } from '../gizmos/ScaleGizmo';
 import { RotationGizmo } from '../gizmos/RotationGizmo';
 import { AABBGizmo } from '../gizmos/AABBGizmo';
 import { LocatorGizmo } from '../gizmos/LocatorGizmo';
+import { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
 
 /**
  * The argument type for Engine.init() method.
@@ -268,6 +269,9 @@ export class Engine extends RnObject {
     RotationGizmo._cleanupForEngine(this);
     AABBGizmo._cleanupForEngine(this);
     LocatorGizmo._cleanupForEngine(this);
+
+    // Clean up material content caches for this engine
+    AbstractMaterialContent._cleanupForEngine(this);
 
     // Clear component memory registry
     this.__componentMemoryRegistry.destroy();
