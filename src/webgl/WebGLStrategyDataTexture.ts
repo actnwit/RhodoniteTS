@@ -105,9 +105,14 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
 
   /**
    * Private constructor to enforce singleton pattern.
+   * Immediately initializes __currentComponentSIDs from the engine's GlobalDataRepository
+   * to avoid null reference errors during rendering.
    */
   private constructor(engine: Engine) {
     this.__engine = engine;
+    // Initialize __currentComponentSIDs immediately to prevent null reference errors
+    // This must be done after GlobalDataRepository.initialize() has been called in Engine.init()
+    this.__currentComponentSIDs = this.__engine.globalDataRepository.getValue('currentComponentSIDs', 0);
   }
 
   /**

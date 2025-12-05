@@ -62,6 +62,18 @@ export class ShaderHandler {
   private static __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
 
   /**
+   * Clears all shader program caches.
+   * This should be called when the Engine is destroyed to prevent stale shader program UIDs
+   * from being reused with a new WebGL context.
+   *
+   * @internal Called from Engine.destroy()
+   */
+  static _clearAllShaderProgramCaches(): void {
+    __shaderStringMap.clear();
+    this.__shaderStringMap.clear();
+  }
+
+  /**
    * Creates a shader program or retrieves it from cache if already compiled.
    * This method implements shader program caching to avoid redundant compilation
    * of identical shader combinations.
