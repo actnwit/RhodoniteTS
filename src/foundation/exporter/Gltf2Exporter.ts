@@ -1054,10 +1054,53 @@ export class Gltf2Exporter {
     };
 
     if (Is.exist(rnMaterial)) {
-      await this.__setupMaterial(material, rnMaterial, json, promises, bufferIdx, option);
+      // Check if this is a node-based custom shader material
+      if (rnMaterial.isNodeBasedMaterial && rnMaterial.shaderNodeJson != null) {
+        this.__setupNodeBasedMaterialExtension(material, rnMaterial, json);
+        // Skip normal PBR material setup for node-based materials
+      } else {
+        await this.__setupMaterial(material, rnMaterial, json, promises, bufferIdx, option);
+      }
     }
 
     return material;
+  }
+
+  /**
+   * Sets up the RHODONITE_materials_node extension for node-based materials.
+   *
+   * @param material - The glTF material to add the extension to
+   * @param rnMaterial - The Rhodonite material containing node-based shader data
+   * @param json - The glTF JSON document
+   */
+  private static __setupNodeBasedMaterialExtension(material: Gltf2MaterialEx, rnMaterial: Material, json: Gltf2Ex) {
+    const EXTENSION_NAME = 'RHODONITE_materials_node';
+
+    // Ensure extensions object exists on material
+    if (!material.extensions) {
+      material.extensions = {};
+    }
+
+    // Use shaderNodeFileName if set, otherwise generate a default name
+    const rmnFileName = rnMaterial.shaderNodeFileName ?? `${rnMaterial.materialTypeName}_${rnMaterial.materialUID}.rmn`;
+
+    // Create the extension data
+    const extensionData: {
+      uri: string;
+      uniforms?: { [name: string]: number | number[] };
+    } = {
+      uri: `./${rmnFileName}`,
+    };
+
+    // Add uniforms if they exist
+    if (rnMaterial.shaderNodeUniforms != null) {
+      extensionData.uniforms = rnMaterial.shaderNodeUniforms;
+    }
+
+    material.extensions[EXTENSION_NAME] = extensionData;
+
+    // Ensure the extension is listed in extensionsUsed
+    this.__ensureExtensionUsed(json, EXTENSION_NAME);
   }
 
   private static async __setupMaterial(

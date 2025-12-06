@@ -2371,6 +2371,11 @@ export function __deleteEmptyArrays(json: Gltf2Ex): void {
  * @returns The extracted scalar value or undefined if not found
  */
 export function __extractScalarParameter(value: unknown): number | undefined {
+  // Early return for null/undefined values
+  if (value == null) {
+    return undefined;
+  }
+
   if (typeof value === 'number') {
     return value;
   }
@@ -2549,6 +2554,11 @@ export function __collectUsedTexCoordSetIndices(material: Gltf2MaterialEx): Set<
  * @param material - The glTF2 material to check requirements against
  */
 export function __pruneUnusedVertexAttributes(primitive: Gltf2Primitive, material: Gltf2MaterialEx): void {
+  // Skip pruning for node-based materials as they may require any vertex attributes
+  if (material.extensions?.RHODONITE_materials_node != null) {
+    return;
+  }
+
   const attributes = primitive.attributes as Record<string, number | undefined>;
 
   if (!__doesMaterialRequireTangents(material) && Is.exist(attributes.TANGENT)) {

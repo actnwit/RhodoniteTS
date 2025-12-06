@@ -75,6 +75,7 @@ export abstract class AbstractMaterialContent extends RnObject {
   public shaderType: ShaderTypeEnum = ShaderType.VertexAndPixelShader;
 
   private __materialSemanticsVariantName = '';
+  private __materialVariationIdentifier = '';
 
   /**
    * Gets the vertex shaderity object map for a specific engine.
@@ -191,15 +192,39 @@ export abstract class AbstractMaterialContent extends RnObject {
       semantics += `${semantic.semantic}_`; //${semantic.stage.index} ${semantic.componentType.index} ${semantic.compositionType.index} ${semantic.soloDatum} ${semantic.isInternalSetting} ${semantic.arrayLength} ${semantic.needUniformInDataTextureMode}\n`;
     }
 
-    this.__materialSemanticsVariantName = `${this.__materialName}_semanticsVariation_${semantics}`;
+    // Store the variation identifier separately (just the semantics variation part)
+    this.__materialVariationIdentifier = `semanticsVariation_${semantics}`;
+    // Keep the full variant name for backward compatibility
+    this.__materialSemanticsVariantName = `${this.__materialName}_${this.__materialVariationIdentifier}`;
   }
 
   /**
    * Gets the material semantics variant name for this material.
+   * This is the full identifier combining material name and variation identifier.
    * @returns The unique variant name string
    */
   getMaterialSemanticsVariantName() {
     return this.__materialSemanticsVariantName;
+  }
+
+  /**
+   * Gets the material variation identifier (without the base material name).
+   * This represents only the parameter variation part of the material type.
+   * @returns The variation identifier string
+   */
+  getMaterialVariationIdentifier() {
+    return this.__materialVariationIdentifier;
+  }
+
+  /**
+   * Gets the base material name (e.g., "PbrUber", "ClassicUber").
+   * Double trailing underscores are removed for cleaner display.
+   * @returns The base material name string
+   */
+  getBaseMaterialName() {
+    // Remove double trailing underscores only (e.g., "PbrUber__" -> "PbrUber")
+    // But keep single trailing underscore (e.g., "PbrUber_SomeName_" stays as is)
+    return this.__materialName.replace(/__$/, '');
   }
 
   /**

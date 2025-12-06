@@ -21,7 +21,7 @@ export function detectFormatByArrayBuffers(files: { [s: string]: ArrayBuffer }):
     if (fileExtension === 'gltf') {
       return FileType.Gltf;
     }
-    if (fileExtension === 'glb') {
+    if (fileExtension === 'glb' || fileExtension === 'rnb') {
       return FileType.GltfBinary;
     }
     if (fileExtension === 'vrm') {
@@ -61,6 +61,9 @@ export function detectFormatByUri(uri: string): string {
   }
   if (fileExtension === 'gltf') {
     return 'glTF';
+  }
+  if (fileExtension === 'glb' || fileExtension === 'rnb') {
+    return 'glTF-Binary';
   }
 
   return 'Unknown';
