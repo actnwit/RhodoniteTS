@@ -99,6 +99,7 @@ export class ShaderHandler {
     const cgApiResourceRepository = engine.cgApiResourceRepository;
     shaderProgramUid = cgApiResourceRepository.createShaderProgram({
       config: engine.config,
+      engine,
       material,
       primitive,
       vertexShaderStr: vertexShader,
@@ -332,6 +333,7 @@ export function _createProgramAsSingleOperationWebGL(
   const cgApiResourceRepository = engine.cgApiResourceRepository;
   shaderProgramUid = cgApiResourceRepository.createShaderProgram({
     config: engine.config,
+    engine,
     material,
     primitive,
     vertexShaderStr: vertexShader,
@@ -529,6 +531,7 @@ export function _createProgramAsSingleOperationWebGpu(
   const cgApiResourceRepository = engine.cgApiResourceRepository;
   shaderProgramUid = cgApiResourceRepository.createShaderProgram({
     config: engine.config,
+    engine,
     material,
     primitive,
     vertexShaderStr: preprocessedVertex.code,
