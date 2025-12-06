@@ -114,6 +114,9 @@ export class RhodoniteImportExtension {
       }
     );
 
+    // Store the shader node JSON for later retrieval (e.g., in editor)
+    newMaterial.shaderNodeJson = extension.shaderNodeJson;
+
     // Apply uniform values if specified
     if (extension.uniforms) {
       this.__applyUniformsToMaterial(newMaterial, extension.uniforms);
