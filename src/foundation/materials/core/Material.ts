@@ -144,6 +144,7 @@ export class Material extends RnObject {
   // Node-based shader material properties (for RHODONITE_materials_node extension)
   private __shaderNodeJson?: unknown;
   private __shaderNodeUniforms?: { [name: string]: number | number[] };
+  private __shaderNodeFileName?: string;
 
   /**
    * Creates a new Material instance.
@@ -1200,5 +1201,22 @@ export class Material extends RnObject {
    */
   get isNodeBasedMaterial(): boolean {
     return this.__shaderNodeJson != null;
+  }
+
+  /**
+   * Gets the shader node file name for export.
+   * This is used to specify the .rmn file name in the RHODONITE_materials_node extension.
+   * @returns The shader node file name, or undefined if not set
+   */
+  get shaderNodeFileName(): string | undefined {
+    return this.__shaderNodeFileName;
+  }
+
+  /**
+   * Sets the shader node file name for export.
+   * @param fileName - The .rmn file name to use in the RHODONITE_materials_node extension
+   */
+  set shaderNodeFileName(fileName: string | undefined) {
+    this.__shaderNodeFileName = fileName;
   }
 }

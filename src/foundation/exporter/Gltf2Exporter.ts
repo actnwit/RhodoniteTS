@@ -1085,12 +1085,15 @@ export class Gltf2Exporter {
       material.extensions = {};
     }
 
+    // Use shaderNodeFileName if set, otherwise generate a default name
+    const rmnFileName = rnMaterial.shaderNodeFileName ?? `${rnMaterial.materialTypeName}_${rnMaterial.materialUID}.rmn`;
+
     // Create the extension data
     const extensionData: {
       uri: string;
       uniforms?: { [name: string]: number | number[] };
     } = {
-      uri: `./${rnMaterial.materialTypeName}_${rnMaterial.materialUID}.rmn`,
+      uri: `./${rmnFileName}`,
     };
 
     // Add uniforms if they exist
