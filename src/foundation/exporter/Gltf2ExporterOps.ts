@@ -2371,6 +2371,11 @@ export function __deleteEmptyArrays(json: Gltf2Ex): void {
  * @returns The extracted scalar value or undefined if not found
  */
 export function __extractScalarParameter(value: unknown): number | undefined {
+  // Early return for null/undefined values
+  if (value == null) {
+    return undefined;
+  }
+
   if (typeof value === 'number') {
     return value;
   }

@@ -1057,9 +1057,10 @@ export class Gltf2Exporter {
       // Check if this is a node-based custom shader material
       if (rnMaterial.isNodeBasedMaterial && rnMaterial.shaderNodeJson != null) {
         this.__setupNodeBasedMaterialExtension(material, rnMaterial, json);
+        // Skip normal PBR material setup for node-based materials
+      } else {
+        await this.__setupMaterial(material, rnMaterial, json, promises, bufferIdx, option);
       }
-
-      await this.__setupMaterial(material, rnMaterial, json, promises, bufferIdx, option);
     }
 
     return material;
