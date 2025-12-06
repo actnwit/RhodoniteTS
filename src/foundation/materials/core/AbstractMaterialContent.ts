@@ -1,7 +1,7 @@
 import ShaderityModule, { type ShaderityObject } from 'shaderity';
-import { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
 import { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
 import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
+import { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
 import type { RnXR } from '../../../xr/main';
 import type { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
 import type { CameraComponent } from '../../components/Camera/CameraComponent';
@@ -218,10 +218,13 @@ export abstract class AbstractMaterialContent extends RnObject {
 
   /**
    * Gets the base material name (e.g., "PbrUber", "ClassicUber").
+   * Double trailing underscores are removed for cleaner display.
    * @returns The base material name string
    */
   getBaseMaterialName() {
-    return this.__materialName;
+    // Remove double trailing underscores only (e.g., "PbrUber__" -> "PbrUber")
+    // But keep single trailing underscore (e.g., "PbrUber_SomeName_" stays as is)
+    return this.__materialName.replace(/__$/, '');
   }
 
   /**
