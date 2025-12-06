@@ -26,6 +26,7 @@ import { ConstantVector4VariableShaderNode } from '../nodes/ConstantVector4Varia
 import { DotProductShaderNode } from '../nodes/DotProductShaderNode';
 import { GreaterShaderNode } from '../nodes/GreaterShaderNode';
 import { LengthShaderNode } from '../nodes/LengthShaderNode';
+import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
 import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
@@ -1185,6 +1186,13 @@ function constructNodes(json: ShaderNodeJson) {
       // }
       case 'Greater': {
         const nodeInstance = new GreaterShaderNode(CompositionType.Scalar, ComponentType.Float);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'LessThan': {
+        const socketName = node.inputs.in1.socket.name;
+        const componentType = getComponentType(socketName);
+        const nodeInstance = new LessThanShaderNode(componentType);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
