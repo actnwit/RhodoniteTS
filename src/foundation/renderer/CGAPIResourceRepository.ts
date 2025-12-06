@@ -321,6 +321,7 @@ export interface ICGAPIResourceRepository {
    *
    * @param options - Shader program creation parameters
    * @param options.config - Configuration for the shader program
+   * @param options.engine - Engine instance for logging
    * @param options.material - Material that will use this shader program
    * @param options.primitive - Primitive geometry that will be rendered with this shader
    * @param options.vertexShaderStr - Vertex shader source code
@@ -332,6 +333,7 @@ export interface ICGAPIResourceRepository {
    */
   createShaderProgram({
     config,
+    engine,
     material,
     primitive,
     vertexShaderStr,
@@ -341,6 +343,7 @@ export interface ICGAPIResourceRepository {
     onError,
   }: {
     config: Config;
+    engine: Engine;
     material: Material;
     primitive: Primitive;
     vertexShaderStr: string;
