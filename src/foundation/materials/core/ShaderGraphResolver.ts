@@ -661,15 +661,17 @@ export class ShaderGraphResolver {
     const nodes = this.__sortTopologically(constructedNodes);
     resolveShaderStage(nodes);
     const varyingNodes = filterNodesForVarying(nodes, 'outColor');
+    const varyingNodesForDiscard = filterNodesForVarying(nodes, 'conditionalDiscard');
+    const allVaryingNodes = [...new Set([...varyingNodes, ...varyingNodesForDiscard])];
 
     const vertexNodes = filterNodes(nodes, ['outPosition']);
-    const pixelNodes = filterNodes(nodes, ['outColor']);
+    const pixelNodes = filterNodes(nodes, ['outColor', 'conditionalDiscard']);
 
     if (vertexNodes.length === 0 || pixelNodes.length === 0) {
       return;
     }
 
-    const vertexRet = ShaderGraphResolver.createVertexShaderCode(engine, vertexNodes, varyingNodes);
+    const vertexRet = ShaderGraphResolver.createVertexShaderCode(engine, vertexNodes, allVaryingNodes);
     const pixelRet = ShaderGraphResolver.createPixelShaderCode(engine, pixelNodes);
     if (vertexRet == null || pixelRet == null) {
       return;
