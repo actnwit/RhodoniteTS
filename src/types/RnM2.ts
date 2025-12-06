@@ -244,3 +244,18 @@ export type RnM2ExtensionsEffekseerTimelineItem = {
   input: number;
   event: 'play' | 'stop' | 'pause';
 };
+
+/**
+ * RHODONITE_materials_node extension data.
+ * Contains shader node graph URI and optional uniform values.
+ */
+export type RnM2ExtensionRhodoniteMaterialsNode = {
+  /** URI to the .rmn shader node JSON file (required) */
+  uri: string;
+  /** Optional uniform values to set on the material */
+  uniforms?: {
+    [name: string]: number | number[];
+  };
+  /** Loaded shader node JSON data (populated during import) */
+  shaderNodeJson?: unknown;
+};

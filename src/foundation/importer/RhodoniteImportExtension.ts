@@ -2,10 +2,13 @@ import { EffekseerComponent, type IEffekseerEntityMethods } from '../../effeksee
 import type { AnimationSampler, AnimationTrackName } from '../../types/AnimationTypes';
 import type {
   RnM2,
+  RnM2ExtensionRhodoniteMaterialsNode,
   RnM2ExtensionsEffekseerEffect,
   RnM2ExtensionsEffekseerTimeline,
   RnM2ExtensionsEffekseerTimelineItem,
+  RnM2Material,
 } from '../../types/RnM2';
+import type { ShaderNodeJson } from '../../types/ShaderNodeJson';
 import {
   AnimationComponent,
   type IAnimationEntityMethods,
@@ -17,7 +20,14 @@ import type { IEntity } from '../core';
 import { EntityRepository } from '../core/EntityRepository';
 import { AnimationInterpolation } from '../definitions';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { MaterialHelper } from '../helpers/MaterialHelper';
+import type { Material } from '../materials/core/Material';
+import { ShaderGraphResolver } from '../materials/core/ShaderGraphResolver';
 import { AnimatedScalar } from '../math/AnimatedScalar';
+import { Scalar } from '../math/Scalar';
+import { Vector2 } from '../math/Vector2';
+import { Vector3 } from '../math/Vector3';
+import { Vector4 } from '../math/Vector4';
 import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
@@ -56,6 +66,107 @@ export class RhodoniteImportExtension {
             sceneGraphComponent.isBillboard = true;
           }
         }
+      }
+    }
+  }
+
+  /**
+   * Creates a node-based custom material from RHODONITE_materials_node extension data.
+   * Uses ShaderGraphResolver to generate shader code from the loaded .rmn JSON,
+   * then creates a custom material using MaterialHelper.
+   *
+   * @param engine - The engine instance
+   * @param materialJson - The glTF material JSON containing the extension
+   * @param currentMaterial - The current/fallback material to use as base
+   * @returns The created custom material, or the current material if creation fails
+   */
+  static createNodeBasedMaterial(engine: Engine, materialJson: RnM2Material, currentMaterial: Material): Material {
+    const EXTENSION_NAME = 'RHODONITE_materials_node';
+    const extension = materialJson.extensions?.[EXTENSION_NAME] as RnM2ExtensionRhodoniteMaterialsNode | undefined;
+
+    if (!extension?.shaderNodeJson) {
+      Logger.default.warn('RHODONITE_materials_node: No shader node JSON loaded for material');
+      return currentMaterial;
+    }
+
+    // Generate shader code from the shader node JSON
+    const shaderCode = ShaderGraphResolver.generateShaderCodeFromJson(
+      engine,
+      extension.shaderNodeJson as ShaderNodeJson
+    );
+
+    if (!shaderCode) {
+      Logger.default.error('RHODONITE_materials_node: Failed to generate shader code');
+      return currentMaterial;
+    }
+
+    // Create custom material using MaterialHelper
+    const newMaterial = MaterialHelper.reuseOrRecreateCustomMaterial(
+      engine,
+      currentMaterial,
+      shaderCode.vertexShader,
+      shaderCode.pixelShader,
+      {
+        maxInstancesNumber: 1,
+        isSkinning: true,
+        isLighting: true,
+        isMorphing: true,
+      }
+    );
+
+    // Apply uniform values if specified
+    if (extension.uniforms) {
+      this.__applyUniformsToMaterial(newMaterial, extension.uniforms);
+    }
+
+    return newMaterial;
+  }
+
+  /**
+   * Checks if a material has the RHODONITE_materials_node extension.
+   *
+   * @param materialJson - The glTF material JSON to check
+   * @returns True if the extension is present, false otherwise
+   */
+  static hasNodeBasedMaterialExtension(materialJson?: RnM2Material): boolean {
+    if (!materialJson) return false;
+    const EXTENSION_NAME = 'RHODONITE_materials_node';
+    const extension = materialJson.extensions?.[EXTENSION_NAME] as RnM2ExtensionRhodoniteMaterialsNode | undefined;
+    return Is.exist(extension) && Is.exist(extension.shaderNodeJson);
+  }
+
+  /**
+   * Applies uniform values from the extension to the material.
+   *
+   * @param material - The material to apply uniforms to
+   * @param uniforms - The uniforms object from the extension
+   */
+  private static __applyUniformsToMaterial(material: Material, uniforms: { [name: string]: number | number[] }) {
+    for (const [name, value] of Object.entries(uniforms)) {
+      try {
+        if (typeof value === 'number') {
+          // Scalar value
+          material.setParameter(name, Scalar.fromCopyNumber(value));
+        } else if (Array.isArray(value)) {
+          // Vector value
+          switch (value.length) {
+            case 2:
+              material.setParameter(name, Vector2.fromCopyArray2(value as [number, number]));
+              break;
+            case 3:
+              material.setParameter(name, Vector3.fromCopyArray3(value as [number, number, number]));
+              break;
+            case 4:
+              material.setParameter(name, Vector4.fromCopyArray4(value as [number, number, number, number]));
+              break;
+            default:
+              Logger.default.warn(
+                `RHODONITE_materials_node: Unsupported uniform array length ${value.length} for '${name}'`
+              );
+          }
+        }
+      } catch (e) {
+        Logger.default.warn(`RHODONITE_materials_node: Failed to set uniform '${name}': ${e}`);
       }
     }
   }

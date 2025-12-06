@@ -1,5 +1,5 @@
 import type { GltfFileBuffers, GltfLoadOption } from '../../types';
-import type { RnM2, RnM2Accessor, RnM2Image } from '../../types/RnM2';
+import type { RnM2, RnM2Accessor, RnM2ExtensionRhodoniteMaterialsNode, RnM2Image } from '../../types/RnM2';
 import type { Vrm1_Materials_MToon } from '../../types/VRMC_materials_mtoon';
 import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
@@ -952,9 +952,96 @@ export class Gltf2Importer {
       }
     }
 
+    // RHODONITE_materials_node extension - Load .rmn shader node files
+    const rmnPromises = this.__loadRhodoniteMaterialsNodeResources(gltfJson, files, basePath);
+    for (const promise of rmnPromises) {
+      promisesToLoadResources.push(promise as RnPromise<ArrayBuffer | RnM2Image>);
+    }
+
     return RnPromise.all(promisesToLoadResources, callback).catch((err: any) => {
       Logger.default.error(`Promise.all error: ${err}`);
     });
+  }
+
+  /**
+   * Loads .rmn shader node JSON files for RHODONITE_materials_node extension.
+   *
+   * @param gltfJson - The glTF JSON data containing materials with the extension
+   * @param files - Collection of external files that may contain .rmn data
+   * @param basePath - Base path for resolving relative URIs
+   * @returns Array of promises that resolve when .rmn files are loaded
+   *
+   * @private
+   * @internal
+   */
+  private static __loadRhodoniteMaterialsNodeResources(
+    gltfJson: RnM2,
+    files: GltfFileBuffers,
+    basePath?: string
+  ): RnPromise<unknown>[] {
+    const promises: RnPromise<unknown>[] = [];
+    const EXTENSION_NAME = 'RHODONITE_materials_node';
+
+    // Check if the extension is used
+    if (!gltfJson.extensionsUsed?.includes(EXTENSION_NAME)) {
+      return promises;
+    }
+
+    // Process each material with the extension
+    for (const material of gltfJson.materials ?? []) {
+      const extension = material.extensions?.[EXTENSION_NAME] as RnM2ExtensionRhodoniteMaterialsNode | undefined;
+      if (!extension?.uri) {
+        continue;
+      }
+
+      const rmnUri = extension.uri;
+      const splitUri = rmnUri.split('/');
+      const filename = splitUri[splitUri.length - 1];
+
+      let loadPromise: RnPromise<unknown>;
+
+      if (rmnUri.match(/^data:application\/json;base64,/)) {
+        // Handle base64 encoded data URI
+        loadPromise = new RnPromise(resolve => {
+          const jsonStr = DataUtil.arrayBufferToString(DataUtil.dataUriToArrayBuffer(rmnUri));
+          extension.shaderNodeJson = JSON.parse(jsonStr);
+          resolve(extension.shaderNodeJson);
+        });
+      } else if (files && this.__containsFileName(files, filename)) {
+        // Load from files collection
+        loadPromise = new RnPromise(resolve => {
+          const fullPath = this.__getFullPathOfFileName(files, filename);
+          const arrayBuffer = files[fullPath!];
+          const jsonStr = DataUtil.arrayBufferToString(arrayBuffer);
+          extension.shaderNodeJson = JSON.parse(jsonStr);
+          resolve(extension.shaderNodeJson);
+        });
+      } else {
+        // Load from URL
+        const fullUri = basePath ? basePath + rmnUri : rmnUri;
+        loadPromise = new RnPromise((resolve, reject) => {
+          fetch(fullUri)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error(`HTTP Error Status: ${response.status}`);
+              }
+              return response.json();
+            })
+            .then(json => {
+              extension.shaderNodeJson = json;
+              resolve(json);
+            })
+            .catch(error => {
+              Logger.default.error(`Failed to load .rmn file: ${fullUri}, ${error}`);
+              reject(error);
+            });
+        });
+      }
+
+      promises.push(loadPromise);
+    }
+
+    return promises;
   }
 
   /**
