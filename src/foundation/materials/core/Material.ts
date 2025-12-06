@@ -141,6 +141,10 @@ export class Material extends RnObject {
 
   private __shaderDefines: Set<string> = new Set();
 
+  // Node-based shader material properties (for RHODONITE_materials_node extension)
+  private __shaderNodeJson?: unknown;
+  private __shaderNodeUniforms?: { [name: string]: number | number[] };
+
   /**
    * Creates a new Material instance.
    * @param materialTid - The material type ID
@@ -1154,5 +1158,47 @@ export class Material extends RnObject {
   updateStateVersion() {
     this.__stateVersion++;
     this.__engine.materialRepository._incrementStateVersion();
+  }
+
+  /**
+   * Gets the shader node JSON data for node-based materials.
+   * This is used by RHODONITE_materials_node extension.
+   * @returns The shader node JSON data, or undefined if not a node-based material
+   */
+  get shaderNodeJson(): unknown | undefined {
+    return this.__shaderNodeJson;
+  }
+
+  /**
+   * Sets the shader node JSON data for node-based materials.
+   * This marks the material as a node-based custom shader material.
+   * @param json - The shader node JSON data
+   */
+  set shaderNodeJson(json: unknown | undefined) {
+    this.__shaderNodeJson = json;
+  }
+
+  /**
+   * Gets the uniform values for node-based materials.
+   * @returns The uniform values object, or undefined if not set
+   */
+  get shaderNodeUniforms(): { [name: string]: number | number[] } | undefined {
+    return this.__shaderNodeUniforms;
+  }
+
+  /**
+   * Sets the uniform values for node-based materials.
+   * @param uniforms - The uniform values object
+   */
+  set shaderNodeUniforms(uniforms: { [name: string]: number | number[] } | undefined) {
+    this.__shaderNodeUniforms = uniforms;
+  }
+
+  /**
+   * Checks if this material is a node-based custom shader material.
+   * @returns True if this is a node-based material (has shaderNodeJson set)
+   */
+  get isNodeBasedMaterial(): boolean {
+    return this.__shaderNodeJson != null;
   }
 }
