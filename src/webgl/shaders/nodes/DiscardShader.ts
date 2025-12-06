@@ -65,7 +65,7 @@ export class DiscardShader extends CommonShaderPart {
    * @returns Empty shader body string
    */
   get vertexShaderBody() {
-    return ``;
+    return '';
   }
 
   /**
@@ -133,4 +133,3 @@ export class DiscardShader extends CommonShaderPart {
     return [];
   }
 }
-

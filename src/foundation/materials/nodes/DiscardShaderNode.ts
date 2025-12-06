@@ -44,4 +44,3 @@ export class DiscardShaderNode extends AbstractShaderNode {
     return this.__inputs[0];
   }
 }
-

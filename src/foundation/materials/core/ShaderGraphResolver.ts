@@ -30,8 +30,8 @@ import { LengthShaderNode } from '../nodes/LengthShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
 import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
+import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
@@ -563,7 +563,7 @@ export class ShaderGraphResolver {
   private static __handleVertexToFragmentPassing(
     engine: Engine,
     shaderNodes: AbstractShaderNode[],
-    varInputNames: Array<Array<string>>,
+    _varInputNames: Array<Array<string>>,
     varOutputNames: Array<Array<string>>
   ): string {
     let shaderBody = '';

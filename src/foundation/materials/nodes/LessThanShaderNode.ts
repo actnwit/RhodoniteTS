@@ -96,4 +96,3 @@ export class LessThanShaderNode extends AbstractShaderNode {
     return this.__shaderFunctionName;
   }
 }
-
