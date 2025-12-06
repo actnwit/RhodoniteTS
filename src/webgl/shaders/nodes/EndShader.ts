@@ -50,11 +50,17 @@ export class EndShader extends CommonShaderPart {
       fn outPosition(inPosition: vec4<f32>) {
         output.position = inPosition;
       }
+      fn conditionalDiscard(condition: bool) {
+        // discard is not available in vertex shader
+      }
       `;
     }
     return `
       void outPosition(in vec4 inPosition) {
         gl_Position = inPosition;
+      }
+      void conditionalDiscard(in bool condition) {
+        // discard is not available in vertex shader
       }
       `;
   }
@@ -72,10 +78,10 @@ export class EndShader extends CommonShaderPart {
   }
 
   /**
-   * Gets the pixel/fragment shader function definitions for color output.
+   * Gets the pixel/fragment shader function definitions for color output and discard.
    * Returns appropriate function definition based on the current process approach (WebGL/WebGPU).
    *
-   * @returns Shader code string containing the outColor function definition
+   * @returns Shader code string containing the outColor and conditionalDiscard function definitions
    */
   getPixelShaderDefinitions(engine: Engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
@@ -83,11 +89,21 @@ export class EndShader extends CommonShaderPart {
       fn outColor(inColor: vec4<f32>) {
         rt0 = inColor;
       }
+      fn conditionalDiscard(condition: bool) {
+        if (condition) {
+          discard;
+        }
+      }
       `;
     }
     return `
       void outColor(in vec4 inColor) {
         rt0 = inColor;
+      }
+      void conditionalDiscard(in bool condition) {
+        if (condition) {
+          discard;
+        }
       }
       `;
   }
