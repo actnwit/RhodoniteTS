@@ -31,8 +31,8 @@ import { LengthShaderNode } from '../nodes/LengthShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
 import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
+import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
@@ -879,6 +879,7 @@ function filterNodesForVarying(nodes: AbstractShaderNode[], endNodeName: string)
  * @throws Error if unknown node types are encountered or if connections cannot be established
  * @private
  */
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: This function handles many shader node types and requires a large switch statement
 function constructNodes(json: ShaderNodeJson) {
   // Create Node Instances
   const nodeInstances: Record<string, AbstractShaderNode> = {};

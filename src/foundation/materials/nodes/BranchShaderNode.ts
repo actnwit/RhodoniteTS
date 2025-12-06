@@ -42,12 +42,8 @@ export class BranchShaderNode extends AbstractShaderNode {
     });
 
     this.__inputs.push(new Socket('condition', CompositionType.Scalar, ComponentType.Bool));
-    this.__inputs.push(
-      new Socket('ifTrue', compositionType, componentType, this.getDefaultValue(compositionType))
-    );
-    this.__inputs.push(
-      new Socket('ifFalse', compositionType, componentType, this.getDefaultValue(compositionType))
-    );
+    this.__inputs.push(new Socket('ifTrue', compositionType, componentType, this.getDefaultValue(compositionType)));
+    this.__inputs.push(new Socket('ifFalse', compositionType, componentType, this.getDefaultValue(compositionType)));
     this.__outputs.push(new Socket('outValue', compositionType, componentType));
   }
 
@@ -152,4 +148,3 @@ export class BranchShaderNode extends AbstractShaderNode {
     return this.__shaderFunctionName;
   }
 }
-
