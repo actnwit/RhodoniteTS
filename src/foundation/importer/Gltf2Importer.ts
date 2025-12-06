@@ -68,7 +68,7 @@ export class Gltf2Importer {
     for (const fileName in files) {
       const fileExtension = DataUtil.getExtension(fileName);
 
-      if (fileExtension === 'gltf' || fileExtension === 'glb') {
+      if (fileExtension === 'gltf' || fileExtension === 'glb' || fileExtension === 'rnb') {
         const result = await this._importGltfOrGlbFromArrayBuffers(files[fileName], files, options);
         return result.unwrapForce();
       }
