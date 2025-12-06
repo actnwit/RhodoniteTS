@@ -1,7 +1,7 @@
 import type { Index } from '../../../types/CommonTypes';
 import type { ShaderNodeJson } from '../../../types/ShaderNodeJson';
 import { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
-import { ComponentType } from '../../definitions/ComponentType';
+import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { ShaderType, type ShaderTypeEnum } from '../../definitions/ShaderType';
@@ -1130,13 +1130,30 @@ function constructNodes(json: ShaderNodeJson) {
         break;
       }
       case 'SplitVector': {
-        const nodeInstance = new SplitVectorShaderNode();
+        // Determine component type from input socket name
+        let componentType: ComponentTypeEnum = ComponentType.Float;
+        const inputSocketName =
+          node.inputs.xyzw?.socket?.name || node.inputs.xyz?.socket?.name || node.inputs.xy?.socket?.name || '';
+        if (inputSocketName.includes('<int>')) {
+          componentType = ComponentType.Int;
+        } else if (inputSocketName.includes('<uint>')) {
+          componentType = ComponentType.UnsignedInt;
+        }
+        const nodeInstance = new SplitVectorShaderNode(componentType);
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
       case 'MergeVector': {
-        const nodeInstance = new MergeVectorShaderNode();
+        // Determine component type from output socket name
+        let componentType: ComponentTypeEnum = ComponentType.Float;
+        const outputSocketName = node.outputs.xyzw?.socket?.name || '';
+        if (outputSocketName.includes('<int>')) {
+          componentType = ComponentType.Int;
+        } else if (outputSocketName.includes('<uint>')) {
+          componentType = ComponentType.UnsignedInt;
+        }
+        const nodeInstance = new MergeVectorShaderNode(componentType);
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
