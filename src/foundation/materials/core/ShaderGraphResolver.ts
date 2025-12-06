@@ -19,6 +19,7 @@ import { AttributeNormalShaderNode } from '../nodes/AttributeNormalShaderNode';
 import { AttributePositionShaderNode } from '../nodes/AttributePositionShaderNode';
 import { AttributeTexcoordShaderNode } from '../nodes/AttributeTexcoordShaderNode';
 import { AttributeWeightShaderNode } from '../nodes/AttributeWeightShaderNode';
+import { BranchShaderNode } from '../nodes/BranchShaderNode';
 import { ConstantScalarVariableShaderNode } from '../nodes/ConstantScalarVariableShaderNode';
 import { ConstantVector2VariableShaderNode } from '../nodes/ConstantVector2VariableShaderNode';
 import { ConstantVector3VariableShaderNode } from '../nodes/ConstantVector3VariableShaderNode';
@@ -30,8 +31,8 @@ import { LengthShaderNode } from '../nodes/LengthShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
+import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
@@ -1234,6 +1235,29 @@ function constructNodes(json: ShaderNodeJson) {
           nodeInstance = new LessThanShaderNode(ComponentType.UnsignedInt);
         } else {
           Logger.default.error(`LessThan node: Unknown socket name: ${socketName}`);
+          break;
+        }
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'Branch': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: BranchShaderNode;
+        if (socketName.startsWith('Scalar')) {
+          if (socketName.includes('<int>')) {
+            nodeInstance = new BranchShaderNode(CompositionType.Scalar, ComponentType.Int);
+          } else {
+            nodeInstance = new BranchShaderNode(CompositionType.Scalar, ComponentType.Float);
+          }
+        } else if (socketName.startsWith('Vector2')) {
+          nodeInstance = new BranchShaderNode(CompositionType.Vec2, ComponentType.Float);
+        } else if (socketName.startsWith('Vector3')) {
+          nodeInstance = new BranchShaderNode(CompositionType.Vec3, ComponentType.Float);
+        } else if (socketName.startsWith('Vector4')) {
+          nodeInstance = new BranchShaderNode(CompositionType.Vec4, ComponentType.Float);
+        } else {
+          Logger.default.error(`Branch node: Unknown socket name: ${socketName}`);
           break;
         }
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
