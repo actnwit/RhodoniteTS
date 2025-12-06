@@ -23,6 +23,7 @@ import { ConstantScalarVariableShaderNode } from '../nodes/ConstantScalarVariabl
 import { ConstantVector2VariableShaderNode } from '../nodes/ConstantVector2VariableShaderNode';
 import { ConstantVector3VariableShaderNode } from '../nodes/ConstantVector3VariableShaderNode';
 import { ConstantVector4VariableShaderNode } from '../nodes/ConstantVector4VariableShaderNode';
+import { DiscardShaderNode } from '../nodes/DiscardShaderNode';
 import { DotProductShaderNode } from '../nodes/DotProductShaderNode';
 import { GreaterShaderNode } from '../nodes/GreaterShaderNode';
 import { LengthShaderNode } from '../nodes/LengthShaderNode';
@@ -1213,6 +1214,11 @@ function constructNodes(json: ShaderNodeJson) {
       }
       case 'OutColor': {
         const nodeInstance = new OutColorShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'Discard': {
+        const nodeInstance = new DiscardShaderNode();
         nodeInstances[node.id] = nodeInstance;
         break;
       }
