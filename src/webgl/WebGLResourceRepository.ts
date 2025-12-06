@@ -595,7 +595,13 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     gl.shaderSource(vertexShader, vertexShaderStr);
     gl.compileShader(vertexShader);
     if (isDebugMode) {
-      const result = this.__checkShaderCompileStatus(material.materialTypeName, vertexShader, vertexShaderStr, onError);
+      const result = this.__checkShaderCompileStatus(
+        engine,
+        material.materialTypeName,
+        vertexShader,
+        vertexShaderStr,
+        onError
+      );
 
       if (!result) {
         return CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -606,7 +612,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     gl.shaderSource(fragmentShader, fragmentShaderStr);
     gl.compileShader(fragmentShader);
     if (isDebugMode) {
-      this.__checkShaderCompileStatus(material.materialTypeName, fragmentShader, fragmentShaderStr, onError);
+      this.__checkShaderCompileStatus(engine, material.materialTypeName, fragmentShader, fragmentShaderStr, onError);
     }
 
     const shaderProgram = gl.createProgram()! as RnWebGLProgram;
@@ -632,6 +638,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
 
     if (isDebugMode) {
       const result = this.__checkShaderProgramLinkStatus(
+        engine,
         material.materialTypeName,
         shaderProgram,
         vertexShaderStr,
@@ -656,6 +663,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
   /**
    * Validates shader compilation status and logs errors if compilation fails.
    *
+   * @param engine - The engine instance for logging
    * @param materialTypeName - The name of the material type for error context
    * @param shader - The compiled shader object to check
    * @param shaderText - The shader source code for error reporting
@@ -663,6 +671,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    * @returns True if compilation succeeded, false otherwise
    */
   private __checkShaderCompileStatus(
+    engine: Engine,
     materialTypeName: string,
     shader: WebGLShader,
     shaderText: string,
@@ -671,12 +680,12 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     const glw = this.__glw!;
     const gl = glw!.getRawContext();
     if (Is.false(gl.getShaderParameter(shader, gl.COMPILE_STATUS)) && Is.false(gl.isContextLost())) {
-      Logger.default.info(`MaterialTypeName: ${materialTypeName}`);
+      engine.logger.info(`MaterialTypeName: ${materialTypeName}`);
       const lineNumberedShaderText = MiscUtil.addLineNumberToCode(shaderText);
-      Logger.default.info(lineNumberedShaderText);
+      engine.logger.info(lineNumberedShaderText);
       const log = gl.getShaderInfoLog(shader);
       if (onError === undefined) {
-        Logger.default.error(`An error occurred compiling the shaders:${log}`);
+        engine.logger.error(`An error occurred compiling the shaders:${log}`);
         return false;
       }
       onError(log!);
@@ -688,6 +697,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
   /**
    * Validates shader program linking status and logs errors if linking fails.
    *
+   * @param engine - The engine instance for logging
    * @param materialTypeName - The name of the material type for error context
    * @param shaderProgram - The linked shader program to check
    * @param vertexShaderText - The vertex shader source code for error reporting
@@ -695,6 +705,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
    * @returns True if linking succeeded, false otherwise
    */
   private __checkShaderProgramLinkStatus(
+    engine: Engine,
     materialTypeName: string,
     shaderProgram: WebGLProgram,
     vertexShaderText: string,
@@ -705,13 +716,13 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
 
     // If creating the shader program failed, alert
     if (Is.false(gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) && Is.false(gl.isContextLost())) {
-      Logger.default.info(`MaterialTypeName: ${materialTypeName}`);
-      Logger.default.info(MiscUtil.addLineNumberToCode('Vertex Shader:'));
-      Logger.default.info(MiscUtil.addLineNumberToCode(vertexShaderText));
-      Logger.default.info(MiscUtil.addLineNumberToCode('Fragment Shader:'));
-      Logger.default.info(MiscUtil.addLineNumberToCode(fragmentShaderText));
+      engine.logger.info(`MaterialTypeName: ${materialTypeName}`);
+      engine.logger.info(MiscUtil.addLineNumberToCode('Vertex Shader:'));
+      engine.logger.info(MiscUtil.addLineNumberToCode(vertexShaderText));
+      engine.logger.info(MiscUtil.addLineNumberToCode('Fragment Shader:'));
+      engine.logger.info(MiscUtil.addLineNumberToCode(fragmentShaderText));
       const log = gl.getProgramInfoLog(shaderProgram);
-      Logger.default.error(`Unable to initialize the shader program: ${log}`);
+      engine.logger.error(`Unable to initialize the shader program: ${log}`);
       return false;
     }
 

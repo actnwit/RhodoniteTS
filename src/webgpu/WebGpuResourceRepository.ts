@@ -910,18 +910,24 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * Checks and logs shader compilation status and error messages.
    * This method provides detailed debugging information when shader compilation fails.
    *
+   * @param engine - The engine instance for logging
    * @param materialTypeName - Name of the material type for debugging
    * @param shaderText - The shader source code that was compiled
    * @param info - WebGPU compilation info containing messages and errors
    * @returns True if compilation was successful, false otherwise
    */
-  private __checkShaderCompileStatus(materialTypeName: string, shaderText: string, info: GPUCompilationInfo): boolean {
-    Logger.default.info(`MaterialTypeName: ${materialTypeName}`);
+  private __checkShaderCompileStatus(
+    engine: Engine,
+    materialTypeName: string,
+    shaderText: string,
+    info: GPUCompilationInfo
+  ): boolean {
+    engine.logger.info(`MaterialTypeName: ${materialTypeName}`);
     const lineNumberedShaderText = MiscUtil.addLineNumberToCode(shaderText);
-    Logger.default.info(lineNumberedShaderText);
+    engine.logger.info(lineNumberedShaderText);
     let isOk = true;
     for (let i = 0; i < info.messages.length; i++) {
-      Logger.default.info(info.messages[i].message);
+      engine.logger.info(info.messages[i].message);
       isOk = false;
     }
 
@@ -933,6 +939,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    * This method compiles both vertex and fragment shaders and returns their handles.
    *
    * @param params - Configuration object for shader creation
+   * @param params.engine - The engine instance for logging
    * @param params.material - The material that will use these shaders
    * @param params.vertexShaderStr - WGSL vertex shader source code
    * @param params.fragmentShaderStr - WGSL fragment shader source code
@@ -940,11 +947,13 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
    */
   createShaderProgram({
     config,
+    engine,
     material,
     vertexShaderStr,
     fragmentShaderStr,
   }: {
     config: Config;
+    engine: Engine;
     material: Material;
     vertexShaderStr: string;
     fragmentShaderStr: string;
@@ -957,7 +966,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     if (config.cgApiDebugConsoleOutput) {
       vsModule.getCompilationInfo().then(info => {
         if (info.messages.length > 0) {
-          this.__checkShaderCompileStatus(material.materialTypeName, vertexShaderStr, info);
+          this.__checkShaderCompileStatus(engine, material.materialTypeName, vertexShaderStr, info);
         }
       });
     }
@@ -968,7 +977,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     if (config.cgApiDebugConsoleOutput) {
       fsModule.getCompilationInfo().then(info => {
         if (info.messages.length > 0) {
-          this.__checkShaderCompileStatus(material.materialTypeName, fragmentShaderStr, info);
+          this.__checkShaderCompileStatus(engine, material.materialTypeName, fragmentShaderStr, info);
         }
       });
     }
