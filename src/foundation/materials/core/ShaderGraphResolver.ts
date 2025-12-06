@@ -1,7 +1,7 @@
 import type { Index } from '../../../types/CommonTypes';
 import type { ShaderNodeJson } from '../../../types/ShaderNodeJson';
 import { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
-import { ComponentType } from '../../definitions/ComponentType';
+import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { ShaderType, type ShaderTypeEnum } from '../../definitions/ShaderType';
@@ -19,6 +19,7 @@ import { AttributeNormalShaderNode } from '../nodes/AttributeNormalShaderNode';
 import { AttributePositionShaderNode } from '../nodes/AttributePositionShaderNode';
 import { AttributeTexcoordShaderNode } from '../nodes/AttributeTexcoordShaderNode';
 import { AttributeWeightShaderNode } from '../nodes/AttributeWeightShaderNode';
+import { BranchShaderNode } from '../nodes/BranchShaderNode';
 import { ConstantScalarVariableShaderNode } from '../nodes/ConstantScalarVariableShaderNode';
 import { ConstantVector2VariableShaderNode } from '../nodes/ConstantVector2VariableShaderNode';
 import { ConstantVector3VariableShaderNode } from '../nodes/ConstantVector3VariableShaderNode';
@@ -878,6 +879,7 @@ function filterNodesForVarying(nodes: AbstractShaderNode[], endNodeName: string)
  * @throws Error if unknown node types are encountered or if connections cannot be established
  * @private
  */
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: This function handles many shader node types and requires a large switch statement
 function constructNodes(json: ShaderNodeJson) {
   // Create Node Instances
   const nodeInstances: Record<string, AbstractShaderNode> = {};
@@ -1129,13 +1131,30 @@ function constructNodes(json: ShaderNodeJson) {
         break;
       }
       case 'SplitVector': {
-        const nodeInstance = new SplitVectorShaderNode();
+        // Determine component type from input socket name
+        let componentType: ComponentTypeEnum = ComponentType.Float;
+        const inputSocketName =
+          node.inputs.xyzw?.socket?.name || node.inputs.xyz?.socket?.name || node.inputs.xy?.socket?.name || '';
+        if (inputSocketName.includes('<int>')) {
+          componentType = ComponentType.Int;
+        } else if (inputSocketName.includes('<uint>')) {
+          componentType = ComponentType.UnsignedInt;
+        }
+        const nodeInstance = new SplitVectorShaderNode(componentType);
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
       case 'MergeVector': {
-        const nodeInstance = new MergeVectorShaderNode();
+        // Determine component type from output socket name
+        let componentType: ComponentTypeEnum = ComponentType.Float;
+        const outputSocketName = node.outputs.xyzw?.socket?.name || '';
+        if (outputSocketName.includes('<int>')) {
+          componentType = ComponentType.Int;
+        } else if (outputSocketName.includes('<uint>')) {
+          componentType = ComponentType.UnsignedInt;
+        }
+        const nodeInstance = new MergeVectorShaderNode(componentType);
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
@@ -1234,6 +1253,29 @@ function constructNodes(json: ShaderNodeJson) {
           nodeInstance = new LessThanShaderNode(ComponentType.UnsignedInt);
         } else {
           Logger.default.error(`LessThan node: Unknown socket name: ${socketName}`);
+          break;
+        }
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'Branch': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: BranchShaderNode;
+        if (socketName.startsWith('Scalar')) {
+          if (socketName.includes('<int>')) {
+            nodeInstance = new BranchShaderNode(CompositionType.Scalar, ComponentType.Int);
+          } else {
+            nodeInstance = new BranchShaderNode(CompositionType.Scalar, ComponentType.Float);
+          }
+        } else if (socketName.startsWith('Vector2')) {
+          nodeInstance = new BranchShaderNode(CompositionType.Vec2, ComponentType.Float);
+        } else if (socketName.startsWith('Vector3')) {
+          nodeInstance = new BranchShaderNode(CompositionType.Vec3, ComponentType.Float);
+        } else if (socketName.startsWith('Vector4')) {
+          nodeInstance = new BranchShaderNode(CompositionType.Vec4, ComponentType.Float);
+        } else {
+          Logger.default.error(`Branch node: Unknown socket name: ${socketName}`);
           break;
         }
         nodeInstance.setShaderStage(node.controls.shaderStage.value);

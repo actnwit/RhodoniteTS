@@ -1,10 +1,9 @@
 import SplitVectorShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/SplitVector.glsl';
 import SplitVectorShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/SplitVector.wgsl';
-import { ComponentType } from '../../definitions/ComponentType';
+import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type { Engine } from '../../system/Engine';
-import { EngineState } from '../../system/EngineState';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 /**
@@ -13,18 +12,23 @@ import { AbstractShaderNode } from '../core/AbstractShaderNode';
  * including individual scalars (x, y, z, w) and smaller vectors (xy, zw, xyz).
  *
  * Supports both WebGL/GLSL and WebGPU/WGSL shader compilation.
+ * Supports float, int, and uint component types.
  *
  * @example
  * ```typescript
- * const splitNode = new SplitVectorShaderNode();
+ * const splitNode = new SplitVectorShaderNode(ComponentType.Float);
  * // Connect a vec4 input to get x, y, z, w components separately
  * // Or connect vec3 input to get xyz, xy components
  * ```
  */
 export class SplitVectorShaderNode extends AbstractShaderNode {
+  private __componentType: ComponentTypeEnum;
+
   /**
    * Creates a new SplitVectorShaderNode instance.
    * Sets up input and output connections for vector splitting operations.
+   *
+   * @param componentType - The component type (Float, Int, or UnsignedInt). Defaults to Float.
    *
    * Inputs:
    * - xyzw: Vec4 input for 4-component vectors
@@ -37,85 +41,95 @@ export class SplitVectorShaderNode extends AbstractShaderNode {
    * - zw: Vec2 output (last 2 components of vec4)
    * - x, y, z, w: Individual scalar components
    */
-  constructor() {
+  constructor(componentType: ComponentTypeEnum = ComponentType.Float) {
     super('splitVector', {
       codeGLSL: SplitVectorShaderityObjectGLSL.code,
       codeWGSL: SplitVectorShaderityObjectWGSL.code,
     });
 
+    this.__componentType = componentType;
+
     this.__inputs.push({
       compositionType: CompositionType.Vec4,
-      componentType: ComponentType.Float,
+      componentType: componentType,
       name: 'xyzw',
     });
     this.__inputs.push({
       compositionType: CompositionType.Vec3,
-      componentType: ComponentType.Float,
+      componentType: componentType,
       name: 'xyz',
     });
     this.__inputs.push({
       compositionType: CompositionType.Vec2,
-      componentType: ComponentType.Float,
+      componentType: componentType,
       name: 'xy',
     });
 
     this.__outputs.push({
       compositionType: CompositionType.Vec3,
-      componentType: ComponentType.Float,
+      componentType: componentType,
       name: 'xyz',
     });
     this.__outputs.push({
       compositionType: CompositionType.Vec2,
-      componentType: ComponentType.Float,
+      componentType: componentType,
       name: 'xy',
     });
     this.__outputs.push({
       compositionType: CompositionType.Vec2,
-      componentType: ComponentType.Float,
+      componentType: componentType,
       name: 'zw',
     });
     this.__outputs.push({
       compositionType: CompositionType.Scalar,
-      componentType: ComponentType.Float,
+      componentType: componentType,
       name: 'x',
     });
     this.__outputs.push({
       compositionType: CompositionType.Scalar,
-      componentType: ComponentType.Float,
+      componentType: componentType,
       name: 'y',
     });
     this.__outputs.push({
       compositionType: CompositionType.Scalar,
-      componentType: ComponentType.Float,
+      componentType: componentType,
       name: 'z',
     });
     this.__outputs.push({
       compositionType: CompositionType.Scalar,
-      componentType: ComponentType.Float,
+      componentType: componentType,
       name: 'w',
     });
   }
 
   /**
-   * Gets the derivative shader function name based on the connected input type.
+   * Gets the derivative shader function name based on the connected input type and component type.
    * For WebGPU, returns specialized function names (splitVectorXYZW, splitVectorXYZ, splitVectorXY)
-   * based on which input is connected. For WebGL, returns the base function name.
+   * based on which input is connected, with type suffix (I32, U32) for non-float types.
+   * For WebGL, returns the base function name.
    *
    * @returns The appropriate shader function name for the current input connection and process approach
    * @throws {Error} When no valid input connection is found in WebGPU mode
    */
   getShaderFunctionNameDerivative(engine: Engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
+      let typeSuffix = '';
+      if (this.__componentType === ComponentType.Int) {
+        typeSuffix = 'I32';
+      } else if (this.__componentType === ComponentType.UnsignedInt) {
+        typeSuffix = 'U32';
+      }
+
       for (const inputConnection of this.inputConnections) {
         if (inputConnection != null) {
           if (inputConnection.inputNameOfThis === 'xyzw') {
-            return `${this.__shaderFunctionName}XYZW`;
+            return `${this.__shaderFunctionName}XYZW${typeSuffix}`;
           }
           if (inputConnection.inputNameOfThis === 'xyz') {
-            return `${this.__shaderFunctionName}XYZ`;
+            return `${this.__shaderFunctionName}XYZ${typeSuffix}`;
           }
           if (inputConnection.inputNameOfThis === 'xy') {
-            return `${this.__shaderFunctionName}XY`;
+            return `${this.__shaderFunctionName}XY${typeSuffix}`;
           }
         }
       }
@@ -147,26 +161,53 @@ export class SplitVectorShaderNode extends AbstractShaderNode {
     let str = '';
     let rowStr = '';
     if (varInputNames[i].length > 0 && varOutputNames[i].length > 0) {
-      const dummyOutputVarDefines =
-        engine.engineState.currentProcessApproach === ProcessApproach.WebGPU
-          ? [
-              `var dummyXYZ_${i}: vec3<f32>;`,
-              `var dummyXY_${i}: vec2<f32>;`,
-              `var dummyZW_${i}: vec2<f32>;`,
-              `var dummyX_${i}: f32;`,
-              `var dummyY_${i}: f32;`,
-              `var dummyZ_${i}: f32;`,
-              `var dummyW_${i}: f32;`,
-            ]
-          : [
-              `vec3 dummyXYZ_${i};`,
-              `vec2 dummyXY_${i};`,
-              `vec2 dummyZW_${i};`,
-              `float dummyX_${i};`,
-              `float dummyY_${i};`,
-              `float dummyZ_${i};`,
-              `float dummyW_${i};`,
-            ];
+      let dummyOutputVarDefines: string[];
+
+      if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
+        let scalarType = 'f32';
+        let vec2Type = 'vec2<f32>';
+        let vec3Type = 'vec3<f32>';
+        if (this.__componentType === ComponentType.Int) {
+          scalarType = 'i32';
+          vec2Type = 'vec2<i32>';
+          vec3Type = 'vec3<i32>';
+        } else if (this.__componentType === ComponentType.UnsignedInt) {
+          scalarType = 'u32';
+          vec2Type = 'vec2<u32>';
+          vec3Type = 'vec3<u32>';
+        }
+        dummyOutputVarDefines = [
+          `var dummyXYZ_${i}: ${vec3Type};`,
+          `var dummyXY_${i}: ${vec2Type};`,
+          `var dummyZW_${i}: ${vec2Type};`,
+          `var dummyX_${i}: ${scalarType};`,
+          `var dummyY_${i}: ${scalarType};`,
+          `var dummyZ_${i}: ${scalarType};`,
+          `var dummyW_${i}: ${scalarType};`,
+        ];
+      } else {
+        let scalarType = 'float';
+        let vec2Type = 'vec2';
+        let vec3Type = 'vec3';
+        if (this.__componentType === ComponentType.Int) {
+          scalarType = 'int';
+          vec2Type = 'ivec2';
+          vec3Type = 'ivec3';
+        } else if (this.__componentType === ComponentType.UnsignedInt) {
+          scalarType = 'uint';
+          vec2Type = 'uvec2';
+          vec3Type = 'uvec3';
+        }
+        dummyOutputVarDefines = [
+          `${vec3Type} dummyXYZ_${i};`,
+          `${vec2Type} dummyXY_${i};`,
+          `${vec2Type} dummyZW_${i};`,
+          `${scalarType} dummyX_${i};`,
+          `${scalarType} dummyY_${i};`,
+          `${scalarType} dummyZ_${i};`,
+          `${scalarType} dummyW_${i};`,
+        ];
+      }
 
       const dummyOutputArguments = [
         `dummyXYZ_${i}`,

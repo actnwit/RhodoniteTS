@@ -5,6 +5,7 @@ export * from './AttributePositionShaderNode';
 export * from './AttributeTexcoordShaderNode';
 export * from './BlockBeginShaderNode';
 export * from './BlockEndShaderNode';
+export * from './BranchShaderNode';
 export * from './ConstantScalarVariableShaderNode';
 export * from './ConstantVector2VariableShaderNode';
 export * from './ConstantVector3VariableShaderNode';
