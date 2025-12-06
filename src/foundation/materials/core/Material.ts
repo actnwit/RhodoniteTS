@@ -1130,10 +1130,29 @@ export class Material extends RnObject {
 
   /**
    * Gets the material type name.
+   * This includes the full type name with variation identifier for internal use.
    * @returns The material type name
    */
   get materialTypeName(): string {
     return this.__materialTypeName;
+  }
+
+  /**
+   * Gets the base material name without variation identifier.
+   * This is the human-readable material type name (e.g., "PbrUber", "ClassicUber").
+   * @returns The base material name
+   */
+  get baseMaterialName(): string {
+    return this._materialContent.getBaseMaterialName();
+  }
+
+  /**
+   * Gets the material variation identifier.
+   * This represents the parameter variation part of the material type.
+   * @returns The variation identifier string
+   */
+  get materialVariationIdentifier(): string {
+    return this._materialContent.getMaterialVariationIdentifier();
   }
 
   /**
