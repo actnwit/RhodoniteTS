@@ -25,6 +25,7 @@ import { ConstantVector3VariableShaderNode } from '../nodes/ConstantVector3Varia
 import { ConstantVector4VariableShaderNode } from '../nodes/ConstantVector4VariableShaderNode';
 import { DotProductShaderNode } from '../nodes/DotProductShaderNode';
 import { GreaterShaderNode } from '../nodes/GreaterShaderNode';
+import { LengthShaderNode } from '../nodes/LengthShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
 import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
@@ -1012,6 +1013,23 @@ function constructNodes(json: ShaderNodeJson) {
           nodeInstance = new DotProductShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
           Logger.default.error(`Dot node: Unknown socket name: ${socketName}`);
+          break;
+        }
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'Length': {
+        const socketName = node.inputs.in1.socket.name;
+        let nodeInstance: LengthShaderNode;
+        if (socketName.startsWith('Vector2')) {
+          nodeInstance = new LengthShaderNode(CompositionType.Vec2, ComponentType.Float);
+        } else if (socketName.startsWith('Vector3')) {
+          nodeInstance = new LengthShaderNode(CompositionType.Vec3, ComponentType.Float);
+        } else if (socketName.startsWith('Vector4')) {
+          nodeInstance = new LengthShaderNode(CompositionType.Vec4, ComponentType.Float);
+        } else {
+          Logger.default.error(`Length node: Unknown socket name: ${socketName}`);
           break;
         }
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
