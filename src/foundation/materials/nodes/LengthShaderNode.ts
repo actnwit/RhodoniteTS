@@ -95,4 +95,3 @@ export class LengthShaderNode extends AbstractShaderNode {
     return this.__shaderFunctionName;
   }
 }
-
