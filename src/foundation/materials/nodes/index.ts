@@ -14,6 +14,7 @@ export * from './DotProductShaderNode';
 export * from './GreaterShaderNode';
 export * from './IfStatementShaderNode';
 export * from './LengthShaderNode';
+export * from './LessThanShaderNode';
 export * from './MergeVectorShaderNode';
 export * from './MultiplyShaderNode';
 export * from './NormalizeShaderNode';
