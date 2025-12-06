@@ -1,4 +1,4 @@
-import { EndShader } from '../../../webgl/shaders/nodes/EndShader';
+import { DiscardShader } from '../../../webgl/shaders/nodes/DiscardShader';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
@@ -21,12 +21,12 @@ import { Socket } from '../core/Socket';
 export class DiscardShaderNode extends AbstractShaderNode {
   /**
    * Creates a new DiscardShaderNode instance.
-   * Initializes the node with an EndShader instance and sets up the input socket
+   * Initializes the node with a DiscardShader instance and sets up the input socket
    * for receiving a boolean condition that determines whether to discard the fragment.
    */
   constructor() {
     super('conditionalDiscard', {
-      commonPart: EndShader.getInstance(),
+      commonPart: DiscardShader.getInstance(),
     });
 
     this.setShaderStage('Fragment');

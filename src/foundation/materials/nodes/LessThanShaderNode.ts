@@ -34,7 +34,7 @@ export class LessThanShaderNode extends AbstractShaderNode {
    * The output is always a boolean scalar indicating the comparison result.
    */
   constructor(componentType: ComponentTypeEnum) {
-    super('lessThan', {
+    super('_lessThan', {
       codeGLSL: LessThanShaderityObjectGLSL.code,
       codeWGSL: LessThanShaderityObjectWGSL.code,
     });

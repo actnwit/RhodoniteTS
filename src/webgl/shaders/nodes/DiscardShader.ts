@@ -3,19 +3,18 @@ import { ProcessApproach } from '../../../foundation/definitions/ProcessApproach
 import { ShaderNode } from '../../../foundation/definitions/ShaderNode';
 import type { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
 import type { Engine } from '../../../foundation/system/Engine';
-import { EngineState } from '../../../foundation/system/EngineState';
 import type { AttributeNames } from '../../types/CommonTypes';
 import { CommonShaderPart } from '../CommonShaderPart';
 
 /**
- * EndShader class provides the final output functions for both vertex and fragment shaders.
- * This class handles the final position output in vertex shaders and color output in fragment shaders,
+ * DiscardShader class provides the conditional discard function for fragment shaders.
+ * This class handles discarding fragments based on a boolean condition,
  * supporting both WebGL and WebGPU rendering approaches.
  *
  * @extends CommonShaderPart
  */
-export class EndShader extends CommonShaderPart {
-  static __instance: EndShader;
+export class DiscardShader extends CommonShaderPart {
+  static __instance: DiscardShader;
   public static readonly materialElement = ShaderNode.PBRShading;
 
   /**
@@ -26,35 +25,35 @@ export class EndShader extends CommonShaderPart {
   }
 
   /**
-   * Gets the singleton instance of EndShader.
+   * Gets the singleton instance of DiscardShader.
    * Creates a new instance if one doesn't exist.
    *
-   * @returns The singleton EndShader instance
+   * @returns The singleton DiscardShader instance
    */
-  static getInstance(): EndShader {
+  static getInstance(): DiscardShader {
     if (!this.__instance) {
-      this.__instance = new EndShader();
+      this.__instance = new DiscardShader();
     }
     return this.__instance;
   }
 
   /**
-   * Gets the vertex shader function definitions for position output.
-   * Returns appropriate function definition based on the current process approach (WebGL/WebGPU).
+   * Gets the vertex shader function definitions.
+   * Returns a no-op function since discard is not available in vertex shaders.
    *
-   * @returns Shader code string containing the outPosition function definition
+   * @returns Shader code string containing a no-op conditionalDiscard function
    */
   getVertexShaderDefinitions(engine: Engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
-      fn outPosition(inPosition: vec4<f32>) {
-        output.position = inPosition;
+      fn conditionalDiscard(condition: bool) {
+        // discard is not available in vertex shader
       }
       `;
     }
     return `
-      void outPosition(in vec4 inPosition) {
-        gl_Position = inPosition;
+      void conditionalDiscard(in bool condition) {
+        // discard is not available in vertex shader
       }
       `;
   }
@@ -66,28 +65,30 @@ export class EndShader extends CommonShaderPart {
    * @returns Empty shader body string
    */
   get vertexShaderBody() {
-    return `
-
-    `;
+    return ``;
   }
 
   /**
-   * Gets the pixel/fragment shader function definitions for color output and discard.
+   * Gets the pixel/fragment shader function definitions for conditional discard.
    * Returns appropriate function definition based on the current process approach (WebGL/WebGPU).
    *
-   * @returns Shader code string containing the outColor and conditionalDiscard function definitions
+   * @returns Shader code string containing the conditionalDiscard function definition
    */
   getPixelShaderDefinitions(engine: Engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
-      fn outColor(inColor: vec4<f32>) {
-        rt0 = inColor;
+      fn conditionalDiscard(condition: bool) {
+        if (condition) {
+          discard;
+        }
       }
       `;
     }
     return `
-      void outColor(in vec4 inColor) {
-        rt0 = inColor;
+      void conditionalDiscard(in bool condition) {
+        if (condition) {
+          discard;
+        }
       }
       `;
   }
@@ -104,7 +105,7 @@ export class EndShader extends CommonShaderPart {
 
   /**
    * Gets the attribute names required by this shader part.
-   * EndShader doesn't require any specific vertex attributes.
+   * DiscardShader doesn't require any specific vertex attributes.
    *
    * @returns Empty array of attribute names
    */
@@ -114,7 +115,7 @@ export class EndShader extends CommonShaderPart {
 
   /**
    * Gets the vertex attribute semantics required by this shader part.
-   * EndShader doesn't require any specific vertex attribute semantics.
+   * DiscardShader doesn't require any specific vertex attribute semantics.
    *
    * @returns Empty array of vertex attribute enums
    */
@@ -124,7 +125,7 @@ export class EndShader extends CommonShaderPart {
 
   /**
    * Gets the attribute compositions required by this shader part.
-   * EndShader doesn't require any specific attribute compositions.
+   * DiscardShader doesn't require any specific attribute compositions.
    *
    * @returns Empty array of composition type enums
    */
@@ -132,3 +133,4 @@ export class EndShader extends CommonShaderPart {
     return [];
   }
 }
+
