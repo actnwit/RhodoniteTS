@@ -29,8 +29,8 @@ import { LengthShaderNode } from '../nodes/LengthShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
+import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
@@ -1191,8 +1191,18 @@ function constructNodes(json: ShaderNodeJson) {
       }
       case 'LessThan': {
         const socketName = node.inputs.in1.socket.name;
-        const componentType = getComponentType(socketName);
-        const nodeInstance = new LessThanShaderNode(componentType);
+        let nodeInstance: LessThanShaderNode;
+        if (socketName.includes('<float>')) {
+          nodeInstance = new LessThanShaderNode(ComponentType.Float);
+        } else if (socketName.includes('<int>')) {
+          nodeInstance = new LessThanShaderNode(ComponentType.Int);
+        } else if (socketName.includes('<uint>')) {
+          nodeInstance = new LessThanShaderNode(ComponentType.UnsignedInt);
+        } else {
+          Logger.default.error(`LessThan node: Unknown socket name: ${socketName}`);
+          break;
+        }
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
