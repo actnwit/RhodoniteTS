@@ -1073,11 +1073,7 @@ export class Gltf2Exporter {
    * @param rnMaterial - The Rhodonite material containing node-based shader data
    * @param json - The glTF JSON document
    */
-  private static __setupNodeBasedMaterialExtension(
-    material: Gltf2MaterialEx,
-    rnMaterial: Material,
-    json: Gltf2Ex
-  ) {
+  private static __setupNodeBasedMaterialExtension(material: Gltf2MaterialEx, rnMaterial: Material, json: Gltf2Ex) {
     const EXTENSION_NAME = 'RHODONITE_materials_node';
 
     // Ensure extensions object exists on material

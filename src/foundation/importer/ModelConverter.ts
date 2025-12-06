@@ -1797,11 +1797,7 @@ export class ModelConverter {
           maxInstancesNumber: maxMaterialInstanceNumber,
         });
         // Create and return node-based custom material
-        const customMaterial = RhodoniteImportExtension.createNodeBasedMaterial(
-          engine,
-          materialJson,
-          baseMaterial
-        );
+        const customMaterial = RhodoniteImportExtension.createNodeBasedMaterial(engine, materialJson, baseMaterial);
         customMaterial.isTranslucent = isTranslucent;
         return customMaterial;
       }

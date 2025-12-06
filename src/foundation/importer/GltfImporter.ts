@@ -199,7 +199,13 @@ export class GltfImporter {
    * @private
    */
   private static __isValidExtension(fileExtension: string) {
-    if (fileExtension === 'gltf' || fileExtension === 'glb' || fileExtension === 'rnb' || fileExtension === 'vrm' || fileExtension === 'drc') {
+    if (
+      fileExtension === 'gltf' ||
+      fileExtension === 'glb' ||
+      fileExtension === 'rnb' ||
+      fileExtension === 'vrm' ||
+      fileExtension === 'drc'
+    ) {
       return true;
     }
     return false;
