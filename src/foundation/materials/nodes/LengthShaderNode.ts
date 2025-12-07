@@ -81,8 +81,12 @@ export class LengthShaderNode extends AbstractShaderNode {
    */
   getShaderFunctionNameDerivative(engine: Engine): string {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-      const isUint = this.__inputs[0].componentType === ComponentType.UnsignedInt;
-      const suffix = isUint ? 'u' : 'f';
+      let suffix = 'f';
+      if (this.__inputs[0].componentType === ComponentType.Int) {
+        suffix = 'i';
+      } else if (this.__inputs[0].componentType === ComponentType.UnsignedInt) {
+        suffix = 'u';
+      }
       if (this.__inputs[0].compositionType === CompositionType.Vec2) {
         return `${this.__shaderFunctionName}Vec2${suffix}`;
       }

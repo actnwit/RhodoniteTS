@@ -32,8 +32,8 @@ import { LengthShaderNode } from '../nodes/LengthShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
+import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
@@ -1059,13 +1059,22 @@ function constructNodes(json: ShaderNodeJson) {
       }
       case 'Length': {
         const socketName = node.inputs.in1.socket.name;
+
+        // Determine component type from socket name
+        let componentType: ComponentTypeEnum = ComponentType.Float;
+        if (socketName.includes('<int>')) {
+          componentType = ComponentType.Int;
+        } else if (socketName.includes('<uint>')) {
+          componentType = ComponentType.UnsignedInt;
+        }
+
         let nodeInstance: LengthShaderNode;
         if (socketName.startsWith('Vector2')) {
-          nodeInstance = new LengthShaderNode(CompositionType.Vec2, ComponentType.Float);
+          nodeInstance = new LengthShaderNode(CompositionType.Vec2, componentType);
         } else if (socketName.startsWith('Vector3')) {
-          nodeInstance = new LengthShaderNode(CompositionType.Vec3, ComponentType.Float);
+          nodeInstance = new LengthShaderNode(CompositionType.Vec3, componentType);
         } else if (socketName.startsWith('Vector4')) {
-          nodeInstance = new LengthShaderNode(CompositionType.Vec4, ComponentType.Float);
+          nodeInstance = new LengthShaderNode(CompositionType.Vec4, componentType);
         } else {
           Logger.default.error(`Length node: Unknown socket name: ${socketName}`);
           break;
