@@ -13,6 +13,7 @@ import { Logger } from '../../misc/Logger';
 import type { Engine } from '../../system/Engine';
 import { EngineState } from '../../system/EngineState';
 import { AddShaderNode } from '../nodes/AddShaderNode';
+import { AndShaderNode } from '../nodes/AndShaderNode';
 import { AttributeColorShaderNode } from '../nodes/AttributeColorShaderNode';
 import { AttributeJointShaderNode } from '../nodes/AttributeJointShaderNode';
 import { AttributeNormalShaderNode } from '../nodes/AttributeNormalShaderNode';
@@ -32,8 +33,8 @@ import { LengthShaderNode } from '../nodes/LengthShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
+import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
@@ -1295,6 +1296,12 @@ function constructNodes(json: ShaderNodeJson) {
           Logger.default.error(`LessThan node: Unknown socket name: ${socketName}`);
           break;
         }
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'And': {
+        const nodeInstance = new AndShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
