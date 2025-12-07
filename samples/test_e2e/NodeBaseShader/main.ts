@@ -290,7 +290,7 @@ const shaderNodeJson = {
     },
     {
       id: 'b3b171d7f11033da',
-      name: 'ConstantScalar',
+      name: 'ConstantScalarFloat',
       outputs: {
         out1: { id: '910ccb4d12727c86', label: 'Scalar Out', socket: { name: 'Scalar' } },
       },

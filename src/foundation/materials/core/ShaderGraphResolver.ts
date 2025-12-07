@@ -895,7 +895,7 @@ function constructNodes(json: ShaderNodeJson) {
         nodeInstances[node.id] = nodeInstance;
         break;
       }
-      case 'ConstantScalar': {
+      case 'ConstantScalarFloat': {
         const nodeInstance = new ConstantScalarVariableShaderNode(ComponentType.Float);
         nodeInstance.setDefaultInputValue(Scalar.fromCopyNumber(node.controls.in1.value));
         nodeInstances[node.id] = nodeInstance;
