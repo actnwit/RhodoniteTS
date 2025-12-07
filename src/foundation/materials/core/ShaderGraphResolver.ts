@@ -33,8 +33,8 @@ import { LengthShaderNode } from '../nodes/LengthShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
+import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
@@ -889,12 +889,12 @@ function constructNodes(json: ShaderNodeJson) {
   for (const node of json.nodes) {
     nodes[node.id] = node;
     switch (node.name) {
-      // case 'ConstantBool': {
-      //   const nodeInstance = new ConstantScalarVariableShaderNode(ComponentType.Bool);
-      //   nodeInstance.setDefaultInputValue(Scalar.fromCopyNumber(node.data.bool ? 1 : 0));
-      //   nodeInstances[node.id] = nodeInstance;
-      //   break;
-      // }
+      case 'ConstantScalarBool': {
+        const nodeInstance = new ConstantScalarVariableShaderNode(ComponentType.Bool);
+        nodeInstance.setDefaultInputValue(Scalar.fromCopyNumber(node.controls.in1.value ? 1 : 0));
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
       case 'ConstantScalar': {
         const nodeInstance = new ConstantScalarVariableShaderNode(ComponentType.Float);
         nodeInstance.setDefaultInputValue(Scalar.fromCopyNumber(node.controls.in1.value));
