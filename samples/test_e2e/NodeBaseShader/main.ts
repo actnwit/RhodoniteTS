@@ -111,7 +111,7 @@ const shaderNodeJson = {
     },
     {
       id: '44051d341cbcc1b0',
-      name: 'ConstantVector4',
+      name: 'ConstantVector4Float',
       outputs: {
         out1: { id: '3207cf6520ff97b2', label: 'Vector4 Out', socket: { name: 'Vector4' } },
       },
