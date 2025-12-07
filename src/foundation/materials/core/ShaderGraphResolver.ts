@@ -889,25 +889,25 @@ function constructNodes(json: ShaderNodeJson) {
   for (const node of json.nodes) {
     nodes[node.id] = node;
     switch (node.name) {
-      // case 'ConstantBool': {
-      //   const nodeInstance = new ConstantScalarVariableShaderNode(ComponentType.Bool);
-      //   nodeInstance.setDefaultInputValue(Scalar.fromCopyNumber(node.data.bool ? 1 : 0));
-      //   nodeInstances[node.id] = nodeInstance;
-      //   break;
-      // }
-      case 'ConstantScalar': {
+      case 'ConstantScalarBool': {
+        const nodeInstance = new ConstantScalarVariableShaderNode(ComponentType.Bool);
+        nodeInstance.setDefaultInputValue(Scalar.fromCopyNumber(node.controls.in1.value ? 1 : 0));
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'ConstantScalarFloat': {
         const nodeInstance = new ConstantScalarVariableShaderNode(ComponentType.Float);
         nodeInstance.setDefaultInputValue(Scalar.fromCopyNumber(node.controls.in1.value));
         nodeInstances[node.id] = nodeInstance;
         break;
       }
-      case 'ConstantVector2': {
+      case 'ConstantVector2Float': {
         const nodeInstance = new ConstantVector2VariableShaderNode(ComponentType.Float);
         nodeInstance.setDefaultInputValue(Vector2.fromCopy2(node.controls.in1.value, node.controls.in2.value));
         nodeInstances[node.id] = nodeInstance;
         break;
       }
-      case 'ConstantVector3': {
+      case 'ConstantVector3Float': {
         const nodeInstance = new ConstantVector3VariableShaderNode(ComponentType.Float);
         nodeInstance.setDefaultInputValue(
           Vector3.fromCopy3(node.controls.in1.value, node.controls.in2.value, node.controls.in3.value)
@@ -915,7 +915,7 @@ function constructNodes(json: ShaderNodeJson) {
         nodeInstances[node.id] = nodeInstance;
         break;
       }
-      case 'ConstantVector4': {
+      case 'ConstantVector4Float': {
         const nodeInstance = new ConstantVector4VariableShaderNode(ComponentType.Float);
         nodeInstance.setDefaultInputValue(
           Vector4.fromCopy4(

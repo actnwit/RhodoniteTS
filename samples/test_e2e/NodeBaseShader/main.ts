@@ -111,7 +111,7 @@ const shaderNodeJson = {
     },
     {
       id: '44051d341cbcc1b0',
-      name: 'ConstantVector4',
+      name: 'ConstantVector4Float',
       outputs: {
         out1: { id: '3207cf6520ff97b2', label: 'Vector4 Out', socket: { name: 'Vector4' } },
       },
@@ -206,7 +206,7 @@ const shaderNodeJson = {
     },
     {
       id: '9c150e161a78be5c',
-      name: 'ConstantVector3',
+      name: 'ConstantVector3Float',
       outputs: {
         out1: { id: '08cc662dc1ac99f6', label: 'Vector3 Out', socket: { name: 'Vector3' } },
       },
@@ -290,7 +290,7 @@ const shaderNodeJson = {
     },
     {
       id: 'b3b171d7f11033da',
-      name: 'ConstantScalar',
+      name: 'ConstantScalarFloat',
       outputs: {
         out1: { id: '910ccb4d12727c86', label: 'Scalar Out', socket: { name: 'Scalar' } },
       },
