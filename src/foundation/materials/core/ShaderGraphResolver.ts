@@ -20,6 +20,7 @@ import { AttributePositionShaderNode } from '../nodes/AttributePositionShaderNod
 import { AttributeTexcoordShaderNode } from '../nodes/AttributeTexcoordShaderNode';
 import { AttributeWeightShaderNode } from '../nodes/AttributeWeightShaderNode';
 import { BranchShaderNode } from '../nodes/BranchShaderNode';
+import { CastToFloatShaderNode } from '../nodes/CastToFloatShaderNode';
 import { ConstantScalarVariableShaderNode } from '../nodes/ConstantScalarVariableShaderNode';
 import { ConstantVector2VariableShaderNode } from '../nodes/ConstantVector2VariableShaderNode';
 import { ConstantVector3VariableShaderNode } from '../nodes/ConstantVector3VariableShaderNode';
@@ -1058,13 +1059,22 @@ function constructNodes(json: ShaderNodeJson) {
       }
       case 'Length': {
         const socketName = node.inputs.in1.socket.name;
+
+        // Determine component type from socket name
+        let componentType: ComponentTypeEnum = ComponentType.Float;
+        if (socketName.includes('<int>')) {
+          componentType = ComponentType.Int;
+        } else if (socketName.includes('<uint>')) {
+          componentType = ComponentType.UnsignedInt;
+        }
+
         let nodeInstance: LengthShaderNode;
         if (socketName.startsWith('Vector2')) {
-          nodeInstance = new LengthShaderNode(CompositionType.Vec2, ComponentType.Float);
+          nodeInstance = new LengthShaderNode(CompositionType.Vec2, componentType);
         } else if (socketName.startsWith('Vector3')) {
-          nodeInstance = new LengthShaderNode(CompositionType.Vec3, ComponentType.Float);
+          nodeInstance = new LengthShaderNode(CompositionType.Vec3, componentType);
         } else if (socketName.startsWith('Vector4')) {
-          nodeInstance = new LengthShaderNode(CompositionType.Vec4, ComponentType.Float);
+          nodeInstance = new LengthShaderNode(CompositionType.Vec4, componentType);
         } else {
           Logger.default.error(`Length node: Unknown socket name: ${socketName}`);
           break;
@@ -1155,6 +1165,36 @@ function constructNodes(json: ShaderNodeJson) {
           componentType = ComponentType.UnsignedInt;
         }
         const nodeInstance = new MergeVectorShaderNode(componentType);
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'CastToFloat': {
+        // Determine composition type and input component type from socket names
+        const inputSocketName = node.inputs.in1?.socket?.name || '';
+        const outputSocketName = node.outputs.out1?.socket?.name || '';
+
+        // Determine input component type
+        let inputComponentType: ComponentTypeEnum = ComponentType.Int;
+        if (inputSocketName.includes('<bool>')) {
+          inputComponentType = ComponentType.Bool;
+        } else if (inputSocketName.includes('<int>')) {
+          inputComponentType = ComponentType.Int;
+        } else if (inputSocketName.includes('<uint>')) {
+          inputComponentType = ComponentType.UnsignedInt;
+        }
+
+        // Determine composition type from output socket and create node
+        let nodeInstance: CastToFloatShaderNode;
+        if (outputSocketName.includes('Vector4')) {
+          nodeInstance = new CastToFloatShaderNode(CompositionType.Vec4, inputComponentType);
+        } else if (outputSocketName.includes('Vector3')) {
+          nodeInstance = new CastToFloatShaderNode(CompositionType.Vec3, inputComponentType);
+        } else if (outputSocketName.includes('Vector2')) {
+          nodeInstance = new CastToFloatShaderNode(CompositionType.Vec2, inputComponentType);
+        } else {
+          nodeInstance = new CastToFloatShaderNode(CompositionType.Scalar, inputComponentType);
+        }
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;

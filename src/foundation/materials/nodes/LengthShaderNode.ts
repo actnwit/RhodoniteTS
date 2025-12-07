@@ -81,14 +81,20 @@ export class LengthShaderNode extends AbstractShaderNode {
    */
   getShaderFunctionNameDerivative(engine: Engine): string {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
+      let suffix = 'f';
+      if (this.__inputs[0].componentType === ComponentType.Int) {
+        suffix = 'i';
+      } else if (this.__inputs[0].componentType === ComponentType.UnsignedInt) {
+        suffix = 'u';
+      }
       if (this.__inputs[0].compositionType === CompositionType.Vec2) {
-        return `${this.__shaderFunctionName}Vec2f`;
+        return `${this.__shaderFunctionName}Vec2${suffix}`;
       }
       if (this.__inputs[0].compositionType === CompositionType.Vec3) {
-        return `${this.__shaderFunctionName}Vec3f`;
+        return `${this.__shaderFunctionName}Vec3${suffix}`;
       }
       if (this.__inputs[0].compositionType === CompositionType.Vec4) {
-        return `${this.__shaderFunctionName}Vec4f`;
+        return `${this.__shaderFunctionName}Vec4${suffix}`;
       }
       throw new Error('Not supported composition type.');
     }
