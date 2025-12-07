@@ -901,7 +901,7 @@ function constructNodes(json: ShaderNodeJson) {
         nodeInstances[node.id] = nodeInstance;
         break;
       }
-      case 'ConstantVector2': {
+      case 'ConstantVector2Float': {
         const nodeInstance = new ConstantVector2VariableShaderNode(ComponentType.Float);
         nodeInstance.setDefaultInputValue(Vector2.fromCopy2(node.controls.in1.value, node.controls.in2.value));
         nodeInstances[node.id] = nodeInstance;
