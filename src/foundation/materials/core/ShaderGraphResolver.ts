@@ -13,6 +13,7 @@ import { Logger } from '../../misc/Logger';
 import type { Engine } from '../../system/Engine';
 import { EngineState } from '../../system/EngineState';
 import { AddShaderNode } from '../nodes/AddShaderNode';
+import { AndShaderNode } from '../nodes/AndShaderNode';
 import { AttributeColorShaderNode } from '../nodes/AttributeColorShaderNode';
 import { AttributeJointShaderNode } from '../nodes/AttributeJointShaderNode';
 import { AttributeNormalShaderNode } from '../nodes/AttributeNormalShaderNode';
@@ -1295,6 +1296,12 @@ function constructNodes(json: ShaderNodeJson) {
           Logger.default.error(`LessThan node: Unknown socket name: ${socketName}`);
           break;
         }
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'And': {
+        const nodeInstance = new AndShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
