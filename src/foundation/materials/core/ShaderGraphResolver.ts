@@ -28,6 +28,7 @@ import { ConstantVector3VariableShaderNode } from '../nodes/ConstantVector3Varia
 import { ConstantVector4VariableShaderNode } from '../nodes/ConstantVector4VariableShaderNode';
 import { DiscardShaderNode } from '../nodes/DiscardShaderNode';
 import { DotProductShaderNode } from '../nodes/DotProductShaderNode';
+import { EqualShaderNode } from '../nodes/EqualShaderNode';
 import { GreaterOrEqualShaderNode } from '../nodes/GreaterOrEqualShaderNode';
 import { GreaterShaderNode } from '../nodes/GreaterShaderNode';
 import { GreaterThanShaderNode } from '../nodes/GreaterThanShaderNode';
@@ -36,8 +37,8 @@ import { LessOrEqualShaderNode } from '../nodes/LessOrEqualShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
+import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
@@ -1348,6 +1349,23 @@ function constructNodes(json: ShaderNodeJson) {
           nodeInstance = new GreaterOrEqualShaderNode(ComponentType.UnsignedInt);
         } else {
           Logger.default.error(`GreaterOrEqual node: Unknown socket name: ${socketName}`);
+          break;
+        }
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'Equal': {
+        const socketName = node.inputs.in1.socket.name;
+        let nodeInstance: EqualShaderNode;
+        if (socketName.includes('<float>')) {
+          nodeInstance = new EqualShaderNode(ComponentType.Float);
+        } else if (socketName.includes('<int>')) {
+          nodeInstance = new EqualShaderNode(ComponentType.Int);
+        } else if (socketName.includes('<uint>')) {
+          nodeInstance = new EqualShaderNode(ComponentType.UnsignedInt);
+        } else {
+          Logger.default.error(`Equal node: Unknown socket name: ${socketName}`);
           break;
         }
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
