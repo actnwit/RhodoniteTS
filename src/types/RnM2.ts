@@ -246,15 +246,24 @@ export type RnM2ExtensionsEffekseerTimelineItem = {
 };
 
 /**
+ * Texture reference in RHODONITE_materials_node extension.
+ * References a glTF texture by index.
+ */
+export type RnM2TextureUniformValue = {
+  /** Index into the glTF textures array */
+  index: number;
+};
+
+/**
  * RHODONITE_materials_node extension data.
  * Contains shader node graph URI and optional uniform values.
  */
 export type RnM2ExtensionRhodoniteMaterialsNode = {
   /** URI to the .rmn shader node JSON file (required) */
   uri: string;
-  /** Optional uniform values to set on the material */
+  /** Optional uniform values to set on the material (includes scalar, vector, and texture values) */
   uniforms?: {
-    [name: string]: number | number[];
+    [name: string]: number | number[] | RnM2TextureUniformValue;
   };
   /** Loaded shader node JSON data (populated during import) */
   shaderNodeJson?: unknown;

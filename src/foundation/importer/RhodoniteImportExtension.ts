@@ -7,6 +7,7 @@ import type {
   RnM2ExtensionsEffekseerTimeline,
   RnM2ExtensionsEffekseerTimelineItem,
   RnM2Material,
+  RnM2TextureUniformValue,
 } from '../../types/RnM2';
 import type { ShaderNodeJson } from '../../types/ShaderNodeJson';
 import {
@@ -33,6 +34,7 @@ import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
 import { Sampler } from '../textures/Sampler';
+import type { Texture } from '../textures/Texture';
 import { TextureParameter } from '../definitions/TextureParameter';
 import type { Engine } from '../system/Engine';
 
@@ -79,11 +81,21 @@ export class RhodoniteImportExtension {
    * then creates a custom material using MaterialHelper.
    *
    * @param engine - The engine instance
+   * @param gltfModel - The glTF model containing textures and samplers
    * @param materialJson - The glTF material JSON containing the extension
    * @param currentMaterial - The current/fallback material to use as base
+   * @param rnTextures - Array of loaded Rhodonite textures
+   * @param rnSamplers - Array of loaded Rhodonite samplers
    * @returns The created custom material, or the current material if creation fails
    */
-  static createNodeBasedMaterial(engine: Engine, materialJson: RnM2Material, currentMaterial: Material): Material {
+  static createNodeBasedMaterial(
+    engine: Engine,
+    gltfModel: RnM2,
+    materialJson: RnM2Material,
+    currentMaterial: Material,
+    rnTextures: Texture[],
+    rnSamplers: Sampler[]
+  ): Material {
     const EXTENSION_NAME = 'RHODONITE_materials_node';
     const extension = materialJson.extensions?.[EXTENSION_NAME] as RnM2ExtensionRhodoniteMaterialsNode | undefined;
 
@@ -124,9 +136,9 @@ export class RhodoniteImportExtension {
     // Store the shader node JSON for later retrieval (e.g., in editor)
     newMaterial.shaderNodeJson = extension.shaderNodeJson;
 
-    // Apply uniform values if specified
+    // Apply uniform values if specified (including texture references)
     if (extension.uniforms) {
-      this.__applyUniformsToMaterial(newMaterial, extension.uniforms);
+      this.__applyUniformsToMaterial(newMaterial, extension.uniforms, gltfModel, rnTextures, rnSamplers);
     }
 
     return newMaterial;
@@ -199,15 +211,52 @@ export class RhodoniteImportExtension {
   }
 
   /**
+   * Checks if a value is a texture uniform reference (has 'index' property).
+   *
+   * @param value - The value to check
+   * @returns True if the value is a texture uniform reference
+   */
+  private static __isTextureUniform(value: unknown): value is RnM2TextureUniformValue {
+    return (
+      typeof value === 'object' &&
+      value !== null &&
+      'index' in value &&
+      typeof (value as RnM2TextureUniformValue).index === 'number'
+    );
+  }
+
+  /**
    * Applies uniform values from the extension to the material.
    *
    * @param material - The material to apply uniforms to
    * @param uniforms - The uniforms object from the extension
+   * @param gltfModel - The glTF model containing texture references
+   * @param rnTextures - Array of loaded Rhodonite textures
+   * @param rnSamplers - Array of loaded Rhodonite samplers
    */
-  private static __applyUniformsToMaterial(material: Material, uniforms: { [name: string]: number | number[] }) {
+  private static __applyUniformsToMaterial(
+    material: Material,
+    uniforms: { [name: string]: number | number[] | RnM2TextureUniformValue },
+    gltfModel: RnM2,
+    rnTextures: Texture[],
+    rnSamplers: Sampler[]
+  ) {
     for (const [name, value] of Object.entries(uniforms)) {
       try {
-        if (typeof value === 'number') {
+        if (this.__isTextureUniform(value)) {
+          // Texture reference - get texture and sampler from glTF indices
+          const textureIndex = value.index;
+          const gltfTexture = gltfModel.textures?.[textureIndex];
+          if (gltfTexture != null) {
+            const sourceIndex = gltfTexture.source;
+            const samplerIndex = gltfTexture.sampler;
+            const rnTexture = sourceIndex != null ? rnTextures[sourceIndex] : undefined;
+            const rnSampler = samplerIndex != null ? rnSamplers[samplerIndex] : undefined;
+            if (rnTexture) {
+              material.setTextureParameter(name as ShaderSemanticsName, rnTexture, rnSampler);
+            }
+          }
+        } else if (typeof value === 'number') {
           // Scalar value
           material.setParameter(name, Scalar.fromCopyNumber(value));
         } else if (Array.isArray(value)) {
