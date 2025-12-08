@@ -44,7 +44,7 @@ export class TextureShader extends CommonShaderPart {
 
       return `
 fn ${this.__functionName}(${uvStr}, outValue: ptr<function, vec4<f32>>) {
-  *outValue = textureSample(u_${this.__variableName}Texture, u_${this.__variableName}Sampler, uv);
+  *outValue = textureSample(${this.__variableName}Texture, ${this.__variableName}Sampler, uv);
 }
 `;
     }
@@ -88,7 +88,7 @@ void ${this.__functionName}(${uvStr}, out vec4 outValue) {
 
       return `
 fn ${this.__functionName}(${uvStr}, outValue: ptr<function, vec4<f32>>) {
-  *outValue = textureSample(u_${this.__variableName}Texture, u_${this.__variableName}Sampler, uv);
+  *outValue = textureSample(${this.__variableName}Texture, ${this.__variableName}Sampler, uv);
 }
 `;
     }

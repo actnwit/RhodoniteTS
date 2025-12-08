@@ -318,9 +318,19 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
       } else if (info.compositionType === CompositionType.Texture2DArray) {
         textureType = 'texture_2d_array<f32>';
       }
-      const samplerName = methodName.replace('Texture', 'Sampler');
+      // If the semantic name ends with 'Texture', use the standard replacement pattern
+      // Otherwise, append 'Texture' and 'Sampler' suffixes to avoid name collision
+      let textureName: string;
+      let samplerName: string;
+      if (methodName.endsWith('Texture')) {
+        textureName = methodName;
+        samplerName = methodName.replace('Texture', 'Sampler');
+      } else {
+        textureName = `${methodName}Texture`;
+        samplerName = `${methodName}Sampler`;
+      }
       return `
-@group(1) @binding(${info.initialValue[0]}) var ${methodName}: ${textureType};
+@group(1) @binding(${info.initialValue[0]}) var ${textureName}: ${textureType};
 @group(2) @binding(${info.initialValue[0]}) var ${samplerName}: sampler;
 `;
     }
@@ -455,9 +465,19 @@ ${indexStr}
       } else if (info.compositionType === CompositionType.Texture2DArray) {
         textureType = 'texture_2d_array<f32>';
       }
-      const samplerName = methodName.replace('Texture', 'Sampler');
+      // If the semantic name ends with 'Texture', use the standard replacement pattern
+      // Otherwise, append 'Texture' and 'Sampler' suffixes to avoid name collision
+      let textureName: string;
+      let samplerName: string;
+      if (methodName.endsWith('Texture')) {
+        textureName = methodName;
+        samplerName = methodName.replace('Texture', 'Sampler');
+      } else {
+        textureName = `${methodName}Texture`;
+        samplerName = `${methodName}Sampler`;
+      }
       return `
-@group(1) @binding(${info.initialValue[0]}) var ${methodName}: ${textureType};
+@group(1) @binding(${info.initialValue[0]}) var ${textureName}: ${textureType};
 @group(2) @binding(${info.initialValue[0]}) var ${samplerName}: sampler;
 `;
     }
