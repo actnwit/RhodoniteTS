@@ -39,6 +39,7 @@ import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
 import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
+import { NotEqualShaderNode } from '../nodes/NotEqualShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
@@ -1366,6 +1367,23 @@ function constructNodes(json: ShaderNodeJson) {
           nodeInstance = new EqualShaderNode(ComponentType.UnsignedInt);
         } else {
           Logger.default.error(`Equal node: Unknown socket name: ${socketName}`);
+          break;
+        }
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'NotEqual': {
+        const socketName = node.inputs.in1.socket.name;
+        let nodeInstance: NotEqualShaderNode;
+        if (socketName.includes('<float>')) {
+          nodeInstance = new NotEqualShaderNode(ComponentType.Float);
+        } else if (socketName.includes('<int>')) {
+          nodeInstance = new NotEqualShaderNode(ComponentType.Int);
+        } else if (socketName.includes('<uint>')) {
+          nodeInstance = new NotEqualShaderNode(ComponentType.UnsignedInt);
+        } else {
+          Logger.default.error(`NotEqual node: Unknown socket name: ${socketName}`);
           break;
         }
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
