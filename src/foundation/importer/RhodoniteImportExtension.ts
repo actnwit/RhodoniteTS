@@ -18,7 +18,8 @@ import {
 } from '../components';
 import type { IEntity } from '../core';
 import { EntityRepository } from '../core/EntityRepository';
-import { AnimationInterpolation } from '../definitions';
+import { AnimationInterpolation, ComponentType, CompositionType, ShaderType } from '../definitions';
+import type { ShaderSemanticsInfo, ShaderSemanticsName } from '../definitions';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { MaterialHelper } from '../helpers/MaterialHelper';
 import type { Material } from '../materials/core/Material';
@@ -31,6 +32,8 @@ import { Vector4 } from '../math/Vector4';
 import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
+import { Sampler } from '../textures/Sampler';
+import { TextureParameter } from '../definitions/TextureParameter';
 import type { Engine } from '../system/Engine';
 
 /**
@@ -100,6 +103,9 @@ export class RhodoniteImportExtension {
       return currentMaterial;
     }
 
+    // Build texture semantic info from the texture infos extracted during shader generation
+    const additionalShaderSemanticInfo = this.__buildTextureSemanticInfo(engine, shaderCode.textureInfos);
+
     // Create custom material using MaterialHelper
     const newMaterial = MaterialHelper.reuseOrRecreateCustomMaterial(
       engine,
@@ -111,6 +117,7 @@ export class RhodoniteImportExtension {
         isSkinning: true,
         isLighting: true,
         isMorphing: true,
+        additionalShaderSemanticInfo,
       }
     );
 
@@ -123,6 +130,59 @@ export class RhodoniteImportExtension {
     }
 
     return newMaterial;
+  }
+
+  /**
+   * Builds ShaderSemanticInfo array for textures used in the shader node graph.
+   *
+   * @param engine - The engine instance
+   * @param textureInfos - Array of texture info objects containing name and stage
+   * @returns Array of ShaderSemanticsInfo for textures
+   */
+  private static __buildTextureSemanticInfo(
+    engine: Engine,
+    textureInfos: { name: string; stage: string }[]
+  ): ShaderSemanticsInfo[] {
+    const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
+    let textureSlotIdx = 0;
+
+    // Create a default sampler for textures
+    const sampler = new Sampler(engine, {
+      minFilter: TextureParameter.LinearMipmapLinear,
+      magFilter: TextureParameter.Linear,
+      wrapS: TextureParameter.Repeat,
+      wrapT: TextureParameter.Repeat,
+    });
+    sampler.create();
+
+    for (const textureInfo of textureInfos) {
+      // Map shader stage string to Rhodonite ShaderType
+      let shaderStage;
+      switch (textureInfo.stage) {
+        case 'Vertex':
+          shaderStage = ShaderType.VertexShader;
+          break;
+        case 'Fragment':
+          shaderStage = ShaderType.PixelShader;
+          break;
+        case 'Neutral':
+        default:
+          shaderStage = ShaderType.VertexAndPixelShader;
+          break;
+      }
+
+      additionalShaderSemanticInfo.push({
+        semantic: textureInfo.name as ShaderSemanticsName,
+        componentType: ComponentType.Int,
+        compositionType: CompositionType.Texture2D,
+        stage: shaderStage,
+        initialValue: [textureSlotIdx++, engine.dummyTextures.dummyWhiteTexture, sampler],
+        min: 0,
+        max: Number.MAX_VALUE,
+      });
+    }
+
+    return additionalShaderSemanticInfo;
   }
 
   /**
