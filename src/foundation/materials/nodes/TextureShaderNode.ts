@@ -18,6 +18,13 @@ export class TextureShaderNode extends AbstractShaderNode {
 
     this.__commonPart = new TextureShader(this.__shaderFunctionName, compositionType);
 
+    // Add UV input socket based on texture type
+    if (compositionType === CompositionType.Texture2D || compositionType === CompositionType.Texture2DArray) {
+      this.__inputs.push(new Socket('uv', CompositionType.Vec2, ComponentType.Float));
+    } else if (compositionType === CompositionType.TextureCube) {
+      this.__inputs.push(new Socket('uv', CompositionType.Vec3, ComponentType.Float));
+    }
+
     this.__outputs.push(new Socket('outValue', CompositionType.Vec4, ComponentType.Float));
   }
 
