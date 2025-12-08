@@ -37,8 +37,8 @@ import { LessOrEqualShaderNode } from '../nodes/LessOrEqualShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
+import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NotEqualShaderNode } from '../nodes/NotEqualShaderNode';
 import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
@@ -684,12 +684,12 @@ export class ShaderGraphResolver {
    * and final code generation.
    *
    * @param json - JSON representation of the shader node graph containing nodes and connections
-   * @returns Object containing both vertex and fragment shader code, or undefined if generation fails
+   * @returns Object containing both vertex and fragment shader code, texture names used, or undefined if generation fails
    * @example
    * ```typescript
    * const shaderCode = ShaderGraphResolver.generateShaderCodeFromJson(graphJson);
    * if (shaderCode) {
-   *   const { vertexShader, pixelShader } = shaderCode;
+   *   const { vertexShader, pixelShader, textureNames } = shaderCode;
    *   // Use the generated shaders...
    * }
    * ```
@@ -697,8 +697,9 @@ export class ShaderGraphResolver {
   public static generateShaderCodeFromJson(
     engine: Engine,
     json: ShaderNodeJson
-  ): { vertexShader: string; pixelShader: string } | undefined {
-    const constructedNodes = Object.values(constructNodes(json));
+  ): { vertexShader: string; pixelShader: string; textureNames: string[] } | undefined {
+    const { nodeInstances, textureNames } = constructNodes(json);
+    const constructedNodes = Object.values(nodeInstances);
     const nodes = this.__sortTopologically(constructedNodes);
     resolveShaderStage(nodes);
     const varyingNodes = filterNodesForVarying(nodes, 'outColor');
@@ -718,7 +719,7 @@ export class ShaderGraphResolver {
       return;
     }
 
-    return { vertexShader: vertexRet, pixelShader: pixelRet };
+    return { vertexShader: vertexRet, pixelShader: pixelRet, textureNames };
   }
 }
 
@@ -884,15 +885,19 @@ function filterNodesForVarying(nodes: AbstractShaderNode[], endNodeName: string)
  * setting up their properties, connections, and default values based on the JSON data.
  *
  * @param json - JSON object containing the complete shader graph definition with nodes and connections
- * @returns Record mapping node IDs to their corresponding shader node instances
+ * @returns Object containing node instances record and array of texture names used
  * @throws Error if unknown node types are encountered or if connections cannot be established
  * @private
  */
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: This function handles many shader node types and requires a large switch statement
-function constructNodes(json: ShaderNodeJson) {
+function constructNodes(json: ShaderNodeJson): {
+  nodeInstances: Record<string, AbstractShaderNode>;
+  textureNames: string[];
+} {
   // Create Node Instances
   const nodeInstances: Record<string, AbstractShaderNode> = {};
   const nodes: Record<string, any> = {};
+  const textureNames: string[] = [];
   for (const node of json.nodes) {
     nodes[node.id] = node;
     switch (node.name) {
@@ -979,7 +984,9 @@ function constructNodes(json: ShaderNodeJson) {
       }
       case 'Texture2D': {
         const nodeInstance = new TextureShaderNode(CompositionType.Texture2D);
-        nodeInstance.setTextureName(node.controls.name.value);
+        const textureName = node.controls.name.value;
+        nodeInstance.setTextureName(textureName);
+        textureNames.push(textureName);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
@@ -1505,5 +1512,5 @@ function constructNodes(json: ShaderNodeJson) {
     const inputOfOutputNode = outputNodeInstance.getInputs()[idx];
     outputNodeInstance.addInputConnection(inputNodeInstance, outputOfInputNode, inputOfOutputNode);
   }
-  return nodeInstances;
+  return { nodeInstances, textureNames };
 }
