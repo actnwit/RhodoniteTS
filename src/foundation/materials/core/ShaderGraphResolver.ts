@@ -34,8 +34,8 @@ import { LengthShaderNode } from '../nodes/LengthShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
+import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
@@ -1146,7 +1146,7 @@ function constructNodes(json: ShaderNodeJson) {
         // Determine component type from input socket name
         let componentType: ComponentTypeEnum = ComponentType.Float;
         const inputSocketName =
-          node.inputs.xyzw?.socket?.name || node.inputs.xyz?.socket?.name || node.inputs.xy?.socket?.name || '';
+          node.inputs.inXYZW?.socket?.name || node.inputs.inXYZ?.socket?.name || node.inputs.inXY?.socket?.name || '';
         if (inputSocketName.includes('<int>')) {
           componentType = ComponentType.Int;
         } else if (inputSocketName.includes('<uint>')) {
@@ -1160,7 +1160,7 @@ function constructNodes(json: ShaderNodeJson) {
       case 'MergeVector': {
         // Determine component type from output socket name
         let componentType: ComponentTypeEnum = ComponentType.Float;
-        const outputSocketName = node.outputs.xyzw?.socket?.name || '';
+        const outputSocketName = node.outputs.outXYZW?.socket?.name || '';
         if (outputSocketName.includes('<int>')) {
           componentType = ComponentType.Int;
         } else if (outputSocketName.includes('<uint>')) {
