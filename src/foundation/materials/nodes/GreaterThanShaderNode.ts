@@ -96,4 +96,3 @@ export class GreaterThanShaderNode extends AbstractShaderNode {
     return this.__shaderFunctionName;
   }
 }
-
