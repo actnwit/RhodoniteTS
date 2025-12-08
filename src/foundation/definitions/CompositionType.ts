@@ -142,10 +142,7 @@ class CompositionTypeClass<TypeName extends string> extends EnumClass implements
     } else if (
       componentType.index === 5120 || // BYTE
       componentType.index === 5122 || // SHORT
-      componentType.index === 5124 || // INT
-      componentType.index === 5121 || // UNSIGNED_BYTE
-      componentType.index === 5123 || // UNSIGNED_SHORT
-      componentType.index === 5125 // UNSIGNED_INT
+      componentType.index === 5124 // INT
     ) {
       if (this === CompositionType.Scalar) {
         return '0';
@@ -165,6 +162,30 @@ class CompositionTypeClass<TypeName extends string> extends EnumClass implements
       }
       if (this.__numberOfComponents === 16) {
         return `${glslType}(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)`;
+      }
+    } else if (
+      componentType.index === 5121 || // UNSIGNED_BYTE
+      componentType.index === 5123 || // UNSIGNED_SHORT
+      componentType.index === 5125 // UNSIGNED_INT
+    ) {
+      if (this === CompositionType.Scalar) {
+        return '0u';
+      }
+      const glslType = this.getGlslStr(componentType);
+      if (this.__numberOfComponents === 2) {
+        return `${glslType}(0u, 0u)`;
+      }
+      if (this.__numberOfComponents === 3) {
+        return `${glslType}(0u, 0u, 0u)`;
+      }
+      if (this.__numberOfComponents === 4) {
+        return `${glslType}(0u, 0u, 0u, 0u)`;
+      }
+      if (this.__numberOfComponents === 9) {
+        return `${glslType}(0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u)`;
+      }
+      if (this.__numberOfComponents === 16) {
+        return `${glslType}(0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u)`;
       }
       // eslint-disable-next-line prettier/prettier
     } else if (componentType.index === 35670) {
