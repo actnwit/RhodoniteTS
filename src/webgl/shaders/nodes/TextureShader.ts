@@ -30,6 +30,8 @@ export class TextureShader extends CommonShaderPart {
     }
 
     // WebGPU
+    // Note: In vertex shaders, we must use textureSampleLevel instead of textureSample
+    // because textureSample requires implicit derivatives which are only available in fragment shaders
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       let uvStr = '';
       if (this.__compositionType === CompositionType.Texture2D) {
@@ -44,7 +46,7 @@ export class TextureShader extends CommonShaderPart {
 
       return `
 fn ${this.__functionName}(${uvStr}, outValue: ptr<function, vec4<f32>>) {
-  *outValue = textureSample(${this.__variableName}Texture, ${this.__variableName}Sampler, uv);
+  *outValue = textureSampleLevel(${this.__variableName}Texture, ${this.__variableName}Sampler, uv, 0.0);
 }
 `;
     }
