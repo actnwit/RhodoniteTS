@@ -6,9 +6,9 @@ import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
 
 /**
- * A shader node that provides uniform texture input functionality.
- * This node wraps UniformTextureShader to provide a standardized interface
- * for passing uniform textures to shader programs.
+ * A shader node that provides texture input functionality.
+ * This node wraps TextureShader to provide a standardized interface
+ * for passing textures to shader programs.
  */
 export class TextureShaderNode extends AbstractShaderNode {
   constructor(compositionType: CompositionTypeEnum) {
@@ -35,12 +35,12 @@ export class TextureShaderNode extends AbstractShaderNode {
   }
 
   /**
-   * Sets the uniform data variable name in the shader.
-   * This name will be used to reference the uniform variable in the generated shader code.
+   * Sets the texture variable name in the shader.
+   * This name will be used to reference the texture variable in the generated shader code.
    *
-   * @param value - The variable name to use for the uniform data in the shader
+   * @param value - The variable name to use for the texture in the shader
    */
-  setUniformDataName(value: any) {
+  setTextureName(value: any) {
     (this.__commonPart as UniformDataShader).setVariableName(value);
   }
 }
