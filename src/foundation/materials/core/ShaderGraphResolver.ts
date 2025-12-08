@@ -986,6 +986,7 @@ function constructNodes(json: ShaderNodeJson): {
         const nodeInstance = new TextureShaderNode(CompositionType.Texture2D);
         const textureName = node.controls.name.value;
         nodeInstance.setTextureName(textureName);
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
         textureNames.push(textureName);
         nodeInstances[node.id] = nodeInstance;
         break;
