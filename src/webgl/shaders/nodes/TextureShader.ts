@@ -43,8 +43,8 @@ export class TextureShader extends CommonShaderPart {
       }
 
       return `
-fn ${this.__functionName}(outValue: ptr<function, vec4<f32>>, ${uvStr}) {
-  *outValue = textureSample(u_${this.__variableName}Texture, u_${this.__variableName}Sampler, uv});
+fn ${this.__functionName}(${uvStr}, outValue: ptr<function, vec4<f32>>) {
+  *outValue = textureSample(u_${this.__variableName}Texture, u_${this.__variableName}Sampler, uv);
 }
 `;
     }
@@ -62,7 +62,7 @@ fn ${this.__functionName}(outValue: ptr<function, vec4<f32>>, ${uvStr}) {
     }
 
     return `
-void ${this.__functionName}(out vec4 outValue, ${uvStr}) {
+void ${this.__functionName}(${uvStr}, out vec4 outValue) {
   outValue = texture(u_${this.__variableName}, uv);
 }
 `;
@@ -87,8 +87,8 @@ void ${this.__functionName}(out vec4 outValue, ${uvStr}) {
       }
 
       return `
-fn ${this.__functionName}(outValue: ptr<function, vec4<f32>>, ${uvStr}) {
-  *outValue = textureSample(u_${this.__variableName}Texture, u_${this.__variableName}Sampler, uv});
+fn ${this.__functionName}(${uvStr}, outValue: ptr<function, vec4<f32>>) {
+  *outValue = textureSample(u_${this.__variableName}Texture, u_${this.__variableName}Sampler, uv);
 }
 `;
     }
@@ -106,7 +106,7 @@ fn ${this.__functionName}(outValue: ptr<function, vec4<f32>>, ${uvStr}) {
     }
 
     return `
-void ${this.__functionName}(out vec4 outValue, ${uvStr}) {
+void ${this.__functionName}(${uvStr}, out vec4 outValue) {
   outValue = texture(u_${this.__variableName}, uv);
 }
 `;
