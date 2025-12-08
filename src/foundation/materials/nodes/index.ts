@@ -26,6 +26,7 @@ export * from './MergeVectorShaderNode';
 export * from './MultiplyShaderNode';
 export * from './NormalizeShaderNode';
 export * from './NormalMatrixShaderNode';
+export * from './NotEqualShaderNode';
 export * from './OutColorShaderNode';
 export * from './OutPositionShaderNode';
 export * from './ProjectionMatrixShaderNode';
