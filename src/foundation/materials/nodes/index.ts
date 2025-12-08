@@ -15,6 +15,7 @@ export * from './ConstantVector4VariableShaderNode';
 export * from './DiscardShaderNode';
 export * from './DotProductShaderNode';
 export * from './GreaterShaderNode';
+export * from './GreaterThanShaderNode';
 export * from './IfStatementShaderNode';
 export * from './LengthShaderNode';
 export * from './LessThanShaderNode';

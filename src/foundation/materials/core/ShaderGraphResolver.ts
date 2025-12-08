@@ -29,12 +29,13 @@ import { ConstantVector4VariableShaderNode } from '../nodes/ConstantVector4Varia
 import { DiscardShaderNode } from '../nodes/DiscardShaderNode';
 import { DotProductShaderNode } from '../nodes/DotProductShaderNode';
 import { GreaterShaderNode } from '../nodes/GreaterShaderNode';
+import { GreaterThanShaderNode } from '../nodes/GreaterThanShaderNode';
 import { LengthShaderNode } from '../nodes/LengthShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
+import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
@@ -1294,6 +1295,23 @@ function constructNodes(json: ShaderNodeJson) {
           nodeInstance = new LessThanShaderNode(ComponentType.UnsignedInt);
         } else {
           Logger.default.error(`LessThan node: Unknown socket name: ${socketName}`);
+          break;
+        }
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'GreaterThan': {
+        const socketName = node.inputs.in1.socket.name;
+        let nodeInstance: GreaterThanShaderNode;
+        if (socketName.includes('<float>')) {
+          nodeInstance = new GreaterThanShaderNode(ComponentType.Float);
+        } else if (socketName.includes('<int>')) {
+          nodeInstance = new GreaterThanShaderNode(ComponentType.Int);
+        } else if (socketName.includes('<uint>')) {
+          nodeInstance = new GreaterThanShaderNode(ComponentType.UnsignedInt);
+        } else {
+          Logger.default.error(`GreaterThan node: Unknown socket name: ${socketName}`);
           break;
         }
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
