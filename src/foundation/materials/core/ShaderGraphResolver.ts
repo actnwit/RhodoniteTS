@@ -941,6 +941,16 @@ function constructNodes(json: ShaderNodeJson) {
         nodeInstances[node.id] = nodeInstance;
         break;
       }
+      case 'UniformVector2Float': {
+        const nodeInstance = new UniformDataShaderNode(CompositionType.Vec2, ComponentType.Float);
+        nodeInstance.setDefaultInputValue(
+          'value',
+          Vector2.fromCopy2(node.controls.initialX.value, node.controls.initialY.value)
+        );
+        nodeInstance.setUniformDataName(node.controls.name.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
       case 'UniformVector4Float': {
         const nodeInstance = new UniformDataShaderNode(CompositionType.Vec4, ComponentType.Float);
         nodeInstance.setDefaultInputValue(
