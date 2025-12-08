@@ -934,7 +934,7 @@ function constructNodes(json: ShaderNodeJson) {
         nodeInstances[node.id] = nodeInstance;
         break;
       }
-      case 'UniformVector4': {
+      case 'UniformVector4Float': {
         const nodeInstance = new UniformDataShaderNode(CompositionType.Vec4, ComponentType.Float);
         nodeInstance.setDefaultInputValue(
           'value',
