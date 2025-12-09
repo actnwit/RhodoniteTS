@@ -44,7 +44,7 @@ void main ()
 /* shaderity: @{mainPrerequisites} */
 
 	vec2 uv = v_texcoord_0 * 2.0 - 1.0;
-	vec3 direction = normalize(uvToDirection(get_cubeMapFaceId(materialSID, 0), uv));
+	vec3 direction = normalize(uvToDirection(get_cubeMapFaceId(uint(materialSID), 0u), uv));
 	vec2 panoramaUv = dirToPanoramaUV(direction);
 	rt0 = vec4(texture(u_baseColorTexture, panoramaUv).rgb, 1.0);
 

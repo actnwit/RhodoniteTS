@@ -25,7 +25,7 @@ void main ()
 
 vec4 baseColor = texture(u_baseColorTexture, v_texcoord_0);
 
-if (get_enableLinearToSrgb(materialSID, 0)) {
+if (get_enableLinearToSrgb(uint(materialSID), 0u)) {
   baseColor.rgb = linearToSrgb(baseColor.rgb);
 }
 

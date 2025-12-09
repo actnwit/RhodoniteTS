@@ -22,10 +22,10 @@ void main(){
 
   /* shaderity: @{mainPrerequisites} */
 
-  mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
-  mat4 viewMatrix = get_viewMatrix(cameraSID);
-  mat4 projectionMatrix = get_projectionMatrix(cameraSID);
-  mat3 normalMatrix = get_normalMatrix(a_instanceInfo.x);
+  mat4 worldMatrix = get_worldMatrix(uint(a_instanceInfo.x));
+  mat4 viewMatrix = get_viewMatrix(uint(cameraSID));
+  mat4 projectionMatrix = get_projectionMatrix(uint(cameraSID));
+  mat3 normalMatrix = get_normalMatrix(uint(a_instanceInfo.x));
 
   // Skeletal
   processGeometry(
@@ -47,7 +47,7 @@ void main(){
 
 
   // Shadow mapping
-  mat4 lightViewProjectionMatrix = get_lightViewProjectionMatrix(materialSID, 0);
+  mat4 lightViewProjectionMatrix = get_lightViewProjectionMatrix(uint(materialSID), 0u);
   v_projPosition_from_light = lightViewProjectionMatrix * v_position_inWorld;
 
   // Following tMatrix is based on https://wgld.org/d/webgl/w051.html

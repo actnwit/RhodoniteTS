@@ -111,30 +111,30 @@ void main() {
   rt0 = vec4(0.0, 0.0, 0.0, 1.0);
 
   // uv animation
-  float uvAnimationScrollXSpeedFactor = get_uvAnimationScrollXSpeedFactor(materialSID, 0);
-  float uvAnimationScrollYSpeedFactor = get_uvAnimationScrollYSpeedFactor(materialSID, 0);
-  float uvAnimationRotationSpeedFactor = get_uvAnimationRotationSpeedFactor(materialSID, 0);
-  int uvAnimationMaskTexcoordIndex = get_uvAnimationMaskTexcoordIndex(materialSID, 0);
+  float uvAnimationScrollXSpeedFactor = get_uvAnimationScrollXSpeedFactor(uint(materialSID), 0u);
+  float uvAnimationScrollYSpeedFactor = get_uvAnimationScrollYSpeedFactor(uint(materialSID), 0u);
+  float uvAnimationRotationSpeedFactor = get_uvAnimationRotationSpeedFactor(uint(materialSID), 0u);
+  int uvAnimationMaskTexcoordIndex = get_uvAnimationMaskTexcoordIndex(uint(materialSID), 0u);
   vec2 uvAnimationMaskTexcoord = getTexcoord(uvAnimationMaskTexcoordIndex);
   float uvAnimMask = texture(u_uvAnimationMaskTexture, uvAnimationMaskTexcoord).b;
-  float time = get_time(0.0, 0);
+  float time = get_time(0u, 0u);
 
   // base color
-  vec2 baseColorTextureTransformScale = get_baseColorTextureTransformScale(materialSID, 0);
-  vec2 baseColorTextureTransformOffset = get_baseColorTextureTransformOffset(materialSID, 0);
-  float baseColorTextureTransformRotation = get_baseColorTextureTransformRotation(materialSID, 0);
-  int baseColorTexcoordIndex = get_baseColorTexcoordIndex(materialSID, 0);
+  vec2 baseColorTextureTransformScale = get_baseColorTextureTransformScale(uint(materialSID), 0u);
+  vec2 baseColorTextureTransformOffset = get_baseColorTextureTransformOffset(uint(materialSID), 0u);
+  float baseColorTextureTransformRotation = get_baseColorTextureTransformRotation(uint(materialSID), 0u);
+  int baseColorTexcoordIndex = get_baseColorTexcoordIndex(uint(materialSID), 0u);
   vec2 baseColorTexcoord = getTexcoord(baseColorTexcoordIndex);
   baseColorTexcoord = uvAnimation(baseColorTexcoord, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
   vec2 baseColorTexUv = uvTransform(baseColorTextureTransformScale, baseColorTextureTransformOffset, baseColorTextureTransformRotation, baseColorTexcoord);
   vec4 baseColorTexture = texture(u_baseColorTexture, baseColorTexUv);
   baseColorTexture.rgb = srgbToLinear(baseColorTexture.rgb);
-  vec4 baseColorFactor = get_baseColorFactor(materialSID, 0);
+  vec4 baseColorFactor = get_baseColorFactor(uint(materialSID), 0u);
   vec3 baseColorTerm = baseColorTexture.rgb * baseColorFactor.rgb;
 
   // shade color
-  vec3 shadeColorFactor = get_shadeColorFactor(materialSID, 0);
-  int shadeMultiplyTexcoordIndex = get_shadeMultiplyTexcoordIndex(materialSID, 0);
+  vec3 shadeColorFactor = get_shadeColorFactor(uint(materialSID), 0u);
+  int shadeMultiplyTexcoordIndex = get_shadeMultiplyTexcoordIndex(uint(materialSID), 0u);
   vec2 shadeMultiplyTexcoord = getTexcoord(shadeMultiplyTexcoordIndex);
   shadeMultiplyTexcoord = uvAnimation(shadeMultiplyTexcoord, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
   vec4 shadeMultiplyTexture = texture(u_shadeMultiplyTexture, shadeMultiplyTexcoord);
@@ -142,15 +142,15 @@ void main() {
   vec3 shadeColorTerm = shadeColorFactor * shadeMultiplyTexture.rgb;
 
   // shading shift
-  int shadingShiftTexcoordIndex = get_shadingShiftTexcoordIndex(materialSID, 0);
+  int shadingShiftTexcoordIndex = get_shadingShiftTexcoordIndex(uint(materialSID), 0u);
   vec2 shadingShiftTexcoord = getTexcoord(shadingShiftTexcoordIndex);
   shadingShiftTexcoord = uvAnimation(shadingShiftTexcoord, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
   float shadingShiftTexture = texture(u_shadingShiftTexture, shadingShiftTexcoord).r;
-  float shadingShiftTextureScale = get_shadingShiftTextureScale(materialSID, 0);
+  float shadingShiftTextureScale = get_shadingShiftTextureScale(uint(materialSID), 0u);
 
   // emissive
-  vec3 emissiveFactor = get_emissiveFactor(materialSID, 0);
-  int emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0);
+  vec3 emissiveFactor = get_emissiveFactor(uint(materialSID), 0u);
+  int emissiveTexcoordIndex = get_emissiveTexcoordIndex(uint(materialSID), 0u);
   vec2 emissiveTexcoord = getTexcoord(emissiveTexcoordIndex);
   emissiveTexcoord = uvAnimation(emissiveTexcoord, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
   vec4 emissiveTexture = texture(u_emissiveTexture, emissiveTexcoord);
@@ -160,22 +160,22 @@ void main() {
   // alpha
   float alpha = baseColorTexture.a * baseColorFactor.a;
 #ifdef RN_ALPHATEST_ON
-  float cutoff = get_alphaCutoff(materialSID, 0);
+  float cutoff = get_alphaCutoff(uint(materialSID), 0u);
   if(alpha < cutoff) discard;
 #endif
 
   // view vector
-  vec3 viewPosition = get_viewPosition(cameraSID);
+  vec3 viewPosition = get_viewPosition(uint(cameraSID));
   vec3 viewVector = viewPosition - v_position_inWorld.xyz;
   vec3 viewDirection = normalize(viewVector);
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
 #ifdef RN_USE_NORMAL_TEXTURE
-  vec2 normalTextureTransformScale = get_normalTextureTransformScale(materialSID, 0);
-  vec2 normalTextureTransformOffset = get_normalTextureTransformOffset(materialSID, 0);
-  float normalTextureTransformRotation = get_normalTextureTransformRotation(materialSID, 0);
-  int normalTexcoordIndex = get_normalTexcoordIndex(materialSID, 0);
+  vec2 normalTextureTransformScale = get_normalTextureTransformScale(uint(materialSID), 0u);
+  vec2 normalTextureTransformOffset = get_normalTextureTransformOffset(uint(materialSID), 0u);
+  float normalTextureTransformRotation = get_normalTextureTransformRotation(uint(materialSID), 0u);
+  int normalTexcoordIndex = get_normalTexcoordIndex(uint(materialSID), 0u);
   vec2 normalTexcoord = getTexcoord(normalTexcoordIndex);
   normalTexcoord = uvAnimation(normalTexcoord, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
   vec2 normalTexUv = uvTransform(normalTextureTransformScale, normalTextureTransformOffset, normalTextureTransformRotation, normalTexcoord);
@@ -194,9 +194,9 @@ void main() {
   for (int i = 0; i < lightNumber; i++) {
     Light light = getLight(i, v_position_inWorld.xyz);
     float shading = dot(light.direction, normal_inWorld);
-    float shadingShiftFactor = get_shadingShiftFactor(materialSID, 0);
+    float shadingShiftFactor = get_shadingShiftFactor(uint(materialSID), 0u);
     shading += shadingShiftFactor + shadingShiftTexture * shadingShiftTextureScale;
-    float shadingToonyFactor = get_shadingToonyFactor(materialSID, 0);
+    float shadingToonyFactor = get_shadingToonyFactor(uint(materialSID), 0u);
     shading = linearstep(-1.0 + shadingToonyFactor, 1.0 - shadingToonyFactor, shading);
 
     vec3 color = mix(shadeColorTerm, baseColorTerm, shading);
@@ -207,15 +207,15 @@ void main() {
 
   // indirect lighting
   // https://github.com/vrm-c/vrm-specification/blob/282edef7b8de6044d782afdab12b14bd8ccf0630/specification/VRMC_materials_mtoon-1.0/README.ja.md#implementation-1
-  float giEqualizationFactor = get_giEqualizationFactor(materialSID, 0);
+  float giEqualizationFactor = get_giEqualizationFactor(uint(materialSID), 0u);
   vec3 worldUpVector = vec3(0.0, 1.0, 0.0);
   vec3 worldDownVector = vec3(0.0, -1.0, 0.0);
-  vec4 iblParameter = get_iblParameter(materialSID, 0);
+  vec4 iblParameter = get_iblParameter(uint(materialSID), 0u);
   float rot = iblParameter.w;
   float IBLDiffuseContribution = iblParameter.y;
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   vec3 normal_forEnv = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
-  ivec2 hdriFormat = get_hdriFormat(materialSID, 0);
+  ivec2 hdriFormat = get_hdriFormat(uint(materialSID), 0u);
   vec3 rawGiUp = getIBLIrradiance(worldUpVector, iblParameter, hdriFormat) * IBLDiffuseContribution;
   vec3 rawGiDown = getIBLIrradiance(worldDownVector, iblParameter, hdriFormat) * IBLDiffuseContribution;
   vec3 rawGiNormal = getIBLIrradiance(normal_forEnv, iblParameter, hdriFormat) * IBLDiffuseContribution;
@@ -231,19 +231,19 @@ void main() {
   vec3 worldViewY = cross(viewDirection, worldViewX);
   vec2 matcapUv = vec2( dot(worldViewX, normal_inWorld), dot(worldViewY, normal_inWorld)) * 0.495 + 0.5;
   float epsilon = 0.00001;
-  vec3 matcapFactor = srgbToLinear(get_matcapFactor(materialSID, 0));
+  vec3 matcapFactor = srgbToLinear(get_matcapFactor(uint(materialSID), 0u));
   rim = matcapFactor * texture(u_matcapTexture, matcapUv).rgb;
-  float parametricRimLiftFactor = get_parametricRimLiftFactor(materialSID, 0);
+  float parametricRimLiftFactor = get_parametricRimLiftFactor(uint(materialSID), 0u);
   float parametricRim = clamp( 1.0 - dot(normal_inWorld, viewVector) + parametricRimLiftFactor, 0.0, 1.0);
-  float parametricRimFresnelPowerFactor = get_parametricRimFresnelPowerFactor(materialSID, 0);
+  float parametricRimFresnelPowerFactor = get_parametricRimFresnelPowerFactor(uint(materialSID), 0u);
   parametricRim = pow(parametricRim, max(parametricRimFresnelPowerFactor, epsilon));
-  vec3 parametricRimColorFactor = get_parametricRimColorFactor(materialSID, 0);
+  vec3 parametricRimColorFactor = get_parametricRimColorFactor(uint(materialSID), 0u);
   rim += parametricRim * parametricRimColorFactor;
-  int rimMultiplyTexcoordIndex = get_rimMultiplyTexcoordIndex(materialSID, 0);
+  int rimMultiplyTexcoordIndex = get_rimMultiplyTexcoordIndex(uint(materialSID), 0u);
   vec2 rimMultiplyTexcoord = getTexcoord(rimMultiplyTexcoordIndex);
   rimMultiplyTexcoord = uvAnimation(rimMultiplyTexcoord, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
   rim *= srgbToLinear(texture(u_rimMultiplyTexture, rimMultiplyTexcoord).rgb);
-  float rimLightingMixFactor = get_rimLightingMixFactor(materialSID, 0);
+  float rimLightingMixFactor = get_rimLightingMixFactor(uint(materialSID), 0u);
   rim *= mix(vec3(1.0), directLighting + gi, rimLightingMixFactor);
   rt0.xyz += rim;
 
@@ -251,8 +251,8 @@ void main() {
   rt0.xyz += emissive;
 
 #ifdef RN_MTOON_IS_OUTLINE
-  vec3 outlineColorFactor = get_outlineColorFactor(materialSID, 0);
-  float outlineLightingMixFactor = get_outlineLightingMixFactor(materialSID, 0);
+  vec3 outlineColorFactor = get_outlineColorFactor(uint(materialSID), 0u);
+  float outlineLightingMixFactor = get_outlineLightingMixFactor(uint(materialSID), 0u);
   rt0.xyz = outlineColorFactor * mix(vec3(1.0), rt0.xyz, outlineLightingMixFactor);
 #endif
 

@@ -20,9 +20,9 @@ out vec3 v_normal_inView;
 void main(){
 /* shaderity: @{mainPrerequisites} */
 
-  mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
-  mat3 normalMatrix = get_normalMatrix(a_instanceInfo.x);
-  mat4 viewMatrix = get_viewMatrix(cameraSID);
+  mat4 worldMatrix = get_worldMatrix(uint(a_instanceInfo.x));
+  mat3 normalMatrix = get_normalMatrix(uint(a_instanceInfo.x));
+  mat4 viewMatrix = get_viewMatrix(uint(cameraSID));
 
   bool isSkinning = false;
   isSkinning = processGeometry(
@@ -39,7 +39,7 @@ void main(){
     v_normal_inWorld
   );
 
-  mat4 projectionMatrix = get_projectionMatrix(cameraSID);
+  mat4 projectionMatrix = get_projectionMatrix(uint(cameraSID));
   gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
 
   v_normal_inView = vec3(viewMatrix * vec4(normalMatrix * a_normal, 0.0));

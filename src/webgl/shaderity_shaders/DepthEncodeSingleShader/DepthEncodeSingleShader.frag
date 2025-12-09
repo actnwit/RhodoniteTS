@@ -28,17 +28,17 @@ void main (){
 
 /* shaderity: @{mainPrerequisites} */
   float depth;
-  bool isPointLight = get_isPointLight(materialSID, 0);
+  bool isPointLight = get_isPointLight(uint(materialSID), 0u);
   if(isPointLight){
-    float zNear = get_zNearInner(materialSID, 0);
-    float zFar = get_zFarInner(materialSID, 0);
+    float zNear = get_zNearInner(uint(materialSID), 0u);
+    float zFar = get_zFarInner(uint(materialSID), 0u);
     float normalizationCoefficient = 1.0 / (zFar - zNear);
     depth = normalizationCoefficient * length(v_position_inLocal);
   }else{
     depth = gl_FragCoord.z;
   }
 
-  float depthPow = get_depthPow(materialSID, 0);
+  float depthPow = get_depthPow(uint(materialSID), 0u);
   float depthData = pow(depth, depthPow);
   vec4 encodedDepth = encodeDepthToRGBA(depthData);
 

@@ -42,7 +42,7 @@ void main ()
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
 
-  vec4 diffuseColorFactor = get_diffuseColorFactor(materialSID, 0);
+  vec4 diffuseColorFactor = get_diffuseColorFactor(uint(materialSID), 0u);
 
 
   // diffuseColor (Considered to be premultiplied alpha)
@@ -61,8 +61,8 @@ void main ()
   }
 
   // diffuseColorTexture (Considered to be premultiplied alpha)
-  vec4 diffuseColorTextureTransform = get_diffuseColorTextureTransform(materialSID, 0);
-  float diffuseColorTextureRotation = get_diffuseColorTextureRotation(materialSID, 0);
+  vec4 diffuseColorTextureTransform = get_diffuseColorTextureTransform(uint(materialSID), 0u);
+  float diffuseColorTextureRotation = get_diffuseColorTextureRotation(uint(materialSID), 0u);
   vec2 diffuseColorTexUv = uvTransform(diffuseColorTextureTransform.xy, diffuseColorTextureTransform.zw, diffuseColorTextureRotation, v_texcoord_0);
   vec4 textureColor = texture(u_diffuseColorTexture, diffuseColorTexUv);
   diffuseColor *= textureColor.rgb;
@@ -73,7 +73,7 @@ void main ()
   // Lighting
   vec3 shadingColor = vec3(0.0, 0.0, 0.0);
 #ifdef RN_IS_LIGHTING
-  int shadingModel = get_shadingModel(materialSID, 0);
+  int shadingModel = get_shadingModel(uint(materialSID), 0u);
   if (shadingModel > 0) {
 
     vec3 diffuse = vec3(0.0, 0.0, 0.0);
@@ -89,10 +89,10 @@ void main ()
       // Diffuse
       diffuse += diffuseColor * max(0.0, dot(normal_inWorld, light.direction)) * light.attenuatedIntensity;
 
-      float shininess = get_shininess(materialSID, 0);
-      int shadingModel = get_shadingModel(materialSID, 0);
+      float shininess = get_shininess(uint(materialSID), 0u);
+      int shadingModel = get_shadingModel(uint(materialSID), 0u);
 
-      vec3 viewPosition = get_viewPosition(cameraSID);
+      vec3 viewPosition = get_viewPosition(uint(cameraSID));
 
       // Specular
       if (shadingModel == 2) {// BLINN

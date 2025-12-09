@@ -32,7 +32,7 @@ void main ()
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
 
-  vec4 diffuseColorFactor = get_diffuseColorFactor(materialSID, 0);
+  vec4 diffuseColorFactor = get_diffuseColorFactor(uint(materialSID), 0u);
 
 
   // diffuseColor (Considered to be premultiplied alpha)
@@ -51,8 +51,8 @@ void main ()
   }
 
   // diffuseColorTexture (Considered to be premultiplied alpha)
-  vec4 diffuseColorTextureTransform = get_diffuseColorTextureTransform(materialSID, 0);
-  float diffuseColorTextureRotation = get_diffuseColorTextureRotation(materialSID, 0);
+  vec4 diffuseColorTextureTransform = get_diffuseColorTextureTransform(uint(materialSID), 0u);
+  float diffuseColorTextureRotation = get_diffuseColorTextureRotation(uint(materialSID), 0u);
   vec2 diffuseColorTexUv = uvTransform(diffuseColorTextureTransform.xy, diffuseColorTextureTransform.zw, diffuseColorTextureRotation, v_texcoord_0);
   vec4 textureColor = texture(u_diffuseColorTexture, diffuseColorTexUv);
   diffuseColor *= textureColor.rgb;

@@ -187,15 +187,15 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
       const arrayLengthMap = Component.getArrayLengthOfMember(engine).get(componentClass) ?? new Map<string, number>();
       const arrayLength = arrayLengthMap.get(memberName) ?? 0;
       const arrayLengthStr = `int arrayLength = ${arrayLength};`;
-      const indexStr = `int index = indices[instanceIdOfBufferViews] + instanceIdInBufferView * ${vec4SizeOfProperty} * arrayLength + ${vec4SizeOfProperty} * idxOfArray;`; // vec4_idx
+      const indexStr = `int index = indices[instanceIdOfBufferViews] + int(instanceIdInBufferView) * ${vec4SizeOfProperty} * arrayLength + ${vec4SizeOfProperty} * int(idxOfArray);`; // vec4_idx
       let conversionStr = '';
       if (memberInfo.convertToBool) {
         conversionStr = 'return (value > 0.5) ? true : false;';
       }
       str += `
-  ${memberInfo.convertToBool ? 'bool' : typeStr} get_${memberName}(float instanceId, int idxOfArray) {
-    int instanceIdOfBufferViews = int(instanceId) / ${componentCountPerBufferView};
-    int instanceIdInBufferView = int(instanceId) % ${componentCountPerBufferView};
+  ${memberInfo.convertToBool ? 'bool' : typeStr} get_${memberName}(uint instanceId, uint idxOfArray) {
+    uint instanceIdOfBufferViews = instanceId / ${componentCountPerBufferView}u;
+    uint instanceIdInBufferView = instanceId % ${componentCountPerBufferView}u;
     int indices[] = int[](${locationOffsets_vec4_idx.join(', ')});
     ${arrayLengthStr}
     ${indexStr}
@@ -245,19 +245,19 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
       let indexStr = '';
       switch (memberInfo.compositionType) {
         case CompositionType.Mat4:
-          indexStr = 'int index = indices[instanceIdOfBufferViews] + 4 * instanceIdInBufferView;'; // vec4_idx
+          indexStr = 'int index = indices[instanceIdOfBufferViews] + 4 * int(instanceIdInBufferView);'; // vec4_idx
           break;
         case CompositionType.Mat3:
-          indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 9 * instanceIdInBufferView;'; // scalar_idx
+          indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 9 * int(instanceIdInBufferView);'; // scalar_idx
           break;
         case CompositionType.Vec4:
-          indexStr = 'int index = indices[instanceIdOfBufferViews] + 1 * instanceIdInBufferView;'; // vec4_idx
+          indexStr = 'int index = indices[instanceIdOfBufferViews] + 1 * int(instanceIdInBufferView);'; // vec4_idx
           break;
         case CompositionType.Vec3:
-          indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 3 * instanceIdInBufferView;'; // scalar_idx
+          indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 3 * int(instanceIdInBufferView);'; // scalar_idx
           break;
         case CompositionType.Scalar:
-          indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 1 * instanceIdInBufferView;'; // scalar_idx
+          indexStr = 'int index = indices[instanceIdOfBufferViews] * 4 + 1 * int(instanceIdInBufferView);'; // scalar_idx
           break;
         default:
           throw new Error(`Unsupported composition type: ${memberInfo.compositionType.str}`);
@@ -267,9 +267,9 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
         conversionStr = 'return (value > 0.5) ? true : false;';
       }
       str += `
-  ${memberInfo.convertToBool ? 'bool' : typeStr} get_${memberName}(float instanceId) {
-    int instanceIdOfBufferViews = int(instanceId) / ${componentCountPerBufferView};
-    int instanceIdInBufferView = int(instanceId) % ${componentCountPerBufferView};
+  ${memberInfo.convertToBool ? 'bool' : typeStr} get_${memberName}(uint instanceId) {
+    uint instanceIdOfBufferViews = instanceId / ${componentCountPerBufferView}u;
+    uint instanceIdInBufferView = instanceId % ${componentCountPerBufferView}u;
     int indices[] = int[](${locationOffsets_vec4_idx.join(', ')});
     ${indexStr}
     ${typeStr} value = ${fetchTypeStr}(index);
@@ -296,7 +296,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
     const morphingStr = `
     #ifdef RN_IS_VERTEX_SHADER
       #ifdef RN_IS_MORPHING
-      vec3 get_position(float vertexId, vec3 basePosition, int blendShapeComponentSID) {
+      vec3 get_position(uint vertexId, vec3 basePosition, uint blendShapeComponentSID) {
         ${morphUniformDataTargetNumbersStr}
         ${morphUniformDataOffsetsStr}
         ${blendShapeUniformDataOffsetsStr}
@@ -492,11 +492,11 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
       instanceSize = vec4SizeOfProperty * (info.arrayLength ?? 1);
       const paddedAsVec4 = Math.ceil(scalarSizeOfProperty / 4) * 4;
       const instanceSizeInScalar = paddedAsVec4 * (info.arrayLength ?? 1);
-      indexStr = `int vec4_idx = ${offsetOfProperty} + ${instanceSize} * instanceId + ${vec4SizeOfProperty} * idxOfArray;\n`;
+      indexStr = `int vec4_idx = ${offsetOfProperty} + ${instanceSize} * instanceId + ${vec4SizeOfProperty} * int(idxOfArray);\n`;
       indexStr += `int scalar_idx = ${
         // IndexOf4Bytes
         offsetOfProperty * 4 // IndexOf16bytes to IndexOf4Bytes
-      } + ${instanceSizeInScalar} * instanceId + ${scalarSizeOfProperty} * idxOfArray;\n`;
+      } + ${instanceSizeInScalar} * instanceId + ${scalarSizeOfProperty} * int(idxOfArray);\n`;
     }
 
     let intStr = '';
@@ -507,7 +507,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
     let firstPartOfInnerFunc = '';
     if (!isTexture && !info.needUniformInDataTextureMode) {
       firstPartOfInnerFunc += `
-${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
+${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
   int instanceId = int(_instanceId);
   ${indexStr}
   `;
@@ -590,7 +590,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         varIndexStr = '[idxOfArray]';
       }
       const str = `${varDef}
-${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
+${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
   return u_${methodName}${varIndexStr};
 }
 `;
@@ -649,13 +649,13 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const offsetStr = `int offsets[] = int[](${offsetOfProperty.join(', ')});`;
 
     let instanceSize = vec4SizeOfProperty;
-    indexStr = `int vec4_idx = offsets[instanceIdOfBufferViews] + ${instanceSize} * instanceIdInBufferView;\n`;
+    indexStr = `int vec4_idx = offsets[instanceIdOfBufferViews] + ${instanceSize} * int(instanceIdInBufferView);\n`;
     if (CompositionType.isArray(info.compositionType)) {
       instanceSize = vec4SizeOfProperty * (info.arrayLength ?? 1);
       const paddedAsVec4 = Math.ceil(scalarSizeOfProperty / 4) * 4;
       const instanceSizeInScalar = paddedAsVec4 * (info.arrayLength ?? 1);
-      indexStr = `int vec4_idx = offsets[instanceIdOfBufferViews] + ${instanceSize} * instanceIdInBufferView + ${vec4SizeOfProperty} * idxOfArray;\n`;
-      indexStr += `int scalar_idx = offsets[instanceIdOfBufferViews] * 4 + ${instanceSizeInScalar} * instanceIdInBufferView + ${scalarSizeOfProperty} * idxOfArray;\n`;
+      indexStr = `int vec4_idx = offsets[instanceIdOfBufferViews] + ${instanceSize} * int(instanceIdInBufferView) + ${vec4SizeOfProperty} * int(idxOfArray);\n`;
+      indexStr += `int scalar_idx = offsets[instanceIdOfBufferViews] * 4 + ${instanceSizeInScalar} * int(instanceIdInBufferView) + ${scalarSizeOfProperty} * int(idxOfArray);\n`;
     }
 
     let intStr = '';
@@ -666,10 +666,10 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     let firstPartOfInnerFunc = '';
     if (!isTexture && !info.needUniformInDataTextureMode) {
       firstPartOfInnerFunc += `
-${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
-  int instanceId = int(_instanceId);
-  int instanceIdOfBufferViews = int(instanceId) / ${materialCountPerBufferView};
-  int instanceIdInBufferView = int(instanceId) % ${materialCountPerBufferView};
+${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
+  uint instanceId = _instanceId;
+  uint instanceIdOfBufferViews = instanceId / ${materialCountPerBufferView}u;
+  uint instanceIdInBufferView = instanceId % ${materialCountPerBufferView}u;
   ${offsetStr}
   ${indexStr}
   `;
@@ -752,7 +752,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         varIndexStr = '[idxOfArray]';
       }
       const str = `${varDef}
-${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
+${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
   return u_${methodName}${varIndexStr};
 }
 `;

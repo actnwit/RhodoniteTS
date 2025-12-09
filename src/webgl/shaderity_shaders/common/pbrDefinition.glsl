@@ -254,7 +254,7 @@ vec3 volumeAttenuation(vec3 attenuationColor, float attenuationDistance, vec3 in
 vec3 getVolumeTransmissionRay(vec3 n, vec3 v, float thickness, float ior)
 {
   vec3 refractionVector = refract(-v, normalize(n), 1.0 / ior);
-  mat4 worldMatrix = get_worldMatrix(v_instanceInfo);
+  mat4 worldMatrix = get_worldMatrix(uint(v_instanceInfo));
 
   vec3 modelScale;
   modelScale.x = length(vec3(worldMatrix[0].xyz));

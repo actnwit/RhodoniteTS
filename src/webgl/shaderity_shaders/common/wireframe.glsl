@@ -1,6 +1,6 @@
 #ifdef RN_USE_WIREFRAME
   float threshold = 0.001;
-  vec3 wireframe = get_wireframe(materialSID, 0);
+  vec3 wireframe = get_wireframe(uint(materialSID), 0u);
   float wireframeWidthInner = wireframe.z;
   float wireframeWidthRelativeScale = 1.0;
   if (wireframe.x > 0.5 && wireframe.y < 0.5) {

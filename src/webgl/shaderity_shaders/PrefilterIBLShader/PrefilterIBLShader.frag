@@ -53,7 +53,7 @@ mat3 createTBN(vec3 normal)
 
 vec4 getImportanceSampleLambertian(int sampleIndex, vec3 N, float roughness, float materialSID)
 {
-    vec2 xi = hammersley2d(sampleIndex, get_sampleCount(materialSID, 0));
+    vec2 xi = hammersley2d(sampleIndex, get_sampleCount(uint(materialSID), 0u));
 
     float sinTheta = sqrt(1.0 - xi.y);
     float cosTheta = sqrt(xi.y);
@@ -81,7 +81,7 @@ float d_GGX(float NH, float alphaRoughness) {
 // https://bruop.github.io/ibl/
 vec4 getImportanceSampleGGX(int sampleIndex, vec3 N, float roughness, float materialSID)
 {
-    vec2 xi = hammersley2d(sampleIndex, get_sampleCount(materialSID, 0));
+    vec2 xi = hammersley2d(sampleIndex, get_sampleCount(uint(materialSID), 0u));
 
     float alpha = roughness * roughness;
     float cosTheta = clamp(sqrt((1.0 - xi.y) / (1.0 + (alpha * alpha - 1.0) * xi.y)), 0.0, 1.0);
@@ -111,7 +111,7 @@ float D_Charlie(float sheenRoughness, float NdotH)
 
 vec4 getImportanceSampleCharlie(int sampleIndex, vec3 N, float roughness, float materialSID)
 {
-    vec2 xi = hammersley2d(sampleIndex, get_sampleCount(materialSID, 0));
+    vec2 xi = hammersley2d(sampleIndex, get_sampleCount(uint(materialSID), 0u));
 
     float alpha = roughness * roughness;
     float sinTheta = pow(xi.y, alpha / (2.0*alpha + 1.0));
@@ -146,21 +146,21 @@ vec3 prefilter(vec3 N, float materialSID)
 {
     vec3 color = vec3(0.f);
     float weight = 0.0f;
-    int sampleCount = get_sampleCount(materialSID, 0);
+    int sampleCount = get_sampleCount(uint(materialSID), 0u);
 
     ivec2 texSize = textureSize(u_baseColorTexture, 0);
 
-    for(int i = 0; i < get_sampleCount(materialSID, 0); ++i)
+    for(int i = 0; i < get_sampleCount(uint(materialSID), 0u); ++i)
     {
         vec4 importanceSample;
 
-        int distributionType = get_distributionType(materialSID, 0);
+        int distributionType = get_distributionType(uint(materialSID), 0u);
         if(distributionType == cLambertian) {
-            importanceSample = getImportanceSampleLambertian(i, N, get_roughness(materialSID, 0), materialSID);
+            importanceSample = getImportanceSampleLambertian(i, N, get_roughness(uint(materialSID), 0u), materialSID);
         } else if(distributionType == cGGX) {
-            importanceSample = getImportanceSampleGGX(i, N, get_roughness(materialSID, 0), materialSID);
+            importanceSample = getImportanceSampleGGX(i, N, get_roughness(uint(materialSID), 0u), materialSID);
         } else {
-            importanceSample = getImportanceSampleCharlie(i, N, get_roughness(materialSID, 0), materialSID);
+            importanceSample = getImportanceSampleCharlie(i, N, get_roughness(uint(materialSID), 0u), materialSID);
         }
 
         vec3 H = vec3(importanceSample.xyz);
@@ -221,7 +221,7 @@ void main ()
 /* shaderity: @{mainPrerequisites} */
 
   vec2 uv = v_texcoord_0 * 2.0 - 1.0;
-  vec3 scan = uvToDir(get_cubeMapFaceId(materialSID, 0), uv);
+  vec3 scan = uvToDir(get_cubeMapFaceId(uint(materialSID), 0u), uv);
   vec3 direction = normalize(scan);
   direction.y = -direction.y;
 

@@ -180,7 +180,7 @@ baseColor.b = GT_ToneMaping(baseColor.b);
 
 
 // Convert linear color to sRGB color space.
-if (get_enableLinearToSrgb(materialSID, 0)) {
+if (get_enableLinearToSrgb(uint(materialSID), 0u)) {
   baseColor.rgb = linearToSrgb(baseColor.rgb);
 }
 

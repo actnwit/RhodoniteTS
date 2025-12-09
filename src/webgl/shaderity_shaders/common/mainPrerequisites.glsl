@@ -3,7 +3,7 @@
 
   int lightNumber = 0;
   #ifdef RN_IS_LIGHTING
-    lightNumber = get_lightNumber(0.0, 0);
+    lightNumber = get_lightNumber(0u, 0u);
   #endif
 
   float skeletalComponentSID = -1.0;
@@ -21,12 +21,12 @@
 
   int lightNumber = 0;
   #ifdef RN_IS_LIGHTING
-    lightNumber = get_lightNumber(0.0, 0);
+    lightNumber = get_lightNumber(0u, 0u);
   #endif
 
   float skeletalComponentSID = -1.0;
   #ifdef RN_IS_SKINNING
-    skeletalComponentSID = float(get_skinningMode(0.0, 0));
+    skeletalComponentSID = float(get_skinningMode(0u, 0u));
   #endif
 
 #endif
