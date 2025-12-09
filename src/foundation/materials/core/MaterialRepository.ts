@@ -179,12 +179,13 @@ export class MaterialRepository {
     }
 
     const existingShaderSemanticsInfoList = Array.from(existingMaterial._allFieldsInfo.values());
+    // Include stage information in the comparison to ensure shader properties are generated correctly
     const existingShaderSemanticsInfoListString = existingShaderSemanticsInfoList
-      .map(info => info.semantic + info.compositionType.str + info.componentType.str)
+      .map(info => info.semantic + info.compositionType.str + info.componentType.str + info.stage.index)
       .join('');
     const newShaderSemanticsInfoList = newMaterialNode._semanticsInfoArray;
     const newShaderSemanticsInfoListString = newShaderSemanticsInfoList
-      .map(info => info.semantic + info.compositionType.str + info.componentType.str)
+      .map(info => info.semantic + info.compositionType.str + info.componentType.str + info.stage.index)
       .join('');
     if (existingShaderSemanticsInfoListString !== newShaderSemanticsInfoListString) {
       return false;
