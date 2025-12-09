@@ -2,6 +2,8 @@ import { TextureShader } from '../../../webgl/shaders/nodes/TextureShader';
 import type { UniformDataShader } from '../../../webgl/shaders/nodes/UniformDataShader';
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
+import { Scalar } from '../../math/Scalar';
+import { Vector2 } from '../../math/Vector2';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
 
@@ -25,7 +27,17 @@ export class TextureShaderNode extends AbstractShaderNode {
       this.__inputs.push(new Socket('uv', CompositionType.Vec3, ComponentType.Float));
     }
 
-    this.__outputs.push(new Socket('outValue', CompositionType.Vec4, ComponentType.Float));
+    this.__inputs.push(new Socket('scale', CompositionType.Vec2, ComponentType.Float, Vector2.fromCopy2(1, 1)));
+    this.__inputs.push(new Socket('offset', CompositionType.Vec2, ComponentType.Float, Vector2.fromCopy2(0, 0)));
+    this.__inputs.push(new Socket('rotation', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
+    this.__inputs.push(new Socket('lod', CompositionType.Scalar, ComponentType.Int, Scalar.fromCopyNumber(-1)));
+
+    this.__outputs.push(new Socket('rgba', CompositionType.Vec4, ComponentType.Float));
+    this.__outputs.push(new Socket('rgb', CompositionType.Vec3, ComponentType.Float));
+    this.__outputs.push(new Socket('r', CompositionType.Scalar, ComponentType.Float));
+    this.__outputs.push(new Socket('g', CompositionType.Scalar, ComponentType.Float));
+    this.__outputs.push(new Socket('b', CompositionType.Scalar, ComponentType.Float));
+    this.__outputs.push(new Socket('a', CompositionType.Scalar, ComponentType.Float));
   }
 
   /**
