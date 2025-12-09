@@ -79,6 +79,16 @@ void main() {
     `;
   }
 
+  static getMaterialSIDForWebGL() {
+    return `
+  #ifdef RN_IS_DATATEXTURE_MODE
+    float materialSID = u_currentComponentSIDs[0]; // index 0 data is the materialSID
+  #else
+    float materialSID = u_materialSID;
+  #endif
+  `;
+  }
+
   /**
    * Generates vertex shader prerequisites including definitions, vertex inputs, and uniform declarations.
    * Creates appropriate code for both WebGL (GLSL) and WebGPU (WGSL) based on the current process approach.

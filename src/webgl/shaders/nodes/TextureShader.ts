@@ -47,8 +47,16 @@ export class TextureShader extends CommonShaderPart {
 
       const { textureName, samplerName } = getTextureAndSamplerNames(this.__variableName);
       return `
+// #param ${textureName}TransformScale: vec2<f32>; // initialValue=(1,1)
+// #param ${textureName}TransformOffset: vec2<f32>; // initialValue=(0,0)
+// #param ${textureName}TransformRotation: f32; // initialValue=0
 fn ${this.__functionName}(${uvStr}, outValue: ptr<function, vec4<f32>>) {
-  *outValue = textureSampleLevel(${textureName}, ${samplerName}, uv, 0.0);
+  let materialSID = uniformDrawParameters.materialSid;
+  let ${textureName}TransformScale: vec2f = get_${textureName}TransformScale(materialSID, 0);
+  let ${textureName}TransformOffset: vec2f = get_${textureName}TransformOffset(materialSID, 0);
+  let ${textureName}TransformRotation: f32 = get_${textureName}TransformRotation(materialSID, 0);
+  let ${textureName}TexUv = uvTransform(${textureName}TransformScale, ${textureName}TransformOffset, ${textureName}TransformRotation, uv);
+  *outValue = textureSampleLevel(${textureName}, ${samplerName}, ${textureName}TexUv, 0.0);
 }
 `;
     }
@@ -66,7 +74,16 @@ fn ${this.__functionName}(${uvStr}, outValue: ptr<function, vec4<f32>>) {
     }
 
     return `
+uniform vec2 u_${this.__variableName}TransformScale; // initialValue=(1,1)
+uniform vec2 u_${this.__variableName}TransformOffset; // initialValue=(0,0)
+uniform float u_${this.__variableName}TransformRotation; // initialValue=0
 void ${this.__functionName}(${uvStr}, out vec4 outValue) {
+  ${CommonShaderPart.getMaterialSIDForWebGL()}
+  vec2 ${this.__variableName}TransformScale = get_${this.__variableName}TransformScale(materialSID, 0);
+  vec2 ${this.__variableName}TransformOffset = get_${this.__variableName}TransformOffset(materialSID, 0);
+  float ${this.__variableName}TransformRotation = get_${this.__variableName}TransformRotation(materialSID, 0);
+  vec2 ${this.__variableName}TexUv = uvTransform(${this.__variableName}TransformScale, ${this.__variableName}TransformOffset, ${this.__variableName}TransformRotation, uv);
+  outValue = texture(u_${this.__variableName}, ${this.__variableName}TexUv);
   outValue = texture(u_${this.__variableName}, uv);
 }
 `;
@@ -92,8 +109,16 @@ void ${this.__functionName}(${uvStr}, out vec4 outValue) {
 
       const { textureName, samplerName } = getTextureAndSamplerNames(this.__variableName);
       return `
+// #param ${textureName}TransformScale: vec2<f32>; // initialValue=(1,1)
+// #param ${textureName}TransformOffset: vec2<f32>; // initialValue=(0,0)
+// #param ${textureName}TransformRotation: f32; // initialValue=0
 fn ${this.__functionName}(${uvStr}, outValue: ptr<function, vec4<f32>>) {
-  *outValue = textureSample(${textureName}, ${samplerName}, uv);
+  let materialSID = uniformDrawParameters.materialSid;
+  let ${textureName}TransformScale: vec2f = get_${textureName}TransformScale(materialSID, 0);
+  let ${textureName}TransformOffset: vec2f = get_${textureName}TransformOffset(materialSID, 0);
+  let ${textureName}TransformRotation: f32 = get_${textureName}TransformRotation(materialSID, 0);
+  let ${textureName}TexUv = uvTransform(${textureName}TransformScale, ${textureName}TransformOffset, ${textureName}TransformRotation, uv);
+  *outValue = textureSample(${textureName}, ${samplerName}, ${textureName}TexUv);
 }
 `;
     }
@@ -111,8 +136,16 @@ fn ${this.__functionName}(${uvStr}, outValue: ptr<function, vec4<f32>>) {
     }
 
     return `
+uniform vec2 u_${this.__variableName}TransformScale; // initialValue=(1,1)
+uniform vec2 u_${this.__variableName}TransformOffset; // initialValue=(0,0)
+uniform float u_${this.__variableName}TransformRotation; // initialValue=0
 void ${this.__functionName}(${uvStr}, out vec4 outValue) {
-  outValue = texture(u_${this.__variableName}, uv);
+  ${CommonShaderPart.getMaterialSIDForWebGL()}
+  vec2 ${this.__variableName}TransformScale = get_${this.__variableName}TransformScale(materialSID, 0);
+  vec2 ${this.__variableName}TransformOffset = get_${this.__variableName}TransformOffset(materialSID, 0);
+  float ${this.__variableName}TransformRotation = get_${this.__variableName}TransformRotation(materialSID, 0);
+  vec2 ${this.__variableName}TexUv = uvTransform(${this.__variableName}TransformScale, ${this.__variableName}TransformOffset, ${this.__variableName}TransformRotation, uv);
+  outValue = texture(u_${this.__variableName}, ${this.__variableName}TexUv);
 }
 `;
   }
