@@ -155,7 +155,7 @@ export class TextureShaderNode extends AbstractShaderNode {
       }
 
       // Generate variable definitions for dummy outputs
-      rowStr += dummyOutputVarDefines.filter((d) => d !== '').join('\n');
+      rowStr += dummyOutputVarDefines.filter(d => d !== '').join('\n');
       if (rowStr.length > 0) {
         rowStr += '\n';
       }
