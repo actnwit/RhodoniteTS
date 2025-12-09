@@ -86,8 +86,7 @@ fn main(
     let outlineWidthFactor = get_outlineWidthFactor(materialSID, 0);
     var outlineOffset = outlineWidthFactor * worldNormalLength * output.normal_inWorld;
 
-    let textureSize = textureDimensions(outlineWidthTexture, 0);
-    let outlineWidthMultiply = textureLoad(outlineWidthTexture, vec2u(vec2f(textureSize) * texcoord_0), 0).r;
+    let outlineWidthMultiply = textureSampleLevel(outlineWidthTexture, outlineWidthSampler, texcoord_0, 0.0).r;
     outlineOffset *= outlineWidthMultiply;
 
     if (outlineWidthType == 2) { // "screenCoordinates"
