@@ -327,7 +327,6 @@ vec4 sq(vec4 t)
   return t * t;
 }
 
-#ifdef RN_IS_PIXEL_SHADER
 vec2 uvTransform(vec2 scale, vec2 offset, float rotation, vec2 uv) {
   mat3 translationMat = mat3(1,0,0, 0,1,0, offset.x, offset.y, 1);
   mat3 rotationMat = mat3(
@@ -343,6 +342,7 @@ vec2 uvTransform(vec2 scale, vec2 offset, float rotation, vec2 uv) {
   return uvTransformed;
 }
 
+#ifdef RN_IS_PIXEL_SHADER
 #ifdef RN_USE_TANGENT
   mat3 getTBN(vec3 normal_inWorld, vec3 tangent_inWorld_, vec3 binormal_inWorld_, vec3 viewVector, vec2 texcoord) {
     vec3 tangent_inWorld = normalize(tangent_inWorld_);

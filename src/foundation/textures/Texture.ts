@@ -4,7 +4,6 @@ import type { CGAPIResourceHandle, Count, Index, Offset, Size, TypedArray } from
 import { type TextureData, WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import { KTX2TextureLoader } from '../../webgl/textureLoader/KTX2TextureLoader';
 import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
-import { Config } from '../core/Config';
 import { ComponentType } from '../definitions/ComponentType';
 import type { CompressionTextureTypeEnum } from '../definitions/CompressionTextureType';
 import { PixelFormat, type PixelFormatEnum } from '../definitions/PixelFormat';
@@ -15,7 +14,6 @@ import { DataUtil } from '../misc/DataUtil';
 import { Logger } from '../misc/Logger';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import type { Engine } from '../system/Engine';
-import { EngineState } from '../system/EngineState';
 import { ModuleManager } from '../system/ModuleManager';
 import { AbstractTexture } from './AbstractTexture';
 

@@ -42,11 +42,7 @@ uniform ${this.__compositionType.getGlslStr(this.__componentType)} u_${
       this.__variableName
     }; // initialValue=${this.__valueStr}
 void ${this.__functionName}(out ${this.__compositionType.getGlslStr(this.__componentType)} outValue) {
-  #ifdef RN_IS_DATATEXTURE_MODE
-    float materialSID = u_currentComponentSIDs[0]; // index 0 data is the materialSID
-  #else
-    float materialSID = u_materialSID;
-  #endif
+  ${CommonShaderPart.getMaterialSIDForWebGL()}
 
   outValue = get_${this.__variableName}(materialSID, 0);
 }
@@ -69,11 +65,7 @@ uniform ${this.__compositionType.getGlslStr(this.__componentType)} u_${
       this.__variableName
     }; // initialValue=${this.__valueStr}
 void ${this.__functionName}(out ${this.__compositionType.getGlslStr(this.__componentType)} outValue) {
-#ifdef RN_IS_DATATEXTURE_MODE
-  float materialSID = u_currentComponentSIDs[0]; // index 0 data is the materialSID
-#else
-  float materialSID = u_materialSID;
-#endif
+  ${CommonShaderPart.getMaterialSIDForWebGL()}
 
 outValue = get_${this.__variableName}(materialSID, 0);
     }

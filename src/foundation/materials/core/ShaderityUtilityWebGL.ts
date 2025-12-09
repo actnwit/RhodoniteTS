@@ -338,6 +338,16 @@ export class ShaderityUtilityWebGL {
       }
       shaderSemanticsInfo.needUniformInDataTextureMode = needUniformInDataTextureModeFlg;
     }
+
+    const matchMax = info.match(/max[\t ]*=[\t ]*(.+)[,\t ]*/);
+    if (matchMax) {
+      shaderSemanticsInfo.max = Number.parseFloat(matchMax[1]);
+    }
+
+    const matchMin = info.match(/min[\t ]*=[\t ]*(.+)[,\t ]*/);
+    if (matchMin) {
+      shaderSemanticsInfo.min = Number.parseFloat(matchMin[1]);
+    }
   }
 
   /**
