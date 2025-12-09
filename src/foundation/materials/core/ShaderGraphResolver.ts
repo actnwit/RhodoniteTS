@@ -355,7 +355,8 @@ export class ShaderGraphResolver {
     const existingOutputs: Set<string> = new Set();
     const existingOutputsVarName: Map<ShaderNodeUID, string> = new Map();
 
-    for (let i = 1; i < shaderNodes.length; i++) {
+    // Start from index 0 to process all nodes, including those without input connections
+    for (let i = 0; i < shaderNodes.length; i++) {
       collectedShaderBody += this.__collectInputsForNode(
         engine,
         i,
@@ -431,11 +432,7 @@ export class ShaderGraphResolver {
    * Otherwise, a zero value based on the socket's compositionType and componentType will be generated.
    * @private
    */
-  private static __getDefaultInputValue(
-    engine: Engine,
-    shaderNode: AbstractShaderNode,
-    inputIndex: number
-  ): string {
+  private static __getDefaultInputValue(engine: Engine, shaderNode: AbstractShaderNode, inputIndex: number): string {
     const inputSocket = shaderNode.getInputs()[inputIndex];
     const isWebGPU = engine.engineState.currentProcessApproach === ProcessApproach.WebGPU;
     const isBool = inputSocket.componentType === ComponentType.Bool;
