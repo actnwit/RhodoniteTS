@@ -20,7 +20,8 @@ import {
 import type { IEntity } from '../core';
 import { EntityRepository } from '../core/EntityRepository';
 import { AnimationInterpolation, ComponentType, CompositionType, ShaderType } from '../definitions';
-import type { ShaderSemanticsInfo, ShaderSemanticsName } from '../definitions';
+import type { ShaderSemanticsInfo, ShaderSemanticsName, ShaderTypeEnum } from '../definitions';
+import { TextureParameter } from '../definitions/TextureParameter';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { MaterialHelper } from '../helpers/MaterialHelper';
 import type { Material } from '../materials/core/Material';
@@ -33,10 +34,9 @@ import { Vector4 } from '../math/Vector4';
 import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
+import type { Engine } from '../system/Engine';
 import { Sampler } from '../textures/Sampler';
 import type { Texture } from '../textures/Texture';
-import { TextureParameter } from '../definitions/TextureParameter';
-import type { Engine } from '../system/Engine';
 
 /**
  * Extension class for importing Rhodonite-specific features from RnM2 format files.
@@ -169,7 +169,7 @@ export class RhodoniteImportExtension {
 
     for (const textureInfo of textureInfos) {
       // Map shader stage string to Rhodonite ShaderType
-      let shaderStage;
+      let shaderStage: ShaderTypeEnum;
       switch (textureInfo.stage) {
         case 'Vertex':
           shaderStage = ShaderType.VertexShader;
@@ -177,7 +177,6 @@ export class RhodoniteImportExtension {
         case 'Fragment':
           shaderStage = ShaderType.PixelShader;
           break;
-        case 'Neutral':
         default:
           shaderStage = ShaderType.VertexAndPixelShader;
           break;

@@ -1928,7 +1928,13 @@ export class ModelConverter {
     rnSamplers: Sampler[],
     materialJson?: RnM2Material
   ): Material {
-    const material: Material = this.__generateAppropriateMaterial(engine, gltfModel, materialJson, rnTextures, rnSamplers);
+    const material: Material = this.__generateAppropriateMaterial(
+      engine,
+      gltfModel,
+      materialJson,
+      rnTextures,
+      rnSamplers
+    );
     if (materialJson == null) return material;
 
     ModelConverter.setParametersToMaterial(materialJson, gltfModel, material, rnTextures, rnSamplers, false);
