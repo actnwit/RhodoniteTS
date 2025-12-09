@@ -427,26 +427,31 @@ export class ShaderGraphResolver {
 
   /**
    * Gets default value for an input socket.
+   * If the socket has a defaultValue defined, it will be used.
+   * Otherwise, a zero value based on the socket's compositionType and componentType will be generated.
    * @private
    */
   private static __getDefaultInputValue(
     engine: Engine,
     shaderNode: AbstractShaderNode,
     inputIndex: number
-  ): string | null {
+  ): string {
     const inputSocket = shaderNode.getInputs()[inputIndex];
-    if (inputSocket.defaultValue == null) {
-      return null;
-    }
-
     const isWebGPU = engine.engineState.currentProcessApproach === ProcessApproach.WebGPU;
     const isBool = inputSocket.componentType === ComponentType.Bool;
 
-    if (isBool) {
-      return inputSocket.defaultValue._v[0] > 0.5 ? 'true' : 'false';
+    // If defaultValue is set, use it
+    if (inputSocket.defaultValue != null) {
+      if (isBool) {
+        return inputSocket.defaultValue._v[0] > 0.5 ? 'true' : 'false';
+      }
+      return isWebGPU ? inputSocket.defaultValue.wgslStrAsFloat : inputSocket.defaultValue.glslStrAsFloat;
     }
 
-    return isWebGPU ? inputSocket.defaultValue.wgslStrAsFloat : inputSocket.defaultValue.glslStrAsFloat;
+    // If defaultValue is not set, generate zero value based on compositionType and componentType
+    return isWebGPU
+      ? inputSocket.compositionType.getWgslInitialValue(inputSocket.componentType)
+      : inputSocket.compositionType.getGlslInitialValue(inputSocket.componentType);
   }
 
   /**
