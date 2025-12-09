@@ -436,11 +436,16 @@ export class ShaderGraphResolver {
     const inputSocket = shaderNode.getInputs()[inputIndex];
     const isWebGPU = engine.engineState.currentProcessApproach === ProcessApproach.WebGPU;
     const isBool = inputSocket.componentType === ComponentType.Bool;
+    const isInt =
+      inputSocket.componentType === ComponentType.Int || inputSocket.componentType === ComponentType.UnsignedInt;
 
     // If defaultValue is set, use it
     if (inputSocket.defaultValue != null) {
       if (isBool) {
         return inputSocket.defaultValue._v[0] > 0.5 ? 'true' : 'false';
+      }
+      if (isInt) {
+        return isWebGPU ? inputSocket.defaultValue.wgslStrAsInt : inputSocket.defaultValue.glslStrAsInt;
       }
       return isWebGPU ? inputSocket.defaultValue.wgslStrAsFloat : inputSocket.defaultValue.glslStrAsFloat;
     }
