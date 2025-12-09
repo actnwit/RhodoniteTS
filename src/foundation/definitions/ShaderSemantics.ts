@@ -643,7 +643,7 @@ function getShaderPropertyOfGlobalDataRepository(_engine: Engine, info: ShaderSe
     }
     str += `
         ${returnType} val;
-          int i = index;
+          int i = int(index);
           return u_${variableName};
         `;
   } else {
@@ -657,7 +657,7 @@ function getShaderPropertyOfGlobalDataRepository(_engine: Engine, info: ShaderSe
 
   if (!isTexture) {
     funcDef = `
-  ${returnType} get_${info.semantic}(float instanceId, int index) {
+  ${returnType} get_${info.semantic}(uint instanceId, uint index) {
     ${str}
   }
 `;

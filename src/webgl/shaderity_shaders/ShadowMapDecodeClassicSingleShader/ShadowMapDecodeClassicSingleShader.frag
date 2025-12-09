@@ -37,7 +37,7 @@ void main (){
   vec3 diffuseColor = vec3(0.0, 0.0, 0.0);
   float alpha = 1.0;
 
-  vec4 diffuseColorFactor = get_diffuseColorFactor(materialSID, 0);
+  vec4 diffuseColorFactor = get_diffuseColorFactor(materialSID, 0u);
   if (v_color != diffuseColor && diffuseColorFactor.rgb != diffuseColor) {
     diffuseColor = v_color * diffuseColorFactor.rgb;
     alpha = diffuseColorFactor.a;
@@ -59,8 +59,8 @@ void main (){
 
   // shadow mapping
   if(v_projPosition_from_light.w > 0.0){
-    float zNear = get_zNearInner(materialSID, 0);
-    float zFar = get_zFarInner(materialSID, 0);
+    float zNear = get_zNearInner(materialSID, 0u);
+    float zFar = get_zFarInner(materialSID, 0u);
     float normalizationCoefficient = 1.0 / (zFar - zNear);
 
     vec2 shadowMapUV = v_texcoord_light.xy / v_texcoord_light.w;
@@ -68,7 +68,7 @@ void main (){
     #ifdef RN_IS_DEBUGGING
       bool inShadowMap = (shadowMapUV.x >= 0.0 && shadowMapUV.x <= 1.0) && (shadowMapUV.y >= 0.0 && shadowMapUV.y <= 1.0);
       if(inShadowMap == false){
-        rt0 = get_debugColorFactor(materialSID, 0);
+        rt0 = get_debugColorFactor(materialSID, 0u);
 
         return;
       }
@@ -76,11 +76,11 @@ void main (){
 
     float measureDepth = normalizationCoefficient * length(v_projPosition_from_light);
     float textureDepth = decodeRGBAToDepth(texture(u_depthTexture, shadowMapUV));
-    float allowableDepthError = get_allowableDepthError(materialSID, 0);
+    float allowableDepthError = get_allowableDepthError(materialSID, 0u);
 
     if(measureDepth > textureDepth + allowableDepthError){
       // case of shadow
-      vec4 shadowColorFactor = get_shadowColorFactor(materialSID, 0);
+      vec4 shadowColorFactor = get_shadowColorFactor(materialSID, 0u);
       diffuseColor = shadowColorFactor.rgb;
       alpha = shadowColorFactor.a;
     }
@@ -88,12 +88,12 @@ void main (){
 
   // Lighting
   vec3 shadingColor = vec3(0.0, 0.0, 0.0);
-  int shadingModel = get_shadingModel(materialSID, 0);
+  int shadingModel = get_shadingModel(materialSID, 0u);
   if (shadingModel > 0) {
 
     vec3 diffuse = vec3(0.0, 0.0, 0.0);
     vec3 specular = vec3(0.0, 0.0, 0.0);
-    int lightNumber = get_lightNumber(materialSID, 0);
+    int lightNumber = get_lightNumber(materialSID, 0u);
     for (int i = 0; i < /* shaderity: @{Config.maxLightNumber} */; i++) {
       if (i >= lightNumber) {
         break;
@@ -105,7 +105,7 @@ void main (){
       diffuse += diffuseColor * max(0.0, dot(normal_inWorld, light.direction)) * light.attenuatedIntensity;
 
       vec3 viewPosition = get_viewPosition(cameraSID);
-      float shininess = get_shininess(materialSID, 0);
+      float shininess = get_shininess(materialSID, 0u);
       if (shadingModel == 2) {// BLINN
         // ViewDirection
         vec3 viewDirection = normalize(viewPosition - v_position_inWorld.xyz);

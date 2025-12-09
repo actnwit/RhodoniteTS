@@ -40,7 +40,7 @@ float scaleForLod(float perceptualRoughness, float ior)
 
 #ifdef RN_USE_TRANSMISSION
 vec3 get_sample_from_backbuffer(vec2 sampleCoord, float perceptualRoughness, float ior) {
-  ivec2 vrState = get_vrState(0.0, 0);
+  ivec2 vrState = get_vrState(0u, 0u);
   vec2 backBufferTextureSize = vec2(textureSize(u_backBufferTexture, 0));
   float backBufferTextureLength = max(backBufferTextureSize.x, backBufferTextureSize.y);
 
@@ -67,9 +67,9 @@ vec3 get_sample_from_backbuffer(vec2 sampleCoord, float perceptualRoughness, flo
   return transmittedLight;
 }
 
-vec3 getIBLVolumeRefraction(vec3 baseColor, vec3 normal, vec3 view, float cameraSID, float materialSID, float thickness, float perceptualRoughness, float ior, vec3 attenuationColor, float attenuationDistance) {
+vec3 getIBLVolumeRefraction(vec3 baseColor, vec3 normal, vec3 view, uint cameraSID, uint materialSID, float thickness, float perceptualRoughness, float ior, vec3 attenuationColor, float attenuationDistance) {
 #ifdef RN_USE_DISPERSION
-  float dispersion = get_dispersion(materialSID, 0);
+  float dispersion = get_dispersion(materialSID, 0u);
   float halfSpread = (ior - 1.0) * 0.025 * dispersion;
   vec3 iors = vec3(ior - halfSpread, ior, ior + halfSpread);
 
@@ -197,15 +197,15 @@ vec3 sheenIBL(float NdotV, float sheenPerceptualRoughness, vec3 sheenColor, vec4
 }
 #endif
 
-vec3 getNormalForEnv(mat3 rotEnvMatrix, vec3 normal_inWorld, float materialSID) {
+vec3 getNormalForEnv(mat3 rotEnvMatrix, vec3 normal_inWorld, uint materialSID) {
   vec3 normal_forEnv = rotEnvMatrix * normal_inWorld;
-  if (get_inverseEnvironment(materialSID, 0)) {
+  if (get_inverseEnvironment(materialSID, 0u)) {
     normal_forEnv.x *= -1.0;
   }
   return normal_forEnv;
 }
 
-vec3 getReflection(mat3 rotEnvMatrix, vec3 viewDirection, vec3 normal_inWorld, float materialSID, float perceptualRoughness, float anisotropy, vec3 anisotropyDirection) {
+vec3 getReflection(mat3 rotEnvMatrix, vec3 viewDirection, vec3 normal_inWorld, uint materialSID, float perceptualRoughness, float anisotropy, vec3 anisotropyDirection) {
 #ifdef RN_USE_ANISOTROPY
 
   float tangentRoughness = mix(perceptualRoughness, 1.0, anisotropy * anisotropy);
@@ -218,23 +218,23 @@ vec3 getReflection(mat3 rotEnvMatrix, vec3 viewDirection, vec3 normal_inWorld, f
 #else
   vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
 #endif
-  if (get_inverseEnvironment(materialSID, 0)) {
+  if (get_inverseEnvironment(materialSID, 0u)) {
     reflection.x *= -1.0;
   }
   return reflection;
 }
 
-vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection,
+vec3 IBLContribution(uint materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection,
   vec3 baseColor, float perceptualRoughness, float clearcoatRoughness, vec3 clearcoatNormal_inWorld,
-  float clearcoat, vec3 clearcoatFresnel, float VdotNc, vec3 geomNormal_inWorld, float cameraSID, float transmission, vec3 v_position_inWorld,
+  float clearcoat, vec3 clearcoatFresnel, float VdotNc, vec3 geomNormal_inWorld, uint cameraSID, float transmission, vec3 v_position_inWorld,
   float thickness, vec3 sheenColor, float sheenRoughness, float albedoSheenScalingNdotV, float ior,
   vec3 iridescenceFresnel_dielectric, vec3 iridescenceFresnel_metal, float iridescence, float anisotropy, vec3 anisotropyDirection,
   float specularWeight, vec3 dielectricF0, float metallic, float diffuseTransmission, vec3 diffuseTransmissionColor, float diffuseTransmissionThickness)
 {
-  vec4 iblParameter = get_iblParameter(materialSID, 0);
+  vec4 iblParameter = get_iblParameter(materialSID, 0u);
   float rot = iblParameter.w;
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
-  ivec2 hdriFormat = get_hdriFormat(materialSID, 0);
+  ivec2 hdriFormat = get_hdriFormat(materialSID, 0u);
 
   vec3 normal_forEnv = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
   vec3 reflection = getReflection(rotEnvMatrix, viewDirection, normal_inWorld, materialSID, perceptualRoughness, anisotropy, anisotropyDirection);
@@ -252,8 +252,8 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
 #endif
 
 #ifdef RN_USE_TRANSMISSION
-  vec3 attenuationColor = get_attenuationColor(materialSID, 0);
-  float attenuationDistance = get_attenuationDistance(materialSID, 0);
+  vec3 attenuationColor = get_attenuationColor(materialSID, 0u);
+  float attenuationDistance = get_attenuationDistance(materialSID, 0u);
   vec3 specularTransmission = getIBLVolumeRefraction(baseColor, normal_inWorld, viewDirection, cameraSID, materialSID, thickness, perceptualRoughness, ior, attenuationColor, attenuationDistance);
   diffuse = mix(diffuse, specularTransmission, transmission);
 #endif

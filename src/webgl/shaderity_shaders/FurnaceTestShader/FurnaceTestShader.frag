@@ -270,12 +270,12 @@ void main ()
 {
 /* shaderity: @{mainPrerequisites} */
 
-  vec2 quadSizeInPixel = get_screenInfo(materialSID, 0);
+  vec2 quadSizeInPixel = get_screenInfo(materialSID, 0u);
   float roughness = 0.0;
   float NoV = 0.0; // normal dot view vector
 
   // 2D mode
-  int mode = get_mode(materialSID, 0);
+  int mode = get_mode(materialSID, 0u);
   if (mode == 0) {
     roughness = (gl_FragCoord.y) / quadSizeInPixel.y;
     NoV = (gl_FragCoord.x) / quadSizeInPixel.x;
@@ -283,7 +283,7 @@ void main ()
     // object mode
     // Roughness
     const float c_MinRoughness = 0.04;
-    vec2 metallicRoughnessFactor = get_metallicRoughnessFactor(materialSID, 0);
+    vec2 metallicRoughnessFactor = get_metallicRoughnessFactor(materialSID, 0u);
     float userRoughness = metallicRoughnessFactor.y;
     float metallic = metallicRoughnessFactor.x;
 
@@ -298,10 +298,10 @@ void main ()
     NoV = dot(v_normal_inWorld, viewVector);
   }
 
-  int debugView = get_debugView(materialSID, 0);
-  float f0 = get_f0(materialSID, 0);
-  int g_type = get_g_type(materialSID, 0);
-  int disable_fresnel = get_disable_fresnel(materialSID, 0);
+  int debugView = get_debugView(materialSID, 0u);
+  float f0 = get_f0(materialSID, 0u);
+  int g_type = get_g_type(materialSID, 0u);
+  int disable_fresnel = get_disable_fresnel(materialSID, 0u);
 
   if (debugView == 0) {
     float whiteFurnaceResult = whiteFurnaceTest(roughness, NoV, f0, g_type, disable_fresnel);

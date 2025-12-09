@@ -24,17 +24,17 @@ void main()
 
 /* shaderity: @{mainPrerequisites} */
 
-  bool visibility = get_isVisible(a_instanceInfo.x);
+  bool visibility = get_isVisible(uint(a_instanceInfo.x));
   if (!visibility)
   {
     gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
     return;
   }
 
-  mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
+  mat4 worldMatrix = get_worldMatrix(uint(a_instanceInfo.x));
   mat4 viewMatrix = get_viewMatrix(cameraSID);
-  mat3 normalMatrix = get_normalMatrix(a_instanceInfo.x);
-  bool isBillboard = get_isBillboard(a_instanceInfo.x);
+  mat3 normalMatrix = get_normalMatrix(uint(a_instanceInfo.x));
+  bool isBillboard = get_isBillboard(uint(a_instanceInfo.x));
 
   v_color = a_color;
 
@@ -54,13 +54,13 @@ void main()
     v_normal_inWorld
   );
 
-  int lightIndex = get_lightIndex(materialSID, 0);
-  vec3 lightPosition = get_lightPosition(float(lightIndex));
+  int lightIndex = get_lightIndex(materialSID, 0u);
+  vec3 lightPosition = get_lightPosition(uint(lightIndex));
   vec3 L = v_position_inWorld.xyz - lightPosition;
   float dist = length(L);
   L = normalize(L);
 
-  bool frontHemisphere = get_frontHemisphere(materialSID, 0);
+  bool frontHemisphere = get_frontHemisphere(materialSID, 0u);
   float signHemisphere = frontHemisphere ? 1.0 : -1.0;
   float denom = 1.0 + signHemisphere * L.z;
 
@@ -77,7 +77,7 @@ void main()
   //   return;
   // }
 
-  float farPlane = get_farPlane(materialSID, 0);
+  float farPlane = get_farPlane(materialSID, 0u);
   gl_Position = vec4(uv, dist / farPlane, 1.0);
   v_position_inWorld = vec4(uv, dist / farPlane, signHemisphere * L.z);
 }

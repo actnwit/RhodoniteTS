@@ -52,22 +52,22 @@ void main (){
 
   // uv animation
   float uvAnimationMaskTexture = texture(u_uvAnimationMaskTexture, v_texcoord_0).r;
-  float uvAnimationScrollXSpeedFactor = get_uvAnimationScrollXSpeedFactor(materialSID, 0);
-  float uvAnimationScrollYSpeedFactor = get_uvAnimationScrollYSpeedFactor(materialSID, 0);
-  float uvAnimationRotationSpeedFactor = get_uvAnimationRotationSpeedFactor(materialSID, 0);
-  float time = get_time(0.0, 0);
+  float uvAnimationScrollXSpeedFactor = get_uvAnimationScrollXSpeedFactor(materialSID, 0u);
+  float uvAnimationScrollYSpeedFactor = get_uvAnimationScrollYSpeedFactor(materialSID, 0u);
+  float uvAnimationRotationSpeedFactor = get_uvAnimationRotationSpeedFactor(materialSID, 0u);
+  float time = get_time(0u, 0u);
   vec2 mainUv = uvAnimation(v_texcoord_0, time, uvAnimationMaskTexture, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
 
   // main color
   vec4 litTextureColor = texture(u_litColorTexture, mainUv);
-  vec4 litColorFactor = get_litColor(materialSID, 0);
+  vec4 litColorFactor = get_litColor(materialSID, 0u);
 
   // alpha
   float alpha = 1.0;
 
   #ifdef RN_ALPHATEST_ON
     alpha = litTextureColor.a * litColorFactor.a;
-    float cutoff = get_cutoff(materialSID, 0);
+    float cutoff = get_cutoff(materialSID, 0u);
     if(alpha < cutoff) discard;
   #elif defined(RN_ALPHABLEND_ON)
     alpha = litTextureColor.a * litColorFactor.a;
@@ -82,7 +82,7 @@ void main (){
 
   #ifdef RN_MTOON_IS_OUTLINE
     #ifdef RN_MTOON_OUTLINE_COLOR_FIXED
-      vec3 outlineColor = get_outlineColor(materialSID, 0);
+      vec3 outlineColor = get_outlineColor(materialSID, 0u);
       rt0.xyz = outlineColor;
 
       rt0.xyz = srgbToLinear(rt0.xyz);
@@ -114,20 +114,20 @@ void main (){
   float shadowAttenuation = 1.0;
   // TODO: shadowmap computation
 
-  float receiveShadowRate = get_receiveShadowRate(materialSID, 0);
+  float receiveShadowRate = get_receiveShadowRate(materialSID, 0u);
   float lightAttenuation = shadowAttenuation * mix(1.0, shadowAttenuation, receiveShadowRate * texture(u_receiveShadowTexture, mainUv).r);
 
-  float shadingGradeRate = get_shadingGradeRate(materialSID, 0);
+  float shadingGradeRate = get_shadingGradeRate(materialSID, 0u);
   float shadingGrade = 1.0 - shadingGradeRate * (1.0 - texture(u_shadingGradeTexture, mainUv).r);
-  float lightColorAttenuation = get_lightColorAttenuation(materialSID, 0);
+  float lightColorAttenuation = get_lightColorAttenuation(materialSID, 0u);
 
-  vec3 shadeColorFactor = get_shadeColor(materialSID, 0);
+  vec3 shadeColorFactor = get_shadeColor(materialSID, 0u);
   vec3 shadeColor = shadeColorFactor * srgbToLinear(texture(u_shadeColorTexture, mainUv).xyz);
 
   vec3 litColor = litColorFactor.xyz * srgbToLinear(litTextureColor.xyz);
 
-  float shadeShift = get_shadeShift(materialSID, 0);
-  float shadeToony = get_shadeToony(materialSID, 0);
+  float shadeShift = get_shadeShift(materialSID, 0u);
+  float shadeToony = get_shadeToony(materialSID, 0u);
 
   vec3 lightings[/* shaderity: @{Config.maxLightNumber} */];
   #ifdef RN_MTOON_DEBUG_LITSHADERATE
@@ -183,15 +183,15 @@ void main (){
 
 
   // Indirect Light
-  float indirectLightIntensity = get_indirectLightIntensity(materialSID, 0);
+  float indirectLightIntensity = get_indirectLightIntensity(materialSID, 0u);
   vec3 worldUpVector = vec3(0.0, 1.0, 0.0);
   vec3 worldDownVector = vec3(0.0, -1.0, 0.0);
-  vec4 iblParameter = get_iblParameter(materialSID, 0);
+  vec4 iblParameter = get_iblParameter(materialSID, 0u);
   float rot = iblParameter.w;
   float IBLDiffuseContribution = iblParameter.y;
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   vec3 normal_forEnv = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
-  ivec2 hdriFormat = get_hdriFormat(materialSID, 0);
+  ivec2 hdriFormat = get_hdriFormat(materialSID, 0u);
   vec3 rawGiUp = getIBLIrradiance(worldUpVector, iblParameter, hdriFormat) * IBLDiffuseContribution;
   vec3 rawGiDown = getIBLIrradiance(worldDownVector, iblParameter, hdriFormat) * IBLDiffuseContribution;
   vec3 rawGiNormal = getIBLIrradiance(normal_forEnv, iblParameter, hdriFormat) * IBLDiffuseContribution;
@@ -206,21 +206,21 @@ void main (){
 
   #ifdef RN_MTOON_IS_OUTLINE
     #ifdef RN_MTOON_OUTLINE_COLOR_MIXED
-      vec3 outlineColor = get_outlineColor(materialSID, 0);
+      vec3 outlineColor = get_outlineColor(materialSID, 0u);
       // outlineColor = srgbToLinear(outlineColor);
-      float outlineLightingMix = get_outlineLightingMix(materialSID, 0);
+      float outlineLightingMix = get_outlineLightingMix(materialSID, 0u);
       rt0.xyz = outlineColor * mix(vec3(1.0), rt0.xyz, outlineLightingMix);
     #endif
   #else
-    float rimFresnelPower = get_rimFresnelPower(materialSID, 0);
-    float rimLift = get_rimLift(materialSID, 0);
-    vec3 rimColorFactor = get_rimColor(materialSID, 0);
+    float rimFresnelPower = get_rimFresnelPower(materialSID, 0u);
+    float rimLift = get_rimLift(materialSID, 0u);
+    vec3 rimColorFactor = get_rimColor(materialSID, 0u);
     vec3 rimTextureColor = texture(u_rimTexture, mainUv).xyz;
     vec3 rimColor = rimColorFactor * srgbToLinear(rimTextureColor);
     vec3 rim = pow(clamp(1.0 - dot(normal_inWorld, viewDirection) + rimLift, 0.0, 1.0), rimFresnelPower) * rimColor;
 
     float staticRimLighting = 1.0;
-    float rimLightingMix = get_rimLightingMix(materialSID, 0);
+    float rimLightingMix = get_rimLightingMix(materialSID, 0u);
     for (int i = 0; i < /* shaderity: @{Config.maxLightNumber} */; i++) {
       if (i >= lightNumber) break;
 
@@ -231,7 +231,7 @@ void main (){
     }
 
     // additive matcap
-    vec3 cameraUp = get_cameraUp(0.0, 0); //solo datum
+    vec3 cameraUp = get_cameraUp(0u, 0u); //solo datum
     vec3 worldViewUp = normalize(cameraUp - viewDirection * dot(viewDirection, cameraUp));
     vec3 worldViewRight = normalize(cross(viewDirection, worldViewUp));
     vec2 matcapUv = vec2(dot(worldViewRight, normal_inWorld), dot(worldViewUp, normal_inWorld)) * 0.5 + 0.5;
@@ -240,7 +240,7 @@ void main (){
 
 
     // Emission
-    vec3 emissionColor = get_emissionColor(materialSID, 0);
+    vec3 emissionColor = get_emissionColor(materialSID, 0u);
     vec3 emission = srgbToLinear(texture(u_emissionTexture, mainUv).xyz) * emissionColor;
     rt0.xyz += emission;
   #endif

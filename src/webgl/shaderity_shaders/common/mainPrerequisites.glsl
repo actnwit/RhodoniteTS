@@ -1,9 +1,9 @@
 #ifdef RN_IS_DATATEXTURE_MODE
-  float materialSID = u_currentComponentSIDs[0]; // index 0 data is the materialSID
+  uint materialSID = uint(u_currentComponentSIDs[0]); // index 0 data is the materialSID
 
   int lightNumber = 0;
   #ifdef RN_IS_LIGHTING
-    lightNumber = get_lightNumber(0.0, 0);
+    lightNumber = get_lightNumber(0u, 0u);
   #endif
 
   float skeletalComponentSID = -1.0;
@@ -17,22 +17,22 @@
 
 #else // RN_IS_UNIFORM_MODE
 
-  float materialSID = -1.0; // materialSID is not used in Uniform mode
+  uint materialSID = 0u; // materialSID is not used in Uniform mode
 
   int lightNumber = 0;
   #ifdef RN_IS_LIGHTING
-    lightNumber = get_lightNumber(0.0, 0);
+    lightNumber = get_lightNumber(0u, 0u);
   #endif
 
   float skeletalComponentSID = -1.0;
   #ifdef RN_IS_SKINNING
-    skeletalComponentSID = float(get_skinningMode(0.0, 0));
+    skeletalComponentSID = float(get_skinningMode(0u, 0u));
   #endif
 
 #endif
 
-float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */];
+uint cameraSID = uint(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */]);
 
 #if defined(WEBGL2_MULTI_VIEW) && defined(RN_IS_VERTEX_SHADER)
-  cameraSID += float(gl_ViewID_OVR);
+  cameraSID += uint(gl_ViewID_OVR);
 #endif

@@ -152,7 +152,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
         }
         const isArray = CompositionType.isArray(memberInfo.compositionType);
         str += `uniform ${memberInfo.convertToBool ? 'bool' : typeStr} u_${memberName}${isArray ? `[${engine.config.maxSkeletalBoneNumberForUniformMode}]` : ''};\n`;
-        str += `${memberInfo.convertToBool ? 'bool' : typeStr} get_${memberName}(float instanceId${isArray ? ', int idxOfArray' : ''}) {
+        str += `${memberInfo.convertToBool ? 'bool' : typeStr} get_${memberName}(uint instanceId${isArray ? ', uint idxOfArray' : ''}) {
   return u_${memberName}${isArray ? '[idxOfArray]' : ''};
 }\n`;
       });
@@ -178,7 +178,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
     const morphingStr = `
     #ifdef RN_IS_VERTEX_SHADER
       #ifdef RN_IS_MORPHING
-      vec3 get_position(float vertexId, vec3 basePosition, int blendShapeComponentSID) {
+      vec3 get_position(uint vertexId, vec3 basePosition, uint blendShapeComponentSID) {
         ${morphUniformDataTargetNumbersStr}
         ${morphUniformDataOffsetsStr}
         ${blendShapeUniformDataOffsetsStr}
