@@ -122,7 +122,7 @@ fn ${this.__functionName}(${uvStr}, scale: vec2f, offset: vec2f, rotation: f32, 
   let materialSID = uniformDrawParameters.materialSid;
   let ${textureName}TexUv = uvTransform(scale, offset, rotation, uv);
   var lodFloat = f32(lod);
-  var rgbaValue;
+  var rgbaValue: vec4<f32>;
   if (lodFloat < 0.0) {
     rgbaValue = textureSample(${textureName}, ${samplerName}, ${textureName}TexUv);
   } else {
