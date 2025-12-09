@@ -1737,9 +1737,17 @@ export class ModelConverter {
    * Generates an appropriate material based on glTF material data and loader options
    * @param gltfModel - The glTF model data
    * @param materialJson - The material JSON data (optional)
+   * @param rnTextures - Array of loaded Rhodonite textures (optional, needed for node-based materials)
+   * @param rnSamplers - Array of loaded Rhodonite samplers (optional, needed for node-based materials)
    * @returns Generated material
    */
-  private static __generateAppropriateMaterial(engine: Engine, gltfModel: RnM2, materialJson?: RnM2Material): Material {
+  private static __generateAppropriateMaterial(
+    engine: Engine,
+    gltfModel: RnM2,
+    materialJson?: RnM2Material,
+    rnTextures?: Texture[],
+    rnSamplers?: Sampler[]
+  ): Material {
     const isTranslucent = Is.exist(materialJson?.extensions?.KHR_materials_transmission);
     // if rnLoaderOptions is set something, do special deal
     if (gltfModel.asset.extras?.rnLoaderOptions != null) {
@@ -1797,7 +1805,14 @@ export class ModelConverter {
           maxInstancesNumber: maxMaterialInstanceNumber,
         });
         // Create and return node-based custom material
-        const customMaterial = RhodoniteImportExtension.createNodeBasedMaterial(engine, materialJson, baseMaterial);
+        const customMaterial = RhodoniteImportExtension.createNodeBasedMaterial(
+          engine,
+          gltfModel,
+          materialJson,
+          baseMaterial,
+          rnTextures ?? [],
+          rnSamplers ?? []
+        );
         customMaterial.isTranslucent = isTranslucent;
         return customMaterial;
       }
@@ -1913,7 +1928,13 @@ export class ModelConverter {
     rnSamplers: Sampler[],
     materialJson?: RnM2Material
   ): Material {
-    const material: Material = this.__generateAppropriateMaterial(engine, gltfModel, materialJson);
+    const material: Material = this.__generateAppropriateMaterial(
+      engine,
+      gltfModel,
+      materialJson,
+      rnTextures,
+      rnSamplers
+    );
     if (materialJson == null) return material;
 
     ModelConverter.setParametersToMaterial(materialJson, gltfModel, material, rnTextures, rnSamplers, false);

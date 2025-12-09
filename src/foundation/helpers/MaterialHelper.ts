@@ -1570,6 +1570,7 @@ function createMToon1Material(
  * @param options.isSkinning - Enable skeletal animation support
  * @param options.isLighting - Enable lighting calculations
  * @param options.isMorphing - Enable morph target animation support
+ * @param options.additionalShaderSemanticInfo - Additional shader semantic info for textures etc.
  * @returns A reused or newly created Custom Material instance
  */
 function reuseOrRecreateCustomMaterial(
@@ -1582,12 +1583,11 @@ function reuseOrRecreateCustomMaterial(
     isSkinning = true,
     isLighting = true,
     isMorphing = true,
+    additionalShaderSemanticInfo = [] as ShaderSemanticsInfo[],
   } = {}
 ) {
   const hash = DataUtil.toCRC32(vertexShaderStr + pixelShaderStr);
   const materialName = `Custom_${hash}`;
-
-  const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
 
   const definitions = [];
   if (isLighting) {

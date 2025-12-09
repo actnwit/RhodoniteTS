@@ -22,6 +22,7 @@ import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemant
 import { ShaderType, type ShaderTypeEnum } from '../foundation/definitions/ShaderType';
 import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
 import { Primitive } from '../foundation/geometry/Primitive';
+import { getTextureAndSamplerNames } from '../foundation/helpers/ShaderHelper';
 import type { Material } from '../foundation/materials/core/Material';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 import type { Accessor } from '../foundation/memory/Accessor';
@@ -318,9 +319,9 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
       } else if (info.compositionType === CompositionType.Texture2DArray) {
         textureType = 'texture_2d_array<f32>';
       }
-      const samplerName = methodName.replace('Texture', 'Sampler');
+      const { textureName, samplerName } = getTextureAndSamplerNames(methodName);
       return `
-@group(1) @binding(${info.initialValue[0]}) var ${methodName}: ${textureType};
+@group(1) @binding(${info.initialValue[0]}) var ${textureName}: ${textureType};
 @group(2) @binding(${info.initialValue[0]}) var ${samplerName}: sampler;
 `;
     }
@@ -455,9 +456,9 @@ ${indexStr}
       } else if (info.compositionType === CompositionType.Texture2DArray) {
         textureType = 'texture_2d_array<f32>';
       }
-      const samplerName = methodName.replace('Texture', 'Sampler');
+      const { textureName, samplerName } = getTextureAndSamplerNames(methodName);
       return `
-@group(1) @binding(${info.initialValue[0]}) var ${methodName}: ${textureType};
+@group(1) @binding(${info.initialValue[0]}) var ${textureName}: ${textureType};
 @group(2) @binding(${info.initialValue[0]}) var ${samplerName}: sampler;
 `;
     }

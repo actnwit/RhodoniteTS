@@ -343,7 +343,7 @@ export class Bloom {
     } else {
       // Update textures in case the input render targets were recreated
       texturesSynthesize.forEach((tex, idx) => {
-        materialSynthesizeTextures!.setTextureParameter(`synthesizeTexture${idx}` as any, tex);
+        materialSynthesizeTextures!.setTextureParameter(`synthesize${idx}Texture` as any, tex);
       });
     }
     materialSynthesizeTextures.setParameter('synthesizeCoefficient', synthesizeCoefficient);

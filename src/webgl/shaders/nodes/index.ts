@@ -4,6 +4,6 @@ export * from './ClassicShadingShader';
 export * from './ConstantVariableShader';
 export * from './EndShader';
 export * from './IfStatementShader';
-export * from './TextureFetchShader';
+export * from './TextureShader';
 export * from './UniformDataShader';
 export * from './VaryingVariableShader';

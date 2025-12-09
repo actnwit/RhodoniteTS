@@ -1056,7 +1056,7 @@ export class Gltf2Exporter {
     if (Is.exist(rnMaterial)) {
       // Check if this is a node-based custom shader material
       if (rnMaterial.isNodeBasedMaterial && rnMaterial.shaderNodeJson != null) {
-        this.__setupNodeBasedMaterialExtension(material, rnMaterial, json);
+        await this.__setupNodeBasedMaterialExtension(material, rnMaterial, json, promises, bufferIdx, option);
         // Skip normal PBR material setup for node-based materials
       } else {
         await this.__setupMaterial(material, rnMaterial, json, promises, bufferIdx, option);
@@ -1072,8 +1072,18 @@ export class Gltf2Exporter {
    * @param material - The glTF material to add the extension to
    * @param rnMaterial - The Rhodonite material containing node-based shader data
    * @param json - The glTF JSON document
+   * @param promises - Array to collect async operations
+   * @param bufferIdx - The buffer index for texture data
+   * @param option - Export options
    */
-  private static __setupNodeBasedMaterialExtension(material: Gltf2MaterialEx, rnMaterial: Material, json: Gltf2Ex) {
+  private static async __setupNodeBasedMaterialExtension(
+    material: Gltf2MaterialEx,
+    rnMaterial: Material,
+    json: Gltf2Ex,
+    promises: Promise<any>[],
+    bufferIdx: number,
+    option: Gltf2ExporterArguments
+  ) {
     const EXTENSION_NAME = 'RHODONITE_materials_node';
 
     // Ensure extensions object exists on material
@@ -1087,20 +1097,186 @@ export class Gltf2Exporter {
     // Create the extension data
     const extensionData: {
       uri: string;
-      uniforms?: { [name: string]: number | number[] };
+      uniforms?: { [name: string]: number | number[] | { index: number } };
     } = {
       uri: `./${rmnFileName}`,
     };
 
     // Add uniforms if they exist
     if (rnMaterial.shaderNodeUniforms != null) {
-      extensionData.uniforms = rnMaterial.shaderNodeUniforms;
+      extensionData.uniforms = { ...rnMaterial.shaderNodeUniforms };
+    }
+
+    // Process texture parameters from the material
+    const textureUniforms = await this.__processNodeBasedMaterialTextures(
+      rnMaterial,
+      json,
+      promises,
+      bufferIdx,
+      option
+    );
+
+    // Merge texture uniforms into the extension data
+    if (Object.keys(textureUniforms).length > 0) {
+      if (!extensionData.uniforms) {
+        extensionData.uniforms = {};
+      }
+      Object.assign(extensionData.uniforms, textureUniforms);
     }
 
     material.extensions[EXTENSION_NAME] = extensionData;
 
     // Ensure the extension is listed in extensionsUsed
     this.__ensureExtensionUsed(json, EXTENSION_NAME);
+  }
+
+  /**
+   * Processes texture parameters from a node-based material and exports them to glTF format.
+   *
+   * @param rnMaterial - The Rhodonite material containing texture parameters
+   * @param json - The glTF JSON document
+   * @param promises - Array to collect async operations
+   * @param bufferIdx - The buffer index for texture data
+   * @param option - Export options
+   * @returns Object mapping texture names to their glTF texture indices
+   */
+  private static async __processNodeBasedMaterialTextures(
+    rnMaterial: Material,
+    json: Gltf2Ex,
+    promises: Promise<any>[],
+    bufferIdx: number,
+    option: Gltf2ExporterArguments
+  ): Promise<{ [name: string]: { index: number } }> {
+    const textureUniforms: { [name: string]: { index: number } } = {};
+    const existedImages: string[] = [];
+
+    // Helper function to process sampler
+    const processSampler = (rnSampler?: Sampler) => {
+      const gltf2TextureSampler: Gltf2TextureSampler = {
+        magFilter: rnSampler != null ? rnSampler.magFilter.index : TextureParameter.Linear.index,
+        minFilter: rnSampler != null ? rnSampler.minFilter.index : TextureParameter.Linear.index,
+        wrapS: rnSampler != null ? rnSampler.wrapS.index : TextureParameter.TextureWrapS.index,
+        wrapT: rnSampler != null ? rnSampler.wrapT.index : TextureParameter.TextureWrapT.index,
+      };
+
+      let samplerIdx = json.samplers.findIndex(sampler => {
+        return isSameGlTF2TextureSampler(gltf2TextureSampler, sampler);
+      });
+      if (samplerIdx === -1) {
+        json.samplers.push(gltf2TextureSampler);
+        samplerIdx = json.samplers.length - 1;
+      }
+      return samplerIdx;
+    };
+
+    // Helper function to process image
+    const processImage = (rnTexture: AbstractTexture) => {
+      let imageIndex = json.images.length;
+      let match = false;
+      for (let k = 0; k < json.images.length; k++) {
+        const image = json.images![k];
+        const existingTextureUid = image.extras?.rnTextureUID;
+        if (Is.exist(existingTextureUid) && existingTextureUid === rnTexture.textureUID) {
+          imageIndex = k;
+          match = true;
+        }
+      }
+
+      if (!match) {
+        const glTF2ImageEx: Gltf2ImageEx = {
+          uri: rnTexture.name,
+          extras: {
+            rnTextureUID: rnTexture.textureUID,
+          },
+        };
+
+        if (existedImages.indexOf(rnTexture.name) !== -1) {
+          glTF2ImageEx.uri += `_${rnTexture.textureUID}`;
+        }
+
+        existedImages.push(glTF2ImageEx.uri!);
+
+        if (Is.not.exist(glTF2ImageEx.uri!.match(/\.(png)/))) {
+          glTF2ImageEx.uri += '.png';
+        }
+        const htmlCanvasElement = rnTexture.htmlCanvasElement;
+        if (htmlCanvasElement) {
+          const promise = new Promise(
+            (resolve: (v?: ArrayBuffer) => void, rejected: (reason?: DOMException) => void) => {
+              htmlCanvasElement.toBlob(blob => {
+                if (Is.exist(blob)) {
+                  handleTextureImage(json, bufferIdx, blob, option, glTF2ImageEx, resolve, rejected, GLTF2_EXPORT_GLTF);
+                } else {
+                  throw Error('canvas to blob error!');
+                }
+              });
+            }
+          );
+          promises.push(promise);
+        }
+        json.images.push(glTF2ImageEx);
+      }
+      return imageIndex;
+    };
+
+    // Helper function to process texture
+    const processTexture = (rnTexture: AbstractTexture, rnSampler?: Sampler): number | undefined => {
+      if (!rnTexture) {
+        return void 0;
+      }
+      if (!rnTexture.isTextureReady || rnTexture.isDummyTexture || rnTexture.width < 1 || rnTexture.height < 1) {
+        return void 0;
+      }
+
+      const samplerIdx = processSampler(rnSampler);
+      const imageIndex = processImage(rnTexture);
+
+      const gltf2Texture: Gltf2Texture = {
+        sampler: samplerIdx,
+        source: imageIndex,
+      };
+
+      // Check if this exact texture already exists
+      let textureIdx = json.textures.findIndex(
+        t => t.sampler === gltf2Texture.sampler && t.source === gltf2Texture.source
+      );
+      if (textureIdx === -1) {
+        json.textures.push(gltf2Texture);
+        textureIdx = json.textures.length - 1;
+      }
+
+      return textureIdx;
+    };
+
+    // Iterate over all field info to find texture parameters
+    const fieldsInfo = rnMaterial.fieldsInfoArray;
+    for (const info of fieldsInfo) {
+      const compositionType = info.compositionType;
+
+      // Check if this field is a texture type
+      if (
+        compositionType.index === 7 || // Texture2D
+        compositionType.index === 8 || // TextureCube
+        compositionType.index === 16 || // Texture2DShadow
+        compositionType.index === 17 || // Texture2DRect
+        compositionType.index === 18 // Texture2DArray
+      ) {
+        const textureParam = rnMaterial.getTextureParameter(info.semantic);
+        if (textureParam && Array.isArray(textureParam) && textureParam.length >= 2) {
+          const texture = textureParam[1] as AbstractTexture;
+          const sampler = textureParam[2] as Sampler | undefined;
+
+          if (texture && !texture.isDummyTexture) {
+            const textureIdx = processTexture(texture, sampler);
+            if (textureIdx != null) {
+              textureUniforms[info.semantic] = { index: textureIdx };
+            }
+          }
+        }
+      }
+    }
+
+    return textureUniforms;
   }
 
   private static async __setupMaterial(

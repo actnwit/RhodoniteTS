@@ -2712,7 +2712,22 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   ): Promise<WebGPUResourceHandle> {
     imageData.crossOrigin = 'Anonymous';
 
-    const textureHandle = await this.__createTextureInner(width, height, internalFormat, generateMipmap, imageData);
+    // Wait for the image to be fully loaded if it's not already
+    if (!imageData.complete || imageData.naturalWidth === 0) {
+      await new Promise<void>((resolve, reject) => {
+        imageData.onload = () => resolve();
+        imageData.onerror = () => reject(new Error('Failed to load image'));
+      });
+    }
+
+    // Ensure the image is fully decoded before creating WebGPU texture
+    // HTMLImageElement may not be ready for copyExternalImageToTexture
+    await imageData.decode();
+
+    // Using createImageBitmap ensures the image is properly prepared for WebGPU
+    const imageBitmap = await createImageBitmap(imageData);
+
+    const textureHandle = await this.__createTextureInner(width, height, internalFormat, generateMipmap, imageBitmap);
 
     return textureHandle;
   }

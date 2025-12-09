@@ -32,23 +32,23 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
   static TargetRegionTexture = new ShaderSemanticsClass({
     str: 'targetRegionTexture',
   });
-  static SynthesizeTexture0 = new ShaderSemanticsClass({
-    str: 'synthesizeTexture0',
+  static Synthesize0Texture = new ShaderSemanticsClass({
+    str: 'synthesize0Texture',
   });
-  static SynthesizeTexture1 = new ShaderSemanticsClass({
-    str: 'synthesizeTexture1',
+  static Synthesize1Texture = new ShaderSemanticsClass({
+    str: 'synthesize1Texture',
   });
-  static SynthesizeTexture2 = new ShaderSemanticsClass({
-    str: 'synthesizeTexture2',
+  static Synthesize2Texture = new ShaderSemanticsClass({
+    str: 'synthesize2Texture',
   });
-  static SynthesizeTexture3 = new ShaderSemanticsClass({
-    str: 'synthesizeTexture3',
+  static Synthesize3Texture = new ShaderSemanticsClass({
+    str: 'synthesize3Texture',
   });
-  static SynthesizeTexture4 = new ShaderSemanticsClass({
-    str: 'synthesizeTexture4',
+  static Synthesize4Texture = new ShaderSemanticsClass({
+    str: 'synthesize4Texture',
   });
-  static SynthesizeTexture5 = new ShaderSemanticsClass({
-    str: 'synthesizeTexture5',
+  static Synthesize5Texture = new ShaderSemanticsClass({
+    str: 'synthesize5Texture',
   });
 
   private textureNumber: Count;
@@ -101,7 +101,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         needUniformInDataTextureMode: true,
       },
       {
-        semantic: 'synthesizeTexture0',
+        semantic: 'synthesize0Texture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -110,7 +110,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: 'synthesizeTexture1',
+        semantic: 'synthesize1Texture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -119,7 +119,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: 'synthesizeTexture2',
+        semantic: 'synthesize2Texture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -128,7 +128,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: 'synthesizeTexture3',
+        semantic: 'synthesize3Texture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -137,7 +137,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: 'synthesizeTexture4',
+        semantic: 'synthesize4Texture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -146,7 +146,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: 'synthesizeTexture5',
+        semantic: 'synthesize5Texture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,

@@ -49,6 +49,7 @@ import { SinShaderNode } from '../nodes/SinShaderNode';
 import { SmoothStepShaderNode } from '../nodes/SmoothStepShaderNode';
 import { SplitVectorShaderNode } from '../nodes/SplitVectorShaderNode';
 import { StepShaderNode } from '../nodes/StepShaderNode';
+import { TextureShaderNode } from '../nodes/TextureShaderNode';
 import { TimeShaderNode } from '../nodes/TimeShaderNode';
 import { TransformShaderNode } from '../nodes/TransformShaderNode';
 import { UniformDataShaderNode } from '../nodes/UniformDataShaderNode';
@@ -683,12 +684,12 @@ export class ShaderGraphResolver {
    * and final code generation.
    *
    * @param json - JSON representation of the shader node graph containing nodes and connections
-   * @returns Object containing both vertex and fragment shader code, or undefined if generation fails
+   * @returns Object containing both vertex and fragment shader code, texture names used, or undefined if generation fails
    * @example
    * ```typescript
    * const shaderCode = ShaderGraphResolver.generateShaderCodeFromJson(graphJson);
    * if (shaderCode) {
-   *   const { vertexShader, pixelShader } = shaderCode;
+   *   const { vertexShader, pixelShader, textureNames } = shaderCode;
    *   // Use the generated shaders...
    * }
    * ```
@@ -696,8 +697,9 @@ export class ShaderGraphResolver {
   public static generateShaderCodeFromJson(
     engine: Engine,
     json: ShaderNodeJson
-  ): { vertexShader: string; pixelShader: string } | undefined {
-    const constructedNodes = Object.values(constructNodes(json));
+  ): { vertexShader: string; pixelShader: string; textureInfos: { name: string; stage: string }[] } | undefined {
+    const { nodeInstances, textureInfos } = constructNodes(json);
+    const constructedNodes = Object.values(nodeInstances);
     const nodes = this.__sortTopologically(constructedNodes);
     resolveShaderStage(nodes);
     const varyingNodes = filterNodesForVarying(nodes, 'outColor');
@@ -717,7 +719,7 @@ export class ShaderGraphResolver {
       return;
     }
 
-    return { vertexShader: vertexRet, pixelShader: pixelRet };
+    return { vertexShader: vertexRet, pixelShader: pixelRet, textureInfos };
   }
 }
 
@@ -883,15 +885,19 @@ function filterNodesForVarying(nodes: AbstractShaderNode[], endNodeName: string)
  * setting up their properties, connections, and default values based on the JSON data.
  *
  * @param json - JSON object containing the complete shader graph definition with nodes and connections
- * @returns Record mapping node IDs to their corresponding shader node instances
+ * @returns Object containing node instances record and array of texture names used
  * @throws Error if unknown node types are encountered or if connections cannot be established
  * @private
  */
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: This function handles many shader node types and requires a large switch statement
-function constructNodes(json: ShaderNodeJson) {
+function constructNodes(json: ShaderNodeJson): {
+  nodeInstances: Record<string, AbstractShaderNode>;
+  textureInfos: { name: string; stage: string }[];
+} {
   // Create Node Instances
   const nodeInstances: Record<string, AbstractShaderNode> = {};
   const nodes: Record<string, any> = {};
+  const textureInfos: { name: string; stage: string }[] = [];
   for (const node of json.nodes) {
     nodes[node.id] = node;
     switch (node.name) {
@@ -973,6 +979,16 @@ function constructNodes(json: ShaderNodeJson) {
           ])
         );
         nodeInstance.setUniformDataName(node.controls.name.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'Texture2D': {
+        const nodeInstance = new TextureShaderNode(CompositionType.Texture2D);
+        const textureName = node.controls.name.value;
+        const shaderStage = node.controls.shaderStage.value;
+        nodeInstance.setTextureName(textureName);
+        nodeInstance.setShaderStage(shaderStage);
+        textureInfos.push({ name: textureName, stage: shaderStage });
         nodeInstances[node.id] = nodeInstance;
         break;
       }
@@ -1498,5 +1514,5 @@ function constructNodes(json: ShaderNodeJson) {
     const inputOfOutputNode = outputNodeInstance.getInputs()[idx];
     outputNodeInstance.addInputConnection(inputNodeInstance, outputOfInputNode, inputOfOutputNode);
   }
-  return nodeInstances;
+  return { nodeInstances, textureInfos };
 }
