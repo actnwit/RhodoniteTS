@@ -245,19 +245,36 @@ export class MergeVectorShaderNode extends AbstractShaderNode {
       }
 
       if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-        for (let i = 0; i < dummyOutputArguments.length; i++) {
-          dummyOutputArguments[i] = `&${dummyOutputArguments[i]}`;
+        for (let j = 0; j < dummyOutputArguments.length; j++) {
+          dummyOutputArguments[j] = `&${dummyOutputArguments[j]}`;
         }
+      }
+
+      // Determine which input indices to use based on function name
+      // Input indices: 0: xyz, 1: xy, 2: zw, 3: x, 4: y, 5: z, 6: w
+      let inputIndices: number[];
+      if (functionName.includes('XYZ_W')) {
+        inputIndices = [0, 6]; // xyz, w
+      } else if (functionName.includes('XY_ZW')) {
+        inputIndices = [1, 2]; // xy, zw
+      } else if (functionName.includes('XY_Z_W')) {
+        inputIndices = [1, 5, 6]; // xy, z, w
+      } else if (functionName.includes('ZW_X_Y')) {
+        inputIndices = [2, 3, 4]; // zw, x, y
+      } else if (functionName.includes('X_Y_Z_W')) {
+        inputIndices = [3, 4, 5, 6]; // x, y, z, w
+      } else {
+        inputIndices = [];
       }
 
       // Call node functions
       rowStr += dummyOutputVarDefines.join('\n');
       rowStr += `${functionName}(`;
-      for (let k = 0; k < varInputNames[i].length; k++) {
+      for (let k = 0; k < inputIndices.length; k++) {
         if (k !== 0) {
           rowStr += ', ';
         }
-        const inputName = varInputNames[i][k];
+        const inputName = varInputNames[i][inputIndices[k]];
         rowStr += inputName;
       }
       rowStr += `, ${dummyOutputArguments.join(', ')}`;
