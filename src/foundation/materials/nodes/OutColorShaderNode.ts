@@ -1,6 +1,7 @@
 import { EndShader } from '../../../webgl/shaders/nodes/EndShader';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
+import { Vector4 } from '../../math/Vector4';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
 
@@ -29,7 +30,7 @@ export class OutColorShaderNode extends AbstractShaderNode {
 
     this.setShaderStage('Fragment');
 
-    this.__inputs.push(new Socket('value', CompositionType.Vec4, ComponentType.Float));
+    this.__inputs.push(new Socket('value', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(0, 0, 0, 1)));
   }
 
   /**
