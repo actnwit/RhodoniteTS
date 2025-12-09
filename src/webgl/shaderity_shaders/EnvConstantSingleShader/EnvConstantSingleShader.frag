@@ -25,7 +25,7 @@ void main() {
   // diffuseColor
   vec3 diffuseColor = vec3(0.0, 0.0, 0.0);
   float alpha = 1.0;
-  vec4 diffuseColorFactor = get_diffuseColorFactor(uint(materialSID), 0u);
+  vec4 diffuseColorFactor = get_diffuseColorFactor(materialSID, 0u);
   if (v_color != diffuseColor && diffuseColorFactor.rgb != diffuseColor) {
     diffuseColor = v_color * diffuseColorFactor.rgb;
     alpha = diffuseColorFactor.a;
@@ -41,18 +41,18 @@ void main() {
   // diffuseColorTexture
 
   // adapt OpenGL (RenderMan) CubeMap convention
-  float envRotation = get_envRotation(uint(materialSID), 0u);
+  float envRotation = get_envRotation(materialSID, 0u);
   float rot = envRotation;
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   vec3 envNormal = normalize(rotEnvMatrix * v_position_inWorld.xyz);
 
-  if (get_inverseEnvironment(uint(materialSID), 0u)) {
+  if (get_inverseEnvironment(materialSID, 0u)) {
     envNormal.x *= -1.0;
   }
 
   vec4 diffuseTexel = texture(u_colorEnvTexture, envNormal);
   vec3 textureColor;
-  int EnvHdriFormat = get_envHdriFormat(uint(materialSID), 0u);
+  int EnvHdriFormat = get_envHdriFormat(materialSID, 0u);
   if (EnvHdriFormat == 0) { // LDR_SRGB
     textureColor = srgbToLinear(diffuseTexel.rgb);
   } else if (EnvHdriFormat == 3) { // RGBE

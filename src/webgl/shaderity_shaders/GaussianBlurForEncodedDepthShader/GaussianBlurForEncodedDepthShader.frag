@@ -39,18 +39,18 @@ void main ()
   vec2 offset = gl_FragCoord.st;
 
   vec2 blurDirection;
-  bool isHorizontal = get_isHorizontal(uint(materialSID), 0u);
+  bool isHorizontal = get_isHorizontal(materialSID, 0u);
   if(isHorizontal){
-    framebufferSize = get_framebufferSize(uint(materialSID), 0u).x;
+    framebufferSize = get_framebufferSize(materialSID, 0u).x;
     blurDirection = vec2(1.0,0.0);
   }else{
-    framebufferSize = get_framebufferSize(uint(materialSID), 0u).y;
+    framebufferSize = get_framebufferSize(materialSID, 0u).y;
     blurDirection = vec2(0.0,1.0);
   }
 	float tFrag = 1.0 / framebufferSize;
 
   float depth = 0.0;
-  int gaussianKernelSize = get_gaussianKernelSize(uint(materialSID), 0u);
+  int gaussianKernelSize = get_gaussianKernelSize(materialSID, 0u);
   float minStrideLength = -float(gaussianKernelSize - 1) / 2.0;
 
   for(int i=0; i < 30; i++) {

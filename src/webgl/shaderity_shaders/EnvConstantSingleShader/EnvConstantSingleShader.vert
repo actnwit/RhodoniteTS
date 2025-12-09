@@ -22,10 +22,10 @@ void main(){
 /* shaderity: @{mainPrerequisites} */
 
   mat4 worldMatrix = get_worldMatrix(uint(a_instanceInfo.x));
-  mat4 viewMatrix = get_viewMatrix(uint(cameraSID));
-  mat4 projectionMatrix = get_projectionMatrix(uint(cameraSID));
+  mat4 viewMatrix = get_viewMatrix(cameraSID);
+  mat4 projectionMatrix = get_projectionMatrix(cameraSID);
 
-  if (get_enableViewMatrix(uint(materialSID), 0u)) {
+  if (get_enableViewMatrix(materialSID, 0u)) {
     mat4 rotateMatrix = viewMatrix;
     rotateMatrix[3][0] = 0.0;
     rotateMatrix[3][1] = 0.0;

@@ -1,5 +1,5 @@
 #ifdef RN_IS_ALPHA_MODE_MASK
-  float alphaCutoff = get_alphaCutoff(uint(materialSID), 0u);
+  float alphaCutoff = get_alphaCutoff(materialSID, 0u);
   if (alpha < alphaCutoff) {
     discard;
   }

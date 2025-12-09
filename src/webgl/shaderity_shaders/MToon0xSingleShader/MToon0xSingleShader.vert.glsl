@@ -33,7 +33,7 @@ void main(){
   /* shaderity: @{mainPrerequisites} */
 
   mat4 worldMatrix = get_worldMatrix(uint(a_instanceInfo.x));
-  mat4 viewMatrix = get_viewMatrix(uint(cameraSID));
+  mat4 viewMatrix = get_viewMatrix(cameraSID);
   mat3 normalMatrix = get_normalMatrix(uint(a_instanceInfo.x));
   bool isSkinning = false;
   isSkinning = processGeometry(
@@ -50,7 +50,7 @@ void main(){
     v_normal_inWorld
   );
 
-  mat4 projectionMatrix = get_projectionMatrix(uint(cameraSID));
+  mat4 projectionMatrix = get_projectionMatrix(cameraSID);
 
   v_normal_inView = vec3(viewMatrix * vec4(v_normal_inWorld, 0.0));
 
@@ -62,7 +62,7 @@ void main(){
     #endif
 
     #if defined(RN_MTOON_OUTLINE_WIDTH_WORLD)
-      float outlineWidth = get_outlineWidth(uint(materialSID), 0u);
+      float outlineWidth = get_outlineWidth(materialSID, 0u);
       vec3 outlineOffset = 0.01 * outlineWidth * outlineTex * a_normal;
       vec4 worldOutlineOffset = worldMatrix * vec4(outlineOffset, 0.0);
       gl_Position = projectionMatrix * viewMatrix * (v_position_inWorld + worldOutlineOffset);
@@ -72,12 +72,12 @@ void main(){
 
       vec3 clipNormal = (projectionMatrix * vec4(v_normal_inView, 1.0)).xyz;
       vec2 projectedNormal = normalize(clipNormal.xy);
-      float outlineScaledMaxDistance = get_outlineScaledMaxDistance(uint(materialSID), 0u);
+      float outlineScaledMaxDistance = get_outlineScaledMaxDistance(materialSID, 0u);
       projectedNormal *= min(vertex.w, outlineScaledMaxDistance);
       float aspect = abs(get_aspect(0u, 0u)); //solo datum
       projectedNormal.x *= aspect;
 
-      float outlineWidth = get_outlineWidth(uint(materialSID), 0u);
+      float outlineWidth = get_outlineWidth(materialSID, 0u);
       vertex.xy += 0.01 * outlineWidth * outlineTex * projectedNormal * clamp(1.0 - abs(v_normal_inView.z), 0.0, 1.0); // ignore offset when normal toward camera
 
       gl_Position = vertex;

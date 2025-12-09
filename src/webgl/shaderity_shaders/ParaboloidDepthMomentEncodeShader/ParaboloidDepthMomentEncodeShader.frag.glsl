@@ -27,7 +27,7 @@ void main (){
   float dx = dFdx(depth);
   float dy = dFdy(depth);
 
-  bool frontHemisphere = get_frontHemisphere(uint(materialSID), 0u);
+  bool frontHemisphere = get_frontHemisphere(materialSID, 0u);
   if (frontHemisphere) {
     rt0.r = depth; // M1
     rt0.g = sq(depth) + 0.25 * (sq(dx) + sq(dy)); // M2

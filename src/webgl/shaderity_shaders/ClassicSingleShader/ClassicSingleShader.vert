@@ -33,8 +33,8 @@ void main()
 /* shaderity: @{mainPrerequisites} */
 
   mat4 worldMatrix = get_worldMatrix(uint(a_instanceInfo.x));
-  mat4 viewMatrix = get_viewMatrix(uint(cameraSID));
-  mat4 projectionMatrix = get_projectionMatrix(uint(cameraSID));
+  mat4 viewMatrix = get_viewMatrix(cameraSID);
+  mat4 projectionMatrix = get_projectionMatrix(cameraSID);
   mat3 normalMatrix = get_normalMatrix(uint(a_instanceInfo.x));
   bool isBillboard = get_isBillboard(uint(a_instanceInfo.x));
 
@@ -67,5 +67,5 @@ void main()
     gl_Position = vec4(0.0);
   }
 
-  v_shadowCoord = get_depthBiasPV(uint(materialSID), 0u) * v_position_inWorld;
+  v_shadowCoord = get_depthBiasPV(materialSID, 0u) * v_position_inWorld;
 }

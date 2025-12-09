@@ -25,8 +25,8 @@ void main()
 /* shaderity: @{mainPrerequisites} */
 
   mat4 worldMatrix = get_worldMatrix(uint(a_instanceInfo.x));
-  mat4 viewMatrix = get_viewMatrix(uint(cameraSID));
-  mat4 projectionMatrix = get_projectionMatrix(uint(cameraSID));
+  mat4 viewMatrix = get_viewMatrix(cameraSID);
+  mat4 projectionMatrix = get_projectionMatrix(cameraSID);
   mat3 normalMatrix = get_normalMatrix(uint(a_instanceInfo.x));
   bool isBillboard = get_isBillboard(uint(a_instanceInfo.x));
 

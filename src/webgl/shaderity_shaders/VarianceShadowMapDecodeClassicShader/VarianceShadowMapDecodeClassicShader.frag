@@ -46,33 +46,33 @@ float chebyshevUpperBound(float materialSID){
 
   if(v_projPosition_from_light.w > 0.0){
     float measureDepth;
-    bool isPointLight = get_isPointLight(uint(materialSID), 0u);
+    bool isPointLight = get_isPointLight(materialSID, 0u);
     if(isPointLight){
-      float zNear = get_zNearInner(uint(materialSID), 0u);
-      float zFar = get_zFarInner(uint(materialSID), 0u);
+      float zNear = get_zNearInner(materialSID, 0u);
+      float zFar = get_zFarInner(materialSID, 0u);
       float normalizationCoefficient = 1.0 / (zFar - zNear);
       measureDepth = normalizationCoefficient * length(v_projPosition_from_light);
     }else{
       measureDepth = (v_projPosition_from_light / v_projPosition_from_light.w).z;
     }
 
-    float depthAdjustment = get_depthAdjustment(uint(materialSID), 0u);
+    float depthAdjustment = get_depthAdjustment(materialSID, 0u);
     measureDepth += depthAdjustment;
 
-    float textureDepthAdjustment = get_textureDepthAdjustment(uint(materialSID), 0u);
+    float textureDepthAdjustment = get_textureDepthAdjustment(materialSID, 0u);
     textureDepth += textureDepthAdjustment;
 
     float d = measureDepth - textureDepth;
     if(d < 0.0) return 1.0;
 
     float variance = textureSquareDepth - textureDepth * textureDepth;
-    float minimumVariance = get_minimumVariance(uint(materialSID), 0u);
+    float minimumVariance = get_minimumVariance(materialSID, 0u);
     variance = max(variance, minimumVariance);
 
     nonShadowProb = variance / (variance + d * d);
 
 
-    float lightBleedingParameter = get_lightBleedingParameter(uint(materialSID), 0u);
+    float lightBleedingParameter = get_lightBleedingParameter(materialSID, 0u);
     nonShadowProb = reduceLightBleeding(nonShadowProb, lightBleedingParameter);
   }
   return nonShadowProb;
@@ -89,7 +89,7 @@ void main ()
   vec3 diffuseColor = vec3(0.0, 0.0, 0.0);
   float alpha = 1.0;
 
-  vec4 diffuseColorFactor = get_diffuseColorFactor(uint(materialSID), 0u);
+  vec4 diffuseColorFactor = get_diffuseColorFactor(materialSID, 0u);
   if (v_color != diffuseColor && diffuseColorFactor.rgb != diffuseColor) {
     diffuseColor = v_color * diffuseColorFactor.rgb;
     alpha = diffuseColorFactor.a;
@@ -110,7 +110,7 @@ void main ()
   }
 
   // shadow mapping
-  vec4 shadowColor = get_shadowColor(uint(materialSID), 0u);
+  vec4 shadowColor = get_shadowColor(materialSID, 0u);
 
   float nonShadowProb = chebyshevUpperBound(materialSID);
   diffuseColor = nonShadowProb * diffuseColor + (1.0 - nonShadowProb) * shadowColor.rgb;
@@ -119,11 +119,11 @@ void main ()
   // Lighting
   vec3 shadingColor = vec3(0.0, 0.0, 0.0);
 
-  int shadingModel = get_shadingModel(uint(materialSID), 0u);
+  int shadingModel = get_shadingModel(materialSID, 0u);
   if (shadingModel > 0) {
     vec3 diffuse = vec3(0.0, 0.0, 0.0);
     vec3 specular = vec3(0.0, 0.0, 0.0);
-    int lightNumber = get_lightNumber(uint(materialSID), 0u);
+    int lightNumber = get_lightNumber(materialSID, 0u);
     for (int i = 0; i < /* shaderity: @{Config.maxLightNumber} */ ; i++) {
       if (i >= lightNumber) {
         break;
@@ -134,8 +134,8 @@ void main ()
 
       diffuse += diffuseColor * max(0.0, dot(normal_inWorld, light.direction)) * light.attenuatedIntensity;
 
-      vec3 viewPosition = get_viewPosition(uint(cameraSID));
-      float shininess = get_shininess(uint(materialSID), 0u);
+      vec3 viewPosition = get_viewPosition(cameraSID);
+      float shininess = get_shininess(materialSID, 0u);
       if (shadingModel == 2) {// BLINN
         // ViewDirection
         vec3 viewDirection = normalize(viewPosition - v_position_inWorld.xyz);

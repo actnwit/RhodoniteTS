@@ -20,8 +20,8 @@ void main ()
 
 /* shaderity: @{mainPrerequisites} */
 
-float i = get_count(uint(materialSID), 0u);
-float dir = get_direction(uint(materialSID), 0u);
+float i = get_count(materialSID, 0u);
+float dir = get_direction(materialSID, 0u);
 
 rt0 = texture(u_baseColorTexture, gl_FragCoord.xy);
 

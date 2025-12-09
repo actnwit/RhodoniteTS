@@ -30,7 +30,7 @@ void main(){
   /* shaderity: @{mainPrerequisites} */
 
   mat4 worldMatrix = get_worldMatrix(uint(a_instanceInfo.x));
-  mat4 viewMatrix = get_viewMatrix(uint(cameraSID));
+  mat4 viewMatrix = get_viewMatrix(cameraSID);
   mat3 normalMatrix = get_normalMatrix(uint(a_instanceInfo.x));
   bool isSkinning = false;
   isSkinning = processGeometry(
@@ -47,17 +47,17 @@ void main(){
     v_normal_inWorld
   );
 
-  mat4 projectionMatrix = get_projectionMatrix(uint(cameraSID));
+  mat4 projectionMatrix = get_projectionMatrix(cameraSID);
 
   v_normal_inView = vec3(viewMatrix * vec4(v_normal_inWorld, 0.0));
 
 #ifdef RN_MTOON_IS_OUTLINE
-  int outlineWidthType = get_outlineWidthMode(uint(materialSID), 0u);
+  int outlineWidthType = get_outlineWidthMode(materialSID, 0u);
   if (outlineWidthType == 0) { // 0 ("none")
     gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
   } else {
     float worldNormalLength = length(normalMatrix * a_normal);
-    float outlineWidthFactor = get_outlineWidthFactor(uint(materialSID), 0u);
+    float outlineWidthFactor = get_outlineWidthFactor(materialSID, 0u);
     vec3 outlineOffset = outlineWidthFactor * worldNormalLength * v_normal_inWorld;
 
     float outlineWidthMultiply = texture(u_outlineWidthMultiplyTexture, a_texcoord_0).g;

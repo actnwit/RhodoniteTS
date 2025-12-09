@@ -32,7 +32,7 @@ void main()
   }
 
   mat4 worldMatrix = get_worldMatrix(uint(a_instanceInfo.x));
-  mat4 viewMatrix = get_viewMatrix(uint(cameraSID));
+  mat4 viewMatrix = get_viewMatrix(cameraSID);
   mat3 normalMatrix = get_normalMatrix(uint(a_instanceInfo.x));
   bool isBillboard = get_isBillboard(uint(a_instanceInfo.x));
 
@@ -54,13 +54,13 @@ void main()
     v_normal_inWorld
   );
 
-  int lightIndex = get_lightIndex(uint(materialSID), 0u);
+  int lightIndex = get_lightIndex(materialSID, 0u);
   vec3 lightPosition = get_lightPosition(uint(lightIndex));
   vec3 L = v_position_inWorld.xyz - lightPosition;
   float dist = length(L);
   L = normalize(L);
 
-  bool frontHemisphere = get_frontHemisphere(uint(materialSID), 0u);
+  bool frontHemisphere = get_frontHemisphere(materialSID, 0u);
   float signHemisphere = frontHemisphere ? 1.0 : -1.0;
   float denom = 1.0 + signHemisphere * L.z;
 
@@ -77,7 +77,7 @@ void main()
   //   return;
   // }
 
-  float farPlane = get_farPlane(uint(materialSID), 0u);
+  float farPlane = get_farPlane(materialSID, 0u);
   gl_Position = vec4(uv, dist / farPlane, 1.0);
   v_position_inWorld = vec4(uv, dist / farPlane, signHemisphere * L.z);
 }
