@@ -86,7 +86,7 @@ void ${this.__functionName}(${uvStr}, vec2 scale, vec2 offset, float rotation, i
   if (lodFloat < 0.0) {
     rgbaValue = texture(u_${this.__variableName}, ${this.__variableName}TexUv);
   } else {
-    rgbaValue = texture(u_${this.__variableName}, ${this.__variableName}TexUv, lodFloat);
+    rgbaValue = textureLod(u_${this.__variableName}, ${this.__variableName}TexUv, lodFloat);
   }
   rgba = rgbaValue;
   rgb = rgbaValue.rgb;
@@ -159,7 +159,7 @@ void ${this.__functionName}(${uvStr}, vec2 scale, vec2 offset, float rotation, i
   if (lodFloat < 0.0) {
     rgbaValue = texture(u_${this.__variableName}, ${this.__variableName}TexUv);
   } else {
-    rgbaValue = texture(u_${this.__variableName}, ${this.__variableName}TexUv, lodFloat);
+    rgbaValue = textureLod(u_${this.__variableName}, ${this.__variableName}TexUv, lodFloat);
   }
   rgba = rgbaValue;
   rgb = rgbaValue.rgb;
