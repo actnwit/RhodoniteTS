@@ -22,6 +22,7 @@ import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemant
 import { ShaderType, type ShaderTypeEnum } from '../foundation/definitions/ShaderType';
 import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
 import { Primitive } from '../foundation/geometry/Primitive';
+import { getTextureAndSamplerNames } from '../foundation/helpers/ShaderHelper';
 import type { Material } from '../foundation/materials/core/Material';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 import type { Accessor } from '../foundation/memory/Accessor';
@@ -318,17 +319,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
       } else if (info.compositionType === CompositionType.Texture2DArray) {
         textureType = 'texture_2d_array<f32>';
       }
-      // If the semantic name ends with 'Texture', use the standard replacement pattern
-      // Otherwise, append 'Texture' and 'Sampler' suffixes to avoid name collision
-      let textureName: string;
-      let samplerName: string;
-      if (methodName.endsWith('Texture')) {
-        textureName = methodName;
-        samplerName = methodName.replace('Texture', 'Sampler');
-      } else {
-        textureName = `${methodName}Texture`;
-        samplerName = `${methodName}Sampler`;
-      }
+      const { textureName, samplerName } = getTextureAndSamplerNames(methodName);
       return `
 @group(1) @binding(${info.initialValue[0]}) var ${textureName}: ${textureType};
 @group(2) @binding(${info.initialValue[0]}) var ${samplerName}: sampler;
@@ -465,17 +456,7 @@ ${indexStr}
       } else if (info.compositionType === CompositionType.Texture2DArray) {
         textureType = 'texture_2d_array<f32>';
       }
-      // If the semantic name ends with 'Texture', use the standard replacement pattern
-      // Otherwise, append 'Texture' and 'Sampler' suffixes to avoid name collision
-      let textureName: string;
-      let samplerName: string;
-      if (methodName.endsWith('Texture')) {
-        textureName = methodName;
-        samplerName = methodName.replace('Texture', 'Sampler');
-      } else {
-        textureName = `${methodName}Texture`;
-        samplerName = `${methodName}Sampler`;
-      }
+      const { textureName, samplerName } = getTextureAndSamplerNames(methodName);
       return `
 @group(1) @binding(${info.initialValue[0]}) var ${textureName}: ${textureType};
 @group(2) @binding(${info.initialValue[0]}) var ${samplerName}: sampler;
