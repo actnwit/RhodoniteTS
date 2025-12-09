@@ -20,6 +20,24 @@ export class TextureShader extends CommonShaderPart {
     this.__variableName = name;
   }
 
+  /**
+   * Gets the texture and sampler names for WebGPU, handling the case where
+   * the variable name already ends with 'Texture'.
+   * This logic must match WebGpuStrategyBasic.__generateShaderSemanticsAccessorForUniform.
+   */
+  private __getWebGpuTextureAndSamplerNames(): { textureName: string; samplerName: string } {
+    if (this.__variableName.endsWith('Texture')) {
+      return {
+        textureName: this.__variableName,
+        samplerName: this.__variableName.replace('Texture', 'Sampler'),
+      };
+    }
+    return {
+      textureName: `${this.__variableName}Texture`,
+      samplerName: `${this.__variableName}Sampler`,
+    };
+  }
+
   setDefaultValue(value: any) {
     this.__valueStr = value.toString();
   }
@@ -44,9 +62,10 @@ export class TextureShader extends CommonShaderPart {
         throw new Error(`UniformTextureShader: ${this.__compositionType} is not a texture`);
       }
 
+      const { textureName, samplerName } = this.__getWebGpuTextureAndSamplerNames();
       return `
 fn ${this.__functionName}(${uvStr}, outValue: ptr<function, vec4<f32>>) {
-  *outValue = textureSampleLevel(${this.__variableName}Texture, ${this.__variableName}Sampler, uv, 0.0);
+  *outValue = textureSampleLevel(${textureName}, ${samplerName}, uv, 0.0);
 }
 `;
     }
@@ -88,9 +107,10 @@ void ${this.__functionName}(${uvStr}, out vec4 outValue) {
         throw new Error(`UniformTextureShader: ${this.__compositionType} is not a texture`);
       }
 
+      const { textureName, samplerName } = this.__getWebGpuTextureAndSamplerNames();
       return `
 fn ${this.__functionName}(${uvStr}, outValue: ptr<function, vec4<f32>>) {
-  *outValue = textureSample(${this.__variableName}Texture, ${this.__variableName}Sampler, uv);
+  *outValue = textureSample(${textureName}, ${samplerName}, uv);
 }
 `;
     }
