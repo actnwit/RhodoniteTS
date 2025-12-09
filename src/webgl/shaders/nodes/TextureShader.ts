@@ -47,9 +47,9 @@ export class TextureShader extends CommonShaderPart {
 
       const { textureName, samplerName } = getTextureAndSamplerNames(this.__variableName);
       return `
-// #param ${textureName}TransformScale: vec2<f32>; // initialValue=(1,1)
-// #param ${textureName}TransformOffset: vec2<f32>; // initialValue=(0,0)
-// #param ${textureName}TransformRotation: f32; // initialValue=0
+// #param ${textureName}TransformScale: vec2<f32>; // initialValue=(1,1), max=10, min=0
+// #param ${textureName}TransformOffset: vec2<f32>; // initialValue=(0,0), max=10, min=-10
+// #param ${textureName}TransformRotation: f32; // initialValue=0, max=3.141592653589793, min=-3.141592653589793
 fn ${this.__functionName}(${uvStr}, outValue: ptr<function, vec4<f32>>) {
   let materialSID = uniformDrawParameters.materialSid;
   let ${textureName}TransformScale: vec2f = get_${textureName}TransformScale(materialSID, 0);
@@ -74,9 +74,9 @@ fn ${this.__functionName}(${uvStr}, outValue: ptr<function, vec4<f32>>) {
     }
 
     return `
-uniform vec2 u_${this.__variableName}TransformScale; // initialValue=(1,1)
-uniform vec2 u_${this.__variableName}TransformOffset; // initialValue=(0,0)
-uniform float u_${this.__variableName}TransformRotation; // initialValue=0
+uniform vec2 u_${this.__variableName}TransformScale; // initialValue=(1,1), max=10, min=0
+uniform vec2 u_${this.__variableName}TransformOffset; // initialValue=(0,0), max=10, min=-10
+uniform float u_${this.__variableName}TransformRotation; // initialValue=0, max=3.141592653589793, min=-3.141592653589793
 void ${this.__functionName}(${uvStr}, out vec4 outValue) {
   ${CommonShaderPart.getMaterialSIDForWebGL()}
   vec2 ${this.__variableName}TransformScale = get_${this.__variableName}TransformScale(materialSID, 0);
@@ -109,9 +109,9 @@ void ${this.__functionName}(${uvStr}, out vec4 outValue) {
 
       const { textureName, samplerName } = getTextureAndSamplerNames(this.__variableName);
       return `
-// #param ${textureName}TransformScale: vec2<f32>; // initialValue=(1,1)
-// #param ${textureName}TransformOffset: vec2<f32>; // initialValue=(0,0)
-// #param ${textureName}TransformRotation: f32; // initialValue=0
+// #param ${textureName}TransformScale: vec2<f32>; // initialValue=(1,1), max=10, min=0
+// #param ${textureName}TransformOffset: vec2<f32>; // initialValue=(0,0), max=10, min=-10
+// #param ${textureName}TransformRotation: f32; // initialValue=0, max=3.141592653589793, min=-3.141592653589793
 fn ${this.__functionName}(${uvStr}, outValue: ptr<function, vec4<f32>>) {
   let materialSID = uniformDrawParameters.materialSid;
   let ${textureName}TransformScale: vec2f = get_${textureName}TransformScale(materialSID, 0);
@@ -136,9 +136,9 @@ fn ${this.__functionName}(${uvStr}, outValue: ptr<function, vec4<f32>>) {
     }
 
     return `
-uniform vec2 u_${this.__variableName}TransformScale; // initialValue=(1,1)
-uniform vec2 u_${this.__variableName}TransformOffset; // initialValue=(0,0)
-uniform float u_${this.__variableName}TransformRotation; // initialValue=0
+uniform vec2 u_${this.__variableName}TransformScale; // initialValue=(1,1), max=10, min=0
+uniform vec2 u_${this.__variableName}TransformOffset; // initialValue=(0,0), max=10, min=-10
+uniform float u_${this.__variableName}TransformRotation; // initialValue=0, max=3.141592653589793, min=-3.141592653589793
 void ${this.__functionName}(${uvStr}, out vec4 outValue) {
   ${CommonShaderPart.getMaterialSIDForWebGL()}
   vec2 ${this.__variableName}TransformScale = get_${this.__variableName}TransformScale(materialSID, 0);
