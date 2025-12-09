@@ -299,7 +299,7 @@ void main ()
   }
 
   int debugView = get_debugView(uint(materialSID), 0u);
-  float f0 = get_f0(materialSID, 0);
+  float f0 = get_f0(uint(materialSID), 0u);
   int g_type = get_g_type(uint(materialSID), 0u);
   int disable_fresnel = get_disable_fresnel(uint(materialSID), 0u);
 

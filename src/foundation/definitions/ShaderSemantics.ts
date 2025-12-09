@@ -643,7 +643,7 @@ function getShaderPropertyOfGlobalDataRepository(_engine: Engine, info: ShaderSe
     }
     str += `
         ${returnType} val;
-          int i = index;
+          int i = int(index);
           return u_${variableName};
         `;
   } else {
