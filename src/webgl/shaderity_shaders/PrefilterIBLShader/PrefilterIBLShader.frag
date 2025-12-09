@@ -51,7 +51,7 @@ mat3 createTBN(vec3 normal)
     return mat3(tangent, bitangent, normal);
 }
 
-vec4 getImportanceSampleLambertian(int sampleIndex, vec3 N, float roughness, float materialSID)
+vec4 getImportanceSampleLambertian(int sampleIndex, vec3 N, float roughness, uint materialSID)
 {
     vec2 xi = hammersley2d(sampleIndex, get_sampleCount(materialSID, 0u));
 
@@ -79,7 +79,7 @@ float d_GGX(float NH, float alphaRoughness) {
 
 // We learnd a lot from the following resources
 // https://bruop.github.io/ibl/
-vec4 getImportanceSampleGGX(int sampleIndex, vec3 N, float roughness, float materialSID)
+vec4 getImportanceSampleGGX(int sampleIndex, vec3 N, float roughness, uint materialSID)
 {
     vec2 xi = hammersley2d(sampleIndex, get_sampleCount(materialSID, 0u));
 
@@ -109,7 +109,7 @@ float D_Charlie(float sheenRoughness, float NdotH)
     return (2.0 + invR) * pow(sin2h, invR * 0.5) / (2.0 * PI);
 }
 
-vec4 getImportanceSampleCharlie(int sampleIndex, vec3 N, float roughness, float materialSID)
+vec4 getImportanceSampleCharlie(int sampleIndex, vec3 N, float roughness, uint materialSID)
 {
     vec2 xi = hammersley2d(sampleIndex, get_sampleCount(materialSID, 0u));
 
@@ -142,7 +142,7 @@ float computeLod(float pdf, int width, int sampleCount)
     return 0.5 * log2( 6.0 * float(width) * float(width) / (float(sampleCount) * pdf));
 }
 
-vec3 prefilter(vec3 N, float materialSID)
+vec3 prefilter(vec3 N, uint materialSID)
 {
     vec3 color = vec3(0.f);
     float weight = 0.0f;

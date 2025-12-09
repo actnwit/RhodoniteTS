@@ -35,7 +35,7 @@ float reduceLightBleeding(float p_max, float parameter){
   return linstep(parameter,1.0,p_max);
 }
 
-float chebyshevUpperBound(float materialSID){
+float chebyshevUpperBound(uint materialSID){
   float textureDepth = decodeRGBAToDepth(textureProj(u_depthTexture, v_texcoord_light));
   float textureSquareDepth = decodeRGBAToDepth(textureProj(u_squareDepthTexture, v_texcoord_light));
   if(textureDepth == 1.0 || textureSquareDepth == 1.0){
