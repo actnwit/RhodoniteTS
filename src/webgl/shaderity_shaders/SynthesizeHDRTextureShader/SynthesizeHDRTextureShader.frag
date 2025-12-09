@@ -24,7 +24,7 @@ void main ()
 /* shaderity: @{mainPrerequisites} */
 
   float synthesizeCoefficient0 = u_synthesizeCoefficient[0];
-  vec4 color = synthesizeCoefficient0 * texture(u_synthesizeTexture0, v_texcoord_0);
+  vec4 color = synthesizeCoefficient0 * texture(u_synthesize0Texture, v_texcoord_0);
 
   float synthesizeCoefficient1 = u_synthesizeCoefficient[1];
   float synthesizeCoefficient2 = u_synthesizeCoefficient[2];
@@ -32,11 +32,11 @@ void main ()
   float synthesizeCoefficient4 = u_synthesizeCoefficient[4];
   float synthesizeCoefficient5 = u_synthesizeCoefficient[5];
 
-  color += synthesizeCoefficient1 * texture(u_synthesizeTexture1, v_texcoord_0);
-  color += synthesizeCoefficient2 * texture(u_synthesizeTexture2, v_texcoord_0);
-  color += synthesizeCoefficient3 * texture(u_synthesizeTexture3, v_texcoord_0);
-  color += synthesizeCoefficient4 * texture(u_synthesizeTexture4, v_texcoord_0);
-  color += synthesizeCoefficient5 * texture(u_synthesizeTexture5, v_texcoord_0);
+  color += synthesizeCoefficient1 * texture(u_synthesize1Texture, v_texcoord_0);
+  color += synthesizeCoefficient2 * texture(u_synthesize2Texture, v_texcoord_0);
+  color += synthesizeCoefficient3 * texture(u_synthesize3Texture, v_texcoord_0);
+  color += synthesizeCoefficient4 * texture(u_synthesize4Texture, v_texcoord_0);
+  color += synthesizeCoefficient5 * texture(u_synthesize5Texture, v_texcoord_0);
 
   rt0 = color;
 
