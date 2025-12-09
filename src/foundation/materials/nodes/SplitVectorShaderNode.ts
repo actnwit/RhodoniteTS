@@ -246,15 +246,25 @@ export class SplitVectorShaderNode extends AbstractShaderNode {
       }
 
       if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-        for (let i = 0; i < dummyOutputArguments.length; i++) {
-          dummyOutputArguments[i] = `&${dummyOutputArguments[i]}`;
+        for (let j = 0; j < dummyOutputArguments.length; j++) {
+          dummyOutputArguments[j] = `&${dummyOutputArguments[j]}`;
+        }
+      }
+
+      // Determine which input index to use based on actual connections
+      // Input indices: 0: xyzw, 1: xyz, 2: xy
+      let inputIndex = 0; // default to xyzw
+      for (let j = 0; j < this.inputConnections.length; j++) {
+        if (this.inputConnections[j] != null) {
+          inputIndex = j;
+          break;
         }
       }
 
       // Call node functions
       rowStr += dummyOutputVarDefines.join('\n');
       rowStr += `${functionName}(`;
-      const inputName = varInputNames[i][0];
+      const inputName = varInputNames[i][inputIndex];
       rowStr += inputName;
       rowStr += `, ${dummyOutputArguments.join(', ')}`;
       rowStr += ');\n';
