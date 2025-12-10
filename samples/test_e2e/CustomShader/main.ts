@@ -143,7 +143,6 @@ function createCustomShader() {
 
     // diffuseColor (Considered to be premultiplied alpha)
     vec4 diffuseColor = vec4(0.0, 0.0, 0.0, 1.0);
-    float alpha = 1.0;
     if (v_color != diffuseColor && diffuseColorFactor != diffuseColor) {
       diffuseColor = v_color * diffuseColorFactor;
     } else if (v_color == diffuseColor) {
@@ -159,8 +158,8 @@ function createCustomShader() {
     float diffuseColorTextureRotation = get_diffuseColorTextureRotation(materialSID, 0u);
     vec2 diffuseColorTexUv = uvTransform(diffuseColorTextureTransform.xy, diffuseColorTextureTransform.zw, diffuseColorTextureRotation, v_texcoord_0);
     vec4 textureColor = texture(u_diffuseColorTexture, diffuseColorTexUv);
-    diffuseColor *= textureColor.rgb;
-    alpha *= textureColor.a;
+    diffuseColor.rgb *= textureColor.rgb;
+    diffuseColor.a *= textureColor.a;
 
     float alpha = diffuseColor.a;
   /* shaderity: @{alphaProcess} */
@@ -183,7 +182,7 @@ function createCustomShader() {
         Light light = getLight(i, v_position_inWorld.xyz);
 
         // Diffuse
-        diffuse += diffuseColor * max(0.0, dot(normal_inWorld, light.direction)) * light.attenuatedIntensity;
+        diffuse += diffuseColor.rgb * max(0.0, dot(normal_inWorld, light.direction)) * light.attenuatedIntensity;
 
         float shininess = get_shininess(materialSID, 0u);
         int shadingModel = get_shadingModel(materialSID, 0u);
@@ -206,10 +205,10 @@ function createCustomShader() {
 
       shadingColor = diffuse + specular;
     } else {
-      shadingColor = diffuseColor;
+      shadingColor = diffuseColor.rgb;
     }
   #else
-    shadingColor = diffuseColor;
+    shadingColor = diffuseColor.rgb;
   #endif
 
     rt0 = vec4(shadingColor * diffuseColor.a, diffuseColor.a);

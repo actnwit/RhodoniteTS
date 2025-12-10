@@ -86,7 +86,7 @@ void main ()
       Light light = getLight(i, v_position_inWorld.xyz);
 
       // Diffuse
-      diffuse += diffuseColor * max(0.0, dot(normal_inWorld, light.direction)) * light.attenuatedIntensity;
+      diffuse += diffuseColor.rgb * max(0.0, dot(normal_inWorld, light.direction)) * light.attenuatedIntensity;
 
       float shininess = get_shininess(materialSID, 0u);
       int shadingModel = get_shadingModel(materialSID, 0u);
