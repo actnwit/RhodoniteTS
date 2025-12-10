@@ -35,8 +35,8 @@ export class ClampShaderNode extends AbstractShaderNode {
     });
 
     this.__inputs.push(new Socket('value', compositionType, componentType));
-    this.__inputs.push(new Socket('minVal', compositionType, componentType));
-    this.__inputs.push(new Socket('maxVal', compositionType, componentType));
+    this.__inputs.push(new Socket('min', compositionType, componentType));
+    this.__inputs.push(new Socket('max', compositionType, componentType));
     this.__outputs.push(new Socket('outValue', compositionType, componentType));
   }
 
