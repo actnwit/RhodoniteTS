@@ -299,8 +299,6 @@ fn main(
 
 #ifdef RN_USE_COLOR_0
   output.color_0 = vec4f(color_0);
-#else
-  output.color_0 = vec4f(1.0, 1.0, 1.0, 1.0);
 #endif
 
 #ifdef RN_USE_TEXCOORD_0
