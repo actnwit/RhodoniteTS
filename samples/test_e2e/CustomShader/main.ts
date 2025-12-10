@@ -142,7 +142,7 @@ function createCustomShader() {
 
 
     // diffuseColor (Considered to be premultiplied alpha)
-    vec4 diffuseColor = vec4(0.0, 0.0, 0.0, 1.0);
+    vec4 diffuseColor = vec4(1.0, 1.0, 1.0, 1.0);
     if (v_color != diffuseColor && diffuseColorFactor != diffuseColor) {
       diffuseColor = v_color * diffuseColorFactor;
     } else if (v_color == diffuseColor) {

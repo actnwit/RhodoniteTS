@@ -206,7 +206,7 @@ void main ()
   vec3 viewDirection = normalize(viewVector);
 
   // BaseColor
-  vec4 baseColor = vec4(0.0, 0.0, 0.0, 1.0);
+  vec4 baseColor = vec4(1.0, 1.0, 1.0, 1.0);
   vec4 baseColorFactor = get_baseColorFactor(materialSID, 0u);
   if (v_color != baseColor && baseColorFactor != baseColor) {
     baseColor = v_color * baseColorFactor;

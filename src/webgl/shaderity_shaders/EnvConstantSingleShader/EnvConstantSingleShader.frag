@@ -23,7 +23,7 @@ void main() {
 /* shaderity: @{mainPrerequisites} */
 
   // diffuseColor
-  vec4 diffuseColor = vec4(0.0, 0.0, 0.0, 1.0);
+  vec4 diffuseColor = vec4(1.0, 1.0, 1.0, 1.0);
   vec4 diffuseColorFactor = get_diffuseColorFactor(materialSID, 0u);
   if (v_color != diffuseColor && diffuseColorFactor != diffuseColor) {
     diffuseColor = v_color * diffuseColorFactor;

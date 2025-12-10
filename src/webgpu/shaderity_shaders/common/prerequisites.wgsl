@@ -393,13 +393,13 @@ var<private> a_texcoord_0: vec2<f32> = vec2<f32>(0.0, 0.0);
 var<private> a_texcoord_1: vec2<f32> = vec2<f32>(0.0, 0.0);
 
 #ifdef RN_USE_COLOR_0_FLOAT
-  var<private> a_color_0: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 0.0);
+  var<private> a_color_0: vec4<f32> = vec4<f32>(1.0, 1.0, 1.0, 1.0);
 #elif defined(RN_USE_COLOR_0_INT)
-  var<private> a_color_0: vec4<i32> = vec4<i32>(0, 0, 0, 0);
+  var<private> a_color_0: vec4<i32> = vec4<i32>(1, 1, 1, 1);
 #elif defined(RN_USE_COLOR_0_UINT)
-  var<private> a_color_0: vec4<u32> = vec4<u32>(0u, 0u, 0u, 0u);
+  var<private> a_color_0: vec4<u32> = vec4<u32>(1u, 1u, 1u, 1u);
 #else
-  var<private> a_color_0: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 0.0);
+  var<private> a_color_0: vec4<f32> = vec4<f32>(1.0, 1.0, 1.0, 1.0);
 #endif
 
 var<private> a_joint: vec4<u32> = vec4<u32>(0u, 0u, 0u, 0u);

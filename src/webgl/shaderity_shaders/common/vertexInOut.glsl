@@ -1,5 +1,9 @@
 in vec4 a_position;
-in vec4 a_color;
+#ifdef RN_USE_COLOR_0
+  in vec4 a_color;
+#else
+  const vec4 a_color = vec4(1.0, 1.0, 1.0, 1.0);
+#endif
 in vec3 a_normal;
 in vec4 a_instanceInfo;
 in vec2 a_texcoord_0;
