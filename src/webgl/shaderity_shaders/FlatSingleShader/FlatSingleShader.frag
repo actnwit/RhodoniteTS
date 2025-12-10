@@ -59,7 +59,7 @@ void main ()
   /* shaderity: @{alphaProcess} */
   diffuseColor.a = alpha;
 
-  rt0 = vec4(diffuseColor * diffuseColor.a, diffuseColor.a);
+  rt0 = vec4(diffuseColor.rgb * diffuseColor.a, diffuseColor.a);
 
 
 
