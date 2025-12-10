@@ -37,8 +37,8 @@ import { LessOrEqualShaderNode } from '../nodes/LessOrEqualShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
+import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NotEqualShaderNode } from '../nodes/NotEqualShaderNode';
 import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
@@ -353,7 +353,8 @@ export class ShaderGraphResolver {
 
     const existingInputs: Set<string> = new Set();
     const existingOutputs: Set<string> = new Set();
-    const existingOutputsVarName: Map<ShaderNodeUID, string> = new Map();
+    // Key format: "${shaderNodeUid}_${outputName}" to track each output separately
+    const existingOutputsVarName: Map<string, string> = new Map();
 
     // Start from index 0 to process all nodes, including those without input connections
     for (let i = 0; i < shaderNodes.length; i++) {
@@ -385,7 +386,7 @@ export class ShaderGraphResolver {
     varInputNames: Array<Array<string>>,
     varOutputNames: Array<Array<string>>,
     existingInputs: Set<string>,
-    existingOutputsVarName: Map<ShaderNodeUID, string>,
+    existingOutputsVarName: Map<string, string>,
     isVertexStage: boolean
   ): string {
     const shaderNode = shaderNodes[nodeIndex];
@@ -419,7 +420,9 @@ export class ShaderGraphResolver {
       );
 
       shaderBody += rowStr;
-      const existVarName = existingOutputsVarName.get(inputConnection.shaderNodeUid);
+      // Use outputNameOfPrev to get the correct variable name for this specific output
+      const outputKey = `${inputConnection.shaderNodeUid}_${inputConnection.outputNameOfPrev}`;
+      const existVarName = existingOutputsVarName.get(outputKey);
       varInputNames[nodeIndex].push(existVarName || varName);
     }
 
@@ -501,7 +504,7 @@ export class ShaderGraphResolver {
     shaderNodes: AbstractShaderNode[],
     varOutputNames: Array<Array<string>>,
     existingOutputs: Set<string>,
-    existingOutputsVarName: Map<ShaderNodeUID, string>
+    existingOutputsVarName: Map<string, string>
   ): void {
     const prevShaderNode = shaderNodes[nodeIndex - 1];
     if (!prevShaderNode) return;
@@ -527,7 +530,8 @@ export class ShaderGraphResolver {
           if (nodeIndex - 1 >= 0) {
             varOutputNames[nodeIndex - 1].push(varName);
           }
-          existingOutputsVarName.set(inputConnection.shaderNodeUid, varName);
+          // Use outputKey to track each output separately (fixes multiple outputs from same node)
+          existingOutputsVarName.set(outputKey, varName);
           existingOutputs.add(outputKey);
         }
       }
