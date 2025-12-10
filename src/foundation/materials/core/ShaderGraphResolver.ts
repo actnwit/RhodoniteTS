@@ -22,6 +22,7 @@ import { AttributeTexcoordShaderNode } from '../nodes/AttributeTexcoordShaderNod
 import { AttributeWeightShaderNode } from '../nodes/AttributeWeightShaderNode';
 import { BranchShaderNode } from '../nodes/BranchShaderNode';
 import { CastToFloatShaderNode } from '../nodes/CastToFloatShaderNode';
+import { ClampShaderNode } from '../nodes/ClampShaderNode';
 import { ConstantScalarVariableShaderNode } from '../nodes/ConstantScalarVariableShaderNode';
 import { ConstantVector2VariableShaderNode } from '../nodes/ConstantVector2VariableShaderNode';
 import { ConstantVector3VariableShaderNode } from '../nodes/ConstantVector3VariableShaderNode';
@@ -1078,6 +1079,25 @@ function constructNodes(json: ShaderNodeJson): {
           nodeInstance = new SmoothStepShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
           Logger.default.error(`Add node: Unknown socket name: ${socketName}`);
+          break;
+        }
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'Clamp': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: ClampShaderNode;
+        if (socketName.startsWith('Scalar')) {
+          nodeInstance = new ClampShaderNode(CompositionType.Scalar, ComponentType.Float);
+        } else if (socketName.startsWith('Vector2')) {
+          nodeInstance = new ClampShaderNode(CompositionType.Vec2, ComponentType.Float);
+        } else if (socketName.startsWith('Vector3')) {
+          nodeInstance = new ClampShaderNode(CompositionType.Vec3, ComponentType.Float);
+        } else if (socketName.startsWith('Vector4')) {
+          nodeInstance = new ClampShaderNode(CompositionType.Vec4, ComponentType.Float);
+        } else {
+          Logger.default.error(`Clamp node: Unknown socket name: ${socketName}`);
           break;
         }
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
