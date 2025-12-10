@@ -47,10 +47,10 @@ export class TextureShader extends CommonShaderPart {
 
       const { textureName, samplerName } = getTextureAndSamplerNames(this.__variableName);
       return `
-fn ${this.__functionName}(${uvStr}, scale: vec2f, offset: vec2f, rotation: f32, lod: i32, rgba: ptr<function, vec4<f32>>, rgb: ptr<function, vec3<f32>>, r: ptr<function, f32>, g: ptr<function, f32>, b: ptr<function, f32>, a: ptr<function, f32>) {
+fn ${this.__functionName}(${uvStr}, scale: vec2f, offset: vec2f, rotation: f32, lod: f32, rgba: ptr<function, vec4<f32>>, rgb: ptr<function, vec3<f32>>, r: ptr<function, f32>, g: ptr<function, f32>, b: ptr<function, f32>, a: ptr<function, f32>) {
   let materialSID = uniformDrawParameters.materialSid;
   let ${textureName}TexUv = uvTransform(scale, offset, rotation, uv);
-  var lodFloat = f32(lod);
+  var lodFloat = lod;
   if (lodFloat < 0.0) {
     lodFloat = 0.0;
   }
@@ -78,10 +78,10 @@ fn ${this.__functionName}(${uvStr}, scale: vec2f, offset: vec2f, rotation: f32, 
     }
 
     return `
-void ${this.__functionName}(${uvStr}, vec2 scale, vec2 offset, float rotation, int lod, out vec4 rgba, out vec3 rgb, out float r, out float g, out float b, out float a) {
+void ${this.__functionName}(${uvStr}, vec2 scale, vec2 offset, float rotation, float lod, out vec4 rgba, out vec3 rgb, out float r, out float g, out float b, out float a) {
   ${CommonShaderPart.getMaterialSIDForWebGL()}
   vec2 ${this.__variableName}TexUv = uvTransform(scale, offset, rotation, uv);
-  float lodFloat = float(lod);
+  float lodFloat = lod;
   vec4 rgbaValue;
   if (lodFloat < 0.0) {
     rgbaValue = texture(u_${this.__variableName}, ${this.__variableName}TexUv);
@@ -118,10 +118,10 @@ void ${this.__functionName}(${uvStr}, vec2 scale, vec2 offset, float rotation, i
 
       const { textureName, samplerName } = getTextureAndSamplerNames(this.__variableName);
       return `
-fn ${this.__functionName}(${uvStr}, scale: vec2f, offset: vec2f, rotation: f32, lod: i32, rgba: ptr<function, vec4<f32>>, rgb: ptr<function, vec3<f32>>, r: ptr<function, f32>, g: ptr<function, f32>, b: ptr<function, f32>, a: ptr<function, f32>) {
+fn ${this.__functionName}(${uvStr}, scale: vec2f, offset: vec2f, rotation: f32, lod: f32, rgba: ptr<function, vec4<f32>>, rgb: ptr<function, vec3<f32>>, r: ptr<function, f32>, g: ptr<function, f32>, b: ptr<function, f32>, a: ptr<function, f32>) {
   let materialSID = uniformDrawParameters.materialSid;
   let ${textureName}TexUv = uvTransform(scale, offset, rotation, uv);
-  var lodFloat = f32(lod);
+  var lodFloat = lod;
   var rgbaValue: vec4<f32>;
   if (lodFloat < 0.0) {
     rgbaValue = textureSample(${textureName}, ${samplerName}, ${textureName}TexUv);
@@ -151,10 +151,10 @@ fn ${this.__functionName}(${uvStr}, scale: vec2f, offset: vec2f, rotation: f32, 
     }
 
     return `
-void ${this.__functionName}(${uvStr}, vec2 scale, vec2 offset, float rotation, int lod, out vec4 rgba, out vec3 rgb, out float r, out float g, out float b, out float a) {
+void ${this.__functionName}(${uvStr}, vec2 scale, vec2 offset, float rotation, float lod, out vec4 rgba, out vec3 rgb, out float r, out float g, out float b, out float a) {
   ${CommonShaderPart.getMaterialSIDForWebGL()}
   vec2 ${this.__variableName}TexUv = uvTransform(scale, offset, rotation, uv);
-  float lodFloat = float(lod);
+  float lodFloat = lod;
   vec4 rgbaValue;
   if (lodFloat < 0.0) {
     rgbaValue = texture(u_${this.__variableName}, ${this.__variableName}TexUv);

@@ -32,7 +32,7 @@ export class TextureShaderNode extends AbstractShaderNode {
     this.__inputs.push(new Socket('scale', CompositionType.Vec2, ComponentType.Float, Vector2.fromCopy2(1, 1)));
     this.__inputs.push(new Socket('offset', CompositionType.Vec2, ComponentType.Float, Vector2.fromCopy2(0, 0)));
     this.__inputs.push(new Socket('rotation', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
-    this.__inputs.push(new Socket('lod', CompositionType.Scalar, ComponentType.Int, Scalar.fromCopyNumber(-1)));
+    this.__inputs.push(new Socket('lod', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(-1)));
 
     this.__outputs.push(new Socket('rgba', CompositionType.Vec4, ComponentType.Float));
     this.__outputs.push(new Socket('rgb', CompositionType.Vec3, ComponentType.Float));
