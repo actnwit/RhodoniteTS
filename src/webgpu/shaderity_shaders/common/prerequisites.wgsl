@@ -391,15 +391,17 @@ var<private> a_normal: vec3<f32> = vec3<f32>(0.0, 0.0, 0.0);
 var<private> a_tangent: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 0.0);
 var<private> a_texcoord_0: vec2<f32> = vec2<f32>(0.0, 0.0);
 var<private> a_texcoord_1: vec2<f32> = vec2<f32>(0.0, 0.0);
+
 #ifdef RN_USE_COLOR_0_FLOAT
   var<private> a_color_0: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 0.0);
-#endif
-#ifdef RN_USE_COLOR_0_INT
+#elif defined(RN_USE_COLOR_0_INT)
   var<private> a_color_0: vec4<i32> = vec4<i32>(0, 0, 0, 0);
-#endif
-#ifdef RN_USE_COLOR_0_UINT
+#elif defined(RN_USE_COLOR_0_UINT)
   var<private> a_color_0: vec4<u32> = vec4<u32>(0u, 0u, 0u, 0u);
+#else
+  var<private> a_color_0: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 0.0);
 #endif
+
 var<private> a_joint: vec4<u32> = vec4<u32>(0u, 0u, 0u, 0u);
 var<private> a_weight: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 0.0);
 var<private> a_baryCentricCoord: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 0.0);

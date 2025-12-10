@@ -39,8 +39,8 @@ import { LessOrEqualShaderNode } from '../nodes/LessOrEqualShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
+import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NotEqualShaderNode } from '../nodes/NotEqualShaderNode';
 import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
@@ -879,9 +879,10 @@ function filterNodesForVarying(nodes: AbstractShaderNode[], endNodeName: string)
           varyingNodes.unshift(node);
         }
         traverseNodesAll(inputNode);
-        break;
+        // Continue checking other input connections instead of breaking
+      } else {
+        traverseNodes(inputNode);
       }
-      traverseNodes(inputNode);
     }
   }
 
