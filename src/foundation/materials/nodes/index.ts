@@ -32,6 +32,7 @@ export * from './OrShaderNode';
 export * from './OutColorShaderNode';
 export * from './OutPositionShaderNode';
 export * from './ProjectionMatrixShaderNode';
+export * from './RemapShaderNode';
 export * from './SplitVectorShaderNode';
 export * from './TextureShaderNode';
 export * from './UniformDataShaderNode';

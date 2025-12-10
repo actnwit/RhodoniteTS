@@ -46,6 +46,7 @@ import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
 import { ProjectionMatrixShaderNode } from '../nodes/ProjectionMatrixShaderNode';
+import { RemapShaderNode } from '../nodes/RemapShaderNode';
 import { SinShaderNode } from '../nodes/SinShaderNode';
 import { SmoothStepShaderNode } from '../nodes/SmoothStepShaderNode';
 import { SplitVectorShaderNode } from '../nodes/SplitVectorShaderNode';
@@ -1098,6 +1099,25 @@ function constructNodes(json: ShaderNodeJson): {
           nodeInstance = new ClampShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
           Logger.default.error(`Clamp node: Unknown socket name: ${socketName}`);
+          break;
+        }
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'Remap': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: RemapShaderNode;
+        if (socketName.startsWith('Scalar')) {
+          nodeInstance = new RemapShaderNode(CompositionType.Scalar, ComponentType.Float);
+        } else if (socketName.startsWith('Vector2')) {
+          nodeInstance = new RemapShaderNode(CompositionType.Vec2, ComponentType.Float);
+        } else if (socketName.startsWith('Vector3')) {
+          nodeInstance = new RemapShaderNode(CompositionType.Vec3, ComponentType.Float);
+        } else if (socketName.startsWith('Vector4')) {
+          nodeInstance = new RemapShaderNode(CompositionType.Vec4, ComponentType.Float);
+        } else {
+          Logger.default.error(`Remap node: Unknown socket name: ${socketName}`);
           break;
         }
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
