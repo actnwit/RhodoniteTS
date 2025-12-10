@@ -5,7 +5,7 @@ import { ShaderityUtilityWebGL } from './ShaderityUtilityWebGL';
 test.skip('ShaderityUtility parse rn_data correctly', async () => {
   const shaderText = `
 in vec3 a_position;
-in vec3 a_color;
+in vec4 a_color;
 in vec3 a_normal;
 in vec4 a_instanceInfo;
 in vec2 a_texcoord_0;
