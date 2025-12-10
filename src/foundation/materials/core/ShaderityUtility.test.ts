@@ -12,7 +12,7 @@ in vec2 a_texcoord_0;
 in vec4 a_joint;
 in vec4 a_weight;
 in vec4 a_baryCentricCoord;
-out vec3 v_color;
+out vec4 v_color;
 out vec3 v_normal_inWorld;
 out vec4 v_position_inWorld;
 out vec2 v_texcoord;

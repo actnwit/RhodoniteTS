@@ -142,18 +142,16 @@ function createCustomShader() {
 
 
     // diffuseColor (Considered to be premultiplied alpha)
-    vec3 diffuseColor = vec3(0.0, 0.0, 0.0);
+    vec4 diffuseColor = vec4(0.0, 0.0, 0.0, 1.0);
     float alpha = 1.0;
-    if (v_color != diffuseColor && diffuseColorFactor.rgb != diffuseColor) {
-      diffuseColor = v_color * diffuseColorFactor.rgb;
-      alpha = diffuseColorFactor.a;
+    if (v_color != diffuseColor && diffuseColorFactor != diffuseColor) {
+      diffuseColor = v_color * diffuseColorFactor;
     } else if (v_color == diffuseColor) {
-      diffuseColor = diffuseColorFactor.rgb;
-      alpha = diffuseColorFactor.a;
-    } else if (diffuseColorFactor.rgb == diffuseColor) {
+      diffuseColor = diffuseColorFactor;
+    } else if (diffuseColorFactor == diffuseColor) {
       diffuseColor = v_color;
     } else {
-      diffuseColor = vec3(1.0, 1.0, 1.0);
+      diffuseColor = vec4(1.0, 1.0, 1.0, 1.0);
     }
 
     // diffuseColorTexture (Considered to be premultiplied alpha)
@@ -164,7 +162,9 @@ function createCustomShader() {
     diffuseColor *= textureColor.rgb;
     alpha *= textureColor.a;
 
+    float alpha = diffuseColor.a;
   /* shaderity: @{alphaProcess} */
+    diffuseColor.a = alpha;
 
     // Lighting
     vec3 shadingColor = vec3(0.0, 0.0, 0.0);
@@ -212,7 +212,7 @@ function createCustomShader() {
     shadingColor = diffuseColor;
   #endif
 
-    rt0 = vec4(shadingColor * alpha, alpha);
+    rt0 = vec4(shadingColor * diffuseColor.a, diffuseColor.a);
   }
 
   `;

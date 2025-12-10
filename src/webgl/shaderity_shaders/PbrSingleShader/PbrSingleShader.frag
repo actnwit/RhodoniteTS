@@ -206,19 +206,16 @@ void main ()
   vec3 viewDirection = normalize(viewVector);
 
   // BaseColor
-  vec3 baseColor = vec3(0.0, 0.0, 0.0);
-  float alpha = 1.0;
+  vec4 baseColor = vec4(0.0, 0.0, 0.0, 1.0);
   vec4 baseColorFactor = get_baseColorFactor(materialSID, 0u);
-  if (v_color != baseColor && baseColorFactor.rgb != baseColor) {
-    baseColor = v_color * baseColorFactor.rgb;
-    alpha = baseColorFactor.a;
+  if (v_color != baseColor && baseColorFactor != baseColor) {
+    baseColor = v_color * baseColorFactor;
   } else if (v_color == baseColor) {
-    baseColor = baseColorFactor.rgb;
-    alpha = baseColorFactor.a;
-  } else if (baseColorFactor.rgb == baseColor) {
+    baseColor = baseColorFactor;
+  } else if (baseColorFactor == baseColor) {
     baseColor = v_color;
   } else {
-    baseColor = vec3(1.0, 1.0, 1.0);
+    baseColor = vec4(1.0, 1.0, 1.0, 1.0);
   }
   vec2 baseColorTextureTransformScale = get_baseColorTextureTransformScale(materialSID, 0u);
   vec2 baseColorTextureTransformOffset = get_baseColorTextureTransformOffset(materialSID, 0u);
@@ -227,10 +224,12 @@ void main ()
   vec2 baseColorTexcoord = getTexcoord(baseColorTexcoordIndex);
   vec2 baseColorTexUv = uvTransform(baseColorTextureTransformScale, baseColorTextureTransformOffset, baseColorTextureTransformRotation, baseColorTexcoord);
   vec4 textureColor = texture(u_baseColorTexture, baseColorTexUv);
-  baseColor *= srgbToLinear(textureColor.rgb);
-  alpha *= textureColor.a;
+  baseColor.rgb *= srgbToLinear(textureColor.rgb);
+  baseColor.a *= textureColor.a;
 
+  float alpha = baseColor.a;
 /* shaderity: @{alphaProcess} */
+  baseColor.a = alpha;
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
@@ -513,7 +512,7 @@ void main ()
     float diffuseTransmissionThickness = 0.0;
   #endif // RN_USE_DIFFUSE_TRANSMISSION
 
-  rt0 = vec4(0.0, 0.0, 0.0, alpha);
+  rt0 = vec4(0.0, 0.0, 0.0, baseColor.a);
 
   // Punctual Lights
   for (int i = 0; i < lightNumber; i++) {
@@ -581,7 +580,7 @@ void main ()
 
   rt0.xyz += indirectLight;
 #else
-  rt0 = vec4(baseColor, alpha);
+  rt0 = baseColor;
 #endif // RN_IS_LIGHTING
 
   // Emissive
