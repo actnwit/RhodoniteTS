@@ -30,6 +30,7 @@ import { ConstantVector4VariableShaderNode } from '../nodes/ConstantVector4Varia
 import { DiscardShaderNode } from '../nodes/DiscardShaderNode';
 import { DotProductShaderNode } from '../nodes/DotProductShaderNode';
 import { EqualShaderNode } from '../nodes/EqualShaderNode';
+import { FlatShaderNode } from '../nodes/FlatShaderNode';
 import { GreaterOrEqualShaderNode } from '../nodes/GreaterOrEqualShaderNode';
 import { GreaterShaderNode } from '../nodes/GreaterShaderNode';
 import { GreaterThanShaderNode } from '../nodes/GreaterThanShaderNode';
@@ -1532,6 +1533,11 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'Discard': {
         const nodeInstance = new DiscardShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'FlatShader': {
+        const nodeInstance = new FlatShaderNode();
         nodeInstances[node.id] = nodeInstance;
         break;
       }
