@@ -294,6 +294,7 @@ export function _createProgramAsSingleOperationWebGL(
       prerequisites: prerequisitesGlsl.code,
       mainPrerequisites: mainPrerequisitesGlsl.code,
       matricesGetters: componentDataAccessMethodDefinitionsForVertexShader + morphedPositionGetter,
+      opticalDefinition: opticalDefinitionGlsl.code,
       processGeometry: processGeometryGlsl.code,
       Config: engine.config,
     }
@@ -498,6 +499,7 @@ export function _createProgramAsSingleOperationWebGpu(
       getters: vertexPropertiesStr,
       definitions: `// RN_IS_VERTEX_SHADER\n#define RN_IS_VERTEX_SHADER\n${definitions}`,
       matricesGetters: componentDataAccessMethodDefinitionsForVertexShader + morphedPositionGetter,
+      opticalDefinition: opticalDefinitionWgsl.code,
       processGeometry: processGeometryWgsl.code,
       Config: engine.config,
     }

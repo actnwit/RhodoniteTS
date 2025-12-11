@@ -113,6 +113,8 @@ struct VertexOutput {
 /* shaderity: @{prerequisites} */
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
+
+/* shaderity: @{opticalDefinition} */
 `;
       return vertexShaderPrerequisites;
     }
@@ -148,6 +150,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
 `;
     vertexShaderPrerequisites += '/* shaderity: @{getters} */';
     vertexShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
+    vertexShaderPrerequisites += '/* shaderity: @{opticalDefinition} */';
 
     return vertexShaderPrerequisites;
   }
@@ -230,6 +233,9 @@ struct VertexOutput {
 /* shaderity: @{prerequisites} */
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
+
+/* shaderity: @{opticalDefinition} */
+
 `;
       return pixelShaderPrerequisites;
     }
@@ -243,6 +249,8 @@ struct VertexOutput {
       /* shaderity: @{prerequisites} */
       `;
     pixelShaderPrerequisites += '/* shaderity: @{getters} */';
+    pixelShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
+    pixelShaderPrerequisites += '/* shaderity: @{opticalDefinition} */';
     pixelShaderPrerequisites += 'layout(location = 0) out vec4 rt0;';
     return pixelShaderPrerequisites;
   }

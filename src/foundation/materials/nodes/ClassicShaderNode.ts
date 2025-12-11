@@ -43,6 +43,9 @@ export class ClassicShaderNode extends AbstractShaderNode {
     this.__inputs.push(
       new Socket('shininess', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(10.0))
     );
+    this.__inputs.push(
+      new Socket('positionInWorld', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(0, 0, 0, 1))
+    );
     this.__outputs.push(new Socket('outColor', CompositionType.Vec4, ComponentType.Float));
   }
 
