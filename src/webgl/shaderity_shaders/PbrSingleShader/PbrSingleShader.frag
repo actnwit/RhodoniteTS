@@ -178,7 +178,7 @@ uniform float u_alphaCutoff; // initialValue=(0.01)
   uniform float u_pointLightShadowMapUvScale; // initialValue=0.93
 #endif
 
-#pragma shaderity: require(../common/shadow.glsl)
+/* shaderity: @{shadowDefinition} */
 
 /* shaderity: @{pbrDefinition} */
 /* shaderity: @{iblDefinition} */

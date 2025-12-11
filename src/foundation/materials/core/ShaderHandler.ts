@@ -13,6 +13,7 @@ import { outputSrgbGlsl } from '../../../webgl/shaderity_shaders/common/outputSr
 import { pbrDefinitionGlsl } from '../../../webgl/shaderity_shaders/common/pbrDefinition';
 import { prerequisitesGlsl } from '../../../webgl/shaderity_shaders/common/prerequisites';
 import { processGeometryGlsl } from '../../../webgl/shaderity_shaders/common/processGeometry';
+import { shadowGlsl } from '../../../webgl/shaderity_shaders/common/shadow';
 import { vertexInGlsl } from '../../../webgl/shaderity_shaders/common/vertexIn';
 import { vertexInOutGlsl } from '../../../webgl/shaderity_shaders/common/vertexInOut';
 import { wireframeGlsl } from '../../../webgl/shaderity_shaders/common/wireframe';
@@ -26,6 +27,7 @@ import { outputSrgbWgsl } from '../../../webgpu/shaderity_shaders/common/outputS
 import { pbrDefinitionWgsl } from '../../../webgpu/shaderity_shaders/common/pbrDefinition';
 import { prerequisitesWgsl } from '../../../webgpu/shaderity_shaders/common/prerequisites';
 import { processGeometryWgsl } from '../../../webgpu/shaderity_shaders/common/processGeometry';
+import { shadowWgsl } from '../../../webgpu/shaderity_shaders/common/shadow';
 import { vertexInputWgsl } from '../../../webgpu/shaderity_shaders/common/vertexInput';
 import { vertexOutputWgsl } from '../../../webgpu/shaderity_shaders/common/vertexOutput';
 import { wireframeWgsl } from '../../../webgpu/shaderity_shaders/common/wireframe';
@@ -320,6 +322,7 @@ export function _createProgramAsSingleOperationWebGL(
       alphaProcess: alphaProcessGlsl.code,
       outputSrgb: outputSrgbGlsl.code,
       wireframe: wireframeGlsl.code,
+      shadowDefinition: shadowGlsl.code,
       Config: engine.config,
     }
   );
@@ -523,6 +526,7 @@ export function _createProgramAsSingleOperationWebGpu(
       alphaProcess: alphaProcessWgsl.code,
       outputSrgb: outputSrgbWgsl.code,
       wireframe: wireframeWgsl.code,
+      shadowDefinition: shadowWgsl.code,
       Config: engine.config,
     }
   );

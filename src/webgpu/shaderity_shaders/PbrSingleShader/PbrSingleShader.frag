@@ -183,7 +183,7 @@
   // #param pointLightShadowMapUvScale: f32; // initialValue=0.93
 #endif
 
-#pragma shaderity: require(../common/shadow.wgsl)
+/* shaderity: @{shadowDefinition} */
 /* shaderity: @{pbrDefinition} */
 /* shaderity: @{iblDefinition} */
 
