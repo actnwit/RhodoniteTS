@@ -39,10 +39,8 @@ void main (){
   vec4 diffuseColorFactor = get_diffuseColorFactor(materialSID, 0u);
   if (v_color != diffuseColor && diffuseColorFactor != diffuseColor) {
     diffuseColor = v_color * diffuseColorFactor;
-    diffuseColor.a = diffuseColorFactor.a;
   } else if (v_color == diffuseColor) {
     diffuseColor = diffuseColorFactor;
-    diffuseColor.a = diffuseColorFactor.a;
   } else if (diffuseColorFactor == diffuseColor) {
     diffuseColor = v_color;
   } else {
