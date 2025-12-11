@@ -40,8 +40,8 @@ import { LessOrEqualShaderNode } from '../nodes/LessOrEqualShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
+import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NotEqualShaderNode } from '../nodes/NotEqualShaderNode';
 import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
@@ -451,6 +451,11 @@ export class ShaderGraphResolver {
     if (inputSocket.defaultValue != null) {
       if (isBool) {
         return inputSocket.defaultValue._v[0] > 0.5 ? 'true' : 'false';
+      }
+      if (inputSocket.componentType === ComponentType.UnsignedInt) {
+        // Unsigned int default values are only used with Scalar type
+        const scalarValue = inputSocket.defaultValue as Scalar;
+        return isWebGPU ? scalarValue.wgslStrAsUint : scalarValue.glslStrAsUint;
       }
       if (isInt) {
         return isWebGPU ? inputSocket.defaultValue.wgslStrAsInt : inputSocket.defaultValue.glslStrAsInt;

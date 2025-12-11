@@ -30,7 +30,7 @@ void classicShader(in vec4 vertexColor, in vec4 diffuseColorFactor, in vec4 diff
         vec3 viewDirection = normalize(viewPosition - positionInWorld.xyz);
         vec3 halfVector = normalize(light.direction + viewDirection);
         specular += pow(max(0.0, dot(halfVector, normalInWorld)), shininess);
-      } else if (shadingModel == 3) { // PHONG
+      } else if (shadingModel == 3u) { // PHONG
         vec3 viewDirection = normalize(viewPosition - positionInWorld.xyz);
         vec3 R = reflect(light.direction, normalInWorld);
         specular += pow(max(0.0, dot(R, viewDirection)), shininess);

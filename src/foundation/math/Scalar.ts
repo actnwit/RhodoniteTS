@@ -97,6 +97,14 @@ export class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
   }
 
   /**
+   * Gets the scalar value as a GLSL-compatible unsigned integer string.
+   * @returns The scalar value formatted as a GLSL unsigned integer literal with 'u' suffix
+   */
+  get glslStrAsUint() {
+    return `${Math.floor(this.x)}u`;
+  }
+
+  /**
    * Gets the scalar value as a WGSL-compatible float string.
    * @returns The scalar value formatted as a WGSL float literal
    */
@@ -110,6 +118,14 @@ export class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
    */
   get wgslStrAsInt() {
     return `${Math.floor(this.x)}`;
+  }
+
+  /**
+   * Gets the scalar value as a WGSL-compatible unsigned integer string.
+   * @returns The scalar value formatted as a WGSL unsigned integer literal with 'u' suffix
+   */
+  get wgslStrAsUint() {
+    return `${Math.floor(this.x)}u`;
   }
 
   /**
