@@ -28,7 +28,7 @@ import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
 import { assertExist } from '../misc/MiscUtil';
 import type { Engine } from '../system/Engine';
-import { INPUT_HANDLING_STATE_GIZMO_TRANSLATION, InputManager, getEvent } from '../system/InputManager';
+import { getEvent, INPUT_HANDLING_STATE_GIZMO_TRANSLATION, InputManager } from '../system/InputManager';
 import { Gizmo } from './Gizmo';
 
 declare let window: any;
@@ -563,7 +563,6 @@ export class TranslationGizmo extends Gizmo {
    * @param evt - The pointer event containing click information
    */
   private __onPointerDown(evt: PointerEvent) {
-    evt.preventDefault();
     this.__isPointerDown = true;
     TranslationGizmo.__activeAxis = 'none';
     TranslationGizmo.__originalX = evt.clientX;
@@ -622,6 +621,9 @@ export class TranslationGizmo extends Gizmo {
       return;
     }
 
+    // Only prevent default after confirming an axis was picked
+    // This allows camera controller to handle events when gizmo is not being used
+    evt.preventDefault();
     this.__disableCameraController();
 
     if (this.__latestTargetEntity === this.__target) {

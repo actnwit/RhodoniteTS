@@ -25,7 +25,7 @@ import { Vector4 } from '../math/Vector4';
 import { Is } from '../misc/Is';
 import { assertExist } from '../misc/MiscUtil';
 import type { Engine } from '../system/Engine';
-import { INPUT_HANDLING_STATE_GIZMO_ROTATION, InputManager, getEvent } from '../system/InputManager';
+import { getEvent, INPUT_HANDLING_STATE_GIZMO_ROTATION, InputManager } from '../system/InputManager';
 import { Gizmo } from './Gizmo';
 
 declare let window: any;
@@ -349,7 +349,6 @@ export class RotationGizmo extends Gizmo {
   }
 
   private __onPointerDown(evt: PointerEvent) {
-    evt.preventDefault();
     this.__isPointerDown = true;
     this.__activePointerElement = undefined;
     this.__pointerPrev.setComponents(0, 0);
@@ -378,6 +377,9 @@ export class RotationGizmo extends Gizmo {
       return;
     }
 
+    // Only prevent default after confirming an axis was picked
+    // This allows camera controller to handle events when gizmo is not being used
+    evt.preventDefault();
     this.__disableCameraController();
     this.__targetRotationBackup = Quaternion.fromCopyQuaternion(this.__target.getTransform().localRotation);
     this.__deltaQuaternion = Quaternion.fromCopyQuaternion(this.__targetRotationBackup);
