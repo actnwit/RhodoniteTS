@@ -31,6 +31,7 @@ export * from './NotEqualShaderNode';
 export * from './OrShaderNode';
 export * from './OutColorShaderNode';
 export * from './OutPositionShaderNode';
+export * from './PremultipliedAlphaShaderNode';
 export * from './ProjectionMatrixShaderNode';
 export * from './RemapShaderNode';
 export * from './SplitVectorShaderNode';
