@@ -618,16 +618,16 @@ export class ShaderGraphResolver {
           // Find the source variable name from the input node's outputs
           const inputNodeIndex = shaderNodes.indexOf(inputNode);
           if (inputNodeIndex >= 0 && varOutputNames[inputNodeIndex]) {
-            // Find the output index matching outputNameOfPrev
-            const outputs = inputNode.getOutputs();
-            let outputIdx = 0;
-            for (let k = 0; k < outputs.length; k++) {
-              if (outputs[k].name === inputConnection.outputNameOfPrev) {
-                outputIdx = k;
+            // Find the output variable by searching for the matching output name in varOutputNames
+            // varOutputNames contains names like "outPositionInWorld_123_to_456"
+            const outputNamePrefix = `${inputConnection.outputNameOfPrev}_${inputNode.shaderNodeUid}_to_`;
+            let sourceVarName: string | undefined;
+            for (const varName of varOutputNames[inputNodeIndex]) {
+              if (varName.startsWith(outputNamePrefix)) {
+                sourceVarName = varName;
                 break;
               }
             }
-            const sourceVarName = varOutputNames[inputNodeIndex][outputIdx];
             if (sourceVarName) {
               if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
                 shaderBody += `output.${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid}_${inputConnection.outputNameOfPrev} = ${sourceVarName};\n`;
