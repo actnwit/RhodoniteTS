@@ -123,7 +123,7 @@ void main (){
     shadingColor = diffuseColor.rgb;
   }
 
-  rt0 = vec4(shadingColor * diffuseColor.a, diffuseColor.a);
+  rt0 = vec4(shadingColor, diffuseColor.a);
   //rt0 = vec4(u_lightNumber, 0.0, 0.0, 1.0);
 
 
