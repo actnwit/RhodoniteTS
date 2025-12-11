@@ -10,17 +10,17 @@ fn classicShader(vertexColor: vec4<f32>, diffuseColorFactor: vec4<f32>, diffuseT
       let light: Light = getLight(i, positionInWorld.xyz);
 
       // Diffuse
-      diffuse += diffuseColor * max(0.0, dot(normalInWorld, light.direction)) * light.attenuatedIntensity;
+      diffuse += diffuseColor.rgb * max(0.0, dot(normalInWorld, light.direction)) * light.attenuatedIntensity;
 
       let viewPosition = get_viewPosition(cameraSID);
 
       // Specular
-      if (shadingModel == 2u32) {// BLINN
+      if (shadingModel == 2u) {// BLINN
         // ViewDirection
         let viewDirection = normalize(viewPosition - positionInWorld.xyz);
         let halfVector = normalize(light.direction + viewDirection);
         specular += pow(max(0.0, dot(halfVector, normalInWorld)), shininess);
-      } else if (shadingModel == 3u32) { // PHONG
+      } else if (shadingModel == 3u) { // PHONG
         let viewDirection = normalize(viewPosition - positionInWorld.xyz);
         let R = reflect(light.direction, normalInWorld);
         specular += pow(max(0.0, dot(R, viewDirection)), shininess);
@@ -28,7 +28,7 @@ fn classicShader(vertexColor: vec4<f32>, diffuseColorFactor: vec4<f32>, diffuseT
 
     }
 
-    shadingColor.rgb = diffuse + specular;
+    shadingColor = vec4<f32>(diffuse + specular, shadingColor.a);
   }
 
   *outColor = shadingColor;
