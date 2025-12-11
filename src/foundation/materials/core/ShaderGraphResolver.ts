@@ -453,9 +453,7 @@ export class ShaderGraphResolver {
         return inputSocket.defaultValue._v[0] > 0.5 ? 'true' : 'false';
       }
       if (inputSocket.componentType === ComponentType.UnsignedInt) {
-        // Unsigned int default values are only used with Scalar type
-        const scalarValue = inputSocket.defaultValue as Scalar;
-        return isWebGPU ? scalarValue.wgslStrAsUint : scalarValue.glslStrAsUint;
+        return isWebGPU ? inputSocket.defaultValue.wgslStrAsUint : inputSocket.defaultValue.glslStrAsUint;
       }
       if (isInt) {
         return isWebGPU ? inputSocket.defaultValue.wgslStrAsInt : inputSocket.defaultValue.glslStrAsInt;
