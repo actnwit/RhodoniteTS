@@ -27,7 +27,7 @@ fn main(
   output.texcoord_0 = texcoord_0;
 #endif
 
-  // output.Position = vec4<f32>(position, 1.0);
+  output.color_0 = vec4f(a_color_0);
 
   return output;
 }

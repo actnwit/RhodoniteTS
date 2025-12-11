@@ -70,9 +70,7 @@ fn main(
   output.position_inWorld = position_inWorld;
   output.normal_inWorld = normal_inWorld;
 
-#ifdef RN_USE_COLOR_0
-  output.color_0 = vec4f(color_0);
-#endif
+  output.color_0 = vec4f(a_color_0);
 
 #ifdef RN_USE_TEXCOORD_0
   output.texcoord_0 = texcoord_0;

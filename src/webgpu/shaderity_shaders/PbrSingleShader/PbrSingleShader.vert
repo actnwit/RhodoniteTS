@@ -73,9 +73,7 @@ fn main(
   output.texcoord_2 = texcoord_2;
 #endif
 
-#ifdef RN_USE_COLOR_0
-  output.color_0 = vec4f(color_0);
-#endif
+  output.color_0 = vec4f(a_color_0);
 
 #ifdef RN_USE_TANGENT
   output.tangent_inWorld = vec3f((worldMatrix * vec4f(tangent.xyz, 0.0)).xyz);
