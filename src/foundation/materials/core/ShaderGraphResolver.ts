@@ -23,6 +23,7 @@ import { AttributeWeightShaderNode } from '../nodes/AttributeWeightShaderNode';
 import { BranchShaderNode } from '../nodes/BranchShaderNode';
 import { CastToFloatShaderNode } from '../nodes/CastToFloatShaderNode';
 import { ClampShaderNode } from '../nodes/ClampShaderNode';
+import { ClassicShaderNode } from '../nodes/ClassicShaderNode';
 import { ConstantScalarVariableShaderNode } from '../nodes/ConstantScalarVariableShaderNode';
 import { ConstantVector2VariableShaderNode } from '../nodes/ConstantVector2VariableShaderNode';
 import { ConstantVector3VariableShaderNode } from '../nodes/ConstantVector3VariableShaderNode';
@@ -1540,6 +1541,12 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'FlatShader': {
         const nodeInstance = new FlatShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'ClassicShader': {
+        const nodeInstance = new ClassicShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
