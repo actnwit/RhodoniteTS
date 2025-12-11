@@ -31,7 +31,11 @@ fn main(
   let textureColor = textureSample(diffuseColorTexture, diffuseColorSampler, diffuseColorTexUv);
 
   var diffuseColor = vec4<f32>(0.0, 0.0, 0.0, 1.0);
+#ifdef RN_USE_TEXCOORD_0
   flatShader(input.color_0, diffuseColorFactor, textureColor, &diffuseColor);
+#else
+  diffuseColor = input.color_0 * diffuseColorFactor;
+#endif
 
   var alpha = diffuseColor.a;
   /* shaderity: @{alphaProcess} */

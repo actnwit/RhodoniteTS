@@ -42,7 +42,11 @@ void main ()
   vec4 textureColor = texture(u_diffuseColorTexture, diffuseColorTexUv);
 
   vec4 diffuseColor = vec4(0.0, 0.0, 0.0, 1.0);
+#ifdef RN_USE_TEXCOORD_0
   flatShader(v_color, diffuseColorFactor, textureColor, diffuseColor);
+#else
+  diffuseColor = v_color * diffuseColorFactor;
+#endif
 
   float alpha = diffuseColor.a;
   /* shaderity: @{alphaProcess} */
