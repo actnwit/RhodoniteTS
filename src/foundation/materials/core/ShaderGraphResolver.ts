@@ -1539,6 +1539,7 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'FlatShader': {
         const nodeInstance = new FlatShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
