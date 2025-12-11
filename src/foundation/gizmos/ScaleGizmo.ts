@@ -24,7 +24,7 @@ import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
 import { assertExist } from '../misc/MiscUtil';
 import type { Engine } from '../system/Engine';
-import { INPUT_HANDLING_STATE_GIZMO_SCALE, InputManager, getEvent } from '../system/InputManager';
+import { getEvent, INPUT_HANDLING_STATE_GIZMO_SCALE, InputManager } from '../system/InputManager';
 import { Gizmo } from './Gizmo';
 
 declare let window: any;
@@ -568,7 +568,6 @@ export class ScaleGizmo extends Gizmo {
    * @private
    */
   private __onPointerDown(evt: PointerEvent) {
-    evt.preventDefault();
     this.__isPointerDown = true;
     ScaleGizmo.__activeAxis = 'none';
     ScaleGizmo.__originalX = evt.clientX;
@@ -623,6 +622,9 @@ export class ScaleGizmo extends Gizmo {
       return;
     }
 
+    // Only prevent default after confirming an axis was picked
+    // This allows camera controller to handle events when gizmo is not being used
+    evt.preventDefault();
     this.__disableCameraController();
 
     if (ScaleGizmo.__latestTargetEntity === this.__target) {
