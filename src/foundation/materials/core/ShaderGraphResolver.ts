@@ -45,6 +45,7 @@ import { NotEqualShaderNode } from '../nodes/NotEqualShaderNode';
 import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
+import { PremultipliedAlphaShaderNode } from '../nodes/PremultipliedAlphaShaderNode';
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
 import { ProjectionMatrixShaderNode } from '../nodes/ProjectionMatrixShaderNode';
 import { RemapShaderNode } from '../nodes/RemapShaderNode';
@@ -1539,6 +1540,12 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'FlatShader': {
         const nodeInstance = new FlatShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'PremultipliedAlpha': {
+        const nodeInstance = new PremultipliedAlphaShaderNode(ComponentType.Float);
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
