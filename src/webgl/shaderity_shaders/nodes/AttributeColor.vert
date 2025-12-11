@@ -1,4 +1,4 @@
 
 void attributeColor(out vec4 outValue) {
-  outValue = a_color_0;
+  outValue = a_color;
 }

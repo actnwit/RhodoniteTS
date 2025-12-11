@@ -23,19 +23,16 @@ void main() {
 /* shaderity: @{mainPrerequisites} */
 
   // diffuseColor
-  vec3 diffuseColor = vec3(0.0, 0.0, 0.0);
-  float alpha = 1.0;
+  vec4 diffuseColor = vec4(1.0, 1.0, 1.0, 1.0);
   vec4 diffuseColorFactor = get_diffuseColorFactor(materialSID, 0u);
-  if (v_color != diffuseColor && diffuseColorFactor.rgb != diffuseColor) {
-    diffuseColor = v_color * diffuseColorFactor.rgb;
-    alpha = diffuseColorFactor.a;
+  if (v_color != diffuseColor && diffuseColorFactor != diffuseColor) {
+    diffuseColor = v_color * diffuseColorFactor;
   } else if (v_color == diffuseColor) {
-    diffuseColor = diffuseColorFactor.rgb;
-    alpha = diffuseColorFactor.a;
-  } else if (diffuseColorFactor.rgb == diffuseColor) {
+    diffuseColor = diffuseColorFactor;
+  } else if (diffuseColorFactor == diffuseColor) {
     diffuseColor = v_color;
   } else {
-    diffuseColor = vec3(1.0, 1.0, 1.0);
+    diffuseColor = vec4(1.0, 1.0, 1.0, 1.0);
   }
 
   // diffuseColorTexture
@@ -60,9 +57,9 @@ void main() {
   } else {
     textureColor = diffuseTexel.rgb;
   }
-  diffuseColor *= textureColor;
+  diffuseColor.rgb *= textureColor;
 
-  rt0 = vec4(diffuseColor, alpha);
+  rt0 = vec4(diffuseColor.rgb, diffuseColor.a);
 
   /* shaderity: @{outputSrgb} */
 

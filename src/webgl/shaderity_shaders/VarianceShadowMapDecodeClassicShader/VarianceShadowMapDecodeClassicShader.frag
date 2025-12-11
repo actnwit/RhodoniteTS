@@ -86,35 +86,32 @@ void main ()
   vec3 normal_inWorld = normalize(v_normal_inWorld);
 
   // diffuseColor
-  vec3 diffuseColor = vec3(0.0, 0.0, 0.0);
-  float alpha = 1.0;
+  vec4 diffuseColor = vec4(1.0, 1.0, 1.0, 1.0);
 
   vec4 diffuseColorFactor = get_diffuseColorFactor(materialSID, 0u);
-  if (v_color != diffuseColor && diffuseColorFactor.rgb != diffuseColor) {
-    diffuseColor = v_color * diffuseColorFactor.rgb;
-    alpha = diffuseColorFactor.a;
+  if (v_color != diffuseColor && diffuseColorFactor != diffuseColor) {
+    diffuseColor = v_color * diffuseColorFactor;
   } else if (v_color == diffuseColor) {
-    diffuseColor = diffuseColorFactor.rgb;
-    alpha = diffuseColorFactor.a;
-  } else if (diffuseColorFactor.rgb == diffuseColor) {
+    diffuseColor = diffuseColorFactor;
+  } else if (diffuseColorFactor == diffuseColor) {
     diffuseColor = v_color;
   } else {
-    diffuseColor = vec3(1.0, 1.0, 1.0);
+    diffuseColor = vec4(1.0, 1.0, 1.0, 1.0);
   }
 
   // diffuseColorTexture
   vec4 textureColor = texture(u_diffuseColorTexture, v_texcoord_0);
   if (textureColor.r > 0.05) {
-    diffuseColor *= textureColor.rgb;
-    alpha *= textureColor.a;
+    diffuseColor.rgb *= textureColor.rgb;
+    diffuseColor.a *= textureColor.a;
   }
 
   // shadow mapping
   vec4 shadowColor = get_shadowColor(materialSID, 0u);
 
   float nonShadowProb = chebyshevUpperBound(materialSID);
-  diffuseColor = nonShadowProb * diffuseColor + (1.0 - nonShadowProb) * shadowColor.rgb;
-  alpha = nonShadowProb * alpha + (1.0 - nonShadowProb) * shadowColor.a;
+  diffuseColor.rgb = nonShadowProb * diffuseColor.rgb + (1.0 - nonShadowProb) * shadowColor.rgb;
+  diffuseColor.a = nonShadowProb * diffuseColor.a + (1.0 - nonShadowProb) * shadowColor.a;
 
   // Lighting
   vec3 shadingColor = vec3(0.0, 0.0, 0.0);
@@ -132,7 +129,7 @@ void main ()
       // Light
       Light light = getLight(i, v_position_inWorld.xyz);
 
-      diffuse += diffuseColor * max(0.0, dot(normal_inWorld, light.direction)) * light.attenuatedIntensity;
+      diffuse += diffuseColor.rgb * max(0.0, dot(normal_inWorld, light.direction)) * light.attenuatedIntensity;
 
       vec3 viewPosition = get_viewPosition(cameraSID);
       float shininess = get_shininess(materialSID, 0u);
@@ -151,9 +148,9 @@ void main ()
 
     shadingColor = diffuse + specular;
   } else {
-    shadingColor = diffuseColor;
+    shadingColor = diffuseColor.rgb;
   }
 
-  rt0 = vec4(shadingColor, alpha);
+  rt0 = vec4(shadingColor, diffuseColor.a);
 
 }
