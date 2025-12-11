@@ -35,12 +35,12 @@ fn main(
 #endif
 
 #ifdef RN_USE_JOINTS_0
-  let joint = joints_0;
+  let joint = a_joint;
 #else
   let joint = vec4<u32>(0, 0, 0, 0);
 #endif
 #ifdef RN_USE_WEIGHTS_0
-  let weight = weights_0;
+  let weight = a_weight;
 #else
   let weight = vec4<f32>(0.0, 0.0, 0.0, 0.0);
 #endif
@@ -70,21 +70,19 @@ fn main(
   output.position_inWorld = position_inWorld;
   output.normal_inWorld = normal_inWorld;
 
-#ifdef RN_USE_COLOR_0
-  output.color_0 = vec4f(color_0);
-#endif
+  output.color_0 = vec4f(a_color_0);
 
 #ifdef RN_USE_TEXCOORD_0
-  output.texcoord_0 = texcoord_0;
+  output.texcoord_0 = a_texcoord_0;
 #endif
 #ifdef RN_USE_TEXCOORD_1
-  output.texcoord_1 = texcoord_1;
+  output.texcoord_1 = a_texcoord_1;
 #endif
 #ifdef RN_USE_TEXCOORD_2
-  output.texcoord_2 = texcoord_2;
+  output.texcoord_2 = a_texcoord_2;
 #endif
 
-  output.baryCentricCoord = baryCentricCoord.xyz;
+  output.baryCentricCoord = a_baryCentricCoord.xyz;
 
   let visibility = get_isVisible(instanceId);
   if (!visibility)

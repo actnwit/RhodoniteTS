@@ -20,7 +20,7 @@ declare const window: any;
       wrapT: Rn.TextureParameter.Repeat,
     });
     sampler.create();
-    flatMaterial.setTextureParameter('baseColorTexture', texture, sampler);
+    flatMaterial.setTextureParameter('diffuseColorTexture', texture, sampler);
     const primitive = Rn.Primitive.createPrimitive(engine, {
       material: flatMaterial,
       attributeSemantics: [Rn.VertexAttribute.Position.XYZ, Rn.VertexAttribute.Texcoord0.XY],
