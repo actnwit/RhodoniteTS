@@ -1,4 +1,4 @@
-fn classicShader(vertexColor: vec4<f32>, diffuseColorFactor: vec4<f32>, diffuseTextureColor: vec4<f32>, shadingModel: u32, shininess: f32, positionInWorld: vec4<f32>, outColor: ptr<function, vec4<f32>>) {
+fn classicShader(vertexColor: vec4<f32>, diffuseColorFactor: vec4<f32>, diffuseTextureColor: vec4<f32>, shadingModel: u32, shininess: f32, positionInWorld: vec4<f32>, normalInWorld: vec3<f32>, outColor: ptr<function, vec4<f32>>) {
   var diffuseColor = vertexColor * diffuseColorFactor * diffuseTextureColor;
   var shadingColor = diffuseColor;
   if (shadingModel > 0) {
@@ -9,7 +9,7 @@ fn classicShader(vertexColor: vec4<f32>, diffuseColorFactor: vec4<f32>, diffuseT
       let light: Light = getLight(i, positionInWorld.xyz);
 
       // Diffuse
-      diffuse += diffuseColor * max(0.0, dot(normal_inWorld, light.direction)) * light.attenuatedIntensity;
+      diffuse += diffuseColor * max(0.0, dot(normalInWorld, light.direction)) * light.attenuatedIntensity;
 
       let viewPosition = get_viewPosition(cameraSID);
 
@@ -18,10 +18,10 @@ fn classicShader(vertexColor: vec4<f32>, diffuseColorFactor: vec4<f32>, diffuseT
         // ViewDirection
         let viewDirection = normalize(viewPosition - positionInWorld.xyz);
         let halfVector = normalize(light.direction + viewDirection);
-        specular += pow(max(0.0, dot(halfVector, normal_inWorld)), shininess);
+        specular += pow(max(0.0, dot(halfVector, normalInWorld)), shininess);
       } else if (shadingModel == 3) { // PHONG
         let viewDirection = normalize(viewPosition - positionInWorld.xyz);
-        let R = reflect(light.direction, normal_inWorld);
+        let R = reflect(light.direction, normalInWorld);
         specular += pow(max(0.0, dot(R, viewDirection)), shininess);
       }
 
