@@ -5,6 +5,7 @@ fn classicShader(vertexColor: vec4<f32>, diffuseColorFactor: vec4<f32>, diffuseT
     var diffuse = vec3<f32>(0.0, 0.0, 0.0);
     var specular = vec3<f32>(0.0, 0.0, 0.0);
     let lightNumber = u32(get_lightNumber(0u, 0u));
+    let cameraSID = uniformDrawParameters.cameraSID;
     for (var i = 0u; i < lightNumber ; i++) {
       let light: Light = getLight(i, positionInWorld.xyz);
 

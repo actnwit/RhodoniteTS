@@ -4,10 +4,17 @@ void classicShader(in vec4 vertexColor, in vec4 diffuseColorFactor, in vec4 diff
   if (shadingModel > 0u) {
     vec3 diffuse = vec3(0.0, 0.0, 0.0);
     vec3 specular = vec3(0.0, 0.0, 0.0);
+
     int lightNumber = 0;
     #ifdef RN_IS_LIGHTING
       lightNumber = get_lightNumber(0u, 0u);
     #endif
+
+    uint cameraSID = uint(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */]);
+    #if defined(WEBGL2_MULTI_VIEW) && defined(RN_IS_VERTEX_SHADER)
+      cameraSID += uint(gl_ViewID_OVR);
+    #endif
+
     for (int i = 0; i < lightNumber ; i++) {
       // Get Light
       Light light = getLight(i, positionInWorld.xyz);
