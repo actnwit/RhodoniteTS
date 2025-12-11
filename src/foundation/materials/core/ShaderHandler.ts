@@ -297,6 +297,7 @@ export function _createProgramAsSingleOperationWebGL(
       mainPrerequisites: mainPrerequisitesGlsl.code,
       matricesGetters: componentDataAccessMethodDefinitionsForVertexShader + morphedPositionGetter,
       opticalDefinition: opticalDefinitionGlsl.code,
+      shadowDefinition: shadowGlsl.code,
       processGeometry: processGeometryGlsl.code,
       Config: engine.config,
     }
@@ -503,6 +504,7 @@ export function _createProgramAsSingleOperationWebGpu(
       definitions: `// RN_IS_VERTEX_SHADER\n#define RN_IS_VERTEX_SHADER\n${definitions}`,
       matricesGetters: componentDataAccessMethodDefinitionsForVertexShader + morphedPositionGetter,
       opticalDefinition: opticalDefinitionWgsl.code,
+      shadowDefinition: shadowWgsl.code,
       processGeometry: processGeometryWgsl.code,
       Config: engine.config,
     }
@@ -521,12 +523,12 @@ export function _createProgramAsSingleOperationWebGpu(
       definitions: `// RN_IS_PIXEL_SHADER\n#define RN_IS_PIXEL_SHADER\n${definitions}${alphaMode}`,
       matricesGetters: componentDataAccessMethodDefinitionsForPixelShader,
       opticalDefinition: opticalDefinitionWgsl.code,
+      shadowDefinition: shadowWgsl.code,
       pbrDefinition: pbrDefinitionWgsl.code,
       iblDefinition: iblDefinitionWgsl.code,
       alphaProcess: alphaProcessWgsl.code,
       outputSrgb: outputSrgbWgsl.code,
       wireframe: wireframeWgsl.code,
-      shadowDefinition: shadowWgsl.code,
       Config: engine.config,
     }
   );

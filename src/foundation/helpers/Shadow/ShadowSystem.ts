@@ -267,9 +267,7 @@ export class ShadowSystem {
       if (meshComponent != null && meshComponent.mesh != null) {
         for (let i = 0; i < meshComponent.mesh.getPrimitiveNumber(); i++) {
           const primitive = meshComponent.mesh.getPrimitiveAt(i);
-          if (primitive.material.__materialTypeName.includes('Pbr')) {
-            primitive.material.setParameter('depthBiasPV', new VectorN(float32Array));
-          }
+          primitive.material.setParameter('depthBiasPV', new VectorN(float32Array));
         }
       }
     }

@@ -82,9 +82,9 @@ void main() {
   static getMaterialSIDForWebGL() {
     return `
   #ifdef RN_IS_DATATEXTURE_MODE
-    float materialSID = u_currentComponentSIDs[0]; // index 0 data is the materialSID
+    uint materialSID = uint(u_currentComponentSIDs[0]); // index 0 data is the materialSID
   #else
-    float materialSID = u_materialSID;
+    uint materialSID = 0u;
   #endif
   `;
   }
@@ -115,6 +115,8 @@ struct VertexOutput {
 /* shaderity: @{matricesGetters} */
 
 /* shaderity: @{opticalDefinition} */
+/* shaderity: @{shadowDefinition} */
+
 `;
       return vertexShaderPrerequisites;
     }
@@ -151,6 +153,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     vertexShaderPrerequisites += '/* shaderity: @{getters} */';
     vertexShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
     vertexShaderPrerequisites += '/* shaderity: @{opticalDefinition} */';
+    vertexShaderPrerequisites += '/* shaderity: @{shadowDefinition} */';
 
     return vertexShaderPrerequisites;
   }
@@ -235,6 +238,7 @@ struct VertexOutput {
 /* shaderity: @{matricesGetters} */
 
 /* shaderity: @{opticalDefinition} */
+/* shaderity: @{shadowDefinition} */
 
 `;
       return pixelShaderPrerequisites;
@@ -251,6 +255,7 @@ struct VertexOutput {
     pixelShaderPrerequisites += '/* shaderity: @{getters} */';
     pixelShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
     pixelShaderPrerequisites += '/* shaderity: @{opticalDefinition} */';
+    pixelShaderPrerequisites += '/* shaderity: @{shadowDefinition} */';
     pixelShaderPrerequisites += 'layout(location = 0) out vec4 rt0;';
     return pixelShaderPrerequisites;
   }

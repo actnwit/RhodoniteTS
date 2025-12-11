@@ -1,10 +1,7 @@
 void classicShader(in vec4 vertexColor, in vec4 diffuseColorFactor, in vec4 diffuseTextureColor, uint shadingModel, float shininess, vec4 positionInWorld, vec3 normalInWorld, out vec4 outColor) {
   vec4 diffuseColor = vertexColor * diffuseColorFactor * diffuseTextureColor;
-  vec4 shadingColor = diffuseColor;
+  vec4 shadingColor = vec4(0.0, 0.0, 0.0, diffuseColor.a);
   if (shadingModel > 0u) {
-    vec3 diffuse = vec3(0.0, 0.0, 0.0);
-    vec3 specular = vec3(0.0, 0.0, 0.0);
-
     int lightNumber = 0;
     #ifdef RN_IS_LIGHTING
       lightNumber = get_lightNumber(0u, 0u);
@@ -15,12 +12,19 @@ void classicShader(in vec4 vertexColor, in vec4 diffuseColorFactor, in vec4 diff
       cameraSID += uint(gl_ViewID_OVR);
     #endif
 
-    for (int i = 0; i < lightNumber ; i++) {
+    #ifdef RN_IS_DATATEXTURE_MODE
+      uint materialSID = uint(u_currentComponentSIDs[0]); // index 0 data is the materialSID
+    #else // RN_IS_UNIFORM_MODE
+      uint materialSID = 0u; // materialSID is not used in Uniform mode
+    #endif
+
+    for (int i = 0; i < lightNumber; i++) {
+      vec3 specular = vec3(0.0, 0.0, 0.0);
       // Get Light
       Light light = getLight(i, positionInWorld.xyz);
 
       // Diffuse
-      diffuse += diffuseColor.rgb * max(0.0, dot(normalInWorld, light.direction)) * light.attenuatedIntensity;
+      vec3 diffuse = diffuseColor.rgb * max(0.0, dot(normalInWorld, light.direction)) * light.attenuatedIntensity;
 
       vec3 viewPosition = get_viewPosition(cameraSID);
 
@@ -36,9 +40,34 @@ void classicShader(in vec4 vertexColor, in vec4 diffuseColorFactor, in vec4 diff
         specular += pow(max(0.0, dot(R, viewDirection)), shininess);
       }
 
-    }
+      #ifdef RN_USE_SHADOW_MAPPING
+      int depthTextureIndex = get_depthTextureIndexList(materialSID, uint(i));
+      if (light.type == 1 && depthTextureIndex >= 0) { // Point Light
+        float pointLightFarPlane = get_pointLightFarPlane(materialSID, 0u);
+        float pointLightShadowMapUvScale = get_pointLightShadowMapUvScale(materialSID, 0u);
+        float shadowContribution = varianceShadowContributionParaboloid(positionInWorld.xyz, light.position, pointLightFarPlane, pointLightShadowMapUvScale, depthTextureIndex);
+        diffuse *= shadowContribution;
+        specular *= shadowContribution;
+      } else if ((light.type == 0 || light.type == 2) && depthTextureIndex >= 0) { // Spot Light
+        vec4 shadowCoordVec4 = get_depthBiasPV(materialSID, uint(i)) * positionInWorld;
+        float bias = 0.001;
+        vec2 shadowCoord = shadowCoordVec4.xy / shadowCoordVec4.w;
+        vec3 lightDirection = normalize(get_lightDirection(uint(i)));
+        vec3 lightPosToWorldPos = normalize(positionInWorld.xyz - light.position);
+        float dotProduct = dot(lightPosToWorldPos, lightDirection);
+        float shadowContribution = 1.0;
+        if (dotProduct > 0.0 && shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0) {
+          shadowContribution = varianceShadowContribution(shadowCoord, (shadowCoordVec4.z - bias)/shadowCoordVec4.w, depthTextureIndex);
+        }
+        diffuse *= shadowContribution;
+        specular *= shadowContribution;
+      }
+      #endif
 
-    shadingColor.rgb = diffuse + specular;
+      shadingColor.rgb += diffuse + specular;
+    }
+  } else {
+    shadingColor.rgb = diffuseColor.rgb;
   }
 
   outColor = shadingColor;
