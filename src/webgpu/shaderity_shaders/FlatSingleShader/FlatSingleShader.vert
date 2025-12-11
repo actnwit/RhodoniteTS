@@ -24,7 +24,7 @@ fn main(
 #endif
 
 #ifdef RN_USE_TEXCOORD_0
-  output.texcoord_0 = texcoord_0;
+  output.texcoord_0 = a_texcoord_0;
 #endif
 
   output.color_0 = vec4f(a_color_0);
