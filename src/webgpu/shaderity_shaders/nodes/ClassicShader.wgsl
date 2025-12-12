@@ -28,10 +28,10 @@ fn classicShader(vertexColor: vec4<f32>, diffuseColorFactor: vec4<f32>, diffuseT
 
       #ifdef RN_USE_SHADOW_MAPPING
         // Point Light
-        let depthTextureIndex = u32(get_depthTextureIndexList(materialSID, i));
+        let depthTextureIndex = get_depthTextureIndexList(materialSID, i);
         let pointLightFarPlane = get_pointLightFarPlane(materialSID, 0);
         let pointLightShadowMapUvScale = get_pointLightShadowMapUvScale(materialSID, 0);
-        let shadowContributionParaboloid = varianceShadowContributionParaboloid(positionInWorld.xyz, light.position, pointLightFarPlane, pointLightShadowMapUvScale, depthTextureIndex);
+        let shadowContributionParaboloid = varianceShadowContributionParaboloid(positionInWorld.xyz, light.position, pointLightFarPlane, pointLightShadowMapUvScale, u32(depthTextureIndex));
 
         // Directional Light or Spot Light
         let v_shadowCoord = get_depthBiasPV(materialSID, i) * positionInWorld;
@@ -48,7 +48,7 @@ fn classicShader(vertexColor: vec4<f32>, diffuseColorFactor: vec4<f32>, diffuseT
         let lightPosToWorldPos = normalize(positionInWorld.xyz - light.position);
         let dotProduct = dot(lightPosToWorldPos, lightDirection);
         var shadowContribution = 1.0;
-        shadowContribution = varianceShadowContribution(shadowCoord, normalizedDepth - bias, depthTextureIndex);
+        shadowContribution = varianceShadowContribution(shadowCoord, normalizedDepth - bias, u32(depthTextureIndex));
 
         if (light.lightType == 1 && depthTextureIndex >= 0) { // Point Light
           diffuse *= shadowContributionParaboloid;
