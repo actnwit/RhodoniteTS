@@ -1,11 +1,9 @@
 import type { EntityUID, RenderPassUID } from '../../types/CommonTypes';
-import { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import type { CameraComponent } from '../components/Camera/CameraComponent';
 import type { MeshComponent } from '../components/Mesh/MeshComponent';
 import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { flattenHierarchy } from '../components/SceneGraph/SceneGraphOps';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
-import { IEntity } from '../core/Entity';
 import { RnObject } from '../core/RnObject';
 import { PrimitiveMode, type PrimitiveModeEnum } from '../definitions/PrimitiveMode';
 import type { RenderBufferTargetEnum } from '../definitions/RenderBufferTarget';
@@ -16,7 +14,6 @@ import type { IVector4 } from '../math/IVector';
 import { MutableVector4 } from '../math/MutableVector4';
 import { Vector4 } from '../math/Vector4';
 import type { Engine } from '../system/Engine';
-import { CGAPIResourceRepository } from './CGAPIResourceRepository';
 import type { FrameBuffer } from './FrameBuffer';
 
 type PrimitiveRnObjectUID = number;
@@ -329,12 +326,20 @@ export class RenderPass extends RnObject {
    */
   addEntities(entities: ISceneGraphEntity[]) {
     for (const entity of entities) {
+      // Defensive: entity can be missing if it has been deleted but still referenced somewhere.
+      if (entity === undefined) {
+        continue;
+      }
       const sceneGraphComponent = entity.getSceneGraph();
       this.__sceneGraphDirectlyAdded.push(sceneGraphComponent);
       const collectedSgComponents = flattenHierarchy(sceneGraphComponent, false);
-      const collectedEntities = collectedSgComponents.map((sg: SceneGraphComponent) => {
-        return sg.entity;
-      });
+      // NOTE:
+      // `SceneGraphComponent.entity` is typed as always existing, but it can become `undefined`
+      // at runtime when the corresponding entity has been deleted from `EntityRepository`.
+      // We filter out such stale references to avoid crashing during render pass setup.
+      const collectedEntities = collectedSgComponents
+        .map((sg: SceneGraphComponent) => sg.entity as unknown as IMeshEntity | ISceneGraphEntity | undefined)
+        .filter((e): e is IMeshEntity | ISceneGraphEntity => e != null);
 
       // Eliminate duplicates
       const map: Map<EntityUID, IMeshEntity | ISceneGraphEntity> = this.__entities
@@ -412,28 +417,28 @@ export class RenderPass extends RnObject {
   private __collectMeshComponents() {
     this.__meshComponents = [];
     this.__optimizedMeshComponents = [];
-    this.__entities.filter(entity => {
+    for (const entity of this.__entities) {
       const meshComponent = entity.getComponentByComponentTID(WellKnownComponentTIDs.MeshComponentTID) as
         | MeshComponent
         | undefined;
       if (meshComponent != null && meshComponent.mesh != null) {
         this.__meshComponents!.push(meshComponent);
         if (!this._toRenderOpaquePrimitives && meshComponent.mesh.isExistOpaque()) {
-          return;
+          continue;
         }
 
         if (!this._toRenderTranslucentPrimitives && meshComponent.mesh.isExistTranslucent()) {
-          return;
+          continue;
         }
         if (!this._toRenderBlendWithZWritePrimitives && meshComponent.mesh.isExistBlendWithZWrite()) {
-          return;
+          continue;
         }
         if (!this._toRenderBlendWithoutZWritePrimitives && meshComponent.mesh.isExistBlendWithoutZWrite()) {
-          return;
+          continue;
         }
         this.__optimizedMeshComponents!.push(meshComponent);
       }
-    });
+    }
   }
 
   /**
@@ -719,17 +724,6 @@ export class RenderPass extends RnObject {
    */
   _getMaterialOf(primitive: Primitive) {
     return this.__primitiveMaterial.get(primitive.objectUID)?.deref();
-  }
-
-  /**
-   * Checks if a specific material has been assigned to a primitive.
-   *
-   * @param primitive - The primitive to check
-   * @returns True if the primitive has a specific material assigned
-   * @private
-   */
-  private __hasMaterialOf(primitive: Primitive) {
-    return this.__primitiveMaterial.has(primitive.objectUID);
   }
 
   /**

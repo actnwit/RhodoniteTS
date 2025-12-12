@@ -25,7 +25,7 @@ import { Vector4 } from '../math/Vector4';
 import { Is } from '../misc/Is';
 import { assertExist } from '../misc/MiscUtil';
 import type { Engine } from '../system/Engine';
-import { getEvent, INPUT_HANDLING_STATE_GIZMO_ROTATION, InputManager } from '../system/InputManager';
+import { INPUT_HANDLING_STATE_GIZMO_ROTATION, InputManager, getEvent } from '../system/InputManager';
 import { Gizmo } from './Gizmo';
 
 declare let window: any;

@@ -6,7 +6,7 @@
 /* shaderity: @{matricesGetters} */
 
 /* shaderity: @{opticalDefinition} */
-
+/* shaderity: @{shadowDefinition} */
 
 // #param shadingModel: u32; // initialValue=0
 // #param alphaCutoff: f32; // initialValue=0.01
@@ -18,8 +18,8 @@
 @group(2) @binding(1) var normalSampler: sampler;
 // #param diffuseColorTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
 // #param diffuseColorTextureRotation: f32; // initialValue=0
-@group(1) @binding(2) var depthTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(2) var depthSampler: sampler;
+
+#pragma shaderity: require(../nodes/ClassicShader.wgsl)
 
 @fragment
 fn main (
@@ -34,95 +34,28 @@ fn main (
 
   let diffuseColorFactor = get_diffuseColorFactor(materialSID, 0);
 
-  // diffuseColor (Considered to be premultiplied alpha)
-  var diffuseColor = vec3f(1.0, 1.0, 1.0);
-  var alpha = 1.0;
-#ifdef RN_USE_COLOR_0
-  diffuseColor = input.color_0.rgb;
-  alpha = input.color_0.a;
-#endif
-  diffuseColor *= diffuseColorFactor.rgb;
-  alpha *= diffuseColorFactor.a;
-
+  var textureColor = vec4f(1.0, 1.0, 1.0, 1.0);
 #ifdef RN_USE_TEXCOORD_0
   // diffuseColorTexture (Considered to be premultiplied alpha)
   let diffuseColorTextureTransform = get_diffuseColorTextureTransform(materialSID, 0);
   let diffuseColorTextureRotation = get_diffuseColorTextureRotation(materialSID, 0);
   let diffuseColorTexUv = uvTransform(diffuseColorTextureTransform.xy, diffuseColorTextureTransform.zw, diffuseColorTextureRotation, input.texcoord_0);
-  let textureColor = textureSample(diffuseColorTexture, diffuseColorSampler, diffuseColorTexUv);
-  diffuseColor *= textureColor.rgb;
-  alpha *= textureColor.a;
+  textureColor = textureSample(diffuseColorTexture, diffuseColorSampler, diffuseColorTexUv);
 #endif
-
-/* shaderity: @{alphaProcess} */
 
   // Lighting
-  var rt0 = vec4f(0.0, 0.0, 0.0, alpha);
-#ifdef RN_IS_LIGHTING
+  var shadingColor = vec4f(0.0, 0.0, 0.0, 1.0);
   let shadingModel = get_shadingModel(materialSID, 0);
-  if (shadingModel > 0) {
+  let shininess = get_shininess(materialSID, 0);
+  classicShader(input.color_0, diffuseColorFactor, textureColor, shadingModel, shininess, input.position_inWorld, normal_inWorld, &shadingColor);
 
-    var diffuse = vec3(0.0, 0.0, 0.0);
-    var specular = vec3(0.0, 0.0, 0.0);
-    let lightNumber = u32(get_lightNumber(0u, 0u));
-    for (var i = 0u; i < lightNumber ; i++) {
+  // Alpha Test
+  var alpha = shadingColor.a;
+  /* shaderity: @{alphaProcess} */
+  shadingColor.a = alpha;
 
-      // Light
-      let light: Light = getLight(i, input.position_inWorld.xyz);
+  // Pre-multiplied alpha
+  shadingColor = vec4f(shadingColor.rgb * shadingColor.a, shadingColor.a);
 
-      // Diffuse
-      diffuse += diffuseColor * max(0.0, dot(normal_inWorld, light.direction)) * light.attenuatedIntensity;
-
-      let shininess = get_shininess(materialSID, 0);
-      let shadingModel = get_shadingModel(materialSID, 0);
-
-      let viewPosition = get_viewPosition(cameraSID);
-
-      // Specular
-      if (shadingModel == 2) {// BLINN
-        // ViewDirection
-        let viewDirection = normalize(viewPosition - input.position_inWorld.xyz);
-        let halfVector = normalize(light.direction + viewDirection);
-        specular += pow(max(0.0, dot(halfVector, normal_inWorld)), shininess);
-      } else if (shadingModel == 3) { // PHONG
-        let viewDirection = normalize(viewPosition - input.position_inWorld.xyz);
-        let R = reflect(light.direction, normal_inWorld);
-        specular += pow(max(0.0, dot(R, viewDirection)), shininess);
-      }
-
-    }
-
-    rt0 = vec4f(diffuse + specular, rt0.a);
-  } else {
-    rt0 = vec4f(diffuseColor, rt0.a);
-  }
-#else
-  rt0 = vec4f(diffuseColor, rt0.a);
-#endif
-
-  // Shadow
-// #ifdef RN_USE_SHADOW_MAPPING
-//   float visibility = 1.0;
-//   float bias = 0.001;
-
-// //  Non PCF
-//   if ( textureProj( u_depthTexture, v_shadowCoord ).r  < (v_shadowCoord.z - bias) / v_shadowCoord.w ) {
-//     visibility = 0.5;
-//   }
-//   shadingColor *= visibility;
-
-//   // Hardware PCF
-//   // vec4 shadowCoord = v_shadowCoord;
-//   // shadowCoord.z -= bias;
-//   // shadingColor *= textureProj( u_depthTexture, shadowCoord ) * 0.5 + 0.5;
-
-//   alpha = 1.0;
-// #endif
-
-  rt0 = vec4f(rt0.rgb * rt0.a, rt0.a);
-  // rt0 = vec4(u_lightNumber, 0.0, 0.0, 1.0);
-  // rt0 = vec4(1.0, 0.0, 0.0, 1.0);
-  // rt0 = vec4(normal_inWorld*0.5+0.5, 1.0);
-
-  return rt0;
+  return shadingColor;
 }

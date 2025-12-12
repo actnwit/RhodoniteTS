@@ -1,12 +1,10 @@
 #ifdef RN_USE_SHADOW_MAPPING
 
-const float g_minVariance = 0.00001;
-
-float chebyshevUpperBound(vec2 moments, float t) {
+float chebyshevUpperBound(vec2 moments, float t, float minVariance) {
   float p = (t <= moments.x) ? 1.0 : 0.0;
 
   float variance = moments.y - sq(moments.x);
-  variance = max(variance, g_minVariance);
+  variance = max(variance, minVariance);
 
   float d = t - moments.x;
   float p_max = variance / (variance + sq(d));
@@ -17,7 +15,7 @@ float chebyshevUpperBound(vec2 moments, float t) {
 float varianceShadowContribution(vec2 lightTexCoord, float distanceToLight, int depthTextureIndex) {
   vec2 moments = texture(u_depthTexture, vec3(lightTexCoord, depthTextureIndex)).xy;
 
-  return chebyshevUpperBound(moments, distanceToLight);
+  return chebyshevUpperBound(moments, distanceToLight, 0.001);
 }
 
 float varianceShadowContributionParaboloid(vec3 worldPos, vec3 lightPos, float farPlane, float uvScale, int depthTextureIndex) {
@@ -38,16 +36,11 @@ float varianceShadowContributionParaboloid(vec3 worldPos, vec3 lightPos, float f
   vec2 storedMoments = isFront
       ? texture(u_paraboloidDepthTexture, vec3(uv, depthTextureIndex)).rg
       : texture(u_paraboloidDepthTexture, vec3(uv, depthTextureIndex)).ba;
-      // : vec2(texture(u_paraboloidDepthTexture, uv).b, sq(texture(u_paraboloidDepthTexture, uv).b));
-      // : vec2(sqrt(texture(u_paraboloidDepthTexture, uv).a), texture(u_paraboloidDepthTexture, uv).a);
 
   float currentDepth = currentDist / farPlane;
 
 
-  return chebyshevUpperBound(storedMoments, currentDepth);
-
-  // float shadow = (currentDepth > storedMoments.r + 0.00001) ? 0.5 : 1.0;
-  // return shadow;
+  return chebyshevUpperBound(storedMoments, currentDepth, 0.00001);
 }
 
 

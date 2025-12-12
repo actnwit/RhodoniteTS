@@ -106,6 +106,60 @@ export abstract class AbstractMatrix implements IMatrix {
   }
 
   /**
+   * Gets the GLSL string representation of the matrix as float values.
+   * @returns GLSL-formatted string for float values
+   * @throws Error - Must be implemented by subclasses
+   */
+  get glslStrAsFloat(): string {
+    throw new Error('Method not implemented.');
+  }
+
+  /**
+   * Gets the GLSL string representation of the matrix as integer values.
+   * @returns GLSL-formatted string for integer values
+   * @throws Error - Must be implemented by subclasses
+   */
+  get glslStrAsInt(): string {
+    throw new Error('Method not implemented.');
+  }
+
+  /**
+   * Gets the GLSL string representation of the matrix as unsigned integer values.
+   * @returns GLSL-formatted string for unsigned integer values with 'u' suffix
+   * @throws Error - Must be implemented by subclasses
+   */
+  get glslStrAsUint(): string {
+    throw new Error('Method not implemented.');
+  }
+
+  /**
+   * Gets the WGSL string representation of the matrix as float values.
+   * @returns WGSL-formatted string for float values
+   * @throws Error - Must be implemented by subclasses
+   */
+  get wgslStrAsFloat(): string {
+    throw new Error('Method not implemented.');
+  }
+
+  /**
+   * Gets the WGSL string representation of the matrix as integer values.
+   * @returns WGSL-formatted string for integer values
+   * @throws Error - Must be implemented by subclasses
+   */
+  get wgslStrAsInt(): string {
+    throw new Error('Method not implemented.');
+  }
+
+  /**
+   * Gets the WGSL string representation of the matrix as unsigned integer values.
+   * @returns WGSL-formatted string for unsigned integer values with 'u' suffix
+   * @throws Error - Must be implemented by subclasses
+   */
+  get wgslStrAsUint(): string {
+    throw new Error('Method not implemented.');
+  }
+
+  /**
    * Indicates whether this matrix is an identity matrix class.
    *
    * This property should be overridden in derived classes that represent

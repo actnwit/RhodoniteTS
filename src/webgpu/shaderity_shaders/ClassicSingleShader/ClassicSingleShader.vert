@@ -6,9 +6,6 @@
 /* shaderity: @{matricesGetters} */
 /* shaderity: @{processGeometry} */
 
-// BiasMatrix * LightProjectionMatrix * LightViewMatrix, See: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/#basic-shader
-// #param depthBiasPV: mat4x4<f32>; // initialValue=(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)
-
 @vertex
 fn main(
 /* shaderity: @{vertexInput} */
@@ -49,7 +46,7 @@ fn main(
   let baryCentricCoord = vec4<f32>(0.0, 0.0, 0.0, 0.0);
 #endif
 
-  // Skeletal
+  // Process Geometry
   var position_inWorld = vec4<f32>(0.0, 0.0, 0.0, 1.0);
   var normal_inWorld = vec3<f32>(0.0, 0.0, 0.0);
   let isSkinning = processGeometry(
@@ -89,10 +86,6 @@ fn main(
   {
     output.position = vec4f(0.0, 0.0, 0.0, 1.0);
   }
-
-#ifdef RN_USE_SHADOW_MAPPING
-  output.shadowCoord = get_depthBiasPV(materialSID, 0) * geom.position_inWorld;
-#endif
 
   return output;
 

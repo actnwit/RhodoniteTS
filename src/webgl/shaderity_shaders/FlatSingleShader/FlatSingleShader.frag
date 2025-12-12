@@ -48,9 +48,11 @@ void main ()
   diffuseColor = v_color * diffuseColorFactor;
 #endif
 
+  // Alpha Test
   float alpha = diffuseColor.a;
   /* shaderity: @{alphaProcess} */
   diffuseColor.a = alpha;
 
+  // Pre-multiplied alpha
   rt0 = vec4(diffuseColor.rgb * diffuseColor.a, diffuseColor.a);
 }

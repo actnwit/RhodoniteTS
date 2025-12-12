@@ -1,10 +1,7 @@
 import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
-import { ComponentRepository } from '../../core/ComponentRepository';
-import { Config } from '../../core/Config';
 import type { IEntity } from '../../core/Entity';
 import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
-import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { BufferUse } from '../../definitions/BufferUse';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
@@ -17,12 +14,10 @@ import { MutableVector3 } from '../../math';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { Scalar } from '../../math/Scalar';
 import { Vector3 } from '../../math/Vector3';
-import { VectorN } from '../../math/VectorN';
 import { Is } from '../../misc/Is';
 import type { Engine } from '../../system/Engine';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
-import { createGroupEntity } from '../SceneGraph/createGroupEntity';
-import { TransformComponent } from '../Transform';
+import { TransformComponent } from '../Transform/TransformComponent';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 /**
@@ -39,12 +34,12 @@ export class LightComponent extends Component {
   private __direction = Vector3.fromCopyArray([0, 0, -1]);
   public innerConeAngle = 0.0;
   public outerConeAngle = Math.PI / 4.0; // in radian
-  public range = -1;
+  private __range = -1;
   public enable = true;
-  public shadowAreaSizeForDirectionalLight = 10;
+  private __shadowAreaSizeForDirectionalLight = 10;
+  private __shadowZNearForDirectionalLight = 0.1;
+  private __shadowCameraOffsetForDirectionalLight = Vector3.zero();
   public castShadow = false;
-  private static __tmp_vec4 = MutableVector4.zero();
-
   private _lightPosition = MutableVector4.dummy();
   private _lightDirection = MutableVector4.dummy();
   private _lightIntensity = MutableVector4.dummy();
@@ -132,6 +127,83 @@ export class LightComponent extends Component {
    */
   get intensity(): number {
     return this.__intensity;
+  }
+
+  /**
+   * Sets the effective range of the light.
+   *
+   * @remarks
+   * This value is used for:
+   * - SpotLight shadow camera zFar (when shadow mapping is enabled)
+   * - DirectionalLight shadow camera zFar fallback (when range !== -1)
+   * - Shading attenuation / light property uniforms
+   *
+   * Updating this property increments updateCount so dependent systems can react.
+   */
+  set range(value: number) {
+    this.__range = value;
+    this.__updateCount++;
+  }
+
+  /**
+   * Gets the effective range of the light.
+   */
+  get range(): number {
+    return this.__range;
+  }
+
+  /**
+   * Sets the orthographic half-size used for DirectionalLight shadow camera.
+   *
+   * @remarks
+   * CameraComponent syncs to light each frame and uses this to set orthographic extents.
+   * Updating this property increments updateCount so camera sync is refreshed.
+   */
+  set shadowAreaSizeForDirectionalLight(value: number) {
+    this.__shadowAreaSizeForDirectionalLight = value;
+    this.__updateCount++;
+  }
+
+  /**
+   * Gets the orthographic half-size used for DirectionalLight shadow camera.
+   */
+  get shadowAreaSizeForDirectionalLight(): number {
+    return this.__shadowAreaSizeForDirectionalLight;
+  }
+
+  /**
+   * Sets the zNear value used for DirectionalLight shadow camera.
+   *
+   * @remarks
+   * CameraComponent syncs to light each frame and uses this to set zNear.
+   * Updating this property increments updateCount so camera sync is refreshed.
+   */
+  set shadowZNearForDirectionalLight(value: number) {
+    this.__shadowZNearForDirectionalLight = value;
+    this.__updateCount++;
+  }
+
+  /**
+   * Gets the zNear value used for DirectionalLight shadow camera.
+   */
+  get shadowZNearForDirectionalLight(): number {
+    return this.__shadowZNearForDirectionalLight;
+  }
+
+  /**
+   * Sets the shadow camera offset for DirectionalLight.
+   * This offset is applied to position the shadow camera at the scene center.
+   */
+  set shadowCameraOffsetForDirectionalLight(value: Vector3) {
+    this.__shadowCameraOffsetForDirectionalLight = value;
+    this.__updateCount++;
+  }
+
+  /**
+   * Gets the shadow camera offset for DirectionalLight.
+   */
+  get shadowCameraOffsetForDirectionalLight(): Vector3 {
+    return this.__shadowCameraOffsetForDirectionalLight;
   }
 
   /**

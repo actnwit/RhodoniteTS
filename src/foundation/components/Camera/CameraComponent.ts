@@ -1153,25 +1153,42 @@ export class CameraComponent extends Component {
 
     if (this.isSyncToLight && Is.exist(lightComponent)) {
       // for Shadow Mapping
-      this._eyeInner.copyComponents(CameraComponent._eye);
-      this._directionInner.copyComponents(this._direction);
-      this._upInner.copyComponents(this._up);
+      // IMPORTANT:
+      // eyeInner / directionInner / upInner are defined in the camera's *local* space.
+      // calcViewMatrix() later multiplies by inverse(entity.worldMatrix) when primitiveMode is false.
+      //
+      // Setting world-space values here causes the entity transform to be applied twice,
+      // which makes the shadow projection move roughly 2x as much as the light translation.
+      //
+      // The light direction is derived from the entity transform (LightComponent uses local -Z),
+      // so keeping the camera in its canonical local orientation is sufficient.
+      this._eyeInner.copyComponents(CameraComponent._eye); // local origin
+      this._directionInner.copyComponents(this._direction); // local look-at target (towards -Z)
+      this._upInner.copyComponents(this._up); // local +Y
+
       if (lightComponent.type === LightType.Spot) {
         this.type = CameraType.Perspective;
-        this.setFovyAndChangeFilmSize(MathUtil.radianToDegree(lightComponent.outerConeAngle));
+        // outerConeAngle is a half-angle, so multiply by 2 to get the full FOV
+        this.setFovyAndChangeFilmSize(MathUtil.radianToDegree(lightComponent.outerConeAngle * 2.0));
         this._cornerInner.copyComponents(this._corner);
         this.aspect = 1;
         this.zNear = 0.1;
-        this.zFar = lightComponent.range !== -1 ? lightComponent.range : 10000;
+        // Use a reasonable default zFar for shadow mapping to maintain depth precision
+        this.zFar = lightComponent.range !== -1 ? lightComponent.range : 100;
         this._parametersInner.copyComponents(this._parameters);
       } else if (lightComponent.type === LightType.Directional) {
         this.type = CameraType.Orthographic;
         const areaSize = lightComponent.shadowAreaSizeForDirectionalLight;
         this._cornerInner.copyComponents(Vector4.fromCopy4(-areaSize, areaSize, areaSize, -areaSize));
         this.aspect = 1;
-        this.zNear = 0.1;
+        this.zNear = lightComponent.shadowZNearForDirectionalLight;
         this.zFar = lightComponent.range !== -1 ? lightComponent.range : 100;
-        this._parametersInner.copyComponents(this._parameters);
+        // For Orthographic projection, _parametersInner.z is xmag and _parametersInner.w is ymag
+        // These are the half-widths used in calcProjectionMatrix for orthographic cameras
+        this._parametersInner.x = this.zNear;
+        this._parametersInner.y = this.zFar;
+        this._parametersInner.z = areaSize; // xmag (half-width)
+        this._parametersInner.w = areaSize; // ymag (half-height)
       }
     } else {
       const cameraControllerComponent = this.entity.tryToGetCameraController();

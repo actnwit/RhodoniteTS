@@ -37,6 +37,15 @@ export abstract class AbstractVector implements IVector {
   }
 
   /**
+   * Gets the GLSL string representation of the vector as unsigned integer values.
+   * @returns GLSL-formatted string for unsigned integer values with 'u' suffix
+   * @throws Error - Must be implemented by subclasses
+   */
+  get glslStrAsUint(): string {
+    throw new Error('Method not implemented.');
+  }
+
+  /**
    * Gets the WGSL string representation of the vector as float values.
    * @returns WGSL-formatted string for float values
    * @throws Error - Must be implemented by subclasses
@@ -51,6 +60,15 @@ export abstract class AbstractVector implements IVector {
    * @throws Error - Must be implemented by subclasses
    */
   get wgslStrAsInt(): string {
+    throw new Error('Method not implemented.');
+  }
+
+  /**
+   * Gets the WGSL string representation of the vector as unsigned integer values.
+   * @returns WGSL-formatted string for unsigned integer values with 'u' suffix
+   * @throws Error - Must be implemented by subclasses
+   */
+  get wgslStrAsUint(): string {
     throw new Error('Method not implemented.');
   }
 

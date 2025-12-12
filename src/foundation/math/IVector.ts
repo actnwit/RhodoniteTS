@@ -18,10 +18,14 @@ export interface IVector {
   readonly glslStrAsFloat: string;
   /** GLSL string representation for integer type */
   readonly glslStrAsInt: string;
+  /** GLSL string representation for unsigned integer type */
+  readonly glslStrAsUint: string;
   /** WGSL string representation for float type */
   readonly wgslStrAsFloat: string;
   /** WGSL string representation for integer type */
   readonly wgslStrAsInt: string;
+  /** WGSL string representation for unsigned integer type */
+  readonly wgslStrAsUint: string;
 
   /**
    * Returns a string representation of the vector.

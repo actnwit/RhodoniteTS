@@ -23,6 +23,7 @@ import { AttributeWeightShaderNode } from '../nodes/AttributeWeightShaderNode';
 import { BranchShaderNode } from '../nodes/BranchShaderNode';
 import { CastToFloatShaderNode } from '../nodes/CastToFloatShaderNode';
 import { ClampShaderNode } from '../nodes/ClampShaderNode';
+import { ClassicShaderNode } from '../nodes/ClassicShaderNode';
 import { ConstantScalarVariableShaderNode } from '../nodes/ConstantScalarVariableShaderNode';
 import { ConstantVector2VariableShaderNode } from '../nodes/ConstantVector2VariableShaderNode';
 import { ConstantVector3VariableShaderNode } from '../nodes/ConstantVector3VariableShaderNode';
@@ -451,6 +452,9 @@ export class ShaderGraphResolver {
       if (isBool) {
         return inputSocket.defaultValue._v[0] > 0.5 ? 'true' : 'false';
       }
+      if (inputSocket.componentType === ComponentType.UnsignedInt) {
+        return isWebGPU ? inputSocket.defaultValue.wgslStrAsUint : inputSocket.defaultValue.glslStrAsUint;
+      }
       if (isInt) {
         return isWebGPU ? inputSocket.defaultValue.wgslStrAsInt : inputSocket.defaultValue.glslStrAsInt;
       }
@@ -614,16 +618,16 @@ export class ShaderGraphResolver {
           // Find the source variable name from the input node's outputs
           const inputNodeIndex = shaderNodes.indexOf(inputNode);
           if (inputNodeIndex >= 0 && varOutputNames[inputNodeIndex]) {
-            // Find the output index matching outputNameOfPrev
-            const outputs = inputNode.getOutputs();
-            let outputIdx = 0;
-            for (let k = 0; k < outputs.length; k++) {
-              if (outputs[k].name === inputConnection.outputNameOfPrev) {
-                outputIdx = k;
+            // Find the output variable by searching for the matching output name in varOutputNames
+            // varOutputNames contains names like "outPositionInWorld_123_to_456"
+            const outputNamePrefix = `${inputConnection.outputNameOfPrev}_${inputNode.shaderNodeUid}_to_`;
+            let sourceVarName: string | undefined;
+            for (const varName of varOutputNames[inputNodeIndex]) {
+              if (varName.startsWith(outputNamePrefix)) {
+                sourceVarName = varName;
                 break;
               }
             }
-            const sourceVarName = varOutputNames[inputNodeIndex][outputIdx];
             if (sourceVarName) {
               if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
                 shaderBody += `output.${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid}_${inputConnection.outputNameOfPrev} = ${sourceVarName};\n`;
@@ -1540,6 +1544,12 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'FlatShader': {
         const nodeInstance = new FlatShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'ClassicShader': {
+        const nodeInstance = new ClassicShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;

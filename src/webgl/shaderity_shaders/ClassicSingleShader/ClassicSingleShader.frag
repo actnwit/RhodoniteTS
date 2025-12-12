@@ -5,7 +5,6 @@
 /* shaderity: @{definitions} */
 
 /* shaderity: @{vertexIn} */
-in vec4 v_shadowCoord;
 
 /* shaderity: @{prerequisites} */
 
@@ -17,7 +16,6 @@ uniform sampler2D u_diffuseColorTexture; // initialValue=(0,white)
 uniform sampler2D u_normalTexture; // initialValue=(1,blue)
 uniform vec4 u_diffuseColorTextureTransform; // initialValue=(1,1,0,0)
 uniform float u_diffuseColorTextureRotation; // initialValue=0
-uniform sampler2DShadow u_depthTexture; // initialValue=(2,white)
 
 /* shaderity: @{renderTargetBegin} */
 // #pragma shaderity: require(../common/deliot2019SeamlessTexture.glsl)
@@ -34,6 +32,10 @@ uniform sampler2DShadow u_depthTexture; // initialValue=(2,white)
 
 /* shaderity: @{opticalDefinition} */
 
+/* shaderity: @{shadowDefinition} */
+
+#pragma shaderity: require(../nodes/ClassicShader.glsl)
+
 void main ()
 {
 
@@ -44,107 +46,22 @@ void main ()
 
   vec4 diffuseColorFactor = get_diffuseColorFactor(materialSID, 0u);
 
-
-  // diffuseColor (Considered to be premultiplied alpha)
-  vec4 diffuseColor = vec4(1.0, 1.0, 1.0, 1.0);
-  if (v_color != diffuseColor && diffuseColorFactor != diffuseColor) {
-    diffuseColor = v_color * diffuseColorFactor;
-  } else if (v_color == diffuseColor) {
-    diffuseColor = diffuseColorFactor;
-  } else if (diffuseColorFactor == diffuseColor) {
-    diffuseColor = v_color;
-  } else {
-    diffuseColor = vec4(1.0, 1.0, 1.0, 1.0);
-  }
-
   // diffuseColorTexture (Considered to be premultiplied alpha)
   vec4 diffuseColorTextureTransform = get_diffuseColorTextureTransform(materialSID, 0u);
   float diffuseColorTextureRotation = get_diffuseColorTextureRotation(materialSID, 0u);
   vec2 diffuseColorTexUv = uvTransform(diffuseColorTextureTransform.xy, diffuseColorTextureTransform.zw, diffuseColorTextureRotation, v_texcoord_0);
   vec4 textureColor = texture(u_diffuseColorTexture, diffuseColorTexUv);
-  diffuseColor.rgb *= textureColor.rgb;
-  diffuseColor.a *= textureColor.a;
 
-  float alpha = diffuseColor.a;
+  uint shadingModel = uint(get_shadingModel(materialSID, 0u));
+  float shininess = get_shininess(materialSID, 0u);
+  vec4 shadingColor = vec4(0.0, 0.0, 0.0, 1.0);
+  classicShader(v_color, diffuseColorFactor, textureColor, shadingModel, shininess, v_position_inWorld, normal_inWorld, shadingColor);
+
+  // Alpha Test
+  float alpha = shadingColor.a;
   /* shaderity: @{alphaProcess} */
-  diffuseColor.a = alpha;
+  shadingColor.a = alpha;
 
-  // Lighting
-  vec3 shadingColor = vec3(0.0, 0.0, 0.0);
-#ifdef RN_IS_LIGHTING
-  int shadingModel = get_shadingModel(materialSID, 0u);
-  if (shadingModel > 0) {
-
-    vec3 diffuse = vec3(0.0, 0.0, 0.0);
-    vec3 specular = vec3(0.0, 0.0, 0.0);
-    for (int i = 0; i < /* shaderity: @{Config.maxLightNumber} */ ; i++) {
-      if (i >= lightNumber) {
-        break;
-      }
-
-      // Light
-      Light light = getLight(i, v_position_inWorld.xyz);
-
-      // Diffuse
-      diffuse += diffuseColor.rgb * max(0.0, dot(normal_inWorld, light.direction)) * light.attenuatedIntensity;
-
-      float shininess = get_shininess(materialSID, 0u);
-      int shadingModel = get_shadingModel(materialSID, 0u);
-
-      vec3 viewPosition = get_viewPosition(cameraSID);
-
-      // Specular
-      if (shadingModel == 2) {// BLINN
-        // ViewDirection
-        vec3 viewDirection = normalize(viewPosition - v_position_inWorld.xyz);
-        vec3 halfVector = normalize(light.direction + viewDirection);
-        specular += pow(max(0.0, dot(halfVector, normal_inWorld)), shininess);
-      } else if (shadingModel == 3) { // PHONG
-        vec3 viewDirection = normalize(viewPosition - v_position_inWorld.xyz);
-        vec3 R = reflect(light.direction, normal_inWorld);
-        specular += pow(max(0.0, dot(R, viewDirection)), shininess);
-      }
-
-    }
-
-    shadingColor = diffuse + specular;
-  } else {
-    shadingColor = diffuseColor.rgb;
-  }
-#else
-  shadingColor = diffuseColor.rgb;
-#endif
-
-  // Shadow
-#ifdef RN_USE_SHADOW_MAPPING
-  float visibility = 1.0;
-  float bias = 0.001;
-
-  // Non PCF
-  // if ( textureProj( u_depthTexture, v_shadowCoord ).r  < (v_shadowCoord.z - bias) / v_shadowCoord.w ) {
-  //   visibility = 0.5;
-  // }
-  // shadingColor *= visibility;
-
-  // Hardware PCF
-  vec4 shadowCoord = v_shadowCoord;
-  shadowCoord.z -= bias;
-  shadingColor *= textureProj( u_depthTexture, shadowCoord ) * 0.5 + 0.5;
-
-  // shadingColor.rgb = texture( u_depthTexture, v_shadowCoord.xy ).rrr;
-  // shadingColor.rgb = vec3(v_shadowCoord.xy, 0.0);
-  // shadingColor.rgb = vec3(diffuseColorTexUv, 0.0);
-  // shadingColor.rgb = vec3(texture( u_depthTexture, diffuseColorTexUv).rrr);
-  // shadingColor.rgb = texture( u_depthTexture, diffuseColorTexUv).rgb;
-  // shadingColor.rgb = vec3(textureProj( u_depthTexture, v_shadowCoord ).z, 0.0, 0.0);
-  diffuseColor.a = 1.0;
-#endif
-
-  rt0 = vec4(shadingColor * diffuseColor.a, diffuseColor.a);
-  // rt0 = vec4(u_lightNumber, 0.0, 0.0, 1.0);
-  // rt0 = vec4(1.0, 0.0, 0.0, 1.0);
-  // rt0 = vec4(normal_inWorld*0.5+0.5, 1.0);
-
-
-
+  // Pre-multiplied alpha
+  rt0 = vec4(shadingColor.rgb * shadingColor.a, shadingColor.a);
 }

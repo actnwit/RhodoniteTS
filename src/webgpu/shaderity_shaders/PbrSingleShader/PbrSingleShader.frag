@@ -183,7 +183,7 @@
   // #param pointLightShadowMapUvScale: f32; // initialValue=0.93
 #endif
 
-#pragma shaderity: require(../common/shadow.wgsl)
+/* shaderity: @{shadowDefinition} */
 /* shaderity: @{pbrDefinition} */
 /* shaderity: @{iblDefinition} */
 
@@ -529,13 +529,20 @@ let ior = get_ior(materialSID, 0);
 
       // Directional Light or Spot Light
       let v_shadowCoord = get_depthBiasPV(materialSID, i) * input.position_inWorld;
-      let bias = 0.001;
       let shadowCoord = v_shadowCoord.xy / v_shadowCoord.w;
+      let normalizedDepth = v_shadowCoord.z / v_shadowCoord.w;
+
+      // Slope-scaled bias in normalized depth space to reduce shadow acne
+      let NdotL = max(dot(normal_inWorld, light.direction), 0.0);
+      let baseBias = 0.001;
+      let slopeBias = 0.005 * sqrt(1.0 - NdotL * NdotL) / max(NdotL, 0.05);
+      let bias = min(baseBias + slopeBias, 0.05);  // Clamp to prevent excessive bias
+
       let lightDirection = normalize(get_lightDirection(i));
       let lightPosToWorldPos = normalize(input.position_inWorld.xyz - light.position);
       let dotProduct = dot(lightPosToWorldPos, lightDirection);
       var shadowContribution = 1.0;
-      shadowContribution = varianceShadowContribution(shadowCoord, (v_shadowCoord.z - bias)/v_shadowCoord.w, depthTextureIndex);
+      shadowContribution = varianceShadowContribution(shadowCoord, normalizedDepth - bias, depthTextureIndex);
 
       if (light.lightType == 1 && depthTextureIndex >= 0) { // Point Light
         lighting *= shadowContributionParaboloid;
