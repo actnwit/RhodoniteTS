@@ -534,9 +534,9 @@ let ior = get_ior(materialSID, 0);
 
       // Slope-scaled bias in normalized depth space to reduce shadow acne
       let NdotL = max(dot(normal_inWorld, light.direction), 0.0);
-      let baseBias = 0.005;
-      let slopeBias = 0.02 * sqrt(1.0 - NdotL * NdotL) / max(NdotL, 0.05);
-      let bias = min(baseBias + slopeBias, 0.1);  // Clamp to prevent excessive bias
+      let baseBias = 0.001;
+      let slopeBias = 0.005 * sqrt(1.0 - NdotL * NdotL) / max(NdotL, 0.05);
+      let bias = min(baseBias + slopeBias, 0.05);  // Clamp to prevent excessive bias
 
       let lightDirection = normalize(get_lightDirection(i));
       let lightPosToWorldPos = normalize(input.position_inWorld.xyz - light.position);

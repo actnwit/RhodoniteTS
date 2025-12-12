@@ -55,9 +55,9 @@ void classicShader(in vec4 vertexColor, in vec4 diffuseColorFactor, in vec4 diff
 
         // Slope-scaled bias in normalized depth space to reduce shadow acne
         float NdotL = max(dot(normalInWorld, light.direction), 0.0);
-        float baseBias = 0.005;
-        float slopeBias = 0.02 * sqrt(1.0 - NdotL * NdotL) / max(NdotL, 0.05);
-        float bias = min(baseBias + slopeBias, 0.1);  // Clamp to prevent excessive bias
+        float baseBias = 0.001;
+        float slopeBias = 0.005 * sqrt(1.0 - NdotL * NdotL) / max(NdotL, 0.05);
+        float bias = min(baseBias + slopeBias, 0.05);  // Clamp to prevent excessive bias
 
         vec3 lightDirection = normalize(get_lightDirection(uint(i)));
         vec3 lightPosToWorldPos = normalize(positionInWorld.xyz - light.position);
