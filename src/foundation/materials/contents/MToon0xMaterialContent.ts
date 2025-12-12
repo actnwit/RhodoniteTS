@@ -600,7 +600,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        initialValue: [0, textures[this.__textureProperties._MainTex], samplers[this.__textureProperties._MainTex]],
+        initialValue: [1, textures[this.__textureProperties._MainTex], samplers[this.__textureProperties._MainTex]],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -610,7 +610,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
         initialValue: [
-          1,
+          2,
           textures[this.__textureProperties._ShadeTexture],
           samplers[this.__textureProperties._ShadeTexture],
         ],
@@ -623,7 +623,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
         initialValue: [
-          2,
+          3,
           textures[this.__textureProperties._ReceiveShadowTexture],
           samplers[this.__textureProperties._ReceiveShadowTexture],
         ],
@@ -636,7 +636,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
         initialValue: [
-          3,
+          4,
           textures[this.__textureProperties._ShadingGradeTexture],
           samplers[this.__textureProperties._ShadingGradeTexture],
         ],
@@ -649,7 +649,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
         initialValue: [
-          4,
+          5,
           textures[this.__textureProperties._RimTexture],
           samplers[this.__textureProperties._RimTexture],
         ],
@@ -661,7 +661,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        initialValue: [8, textures[this.__textureProperties._SphereAdd], samplers[this.__textureProperties._SphereAdd]],
+        initialValue: [9, textures[this.__textureProperties._SphereAdd], samplers[this.__textureProperties._SphereAdd]],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -671,7 +671,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
         initialValue: [
-          9,
+          10,
           textures[this.__textureProperties._EmissionMap],
           samplers[this.__textureProperties._EmissionMap],
         ],
@@ -682,12 +682,12 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
 
     shaderSemanticsInfoArray.push(
       {
-        // number 7 of texture is the data Texture
+        // number 0 of texture is the data Texture
         semantic: 'normalTexture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        initialValue: [10, textures[this.__textureProperties._BumpMap], samplers[this.__textureProperties._BumpMap]],
+        initialValue: [11, textures[this.__textureProperties._BumpMap], samplers[this.__textureProperties._BumpMap]],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -697,7 +697,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
         initialValue: [
-          11,
+          12,
           textures[this.__textureProperties._UvAnimMaskTexture],
           samplers[this.__textureProperties._UvAnimMaskTexture],
         ],
@@ -713,7 +713,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.VertexShader,
         initialValue: [
-          12,
+          13,
           textures[this.__textureProperties._OutlineWidthTexture],
           samplers[this.__textureProperties._OutlineWidthTexture],
         ],

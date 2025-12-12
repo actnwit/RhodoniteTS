@@ -78,7 +78,7 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        initialValue: [0, textureToDetectHighLuminance, sampler],
+        initialValue: [1, textureToDetectHighLuminance, sampler],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },

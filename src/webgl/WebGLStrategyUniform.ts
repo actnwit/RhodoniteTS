@@ -928,10 +928,10 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
    * @param shaderProgram - The shader program to bind the texture to
    */
   private bindDataTexture(gl: WebGLRenderingContext | WebGL2RenderingContext, shaderProgram: WebGLProgram) {
-    gl.uniform1i((shaderProgram as any).dataTexture, 7);
-    this.__engine.webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
+    gl.uniform1i((shaderProgram as any).dataTexture, 0);
+    this.__engine.webglResourceRepository.bindTexture2D(0, this.__dataTextureUid);
     const samplerUid = this.__engine.webglResourceRepository.createOrGetTextureSamplerRepeatNearest();
-    this.__engine.webglResourceRepository.bindTextureSampler(7, samplerUid);
+    this.__engine.webglResourceRepository.bindTextureSampler(0, samplerUid);
   }
 
   /**

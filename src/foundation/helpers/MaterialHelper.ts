@@ -232,7 +232,7 @@ function createPbrUberMaterial(
 
   sampler.create();
 
-  let textureSlotIdx = 8;
+  let textureSlotIdx = 1;
   if (isClearCoat) {
     additionalShaderSemanticInfo.push({
       semantic: 'clearcoatTexture',
@@ -553,7 +553,7 @@ function createClassicUberMaterial(
   const materialName = `ClassicUber_${additionalName}_`;
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
 
-  let textureSlotIdx = 8;
+  let textureSlotIdx = 1;
 
   const sampler = new Sampler(engine, {
     minFilter: TextureParameter.Linear,
@@ -990,7 +990,7 @@ function createGaussianBlurForEncodedDepthMaterial(
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [0, engine.dummyTextures.dummyBlackTexture],
+      initialValue: [1, engine.dummyTextures.dummyBlackTexture],
       min: 0,
       max: Number.MAX_SAFE_INTEGER,
     }
@@ -1163,7 +1163,7 @@ function createGaussianBlurMaterial(engine: Engine, { additionalName = '', maxIn
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [0, engine.dummyTextures.dummyBlackTexture],
+      initialValue: [1, engine.dummyTextures.dummyBlackTexture],
       min: 0,
       max: Number.MAX_SAFE_INTEGER,
     }

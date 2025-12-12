@@ -259,7 +259,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     // IBL Env map
     // const diffuseEnv = material.getTextureParameter(ShaderSemantics.DiffuseEnvTexture.str);
     // if (diffuseEnv != null) {
-    const diffuseEnvSlot = 5; //diffuseEnv[0];
+    const diffuseEnvSlot = 6; //diffuseEnv[0];
     if (args.diffuseCube?.isTextureReady) {
       webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
         diffuseEnvSlot,
@@ -275,7 +275,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     // }
     // const specularEnv = material.getTextureParameter(ShaderSemantics.SpecularEnvTexture.str);
     // if (specularEnv != null) {
-    const specularEnvSlot = 6; //specularEnv[0];
+    const specularEnvSlot = 7; //specularEnv[0];
     if (args.specularCube?.isTextureReady) {
       webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, [
         specularEnvSlot,
