@@ -10,7 +10,9 @@ fn classicShader(vertexColor: vec4<f32>, diffuseColorFactor: vec4<f32>, diffuseT
       let light: Light = getLight(i, positionInWorld.xyz);
 
       // Diffuse
-      var diffuse = diffuseColor.rgb * max(0.0, dot(normalInWorld, light.direction)) * light.attenuatedIntensity;
+      let albedo = diffuseColor.rgb / 2.0;
+      let specColor = diffuseColor.rgb / 2.0;
+      var diffuse = albedo * RECIPROCAL_PI * max(0.0, dot(normalInWorld, light.direction)) * light.attenuatedIntensity;
 
       let viewPosition = get_viewPosition(cameraSID);
 
@@ -19,11 +21,15 @@ fn classicShader(vertexColor: vec4<f32>, diffuseColorFactor: vec4<f32>, diffuseT
         // ViewDirection
         let viewDirection = normalize(viewPosition - positionInWorld.xyz);
         let halfVector = normalize(light.direction + viewDirection);
-        specular += pow(max(0.0, dot(halfVector, normalInWorld)), shininess) * light.attenuatedIntensity;
+        let normalizationFactor = (shininess + 2.0) / (2.0 * M_PI);
+        specular += specColor * normalizationFactor * pow(max(0.0, dot(halfVector, normalInWorld)), shininess) * light.attenuatedIntensity;
       } else if (shadingModel == 3u) { // PHONG
         let viewDirection = normalize(viewPosition - positionInWorld.xyz);
         let R = reflect(light.direction, normalInWorld);
-        specular += pow(max(0.0, dot(R, viewDirection)), shininess) * light.attenuatedIntensity;
+        let normalizationFactor = (shininess + 2.0) / (2.0 * M_PI);
+        specular += specColor * normalizationFactor * pow(max(0.0, dot(R, viewDirection)), shininess) * light.attenuatedIntensity;
+      } else {
+        diffuse *= 2.0; // for energy conservation
       }
 
       #ifdef RN_USE_SHADOW_MAPPING
