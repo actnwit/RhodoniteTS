@@ -61,7 +61,7 @@ fn classicShader(vertexColor: vec4<f32>, diffuseColorFactor: vec4<f32>, diffuseT
         }
       #endif
 
-      shadingColor += vec4<f32>(diffuse + specular, shadingColor.a);
+      shadingColor += vec4<f32>(diffuse + specular, 0.0);
     }
   } else {
     shadingColor = diffuseColor;
