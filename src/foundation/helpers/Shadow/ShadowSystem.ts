@@ -1,13 +1,14 @@
 import type { ICameraEntityMethods } from '../../components/Camera/ICameraEntity';
 import type { ILightEntityMethods } from '../../components/Light/ILightEntity';
 import { LightComponent } from '../../components/Light/LightComponent';
-import { ComponentRepository } from '../../core/ComponentRepository';
-import { Config } from '../../core/Config';
+import { TransformComponent } from '../../components/Transform';
 import { ComponentType } from '../../definitions/ComponentType';
 import { LightType, type LightTypeEnum } from '../../definitions/LightType';
 import { PixelFormat } from '../../definitions/PixelFormat';
 import { TextureFormat } from '../../definitions/TextureFormat';
 import { TextureParameter } from '../../definitions/TextureParameter';
+import { AABB } from '../../math/AABB';
+import { Vector3 } from '../../math/Vector3';
 import { VectorN } from '../../math/VectorN';
 import { Expression } from '../../renderer/Expression';
 import type { FrameBuffer } from '../../renderer/FrameBuffer';
@@ -34,6 +35,10 @@ export class ShadowSystem {
   private __lightTypes: LightTypeEnum[] = [];
   private __lightEnables: boolean[] = [];
   private __lightCastShadows: boolean[] = [];
+  private __lastTransformUpdateCountForAutoFit = -1;
+  private __lastEntityCountForAutoFit = -1;
+  private __lastAutoFitCenter = Vector3.fromCopy3(0, 0, 0);
+  private __lastAutoFitRadius = 1;
 
   /**
    * Creates a new ShadowSystem instance with the specified shadow map resolution.
@@ -246,6 +251,10 @@ export class ShadowSystem {
    * @param entities - Array of scene graph entities to apply the bias matrices to
    */
   public setDepthBiasPV(entities: ISceneGraphEntity[]) {
+    // Auto-fit DirectionalLight shadow camera volume to cover the whole scene.
+    // Note: This does not move the light; it only adjusts shadowAreaSizeForDirectionalLight and range.
+    this.__autoFitDirectionalLightShadowVolume(entities);
+
     const float32Array = new Float32Array(this.__engine.config.maxLightNumber * 16);
 
     const lightComponents = this.__engine.componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
@@ -270,6 +279,78 @@ export class ShadowSystem {
           primitive.material.setParameter('depthBiasPV', new VectorN(float32Array));
         }
       }
+    }
+  }
+
+  private __autoFitDirectionalLightShadowVolume(entities: ISceneGraphEntity[]) {
+    const transformUpdateCount = TransformComponent.getUpdateCount(this.__engine);
+    if (
+      transformUpdateCount === this.__lastTransformUpdateCountForAutoFit &&
+      entities.length === this.__lastEntityCountForAutoFit
+    ) {
+      // Reuse cached center/radius; still apply to lights because light transforms may have changed.
+      this.__applyAutoFitToDirectionalLights(this.__lastAutoFitCenter, this.__lastAutoFitRadius);
+      return;
+    }
+
+    // Filter out non-mesh / invisible entities to avoid environment/background objects inflating bounds.
+    // If the application uses a 'background-assets' tag (as RhodoniteEditor2 does), exclude them as well.
+    const candidates = entities.filter(entity => {
+      const sg = entity.getSceneGraph();
+      if (!sg.isVisible) return false;
+      const mesh = entity.tryToGetMesh();
+      if (mesh == null || mesh.mesh == null) return false;
+      const anyEntity = entity as any;
+      if (typeof anyEntity.matchTag === 'function') {
+        if (anyEntity.matchTag('type', 'background-assets')) {
+          return false;
+        }
+      }
+      return true;
+    });
+
+    const targets = candidates.length > 0 ? candidates : entities;
+
+    const merged = new AABB();
+    for (const entity of targets) {
+      const aabb = entity.getSceneGraph().worldMergedAABBWithSkeletal;
+      merged.mergeAABB(aabb);
+    }
+
+    if (merged.isVanilla()) {
+      return;
+    }
+
+    const center = merged.centerPoint;
+    const radius = Math.max(merged.lengthCenterToCorner, 1.0);
+
+    this.__lastTransformUpdateCountForAutoFit = transformUpdateCount;
+    this.__lastEntityCountForAutoFit = entities.length;
+    this.__lastAutoFitCenter = Vector3.fromCopy3(center.x, center.y, center.z);
+    this.__lastAutoFitRadius = radius;
+
+    this.__applyAutoFitToDirectionalLights(this.__lastAutoFitCenter, this.__lastAutoFitRadius);
+  }
+
+  private __applyAutoFitToDirectionalLights(center: Vector3, radius: number) {
+    const areaMargin = 1.15;
+    const farMargin = 1.25;
+
+    const lightComponents = this.__engine.componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
+    for (const lightComponent of lightComponents) {
+      if (!(lightComponent.enable && lightComponent.castShadow)) continue;
+      if (lightComponent.type !== LightType.Directional) continue;
+
+      // Ortho half-size (symmetric square) for directional shadow camera.
+      lightComponent.shadowAreaSizeForDirectionalLight = radius * areaMargin;
+
+      // zFar is derived from lightComponent.range (when range !== -1).
+      // We don't move the light; instead, set range to cover [light->scene farthest] depth.
+      const lightEntity = lightComponent.entity as unknown as ISceneGraphEntity;
+      const lightPos = lightEntity.getSceneGraph().worldPosition;
+      const dist = Vector3.lengthBtw(lightPos, center);
+      const desiredZFar = (dist + radius) * farMargin;
+      lightComponent.range = desiredZFar;
     }
   }
 
