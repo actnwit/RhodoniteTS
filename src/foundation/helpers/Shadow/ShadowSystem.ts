@@ -39,7 +39,6 @@ export class ShadowSystem {
   private __lastEntityCountForAutoFit = -1;
   private __lastAutoFitCenter = Vector3.fromCopy3(0, 0, 0);
   private __lastAutoFitRadius = 1;
-  private __lastAutoFitHalfExtents = Vector3.fromCopy3(1, 1, 1);
 
   /**
    * Creates a new ShadowSystem instance with the specified shadow map resolution.
@@ -336,11 +335,6 @@ export class ShadowSystem {
     this.__lastEntityCountForAutoFit = entities.length;
     this.__lastAutoFitCenter = Vector3.fromCopy3(center.x, center.y, center.z);
     this.__lastAutoFitRadius = radius;
-    this.__lastAutoFitHalfExtents = Vector3.fromCopy3(
-      (merged.maxPoint.x - merged.minPoint.x) / 2,
-      (merged.maxPoint.y - merged.minPoint.y) / 2,
-      (merged.maxPoint.z - merged.minPoint.z) / 2
-    );
 
     this.__applyAutoFitToDirectionalLights(this.__lastAutoFitCenter, this.__lastAutoFitRadius);
   }
@@ -354,48 +348,15 @@ export class ShadowSystem {
       if (!(lightComponent.enable && lightComponent.castShadow)) continue;
       if (lightComponent.type !== LightType.Directional) continue;
 
-      // Calculate ortho half-size by projecting AABB onto the light's view plane.
-      // This ensures the shadow camera covers the entire scene from the light's perspective.
-      const lightDir = lightComponent.direction;
-
-      // Build orthonormal basis for light view space
-      let up = Vector3.fromCopy3(0, 1, 0);
-      if (Math.abs(Vector3.dot(lightDir, up)) > 0.99) {
-        up = Vector3.fromCopy3(1, 0, 0);
-      }
-      const right = Vector3.normalize(Vector3.cross(up, lightDir));
-      const viewUp = Vector3.normalize(Vector3.cross(lightDir, right));
-
-      // Project AABB half-extents onto view plane axes
-      // AABB half-extents in world space (cached from last calculation)
-      const halfExtentX = this.__lastAutoFitHalfExtents.x;
-      const halfExtentY = this.__lastAutoFitHalfExtents.y;
-      const halfExtentZ = this.__lastAutoFitHalfExtents.z;
-
-      // Project onto right axis (view X)
-      const projRight =
-        Math.abs(halfExtentX * right.x) + Math.abs(halfExtentY * right.y) + Math.abs(halfExtentZ * right.z);
-      // Project onto up axis (view Y)
-      const projUp =
-        Math.abs(halfExtentX * viewUp.x) + Math.abs(halfExtentY * viewUp.y) + Math.abs(halfExtentZ * viewUp.z);
-
-      // Account for scene center offset from shadow camera center (which is at light position or origin)
-      // The shadow camera may not be centered on the scene, so we need extra coverage
+      // Use the bounding sphere radius as the shadow area size.
+      // This is a conservative estimate that guarantees coverage from any light direction,
+      // avoiding expensive per-frame AABB-to-view-space projection calculations.
       const lightEntity = lightComponent.entity as unknown as ISceneGraphEntity;
       const lightPos = lightEntity.getSceneGraph().worldPosition;
-      const sceneCenterOffset = Vector3.subtract(center, lightPos);
-      const offsetRight = Math.abs(Vector3.dot(sceneCenterOffset, right));
-      const offsetUp = Math.abs(Vector3.dot(sceneCenterOffset, viewUp));
-
-      // Shadow area size must cover both the projected AABB and the offset
-      const requiredRight = projRight + offsetRight;
-      const requiredUp = projUp + offsetUp;
-      const projectedSize = Math.max(requiredRight, requiredUp) * areaMargin;
-      lightComponent.shadowAreaSizeForDirectionalLight = projectedSize;
-
-      // Calculate zNear and zFar based on light position and scene bounds.
-      // We don't move the light; instead, set zNear/zFar to cover the scene.
       const dist = Vector3.lengthBtw(lightPos, center);
+
+      // Shadow area size: radius covers the scene, plus offset from light position to scene center
+      lightComponent.shadowAreaSizeForDirectionalLight = (radius + dist) * areaMargin;
 
       // zNear: distance from light to nearest point of scene bounding sphere
       // Ensure zNear is positive and has a minimum value
