@@ -553,6 +553,76 @@ function createClassicUberMaterial(
   const materialName = `ClassicUber_${additionalName}_`;
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
 
+  let textureSlotIdx = 8;
+
+  const sampler = new Sampler(engine, {
+    minFilter: TextureParameter.Linear,
+    magFilter: TextureParameter.Linear,
+    wrapS: TextureParameter.ClampToEdge,
+    wrapT: TextureParameter.ClampToEdge,
+  });
+  sampler.create();
+
+  if (isShadow) {
+    additionalShaderSemanticInfo.push({
+      semantic: 'depthTexture',
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2DArray,
+      stage: ShaderType.PixelShader,
+      initialValue: [textureSlotIdx++, engine.dummyTextures.dummyDepthMomentTextureArray, sampler],
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+    additionalShaderSemanticInfo.push({
+      semantic: 'paraboloidDepthTexture',
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2DArray,
+      stage: ShaderType.PixelShader,
+      initialValue: [textureSlotIdx++, engine.dummyTextures.dummyDepthMomentTextureArray, sampler],
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+    additionalShaderSemanticInfo.push({
+      semantic: 'depthTextureIndexList',
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.ScalarArray,
+      arrayLength: engine.config.maxLightNumber,
+      stage: ShaderType.PixelShader,
+      initialValue: new VectorN(new Int32Array(engine.config.maxLightNumber)),
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+    // BiasMatrix * LightProjectionMatrix * LightViewMatrix, See: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/#basic-shader
+    additionalShaderSemanticInfo.push({
+      semantic: 'depthBiasPV',
+      componentType: ComponentType.Float,
+      compositionType: CompositionType.Mat4Array,
+      arrayLength: engine.config.maxLightNumber,
+      stage: ShaderType.PixelShader,
+      initialValue: new VectorN(new Float32Array(engine.config.maxLightNumber * 16)),
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+    additionalShaderSemanticInfo.push({
+      semantic: 'pointLightFarPlane',
+      componentType: ComponentType.Float,
+      compositionType: CompositionType.Scalar,
+      stage: ShaderType.PixelShader,
+      initialValue: Scalar.fromCopyNumber(1000.0),
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+    additionalShaderSemanticInfo.push({
+      semantic: 'pointLightShadowMapUvScale',
+      componentType: ComponentType.Float,
+      compositionType: CompositionType.Scalar,
+      stage: ShaderType.PixelShader,
+      initialValue: Scalar.fromCopyNumber(0.93),
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+  }
+
   const materialContent = new CustomMaterialContent(engine, {
     name: materialName,
     isSkinning,
@@ -565,6 +635,7 @@ function createClassicUberMaterial(
     additionalShaderSemanticInfo,
   });
   const material = createMaterial(engine, materialContent, maxInstancesNumber);
+
   if (isLighting) {
     material.addShaderDefine('RN_IS_LIGHTING');
   }

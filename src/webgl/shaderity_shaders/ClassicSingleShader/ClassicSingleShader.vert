@@ -9,7 +9,6 @@
 #endif
 
 /* shaderity: @{vertexInOut} */
-out vec4 v_shadowCoord;
 
 uniform float u_pointSize; // initialValue=30
 uniform vec3 u_pointDistanceAttenuation; // initialValue=(0,0.1,0.01)
@@ -66,6 +65,4 @@ void main()
   {
     gl_Position = vec4(0.0);
   }
-
-  v_shadowCoord = get_depthBiasPV(materialSID, 0u) * v_position_inWorld;
 }

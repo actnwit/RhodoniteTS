@@ -1,4 +1,4 @@
-void classicShader(in vec4 vertexColor, in vec4 diffuseColorFactor, in vec4 diffuseTextureColor, uint shadingModel, float shininess, vec4 positionInWorld, vec3 normalInWorld, out vec4 outColor) {
+void classicShader(in vec4 vertexColor, in vec4 diffuseColorFactor, in vec4 diffuseTextureColor, in uint shadingModel, in float shininess, in vec4 positionInWorld, in vec3 normalInWorld, out vec4 outColor) {
   vec4 diffuseColor = vertexColor * diffuseColorFactor * diffuseTextureColor;
   vec4 shadingColor = vec4(0.0, 0.0, 0.0, diffuseColor.a);
   if (shadingModel > 0u) {
