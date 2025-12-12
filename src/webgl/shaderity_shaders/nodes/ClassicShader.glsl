@@ -50,14 +50,21 @@ void classicShader(in vec4 vertexColor, in vec4 diffuseColorFactor, in vec4 diff
         specular *= shadowContribution;
       } else if ((light.type == 0 || light.type == 2) && depthTextureIndex >= 0) { // Spot Light
         vec4 shadowCoordVec4 = get_depthBiasPV(materialSID, uint(i)) * positionInWorld;
-        float bias = 0.001;
         vec2 shadowCoord = shadowCoordVec4.xy / shadowCoordVec4.w;
+        float normalizedDepth = shadowCoordVec4.z / shadowCoordVec4.w;
+
+        // Slope-scaled bias in normalized depth space to reduce shadow acne
+        float NdotL = max(dot(normalInWorld, light.direction), 0.0);
+        float baseBias = 0.005;
+        float slopeBias = 0.02 * sqrt(1.0 - NdotL * NdotL) / max(NdotL, 0.05);
+        float bias = min(baseBias + slopeBias, 0.1);  // Clamp to prevent excessive bias
+
         vec3 lightDirection = normalize(get_lightDirection(uint(i)));
         vec3 lightPosToWorldPos = normalize(positionInWorld.xyz - light.position);
         float dotProduct = dot(lightPosToWorldPos, lightDirection);
         float shadowContribution = 1.0;
         if (dotProduct > 0.0 && shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0) {
-          shadowContribution = varianceShadowContribution(shadowCoord, (shadowCoordVec4.z - bias)/shadowCoordVec4.w, depthTextureIndex);
+          shadowContribution = varianceShadowContribution(shadowCoord, normalizedDepth - bias, depthTextureIndex);
         }
         diffuse *= shadowContribution;
         specular *= shadowContribution;

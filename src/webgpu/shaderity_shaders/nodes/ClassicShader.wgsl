@@ -35,13 +35,20 @@ fn classicShader(vertexColor: vec4<f32>, diffuseColorFactor: vec4<f32>, diffuseT
 
         // Directional Light or Spot Light
         let v_shadowCoord = get_depthBiasPV(materialSID, i) * positionInWorld;
-        let bias = 0.001;
         let shadowCoord = v_shadowCoord.xy / v_shadowCoord.w;
+        let normalizedDepth = v_shadowCoord.z / v_shadowCoord.w;
+
+        // Slope-scaled bias in normalized depth space to reduce shadow acne
+        let NdotL = max(dot(normalInWorld, light.direction), 0.0);
+        let baseBias = 0.005;
+        let slopeBias = 0.02 * sqrt(1.0 - NdotL * NdotL) / max(NdotL, 0.05);
+        let bias = min(baseBias + slopeBias, 0.1);  // Clamp to prevent excessive bias
+
         let lightDirection = normalize(get_lightDirection(i));
         let lightPosToWorldPos = normalize(positionInWorld.xyz - light.position);
         let dotProduct = dot(lightPosToWorldPos, lightDirection);
         var shadowContribution = 1.0;
-        shadowContribution = varianceShadowContribution(shadowCoord, (v_shadowCoord.z - bias)/v_shadowCoord.w, depthTextureIndex);
+        shadowContribution = varianceShadowContribution(shadowCoord, normalizedDepth - bias, depthTextureIndex);
 
         if (light.lightType == 1 && depthTextureIndex >= 0) { // Point Light
           diffuse *= shadowContributionParaboloid;

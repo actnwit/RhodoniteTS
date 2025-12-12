@@ -32,8 +32,8 @@ export class ShadowMap {
   constructor(engine: Engine) {
     this.__engine = engine;
     this.__shadowMomentFramebuffer = RenderableHelper.createFrameBuffer(engine, {
-      width: 1024,
-      height: 1024,
+      width: 2048,
+      height: 2048,
       textureNum: 1,
       textureFormats: [TextureFormat.RG16F],
       createDepthBuffer: true,

@@ -1173,7 +1173,8 @@ export class CameraComponent extends Component {
         this._cornerInner.copyComponents(this._corner);
         this.aspect = 1;
         this.zNear = 0.1;
-        this.zFar = lightComponent.range !== -1 ? lightComponent.range : 10000;
+        // Use a reasonable default zFar for shadow mapping to maintain depth precision
+        this.zFar = lightComponent.range !== -1 ? lightComponent.range : 100;
         this._parametersInner.copyComponents(this._parameters);
       } else if (lightComponent.type === LightType.Directional) {
         this.type = CameraType.Orthographic;
