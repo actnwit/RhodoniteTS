@@ -209,13 +209,13 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
     // IBL Env map
     if (args.diffuseCube?.isTextureReady) {
       webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
-        5,
+        6,
         args.diffuseCube,
         this.__diffuseIblCubeMapSampler,
       ]);
     } else {
       webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
-        5,
+        6,
         engine.dummyTextures.dummyBlackCubeTexture,
       ]);
     }
@@ -223,13 +223,13 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
     //   webglResourceRepository.setUniform1iForTexture(
     //     shaderProgram,
     //     ShaderSemantics.SpecularEnvTexture.str,
-    //     [6, args.specularCube, MToon1MaterialContent.__specularIblCubeMapSampler]
+    //     [7, args.specularCube, MToon1MaterialContent.__specularIblCubeMapSampler]
     //   );
     // } else {
     //   webglResourceRepository.setUniform1iForTexture(
     //     shaderProgram,
     //     ShaderSemantics.SpecularEnvTexture.str,
-    //     [6, dummyBlackCubeTexture]
+    //     [7, dummyBlackCubeTexture]
     //   );
     // }
   }

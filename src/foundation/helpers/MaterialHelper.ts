@@ -232,7 +232,7 @@ function createPbrUberMaterial(
 
   sampler.create();
 
-  let textureSlotIdx = 1;
+  let textureSlotIdx = 8;
   if (isClearCoat) {
     additionalShaderSemanticInfo.push({
       semantic: 'clearcoatTexture',
