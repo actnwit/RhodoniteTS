@@ -553,7 +553,7 @@ function createClassicUberMaterial(
   const materialName = `ClassicUber_${additionalName}_`;
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
 
-  let textureSlotIdx = 1;
+  let textureSlotIdx = 3;
 
   const sampler = new Sampler(engine, {
     minFilter: TextureParameter.Linear,
