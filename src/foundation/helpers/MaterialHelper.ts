@@ -1666,9 +1666,8 @@ function reuseOrRecreateCustomMaterial(
     definitions.push('RN_IS_LIGHTING');
     if (isShadow) {
       definitions.push('RN_USE_SHADOW_MAPPING');
-      let textureSlotIdx = additionalShaderSemanticInfo.filter(info =>
-        CompositionType.isTexture(info.compositionType)
-      ).length;
+      let textureSlotIdx =
+        additionalShaderSemanticInfo.filter(info => CompositionType.isTexture(info.compositionType)).length + 1; // +1 for taking into account that the texture slot 0 is for the DataTexture
 
       const sampler = new Sampler(engine, {
         minFilter: TextureParameter.Linear,
