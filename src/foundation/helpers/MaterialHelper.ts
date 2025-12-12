@@ -7,10 +7,10 @@ import DepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/Depth
 import DepthMomentEncodeShaderVertex from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert';
 import EnvConstantSingleShaderFragment from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
 import EnvConstantSingleShaderVertex from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.vert';
-import FXAA3QualityShaderFragment from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.frag';
-import FXAA3QualityShaderVertex from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.vert';
 import FlatSingleShaderFragment from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
 import FlatSingleShaderVertex from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
+import FXAA3QualityShaderFragment from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.frag';
+import FXAA3QualityShaderVertex from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.vert';
 import GammaCorrectionShaderFragment from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
 import GammaCorrectionShaderVertex from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
 import GaussianBlurForEncodedDepthSingleShaderFragment from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.frag';
@@ -67,9 +67,9 @@ import { DepthEncodeMaterialContent } from '../materials/contents/DepthEncodeMat
 import { DetectHighLuminanceMaterialContent } from '../materials/contents/DetectHighLuminanceMaterialContent';
 import { EntityUIDOutputMaterialContent } from '../materials/contents/EntityUIDOutputMaterialContent';
 import { FurnaceTestMaterialContent } from '../materials/contents/FurnaceTestMaterialContent';
+import { MatCapMaterialContent } from '../materials/contents/MatCapMaterialContent';
 import { MToon0xMaterialContent } from '../materials/contents/MToon0xMaterialContent';
 import { MToon1MaterialContent } from '../materials/contents/MToon1MaterialContent';
-import { MatCapMaterialContent } from '../materials/contents/MatCapMaterialContent';
 import { ShadowMapDecodeClassicMaterialContent } from '../materials/contents/ShadowMapDecodeClassicMaterialContent';
 import { SynthesizeHdrMaterialContent as SynthesizeHDRMaterialContent } from '../materials/contents/SynthesizeHdrMaterialContent';
 import { VarianceShadowMapDecodeClassicMaterialContent } from '../materials/contents/VarianceShadowMapDecodeClassicMaterialContent';
@@ -1654,6 +1654,7 @@ function reuseOrRecreateCustomMaterial(
     isSkinning = true,
     isLighting = true,
     isMorphing = true,
+    isShadow = false,
     additionalShaderSemanticInfo = [] as ShaderSemanticsInfo[],
   } = {}
 ) {
@@ -1666,74 +1667,76 @@ function reuseOrRecreateCustomMaterial(
       CompositionType.isTexture(info.compositionType)
     ).length;
     definitions.push('RN_IS_LIGHTING');
-    definitions.push('RN_USE_SHADOW_MAPPING');
+    if (isShadow) {
+      definitions.push('RN_USE_SHADOW_MAPPING');
 
-    const sampler = new Sampler(engine, {
-      minFilter: TextureParameter.Linear,
-      magFilter: TextureParameter.Linear,
-      wrapS: TextureParameter.ClampToEdge,
-      wrapT: TextureParameter.ClampToEdge,
-    });
+      const sampler = new Sampler(engine, {
+        minFilter: TextureParameter.Linear,
+        magFilter: TextureParameter.Linear,
+        wrapS: TextureParameter.ClampToEdge,
+        wrapT: TextureParameter.ClampToEdge,
+      });
 
-    sampler.create();
+      sampler.create();
 
-    additionalShaderSemanticInfo.push({
-      semantic: 'depthTexture',
-      componentType: ComponentType.Int,
-      compositionType: CompositionType.Texture2DArray,
-      stage: ShaderType.VertexAndPixelShader,
-      initialValue: [textureSlotIdx++, engine.dummyTextures.dummyDepthMomentTextureArray, sampler],
-      min: 0,
-      max: Number.MAX_VALUE,
-    });
-    additionalShaderSemanticInfo.push({
-      semantic: 'paraboloidDepthTexture',
-      componentType: ComponentType.Int,
-      compositionType: CompositionType.Texture2DArray,
-      stage: ShaderType.VertexAndPixelShader,
-      initialValue: [textureSlotIdx++, engine.dummyTextures.dummyDepthMomentTextureArray, sampler],
-      min: 0,
-      max: Number.MAX_VALUE,
-    });
-    additionalShaderSemanticInfo.push({
-      semantic: 'depthTextureIndexList',
-      componentType: ComponentType.Int,
-      compositionType: CompositionType.ScalarArray,
-      arrayLength: engine.config.maxLightNumber,
-      stage: ShaderType.VertexAndPixelShader,
-      initialValue: new VectorN(new Int32Array(engine.config.maxLightNumber)),
-      min: 0,
-      max: Number.MAX_VALUE,
-    });
-    // BiasMatrix * LightProjectionMatrix * LightViewMatrix, See: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/#basic-shader
-    additionalShaderSemanticInfo.push({
-      semantic: 'depthBiasPV',
-      componentType: ComponentType.Float,
-      compositionType: CompositionType.Mat4Array,
-      arrayLength: engine.config.maxLightNumber,
-      stage: ShaderType.VertexAndPixelShader,
-      initialValue: new VectorN(new Float32Array(engine.config.maxLightNumber * 16)),
-      min: 0,
-      max: Number.MAX_VALUE,
-    });
-    additionalShaderSemanticInfo.push({
-      semantic: 'pointLightFarPlane',
-      componentType: ComponentType.Float,
-      compositionType: CompositionType.Scalar,
-      stage: ShaderType.VertexAndPixelShader,
-      initialValue: Scalar.fromCopyNumber(1000.0),
-      min: 0,
-      max: Number.MAX_VALUE,
-    });
-    additionalShaderSemanticInfo.push({
-      semantic: 'pointLightShadowMapUvScale',
-      componentType: ComponentType.Float,
-      compositionType: CompositionType.Scalar,
-      stage: ShaderType.VertexAndPixelShader,
-      initialValue: Scalar.fromCopyNumber(0.93),
-      min: 0,
-      max: Number.MAX_VALUE,
-    });
+      additionalShaderSemanticInfo.push({
+        semantic: 'depthTexture',
+        componentType: ComponentType.Int,
+        compositionType: CompositionType.Texture2DArray,
+        stage: ShaderType.VertexAndPixelShader,
+        initialValue: [textureSlotIdx++, engine.dummyTextures.dummyDepthMomentTextureArray, sampler],
+        min: 0,
+        max: Number.MAX_VALUE,
+      });
+      additionalShaderSemanticInfo.push({
+        semantic: 'paraboloidDepthTexture',
+        componentType: ComponentType.Int,
+        compositionType: CompositionType.Texture2DArray,
+        stage: ShaderType.VertexAndPixelShader,
+        initialValue: [textureSlotIdx++, engine.dummyTextures.dummyDepthMomentTextureArray, sampler],
+        min: 0,
+        max: Number.MAX_VALUE,
+      });
+      additionalShaderSemanticInfo.push({
+        semantic: 'depthTextureIndexList',
+        componentType: ComponentType.Int,
+        compositionType: CompositionType.ScalarArray,
+        arrayLength: engine.config.maxLightNumber,
+        stage: ShaderType.VertexAndPixelShader,
+        initialValue: new VectorN(new Int32Array(engine.config.maxLightNumber)),
+        min: 0,
+        max: Number.MAX_VALUE,
+      });
+      // BiasMatrix * LightProjectionMatrix * LightViewMatrix, See: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/#basic-shader
+      additionalShaderSemanticInfo.push({
+        semantic: 'depthBiasPV',
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.Mat4Array,
+        arrayLength: engine.config.maxLightNumber,
+        stage: ShaderType.VertexAndPixelShader,
+        initialValue: new VectorN(new Float32Array(engine.config.maxLightNumber * 16)),
+        min: 0,
+        max: Number.MAX_VALUE,
+      });
+      additionalShaderSemanticInfo.push({
+        semantic: 'pointLightFarPlane',
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.Scalar,
+        stage: ShaderType.VertexAndPixelShader,
+        initialValue: Scalar.fromCopyNumber(1000.0),
+        min: 0,
+        max: Number.MAX_VALUE,
+      });
+      additionalShaderSemanticInfo.push({
+        semantic: 'pointLightShadowMapUvScale',
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.Scalar,
+        stage: ShaderType.VertexAndPixelShader,
+        initialValue: Scalar.fromCopyNumber(0.93),
+        min: 0,
+        max: Number.MAX_VALUE,
+      });
+    }
   }
   if (isSkinning) {
     definitions.push('RN_IS_SKINNING');
