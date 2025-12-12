@@ -1,6 +1,5 @@
 export * from './BlockBeginShader';
 export * from './BlockEndShader';
-export * from './ClassicShadingShader';
 export * from './ConstantVariableShader';
 export * from './EndShader';
 export * from './IfStatementShader';
