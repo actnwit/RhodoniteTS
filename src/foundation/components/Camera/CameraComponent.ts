@@ -1153,19 +1153,18 @@ export class CameraComponent extends Component {
 
     if (this.isSyncToLight && Is.exist(lightComponent)) {
       // for Shadow Mapping
-      // Get shadow camera position and direction from light's transform
-      const lightEntity = lightComponent.entity;
-      const lightWorldPos = lightEntity.getSceneGraph().worldPosition;
-      this._eyeInner.copyComponents(lightWorldPos);
-
-      // Direction is eye + lightDirection (lookAt target)
-      const lightDir = lightComponent.direction;
-      this._directionInner.setComponents(
-        lightWorldPos.x + lightDir.x,
-        lightWorldPos.y + lightDir.y,
-        lightWorldPos.z + lightDir.z
-      );
-      this._upInner.copyComponents(lightComponent._up);
+      // IMPORTANT:
+      // eyeInner / directionInner / upInner are defined in the camera's *local* space.
+      // calcViewMatrix() later multiplies by inverse(entity.worldMatrix) when primitiveMode is false.
+      //
+      // Setting world-space values here causes the entity transform to be applied twice,
+      // which makes the shadow projection move roughly 2x as much as the light translation.
+      //
+      // The light direction is derived from the entity transform (LightComponent uses local -Z),
+      // so keeping the camera in its canonical local orientation is sufficient.
+      this._eyeInner.copyComponents(CameraComponent._eye); // local origin
+      this._directionInner.copyComponents(this._direction); // local look-at target (towards -Z)
+      this._upInner.copyComponents(this._up); // local +Y
 
       if (lightComponent.type === LightType.Spot) {
         this.type = CameraType.Perspective;
