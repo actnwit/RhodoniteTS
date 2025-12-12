@@ -54,7 +54,7 @@
 
 /* shaderity: @{vertexIn} */
 
-uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
+uniform sampler2D u_baseColorTexture; // initialValue=(1,white)
 
 /* shaderity: @{renderTargetBegin} */
 

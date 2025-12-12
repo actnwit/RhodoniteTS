@@ -8,7 +8,7 @@
 
 /* shaderity: @{vertexIn} */
 
-uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
+uniform sampler2D u_baseColorTexture; // initialValue=(1,white)
 uniform bool u_enableLinearToSrgb; // initialValue=true
 
 /* shaderity: @{renderTargetBegin} */

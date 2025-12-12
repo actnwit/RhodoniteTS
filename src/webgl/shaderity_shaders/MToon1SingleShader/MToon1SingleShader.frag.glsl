@@ -22,13 +22,13 @@ in vec3 v_normal_inView;
 uniform vec3 u_wireframe; // initialValue=(0,0,1)
 
 uniform vec4 u_baseColorFactor; // initialValue=(1,1,1,1)
-uniform sampler2D u_baseColorTexture; // initialValue=(1,white)
+uniform sampler2D u_baseColorTexture; // initialValue=(2,white)
 uniform int u_baseColorTexcoordIndex; // initialValue=0
 uniform vec2 u_baseColorTextureTransformScale; // initialValue=(1,1)
 uniform vec2 u_baseColorTextureTransformOffset; // initialValue=(0,0)
 uniform float u_baseColorTextureTransformRotation; // initialValue=0
 
-uniform sampler2D u_normalTexture; // initialValue=(2,black)
+uniform sampler2D u_normalTexture; // initialValue=(3,black)
 uniform vec2 u_normalTextureTransformScale; // initialValue=(1,1)
 uniform vec2 u_normalTextureTransformOffset; // initialValue=(0,0)
 uniform float u_normalTextureTransformRotation; // initialValue=0
@@ -36,37 +36,37 @@ uniform int u_normalTexcoordIndex; // initialValue=0
 uniform float u_normalScale; // initialValue=(1)
 
 uniform float u_shadingShiftFactor; // initialValue=0.0
-uniform sampler2D u_shadingShiftTexture; // initialValue=(3,black)
+uniform sampler2D u_shadingShiftTexture; // initialValue=(4,black)
 uniform int u_shadingShiftTexcoordIndex; // initialValue=0
 uniform float u_shadingShiftTextureScale; // initialValue=1.0
 
 uniform float u_shadingToonyFactor; // initialValue=0.9
 uniform vec3 u_shadeColorFactor; // initialValue=(0,0,0)
-uniform sampler2D u_shadeMultiplyTexture; // initialValue=(4,white)
+uniform sampler2D u_shadeMultiplyTexture; // initialValue=(5,white)
 uniform int u_shadeMultiplyTexcoordIndex; // initialValue=0
 
-uniform samplerCube u_diffuseEnvTexture; // initialValue=(5,black), isInternalSetting=true
-uniform samplerCube u_specularEnvTexture; // initialValue=(6,black), isInternalSetting=true
+uniform samplerCube u_diffuseEnvTexture; // initialValue=(6,black), isInternalSetting=true
+uniform samplerCube u_specularEnvTexture; // initialValue=(7,black), isInternalSetting=true
 
 uniform float u_giEqualizationFactor; // initialValue=0.9
 
-uniform sampler2D u_matcapTexture; // initialValue=(8,black)
+uniform sampler2D u_matcapTexture; // initialValue=(9,black)
 uniform vec3 u_matcapFactor; // initialValue=(1,1,1)
 uniform vec3 u_parametricRimColorFactor; // initialValue=(0,0,0)
 uniform float u_parametricRimFresnelPowerFactor; // initialValue=5.0
 uniform float u_parametricRimLiftFactor; // initialValue=0.0
-uniform sampler2D u_rimMultiplyTexture; // initialValue=(9,white)
+uniform sampler2D u_rimMultiplyTexture; // initialValue=(10,white)
 uniform int u_rimMultiplyTexcoordIndex; // initialValue=0
 uniform float u_rimLightingMixFactor; // initialValue=1.0
 
 uniform vec3 u_emissiveFactor; // initialValue=(0,0,0)
-uniform sampler2D u_emissiveTexture; // initialValue=(10,white)
+uniform sampler2D u_emissiveTexture; // initialValue=(11,white)
 uniform int u_emissiveTexcoordIndex; // initialValue=0
 
 uniform vec3 u_outlineColorFactor; // initialValue=(0,0,0)
 uniform float u_outlineLightingMixFactor; // initialValue=1.0
 
-uniform sampler2D u_uvAnimationMaskTexture; // initialValue=(11,white)
+uniform sampler2D u_uvAnimationMaskTexture; // initialValue=(12,white)
 uniform int u_uvAnimationMaskTexcoordIndex; // initialValue=0
 uniform float u_uvAnimationScrollXSpeedFactor; // initialValue=0.0
 uniform float u_uvAnimationScrollYSpeedFactor; // initialValue=0.0

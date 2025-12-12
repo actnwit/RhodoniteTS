@@ -12,8 +12,8 @@
 
 #pragma shaderity: require(../nodes/FlatShader.wgsl)
 
-@group(1) @binding(0) var diffuseColorTexture: texture_2d<f32>; // initialValue=blue
-@group(2) @binding(0) var diffuseColorSampler: sampler;
+@group(1) @binding(1) var diffuseColorTexture: texture_2d<f32>; // initialValue=blue
+@group(2) @binding(1) var diffuseColorSampler: sampler;
 
 @fragment
 fn main(

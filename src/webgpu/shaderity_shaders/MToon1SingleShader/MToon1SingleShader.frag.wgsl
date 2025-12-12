@@ -14,15 +14,15 @@ const EPS_COL: f32 = 0.00001;
 // #param wireframe: vec3<f32>; // initialValue=(0,0,1)
 
 // #param baseColorFactor: vec4<f32>; // initialValue=(1,1,1,1)
-@group(1) @binding(1) var baseColorTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(1) var baseColorSampler: sampler;
+@group(1) @binding(2) var baseColorTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(2) var baseColorSampler: sampler;
 // #param baseColorTexcoordIndex: f32; // initialValue=0
 // #param baseColorTextureTransformScale: vec2<f32>; // initialValue=(1,1)
 // #param baseColorTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
 // #param baseColorTextureTransformRotation: f32; // initialValue=0
 
-@group(1) @binding(2) var normalTexture: texture_2d<f32>; // initialValue=black
-@group(2) @binding(2) var normalSampler: sampler;
+@group(1) @binding(3) var normalTexture: texture_2d<f32>; // initialValue=black
+@group(2) @binding(3) var normalSampler: sampler;
 // #param normalTexcoordIndex: f32; // initialValue=0
 // #param normalTextureTransformScale: vec2<f32>; // initialValue=(1,1)
 // #param normalTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
@@ -30,45 +30,45 @@ const EPS_COL: f32 = 0.00001;
 // #param normalScale: f32; // initialValue=1
 
 // #param shadingShiftFactor: f32; // initialValue=0.0
-@group(1) @binding(3) var shadingShiftTexture: texture_2d<f32>; // initialValue=black
-@group(2) @binding(3) var shadingShiftSampler: sampler;
+@group(1) @binding(4) var shadingShiftTexture: texture_2d<f32>; // initialValue=black
+@group(2) @binding(4) var shadingShiftSampler: sampler;
 // #param shadingShiftTexcoordIndex: f32; // initialValue=0
 // #param shadingShiftTextureScale: f32; // initialValue=1.0
 
 // #param shadingToonyFactor: f32; // initialValue=0.9
 // #param shadeColorFactor: vec3<f32>; // initialValue=(0,0,0)
-@group(1) @binding(4) var shadeMultiplyTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(4) var shadeMultiplySampler: sampler;
+@group(1) @binding(5) var shadeMultiplyTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(5) var shadeMultiplySampler: sampler;
 // #param shadeMultiplyTexcoordIndex: f32; // initialValue=0
 
-@group(1) @binding(16) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black, isInternalSetting=true
-@group(2) @binding(16) var diffuseEnvSampler: sampler;
-@group(1) @binding(17) var specularEnvTexture: texture_cube<f32>; // initialValue=black, isInternalSetting=true
-@group(2) @binding(17) var specularEnvSampler: sampler;
+@group(1) @binding(17) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black, isInternalSetting=true
+@group(2) @binding(17) var diffuseEnvSampler: sampler;
+@group(1) @binding(18) var specularEnvTexture: texture_cube<f32>; // initialValue=black, isInternalSetting=true
+@group(2) @binding(18) var specularEnvSampler: sampler;
 
 // #param giEqualizationFactor: f32; // initialValue=0.9
 
-@group(1) @binding(5) var matcapTexture: texture_2d<f32>; // initialValue=black
-@group(2) @binding(5) var matcapSampler: sampler;
+@group(1) @binding(6) var matcapTexture: texture_2d<f32>; // initialValue=black
+@group(2) @binding(6) var matcapSampler: sampler;
 // #param matcapFactor: vec3<f32>; // initialValue=(1,1,1)
 // #param parametricRimColorFactor: vec3<f32>; // initialValue=(0,0,0)
 // #param parametricRimFresnelPowerFactor: f32; // initialValue=5.0
 // #param parametricRimLiftFactor: f32; // initialValue=0.0
-@group(1) @binding(6) var rimMultiplyTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(6) var rimMultiplySampler: sampler;
+@group(1) @binding(7) var rimMultiplyTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(7) var rimMultiplySampler: sampler;
 // #param rimMultiplyTexcoordIndex: f32; // initialValue=0
 // #param rimLightingMixFactor: f32; // initialValue=1.0
 
 // #param emissiveFactor: vec3<f32>; // initialValue=(0,0,0)
-@group(1) @binding(7) var emissiveTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(7) var emissiveSampler: sampler;
+@group(1) @binding(8) var emissiveTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(8) var emissiveSampler: sampler;
 // #param emissiveTexcoordIndex: f32; // initialValue=0
 
 // #param outlineColorFactor: vec3<f32>; // initialValue=(0,0,0)
 // #param outlineLightingMixFactor: f32; // initialValue=1.0
 
-@group(1) @binding(8) var uvAnimationMaskTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(8) var uvAnimationMaskSampler: sampler;
+@group(1) @binding(9) var uvAnimationMaskTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(9) var uvAnimationMaskSampler: sampler;
 // #param uvAnimationMaskTexcoordIndex: f32; // initialValue=0
 // #param uvAnimationScrollXSpeedFactor: f32; // initialValue=0.0
 // #param uvAnimationScrollYSpeedFactor: f32; // initialValue=0.0

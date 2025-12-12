@@ -4,8 +4,8 @@
 
 /* shaderity: @{getters} */
 
-@group(1) @binding(0) var baseColorTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(0) var baseColorSampler: sampler;
+@group(1) @binding(1) var baseColorTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(1) var baseColorSampler: sampler;
 
 // #param enableLinearToSrgb: bool; // initialValue=true
 

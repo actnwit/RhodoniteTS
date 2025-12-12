@@ -5,8 +5,8 @@
 /* shaderity: @{getters} */
 
 
-@group(1) @binding(0) var baseColorTexture: texture_cube<f32>; // initialValue=white
-@group(2) @binding(0) var baseColorSampler: sampler;
+@group(1) @binding(1) var baseColorTexture: texture_cube<f32>; // initialValue=white
+@group(2) @binding(1) var baseColorSampler: sampler;
 // #param cubeMapFaceId: i32; // initialValue=0
 // #param distributionType: i32; // initialValue=0
 // #param roughness: f32; // initialValue=0.0

@@ -13,8 +13,8 @@
 
 // Color
 // #param baseColorFactor: vec4<f32>; // initialValue=(1,1,1,1)
-@group(1) @binding(0) var baseColorTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(0) var baseColorSampler: sampler;
+@group(1) @binding(1) var baseColorTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(1) var baseColorSampler: sampler;
 // #param baseColorTextureTransformScale: vec2<f32>; // initialValue=(1,1)
 // #param baseColorTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
 // #param baseColorTextureTransformRotation: f32; // initialValue=0
@@ -24,16 +24,16 @@
 
 // #param metallicFactor: f32; // initialValue=1
 // #param roughnessFactor: f32; // initialValue=1
-@group(1) @binding(1) var metallicRoughnessTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(1) var metallicRoughnessSampler: sampler;
+@group(1) @binding(2) var metallicRoughnessTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(2) var metallicRoughnessSampler: sampler;
 // #param metallicRoughnessTextureTransformScale: vec2<f32>; // initialValue=(1,1)
 // #param metallicRoughnessTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
 // #param metallicRoughnessTextureTransformRotation: f32; // initialValue=0
 // #param metallicRoughnessTexcoordIndex: f32; // initialValue=0
 
 #ifdef RN_USE_NORMAL_TEXTURE
-  @group(1) @binding(2) var normalTexture: texture_2d<f32>; // initialValue=black
-  @group(2) @binding(2) var normalSampler: sampler;
+  @group(1) @binding(3) var normalTexture: texture_2d<f32>; // initialValue=black
+  @group(2) @binding(3) var normalSampler: sampler;
   // #param normalScale: f32; // initialValue=(1)
 #endif
   // #param normalTextureTransformScale: vec2<f32>; // initialValue=(1,1)
@@ -42,8 +42,8 @@
   // #param normalTexcoordIndex: f32; // initialValue=(0)
 
 #ifdef RN_USE_OCCLUSION_TEXTURE
-  @group(1) @binding(3) var occlusionTexture: texture_2d<f32>; // initialValue=white
-  @group(2) @binding(3) var occlusionSampler: sampler;
+  @group(1) @binding(4) var occlusionTexture: texture_2d<f32>; // initialValue=white
+  @group(2) @binding(4) var occlusionSampler: sampler;
   // #param occlusionTextureTransformScale: vec2<f32>; // initialValue=(1,1)
   // #param occlusionTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
   // #param occlusionTextureTransformRotation: f32; // initialValue=0
@@ -56,8 +56,8 @@
   // #param emissiveTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
   // #param emissiveTextureTransformRotation: f32; // initialValue=0
   // #param emissiveTexcoordIndex: u32; // initialValue=0
-  @group(1) @binding(4) var emissiveTexture: texture_2d<f32>; // initialValue=white
-  @group(2) @binding(4) var emissiveSampler: sampler;
+  @group(1) @binding(5) var emissiveTexture: texture_2d<f32>; // initialValue=white
+  @group(2) @binding(5) var emissiveSampler: sampler;
 #endif
   // #param emissiveFactor: vec3<f32>; // initialValue=(0,0,0)
 #ifdef RN_USE_EMISSIVE_STRENGTH
@@ -169,10 +169,10 @@
 
 // #param alphaCutoff: f32; // initialValue=0.01
 
-@group(1) @binding(16) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black, isInternalSetting=true
-@group(2) @binding(16) var diffuseEnvSampler: sampler;
-@group(1) @binding(17) var specularEnvTexture: texture_cube<f32>; // initialValue=black, isInternalSetting=true
-@group(2) @binding(17) var specularEnvSampler: sampler;
+@group(1) @binding(17) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black, isInternalSetting=true
+@group(2) @binding(17) var diffuseEnvSampler: sampler;
+@group(1) @binding(18) var specularEnvTexture: texture_cube<f32>; // initialValue=black, isInternalSetting=true
+@group(2) @binding(18) var specularEnvSampler: sampler;
 
 
 // #param iblParameter: vec4<f32>; // initialValue=(1,1,1,1), isInternalSetting=true

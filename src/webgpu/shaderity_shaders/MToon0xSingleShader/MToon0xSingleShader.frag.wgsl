@@ -11,10 +11,10 @@ const EPS_COL: f32 = 0.00001;
 
 /* shaderity: @{pbrDefinition} */
 
-@group(1) @binding(16) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black, isInternalSetting=true
-@group(2) @binding(16) var diffuseEnvSampler: sampler;
-@group(1) @binding(17) var specularEnvTexture: texture_cube<f32>; // initialValue=black, isInternalSetting=true
-@group(2) @binding(17) var specularEnvSampler: sampler;
+@group(1) @binding(17) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black, isInternalSetting=true
+@group(2) @binding(17) var diffuseEnvSampler: sampler;
+@group(1) @binding(18) var specularEnvTexture: texture_cube<f32>; // initialValue=black, isInternalSetting=true
+@group(2) @binding(18) var specularEnvSampler: sampler;
 
 // #param inverseEnvironment: bool; // initialValue=false
 // #param iblParameter: vec4<f32>; // initialValue=(1,1,1,1), isInternalSetting=true

@@ -8,7 +8,7 @@
 
 /* shaderity: @{vertexIn} */
 
-uniform samplerCube u_baseColorTexture; // initialValue=(0,white)
+uniform samplerCube u_baseColorTexture; // initialValue=(1,white)
 uniform int u_cubeMapFaceId; // initialValue=0
 uniform int u_distributionType; // initialValue=0
 uniform float u_roughness; // initialValue=0.0
