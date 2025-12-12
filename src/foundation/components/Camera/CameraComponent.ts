@@ -4,7 +4,7 @@ import { Component } from '../../core/Component';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { Config } from '../../core/Config';
 import type { IEntity } from '../../core/Entity';
-import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
 import { BufferUse } from '../../definitions/BufferUse';
 import { CameraType, type CameraTypeEnum } from '../../definitions/CameraType';
 import { ComponentType } from '../../definitions/ComponentType';
@@ -1153,9 +1153,20 @@ export class CameraComponent extends Component {
 
     if (this.isSyncToLight && Is.exist(lightComponent)) {
       // for Shadow Mapping
-      this._eyeInner.copyComponents(CameraComponent._eye);
-      this._directionInner.copyComponents(this._direction);
-      this._upInner.copyComponents(this._up);
+      // Get shadow camera position and direction from light's transform
+      const lightEntity = lightComponent.entity;
+      const lightWorldPos = lightEntity.getSceneGraph().worldPosition;
+      this._eyeInner.copyComponents(lightWorldPos);
+
+      // Direction is eye + lightDirection (lookAt target)
+      const lightDir = lightComponent.direction;
+      this._directionInner.setComponents(
+        lightWorldPos.x + lightDir.x,
+        lightWorldPos.y + lightDir.y,
+        lightWorldPos.z + lightDir.z
+      );
+      this._upInner.copyComponents(lightComponent._up);
+
       if (lightComponent.type === LightType.Spot) {
         this.type = CameraType.Perspective;
         this.setFovyAndChangeFilmSize(MathUtil.radianToDegree(lightComponent.outerConeAngle));
@@ -1169,9 +1180,14 @@ export class CameraComponent extends Component {
         const areaSize = lightComponent.shadowAreaSizeForDirectionalLight;
         this._cornerInner.copyComponents(Vector4.fromCopy4(-areaSize, areaSize, areaSize, -areaSize));
         this.aspect = 1;
-        this.zNear = 0.1;
+        this.zNear = lightComponent.shadowZNearForDirectionalLight;
         this.zFar = lightComponent.range !== -1 ? lightComponent.range : 100;
-        this._parametersInner.copyComponents(this._parameters);
+        // For Orthographic projection, _parametersInner.z is xmag and _parametersInner.w is ymag
+        // These are the half-widths used in calcProjectionMatrix for orthographic cameras
+        this._parametersInner.x = this.zNear;
+        this._parametersInner.y = this.zFar;
+        this._parametersInner.z = areaSize; // xmag (half-width)
+        this._parametersInner.w = areaSize; // ymag (half-height)
       }
     } else {
       const cameraControllerComponent = this.entity.tryToGetCameraController();

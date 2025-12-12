@@ -37,6 +37,8 @@ export class LightComponent extends Component {
   private __range = -1;
   public enable = true;
   private __shadowAreaSizeForDirectionalLight = 10;
+  private __shadowZNearForDirectionalLight = 0.1;
+  private __shadowCameraOffsetForDirectionalLight = Vector3.zero();
   public castShadow = false;
   private _lightPosition = MutableVector4.dummy();
   private _lightDirection = MutableVector4.dummy();
@@ -167,6 +169,41 @@ export class LightComponent extends Component {
    */
   get shadowAreaSizeForDirectionalLight(): number {
     return this.__shadowAreaSizeForDirectionalLight;
+  }
+
+  /**
+   * Sets the zNear value used for DirectionalLight shadow camera.
+   *
+   * @remarks
+   * CameraComponent syncs to light each frame and uses this to set zNear.
+   * Updating this property increments updateCount so camera sync is refreshed.
+   */
+  set shadowZNearForDirectionalLight(value: number) {
+    this.__shadowZNearForDirectionalLight = value;
+    this.__updateCount++;
+  }
+
+  /**
+   * Gets the zNear value used for DirectionalLight shadow camera.
+   */
+  get shadowZNearForDirectionalLight(): number {
+    return this.__shadowZNearForDirectionalLight;
+  }
+
+  /**
+   * Sets the shadow camera offset for DirectionalLight.
+   * This offset is applied to position the shadow camera at the scene center.
+   */
+  set shadowCameraOffsetForDirectionalLight(value: Vector3) {
+    this.__shadowCameraOffsetForDirectionalLight = value;
+    this.__updateCount++;
+  }
+
+  /**
+   * Gets the shadow camera offset for DirectionalLight.
+   */
+  get shadowCameraOffsetForDirectionalLight(): Vector3 {
+    return this.__shadowCameraOffsetForDirectionalLight;
   }
 
   /**
