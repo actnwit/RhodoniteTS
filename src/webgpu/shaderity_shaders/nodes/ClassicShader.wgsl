@@ -19,11 +19,11 @@ fn classicShader(vertexColor: vec4<f32>, diffuseColorFactor: vec4<f32>, diffuseT
         // ViewDirection
         let viewDirection = normalize(viewPosition - positionInWorld.xyz);
         let halfVector = normalize(light.direction + viewDirection);
-        specular += pow(max(0.0, dot(halfVector, normalInWorld)), shininess);
+        specular += pow(max(0.0, dot(halfVector, normalInWorld)), shininess) * light.attenuatedIntensity;
       } else if (shadingModel == 3u) { // PHONG
         let viewDirection = normalize(viewPosition - positionInWorld.xyz);
         let R = reflect(light.direction, normalInWorld);
-        specular += pow(max(0.0, dot(R, viewDirection)), shininess);
+        specular += pow(max(0.0, dot(R, viewDirection)), shininess) * light.attenuatedIntensity;
       }
 
       #ifdef RN_USE_SHADOW_MAPPING

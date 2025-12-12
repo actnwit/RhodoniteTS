@@ -33,11 +33,11 @@ void classicShader(in vec4 vertexColor, in vec4 diffuseColorFactor, in vec4 diff
         // ViewDirection
         vec3 viewDirection = normalize(viewPosition - positionInWorld.xyz);
         vec3 halfVector = normalize(light.direction + viewDirection);
-        specular += pow(max(0.0, dot(halfVector, normalInWorld)), shininess);
+        specular += pow(max(0.0, dot(halfVector, normalInWorld)), shininess) * light.attenuatedIntensity;
       } else if (shadingModel == 3u) { // PHONG
         vec3 viewDirection = normalize(viewPosition - positionInWorld.xyz);
         vec3 R = reflect(light.direction, normalInWorld);
-        specular += pow(max(0.0, dot(R, viewDirection)), shininess);
+        specular += pow(max(0.0, dot(R, viewDirection)), shininess) * light.attenuatedIntensity;
       }
 
       #ifdef RN_USE_SHADOW_MAPPING
