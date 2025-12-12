@@ -8,7 +8,7 @@
 
 /* shaderity: @{vertexIn} */
 
-uniform sampler2DRect u_baseColorTexture; // initialValue=(0,white)
+uniform sampler2DRect u_baseColorTexture; // initialValue=(1,white)
 uniform float u_count; // initialValue=0.0
 uniform float u_direction; // initialValue=0.0
 /* shaderity: @{renderTargetBegin} */

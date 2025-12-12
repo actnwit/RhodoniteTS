@@ -10,8 +10,8 @@
 
 // #param outlineWidthMode: i32; // initialValue=0
 // #param outlineWidthFactor: f32; // initialValue=0.0008
-@group(1) @binding(0) var outlineWidthTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(0) var outlineWidthSampler: sampler;
+@group(1) @binding(1) var outlineWidthTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(1) var outlineWidthSampler: sampler;
 
 @vertex
 fn main(

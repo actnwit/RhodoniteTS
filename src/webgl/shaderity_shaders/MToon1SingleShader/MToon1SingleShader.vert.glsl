@@ -23,7 +23,7 @@ out vec3 v_normal_inView;
 
 uniform int u_outlineWidthMode; // initialValue=0
 uniform float u_outlineWidthFactor; // initialValue=0.0008
-uniform sampler2D u_outlineWidthMultiplyTexture; // initialValue=(0,white)
+uniform sampler2D u_outlineWidthMultiplyTexture; // initialValue=(1,white)
 
 void main(){
 

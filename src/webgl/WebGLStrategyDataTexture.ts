@@ -1747,18 +1747,18 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
    *
    * @remarks
    * This method performs the following operations:
-   * - Sets the data texture uniform to texture unit 7
-   * - Binds the data texture to texture unit 7
+   * - Sets the data texture uniform to texture unit 0
+   * - Binds the data texture to texture unit 0
    * - Creates and binds a repeat/nearest sampler for optimal data texture access
    *
-   * Texture unit 7 is used as a dedicated slot for data texture access
-   * to avoid conflicts with regular material textures.
+   * Texture unit 0 is used as a dedicated slot for data texture access.
+   * Other material textures should start from texture unit 1.
    */
   private bindDataTexture(gl: WebGLRenderingContext | WebGL2RenderingContext, shaderProgram: WebGLProgram) {
-    gl.uniform1i((shaderProgram as any).dataTexture, 7);
-    this.__engine.webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
+    gl.uniform1i((shaderProgram as any).dataTexture, 0);
+    this.__engine.webglResourceRepository.bindTexture2D(0, this.__dataTextureUid);
     const samplerUid = this.__engine.webglResourceRepository.createOrGetTextureSamplerRepeatNearest();
-    this.__engine.webglResourceRepository.bindTextureSampler(7, samplerUid);
+    this.__engine.webglResourceRepository.bindTextureSampler(0, samplerUid);
   }
 
   /**

@@ -257,38 +257,38 @@ export class CustomMaterialContent extends AbstractMaterialContent {
   }) {
     const webglResourceRepository = engine.webglResourceRepository;
     // IBL Env map
-    // const diffuseEnv = material.getTextureParameter(ShaderSemantics.DiffuseEnvTexture.str);
-    // if (diffuseEnv != null) {
-    const diffuseEnvSlot = 5; //diffuseEnv[0];
-    if (args.diffuseCube?.isTextureReady) {
-      webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
-        diffuseEnvSlot,
-        args.diffuseCube,
-        this.__diffuseIblCubeMapSampler,
-      ]);
-    } else {
-      webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
-        diffuseEnvSlot,
-        engine.dummyTextures.dummyBlackCubeTexture,
-      ]);
+    const diffuseEnv = material.getTextureParameter(ShaderSemantics.DiffuseEnvTexture.str);
+    if (diffuseEnv != null) {
+      const diffuseEnvSlot = diffuseEnv[0];
+      if (args.diffuseCube?.isTextureReady) {
+        webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
+          diffuseEnvSlot,
+          args.diffuseCube,
+          this.__diffuseIblCubeMapSampler,
+        ]);
+      } else {
+        webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.DiffuseEnvTexture.str, [
+          diffuseEnvSlot,
+          engine.dummyTextures.dummyBlackCubeTexture,
+        ]);
+      }
     }
-    // }
-    // const specularEnv = material.getTextureParameter(ShaderSemantics.SpecularEnvTexture.str);
-    // if (specularEnv != null) {
-    const specularEnvSlot = 6; //specularEnv[0];
-    if (args.specularCube?.isTextureReady) {
-      webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, [
-        specularEnvSlot,
-        args.specularCube,
-        this.__specularIblCubeMapSampler,
-      ]);
-    } else {
-      webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, [
-        specularEnvSlot,
-        engine.dummyTextures.dummyBlackCubeTexture,
-      ]);
+    const specularEnv = material.getTextureParameter(ShaderSemantics.SpecularEnvTexture.str);
+    if (specularEnv != null) {
+      const specularEnvSlot = specularEnv[0];
+      if (args.specularCube?.isTextureReady) {
+        webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, [
+          specularEnvSlot,
+          args.specularCube,
+          this.__specularIblCubeMapSampler,
+        ]);
+      } else {
+        webglResourceRepository.setUniform1iForTexture(shaderProgram, ShaderSemantics.SpecularEnvTexture.str, [
+          specularEnvSlot,
+          engine.dummyTextures.dummyBlackCubeTexture,
+        ]);
+      }
     }
-    // }
     const sheenEnv = material.getTextureParameter(ShaderSemantics.SheenEnvTexture.str);
     if (sheenEnv != null) {
       const sheenEnvSlot = sheenEnv[0];

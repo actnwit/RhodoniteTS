@@ -553,7 +553,7 @@ function createClassicUberMaterial(
   const materialName = `ClassicUber_${additionalName}_`;
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
 
-  let textureSlotIdx = 8;
+  let textureSlotIdx = 3;
 
   const sampler = new Sampler(engine, {
     minFilter: TextureParameter.Linear,
@@ -990,7 +990,7 @@ function createGaussianBlurForEncodedDepthMaterial(
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [0, engine.dummyTextures.dummyBlackTexture],
+      initialValue: [1, engine.dummyTextures.dummyBlackTexture],
       min: 0,
       max: Number.MAX_SAFE_INTEGER,
     }
@@ -1163,7 +1163,7 @@ function createGaussianBlurMaterial(engine: Engine, { additionalName = '', maxIn
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [0, engine.dummyTextures.dummyBlackTexture],
+      initialValue: [1, engine.dummyTextures.dummyBlackTexture],
       min: 0,
       max: Number.MAX_SAFE_INTEGER,
     }
@@ -1666,9 +1666,8 @@ function reuseOrRecreateCustomMaterial(
     definitions.push('RN_IS_LIGHTING');
     if (isShadow) {
       definitions.push('RN_USE_SHADOW_MAPPING');
-      let textureSlotIdx = additionalShaderSemanticInfo.filter(info =>
-        CompositionType.isTexture(info.compositionType)
-      ).length;
+      let textureSlotIdx =
+        additionalShaderSemanticInfo.filter(info => CompositionType.isTexture(info.compositionType)).length + 1; // +1 for taking into account that the texture slot 0 is for the DataTexture
 
       const sampler = new Sampler(engine, {
         minFilter: TextureParameter.Linear,

@@ -11,7 +11,7 @@
 uniform int u_envHdriFormat; // initialValue=0
 uniform float u_envRotation; // initialValue=0
 uniform vec4 u_diffuseColorFactor; // initialValue=(1,1,1,1)
-uniform samplerCube u_colorEnvTexture; // initialValue=(0,black)
+uniform samplerCube u_colorEnvTexture; // initialValue=(1,black)
 uniform bool u_makeOutputSrgb; // initialValue=true
 uniform bool u_inverseEnvironment; // initialValue=false
 

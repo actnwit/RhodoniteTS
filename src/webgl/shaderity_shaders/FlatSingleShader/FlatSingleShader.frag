@@ -11,8 +11,8 @@
 uniform int u_shadingModel; // initialValue=0
 uniform float u_alphaCutoff; // initialValue=0.01
 uniform vec4 u_diffuseColorFactor; // initialValue=(1,1,1,1)
-uniform sampler2D u_diffuseColorTexture; // initialValue=(0,white)
-uniform sampler2D u_normalTexture; // initialValue=(1,blue)
+uniform sampler2D u_diffuseColorTexture; // initialValue=(1,white)
+uniform sampler2D u_normalTexture; // initialValue=(2,blue)
 uniform vec2 u_diffuseColorTextureTransformScale; // initialValue=(1,1)
 uniform vec2 u_diffuseColorTextureTransformOffset; // initialValue=(0,0)
 uniform float u_diffuseColorTextureRotation; // initialValue=0

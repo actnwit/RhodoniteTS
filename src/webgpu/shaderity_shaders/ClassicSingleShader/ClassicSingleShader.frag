@@ -12,10 +12,10 @@
 // #param alphaCutoff: f32; // initialValue=0.01
 // #param shininess: f32; // initialValue=5
 // #param diffuseColorFactor: vec4<f32>; // initialValue=(1,1,1,1)
-@group(1) @binding(0) var diffuseColorTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(0) var diffuseColorSampler: sampler;
-@group(1) @binding(1) var normalTexture: texture_2d<f32>; // initialValue=blue
-@group(2) @binding(1) var normalSampler: sampler;
+@group(1) @binding(1) var diffuseColorTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(1) var diffuseColorSampler: sampler;
+@group(1) @binding(2) var normalTexture: texture_2d<f32>; // initialValue=blue
+@group(2) @binding(2) var normalSampler: sampler;
 // #param diffuseColorTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
 // #param diffuseColorTextureRotation: f32; // initialValue=0
 

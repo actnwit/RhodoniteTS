@@ -7,8 +7,8 @@
 // #param envHdriFormat: i32; // initialValue=0
 // #param envRotation: f32; // initialValue=0
 // #param diffuseColorFactor: vec4<f32>; // initialValue=(1,1,1,1)
-@group(1) @binding(0) var colorEnvTexture: texture_cube<f32>; // initialValue=black
-@group(2) @binding(0) var colorEnvSampler: sampler;
+@group(1) @binding(1) var colorEnvTexture: texture_cube<f32>; // initialValue=black
+@group(2) @binding(1) var colorEnvSampler: sampler;
 // #param makeOutputSrgb: bool; // initialValue=1
 // #param inverseEnvironment: bool; // initialValue=false
 

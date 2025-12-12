@@ -11,16 +11,16 @@
 uniform vec3 u_wireframe; // initialValue=(0,0,1)
 
 uniform vec4 u_baseColorFactor; // initialValue=(1,1,1,1)
-uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
+uniform sampler2D u_baseColorTexture; // initialValue=(1,white)
 uniform float u_metallicFactor; // initialValue=1
 uniform float u_roughnessFactor; // initialValue=1
-uniform sampler2D u_metallicRoughnessTexture; // initialValue=(1,white)
+uniform sampler2D u_metallicRoughnessTexture; // initialValue=(2,white)
 uniform bool u_isOutputHDR; // initialValue=0
 uniform bool u_makeOutputSrgb; // initialValue=1
 uniform vec4 u_iblParameter; // initialValue=(1,1,1,1), isInternalSetting=true
 uniform ivec2 u_hdriFormat; // initialValue=(0,0), isInternalSetting=true
-uniform samplerCube u_diffuseEnvTexture; // initialValue=(5,black), isInternalSetting=true
-uniform samplerCube u_specularEnvTexture; // initialValue=(6,black), isInternalSetting=true
+uniform samplerCube u_diffuseEnvTexture; // initialValue=(6,black), isInternalSetting=true
+uniform samplerCube u_specularEnvTexture; // initialValue=(7,black), isInternalSetting=true
 uniform vec2 u_baseColorTextureTransformScale; // initialValue=(1,1)
 uniform vec2 u_baseColorTextureTransformOffset; // initialValue=(0,0)
 uniform float u_baseColorTextureTransformRotation; // initialValue=0
@@ -34,11 +34,11 @@ uniform int u_metallicRoughnessTexcoordIndex; // initialValue=0
   uniform vec2 u_occlusionTextureTransformScale; // initialValue=(1,1)
   uniform vec2 u_occlusionTextureTransformOffset; // initialValue=(0,0)
   uniform float u_occlusionTextureTransformRotation; // initialValue=0
-  uniform sampler2D u_occlusionTexture; // initialValue=(3,white)
+  uniform sampler2D u_occlusionTexture; // initialValue=(4,white)
   uniform float u_occlusionStrength; // initialValue=1
 #endif
 #ifdef RN_USE_EMISSIVE_TEXTURE
-  uniform sampler2D u_emissiveTexture; // initialValue=(4,white)
+  uniform sampler2D u_emissiveTexture; // initialValue=(5,white)
   uniform int u_emissiveTexcoordIndex; // initialValue=0
   uniform vec2 u_emissiveTextureTransformScale; // initialValue=(1,1)
   uniform vec2 u_emissiveTextureTransformOffset; // initialValue=(0,0)
@@ -53,7 +53,7 @@ uniform bool u_inverseEnvironment; // initialValue=false
 uniform float u_ior; // initialValue=1.5
 
 #ifdef RN_USE_NORMAL_TEXTURE
-  uniform sampler2D u_normalTexture; // initialValue=(2,black)
+  uniform sampler2D u_normalTexture; // initialValue=(3,black)
   uniform float u_normalScale; // initialValue=(1)
 #endif
   uniform vec2 u_normalTextureTransformScale; // initialValue=(1,1)

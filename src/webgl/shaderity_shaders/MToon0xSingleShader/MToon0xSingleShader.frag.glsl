@@ -25,8 +25,8 @@ uniform bool u_inverseEnvironment; // initialValue=false
 uniform vec4 u_iblParameter; // initialValue=(1,1,1,1), isInternalSetting=true
 uniform ivec2 u_hdriFormat; // initialValue=(0,0), isInternalSetting=true
 
-uniform samplerCube u_diffuseEnvTexture; // initialValue=(5,black), isInternalSetting=true
-uniform samplerCube u_specularEnvTexture; // initialValue=(6,black), isInternalSetting=true
+uniform samplerCube u_diffuseEnvTexture; // initialValue=(6,black), isInternalSetting=true
+uniform samplerCube u_specularEnvTexture; // initialValue=(7,black), isInternalSetting=true
 
 
 const float PI_2 = 6.28318530718;

@@ -102,7 +102,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [0, matCapTexture, sampler],
+      initialValue: [1, matCapTexture, sampler],
       min: 0,
       max: Number.MAX_SAFE_INTEGER,
     });

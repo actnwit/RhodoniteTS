@@ -116,11 +116,11 @@ function createCustomShader() {
   uniform float u_alphaCutoff; // initialValue=0.01
   uniform float u_shininess; // initialValue=5
   uniform vec4 u_diffuseColorFactor; // initialValue=(1,1,1,1)
-  uniform sampler2D u_diffuseColorTexture; // initialValue=(0,white)
-  uniform sampler2D u_normalTexture; // initialValue=(1,blue)
+  uniform sampler2D u_diffuseColorTexture; // initialValue=(1,white)
+  uniform sampler2D u_normalTexture; // initialValue=(2,blue)
   uniform vec4 u_diffuseColorTextureTransform; // initialValue=(1,1,0,0)
   uniform float u_diffuseColorTextureRotation; // initialValue=0
-  uniform sampler2DShadow u_depthTexture; // initialValue=(2,white)
+  uniform sampler2DShadow u_depthTexture; // initialValue=(3,white)
 
   /* shaderity: @{renderTargetBegin} */
 
@@ -344,14 +344,14 @@ fn main(
 // #param alphaCutoff: f32; // initialValue=0.01
 // #param shininess: f32; // initialValue=5
 // #param diffuseColorFactor: vec4<f32>; // initialValue=(1,1,1,1)
-@group(1) @binding(0) var diffuseColorTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(0) var diffuseColorSampler: sampler;
-@group(1) @binding(1) var normalTexture: texture_2d<f32>; // initialValue=blue
-@group(2) @binding(1) var normalSampler: sampler;
+@group(1) @binding(1) var diffuseColorTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(1) var diffuseColorSampler: sampler;
+@group(1) @binding(2) var normalTexture: texture_2d<f32>; // initialValue=blue
+@group(2) @binding(2) var normalSampler: sampler;
 // #param diffuseColorTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
 // #param diffuseColorTextureRotation: f32; // initialValue=0
-@group(1) @binding(2) var depthTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(2) var depthSampler: sampler;
+@group(1) @binding(3) var depthTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(3) var depthSampler: sampler;
 
 @fragment
 fn main (

@@ -156,7 +156,7 @@ export class RhodoniteImportExtension {
     textureInfos: { name: string; stage: string }[]
   ): ShaderSemanticsInfo[] {
     const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
-    let textureSlotIdx = 0;
+    let textureSlotIdx = 1;
 
     // Create a default sampler for textures
     const sampler = new Sampler(engine, {
