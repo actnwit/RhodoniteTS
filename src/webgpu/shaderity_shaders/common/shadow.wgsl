@@ -1,12 +1,10 @@
 #ifdef RN_USE_SHADOW_MAPPING
 
-const g_minVariance: f32 = 0.00001;
-
-fn chebyshevUpperBound(moments: vec2<f32>, t: f32) -> f32 {
+fn chebyshevUpperBound(moments: vec2<f32>, t: f32, minVariance: f32) -> f32 {
   let p = select(0.0, 1.0, t <= moments.x);
 
   var variance = moments.y - sqF32(moments.x);
-  variance = max(variance, g_minVariance);
+  variance = max(variance, minVariance);
 
   let d = t - moments.x;
   let p_max = variance / (variance + sqF32(d));
@@ -17,7 +15,7 @@ fn chebyshevUpperBound(moments: vec2<f32>, t: f32) -> f32 {
 fn varianceShadowContribution(lightTexCoord: vec2<f32>, distanceToLight: f32, depthTextureIndex: u32) -> f32 {
   let moments = textureSampleLevel(depthTexture, depthSampler, lightTexCoord, depthTextureIndex, 0.0).xy;
 
-  return chebyshevUpperBound(moments, distanceToLight);
+  return chebyshevUpperBound(moments, distanceToLight, 0.001);
 }
 
 fn varianceShadowContributionParaboloid(worldPos: vec3<f32>, lightPos: vec3<f32>, farPlane: f32, uvScale: f32, depthTextureIndex: u32) -> f32 {
@@ -44,7 +42,7 @@ fn varianceShadowContributionParaboloid(worldPos: vec3<f32>, lightPos: vec3<f32>
   let currentDepth = currentDist / farPlane;
 
 
-  return chebyshevUpperBound(storedMoments, currentDepth);
+  return chebyshevUpperBound(storedMoments, currentDepth, 0.00001);
 
   // float shadow = (currentDepth > storedMoments.r + 0.00001) ? 0.5 : 1.0;
   // return shadow;

@@ -154,7 +154,7 @@ export class ShadowSystem {
             gaussianKernelSize: 5,
             gaussianVariance: 5,
             synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
-            isReduceBuffer: true,
+            isReduceBuffer: false,
             textureFormat: TextureFormat.RG16F,
             outputFrameBuffer: this.__shadowMapArrayFramebuffer,
             outputFrameBufferLayerIndex: depthTextureCount,
