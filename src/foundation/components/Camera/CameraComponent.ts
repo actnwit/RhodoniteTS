@@ -1169,7 +1169,8 @@ export class CameraComponent extends Component {
 
       if (lightComponent.type === LightType.Spot) {
         this.type = CameraType.Perspective;
-        this.setFovyAndChangeFilmSize(MathUtil.radianToDegree(lightComponent.outerConeAngle));
+        // outerConeAngle is a half-angle, so multiply by 2 to get the full FOV
+        this.setFovyAndChangeFilmSize(MathUtil.radianToDegree(lightComponent.outerConeAngle * 2.0));
         this._cornerInner.copyComponents(this._corner);
         this.aspect = 1;
         this.zNear = 0.1;
