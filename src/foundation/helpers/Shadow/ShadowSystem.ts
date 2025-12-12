@@ -120,11 +120,11 @@ export class ShadowSystem {
         } = this.__gaussianBlur.createGaussianBlurExpression({
           textureToBlur: this.__pointShadowMap.getShadowMomentFramebuffer().getColorAttachedRenderTargetTexture(0)!,
           parameters: {
-            blurPassLevel: 4,
+            blurPassLevel: 3,
             gaussianKernelSize: 5,
             gaussianVariance: 5,
-            synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
-            isReduceBuffer: false,
+            synthesizeCoefficient: [1.0 / 4, 1.0 / 4, 1.0 / 4, 1.0 / 4, 1.0 / 4, 1.0 / 4],
+            isReduceBuffer: true,
             textureFormat: TextureFormat.RGBA16F,
             outputFrameBuffer: this.__pointShadowMapArrayFramebuffer,
             outputFrameBufferLayerIndex: pointDepthTextureCount,
@@ -150,11 +150,11 @@ export class ShadowSystem {
         } = this.__gaussianBlur.createGaussianBlurExpression({
           textureToBlur: this.__shadowMap.getShadowMomentFramebuffer().getColorAttachedRenderTargetTexture(0)!,
           parameters: {
-            blurPassLevel: 4,
+            blurPassLevel: 3,
             gaussianKernelSize: 5,
             gaussianVariance: 5,
-            synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
-            isReduceBuffer: false,
+            synthesizeCoefficient: [1.0 / 4, 1.0 / 4, 1.0 / 4, 1.0 / 4, 1.0 / 4, 1.0 / 4],
+            isReduceBuffer: true,
             textureFormat: TextureFormat.RG16F,
             outputFrameBuffer: this.__shadowMapArrayFramebuffer,
             outputFrameBufferLayerIndex: depthTextureCount,
