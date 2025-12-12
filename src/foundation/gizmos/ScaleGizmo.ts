@@ -24,7 +24,7 @@ import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
 import { assertExist } from '../misc/MiscUtil';
 import type { Engine } from '../system/Engine';
-import { getEvent, INPUT_HANDLING_STATE_GIZMO_SCALE, InputManager } from '../system/InputManager';
+import { INPUT_HANDLING_STATE_GIZMO_SCALE, InputManager, getEvent } from '../system/InputManager';
 import { Gizmo } from './Gizmo';
 
 declare let window: any;

@@ -15,7 +15,7 @@ fn chebyshevUpperBound(moments: vec2<f32>, t: f32) -> f32 {
 }
 
 fn varianceShadowContribution(lightTexCoord: vec2<f32>, distanceToLight: f32, depthTextureIndex: u32) -> f32 {
-  let moments = textureSample(depthTexture, depthSampler, lightTexCoord, depthTextureIndex).xy;
+  let moments = textureSampleLevel(depthTexture, depthSampler, lightTexCoord, depthTextureIndex, 0.0).xy;
 
   return chebyshevUpperBound(moments, distanceToLight);
 }
@@ -37,8 +37,8 @@ fn varianceShadowContributionParaboloid(worldPos: vec3<f32>, lightPos: vec3<f32>
   uv.y = 1.0 - uv.y;
 
   let storedMoments = select(
-      textureSample(paraboloidDepthTexture, paraboloidDepthSampler, uv, depthTextureIndex).ba,
-      textureSample(paraboloidDepthTexture, paraboloidDepthSampler, uv, depthTextureIndex).rg,
+      textureSampleLevel(paraboloidDepthTexture, paraboloidDepthSampler, uv, depthTextureIndex, 0.0).ba,
+      textureSampleLevel(paraboloidDepthTexture, paraboloidDepthSampler, uv, depthTextureIndex, 0.0).rg,
       isFront);
 
   let currentDepth = currentDist / farPlane;
