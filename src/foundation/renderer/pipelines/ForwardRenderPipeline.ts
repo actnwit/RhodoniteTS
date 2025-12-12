@@ -452,6 +452,27 @@ export class ForwardRenderPipeline extends RnObject {
   }
 
   /**
+   * Requests a refresh of the shadow map expressions on the next frame.
+   * This is useful when materials with shadow support have been changed or added
+   * (e.g., applying a shader with ClassicShader node).
+   *
+   * @remarks
+   * When a new material with shadow support is applied, this method should be called
+   * to ensure the shadow textures are properly set on the new material.
+   *
+   * @example
+   * ```typescript
+   * // After changing a material to one with shadow support
+   * pipeline.setNeedsShadowMapRefresh();
+   * ```
+   */
+  setNeedsShadowMapRefresh() {
+    if (this.__oShadowSystem.has()) {
+      this.__oShadowSystem.get().setNeedsRefresh();
+    }
+  }
+
+  /**
    * Resizes the rendering pipeline to match new canvas dimensions.
    *
    * @param width - New width of the rendering canvas

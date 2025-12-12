@@ -39,6 +39,7 @@ export class ShadowSystem {
   private __lastEntityCountForAutoFit = -1;
   private __lastAutoFitCenter = Vector3.fromCopy3(0, 0, 0);
   private __lastAutoFitRadius = 1;
+  private __needsRefresh = false;
 
   /**
    * Creates a new ShadowSystem instance with the specified shadow map resolution.
@@ -372,9 +373,15 @@ export class ShadowSystem {
   /**
    * Checks if the light configuration has changed since the last update.
    * Compares the current light types, enable states, and shadow casting states with cached values.
+   * Also returns true if a manual refresh was requested via setNeedsRefresh().
    * @returns True if any light has changed its type, enable state, or shadow casting state; false otherwise
    */
   public isLightChanged() {
+    if (this.__needsRefresh) {
+      this.__needsRefresh = false;
+      return true;
+    }
+
     const lightComponents = this.__engine.componentRepository.getComponentsWithType(LightComponent) as LightComponent[];
 
     if (this.__lightTypes.length !== lightComponents.length) {
@@ -392,5 +399,13 @@ export class ShadowSystem {
       }
     }
     return false;
+  }
+
+  /**
+   * Requests a refresh of shadow expressions on the next frame.
+   * This is useful when materials with shadow support have been changed or added.
+   */
+  public setNeedsRefresh() {
+    this.__needsRefresh = true;
   }
 }
