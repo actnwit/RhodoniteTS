@@ -25,7 +25,7 @@ fn classicShader(vertexColor: vec4<f32>, diffuseColorFactor: vec4<f32>, diffuseT
         specular += specColor * normalizationFactor * pow(max(0.0, dot(halfVector, normalInWorld)), shininess) * light.attenuatedIntensity;
       } else if (shadingModel == 3u) { // PHONG
         let viewDirection = normalize(viewPosition - positionInWorld.xyz);
-        let R = reflect(light.direction, normalInWorld);
+        let R = reflect(-light.direction, normalInWorld);
         let normalizationFactor = (shininess + 2.0) / (2.0 * M_PI);
         specular += specColor * normalizationFactor * pow(max(0.0, dot(R, viewDirection)), shininess) * light.attenuatedIntensity;
       } else {
