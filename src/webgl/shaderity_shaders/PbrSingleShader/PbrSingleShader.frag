@@ -349,6 +349,7 @@ void main ()
   vec3 dielectricF90 = vec3(specularWeight);
 
   // Iridescence
+  IridescenceProps iridescenceProps;
   #ifdef RN_USE_IRIDESCENCE
     float iridescenceFactor = get_iridescenceFactor(materialSID, 0u);
     vec2 iridescenceTextureTransformScale = get_iridescenceTextureTransformScale(materialSID, 0u);
@@ -359,6 +360,7 @@ void main ()
     vec2 iridescenceTexUv = uvTransform(iridescenceTextureTransformScale, iridescenceTextureTransformOffset, iridescenceTextureTransformRotation, iridescenceTexcoord);
     float iridescenceTexture = texture(u_iridescenceTexture, iridescenceTexUv).r;
     float iridescence = iridescenceFactor * iridescenceTexture;
+    iridescenceProps.iridescence = iridescence;
 
     vec2 iridescenceThicknessTextureTransformScale = get_iridescenceThicknessTextureTransformScale(materialSID, 0u);
     vec2 iridescenceThicknessTextureTransformOffset = get_iridescenceThicknessTextureTransformOffset(materialSID, 0u);
@@ -372,16 +374,16 @@ void main ()
     float iridescenceThickness = mix(iridescenceThicknessMinimum, iridescenceThicknessMaximum, thicknessRatio);
 
     float iridescenceIor = get_iridescenceIor(materialSID, 0u);
-    vec3 iridescenceFresnel_dielectric = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, dielectricF0);
-    vec3 iridescenceFresnel_metal = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, baseColor.rgb);
+    iridescenceProps.fresnelDielectric = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, dielectricF0);
+    iridescenceProps.fresnelMetal = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, baseColor.rgb);
 
     if (iridescenceThickness == 0.0) {
-      iridescence = 0.0;
+      iridescenceProps.iridescence = 0.0;
     }
   #else
-    float iridescence = 0.0;
-    vec3 iridescenceFresnel_dielectric = vec3(0.0);
-    vec3 iridescenceFresnel_metal = vec3(0.0);
+    iridescenceProps.iridescence = 0.0;
+    iridescenceProps.fresnelDielectric = vec3(0.0);
+    iridescenceProps.fresnelMetal = vec3(0.0);
   #endif // RN_USE_IRIDESCENCE
 
   ClearcoatProps clearcoatProps;
@@ -526,7 +528,7 @@ void main ()
                         clearcoatProps,
                         anisotropyProps,
                         sheenProps,
-                        iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, specularWeight,
+                        iridescenceProps, specularWeight,
                         diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness);
 
   #ifdef RN_USE_SHADOW_MAPPING
@@ -565,7 +567,7 @@ void main ()
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
     baseColor.rgb, perceptualRoughness, clearcoatProps, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, volumeProps.thickness,
     sheenProps,
-    ior, iridescenceFresnel_dielectric, iridescenceFresnel_metal, iridescence,
+    ior, iridescenceProps,
     anisotropyProps, specularWeight, dielectricF0, metallic,
     diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness);
 

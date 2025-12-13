@@ -227,7 +227,7 @@ vec3 getReflection(mat3 rotEnvMatrix, vec3 viewDirection, vec3 normal_inWorld, u
 vec3 IBLContribution(uint materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection,
   vec3 baseColor, float perceptualRoughness, ClearcoatProps clearcoatProps, vec3 geomNormal_inWorld, uint cameraSID, float transmission, vec3 v_position_inWorld,
   float thickness, SheenProps sheenProps, float ior,
-  vec3 iridescenceFresnel_dielectric, vec3 iridescenceFresnel_metal, float iridescence, AnisotropyProps anisotropyProps,
+  IridescenceProps iridescenceProps, AnisotropyProps anisotropyProps,
   float specularWeight, vec3 dielectricF0, float metallic, float diffuseTransmission, vec3 diffuseTransmissionColor, float diffuseTransmissionThickness)
 {
   vec4 iblParameter = get_iblParameter(materialSID, 0u);
@@ -268,8 +268,8 @@ vec3 IBLContribution(uint materialSID, vec3 normal_inWorld, float NdotV, vec3 vi
   vec3 dielectricContrib = mix(diffuse, specularDielectric, fresnelDielectric);
 
 #ifdef RN_USE_IRIDESCENCE
-  metalContrib = mix(metalContrib, specularMetal * iridescenceFresnel_metal, iridescence);
-  dielectricContrib = mix(dielectricContrib, rgb_mix(diffuse, specularDielectric, iridescenceFresnel_dielectric), iridescence);
+  metalContrib = mix(metalContrib, specularMetal * iridescenceProps.fresnelMetal, iridescenceProps.iridescence);
+  dielectricContrib = mix(dielectricContrib, rgb_mix(diffuse, specularDielectric, iridescenceProps.fresnelDielectric), iridescenceProps.iridescence);
 #endif
 
 #ifdef RN_USE_CLEARCOAT

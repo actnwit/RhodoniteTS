@@ -632,9 +632,7 @@ vec3 lightingWithPunctualLight(
   ClearcoatProps clearcoatProps,
   AnisotropyProps anisotropyProps,
   SheenProps sheenProps,
-  float iridescence,
-  vec3 iridescenceFresnel_dielectric,
-  vec3 iridescenceFresnel_metal,
+  IridescenceProps iridescenceProps,
   float specularWeight,
   float diffuseTransmission,
   vec3 diffuseTransmissionColor,
@@ -705,8 +703,8 @@ vec3 lightingWithPunctualLight(
   vec3 dielectric = mix(diffuseContrib, specularDielectricContrib, dielectricFresnel);
 
 #ifdef RN_USE_IRIDESCENCE
-  metal = mix(metal, specularMetalContrib * iridescenceFresnel_metal, iridescence);
-  dielectric = mix(dielectric, rgb_mix(diffuseContrib, specularDielectricContrib, iridescenceFresnel_dielectric), iridescence);
+  metal = mix(metal, specularMetalContrib * iridescenceProps.fresnelMetal, iridescenceProps.iridescence);
+  dielectric = mix(dielectric, rgb_mix(diffuseContrib, specularDielectricContrib, iridescenceProps.fresnelDielectric), iridescenceProps.iridescence);
 #endif // RN_USE_IRIDESCENCE
 
 #ifdef RN_USE_CLEARCOAT
