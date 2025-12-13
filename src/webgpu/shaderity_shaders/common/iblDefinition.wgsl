@@ -220,7 +220,7 @@ fn getIBLFresnelGGX(perceptualRoughness: f32, NdotV: f32, F0: vec3f, specularWei
 fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, NdotV: f32, viewDirection: vec3f,
   baseColor: vec3f, perceptualRoughness: f32,
   clearcoatRoughness: f32, clearcoatNormal_inWorld: vec3f, clearcoat: f32, clearcoatFresnel: vec3f, VdotNc: f32, geomNormal_inWorld: vec3f,
-  transmission: f32, position_inWorld: vec3f, instanceInfo: u32, thickness: f32, ior: f32,
+  transmission: f32, position_inWorld: vec3f, instanceInfo: u32, volumeProps: VolumeProps, ior: f32,
   sheenColor: vec3f, sheenRoughness: f32, albedoSheenScalingNdotV: f32,
   iridescenceFresnel_dielectric: vec3f, iridescenceFresnel_metal: vec3f, iridescence: f32,
   anisotropy: f32, anisotropyDirection: vec3f, specularWeight: f32, dielectricF0: vec3f, metallic: f32,
@@ -242,15 +242,13 @@ fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, Ndot
 #ifdef RN_USE_DIFFUSE_TRANSMISSION
   var diffuseTransmissionIBL: vec3f = getIBLIrradiance(-normal_forEnv, iblParameter, hdriFormat) * diffuseTransmissionColor;
 #ifdef RN_USE_VOLUME
-  diffuseTransmissionIBL = volumeAttenuation(attenuationColor, attenuationDistance, diffuseTransmissionIBL, diffuseTransmissionThickness);
+  diffuseTransmissionIBL = volumeAttenuation(volumeProps.attenuationColor, volumeProps.attenuationDistance, diffuseTransmissionIBL, diffuseTransmissionThickness);
 #endif
   diffuse = mix(diffuse, diffuseTransmissionIBL, diffuseTransmission);
 #endif
 
 #ifdef RN_USE_TRANSMISSION
-  let attenuationColor: vec3f = get_attenuationColor(materialSID, 0);
-  let attenuationDistance: f32 = get_attenuationDistance(materialSID, 0);
-  let specularTransmission: vec3f = getIBLVolumeRefraction(baseColor, normal_inWorld, viewDirection, cameraSID, materialSID, thickness, perceptualRoughness, ior, attenuationColor, attenuationDistance, position_inWorld, instanceInfo);
+  let specularTransmission: vec3f = getIBLVolumeRefraction(baseColor, normal_inWorld, viewDirection, cameraSID, materialSID, volumeProps.thickness, perceptualRoughness, ior, volumeProps.attenuationColor, volumeProps.attenuationDistance, position_inWorld, instanceInfo);
   diffuse = mix(diffuse, specularTransmission, transmission);
 #endif
 

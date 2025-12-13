@@ -417,7 +417,7 @@ let ior = get_ior(materialSID, 0);
   let clearcoatFresnel = vec3f(0.0);
 #endif // RN_USE_CLEARCOAT
 
-
+  var volumeProps: VolumeProps;
 #ifdef RN_USE_VOLUME
   // Volume
   let thicknessFactor: f32 = get_thicknessFactor(materialSID, 0);
@@ -431,10 +431,13 @@ let ior = get_ior(materialSID, 0);
   let attenuationDistance: f32 = get_attenuationDistance(materialSID, 0);
   let attenuationColor: vec3f = get_attenuationColor(materialSID, 0);
   let thickness: f32 = thicknessFactor * thicknessTexture;
+  volumeProps.thickness = thickness;
+  volumeProps.attenuationColor = attenuationColor;
+  volumeProps.attenuationDistance = attenuationDistance;
 #else
-  let thickness = 0.0;
-  let attenuationColor = vec3f(1.0);
-  let attenuationDistance = 1e20;
+  volumeProps.thickness = 0.0;
+  volumeProps.attenuationColor = vec3f(1.0);
+  volumeProps.attenuationDistance = 1e20;
 #endif // RN_USE_VOLUME
 
 #ifdef RN_USE_SHEEN
@@ -508,9 +511,8 @@ let ior = get_ior(materialSID, 0);
     var lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection,
                             NdotV, baseColor.rgb, perceptualRoughness, metallic,
                             specularWeight, dielectricF0, dielectricF90, ior,
-                            transmission, thickness,
+                            transmission, volumeProps,
                             clearcoat, clearcoatRoughness, clearcoatF0, clearcoatF90, clearcoatFresnel, clearcoatNormal_inWorld, VdotNc,
-                            attenuationColor, attenuationDistance,
                             anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
                             sheenColor, sheenRoughness, albedoSheenScalingNdotV,
                             iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, u32(input.instanceInfo),
@@ -559,7 +561,7 @@ let ior = get_ior(materialSID, 0);
   let ibl: vec3f = IBLContribution(materialSID, cameraSID, normal_inWorld, NdotV, viewDirection,
     baseColor.rgb, perceptualRoughness,
     clearcoatRoughness, clearcoatNormal_inWorld, clearcoat, clearcoatFresnel, VdotNc, geomNormal_inWorld,
-    transmission, input.position_inWorld.xyz, u32(input.instanceInfo), thickness, ior,
+    transmission, input.position_inWorld.xyz, u32(input.instanceInfo), volumeProps, ior,
     sheenColor, sheenRoughness, albedoSheenScalingNdotV,
     iridescenceFresnel_dielectric, iridescenceFresnel_metal, iridescence,
     anisotropy, anisotropicB, specularWeight, dielectricF0, metallic,

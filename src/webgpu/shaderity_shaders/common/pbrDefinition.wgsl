@@ -518,7 +518,7 @@ fn lightingWithPunctualLight(
   dielectricF90: vec3f,
   ior: f32,
   transmission: f32,
-  thickness: f32,
+  volumeProps: VolumeProps,
   clearcoat: f32,
   clearcoatRoughness: f32,
   clearcoatF0: vec3f,
@@ -526,8 +526,6 @@ fn lightingWithPunctualLight(
   clearcoatFresnel: vec3f,
   clearcoatNormal_inWorld: vec3f,
   VdotNc: f32,
-  attenuationColor: vec3f,
-  attenuationDistance: f32,
   anisotropy: f32,
   anisotropicT: vec3f,
   anisotropicB: vec3f,
@@ -569,20 +567,20 @@ fn lightingWithPunctualLight(
     let diffuseVdotH = saturate(dot(viewDirection, normalize(mirrorL + viewDirection)));
     dielectricFresnel = fresnelSchlick(dielectricF0 * specularWeight, dielectricF90, abs(diffuseVdotH));
 #ifdef RN_USE_VOLUME
-    diffuseBtdf = volumeAttenuation(attenuationColor, attenuationDistance, diffuseBtdf, diffuseTransmissionThickness);
+    diffuseBtdf = volumeAttenuation(volumeProps.attenuationColor, volumeProps.attenuationDistance, diffuseBtdf, diffuseTransmissionThickness);
 #endif // RN_USE_VOLUME
     diffuseContrib += diffuseBtdf * diffuseTransmission;
   }
 #endif // RN_USE_DIFFUSE_TRANSMISSION
 
 #ifdef RN_USE_TRANSMISSION
-  let transmittionRay = getVolumeTransmissionRay(normal_inWorld, viewDirection, thickness, ior, instanceInfo);
+  let transmittionRay = getVolumeTransmissionRay(normal_inWorld, viewDirection, volumeProps.thickness, ior, instanceInfo);
   light.pointToLight -= transmittionRay;
   light.direction = normalize(light.pointToLight);
   var transmittedContrib = calculateRadianceTransmission(normal_inWorld, viewDirection, light.direction, alphaRoughness, baseColor, ior) * light.attenuatedIntensity;
 
 #ifdef RN_USE_VOLUME
-  transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmittionRay));
+  transmittedContrib = volumeAttenuation(volumeProps.attenuationColor, volumeProps.attenuationDistance, transmittedContrib, length(transmittionRay));
 #endif // RN_USE_VOLUME
 
   diffuseContrib = mix(diffuseContrib, vec3f(transmittedContrib), transmission);
