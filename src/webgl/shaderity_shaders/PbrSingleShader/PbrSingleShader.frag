@@ -427,6 +427,7 @@ void main ()
     vec3 clearcoatFresnel = vec3(0.0);
   #endif // RN_USE_CLEARCOAT
 
+  VolumeProps volumeProps;
   #ifdef RN_USE_VOLUME
     // Volume
     float thicknessFactor = get_thicknessFactor(materialSID, 0u);
@@ -437,13 +438,13 @@ void main ()
     vec2 thicknessTexcoord = getTexcoord(thicknessTexcoordIndex);
     vec2 thicknessTexUv = uvTransform(thicknessTextureTransformScale, thicknessTextureTransformOffset, thicknessTextureTransformRotation, thicknessTexcoord);
     float thicknessTexture = texture(u_thicknessTexture, thicknessTexUv).g;
-    float attenuationDistance = get_attenuationDistance(materialSID, 0u);
-    vec3 attenuationColor = get_attenuationColor(materialSID, 0u);
-    float thickness = thicknessFactor * thicknessTexture;
+    volumeProps.attenuationDistance = get_attenuationDistance(materialSID, 0u);
+    volumeProps.attenuationColor = get_attenuationColor(materialSID, 0u);
+    volumeProps.thickness = thicknessFactor * thicknessTexture;
   #else
-    float thickness = 0.0;
-    vec3 attenuationColor = vec3(0.0);
-    float attenuationDistance = 0.000001;
+    volumeProps.thickness = 0.0;
+    volumeProps.attenuationColor = vec3(0.0);
+    volumeProps.attenuationDistance = 0.000001;
   #endif // RN_USE_VOLUME
 
   #ifdef RN_USE_SHEEN
@@ -517,9 +518,8 @@ void main ()
       continue;
     }
     vec3 lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection, NdotV, baseColor.rgb,
-                        perceptualRoughness, metallic, dielectricF0, dielectricF90, ior, transmission, thickness,
+                        perceptualRoughness, metallic, dielectricF0, dielectricF90, ior, transmission, volumeProps,
                         clearcoat, clearcoatRoughness, clearcoatF0, clearcoatF90, clearcoatFresnel, clearcoatNormal_inWorld, VdotNc,
-                        attenuationColor, attenuationDistance,
                         anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
                         sheenColor, sheenRoughness, albedoSheenScalingNdotV,
                         iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, specularWeight,
@@ -560,7 +560,7 @@ void main ()
   // Image-based Lighting
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
     baseColor.rgb, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,
-    clearcoat, clearcoatFresnel, VdotNc, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, thickness,
+    clearcoat, clearcoatFresnel, VdotNc, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, volumeProps.thickness,
     sheenColor, sheenRoughness, albedoSheenScalingNdotV,
     ior, iridescenceFresnel_dielectric, iridescenceFresnel_metal, iridescence,
     anisotropy, anisotropicB, specularWeight, dielectricF0, metallic,

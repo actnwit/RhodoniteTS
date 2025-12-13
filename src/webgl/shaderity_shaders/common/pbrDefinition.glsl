@@ -554,8 +554,64 @@ vec3 rgb_mix(vec3 base, vec3 specular_brdf, vec3 rgb_alpha)
 #endif // RN_USE_IRIDESCENCE
 
 
+struct ClearcoatProps
+{
+  float clearcoat;
+  float clearcoatRoughness;
+  vec3 clearcoatF0;
+  vec3 clearcoatF90;
+  vec3 clearcoatFresnel;
+  vec3 clearcoatNormal_inWorld;
+  float VdotNc;
+};
 
+struct SheenProps
+{
+  vec3 sheenColor;
+  float sheenRoughness;
+  float albedoSheenScalingNdotV;
+};
 
+struct IridescenceProps
+{
+  float iridescence;
+  vec3 fresnelDielectric;
+  vec3 fresnelMetal;
+};
+
+struct TransmissionProps
+{
+  float transmission;
+};
+
+struct AnisotropyProps
+{
+  float anisotropy;
+  vec3 anisotropicT;
+  vec3 anisotropicB;
+  float BdotV;
+  float TdotV;
+};
+
+struct VolumeProps
+{
+  vec3 attenuationColor;
+  float attenuationDistance;
+  float thickness;
+};
+
+struct DiffuseTransmissionProps
+{
+  float diffuseTransmission;
+  vec3 diffuseTransmissionColor;
+  float diffuseTransmissionThickness;
+};
+
+struct SpecularProps
+{
+  float specularWeight;
+  vec3 specularColor;
+};
 
 ////////////////////////////////////////
 // lighting with a punctual light
@@ -572,7 +628,7 @@ vec3 lightingWithPunctualLight(
   vec3 dielectricF90,
   float ior,
   float transmission,
-  float thickness,
+  VolumeProps volumeProps,
   float clearcoat,
   float clearcoatRoughness,
   vec3 clearcoatF0,
@@ -580,8 +636,6 @@ vec3 lightingWithPunctualLight(
   vec3 clearcoatFresnel,
   vec3 clearcoatNormal_inWorld,
   float VdotNc,
-  vec3 attenuationColor,
-  float attenuationDistance,
   float anisotropy,
   vec3 anisotropicT,
   vec3 anisotropicB,
@@ -622,7 +676,7 @@ vec3 lightingWithPunctualLight(
     float diffuseVdotH = saturate(dot(viewDirection, normalize(mirrorL + viewDirection)));
     dielectricFresnel = fresnelSchlick(dielectricF0 * specularWeight, dielectricF90, abs(diffuseVdotH));
 #ifdef RN_USE_VOLUME
-    diffuseBtdf = volumeAttenuation(attenuationColor, attenuationDistance, diffuseBtdf, diffuseTransmissionThickness);
+    diffuseBtdf = volumeAttenuation(volumeProps.attenuationColor, volumeProps.attenuationDistance, diffuseBtdf, diffuseTransmissionThickness);
 #endif // RN_USE_VOLUME
     diffuseContrib += diffuseBtdf * diffuseTransmission;
   }
@@ -630,13 +684,13 @@ vec3 lightingWithPunctualLight(
 
 
 #ifdef RN_USE_TRANSMISSION
-  vec3 transmittionRay = getVolumeTransmissionRay(normal_inWorld, viewDirection, thickness, ior);
+  vec3 transmittionRay = getVolumeTransmissionRay(normal_inWorld, viewDirection, volumeProps.thickness, ior);
   light.pointToLight -= transmittionRay;
   light.direction = normalize(light.pointToLight);
   vec3 transmittedContrib = calculateRadianceTransmission(normal_inWorld, viewDirection, light.direction, alphaRoughness, baseColor, ior) * light.attenuatedIntensity;
 
 #ifdef RN_USE_VOLUME
-  transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmittionRay));
+  transmittedContrib = volumeAttenuation(volumeProps.attenuationColor, volumeProps.attenuationDistance, transmittedContrib, length(transmittionRay));
 #endif // RN_USE_VOLUME
 
   diffuseContrib = mix(diffuseContrib, vec3(transmittedContrib), transmission);
