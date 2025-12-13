@@ -320,6 +320,7 @@ void main ()
     float transmission = 0.0;
   #endif // RN_USE_TRANSMISSION
 
+  SpecularProps specularProps;
   #ifdef RN_USE_SPECULAR
     vec2 specularTextureTransformScale = get_specularTextureTransformScale(materialSID, 0u);
     vec2 specularTextureTransformOffset = get_specularTextureTransformOffset(materialSID, 0u);
@@ -337,16 +338,18 @@ void main ()
     vec2 specularColorTexUv = uvTransform(specularColorTextureTransformScale, specularColorTextureTransformOffset, specularColorTextureTransformRotation, specularColorTexcoord);
     vec3 specularColorTexture = srgbToLinear(texture(u_specularColorTexture, specularColorTexUv).rgb);
     vec3 specularColor = get_specularColorFactor(materialSID, 0u) * specularColorTexture;
+    specularProps.specularWeight = specularWeight;
+    specularProps.specularColor = specularColor;
   #else
-    float specularWeight = 1.0;
-    vec3 specularColor = vec3(1.0, 1.0, 1.0);
+    specularProps.specularWeight = 1.0;
+    specularProps.specularColor = vec3(1.0, 1.0, 1.0);
   #endif // RN_USE_SPECULAR
 
   // F0, F90
   float outsideIor = 1.0;
   vec3 dielectricF0 = vec3(sq((ior - outsideIor) / (ior + outsideIor)));
-  dielectricF0 = min(dielectricF0 * specularColor, vec3(1.0));
-  vec3 dielectricF90 = vec3(specularWeight);
+  dielectricF0 = min(dielectricF0 * specularProps.specularColor, vec3(1.0));
+  vec3 dielectricF90 = vec3(specularProps.specularWeight);
 
   // Iridescence
   IridescenceProps iridescenceProps;
@@ -533,7 +536,7 @@ void main ()
     }
     vec3 lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection, NdotV, baseColor.rgb,
                         perceptualRoughness, metallic,
-                        specularWeight, dielectricF0, dielectricF90, ior,
+                        specularProps.specularWeight, dielectricF0, dielectricF90, ior,
                         transmission,
                         volumeProps,
                         clearcoatProps,
@@ -577,7 +580,7 @@ void main ()
   // Image-based Lighting
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection, geomNormal_inWorld, cameraSID, v_position_inWorld.xyz,
     baseColor.rgb, perceptualRoughness, metallic,
-    specularWeight, dielectricF0, ior,
+    specularProps.specularWeight, dielectricF0, ior,
     clearcoatProps,
     transmission,
     volumeProps,
