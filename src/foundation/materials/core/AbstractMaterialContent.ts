@@ -28,6 +28,7 @@ import { MutableVector2 } from '../../math/MutableVector2';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { Vector3 } from '../../math/Vector3';
 import type { Accessor } from '../../memory/Accessor';
+import { Logger } from '../../misc/Logger';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import type { Engine } from '../../system/Engine';
 import { EngineState } from '../../system/EngineState';
@@ -333,6 +334,11 @@ export abstract class AbstractMaterialContent extends RnObject {
               newTextureSlotIndex = i;
               break;
             }
+          }
+          if (newTextureSlotIndex === -1) {
+            Logger.default.warn(
+              `All texture slots (1-31) are occupied. Cannot assign a valid slot for semantic "${info.semantic}". This may cause rendering issues.`
+            );
           }
           info.initialValue[0] = newTextureSlotIndex;
           existingTextureSlotIndices.add(newTextureSlotIndex);
