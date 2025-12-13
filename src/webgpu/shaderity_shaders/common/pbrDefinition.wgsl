@@ -520,11 +520,7 @@ fn lightingWithPunctualLight(
   transmission: f32,
   volumeProps: VolumeProps,
   clearcoatProps: ClearcoatProps,
-  anisotropy: f32,
-  anisotropicT: vec3f,
-  anisotropicB: vec3f,
-  BdotV: f32,
-  TdotV: f32,
+  anisotropyProps: AnisotropyProps,
   sheenColor: vec3f,
   sheenRoughness: f32,
   albedoSheenScalingNdotV: f32,
@@ -584,11 +580,11 @@ fn lightingWithPunctualLight(
   let NdotH = saturate(dot(normal_inWorld, halfVector));
 
 #ifdef RN_USE_ANISOTROPY
-  let TdotL = dot(anisotropicT, light.direction);
-  let BdotL = dot(anisotropicB, light.direction);
-  let TdotH = dot(anisotropicT, halfVector);
-  let BdotH = dot(anisotropicB, halfVector);
-  let specularMetalContrib = BRDF_specularAnisotropicGGX(alphaRoughness, VdotH, NdotL, NdotV, NdotH, BdotV, TdotV, TdotL, BdotL, TdotH, BdotH, anisotropy) * vec3f(NdotL) * light.attenuatedIntensity;
+  let TdotL = dot(anisotropyProps.anisotropicT, light.direction);
+  let BdotL = dot(anisotropyProps.anisotropicB, light.direction);
+  let TdotH = dot(anisotropyProps.anisotropicT, halfVector);
+  let BdotH = dot(anisotropyProps.anisotropicB, halfVector);
+  let specularMetalContrib = BRDF_specularAnisotropicGGX(alphaRoughness, VdotH, NdotL, NdotV, NdotH, anisotropyProps.BdotV, anisotropyProps.TdotV, TdotL, BdotL, TdotH, BdotH, anisotropyProps.anisotropy) * vec3f(NdotL) * light.attenuatedIntensity;
   let specularDielectricContrib = specularMetalContrib;
 #else
   let specularMetalContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, alphaRoughness) * vec3f(NdotL) * light.attenuatedIntensity;

@@ -267,6 +267,7 @@ fn main(
   // NdotV
   let NdotV = saturate(dot(normal_inWorld, viewDirection));
 
+  var anisotropyProps: AnisotropyProps;
 #ifdef RN_USE_ANISOTROPY
   // Anisotropy
   var anisotropy: f32 = get_anisotropyStrength(materialSID, 0);
@@ -286,12 +287,17 @@ fn main(
   let anisotropicB: vec3f = normalize(cross(geomNormal_inWorld, anisotropicT));
   let BdotV: f32 = dot(anisotropicB, viewDirection);
   let TdotV: f32 = dot(anisotropicT, viewDirection);
+  anisotropyProps.anisotropy = anisotropy;
+  anisotropyProps.anisotropicT = anisotropicT;
+  anisotropyProps.anisotropicB = anisotropicB;
+  anisotropyProps.BdotV = BdotV;
+  anisotropyProps.TdotV = TdotV;
 #else
-  let anisotropy = 0.0;
-  let anisotropicT = vec3f(0.0, 0.0, 0.0);
-  let anisotropicB = vec3f(0.0, 0.0, 0.0);
-  let BdotV = 0.0;
-  let TdotV = 0.0;
+  anisotropyProps.anisotropy = 0.0;
+  anisotropyProps.anisotropicT = vec3f(0.0, 0.0, 0.0);
+  anisotropyProps.anisotropicB = vec3f(0.0, 0.0, 0.0);
+  anisotropyProps.BdotV = 0.0;
+  anisotropyProps.TdotV = 0.0;
 #endif
 
 let ior = get_ior(materialSID, 0);
@@ -521,7 +527,7 @@ let ior = get_ior(materialSID, 0);
                             specularWeight, dielectricF0, dielectricF90, ior,
                             transmission, volumeProps,
                             clearcoatProps,
-                            anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
+                            anisotropyProps,
                             sheenColor, sheenRoughness, albedoSheenScalingNdotV,
                             iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, u32(input.instanceInfo),
                             diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness
@@ -572,7 +578,7 @@ let ior = get_ior(materialSID, 0);
     transmission, input.position_inWorld.xyz, u32(input.instanceInfo), volumeProps, ior,
     sheenColor, sheenRoughness, albedoSheenScalingNdotV,
     iridescenceFresnel_dielectric, iridescenceFresnel_metal, iridescence,
-    anisotropy, anisotropicB, specularWeight, dielectricF0, metallic,
+    anisotropyProps, specularWeight, dielectricF0, metallic,
     diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness
   );
 
