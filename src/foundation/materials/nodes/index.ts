@@ -40,3 +40,4 @@ export * from './UniformDataShaderNode';
 export * from './ViewMatrixShaderNode';
 export * from './WireframeMaterialNode';
 export * from './WorldMatrixShaderNode';
+export * from './PbrShaderNode';

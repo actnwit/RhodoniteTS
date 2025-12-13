@@ -271,10 +271,6 @@ void main ()
   float filteredRoughness2 = IsotropicNDFFiltering(normal_inWorld, alphaRoughness2);
   perceptualRoughness = sqrt(sqrt(filteredRoughness2));
 
-  // Albedo
-  vec3 black = vec3(0.0);
-  vec3 albedo = mix(baseColor.rgb, black, metallic);
-
   // NdotV
   float NdotV = saturate(dot(normal_inWorld, viewDirection));
 

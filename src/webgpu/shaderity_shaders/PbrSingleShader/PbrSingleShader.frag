@@ -264,10 +264,6 @@ fn main(
   let filteredRoughness2 = IsotropicNDFFiltering(normal_inWorld, alphaRoughness2);
   perceptualRoughness = sqrt(sqrt(filteredRoughness2));
 
-  // Albedo
-  let black = vec3f(0.0);
-  let albedo = mix(baseColor.rgb, black, metallic);
-
   // NdotV
   let NdotV = saturate(dot(normal_inWorld, viewDirection));
 
