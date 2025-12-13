@@ -624,6 +624,7 @@ vec3 lightingWithPunctualLight(
   vec3 baseColor,
   float perceptualRoughness,
   float metallic,
+  float specularWeight,
   vec3 dielectricF0,
   vec3 dielectricF90,
   float ior,
@@ -633,7 +634,6 @@ vec3 lightingWithPunctualLight(
   AnisotropyProps anisotropyProps,
   SheenProps sheenProps,
   IridescenceProps iridescenceProps,
-  float specularWeight,
   DiffuseTransmissionProps diffuseTransmissionProps
   )
 {

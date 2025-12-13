@@ -532,11 +532,14 @@ void main ()
       continue;
     }
     vec3 lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection, NdotV, baseColor.rgb,
-                        perceptualRoughness, metallic, dielectricF0, dielectricF90, ior, transmission, volumeProps,
+                        perceptualRoughness, metallic,
+                        specularWeight, dielectricF0, dielectricF90, ior,
+                        transmission,
+                        volumeProps,
                         clearcoatProps,
                         anisotropyProps,
                         sheenProps,
-                        iridescenceProps, specularWeight,
+                        iridescenceProps,
                         diffuseTransmissionProps);
 
   #ifdef RN_USE_SHADOW_MAPPING
@@ -572,12 +575,17 @@ void main ()
   }
 
   // Image-based Lighting
-  vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
-    baseColor.rgb, perceptualRoughness, clearcoatProps, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, volumeProps,
+  vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection, geomNormal_inWorld, cameraSID, v_position_inWorld.xyz,
+    baseColor.rgb, perceptualRoughness, metallic,
+    specularWeight, dielectricF0, ior,
+    clearcoatProps,
+    transmission,
+    volumeProps,
     sheenProps,
-    ior, iridescenceProps,
-    anisotropyProps, specularWeight, dielectricF0, metallic,
-    diffuseTransmissionProps, dispersion);
+    iridescenceProps,
+    anisotropyProps,
+    diffuseTransmissionProps,
+    dispersion);
 
   #ifdef RN_USE_OCCLUSION_TEXTURE
     int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0u);

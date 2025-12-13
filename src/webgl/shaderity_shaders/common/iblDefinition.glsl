@@ -223,11 +223,17 @@ vec3 getReflection(mat3 rotEnvMatrix, vec3 viewDirection, vec3 normal_inWorld, u
   return reflection;
 }
 
-vec3 IBLContribution(uint materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection,
-  vec3 baseColor, float perceptualRoughness, ClearcoatProps clearcoatProps, vec3 geomNormal_inWorld, uint cameraSID, float transmission, vec3 v_position_inWorld,
-  VolumeProps volumeProps, SheenProps sheenProps, float ior,
-  IridescenceProps iridescenceProps, AnisotropyProps anisotropyProps,
-  float specularWeight, vec3 dielectricF0, float metallic, DiffuseTransmissionProps diffuseTransmissionProps, float dispersion)
+vec3 IBLContribution(uint materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection, vec3 geomNormal_inWorld, uint cameraSID, vec3 v_position_inWorld,
+  vec3 baseColor, float perceptualRoughness, float metallic,
+  float specularWeight, vec3 dielectricF0, float ior,
+  ClearcoatProps clearcoatProps,
+  float transmission,
+  VolumeProps volumeProps,
+  SheenProps sheenProps,
+  IridescenceProps iridescenceProps,
+  AnisotropyProps anisotropyProps,
+  DiffuseTransmissionProps diffuseTransmissionProps,
+  float dispersion)
 {
   vec4 iblParameter = get_iblParameter(materialSID, 0u);
   float rot = iblParameter.w;
