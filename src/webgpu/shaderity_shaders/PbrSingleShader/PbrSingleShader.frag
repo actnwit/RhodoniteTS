@@ -506,13 +506,14 @@ let ior = get_ior(materialSID, 0);
   for (var i = 0u; i < lightNumber; i++) {
     let light: Light = getLight(i, input.position_inWorld.xyz);
     var lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection,
-                            NdotV, baseColor.rgb, perceptualRoughness, metallic, dielectricF0, dielectricF90,
-                            transmission, thickness, ior,
+                            NdotV, baseColor.rgb, perceptualRoughness, metallic,
+                            specularWeight, dielectricF0, dielectricF90, ior,
+                            transmission, thickness,
                             clearcoat, clearcoatRoughness, clearcoatF0, clearcoatF90, clearcoatFresnel, clearcoatNormal_inWorld, VdotNc,
                             attenuationColor, attenuationDistance,
                             anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
                             sheenColor, sheenRoughness, albedoSheenScalingNdotV,
-                            iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, specularWeight, u32(input.instanceInfo),
+                            iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, u32(input.instanceInfo),
                             diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness
                             );
 

@@ -443,6 +443,65 @@ fn rgb_mix(base: vec3f, specular_brdf: vec3f, rgb_alpha: vec3f) -> vec3f
 #endif // RN_USE_IRIDESCENCE
 
 
+struct ClearcoatProps
+{
+  clearcoat: f32,
+  clearcoatRoughness: f32,
+  clearcoatF0: vec3f,
+  clearcoatF90: vec3f,
+  clearcoatFresnel: vec3f,
+  clearcoatNormal_inWorld: vec3f,
+  VdotNc: f32,
+};
+
+struct SheenProps
+{
+  sheenColor: vec3f,
+  sheenRoughness: f32,
+  albedoSheenScalingNdotV: f32,
+};
+
+struct IridescenceProps
+{
+  iridescence: f32,
+  fresnelDielectric: vec3f,
+  fresnelMetal: vec3f,
+};
+
+struct TransmissionProps
+{
+  transmission: f32,
+};
+
+struct AnisotropyProps
+{
+  anisotropy: f32,
+  anisotropicT: vec3f,
+  anisotropicB: vec3f,
+  BdotV: f32,
+  TdotV: f32,
+};
+
+struct VolumeProps
+{
+  attenuationColor: vec3f,
+  attenuationDistance: f32,
+  thickness: f32,
+};
+
+struct DiffuseTransmissionProps
+{
+  diffuseTransmission: f32,
+  diffuseTransmissionColor: vec3f,
+  diffuseTransmissionThickness: f32,
+};
+
+struct SpecularProps
+{
+  specularWeight: f32,
+  specularColor: vec3f,
+};
+
 ////////////////////////////////////////
 // lighting with a punctual light
 ////////////////////////////////////////
@@ -454,11 +513,12 @@ fn lightingWithPunctualLight(
   baseColor: vec3f,
   perceptualRoughness: f32,
   metallic: f32,
+  specularWeight: f32,
   dielectricF0: vec3f,
   dielectricF90: vec3f,
+  ior: f32,
   transmission: f32,
   thickness: f32,
-  ior: f32,
   clearcoat: f32,
   clearcoatRoughness: f32,
   clearcoatF0: vec3f,
@@ -479,7 +539,6 @@ fn lightingWithPunctualLight(
   iridescence: f32,
   iridescenceFresnel_dielectric: vec3f,
   iridescenceFresnel_metal: vec3f,
-  specularWeight: f32,
   instanceInfo: u32,
   diffuseTransmission: f32,
   diffuseTransmissionColor: vec3f,
