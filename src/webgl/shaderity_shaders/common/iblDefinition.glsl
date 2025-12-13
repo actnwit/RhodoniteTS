@@ -225,8 +225,7 @@ vec3 getReflection(mat3 rotEnvMatrix, vec3 viewDirection, vec3 normal_inWorld, u
 }
 
 vec3 IBLContribution(uint materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection,
-  vec3 baseColor, float perceptualRoughness, float clearcoatRoughness, vec3 clearcoatNormal_inWorld,
-  float clearcoat, vec3 clearcoatFresnel, float VdotNc, vec3 geomNormal_inWorld, uint cameraSID, float transmission, vec3 v_position_inWorld,
+  vec3 baseColor, float perceptualRoughness, ClearcoatProps clearcoatProps, vec3 geomNormal_inWorld, uint cameraSID, float transmission, vec3 v_position_inWorld,
   float thickness, vec3 sheenColor, float sheenRoughness, float albedoSheenScalingNdotV, float ior,
   vec3 iridescenceFresnel_dielectric, vec3 iridescenceFresnel_metal, float iridescence, float anisotropy, vec3 anisotropyDirection,
   float specularWeight, vec3 dielectricF0, float metallic, float diffuseTransmission, vec3 diffuseTransmissionColor, float diffuseTransmissionThickness)
@@ -274,8 +273,8 @@ vec3 IBLContribution(uint materialSID, vec3 normal_inWorld, float NdotV, vec3 vi
 #endif
 
 #ifdef RN_USE_CLEARCOAT
-  vec3 clearcoatReflection = getReflection(rotEnvMatrix, viewDirection, clearcoatNormal_inWorld, materialSID, clearcoatRoughness, 0.0, vec3(0.0));
-  vec3 clearcoatContrib = getIBLRadianceGGX(clearcoatRoughness, iblParameter, hdriFormat, clearcoatReflection);
+  vec3 clearcoatReflection = getReflection(rotEnvMatrix, viewDirection, clearcoatProps.clearcoatNormal_inWorld, materialSID, clearcoatProps.clearcoatRoughness, 0.0, vec3(0.0));
+  vec3 clearcoatContrib = getIBLRadianceGGX(clearcoatProps.clearcoatRoughness, iblParameter, hdriFormat, clearcoatReflection);
 #else
   vec3 clearcoatContrib = vec3(0.0);
 #endif
@@ -290,7 +289,7 @@ vec3 IBLContribution(uint materialSID, vec3 normal_inWorld, float NdotV, vec3 vi
 
   vec3 color = mix(dielectricContrib, metalContrib, metallic);
   color = sheenContrib + color * albedoSheenScaling;
-  color = mix(color, clearcoatContrib, clearcoat * clearcoatFresnel);
+  color = mix(color, clearcoatContrib, clearcoatProps.clearcoat * clearcoatProps.clearcoatFresnel);
 
   return color;
 }
