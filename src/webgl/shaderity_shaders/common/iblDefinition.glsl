@@ -226,7 +226,7 @@ vec3 getReflection(mat3 rotEnvMatrix, vec3 viewDirection, vec3 normal_inWorld, u
 
 vec3 IBLContribution(uint materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection,
   vec3 baseColor, float perceptualRoughness, ClearcoatProps clearcoatProps, vec3 geomNormal_inWorld, uint cameraSID, float transmission, vec3 v_position_inWorld,
-  float thickness, vec3 sheenColor, float sheenRoughness, float albedoSheenScalingNdotV, float ior,
+  float thickness, SheenProps sheenProps, float ior,
   vec3 iridescenceFresnel_dielectric, vec3 iridescenceFresnel_metal, float iridescence, AnisotropyProps anisotropyProps,
   float specularWeight, vec3 dielectricF0, float metallic, float diffuseTransmission, vec3 diffuseTransmissionColor, float diffuseTransmissionThickness)
 {
@@ -280,8 +280,8 @@ vec3 IBLContribution(uint materialSID, vec3 normal_inWorld, float NdotV, vec3 vi
 #endif
 
 #ifdef RN_USE_SHEEN
-  vec3 sheenContrib = sheenIBL(NdotV, sheenRoughness, sheenColor, iblParameter, reflection, hdriFormat);
-  float albedoSheenScaling = albedoSheenScalingNdotV;
+  vec3 sheenContrib = sheenIBL(NdotV, sheenProps.sheenRoughness, sheenProps.sheenColor, iblParameter, reflection, hdriFormat);
+  float albedoSheenScaling = sheenProps.albedoSheenScalingNdotV;
 #else
   vec3 sheenContrib = vec3(0.0);
   float albedoSheenScaling = 1.0;

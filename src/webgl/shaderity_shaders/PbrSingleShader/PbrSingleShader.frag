@@ -450,6 +450,7 @@ void main ()
     volumeProps.attenuationDistance = 0.000001;
   #endif // RN_USE_VOLUME
 
+  SheenProps sheenProps;
   #ifdef RN_USE_SHEEN
     // Sheen
     vec3 sheenColorFactor = get_sheenColorFactor(materialSID, 0u);
@@ -470,13 +471,13 @@ void main ()
     vec2 sheenRoughnessTexUv = uvTransform(sheenRoughnessTextureTransformScale, sheenRoughnessTextureTransformOffset, sheenRoughnessTextureTransformRotation, sheenRoughnessTexcoord);
     float sheenRoughnessTexture = texture(u_sheenRoughnessTexture, sheenRoughnessTexUv).a;
 
-    vec3 sheenColor = sheenColorFactor * sheenColorTexture;
-    float sheenRoughness = clamp(sheenRoughnessFactor * sheenRoughnessTexture, 0.000001, 1.0);
-    float albedoSheenScalingNdotV = 1.0 - max3(sheenColor) * texture(u_sheenLutTexture, vec2(NdotV, sheenRoughness)).r;
+    sheenProps.sheenColor = sheenColorFactor * sheenColorTexture;
+    sheenProps.sheenRoughness = clamp(sheenRoughnessFactor * sheenRoughnessTexture, 0.000001, 1.0);
+    sheenProps.albedoSheenScalingNdotV = 1.0 - max3(sheenProps.sheenColor) * texture(u_sheenLutTexture, vec2(NdotV, sheenProps.sheenRoughness)).r;
   #else
-    vec3 sheenColor = vec3(0.0);
-    float sheenRoughness = 0.000001;
-    float albedoSheenScalingNdotV = 1.0;
+    sheenProps.sheenColor = vec3(0.0);
+    sheenProps.sheenRoughness = 0.000001;
+    sheenProps.albedoSheenScalingNdotV = 1.0;
   #endif // RN_USE_SHEEN
 
   #ifdef RN_USE_DIFFUSE_TRANSMISSION
@@ -524,7 +525,7 @@ void main ()
                         perceptualRoughness, metallic, dielectricF0, dielectricF90, ior, transmission, volumeProps,
                         clearcoatProps,
                         anisotropyProps,
-                        sheenColor, sheenRoughness, albedoSheenScalingNdotV,
+                        sheenProps,
                         iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, specularWeight,
                         diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness);
 
@@ -563,7 +564,7 @@ void main ()
   // Image-based Lighting
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
     baseColor.rgb, perceptualRoughness, clearcoatProps, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, volumeProps.thickness,
-    sheenColor, sheenRoughness, albedoSheenScalingNdotV,
+    sheenProps,
     ior, iridescenceFresnel_dielectric, iridescenceFresnel_metal, iridescence,
     anisotropyProps, specularWeight, dielectricF0, metallic,
     diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness);

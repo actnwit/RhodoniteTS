@@ -631,9 +631,7 @@ vec3 lightingWithPunctualLight(
   VolumeProps volumeProps,
   ClearcoatProps clearcoatProps,
   AnisotropyProps anisotropyProps,
-  vec3 sheenColor,
-  float sheenRoughness,
-  float albedoSheenScalingNdotV,
+  SheenProps sheenProps,
   float iridescence,
   vec3 iridescenceFresnel_dielectric,
   vec3 iridescenceFresnel_metal,
@@ -722,10 +720,10 @@ vec3 lightingWithPunctualLight(
 
 #ifdef RN_USE_SHEEN
   // Sheen
-  vec3 sheenContrib = BRDF_specularSheen(sheenColor, sheenRoughness, NdotL, NdotV, NdotH) * NdotL * light.attenuatedIntensity;
+  vec3 sheenContrib = BRDF_specularSheen(sheenProps.sheenColor, sheenProps.sheenRoughness, NdotL, NdotV, NdotH) * NdotL * light.attenuatedIntensity;
   float albedoSheenScaling = min(
-    albedoSheenScalingNdotV,
-    1.0 - max3(sheenColor) * texture(u_sheenLutTexture, vec2(NdotL, sheenRoughness)).r);
+    sheenProps.albedoSheenScalingNdotV,
+    1.0 - max3(sheenProps.sheenColor) * texture(u_sheenLutTexture, vec2(NdotL, sheenProps.sheenRoughness)).r);
 #else
   vec3 sheenContrib = vec3(0.0);
   float albedoSheenScaling = 1.0;
