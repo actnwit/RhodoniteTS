@@ -65,6 +65,8 @@ export class ConstantVariableShader extends CommonShaderPart {
       constant = value.glslStrAsFloat;
     } else if (this.__componentType.isInteger()) {
       constant = value.glslStrAsInt;
+    } else if (this.__componentType.isUnsignedInteger()) {
+      constant = value.glslStrAsUint;
     } else if (this.__componentType === ComponentType.Bool) {
       constant = value.x ? 'true' : 'false';
     }

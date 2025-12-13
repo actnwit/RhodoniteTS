@@ -8,6 +8,7 @@ export interface ComponentTypeEnum extends EnumIO {
   getSizeInBytes(): number;
   isFloatingPoint(): boolean;
   isInteger(): boolean;
+  isUnsignedInteger(): boolean;
 }
 
 class ComponentTypeClass<TypeName extends string> extends EnumClass implements ComponentTypeEnum {
