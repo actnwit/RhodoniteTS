@@ -448,8 +448,8 @@ void main ()
     volumeProps.thickness = thicknessFactor * thicknessTexture;
   #else
     volumeProps.thickness = 0.0;
-    volumeProps.attenuationColor = vec3(0.0);
-    volumeProps.attenuationDistance = 0.000001;
+    volumeProps.attenuationColor = vec3(1.0);
+    volumeProps.attenuationDistance = 1e20;
   #endif // RN_USE_VOLUME
 
   SheenProps sheenProps;
@@ -566,7 +566,7 @@ void main ()
 
   // Image-based Lighting
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
-    baseColor.rgb, perceptualRoughness, clearcoatProps, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, volumeProps.thickness,
+    baseColor.rgb, perceptualRoughness, clearcoatProps, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, volumeProps,
     sheenProps,
     ior, iridescenceProps,
     anisotropyProps, specularWeight, dielectricF0, metallic,

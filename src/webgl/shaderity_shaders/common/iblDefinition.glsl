@@ -226,7 +226,7 @@ vec3 getReflection(mat3 rotEnvMatrix, vec3 viewDirection, vec3 normal_inWorld, u
 
 vec3 IBLContribution(uint materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection,
   vec3 baseColor, float perceptualRoughness, ClearcoatProps clearcoatProps, vec3 geomNormal_inWorld, uint cameraSID, float transmission, vec3 v_position_inWorld,
-  float thickness, SheenProps sheenProps, float ior,
+  VolumeProps volumeProps, SheenProps sheenProps, float ior,
   IridescenceProps iridescenceProps, AnisotropyProps anisotropyProps,
   float specularWeight, vec3 dielectricF0, float metallic, DiffuseTransmissionProps diffuseTransmissionProps)
 {
@@ -245,15 +245,13 @@ vec3 IBLContribution(uint materialSID, vec3 normal_inWorld, float NdotV, vec3 vi
 #ifdef RN_USE_DIFFUSE_TRANSMISSION
   vec3 diffuseTransmissionIBL = getIBLIrradiance(-normal_forEnv, iblParameter, hdriFormat) * diffuseTransmissionProps.diffuseTransmissionColor;
 #ifdef RN_USE_VOLUME
-  diffuseTransmissionIBL = volumeAttenuation(attenuationColor, attenuationDistance, diffuseTransmissionIBL, diffuseTransmissionProps.diffuseTransmissionThickness);
+  diffuseTransmissionIBL = volumeAttenuation(volumeProps.attenuationColor, volumeProps.attenuationDistance, diffuseTransmissionIBL, diffuseTransmissionProps.diffuseTransmissionThickness);
 #endif
   diffuse = mix(diffuse, diffuseTransmissionIBL, diffuseTransmissionProps.diffuseTransmission);
 #endif
 
 #ifdef RN_USE_TRANSMISSION
-  vec3 attenuationColor = get_attenuationColor(materialSID, 0u);
-  float attenuationDistance = get_attenuationDistance(materialSID, 0u);
-  vec3 specularTransmission = getIBLVolumeRefraction(baseColor, normal_inWorld, viewDirection, cameraSID, materialSID, thickness, perceptualRoughness, ior, attenuationColor, attenuationDistance);
+  vec3 specularTransmission = getIBLVolumeRefraction(baseColor, normal_inWorld, viewDirection, cameraSID, materialSID, volumeProps.thickness, perceptualRoughness, ior, volumeProps.attenuationColor, volumeProps.attenuationDistance);
   diffuse = mix(diffuse, specularTransmission, transmission);
 #endif
 
