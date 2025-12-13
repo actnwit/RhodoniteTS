@@ -13,7 +13,7 @@ import type { Config } from '../../core/Config';
 import { RnObject } from '../../core/RnObject';
 import { BoneDataType } from '../../definitions/BoneDataType';
 import { ComponentTypeEnum } from '../../definitions/ComponentType';
-import { CompositionTypeEnum } from '../../definitions/CompositionType';
+import { CompositionType, CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { ShaderSemanticsEnum, ShaderSemanticsName } from '../../definitions/ShaderSemantics';
 import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
@@ -309,6 +309,37 @@ export abstract class AbstractMaterialContent extends RnObject {
     for (const info of shaderSemanticsInfoArray) {
       infoArray.push(info);
     }
+
+    // Construct a set of existing texture slot indices
+    const existingTextureSlotIndices = new Set<number>();
+    existingTextureSlotIndices.add(0); // Data texture slot index is 0
+    infoArray.forEach(info => {
+      if (CompositionType.isTexture(info.compositionType)) {
+        const textureSlotIndex = info.initialValue[0];
+        if (textureSlotIndex > 0) {
+          existingTextureSlotIndices.add(textureSlotIndex);
+        }
+      }
+    });
+
+    // Assign new texture slot indices to textures that have negative slot indices
+    infoArray.forEach(info => {
+      if (CompositionType.isTexture(info.compositionType)) {
+        const textureSlotIndex = info.initialValue[0];
+        if (textureSlotIndex < 0) {
+          let newTextureSlotIndex = -1;
+          for (let i = 1; i < 32; i++) {
+            if (!existingTextureSlotIndices.has(i)) {
+              newTextureSlotIndex = i;
+              break;
+            }
+          }
+          info.initialValue[0] = newTextureSlotIndex;
+          existingTextureSlotIndices.add(newTextureSlotIndex);
+        }
+      }
+    });
+
     this.__semantics = infoArray;
     this.makeMaterialSemanticsVariantName();
   }
