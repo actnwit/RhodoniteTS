@@ -118,6 +118,12 @@ export class RhodoniteImportExtension {
     // Build texture semantic info from the texture infos extracted during shader generation
     const additionalShaderSemanticInfo = this.__buildTextureSemanticInfo(engine, shaderCode.textureInfos);
 
+    // Check if ClassicShader node is present in the shader node graph
+    const hasClassicShaderNode =
+      ((extension.shaderNodeJson as any)?.nodes?.some(
+        (node: { name: string }) => node.name === 'ClassicShader'
+      ) as boolean) ?? false;
+
     // Create custom material using MaterialHelper
     const newMaterial = MaterialHelper.reuseOrRecreateCustomMaterial(
       engine,
@@ -129,6 +135,7 @@ export class RhodoniteImportExtension {
         isSkinning: true,
         isLighting: true,
         isMorphing: true,
+        isShadow: hasClassicShaderNode,
         additionalShaderSemanticInfo,
       }
     );
