@@ -1,7 +1,7 @@
 fn classicShader(vertexColor: vec4<f32>, diffuseColorFactor: vec4<f32>, diffuseTextureColor: vec4<f32>, shadingModel: u32, shininess: f32, positionInWorld: vec4<f32>, normalInWorld: vec3<f32>, outColor: ptr<function, vec4<f32>>) {
   var diffuseColor = vertexColor * diffuseColorFactor * diffuseTextureColor;
   var shadingColor = vec4<f32>(0.0, 0.0, 0.0, diffuseColor.a);
-  if (shadingModel > 0) {
+  if (shadingModel >= 1u && shadingModel <= 3u) {
     let lightNumber = u32(get_lightNumber(0u, 0u));
     let cameraSID = uniformDrawParameters.cameraSID;
     let materialSID = uniformDrawParameters.materialSid;
