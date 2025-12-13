@@ -228,7 +228,7 @@ vec3 IBLContribution(uint materialSID, vec3 normal_inWorld, float NdotV, vec3 vi
   vec3 baseColor, float perceptualRoughness, ClearcoatProps clearcoatProps, vec3 geomNormal_inWorld, uint cameraSID, float transmission, vec3 v_position_inWorld,
   float thickness, SheenProps sheenProps, float ior,
   IridescenceProps iridescenceProps, AnisotropyProps anisotropyProps,
-  float specularWeight, vec3 dielectricF0, float metallic, float diffuseTransmission, vec3 diffuseTransmissionColor, float diffuseTransmissionThickness)
+  float specularWeight, vec3 dielectricF0, float metallic, DiffuseTransmissionProps diffuseTransmissionProps)
 {
   vec4 iblParameter = get_iblParameter(materialSID, 0u);
   float rot = iblParameter.w;
@@ -243,11 +243,11 @@ vec3 IBLContribution(uint materialSID, vec3 normal_inWorld, float NdotV, vec3 vi
   vec3 diffuse = irradiance * baseColor;
 
 #ifdef RN_USE_DIFFUSE_TRANSMISSION
-  vec3 diffuseTransmissionIBL = getIBLIrradiance(-normal_forEnv, iblParameter, hdriFormat) * diffuseTransmissionColor;
+  vec3 diffuseTransmissionIBL = getIBLIrradiance(-normal_forEnv, iblParameter, hdriFormat) * diffuseTransmissionProps.diffuseTransmissionColor;
 #ifdef RN_USE_VOLUME
-  diffuseTransmissionIBL = volumeAttenuation(attenuationColor, attenuationDistance, diffuseTransmissionIBL, diffuseTransmissionThickness);
+  diffuseTransmissionIBL = volumeAttenuation(attenuationColor, attenuationDistance, diffuseTransmissionIBL, diffuseTransmissionProps.diffuseTransmissionThickness);
 #endif
-  diffuse = mix(diffuse, diffuseTransmissionIBL, diffuseTransmission);
+  diffuse = mix(diffuse, diffuseTransmissionIBL, diffuseTransmissionProps.diffuseTransmission);
 #endif
 
 #ifdef RN_USE_TRANSMISSION

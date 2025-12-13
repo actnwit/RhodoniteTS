@@ -634,9 +634,7 @@ vec3 lightingWithPunctualLight(
   SheenProps sheenProps,
   IridescenceProps iridescenceProps,
   float specularWeight,
-  float diffuseTransmission,
-  vec3 diffuseTransmissionColor,
-  float diffuseTransmissionThickness
+  DiffuseTransmissionProps diffuseTransmissionProps
   )
 {
   float alphaRoughness = perceptualRoughness * perceptualRoughness;
@@ -654,17 +652,17 @@ vec3 lightingWithPunctualLight(
   vec3 diffuseContrib = diffuseBrdf * vec3(NdotL) * light.attenuatedIntensity;
 
 #ifdef RN_USE_DIFFUSE_TRANSMISSION
-  diffuseContrib = diffuseContrib * (vec3(1.0) - diffuseTransmission);
+  diffuseContrib = diffuseContrib * (vec3(1.0) - diffuseTransmissionProps.diffuseTransmission);
   if (dot(normal_inWorld, light.direction) < 0.0) {
     float diffuseNdotL = saturate(dot(normal_inWorld, -light.direction));
-    vec3 diffuseBtdf = BRDF_lambertian(diffuseTransmissionColor) * vec3(diffuseNdotL) * light.attenuatedIntensity;
+    vec3 diffuseBtdf = BRDF_lambertian(diffuseTransmissionProps.diffuseTransmissionColor) * vec3(diffuseNdotL) * light.attenuatedIntensity;
     vec3 mirrorL = normalize(light.direction + 2.0 * normal_inWorld * dot(normal_inWorld, -light.direction));
     float diffuseVdotH = saturate(dot(viewDirection, normalize(mirrorL + viewDirection)));
     dielectricFresnel = fresnelSchlick(dielectricF0 * specularWeight, dielectricF90, abs(diffuseVdotH));
 #ifdef RN_USE_VOLUME
-    diffuseBtdf = volumeAttenuation(volumeProps.attenuationColor, volumeProps.attenuationDistance, diffuseBtdf, diffuseTransmissionThickness);
+    diffuseBtdf = volumeAttenuation(volumeProps.attenuationColor, volumeProps.attenuationDistance, diffuseBtdf, diffuseTransmissionProps.diffuseTransmissionThickness);
 #endif // RN_USE_VOLUME
-    diffuseContrib += diffuseBtdf * diffuseTransmission;
+    diffuseContrib += diffuseBtdf * diffuseTransmissionProps.diffuseTransmission;
   }
 #endif // RN_USE_DIFFUSE_TRANSMISSION
 

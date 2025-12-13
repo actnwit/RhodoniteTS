@@ -482,6 +482,7 @@ void main ()
     sheenProps.albedoSheenScalingNdotV = 1.0;
   #endif // RN_USE_SHEEN
 
+  DiffuseTransmissionProps diffuseTransmissionProps;
   #ifdef RN_USE_DIFFUSE_TRANSMISSION
     float diffuseTransmissionFactor = get_diffuseTransmissionFactor(materialSID, 0u);
     vec2 diffuseTransmissionTextureTransformScale = get_diffuseTransmissionTextureTransformScale(materialSID, 0u);
@@ -491,7 +492,7 @@ void main ()
     vec2 diffuseTransmissionTexcoord = getTexcoord(diffuseTransmissionTexcoordIndex);
     vec2 diffuseTransmissionTexUv = uvTransform(diffuseTransmissionTextureTransformScale, diffuseTransmissionTextureTransformOffset, diffuseTransmissionTextureTransformRotation, diffuseTransmissionTexcoord);
     float diffuseTransmissionTexture = texture(u_diffuseTransmissionTexture, diffuseTransmissionTexUv).a;
-    float diffuseTransmission = diffuseTransmissionFactor * diffuseTransmissionTexture;
+    diffuseTransmissionProps.diffuseTransmission = diffuseTransmissionFactor * diffuseTransmissionTexture;
 
     vec3 diffuseTransmissionColorFactor = get_diffuseTransmissionColorFactor(materialSID, 0u);
     vec2 diffuseTransmissionColorTextureTransformScale = get_diffuseTransmissionColorTextureTransformScale(materialSID, 0u);
@@ -501,18 +502,18 @@ void main ()
     vec2 diffuseTransmissionColorTexcoord = getTexcoord(diffuseTransmissionColorTexcoordIndex);
     vec2 diffuseTransmissionColorTexUv = uvTransform(diffuseTransmissionColorTextureTransformScale, diffuseTransmissionColorTextureTransformOffset, diffuseTransmissionColorTextureTransformRotation, diffuseTransmissionColorTexcoord);
     vec3 diffuseTransmissionColorTexture = texture(u_diffuseTransmissionColorTexture, diffuseTransmissionColorTexUv).rgb;
-    vec3 diffuseTransmissionColor = diffuseTransmissionColorFactor * diffuseTransmissionColorTexture;
+    diffuseTransmissionProps.diffuseTransmissionColor = diffuseTransmissionColorFactor * diffuseTransmissionColorTexture;
 
-    float diffuseTransmissionThickness = 1.0;
+    diffuseTransmissionProps.diffuseTransmissionThickness = 1.0;
   #ifdef RN_USE_VOLUME
     mat4 worldMatrix = get_worldMatrix(uint(v_instanceInfo));
-    diffuseTransmissionThickness = thickness * (length(worldMatrix[0].xyz) * length(worldMatrix[1].xyz) * length(worldMatrix[2].xyz)) / 3.0;
+    diffuseTransmissionProps.diffuseTransmissionThickness = thickness * (length(worldMatrix[0].xyz) * length(worldMatrix[1].xyz) * length(worldMatrix[2].xyz)) / 3.0;
   #endif // RN_USE_VOLUME
 
   #else
-    float diffuseTransmission = 0.0;
-    vec3 diffuseTransmissionColor = vec3(0.0);
-    float diffuseTransmissionThickness = 0.0;
+    diffuseTransmissionProps.diffuseTransmission = 0.0;
+    diffuseTransmissionProps.diffuseTransmissionColor = vec3(0.0);
+    diffuseTransmissionProps.diffuseTransmissionThickness = 0.0;
   #endif // RN_USE_DIFFUSE_TRANSMISSION
 
   rt0 = vec4(0.0, 0.0, 0.0, baseColor.a);
@@ -529,7 +530,7 @@ void main ()
                         anisotropyProps,
                         sheenProps,
                         iridescenceProps, specularWeight,
-                        diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness);
+                        diffuseTransmissionProps);
 
   #ifdef RN_USE_SHADOW_MAPPING
     int depthTextureIndex = get_depthTextureIndexList(materialSID, uint(i));
@@ -569,7 +570,7 @@ void main ()
     sheenProps,
     ior, iridescenceProps,
     anisotropyProps, specularWeight, dielectricF0, metallic,
-    diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness);
+    diffuseTransmissionProps);
 
   #ifdef RN_USE_OCCLUSION_TEXTURE
     int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0u);
