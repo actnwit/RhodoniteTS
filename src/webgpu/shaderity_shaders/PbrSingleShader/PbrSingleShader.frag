@@ -433,8 +433,8 @@ let ior = get_ior(materialSID, 0);
   let thickness: f32 = thicknessFactor * thicknessTexture;
 #else
   let thickness = 0.0;
-  let attenuationColor = vec3f(0.0);
-  let attenuationDistance = 0.000001;
+  let attenuationColor = vec3f(1.0);
+  let attenuationDistance = 1e20;
 #endif // RN_USE_VOLUME
 
 #ifdef RN_USE_SHEEN
