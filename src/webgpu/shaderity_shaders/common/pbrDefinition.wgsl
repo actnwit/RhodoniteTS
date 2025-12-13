@@ -519,13 +519,7 @@ fn lightingWithPunctualLight(
   ior: f32,
   transmission: f32,
   volumeProps: VolumeProps,
-  clearcoat: f32,
-  clearcoatRoughness: f32,
-  clearcoatF0: vec3f,
-  clearcoatF90: vec3f,
-  clearcoatFresnel: vec3f,
-  clearcoatNormal_inWorld: vec3f,
-  VdotNc: f32,
+  clearcoatProps: ClearcoatProps,
   anisotropy: f32,
   anisotropicT: vec3f,
   anisotropicB: vec3f,
@@ -612,9 +606,9 @@ fn lightingWithPunctualLight(
 
 #ifdef RN_USE_CLEARCOAT
   // Clear Coat Layer
-  let NdotHc = saturate(dot(clearcoatNormal_inWorld, halfVector));
-  let LdotNc = saturate(dot(light.direction, clearcoatNormal_inWorld));
-  let clearcoatContrib = BRDF_specularGGX(NdotHc, LdotNc, VdotNc, clearcoatRoughness * clearcoatRoughness) * vec3f(LdotNc) * light.attenuatedIntensity;
+  let NdotHc = saturate(dot(clearcoatProps.clearcoatNormal_inWorld, halfVector));
+  let LdotNc = saturate(dot(light.direction, clearcoatProps.clearcoatNormal_inWorld));
+  let clearcoatContrib = BRDF_specularGGX(NdotHc, LdotNc, clearcoatProps.VdotNc, clearcoatProps.clearcoatRoughness * clearcoatProps.clearcoatRoughness) * vec3f(LdotNc) * light.attenuatedIntensity;
 #else
   let clearcoatContrib = vec3f(0.0);
 #endif // RN_USE_CLEARCOAT
@@ -632,7 +626,7 @@ fn lightingWithPunctualLight(
 
   var color = mix(dielectric, metal, metallic);
   color = sheenContrib + color * albedoSheenScaling;
-  color = mix(color, clearcoatContrib, clearcoat * clearcoatFresnel);
+  color = mix(color, clearcoatContrib, clearcoatProps.clearcoat * clearcoatProps.clearcoatFresnel);
 
   return color;
 }

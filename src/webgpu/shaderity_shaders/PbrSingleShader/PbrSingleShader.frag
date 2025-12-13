@@ -373,6 +373,7 @@ let ior = get_ior(materialSID, 0);
 #endif // RN_USE_IRIDESCENCE
 
 // Clearcoat
+  var clearcoatProps: ClearcoatProps;
 #ifdef RN_USE_CLEARCOAT
   let clearcoatFactor = get_clearcoatFactor(materialSID, 0);
   let clearcoatTextureTransformScale: vec2f = get_clearcoatTextureTransformScale(materialSID, 0);
@@ -407,14 +408,21 @@ let ior = get_ior(materialSID, 0);
   let clearcoatF0 = vec3f(pow((ior - 1.0) / (ior + 1.0), 2.0));
   let clearcoatF90 = vec3f(1.0);
   let clearcoatFresnel = fresnelSchlick(clearcoatF0, clearcoatF90, VdotNc);
+  clearcoatProps.clearcoat = clearcoat;
+  clearcoatProps.clearcoatRoughness = clearcoatRoughness;
+  clearcoatProps.clearcoatNormal_inWorld = clearcoatNormal_inWorld;
+  clearcoatProps.VdotNc = VdotNc;
+  clearcoatProps.clearcoatF0 = clearcoatF0;
+  clearcoatProps.clearcoatF90 = clearcoatF90;
+  clearcoatProps.clearcoatFresnel = clearcoatFresnel;
 #else
-  let clearcoat = 0.0;
-  let clearcoatRoughness = 0.0;
-  let clearcoatNormal_inWorld = vec3f(0.0);
-  let VdotNc = 0.0;
-  let clearcoatF0 = vec3f(0.0);
-  let clearcoatF90 = vec3f(0.0);
-  let clearcoatFresnel = vec3f(0.0);
+  clearcoatProps.clearcoat = 0.0;
+  clearcoatProps.clearcoatRoughness = 0.0;
+  clearcoatProps.clearcoatNormal_inWorld = vec3f(0.0);
+  clearcoatProps.VdotNc = 0.0;
+  clearcoatProps.clearcoatF0 = vec3f(0.0);
+  clearcoatProps.clearcoatF90 = vec3f(0.0);
+  clearcoatProps.clearcoatFresnel = vec3f(0.0);
 #endif // RN_USE_CLEARCOAT
 
   var volumeProps: VolumeProps;
@@ -512,7 +520,7 @@ let ior = get_ior(materialSID, 0);
                             NdotV, baseColor.rgb, perceptualRoughness, metallic,
                             specularWeight, dielectricF0, dielectricF90, ior,
                             transmission, volumeProps,
-                            clearcoat, clearcoatRoughness, clearcoatF0, clearcoatF90, clearcoatFresnel, clearcoatNormal_inWorld, VdotNc,
+                            clearcoatProps,
                             anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
                             sheenColor, sheenRoughness, albedoSheenScalingNdotV,
                             iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, u32(input.instanceInfo),
@@ -560,7 +568,7 @@ let ior = get_ior(materialSID, 0);
   // Image-based Lighting
   let ibl: vec3f = IBLContribution(materialSID, cameraSID, normal_inWorld, NdotV, viewDirection,
     baseColor.rgb, perceptualRoughness,
-    clearcoatRoughness, clearcoatNormal_inWorld, clearcoat, clearcoatFresnel, VdotNc, geomNormal_inWorld,
+    clearcoatProps, geomNormal_inWorld,
     transmission, input.position_inWorld.xyz, u32(input.instanceInfo), volumeProps, ior,
     sheenColor, sheenRoughness, albedoSheenScalingNdotV,
     iridescenceFresnel_dielectric, iridescenceFresnel_metal, iridescence,
