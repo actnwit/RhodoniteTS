@@ -274,6 +274,7 @@ void main ()
   // NdotV
   float NdotV = saturate(dot(normal_inWorld, viewDirection));
 
+  AnisotropyProps anisotropyProps;
   #ifdef RN_USE_ANISOTROPY
     float anisotropy = get_anisotropyStrength(materialSID, 0u);
     vec2 anisotropyRotation = get_anisotropyRotation(materialSID, 0u);
@@ -288,16 +289,17 @@ void main ()
     direction = anisotropyTex.rg * 2.0 - vec2(1.0);
     direction = mat2(anisotropyRotation.x, anisotropyRotation.y, -anisotropyRotation.y, anisotropyRotation.x) * normalize(direction);
     anisotropy *= anisotropyTex.b;
-    vec3 anisotropicT = normalize(TBN * vec3(direction, 0.0));
-    vec3 anisotropicB = normalize(cross(geomNormal_inWorld, anisotropicT));
-    float BdotV = dot(anisotropicB, viewDirection);
-    float TdotV = dot(anisotropicT, viewDirection);
+    anisotropyProps.anisotropy = anisotropy;
+    anisotropyProps.anisotropicT = normalize(TBN * vec3(direction, 0.0));
+    anisotropyProps.anisotropicB = normalize(cross(geomNormal_inWorld, anisotropyProps.anisotropicT));
+    anisotropyProps.BdotV = dot(anisotropicProps.anisotropicB, viewDirection);
+    anisotropyProps.TdotV = dot(anisotropyProps.anisotropicT, viewDirection);
   #else
-    float anisotropy = 0.0;
-    vec3 anisotropicT = vec3(0.0, 0.0, 0.0);
-    vec3 anisotropicB = vec3(0.0, 0.0, 0.0);
-    float BdotV = 0.0;
-    float TdotV = 0.0;
+    anisotropyProps.anisotropy = 0.0;
+    anisotropyProps.anisotropicT = vec3(0.0, 0.0, 0.0);
+    anisotropyProps.anisotropicB = vec3(0.0, 0.0, 0.0);
+    anisotropyProps.BdotV = 0.0;
+    anisotropyProps.TdotV = 0.0;
   #endif
 
   float ior = get_ior(materialSID, 0u);
@@ -521,7 +523,7 @@ void main ()
     vec3 lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection, NdotV, baseColor.rgb,
                         perceptualRoughness, metallic, dielectricF0, dielectricF90, ior, transmission, volumeProps,
                         clearcoatProps,
-                        anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
+                        anisotropyProps,
                         sheenColor, sheenRoughness, albedoSheenScalingNdotV,
                         iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, specularWeight,
                         diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness);
@@ -563,7 +565,7 @@ void main ()
     baseColor.rgb, perceptualRoughness, clearcoatProps, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, volumeProps.thickness,
     sheenColor, sheenRoughness, albedoSheenScalingNdotV,
     ior, iridescenceFresnel_dielectric, iridescenceFresnel_metal, iridescence,
-    anisotropy, anisotropicB, specularWeight, dielectricF0, metallic,
+    anisotropyProps, specularWeight, dielectricF0, metallic,
     diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness);
 
   #ifdef RN_USE_OCCLUSION_TEXTURE

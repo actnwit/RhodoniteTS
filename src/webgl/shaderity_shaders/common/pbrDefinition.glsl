@@ -630,11 +630,7 @@ vec3 lightingWithPunctualLight(
   float transmission,
   VolumeProps volumeProps,
   ClearcoatProps clearcoatProps,
-  float anisotropy,
-  vec3 anisotropicT,
-  vec3 anisotropicB,
-  float BdotV,
-  float TdotV,
+  AnisotropyProps anisotropyProps,
   vec3 sheenColor,
   float sheenRoughness,
   float albedoSheenScalingNdotV,
@@ -695,11 +691,11 @@ vec3 lightingWithPunctualLight(
   float NdotH = saturate(dot(normal_inWorld, halfVector));
 
 #ifdef RN_USE_ANISOTROPY
-  float TdotL = dot(anisotropicT, light.direction);
-  float BdotL = dot(anisotropicB, light.direction);
-  float TdotH = dot(anisotropicT, halfVector);
-  float BdotH = dot(anisotropicB, halfVector);
-  vec3 specularMetalContrib = BRDF_specularAnisotropicGGX(alphaRoughness, VdotH, NdotL, NdotV, NdotH, BdotV, TdotV, TdotL, BdotL, TdotH, BdotH, anisotropy) * vec3(NdotL) * light.attenuatedIntensity;
+  float TdotL = dot(anisotropyProps.anisotropicT, light.direction);
+  float BdotL = dot(anisotropyProps.anisotropicB, light.direction);
+  float TdotH = dot(anisotropyProps.anisotropicT, halfVector);
+  float BdotH = dot(anisotropyProps.anisotropicB, halfVector);
+  vec3 specularMetalContrib = BRDF_specularAnisotropicGGX(alphaRoughness, VdotH, NdotL, NdotV, NdotH, anisotropyProps.BdotV, anisotropyProps.TdotV, TdotL, BdotL, TdotH, BdotH, anisotropyProps.anisotropy, anisotropyProps.anisotropicT, anisotropyProps.anisotropicB) * vec3(NdotL) * light.attenuatedIntensity;
   vec3 specularDielectricContrib = specularMetalContrib;
 #else
   vec3 specularMetalContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, alphaRoughness) * vec3(NdotL) * light.attenuatedIntensity;

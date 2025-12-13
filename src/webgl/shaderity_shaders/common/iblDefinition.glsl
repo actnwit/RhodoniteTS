@@ -227,7 +227,7 @@ vec3 getReflection(mat3 rotEnvMatrix, vec3 viewDirection, vec3 normal_inWorld, u
 vec3 IBLContribution(uint materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection,
   vec3 baseColor, float perceptualRoughness, ClearcoatProps clearcoatProps, vec3 geomNormal_inWorld, uint cameraSID, float transmission, vec3 v_position_inWorld,
   float thickness, vec3 sheenColor, float sheenRoughness, float albedoSheenScalingNdotV, float ior,
-  vec3 iridescenceFresnel_dielectric, vec3 iridescenceFresnel_metal, float iridescence, float anisotropy, vec3 anisotropyDirection,
+  vec3 iridescenceFresnel_dielectric, vec3 iridescenceFresnel_metal, float iridescence, AnisotropyProps anisotropyProps,
   float specularWeight, vec3 dielectricF0, float metallic, float diffuseTransmission, vec3 diffuseTransmissionColor, float diffuseTransmissionThickness)
 {
   vec4 iblParameter = get_iblParameter(materialSID, 0u);
@@ -236,7 +236,7 @@ vec3 IBLContribution(uint materialSID, vec3 normal_inWorld, float NdotV, vec3 vi
   ivec2 hdriFormat = get_hdriFormat(materialSID, 0u);
 
   vec3 normal_forEnv = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
-  vec3 reflection = getReflection(rotEnvMatrix, viewDirection, normal_inWorld, materialSID, perceptualRoughness, anisotropy, anisotropyDirection);
+  vec3 reflection = getReflection(rotEnvMatrix, viewDirection, normal_inWorld, materialSID, perceptualRoughness, anisotropyProps.anisotropy, anisotropyProps.anisotropicB);
 
   // get irradiance
   vec3 irradiance = getIBLIrradiance(normal_forEnv, iblParameter, hdriFormat);
