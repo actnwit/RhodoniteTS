@@ -516,6 +516,13 @@ void main ()
     diffuseTransmissionProps.diffuseTransmissionThickness = 0.0;
   #endif // RN_USE_DIFFUSE_TRANSMISSION
 
+#ifdef RN_USE_DISPERSION
+  float dispersion = get_dispersion(materialSID, 0u);
+#else
+  float dispersion = 0.0;
+#endif
+
+
   rt0 = vec4(0.0, 0.0, 0.0, baseColor.a);
 
   // Punctual Lights
@@ -570,7 +577,7 @@ void main ()
     sheenProps,
     ior, iridescenceProps,
     anisotropyProps, specularWeight, dielectricF0, metallic,
-    diffuseTransmissionProps);
+    diffuseTransmissionProps, dispersion);
 
   #ifdef RN_USE_OCCLUSION_TEXTURE
     int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0u);

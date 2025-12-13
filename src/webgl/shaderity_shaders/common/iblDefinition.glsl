@@ -67,9 +67,8 @@ vec3 get_sample_from_backbuffer(vec2 sampleCoord, float perceptualRoughness, flo
   return transmittedLight;
 }
 
-vec3 getIBLVolumeRefraction(vec3 baseColor, vec3 normal, vec3 view, uint cameraSID, uint materialSID, float thickness, float perceptualRoughness, float ior, vec3 attenuationColor, float attenuationDistance) {
+vec3 getIBLVolumeRefraction(vec3 baseColor, vec3 normal, vec3 view, uint cameraSID, uint materialSID, float thickness, float perceptualRoughness, float ior, vec3 attenuationColor, float attenuationDistance, float dispersion) {
 #ifdef RN_USE_DISPERSION
-  float dispersion = get_dispersion(materialSID, 0u);
   float halfSpread = (ior - 1.0) * 0.025 * dispersion;
   vec3 iors = vec3(ior - halfSpread, ior, ior + halfSpread);
 
@@ -228,7 +227,7 @@ vec3 IBLContribution(uint materialSID, vec3 normal_inWorld, float NdotV, vec3 vi
   vec3 baseColor, float perceptualRoughness, ClearcoatProps clearcoatProps, vec3 geomNormal_inWorld, uint cameraSID, float transmission, vec3 v_position_inWorld,
   VolumeProps volumeProps, SheenProps sheenProps, float ior,
   IridescenceProps iridescenceProps, AnisotropyProps anisotropyProps,
-  float specularWeight, vec3 dielectricF0, float metallic, DiffuseTransmissionProps diffuseTransmissionProps)
+  float specularWeight, vec3 dielectricF0, float metallic, DiffuseTransmissionProps diffuseTransmissionProps, float dispersion)
 {
   vec4 iblParameter = get_iblParameter(materialSID, 0u);
   float rot = iblParameter.w;
@@ -251,7 +250,7 @@ vec3 IBLContribution(uint materialSID, vec3 normal_inWorld, float NdotV, vec3 vi
 #endif
 
 #ifdef RN_USE_TRANSMISSION
-  vec3 specularTransmission = getIBLVolumeRefraction(baseColor, normal_inWorld, viewDirection, cameraSID, materialSID, volumeProps.thickness, perceptualRoughness, ior, volumeProps.attenuationColor, volumeProps.attenuationDistance);
+  vec3 specularTransmission = getIBLVolumeRefraction(baseColor, normal_inWorld, viewDirection, cameraSID, materialSID, volumeProps.thickness, perceptualRoughness, ior, volumeProps.attenuationColor, volumeProps.attenuationDistance, dispersion);
   diffuse = mix(diffuse, specularTransmission, transmission);
 #endif
 
