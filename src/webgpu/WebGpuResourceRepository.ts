@@ -899,7 +899,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         {
           shaderLocation: VertexAttribute.Instance.getAttributeSlot(),
           offset: 0,
-          format: 'float32x4',
+          format: 'uint32x4',
         },
       ],
       arrayStride: 4 * 4,
@@ -1578,7 +1578,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           {
             shaderLocation: VertexAttribute.Instance.getAttributeSlot(),
             offset: 0,
-            format: 'float32x4',
+            format: 'uint32x4',
           },
         ],
         arrayStride: 4 * 4,

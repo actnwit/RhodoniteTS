@@ -29,6 +29,7 @@ const RECIPROCAL_PI: f32 = 0.3183098861837907;
 const Epsilon: f32 = 0.0000001;
 const c_MinRoughness: f32 = 0.04;
 const kEps: f32 = 1e-4;
+const INVALID_ID: u32 = 0xFFFFFFFFu;
 
 fn fetchElement(vec4_idx: u32) -> vec4<f32>
 {
@@ -375,7 +376,7 @@ fn edge_ratio(bary3: vec3f, wireframeWidthInner: f32, wireframeWidthRelativeScal
 
 
 
-var<private> a_instanceIds: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 0.0);
+var<private> a_instanceIds: vec4<u32> = vec4<u32>(0u, 0u, 0u, 0u);
 
 #ifdef RN_USE_POSITION_FLOAT
   var<private> a_position: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 1.0);

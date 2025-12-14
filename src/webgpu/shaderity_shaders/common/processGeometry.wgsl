@@ -261,9 +261,9 @@ fn processGeometry(
   }
 
 #ifdef RN_IS_SKINNING
-  let skeletalComponentSID = i32(a_instanceIds.y);
-  if (skeletalComponentSID >= 0) {
-    output = skinning(u32(skeletalComponentSID), worldMatrixInner, inNormalMatrix, position_inLocal, inNormal_inLocal, joint, weight);
+  let skeletalComponentSID = a_instanceIds.y;
+  if (skeletalComponentSID != INVALID_ID) {
+    output = skinning(skeletalComponentSID, worldMatrixInner, inNormalMatrix, position_inLocal, inNormal_inLocal, joint, weight);
   } else {
 #endif
     output.normalMatrix = inNormalMatrix;

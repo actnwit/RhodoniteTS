@@ -9,6 +9,6 @@ struct VertexOutput {
   @location(6) tangent_inWorld : vec3<f32>,
   @location(7) binormal_inWorld : vec3<f32>,
   @location(8) baryCentricCoord: vec3<f32>,
-  @location(9) instanceIds: vec4<f32>,
+  @location(9) @interpolate(flat) instanceIds: vec4<u32>,
   @location(10) normal_inView : vec3<f32>,
 }
