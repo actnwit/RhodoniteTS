@@ -509,7 +509,7 @@ void main ()
 
     diffuseTransmissionProps.diffuseTransmissionThickness = 1.0;
   #ifdef RN_USE_VOLUME
-    mat4 worldMatrix = get_worldMatrix(uint(v_instanceInfo));
+    mat4 worldMatrix = get_worldMatrix(uint(v_instanceIds.x));
     diffuseTransmissionProps.diffuseTransmissionThickness = thickness * (length(worldMatrix[0].xyz) * length(worldMatrix[1].xyz) * length(worldMatrix[2].xyz)) / 3.0;
   #endif // RN_USE_VOLUME
 

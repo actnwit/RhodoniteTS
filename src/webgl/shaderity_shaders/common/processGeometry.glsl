@@ -202,7 +202,7 @@ bool processGeometry(
 
   vec3 position_inLocal;
 #ifdef RN_IS_MORPHING
-  int blendShapeComponentSID = int(a_instanceInfo.z);
+  int blendShapeComponentSID = int(a_instanceIds.z);
   if (blendShapeComponentSID == -1) {
 #endif
     position_inLocal = inPosition_inLocal.xyz;
@@ -224,7 +224,7 @@ bool processGeometry(
 
 #ifdef RN_IS_SKINNING
   #ifdef RN_IS_DATATEXTURE_MODE
-    float skeletalComponentSID = a_instanceInfo.y;
+    float skeletalComponentSID = a_instanceIds.y;
   #else
     float skeletalComponentSID = float(get_skinningMode(0u, 0u));
   #endif

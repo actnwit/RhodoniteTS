@@ -32,9 +32,9 @@ void main(){
 
   /* shaderity: @{mainPrerequisites} */
 
-  mat4 worldMatrix = get_worldMatrix(uint(a_instanceInfo.x));
+  mat4 worldMatrix = get_worldMatrix(uint(a_instanceIds.x));
   mat4 viewMatrix = get_viewMatrix(cameraSID);
-  mat3 normalMatrix = get_normalMatrix(uint(a_instanceInfo.x));
+  mat3 normalMatrix = get_normalMatrix(uint(a_instanceIds.x));
   bool isSkinning = false;
   isSkinning = processGeometry(
     worldMatrix,
@@ -95,7 +95,7 @@ void main(){
 
   v_texcoord_0 = a_texcoord_0;
   v_baryCentricCoord = a_baryCentricCoord.xyz;
-  v_instanceInfo = a_instanceInfo.x;
+  v_instanceIds = a_instanceIds;
 
 #ifdef WEBGL2_MULTI_VIEW
   v_displayIdx = float(gl_ViewID_OVR);

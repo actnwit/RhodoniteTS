@@ -156,7 +156,7 @@ export class ShaderityUtilityWebGL {
    */
   private static __setDefaultAttributeSemanticMap(reflection: Reflection) {
     const attributeSemanticsMap = new Map();
-    attributeSemanticsMap.set('instanceinfo', 'INSTANCE');
+    attributeSemanticsMap.set('instanceids', 'INSTANCE');
     attributeSemanticsMap.set('barycentriccoord', 'BARY_CENTRIC_COORD');
 
     reflection.addAttributeSemanticsMap(attributeSemanticsMap);

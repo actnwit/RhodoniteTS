@@ -5,7 +5,7 @@ in vec2 v_texcoord_0;
 in vec2 v_texcoord_1;
 in vec2 v_texcoord_2;
 in vec3 v_baryCentricCoord;
-in float v_instanceInfo;
+in vec4 v_instanceIds;
 in float v_displayIdx;
 
 in vec3 v_tangent_inWorld;

@@ -9,7 +9,7 @@
   float skeletalComponentSID = -1.0;
   #ifdef RN_IS_SKINNING
     #ifdef RN_IS_VERTEX_SHADER
-      skeletalComponentSID = a_instanceInfo.y;
+      skeletalComponentSID = a_instanceIds.y;
     #else
       skeletalComponentSID = -1.0;
     #endif

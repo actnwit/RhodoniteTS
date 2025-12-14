@@ -31,11 +31,11 @@ void main()
 
 /* shaderity: @{mainPrerequisites} */
 
-  mat4 worldMatrix = get_worldMatrix(uint(a_instanceInfo.x));
+  mat4 worldMatrix = get_worldMatrix(uint(a_instanceIds.x));
   mat4 viewMatrix = get_viewMatrix(cameraSID);
   mat4 projectionMatrix = get_projectionMatrix(cameraSID);
-  mat3 normalMatrix = get_normalMatrix(uint(a_instanceInfo.x));
-  bool isBillboard = get_isBillboard(uint(a_instanceInfo.x));
+  mat3 normalMatrix = get_normalMatrix(uint(a_instanceIds.x));
+  bool isBillboard = get_isBillboard(uint(a_instanceIds.x));
 
   // Skeletal
   processGeometry(
@@ -60,7 +60,7 @@ void main()
   v_texcoord_0 = a_texcoord_0;
   v_baryCentricCoord = a_baryCentricCoord.xyz;
 
-  bool visibility = get_isVisible(uint(a_instanceInfo.x));
+  bool visibility = get_isVisible(uint(a_instanceIds.x));
   if (!visibility)
   {
     gl_Position = vec4(0.0);
