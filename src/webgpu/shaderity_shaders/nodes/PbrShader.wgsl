@@ -34,7 +34,7 @@ fn pbrShader(
 
   for (var i = 0u; i < lightNumber ; i++) {
     let light: Light = getLight(i, positionInWorld.xyz);
-    let lighting = lightingWithPunctualLight(instanceIds, light, normalInWorld, viewDirection, NdotV, baseColor.rgb,
+    var lighting = lightingWithPunctualLight(instanceIds, light, normalInWorld, viewDirection, NdotV, baseColor.rgb,
                       perceptualRoughness, metallic,
                       specularProps.specularWeight, dielectricF0, dielectricF90, ior,
                       transmission,
