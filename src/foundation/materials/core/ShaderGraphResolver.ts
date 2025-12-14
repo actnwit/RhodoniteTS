@@ -15,6 +15,7 @@ import { EngineState } from '../../system/EngineState';
 import { AddShaderNode } from '../nodes/AddShaderNode';
 import { AndShaderNode } from '../nodes/AndShaderNode';
 import { AttributeColorShaderNode } from '../nodes/AttributeColorShaderNode';
+import { AttributeInstanceIdsShaderNode } from '../nodes/AttributeInstanceIdsShaderNode';
 import { AttributeJointShaderNode } from '../nodes/AttributeJointShaderNode';
 import { AttributeNormalShaderNode } from '../nodes/AttributeNormalShaderNode';
 import { AttributePositionShaderNode } from '../nodes/AttributePositionShaderNode';
@@ -1352,6 +1353,11 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'AttributeWeight': {
         const nodeInstance = new AttributeWeightShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'AttributeInstanceIds': {
+        const nodeInstance = new AttributeInstanceIdsShaderNode();
         nodeInstances[node.id] = nodeInstance;
         break;
       }
