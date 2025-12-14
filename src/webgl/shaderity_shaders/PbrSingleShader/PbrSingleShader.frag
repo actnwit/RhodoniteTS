@@ -534,7 +534,7 @@ void main ()
     if (light.type < 0) {
       continue;
     }
-    vec3 lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection, NdotV, baseColor.rgb,
+    vec3 lighting = lightingWithPunctualLight(v_instanceIds, light, normal_inWorld, viewDirection, NdotV, baseColor.rgb,
                         perceptualRoughness, metallic,
                         specularProps.specularWeight, dielectricF0, dielectricF90, ior,
                         transmission,
@@ -578,7 +578,7 @@ void main ()
   }
 
   // Image-based Lighting
-  vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection, geomNormal_inWorld, cameraSID, v_position_inWorld.xyz,
+  vec3 ibl = IBLContribution(v_instanceIds, materialSID, normal_inWorld, NdotV, viewDirection, geomNormal_inWorld, cameraSID, v_position_inWorld.xyz,
     baseColor.rgb, perceptualRoughness, metallic,
     specularProps.specularWeight, dielectricF0, ior,
     clearcoatProps,

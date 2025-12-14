@@ -67,7 +67,7 @@ vec3 get_sample_from_backbuffer(vec2 sampleCoord, float perceptualRoughness, flo
   return transmittedLight;
 }
 
-vec3 getIBLVolumeRefraction(vec3 baseColor, vec3 normal, vec3 view, uint cameraSID, uint materialSID, float thickness, float perceptualRoughness, float ior, vec3 attenuationColor, float attenuationDistance, float dispersion) {
+vec3 getIBLVolumeRefraction(vec3 baseColor, vec3 normal, vec3 view, uint cameraSID, uint materialSID, float thickness, float perceptualRoughness, float ior, vec3 attenuationColor, float attenuationDistance, float dispersion, uvec4 instanceIds) {
 #ifdef RN_USE_DISPERSION
   float halfSpread = (ior - 1.0) * 0.025 * dispersion;
   vec3 iors = vec3(ior - halfSpread, ior, ior + halfSpread);
@@ -75,7 +75,7 @@ vec3 getIBLVolumeRefraction(vec3 baseColor, vec3 normal, vec3 view, uint cameraS
   vec3 transmittedLight;
   float transmissionRayLength;
   for(int i=0;i<3;i++) {
-    vec3 transmissionRay = getVolumeTransmissionRay(normal, view, thickness, iors[i]);
+    vec3 transmissionRay = getVolumeTransmissionRay(normal, view, thickness, iors[i], instanceIds);
     transmissionRayLength = length(transmissionRay);
     vec3 refractedRayExit = v_position_inWorld.xyz + transmissionRay;
 
@@ -87,7 +87,7 @@ vec3 getIBLVolumeRefraction(vec3 baseColor, vec3 normal, vec3 view, uint cameraS
     transmittedLight[i] = get_sample_from_backbuffer(refractionCoords, perceptualRoughness, iors[i])[i];
   }
 #else
-  vec3 transmissionRay = getVolumeTransmissionRay(normal, view, thickness, ior);
+  vec3 transmissionRay = getVolumeTransmissionRay(normal, view, thickness, ior, instanceIds);
   float transmissionRayLength = length(transmissionRay);
   vec3 refractedRayExit = v_position_inWorld.xyz + transmissionRay;
 
@@ -223,7 +223,7 @@ vec3 getReflection(mat3 rotEnvMatrix, vec3 viewDirection, vec3 normal_inWorld, u
   return reflection;
 }
 
-vec3 IBLContribution(uint materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection, vec3 geomNormal_inWorld, uint cameraSID, vec3 v_position_inWorld,
+vec3 IBLContribution(uvec4 instanceIds, uint materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection, vec3 geomNormal_inWorld, uint cameraSID, vec3 v_position_inWorld,
   vec3 baseColor, float perceptualRoughness, float metallic,
   float specularWeight, vec3 dielectricF0, float ior,
   ClearcoatProps clearcoatProps,
@@ -256,7 +256,7 @@ vec3 IBLContribution(uint materialSID, vec3 normal_inWorld, float NdotV, vec3 vi
 #endif
 
 #ifdef RN_USE_TRANSMISSION
-  vec3 specularTransmission = getIBLVolumeRefraction(baseColor, normal_inWorld, viewDirection, cameraSID, materialSID, volumeProps.thickness, perceptualRoughness, ior, volumeProps.attenuationColor, volumeProps.attenuationDistance, dispersion);
+  vec3 specularTransmission = getIBLVolumeRefraction(baseColor, normal_inWorld, viewDirection, cameraSID, materialSID, volumeProps.thickness, perceptualRoughness, ior, volumeProps.attenuationColor, volumeProps.attenuationDistance, dispersion, instanceIds);
   diffuse = mix(diffuse, specularTransmission, transmission);
 #endif
 
