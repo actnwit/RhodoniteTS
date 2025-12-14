@@ -33,6 +33,8 @@ export type VertexAttributeSemanticsJoinedString =
 export interface VertexAttributeEnum extends EnumIO {
   getAttributeSlot(): Index;
   shaderStr: string;
+  /** Whether this attribute is an integer type (uvec4, ivec4, etc.) in shader */
+  isIntegerType: boolean;
   X: VertexAttributeComponent;
   Y: VertexAttributeComponent;
   Z: VertexAttributeComponent;
@@ -47,17 +49,21 @@ type VertexAttributeDescriptor = {
   shaderStr: string;
   attributeSlot: Index;
   gltfComponentN: Count;
+  /** Whether this attribute is an integer type (uvec4, ivec4, etc.) in shader */
+  isIntegerType?: boolean;
 };
 export class VertexAttributeClass extends EnumClass implements VertexAttributeEnum {
   private static __indexCount = -1;
   private __attributeSlot: Index;
   private __shaderStr: string;
   private __gltfComponentN: Count;
-  private constructor({ str, shaderStr, attributeSlot, gltfComponentN }: VertexAttributeDescriptor) {
+  private __isIntegerType: boolean;
+  private constructor({ str, shaderStr, attributeSlot, gltfComponentN, isIntegerType }: VertexAttributeDescriptor) {
     super({ index: VertexAttributeClass.__indexCount++, str });
     this.__attributeSlot = attributeSlot;
     this.__shaderStr = shaderStr;
     this.__gltfComponentN = gltfComponentN;
+    this.__isIntegerType = isIntegerType ?? false;
   }
 
   getAttributeSlot(): Index {
@@ -66,6 +72,10 @@ export class VertexAttributeClass extends EnumClass implements VertexAttributeEn
 
   get shaderStr() {
     return this.__shaderStr;
+  }
+
+  get isIntegerType(): boolean {
+    return this.__isIntegerType;
   }
 
   get attributeTypeName(): VertexAttributeTypeName {
@@ -169,6 +179,7 @@ const Joints0: VertexAttributeEnum = VertexAttributeClass.__createVertexAttribut
   shaderStr: 'a_joints_0',
   attributeSlot: 6,
   gltfComponentN: 4,
+  isIntegerType: true,
 });
 const Weights0: VertexAttributeEnum = VertexAttributeClass.__createVertexAttributeClass({
   str: 'WEIGHTS_0',
@@ -181,6 +192,7 @@ const Instance: VertexAttributeEnum = VertexAttributeClass.__createVertexAttribu
   shaderStr: 'a_instanceIds',
   attributeSlot: 8,
   gltfComponentN: 4,
+  isIntegerType: true,
 });
 const FaceNormal: VertexAttributeEnum = VertexAttributeClass.__createVertexAttributeClass({
   str: 'FACE_NORMAL',
@@ -319,6 +331,9 @@ function toVectorComponentN(joinedString: VertexAttributeSemanticsJoinedString):
   return joinedString.split(',').length as VectorComponentN;
 }
 
+/** List of all vertex attributes that are integer types in shader (uvec4, ivec4, etc.) */
+const integerTypeAttributes: VertexAttributeEnum[] = [Joints0, Instance];
+
 export const VertexAttribute = Object.freeze({
   Unknown,
   Position,
@@ -333,6 +348,7 @@ export const VertexAttribute = Object.freeze({
   FaceNormal,
   BaryCentricCoord,
   AttributeTypeNumber,
+  integerTypeAttributes,
   isInstanceOfVertexAttributeClass,
   toVertexAttributeSemanticJoinedStringAsGltfStyle,
   toAttributeSlotFromJoinedString,

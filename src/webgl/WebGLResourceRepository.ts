@@ -1134,16 +1134,19 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
       }
     });
 
-    // Set default integer values for integer attributes not present in the primitive
+    // Set default integer values for integer attributes not present in the primitive.
     // This is necessary because WebGL's default generic vertex attribute is float type,
-    // which causes type mismatch with integer shader inputs (uvec4, ivec4)
-    const jointsSlot = VertexAttribute.Joints0.getAttributeSlot();
-    const hasJointsAttribute = primitive.attributeSemantics.some(
-      semantic => VertexAttribute.toAttributeSlotFromJoinedString(semantic) === jointsSlot
-    );
-    if (!hasJointsAttribute) {
-      // Set default value for a_joint (uvec4) to avoid type mismatch
-      gl.vertexAttribI4ui(jointsSlot, 0, 0, 0, 0);
+    // which causes type mismatch with integer shader inputs (uvec4, ivec4).
+    // Note: disableVertexAttribArray alone does not avoid the type check.
+    for (const intAttr of VertexAttribute.integerTypeAttributes) {
+      const slot = intAttr.getAttributeSlot();
+      const hasAttribute = primitive.attributeSemantics.some(
+        semantic => VertexAttribute.toAttributeSlotFromJoinedString(semantic) === slot
+      );
+      if (!hasAttribute) {
+        gl.disableVertexAttribArray(slot);
+        gl.vertexAttribI4ui(slot, 0, 0, 0, 0);
+      }
     }
 
     /// for InstanceIDBuffer
