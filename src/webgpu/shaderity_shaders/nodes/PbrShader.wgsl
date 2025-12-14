@@ -21,8 +21,8 @@ fn pbrShader(
   // F0, F90
   let outsideIor = 1.0;
   var dielectricF0 = vec3f(sqF32((ior - outsideIor) / (ior + outsideIor)));
-  dielectricF0 = min(dielectricF0 * specularColor, vec3f(1.0));
-  let dielectricF90 = vec3f(specularWeight);
+  dielectricF0 = min(dielectricF0 * specularProps.specularColor, vec3f(1.0));
+  let dielectricF90 = vec3f(specularProps.specularWeight);
 
   let lightNumber = u32(get_lightNumber(0u, 0u));
   let cameraSID = uniformDrawParameters.cameraSID;
