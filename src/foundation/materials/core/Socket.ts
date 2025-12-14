@@ -7,11 +7,13 @@ import type { Vector2 } from '../../math/Vector2';
 import type { Vector3 } from '../../math/Vector3';
 import type { Vector4 } from '../../math/Vector4';
 
+export type ValueTypes = Vector4 | Vector3 | Vector2 | Scalar | Matrix44 | Matrix33;
+
 /**
  * Union type representing all possible default values that can be assigned to a Socket.
  * Includes mathematical types like vectors, scalars, and matrices.
  */
-export type SocketDefaultValue = Vector4 | Vector3 | Vector2 | Scalar | Matrix44 | Matrix33;
+export type SocketDefaultValue = ValueTypes | Record<string, ValueTypes>;
 
 /**
  * Represents a socket in the material system that defines an input/output connection point

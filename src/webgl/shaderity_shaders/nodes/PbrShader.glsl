@@ -1,21 +1,24 @@
 void pbrShader(
+  in uvec4 instanceIds,
+  in vec4 positionInWorld, in vec3 normalInWorld,
   in vec4 baseColor, in float perceptualRoughness, in float metallic,
-  in float ior, in vec3 specularColor, in float specularWeight,
-  in float transmission, in float thickness,
-  float clearcoat, float clearcoatRoughness, vec3 clearcoatF0, vec3 clearcoatF90, vec3 clearcoatFresnel, vec3 clearcoatNormal_inWorld, float VdotNc,
-  vec3 attenuationColor, float attenuationDistance,
-  float anisotropy, vec3 anisotropicT, vec3 anisotropicB, float BdotV, float TdotV,
-  vec3 sheenColor, float sheenRoughness, float albedoSheenScalingNdotV,
-  float iridescence, vec3 iridescenceFresnel_dielectric, vec3 iridescenceFresnel_metal,
-  float diffuseTransmission, vec3 diffuseTransmissionColor, float diffuseTransmissionThickness,
-  in vec4 positionInWorld, in vec3 normalInWorld, out vec4 outColor) {
+  in float ior,
+  in float transmission,
+  in SpecularProps specularProps,
+  in VolumeProps volumeProps,
+  in ClearcoatProps clearcoatProps,
+  in AnisotropyProps anisotropyProps,
+  in SheenProps sheenProps,
+  in IridescenceProps iridescenceProps,
+  in DiffuseTransmissionProps diffuseTransmissionProps,
+  out vec4 outColor) {
   vec4 shadingColor = vec4(0.0, 0.0, 0.0, baseColor.a);
 
     // F0, F90
   float outsideIor = 1.0;
   vec3 dielectricF0 = vec3(sq((ior - outsideIor) / (ior + outsideIor)));
-  dielectricF0 = min(dielectricF0 * specularColor, vec3(1.0));
-  vec3 dielectricF90 = vec3(specularWeight);
+  dielectricF0 = min(dielectricF0 * specularProps.specularColor, vec3(1.0));
+  vec3 dielectricF90 = vec3(specularProps.specularWeight);
 
   int lightNumber = 0;
   #ifdef RN_IS_LIGHTING
@@ -38,18 +41,18 @@ void pbrShader(
   float NdotV = saturate(dot(normalInWorld, viewDirection));
 
   for (int i = 0; i < lightNumber; i++) {
-    vec3 specular = vec3(0.0, 0.0, 0.0);
     // Get Light
     Light light = getLight(i, positionInWorld.xyz);
-
-    vec3 lighting = lightingWithPunctualLight(light, normalInWorld, viewDirection, NdotV, baseColor.rgb,
-                  perceptualRoughness, metallic, dielectricF0, dielectricF90, ior, transmission, thickness,
-                  clearcoat, clearcoatRoughness, clearcoatF0, clearcoatF90, clearcoatFresnel, clearcoatNormal_inWorld, VdotNc,
-                  attenuationColor, attenuationDistance,
-                  anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
-                  sheenColor, sheenRoughness, albedoSheenScalingNdotV,
-                  iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, specularWeight,
-                  diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness);
+    vec3 lighting = lightingWithPunctualLight(v_instanceIds, light, normalInWorld, viewDirection, NdotV, baseColor.rgb,
+                        perceptualRoughness, metallic,
+                        specularProps.specularWeight, dielectricF0, dielectricF90, ior,
+                        transmission,
+                        volumeProps,
+                        clearcoatProps,
+                        anisotropyProps,
+                        sheenProps,
+                        iridescenceProps,
+                        diffuseTransmissionProps);
 
     #ifdef RN_USE_SHADOW_MAPPING
     int depthTextureIndex = get_depthTextureIndexList(materialSID, uint(i));

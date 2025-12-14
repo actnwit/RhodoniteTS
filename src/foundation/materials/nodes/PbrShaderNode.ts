@@ -30,25 +30,78 @@ export class PbrShaderNode extends AbstractShaderNode {
     });
 
     this.__inputs.push(
-      new Socket('vertexColor', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
-    );
-    this.__inputs.push(
-      new Socket('diffuseColorFactor', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
-    );
-    this.__inputs.push(
-      new Socket('diffuseTextureColor', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
-    );
-    this.__inputs.push(
-      new Socket('shadingModel', CompositionType.Scalar, ComponentType.UnsignedInt, Scalar.fromCopyNumber(2))
-    );
-    this.__inputs.push(
-      new Socket('shininess', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(10.0))
+      new Socket('instanceIds', CompositionType.Vec4, ComponentType.UnsignedInt, Vector4.fromCopy4(0, 0, 0, 0))
     );
     this.__inputs.push(
       new Socket('positionInWorld', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(0, 0, 0, 1))
     );
     this.__inputs.push(
       new Socket('normalInWorld', CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 1))
+    );
+    this.__inputs.push(
+      new Socket('baseColor', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
+    );
+    this.__inputs.push(
+      new Socket('roughness', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.5))
+    );
+    this.__inputs.push(new Socket('metallic', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.0)));
+    this.__inputs.push(new Socket('ior', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(1.5)));
+    this.__inputs.push(
+      new Socket('transmission', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.0))
+    );
+    this.__inputs.push(
+      new Socket('specularProps', CompositionType.SpecularProps, ComponentType.Float, {
+        specularWeight: Scalar.fromCopyNumber(1.0),
+        specularColor: Vector3.fromCopy3(1.0, 1.0, 1.0),
+      })
+    );
+    this.__inputs.push(
+      new Socket('volumeProps', CompositionType.VolumeProps, ComponentType.Float, {
+        attenuationColor: Vector3.fromCopy3(1.0, 1.0, 1.0),
+        attenuationDistance: Scalar.fromCopyNumber(1e20),
+        thickness: Scalar.fromCopyNumber(0.0),
+      })
+    );
+    this.__inputs.push(
+      new Socket('clearcoatProps', CompositionType.ClearcoatProps, ComponentType.Float, {
+        clearcoat: Scalar.fromCopyNumber(0.0),
+        clearcoatRoughness: Scalar.fromCopyNumber(0.0),
+        clearcoatNormal_inWorld: Vector3.fromCopy3(0.0, 0.0, 0.0),
+        VdotNc: Scalar.fromCopyNumber(0.0),
+        clearcoatF0: Vector3.fromCopy3(0.0, 0.0, 0.0),
+        clearcoatF90: Vector3.fromCopy3(0.0, 0.0, 0.0),
+        clearcoatFresnel: Vector3.fromCopy3(0.0, 0.0, 0.0),
+      })
+    );
+    this.__inputs.push(
+      new Socket('anisotropyProps', CompositionType.AnisotropyProps, ComponentType.Float, {
+        anisotropy: Scalar.fromCopyNumber(0.0),
+        anisotropicT: Vector3.fromCopy3(0.0, 0.0, 0.0),
+        anisotropicB: Vector3.fromCopy3(0.0, 0.0, 0.0),
+        BdotV: Scalar.fromCopyNumber(0.0),
+        TdotV: Scalar.fromCopyNumber(0.0),
+      })
+    );
+    this.__inputs.push(
+      new Socket('sheenProps', CompositionType.SheenProps, ComponentType.Float, {
+        sheenColor: Vector3.fromCopy3(0.0, 0.0, 0.0),
+        sheenRoughness: Scalar.fromCopyNumber(0.000001),
+        albedoSheenScalingNdotV: Scalar.fromCopyNumber(1.0),
+      })
+    );
+    this.__inputs.push(
+      new Socket('iridescenceProps', CompositionType.IridescenceProps, ComponentType.Float, {
+        iridescence: Scalar.fromCopyNumber(0.0),
+        fresnelDielectric: Vector3.fromCopy3(0.0, 0.0, 0.0),
+        fresnelMetal: Vector3.fromCopy3(0.0, 0.0, 0.0),
+      })
+    );
+    this.__inputs.push(
+      new Socket('diffuseTransmissionProps', CompositionType.DiffuseTransmissionProps, ComponentType.Float, {
+        diffuseTransmission: Scalar.fromCopyNumber(0.0),
+        diffuseTransmissionColor: Vector3.fromCopy3(0.0, 0.0, 0.0),
+        diffuseTransmissionThickness: Scalar.fromCopyNumber(0.0),
+      })
     );
     this.__outputs.push(new Socket('outColor', CompositionType.Vec4, ComponentType.Float));
   }

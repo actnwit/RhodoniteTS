@@ -502,6 +502,76 @@ const Mat4x3Array = new CompositionTypeClass({
   vec4SizeOfProperty: 3,
   isArray: true,
 });
+const SpecularProps = new CompositionTypeClass({
+  index: 20,
+  str: 'SPECULAR_PROPS',
+  glslStr: 'struct SpecularProps',
+  hlslStr: 'struct SpecularProps',
+  wgsl: 'struct SpecularProps',
+  webgpu: 'struct SpecularProps',
+  numberOfComponents: -1,
+  vec4SizeOfProperty: -1,
+});
+const VolumeProps = new CompositionTypeClass({
+  index: 21,
+  str: 'VOLUME_PROPS',
+  glslStr: 'struct VolumeProps',
+  hlslStr: 'struct VolumeProps',
+  wgsl: 'struct VolumeProps',
+  webgpu: 'struct VolumeProps',
+  numberOfComponents: -1,
+  vec4SizeOfProperty: -1,
+});
+const ClearcoatProps = new CompositionTypeClass({
+  index: 22,
+  str: 'CLEARCOAT_PROPS',
+  glslStr: 'struct ClearcoatProps',
+  hlslStr: 'struct ClearcoatProps',
+  wgsl: 'struct ClearcoatProps',
+  webgpu: 'struct ClearcoatProps',
+  numberOfComponents: -1,
+  vec4SizeOfProperty: -1,
+});
+const AnisotropyProps = new CompositionTypeClass({
+  index: 23,
+  str: 'ANISOTROPY_PROPS',
+  glslStr: 'struct AnisotropyProps',
+  hlslStr: 'struct AnisotropyProps',
+  wgsl: 'struct AnisotropyProps',
+  webgpu: 'struct AnisotropyProps',
+  numberOfComponents: -1,
+  vec4SizeOfProperty: -1,
+});
+const SheenProps = new CompositionTypeClass({
+  index: 24,
+  str: 'SHEEN_PROPS',
+  glslStr: 'struct SheenProps',
+  hlslStr: 'struct SheenProps',
+  wgsl: 'struct SheenProps',
+  webgpu: 'struct SheenProps',
+  numberOfComponents: -1,
+  vec4SizeOfProperty: -1,
+});
+const IridescenceProps = new CompositionTypeClass({
+  index: 25,
+  str: 'IRIDESCENCE_PROPS',
+  glslStr: 'struct IridescenceProps',
+  hlslStr: 'struct IridescenceProps',
+  wgsl: 'struct IridescenceProps',
+  webgpu: 'struct IridescenceProps',
+  numberOfComponents: -1,
+  vec4SizeOfProperty: -1,
+});
+const DiffuseTransmissionProps = new CompositionTypeClass({
+  index: 26,
+  str: 'DIFFUSE_TRANSMISSION_PROPS',
+  glslStr: 'struct DiffuseTransmissionProps',
+  hlslStr: 'struct DiffuseTransmissionProps',
+  wgsl: 'struct DiffuseTransmissionProps',
+  webgpu: 'struct DiffuseTransmissionProps',
+  numberOfComponents: -1,
+  vec4SizeOfProperty: -1,
+});
 
 const typeList = [
   Unknown,
@@ -524,6 +594,13 @@ const typeList = [
   Texture2DRect,
   TextureCube,
   Mat4x3Array,
+  SpecularProps,
+  VolumeProps,
+  ClearcoatProps,
+  AnisotropyProps,
+  SheenProps,
+  IridescenceProps,
+  DiffuseTransmissionProps,
 ];
 
 export type VectorCompositionTypes = typeof Scalar | typeof Vec2 | typeof Vec3 | typeof Vec4;
@@ -803,6 +880,13 @@ export const CompositionType = Object.freeze({
   Texture2DRect,
   Texture2DArray,
   Mat4x3Array,
+  SpecularProps,
+  VolumeProps,
+  ClearcoatProps,
+  AnisotropyProps,
+  SheenProps,
+  IridescenceProps,
+  DiffuseTransmissionProps,
   from,
   fromString,
   vectorFrom,
