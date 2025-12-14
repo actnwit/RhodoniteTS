@@ -1,5 +1,7 @@
 fn pbrShader(
   instanceIds: vec4<u32>,
+  positionInWorld: vec4<f32>,
+  normalInWorld: vec3<f32>,
   baseColor: vec4<f32>,
   perceptualRoughness: f32,
   metallic: f32,
