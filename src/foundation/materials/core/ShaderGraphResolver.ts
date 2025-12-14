@@ -40,8 +40,8 @@ import { LessOrEqualShaderNode } from '../nodes/LessOrEqualShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
+import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NotEqualShaderNode } from '../nodes/NotEqualShaderNode';
 import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
@@ -331,7 +331,13 @@ export class ShaderGraphResolver {
             }
             definedVaryings.add(varyingName);
             const type = input.compositionType.getGlslStr(input.componentType);
-            shaderBody += `${isVertexStage ? 'out' : 'in'} ${type} ${varyingName};\n`;
+            // Integer and boolean types require flat interpolation in GLSL ES 3.0
+            const needsFlat =
+              input.componentType.isInteger() ||
+              input.componentType.isUnsignedInteger() ||
+              input.componentType === ComponentType.Bool;
+            const flatModifier = needsFlat ? 'flat ' : '';
+            shaderBody += `${flatModifier}${isVertexStage ? 'out' : 'in'} ${type} ${varyingName};\n`;
           }
         }
       }
