@@ -221,6 +221,7 @@ vec3 normalBlendingUDN(sampler2D baseMap, sampler2D detailMap, vec2 baseUv, vec2
   return r;
 }
 
+#ifdef RN_IS_PIXEL_SHADER
 float IsotropicNDFFiltering(vec3 normal, float roughness2) {
   float SIGMA2 = 0.15915494;
   float KAPPA = 0.18;
@@ -231,6 +232,7 @@ float IsotropicNDFFiltering(vec3 normal, float roughness2) {
   float filteredRoughness2 = saturate(roughness2 + clampedKernelRoughness2);
   return filteredRoughness2;
 }
+#endif
 
 ////////////////////////////////////////
 // glTF KHR_materials_transmission
