@@ -119,7 +119,7 @@ fn main(
   output.baryCentricCoord = baryCentricCoord.xyz;
 #endif
 
-  output.instanceInfo = instance_ids.x;
+  output.instanceIds = instance_ids;
 
   return output;
 }

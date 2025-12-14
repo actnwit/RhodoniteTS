@@ -520,7 +520,7 @@ var diffuseTransmissionProps: DiffuseTransmissionProps;
   diffuseTransmissionProps.diffuseTransmissionThickness = diffuseTransmissionThickness;
 
 #ifdef RN_USE_VOLUME
-  let worldMatrix = get_worldMatrix(u32(input.instanceInfo));
+  let worldMatrix = get_worldMatrix(u32(input.instanceIds.x));
   diffuseTransmissionProps.diffuseTransmissionThickness = thickness * (length(worldMatrix[0].xyz) * length(worldMatrix[1].xyz) * length(worldMatrix[2].xyz)) / 3.0;
 #endif // RN_USE_VOLUME
 
@@ -536,7 +536,7 @@ var diffuseTransmissionProps: DiffuseTransmissionProps;
   let lightNumber = u32(get_lightNumber(0u, 0u));
   for (var i = 0u; i < lightNumber; i++) {
     let light: Light = getLight(i, input.position_inWorld.xyz);
-    var lighting = lightingWithPunctualLight(u32(input.instanceInfo), light, normal_inWorld, viewDirection,
+    var lighting = lightingWithPunctualLight(input.instanceIds, light, normal_inWorld, viewDirection,
                             NdotV, baseColor.rgb, perceptualRoughness, metallic,
                             specularWeight, dielectricF0, dielectricF90, ior,
                             transmission, volumeProps,
@@ -586,7 +586,7 @@ var diffuseTransmissionProps: DiffuseTransmissionProps;
   }
 
   // Image-based Lighting
-  let ibl: vec3f = IBLContribution(u32(input.instanceInfo), materialSID, cameraSID,
+  let ibl: vec3f = IBLContribution(input.instanceIds, materialSID, cameraSID,
     normal_inWorld, NdotV, viewDirection, geomNormal_inWorld, input.position_inWorld.xyz,
     baseColor.rgb, perceptualRoughness, metallic, specularWeight, dielectricF0, ior,
     clearcoatProps,

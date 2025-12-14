@@ -142,7 +142,7 @@ fn get_sample_from_backbuffer(sampleCoord: vec2f, perceptualRoughness: f32, ior:
   return transmittedLight;
 }
 
-fn getIBLVolumeRefraction(baseColor: vec3f, normal: vec3f, view: vec3f, cameraSID: u32, materialSID: u32, thickness: f32, perceptualRoughness: f32, ior: f32, attenuationColor: vec3f, attenuationDistance: f32, position_inWorld: vec3f, instanceInfo: u32) -> vec3f {
+fn getIBLVolumeRefraction(baseColor: vec3f, normal: vec3f, view: vec3f, cameraSID: u32, materialSID: u32, thickness: f32, perceptualRoughness: f32, ior: f32, attenuationColor: vec3f, attenuationDistance: f32, position_inWorld: vec3f, instanceIds: vec4<f32>) -> vec3f {
 #ifdef RN_USE_DISPERSION
   let dispersion = get_dispersion(materialSID, 0);
   let halfSpread = (ior - 1.0) * 0.025 * dispersion;
@@ -151,7 +151,7 @@ fn getIBLVolumeRefraction(baseColor: vec3f, normal: vec3f, view: vec3f, cameraSI
   var transmittedLight: vec3f;
   var transmissionRayLength: f32;
   for(var i=0; i<3; i++) {
-    let transmissionRay = getVolumeTransmissionRay(normal, view, thickness, iors[i], instanceInfo);
+    let transmissionRay = getVolumeTransmissionRay(normal, view, thickness, iors[i], instanceIds);
     transmissionRayLength = length(transmissionRay);
     let refractedRayExit = position_inWorld + transmissionRay;
 
@@ -163,7 +163,7 @@ fn getIBLVolumeRefraction(baseColor: vec3f, normal: vec3f, view: vec3f, cameraSI
     transmittedLight[i] = get_sample_from_backbuffer(refractionCoords, perceptualRoughness, iors[i])[i];
   }
 #else
-  let transmissionRay = getVolumeTransmissionRay(normal, view, thickness, ior, instanceInfo);
+  let transmissionRay = getVolumeTransmissionRay(normal, view, thickness, ior, instanceIds);
   let transmissionRayLength = length(transmissionRay);
   let refractedRayExit = position_inWorld + transmissionRay;
 
@@ -217,7 +217,7 @@ fn getIBLFresnelGGX(perceptualRoughness: f32, NdotV: f32, F0: vec3f, specularWei
   return FssEss + FmsEms;
 }
 
-fn IBLContribution(instanceInfo: u32, materialSID: u32, cameraSID: u32,
+fn IBLContribution(instanceIds: vec4<f32>, materialSID: u32, cameraSID: u32,
   normal_inWorld: vec3f, NdotV: f32, viewDirection: vec3f, geomNormal_inWorld: vec3f, position_inWorld: vec3f,
   baseColor: vec3f, perceptualRoughness: f32, metallic: f32, specularWeight: f32, dielectricF0: vec3f, ior: f32,
   clearcoatProps: ClearcoatProps,
@@ -250,7 +250,7 @@ fn IBLContribution(instanceInfo: u32, materialSID: u32, cameraSID: u32,
 #endif
 
 #ifdef RN_USE_TRANSMISSION
-  let specularTransmission: vec3f = getIBLVolumeRefraction(baseColor, normal_inWorld, viewDirection, cameraSID, materialSID, volumeProps.thickness, perceptualRoughness, ior, volumeProps.attenuationColor, volumeProps.attenuationDistance, position_inWorld, instanceInfo);
+  let specularTransmission: vec3f = getIBLVolumeRefraction(baseColor, normal_inWorld, viewDirection, cameraSID, materialSID, volumeProps.thickness, perceptualRoughness, ior, volumeProps.attenuationColor, volumeProps.attenuationDistance, position_inWorld, instanceIds);
   diffuse = mix(diffuse, specularTransmission, transmission);
 #endif
 

@@ -80,7 +80,7 @@ fn main(
   output.binormal_inWorld = cross(output.normal_inWorld, output.tangent_inWorld) * tangent.w;
 #endif
 
-  output.instanceInfo = instance_ids.x;
+  output.instanceIds = instance_ids;
 
   let visibility = get_isVisible(instanceId);
   if (!visibility)
