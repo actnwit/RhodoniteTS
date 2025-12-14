@@ -221,7 +221,7 @@ fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, Ndot
   baseColor: vec3f, perceptualRoughness: f32,
   clearcoatProps: ClearcoatProps, geomNormal_inWorld: vec3f,
   transmission: f32, position_inWorld: vec3f, instanceInfo: u32, volumeProps: VolumeProps, ior: f32,
-  sheenColor: vec3f, sheenRoughness: f32, albedoSheenScalingNdotV: f32,
+  sheenProps: SheenProps,
   iridescenceFresnel_dielectric: vec3f, iridescenceFresnel_metal: vec3f, iridescence: f32,
   anisotropyProps: AnisotropyProps, specularWeight: f32, dielectricF0: vec3f, metallic: f32,
   diffuseTransmission: f32, diffuseTransmissionColor: vec3f, diffuseTransmissionThickness: f32
@@ -275,8 +275,8 @@ fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, Ndot
 #endif
 
 #ifdef RN_USE_SHEEN
-  let sheenContrib: vec3f = sheenIBL(NdotV, sheenRoughness, sheenColor, iblParameter, reflection, hdriFormat);
-  let albedoSheenScaling: f32 = albedoSheenScalingNdotV;
+  let sheenContrib: vec3f = sheenIBL(NdotV, sheenProps.sheenRoughness, sheenProps.sheenColor, iblParameter, reflection, hdriFormat);
+  let albedoSheenScaling: f32 = sheenProps.albedoSheenScalingNdotV;
 #else
   let sheenContrib: vec3f = vec3(0.0);
   let albedoSheenScaling: f32 = 1.0;

@@ -454,6 +454,7 @@ let ior = get_ior(materialSID, 0);
   volumeProps.attenuationDistance = 1e20;
 #endif // RN_USE_VOLUME
 
+  var sheenProps: SheenProps;
 #ifdef RN_USE_SHEEN
   // Sheen
   let sheenColorFactor: vec3f = get_sheenColorFactor(materialSID, 0);
@@ -477,10 +478,13 @@ let ior = get_ior(materialSID, 0);
   let sheenColor: vec3f = sheenColorFactor * sheenColorTexture;
   let sheenRoughness: f32 = clamp(sheenRoughnessFactor * sheenRoughnessTexture, 0.000001, 1.0);
   let albedoSheenScalingNdotV: f32 = 1.0 - max3(sheenColor) * textureSample(sheenLutTexture, sheenLutSampler, vec2(NdotV, sheenRoughness)).r;
+  sheenProps.sheenColor = sheenColor;
+  sheenProps.sheenRoughness = sheenRoughness;
+  sheenProps.albedoSheenScalingNdotV = albedoSheenScalingNdotV;
 #else
-  let sheenColor = vec3f(0.0);
-  let sheenRoughness = 0.000001;
-  let albedoSheenScalingNdotV = 1.0;
+  sheenProps.sheenColor = vec3f(0.0);
+  sheenProps.sheenRoughness = 0.000001;
+  sheenProps.albedoSheenScalingNdotV = 1.0;
 #endif // RN_USE_SHEEN
 
 #ifdef RN_USE_DIFFUSE_TRANSMISSION
@@ -528,7 +532,7 @@ let ior = get_ior(materialSID, 0);
                             transmission, volumeProps,
                             clearcoatProps,
                             anisotropyProps,
-                            sheenColor, sheenRoughness, albedoSheenScalingNdotV,
+                            sheenProps,
                             iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, u32(input.instanceInfo),
                             diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness
                             );
@@ -576,7 +580,7 @@ let ior = get_ior(materialSID, 0);
     baseColor.rgb, perceptualRoughness,
     clearcoatProps, geomNormal_inWorld,
     transmission, input.position_inWorld.xyz, u32(input.instanceInfo), volumeProps, ior,
-    sheenColor, sheenRoughness, albedoSheenScalingNdotV,
+    sheenProps,
     iridescenceFresnel_dielectric, iridescenceFresnel_metal, iridescence,
     anisotropyProps, specularWeight, dielectricF0, metallic,
     diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness

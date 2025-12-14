@@ -521,9 +521,7 @@ fn lightingWithPunctualLight(
   volumeProps: VolumeProps,
   clearcoatProps: ClearcoatProps,
   anisotropyProps: AnisotropyProps,
-  sheenColor: vec3f,
-  sheenRoughness: f32,
-  albedoSheenScalingNdotV: f32,
+  sheenProps: SheenProps,
   iridescence: f32,
   iridescenceFresnel_dielectric: vec3f,
   iridescenceFresnel_metal: vec3f,
@@ -611,10 +609,10 @@ fn lightingWithPunctualLight(
 
 #ifdef RN_USE_SHEEN
   // Sheen
-  let sheenContrib = BRDF_specularSheen(sheenColor, sheenRoughness, NdotL, NdotV, NdotH) * NdotL * light.attenuatedIntensity;
+  let sheenContrib = BRDF_specularSheen(sheenProps.sheenColor, sheenProps.sheenRoughness, NdotL, NdotV, NdotH) * NdotL * light.attenuatedIntensity;
   let albedoSheenScaling = min(
-    albedoSheenScalingNdotV,
-    1.0 - max3(sheenColor) * textureSample(sheenLutTexture, sheenLutSampler, vec2(NdotL, sheenRoughness)).r);
+    sheenProps.albedoSheenScalingNdotV,
+    1.0 - max3(sheenProps.sheenColor) * textureSample(sheenLutTexture, sheenLutSampler, vec2(NdotL, sheenProps.sheenRoughness)).r);
 #else
   let sheenContrib = vec3f(0.0);
   let albedoSheenScaling = 1.0;
