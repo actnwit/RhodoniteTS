@@ -139,7 +139,7 @@ in vec4 a_position;
   const vec4 a_color = vec4(1.0, 1.0, 1.0, 1.0);
 #endif
 in vec3 a_normal;
-in vec4 a_instanceIds;
+in uvec4 a_instanceIds;
 in vec2 a_texcoord_0;
 in vec2 a_texcoord_1;
 in vec2 a_texcoord_2;
