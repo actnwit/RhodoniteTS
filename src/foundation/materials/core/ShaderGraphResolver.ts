@@ -41,8 +41,8 @@ import { LessOrEqualShaderNode } from '../nodes/LessOrEqualShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
+import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NotEqualShaderNode } from '../nodes/NotEqualShaderNode';
 import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
@@ -462,6 +462,35 @@ export class ShaderGraphResolver {
   }
 
   /**
+   * Gets the GLSL struct name for PBR props composition types.
+   * @private
+   */
+  private static __getStructName(compositionType: CompositionTypeEnum): string | undefined {
+    if (compositionType === CompositionType.SpecularProps) {
+      return 'SpecularProps';
+    }
+    if (compositionType === CompositionType.VolumeProps) {
+      return 'VolumeProps';
+    }
+    if (compositionType === CompositionType.ClearcoatProps) {
+      return 'ClearcoatProps';
+    }
+    if (compositionType === CompositionType.AnisotropyProps) {
+      return 'AnisotropyProps';
+    }
+    if (compositionType === CompositionType.SheenProps) {
+      return 'SheenProps';
+    }
+    if (compositionType === CompositionType.IridescenceProps) {
+      return 'IridescenceProps';
+    }
+    if (compositionType === CompositionType.DiffuseTransmissionProps) {
+      return 'DiffuseTransmissionProps';
+    }
+    return undefined;
+  }
+
+  /**
    * Generates a shader initialization string for a struct type default value.
    * @private
    */
@@ -470,10 +499,13 @@ export class ShaderGraphResolver {
     defaultValue: Record<string, ValueTypes>,
     isWebGPU: boolean
   ): string {
-    // Extract the struct type name from the composition type's GLSL string
-    // e.g., "struct SpecularProps" -> "SpecularProps"
-    const glslStr = compositionType.getGlslStr(ComponentType.Unknown);
-    const structName = glslStr.replace('struct ', '');
+    // Get the struct type name from the helper, or fall back to extracting from GLSL string
+    let structName = this.__getStructName(compositionType);
+    if (!structName) {
+      // Fall back to extracting from GLSL string for unknown struct types
+      const glslStr = compositionType.getGlslStr(ComponentType.Unknown);
+      structName = glslStr.replace('struct ', '');
+    }
 
     // Build the member initialization values in the order they appear in the default value object
     const memberValues: string[] = [];
