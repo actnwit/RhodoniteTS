@@ -17,9 +17,21 @@ fn pbrShader(
   outColor: ptr<function, vec4<f32>>
 ) {
   var shadingColor = vec4<f32>(0.0, 0.0, 0.0, baseColor.a);
+
+  // F0, F90
+  let outsideIor = 1.0;
+  let dielectricF0 = vec3<f32>(sq((ior - outsideIor) / (ior + outsideIor)));
+  dielectricF0 = min(dielectricF0 * specularProps.specularColor, vec3<f32>(1.0));
+  let dielectricF90 = vec3<f32>(specularProps.specularWeight);
+
   let lightNumber = u32(get_lightNumber(0u, 0u));
   let cameraSID = uniformDrawParameters.cameraSID;
   let materialSID = uniformDrawParameters.materialSid;
+
+  let viewPosition = get_viewPosition(cameraSID);
+  let viewDirection = normalize(viewPosition - positionInWorld.xyz);
+  let NdotV = saturate(dot(normalInWorld, viewDirection));
+
   for (var i = 0u; i < lightNumber ; i++) {
     let light: Light = getLight(i, positionInWorld.xyz);
     let lighting = lightingWithPunctualLight(instanceIds, light, normalInWorld, viewDirection, NdotV, baseColor.rgb,
