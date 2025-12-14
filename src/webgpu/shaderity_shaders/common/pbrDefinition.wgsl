@@ -147,10 +147,10 @@ fn volumeAttenuation(attenuationColor: vec3f, attenuationDistance: f32, intensit
 }
 
 // from glTF Sample Viewer: https://github.com/KhronosGroup/glTF-Sample-Viewer
-fn getVolumeTransmissionRay(n: vec3f, v: vec3f, thickness: f32, ior: f32, instanceIds: vec4<f32>) -> vec3f
+fn getVolumeTransmissionRay(n: vec3f, v: vec3f, thickness: f32, ior: f32, instanceIds: vec4<u32>) -> vec3f
 {
   let refractionVector = refract(-v, normalize(n), 1.0 / ior);
-  let worldMatrix = get_worldMatrix(u32(instanceIds.x));
+  let worldMatrix = get_worldMatrix(instanceIds.x);
 
   var modelScale: vec3f;
   modelScale.x = length(vec3f(worldMatrix[0].xyz));
@@ -506,7 +506,7 @@ struct SpecularProps
 // lighting with a punctual light
 ////////////////////////////////////////
 fn lightingWithPunctualLight(
-  instanceIds: vec4<f32>,
+  instanceIds: vec4<u32>,
   light_: Light,
   normal_inWorld: vec3f,
   viewDirection: vec3f,
