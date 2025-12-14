@@ -6,12 +6,12 @@
     lightNumber = get_lightNumber(0u, 0u);
   #endif
 
-  float skeletalComponentSID = -1.0;
+  uint skeletalComponentSID = INVALID_ID;
   #ifdef RN_IS_SKINNING
     #ifdef RN_IS_VERTEX_SHADER
       skeletalComponentSID = a_instanceIds.y;
     #else
-      skeletalComponentSID = -1.0;
+      skeletalComponentSID = INVALID_ID;
     #endif
   #endif
 
@@ -24,9 +24,9 @@
     lightNumber = get_lightNumber(0u, 0u);
   #endif
 
-  float skeletalComponentSID = -1.0;
+  uint skeletalComponentSID = INVALID_ID;
   #ifdef RN_IS_SKINNING
-    skeletalComponentSID = float(get_skinningMode(0u, 0u));
+    skeletalComponentSID = uint(get_skinningMode(0u, 0u));
   #endif
 
 #endif

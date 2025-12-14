@@ -326,6 +326,15 @@ function fromGlslString(str_: string): ComponentTypeEnum {
     case 'ivec4':
       str = 'INT';
       break;
+    case 'uvec2':
+      str = 'UNSIGNED_INT';
+      break;
+    case 'uvec3':
+      str = 'UNSIGNED_INT';
+      break;
+    case 'uvec4':
+      str = 'UNSIGNED_INT';
+      break;
     case 'sampler2D':
       str = 'INT';
       break;

@@ -578,6 +578,15 @@ function fromGlslString(str_: string): CompositionTypeEnum {
     case 'ivec4':
       str = 'vec4';
       break;
+    case 'uvec2':
+      str = 'vec2';
+      break;
+    case 'uvec3':
+      str = 'vec3';
+      break;
+    case 'uvec4':
+      str = 'vec4';
+      break;
     case 'sampler2D':
       str = 'TEXTURE_2D';
       break;

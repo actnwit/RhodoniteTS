@@ -245,22 +245,23 @@ export class Mesh implements IMesh {
       cgApiResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
     }
 
+    const INVALID_ID = 0xffff_ffff;
     const instanceNum = this.__belongToEntities.length;
     // const entityInfo = new Float32Array(instanceNum);
-    const entityInfo = new Float32Array(instanceNum * 4);
+    const entityInfo = new Uint32Array(instanceNum * 4);
     for (let i = 0; i < instanceNum; i++) {
       entityInfo[4 * i + 0] = this.__belongToEntities[i].getSceneGraph().componentSID;
       const skeletal = this.__belongToEntities[i].tryToGetSkeletal();
       if (skeletal != null) {
         entityInfo[4 * i + 1] = skeletal.componentSID;
       } else {
-        entityInfo[4 * i + 1] = -1;
+        entityInfo[4 * i + 1] = INVALID_ID;
       }
       const blendShape = this.__belongToEntities[i].tryToGetBlendShape();
       if (blendShape != null) {
         entityInfo[4 * i + 2] = blendShape.componentSID;
       } else {
-        entityInfo[4 * i + 2] = -1;
+        entityInfo[4 * i + 2] = INVALID_ID;
       }
     }
     this.__variationVBOUid = cgApiResourceRepository.createVertexBufferFromTypedArray(entityInfo);

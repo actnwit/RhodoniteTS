@@ -12,8 +12,8 @@ importers:
         specifier: 0.2.2
         version: 0.2.2
       shaderity:
-        specifier: ^0.2.18
-        version: 0.2.18
+        specifier: ^0.2.19
+        version: 0.2.19
       zstddec:
         specifier: ^0.0.2
         version: 0.0.2
@@ -1975,8 +1975,8 @@ packages:
   shaderity-node@0.0.10:
     resolution: {integrity: sha512-/ooQYfmM4TUFqIL+IeECqKVFhCjxZ1/CXzJhogHZsGn5OtOOfJ+9C3ACWiKZ0RAT6R855HAuHTxozE2Qtc+wnQ==}
 
-  shaderity@0.2.18:
-    resolution: {integrity: sha512-G1rLCnsTBj0EUsvq9CtAvg5KIN0XjaZZ8/VpclDEFOCnzpaoxxxY6i6x/5WOTjHL5qzQId5B3xO2+427dm821A==}
+  shaderity@0.2.19:
+    resolution: {integrity: sha512-44cSPQj7pm+sfVePl10b6P/2W1vIIjYu6f8ePeJq8jFXwwre9BqrUfpd9Ft/Rtmz3186JUs+lH+cwc0JNn+nqg==}
 
   shebang-command@2.0.0:
     resolution: {integrity: sha512-kHxr2zZpYtdmrN1qDjrrX/Z1rR1kG8Dx+gkpK1G4eXmvXswmcE1hTWBWYUzlraYw1/yZp6YuDY77YtvbN0dmDA==}
@@ -4296,7 +4296,7 @@ snapshots:
 
   shaderity-node@0.0.10: {}
 
-  shaderity@0.2.18: {}
+  shaderity@0.2.19: {}
 
   shebang-command@2.0.0:
     dependencies:

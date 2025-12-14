@@ -1088,7 +1088,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     primitive: Primitive,
     instanceIDBufferUid: WebGLResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid
   ) {
-    const gl = this.__glw!.getRawContext();
+    const gl = this.__glw!.getRawContextAsWebGL2();
 
     const vao = this.getWebGLResource(vaoHandle) as WebGLVertexArrayObjectOES;
 
@@ -1133,11 +1133,10 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
         throw new Error('Nothing Element Array Buffer at index');
       }
       gl.enableVertexAttribArray(VertexAttribute.Instance.getAttributeSlot());
-      gl.vertexAttribPointer(
+      gl.vertexAttribIPointer(
         VertexAttribute.Instance.getAttributeSlot(),
         CompositionType.Vec4.getNumberOfComponents(),
-        ComponentType.Float.index,
-        false,
+        ComponentType.UnsignedInt.index,
         0,
         0
       );
