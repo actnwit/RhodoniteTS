@@ -50,20 +50,20 @@ export class PbrShaderNode extends AbstractShaderNode {
       new Socket('transmission', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.0))
     );
     this.__inputs.push(
-      new Socket('specularProps', CompositionType.SpecularProps, ComponentType.Float, {
+      new Socket('specularProps', CompositionType.SpecularProps, ComponentType.Unknown, {
         specularWeight: Scalar.fromCopyNumber(1.0),
         specularColor: Vector3.fromCopy3(1.0, 1.0, 1.0),
       })
     );
     this.__inputs.push(
-      new Socket('volumeProps', CompositionType.VolumeProps, ComponentType.Float, {
+      new Socket('volumeProps', CompositionType.VolumeProps, ComponentType.Unknown, {
         attenuationColor: Vector3.fromCopy3(1.0, 1.0, 1.0),
         attenuationDistance: Scalar.fromCopyNumber(1e20),
         thickness: Scalar.fromCopyNumber(0.0),
       })
     );
     this.__inputs.push(
-      new Socket('clearcoatProps', CompositionType.ClearcoatProps, ComponentType.Float, {
+      new Socket('clearcoatProps', CompositionType.ClearcoatProps, ComponentType.Unknown, {
         clearcoat: Scalar.fromCopyNumber(0.0),
         clearcoatRoughness: Scalar.fromCopyNumber(0.0),
         clearcoatNormal_inWorld: Vector3.fromCopy3(0.0, 0.0, 0.0),
@@ -74,7 +74,7 @@ export class PbrShaderNode extends AbstractShaderNode {
       })
     );
     this.__inputs.push(
-      new Socket('anisotropyProps', CompositionType.AnisotropyProps, ComponentType.Float, {
+      new Socket('anisotropyProps', CompositionType.AnisotropyProps, ComponentType.Unknown, {
         anisotropy: Scalar.fromCopyNumber(0.0),
         anisotropicT: Vector3.fromCopy3(0.0, 0.0, 0.0),
         anisotropicB: Vector3.fromCopy3(0.0, 0.0, 0.0),
@@ -83,21 +83,21 @@ export class PbrShaderNode extends AbstractShaderNode {
       })
     );
     this.__inputs.push(
-      new Socket('sheenProps', CompositionType.SheenProps, ComponentType.Float, {
+      new Socket('sheenProps', CompositionType.SheenProps, ComponentType.Unknown, {
         sheenColor: Vector3.fromCopy3(0.0, 0.0, 0.0),
         sheenRoughness: Scalar.fromCopyNumber(0.000001),
         albedoSheenScalingNdotV: Scalar.fromCopyNumber(1.0),
       })
     );
     this.__inputs.push(
-      new Socket('iridescenceProps', CompositionType.IridescenceProps, ComponentType.Float, {
+      new Socket('iridescenceProps', CompositionType.IridescenceProps, ComponentType.Unknown, {
         iridescence: Scalar.fromCopyNumber(0.0),
         fresnelDielectric: Vector3.fromCopy3(0.0, 0.0, 0.0),
         fresnelMetal: Vector3.fromCopy3(0.0, 0.0, 0.0),
       })
     );
     this.__inputs.push(
-      new Socket('diffuseTransmissionProps', CompositionType.DiffuseTransmissionProps, ComponentType.Float, {
+      new Socket('diffuseTransmissionProps', CompositionType.DiffuseTransmissionProps, ComponentType.Unknown, {
         diffuseTransmission: Scalar.fromCopyNumber(0.0),
         diffuseTransmissionColor: Vector3.fromCopy3(0.0, 0.0, 0.0),
         diffuseTransmissionThickness: Scalar.fromCopyNumber(0.0),
@@ -107,9 +107,9 @@ export class PbrShaderNode extends AbstractShaderNode {
   }
 
   /**
-   * Gets the output socket that contains the result of the addition operation.
+   * Gets the output socket that contains the result of the PBR shading operation.
    *
-   * @returns The output socket containing the addition result
+   * @returns The output socket containing the PBR shading result
    */
   getSocketOutput() {
     return this.__outputs[0];
