@@ -1660,6 +1660,7 @@ function reuseOrRecreateCustomMaterial(
   pixelShaderStr: string,
   {
     maxInstancesNumber = engine.config.materialCountPerBufferView,
+    isPbr = false,
     isSkinning = true,
     isLighting = true,
     isMorphing = true,
@@ -1671,6 +1672,9 @@ function reuseOrRecreateCustomMaterial(
   const materialName = `Custom_${hash}`;
 
   const definitions = [];
+  if (isPbr) {
+    definitions.push('RN_USE_PBR');
+  }
   if (isLighting) {
     definitions.push('RN_IS_LIGHTING');
     if (isShadow) {
