@@ -35,7 +35,7 @@ export class AttributeJointShaderNode extends AbstractShaderNode {
 
     this.__outputs.push({
       compositionType: CompositionType.Vec4,
-      componentType: ComponentType.Float,
+      componentType: ComponentType.UnsignedInt,
       name: 'outValue',
     });
   }
