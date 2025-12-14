@@ -7,9 +7,9 @@ import type { Socket, SocketDefaultValue } from '../../foundation/materials/core
 import type { Engine } from '../../foundation/system/Engine';
 import { EngineState } from '../../foundation/system/EngineState';
 import vertexInputWGSL from '../../webgpu/shaderity_shaders/common/vertexInput.wgsl';
+import { WebGLResourceRepository } from '../WebGLResourceRepository';
 import morphVariablesGLSL from '../shaderity_shaders/common/morphVariables.glsl';
 import type { AttributeNames } from '../types/CommonTypes';
-import { WebGLResourceRepository } from '../WebGLResourceRepository';
 
 /**
  * Abstract base class that provides common shader functionality for both WebGL and WebGPU rendering approaches.
@@ -116,6 +116,8 @@ struct VertexOutput {
 
 /* shaderity: @{opticalDefinition} */
 /* shaderity: @{shadowDefinition} */
+/* shaderity: @{pbrDefinition} */
+/* shaderity: @{iblDefinition} */
 
 `;
       return vertexShaderPrerequisites;
@@ -154,7 +156,8 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     vertexShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
     vertexShaderPrerequisites += '/* shaderity: @{opticalDefinition} */';
     vertexShaderPrerequisites += '/* shaderity: @{shadowDefinition} */';
-
+    vertexShaderPrerequisites += '/* shaderity: @{pbrDefinition} */';
+    vertexShaderPrerequisites += '/* shaderity: @{iblDefinition} */';
     return vertexShaderPrerequisites;
   }
 
@@ -247,7 +250,8 @@ struct VertexOutput {
 
 /* shaderity: @{opticalDefinition} */
 /* shaderity: @{shadowDefinition} */
-
+/* shaderity: @{pbrDefinition} */
+/* shaderity: @{iblDefinition} */
 `;
       return pixelShaderPrerequisites;
     }
@@ -264,6 +268,8 @@ struct VertexOutput {
     pixelShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
     pixelShaderPrerequisites += '/* shaderity: @{opticalDefinition} */';
     pixelShaderPrerequisites += '/* shaderity: @{shadowDefinition} */';
+    pixelShaderPrerequisites += '/* shaderity: @{pbrDefinition} */';
+    pixelShaderPrerequisites += '/* shaderity: @{iblDefinition} */';
     pixelShaderPrerequisites += 'layout(location = 0) out vec4 rt0;';
     return pixelShaderPrerequisites;
   }
