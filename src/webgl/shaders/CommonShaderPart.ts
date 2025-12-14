@@ -143,7 +143,7 @@ in uvec4 a_instanceIds;
 in vec2 a_texcoord_0;
 in vec2 a_texcoord_1;
 in vec2 a_texcoord_2;
-in vec4 a_joint;
+in uvec4 a_joint;
 in vec4 a_weight;
 in vec4 a_baryCentricCoord;
 `;

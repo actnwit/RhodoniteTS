@@ -1114,15 +1114,37 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
         throw new Error(`Nothing Element Array Buffer at index ${i}`);
       }
       gl.enableVertexAttribArray(VertexAttribute.toAttributeSlotFromJoinedString(primitive.attributeSemantics[i]));
-      gl.vertexAttribPointer(
-        VertexAttribute.toAttributeSlotFromJoinedString(primitive.attributeSemantics[i]),
-        primitive.attributeCompositionTypes[i].getNumberOfComponents(),
-        primitive.attributeComponentTypes[i].index,
-        primitive.attributeAccessors[i].normalized,
-        primitive.attributeAccessors[i].byteStride,
-        0
-      );
+      if (primitive.attributeComponentTypes[i].isFloatingPoint()) {
+        gl.vertexAttribPointer(
+          VertexAttribute.toAttributeSlotFromJoinedString(primitive.attributeSemantics[i]),
+          primitive.attributeCompositionTypes[i].getNumberOfComponents(),
+          primitive.attributeComponentTypes[i].index,
+          primitive.attributeAccessors[i].normalized,
+          primitive.attributeAccessors[i].byteStride,
+          0
+        );
+      } else {
+        gl.vertexAttribIPointer(
+          VertexAttribute.toAttributeSlotFromJoinedString(primitive.attributeSemantics[i]),
+          primitive.attributeCompositionTypes[i].getNumberOfComponents(),
+          primitive.attributeComponentTypes[i].index,
+          primitive.attributeAccessors[i].byteStride,
+          0
+        );
+      }
     });
+
+    // Set default integer values for integer attributes not present in the primitive
+    // This is necessary because WebGL's default generic vertex attribute is float type,
+    // which causes type mismatch with integer shader inputs (uvec4, ivec4)
+    const jointsSlot = VertexAttribute.Joints0.getAttributeSlot();
+    const hasJointsAttribute = primitive.attributeSemantics.some(
+      semantic => VertexAttribute.toAttributeSlotFromJoinedString(semantic) === jointsSlot
+    );
+    if (!hasJointsAttribute) {
+      // Set default value for a_joint (uvec4) to avoid type mismatch
+      gl.vertexAttribI4ui(jointsSlot, 0, 0, 0, 0);
+    }
 
     /// for InstanceIDBuffer
     if (instanceIDBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
