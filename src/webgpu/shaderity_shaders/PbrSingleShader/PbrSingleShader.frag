@@ -492,6 +492,7 @@ let ior = get_ior(materialSID, 0);
   sheenProps.albedoSheenScalingNdotV = 1.0;
 #endif // RN_USE_SHEEN
 
+var diffuseTransmissionProps: DiffuseTransmissionProps;
 #ifdef RN_USE_DIFFUSE_TRANSMISSION
   let diffuseTransmissionFactor = get_diffuseTransmissionFactor(materialSID, 0);
   let diffuseTransmissionTextureTransformScale = get_diffuseTransmissionTextureTransformScale(materialSID, 0);
@@ -514,15 +515,19 @@ let ior = get_ior(materialSID, 0);
   let diffuseTransmissionColor = diffuseTransmissionColorFactor * diffuseTransmissionColorTexture;
   var diffuseTransmissionThickness = 1.0;
 
+  diffuseTransmissionProps.diffuseTransmission = diffuseTransmission;
+  diffuseTransmissionProps.diffuseTransmissionColor = diffuseTransmissionColor;
+  diffuseTransmissionProps.diffuseTransmissionThickness = diffuseTransmissionThickness;
+
 #ifdef RN_USE_VOLUME
   let worldMatrix = get_worldMatrix(u32(input.instanceInfo));
-  diffuseTransmissionThickness = thickness * (length(worldMatrix[0].xyz) * length(worldMatrix[1].xyz) * length(worldMatrix[2].xyz)) / 3.0;
+  diffuseTransmissionProps.diffuseTransmissionThickness = thickness * (length(worldMatrix[0].xyz) * length(worldMatrix[1].xyz) * length(worldMatrix[2].xyz)) / 3.0;
 #endif // RN_USE_VOLUME
 
 #else
-  let diffuseTransmission = 0.0;
-  let diffuseTransmissionColor = vec3f(0.0);
-  let diffuseTransmissionThickness = 0.0;
+  diffuseTransmissionProps.diffuseTransmission = 0.0;
+  diffuseTransmissionProps.diffuseTransmissionColor = vec3f(0.0);
+  diffuseTransmissionProps.diffuseTransmissionThickness = 0.0;
 #endif // RN_USE_DIFFUSE_TRANSMISSION
 
   var rt0 = vec4<f32>(0, 0, 0, alpha);
@@ -531,15 +536,15 @@ let ior = get_ior(materialSID, 0);
   let lightNumber = u32(get_lightNumber(0u, 0u));
   for (var i = 0u; i < lightNumber; i++) {
     let light: Light = getLight(i, input.position_inWorld.xyz);
-    var lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection,
+    var lighting = lightingWithPunctualLight(u32(input.instanceInfo), light, normal_inWorld, viewDirection,
                             NdotV, baseColor.rgb, perceptualRoughness, metallic,
                             specularWeight, dielectricF0, dielectricF90, ior,
                             transmission, volumeProps,
                             clearcoatProps,
                             anisotropyProps,
                             sheenProps,
-                            iridescenceProps, u32(input.instanceInfo),
-                            diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness
+                            iridescenceProps,
+                            diffuseTransmissionProps
                             );
 
     #ifdef RN_USE_SHADOW_MAPPING
@@ -581,14 +586,16 @@ let ior = get_ior(materialSID, 0);
   }
 
   // Image-based Lighting
-  let ibl: vec3f = IBLContribution(materialSID, cameraSID, normal_inWorld, NdotV, viewDirection,
-    baseColor.rgb, perceptualRoughness,
-    clearcoatProps, geomNormal_inWorld,
-    transmission, input.position_inWorld.xyz, u32(input.instanceInfo), volumeProps, ior,
+  let ibl: vec3f = IBLContribution(u32(input.instanceInfo), materialSID, cameraSID,
+    normal_inWorld, NdotV, viewDirection, geomNormal_inWorld, input.position_inWorld.xyz,
+    baseColor.rgb, perceptualRoughness, metallic, specularWeight, dielectricF0, ior,
+    clearcoatProps,
+    transmission,
+    volumeProps,
     sheenProps,
     iridescenceProps,
-    anisotropyProps, specularWeight, dielectricF0, metallic,
-    diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness
+    anisotropyProps,
+    diffuseTransmissionProps
   );
 
   #ifdef RN_USE_OCCLUSION_TEXTURE

@@ -217,14 +217,16 @@ fn getIBLFresnelGGX(perceptualRoughness: f32, NdotV: f32, F0: vec3f, specularWei
   return FssEss + FmsEms;
 }
 
-fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, NdotV: f32, viewDirection: vec3f,
-  baseColor: vec3f, perceptualRoughness: f32,
-  clearcoatProps: ClearcoatProps, geomNormal_inWorld: vec3f,
-  transmission: f32, position_inWorld: vec3f, instanceInfo: u32, volumeProps: VolumeProps, ior: f32,
+fn IBLContribution(instanceInfo: u32, materialSID: u32, cameraSID: u32,
+  normal_inWorld: vec3f, NdotV: f32, viewDirection: vec3f, geomNormal_inWorld: vec3f, position_inWorld: vec3f,
+  baseColor: vec3f, perceptualRoughness: f32, metallic: f32, specularWeight: f32, dielectricF0: vec3f, ior: f32,
+  clearcoatProps: ClearcoatProps,
+  transmission: f32,
+  volumeProps: VolumeProps,
   sheenProps: SheenProps,
   iridescenceProps: IridescenceProps,
-  anisotropyProps: AnisotropyProps, specularWeight: f32, dielectricF0: vec3f, metallic: f32,
-  diffuseTransmission: f32, diffuseTransmissionColor: vec3f, diffuseTransmissionThickness: f32
+  anisotropyProps: AnisotropyProps,
+  diffuseTransmissionProps: DiffuseTransmissionProps
   ) -> vec3f
 {
   let iblParameter: vec4f = get_iblParameter(materialSID, 0);
@@ -240,11 +242,11 @@ fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, Ndot
   var diffuse: vec3f = irradiance * baseColor;
 
 #ifdef RN_USE_DIFFUSE_TRANSMISSION
-  var diffuseTransmissionIBL: vec3f = getIBLIrradiance(-normal_forEnv, iblParameter, hdriFormat) * diffuseTransmissionColor;
+  var diffuseTransmissionIBL: vec3f = getIBLIrradiance(-normal_forEnv, iblParameter, hdriFormat) * diffuseTransmissionProps.diffuseTransmissionColor;
 #ifdef RN_USE_VOLUME
-  diffuseTransmissionIBL = volumeAttenuation(volumeProps.attenuationColor, volumeProps.attenuationDistance, diffuseTransmissionIBL, diffuseTransmissionThickness);
+  diffuseTransmissionIBL = volumeAttenuation(volumeProps.attenuationColor, volumeProps.attenuationDistance, diffuseTransmissionIBL, diffuseTransmissionProps.diffuseTransmissionThickness);
 #endif
-  diffuse = mix(diffuse, diffuseTransmissionIBL, diffuseTransmission);
+  diffuse = mix(diffuse, diffuseTransmissionIBL, diffuseTransmissionProps.diffuseTransmission);
 #endif
 
 #ifdef RN_USE_TRANSMISSION

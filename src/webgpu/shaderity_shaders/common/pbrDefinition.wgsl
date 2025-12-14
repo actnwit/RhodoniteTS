@@ -506,6 +506,7 @@ struct SpecularProps
 // lighting with a punctual light
 ////////////////////////////////////////
 fn lightingWithPunctualLight(
+  instanceInfo: u32,
   light_: Light,
   normal_inWorld: vec3f,
   viewDirection: vec3f,
@@ -523,10 +524,7 @@ fn lightingWithPunctualLight(
   anisotropyProps: AnisotropyProps,
   sheenProps: SheenProps,
   iridescenceProps: IridescenceProps,
-  instanceInfo: u32,
-  diffuseTransmission: f32,
-  diffuseTransmissionColor: vec3f,
-  diffuseTransmissionThickness: f32
+  diffuseTransmissionProps: DiffuseTransmissionProps
   ) -> vec3f
 {
   var light = light_;
@@ -545,17 +543,17 @@ fn lightingWithPunctualLight(
   var diffuseContrib = diffuseBrdf * vec3f(NdotL) * light.attenuatedIntensity;
 
 #ifdef RN_USE_DIFFUSE_TRANSMISSION
-  diffuseContrib = diffuseContrib * (vec3f(1.0) - diffuseTransmission);
+  diffuseContrib = diffuseContrib * (vec3f(1.0) - diffuseTransmissionProps.diffuseTransmission);
   if (dot(normal_inWorld, light.direction) < 0.0) {
     let diffuseNdotL = saturate(dot(normal_inWorld, -light.direction));
-    var diffuseBtdf = BRDF_lambertian(diffuseTransmissionColor) * vec3f(diffuseNdotL) * light.attenuatedIntensity;
+    var diffuseBtdf = BRDF_lambertian(diffuseTransmissionProps.diffuseTransmissionColor) * vec3f(diffuseNdotL) * light.attenuatedIntensity;
     let mirrorL = normalize(light.direction + 2.0 * normal_inWorld * dot(normal_inWorld, -light.direction));
     let diffuseVdotH = saturate(dot(viewDirection, normalize(mirrorL + viewDirection)));
     dielectricFresnel = fresnelSchlick(dielectricF0 * specularWeight, dielectricF90, abs(diffuseVdotH));
 #ifdef RN_USE_VOLUME
-    diffuseBtdf = volumeAttenuation(volumeProps.attenuationColor, volumeProps.attenuationDistance, diffuseBtdf, diffuseTransmissionThickness);
+    diffuseBtdf = volumeAttenuation(volumeProps.attenuationColor, volumeProps.attenuationDistance, diffuseBtdf, diffuseTransmissionProps.diffuseTransmissionThickness);
 #endif // RN_USE_VOLUME
-    diffuseContrib += diffuseBtdf * diffuseTransmission;
+    diffuseContrib += diffuseBtdf * diffuseTransmissionProps.diffuseTransmission;
   }
 #endif // RN_USE_DIFFUSE_TRANSMISSION
 
