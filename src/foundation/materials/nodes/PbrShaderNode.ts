@@ -62,15 +62,16 @@ export class PbrShaderNode extends AbstractShaderNode {
         thickness: Scalar.fromCopyNumber(0.0),
       })
     );
+    // Note: Property order must match GLSL struct field order
     this.__inputs.push(
       new Socket('clearcoatProps', CompositionType.ClearcoatProps, ComponentType.Unknown, {
         clearcoat: Scalar.fromCopyNumber(0.0),
         clearcoatRoughness: Scalar.fromCopyNumber(0.0),
-        clearcoatNormal_inWorld: Vector3.fromCopy3(0.0, 0.0, 0.0),
-        VdotNc: Scalar.fromCopyNumber(0.0),
         clearcoatF0: Vector3.fromCopy3(0.0, 0.0, 0.0),
         clearcoatF90: Vector3.fromCopy3(0.0, 0.0, 0.0),
         clearcoatFresnel: Vector3.fromCopy3(0.0, 0.0, 0.0),
+        clearcoatNormal_inWorld: Vector3.fromCopy3(0.0, 0.0, 0.0),
+        VdotNc: Scalar.fromCopyNumber(0.0),
       })
     );
     this.__inputs.push(
