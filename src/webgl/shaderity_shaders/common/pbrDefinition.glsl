@@ -2,6 +2,8 @@
 // https://github.com/KhronosGroup/glTF-Sample-Renderer
 // Modified by Yuki Shimada
 
+#ifdef RN_USE_PBR
+
 const float M_PI = 3.141592653589793;
 const float c_MinRoughness = 0.04;
 
@@ -734,3 +736,5 @@ vec3 lightingWithPunctualLight(
 
   return color;
 }
+
+#endif // RN_USE_PBR

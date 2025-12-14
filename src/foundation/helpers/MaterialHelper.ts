@@ -451,6 +451,7 @@ function createPbrUberMaterial(
   }
 
   const definitions = [];
+  definitions.push('RN_USE_PBR');
   if (isLighting) {
     definitions.push('RN_IS_LIGHTING');
   }
@@ -1510,6 +1511,7 @@ function createMToon0xMaterial(
   const materialName = `MToon0x_${additionalName}_`;
 
   const definitions = [];
+  definitions.push('RN_USE_PBR');
   if (isSkinning) {
     definitions.push('RN_IS_SKINNING');
   }
@@ -1541,6 +1543,10 @@ function createMToon0xMaterial(
 
   const material = createMaterial(engine, materialContent, maxInstancesNumber);
   materialContent.setMaterialParameters(engine, material, isOutline);
+
+  for (const definition of definitions) {
+    material.addShaderDefine(definition);
+  }
 
   return material;
 }
@@ -1593,6 +1599,7 @@ function createMToon1Material(
   const materialName = `MToon1_${additionalName}_`;
 
   const definitions = [];
+  definitions.push('RN_USE_PBR');
   if (isSkinning) {
     definitions.push('RN_IS_SKINNING');
   }
@@ -1623,6 +1630,11 @@ function createMToon1Material(
   if (materialJson.normalTexture != null) {
     material.addShaderDefine('RN_USE_NORMAL_TEXTURE');
   }
+
+  for (const definition of definitions) {
+    material.addShaderDefine(definition);
+  }
+
   return material;
 }
 

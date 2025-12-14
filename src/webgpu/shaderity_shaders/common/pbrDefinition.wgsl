@@ -3,6 +3,9 @@
 // Modified by Yuki Shimada
 
 // From: https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/e2c7b8c8bd12916c1a387cd41f9ef061edc718df/source/Renderer/shaders/brdf.glsl#L44-L66
+
+#ifdef RN_USE_PBR
+
 fn Schlick_to_F0_F90(f: vec3f, f90: vec3f, VdotH: f32) -> vec3f {
     let x = clamp(1.0 - VdotH, 0.0, 1.0);
     let x2 = x * x;
@@ -620,3 +623,5 @@ fn lightingWithPunctualLight(
 
   return color;
 }
+
+#endif // RN_USE_PBR

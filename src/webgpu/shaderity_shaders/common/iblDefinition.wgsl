@@ -2,6 +2,8 @@
 // https://github.com/KhronosGroup/glTF-Sample-Renderer
 // Modified by Yuki Shimada
 
+#ifdef RN_USE_PBR
+
 fn getIBLIrradiance(normal_forEnv: vec3f, iblParameter: vec4f, hdriFormat: vec2<i32>) -> vec3f {
   let diffuseTexel: vec4f = textureSample(diffuseEnvTexture, diffuseEnvSampler, normal_forEnv);
 
@@ -290,3 +292,4 @@ fn IBLContribution(instanceIds: vec4<u32>, materialSID: u32, cameraSID: u32,
   return color;
 }
 
+#endif // RN_USE_PBR

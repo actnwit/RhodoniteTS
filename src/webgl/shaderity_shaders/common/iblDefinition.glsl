@@ -2,6 +2,7 @@
 // https://github.com/KhronosGroup/glTF-Sample-Renderer
 // Modified by Yuki Shimada
 
+#ifdef RN_USE_PBR
 
 vec3 getIBLIrradiance(vec3 normal_forEnv, vec4 iblParameter, ivec2 hdriFormat) {
   vec4 diffuseTexel = texture(u_diffuseEnvTexture, normal_forEnv);
@@ -296,3 +297,5 @@ vec3 IBLContribution(uvec4 instanceIds, uint materialSID, vec3 normal_inWorld, f
 
   return color;
 }
+
+#endif // RN_USE_PBR
