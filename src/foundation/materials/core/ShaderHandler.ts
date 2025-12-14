@@ -298,6 +298,8 @@ export function _createProgramAsSingleOperationWebGL(
       matricesGetters: componentDataAccessMethodDefinitionsForVertexShader + morphedPositionGetter,
       opticalDefinition: opticalDefinitionGlsl.code,
       shadowDefinition: shadowGlsl.code,
+      pbrDefinition: pbrDefinitionGlsl.code,
+      iblDefinition: iblDefinitionGlsl.code,
       processGeometry: processGeometryGlsl.code,
       Config: engine.config,
     }
@@ -505,6 +507,8 @@ export function _createProgramAsSingleOperationWebGpu(
       matricesGetters: componentDataAccessMethodDefinitionsForVertexShader + morphedPositionGetter,
       opticalDefinition: opticalDefinitionWgsl.code,
       shadowDefinition: shadowWgsl.code,
+      pbrDefinition: pbrDefinitionWgsl.code,
+      iblDefinition: iblDefinitionWgsl.code,
       processGeometry: processGeometryWgsl.code,
       Config: engine.config,
     }
