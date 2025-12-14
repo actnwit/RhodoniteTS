@@ -86,6 +86,17 @@ export class Vector4_<T extends FloatTypedArrayConstructor> extends AbstractVect
   }
 
   /**
+   * Converts the vector to a GLSL uvec4 string representation with unsigned integer values.
+   *
+   * @returns A GLSL-compatible uvec4 string (e.g., "uvec4(1u, 2u, 3u, 4u)")
+   */
+  get glslStrAsUint() {
+    return `uvec4(${Math.floor(this._v[0])}u, ${Math.floor(this._v[1])}u, ${Math.floor(
+      this._v[2]
+    )}u, ${Math.floor(this._v[3])}u)`;
+  }
+
+  /**
    * Converts the vector to a WGSL vec4f string representation with float precision.
    *
    * @returns A WGSL-compatible vec4f string (e.g., "vec4f(1.0, 2.0, 3.0, 4.0)")
@@ -107,6 +118,17 @@ export class Vector4_<T extends FloatTypedArrayConstructor> extends AbstractVect
     return `vec4i(${Math.floor(this._v[0])}, ${Math.floor(this._v[1])}, ${Math.floor(
       this._v[2]
     )}, ${Math.floor(this._v[3])})`;
+  }
+
+  /**
+   * Converts the vector to a WGSL vec4u string representation with unsigned integer values.
+   *
+   * @returns A WGSL-compatible vec4u string (e.g., "vec4u(1u, 2u, 3u, 4u)")
+   */
+  get wgslStrAsUint() {
+    return `vec4u(${Math.floor(this._v[0])}u, ${Math.floor(this._v[1])}u, ${Math.floor(
+      this._v[2]
+    )}u, ${Math.floor(this._v[3])}u)`;
   }
 
   /**
