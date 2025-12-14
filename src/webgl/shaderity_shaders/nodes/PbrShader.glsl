@@ -43,7 +43,7 @@ void pbrShader(
   for (int i = 0; i < lightNumber; i++) {
     // Get Light
     Light light = getLight(i, positionInWorld.xyz);
-    vec3 lighting = lightingWithPunctualLight(v_instanceIds, light, normalInWorld, viewDirection, NdotV, baseColor.rgb,
+    vec3 lighting = lightingWithPunctualLight(instanceIds, light, normalInWorld, viewDirection, NdotV, baseColor.rgb,
                         perceptualRoughness, metallic,
                         specularProps.specularWeight, dielectricF0, dielectricF90, ior,
                         transmission,
