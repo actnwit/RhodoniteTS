@@ -7,6 +7,7 @@ fn pbrShader(
   metallic: f32,
   ior: f32,
   transmission: f32,
+  specularProps: SpecularProps,
   volumeProps: VolumeProps,
   clearcoatProps: ClearcoatProps,
   anisotropyProps: AnisotropyProps,
