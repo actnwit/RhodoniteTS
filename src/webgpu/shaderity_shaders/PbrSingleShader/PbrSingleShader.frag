@@ -347,6 +347,7 @@ let ior = get_ior(materialSID, 0);
   let dielectricF90 = vec3f(specularWeight);
 
 // Iridescence
+  var iridescenceProps: IridescenceProps;
 #ifdef RN_USE_IRIDESCENCE
   let iridescenceFactor: f32 = get_iridescenceFactor(materialSID, 0);
   let iridescenceTextureTransformScale: vec2f = get_iridescenceTextureTransformScale(materialSID, 0);
@@ -372,10 +373,14 @@ let ior = get_ior(materialSID, 0);
   let iridescenceIor: f32 = get_iridescenceIor(materialSID, 0);
   let iridescenceFresnel_dielectric: vec3f = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, dielectricF0);
   let iridescenceFresnel_metal: vec3f = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, baseColor.rgb);
+
+  iridescenceProps.iridescence = iridescence;
+  iridescenceProps.fresnelDielectric = iridescenceFresnel_dielectric;
+  iridescenceProps.fresnelMetal = iridescenceFresnel_metal;
 #else
-  let iridescence = 0.0;
-  let iridescenceFresnel_dielectric = vec3f(0.0);
-  let iridescenceFresnel_metal = vec3f(0.0);
+  iridescenceProps.iridescence = 0.0;
+  iridescenceProps.fresnelDielectric = vec3f(0.0);
+  iridescenceProps.fresnelMetal = vec3f(0.0);
 #endif // RN_USE_IRIDESCENCE
 
 // Clearcoat
@@ -533,7 +538,7 @@ let ior = get_ior(materialSID, 0);
                             clearcoatProps,
                             anisotropyProps,
                             sheenProps,
-                            iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, u32(input.instanceInfo),
+                            iridescenceProps, u32(input.instanceInfo),
                             diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness
                             );
 
@@ -581,7 +586,7 @@ let ior = get_ior(materialSID, 0);
     clearcoatProps, geomNormal_inWorld,
     transmission, input.position_inWorld.xyz, u32(input.instanceInfo), volumeProps, ior,
     sheenProps,
-    iridescenceFresnel_dielectric, iridescenceFresnel_metal, iridescence,
+    iridescenceProps,
     anisotropyProps, specularWeight, dielectricF0, metallic,
     diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness
   );

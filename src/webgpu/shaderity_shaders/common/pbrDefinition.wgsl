@@ -522,9 +522,7 @@ fn lightingWithPunctualLight(
   clearcoatProps: ClearcoatProps,
   anisotropyProps: AnisotropyProps,
   sheenProps: SheenProps,
-  iridescence: f32,
-  iridescenceFresnel_dielectric: vec3f,
-  iridescenceFresnel_metal: vec3f,
+  iridescenceProps: IridescenceProps,
   instanceInfo: u32,
   diffuseTransmission: f32,
   diffuseTransmissionColor: vec3f,
@@ -594,8 +592,8 @@ fn lightingWithPunctualLight(
   var dielectric = mix(diffuseContrib, specularDielectricContrib, dielectricFresnel);
 
 #ifdef RN_USE_IRIDESCENCE
-  metal = mix(metal, specularMetalContrib * iridescenceFresnel_metal, iridescence);
-  dielectric = mix(dielectric, rgb_mix(diffuseContrib, specularDielectricContrib, iridescenceFresnel_dielectric), iridescence);
+  metal = mix(metal, specularMetalContrib * iridescenceProps.fresnelMetal, iridescenceProps.iridescence);
+  dielectric = mix(dielectric, rgb_mix(diffuseContrib, specularDielectricContrib, iridescenceProps.fresnelDielectric), iridescenceProps.iridescence);
 #endif // RN_USE_IRIDESCENCE
 
 #ifdef RN_USE_CLEARCOAT

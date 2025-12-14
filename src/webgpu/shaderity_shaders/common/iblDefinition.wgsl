@@ -222,7 +222,7 @@ fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, Ndot
   clearcoatProps: ClearcoatProps, geomNormal_inWorld: vec3f,
   transmission: f32, position_inWorld: vec3f, instanceInfo: u32, volumeProps: VolumeProps, ior: f32,
   sheenProps: SheenProps,
-  iridescenceFresnel_dielectric: vec3f, iridescenceFresnel_metal: vec3f, iridescence: f32,
+  iridescenceProps: IridescenceProps,
   anisotropyProps: AnisotropyProps, specularWeight: f32, dielectricF0: vec3f, metallic: f32,
   diffuseTransmission: f32, diffuseTransmissionColor: vec3f, diffuseTransmissionThickness: f32
   ) -> vec3f
@@ -263,8 +263,8 @@ fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, Ndot
   var dielectricContrib: vec3f = mix(diffuse, specularDielectric, fresnelDielectric);
 
 #ifdef RN_USE_IRIDESCENCE
-  metalContrib = mix(metalContrib, specularMetal * iridescenceFresnel_metal, iridescence);
-  dielectricContrib = mix(dielectricContrib, rgb_mix(diffuse, specularDielectric, iridescenceFresnel_dielectric), iridescence);
+  metalContrib = mix(metalContrib, specularMetal * iridescenceProps.fresnelMetal, iridescenceProps.iridescence);
+  dielectricContrib = mix(dielectricContrib, rgb_mix(diffuse, specularDielectric, iridescenceProps.fresnelDielectric), iridescenceProps.iridescence);
 #endif
 
 #ifdef RN_USE_CLEARCOAT
