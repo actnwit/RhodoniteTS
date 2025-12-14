@@ -2,7 +2,7 @@ import type { Index } from '../../../types/CommonTypes';
 import type { ShaderNodeJson } from '../../../types/ShaderNodeJson';
 import { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
-import { CompositionType } from '../../definitions/CompositionType';
+import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { ShaderType, type ShaderTypeEnum } from '../../definitions/ShaderType';
 import { Scalar } from '../../math/Scalar';
@@ -64,6 +64,7 @@ import { UniformDataShaderNode } from '../nodes/UniformDataShaderNode';
 import { ViewMatrixShaderNode } from '../nodes/ViewMatrixShaderNode';
 import { WorldMatrixShaderNode } from '../nodes/WorldMatrixShaderNode';
 import { AbstractShaderNode, type ShaderNodeUID } from './AbstractShaderNode';
+import type { SocketDefaultValue, ValueTypes } from './Socket';
 
 /**
  * ShaderGraphResolver is a class that resolves the shader node graph and generates shader code.
@@ -444,6 +445,51 @@ export class ShaderGraphResolver {
   }
 
   /**
+   * Checks if the defaultValue is a struct type (Record<string, ValueTypes>) rather than a primitive ValueTypes.
+   * @private
+   */
+  private static __isStructDefaultValue(defaultValue: SocketDefaultValue): defaultValue is Record<string, ValueTypes> {
+    // ValueTypes (Vector, Scalar, Matrix) have a _v property which is a TypedArray
+    // Struct default values are plain objects with string keys and ValueTypes values
+    if (typeof defaultValue !== 'object' || defaultValue === null) {
+      return false;
+    }
+    // Check if it's a ValueTypes by looking for the _v property (TypedArray)
+    if ('_v' in defaultValue && ArrayBuffer.isView((defaultValue as ValueTypes)._v)) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Generates a shader initialization string for a struct type default value.
+   * @private
+   */
+  private static __getStructDefaultValueString(
+    compositionType: CompositionTypeEnum,
+    defaultValue: Record<string, ValueTypes>,
+    isWebGPU: boolean
+  ): string {
+    // Extract the struct type name from the composition type's GLSL string
+    // e.g., "struct SpecularProps" -> "SpecularProps"
+    const glslStr = compositionType.getGlslStr(ComponentType.Unknown);
+    const structName = glslStr.replace('struct ', '');
+
+    // Build the member initialization values in the order they appear in the default value object
+    const memberValues: string[] = [];
+    for (const [_key, value] of Object.entries(defaultValue)) {
+      if (isWebGPU) {
+        memberValues.push(value.wgslStrAsFloat);
+      } else {
+        memberValues.push(value.glslStrAsFloat);
+      }
+    }
+
+    // Generate struct initialization: StructName(member1, member2, ...)
+    return `${structName}(${memberValues.join(', ')})`;
+  }
+
+  /**
    * Gets default value for an input socket.
    * If the socket has a defaultValue defined, it will be used.
    * Otherwise, a zero value based on the socket's compositionType and componentType will be generated.
@@ -458,16 +504,23 @@ export class ShaderGraphResolver {
 
     // If defaultValue is set, use it
     if (inputSocket.defaultValue != null) {
+      // Check if defaultValue is a struct type (Record<string, ValueTypes>)
+      if (this.__isStructDefaultValue(inputSocket.defaultValue)) {
+        return this.__getStructDefaultValueString(inputSocket.compositionType, inputSocket.defaultValue, isWebGPU);
+      }
+
+      // Handle primitive ValueTypes
+      const primitiveValue = inputSocket.defaultValue as ValueTypes;
       if (isBool) {
-        return inputSocket.defaultValue._v[0] > 0.5 ? 'true' : 'false';
+        return primitiveValue._v[0] > 0.5 ? 'true' : 'false';
       }
       if (inputSocket.componentType === ComponentType.UnsignedInt) {
-        return isWebGPU ? inputSocket.defaultValue.wgslStrAsUint : inputSocket.defaultValue.glslStrAsUint;
+        return isWebGPU ? primitiveValue.wgslStrAsUint : primitiveValue.glslStrAsUint;
       }
       if (isInt) {
-        return isWebGPU ? inputSocket.defaultValue.wgslStrAsInt : inputSocket.defaultValue.glslStrAsInt;
+        return isWebGPU ? primitiveValue.wgslStrAsInt : primitiveValue.glslStrAsInt;
       }
-      return isWebGPU ? inputSocket.defaultValue.wgslStrAsFloat : inputSocket.defaultValue.glslStrAsFloat;
+      return isWebGPU ? primitiveValue.wgslStrAsFloat : primitiveValue.glslStrAsFloat;
     }
 
     // If defaultValue is not set, generate zero value based on compositionType and componentType
