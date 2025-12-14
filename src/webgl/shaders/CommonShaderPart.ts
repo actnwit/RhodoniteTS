@@ -1,4 +1,4 @@
-import type { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
+import { ComponentType, type ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
 import type { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
 import { VertexAttribute, type VertexAttributeEnum } from '../../foundation/definitions/VertexAttribute';
@@ -7,9 +7,9 @@ import type { Socket, SocketDefaultValue } from '../../foundation/materials/core
 import type { Engine } from '../../foundation/system/Engine';
 import { EngineState } from '../../foundation/system/EngineState';
 import vertexInputWGSL from '../../webgpu/shaderity_shaders/common/vertexInput.wgsl';
-import { WebGLResourceRepository } from '../WebGLResourceRepository';
 import morphVariablesGLSL from '../shaderity_shaders/common/morphVariables.glsl';
 import type { AttributeNames } from '../types/CommonTypes';
+import { WebGLResourceRepository } from '../WebGLResourceRepository';
 
 /**
  * Abstract base class that provides common shader functionality for both WebGL and WebGPU rendering approaches.
@@ -170,6 +170,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     const varyings: {
       type: string;
       name: string;
+      needsFlat: boolean;
     }[] = [];
     const definedVaryings: Set<string> = new Set();
     for (let i = 0; i < shaderNodes.length; i++) {
@@ -188,9 +189,15 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
             continue;
           }
           definedVaryings.add(name);
+          // Integer and boolean types require flat interpolation in WGSL
+          const needsFlat =
+            input.componentType.isInteger() ||
+            input.componentType.isUnsignedInteger() ||
+            input.componentType === ComponentType.Bool;
           varyings.push({
             type: type,
             name: name,
+            needsFlat: needsFlat,
           });
         }
       }
@@ -205,7 +212,8 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
 
     let varyingVariables = '';
     for (let i = 0; i < varyings.length; i++) {
-      varyingVariables += `@location(${i}) ${varyings[i].name}: ${varyings[i].type},\n`;
+      const flatAttr = varyings[i].needsFlat ? ' @interpolate(flat)' : '';
+      varyingVariables += `@location(${i})${flatAttr} ${varyings[i].name}: ${varyings[i].type},\n`;
     }
 
     return varyingVariables;
