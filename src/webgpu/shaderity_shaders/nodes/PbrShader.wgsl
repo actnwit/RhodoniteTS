@@ -111,9 +111,9 @@ fn pbrShader(
 
   #ifdef RN_USE_CLEARCOAT
     let coated_emissive = emissive * mix(vec3f(1.0), vec3f(0.04 + (1.0 - 0.04) * pow(1.0 - NdotV, 5.0)), clearcoatProps.clearcoat * clearcoatProps.clearcoatFresnel);
-    rt0 += vec4f(coated_emissive, 0.0);
+    shadingColor += vec4<f32>(coated_emissive, 0.0);
   #else
-    rt0 += vec4f(emissive, 0.0);
+    shadingColor += vec4<f32>(emissive, 0.0);
   #endif // RN_USE_CLEARCOAT
 
 
