@@ -717,6 +717,23 @@ export interface ICGAPIResourceRepository {
   ): Promise<Uint8Array>;
 
   /**
+   * Reads pixel data from a specific face of a cube texture.
+   * This creates a temporary framebuffer, attaches the cube face, and reads the pixels.
+   *
+   * @param textureHandle - Handle to the cube texture
+   * @param width - Width of the face texture
+   * @param height - Height of the face texture
+   * @param faceIndex - Index of the cube face (0=+X, 1=-X, 2=+Y, 3=-Y, 4=+Z, 5=-Z)
+   * @returns Promise resolving to the pixel data as a Uint8Array (RGBA format)
+   */
+  getCubeTexturePixelData(
+    textureHandle: CGAPIResourceHandle,
+    width: number,
+    height: number,
+    faceIndex: number
+  ): Promise<Uint8Array>;
+
+  /**
    * Creates a framebuffer object for off-screen rendering.
    * Framebuffers allow rendering to textures instead of the default screen buffer.
    *

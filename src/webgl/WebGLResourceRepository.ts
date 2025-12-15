@@ -2929,6 +2929,53 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     return data;
   }
 
+  /**
+   * Reads pixel data from a specific face of a cube texture.
+   * This creates a temporary framebuffer, attaches the cube face, and reads the pixels.
+   *
+   * @param textureHandle - Handle to the cube texture
+   * @param width - Width of the face texture
+   * @param height - Height of the face texture
+   * @param faceIndex - Index of the cube face (0=+X, 1=-X, 2=+Y, 3=-Y, 4=+Z, 5=-Z)
+   * @returns Promise resolving to the pixel data as a Uint8Array (RGBA format)
+   */
+  async getCubeTexturePixelData(
+    textureHandle: WebGLResourceHandle,
+    width: number,
+    height: number,
+    faceIndex: number
+  ): Promise<Uint8Array> {
+    const gl = this.__glw!.getRawContext() as WebGL2RenderingContext;
+    const texture = this.getWebGLResource(textureHandle) as WebGLTexture;
+
+    // Create a temporary framebuffer
+    const fbo = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+
+    // Attach the cube face to the framebuffer
+    // faceIndex: 0=+X, 1=-X, 2=+Y, 3=-Y, 4=+Z, 5=-Z
+    const cubeFaceTarget = gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex;
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, cubeFaceTarget, texture, 0);
+
+    // Check framebuffer status
+    const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    if (status !== gl.FRAMEBUFFER_COMPLETE) {
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.deleteFramebuffer(fbo);
+      throw new Error(`Framebuffer is not complete: ${status}`);
+    }
+
+    // Read the pixel data
+    const data = new Uint8Array(width * height * 4);
+    gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, data);
+
+    // Cleanup
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.deleteFramebuffer(fbo);
+
+    return data;
+  }
+
   createUniformBuffer() {
     const gl = this.__glw!.getRawContextAsWebGL2();
 

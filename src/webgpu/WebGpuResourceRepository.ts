@@ -379,6 +379,60 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   }
 
   /**
+   * Reads pixel data from a specific face of a cube texture.
+   * This copies the cube face to a buffer and reads it back to CPU memory.
+   *
+   * @param textureHandle - Handle to the cube texture
+   * @param width - Width of the face texture
+   * @param height - Height of the face texture
+   * @param faceIndex - Index of the cube face (0=+X, 1=-X, 2=+Y, 3=-Y, 4=+Z, 5=-Z)
+   * @returns Promise resolving to the pixel data as a Uint8Array (RGBA format)
+   */
+  async getCubeTexturePixelData(
+    textureHandle: WebGPUResourceHandle,
+    width: number,
+    height: number,
+    faceIndex: number
+  ): Promise<Uint8Array> {
+    const gpuTexture = this.__webGpuResources.get(textureHandle) as GPUTexture;
+    const textureData = new Uint8Array(width * height * 4);
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+
+    // Calculate bytes per row (must be a multiple of 256 for WebGPU)
+    const bytesPerRow = Math.ceil((width * 4) / 256) * 256;
+
+    const buffer = gpuDevice.createBuffer({
+      size: bytesPerRow * height,
+      usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+    });
+
+    const commandEncoder = gpuDevice.createCommandEncoder();
+    commandEncoder.copyTextureToBuffer(
+      {
+        texture: gpuTexture,
+        origin: { x: 0, y: 0, z: faceIndex },
+      },
+      { buffer, bytesPerRow },
+      { width, height, depthOrArrayLayers: 1 }
+    );
+    gpuDevice.queue.submit([commandEncoder.finish()]);
+
+    await buffer.mapAsync(GPUMapMode.READ);
+    const arrayBuffer = buffer.getMappedRange();
+
+    // Copy data row by row to handle bytesPerRow padding
+    const srcArray = new Uint8Array(arrayBuffer);
+    for (let y = 0; y < height; y++) {
+      const srcOffset = y * bytesPerRow;
+      const dstOffset = y * width * 4;
+      textureData.set(srcArray.slice(srcOffset, srcOffset + width * 4), dstOffset);
+    }
+
+    buffer.unmap();
+    return textureData;
+  }
+
+  /**
    * Generates mipmaps for a texture using render passes (including CubeMap support).
    * This is an optimized method adapted from WebGPU best practices that uses
    * a custom shader to generate each mipmap level from the previous one.

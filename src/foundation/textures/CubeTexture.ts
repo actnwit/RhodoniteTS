@@ -372,6 +372,69 @@ export class CubeTexture extends AbstractTexture implements Disposable {
   }
 
   /**
+   * Retrieves the pixel data from a specific face of the cube texture.
+   * This operation reads back the texture data from GPU memory to CPU memory.
+   *
+   * @param faceIndex - Index of the cube face (0=+X, 1=-X, 2=+Y, 3=-Y, 4=+Z, 5=-Z)
+   * @returns A promise that resolves to a Uint8Array containing the RGBA pixel data
+   *
+   * @example
+   * ```typescript
+   * const cubeTexture = new CubeTexture(engine);
+   * // ... load texture ...
+   * const posXData = await cubeTexture.getCubeFacePixelData(0); // Get +X face
+   * const negYData = await cubeTexture.getCubeFacePixelData(3); // Get -Y face
+   * ```
+   */
+  async getCubeFacePixelData(faceIndex: number): Promise<Uint8Array> {
+    if (faceIndex < 0 || faceIndex > 5) {
+      throw new Error(`Invalid face index: ${faceIndex}. Must be between 0 and 5.`);
+    }
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
+    const data = await cgApiResourceRepository.getCubeTexturePixelData(
+      this._textureResourceUid,
+      this.__width,
+      this.__height,
+      faceIndex
+    );
+    return data;
+  }
+
+  /**
+   * Retrieves the pixel data from all six faces of the cube texture.
+   * This operation reads back all face data from GPU memory to CPU memory.
+   *
+   * @returns A promise that resolves to an object containing Uint8Arrays for each face
+   *
+   * @example
+   * ```typescript
+   * const cubeTexture = new CubeTexture(engine);
+   * // ... load texture ...
+   * const allFaces = await cubeTexture.getAllCubeFacePixelData();
+   * console.log(allFaces.posX); // +X face data
+   * console.log(allFaces.negZ); // -Z face data
+   * ```
+   */
+  async getAllCubeFacePixelData(): Promise<{
+    posX: Uint8Array;
+    negX: Uint8Array;
+    posY: Uint8Array;
+    negY: Uint8Array;
+    posZ: Uint8Array;
+    negZ: Uint8Array;
+  }> {
+    const [posX, negX, posY, negY, posZ, negZ] = await Promise.all([
+      this.getCubeFacePixelData(0),
+      this.getCubeFacePixelData(1),
+      this.getCubeFacePixelData(2),
+      this.getCubeFacePixelData(3),
+      this.getCubeFacePixelData(4),
+      this.getCubeFacePixelData(5),
+    ]);
+    return { posX, negX, posY, negY, posZ, negZ };
+  }
+
+  /**
    * Completely destroys this cube texture and releases all associated resources.
    * This method should be called when the texture is no longer needed to prevent memory leaks.
    * After calling destroy(), this texture instance should not be used.
