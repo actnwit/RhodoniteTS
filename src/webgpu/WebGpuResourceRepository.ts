@@ -379,6 +379,201 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   }
 
   /**
+   * Reads pixel data from a specific face of a cube texture.
+   * Uses a shader-based approach to sample the cubemap and render to a 2D texture,
+   * then copies the result to a buffer for CPU access.
+   *
+   * @param textureHandle - Handle to the cube texture
+   * @param width - Width of the face texture
+   * @param height - Height of the face texture
+   * @param faceIndex - Index of the cube face (0=+X, 1=-X, 2=+Y, 3=-Y, 4=+Z, 5=-Z)
+   * @returns Promise resolving to the pixel data as a Uint8Array (RGBA format)
+   */
+  async getCubeTexturePixelData(
+    textureHandle: WebGPUResourceHandle,
+    width: number,
+    height: number,
+    faceIndex: number
+  ): Promise<Uint8Array> {
+    const gpuTexture = this.__webGpuResources.get(textureHandle) as GPUTexture;
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+
+    // Determine if texture is HDR (floating-point format) or LDR
+    // HDR textures need tone mapping and gamma correction, LDR textures should pass through unchanged
+    const textureFormat = gpuTexture.format;
+    // HDR formats: floating-point formats (r16float, rg16float, rgba16float, r32float, rg32float, rgba32float, rg11b10ufloat)
+    // and rgb10a2unorm which has higher precision often used for HDR.
+    // Note: Do NOT match integer formats like rgba16uint, rgba16sint, rgba32uint, rgba32sint
+    const isHdrFormat = textureFormat.includes('float') || textureFormat === 'rgb10a2unorm';
+
+    // Create shader module for sampling cubemap
+    const shaderModule = gpuDevice.createShaderModule({
+      code: /* wgsl */ `
+        struct VertexOutput {
+          @builtin(position) position: vec4f,
+          @location(0) texCoord: vec2f,
+        };
+
+        @vertex
+        fn vertexMain(@builtin(vertex_index) vertexIndex: u32) -> VertexOutput {
+          var pos = array<vec2f, 4>(
+            vec2f(-1.0, -1.0),
+            vec2f( 1.0, -1.0),
+            vec2f(-1.0,  1.0),
+            vec2f( 1.0,  1.0)
+          );
+
+          var output: VertexOutput;
+          output.position = vec4f(pos[vertexIndex], 0.0, 1.0);
+          output.texCoord = pos[vertexIndex] * 0.5 + 0.5;
+          return output;
+        }
+
+        @group(0) @binding(0) var cubemapTexture: texture_cube<f32>;
+        @group(0) @binding(1) var cubemapSampler: sampler;
+
+        struct Uniforms {
+          faceIndex: i32,
+          isHdr: i32,
+        };
+        @group(0) @binding(2) var<uniform> uniforms: Uniforms;
+
+        fn getDirection(face: i32, uv: vec2f) -> vec3f {
+          var st = uv * 2.0 - 1.0;
+          if (face == 0) { return vec3f( 1.0, -st.y, -st.x); } // +X
+          if (face == 1) { return vec3f(-1.0, -st.y,  st.x); } // -X
+          if (face == 2) { return vec3f( st.x,  1.0,  st.y); } // +Y
+          if (face == 3) { return vec3f( st.x, -1.0, -st.y); } // -Y
+          if (face == 4) { return vec3f( st.x, -st.y,  1.0); } // +Z
+          return vec3f(-st.x, -st.y, -1.0); // -Z
+        }
+
+        @fragment
+        fn fragmentMain(input: VertexOutput) -> @location(0) vec4f {
+          // Flip Y coordinate to match WebGPU's top-left origin coordinate system
+          var flippedTexCoord = vec2f(input.texCoord.x, 1.0 - input.texCoord.y);
+          var dir = normalize(getDirection(uniforms.faceIndex, flippedTexCoord));
+          var color = textureSample(cubemapTexture, cubemapSampler, dir).rgb;
+
+          // Only apply tone mapping and gamma correction for HDR textures
+          // LDR textures (e.g., rgba8unorm) should pass through unchanged
+          if (uniforms.isHdr != 0) {
+            // Reinhard tone mapping
+            color = color / (1.0 + color);
+
+            // Gamma correction
+            color = pow(color, vec3f(1.0 / 2.2));
+          }
+
+          return vec4f(color, 1.0);
+        }
+      `,
+    });
+
+    // Create render pipeline
+    const pipeline = gpuDevice.createRenderPipeline({
+      layout: 'auto',
+      vertex: {
+        module: shaderModule,
+        entryPoint: 'vertexMain',
+      },
+      fragment: {
+        module: shaderModule,
+        entryPoint: 'fragmentMain',
+        targets: [{ format: 'rgba8unorm' }],
+      },
+      primitive: {
+        topology: 'triangle-strip',
+      },
+    });
+
+    // Create render target texture with CopySrc usage
+    const renderTexture = gpuDevice.createTexture({
+      size: [width, height],
+      format: 'rgba8unorm',
+      usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
+    });
+
+    // Create sampler
+    const sampler = gpuDevice.createSampler({
+      magFilter: 'linear',
+      minFilter: 'linear',
+    });
+
+    // Create uniform buffer for face index and HDR flag
+    const uniformBuffer = gpuDevice.createBuffer({
+      size: 16, // Align to 16 bytes (2 i32 values = 8 bytes, padded to 16)
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+    gpuDevice.queue.writeBuffer(uniformBuffer, 0, new Int32Array([faceIndex, isHdrFormat ? 1 : 0]));
+
+    // Create texture view for cubemap
+    const cubeTextureView = gpuTexture.createView({
+      dimension: 'cube',
+    });
+
+    // Create bind group
+    const bindGroup = gpuDevice.createBindGroup({
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: cubeTextureView },
+        { binding: 1, resource: sampler },
+        { binding: 2, resource: { buffer: uniformBuffer } },
+      ],
+    });
+
+    // Render
+    const commandEncoder = gpuDevice.createCommandEncoder();
+    const renderPass = commandEncoder.beginRenderPass({
+      colorAttachments: [
+        {
+          view: renderTexture.createView(),
+          clearValue: { r: 0, g: 0, b: 0, a: 1 },
+          loadOp: 'clear',
+          storeOp: 'store',
+        },
+      ],
+    });
+
+    renderPass.setPipeline(pipeline);
+    renderPass.setBindGroup(0, bindGroup);
+    renderPass.draw(4);
+    renderPass.end();
+
+    // Copy render texture to buffer
+    const bytesPerRow = Math.ceil((width * 4) / 256) * 256;
+    const buffer = gpuDevice.createBuffer({
+      size: bytesPerRow * height,
+      usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+    });
+
+    commandEncoder.copyTextureToBuffer({ texture: renderTexture }, { buffer, bytesPerRow }, { width, height });
+
+    gpuDevice.queue.submit([commandEncoder.finish()]);
+
+    // Read back data
+    await buffer.mapAsync(GPUMapMode.READ);
+    const arrayBuffer = buffer.getMappedRange();
+
+    const textureData = new Uint8Array(width * height * 4);
+    const srcArray = new Uint8Array(arrayBuffer);
+    for (let y = 0; y < height; y++) {
+      const srcOffset = y * bytesPerRow;
+      const dstOffset = y * width * 4;
+      textureData.set(srcArray.slice(srcOffset, srcOffset + width * 4), dstOffset);
+    }
+
+    buffer.unmap();
+
+    // Cleanup
+    buffer.destroy();
+    uniformBuffer.destroy();
+    renderTexture.destroy();
+
+    return textureData;
+  }
+
+  /**
    * Generates mipmaps for a texture using render passes (including CubeMap support).
    * This is an optimized method adapted from WebGPU best practices that uses
    * a custom shader to generate each mipmap level from the previous one.
@@ -1885,7 +2080,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         }
       );
     }
-    return this.createCubeTexture(engine, mipLevelCount, imageArgs, width, height);
+    const [resourceHandle, sampler] = this.createCubeTexture(engine, mipLevelCount, imageArgs, width, height);
+    return [resourceHandle, sampler, width, height] as [number, Sampler, number, number];
   }
 
   /**

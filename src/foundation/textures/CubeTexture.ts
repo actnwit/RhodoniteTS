@@ -108,7 +108,7 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     this.hdriFormat = hdriFormat;
 
     const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
-    const [cubeTextureUid, sampler] = await cgApiResourceRepository.createCubeTextureFromFiles(
+    const [cubeTextureUid, sampler, width, height] = await cgApiResourceRepository.createCubeTextureFromFiles(
       this.__engine,
       baseUrl,
       mipmapLevelNumber,
@@ -118,6 +118,8 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     this.__setTextureResourceUid(cubeTextureUid, this.uniqueName);
     this._recommendedTextureSampler = sampler;
     this._samplerResourceUid = sampler._samplerResourceUid;
+    this.__width = width;
+    this.__height = height;
 
     if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureViewCube(
@@ -180,14 +182,16 @@ export class CubeTexture extends AbstractTexture implements Disposable {
       }
 
       const webGLResourceRepository = this.__engine.webglResourceRepository;
-      const texture = webGLResourceRepository.createCubeTextureFromBasis(basisFile, {
+      const { resourceHandle, width, height } = webGLResourceRepository.createCubeTextureFromBasis(basisFile, {
         magFilter: magFilter,
         minFilter: minFilter,
         wrapS: wrapS,
         wrapT: wrapT,
       });
 
-      this.__setTextureResourceUid(texture, this.uniqueName);
+      this.__setTextureResourceUid(resourceHandle, this.uniqueName);
+      this.__width = width;
+      this.__height = height;
       this.__isTextureReady = true;
 
       basisFile.close();
@@ -240,6 +244,8 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     this.__setTextureResourceUid(resourceUid, this.uniqueName);
     this._recommendedTextureSampler = sampler;
     this._samplerResourceUid = sampler._samplerResourceUid;
+    this.__width = 1;
+    this.__height = 1;
 
     if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (
@@ -297,6 +303,8 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     );
     this._recommendedTextureSampler = sampler;
     this.__setTextureResourceUid(resourceId, this.uniqueName);
+    this.__width = baseLevelWidth;
+    this.__height = baseLevelHeight;
 
     this.__isTextureReady = true;
     this.__startedToLoad = true;
@@ -369,6 +377,69 @@ export class CubeTexture extends AbstractTexture implements Disposable {
   [Symbol.dispose]() {
     Logger.default.debug('[Symbol.dispose] is called');
     this.destroy();
+  }
+
+  /**
+   * Retrieves the pixel data from a specific face of the cube texture.
+   * This operation reads back the texture data from GPU memory to CPU memory.
+   *
+   * @param faceIndex - Index of the cube face (0=+X, 1=-X, 2=+Y, 3=-Y, 4=+Z, 5=-Z)
+   * @returns A promise that resolves to a Uint8Array containing the RGBA pixel data
+   *
+   * @example
+   * ```typescript
+   * const cubeTexture = new CubeTexture(engine);
+   * // ... load texture ...
+   * const posXData = await cubeTexture.getCubeFacePixelData(0); // Get +X face
+   * const negYData = await cubeTexture.getCubeFacePixelData(3); // Get -Y face
+   * ```
+   */
+  async getCubeFacePixelData(faceIndex: number): Promise<Uint8Array> {
+    if (faceIndex < 0 || faceIndex > 5) {
+      throw new Error(`Invalid face index: ${faceIndex}. Must be between 0 and 5.`);
+    }
+    const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
+    const data = await cgApiResourceRepository.getCubeTexturePixelData(
+      this._textureResourceUid,
+      this.__width,
+      this.__height,
+      faceIndex
+    );
+    return data;
+  }
+
+  /**
+   * Retrieves the pixel data from all six faces of the cube texture.
+   * This operation reads back all face data from GPU memory to CPU memory.
+   *
+   * @returns A promise that resolves to an object containing Uint8Arrays for each face
+   *
+   * @example
+   * ```typescript
+   * const cubeTexture = new CubeTexture(engine);
+   * // ... load texture ...
+   * const allFaces = await cubeTexture.getAllCubeFacePixelData();
+   * console.log(allFaces.posX); // +X face data
+   * console.log(allFaces.negZ); // -Z face data
+   * ```
+   */
+  async getAllCubeFacePixelData(): Promise<{
+    posX: Uint8Array;
+    negX: Uint8Array;
+    posY: Uint8Array;
+    negY: Uint8Array;
+    posZ: Uint8Array;
+    negZ: Uint8Array;
+  }> {
+    const [posX, negX, posY, negY, posZ, negZ] = await Promise.all([
+      this.getCubeFacePixelData(0),
+      this.getCubeFacePixelData(1),
+      this.getCubeFacePixelData(2),
+      this.getCubeFacePixelData(3),
+      this.getCubeFacePixelData(4),
+      this.getCubeFacePixelData(5),
+    ]);
+    return { posX, negX, posY, negY, posZ, negZ };
   }
 
   /**

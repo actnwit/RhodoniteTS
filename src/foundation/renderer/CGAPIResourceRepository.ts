@@ -361,7 +361,7 @@ export interface ICGAPIResourceRepository {
    * @param mipLevelCount - Number of mipmap levels to generate
    * @param isNamePosNeg - Whether to use positive/negative naming convention
    * @param hdriFormat - HDRI format specification for high dynamic range textures
-   * @returns Promise resolving to a tuple of [texture handle, sampler]
+   * @returns Promise resolving to a tuple of [texture handle, sampler, width, height]
    */
   createCubeTextureFromFiles(
     engine: Engine,
@@ -369,7 +369,7 @@ export interface ICGAPIResourceRepository {
     mipLevelCount: Count,
     isNamePosNeg: boolean,
     hdriFormat: HdriFormatEnum
-  ): Promise<[number, Sampler]>;
+  ): Promise<[number, Sampler, number, number]>;
 
   /**
    * Allocates a texture with specified dimensions and format without initial data.
@@ -714,6 +714,23 @@ export interface ICGAPIResourceRepository {
     height: number,
     frameBufferUid: CGAPIResourceHandle,
     colorAttachmentIndex: number
+  ): Promise<Uint8Array>;
+
+  /**
+   * Reads pixel data from a specific face of a cube texture.
+   * This creates a temporary framebuffer, attaches the cube face, and reads the pixels.
+   *
+   * @param textureHandle - Handle to the cube texture
+   * @param width - Width of the face texture
+   * @param height - Height of the face texture
+   * @param faceIndex - Index of the cube face (0=+X, 1=-X, 2=+Y, 3=-Y, 4=+Z, 5=-Z)
+   * @returns Promise resolving to the pixel data as a Uint8Array (RGBA format)
+   */
+  getCubeTexturePixelData(
+    textureHandle: CGAPIResourceHandle,
+    width: number,
+    height: number,
+    faceIndex: number
   ): Promise<Uint8Array>;
 
   /**
