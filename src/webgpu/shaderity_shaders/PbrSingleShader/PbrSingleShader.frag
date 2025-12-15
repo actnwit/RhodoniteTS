@@ -526,7 +526,7 @@ var diffuseTransmissionProps: DiffuseTransmissionProps;
 
 #ifdef RN_USE_VOLUME
   let worldMatrix = get_worldMatrix(u32(input.instanceIds.x));
-  diffuseTransmissionProps.diffuseTransmissionThickness = thickness * (length(worldMatrix[0].xyz) * length(worldMatrix[1].xyz) * length(worldMatrix[2].xyz)) / 3.0;
+  diffuseTransmissionProps.diffuseTransmissionThickness = volumeProps.thickness * (length(worldMatrix[0].xyz) * length(worldMatrix[1].xyz) * length(worldMatrix[2].xyz)) / 3.0;
 #endif // RN_USE_VOLUME
 
 #else
