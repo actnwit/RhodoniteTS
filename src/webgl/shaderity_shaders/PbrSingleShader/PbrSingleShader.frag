@@ -294,7 +294,7 @@ void main ()
     anisotropyProps.anisotropy = anisotropy;
     anisotropyProps.anisotropicT = normalize(TBN * vec3(direction, 0.0));
     anisotropyProps.anisotropicB = normalize(cross(geomNormal_inWorld, anisotropyProps.anisotropicT));
-    anisotropyProps.BdotV = dot(anisotropicProps.anisotropicB, viewDirection);
+    anisotropyProps.BdotV = dot(anisotropyProps.anisotropicB, viewDirection);
     anisotropyProps.TdotV = dot(anisotropyProps.anisotropicT, viewDirection);
   #else
     anisotropyProps.anisotropy = 0.0;
