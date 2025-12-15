@@ -90,7 +90,8 @@ void pbrShader(
   }
 
   // Image-based Lighting
-  vec3 ibl = IBLContribution(instanceIds, materialSID, normalInWorld, NdotV, viewDirection, geomNormalInWorld, cameraSID, positionInWorld.xyz,
+  vec3 ibl = IBLContribution(instanceIds, materialSID, cameraSID,
+    normalInWorld, NdotV, viewDirection, geomNormalInWorld, positionInWorld.xyz,
     baseColor.rgb, perceptualRoughness, metallic,
     specularProps.specularWeight, dielectricF0, ior,
     clearcoatProps,

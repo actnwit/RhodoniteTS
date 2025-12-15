@@ -224,7 +224,8 @@ vec3 getReflection(mat3 rotEnvMatrix, vec3 viewDirection, vec3 normal_inWorld, u
   return reflection;
 }
 
-vec3 IBLContribution(uvec4 instanceIds, uint materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection, vec3 geomNormal_inWorld, uint cameraSID, vec3 v_position_inWorld,
+vec3 IBLContribution(uvec4 instanceIds, uint materialSID, uint cameraSID,
+  vec3 normal_inWorld, float NdotV, vec3 viewDirection, vec3 geomNormal_inWorld, vec3 position_inWorld,
   vec3 baseColor, float perceptualRoughness, float metallic,
   float specularWeight, vec3 dielectricF0, float ior,
   ClearcoatProps clearcoatProps,
