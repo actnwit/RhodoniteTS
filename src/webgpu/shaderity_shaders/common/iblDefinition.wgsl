@@ -5,7 +5,7 @@
 #ifdef RN_USE_PBR
 
 fn getIBLIrradiance(normal_forEnv: vec3f, iblParameter: vec4f, hdriFormat: vec2<i32>) -> vec3f {
-  let diffuseTexel: vec4f = textureSample(diffuseEnvTexture, diffuseEnvSampler, normal_forEnv);
+  let diffuseTexel: vec4f = textureSampleLevel(diffuseEnvTexture, diffuseEnvSampler, normal_forEnv, 0.0);
 
   var irradiance: vec3f;
   if (hdriFormat.x == 0) {
