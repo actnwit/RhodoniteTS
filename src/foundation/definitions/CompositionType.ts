@@ -572,6 +572,16 @@ const DiffuseTransmissionProps = new CompositionTypeClass({
   numberOfComponents: -1,
   vec4SizeOfProperty: -1,
 });
+const OcclusionProps = new CompositionTypeClass({
+  index: 27,
+  str: 'OCCLUSION_PROPS',
+  glslStr: 'struct OcclusionProps',
+  hlslStr: 'struct OcclusionProps',
+  wgsl: 'struct OcclusionProps',
+  webgpu: 'struct OcclusionProps',
+  numberOfComponents: -1,
+  vec4SizeOfProperty: -1,
+});
 
 const typeList = [
   Unknown,
@@ -601,6 +611,7 @@ const typeList = [
   SheenProps,
   IridescenceProps,
   DiffuseTransmissionProps,
+  OcclusionProps,
 ];
 
 export type VectorCompositionTypes = typeof Scalar | typeof Vec2 | typeof Vec3 | typeof Vec4;
@@ -887,6 +898,7 @@ export const CompositionType = Object.freeze({
   SheenProps,
   IridescenceProps,
   DiffuseTransmissionProps,
+  OcclusionProps,
   from,
   fromString,
   vectorFrom,

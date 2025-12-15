@@ -39,12 +39,22 @@ export class PbrShaderNode extends AbstractShaderNode {
       new Socket('normalInWorld', CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 1))
     );
     this.__inputs.push(
+      new Socket('geomNormalInWorld', CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 1))
+    );
+    this.__inputs.push(
       new Socket('baseColor', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
     this.__inputs.push(
       new Socket('roughness', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.5))
     );
     this.__inputs.push(new Socket('metallic', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.0)));
+    this.__inputs.push(
+      new Socket('occlusionProps', CompositionType.OcclusionProps, ComponentType.Unknown, {
+        // Note: Property order must match GLSL/WGSL struct field order
+        occlusionTexture: Vector4.fromCopy4(1.0, 1.0, 1.0, 1.0),
+        occlusionStrength: Scalar.fromCopyNumber(1.0),
+      })
+    );
     this.__inputs.push(new Socket('ior', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(1.5)));
     this.__inputs.push(
       new Socket('transmission', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.0))

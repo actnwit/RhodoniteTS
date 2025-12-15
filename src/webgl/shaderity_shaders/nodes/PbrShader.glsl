@@ -1,7 +1,8 @@
 void pbrShader(
   in uvec4 instanceIds,
-  in vec4 positionInWorld, in vec3 normalInWorld,
+  in vec4 positionInWorld, in vec3 normalInWorld, in vec3 geomNormalInWorld,
   in vec4 baseColor, in float perceptualRoughness, in float metallic,
+  in OcclusionProps occlusionProps,
   in float ior,
   in float transmission,
   in SpecularProps specularProps,
@@ -13,6 +14,11 @@ void pbrShader(
   in DiffuseTransmissionProps diffuseTransmissionProps,
   out vec4 outColor) {
   vec4 shadingColor = vec4(0.0, 0.0, 0.0, baseColor.a);
+
+ // Alpha Test
+  float alpha = baseColor.a;
+/* shaderity: @{alphaProcess} */
+  baseColor.a = alpha;
 
     // F0, F90
   float outsideIor = 1.0;
@@ -85,6 +91,30 @@ void pbrShader(
 
     shadingColor.rgb += lighting;
   }
+
+  // Image-based Lighting
+  vec3 ibl = IBLContribution(instanceIds, materialSID, normalInWorld, NdotV, viewDirection, geomNormalInWorld, cameraSID, positionInWorld.xyz,
+    baseColor.rgb, perceptualRoughness, metallic,
+    specularProps.specularWeight, dielectricF0, ior,
+    clearcoatProps,
+    transmission,
+    volumeProps,
+    sheenProps,
+    iridescenceProps,
+    anisotropyProps,
+    diffuseTransmissionProps,
+    dispersion);
+
+  #ifdef RN_USE_OCCLUSION_TEXTURE
+    float occlusion = occlusionProps.occlusionTexture.r
+    float occlusionStrength = occlusionProps.occlusionStrength;
+    // Occlusion to Indirect Lights
+    vec3 indirectLight = ibl * (1.0 + occlusionStrength * (occlusion - 1.0));
+  #else
+    vec3 indirectLight = ibl;
+  #endif
+
+  shadingColor.rgb += indirectLight;
 
   outColor = shadingColor;
 }
