@@ -401,12 +401,10 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     // Determine if texture is HDR (floating-point format) or LDR
     // HDR textures need tone mapping and gamma correction, LDR textures should pass through unchanged
     const textureFormat = gpuTexture.format;
-    const isHdrFormat =
-      textureFormat.includes('float') ||
-      textureFormat.includes('16') ||
-      textureFormat.includes('32') ||
-      textureFormat === 'rgb10a2unorm' ||
-      textureFormat === 'rg11b10ufloat';
+    // HDR formats: floating-point formats (r16float, rg16float, rgba16float, r32float, rg32float, rgba32float, rg11b10ufloat)
+    // and rgb10a2unorm which has higher precision often used for HDR.
+    // Note: Do NOT match integer formats like rgba16uint, rgba16sint, rgba32uint, rgba32sint
+    const isHdrFormat = textureFormat.includes('float') || textureFormat === 'rgb10a2unorm';
 
     // Create shader module for sampling cubemap
     const shaderModule = gpuDevice.createShaderModule({
