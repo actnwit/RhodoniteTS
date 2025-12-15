@@ -19,8 +19,8 @@ import {
 } from '../components';
 import type { IEntity } from '../core';
 import { EntityRepository } from '../core/EntityRepository';
-import { AnimationInterpolation, ComponentType, CompositionType, ShaderType } from '../definitions';
 import type { ShaderSemanticsInfo, ShaderSemanticsName, ShaderTypeEnum } from '../definitions';
+import { AnimationInterpolation, ComponentType, CompositionType, ShaderType } from '../definitions';
 import { TextureParameter } from '../definitions/TextureParameter';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { MaterialHelper } from '../helpers/MaterialHelper';
@@ -124,6 +124,81 @@ export class RhodoniteImportExtension {
         (node: { name: string }) => node.name === 'ClassicShader'
       ) as boolean) ?? false;
 
+    // Check if PbrShader node is present in the shader node graph
+    const hasPbrShaderNode =
+      ((extension.shaderNodeJson as any)?.nodes?.some(
+        (node: { name: string }) => node.name === 'PbrShader'
+      ) as boolean) ?? false;
+
+    // Add IBL-related semantic info if PBR shader is used
+    if (hasPbrShaderNode) {
+      // Create a sampler for cube textures
+      const cubeTextureSampler = new Sampler(engine, {
+        minFilter: TextureParameter.LinearMipmapLinear,
+        magFilter: TextureParameter.Linear,
+        wrapS: TextureParameter.ClampToEdge,
+        wrapT: TextureParameter.ClampToEdge,
+        wrapR: TextureParameter.ClampToEdge,
+      });
+      cubeTextureSampler.create();
+
+      const shaderStage = ShaderType.VertexAndPixelShader;
+
+      additionalShaderSemanticInfo.push({
+        semantic: 'diffuseEnvTexture' as ShaderSemanticsName,
+        componentType: ComponentType.Int,
+        compositionType: CompositionType.TextureCube,
+        stage: shaderStage,
+        initialValue: [-1, engine.dummyTextures.dummyBlackCubeTexture, cubeTextureSampler],
+        min: 0,
+        max: Number.MAX_VALUE,
+        isInternalSetting: true,
+      });
+
+      additionalShaderSemanticInfo.push({
+        semantic: 'specularEnvTexture' as ShaderSemanticsName,
+        componentType: ComponentType.Int,
+        compositionType: CompositionType.TextureCube,
+        stage: shaderStage,
+        initialValue: [-1, engine.dummyTextures.dummyBlackCubeTexture, cubeTextureSampler],
+        min: 0,
+        max: Number.MAX_VALUE,
+        isInternalSetting: true,
+      });
+
+      additionalShaderSemanticInfo.push({
+        semantic: 'inverseEnvironment' as ShaderSemanticsName,
+        componentType: ComponentType.Bool,
+        compositionType: CompositionType.Scalar,
+        stage: shaderStage,
+        initialValue: Scalar.fromCopyNumber(0),
+        min: 0,
+        max: Number.MAX_VALUE,
+      });
+
+      additionalShaderSemanticInfo.push({
+        semantic: 'iblParameter' as ShaderSemanticsName,
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.Vec4,
+        stage: shaderStage,
+        initialValue: Vector4.fromCopy4(1, 1, 1, 1),
+        min: 0,
+        max: Number.MAX_VALUE,
+        isInternalSetting: true,
+      });
+
+      additionalShaderSemanticInfo.push({
+        semantic: 'hdriFormat' as ShaderSemanticsName,
+        componentType: ComponentType.Int,
+        compositionType: CompositionType.Vec2,
+        stage: shaderStage,
+        initialValue: Vector2.fromCopy2(0, 0),
+        min: 0,
+        max: Number.MAX_VALUE,
+        isInternalSetting: true,
+      });
+    }
+
     // Create custom material using MaterialHelper
     const newMaterial = MaterialHelper.reuseOrRecreateCustomMaterial(
       engine,
@@ -135,7 +210,8 @@ export class RhodoniteImportExtension {
         isSkinning: true,
         isLighting: true,
         isMorphing: true,
-        isShadow: hasClassicShaderNode,
+        isShadow: hasClassicShaderNode || hasPbrShaderNode,
+        isPbr: hasPbrShaderNode,
         additionalShaderSemanticInfo,
       }
     );
