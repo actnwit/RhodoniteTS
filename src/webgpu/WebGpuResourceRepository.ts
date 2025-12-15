@@ -398,6 +398,16 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     const gpuTexture = this.__webGpuResources.get(textureHandle) as GPUTexture;
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
 
+    // Determine if texture is HDR (floating-point format) or LDR
+    // HDR textures need tone mapping and gamma correction, LDR textures should pass through unchanged
+    const textureFormat = gpuTexture.format;
+    const isHdrFormat =
+      textureFormat.includes('float') ||
+      textureFormat.includes('16') ||
+      textureFormat.includes('32') ||
+      textureFormat === 'rgb10a2unorm' ||
+      textureFormat === 'rg11b10ufloat';
+
     // Create shader module for sampling cubemap
     const shaderModule = gpuDevice.createShaderModule({
       code: /* wgsl */ `
@@ -426,6 +436,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
 
         struct Uniforms {
           faceIndex: i32,
+          isHdr: i32,
         };
         @group(0) @binding(2) var<uniform> uniforms: Uniforms;
 
@@ -446,11 +457,15 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           var dir = normalize(getDirection(uniforms.faceIndex, flippedTexCoord));
           var color = textureSample(cubemapTexture, cubemapSampler, dir).rgb;
 
-          // Reinhard tone mapping
-          color = color / (1.0 + color);
+          // Only apply tone mapping and gamma correction for HDR textures
+          // LDR textures (e.g., rgba8unorm) should pass through unchanged
+          if (uniforms.isHdr != 0) {
+            // Reinhard tone mapping
+            color = color / (1.0 + color);
 
-          // Gamma correction
-          color = pow(color, vec3f(1.0 / 2.2));
+            // Gamma correction
+            color = pow(color, vec3f(1.0 / 2.2));
+          }
 
           return vec4f(color, 1.0);
         }
@@ -487,12 +502,12 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       minFilter: 'linear',
     });
 
-    // Create uniform buffer for face index
+    // Create uniform buffer for face index and HDR flag
     const uniformBuffer = gpuDevice.createBuffer({
-      size: 16, // Align to 16 bytes
+      size: 16, // Align to 16 bytes (2 i32 values = 8 bytes, padded to 16)
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
-    gpuDevice.queue.writeBuffer(uniformBuffer, 0, new Int32Array([faceIndex]));
+    gpuDevice.queue.writeBuffer(uniformBuffer, 0, new Int32Array([faceIndex, isHdrFormat ? 1 : 0]));
 
     // Create texture view for cubemap
     const cubeTextureView = gpuTexture.createView({
@@ -534,11 +549,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
     });
 
-    commandEncoder.copyTextureToBuffer(
-      { texture: renderTexture },
-      { buffer, bytesPerRow },
-      { width, height }
-    );
+    commandEncoder.copyTextureToBuffer({ texture: renderTexture }, { buffer, bytesPerRow }, { width, height });
 
     gpuDevice.queue.submit([commandEncoder.finish()]);
 
