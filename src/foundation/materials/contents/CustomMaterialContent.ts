@@ -143,6 +143,29 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       hdriFormatVec2.y = meshRendererComponent.specularCubeMap.hdriFormat.index;
       material.setParameter('hdriFormat', hdriFormatVec2);
     }
+
+    // Set IBL cube texture parameters for WebGPU (similar to WebGL's per-shader-program setup)
+    // Get cube textures from meshRendererComponent since RenderingArgWebGpu doesn't have all cube properties
+    const diffuseCube = meshRendererComponent?.diffuseCubeMap;
+    const specularCube = meshRendererComponent?.specularCubeMap;
+
+    if (diffuseCube?.isTextureReady) {
+      material.setTextureParameter(ShaderSemantics.DiffuseEnvTexture.str, diffuseCube, this.__diffuseIblCubeMapSampler);
+    }
+
+    if (specularCube?.isTextureReady) {
+      material.setTextureParameter(
+        ShaderSemantics.SpecularEnvTexture.str,
+        specularCube,
+        this.__specularIblCubeMapSampler
+      );
+    }
+
+    // Set sheen cube texture (use specular as fallback if sheen is not set)
+    // Note: meshRendererComponent doesn't have sheenCubeMap, so we use specularCube as fallback
+    if (specularCube?.isTextureReady) {
+      material.setTextureParameter(ShaderSemantics.SheenEnvTexture.str, specularCube, this.__specularIblCubeMapSampler);
+    }
   }
 
   /**

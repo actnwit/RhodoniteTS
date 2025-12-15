@@ -380,7 +380,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
 
   /**
    * Reads pixel data from a specific face of a cube texture.
-   * This copies the cube face to a buffer and reads it back to CPU memory.
+   * Uses a shader-based approach to sample the cubemap and render to a 2D texture,
+   * then copies the result to a buffer for CPU access.
    *
    * @param textureHandle - Handle to the cube texture
    * @param width - Width of the face texture
@@ -395,32 +396,157 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     faceIndex: number
   ): Promise<Uint8Array> {
     const gpuTexture = this.__webGpuResources.get(textureHandle) as GPUTexture;
-    const textureData = new Uint8Array(width * height * 4);
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
 
-    // Calculate bytes per row (must be a multiple of 256 for WebGPU)
-    const bytesPerRow = Math.ceil((width * 4) / 256) * 256;
+    // Create shader module for sampling cubemap
+    const shaderModule = gpuDevice.createShaderModule({
+      code: /* wgsl */ `
+        struct VertexOutput {
+          @builtin(position) position: vec4f,
+          @location(0) texCoord: vec2f,
+        };
 
+        @vertex
+        fn vertexMain(@builtin(vertex_index) vertexIndex: u32) -> VertexOutput {
+          var pos = array<vec2f, 4>(
+            vec2f(-1.0, -1.0),
+            vec2f( 1.0, -1.0),
+            vec2f(-1.0,  1.0),
+            vec2f( 1.0,  1.0)
+          );
+
+          var output: VertexOutput;
+          output.position = vec4f(pos[vertexIndex], 0.0, 1.0);
+          output.texCoord = pos[vertexIndex] * 0.5 + 0.5;
+          return output;
+        }
+
+        @group(0) @binding(0) var cubemapTexture: texture_cube<f32>;
+        @group(0) @binding(1) var cubemapSampler: sampler;
+
+        struct Uniforms {
+          faceIndex: i32,
+        };
+        @group(0) @binding(2) var<uniform> uniforms: Uniforms;
+
+        fn getDirection(face: i32, uv: vec2f) -> vec3f {
+          var st = uv * 2.0 - 1.0;
+          if (face == 0) { return vec3f( 1.0, -st.y, -st.x); } // +X
+          if (face == 1) { return vec3f(-1.0, -st.y,  st.x); } // -X
+          if (face == 2) { return vec3f( st.x,  1.0,  st.y); } // +Y
+          if (face == 3) { return vec3f( st.x, -1.0, -st.y); } // -Y
+          if (face == 4) { return vec3f( st.x, -st.y,  1.0); } // +Z
+          return vec3f(-st.x, -st.y, -1.0); // -Z
+        }
+
+        @fragment
+        fn fragmentMain(input: VertexOutput) -> @location(0) vec4f {
+          // Flip Y coordinate to match WebGPU's top-left origin coordinate system
+          var flippedTexCoord = vec2f(input.texCoord.x, 1.0 - input.texCoord.y);
+          var dir = normalize(getDirection(uniforms.faceIndex, flippedTexCoord));
+          var color = textureSample(cubemapTexture, cubemapSampler, dir).rgb;
+
+          // Reinhard tone mapping
+          color = color / (1.0 + color);
+
+          // Gamma correction
+          color = pow(color, vec3f(1.0 / 2.2));
+
+          return vec4f(color, 1.0);
+        }
+      `,
+    });
+
+    // Create render pipeline
+    const pipeline = gpuDevice.createRenderPipeline({
+      layout: 'auto',
+      vertex: {
+        module: shaderModule,
+        entryPoint: 'vertexMain',
+      },
+      fragment: {
+        module: shaderModule,
+        entryPoint: 'fragmentMain',
+        targets: [{ format: 'rgba8unorm' }],
+      },
+      primitive: {
+        topology: 'triangle-strip',
+      },
+    });
+
+    // Create render target texture with CopySrc usage
+    const renderTexture = gpuDevice.createTexture({
+      size: [width, height],
+      format: 'rgba8unorm',
+      usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
+    });
+
+    // Create sampler
+    const sampler = gpuDevice.createSampler({
+      magFilter: 'linear',
+      minFilter: 'linear',
+    });
+
+    // Create uniform buffer for face index
+    const uniformBuffer = gpuDevice.createBuffer({
+      size: 16, // Align to 16 bytes
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+    gpuDevice.queue.writeBuffer(uniformBuffer, 0, new Int32Array([faceIndex]));
+
+    // Create texture view for cubemap
+    const cubeTextureView = gpuTexture.createView({
+      dimension: 'cube',
+    });
+
+    // Create bind group
+    const bindGroup = gpuDevice.createBindGroup({
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: cubeTextureView },
+        { binding: 1, resource: sampler },
+        { binding: 2, resource: { buffer: uniformBuffer } },
+      ],
+    });
+
+    // Render
+    const commandEncoder = gpuDevice.createCommandEncoder();
+    const renderPass = commandEncoder.beginRenderPass({
+      colorAttachments: [
+        {
+          view: renderTexture.createView(),
+          clearValue: { r: 0, g: 0, b: 0, a: 1 },
+          loadOp: 'clear',
+          storeOp: 'store',
+        },
+      ],
+    });
+
+    renderPass.setPipeline(pipeline);
+    renderPass.setBindGroup(0, bindGroup);
+    renderPass.draw(4);
+    renderPass.end();
+
+    // Copy render texture to buffer
+    const bytesPerRow = Math.ceil((width * 4) / 256) * 256;
     const buffer = gpuDevice.createBuffer({
       size: bytesPerRow * height,
       usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
     });
 
-    const commandEncoder = gpuDevice.createCommandEncoder();
     commandEncoder.copyTextureToBuffer(
-      {
-        texture: gpuTexture,
-        origin: { x: 0, y: 0, z: faceIndex },
-      },
+      { texture: renderTexture },
       { buffer, bytesPerRow },
-      { width, height, depthOrArrayLayers: 1 }
+      { width, height }
     );
+
     gpuDevice.queue.submit([commandEncoder.finish()]);
 
+    // Read back data
     await buffer.mapAsync(GPUMapMode.READ);
     const arrayBuffer = buffer.getMappedRange();
 
-    // Copy data row by row to handle bytesPerRow padding
+    const textureData = new Uint8Array(width * height * 4);
     const srcArray = new Uint8Array(arrayBuffer);
     for (let y = 0; y < height; y++) {
       const srcOffset = y * bytesPerRow;
@@ -429,6 +555,12 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     }
 
     buffer.unmap();
+
+    // Cleanup
+    buffer.destroy();
+    uniformBuffer.destroy();
+    renderTexture.destroy();
+
     return textureData;
   }
 
