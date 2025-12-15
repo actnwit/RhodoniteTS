@@ -445,6 +445,11 @@ fn rgb_mix(base: vec3f, specular_brdf: vec3f, rgb_alpha: vec3f) -> vec3f
 
 #endif // RN_USE_IRIDESCENCE
 
+struct OcclusionProps
+{
+  occlusionTexture: vec4<f32>,
+  occlusionStrength: f32,
+};
 
 struct ClearcoatProps
 {
