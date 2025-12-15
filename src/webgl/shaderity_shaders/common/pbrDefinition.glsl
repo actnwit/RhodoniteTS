@@ -564,6 +564,12 @@ struct OcclusionProps
   float occlusionStrength;
 };
 
+struct EmissiveProps
+{
+  vec3 emissive;
+  float emissiveStrength;
+};
+
 struct ClearcoatProps
 {
   float clearcoat;

@@ -3,6 +3,7 @@ fn pbrShader(
   positionInWorld: vec4<f32>, normalInWorld: vec3<f32>, geomNormalInWorld: vec3<f32>,
   baseColor: vec4<f32>, perceptualRoughness: f32, metallic: f32,
   occlusionProps: OcclusionProps,
+  emissiveProps: EmissiveProps,
   ior: f32,
   transmission: f32,
   specularProps: SpecularProps,
@@ -104,6 +105,17 @@ fn pbrShader(
   #endif
 
   shadingColor += vec4<f32>(indirectLight, 0.0);
+
+  // Emissive
+  let emissive = emissiveProps.emissive * emissiveProps.emissiveStrength;
+
+  #ifdef RN_USE_CLEARCOAT
+    let coated_emissive = emissive * mix(vec3f(1.0), vec3f(0.04 + (1.0 - 0.04) * pow(1.0 - NdotV, 5.0)), clearcoatProps.clearcoat * clearcoatProps.clearcoatFresnel);
+    rt0 += vec4f(coated_emissive, 0.0);
+  #else
+    rt0 += vec4f(emissive, 0.0);
+  #endif // RN_USE_CLEARCOAT
+
 
   *outColor = shadingColor;
 }

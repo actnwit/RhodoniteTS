@@ -451,6 +451,12 @@ struct OcclusionProps
   occlusionStrength: f32,
 };
 
+struct EmissiveProps
+{
+  emissive: vec3f,
+  emissiveStrength: f32,
+};
+
 struct ClearcoatProps
 {
   clearcoat: f32,

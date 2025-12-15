@@ -55,6 +55,13 @@ export class PbrShaderNode extends AbstractShaderNode {
         occlusionStrength: Scalar.fromCopyNumber(1.0),
       })
     );
+    this.__inputs.push(
+      new Socket('emissiveProps', CompositionType.EmissiveProps, ComponentType.Unknown, {
+        // Note: Property order must match GLSL/WGSL struct field order
+        emissive: Vector3.fromCopy3(0.0, 0.0, 0.0),
+        emissiveStrength: Scalar.fromCopyNumber(1.0),
+      })
+    );
     this.__inputs.push(new Socket('ior', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(1.5)));
     this.__inputs.push(
       new Socket('transmission', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.0))
