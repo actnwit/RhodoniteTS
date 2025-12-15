@@ -66,4 +66,3 @@ export class AndShaderNode extends AbstractShaderNode {
     return this.__outputs[0];
   }
 }
-

@@ -148,4 +148,3 @@ export class BranchShaderNode extends AbstractShaderNode {
     return this.__shaderFunctionName;
   }
 }
-

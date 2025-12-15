@@ -51,4 +51,3 @@ export class PremultipliedAlphaShaderNode extends AbstractShaderNode {
     return this.__shaderFunctionName;
   }
 }
-
