@@ -195,6 +195,8 @@ vec2 getTexcoord(int texcoordIndex) {
   return texcoord;
 }
 
+#pragma shaderity: require(../nodes/PbrShader.glsl)
+
 void main ()
 {
 
@@ -525,121 +527,69 @@ void main ()
   float dispersion = 0.0;
 #endif
 
+  OcclusionProps occlusionProps;
+#ifdef RN_USE_OCCLUSION_TEXTURE
+  int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0u);
+  vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);
+  vec2 occlusionTextureTransformScale = get_occlusionTextureTransformScale(materialSID, 0u);
+  vec2 occlusionTextureTransformOffset = get_occlusionTextureTransformOffset(materialSID, 0u);
+  float occlusionTextureTransformRotation = get_occlusionTextureTransformRotation(materialSID, 0u);
+  vec2 occlusionTexUv = uvTransform(occlusionTextureTransformScale, occlusionTextureTransformOffset, occlusionTextureTransformRotation, occlusionTexcoord);
+  occlusionProps.occlusionTexture = texture(u_occlusionTexture, occlusionTexUv);
+  occlusionProps.occlusionStrength = get_occlusionStrength(materialSID, 0u);
+#else
+  occlusionProps.occlusionTexture = vec4(1.0);
+  occlusionProps.occlusionStrength = 1.0;
+#endif
+
+EmissiveProps emissiveProps;
+vec3 emissiveFactor = get_emissiveFactor(materialSID, 0u);
+#ifdef RN_USE_EMISSIVE_TEXTURE
+  int emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0u);
+  vec2 emissiveTexcoord = getTexcoord(emissiveTexcoordIndex);
+  vec2 emissiveTextureTransformScale = get_emissiveTextureTransformScale(materialSID, 0u);
+  vec2 emissiveTextureTransformOffset = get_emissiveTextureTransformOffset(materialSID, 0u);
+  float emissiveTextureTransformRotation = get_emissiveTextureTransformRotation(materialSID, 0u);
+  vec2 emissiveTexUv = uvTransform(emissiveTextureTransformScale, emissiveTextureTransformOffset, emissiveTextureTransformRotation, emissiveTexcoord);
+  vec3 emissive = emissiveFactor * srgbToLinear(texture(u_emissiveTexture, emissiveTexUv).xyz);
+#else
+  vec3 emissive = emissiveFactor;
+#endif
+  emissiveProps.emissive = emissive;
+#ifdef RN_USE_EMISSIVE_STRENGTH
+  float emissiveStrength = get_emissiveStrength(materialSID, 0u);
+  emissiveProps.emissiveStrength = emissiveStrength;
+#else
+  emissiveProps.emissiveStrength = 1.0;
+#endif // RN_USE_EMISSIVE_STRENGTH
 
   rt0 = vec4(0.0, 0.0, 0.0, baseColor.a);
 
-  // Punctual Lights
-  for (int i = 0; i < lightNumber; i++) {
-    Light light = getLight(i, v_position_inWorld.xyz);
-    if (light.type < 0) {
-      continue;
-    }
-    vec3 lighting = lightingWithPunctualLight(v_instanceIds, light, normal_inWorld, viewDirection, NdotV, baseColor.rgb,
-                        perceptualRoughness, metallic,
-                        specularProps.specularWeight, dielectricF0, dielectricF90, ior,
-                        transmission,
-                        volumeProps,
-                        clearcoatProps,
-                        anisotropyProps,
-                        sheenProps,
-                        iridescenceProps,
-                        diffuseTransmissionProps);
-
-  #ifdef RN_USE_SHADOW_MAPPING
-    int depthTextureIndex = get_depthTextureIndexList(materialSID, uint(i));
-    if (light.type == 1 && depthTextureIndex >= 0) { // Point Light
-      float pointLightFarPlane = get_pointLightFarPlane(materialSID, 0u);
-      float pointLightShadowMapUvScale = get_pointLightShadowMapUvScale(materialSID, 0u);
-      float shadowContribution = varianceShadowContributionParaboloid(v_position_inWorld.xyz, light.position, pointLightFarPlane, pointLightShadowMapUvScale, depthTextureIndex);
-      lighting *= shadowContribution;
-    } else if ((light.type == 0 || light.type == 2) && depthTextureIndex >= 0) { // Spot Light
-      vec4 shadowCoordVec4 = get_depthBiasPV(materialSID, uint(i)) * v_position_inWorld;
-      vec2 shadowCoord = shadowCoordVec4.xy / shadowCoordVec4.w;
-      float normalizedDepth = shadowCoordVec4.z / shadowCoordVec4.w;
-
-      // Slope-scaled bias in normalized depth space to reduce shadow acne
-      float NdotL = max(dot(normal_inWorld, light.direction), 0.0);
-      float baseBias = 0.001;
-      float slopeBias = 0.005 * sqrt(1.0 - NdotL * NdotL) / max(NdotL, 0.05);
-      float bias = min(baseBias + slopeBias, 0.05);  // Clamp to prevent excessive bias
-
-      vec3 lightDirection = normalize(get_lightDirection(uint(i)));
-      vec3 lightPosToWorldPos = normalize(v_position_inWorld.xyz - light.position);
-      float dotProduct = dot(lightPosToWorldPos, lightDirection);
-      float shadowContribution = 1.0;
-      if (dotProduct > 0.0 && shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0) {
-        shadowContribution = varianceShadowContribution(shadowCoord, normalizedDepth - bias, depthTextureIndex);
-      }
-      lighting *= shadowContribution;
-    }
-  #endif
-
-    rt0.rgb += lighting;
-  }
-
-  // Image-based Lighting
-  vec3 ibl = IBLContribution(v_instanceIds, materialSID, normal_inWorld, NdotV, viewDirection, geomNormal_inWorld, cameraSID, v_position_inWorld.xyz,
-    baseColor.rgb, perceptualRoughness, metallic,
-    specularProps.specularWeight, dielectricF0, ior,
-    clearcoatProps,
+  pbrShader(v_instanceIds,
+    v_position_inWorld, normal_inWorld, geomNormal_inWorld,
+    baseColor, perceptualRoughness, metallic,
+    occlusionProps, emissiveProps,
+    ior,
     transmission,
+    specularProps,
     volumeProps,
+    clearcoatProps,
+    anisotropyProps,
     sheenProps,
     iridescenceProps,
-    anisotropyProps,
     diffuseTransmissionProps,
-    dispersion);
-
-  #ifdef RN_USE_OCCLUSION_TEXTURE
-    int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0u);
-    vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);
-    vec2 occlusionTextureTransformScale = get_occlusionTextureTransformScale(materialSID, 0u);
-    vec2 occlusionTextureTransformOffset = get_occlusionTextureTransformOffset(materialSID, 0u);
-    float occlusionTextureTransformRotation = get_occlusionTextureTransformRotation(materialSID, 0u);
-    vec2 occlusionTexUv = uvTransform(occlusionTextureTransformScale, occlusionTextureTransformOffset, occlusionTextureTransformRotation, occlusionTexcoord);
-    float occlusion = texture(u_occlusionTexture, occlusionTexUv).r;
-    float occlusionStrength = get_occlusionStrength(materialSID, 0u);
-    // Occlusion to Indirect Lights
-    vec3 indirectLight = ibl * (1.0 + occlusionStrength * (occlusion - 1.0));
-  #else
-    vec3 indirectLight = ibl;
-  #endif
-
-  rt0.xyz += indirectLight;
+    dispersion,
+    rt0);
 #else
   rt0 = baseColor;
 #endif // RN_IS_LIGHTING
-
-  // Emissive
-  vec3 emissiveFactor = get_emissiveFactor(materialSID, 0u);
-  #ifdef RN_USE_EMISSIVE_TEXTURE
-    int emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0u);
-    vec2 emissiveTexcoord = getTexcoord(emissiveTexcoordIndex);
-    vec2 emissiveTextureTransformScale = get_emissiveTextureTransformScale(materialSID, 0u);
-    vec2 emissiveTextureTransformOffset = get_emissiveTextureTransformOffset(materialSID, 0u);
-    float emissiveTextureTransformRotation = get_emissiveTextureTransformRotation(materialSID, 0u);
-    vec2 emissiveTexUv = uvTransform(emissiveTextureTransformScale, emissiveTextureTransformOffset, emissiveTextureTransformRotation, emissiveTexcoord);
-    vec3 emissive = emissiveFactor * srgbToLinear(texture(u_emissiveTexture, emissiveTexUv).xyz);
-  #else
-    vec3 emissive = emissiveFactor;
-  #endif
-#ifdef RN_USE_EMISSIVE_STRENGTH
-  float emissiveStrength = get_emissiveStrength(materialSID, 0u);
-  emissive *= emissiveStrength;
-#endif // RN_USE_EMISSIVE_STRENGTH
-
-#ifdef RN_USE_CLEARCOAT
-  vec3 coated_emissive = emissive * mix(vec3(1.0), vec3(0.04 + (1.0 - 0.04) * pow(1.0 - NdotV, 5.0)), clearcoatProps.clearcoat * clearcoatProps.clearcoatFresnel);
-  rt0.xyz += coated_emissive;
-#else
-  rt0.xyz += emissive;
-#endif // RN_USE_CLEARCOAT
 
   bool isOutputHDR = get_isOutputHDR(materialSID, 0u);
   if(isOutputHDR){
 
     return;
   }
+
 
   // Wireframe
   /* shaderity: @{wireframe} */

@@ -17,11 +17,6 @@ void pbrShader(
   out vec4 outColor) {
   vec4 shadingColor = vec4(0.0, 0.0, 0.0, baseColor.a);
 
- // Alpha Test
-  float alpha = baseColor.a;
-/* shaderity: @{alphaProcess} */
-  baseColor.a = alpha;
-
     // F0, F90
   float outsideIor = 1.0;
   vec3 dielectricF0 = vec3(sq((ior - outsideIor) / (ior + outsideIor)));
@@ -108,7 +103,7 @@ void pbrShader(
     dispersion);
 
   #ifdef RN_USE_OCCLUSION_TEXTURE
-    float occlusion = occlusionProps.occlusionTexture.r
+    float occlusion = occlusionProps.occlusionTexture.r;
     float occlusionStrength = occlusionProps.occlusionStrength;
     // Occlusion to Indirect Lights
     vec3 indirectLight = ibl * (1.0 + occlusionStrength * (occlusion - 1.0));
