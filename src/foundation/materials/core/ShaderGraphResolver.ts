@@ -462,16 +462,30 @@ export class ShaderGraphResolver {
   }
 
   /**
-   * Gets the GLSL/WGSL struct name for struct composition types.
-   * Extracts the struct name from the __glslStr property (e.g., 'struct SpecularProps' -> 'SpecularProps').
+   * Gets the GLSL struct name for PBR props composition types.
    * @private
    */
-  private static __getStructName(compositionType: CompositionTypeEnum, isWebGPU: boolean): string | undefined {
-    // Access the internal __glslStr or __wgslStr property which contains 'struct StructName' for struct types
-    const typeWithGlslStr = compositionType as { __glslStr?: string; __wgslStr?: string };
-    const glslStr = isWebGPU ? typeWithGlslStr.__wgslStr : typeWithGlslStr.__glslStr;
-    if (glslStr?.startsWith('struct ')) {
-      return glslStr.replace('struct ', '');
+  private static __getStructName(compositionType: CompositionTypeEnum): string | undefined {
+    if (compositionType === CompositionType.SpecularProps) {
+      return 'SpecularProps';
+    }
+    if (compositionType === CompositionType.VolumeProps) {
+      return 'VolumeProps';
+    }
+    if (compositionType === CompositionType.ClearcoatProps) {
+      return 'ClearcoatProps';
+    }
+    if (compositionType === CompositionType.AnisotropyProps) {
+      return 'AnisotropyProps';
+    }
+    if (compositionType === CompositionType.SheenProps) {
+      return 'SheenProps';
+    }
+    if (compositionType === CompositionType.IridescenceProps) {
+      return 'IridescenceProps';
+    }
+    if (compositionType === CompositionType.DiffuseTransmissionProps) {
+      return 'DiffuseTransmissionProps';
     }
     return undefined;
   }
@@ -485,11 +499,12 @@ export class ShaderGraphResolver {
     defaultValue: Record<string, ValueTypes>,
     isWebGPU: boolean
   ): string {
-    // Get the struct type name from the composition type's internal glslStr/wgslStr property
-    const structName = this.__getStructName(compositionType, isWebGPU);
+    // Get the struct type name from the helper, or fall back to extracting from GLSL string
+    let structName = this.__getStructName(compositionType);
     if (!structName) {
-      Logger.default.error(`Unknown struct composition type: ${compositionType.str}`);
-      return 'unknown';
+      // Fall back to extracting from GLSL string for unknown struct types
+      const glslStr = compositionType.getGlslStr(ComponentType.Unknown);
+      structName = glslStr.replace('struct ', '');
     }
 
     // Build the member initialization values in the order they appear in the default value object
