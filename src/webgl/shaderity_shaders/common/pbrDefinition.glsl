@@ -706,7 +706,7 @@ vec3 lightingWithPunctualLight(
   float BdotL = dot(anisotropyProps.anisotropicB, light.direction);
   float TdotH = dot(anisotropyProps.anisotropicT, halfVector);
   float BdotH = dot(anisotropyProps.anisotropicB, halfVector);
-  vec3 specularMetalContrib = BRDF_specularAnisotropicGGX(alphaRoughness, VdotH, NdotL, NdotV, NdotH, anisotropyProps.BdotV, anisotropyProps.TdotV, TdotL, BdotL, TdotH, BdotH, anisotropyProps.anisotropy, anisotropyProps.anisotropicT, anisotropyProps.anisotropicB) * vec3(NdotL) * light.attenuatedIntensity;
+  vec3 specularMetalContrib = BRDF_specularAnisotropicGGX(alphaRoughness, VdotH, NdotL, NdotV, NdotH, anisotropyProps.BdotV, anisotropyProps.TdotV, TdotL, BdotL, TdotH, BdotH, anisotropyProps.anisotropy) * vec3(NdotL) * light.attenuatedIntensity;
   vec3 specularDielectricContrib = specularMetalContrib;
 #else
   vec3 specularMetalContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, alphaRoughness) * vec3(NdotL) * light.attenuatedIntensity;
