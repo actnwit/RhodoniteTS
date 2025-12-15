@@ -187,6 +187,8 @@
 /* shaderity: @{pbrDefinition} */
 /* shaderity: @{iblDefinition} */
 
+#pragma shaderity: require(../nodes/PbrShader.wgsl)
+
 @fragment
 fn main(
   input: VertexOutput,
@@ -219,10 +221,10 @@ fn main(
 #else
   let baseColorTexUv = vec2f(0.0, 0.0);
 #endif
+
   var alpha = baseColor.a;
-
 /* shaderity: @{alphaProcess} */
-
+  baseColor.a = alpha;
 
 // Normal
   var normal_inWorld = normalize(input.normal_inWorld);
@@ -318,6 +320,7 @@ let ior = get_ior(materialSID, 0);
   let transmission = 0.0;
 #endif // RN_USE_TRANSMISSION
 
+var specularProps: SpecularProps;
 #ifdef RN_USE_SPECULAR
   let specularTextureTransformScale: vec2f = get_specularTextureTransformScale(materialSID, 0);
   let specularTextureTransformOffset: vec2f = get_specularTextureTransformOffset(materialSID, 0);
@@ -335,16 +338,18 @@ let ior = get_ior(materialSID, 0);
   let specularColorTexUv = uvTransform(specularColorTextureTransformScale, specularColorTextureTransformOffset, specularColorTextureTransformRotation, specularColorTexcoord);
   let specularColorTexture: vec3f = srgbToLinear(textureSample(specularColorTexture, specularColorSampler, specularColorTexUv).rgb);
   let specularColor: vec3f = get_specularColorFactor(materialSID, 0) * specularColorTexture;
+  specularProps.specularWeight = specularWeight;
+  specularProps.specularColor = specularColor;
 #else
-  let specularWeight = 1.0;
-  let specularColor = vec3f(1.0, 1.0, 1.0);
+  specularProps.specularWeight = 1.0;
+  specularProps.specularColor = vec3f(1.0, 1.0, 1.0);
 #endif // RN_USE_SPECULAR
 
   // F0, F90
   let outsideIor = 1.0;
   var dielectricF0 = vec3f(sqF32((ior - outsideIor) / (ior + outsideIor)));
-  dielectricF0 = min(dielectricF0 * specularColor, vec3f(1.0));
-  let dielectricF90 = vec3f(specularWeight);
+  dielectricF0 = min(dielectricF0 * specularProps.specularColor, vec3f(1.0));
+  let dielectricF90 = vec3f(specularProps.specularWeight);
 
 // Iridescence
   var iridescenceProps: IridescenceProps;
@@ -536,120 +541,63 @@ var diffuseTransmissionProps: DiffuseTransmissionProps;
   let dispersion = 0.0;
 #endif
 
-  var rt0 = vec4<f32>(0, 0, 0, alpha);
-
-  // Punctual Lights
-  let lightNumber = u32(get_lightNumber(0u, 0u));
-  for (var i = 0u; i < lightNumber; i++) {
-    let light: Light = getLight(i, input.position_inWorld.xyz);
-    var lighting = lightingWithPunctualLight(input.instanceIds, light, normal_inWorld, viewDirection,
-                            NdotV, baseColor.rgb, perceptualRoughness, metallic,
-                            specularWeight, dielectricF0, dielectricF90, ior,
-                            transmission, volumeProps,
-                            clearcoatProps,
-                            anisotropyProps,
-                            sheenProps,
-                            iridescenceProps,
-                            diffuseTransmissionProps
-                            );
-
-    #ifdef RN_USE_SHADOW_MAPPING
-      // Point Light
-      let depthTextureIndex = u32(get_depthTextureIndexList(materialSID, i));
-      let pointLightFarPlane = get_pointLightFarPlane(materialSID, 0);
-      let pointLightShadowMapUvScale = get_pointLightShadowMapUvScale(materialSID, 0);
-      let shadowContributionParaboloid = varianceShadowContributionParaboloid(input.position_inWorld.xyz, light.position, pointLightFarPlane, pointLightShadowMapUvScale, depthTextureIndex);
-
-      // Directional Light or Spot Light
-      let v_shadowCoord = get_depthBiasPV(materialSID, i) * input.position_inWorld;
-      let shadowCoord = v_shadowCoord.xy / v_shadowCoord.w;
-      let normalizedDepth = v_shadowCoord.z / v_shadowCoord.w;
-
-      // Slope-scaled bias in normalized depth space to reduce shadow acne
-      let NdotL = max(dot(normal_inWorld, light.direction), 0.0);
-      let baseBias = 0.001;
-      let slopeBias = 0.005 * sqrt(1.0 - NdotL * NdotL) / max(NdotL, 0.05);
-      let bias = min(baseBias + slopeBias, 0.05);  // Clamp to prevent excessive bias
-
-      let lightDirection = normalize(get_lightDirection(i));
-      let lightPosToWorldPos = normalize(input.position_inWorld.xyz - light.position);
-      let dotProduct = dot(lightPosToWorldPos, lightDirection);
-      var shadowContribution = 1.0;
-      shadowContribution = varianceShadowContribution(shadowCoord, normalizedDepth - bias, depthTextureIndex);
-
-      if (light.lightType == 1 && depthTextureIndex >= 0) { // Point Light
-        lighting *= shadowContributionParaboloid;
-      } else if ((light.lightType == 0 || light.lightType == 2) && depthTextureIndex >= 0) { // Directional Light or Spot Light
-        if (dotProduct > 0.0 && shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0) {
-          lighting *= shadowContribution;
-        }
-      }
-    #endif
-
-    lighting = select(lighting, vec3f(0.0), light.lightType < 0);
-
-    rt0 += vec4f(lighting, 0.0);
-  }
-
-  // Image-based Lighting
-  let ibl: vec3f = IBLContribution(input.instanceIds, materialSID, cameraSID,
-    normal_inWorld, NdotV, viewDirection, geomNormal_inWorld, input.position_inWorld.xyz,
-    baseColor.rgb, perceptualRoughness, metallic, specularWeight, dielectricF0, ior,
-    clearcoatProps,
-    transmission,
-    volumeProps,
-    sheenProps,
-    iridescenceProps,
-    anisotropyProps,
-    diffuseTransmissionProps,
-    dispersion
-  );
-
-  #ifdef RN_USE_OCCLUSION_TEXTURE
-    let occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
-    let occlusionTexcoord = getTexcoord(occlusionTexcoordIndex, input);
-    let occlusionTextureTransformScale: vec2f = get_occlusionTextureTransformScale(materialSID, 0);
-    let occlusionTextureTransformOffset: vec2f = get_occlusionTextureTransformOffset(materialSID, 0);
-    let occlusionTextureTransformRotation: f32 = get_occlusionTextureTransformRotation(materialSID, 0);
-    let occlusionTexUv = uvTransform(occlusionTextureTransformScale, occlusionTextureTransformOffset, occlusionTextureTransformRotation, occlusionTexcoord);
-    let occlusion = textureSample(occlusionTexture, occlusionSampler, occlusionTexUv).r;
-    let occlusionStrength = get_occlusionStrength(materialSID, 0);
-    // Occlusion to Indirect Lights
-    let indirectLight = ibl * (1.0 + occlusionStrength * (occlusion - 1.0));
-  #else
-    let indirectLight = ibl;
-  #endif
-
-  rt0 += vec4f(indirectLight, 0.0);
+var occlusionProps: OcclusionProps;
+#ifdef RN_USE_OCCLUSION_TEXTURE
+  let occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
+  let occlusionTexcoord = getTexcoord(occlusionTexcoordIndex, input);
+  let occlusionTextureTransformScale: vec2f = get_occlusionTextureTransformScale(materialSID, 0);
+  let occlusionTextureTransformOffset: vec2f = get_occlusionTextureTransformOffset(materialSID, 0);
+  let occlusionTextureTransformRotation: f32 = get_occlusionTextureTransformRotation(materialSID, 0);
+  let occlusionTexUv = uvTransform(occlusionTextureTransformScale, occlusionTextureTransformOffset, occlusionTextureTransformRotation, occlusionTexcoord);
+  occlusionProps.occlusionTexture = textureSample(occlusionTexture, occlusionSampler, occlusionTexUv);
+  occlusionProps.occlusionStrength = get_occlusionStrength(materialSID, 0);
 #else
-  var rt0 = vec4f(baseColor.rgb, alpha);
-#endif // RN_IS_LIGHTING
+  occlusionProps.occlusionTexture = vec4f(1.0);
+  occlusionProps.occlusionStrength = 1.0;
+#endif
 
-  // Emissive
-  let emissiveFactor = get_emissiveFactor(materialSID, 0);
-  #ifdef RN_USE_EMISSIVE_TEXTURE
-    let emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0);
-    let emissiveTexcoord = getTexcoord(emissiveTexcoordIndex, input);
-    let emissiveTextureTransformScale: vec2f = get_emissiveTextureTransformScale(materialSID, 0);
-    let emissiveTextureTransformOffset: vec2f = get_emissiveTextureTransformOffset(materialSID, 0);
-    let emissiveTextureTransformRotation: f32 = get_emissiveTextureTransformRotation(materialSID, 0);
-    let emissiveTexUv = uvTransform(emissiveTextureTransformScale, emissiveTextureTransformOffset, emissiveTextureTransformRotation, emissiveTexcoord);
-    var emissive = emissiveFactor * srgbToLinear(textureSample(emissiveTexture, emissiveSampler, emissiveTexUv).xyz);
-  #else
-    var emissive = emissiveFactor;
-  #endif
-
+var emissiveProps: EmissiveProps;
+let emissiveFactor = get_emissiveFactor(materialSID, 0);
+#ifdef RN_USE_EMISSIVE_TEXTURE
+  let emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0);
+  let emissiveTexcoord = getTexcoord(emissiveTexcoordIndex, input);
+  let emissiveTextureTransformScale: vec2f = get_emissiveTextureTransformScale(materialSID, 0);
+  let emissiveTextureTransformOffset: vec2f = get_emissiveTextureTransformOffset(materialSID, 0);
+  let emissiveTextureTransformRotation: f32 = get_emissiveTextureTransformRotation(materialSID, 0);
+  let emissiveTexUv = uvTransform(emissiveTextureTransformScale, emissiveTextureTransformOffset, emissiveTextureTransformRotation, emissiveTexcoord);
+  let emissive = emissiveFactor * srgbToLinear(textureSample(emissiveTexture, emissiveSampler, emissiveTexUv).xyz);
+#else
+  let emissive = emissiveFactor;
+#endif
+  emissiveProps.emissive = emissive;
 #ifdef RN_USE_EMISSIVE_STRENGTH
   let emissiveStrength = get_emissiveStrength(materialSID, 0);
-  emissive *= emissiveStrength;
+  emissiveProps.emissiveStrength = emissiveStrength;
+#else
+  emissiveProps.emissiveStrength = 1.0;
 #endif // RN_USE_EMISSIVE_STRENGTH
 
-#ifdef RN_USE_CLEARCOAT
-  let coated_emissive = emissive * mix(vec3f(1.0), vec3f(0.04 + (1.0 - 0.04) * pow(1.0 - NdotV, 5.0)), clearcoat);
-  rt0 += vec4f(coated_emissive, 0.0);
+  var rt0 = vec4<f32>(0.0, 0.0, 0.0, baseColor.a);
+
+  pbrShader(input.instanceIds,
+    input.position_inWorld, normal_inWorld, geomNormal_inWorld,
+    baseColor, perceptualRoughness, metallic,
+    occlusionProps,
+    emissiveProps,
+    ior,
+    transmission,
+    specularProps,
+    volumeProps,
+    clearcoatProps,
+    anisotropyProps,
+    sheenProps,
+    iridescenceProps,
+    diffuseTransmissionProps,
+    dispersion,
+    &rt0);
 #else
-  rt0 += vec4f(emissive, 0.0);
-#endif // RN_USE_CLEARCOAT
+  var rt0 = baseColor;
+#endif // RN_IS_LIGHTING
 
   /* shaderity: @{wireframe} */
 
