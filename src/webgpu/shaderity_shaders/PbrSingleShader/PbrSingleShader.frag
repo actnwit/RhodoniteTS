@@ -530,6 +530,12 @@ var diffuseTransmissionProps: DiffuseTransmissionProps;
   diffuseTransmissionProps.diffuseTransmissionThickness = 0.0;
 #endif // RN_USE_DIFFUSE_TRANSMISSION
 
+#ifdef RN_USE_DISPERSION
+  let dispersion = get_dispersion(materialSID, 0);
+#else
+  let dispersion = 0.0;
+#endif
+
   var rt0 = vec4<f32>(0, 0, 0, alpha);
 
   // Punctual Lights
@@ -595,7 +601,8 @@ var diffuseTransmissionProps: DiffuseTransmissionProps;
     sheenProps,
     iridescenceProps,
     anisotropyProps,
-    diffuseTransmissionProps
+    diffuseTransmissionProps,
+    dispersion
   );
 
   #ifdef RN_USE_OCCLUSION_TEXTURE

@@ -81,5 +81,33 @@ fn pbrShader(
     shadingColor += vec4<f32>(lighting, 0.0);
   }
 
+  // Image-based Lighting
+  let ibl: vec3f = IBLContribution(input.instanceIds, materialSID, cameraSID,
+    normalInWorld, NdotV, viewDirection, geomNormalInWorld, positionInWorld.xyz,
+    baseColor.rgb, perceptualRoughness, metallic, specularWeight, dielectricF0, ior,
+    clearcoatProps,
+    transmission,
+    volumeProps,
+    sheenProps,
+    iridescenceProps,
+    anisotropyProps,
+    diffuseTransmissionProps
+  );
+
+  #ifdef RN_USE_OCCLUSION_TEXTURE
+    let occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
+    let occlusionTexcoord = getTexcoord(occlusionTexcoordIndex, input);
+    let occlusionTextureTransformScale: vec2f = get_occlusionTextureTransformScale(materialSID, 0);
+    let occlusionTextureTransformOffset: vec2f = get_occlusionTextureTransformOffset(materialSID, 0);
+    let occlusionTextureTransformRotation: f32 = get_occlusionTextureTransformRotation(materialSID, 0);
+    let occlusionTexUv = uvTransform(occlusionTextureTransformScale, occlusionTextureTransformOffset, occlusionTextureTransformRotation, occlusionTexcoord);
+    let occlusion = textureSample(occlusionTexture, occlusionSampler, occlusionTexUv).r;
+    let occlusionStrength = get_occlusionStrength(materialSID, 0);
+    // Occlusion to Indirect Lights
+    let indirectLight = ibl * (1.0 + occlusionStrength * (occlusion - 1.0));
+  #else
+    let indirectLight = ibl;
+  #endif
+
   *outColor = shadingColor;
 }
