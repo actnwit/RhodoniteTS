@@ -2623,6 +2623,10 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
       gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, magFilter.index);
     }
 
+    // Get base level (mipmap level 0) dimensions
+    const baseLevelWidth = basisFile.getImageWidth(0, 0);
+    const baseLevelHeight = basisFile.getImageHeight(0, 0);
+
     for (let i = 0; i < mipmapDepth; i++) {
       for (let j = 0; j < numImages; j++) {
         const width = basisFile.getImageWidth(j, i);
@@ -2642,7 +2646,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
 
     this.__glw!.unbindTextureCube(15);
 
-    return resourceHandle;
+    return { resourceHandle, width: baseLevelWidth, height: baseLevelHeight };
   }
 
   createDummyBlackCubeTexture(engine: Engine) {

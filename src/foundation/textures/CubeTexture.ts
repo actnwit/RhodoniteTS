@@ -182,14 +182,16 @@ export class CubeTexture extends AbstractTexture implements Disposable {
       }
 
       const webGLResourceRepository = this.__engine.webglResourceRepository;
-      const texture = webGLResourceRepository.createCubeTextureFromBasis(basisFile, {
+      const { resourceHandle, width, height } = webGLResourceRepository.createCubeTextureFromBasis(basisFile, {
         magFilter: magFilter,
         minFilter: minFilter,
         wrapS: wrapS,
         wrapT: wrapT,
       });
 
-      this.__setTextureResourceUid(texture, this.uniqueName);
+      this.__setTextureResourceUid(resourceHandle, this.uniqueName);
+      this.__width = width;
+      this.__height = height;
       this.__isTextureReady = true;
 
       basisFile.close();
