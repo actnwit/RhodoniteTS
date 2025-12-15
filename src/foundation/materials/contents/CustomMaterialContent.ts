@@ -162,8 +162,10 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     }
 
     // Set sheen cube texture (use specular as fallback if sheen is not set)
-    // Note: meshRendererComponent doesn't have sheenCubeMap, so we use specularCube as fallback
-    if (specularCube?.isTextureReady) {
+    const sheenCube = meshRendererComponent?.sheenCubeMap;
+    if (sheenCube?.isTextureReady) {
+      material.setTextureParameter(ShaderSemantics.SheenEnvTexture.str, sheenCube, this.__specularIblCubeMapSampler);
+    } else if (specularCube?.isTextureReady) {
       material.setTextureParameter(ShaderSemantics.SheenEnvTexture.str, specularCube, this.__specularIblCubeMapSampler);
     }
   }
