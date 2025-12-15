@@ -85,7 +85,7 @@ class ComponentTypeClass<TypeName extends string> extends EnumClass implements C
 }
 
 const Unknown = new ComponentTypeClass({
-  index: 5119,
+  index: -1,
   str: 'UNKNOWN',
   sizeInBytes: 0,
   wgsl: 'unknown',
