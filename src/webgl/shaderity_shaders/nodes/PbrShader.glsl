@@ -12,6 +12,7 @@ void pbrShader(
   in SheenProps sheenProps,
   in IridescenceProps iridescenceProps,
   in DiffuseTransmissionProps diffuseTransmissionProps,
+  in float dispersion,
   out vec4 outColor) {
   vec4 shadingColor = vec4(0.0, 0.0, 0.0, baseColor.a);
 

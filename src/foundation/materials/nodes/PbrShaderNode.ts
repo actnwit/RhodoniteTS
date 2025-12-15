@@ -120,6 +120,9 @@ export class PbrShaderNode extends AbstractShaderNode {
         diffuseTransmissionThickness: Scalar.fromCopyNumber(0.0),
       })
     );
+    this.__inputs.push(
+      new Socket('dispersion', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.0))
+    );
     this.__outputs.push(new Socket('outColor', CompositionType.Vec4, ComponentType.Float));
   }
 
