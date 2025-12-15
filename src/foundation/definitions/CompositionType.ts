@@ -870,6 +870,20 @@ function isTexture(compositionType: CompositionTypeEnum) {
   return false;
 }
 
+function isTexture2D(compositionType: CompositionTypeEnum) {
+  if (compositionType === Texture2D) {
+    return true;
+  }
+  return false;
+}
+
+function isTextureCube(compositionType: CompositionTypeEnum) {
+  if (compositionType === TextureCube) {
+    return true;
+  }
+  return false;
+}
+
 export const CompositionType = Object.freeze({
   Unknown,
   Scalar,
@@ -907,6 +921,8 @@ export const CompositionType = Object.freeze({
   fromWgslString,
   isArray,
   isTexture,
+  isTexture2D,
+  isTextureCube,
   toGltf2AnimationAccessorCompositionType,
   toGltf2AccessorCompositionTypeString,
   toGltf2AnimationAccessorCompositionTypeString,
