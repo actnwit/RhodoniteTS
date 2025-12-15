@@ -95,11 +95,5 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.biome": "explicit",
     "source.organizeImports.biome": "explicit"
-  },
-  "workbench.colorCustomizations": {
-    "titleBar.activeBackground": "#e45250", // タイトルバーの背景色
-    "titleBar.activeForeground": "#f4f4f4", // タイトルバーの文字色
-    "titleBar.inactiveBackground": "#dd5b5b", // 非アクティブなタイトルバーの背景色
-    "titleBar.inactiveForeground": "#e6e6e6", // 非アクティブなタイトルバーの文字色
   }
 }
