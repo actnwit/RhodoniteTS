@@ -1088,7 +1088,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     primitive: Primitive,
     instanceIDBufferUid: WebGLResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid
   ) {
-    const gl = this.__glw!.getRawContext();
+    const gl = this.__glw!.getRawContextAsWebGL2();
 
     const vao = this.getWebGLResource(vaoHandle) as WebGLVertexArrayObjectOES;
 
@@ -1114,15 +1114,40 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
         throw new Error(`Nothing Element Array Buffer at index ${i}`);
       }
       gl.enableVertexAttribArray(VertexAttribute.toAttributeSlotFromJoinedString(primitive.attributeSemantics[i]));
-      gl.vertexAttribPointer(
-        VertexAttribute.toAttributeSlotFromJoinedString(primitive.attributeSemantics[i]),
-        primitive.attributeCompositionTypes[i].getNumberOfComponents(),
-        primitive.attributeComponentTypes[i].index,
-        primitive.attributeAccessors[i].normalized,
-        primitive.attributeAccessors[i].byteStride,
-        0
-      );
+      if (primitive.attributeComponentTypes[i].isFloatingPoint()) {
+        gl.vertexAttribPointer(
+          VertexAttribute.toAttributeSlotFromJoinedString(primitive.attributeSemantics[i]),
+          primitive.attributeCompositionTypes[i].getNumberOfComponents(),
+          primitive.attributeComponentTypes[i].index,
+          primitive.attributeAccessors[i].normalized,
+          primitive.attributeAccessors[i].byteStride,
+          0
+        );
+      } else {
+        gl.vertexAttribIPointer(
+          VertexAttribute.toAttributeSlotFromJoinedString(primitive.attributeSemantics[i]),
+          primitive.attributeCompositionTypes[i].getNumberOfComponents(),
+          primitive.attributeComponentTypes[i].index,
+          primitive.attributeAccessors[i].byteStride,
+          0
+        );
+      }
     });
+
+    // Set default integer values for integer attributes not present in the primitive.
+    // This is necessary because WebGL's default generic vertex attribute is float type,
+    // which causes type mismatch with integer shader inputs (uvec4, ivec4).
+    // Note: disableVertexAttribArray alone does not avoid the type check.
+    for (const intAttr of VertexAttribute.integerTypeAttributes) {
+      const slot = intAttr.getAttributeSlot();
+      const hasAttribute = primitive.attributeSemantics.some(
+        semantic => VertexAttribute.toAttributeSlotFromJoinedString(semantic) === slot
+      );
+      if (!hasAttribute) {
+        gl.disableVertexAttribArray(slot);
+        gl.vertexAttribI4ui(slot, 0, 0, 0, 0);
+      }
+    }
 
     /// for InstanceIDBuffer
     if (instanceIDBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
@@ -1133,11 +1158,10 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
         throw new Error('Nothing Element Array Buffer at index');
       }
       gl.enableVertexAttribArray(VertexAttribute.Instance.getAttributeSlot());
-      gl.vertexAttribPointer(
+      gl.vertexAttribIPointer(
         VertexAttribute.Instance.getAttributeSlot(),
         CompositionType.Vec4.getNumberOfComponents(),
-        ComponentType.Float.index,
-        false,
+        ComponentType.UnsignedInt.index,
         0,
         0
       );

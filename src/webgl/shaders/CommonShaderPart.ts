@@ -1,4 +1,4 @@
-import type { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
+import { ComponentType, type ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
 import type { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
 import { VertexAttribute, type VertexAttributeEnum } from '../../foundation/definitions/VertexAttribute';
@@ -116,6 +116,8 @@ struct VertexOutput {
 
 /* shaderity: @{opticalDefinition} */
 /* shaderity: @{shadowDefinition} */
+/* shaderity: @{pbrDefinition} */
+/* shaderity: @{iblDefinition} */
 
 `;
       return vertexShaderPrerequisites;
@@ -139,11 +141,11 @@ in vec4 a_position;
   const vec4 a_color = vec4(1.0, 1.0, 1.0, 1.0);
 #endif
 in vec3 a_normal;
-in vec4 a_instanceInfo;
+in uvec4 a_instanceIds;
 in vec2 a_texcoord_0;
 in vec2 a_texcoord_1;
 in vec2 a_texcoord_2;
-in vec4 a_joint;
+in uvec4 a_joint;
 in vec4 a_weight;
 in vec4 a_baryCentricCoord;
 `;
@@ -154,7 +156,8 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     vertexShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
     vertexShaderPrerequisites += '/* shaderity: @{opticalDefinition} */';
     vertexShaderPrerequisites += '/* shaderity: @{shadowDefinition} */';
-
+    vertexShaderPrerequisites += '/* shaderity: @{pbrDefinition} */';
+    vertexShaderPrerequisites += '/* shaderity: @{iblDefinition} */';
     return vertexShaderPrerequisites;
   }
 
@@ -170,6 +173,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     const varyings: {
       type: string;
       name: string;
+      needsFlat: boolean;
     }[] = [];
     const definedVaryings: Set<string> = new Set();
     for (let i = 0; i < shaderNodes.length; i++) {
@@ -188,9 +192,15 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
             continue;
           }
           definedVaryings.add(name);
+          // Integer and boolean types require flat interpolation in WGSL
+          const needsFlat =
+            input.componentType.isInteger() ||
+            input.componentType.isUnsignedInteger() ||
+            input.componentType === ComponentType.Bool;
           varyings.push({
             type: type,
             name: name,
+            needsFlat: needsFlat,
           });
         }
       }
@@ -205,7 +215,8 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
 
     let varyingVariables = '';
     for (let i = 0; i < varyings.length; i++) {
-      varyingVariables += `@location(${i}) ${varyings[i].name}: ${varyings[i].type},\n`;
+      const flatAttr = varyings[i].needsFlat ? ' @interpolate(flat)' : '';
+      varyingVariables += `@location(${i})${flatAttr} ${varyings[i].name}: ${varyings[i].type},\n`;
     }
 
     return varyingVariables;
@@ -239,7 +250,8 @@ struct VertexOutput {
 
 /* shaderity: @{opticalDefinition} */
 /* shaderity: @{shadowDefinition} */
-
+/* shaderity: @{pbrDefinition} */
+/* shaderity: @{iblDefinition} */
 `;
       return pixelShaderPrerequisites;
     }
@@ -256,6 +268,8 @@ struct VertexOutput {
     pixelShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
     pixelShaderPrerequisites += '/* shaderity: @{opticalDefinition} */';
     pixelShaderPrerequisites += '/* shaderity: @{shadowDefinition} */';
+    pixelShaderPrerequisites += '/* shaderity: @{pbrDefinition} */';
+    pixelShaderPrerequisites += '/* shaderity: @{iblDefinition} */';
     pixelShaderPrerequisites += 'layout(location = 0) out vec4 rt0;';
     return pixelShaderPrerequisites;
   }

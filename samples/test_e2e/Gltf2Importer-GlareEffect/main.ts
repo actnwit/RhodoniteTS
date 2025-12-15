@@ -25,7 +25,7 @@ const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
 const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: rnCanvasElement,
-  config: new Rn.Config({ cgApiDebugConsoleOutput: true }),
+  config: new Rn.Config({ cgApiDebugConsoleOutput: true, logLevel: Rn.LogLevel.Info }),
 });
 
 const assets = await Rn.defaultAssetLoader.load({

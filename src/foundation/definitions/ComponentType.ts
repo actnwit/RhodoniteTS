@@ -85,7 +85,7 @@ class ComponentTypeClass<TypeName extends string> extends EnumClass implements C
 }
 
 const Unknown = new ComponentTypeClass({
-  index: 5119,
+  index: -1,
   str: 'UNKNOWN',
   sizeInBytes: 0,
   wgsl: 'unknown',
@@ -325,6 +325,15 @@ function fromGlslString(str_: string): ComponentTypeEnum {
       break;
     case 'ivec4':
       str = 'INT';
+      break;
+    case 'uvec2':
+      str = 'UNSIGNED_INT';
+      break;
+    case 'uvec3':
+      str = 'UNSIGNED_INT';
+      break;
+    case 'uvec4':
+      str = 'UNSIGNED_INT';
       break;
     case 'sampler2D':
       str = 'INT';

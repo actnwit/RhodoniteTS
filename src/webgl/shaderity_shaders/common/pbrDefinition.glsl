@@ -2,6 +2,8 @@
 // https://github.com/KhronosGroup/glTF-Sample-Renderer
 // Modified by Yuki Shimada
 
+#ifdef RN_USE_PBR
+
 const float M_PI = 3.141592653589793;
 const float c_MinRoughness = 0.04;
 
@@ -221,6 +223,7 @@ vec3 normalBlendingUDN(sampler2D baseMap, sampler2D detailMap, vec2 baseUv, vec2
   return r;
 }
 
+#ifdef RN_IS_PIXEL_SHADER
 float IsotropicNDFFiltering(vec3 normal, float roughness2) {
   float SIGMA2 = 0.15915494;
   float KAPPA = 0.18;
@@ -231,6 +234,7 @@ float IsotropicNDFFiltering(vec3 normal, float roughness2) {
   float filteredRoughness2 = saturate(roughness2 + clampedKernelRoughness2);
   return filteredRoughness2;
 }
+#endif
 
 ////////////////////////////////////////
 // glTF KHR_materials_transmission
@@ -251,10 +255,10 @@ vec3 volumeAttenuation(vec3 attenuationColor, float attenuationDistance, vec3 in
 }
 
 // from glTF Sample Viewer: https://github.com/KhronosGroup/glTF-Sample-Viewer
-vec3 getVolumeTransmissionRay(vec3 n, vec3 v, float thickness, float ior)
+vec3 getVolumeTransmissionRay(vec3 n, vec3 v, float thickness, float ior, uvec4 instanceIds)
 {
   vec3 refractionVector = refract(-v, normalize(n), 1.0 / ior);
-  mat4 worldMatrix = get_worldMatrix(uint(v_instanceInfo));
+  mat4 worldMatrix = get_worldMatrix(instanceIds.x);
 
   vec3 modelScale;
   modelScale.x = length(vec3(worldMatrix[0].xyz));
@@ -554,13 +558,82 @@ vec3 rgb_mix(vec3 base, vec3 specular_brdf, vec3 rgb_alpha)
 #endif // RN_USE_IRIDESCENCE
 
 
+struct OcclusionProps
+{
+  vec4 occlusionTexture;
+  float occlusionStrength;
+};
 
+struct EmissiveProps
+{
+  vec3 emissive;
+  float emissiveStrength;
+};
 
+struct ClearcoatProps
+{
+  float clearcoat;
+  float clearcoatRoughness;
+  vec3 clearcoatF0;
+  vec3 clearcoatF90;
+  vec3 clearcoatFresnel;
+  vec3 clearcoatNormal_inWorld;
+  float VdotNc;
+};
+
+struct SheenProps
+{
+  vec3 sheenColor;
+  float sheenRoughness;
+  float albedoSheenScalingNdotV;
+};
+
+struct IridescenceProps
+{
+  float iridescence;
+  vec3 fresnelDielectric;
+  vec3 fresnelMetal;
+};
+
+struct TransmissionProps
+{
+  float transmission;
+};
+
+struct AnisotropyProps
+{
+  float anisotropy;
+  vec3 anisotropicT;
+  vec3 anisotropicB;
+  float BdotV;
+  float TdotV;
+};
+
+struct VolumeProps
+{
+  vec3 attenuationColor;
+  float attenuationDistance;
+  float thickness;
+};
+
+struct DiffuseTransmissionProps
+{
+  float diffuseTransmission;
+  vec3 diffuseTransmissionColor;
+  float diffuseTransmissionThickness;
+};
+
+struct SpecularProps
+{
+  float specularWeight;
+  vec3 specularColor;
+};
 
 ////////////////////////////////////////
 // lighting with a punctual light
 ////////////////////////////////////////
 vec3 lightingWithPunctualLight(
+  uvec4 instanceIds,
   Light light,
   vec3 normal_inWorld,
   vec3 viewDirection,
@@ -568,35 +641,17 @@ vec3 lightingWithPunctualLight(
   vec3 baseColor,
   float perceptualRoughness,
   float metallic,
+  float specularWeight,
   vec3 dielectricF0,
   vec3 dielectricF90,
   float ior,
   float transmission,
-  float thickness,
-  float clearcoat,
-  float clearcoatRoughness,
-  vec3 clearcoatF0,
-  vec3 clearcoatF90,
-  vec3 clearcoatFresnel,
-  vec3 clearcoatNormal_inWorld,
-  float VdotNc,
-  vec3 attenuationColor,
-  float attenuationDistance,
-  float anisotropy,
-  vec3 anisotropicT,
-  vec3 anisotropicB,
-  float BdotV,
-  float TdotV,
-  vec3 sheenColor,
-  float sheenRoughness,
-  float albedoSheenScalingNdotV,
-  float iridescence,
-  vec3 iridescenceFresnel_dielectric,
-  vec3 iridescenceFresnel_metal,
-  float specularWeight,
-  float diffuseTransmission,
-  vec3 diffuseTransmissionColor,
-  float diffuseTransmissionThickness
+  VolumeProps volumeProps,
+  ClearcoatProps clearcoatProps,
+  AnisotropyProps anisotropyProps,
+  SheenProps sheenProps,
+  IridescenceProps iridescenceProps,
+  DiffuseTransmissionProps diffuseTransmissionProps
   )
 {
   float alphaRoughness = perceptualRoughness * perceptualRoughness;
@@ -614,29 +669,29 @@ vec3 lightingWithPunctualLight(
   vec3 diffuseContrib = diffuseBrdf * vec3(NdotL) * light.attenuatedIntensity;
 
 #ifdef RN_USE_DIFFUSE_TRANSMISSION
-  diffuseContrib = diffuseContrib * (vec3(1.0) - diffuseTransmission);
+  diffuseContrib = diffuseContrib * (vec3(1.0) - diffuseTransmissionProps.diffuseTransmission);
   if (dot(normal_inWorld, light.direction) < 0.0) {
     float diffuseNdotL = saturate(dot(normal_inWorld, -light.direction));
-    vec3 diffuseBtdf = BRDF_lambertian(diffuseTransmissionColor) * vec3(diffuseNdotL) * light.attenuatedIntensity;
+    vec3 diffuseBtdf = BRDF_lambertian(diffuseTransmissionProps.diffuseTransmissionColor) * vec3(diffuseNdotL) * light.attenuatedIntensity;
     vec3 mirrorL = normalize(light.direction + 2.0 * normal_inWorld * dot(normal_inWorld, -light.direction));
     float diffuseVdotH = saturate(dot(viewDirection, normalize(mirrorL + viewDirection)));
     dielectricFresnel = fresnelSchlick(dielectricF0 * specularWeight, dielectricF90, abs(diffuseVdotH));
 #ifdef RN_USE_VOLUME
-    diffuseBtdf = volumeAttenuation(attenuationColor, attenuationDistance, diffuseBtdf, diffuseTransmissionThickness);
+    diffuseBtdf = volumeAttenuation(volumeProps.attenuationColor, volumeProps.attenuationDistance, diffuseBtdf, diffuseTransmissionProps.diffuseTransmissionThickness);
 #endif // RN_USE_VOLUME
-    diffuseContrib += diffuseBtdf * diffuseTransmission;
+    diffuseContrib += diffuseBtdf * diffuseTransmissionProps.diffuseTransmission;
   }
 #endif // RN_USE_DIFFUSE_TRANSMISSION
 
 
 #ifdef RN_USE_TRANSMISSION
-  vec3 transmittionRay = getVolumeTransmissionRay(normal_inWorld, viewDirection, thickness, ior);
+  vec3 transmittionRay = getVolumeTransmissionRay(normal_inWorld, viewDirection, volumeProps.thickness, ior, instanceIds);
   light.pointToLight -= transmittionRay;
   light.direction = normalize(light.pointToLight);
   vec3 transmittedContrib = calculateRadianceTransmission(normal_inWorld, viewDirection, light.direction, alphaRoughness, baseColor, ior) * light.attenuatedIntensity;
 
 #ifdef RN_USE_VOLUME
-  transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmittionRay));
+  transmittedContrib = volumeAttenuation(volumeProps.attenuationColor, volumeProps.attenuationDistance, transmittedContrib, length(transmittionRay));
 #endif // RN_USE_VOLUME
 
   diffuseContrib = mix(diffuseContrib, vec3(transmittedContrib), transmission);
@@ -647,11 +702,11 @@ vec3 lightingWithPunctualLight(
   float NdotH = saturate(dot(normal_inWorld, halfVector));
 
 #ifdef RN_USE_ANISOTROPY
-  float TdotL = dot(anisotropicT, light.direction);
-  float BdotL = dot(anisotropicB, light.direction);
-  float TdotH = dot(anisotropicT, halfVector);
-  float BdotH = dot(anisotropicB, halfVector);
-  vec3 specularMetalContrib = BRDF_specularAnisotropicGGX(alphaRoughness, VdotH, NdotL, NdotV, NdotH, BdotV, TdotV, TdotL, BdotL, TdotH, BdotH, anisotropy) * vec3(NdotL) * light.attenuatedIntensity;
+  float TdotL = dot(anisotropyProps.anisotropicT, light.direction);
+  float BdotL = dot(anisotropyProps.anisotropicB, light.direction);
+  float TdotH = dot(anisotropyProps.anisotropicT, halfVector);
+  float BdotH = dot(anisotropyProps.anisotropicB, halfVector);
+  vec3 specularMetalContrib = BRDF_specularAnisotropicGGX(alphaRoughness, VdotH, NdotL, NdotV, NdotH, anisotropyProps.BdotV, anisotropyProps.TdotV, TdotL, BdotL, TdotH, BdotH, anisotropyProps.anisotropy) * vec3(NdotL) * light.attenuatedIntensity;
   vec3 specularDielectricContrib = specularMetalContrib;
 #else
   vec3 specularMetalContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, alphaRoughness) * vec3(NdotL) * light.attenuatedIntensity;
@@ -663,25 +718,25 @@ vec3 lightingWithPunctualLight(
   vec3 dielectric = mix(diffuseContrib, specularDielectricContrib, dielectricFresnel);
 
 #ifdef RN_USE_IRIDESCENCE
-  metal = mix(metal, specularMetalContrib * iridescenceFresnel_metal, iridescence);
-  dielectric = mix(dielectric, rgb_mix(diffuseContrib, specularDielectricContrib, iridescenceFresnel_dielectric), iridescence);
+  metal = mix(metal, specularMetalContrib * iridescenceProps.fresnelMetal, iridescenceProps.iridescence);
+  dielectric = mix(dielectric, rgb_mix(diffuseContrib, specularDielectricContrib, iridescenceProps.fresnelDielectric), iridescenceProps.iridescence);
 #endif // RN_USE_IRIDESCENCE
 
 #ifdef RN_USE_CLEARCOAT
   // Clear Coat Layer
-  float NdotHc = saturate(dot(clearcoatNormal_inWorld, halfVector));
-  float LdotNc = saturate(dot(light.direction, clearcoatNormal_inWorld));
-  vec3 clearcoatContrib = BRDF_specularGGX(NdotHc, LdotNc, VdotNc, clearcoatRoughness * clearcoatRoughness) * vec3(LdotNc) * light.attenuatedIntensity;
+  float NdotHc = saturate(dot(clearcoatProps.clearcoatNormal_inWorld, halfVector));
+  float LdotNc = saturate(dot(light.direction, clearcoatProps.clearcoatNormal_inWorld));
+  vec3 clearcoatContrib = BRDF_specularGGX(NdotHc, LdotNc, clearcoatProps.VdotNc, clearcoatProps.clearcoatRoughness * clearcoatProps.clearcoatRoughness) * vec3(LdotNc) * light.attenuatedIntensity;
 #else
   vec3 clearcoatContrib = vec3(0.0);
 #endif // RN_USE_CLEARCOAT
 
 #ifdef RN_USE_SHEEN
   // Sheen
-  vec3 sheenContrib = BRDF_specularSheen(sheenColor, sheenRoughness, NdotL, NdotV, NdotH) * NdotL * light.attenuatedIntensity;
+  vec3 sheenContrib = BRDF_specularSheen(sheenProps.sheenColor, sheenProps.sheenRoughness, NdotL, NdotV, NdotH) * NdotL * light.attenuatedIntensity;
   float albedoSheenScaling = min(
-    albedoSheenScalingNdotV,
-    1.0 - max3(sheenColor) * texture(u_sheenLutTexture, vec2(NdotL, sheenRoughness)).r);
+    sheenProps.albedoSheenScalingNdotV,
+    1.0 - max3(sheenProps.sheenColor) * texture(u_sheenLutTexture, vec2(NdotL, sheenProps.sheenRoughness)).r);
 #else
   vec3 sheenContrib = vec3(0.0);
   float albedoSheenScaling = 1.0;
@@ -689,7 +744,9 @@ vec3 lightingWithPunctualLight(
 
   vec3 color = mix(dielectric, metal, metallic);
   color = sheenContrib + color * albedoSheenScaling;
-  color = mix(color, clearcoatContrib, clearcoat * clearcoatFresnel);
+  color = mix(color, clearcoatContrib, clearcoatProps.clearcoat * clearcoatProps.clearcoatFresnel);
 
   return color;
 }
+
+#endif // RN_USE_PBR

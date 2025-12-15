@@ -110,13 +110,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
    * @param params.material - The material instance to configure
    * @param params.args - WebGPU rendering arguments containing entity and rendering context
    */
-  _setInternalSettingParametersToGpuWebGpu({
-    material,
-    args,
-  }: {
-    material: Material;
-    args: RenderingArgWebGpu;
-  }) {
+  _setInternalSettingParametersToGpuWebGpu({ material, args }: { material: Material; args: RenderingArgWebGpu }) {
     const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
       CustomMaterialContent.__setupHdriParameters(args);
     const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;

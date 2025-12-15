@@ -2,7 +2,7 @@ import type { Index } from '../../../types/CommonTypes';
 import type { ShaderNodeJson } from '../../../types/ShaderNodeJson';
 import { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
-import { CompositionType } from '../../definitions/CompositionType';
+import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { ShaderType, type ShaderTypeEnum } from '../../definitions/ShaderType';
 import { Scalar } from '../../math/Scalar';
@@ -15,6 +15,7 @@ import { EngineState } from '../../system/EngineState';
 import { AddShaderNode } from '../nodes/AddShaderNode';
 import { AndShaderNode } from '../nodes/AndShaderNode';
 import { AttributeColorShaderNode } from '../nodes/AttributeColorShaderNode';
+import { AttributeInstanceIdsShaderNode } from '../nodes/AttributeInstanceIdsShaderNode';
 import { AttributeJointShaderNode } from '../nodes/AttributeJointShaderNode';
 import { AttributeNormalShaderNode } from '../nodes/AttributeNormalShaderNode';
 import { AttributePositionShaderNode } from '../nodes/AttributePositionShaderNode';
@@ -46,6 +47,8 @@ import { NotEqualShaderNode } from '../nodes/NotEqualShaderNode';
 import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
+import { PbrShaderNode } from '../nodes/PbrShaderNode';
+import { PbrSpecularPropsNode } from '../nodes/PbrSpecularPropsNode';
 import { PremultipliedAlphaShaderNode } from '../nodes/PremultipliedAlphaShaderNode';
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
 import { ProjectionMatrixShaderNode } from '../nodes/ProjectionMatrixShaderNode';
@@ -61,6 +64,7 @@ import { UniformDataShaderNode } from '../nodes/UniformDataShaderNode';
 import { ViewMatrixShaderNode } from '../nodes/ViewMatrixShaderNode';
 import { WorldMatrixShaderNode } from '../nodes/WorldMatrixShaderNode';
 import { AbstractShaderNode, type ShaderNodeUID } from './AbstractShaderNode';
+import type { SocketDefaultValue, ValueTypes } from './Socket';
 
 /**
  * ShaderGraphResolver is a class that resolves the shader node graph and generates shader code.
@@ -330,7 +334,13 @@ export class ShaderGraphResolver {
             }
             definedVaryings.add(varyingName);
             const type = input.compositionType.getGlslStr(input.componentType);
-            shaderBody += `${isVertexStage ? 'out' : 'in'} ${type} ${varyingName};\n`;
+            // Integer and boolean types require flat interpolation in GLSL ES 3.0
+            const needsFlat =
+              input.componentType.isInteger() ||
+              input.componentType.isUnsignedInteger() ||
+              input.componentType === ComponentType.Bool;
+            const flatModifier = needsFlat ? 'flat ' : '';
+            shaderBody += `${flatModifier}${isVertexStage ? 'out' : 'in'} ${type} ${varyingName};\n`;
           }
         }
       }
@@ -435,6 +445,63 @@ export class ShaderGraphResolver {
   }
 
   /**
+   * Checks if the defaultValue is a struct type (Record<string, ValueTypes>) rather than a primitive ValueTypes.
+   * @private
+   */
+  private static __isStructDefaultValue(defaultValue: SocketDefaultValue): defaultValue is Record<string, ValueTypes> {
+    // ValueTypes (Vector, Scalar, Matrix) have a _v property which is a TypedArray
+    // Struct default values are plain objects with string keys and ValueTypes values
+    if (typeof defaultValue !== 'object' || defaultValue === null) {
+      return false;
+    }
+    // Check if it's a ValueTypes by looking for the _v property (TypedArray)
+    if ('_v' in defaultValue && ArrayBuffer.isView((defaultValue as ValueTypes)._v)) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Gets the struct name from the compositionType's glslStr property.
+   * If the glslStr starts with 'struct ', extracts and returns the struct name.
+   * @private
+   */
+  private static __getStructName(compositionType: CompositionTypeEnum): string | undefined {
+    // Use ComponentType.Float to get the raw glslStr (ComponentType.Unknown returns 'unknown')
+    const glslStr = compositionType.getGlslStr(ComponentType.Unknown);
+    if (glslStr.startsWith('struct ')) {
+      return glslStr.replace('struct ', '');
+    }
+    return undefined;
+  }
+
+  /**
+   * Generates a shader initialization string for a struct type default value.
+   * @private
+   */
+  private static __getStructDefaultValueString(
+    compositionType: CompositionTypeEnum,
+    defaultValue: Record<string, ValueTypes>,
+    isWebGPU: boolean
+  ): string {
+    // Get the struct type name from the compositionType's glslStr
+    const structName = this.__getStructName(compositionType) ?? '';
+
+    // Build the member initialization values in the order they appear in the default value object
+    const memberValues: string[] = [];
+    for (const [_key, value] of Object.entries(defaultValue)) {
+      if (isWebGPU) {
+        memberValues.push(value.wgslStrAsFloat);
+      } else {
+        memberValues.push(value.glslStrAsFloat);
+      }
+    }
+
+    // Generate struct initialization: StructName(member1, member2, ...)
+    return `${structName}(${memberValues.join(', ')})`;
+  }
+
+  /**
    * Gets default value for an input socket.
    * If the socket has a defaultValue defined, it will be used.
    * Otherwise, a zero value based on the socket's compositionType and componentType will be generated.
@@ -449,16 +516,23 @@ export class ShaderGraphResolver {
 
     // If defaultValue is set, use it
     if (inputSocket.defaultValue != null) {
+      // Check if defaultValue is a struct type (Record<string, ValueTypes>)
+      if (this.__isStructDefaultValue(inputSocket.defaultValue)) {
+        return this.__getStructDefaultValueString(inputSocket.compositionType, inputSocket.defaultValue, isWebGPU);
+      }
+
+      // Handle primitive ValueTypes
+      const primitiveValue = inputSocket.defaultValue as ValueTypes;
       if (isBool) {
-        return inputSocket.defaultValue._v[0] > 0.5 ? 'true' : 'false';
+        return primitiveValue._v[0] > 0.5 ? 'true' : 'false';
       }
       if (inputSocket.componentType === ComponentType.UnsignedInt) {
-        return isWebGPU ? inputSocket.defaultValue.wgslStrAsUint : inputSocket.defaultValue.glslStrAsUint;
+        return isWebGPU ? primitiveValue.wgslStrAsUint : primitiveValue.glslStrAsUint;
       }
       if (isInt) {
-        return isWebGPU ? inputSocket.defaultValue.wgslStrAsInt : inputSocket.defaultValue.glslStrAsInt;
+        return isWebGPU ? primitiveValue.wgslStrAsInt : primitiveValue.glslStrAsInt;
       }
-      return isWebGPU ? inputSocket.defaultValue.wgslStrAsFloat : inputSocket.defaultValue.glslStrAsFloat;
+      return isWebGPU ? primitiveValue.wgslStrAsFloat : primitiveValue.glslStrAsFloat;
     }
 
     // If defaultValue is not set, generate zero value based on compositionType and componentType
@@ -1348,6 +1422,11 @@ function constructNodes(json: ShaderNodeJson): {
         nodeInstances[node.id] = nodeInstance;
         break;
       }
+      case 'AttributeInstanceIds': {
+        const nodeInstance = new AttributeInstanceIdsShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
       case 'WorldMatrix': {
         const nodeInstance = new WorldMatrixShaderNode();
         nodeInstances[node.id] = nodeInstance;
@@ -1556,6 +1635,18 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'ClassicShader': {
         const nodeInstance = new ClassicShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'PbrShader': {
+        const nodeInstance = new PbrShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'PbrSpecularProps': {
+        const nodeInstance = new PbrSpecularPropsNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;

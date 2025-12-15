@@ -128,8 +128,12 @@ export class ShaderityUtilityWebGL {
     reflection.reflect();
 
     const names = reflection.attributesNames;
-    const semantics = (reflection.attributesSemantics as string[]).map(semantic => {
-      return VertexAttribute.fromString(semantic);
+    const semantics = (reflection.attributesSemantics as string[]).map((semantic, i) => {
+      const result = VertexAttribute.fromString(semantic);
+      if (result === undefined) {
+        Logger.default.error(`Unknown vertex attribute semantic: name=${names[i]}, semantic=${semantic}`);
+      }
+      return result;
     });
     const compositions = (reflection.attributesTypes as string[]).map(type => {
       return CompositionType.fromGlslString(type);
@@ -156,7 +160,7 @@ export class ShaderityUtilityWebGL {
    */
   private static __setDefaultAttributeSemanticMap(reflection: Reflection) {
     const attributeSemanticsMap = new Map();
-    attributeSemanticsMap.set('instanceinfo', 'INSTANCE');
+    attributeSemanticsMap.set('instanceids', 'INSTANCE');
     attributeSemanticsMap.set('barycentriccoord', 'BARY_CENTRIC_COORD');
 
     reflection.addAttributeSemanticsMap(attributeSemanticsMap);

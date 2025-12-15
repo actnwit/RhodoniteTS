@@ -20,8 +20,8 @@ out vec4 v_texcoord_light;
 void main(){
 /* shaderity: @{mainPrerequisites} */
 
-  mat3 normalMatrix = get_normalMatrix(uint(a_instanceInfo.x));
-  mat4 worldMatrix = get_worldMatrix(uint(a_instanceInfo.x));
+  mat3 normalMatrix = get_normalMatrix(uint(a_instanceIds.x));
+  mat4 worldMatrix = get_worldMatrix(uint(a_instanceIds.x));
   mat4 viewMatrix = get_viewMatrix(cameraSID);
 
   bool isSkinning = false;

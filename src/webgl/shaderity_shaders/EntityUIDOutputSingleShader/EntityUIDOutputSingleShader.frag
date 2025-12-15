@@ -18,7 +18,7 @@ void main ()
 {
 /* shaderity: @{mainPrerequisites} */
 
-  rt0 = encodeFloatRGBA(v_instanceInfo);
+  rt0 = encodeFloatRGBA(float(v_instanceIds.x));
 
 
 }

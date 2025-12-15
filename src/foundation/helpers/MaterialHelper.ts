@@ -1,5 +1,6 @@
 import { RnM2Material, type Vrm0xMaterialProperty } from '../../types';
 import type { Count } from '../../types/CommonTypes';
+import type { ShaderNodeJson } from '../../types/ShaderNodeJson';
 import type { Vrm1_Material } from '../../types/VRMC_materials_mtoon';
 import ClassicSingleShaderFragment from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
 import ClassicSingleShaderVertex from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
@@ -75,8 +76,10 @@ import { SynthesizeHdrMaterialContent as SynthesizeHDRMaterialContent } from '..
 import { VarianceShadowMapDecodeClassicMaterialContent } from '../materials/contents/VarianceShadowMapDecodeClassicMaterialContent';
 import type { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
 import type { Material } from '../materials/core/Material';
+import { ShaderGraphResolver } from '../materials/core/ShaderGraphResolver';
 import { Scalar } from '../math/Scalar';
 import { Vector2 } from '../math/Vector2';
+import { Vector4 } from '../math/Vector4';
 import { VectorN } from '../math/VectorN';
 import { DataUtil } from '../misc/DataUtil';
 import type { RenderPass } from '../renderer/RenderPass';
@@ -451,6 +454,7 @@ function createPbrUberMaterial(
   }
 
   const definitions = [];
+  definitions.push('RN_USE_PBR');
   if (isLighting) {
     definitions.push('RN_IS_LIGHTING');
   }
@@ -1510,6 +1514,7 @@ function createMToon0xMaterial(
   const materialName = `MToon0x_${additionalName}_`;
 
   const definitions = [];
+  definitions.push('RN_USE_PBR');
   if (isSkinning) {
     definitions.push('RN_IS_SKINNING');
   }
@@ -1541,6 +1546,10 @@ function createMToon0xMaterial(
 
   const material = createMaterial(engine, materialContent, maxInstancesNumber);
   materialContent.setMaterialParameters(engine, material, isOutline);
+
+  for (const definition of definitions) {
+    material.addShaderDefine(definition);
+  }
 
   return material;
 }
@@ -1593,6 +1602,7 @@ function createMToon1Material(
   const materialName = `MToon1_${additionalName}_`;
 
   const definitions = [];
+  definitions.push('RN_USE_PBR');
   if (isSkinning) {
     definitions.push('RN_IS_SKINNING');
   }
@@ -1623,6 +1633,11 @@ function createMToon1Material(
   if (materialJson.normalTexture != null) {
     material.addShaderDefine('RN_USE_NORMAL_TEXTURE');
   }
+
+  for (const definition of definitions) {
+    material.addShaderDefine(definition);
+  }
+
   return material;
 }
 
@@ -1648,6 +1663,7 @@ function reuseOrRecreateCustomMaterial(
   pixelShaderStr: string,
   {
     maxInstancesNumber = engine.config.materialCountPerBufferView,
+    isPbr = false,
     isSkinning = true,
     isLighting = true,
     isMorphing = true,
@@ -1659,6 +1675,9 @@ function reuseOrRecreateCustomMaterial(
   const materialName = `Custom_${hash}`;
 
   const definitions = [];
+  if (isPbr) {
+    definitions.push('RN_USE_PBR');
+  }
   if (isLighting) {
     definitions.push('RN_IS_LIGHTING');
     if (isShadow) {
@@ -1790,6 +1809,211 @@ function reuseOrRecreateCustomMaterial(
 }
 
 /**
+ * Result of creating a node-based custom material
+ */
+interface NodeBasedMaterialResult {
+  /** The created or reused material */
+  material: Material;
+  /** Whether the shader node graph contains a PbrShader node */
+  hasPbrShaderNode: boolean;
+  /** Whether the shader node graph contains a ClassicShader node */
+  hasClassicShaderNode: boolean;
+}
+
+/**
+ * Builds ShaderSemanticInfo array for textures used in the shader node graph.
+ *
+ * @param engine - The engine instance
+ * @param textureInfos - Array of texture info objects containing name and stage
+ * @returns Array of ShaderSemanticsInfo for textures
+ */
+function buildTextureSemanticInfo(
+  engine: Engine,
+  textureInfos: { name: string; stage: string }[]
+): ShaderSemanticsInfo[] {
+  const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
+
+  // Create a default sampler for textures
+  const sampler = new Sampler(engine, {
+    minFilter: TextureParameter.LinearMipmapLinear,
+    magFilter: TextureParameter.Linear,
+    wrapS: TextureParameter.Repeat,
+    wrapT: TextureParameter.Repeat,
+  });
+  sampler.create();
+
+  for (const textureInfo of textureInfos) {
+    // Map shader stage string to Rhodonite ShaderType
+    let shaderStage: (typeof ShaderType)[keyof typeof ShaderType];
+    switch (textureInfo.stage) {
+      case 'Vertex':
+        shaderStage = ShaderType.VertexShader;
+        break;
+      case 'Fragment':
+        shaderStage = ShaderType.PixelShader;
+        break;
+      default: // Neutral
+        shaderStage = ShaderType.VertexAndPixelShader;
+        break;
+    }
+
+    additionalShaderSemanticInfo.push({
+      semantic: textureInfo.name,
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2D,
+      stage: shaderStage,
+      initialValue: [-1, engine.dummyTextures.dummyWhiteTexture, sampler],
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+  }
+
+  return additionalShaderSemanticInfo;
+}
+
+/**
+ * Adds IBL (Image-Based Lighting) related semantic info for PBR shading.
+ *
+ * @param engine - The engine instance
+ * @param additionalShaderSemanticInfo - Array to add semantic info to
+ */
+function addPbrIblSemanticInfo(engine: Engine, additionalShaderSemanticInfo: ShaderSemanticsInfo[]) {
+  // Create a sampler for cube textures
+  const cubeTextureSampler = new Sampler(engine, {
+    minFilter: TextureParameter.LinearMipmapLinear,
+    magFilter: TextureParameter.Linear,
+    wrapS: TextureParameter.ClampToEdge,
+    wrapT: TextureParameter.ClampToEdge,
+    wrapR: TextureParameter.ClampToEdge,
+  });
+  cubeTextureSampler.create();
+
+  const shaderStage = ShaderType.VertexAndPixelShader;
+
+  additionalShaderSemanticInfo.push({
+    semantic: 'diffuseEnvTexture',
+    componentType: ComponentType.Int,
+    compositionType: CompositionType.TextureCube,
+    stage: shaderStage,
+    initialValue: [-1, engine.dummyTextures.dummyBlackCubeTexture, cubeTextureSampler],
+    min: 0,
+    max: Number.MAX_VALUE,
+    isInternalSetting: true,
+  });
+
+  additionalShaderSemanticInfo.push({
+    semantic: 'specularEnvTexture',
+    componentType: ComponentType.Int,
+    compositionType: CompositionType.TextureCube,
+    stage: shaderStage,
+    initialValue: [-1, engine.dummyTextures.dummyBlackCubeTexture, cubeTextureSampler],
+    min: 0,
+    max: Number.MAX_VALUE,
+    isInternalSetting: true,
+  });
+
+  additionalShaderSemanticInfo.push({
+    semantic: 'inverseEnvironment',
+    componentType: ComponentType.Bool,
+    compositionType: CompositionType.Scalar,
+    stage: shaderStage,
+    initialValue: Scalar.fromCopyNumber(0),
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
+
+  additionalShaderSemanticInfo.push({
+    semantic: 'iblParameter',
+    componentType: ComponentType.Float,
+    compositionType: CompositionType.Vec4,
+    stage: shaderStage,
+    initialValue: Vector4.fromCopy4(1, 1, 1, 1),
+    min: 0,
+    max: Number.MAX_VALUE,
+    isInternalSetting: true,
+  });
+
+  additionalShaderSemanticInfo.push({
+    semantic: 'hdriFormat',
+    componentType: ComponentType.Int,
+    compositionType: CompositionType.Vec2,
+    stage: shaderStage,
+    initialValue: Vector2.fromCopy2(0, 0),
+    min: 0,
+    max: Number.MAX_VALUE,
+    isInternalSetting: true,
+  });
+}
+
+/**
+ * Creates or reuses a custom material from a shader node JSON graph.
+ * This function handles shader code generation, texture semantics setup,
+ * PBR/Classic shader detection, and IBL semantics for PBR materials.
+ *
+ * @param engine - The engine instance
+ * @param currentMaterial - The existing material to potentially reuse
+ * @param shaderNodeJson - The shader node graph JSON
+ * @param options - Configuration options
+ * @param options.maxInstancesNumber - Maximum number of material instances
+ * @returns Object containing the material and shader node flags, or null if generation fails
+ */
+function createNodeBasedCustomMaterial(
+  engine: Engine,
+  currentMaterial: Material,
+  shaderNodeJson: ShaderNodeJson,
+  { maxInstancesNumber = 1 } = {}
+): NodeBasedMaterialResult | null {
+  // Generate shader code from the shader node JSON
+  const shaderCode = ShaderGraphResolver.generateShaderCodeFromJson(engine, shaderNodeJson);
+
+  if (!shaderCode) {
+    return null;
+  }
+
+  // Build texture semantic info from the texture infos extracted during shader generation
+  const additionalShaderSemanticInfo = buildTextureSemanticInfo(engine, shaderCode.textureInfos);
+
+  // Check if ClassicShader node is present in the shader node graph
+  const hasClassicShaderNode =
+    (shaderNodeJson?.nodes?.some((node: { name: string }) => node.name === 'ClassicShader') as boolean) ?? false;
+
+  // Check if PbrShader node is present in the shader node graph
+  const hasPbrShaderNode =
+    (shaderNodeJson?.nodes?.some((node: { name: string }) => node.name === 'PbrShader') as boolean) ?? false;
+
+  // Add IBL-related semantic info if PBR shader is used
+  if (hasPbrShaderNode) {
+    addPbrIblSemanticInfo(engine, additionalShaderSemanticInfo);
+  }
+
+  // Create custom material using reuseOrRecreateCustomMaterial
+  const material = reuseOrRecreateCustomMaterial(
+    engine,
+    currentMaterial,
+    shaderCode.vertexShader,
+    shaderCode.pixelShader,
+    {
+      maxInstancesNumber,
+      isSkinning: true,
+      isLighting: true,
+      isMorphing: true,
+      isShadow: hasClassicShaderNode || hasPbrShaderNode,
+      isPbr: hasPbrShaderNode,
+      additionalShaderSemanticInfo,
+    }
+  );
+
+  // Store the shader node JSON for later retrieval (e.g., in editor or export)
+  material.shaderNodeJson = shaderNodeJson;
+
+  return {
+    material,
+    hasPbrShaderNode,
+    hasClassicShaderNode,
+  };
+}
+
+/**
  * Changes the material assigned to a specific primitive on an entity.
  * This function updates the primitive's material and triggers necessary render state updates.
  *
@@ -1807,6 +2031,7 @@ export const MaterialHelper = Object.freeze({
   createMaterial,
   recreateMaterial,
   reuseOrRecreateCustomMaterial,
+  createNodeBasedCustomMaterial,
   createClassicUberMaterial,
   createDepthMomentEncodeMaterial,
   createParaboloidDepthMomentEncodeMaterial,

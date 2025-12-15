@@ -78,6 +78,7 @@ class CompositionTypeClass<TypeName extends string> extends EnumClass implements
     if (
       componentType.index === 5126 || // FLOAT
       componentType.index === 5127 || // DOUBLE
+      componentType.index === -1 || // UNKNOWN
       this === CompositionType.Texture2D ||
       this === CompositionType.Texture2DShadow ||
       this === CompositionType.Texture2DRect ||
@@ -502,7 +503,96 @@ const Mat4x3Array = new CompositionTypeClass({
   vec4SizeOfProperty: 3,
   isArray: true,
 });
-
+const SpecularProps = new CompositionTypeClass({
+  index: 20,
+  str: 'SPECULAR_PROPS',
+  glslStr: 'struct SpecularProps',
+  hlslStr: 'struct SpecularProps',
+  wgsl: 'struct SpecularProps',
+  webgpu: 'struct SpecularProps',
+  numberOfComponents: -1,
+  vec4SizeOfProperty: -1,
+});
+const VolumeProps = new CompositionTypeClass({
+  index: 21,
+  str: 'VOLUME_PROPS',
+  glslStr: 'struct VolumeProps',
+  hlslStr: 'struct VolumeProps',
+  wgsl: 'struct VolumeProps',
+  webgpu: 'struct VolumeProps',
+  numberOfComponents: -1,
+  vec4SizeOfProperty: -1,
+});
+const ClearcoatProps = new CompositionTypeClass({
+  index: 22,
+  str: 'CLEARCOAT_PROPS',
+  glslStr: 'struct ClearcoatProps',
+  hlslStr: 'struct ClearcoatProps',
+  wgsl: 'struct ClearcoatProps',
+  webgpu: 'struct ClearcoatProps',
+  numberOfComponents: -1,
+  vec4SizeOfProperty: -1,
+});
+const AnisotropyProps = new CompositionTypeClass({
+  index: 23,
+  str: 'ANISOTROPY_PROPS',
+  glslStr: 'struct AnisotropyProps',
+  hlslStr: 'struct AnisotropyProps',
+  wgsl: 'struct AnisotropyProps',
+  webgpu: 'struct AnisotropyProps',
+  numberOfComponents: -1,
+  vec4SizeOfProperty: -1,
+});
+const SheenProps = new CompositionTypeClass({
+  index: 24,
+  str: 'SHEEN_PROPS',
+  glslStr: 'struct SheenProps',
+  hlslStr: 'struct SheenProps',
+  wgsl: 'struct SheenProps',
+  webgpu: 'struct SheenProps',
+  numberOfComponents: -1,
+  vec4SizeOfProperty: -1,
+});
+const IridescenceProps = new CompositionTypeClass({
+  index: 25,
+  str: 'IRIDESCENCE_PROPS',
+  glslStr: 'struct IridescenceProps',
+  hlslStr: 'struct IridescenceProps',
+  wgsl: 'struct IridescenceProps',
+  webgpu: 'struct IridescenceProps',
+  numberOfComponents: -1,
+  vec4SizeOfProperty: -1,
+});
+const DiffuseTransmissionProps = new CompositionTypeClass({
+  index: 26,
+  str: 'DIFFUSE_TRANSMISSION_PROPS',
+  glslStr: 'struct DiffuseTransmissionProps',
+  hlslStr: 'struct DiffuseTransmissionProps',
+  wgsl: 'struct DiffuseTransmissionProps',
+  webgpu: 'struct DiffuseTransmissionProps',
+  numberOfComponents: -1,
+  vec4SizeOfProperty: -1,
+});
+const OcclusionProps = new CompositionTypeClass({
+  index: 27,
+  str: 'OCCLUSION_PROPS',
+  glslStr: 'struct OcclusionProps',
+  hlslStr: 'struct OcclusionProps',
+  wgsl: 'struct OcclusionProps',
+  webgpu: 'struct OcclusionProps',
+  numberOfComponents: -1,
+  vec4SizeOfProperty: -1,
+});
+const EmissiveProps = new CompositionTypeClass({
+  index: 28,
+  str: 'EMISSIVE_PROPS',
+  glslStr: 'struct EmissiveProps',
+  hlslStr: 'struct EmissiveProps',
+  wgsl: 'struct EmissiveProps',
+  webgpu: 'struct EmissiveProps',
+  numberOfComponents: -1,
+  vec4SizeOfProperty: -1,
+});
 const typeList = [
   Unknown,
   Scalar,
@@ -524,6 +614,15 @@ const typeList = [
   Texture2DRect,
   TextureCube,
   Mat4x3Array,
+  SpecularProps,
+  VolumeProps,
+  ClearcoatProps,
+  AnisotropyProps,
+  SheenProps,
+  IridescenceProps,
+  DiffuseTransmissionProps,
+  OcclusionProps,
+  EmissiveProps,
 ];
 
 export type VectorCompositionTypes = typeof Scalar | typeof Vec2 | typeof Vec3 | typeof Vec4;
@@ -576,6 +675,15 @@ function fromGlslString(str_: string): CompositionTypeEnum {
       str = 'vec3';
       break;
     case 'ivec4':
+      str = 'vec4';
+      break;
+    case 'uvec2':
+      str = 'vec2';
+      break;
+    case 'uvec3':
+      str = 'vec3';
+      break;
+    case 'uvec4':
       str = 'vec4';
       break;
     case 'sampler2D':
@@ -772,6 +880,20 @@ function isTexture(compositionType: CompositionTypeEnum) {
   return false;
 }
 
+function isTexture2D(compositionType: CompositionTypeEnum) {
+  if (compositionType === Texture2D) {
+    return true;
+  }
+  return false;
+}
+
+function isTextureCube(compositionType: CompositionTypeEnum) {
+  if (compositionType === TextureCube) {
+    return true;
+  }
+  return false;
+}
+
 export const CompositionType = Object.freeze({
   Unknown,
   Scalar,
@@ -794,6 +916,15 @@ export const CompositionType = Object.freeze({
   Texture2DRect,
   Texture2DArray,
   Mat4x3Array,
+  SpecularProps,
+  VolumeProps,
+  ClearcoatProps,
+  AnisotropyProps,
+  SheenProps,
+  IridescenceProps,
+  DiffuseTransmissionProps,
+  OcclusionProps,
+  EmissiveProps,
   from,
   fromString,
   vectorFrom,
@@ -801,6 +932,8 @@ export const CompositionType = Object.freeze({
   fromWgslString,
   isArray,
   isTexture,
+  isTexture2D,
+  isTextureCube,
   toGltf2AnimationAccessorCompositionType,
   toGltf2AccessorCompositionTypeString,
   toGltf2AnimationAccessorCompositionTypeString,

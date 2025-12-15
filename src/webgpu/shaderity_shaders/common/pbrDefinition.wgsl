@@ -3,6 +3,9 @@
 // Modified by Yuki Shimada
 
 // From: https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/e2c7b8c8bd12916c1a387cd41f9ef061edc718df/source/Renderer/shaders/brdf.glsl#L44-L66
+
+#ifdef RN_USE_PBR
+
 fn Schlick_to_F0_F90(f: vec3f, f90: vec3f, VdotH: f32) -> vec3f {
     let x = clamp(1.0 - VdotH, 0.0, 1.0);
     let x2 = x * x;
@@ -147,10 +150,10 @@ fn volumeAttenuation(attenuationColor: vec3f, attenuationDistance: f32, intensit
 }
 
 // from glTF Sample Viewer: https://github.com/KhronosGroup/glTF-Sample-Viewer
-fn getVolumeTransmissionRay(n: vec3f, v: vec3f, thickness: f32, ior: f32, instanceInfo: u32) -> vec3f
+fn getVolumeTransmissionRay(n: vec3f, v: vec3f, thickness: f32, ior: f32, instanceIds: vec4<u32>) -> vec3f
 {
   let refractionVector = refract(-v, normalize(n), 1.0 / ior);
-  let worldMatrix = get_worldMatrix(instanceInfo);
+  let worldMatrix = get_worldMatrix(instanceIds.x);
 
   var modelScale: vec3f;
   modelScale.x = length(vec3f(worldMatrix[0].xyz));
@@ -442,23 +445,20 @@ fn rgb_mix(base: vec3f, specular_brdf: vec3f, rgb_alpha: vec3f) -> vec3f
 
 #endif // RN_USE_IRIDESCENCE
 
+struct OcclusionProps
+{
+  occlusionTexture: vec4<f32>,
+  occlusionStrength: f32,
+};
 
-////////////////////////////////////////
-// lighting with a punctual light
-////////////////////////////////////////
-fn lightingWithPunctualLight(
-  light_: Light,
-  normal_inWorld: vec3f,
-  viewDirection: vec3f,
-  NdotV: f32,
-  baseColor: vec3f,
-  perceptualRoughness: f32,
-  metallic: f32,
-  dielectricF0: vec3f,
-  dielectricF90: vec3f,
-  transmission: f32,
-  thickness: f32,
-  ior: f32,
+struct EmissiveProps
+{
+  emissive: vec3f,
+  emissiveStrength: f32,
+};
+
+struct ClearcoatProps
+{
   clearcoat: f32,
   clearcoatRoughness: f32,
   clearcoatF0: vec3f,
@@ -466,24 +466,79 @@ fn lightingWithPunctualLight(
   clearcoatFresnel: vec3f,
   clearcoatNormal_inWorld: vec3f,
   VdotNc: f32,
-  attenuationColor: vec3f,
-  attenuationDistance: f32,
+};
+
+struct SheenProps
+{
+  sheenColor: vec3f,
+  sheenRoughness: f32,
+  albedoSheenScalingNdotV: f32,
+};
+
+struct IridescenceProps
+{
+  iridescence: f32,
+  fresnelDielectric: vec3f,
+  fresnelMetal: vec3f,
+};
+
+struct TransmissionProps
+{
+  transmission: f32,
+};
+
+struct AnisotropyProps
+{
   anisotropy: f32,
   anisotropicT: vec3f,
   anisotropicB: vec3f,
   BdotV: f32,
   TdotV: f32,
-  sheenColor: vec3f,
-  sheenRoughness: f32,
-  albedoSheenScalingNdotV: f32,
-  iridescence: f32,
-  iridescenceFresnel_dielectric: vec3f,
-  iridescenceFresnel_metal: vec3f,
-  specularWeight: f32,
-  instanceInfo: u32,
+};
+
+struct VolumeProps
+{
+  attenuationColor: vec3f,
+  attenuationDistance: f32,
+  thickness: f32,
+};
+
+struct DiffuseTransmissionProps
+{
   diffuseTransmission: f32,
   diffuseTransmissionColor: vec3f,
-  diffuseTransmissionThickness: f32
+  diffuseTransmissionThickness: f32,
+};
+
+struct SpecularProps
+{
+  specularWeight: f32,
+  specularColor: vec3f,
+};
+
+////////////////////////////////////////
+// lighting with a punctual light
+////////////////////////////////////////
+fn lightingWithPunctualLight(
+  instanceIds: vec4<u32>,
+  light_: Light,
+  normal_inWorld: vec3f,
+  viewDirection: vec3f,
+  NdotV: f32,
+  baseColor: vec3f,
+  perceptualRoughness: f32,
+  metallic: f32,
+  specularWeight: f32,
+  dielectricF0: vec3f,
+  dielectricF90: vec3f,
+  ior: f32,
+  transmission: f32,
+  volumeProps: VolumeProps,
+  clearcoatProps: ClearcoatProps,
+  anisotropyProps: AnisotropyProps,
+  sheenProps: SheenProps,
+  iridescenceProps: IridescenceProps,
+  diffuseTransmissionProps: DiffuseTransmissionProps
   ) -> vec3f
 {
   var light = light_;
@@ -502,28 +557,28 @@ fn lightingWithPunctualLight(
   var diffuseContrib = diffuseBrdf * vec3f(NdotL) * light.attenuatedIntensity;
 
 #ifdef RN_USE_DIFFUSE_TRANSMISSION
-  diffuseContrib = diffuseContrib * (vec3f(1.0) - diffuseTransmission);
+  diffuseContrib = diffuseContrib * (vec3f(1.0) - diffuseTransmissionProps.diffuseTransmission);
   if (dot(normal_inWorld, light.direction) < 0.0) {
     let diffuseNdotL = saturate(dot(normal_inWorld, -light.direction));
-    var diffuseBtdf = BRDF_lambertian(diffuseTransmissionColor) * vec3f(diffuseNdotL) * light.attenuatedIntensity;
+    var diffuseBtdf = BRDF_lambertian(diffuseTransmissionProps.diffuseTransmissionColor) * vec3f(diffuseNdotL) * light.attenuatedIntensity;
     let mirrorL = normalize(light.direction + 2.0 * normal_inWorld * dot(normal_inWorld, -light.direction));
     let diffuseVdotH = saturate(dot(viewDirection, normalize(mirrorL + viewDirection)));
     dielectricFresnel = fresnelSchlick(dielectricF0 * specularWeight, dielectricF90, abs(diffuseVdotH));
 #ifdef RN_USE_VOLUME
-    diffuseBtdf = volumeAttenuation(attenuationColor, attenuationDistance, diffuseBtdf, diffuseTransmissionThickness);
+    diffuseBtdf = volumeAttenuation(volumeProps.attenuationColor, volumeProps.attenuationDistance, diffuseBtdf, diffuseTransmissionProps.diffuseTransmissionThickness);
 #endif // RN_USE_VOLUME
-    diffuseContrib += diffuseBtdf * diffuseTransmission;
+    diffuseContrib += diffuseBtdf * diffuseTransmissionProps.diffuseTransmission;
   }
 #endif // RN_USE_DIFFUSE_TRANSMISSION
 
 #ifdef RN_USE_TRANSMISSION
-  let transmittionRay = getVolumeTransmissionRay(normal_inWorld, viewDirection, thickness, ior, instanceInfo);
+  let transmittionRay = getVolumeTransmissionRay(normal_inWorld, viewDirection, volumeProps.thickness, ior, instanceIds);
   light.pointToLight -= transmittionRay;
   light.direction = normalize(light.pointToLight);
   var transmittedContrib = calculateRadianceTransmission(normal_inWorld, viewDirection, light.direction, alphaRoughness, baseColor, ior) * light.attenuatedIntensity;
 
 #ifdef RN_USE_VOLUME
-  transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmittionRay));
+  transmittedContrib = volumeAttenuation(volumeProps.attenuationColor, volumeProps.attenuationDistance, transmittedContrib, length(transmittionRay));
 #endif // RN_USE_VOLUME
 
   diffuseContrib = mix(diffuseContrib, vec3f(transmittedContrib), transmission);
@@ -533,11 +588,11 @@ fn lightingWithPunctualLight(
   let NdotH = saturate(dot(normal_inWorld, halfVector));
 
 #ifdef RN_USE_ANISOTROPY
-  let TdotL = dot(anisotropicT, light.direction);
-  let BdotL = dot(anisotropicB, light.direction);
-  let TdotH = dot(anisotropicT, halfVector);
-  let BdotH = dot(anisotropicB, halfVector);
-  let specularMetalContrib = BRDF_specularAnisotropicGGX(alphaRoughness, VdotH, NdotL, NdotV, NdotH, BdotV, TdotV, TdotL, BdotL, TdotH, BdotH, anisotropy) * vec3f(NdotL) * light.attenuatedIntensity;
+  let TdotL = dot(anisotropyProps.anisotropicT, light.direction);
+  let BdotL = dot(anisotropyProps.anisotropicB, light.direction);
+  let TdotH = dot(anisotropyProps.anisotropicT, halfVector);
+  let BdotH = dot(anisotropyProps.anisotropicB, halfVector);
+  let specularMetalContrib = BRDF_specularAnisotropicGGX(alphaRoughness, VdotH, NdotL, NdotV, NdotH, anisotropyProps.BdotV, anisotropyProps.TdotV, TdotL, BdotL, TdotH, BdotH, anisotropyProps.anisotropy) * vec3f(NdotL) * light.attenuatedIntensity;
   let specularDielectricContrib = specularMetalContrib;
 #else
   let specularMetalContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, alphaRoughness) * vec3f(NdotL) * light.attenuatedIntensity;
@@ -549,25 +604,25 @@ fn lightingWithPunctualLight(
   var dielectric = mix(diffuseContrib, specularDielectricContrib, dielectricFresnel);
 
 #ifdef RN_USE_IRIDESCENCE
-  metal = mix(metal, specularMetalContrib * iridescenceFresnel_metal, iridescence);
-  dielectric = mix(dielectric, rgb_mix(diffuseContrib, specularDielectricContrib, iridescenceFresnel_dielectric), iridescence);
+  metal = mix(metal, specularMetalContrib * iridescenceProps.fresnelMetal, iridescenceProps.iridescence);
+  dielectric = mix(dielectric, rgb_mix(diffuseContrib, specularDielectricContrib, iridescenceProps.fresnelDielectric), iridescenceProps.iridescence);
 #endif // RN_USE_IRIDESCENCE
 
 #ifdef RN_USE_CLEARCOAT
   // Clear Coat Layer
-  let NdotHc = saturate(dot(clearcoatNormal_inWorld, halfVector));
-  let LdotNc = saturate(dot(light.direction, clearcoatNormal_inWorld));
-  let clearcoatContrib = BRDF_specularGGX(NdotHc, LdotNc, VdotNc, clearcoatRoughness * clearcoatRoughness) * vec3f(LdotNc) * light.attenuatedIntensity;
+  let NdotHc = saturate(dot(clearcoatProps.clearcoatNormal_inWorld, halfVector));
+  let LdotNc = saturate(dot(light.direction, clearcoatProps.clearcoatNormal_inWorld));
+  let clearcoatContrib = BRDF_specularGGX(NdotHc, LdotNc, clearcoatProps.VdotNc, clearcoatProps.clearcoatRoughness * clearcoatProps.clearcoatRoughness) * vec3f(LdotNc) * light.attenuatedIntensity;
 #else
   let clearcoatContrib = vec3f(0.0);
 #endif // RN_USE_CLEARCOAT
 
 #ifdef RN_USE_SHEEN
   // Sheen
-  let sheenContrib = BRDF_specularSheen(sheenColor, sheenRoughness, NdotL, NdotV, NdotH) * NdotL * light.attenuatedIntensity;
+  let sheenContrib = BRDF_specularSheen(sheenProps.sheenColor, sheenProps.sheenRoughness, NdotL, NdotV, NdotH) * NdotL * light.attenuatedIntensity;
   let albedoSheenScaling = min(
-    albedoSheenScalingNdotV,
-    1.0 - max3(sheenColor) * textureSample(sheenLutTexture, sheenLutSampler, vec2(NdotL, sheenRoughness)).r);
+    sheenProps.albedoSheenScalingNdotV,
+    1.0 - max3(sheenProps.sheenColor) * textureSample(sheenLutTexture, sheenLutSampler, vec2(NdotL, sheenProps.sheenRoughness)).r);
 #else
   let sheenContrib = vec3f(0.0);
   let albedoSheenScaling = 1.0;
@@ -575,7 +630,9 @@ fn lightingWithPunctualLight(
 
   var color = mix(dielectric, metal, metallic);
   color = sheenContrib + color * albedoSheenScaling;
-  color = mix(color, clearcoatContrib, clearcoat * clearcoatFresnel);
+  color = mix(color, clearcoatContrib, clearcoatProps.clearcoat * clearcoatProps.clearcoatFresnel);
 
   return color;
 }
+
+#endif // RN_USE_PBR

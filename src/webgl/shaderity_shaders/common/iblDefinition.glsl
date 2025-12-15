@@ -2,6 +2,7 @@
 // https://github.com/KhronosGroup/glTF-Sample-Renderer
 // Modified by Yuki Shimada
 
+#ifdef RN_USE_PBR
 
 vec3 getIBLIrradiance(vec3 normal_forEnv, vec4 iblParameter, ivec2 hdriFormat) {
   vec4 diffuseTexel = texture(u_diffuseEnvTexture, normal_forEnv);
@@ -67,16 +68,15 @@ vec3 get_sample_from_backbuffer(vec2 sampleCoord, float perceptualRoughness, flo
   return transmittedLight;
 }
 
-vec3 getIBLVolumeRefraction(vec3 baseColor, vec3 normal, vec3 view, uint cameraSID, uint materialSID, float thickness, float perceptualRoughness, float ior, vec3 attenuationColor, float attenuationDistance) {
+vec3 getIBLVolumeRefraction(vec3 baseColor, vec3 normal, vec3 view, uint cameraSID, uint materialSID, float thickness, float perceptualRoughness, float ior, vec3 attenuationColor, float attenuationDistance, float dispersion, uvec4 instanceIds) {
 #ifdef RN_USE_DISPERSION
-  float dispersion = get_dispersion(materialSID, 0u);
   float halfSpread = (ior - 1.0) * 0.025 * dispersion;
   vec3 iors = vec3(ior - halfSpread, ior, ior + halfSpread);
 
   vec3 transmittedLight;
   float transmissionRayLength;
   for(int i=0;i<3;i++) {
-    vec3 transmissionRay = getVolumeTransmissionRay(normal, view, thickness, iors[i]);
+    vec3 transmissionRay = getVolumeTransmissionRay(normal, view, thickness, iors[i], instanceIds);
     transmissionRayLength = length(transmissionRay);
     vec3 refractedRayExit = v_position_inWorld.xyz + transmissionRay;
 
@@ -88,7 +88,7 @@ vec3 getIBLVolumeRefraction(vec3 baseColor, vec3 normal, vec3 view, uint cameraS
     transmittedLight[i] = get_sample_from_backbuffer(refractionCoords, perceptualRoughness, iors[i])[i];
   }
 #else
-  vec3 transmissionRay = getVolumeTransmissionRay(normal, view, thickness, ior);
+  vec3 transmissionRay = getVolumeTransmissionRay(normal, view, thickness, ior, instanceIds);
   float transmissionRayLength = length(transmissionRay);
   vec3 refractedRayExit = v_position_inWorld.xyz + transmissionRay;
 
@@ -224,12 +224,18 @@ vec3 getReflection(mat3 rotEnvMatrix, vec3 viewDirection, vec3 normal_inWorld, u
   return reflection;
 }
 
-vec3 IBLContribution(uint materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection,
-  vec3 baseColor, float perceptualRoughness, float clearcoatRoughness, vec3 clearcoatNormal_inWorld,
-  float clearcoat, vec3 clearcoatFresnel, float VdotNc, vec3 geomNormal_inWorld, uint cameraSID, float transmission, vec3 v_position_inWorld,
-  float thickness, vec3 sheenColor, float sheenRoughness, float albedoSheenScalingNdotV, float ior,
-  vec3 iridescenceFresnel_dielectric, vec3 iridescenceFresnel_metal, float iridescence, float anisotropy, vec3 anisotropyDirection,
-  float specularWeight, vec3 dielectricF0, float metallic, float diffuseTransmission, vec3 diffuseTransmissionColor, float diffuseTransmissionThickness)
+vec3 IBLContribution(uvec4 instanceIds, uint materialSID, uint cameraSID,
+  vec3 normal_inWorld, float NdotV, vec3 viewDirection, vec3 geomNormal_inWorld, vec3 position_inWorld,
+  vec3 baseColor, float perceptualRoughness, float metallic,
+  float specularWeight, vec3 dielectricF0, float ior,
+  ClearcoatProps clearcoatProps,
+  float transmission,
+  VolumeProps volumeProps,
+  SheenProps sheenProps,
+  IridescenceProps iridescenceProps,
+  AnisotropyProps anisotropyProps,
+  DiffuseTransmissionProps diffuseTransmissionProps,
+  float dispersion)
 {
   vec4 iblParameter = get_iblParameter(materialSID, 0u);
   float rot = iblParameter.w;
@@ -237,24 +243,22 @@ vec3 IBLContribution(uint materialSID, vec3 normal_inWorld, float NdotV, vec3 vi
   ivec2 hdriFormat = get_hdriFormat(materialSID, 0u);
 
   vec3 normal_forEnv = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
-  vec3 reflection = getReflection(rotEnvMatrix, viewDirection, normal_inWorld, materialSID, perceptualRoughness, anisotropy, anisotropyDirection);
+  vec3 reflection = getReflection(rotEnvMatrix, viewDirection, normal_inWorld, materialSID, perceptualRoughness, anisotropyProps.anisotropy, anisotropyProps.anisotropicB);
 
   // get irradiance
   vec3 irradiance = getIBLIrradiance(normal_forEnv, iblParameter, hdriFormat);
   vec3 diffuse = irradiance * baseColor;
 
 #ifdef RN_USE_DIFFUSE_TRANSMISSION
-  vec3 diffuseTransmissionIBL = getIBLIrradiance(-normal_forEnv, iblParameter, hdriFormat) * diffuseTransmissionColor;
+  vec3 diffuseTransmissionIBL = getIBLIrradiance(-normal_forEnv, iblParameter, hdriFormat) * diffuseTransmissionProps.diffuseTransmissionColor;
 #ifdef RN_USE_VOLUME
-  diffuseTransmissionIBL = volumeAttenuation(attenuationColor, attenuationDistance, diffuseTransmissionIBL, diffuseTransmissionThickness);
+  diffuseTransmissionIBL = volumeAttenuation(volumeProps.attenuationColor, volumeProps.attenuationDistance, diffuseTransmissionIBL, diffuseTransmissionProps.diffuseTransmissionThickness);
 #endif
-  diffuse = mix(diffuse, diffuseTransmissionIBL, diffuseTransmission);
+  diffuse = mix(diffuse, diffuseTransmissionIBL, diffuseTransmissionProps.diffuseTransmission);
 #endif
 
 #ifdef RN_USE_TRANSMISSION
-  vec3 attenuationColor = get_attenuationColor(materialSID, 0u);
-  float attenuationDistance = get_attenuationDistance(materialSID, 0u);
-  vec3 specularTransmission = getIBLVolumeRefraction(baseColor, normal_inWorld, viewDirection, cameraSID, materialSID, thickness, perceptualRoughness, ior, attenuationColor, attenuationDistance);
+  vec3 specularTransmission = getIBLVolumeRefraction(baseColor, normal_inWorld, viewDirection, cameraSID, materialSID, volumeProps.thickness, perceptualRoughness, ior, volumeProps.attenuationColor, volumeProps.attenuationDistance, dispersion, instanceIds);
   diffuse = mix(diffuse, specularTransmission, transmission);
 #endif
 
@@ -269,20 +273,20 @@ vec3 IBLContribution(uint materialSID, vec3 normal_inWorld, float NdotV, vec3 vi
   vec3 dielectricContrib = mix(diffuse, specularDielectric, fresnelDielectric);
 
 #ifdef RN_USE_IRIDESCENCE
-  metalContrib = mix(metalContrib, specularMetal * iridescenceFresnel_metal, iridescence);
-  dielectricContrib = mix(dielectricContrib, rgb_mix(diffuse, specularDielectric, iridescenceFresnel_dielectric), iridescence);
+  metalContrib = mix(metalContrib, specularMetal * iridescenceProps.fresnelMetal, iridescenceProps.iridescence);
+  dielectricContrib = mix(dielectricContrib, rgb_mix(diffuse, specularDielectric, iridescenceProps.fresnelDielectric), iridescenceProps.iridescence);
 #endif
 
 #ifdef RN_USE_CLEARCOAT
-  vec3 clearcoatReflection = getReflection(rotEnvMatrix, viewDirection, clearcoatNormal_inWorld, materialSID, clearcoatRoughness, 0.0, vec3(0.0));
-  vec3 clearcoatContrib = getIBLRadianceGGX(clearcoatRoughness, iblParameter, hdriFormat, clearcoatReflection);
+  vec3 clearcoatReflection = getReflection(rotEnvMatrix, viewDirection, clearcoatProps.clearcoatNormal_inWorld, materialSID, clearcoatProps.clearcoatRoughness, 0.0, vec3(0.0));
+  vec3 clearcoatContrib = getIBLRadianceGGX(clearcoatProps.clearcoatRoughness, iblParameter, hdriFormat, clearcoatReflection);
 #else
   vec3 clearcoatContrib = vec3(0.0);
 #endif
 
 #ifdef RN_USE_SHEEN
-  vec3 sheenContrib = sheenIBL(NdotV, sheenRoughness, sheenColor, iblParameter, reflection, hdriFormat);
-  float albedoSheenScaling = albedoSheenScalingNdotV;
+  vec3 sheenContrib = sheenIBL(NdotV, sheenProps.sheenRoughness, sheenProps.sheenColor, iblParameter, reflection, hdriFormat);
+  float albedoSheenScaling = sheenProps.albedoSheenScalingNdotV;
 #else
   vec3 sheenContrib = vec3(0.0);
   float albedoSheenScaling = 1.0;
@@ -290,7 +294,9 @@ vec3 IBLContribution(uint materialSID, vec3 normal_inWorld, float NdotV, vec3 vi
 
   vec3 color = mix(dielectricContrib, metalContrib, metallic);
   color = sheenContrib + color * albedoSheenScaling;
-  color = mix(color, clearcoatContrib, clearcoat * clearcoatFresnel);
+  color = mix(color, clearcoatContrib, clearcoatProps.clearcoat * clearcoatProps.clearcoatFresnel);
 
   return color;
 }
+
+#endif // RN_USE_PBR

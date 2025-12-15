@@ -1,6 +1,7 @@
 export * from './AddShaderNode';
 export * from './AndShaderNode';
 export * from './AttributeColorShaderNode';
+export * from './AttributeInstanceIdsShaderNode';
 export * from './AttributeNormalShaderNode';
 export * from './AttributePositionShaderNode';
 export * from './AttributeTexcoordShaderNode';
@@ -31,6 +32,8 @@ export * from './NotEqualShaderNode';
 export * from './OrShaderNode';
 export * from './OutColorShaderNode';
 export * from './OutPositionShaderNode';
+export * from './PbrShaderNode';
+export * from './PbrSpecularPropsNode';
 export * from './PremultipliedAlphaShaderNode';
 export * from './ProjectionMatrixShaderNode';
 export * from './RemapShaderNode';

@@ -21,7 +21,7 @@ uniform bool u_enableViewMatrix; // initialValue=true
 void main(){
 /* shaderity: @{mainPrerequisites} */
 
-  mat4 worldMatrix = get_worldMatrix(uint(a_instanceInfo.x));
+  mat4 worldMatrix = get_worldMatrix(uint(a_instanceIds.x));
   mat4 viewMatrix = get_viewMatrix(cameraSID);
   mat4 projectionMatrix = get_projectionMatrix(cameraSID);
 
@@ -35,7 +35,7 @@ void main(){
     gl_Position = projectionMatrix * worldMatrix * a_position;
   }
 
-  mat3 normalMatrix = get_normalMatrix(uint(a_instanceInfo.x));
+  mat3 normalMatrix = get_normalMatrix(uint(a_instanceIds.x));
   v_normal_inWorld = normalMatrix * a_normal;
 
   v_color = a_color;

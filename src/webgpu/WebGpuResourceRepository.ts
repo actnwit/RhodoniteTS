@@ -899,7 +899,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         {
           shaderLocation: VertexAttribute.Instance.getAttributeSlot(),
           offset: 0,
-          format: 'float32x4',
+          format: 'uint32x4',
         },
       ],
       arrayStride: 4 * 4,
@@ -1578,7 +1578,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           {
             shaderLocation: VertexAttribute.Instance.getAttributeSlot(),
             offset: 0,
-            format: 'float32x4',
+            format: 'uint32x4',
           },
         ],
         arrayStride: 4 * 4,
@@ -2516,7 +2516,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           texture: {
             viewDimension: 'cube',
           },
-          visibility: GPUShaderStage.FRAGMENT,
+          visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
         });
         const diffuseCubeSampler = this.__webGpuResources.get(
           Is.exist(diffuseCubeMap) ? diffuseCubeMap._samplerResourceUid : -1
@@ -2540,7 +2540,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           sampler: {
             type: 'filtering',
           },
-          visibility: GPUShaderStage.FRAGMENT,
+          visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
         });
       }
 
@@ -2570,7 +2570,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           texture: {
             viewDimension: 'cube',
           },
-          visibility: GPUShaderStage.FRAGMENT,
+          visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
         });
         const specularCubeSampler = this.__webGpuResources.get(
           Is.exist(specularCubeMap) ? specularCubeMap._samplerResourceUid : -1
@@ -2594,7 +2594,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           sampler: {
             type: 'filtering',
           },
-          visibility: GPUShaderStage.FRAGMENT,
+          visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
         });
       }
 
