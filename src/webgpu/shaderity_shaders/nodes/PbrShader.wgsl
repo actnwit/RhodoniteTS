@@ -1,10 +1,8 @@
 fn pbrShader(
   instanceIds: vec4<u32>,
-  positionInWorld: vec4<f32>,
-  normalInWorld: vec3<f32>,
-  baseColor: vec4<f32>,
-  perceptualRoughness: f32,
-  metallic: f32,
+  positionInWorld: vec4<f32>, normalInWorld: vec3<f32>, geomNormalInWorld: vec3<f32>,
+  baseColor: vec4<f32>, perceptualRoughness: f32, metallic: f32,
+  occlusionProps: OcclusionProps,
   ior: f32,
   transmission: f32,
   specularProps: SpecularProps,
@@ -14,6 +12,7 @@ fn pbrShader(
   sheenProps: SheenProps,
   iridescenceProps: IridescenceProps,
   diffuseTransmissionProps: DiffuseTransmissionProps,
+  dispersion: f32,
   outColor: ptr<function, vec4<f32>>
 ) {
   var shadingColor = vec4<f32>(0.0, 0.0, 0.0, baseColor.a);
@@ -82,32 +81,29 @@ fn pbrShader(
   }
 
   // Image-based Lighting
-  let ibl: vec3f = IBLContribution(input.instanceIds, materialSID, cameraSID,
+  let ibl: vec3f = IBLContribution(instanceIds, materialSID, cameraSID,
     normalInWorld, NdotV, viewDirection, geomNormalInWorld, positionInWorld.xyz,
-    baseColor.rgb, perceptualRoughness, metallic, specularWeight, dielectricF0, ior,
+    baseColor.rgb, perceptualRoughness, metallic, specularProps.specularWeight, dielectricF0, ior,
     clearcoatProps,
     transmission,
     volumeProps,
     sheenProps,
     iridescenceProps,
     anisotropyProps,
-    diffuseTransmissionProps
+    diffuseTransmissionProps,
+    dispersion
   );
 
   #ifdef RN_USE_OCCLUSION_TEXTURE
-    let occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
-    let occlusionTexcoord = getTexcoord(occlusionTexcoordIndex, input);
-    let occlusionTextureTransformScale: vec2f = get_occlusionTextureTransformScale(materialSID, 0);
-    let occlusionTextureTransformOffset: vec2f = get_occlusionTextureTransformOffset(materialSID, 0);
-    let occlusionTextureTransformRotation: f32 = get_occlusionTextureTransformRotation(materialSID, 0);
-    let occlusionTexUv = uvTransform(occlusionTextureTransformScale, occlusionTextureTransformOffset, occlusionTextureTransformRotation, occlusionTexcoord);
-    let occlusion = textureSample(occlusionTexture, occlusionSampler, occlusionTexUv).r;
-    let occlusionStrength = get_occlusionStrength(materialSID, 0);
+    let occlusion = occlusionProps.occlusionTexture.r;
+    let occlusionStrength = occlusionProps.occlusionStrength;
     // Occlusion to Indirect Lights
     let indirectLight = ibl * (1.0 + occlusionStrength * (occlusion - 1.0));
   #else
     let indirectLight = ibl;
   #endif
+
+  shadingColor += vec4<f32>(indirectLight, 0.0);
 
   *outColor = shadingColor;
 }
