@@ -300,6 +300,7 @@ export function _createProgramAsSingleOperationWebGL(
       shadowDefinition: shadowGlsl.code,
       pbrDefinition: pbrDefinitionGlsl.code,
       iblDefinition: iblDefinitionGlsl.code,
+      alphaProcess: alphaProcessGlsl.code,
       processGeometry: processGeometryGlsl.code,
       Config: engine.config,
     }
@@ -509,6 +510,7 @@ export function _createProgramAsSingleOperationWebGpu(
       shadowDefinition: shadowWgsl.code,
       pbrDefinition: pbrDefinitionWgsl.code,
       iblDefinition: iblDefinitionWgsl.code,
+      alphaProcess: alphaProcessWgsl.code,
       processGeometry: processGeometryWgsl.code,
       Config: engine.config,
     }
