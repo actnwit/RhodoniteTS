@@ -78,6 +78,7 @@ class CompositionTypeClass<TypeName extends string> extends EnumClass implements
     if (
       componentType.index === 5126 || // FLOAT
       componentType.index === 5127 || // DOUBLE
+      componentType.index === -1 || // UNKNOWN
       this === CompositionType.Texture2D ||
       this === CompositionType.Texture2DShadow ||
       this === CompositionType.Texture2DRect ||

@@ -467,6 +467,7 @@ export class ShaderGraphResolver {
    * @private
    */
   private static __getStructName(compositionType: CompositionTypeEnum): string | undefined {
+    // Use ComponentType.Float to get the raw glslStr (ComponentType.Unknown returns 'unknown')
     const glslStr = compositionType.getGlslStr(ComponentType.Unknown);
     if (glslStr.startsWith('struct ')) {
       return glslStr.replace('struct ', '');
