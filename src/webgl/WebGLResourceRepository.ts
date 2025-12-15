@@ -2970,7 +2970,9 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
       gl.deleteFramebuffer(fbo);
 
       // Framebuffer incomplete - use shader-based approach for HDR cubemaps
-      return this.__readCubeTextureWithShader(gl, texture, width, height, faceIndex);
+      // When framebuffer attachment fails, it's typically because the texture is a floating-point (HDR) format
+      // that cannot be directly attached for reading, so we assume isHdrFormat = true
+      return this.__readCubeTextureWithShader(gl, texture, width, height, faceIndex, true);
     }
 
     // Read the pixel data directly (for non-floating-point textures)
@@ -2987,13 +2989,21 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
   /**
    * Reads cube texture data using a shader-based approach.
    * This is used for HDR/float textures that cannot be read directly.
+   *
+   * @param gl - WebGL2 rendering context
+   * @param cubeTexture - The cube texture to read from
+   * @param width - Width of the face texture
+   * @param height - Height of the face texture
+   * @param faceIndex - Index of the cube face (0=+X, 1=-X, 2=+Y, 3=-Y, 4=+Z, 5=-Z)
+   * @param isHdrFormat - Whether the texture is HDR format (applies tone mapping and gamma correction if true)
    */
   private __readCubeTextureWithShader(
     gl: WebGL2RenderingContext,
     cubeTexture: WebGLTexture,
     width: number,
     height: number,
-    faceIndex: number
+    faceIndex: number,
+    isHdrFormat: boolean
   ): Uint8Array {
     // Save all WebGL state that we'll modify
     const prevViewport = gl.getParameter(gl.VIEWPORT);
@@ -3019,6 +3029,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
       precision highp float;
       uniform samplerCube u_cubemap;
       uniform int u_faceIndex;
+      uniform int u_isHdr;
       in vec2 v_texCoord;
       out vec4 fragColor;
 
@@ -3036,11 +3047,15 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
         vec3 dir = normalize(getDirection(u_faceIndex, v_texCoord));
         vec3 color = texture(u_cubemap, dir).rgb;
 
-        // Reinhard tone mapping
-        color = color / (1.0 + color);
+        // Only apply tone mapping and gamma correction for HDR textures
+        // LDR textures (e.g., RGBA8) should pass through unchanged
+        if (u_isHdr != 0) {
+          // Reinhard tone mapping
+          color = color / (1.0 + color);
 
-        // Gamma correction
-        color = pow(color, vec3(1.0 / 2.2));
+          // Gamma correction
+          color = pow(color, vec3(1.0 / 2.2));
+        }
 
         fragColor = vec4(color, 1.0);
       }
@@ -3092,6 +3107,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, cubeTexture);
     gl.uniform1i(gl.getUniformLocation(program, 'u_cubemap'), 0);
     gl.uniform1i(gl.getUniformLocation(program, 'u_faceIndex'), faceIndex);
+    gl.uniform1i(gl.getUniformLocation(program, 'u_isHdr'), isHdrFormat ? 1 : 0);
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
