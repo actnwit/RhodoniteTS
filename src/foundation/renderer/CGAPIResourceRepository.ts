@@ -361,7 +361,7 @@ export interface ICGAPIResourceRepository {
    * @param mipLevelCount - Number of mipmap levels to generate
    * @param isNamePosNeg - Whether to use positive/negative naming convention
    * @param hdriFormat - HDRI format specification for high dynamic range textures
-   * @returns Promise resolving to a tuple of [texture handle, sampler]
+   * @returns Promise resolving to a tuple of [texture handle, sampler, width, height]
    */
   createCubeTextureFromFiles(
     engine: Engine,
@@ -369,7 +369,7 @@ export interface ICGAPIResourceRepository {
     mipLevelCount: Count,
     isNamePosNeg: boolean,
     hdriFormat: HdriFormatEnum
-  ): Promise<[number, Sampler]>;
+  ): Promise<[number, Sampler, number, number]>;
 
   /**
    * Allocates a texture with specified dimensions and format without initial data.

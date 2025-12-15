@@ -108,7 +108,7 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     this.hdriFormat = hdriFormat;
 
     const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
-    const [cubeTextureUid, sampler] = await cgApiResourceRepository.createCubeTextureFromFiles(
+    const [cubeTextureUid, sampler, width, height] = await cgApiResourceRepository.createCubeTextureFromFiles(
       this.__engine,
       baseUrl,
       mipmapLevelNumber,
@@ -118,6 +118,8 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     this.__setTextureResourceUid(cubeTextureUid, this.uniqueName);
     this._recommendedTextureSampler = sampler;
     this._samplerResourceUid = sampler._samplerResourceUid;
+    this.__width = width;
+    this.__height = height;
 
     if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (cgApiResourceRepository as WebGpuResourceRepository).createTextureViewCube(
@@ -240,6 +242,8 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     this.__setTextureResourceUid(resourceUid, this.uniqueName);
     this._recommendedTextureSampler = sampler;
     this._samplerResourceUid = sampler._samplerResourceUid;
+    this.__width = 1;
+    this.__height = 1;
 
     if (this.__engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (
@@ -297,6 +301,8 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     );
     this._recommendedTextureSampler = sampler;
     this.__setTextureResourceUid(resourceId, this.uniqueName);
+    this.__width = baseLevelWidth;
+    this.__height = baseLevelHeight;
 
     this.__isTextureReady = true;
     this.__startedToLoad = true;

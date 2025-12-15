@@ -2551,7 +2551,8 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
       );
     }
 
-    return this.createCubeTexture(engine, mipLevelCount, imageArgs, width, height);
+    const [resourceHandle, sampler] = this.createCubeTexture(engine, mipLevelCount, imageArgs, width, height);
+    return [resourceHandle, sampler, width, height] as [number, Sampler, number, number];
   }
 
   createCubeTextureFromBasis(
@@ -2932,6 +2933,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
   /**
    * Reads pixel data from a specific face of a cube texture.
    * This creates a temporary framebuffer, attaches the cube face, and reads the pixels.
+   * For floating-point textures (HDR), it uses a shader-based approach to sample and convert.
    *
    * @param textureHandle - Handle to the cube texture
    * @param width - Width of the face texture
@@ -2962,16 +2964,155 @@ export class WebGLResourceRepository extends CGAPIResourceRepository implements 
     if (status !== gl.FRAMEBUFFER_COMPLETE) {
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
       gl.deleteFramebuffer(fbo);
-      throw new Error(`Framebuffer is not complete: ${status}`);
+
+      // Framebuffer incomplete - use shader-based approach for HDR cubemaps
+      return this.__readCubeTextureWithShader(gl, texture, width, height, faceIndex);
     }
 
-    // Read the pixel data
+    // Read the pixel data directly (for non-floating-point textures)
     const data = new Uint8Array(width * height * 4);
     gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, data);
 
     // Cleanup
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.deleteFramebuffer(fbo);
+
+    return data;
+  }
+
+  /**
+   * Reads cube texture data using a shader-based approach.
+   * This is used for HDR/float textures that cannot be read directly.
+   */
+  private __readCubeTextureWithShader(
+    gl: WebGL2RenderingContext,
+    cubeTexture: WebGLTexture,
+    width: number,
+    height: number,
+    faceIndex: number
+  ): Uint8Array {
+    // Save all WebGL state that we'll modify
+    const prevViewport = gl.getParameter(gl.VIEWPORT);
+    const prevProgram = gl.getParameter(gl.CURRENT_PROGRAM);
+    const prevVAO = gl.getParameter(gl.VERTEX_ARRAY_BINDING);
+    const prevArrayBuffer = gl.getParameter(gl.ARRAY_BUFFER_BINDING);
+    const prevFramebuffer = gl.getParameter(gl.FRAMEBUFFER_BINDING);
+    const prevActiveTexture = gl.getParameter(gl.ACTIVE_TEXTURE);
+    const prevTextureCubeMap = gl.getParameter(gl.TEXTURE_BINDING_CUBE_MAP);
+    const prevTexture2D = gl.getParameter(gl.TEXTURE_BINDING_2D);
+
+    // Create shader program for sampling cubemap
+    const vertexShaderSource = `#version 300 es
+      in vec2 a_position;
+      out vec2 v_texCoord;
+      void main() {
+        v_texCoord = a_position * 0.5 + 0.5;
+        gl_Position = vec4(a_position, 0.0, 1.0);
+      }
+    `;
+
+    const fragmentShaderSource = `#version 300 es
+      precision highp float;
+      uniform samplerCube u_cubemap;
+      uniform int u_faceIndex;
+      in vec2 v_texCoord;
+      out vec4 fragColor;
+
+      vec3 getDirection(int face, vec2 uv) {
+        vec2 st = uv * 2.0 - 1.0;
+        if (face == 0) return vec3( 1.0, -st.y, -st.x); // +X
+        if (face == 1) return vec3(-1.0, -st.y,  st.x); // -X
+        if (face == 2) return vec3( st.x,  1.0,  st.y); // +Y
+        if (face == 3) return vec3( st.x, -1.0, -st.y); // -Y
+        if (face == 4) return vec3( st.x, -st.y,  1.0); // +Z
+        return vec3(-st.x, -st.y, -1.0); // -Z
+      }
+
+      void main() {
+        vec3 dir = normalize(getDirection(u_faceIndex, v_texCoord));
+        vec3 color = texture(u_cubemap, dir).rgb;
+
+        // Reinhard tone mapping
+        color = color / (1.0 + color);
+
+        // Gamma correction
+        color = pow(color, vec3(1.0 / 2.2));
+
+        fragColor = vec4(color, 1.0);
+      }
+    `;
+
+    // Compile shaders
+    const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
+    gl.shaderSource(vertexShader, vertexShaderSource);
+    gl.compileShader(vertexShader);
+
+    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
+    gl.shaderSource(fragmentShader, fragmentShaderSource);
+    gl.compileShader(fragmentShader);
+
+    const program = gl.createProgram()!;
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+
+    // Create a dedicated VAO for our quad rendering
+    const vao = gl.createVertexArray();
+    gl.bindVertexArray(vao);
+
+    // Create fullscreen quad
+    const quadBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+
+    const positionLoc = gl.getAttribLocation(program, 'a_position');
+    gl.enableVertexAttribArray(positionLoc);
+    gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
+
+    // Create render target
+    const renderTexture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, renderTexture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+    const fbo = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, renderTexture, 0);
+
+    // Render
+    gl.viewport(0, 0, width, height);
+    gl.useProgram(program);
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, cubeTexture);
+    gl.uniform1i(gl.getUniformLocation(program, 'u_cubemap'), 0);
+    gl.uniform1i(gl.getUniformLocation(program, 'u_faceIndex'), faceIndex);
+
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+    // Read pixels
+    const data = new Uint8Array(width * height * 4);
+    gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, data);
+
+    // Cleanup resources
+    gl.deleteFramebuffer(fbo);
+    gl.deleteTexture(renderTexture);
+    gl.deleteBuffer(quadBuffer);
+    gl.deleteVertexArray(vao);
+    gl.deleteProgram(program);
+    gl.deleteShader(vertexShader);
+    gl.deleteShader(fragmentShader);
+
+    // Restore all WebGL state
+    gl.bindVertexArray(prevVAO);
+    gl.bindBuffer(gl.ARRAY_BUFFER, prevArrayBuffer);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, prevFramebuffer);
+    gl.activeTexture(prevActiveTexture);
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, prevTextureCubeMap);
+    gl.bindTexture(gl.TEXTURE_2D, prevTexture2D);
+    gl.useProgram(prevProgram);
+    gl.viewport(prevViewport[0], prevViewport[1], prevViewport[2], prevViewport[3]);
 
     return data;
   }

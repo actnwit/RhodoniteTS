@@ -1939,7 +1939,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         }
       );
     }
-    return this.createCubeTexture(engine, mipLevelCount, imageArgs, width, height);
+    const [resourceHandle, sampler] = this.createCubeTexture(engine, mipLevelCount, imageArgs, width, height);
+    return [resourceHandle, sampler, width, height] as [number, Sampler, number, number];
   }
 
   /**
