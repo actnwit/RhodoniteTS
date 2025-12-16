@@ -1,8 +1,15 @@
 precision highp sampler2DArray;
 
 const float Epsilon = 0.0000001;
-#define saturate(x) clamp(x, 0.0, 1.0)
-#define saturateEpsilonToOne(x) clamp(x, Epsilon, 1.0)
+
+float saturate(float x) {
+  return clamp(x, 0.0, 1.0);
+}
+
+float saturateEpsilonToOne(float x) {
+  return clamp(x, Epsilon, 1.0);
+}
+
 const uint INVALID_ID = 0xFFFFFFFFu;
 
 uniform highp sampler2D u_dataTexture; // skipProcess=true
@@ -29,12 +36,7 @@ highp vec4 fetchElement(int vec4_idx) {
   // highp float t = (float(vec4_idx) + 0.5) * invSize.x;
   // highp float x = fract(t);
   // highp float y = (floor(t) + 0.5) * invSize.y;
-  // #ifdef GLSL_ES3
   // return texture( u_dataTexture, vec2(x, y));
-  // #else
-  // return texture( u_dataTexture, vec2(x, y));
-  // #endif
-// #endif
 }
 
 vec2 fetchVec2No16BytesAligned(int scalar_idx) {

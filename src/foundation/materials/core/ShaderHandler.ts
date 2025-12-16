@@ -338,14 +338,25 @@ export function _createProgramAsSingleOperationWebGL(
   const vertexAttributesBinding = _outputVertexAttributeBindingInfo(attributeNames, attributeSemantics);
   vertexShader += vertexAttributesBinding;
 
+  const preprocessedVertex = Shaderity.processPragma({
+    code: vertexShader,
+    shaderStage: 'vertex',
+    isFragmentShader: false,
+  });
+  const preprocessedPixel = Shaderity.processPragma({
+    code: pixelShader,
+    shaderStage: 'fragment',
+    isFragmentShader: true,
+  });
+
   const cgApiResourceRepository = engine.cgApiResourceRepository;
   shaderProgramUid = cgApiResourceRepository.createShaderProgram({
     config: engine.config,
     engine,
     material,
     primitive,
-    vertexShaderStr: vertexShader,
-    fragmentShaderStr: pixelShader,
+    vertexShaderStr: preprocessedVertex.code,
+    fragmentShaderStr: preprocessedPixel.code,
     attributeNames: attributeNames,
     attributeSemantics: attributeSemantics,
   });
@@ -407,6 +418,8 @@ export function _setupGlobalShaderDefinitionWebGL(engine: Engine, materialTypeNa
     definitions += '#define RN_BONE_DATA_TYPE_VEC4X2_OLD\n';
   } else if (engine.config.boneDataType === BoneDataType.Vec4x1) {
     definitions += '#define RN_BONE_DATA_TYPE_VEC4X1\n';
+  } else {
+    debugger;
   }
 
   return definitions;
