@@ -40,7 +40,7 @@ export class FlatShaderNode extends AbstractShaderNode {
       new Socket('diffuseColorFactor', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
     this.__inputs.push(
-      new Socket('diffuseTextureColor', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
+      new Socket('diffuseColorTexture', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
     this.__outputs.push(new Socket('outColor', CompositionType.Vec4, ComponentType.Float));
   }
