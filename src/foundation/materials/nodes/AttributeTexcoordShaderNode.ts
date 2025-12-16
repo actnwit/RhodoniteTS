@@ -2,7 +2,9 @@ import AttributeTexcoordShaderityObjectGLSL from '../../../webgl/shaderity_shade
 import AttributeTexcoordShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/AttributeTexcoord.vert.wgsl';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
+import { Scalar } from '../../math/Scalar';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
+import { Socket } from '../core/Socket';
 
 /**
  * A shader node that provides texture coordinate attributes from vertex data.
@@ -23,6 +25,10 @@ export class AttributeTexcoordShaderNode extends AbstractShaderNode {
     });
 
     this.setShaderStage('Vertex');
+
+    this.__inputs.push(
+      new Socket('texcoordIndex', CompositionType.Scalar, ComponentType.UnsignedInt, Scalar.fromCopyNumber(0))
+    );
 
     this.__outputs.push({
       compositionType: CompositionType.Vec3,
