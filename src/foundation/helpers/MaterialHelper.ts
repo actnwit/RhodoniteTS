@@ -1691,14 +1691,14 @@ function reuseOrRecreateCustomMaterial(
   const hash = DataUtil.toCRC32(vertexShaderStr + pixelShaderStr);
   const materialName = `Custom_${hash}`;
 
-  const definitions = [];
+  const definitions = currentMaterial?.getShaderDefines() ?? new Set();
   if (options.isPbr) {
-    definitions.push('RN_USE_PBR');
+    definitions.add('RN_USE_PBR');
   }
   if (options.isLighting) {
-    definitions.push('RN_IS_LIGHTING');
+    definitions.add('RN_IS_LIGHTING');
     if (options.isShadow) {
-      definitions.push('RN_USE_SHADOW_MAPPING');
+      definitions.add('RN_USE_SHADOW_MAPPING');
 
       const sampler = new Sampler(engine, {
         minFilter: TextureParameter.Linear,
@@ -1769,10 +1769,10 @@ function reuseOrRecreateCustomMaterial(
     }
   }
   if (options.isSkinning) {
-    definitions.push('RN_IS_SKINNING');
+    definitions.add('RN_IS_SKINNING');
   }
   if (options.isMorphing) {
-    definitions.push('RN_IS_MORPHING');
+    definitions.add('RN_IS_MORPHING');
   }
 
   let materialContent: CustomMaterialContent;
@@ -1793,7 +1793,7 @@ function reuseOrRecreateCustomMaterial(
         isFragmentShader: true,
       },
       additionalShaderSemanticInfo: options.additionalShaderSemanticInfo ?? [],
-      definitions,
+      definitions: Array.from(definitions),
     });
   } else {
     materialContent = new CustomMaterialContent(engine, {
@@ -1812,7 +1812,7 @@ function reuseOrRecreateCustomMaterial(
         isFragmentShader: true,
       },
       additionalShaderSemanticInfo: options.additionalShaderSemanticInfo ?? [],
-      definitions,
+      definitions: Array.from(definitions),
     });
   }
 
