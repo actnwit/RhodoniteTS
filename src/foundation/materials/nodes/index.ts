@@ -33,6 +33,7 @@ export * from './OrShaderNode';
 export * from './OutColorShaderNode';
 export * from './OutPositionShaderNode';
 export * from './PbrShaderNode';
+export * from './PbrBaseColorPropsNode';
 export * from './PbrSpecularPropsNode';
 export * from './PremultipliedAlphaShaderNode';
 export * from './ProjectionMatrixShaderNode';
