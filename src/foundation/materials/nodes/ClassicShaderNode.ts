@@ -21,7 +21,7 @@ import { Socket } from '../core/Socket';
  */
 export class ClassicShaderNode extends AbstractShaderNode {
   /**
-   * Creates a new AddShaderNode with the specified composition and component types.
+   * Creates a new ClassicShaderNode with the specified composition and component types.
    */
   constructor() {
     super('classicShader', {
@@ -36,7 +36,7 @@ export class ClassicShaderNode extends AbstractShaderNode {
       new Socket('diffuseColorFactor', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
     this.__inputs.push(
-      new Socket('diffuseTextureColor', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
+      new Socket('diffuseColorTexture', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
     this.__inputs.push(
       new Socket('shadingModel', CompositionType.Scalar, ComponentType.UnsignedInt, Scalar.fromCopyNumber(2))
