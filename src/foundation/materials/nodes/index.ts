@@ -1,5 +1,6 @@
 export * from './AddShaderNode';
 export * from './AndShaderNode';
+export * from './AlphaTestShaderNode';
 export * from './AttributeColorShaderNode';
 export * from './AttributeInstanceIdsShaderNode';
 export * from './AttributeNormalShaderNode';

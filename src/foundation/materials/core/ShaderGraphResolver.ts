@@ -13,6 +13,7 @@ import { Logger } from '../../misc/Logger';
 import type { Engine } from '../../system/Engine';
 import { EngineState } from '../../system/EngineState';
 import { AddShaderNode } from '../nodes/AddShaderNode';
+import { AlphaTestShaderNode } from '../nodes/AlphaTestShaderNode';
 import { AndShaderNode } from '../nodes/AndShaderNode';
 import { AttributeColorShaderNode } from '../nodes/AttributeColorShaderNode';
 import { AttributeInstanceIdsShaderNode } from '../nodes/AttributeInstanceIdsShaderNode';
@@ -1661,6 +1662,12 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'PremultipliedAlpha': {
         const nodeInstance = new PremultipliedAlphaShaderNode(ComponentType.Float);
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'AlphaTest': {
+        const nodeInstance = new AlphaTestShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
