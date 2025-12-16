@@ -171,6 +171,30 @@ function recreateMaterial(
   return material;
 }
 
+export type PbrUberMaterialOptions = {
+  isPbr?: boolean;
+  additionalShaderSemanticInfo?: ShaderSemanticsInfo[];
+  additionalName?: string;
+  isMorphing?: boolean;
+  isSkinning?: boolean;
+  isLighting?: boolean;
+  isOcclusion?: boolean;
+  isEmissive?: boolean;
+  isClearCoat?: boolean;
+  isTransmission?: boolean;
+  isVolume?: boolean;
+  isSheen?: boolean;
+  isSpecular?: boolean;
+  isIridescence?: boolean;
+  isAnisotropy?: boolean;
+  isDispersion?: boolean;
+  isEmissiveStrength?: boolean;
+  isDiffuseTransmission?: boolean;
+  isShadow?: boolean;
+  useNormalTexture?: boolean;
+  maxInstancesNumber?: Count;
+};
+
 /**
  * Creates a PBR (Physically Based Rendering) Uber material with extensive feature support.
  * This is a comprehensive material that supports various PBR extensions and features.
@@ -220,7 +244,7 @@ function createPbrUberMaterial(
     isShadow = false,
     useNormalTexture = true,
     maxInstancesNumber = engine.config.materialCountPerBufferView,
-  } = {}
+  }: PbrUberMaterialOptions = {}
 ) {
   const materialName = `PbrUber_${additionalName}_`;
 
@@ -1661,26 +1685,18 @@ function reuseOrRecreateCustomMaterial(
   currentMaterial: Material,
   vertexShaderStr: string,
   pixelShaderStr: string,
-  {
-    maxInstancesNumber = engine.config.materialCountPerBufferView,
-    isPbr = false,
-    isSkinning = true,
-    isLighting = true,
-    isMorphing = true,
-    isShadow = false,
-    additionalShaderSemanticInfo = [] as ShaderSemanticsInfo[],
-  } = {}
+  options: PbrUberMaterialOptions = {}
 ) {
   const hash = DataUtil.toCRC32(vertexShaderStr + pixelShaderStr);
   const materialName = `Custom_${hash}`;
 
   const definitions = [];
-  if (isPbr) {
+  if (options.isPbr) {
     definitions.push('RN_USE_PBR');
   }
-  if (isLighting) {
+  if (options.isLighting) {
     definitions.push('RN_IS_LIGHTING');
-    if (isShadow) {
+    if (options.isShadow) {
       definitions.push('RN_USE_SHADOW_MAPPING');
 
       const sampler = new Sampler(engine, {
@@ -1692,7 +1708,7 @@ function reuseOrRecreateCustomMaterial(
 
       sampler.create();
 
-      additionalShaderSemanticInfo.push({
+      options.additionalShaderSemanticInfo?.push({
         semantic: 'depthTexture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2DArray,
@@ -1701,7 +1717,7 @@ function reuseOrRecreateCustomMaterial(
         min: 0,
         max: Number.MAX_VALUE,
       });
-      additionalShaderSemanticInfo.push({
+      options.additionalShaderSemanticInfo?.push({
         semantic: 'paraboloidDepthTexture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2DArray,
@@ -1710,7 +1726,7 @@ function reuseOrRecreateCustomMaterial(
         min: 0,
         max: Number.MAX_VALUE,
       });
-      additionalShaderSemanticInfo.push({
+      options.additionalShaderSemanticInfo?.push({
         semantic: 'depthTextureIndexList',
         componentType: ComponentType.Int,
         compositionType: CompositionType.ScalarArray,
@@ -1721,7 +1737,7 @@ function reuseOrRecreateCustomMaterial(
         max: Number.MAX_VALUE,
       });
       // BiasMatrix * LightProjectionMatrix * LightViewMatrix, See: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/#basic-shader
-      additionalShaderSemanticInfo.push({
+      options.additionalShaderSemanticInfo?.push({
         semantic: 'depthBiasPV',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Mat4Array,
@@ -1731,7 +1747,7 @@ function reuseOrRecreateCustomMaterial(
         min: 0,
         max: Number.MAX_VALUE,
       });
-      additionalShaderSemanticInfo.push({
+      options.additionalShaderSemanticInfo?.push({
         semantic: 'pointLightFarPlane',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
@@ -1740,7 +1756,7 @@ function reuseOrRecreateCustomMaterial(
         min: 0,
         max: Number.MAX_VALUE,
       });
-      additionalShaderSemanticInfo.push({
+      options.additionalShaderSemanticInfo?.push({
         semantic: 'pointLightShadowMapUvScale',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
@@ -1751,10 +1767,10 @@ function reuseOrRecreateCustomMaterial(
       });
     }
   }
-  if (isSkinning) {
+  if (options.isSkinning) {
     definitions.push('RN_IS_SKINNING');
   }
-  if (isMorphing) {
+  if (options.isMorphing) {
     definitions.push('RN_IS_MORPHING');
   }
 
@@ -1762,9 +1778,9 @@ function reuseOrRecreateCustomMaterial(
   if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
     materialContent = new CustomMaterialContent(engine, {
       name: materialName,
-      isSkinning,
-      isLighting,
-      isMorphing,
+      isSkinning: options.isSkinning ?? false,
+      isLighting: options.isLighting ?? false,
+      isMorphing: options.isMorphing ?? false,
       vertexShaderWebGpu: {
         code: vertexShaderStr,
         shaderStage: 'vertex',
@@ -1775,15 +1791,15 @@ function reuseOrRecreateCustomMaterial(
         shaderStage: 'fragment',
         isFragmentShader: true,
       },
-      additionalShaderSemanticInfo,
+      additionalShaderSemanticInfo: options.additionalShaderSemanticInfo ?? [],
       definitions,
     });
   } else {
     materialContent = new CustomMaterialContent(engine, {
       name: materialName,
-      isSkinning,
-      isLighting,
-      isMorphing,
+      isSkinning: options.isSkinning ?? false,
+      isLighting: options.isLighting ?? false,
+      isMorphing: options.isMorphing ?? false,
       vertexShader: {
         code: vertexShaderStr,
         shaderStage: 'vertex',
@@ -1794,12 +1810,12 @@ function reuseOrRecreateCustomMaterial(
         shaderStage: 'fragment',
         isFragmentShader: true,
       },
-      additionalShaderSemanticInfo,
+      additionalShaderSemanticInfo: options.additionalShaderSemanticInfo ?? [],
       definitions,
     });
   }
 
-  const material = reuseOrRecreateMaterial(engine, currentMaterial, materialContent, maxInstancesNumber);
+  const material = reuseOrRecreateMaterial(engine, currentMaterial, materialContent, options.maxInstancesNumber ?? 1);
 
   for (const definition of definitions) {
     material.addShaderDefine(definition);
@@ -1961,7 +1977,7 @@ function createNodeBasedCustomMaterial(
   engine: Engine,
   currentMaterial: Material,
   shaderNodeJson: ShaderNodeJson,
-  { maxInstancesNumber = 1 } = {}
+  options: PbrUberMaterialOptions = {}
 ): NodeBasedMaterialResult | null {
   // Generate shader code from the shader node JSON
   const shaderCode = ShaderGraphResolver.generateShaderCodeFromJson(engine, shaderNodeJson);
@@ -1987,20 +2003,22 @@ function createNodeBasedCustomMaterial(
   }
 
   // Create custom material using reuseOrRecreateCustomMaterial
+
+  const basicOptions = {
+    isSkinning: true,
+    isLighting: true,
+    isMorphing: true,
+    isShadow: hasClassicShaderNode || hasPbrShaderNode,
+    isPbr: hasPbrShaderNode,
+    additionalName: '',
+    additionalShaderSemanticInfo,
+  };
   const material = reuseOrRecreateCustomMaterial(
     engine,
     currentMaterial,
     shaderCode.vertexShader,
     shaderCode.pixelShader,
-    {
-      maxInstancesNumber,
-      isSkinning: true,
-      isLighting: true,
-      isMorphing: true,
-      isShadow: hasClassicShaderNode || hasPbrShaderNode,
-      isPbr: hasPbrShaderNode,
-      additionalShaderSemanticInfo,
-    }
+    { ...basicOptions, ...options }
   );
 
   // Store the shader node JSON for later retrieval (e.g., in editor or export)

@@ -13,7 +13,7 @@
 
 /* shaderity: @{getters} */
 
-#define MATH_PI 3.141592
+const float MATH_PI = 3.141592;
 
 // These codes are referenced from https://github.com/knarkowicz/FurnaceTest
 float roughnessRemap(float userRoughness) {

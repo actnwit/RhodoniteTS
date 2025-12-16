@@ -1783,6 +1783,31 @@ export class ModelConverter {
     const isLighting = this.__isLighting(gltfModel, materialJson);
     const additionalName = '';
 
+    const rnLoaderOptions = gltfModel.asset.extras?.rnLoaderOptions ?? {};
+    const useNormalTexture = materialJson?.normalTexture != null;
+    const maxMaterialInstanceNumber: number = engine.config.materialCountPerBufferView;
+    const pbrUberMaterialOptions = {
+      isMorphing,
+      isSkinning,
+      isLighting,
+      isOcclusion: Is.exist(materialJson?.occlusionTexture),
+      isEmissive: Is.exist(materialJson?.emissiveTexture),
+      isClearCoat: Is.exist(materialJson?.extensions?.KHR_materials_clearcoat),
+      isTransmission: Is.exist(materialJson?.extensions?.KHR_materials_transmission),
+      isVolume: Is.exist(materialJson?.extensions?.KHR_materials_volume),
+      isSheen: Is.exist(materialJson?.extensions?.KHR_materials_sheen),
+      isSpecular: Is.exist(materialJson?.extensions?.KHR_materials_specular),
+      isIridescence: Is.exist(materialJson?.extensions?.KHR_materials_iridescence),
+      isAnisotropy: Is.exist(materialJson?.extensions?.KHR_materials_anisotropy),
+      isDispersion: Is.exist(materialJson?.extensions?.KHR_materials_dispersion),
+      isEmissiveStrength: Is.exist(materialJson?.extensions?.KHR_materials_emissive_strength),
+      isDiffuseTransmission: Is.exist(materialJson?.extensions?.KHR_materials_diffuse_transmission),
+      isShadow: !!rnLoaderOptions.shadow,
+      useNormalTexture,
+      additionalName: additionalName,
+      maxInstancesNumber: maxMaterialInstanceNumber,
+    };
+
     if (Is.exist(materialJson)) {
       if (materialJson.extensions?.VRMC_materials_mtoon != null) {
         const rnLoaderOptions = gltfModel.asset.extras!.rnLoaderOptions!;
@@ -1811,40 +1836,17 @@ export class ModelConverter {
           materialJson,
           baseMaterial,
           rnTextures ?? [],
-          rnSamplers ?? []
+          rnSamplers ?? [],
+          pbrUberMaterialOptions
         );
         customMaterial.isTranslucent = isTranslucent;
         return customMaterial;
       }
     }
 
-    const maxMaterialInstanceNumber: number = engine.config.materialCountPerBufferView;
     if (Number.parseFloat(gltfModel.asset?.version) >= 2) {
-      const rnLoaderOptions = gltfModel.asset.extras?.rnLoaderOptions ?? {};
       // For glTF 2
-      const _useTangentAttribute = true; //this.__useTangentAttribute(gltfModel, primitive);
-      const useNormalTexture = materialJson?.normalTexture != null;
-      const material = MaterialHelper.createPbrUberMaterial(engine, {
-        isMorphing,
-        isSkinning,
-        isLighting,
-        isOcclusion: Is.exist(materialJson?.occlusionTexture),
-        isEmissive: Is.exist(materialJson?.emissiveTexture),
-        isClearCoat: Is.exist(materialJson?.extensions?.KHR_materials_clearcoat),
-        isTransmission: Is.exist(materialJson?.extensions?.KHR_materials_transmission),
-        isVolume: Is.exist(materialJson?.extensions?.KHR_materials_volume),
-        isSheen: Is.exist(materialJson?.extensions?.KHR_materials_sheen),
-        isSpecular: Is.exist(materialJson?.extensions?.KHR_materials_specular),
-        isIridescence: Is.exist(materialJson?.extensions?.KHR_materials_iridescence),
-        isAnisotropy: Is.exist(materialJson?.extensions?.KHR_materials_anisotropy),
-        isDispersion: Is.exist(materialJson?.extensions?.KHR_materials_dispersion),
-        isEmissiveStrength: Is.exist(materialJson?.extensions?.KHR_materials_emissive_strength),
-        isDiffuseTransmission: Is.exist(materialJson?.extensions?.KHR_materials_diffuse_transmission),
-        isShadow: !!rnLoaderOptions.shadow,
-        useNormalTexture,
-        additionalName: additionalName,
-        maxInstancesNumber: maxMaterialInstanceNumber,
-      });
+      const material = MaterialHelper.createPbrUberMaterial(engine, pbrUberMaterialOptions);
       const makeOutputSrgb = this.__makeOutputSrgb(gltfModel);
       if (Is.exist(makeOutputSrgb)) {
         material.setParameter('makeOutputSrgb', makeOutputSrgb);

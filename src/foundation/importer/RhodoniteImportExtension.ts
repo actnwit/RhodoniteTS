@@ -21,7 +21,7 @@ import type { IEntity } from '../core';
 import type { ShaderSemanticsName } from '../definitions';
 import { AnimationInterpolation } from '../definitions';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
-import { MaterialHelper } from '../helpers/MaterialHelper';
+import { MaterialHelper, type PbrUberMaterialOptions } from '../helpers/MaterialHelper';
 import type { Material } from '../materials/core/Material';
 import { AnimatedScalar } from '../math/AnimatedScalar';
 import { Scalar } from '../math/Scalar';
@@ -91,7 +91,8 @@ export class RhodoniteImportExtension {
     materialJson: RnM2Material,
     currentMaterial: Material,
     rnTextures: Texture[],
-    rnSamplers: Sampler[]
+    rnSamplers: Sampler[],
+    options: PbrUberMaterialOptions
   ): Material {
     const EXTENSION_NAME = 'RHODONITE_materials_node';
     const extension = materialJson.extensions?.[EXTENSION_NAME] as RnM2ExtensionRhodoniteMaterialsNode | undefined;
@@ -106,7 +107,7 @@ export class RhodoniteImportExtension {
       engine,
       currentMaterial,
       extension.shaderNodeJson as ShaderNodeJson,
-      { maxInstancesNumber: 1 }
+      { ...options, maxInstancesNumber: 1 }
     );
 
     if (!result) {
