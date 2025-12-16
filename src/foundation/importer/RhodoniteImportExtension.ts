@@ -89,30 +89,27 @@ export class RhodoniteImportExtension {
     engine: Engine,
     gltfModel: RnM2,
     materialJson: RnM2Material,
-    currentMaterial: Material,
     rnTextures: Texture[],
     rnSamplers: Sampler[],
     options: PbrUberMaterialOptions
-  ): Material {
+  ): Material | undefined {
     const EXTENSION_NAME = 'RHODONITE_materials_node';
     const extension = materialJson.extensions?.[EXTENSION_NAME] as RnM2ExtensionRhodoniteMaterialsNode | undefined;
 
     if (!extension?.shaderNodeJson) {
       Logger.default.warn('RHODONITE_materials_node: No shader node JSON loaded for material');
-      return currentMaterial;
+      return undefined;
     }
 
     // Create custom material using MaterialHelper.createNodeBasedCustomMaterial
-    const result = MaterialHelper.createNodeBasedCustomMaterial(
-      engine,
-      currentMaterial,
-      extension.shaderNodeJson as ShaderNodeJson,
-      { ...options, maxInstancesNumber: 1 }
-    );
+    const result = MaterialHelper.createNodeBasedCustomMaterial(engine, extension.shaderNodeJson as ShaderNodeJson, {
+      ...options,
+      maxInstancesNumber: 1,
+    });
 
     if (!result) {
       Logger.default.error('RHODONITE_materials_node: Failed to create node-based material');
-      return currentMaterial;
+      return undefined;
     }
 
     const newMaterial = result.material;

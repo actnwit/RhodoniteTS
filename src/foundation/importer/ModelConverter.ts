@@ -1820,25 +1820,18 @@ export class ModelConverter {
 
       // For RHODONITE_materials_node extension (node-based shader materials)
       if (RhodoniteImportExtension.hasNodeBasedMaterialExtension(materialJson)) {
-        // Create a base PBR material first
-        const maxMaterialInstanceNumber: number = engine.config.materialCountPerBufferView;
-        const baseMaterial = MaterialHelper.createPbrUberMaterial(engine, {
-          isMorphing,
-          isSkinning,
-          isLighting,
-          additionalName: '',
-          maxInstancesNumber: maxMaterialInstanceNumber,
-        });
         // Create and return node-based custom material
         const customMaterial = RhodoniteImportExtension.createNodeBasedMaterial(
           engine,
           gltfModel,
           materialJson,
-          baseMaterial,
           rnTextures ?? [],
           rnSamplers ?? [],
           pbrUberMaterialOptions
         );
+        if (!customMaterial) {
+          throw new Error('Failed to create node-based custom material');
+        }
         customMaterial.isTranslucent = isTranslucent;
         return customMaterial;
       }

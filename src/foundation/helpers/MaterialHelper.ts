@@ -82,6 +82,7 @@ import { Vector2 } from '../math/Vector2';
 import { Vector4 } from '../math/Vector4';
 import { VectorN } from '../math/VectorN';
 import { DataUtil } from '../misc/DataUtil';
+import { Is } from '../misc/Is';
 import type { RenderPass } from '../renderer/RenderPass';
 import type { Engine } from '../system/Engine';
 import { EngineState } from '../system/EngineState';
@@ -124,12 +125,12 @@ function createMaterial(
  */
 function reuseOrRecreateMaterial(
   engine: Engine,
-  currentMaterial: Material,
   materialContent: AbstractMaterialContent,
-  materialCountPerBufferView: Count
+  materialCountPerBufferView: Count,
+  currentMaterial?: Material
 ): Material {
   let material = currentMaterial;
-  if (engine.materialRepository.isMaterialCompatible(material, materialContent)) {
+  if (Is.exist(material) && engine.materialRepository.isMaterialCompatible(material, materialContent)) {
     material._materialContent = materialContent;
     material.makeShadersInvalidate();
     return material;
@@ -1682,10 +1683,10 @@ function createMToon1Material(
  */
 function reuseOrRecreateCustomMaterial(
   engine: Engine,
-  currentMaterial: Material,
   vertexShaderStr: string,
   pixelShaderStr: string,
-  options: PbrUberMaterialOptions = {}
+  options: PbrUberMaterialOptions = {},
+  currentMaterial?: Material
 ) {
   const hash = DataUtil.toCRC32(vertexShaderStr + pixelShaderStr);
   const materialName = `Custom_${hash}`;
@@ -1815,7 +1816,7 @@ function reuseOrRecreateCustomMaterial(
     });
   }
 
-  const material = reuseOrRecreateMaterial(engine, currentMaterial, materialContent, options.maxInstancesNumber ?? 1);
+  const material = reuseOrRecreateMaterial(engine, materialContent, options.maxInstancesNumber ?? 1, currentMaterial);
 
   for (const definition of definitions) {
     material.addShaderDefine(definition);
@@ -1975,9 +1976,9 @@ function addPbrIblSemanticInfo(engine: Engine, additionalShaderSemanticInfo: Sha
  */
 function createNodeBasedCustomMaterial(
   engine: Engine,
-  currentMaterial: Material,
   shaderNodeJson: ShaderNodeJson,
-  options: PbrUberMaterialOptions = {}
+  options: PbrUberMaterialOptions = {},
+  currentMaterial?: Material
 ): NodeBasedMaterialResult | null {
   // Generate shader code from the shader node JSON
   const shaderCode = ShaderGraphResolver.generateShaderCodeFromJson(engine, shaderNodeJson);
@@ -2015,10 +2016,10 @@ function createNodeBasedCustomMaterial(
   };
   const material = reuseOrRecreateCustomMaterial(
     engine,
-    currentMaterial,
     shaderCode.vertexShader,
     shaderCode.pixelShader,
-    { ...basicOptions, ...options }
+    { ...basicOptions, ...options },
+    currentMaterial
   );
 
   // Store the shader node JSON for later retrieval (e.g., in editor or export)
