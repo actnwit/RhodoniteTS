@@ -1735,18 +1735,19 @@ export class ModelConverter {
 
   /**
    * Generates an appropriate material based on glTF material data and loader options
+   * @param engine - The engine instance
    * @param gltfModel - The glTF model data
+   * @param rnTextures - Array of loaded Rhodonite textures
+   * @param rnSamplers - Array of loaded Rhodonite samplers
    * @param materialJson - The material JSON data (optional)
-   * @param rnTextures - Array of loaded Rhodonite textures (optional, needed for node-based materials)
-   * @param rnSamplers - Array of loaded Rhodonite samplers (optional, needed for node-based materials)
    * @returns Generated material
    */
   private static __generateAppropriateMaterial(
     engine: Engine,
     gltfModel: RnM2,
-    materialJson?: RnM2Material,
-    rnTextures?: Texture[],
-    rnSamplers?: Sampler[]
+    rnTextures: Texture[],
+    rnSamplers: Sampler[],
+    materialJson?: RnM2Material
   ): Material {
     const isTranslucent = Is.exist(materialJson?.extensions?.KHR_materials_transmission);
     // if rnLoaderOptions is set something, do special deal
@@ -1926,9 +1927,9 @@ export class ModelConverter {
     const material: Material = this.__generateAppropriateMaterial(
       engine,
       gltfModel,
-      materialJson,
       rnTextures,
-      rnSamplers
+      rnSamplers,
+      materialJson
     );
     if (materialJson == null) return material;
 

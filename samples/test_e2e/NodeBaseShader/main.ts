@@ -516,12 +516,12 @@ function applyShader(entity: Rn.ISceneGraphEntity) {
       if (primitive.material != null) {
         const newMaterial = Rn.MaterialHelper.reuseOrRecreateCustomMaterial(
           engine,
-          primitive.material,
           result.vertexShader,
           result.pixelShader,
           {
             maxInstancesNumber: 1,
-          }
+          },
+          primitive.material
         );
         primitive.material = newMaterial;
       }
