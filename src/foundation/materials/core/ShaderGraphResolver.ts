@@ -1088,6 +1088,7 @@ function constructNodes(json: ShaderNodeJson): {
         const shaderStage = node.controls.shaderStage.value;
         nodeInstance.setTextureName(textureName);
         nodeInstance.setShaderStage(shaderStage);
+        nodeInstance.setSrgbFlag(node.controls.sRGB.value);
         textureInfos.push({ name: textureName, stage: shaderStage });
         nodeInstances[node.id] = nodeInstance;
         break;

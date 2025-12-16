@@ -43,16 +43,12 @@ export class TextureShaderNode extends AbstractShaderNode {
   }
 
   /**
-   * Sets the default input value for the specified input parameter.
-   * Currently only supports setting the default value for the 'value' input.
+   * Sets sRGB flag for the texture
    *
-   * @param inputName - The name of the input parameter to set the default value for
-   * @param value - The default value to assign to the input parameter
+   * @param sRGB - The sRGB flag
    */
-  setDefaultInputValue(inputName: string, value: any) {
-    if (inputName === 'value') {
-      (this.__commonPart as UniformDataShader).setDefaultValue(value);
-    }
+  setSrgbFlag(sRGB: boolean) {
+    (this.__commonPart as TextureShader).setSrgbFlag(sRGB);
   }
 
   /**
@@ -62,7 +58,7 @@ export class TextureShaderNode extends AbstractShaderNode {
    * @param value - The variable name to use for the texture in the shader
    */
   setTextureName(value: any) {
-    (this.__commonPart as UniformDataShader).setVariableName(value);
+    (this.__commonPart as TextureShader).setVariableName(value);
   }
 
   /**

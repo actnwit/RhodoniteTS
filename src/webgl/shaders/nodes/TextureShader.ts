@@ -9,7 +9,7 @@ import { CommonShaderPart } from '../CommonShaderPart';
 
 export class TextureShader extends CommonShaderPart {
   private __variableName = '';
-  private __valueStr = '';
+  private __sRGB = true;
   constructor(
     private __functionName: string,
     private __compositionType: CompositionTypeEnum
@@ -21,8 +21,8 @@ export class TextureShader extends CommonShaderPart {
     this.__variableName = name;
   }
 
-  setDefaultValue(value: any) {
-    this.__valueStr = value.toString();
+  setSrgbFlag(sRGB: boolean) {
+    this.__sRGB = sRGB;
   }
 
   getVertexShaderDefinitions(engine: Engine) {
@@ -54,7 +54,8 @@ fn ${this.__functionName}(${uvStr}, scale: vec2f, offset: vec2f, rotation: f32, 
   if (lodFloat < 0.0) {
     lodFloat = 0.0;
   }
-  let rgbaValue = textureSampleLevel(${textureName}, ${samplerName}, ${textureName}TexUv, lodFloat);
+  var rgbaValue = textureSampleLevel(${textureName}, ${samplerName}, ${textureName}TexUv, lodFloat);
+  ${this.__sRGB ? 'rgbaValue = vec4f(srgbToLinear(rgbaValue.rgb), rgbaValue.a);' : ''}
   *rgba = rgbaValue;
   *rgb = rgbaValue.rgb;
   *r = rgbaValue.r;
@@ -88,6 +89,7 @@ void ${this.__functionName}(${uvStr}, vec2 scale, vec2 offset, float rotation, f
   } else {
     rgbaValue = textureLod(u_${this.__variableName}, ${this.__variableName}TexUv, lodFloat);
   }
+  ${this.__sRGB ? 'rgbaValue.rgb = srgbToLinear(rgbaValue.rgb);' : ''}
   rgba = rgbaValue;
   rgb = rgbaValue.rgb;
   r = rgbaValue.r;
@@ -128,6 +130,7 @@ fn ${this.__functionName}(${uvStr}, scale: vec2f, offset: vec2f, rotation: f32, 
   } else {
     rgbaValue = textureSampleLevel(${textureName}, ${samplerName}, ${textureName}TexUv, lodFloat);
   }
+  ${this.__sRGB ? 'rgbaValue = vec4f(srgbToLinear(rgbaValue.rgb), rgbaValue.a);' : ''}
   *rgba = rgbaValue;
   *rgb = rgbaValue.rgb;
   *r = rgbaValue.r;
@@ -161,6 +164,7 @@ void ${this.__functionName}(${uvStr}, vec2 scale, vec2 offset, float rotation, f
   } else {
     rgbaValue = textureLod(u_${this.__variableName}, ${this.__variableName}TexUv, lodFloat);
   }
+  ${this.__sRGB ? 'rgbaValue.rgb = srgbToLinear(rgbaValue.rgb);' : ''}
   rgba = rgbaValue;
   rgb = rgbaValue.rgb;
   r = rgbaValue.r;
