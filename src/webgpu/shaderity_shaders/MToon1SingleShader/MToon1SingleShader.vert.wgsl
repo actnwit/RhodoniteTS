@@ -47,13 +47,13 @@ fn main(
 
 /* shaderity: @{mainPrerequisites} */
 
-  let instanceId = u32(instance_ids.x);
+  let instanceId = u32(instanceIds.x);
   let worldMatrix = get_worldMatrix(instanceId);
   var normalMatrix = get_normalMatrix(instanceId);
   let isBillboard = get_isBillboard(instanceId);
   let viewMatrix = get_viewMatrix(cameraSID);
-  let skeletalComponentSID = i32(instance_ids.y);
-  let blendShapeComponentSID = u32(instance_ids.z);
+  let skeletalComponentSID = i32(instanceIds.y);
+  let blendShapeComponentSID = u32(instanceIds.z);
 
   var position_inWorld = vec4<f32>(0.0, 0.0, 0.0, 1.0);
   var normal_inWorld = vec3<f32>(0.0, 0.0, 0.0);
@@ -119,7 +119,7 @@ fn main(
   output.baryCentricCoord = baryCentricCoord.xyz;
 #endif
 
-  output.instanceIds = instance_ids;
+  output.instanceIds = instanceIds;
 
   return output;
 }

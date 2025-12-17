@@ -13,14 +13,14 @@ fn main(
 /* shaderity: @{mainPrerequisites} */
 
   var output : VertexOutput;
-  let instanceId = u32(instance_ids.x);
+  let instanceId = u32(instanceIds.x);
   let worldMatrix = get_worldMatrix(instanceId);
   var normalMatrix = get_normalMatrix(instanceId);
   let isBillboard = get_isBillboard(instanceId);
   let viewMatrix = get_viewMatrix(cameraSID);
   let projectionMatrix = get_projectionMatrix(cameraSID);
 
-  let skeletalComponentSID = i32(instance_ids.y);
+  let skeletalComponentSID = i32(instanceIds.y);
 
 #ifdef RN_USE_NORMAL
 #else
@@ -42,7 +42,7 @@ fn main(
   let baryCentricCoord = vec4<f32>(0.0, 0.0, 0.0, 0.0);
 #endif
 
-  let blendShapeComponentSID = u32(instance_ids.z);
+  let blendShapeComponentSID = u32(instanceIds.z);
   var position_inWorld = vec4<f32>(0.0, 0.0, 0.0, 1.0);
   var normal_inWorld = vec3<f32>(0.0, 0.0, 0.0);
   let isSkinning = processGeometry(
@@ -80,7 +80,7 @@ fn main(
   output.binormal_inWorld = cross(output.normal_inWorld, output.tangent_inWorld) * tangent.w;
 #endif
 
-  output.instanceIds = instance_ids;
+  output.instanceIds = instanceIds;
 
   let visibility = get_isVisible(instanceId);
   if (!visibility)
