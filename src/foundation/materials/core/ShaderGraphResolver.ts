@@ -42,8 +42,8 @@ import { LessOrEqualShaderNode } from '../nodes/LessOrEqualShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
+import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NotEqualShaderNode } from '../nodes/NotEqualShaderNode';
 import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
@@ -635,6 +635,7 @@ export class ShaderGraphResolver {
     isVertexStage: boolean
   ): string {
     let shaderBody = '';
+    let dummyVarCounter = 0;
 
     for (let i = 0; i < shaderNodes.length; i++) {
       const shaderNode = shaderNodes[i];
@@ -653,6 +654,49 @@ export class ShaderGraphResolver {
       }
       if (varOutputNames[i] == null) {
         varOutputNames[i] = [];
+      }
+
+      // Reorder output variables to match the output socket order and fill missing ones with dummy variables
+      // This ensures function calls are generated with arguments in the correct order
+      const outputs = shaderNode.getOutputs();
+      if (varOutputNames[i].length !== outputs.length) {
+        // Build a map from output name to variable name
+        const outputNameToVarName: Map<string, string> = new Map();
+        const nodeUidPattern = `_${shaderNode.shaderNodeUid}_to_`;
+        for (const varName of varOutputNames[i]) {
+          // Variable name format: ${outputName}_${shaderNodeUid}_to_${targetNodeUid}
+          const splitIndex = varName.indexOf(nodeUidPattern);
+          if (splitIndex !== -1) {
+            const outputName = varName.substring(0, splitIndex);
+            outputNameToVarName.set(outputName, varName);
+          }
+        }
+
+        // Create ordered output variable names array matching output socket order
+        const orderedOutputVarNames: string[] = [];
+        const isWebGPU = engine.engineState.currentProcessApproach === ProcessApproach.WebGPU;
+        for (let j = 0; j < outputs.length; j++) {
+          const output = outputs[j];
+          const existingVarName = outputNameToVarName.get(output.name);
+          if (existingVarName) {
+            orderedOutputVarNames.push(existingVarName);
+          } else {
+            // Generate dummy variable for unconnected output
+            const type = isWebGPU
+              ? output.compositionType.toWGSLType(output.componentType)
+              : output.compositionType.getGlslStr(output.componentType);
+            const dummyVarName = `dummy${type.replace(/[<>]/g, '')}_${dummyVarCounter++}`;
+
+            // Declare the dummy variable
+            if (isWebGPU) {
+              shaderBody += `var ${dummyVarName}: ${type};\n`;
+            } else {
+              shaderBody += `${type} ${dummyVarName};\n`;
+            }
+            orderedOutputVarNames.push(dummyVarName);
+          }
+        }
+        varOutputNames[i] = orderedOutputVarNames;
       }
 
       const functionName = shaderNode.getShaderFunctionNameDerivative(engine);
