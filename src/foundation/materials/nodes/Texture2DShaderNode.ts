@@ -34,7 +34,7 @@ export class Texture2DShaderNode extends AbstractShaderNode {
     this.__outputs.push(new Socket('g', CompositionType.Scalar, ComponentType.Float));
     this.__outputs.push(new Socket('b', CompositionType.Scalar, ComponentType.Float));
     this.__outputs.push(new Socket('a', CompositionType.Scalar, ComponentType.Float));
-    this.__outputs.push(new Socket('uv', CompositionType.Vec2, ComponentType.Float));
+    this.__outputs.push(new Socket('uvOut', CompositionType.Vec2, ComponentType.Float));
   }
 
   /**
@@ -90,6 +90,7 @@ export class Texture2DShaderNode extends AbstractShaderNode {
           `var dummyG_${i}: f32;`,
           `var dummyB_${i}: f32;`,
           `var dummyA_${i}: f32;`,
+          `var dummyUVOut_${i}: vec2f;`,
         ];
       } else {
         dummyOutputVarDefines = [
@@ -99,6 +100,7 @@ export class Texture2DShaderNode extends AbstractShaderNode {
           `float dummyG_${i};`,
           `float dummyB_${i};`,
           `float dummyA_${i};`,
+          `vec2 dummyUVOut_${i};`,
         ];
       }
 
@@ -109,6 +111,7 @@ export class Texture2DShaderNode extends AbstractShaderNode {
         `dummyG_${i}`,
         `dummyB_${i}`,
         `dummyA_${i}`,
+        `dummyUVOut_${i}`,
       ];
 
       // Map connected outputs to their variable names
@@ -136,6 +139,9 @@ export class Texture2DShaderNode extends AbstractShaderNode {
         } else if (socketName === 'a') {
           dummyOutputVarDefines[5] = '';
           dummyOutputArguments[5] = outputName;
+        } else if (socketName === 'uvOut') {
+          dummyOutputVarDefines[6] = '';
+          dummyOutputArguments[6] = outputName;
         }
       }
 
