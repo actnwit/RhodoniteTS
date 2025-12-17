@@ -579,7 +579,7 @@ let emissiveFactor = get_emissiveFactor(materialSID, 0);
 
   var rt0 = vec4<f32>(0.0, 0.0, 0.0, baseColor.a);
 
-  pbrShader(input.instanceIds,
+  pbrShader(
     input.position_inWorld, normal_inWorld, geomNormal_inWorld,
     baseColor, perceptualRoughness, metallic,
     occlusionProps,

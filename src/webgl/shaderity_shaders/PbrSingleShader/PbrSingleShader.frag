@@ -565,7 +565,7 @@ vec3 emissiveFactor = get_emissiveFactor(materialSID, 0u);
 
   rt0 = vec4(0.0, 0.0, 0.0, baseColor.a);
 
-  pbrShader(v_instanceIds,
+  pbrShader(
     v_position_inWorld, normal_inWorld, geomNormal_inWorld,
     baseColor, perceptualRoughness, metallic,
     occlusionProps, emissiveProps,

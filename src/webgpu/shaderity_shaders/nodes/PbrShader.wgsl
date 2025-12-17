@@ -1,5 +1,4 @@
 fn pbrShader(
-  instanceIds: vec4<u32>,
   positionInWorld: vec4<f32>, normalInWorld: vec3<f32>, geomNormalInWorld: vec3<f32>,
   baseColor: vec4<f32>, perceptualRoughness: f32, metallic: f32,
   occlusionProps: OcclusionProps,
@@ -34,7 +33,7 @@ fn pbrShader(
 
   for (var i = 0u; i < lightNumber ; i++) {
     let light: Light = getLight(i, positionInWorld.xyz);
-    var lighting = lightingWithPunctualLight(instanceIds, light, normalInWorld, viewDirection, NdotV, baseColor.rgb,
+    var lighting = lightingWithPunctualLight(light, normalInWorld, viewDirection, NdotV, baseColor.rgb,
                       perceptualRoughness, metallic,
                       specularProps.specularWeight, dielectricF0, dielectricF90, ior,
                       transmission,
@@ -82,7 +81,7 @@ fn pbrShader(
   }
 
   // Image-based Lighting
-  let ibl: vec3f = IBLContribution(instanceIds, materialSID, cameraSID,
+  let ibl: vec3f = IBLContribution(materialSID, cameraSID,
     normalInWorld, NdotV, viewDirection, geomNormalInWorld, positionInWorld.xyz,
     baseColor.rgb, perceptualRoughness, metallic, specularProps.specularWeight, dielectricF0, ior,
     clearcoatProps,

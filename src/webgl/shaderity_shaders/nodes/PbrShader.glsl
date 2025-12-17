@@ -1,5 +1,4 @@
 void pbrShader(
-  in uvec4 instanceIds,
   in vec4 positionInWorld, in vec3 normalInWorld, in vec3 geomNormalInWorld,
   in vec4 baseColor, in float perceptualRoughness, in float metallic,
   in OcclusionProps occlusionProps,
@@ -46,7 +45,7 @@ void pbrShader(
   for (int i = 0; i < lightNumber; i++) {
     // Get Light
     Light light = getLight(i, positionInWorld.xyz);
-    vec3 lighting = lightingWithPunctualLight(instanceIds, light, normalInWorld, viewDirection, NdotV, baseColor.rgb,
+    vec3 lighting = lightingWithPunctualLight(light, normalInWorld, viewDirection, NdotV, baseColor.rgb,
                         perceptualRoughness, metallic,
                         specularProps.specularWeight, dielectricF0, dielectricF90, ior,
                         transmission,
@@ -90,7 +89,7 @@ void pbrShader(
   }
 
   // Image-based Lighting
-  vec3 ibl = IBLContribution(instanceIds, materialSID, cameraSID,
+  vec3 ibl = IBLContribution(materialSID, cameraSID,
     normalInWorld, NdotV, viewDirection, geomNormalInWorld, positionInWorld.xyz,
     baseColor.rgb, perceptualRoughness, metallic,
     specularProps.specularWeight, dielectricF0, ior,
