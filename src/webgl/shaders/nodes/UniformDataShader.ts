@@ -33,7 +33,7 @@ export class UniformDataShader extends CommonShaderPart {
         this.__componentType
       )}; // initialValue=${this.__valueStr}
 fn ${this.__functionName}(outValue: ptr<function, ${this.__compositionType.toWGSLType(this.__componentType)}>) {
-  *outValue = get_${this.__variableName}(uniformDrawParameters.materialSid, 0);
+  *outValue = get_${this.__variableName}(uniformDrawParameters.materialSid, 0u);
 }
 `;
     }
@@ -44,7 +44,7 @@ uniform ${this.__compositionType.getGlslStr(this.__componentType)} u_${
 void ${this.__functionName}(out ${this.__compositionType.getGlslStr(this.__componentType)} outValue) {
   ${CommonShaderPart.getMaterialSIDForWebGL()}
 
-  outValue = get_${this.__variableName}(materialSID, 0);
+  outValue = get_${this.__variableName}(materialSID, 0u);
 }
 `;
   }
@@ -56,7 +56,7 @@ void ${this.__functionName}(out ${this.__compositionType.getGlslStr(this.__compo
         this.__componentType
       )}; // initialValue=${this.__valueStr}
 fn ${this.__functionName}(outValue: ptr<function, ${this.__compositionType.toWGSLType(this.__componentType)}>) {
-  *outValue = get_${this.__variableName}(uniformDrawParameters.materialSid, 0);
+  *outValue = get_${this.__variableName}(uniformDrawParameters.materialSid, 0u);
 }
 `;
     }
@@ -67,7 +67,7 @@ uniform ${this.__compositionType.getGlslStr(this.__componentType)} u_${
 void ${this.__functionName}(out ${this.__compositionType.getGlslStr(this.__componentType)} outValue) {
   ${CommonShaderPart.getMaterialSIDForWebGL()}
 
-outValue = get_${this.__variableName}(materialSID, 0);
+outValue = get_${this.__variableName}(materialSID, 0u);
     }
     `;
   }
