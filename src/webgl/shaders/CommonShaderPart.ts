@@ -48,9 +48,16 @@ fn main(
 `;
       return str;
     }
+
+    if (isVertexStage) {
+      return `
+void main() {
+  v_instanceIds = a_instanceIds;
+`;
+    }
     return `
 void main() {
-`;
+  `;
   }
 
   /**
@@ -76,17 +83,17 @@ void main() {
     }
     return `
 }
-    `;
+`;
   }
 
   static getMaterialSIDForWebGL() {
     return `
   #ifdef RN_IS_DATATEXTURE_MODE
     uint materialSID = uint(u_currentComponentSIDs[0]); // index 0 data is the materialSID
-  #else
+#else
     uint materialSID = 0u;
-  #endif
-  `;
+#endif
+`;
   }
 
   /**
@@ -148,6 +155,7 @@ in vec2 a_texcoord_2;
 in uvec4 a_joint;
 in vec4 a_weight;
 in vec4 a_baryCentricCoord;
+out uvec4 v_instanceIds;
 `;
     vertexShaderPrerequisites += `
 uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
@@ -262,10 +270,11 @@ struct VertexOutput {
       #version 300 es
       precision highp float;
       precision highp int;
-      /* shaderity: @{definitions} */
+/* shaderity: @{definitions} */
       #define RN_IS_NODE_SHADER
-      /* shaderity: @{prerequisites} */
-      `;
+  /* shaderity: @{prerequisites} */
+      in uvec4 v_instanceIds;
+`;
     pixelShaderPrerequisites += '/* shaderity: @{getters} */';
     pixelShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
     pixelShaderPrerequisites += '/* shaderity: @{opticalDefinition} */';
