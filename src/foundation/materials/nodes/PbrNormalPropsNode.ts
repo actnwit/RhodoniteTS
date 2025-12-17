@@ -17,12 +17,12 @@ import { Socket } from '../core/Socket';
  * const outputSocket = pbrBaseColorPropsNode.getSocketOutput();
  * ```
  */
-export class PbrBaseColorPropsNode extends AbstractShaderNode {
+export class PbrNormalPropsShaderNode extends AbstractShaderNode {
   /**
    * Creates a new PbrBaseColorPropsNode with the specified composition and component types.
    */
   constructor() {
-    super('pbrBaseColorProps', {
+    super('pbrNormalProps', {
       codeGLSL: PbrBaseColorPropsShaderityObjectGLSL.code,
       codeWGSL: PbrBaseColorPropsShaderityObjectWGSL.code,
     });
