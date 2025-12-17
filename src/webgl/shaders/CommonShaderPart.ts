@@ -155,7 +155,7 @@ in vec2 a_texcoord_2;
 in uvec4 a_joint;
 in vec4 a_weight;
 in vec4 a_baryCentricCoord;
-out uvec4 v_instanceIds;
+flat out uvec4 v_instanceIds;
 `;
     vertexShaderPrerequisites += `
 uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
@@ -273,7 +273,7 @@ struct VertexOutput {
 /* shaderity: @{definitions} */
       #define RN_IS_NODE_SHADER
   /* shaderity: @{prerequisites} */
-      in uvec4 v_instanceIds;
+      flat in uvec4 v_instanceIds;
 `;
     pixelShaderPrerequisites += '/* shaderity: @{getters} */';
     pixelShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
