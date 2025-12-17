@@ -1,4 +1,4 @@
-import { TextureShader } from '../../../webgl/shaders/nodes/TextureShader';
+import { Texture2DShader } from '../../../webgl/shaders/nodes/Texture2DShader';
 import type { UniformDataShader } from '../../../webgl/shaders/nodes/UniformDataShader';
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
@@ -14,21 +14,15 @@ import { Socket } from '../core/Socket';
  * This node wraps TextureShader to provide a standardized interface
  * for passing textures to shader programs.
  */
-export class TextureShaderNode extends AbstractShaderNode {
-  constructor(compositionType: CompositionTypeEnum) {
-    super('texture', {});
+export class Texture2DShaderNode extends AbstractShaderNode {
+  constructor() {
+    super('texture2D', {});
 
     this.__shaderFunctionName += `_${this.__shaderNodeUid}`;
 
-    this.__commonPart = new TextureShader(this.__shaderFunctionName, compositionType);
+    this.__commonPart = new Texture2DShader(this.__shaderFunctionName);
 
-    // Add UV input socket based on texture type
-    if (compositionType === CompositionType.Texture2D || compositionType === CompositionType.Texture2DArray) {
-      this.__inputs.push(new Socket('uv', CompositionType.Vec2, ComponentType.Float));
-    } else if (compositionType === CompositionType.TextureCube) {
-      this.__inputs.push(new Socket('uv', CompositionType.Vec3, ComponentType.Float));
-    }
-
+    this.__inputs.push(new Socket('uv', CompositionType.Vec2, ComponentType.Float));
     this.__inputs.push(new Socket('scale', CompositionType.Vec2, ComponentType.Float, Vector2.fromCopy2(1, 1)));
     this.__inputs.push(new Socket('offset', CompositionType.Vec2, ComponentType.Float, Vector2.fromCopy2(0, 0)));
     this.__inputs.push(new Socket('rotation', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0)));
@@ -40,6 +34,7 @@ export class TextureShaderNode extends AbstractShaderNode {
     this.__outputs.push(new Socket('g', CompositionType.Scalar, ComponentType.Float));
     this.__outputs.push(new Socket('b', CompositionType.Scalar, ComponentType.Float));
     this.__outputs.push(new Socket('a', CompositionType.Scalar, ComponentType.Float));
+    this.__outputs.push(new Socket('uv', CompositionType.Vec2, ComponentType.Float));
   }
 
   /**
@@ -48,7 +43,7 @@ export class TextureShaderNode extends AbstractShaderNode {
    * @param sRGB - The sRGB flag
    */
   setSrgbFlag(sRGB: boolean) {
-    (this.__commonPart as TextureShader).setSrgbFlag(sRGB);
+    (this.__commonPart as Texture2DShader).setSrgbFlag(sRGB);
   }
 
   /**
@@ -58,7 +53,7 @@ export class TextureShaderNode extends AbstractShaderNode {
    * @param value - The variable name to use for the texture in the shader
    */
   setTextureName(value: any) {
-    (this.__commonPart as TextureShader).setVariableName(value);
+    (this.__commonPart as Texture2DShader).setVariableName(value);
   }
 
   /**

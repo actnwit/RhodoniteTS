@@ -59,7 +59,7 @@ import { SinShaderNode } from '../nodes/SinShaderNode';
 import { SmoothStepShaderNode } from '../nodes/SmoothStepShaderNode';
 import { SplitVectorShaderNode } from '../nodes/SplitVectorShaderNode';
 import { StepShaderNode } from '../nodes/StepShaderNode';
-import { TextureShaderNode } from '../nodes/TextureShaderNode';
+import { Texture2DShaderNode } from '../nodes/Texture2DShaderNode';
 import { TimeShaderNode } from '../nodes/TimeShaderNode';
 import { TransformShaderNode } from '../nodes/TransformShaderNode';
 import { UniformDataShaderNode } from '../nodes/UniformDataShaderNode';
@@ -1085,7 +1085,7 @@ function constructNodes(json: ShaderNodeJson): {
         break;
       }
       case 'Texture2D': {
-        const nodeInstance = new TextureShaderNode(CompositionType.Texture2D);
+        const nodeInstance = new Texture2DShaderNode();
         const textureName = node.controls.name.value;
         const shaderStage = node.controls.shaderStage.value;
         nodeInstance.setTextureName(textureName);

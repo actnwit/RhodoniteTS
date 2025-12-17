@@ -40,7 +40,7 @@ export * from './PremultipliedAlphaShaderNode';
 export * from './ProjectionMatrixShaderNode';
 export * from './RemapShaderNode';
 export * from './SplitVectorShaderNode';
-export * from './TextureShaderNode';
+export * from './Texture2DShaderNode';
 export * from './UniformDataShaderNode';
 export * from './ViewMatrixShaderNode';
 export * from './WireframeMaterialNode';
