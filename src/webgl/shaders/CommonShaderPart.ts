@@ -40,11 +40,13 @@ ${vertexInputWGSL.code}
       }
       let str = `
 var<private> rt0: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 1.0);
+var<private> g_isFront: bool = true;
 @fragment
 fn main(
   input: VertexOutput,
   @builtin(front_facing) isFront: bool,
 ) -> @location(0) vec4<f32> {
+  g_isFront = isFront;
 `;
       return str;
     }
