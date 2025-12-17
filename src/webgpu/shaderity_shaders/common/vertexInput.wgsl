@@ -1,5 +1,5 @@
 #ifdef RN_USE_INSTANCE
-  @location(8) instance_ids: vec4<u32>,
+  @location(8) instanceIds: vec4<u32>,
 #endif
 
 

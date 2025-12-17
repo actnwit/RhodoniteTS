@@ -11,4 +11,7 @@ struct VertexOutput {
   @location(8) baryCentricCoord: vec3<f32>,
   @location(9) @interpolate(flat) instanceIds: vec4<u32>,
   @location(10) normal_inView : vec3<f32>,
+#ifdef RN_IS_PIXEL_SHADER
+  @builtin(front_facing) isFront: bool,
+#endif
 }

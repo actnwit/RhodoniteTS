@@ -35,18 +35,16 @@ var<private> output : VertexOutput;
 fn main(
 ${vertexInputWGSL.code}
 ) -> VertexOutput {
+  output.instanceIds = instanceIds;
 `;
         return str;
       }
       let str = `
 var<private> rt0: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 1.0);
-var<private> g_isFront: bool = true;
 @fragment
 fn main(
   input: VertexOutput,
-  @builtin(front_facing) isFront: bool,
 ) -> @location(0) vec4<f32> {
-  g_isFront = isFront;
 `;
       return str;
     }
@@ -220,6 +218,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
       const flatAttr = varyings[i].needsFlat ? ' @interpolate(flat)' : '';
       varyingVariables += `@location(${i})${flatAttr} ${varyings[i].name}: ${varyings[i].type},\n`;
     }
+    varyingVariables += `@location(${varyings.length}) @interpolate(flat) instanceIds: vec4<u32>,`;
 
     return varyingVariables;
   }
@@ -244,6 +243,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
 struct VertexOutput {
   @builtin(position) position : vec4<f32>,
   ${varyingVariables}
+  @builtin(front_facing) isFront: bool,
 }
 
 /* shaderity: @{prerequisites} */
