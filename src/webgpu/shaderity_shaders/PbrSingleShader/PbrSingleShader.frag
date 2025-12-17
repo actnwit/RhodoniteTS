@@ -195,6 +195,8 @@ fn main(
   @builtin(front_facing) isFront: bool,
 ) -> @location(0) vec4<f32> {
 /* shaderity: @{mainPrerequisites} */
+  g_isFront = isFront;
+
   let viewPosition = get_viewPosition(cameraSID);
   let viewVector = viewPosition - input.position_inWorld.xyz;
   let viewDirection = normalize(viewVector);
@@ -235,7 +237,7 @@ fn main(
   let normalTexcoordIndex: u32 = u32(get_normalTexcoordIndex(materialSID, 0));
   let normalTexcoord: vec2f = getTexcoord(normalTexcoordIndex, input);
   let normalTexUv: vec2f = uvTransform(normalTextureTransformScale, normalTextureTransformOffset, normalTextureTransformRotation, normalTexcoord);
-  let TBN: mat3x3<f32> = getTBN(normal_inWorld, input.tangent_inWorld, input.binormal_inWorld, viewVector, normalTexUv, isFront);
+  let TBN: mat3x3<f32> = getTBN(normal_inWorld, input.tangent_inWorld, input.binormal_inWorld, viewVector, normalTexUv);
   #ifdef RN_USE_NORMAL_TEXTURE
     let normalTexValue: vec3f = textureSample(normalTexture, normalSampler, normalTexUv).xyz;
     if(normalTexValue.b >= 128.0 / 255.0) {
