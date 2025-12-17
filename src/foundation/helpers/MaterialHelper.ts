@@ -1903,14 +1903,14 @@ function buildTextureSemanticInfo(
  */
 function addPbrIblSemanticInfo(engine: Engine, additionalShaderSemanticInfo: ShaderSemanticsInfo[]) {
   // Create a sampler for cube textures
-  const cubeTextureSampler = new Sampler(engine, {
+  const sampler = new Sampler(engine, {
     minFilter: TextureParameter.LinearMipmapLinear,
     magFilter: TextureParameter.Linear,
     wrapS: TextureParameter.ClampToEdge,
     wrapT: TextureParameter.ClampToEdge,
     wrapR: TextureParameter.ClampToEdge,
   });
-  cubeTextureSampler.create();
+  sampler.create();
 
   const shaderStage = ShaderType.VertexAndPixelShader;
 
@@ -1919,7 +1919,7 @@ function addPbrIblSemanticInfo(engine: Engine, additionalShaderSemanticInfo: Sha
     componentType: ComponentType.Int,
     compositionType: CompositionType.TextureCube,
     stage: shaderStage,
-    initialValue: [-1, engine.dummyTextures.dummyBlackCubeTexture, cubeTextureSampler],
+    initialValue: [-1, engine.dummyTextures.dummyBlackCubeTexture, sampler],
     min: 0,
     max: Number.MAX_VALUE,
     isInternalSetting: true,
@@ -1930,7 +1930,7 @@ function addPbrIblSemanticInfo(engine: Engine, additionalShaderSemanticInfo: Sha
     componentType: ComponentType.Int,
     compositionType: CompositionType.TextureCube,
     stage: shaderStage,
-    initialValue: [-1, engine.dummyTextures.dummyBlackCubeTexture, cubeTextureSampler],
+    initialValue: [-1, engine.dummyTextures.dummyBlackCubeTexture, sampler],
     min: 0,
     max: Number.MAX_VALUE,
     isInternalSetting: true,
@@ -1966,6 +1966,15 @@ function addPbrIblSemanticInfo(engine: Engine, additionalShaderSemanticInfo: Sha
     min: 0,
     max: Number.MAX_VALUE,
     isInternalSetting: true,
+  });
+  additionalShaderSemanticInfo.push({
+    semantic: 'backBufferTexture',
+    componentType: ComponentType.Int,
+    compositionType: CompositionType.Texture2D,
+    stage: ShaderType.PixelShader,
+    initialValue: [-1, engine.dummyTextures.dummyBlackTexture, sampler],
+    min: 0,
+    max: Number.MAX_VALUE,
   });
 }
 
