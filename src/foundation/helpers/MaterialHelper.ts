@@ -1971,7 +1971,7 @@ function addPbrIblSemanticInfo(engine: Engine, additionalShaderSemanticInfo: Sha
     semantic: 'backBufferTexture',
     componentType: ComponentType.Int,
     compositionType: CompositionType.Texture2D,
-    stage: ShaderType.PixelShader,
+    stage: shaderStage,
     initialValue: [-1, engine.dummyTextures.dummyBlackTexture, sampler],
     min: 0,
     max: Number.MAX_VALUE,
