@@ -1694,6 +1694,8 @@ function reuseOrRecreateCustomMaterial(
   const definitions = currentMaterial?.getShaderDefines() ?? new Set();
   if (options.isPbr) {
     definitions.add('RN_USE_PBR');
+  } else {
+    definitions.delete('RN_USE_PBR');
   }
   if (options.isLighting) {
     definitions.add('RN_IS_LIGHTING');
@@ -1766,7 +1768,12 @@ function reuseOrRecreateCustomMaterial(
         min: 0,
         max: Number.MAX_VALUE,
       });
+    } else {
+      definitions.delete('RN_USE_SHADOW_MAPPING');
     }
+  } else {
+    definitions.delete('RN_IS_LIGHTING');
+    definitions.delete('RN_USE_SHADOW_MAPPING');
   }
   if (options.isSkinning) {
     definitions.add('RN_IS_SKINNING');
