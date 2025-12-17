@@ -68,7 +68,7 @@ vec3 get_sample_from_backbuffer(vec2 sampleCoord, float perceptualRoughness, flo
   return transmittedLight;
 }
 
-vec3 getIBLVolumeRefraction(vec4 positionInWorld, vec3 baseColor, vec3 normal, vec3 view, uint cameraSID, uint materialSID, float thickness, float perceptualRoughness, float ior, vec3 attenuationColor, float attenuationDistance, float dispersion) {
+vec3 getIBLVolumeRefraction(vec3 positionInWorld, vec3 baseColor, vec3 normal, vec3 view, uint cameraSID, uint materialSID, float thickness, float perceptualRoughness, float ior, vec3 attenuationColor, float attenuationDistance, float dispersion) {
 #ifdef RN_USE_DISPERSION
   float halfSpread = (ior - 1.0) * 0.025 * dispersion;
   vec3 iors = vec3(ior - halfSpread, ior, ior + halfSpread);
@@ -78,7 +78,7 @@ vec3 getIBLVolumeRefraction(vec4 positionInWorld, vec3 baseColor, vec3 normal, v
   for(int i=0;i<3;i++) {
     vec3 transmissionRay = getVolumeTransmissionRay(normal, view, thickness, iors[i]);
     transmissionRayLength = length(transmissionRay);
-    vec3 refractedRayExit = positionInWorld.xyz + transmissionRay;
+    vec3 refractedRayExit = positionInWorld + transmissionRay;
 
     vec4 ndcPos = get_projectionMatrix(cameraSID) * get_viewMatrix(cameraSID) * vec4(refractedRayExit, 1.0);
     vec2 refractionCoords = ndcPos.xy / ndcPos.w;
@@ -90,7 +90,7 @@ vec3 getIBLVolumeRefraction(vec4 positionInWorld, vec3 baseColor, vec3 normal, v
 #else
   vec3 transmissionRay = getVolumeTransmissionRay(normal, view, thickness, ior);
   float transmissionRayLength = length(transmissionRay);
-  vec3 refractedRayExit = positionInWorld.xyz + transmissionRay;
+  vec3 refractedRayExit = positionInWorld + transmissionRay;
 
   vec4 ndcPos = get_projectionMatrix(cameraSID) * get_viewMatrix(cameraSID) * vec4(refractedRayExit, 1.0);
   vec2 refractionCoords = ndcPos.xy / ndcPos.w;
