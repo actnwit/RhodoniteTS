@@ -49,6 +49,7 @@ import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
 import { PbrBaseColorPropsNode } from '../nodes/PbrBaseColorPropsNode';
+import { PbrNormalPropsShaderNode } from '../nodes/PbrNormalPropsNode';
 import { PbrShaderNode } from '../nodes/PbrShaderNode';
 import { PbrSpecularPropsNode } from '../nodes/PbrSpecularPropsNode';
 import { PremultipliedAlphaShaderNode } from '../nodes/PremultipliedAlphaShaderNode';
@@ -1650,6 +1651,12 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'PbrBaseColorProps': {
         const nodeInstance = new PbrBaseColorPropsNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'PbrNormalProps': {
+        const nodeInstance = new PbrNormalPropsShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
