@@ -1,4 +1,4 @@
-void pbrNormalProps(in vec3 normalInWorld, in vec3 tangentInWorld, in vec3 binormalInWorld,
+void pbrNormalProps(in vec4 positionInWorld, in vec3 normalInWorld, in vec3 tangentInWorld, in vec3 binormalInWorld,
   in vec4 normalTexture, in vec2 normalTexUv, in float normalScale, out vec3 normalInWorldOut, out vec3 geomNormalInWorldOut, out mat3 TBNOut) {
 
   uint cameraSID = uint(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */]);
@@ -7,7 +7,7 @@ void pbrNormalProps(in vec3 normalInWorld, in vec3 tangentInWorld, in vec3 binor
   #endif
 
   vec3 viewPosition = get_viewPosition(cameraSID);
-  vec3 viewVector = viewPosition - v_position_inWorld.xyz;
+  vec3 viewVector = viewPosition - positionInWorld.xyz;
   vec3 viewDirection = normalize(viewVector);
 
   mat3 TBN = getTBN(normalInWorld, tangentInWorld, binormalInWorld, viewVector, normalTexUv);
