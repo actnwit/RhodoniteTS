@@ -345,8 +345,9 @@ vec2 uvTransform(vec2 scale, vec2 offset, float rotation, vec2 uv) {
   return uvTransformed;
 }
 
-#ifdef RN_IS_PIXEL_SHADER
+// getTBN: Compute tangent-to-world matrix for normal mapping
 #ifdef RN_USE_TANGENT
+  // When tangent attributes are available
   mat3 getTBN(vec3 normal_inWorld, vec3 tangent_inWorld_, vec3 binormal_inWorld_, vec3 viewVector, vec2 texcoord) {
     vec3 tangent_inWorld = normalize(tangent_inWorld_);
     vec3 binormal_inWorld = normalize(binormal_inWorld_);
@@ -355,7 +356,9 @@ vec2 uvTransform(vec2 scale, vec2 offset, float rotation, vec2 uv) {
     return tbnMat_tangent_to_world;
   }
 #else
+  #ifdef RN_IS_PIXEL_SHADER
     // This is based on http://www.thetenthplanet.de/archives/1180
+    // Pixel shader can use dFdx/dFdy to compute cotangent frame
     mat3 cotangent_frame(vec3 normal_inWorld, vec3 position, vec2 uv) {
       uv = gl_FrontFacing ? uv : -uv;
 
@@ -382,7 +385,23 @@ vec2 uvTransform(vec2 scale, vec2 offset, float rotation, vec2 uv) {
 
       return tbnMat_tangent_to_world;
     }
-#endif
+  #else // RN_IS_VERTEX_SHADER
+    // Vertex shader fallback: Generate TBN from normal when tangent attributes are not available
+    // This is an approximation - it generates a consistent tangent space from the normal vector
+    mat3 getTBN(vec3 normal_inWorld, vec3 tangent_inWorld_, vec3 binormal_inWorld_, vec3 viewVector, vec2 texcoord) {
+      vec3 n = normalize(normal_inWorld);
+
+      // Choose a helper vector that is not parallel to the normal
+      // Use (0, 1, 0) unless the normal is nearly parallel to it, then use (1, 0, 0)
+      vec3 helper = abs(n.y) < 0.999 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
+
+      // Compute tangent and bitangent using cross products
+      vec3 tangent = normalize(cross(helper, n));
+      vec3 bitangent = normalize(cross(n, tangent));
+
+      return mat3(tangent, bitangent, n);
+    }
+  #endif
 #endif
 
 vec3 srgbToLinear(vec3 srgbColor) {
