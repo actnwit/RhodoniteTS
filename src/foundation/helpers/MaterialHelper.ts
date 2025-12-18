@@ -1699,17 +1699,16 @@ function reuseOrRecreateCustomMaterial(
   } else {
     definitions.delete('RN_USE_PBR');
   }
+  // Create a local copy of additionalShaderSemanticInfo to avoid mutating the input options object.
+  // This prevents accumulation of duplicate shadow entries when the same options object is reused.
+  let additionalShaderSemanticInfo = options.additionalShaderSemanticInfo
+    ? [...options.additionalShaderSemanticInfo]
+    : [];
+
   if (options.isLighting) {
     definitions.add('RN_IS_LIGHTING');
     if (options.isShadow) {
       definitions.add('RN_USE_SHADOW_MAPPING');
-
-      // Ensure additionalShaderSemanticInfo exists when isShadow is true
-      // This prevents a mismatch where RN_USE_SHADOW_MAPPING is added but
-      // shadow texture uniforms are never registered
-      if (!options.additionalShaderSemanticInfo) {
-        options.additionalShaderSemanticInfo = [];
-      }
 
       const sampler = new Sampler(engine, {
         minFilter: TextureParameter.Linear,
@@ -1720,7 +1719,7 @@ function reuseOrRecreateCustomMaterial(
 
       sampler.create();
 
-      options.additionalShaderSemanticInfo.push({
+      additionalShaderSemanticInfo.push({
         semantic: 'depthTexture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2DArray,
@@ -1729,7 +1728,7 @@ function reuseOrRecreateCustomMaterial(
         min: 0,
         max: Number.MAX_VALUE,
       });
-      options.additionalShaderSemanticInfo.push({
+      additionalShaderSemanticInfo.push({
         semantic: 'paraboloidDepthTexture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2DArray,
@@ -1738,7 +1737,7 @@ function reuseOrRecreateCustomMaterial(
         min: 0,
         max: Number.MAX_VALUE,
       });
-      options.additionalShaderSemanticInfo.push({
+      additionalShaderSemanticInfo.push({
         semantic: 'depthTextureIndexList',
         componentType: ComponentType.Int,
         compositionType: CompositionType.ScalarArray,
@@ -1749,7 +1748,7 @@ function reuseOrRecreateCustomMaterial(
         max: Number.MAX_VALUE,
       });
       // BiasMatrix * LightProjectionMatrix * LightViewMatrix, See: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/#basic-shader
-      options.additionalShaderSemanticInfo.push({
+      additionalShaderSemanticInfo.push({
         semantic: 'depthBiasPV',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Mat4Array,
@@ -1759,7 +1758,7 @@ function reuseOrRecreateCustomMaterial(
         min: 0,
         max: Number.MAX_VALUE,
       });
-      options.additionalShaderSemanticInfo.push({
+      additionalShaderSemanticInfo.push({
         semantic: 'pointLightFarPlane',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
@@ -1768,7 +1767,7 @@ function reuseOrRecreateCustomMaterial(
         min: 0,
         max: Number.MAX_VALUE,
       });
-      options.additionalShaderSemanticInfo.push({
+      additionalShaderSemanticInfo.push({
         semantic: 'pointLightShadowMapUvScale',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
@@ -1808,7 +1807,7 @@ function reuseOrRecreateCustomMaterial(
         shaderStage: 'fragment',
         isFragmentShader: true,
       },
-      additionalShaderSemanticInfo: options.additionalShaderSemanticInfo ?? [],
+      additionalShaderSemanticInfo,
       definitions: Array.from(definitions),
     });
   } else {
@@ -1827,7 +1826,7 @@ function reuseOrRecreateCustomMaterial(
         shaderStage: 'fragment',
         isFragmentShader: true,
       },
-      additionalShaderSemanticInfo: options.additionalShaderSemanticInfo ?? [],
+      additionalShaderSemanticInfo,
       definitions: Array.from(definitions),
     });
   }
