@@ -14,7 +14,7 @@ fn pbrNormalProps(positionInWorld: vec4<f32>, normalInWorld: vec3f, tangentInWor
   *outTBN = getTBN(normalInWorld, tangentInWorld, binormalInWorld, viewVector, normalTexUv);
 
   #ifdef RN_USE_NORMAL_TEXTURE
-    let normalTexValue: vec3f = textureSample(normalTexture, normalSampler, normalTexUv).xyz;
+    let normalTexValue: vec3f = normalTexture.xyz;
     if(normalTexValue.b >= 128.0 / 255.0) {
       // normal texture is existence
       let normalTex = normalTexValue * 2.0 - 1.0;
