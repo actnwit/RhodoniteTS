@@ -837,7 +837,13 @@ export class ShaderGraphResolver {
   public static generateShaderCodeFromJson(
     engine: Engine,
     json: ShaderNodeJson
-  ): { vertexShader: string; pixelShader: string; textureInfos: { name: string; stage: string }[] } | undefined {
+  ):
+    | {
+        vertexShader: string;
+        pixelShader: string;
+        textureInfos: { name: string; stage: string; defaultTexture: string }[];
+      }
+    | undefined {
     const { nodeInstances, textureInfos } = constructNodes(json);
     const constructedNodes = Object.values(nodeInstances);
     const nodes = this.__sortTopologically(constructedNodes);
@@ -1033,12 +1039,12 @@ function filterNodesForVarying(nodes: AbstractShaderNode[], endNodeName: string)
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: This function handles many shader node types and requires a large switch statement
 function constructNodes(json: ShaderNodeJson): {
   nodeInstances: Record<string, AbstractShaderNode>;
-  textureInfos: { name: string; stage: string }[];
+  textureInfos: { name: string; stage: string; defaultTexture: string }[];
 } {
   // Create Node Instances
   const nodeInstances: Record<string, AbstractShaderNode> = {};
   const nodes: Record<string, any> = {};
-  const textureInfos: { name: string; stage: string }[] = [];
+  const textureInfos: { name: string; stage: string; defaultTexture: string }[] = [];
   for (const node of json.nodes) {
     nodes[node.id] = node;
     switch (node.name) {
@@ -1133,10 +1139,12 @@ function constructNodes(json: ShaderNodeJson): {
         const nodeInstance = new Texture2DShaderNode();
         const textureName = node.controls.name.value;
         const shaderStage = node.controls.shaderStage.value;
+        // Get the default texture type from the node control (defaults to dummyWhiteTexture if not specified)
+        const defaultTexture = node.controls.defaultTexture?.value ?? 'dummyWhiteTexture';
         nodeInstance.setTextureName(textureName);
         nodeInstance.setShaderStage(shaderStage);
         nodeInstance.setSrgbFlag(node.controls.sRGB.value);
-        textureInfos.push({ name: textureName, stage: shaderStage });
+        textureInfos.push({ name: textureName, stage: shaderStage, defaultTexture });
         nodeInstances[node.id] = nodeInstance;
         break;
       }

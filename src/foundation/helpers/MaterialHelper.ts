@@ -1848,12 +1848,12 @@ interface NodeBasedMaterialResult {
  * Builds ShaderSemanticInfo array for textures used in the shader node graph.
  *
  * @param engine - The engine instance
- * @param textureInfos - Array of texture info objects containing name and stage
+ * @param textureInfos - Array of texture info objects containing name, stage, and defaultTexture
  * @returns Array of ShaderSemanticsInfo for textures
  */
 function buildTextureSemanticInfo(
   engine: Engine,
-  textureInfos: { name: string; stage: string }[]
+  textureInfos: { name: string; stage: string; defaultTexture: string }[]
 ): ShaderSemanticsInfo[] {
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
 
@@ -1881,12 +1881,26 @@ function buildTextureSemanticInfo(
         break;
     }
 
+    // Select the appropriate dummy texture based on the defaultTexture setting
+    let dummyTexture = engine.dummyTextures.dummyWhiteTexture;
+    switch (textureInfo.defaultTexture) {
+      case 'dummyBlackTexture':
+        dummyTexture = engine.dummyTextures.dummyBlackTexture;
+        break;
+      case 'dummyBlueTexture':
+        dummyTexture = engine.dummyTextures.dummyBlueTexture;
+        break;
+      default: // dummyWhiteTexture
+        dummyTexture = engine.dummyTextures.dummyWhiteTexture;
+        break;
+    }
+
     additionalShaderSemanticInfo.push({
       semantic: textureInfo.name,
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: shaderStage,
-      initialValue: [-1, engine.dummyTextures.dummyWhiteTexture, sampler],
+      initialValue: [-1, dummyTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
