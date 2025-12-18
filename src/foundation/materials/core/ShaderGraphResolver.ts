@@ -377,7 +377,20 @@ export class ShaderGraphResolver {
     // Key format: "${shaderNodeUid}_${outputName}" to track each output separately
     const existingOutputsVarName: Map<string, string> = new Map();
 
-    // Start from index 0 to process all nodes, including those without input connections
+    // Pre-initialize arrays for all nodes to avoid undefined access
+    for (let i = 0; i < shaderNodes.length; i++) {
+      varInputNames[i] = [];
+      varOutputNames[i] = [];
+    }
+
+    // First pass: collect all output variable names
+    // This ensures existingOutputsVarName is fully populated before input processing
+    // Fixes timing issue where a consumer node is processed before its producer
+    for (let i = 0; i < shaderNodes.length; i++) {
+      this.__collectOutputsForNode(i, shaderNodes, varOutputNames, existingOutputs, existingOutputsVarName);
+    }
+
+    // Second pass: process all input connections using the collected output variable names
     for (let i = 0; i < shaderNodes.length; i++) {
       collectedShaderBody += this.__collectInputsForNode(
         engine,
@@ -389,8 +402,6 @@ export class ShaderGraphResolver {
         existingOutputsVarName,
         isVertexStage
       );
-
-      this.__collectOutputsForNode(i, shaderNodes, varOutputNames, existingOutputs, existingOutputsVarName);
     }
 
     return { varInputNames, varOutputNames, collectedShaderBody };
@@ -440,7 +451,6 @@ export class ShaderGraphResolver {
         existingInputs
       );
 
-      shaderBody += rowStr;
       // Use outputNameOfPrev to get the correct variable name for this specific output
       const outputKey = `${inputConnection.shaderNodeUid}_${inputConnection.outputNameOfPrev}`;
       const existVarName = existingOutputsVarName.get(outputKey);
@@ -452,6 +462,12 @@ export class ShaderGraphResolver {
       const isFragmentConsumingVertex =
         !isVertexStage && inputNode.getShaderStage() === 'Vertex' && shaderNode.getShaderStage() === 'Fragment';
       const usedVarName = isFragmentConsumingVertex ? varName : existVarName || varName;
+
+      // Only add declaration to shaderBody if we're using varName (not an existing variable)
+      // This prevents declaring unused variables when reusing an existing variable
+      if (usedVarName === varName) {
+        shaderBody += rowStr;
+      }
       varInputNames[nodeIndex].push(usedVarName);
     }
 
@@ -613,7 +629,10 @@ export class ShaderGraphResolver {
     const prevShaderNode = shaderNodes[nodeIndex - 1];
     if (!prevShaderNode) return;
 
-    for (let j = nodeIndex; j < shaderNodes.length; j++) {
+    // Check ALL nodes for connections from prevShaderNode, not just those at nodeIndex or later.
+    // This fixes the issue where a consumer node comes before the producer in topological sort
+    // (e.g., when a Neutral-stage node resolved to Vertex consumes from a Vertex-stage node).
+    for (let j = 0; j < shaderNodes.length; j++) {
       const targetShaderNode = shaderNodes[j];
       const targetNodeInputConnections = targetShaderNode.inputConnections;
 
