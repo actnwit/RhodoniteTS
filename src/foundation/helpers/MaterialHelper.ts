@@ -2051,6 +2051,8 @@ function createNodeBasedCustomMaterial(
 /**
  * Changes the material assigned to a specific primitive on an entity.
  * This function updates the primitive's material and triggers necessary render state updates.
+ * Translucency properties (isTranslucent, alphaMode) are preserved from the old material
+ * to maintain proper rendering behavior for transmission and other transparent materials.
  *
  * @param entity - The mesh renderer entity containing the primitive
  * @param primitive - The primitive to change the material for
@@ -2058,6 +2060,16 @@ function createNodeBasedCustomMaterial(
  */
 function changeMaterial(entity: IMeshRendererEntityMethods, primitive: Primitive, material: Material) {
   const meshRendererComponent = entity.getMeshRenderer()!;
+
+  // Preserve translucency properties from the old material
+  // This is important for transmission materials (KHR_materials_transmission) to ensure
+  // they continue to be rendered in the correct render pass after material change
+  const oldMaterial = primitive.material;
+  if (oldMaterial != null) {
+    material.isTranslucent = oldMaterial.isTranslucent;
+    material.alphaMode = oldMaterial.alphaMode;
+  }
+
   primitive.material = material;
   meshRendererComponent.moveStageTo(ProcessStage.Load);
 }
