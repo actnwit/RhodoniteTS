@@ -41,10 +41,10 @@ export class PbrShaderShaderNode extends AbstractShaderNode {
     this.__inputs.push(
       new Socket('baseColor', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
+    this.__inputs.push(new Socket('metallic', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.0)));
     this.__inputs.push(
       new Socket('roughness', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.5))
     );
-    this.__inputs.push(new Socket('metallic', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.0)));
     this.__inputs.push(
       new Socket('occlusionProps', CompositionType.OcclusionProps, ComponentType.Unknown, {
         // Note: Property order must match GLSL/WGSL struct field order

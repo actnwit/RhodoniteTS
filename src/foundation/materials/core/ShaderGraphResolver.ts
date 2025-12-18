@@ -44,8 +44,8 @@ import { LessOrEqualShaderNode } from '../nodes/LessOrEqualShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
+import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NotEqualShaderNode } from '../nodes/NotEqualShaderNode';
 import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
@@ -678,7 +678,10 @@ export class ShaderGraphResolver {
       // Reorder output variables to match the output socket order and fill missing ones with dummy variables
       // This ensures function calls are generated with arguments in the correct order
       const outputs = shaderNode.getOutputs();
-      if (varOutputNames[i].length !== outputs.length) {
+      // Always reorder when there are outputs to ensure correct argument order in function calls
+      // Previously this only triggered when varOutputNames.length !== outputs.length, which missed
+      // cases where all outputs were connected but in wrong order due to connection processing order
+      if (outputs.length > 0) {
         // Build a map from output name to variable name
         const outputNameToVarName: Map<string, string> = new Map();
         const nodeUidPattern = `_${shaderNode.shaderNodeUid}_to_`;

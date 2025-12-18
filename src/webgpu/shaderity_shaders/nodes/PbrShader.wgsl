@@ -1,6 +1,6 @@
 fn pbrShader(
   positionInWorld: vec4<f32>, normalInWorld: vec3<f32>, geomNormalInWorld: vec3<f32>,
-  baseColor: vec4<f32>, perceptualRoughness: f32, metallic: f32,
+  baseColor: vec4<f32>, metallic: f32, perceptualRoughness: f32,
   occlusionProps: OcclusionProps,
   emissiveProps: EmissiveProps,
   ior: f32,

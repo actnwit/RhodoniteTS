@@ -1,6 +1,6 @@
 void pbrShader(
   in vec4 positionInWorld, in vec3 normalInWorld, in vec3 geomNormalInWorld,
-  in vec4 baseColor, in float perceptualRoughness, in float metallic,
+  in vec4 baseColor, in float metallic, in float perceptualRoughness,
   in OcclusionProps occlusionProps,
   in EmissiveProps emissiveProps,
   in float ior,
