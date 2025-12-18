@@ -1794,9 +1794,9 @@ function reuseOrRecreateCustomMaterial(
   if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
     materialContent = new CustomMaterialContent(engine, {
       name: materialName,
-      isSkinning: options.isSkinning ?? false,
-      isLighting: options.isLighting ?? false,
-      isMorphing: options.isMorphing ?? false,
+      isSkinning: options.isSkinning ?? true,
+      isLighting: options.isLighting ?? true,
+      isMorphing: options.isMorphing ?? true,
       vertexShaderWebGpu: {
         code: vertexShaderStr,
         shaderStage: 'vertex',
@@ -1813,9 +1813,9 @@ function reuseOrRecreateCustomMaterial(
   } else {
     materialContent = new CustomMaterialContent(engine, {
       name: materialName,
-      isSkinning: options.isSkinning ?? false,
-      isLighting: options.isLighting ?? false,
-      isMorphing: options.isMorphing ?? false,
+      isSkinning: options.isSkinning ?? true,
+      isLighting: options.isLighting ?? true,
+      isMorphing: options.isMorphing ?? true,
       vertexShader: {
         code: vertexShaderStr,
         shaderStage: 'vertex',
