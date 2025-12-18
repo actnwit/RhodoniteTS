@@ -44,8 +44,8 @@ import { LessOrEqualShaderNode } from '../nodes/LessOrEqualShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
+import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NotEqualShaderNode } from '../nodes/NotEqualShaderNode';
 import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
@@ -443,7 +443,15 @@ export class ShaderGraphResolver {
       // Use outputNameOfPrev to get the correct variable name for this specific output
       const outputKey = `${inputConnection.shaderNodeUid}_${inputConnection.outputNameOfPrev}`;
       const existVarName = existingOutputsVarName.get(outputKey);
-      varInputNames[nodeIndex].push(existVarName || varName);
+
+      // When a Fragment-stage node consumes from a Vertex-stage node, always use the
+      // current varName (which has the varying read) instead of reusing existVarName
+      // (which may have been set by a Vertex-stage consumer without varying read).
+      const inputNode = AbstractShaderNode._shaderNodes[inputConnection.shaderNodeUid];
+      const isFragmentConsumingVertex =
+        !isVertexStage && inputNode.getShaderStage() === 'Vertex' && shaderNode.getShaderStage() === 'Fragment';
+      const usedVarName = isFragmentConsumingVertex ? varName : existVarName || varName;
+      varInputNames[nodeIndex].push(usedVarName);
     }
 
     return shaderBody;
@@ -563,11 +571,17 @@ export class ShaderGraphResolver {
     const varName = `${outputSocketOfPrev!.name}_${inputConnection.shaderNodeUid}_to_${shaderNode.shaderNodeUid}`;
 
     let rowStr = '';
-    const inputKey = `${inputNode.shaderNodeUid}_${inputConnection.outputNameOfPrev}`;
+    // When a Fragment-stage node consumes from a Vertex-stage node, use a unique key
+    // to avoid conflicts with Vertex-stage nodes that also consume the same output.
+    // This ensures varying reads are always generated for Fragment-stage consumers.
+    const isFragmentConsumingVertex =
+      !isVertexStage && inputNode.getShaderStage() === 'Vertex' && shaderNode.getShaderStage() === 'Fragment';
+    const baseInputKey = `${inputNode.shaderNodeUid}_${inputConnection.outputNameOfPrev}`;
+    const inputKey = isFragmentConsumingVertex ? `${baseInputKey}_toFragment` : baseInputKey;
 
     if (!existingInputs.has(inputKey)) {
       rowStr = CommonShaderPart.getAssignmentStatement(engine, varName, inputSocketOfThis!);
-      if (!isVertexStage && inputNode.getShaderStage() === 'Vertex' && shaderNode.getShaderStage() === 'Fragment') {
+      if (isFragmentConsumingVertex) {
         rowStr = CommonShaderPart.getAssignmentVaryingStatementInPixelShader(
           engine,
           varName,
