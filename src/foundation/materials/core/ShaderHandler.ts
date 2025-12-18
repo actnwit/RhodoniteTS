@@ -424,8 +424,6 @@ export function _setupGlobalShaderDefinitionWebGL(engine: Engine, materialTypeNa
     definitions += '#define RN_BONE_DATA_TYPE_VEC4X2_OLD\n';
   } else if (engine.config.boneDataType === BoneDataType.Vec4x1) {
     definitions += '#define RN_BONE_DATA_TYPE_VEC4X1\n';
-  } else {
-    debugger;
   }
 
   return definitions;
