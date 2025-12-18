@@ -15,7 +15,7 @@ fn main(
 
   var output : VertexOutput;
 
-  let worldMatrix = get_worldMatrix(u32(instance_ids.x));
+  let worldMatrix = get_worldMatrix(u32(instanceIds.x));
   let viewMatrix = get_viewMatrix(cameraSID);
   let projectionMatrix = get_projectionMatrix(cameraSID);
 
@@ -29,7 +29,7 @@ fn main(
     output.position = projectionMatrix * worldMatrix * position;
   }
 
-  let normalMatrix = get_normalMatrix(u32(instance_ids.x));
+  let normalMatrix = get_normalMatrix(u32(instanceIds.x));
   output.normal_inWorld = normalMatrix * normal;
 
 #ifdef RN_USE_COLOR_0

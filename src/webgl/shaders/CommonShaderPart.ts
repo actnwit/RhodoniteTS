@@ -35,6 +35,7 @@ var<private> output : VertexOutput;
 fn main(
 ${vertexInputWGSL.code}
 ) -> VertexOutput {
+  output.instanceIds = instanceIds;
 `;
         return str;
       }
@@ -43,14 +44,20 @@ var<private> rt0: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 1.0);
 @fragment
 fn main(
   input: VertexOutput,
-  @builtin(front_facing) isFront: bool,
 ) -> @location(0) vec4<f32> {
 `;
       return str;
     }
+
+    if (isVertexStage) {
+      return `
+void main() {
+  v_instanceIds = a_instanceIds;
+`;
+    }
     return `
 void main() {
-`;
+  `;
   }
 
   /**
@@ -76,17 +83,17 @@ void main() {
     }
     return `
 }
-    `;
+`;
   }
 
   static getMaterialSIDForWebGL() {
     return `
   #ifdef RN_IS_DATATEXTURE_MODE
     uint materialSID = uint(u_currentComponentSIDs[0]); // index 0 data is the materialSID
-  #else
+#else
     uint materialSID = 0u;
-  #endif
-  `;
+#endif
+`;
   }
 
   /**
@@ -148,6 +155,7 @@ in vec2 a_texcoord_2;
 in uvec4 a_joint;
 in vec4 a_weight;
 in vec4 a_baryCentricCoord;
+flat out uvec4 v_instanceIds;
 `;
     vertexShaderPrerequisites += `
 uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
@@ -218,6 +226,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
       const flatAttr = varyings[i].needsFlat ? ' @interpolate(flat)' : '';
       varyingVariables += `@location(${i})${flatAttr} ${varyings[i].name}: ${varyings[i].type},\n`;
     }
+    varyingVariables += `@location(${varyings.length}) @interpolate(flat) instanceIds: vec4<u32>,`;
 
     return varyingVariables;
   }
@@ -242,6 +251,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
 struct VertexOutput {
   @builtin(position) position : vec4<f32>,
   ${varyingVariables}
+  @builtin(front_facing) isFront: bool,
 }
 
 /* shaderity: @{prerequisites} */
@@ -260,10 +270,11 @@ struct VertexOutput {
       #version 300 es
       precision highp float;
       precision highp int;
-      /* shaderity: @{definitions} */
+/* shaderity: @{definitions} */
       #define RN_IS_NODE_SHADER
-      /* shaderity: @{prerequisites} */
-      `;
+  /* shaderity: @{prerequisites} */
+      flat in uvec4 v_instanceIds;
+`;
     pixelShaderPrerequisites += '/* shaderity: @{getters} */';
     pixelShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
     pixelShaderPrerequisites += '/* shaderity: @{opticalDefinition} */';

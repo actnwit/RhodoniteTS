@@ -21,7 +21,7 @@ import type { IEntity } from '../core';
 import type { ShaderSemanticsName } from '../definitions';
 import { AnimationInterpolation } from '../definitions';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
-import { MaterialHelper } from '../helpers/MaterialHelper';
+import { MaterialHelper, type PbrUberMaterialOptions } from '../helpers/MaterialHelper';
 import type { Material } from '../materials/core/Material';
 import { AnimatedScalar } from '../math/AnimatedScalar';
 import { Scalar } from '../math/Scalar';
@@ -89,29 +89,27 @@ export class RhodoniteImportExtension {
     engine: Engine,
     gltfModel: RnM2,
     materialJson: RnM2Material,
-    currentMaterial: Material,
     rnTextures: Texture[],
-    rnSamplers: Sampler[]
-  ): Material {
+    rnSamplers: Sampler[],
+    options: PbrUberMaterialOptions
+  ): Material | undefined {
     const EXTENSION_NAME = 'RHODONITE_materials_node';
     const extension = materialJson.extensions?.[EXTENSION_NAME] as RnM2ExtensionRhodoniteMaterialsNode | undefined;
 
     if (!extension?.shaderNodeJson) {
       Logger.default.warn('RHODONITE_materials_node: No shader node JSON loaded for material');
-      return currentMaterial;
+      return undefined;
     }
 
     // Create custom material using MaterialHelper.createNodeBasedCustomMaterial
-    const result = MaterialHelper.createNodeBasedCustomMaterial(
-      engine,
-      currentMaterial,
-      extension.shaderNodeJson as ShaderNodeJson,
-      { maxInstancesNumber: 1 }
-    );
+    const result = MaterialHelper.createNodeBasedCustomMaterial(engine, extension.shaderNodeJson as ShaderNodeJson, {
+      ...options,
+      maxInstancesNumber: 1,
+    });
 
     if (!result) {
       Logger.default.error('RHODONITE_materials_node: Failed to create node-based material');
-      return currentMaterial;
+      return undefined;
     }
 
     const newMaterial = result.material;

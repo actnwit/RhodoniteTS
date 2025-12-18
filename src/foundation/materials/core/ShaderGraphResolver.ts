@@ -13,6 +13,7 @@ import { Logger } from '../../misc/Logger';
 import type { Engine } from '../../system/Engine';
 import { EngineState } from '../../system/EngineState';
 import { AddShaderNode } from '../nodes/AddShaderNode';
+import { AlphaTestShaderNode } from '../nodes/AlphaTestShaderNode';
 import { AndShaderNode } from '../nodes/AndShaderNode';
 import { AttributeColorShaderNode } from '../nodes/AttributeColorShaderNode';
 import { AttributeInstanceIdsShaderNode } from '../nodes/AttributeInstanceIdsShaderNode';
@@ -47,6 +48,8 @@ import { NotEqualShaderNode } from '../nodes/NotEqualShaderNode';
 import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
+import { PbrBaseColorPropsNode } from '../nodes/PbrBaseColorPropsNode';
+import { PbrNormalPropsShaderNode } from '../nodes/PbrNormalPropsNode';
 import { PbrShaderNode } from '../nodes/PbrShaderNode';
 import { PbrSpecularPropsNode } from '../nodes/PbrSpecularPropsNode';
 import { PremultipliedAlphaShaderNode } from '../nodes/PremultipliedAlphaShaderNode';
@@ -57,7 +60,7 @@ import { SinShaderNode } from '../nodes/SinShaderNode';
 import { SmoothStepShaderNode } from '../nodes/SmoothStepShaderNode';
 import { SplitVectorShaderNode } from '../nodes/SplitVectorShaderNode';
 import { StepShaderNode } from '../nodes/StepShaderNode';
-import { TextureShaderNode } from '../nodes/TextureShaderNode';
+import { Texture2DShaderNode } from '../nodes/Texture2DShaderNode';
 import { TimeShaderNode } from '../nodes/TimeShaderNode';
 import { TransformShaderNode } from '../nodes/TransformShaderNode';
 import { UniformDataShaderNode } from '../nodes/UniformDataShaderNode';
@@ -632,6 +635,7 @@ export class ShaderGraphResolver {
     isVertexStage: boolean
   ): string {
     let shaderBody = '';
+    let dummyVarCounter = 0;
 
     for (let i = 0; i < shaderNodes.length; i++) {
       const shaderNode = shaderNodes[i];
@@ -650,6 +654,49 @@ export class ShaderGraphResolver {
       }
       if (varOutputNames[i] == null) {
         varOutputNames[i] = [];
+      }
+
+      // Reorder output variables to match the output socket order and fill missing ones with dummy variables
+      // This ensures function calls are generated with arguments in the correct order
+      const outputs = shaderNode.getOutputs();
+      if (varOutputNames[i].length !== outputs.length) {
+        // Build a map from output name to variable name
+        const outputNameToVarName: Map<string, string> = new Map();
+        const nodeUidPattern = `_${shaderNode.shaderNodeUid}_to_`;
+        for (const varName of varOutputNames[i]) {
+          // Variable name format: ${outputName}_${shaderNodeUid}_to_${targetNodeUid}
+          const splitIndex = varName.indexOf(nodeUidPattern);
+          if (splitIndex !== -1) {
+            const outputName = varName.substring(0, splitIndex);
+            outputNameToVarName.set(outputName, varName);
+          }
+        }
+
+        // Create ordered output variable names array matching output socket order
+        const orderedOutputVarNames: string[] = [];
+        const isWebGPU = engine.engineState.currentProcessApproach === ProcessApproach.WebGPU;
+        for (let j = 0; j < outputs.length; j++) {
+          const output = outputs[j];
+          const existingVarName = outputNameToVarName.get(output.name);
+          if (existingVarName) {
+            orderedOutputVarNames.push(existingVarName);
+          } else {
+            // Generate dummy variable for unconnected output
+            const type = isWebGPU
+              ? output.compositionType.toWGSLType(output.componentType)
+              : output.compositionType.getGlslStr(output.componentType);
+            const dummyVarName = `dummy${type.replace(/[<>]/g, '')}_${dummyVarCounter++}`;
+
+            // Declare the dummy variable
+            if (isWebGPU) {
+              shaderBody += `var ${dummyVarName}: ${type};\n`;
+            } else {
+              shaderBody += `${type} ${dummyVarName};\n`;
+            }
+            orderedOutputVarNames.push(dummyVarName);
+          }
+        }
+        varOutputNames[i] = orderedOutputVarNames;
       }
 
       const functionName = shaderNode.getShaderFunctionNameDerivative(engine);
@@ -790,7 +837,13 @@ export class ShaderGraphResolver {
   public static generateShaderCodeFromJson(
     engine: Engine,
     json: ShaderNodeJson
-  ): { vertexShader: string; pixelShader: string; textureInfos: { name: string; stage: string }[] } | undefined {
+  ):
+    | {
+        vertexShader: string;
+        pixelShader: string;
+        textureInfos: { name: string; stage: string; defaultTexture: string }[];
+      }
+    | undefined {
     const { nodeInstances, textureInfos } = constructNodes(json);
     const constructedNodes = Object.values(nodeInstances);
     const nodes = this.__sortTopologically(constructedNodes);
@@ -986,12 +1039,12 @@ function filterNodesForVarying(nodes: AbstractShaderNode[], endNodeName: string)
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: This function handles many shader node types and requires a large switch statement
 function constructNodes(json: ShaderNodeJson): {
   nodeInstances: Record<string, AbstractShaderNode>;
-  textureInfos: { name: string; stage: string }[];
+  textureInfos: { name: string; stage: string; defaultTexture: string }[];
 } {
   // Create Node Instances
   const nodeInstances: Record<string, AbstractShaderNode> = {};
   const nodes: Record<string, any> = {};
-  const textureInfos: { name: string; stage: string }[] = [];
+  const textureInfos: { name: string; stage: string; defaultTexture: string }[] = [];
   for (const node of json.nodes) {
     nodes[node.id] = node;
     switch (node.name) {
@@ -1083,12 +1136,15 @@ function constructNodes(json: ShaderNodeJson): {
         break;
       }
       case 'Texture2D': {
-        const nodeInstance = new TextureShaderNode(CompositionType.Texture2D);
+        const nodeInstance = new Texture2DShaderNode();
         const textureName = node.controls.name.value;
         const shaderStage = node.controls.shaderStage.value;
+        // Get the default texture type from the node control (defaults to dummyWhiteTexture if not specified)
+        const defaultTexture = node.controls.defaultTexture?.value ?? 'dummyWhiteTexture';
         nodeInstance.setTextureName(textureName);
         nodeInstance.setShaderStage(shaderStage);
-        textureInfos.push({ name: textureName, stage: shaderStage });
+        nodeInstance.setSrgbFlag(node.controls.sRGB?.value ?? true);
+        textureInfos.push({ name: textureName, stage: shaderStage, defaultTexture });
         nodeInstances[node.id] = nodeInstance;
         break;
       }
@@ -1645,6 +1701,18 @@ function constructNodes(json: ShaderNodeJson): {
         nodeInstances[node.id] = nodeInstance;
         break;
       }
+      case 'PbrBaseColorProps': {
+        const nodeInstance = new PbrBaseColorPropsNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'PbrNormalProps': {
+        const nodeInstance = new PbrNormalPropsShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
       case 'PbrSpecularProps': {
         const nodeInstance = new PbrSpecularPropsNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
@@ -1653,6 +1721,12 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'PremultipliedAlpha': {
         const nodeInstance = new PremultipliedAlphaShaderNode(ComponentType.Float);
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'AlphaTest': {
+        const nodeInstance = new AlphaTestShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;

@@ -30,9 +30,6 @@ export class PbrShaderNode extends AbstractShaderNode {
     });
 
     this.__inputs.push(
-      new Socket('instanceIds', CompositionType.Vec4, ComponentType.UnsignedInt, Vector4.fromCopy4(0, 0, 0, 0))
-    );
-    this.__inputs.push(
       new Socket('positionInWorld', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(0, 0, 0, 1))
     );
     this.__inputs.push(

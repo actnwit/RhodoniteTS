@@ -82,6 +82,7 @@ import { Vector2 } from '../math/Vector2';
 import { Vector4 } from '../math/Vector4';
 import { VectorN } from '../math/VectorN';
 import { DataUtil } from '../misc/DataUtil';
+import { Is } from '../misc/Is';
 import type { RenderPass } from '../renderer/RenderPass';
 import type { Engine } from '../system/Engine';
 import { EngineState } from '../system/EngineState';
@@ -124,12 +125,12 @@ function createMaterial(
  */
 function reuseOrRecreateMaterial(
   engine: Engine,
-  currentMaterial: Material,
   materialContent: AbstractMaterialContent,
-  materialCountPerBufferView: Count
+  materialCountPerBufferView: Count,
+  currentMaterial?: Material
 ): Material {
   let material = currentMaterial;
-  if (engine.materialRepository.isMaterialCompatible(material, materialContent)) {
+  if (Is.exist(material) && engine.materialRepository.isMaterialCompatible(material, materialContent)) {
     material._materialContent = materialContent;
     material.makeShadersInvalidate();
     return material;
@@ -170,6 +171,30 @@ function recreateMaterial(
   const material = engine.materialRepository.createMaterial(engine, materialSemanticsVariantName, materialContent);
   return material;
 }
+
+export type PbrUberMaterialOptions = {
+  isPbr?: boolean;
+  additionalShaderSemanticInfo?: ShaderSemanticsInfo[];
+  additionalName?: string;
+  isMorphing?: boolean;
+  isSkinning?: boolean;
+  isLighting?: boolean;
+  isOcclusion?: boolean;
+  isEmissive?: boolean;
+  isClearCoat?: boolean;
+  isTransmission?: boolean;
+  isVolume?: boolean;
+  isSheen?: boolean;
+  isSpecular?: boolean;
+  isIridescence?: boolean;
+  isAnisotropy?: boolean;
+  isDispersion?: boolean;
+  isEmissiveStrength?: boolean;
+  isDiffuseTransmission?: boolean;
+  isShadow?: boolean;
+  useNormalTexture?: boolean;
+  maxInstancesNumber?: Count;
+};
 
 /**
  * Creates a PBR (Physically Based Rendering) Uber material with extensive feature support.
@@ -220,7 +245,7 @@ function createPbrUberMaterial(
     isShadow = false,
     useNormalTexture = true,
     maxInstancesNumber = engine.config.materialCountPerBufferView,
-  } = {}
+  }: PbrUberMaterialOptions = {}
 ) {
   const materialName = `PbrUber_${additionalName}_`;
 
@@ -1658,30 +1683,32 @@ function createMToon1Material(
  */
 function reuseOrRecreateCustomMaterial(
   engine: Engine,
-  currentMaterial: Material,
   vertexShaderStr: string,
   pixelShaderStr: string,
-  {
-    maxInstancesNumber = engine.config.materialCountPerBufferView,
-    isPbr = false,
-    isSkinning = true,
-    isLighting = true,
-    isMorphing = true,
-    isShadow = false,
-    additionalShaderSemanticInfo = [] as ShaderSemanticsInfo[],
-  } = {}
+  options: PbrUberMaterialOptions = {},
+  currentMaterial?: Material
 ) {
   const hash = DataUtil.toCRC32(vertexShaderStr + pixelShaderStr);
   const materialName = `Custom_${hash}`;
 
-  const definitions = [];
-  if (isPbr) {
-    definitions.push('RN_USE_PBR');
+  // Create a copy of the Set to avoid mutating the original material's shader defines
+  // if the material is not compatible and a new one needs to be created
+  const definitions = currentMaterial ? new Set(currentMaterial.getShaderDefines()) : new Set<string>();
+  if (options.isPbr) {
+    definitions.add('RN_USE_PBR');
+  } else {
+    definitions.delete('RN_USE_PBR');
   }
-  if (isLighting) {
-    definitions.push('RN_IS_LIGHTING');
-    if (isShadow) {
-      definitions.push('RN_USE_SHADOW_MAPPING');
+  // Create a local copy of additionalShaderSemanticInfo to avoid mutating the input options object.
+  // This prevents accumulation of duplicate shadow entries when the same options object is reused.
+  let additionalShaderSemanticInfo = options.additionalShaderSemanticInfo
+    ? [...options.additionalShaderSemanticInfo]
+    : [];
+
+  if (options.isLighting) {
+    definitions.add('RN_IS_LIGHTING');
+    if (options.isShadow) {
+      definitions.add('RN_USE_SHADOW_MAPPING');
 
       const sampler = new Sampler(engine, {
         minFilter: TextureParameter.Linear,
@@ -1749,22 +1776,27 @@ function reuseOrRecreateCustomMaterial(
         min: 0,
         max: Number.MAX_VALUE,
       });
+    } else {
+      definitions.delete('RN_USE_SHADOW_MAPPING');
     }
+  } else {
+    definitions.delete('RN_IS_LIGHTING');
+    definitions.delete('RN_USE_SHADOW_MAPPING');
   }
-  if (isSkinning) {
-    definitions.push('RN_IS_SKINNING');
+  if (options.isSkinning) {
+    definitions.add('RN_IS_SKINNING');
   }
-  if (isMorphing) {
-    definitions.push('RN_IS_MORPHING');
+  if (options.isMorphing) {
+    definitions.add('RN_IS_MORPHING');
   }
 
   let materialContent: CustomMaterialContent;
   if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
     materialContent = new CustomMaterialContent(engine, {
       name: materialName,
-      isSkinning,
-      isLighting,
-      isMorphing,
+      isSkinning: options.isSkinning ?? true,
+      isLighting: options.isLighting ?? true,
+      isMorphing: options.isMorphing ?? true,
       vertexShaderWebGpu: {
         code: vertexShaderStr,
         shaderStage: 'vertex',
@@ -1776,14 +1808,14 @@ function reuseOrRecreateCustomMaterial(
         isFragmentShader: true,
       },
       additionalShaderSemanticInfo,
-      definitions,
+      definitions: Array.from(definitions),
     });
   } else {
     materialContent = new CustomMaterialContent(engine, {
       name: materialName,
-      isSkinning,
-      isLighting,
-      isMorphing,
+      isSkinning: options.isSkinning ?? true,
+      isLighting: options.isLighting ?? true,
+      isMorphing: options.isMorphing ?? true,
       vertexShader: {
         code: vertexShaderStr,
         shaderStage: 'vertex',
@@ -1795,11 +1827,11 @@ function reuseOrRecreateCustomMaterial(
         isFragmentShader: true,
       },
       additionalShaderSemanticInfo,
-      definitions,
+      definitions: Array.from(definitions),
     });
   }
 
-  const material = reuseOrRecreateMaterial(engine, currentMaterial, materialContent, maxInstancesNumber);
+  const material = reuseOrRecreateMaterial(engine, materialContent, options.maxInstancesNumber ?? 1, currentMaterial);
 
   for (const definition of definitions) {
     material.addShaderDefine(definition);
@@ -1824,12 +1856,12 @@ interface NodeBasedMaterialResult {
  * Builds ShaderSemanticInfo array for textures used in the shader node graph.
  *
  * @param engine - The engine instance
- * @param textureInfos - Array of texture info objects containing name and stage
+ * @param textureInfos - Array of texture info objects containing name, stage, and defaultTexture
  * @returns Array of ShaderSemanticsInfo for textures
  */
 function buildTextureSemanticInfo(
   engine: Engine,
-  textureInfos: { name: string; stage: string }[]
+  textureInfos: { name: string; stage: string; defaultTexture: string }[]
 ): ShaderSemanticsInfo[] {
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
 
@@ -1857,12 +1889,26 @@ function buildTextureSemanticInfo(
         break;
     }
 
+    // Select the appropriate dummy texture based on the defaultTexture setting
+    let dummyTexture = engine.dummyTextures.dummyWhiteTexture;
+    switch (textureInfo.defaultTexture) {
+      case 'dummyBlackTexture':
+        dummyTexture = engine.dummyTextures.dummyBlackTexture;
+        break;
+      case 'dummyBlueTexture':
+        dummyTexture = engine.dummyTextures.dummyBlueTexture;
+        break;
+      default: // dummyWhiteTexture
+        dummyTexture = engine.dummyTextures.dummyWhiteTexture;
+        break;
+    }
+
     additionalShaderSemanticInfo.push({
       semantic: textureInfo.name,
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: shaderStage,
-      initialValue: [-1, engine.dummyTextures.dummyWhiteTexture, sampler],
+      initialValue: [-1, dummyTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -1879,14 +1925,14 @@ function buildTextureSemanticInfo(
  */
 function addPbrIblSemanticInfo(engine: Engine, additionalShaderSemanticInfo: ShaderSemanticsInfo[]) {
   // Create a sampler for cube textures
-  const cubeTextureSampler = new Sampler(engine, {
+  const sampler = new Sampler(engine, {
     minFilter: TextureParameter.LinearMipmapLinear,
     magFilter: TextureParameter.Linear,
     wrapS: TextureParameter.ClampToEdge,
     wrapT: TextureParameter.ClampToEdge,
     wrapR: TextureParameter.ClampToEdge,
   });
-  cubeTextureSampler.create();
+  sampler.create();
 
   const shaderStage = ShaderType.VertexAndPixelShader;
 
@@ -1895,7 +1941,7 @@ function addPbrIblSemanticInfo(engine: Engine, additionalShaderSemanticInfo: Sha
     componentType: ComponentType.Int,
     compositionType: CompositionType.TextureCube,
     stage: shaderStage,
-    initialValue: [-1, engine.dummyTextures.dummyBlackCubeTexture, cubeTextureSampler],
+    initialValue: [-1, engine.dummyTextures.dummyBlackCubeTexture, sampler],
     min: 0,
     max: Number.MAX_VALUE,
     isInternalSetting: true,
@@ -1906,7 +1952,7 @@ function addPbrIblSemanticInfo(engine: Engine, additionalShaderSemanticInfo: Sha
     componentType: ComponentType.Int,
     compositionType: CompositionType.TextureCube,
     stage: shaderStage,
-    initialValue: [-1, engine.dummyTextures.dummyBlackCubeTexture, cubeTextureSampler],
+    initialValue: [-1, engine.dummyTextures.dummyBlackCubeTexture, sampler],
     min: 0,
     max: Number.MAX_VALUE,
     isInternalSetting: true,
@@ -1943,6 +1989,15 @@ function addPbrIblSemanticInfo(engine: Engine, additionalShaderSemanticInfo: Sha
     max: Number.MAX_VALUE,
     isInternalSetting: true,
   });
+  additionalShaderSemanticInfo.push({
+    semantic: 'backBufferTexture',
+    componentType: ComponentType.Int,
+    compositionType: CompositionType.Texture2D,
+    stage: shaderStage,
+    initialValue: [-1, engine.dummyTextures.dummyBlackTexture, sampler],
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
 }
 
 /**
@@ -1959,9 +2014,9 @@ function addPbrIblSemanticInfo(engine: Engine, additionalShaderSemanticInfo: Sha
  */
 function createNodeBasedCustomMaterial(
   engine: Engine,
-  currentMaterial: Material,
   shaderNodeJson: ShaderNodeJson,
-  { maxInstancesNumber = 1 } = {}
+  options: PbrUberMaterialOptions = {},
+  currentMaterial?: Material
 ): NodeBasedMaterialResult | null {
   // Generate shader code from the shader node JSON
   const shaderCode = ShaderGraphResolver.generateShaderCodeFromJson(engine, shaderNodeJson);
@@ -1987,20 +2042,22 @@ function createNodeBasedCustomMaterial(
   }
 
   // Create custom material using reuseOrRecreateCustomMaterial
+
+  const basicOptions = {
+    isSkinning: true,
+    isLighting: true,
+    isMorphing: true,
+    isShadow: hasClassicShaderNode || hasPbrShaderNode,
+    isPbr: hasPbrShaderNode,
+    additionalName: '',
+    additionalShaderSemanticInfo,
+  };
   const material = reuseOrRecreateCustomMaterial(
     engine,
-    currentMaterial,
     shaderCode.vertexShader,
     shaderCode.pixelShader,
-    {
-      maxInstancesNumber,
-      isSkinning: true,
-      isLighting: true,
-      isMorphing: true,
-      isShadow: hasClassicShaderNode || hasPbrShaderNode,
-      isPbr: hasPbrShaderNode,
-      additionalShaderSemanticInfo,
-    }
+    { ...basicOptions, ...options },
+    currentMaterial
   );
 
   // Store the shader node JSON for later retrieval (e.g., in editor or export)
@@ -2016,6 +2073,8 @@ function createNodeBasedCustomMaterial(
 /**
  * Changes the material assigned to a specific primitive on an entity.
  * This function updates the primitive's material and triggers necessary render state updates.
+ * Translucency properties (isTranslucent, alphaMode) and backBufferTexture are preserved
+ * from the old material to maintain proper rendering behavior for transmission materials.
  *
  * @param entity - The mesh renderer entity containing the primitive
  * @param primitive - The primitive to change the material for
@@ -2023,6 +2082,16 @@ function createNodeBasedCustomMaterial(
  */
 function changeMaterial(entity: IMeshRendererEntityMethods, primitive: Primitive, material: Material) {
   const meshRendererComponent = entity.getMeshRenderer()!;
+
+  // Preserve translucency properties from the old material
+  // This is important for transmission materials (KHR_materials_transmission) to ensure
+  // they continue to be rendered in the correct render pass after material change
+  const oldMaterial = primitive.material;
+  if (oldMaterial != null) {
+    material.isTranslucent = oldMaterial.isTranslucent;
+    material.alphaMode = oldMaterial.alphaMode;
+  }
+
   primitive.material = material;
   meshRendererComponent.moveStageTo(ProcessStage.Load);
 }

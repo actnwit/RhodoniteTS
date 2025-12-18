@@ -310,9 +310,13 @@ fn inverse4x4(m: mat4x4<f32>) -> mat4x4<f32> {
     return inv;
 }
 
-#ifdef RN_IS_PIXEL_SHADER
+
+var<private> g_isFront: bool = true;
+
+// getTBN: Compute tangent-to-world matrix for normal mapping
 #ifdef RN_USE_TANGENT
-  fn getTBN(normal_inWorld: vec3f, tangent_inWorld_: vec3f, binormal_inWorld_: vec3f, viewVector: vec3f, texcoord: vec2f, isFront: bool) -> mat3x3<f32> {
+  // When tangent attributes are available
+  fn getTBN(normal_inWorld: vec3f, tangent_inWorld_: vec3f, binormal_inWorld_: vec3f, viewVector: vec3f, texcoord: vec2f) -> mat3x3<f32> {
     let tangent_inWorld = normalize(tangent_inWorld_);
     let binormal_inWorld = normalize(binormal_inWorld_);
     let tbnMat_tangent_to_world = mat3x3<f32>(tangent_inWorld, binormal_inWorld, normal_inWorld);
@@ -320,10 +324,12 @@ fn inverse4x4(m: mat4x4<f32>) -> mat4x4<f32> {
     return tbnMat_tangent_to_world;
   }
 #else
+  #ifdef RN_IS_PIXEL_SHADER
     // This is based on http://www.thetenthplanet.de/archives/1180
-    fn cotangent_frame(normal_inWorld: vec3f, position: vec3f, uv_: vec2f, isFront: bool) -> mat3x3<f32> {
+    // Pixel shader can use dpdx/dpdy to compute cotangent frame
+    fn cotangent_frame(normal_inWorld: vec3f, position: vec3f, uv_: vec2f) -> mat3x3<f32> {
       var uv: vec2f;
-      if (isFront) {
+      if (g_isFront) {
         uv = uv_;
       } else {
         uv = -uv_;
@@ -347,12 +353,33 @@ fn inverse4x4(m: mat4x4<f32>) -> mat4x4<f32> {
       return mat3x3<f32>(normalize(tangent * invMat), normalize(bitangent * invMat), normal_inWorld);
     }
 
-    fn getTBN(normal_inWorld: vec3f, tangent_inWorld: vec3f, binormal_inWorld: vec3f, viewVector: vec3f, texcoord: vec2f, isFront: bool) -> mat3x3<f32> {
-      let tbnMat_tangent_to_world = cotangent_frame(normal_inWorld, -viewVector, texcoord, isFront);
+    fn getTBN(normal_inWorld: vec3f, tangent_inWorld: vec3f, binormal_inWorld: vec3f, viewVector: vec3f, texcoord: vec2f) -> mat3x3<f32> {
+      let tbnMat_tangent_to_world = cotangent_frame(normal_inWorld, -viewVector, texcoord);
 
       return tbnMat_tangent_to_world;
     }
-#endif
+  #else // RN_IS_VERTEX_SHADER
+    // Vertex shader fallback: Generate TBN from normal when tangent attributes are not available
+    // This is an approximation - it generates a consistent tangent space from the normal vector
+    fn getTBN(normal_inWorld: vec3f, tangent_inWorld_: vec3f, binormal_inWorld_: vec3f, viewVector: vec3f, texcoord: vec2f) -> mat3x3<f32> {
+      let n = normalize(normal_inWorld);
+
+      // Choose a helper vector that is not parallel to the normal
+      // Use (0, 1, 0) unless the normal is nearly parallel to it, then use (1, 0, 0)
+      var helper: vec3f;
+      if (abs(n.y) < 0.999) {
+        helper = vec3f(0.0, 1.0, 0.0);
+      } else {
+        helper = vec3f(1.0, 0.0, 0.0);
+      }
+
+      // Compute tangent and bitangent using cross products
+      let tangent = normalize(cross(helper, n));
+      let bitangent = normalize(cross(n, tangent));
+
+      return mat3x3<f32>(tangent, bitangent, n);
+    }
+  #endif
 #endif
 
 fn srgbToLinear(srgbColor: vec3f) -> vec3f {
@@ -377,6 +404,7 @@ fn edge_ratio(bary3: vec3f, wireframeWidthInner: f32, wireframeWidthRelativeScal
 
 
 var<private> a_instanceIds: vec4<u32> = vec4<u32>(0u, 0u, 0u, 0u);
+var<private> g_instanceIds: vec4<u32> = vec4<u32>(0u, 0u, 0u, 0u);
 
 #ifdef RN_USE_POSITION_FLOAT
   var<private> a_position: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 1.0);

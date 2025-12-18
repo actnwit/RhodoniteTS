@@ -6,7 +6,7 @@ let cameraSID = uniformDrawParameters.cameraSID;
 #ifdef RN_IS_VERTEX_SHADER
 
 #ifdef RN_USE_INSTANCE
-a_instanceIds = instance_ids;
+a_instanceIds = instanceIds;
 #endif
 
 a_position = position;
@@ -48,3 +48,9 @@ a_texcoord_2 = texcoord_2;
 #endif
 
 #endif // RN_IS_VERTEX_SHADER
+
+#ifdef RN_IS_PIXEL_SHADER
+g_isFront = input.isFront;
+g_instanceIds = input.instanceIds;
+#endif // RN_IS_PIXEL_SHADER
+

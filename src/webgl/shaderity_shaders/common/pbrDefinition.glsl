@@ -255,10 +255,10 @@ vec3 volumeAttenuation(vec3 attenuationColor, float attenuationDistance, vec3 in
 }
 
 // from glTF Sample Viewer: https://github.com/KhronosGroup/glTF-Sample-Viewer
-vec3 getVolumeTransmissionRay(vec3 n, vec3 v, float thickness, float ior, uvec4 instanceIds)
+vec3 getVolumeTransmissionRay(vec3 n, vec3 v, float thickness, float ior)
 {
   vec3 refractionVector = refract(-v, normalize(n), 1.0 / ior);
-  mat4 worldMatrix = get_worldMatrix(instanceIds.x);
+  mat4 worldMatrix = get_worldMatrix(v_instanceIds.x);
 
   vec3 modelScale;
   modelScale.x = length(vec3(worldMatrix[0].xyz));
@@ -633,7 +633,6 @@ struct SpecularProps
 // lighting with a punctual light
 ////////////////////////////////////////
 vec3 lightingWithPunctualLight(
-  uvec4 instanceIds,
   Light light,
   vec3 normal_inWorld,
   vec3 viewDirection,
@@ -685,7 +684,7 @@ vec3 lightingWithPunctualLight(
 
 
 #ifdef RN_USE_TRANSMISSION
-  vec3 transmittionRay = getVolumeTransmissionRay(normal_inWorld, viewDirection, volumeProps.thickness, ior, instanceIds);
+  vec3 transmittionRay = getVolumeTransmissionRay(normal_inWorld, viewDirection, volumeProps.thickness, ior);
   light.pointToLight -= transmittionRay;
   light.direction = normalize(light.pointToLight);
   vec3 transmittedContrib = calculateRadianceTransmission(normal_inWorld, viewDirection, light.direction, alphaRoughness, baseColor, ior) * light.attenuatedIntensity;

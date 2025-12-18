@@ -338,14 +338,31 @@ export function _createProgramAsSingleOperationWebGL(
   const vertexAttributesBinding = _outputVertexAttributeBindingInfo(attributeNames, attributeSemantics);
   vertexShader += vertexAttributesBinding;
 
+  const preprocessedVertex = Shaderity.processPragma(
+    {
+      code: vertexShader,
+      shaderStage: 'vertex',
+      isFragmentShader: false,
+    },
+    true
+  );
+  const preprocessedPixel = Shaderity.processPragma(
+    {
+      code: pixelShader,
+      shaderStage: 'fragment',
+      isFragmentShader: true,
+    },
+    true
+  );
+
   const cgApiResourceRepository = engine.cgApiResourceRepository;
   shaderProgramUid = cgApiResourceRepository.createShaderProgram({
     config: engine.config,
     engine,
     material,
     primitive,
-    vertexShaderStr: vertexShader,
-    fragmentShaderStr: pixelShader,
+    vertexShaderStr: preprocessedVertex.code,
+    fragmentShaderStr: preprocessedPixel.code,
     attributeNames: attributeNames,
     attributeSemantics: attributeSemantics,
   });
@@ -539,8 +556,8 @@ export function _createProgramAsSingleOperationWebGpu(
     }
   );
 
-  const preprocessedVertex = Shaderity.processPragma(vertexShaderityObject);
-  const preprocessedPixel = Shaderity.processPragma(pixelShaderityObject);
+  const preprocessedVertex = Shaderity.processPragma(vertexShaderityObject, false);
+  const preprocessedPixel = Shaderity.processPragma(pixelShaderityObject, false);
 
   const cgApiResourceRepository = engine.cgApiResourceRepository;
   shaderProgramUid = cgApiResourceRepository.createShaderProgram({

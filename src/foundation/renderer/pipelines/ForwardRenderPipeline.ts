@@ -838,6 +838,43 @@ export class ForwardRenderPipeline extends RnObject {
   }
 
   /**
+   * Refreshes the back buffer texture on all transparent materials.
+   * This is useful when materials are dynamically changed and need to have
+   * the back buffer texture re-applied for transmission rendering.
+   *
+   * Call this method after changing materials on entities that use transmission
+   * to ensure the back buffer texture is properly set.
+   */
+  public refreshBackBufferTextureOnTransparentMaterials(): void {
+    if (this.__isSimple) {
+      return;
+    }
+    const backBufferTexture = this.__getMainFrameBufferBackBuffer()
+      .unwrapOrUndefined()
+      ?.getColorAttachedRenderTargetTexture(0);
+    const sampler = this.__oSamplerForBackBuffer.unwrapOrUndefined();
+    if (backBufferTexture == null || sampler == null) {
+      return;
+    }
+    for (const expression of this.__transparentOnlyExpressions) {
+      for (const rp of expression.renderPasses) {
+        for (const entity of rp.entities) {
+          const meshComponent = entity.tryToGetMesh();
+          if (Is.exist(meshComponent)) {
+            const mesh = meshComponent.mesh;
+            if (Is.exist(mesh)) {
+              for (let i = 0; i < mesh.getPrimitiveNumber(); i++) {
+                const primitive = mesh.getPrimitiveAt(i);
+                primitive.material.setTextureParameter('backBufferTexture', backBufferTexture, sampler);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
    * Creates and configures the initial expression for buffer clearing.
    *
    * @returns The configured initial expression

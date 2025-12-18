@@ -14,7 +14,7 @@ fn main(
 /* shaderity: @{mainPrerequisites} */
 
   var output : VertexOutput;
-  let instanceId = u32(instance_ids.x);
+  let instanceId = u32(instanceIds.x);
 
   let worldMatrix = get_worldMatrix(instanceId);
   let viewMatrix = get_viewMatrix(cameraSID);
@@ -22,8 +22,8 @@ fn main(
   var normalMatrix = get_normalMatrix(instanceId);
   let isBillboard = get_isBillboard(instanceId);
 
-  let skeletalComponentSID = i32(instance_ids.y);
-  let blendShapeComponentSID = u32(instance_ids.z);
+  let skeletalComponentSID = i32(instanceIds.y);
+  let blendShapeComponentSID = u32(instanceIds.z);
 
 
 #ifdef RN_USE_NORMAL

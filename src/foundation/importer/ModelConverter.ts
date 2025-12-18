@@ -1735,18 +1735,19 @@ export class ModelConverter {
 
   /**
    * Generates an appropriate material based on glTF material data and loader options
+   * @param engine - The engine instance
    * @param gltfModel - The glTF model data
+   * @param rnTextures - Array of loaded Rhodonite textures
+   * @param rnSamplers - Array of loaded Rhodonite samplers
    * @param materialJson - The material JSON data (optional)
-   * @param rnTextures - Array of loaded Rhodonite textures (optional, needed for node-based materials)
-   * @param rnSamplers - Array of loaded Rhodonite samplers (optional, needed for node-based materials)
    * @returns Generated material
    */
   private static __generateAppropriateMaterial(
     engine: Engine,
     gltfModel: RnM2,
-    materialJson?: RnM2Material,
-    rnTextures?: Texture[],
-    rnSamplers?: Sampler[]
+    rnTextures: Texture[],
+    rnSamplers: Sampler[],
+    materialJson?: RnM2Material
   ): Material {
     const isTranslucent = Is.exist(materialJson?.extensions?.KHR_materials_transmission);
     // if rnLoaderOptions is set something, do special deal
@@ -1783,6 +1784,31 @@ export class ModelConverter {
     const isLighting = this.__isLighting(gltfModel, materialJson);
     const additionalName = '';
 
+    const rnLoaderOptions = gltfModel.asset.extras?.rnLoaderOptions ?? {};
+    const useNormalTexture = materialJson?.normalTexture != null;
+    const maxMaterialInstanceNumber: number = engine.config.materialCountPerBufferView;
+    const pbrUberMaterialOptions = {
+      isMorphing,
+      isSkinning,
+      isLighting,
+      isOcclusion: Is.exist(materialJson?.occlusionTexture),
+      isEmissive: Is.exist(materialJson?.emissiveTexture),
+      isClearCoat: Is.exist(materialJson?.extensions?.KHR_materials_clearcoat),
+      isTransmission: Is.exist(materialJson?.extensions?.KHR_materials_transmission),
+      isVolume: Is.exist(materialJson?.extensions?.KHR_materials_volume),
+      isSheen: Is.exist(materialJson?.extensions?.KHR_materials_sheen),
+      isSpecular: Is.exist(materialJson?.extensions?.KHR_materials_specular),
+      isIridescence: Is.exist(materialJson?.extensions?.KHR_materials_iridescence),
+      isAnisotropy: Is.exist(materialJson?.extensions?.KHR_materials_anisotropy),
+      isDispersion: Is.exist(materialJson?.extensions?.KHR_materials_dispersion),
+      isEmissiveStrength: Is.exist(materialJson?.extensions?.KHR_materials_emissive_strength),
+      isDiffuseTransmission: Is.exist(materialJson?.extensions?.KHR_materials_diffuse_transmission),
+      isShadow: !!rnLoaderOptions.shadow,
+      useNormalTexture,
+      additionalName: additionalName,
+      maxInstancesNumber: maxMaterialInstanceNumber,
+    };
+
     if (Is.exist(materialJson)) {
       if (materialJson.extensions?.VRMC_materials_mtoon != null) {
         const rnLoaderOptions = gltfModel.asset.extras!.rnLoaderOptions!;
@@ -1795,56 +1821,26 @@ export class ModelConverter {
 
       // For RHODONITE_materials_node extension (node-based shader materials)
       if (RhodoniteImportExtension.hasNodeBasedMaterialExtension(materialJson)) {
-        // Create a base PBR material first
-        const maxMaterialInstanceNumber: number = engine.config.materialCountPerBufferView;
-        const baseMaterial = MaterialHelper.createPbrUberMaterial(engine, {
-          isMorphing,
-          isSkinning,
-          isLighting,
-          additionalName: '',
-          maxInstancesNumber: maxMaterialInstanceNumber,
-        });
         // Create and return node-based custom material
         const customMaterial = RhodoniteImportExtension.createNodeBasedMaterial(
           engine,
           gltfModel,
           materialJson,
-          baseMaterial,
           rnTextures ?? [],
-          rnSamplers ?? []
+          rnSamplers ?? [],
+          pbrUberMaterialOptions
         );
+        if (!customMaterial) {
+          throw new Error('Failed to create node-based custom material');
+        }
         customMaterial.isTranslucent = isTranslucent;
         return customMaterial;
       }
     }
 
-    const maxMaterialInstanceNumber: number = engine.config.materialCountPerBufferView;
     if (Number.parseFloat(gltfModel.asset?.version) >= 2) {
-      const rnLoaderOptions = gltfModel.asset.extras?.rnLoaderOptions ?? {};
       // For glTF 2
-      const _useTangentAttribute = true; //this.__useTangentAttribute(gltfModel, primitive);
-      const useNormalTexture = materialJson?.normalTexture != null;
-      const material = MaterialHelper.createPbrUberMaterial(engine, {
-        isMorphing,
-        isSkinning,
-        isLighting,
-        isOcclusion: Is.exist(materialJson?.occlusionTexture),
-        isEmissive: Is.exist(materialJson?.emissiveTexture),
-        isClearCoat: Is.exist(materialJson?.extensions?.KHR_materials_clearcoat),
-        isTransmission: Is.exist(materialJson?.extensions?.KHR_materials_transmission),
-        isVolume: Is.exist(materialJson?.extensions?.KHR_materials_volume),
-        isSheen: Is.exist(materialJson?.extensions?.KHR_materials_sheen),
-        isSpecular: Is.exist(materialJson?.extensions?.KHR_materials_specular),
-        isIridescence: Is.exist(materialJson?.extensions?.KHR_materials_iridescence),
-        isAnisotropy: Is.exist(materialJson?.extensions?.KHR_materials_anisotropy),
-        isDispersion: Is.exist(materialJson?.extensions?.KHR_materials_dispersion),
-        isEmissiveStrength: Is.exist(materialJson?.extensions?.KHR_materials_emissive_strength),
-        isDiffuseTransmission: Is.exist(materialJson?.extensions?.KHR_materials_diffuse_transmission),
-        isShadow: !!rnLoaderOptions.shadow,
-        useNormalTexture,
-        additionalName: additionalName,
-        maxInstancesNumber: maxMaterialInstanceNumber,
-      });
+      const material = MaterialHelper.createPbrUberMaterial(engine, pbrUberMaterialOptions);
       const makeOutputSrgb = this.__makeOutputSrgb(gltfModel);
       if (Is.exist(makeOutputSrgb)) {
         material.setParameter('makeOutputSrgb', makeOutputSrgb);
@@ -1931,9 +1927,9 @@ export class ModelConverter {
     const material: Material = this.__generateAppropriateMaterial(
       engine,
       gltfModel,
-      materialJson,
       rnTextures,
-      rnSamplers
+      rnSamplers,
+      materialJson
     );
     if (materialJson == null) return material;
 

@@ -7,13 +7,10 @@ import type { Engine } from '../../../foundation/system/Engine';
 import type { AttributeNames } from '../../types/CommonTypes';
 import { CommonShaderPart } from '../CommonShaderPart';
 
-export class TextureShader extends CommonShaderPart {
+export class Texture2DShader extends CommonShaderPart {
   private __variableName = '';
-  private __valueStr = '';
-  constructor(
-    private __functionName: string,
-    private __compositionType: CompositionTypeEnum
-  ) {
+  private __sRGB = true;
+  constructor(private __functionName: string) {
     super();
   }
 
@@ -21,64 +18,40 @@ export class TextureShader extends CommonShaderPart {
     this.__variableName = name;
   }
 
-  setDefaultValue(value: any) {
-    this.__valueStr = value.toString();
+  setSrgbFlag(sRGB: boolean) {
+    this.__sRGB = sRGB;
   }
 
   getVertexShaderDefinitions(engine: Engine) {
-    if (!CompositionType.isTexture(this.__compositionType)) {
-      throw new Error(`UniformTextureShader: ${this.__compositionType} is not a texture`);
-    }
-
     // WebGPU
     // Note: In vertex shaders, we must use textureSampleLevel instead of textureSample
     // because textureSample requires implicit derivatives which are only available in fragment shaders
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-      let uvStr = '';
-      if (this.__compositionType === CompositionType.Texture2D) {
-        uvStr = 'uv: vec2f';
-      } else if (this.__compositionType === CompositionType.TextureCube) {
-        uvStr = 'uv: vec3f';
-      } else if (this.__compositionType === CompositionType.Texture2DArray) {
-        uvStr = 'uv: vec2f';
-      } else {
-        throw new Error(`UniformTextureShader: ${this.__compositionType} is not a texture`);
-      }
-
       const { textureName, samplerName } = getTextureAndSamplerNames(this.__variableName);
       return `
-fn ${this.__functionName}(${uvStr}, scale: vec2f, offset: vec2f, rotation: f32, lod: f32, rgba: ptr<function, vec4<f32>>, rgb: ptr<function, vec3<f32>>, r: ptr<function, f32>, g: ptr<function, f32>, b: ptr<function, f32>, a: ptr<function, f32>) {
+fn ${this.__functionName}(uv: vec2f, scale: vec2f, offset: vec2f, rotation: f32, lod: f32, rgba: ptr<function, vec4<f32>>, rgb: ptr<function, vec3<f32>>, r: ptr<function, f32>, g: ptr<function, f32>, b: ptr<function, f32>, a: ptr<function, f32>, uvOut: ptr<function, vec2f>) {
   let materialSID = uniformDrawParameters.materialSid;
   let ${textureName}TexUv = uvTransform(scale, offset, rotation, uv);
   var lodFloat = lod;
   if (lodFloat < 0.0) {
     lodFloat = 0.0;
   }
-  let rgbaValue = textureSampleLevel(${textureName}, ${samplerName}, ${textureName}TexUv, lodFloat);
+  var rgbaValue = textureSampleLevel(${textureName}, ${samplerName}, ${textureName}TexUv, lodFloat);
+  ${this.__sRGB ? 'rgbaValue = vec4f(srgbToLinear(rgbaValue.rgb), rgbaValue.a);' : ''}
   *rgba = rgbaValue;
   *rgb = rgbaValue.rgb;
   *r = rgbaValue.r;
   *g = rgbaValue.g;
   *b = rgbaValue.b;
   *a = rgbaValue.a;
+  *uvOut = ${textureName}TexUv;
 }
 `;
     }
 
     // WebGL
-    let uvStr = '';
-    if (this.__compositionType === CompositionType.Texture2D) {
-      uvStr = 'vec2 uv';
-    } else if (this.__compositionType === CompositionType.TextureCube) {
-      uvStr = 'vec3 uv';
-    } else if (this.__compositionType === CompositionType.Texture2DArray) {
-      uvStr = 'vec2 uv';
-    } else {
-      throw new Error(`UniformTextureShader: ${this.__compositionType} is not a texture`);
-    }
-
     return `
-void ${this.__functionName}(${uvStr}, vec2 scale, vec2 offset, float rotation, float lod, out vec4 rgba, out vec3 rgb, out float r, out float g, out float b, out float a) {
+void ${this.__functionName}(vec2 uv, vec2 scale, vec2 offset, float rotation, float lod, out vec4 rgba, out vec3 rgb, out float r, out float g, out float b, out float a, out vec2 uvOut) {
   ${CommonShaderPart.getMaterialSIDForWebGL()}
   vec2 ${this.__variableName}TexUv = uvTransform(scale, offset, rotation, uv);
   float lodFloat = lod;
@@ -88,37 +61,24 @@ void ${this.__functionName}(${uvStr}, vec2 scale, vec2 offset, float rotation, f
   } else {
     rgbaValue = textureLod(u_${this.__variableName}, ${this.__variableName}TexUv, lodFloat);
   }
+  ${this.__sRGB ? 'rgbaValue.rgb = srgbToLinear(rgbaValue.rgb);' : ''}
   rgba = rgbaValue;
   rgb = rgbaValue.rgb;
   r = rgbaValue.r;
   g = rgbaValue.g;
   b = rgbaValue.b;
   a = rgbaValue.a;
+  uvOut = ${this.__variableName}TexUv;
 }
 `;
   }
 
   getPixelShaderDefinitions(engine: Engine) {
-    if (!CompositionType.isTexture(this.__compositionType)) {
-      throw new Error(`UniformTextureShader: ${this.__compositionType} is not a texture`);
-    }
-
     // WebGPU
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-      let uvStr = '';
-      if (this.__compositionType === CompositionType.Texture2D) {
-        uvStr = 'uv: vec2f';
-      } else if (this.__compositionType === CompositionType.TextureCube) {
-        uvStr = 'uv: vec3f';
-      } else if (this.__compositionType === CompositionType.Texture2DArray) {
-        uvStr = 'uv: vec2f';
-      } else {
-        throw new Error(`UniformTextureShader: ${this.__compositionType} is not a texture`);
-      }
-
       const { textureName, samplerName } = getTextureAndSamplerNames(this.__variableName);
       return `
-fn ${this.__functionName}(${uvStr}, scale: vec2f, offset: vec2f, rotation: f32, lod: f32, rgba: ptr<function, vec4<f32>>, rgb: ptr<function, vec3<f32>>, r: ptr<function, f32>, g: ptr<function, f32>, b: ptr<function, f32>, a: ptr<function, f32>) {
+fn ${this.__functionName}(uv: vec2f, scale: vec2f, offset: vec2f, rotation: f32, lod: f32, rgba: ptr<function, vec4<f32>>, rgb: ptr<function, vec3<f32>>, r: ptr<function, f32>, g: ptr<function, f32>, b: ptr<function, f32>, a: ptr<function, f32>, uvOut: ptr<function, vec2f>) {
   let materialSID = uniformDrawParameters.materialSid;
   let ${textureName}TexUv = uvTransform(scale, offset, rotation, uv);
   var lodFloat = lod;
@@ -128,30 +88,21 @@ fn ${this.__functionName}(${uvStr}, scale: vec2f, offset: vec2f, rotation: f32, 
   } else {
     rgbaValue = textureSampleLevel(${textureName}, ${samplerName}, ${textureName}TexUv, lodFloat);
   }
+  ${this.__sRGB ? 'rgbaValue = vec4f(srgbToLinear(rgbaValue.rgb), rgbaValue.a);' : ''}
   *rgba = rgbaValue;
   *rgb = rgbaValue.rgb;
   *r = rgbaValue.r;
   *g = rgbaValue.g;
   *b = rgbaValue.b;
   *a = rgbaValue.a;
+  *uvOut = ${textureName}TexUv;
 }
 `;
     }
 
     // WebGL
-    let uvStr = '';
-    if (this.__compositionType === CompositionType.Texture2D) {
-      uvStr = 'vec2 uv';
-    } else if (this.__compositionType === CompositionType.TextureCube) {
-      uvStr = 'vec3 uv';
-    } else if (this.__compositionType === CompositionType.Texture2DArray) {
-      uvStr = 'vec2 uv';
-    } else {
-      throw new Error(`UniformTextureShader: ${this.__compositionType} is not a texture`);
-    }
-
     return `
-void ${this.__functionName}(${uvStr}, vec2 scale, vec2 offset, float rotation, float lod, out vec4 rgba, out vec3 rgb, out float r, out float g, out float b, out float a) {
+void ${this.__functionName}(vec2 uv, vec2 scale, vec2 offset, float rotation, float lod, out vec4 rgba, out vec3 rgb, out float r, out float g, out float b, out float a, out vec2 uvOut) {
   ${CommonShaderPart.getMaterialSIDForWebGL()}
   vec2 ${this.__variableName}TexUv = uvTransform(scale, offset, rotation, uv);
   float lodFloat = lod;
@@ -161,12 +112,14 @@ void ${this.__functionName}(${uvStr}, vec2 scale, vec2 offset, float rotation, f
   } else {
     rgbaValue = textureLod(u_${this.__variableName}, ${this.__variableName}TexUv, lodFloat);
   }
+  ${this.__sRGB ? 'rgbaValue.rgb = srgbToLinear(rgbaValue.rgb);' : ''}
   rgba = rgbaValue;
   rgb = rgbaValue.rgb;
   r = rgbaValue.r;
   g = rgbaValue.g;
   b = rgbaValue.b;
   a = rgbaValue.a;
+  uvOut = ${this.__variableName}TexUv;
 }
 `;
   }

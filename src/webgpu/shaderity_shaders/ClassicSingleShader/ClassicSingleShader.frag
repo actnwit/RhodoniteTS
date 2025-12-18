@@ -24,7 +24,6 @@
 @fragment
 fn main (
   input: VertexOutput,
-  @builtin(front_facing) isFront: bool,
 ) -> @location(0) vec4<f32> {
 
 /* shaderity: @{mainPrerequisites} */
