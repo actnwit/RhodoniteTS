@@ -20,6 +20,7 @@ import { AttributeInstanceIdsShaderNode } from '../nodes/AttributeInstanceIdsSha
 import { AttributeJointShaderNode } from '../nodes/AttributeJointShaderNode';
 import { AttributeNormalShaderNode } from '../nodes/AttributeNormalShaderNode';
 import { AttributePositionShaderNode } from '../nodes/AttributePositionShaderNode';
+import { AttributeTangentShaderNode } from '../nodes/AttributeTangentShaderNode';
 import { AttributeTexcoordShaderNode } from '../nodes/AttributeTexcoordShaderNode';
 import { AttributeWeightShaderNode } from '../nodes/AttributeWeightShaderNode';
 import { BranchShaderNode } from '../nodes/BranchShaderNode';
@@ -42,8 +43,8 @@ import { LessOrEqualShaderNode } from '../nodes/LessOrEqualShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
+import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NotEqualShaderNode } from '../nodes/NotEqualShaderNode';
 import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
@@ -1460,6 +1461,11 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'AttributePosition': {
         const nodeInstance = new AttributePositionShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'AttributeTangent': {
+        const nodeInstance = new AttributeTangentShaderNode();
         nodeInstances[node.id] = nodeInstance;
         break;
       }
