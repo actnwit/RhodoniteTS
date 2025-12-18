@@ -44,16 +44,17 @@ import { LessOrEqualShaderNode } from '../nodes/LessOrEqualShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
 import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
+import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
 import { NotEqualShaderNode } from '../nodes/NotEqualShaderNode';
 import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
-import { PbrBaseColorPropsNode } from '../nodes/PbrBaseColorPropsNode';
-import { PbrNormalPropsShaderNode } from '../nodes/PbrNormalPropsNode';
-import { PbrShaderNode } from '../nodes/PbrShaderNode';
-import { PbrSpecularPropsNode } from '../nodes/PbrSpecularPropsNode';
+import { PbrBaseColorPropsShaderNode } from '../nodes/PbrBaseColorPropsShaderNode';
+import { PbrMetallicRoughnessPropsShaderNode } from '../nodes/PbrMetallicRoughnessPropsShaderNode';
+import { PbrNormalPropsShaderNode } from '../nodes/PbrNormalPropsShaderNode';
+import { PbrShaderShaderNode } from '../nodes/PbrShaderShaderNode';
+import { PbrSpecularPropsShaderNode } from '../nodes/PbrSpecularPropsShaderNode';
 import { PremultipliedAlphaShaderNode } from '../nodes/PremultipliedAlphaShaderNode';
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
 import { ProjectionMatrixShaderNode } from '../nodes/ProjectionMatrixShaderNode';
@@ -1719,13 +1720,13 @@ function constructNodes(json: ShaderNodeJson): {
         break;
       }
       case 'PbrShader': {
-        const nodeInstance = new PbrShaderNode();
+        const nodeInstance = new PbrShaderShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
       case 'PbrBaseColorProps': {
-        const nodeInstance = new PbrBaseColorPropsNode();
+        const nodeInstance = new PbrBaseColorPropsShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
@@ -1736,8 +1737,14 @@ function constructNodes(json: ShaderNodeJson): {
         nodeInstances[node.id] = nodeInstance;
         break;
       }
+      case 'PbrMetallicRoughnessProps': {
+        const nodeInstance = new PbrMetallicRoughnessPropsShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
       case 'PbrSpecularProps': {
-        const nodeInstance = new PbrSpecularPropsNode();
+        const nodeInstance = new PbrSpecularPropsShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;

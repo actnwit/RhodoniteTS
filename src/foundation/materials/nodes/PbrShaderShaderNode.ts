@@ -19,7 +19,7 @@ import { Socket } from '../core/Socket';
  * const outputSocket = pbrNode.getSocketOutput();
  * ```
  */
-export class PbrShaderNode extends AbstractShaderNode {
+export class PbrShaderShaderNode extends AbstractShaderNode {
   /**
    * Creates a new PbrShaderNode with the specified composition and component types.
    */

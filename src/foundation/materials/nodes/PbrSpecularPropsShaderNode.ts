@@ -19,7 +19,7 @@ import { Socket } from '../core/Socket';
  * const outputSocket = pbrSpecularPropsNode.getSocketOutput();
  * ```
  */
-export class PbrSpecularPropsNode extends AbstractShaderNode {
+export class PbrSpecularPropsShaderNode extends AbstractShaderNode {
   /**
    * Creates a new PbrSpecularPropsNode with the specified composition and component types.
    */
