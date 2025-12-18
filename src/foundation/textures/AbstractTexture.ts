@@ -361,4 +361,62 @@ export abstract class AbstractTexture extends RnObject {
     }
     return textureDataFloat;
   }
+
+  /**
+   * Reads the texture data from GPU and returns it as a Uint8Array.
+   * This method works with both WebGL and WebGPU backends.
+   * Useful for textures that don't have an associated htmlImageElement (e.g., dummy textures).
+   *
+   * @returns Promise resolving to the pixel data as a Uint8Array in RGBA format,
+   *          or undefined if the texture is not ready or reading fails
+   */
+  async getTexturePixelDataFromGPU(): Promise<Uint8Array | undefined> {
+    if (!this.__isTextureReady || this._textureResourceUid < 0 || this.__width <= 0 || this.__height <= 0) {
+      return undefined;
+    }
+
+    try {
+      const cgApiResourceRepository = this.__engine.cgApiResourceRepository;
+      const pixels = await cgApiResourceRepository.getPixelDataFromTextureAsync(
+        this._textureResourceUid,
+        0,
+        0,
+        this.__width,
+        this.__height
+      );
+      return pixels;
+    } catch (e) {
+      console.warn('Failed to read texture pixel data from GPU:', e);
+      return undefined;
+    }
+  }
+
+  /**
+   * Creates an HTMLCanvasElement containing the texture data read from GPU.
+   * This is useful for displaying texture previews when htmlImageElement is not available.
+   * Works with both WebGL and WebGPU backends.
+   *
+   * @returns Promise resolving to an HTMLCanvasElement with the texture content,
+   *          or undefined if the texture is not ready or reading fails
+   */
+  async createCanvasFromGPU(): Promise<HTMLCanvasElement | undefined> {
+    const pixels = await this.getTexturePixelDataFromGPU();
+    if (!pixels || pixels.length === 0) {
+      return undefined;
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = this.__width;
+    canvas.height = this.__height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      return undefined;
+    }
+
+    // Create ImageData from the pixel array
+    const imageData = new ImageData(new Uint8ClampedArray(pixels), this.__width, this.__height);
+    ctx.putImageData(imageData, 0, 0);
+
+    return canvas;
+  }
 }
