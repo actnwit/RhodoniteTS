@@ -60,6 +60,7 @@ import { ComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
 import { ProcessStage } from '../definitions/ProcessStage';
 import type { ShaderSemanticsInfo } from '../definitions/ShaderSemanticsInfo';
+import type { ShaderSemanticsName } from '../definitions/ShaderSemantics';
 import { ShaderType } from '../definitions/ShaderType';
 import type { Primitive } from '../geometry/Primitive';
 import { ColorGradingUsingLUTsMaterialContent } from '../materials/contents/ColorGradingUsingLUTsMaterialContent';
@@ -2051,8 +2052,8 @@ function createNodeBasedCustomMaterial(
 /**
  * Changes the material assigned to a specific primitive on an entity.
  * This function updates the primitive's material and triggers necessary render state updates.
- * Translucency properties (isTranslucent, alphaMode) are preserved from the old material
- * to maintain proper rendering behavior for transmission and other transparent materials.
+ * Translucency properties (isTranslucent, alphaMode) and backBufferTexture are preserved
+ * from the old material to maintain proper rendering behavior for transmission materials.
  *
  * @param entity - The mesh renderer entity containing the primitive
  * @param primitive - The primitive to change the material for
@@ -2068,6 +2069,18 @@ function changeMaterial(entity: IMeshRendererEntityMethods, primitive: Primitive
   if (oldMaterial != null) {
     material.isTranslucent = oldMaterial.isTranslucent;
     material.alphaMode = oldMaterial.alphaMode;
+
+    // Copy backBufferTexture from old material if it exists
+    // This is required for transmission rendering to work immediately after material change
+    const backBufferTextureParam = oldMaterial.getTextureParameter(
+      'backBufferTexture' as ShaderSemanticsName
+    );
+    if (backBufferTextureParam != null) {
+      const [, texture, sampler] = backBufferTextureParam;
+      if (texture != null) {
+        material.setTextureParameter('backBufferTexture' as ShaderSemanticsName, texture, sampler);
+      }
+    }
   }
 
   primitive.material = material;
