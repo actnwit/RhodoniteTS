@@ -155,6 +155,7 @@ in vec2 a_texcoord_2;
 in uvec4 a_joint;
 in vec4 a_weight;
 in vec4 a_baryCentricCoord;
+in vec4 a_tangent;
 flat out uvec4 v_instanceIds;
 `;
     vertexShaderPrerequisites += `
