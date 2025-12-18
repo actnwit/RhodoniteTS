@@ -573,11 +573,13 @@ export class ShaderGraphResolver {
     let rowStr = '';
     // When a Fragment-stage node consumes from a Vertex-stage node, use a unique key
     // to avoid conflicts with Vertex-stage nodes that also consume the same output.
-    // This ensures varying reads are always generated for Fragment-stage consumers.
+    // Include the consumer node's UID to ensure each Fragment-stage consumer gets its own varying read.
     const isFragmentConsumingVertex =
       !isVertexStage && inputNode.getShaderStage() === 'Vertex' && shaderNode.getShaderStage() === 'Fragment';
     const baseInputKey = `${inputNode.shaderNodeUid}_${inputConnection.outputNameOfPrev}`;
-    const inputKey = isFragmentConsumingVertex ? `${baseInputKey}_toFragment` : baseInputKey;
+    const inputKey = isFragmentConsumingVertex
+      ? `${baseInputKey}_toFragment_${shaderNode.shaderNodeUid}`
+      : baseInputKey;
 
     if (!existingInputs.has(inputKey)) {
       rowStr = CommonShaderPart.getAssignmentStatement(engine, varName, inputSocketOfThis!);
