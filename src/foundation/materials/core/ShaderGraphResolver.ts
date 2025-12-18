@@ -42,8 +42,8 @@ import { LessOrEqualShaderNode } from '../nodes/LessOrEqualShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
 import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
+import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
 import { NotEqualShaderNode } from '../nodes/NotEqualShaderNode';
 import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
@@ -1143,7 +1143,7 @@ function constructNodes(json: ShaderNodeJson): {
         const defaultTexture = node.controls.defaultTexture?.value ?? 'dummyWhiteTexture';
         nodeInstance.setTextureName(textureName);
         nodeInstance.setShaderStage(shaderStage);
-        nodeInstance.setSrgbFlag(node.controls.sRGB.value);
+        nodeInstance.setSrgbFlag(node.controls.sRGB?.value ?? true);
         textureInfos.push({ name: textureName, stage: shaderStage, defaultTexture });
         nodeInstances[node.id] = nodeInstance;
         break;
