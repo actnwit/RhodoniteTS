@@ -1740,7 +1740,6 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'CalcBitangent': {
         const nodeInstance = new CalcBitangentShaderNode();
-        nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
