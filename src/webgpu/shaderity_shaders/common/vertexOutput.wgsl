@@ -7,7 +7,7 @@ struct VertexOutput {
   @location(4) texcoord_1 : vec2<f32>,
   @location(5) texcoord_2 : vec2<f32>,
   @location(6) tangent_inWorld : vec3<f32>,
-  @location(7) binormal_inWorld : vec3<f32>,
+  @location(7) bitangent_inWorld : vec3<f32>,
   @location(8) baryCentricCoord: vec3<f32>,
   @location(9) @interpolate(flat) instanceIds: vec4<u32>,
   @location(10) normal_inView : vec3<f32>,

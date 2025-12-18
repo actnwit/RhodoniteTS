@@ -1,4 +1,4 @@
-fn pbrNormalProps(positionInWorld: vec4<f32>, normalInWorld: vec3f, tangentInWorld: vec3f, binormalInWorld: vec3f,
+fn pbrNormalProps(positionInWorld: vec4<f32>, normalInWorld: vec3f, tangentInWorld: vec3f, bitangentInWorld: vec3f,
   normalTexture: vec4<f32>, normalTexUv: vec2f, normalScale: f32, outNormalInWorld: ptr<function, vec3f>, outGeomNormalInWorld: ptr<function, vec3f>, outTBN: ptr<function, mat3x3<f32>>) {
 
   let cameraSID = uniformDrawParameters.cameraSID;
@@ -7,11 +7,11 @@ fn pbrNormalProps(positionInWorld: vec4<f32>, normalInWorld: vec3f, tangentInWor
   let viewVector = viewPosition - positionInWorld.xyz;
   let viewDirection = normalize(viewVector);
 
-  let TBN = getTBN(normalInWorld, tangentInWorld, binormalInWorld, viewVector, normalTexUv);
+  let TBN = getTBN(normalInWorld, tangentInWorld, bitangentInWorld, viewVector, normalTexUv);
 
   *outNormalInWorld = normalize(normalInWorld);
   *outGeomNormalInWorld = *outNormalInWorld;
-  *outTBN = getTBN(normalInWorld, tangentInWorld, binormalInWorld, viewVector, normalTexUv);
+  *outTBN = getTBN(normalInWorld, tangentInWorld, bitangentInWorld, viewVector, normalTexUv);
 
   #ifdef RN_USE_NORMAL_TEXTURE
     let normalTexValue: vec3f = normalTexture.xyz;

@@ -40,7 +40,7 @@ export class PbrNormalPropsShaderNode extends AbstractShaderNode {
       new Socket('tangentInWorld', CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(1, 0, 0))
     );
     this.__inputs.push(
-      new Socket('binormalInWorld', CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 1, 0))
+      new Socket('bitangentInWorld', CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 1, 0))
     );
     this.__inputs.push(
       new Socket('normalTexture', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(0.5, 0.5, 1.0, 1))

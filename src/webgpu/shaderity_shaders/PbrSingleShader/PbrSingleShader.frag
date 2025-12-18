@@ -235,7 +235,7 @@ fn main(
   let normalTexcoordIndex: u32 = u32(get_normalTexcoordIndex(materialSID, 0));
   let normalTexcoord: vec2f = getTexcoord(normalTexcoordIndex, input);
   let normalTexUv: vec2f = uvTransform(normalTextureTransformScale, normalTextureTransformOffset, normalTextureTransformRotation, normalTexcoord);
-  let TBN: mat3x3<f32> = getTBN(normal_inWorld, input.tangent_inWorld, input.binormal_inWorld, viewVector, normalTexUv);
+  let TBN: mat3x3<f32> = getTBN(normal_inWorld, input.tangent_inWorld, input.bitangent_inWorld, viewVector, normalTexUv);
   #ifdef RN_USE_NORMAL_TEXTURE
     let normalTexValue: vec3f = textureSample(normalTexture, normalSampler, normalTexUv).xyz;
     if(normalTexValue.b >= 128.0 / 255.0) {

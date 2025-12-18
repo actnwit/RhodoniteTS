@@ -316,10 +316,10 @@ var<private> g_isFront: bool = true;
 // getTBN: Compute tangent-to-world matrix for normal mapping
 #ifdef RN_USE_TANGENT
   // When tangent attributes are available
-  fn getTBN(normal_inWorld: vec3f, tangent_inWorld_: vec3f, binormal_inWorld_: vec3f, viewVector: vec3f, texcoord: vec2f) -> mat3x3<f32> {
+  fn getTBN(normal_inWorld: vec3f, tangent_inWorld_: vec3f, bitangent_inWorld_: vec3f, viewVector: vec3f, texcoord: vec2f) -> mat3x3<f32> {
     let tangent_inWorld = normalize(tangent_inWorld_);
-    let binormal_inWorld = normalize(binormal_inWorld_);
-    let tbnMat_tangent_to_world = mat3x3<f32>(tangent_inWorld, binormal_inWorld, normal_inWorld);
+    let bitangent_inWorld = normalize(bitangent_inWorld_);
+    let tbnMat_tangent_to_world = mat3x3<f32>(tangent_inWorld, bitangent_inWorld, normal_inWorld);
 
     return tbnMat_tangent_to_world;
   }
@@ -353,7 +353,7 @@ var<private> g_isFront: bool = true;
       return mat3x3<f32>(normalize(tangent * invMat), normalize(bitangent * invMat), normal_inWorld);
     }
 
-    fn getTBN(normal_inWorld: vec3f, tangent_inWorld: vec3f, binormal_inWorld: vec3f, viewVector: vec3f, texcoord: vec2f) -> mat3x3<f32> {
+    fn getTBN(normal_inWorld: vec3f, tangent_inWorld: vec3f, bitangent_inWorld: vec3f, viewVector: vec3f, texcoord: vec2f) -> mat3x3<f32> {
       let tbnMat_tangent_to_world = cotangent_frame(normal_inWorld, -viewVector, texcoord);
 
       return tbnMat_tangent_to_world;
@@ -361,7 +361,7 @@ var<private> g_isFront: bool = true;
   #else // RN_IS_VERTEX_SHADER
     // Vertex shader fallback: Generate TBN from normal when tangent attributes are not available
     // This is an approximation - it generates a consistent tangent space from the normal vector
-    fn getTBN(normal_inWorld: vec3f, tangent_inWorld_: vec3f, binormal_inWorld_: vec3f, viewVector: vec3f, texcoord: vec2f) -> mat3x3<f32> {
+    fn getTBN(normal_inWorld: vec3f, tangent_inWorld_: vec3f, bitangent_inWorld_: vec3f, viewVector: vec3f, texcoord: vec2f) -> mat3x3<f32> {
       let n = normalize(normal_inWorld);
 
       // Choose a helper vector that is not parallel to the normal

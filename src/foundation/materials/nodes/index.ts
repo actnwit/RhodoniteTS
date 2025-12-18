@@ -10,6 +10,7 @@ export * from './AttributeTexcoordShaderNode';
 export * from './BlockBeginShaderNode';
 export * from './BlockEndShaderNode';
 export * from './BranchShaderNode';
+export * from './CalcBitangentShaderNode';
 export * from './CastToFloatShaderNode';
 export * from './ClampShaderNode';
 export * from './ConstantScalarVariableShaderNode';

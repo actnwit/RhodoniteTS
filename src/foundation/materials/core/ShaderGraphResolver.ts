@@ -24,6 +24,7 @@ import { AttributeTangentShaderNode } from '../nodes/AttributeTangentShaderNode'
 import { AttributeTexcoordShaderNode } from '../nodes/AttributeTexcoordShaderNode';
 import { AttributeWeightShaderNode } from '../nodes/AttributeWeightShaderNode';
 import { BranchShaderNode } from '../nodes/BranchShaderNode';
+import { CalcBitangentShaderNode } from '../nodes/CalcBitangentShaderNode';
 import { CastToFloatShaderNode } from '../nodes/CastToFloatShaderNode';
 import { ClampShaderNode } from '../nodes/ClampShaderNode';
 import { ClassicShaderNode } from '../nodes/ClassicShaderNode';
@@ -43,8 +44,8 @@ import { LessOrEqualShaderNode } from '../nodes/LessOrEqualShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
 import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
+import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
 import { NotEqualShaderNode } from '../nodes/NotEqualShaderNode';
 import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
@@ -1733,6 +1734,12 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'AlphaTest': {
         const nodeInstance = new AlphaTestShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'CalcBitangent': {
+        const nodeInstance = new CalcBitangentShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;

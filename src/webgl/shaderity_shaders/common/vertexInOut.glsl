@@ -23,4 +23,4 @@ out vec3 v_baryCentricCoord;
 flat out uvec4 v_instanceIds;
 out float v_displayIdx;
 out vec3 v_tangent_inWorld;
-out vec3 v_binormal_inWorld;
+out vec3 v_bitangent_inWorld;
