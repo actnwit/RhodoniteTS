@@ -8,10 +8,10 @@ import DepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/Depth
 import DepthMomentEncodeShaderVertex from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert';
 import EnvConstantSingleShaderFragment from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
 import EnvConstantSingleShaderVertex from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.vert';
-import FXAA3QualityShaderFragment from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.frag';
-import FXAA3QualityShaderVertex from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.vert';
 import FlatSingleShaderFragment from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
 import FlatSingleShaderVertex from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
+import FXAA3QualityShaderFragment from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.frag';
+import FXAA3QualityShaderVertex from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.vert';
 import GammaCorrectionShaderFragment from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
 import GammaCorrectionShaderVertex from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
 import GaussianBlurForEncodedDepthSingleShaderFragment from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.frag';
@@ -60,7 +60,6 @@ import { ComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
 import { ProcessStage } from '../definitions/ProcessStage';
 import type { ShaderSemanticsInfo } from '../definitions/ShaderSemanticsInfo';
-import type { ShaderSemanticsName } from '../definitions/ShaderSemantics';
 import { ShaderType } from '../definitions/ShaderType';
 import type { Primitive } from '../geometry/Primitive';
 import { ColorGradingUsingLUTsMaterialContent } from '../materials/contents/ColorGradingUsingLUTsMaterialContent';
@@ -69,9 +68,9 @@ import { DepthEncodeMaterialContent } from '../materials/contents/DepthEncodeMat
 import { DetectHighLuminanceMaterialContent } from '../materials/contents/DetectHighLuminanceMaterialContent';
 import { EntityUIDOutputMaterialContent } from '../materials/contents/EntityUIDOutputMaterialContent';
 import { FurnaceTestMaterialContent } from '../materials/contents/FurnaceTestMaterialContent';
+import { MatCapMaterialContent } from '../materials/contents/MatCapMaterialContent';
 import { MToon0xMaterialContent } from '../materials/contents/MToon0xMaterialContent';
 import { MToon1MaterialContent } from '../materials/contents/MToon1MaterialContent';
-import { MatCapMaterialContent } from '../materials/contents/MatCapMaterialContent';
 import { ShadowMapDecodeClassicMaterialContent } from '../materials/contents/ShadowMapDecodeClassicMaterialContent';
 import { SynthesizeHdrMaterialContent as SynthesizeHDRMaterialContent } from '../materials/contents/SynthesizeHdrMaterialContent';
 import { VarianceShadowMapDecodeClassicMaterialContent } from '../materials/contents/VarianceShadowMapDecodeClassicMaterialContent';
@@ -2069,18 +2068,6 @@ function changeMaterial(entity: IMeshRendererEntityMethods, primitive: Primitive
   if (oldMaterial != null) {
     material.isTranslucent = oldMaterial.isTranslucent;
     material.alphaMode = oldMaterial.alphaMode;
-
-    // Copy backBufferTexture from old material if it exists
-    // This is required for transmission rendering to work immediately after material change
-    const backBufferTextureParam = oldMaterial.getTextureParameter(
-      'backBufferTexture' as ShaderSemanticsName
-    );
-    if (backBufferTextureParam != null) {
-      const [, texture, sampler] = backBufferTextureParam;
-      if (texture != null) {
-        material.setTextureParameter('backBufferTexture' as ShaderSemanticsName, texture, sampler);
-      }
-    }
   }
 
   primitive.material = material;
