@@ -101,7 +101,7 @@ fn main(
 #endif
 
 #ifdef RN_USE_TANGENT
-  output.tangent_inWorld = normalMatrix * tangent.xyz;
+  output.tangent_inWorld = (worldMatrix * vec4f(tangent.xyz, 0.0)).xyz;
   output.binormal_inWorld = cross(output.normal_inWorld, output.tangent_inWorld) * tangent.w;
 #endif
 
