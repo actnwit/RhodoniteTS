@@ -305,4 +305,52 @@ export class IdentityMatrix33 extends AbstractMatrix implements IMatrix, IMatrix
   get isIdentityMatrixClass(): boolean {
     return true;
   }
+
+  /**
+   * Gets the GLSL string representation of the identity matrix as float values.
+   * @returns GLSL mat3 constructor string for identity matrix
+   */
+  get glslStrAsFloat(): string {
+    return 'mat3(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0)';
+  }
+
+  /**
+   * Gets the GLSL string representation of the identity matrix as integer values.
+   * @returns GLSL mat3 constructor string for identity matrix
+   */
+  get glslStrAsInt(): string {
+    return 'mat3(1, 0, 0, 0, 1, 0, 0, 0, 1)';
+  }
+
+  /**
+   * Gets the GLSL string representation of the identity matrix as unsigned integer values.
+   * @returns GLSL mat3 constructor string for identity matrix
+   */
+  get glslStrAsUint(): string {
+    return 'mat3(1, 0, 0, 0, 1, 0, 0, 0, 1)';
+  }
+
+  /**
+   * Gets the WGSL string representation of the identity matrix as float values.
+   * @returns WGSL mat3x3f constructor string for identity matrix
+   */
+  get wgslStrAsFloat(): string {
+    return 'mat3x3f(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0)';
+  }
+
+  /**
+   * Gets the WGSL string representation of the identity matrix as integer values.
+   * @returns WGSL mat3x3i constructor string for identity matrix
+   */
+  get wgslStrAsInt(): string {
+    return 'mat3x3i(1, 0, 0, 0, 1, 0, 0, 0, 1)';
+  }
+
+  /**
+   * Gets the WGSL string representation of the identity matrix as unsigned integer values.
+   * @returns WGSL mat3x3u constructor string for identity matrix
+   */
+  get wgslStrAsUint(): string {
+    return 'mat3x3u(1, 0, 0, 0, 1, 0, 0, 0, 1)';
+  }
 }
