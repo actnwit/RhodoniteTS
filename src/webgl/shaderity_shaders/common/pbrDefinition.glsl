@@ -4,7 +4,7 @@
 
 #ifdef RN_USE_PBR
 
-const float M_PI = 3.141592653589793;
+
 const float c_MinRoughness = 0.04;
 
 float angular_n_h(float NH) {
@@ -345,7 +345,7 @@ float d_Charlie(float sheenPerceptualRoughness, float NoH) {
   float invAlpha  = 1.0 / alphaG;
   float cos2h = NoH * NoH;
   float sin2h = 1.0 - cos2h;
-  return (2.0 + invAlpha) * pow(sin2h, invAlpha * 0.5) / (2.0 * PI);
+  return (2.0 + invAlpha) * pow(sin2h, invAlpha * 0.5) / (2.0 * M_PI);
 }
 
 // https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_sheen#sheen-visibility

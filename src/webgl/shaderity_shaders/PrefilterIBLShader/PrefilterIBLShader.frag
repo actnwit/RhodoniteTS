@@ -57,8 +57,8 @@ vec4 getImportanceSampleLambertian(int sampleIndex, vec3 N, float roughness, uin
 
     float sinTheta = sqrt(1.0 - xi.y);
     float cosTheta = sqrt(xi.y);
-    float phi = 2.0 * PI * xi.x;
-    float pdf = cosTheta / PI;
+    float phi = 2.0 * M_PI * xi.x;
+    float pdf = cosTheta / M_PI;
 
     vec3 localDirection = normalize(vec3(
         sinTheta * cos(phi),
@@ -74,7 +74,7 @@ vec4 getImportanceSampleLambertian(int sampleIndex, vec3 N, float roughness, uin
 float d_GGX(float NH, float alphaRoughness) {
   float roughnessSqr = alphaRoughness * alphaRoughness;
   float f = (roughnessSqr - 1.0) * NH * NH + 1.0;
-  return roughnessSqr / (PI * f * f);
+  return roughnessSqr / (M_PI * f * f);
 }
 
 // We learnd a lot from the following resources
@@ -86,7 +86,7 @@ vec4 getImportanceSampleGGX(int sampleIndex, vec3 N, float roughness, uint mater
     float alpha = roughness * roughness;
     float cosTheta = clamp(sqrt((1.0 - xi.y) / (1.0 + (alpha * alpha - 1.0) * xi.y)), 0.0, 1.0);
     float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
-    float phi = 2.0 * PI * xi.x;
+    float phi = 2.0 * M_PI * xi.x;
     float pdf = d_GGX(cosTheta, alpha);
     pdf /= 4.0;
 
@@ -106,7 +106,7 @@ float D_Charlie(float sheenRoughness, float NdotH)
     float invR = 1.0 / sheenRoughness;
     float cos2h = NdotH * NdotH;
     float sin2h = 1.0 - cos2h;
-    return (2.0 + invR) * pow(sin2h, invR * 0.5) / (2.0 * PI);
+    return (2.0 + invR) * pow(sin2h, invR * 0.5) / (2.0 * M_PI);
 }
 
 vec4 getImportanceSampleCharlie(int sampleIndex, vec3 N, float roughness, uint materialSID)
@@ -116,7 +116,7 @@ vec4 getImportanceSampleCharlie(int sampleIndex, vec3 N, float roughness, uint m
     float alpha = roughness * roughness;
     float sinTheta = pow(xi.y, alpha / (2.0*alpha + 1.0));
     float cosTheta = sqrt(1.0 - sinTheta * sinTheta);
-    float phi = 2.0 * PI * xi.x;
+    float phi = 2.0 * M_PI * xi.x;
     float pdf = D_Charlie(alpha, cosTheta);
     pdf /= 4.0;
 

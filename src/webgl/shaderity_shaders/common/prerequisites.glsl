@@ -302,7 +302,7 @@ vec3 descramble(vec3 v) {
   return v;
 }
 
-const float PI = 3.14159265358979323846;
+const float M_PI = 3.14159265358979323846;
 const float RECIPROCAL_PI = 0.3183098861837907;
 
 float max3(vec3 v)
