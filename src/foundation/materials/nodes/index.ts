@@ -37,6 +37,7 @@ export * from './OutColorShaderNode';
 export * from './OutPositionShaderNode';
 export * from './PbrBaseColorPropsShaderNode';
 export * from './PbrMetallicRoughnessPropsShaderNode';
+export * from './PbrOcclusionPropsShaderNode';
 export * from './PbrNormalPropsShaderNode';
 export * from './PbrShaderShaderNode';
 export * from './PbrSpecularPropsShaderNode';

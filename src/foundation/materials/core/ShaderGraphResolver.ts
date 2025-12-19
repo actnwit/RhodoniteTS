@@ -44,8 +44,8 @@ import { LessOrEqualShaderNode } from '../nodes/LessOrEqualShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
 import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
+import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
 import { NotEqualShaderNode } from '../nodes/NotEqualShaderNode';
 import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
@@ -53,6 +53,7 @@ import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
 import { PbrBaseColorPropsShaderNode } from '../nodes/PbrBaseColorPropsShaderNode';
 import { PbrMetallicRoughnessPropsShaderNode } from '../nodes/PbrMetallicRoughnessPropsShaderNode';
 import { PbrNormalPropsShaderNode } from '../nodes/PbrNormalPropsShaderNode';
+import { PbrOcclusionPropsShaderNode } from '../nodes/PbrOcclusionPropsShaderNode';
 import { PbrShaderShaderNode } from '../nodes/PbrShaderShaderNode';
 import { PbrSpecularPropsShaderNode } from '../nodes/PbrSpecularPropsShaderNode';
 import { PremultipliedAlphaShaderNode } from '../nodes/PremultipliedAlphaShaderNode';
@@ -1761,6 +1762,12 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'PbrMetallicRoughnessProps': {
         const nodeInstance = new PbrMetallicRoughnessPropsShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'PbrOcclusionProps': {
+        const nodeInstance = new PbrOcclusionPropsShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
