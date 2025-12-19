@@ -46,7 +46,7 @@ export class PbrClearcoatPropsShaderNode extends AbstractShaderNode {
     );
     this.__inputs.push(new Socket('TBN', CompositionType.Mat3, ComponentType.Float, Matrix33.identity() as Matrix33));
     this.__inputs.push(
-      new Socket('viewDirection', CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 1))
+      new Socket('positionInWorld', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(0, 0, 0, 1))
     );
     this.__inputs.push(new Socket('ior', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(1.5)));
     this.__outputs.push(new Socket('outColor', CompositionType.Vec4, ComponentType.Float));

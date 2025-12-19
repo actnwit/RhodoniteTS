@@ -5,9 +5,18 @@ void pbrClearcoatProps(
   in vec4 clearcoatRoughnessTexture,
   in vec4 clearcoatNormalTexture,
   in mat3 TBN,
-  in vec3 viewDirection,
+  in vec4 positionInWorld,
   in float ior,
   out ClearcoatProps clearcoatProps) {
+
+  uint cameraSID = uint(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */]);
+  #if defined(WEBGL2_MULTI_VIEW) && defined(RN_IS_VERTEX_SHADER)
+    cameraSID += uint(gl_ViewID_OVR);
+  #endif
+
+  vec3 viewPosition = get_viewPosition(cameraSID);
+  vec3 viewDirection = normalize(viewPosition - positionInWorld.xyz);
+
   clearcoatProps.clearcoat = clearcoatFactor * clearcoatTexture.r;
   clearcoatProps.clearcoatRoughness = clearcoatRoughnessFactor * clearcoatRoughnessTexture.g;
   vec3 textureNormal_tangent = clearcoatNormalTexture.xyz * vec3(2.0) - vec3(1.0);
