@@ -277,7 +277,12 @@ class CompositionTypeClass<TypeName extends string> extends EnumClass implements
   }
 
   toWGSLType(componentType: ComponentTypeEnum): string {
-    return this.__wgslStr.replace('#', componentType.wgsl);
+    let result = this.__wgslStr.replace('#', componentType.wgsl);
+    // For struct types, remove the 'struct ' prefix for WGSL variable declarations
+    if (result.startsWith('struct ')) {
+      result = result.replace('struct ', '');
+    }
+    return result;
   }
 
   getVec4SizeOfProperty(): IndexOf16Bytes {

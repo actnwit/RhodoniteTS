@@ -41,7 +41,7 @@ export class PbrSpecularPropsShaderNode extends AbstractShaderNode {
     this.__inputs.push(
       new Socket('specularColorTexture', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
-    this.__outputs.push(new Socket('outColor', CompositionType.SpecularProps, ComponentType.Unknown));
+    this.__outputs.push(new Socket('outSpecularProps', CompositionType.SpecularProps, ComponentType.Unknown));
   }
 
   /**
