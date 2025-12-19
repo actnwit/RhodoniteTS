@@ -51,6 +51,7 @@ import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
 import { PbrBaseColorPropsShaderNode } from '../nodes/PbrBaseColorPropsShaderNode';
+import { PbrEmissivePropsShaderNode } from '../nodes/PbrEmissivePropsShaderNode';
 import { PbrMetallicRoughnessPropsShaderNode } from '../nodes/PbrMetallicRoughnessPropsShaderNode';
 import { PbrNormalPropsShaderNode } from '../nodes/PbrNormalPropsShaderNode';
 import { PbrOcclusionPropsShaderNode } from '../nodes/PbrOcclusionPropsShaderNode';
@@ -1768,6 +1769,12 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'PbrOcclusionProps': {
         const nodeInstance = new PbrOcclusionPropsShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'PbrEmissiveProps': {
+        const nodeInstance = new PbrEmissivePropsShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
