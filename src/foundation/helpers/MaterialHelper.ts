@@ -8,10 +8,10 @@ import DepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/Depth
 import DepthMomentEncodeShaderVertex from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert';
 import EnvConstantSingleShaderFragment from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
 import EnvConstantSingleShaderVertex from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.vert';
-import FlatSingleShaderFragment from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
-import FlatSingleShaderVertex from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
 import FXAA3QualityShaderFragment from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.frag';
 import FXAA3QualityShaderVertex from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.vert';
+import FlatSingleShaderFragment from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
+import FlatSingleShaderVertex from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
 import GammaCorrectionShaderFragment from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
 import GammaCorrectionShaderVertex from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
 import GaussianBlurForEncodedDepthSingleShaderFragment from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.frag';
@@ -68,9 +68,9 @@ import { DepthEncodeMaterialContent } from '../materials/contents/DepthEncodeMat
 import { DetectHighLuminanceMaterialContent } from '../materials/contents/DetectHighLuminanceMaterialContent';
 import { EntityUIDOutputMaterialContent } from '../materials/contents/EntityUIDOutputMaterialContent';
 import { FurnaceTestMaterialContent } from '../materials/contents/FurnaceTestMaterialContent';
-import { MatCapMaterialContent } from '../materials/contents/MatCapMaterialContent';
 import { MToon0xMaterialContent } from '../materials/contents/MToon0xMaterialContent';
 import { MToon1MaterialContent } from '../materials/contents/MToon1MaterialContent';
+import { MatCapMaterialContent } from '../materials/contents/MatCapMaterialContent';
 import { ShadowMapDecodeClassicMaterialContent } from '../materials/contents/ShadowMapDecodeClassicMaterialContent';
 import { SynthesizeHdrMaterialContent as SynthesizeHDRMaterialContent } from '../materials/contents/SynthesizeHdrMaterialContent';
 import { VarianceShadowMapDecodeClassicMaterialContent } from '../materials/contents/VarianceShadowMapDecodeClassicMaterialContent';
@@ -1791,6 +1791,13 @@ function reuseOrRecreateCustomMaterial(
   }
   if (options.isOcclusion) {
     definitions.add('RN_USE_OCCLUSION_TEXTURE');
+  } else {
+    definitions.delete('RN_USE_OCCLUSION_TEXTURE');
+  }
+  if (options.useNormalTexture) {
+    definitions.add('RN_USE_NORMAL_TEXTURE');
+  } else {
+    definitions.delete('RN_USE_NORMAL_TEXTURE');
   }
 
   let materialContent: CustomMaterialContent;
@@ -2043,6 +2050,30 @@ function createNodeBasedCustomMaterial(
   const hasPbrOcclusionPropsNode =
     (shaderNodeJson?.nodes?.some((node: { name: string }) => node.name === 'PbrOcclusionProps') as boolean) ?? false;
 
+  // Check if PbrNormalProps node has a Texture2D connected to its normalTexture input
+  const hasNormalTextureConnected = (() => {
+    const nodes = shaderNodeJson?.nodes as Array<{ id: string; name: string }> | undefined;
+    const connections = shaderNodeJson?.connections as
+      | Array<{ from: { id: string; portName: string }; to: { id: string; portName: string } }>
+      | undefined;
+
+    if (!nodes || !connections) return false;
+
+    // Find PbrNormalProps node
+    const pbrNormalPropsNode = nodes.find(node => node.name === 'PbrNormalProps');
+    if (!pbrNormalPropsNode) return false;
+
+    // Find connection to normalTexture input of PbrNormalProps
+    const normalTextureConnection = connections.find(
+      conn => conn.to.id === pbrNormalPropsNode.id && conn.to.portName === 'normalTexture'
+    );
+    if (!normalTextureConnection) return false;
+
+    // Check if the source node is a Texture2D
+    const sourceNode = nodes.find(node => node.id === normalTextureConnection.from.id);
+    return sourceNode?.name === 'Texture2D';
+  })();
+
   // Add IBL-related semantic info if PBR shader is used
   if (hasPbrShaderNode) {
     addPbrIblSemanticInfo(engine, additionalShaderSemanticInfo);
@@ -2057,6 +2088,7 @@ function createNodeBasedCustomMaterial(
     isShadow: hasClassicShaderNode || hasPbrShaderNode,
     isPbr: hasPbrShaderNode,
     isOcclusion: hasPbrOcclusionPropsNode,
+    useNormalTexture: hasNormalTextureConnected,
     additionalName: '',
     additionalShaderSemanticInfo,
   };
