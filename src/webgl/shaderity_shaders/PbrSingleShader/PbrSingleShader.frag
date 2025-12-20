@@ -379,16 +379,15 @@ void main ()
     float iridescenceThickness = mix(iridescenceThicknessMinimum, iridescenceThicknessMaximum, thicknessRatio);
 
     float iridescenceIor = get_iridescenceIor(materialSID, 0u);
-    iridescenceProps.fresnelDielectric = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, dielectricF0);
-    iridescenceProps.fresnelMetal = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, baseColor.rgb);
-
+    iridescenceProps.iridescenceIor = iridescenceIor;
+    iridescenceProps.iridescenceThickness = iridescenceThickness;
     if (iridescenceThickness == 0.0) {
       iridescenceProps.iridescence = 0.0;
     }
   #else
     iridescenceProps.iridescence = 0.0;
-    iridescenceProps.fresnelDielectric = vec3(0.0);
-    iridescenceProps.fresnelMetal = vec3(0.0);
+    iridescenceProps.iridescenceIor = 0.0;
+    iridescenceProps.iridescenceThickness = 0.0;
   #endif // RN_USE_IRIDESCENCE
 
   ClearcoatProps clearcoatProps;

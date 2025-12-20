@@ -42,6 +42,15 @@ void pbrShader(
   vec3 viewDirection = normalize(viewPosition - positionInWorld.xyz);
   float NdotV = saturate(dot(normalInWorld, viewDirection));
 
+  // Iridescence
+  #ifdef RN_USE_IRIDESCENCE
+    iridescenceProps.fresnelDielectric = calcIridescence(1.0, iridescenceProps.iridescenceIor, NdotV, iridescenceProps.iridescenceThickness, dielectricF0);
+    iridescenceProps.fresnelMetal = calcIridescence(1.0, iridescenceProps.iridescenceIor, NdotV, iridescenceProps.iridescenceThickness, baseColor.rgb);
+  #else
+    iridescenceProps.fresnelDielectric = vec3(0.0);
+    iridescenceProps.fresnelMetal = vec3(0.0);
+  #endif // RN_USE_IRIDESCENCE
+
   for (int i = 0; i < lightNumber; i++) {
     // Get Light
     Light light = getLight(i, positionInWorld.xyz);

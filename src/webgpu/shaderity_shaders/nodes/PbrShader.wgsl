@@ -10,7 +10,7 @@ fn pbrShader(
   clearcoatProps: ClearcoatProps,
   anisotropyProps: AnisotropyProps,
   sheenProps: SheenProps,
-  iridescenceProps: IridescenceProps,
+  iridescenceProps_: IridescenceProps,
   diffuseTransmissionProps: DiffuseTransmissionProps,
   dispersion: f32,
   outColor: ptr<function, vec4<f32>>
@@ -30,6 +30,15 @@ fn pbrShader(
   let viewPosition = get_viewPosition(cameraSID);
   let viewDirection = normalize(viewPosition - positionInWorld.xyz);
   let NdotV = saturate(dot(normalInWorld, viewDirection));
+
+  var iridescenceProps: IridescenceProps = iridescenceProps_;
+  #ifdef RN_USE_IRIDESCENCE
+    iridescenceProps.fresnelDielectric = calcIridescence(1.0, iridescenceProps.iridescenceIor, NdotV, iridescenceProps.iridescenceThickness, dielectricF0);
+    iridescenceProps.fresnelMetal = calcIridescence(1.0, iridescenceProps.iridescenceIor, NdotV, iridescenceProps.iridescenceThickness, baseColor.rgb);
+  #else
+    iridescenceProps.fresnelDielectric = vec3f(0.0);
+    iridescenceProps.fresnelMetal = vec3f(0.0);
+  #endif // RN_USE_IRIDESCENCE
 
   for (var i = 0u; i < lightNumber ; i++) {
     let light: Light = getLight(i, positionInWorld.xyz);

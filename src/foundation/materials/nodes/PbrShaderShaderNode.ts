@@ -112,6 +112,8 @@ export class PbrShaderShaderNode extends AbstractShaderNode {
       new Socket('iridescenceProps', CompositionType.IridescenceProps, ComponentType.Unknown, {
         // Note: Property order must match GLSL/WGSL struct field order
         iridescence: Scalar.fromCopyNumber(0.0),
+        iridescenceIor: Scalar.fromCopyNumber(1.3),
+        iridescenceThickness: Scalar.fromCopyNumber(0.0),
         fresnelDielectric: Vector3.fromCopy3(0.0, 0.0, 0.0),
         fresnelMetal: Vector3.fromCopy3(0.0, 0.0, 0.0),
       })

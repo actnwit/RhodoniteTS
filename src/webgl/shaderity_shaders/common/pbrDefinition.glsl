@@ -591,6 +591,8 @@ struct SheenProps
 struct IridescenceProps
 {
   float iridescence;
+  float iridescenceIor;
+  float iridescenceThickness;
   vec3 fresnelDielectric;
   vec3 fresnelMetal;
 };

@@ -380,12 +380,12 @@ var specularProps: SpecularProps;
   let iridescenceFresnel_metal: vec3f = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, baseColor.rgb);
 
   iridescenceProps.iridescence = iridescence;
-  iridescenceProps.fresnelDielectric = iridescenceFresnel_dielectric;
-  iridescenceProps.fresnelMetal = iridescenceFresnel_metal;
+  iridescenceProps.iridescenceIor = iridescenceIor;
+  iridescenceProps.iridescenceThickness = iridescenceThickness;
 #else
   iridescenceProps.iridescence = 0.0;
-  iridescenceProps.fresnelDielectric = vec3f(0.0);
-  iridescenceProps.fresnelMetal = vec3f(0.0);
+  iridescenceProps.iridescenceIor = 0.0;
+  iridescenceProps.iridescenceThickness = 0.0;
 #endif // RN_USE_IRIDESCENCE
 
 // Clearcoat
