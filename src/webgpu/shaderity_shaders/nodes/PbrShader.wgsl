@@ -1,5 +1,5 @@
 fn pbrShader(
-  positionInWorld: vec4<f32>, normalInWorld: vec3<f32>, geomNormalInWorld: vec3<f32>,
+  positionInWorld: vec4<f32>, normalInWorld: vec3<f32>, geomNormalInWorld: vec3<f32>, TBN: mat3x3<f32>,
   baseColor: vec4<f32>, metallic: f32, perceptualRoughness: f32,
   occlusionProps: OcclusionProps,
   emissiveProps: EmissiveProps,
@@ -7,7 +7,7 @@ fn pbrShader(
   transmission: f32,
   specularProps: SpecularProps,
   volumeProps: VolumeProps,
-  clearcoatProps: ClearcoatProps,
+  clearcoatProps_: ClearcoatProps,
   anisotropyProps: AnisotropyProps,
   sheenProps_: SheenProps,
   iridescenceProps_: IridescenceProps,
@@ -30,6 +30,22 @@ fn pbrShader(
   let viewPosition = get_viewPosition(cameraSID);
   let viewDirection = normalize(viewPosition - positionInWorld.xyz);
   let NdotV = saturate(dot(normalInWorld, viewDirection));
+
+  // Clearcoat
+  var clearcoatProps: ClearcoatProps = clearcoatProps_;
+  #ifdef RN_USE_CLEARCOAT
+    clearcoatProps.clearcoatNormal_inWorld = normalize(TBN * clearcoatProps.clearcoatNormal_inTangent);
+    clearcoatProps.VdotNc = saturate(dot(viewDirection, clearcoatProps.clearcoatNormal_inWorld));
+    clearcoatProps.clearcoatF0 = vec3f(pow((ior - 1.0) / (ior + 1.0), 2.0));
+    clearcoatProps.clearcoatF90 = vec3f(1.0);
+    clearcoatProps.clearcoatFresnel = fresnelSchlick(clearcoatProps.clearcoatF0, clearcoatProps.clearcoatF90, clearcoatProps.VdotNc);
+  #else
+    clearcoatProps.clearcoatNormal_inTangent = vec3f(0.0, 0.0, 0.0);
+    clearcoatProps.VdotNc = 0.0;
+    clearcoatProps.clearcoatF0 = vec3f(0.0);
+    clearcoatProps.clearcoatF90 = vec3f(0.0);
+    clearcoatProps.clearcoatFresnel = vec3f(0.0);
+  #endif // RN_USE_CLEARCOAT
 
   // Sheen
   var sheenProps: SheenProps = sheenProps_;

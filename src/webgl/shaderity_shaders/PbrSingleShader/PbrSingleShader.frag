@@ -420,20 +420,11 @@ void main ()
     float clearcoatNormalTextureTransformRotation = get_clearcoatNormalTextureTransformRotation(materialSID, 0u);
     vec2 clearcoatNormalTexUv = uvTransform(clearcoatNormalTextureTransformScale, clearcoatNormalTextureTransformOffset, clearcoatNormalTextureTransformRotation, clearcoatNormalTexcoord);
     vec3 textureNormal_tangent = texture(u_clearcoatNormalTexture, clearcoatNormalTexUv).xyz * vec3(2.0) - vec3(1.0);
-    clearcoatProps.clearcoatNormal_inWorld = normalize(TBN * textureNormal_tangent);
-    clearcoatProps.VdotNc = saturate(dot(viewDirection, clearcoatProps.clearcoatNormal_inWorld));
-
-    clearcoatProps.clearcoatF0 = vec3(pow((ior - 1.0) / (ior + 1.0), 2.0));
-    clearcoatProps.clearcoatF90 = vec3(1.0);
-    clearcoatProps.clearcoatFresnel = fresnelSchlick(clearcoatProps.clearcoatF0, clearcoatProps.clearcoatF90, clearcoatProps.VdotNc);
+    clearcoatProps.clearcoatNormal_inTangent = textureNormal_tangent;
   #else
     clearcoatProps.clearcoat = 0.0;
     clearcoatProps.clearcoatRoughness = 0.0;
-    clearcoatProps.clearcoatNormal_inWorld = vec3(0.0);
-    clearcoatProps.VdotNc = 0.0;
-    clearcoatProps.clearcoatF0 = vec3(0.0);
-    clearcoatProps.clearcoatF90 = vec3(0.0);
-    clearcoatProps.clearcoatFresnel = vec3(0.0);
+    clearcoatProps.clearcoatNormal_inTangent = vec3(0.0, 0.0, 0.0);
   #endif // RN_USE_CLEARCOAT
 
   VolumeProps volumeProps;
@@ -563,7 +554,7 @@ vec3 emissiveFactor = get_emissiveFactor(materialSID, 0u);
   rt0 = vec4(0.0, 0.0, 0.0, baseColor.a);
 
   pbrShader(
-    v_position_inWorld, normal_inWorld, geomNormal_inWorld,
+    v_position_inWorld, normal_inWorld, geomNormal_inWorld, TBN,
     baseColor, metallic, perceptualRoughness,
     occlusionProps, emissiveProps,
     ior,

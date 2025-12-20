@@ -577,6 +577,7 @@ struct ClearcoatProps
   vec3 clearcoatF0;
   vec3 clearcoatF90;
   vec3 clearcoatFresnel;
+  vec3 clearcoatNormal_inTangent;
   vec3 clearcoatNormal_inWorld;
   float VdotNc;
 };

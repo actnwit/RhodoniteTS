@@ -464,6 +464,7 @@ struct ClearcoatProps
   clearcoatF0: vec3f,
   clearcoatF90: vec3f,
   clearcoatFresnel: vec3f,
+  clearcoatNormal_inTangent: vec3f,
   clearcoatNormal_inWorld: vec3f,
   VdotNc: f32,
 };

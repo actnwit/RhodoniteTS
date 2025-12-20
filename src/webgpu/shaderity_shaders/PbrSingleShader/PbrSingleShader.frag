@@ -418,27 +418,13 @@ var specularProps: SpecularProps;
   let clearcoatNormalTextureTransformRotation: f32 = get_clearcoatNormalTextureTransformRotation(materialSID, 0);
   let clearcoatNormalTexUv = uvTransform(clearcoatNormalTextureTransformScale, clearcoatNormalTextureTransformOffset, clearcoatNormalTextureTransformRotation, clearcoatNormalTexcoord);
   let textureNormal_tangent = textureSample(clearcoatNormalTexture, clearcoatNormalSampler, clearcoatNormalTexUv).xyz * vec3(2.0) - vec3(1.0);
-  let clearcoatNormal_inWorld = normalize(TBN * textureNormal_tangent);
-  let VdotNc = saturate(dot(viewDirection, clearcoatNormal_inWorld));
-
-  let clearcoatF0 = vec3f(pow((ior - 1.0) / (ior + 1.0), 2.0));
-  let clearcoatF90 = vec3f(1.0);
-  let clearcoatFresnel = fresnelSchlick(clearcoatF0, clearcoatF90, VdotNc);
+  clearcoatProps.clearcoatNormal_inTangent = textureNormal_tangent;
   clearcoatProps.clearcoat = clearcoat;
   clearcoatProps.clearcoatRoughness = clearcoatRoughness;
-  clearcoatProps.clearcoatNormal_inWorld = clearcoatNormal_inWorld;
-  clearcoatProps.VdotNc = VdotNc;
-  clearcoatProps.clearcoatF0 = clearcoatF0;
-  clearcoatProps.clearcoatF90 = clearcoatF90;
-  clearcoatProps.clearcoatFresnel = clearcoatFresnel;
 #else
   clearcoatProps.clearcoat = 0.0;
   clearcoatProps.clearcoatRoughness = 0.0;
-  clearcoatProps.clearcoatNormal_inWorld = vec3f(0.0);
-  clearcoatProps.VdotNc = 0.0;
-  clearcoatProps.clearcoatF0 = vec3f(0.0);
-  clearcoatProps.clearcoatF90 = vec3f(0.0);
-  clearcoatProps.clearcoatFresnel = vec3f(0.0);
+  clearcoatProps.clearcoatNormal_inTangent = vec3f(0.0, 0.0, 0.0);
 #endif // RN_USE_CLEARCOAT
 
   var volumeProps: VolumeProps;
@@ -577,7 +563,7 @@ let emissiveFactor = get_emissiveFactor(materialSID, 0);
   var rt0 = vec4<f32>(0.0, 0.0, 0.0, baseColor.a);
 
   pbrShader(
-    input.position_inWorld, normal_inWorld, geomNormal_inWorld,
+    input.position_inWorld, normal_inWorld, geomNormal_inWorld, TBN,
     baseColor, metallic, perceptualRoughness,
     occlusionProps,
     emissiveProps,

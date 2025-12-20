@@ -1,5 +1,5 @@
 void pbrShader(
-  in vec4 positionInWorld, in vec3 normalInWorld, in vec3 geomNormalInWorld,
+  in vec4 positionInWorld, in vec3 normalInWorld, in vec3 geomNormalInWorld, in mat3 TBN,
   in vec4 baseColor, in float metallic, in float perceptualRoughness,
   in OcclusionProps occlusionProps,
   in EmissiveProps emissiveProps,
@@ -41,6 +41,21 @@ void pbrShader(
   vec3 viewPosition = get_viewPosition(cameraSID);
   vec3 viewDirection = normalize(viewPosition - positionInWorld.xyz);
   float NdotV = saturate(dot(normalInWorld, viewDirection));
+
+  // Clearcoat
+  #ifdef RN_USE_CLEARCOAT
+    clearcoatProps.clearcoatNormal_inWorld = normalize(TBN * clearcoatProps.clearcoatNormal_inTangent);
+    clearcoatProps.VdotNc = saturate(dot(viewDirection, clearcoatProps.clearcoatNormal_inWorld));
+    clearcoatProps.clearcoatF0 = vec3(pow((ior - 1.0) / (ior + 1.0), 2.0));
+    clearcoatProps.clearcoatF90 = vec3(1.0);
+    clearcoatProps.clearcoatFresnel = fresnelSchlick(clearcoatProps.clearcoatF0, clearcoatProps.clearcoatF90, clearcoatProps.VdotNc);
+  #else
+    clearcoatProps.clearcoatNormal_inWorld = vec3(0.0);
+    clearcoatProps.VdotNc = 0.0;
+    clearcoatProps.clearcoatF0 = vec3(0.0);
+    clearcoatProps.clearcoatF90 = vec3(0.0);
+    clearcoatProps.clearcoatFresnel = vec3(0.0);
+  #endif // RN_USE_CLEARCOAT
 
   // Sheen
   #ifdef RN_USE_SHEEN

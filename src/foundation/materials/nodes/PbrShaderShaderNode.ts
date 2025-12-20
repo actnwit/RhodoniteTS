@@ -2,6 +2,7 @@ import PbrShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/PbrSh
 import PbrShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/PbrShader.wgsl';
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
+import { Matrix33 } from '../../math/Matrix33';
 import { Scalar } from '../../math/Scalar';
 import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
@@ -38,6 +39,7 @@ export class PbrShaderShaderNode extends AbstractShaderNode {
     this.__inputs.push(
       new Socket('geomNormalInWorld', CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 1))
     );
+    this.__inputs.push(new Socket('TBN', CompositionType.Mat3, ComponentType.Float, Matrix33.identity() as Matrix33));
     this.__inputs.push(
       new Socket('baseColor', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
@@ -86,6 +88,7 @@ export class PbrShaderShaderNode extends AbstractShaderNode {
         clearcoatF0: Vector3.fromCopy3(0.0, 0.0, 0.0),
         clearcoatF90: Vector3.fromCopy3(0.0, 0.0, 0.0),
         clearcoatFresnel: Vector3.fromCopy3(0.0, 0.0, 0.0),
+        clearcoatNormal_inTangent: Vector3.fromCopy3(0.0, 0.0, 0.0),
         clearcoatNormal_inWorld: Vector3.fromCopy3(0.0, 0.0, 0.0),
         VdotNc: Scalar.fromCopyNumber(0.0),
       })
