@@ -267,11 +267,6 @@ void main ()
   float metallic = ormTexel.b * get_metallicFactor(materialSID, 0u);
   metallic = clamp(metallic, 0.0, 1.0);
   perceptualRoughness = clamp(perceptualRoughness, c_MinRoughness, 1.0);
-  float alphaRoughness = perceptualRoughness * perceptualRoughness;
-    // filter NDF for specular AA --- https://jcgt.org/published/0010/02/02/
-  float alphaRoughness2 = alphaRoughness * alphaRoughness;
-  float filteredRoughness2 = IsotropicNDFFiltering(normal_inWorld, alphaRoughness2);
-  perceptualRoughness = sqrt(sqrt(filteredRoughness2));
 
   // NdotV
   float NdotV = saturate(dot(normal_inWorld, viewDirection));

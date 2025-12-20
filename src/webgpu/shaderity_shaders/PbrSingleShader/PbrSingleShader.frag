@@ -260,11 +260,6 @@ fn main(
   var metallic = ormTexel.b * get_metallicFactor(materialSID, 0);
   metallic = clamp(metallic, 0.0, 1.0);
   perceptualRoughness = clamp(perceptualRoughness, c_MinRoughness, 1.0);
-  let alphaRoughness = perceptualRoughness * perceptualRoughness;
-    // filter NDF for specular AA --- https://jcgt.org/published/0010/02/02/
-  let alphaRoughness2 = alphaRoughness * alphaRoughness;
-  let filteredRoughness2 = IsotropicNDFFiltering(normal_inWorld, alphaRoughness2);
-  perceptualRoughness = sqrt(sqrt(filteredRoughness2));
 
   // NdotV
   let NdotV = saturate(dot(normal_inWorld, viewDirection));

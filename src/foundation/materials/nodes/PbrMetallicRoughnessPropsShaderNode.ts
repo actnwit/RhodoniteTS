@@ -38,9 +38,6 @@ export class PbrMetallicRoughnessPropsShaderNode extends AbstractShaderNode {
     this.__inputs.push(
       new Socket('metallicRoughnessTexture', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
-    this.__inputs.push(
-      new Socket('normalInWorld', CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 1))
-    );
     this.__outputs.push(new Socket('outMetallic', CompositionType.Scalar, ComponentType.Float));
     this.__outputs.push(new Socket('outRoughness', CompositionType.Scalar, ComponentType.Float));
   }

@@ -42,6 +42,15 @@ void pbrShader(
   vec3 viewDirection = normalize(viewPosition - positionInWorld.xyz);
   float NdotV = saturate(dot(normalInWorld, viewDirection));
 
+  // Roughness
+  #ifdef RN_IS_PIXEL_SHADER
+    float alphaRoughness = perceptualRoughness * perceptualRoughness;
+    float alphaRoughness2 = alphaRoughness * alphaRoughness;
+    // filter NDF for specular AA --- https://jcgt.org/published/0010/02/02/
+    float filteredRoughness2 = IsotropicNDFFiltering(normalInWorld, alphaRoughness2);
+    perceptualRoughness = sqrt(sqrt(filteredRoughness2));
+  #endif // RN_IS_PIXEL_SHADER
+
   // Clearcoat
   #ifdef RN_USE_CLEARCOAT
     clearcoatProps.clearcoatNormal_inWorld = normalize(TBN * clearcoatProps.clearcoatNormal_inTangent);

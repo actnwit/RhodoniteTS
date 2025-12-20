@@ -1,6 +1,6 @@
 fn pbrShader(
   positionInWorld: vec4<f32>, normalInWorld: vec3<f32>, geomNormalInWorld: vec3<f32>, TBN: mat3x3<f32>,
-  baseColor: vec4<f32>, metallic: f32, perceptualRoughness: f32,
+  baseColor: vec4<f32>, metallic: f32, perceptualRoughness_: f32,
   occlusionProps: OcclusionProps,
   emissiveProps: EmissiveProps,
   ior: f32,
@@ -31,6 +31,16 @@ fn pbrShader(
   let viewDirection = normalize(viewPosition - positionInWorld.xyz);
   let NdotV = saturate(dot(normalInWorld, viewDirection));
 
+  // Roughness
+  #ifdef RN_IS_PIXEL_SHADER
+    let alphaRoughness = perceptualRoughness_ * perceptualRoughness_;
+    let alphaRoughness2 = alphaRoughness * alphaRoughness;
+    // filter NDF for specular AA --- https://jcgt.org/published/0010/02/02/
+    let filteredRoughness2 = IsotropicNDFFiltering(normalInWorld, alphaRoughness2);
+    let perceptualRoughness = sqrt(sqrt(filteredRoughness2));
+  #else
+    let perceptualRoughness = perceptualRoughness_;
+  #endif
   // Clearcoat
   var clearcoatProps: ClearcoatProps = clearcoatProps_;
   #ifdef RN_USE_CLEARCOAT
