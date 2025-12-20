@@ -57,6 +57,7 @@ import { PbrMetallicRoughnessPropsShaderNode } from '../nodes/PbrMetallicRoughne
 import { PbrNormalPropsShaderNode } from '../nodes/PbrNormalPropsShaderNode';
 import { PbrOcclusionPropsShaderNode } from '../nodes/PbrOcclusionPropsShaderNode';
 import { PbrShaderShaderNode } from '../nodes/PbrShaderShaderNode';
+import { PbrSheenPropsShaderNode } from '../nodes/PbrSheenPropsShaderNode';
 import { PbrSpecularPropsShaderNode } from '../nodes/PbrSpecularPropsShaderNode';
 import { PremultipliedAlphaShaderNode } from '../nodes/PremultipliedAlphaShaderNode';
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
@@ -1788,6 +1789,12 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'PbrClearcoatProps': {
         const nodeInstance = new PbrClearcoatPropsShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'PbrSheenProps': {
+        const nodeInstance = new PbrSheenPropsShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;

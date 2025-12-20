@@ -41,6 +41,7 @@ export * from './PbrEmissivePropsShaderNode';
 export * from './PbrMetallicRoughnessPropsShaderNode';
 export * from './PbrOcclusionPropsShaderNode';
 export * from './PbrNormalPropsShaderNode';
+export * from './PbrSheenPropsShaderNode';
 export * from './PbrShaderShaderNode';
 export * from './PbrSpecularPropsShaderNode';
 export * from './PremultipliedAlphaShaderNode';
