@@ -75,9 +75,9 @@ export class PbrShaderShaderNode extends AbstractShaderNode {
     this.__inputs.push(
       new Socket('volumeProps', CompositionType.VolumeProps, ComponentType.Unknown, {
         // Note: Property order must match GLSL/WGSL struct field order
+        thickness: Scalar.fromCopyNumber(0.0),
         attenuationColor: Vector3.fromCopy3(1.0, 1.0, 1.0),
         attenuationDistance: Scalar.fromCopyNumber(1e20),
-        thickness: Scalar.fromCopyNumber(0.0),
       })
     );
     this.__inputs.push(

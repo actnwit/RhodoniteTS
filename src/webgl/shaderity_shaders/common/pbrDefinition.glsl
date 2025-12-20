@@ -609,9 +609,9 @@ struct AnisotropyProps
 
 struct VolumeProps
 {
+  float thickness;
   vec3 attenuationColor;
   float attenuationDistance;
-  float thickness;
 };
 
 struct DiffuseTransmissionProps
