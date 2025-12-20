@@ -280,21 +280,11 @@ fn main(
   direction = anisotropyTex.rg * 2.0 - vec2f(1.0);
   direction = mat2x2<f32>(anisotropyRotation.x, anisotropyRotation.y, -anisotropyRotation.y, anisotropyRotation.x) * normalize(direction);
   anisotropy *= anisotropyTex.b;
-  let anisotropicT: vec3f = normalize(TBN * vec3f(direction, 0.0));
-  let anisotropicB: vec3f = normalize(cross(geomNormal_inWorld, anisotropicT));
-  let BdotV: f32 = dot(anisotropicB, viewDirection);
-  let TdotV: f32 = dot(anisotropicT, viewDirection);
   anisotropyProps.anisotropy = anisotropy;
-  anisotropyProps.anisotropicT = anisotropicT;
-  anisotropyProps.anisotropicB = anisotropicB;
-  anisotropyProps.BdotV = BdotV;
-  anisotropyProps.TdotV = TdotV;
+  anisotropyProps.direction = direction;
 #else
   anisotropyProps.anisotropy = 0.0;
-  anisotropyProps.anisotropicT = vec3f(0.0, 0.0, 0.0);
-  anisotropyProps.anisotropicB = vec3f(0.0, 0.0, 0.0);
-  anisotropyProps.BdotV = 0.0;
-  anisotropyProps.TdotV = 0.0;
+  anisotropyProps.direction = vec2f(0.0, 0.0);
 #endif
 
 let ior = get_ior(materialSID, 0);

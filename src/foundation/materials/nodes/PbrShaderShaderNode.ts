@@ -4,6 +4,7 @@ import { ComponentType, type ComponentTypeEnum } from '../../definitions/Compone
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { Matrix33 } from '../../math/Matrix33';
 import { Scalar } from '../../math/Scalar';
+import { Vector2 } from '../../math/Vector2';
 import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
@@ -101,6 +102,7 @@ export class PbrShaderShaderNode extends AbstractShaderNode {
         anisotropicB: Vector3.fromCopy3(0.0, 0.0, 0.0),
         BdotV: Scalar.fromCopyNumber(0.0),
         TdotV: Scalar.fromCopyNumber(0.0),
+        direction: Vector2.fromCopy2(0.0, 0.0),
       })
     );
     this.__inputs.push(

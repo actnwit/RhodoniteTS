@@ -287,16 +287,10 @@ void main ()
     direction = mat2(anisotropyRotation.x, anisotropyRotation.y, -anisotropyRotation.y, anisotropyRotation.x) * normalize(direction);
     anisotropy *= anisotropyTex.b;
     anisotropyProps.anisotropy = anisotropy;
-    anisotropyProps.anisotropicT = normalize(TBN * vec3(direction, 0.0));
-    anisotropyProps.anisotropicB = normalize(cross(geomNormal_inWorld, anisotropyProps.anisotropicT));
-    anisotropyProps.BdotV = dot(anisotropyProps.anisotropicB, viewDirection);
-    anisotropyProps.TdotV = dot(anisotropyProps.anisotropicT, viewDirection);
+    anisotropyProps.direction = direction;
   #else
     anisotropyProps.anisotropy = 0.0;
-    anisotropyProps.anisotropicT = vec3(0.0, 0.0, 0.0);
-    anisotropyProps.anisotropicB = vec3(0.0, 0.0, 0.0);
-    anisotropyProps.BdotV = 0.0;
-    anisotropyProps.TdotV = 0.0;
+    anisotropyProps.direction = vec2(0.0, 0.0);
   #endif
 
   float ior = get_ior(materialSID, 0u);

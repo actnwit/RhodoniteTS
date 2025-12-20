@@ -41,6 +41,20 @@ fn pbrShader(
   #else
     let perceptualRoughness = perceptualRoughness_;
   #endif
+
+  // Anisotropy
+  #ifdef RN_USE_ANISOTROPY
+    anisotropyProps.anisotropicT = normalize(TBN * vec3f(anisotropyProps.direction, 0.0));
+    anisotropyProps.anisotropicB = normalize(cross(geomNormalInWorld, anisotropyProps.anisotropicT));
+    anisotropyProps.BdotV = dot(anisotropyProps.anisotropicB, viewDirection);
+    anisotropyProps.TdotV = dot(anisotropyProps.anisotropicT, viewDirection);
+  #else
+    anisotropyProps.anisotropicT = vec3f(0.0, 0.0, 0.0);
+    anisotropyProps.anisotropicB = vec3f(0.0, 0.0, 0.0);
+    anisotropyProps.BdotV = 0.0;
+    anisotropyProps.TdotV = 0.0;
+  #endif // RN_USE_ANISOTROPY
+
   // Clearcoat
   var clearcoatProps: ClearcoatProps = clearcoatProps_;
   #ifdef RN_USE_CLEARCOAT

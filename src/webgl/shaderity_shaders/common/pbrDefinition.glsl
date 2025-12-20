@@ -605,6 +605,7 @@ struct AnisotropyProps
   vec3 anisotropicB;
   float BdotV;
   float TdotV;
+  vec2 direction;
 };
 
 struct VolumeProps
