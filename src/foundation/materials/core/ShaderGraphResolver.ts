@@ -51,6 +51,7 @@ import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
 import { PbrAnisotropyPropsShaderNode } from '../nodes/PbrAnisotropyPropsShaderNode';
+import { PbrAnisotropyRotationShaderNode } from '../nodes/PbrAnisotropyRotationShaderNode';
 import { PbrBaseColorPropsShaderNode } from '../nodes/PbrBaseColorPropsShaderNode';
 import { PbrClearcoatPropsShaderNode } from '../nodes/PbrClearcoatPropsShaderNode';
 import { PbrEmissivePropsShaderNode } from '../nodes/PbrEmissivePropsShaderNode';
@@ -1805,6 +1806,12 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'PbrAnisotropyProps': {
         const nodeInstance = new PbrAnisotropyPropsShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'PbrAnisotropyRotation': {
+        const nodeInstance = new PbrAnisotropyRotationShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
