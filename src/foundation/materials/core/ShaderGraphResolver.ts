@@ -60,6 +60,7 @@ import { PbrOcclusionPropsShaderNode } from '../nodes/PbrOcclusionPropsShaderNod
 import { PbrShaderShaderNode } from '../nodes/PbrShaderShaderNode';
 import { PbrSheenPropsShaderNode } from '../nodes/PbrSheenPropsShaderNode';
 import { PbrSpecularPropsShaderNode } from '../nodes/PbrSpecularPropsShaderNode';
+import { PbrTransmissionPropsShaderNode } from '../nodes/PbrTransmissionPropsShaderNode';
 import { PremultipliedAlphaShaderNode } from '../nodes/PremultipliedAlphaShaderNode';
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
 import { ProjectionMatrixShaderNode } from '../nodes/ProjectionMatrixShaderNode';
@@ -1802,6 +1803,12 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'PbrIridescenceProps': {
         const nodeInstance = new PbrIridescencePropsShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'PbrTransmissionProps': {
+        const nodeInstance = new PbrTransmissionPropsShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;

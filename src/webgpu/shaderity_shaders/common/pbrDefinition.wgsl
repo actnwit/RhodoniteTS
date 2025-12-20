@@ -485,11 +485,6 @@ struct IridescenceProps
   fresnelMetal: vec3f,
 };
 
-struct TransmissionProps
-{
-  transmission: f32,
-};
-
 struct AnisotropyProps
 {
   anisotropy: f32,

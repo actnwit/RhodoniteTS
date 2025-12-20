@@ -45,6 +45,7 @@ export * from './PbrNormalPropsShaderNode';
 export * from './PbrSheenPropsShaderNode';
 export * from './PbrShaderShaderNode';
 export * from './PbrSpecularPropsShaderNode';
+export * from './PbrTransmissionPropsShaderNode';
 export * from './PremultipliedAlphaShaderNode';
 export * from './ProjectionMatrixShaderNode';
 export * from './RemapShaderNode';
