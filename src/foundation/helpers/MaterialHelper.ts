@@ -207,7 +207,7 @@ export type PbrUberMaterialOptions = {
  * @param options.isLighting - Enable lighting calculations
  * @param options.isOcclusion - Enable ambient occlusion texture support
  * @param options.isEmissive - Enable emissive texture support
- * @param options.isClearCoat - Enable clear coat extension (KHR_materials_clearcoat)
+ * @param options.isClearcoat - Enable clear coat extension (KHR_materials_clearcoat)
  * @param options.isTransmission - Enable transmission extension (KHR_materials_transmission)
  * @param options.isVolume - Enable volume extension (KHR_materials_volume)
  * @param options.isSheen - Enable sheen extension (KHR_materials_sheen)
@@ -2233,7 +2233,7 @@ function createNodeBasedCustomMaterial(
     useNormalTexture: hasNormalTextureConnected,
     isSheen: hasPbrSheenPropsConnected,
     isIridescence: hasPbrIridescencePropsConnected,
-    isClearCoat: hasPbrClearcoatPropsConnected,
+    isClearcoat: hasPbrClearcoatPropsConnected,
     additionalName: '',
     additionalShaderSemanticInfo,
   };
