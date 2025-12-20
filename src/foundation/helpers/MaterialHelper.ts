@@ -8,10 +8,10 @@ import DepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/Depth
 import DepthMomentEncodeShaderVertex from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert';
 import EnvConstantSingleShaderFragment from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
 import EnvConstantSingleShaderVertex from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.vert';
-import FlatSingleShaderFragment from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
-import FlatSingleShaderVertex from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
 import FXAA3QualityShaderFragment from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.frag';
 import FXAA3QualityShaderVertex from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.vert';
+import FlatSingleShaderFragment from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
+import FlatSingleShaderVertex from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
 import GammaCorrectionShaderFragment from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
 import GammaCorrectionShaderVertex from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
 import GaussianBlurForEncodedDepthSingleShaderFragment from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.frag';
@@ -68,9 +68,9 @@ import { DepthEncodeMaterialContent } from '../materials/contents/DepthEncodeMat
 import { DetectHighLuminanceMaterialContent } from '../materials/contents/DetectHighLuminanceMaterialContent';
 import { EntityUIDOutputMaterialContent } from '../materials/contents/EntityUIDOutputMaterialContent';
 import { FurnaceTestMaterialContent } from '../materials/contents/FurnaceTestMaterialContent';
-import { MatCapMaterialContent } from '../materials/contents/MatCapMaterialContent';
 import { MToon0xMaterialContent } from '../materials/contents/MToon0xMaterialContent';
 import { MToon1MaterialContent } from '../materials/contents/MToon1MaterialContent';
+import { MatCapMaterialContent } from '../materials/contents/MatCapMaterialContent';
 import { ShadowMapDecodeClassicMaterialContent } from '../materials/contents/ShadowMapDecodeClassicMaterialContent';
 import { SynthesizeHdrMaterialContent as SynthesizeHDRMaterialContent } from '../materials/contents/SynthesizeHdrMaterialContent';
 import { VarianceShadowMapDecodeClassicMaterialContent } from '../materials/contents/VarianceShadowMapDecodeClassicMaterialContent';
@@ -1804,6 +1804,11 @@ function reuseOrRecreateCustomMaterial(
   } else {
     definitions.delete('RN_USE_SHEEN');
   }
+  if (options.isIridescence) {
+    definitions.add('RN_USE_IRIDESCENCE');
+  } else {
+    definitions.delete('RN_USE_IRIDESCENCE');
+  }
 
   let materialContent: CustomMaterialContent;
   if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
@@ -2153,6 +2158,30 @@ function createNodeBasedCustomMaterial(
     return sourceNode?.name === 'PbrSheenProps';
   })();
 
+  // Check if PbrIridescenceProps node is connected to PbrShader's iridescenceProps input
+  const hasPbrIridescencePropsConnected = (() => {
+    const nodes = shaderNodeJson?.nodes as Array<{ id: string; name: string }> | undefined;
+    const connections = shaderNodeJson?.connections as
+      | Array<{ from: { id: string; portName: string }; to: { id: string; portName: string } }>
+      | undefined;
+
+    if (!nodes || !connections) return false;
+
+    // Find PbrShader node
+    const pbrShaderNode = nodes.find(node => node.name === 'PbrShader');
+    if (!pbrShaderNode) return false;
+
+    // Find connection to iridescenceProps input of PbrShader
+    const iridescencePropsConnection = connections.find(
+      conn => conn.to.id === pbrShaderNode.id && conn.to.portName === 'iridescenceProps'
+    );
+    if (!iridescencePropsConnection) return false;
+
+    // Check if the source node is a PbrIridescenceProps
+    const sourceNode = nodes.find(node => node.id === iridescencePropsConnection.from.id);
+    return sourceNode?.name === 'PbrIridescenceProps';
+  })();
+
   // Add IBL-related semantic info if PBR shader is used
   if (hasPbrShaderNode) {
     addPbrIblSemanticInfo(engine, additionalShaderSemanticInfo);
@@ -2174,6 +2203,7 @@ function createNodeBasedCustomMaterial(
     isOcclusion: hasPbrOcclusionPropsNode,
     useNormalTexture: hasNormalTextureConnected,
     isSheen: hasPbrSheenPropsConnected,
+    isIridescence: hasPbrIridescencePropsConnected,
     additionalName: '',
     additionalShaderSemanticInfo,
   };
