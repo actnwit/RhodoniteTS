@@ -479,11 +479,9 @@ void main ()
 
     sheenProps.sheenColor = sheenColorFactor * sheenColorTexture;
     sheenProps.sheenRoughness = clamp(sheenRoughnessFactor * sheenRoughnessTexture, 0.000001, 1.0);
-    sheenProps.albedoSheenScalingNdotV = 1.0 - max3(sheenProps.sheenColor) * texture(u_sheenLutTexture, vec2(NdotV, sheenProps.sheenRoughness)).r;
   #else
     sheenProps.sheenColor = vec3(0.0);
     sheenProps.sheenRoughness = 0.000001;
-    sheenProps.albedoSheenScalingNdotV = 1.0;
   #endif // RN_USE_SHEEN
 
   DiffuseTransmissionProps diffuseTransmissionProps;

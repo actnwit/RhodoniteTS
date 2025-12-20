@@ -9,7 +9,7 @@ fn pbrShader(
   volumeProps: VolumeProps,
   clearcoatProps: ClearcoatProps,
   anisotropyProps: AnisotropyProps,
-  sheenProps: SheenProps,
+  sheenProps_: SheenProps,
   iridescenceProps_: IridescenceProps,
   diffuseTransmissionProps: DiffuseTransmissionProps,
   dispersion: f32,
@@ -30,6 +30,14 @@ fn pbrShader(
   let viewPosition = get_viewPosition(cameraSID);
   let viewDirection = normalize(viewPosition - positionInWorld.xyz);
   let NdotV = saturate(dot(normalInWorld, viewDirection));
+
+  // Sheen
+  var sheenProps: SheenProps = sheenProps_;
+  #ifdef RN_USE_SHEEN
+    sheenProps.albedoSheenScalingNdotV = 1.0 - max3(sheenProps.sheenColor) * textureSample(sheenLutTexture, sheenLutSampler, vec2(NdotV, sheenProps.sheenRoughness)).r;
+  #else
+    sheenProps.albedoSheenScalingNdotV = 1.0;
+  #endif // RN_USE_SHEEN
 
   var iridescenceProps: IridescenceProps = iridescenceProps_;
   #ifdef RN_USE_IRIDESCENCE

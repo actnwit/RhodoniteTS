@@ -487,14 +487,11 @@ var specularProps: SpecularProps;
 
   let sheenColor: vec3f = sheenColorFactor * sheenColorTexture;
   let sheenRoughness: f32 = clamp(sheenRoughnessFactor * sheenRoughnessTexture, 0.000001, 1.0);
-  let albedoSheenScalingNdotV: f32 = 1.0 - max3(sheenColor) * textureSample(sheenLutTexture, sheenLutSampler, vec2(NdotV, sheenRoughness)).r;
   sheenProps.sheenColor = sheenColor;
   sheenProps.sheenRoughness = sheenRoughness;
-  sheenProps.albedoSheenScalingNdotV = albedoSheenScalingNdotV;
 #else
   sheenProps.sheenColor = vec3f(0.0);
   sheenProps.sheenRoughness = 0.000001;
-  sheenProps.albedoSheenScalingNdotV = 1.0;
 #endif // RN_USE_SHEEN
 
 var diffuseTransmissionProps: DiffuseTransmissionProps;

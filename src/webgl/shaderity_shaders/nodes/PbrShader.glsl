@@ -42,6 +42,13 @@ void pbrShader(
   vec3 viewDirection = normalize(viewPosition - positionInWorld.xyz);
   float NdotV = saturate(dot(normalInWorld, viewDirection));
 
+  // Sheen
+  #ifdef RN_USE_SHEEN
+    sheenProps.albedoSheenScalingNdotV = 1.0 - max3(sheenProps.sheenColor) * texture(u_sheenLutTexture, vec2(NdotV, sheenProps.sheenRoughness)).r;
+  #else
+    sheenProps.albedoSheenScalingNdotV = 1.0;
+  #endif // RN_USE_SHEEN
+
   // Iridescence
   #ifdef RN_USE_IRIDESCENCE
     iridescenceProps.fresnelDielectric = calcIridescence(1.0, iridescenceProps.iridescenceIor, NdotV, iridescenceProps.iridescenceThickness, dielectricF0);
