@@ -6,5 +6,5 @@ void pbrSheenProps(
   out SheenProps outSheenProps) {
 
   outSheenProps.sheenColor = sheenColorFactor * sheenColorTexture.rgb;
-  outSheenProps.sheenRoughness = sheenRoughnessFactor * sheenRoughnessTexture.a;
+  outSheenProps.sheenRoughness = clamp(sheenRoughnessFactor * sheenRoughnessTexture.a, 0.000001, 1.0);
 }
