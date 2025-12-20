@@ -8,10 +8,10 @@ import DepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/Depth
 import DepthMomentEncodeShaderVertex from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert';
 import EnvConstantSingleShaderFragment from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
 import EnvConstantSingleShaderVertex from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.vert';
-import FlatSingleShaderFragment from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
-import FlatSingleShaderVertex from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
 import FXAA3QualityShaderFragment from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.frag';
 import FXAA3QualityShaderVertex from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.vert';
+import FlatSingleShaderFragment from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
+import FlatSingleShaderVertex from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
 import GammaCorrectionShaderFragment from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
 import GammaCorrectionShaderVertex from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
 import GaussianBlurForEncodedDepthSingleShaderFragment from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.frag';
@@ -68,9 +68,9 @@ import { DepthEncodeMaterialContent } from '../materials/contents/DepthEncodeMat
 import { DetectHighLuminanceMaterialContent } from '../materials/contents/DetectHighLuminanceMaterialContent';
 import { EntityUIDOutputMaterialContent } from '../materials/contents/EntityUIDOutputMaterialContent';
 import { FurnaceTestMaterialContent } from '../materials/contents/FurnaceTestMaterialContent';
-import { MatCapMaterialContent } from '../materials/contents/MatCapMaterialContent';
 import { MToon0xMaterialContent } from '../materials/contents/MToon0xMaterialContent';
 import { MToon1MaterialContent } from '../materials/contents/MToon1MaterialContent';
+import { MatCapMaterialContent } from '../materials/contents/MatCapMaterialContent';
 import { ShadowMapDecodeClassicMaterialContent } from '../materials/contents/ShadowMapDecodeClassicMaterialContent';
 import { SynthesizeHdrMaterialContent as SynthesizeHDRMaterialContent } from '../materials/contents/SynthesizeHdrMaterialContent';
 import { VarianceShadowMapDecodeClassicMaterialContent } from '../materials/contents/VarianceShadowMapDecodeClassicMaterialContent';
@@ -181,7 +181,7 @@ export type PbrUberMaterialOptions = {
   isLighting?: boolean;
   isOcclusion?: boolean;
   isEmissive?: boolean;
-  isClearCoat?: boolean;
+  isClearcoat?: boolean;
   isTransmission?: boolean;
   isVolume?: boolean;
   isSheen?: boolean;
@@ -232,7 +232,7 @@ function createPbrUberMaterial(
     isLighting = true,
     isOcclusion = false,
     isEmissive = false,
-    isClearCoat = false,
+    isClearcoat = false,
     isTransmission = false,
     isVolume = false,
     isSheen = false,
@@ -260,7 +260,7 @@ function createPbrUberMaterial(
 
   sampler.create();
 
-  if (isClearCoat) {
+  if (isClearcoat) {
     additionalShaderSemanticInfo.push({
       semantic: 'clearcoatTexture',
       componentType: ComponentType.Int,
@@ -501,7 +501,7 @@ function createPbrUberMaterial(
   if (isEmissive) {
     definitions.push('RN_USE_EMISSIVE_TEXTURE');
   }
-  if (isClearCoat) {
+  if (isClearcoat) {
     definitions.push('RN_USE_CLEARCOAT');
   }
   if (isTransmission) {
@@ -1809,6 +1809,11 @@ function reuseOrRecreateCustomMaterial(
   } else {
     definitions.delete('RN_USE_IRIDESCENCE');
   }
+  if (options.isClearcoat) {
+    definitions.add('RN_USE_CLEARCOAT');
+  } else {
+    definitions.delete('RN_USE_CLEARCOAT');
+  }
 
   let materialContent: CustomMaterialContent;
   if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
@@ -2182,6 +2187,30 @@ function createNodeBasedCustomMaterial(
     return sourceNode?.name === 'PbrIridescenceProps';
   })();
 
+  // Check if PbrClearcoatProps node is connected to PbrShader's clearcoatProps input
+  const hasPbrClearcoatPropsConnected = (() => {
+    const nodes = shaderNodeJson?.nodes as Array<{ id: string; name: string }> | undefined;
+    const connections = shaderNodeJson?.connections as
+      | Array<{ from: { id: string; portName: string }; to: { id: string; portName: string } }>
+      | undefined;
+
+    if (!nodes || !connections) return false;
+
+    // Find PbrShader node
+    const pbrShaderNode = nodes.find(node => node.name === 'PbrShader');
+    if (!pbrShaderNode) return false;
+
+    // Find connection to clearcoatProps input of PbrShader
+    const clearcoatPropsConnection = connections.find(
+      conn => conn.to.id === pbrShaderNode.id && conn.to.portName === 'clearcoatProps'
+    );
+    if (!clearcoatPropsConnection) return false;
+
+    // Check if the source node is a PbrClearcoatProps
+    const sourceNode = nodes.find(node => node.id === clearcoatPropsConnection.from.id);
+    return sourceNode?.name === 'PbrClearcoatProps';
+  })();
+
   // Add IBL-related semantic info if PBR shader is used
   if (hasPbrShaderNode) {
     addPbrIblSemanticInfo(engine, additionalShaderSemanticInfo);
@@ -2204,6 +2233,7 @@ function createNodeBasedCustomMaterial(
     useNormalTexture: hasNormalTextureConnected,
     isSheen: hasPbrSheenPropsConnected,
     isIridescence: hasPbrIridescencePropsConnected,
+    isClearCoat: hasPbrClearcoatPropsConnected,
     additionalName: '',
     additionalShaderSemanticInfo,
   };
