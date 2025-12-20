@@ -41,11 +41,20 @@ export class CalcBitangentShaderNode extends AbstractShaderNode {
   }
 
   /**
-   * Gets the output socket that contains the bitangent vector.
+   * Gets the output socket that contains the tangent vector in world space.
    *
-   * @returns The output socket containing the bitangent vector
+   * @returns The output socket containing the tangent vector in world space
    */
-  getSocketOutput() {
+  getSocketOutputTangentInWorld() {
     return this.__outputs[0];
+  }
+
+  /**
+   * Gets the output socket that contains the bitangent vector in world space.
+   *
+   * @returns The output socket containing the bitangent vector in world space
+   */
+  getSocketOutputBitangentInWorld() {
+    return this.__outputs[1];
   }
 }
