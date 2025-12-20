@@ -42,9 +42,6 @@ export class PbrSheenPropsShaderNode extends AbstractShaderNode {
       new Socket('sheenRoughnessTexture', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
     this.__inputs.push(
-      new Socket('clearcoatNormalTexture', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(0.5, 0.5, 1, 1))
-    );
-    this.__inputs.push(
       new Socket('positionInWorld', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(0, 0, 0, 1))
     );
     this.__inputs.push(
