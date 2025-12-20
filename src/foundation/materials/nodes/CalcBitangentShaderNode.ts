@@ -49,4 +49,3 @@ export class CalcBitangentShaderNode extends AbstractShaderNode {
     return this.__outputs[0];
   }
 }
-

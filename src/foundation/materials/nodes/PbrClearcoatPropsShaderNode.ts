@@ -44,7 +44,7 @@ export class PbrClearcoatPropsShaderNode extends AbstractShaderNode {
     this.__inputs.push(
       new Socket('clearcoatNormalTexture', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(0.5, 0.5, 1, 1))
     );
-    this.__outputs.push(new Socket('outColor', CompositionType.Vec4, ComponentType.Float));
+    this.__outputs.push(new Socket('outClearcoatProps', CompositionType.ClearcoatProps, ComponentType.Unknown));
   }
 
   /**

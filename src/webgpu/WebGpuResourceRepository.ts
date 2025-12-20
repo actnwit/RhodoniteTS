@@ -390,9 +390,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     _width: number,
     _height: number
   ): Uint8Array {
-    throw new Error(
-      'WebGPU does not support synchronous texture readback. Use getPixelDataFromTextureAsync instead.'
-    );
+    throw new Error('WebGPU does not support synchronous texture readback. Use getPixelDataFromTextureAsync instead.');
   }
 
   /**

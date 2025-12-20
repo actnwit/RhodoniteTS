@@ -52,7 +52,7 @@ export class PbrIridescencePropsShaderNode extends AbstractShaderNode {
     this.__inputs.push(
       new Socket('iridescenceIor', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(1.3))
     );
-    this.__outputs.push(new Socket('outIridescenceProps', CompositionType.IridescenceProps, ComponentType.Float));
+    this.__outputs.push(new Socket('outIridescenceProps', CompositionType.IridescenceProps, ComponentType.Unknown));
   }
 
   /**
