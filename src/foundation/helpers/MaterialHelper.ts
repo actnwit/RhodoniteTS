@@ -1799,6 +1799,11 @@ function reuseOrRecreateCustomMaterial(
   } else {
     definitions.delete('RN_USE_NORMAL_TEXTURE');
   }
+  if (options.isSheen) {
+    definitions.add('RN_USE_SHEEN');
+  } else {
+    definitions.delete('RN_USE_SHEEN');
+  }
 
   let materialContent: CustomMaterialContent;
   if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
@@ -2031,8 +2036,30 @@ function addPbrSheenSemanticInfo(engine: Engine, additionalShaderSemanticInfo: S
     semantic: 'sheenLutTexture',
     componentType: ComponentType.Int,
     compositionType: CompositionType.Texture2D,
-    stage: ShaderType.PixelShader,
+    stage: ShaderType.VertexAndPixelShader,
     initialValue: [-1, engine.dummyTextures.sheenLutTexture, sampler],
+    min: 0,
+    max: Number.MAX_VALUE,
+  });
+
+  // Create a sampler for sheen environment texture (cube map)
+  const cubeSampler = new Sampler(engine, {
+    minFilter: TextureParameter.LinearMipmapLinear,
+    magFilter: TextureParameter.Linear,
+    wrapS: TextureParameter.ClampToEdge,
+    wrapT: TextureParameter.ClampToEdge,
+    wrapR: TextureParameter.ClampToEdge,
+  });
+  cubeSampler.create();
+
+  // Add sheenEnvTexture for IBL sheen calculations
+  additionalShaderSemanticInfo.push({
+    semantic: 'sheenEnvTexture',
+    componentType: ComponentType.Int,
+    compositionType: CompositionType.TextureCube,
+    stage: ShaderType.VertexAndPixelShader,
+    isInternalSetting: true,
+    initialValue: [-1, engine.dummyTextures.dummyBlackCubeTexture, cubeSampler],
     min: 0,
     max: Number.MAX_VALUE,
   });
@@ -2146,6 +2173,7 @@ function createNodeBasedCustomMaterial(
     isPbr: hasPbrShaderNode,
     isOcclusion: hasPbrOcclusionPropsNode,
     useNormalTexture: hasNormalTextureConnected,
+    isSheen: hasPbrSheenPropsConnected,
     additionalName: '',
     additionalShaderSemanticInfo,
   };
