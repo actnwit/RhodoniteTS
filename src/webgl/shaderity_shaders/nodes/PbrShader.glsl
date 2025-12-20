@@ -1,6 +1,6 @@
 void pbrShader(
-  in vec4 positionInWorld, in vec3 normalInWorld, in vec3 geomNormalInWorld,
-  in vec4 baseColor, in float perceptualRoughness, in float metallic,
+  in vec4 positionInWorld, in vec3 normalInWorld, in vec3 geomNormalInWorld, in mat3 TBN,
+  in vec4 baseColor, in float metallic, in float perceptualRoughness,
   in OcclusionProps occlusionProps,
   in EmissiveProps emissiveProps,
   in float ior,
@@ -41,6 +41,46 @@ void pbrShader(
   vec3 viewPosition = get_viewPosition(cameraSID);
   vec3 viewDirection = normalize(viewPosition - positionInWorld.xyz);
   float NdotV = saturate(dot(normalInWorld, viewDirection));
+
+  // Roughness
+  #ifdef RN_IS_PIXEL_SHADER
+    float alphaRoughness = perceptualRoughness * perceptualRoughness;
+    float alphaRoughness2 = alphaRoughness * alphaRoughness;
+    // filter NDF for specular AA --- https://jcgt.org/published/0010/02/02/
+    float filteredRoughness2 = IsotropicNDFFiltering(normalInWorld, alphaRoughness2);
+    perceptualRoughness = sqrt(sqrt(filteredRoughness2));
+  #endif // RN_IS_PIXEL_SHADER
+
+  // Clearcoat
+  #ifdef RN_USE_CLEARCOAT
+    clearcoatProps.clearcoatNormal_inWorld = normalize(TBN * clearcoatProps.clearcoatNormal_inTangent);
+    clearcoatProps.VdotNc = saturate(dot(viewDirection, clearcoatProps.clearcoatNormal_inWorld));
+    clearcoatProps.clearcoatF0 = vec3(pow((ior - 1.0) / (ior + 1.0), 2.0));
+    clearcoatProps.clearcoatF90 = vec3(1.0);
+    clearcoatProps.clearcoatFresnel = fresnelSchlick(clearcoatProps.clearcoatF0, clearcoatProps.clearcoatF90, clearcoatProps.VdotNc);
+  #else
+    clearcoatProps.clearcoatNormal_inWorld = vec3(0.0);
+    clearcoatProps.VdotNc = 0.0;
+    clearcoatProps.clearcoatF0 = vec3(0.0);
+    clearcoatProps.clearcoatF90 = vec3(0.0);
+    clearcoatProps.clearcoatFresnel = vec3(0.0);
+  #endif // RN_USE_CLEARCOAT
+
+  // Sheen
+  #ifdef RN_USE_SHEEN
+    sheenProps.albedoSheenScalingNdotV = 1.0 - max3(sheenProps.sheenColor) * texture(u_sheenLutTexture, vec2(NdotV, sheenProps.sheenRoughness)).r;
+  #else
+    sheenProps.albedoSheenScalingNdotV = 1.0;
+  #endif // RN_USE_SHEEN
+
+  // Iridescence
+  #ifdef RN_USE_IRIDESCENCE
+    iridescenceProps.fresnelDielectric = calcIridescence(1.0, iridescenceProps.iridescenceIor, NdotV, iridescenceProps.iridescenceThickness, dielectricF0);
+    iridescenceProps.fresnelMetal = calcIridescence(1.0, iridescenceProps.iridescenceIor, NdotV, iridescenceProps.iridescenceThickness, baseColor.rgb);
+  #else
+    iridescenceProps.fresnelDielectric = vec3(0.0);
+    iridescenceProps.fresnelMetal = vec3(0.0);
+  #endif // RN_USE_IRIDESCENCE
 
   for (int i = 0; i < lightNumber; i++) {
     // Get Light

@@ -379,6 +379,173 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
   }
 
   /**
+   * Reads pixel data directly from a 2D texture (synchronous version).
+   * Note: WebGPU does not support synchronous texture readback.
+   * This method throws an error - use getPixelDataFromTextureAsync instead.
+   */
+  getPixelDataFromTexture(
+    _textureHandle: WebGPUResourceHandle,
+    _x: number,
+    _y: number,
+    _width: number,
+    _height: number
+  ): Uint8Array {
+    throw new Error('WebGPU does not support synchronous texture readback. Use getPixelDataFromTextureAsync instead.');
+  }
+
+  /**
+   * Reads pixel data directly from a 2D texture asynchronously.
+   * This method uses a render-based approach to avoid requiring COPY_SRC usage on the source texture.
+   * It renders the texture to a temporary render target with COPY_SRC, then reads from that.
+   *
+   * @param textureHandle - Handle to the texture to read from
+   * @param x - X offset to start reading from (currently ignored, reads from 0)
+   * @param y - Y offset to start reading from (currently ignored, reads from 0)
+   * @param width - Width of the region to read
+   * @param height - Height of the region to read
+   * @returns Promise resolving to the pixel data as a Uint8Array in RGBA format
+   */
+  async getPixelDataFromTextureAsync(
+    textureHandle: WebGPUResourceHandle,
+    _x: number,
+    _y: number,
+    width: number,
+    height: number
+  ): Promise<Uint8Array> {
+    const gpuTexture = this.__webGpuResources.get(textureHandle) as GPUTexture;
+    if (!gpuTexture) {
+      return new Uint8Array(0);
+    }
+
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+
+    // Create shader module for sampling 2D texture
+    const shaderModule = gpuDevice.createShaderModule({
+      code: /* wgsl */ `
+        struct VertexOutput {
+          @builtin(position) position: vec4f,
+          @location(0) texCoord: vec2f,
+        };
+
+        @vertex
+        fn vertexMain(@builtin(vertex_index) vertexIndex: u32) -> VertexOutput {
+          var pos = array<vec2f, 4>(
+            vec2f(-1.0, -1.0),
+            vec2f( 1.0, -1.0),
+            vec2f(-1.0,  1.0),
+            vec2f( 1.0,  1.0)
+          );
+
+          var output: VertexOutput;
+          output.position = vec4f(pos[vertexIndex], 0.0, 1.0);
+          // Flip Y for correct orientation
+          output.texCoord = vec2f(pos[vertexIndex].x * 0.5 + 0.5, 0.5 - pos[vertexIndex].y * 0.5);
+          return output;
+        }
+
+        @group(0) @binding(0) var inputTexture: texture_2d<f32>;
+        @group(0) @binding(1) var inputSampler: sampler;
+
+        @fragment
+        fn fragmentMain(input: VertexOutput) -> @location(0) vec4f {
+          return textureSample(inputTexture, inputSampler, input.texCoord);
+        }
+      `,
+    });
+
+    // Create render pipeline
+    const pipeline = gpuDevice.createRenderPipeline({
+      layout: 'auto',
+      vertex: {
+        module: shaderModule,
+        entryPoint: 'vertexMain',
+      },
+      fragment: {
+        module: shaderModule,
+        entryPoint: 'fragmentMain',
+        targets: [{ format: 'rgba8unorm' }],
+      },
+      primitive: {
+        topology: 'triangle-strip',
+      },
+    });
+
+    // Create render target texture with CopySrc usage
+    const renderTexture = gpuDevice.createTexture({
+      size: [width, height],
+      format: 'rgba8unorm',
+      usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
+    });
+
+    // Create sampler
+    const sampler = gpuDevice.createSampler({
+      magFilter: 'linear',
+      minFilter: 'linear',
+    });
+
+    // Create texture view for the input texture
+    const textureView = gpuTexture.createView();
+
+    // Create bind group
+    const bindGroup = gpuDevice.createBindGroup({
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: textureView },
+        { binding: 1, resource: sampler },
+      ],
+    });
+
+    // Render
+    const commandEncoder = gpuDevice.createCommandEncoder();
+    const renderPass = commandEncoder.beginRenderPass({
+      colorAttachments: [
+        {
+          view: renderTexture.createView(),
+          clearValue: { r: 0, g: 0, b: 0, a: 1 },
+          loadOp: 'clear',
+          storeOp: 'store',
+        },
+      ],
+    });
+
+    renderPass.setPipeline(pipeline);
+    renderPass.setBindGroup(0, bindGroup);
+    renderPass.draw(4);
+    renderPass.end();
+
+    // Copy render texture to buffer
+    const bytesPerRow = Math.ceil((width * 4) / 256) * 256;
+    const buffer = gpuDevice.createBuffer({
+      size: bytesPerRow * height,
+      usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+    });
+
+    commandEncoder.copyTextureToBuffer({ texture: renderTexture }, { buffer, bytesPerRow }, { width, height });
+
+    gpuDevice.queue.submit([commandEncoder.finish()]);
+
+    // Read back data
+    await buffer.mapAsync(GPUMapMode.READ);
+    const arrayBuffer = buffer.getMappedRange();
+
+    const textureData = new Uint8Array(width * height * 4);
+    const srcArray = new Uint8Array(arrayBuffer);
+    for (let y = 0; y < height; y++) {
+      const srcOffset = y * bytesPerRow;
+      const dstOffset = y * width * 4;
+      textureData.set(srcArray.slice(srcOffset, srcOffset + width * 4), dstOffset);
+    }
+
+    buffer.unmap();
+
+    // Cleanup
+    buffer.destroy();
+    renderTexture.destroy();
+
+    return textureData;
+  }
+
+  /**
    * Reads pixel data from a specific face of a cube texture.
    * Uses a shader-based approach to sample the cubemap and render to a 2D texture,
    * then copies the result to a buffer for CPU access.

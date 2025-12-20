@@ -9,4 +9,4 @@ flat in uvec4 v_instanceIds;
 in float v_displayIdx;
 
 in vec3 v_tangent_inWorld;
-in vec3 v_binormal_inWorld;
+in vec3 v_bitangent_inWorld;

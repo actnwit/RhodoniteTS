@@ -17,7 +17,7 @@ import { Socket } from '../core/Socket';
  * const outputSocket = pbrBaseColorPropsNode.getSocketOutput();
  * ```
  */
-export class PbrBaseColorPropsNode extends AbstractShaderNode {
+export class PbrBaseColorPropsShaderNode extends AbstractShaderNode {
   /**
    * Creates a new PbrBaseColorPropsNode with the specified composition and component types.
    */

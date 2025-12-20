@@ -77,7 +77,7 @@ fn main(
 
 #ifdef RN_USE_TANGENT
   output.tangent_inWorld = vec3f((worldMatrix * vec4f(tangent.xyz, 0.0)).xyz);
-  output.binormal_inWorld = cross(output.normal_inWorld, output.tangent_inWorld) * tangent.w;
+  output.bitangent_inWorld = cross(output.normal_inWorld, output.tangent_inWorld) * tangent.w;
 #endif
 
   output.instanceIds = instanceIds;

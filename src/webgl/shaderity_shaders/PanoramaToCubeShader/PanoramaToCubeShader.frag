@@ -18,8 +18,8 @@ uniform int u_cubeMapFaceId; // initialValue=0
 vec2 dirToPanoramaUV(vec3 dir)
 {
 	return vec2(
-		0.5f + 0.5f * atan(dir.z, dir.x) / PI,
-		1.f - acos(dir.y) / PI);
+		0.5f + 0.5f * atan(dir.z, dir.x) / M_PI,
+		1.f - acos(dir.y) / M_PI);
 }
 
 vec3 uvToDirection(int faceId, vec2 uv)

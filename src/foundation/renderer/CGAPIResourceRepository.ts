@@ -717,6 +717,46 @@ export interface ICGAPIResourceRepository {
   ): Promise<Uint8Array>;
 
   /**
+   * Reads pixel data directly from a 2D texture without requiring a framebuffer.
+   * Creates a temporary framebuffer internally to read the texture data.
+   * This is useful for reading texture data from textures that are not attached to a framebuffer.
+   *
+   * @param textureHandle - Handle to the texture to read from
+   * @param x - X offset to start reading from
+   * @param y - Y offset to start reading from
+   * @param width - Width of the region to read
+   * @param height - Height of the region to read
+   * @returns The pixel data as a Uint8Array in RGBA format
+   */
+  getPixelDataFromTexture(
+    textureHandle: CGAPIResourceHandle,
+    x: number,
+    y: number,
+    width: number,
+    height: number
+  ): Uint8Array;
+
+  /**
+   * Reads pixel data directly from a 2D texture asynchronously.
+   * This method works with both WebGL and WebGPU backends.
+   * Creates a temporary framebuffer internally to read the texture data.
+   *
+   * @param textureHandle - Handle to the texture to read from
+   * @param x - X offset to start reading from
+   * @param y - Y offset to start reading from
+   * @param width - Width of the region to read
+   * @param height - Height of the region to read
+   * @returns Promise resolving to the pixel data as a Uint8Array in RGBA format
+   */
+  getPixelDataFromTextureAsync(
+    textureHandle: CGAPIResourceHandle,
+    x: number,
+    y: number,
+    width: number,
+    height: number
+  ): Promise<Uint8Array>;
+
+  /**
    * Reads pixel data from a specific face of a cube texture.
    * This creates a temporary framebuffer, attaches the cube face, and reads the pixels.
    *

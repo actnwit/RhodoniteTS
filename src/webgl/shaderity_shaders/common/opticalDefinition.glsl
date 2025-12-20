@@ -87,7 +87,7 @@ Light getLight(int lightIdx, vec3 v_position_inWorld) {
     light.type = 2;
   }
 
-  const float M_PI = 3.141592653589793;
+
   light.intensity *= M_PI; // Punctual Light
 
   // Attenuation

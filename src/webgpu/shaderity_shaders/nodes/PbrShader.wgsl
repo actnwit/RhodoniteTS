@@ -1,16 +1,16 @@
 fn pbrShader(
-  positionInWorld: vec4<f32>, normalInWorld: vec3<f32>, geomNormalInWorld: vec3<f32>,
-  baseColor: vec4<f32>, perceptualRoughness: f32, metallic: f32,
+  positionInWorld: vec4<f32>, normalInWorld: vec3<f32>, geomNormalInWorld: vec3<f32>, TBN: mat3x3<f32>,
+  baseColor: vec4<f32>, metallic: f32, perceptualRoughness_: f32,
   occlusionProps: OcclusionProps,
   emissiveProps: EmissiveProps,
   ior: f32,
   transmission: f32,
   specularProps: SpecularProps,
   volumeProps: VolumeProps,
-  clearcoatProps: ClearcoatProps,
+  clearcoatProps_: ClearcoatProps,
   anisotropyProps: AnisotropyProps,
-  sheenProps: SheenProps,
-  iridescenceProps: IridescenceProps,
+  sheenProps_: SheenProps,
+  iridescenceProps_: IridescenceProps,
   diffuseTransmissionProps: DiffuseTransmissionProps,
   dispersion: f32,
   outColor: ptr<function, vec4<f32>>
@@ -30,6 +30,49 @@ fn pbrShader(
   let viewPosition = get_viewPosition(cameraSID);
   let viewDirection = normalize(viewPosition - positionInWorld.xyz);
   let NdotV = saturate(dot(normalInWorld, viewDirection));
+
+  // Roughness
+  #ifdef RN_IS_PIXEL_SHADER
+    let alphaRoughness = perceptualRoughness_ * perceptualRoughness_;
+    let alphaRoughness2 = alphaRoughness * alphaRoughness;
+    // filter NDF for specular AA --- https://jcgt.org/published/0010/02/02/
+    let filteredRoughness2 = IsotropicNDFFiltering(normalInWorld, alphaRoughness2);
+    let perceptualRoughness = sqrt(sqrt(filteredRoughness2));
+  #else
+    let perceptualRoughness = perceptualRoughness_;
+  #endif
+  // Clearcoat
+  var clearcoatProps: ClearcoatProps = clearcoatProps_;
+  #ifdef RN_USE_CLEARCOAT
+    clearcoatProps.clearcoatNormal_inWorld = normalize(TBN * clearcoatProps.clearcoatNormal_inTangent);
+    clearcoatProps.VdotNc = saturate(dot(viewDirection, clearcoatProps.clearcoatNormal_inWorld));
+    clearcoatProps.clearcoatF0 = vec3f(pow((ior - 1.0) / (ior + 1.0), 2.0));
+    clearcoatProps.clearcoatF90 = vec3f(1.0);
+    clearcoatProps.clearcoatFresnel = fresnelSchlick(clearcoatProps.clearcoatF0, clearcoatProps.clearcoatF90, clearcoatProps.VdotNc);
+  #else
+    clearcoatProps.clearcoatNormal_inTangent = vec3f(0.0, 0.0, 0.0);
+    clearcoatProps.VdotNc = 0.0;
+    clearcoatProps.clearcoatF0 = vec3f(0.0);
+    clearcoatProps.clearcoatF90 = vec3f(0.0);
+    clearcoatProps.clearcoatFresnel = vec3f(0.0);
+  #endif // RN_USE_CLEARCOAT
+
+  // Sheen
+  var sheenProps: SheenProps = sheenProps_;
+  #ifdef RN_USE_SHEEN
+    sheenProps.albedoSheenScalingNdotV = 1.0 - max3(sheenProps.sheenColor) * textureSample(sheenLutTexture, sheenLutSampler, vec2(NdotV, sheenProps.sheenRoughness)).r;
+  #else
+    sheenProps.albedoSheenScalingNdotV = 1.0;
+  #endif // RN_USE_SHEEN
+
+  var iridescenceProps: IridescenceProps = iridescenceProps_;
+  #ifdef RN_USE_IRIDESCENCE
+    iridescenceProps.fresnelDielectric = calcIridescence(1.0, iridescenceProps.iridescenceIor, NdotV, iridescenceProps.iridescenceThickness, dielectricF0);
+    iridescenceProps.fresnelMetal = calcIridescence(1.0, iridescenceProps.iridescenceIor, NdotV, iridescenceProps.iridescenceThickness, baseColor.rgb);
+  #else
+    iridescenceProps.fresnelDielectric = vec3f(0.0);
+    iridescenceProps.fresnelMetal = vec3f(0.0);
+  #endif // RN_USE_IRIDESCENCE
 
   for (var i = 0u; i < lightNumber ; i++) {
     let light: Light = getLight(i, positionInWorld.xyz);

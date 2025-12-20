@@ -3544,6 +3544,28 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     return pixels;
   }
 
+  /**
+   * Reads pixel data directly from a 2D texture asynchronously.
+   * This is the async version of getPixelDataFromTexture for API consistency with WebGPU.
+   *
+   * @param texUid - Handle to the texture to read from
+   * @param x - X offset to start reading from
+   * @param y - Y offset to start reading from
+   * @param width - Width of the region to read
+   * @param height - Height of the region to read
+   * @returns Promise resolving to the pixel data as a Uint8Array in RGBA format
+   */
+  async getPixelDataFromTextureAsync(
+    texUid: WebGLResourceHandle,
+    x: number,
+    y: number,
+    width: number,
+    height: number
+  ): Promise<Uint8Array> {
+    // WebGL readPixels is synchronous, so we just wrap the sync version
+    return this.getPixelDataFromTexture(texUid, x, y, width, height);
+  }
+
   getCurrentTexture2DBindingsForEffekseer(): {
     textureBindings: Array<{
       texture2D: WebGLTexture | null;

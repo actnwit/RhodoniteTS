@@ -155,6 +155,7 @@ in vec2 a_texcoord_2;
 in uvec4 a_joint;
 in vec4 a_weight;
 in vec4 a_baryCentricCoord;
+in vec4 a_tangent;
 flat out uvec4 v_instanceIds;
 `;
     vertexShaderPrerequisites += `
@@ -312,12 +313,28 @@ struct VertexOutput {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       const wgslTypeStr = inputSocket!.compositionType.toWGSLType(inputSocket!.componentType);
       const wgslInitialValue = inputSocket!.compositionType.getWgslInitialValue(inputSocket!.componentType);
-      const rowStr = `var ${varName}: ${wgslTypeStr} = ${wgslInitialValue};\n`;
+      // For struct types (where getWgslInitialValue returns 'unknown'), declare without initialization
+      let rowStr: string;
+      if (wgslInitialValue === 'unknown') {
+        rowStr = `var ${varName}: ${wgslTypeStr};\n`;
+      } else {
+        rowStr = `var ${varName}: ${wgslTypeStr} = ${wgslInitialValue};\n`;
+      }
       return rowStr;
     }
-    const glslTypeStr = inputSocket!.compositionType.getGlslStr(inputSocket!.componentType);
+    let glslTypeStr = inputSocket!.compositionType.getGlslStr(inputSocket!.componentType);
+    // For struct types, remove the 'struct ' prefix for GLSL variable declarations
+    if (glslTypeStr.startsWith('struct ')) {
+      glslTypeStr = glslTypeStr.replace('struct ', '');
+    }
     const glslInitialValue = inputSocket!.compositionType.getGlslInitialValue(inputSocket!.componentType);
-    const rowStr = `${glslTypeStr} ${varName} = ${glslInitialValue};\n`;
+    // For struct types (where getGlslInitialValue returns 'unknown'), declare without initialization
+    let rowStr: string;
+    if (glslInitialValue === 'unknown') {
+      rowStr = `${glslTypeStr} ${varName};\n`;
+    } else {
+      rowStr = `${glslTypeStr} ${varName} = ${glslInitialValue};\n`;
+    }
     return rowStr;
   }
 

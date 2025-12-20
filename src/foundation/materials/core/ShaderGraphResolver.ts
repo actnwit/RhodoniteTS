@@ -20,9 +20,11 @@ import { AttributeInstanceIdsShaderNode } from '../nodes/AttributeInstanceIdsSha
 import { AttributeJointShaderNode } from '../nodes/AttributeJointShaderNode';
 import { AttributeNormalShaderNode } from '../nodes/AttributeNormalShaderNode';
 import { AttributePositionShaderNode } from '../nodes/AttributePositionShaderNode';
+import { AttributeTangentShaderNode } from '../nodes/AttributeTangentShaderNode';
 import { AttributeTexcoordShaderNode } from '../nodes/AttributeTexcoordShaderNode';
 import { AttributeWeightShaderNode } from '../nodes/AttributeWeightShaderNode';
 import { BranchShaderNode } from '../nodes/BranchShaderNode';
+import { CalcBitangentShaderNode } from '../nodes/CalcBitangentShaderNode';
 import { CastToFloatShaderNode } from '../nodes/CastToFloatShaderNode';
 import { ClampShaderNode } from '../nodes/ClampShaderNode';
 import { ClassicShaderNode } from '../nodes/ClassicShaderNode';
@@ -48,10 +50,16 @@ import { NotEqualShaderNode } from '../nodes/NotEqualShaderNode';
 import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
-import { PbrBaseColorPropsNode } from '../nodes/PbrBaseColorPropsNode';
-import { PbrNormalPropsShaderNode } from '../nodes/PbrNormalPropsNode';
-import { PbrShaderNode } from '../nodes/PbrShaderNode';
-import { PbrSpecularPropsNode } from '../nodes/PbrSpecularPropsNode';
+import { PbrBaseColorPropsShaderNode } from '../nodes/PbrBaseColorPropsShaderNode';
+import { PbrClearcoatPropsShaderNode } from '../nodes/PbrClearcoatPropsShaderNode';
+import { PbrEmissivePropsShaderNode } from '../nodes/PbrEmissivePropsShaderNode';
+import { PbrIridescencePropsShaderNode } from '../nodes/PbrIridescencePropsShaderNode';
+import { PbrMetallicRoughnessPropsShaderNode } from '../nodes/PbrMetallicRoughnessPropsShaderNode';
+import { PbrNormalPropsShaderNode } from '../nodes/PbrNormalPropsShaderNode';
+import { PbrOcclusionPropsShaderNode } from '../nodes/PbrOcclusionPropsShaderNode';
+import { PbrShaderShaderNode } from '../nodes/PbrShaderShaderNode';
+import { PbrSheenPropsShaderNode } from '../nodes/PbrSheenPropsShaderNode';
+import { PbrSpecularPropsShaderNode } from '../nodes/PbrSpecularPropsShaderNode';
 import { PremultipliedAlphaShaderNode } from '../nodes/PremultipliedAlphaShaderNode';
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
 import { ProjectionMatrixShaderNode } from '../nodes/ProjectionMatrixShaderNode';
@@ -374,7 +382,20 @@ export class ShaderGraphResolver {
     // Key format: "${shaderNodeUid}_${outputName}" to track each output separately
     const existingOutputsVarName: Map<string, string> = new Map();
 
-    // Start from index 0 to process all nodes, including those without input connections
+    // Pre-initialize arrays for all nodes to avoid undefined access
+    for (let i = 0; i < shaderNodes.length; i++) {
+      varInputNames[i] = [];
+      varOutputNames[i] = [];
+    }
+
+    // First pass: collect all output variable names
+    // This ensures existingOutputsVarName is fully populated before input processing
+    // Fixes timing issue where a consumer node is processed before its producer
+    for (let i = 0; i < shaderNodes.length; i++) {
+      this.__collectOutputsForNode(i, shaderNodes, varOutputNames, existingOutputs, existingOutputsVarName);
+    }
+
+    // Second pass: process all input connections using the collected output variable names
     for (let i = 0; i < shaderNodes.length; i++) {
       collectedShaderBody += this.__collectInputsForNode(
         engine,
@@ -386,8 +407,6 @@ export class ShaderGraphResolver {
         existingOutputsVarName,
         isVertexStage
       );
-
-      this.__collectOutputsForNode(i, shaderNodes, varOutputNames, existingOutputs, existingOutputsVarName);
     }
 
     return { varInputNames, varOutputNames, collectedShaderBody };
@@ -437,11 +456,24 @@ export class ShaderGraphResolver {
         existingInputs
       );
 
-      shaderBody += rowStr;
       // Use outputNameOfPrev to get the correct variable name for this specific output
       const outputKey = `${inputConnection.shaderNodeUid}_${inputConnection.outputNameOfPrev}`;
       const existVarName = existingOutputsVarName.get(outputKey);
-      varInputNames[nodeIndex].push(existVarName || varName);
+
+      // When a Fragment-stage node consumes from a Vertex-stage node, always use the
+      // current varName (which has the varying read) instead of reusing existVarName
+      // (which may have been set by a Vertex-stage consumer without varying read).
+      const inputNode = AbstractShaderNode._shaderNodes[inputConnection.shaderNodeUid];
+      const isFragmentConsumingVertex =
+        !isVertexStage && inputNode.getShaderStage() === 'Vertex' && shaderNode.getShaderStage() === 'Fragment';
+      const usedVarName = isFragmentConsumingVertex ? varName : existVarName || varName;
+
+      // Only add declaration to shaderBody if we're using varName (not an existing variable)
+      // This prevents declaring unused variables when reusing an existing variable
+      if (usedVarName === varName) {
+        shaderBody += rowStr;
+      }
+      varInputNames[nodeIndex].push(usedVarName);
     }
 
     return shaderBody;
@@ -561,11 +593,19 @@ export class ShaderGraphResolver {
     const varName = `${outputSocketOfPrev!.name}_${inputConnection.shaderNodeUid}_to_${shaderNode.shaderNodeUid}`;
 
     let rowStr = '';
-    const inputKey = `${inputNode.shaderNodeUid}_${inputConnection.outputNameOfPrev}`;
+    // When a Fragment-stage node consumes from a Vertex-stage node, use a unique key
+    // to avoid conflicts with Vertex-stage nodes that also consume the same output.
+    // Include the consumer node's UID to ensure each Fragment-stage consumer gets its own varying read.
+    const isFragmentConsumingVertex =
+      !isVertexStage && inputNode.getShaderStage() === 'Vertex' && shaderNode.getShaderStage() === 'Fragment';
+    const baseInputKey = `${inputNode.shaderNodeUid}_${inputConnection.outputNameOfPrev}`;
+    const inputKey = isFragmentConsumingVertex
+      ? `${baseInputKey}_toFragment_${shaderNode.shaderNodeUid}`
+      : baseInputKey;
 
     if (!existingInputs.has(inputKey)) {
       rowStr = CommonShaderPart.getAssignmentStatement(engine, varName, inputSocketOfThis!);
-      if (!isVertexStage && inputNode.getShaderStage() === 'Vertex' && shaderNode.getShaderStage() === 'Fragment') {
+      if (isFragmentConsumingVertex) {
         rowStr = CommonShaderPart.getAssignmentVaryingStatementInPixelShader(
           engine,
           varName,
@@ -594,7 +634,10 @@ export class ShaderGraphResolver {
     const prevShaderNode = shaderNodes[nodeIndex - 1];
     if (!prevShaderNode) return;
 
-    for (let j = nodeIndex; j < shaderNodes.length; j++) {
+    // Check ALL nodes for connections from prevShaderNode, not just those at nodeIndex or later.
+    // This fixes the issue where a consumer node comes before the producer in topological sort
+    // (e.g., when a Neutral-stage node resolved to Vertex consumes from a Vertex-stage node).
+    for (let j = 0; j < shaderNodes.length; j++) {
       const targetShaderNode = shaderNodes[j];
       const targetNodeInputConnections = targetShaderNode.inputConnections;
 
@@ -659,7 +702,10 @@ export class ShaderGraphResolver {
       // Reorder output variables to match the output socket order and fill missing ones with dummy variables
       // This ensures function calls are generated with arguments in the correct order
       const outputs = shaderNode.getOutputs();
-      if (varOutputNames[i].length !== outputs.length) {
+      // Always reorder when there are outputs to ensure correct argument order in function calls
+      // Previously this only triggered when varOutputNames.length !== outputs.length, which missed
+      // cases where all outputs were connected but in wrong order due to connection processing order
+      if (outputs.length > 0) {
         // Build a map from output name to variable name
         const outputNameToVarName: Map<string, string> = new Map();
         const nodeUidPattern = `_${shaderNode.shaderNodeUid}_to_`;
@@ -1463,6 +1509,11 @@ function constructNodes(json: ShaderNodeJson): {
         nodeInstances[node.id] = nodeInstance;
         break;
       }
+      case 'AttributeTangent': {
+        const nodeInstance = new AttributeTangentShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
       case 'AttributeTexcoord': {
         const nodeInstance = new AttributeTexcoordShaderNode();
         nodeInstances[node.id] = nodeInstance;
@@ -1696,13 +1747,13 @@ function constructNodes(json: ShaderNodeJson): {
         break;
       }
       case 'PbrShader': {
-        const nodeInstance = new PbrShaderNode();
+        const nodeInstance = new PbrShaderShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
       case 'PbrBaseColorProps': {
-        const nodeInstance = new PbrBaseColorPropsNode();
+        const nodeInstance = new PbrBaseColorPropsShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
@@ -1713,8 +1764,44 @@ function constructNodes(json: ShaderNodeJson): {
         nodeInstances[node.id] = nodeInstance;
         break;
       }
+      case 'PbrMetallicRoughnessProps': {
+        const nodeInstance = new PbrMetallicRoughnessPropsShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'PbrOcclusionProps': {
+        const nodeInstance = new PbrOcclusionPropsShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'PbrEmissiveProps': {
+        const nodeInstance = new PbrEmissivePropsShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
       case 'PbrSpecularProps': {
-        const nodeInstance = new PbrSpecularPropsNode();
+        const nodeInstance = new PbrSpecularPropsShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'PbrClearcoatProps': {
+        const nodeInstance = new PbrClearcoatPropsShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'PbrSheenProps': {
+        const nodeInstance = new PbrSheenPropsShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'PbrIridescenceProps': {
+        const nodeInstance = new PbrIridescencePropsShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
@@ -1728,6 +1815,11 @@ function constructNodes(json: ShaderNodeJson): {
       case 'AlphaTest': {
         const nodeInstance = new AlphaTestShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'CalcBitangent': {
+        const nodeInstance = new CalcBitangentShaderNode();
         nodeInstances[node.id] = nodeInstance;
         break;
       }

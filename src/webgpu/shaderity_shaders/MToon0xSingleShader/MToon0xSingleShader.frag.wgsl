@@ -98,7 +98,7 @@ fn main (
   var normal_inWorld: vec3f = normalize(input.normal_inWorld);
   #ifdef RN_MTOON_HAS_BUMPMAP
     let normal: vec3f = textureSample(normalTexture, normalSampler, mainUv).xyz * 2.0 - 1.0;
-    let TBN: mat3x3<f32> = getTBN(normal_inWorld, input.tangent_inWorld, input.binormal_inWorld, viewDirection, mainUv, isFront);
+    let TBN: mat3x3<f32> = getTBN(normal_inWorld, input.tangent_inWorld, input.bitangent_inWorld, viewDirection, mainUv, isFront);
     normal_inWorld = normalize(TBN * normal);
   #endif
 

@@ -2,6 +2,7 @@ import PbrShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/PbrSh
 import PbrShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/PbrShader.wgsl';
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
+import { Matrix33 } from '../../math/Matrix33';
 import { Scalar } from '../../math/Scalar';
 import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
@@ -19,7 +20,7 @@ import { Socket } from '../core/Socket';
  * const outputSocket = pbrNode.getSocketOutput();
  * ```
  */
-export class PbrShaderNode extends AbstractShaderNode {
+export class PbrShaderShaderNode extends AbstractShaderNode {
   /**
    * Creates a new PbrShaderNode with the specified composition and component types.
    */
@@ -38,13 +39,14 @@ export class PbrShaderNode extends AbstractShaderNode {
     this.__inputs.push(
       new Socket('geomNormalInWorld', CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 1))
     );
+    this.__inputs.push(new Socket('TBN', CompositionType.Mat3, ComponentType.Float, Matrix33.identity() as Matrix33));
     this.__inputs.push(
       new Socket('baseColor', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
+    this.__inputs.push(new Socket('metallic', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.0)));
     this.__inputs.push(
       new Socket('roughness', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.5))
     );
-    this.__inputs.push(new Socket('metallic', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.0)));
     this.__inputs.push(
       new Socket('occlusionProps', CompositionType.OcclusionProps, ComponentType.Unknown, {
         // Note: Property order must match GLSL/WGSL struct field order
@@ -86,6 +88,7 @@ export class PbrShaderNode extends AbstractShaderNode {
         clearcoatF0: Vector3.fromCopy3(0.0, 0.0, 0.0),
         clearcoatF90: Vector3.fromCopy3(0.0, 0.0, 0.0),
         clearcoatFresnel: Vector3.fromCopy3(0.0, 0.0, 0.0),
+        clearcoatNormal_inTangent: Vector3.fromCopy3(0.0, 0.0, 0.0),
         clearcoatNormal_inWorld: Vector3.fromCopy3(0.0, 0.0, 0.0),
         VdotNc: Scalar.fromCopyNumber(0.0),
       })
@@ -112,6 +115,8 @@ export class PbrShaderNode extends AbstractShaderNode {
       new Socket('iridescenceProps', CompositionType.IridescenceProps, ComponentType.Unknown, {
         // Note: Property order must match GLSL/WGSL struct field order
         iridescence: Scalar.fromCopyNumber(0.0),
+        iridescenceIor: Scalar.fromCopyNumber(1.3),
+        iridescenceThickness: Scalar.fromCopyNumber(0.0),
         fresnelDielectric: Vector3.fromCopy3(0.0, 0.0, 0.0),
         fresnelMetal: Vector3.fromCopy3(0.0, 0.0, 0.0),
       })

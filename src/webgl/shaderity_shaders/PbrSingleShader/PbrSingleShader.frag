@@ -242,7 +242,7 @@ void main ()
   int normalTexcoordIndex = get_normalTexcoordIndex(materialSID, 0u);
   vec2 normalTexcoord = getTexcoord(normalTexcoordIndex);
   vec2 normalTexUv = uvTransform(normalTextureTransformScale, normalTextureTransformOffset, normalTextureTransformRotation, normalTexcoord);
-  mat3 TBN = getTBN(normal_inWorld, v_tangent_inWorld, v_binormal_inWorld, viewVector, normalTexUv);
+  mat3 TBN = getTBN(normal_inWorld, v_tangent_inWorld, v_bitangent_inWorld, viewVector, normalTexUv);
   #ifdef RN_USE_NORMAL_TEXTURE
     vec3 normalTexValue = texture(u_normalTexture, normalTexUv).xyz;
     if(normalTexValue.b >= 128.0 / 255.0) {
@@ -267,11 +267,6 @@ void main ()
   float metallic = ormTexel.b * get_metallicFactor(materialSID, 0u);
   metallic = clamp(metallic, 0.0, 1.0);
   perceptualRoughness = clamp(perceptualRoughness, c_MinRoughness, 1.0);
-  float alphaRoughness = perceptualRoughness * perceptualRoughness;
-    // filter NDF for specular AA --- https://jcgt.org/published/0010/02/02/
-  float alphaRoughness2 = alphaRoughness * alphaRoughness;
-  float filteredRoughness2 = IsotropicNDFFiltering(normal_inWorld, alphaRoughness2);
-  perceptualRoughness = sqrt(sqrt(filteredRoughness2));
 
   // NdotV
   float NdotV = saturate(dot(normal_inWorld, viewDirection));
@@ -379,16 +374,15 @@ void main ()
     float iridescenceThickness = mix(iridescenceThicknessMinimum, iridescenceThicknessMaximum, thicknessRatio);
 
     float iridescenceIor = get_iridescenceIor(materialSID, 0u);
-    iridescenceProps.fresnelDielectric = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, dielectricF0);
-    iridescenceProps.fresnelMetal = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, baseColor.rgb);
-
+    iridescenceProps.iridescenceIor = iridescenceIor;
+    iridescenceProps.iridescenceThickness = iridescenceThickness;
     if (iridescenceThickness == 0.0) {
       iridescenceProps.iridescence = 0.0;
     }
   #else
     iridescenceProps.iridescence = 0.0;
-    iridescenceProps.fresnelDielectric = vec3(0.0);
-    iridescenceProps.fresnelMetal = vec3(0.0);
+    iridescenceProps.iridescenceIor = 0.0;
+    iridescenceProps.iridescenceThickness = 0.0;
   #endif // RN_USE_IRIDESCENCE
 
   ClearcoatProps clearcoatProps;
@@ -421,20 +415,11 @@ void main ()
     float clearcoatNormalTextureTransformRotation = get_clearcoatNormalTextureTransformRotation(materialSID, 0u);
     vec2 clearcoatNormalTexUv = uvTransform(clearcoatNormalTextureTransformScale, clearcoatNormalTextureTransformOffset, clearcoatNormalTextureTransformRotation, clearcoatNormalTexcoord);
     vec3 textureNormal_tangent = texture(u_clearcoatNormalTexture, clearcoatNormalTexUv).xyz * vec3(2.0) - vec3(1.0);
-    clearcoatProps.clearcoatNormal_inWorld = normalize(TBN * textureNormal_tangent);
-    clearcoatProps.VdotNc = saturate(dot(viewDirection, clearcoatProps.clearcoatNormal_inWorld));
-
-    clearcoatProps.clearcoatF0 = vec3(pow((ior - 1.0) / (ior + 1.0), 2.0));
-    clearcoatProps.clearcoatF90 = vec3(1.0);
-    clearcoatProps.clearcoatFresnel = fresnelSchlick(clearcoatProps.clearcoatF0, clearcoatProps.clearcoatF90, clearcoatProps.VdotNc);
+    clearcoatProps.clearcoatNormal_inTangent = textureNormal_tangent;
   #else
     clearcoatProps.clearcoat = 0.0;
     clearcoatProps.clearcoatRoughness = 0.0;
-    clearcoatProps.clearcoatNormal_inWorld = vec3(0.0);
-    clearcoatProps.VdotNc = 0.0;
-    clearcoatProps.clearcoatF0 = vec3(0.0);
-    clearcoatProps.clearcoatF90 = vec3(0.0);
-    clearcoatProps.clearcoatFresnel = vec3(0.0);
+    clearcoatProps.clearcoatNormal_inTangent = vec3(0.0, 0.0, 0.0);
   #endif // RN_USE_CLEARCOAT
 
   VolumeProps volumeProps;
@@ -480,11 +465,9 @@ void main ()
 
     sheenProps.sheenColor = sheenColorFactor * sheenColorTexture;
     sheenProps.sheenRoughness = clamp(sheenRoughnessFactor * sheenRoughnessTexture, 0.000001, 1.0);
-    sheenProps.albedoSheenScalingNdotV = 1.0 - max3(sheenProps.sheenColor) * texture(u_sheenLutTexture, vec2(NdotV, sheenProps.sheenRoughness)).r;
   #else
     sheenProps.sheenColor = vec3(0.0);
     sheenProps.sheenRoughness = 0.000001;
-    sheenProps.albedoSheenScalingNdotV = 1.0;
   #endif // RN_USE_SHEEN
 
   DiffuseTransmissionProps diffuseTransmissionProps;
@@ -566,8 +549,8 @@ vec3 emissiveFactor = get_emissiveFactor(materialSID, 0u);
   rt0 = vec4(0.0, 0.0, 0.0, baseColor.a);
 
   pbrShader(
-    v_position_inWorld, normal_inWorld, geomNormal_inWorld,
-    baseColor, perceptualRoughness, metallic,
+    v_position_inWorld, normal_inWorld, geomNormal_inWorld, TBN,
+    baseColor, metallic, perceptualRoughness,
     occlusionProps, emissiveProps,
     ior,
     transmission,

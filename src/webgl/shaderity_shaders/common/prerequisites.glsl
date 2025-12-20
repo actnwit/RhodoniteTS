@@ -302,7 +302,7 @@ vec3 descramble(vec3 v) {
   return v;
 }
 
-const float PI = 3.14159265358979323846;
+const float M_PI = 3.14159265358979323846;
 const float RECIPROCAL_PI = 0.3183098861837907;
 
 float max3(vec3 v)
@@ -348,10 +348,10 @@ vec2 uvTransform(vec2 scale, vec2 offset, float rotation, vec2 uv) {
 // getTBN: Compute tangent-to-world matrix for normal mapping
 #ifdef RN_USE_TANGENT
   // When tangent attributes are available
-  mat3 getTBN(vec3 normal_inWorld, vec3 tangent_inWorld_, vec3 binormal_inWorld_, vec3 viewVector, vec2 texcoord) {
+  mat3 getTBN(vec3 normal_inWorld, vec3 tangent_inWorld_, vec3 bitangent_inWorld_, vec3 viewVector, vec2 texcoord) {
     vec3 tangent_inWorld = normalize(tangent_inWorld_);
-    vec3 binormal_inWorld = normalize(binormal_inWorld_);
-    mat3 tbnMat_tangent_to_world = mat3(tangent_inWorld, binormal_inWorld, normal_inWorld);
+    vec3 bitangent_inWorld = normalize(bitangent_inWorld_);
+    mat3 tbnMat_tangent_to_world = mat3(tangent_inWorld, bitangent_inWorld, normal_inWorld);
 
     return tbnMat_tangent_to_world;
   }
@@ -380,7 +380,7 @@ vec2 uvTransform(vec2 scale, vec2 offset, float rotation, vec2 uv) {
       return mat3(normalize(tangent * invMat), normalize(bitangent * invMat), normal_inWorld);
     }
 
-    mat3 getTBN(vec3 normal_inWorld, vec3 tangent_inWorld_, vec3 binormal_inWorld_, vec3 viewVector, vec2 texcoord) {
+    mat3 getTBN(vec3 normal_inWorld, vec3 tangent_inWorld_, vec3 bitangent_inWorld_, vec3 viewVector, vec2 texcoord) {
       mat3 tbnMat_tangent_to_world = cotangent_frame(normal_inWorld, -viewVector, texcoord);
 
       return tbnMat_tangent_to_world;
@@ -388,7 +388,7 @@ vec2 uvTransform(vec2 scale, vec2 offset, float rotation, vec2 uv) {
   #else // RN_IS_VERTEX_SHADER
     // Vertex shader fallback: Generate TBN from normal when tangent attributes are not available
     // This is an approximation - it generates a consistent tangent space from the normal vector
-    mat3 getTBN(vec3 normal_inWorld, vec3 tangent_inWorld_, vec3 binormal_inWorld_, vec3 viewVector, vec2 texcoord) {
+    mat3 getTBN(vec3 normal_inWorld, vec3 tangent_inWorld_, vec3 bitangent_inWorld_, vec3 viewVector, vec2 texcoord) {
       vec3 n = normalize(normal_inWorld);
 
       // Choose a helper vector that is not parallel to the normal
