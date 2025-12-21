@@ -1,4 +1,4 @@
-fn pbrSheenProps(
+fn pbrDiffuseTransmissionProps(
   diffuseTransmissionFactor: f32,
   diffuseTransmissionTexture: vec4<f32>,
   diffuseTransmissionColorFactor: vec3<f32>,
