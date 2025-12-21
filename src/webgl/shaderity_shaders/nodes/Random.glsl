@@ -11,9 +11,9 @@ void _random(
   out float outW) {
   if (seed != vec3(0.0)) {
   #ifdef RN_IS_VERTEX_SHADER
-    init_rand(uvec3(uint(gl_VertexID),0u,0u), uvec3(seed * float(0xffffffffu)));
+    init_rand(uvec3(uint(gl_VertexID),0u,0u), uvec3(fract(seed) * float(0xffffffffu)));
   #else
-    init_rand(uvec3(uint(gl_FragCoord.x), uint(gl_FragCoord.y),0u), uvec3(seed * float(0xffffffffu)));
+    init_rand(uvec3(uint(gl_FragCoord.x), uint(gl_FragCoord.y),0u), uvec3(fract(seed) * float(0xffffffffu)));
   #endif
   }
 
