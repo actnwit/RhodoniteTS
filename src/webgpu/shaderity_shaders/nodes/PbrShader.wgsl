@@ -66,7 +66,7 @@ fn pbrShader(
     clearcoatProps.clearcoatF90 = vec3f(1.0);
     clearcoatProps.clearcoatFresnel = fresnelSchlick(clearcoatProps.clearcoatF0, clearcoatProps.clearcoatF90, clearcoatProps.VdotNc);
   #else
-    clearcoatProps.clearcoatNormal_inTangent = vec3f(0.0, 0.0, 0.0);
+    clearcoatProps.clearcoatNormal_inWorld = vec3f(0.0, 0.0, 0.0);
     clearcoatProps.VdotNc = 0.0;
     clearcoatProps.clearcoatF0 = vec3f(0.0);
     clearcoatProps.clearcoatF90 = vec3f(0.0);
