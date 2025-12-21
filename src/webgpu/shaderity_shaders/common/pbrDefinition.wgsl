@@ -497,9 +497,9 @@ struct AnisotropyProps
 
 struct VolumeProps
 {
+  thickness: f32,
   attenuationColor: vec3f,
   attenuationDistance: f32,
-  thickness: f32,
 };
 
 struct DiffuseTransmissionProps
