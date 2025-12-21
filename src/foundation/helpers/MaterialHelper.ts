@@ -1819,6 +1819,11 @@ function reuseOrRecreateCustomMaterial(
   } else {
     definitions.delete('RN_USE_TRANSMISSION');
   }
+  if (options.isVolume) {
+    definitions.add('RN_USE_VOLUME');
+  } else {
+    definitions.delete('RN_USE_VOLUME');
+  }
 
   let materialContent: CustomMaterialContent;
   if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
@@ -2236,6 +2241,30 @@ function createNodeBasedCustomMaterial(
     return transmissionConnection != null;
   })();
 
+  // Check if PbrVolumeProps node is connected to PbrShader's volumeProps input
+  const hasPbrVolumePropsConnected = (() => {
+    const nodes = shaderNodeJson?.nodes as Array<{ id: string; name: string }> | undefined;
+    const connections = shaderNodeJson?.connections as
+      | Array<{ from: { id: string; portName: string }; to: { id: string; portName: string } }>
+      | undefined;
+
+    if (!nodes || !connections) return false;
+
+    // Find PbrShader node
+    const pbrShaderNode = nodes.find(node => node.name === 'PbrShader');
+    if (!pbrShaderNode) return false;
+
+    // Find connection to volumeProps input of PbrShader
+    const volumePropsConnection = connections.find(
+      conn => conn.to.id === pbrShaderNode.id && conn.to.portName === 'volumeProps'
+    );
+    if (!volumePropsConnection) return false;
+
+    // Check if the source node is a PbrVolumeProps
+    const sourceNode = nodes.find(node => node.id === volumePropsConnection.from.id);
+    return sourceNode?.name === 'PbrVolumeProps';
+  })();
+
   // Add IBL-related semantic info if PBR shader is used
   if (hasPbrShaderNode) {
     addPbrIblSemanticInfo(engine, additionalShaderSemanticInfo);
@@ -2260,6 +2289,7 @@ function createNodeBasedCustomMaterial(
     isIridescence: hasPbrIridescencePropsConnected,
     isClearcoat: hasPbrClearcoatPropsConnected,
     isTransmission: hasTransmissionConnected,
+    isVolume: hasPbrVolumePropsConnected,
     additionalName: '',
     additionalShaderSemanticInfo,
   };
