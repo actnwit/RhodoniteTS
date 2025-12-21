@@ -35,6 +35,22 @@ export class PbrDiffuseTransmissionPropsShaderNode extends AbstractShaderNode {
     this.__inputs.push(
       new Socket('diffuseTransmissionTexture', CompositionType.Vec4, ComponentType.Float, Vector4.fromCopy4(1, 1, 1, 1))
     );
+    this.__inputs.push(
+      new Socket(
+        'diffuseTransmissionColorFactor',
+        CompositionType.Vec3,
+        ComponentType.Float,
+        Vector3.fromCopy3(1, 1, 1)
+      )
+    );
+    this.__inputs.push(
+      new Socket(
+        'diffuseTransmissionColorTexture',
+        CompositionType.Vec4,
+        ComponentType.Float,
+        Vector4.fromCopy4(1, 1, 1, 1)
+      )
+    );
     this.__outputs.push(
       new Socket('outDiffuseTransmissionProps', CompositionType.DiffuseTransmissionProps, ComponentType.Unknown)
     );

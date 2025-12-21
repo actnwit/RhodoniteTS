@@ -1,6 +1,8 @@
 void pbrDiffuseTransmissionProps(
   in float diffuseTransmissionFactor,
   in vec4 diffuseTransmissionTexture,
+  in vec3 diffuseTransmissionColorFactor,
+  in vec4 diffuseTransmissionColorTexture,
   out DiffuseTransmissionProps outDiffuseTransmissionProps) {
 
 #ifdef RN_USE_DIFFUSE_TRANSMISSION

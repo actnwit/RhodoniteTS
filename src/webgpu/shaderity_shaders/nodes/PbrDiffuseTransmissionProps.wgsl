@@ -1,6 +1,8 @@
 fn pbrSheenProps(
   diffuseTransmissionFactor: f32,
   diffuseTransmissionTexture: vec4<f32>,
+  diffuseTransmissionColorFactor: vec3<f32>,
+  diffuseTransmissionColorTexture: vec4<f32>,
   outDiffuseTransmissionProps: ptr<function, DiffuseTransmissionProps>) {
 
 #ifdef RN_USE_DIFFUSE_TRANSMISSION
