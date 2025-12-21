@@ -8,7 +8,7 @@ fn pbrShader(
   specularProps: SpecularProps,
   volumeProps: VolumeProps,
   clearcoatProps_: ClearcoatProps,
-  anisotropyProps: AnisotropyProps,
+  anisotropyProps_: AnisotropyProps,
   sheenProps_: SheenProps,
   iridescenceProps_: IridescenceProps,
   diffuseTransmissionProps: DiffuseTransmissionProps,
@@ -43,6 +43,7 @@ fn pbrShader(
   #endif
 
   // Anisotropy
+  var anisotropyProps: AnisotropyProps = anisotropyProps_;
   #ifdef RN_USE_ANISOTROPY
     anisotropyProps.anisotropicT = normalize(TBN * vec3f(anisotropyProps.direction, 0.0));
     anisotropyProps.anisotropicB = normalize(cross(geomNormalInWorld, anisotropyProps.anisotropicT));
