@@ -1,4 +1,5 @@
 fn _random(
+  seed: vec3<f32>,
   outXYZW: ptr<function, vec4<f32>>,
   outXYZ1: ptr<function, vec4<f32>>,
   outXYZ: ptr<function, vec3<f32>>,
@@ -8,6 +9,13 @@ fn _random(
   outY: ptr<function, f32>,
   outZ: ptr<function, f32>,
   outW: ptr<function, f32>) {
+  if (seed != vec3<f32>(0.0)) {
+  #ifdef RN_IS_VERTEX_SHADER
+    init_rand(vec3u(vertexIdx,0u,0u), vec3u(seed * 0xffffffffu));
+  #else
+    init_rand(vec3u(u32(input.position.x),u32(input.position.y),u32(input.position.z)), vec3u(seed * 0xffffffffu));
+  #endif
+  }
   float x = random_f32();
   float y = random_f32();
   float z = random_f32();

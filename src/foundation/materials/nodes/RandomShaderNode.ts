@@ -3,6 +3,7 @@ import RandomShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/R
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
+import { Vector3 } from '../../math/Vector3';
 import type { Engine } from '../../system/Engine';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
@@ -21,6 +22,7 @@ export class RandomShaderNode extends AbstractShaderNode {
       codeWGSL: RandomShaderityObjectWGSL.code,
     });
 
+    this.__inputs.push(new Socket('seed', CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 0)));
     this.__outputs.push(new Socket('outXYZW', CompositionType.Vec4, ComponentType.Float));
     this.__outputs.push(new Socket('outXYZ1', CompositionType.Vec4, ComponentType.Float));
     this.__outputs.push(new Socket('outXYZ', CompositionType.Vec3, ComponentType.Float));

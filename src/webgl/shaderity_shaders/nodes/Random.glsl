@@ -1,4 +1,5 @@
 void _random(
+  in vec3 seed,
   out vec4 outXYZW,
   out vec4 outXYZ1,
   out vec3 outXYZ,
@@ -8,6 +9,14 @@ void _random(
   out float outY,
   out float outZ,
   out float outW) {
+  if (seed != vec3(0.0)) {
+  #ifdef RN_IS_VERTEX_SHADER
+    init_rand(uvec3(uint(gl_VertexID),0u,0u), uvec3(seed * float(0xffffffffu)));
+  #else
+    init_rand(uvec3(uint(gl_FragCoord.x), uint(gl_FragCoord.y),0u), uvec3(seed * float(0xffffffffu)));
+  #endif
+  }
+
   float x = random_f32();
   float y = random_f32();
   float z = random_f32();
