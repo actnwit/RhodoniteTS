@@ -32,6 +32,7 @@ import { ConstantScalarVariableShaderNode } from '../nodes/ConstantScalarVariabl
 import { ConstantVector2VariableShaderNode } from '../nodes/ConstantVector2VariableShaderNode';
 import { ConstantVector3VariableShaderNode } from '../nodes/ConstantVector3VariableShaderNode';
 import { ConstantVector4VariableShaderNode } from '../nodes/ConstantVector4VariableShaderNode';
+import { CosShaderNode } from '../nodes/CosShaderNode';
 import { DiscardShaderNode } from '../nodes/DiscardShaderNode';
 import { DotProductShaderNode } from '../nodes/DotProductShaderNode';
 import { EqualShaderNode } from '../nodes/EqualShaderNode';
@@ -68,8 +69,8 @@ import { PbrVolumePropsShaderNode } from '../nodes/PbrVolumePropsShaderNode';
 import { PremultipliedAlphaShaderNode } from '../nodes/PremultipliedAlphaShaderNode';
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
 import { ProjectionMatrixShaderNode } from '../nodes/ProjectionMatrixShaderNode';
+import { RandomShaderNode } from '../nodes/RandomShaderNode';
 import { RemapShaderNode } from '../nodes/RemapShaderNode';
-import { CosShaderNode } from '../nodes/CosShaderNode';
 import { SinShaderNode } from '../nodes/SinShaderNode';
 import { SmoothStepShaderNode } from '../nodes/SmoothStepShaderNode';
 import { SplitVectorShaderNode } from '../nodes/SplitVectorShaderNode';
@@ -1875,6 +1876,12 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'CalcBitangent': {
         const nodeInstance = new CalcBitangentShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'Random': {
+        const nodeInstance = new RandomShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
