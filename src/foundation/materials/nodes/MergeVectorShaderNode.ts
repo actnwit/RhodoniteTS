@@ -154,22 +154,17 @@ export class MergeVectorShaderNode extends AbstractShaderNode {
 
   /**
    * Generates the shader function call statement for the merge vector operation.
-   *
-   * This method creates the appropriate shader code to call the merge vector function
-   * with the correct input and output parameters. It handles both WebGL (GLSL) and
-   * WebGPU (WGSL) syntax differences and manages dummy variables for unused outputs.
-   *
-   * The method generates dummy output variables for each possible output (xyzw, xyz, xy, zw)
-   * and replaces them with actual output variable names when they are used. This ensures
-   * that the shader function signature remains consistent regardless of which outputs
-   * are actually connected.
+   * ShaderGraphResolver already orders varOutputNames to match output socket order and generates
+   * dummy variables for unconnected outputs, so we simply use them directly.
+   * This node only needs custom handling for selecting the correct input indices based on
+   * which inputs are connected.
    *
    * @param engine - The engine instance
    * @param i - The node index in the shader graph
-   * @param shaderNode - The shader node instance (typically this node)
+   * @param _shaderNode - The shader node instance (unused in this implementation)
    * @param functionName - The name of the shader function to call
    * @param varInputNames - Array of input variable names for each node
-   * @param varOutputNames - Array of output variable names for each node
+   * @param varOutputNames - Array of output variable names for each node (already ordered by ShaderGraphResolver)
    * @returns The generated shader code string for the function call
    */
   makeCallStatement(
@@ -181,75 +176,7 @@ export class MergeVectorShaderNode extends AbstractShaderNode {
     varOutputNames: string[][]
   ): string {
     let str = '';
-    let rowStr = '';
     if (varInputNames[i].length > 0 && varOutputNames[i].length > 0) {
-      let dummyOutputVarDefines: string[];
-
-      if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-        let vec2Type = 'vec2<f32>';
-        let vec3Type = 'vec3<f32>';
-        let vec4Type = 'vec4<f32>';
-        if (this.__componentType === ComponentType.Int) {
-          vec2Type = 'vec2<i32>';
-          vec3Type = 'vec3<i32>';
-          vec4Type = 'vec4<i32>';
-        } else if (this.__componentType === ComponentType.UnsignedInt) {
-          vec2Type = 'vec2<u32>';
-          vec3Type = 'vec3<u32>';
-          vec4Type = 'vec4<u32>';
-        }
-        dummyOutputVarDefines = [
-          `var dummyXYZW_${i}: ${vec4Type};`,
-          `var dummyXYZ_${i}: ${vec3Type};`,
-          `var dummyXY_${i}: ${vec2Type};`,
-          `var dummyZW_${i}: ${vec2Type};`,
-        ];
-      } else {
-        let vec2Type = 'vec2';
-        let vec3Type = 'vec3';
-        let vec4Type = 'vec4';
-        if (this.__componentType === ComponentType.Int) {
-          vec2Type = 'ivec2';
-          vec3Type = 'ivec3';
-          vec4Type = 'ivec4';
-        } else if (this.__componentType === ComponentType.UnsignedInt) {
-          vec2Type = 'uvec2';
-          vec3Type = 'uvec3';
-          vec4Type = 'uvec4';
-        }
-        dummyOutputVarDefines = [
-          `${vec4Type} dummyXYZW_${i};`,
-          `${vec3Type} dummyXYZ_${i};`,
-          `${vec2Type} dummyXY_${i};`,
-          `${vec2Type} dummyZW_${i};`,
-        ];
-      }
-
-      const dummyOutputArguments = [`dummyXYZW_${i}`, `dummyXYZ_${i}`, `dummyXY_${i}`, `dummyZW_${i}`];
-
-      for (let k = 0; k < varOutputNames[i].length; k++) {
-        const outputName = varOutputNames[i][k];
-        if (outputName.indexOf('xyzw') >= 0) {
-          dummyOutputVarDefines[0] = '';
-          dummyOutputArguments[0] = outputName;
-        } else if (outputName.indexOf('xyz') >= 0) {
-          dummyOutputVarDefines[1] = '';
-          dummyOutputArguments[1] = outputName;
-        } else if (outputName.indexOf('xy') >= 0) {
-          dummyOutputVarDefines[2] = '';
-          dummyOutputArguments[2] = outputName;
-        } else if (outputName.indexOf('zw') >= 0) {
-          dummyOutputVarDefines[3] = '';
-          dummyOutputArguments[3] = outputName;
-        }
-      }
-
-      if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-        for (let j = 0; j < dummyOutputArguments.length; j++) {
-          dummyOutputArguments[j] = `&${dummyOutputArguments[j]}`;
-        }
-      }
-
       // Determine which input indices to use based on function name
       // Input indices: 0: xyz, 1: xy, 2: zw, 3: x, 4: y, 5: z, 6: w
       let inputIndices: number[];
@@ -267,21 +194,27 @@ export class MergeVectorShaderNode extends AbstractShaderNode {
         inputIndices = [];
       }
 
+      // Use varOutputNames directly - ShaderGraphResolver already orders them correctly
+      // and generates dummy variables for unconnected outputs
+      const outputArguments = [...varOutputNames[i]];
+      if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
+        for (let j = 0; j < outputArguments.length; j++) {
+          outputArguments[j] = `&${outputArguments[j]}`;
+        }
+      }
+
       // Call node functions
-      rowStr += dummyOutputVarDefines.join('\n');
-      rowStr += `${functionName}(`;
+      str += `${functionName}(`;
       for (let k = 0; k < inputIndices.length; k++) {
         if (k !== 0) {
-          rowStr += ', ';
+          str += ', ';
         }
         const inputName = varInputNames[i][inputIndices[k]];
-        rowStr += inputName;
+        str += inputName;
       }
-      rowStr += `, ${dummyOutputArguments.join(', ')}`;
-      rowStr += ');\n';
+      str += `, ${outputArguments.join(', ')}`;
+      str += ');\n';
     }
-
-    str += rowStr;
 
     return str;
   }

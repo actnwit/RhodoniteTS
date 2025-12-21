@@ -7,6 +7,7 @@ void pbrIridescenceProps(
   in float iridescenceIor,
   out IridescenceProps outIridescenceProps) {
 
+#ifdef RN_USE_IRIDESCENCE
   outIridescenceProps.iridescence = iridescenceFactor * iridescenceTexture.r;
   float thicknessRatio = iridescenceThicknessTexture.g;
   float iridescenceThickness = mix(iridescenceThicknessMinimum, iridescenceThicknessMaximum, thicknessRatio);
@@ -17,4 +18,10 @@ void pbrIridescenceProps(
 
   outIridescenceProps.iridescenceIor = iridescenceIor;
   outIridescenceProps.iridescenceThickness = iridescenceThickness;
+
+#else
+  outIridescenceProps.iridescence = 0.0;
+  outIridescenceProps.iridescenceIor = 0.0;
+  outIridescenceProps.iridescenceThickness = 0.0;
+#endif // RN_USE_IRIDESCENCE
 }

@@ -50,8 +50,11 @@ import { NotEqualShaderNode } from '../nodes/NotEqualShaderNode';
 import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
+import { PbrAnisotropyPropsShaderNode } from '../nodes/PbrAnisotropyPropsShaderNode';
+import { PbrAnisotropyRotationShaderNode } from '../nodes/PbrAnisotropyRotationShaderNode';
 import { PbrBaseColorPropsShaderNode } from '../nodes/PbrBaseColorPropsShaderNode';
 import { PbrClearcoatPropsShaderNode } from '../nodes/PbrClearcoatPropsShaderNode';
+import { PbrDiffuseTransmissionPropsShaderNode } from '../nodes/PbrDiffuseTransmissionPropsShaderNode';
 import { PbrEmissivePropsShaderNode } from '../nodes/PbrEmissivePropsShaderNode';
 import { PbrIridescencePropsShaderNode } from '../nodes/PbrIridescencePropsShaderNode';
 import { PbrMetallicRoughnessPropsShaderNode } from '../nodes/PbrMetallicRoughnessPropsShaderNode';
@@ -60,6 +63,8 @@ import { PbrOcclusionPropsShaderNode } from '../nodes/PbrOcclusionPropsShaderNod
 import { PbrShaderShaderNode } from '../nodes/PbrShaderShaderNode';
 import { PbrSheenPropsShaderNode } from '../nodes/PbrSheenPropsShaderNode';
 import { PbrSpecularPropsShaderNode } from '../nodes/PbrSpecularPropsShaderNode';
+import { PbrTransmissionPropsShaderNode } from '../nodes/PbrTransmissionPropsShaderNode';
+import { PbrVolumePropsShaderNode } from '../nodes/PbrVolumePropsShaderNode';
 import { PremultipliedAlphaShaderNode } from '../nodes/PremultipliedAlphaShaderNode';
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
 import { ProjectionMatrixShaderNode } from '../nodes/ProjectionMatrixShaderNode';
@@ -1800,8 +1805,38 @@ function constructNodes(json: ShaderNodeJson): {
         nodeInstances[node.id] = nodeInstance;
         break;
       }
+      case 'PbrAnisotropyProps': {
+        const nodeInstance = new PbrAnisotropyPropsShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'PbrAnisotropyRotation': {
+        const nodeInstance = new PbrAnisotropyRotationShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
       case 'PbrIridescenceProps': {
         const nodeInstance = new PbrIridescencePropsShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'PbrTransmissionProps': {
+        const nodeInstance = new PbrTransmissionPropsShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'PbrDiffuseTransmissionProps': {
+        const nodeInstance = new PbrDiffuseTransmissionPropsShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'PbrVolumeProps': {
+        const nodeInstance = new PbrVolumePropsShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;

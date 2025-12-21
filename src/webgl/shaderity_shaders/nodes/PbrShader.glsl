@@ -51,6 +51,20 @@ void pbrShader(
     perceptualRoughness = sqrt(sqrt(filteredRoughness2));
   #endif // RN_IS_PIXEL_SHADER
 
+  // Anisotropy
+  #ifdef RN_USE_ANISOTROPY
+    anisotropyProps.anisotropicT = normalize(TBN * vec3(anisotropyProps.direction, 0.0));
+    anisotropyProps.anisotropicB = normalize(cross(geomNormalInWorld, anisotropyProps.anisotropicT));
+    anisotropyProps.BdotV = dot(anisotropyProps.anisotropicB, viewDirection);
+    anisotropyProps.TdotV = dot(anisotropyProps.anisotropicT, viewDirection);
+  #else
+    anisotropyProps.anisotropy = 0.0;
+    anisotropyProps.anisotropicT = vec3(0.0, 0.0, 0.0);
+    anisotropyProps.anisotropicB = vec3(0.0, 0.0, 0.0);
+    anisotropyProps.BdotV = 0.0;
+    anisotropyProps.TdotV = 0.0;
+  #endif // RN_USE_ANISOTROPY
+
   // Clearcoat
   #ifdef RN_USE_CLEARCOAT
     clearcoatProps.clearcoatNormal_inWorld = normalize(TBN * clearcoatProps.clearcoatNormal_inTangent);

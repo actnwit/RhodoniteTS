@@ -150,6 +150,20 @@ export class SplitVectorShaderNode extends AbstractShaderNode {
    * @param varOutputNames - Array of output variable names for each call
    * @returns The generated shader code string for the function call
    */
+  /**
+   * Generates shader code for calling the split vector function.
+   * ShaderGraphResolver already orders varOutputNames to match output socket order and generates
+   * dummy variables for unconnected outputs, so we simply use them directly.
+   * This node only needs custom handling for selecting the correct input (xyzw, xyz, or xy).
+   *
+   * @param engine - The engine instance
+   * @param i - The index of the current shader node call
+   * @param _shaderNode - The shader node instance (unused in this implementation)
+   * @param functionName - The name of the shader function to call
+   * @param varInputNames - Array of input variable names for each call
+   * @param varOutputNames - Array of output variable names for each call (already ordered by ShaderGraphResolver)
+   * @returns The generated shader code string for the function call
+   */
   makeCallStatement(
     engine: Engine,
     i: number,
@@ -159,98 +173,7 @@ export class SplitVectorShaderNode extends AbstractShaderNode {
     varOutputNames: string[][]
   ): string {
     let str = '';
-    let rowStr = '';
     if (varInputNames[i].length > 0 && varOutputNames[i].length > 0) {
-      let dummyOutputVarDefines: string[];
-
-      if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-        let scalarType = 'f32';
-        let vec2Type = 'vec2<f32>';
-        let vec3Type = 'vec3<f32>';
-        if (this.__componentType === ComponentType.Int) {
-          scalarType = 'i32';
-          vec2Type = 'vec2<i32>';
-          vec3Type = 'vec3<i32>';
-        } else if (this.__componentType === ComponentType.UnsignedInt) {
-          scalarType = 'u32';
-          vec2Type = 'vec2<u32>';
-          vec3Type = 'vec3<u32>';
-        }
-        dummyOutputVarDefines = [
-          `var dummyXYZ_${i}: ${vec3Type};`,
-          `var dummyXY_${i}: ${vec2Type};`,
-          `var dummyZW_${i}: ${vec2Type};`,
-          `var dummyX_${i}: ${scalarType};`,
-          `var dummyY_${i}: ${scalarType};`,
-          `var dummyZ_${i}: ${scalarType};`,
-          `var dummyW_${i}: ${scalarType};`,
-        ];
-      } else {
-        let scalarType = 'float';
-        let vec2Type = 'vec2';
-        let vec3Type = 'vec3';
-        if (this.__componentType === ComponentType.Int) {
-          scalarType = 'int';
-          vec2Type = 'ivec2';
-          vec3Type = 'ivec3';
-        } else if (this.__componentType === ComponentType.UnsignedInt) {
-          scalarType = 'uint';
-          vec2Type = 'uvec2';
-          vec3Type = 'uvec3';
-        }
-        dummyOutputVarDefines = [
-          `${vec3Type} dummyXYZ_${i};`,
-          `${vec2Type} dummyXY_${i};`,
-          `${vec2Type} dummyZW_${i};`,
-          `${scalarType} dummyX_${i};`,
-          `${scalarType} dummyY_${i};`,
-          `${scalarType} dummyZ_${i};`,
-          `${scalarType} dummyW_${i};`,
-        ];
-      }
-
-      const dummyOutputArguments = [
-        `dummyXYZ_${i}`,
-        `dummyXY_${i}`,
-        `dummyZW_${i}`,
-        `dummyX_${i}`,
-        `dummyY_${i}`,
-        `dummyZ_${i}`,
-        `dummyW_${i}`,
-      ];
-
-      for (let k = 0; k < varOutputNames[i].length; k++) {
-        const outputName = varOutputNames[i][k];
-        if (outputName.indexOf('xyz') >= 0) {
-          dummyOutputVarDefines[0] = '';
-          dummyOutputArguments[0] = outputName;
-        } else if (outputName.indexOf('xy') >= 0) {
-          dummyOutputVarDefines[1] = '';
-          dummyOutputArguments[1] = outputName;
-        } else if (outputName.indexOf('zw') >= 0) {
-          dummyOutputVarDefines[2] = '';
-          dummyOutputArguments[2] = outputName;
-        } else if (outputName.indexOf('x') >= 0) {
-          dummyOutputVarDefines[3] = '';
-          dummyOutputArguments[3] = outputName;
-        } else if (outputName.indexOf('y') >= 0) {
-          dummyOutputVarDefines[4] = '';
-          dummyOutputArguments[4] = outputName;
-        } else if (outputName.indexOf('z') >= 0) {
-          dummyOutputVarDefines[5] = '';
-          dummyOutputArguments[5] = outputName;
-        } else if (outputName.indexOf('w') >= 0) {
-          dummyOutputVarDefines[6] = '';
-          dummyOutputArguments[6] = outputName;
-        }
-      }
-
-      if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-        for (let j = 0; j < dummyOutputArguments.length; j++) {
-          dummyOutputArguments[j] = `&${dummyOutputArguments[j]}`;
-        }
-      }
-
       // Determine which input index to use based on actual connections
       // Input indices: 0: xyzw, 1: xyz, 2: xy
       let inputIndex = 0; // default to xyzw
@@ -261,16 +184,22 @@ export class SplitVectorShaderNode extends AbstractShaderNode {
         }
       }
 
-      // Call node functions
-      rowStr += dummyOutputVarDefines.join('\n');
-      rowStr += `${functionName}(`;
-      const inputName = varInputNames[i][inputIndex];
-      rowStr += inputName;
-      rowStr += `, ${dummyOutputArguments.join(', ')}`;
-      rowStr += ');\n';
-    }
+      // Use varOutputNames directly - ShaderGraphResolver already orders them correctly
+      // and generates dummy variables for unconnected outputs
+      const outputArguments = [...varOutputNames[i]];
+      if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
+        for (let j = 0; j < outputArguments.length; j++) {
+          outputArguments[j] = `&${outputArguments[j]}`;
+        }
+      }
 
-    str += rowStr;
+      // Call node functions
+      str += `${functionName}(`;
+      const inputName = varInputNames[i][inputIndex];
+      str += inputName;
+      str += `, ${outputArguments.join(', ')}`;
+      str += ');\n';
+    }
 
     return str;
   }

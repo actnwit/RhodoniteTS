@@ -8,7 +8,7 @@ fn pbrShader(
   specularProps: SpecularProps,
   volumeProps: VolumeProps,
   clearcoatProps_: ClearcoatProps,
-  anisotropyProps: AnisotropyProps,
+  anisotropyProps_: AnisotropyProps,
   sheenProps_: SheenProps,
   iridescenceProps_: IridescenceProps,
   diffuseTransmissionProps: DiffuseTransmissionProps,
@@ -41,6 +41,22 @@ fn pbrShader(
   #else
     let perceptualRoughness = perceptualRoughness_;
   #endif
+
+  // Anisotropy
+  var anisotropyProps: AnisotropyProps = anisotropyProps_;
+  #ifdef RN_USE_ANISOTROPY
+    anisotropyProps.anisotropicT = normalize(TBN * vec3f(anisotropyProps.direction, 0.0));
+    anisotropyProps.anisotropicB = normalize(cross(geomNormalInWorld, anisotropyProps.anisotropicT));
+    anisotropyProps.BdotV = dot(anisotropyProps.anisotropicB, viewDirection);
+    anisotropyProps.TdotV = dot(anisotropyProps.anisotropicT, viewDirection);
+  #else
+    anisotropyProps.anisotropy = 0.0;
+    anisotropyProps.anisotropicT = vec3f(0.0, 0.0, 0.0);
+    anisotropyProps.anisotropicB = vec3f(0.0, 0.0, 0.0);
+    anisotropyProps.BdotV = 0.0;
+    anisotropyProps.TdotV = 0.0;
+  #endif // RN_USE_ANISOTROPY
+
   // Clearcoat
   var clearcoatProps: ClearcoatProps = clearcoatProps_;
   #ifdef RN_USE_CLEARCOAT
@@ -50,7 +66,7 @@ fn pbrShader(
     clearcoatProps.clearcoatF90 = vec3f(1.0);
     clearcoatProps.clearcoatFresnel = fresnelSchlick(clearcoatProps.clearcoatF0, clearcoatProps.clearcoatF90, clearcoatProps.VdotNc);
   #else
-    clearcoatProps.clearcoatNormal_inTangent = vec3f(0.0, 0.0, 0.0);
+    clearcoatProps.clearcoatNormal_inWorld = vec3f(0.0, 0.0, 0.0);
     clearcoatProps.VdotNc = 0.0;
     clearcoatProps.clearcoatF0 = vec3f(0.0);
     clearcoatProps.clearcoatF90 = vec3f(0.0);

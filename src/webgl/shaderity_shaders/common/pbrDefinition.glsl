@@ -598,11 +598,6 @@ struct IridescenceProps
   vec3 fresnelMetal;
 };
 
-struct TransmissionProps
-{
-  float transmission;
-};
-
 struct AnisotropyProps
 {
   float anisotropy;
@@ -610,13 +605,14 @@ struct AnisotropyProps
   vec3 anisotropicB;
   float BdotV;
   float TdotV;
+  vec2 direction;
 };
 
 struct VolumeProps
 {
+  float thickness;
   vec3 attenuationColor;
   float attenuationDistance;
-  float thickness;
 };
 
 struct DiffuseTransmissionProps
