@@ -424,6 +424,7 @@ fn random_f32() -> f32 {
 
 var<private> a_instanceIds: vec4<u32> = vec4<u32>(0u, 0u, 0u, 0u);
 var<private> g_instanceIds: vec4<u32> = vec4<u32>(0u, 0u, 0u, 0u);
+var<private> g_position: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 1.0);
 
 #ifdef RN_USE_POSITION_FLOAT
   var<private> a_position: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 1.0);

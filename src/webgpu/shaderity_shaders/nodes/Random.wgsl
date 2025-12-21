@@ -1,5 +1,5 @@
 // Variant 1: Only X needed (1 random_f32 call)
-fn _random1(
+fn random1(
   seed: vec3<f32>,
   outXYZW: ptr<function, vec4<f32>>,
   outXYZ1: ptr<function, vec4<f32>>,
@@ -14,7 +14,7 @@ fn _random1(
   #ifdef RN_IS_VERTEX_SHADER
     init_rand(vec3u(vertexIdx,0u,0u), vec3u(fract(seed) * 0xffffffffu));
   #else
-    init_rand(vec3u(u32(input.position.x),u32(input.position.y),u32(input.position.z)), vec3u(fract(seed) * 0xffffffffu));
+    init_rand(vec3u(u32(g_position.x),u32(g_position.y),u32(g_position.z)), vec3u(fract(seed) * 0xffffffffu));
   #endif
   }
   var x: f32 = random_f32();
@@ -30,7 +30,7 @@ fn _random1(
 }
 
 // Variant 2: X and Y needed (2 random_f32 calls)
-fn _random2(
+fn random2(
   seed: vec3<f32>,
   outXYZW: ptr<function, vec4<f32>>,
   outXYZ1: ptr<function, vec4<f32>>,
@@ -45,7 +45,7 @@ fn _random2(
   #ifdef RN_IS_VERTEX_SHADER
     init_rand(vec3u(vertexIdx,0u,0u), vec3u(fract(seed) * 0xffffffffu));
   #else
-    init_rand(vec3u(u32(input.position.x),u32(input.position.y),u32(input.position.z)), vec3u(fract(seed) * 0xffffffffu));
+    init_rand(vec3u(u32(g_position.x),u32(g_position.y),u32(g_position.z)), vec3u(fract(seed) * 0xffffffffu));
   #endif
   }
   var x: f32 = random_f32();
@@ -62,7 +62,7 @@ fn _random2(
 }
 
 // Variant 3: X, Y, and Z needed (3 random_f32 calls)
-fn _random3(
+fn random3(
   seed: vec3<f32>,
   outXYZW: ptr<function, vec4<f32>>,
   outXYZ1: ptr<function, vec4<f32>>,
@@ -77,7 +77,7 @@ fn _random3(
   #ifdef RN_IS_VERTEX_SHADER
     init_rand(vec3u(vertexIdx,0u,0u), vec3u(fract(seed) * 0xffffffffu));
   #else
-    init_rand(vec3u(u32(input.position.x),u32(input.position.y),u32(input.position.z)), vec3u(fract(seed) * 0xffffffffu));
+    init_rand(vec3u(u32(g_position.x),u32(g_position.y),u32(g_position.z)), vec3u(fract(seed) * 0xffffffffu));
   #endif
   }
   var x: f32 = random_f32();
@@ -95,7 +95,7 @@ fn _random3(
 }
 
 // Variant 4: All components needed (4 random_f32 calls) - default
-fn _random4(
+fn random4(
   seed: vec3<f32>,
   outXYZW: ptr<function, vec4<f32>>,
   outXYZ1: ptr<function, vec4<f32>>,
@@ -110,7 +110,7 @@ fn _random4(
   #ifdef RN_IS_VERTEX_SHADER
     init_rand(vec3u(vertexIdx,0u,0u), vec3u(fract(seed) * 0xffffffffu));
   #else
-    init_rand(vec3u(u32(input.position.x),u32(input.position.y),u32(input.position.z)), vec3u(fract(seed) * 0xffffffffu));
+    init_rand(vec3u(u32(g_position.x),u32(g_position.y),u32(g_position.z)), vec3u(fract(seed) * 0xffffffffu));
   #endif
   }
   var x: f32 = random_f32();
@@ -129,7 +129,7 @@ fn _random4(
 }
 
 // Original function name for backward compatibility
-fn _random(
+fn random(
   seed: vec3<f32>,
   outXYZW: ptr<function, vec4<f32>>,
   outXYZ1: ptr<function, vec4<f32>>,
@@ -140,5 +140,5 @@ fn _random(
   outY: ptr<function, f32>,
   outZ: ptr<function, f32>,
   outW: ptr<function, f32>) {
-  _random4(seed, outXYZW, outXYZ1, outXYZ, outXY, outZW, outX, outY, outZ, outW);
+  random4(seed, outXYZW, outXYZ1, outXYZ, outXY, outZW, outX, outY, outZ, outW);
 }

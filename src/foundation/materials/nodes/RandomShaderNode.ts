@@ -24,7 +24,7 @@ export class RandomShaderNode extends AbstractShaderNode {
    * Creates a new RandomShaderNode instance.
    */
   constructor() {
-    super('_random', {
+    super('random', {
       codeGLSL: RandomShaderityObjectGLSL.code,
       codeWGSL: RandomShaderityObjectWGSL.code,
     });
@@ -112,7 +112,7 @@ export class RandomShaderNode extends AbstractShaderNode {
       const requiredCalls = this.__getRequiredRandomCalls(varOutputNames[i]);
 
       // Select the appropriate optimized function
-      const optimizedFunctionName = `_random${requiredCalls}`;
+      const optimizedFunctionName = `random${requiredCalls}`;
 
       // Build output arguments with proper WebGPU reference handling
       const outputArguments = [...varOutputNames[i]];
