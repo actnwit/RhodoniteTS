@@ -492,6 +492,7 @@ struct AnisotropyProps
   anisotropicB: vec3f,
   BdotV: f32,
   TdotV: f32,
+  direction: vec2f,
 };
 
 struct VolumeProps
