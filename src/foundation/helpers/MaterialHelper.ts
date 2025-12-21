@@ -1834,6 +1834,11 @@ function reuseOrRecreateCustomMaterial(
   } else {
     definitions.delete('RN_USE_DIFFUSE_TRANSMISSION');
   }
+  if (options.isDispersion) {
+    definitions.add('RN_USE_DISPERSION');
+  } else {
+    definitions.delete('RN_USE_DISPERSION');
+  }
 
   let materialContent: CustomMaterialContent;
   if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
@@ -2323,6 +2328,26 @@ function createNodeBasedCustomMaterial(
     return sourceNode?.name === 'PbrDiffuseTransmissionProps';
   })();
 
+  // Check if something is connected to PbrShader's dispersion input
+  const hasDispersionConnected = (() => {
+    const nodes = shaderNodeJson?.nodes as Array<{ id: string; name: string }> | undefined;
+    const connections = shaderNodeJson?.connections as
+      | Array<{ from: { id: string; portName: string }; to: { id: string; portName: string } }>
+      | undefined;
+
+    if (!nodes || !connections) return false;
+
+    // Find PbrShader node
+    const pbrShaderNode = nodes.find(node => node.name === 'PbrShader');
+    if (!pbrShaderNode) return false;
+
+    // Find connection to dispersion input of PbrShader
+    const dispersionConnection = connections.find(
+      conn => conn.to.id === pbrShaderNode.id && conn.to.portName === 'dispersion'
+    );
+    return dispersionConnection != null;
+  })();
+
   // Add IBL-related semantic info if PBR shader is used
   if (hasPbrShaderNode) {
     addPbrIblSemanticInfo(engine, additionalShaderSemanticInfo);
@@ -2350,6 +2375,7 @@ function createNodeBasedCustomMaterial(
     isVolume: hasPbrVolumePropsConnected,
     isAnisotropy: hasPbrAnisotropyPropsConnected,
     isDiffuseTransmission: hasPbrDiffuseTransmissionPropsConnected,
+    isDispersion: hasDispersionConnected,
     additionalName: '',
     additionalShaderSemanticInfo,
   };
