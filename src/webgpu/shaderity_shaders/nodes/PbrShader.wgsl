@@ -50,6 +50,7 @@ fn pbrShader(
     anisotropyProps.BdotV = dot(anisotropyProps.anisotropicB, viewDirection);
     anisotropyProps.TdotV = dot(anisotropyProps.anisotropicT, viewDirection);
   #else
+    anisotropyProps.anisotropy = 0.0;
     anisotropyProps.anisotropicT = vec3f(0.0, 0.0, 0.0);
     anisotropyProps.anisotropicB = vec3f(0.0, 0.0, 0.0);
     anisotropyProps.BdotV = 0.0;
