@@ -69,6 +69,7 @@ import { PremultipliedAlphaShaderNode } from '../nodes/PremultipliedAlphaShaderN
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
 import { ProjectionMatrixShaderNode } from '../nodes/ProjectionMatrixShaderNode';
 import { RemapShaderNode } from '../nodes/RemapShaderNode';
+import { CosShaderNode } from '../nodes/CosShaderNode';
 import { SinShaderNode } from '../nodes/SinShaderNode';
 import { SmoothStepShaderNode } from '../nodes/SmoothStepShaderNode';
 import { SplitVectorShaderNode } from '../nodes/SplitVectorShaderNode';
@@ -1236,6 +1237,25 @@ function constructNodes(json: ShaderNodeJson): {
           nodeInstance = new SinShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
           Logger.default.error(`Sin node: Unknown socket name: ${socketName}`);
+          break;
+        }
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'Cos': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: CosShaderNode;
+        if (socketName.startsWith('Scalar')) {
+          nodeInstance = new CosShaderNode(CompositionType.Scalar, ComponentType.Float);
+        } else if (socketName.startsWith('Vector2')) {
+          nodeInstance = new CosShaderNode(CompositionType.Vec2, ComponentType.Float);
+        } else if (socketName.startsWith('Vector3')) {
+          nodeInstance = new CosShaderNode(CompositionType.Vec3, ComponentType.Float);
+        } else if (socketName.startsWith('Vector4')) {
+          nodeInstance = new CosShaderNode(CompositionType.Vec4, ComponentType.Float);
+        } else {
+          Logger.default.error(`Cos node: Unknown socket name: ${socketName}`);
           break;
         }
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
