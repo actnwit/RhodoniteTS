@@ -2299,6 +2299,30 @@ function createNodeBasedCustomMaterial(
     return sourceNode?.name === 'PbrAnisotropyProps';
   })();
 
+  // Check if PbrDiffuseTransmissionProps node is connected to PbrShader's diffuseTransmissionProps input
+  const hasPbrDiffuseTransmissionPropsConnected = (() => {
+    const nodes = shaderNodeJson?.nodes as Array<{ id: string; name: string }> | undefined;
+    const connections = shaderNodeJson?.connections as
+      | Array<{ from: { id: string; portName: string }; to: { id: string; portName: string } }>
+      | undefined;
+
+    if (!nodes || !connections) return false;
+
+    // Find PbrShader node
+    const pbrShaderNode = nodes.find(node => node.name === 'PbrShader');
+    if (!pbrShaderNode) return false;
+
+    // Find connection to diffuseTransmissionProps input of PbrShader
+    const diffuseTransmissionPropsConnection = connections.find(
+      conn => conn.to.id === pbrShaderNode.id && conn.to.portName === 'diffuseTransmissionProps'
+    );
+    if (!diffuseTransmissionPropsConnection) return false;
+
+    // Check if the source node is a PbrDiffuseTransmissionProps
+    const sourceNode = nodes.find(node => node.id === diffuseTransmissionPropsConnection.from.id);
+    return sourceNode?.name === 'PbrDiffuseTransmissionProps';
+  })();
+
   // Add IBL-related semantic info if PBR shader is used
   if (hasPbrShaderNode) {
     addPbrIblSemanticInfo(engine, additionalShaderSemanticInfo);
@@ -2325,6 +2349,7 @@ function createNodeBasedCustomMaterial(
     isTransmission: hasTransmissionConnected,
     isVolume: hasPbrVolumePropsConnected,
     isAnisotropy: hasPbrAnisotropyPropsConnected,
+    isDiffuseTransmission: hasPbrDiffuseTransmissionPropsConnected,
     additionalName: '',
     additionalShaderSemanticInfo,
   };
