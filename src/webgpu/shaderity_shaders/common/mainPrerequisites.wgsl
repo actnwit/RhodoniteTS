@@ -49,7 +49,10 @@ a_texcoord_2 = texcoord_2;
 
 #endif // RN_IS_VERTEX_SHADER
 
-#ifdef RN_IS_PIXEL_SHADER
+
+#ifdef RN_IS_VERTEX_SHADER
+a_vertexIdx = vertexIdx;
+#else
 g_isFront = input.isFront;
 g_instanceIds = input.instanceIds;
 g_position = input.position;

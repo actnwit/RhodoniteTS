@@ -10,11 +10,11 @@ fn random1(
   outY: ptr<function, f32>,
   outZ: ptr<function, f32>,
   outW: ptr<function, f32>) {
-  if (seed != vec3<f32>(0.0)) {
+  if (any(seed != vec3<f32>(0.0))) {
   #ifdef RN_IS_VERTEX_SHADER
-    init_rand(vec3u(vertexIdx,0u,0u), vec3u(fract(seed) * 0xffffffffu));
+    init_rand(vec3u(a_vertexIdx,0u,0u), vec3u(fract(seed) * f32(0xffffffffu)));
   #else
-    init_rand(vec3u(u32(g_position.x),u32(g_position.y),u32(g_position.z)), vec3u(fract(seed) * 0xffffffffu));
+    init_rand(vec3u(u32(g_position.x),u32(g_position.y),u32(g_position.z)), vec3u(fract(seed) * f32(0xffffffffu)));
   #endif
   }
   var x: f32 = random_f32();
@@ -41,11 +41,11 @@ fn random2(
   outY: ptr<function, f32>,
   outZ: ptr<function, f32>,
   outW: ptr<function, f32>) {
-  if (seed != vec3<f32>(0.0)) {
+  if (any(seed != vec3<f32>(0.0))) {
   #ifdef RN_IS_VERTEX_SHADER
-    init_rand(vec3u(vertexIdx,0u,0u), vec3u(fract(seed) * 0xffffffffu));
+    init_rand(vec3u(a_vertexIdx,0u,0u), vec3u(fract(seed) * f32(0xffffffffu)));
   #else
-    init_rand(vec3u(u32(g_position.x),u32(g_position.y),u32(g_position.z)), vec3u(fract(seed) * 0xffffffffu));
+    init_rand(vec3u(u32(g_position.x),u32(g_position.y),u32(g_position.z)), vec3u(fract(seed) * f32(0xffffffffu)));
   #endif
   }
   var x: f32 = random_f32();
@@ -73,11 +73,11 @@ fn random3(
   outY: ptr<function, f32>,
   outZ: ptr<function, f32>,
   outW: ptr<function, f32>) {
-  if (seed != vec3<f32>(0.0)) {
+  if (any(seed != vec3<f32>(0.0))) {
   #ifdef RN_IS_VERTEX_SHADER
-    init_rand(vec3u(vertexIdx,0u,0u), vec3u(fract(seed) * 0xffffffffu));
+    init_rand(vec3u(a_vertexIdx,0u,0u), vec3u(fract(seed) * f32(0xffffffffu)));
   #else
-    init_rand(vec3u(u32(g_position.x),u32(g_position.y),u32(g_position.z)), vec3u(fract(seed) * 0xffffffffu));
+    init_rand(vec3u(u32(g_position.x),u32(g_position.y),u32(g_position.z)), vec3u(fract(seed) * f32(0xffffffffu)));
   #endif
   }
   var x: f32 = random_f32();
@@ -106,11 +106,11 @@ fn random4(
   outY: ptr<function, f32>,
   outZ: ptr<function, f32>,
   outW: ptr<function, f32>) {
-  if (seed != vec3<f32>(0.0)) {
+  if (any(seed != vec3<f32>(0.0))) {
   #ifdef RN_IS_VERTEX_SHADER
-    init_rand(vec3u(vertexIdx,0u,0u), vec3u(fract(seed) * 0xffffffffu));
+    init_rand(vec3u(a_vertexIdx,0u,0u), vec3u(fract(seed) * f32(0xffffffffu)));
   #else
-    init_rand(vec3u(u32(g_position.x),u32(g_position.y),u32(g_position.z)), vec3u(fract(seed) * 0xffffffffu));
+    init_rand(vec3u(u32(g_position.x),u32(g_position.y),u32(g_position.z)), vec3u(fract(seed) * f32(0xffffffffu)));
   #endif
   }
   var x: f32 = random_f32();
