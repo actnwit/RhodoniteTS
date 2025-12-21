@@ -1799,6 +1799,11 @@ function reuseOrRecreateCustomMaterial(
   } else {
     definitions.delete('RN_USE_NORMAL_TEXTURE');
   }
+  if (options.isSpecular) {
+    definitions.add('RN_USE_SPECULAR');
+  } else {
+    definitions.delete('RN_USE_SPECULAR');
+  }
   if (options.isSheen) {
     definitions.add('RN_USE_SHEEN');
   } else {
@@ -2164,6 +2169,30 @@ function createNodeBasedCustomMaterial(
     return sourceNode?.name === 'Texture2D';
   })();
 
+  // Check if PbrSpecularProps node is connected to PbrShader's specularProps input
+  const hasPbrSpecularPropsConnected = (() => {
+    const nodes = shaderNodeJson?.nodes as Array<{ id: string; name: string }> | undefined;
+    const connections = shaderNodeJson?.connections as
+      | Array<{ from: { id: string; portName: string }; to: { id: string; portName: string } }>
+      | undefined;
+
+    if (!nodes || !connections) return false;
+
+    // Find PbrShader node
+    const pbrShaderNode = nodes.find(node => node.name === 'PbrShader');
+    if (!pbrShaderNode) return false;
+
+    // Find connection to specularProps input of PbrShader
+    const specularPropsConnection = connections.find(
+      conn => conn.to.id === pbrShaderNode.id && conn.to.portName === 'specularProps'
+    );
+    if (!specularPropsConnection) return false;
+
+    // Check if the source node is a PbrSpecularProps
+    const sourceNode = nodes.find(node => node.id === specularPropsConnection.from.id);
+    return sourceNode?.name === 'PbrSpecularProps';
+  })();
+
   // Check if PbrSheenProps node is connected to PbrShader's sheenProps input
   const hasPbrSheenPropsConnected = (() => {
     const nodes = shaderNodeJson?.nodes as Array<{ id: string; name: string }> | undefined;
@@ -2368,6 +2397,7 @@ function createNodeBasedCustomMaterial(
     isPbr: hasPbrShaderNode,
     isOcclusion: hasPbrOcclusionPropsNode,
     useNormalTexture: hasNormalTextureConnected,
+    isSpecular: hasPbrSpecularPropsConnected,
     isSheen: hasPbrSheenPropsConnected,
     isIridescence: hasPbrIridescencePropsConnected,
     isClearcoat: hasPbrClearcoatPropsConnected,
