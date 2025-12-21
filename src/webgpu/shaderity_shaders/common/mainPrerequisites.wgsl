@@ -54,3 +54,8 @@ g_isFront = input.isFront;
 g_instanceIds = input.instanceIds;
 #endif // RN_IS_PIXEL_SHADER
 
+#ifdef RN_IS_VERTEX_SHADER
+init_rand(vec3u(vertexIdx,0u,0u), vec3u(0u));
+#else
+init_rand(vec3u(u32(input.position.x),u32(input.position.y),u32(input.position.z)), vec3u(0u));
+#endif

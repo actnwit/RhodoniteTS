@@ -401,7 +401,26 @@ fn edge_ratio(bary3: vec3f, wireframeWidthInner: f32, wireframeWidthRelativeScal
 }
 #endif // defined(RN_USE_WIREFRAME) && defined(RN_IS_PIXEL_SHADER)
 
+// A psuedo random number. Initialized with init_rand(), updated with rand().
+var<private> g_rnd : vec3u;
 
+// Initializes the random number generator.
+fn init_rand(invocation_id : vec3u, seed : vec3u) {
+  const A = vec3(1741651 * 1009,
+                 140893  * 1609 * 13,
+                 6521    * 983  * 7 * 2);
+  g_rnd = (invocation_id * A) ^ seed;
+}
+
+// Returns a random number between 0 and 1.
+fn random_f32() -> f32 {
+  const C = vec3(60493  * 9377,
+                 11279  * 2539 * 23,
+                 7919   * 631  * 5 * 3);
+
+  g_rnd = (g_rnd * C) ^ (g_rnd.yzx >> vec3(4u));
+  return f32(g_rnd.x ^ g_rnd.y) / f32(0xffffffff);
+}
 
 var<private> a_instanceIds: vec4<u32> = vec4<u32>(0u, 0u, 0u, 0u);
 var<private> g_instanceIds: vec4<u32> = vec4<u32>(0u, 0u, 0u, 0u);
