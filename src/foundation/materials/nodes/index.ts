@@ -47,6 +47,7 @@ export * from './PbrShaderShaderNode';
 export * from './PbrAnisotropyPropsShaderNode';
 export * from './PbrAnisotropyRotationShaderNode';
 export * from './PbrSpecularPropsShaderNode';
+export * from './PbrDiffuseTransmissionPropsShaderNode';
 export * from './PbrTransmissionPropsShaderNode';
 export * from './PbrVolumePropsShaderNode';
 export * from './PremultipliedAlphaShaderNode';
