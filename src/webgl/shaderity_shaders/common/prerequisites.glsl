@@ -431,3 +431,19 @@ float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRela
 }
 #endif // defined(RN_USE_WIREFRAME) && defined(RN_IS_PIXEL_SHADER)
 
+// Implementation copied from https://webgpu.github.io/webgpu-samples/samples/cornell#./common.wgsl
+uvec3 g_rnd;
+void init_rand(uvec3 invocation_id,uvec3 seed){
+  uvec3 A = uvec3(1741651u * 1009u,
+      140893u * 1609u * 13u,
+  6521u * 983u * 7u * 2u);
+  g_rnd = (invocation_id * A) ^ seed;
+}
+
+float random_f32(){
+  uvec3 C = uvec3(60493u * 9377u,
+      11279u * 2539u * 23u,
+  7919u * 631u * 5u * 3u);
+  g_rnd = (g_rnd * C) ^ (g_rnd.yzx >> uvec3(4u));
+  return float(g_rnd.x ^ g_rnd.y) / float(0xffffffffu);
+}

@@ -36,3 +36,10 @@ uint cameraSID = uint(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentT
 #if defined(WEBGL2_MULTI_VIEW) && defined(RN_IS_VERTEX_SHADER)
   cameraSID += uint(gl_ViewID_OVR);
 #endif
+
+#ifdef RN_IS_VERTEX_SHADER
+  init_rand(uvec3(uint(gl_VertexID),0u,0u), uvec3(0u));
+#else
+  init_rand(uvec3(uint(gl_FragCoord.x), uint(gl_FragCoord.y),0u), uvec3(0u));
+#endif
+

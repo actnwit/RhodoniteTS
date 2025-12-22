@@ -49,8 +49,17 @@ a_texcoord_2 = texcoord_2;
 
 #endif // RN_IS_VERTEX_SHADER
 
-#ifdef RN_IS_PIXEL_SHADER
+
+#ifdef RN_IS_VERTEX_SHADER
+a_vertexIdx = vertexIdx;
+#else
 g_isFront = input.isFront;
 g_instanceIds = input.instanceIds;
+g_position = input.position;
 #endif // RN_IS_PIXEL_SHADER
 
+#ifdef RN_IS_VERTEX_SHADER
+init_rand(vec3u(vertexIdx,0u,0u), vec3u(0u));
+#else
+init_rand(vec3u(u32(input.position.x),u32(input.position.y),u32(input.position.z)), vec3u(0u));
+#endif

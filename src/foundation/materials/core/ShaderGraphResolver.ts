@@ -32,6 +32,7 @@ import { ConstantScalarVariableShaderNode } from '../nodes/ConstantScalarVariabl
 import { ConstantVector2VariableShaderNode } from '../nodes/ConstantVector2VariableShaderNode';
 import { ConstantVector3VariableShaderNode } from '../nodes/ConstantVector3VariableShaderNode';
 import { ConstantVector4VariableShaderNode } from '../nodes/ConstantVector4VariableShaderNode';
+import { CosShaderNode } from '../nodes/CosShaderNode';
 import { DiscardShaderNode } from '../nodes/DiscardShaderNode';
 import { DotProductShaderNode } from '../nodes/DotProductShaderNode';
 import { EqualShaderNode } from '../nodes/EqualShaderNode';
@@ -68,11 +69,14 @@ import { PbrVolumePropsShaderNode } from '../nodes/PbrVolumePropsShaderNode';
 import { PremultipliedAlphaShaderNode } from '../nodes/PremultipliedAlphaShaderNode';
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
 import { ProjectionMatrixShaderNode } from '../nodes/ProjectionMatrixShaderNode';
+import { Random_HashPRNGShaderNode } from '../nodes/Random_HashPRNGShaderNode';
+import { Random_SinHashShaderNode } from '../nodes/Random_SinHashShaderNode';
 import { RemapShaderNode } from '../nodes/RemapShaderNode';
 import { SinShaderNode } from '../nodes/SinShaderNode';
 import { SmoothStepShaderNode } from '../nodes/SmoothStepShaderNode';
 import { SplitVectorShaderNode } from '../nodes/SplitVectorShaderNode';
 import { StepShaderNode } from '../nodes/StepShaderNode';
+import { TanShaderNode } from '../nodes/TanShaderNode';
 import { Texture2DShaderNode } from '../nodes/Texture2DShaderNode';
 import { TimeShaderNode } from '../nodes/TimeShaderNode';
 import { TransformShaderNode } from '../nodes/TransformShaderNode';
@@ -1242,6 +1246,44 @@ function constructNodes(json: ShaderNodeJson): {
         nodeInstances[node.id] = nodeInstance;
         break;
       }
+      case 'Cos': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: CosShaderNode;
+        if (socketName.startsWith('Scalar')) {
+          nodeInstance = new CosShaderNode(CompositionType.Scalar, ComponentType.Float);
+        } else if (socketName.startsWith('Vector2')) {
+          nodeInstance = new CosShaderNode(CompositionType.Vec2, ComponentType.Float);
+        } else if (socketName.startsWith('Vector3')) {
+          nodeInstance = new CosShaderNode(CompositionType.Vec3, ComponentType.Float);
+        } else if (socketName.startsWith('Vector4')) {
+          nodeInstance = new CosShaderNode(CompositionType.Vec4, ComponentType.Float);
+        } else {
+          Logger.default.error(`Cos node: Unknown socket name: ${socketName}`);
+          break;
+        }
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'Tan': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: TanShaderNode;
+        if (socketName.startsWith('Scalar')) {
+          nodeInstance = new TanShaderNode(CompositionType.Scalar, ComponentType.Float);
+        } else if (socketName.startsWith('Vector2')) {
+          nodeInstance = new TanShaderNode(CompositionType.Vec2, ComponentType.Float);
+        } else if (socketName.startsWith('Vector3')) {
+          nodeInstance = new TanShaderNode(CompositionType.Vec3, ComponentType.Float);
+        } else if (socketName.startsWith('Vector4')) {
+          nodeInstance = new TanShaderNode(CompositionType.Vec4, ComponentType.Float);
+        } else {
+          Logger.default.error(`Tan node: Unknown socket name: ${socketName}`);
+          break;
+        }
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
       case 'Step': {
         const socketName = node.outputs.out1.socket.name;
         let nodeInstance: StepShaderNode;
@@ -1748,6 +1790,17 @@ function constructNodes(json: ShaderNodeJson): {
       case 'ClassicShader': {
         const nodeInstance = new ClassicShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        // Set shading model from control value (Lambert: 1, Blinn-Phong: 2, Phong: 3)
+        // Default is Blinn-Phong (2) if not specified
+        if (node.controls.shadingModel?.value != null) {
+          const shadingModelMap: Record<string, number> = {
+            Lambert: 1,
+            'Blinn-Phong': 2,
+            Phong: 3,
+          };
+          const shadingModelValue = shadingModelMap[node.controls.shadingModel.value] ?? 2;
+          nodeInstance.setShadingModel(shadingModelValue);
+        }
         nodeInstances[node.id] = nodeInstance;
         break;
       }
@@ -1858,6 +1911,18 @@ function constructNodes(json: ShaderNodeJson): {
         nodeInstances[node.id] = nodeInstance;
         break;
       }
+      case 'Random_HashPRNG': {
+        const nodeInstance = new Random_HashPRNGShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'Random_SinHash': {
+        const nodeInstance = new Random_SinHashShaderNode();
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
     }
   }
 
@@ -1870,22 +1935,35 @@ function constructNodes(json: ShaderNodeJson): {
       Logger.default.error('inputNodeInstance or outputNodeInstance is null');
       continue;
     }
-    let idx = 0;
-    for (const key in nodes[connection.to.id].inputs) {
-      if (key === connection.to.portName) {
-        break;
+
+    // First, try to find sockets by name (for nodes with matching port names)
+    let outputOfInputNode = inputNodeInstance.getOutput(connection.from.portName);
+    let inputOfOutputNode = outputNodeInstance.getInput(connection.to.portName);
+
+    // If name-based lookup fails for output, fall back to index-based lookup for output only
+    if (outputOfInputNode == null) {
+      let idx2 = 0;
+      for (const key in nodes[connection.from.id].outputs) {
+        if (key === connection.from.portName) {
+          break;
+        }
+        idx2++;
       }
-      idx++;
+      outputOfInputNode = inputNodeInstance.getOutputs()[idx2];
     }
-    let idx2 = 0;
-    for (const key in nodes[connection.from.id].outputs) {
-      if (key === connection.from.portName) {
-        break;
+
+    // If name-based lookup fails for input, fall back to index-based lookup for input only
+    if (inputOfOutputNode == null) {
+      let idx = 0;
+      for (const key in nodes[connection.to.id].inputs) {
+        if (key === connection.to.portName) {
+          break;
+        }
+        idx++;
       }
-      idx2++;
+      inputOfOutputNode = outputNodeInstance.getInputs()[idx];
     }
-    const outputOfInputNode = inputNodeInstance.getOutputs()[idx2];
-    const inputOfOutputNode = outputNodeInstance.getInputs()[idx];
+
     outputNodeInstance.addInputConnection(inputNodeInstance, outputOfInputNode, inputOfOutputNode);
   }
   return { nodeInstances, textureInfos };
