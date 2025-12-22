@@ -58,6 +58,7 @@ export * from './Random_SinHashShaderNode';
 export * from './RemapShaderNode';
 export * from './SinShaderNode';
 export * from './SmoothStepShaderNode';
+export * from './TanShaderNode';
 export * from './StepShaderNode';
 export * from './TimeShaderNode';
 export * from './TransformShaderNode';

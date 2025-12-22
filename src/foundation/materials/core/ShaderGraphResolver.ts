@@ -76,6 +76,7 @@ import { SinShaderNode } from '../nodes/SinShaderNode';
 import { SmoothStepShaderNode } from '../nodes/SmoothStepShaderNode';
 import { SplitVectorShaderNode } from '../nodes/SplitVectorShaderNode';
 import { StepShaderNode } from '../nodes/StepShaderNode';
+import { TanShaderNode } from '../nodes/TanShaderNode';
 import { Texture2DShaderNode } from '../nodes/Texture2DShaderNode';
 import { TimeShaderNode } from '../nodes/TimeShaderNode';
 import { TransformShaderNode } from '../nodes/TransformShaderNode';
@@ -1258,6 +1259,25 @@ function constructNodes(json: ShaderNodeJson): {
           nodeInstance = new CosShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
           Logger.default.error(`Cos node: Unknown socket name: ${socketName}`);
+          break;
+        }
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'Tan': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: TanShaderNode;
+        if (socketName.startsWith('Scalar')) {
+          nodeInstance = new TanShaderNode(CompositionType.Scalar, ComponentType.Float);
+        } else if (socketName.startsWith('Vector2')) {
+          nodeInstance = new TanShaderNode(CompositionType.Vec2, ComponentType.Float);
+        } else if (socketName.startsWith('Vector3')) {
+          nodeInstance = new TanShaderNode(CompositionType.Vec3, ComponentType.Float);
+        } else if (socketName.startsWith('Vector4')) {
+          nodeInstance = new TanShaderNode(CompositionType.Vec4, ComponentType.Float);
+        } else {
+          Logger.default.error(`Tan node: Unknown socket name: ${socketName}`);
           break;
         }
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
