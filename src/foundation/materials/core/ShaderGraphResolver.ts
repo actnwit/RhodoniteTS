@@ -1770,6 +1770,17 @@ function constructNodes(json: ShaderNodeJson): {
       case 'ClassicShader': {
         const nodeInstance = new ClassicShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        // Set shading model from control value (Lambert: 1, Blinn-Phong: 2, Phong: 3)
+        // Default is Blinn-Phong (2) if not specified
+        if (node.controls.shadingModel?.value != null) {
+          const shadingModelMap: Record<string, number> = {
+            Lambert: 1,
+            'Blinn-Phong': 2,
+            Phong: 3,
+          };
+          const shadingModelValue = shadingModelMap[node.controls.shadingModel.value] ?? 2;
+          nodeInstance.setShadingModel(shadingModelValue);
+        }
         nodeInstances[node.id] = nodeInstance;
         break;
       }
