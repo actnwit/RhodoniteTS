@@ -92,4 +92,3 @@ export class CosShaderNode extends AbstractShaderNode {
     return this.__shaderFunctionName;
   }
 }
-

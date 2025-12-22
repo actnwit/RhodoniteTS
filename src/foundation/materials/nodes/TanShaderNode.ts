@@ -92,4 +92,3 @@ export class TanShaderNode extends AbstractShaderNode {
     return this.__shaderFunctionName;
   }
 }
-

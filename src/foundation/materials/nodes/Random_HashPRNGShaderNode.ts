@@ -132,4 +132,3 @@ export class Random_HashPRNGShaderNode extends AbstractShaderNode {
     return str;
   }
 }
-
