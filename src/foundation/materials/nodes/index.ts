@@ -54,6 +54,7 @@ export * from './PbrVolumePropsShaderNode';
 export * from './PremultipliedAlphaShaderNode';
 export * from './ProjectionMatrixShaderNode';
 export * from './Random_HashPRNGShaderNode';
+export * from './Random_SinHashShaderNode';
 export * from './RemapShaderNode';
 export * from './SinShaderNode';
 export * from './SmoothStepShaderNode';
