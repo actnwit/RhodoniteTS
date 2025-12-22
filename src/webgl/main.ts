@@ -4,11 +4,11 @@ import type { WebGLStrategy as webGLStrategy } from './WebGLStrategy';
 import { WebGLStrategyDataTexture } from './WebGLStrategyDataTexture';
 import { WebGLStrategyUniform } from './WebGLStrategyUniform';
 import getRenderingStrategy from './getRenderingStrategy';
-import { CommonShaderPart } from './shaders/CommonShaderPart';
+import { StandardShaderPart } from './shaders/StandardShaderPart';
 
 const WebGL = Object.freeze({
   getRenderingStrategy,
-  CommonShaderPart,
+  StandardShaderPart,
   WebGLContextWrapper,
   WebGLResourceRepository,
   WebGLStrategyUniform,

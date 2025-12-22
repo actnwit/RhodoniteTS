@@ -4,16 +4,16 @@ import { ShaderNode } from '../../../foundation/definitions/ShaderNode';
 import type { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
 import type { Engine } from '../../../foundation/system/Engine';
 import type { AttributeNames } from '../../types/CommonTypes';
-import { CommonShaderPart } from '../CommonShaderPart';
+import { StandardShaderPart } from '../StandardShaderPart';
 
 /**
  * DiscardShader class provides the conditional discard function for fragment shaders.
  * This class handles discarding fragments based on a boolean condition,
  * supporting both WebGL and WebGPU rendering approaches.
  *
- * @extends CommonShaderPart
+ * @extends StandardShaderPart
  */
-export class DiscardShader extends CommonShaderPart {
+export class DiscardShader extends StandardShaderPart {
   static __instance: DiscardShader;
   public static readonly materialElement = ShaderNode.PBRShading;
 

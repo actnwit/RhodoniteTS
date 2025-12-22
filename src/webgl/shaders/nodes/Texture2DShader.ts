@@ -5,9 +5,9 @@ import type { VertexAttributeEnum } from '../../../foundation/definitions/Vertex
 import { getTextureAndSamplerNames } from '../../../foundation/helpers/ShaderHelper';
 import type { Engine } from '../../../foundation/system/Engine';
 import type { AttributeNames } from '../../types/CommonTypes';
-import { CommonShaderPart } from '../CommonShaderPart';
+import { StandardShaderPart } from '../StandardShaderPart';
 
-export class Texture2DShader extends CommonShaderPart {
+export class Texture2DShader extends StandardShaderPart {
   private __variableName = '';
   private __sRGB = true;
   constructor(private __functionName: string) {

@@ -1,2 +1,2 @@
-export * from './CommonShaderPart';
+export * from './StandardShaderPart';
 export * from './nodes/index';

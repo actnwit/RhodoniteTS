@@ -5,9 +5,9 @@ import type { VertexAttributeEnum } from '../../../foundation/definitions/Vertex
 import type { Engine } from '../../../foundation/system/Engine';
 import { EngineState } from '../../../foundation/system/EngineState';
 import type { AttributeNames } from '../../types/CommonTypes';
-import { CommonShaderPart } from '../CommonShaderPart';
+import { StandardShaderPart } from '../StandardShaderPart';
 
-export class UniformDataShader extends CommonShaderPart {
+export class UniformDataShader extends StandardShaderPart {
   private __variableName = '';
   private __valueStr = '';
   constructor(

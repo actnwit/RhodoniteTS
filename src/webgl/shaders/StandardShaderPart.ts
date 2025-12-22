@@ -16,7 +16,7 @@ import type { AttributeNames } from '../types/CommonTypes';
  * This class handles shader code generation, vertex/fragment shader prerequisites, and cross-platform compatibility
  * between WebGL and WebGPU shader languages (GLSL and WGSL).
  */
-export class CommonShaderPart {
+export class StandardShaderPart {
   /**
    * Generates the main function beginning code for vertex or fragment shaders.
    * Handles differences between WebGL (GLSL) and WebGPU (WGSL) shader languages.

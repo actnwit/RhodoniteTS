@@ -5,16 +5,16 @@ import type { VertexAttributeEnum } from '../../../foundation/definitions/Vertex
 import type { Engine } from '../../../foundation/system/Engine';
 import { EngineState } from '../../../foundation/system/EngineState';
 import type { AttributeNames } from '../../types/CommonTypes';
-import { CommonShaderPart } from '../CommonShaderPart';
+import { StandardShaderPart } from '../StandardShaderPart';
 
 /**
  * EndShader class provides the final output functions for both vertex and fragment shaders.
  * This class handles the final position output in vertex shaders and color output in fragment shaders,
  * supporting both WebGL and WebGPU rendering approaches.
  *
- * @extends CommonShaderPart
+ * @extends StandardShaderPart
  */
-export class EndShader extends CommonShaderPart {
+export class EndShader extends StandardShaderPart {
   static __instance: EndShader;
   public static readonly materialElement = ShaderNode.PBRShading;
 
