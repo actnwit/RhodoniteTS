@@ -24,7 +24,6 @@ export * from './EqualShaderNode';
 export * from './GreaterOrEqualShaderNode';
 export * from './GreaterShaderNode';
 export * from './GreaterThanShaderNode';
-export * from './IfStatementShaderNode';
 export * from './LengthShaderNode';
 export * from './LessOrEqualShaderNode';
 export * from './LessThanShaderNode';
