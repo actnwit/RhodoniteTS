@@ -1,5 +1,6 @@
 import type { Index } from '../../../types/CommonTypes';
 import type { ShaderNodeJson } from '../../../types/ShaderNodeJson';
+import type { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
 import { StandardShaderPart } from '../../../webgl/shaders/StandardShaderPart';
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
@@ -107,7 +108,7 @@ export class ShaderGraphResolver {
     engine: Engine,
     vertexNodes: AbstractShaderNode[],
     varyingNodes: AbstractShaderNode[],
-    commonShaderPart: StandardShaderPart,
+    commonShaderPart: CommonShaderPart,
     isFullVersion = true
   ) {
     const shaderNodes = vertexNodes.concat();
@@ -173,7 +174,7 @@ export class ShaderGraphResolver {
   static createPixelShaderCode(
     engine: Engine,
     pixelNodes: AbstractShaderNode[],
-    commonShaderPart: StandardShaderPart,
+    commonShaderPart: CommonShaderPart,
     isFullVersion = true
   ) {
     const shaderNodes = pixelNodes.concat();
@@ -399,7 +400,7 @@ export class ShaderGraphResolver {
     engine: Engine,
     shaderNodes: AbstractShaderNode[],
     isVertexStage: boolean,
-    commonShaderPart: StandardShaderPart
+    commonShaderPart: CommonShaderPart
   ): {
     varInputNames: Array<Array<string>>;
     varOutputNames: Array<Array<string>>;
@@ -458,7 +459,7 @@ export class ShaderGraphResolver {
     existingInputs: Set<string>,
     existingOutputsVarName: Map<string, string>,
     isVertexStage: boolean,
-    commonShaderPart: StandardShaderPart
+    commonShaderPart: CommonShaderPart
   ): string {
     const shaderNode = shaderNodes[nodeIndex];
 
@@ -621,7 +622,7 @@ export class ShaderGraphResolver {
     shaderNode: AbstractShaderNode,
     isVertexStage: boolean,
     existingInputs: Set<string>,
-    commonShaderPart: StandardShaderPart
+    commonShaderPart: CommonShaderPart
   ): { varName: string; rowStr: string } {
     const inputNode = AbstractShaderNode._shaderNodes[inputConnection.shaderNodeUid];
     const outputSocketOfPrev = inputNode.getOutput(inputConnection.outputNameOfPrev);
@@ -867,7 +868,7 @@ export class ShaderGraphResolver {
     engine: Engine,
     shaderNodes: AbstractShaderNode[],
     isVertexStage: boolean,
-    commonShaderPart: StandardShaderPart,
+    commonShaderPart: CommonShaderPart,
     isFullVersion: boolean
   ) {
     let shaderBody = '';
