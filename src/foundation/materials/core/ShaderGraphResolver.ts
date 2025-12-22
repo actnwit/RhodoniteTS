@@ -69,7 +69,7 @@ import { PbrVolumePropsShaderNode } from '../nodes/PbrVolumePropsShaderNode';
 import { PremultipliedAlphaShaderNode } from '../nodes/PremultipliedAlphaShaderNode';
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
 import { ProjectionMatrixShaderNode } from '../nodes/ProjectionMatrixShaderNode';
-import { RandomShaderNode } from '../nodes/RandomShaderNode';
+import { Random_HashPRNGShaderNode } from '../nodes/Random_HashPRNGShaderNode';
 import { RemapShaderNode } from '../nodes/RemapShaderNode';
 import { SinShaderNode } from '../nodes/SinShaderNode';
 import { SmoothStepShaderNode } from '../nodes/SmoothStepShaderNode';
@@ -1879,8 +1879,8 @@ function constructNodes(json: ShaderNodeJson): {
         nodeInstances[node.id] = nodeInstance;
         break;
       }
-      case 'Random': {
-        const nodeInstance = new RandomShaderNode();
+      case 'Random_HashPRNG': {
+        const nodeInstance = new Random_HashPRNGShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
         nodeInstances[node.id] = nodeInstance;
         break;

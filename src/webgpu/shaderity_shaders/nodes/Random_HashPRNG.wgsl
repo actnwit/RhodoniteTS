@@ -1,5 +1,5 @@
 // Variant 1: Only X needed (1 random_f32 call)
-fn random1(
+fn random_HashPRNG1(
   seed: vec3<f32>,
   outXYZW: ptr<function, vec4<f32>>,
   outXYZ1: ptr<function, vec4<f32>>,
@@ -30,7 +30,7 @@ fn random1(
 }
 
 // Variant 2: X and Y needed (2 random_f32 calls)
-fn random2(
+fn random_HashPRNG2(
   seed: vec3<f32>,
   outXYZW: ptr<function, vec4<f32>>,
   outXYZ1: ptr<function, vec4<f32>>,
@@ -62,7 +62,7 @@ fn random2(
 }
 
 // Variant 3: X, Y, and Z needed (3 random_f32 calls)
-fn random3(
+fn random_HashPRNG3(
   seed: vec3<f32>,
   outXYZW: ptr<function, vec4<f32>>,
   outXYZ1: ptr<function, vec4<f32>>,
@@ -95,7 +95,7 @@ fn random3(
 }
 
 // Variant 4: All components needed (4 random_f32 calls) - default
-fn random4(
+fn random_HashPRNG4(
   seed: vec3<f32>,
   outXYZW: ptr<function, vec4<f32>>,
   outXYZ1: ptr<function, vec4<f32>>,
@@ -129,7 +129,7 @@ fn random4(
 }
 
 // Original function name for backward compatibility
-fn random(
+fn random_HashPRNG(
   seed: vec3<f32>,
   outXYZW: ptr<function, vec4<f32>>,
   outXYZ1: ptr<function, vec4<f32>>,
@@ -140,5 +140,6 @@ fn random(
   outY: ptr<function, f32>,
   outZ: ptr<function, f32>,
   outW: ptr<function, f32>) {
-  random4(seed, outXYZW, outXYZ1, outXYZ, outXY, outZW, outX, outY, outZ, outW);
+  random_HashPRNG4(seed, outXYZW, outXYZ1, outXYZ, outXY, outZW, outX, outY, outZ, outW);
 }
+

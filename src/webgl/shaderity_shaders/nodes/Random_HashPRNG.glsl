@@ -11,7 +11,7 @@
 #endif
 
 // Variant 1: Only X needed (1 random_f32 call)
-void random1(
+void random_HashPRNG1(
   in vec3 seed,
   out vec4 outXYZW,
   out vec4 outXYZ1,
@@ -37,7 +37,7 @@ void random1(
 }
 
 // Variant 2: X and Y needed (2 random_f32 calls)
-void random2(
+void random_HashPRNG2(
   in vec3 seed,
   out vec4 outXYZW,
   out vec4 outXYZ1,
@@ -64,7 +64,7 @@ void random2(
 }
 
 // Variant 3: X, Y, and Z needed (3 random_f32 calls)
-void random3(
+void random_HashPRNG3(
   in vec3 seed,
   out vec4 outXYZW,
   out vec4 outXYZ1,
@@ -92,7 +92,7 @@ void random3(
 }
 
 // Variant 4: All components needed (4 random_f32 calls) - default
-void random4(
+void random_HashPRNG4(
   in vec3 seed,
   out vec4 outXYZW,
   out vec4 outXYZ1,
@@ -121,7 +121,7 @@ void random4(
 }
 
 // Original function name for backward compatibility
-void random(
+void random_HashPRNG(
   in vec3 seed,
   out vec4 outXYZW,
   out vec4 outXYZ1,
@@ -132,5 +132,6 @@ void random(
   out float outY,
   out float outZ,
   out float outW) {
-  random4(seed, outXYZW, outXYZ1, outXYZ, outXY, outZW, outX, outY, outZ, outW);
+  random_HashPRNG4(seed, outXYZW, outXYZ1, outXYZ, outXY, outZW, outX, outY, outZ, outW);
 }
+

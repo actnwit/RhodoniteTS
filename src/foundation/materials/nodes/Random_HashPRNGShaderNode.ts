@@ -1,5 +1,5 @@
-import RandomShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/Random.glsl';
-import RandomShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Random.wgsl';
+import Random_HashPRNGShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/Random_HashPRNG.glsl';
+import Random_HashPRNGShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Random_HashPRNG.wgsl';
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
@@ -9,7 +9,7 @@ import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
 
 /**
- * A shader node that outputs a random number between 0 and 1.
+ * A shader node that outputs a random number between 0 and 1 using Hash-based PRNG.
  * This node outputs a random number between 0 and 1.
  * The node optimizes random_f32() calls based on which outputs are connected.
  *
@@ -19,14 +19,14 @@ import { Socket } from '../core/Socket';
  * - outZ, outXYZ, outXYZ1: 3 calls
  * - outW, outZW, outXYZW: 4 calls
  */
-export class RandomShaderNode extends AbstractShaderNode {
+export class Random_HashPRNGShaderNode extends AbstractShaderNode {
   /**
-   * Creates a new RandomShaderNode instance.
+   * Creates a new Random_HashPRNGShaderNode instance.
    */
   constructor() {
-    super('random', {
-      codeGLSL: RandomShaderityObjectGLSL.code,
-      codeWGSL: RandomShaderityObjectWGSL.code,
+    super('random_HashPRNG', {
+      codeGLSL: Random_HashPRNGShaderityObjectGLSL.code,
+      codeWGSL: Random_HashPRNGShaderityObjectWGSL.code,
     });
 
     this.__inputs.push(new Socket('seed', CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0, 0, 0)));
@@ -112,7 +112,7 @@ export class RandomShaderNode extends AbstractShaderNode {
       const requiredCalls = this.__getRequiredRandomCalls(varOutputNames[i]);
 
       // Select the appropriate optimized function
-      const optimizedFunctionName = `random${requiredCalls}`;
+      const optimizedFunctionName = `random_HashPRNG${requiredCalls}`;
 
       // Build output arguments with proper WebGPU reference handling
       const outputArguments = [...varOutputNames[i]];
@@ -132,3 +132,4 @@ export class RandomShaderNode extends AbstractShaderNode {
     return str;
   }
 }
+
