@@ -32,17 +32,18 @@ outPositionShaderNode.addInputConnection(
 );
 outColorShaderNode.addInputConnection(constant2, constant2.getSocketOutput(), outColorShaderNode.getSocketInput());
 
+const commonShaderPart = new Rn.CommonShaderPart();
 const vertexRet = Rn.ShaderGraphResolver.createVertexShaderCode(
   engine,
   [outPositionShaderNode, addShaderNode, constant1, constant2],
-  []
+  [],
+  commonShaderPart
 );
-const pixelRet = Rn.ShaderGraphResolver.createPixelShaderCode(engine, [
-  outColorShaderNode,
-  addShaderNode,
-  constant1,
-  constant2,
-]);
+const pixelRet = Rn.ShaderGraphResolver.createPixelShaderCode(
+  engine,
+  [outColorShaderNode, addShaderNode, constant1, constant2],
+  commonShaderPart
+);
 
 console.log('vertex shader');
 console.log(vertexRet);

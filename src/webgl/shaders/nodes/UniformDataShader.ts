@@ -42,7 +42,7 @@ uniform ${this.__compositionType.getGlslStr(this.__componentType)} u_${
       this.__variableName
     }; // initialValue=${this.__valueStr}
 void ${this.__functionName}(out ${this.__compositionType.getGlslStr(this.__componentType)} outValue) {
-  ${CommonShaderPart.getMaterialSIDForWebGL()}
+  ${this.getMaterialSIDForWebGL()}
 
   outValue = get_${this.__variableName}(materialSID, 0u);
 }
@@ -65,7 +65,7 @@ uniform ${this.__compositionType.getGlslStr(this.__componentType)} u_${
       this.__variableName
     }; // initialValue=${this.__valueStr}
 void ${this.__functionName}(out ${this.__compositionType.getGlslStr(this.__componentType)} outValue) {
-  ${CommonShaderPart.getMaterialSIDForWebGL()}
+  ${this.getMaterialSIDForWebGL()}
 
 outValue = get_${this.__variableName}(materialSID, 0u);
     }

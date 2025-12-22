@@ -52,7 +52,7 @@ fn ${this.__functionName}(uv: vec2f, scale: vec2f, offset: vec2f, rotation: f32,
     // WebGL
     return `
 void ${this.__functionName}(vec2 uv, vec2 scale, vec2 offset, float rotation, float lod, out vec4 rgba, out vec3 rgb, out float r, out float g, out float b, out float a, out vec2 uvOut) {
-  ${CommonShaderPart.getMaterialSIDForWebGL()}
+  ${this.getMaterialSIDForWebGL()}
   vec2 ${this.__variableName}TexUv = uvTransform(scale, offset, rotation, uv);
   float lodFloat = lod;
   vec4 rgbaValue;
@@ -103,7 +103,7 @@ fn ${this.__functionName}(uv: vec2f, scale: vec2f, offset: vec2f, rotation: f32,
     // WebGL
     return `
 void ${this.__functionName}(vec2 uv, vec2 scale, vec2 offset, float rotation, float lod, out vec4 rgba, out vec3 rgb, out float r, out float g, out float b, out float a, out vec2 uvOut) {
-  ${CommonShaderPart.getMaterialSIDForWebGL()}
+  ${this.getMaterialSIDForWebGL()}
   vec2 ${this.__variableName}TexUv = uvTransform(scale, offset, rotation, uv);
   float lodFloat = lod;
   vec4 rgbaValue;
