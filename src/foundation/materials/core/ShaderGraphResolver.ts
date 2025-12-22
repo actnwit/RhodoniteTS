@@ -45,8 +45,8 @@ import { LessOrEqualShaderNode } from '../nodes/LessOrEqualShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
+import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NotEqualShaderNode } from '../nodes/NotEqualShaderNode';
 import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
@@ -1915,22 +1915,35 @@ function constructNodes(json: ShaderNodeJson): {
       Logger.default.error('inputNodeInstance or outputNodeInstance is null');
       continue;
     }
-    let idx = 0;
-    for (const key in nodes[connection.to.id].inputs) {
-      if (key === connection.to.portName) {
-        break;
+
+    // First, try to find sockets by name (for nodes with matching port names)
+    let outputOfInputNode = inputNodeInstance.getOutput(connection.from.portName);
+    let inputOfOutputNode = outputNodeInstance.getInput(connection.to.portName);
+
+    // If name-based lookup fails for output, fall back to index-based lookup for output only
+    if (outputOfInputNode == null) {
+      let idx2 = 0;
+      for (const key in nodes[connection.from.id].outputs) {
+        if (key === connection.from.portName) {
+          break;
+        }
+        idx2++;
       }
-      idx++;
+      outputOfInputNode = inputNodeInstance.getOutputs()[idx2];
     }
-    let idx2 = 0;
-    for (const key in nodes[connection.from.id].outputs) {
-      if (key === connection.from.portName) {
-        break;
+
+    // If name-based lookup fails for input, fall back to index-based lookup for input only
+    if (inputOfOutputNode == null) {
+      let idx = 0;
+      for (const key in nodes[connection.to.id].inputs) {
+        if (key === connection.to.portName) {
+          break;
+        }
+        idx++;
       }
-      idx2++;
+      inputOfOutputNode = outputNodeInstance.getInputs()[idx];
     }
-    const outputOfInputNode = inputNodeInstance.getOutputs()[idx2];
-    const inputOfOutputNode = outputNodeInstance.getInputs()[idx];
+
     outputNodeInstance.addInputConnection(inputNodeInstance, outputOfInputNode, inputOfOutputNode);
   }
   return { nodeInstances, textureInfos };
