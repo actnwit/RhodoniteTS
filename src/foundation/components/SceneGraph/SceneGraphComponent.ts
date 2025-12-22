@@ -400,7 +400,7 @@ export class SceneGraphComponent extends Component {
    * Gets the component type identifier for SceneGraphComponent.
    * @returns The component type ID
    */
-  static get componentTID(): ComponentTID {
+  static get componentTID() {
     return WellKnownComponentTIDs.SceneGraphComponentTID;
   }
 

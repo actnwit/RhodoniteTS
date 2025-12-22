@@ -44,7 +44,7 @@ export class AnimationStateComponent extends Component {
    * Gets the component type identifier for AnimationStateComponent.
    * @returns The component type ID for AnimationStateComponent
    */
-  static get componentTID(): ComponentTID {
+  static get componentTID() {
     return WellKnownComponentTIDs.AnimationStateComponentTID;
   }
 

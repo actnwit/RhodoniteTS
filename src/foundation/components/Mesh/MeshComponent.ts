@@ -43,7 +43,7 @@ export class MeshComponent extends Component {
    * Gets the component type identifier for MeshComponent.
    * @returns The component type ID for mesh components
    */
-  static get componentTID(): ComponentTID {
+  static get componentTID() {
     return WellKnownComponentTIDs.MeshComponentTID;
   }
 

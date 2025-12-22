@@ -45,7 +45,7 @@ export class PhysicsComponent extends Component {
    * Gets the component type identifier for PhysicsComponent.
    * @returns The component type ID for physics components
    */
-  static get componentTID(): ComponentTID {
+  static get componentTID() {
     return WellKnownComponentTIDs.PhysicsComponentTID;
   }
 

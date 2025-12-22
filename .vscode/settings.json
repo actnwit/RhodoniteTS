@@ -48,6 +48,7 @@
     "preoutput",
     "PVRTC",
     "qlerp",
+    "Raymarching",
     "renderable",
     "retarget",
     "Retargeting",

@@ -789,7 +789,7 @@ export class CameraComponent extends Component {
    *
    * @returns The camera component type identifier
    */
-  static get componentTID(): ComponentTID {
+  static get componentTID() {
     return WellKnownComponentTIDs.CameraComponentTID;
   }
 

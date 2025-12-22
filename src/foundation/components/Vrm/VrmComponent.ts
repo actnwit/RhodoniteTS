@@ -55,7 +55,7 @@ export class VrmComponent extends Component {
    * Gets the component type identifier for VrmComponent.
    * @returns The component type ID for VrmComponent
    */
-  static get componentTID(): ComponentTID {
+  static get componentTID() {
     return WellKnownComponentTIDs.VrmComponentTID;
   }
 

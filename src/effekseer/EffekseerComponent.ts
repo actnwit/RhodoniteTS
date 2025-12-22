@@ -44,7 +44,7 @@ export class EffekseerComponent extends Component {
 
   private isLoadEffect = false;
 
-  static get componentTID(): ComponentTID {
+  static get componentTID() {
     return WellKnownComponentTIDs.EffekseerComponentTID;
   }
 
