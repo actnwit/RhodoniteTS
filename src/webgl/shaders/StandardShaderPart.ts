@@ -10,13 +10,14 @@ import vertexInputWGSL from '../../webgpu/shaderity_shaders/common/vertexInput.w
 import { WebGLResourceRepository } from '../WebGLResourceRepository';
 import morphVariablesGLSL from '../shaderity_shaders/common/morphVariables.glsl';
 import type { AttributeNames } from '../types/CommonTypes';
+import { CommonShaderPart } from './CommonShaderPart';
 
 /**
  * Base class that provides common shader functionality for both WebGL and WebGPU rendering approaches.
  * This class handles shader code generation, vertex/fragment shader prerequisites, and cross-platform compatibility
  * between WebGL and WebGPU shader languages (GLSL and WGSL).
  */
-export class StandardShaderPart {
+export class StandardShaderPart extends CommonShaderPart {
   /**
    * Generates the main function beginning code for vertex or fragment shaders.
    * Handles differences between WebGL (GLSL) and WebGPU (WGSL) shader languages.
