@@ -30,6 +30,7 @@ import SummedAreaTableShaderFragment from '../../webgl/shaderity_shaders/SummedA
 import SummedAreaTableShaderVertex from '../../webgl/shaderity_shaders/SummedAreaTableShader/SummedAreaTableShader.vert';
 import ToneMappingShaderFragmentGLSL from '../../webgl/shaderity_shaders/ToneMappingShader/ToneMappingShader.frag';
 import ToneMappingShaderVertexGLSL from '../../webgl/shaderity_shaders/ToneMappingShader/ToneMappingShader.vert';
+import { StandardShaderPart } from '../../webgl/shaders/StandardShaderPart';
 import ClassicSingleShaderFragmentWebgpu from '../../webgpu/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
 import ClassicSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
 import DepthMomentEncodeShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.frag.wgsl';
@@ -2124,7 +2125,8 @@ function createNodeBasedCustomMaterial(
   currentMaterial?: Material
 ): NodeBasedMaterialResult | null {
   // Generate shader code from the shader node JSON
-  const shaderCode = ShaderGraphResolver.generateShaderCodeFromJson(engine, shaderNodeJson);
+  const commonShaderPart = new StandardShaderPart();
+  const shaderCode = ShaderGraphResolver.generateShaderCodeFromJson(engine, shaderNodeJson, commonShaderPart);
 
   if (!shaderCode) {
     return null;

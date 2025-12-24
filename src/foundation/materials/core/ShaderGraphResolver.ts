@@ -1,7 +1,7 @@
 import type { Index } from '../../../types/CommonTypes';
 import type { ShaderNodeJson } from '../../../types/ShaderNodeJson';
 import type { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
-import { StandardShaderPart } from '../../../webgl/shaders/StandardShaderPart';
+import type { StandardShaderPart } from '../../../webgl/shaders/StandardShaderPart';
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
@@ -912,10 +912,12 @@ export class ShaderGraphResolver {
    *
    * @param engine - The engine instance
    * @param json - JSON representation of the shader node graph containing nodes and connections
+   * @param commonShaderPart - StandardShaderPart instance to use for shader code generation
    * @returns Object containing both vertex and fragment shader code, texture names used, or undefined if generation fails
    * @example
    * ```typescript
-   * const shaderCode = ShaderGraphResolver.generateShaderCodeFromJson(engine, graphJson);
+   * const commonShaderPart = new StandardShaderPart();
+   * const shaderCode = ShaderGraphResolver.generateShaderCodeFromJson(engine, graphJson, commonShaderPart);
    * if (shaderCode) {
    *   const { vertexShader, pixelShader, textureNames } = shaderCode;
    *   // Use the generated shaders...
@@ -924,7 +926,8 @@ export class ShaderGraphResolver {
    */
   public static generateShaderCodeFromJson(
     engine: Engine,
-    json: ShaderNodeJson
+    json: ShaderNodeJson,
+    commonShaderPart: StandardShaderPart
   ):
     | {
         vertexShader: string;
@@ -947,7 +950,6 @@ export class ShaderGraphResolver {
       return;
     }
 
-    const commonShaderPart = new StandardShaderPart();
     const vertexRet = ShaderGraphResolver.createVertexShaderCode(
       engine,
       vertexNodes,
