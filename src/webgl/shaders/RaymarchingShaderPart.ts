@@ -31,6 +31,8 @@ ${vertexInputWGSL.code}
 ) -> VertexOutput {
   output.instanceIds = instanceIds;
   /* shaderity: @{mainPrerequisites} */
+  /* shaderity: @{fullscreen} */
+
 `;
         return str;
       }
@@ -50,11 +52,17 @@ fn main(
 void main() {
   v_instanceIds = a_instanceIds;
   /* shaderity: @{mainPrerequisites} */
+  /* shaderity: @{fullscreen} */
+}
 `;
     }
     return `
-void main() {
-  /* shaderity: @{mainPrerequisites} */
+float map(vec3 p){
+    float d=distance(p,vec3(-1,0,-5))-1.;// sphere at (-1,0,5) with radius 1
+    d=min(d,distance(p,vec3(2,0,-3))-1.);// second sphere
+    d=min(d,distance(p,vec3(-2,0,-2))-1.);// and another
+    d=min(d,p.y+1.);// horizontal plane at y = -1
+    return d;
   `;
   }
 
@@ -79,7 +87,56 @@ void main() {
 }
 `;
     }
+
+    if (isVertexStage) {
+      return '';
+    }
+
     return `
+}
+vec3 getNormal(vec3 p){
+    float eps=.001;
+    vec2 h=vec2(eps,0.);
+    return normalize(
+        vec3(
+            map(p+h.xyy)-map(p-h.xyy),
+            map(p+h.yxy)-map(p-h.yxy),
+            map(p+h.yyx)-map(p-h.yyx)
+        )
+    );
+}
+
+void main() {
+  /* shaderity: @{mainPrerequisites} */
+  vec3 ro=vec3(0,0,1);// ray origin
+  vec2 uv = (v_texcoord_0 - 0.5) * 2.0;
+  vec3 rd=normalize(vec3(uv,0.0) - ro); // ray direction for uv
+
+  // March the distance field until a surface is hit.
+  float h,t=1.;
+  for(int i=0;i<256;i++){
+    h=map(ro+rd*t);
+    t+=h;
+    if(h<.01)break;
+  }
+
+  if(h<.01){
+    vec3 p=ro+rd*t;
+    vec3 normal=calcNormal(p);
+    vec3 light=vec3(0,2,0);
+
+    // Calculate diffuse lighting by taking the dot product of
+    // the light direction (light-p) and the normal.
+    float dif=clamp(dot(normal,normalize(light-p)),0.,1.);
+
+    // Multiply by light intensity (5) and divide by the square
+    // of the distance to the light.
+    dif*=5./dot(light-p,light-p);
+
+    gl_FragColor=vec4(vec3(pow(dif,.4545)),1);// Gamma correction
+  }else{
+    gl_FragColor=vec4(0,0,0,1);
+  }
 }
 `;
   }
