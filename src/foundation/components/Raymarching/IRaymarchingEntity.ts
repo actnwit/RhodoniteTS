@@ -1,5 +1,5 @@
 import type { RaymarchingComponent } from './RaymarchingComponent';
 
-export interface IRayMarchingEntityMethods {
+export interface IRaymarchingEntityMethods {
   getRaymarching(): RaymarchingComponent;
 }

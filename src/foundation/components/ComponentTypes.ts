@@ -11,7 +11,7 @@ import type { ILightEntityMethods } from './Light/ILightEntity';
 import type { IMeshEntityMethods } from './Mesh/IMeshEntity';
 import type { IMeshRendererEntityMethods } from './MeshRenderer/IMeshRendererEntity';
 import type { IPhysicsEntityMethods } from './Physics/IPhysicsEntity';
-import type { IRayMarchingEntityMethods } from './Raymarching/IRaymarchingEntity';
+import type { IRaymarchingEntityMethods } from './Raymarching/IRaymarchingEntity';
 import type { ISceneGraphEntityMethods } from './SceneGraph/ISceneGraphEntity';
 import type { ISkeletalEntityMethods } from './Skeletal/ISkeletalEntity';
 import type { ITransformEntityMethods } from './Transform/ITransformEntity';
@@ -47,7 +47,7 @@ interface ComponentTIDToMethodsMap {
   [WellKnownComponentTIDs.EffekseerComponentTID]: IEffekseerEntityMethods;
   [WellKnownComponentTIDs.VrmComponentTID]: IVrmEntityMethods;
   [WellKnownComponentTIDs.ConstraintComponentTID]: IConstraintEntityMethods;
-  [WellKnownComponentTIDs.RaymarchingComponentTID]: IRayMarchingEntityMethods;
+  [WellKnownComponentTIDs.RaymarchingComponentTID]: IRaymarchingEntityMethods;
 }
 
 /**

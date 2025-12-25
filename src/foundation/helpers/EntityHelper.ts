@@ -11,12 +11,12 @@ import { LightComponent } from '../components/Light/LightComponent';
 import type { IMeshEntityMethods } from '../components/Mesh/IMeshEntity';
 import type { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
 import type { IPhysicsEntityMethods } from '../components/Physics/IPhysicsEntity';
+import type { IRaymarchingEntityMethods } from '../components/Raymarching/IRaymarchingEntity';
 import type { ISceneGraphEntityMethods } from '../components/SceneGraph/ISceneGraphEntity';
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
 import type { ISkeletalEntityMethods } from '../components/Skeletal/ISkeletalEntity';
 import type { ITransformEntityMethods } from '../components/Transform/ITransformEntity';
 import type { IEntity } from '../core/Entity';
-import { EntityRepository } from '../core/EntityRepository';
 import type { Engine } from '../system/Engine';
 
 /**
@@ -90,6 +90,12 @@ export interface IAnimationEntity extends ISceneGraphEntity, IAnimationEntityMet
  * Extends scene graph entity with animation state management.
  */
 export interface IAnimationStateEntity extends ISceneGraphEntity, IAnimationStateEntityMethods {}
+
+/**
+ * An entity that can participate in raymarching.
+ * Extends scene graph entity with raymarching capabilities.
+ */
+export interface IRaymarchingEntity extends ISceneGraphEntity, IRaymarchingEntityMethods {}
 
 /**
  * Creates a special entity that combines both light and camera functionality.
