@@ -854,8 +854,6 @@ export class ShaderGraphResolver {
 
     shaderBody += commonShaderPart.getMainBegin(engine, isVertexStage);
 
-    shaderBody += commonShaderPart.getMainPrerequisites();
-
     // Collect input/output variable names
     const { varInputNames, varOutputNames, collectedShaderBody } = this.__collectVariableNames(
       engine,

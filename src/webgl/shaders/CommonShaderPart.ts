@@ -7,7 +7,6 @@ import type { Engine } from '../../foundation/system/Engine';
 export abstract class CommonShaderPart {
   abstract getMainBegin(engine: Engine, isVertexStage: boolean): string;
   abstract getMainEnd(engine: Engine, isVertexStage: boolean): string;
-  abstract getMainPrerequisites(): string;
   abstract getVertexPrerequisites(engine: Engine, shaderNodes: AbstractShaderNode[]): string;
   abstract getPixelPrerequisites(engine: Engine, shaderNodes: AbstractShaderNode[]): string;
   abstract getAssignmentStatement(

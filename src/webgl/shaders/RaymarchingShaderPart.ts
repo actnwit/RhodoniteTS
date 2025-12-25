@@ -30,6 +30,7 @@ fn main(
 ${vertexInputWGSL.code}
 ) -> VertexOutput {
   output.instanceIds = instanceIds;
+  /* shaderity: @{mainPrerequisites} */
 `;
         return str;
       }
@@ -39,6 +40,7 @@ var<private> rt0: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 1.0);
 fn main(
   input: VertexOutput,
 ) -> @location(0) vec4<f32> {
+  /* shaderity: @{mainPrerequisites} */
 `;
       return str;
     }
@@ -47,10 +49,12 @@ fn main(
       return `
 void main() {
   v_instanceIds = a_instanceIds;
+  /* shaderity: @{mainPrerequisites} */
 `;
     }
     return `
 void main() {
+  /* shaderity: @{mainPrerequisites} */
   `;
   }
 
@@ -179,16 +183,6 @@ flat out uvec4 v_instanceIds;
     pixelShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
     pixelShaderPrerequisites += 'layout(location = 0) out vec4 rt0;';
     return pixelShaderPrerequisites;
-  }
-
-  /**
-   * Generates the main prerequisites section placeholder for shader code.
-   * This is used by the shaderity system to inject additional prerequisites.
-   *
-   * @returns The main prerequisites placeholder string
-   */
-  getMainPrerequisites() {
-    return '/* shaderity: @{mainPrerequisites} */';
   }
 
   /**
