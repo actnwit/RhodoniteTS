@@ -108,8 +108,7 @@ export class ShaderGraphResolver {
     engine: Engine,
     vertexNodes: AbstractShaderNode[],
     varyingNodes: AbstractShaderNode[],
-    commonShaderPart: CommonShaderPart,
-    isFullVersion = true
+    commonShaderPart: CommonShaderPart
   ) {
     const shaderNodes = vertexNodes.concat();
 
@@ -127,9 +126,7 @@ export class ShaderGraphResolver {
 
     const nodes = sortedShaderNodes.concat(varyingNodes);
 
-    if (isFullVersion) {
-      vertexShaderPrerequisites += commonShaderPart.getVertexPrerequisites(engine, nodes);
-    }
+    vertexShaderPrerequisites += commonShaderPart.getVertexPrerequisites(engine, nodes);
 
     let shaderBody = '';
 
@@ -143,13 +140,7 @@ export class ShaderGraphResolver {
 
     // main process
     try {
-      shaderBody += ShaderGraphResolver.__constructShaderWithNodes(
-        engine,
-        nodes,
-        true,
-        commonShaderPart,
-        isFullVersion
-      );
+      shaderBody += ShaderGraphResolver.__constructShaderWithNodes(engine, nodes, true, commonShaderPart);
     } catch (e) {
       Logger.default.error(e as string);
       return undefined;
@@ -171,12 +162,7 @@ export class ShaderGraphResolver {
    * @param isFullVersion - Whether to generate a full version with all prerequisites and boilerplate
    * @returns Complete fragment shader code as a string, or undefined if generation fails
    */
-  static createPixelShaderCode(
-    engine: Engine,
-    pixelNodes: AbstractShaderNode[],
-    commonShaderPart: CommonShaderPart,
-    isFullVersion = true
-  ) {
+  static createPixelShaderCode(engine: Engine, pixelNodes: AbstractShaderNode[], commonShaderPart: CommonShaderPart) {
     const shaderNodes = pixelNodes.concat();
 
     // const isValid = this.__validateShaderNodes(shaderNodes);
@@ -188,10 +174,7 @@ export class ShaderGraphResolver {
     const sortedShaderNodes = this.__sortTopologically(shaderNodes);
 
     // Add additional functions by system
-    let pixelShaderPrerequisites = '';
-    if (isFullVersion) {
-      pixelShaderPrerequisites += commonShaderPart.getPixelPrerequisites(engine, sortedShaderNodes);
-    }
+    let pixelShaderPrerequisites = commonShaderPart.getPixelPrerequisites(engine, sortedShaderNodes);
     let shaderBody = '';
 
     // function definitions
@@ -203,13 +186,7 @@ export class ShaderGraphResolver {
 
     // main process
     try {
-      shaderBody += ShaderGraphResolver.__constructShaderWithNodes(
-        engine,
-        sortedShaderNodes,
-        false,
-        commonShaderPart,
-        isFullVersion
-      );
+      shaderBody += ShaderGraphResolver.__constructShaderWithNodes(engine, sortedShaderNodes, false, commonShaderPart);
     } catch (e) {
       Logger.default.error(e as string);
       return undefined;
@@ -868,8 +845,7 @@ export class ShaderGraphResolver {
     engine: Engine,
     shaderNodes: AbstractShaderNode[],
     isVertexStage: boolean,
-    commonShaderPart: CommonShaderPart,
-    isFullVersion: boolean
+    commonShaderPart: CommonShaderPart
   ) {
     let shaderBody = '';
 
@@ -878,9 +854,7 @@ export class ShaderGraphResolver {
 
     shaderBody += commonShaderPart.getMainBegin(engine, isVertexStage);
 
-    if (isFullVersion) {
-      shaderBody += commonShaderPart.getMainPrerequisites();
-    }
+    shaderBody += commonShaderPart.getMainPrerequisites();
 
     // Collect input/output variable names
     const { varInputNames, varOutputNames, collectedShaderBody } = this.__collectVariableNames(

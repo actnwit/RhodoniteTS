@@ -102,11 +102,6 @@ struct VertexOutput {
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
 
-/* shaderity: @{opticalDefinition} */
-/* shaderity: @{shadowDefinition} */
-/* shaderity: @{pbrDefinition} */
-/* shaderity: @{iblDefinition} */
-
 `;
       return vertexShaderPrerequisites;
     }
@@ -141,10 +136,6 @@ flat out uvec4 v_instanceIds;
 `;
     vertexShaderPrerequisites += '/* shaderity: @{getters} */';
     vertexShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
-    vertexShaderPrerequisites += '/* shaderity: @{opticalDefinition} */';
-    vertexShaderPrerequisites += '/* shaderity: @{shadowDefinition} */';
-    vertexShaderPrerequisites += '/* shaderity: @{pbrDefinition} */';
-    vertexShaderPrerequisites += '/* shaderity: @{iblDefinition} */';
     return vertexShaderPrerequisites;
   }
 
@@ -171,11 +162,6 @@ flat out uvec4 v_instanceIds;
   /* shaderity: @{prerequisites} */
   /* shaderity: @{getters} */
   /* shaderity: @{matricesGetters} */
-
-  /* shaderity: @{opticalDefinition} */
-  /* shaderity: @{shadowDefinition} */
-  /* shaderity: @{pbrDefinition} */
-  /* shaderity: @{iblDefinition} */
   `;
       return pixelShaderPrerequisites;
     }
@@ -191,10 +177,6 @@ flat out uvec4 v_instanceIds;
   `;
     pixelShaderPrerequisites += '/* shaderity: @{getters} */';
     pixelShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
-    pixelShaderPrerequisites += '/* shaderity: @{opticalDefinition} */';
-    pixelShaderPrerequisites += '/* shaderity: @{shadowDefinition} */';
-    pixelShaderPrerequisites += '/* shaderity: @{pbrDefinition} */';
-    pixelShaderPrerequisites += '/* shaderity: @{iblDefinition} */';
     pixelShaderPrerequisites += 'layout(location = 0) out vec4 rt0;';
     return pixelShaderPrerequisites;
   }
