@@ -50,7 +50,6 @@ fn main(
     if (isVertexStage) {
       return `
 void main() {
-  v_instanceIds = a_instanceIds;
   /* shaderity: @{mainPrerequisites} */
   /* shaderity: @{fullscreen} */
 }
@@ -94,16 +93,14 @@ float map(vec3 p){
 
     return `
 }
-vec3 getNormal(vec3 p){
-    float eps=.001;
-    vec2 h=vec2(eps,0.);
-    return normalize(
-        vec3(
-            map(p+h.xyy)-map(p-h.xyy),
-            map(p+h.yxy)-map(p-h.yxy),
-            map(p+h.yyx)-map(p-h.yyx)
-        )
-    );
+vec3 calcNormal(vec3 p){
+  vec2 e=vec2(1.,-1.)*.0005;
+  return normalize(
+      e.xyy*map(p+e.xyy)+
+      e.yyx*map(p+e.yyx)+
+      e.yxy*map(p+e.yxy)+
+      e.xxx*map(p+e.xxx)
+  );
 }
 
 void main() {
@@ -133,9 +130,9 @@ void main() {
     // of the distance to the light.
     dif*=5./dot(light-p,light-p);
 
-    gl_FragColor=vec4(vec3(pow(dif,.4545)),1);// Gamma correction
+    rt0=vec4(vec3(pow(dif,.4545)),1);// Gamma correction
   }else{
-    gl_FragColor=vec4(0,0,0,1);
+    rt0=vec4(0,0,0,1);
   }
 }
 `;
@@ -176,22 +173,8 @@ precision highp int;
 #define RN_IS_NODE_SHADER
 /* shaderity: @{prerequisites} */
 
-in vec4 a_position;
-#ifdef RN_USE_COLOR_0
-  in vec4 a_color;
-#else
-  const vec4 a_color = vec4(1.0, 1.0, 1.0, 1.0);
-#endif
-in vec3 a_normal;
-in uvec4 a_instanceIds;
-in vec2 a_texcoord_0;
-in vec2 a_texcoord_1;
-in vec2 a_texcoord_2;
-in uvec4 a_joint;
-in vec4 a_weight;
-in vec4 a_baryCentricCoord;
-in vec4 a_tangent;
 flat out uvec4 v_instanceIds;
+out vec2 v_texcoord_0;
 `;
     vertexShaderPrerequisites += `
 `;
@@ -235,6 +218,7 @@ flat out uvec4 v_instanceIds;
         #define RN_IS_NODE_SHADER
     /* shaderity: @{prerequisites} */
         flat in uvec4 v_instanceIds;
+        in vec2 v_texcoord_0;
   `;
     pixelShaderPrerequisites += '/* shaderity: @{getters} */';
     pixelShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
