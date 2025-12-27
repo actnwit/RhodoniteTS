@@ -899,7 +899,7 @@ export class ShaderGraphResolver {
   public static generateShaderCodeFromJson(
     engine: Engine,
     json: ShaderNodeJson,
-    commonShaderPart: StandardShaderPart
+    commonShaderPart: CommonShaderPart
   ):
     | {
         vertexShader: string;

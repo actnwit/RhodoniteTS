@@ -1,8 +1,9 @@
-import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
+import type { ComponentSID, ComponentTID, Count, EntityUID, Index, PrimitiveUID } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
 import type { IEntity } from '../../core/Entity';
 import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
+import type { RenderPass } from '../../renderer/RenderPass';
 import type { Engine } from '../../system/Engine';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
@@ -37,6 +38,22 @@ export class RaymarchingComponent extends Component {
    */
   get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.RaymarchingComponentTID;
+  }
+
+  static common_$render({
+    renderPass,
+    renderPassTickCount,
+    primitiveUids,
+    displayIdx,
+    engine,
+  }: {
+    renderPass: RenderPass;
+    renderPassTickCount: Count;
+    primitiveUids: PrimitiveUID[];
+    displayIdx: Index;
+    engine: Engine;
+  }): boolean {
+    return true;
   }
 
   /**

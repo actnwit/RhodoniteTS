@@ -10,7 +10,21 @@ const engine = await Rn.Engine.init({
 });
 
 // Plane
+const expression = new Rn.Expression();
+const renderPass = new Rn.RenderPass(engine);
+const nodeJson = {
+  nodes: [],
+  connections: [],
+};
+const result = Rn.MaterialHelper.createNodeBasedRaymarchingCustomMaterial(engine, nodeJson);
+if (!result) {
+  throw new Error('Failed to create node-based raymarching custom material');
+}
+const material = result.material;
+renderPass.setBufferLessFullScreenRendering(material);
 const raymarchingEntity = Rn.createRaymarchingEntity(engine);
+renderPass.addEntities([raymarchingEntity]);
+expression.addRenderPasses([renderPass]);
 
 // Render Loop
 let count = 0;
@@ -24,6 +38,6 @@ engine.startRenderLoop(() => {
     document.body.appendChild(p);
   }
 
-  engine.processAuto();
+  engine.process([expression]);
   count++;
 });

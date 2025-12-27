@@ -32,7 +32,7 @@ outPositionShaderNode.addInputConnection(
 );
 outColorShaderNode.addInputConnection(constant2, constant2.getSocketOutput(), outColorShaderNode.getSocketInput());
 
-const commonShaderPart = new Rn.CommonShaderPart();
+const commonShaderPart = new Rn.StandardShaderPart();
 const vertexRet = Rn.ShaderGraphResolver.createVertexShaderCode(
   engine,
   [outPositionShaderNode, addShaderNode, constant1, constant2],

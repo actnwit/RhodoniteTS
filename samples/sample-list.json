@@ -53,6 +53,7 @@
     "PixelPickingTest",
     "PointLightShadowMap",
     "Primitives",
+    "Raymarching",
     "ShadowMapDebugMode",
     "ShadowMapVariance",
     "Simple",
