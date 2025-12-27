@@ -4,3 +4,4 @@ export * from './ConstantVariableShader';
 export * from './EndShader';
 export * from './Texture2DShader';
 export * from './UniformDataShader';
+export * from './OutDistance';

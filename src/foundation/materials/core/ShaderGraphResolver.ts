@@ -84,6 +84,7 @@ import { TransformShaderNode } from '../nodes/TransformShaderNode';
 import { UniformDataShaderNode } from '../nodes/UniformDataShaderNode';
 import { ViewMatrixShaderNode } from '../nodes/ViewMatrixShaderNode';
 import { WorldMatrixShaderNode } from '../nodes/WorldMatrixShaderNode';
+import { OutDistanceShaderNode } from '../nodes/raymarching/OutDistanceShaderNode';
 import { AbstractShaderNode, type ShaderNodeUID } from './AbstractShaderNode';
 import type { SocketDefaultValue, ValueTypes } from './Socket';
 
@@ -1933,6 +1934,12 @@ function constructNodes(json: ShaderNodeJson): {
       case 'Random_SinHash': {
         const nodeInstance = new Random_SinHashShaderNode();
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'OutDistance': {
+        const nodeInstance = new OutDistanceShaderNode();
+        nodeInstance.setShaderStage('Fragment');
         nodeInstances[node.id] = nodeInstance;
         break;
       }
