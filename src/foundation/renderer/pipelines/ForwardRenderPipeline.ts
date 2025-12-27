@@ -111,6 +111,8 @@ export class ForwardRenderPipeline extends RnObject {
   private __oShadowSystem: Option<ShadowSystem> = new None();
   private __shadowExpressions: Expression[] = [];
   private __entitiesForShadow: ISceneGraphEntity[] = [];
+  private __oRaymarchingExpression: Option<Expression> = new None();
+  private __oRaymarchingRenderPass: Option<RenderPass> = new None();
   private __engine: Engine;
 
   constructor(engine: Engine) {
@@ -155,6 +157,7 @@ export class ForwardRenderPipeline extends RnObject {
     this.__oMultiViewBlitExpression = new None();
     this.__oBloomExpression = new None();
     this.__oToneMappingExpression = new None();
+    this.__oRaymarchingExpression = new None();
   }
 
   /**
@@ -277,6 +280,10 @@ export class ForwardRenderPipeline extends RnObject {
     if (this.__expressions.length > 0) {
       this.setExpressions(this.__expressions);
     }
+
+    const [oRaymarchingExpression, oRaymarchingRenderPass] = this.__setupRaymarchingExpression();
+    this.__oRaymarchingExpression = oRaymarchingExpression;
+    this.__oRaymarchingRenderPass = oRaymarchingRenderPass;
 
     this.__setUpExpressionsForRendering();
 
@@ -1271,6 +1278,22 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
+  private __setupRaymarchingExpression(): [Option<Expression>, Option<RenderPass>] {
+    const expression = new Expression();
+    expression.tryToSetUniqueName('Raymarching', true);
+    const renderPass = new RenderPass(this.__engine);
+
+    expression.addRenderPasses([renderPass]);
+    renderPass.tryToSetUniqueName('Raymarching', true);
+    return [new Some(expression), new Some(renderPass)];
+  }
+
+  public setRaymarchingMaterial(material: Material) {
+    if (this.__oRaymarchingRenderPass.has()) {
+      this.__oRaymarchingRenderPass.get().setBufferLessFullScreenRendering(material);
+    }
+  }
+
   /**
    * Internal method to set up the frame with all configured expressions.
    *
@@ -1386,5 +1409,9 @@ export class ForwardRenderPipeline extends RnObject {
       expression.renderPasses.flatMap(renderPass => renderPass.entities)
     ) as ISceneGraphEntity[];
     this.__entitiesForShadow = entities;
+
+    if (this.__oRaymarchingExpression.has()) {
+      frame.addExpression(this.__oRaymarchingExpression.get());
+    }
   }
 }

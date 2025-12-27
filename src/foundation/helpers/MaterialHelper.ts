@@ -2116,7 +2116,8 @@ function addPbrSheenSemanticInfo(engine: Engine, additionalShaderSemanticInfo: S
  */
 function createNodeBasedRaymarchingCustomMaterial(
   engine: Engine,
-  shaderNodeJson: ShaderNodeJson
+  shaderNodeJson: ShaderNodeJson,
+  currentMaterial?: Material
 ): NodeBasedMaterialResult | undefined {
   const raymarchingShaderPart = new RaymarchingShaderPart();
   const shaderCode = ShaderGraphResolver.generateShaderCodeFromJson(engine, shaderNodeJson, raymarchingShaderPart);
@@ -2130,7 +2131,7 @@ function createNodeBasedRaymarchingCustomMaterial(
     shaderCode.vertexShader,
     shaderCode.pixelShader,
     {},
-    undefined
+    currentMaterial
   );
 
   // Store the shader node JSON for later retrieval (e.g., in editor or export)

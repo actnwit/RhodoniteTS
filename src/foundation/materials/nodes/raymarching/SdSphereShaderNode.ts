@@ -1,7 +1,7 @@
+import SdSphereShaderityObjectGLSL from '../../../../webgl/shaderity_shaders/nodes/raymarching/SdSphere.glsl';
+import SdSphereShaderityObjectWGSL from '../../../../webgpu/shaderity_shaders/nodes/raymarching/SdSphere.wgsl';
 import { ComponentType } from '../../../definitions/ComponentType';
 import { CompositionType } from '../../../definitions/CompositionType';
-import SdSphereShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/raymarching/SdSphere.glsl';
-import SdSphereShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/raymarching/SdSphere.wgsl';
 import { AbstractShaderNode } from '../../core/AbstractShaderNode';
 import { Socket } from '../../core/Socket';
 
