@@ -27,22 +27,21 @@ export class RaymarchingShaderPart extends CommonShaderPart {
 var<private> output : VertexOutput;
 @vertex
 fn main(
-${vertexInputWGSL.code}
+  @builtin(vertex_index) vertexIdx : u32,
 ) -> VertexOutput {
-  output.instanceIds = instanceIds;
-  /* shaderity: @{mainPrerequisites} */
   /* shaderity: @{fullscreen} */
-
+  return output;
+}
 `;
         return str;
       }
       let str = `
-var<private> rt0: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 1.0);
-@fragment
-fn main(
-  input: VertexOutput,
-) -> @location(0) vec4<f32> {
-  /* shaderity: @{mainPrerequisites} */
+fn map(p: vec3f) -> f32 {
+    var d = distance(p,vec3f(-1,0,-5))-1.0;// sphere at (-1,0,5) with radius 1
+    d = min(d,distance(p,vec3f(2,0,-3))-1.0);// second sphere
+    d = min(d,distance(p,vec3f(-2,0,-2))-1.0);// and another
+    d = min(d,p.y+1.0);// horizontal plane at y = -1
+    return d;
 `;
       return str;
     }
@@ -77,11 +76,60 @@ float map(vec3 p){
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (isVertexStage) {
         return `
-  return output;
-}
 `;
       }
       return `
+}
+fn calcNormal(p: vec3f) -> vec3f {
+  let e = vec2f(1.0,-1.0)*.0005;
+  return vec3f(
+    normalize(
+      e.xyy*map(p+e.xyy)+
+      e.yyx*map(p+e.yyx)+
+      e.yxy*map(p+e.yxy)+
+      e.xxx*map(p+e.xxx)
+    )
+  );
+}
+
+var<private> rt0: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 1.0);
+@fragment
+fn main(
+  input: VertexOutput,
+) -> @location(0) vec4<f32> {
+
+  let ro = vec3f(0,0,1); // ray origin
+  var uv = (input.texcoord_0 - 0.5) * 2.0;
+  uv.y = -uv.y; // flip y coordinate in WebGPU because of the coordinate system difference between WebGL and WebGPU
+  let rd = normalize(vec3f(uv,0.0) - ro); // ray direction for uv
+
+  // March the distance field until a surface is hit.
+  var h: f32;
+  var t: f32 = 1.0;
+  for(var i=0;i<256;i++){
+    h=map(ro+rd*t);
+    t+=h;
+    if(h<.01) { break; }
+  }
+
+  if(h<.01){
+    let p = ro+rd*t;
+    let normal=calcNormal(p);
+    let light=vec3f(0,2,0);
+
+    // Calculate diffuse lighting by taking the dot product of
+    // the light direction (light-p) and the normal.
+    var dif=clamp(dot(normal,normalize(light-p)),0.,1.);
+
+    // Multiply by light intensity (5) and divide by the square
+    // of the distance to the light.
+    dif*=5.0/dot(light-p,light-p);
+
+    rt0=vec4f(vec3f(pow(dif,.4545)),1.0);// Gamma correction
+  }else{
+    rt0=vec4f(0.0,0.0,0.0,1.0);
+  }
+
   return rt0;
 }
 `;
@@ -154,6 +202,7 @@ void main() {
 
 struct VertexOutput {
   @builtin(position) position : vec4<f32>,
+  @location(0) texcoord_0 : vec2<f32>,
 }
 
 /* shaderity: @{prerequisites} */
@@ -200,7 +249,7 @@ out vec2 v_texcoord_0;
 
   struct VertexOutput {
     @builtin(position) position : vec4<f32>,
-    @builtin(front_facing) isFront: bool,
+    @location(0) texcoord_0 : vec2<f32>,
   }
 
   /* shaderity: @{prerequisites} */
