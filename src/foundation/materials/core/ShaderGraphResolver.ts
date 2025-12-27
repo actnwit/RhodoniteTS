@@ -922,9 +922,9 @@ export class ShaderGraphResolver {
     const vertexNodes = filterNodes(nodes, ['outPosition']);
     const pixelNodes = filterNodes(nodes, ['outColor', 'conditionalDiscard', 'outDistance']);
 
-    if (vertexNodes.length === 0 || pixelNodes.length === 0) {
-      return;
-    }
+    // if (vertexNodes.length === 0 || pixelNodes.length === 0) {
+    //   return;
+    // }
 
     const vertexRet = ShaderGraphResolver.createVertexShaderCode(
       engine,

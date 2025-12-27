@@ -536,6 +536,9 @@ export class ForwardRenderPipeline extends RnObject {
       height = fallbackHeight;
     }
 
+    // Preserve raymarching material before destroying resources
+    const savedRaymarchingMaterial = this.getRaymarchingMaterial();
+
     this.__engine.resizeCanvas(width, height);
 
     this.__destroyResources();
@@ -545,6 +548,11 @@ export class ForwardRenderPipeline extends RnObject {
       shadowMapSize: this.__shadowMapSize,
       isSimple: this.__isSimple,
     });
+
+    // Restore raymarching material after setup
+    if (savedRaymarchingMaterial != null) {
+      this.setRaymarchingMaterial(savedRaymarchingMaterial);
+    }
 
     return new Ok();
   }
