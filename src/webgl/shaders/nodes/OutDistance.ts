@@ -69,13 +69,13 @@ export class OutDistanceShader extends StandardShaderPart {
   getPixelShaderDefinitions(engine: Engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
-      fn conditionalDiscard(value: f32) {
+      fn outDistance(value: f32) {
         g_distance = value;
       }
       `;
     }
     return `
-      void conditionalDiscard(in float value) {
+      void outDistance(in float value) {
         g_distance = value;
       }
       `;

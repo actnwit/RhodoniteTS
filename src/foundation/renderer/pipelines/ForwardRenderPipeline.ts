@@ -1,4 +1,5 @@
 import type { Size } from '../../../types';
+import { createRaymarchingEntity } from '../../components/Raymarching/createRaymarchingEntity';
 import { RnObject } from '../../core/RnObject';
 import { ComponentType, PixelFormat, ToneMappingType, type ToneMappingTypeEnum } from '../../definitions';
 import { TextureFormat } from '../../definitions/TextureFormat';
@@ -1282,9 +1283,23 @@ export class ForwardRenderPipeline extends RnObject {
     const expression = new Expression();
     expression.tryToSetUniqueName('Raymarching', true);
     const renderPass = new RenderPass(this.__engine);
+    renderPass.isDepthTest = false;
+    const raymarchingEntity = createRaymarchingEntity(this.__engine);
+    renderPass.addEntities([raymarchingEntity]);
+    const nodeJson = {
+      nodes: [],
+      connections: [],
+    };
+    const result = MaterialHelper.createNodeBasedRaymarchingCustomMaterial(this.__engine, nodeJson);
+    if (!result) {
+      throw new Error('Failed to create node-based raymarching custom material');
+    }
+    const material = result.material;
+    renderPass.setBufferLessFullScreenRendering(material);
 
     expression.addRenderPasses([renderPass]);
     renderPass.tryToSetUniqueName('Raymarching', true);
+
     return [new Some(expression), new Some(renderPass)];
   }
 
@@ -1292,6 +1307,13 @@ export class ForwardRenderPipeline extends RnObject {
     if (this.__oRaymarchingRenderPass.has()) {
       this.__oRaymarchingRenderPass.get().setBufferLessFullScreenRendering(material);
     }
+  }
+
+  public getRaymarchingMaterial(): Material | undefined {
+    if (this.__oRaymarchingRenderPass.has()) {
+      return this.__oRaymarchingRenderPass.get().material;
+    }
+    return undefined;
   }
 
   /**

@@ -918,7 +918,7 @@ export class ShaderGraphResolver {
     const allVaryingNodes = [...new Set([...varyingNodes, ...varyingNodesForDiscard])];
 
     const vertexNodes = filterNodes(nodes, ['outPosition']);
-    const pixelNodes = filterNodes(nodes, ['outColor', 'conditionalDiscard']);
+    const pixelNodes = filterNodes(nodes, ['outColor', 'conditionalDiscard', 'outDistance']);
 
     if (vertexNodes.length === 0 || pixelNodes.length === 0) {
       return;

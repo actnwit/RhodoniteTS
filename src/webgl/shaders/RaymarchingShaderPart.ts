@@ -41,7 +41,7 @@ fn map(p: vec3f) -> f32 {
     d = min(d,distance(p,vec3f(2,0,-3))-1.0);// second sphere
     d = min(d,distance(p,vec3f(-2,0,-2))-1.0);// and another
     d = min(d,p.y+1.0);// horizontal plane at y = -1
-    return d;
+    g_distance = d;
 `;
       return str;
     }
@@ -59,7 +59,7 @@ float map(vec3 p){
     d=min(d,distance(p,vec3(2,0,-3))-1.);// second sphere
     d=min(d,distance(p,vec3(-2,0,-2))-1.);// and another
     d=min(d,p.y+1.);// horizontal plane at y = -1
-    return d;
+    g_distance = d;
   `;
   }
 
@@ -78,6 +78,7 @@ float map(vec3 p){
 `;
       }
       return `
+  return g_distance;
 }
 fn calcNormal(p: vec3f) -> vec3f {
   let e = vec2f(1.0,-1.0)*.0005;
@@ -139,6 +140,7 @@ fn main(
     }
 
     return `
+  return g_distance;
 }
 vec3 calcNormal(vec3 p){
   vec2 e=vec2(1.,-1.)*.0005;
@@ -259,19 +261,20 @@ out vec2 v_texcoord_0;
     }
     let pixelShaderPrerequisites = '';
     pixelShaderPrerequisites += `
-        #version 300 es
-        precision highp float;
-        precision highp int;
-  /* shaderity: @{definitions} */
-        #define RN_IS_NODE_SHADER
-    /* shaderity: @{prerequisites} */
-        flat in uvec4 v_instanceIds;
-        in vec2 v_texcoord_0;
-  `;
-    pixelShaderPrerequisites += '/* shaderity: @{getters} */';
-    pixelShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
-    pixelShaderPrerequisites += 'layout(location = 0) out vec4 rt0;';
-    pixelShaderPrerequisites += 'float g_distance = 0.0; // distance to the surface';
+#version 300 es
+precision highp float;
+precision highp int;
+/* shaderity: @{definitions} */
+#define RN_IS_NODE_SHADER
+/* shaderity: @{prerequisites} */
+flat in uvec4 v_instanceIds;
+in vec2 v_texcoord_0;
+/* shaderity: @{getters} */
+/* shaderity: @{matricesGetters} */
+layout(location = 0) out vec4 rt0;
+float g_distance = 0.0; // distance to the surface
+
+`;
     return pixelShaderPrerequisites;
   }
 
