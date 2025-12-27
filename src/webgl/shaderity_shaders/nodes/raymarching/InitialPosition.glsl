@@ -1,3 +1,3 @@
 void initialPosition(out vec3 outPosition) {
-  outPosition = g_position;
+  outPosition = g_rayPosition;
 }
