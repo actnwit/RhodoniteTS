@@ -261,68 +261,68 @@ var<private> g_distance: f32 = 0.0; // distance to the surface
 var<private> g_position: vec3<f32> = vec3f(0.0, 0.0, 0.0);
 
 fn rotateX(angle: f32) -> mat3<f32> {
-    float c=cos(angle);
-    float s=sin(angle);
-    return mat3f(
-        1.,0.,0.,
-        0.,c,-s,
-        0.,s,c
-    );
+  let c=cos(angle);
+  let s=sin(angle);
+  return mat3f(
+      1.,0.,0.,
+      0.,c,-s,
+      0.,s,c
+  );
 }
 
 fn rotateY(angle: f32) -> mat3<f32> {
-    float c=cos(angle);
-    float s=sin(angle);
-    return mat3f(
-        c,0.,s,
-        0.,1.,0.,
-        -s,0.,c
-    );
+  let c=cos(angle);
+  let s=sin(angle);
+  return mat3f(
+      c,0.,s,
+      0.,1.,0.,
+      -s,0.,c
+  );
 }
 
 fn rotateZ(angle: f32) -> mat3<f32> {
-    float c=cos(angle);
-    float s=sin(angle);
-    return mat3f(
-        c,-s,0.,
-        s,c,0.,
-        0.,0.,1.
-    );
+  let c=cos(angle);
+  let s=sin(angle);
+  return mat3f(
+      c,-s,0.,
+      s,c,0.,
+      0.,0.,1.
+  );
 }
 
 fn rotateXYZ(euler: vec3<f32>) -> mat3<f32> {
-    return rotateX(euler.x)*rotateY(euler.y)*rotateZ(euler.z);
+  return rotateX(euler.x)*rotateY(euler.y)*rotateZ(euler.z);
 }
 
 fn createTransformMatrix(position: vec3<f32>, rotation: vec3<f32>, scale: vec3<f32>) -> mat4<f32> {
-    let rot = rotateXYZ(rotation);
-    let transform = mat4f(1.);
+  let rot = rotateXYZ(rotation);
+  let transform = mat4f(1.);
 
-    transform[0].xyz=rot[0]/scale.x;
-    transform[1].xyz=rot[1]/scale.y;
-    transform[2].xyz=rot[2]/scale.z;
+  transform[0].xyz=rot[0]/scale.x;
+  transform[1].xyz=rot[1]/scale.y;
+  transform[2].xyz=rot[2]/scale.z;
 
-    transform[3].xyz=position;
+  transform[3].xyz=position;
 
-    return transform;
+  return transform;
 }
 
 fn inverseTransform(m: mat4<f32>) -> mat4<f32> {
-    let inv_rot_scale = mat3f(
-        vec3f(m[0].x,m[1].x,m[2].x),
-        vec3f(m[0].y,m[1].y,m[2].y),
-        vec3f(m[0].z,m[1].z,m[2].z)
-    );
+  let inv_rot_scale = mat3f(
+      vec3f(m[0].x,m[1].x,m[2].x),
+      vec3f(m[0].y,m[1].y,m[2].y),
+      vec3f(m[0].z,m[1].z,m[2].z)
+  );
 
-    let inv_translation = -inv_rot_scale*m[3].xyz;
+  let inv_translation = -inv_rot_scale*m[3].xyz;
 
-    let inv = mat4f(1.);
-    inv[0].xyz=inv_rot_scale[0];
-    inv[1].xyz=inv_rot_scale[1];
-    inv[2].xyz=inv_rot_scale[2];
-    inv[3].xyz=inv_translation;
+  let inv = mat4f(1.);
+  inv[0].xyz=inv_rot_scale[0];
+  inv[1].xyz=inv_rot_scale[1];
+  inv[2].xyz=inv_rot_scale[2];
+  inv[3].xyz=inv_translation;
 
-    return inv;
+  return inv;
 }
   `;
       return pixelShaderPrerequisites;
