@@ -208,6 +208,11 @@ export class RenderPass extends RnObject {
     this._primitiveModeForBufferLessRendering = primitiveMode;
     this._drawVertexNumberForBufferLessRendering = drawVertexNumberWithoutEntities;
     this.__material = material;
+
+    // Ensure this render pass is processed on the next frame
+    // This is necessary because the render pass may have been skipped previously
+    // when it had no material or primitives to render
+    this._renderedSomethingBefore = true;
   }
 
   /**
@@ -221,6 +226,11 @@ export class RenderPass extends RnObject {
     this._primitiveModeForBufferLessRendering = PrimitiveMode.Triangles;
     this._drawVertexNumberForBufferLessRendering = 3;
     this.__material = material;
+
+    // Ensure this render pass is processed on the next frame
+    // This is necessary because the render pass may have been skipped previously
+    // when it had no material or primitives to render
+    this._renderedSomethingBefore = true;
   }
 
   /**

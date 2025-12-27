@@ -7,15 +7,15 @@ import { TextureParameter } from '../../definitions/TextureParameter';
 import { Bloom } from '../../helpers/BloomHelper';
 import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
 import { MaterialHelper } from '../../helpers/MaterialHelper';
-import { RenderPassHelper } from '../../helpers/RenderPassHelper';
 import { RenderableHelper } from '../../helpers/RenderableHelper';
+import { RenderPassHelper } from '../../helpers/RenderPassHelper';
 import { ShadowSystem } from '../../helpers/Shadow/ShadowSystem';
 import type { Material } from '../../materials/core/Material';
 import { Vector4 } from '../../math/Vector4';
 import { MiscUtil } from '../../misc';
 import { Is } from '../../misc/Is';
 import { Logger } from '../../misc/Logger';
-import { None, type Option, Some, assertHas } from '../../misc/Option';
+import { assertHas, None, type Option, Some } from '../../misc/Option';
 import { Err, Ok } from '../../misc/Result';
 import type { Engine } from '../../system/Engine';
 import { ModuleManager } from '../../system/ModuleManager';
@@ -1286,16 +1286,6 @@ export class ForwardRenderPipeline extends RnObject {
     renderPass.isDepthTest = false;
     const raymarchingEntity = createRaymarchingEntity(this.__engine);
     renderPass.addEntities([raymarchingEntity]);
-    const nodeJson = {
-      nodes: [],
-      connections: [],
-    };
-    const result = MaterialHelper.createNodeBasedRaymarchingCustomMaterial(this.__engine, nodeJson);
-    if (!result) {
-      throw new Error('Failed to create node-based raymarching custom material');
-    }
-    const material = result.material;
-    renderPass.setBufferLessFullScreenRendering(material);
 
     expression.addRenderPasses([renderPass]);
     renderPass.tryToSetUniqueName('Raymarching', true);
