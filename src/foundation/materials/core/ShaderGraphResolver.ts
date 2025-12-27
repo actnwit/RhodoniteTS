@@ -45,6 +45,7 @@ import { LengthShaderNode } from '../nodes/LengthShaderNode';
 import { LessOrEqualShaderNode } from '../nodes/LessOrEqualShaderNode';
 import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
+import { MinShaderNode } from '../nodes/MinShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
 import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
@@ -1238,6 +1239,25 @@ function constructNodes(json: ShaderNodeJson): {
           nodeInstance = new AddShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
           Logger.default.error(`Add node: Unknown socket name: ${socketName}`);
+          break;
+        }
+        nodeInstance.setShaderStage(node.controls.shaderStage.value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'Min': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: MinShaderNode;
+        if (socketName.startsWith('Scalar')) {
+          nodeInstance = new MinShaderNode(CompositionType.Scalar, ComponentType.Float);
+        } else if (socketName.startsWith('Vector2')) {
+          nodeInstance = new MinShaderNode(CompositionType.Vec2, ComponentType.Float);
+        } else if (socketName.startsWith('Vector3')) {
+          nodeInstance = new MinShaderNode(CompositionType.Vec3, ComponentType.Float);
+        } else if (socketName.startsWith('Vector4')) {
+          nodeInstance = new MinShaderNode(CompositionType.Vec4, ComponentType.Float);
+        } else {
+          Logger.default.error(`Min node: Unknown socket name: ${socketName}`);
           break;
         }
         nodeInstance.setShaderStage(node.controls.shaderStage.value);
