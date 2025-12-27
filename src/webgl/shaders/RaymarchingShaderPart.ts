@@ -253,6 +253,7 @@ out vec2 v_texcoord_0;
   /* shaderity: @{prerequisites} */
   /* shaderity: @{getters} */
   /* shaderity: @{matricesGetters} */
+  var<private> g_distance: f32 = 0.0; // distance to the surface
   `;
       return pixelShaderPrerequisites;
     }
@@ -270,6 +271,7 @@ out vec2 v_texcoord_0;
     pixelShaderPrerequisites += '/* shaderity: @{getters} */';
     pixelShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
     pixelShaderPrerequisites += 'layout(location = 0) out vec4 rt0;';
+    pixelShaderPrerequisites += 'float g_distance = 0.0; // distance to the surface';
     return pixelShaderPrerequisites;
   }
 
