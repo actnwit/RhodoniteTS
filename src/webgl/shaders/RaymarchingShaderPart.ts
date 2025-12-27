@@ -37,6 +37,7 @@ fn main(
       }
       let str = `
 fn map(p: vec3f) -> f32 {
+    g_position = p;
     var d = distance(p,vec3f(-1,0,-5))-1.0;// sphere at (-1,0,5) with radius 1
     d = min(d,distance(p,vec3f(2,0,-3))-1.0);// second sphere
     d = min(d,distance(p,vec3f(-2,0,-2))-1.0);// and another
@@ -55,6 +56,7 @@ void main() {
     }
     return `
 float map(vec3 p){
+    g_position = p;
     float d=distance(p,vec3(-1,0,-5))-1.;// sphere at (-1,0,5) with radius 1
     d=min(d,distance(p,vec3(2,0,-3))-1.);// second sphere
     d=min(d,distance(p,vec3(-2,0,-2))-1.);// and another
@@ -256,6 +258,7 @@ out vec2 v_texcoord_0;
   /* shaderity: @{getters} */
   /* shaderity: @{matricesGetters} */
   var<private> g_distance: f32 = 0.0; // distance to the surface
+  var<private> g_position: vec3<f32> = vec3f(0.0, 0.0, 0.0);
   `;
       return pixelShaderPrerequisites;
     }
@@ -273,7 +276,72 @@ in vec2 v_texcoord_0;
 /* shaderity: @{matricesGetters} */
 layout(location = 0) out vec4 rt0;
 float g_distance = 0.0; // distance to the surface
+vec3 g_position = vec3(0,0,0);
 
+mat3 rotateX(float angle){
+    float c=cos(angle);
+    float s=sin(angle);
+    return mat3(
+        1.,0.,0.,
+        0.,c,-s,
+        0.,s,c
+    );
+}
+
+mat3 rotateY(float angle){
+    float c=cos(angle);
+    float s=sin(angle);
+    return mat3(
+        c,0.,s,
+        0.,1.,0.,
+        -s,0.,c
+    );
+}
+
+mat3 rotateZ(float angle){
+    float c=cos(angle);
+    float s=sin(angle);
+    return mat3(
+        c,-s,0.,
+        s,c,0.,
+        0.,0.,1.
+    );
+}
+
+mat3 rotateXYZ(vec3 euler){
+    return rotateX(euler.x)*rotateY(euler.y)*rotateZ(euler.z);
+}
+
+mat4 createTransformMatrix(vec3 position,vec3 rotation,vec3 scale){
+    mat3 rot=rotateXYZ(rotation);
+    mat4 transform=mat4(1.);
+
+    transform[0].xyz=rot[0]/scale.x;
+    transform[1].xyz=rot[1]/scale.y;
+    transform[2].xyz=rot[2]/scale.z;
+
+    transform[3].xyz=position;
+
+    return transform;
+}
+
+mat4 inverseTransform(mat4 m){
+    mat3 inv_rot_scale=mat3(
+        vec3(m[0].x,m[1].x,m[2].x),
+        vec3(m[0].y,m[1].y,m[2].y),
+        vec3(m[0].z,m[1].z,m[2].z)
+    );
+
+    vec3 inv_translation=-inv_rot_scale*m[3].xyz;
+
+    mat4 inv=mat4(1.);
+    inv[0].xyz=inv_rot_scale[0];
+    inv[1].xyz=inv_rot_scale[1];
+    inv[2].xyz=inv_rot_scale[2];
+    inv[3].xyz=inv_translation;
+
+    return inv;
+}
 `;
     return pixelShaderPrerequisites;
   }

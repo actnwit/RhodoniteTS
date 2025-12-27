@@ -84,7 +84,9 @@ import { TransformShaderNode } from '../nodes/TransformShaderNode';
 import { UniformDataShaderNode } from '../nodes/UniformDataShaderNode';
 import { ViewMatrixShaderNode } from '../nodes/ViewMatrixShaderNode';
 import { WorldMatrixShaderNode } from '../nodes/WorldMatrixShaderNode';
+import { InitialPositionShaderNode } from '../nodes/raymarching/InitialPositionShaderNode';
 import { OutDistanceShaderNode } from '../nodes/raymarching/OutDistanceShaderNode';
+import { SdApplyTransformShaderNode } from '../nodes/raymarching/SdApplyTransformShaderNode';
 import { SdSphereShaderNode } from '../nodes/raymarching/SdSphereShaderNode';
 import { AbstractShaderNode, type ShaderNodeUID } from './AbstractShaderNode';
 import type { SocketDefaultValue, ValueTypes } from './Socket';
@@ -1946,6 +1948,18 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'SdSphere': {
         const nodeInstance = new SdSphereShaderNode();
+        nodeInstance.setShaderStage('Fragment');
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'SdApplyTransform': {
+        const nodeInstance = new SdApplyTransformShaderNode();
+        nodeInstance.setShaderStage('Fragment');
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'InitialPosition': {
+        const nodeInstance = new InitialPositionShaderNode();
         nodeInstance.setShaderStage('Fragment');
         nodeInstances[node.id] = nodeInstance;
         break;

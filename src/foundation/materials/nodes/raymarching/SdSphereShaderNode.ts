@@ -2,6 +2,8 @@ import SdSphereShaderityObjectGLSL from '../../../../webgl/shaderity_shaders/nod
 import SdSphereShaderityObjectWGSL from '../../../../webgpu/shaderity_shaders/nodes/raymarching/SdSphere.wgsl';
 import { ComponentType } from '../../../definitions/ComponentType';
 import { CompositionType } from '../../../definitions/CompositionType';
+import { Scalar } from '../../../math/Scalar';
+import { Vector3 } from '../../../math/Vector3';
 import { AbstractShaderNode } from '../../core/AbstractShaderNode';
 import { Socket } from '../../core/Socket';
 
@@ -25,8 +27,12 @@ export class SdSphereShaderNode extends AbstractShaderNode {
       codeWGSL: SdSphereShaderityObjectWGSL.code,
     });
 
-    this.__inputs.push(new Socket('position', CompositionType.Vec3, ComponentType.Float));
-    this.__inputs.push(new Socket('radius', CompositionType.Scalar, ComponentType.Float));
-    this.__outputs.push(new Socket('outDistance', CompositionType.Scalar, ComponentType.Float));
+    this.__inputs.push(
+      new Socket('position', CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0.0, 0.0, 0.0))
+    );
+    this.__inputs.push(new Socket('radius', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(1.0)));
+    this.__outputs.push(
+      new Socket('outDistance', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.0))
+    );
   }
 }
