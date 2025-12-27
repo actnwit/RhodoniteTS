@@ -49,7 +49,6 @@ fn map(p: vec3f) -> f32 {
     if (isVertexStage) {
       return `
 void main() {
-  /* shaderity: @{mainPrerequisites} */
   /* shaderity: @{fullscreen} */
 }
 `;
@@ -152,7 +151,6 @@ vec3 calcNormal(vec3 p){
 }
 
 void main() {
-  /* shaderity: @{mainPrerequisites} */
   vec3 ro=vec3(0,0,1);// ray origin
   vec2 uv = (v_texcoord_0 - 0.5) * 2.0;
   vec3 rd=normalize(vec3(uv,0.0) - ro); // ray direction for uv
