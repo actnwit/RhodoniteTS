@@ -44,7 +44,7 @@ export class TransformComponent extends Component {
    * Gets the component type identifier for TransformComponent.
    * @returns The transform component type ID
    */
-  static get componentTID(): ComponentTID {
+  static get componentTID() {
     return WellKnownComponentTIDs.TransformComponentTID;
   }
 

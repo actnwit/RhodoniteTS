@@ -1,3 +1,4 @@
+export * from './raymarching/index';
 export * from './AddShaderNode';
 export * from './AlphaTestShaderNode';
 export * from './AndShaderNode';
@@ -24,11 +25,11 @@ export * from './EqualShaderNode';
 export * from './GreaterOrEqualShaderNode';
 export * from './GreaterShaderNode';
 export * from './GreaterThanShaderNode';
-export * from './IfStatementShaderNode';
 export * from './LengthShaderNode';
 export * from './LessOrEqualShaderNode';
 export * from './LessThanShaderNode';
 export * from './MergeVectorShaderNode';
+export * from './MinShaderNode';
 export * from './MultiplyShaderNode';
 export * from './NormalizeShaderNode';
 export * from './NormalMatrixShaderNode';

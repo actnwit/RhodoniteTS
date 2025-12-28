@@ -55,7 +55,7 @@ export class BlendShapeComponent extends Component {
    * This is a static method that returns the component type ID.
    * @returns The component type identifier
    */
-  static get componentTID(): ComponentTID {
+  static get componentTID() {
     return WellKnownComponentTIDs.BlendShapeComponentTID;
   }
 

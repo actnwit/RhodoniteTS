@@ -53,7 +53,7 @@ export class ConstraintComponent extends Component {
    *
    * @returns The component type ID for constraint components
    */
-  static get componentTID(): ComponentTID {
+  static get componentTID() {
     return WellKnownComponentTIDs.ConstraintComponentTID;
   }
 

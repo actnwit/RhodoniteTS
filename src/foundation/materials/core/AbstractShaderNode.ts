@@ -1,4 +1,4 @@
-import type { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
+import type { StandardShaderPart } from '../../../webgl/shaders/StandardShaderPart';
 import { RnObject } from '../../core/RnObject';
 import { ProcessApproach } from '../../definitions';
 import type { ComponentTypeEnum } from '../../definitions/ComponentType';
@@ -41,7 +41,7 @@ export abstract class AbstractShaderNode extends RnObject {
   protected __shaderNodeUid: ShaderNodeUID;
   private __codeGLSL?: string;
   private __codeWGSL?: string;
-  protected __commonPart?: CommonShaderPart;
+  protected __commonPart?: StandardShaderPart;
   private _shaderStage: ShaderStage = 'Neutral';
 
   /**
@@ -57,7 +57,7 @@ export abstract class AbstractShaderNode extends RnObject {
     shader: {
       codeGLSL?: string;
       codeWGSL?: string;
-      commonPart?: CommonShaderPart;
+      commonPart?: StandardShaderPart;
     }
   ) {
     super();

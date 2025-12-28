@@ -1,4 +1,5 @@
 import type { Size } from '../../../types';
+import { createRaymarchingEntity } from '../../components/Raymarching/createRaymarchingEntity';
 import { RnObject } from '../../core/RnObject';
 import { ComponentType, PixelFormat, ToneMappingType, type ToneMappingTypeEnum } from '../../definitions';
 import { TextureFormat } from '../../definitions/TextureFormat';
@@ -111,6 +112,8 @@ export class ForwardRenderPipeline extends RnObject {
   private __oShadowSystem: Option<ShadowSystem> = new None();
   private __shadowExpressions: Expression[] = [];
   private __entitiesForShadow: ISceneGraphEntity[] = [];
+  private __oRaymarchingExpression: Option<Expression> = new None();
+  private __oRaymarchingRenderPass: Option<RenderPass> = new None();
   private __engine: Engine;
 
   constructor(engine: Engine) {
@@ -155,6 +158,7 @@ export class ForwardRenderPipeline extends RnObject {
     this.__oMultiViewBlitExpression = new None();
     this.__oBloomExpression = new None();
     this.__oToneMappingExpression = new None();
+    this.__oRaymarchingExpression = new None();
   }
 
   /**
@@ -277,6 +281,10 @@ export class ForwardRenderPipeline extends RnObject {
     if (this.__expressions.length > 0) {
       this.setExpressions(this.__expressions);
     }
+
+    const [oRaymarchingExpression, oRaymarchingRenderPass] = this.__setupRaymarchingExpression();
+    this.__oRaymarchingExpression = oRaymarchingExpression;
+    this.__oRaymarchingRenderPass = oRaymarchingRenderPass;
 
     this.__setUpExpressionsForRendering();
 
@@ -528,6 +536,9 @@ export class ForwardRenderPipeline extends RnObject {
       height = fallbackHeight;
     }
 
+    // Preserve raymarching material before destroying resources
+    const savedRaymarchingMaterial = this.getRaymarchingMaterial();
+
     this.__engine.resizeCanvas(width, height);
 
     this.__destroyResources();
@@ -537,6 +548,11 @@ export class ForwardRenderPipeline extends RnObject {
       shadowMapSize: this.__shadowMapSize,
       isSimple: this.__isSimple,
     });
+
+    // Restore raymarching material after setup
+    if (savedRaymarchingMaterial != null) {
+      this.setRaymarchingMaterial(savedRaymarchingMaterial);
+    }
 
     return new Ok();
   }
@@ -1271,6 +1287,33 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
+  private __setupRaymarchingExpression(): [Option<Expression>, Option<RenderPass>] {
+    const expression = new Expression();
+    expression.tryToSetUniqueName('Raymarching', true);
+    const renderPass = new RenderPass(this.__engine);
+    renderPass.isDepthTest = false;
+    const raymarchingEntity = createRaymarchingEntity(this.__engine);
+    renderPass.addEntities([raymarchingEntity]);
+
+    expression.addRenderPasses([renderPass]);
+    renderPass.tryToSetUniqueName('Raymarching', true);
+
+    return [new Some(expression), new Some(renderPass)];
+  }
+
+  public setRaymarchingMaterial(material: Material) {
+    if (this.__oRaymarchingRenderPass.has()) {
+      this.__oRaymarchingRenderPass.get().setBufferLessFullScreenRendering(material);
+    }
+  }
+
+  public getRaymarchingMaterial(): Material | undefined {
+    if (this.__oRaymarchingRenderPass.has()) {
+      return this.__oRaymarchingRenderPass.get().material;
+    }
+    return undefined;
+  }
+
   /**
    * Internal method to set up the frame with all configured expressions.
    *
@@ -1386,5 +1429,9 @@ export class ForwardRenderPipeline extends RnObject {
       expression.renderPasses.flatMap(renderPass => renderPass.entities)
     ) as ISceneGraphEntity[];
     this.__entitiesForShadow = entities;
+
+    if (this.__oRaymarchingExpression.has()) {
+      frame.addExpression(this.__oRaymarchingExpression.get());
+    }
   }
 }

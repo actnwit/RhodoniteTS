@@ -1,6 +1,6 @@
 import ShaderityModule, { type ShaderityObject } from 'shaderity';
 import { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
-import { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
+import { StandardShaderPart } from '../../../webgl/shaders/StandardShaderPart';
 import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
 import type { RnXR } from '../../../xr/main';
 import type { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';

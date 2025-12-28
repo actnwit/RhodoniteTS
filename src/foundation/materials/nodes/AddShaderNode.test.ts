@@ -33,7 +33,14 @@ test.skip('AttributePosition works correctly 1', async () => {
   outPositionNode.addInputConnection(a_position, a_position.getSocketOutput(), outPositionNode.getSocketInput());
 
   // nodes are intentionally made the order random
-  const retVal = Rn.ShaderGraphResolver.createVertexShaderCode(engine, [outPositionNode, a_position], [], false);
+  const commonShaderPart = new Rn.CommonShaderPart();
+  const retVal = Rn.ShaderGraphResolver.createVertexShaderCode(
+    engine,
+    [outPositionNode, a_position],
+    [],
+    commonShaderPart,
+    false
+  );
 
   expect(retVal!.replace(/\s+/g, '')).toEqual(
     `

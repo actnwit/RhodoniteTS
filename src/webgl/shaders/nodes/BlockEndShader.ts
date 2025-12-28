@@ -3,14 +3,14 @@ import type { VertexAttributeEnum } from '../../../foundation/definitions/Vertex
 import type { ShaderSocket } from '../../../foundation/materials/core/AbstractShaderNode';
 import type { Engine } from '../../../foundation/system/Engine';
 import type { AttributeNames } from '../../types/CommonTypes';
-import { CommonShaderPart } from '../CommonShaderPart';
+import { StandardShaderPart } from '../StandardShaderPart';
 
 /**
  * A shader component that generates the ending block of a shader function.
  * This class creates GLSL function definitions that pass input values directly to output values,
  * effectively acting as a pass-through block in shader node graphs.
  */
-export class BlockEndShader extends CommonShaderPart {
+export class BlockEndShader extends StandardShaderPart {
   /**
    * Creates a new BlockEndShader instance.
    *

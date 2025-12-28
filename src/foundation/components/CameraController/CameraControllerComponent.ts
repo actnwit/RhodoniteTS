@@ -86,7 +86,7 @@ export class CameraControllerComponent extends Component {
    *
    * @returns The component type identifier
    */
-  static get componentTID(): ComponentTID {
+  static get componentTID() {
     return WellKnownComponentTIDs.CameraControllerComponentTID;
   }
 

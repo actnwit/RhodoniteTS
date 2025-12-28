@@ -30,6 +30,8 @@ import SummedAreaTableShaderFragment from '../../webgl/shaderity_shaders/SummedA
 import SummedAreaTableShaderVertex from '../../webgl/shaderity_shaders/SummedAreaTableShader/SummedAreaTableShader.vert';
 import ToneMappingShaderFragmentGLSL from '../../webgl/shaderity_shaders/ToneMappingShader/ToneMappingShader.frag';
 import ToneMappingShaderVertexGLSL from '../../webgl/shaderity_shaders/ToneMappingShader/ToneMappingShader.vert';
+import { RaymarchingShaderPart } from '../../webgl/shaders/RaymarchingShaderPart';
+import { StandardShaderPart } from '../../webgl/shaders/StandardShaderPart';
 import ClassicSingleShaderFragmentWebgpu from '../../webgpu/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
 import ClassicSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
 import DepthMomentEncodeShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.frag.wgsl';
@@ -2106,6 +2108,43 @@ function addPbrSheenSemanticInfo(engine: Engine, additionalShaderSemanticInfo: S
 }
 
 /**
+ *
+ * Creates a node-based raymarching custom material.
+ * @param engine
+ * @param shaderNodeJson
+ * @returns Object containing the material and shader node flags, or null if generation fails
+ */
+function createNodeBasedRaymarchingCustomMaterial(
+  engine: Engine,
+  shaderNodeJson: ShaderNodeJson,
+  currentMaterial?: Material
+): NodeBasedMaterialResult | undefined {
+  const raymarchingShaderPart = new RaymarchingShaderPart();
+  const shaderCode = ShaderGraphResolver.generateShaderCodeFromJson(engine, shaderNodeJson, raymarchingShaderPart);
+
+  if (!shaderCode) {
+    return undefined;
+  }
+
+  const material = reuseOrRecreateCustomMaterial(
+    engine,
+    shaderCode.vertexShader,
+    shaderCode.pixelShader,
+    {},
+    currentMaterial
+  );
+
+  // Store the shader node JSON for later retrieval (e.g., in editor or export)
+  material.shaderNodeJson = shaderNodeJson;
+
+  return {
+    material,
+    hasPbrShaderNode: false,
+    hasClassicShaderNode: false,
+  };
+}
+
+/**
  * Creates or reuses a custom material from a shader node JSON graph.
  * This function handles shader code generation, texture semantics setup,
  * PBR/Classic shader detection, and IBL semantics for PBR materials.
@@ -2122,12 +2161,13 @@ function createNodeBasedCustomMaterial(
   shaderNodeJson: ShaderNodeJson,
   options: PbrUberMaterialOptions = {},
   currentMaterial?: Material
-): NodeBasedMaterialResult | null {
+): NodeBasedMaterialResult | undefined {
   // Generate shader code from the shader node JSON
-  const shaderCode = ShaderGraphResolver.generateShaderCodeFromJson(engine, shaderNodeJson);
+  const commonShaderPart = new StandardShaderPart();
+  const shaderCode = ShaderGraphResolver.generateShaderCodeFromJson(engine, shaderNodeJson, commonShaderPart);
 
   if (!shaderCode) {
-    return null;
+    return undefined;
   }
 
   // Build texture semantic info from the texture infos extracted during shader generation
@@ -2458,6 +2498,7 @@ export const MaterialHelper = Object.freeze({
   recreateMaterial,
   reuseOrRecreateCustomMaterial,
   createNodeBasedCustomMaterial,
+  createNodeBasedRaymarchingCustomMaterial,
   createClassicUberMaterial,
   createDepthMomentEncodeMaterial,
   createParaboloidDepthMomentEncodeMaterial,

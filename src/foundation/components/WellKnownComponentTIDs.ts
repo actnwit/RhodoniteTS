@@ -1,37 +1,21 @@
 // const MaterialSID = 0
-const AnimationStateComponentTID = 1;
-const AnimationComponentTID = 2;
-const TransformComponentTID = 3;
-const SceneGraphComponentTID = 4;
-const MeshComponentTID = 5;
-const MeshRendererComponentTID = 6;
-const LightComponentTID = 7;
-const CameraControllerComponentTID = 8;
-const CameraComponentTID = 9;
-const SkeletalComponentTID = 10;
-const BlendShapeComponentTID = 11;
-const PhysicsComponentTID = 12;
-const EffekseerComponentTID = 13;
-const VrmComponentTID = 14;
-const ConstraintComponentTID = 15;
 
-const maxWellKnownTidNumber = 15;
-
-export const WellKnownComponentTIDs = Object.freeze({
-  AnimationStateComponentTID,
-  AnimationComponentTID,
-  TransformComponentTID,
-  SceneGraphComponentTID,
-  MeshComponentTID,
-  MeshRendererComponentTID,
-  LightComponentTID,
-  CameraControllerComponentTID,
-  CameraComponentTID,
-  SkeletalComponentTID,
-  BlendShapeComponentTID,
-  PhysicsComponentTID,
-  EffekseerComponentTID,
-  VrmComponentTID,
-  ConstraintComponentTID,
-  maxWellKnownTidNumber,
-});
+export const WellKnownComponentTIDs = {
+  AnimationStateComponentTID: 1,
+  AnimationComponentTID: 2,
+  TransformComponentTID: 3,
+  SceneGraphComponentTID: 4,
+  MeshComponentTID: 5,
+  MeshRendererComponentTID: 6,
+  LightComponentTID: 7,
+  CameraControllerComponentTID: 8,
+  CameraComponentTID: 9,
+  SkeletalComponentTID: 10,
+  BlendShapeComponentTID: 11,
+  PhysicsComponentTID: 12,
+  EffekseerComponentTID: 13,
+  VrmComponentTID: 14,
+  ConstraintComponentTID: 15,
+  RaymarchingComponentTID: 16,
+  maxWellKnownTidNumber: 16,
+} as const;

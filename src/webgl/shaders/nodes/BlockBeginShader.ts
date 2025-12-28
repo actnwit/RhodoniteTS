@@ -3,14 +3,14 @@ import type { VertexAttributeEnum } from '../../../foundation/definitions/Vertex
 import type { ShaderSocket } from '../../../foundation/materials/core/AbstractShaderNode';
 import type { Engine } from '../../../foundation/system/Engine';
 import type { AttributeNames } from '../../types/CommonTypes';
-import { CommonShaderPart } from '../CommonShaderPart';
+import { StandardShaderPart } from '../StandardShaderPart';
 
 /**
  * A shader part that generates the beginning block of a shader function.
  * This class creates GLSL function definitions with input and output parameters
  * based on the provided shader sockets.
  */
-export class BlockBeginShader extends CommonShaderPart {
+export class BlockBeginShader extends StandardShaderPart {
   /**
    * Creates a new BlockBeginShader instance.
    *

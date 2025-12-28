@@ -81,7 +81,7 @@ export class MeshRendererComponent extends Component {
    * Gets the component type ID for MeshRendererComponent.
    * @returns The component type ID
    */
-  static get componentTID(): ComponentTID {
+  static get componentTID() {
     return WellKnownComponentTIDs.MeshRendererComponentTID;
   }
 

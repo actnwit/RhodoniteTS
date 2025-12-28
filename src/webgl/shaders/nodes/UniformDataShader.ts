@@ -5,9 +5,9 @@ import type { VertexAttributeEnum } from '../../../foundation/definitions/Vertex
 import type { Engine } from '../../../foundation/system/Engine';
 import { EngineState } from '../../../foundation/system/EngineState';
 import type { AttributeNames } from '../../types/CommonTypes';
-import { CommonShaderPart } from '../CommonShaderPart';
+import { StandardShaderPart } from '../StandardShaderPart';
 
-export class UniformDataShader extends CommonShaderPart {
+export class UniformDataShader extends StandardShaderPart {
   private __variableName = '';
   private __valueStr = '';
   constructor(
@@ -42,7 +42,7 @@ uniform ${this.__compositionType.getGlslStr(this.__componentType)} u_${
       this.__variableName
     }; // initialValue=${this.__valueStr}
 void ${this.__functionName}(out ${this.__compositionType.getGlslStr(this.__componentType)} outValue) {
-  ${CommonShaderPart.getMaterialSIDForWebGL()}
+  ${this.getMaterialSIDForWebGL()}
 
   outValue = get_${this.__variableName}(materialSID, 0u);
 }
@@ -65,7 +65,7 @@ uniform ${this.__compositionType.getGlslStr(this.__componentType)} u_${
       this.__variableName
     }; // initialValue=${this.__valueStr}
 void ${this.__functionName}(out ${this.__compositionType.getGlslStr(this.__componentType)} outValue) {
-  ${CommonShaderPart.getMaterialSIDForWebGL()}
+  ${this.getMaterialSIDForWebGL()}
 
 outValue = get_${this.__variableName}(materialSID, 0u);
     }

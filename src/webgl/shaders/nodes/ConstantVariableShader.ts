@@ -6,7 +6,7 @@ import type { IVector } from '../../../foundation/math/IVector';
 import type { Engine } from '../../../foundation/system/Engine';
 import { EngineState } from '../../../foundation/system/EngineState';
 import type { AttributeNames } from '../../types/CommonTypes';
-import { CommonShaderPart } from '../CommonShaderPart';
+import { StandardShaderPart } from '../StandardShaderPart';
 
 /**
  * A shader part that generates constant variable functions for both vertex and pixel shaders.
@@ -22,7 +22,7 @@ import { CommonShaderPart } from '../CommonShaderPart';
  * constantShader.setConstantValue(Vector3.fromCopyArray([1.0, 0.5, 0.0]));
  * ```
  */
-export class ConstantVariableShader extends CommonShaderPart {
+export class ConstantVariableShader extends StandardShaderPart {
   private __constantValueStr = '';
 
   /**
