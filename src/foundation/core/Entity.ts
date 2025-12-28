@@ -10,6 +10,7 @@ import type { LightComponent } from '../components/Light/LightComponent';
 import type { MeshComponent } from '../components/Mesh/MeshComponent';
 import type { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
 import type { PhysicsComponent } from '../components/Physics/PhysicsComponent';
+import type { RaymarchingComponent } from '../components/Raymarching/RaymarchingComponent';
 import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import type { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
 import type { TransformComponent } from '../components/Transform/TransformComponent';
@@ -154,6 +155,12 @@ export interface IEntity extends IRnObject {
    * @returns The EffekseerComponent if present, undefined otherwise
    */
   tryToGetEffekseer(): EffekseerComponent | undefined;
+
+  /**
+   * Attempts to retrieve the RaymarchingComponent from this entity.
+   * @returns The RaymarchingComponent if present, undefined otherwise
+   */
+  tryToGetRaymarching(): RaymarchingComponent | undefined;
 
   /**
    * Destroys this entity and releases all associated resources.
@@ -493,6 +500,21 @@ export class Entity extends RnObject implements IEntity {
   tryToGetEffekseer() {
     return this.getComponentByComponentTID(WellKnownComponentTIDs.EffekseerComponentTID) as
       | EffekseerComponent
+      | undefined;
+  }
+
+  /**
+   * Attempts to retrieve the RaymarchingComponent from this entity.
+   *
+   * @remarks
+   * This is a convenience method that provides type-safe access to the RaymarchingComponent
+   * without requiring explicit type casting.
+   *
+   * @returns The RaymarchingComponent if present, undefined otherwise
+   */
+  tryToGetRaymarching() {
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.RaymarchingComponentTID) as
+      | RaymarchingComponent
       | undefined;
   }
 
