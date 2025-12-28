@@ -296,13 +296,13 @@ fn rotateXYZ(euler: vec3<f32>) -> mat3x3<f32> {
 
 fn createTransformMatrix(position: vec3<f32>, rotation: vec3<f32>, scale: vec3<f32>) -> mat4x4<f32> {
   let rot = rotateXYZ(rotation);
-  let transform = mat4x4f(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+  var transform = mat4x4f(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
 
-  transform[0].xyz=rot[0]/scale.x;
-  transform[1].xyz=rot[1]/scale.y;
-  transform[2].xyz=rot[2]/scale.z;
+  transform[0] = vec4f(rot[0]/scale.x, transform[0].w);
+  transform[1] = vec4f(rot[1]/scale.y, transform[1].w);
+  transform[2] = vec4f(rot[2]/scale.z, transform[2].w);
 
-  transform[3].xyz=position;
+  transform[3] = vec4f(position, transform[3].w);
 
   return transform;
 }
@@ -316,11 +316,11 @@ fn inverseTransform(m: mat4x4<f32>) -> mat4x4<f32> {
 
   let inv_translation = -inv_rot_scale*m[3].xyz;
 
-  let inv = mat4x4f(1.);
-  inv[0].xyz=inv_rot_scale[0];
-  inv[1].xyz=inv_rot_scale[1];
-  inv[2].xyz=inv_rot_scale[2];
-  inv[3].xyz=inv_translation;
+  var inv = mat4x4f(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+  inv[0] = vec4f(inv_rot_scale[0], inv[0].w);
+  inv[1] = vec4f(inv_rot_scale[1], inv[1].w);
+  inv[2] = vec4f(inv_rot_scale[2], inv[2].w);
+  inv[3] = vec4f(inv_translation, inv[3].w);
 
   return inv;
 }
