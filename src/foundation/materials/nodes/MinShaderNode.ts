@@ -160,4 +160,3 @@ export class MinShaderNode extends AbstractShaderNode {
     return this.__shaderFunctionName;
   }
 }
-

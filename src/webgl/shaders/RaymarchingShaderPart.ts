@@ -195,7 +195,7 @@ void main() {
    * @param shaderNodes - Array of shader nodes used to generate varying variables for Raymarching shader
    * @returns The complete vertex shader prerequisites code string for Raymarching shader
    */
-  getVertexPrerequisites(engine: Engine, shaderNodes: AbstractShaderNode[]) {
+  getVertexPrerequisites(engine: Engine, _shaderNodes: AbstractShaderNode[]) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       let vertexShaderPrerequisites = '';
       vertexShaderPrerequisites += `
@@ -242,7 +242,7 @@ out vec2 v_texcoord_0;
    * @param shaderNodes - Array of shader nodes used to generate varying variables for WebGPU
    * @returns The complete fragment shader prerequisites code string
    */
-  getPixelPrerequisites(engine: Engine, shaderNodes: AbstractShaderNode[]) {
+  getPixelPrerequisites(engine: Engine, _shaderNodes: AbstractShaderNode[]) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       let pixelShaderPrerequisites = '';
       pixelShaderPrerequisites += `

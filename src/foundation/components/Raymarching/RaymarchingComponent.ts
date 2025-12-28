@@ -40,19 +40,7 @@ export class RaymarchingComponent extends Component {
     return WellKnownComponentTIDs.RaymarchingComponentTID;
   }
 
-  static common_$render({
-    renderPass,
-    renderPassTickCount,
-    primitiveUids,
-    displayIdx,
-    engine,
-  }: {
-    renderPass: RenderPass;
-    renderPassTickCount: Count;
-    primitiveUids: PrimitiveUID[];
-    displayIdx: Index;
-    engine: Engine;
-  }): boolean {
+  static common_$render(): boolean {
     return true;
   }
 
