@@ -298,9 +298,9 @@ fn createTransformMatrix(position: vec3<f32>, rotation: vec3<f32>, scale: vec3<f
   let rot = rotateXYZ(rotation);
   var transform = mat4x4f(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
 
-  transform[0] = vec4f(rot[0]/scale.x, transform[0].w);
-  transform[1] = vec4f(rot[1]/scale.y, transform[1].w);
-  transform[2] = vec4f(rot[2]/scale.z, transform[2].w);
+  transform[0] = vec4f(rot[0]*scale.x, transform[0].w);
+  transform[1] = vec4f(rot[1]*scale.y, transform[1].w);
+  transform[2] = vec4f(rot[2]*scale.z, transform[2].w);
 
   transform[3] = vec4f(position, transform[3].w);
 
@@ -308,18 +308,26 @@ fn createTransformMatrix(position: vec3<f32>, rotation: vec3<f32>, scale: vec3<f
 }
 
 fn inverseTransform(m: mat4x4<f32>) -> mat4x4<f32> {
-  let inv_rot_scale = mat3x3f(
-      vec3f(-m[0].x,-m[1].x,-m[2].x),
-      vec3f(-m[0].y,-m[1].y,-m[2].y),
-      vec3f(-m[0].z,-m[1].z,-m[2].z)
+  // For M = R * S, the inverse is M^(-1) = S^(-1) * R^T
+  // Each column of M has length s[i], so 1/s[i]^2 = 1/dot(m[i], m[i])
+  let invSqLen = vec3f(
+      1.0 / dot(m[0].xyz, m[0].xyz),
+      1.0 / dot(m[1].xyz, m[1].xyz),
+      1.0 / dot(m[2].xyz, m[2].xyz)
   );
 
-  let inv_translation = inv_rot_scale*m[3].xyz;
+  let inv_rot_scale = mat3x3f(
+      vec3f(m[0].x, m[1].x, m[2].x) * invSqLen,
+      vec3f(m[0].y, m[1].y, m[2].y) * invSqLen,
+      vec3f(m[0].z, m[1].z, m[2].z) * invSqLen
+  );
+
+  let inv_translation = -(inv_rot_scale * m[3].xyz);
 
   var inv = mat4x4f(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
-  inv[0] = vec4f(-inv_rot_scale[0], inv[0].w);
-  inv[1] = vec4f(-inv_rot_scale[1], inv[1].w);
-  inv[2] = vec4f(-inv_rot_scale[2], inv[2].w);
+  inv[0] = vec4f(inv_rot_scale[0], inv[0].w);
+  inv[1] = vec4f(inv_rot_scale[1], inv[1].w);
+  inv[2] = vec4f(inv_rot_scale[2], inv[2].w);
   inv[3] = vec4f(inv_translation, inv[3].w);
 
   return inv;
@@ -381,9 +389,9 @@ mat4 createTransformMatrix(vec3 position,vec3 rotation,vec3 scale){
     mat3 rot=rotateXYZ(rotation);
     mat4 transform=mat4(1.);
 
-    transform[0].xyz=rot[0]/scale.x;
-    transform[1].xyz=rot[1]/scale.y;
-    transform[2].xyz=rot[2]/scale.z;
+    transform[0].xyz=rot[0]*scale.x;
+    transform[1].xyz=rot[1]*scale.y;
+    transform[2].xyz=rot[2]*scale.z;
 
     transform[3].xyz=position;
 
@@ -391,10 +399,18 @@ mat4 createTransformMatrix(vec3 position,vec3 rotation,vec3 scale){
 }
 
 mat4 inverseTransform(mat4 m){
+    // For M = R * S, the inverse is M^(-1) = S^(-1) * R^T
+    // Each column of M has length s[i], so 1/s[i]^2 = 1/dot(m[i], m[i])
+    vec3 invSqLen = vec3(
+        1.0 / dot(m[0].xyz, m[0].xyz),
+        1.0 / dot(m[1].xyz, m[1].xyz),
+        1.0 / dot(m[2].xyz, m[2].xyz)
+    );
+
     mat3 inv_rot_scale=mat3(
-        vec3(m[0].x,m[1].x,m[2].x),
-        vec3(m[0].y,m[1].y,m[2].y),
-        vec3(m[0].z,m[1].z,m[2].z)
+        vec3(m[0].x,m[1].x,m[2].x) * invSqLen,
+        vec3(m[0].y,m[1].y,m[2].y) * invSqLen,
+        vec3(m[0].z,m[1].z,m[2].z) * invSqLen
     );
 
     vec3 inv_translation=-inv_rot_scale*m[3].xyz;
