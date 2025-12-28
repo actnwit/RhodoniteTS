@@ -13,6 +13,8 @@ import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
  * This component handles the raymarching of the entity.
  */
 export class RaymarchingComponent extends Component {
+  private __rrnJson: JSON;
+
   constructor(
     engine: Engine,
     entityUid: EntityUID,
@@ -42,6 +44,22 @@ export class RaymarchingComponent extends Component {
 
   static common_$render(): boolean {
     return true;
+  }
+
+  /**
+   * Sets the RRN JSON data for the RaymarchingComponent.
+   * @param rrnJson - The RRN JSON data
+   */
+  set rrnJson(rrnJson: JSON) {
+    this.__rrnJson = rrnJson;
+  }
+
+  /**
+   * Gets the RRN JSON data for the RaymarchingComponent.
+   * @returns The RRN JSON data
+   */
+  get rrnJson(): JSON {
+    return this.__rrnJson;
   }
 
   /**
