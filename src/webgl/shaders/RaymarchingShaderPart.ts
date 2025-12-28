@@ -308,13 +308,13 @@ fn createTransformMatrix(position: vec3<f32>, rotation: vec3<f32>, scale: vec3<f
 }
 
 fn inverseTransform(m: mat4x4<f32>) -> mat4x4<f32> {
-  let inv_rot_scale = mat3x3f(
-      vec3f(m[0].x,m[1].x,m[2].x),
-      vec3f(m[0].y,m[1].y,m[2].y),
-      vec3f(m[0].z,m[1].z,m[2].z)
+  var inv_rot_scale = mat3x3f(
+      vec3f(-m[0].x,-m[1].x,-m[2].x),
+      vec3f(-m[0].y,-m[1].y,-m[2].y),
+      vec3f(-m[0].z,-m[1].z,-m[2].z)
   );
 
-  let inv_translation = -inv_rot_scale*m[3].xyz;
+  let inv_translation = inv_rot_scale*m[3].xyz;
 
   var inv = mat4x4f(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
   inv[0] = vec4f(inv_rot_scale[0], inv[0].w);
