@@ -1,10 +1,10 @@
 import type { IRaymarchingEntity } from '../../helpers/EntityHelper';
 import type { Engine } from '../../system/Engine';
-import { createGroupEntity } from '../SceneGraph/createGroupEntity';
+import { createMeshEntity } from '../MeshRenderer/createMeshEntity';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 export function createRaymarchingEntity(engine: Engine): IRaymarchingEntity {
-  const entity = createGroupEntity(engine);
+  const entity = createMeshEntity(engine);
   const entityAddedComponent = engine.entityRepository.tryToAddComponentToEntityByTID(
     WellKnownComponentTIDs.RaymarchingComponentTID,
     entity
