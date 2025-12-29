@@ -86,11 +86,17 @@ fn calcNormal(p: vec3f) -> vec3f {
   );
 }
 
+struct FragmentOutput {
+  @location(0) color: vec4<f32>,
+  @builtin(frag_depth) depth: f32,
+}
+
 var<private> rt0: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 1.0);
 @fragment
 fn main(
   input: VertexOutput,
-) -> @location(0) vec4<f32> {
+) -> FragmentOutput {
+  var output: FragmentOutput;
   let cameraSID = uniformDrawParameters.cameraSID;
   let viewMatrix = get_viewMatrix(cameraSID);
   let projectionMatrix = get_projectionMatrix(cameraSID);
@@ -135,11 +141,17 @@ fn main(
     dif*=5.0/dot(light-p,light-p);
 
     rt0=vec4f(vec3f(pow(dif,.4545)),1.0);// Gamma correction
+
+    // Calculate depth from raymarching hit position
+    let clipPos = projectionMatrix * viewMatrix * vec4f(p, 1.0);
+    output.depth = clipPos.z / clipPos.w; // WebGPU depth range is [0, 1]
   }else{
     rt0=vec4f(0.0,0.0,0.0,1.0);
+    output.depth = 1.0; // Maximum depth for background
   }
 
-  return rt0;
+  output.color = rt0;
+  return output;
 }
 `;
     }
@@ -208,8 +220,14 @@ void main() {
     dif*=5./dot(light-p,light-p);
 
     rt0=vec4(vec3(pow(dif,.4545)),1);// Gamma correction
+
+    // Calculate depth from raymarching hit position
+    vec4 clipPos = projectionMatrix * viewMatrix * vec4(p, 1.0);
+    // Convert from NDC [-1, 1] to depth buffer range [0, 1]
+    gl_FragDepth = (clipPos.z / clipPos.w) * 0.5 + 0.5;
   }else{
     rt0=vec4(0,0,0,1);
+    gl_FragDepth = 1.0; // Maximum depth for background
   }
 }
 `;
