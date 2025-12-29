@@ -38,11 +38,7 @@ fn main(
       let str = `
 fn map(p: vec3f) -> f32 {
     g_rayPosition = p;
-    var d = distance(p,vec3f(-1,0,-5))-1.0;// sphere at (-1,0,5) with radius 1
-    d = min(d,distance(p,vec3f(2,0,-3))-1.0);// second sphere
-    d = min(d,distance(p,vec3f(-2,0,-2))-1.0);// and another
-    d = min(d,p.y+1.0);// horizontal plane at y = -1
-    g_distance = d;
+    g_distance = 1e20;
 `;
       return str;
     }
@@ -57,11 +53,7 @@ void main() {
     return `
 float map(vec3 p){
     g_rayPosition = p;
-    float d=distance(p,vec3(-1,0,-5))-1.;// sphere at (-1,0,5) with radius 1
-    d=min(d,distance(p,vec3(2,0,-3))-1.);// second sphere
-    d=min(d,distance(p,vec3(-2,0,-2))-1.);// and another
-    d=min(d,p.y+1.);// horizontal plane at y = -1
-    g_distance = d;
+    g_distance = 1e20;
   `;
   }
 
@@ -264,7 +256,7 @@ struct VertexOutput {
 /* shaderity: @{prerequisites} */
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
-var<private> g_distance: f32 = 0.0; // distance to the surface
+var<private> g_distance: f32 = 1e20; // distance to the surface
 var<private> g_rayPosition: vec3<f32> = vec3f(0.0, 0.0, 0.0);
 
 fn rotateX(angle: f32) -> mat3x3<f32> {
@@ -354,7 +346,7 @@ in vec2 v_texcoord_0;
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
 layout(location = 0) out vec4 rt0;
-float g_distance = 0.0; // distance to the surface
+float g_distance = 1e20; // distance to the surface
 vec3 g_rayPosition = vec3(0,0,0);
 
 mat3 rotateX(float angle){
