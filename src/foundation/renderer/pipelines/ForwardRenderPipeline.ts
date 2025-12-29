@@ -1,4 +1,5 @@
 import type { Size } from '../../../types';
+import type { ISceneGraphEntityMethods } from '../../components';
 import { RaymarchingComponent } from '../../components/Raymarching/RaymarchingComponent';
 import { createRaymarchingEntity } from '../../components/Raymarching/createRaymarchingEntity';
 import { RnObject } from '../../core/RnObject';
@@ -1296,13 +1297,13 @@ export class ForwardRenderPipeline extends RnObject {
     renderPass.setPreRenderFunction(() => {
       const raymarchingComponents = this.__engine.componentRepository.getComponentsWithType(
         RaymarchingComponent
-      ) as RaymarchingComponent[] & ISceneGraphEntity[];
+      ) as RaymarchingComponent[];
       for (const raymarchingComponent of raymarchingComponents) {
         const material = renderPass.material;
         if (material != null) {
           material.setParameter(
             `worldMatrix_${raymarchingComponent.componentSID}`,
-            raymarchingComponent.getSceneGraph().matrixInner
+            raymarchingComponent.entity.tryToGetSceneGraph()?.matrixInner
           );
         }
       }
