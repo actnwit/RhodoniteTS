@@ -1540,6 +1540,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     this.bindDataTexture(gl, shaderProgram);
 
     this.__setCurrentComponentSIDsForEachPrimitive(gl, material, shaderProgram);
+    this.__setCurrentComponentSIDsForEachDisplayIdx(renderPass, 0, isVRMainPass);
 
     gl.uniform1fv((shaderProgram as any).currentComponentSIDs, this.__currentComponentSIDs!._v as Float32Array);
 

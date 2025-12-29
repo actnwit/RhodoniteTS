@@ -68,7 +68,18 @@ function createSpheres() {
   return spheres;
 }
 
-createEarth();
+// const expression = new Rn.Expression();
+// const renderPass = new Rn.RenderPass(engine);
+// const cubeEntity = Rn.MeshHelper.createCube(engine);
+// renderPass.addEntities([cubeEntity]);
+// expression.addRenderPasses([renderPass]);
+// forwardRenderPipeline.setExpressions([expression]);
+const earth = createEarth();
+const cameraEntity = Rn.createCameraControllerEntity(engine, true);
+cameraEntity.getCameraController().controller.setTarget(earth);
+
+Rn.CameraComponent.setCurrent(engine, cameraEntity.getCamera().componentSID);
+
 const spheres = createSpheres();
 const result = Rn.MaterialHelper.createNodeBasedRaymarchingCustomMaterial(
   engine,
