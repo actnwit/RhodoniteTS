@@ -439,12 +439,7 @@ export abstract class AbstractMaterialContent extends RnObject {
    * @param isVr - Whether rendering in VR mode
    * @param displayIdx - The display index for VR rendering
    */
-  protected setViewInfo(
-    shaderProgram: WebGLProgram,
-    cameraComponent: CameraComponent,
-    isVr: boolean,
-    displayIdx: number
-  ) {
+  public setViewInfo(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, isVr: boolean, displayIdx: number) {
     let viewMatrix: Matrix44;
     let cameraPosition: IVector3;
     if (isVr) {
@@ -472,7 +467,7 @@ export abstract class AbstractMaterialContent extends RnObject {
    * @param isVr - Whether rendering in VR mode
    * @param displayIdx - The display index for VR rendering
    */
-  protected setProjection(
+  public setProjection(
     shaderProgram: WebGLProgram,
     cameraComponent: CameraComponent,
     isVr: boolean,
