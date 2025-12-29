@@ -28,7 +28,9 @@ var<private> output : VertexOutput;
 @vertex
 fn main(
   @builtin(vertex_index) vertexIdx : u32,
+  @location(8) instanceIds: vec4<u32>,
 ) -> VertexOutput {
+  output.instanceIds = instanceIds;
   /* shaderity: @{fullscreen} */
   return output;
 }
@@ -50,6 +52,7 @@ fn map(p: vec3f) -> f32 {
     if (isVertexStage) {
       return `
 void main() {
+  v_instanceIds = a_instanceIds;
   /* shaderity: @{fullscreen} */
 }
 `;
@@ -224,13 +227,12 @@ precision highp int;
 #define RN_IS_NODE_SHADER
 /* shaderity: @{prerequisites} */
 
+in uvec4 a_instanceIds;
 flat out uvec4 v_instanceIds;
 out vec2 v_texcoord_0;
+/* shaderity: @{getters} */
+/* shaderity: @{matricesGetters} */
 `;
-    vertexShaderPrerequisites += `
-`;
-    vertexShaderPrerequisites += '/* shaderity: @{getters} */';
-    vertexShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
     return vertexShaderPrerequisites;
   }
 
