@@ -12,6 +12,7 @@ export * from './CompressionTextureType';
 export * from './FileType';
 export * from './HdriFormat';
 export * from './LightType';
+export * from './PhysicsShapeType';
 export * from './PixelFormat';
 export * from './PrimitiveMode';
 export * from './ProcessApproach';
