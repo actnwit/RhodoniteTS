@@ -1,4 +1,4 @@
-import { RnM2Material, type Vrm0xMaterialProperty } from '../../types';
+import { type NodeJSON, RnM2Material, type Vrm0xMaterialProperty } from '../../types';
 import type { Count } from '../../types/CommonTypes';
 import type { ShaderNodeJson } from '../../types/ShaderNodeJson';
 import type { Vrm1_Material } from '../../types/VRMC_materials_mtoon';
@@ -56,6 +56,7 @@ import ToneMappingShaderFragmentWGSL from '../../webgpu/shaderity_shaders/ToneMa
 import ToneMappingShaderVertexWGSL from '../../webgpu/shaderity_shaders/ToneMappingShader/ToneMappingShader.vert.wgsl';
 import type { CameraComponent } from '../components/Camera/CameraComponent';
 import type { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
+import { RaymarchingComponent } from '../components/Raymarching/RaymarchingComponent';
 import { Config } from '../core/Config';
 import { ProcessApproach, TextureParameter } from '../definitions';
 import { ComponentType } from '../definitions/ComponentType';
@@ -2488,6 +2489,60 @@ function createNodeBasedCustomMaterial(
   };
 }
 
+function collectRrnJson(engine: Engine): NodeJSON {
+  const collectedRrnJson: NodeJSON = {
+    nodes: [],
+    connections: [],
+  };
+
+  const raymarchingComponents = engine.componentRepository.getComponentsWithType(RaymarchingComponent);
+  let componentIndex = 0;
+  for (const component of raymarchingComponents) {
+    const raymarchingComponent = component as RaymarchingComponent;
+    const rrnJson = raymarchingComponent.rrnJson;
+
+    // Create a prefix to avoid id collisions between different components
+    const prefix = `comp${componentIndex}_`;
+
+    // Clone and update node ids with prefix
+    const prefixedNodes = rrnJson.nodes.map(node => {
+      const newNode = { ...node, id: `${prefix}${node.id}` };
+
+      // Update input ids
+      if (node.inputs) {
+        newNode.inputs = {};
+        for (const [key, input] of Object.entries(node.inputs)) {
+          newNode.inputs[key] = { ...input, id: `${prefix}${input.id}` };
+        }
+      }
+
+      // Update output ids
+      if (node.outputs) {
+        newNode.outputs = {};
+        for (const [key, output] of Object.entries(node.outputs)) {
+          newNode.outputs[key] = { ...output, id: `${prefix}${output.id}` };
+        }
+      }
+
+      return newNode;
+    });
+
+    // Clone and update connection ids with prefix
+    const prefixedConnections = rrnJson.connections.map(conn => ({
+      ...conn,
+      id: `${prefix}${conn.id}`,
+      from: { ...conn.from, id: `${prefix}${conn.from.id}` },
+      to: { ...conn.to, id: `${prefix}${conn.to.id}` },
+    }));
+
+    collectedRrnJson.nodes.push(...prefixedNodes);
+    collectedRrnJson.connections.push(...prefixedConnections);
+    componentIndex++;
+  }
+
+  return collectedRrnJson;
+}
+
 /**
  * Changes the material assigned to a specific primitive on an entity.
  * This function updates the primitive's material and triggers necessary render state updates.
@@ -2546,4 +2601,5 @@ export const MaterialHelper = Object.freeze({
   createColorGradingUsingLUTsMaterial,
   createMatCapMaterial,
   changeMaterial,
+  collectRrnJson,
 });
