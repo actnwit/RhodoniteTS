@@ -96,7 +96,6 @@ const cameraControllerComponent = cameraEntity.getCameraController();
 const controller = cameraControllerComponent.controller as Rn.OrbitCameraController;
 controller.setTarget(ground);
 
-Rn.CameraComponent.setCurrent(engine, 0);
 let count = 0;
 
 engine.startRenderLoop(() => {
