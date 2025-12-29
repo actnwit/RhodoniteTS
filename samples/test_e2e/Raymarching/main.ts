@@ -46,7 +46,7 @@ function createSpheres() {
   const spheres: Rn.ISceneGraphEntity[] = [];
   for (let i = 0; i < 5; i++) {
     const sphereEntity = Rn.createRaymarchingEntity(engine);
-    sphereEntity.position = Rn.Vector3.fromCopy3(Math.random() * 5 - 2.5, 10 + i, Math.random() * 5 - 2.5 - 5);
+    sphereEntity.position = Rn.Vector3.fromCopy3((i / 5) * 5 - 2.5, 5 + i, (i / 5) * 5 - 2.5 - 5);
     sphereEntity.getRaymarching().sdfShapeType = Rn.SdfShapeType.Sphere;
     const newEntity = engine.entityRepository.addComponentToEntity(Rn.PhysicsComponent, sphereEntity);
     const physicsComponent = newEntity.getPhysics();
@@ -56,7 +56,7 @@ function createSpheres() {
       size: Rn.Vector3.fromCopy3(1, 1, 1),
       position: sphereEntity.position.clone(),
       rotation: Rn.Vector3.fromCopy3(0, 0, 0),
-      move: true,
+      move: false, // true
       density: 1,
       friction: 0.5,
       restitution: 0.2,
