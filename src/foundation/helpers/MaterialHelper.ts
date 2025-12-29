@@ -79,6 +79,7 @@ import { VarianceShadowMapDecodeClassicMaterialContent } from '../materials/cont
 import type { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
 import type { Material } from '../materials/core/Material';
 import { ShaderGraphResolver } from '../materials/core/ShaderGraphResolver';
+import { Matrix44 } from '../math/Matrix44';
 import { Scalar } from '../math/Scalar';
 import { Vector2 } from '../math/Vector2';
 import { Vector4 } from '../math/Vector4';
@@ -2107,6 +2108,24 @@ function addPbrSheenSemanticInfo(engine: Engine, additionalShaderSemanticInfo: S
   });
 }
 
+function addWorldMatrixSemanticsInfoToRaymarchingMaterial(shaderNodeJson: ShaderNodeJson) {
+  const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
+  for (const node of shaderNodeJson.nodes) {
+    if (node.name === 'SdApplyWorldMatrix' && node.controls.name.value) {
+      additionalShaderSemanticInfo.push({
+        semantic: node.controls.name.value,
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.Mat4,
+        stage: ShaderType.PixelShader,
+        initialValue: Matrix44.fromCopy16RowMajor(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1),
+        min: 0,
+        max: Number.MAX_VALUE,
+      });
+    }
+  }
+  return additionalShaderSemanticInfo;
+}
+
 /**
  *
  * Creates a node-based raymarching custom material.
@@ -2126,11 +2145,13 @@ function createNodeBasedRaymarchingCustomMaterial(
     return undefined;
   }
 
+  const additionalShaderSemanticInfo = addWorldMatrixSemanticsInfoToRaymarchingMaterial(shaderNodeJson);
+
   const material = reuseOrRecreateCustomMaterial(
     engine,
     shaderCode.vertexShader,
     shaderCode.pixelShader,
-    {},
+    { additionalShaderSemanticInfo },
     currentMaterial
   );
 
