@@ -3,7 +3,9 @@ import type { NodeJSON } from '../../../types/NodeJSON';
 import { Component } from '../../core/Component';
 import type { IEntity } from '../../core/Entity';
 import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
-import { ProcessStage } from '../../definitions/ProcessStage';
+import type { ProcessApproachEnum } from '../../definitions/ProcessApproach';
+import { ProcessStage, type ProcessStageEnum } from '../../definitions/ProcessStage';
+import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
 import type { RenderPass } from '../../renderer/RenderPass';
 import type { Engine } from '../../system/Engine';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
@@ -64,6 +66,35 @@ export class RaymarchingComponent extends Component {
    */
   get rrnJson(): NodeJSON {
     return this.__rrnJson;
+  }
+
+  static common_$logic({
+    processApproach,
+    renderPass,
+    processStage,
+    renderPassTickCount,
+    displayIdx,
+    engine,
+  }: {
+    processApproach: ProcessApproachEnum;
+    renderPass: RenderPass;
+    processStage: ProcessStageEnum;
+    renderPassTickCount: Count;
+    displayIdx: Index;
+    engine: Engine;
+  }) {
+    const raymarchingComponents = engine.componentRepository.getComponentsWithType(
+      RaymarchingComponent
+    ) as RaymarchingComponent[] & ISceneGraphEntity[];
+    for (const raymarchingComponent of raymarchingComponents) {
+      const material = renderPass.material;
+      if (material != null) {
+        material.setParameter(
+          `worldMatrix_${raymarchingComponent.componentSID}`,
+          raymarchingComponent.getSceneGraph().matrixInner
+        );
+      }
+    }
   }
 
   /**

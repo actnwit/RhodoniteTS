@@ -191,6 +191,16 @@ void main() {
 `;
   }
 
+  getMaterialSIDForWebGL() {
+    return `
+  #ifdef RN_IS_DATATEXTURE_MODE
+    uint materialSID = uint(u_currentComponentSIDs[0]); // index 0 data is the materialSID
+#else
+    uint materialSID = 0u;
+#endif
+`;
+  }
+
   /**
    * Generates vertex shader prerequisites for Raymarching shader.
    *
