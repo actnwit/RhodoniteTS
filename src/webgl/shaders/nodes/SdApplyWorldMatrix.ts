@@ -16,25 +16,13 @@ import { StandardShaderPart } from '../StandardShaderPart';
  */
 export class SdApplyWorldMatrixShader extends RaymarchingShaderPart {
   private __variableName = '';
-  static __instance: SdApplyWorldMatrixShader;
+  private __shaderFunctionName = '';
   /**
    * Private constructor to enforce singleton pattern.
    */
-  private constructor() {
+  constructor(shaderFunctionName: string) {
     super();
-  }
-
-  /**
-   * Gets the singleton instance of DiscardShader.
-   * Creates a new instance if one doesn't exist.
-   *
-   * @returns The singleton DiscardShader instance
-   */
-  static getInstance(): SdApplyWorldMatrixShader {
-    if (!this.__instance) {
-      this.__instance = new SdApplyWorldMatrixShader();
-    }
-    return this.__instance;
+    this.__shaderFunctionName = shaderFunctionName;
   }
 
   setVariableName(name: any) {
@@ -73,7 +61,7 @@ export class SdApplyWorldMatrixShader extends RaymarchingShaderPart {
   getPixelShaderDefinitions(engine: Engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
-fn sdApplyWorldMatrix(position: vec3f, outTransformedPosition: ptr<function, vec3f>) {
+fn ${this.__shaderFunctionName}(position: vec3f, outTransformedPosition: ptr<function, vec3f>) {
   let transform = get_${this.__variableName}(uniformDrawParameters.materialSid, 0u);
   let inv=inverseTransform(transform);
   let tp=(inv*vec4f(position, 1.0)).xyz;
@@ -82,7 +70,7 @@ fn sdApplyWorldMatrix(position: vec3f, outTransformedPosition: ptr<function, vec
       `;
     }
     return `
-void sdApplyWorldMatrix(in vec3 position, out vec3 outTransformedPosition) {
+void ${this.__shaderFunctionName}(in vec3 position, out vec3 outTransformedPosition) {
   ${this.getMaterialSIDForWebGL()}
   mat4 transform = get_${this.__variableName}(materialSID, 0u);
   mat4 inv=inverseTransform(transform);

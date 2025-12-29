@@ -1,6 +1,4 @@
-import SdApplyWorldMatrixShaderityObjectGLSL from '../../../../webgl/shaderity_shaders/nodes/raymarching/SdApplyWorldMatrix.glsl';
 import { SdApplyWorldMatrixShader } from '../../../../webgl/shaders/nodes/SdApplyWorldMatrix';
-import SdApplyWorldMatrixShaderityObjectWGSL from '../../../../webgpu/shaderity_shaders/nodes/raymarching/SdApplyWorldMatrix.wgsl';
 import { ComponentType } from '../../../definitions/ComponentType';
 import { CompositionType } from '../../../definitions/CompositionType';
 import { Vector3 } from '../../../math/Vector3';
@@ -26,9 +24,11 @@ export class SdApplyWorldMatrixShaderNode extends AbstractShaderNode {
    * Creates a new SdApplyWorldMatrixShaderNode instance.
    */
   constructor() {
-    super('sdApplyWorldMatrix', {
-      commonPart: SdApplyWorldMatrixShader.getInstance(),
-    });
+    super('sdApplyWorldMatrix', {});
+
+    this.__shaderFunctionName += `_${this.__shaderNodeUid}`;
+
+    this.__commonPart = new SdApplyWorldMatrixShader(this.__shaderFunctionName);
 
     this.setShaderStage('Fragment');
 
