@@ -68,35 +68,6 @@ export class RaymarchingComponent extends Component {
     return this.__rrnJson;
   }
 
-  static common_$logic({
-    processApproach,
-    renderPass,
-    processStage,
-    renderPassTickCount,
-    displayIdx,
-    engine,
-  }: {
-    processApproach: ProcessApproachEnum;
-    renderPass: RenderPass;
-    processStage: ProcessStageEnum;
-    renderPassTickCount: Count;
-    displayIdx: Index;
-    engine: Engine;
-  }) {
-    const raymarchingComponents = engine.componentRepository.getComponentsWithType(
-      RaymarchingComponent
-    ) as RaymarchingComponent[] & ISceneGraphEntity[];
-    for (const raymarchingComponent of raymarchingComponents) {
-      const material = renderPass.material;
-      if (material != null) {
-        material.setParameter(
-          `worldMatrix_${raymarchingComponent.componentSID}`,
-          raymarchingComponent.getSceneGraph().matrixInner
-        );
-      }
-    }
-  }
-
   /**
    * Creates a shallow copy of this RaymarchingComponent from another RaymarchingComponent.
    * @param component - The source component to copy from

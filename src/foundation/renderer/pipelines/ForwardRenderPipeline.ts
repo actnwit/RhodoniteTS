@@ -1,4 +1,5 @@
 import type { Size } from '../../../types';
+import { RaymarchingComponent } from '../../components/Raymarching/RaymarchingComponent';
 import { createRaymarchingEntity } from '../../components/Raymarching/createRaymarchingEntity';
 import { RnObject } from '../../core/RnObject';
 import { ComponentType, PixelFormat, ToneMappingType, type ToneMappingTypeEnum } from '../../definitions';
@@ -1292,6 +1293,20 @@ export class ForwardRenderPipeline extends RnObject {
     expression.tryToSetUniqueName('Raymarching', true);
     const renderPass = new RenderPass(this.__engine);
     renderPass.isDepthTest = false;
+    renderPass.setPreRenderFunction(() => {
+      const raymarchingComponents = this.__engine.componentRepository.getComponentsWithType(
+        RaymarchingComponent
+      ) as RaymarchingComponent[] & ISceneGraphEntity[];
+      for (const raymarchingComponent of raymarchingComponents) {
+        const material = renderPass.material;
+        if (material != null) {
+          material.setParameter(
+            `worldMatrix_${raymarchingComponent.componentSID}`,
+            raymarchingComponent.getSceneGraph().matrixInner
+          );
+        }
+      }
+    });
 
     expression.addRenderPasses([renderPass]);
     renderPass.tryToSetUniqueName('Raymarching', true);
