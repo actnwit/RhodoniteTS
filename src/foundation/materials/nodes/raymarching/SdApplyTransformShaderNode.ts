@@ -30,6 +30,8 @@ export class SdApplyTransformShaderNode extends AbstractShaderNode {
       codeWGSL: SdApplyTransformShaderityObjectWGSL.code,
     });
 
+    this.setShaderStage('Fragment');
+
     this.__inputs.push(
       new Socket('position', CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0.0, 0.0, 0.0))
     );

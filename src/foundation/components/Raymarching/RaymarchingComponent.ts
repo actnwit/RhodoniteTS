@@ -1,4 +1,5 @@
 import type { ComponentSID, ComponentTID, Count, EntityUID, Index, PrimitiveUID } from '../../../types/CommonTypes';
+import type { NodeJSON } from '../../../types/NodeJSON';
 import { Component } from '../../core/Component';
 import type { IEntity } from '../../core/Entity';
 import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
@@ -13,7 +14,10 @@ import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
  * This component handles the raymarching of the entity.
  */
 export class RaymarchingComponent extends Component {
-  private __rrnJson: JSON;
+  private __rrnJson: NodeJSON = {
+    nodes: [],
+    connections: [],
+  };
 
   constructor(
     engine: Engine,
@@ -50,7 +54,7 @@ export class RaymarchingComponent extends Component {
    * Sets the RRN JSON data for the RaymarchingComponent.
    * @param rrnJson - The RRN JSON data
    */
-  set rrnJson(rrnJson: JSON) {
+  set rrnJson(rrnJson: NodeJSON) {
     this.__rrnJson = rrnJson;
   }
 
@@ -58,7 +62,7 @@ export class RaymarchingComponent extends Component {
    * Gets the RRN JSON data for the RaymarchingComponent.
    * @returns The RRN JSON data
    */
-  get rrnJson(): JSON {
+  get rrnJson(): NodeJSON {
     return this.__rrnJson;
   }
 
