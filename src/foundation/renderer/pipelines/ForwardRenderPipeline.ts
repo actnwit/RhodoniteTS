@@ -1292,8 +1292,6 @@ export class ForwardRenderPipeline extends RnObject {
     expression.tryToSetUniqueName('Raymarching', true);
     const renderPass = new RenderPass(this.__engine);
     renderPass.isDepthTest = false;
-    // const raymarchingEntity = createRaymarchingEntity(this.__engine);
-    // renderPass.addEntities([raymarchingEntity]);
 
     expression.addRenderPasses([renderPass]);
     renderPass.tryToSetUniqueName('Raymarching', true);

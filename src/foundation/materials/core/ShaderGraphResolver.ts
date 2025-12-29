@@ -47,8 +47,8 @@ import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MinShaderNode } from '../nodes/MinShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
+import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { NotEqualShaderNode } from '../nodes/NotEqualShaderNode';
 import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
@@ -74,6 +74,11 @@ import { ProjectionMatrixShaderNode } from '../nodes/ProjectionMatrixShaderNode'
 import { Random_HashPRNGShaderNode } from '../nodes/Random_HashPRNGShaderNode';
 import { Random_SinHashShaderNode } from '../nodes/Random_SinHashShaderNode';
 import { RemapShaderNode } from '../nodes/RemapShaderNode';
+import { InitialPositionShaderNode } from '../nodes/raymarching/InitialPositionShaderNode';
+import { OutDistanceShaderNode } from '../nodes/raymarching/OutDistanceShaderNode';
+import { OutUnionShaderNode } from '../nodes/raymarching/OutUnionShaderNode';
+import { SdApplyTransformShaderNode } from '../nodes/raymarching/SdApplyTransformShaderNode';
+import { SdSphereShaderNode } from '../nodes/raymarching/SdSphereShaderNode';
 import { SinShaderNode } from '../nodes/SinShaderNode';
 import { SmoothStepShaderNode } from '../nodes/SmoothStepShaderNode';
 import { SplitVectorShaderNode } from '../nodes/SplitVectorShaderNode';
@@ -85,11 +90,6 @@ import { TransformShaderNode } from '../nodes/TransformShaderNode';
 import { UniformDataShaderNode } from '../nodes/UniformDataShaderNode';
 import { ViewMatrixShaderNode } from '../nodes/ViewMatrixShaderNode';
 import { WorldMatrixShaderNode } from '../nodes/WorldMatrixShaderNode';
-import { InitialPositionShaderNode } from '../nodes/raymarching/InitialPositionShaderNode';
-import { OutDistanceShaderNode } from '../nodes/raymarching/OutDistanceShaderNode';
-import { OutUnionShaderNode } from '../nodes/raymarching/OutUnionShaderNode';
-import { SdApplyTransformShaderNode } from '../nodes/raymarching/SdApplyTransformShaderNode';
-import { SdSphereShaderNode } from '../nodes/raymarching/SdSphereShaderNode';
 import { AbstractShaderNode, type ShaderNodeUID } from './AbstractShaderNode';
 import type { SocketDefaultValue, ValueTypes } from './Socket';
 
@@ -944,36 +944,39 @@ export class ShaderGraphResolver {
 }
 
 /**
- * Recursively filters shader nodes starting from a specific end node by traversing backwards
+ * Recursively filters shader nodes starting from specific end nodes by traversing backwards
  * through input connections. This is a helper function for dependency analysis.
+ * Supports multiple end nodes with the same name (e.g., from different components).
  *
  * @param nodes - Array of all available shader nodes
  * @param endNodeName - Name of the target end node to start filtering from
- * @returns Array of nodes that contribute to the specified end node
+ * @returns Array of nodes that contribute to any matching end nodes
  * @private
  */
 function filterNodesInner(nodes: AbstractShaderNode[], endNodeName: string) {
-  let endNode: AbstractShaderNode | undefined;
+  // Find all matching end nodes (not just the first one)
+  const endNodes: AbstractShaderNode[] = [];
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
     if (node.shaderFunctionName.toLowerCase().includes(endNodeName.toLowerCase())) {
-      endNode = node;
-      break;
+      endNodes.push(node);
     }
   }
 
-  if (endNode == null) {
+  if (endNodes.length === 0) {
     return [];
   }
 
-  const filteredNodes: AbstractShaderNode[] = [endNode];
+  const filteredNodes: AbstractShaderNode[] = [...endNodes];
+  const visitedNodeUids = new Set<number>(endNodes.map(node => node.shaderNodeUid));
 
   function traverseNodes(node: AbstractShaderNode) {
     for (let i = 0; i < node.inputConnections.length; i++) {
       const inputConnection = node.inputConnections[i];
       if (inputConnection != null) {
         const inputNode = AbstractShaderNode.getShaderNodeByUid(inputConnection.shaderNodeUid);
-        if (inputNode != null) {
+        if (inputNode != null && !visitedNodeUids.has(inputNode.shaderNodeUid)) {
+          visitedNodeUids.add(inputNode.shaderNodeUid);
           filteredNodes.push(inputNode);
           traverseNodes(inputNode);
         }
@@ -981,7 +984,10 @@ function filterNodesInner(nodes: AbstractShaderNode[], endNodeName: string) {
     }
   }
 
-  traverseNodes(endNode);
+  // Traverse from all matching end nodes
+  for (const endNode of endNodes) {
+    traverseNodes(endNode);
+  }
 
   return filteredNodes;
 }
