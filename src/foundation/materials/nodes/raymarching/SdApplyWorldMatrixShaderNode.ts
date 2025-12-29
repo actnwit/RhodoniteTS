@@ -1,4 +1,5 @@
 import SdApplyWorldMatrixShaderityObjectGLSL from '../../../../webgl/shaderity_shaders/nodes/raymarching/SdApplyWorldMatrix.glsl';
+import { SdApplyWorldMatrixShader } from '../../../../webgl/shaders/nodes/SdApplyWorldMatrix';
 import SdApplyWorldMatrixShaderityObjectWGSL from '../../../../webgpu/shaderity_shaders/nodes/raymarching/SdApplyWorldMatrix.wgsl';
 import { ComponentType } from '../../../definitions/ComponentType';
 import { CompositionType } from '../../../definitions/CompositionType';
@@ -26,8 +27,7 @@ export class SdApplyWorldMatrixShaderNode extends AbstractShaderNode {
    */
   constructor() {
     super('sdApplyWorldMatrix', {
-      codeGLSL: SdApplyWorldMatrixShaderityObjectGLSL.code,
-      codeWGSL: SdApplyWorldMatrixShaderityObjectWGSL.code,
+      commonPart: SdApplyWorldMatrixShader.getInstance(),
     });
 
     this.setShaderStage('Fragment');
@@ -38,5 +38,9 @@ export class SdApplyWorldMatrixShaderNode extends AbstractShaderNode {
     this.__outputs.push(
       new Socket('outTransformedPosition', CompositionType.Vec3, ComponentType.Float, Vector3.fromCopy3(0.0, 0.0, 0.0))
     );
+  }
+
+  setUniformDataName(value: any) {
+    (this.__commonPart as SdApplyWorldMatrixShader).setVariableName(value);
   }
 }

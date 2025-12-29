@@ -1990,6 +1990,7 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'SdApplyWorldMatrix': {
         const nodeInstance = new SdApplyWorldMatrixShaderNode();
+        nodeInstance.setUniformDataName(node.controls.name.value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }

@@ -5,18 +5,18 @@ import type { VertexAttributeEnum } from '../../../foundation/definitions/Vertex
 import type { Engine } from '../../../foundation/system/Engine';
 import type { AttributeNames } from '../../types/CommonTypes';
 import { RaymarchingShaderPart } from '../RaymarchingShaderPart';
+import { StandardShaderPart } from '../StandardShaderPart';
 
 /**
- * OutDistanceShader class provides the out distance function for fragment shaders.
- * This class handles outputting the distance to the surface,
+ * SdApplyWorldMatrixShader class provides the apply world matrix function for fragment shaders.
+ * This class handles applying the world matrix to the position,
  * supporting both WebGL and WebGPU rendering approaches.
  *
- * @extends StandardShaderPart
+ * @extends RaymarchingShaderPart
  */
-export class OutDistanceShader extends RaymarchingShaderPart {
-  static __instance: OutDistanceShader;
-  public static readonly materialElement = ShaderNode.PBRShading;
-
+export class SdApplyWorldMatrixShader extends RaymarchingShaderPart {
+  private __variableName = '';
+  static __instance: SdApplyWorldMatrixShader;
   /**
    * Private constructor to enforce singleton pattern.
    */
@@ -30,11 +30,15 @@ export class OutDistanceShader extends RaymarchingShaderPart {
    *
    * @returns The singleton DiscardShader instance
    */
-  static getInstance(): OutDistanceShader {
+  static getInstance(): SdApplyWorldMatrixShader {
     if (!this.__instance) {
-      this.__instance = new OutDistanceShader();
+      this.__instance = new SdApplyWorldMatrixShader();
     }
     return this.__instance;
+  }
+
+  setVariableName(name: any) {
+    this.__variableName = name;
   }
 
   /**
@@ -69,15 +73,22 @@ export class OutDistanceShader extends RaymarchingShaderPart {
   getPixelShaderDefinitions(engine: Engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
-      fn outDistance(value: f32) {
-        g_distance = value;
-      }
+fn sdApplyWorldMatrix(position: vec3f, outTransformedPosition: ptr<function, vec3f>) {
+  let transform = get_${this.__variableName}(uniformDrawParameters.materialSid, 0u);
+  let inv=inverseTransform(transform);
+  let tp=(inv*vec4f(position, 1.0)).xyz;
+  *outTransformedPosition = tp;
+}
       `;
     }
     return `
-      void outDistance(in float value) {
-        g_distance = value;
-      }
+void sdApplyWorldMatrix(in vec3 position, out vec3 outTransformedPosition) {
+  mat4 transform = get_${this.__variableName}(materialSID, 0u);
+
+  mat4 inv=inverseTransform(transform);
+  vec3 tp=(inv*vec4(position,1.)).xyz;
+  outTransformedPosition = tp;
+}
       `;
   }
 
