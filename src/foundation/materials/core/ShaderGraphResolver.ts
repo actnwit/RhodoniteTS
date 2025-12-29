@@ -47,8 +47,8 @@ import { LessThanShaderNode } from '../nodes/LessThanShaderNode';
 import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 import { MinShaderNode } from '../nodes/MinShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
 import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
+import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
 import { NotEqualShaderNode } from '../nodes/NotEqualShaderNode';
 import { OrShaderNode } from '../nodes/OrShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
@@ -74,11 +74,6 @@ import { ProjectionMatrixShaderNode } from '../nodes/ProjectionMatrixShaderNode'
 import { Random_HashPRNGShaderNode } from '../nodes/Random_HashPRNGShaderNode';
 import { Random_SinHashShaderNode } from '../nodes/Random_SinHashShaderNode';
 import { RemapShaderNode } from '../nodes/RemapShaderNode';
-import { InitialPositionShaderNode } from '../nodes/raymarching/InitialPositionShaderNode';
-import { OutDistanceShaderNode } from '../nodes/raymarching/OutDistanceShaderNode';
-import { OutUnionShaderNode } from '../nodes/raymarching/OutUnionShaderNode';
-import { SdApplyTransformShaderNode } from '../nodes/raymarching/SdApplyTransformShaderNode';
-import { SdSphereShaderNode } from '../nodes/raymarching/SdSphereShaderNode';
 import { SinShaderNode } from '../nodes/SinShaderNode';
 import { SmoothStepShaderNode } from '../nodes/SmoothStepShaderNode';
 import { SplitVectorShaderNode } from '../nodes/SplitVectorShaderNode';
@@ -90,6 +85,12 @@ import { TransformShaderNode } from '../nodes/TransformShaderNode';
 import { UniformDataShaderNode } from '../nodes/UniformDataShaderNode';
 import { ViewMatrixShaderNode } from '../nodes/ViewMatrixShaderNode';
 import { WorldMatrixShaderNode } from '../nodes/WorldMatrixShaderNode';
+import { InitialPositionShaderNode } from '../nodes/raymarching/InitialPositionShaderNode';
+import { OutDistanceShaderNode } from '../nodes/raymarching/OutDistanceShaderNode';
+import { OutUnionShaderNode } from '../nodes/raymarching/OutUnionShaderNode';
+import { SdApplyTransformShaderNode } from '../nodes/raymarching/SdApplyTransformShaderNode';
+import { SdApplyWorldMatrixShaderNode } from '../nodes/raymarching/SdApplyWorldMatrixShaderNode';
+import { SdSphereShaderNode } from '../nodes/raymarching/SdSphereShaderNode';
 import { AbstractShaderNode, type ShaderNodeUID } from './AbstractShaderNode';
 import type { SocketDefaultValue, ValueTypes } from './Socket';
 
@@ -1984,6 +1985,11 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'SdApplyTransform': {
         const nodeInstance = new SdApplyTransformShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'SdApplyWorldMatrix': {
+        const nodeInstance = new SdApplyWorldMatrixShaderNode();
         nodeInstances[node.id] = nodeInstance;
         break;
       }
