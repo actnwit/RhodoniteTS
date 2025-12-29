@@ -17,6 +17,7 @@ export * from './PrimitiveMode';
 export * from './ProcessApproach';
 export * from './ProcessStage';
 export * from './RenderBufferTarget';
+export * from './SdfShapeType';
 export * from './ShaderNode';
 export * from './ShaderSemantics';
 export * from './ShaderSemanticsInfo';
