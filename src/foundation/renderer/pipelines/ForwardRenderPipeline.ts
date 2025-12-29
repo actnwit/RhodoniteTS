@@ -1293,7 +1293,15 @@ export class ForwardRenderPipeline extends RnObject {
     const expression = new Expression();
     expression.tryToSetUniqueName('Raymarching', true);
     const renderPass = new RenderPass(this.__engine);
-    renderPass.isDepthTest = false;
+    renderPass.toClearDepthBuffer = false;
+    renderPass.isDepthTest = true;
+    const mainFrameBuffer = this.__getMainFrameBuffer();
+    if (mainFrameBuffer.has()) {
+      renderPass.setFramebuffer(mainFrameBuffer.get());
+      if (this.__oFrameBufferMsaa.has()) {
+        renderPass.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
+      }
+    }
     renderPass.setPreRenderFunction(() => {
       const raymarchingComponents = this.__engine.componentRepository.getComponentsWithType(
         RaymarchingComponent
@@ -1352,9 +1360,12 @@ export class ForwardRenderPipeline extends RnObject {
     }
     const frame = this.__oFrame.get();
     frame.clearExpressions();
-
     // initial expression for clearing the frame buffer
     frame.addExpression(this.getInitialExpression()!);
+
+    if (this.__oRaymarchingExpression.has()) {
+      frame.addExpression(this.__oRaymarchingExpression.get());
+    }
 
     if (!this.__isSimple) {
       // depth map generation for shadow mapping
@@ -1443,9 +1454,5 @@ export class ForwardRenderPipeline extends RnObject {
       expression.renderPasses.flatMap(renderPass => renderPass.entities)
     ) as ISceneGraphEntity[];
     this.__entitiesForShadow = entities;
-
-    if (this.__oRaymarchingExpression.has()) {
-      frame.addExpression(this.__oRaymarchingExpression.get());
-    }
   }
 }
