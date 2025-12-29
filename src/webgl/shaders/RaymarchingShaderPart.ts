@@ -497,4 +497,10 @@ mat4 inverseTransform(mat4 m){
     const rowStr = `${glslTypeStr} ${varName} = v_${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid}_${outputNameOfPrev};\n`;
     return rowStr;
   }
+  getVertexShaderDefinitions(_engine: Engine) {
+    return '';
+  }
+  getPixelShaderDefinitions(_engine: Engine) {
+    return '';
+  }
 }

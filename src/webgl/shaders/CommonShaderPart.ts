@@ -21,4 +21,6 @@ export abstract class CommonShaderPart {
     inputNode: AbstractShaderNode,
     outputNameOfPrev: string
   ): string;
+  abstract getVertexShaderDefinitions(engine: Engine): string;
+  abstract getPixelShaderDefinitions(engine: Engine): string;
 }
