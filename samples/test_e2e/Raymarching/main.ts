@@ -56,7 +56,7 @@ function createSpheres() {
       size: Rn.Vector3.fromCopy3(1, 1, 1),
       position: sphereEntity.position.clone(),
       rotation: Rn.Vector3.fromCopy3(0, 0, 0),
-      move: false, // true
+      move: true,
       density: 1,
       friction: 0.5,
       restitution: 0.2,
@@ -82,6 +82,8 @@ if (!result) {
 }
 const material = result.material;
 forwardRenderPipeline.setRaymarchingMaterial(material);
+
+Rn.AnimationComponent.setIsAnimating(engine, false);
 // Render Loop
 let count = 0;
 
@@ -103,3 +105,7 @@ forwardRenderPipeline.startRenderLoop(frame => {
   }
   count++;
 });
+
+window.animate = () => {
+  Rn.AnimationComponent.setIsAnimating(engine, true);
+};
