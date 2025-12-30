@@ -48,7 +48,7 @@ export class OpUnionShaderNode extends AbstractShaderNode {
 
   /**
    * Gets the left-hand side input socket.
-   * This socket represents the first operand in the minimum operation.
+   * This socket represents the first operand in the union operation.
    *
    * @returns The left-hand side input socket
    */
@@ -58,7 +58,7 @@ export class OpUnionShaderNode extends AbstractShaderNode {
 
   /**
    * Gets the right-hand side input socket.
-   * This socket represents the second operand in the minimum operation.
+   * This socket represents the second operand in the union operation.
    *
    * @returns The right-hand side input socket
    */
@@ -67,9 +67,9 @@ export class OpUnionShaderNode extends AbstractShaderNode {
   }
 
   /**
-   * Gets the output socket that contains the result of the minimum operation.
+   * Gets the output socket that contains the result of the union operation.
    *
-   * @returns The output socket containing the minimum result
+   * @returns The output socket containing the union result
    */
   getSocketOutput() {
     return this.__outputs[0];

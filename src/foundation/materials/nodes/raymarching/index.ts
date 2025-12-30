@@ -1,4 +1,5 @@
 export * from './InitialPositionShaderNode';
+export * from './OpSubtractionShaderNode';
 export * from './OpUnionShaderNode';
 export * from './OutDistanceShaderNode';
 export * from './OutUnionShaderNode';

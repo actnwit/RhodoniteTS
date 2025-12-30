@@ -86,6 +86,7 @@ import { UniformDataShaderNode } from '../nodes/UniformDataShaderNode';
 import { ViewMatrixShaderNode } from '../nodes/ViewMatrixShaderNode';
 import { WorldMatrixShaderNode } from '../nodes/WorldMatrixShaderNode';
 import { InitialPositionShaderNode } from '../nodes/raymarching/InitialPositionShaderNode';
+import { OpSubtractionShaderNode } from '../nodes/raymarching/OpSubtractionShaderNode';
 import { OpUnionShaderNode } from '../nodes/raymarching/OpUnionShaderNode';
 import { OutDistanceShaderNode } from '../nodes/raymarching/OutDistanceShaderNode';
 import { OutUnionShaderNode } from '../nodes/raymarching/OutUnionShaderNode';
@@ -1992,6 +1993,11 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'OpUnion': {
         const nodeInstance = new OpUnionShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'OpSubtraction': {
+        const nodeInstance = new OpSubtractionShaderNode();
         nodeInstances[node.id] = nodeInstance;
         break;
       }
