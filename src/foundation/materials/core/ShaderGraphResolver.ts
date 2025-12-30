@@ -86,6 +86,7 @@ import { UniformDataShaderNode } from '../nodes/UniformDataShaderNode';
 import { ViewMatrixShaderNode } from '../nodes/ViewMatrixShaderNode';
 import { WorldMatrixShaderNode } from '../nodes/WorldMatrixShaderNode';
 import { InitialPositionShaderNode } from '../nodes/raymarching/InitialPositionShaderNode';
+import { OpUnionShaderNode } from '../nodes/raymarching/OpUnionShaderNode';
 import { OutDistanceShaderNode } from '../nodes/raymarching/OutDistanceShaderNode';
 import { OutUnionShaderNode } from '../nodes/raymarching/OutUnionShaderNode';
 import { SdApplyTransformShaderNode } from '../nodes/raymarching/SdApplyTransformShaderNode';
@@ -1986,6 +1987,11 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'SdBox': {
         const nodeInstance = new SdBoxShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'OpUnion': {
+        const nodeInstance = new OpUnionShaderNode();
         nodeInstances[node.id] = nodeInstance;
         break;
       }
