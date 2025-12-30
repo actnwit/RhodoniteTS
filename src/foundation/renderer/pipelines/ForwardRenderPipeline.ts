@@ -1308,11 +1308,9 @@ export class ForwardRenderPipeline extends RnObject {
       ) as RaymarchingComponent[];
       for (const raymarchingComponent of raymarchingComponents) {
         const material = renderPass.material;
-        if (material != null) {
-          material.setParameter(
-            `worldMatrix_${raymarchingComponent.componentSID}`,
-            raymarchingComponent.entity.tryToGetSceneGraph()?.matrixInner
-          );
+        const sceneGraph = raymarchingComponent.entity.tryToGetSceneGraph();
+        if (material != null && sceneGraph != null) {
+          material.setParameter(`worldMatrix_${raymarchingComponent.componentSID}`, sceneGraph.matrixInner);
         }
       }
     });
