@@ -1,7 +1,7 @@
 import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
 import type { IEntity } from '../../core/Entity';
-import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import { IPhysicsEntity } from '../../helpers/EntityHelper';
 import { Is } from '../../misc/Is';
@@ -89,7 +89,10 @@ export class PhysicsComponent extends Component {
    * This is called once per frame for all physics components and handles
    * the overall physics world update using the Oimo physics engine.
    */
-  static common_$logic() {
+  static common_$logic({ engine }: { engine: Engine }) {
+    if (!AnimationComponent.getIsAnimating(engine)) {
+      return;
+    }
     OimoPhysicsStrategy.update();
   }
 
