@@ -63,8 +63,8 @@ export class SdApplyWorldMatrixShader extends RaymarchingShaderPart {
       return `
 fn ${this.__shaderFunctionName}(position: vec3f, outTransformedPosition: ptr<function, vec3f>) {
   let transform = get_${this.__variableName}(uniformDrawParameters.materialSid, 0u);
-  let inv=inverseTransform(transform);
-  let tp=(inv*vec4f(position, 1.0)).xyz;
+  let inv = inverseMat4(transform);
+  let tp = (inv * vec4f(position, 1.0)).xyz;
   *outTransformedPosition = tp;
 }
       `;
@@ -73,8 +73,8 @@ fn ${this.__shaderFunctionName}(position: vec3f, outTransformedPosition: ptr<fun
 void ${this.__shaderFunctionName}(in vec3 position, out vec3 outTransformedPosition) {
   ${this.getMaterialSIDForWebGL()}
   mat4 transform = get_${this.__variableName}(materialSID, 0u);
-  mat4 inv=inverseTransform(transform);
-  vec3 tp=(inv*vec4(position,1.)).xyz;
+  mat4 inv = inverse(transform);
+  vec3 tp = (inv * vec4(position, 1.0)).xyz;
   outTransformedPosition = tp;
 }
       `;
