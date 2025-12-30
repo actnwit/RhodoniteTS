@@ -1,4 +1,6 @@
 import type { Size } from '../../../types';
+import type { ISceneGraphEntityMethods } from '../../components';
+import { RaymarchingComponent } from '../../components/Raymarching/RaymarchingComponent';
 import { createRaymarchingEntity } from '../../components/Raymarching/createRaymarchingEntity';
 import { RnObject } from '../../core/RnObject';
 import { ComponentType, PixelFormat, ToneMappingType, type ToneMappingTypeEnum } from '../../definitions';
@@ -1291,9 +1293,27 @@ export class ForwardRenderPipeline extends RnObject {
     const expression = new Expression();
     expression.tryToSetUniqueName('Raymarching', true);
     const renderPass = new RenderPass(this.__engine);
-    renderPass.isDepthTest = false;
-    const raymarchingEntity = createRaymarchingEntity(this.__engine);
-    renderPass.addEntities([raymarchingEntity]);
+    renderPass.toClearDepthBuffer = false;
+    renderPass.isDepthTest = true;
+    const mainFrameBuffer = this.__getMainFrameBuffer();
+    if (mainFrameBuffer.has()) {
+      renderPass.setFramebuffer(mainFrameBuffer.get());
+      if (this.__oFrameBufferMsaa.has()) {
+        renderPass.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
+      }
+    }
+    renderPass.setPreRenderFunction(() => {
+      const raymarchingComponents = this.__engine.componentRepository.getComponentsWithType(
+        RaymarchingComponent
+      ) as RaymarchingComponent[];
+      for (const raymarchingComponent of raymarchingComponents) {
+        const material = renderPass.material;
+        const sceneGraph = raymarchingComponent.entity.tryToGetSceneGraph();
+        if (material != null && sceneGraph != null) {
+          material.setParameter(`worldMatrix_${raymarchingComponent.componentSID}`, sceneGraph.matrixInner);
+        }
+      }
+    });
 
     expression.addRenderPasses([renderPass]);
     renderPass.tryToSetUniqueName('Raymarching', true);
@@ -1338,9 +1358,12 @@ export class ForwardRenderPipeline extends RnObject {
     }
     const frame = this.__oFrame.get();
     frame.clearExpressions();
-
     // initial expression for clearing the frame buffer
     frame.addExpression(this.getInitialExpression()!);
+
+    if (this.__oRaymarchingExpression.has()) {
+      frame.addExpression(this.__oRaymarchingExpression.get());
+    }
 
     if (!this.__isSimple) {
       // depth map generation for shadow mapping
@@ -1429,9 +1452,5 @@ export class ForwardRenderPipeline extends RnObject {
       expression.renderPasses.flatMap(renderPass => renderPass.entities)
     ) as ISceneGraphEntity[];
     this.__entitiesForShadow = entities;
-
-    if (this.__oRaymarchingExpression.has()) {
-      frame.addExpression(this.__oRaymarchingExpression.get());
-    }
   }
 }

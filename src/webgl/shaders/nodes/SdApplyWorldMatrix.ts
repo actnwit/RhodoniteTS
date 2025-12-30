@@ -5,36 +5,28 @@ import type { VertexAttributeEnum } from '../../../foundation/definitions/Vertex
 import type { Engine } from '../../../foundation/system/Engine';
 import type { AttributeNames } from '../../types/CommonTypes';
 import { RaymarchingShaderPart } from '../RaymarchingShaderPart';
+import { StandardShaderPart } from '../StandardShaderPart';
 
 /**
- * OutDistanceShader class provides the out distance function for fragment shaders.
- * This class handles outputting the distance to the surface,
+ * SdApplyWorldMatrixShader class provides the apply world matrix function for fragment shaders.
+ * This class handles applying the world matrix to the position,
  * supporting both WebGL and WebGPU rendering approaches.
  *
- * @extends StandardShaderPart
+ * @extends RaymarchingShaderPart
  */
-export class OutDistanceShader extends RaymarchingShaderPart {
-  static __instance: OutDistanceShader;
-  public static readonly materialElement = ShaderNode.PBRShading;
-
+export class SdApplyWorldMatrixShader extends RaymarchingShaderPart {
+  private __variableName = '';
+  private __shaderFunctionName = '';
   /**
    * Private constructor to enforce singleton pattern.
    */
-  private constructor() {
+  constructor(shaderFunctionName: string) {
     super();
+    this.__shaderFunctionName = shaderFunctionName;
   }
 
-  /**
-   * Gets the singleton instance of DiscardShader.
-   * Creates a new instance if one doesn't exist.
-   *
-   * @returns The singleton DiscardShader instance
-   */
-  static getInstance(): OutDistanceShader {
-    if (!this.__instance) {
-      this.__instance = new OutDistanceShader();
-    }
-    return this.__instance;
+  setVariableName(name: any) {
+    this.__variableName = name;
   }
 
   /**
@@ -69,15 +61,22 @@ export class OutDistanceShader extends RaymarchingShaderPart {
   getPixelShaderDefinitions(engine: Engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
-      fn outDistance(value: f32) {
-        g_distance = value;
-      }
+fn ${this.__shaderFunctionName}(position: vec3f, outTransformedPosition: ptr<function, vec3f>) {
+  let transform = get_${this.__variableName}(uniformDrawParameters.materialSid, 0u);
+  let inv = inverseMat4(transform);
+  let tp = (inv * vec4f(position, 1.0)).xyz;
+  *outTransformedPosition = tp;
+}
       `;
     }
     return `
-      void outDistance(in float value) {
-        g_distance = value;
-      }
+void ${this.__shaderFunctionName}(in vec3 position, out vec3 outTransformedPosition) {
+  ${this.getMaterialSIDForWebGL()}
+  mat4 transform = get_${this.__variableName}(materialSID, 0u);
+  mat4 inv = inverse(transform);
+  vec3 tp = (inv * vec4(position, 1.0)).xyz;
+  outTransformedPosition = tp;
+}
       `;
   }
 

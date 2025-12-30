@@ -9,6 +9,7 @@ import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
 import type { PhysicsStrategy } from '../../physics/PhysicsStrategy';
 import { VRMSpringBonePhysicsStrategy } from '../../physics/VRMSpring/VRMSpringBonePhysicsStrategy';
 import type { Engine } from '../../system/Engine';
+import { AnimationComponent } from '../Animation/AnimationComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
@@ -88,7 +89,10 @@ export class PhysicsComponent extends Component {
    * This is called once per frame for all physics components and handles
    * the overall physics world update using the Oimo physics engine.
    */
-  static common_$logic() {
+  static common_$logic({ engine }: { engine: Engine }) {
+    if (!AnimationComponent.getIsAnimating(engine)) {
+      return;
+    }
     OimoPhysicsStrategy.update();
   }
 
@@ -97,6 +101,9 @@ export class PhysicsComponent extends Component {
    * Called during the logic processing stage to update individual physics entities.
    */
   $logic() {
+    if (!AnimationComponent.getIsAnimating(this.__engine)) {
+      return;
+    }
     this.__strategy?.update(this.__engine.config);
   }
 

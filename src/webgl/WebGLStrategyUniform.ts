@@ -1,5 +1,6 @@
 import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
 import { BlendShapeComponent } from '../foundation/components/BlendShape/BlendShapeComponent';
+import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { LightComponent } from '../foundation/components/Light/LightComponent';
 import type { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
@@ -747,6 +748,18 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       firstTime: true,
       isUniformMode: true,
     });
+
+    let cameraComponent = renderPass.cameraComponent;
+    if (cameraComponent == null) {
+      // if the renderPass has no cameraComponent, try to get the current cameraComponent
+      cameraComponent = this.__engine.componentRepository.getComponent(
+        CameraComponent,
+        CameraComponent.getCurrent(this.__engine)
+      ) as CameraComponent;
+    }
+
+    material._materialContent.setViewInfo(shaderProgram, cameraComponent, false, 0);
+    material._materialContent.setProjection(shaderProgram, cameraComponent, false, 0);
 
     const isVrMainPass = WebGLStrategyCommonMethod.isVrMainPass(this.__engine, renderPass);
     if ((shaderProgram as any).vrState != null && isVrMainPass) {

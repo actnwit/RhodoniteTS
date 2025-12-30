@@ -128,7 +128,7 @@ export class AnimationComponent extends Component {
    */
   $logic() {
     // Skip if animation is globally or locally disabled
-    if (!AnimationComponent.getIsAnimating(this.__engine) || !this.isAnimating) {
+    if (!this.isAnimationEnabled()) {
       return;
     }
 
@@ -158,6 +158,13 @@ export class AnimationComponent extends Component {
 
     // Apply animation calculations (update joint transforms)
     this.__applyAnimation();
+  }
+
+  public isAnimationEnabled() {
+    if (AnimationComponent.getIsAnimating(this.__engine) && this.isAnimating) {
+      return true;
+    }
+    return false;
   }
 
   /**
