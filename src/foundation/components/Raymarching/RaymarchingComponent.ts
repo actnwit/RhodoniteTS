@@ -267,14 +267,14 @@ export class RaymarchingComponent extends Component {
 
     if (sdfShapeType === SdfShapeType.Sphere) {
       const rrnJson = JSON.parse(JSON.stringify(this.__rrnJsonTemplate));
-      rrnJson.nodes[1] = this.__sdSphereNodeJson;
+      rrnJson.nodes[1] = JSON.parse(JSON.stringify(this.__sdSphereNodeJson));
       this.__rrnJson = rrnJson;
     } else if (sdfShapeType === SdfShapeType.Box) {
       const rrnJson = JSON.parse(JSON.stringify(this.__rrnJsonTemplate));
-      rrnJson.nodes[1] = this.__sdBoxNodeJson;
+      rrnJson.nodes[1] = JSON.parse(JSON.stringify(this.__sdBoxNodeJson));
       this.__rrnJson = rrnJson;
     } else {
-      this.__rrnJson = this.__rrnJsonTemplate;
+      this.__rrnJson = JSON.parse(JSON.stringify(this.__rrnJsonTemplate));
     }
   }
 
