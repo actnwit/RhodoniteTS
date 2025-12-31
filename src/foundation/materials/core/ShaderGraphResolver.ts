@@ -93,6 +93,7 @@ import { OutUnionShaderNode } from '../nodes/raymarching/OutUnionShaderNode';
 import { SdApplyTransformShaderNode } from '../nodes/raymarching/SdApplyTransformShaderNode';
 import { SdApplyWorldMatrixShaderNode } from '../nodes/raymarching/SdApplyWorldMatrixShaderNode';
 import { SdBoxShaderNode } from '../nodes/raymarching/SdBoxShaderNode';
+import { SdRepeatShaderNode } from '../nodes/raymarching/SdRepeatShaderNode';
 import { SdSphereShaderNode } from '../nodes/raymarching/SdSphereShaderNode';
 import { AbstractShaderNode, type ShaderNodeUID } from './AbstractShaderNode';
 import type { SocketDefaultValue, ValueTypes } from './Socket';
@@ -1988,6 +1989,20 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'SdBox': {
         const nodeInstance = new SdBoxShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'SdRepeat': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: SdRepeatShaderNode;
+        if (socketName.startsWith('Vector2')) {
+          nodeInstance = new SdRepeatShaderNode(CompositionType.Vec2);
+        } else if (socketName.startsWith('Vector3')) {
+          nodeInstance = new SdRepeatShaderNode(CompositionType.Vec3);
+        } else {
+          Logger.default.error(`SdRepeat node: Unknown socket name: ${socketName}`);
+          break;
+        }
         nodeInstances[node.id] = nodeInstance;
         break;
       }
