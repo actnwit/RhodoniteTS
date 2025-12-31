@@ -1993,7 +1993,7 @@ function constructNodes(json: ShaderNodeJson): {
         break;
       }
       case 'SdRepeat': {
-        const socketName = node.outputs.out1.socket.name;
+        const socketName = node.outputs.outPosition.socket.name;
         let nodeInstance: SdRepeatShaderNode;
         if (socketName.startsWith('Vector2')) {
           nodeInstance = new SdRepeatShaderNode(CompositionType.Vec2);
