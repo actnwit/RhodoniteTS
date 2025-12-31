@@ -97,6 +97,9 @@ import { SdBarYShaderNode } from '../nodes/raymarching/SdBarYShaderNode';
 import { SdBarZShaderNode } from '../nodes/raymarching/SdBarZShaderNode';
 import { SdBoxShaderNode } from '../nodes/raymarching/SdBoxShaderNode';
 import { SdRepeatShaderNode } from '../nodes/raymarching/SdRepeatShaderNode';
+import { SdRepeatXYShaderNode } from '../nodes/raymarching/SdRepeatXYShaderNode';
+import { SdRepeatYZShaderNode } from '../nodes/raymarching/SdRepeatYZShaderNode';
+import { SdRepeatZXShaderNode } from '../nodes/raymarching/SdRepeatZXShaderNode';
 import { SdSphereShaderNode } from '../nodes/raymarching/SdSphereShaderNode';
 import { SdTubeXShaderNode } from '../nodes/raymarching/SdTubeXShaderNode';
 import { SdTubeYShaderNode } from '../nodes/raymarching/SdTubeYShaderNode';
@@ -2039,6 +2042,21 @@ function constructNodes(json: ShaderNodeJson): {
           Logger.default.error(`SdRepeat node: Unknown socket name: ${socketName}`);
           break;
         }
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'SdRepeatXY': {
+        const nodeInstance = new SdRepeatXYShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'SdRepeatYZ': {
+        const nodeInstance = new SdRepeatYZShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'SdRepeatZX': {
+        const nodeInstance = new SdRepeatZXShaderNode();
         nodeInstances[node.id] = nodeInstance;
         break;
       }
