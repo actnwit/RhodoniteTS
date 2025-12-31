@@ -97,8 +97,11 @@ import { SdBarYShaderNode } from '../nodes/raymarching/SdBarYShaderNode';
 import { SdBarZShaderNode } from '../nodes/raymarching/SdBarZShaderNode';
 import { SdBoxShaderNode } from '../nodes/raymarching/SdBoxShaderNode';
 import { SdRepeatShaderNode } from '../nodes/raymarching/SdRepeatShaderNode';
+import { SdRepeatXShaderNode } from '../nodes/raymarching/SdRepeatXShaderNode';
 import { SdRepeatXYShaderNode } from '../nodes/raymarching/SdRepeatXYShaderNode';
+import { SdRepeatYShaderNode } from '../nodes/raymarching/SdRepeatYShaderNode';
 import { SdRepeatYZShaderNode } from '../nodes/raymarching/SdRepeatYZShaderNode';
+import { SdRepeatZShaderNode } from '../nodes/raymarching/SdRepeatZShaderNode';
 import { SdRepeatZXShaderNode } from '../nodes/raymarching/SdRepeatZXShaderNode';
 import { SdSphereShaderNode } from '../nodes/raymarching/SdSphereShaderNode';
 import { SdTubeXShaderNode } from '../nodes/raymarching/SdTubeXShaderNode';
@@ -2045,13 +2048,28 @@ function constructNodes(json: ShaderNodeJson): {
         nodeInstances[node.id] = nodeInstance;
         break;
       }
+      case 'SdRepeatX': {
+        const nodeInstance = new SdRepeatXShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
       case 'SdRepeatXY': {
         const nodeInstance = new SdRepeatXYShaderNode();
         nodeInstances[node.id] = nodeInstance;
         break;
       }
+      case 'SdRepeatY': {
+        const nodeInstance = new SdRepeatYShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
       case 'SdRepeatYZ': {
         const nodeInstance = new SdRepeatYZShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'SdRepeatZ': {
+        const nodeInstance = new SdRepeatZShaderNode();
         nodeInstances[node.id] = nodeInstance;
         break;
       }
