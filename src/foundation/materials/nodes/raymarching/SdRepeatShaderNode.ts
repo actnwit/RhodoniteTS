@@ -58,16 +58,10 @@ export class SdRepeatShaderNode extends AbstractShaderNode {
    */
   getShaderFunctionNameDerivative(engine: Engine) {
     if (engine.engineState.currentProcessApproach === ProcessApproach.WebGPU) {
-      if (
-        this.__inputs[0].compositionType === CompositionType.Vec2 &&
-        this.__inputs[1].compositionType === CompositionType.Vec2
-      ) {
+      if (this.__inputs[0].compositionType === CompositionType.Vec2) {
         return `${this.__shaderFunctionName}Vec2f`;
       }
-      if (
-        this.__inputs[0].compositionType === CompositionType.Vec3 &&
-        this.__inputs[1].compositionType === CompositionType.Vec3
-      ) {
+      if (this.__inputs[0].compositionType === CompositionType.Vec3) {
         return `${this.__shaderFunctionName}Vec3f`;
       }
       throw new Error('Not implemented');
