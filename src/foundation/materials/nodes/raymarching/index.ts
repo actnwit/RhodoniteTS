@@ -11,3 +11,6 @@ export * from './SdBarZShaderNode';
 export * from './SdBoxShaderNode';
 export * from './SdRepeatShaderNode';
 export * from './SdSphereShaderNode';
+export * from './SdTubeXShaderNode';
+export * from './SdTubeYShaderNode';
+export * from './SdTubeZShaderNode';

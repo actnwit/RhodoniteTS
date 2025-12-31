@@ -98,6 +98,9 @@ import { SdBarZShaderNode } from '../nodes/raymarching/SdBarZShaderNode';
 import { SdBoxShaderNode } from '../nodes/raymarching/SdBoxShaderNode';
 import { SdRepeatShaderNode } from '../nodes/raymarching/SdRepeatShaderNode';
 import { SdSphereShaderNode } from '../nodes/raymarching/SdSphereShaderNode';
+import { SdTubeXShaderNode } from '../nodes/raymarching/SdTubeXShaderNode';
+import { SdTubeYShaderNode } from '../nodes/raymarching/SdTubeYShaderNode';
+import { SdTubeZShaderNode } from '../nodes/raymarching/SdTubeZShaderNode';
 import { AbstractShaderNode, type ShaderNodeUID } from './AbstractShaderNode';
 import type { SocketDefaultValue, ValueTypes } from './Socket';
 
@@ -2002,6 +2005,21 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'SdBarZ': {
         const nodeInstance = new SdBarZShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'SdTubeX': {
+        const nodeInstance = new SdTubeXShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'SdTubeY': {
+        const nodeInstance = new SdTubeYShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'SdTubeZ': {
+        const nodeInstance = new SdTubeZShaderNode();
         nodeInstances[node.id] = nodeInstance;
         break;
       }

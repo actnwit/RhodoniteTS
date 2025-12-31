@@ -1,0 +1,3 @@
+fn sdTubeY(position: vec3f, width: f32, outDistance: ptr<function, f32>) {
+  *outDistance = length(position.xz) - width;
+}
