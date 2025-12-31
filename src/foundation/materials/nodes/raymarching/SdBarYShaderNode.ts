@@ -1,5 +1,5 @@
-import SdBarXShaderityObjectGLSL from '../../../../webgl/shaderity_shaders/nodes/raymarching/SdBarX.glsl';
-import SdBarXShaderityObjectWGSL from '../../../../webgpu/shaderity_shaders/nodes/raymarching/SdBarX.wgsl';
+import SdBarYShaderityObjectGLSL from '../../../../webgl/shaderity_shaders/nodes/raymarching/SdBarY.glsl';
+import SdBarYShaderityObjectWGSL from '../../../../webgpu/shaderity_shaders/nodes/raymarching/SdBarY.wgsl';
 import { ComponentType } from '../../../definitions/ComponentType';
 import { CompositionType } from '../../../definitions/CompositionType';
 import { Scalar } from '../../../math/Scalar';
@@ -8,23 +8,23 @@ import { AbstractShaderNode } from '../../core/AbstractShaderNode';
 import { Socket } from '../../core/Socket';
 
 /**
- * A shader node that computes the signed distance function of a bar along the X axis.
- * This node accepts a position and outputs the signed distance to the bar along the X axis.
+ * A shader node that computes the signed distance function of a bar along the Y axis.
+ * This node accepts a position and outputs the signed distance to the bar along the Y axis.
  *
  * @example
  * ```typescript
- * // Create a bar node along the X axis
- * const barNode = new SdBarXShaderNode();
+ * // Create a bar node along the Y axis
+ * const barNode = new SdBarYShaderNode();
  * ```
  */
-export class SdBarXShaderNode extends AbstractShaderNode {
+export class SdBarYShaderNode extends AbstractShaderNode {
   /**
-   * Creates a new SdBarXShaderNode instance.
+   * Creates a new SdBarYShaderNode instance.
    */
   constructor() {
-    super('sdBarX', {
-      codeGLSL: SdBarXShaderityObjectGLSL.code,
-      codeWGSL: SdBarXShaderityObjectWGSL.code,
+    super('sdBarY', {
+      codeGLSL: SdBarYShaderityObjectGLSL.code,
+      codeWGSL: SdBarYShaderityObjectWGSL.code,
     });
 
     this.setShaderStage('Fragment');

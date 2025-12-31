@@ -6,6 +6,7 @@ export * from './OutUnionShaderNode';
 export * from './SdApplyTransformShaderNode';
 export * from './SdApplyWorldMatrixShaderNode';
 export * from './SdBarXShaderNode';
+export * from './SdBarYShaderNode';
 export * from './SdBoxShaderNode';
 export * from './SdRepeatShaderNode';
 export * from './SdSphereShaderNode';

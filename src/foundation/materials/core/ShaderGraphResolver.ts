@@ -93,6 +93,7 @@ import { OutUnionShaderNode } from '../nodes/raymarching/OutUnionShaderNode';
 import { SdApplyTransformShaderNode } from '../nodes/raymarching/SdApplyTransformShaderNode';
 import { SdApplyWorldMatrixShaderNode } from '../nodes/raymarching/SdApplyWorldMatrixShaderNode';
 import { SdBarXShaderNode } from '../nodes/raymarching/SdBarXShaderNode';
+import { SdBarYShaderNode } from '../nodes/raymarching/SdBarYShaderNode';
 import { SdBoxShaderNode } from '../nodes/raymarching/SdBoxShaderNode';
 import { SdRepeatShaderNode } from '../nodes/raymarching/SdRepeatShaderNode';
 import { SdSphereShaderNode } from '../nodes/raymarching/SdSphereShaderNode';
@@ -1990,6 +1991,11 @@ function constructNodes(json: ShaderNodeJson): {
       }
       case 'SdBarX': {
         const nodeInstance = new SdBarXShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'SdBarY': {
+        const nodeInstance = new SdBarYShaderNode();
         nodeInstances[node.id] = nodeInstance;
         break;
       }
