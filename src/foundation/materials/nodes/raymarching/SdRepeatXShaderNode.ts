@@ -29,7 +29,7 @@ export class SdRepeatXShaderNode extends AbstractShaderNode {
     this.setShaderStage('Fragment');
 
     this.__inputs.push(new Socket('position', CompositionType.Vec3, ComponentType.Float));
-    this.__inputs.push(new Socket('interval', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(0.0)));
+    this.__inputs.push(new Socket('interval', CompositionType.Scalar, ComponentType.Float, Scalar.fromCopyNumber(1.0)));
     this.__outputs.push(new Socket('outPosition', CompositionType.Vec3, ComponentType.Float));
   }
 
