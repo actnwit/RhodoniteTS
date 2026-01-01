@@ -1,4 +1,4 @@
-void opSubtraction(in float d1, in float minus_d2, out float outValue) {
-  outValue = max(d1, -minus_d2);
+void opSubtraction(in float base, in float subtractor, out float outValue) {
+  outValue = max(base, -subtractor);
 }
 
