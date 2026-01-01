@@ -84,15 +84,15 @@ declare function _fromStringCaseSensitively({ typeList, str, }: {
 }): EnumIO | undefined;
 
 type BoneDataTypeEnum = EnumIO;
-declare function from$u(index: number): BoneDataTypeEnum;
-declare function fromString$k(str: string): BoneDataTypeEnum;
+declare function from$w(index: number): BoneDataTypeEnum;
+declare function fromString$m(str: string): BoneDataTypeEnum;
 declare const BoneDataType: Readonly<{
     Mat43x1: EnumIO;
     Vec4x2: EnumIO;
     Vec4x2Old: EnumIO;
     Vec4x1: EnumIO;
-    from: typeof from$u;
-    fromString: typeof fromString$k;
+    from: typeof from$w;
+    fromString: typeof fromString$m;
 }>;
 
 /**
@@ -328,7 +328,7 @@ declare class Config {
 interface RenderBufferTargetEnum extends EnumIO {
     webGLConstantValue(): number;
 }
-declare function from$t(index: number): RenderBufferTargetEnum;
+declare function from$v(index: number): RenderBufferTargetEnum;
 declare const RenderBufferTarget: Readonly<{
     None: RenderBufferTargetEnum;
     Back: RenderBufferTargetEnum;
@@ -348,7 +348,7 @@ declare const RenderBufferTarget: Readonly<{
     ColorAttachment13: RenderBufferTargetEnum;
     ColorAttachment14: RenderBufferTargetEnum;
     ColorAttachment15: RenderBufferTargetEnum;
-    from: typeof from$t;
+    from: typeof from$v;
 }>;
 
 /**
@@ -4377,7 +4377,7 @@ declare const ConstVector4_0_0_0_1: Vector4;
 declare const ConstVector4_0_0_0_0: Vector4;
 
 type WebGLExtensionEnum = EnumIO;
-declare function from$s({ index }: {
+declare function from$u({ index }: {
     index: number;
 }): WebGLExtensionEnum;
 declare const WebGLExtension: Readonly<{
@@ -4407,7 +4407,7 @@ declare const WebGLExtension: Readonly<{
     OvrMultiview2: EnumIO;
     GMAN_WEBGL_MEMORY: EnumIO;
     ClipControl: EnumIO;
-    from: typeof from$s;
+    from: typeof from$u;
 }>;
 
 interface WEBGL_compressed_texture_etc {
@@ -4769,8 +4769,8 @@ declare const Mat2: CompositionTypeClass<"MAT2">;
 declare const Mat3: CompositionTypeClass<"MAT3">;
 declare const Mat4: CompositionTypeClass<"MAT4">;
 type VectorCompositionTypes = typeof Scalar$1 | typeof Vec2 | typeof Vec3 | typeof Vec4;
-declare function from$r(index: number): CompositionTypeEnum;
-declare function fromString$j(str: string): CompositionTypeEnum;
+declare function from$t(index: number): CompositionTypeEnum;
+declare function fromString$l(str: string): CompositionTypeEnum;
 declare function vectorFrom(componentN: number): CompositionTypeEnum;
 declare function fromGlslString$1(str_: string): CompositionTypeEnum;
 declare function fromWgslString$1(str_: string): CompositionTypeEnum;
@@ -4815,8 +4815,8 @@ declare const CompositionType: Readonly<{
     DiffuseTransmissionProps: CompositionTypeClass<"DIFFUSE_TRANSMISSION_PROPS">;
     OcclusionProps: CompositionTypeClass<"OCCLUSION_PROPS">;
     EmissiveProps: CompositionTypeClass<"EMISSIVE_PROPS">;
-    from: typeof from$r;
-    fromString: typeof fromString$j;
+    from: typeof from$t;
+    fromString: typeof fromString$l;
     vectorFrom: typeof vectorFrom;
     fromGlslString: typeof fromGlslString$1;
     fromWgslString: typeof fromWgslString$1;
@@ -4831,15 +4831,15 @@ declare const CompositionType: Readonly<{
 }>;
 
 type ShaderTypeEnum = EnumIO;
-declare function from$q(index: number): ShaderTypeEnum;
-declare function fromString$i(str: string): ShaderTypeEnum;
+declare function from$s(index: number): ShaderTypeEnum;
+declare function fromString$k(str: string): ShaderTypeEnum;
 declare const ShaderType: Readonly<{
     VertexShader: EnumIO;
     PixelShader: EnumIO;
     VertexAndPixelShader: EnumIO;
     ComputeShader: EnumIO;
-    from: typeof from$q;
-    fromString: typeof fromString$i;
+    from: typeof from$s;
+    fromString: typeof fromString$k;
 }>;
 
 type ShaderSemanticsInfo = {
@@ -4871,8 +4871,8 @@ interface CompressionTextureTypeEnum extends EnumIO {
     webgpu?: string;
     blockInfo?: BlockInfo;
 }
-declare function from$p(index: number): CompressionTextureTypeEnum;
-declare function fromString$h(str: string): CompressionTextureTypeEnum;
+declare function from$r(index: number): CompressionTextureTypeEnum;
+declare function fromString$j(str: string): CompressionTextureTypeEnum;
 declare const CompressionTextureType: Readonly<{
     ASTC_RGBA_4x4: CompressionTextureTypeEnum;
     ASTC_RGBA_5x4: CompressionTextureTypeEnum;
@@ -4913,13 +4913,13 @@ declare const CompressionTextureType: Readonly<{
     ETC2_RGB8: CompressionTextureTypeEnum;
     ETC1_RGB: CompressionTextureTypeEnum;
     RGBA8_EXT: CompressionTextureTypeEnum;
-    from: typeof from$p;
-    fromString: typeof fromString$h;
+    from: typeof from$r;
+    fromString: typeof fromString$j;
 }>;
 
 type HdriFormatEnum = EnumIO;
-declare function from$o(index: number): HdriFormatEnum;
-declare function fromString$g(str: string): HdriFormatEnum;
+declare function from$q(index: number): HdriFormatEnum;
+declare function fromString$i(str: string): HdriFormatEnum;
 declare const HdriFormat: Readonly<{
     LDR_SRGB: EnumIO;
     LDR_LINEAR: EnumIO;
@@ -4927,13 +4927,13 @@ declare const HdriFormat: Readonly<{
     RGBE_PNG: EnumIO;
     RGB9_E5_PNG: EnumIO;
     OpenEXR: EnumIO;
-    from: typeof from$o;
-    fromString: typeof fromString$g;
+    from: typeof from$q;
+    fromString: typeof fromString$i;
 }>;
 
 type PixelFormatEnum = EnumIO;
 declare function getCompositionNumFromPixelFormat(pixelFormat: PixelFormatEnum): number;
-declare function from$n(index: number): PixelFormatEnum;
+declare function from$p(index: number): PixelFormatEnum;
 declare const PixelFormat: Readonly<{
     DepthComponent: EnumIO;
     DepthStencil: EnumIO;
@@ -4943,7 +4943,7 @@ declare const PixelFormat: Readonly<{
     RGBA: EnumIO;
     Luminance: EnumIO;
     LuminanceAlpha: EnumIO;
-    from: typeof from$n;
+    from: typeof from$p;
     getCompositionNumFromPixelFormat: typeof getCompositionNumFromPixelFormat;
 }>;
 
@@ -4955,7 +4955,7 @@ declare function getPixelFormatAndComponentTypeFromTextureFormat(internalFormat:
     format: EnumIO;
     type: ComponentTypeEnum;
 };
-declare function from$m(index: number): TextureFormatEnum;
+declare function from$o(index: number): TextureFormatEnum;
 declare const TextureFormat$1: Readonly<{
     RGB8: TextureFormatEnum;
     RGBA8: TextureFormatEnum;
@@ -4974,13 +4974,13 @@ declare const TextureFormat$1: Readonly<{
     Depth32FStencil8: TextureFormatEnum;
     getPixelFormatFromTextureFormat: typeof getPixelFormatFromTextureFormat;
     getPixelFormatAndComponentTypeFromTextureFormat: typeof getPixelFormatAndComponentTypeFromTextureFormat;
-    from: typeof from$m;
+    from: typeof from$o;
 }>;
 
 interface TextureParameterEnum extends EnumIO {
     webgpu: string;
 }
-declare function from$l(index: number): TextureParameterEnum;
+declare function from$n(index: number): TextureParameterEnum;
 declare const TextureParameter: Readonly<{
     Nearest: TextureParameterEnum;
     Linear: TextureParameterEnum;
@@ -5000,7 +5000,7 @@ declare const TextureParameter: Readonly<{
     Repeat: TextureParameterEnum;
     ClampToEdge: TextureParameterEnum;
     MirroredRepeat: TextureParameterEnum;
-    from: typeof from$l;
+    from: typeof from$n;
 }>;
 
 type ComponentChar = 'X' | 'Y' | 'Z' | 'W';
@@ -5059,8 +5059,8 @@ declare const Color0: VertexAttributeEnum;
 declare const Joints0: VertexAttributeEnum;
 declare const Weights0: VertexAttributeEnum;
 declare function isInstanceOfVertexAttributeClass(obj: unknown): obj is VertexAttributeClass;
-declare function from$k(index: number): VertexAttributeEnum;
-declare function fromString$f(str: string): VertexAttributeEnum;
+declare function from$m(index: number): VertexAttributeEnum;
+declare function fromString$h(str: string): VertexAttributeEnum;
 type Gltf2VertexAttributeEnums = typeof Position | typeof Color0 | typeof Normal | typeof Tangent | typeof Texcoord0 | typeof Texcoord1 | typeof Joints0 | typeof Weights0;
 declare function toVertexAttributeSemanticJoinedStringAsGltfStyle(attribute: Gltf2VertexAttributeEnums): VertexAttributeSemanticsJoinedString;
 declare function toAttributeSlotFromJoinedString(str: VertexAttributeSemanticsJoinedString): Index;
@@ -5084,8 +5084,8 @@ declare const VertexAttribute: Readonly<{
     toVertexAttributeSemanticJoinedStringAsGltfStyle: typeof toVertexAttributeSemanticJoinedStringAsGltfStyle;
     toAttributeSlotFromJoinedString: typeof toAttributeSlotFromJoinedString;
     toVectorComponentN: typeof toVectorComponentN;
-    from: typeof from$k;
-    fromString: typeof fromString$f;
+    from: typeof from$m;
+    fromString: typeof fromString$h;
 }>;
 
 /**
@@ -5301,7 +5301,7 @@ declare class RnObject implements IRnObject {
 interface PrimitiveModeEnum extends EnumIO {
     getWebGPUTypeStr(): string;
 }
-declare function from$j(index: number): PrimitiveModeEnum | undefined;
+declare function from$l(index: number): PrimitiveModeEnum | undefined;
 declare const PrimitiveMode: Readonly<{
     Unknown: PrimitiveModeEnum;
     Points: PrimitiveModeEnum;
@@ -5311,20 +5311,20 @@ declare const PrimitiveMode: Readonly<{
     Triangles: PrimitiveModeEnum;
     TriangleStrip: PrimitiveModeEnum;
     TriangleFan: PrimitiveModeEnum;
-    from: typeof from$j;
+    from: typeof from$l;
 }>;
 
 interface AnimationInterpolationEnum extends EnumIO {
     GltfString: Gltf2AnimationSamplerInterpolation;
 }
-declare function from$i(index: number): AnimationInterpolationEnum;
-declare function fromString$e(str: string): AnimationInterpolationEnum;
+declare function from$k(index: number): AnimationInterpolationEnum;
+declare function fromString$g(str: string): AnimationInterpolationEnum;
 declare const AnimationInterpolation: Readonly<{
     Linear: AnimationInterpolationEnum;
     Step: AnimationInterpolationEnum;
     CubicSpline: AnimationInterpolationEnum;
-    from: typeof from$i;
-    fromString: typeof fromString$e;
+    from: typeof from$k;
+    fromString: typeof fromString$g;
 }>;
 
 /**
@@ -7255,21 +7255,21 @@ type MutableVector4f = MutableVector4;
 interface AlphaModeEnum extends EnumIO {
     toGltfString(): string;
 }
-declare function from$h(index: number): AlphaModeEnum | undefined;
-declare function fromString$d(str: string): AlphaModeEnum | undefined;
+declare function from$j(index: number): AlphaModeEnum | undefined;
+declare function fromString$f(str: string): AlphaModeEnum | undefined;
 declare function fromGlTFString(str: string): AlphaModeEnum | undefined;
 declare const AlphaMode: Readonly<{
     Opaque: AlphaModeEnum;
     Mask: AlphaModeEnum;
     Blend: AlphaModeEnum;
-    from: typeof from$h;
-    fromString: typeof fromString$d;
+    from: typeof from$j;
+    fromString: typeof fromString$f;
     fromGlTFString: typeof fromGlTFString;
 }>;
 
 type AnimationAttributeEnum = EnumIO;
-declare function from$g(index: number): AnimationAttributeEnum;
-declare function fromString$c(str: string): AnimationAttributeEnum;
+declare function from$i(index: number): AnimationAttributeEnum;
+declare function fromString$e(str: string): AnimationAttributeEnum;
 declare const AnimationAttribute: Readonly<{
     Quaternion: EnumIO;
     Translate: EnumIO;
@@ -7281,13 +7281,13 @@ declare const AnimationAttribute: Readonly<{
     Vector2: EnumIO;
     Scalar: EnumIO;
     VectorN: EnumIO;
-    from: typeof from$g;
-    fromString: typeof fromString$c;
+    from: typeof from$i;
+    fromString: typeof fromString$e;
 }>;
 
 type BasisCompressionTypeEnum = EnumIO;
-declare function from$f(index: number): BasisCompressionTypeEnum;
-declare function fromString$b(str: string): BasisCompressionTypeEnum;
+declare function from$h(index: number): BasisCompressionTypeEnum;
+declare function fromString$d(str: string): BasisCompressionTypeEnum;
 declare const BasisCompressionType: Readonly<{
     ETC1: EnumIO;
     ETC2: EnumIO;
@@ -7306,46 +7306,46 @@ declare const BasisCompressionType: Readonly<{
     RGB565: EnumIO;
     BGR565: EnumIO;
     RGBA4444: EnumIO;
-    from: typeof from$f;
-    fromString: typeof fromString$b;
+    from: typeof from$h;
+    fromString: typeof fromString$d;
 }>;
 
 type BufferUseEnum = EnumIO;
-declare function from$e(index: number): BufferUseEnum;
-declare function fromString$a(str: string): BufferUseEnum;
+declare function from$g(index: number): BufferUseEnum;
+declare function fromString$c(str: string): BufferUseEnum;
 declare const BufferUse: Readonly<{
     GPUInstanceData: EnumIO;
     GPUVertexData: EnumIO;
     UBOGeneric: EnumIO;
     CPUGeneric: EnumIO;
-    from: typeof from$e;
-    fromString: typeof fromString$a;
+    from: typeof from$g;
+    fromString: typeof fromString$c;
 }>;
 
 type CameraControllerTypeEnum = EnumIO;
-declare function from$d(index: number): CameraControllerTypeEnum;
-declare function fromString$9(str: string): CameraControllerTypeEnum;
+declare function from$f(index: number): CameraControllerTypeEnum;
+declare function fromString$b(str: string): CameraControllerTypeEnum;
 declare const CameraControllerType: Readonly<{
     Orbit: EnumIO;
     WalkThrough: EnumIO;
-    from: typeof from$d;
-    fromString: typeof fromString$9;
+    from: typeof from$f;
+    fromString: typeof fromString$b;
 }>;
 
 type CameraTypeEnum = EnumIO;
-declare function from$c(index: number): CameraTypeEnum;
-declare function fromString$8(str: string): CameraTypeEnum;
+declare function from$e(index: number): CameraTypeEnum;
+declare function fromString$a(str: string): CameraTypeEnum;
 declare const CameraType: Readonly<{
     Perspective: EnumIO;
     Orthographic: EnumIO;
     Frustum: EnumIO;
-    from: typeof from$c;
-    fromString: typeof fromString$8;
+    from: typeof from$e;
+    fromString: typeof fromString$a;
 }>;
 
 type FileTypeEnum = EnumIO;
-declare function from$b(index: number): FileTypeEnum;
-declare function fromString$7(str: string): FileTypeEnum;
+declare function from$d(index: number): FileTypeEnum;
+declare function fromString$9(str: string): FileTypeEnum;
 declare function isGltfOrGlb(file: FileTypeEnum): boolean;
 declare const FileType: Readonly<{
     Unknown: EnumIO;
@@ -7354,21 +7354,31 @@ declare const FileType: Readonly<{
     VRM: EnumIO;
     Draco: EnumIO;
     EffekseerEffect: EnumIO;
-    from: typeof from$b;
-    fromString: typeof fromString$7;
+    from: typeof from$d;
+    fromString: typeof fromString$9;
     isGltfOrGlb: typeof isGltfOrGlb;
 }>;
 
 type LightTypeEnum = EnumIO;
-declare function from$a(index: number): LightTypeEnum;
-declare function fromString$6(str: string): LightTypeEnum;
+declare function from$c(index: number): LightTypeEnum;
+declare function fromString$8(str: string): LightTypeEnum;
 declare const LightType: Readonly<{
     Point: EnumIO;
     Directional: EnumIO;
     Spot: EnumIO;
     Ambient: EnumIO;
-    from: typeof from$a;
-    fromString: typeof fromString$6;
+    from: typeof from$c;
+    fromString: typeof fromString$8;
+}>;
+
+type PhysicsShapeTypeEnum = EnumIO;
+declare function from$b(index: number): PhysicsShapeTypeEnum;
+declare function fromString$7(str: string): PhysicsShapeTypeEnum;
+declare const PhysicsShape: Readonly<{
+    Sphere: EnumIO;
+    Box: EnumIO;
+    from: typeof from$b;
+    fromString: typeof fromString$7;
 }>;
 
 declare class ProcessApproachClass extends EnumClass implements EnumIO {
@@ -7379,7 +7389,7 @@ declare class ProcessApproachClass extends EnumClass implements EnumIO {
     get webGLVersion(): 2 | 0;
 }
 type ProcessApproachEnum = ProcessApproachClass;
-declare function from$9(index: number): ProcessApproachEnum | undefined;
+declare function from$a(index: number): ProcessApproachEnum | undefined;
 declare const ProcessApproach: Readonly<{
     isDataTextureApproach: (processApproach: ProcessApproachEnum) => boolean;
     isUniformApproach: (processApproach: ProcessApproachEnum) => boolean;
@@ -7388,14 +7398,14 @@ declare const ProcessApproach: Readonly<{
     Uniform: ProcessApproachClass;
     DataTexture: ProcessApproachClass;
     WebGPU: ProcessApproachClass;
-    from: typeof from$9;
+    from: typeof from$a;
     isWebGL2Approach: (processApproach: ProcessApproachEnum) => boolean;
 }>;
 
 interface ProcessStageEnum extends EnumIO {
     methodName: string;
 }
-declare function from$8(index: number): ProcessStageEnum;
+declare function from$9(index: number): ProcessStageEnum;
 declare const ProcessStage: Readonly<{
     Unknown: ProcessStageEnum;
     Create: ProcessStageEnum;
@@ -7406,7 +7416,18 @@ declare const ProcessStage: Readonly<{
     Render: ProcessStageEnum;
     Unmount: ProcessStageEnum;
     Discard: ProcessStageEnum;
+    from: typeof from$9;
+}>;
+
+type SdfShapeTypeEnum = EnumIO;
+declare function from$8(index: number): SdfShapeTypeEnum;
+declare function fromString$6(str: string): SdfShapeTypeEnum;
+declare const SdfShapeType: Readonly<{
+    Custom: EnumIO;
+    Sphere: EnumIO;
+    Box: EnumIO;
     from: typeof from$8;
+    fromString: typeof fromString$6;
 }>;
 
 type ShaderNodeEnum = EnumIO;
@@ -18903,6 +18924,47 @@ interface ShaderNodeJsonConnection {
     };
 }
 
+interface NodeJSONNodeInput {
+    id: string;
+    label: string;
+    socket: {
+        name: string;
+    };
+}
+interface NodeJSONNodeOutput {
+    id: string;
+    label: string;
+    socket: {
+        name: string;
+    };
+}
+interface NodeJSONNode {
+    id: string;
+    name: string;
+    inputs: Record<string, NodeJSONNodeInput>;
+    outputs: Record<string, NodeJSONNodeOutput>;
+    position: {
+        x: number;
+        y: number;
+    };
+    controls: Record<string, any>;
+}
+interface NodeJSONConnection {
+    id: string;
+    from: {
+        id: string;
+        portName: string;
+    };
+    to: {
+        id: string;
+        portName: string;
+    };
+}
+interface NodeJSON {
+    nodes: NodeJSONNode[];
+    connections: NodeJSONConnection[];
+}
+
 interface KHR_interactivity_Type {
     signature: 'bool' | 'custom' | 'float' | 'float2' | 'float3' | 'float4' | 'float2x2' | 'float3x3' | 'float4x4' | 'int';
 }
@@ -19433,7 +19495,7 @@ declare class MeshRendererComponent extends Component {
      * Gets the component type ID for MeshRendererComponent.
      * @returns The component type ID
      */
-    static get componentTID(): ComponentTID;
+    static get componentTID(): 6;
     /**
      * Gets the component type ID for this instance.
      * @returns The component type ID
@@ -19646,7 +19708,7 @@ declare class LightComponent extends Component {
      *
      * @returns The component type identifier
      */
-    static get componentTID(): ComponentTID;
+    static get componentTID(): 7;
     /**
      * Gets the component type identifier for this instance.
      *
@@ -19871,7 +19933,7 @@ declare class BlendShapeComponent extends Component {
      * This is a static method that returns the component type ID.
      * @returns The component type identifier
      */
-    static get componentTID(): ComponentTID;
+    static get componentTID(): 11;
     /**
      * Gets the component type identifier for this BlendShapeComponent instance.
      * @returns The component type identifier
@@ -19991,7 +20053,7 @@ declare class SkeletalComponent extends Component {
      *
      * @returns The component type identifier
      */
-    static get componentTID(): ComponentTID;
+    static get componentTID(): 10;
     /**
      * Gets the component type identifier for this instance.
      *
@@ -20413,7 +20475,7 @@ declare abstract class AbstractMaterialContent extends RnObject {
      * @param isVr - Whether rendering in VR mode
      * @param displayIdx - The display index for VR rendering
      */
-    protected setViewInfo(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, isVr: boolean, displayIdx: number): void;
+    setViewInfo(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, isVr: boolean, displayIdx: number): void;
     /**
      * Sets the projection matrix uniform in the shader.
      * @param shaderProgram - The WebGL shader program
@@ -20421,7 +20483,7 @@ declare abstract class AbstractMaterialContent extends RnObject {
      * @param isVr - Whether rendering in VR mode
      * @param displayIdx - The display index for VR rendering
      */
-    protected setProjection(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, isVr: boolean, displayIdx: number): void;
+    setProjection(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, isVr: boolean, displayIdx: number): void;
     /**
      * Sets skeletal animation uniforms in the shader.
      * @param shaderProgram - The WebGL shader program
@@ -21420,6 +21482,14 @@ interface NodeBasedMaterialResult {
     hasClassicShaderNode: boolean;
 }
 /**
+ *
+ * Creates a node-based raymarching custom material.
+ * @param engine
+ * @param shaderNodeJson
+ * @returns Object containing the material and shader node flags, or null if generation fails
+ */
+declare function createNodeBasedRaymarchingCustomMaterial(engine: Engine, shaderNodeJson: ShaderNodeJson, currentMaterial?: Material): NodeBasedMaterialResult | undefined;
+/**
  * Creates or reuses a custom material from a shader node JSON graph.
  * This function handles shader code generation, texture semantics setup,
  * PBR/Classic shader detection, and IBL semantics for PBR materials.
@@ -21431,7 +21501,8 @@ interface NodeBasedMaterialResult {
  * @param options.maxInstancesNumber - Maximum number of material instances
  * @returns Object containing the material and shader node flags, or null if generation fails
  */
-declare function createNodeBasedCustomMaterial(engine: Engine, shaderNodeJson: ShaderNodeJson, options?: PbrUberMaterialOptions, currentMaterial?: Material): NodeBasedMaterialResult | null;
+declare function createNodeBasedCustomMaterial(engine: Engine, shaderNodeJson: ShaderNodeJson, options?: PbrUberMaterialOptions, currentMaterial?: Material): NodeBasedMaterialResult | undefined;
+declare function collectRrnJson(engine: Engine): NodeJSON;
 /**
  * Changes the material assigned to a specific primitive on an entity.
  * This function updates the primitive's material and triggers necessary render state updates.
@@ -21448,6 +21519,7 @@ declare const MaterialHelper: Readonly<{
     recreateMaterial: typeof recreateMaterial;
     reuseOrRecreateCustomMaterial: typeof reuseOrRecreateCustomMaterial;
     createNodeBasedCustomMaterial: typeof createNodeBasedCustomMaterial;
+    createNodeBasedRaymarchingCustomMaterial: typeof createNodeBasedRaymarchingCustomMaterial;
     createClassicUberMaterial: typeof createClassicUberMaterial;
     createDepthMomentEncodeMaterial: typeof createDepthMomentEncodeMaterial;
     createParaboloidDepthMomentEncodeMaterial: typeof createParaboloidDepthMomentEncodeMaterial;
@@ -21474,6 +21546,7 @@ declare const MaterialHelper: Readonly<{
     createColorGradingUsingLUTsMaterial: typeof createColorGradingUsingLUTsMaterial;
     createMatCapMaterial: typeof createMatCapMaterial;
     changeMaterial: typeof changeMaterial;
+    collectRrnJson: typeof collectRrnJson;
 }>;
 
 declare abstract class IShape extends Primitive {
@@ -21518,8 +21591,6 @@ declare class Axis extends IShape {
      */
     generate(_desc: AxisDescriptor): void;
 }
-
-type PhysicsShapeTypeEnum = EnumIO;
 
 /**
  * Symbol for getting a 1-component vector from an array
@@ -22503,7 +22574,7 @@ declare class MathClassUtil {
      * @param element - Array of numbers to convert
      * @returns Matrix44, Matrix33, Vector4, Vector3, or Vector2 instance based on array length, or the original element if not an array
      */
-    static arrayToVectorOrMatrix(element: Array<number>): Vector4 | Vector3 | Matrix44 | Matrix33 | Vector2;
+    static arrayToVectorOrMatrix(element: Array<number>): Vector4 | Vector3 | Matrix44 | Vector2 | Matrix33;
     /**
      * Gets the immutable value class constructor for a given composition type.
      * @param compositionType - The composition type enum value
@@ -27482,6 +27553,7 @@ declare class AnimationComponent extends Component {
      * This significantly reduces CPU overhead when many VRM models share the same skeleton.
      */
     $logic(): void;
+    isAnimationEnabled(): boolean;
     /**
      * Sets the animation blending ratio and applies the animation.
      * @param value - The blending ratio value between 0 and 1
@@ -27612,7 +27684,7 @@ declare class AnimationComponent extends Component {
      * Gets the component type identifier for AnimationComponent.
      * @returns The component type identifier
      */
-    static get componentTID(): ComponentTID;
+    static get componentTID(): 2;
     /**
      * Gets the component type identifier for this instance.
      * @returns The component type identifier
@@ -27768,7 +27840,7 @@ declare class AnimationStateComponent extends Component {
      * Gets the component type identifier for AnimationStateComponent.
      * @returns The component type ID for AnimationStateComponent
      */
-    static get componentTID(): ComponentTID;
+    static get componentTID(): 1;
     /**
      * Gets the component type identifier for this component instance.
      * @returns The component type ID for AnimationStateComponent
@@ -27920,7 +27992,7 @@ declare class CameraControllerComponent extends Component {
      *
      * @returns The component type identifier
      */
-    static get componentTID(): ComponentTID;
+    static get componentTID(): 8;
     /**
      * Gets the component type identifier for this instance.
      *
@@ -28009,7 +28081,7 @@ declare class ConstraintComponent extends Component {
      *
      * @returns The component type ID for constraint components
      */
-    static get componentTID(): ComponentTID;
+    static get componentTID(): 15;
     /**
      * Gets the component type identifier for this component instance.
      *
@@ -28759,6 +28831,68 @@ declare function createMeshEntity(engine: Engine): IMeshEntity;
 
 declare function createPhysicsEntity(engine: Engine): IPhysicsEntity;
 
+/**
+ * RaymarchingComponent is a component that manages raymarching for an entity.
+ * This component handles the raymarching of the entity.
+ */
+declare class RaymarchingComponent extends Component {
+    private __rrnJson;
+    private __sdSphereNodeJson;
+    private __sdBoxNodeJson;
+    private __rrnJsonTemplate;
+    private __sdfShapeType;
+    constructor(engine: Engine, entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean);
+    /**
+     * Gets the component type identifier for RaymarchingComponent.
+     * @returns The component type ID for RaymarchingComponent
+     */
+    static get componentTID(): 16;
+    /**
+     * Gets the component type identifier for this RaymarchingComponent instance.
+     * @returns The component type ID for RaymarchingComponent
+     */
+    get componentTID(): ComponentTID;
+    static common_$render(): boolean;
+    /**
+     * Sets the RRN JSON data for the RaymarchingComponent.
+     * @param rrnJson - The RRN JSON data
+     */
+    set rrnJson(rrnJson: NodeJSON);
+    /**
+     * Gets the RRN JSON data for the RaymarchingComponent.
+     * @returns The RRN JSON data
+     */
+    get rrnJson(): NodeJSON;
+    /**
+     * Gets the SDF shape type for the RaymarchingComponent.
+     * @returns The SDF shape type
+     */
+    get sdfShapeType(): SdfShapeTypeEnum;
+    /**
+     * Sets the SDF shape type for the RaymarchingComponent.
+     * @param sdfShapeType - The SDF shape type
+     */
+    set sdfShapeType(sdfShapeType: SdfShapeTypeEnum);
+    /**
+     * Creates a shallow copy of this RaymarchingComponent from another RaymarchingComponent.
+     * @param component - The source component to copy from
+     * @protected
+     */
+    _shallowCopyFrom(component: Component): void;
+    /**
+     * Destroys this RaymarchingComponent and cleans up resources.
+     * @protected
+     */
+    _destroy(): void;
+    addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): ComponentToComponentMethods<SomeComponentClass> & EntityBase;
+}
+
+interface IRaymarchingEntityMethods {
+    getRaymarching(): RaymarchingComponent;
+}
+
+declare function createRaymarchingEntity(engine: Engine): IRaymarchingEntity;
+
 declare function createGroupEntity(engine: Engine): ISceneGraphEntity;
 
 /**
@@ -28788,7 +28922,7 @@ declare class TransformComponent extends Component {
      * Gets the component type identifier for TransformComponent.
      * @returns The transform component type ID
      */
-    static get componentTID(): ComponentTID;
+    static get componentTID(): 3;
     /**
      * Gets the component type identifier for this instance.
      * @returns The transform component type ID
@@ -29137,7 +29271,7 @@ declare class VrmComponent extends Component {
      * Gets the component type identifier for VrmComponent.
      * @returns The component type ID for VrmComponent
      */
-    static get componentTID(): ComponentTID;
+    static get componentTID(): 14;
     /**
      * Gets the component type identifier for this VrmComponent instance.
      * @returns The component type ID for VrmComponent
@@ -29195,24 +29329,25 @@ interface IVrmEntityMethods {
     getVrm(): VrmComponent;
 }
 
-declare const WellKnownComponentTIDs: Readonly<{
-    AnimationStateComponentTID: 1;
-    AnimationComponentTID: 2;
-    TransformComponentTID: 3;
-    SceneGraphComponentTID: 4;
-    MeshComponentTID: 5;
-    MeshRendererComponentTID: 6;
-    LightComponentTID: 7;
-    CameraControllerComponentTID: 8;
-    CameraComponentTID: 9;
-    SkeletalComponentTID: 10;
-    BlendShapeComponentTID: 11;
-    PhysicsComponentTID: 12;
-    EffekseerComponentTID: 13;
-    VrmComponentTID: 14;
-    ConstraintComponentTID: 15;
-    maxWellKnownTidNumber: 15;
-}>;
+declare const WellKnownComponentTIDs: {
+    readonly AnimationStateComponentTID: 1;
+    readonly AnimationComponentTID: 2;
+    readonly TransformComponentTID: 3;
+    readonly SceneGraphComponentTID: 4;
+    readonly MeshComponentTID: 5;
+    readonly MeshRendererComponentTID: 6;
+    readonly LightComponentTID: 7;
+    readonly CameraControllerComponentTID: 8;
+    readonly CameraComponentTID: 9;
+    readonly SkeletalComponentTID: 10;
+    readonly BlendShapeComponentTID: 11;
+    readonly PhysicsComponentTID: 12;
+    readonly EffekseerComponentTID: 13;
+    readonly VrmComponentTID: 14;
+    readonly ConstraintComponentTID: 15;
+    readonly RaymarchingComponentTID: 16;
+    readonly maxWellKnownTidNumber: 16;
+};
 
 /**
  * VRM Spring Bone implementation for physics-based bone animation.
@@ -29352,7 +29487,7 @@ declare class PhysicsComponent extends Component {
      * Gets the component type identifier for PhysicsComponent.
      * @returns The component type ID for physics components
      */
-    static get componentTID(): ComponentTID;
+    static get componentTID(): 12;
     /**
      * Gets the component type identifier for this instance.
      * @returns The component type ID for physics components
@@ -29375,7 +29510,9 @@ declare class PhysicsComponent extends Component {
      * This is called once per frame for all physics components and handles
      * the overall physics world update using the Oimo physics engine.
      */
-    static common_$logic(): void;
+    static common_$logic({ engine }: {
+        engine: Engine;
+    }): void;
     /**
      * Instance-specific logic method that updates this component's physics.
      * Called during the logic processing stage to update individual physics entities.
@@ -29475,6 +29612,12 @@ interface IAnimationEntity extends ISceneGraphEntity, IAnimationEntityMethods {
  * Extends scene graph entity with animation state management.
  */
 interface IAnimationStateEntity extends ISceneGraphEntity, IAnimationStateEntityMethods {
+}
+/**
+ * An entity that can participate in raymarching.
+ * Extends scene graph entity with raymarching capabilities.
+ */
+interface IRaymarchingEntity extends ISceneGraphEntity, IRaymarchingEntityMethods {
 }
 /**
  * Creates a special entity that combines both light and camera functionality.
@@ -29898,7 +30041,7 @@ declare class EffekseerComponent extends Component {
     private static __tmp_identityMatrix_0;
     private static __tmp_identityMatrix_1;
     private isLoadEffect;
-    static get componentTID(): ComponentTID;
+    static get componentTID(): 13;
     cancelLoop(): void;
     isPlay(): boolean;
     play(): boolean;
@@ -29938,7 +30081,33 @@ type ComponentMixinFunction = <EntityBaseClass extends MixinBase>(baseClass: Ent
     entityClass: MixinBase;
     components: (typeof Component)[];
 };
-type ComponentToComponentMethods<T extends typeof Component> = T extends typeof ConstraintComponent ? IConstraintEntityMethods : T extends typeof VrmComponent ? IVrmEntityMethods : T extends typeof EffekseerComponent ? IEffekseerEntityMethods : T extends typeof PhysicsComponent ? IPhysicsEntityMethods : T extends typeof BlendShapeComponent ? IBlendShapeEntityMethods : T extends typeof SkeletalComponent ? ISkeletalEntityMethods : T extends typeof LightComponent ? ILightEntityMethods : T extends typeof CameraComponent ? ICameraEntityMethods : T extends typeof CameraControllerComponent ? ICameraControllerEntityMethods : T extends typeof MeshRendererComponent ? IMeshRendererEntityMethods : T extends typeof MeshComponent ? IMeshEntityMethods : T extends typeof SceneGraphComponent ? ISceneGraphEntityMethods : T extends typeof TransformComponent ? ITransformEntityMethods : T extends typeof AnimationComponent ? IAnimationEntityMethods : T extends typeof AnimationStateComponent ? IAnimationStateEntityMethods : never;
+/**
+ * Mapping from componentTID to EntityMethods interface.
+ * This uses numeric literal types to distinguish between component types.
+ */
+interface ComponentTIDToMethodsMap {
+    [WellKnownComponentTIDs.AnimationStateComponentTID]: IAnimationStateEntityMethods;
+    [WellKnownComponentTIDs.AnimationComponentTID]: IAnimationEntityMethods;
+    [WellKnownComponentTIDs.TransformComponentTID]: ITransformEntityMethods;
+    [WellKnownComponentTIDs.SceneGraphComponentTID]: ISceneGraphEntityMethods;
+    [WellKnownComponentTIDs.MeshComponentTID]: IMeshEntityMethods;
+    [WellKnownComponentTIDs.MeshRendererComponentTID]: IMeshRendererEntityMethods;
+    [WellKnownComponentTIDs.LightComponentTID]: ILightEntityMethods;
+    [WellKnownComponentTIDs.CameraControllerComponentTID]: ICameraControllerEntityMethods;
+    [WellKnownComponentTIDs.CameraComponentTID]: ICameraEntityMethods;
+    [WellKnownComponentTIDs.SkeletalComponentTID]: ISkeletalEntityMethods;
+    [WellKnownComponentTIDs.BlendShapeComponentTID]: IBlendShapeEntityMethods;
+    [WellKnownComponentTIDs.PhysicsComponentTID]: IPhysicsEntityMethods;
+    [WellKnownComponentTIDs.EffekseerComponentTID]: IEffekseerEntityMethods;
+    [WellKnownComponentTIDs.VrmComponentTID]: IVrmEntityMethods;
+    [WellKnownComponentTIDs.ConstraintComponentTID]: IConstraintEntityMethods;
+    [WellKnownComponentTIDs.RaymarchingComponentTID]: IRaymarchingEntityMethods;
+}
+/**
+ * Maps a Component class to its corresponding EntityMethods interface.
+ * Uses componentTID to distinguish between structurally similar component classes.
+ */
+type ComponentToComponentMethods<T extends typeof Component> = T['componentTID'] extends keyof ComponentTIDToMethodsMap ? ComponentTIDToMethodsMap[T['componentTID']] : never;
 
 /**
  * The repository class responsible for creating, managing, and deleting entities within the framework.
@@ -30528,7 +30697,7 @@ declare class SceneGraphComponent extends Component {
      * Gets the component type identifier for SceneGraphComponent.
      * @returns The component type ID
      */
-    static get componentTID(): ComponentTID;
+    static get componentTID(): 4;
     /**
      * Gets the component type identifier for this instance.
      * @returns The component type ID
@@ -31034,6 +31203,11 @@ interface IEntity extends IRnObject {
      */
     tryToGetEffekseer(): EffekseerComponent | undefined;
     /**
+     * Attempts to retrieve the RaymarchingComponent from this entity.
+     * @returns The RaymarchingComponent if present, undefined otherwise
+     */
+    tryToGetRaymarching(): RaymarchingComponent | undefined;
+    /**
      * Destroys this entity and releases all associated resources.
      * @internal
      */
@@ -31271,6 +31445,16 @@ declare class Entity extends RnObject implements IEntity {
      * @returns The EffekseerComponent if this entity has one, undefined otherwise
      */
     tryToGetEffekseer(): EffekseerComponent | undefined;
+    /**
+     * Attempts to retrieve the RaymarchingComponent from this entity.
+     *
+     * @remarks
+     * This is a convenience method that provides type-safe access to the RaymarchingComponent
+     * without requiring explicit type casting.
+     *
+     * @returns The RaymarchingComponent if present, undefined otherwise
+     */
+    tryToGetRaymarching(): RaymarchingComponent | undefined;
     /**
      * Destroys this entity and releases all associated resources.
      *
@@ -31589,7 +31773,7 @@ declare class MeshComponent extends Component {
      * Gets the component type identifier for MeshComponent.
      * @returns The component type ID for mesh components
      */
-    static get componentTID(): ComponentTID;
+    static get componentTID(): 5;
     /**
      * Gets the component type identifier for this instance.
      * @returns The component type ID for mesh components
@@ -36058,6 +36242,17 @@ declare class Socket<Name extends string, N extends CompositionTypeEnum, T exten
     constructor(name: Name, compositionType: N, componentType: T, defaultValue?: V | undefined);
 }
 
+declare abstract class CommonShaderPart {
+    abstract getMainBegin(engine: Engine, isVertexStage: boolean): string;
+    abstract getMainEnd(engine: Engine, isVertexStage: boolean): string;
+    abstract getVertexPrerequisites(engine: Engine, shaderNodes: AbstractShaderNode[]): string;
+    abstract getPixelPrerequisites(engine: Engine, shaderNodes: AbstractShaderNode[]): string;
+    abstract getAssignmentStatement(engine: Engine, varName: string, inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>): string;
+    abstract getAssignmentVaryingStatementInPixelShader(engine: Engine, varName: string, inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>, inputNode: AbstractShaderNode, outputNameOfPrev: string): string;
+    abstract getVertexShaderDefinitions(engine: Engine): string;
+    abstract getPixelShaderDefinitions(engine: Engine): string;
+}
+
 type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 type ShaderSocket = {
     compositionType: CompositionTypeEnum;
@@ -36194,12 +36389,11 @@ declare abstract class AbstractShaderNode extends RnObject {
 }
 
 /**
- * Abstract base class that provides common shader functionality for both WebGL and WebGPU rendering approaches.
+ * Base class that provides common shader functionality for both WebGL and WebGPU rendering approaches.
  * This class handles shader code generation, vertex/fragment shader prerequisites, and cross-platform compatibility
  * between WebGL and WebGPU shader languages (GLSL and WGSL).
  */
-declare abstract class CommonShaderPart {
-    static __instance: CommonShaderPart;
+declare class StandardShaderPart extends CommonShaderPart {
     /**
      * Generates the main function beginning code for vertex or fragment shaders.
      * Handles differences between WebGL (GLSL) and WebGPU (WGSL) shader languages.
@@ -36207,7 +36401,7 @@ declare abstract class CommonShaderPart {
      * @param isVertexStage - True if generating code for vertex shader, false for fragment shader
      * @returns The shader code string for the main function beginning
      */
-    static getMainBegin(engine: Engine, isVertexStage: boolean): string;
+    getMainBegin(engine: Engine, isVertexStage: boolean): string;
     /**
      * Generates the main function ending code for vertex or fragment shaders.
      * Handles differences between WebGL (GLSL) and WebGPU (WGSL) shader languages.
@@ -36216,8 +36410,8 @@ declare abstract class CommonShaderPart {
      * @param isVertexStage - True if generating code for vertex shader, false for fragment shader
      * @returns The shader code string for the main function ending
      */
-    static getMainEnd(engine: Engine, isVertexStage: boolean): "\n  return output;\n}\n" | "\n  return rt0;\n}\n" | "\n}\n";
-    static getMaterialSIDForWebGL(): string;
+    getMainEnd(engine: Engine, isVertexStage: boolean): "\n  return output;\n}\n" | "\n  return rt0;\n}\n" | "\n}\n";
+    getMaterialSIDForWebGL(): string;
     /**
      * Generates vertex shader prerequisites including definitions, vertex inputs, and uniform declarations.
      * Creates appropriate code for both WebGL (GLSL) and WebGPU (WGSL) based on the current process approach.
@@ -36226,7 +36420,7 @@ declare abstract class CommonShaderPart {
      * @param shaderNodes - Array of shader nodes used to generate varying variables for WebGPU
      * @returns The complete vertex shader prerequisites code string
      */
-    static getVertexPrerequisites(engine: Engine, shaderNodes: AbstractShaderNode[]): string;
+    getVertexPrerequisites(engine: Engine, shaderNodes: AbstractShaderNode[]): string;
     /**
      * Creates varying variables declaration string for WebGPU shaders.
      * Analyzes shader node connections to determine which variables need to be passed from vertex to fragment stage.
@@ -36235,7 +36429,7 @@ declare abstract class CommonShaderPart {
      * @returns WGSL varying variables declaration string
      * @private
      */
-    private static __makeVaryingVariablesWGSL;
+    private __makeVaryingVariablesWGSL;
     /**
      * Generates fragment/pixel shader prerequisites including definitions and varying variable declarations.
      * Creates appropriate code for both WebGL (GLSL) and WebGPU (WGSL) based on the current process approach.
@@ -36244,14 +36438,7 @@ declare abstract class CommonShaderPart {
      * @param shaderNodes - Array of shader nodes used to generate varying variables for WebGPU
      * @returns The complete fragment shader prerequisites code string
      */
-    static getPixelPrerequisites(engine: Engine, shaderNodes: AbstractShaderNode[]): string;
-    /**
-     * Generates the main prerequisites section placeholder for shader code.
-     * This is used by the shaderity system to inject additional prerequisites.
-     *
-     * @returns The main prerequisites placeholder string
-     */
-    static getMainPrerequisites(): string;
+    getPixelPrerequisites(engine: Engine, shaderNodes: AbstractShaderNode[]): string;
     /**
      * Generates variable assignment statement with proper type declaration.
      * Creates appropriate syntax for both WebGL (GLSL) and WebGPU (WGSL) based on the current process approach.
@@ -36261,7 +36448,7 @@ declare abstract class CommonShaderPart {
      * @param inputSocket - The socket containing type and default value information
      * @returns The variable assignment statement string
      */
-    static getAssignmentStatement(engine: Engine, varName: string, inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>): string;
+    getAssignmentStatement(engine: Engine, varName: string, inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>): string;
     /**
      * Generates varying variable assignment statement for fragment/pixel shaders.
      * Creates code to read varying variables passed from vertex shader with proper type declaration.
@@ -36272,7 +36459,7 @@ declare abstract class CommonShaderPart {
      * @param inputNode - The shader node that provides the varying variable
      * @returns The varying variable assignment statement string for fragment shader
      */
-    static getAssignmentVaryingStatementInPixelShader(engine: Engine, varName: string, inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>, inputNode: AbstractShaderNode, outputNameOfPrev: string): string;
+    getAssignmentVaryingStatementInPixelShader(engine: Engine, varName: string, inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>, inputNode: AbstractShaderNode, outputNameOfPrev: string): string;
     /**
      * Generates varying variable assignment statement for vertex shaders.
      * Creates code to write varying variables that will be passed to fragment shader.
@@ -36283,42 +36470,108 @@ declare abstract class CommonShaderPart {
      * @param j - Index of the current variable in the varNames array
      * @returns The varying variable assignment statement string for vertex shader
      */
-    static getAssignmentVaryingStatementInVertexShader(engine: Engine, inputNode: AbstractShaderNode, varNames: string[], j: number): string;
+    getAssignmentVaryingStatementInVertexShader(engine: Engine, inputNode: AbstractShaderNode, varNames: string[], j: number): string;
     /**
      * Gets the attribute names used by this shader part.
-     * Must be implemented by concrete subclasses to define which vertex attributes are used.
+     * Subclasses should override this to define which vertex attributes are used.
      *
      * @returns Object containing attribute name mappings
      */
-    abstract get attributeNames(): AttributeNames;
+    get attributeNames(): AttributeNames;
     /**
      * Gets the vertex attribute semantics used by this shader part.
-     * Must be implemented by concrete subclasses to define the semantic meaning of each attribute.
+     * Subclasses should override this to define the semantic meaning of each attribute.
      *
      * @returns Array of vertex attribute enums defining the semantics
      */
-    abstract get attributeSemantics(): Array<VertexAttributeEnum>;
+    get attributeSemantics(): Array<VertexAttributeEnum>;
     /**
      * Gets the composition types for each vertex attribute used by this shader part.
-     * Must be implemented by concrete subclasses to define the data composition (scalar, vec2, vec3, etc.).
+     * Subclasses should override this to define the data composition (scalar, vec2, vec3, etc.).
      *
      * @returns Array of composition type enums defining the data structure
      */
-    abstract get attributeCompositions(): Array<CompositionTypeEnum>;
+    get attributeCompositions(): Array<CompositionTypeEnum>;
     /**
      * Gets the vertex shader definitions code.
-     * Must be implemented by concrete subclasses to provide shader-specific definitions.
+     * Subclasses should override this to provide shader-specific definitions.
      *
      * @returns Vertex shader definitions code string
      */
-    abstract getVertexShaderDefinitions(engine: Engine): string;
+    getVertexShaderDefinitions(_engine: Engine): string;
     /**
      * Gets the pixel/fragment shader definitions code.
-     * Must be implemented by concrete subclasses to provide shader-specific definitions.
+     * Subclasses should override this to provide shader-specific definitions.
      *
      * @returns Fragment shader definitions code string
      */
-    abstract getPixelShaderDefinitions(engine: Engine): string;
+    getPixelShaderDefinitions(_engine: Engine): string;
+}
+
+/**
+ * RaymarchingShaderPart is a class that provides common shader functionality for both WebGL and WebGPU rendering approaches.
+ * This class handles shader code generation, vertex/fragment shader prerequisites, and cross-platform compatibility
+ * between WebGL and WebGPU shader languages (GLSL and WGSL).
+ */
+declare class RaymarchingShaderPart extends CommonShaderPart {
+    /**
+     * Generates the main function beginning code for vertex or fragment shaders.
+     * Handles differences between WebGL (GLSL) and WebGPU (WGSL) shader languages.
+     *
+     * @param isVertexStage - True if generating code for vertex shader, false for fragment shader
+     * @returns The shader code string for the main function beginning
+     */
+    getMainBegin(engine: Engine, isVertexStage: boolean): string;
+    /**
+     * Generates the main function ending code for vertex or fragment shaders.
+     * Handles differences between WebGL (GLSL) and WebGPU (WGSL) shader languages.
+     *
+     * @param engine - The engine instance
+     * @param isVertexStage - True if generating code for vertex shader, false for fragment shader
+     * @returns The shader code string for the main function ending
+     */
+    getMainEnd(engine: Engine, isVertexStage: boolean): "" | "\n" | "\n  return g_distance;\n}\nfn calcNormal(p: vec3f) -> vec3f {\n  let e = vec2f(1.0,-1.0)*.0005;\n  return vec3f(\n    normalize(\n      e.xyy*map(p+e.xyy)+\n      e.yyx*map(p+e.yyx)+\n      e.yxy*map(p+e.yxy)+\n      e.xxx*map(p+e.xxx)\n    )\n  );\n}\n\nstruct FragmentOutput {\n  @location(0) color: vec4<f32>,\n  @builtin(frag_depth) depth: f32,\n}\n\nvar<private> rt0: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 1.0);\n@fragment\nfn main(\n  input: VertexOutput,\n) -> FragmentOutput {\n  var output: FragmentOutput;\n  let cameraSID = uniformDrawParameters.cameraSID;\n  let viewMatrix = get_viewMatrix(cameraSID);\n  let projectionMatrix = get_projectionMatrix(cameraSID);\n\n  // Calculate inverse matrices for ray generation\n  let invViewMatrix = inverseMat4(viewMatrix);\n  let invProjectionMatrix = inverseMat4(projectionMatrix);\n\n  // Ray origin is the camera position in world space (extracted from inverse view matrix)\n  let ro = invViewMatrix[3].xyz;\n\n  // Calculate ray direction from screen coordinates\n  var uv = (input.texcoord_0 - 0.5) * 2.0; // NDC coordinates (-1 to 1)\n  uv.y = -uv.y; // flip y coordinate in WebGPU because of the coordinate system difference between WebGL and WebGPU\n  // Transform from NDC to view space using inverse projection matrix\n  let rayClip = vec4f(uv, -1.0, 1.0);\n  var rayView = invProjectionMatrix * rayClip;\n  rayView = vec4f(rayView.xy, -1.0, 0.0); // Set z to -1 (forward direction in view space)\n  // Transform from view space to world space\n  let rd = normalize((invViewMatrix * rayView).xyz);\n\n  // March the distance field until a surface is hit.\n  var h: f32;\n  var t: f32 = 1.0;\n  for(var i=0;i<256;i++){\n    h=map(ro+rd*t);\n    t+=h;\n    if(h<.01) { break; }\n  }\n\n  if(h<.01){\n    let p = ro+rd*t;\n    let normal=calcNormal(p);\n    let light=vec3f(0,2,0);\n\n    // Calculate diffuse lighting by taking the dot product of\n    // the light direction (light-p) and the normal.\n    var dif=clamp(dot(normal,normalize(light-p)),0.,1.);\n\n    // Multiply by light intensity (5) and divide by the square\n    // of the distance to the light.\n    dif*=5.0/dot(light-p,light-p);\n\n    rt0=vec4f(vec3f(pow(dif,.4545)),1.0);// Gamma correction\n\n    // Calculate depth from raymarching hit position\n    let clipPos = projectionMatrix * viewMatrix * vec4f(p, 1.0);\n    output.depth = clipPos.z / clipPos.w; // WebGPU depth range is [0, 1]\n  }else{\n    rt0=vec4f(0.0,0.0,0.0,1.0);\n    output.depth = 1.0; // Maximum depth for background\n  }\n\n  output.color = rt0;\n  return output;\n}\n" | "\n  return g_distance;\n}\nvec3 calcNormal(vec3 p){\n  vec2 e=vec2(1.,-1.)*.0005;\n  return normalize(\n      e.xyy*map(p+e.xyy)+\n      e.yyx*map(p+e.yyx)+\n      e.yxy*map(p+e.yxy)+\n      e.xxx*map(p+e.xxx)\n  );\n}\n\nvoid main() {\n  uint cameraSID = uint(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */]);\n  #if defined(WEBGL2_MULTI_VIEW) && defined(RN_IS_VERTEX_SHADER)\n    cameraSID += uint(gl_ViewID_OVR);\n  #endif\n\n  mat4 viewMatrix = get_viewMatrix(cameraSID);\n  mat4 projectionMatrix = get_projectionMatrix(cameraSID);\n\n  // Calculate inverse matrices for ray generation\n  mat4 invViewMatrix = inverse(viewMatrix);\n  mat4 invProjectionMatrix = inverse(projectionMatrix);\n\n  // Ray origin is the camera position in world space (extracted from inverse view matrix)\n  vec3 ro = invViewMatrix[3].xyz;\n\n  // Calculate ray direction from screen coordinates\n  vec2 uv = (v_texcoord_0 - 0.5) * 2.0; // NDC coordinates (-1 to 1)\n  // Transform from NDC to view space using inverse projection matrix\n  vec4 rayClip = vec4(uv, -1.0, 1.0);\n  vec4 rayView = invProjectionMatrix * rayClip;\n  rayView = vec4(rayView.xy, -1.0, 0.0); // Set z to -1 (forward direction in view space)\n  // Transform from view space to world space\n  vec3 rd = normalize((invViewMatrix * rayView).xyz);\n\n  // March the distance field until a surface is hit.\n  float h,t=1.;\n  for(int i=0;i<256;i++){\n    h=map(ro+rd*t);\n    t+=h;\n    if(h<.01)break;\n  }\n\n  if(h<.01){\n    vec3 p=ro+rd*t;\n    vec3 normal=calcNormal(p);\n    vec3 light=vec3(0,2,0);\n\n    // Calculate diffuse lighting by taking the dot product of\n    // the light direction (light-p) and the normal.\n    float dif=clamp(dot(normal,normalize(light-p)),0.,1.);\n\n    // Multiply by light intensity (5) and divide by the square\n    // of the distance to the light.\n    dif*=5./dot(light-p,light-p);\n\n    rt0=vec4(vec3(pow(dif,.4545)),1);// Gamma correction\n\n    // Calculate depth from raymarching hit position\n    vec4 clipPos = projectionMatrix * viewMatrix * vec4(p, 1.0);\n    // Convert from NDC [-1, 1] to depth buffer range [0, 1]\n    gl_FragDepth = (clipPos.z / clipPos.w) * 0.5 + 0.5;\n  }else{\n    rt0=vec4(0,0,0,1);\n    gl_FragDepth = 1.0; // Maximum depth for background\n  }\n}\n";
+    getMaterialSIDForWebGL(): string;
+    /**
+     * Generates vertex shader prerequisites for Raymarching shader.
+     *
+     * @param engine - The engine instance
+     * @param shaderNodes - Array of shader nodes used to generate varying variables for Raymarching shader
+     * @returns The complete vertex shader prerequisites code string for Raymarching shader
+     */
+    getVertexPrerequisites(engine: Engine, _shaderNodes: AbstractShaderNode[]): string;
+    /**
+     * Generates fragment/pixel shader prerequisites including definitions and varying variable declarations.
+     * Creates appropriate code for both WebGL (GLSL) and WebGPU (WGSL) based on the current process approach.
+     *
+     * @param engine - The engine instance
+     * @param shaderNodes - Array of shader nodes used to generate varying variables for WebGPU
+     * @returns The complete fragment shader prerequisites code string
+     */
+    getPixelPrerequisites(engine: Engine, _shaderNodes: AbstractShaderNode[]): string;
+    /**
+     * Generates variable assignment statement with proper type declaration.
+     * Creates appropriate syntax for both WebGL (GLSL) and WebGPU (WGSL) based on the current process approach.
+     *
+     * @param engine - The engine instance
+     * @param varName - The name of the variable to declare
+     * @param inputSocket - The socket containing type and default value information
+     * @returns The variable assignment statement string
+     */
+    getAssignmentStatement(engine: Engine, varName: string, inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>): string;
+    /**
+     * Generates varying variable assignment statement for fragment/pixel shaders.
+     * Creates code to read varying variables passed from vertex shader with proper type declaration.
+     *
+     * @param engine - The engine instance
+     * @param varName - The name of the variable to declare
+     * @param inputSocket - The socket containing type information
+     * @param inputNode - The shader node that provides the varying variable
+     * @returns The varying variable assignment statement string for fragment shader
+     */
+    getAssignmentVaryingStatementInPixelShader(engine: Engine, varName: string, inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>, inputNode: AbstractShaderNode, outputNameOfPrev: string): string;
+    getVertexShaderDefinitions(_engine: Engine): string;
+    getPixelShaderDefinitions(_engine: Engine): string;
 }
 
 /**
@@ -36326,7 +36579,7 @@ declare abstract class CommonShaderPart {
  * This class creates GLSL function definitions with input and output parameters
  * based on the provided shader sockets.
  */
-declare class BlockBeginShader extends CommonShaderPart {
+declare class BlockBeginShader extends StandardShaderPart {
     private __functionName;
     private __valueInputs;
     private __valueOutputs;
@@ -36381,7 +36634,7 @@ declare class BlockBeginShader extends CommonShaderPart {
  * This class creates GLSL function definitions that pass input values directly to output values,
  * effectively acting as a pass-through block in shader node graphs.
  */
-declare class BlockEndShader extends CommonShaderPart {
+declare class BlockEndShader extends StandardShaderPart {
     private __functionName;
     private __valueInputs;
     private __valueOutputs;
@@ -36444,7 +36697,7 @@ declare class BlockEndShader extends CommonShaderPart {
  * constantShader.setConstantValue(Vector3.fromCopyArray([1.0, 0.5, 0.0]));
  * ```
  */
-declare class ConstantVariableShader extends CommonShaderPart {
+declare class ConstantVariableShader extends StandardShaderPart {
     private __functionName;
     private __compositionType;
     private __componentType;
@@ -36555,9 +36808,9 @@ declare class ConstantVariableShader extends CommonShaderPart {
  * This class handles the final position output in vertex shaders and color output in fragment shaders,
  * supporting both WebGL and WebGPU rendering approaches.
  *
- * @extends CommonShaderPart
+ * @extends StandardShaderPart
  */
-declare class EndShader extends CommonShaderPart {
+declare class EndShader extends StandardShaderPart {
     static __instance: EndShader;
     static readonly materialElement: EnumIO;
     /**
@@ -36622,15 +36875,7 @@ declare class EndShader extends CommonShaderPart {
     get attributeCompositions(): Array<CompositionTypeEnum>;
 }
 
-declare class IfStatementShader extends CommonShaderPart {
-    getVertexShaderDefinitions(_engine: Engine): string;
-    getPixelShaderDefinitions(_engine: Engine): string;
-    get attributeNames(): AttributeNames;
-    get attributeSemantics(): Array<VertexAttributeEnum>;
-    get attributeCompositions(): Array<CompositionTypeEnum>;
-}
-
-declare class Texture2DShader extends CommonShaderPart {
+declare class Texture2DShader extends StandardShaderPart {
     private __functionName;
     private __variableName;
     private __sRGB;
@@ -36644,7 +36889,7 @@ declare class Texture2DShader extends CommonShaderPart {
     get attributeCompositions(): Array<CompositionTypeEnum>;
 }
 
-declare class UniformDataShader extends CommonShaderPart {
+declare class UniformDataShader extends StandardShaderPart {
     private __functionName;
     private __compositionType;
     private __componentType;
@@ -36660,17 +36905,75 @@ declare class UniformDataShader extends CommonShaderPart {
     get attributeCompositions(): Array<CompositionTypeEnum>;
 }
 
-declare class VaryingVariableShader extends CommonShaderPart {
-    private __functionName;
-    private __compositionType;
-    private __componentType;
-    private __variableName;
-    constructor(__functionName: string, __compositionType: CompositionTypeEnum, __componentType: ComponentTypeEnum);
-    setVariableName(name: any): void;
-    getVertexShaderDefinitions(_engine: Engine): string;
-    getPixelShaderDefinitions(_engine: Engine): string;
+/**
+ * OutDistanceShader class provides the out distance function for fragment shaders.
+ * This class handles outputting the distance to the surface,
+ * supporting both WebGL and WebGPU rendering approaches.
+ *
+ * @extends StandardShaderPart
+ */
+declare class OutDistanceShader extends RaymarchingShaderPart {
+    static __instance: OutDistanceShader;
+    static readonly materialElement: EnumIO;
+    /**
+     * Private constructor to enforce singleton pattern.
+     */
+    private constructor();
+    /**
+     * Gets the singleton instance of DiscardShader.
+     * Creates a new instance if one doesn't exist.
+     *
+     * @returns The singleton DiscardShader instance
+     */
+    static getInstance(): OutDistanceShader;
+    /**
+     * Gets the vertex shader function definitions.
+     * Returns a no-op function since discard is not available in vertex shaders.
+     *
+     * @returns Shader code string containing a no-op conditionalDiscard function
+     */
+    getVertexShaderDefinitions(engine: Engine): string;
+    /**
+     * Gets the vertex shader body code.
+     * Currently returns empty string as no additional vertex processing is needed.
+     *
+     * @returns Empty shader body string
+     */
+    get vertexShaderBody(): string;
+    /**
+     * Gets the pixel/fragment shader function definitions for conditional discard.
+     * Returns appropriate function definition based on the current process approach (WebGL/WebGPU).
+     *
+     * @returns Shader code string containing the conditionalDiscard function definition
+     */
+    getPixelShaderDefinitions(engine: Engine): "\n      fn outDistance(value: f32) {\n        g_distance = value;\n      }\n      " | "\n      void outDistance(in float value) {\n        g_distance = value;\n      }\n      ";
+    /**
+     * Gets the pixel/fragment shader body code.
+     * Currently returns empty string as no additional fragment processing is needed.
+     *
+     * @returns Empty shader body string
+     */
+    getPixelShaderBody(): string;
+    /**
+     * Gets the attribute names required by this shader part.
+     * DiscardShader doesn't require any specific vertex attributes.
+     *
+     * @returns Empty array of attribute names
+     */
     get attributeNames(): AttributeNames;
+    /**
+     * Gets the vertex attribute semantics required by this shader part.
+     * DiscardShader doesn't require any specific vertex attribute semantics.
+     *
+     * @returns Empty array of vertex attribute enums
+     */
     get attributeSemantics(): Array<VertexAttributeEnum>;
+    /**
+     * Gets the attribute compositions required by this shader part.
+     * DiscardShader doesn't require any specific attribute compositions.
+     *
+     * @returns Empty array of composition type enums
+     */
     get attributeCompositions(): Array<CompositionTypeEnum>;
 }
 
@@ -39629,7 +39932,7 @@ declare class CameraComponent extends Component {
      *
      * @returns The camera component type identifier
      */
-    static get componentTID(): ComponentTID;
+    static get componentTID(): 9;
     /**
      * Gets the component type identifier for this camera component.
      *
@@ -43010,22 +43313,26 @@ declare class ShaderGraphResolver {
      * This method performs topological sorting of nodes, generates function definitions,
      * and constructs the main shader body with proper variable declarations and connections.
      *
+     * @param engine - The engine instance
      * @param vertexNodes - Array of shader nodes that contribute to vertex processing
      * @param varyingNodes - Array of shader nodes that pass data from vertex to fragment stage
+     * @param commonShaderPart - The CommonShaderPart instance for shader code generation
      * @param isFullVersion - Whether to generate a full version with all prerequisites and boilerplate
      * @returns Complete vertex shader code as a string, or undefined if generation fails
      */
-    static createVertexShaderCode(engine: Engine, vertexNodes: AbstractShaderNode[], varyingNodes: AbstractShaderNode[], isFullVersion?: boolean): string | undefined;
+    static createVertexShaderCode(engine: Engine, vertexNodes: AbstractShaderNode[], varyingNodes: AbstractShaderNode[], commonShaderPart: CommonShaderPart): string | undefined;
     /**
      * Creates a complete fragment/pixel shader code from the given pixel nodes.
      * This method performs topological sorting, generates function definitions,
      * and constructs the main shader body for fragment processing.
      *
+     * @param engine - The engine instance
      * @param pixelNodes - Array of shader nodes that contribute to fragment processing
+     * @param commonShaderPart - The CommonShaderPart instance for shader code generation
      * @param isFullVersion - Whether to generate a full version with all prerequisites and boilerplate
      * @returns Complete fragment shader code as a string, or undefined if generation fails
      */
-    static createPixelShaderCode(engine: Engine, pixelNodes: AbstractShaderNode[], isFullVersion?: boolean): string | undefined;
+    static createPixelShaderCode(engine: Engine, pixelNodes: AbstractShaderNode[], commonShaderPart: CommonShaderPart): string | undefined;
     /**
      * Validates that all shader nodes have their required input connections properly set.
      * This is a validation step to ensure the shader graph is complete before code generation.
@@ -43124,8 +43431,10 @@ declare class ShaderGraphResolver {
      * - Generating function call statements in topological order
      * - Handling vertex-to-fragment data passing
      *
+     * @param engine - The engine instance
      * @param shaderNodes - Array of shader nodes sorted in topological order
      * @param isVertexStage - True for vertex shader generation, false for fragment
+     * @param commonShaderPart - The CommonShaderPart instance for shader code generation
      * @param isFullVersion - Whether to include full shader boilerplate
      * @returns Complete shader main function body as a string
      * @throws Error if shader construction fails
@@ -43138,18 +43447,21 @@ declare class ShaderGraphResolver {
      * The method performs the full pipeline: node construction, dependency resolution, stage assignment,
      * and final code generation.
      *
+     * @param engine - The engine instance
      * @param json - JSON representation of the shader node graph containing nodes and connections
+     * @param commonShaderPart - StandardShaderPart instance to use for shader code generation
      * @returns Object containing both vertex and fragment shader code, texture names used, or undefined if generation fails
      * @example
      * ```typescript
-     * const shaderCode = ShaderGraphResolver.generateShaderCodeFromJson(graphJson);
+     * const commonShaderPart = new StandardShaderPart();
+     * const shaderCode = ShaderGraphResolver.generateShaderCodeFromJson(engine, graphJson, commonShaderPart);
      * if (shaderCode) {
      *   const { vertexShader, pixelShader, textureNames } = shaderCode;
      *   // Use the generated shaders...
      * }
      * ```
      */
-    static generateShaderCodeFromJson(engine: Engine, json: ShaderNodeJson): {
+    static generateShaderCodeFromJson(engine: Engine, json: ShaderNodeJson, commonShaderPart: CommonShaderPart): {
         vertexShader: string;
         pixelShader: string;
         textureInfos: {
@@ -43311,6 +43623,523 @@ declare class ShaderityUtilityWebGL {
      * @private
      */
     private static __getDefaultInitialValue;
+}
+
+/**
+ * A shader node that represents the initial position in a shader graph.
+ * This node serves as the initial position node for fragment shaders, outputting a Vec3 position value.
+ *
+ * @example
+ * ```typescript
+ * const initialPositionNode = new InitialPositionShaderNode();
+ * // Connect a position input to the node
+ * somePositionNode.connect(initialPositionNode.getSocketInput());
+ * ```
+ */
+declare class InitialPositionShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new InitialPositionShaderNode instance.
+     * Initializes the node with an InitialPositionShader instance and sets up the output socket
+     * for receiving Vec3 position values.
+     */
+    constructor();
+}
+
+/**
+ * A shader node that performs CSG (Constructive Solid Geometry) subtraction operations.
+ * This node computes the boolean difference between two signed distance fields (SDFs),
+ * effectively "cutting away" one shape from another.
+ *
+ * The operation is: max(base, -subtractor)
+ * - `base`: The shape to subtract FROM (the preserved shape)
+ * - `subtractor`: The shape that does the subtracting (removes from base)
+ *
+ * Users should provide raw SDF values for both inputs. The shader internally
+ * negates the `subtractor` input to perform the CSG subtraction.
+ *
+ * @example
+ * ```typescript
+ * // Create a CSG subtraction node
+ * const opSubtractionNode = new OpSubtractionShaderNode();
+ *
+ * // Connect inputs: base shape and subtracting shape
+ * const baseSocket = opSubtractionNode.getSocketInputBase();
+ * const subtractorSocket = opSubtractionNode.getSocketInputSubtractor();
+ * const outputSocket = opSubtractionNode.getSocketOutput();
+ * ```
+ */
+declare class OpSubtractionShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new OpSubtractionShaderNode with the specified composition and component types.
+     *
+     */
+    constructor();
+    /**
+     * Gets the base shape input socket.
+     * This socket represents the shape to subtract FROM (the preserved shape).
+     * Provide the raw SDF value of the base shape.
+     *
+     * @returns The base shape input socket
+     */
+    getSocketInputBase(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+    /**
+     * Gets the subtractor shape input socket.
+     * This socket represents the shape that does the subtracting (removes from base).
+     * Provide the raw SDF value - the shader will handle the negation internally.
+     *
+     * @returns The subtractor shape input socket
+     */
+    getSocketInputSubtractor(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+    /**
+     * Gets the output socket that contains the result of the subtraction operation.
+     *
+     * @returns The output socket containing the subtraction result
+     */
+    getSocketOutput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+}
+
+/**
+ * A shader node that performs union operations between two input values.
+ * Outputs the smaller of the two inputs for each component.
+ * Supports scalar, Vec2, Vec3, and Vec4 compositions with appropriate component types.
+ *
+ * This node creates two input sockets (in1 and in2) and one output socket,
+ * all of the same composition and component type. The node generates shader code
+ * for both WebGL (GLSL) and WebGPU (WGSL) backends.
+ *
+ * @example
+ * ```typescript
+ * // Create a min node for Vec3 float operations
+ * const opUnionNode = new OpUnionShaderNode(CompositionType.Vec3, ComponentType.Float);
+ *
+ * // Connect inputs and get output
+ * const lhsSocket = opUnionNode.getSocketInputLhs();
+ * const rhsSocket = opUnionNode.getSocketInputRhs();
+ * const outputSocket = opUnionNode.getSocketOutput();
+ * ```
+ */
+declare class OpUnionShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new OpUnionShaderNode with the specified composition and component types.
+     *
+     */
+    constructor();
+    /**
+     * Gets the left-hand side input socket.
+     * This socket represents the first operand in the union operation.
+     *
+     * @returns The left-hand side input socket
+     */
+    getSocketInputLhs(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+    /**
+     * Gets the right-hand side input socket.
+     * This socket represents the second operand in the union operation.
+     *
+     * @returns The right-hand side input socket
+     */
+    getSocketInputRhs(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+    /**
+     * Gets the output socket that contains the result of the union operation.
+     *
+     * @returns The output socket containing the union result
+     */
+    getSocketOutput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+}
+
+/**
+ * A shader node that represents the final output color in a shader graph.
+ * This node serves as the terminal node for fragment shaders, accepting a Vec4 color value
+ * and outputting it as the final rendered color.
+ *
+ * @example
+ * ```typescript
+ * const outColorNode = new OutColorShaderNode();
+ * // Connect a color input to the node
+ * someColorNode.connect(outColorNode.getSocketInput());
+ * ```
+ */
+declare class OutDistanceShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new OutColorShaderNode instance.
+     * Initializes the node with an EndShader instance and sets up the input socket
+     * for receiving Vec4 color values.
+     */
+    constructor();
+    /**
+     * Gets the input socket for connecting color values to this output node.
+     * The socket accepts Vec4 values representing RGBA color components.
+     *
+     * @returns The input socket that accepts Vec4 color values
+     */
+    getSocketInput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+}
+
+/**
+ * A shader node that represents the union of two distances in a shader graph.
+ * This node serves as the terminal node for fragment shaders, accepting two distance values
+ * and outputting the minimum of the two.
+ *
+ * @example
+ * ```typescript
+ * const outUnionNode = new OutUnionShaderNode();
+ * // Connect two distance inputs to the node
+ * someColorNode.connect(outUnionNode.getSocketInput());
+ * ```
+ */
+declare class OutUnionShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new OutUnionShaderNode instance.
+     * Initializes the node with an EndShader instance and sets up the input socket
+     * for receiving Vec4 color values.
+     */
+    constructor();
+    /**
+     * Gets the input socket for connecting color values to this output node.
+     * The socket accepts Vec4 values representing RGBA color components.
+     *
+     * @returns The input socket that accepts Vec4 color values
+     */
+    getSocketInput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+}
+
+/**
+ * A shader node that applies a transform to a signed distance function.
+ * This node accepts a position and a transform and outputs the signed distance to the transformed position.
+ *
+ * @example
+ * ```typescript
+ * // Create a transform node
+ * const transformNode = new TransformShaderNode(CompositionType.Mat4, ComponentType.Float, CompositionType.Vec3, ComponentType.Float);
+ * const sdApplyTransformNode = new SdApplyTransformShaderNode();
+ * sdApplyTransformNode.setInput('position', transformNode.getOutput('outValue'));
+ * sdApplyTransformNode.setInput('transform', transformNode.getOutput('outValue'));
+ * sdApplyTransformNode.setOutput('outDistance', transformNode.getOutput('outValue'));
+ * ```
+ */
+declare class SdApplyTransformShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new SdSphereShaderNode instance.
+     */
+    constructor();
+}
+
+/**
+ * A shader node that applies a world matrix to a signed distance function.
+ * This node accepts a position and a world matrix and outputs the signed distance to the transformed position.
+ *
+ * @example
+ * ```typescript
+ * // Create a world matrix node
+ * const worldMatrixNode = new WorldMatrixShaderNode();
+ * const sdApplyWorldMatrixNode = new SdApplyWorldMatrixShaderNode();
+ * sdApplyWorldMatrixNode.setInput('position', transformNode.getOutput('outValue'));
+ * sdApplyWorldMatrixNode.setInput('worldMatrix', worldMatrixNode.getOutput('outValue'));
+ * sdApplyWorldMatrixNode.setOutput('outDistance', worldMatrixNode.getOutput('outValue'));
+ * ```
+ */
+declare class SdApplyWorldMatrixShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new SdApplyWorldMatrixShaderNode instance.
+     */
+    constructor();
+    setUniformDataName(value: any): void;
+}
+
+/**
+ * A shader node that computes the signed distance function of a bar along the X axis.
+ * This node accepts a position and outputs the signed distance to the bar along the X axis.
+ *
+ * @example
+ * ```typescript
+ * // Create a bar node along the X axis
+ * const barNode = new SdBarXShaderNode();
+ * ```
+ */
+declare class SdBarXShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new SdBarXShaderNode instance.
+     */
+    constructor();
+}
+
+/**
+ * A shader node that computes the signed distance function of a bar along the Y axis.
+ * This node accepts a position and outputs the signed distance to the bar along the Y axis.
+ *
+ * @example
+ * ```typescript
+ * // Create a bar node along the Y axis
+ * const barNode = new SdBarYShaderNode();
+ * ```
+ */
+declare class SdBarYShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new SdBarYShaderNode instance.
+     */
+    constructor();
+}
+
+/**
+ * A shader node that computes the signed distance function of a bar along the Z axis.
+ * This node accepts a position and outputs the signed distance to the bar along the Z axis.
+ *
+ * @example
+ * ```typescript
+ * // Create a bar node along the Z axis
+ * const barNode = new SdBarZShaderNode();
+ * ```
+ */
+declare class SdBarZShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new SdBarZShaderNode instance.
+     */
+    constructor();
+}
+
+/**
+ * A shader node that computes the signed distance function of a box.
+ * This node accepts a position and outputs the signed distance to the box.
+ *
+ * @example
+ * ```typescript
+ * // Create a box node
+ * const boxNode = new SdBoxShaderNode();
+ * ```
+ */
+declare class SdBoxShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new SdBoxShaderNode instance.
+     */
+    constructor();
+}
+
+/**
+ * A shader node that repeats a distance function along the X, Y, and Z axes.
+ *
+ * @example
+ * ```typescript
+ * // Create a repeat node along the X, Y, and Z axes
+ * const repeatNode = new SdRepeatShaderNode();
+ * ```
+ */
+declare class SdRepeatShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new SdRepeatShaderNode.
+     *
+     */
+    constructor();
+    /**
+     * Gets the output socket that contains the result of the repeat operation.
+     *
+     * @returns The output socket containing the repeat result
+     */
+    getSocketOutput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+}
+
+/**
+ * A shader node that repeats a distance function along the X plane.
+ *
+ * @example
+ * ```typescript
+ * // Create a repeat node along the X plane
+ * const repeatNode = new SdRepeatXShaderNode();
+ * ```
+ */
+declare class SdRepeatXShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new SdRepeatXShaderNode.
+     *
+     */
+    constructor();
+    /**
+     * Gets the output socket that contains the result of the subtraction operation.
+     *
+     * @returns The output socket containing the subtraction result
+     */
+    getSocketOutput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+}
+
+/**
+ * A shader node that repeats a distance function along the XY plane.
+ *
+ * @example
+ * ```typescript
+ * // Create a repeat node along the XY plane
+ * const repeatNode = new SdRepeatXYShaderNode();
+ * ```
+ */
+declare class SdRepeatXYShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new SdRepeatXYShaderNode.
+     *
+     */
+    constructor();
+    /**
+     * Gets the output socket that contains the result of the subtraction operation.
+     *
+     * @returns The output socket containing the subtraction result
+     */
+    getSocketOutput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+}
+
+/**
+ * A shader node that repeats a distance function along the Y plane.
+ *
+ * @example
+ * ```typescript
+ * // Create a repeat node along the Y plane
+ * const repeatNode = new SdRepeatYShaderNode();
+ * ```
+ */
+declare class SdRepeatYShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new SdRepeatYShaderNode.
+     *
+     */
+    constructor();
+    /**
+     * Gets the output socket that contains the result of the subtraction operation.
+     *
+     * @returns The output socket containing the subtraction result
+     */
+    getSocketOutput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+}
+
+/**
+ * A shader node that repeats a distance function along the YZ plane.
+ *
+ * @example
+ * ```typescript
+ * // Create a repeat node along the YZ plane
+ * const repeatNode = new SdRepeatYZShaderNode();
+ * ```
+ */
+declare class SdRepeatYZShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new SdRepeatYZShaderNode.
+     *
+     */
+    constructor();
+    /**
+     * Gets the output socket that contains the result of the subtraction operation.
+     *
+     * @returns The output socket containing the subtraction result
+     */
+    getSocketOutput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+}
+
+/**
+ * A shader node that repeats a distance function along the Z plane.
+ *
+ * @example
+ * ```typescript
+ * // Create a repeat node along the Z plane
+ * const repeatNode = new SdRepeatZShaderNode();
+ * ```
+ */
+declare class SdRepeatZShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new SdRepeatZShaderNode.
+     *
+     */
+    constructor();
+    /**
+     * Gets the output socket that contains the result of the subtraction operation.
+     *
+     * @returns The output socket containing the subtraction result
+     */
+    getSocketOutput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+}
+
+/**
+ * A shader node that repeats a distance function along the ZX plane.
+ *
+ * @example
+ * ```typescript
+ * // Create a repeat node along the ZX plane
+ * const repeatNode = new SdRepeatZXShaderNode();
+ * ```
+ */
+declare class SdRepeatZXShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new SdRepeatZXShaderNode.
+     *
+     */
+    constructor();
+    /**
+     * Gets the output socket that contains the result of the subtraction operation.
+     *
+     * @returns The output socket containing the subtraction result
+     */
+    getSocketOutput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+}
+
+/**
+ * A shader node that computes the signed distance function of a sphere.
+ * This node accepts a position and outputs the signed distance to the sphere.
+ *
+ * @example
+ * ```typescript
+ * // Create a sphere node
+ * const sphereNode = new SdSphereShaderNode();
+ * ```
+ */
+declare class SdSphereShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new SdSphereShaderNode instance.
+     */
+    constructor();
+}
+
+/**
+ * A shader node that computes the signed distance function of a tube along the X axis.
+ * This node accepts a position and outputs the signed distance to the tube along the X axis.
+ *
+ * @example
+ * ```typescript
+ * // Create a tube node along the X axis
+ * const barNode = new SdTubeXShaderNode();
+ * ```
+ */
+declare class SdTubeXShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new SdTubeXShaderNode instance.
+     */
+    constructor();
+}
+
+/**
+ * A shader node that computes the signed distance function of a tube along the Y axis.
+ * This node accepts a position and outputs the signed distance to the tube along the Y axis.
+ *
+ * @example
+ * ```typescript
+ * // Create a tube node along the Y axis
+ * const barNode = new SdTubeYShaderNode();
+ * ```
+ */
+declare class SdTubeYShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new SdTubeYShaderNode instance.
+     */
+    constructor();
+}
+
+/**
+ * A shader node that computes the signed distance function of a tube along the Z axis.
+ * This node accepts a position and outputs the signed distance to the tube along the Z axis.
+ *
+ * @example
+ * ```typescript
+ * // Create a tube node along the Z axis
+ * const barNode = new SdTubeZShaderNode();
+ * ```
+ */
+declare class SdTubeZShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new SdTubeZShaderNode instance.
+     */
+    constructor();
 }
 
 /**
@@ -44105,6 +44934,60 @@ declare class ConstantVector4VariableShaderNode<T extends ComponentTypeEnum> ext
 }
 
 /**
+ * A shader node that computes the cosine function of its input value.
+ * This node accepts a single input value and outputs the cosine of that value.
+ * The computation is performed in shader code (GLSL/WGSL) and supports
+ * scalar, vector2, vector3, and vector4 input types.
+ *
+ * @example
+ * ```typescript
+ * // Create a cosine node for a scalar float value
+ * const cosNode = new CosShaderNode(CompositionType.Scalar, ComponentType.Float);
+ *
+ * // Create a cosine node for a vec3 float value
+ * const cosVec3Node = new CosShaderNode(CompositionType.Vec3, ComponentType.Float);
+ * ```
+ */
+declare class CosShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new CosShaderNode instance with the specified composition and component types.
+     * The node will have one input socket named 'value' and one output socket named 'outValue',
+     * both configured with the provided types.
+     *
+     * @param compositionType - The composition type (Scalar, Vec2, Vec3, Vec4) that defines the structure of the input/output data
+     * @param componentType - The component type (Float, Int, etc.) that defines the data type of each component
+     */
+    constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum);
+    /**
+     * Gets the input socket for the value to compute the cosine of.
+     * This is the socket where the input value should be connected.
+     *
+     * @returns The input socket that accepts the value for cosine computation
+     */
+    getSocketInputValue(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+    /**
+     * Gets the output socket that provides the computed cosine value.
+     * This socket outputs the result of the cosine function applied to the input value.
+     *
+     * @returns The output socket containing the cosine computation result
+     */
+    getSocketOutput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+    /**
+     * Gets the appropriate shader function name based on the current rendering approach and input type.
+     * For WebGPU, returns a type-specific function name (e.g., '_cosF32', '_cosVec2f').
+     * For WebGL, returns the base function name '_cos'.
+     *
+     * This method ensures that the correct shader function is called based on the
+     * composition type and the target graphics API.
+     *
+     * @param engine - The engine instance
+     * @returns The shader function name to use in the generated shader code
+     * @throws {Error} Throws an error if the composition type is not implemented for WebGPU
+     */
+    getShaderFunctionNameDerivative(engine: Engine): string;
+}
+
+/**
  * A shader node that discards the current fragment based on a condition.
  * This node is used in fragment shaders to conditionally discard fragments,
  * which is useful for implementing alpha testing, cutout effects, and other
@@ -44390,34 +45273,6 @@ declare class GreaterThanShaderNode extends AbstractShaderNode {
 }
 
 /**
- * A shader node that represents an if statement condition in the shader graph.
- * This node allows for conditional branching in shader execution based on a boolean condition.
- *
- * The node takes a boolean condition as input and provides an output that can be used
- * to control the flow of subsequent shader operations.
- *
- * @example
- * ```typescript
- * const ifNode = new IfStatementShaderNode();
- * // Connect a boolean condition to the 'condition' input
- * // Use the 'ifStart' output to control conditional shader execution
- * ```
- */
-declare class IfStatementShaderNode extends AbstractShaderNode {
-    /**
-     * Creates a new IfStatementShaderNode instance.
-     *
-     * Initializes the node with:
-     * - A boolean 'condition' input that determines whether the if statement should execute
-     * - An 'ifStart' output with unknown composition and component types that can be connected to subsequent nodes
-     *
-     * The node uses IfStatementShader as its underlying shader implementation for generating
-     * the appropriate GLSL code for conditional branching.
-     */
-    constructor();
-}
-
-/**
  * A shader node that computes the length (magnitude) of a vector.
  * This node accepts a single vector input and outputs a scalar value
  * representing the Euclidean length of the vector.
@@ -44653,6 +45508,81 @@ declare class MergeVectorShaderNode extends AbstractShaderNode {
      * @returns The generated shader code string for the function call
      */
     makeCallStatement(engine: Engine, i: number, _shaderNode: AbstractShaderNode, functionName: string, varInputNames: string[][], varOutputNames: string[][]): string;
+}
+
+/**
+ * A shader node that performs minimum operations between two input values.
+ * Outputs the smaller of the two inputs for each component.
+ * Supports scalar, Vec2, Vec3, and Vec4 compositions with appropriate component types.
+ *
+ * This node creates two input sockets (lhs and rhs) and one output socket,
+ * all of the same composition and component type. The node generates shader code
+ * for both WebGL (GLSL) and WebGPU (WGSL) backends.
+ *
+ * @example
+ * ```typescript
+ * // Create a min node for Vec3 float operations
+ * const minNode = new MinShaderNode(CompositionType.Vec3, ComponentType.Float);
+ *
+ * // Connect inputs and get output
+ * const lhsSocket = minNode.getSocketInputLhs();
+ * const rhsSocket = minNode.getSocketInputRhs();
+ * const outputSocket = minNode.getSocketOutput();
+ * ```
+ */
+declare class MinShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new MinShaderNode with the specified composition and component types.
+     *
+     * @param compositionType - The composition type (Scalar, Vec2, Vec3, or Vec4)
+     * @param componentType - The component type (Float, Int, etc.)
+     *
+     * @throws {Error} Throws an error if the composition type is not supported
+     */
+    constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum);
+    /**
+     * Returns the default value for a given composition type.
+     * This is used to initialize input sockets with appropriate zero values.
+     *
+     * @param compositionType - The composition type to get the default value for
+     * @returns The default value (zero) for the specified composition type
+     *
+     * @throws {Error} Throws an error if the composition type is not implemented
+     */
+    getDefaultValue(compositionType: CompositionTypeEnum): Vector4 | Vector3 | Scalar | Vector2;
+    /**
+     * Gets the left-hand side input socket.
+     * This socket represents the first operand in the minimum operation.
+     *
+     * @returns The left-hand side input socket
+     */
+    getSocketInputLhs(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+    /**
+     * Gets the right-hand side input socket.
+     * This socket represents the second operand in the minimum operation.
+     *
+     * @returns The right-hand side input socket
+     */
+    getSocketInputRhs(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+    /**
+     * Gets the output socket that contains the result of the minimum operation.
+     *
+     * @returns The output socket containing the minimum result
+     */
+    getSocketOutput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+    /**
+     * Generates the appropriate shader function name derivative based on the current
+     * rendering backend and input socket types.
+     *
+     * For WebGPU, this method generates type-specific function names to handle
+     * different combinations of composition and component types. For WebGL,
+     * it returns the base shader function name.
+     *
+     * @returns The shader function name derivative for the current configuration
+     *
+     * @throws {Error} Throws an error if the input socket type combination is not implemented
+     */
+    getShaderFunctionNameDerivative(engine: Engine): string;
 }
 
 /**
@@ -45305,6 +46235,101 @@ declare class ProjectionMatrixShaderNode extends AbstractShaderNode {
 }
 
 /**
+ * A shader node that outputs a random number between 0 and 1 using Hash-based PRNG.
+ * This node outputs a random number between 0 and 1.
+ * The node optimizes random_f32() calls based on which outputs are connected.
+ *
+ * Output sockets and their required random_f32() calls:
+ * - outX: 1 call
+ * - outY, outXY: 2 calls
+ * - outZ, outXYZ, outXYZ1: 3 calls
+ * - outW, outZW, outXYZW: 4 calls
+ */
+declare class Random_HashPRNGShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new Random_HashPRNGShaderNode instance.
+     */
+    constructor();
+    /**
+     * Determines the minimum number of random_f32() calls needed based on connected outputs.
+     * Output socket indices and their required call counts:
+     * - 0: outXYZW (4 calls)
+     * - 1: outXYZ1 (3 calls)
+     * - 2: outXYZ (3 calls)
+     * - 3: outXY (2 calls)
+     * - 4: outZW (4 calls)
+     * - 5: outX (1 call)
+     * - 6: outY (2 calls)
+     * - 7: outZ (3 calls)
+     * - 8: outW (4 calls)
+     *
+     * @param varOutputNames - Array of output variable names (dummy* prefix indicates unconnected)
+     * @returns The minimum number of random_f32() calls needed (1-4)
+     */
+    private __getRequiredRandomCalls;
+    /**
+     * Generates shader code for calling the random function.
+     * Analyzes connected outputs and selects the optimal function variant
+     * to minimize random_f32() calls.
+     *
+     * @param engine - The engine instance
+     * @param i - The index of the current shader node call
+     * @param _shaderNode - The shader node instance (unused)
+     * @param _functionName - The base function name (overridden based on analysis)
+     * @param varInputNames - Array of input variable names for each call
+     * @param varOutputNames - Array of output variable names for each call
+     * @returns The generated shader code string for the function call
+     */
+    makeCallStatement(engine: Engine, i: number, _shaderNode: AbstractShaderNode, _functionName: string, varInputNames: string[][], varOutputNames: string[][]): string;
+}
+
+/**
+ * A shader node that outputs a random number between 0 and 1 using Hash-based PRNG.
+ * This node outputs a sine of a random number between 0 and 1.
+ * The node optimizes random_f32() calls based on which outputs are connected.
+ *
+ * Output sockets and their required random_f32() calls:
+ * - outValue: 1 call
+ */
+declare class Random_SinHashShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new Random_SinHashShaderNode instance.
+     */
+    constructor();
+    /**
+     * Determines the minimum number of random_f32() calls needed based on connected outputs.
+     * Output socket indices and their required call counts:
+     * - 0: outXYZW (4 calls)
+     * - 1: outXYZ1 (3 calls)
+     * - 2: outXYZ (3 calls)
+     * - 3: outXY (2 calls)
+     * - 4: outZW (4 calls)
+     * - 5: outX (1 call)
+     * - 6: outY (2 calls)
+     * - 7: outZ (3 calls)
+     * - 8: outW (4 calls)
+     *
+     * @param varOutputNames - Array of output variable names (dummy* prefix indicates unconnected)
+     * @returns The minimum number of random_f32() calls needed (1-4)
+     */
+    private __getRequiredRandomCalls;
+    /**
+     * Generates shader code for calling the random function.
+     * Analyzes connected outputs and selects the optimal function variant
+     * to minimize random_f32() calls.
+     *
+     * @param engine - The engine instance
+     * @param i - The index of the current shader node call
+     * @param _shaderNode - The shader node instance (unused)
+     * @param _functionName - The base function name (overridden based on analysis)
+     * @param varInputNames - Array of input variable names for each call
+     * @param varOutputNames - Array of output variable names for each call
+     * @returns The generated shader code string for the function call
+     */
+    makeCallStatement(engine: Engine, i: number, _shaderNode: AbstractShaderNode, _functionName: string, varInputNames: string[][], varOutputNames: string[][]): string;
+}
+
+/**
  * A shader node that remaps a value from one range to another.
  *
  * The remap function takes a value from the source range [sourceMin, sourceMax]
@@ -45357,99 +46382,268 @@ declare class RemapShaderNode extends AbstractShaderNode {
 }
 
 /**
- * A shader node that splits vector inputs into their individual components or smaller vectors.
- * This node can take vec4, vec3, or vec2 inputs and output various combinations of their components
- * including individual scalars (x, y, z, w) and smaller vectors (xy, zw, xyz).
- *
- * Supports both WebGL/GLSL and WebGPU/WGSL shader compilation.
- * Supports float, int, and uint component types.
+ * A shader node that computes the sine function of its input value.
+ * This node accepts a single input value and outputs the sine of that value.
+ * The computation is performed in shader code (GLSL/WGSL) and supports
+ * scalar, vector2, vector3, and vector4 input types.
  *
  * @example
  * ```typescript
- * const splitNode = new SplitVectorShaderNode(ComponentType.Float);
- * // Connect a vec4 input to get x, y, z, w components separately
- * // Or connect vec3 input to get xyz, xy components
+ * // Create a sine node for a scalar float value
+ * const sinNode = new SinShaderNode(CompositionType.Scalar, ComponentType.Float);
+ *
+ * // Create a sine node for a vec3 float value
+ * const sinVec3Node = new SinShaderNode(CompositionType.Vec3, ComponentType.Float);
  * ```
  */
-declare class SplitVectorShaderNode extends AbstractShaderNode {
-    private __componentType;
+declare class SinShaderNode extends AbstractShaderNode {
     /**
-     * Creates a new SplitVectorShaderNode instance.
-     * Sets up input and output connections for vector splitting operations.
+     * Creates a new SinShaderNode instance with the specified composition and component types.
+     * The node will have one input socket named 'value' and one output socket named 'outValue',
+     * both configured with the provided types.
      *
-     * @param componentType - The component type (Float, Int, or UnsignedInt). Defaults to Float.
-     *
-     * Inputs:
-     * - xyzw: Vec4 input for 4-component vectors
-     * - xyz: Vec3 input for 3-component vectors
-     * - xy: Vec2 input for 2-component vectors
-     *
-     * Outputs:
-     * - xyz: Vec3 output (first 3 components)
-     * - xy: Vec2 output (first 2 components)
-     * - zw: Vec2 output (last 2 components of vec4)
-     * - x, y, z, w: Individual scalar components
+     * @param compositionType - The composition type (Scalar, Vec2, Vec3, Vec4) that defines the structure of the input/output data
+     * @param componentType - The component type (Float, Int, etc.) that defines the data type of each component
      */
-    constructor(componentType?: ComponentTypeEnum);
+    constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum);
     /**
-     * Gets the derivative shader function name based on the connected input type and component type.
-     * For WebGPU, returns specialized function names (splitVectorXYZW, splitVectorXYZ, splitVectorXY)
-     * based on which input is connected, with type suffix (I32, U32) for non-float types.
-     * For WebGL, returns the base function name.
+     * Gets the input socket for the value to compute the sine of.
+     * This is the socket where the input value should be connected.
      *
-     * @returns The appropriate shader function name for the current input connection and process approach
-     * @throws {Error} When no valid input connection is found in WebGPU mode
+     * @returns The input socket that accepts the value for sine computation
      */
-    getShaderFunctionNameDerivative(engine: Engine): string;
+    getSocketInputValue(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
     /**
-     * Generates shader code for calling the split vector function with appropriate input and output handling.
-     * Creates dummy variables for unused outputs and maps connected outputs to their proper variable names.
-     * Handles differences between WebGL/GLSL and WebGPU/WGSL syntax, including reference parameters for WebGPU.
+     * Gets the output socket that provides the computed sine value.
+     * This socket outputs the result of the sine function applied to the input value.
      *
-     * @param i - The index of the current shader node call
-     * @param shaderNode - The shader node instance (unused in this implementation)
-     * @param functionName - The name of the shader function to call
-     * @param varInputNames - Array of input variable names for each call
-     * @param varOutputNames - Array of output variable names for each call
-     * @returns The generated shader code string for the function call
+     * @returns The output socket containing the sine computation result
      */
+    getSocketOutput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
     /**
-     * Generates shader code for calling the split vector function.
-     * ShaderGraphResolver already orders varOutputNames to match output socket order and generates
-     * dummy variables for unconnected outputs, so we simply use them directly.
-     * This node only needs custom handling for selecting the correct input (xyzw, xyz, or xy).
+     * Gets the appropriate shader function name based on the current rendering approach and input type.
+     * For WebGPU, returns a type-specific function name (e.g., '_sinF32', '_sinVec2f').
+     * For WebGL, returns the base function name '_sin'.
+     *
+     * This method ensures that the correct shader function is called based on the
+     * composition type and the target graphics API.
      *
      * @param engine - The engine instance
-     * @param i - The index of the current shader node call
-     * @param _shaderNode - The shader node instance (unused in this implementation)
-     * @param functionName - The name of the shader function to call
-     * @param varInputNames - Array of input variable names for each call
-     * @param varOutputNames - Array of output variable names for each call (already ordered by ShaderGraphResolver)
-     * @returns The generated shader code string for the function call
+     * @returns The shader function name to use in the generated shader code
+     * @throws {Error} Throws an error if the composition type is not implemented for WebGPU
      */
-    makeCallStatement(engine: Engine, i: number, _shaderNode: AbstractShaderNode, functionName: string, varInputNames: string[][], varOutputNames: string[][]): string;
+    getShaderFunctionNameDerivative(engine: Engine): string;
 }
 
 /**
- * A shader node that provides texture input functionality.
- * This node wraps TextureShader to provide a standardized interface
- * for passing textures to shader programs.
+ * A shader node that implements the smoothstep function for smooth interpolation between two edge values.
+ *
+ * The smoothstep function performs smooth Hermite interpolation between 0 and 1 when edge0 < x < edge1.
+ * This is useful for creating smooth transitions and gradients in shaders.
+ *
+ * @example
+ * ```typescript
+ * const smoothStepNode = new SmoothStepShaderNode(
+ *   CompositionType.Vec3,
+ *   ComponentType.Float
+ * );
+ * ```
  */
-declare class Texture2DShaderNode extends AbstractShaderNode {
+declare class SmoothStepShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new SmoothStepShaderNode instance.
+     *
+     * @param compositionType - The composition type (Scalar, Vec2, Vec3, Vec4) for the shader node
+     * @param componentType - The component type (Float, Int, etc.) for the shader node
+     */
+    constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum);
+    /**
+     * Gets the input socket for the value parameter of the smoothstep function.
+     *
+     * This is the value to be interpolated between edge0 and edge1.
+     *
+     * @returns The input socket for the value parameter
+     */
+    getSocketInputValue(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+    /**
+     * Gets the output socket that contains the result of the smoothstep operation.
+     *
+     * The output will be a smoothly interpolated value between 0 and 1 based on
+     * where the input value falls relative to edge0 and edge1.
+     *
+     * @returns The output socket containing the smoothstep result
+     */
+    getSocketOutput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+    /**
+     * Gets the appropriate shader function name based on the current process approach and composition type.
+     *
+     * For WebGPU, the function name includes a type suffix (F32, Vec2f, Vec3f, Vec4f) to match
+     * WGSL naming conventions. For other approaches (WebGL), the base function name is used.
+     *
+     * @param engine - The engine instance
+     * @returns The shader function name with appropriate type suffix for the current context
+     * @throws {Error} If the composition type is not supported
+     */
+    getShaderFunctionNameDerivative(engine: Engine): string;
+}
+
+/**
+ * A shader node that computes the tangent function of its input value.
+ * This node accepts a single input value and outputs the tangent of that value.
+ * The computation is performed in shader code (GLSL/WGSL) and supports
+ * scalar, vector2, vector3, and vector4 input types.
+ *
+ * @example
+ * ```typescript
+ * // Create a tangent node for a scalar float value
+ * const tanNode = new TanShaderNode(CompositionType.Scalar, ComponentType.Float);
+ *
+ * // Create a tangent node for a vec3 float value
+ * const tanVec3Node = new TanShaderNode(CompositionType.Vec3, ComponentType.Float);
+ * ```
+ */
+declare class TanShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new TanShaderNode instance with the specified composition and component types.
+     * The node will have one input socket named 'value' and one output socket named 'outValue',
+     * both configured with the provided types.
+     *
+     * @param compositionType - The composition type (Scalar, Vec2, Vec3, Vec4) that defines the structure of the input/output data
+     * @param componentType - The component type (Float, Int, etc.) that defines the data type of each component
+     */
+    constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum);
+    /**
+     * Gets the input socket for the value to compute the tangent of.
+     * This is the socket where the input value should be connected.
+     *
+     * @returns The input socket that accepts the value for tangent computation
+     */
+    getSocketInputValue(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+    /**
+     * Gets the output socket that provides the computed tangent value.
+     * This socket outputs the result of the tangent function applied to the input value.
+     *
+     * @returns The output socket containing the tangent computation result
+     */
+    getSocketOutput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+    /**
+     * Gets the appropriate shader function name based on the current rendering approach and input type.
+     * For WebGPU, returns a type-specific function name (e.g., '_tanF32', '_tanVec2f').
+     * For WebGL, returns the base function name '_tan'.
+     *
+     * This method ensures that the correct shader function is called based on the
+     * composition type and the target graphics API.
+     *
+     * @param engine - The engine instance
+     * @returns The shader function name to use in the generated shader code
+     * @throws {Error} Throws an error if the composition type is not implemented for WebGPU
+     */
+    getShaderFunctionNameDerivative(engine: Engine): string;
+}
+
+/**
+ * A shader node that implements the step function.
+ *
+ * The step function returns 0.0 if the value is less than the edge, and 1.0 otherwise.
+ * This is commonly used for creating sharp transitions and thresholding operations in shaders.
+ *
+ * @example
+ * ```typescript
+ * const stepNode = new StepShaderNode(CompositionType.Scalar, ComponentType.Float);
+ * ```
+ */
+declare class StepShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new StepShaderNode instance.
+     *
+     * @param compositionType - The composition type (Scalar, Vec2, Vec3, or Vec4) for the inputs and output
+     * @param componentType - The component type (Float, Int, etc.) for the inputs and output
+     */
+    constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum);
+    /**
+     * Gets the input socket for the value parameter.
+     *
+     * The value socket represents the input value to be compared against the edge.
+     *
+     * @returns The value input socket
+     */
+    getSocketInputValue(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+    /**
+     * Gets the output socket that provides the result of the step function.
+     *
+     * The output will be 0.0 if value < edge, and 1.0 if value >= edge.
+     *
+     * @returns The output socket containing the step function result
+     */
+    getSocketOutput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+    /**
+     * Gets the appropriate shader function name based on the current graphics API and composition type.
+     *
+     * For WebGPU, returns a type-specific function name (e.g., '_stepF32', '_stepVec2f').
+     * For other APIs (WebGL), returns the base function name.
+     *
+     * @param engine - The engine instance
+     * @returns The shader function name to use in the generated shader code
+     * @throws {Error} Throws an error if the composition type is not implemented for WebGPU
+     */
+    getShaderFunctionNameDerivative(engine: Engine): string;
+}
+
+/**
+ * A shader node that provides time-based functionality for shaders.
+ * This node outputs the current time value as a scalar float, which can be used
+ * for animations, procedural effects, and time-dependent calculations in shaders.
+ *
+ * The node includes both GLSL and WGSL implementations to support different
+ * graphics APIs (WebGL and WebGPU).
+ *
+ * @example
+ * ```typescript
+ * const timeNode = new TimeShaderNode();
+ * // Use timeNode.outValue in your shader graph for time-based effects
+ * ```
+ */
+declare class TimeShaderNode extends AbstractShaderNode {
+    /**
+     * Creates a new TimeShaderNode instance.
+     *
+     * Initializes the node with:
+     * - GLSL and WGSL shader code for time functionality
+     * - A single scalar float output named 'outValue' that represents the current time
+     *
+     * The output can be connected to other shader nodes to create time-dependent
+     * effects such as animations, oscillations, or procedural variations.
+     */
     constructor();
+}
+
+/**
+ * A shader node that performs matrix-vector transformation operations.
+ * This node multiplies a matrix (left-hand side) with a vector (right-hand side)
+ * to produce a transformed vector output. Supports Mat2x2*Vec2, Mat3x3*Vec3, and Mat4x4*Vec4 operations.
+ */
+declare class TransformShaderNode extends AbstractShaderNode {
     /**
-     * Sets sRGB flag for the texture
+     * Creates a new TransformShaderNode instance.
      *
-     * @param sRGB - The sRGB flag
+     * @param lhsCompositionType - The composition type of the left-hand side operand (matrix)
+     * @param lhsComponentType - The component type of the left-hand side operand
+     * @param rhsCompositionType - The composition type of the right-hand side operand (vector)
+     * @param rhsComponentType - The component type of the right-hand side operand
+     *
+     * @throws {Error} When unsupported matrix-vector combinations are provided
      */
-    setSrgbFlag(sRGB: boolean): void;
+    constructor(lhsCompositionType: CompositionTypeEnum, lhsComponentType: ComponentTypeEnum, rhsCompositionType: CompositionTypeEnum, rhsComponentType: ComponentTypeEnum);
     /**
-     * Sets the texture variable name in the shader.
-     * This name will be used to reference the texture variable in the generated shader code.
+     * Gets the appropriate shader function name derivative based on the current process approach.
+     * For WebGPU, returns a specific function name based on matrix and vector dimensions.
+     * For other approaches, returns the base shader function name.
      *
-     * @param value - The variable name to use for the texture in the shader
+     * @param engine - The engine instance
+     * @returns The shader function name to use for this transformation
+     * @throws {Error} When the matrix-vector combination is not implemented for WebGPU
      */
-    setTextureName(value: any): void;
+    getShaderFunctionNameDerivative(engine: Engine): string;
 }
 
 /**
@@ -45532,6 +46726,102 @@ declare class WorldMatrixShaderNode extends AbstractShaderNode {
      * other geometric data from object space to world space.
      */
     constructor();
+}
+
+/**
+ * A shader node that provides texture input functionality.
+ * This node wraps TextureShader to provide a standardized interface
+ * for passing textures to shader programs.
+ */
+declare class Texture2DShaderNode extends AbstractShaderNode {
+    constructor();
+    /**
+     * Sets sRGB flag for the texture
+     *
+     * @param sRGB - The sRGB flag
+     */
+    setSrgbFlag(sRGB: boolean): void;
+    /**
+     * Sets the texture variable name in the shader.
+     * This name will be used to reference the texture variable in the generated shader code.
+     *
+     * @param value - The variable name to use for the texture in the shader
+     */
+    setTextureName(value: any): void;
+}
+
+/**
+ * A shader node that splits vector inputs into their individual components or smaller vectors.
+ * This node can take vec4, vec3, or vec2 inputs and output various combinations of their components
+ * including individual scalars (x, y, z, w) and smaller vectors (xy, zw, xyz).
+ *
+ * Supports both WebGL/GLSL and WebGPU/WGSL shader compilation.
+ * Supports float, int, and uint component types.
+ *
+ * @example
+ * ```typescript
+ * const splitNode = new SplitVectorShaderNode(ComponentType.Float);
+ * // Connect a vec4 input to get x, y, z, w components separately
+ * // Or connect vec3 input to get xyz, xy components
+ * ```
+ */
+declare class SplitVectorShaderNode extends AbstractShaderNode {
+    private __componentType;
+    /**
+     * Creates a new SplitVectorShaderNode instance.
+     * Sets up input and output connections for vector splitting operations.
+     *
+     * @param componentType - The component type (Float, Int, or UnsignedInt). Defaults to Float.
+     *
+     * Inputs:
+     * - xyzw: Vec4 input for 4-component vectors
+     * - xyz: Vec3 input for 3-component vectors
+     * - xy: Vec2 input for 2-component vectors
+     *
+     * Outputs:
+     * - xyz: Vec3 output (first 3 components)
+     * - xy: Vec2 output (first 2 components)
+     * - zw: Vec2 output (last 2 components of vec4)
+     * - x, y, z, w: Individual scalar components
+     */
+    constructor(componentType?: ComponentTypeEnum);
+    /**
+     * Gets the derivative shader function name based on the connected input type and component type.
+     * For WebGPU, returns specialized function names (splitVectorXYZW, splitVectorXYZ, splitVectorXY)
+     * based on which input is connected, with type suffix (I32, U32) for non-float types.
+     * For WebGL, returns the base function name.
+     *
+     * @returns The appropriate shader function name for the current input connection and process approach
+     * @throws {Error} When no valid input connection is found in WebGPU mode
+     */
+    getShaderFunctionNameDerivative(engine: Engine): string;
+    /**
+     * Generates shader code for calling the split vector function with appropriate input and output handling.
+     * Creates dummy variables for unused outputs and maps connected outputs to their proper variable names.
+     * Handles differences between WebGL/GLSL and WebGPU/WGSL syntax, including reference parameters for WebGPU.
+     *
+     * @param i - The index of the current shader node call
+     * @param shaderNode - The shader node instance (unused in this implementation)
+     * @param functionName - The name of the shader function to call
+     * @param varInputNames - Array of input variable names for each call
+     * @param varOutputNames - Array of output variable names for each call
+     * @returns The generated shader code string for the function call
+     */
+    /**
+     * Generates shader code for calling the split vector function.
+     * ShaderGraphResolver already orders varOutputNames to match output socket order and generates
+     * dummy variables for unconnected outputs, so we simply use them directly.
+     * This node only needs custom handling for selecting the correct input (xyzw, xyz, or xy).
+     *
+     * @param engine - The engine instance
+     * @param i - The index of the current shader node call
+     * @param _shaderNode - The shader node instance (unused in this implementation)
+     * @param functionName - The name of the shader function to call
+     * @param varInputNames - Array of input variable names for each call
+     * @param varOutputNames - Array of output variable names for each call (already ordered by ShaderGraphResolver)
+     * @returns The generated shader code string for the function call
+     */
+    makeCallStatement(engine: Engine, i: number, _shaderNode: AbstractShaderNode, functionName: string, varInputNames: string[][], varOutputNames: string[][]): string;
 }
 
 /**
@@ -46681,6 +47971,8 @@ declare class ForwardRenderPipeline extends RnObject {
     private __oShadowSystem;
     private __shadowExpressions;
     private __entitiesForShadow;
+    private __oRaymarchingExpression;
+    private __oRaymarchingRenderPass;
     private __engine;
     constructor(engine: Engine);
     /**
@@ -47134,6 +48426,9 @@ declare class ForwardRenderPipeline extends RnObject {
      * ```
      */
     setToneMappingType(type: ToneMappingTypeEnum): void;
+    private __setupRaymarchingExpression;
+    setRaymarchingMaterial(material: Material): void;
+    getRaymarchingMaterial(): Material | undefined;
     /**
      * Internal method to set up the frame with all configured expressions.
      *
@@ -47488,6 +48783,8 @@ type Rn_AnimationInterpolationEnum = AnimationInterpolationEnum;
 type Rn_AnimationPathName = AnimationPathName;
 type Rn_AnimationSampler = AnimationSampler;
 type Rn_AnimationSamplers = AnimationSamplers;
+type Rn_AnimationStateComponent = AnimationStateComponent;
+declare const Rn_AnimationStateComponent: typeof AnimationStateComponent;
 type Rn_AnimationTrack = AnimationTrack;
 type Rn_AnimationTrackName = AnimationTrackName;
 type Rn_Array1<T> = Array1<T>;
@@ -47627,6 +48924,10 @@ type Rn_ConstantVector3VariableShaderNode<T extends ComponentTypeEnum> = Constan
 declare const Rn_ConstantVector3VariableShaderNode: typeof ConstantVector3VariableShaderNode;
 type Rn_ConstantVector4VariableShaderNode<T extends ComponentTypeEnum> = ConstantVector4VariableShaderNode<T>;
 declare const Rn_ConstantVector4VariableShaderNode: typeof ConstantVector4VariableShaderNode;
+type Rn_ConstraintComponent = ConstraintComponent;
+declare const Rn_ConstraintComponent: typeof ConstraintComponent;
+type Rn_CosShaderNode = CosShaderNode;
+declare const Rn_CosShaderNode: typeof CosShaderNode;
 type Rn_Count = Count;
 type Rn_Cube = Cube;
 declare const Rn_Cube: typeof Cube;
@@ -48506,6 +49807,7 @@ type Rn_IAnimationEntity = IAnimationEntity;
 type Rn_IAnimationEntityMethods = IAnimationEntityMethods;
 type Rn_IAnimationRetarget = IAnimationRetarget;
 type Rn_IAnimationStateEntity = IAnimationStateEntity;
+type Rn_IAnimationStateEntityMethods = IAnimationStateEntityMethods;
 type Rn_IAnyPrimitiveDescriptor = IAnyPrimitiveDescriptor;
 type Rn_IArrayBufferBasedMathNumber = IArrayBufferBasedMathNumber;
 type Rn_IBlendShapeEntity = IBlendShapeEntity;
@@ -48519,6 +49821,7 @@ type Rn_ICameraEntityMethods = ICameraEntityMethods;
 type Rn_IColorRgb = IColorRgb;
 type Rn_IColorRgba = IColorRgba;
 type Rn_IConstraintEntity = IConstraintEntity;
+type Rn_IConstraintEntityMethods = IConstraintEntityMethods;
 type Rn_IEffekseerEntityMethods = IEffekseerEntityMethods;
 type Rn_IEnhancedArrayMethods = IEnhancedArrayMethods;
 type Rn_IEntity = IEntity;
@@ -48555,6 +49858,8 @@ declare const Rn_INPUT_HANDLING_STATE_NONE: typeof INPUT_HANDLING_STATE_NONE;
 type Rn_IPhysicsEntity = IPhysicsEntity;
 type Rn_IPhysicsEntityMethods = IPhysicsEntityMethods;
 type Rn_IQuaternion = IQuaternion;
+type Rn_IRaymarchingEntity = IRaymarchingEntity;
+type Rn_IRaymarchingEntityMethods = IRaymarchingEntityMethods;
 type Rn_IRenderable = IRenderable;
 type Rn_IRnObject = IRnObject;
 type Rn_IScalar = IScalar;
@@ -48577,10 +49882,6 @@ type Rn_IdentityMatrix33 = IdentityMatrix33;
 declare const Rn_IdentityMatrix33: typeof IdentityMatrix33;
 type Rn_IdentityMatrix44 = IdentityMatrix44;
 declare const Rn_IdentityMatrix44: typeof IdentityMatrix44;
-type Rn_IfStatementShader = IfStatementShader;
-declare const Rn_IfStatementShader: typeof IfStatementShader;
-type Rn_IfStatementShaderNode = IfStatementShaderNode;
-declare const Rn_IfStatementShaderNode: typeof IfStatementShaderNode;
 type Rn_ImageBitmapData = ImageBitmapData;
 type Rn_ImageInfo = ImageInfo;
 declare const Rn_ImageInfo: typeof ImageInfo;
@@ -48591,6 +49892,8 @@ type Rn_IndexOf16Bytes = IndexOf16Bytes;
 type Rn_IndexOf4Bytes = IndexOf4Bytes;
 type Rn_IndexOfBufferViews = IndexOfBufferViews;
 type Rn_IndicesAccessOption = IndicesAccessOption;
+type Rn_InitialPositionShaderNode = InitialPositionShaderNode;
+declare const Rn_InitialPositionShaderNode: typeof InitialPositionShaderNode;
 type Rn_InputHandlerInfo = InputHandlerInfo;
 type Rn_InputHandlingState = InputHandlingState;
 type Rn_InputManager = InputManager;
@@ -48687,6 +49990,8 @@ type Rn_MeshRendererComponent = MeshRendererComponent;
 declare const Rn_MeshRendererComponent: typeof MeshRendererComponent;
 type Rn_MeshUID = MeshUID;
 type Rn_MilliSecond = MilliSecond;
+type Rn_MinShaderNode = MinShaderNode;
+declare const Rn_MinShaderNode: typeof MinShaderNode;
 declare const Rn_MiscUtil: typeof MiscUtil;
 type Rn_MixinBase = MixinBase;
 type Rn_ModelConverter = ModelConverter;
@@ -48736,6 +50041,11 @@ declare const Rn_MutableVector4_: typeof MutableVector4_;
 type Rn_MutableVector4d = MutableVector4d;
 declare const Rn_MutableVector4d: typeof MutableVector4d;
 type Rn_MutableVector4f = MutableVector4f;
+type Rn_NodeJSON = NodeJSON;
+type Rn_NodeJSONConnection = NodeJSONConnection;
+type Rn_NodeJSONNode = NodeJSONNode;
+type Rn_NodeJSONNodeInput = NodeJSONNodeInput;
+type Rn_NodeJSONNodeOutput = NodeJSONNodeOutput;
 type Rn_None = None;
 declare const Rn_None: typeof None;
 type Rn_NormalMatrixShaderNode = NormalMatrixShaderNode;
@@ -48750,6 +50060,10 @@ type Rn_OimoPhysicsStrategy = OimoPhysicsStrategy;
 declare const Rn_OimoPhysicsStrategy: typeof OimoPhysicsStrategy;
 type Rn_Ok<T, ErrObj> = Ok<T, ErrObj>;
 declare const Rn_Ok: typeof Ok;
+type Rn_OpSubtractionShaderNode = OpSubtractionShaderNode;
+declare const Rn_OpSubtractionShaderNode: typeof OpSubtractionShaderNode;
+type Rn_OpUnionShaderNode = OpUnionShaderNode;
+declare const Rn_OpUnionShaderNode: typeof OpUnionShaderNode;
 type Rn_Option<T> = Option<T>;
 type Rn_OrShaderNode = OrShaderNode;
 declare const Rn_OrShaderNode: typeof OrShaderNode;
@@ -48757,8 +50071,14 @@ type Rn_OrbitCameraController = OrbitCameraController;
 declare const Rn_OrbitCameraController: typeof OrbitCameraController;
 type Rn_OutColorShaderNode = OutColorShaderNode;
 declare const Rn_OutColorShaderNode: typeof OutColorShaderNode;
+type Rn_OutDistanceShader = OutDistanceShader;
+declare const Rn_OutDistanceShader: typeof OutDistanceShader;
+type Rn_OutDistanceShaderNode = OutDistanceShaderNode;
+declare const Rn_OutDistanceShaderNode: typeof OutDistanceShaderNode;
 type Rn_OutPositionShaderNode = OutPositionShaderNode;
 declare const Rn_OutPositionShaderNode: typeof OutPositionShaderNode;
+type Rn_OutUnionShaderNode = OutUnionShaderNode;
+declare const Rn_OutUnionShaderNode: typeof OutUnionShaderNode;
 type Rn_PartialRequire<O, K extends keyof O> = PartialRequire<O, K>;
 type Rn_PbrAnisotropyPropsShaderNode = PbrAnisotropyPropsShaderNode;
 declare const Rn_PbrAnisotropyPropsShaderNode: typeof PbrAnisotropyPropsShaderNode;
@@ -48795,6 +50115,8 @@ type Rn_PhysicsComponent = PhysicsComponent;
 declare const Rn_PhysicsComponent: typeof PhysicsComponent;
 type Rn_PhysicsProperty = PhysicsProperty;
 type Rn_PhysicsPropertyInner = PhysicsPropertyInner;
+declare const Rn_PhysicsShape: typeof PhysicsShape;
+type Rn_PhysicsShapeTypeEnum = PhysicsShapeTypeEnum;
 type Rn_PhysicsStrategy = PhysicsStrategy;
 type Rn_PhysicsWorldProperty = PhysicsWorldProperty;
 declare const Rn_PixelFormat: typeof PixelFormat;
@@ -48835,10 +50157,18 @@ type Rn_ProjectionMatrixShaderNode = ProjectionMatrixShaderNode;
 declare const Rn_ProjectionMatrixShaderNode: typeof ProjectionMatrixShaderNode;
 type Rn_Quaternion = Quaternion;
 declare const Rn_Quaternion: typeof Quaternion;
+type Rn_Random_HashPRNGShaderNode = Random_HashPRNGShaderNode;
+declare const Rn_Random_HashPRNGShaderNode: typeof Random_HashPRNGShaderNode;
+type Rn_Random_SinHashShaderNode = Random_SinHashShaderNode;
+declare const Rn_Random_SinHashShaderNode: typeof Random_SinHashShaderNode;
 type Rn_Ratio = Ratio;
 type Rn_RaycastResult = RaycastResult;
 type Rn_RaycastResultEx1 = RaycastResultEx1;
 type Rn_RaycastResultEx2 = RaycastResultEx2;
+type Rn_RaymarchingComponent = RaymarchingComponent;
+declare const Rn_RaymarchingComponent: typeof RaymarchingComponent;
+type Rn_RaymarchingShaderPart = RaymarchingShaderPart;
+declare const Rn_RaymarchingShaderPart: typeof RaymarchingShaderPart;
 type Rn_RemapShaderNode = RemapShaderNode;
 declare const Rn_RemapShaderNode: typeof RemapShaderNode;
 type Rn_RenderBuffer = RenderBuffer;
@@ -48936,6 +50266,42 @@ type Rn_ScaleGizmo = ScaleGizmo;
 declare const Rn_ScaleGizmo: typeof ScaleGizmo;
 type Rn_SceneGraphComponent = SceneGraphComponent;
 declare const Rn_SceneGraphComponent: typeof SceneGraphComponent;
+type Rn_SdApplyTransformShaderNode = SdApplyTransformShaderNode;
+declare const Rn_SdApplyTransformShaderNode: typeof SdApplyTransformShaderNode;
+type Rn_SdApplyWorldMatrixShaderNode = SdApplyWorldMatrixShaderNode;
+declare const Rn_SdApplyWorldMatrixShaderNode: typeof SdApplyWorldMatrixShaderNode;
+type Rn_SdBarXShaderNode = SdBarXShaderNode;
+declare const Rn_SdBarXShaderNode: typeof SdBarXShaderNode;
+type Rn_SdBarYShaderNode = SdBarYShaderNode;
+declare const Rn_SdBarYShaderNode: typeof SdBarYShaderNode;
+type Rn_SdBarZShaderNode = SdBarZShaderNode;
+declare const Rn_SdBarZShaderNode: typeof SdBarZShaderNode;
+type Rn_SdBoxShaderNode = SdBoxShaderNode;
+declare const Rn_SdBoxShaderNode: typeof SdBoxShaderNode;
+type Rn_SdRepeatShaderNode = SdRepeatShaderNode;
+declare const Rn_SdRepeatShaderNode: typeof SdRepeatShaderNode;
+type Rn_SdRepeatXShaderNode = SdRepeatXShaderNode;
+declare const Rn_SdRepeatXShaderNode: typeof SdRepeatXShaderNode;
+type Rn_SdRepeatXYShaderNode = SdRepeatXYShaderNode;
+declare const Rn_SdRepeatXYShaderNode: typeof SdRepeatXYShaderNode;
+type Rn_SdRepeatYShaderNode = SdRepeatYShaderNode;
+declare const Rn_SdRepeatYShaderNode: typeof SdRepeatYShaderNode;
+type Rn_SdRepeatYZShaderNode = SdRepeatYZShaderNode;
+declare const Rn_SdRepeatYZShaderNode: typeof SdRepeatYZShaderNode;
+type Rn_SdRepeatZShaderNode = SdRepeatZShaderNode;
+declare const Rn_SdRepeatZShaderNode: typeof SdRepeatZShaderNode;
+type Rn_SdRepeatZXShaderNode = SdRepeatZXShaderNode;
+declare const Rn_SdRepeatZXShaderNode: typeof SdRepeatZXShaderNode;
+type Rn_SdSphereShaderNode = SdSphereShaderNode;
+declare const Rn_SdSphereShaderNode: typeof SdSphereShaderNode;
+type Rn_SdTubeXShaderNode = SdTubeXShaderNode;
+declare const Rn_SdTubeXShaderNode: typeof SdTubeXShaderNode;
+type Rn_SdTubeYShaderNode = SdTubeYShaderNode;
+declare const Rn_SdTubeYShaderNode: typeof SdTubeYShaderNode;
+type Rn_SdTubeZShaderNode = SdTubeZShaderNode;
+declare const Rn_SdTubeZShaderNode: typeof SdTubeZShaderNode;
+declare const Rn_SdfShapeType: typeof SdfShapeType;
+type Rn_SdfShapeTypeEnum = SdfShapeTypeEnum;
 type Rn_Second = Second;
 type Rn_ShaderAttributeOrSemanticsOrString = ShaderAttributeOrSemanticsOrString;
 type Rn_ShaderGraphResolver = ShaderGraphResolver;
@@ -48976,9 +50342,13 @@ type Rn_ShadowSystem = ShadowSystem;
 declare const Rn_ShadowSystem: typeof ShadowSystem;
 type Rn_SimpleVertexAttribute = SimpleVertexAttribute;
 declare const Rn_SimpleVertexAttribute: typeof SimpleVertexAttribute;
+type Rn_SinShaderNode = SinShaderNode;
+declare const Rn_SinShaderNode: typeof SinShaderNode;
 type Rn_Size = Size;
 type Rn_SkeletalComponent = SkeletalComponent;
 declare const Rn_SkeletalComponent: typeof SkeletalComponent;
+type Rn_SmoothStepShaderNode = SmoothStepShaderNode;
+declare const Rn_SmoothStepShaderNode: typeof SmoothStepShaderNode;
 type Rn_Some<T> = Some<T>;
 declare const Rn_Some: typeof Some;
 type Rn_Sphere = Sphere;
@@ -48991,12 +50361,18 @@ type Rn_SphereDescriptor = SphereDescriptor;
 type Rn_SplitVectorShaderNode = SplitVectorShaderNode;
 declare const Rn_SplitVectorShaderNode: typeof SplitVectorShaderNode;
 type Rn_SquareMatrixComponentN = SquareMatrixComponentN;
+type Rn_StandardShaderPart = StandardShaderPart;
+declare const Rn_StandardShaderPart: typeof StandardShaderPart;
+type Rn_StepShaderNode = StepShaderNode;
+declare const Rn_StepShaderNode: typeof StepShaderNode;
 type Rn_SymbolWeakMap<V> = SymbolWeakMap<V>;
 declare const Rn_SymbolWeakMap: typeof SymbolWeakMap;
 type Rn_SynthesizeHdrMaterialContent = SynthesizeHdrMaterialContent;
 declare const Rn_SynthesizeHdrMaterialContent: typeof SynthesizeHdrMaterialContent;
 type Rn_Tag = Tag;
 declare const Rn_TagGltf2NodeIndex: typeof TagGltf2NodeIndex;
+type Rn_TanShaderNode = TanShaderNode;
+declare const Rn_TanShaderNode: typeof TanShaderNode;
 type Rn_Texture = Texture;
 declare const Rn_Texture: typeof Texture;
 type Rn_Texture2DShader = Texture2DShader;
@@ -49013,6 +50389,8 @@ type Rn_TextureParameters = TextureParameters;
 type Rn_TextureUID = TextureUID;
 type Rn_Time = Time;
 declare const Rn_Time: typeof Time;
+type Rn_TimeShaderNode = TimeShaderNode;
+declare const Rn_TimeShaderNode: typeof TimeShaderNode;
 declare const Rn_ToneMappingType: typeof ToneMappingType;
 type Rn_ToneMappingTypeEnum = ToneMappingTypeEnum;
 type Rn_TranscodeTarget = TranscodeTarget;
@@ -49021,6 +50399,8 @@ type Rn_Transform3D = Transform3D;
 declare const Rn_Transform3D: typeof Transform3D;
 type Rn_TransformComponent = TransformComponent;
 declare const Rn_TransformComponent: typeof TransformComponent;
+type Rn_TransformShaderNode = TransformShaderNode;
+declare const Rn_TransformShaderNode: typeof TransformShaderNode;
 type Rn_TranslationGizmo = TranslationGizmo;
 declare const Rn_TranslationGizmo: typeof TranslationGizmo;
 type Rn_TypedArray = TypedArray;
@@ -49043,8 +50423,6 @@ type Rn_VRMSpringBonePhysicsStrategy = VRMSpringBonePhysicsStrategy;
 declare const Rn_VRMSpringBonePhysicsStrategy: typeof VRMSpringBonePhysicsStrategy;
 type Rn_VarianceShadowMapDecodeClassicMaterialContent = VarianceShadowMapDecodeClassicMaterialContent;
 declare const Rn_VarianceShadowMapDecodeClassicMaterialContent: typeof VarianceShadowMapDecodeClassicMaterialContent;
-type Rn_VaryingVariableShader = VaryingVariableShader;
-declare const Rn_VaryingVariableShader: typeof VaryingVariableShader;
 type Rn_Vector2 = Vector2;
 declare const Rn_Vector2: typeof Vector2;
 type Rn_Vector2_<T extends FloatTypedArrayConstructor> = Vector2_<T>;
@@ -49180,6 +50558,7 @@ declare const Rn_createLightWithCameraEntity: typeof createLightWithCameraEntity
 declare const Rn_createMeshEntity: typeof createMeshEntity;
 declare const Rn_createMotionController: typeof createMotionController;
 declare const Rn_createPhysicsEntity: typeof createPhysicsEntity;
+declare const Rn_createRaymarchingEntity: typeof createRaymarchingEntity;
 declare const Rn_createSkeletalEntity: typeof createSkeletalEntity;
 declare const Rn_createTransformEntity: typeof createTransformEntity;
 declare const Rn_deepCopyUsingJsonStringify: typeof deepCopyUsingJsonStringify;
@@ -49249,7 +50628,7 @@ declare const Rn_updateMotionControllerModel: typeof updateMotionControllerModel
 declare const Rn_valueWithCompensation: typeof valueWithCompensation;
 declare const Rn_valueWithDefault: typeof valueWithDefault;
 declare namespace Rn {
-  export { Rn_AABB as AABB, Rn_AABBGizmo as AABBGizmo, Rn_AbsoluteAnimation as AbsoluteAnimation, Rn_AbstractArrayBufferBaseMathNumber as AbstractArrayBufferBaseMathNumber, Rn_AbstractCameraController as AbstractCameraController, Rn_AbstractMaterialContent as AbstractMaterialContent, Rn_AbstractMatrix as AbstractMatrix, Rn_AbstractQuaternion as AbstractQuaternion, Rn_AbstractShaderNode as AbstractShaderNode, Rn_AbstractTexture as AbstractTexture, Rn_AbstractVector as AbstractVector, Rn_Accessor as Accessor, Rn_AddShaderNode as AddShaderNode, Rn_AlphaMode as AlphaMode, type Rn_AlphaModeEnum as AlphaModeEnum, Rn_AlphaTestShaderNode as AlphaTestShaderNode, Rn_AndShaderNode as AndShaderNode, Rn_AnimatedQuaternion as AnimatedQuaternion, Rn_AnimatedScalar as AnimatedScalar, Rn_AnimatedVector2 as AnimatedVector2, Rn_AnimatedVector3 as AnimatedVector3, Rn_AnimatedVector4 as AnimatedVector4, Rn_AnimatedVectorN as AnimatedVectorN, Rn_AnimationAssigner as AnimationAssigner, Rn_AnimationAttribute as AnimationAttribute, type Rn_AnimationAttributeEnum as AnimationAttributeEnum, type Rn_AnimationChannel as AnimationChannel, type Rn_AnimationChannelTarget as AnimationChannelTarget, Rn_AnimationComponent as AnimationComponent, type Rn_AnimationComponentEventType as AnimationComponentEventType, type Rn_AnimationInfo as AnimationInfo, Rn_AnimationInterpolation as AnimationInterpolation, type Rn_AnimationInterpolationEnum as AnimationInterpolationEnum, type Rn_AnimationPathName as AnimationPathName, type Rn_AnimationSampler as AnimationSampler, type Rn_AnimationSamplers as AnimationSamplers, type Rn_AnimationTrack as AnimationTrack, type Rn_AnimationTrackName as AnimationTrackName, type Rn_Array1 as Array1, type Rn_Array16 as Array16, type Rn_Array1to4 as Array1to4, type Rn_Array2 as Array2, type Rn_Array3 as Array3, type Rn_Array4 as Array4, type Rn_Array9 as Array9, type Rn_ArrayAsRn as ArrayAsRn, type Rn_ArrayType as ArrayType, Rn_AssetLoader as AssetLoader, type Rn_AssetLoaderConfig as AssetLoaderConfig, Rn_AttributeColorShaderNode as AttributeColorShaderNode, Rn_AttributeInstanceIdsShaderNode as AttributeInstanceIdsShaderNode, type Rn_AttributeName as AttributeName, type Rn_AttributeNames as AttributeNames, Rn_AttributeNormalShaderNode as AttributeNormalShaderNode, Rn_AttributePositionShaderNode as AttributePositionShaderNode, Rn_AttributeTangentShaderNode as AttributeTangentShaderNode, Rn_AttributeTexcoordShaderNode as AttributeTexcoordShaderNode, type Rn_Attributes as Attributes, Rn_Axis as Axis, type Rn_AxisDescriptor as AxisDescriptor, type Rn_BASIS_TYPE as BASIS_TYPE, Rn_BasisCompressionType as BasisCompressionType, type Rn_BasisCompressionTypeEnum as BasisCompressionTypeEnum, type Rn_BasisFile as BasisFile, Rn_BasisLzEtc1sImageTranscoder as BasisLzEtc1sImageTranscoder, type Rn_BasisTranscoder as BasisTranscoder, Rn_BlendShapeComponent as BlendShapeComponent, Rn_BlockBeginShader as BlockBeginShader, Rn_BlockBeginShaderNode as BlockBeginShaderNode, Rn_BlockEndShader as BlockEndShader, Rn_BlockEndShaderNode as BlockEndShaderNode, Rn_Bloom as Bloom, Rn_BoneDataType as BoneDataType, type Rn_BoneDataTypeEnum as BoneDataTypeEnum, Rn_BranchShaderNode as BranchShaderNode, Rn_Buffer as Buffer, Rn_BufferUse as BufferUse, type Rn_BufferUseEnum as BufferUseEnum, Rn_BufferView as BufferView, type Byte$1 as Byte, type Rn_CGAPIResourceHandle as CGAPIResourceHandle, Rn_CGAPIResourceRepository as CGAPIResourceRepository, Rn_Cache as Cache, Rn_CalcBitangentShaderNode as CalcBitangentShaderNode, type Rn_CalledSubscriberNumber as CalledSubscriberNumber, Rn_CameraComponent as CameraComponent, Rn_CameraControllerComponent as CameraControllerComponent, Rn_CameraControllerType as CameraControllerType, type Rn_CameraControllerTypeEnum as CameraControllerTypeEnum, type Rn_CameraSID as CameraSID, Rn_CameraType as CameraType, type Rn_CameraTypeEnum as CameraTypeEnum, Rn_Capsule as Capsule, Rn_CapsuleCollider as CapsuleCollider, Rn_CapsuleColliderGizmo as CapsuleColliderGizmo, type Rn_CapsuleDescriptor as CapsuleDescriptor, Rn_CastToFloatShaderNode as CastToFloatShaderNode, type Rn_ChangeAnimationInfoEvent as ChangeAnimationInfoEvent, Rn_ClampShaderNode as ClampShaderNode, type Rn_ColorComponentLetter as ColorComponentLetter, Rn_ColorGradingUsingLUTsMaterialContent as ColorGradingUsingLUTsMaterialContent, Rn_ColorRgb as ColorRgb, Rn_ColorRgba as ColorRgba, Rn_CommonShaderPart as CommonShaderPart, Rn_ComplexVertexAttribute as ComplexVertexAttribute, Rn_Component as Component, type Rn_ComponentMixinFunction as ComponentMixinFunction, Rn_ComponentRepository as ComponentRepository, type Rn_ComponentSID as ComponentSID, type Rn_ComponentTID as ComponentTID, type Rn_ComponentToComponentMethods as ComponentToComponentMethods, Rn_ComponentType as ComponentType, type Rn_ComponentTypeEnum as ComponentTypeEnum, Rn_CompositionType as CompositionType, type Rn_CompositionTypeEnum as CompositionTypeEnum, Rn_CompressionTextureType as CompressionTextureType, type Rn_CompressionTextureTypeEnum as CompressionTextureTypeEnum, Rn_Cone as Cone, type Rn_ConeDescriptor as ConeDescriptor, Rn_Config as Config, Rn_ConstRgbaBlack as ConstRgbaBlack, Rn_ConstRgbaWhite as ConstRgbaWhite, Rn_ConstVector2_0_0 as ConstVector2_0_0, Rn_ConstVector2_1_1 as ConstVector2_1_1, Rn_ConstVector3_0_0_0 as ConstVector3_0_0_0, Rn_ConstVector3_1_1_1 as ConstVector3_1_1_1, Rn_ConstVector4_0_0_0_0 as ConstVector4_0_0_0_0, Rn_ConstVector4_0_0_0_1 as ConstVector4_0_0_0_1, Rn_ConstVector4_1_1_1_1 as ConstVector4_1_1_1_1, Rn_ConstantScalarVariableShaderNode as ConstantScalarVariableShaderNode, Rn_ConstantVariableShader as ConstantVariableShader, Rn_ConstantVector2VariableShaderNode as ConstantVector2VariableShaderNode, Rn_ConstantVector3VariableShaderNode as ConstantVector3VariableShaderNode, Rn_ConstantVector4VariableShaderNode as ConstantVector4VariableShaderNode, type Rn_Count as Count, Rn_Cube as Cube, type Rn_CubeDescriptor as CubeDescriptor, Rn_CubeTexture as CubeTexture, Rn_CustomMaterialContent as CustomMaterialContent, Rn_DataUtil as DataUtil, Rn_DepthEncodeMaterialContent as DepthEncodeMaterialContent, Rn_DetectHighLuminanceMaterialContent as DetectHighLuminanceMaterialContent, type Rn_DirectTextureData as DirectTextureData, Rn_DiscardShaderNode as DiscardShaderNode, Rn_DotProductShaderNode as DotProductShaderNode, Rn_DrcPointCloudImporter as DrcPointCloudImporter, Rn_DummyTextures as DummyTextures, Rn_EVENT_CLICK as EVENT_CLICK, Rn_EVENT_KEY_DOWN as EVENT_KEY_DOWN, Rn_EVENT_KEY_PRESS as EVENT_KEY_PRESS, Rn_EVENT_KEY_UP as EVENT_KEY_UP, Rn_EVENT_MOUSE_DOWN as EVENT_MOUSE_DOWN, Rn_EVENT_MOUSE_ENTER as EVENT_MOUSE_ENTER, Rn_EVENT_MOUSE_LEAVE as EVENT_MOUSE_LEAVE, Rn_EVENT_MOUSE_MOVE as EVENT_MOUSE_MOVE, Rn_EVENT_MOUSE_OVER as EVENT_MOUSE_OVER, Rn_EVENT_MOUSE_UP as EVENT_MOUSE_UP, Rn_EVENT_MOUSE_WHEEL as EVENT_MOUSE_WHEEL, Rn_EVENT_MSPOINTER_DOWN as EVENT_MSPOINTER_DOWN, Rn_EVENT_MSPOINTER_MOVE as EVENT_MSPOINTER_MOVE, Rn_EVENT_MSPOINTER_UP as EVENT_MSPOINTER_UP, Rn_EVENT_ORIENTATION_CHANGE as EVENT_ORIENTATION_CHANGE, Rn_EVENT_POINTER_CANCEL as EVENT_POINTER_CANCEL, Rn_EVENT_POINTER_DOWN as EVENT_POINTER_DOWN, Rn_EVENT_POINTER_ENTER as EVENT_POINTER_ENTER, Rn_EVENT_POINTER_LEAVE as EVENT_POINTER_LEAVE, Rn_EVENT_POINTER_MOVE as EVENT_POINTER_MOVE, Rn_EVENT_POINTER_OUT as EVENT_POINTER_OUT, Rn_EVENT_POINTER_OVER as EVENT_POINTER_OVER, Rn_EVENT_POINTER_UP as EVENT_POINTER_UP, Rn_EVENT_RESIZE as EVENT_RESIZE, Rn_EVENT_TOUCH_CANCEL as EVENT_TOUCH_CANCEL, Rn_EVENT_TOUCH_DOUBLE_TAP as EVENT_TOUCH_DOUBLE_TAP, Rn_EVENT_TOUCH_DRAG as EVENT_TOUCH_DRAG, Rn_EVENT_TOUCH_END as EVENT_TOUCH_END, Rn_EVENT_TOUCH_ENTER as EVENT_TOUCH_ENTER, Rn_EVENT_TOUCH_HOLD as EVENT_TOUCH_HOLD, Rn_EVENT_TOUCH_LEAVE as EVENT_TOUCH_LEAVE, Rn_EVENT_TOUCH_LONG_TAP as EVENT_TOUCH_LONG_TAP, Rn_EVENT_TOUCH_MOVE as EVENT_TOUCH_MOVE, Rn_EVENT_TOUCH_OUT as EVENT_TOUCH_OUT, Rn_EVENT_TOUCH_OVER as EVENT_TOUCH_OVER, Rn_EVENT_TOUCH_PINCH as EVENT_TOUCH_PINCH, Rn_EVENT_TOUCH_START as EVENT_TOUCH_START, Rn_EVENT_TOUCH_SWIPE as EVENT_TOUCH_SWIPE, Rn_EVENT_TOUCH_TAP as EVENT_TOUCH_TAP, Rn_Effekseer as Effekseer, Rn_EffekseerComponent as EffekseerComponent, Rn_EndShader as EndShader, Rn_Engine as Engine, Rn_EngineState as EngineState, Rn_Entity as Entity, Rn_EntityRepository as EntityRepository, type Rn_EntityUID as EntityUID, Rn_EntityUIDOutputMaterialContent as EntityUIDOutputMaterialContent, Rn_EnumClass as EnumClass, type Rn_EnumIO as EnumIO, Rn_EqualShaderNode as EqualShaderNode, Rn_Err as Err, type Rn_EventHandler as EventHandler, Rn_EventPubSub as EventPubSub, type Rn_EventSubscriberIndex as EventSubscriberIndex, type Rn_EventType as EventType, Rn_Expression as Expression, Rn_FileType as FileType, type Rn_FileTypeEnum as FileTypeEnum, type Rn_FillArgsObject as FillArgsObject, type Rn_FloatTypedArray as FloatTypedArray, type Rn_FloatTypedArrayConstructor as FloatTypedArrayConstructor, Rn_ForwardRenderPipeline as ForwardRenderPipeline, Rn_Frame as Frame, Rn_FrameBuffer as FrameBuffer, type Rn_FrameBufferCubeMapDescriptor as FrameBufferCubeMapDescriptor, type Rn_FrameBufferDescriptor as FrameBufferDescriptor, type Rn_FrameBufferMSAADescriptor as FrameBufferMSAADescriptor, type Rn_FrameBufferTextureArrayDescriptor as FrameBufferTextureArrayDescriptor, type Rn_FrameBufferTextureArrayForMultiViewDescriptor as FrameBufferTextureArrayForMultiViewDescriptor, Rn_Frustum as Frustum, Rn_FurnaceTestMaterialContent as FurnaceTestMaterialContent, Rn_GLTF2_EXPORT_DRACO as GLTF2_EXPORT_DRACO, Rn_GLTF2_EXPORT_EMBEDDED as GLTF2_EXPORT_EMBEDDED, Rn_GLTF2_EXPORT_GLB as GLTF2_EXPORT_GLB, Rn_GLTF2_EXPORT_GLTF as GLTF2_EXPORT_GLTF, Rn_GLTF2_EXPORT_NO_DOWNLOAD as GLTF2_EXPORT_NO_DOWNLOAD, Rn_GL_ACTIVE_ATTRIBUTES as GL_ACTIVE_ATTRIBUTES, Rn_GL_ACTIVE_TEXTURE as GL_ACTIVE_TEXTURE, Rn_GL_ACTIVE_UNIFORMS as GL_ACTIVE_UNIFORMS, Rn_GL_ACTIVE_UNIFORM_BLOCKS as GL_ACTIVE_UNIFORM_BLOCKS, Rn_GL_ALIASED_LINE_WIDTH_RANGE as GL_ALIASED_LINE_WIDTH_RANGE, Rn_GL_ALIASED_POINT_SIZE_RANGE as GL_ALIASED_POINT_SIZE_RANGE, Rn_GL_ALPHA as GL_ALPHA, Rn_GL_ALPHA_BITS as GL_ALPHA_BITS, Rn_GL_ALREADY_SIGNALED as GL_ALREADY_SIGNALED, Rn_GL_ALWAYS as GL_ALWAYS, Rn_GL_ANY_SAMPLES_PASSED as GL_ANY_SAMPLES_PASSED, Rn_GL_ANY_SAMPLES_PASSED_CONSERVATIVE as GL_ANY_SAMPLES_PASSED_CONSERVATIVE, Rn_GL_ARRAY_BUFFER as GL_ARRAY_BUFFER, Rn_GL_ARRAY_BUFFER_BINDING as GL_ARRAY_BUFFER_BINDING, Rn_GL_ATTACHED_SHADERS as GL_ATTACHED_SHADERS, Rn_GL_BACK as GL_BACK, Rn_GL_BLEND as GL_BLEND, Rn_GL_BLEND_COLOR as GL_BLEND_COLOR, Rn_GL_BLEND_DST_ALPHA as GL_BLEND_DST_ALPHA, Rn_GL_BLEND_DST_RGB as GL_BLEND_DST_RGB, Rn_GL_BLEND_EQUATION as GL_BLEND_EQUATION, Rn_GL_BLEND_EQUATION_ALPHA as GL_BLEND_EQUATION_ALPHA, Rn_GL_BLEND_EQUATION_RGB as GL_BLEND_EQUATION_RGB, Rn_GL_BLEND_SRC_ALPHA as GL_BLEND_SRC_ALPHA, Rn_GL_BLEND_SRC_RGB as GL_BLEND_SRC_RGB, Rn_GL_BLUE_BITS as GL_BLUE_BITS, Rn_GL_BOOL as GL_BOOL, Rn_GL_BOOL_VEC2 as GL_BOOL_VEC2, Rn_GL_BOOL_VEC3 as GL_BOOL_VEC3, Rn_GL_BOOL_VEC4 as GL_BOOL_VEC4, Rn_GL_BROWSER_DEFAULT_WEBGL as GL_BROWSER_DEFAULT_WEBGL, Rn_GL_BUFFER_SIZE as GL_BUFFER_SIZE, Rn_GL_BUFFER_USAGE as GL_BUFFER_USAGE, Rn_GL_CCW as GL_CCW, Rn_GL_CLAMP_TO_EDGE as GL_CLAMP_TO_EDGE, Rn_GL_COLOR as GL_COLOR, Rn_GL_COLOR_ATTACHMENT0 as GL_COLOR_ATTACHMENT0, Rn_GL_COLOR_ATTACHMENT0_WEBGL as GL_COLOR_ATTACHMENT0_WEBGL, Rn_GL_COLOR_ATTACHMENT1 as GL_COLOR_ATTACHMENT1, Rn_GL_COLOR_ATTACHMENT10 as GL_COLOR_ATTACHMENT10, Rn_GL_COLOR_ATTACHMENT10_WEBGL as GL_COLOR_ATTACHMENT10_WEBGL, Rn_GL_COLOR_ATTACHMENT11 as GL_COLOR_ATTACHMENT11, Rn_GL_COLOR_ATTACHMENT11_WEBGL as GL_COLOR_ATTACHMENT11_WEBGL, Rn_GL_COLOR_ATTACHMENT12 as GL_COLOR_ATTACHMENT12, Rn_GL_COLOR_ATTACHMENT12_WEBGL as GL_COLOR_ATTACHMENT12_WEBGL, Rn_GL_COLOR_ATTACHMENT13 as GL_COLOR_ATTACHMENT13, Rn_GL_COLOR_ATTACHMENT13_WEBGL as GL_COLOR_ATTACHMENT13_WEBGL, Rn_GL_COLOR_ATTACHMENT14 as GL_COLOR_ATTACHMENT14, Rn_GL_COLOR_ATTACHMENT14_WEBGL as GL_COLOR_ATTACHMENT14_WEBGL, Rn_GL_COLOR_ATTACHMENT15 as GL_COLOR_ATTACHMENT15, Rn_GL_COLOR_ATTACHMENT15_WEBGL as GL_COLOR_ATTACHMENT15_WEBGL, Rn_GL_COLOR_ATTACHMENT1_WEBGL as GL_COLOR_ATTACHMENT1_WEBGL, Rn_GL_COLOR_ATTACHMENT2 as GL_COLOR_ATTACHMENT2, Rn_GL_COLOR_ATTACHMENT2_WEBGL as GL_COLOR_ATTACHMENT2_WEBGL, Rn_GL_COLOR_ATTACHMENT3 as GL_COLOR_ATTACHMENT3, Rn_GL_COLOR_ATTACHMENT3_WEBGL as GL_COLOR_ATTACHMENT3_WEBGL, Rn_GL_COLOR_ATTACHMENT4 as GL_COLOR_ATTACHMENT4, Rn_GL_COLOR_ATTACHMENT4_WEBGL as GL_COLOR_ATTACHMENT4_WEBGL, Rn_GL_COLOR_ATTACHMENT5 as GL_COLOR_ATTACHMENT5, Rn_GL_COLOR_ATTACHMENT5_WEBGL as GL_COLOR_ATTACHMENT5_WEBGL, Rn_GL_COLOR_ATTACHMENT6 as GL_COLOR_ATTACHMENT6, Rn_GL_COLOR_ATTACHMENT6_WEBGL as GL_COLOR_ATTACHMENT6_WEBGL, Rn_GL_COLOR_ATTACHMENT7 as GL_COLOR_ATTACHMENT7, Rn_GL_COLOR_ATTACHMENT7_WEBGL as GL_COLOR_ATTACHMENT7_WEBGL, Rn_GL_COLOR_ATTACHMENT8 as GL_COLOR_ATTACHMENT8, Rn_GL_COLOR_ATTACHMENT8_WEBGL as GL_COLOR_ATTACHMENT8_WEBGL, Rn_GL_COLOR_ATTACHMENT9 as GL_COLOR_ATTACHMENT9, Rn_GL_COLOR_ATTACHMENT9_WEBGL as GL_COLOR_ATTACHMENT9_WEBGL, Rn_GL_COLOR_BUFFER_BIT as GL_COLOR_BUFFER_BIT, Rn_GL_COLOR_CLEAR_VALUE as GL_COLOR_CLEAR_VALUE, Rn_GL_COLOR_WRITEMASK as GL_COLOR_WRITEMASK, Rn_GL_COMPARE_REF_TO_TEXTURE as GL_COMPARE_REF_TO_TEXTURE, Rn_GL_COMPILE_STATUS as GL_COMPILE_STATUS, Rn_GL_COMPRESSED_R11_EAC as GL_COMPRESSED_R11_EAC, Rn_GL_COMPRESSED_RG11_EAC as GL_COMPRESSED_RG11_EAC, Rn_GL_COMPRESSED_RGB8_ETC2 as GL_COMPRESSED_RGB8_ETC2, Rn_GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2 as GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2, Rn_GL_COMPRESSED_RGBA8_ETC2_EAC as GL_COMPRESSED_RGBA8_ETC2_EAC, Rn_GL_COMPRESSED_RGBA_ASTC_10X10_KHR as GL_COMPRESSED_RGBA_ASTC_10X10_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_10X5_KHR as GL_COMPRESSED_RGBA_ASTC_10X5_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_10X6_KHR as GL_COMPRESSED_RGBA_ASTC_10X6_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_10X8_KHR as GL_COMPRESSED_RGBA_ASTC_10X8_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_12X10_KHR as GL_COMPRESSED_RGBA_ASTC_12X10_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_12X12_KHR as GL_COMPRESSED_RGBA_ASTC_12X12_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_4X4_KHR as GL_COMPRESSED_RGBA_ASTC_4X4_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_5X4_KHR as GL_COMPRESSED_RGBA_ASTC_5X4_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_5X5_KHR as GL_COMPRESSED_RGBA_ASTC_5X5_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_6X5_KHR as GL_COMPRESSED_RGBA_ASTC_6X5_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_6X6_KHR as GL_COMPRESSED_RGBA_ASTC_6X6_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_8X5_KHR as GL_COMPRESSED_RGBA_ASTC_8X5_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_8X6_KHR as GL_COMPRESSED_RGBA_ASTC_8X6_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_8X8_KHR as GL_COMPRESSED_RGBA_ASTC_8X8_KHR, Rn_GL_COMPRESSED_RGBA_ATC_EXPLICIT_ALPHA_WEBGL as GL_COMPRESSED_RGBA_ATC_EXPLICIT_ALPHA_WEBGL, Rn_GL_COMPRESSED_RGBA_ATC_INTERPOLATED_ALPHA_WEBGL as GL_COMPRESSED_RGBA_ATC_INTERPOLATED_ALPHA_WEBGL, Rn_GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG as GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG, Rn_GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG as GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, Rn_GL_COMPRESSED_RGBA_S3TC_DXT1_EXT as GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, Rn_GL_COMPRESSED_RGBA_S3TC_DXT3_EXT as GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, Rn_GL_COMPRESSED_RGBA_S3TC_DXT5_EXT as GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, Rn_GL_COMPRESSED_RGB_ATC_WEBGL as GL_COMPRESSED_RGB_ATC_WEBGL, Rn_GL_COMPRESSED_RGB_ETC1_WEBGL as GL_COMPRESSED_RGB_ETC1_WEBGL, Rn_GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG as GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG, Rn_GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG as GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, Rn_GL_COMPRESSED_RGB_S3TC_DXT1_EXT as GL_COMPRESSED_RGB_S3TC_DXT1_EXT, Rn_GL_COMPRESSED_SIGNED_R11_EAC as GL_COMPRESSED_SIGNED_R11_EAC, Rn_GL_COMPRESSED_SIGNED_RG11_EAC as GL_COMPRESSED_SIGNED_RG11_EAC, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X10_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X10_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X5_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X5_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X6_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X6_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X8_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X8_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X10_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X10_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X12_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X12_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4X4_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4X4_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X4_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X4_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X5_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X5_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X5_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X5_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X6_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X6_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X5_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X5_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X6_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X6_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X8_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X8_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC as GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC, Rn_GL_COMPRESSED_SRGB8_ETC2 as GL_COMPRESSED_SRGB8_ETC2, Rn_GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2 as GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2, Rn_GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT as GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT, Rn_GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT as GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT, Rn_GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT as GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT, Rn_GL_COMPRESSED_SRGB_S3TC_DXT1_EXT as GL_COMPRESSED_SRGB_S3TC_DXT1_EXT, Rn_GL_COMPRESSED_TEXTURE_FORMATS as GL_COMPRESSED_TEXTURE_FORMATS, Rn_GL_CONDITION_SATISFIED as GL_CONDITION_SATISFIED, Rn_GL_CONSTANT_ALPHA as GL_CONSTANT_ALPHA, Rn_GL_CONSTANT_COLOR as GL_CONSTANT_COLOR, Rn_GL_CONTEXT_LOST_WEBGL as GL_CONTEXT_LOST_WEBGL, Rn_GL_COPY_READ_BUFFER as GL_COPY_READ_BUFFER, Rn_GL_COPY_READ_BUFFER_BINDING as GL_COPY_READ_BUFFER_BINDING, Rn_GL_COPY_WRITE_BUFFER as GL_COPY_WRITE_BUFFER, Rn_GL_COPY_WRITE_BUFFER_BINDING as GL_COPY_WRITE_BUFFER_BINDING, Rn_GL_CULL_FACE as GL_CULL_FACE, Rn_GL_CULL_FACE_MODE as GL_CULL_FACE_MODE, Rn_GL_CURRENT_PROGRAM as GL_CURRENT_PROGRAM, Rn_GL_CURRENT_QUERY as GL_CURRENT_QUERY, Rn_GL_CURRENT_QUERY_EXT as GL_CURRENT_QUERY_EXT, Rn_GL_CURRENT_VERTEX_ATTRIB as GL_CURRENT_VERTEX_ATTRIB, Rn_GL_CW as GL_CW, Rn_GL_DATA_BYTE as GL_DATA_BYTE, Rn_GL_DATA_FLOAT as GL_DATA_FLOAT, Rn_GL_DATA_INT as GL_DATA_INT, Rn_GL_DATA_SHORT as GL_DATA_SHORT, Rn_GL_DATA_UNSIGNED_BYTE as GL_DATA_UNSIGNED_BYTE, Rn_GL_DATA_UNSIGNED_INT as GL_DATA_UNSIGNED_INT, Rn_GL_DATA_UNSIGNED_SHORT as GL_DATA_UNSIGNED_SHORT, Rn_GL_DECR as GL_DECR, Rn_GL_DECR_WRAP as GL_DECR_WRAP, Rn_GL_DELETE_STATUS as GL_DELETE_STATUS, Rn_GL_DEPTH as GL_DEPTH, Rn_GL_DEPTH24_STENCIL8 as GL_DEPTH24_STENCIL8, Rn_GL_DEPTH32F_STENCIL8 as GL_DEPTH32F_STENCIL8, Rn_GL_DEPTH_ATTACHMENT as GL_DEPTH_ATTACHMENT, Rn_GL_DEPTH_BITS as GL_DEPTH_BITS, Rn_GL_DEPTH_BUFFER_BIT as GL_DEPTH_BUFFER_BIT, Rn_GL_DEPTH_CLEAR_VALUE as GL_DEPTH_CLEAR_VALUE, Rn_GL_DEPTH_COMPONENT as GL_DEPTH_COMPONENT, Rn_GL_DEPTH_COMPONENT16 as GL_DEPTH_COMPONENT16, Rn_GL_DEPTH_COMPONENT24 as GL_DEPTH_COMPONENT24, Rn_GL_DEPTH_COMPONENT32F as GL_DEPTH_COMPONENT32F, Rn_GL_DEPTH_FUNC as GL_DEPTH_FUNC, Rn_GL_DEPTH_RANGE as GL_DEPTH_RANGE, Rn_GL_DEPTH_STENCIL as GL_DEPTH_STENCIL, Rn_GL_DEPTH_STENCIL_ATTACHMENT as GL_DEPTH_STENCIL_ATTACHMENT, Rn_GL_DEPTH_TEST as GL_DEPTH_TEST, Rn_GL_DEPTH_WRITEMASK as GL_DEPTH_WRITEMASK, Rn_GL_DITHER as GL_DITHER, Rn_GL_DONT_CARE as GL_DONT_CARE, Rn_GL_DRAW_BUFFER0 as GL_DRAW_BUFFER0, Rn_GL_DRAW_BUFFER0_WEBGL as GL_DRAW_BUFFER0_WEBGL, Rn_GL_DRAW_BUFFER1 as GL_DRAW_BUFFER1, Rn_GL_DRAW_BUFFER10 as GL_DRAW_BUFFER10, Rn_GL_DRAW_BUFFER10_WEBGL as GL_DRAW_BUFFER10_WEBGL, Rn_GL_DRAW_BUFFER11 as GL_DRAW_BUFFER11, Rn_GL_DRAW_BUFFER11_WEBGL as GL_DRAW_BUFFER11_WEBGL, Rn_GL_DRAW_BUFFER12 as GL_DRAW_BUFFER12, Rn_GL_DRAW_BUFFER12_WEBGL as GL_DRAW_BUFFER12_WEBGL, Rn_GL_DRAW_BUFFER13 as GL_DRAW_BUFFER13, Rn_GL_DRAW_BUFFER13_WEBGL as GL_DRAW_BUFFER13_WEBGL, Rn_GL_DRAW_BUFFER14 as GL_DRAW_BUFFER14, Rn_GL_DRAW_BUFFER14_WEBGL as GL_DRAW_BUFFER14_WEBGL, Rn_GL_DRAW_BUFFER15 as GL_DRAW_BUFFER15, Rn_GL_DRAW_BUFFER15_WEBGL as GL_DRAW_BUFFER15_WEBGL, Rn_GL_DRAW_BUFFER1_WEBGL as GL_DRAW_BUFFER1_WEBGL, Rn_GL_DRAW_BUFFER2 as GL_DRAW_BUFFER2, Rn_GL_DRAW_BUFFER2_WEBGL as GL_DRAW_BUFFER2_WEBGL, Rn_GL_DRAW_BUFFER3 as GL_DRAW_BUFFER3, Rn_GL_DRAW_BUFFER3_WEBGL as GL_DRAW_BUFFER3_WEBGL, Rn_GL_DRAW_BUFFER4 as GL_DRAW_BUFFER4, Rn_GL_DRAW_BUFFER4_WEBGL as GL_DRAW_BUFFER4_WEBGL, Rn_GL_DRAW_BUFFER5 as GL_DRAW_BUFFER5, Rn_GL_DRAW_BUFFER5_WEBGL as GL_DRAW_BUFFER5_WEBGL, Rn_GL_DRAW_BUFFER6 as GL_DRAW_BUFFER6, Rn_GL_DRAW_BUFFER6_WEBGL as GL_DRAW_BUFFER6_WEBGL, Rn_GL_DRAW_BUFFER7 as GL_DRAW_BUFFER7, Rn_GL_DRAW_BUFFER7_WEBGL as GL_DRAW_BUFFER7_WEBGL, Rn_GL_DRAW_BUFFER8 as GL_DRAW_BUFFER8, Rn_GL_DRAW_BUFFER8_WEBGL as GL_DRAW_BUFFER8_WEBGL, Rn_GL_DRAW_BUFFER9 as GL_DRAW_BUFFER9, Rn_GL_DRAW_BUFFER9_WEBGL as GL_DRAW_BUFFER9_WEBGL, Rn_GL_DRAW_FRAMEBUFFER as GL_DRAW_FRAMEBUFFER, Rn_GL_DRAW_FRAMEBUFFER_BINDING as GL_DRAW_FRAMEBUFFER_BINDING, Rn_GL_DST_ALPHA as GL_DST_ALPHA, Rn_GL_DST_COLOR as GL_DST_COLOR, Rn_GL_DYNAMIC_COPY as GL_DYNAMIC_COPY, Rn_GL_DYNAMIC_DRAW as GL_DYNAMIC_DRAW, Rn_GL_DYNAMIC_READ as GL_DYNAMIC_READ, Rn_GL_ELEMENT_ARRAY_BUFFER as GL_ELEMENT_ARRAY_BUFFER, Rn_GL_ELEMENT_ARRAY_BUFFER_BINDING as GL_ELEMENT_ARRAY_BUFFER_BINDING, Rn_GL_EQUAL as GL_EQUAL, Rn_GL_FASTEST as GL_FASTEST, Rn_GL_FLOAT_32_UNSIGNED_INT_24_8_REV as GL_FLOAT_32_UNSIGNED_INT_24_8_REV, Rn_GL_FLOAT_MAT2 as GL_FLOAT_MAT2, Rn_GL_FLOAT_MAT2X3 as GL_FLOAT_MAT2X3, Rn_GL_FLOAT_MAT2X4 as GL_FLOAT_MAT2X4, Rn_GL_FLOAT_MAT3 as GL_FLOAT_MAT3, Rn_GL_FLOAT_MAT3X2 as GL_FLOAT_MAT3X2, Rn_GL_FLOAT_MAT3X4 as GL_FLOAT_MAT3X4, Rn_GL_FLOAT_MAT4 as GL_FLOAT_MAT4, Rn_GL_FLOAT_MAT4X2 as GL_FLOAT_MAT4X2, Rn_GL_FLOAT_MAT4X3 as GL_FLOAT_MAT4X3, Rn_GL_FLOAT_VEC2 as GL_FLOAT_VEC2, Rn_GL_FLOAT_VEC3 as GL_FLOAT_VEC3, Rn_GL_FLOAT_VEC4 as GL_FLOAT_VEC4, Rn_GL_FRAGMENT_SHADER as GL_FRAGMENT_SHADER, Rn_GL_FRAGMENT_SHADER_DERIVATIVE_HINT as GL_FRAGMENT_SHADER_DERIVATIVE_HINT, Rn_GL_FRAGMENT_SHADER_DERIVATIVE_HINT_OES as GL_FRAGMENT_SHADER_DERIVATIVE_HINT_OES, Rn_GL_FRAMEBUFFER as GL_FRAMEBUFFER, Rn_GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE as GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, Rn_GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE as GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, Rn_GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING as GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, Rn_GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING_EXT as GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING_EXT, Rn_GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE as GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE, Rn_GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE_EXT as GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE_EXT, Rn_GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE as GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, Rn_GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE as GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, Rn_GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME as GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, Rn_GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE as GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, Rn_GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE as GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, Rn_GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE as GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, Rn_GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE as GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE, Rn_GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER as GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER, Rn_GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL as GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL, Rn_GL_FRAMEBUFFER_BINDING as GL_FRAMEBUFFER_BINDING, Rn_GL_FRAMEBUFFER_COMPLETE as GL_FRAMEBUFFER_COMPLETE, Rn_GL_FRAMEBUFFER_DEFAULT as GL_FRAMEBUFFER_DEFAULT, Rn_GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT as GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT, Rn_GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS as GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS, Rn_GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT as GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT, Rn_GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE as GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE, Rn_GL_FRAMEBUFFER_UNSUPPORTED as GL_FRAMEBUFFER_UNSUPPORTED, Rn_GL_FRONT as GL_FRONT, Rn_GL_FRONT_AND_BACK as GL_FRONT_AND_BACK, Rn_GL_FRONT_FACE as GL_FRONT_FACE, Rn_GL_FUNC_ADD as GL_FUNC_ADD, Rn_GL_FUNC_REVERSE_SUBTRACT as GL_FUNC_REVERSE_SUBTRACT, Rn_GL_FUNC_SUBSTRACT as GL_FUNC_SUBSTRACT, Rn_GL_GENERATE_MIPMAP_HINT as GL_GENERATE_MIPMAP_HINT, Rn_GL_GEQUAL as GL_GEQUAL, Rn_GL_GPU_DISJOINT_EXT as GL_GPU_DISJOINT_EXT, Rn_GL_GREATER as GL_GREATER, Rn_GL_GREEN_BITS as GL_GREEN_BITS, Rn_GL_HALF_FLOAT as GL_HALF_FLOAT, Rn_GL_HALF_FLOAT_OES as GL_HALF_FLOAT_OES, Rn_GL_HIGH_FLOAT as GL_HIGH_FLOAT, Rn_GL_HIGH_INT as GL_HIGH_INT, Rn_GL_IMPLEMENTATION_COLOR_READ_FORMAT as GL_IMPLEMENTATION_COLOR_READ_FORMAT, Rn_GL_IMPLEMENTATION_COLOR_READ_TYPE as GL_IMPLEMENTATION_COLOR_READ_TYPE, Rn_GL_INCR as GL_INCR, Rn_GL_INCR_WRAP as GL_INCR_WRAP, Rn_GL_INTERLEAVED_ATTRIBS as GL_INTERLEAVED_ATTRIBS, Rn_GL_INT_2_10_10_10_REV as GL_INT_2_10_10_10_REV, Rn_GL_INT_SAMPLER_2D as GL_INT_SAMPLER_2D, Rn_GL_INT_SAMPLER_2D_ARRAY as GL_INT_SAMPLER_2D_ARRAY, Rn_GL_INT_SAMPLER_3D as GL_INT_SAMPLER_3D, Rn_GL_INT_SAMPLER_CUBE as GL_INT_SAMPLER_CUBE, Rn_GL_INT_VEC2 as GL_INT_VEC2, Rn_GL_INT_VEC3 as GL_INT_VEC3, Rn_GL_INT_VEC4 as GL_INT_VEC4, Rn_GL_INVALID_ENUM as GL_INVALID_ENUM, Rn_GL_INVALID_FRAMEBUFFER_OPERATION as GL_INVALID_FRAMEBUFFER_OPERATION, Rn_GL_INVALID_INDEX as GL_INVALID_INDEX, Rn_GL_INVALID_OPERATION as GL_INVALID_OPERATION, Rn_GL_INVALID_VALUE as GL_INVALID_VALUE, Rn_GL_INVERT as GL_INVERT, Rn_GL_KEEP as GL_KEEP, Rn_GL_LEQUAL as GL_LEQUAL, Rn_GL_LESS as GL_LESS, Rn_GL_LINEAR as GL_LINEAR, Rn_GL_LINEAR_MIPMAP_LINEAR as GL_LINEAR_MIPMAP_LINEAR, Rn_GL_LINEAR_MIPMAP_NEAREST as GL_LINEAR_MIPMAP_NEAREST, Rn_GL_LINES as GL_LINES, Rn_GL_LINE_LOOP as GL_LINE_LOOP, Rn_GL_LINE_STRIP as GL_LINE_STRIP, Rn_GL_LINE_WIDTH as GL_LINE_WIDTH, Rn_GL_LINK_STATUS as GL_LINK_STATUS, Rn_GL_LOW_FLOAT as GL_LOW_FLOAT, Rn_GL_LOW_INT as GL_LOW_INT, Rn_GL_LUMINANCE as GL_LUMINANCE, Rn_GL_LUMINANCE_ALPHA as GL_LUMINANCE_ALPHA, Rn_GL_MAX as GL_MAX, Rn_GL_MAX_3D_TEXTURE_SIZE as GL_MAX_3D_TEXTURE_SIZE, Rn_GL_MAX_ARRAY_TEXTURE_LAYERS as GL_MAX_ARRAY_TEXTURE_LAYERS, Rn_GL_MAX_CLIENT_WAIT_TIMEOUT_WEBGL as GL_MAX_CLIENT_WAIT_TIMEOUT_WEBGL, Rn_GL_MAX_COLOR_ATTACHMENTS as GL_MAX_COLOR_ATTACHMENTS, Rn_GL_MAX_COLOR_ATTACHMENTS_WEBGL as GL_MAX_COLOR_ATTACHMENTS_WEBGL, Rn_GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS as GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS, Rn_GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS as GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, Rn_GL_MAX_COMBINED_UNIFORM_BLOCKS as GL_MAX_COMBINED_UNIFORM_BLOCKS, Rn_GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS as GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS, Rn_GL_MAX_CUBE_MAP_TEXTURE_SIZE as GL_MAX_CUBE_MAP_TEXTURE_SIZE, Rn_GL_MAX_DRAW_BUFFERS as GL_MAX_DRAW_BUFFERS, Rn_GL_MAX_DRAW_BUFFERS_WEBGL as GL_MAX_DRAW_BUFFERS_WEBGL, Rn_GL_MAX_ELEMENTS_INDICES as GL_MAX_ELEMENTS_INDICES, Rn_GL_MAX_ELEMENTS_VERTICES as GL_MAX_ELEMENTS_VERTICES, Rn_GL_MAX_ELEMENT_INDEX as GL_MAX_ELEMENT_INDEX, Rn_GL_MAX_EXT as GL_MAX_EXT, Rn_GL_MAX_FRAGMENT_INPUT_COMPONENTS as GL_MAX_FRAGMENT_INPUT_COMPONENTS, Rn_GL_MAX_FRAGMENT_UNIFORM_BLOCKS as GL_MAX_FRAGMENT_UNIFORM_BLOCKS, Rn_GL_MAX_FRAGMENT_UNIFORM_COMPONENTS as GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, Rn_GL_MAX_FRAGMENT_UNIFORM_VECTORS as GL_MAX_FRAGMENT_UNIFORM_VECTORS, Rn_GL_MAX_PROGRAM_TEXEL_OFFSET as GL_MAX_PROGRAM_TEXEL_OFFSET, Rn_GL_MAX_RENDERBUFFER_SIZE as GL_MAX_RENDERBUFFER_SIZE, Rn_GL_MAX_SAMPLES as GL_MAX_SAMPLES, Rn_GL_MAX_SERVER_WAIT_TIMEOUT as GL_MAX_SERVER_WAIT_TIMEOUT, Rn_GL_MAX_TEXTURE_IMAGE_UNITS as GL_MAX_TEXTURE_IMAGE_UNITS, Rn_GL_MAX_TEXTURE_LOD_BIAS as GL_MAX_TEXTURE_LOD_BIAS, Rn_GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT as GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, Rn_GL_MAX_TEXTURE_SIZE as GL_MAX_TEXTURE_SIZE, Rn_GL_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS as GL_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS, Rn_GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS as GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS, Rn_GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS as GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS, Rn_GL_MAX_UNIFORM_BLOCK_SIZE as GL_MAX_UNIFORM_BLOCK_SIZE, Rn_GL_MAX_UNIFORM_BUFFER_BINDINGS as GL_MAX_UNIFORM_BUFFER_BINDINGS, Rn_GL_MAX_VARYING_COMPONENTS as GL_MAX_VARYING_COMPONENTS, Rn_GL_MAX_VARYING_VECTORS as GL_MAX_VARYING_VECTORS, Rn_GL_MAX_VERTEX_ATTRIBS as GL_MAX_VERTEX_ATTRIBS, Rn_GL_MAX_VERTEX_OUTPUT_COMPONENTS as GL_MAX_VERTEX_OUTPUT_COMPONENTS, Rn_GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS as GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, Rn_GL_MAX_VERTEX_UNIFORM_BLOCKS as GL_MAX_VERTEX_UNIFORM_BLOCKS, Rn_GL_MAX_VERTEX_UNIFORM_COMPONENTS as GL_MAX_VERTEX_UNIFORM_COMPONENTS, Rn_GL_MAX_VERTEX_UNIFORM_VECTORS as GL_MAX_VERTEX_UNIFORM_VECTORS, Rn_GL_MAX_VIEWPORT_DIMS as GL_MAX_VIEWPORT_DIMS, Rn_GL_MEDIUM_FLOAT as GL_MEDIUM_FLOAT, Rn_GL_MEDIUM_INT as GL_MEDIUM_INT, Rn_GL_MIN as GL_MIN, Rn_GL_MIN_EXT as GL_MIN_EXT, Rn_GL_MIN_PROGRAM_TEXEL_OFFSET as GL_MIN_PROGRAM_TEXEL_OFFSET, Rn_GL_MIRRORED_REPEAT as GL_MIRRORED_REPEAT, Rn_GL_NEAREST as GL_NEAREST, Rn_GL_NEAREST_MIPMAP_LINEAR as GL_NEAREST_MIPMAP_LINEAR, Rn_GL_NEAREST_MIPMAP_NEAREST as GL_NEAREST_MIPMAP_NEAREST, Rn_GL_NEVER as GL_NEVER, Rn_GL_NICEST as GL_NICEST, Rn_GL_NONE as GL_NONE, Rn_GL_NOTEQUAL as GL_NOTEQUAL, Rn_GL_NO_ERROR as GL_NO_ERROR, Rn_GL_OBJECT_TYPE as GL_OBJECT_TYPE, Rn_GL_ONE as GL_ONE, Rn_GL_ONE_MINUS_CONSTANT_ALPHA as GL_ONE_MINUS_CONSTANT_ALPHA, Rn_GL_ONE_MINUS_CONSTANT_COLOR as GL_ONE_MINUS_CONSTANT_COLOR, Rn_GL_ONE_MINUS_DST_ALPHA as GL_ONE_MINUS_DST_ALPHA, Rn_GL_ONE_MINUS_DST_COLOR as GL_ONE_MINUS_DST_COLOR, Rn_GL_ONE_MINUS_SRC_ALPHA as GL_ONE_MINUS_SRC_ALPHA, Rn_GL_ONE_MINUS_SRC_COLOR as GL_ONE_MINUS_SRC_COLOR, Rn_GL_OUT_OF_MEMORY as GL_OUT_OF_MEMORY, Rn_GL_PACK_ALIGNMENT as GL_PACK_ALIGNMENT, Rn_GL_PACK_ROW_LENGTH as GL_PACK_ROW_LENGTH, Rn_GL_PACK_SKIP_PIXELS as GL_PACK_SKIP_PIXELS, Rn_GL_PACK_SKIP_ROWS as GL_PACK_SKIP_ROWS, Rn_GL_PIXEL_PACK_BUFFER as GL_PIXEL_PACK_BUFFER, Rn_GL_PIXEL_PACK_BUFFER_BINDING as GL_PIXEL_PACK_BUFFER_BINDING, Rn_GL_PIXEL_UNPACK_BUFFER as GL_PIXEL_UNPACK_BUFFER, Rn_GL_PIXEL_UNPACK_BUFFER_BINDING as GL_PIXEL_UNPACK_BUFFER_BINDING, Rn_GL_PIXEL_UNSIGNED_BYTE as GL_PIXEL_UNSIGNED_BYTE, Rn_GL_PIXEL_UNSIGNED_SHORT_4_4_4_4 as GL_PIXEL_UNSIGNED_SHORT_4_4_4_4, Rn_GL_PIXEL_UNSIGNED_SHORT_5_5_5_1 as GL_PIXEL_UNSIGNED_SHORT_5_5_5_1, Rn_GL_PIXEL_UNSIGNED_SHORT_5_6_5 as GL_PIXEL_UNSIGNED_SHORT_5_6_5, Rn_GL_POINTS as GL_POINTS, Rn_GL_POLYGON_OFFSET_FACTOR as GL_POLYGON_OFFSET_FACTOR, Rn_GL_POLYGON_OFFSET_FILL as GL_POLYGON_OFFSET_FILL, Rn_GL_POLYGON_OFFSET_UNITS as GL_POLYGON_OFFSET_UNITS, Rn_GL_QUERY_COUNTER_BITS_EXT as GL_QUERY_COUNTER_BITS_EXT, Rn_GL_QUERY_RESULT as GL_QUERY_RESULT, Rn_GL_QUERY_RESULT_AVAILABLE as GL_QUERY_RESULT_AVAILABLE, Rn_GL_QUERY_RESULT_AVAILABLE_EXT as GL_QUERY_RESULT_AVAILABLE_EXT, Rn_GL_QUERY_RESULT_EXT as GL_QUERY_RESULT_EXT, Rn_GL_R11F_G11F_B10F as GL_R11F_G11F_B10F, Rn_GL_R16F as GL_R16F, Rn_GL_R16I as GL_R16I, Rn_GL_R16UI as GL_R16UI, Rn_GL_R32F as GL_R32F, Rn_GL_R32I as GL_R32I, Rn_GL_R32UI as GL_R32UI, Rn_GL_R8 as GL_R8, Rn_GL_R8I as GL_R8I, Rn_GL_R8UI as GL_R8UI, Rn_GL_R8_SNORM as GL_R8_SNORM, Rn_GL_RASTERIZER_DISCARD as GL_RASTERIZER_DISCARD, Rn_GL_READ_BUFFER as GL_READ_BUFFER, Rn_GL_READ_FRAMEBUFFER as GL_READ_FRAMEBUFFER, Rn_GL_READ_FRAMEBUFFER_BINDING as GL_READ_FRAMEBUFFER_BINDING, Rn_GL_RED as GL_RED, Rn_GL_RED_BITS as GL_RED_BITS, Rn_GL_RED_INTEGER as GL_RED_INTEGER, Rn_GL_RENDERBUFFER as GL_RENDERBUFFER, Rn_GL_RENDERBUFFER_ALPHA_SIZE as GL_RENDERBUFFER_ALPHA_SIZE, Rn_GL_RENDERBUFFER_BINDING as GL_RENDERBUFFER_BINDING, Rn_GL_RENDERBUFFER_BLUE_SIZE as GL_RENDERBUFFER_BLUE_SIZE, Rn_GL_RENDERBUFFER_DEPTH_SIZE as GL_RENDERBUFFER_DEPTH_SIZE, Rn_GL_RENDERBUFFER_GREEN_SIZE as GL_RENDERBUFFER_GREEN_SIZE, Rn_GL_RENDERBUFFER_HEIGHT as GL_RENDERBUFFER_HEIGHT, Rn_GL_RENDERBUFFER_INTERNAL_FORMAT as GL_RENDERBUFFER_INTERNAL_FORMAT, Rn_GL_RENDERBUFFER_RED_SIZE as GL_RENDERBUFFER_RED_SIZE, Rn_GL_RENDERBUFFER_SAMPLES as GL_RENDERBUFFER_SAMPLES, Rn_GL_RENDERBUFFER_STENCIL_SIZE as GL_RENDERBUFFER_STENCIL_SIZE, Rn_GL_RENDERBUFFER_WIDTH as GL_RENDERBUFFER_WIDTH, Rn_GL_RENDERER as GL_RENDERER, Rn_GL_REPEAT as GL_REPEAT, Rn_GL_REPLACE as GL_REPLACE, Rn_GL_RG as GL_RG, Rn_GL_RG16F as GL_RG16F, Rn_GL_RG16I as GL_RG16I, Rn_GL_RG16UI as GL_RG16UI, Rn_GL_RG32F as GL_RG32F, Rn_GL_RG32I as GL_RG32I, Rn_GL_RG32UI as GL_RG32UI, Rn_GL_RG8 as GL_RG8, Rn_GL_RG8I as GL_RG8I, Rn_GL_RG8UI as GL_RG8UI, Rn_GL_RG8_SNORM as GL_RG8_SNORM, Rn_GL_RGB as GL_RGB, Rn_GL_RGB10_A2 as GL_RGB10_A2, Rn_GL_RGB10_A2UI as GL_RGB10_A2UI, Rn_GL_RGB16F as GL_RGB16F, Rn_GL_RGB16I as GL_RGB16I, Rn_GL_RGB16UI as GL_RGB16UI, Rn_GL_RGB32F as GL_RGB32F, Rn_GL_RGB32F_EXT as GL_RGB32F_EXT, Rn_GL_RGB32I as GL_RGB32I, Rn_GL_RGB32UI as GL_RGB32UI, Rn_GL_RGB565 as GL_RGB565, Rn_GL_RGB5_A1 as GL_RGB5_A1, Rn_GL_RGB8 as GL_RGB8, Rn_GL_RGB8I as GL_RGB8I, Rn_GL_RGB8UI as GL_RGB8UI, Rn_GL_RGB8_SNORM as GL_RGB8_SNORM, Rn_GL_RGB9_E5 as GL_RGB9_E5, Rn_GL_RGBA as GL_RGBA, Rn_GL_RGBA16F as GL_RGBA16F, Rn_GL_RGBA16I as GL_RGBA16I, Rn_GL_RGBA16UI as GL_RGBA16UI, Rn_GL_RGBA32F as GL_RGBA32F, Rn_GL_RGBA32F_EXT as GL_RGBA32F_EXT, Rn_GL_RGBA32I as GL_RGBA32I, Rn_GL_RGBA32UI as GL_RGBA32UI, Rn_GL_RGBA4 as GL_RGBA4, Rn_GL_RGBA8 as GL_RGBA8, Rn_GL_RGBA8I as GL_RGBA8I, Rn_GL_RGBA8UI as GL_RGBA8UI, Rn_GL_RGBA8_SNORM as GL_RGBA8_SNORM, Rn_GL_RGBA_INTEGER as GL_RGBA_INTEGER, Rn_GL_RGB_INTEGER as GL_RGB_INTEGER, Rn_GL_RG_INTEGER as GL_RG_INTEGER, Rn_GL_SAMPLER_2D as GL_SAMPLER_2D, Rn_GL_SAMPLER_2D_ARRAY as GL_SAMPLER_2D_ARRAY, Rn_GL_SAMPLER_2D_ARRAY_SHADOW as GL_SAMPLER_2D_ARRAY_SHADOW, Rn_GL_SAMPLER_2D_SHADOW as GL_SAMPLER_2D_SHADOW, Rn_GL_SAMPLER_3D as GL_SAMPLER_3D, Rn_GL_SAMPLER_BINDING as GL_SAMPLER_BINDING, Rn_GL_SAMPLER_CUBE as GL_SAMPLER_CUBE, Rn_GL_SAMPLER_CUBE_SHADOW as GL_SAMPLER_CUBE_SHADOW, Rn_GL_SAMPLES as GL_SAMPLES, Rn_GL_SAMPLE_ALPHA_TO_COVERAGE as GL_SAMPLE_ALPHA_TO_COVERAGE, Rn_GL_SAMPLE_BUFFERS as GL_SAMPLE_BUFFERS, Rn_GL_SAMPLE_COVERAGE as GL_SAMPLE_COVERAGE, Rn_GL_SAMPLE_COVERAGE_INVERT as GL_SAMPLE_COVERAGE_INVERT, Rn_GL_SAMPLE_COVERAGE_VALUE as GL_SAMPLE_COVERAGE_VALUE, Rn_GL_SCISSOR_BOX as GL_SCISSOR_BOX, Rn_GL_SCISSOR_TEST as GL_SCISSOR_TEST, Rn_GL_SEPARATE_ATTRIBS as GL_SEPARATE_ATTRIBS, Rn_GL_SHADER_TYPE as GL_SHADER_TYPE, Rn_GL_SHADING_LANGUAGE_VERSION as GL_SHADING_LANGUAGE_VERSION, Rn_GL_SIGNALED as GL_SIGNALED, Rn_GL_SIGNED_NORMALIZED as GL_SIGNED_NORMALIZED, Rn_GL_SRC_ALPHA as GL_SRC_ALPHA, Rn_GL_SRC_ALPHA_SATURATE as GL_SRC_ALPHA_SATURATE, Rn_GL_SRC_COLOR as GL_SRC_COLOR, Rn_GL_SRGB as GL_SRGB, Rn_GL_SRGB8 as GL_SRGB8, Rn_GL_SRGB8_ALPHA8 as GL_SRGB8_ALPHA8, Rn_GL_SRGB8_ALPHA8_EXT as GL_SRGB8_ALPHA8_EXT, Rn_GL_SRGB_ALPHA_EXT as GL_SRGB_ALPHA_EXT, Rn_GL_SRGB_EXT as GL_SRGB_EXT, Rn_GL_STATIC_COPY as GL_STATIC_COPY, Rn_GL_STATIC_DRAW as GL_STATIC_DRAW, Rn_GL_STATIC_READ as GL_STATIC_READ, Rn_GL_STENCIL as GL_STENCIL, Rn_GL_STENCIL_ATTACHMENT as GL_STENCIL_ATTACHMENT, Rn_GL_STENCIL_BACK_FAIL as GL_STENCIL_BACK_FAIL, Rn_GL_STENCIL_BACK_FUNC as GL_STENCIL_BACK_FUNC, Rn_GL_STENCIL_BACK_PASS_DEPTH_FAIL as GL_STENCIL_BACK_PASS_DEPTH_FAIL, Rn_GL_STENCIL_BACK_PASS_DEPTH_PASS as GL_STENCIL_BACK_PASS_DEPTH_PASS, Rn_GL_STENCIL_BACK_REF as GL_STENCIL_BACK_REF, Rn_GL_STENCIL_BACK_VALUE_MASK as GL_STENCIL_BACK_VALUE_MASK, Rn_GL_STENCIL_BACK_WRITEMASK as GL_STENCIL_BACK_WRITEMASK, Rn_GL_STENCIL_BITS as GL_STENCIL_BITS, Rn_GL_STENCIL_BUFFER_BIT as GL_STENCIL_BUFFER_BIT, Rn_GL_STENCIL_CLEAR_VALUE as GL_STENCIL_CLEAR_VALUE, Rn_GL_STENCIL_FAIL as GL_STENCIL_FAIL, Rn_GL_STENCIL_FUNC as GL_STENCIL_FUNC, Rn_GL_STENCIL_INDEX as GL_STENCIL_INDEX, Rn_GL_STENCIL_INDEX8 as GL_STENCIL_INDEX8, Rn_GL_STENCIL_PASS_DEPTH_FAIL as GL_STENCIL_PASS_DEPTH_FAIL, Rn_GL_STENCIL_PASS_DEPTH_PASS as GL_STENCIL_PASS_DEPTH_PASS, Rn_GL_STENCIL_REF as GL_STENCIL_REF, Rn_GL_STENCIL_TEST as GL_STENCIL_TEST, Rn_GL_STENCIL_VALUE_MASK as GL_STENCIL_VALUE_MASK, Rn_GL_STENCIL_WRITEMASK as GL_STENCIL_WRITEMASK, Rn_GL_STREAM_COPY as GL_STREAM_COPY, Rn_GL_STREAM_DRAW as GL_STREAM_DRAW, Rn_GL_STREAM_READ as GL_STREAM_READ, Rn_GL_SUBPIXEL_BITS as GL_SUBPIXEL_BITS, Rn_GL_SYNC_CONDITION as GL_SYNC_CONDITION, Rn_GL_SYNC_FENCE as GL_SYNC_FENCE, Rn_GL_SYNC_FLAGS as GL_SYNC_FLAGS, Rn_GL_SYNC_FLUSH_COMMANDS_BIT as GL_SYNC_FLUSH_COMMANDS_BIT, Rn_GL_SYNC_GPU_COMMANDS_COMPLETE as GL_SYNC_GPU_COMMANDS_COMPLETE, Rn_GL_SYNC_STATUS as GL_SYNC_STATUS, Rn_GL_TEXTURE as GL_TEXTURE, Rn_GL_TEXTURE0 as GL_TEXTURE0, Rn_GL_TEXTURE1 as GL_TEXTURE1, Rn_GL_TEXTURE10 as GL_TEXTURE10, Rn_GL_TEXTURE11 as GL_TEXTURE11, Rn_GL_TEXTURE12 as GL_TEXTURE12, Rn_GL_TEXTURE13 as GL_TEXTURE13, Rn_GL_TEXTURE14 as GL_TEXTURE14, Rn_GL_TEXTURE15 as GL_TEXTURE15, Rn_GL_TEXTURE16 as GL_TEXTURE16, Rn_GL_TEXTURE17 as GL_TEXTURE17, Rn_GL_TEXTURE18 as GL_TEXTURE18, Rn_GL_TEXTURE19 as GL_TEXTURE19, Rn_GL_TEXTURE2 as GL_TEXTURE2, Rn_GL_TEXTURE20 as GL_TEXTURE20, Rn_GL_TEXTURE21 as GL_TEXTURE21, Rn_GL_TEXTURE22 as GL_TEXTURE22, Rn_GL_TEXTURE23 as GL_TEXTURE23, Rn_GL_TEXTURE24 as GL_TEXTURE24, Rn_GL_TEXTURE25 as GL_TEXTURE25, Rn_GL_TEXTURE26 as GL_TEXTURE26, Rn_GL_TEXTURE27 as GL_TEXTURE27, Rn_GL_TEXTURE28 as GL_TEXTURE28, Rn_GL_TEXTURE29 as GL_TEXTURE29, Rn_GL_TEXTURE3 as GL_TEXTURE3, Rn_GL_TEXTURE30 as GL_TEXTURE30, Rn_GL_TEXTURE31 as GL_TEXTURE31, Rn_GL_TEXTURE4 as GL_TEXTURE4, Rn_GL_TEXTURE5 as GL_TEXTURE5, Rn_GL_TEXTURE6 as GL_TEXTURE6, Rn_GL_TEXTURE7 as GL_TEXTURE7, Rn_GL_TEXTURE8 as GL_TEXTURE8, Rn_GL_TEXTURE9 as GL_TEXTURE9, Rn_GL_TEXTURE_2D as GL_TEXTURE_2D, Rn_GL_TEXTURE_2D_ARRAY as GL_TEXTURE_2D_ARRAY, Rn_GL_TEXTURE_3D as GL_TEXTURE_3D, Rn_GL_TEXTURE_BASE_LEVEL as GL_TEXTURE_BASE_LEVEL, Rn_GL_TEXTURE_BINDING_2D as GL_TEXTURE_BINDING_2D, Rn_GL_TEXTURE_BINDING_2D_ARRAY as GL_TEXTURE_BINDING_2D_ARRAY, Rn_GL_TEXTURE_BINDING_3D as GL_TEXTURE_BINDING_3D, Rn_GL_TEXTURE_BINDING_CUBE_MAP as GL_TEXTURE_BINDING_CUBE_MAP, Rn_GL_TEXTURE_COMPARE_FUNC as GL_TEXTURE_COMPARE_FUNC, Rn_GL_TEXTURE_COMPARE_MODE as GL_TEXTURE_COMPARE_MODE, Rn_GL_TEXTURE_CUBE_MAP as GL_TEXTURE_CUBE_MAP, Rn_GL_TEXTURE_CUBE_MAP_NEGATIVE_X as GL_TEXTURE_CUBE_MAP_NEGATIVE_X, Rn_GL_TEXTURE_CUBE_MAP_NEGATIVE_Y as GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, Rn_GL_TEXTURE_CUBE_MAP_NEGATIVE_Z as GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, Rn_GL_TEXTURE_CUBE_MAP_POSITIVE_X as GL_TEXTURE_CUBE_MAP_POSITIVE_X, Rn_GL_TEXTURE_CUBE_MAP_POSITIVE_Y as GL_TEXTURE_CUBE_MAP_POSITIVE_Y, Rn_GL_TEXTURE_CUBE_MAP_POSITIVE_Z as GL_TEXTURE_CUBE_MAP_POSITIVE_Z, Rn_GL_TEXTURE_IMMUTABLE_FORMAT as GL_TEXTURE_IMMUTABLE_FORMAT, Rn_GL_TEXTURE_IMMUTABLE_LEVELS as GL_TEXTURE_IMMUTABLE_LEVELS, Rn_GL_TEXTURE_MAG_FILTER as GL_TEXTURE_MAG_FILTER, Rn_GL_TEXTURE_MAX_ANISOTROPY_EXT as GL_TEXTURE_MAX_ANISOTROPY_EXT, Rn_GL_TEXTURE_MAX_LEVEL as GL_TEXTURE_MAX_LEVEL, Rn_GL_TEXTURE_MAX_LOD as GL_TEXTURE_MAX_LOD, Rn_GL_TEXTURE_MIN_FILTER as GL_TEXTURE_MIN_FILTER, Rn_GL_TEXTURE_MIN_LOD as GL_TEXTURE_MIN_LOD, Rn_GL_TEXTURE_WRAP_R as GL_TEXTURE_WRAP_R, Rn_GL_TEXTURE_WRAP_S as GL_TEXTURE_WRAP_S, Rn_GL_TEXTURE_WRAP_T as GL_TEXTURE_WRAP_T, Rn_GL_TIMEOUT_EXPIRED as GL_TIMEOUT_EXPIRED, Rn_GL_TIMEOUT_IGNORED as GL_TIMEOUT_IGNORED, Rn_GL_TIMESTAMP_EXT as GL_TIMESTAMP_EXT, Rn_GL_TIME_ELAPSED_EXT as GL_TIME_ELAPSED_EXT, Rn_GL_TRANSFORM_FEEDBACK as GL_TRANSFORM_FEEDBACK, Rn_GL_TRANSFORM_FEEDBACK_ACTIVE as GL_TRANSFORM_FEEDBACK_ACTIVE, Rn_GL_TRANSFORM_FEEDBACK_BINDING as GL_TRANSFORM_FEEDBACK_BINDING, Rn_GL_TRANSFORM_FEEDBACK_BUFFER as GL_TRANSFORM_FEEDBACK_BUFFER, Rn_GL_TRANSFORM_FEEDBACK_BUFFER_BINDING as GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, Rn_GL_TRANSFORM_FEEDBACK_BUFFER_MODE as GL_TRANSFORM_FEEDBACK_BUFFER_MODE, Rn_GL_TRANSFORM_FEEDBACK_BUFFER_SIZE as GL_TRANSFORM_FEEDBACK_BUFFER_SIZE, Rn_GL_TRANSFORM_FEEDBACK_BUFFER_START as GL_TRANSFORM_FEEDBACK_BUFFER_START, Rn_GL_TRANSFORM_FEEDBACK_PAUSED as GL_TRANSFORM_FEEDBACK_PAUSED, Rn_GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN as GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, Rn_GL_TRANSFORM_FEEDBACK_VARYINGS as GL_TRANSFORM_FEEDBACK_VARYINGS, Rn_GL_TRIANGLES as GL_TRIANGLES, Rn_GL_TRIANGLE_FAN as GL_TRIANGLE_FAN, Rn_GL_TRIANGLE_STRIP as GL_TRIANGLE_STRIP, Rn_GL_UNIFORM_ARRAY_STRIDE as GL_UNIFORM_ARRAY_STRIDE, Rn_GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS as GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, Rn_GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES as GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, Rn_GL_UNIFORM_BLOCK_BINDING as GL_UNIFORM_BLOCK_BINDING, Rn_GL_UNIFORM_BLOCK_DATA_SIZE as GL_UNIFORM_BLOCK_DATA_SIZE, Rn_GL_UNIFORM_BLOCK_INDEX as GL_UNIFORM_BLOCK_INDEX, Rn_GL_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER as GL_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER, Rn_GL_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER as GL_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER, Rn_GL_UNIFORM_BUFFER as GL_UNIFORM_BUFFER, Rn_GL_UNIFORM_BUFFER_BINDING as GL_UNIFORM_BUFFER_BINDING, Rn_GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT as GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, Rn_GL_UNIFORM_BUFFER_SIZE as GL_UNIFORM_BUFFER_SIZE, Rn_GL_UNIFORM_BUFFER_START as GL_UNIFORM_BUFFER_START, Rn_GL_UNIFORM_IS_ROW_MAJOR as GL_UNIFORM_IS_ROW_MAJOR, Rn_GL_UNIFORM_MATRIX_STRIDE as GL_UNIFORM_MATRIX_STRIDE, Rn_GL_UNIFORM_OFFSET as GL_UNIFORM_OFFSET, Rn_GL_UNIFORM_SIZE as GL_UNIFORM_SIZE, Rn_GL_UNIFORM_TYPE as GL_UNIFORM_TYPE, Rn_GL_UNMASKED_RENDERER_WEBGL as GL_UNMASKED_RENDERER_WEBGL, Rn_GL_UNMASKED_VENDOR_WEBGL as GL_UNMASKED_VENDOR_WEBGL, Rn_GL_UNPACK_ALIGNMENT as GL_UNPACK_ALIGNMENT, Rn_GL_UNPACK_COLORSPACE_CONVERSION_WEBGL as GL_UNPACK_COLORSPACE_CONVERSION_WEBGL, Rn_GL_UNPACK_FLIP_Y_WEBGL as GL_UNPACK_FLIP_Y_WEBGL, Rn_GL_UNPACK_IMAGE_HEIGHT as GL_UNPACK_IMAGE_HEIGHT, Rn_GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL as GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL, Rn_GL_UNPACK_ROW_LENGTH as GL_UNPACK_ROW_LENGTH, Rn_GL_UNPACK_SKIP_IMAGES as GL_UNPACK_SKIP_IMAGES, Rn_GL_UNPACK_SKIP_PIXELS as GL_UNPACK_SKIP_PIXELS, Rn_GL_UNPACK_SKIP_ROWS as GL_UNPACK_SKIP_ROWS, Rn_GL_UNSIGNALED as GL_UNSIGNALED, Rn_GL_UNSIGNED_INT_10F_11F_11F_REV as GL_UNSIGNED_INT_10F_11F_11F_REV, Rn_GL_UNSIGNED_INT_24_8 as GL_UNSIGNED_INT_24_8, Rn_GL_UNSIGNED_INT_24_8_WEBGL as GL_UNSIGNED_INT_24_8_WEBGL, Rn_GL_UNSIGNED_INT_2_10_10_10_REV as GL_UNSIGNED_INT_2_10_10_10_REV, Rn_GL_UNSIGNED_INT_5_9_9_9_REV as GL_UNSIGNED_INT_5_9_9_9_REV, Rn_GL_UNSIGNED_INT_SAMPLER_2D as GL_UNSIGNED_INT_SAMPLER_2D, Rn_GL_UNSIGNED_INT_SAMPLER_2D_ARRAY as GL_UNSIGNED_INT_SAMPLER_2D_ARRAY, Rn_GL_UNSIGNED_INT_SAMPLER_3D as GL_UNSIGNED_INT_SAMPLER_3D, Rn_GL_UNSIGNED_INT_SAMPLER_CUBE as GL_UNSIGNED_INT_SAMPLER_CUBE, Rn_GL_UNSIGNED_INT_VEC2 as GL_UNSIGNED_INT_VEC2, Rn_GL_UNSIGNED_INT_VEC3 as GL_UNSIGNED_INT_VEC3, Rn_GL_UNSIGNED_INT_VEC4 as GL_UNSIGNED_INT_VEC4, Rn_GL_UNSIGNED_NORMALIZED as GL_UNSIGNED_NORMALIZED, Rn_GL_UNSIGNED_NORMALIZED_EXT as GL_UNSIGNED_NORMALIZED_EXT, Rn_GL_VALIDATE_STATUS as GL_VALIDATE_STATUS, Rn_GL_VENDOR as GL_VENDOR, Rn_GL_VERSION as GL_VERSION, Rn_GL_VERTEX_ARRAY_BINDING as GL_VERTEX_ARRAY_BINDING, Rn_GL_VERTEX_ARRAY_BINDING_OES as GL_VERTEX_ARRAY_BINDING_OES, Rn_GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING as GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, Rn_GL_VERTEX_ATTRIB_ARRAY_DIVISOR as GL_VERTEX_ATTRIB_ARRAY_DIVISOR, Rn_GL_VERTEX_ATTRIB_ARRAY_DIVISOR_ANGLE as GL_VERTEX_ATTRIB_ARRAY_DIVISOR_ANGLE, Rn_GL_VERTEX_ATTRIB_ARRAY_ENABLED as GL_VERTEX_ATTRIB_ARRAY_ENABLED, Rn_GL_VERTEX_ATTRIB_ARRAY_INTEGER as GL_VERTEX_ATTRIB_ARRAY_INTEGER, Rn_GL_VERTEX_ATTRIB_ARRAY_NORMALIZED as GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, Rn_GL_VERTEX_ATTRIB_ARRAY_POINTER as GL_VERTEX_ATTRIB_ARRAY_POINTER, Rn_GL_VERTEX_ATTRIB_ARRAY_SIZE as GL_VERTEX_ATTRIB_ARRAY_SIZE, Rn_GL_VERTEX_ATTRIB_ARRAY_STRIDE as GL_VERTEX_ATTRIB_ARRAY_STRIDE, Rn_GL_VERTEX_ATTRIB_ARRAY_TYPE as GL_VERTEX_ATTRIB_ARRAY_TYPE, Rn_GL_VERTEX_SHADER as GL_VERTEX_SHADER, Rn_GL_VIEWPORT as GL_VIEWPORT, Rn_GL_WAIT_FAILED as GL_WAIT_FAILED, Rn_GL_ZERO as GL_ZERO, Rn_GaussianBlur as GaussianBlur, Rn_GetComponentFromEntities as GetComponentFromEntities, type Rn_GetInstance as GetInstance, type Rn_GetProps as GetProps, Rn_Gizmo as Gizmo, Rn_GlobalDataRepository as GlobalDataRepository, Rn_GlobalRetarget as GlobalRetarget, Rn_GlobalRetargetReverse as GlobalRetargetReverse, type Rn_Gltf1AnyObject as Gltf1AnyObject, type Rn_Gltf2 as Gltf2, type Rn_Gltf2Accessor as Gltf2Accessor, type Rn_Gltf2AccessorComponentType as Gltf2AccessorComponentType, type Rn_Gltf2AccessorComponentTypeNumber as Gltf2AccessorComponentTypeNumber, type Rn_Gltf2AccessorCompositionType as Gltf2AccessorCompositionType, type Rn_Gltf2AccessorCompositionTypeString as Gltf2AccessorCompositionTypeString, type Rn_Gltf2AccessorEx as Gltf2AccessorEx, type Rn_Gltf2AccessorIndex as Gltf2AccessorIndex, type Rn_Gltf2Animation as Gltf2Animation, type Rn_Gltf2AnimationAccessorCompositionType as Gltf2AnimationAccessorCompositionType, type Rn_Gltf2AnimationAccessorCompositionTypeString as Gltf2AnimationAccessorCompositionTypeString, type Rn_Gltf2AnimationChannel as Gltf2AnimationChannel, type Rn_Gltf2AnimationChannelTarget as Gltf2AnimationChannelTarget, type Rn_Gltf2AnimationPathName as Gltf2AnimationPathName, type Rn_Gltf2AnimationSampler as Gltf2AnimationSampler, type Rn_Gltf2AnimationSamplerInterpolation as Gltf2AnimationSamplerInterpolation, type Rn_Gltf2AnyObject as Gltf2AnyObject, type Rn_Gltf2Asset as Gltf2Asset, type Rn_Gltf2AttributeAccessors as Gltf2AttributeAccessors, type Rn_Gltf2AttributeBlendShapes as Gltf2AttributeBlendShapes, type Rn_Gltf2AttributeBlendShapesAccessors as Gltf2AttributeBlendShapesAccessors, type Rn_Gltf2Attributes as Gltf2Attributes, type Rn_Gltf2Buffer as Gltf2Buffer, type Rn_Gltf2BufferView as Gltf2BufferView, type Rn_Gltf2BufferViewEx as Gltf2BufferViewEx, type Rn_Gltf2Camera as Gltf2Camera, type Rn_Gltf2CameraOrthographic as Gltf2CameraOrthographic, type Rn_Gltf2CameraPerspective as Gltf2CameraPerspective, type Rn_Gltf2Ex as Gltf2Ex, type Rn_Gltf2ExportType as Gltf2ExportType, Rn_Gltf2Exporter as Gltf2Exporter, type Rn_Gltf2ExporterArguments as Gltf2ExporterArguments, type Rn_Gltf2Image as Gltf2Image, type Rn_Gltf2ImageEx as Gltf2ImageEx, Rn_Gltf2Importer as Gltf2Importer, type Rn_Gltf2Material as Gltf2Material, type Rn_Gltf2MaterialEx as Gltf2MaterialEx, type Rn_Gltf2Mesh as Gltf2Mesh, type Rn_Gltf2Node as Gltf2Node, type Rn_Gltf2NormalTextureInfo as Gltf2NormalTextureInfo, type Rn_Gltf2OcclusionTextureInfo as Gltf2OcclusionTextureInfo, type Rn_Gltf2PbrMetallicRoughness as Gltf2PbrMetallicRoughness, type Rn_Gltf2PbrMetallicRoughnessEx as Gltf2PbrMetallicRoughnessEx, type Rn_Gltf2Primitive as Gltf2Primitive, type Rn_Gltf2Scene as Gltf2Scene, type Rn_Gltf2Skin as Gltf2Skin, type Rn_Gltf2Sparse as Gltf2Sparse, type Rn_Gltf2SparseIndices as Gltf2SparseIndices, type Rn_Gltf2SparseValues as Gltf2SparseValues, type Rn_Gltf2Texture as Gltf2Texture, type Rn_Gltf2TextureInfo as Gltf2TextureInfo, type Rn_Gltf2TextureSampler as Gltf2TextureSampler, type Rn_GltfFileBuffers as GltfFileBuffers, Rn_GltfImporter as GltfImporter, type Rn_GltfLoadOption as GltfLoadOption, Rn_GreaterOrEqualShaderNode as GreaterOrEqualShaderNode, Rn_GreaterShaderNode as GreaterShaderNode, Rn_GreaterThanShaderNode as GreaterThanShaderNode, Rn_Grid as Grid, type Rn_GridDescriptor as GridDescriptor, Rn_HdriFormat as HdriFormat, type Rn_HdriFormatEnum as HdriFormatEnum, type Rn_IAnimationEntity as IAnimationEntity, type Rn_IAnimationEntityMethods as IAnimationEntityMethods, type Rn_IAnimationRetarget as IAnimationRetarget, type Rn_IAnimationStateEntity as IAnimationStateEntity, type Rn_IAnyPrimitiveDescriptor as IAnyPrimitiveDescriptor, type Rn_IArrayBufferBasedMathNumber as IArrayBufferBasedMathNumber, type Rn_IBlendShapeEntity as IBlendShapeEntity, type Rn_IBlendShapeEntityMethods as IBlendShapeEntityMethods, type Rn_ICGAPIResourceRepository as ICGAPIResourceRepository, type Rn_ICameraController as ICameraController, type Rn_ICameraControllerEntity as ICameraControllerEntity, type Rn_ICameraControllerEntityMethods as ICameraControllerEntityMethods, type Rn_ICameraEntity as ICameraEntity, type Rn_ICameraEntityMethods as ICameraEntityMethods, type Rn_IColorRgb as IColorRgb, type Rn_IColorRgba as IColorRgba, type Rn_IConstraintEntity as IConstraintEntity, type Rn_IEffekseerEntityMethods as IEffekseerEntityMethods, type Rn_IEnhancedArrayMethods as IEnhancedArrayMethods, type Rn_IEntity as IEntity, type Rn_IEventPubSub as IEventPubSub, type Rn_ILightEntity as ILightEntity, type Rn_ILightEntityMethods as ILightEntityMethods, type Rn_ILoaderExtension as ILoaderExtension, type Rn_ILogQuaternion as ILogQuaternion, type Rn_IMatrix as IMatrix, type Rn_IMatrix22 as IMatrix22, type Rn_IMatrix33 as IMatrix33, type Rn_IMatrix44 as IMatrix44, type Rn_IMesh as IMesh, type Rn_IMeshEntity as IMeshEntity, type Rn_IMeshEntityMethods as IMeshEntityMethods, type Rn_IMeshRendererEntityMethods as IMeshRendererEntityMethods, type Rn_IMutableColorRgb as IMutableColorRgb, type Rn_IMutableColorRgba as IMutableColorRgba, type Rn_IMutableMatrix as IMutableMatrix, type Rn_IMutableMatrix22 as IMutableMatrix22, type Rn_IMutableMatrix33 as IMutableMatrix33, type Rn_IMutableMatrix44 as IMutableMatrix44, type Rn_IMutableQuaternion as IMutableQuaternion, type Rn_IMutableScalar as IMutableScalar, type Rn_IMutableVector as IMutableVector, type Rn_IMutableVector2 as IMutableVector2, type Rn_IMutableVector3 as IMutableVector3, type Rn_IMutableVector4 as IMutableVector4, Rn_INPUT_HANDLING_STATE_CAMERA_CONTROLLER as INPUT_HANDLING_STATE_CAMERA_CONTROLLER, Rn_INPUT_HANDLING_STATE_GIZMO_ROTATION as INPUT_HANDLING_STATE_GIZMO_ROTATION, Rn_INPUT_HANDLING_STATE_GIZMO_SCALE as INPUT_HANDLING_STATE_GIZMO_SCALE, Rn_INPUT_HANDLING_STATE_GIZMO_TRANSLATION as INPUT_HANDLING_STATE_GIZMO_TRANSLATION, Rn_INPUT_HANDLING_STATE_NONE as INPUT_HANDLING_STATE_NONE, type Rn_IPhysicsEntity as IPhysicsEntity, type Rn_IPhysicsEntityMethods as IPhysicsEntityMethods, type Rn_IQuaternion as IQuaternion, type Rn_IRenderable as IRenderable, type Rn_IRnObject as IRnObject, type Rn_IScalar as IScalar, type Rn_ISceneGraphEntity as ISceneGraphEntity, type Rn_ISceneGraphEntityMethods as ISceneGraphEntityMethods, type Rn_ISemanticVertexAttribute as ISemanticVertexAttribute, Rn_IShape as IShape, type Rn_ISkeletalEntity as ISkeletalEntity, type Rn_ISkeletalEntityMethods as ISkeletalEntityMethods, type Rn_ITransformEntity as ITransformEntity, type Rn_ITransformEntityMethods as ITransformEntityMethods, type Rn_IVector as IVector, type Rn_IVector2 as IVector2, type Rn_IVector3 as IVector3, type Rn_IVector4 as IVector4, type Rn_IVrmEntityMethods as IVrmEntityMethods, type Rn_IWeakOption as IWeakOption, Rn_IdentityMatrix33 as IdentityMatrix33, Rn_IdentityMatrix44 as IdentityMatrix44, Rn_IfStatementShader as IfStatementShader, Rn_IfStatementShaderNode as IfStatementShaderNode, type Rn_ImageBitmapData as ImageBitmapData, Rn_ImageInfo as ImageInfo, Rn_ImageUtil as ImageUtil, type Rn_Index as Index, type Rn_IndexInTheDataView as IndexInTheDataView, type Rn_IndexOf16Bytes as IndexOf16Bytes, type Rn_IndexOf4Bytes as IndexOf4Bytes, type Rn_IndexOfBufferViews as IndexOfBufferViews, type Rn_IndicesAccessOption as IndicesAccessOption, type Rn_InputHandlerInfo as InputHandlerInfo, type Rn_InputHandlingState as InputHandlingState, Rn_InputManager as InputManager, type Rn_IntegerTypedArray as IntegerTypedArray, Rn_Is as Is, Rn_IsObj as IsObj, type Rn_IsType as IsType, Rn_Joint as Joint, type Rn_JointDescriptor as JointDescriptor, Rn_JointGizmo as JointGizmo, type Rn_KHR_interactivity as KHR_interactivity, type Rn_KHR_interactivity_Configuration as KHR_interactivity_Configuration, type Rn_KHR_interactivity_Declaration as KHR_interactivity_Declaration, type Rn_KHR_interactivity_Event as KHR_interactivity_Event, type Rn_KHR_interactivity_Flow as KHR_interactivity_Flow, type Rn_KHR_interactivity_Graph as KHR_interactivity_Graph, type Rn_KHR_interactivity_Node as KHR_interactivity_Node, type Rn_KHR_interactivity_Type as KHR_interactivity_Type, type Rn_KHR_interactivity_Value as KHR_interactivity_Value, type Rn_KHR_interactivity_Variable as KHR_interactivity_Variable, type Rn_KHR_interactivity_value_type as KHR_interactivity_value_type, type Rn_KHR_lights_punctual as KHR_lights_punctual, type Rn_KHR_lights_punctual_Light as KHR_lights_punctual_Light, type Rn_KHR_materials_variants as KHR_materials_variants, type Rn_KHR_materials_variants_Mapping as KHR_materials_variants_Mapping, type Rn_KHR_materials_variants_PrimitiveExtension as KHR_materials_variants_PrimitiveExtension, type Rn_KHR_materials_variants_Variant as KHR_materials_variants_Variant, Rn_KTX2TextureLoader as KTX2TextureLoader, Rn_LengthShaderNode as LengthShaderNode, Rn_LessOrEqualShaderNode as LessOrEqualShaderNode, Rn_LessThanShaderNode as LessThanShaderNode, Rn_LightComponent as LightComponent, Rn_LightGizmo as LightGizmo, Rn_LightType as LightType, type Rn_LightTypeEnum as LightTypeEnum, Rn_Line as Line, type Rn_LineDescriptor as LineDescriptor, type Rn_LoadImageToMipLevelDescriptor as LoadImageToMipLevelDescriptor, Rn_LocatorGizmo as LocatorGizmo, Rn_LogLevel as LogLevel, Rn_LogQuaternion as LogQuaternion, Rn_Logger as Logger, type Rn_MSC_TRANSCODER_TYPE as MSC_TRANSCODER_TYPE, Rn_MToon0xMaterialContent as MToon0xMaterialContent, Rn_MToon1MaterialContent as MToon1MaterialContent, Rn_MatCapMaterialContent as MatCapMaterialContent, Rn_Material as Material, Rn_MaterialHelper as MaterialHelper, type MaterialNodeUID$1 as MaterialNodeUID, Rn_MaterialRepository as MaterialRepository, type Rn_MaterialSID as MaterialSID, type Rn_MaterialTID as MaterialTID, type Rn_MaterialTypeName as MaterialTypeName, type Rn_MaterialUID as MaterialUID, Rn_MathClassUtil as MathClassUtil, Rn_MathUtil as MathUtil, Rn_Matrix22 as Matrix22, Rn_Matrix33 as Matrix33, Rn_Matrix44 as Matrix44, type Rn_MemberInfo as MemberInfo, Rn_MemoryManager as MemoryManager, type Rn_MergeCtor as MergeCtor, Rn_MergeVectorShaderNode as MergeVectorShaderNode, Rn_Mesh as Mesh, Rn_MeshComponent as MeshComponent, Rn_MeshHelper as MeshHelper, Rn_MeshRendererComponent as MeshRendererComponent, type Rn_MeshUID as MeshUID, type Rn_MilliSecond as MilliSecond, Rn_MiscUtil as MiscUtil, type Rn_MixinBase as MixinBase, Rn_ModelConverter as ModelConverter, Rn_ModuleManager as ModuleManager, type Rn_MscTranscoderModule as MscTranscoderModule, Rn_MultiplyShaderNode as MultiplyShaderNode, Rn_MutableColorRgb as MutableColorRgb, Rn_MutableColorRgba as MutableColorRgba, Rn_MutableMatrix22 as MutableMatrix22, Rn_MutableMatrix33 as MutableMatrix33, Rn_MutableMatrix44 as MutableMatrix44, Rn_MutableQuaternion as MutableQuaternion, Rn_MutableScalar as MutableScalar, Rn_MutableScalar_ as MutableScalar_, Rn_MutableScalard as MutableScalard, type Rn_MutableScalarf as MutableScalarf, Rn_MutableVector2 as MutableVector2, Rn_MutableVector2_ as MutableVector2_, Rn_MutableVector2d as MutableVector2d, type Rn_MutableVector2f as MutableVector2f, Rn_MutableVector3 as MutableVector3, Rn_MutableVector3_ as MutableVector3_, Rn_MutableVector3d as MutableVector3d, type Rn_MutableVector3f as MutableVector3f, Rn_MutableVector4 as MutableVector4, Rn_MutableVector4_ as MutableVector4_, Rn_MutableVector4d as MutableVector4d, type Rn_MutableVector4f as MutableVector4f, Rn_None as None, Rn_NormalMatrixShaderNode as NormalMatrixShaderNode, Rn_NormalizeShaderNode as NormalizeShaderNode, Rn_NotEqualShaderNode as NotEqualShaderNode, type Rn_ObjectUID as ObjectUID, type Rn_Offset as Offset, Rn_OimoPhysicsStrategy as OimoPhysicsStrategy, Rn_Ok as Ok, type Rn_Option as Option, Rn_OrShaderNode as OrShaderNode, Rn_OrbitCameraController as OrbitCameraController, Rn_OutColorShaderNode as OutColorShaderNode, Rn_OutPositionShaderNode as OutPositionShaderNode, type Rn_PartialRequire as PartialRequire, Rn_PbrAnisotropyPropsShaderNode as PbrAnisotropyPropsShaderNode, Rn_PbrAnisotropyRotationShaderNode as PbrAnisotropyRotationShaderNode, Rn_PbrBaseColorPropsShaderNode as PbrBaseColorPropsShaderNode, Rn_PbrClearcoatPropsShaderNode as PbrClearcoatPropsShaderNode, Rn_PbrDiffuseTransmissionPropsShaderNode as PbrDiffuseTransmissionPropsShaderNode, Rn_PbrEmissivePropsShaderNode as PbrEmissivePropsShaderNode, Rn_PbrIridescencePropsShaderNode as PbrIridescencePropsShaderNode, Rn_PbrMetallicRoughnessPropsShaderNode as PbrMetallicRoughnessPropsShaderNode, Rn_PbrNormalPropsShaderNode as PbrNormalPropsShaderNode, Rn_PbrOcclusionPropsShaderNode as PbrOcclusionPropsShaderNode, Rn_PbrShaderShaderNode as PbrShaderShaderNode, Rn_PbrSheenPropsShaderNode as PbrSheenPropsShaderNode, Rn_PbrSpecularPropsShaderNode as PbrSpecularPropsShaderNode, Rn_PbrTransmissionPropsShaderNode as PbrTransmissionPropsShaderNode, type Rn_PbrUberMaterialOptions as PbrUberMaterialOptions, Rn_PbrVolumePropsShaderNode as PbrVolumePropsShaderNode, Rn_PhysicsComponent as PhysicsComponent, type Rn_PhysicsProperty as PhysicsProperty, type Rn_PhysicsPropertyInner as PhysicsPropertyInner, type Rn_PhysicsStrategy as PhysicsStrategy, type Rn_PhysicsWorldProperty as PhysicsWorldProperty, Rn_PixelFormat as PixelFormat, type Rn_PixelFormatEnum as PixelFormatEnum, Rn_Plane as Plane, type Rn_PlaneDescriptor as PlaneDescriptor, Rn_PointShadowMap as PointShadowMap, type Rn_PointType as PointType, Rn_PremultipliedAlphaShaderNode as PremultipliedAlphaShaderNode, Rn_Primitive as Primitive, type Rn_PrimitiveDescriptor as PrimitiveDescriptor, Rn_PrimitiveMode as PrimitiveMode, type Rn_PrimitiveModeEnum as PrimitiveModeEnum, type Rn_PrimitiveSortKey as PrimitiveSortKey, type Rn_PrimitiveSortKeyLength as PrimitiveSortKeyLength, type Rn_PrimitiveSortKeyOffset as PrimitiveSortKeyOffset, Rn_PrimitiveSortKey_BitLength_Depth as PrimitiveSortKey_BitLength_Depth, Rn_PrimitiveSortKey_BitLength_Material as PrimitiveSortKey_BitLength_Material, Rn_PrimitiveSortKey_BitLength_PrimitiveType as PrimitiveSortKey_BitLength_PrimitiveType, Rn_PrimitiveSortKey_BitLength_RenderQueue as PrimitiveSortKey_BitLength_RenderQueue, Rn_PrimitiveSortKey_BitLength_TranslucencyType as PrimitiveSortKey_BitLength_TranslucencyType, Rn_PrimitiveSortKey_BitOffset_Material as PrimitiveSortKey_BitOffset_Material, Rn_PrimitiveSortKey_BitOffset_PrimitiveType as PrimitiveSortKey_BitOffset_PrimitiveType, Rn_PrimitiveSortKey_BitOffset_RenderQueue as PrimitiveSortKey_BitOffset_RenderQueue, Rn_PrimitiveSortKey_BitOffset_TranslucencyType as PrimitiveSortKey_BitOffset_TranslucencyType, type Rn_PrimitiveUID as PrimitiveUID, Rn_ProcessApproach as ProcessApproach, Rn_ProcessApproachClass as ProcessApproachClass, type Rn_ProcessApproachEnum as ProcessApproachEnum, Rn_ProcessStage as ProcessStage, type Rn_ProcessStageEnum as ProcessStageEnum, Rn_ProjectionMatrixShaderNode as ProjectionMatrixShaderNode, Rn_Quaternion as Quaternion, type Rn_Ratio as Ratio, type Rn_RaycastResult as RaycastResult, type Rn_RaycastResultEx1 as RaycastResultEx1, type Rn_RaycastResultEx2 as RaycastResultEx2, Rn_RemapShaderNode as RemapShaderNode, Rn_RenderBuffer as RenderBuffer, Rn_RenderBufferTarget as RenderBufferTarget, type Rn_RenderBufferTargetEnum as RenderBufferTargetEnum, Rn_RenderPass as RenderPass, Rn_RenderPassHelper as RenderPassHelper, type Rn_RenderPassUID as RenderPassUID, Rn_RenderTargetTexture as RenderTargetTexture, Rn_RenderTargetTexture2DArray as RenderTargetTexture2DArray, Rn_RenderTargetTextureCube as RenderTargetTextureCube, Rn_RenderableHelper as RenderableHelper, type Rn_RenderingArgWebGL as RenderingArgWebGL, type Rn_RenderingArgWebGpu as RenderingArgWebGpu, type Rn_RequireOne as RequireOne, type Rn_Result as Result, Rn_RhodoniteImportExtension as RhodoniteImportExtension, Rn_Ring as Ring, type Rn_RingAxis as RingAxis, type Rn_RingDescriptor as RingDescriptor, type Rn_RnError as RnError, Rn_RnException as RnException, type Rn_RnM2 as RnM2, type Rn_RnM2Accessor as RnM2Accessor, type Rn_RnM2Animation as RnM2Animation, type Rn_RnM2AnimationChannel as RnM2AnimationChannel, type Rn_RnM2AnimationChannelTarget as RnM2AnimationChannelTarget, type Rn_RnM2AnimationSampler as RnM2AnimationSampler, type Rn_RnM2Asset as RnM2Asset, type Rn_RnM2AttributeAccessors as RnM2AttributeAccessors, type Rn_RnM2AttributeBlendShapes as RnM2AttributeBlendShapes, type Rn_RnM2AttributeBlendShapesAccessors as RnM2AttributeBlendShapesAccessors, type Rn_RnM2Attributes as RnM2Attributes, type Rn_RnM2AttributesObject as RnM2AttributesObject, type Rn_RnM2Buffer as RnM2Buffer, type Rn_RnM2BufferView as RnM2BufferView, type Rn_RnM2Camera as RnM2Camera, type Rn_RnM2CameraOrthographic as RnM2CameraOrthographic, type Rn_RnM2CameraPerspective as RnM2CameraPerspective, type Rn_RnM2ExtensionEffekseer as RnM2ExtensionEffekseer, type Rn_RnM2ExtensionRhodoniteMaterialsNode as RnM2ExtensionRhodoniteMaterialsNode, type Rn_RnM2ExtensionsEffekseerEffect as RnM2ExtensionsEffekseerEffect, type Rn_RnM2ExtensionsEffekseerTimeline as RnM2ExtensionsEffekseerTimeline, type Rn_RnM2ExtensionsEffekseerTimelineItem as RnM2ExtensionsEffekseerTimelineItem, type Rn_RnM2Image as RnM2Image, type Rn_RnM2Material as RnM2Material, type Rn_RnM2MaterialVariant as RnM2MaterialVariant, type Rn_RnM2Mesh as RnM2Mesh, type Rn_RnM2Node as RnM2Node, type Rn_RnM2NormalTextureInfo as RnM2NormalTextureInfo, type Rn_RnM2OcclusionTextureInfo as RnM2OcclusionTextureInfo, type Rn_RnM2PbrMetallicRoughness as RnM2PbrMetallicRoughness, type Rn_RnM2Primitive as RnM2Primitive, type Rn_RnM2Scene as RnM2Scene, type Rn_RnM2Skin as RnM2Skin, type Rn_RnM2Sparse as RnM2Sparse, type Rn_RnM2SparseIndices as RnM2SparseIndices, type Rn_RnM2SparseValues as RnM2SparseValues, type Rn_RnM2Texture as RnM2Texture, type Rn_RnM2TextureInfo as RnM2TextureInfo, type Rn_RnM2TextureSampler as RnM2TextureSampler, type Rn_RnM2TextureUniformValue as RnM2TextureUniformValue, type Rn_RnM2Vrma as RnM2Vrma, Rn_RnObject as RnObject, Rn_RnPromise as RnPromise, type Rn_RnPromiseCallback as RnPromiseCallback, type Rn_RnPromiseCallbackObj as RnPromiseCallbackObj, type Rn_RnTags as RnTags, type Rn_RnWebGLProgram as RnWebGLProgram, type Rn_RnWebGLTexture as RnWebGLTexture, type Rn_RnXR as RnXR, Rn_RotationGizmo as RotationGizmo, Rn_Sampler as Sampler, type Rn_SamplerDescriptor as SamplerDescriptor, Rn_Scalar as Scalar, Rn_Scalar_ as Scalar_, Rn_Scalard as Scalard, type Rn_Scalarf as Scalarf, Rn_ScaleGizmo as ScaleGizmo, Rn_SceneGraphComponent as SceneGraphComponent, type Rn_Second as Second, type Rn_ShaderAttributeOrSemanticsOrString as ShaderAttributeOrSemanticsOrString, Rn_ShaderGraphResolver as ShaderGraphResolver, Rn_ShaderNode as ShaderNode, type Rn_ShaderNodeEnum as ShaderNodeEnum, type Rn_ShaderNodeJson as ShaderNodeJson, type Rn_ShaderNodeJsonConnection as ShaderNodeJsonConnection, type Rn_ShaderNodeJsonNode as ShaderNodeJsonNode, type Rn_ShaderNodeJsonNodeInput as ShaderNodeJsonNodeInput, type Rn_ShaderNodeJsonNodeOutput as ShaderNodeJsonNodeOutput, type Rn_ShaderNodeUID as ShaderNodeUID, Rn_ShaderSemantics as ShaderSemantics, Rn_ShaderSemanticsClass as ShaderSemanticsClass, type Rn_ShaderSemanticsEnum as ShaderSemanticsEnum, type Rn_ShaderSemanticsIndex as ShaderSemanticsIndex, type Rn_ShaderSemanticsInfo as ShaderSemanticsInfo, type Rn_ShaderSemanticsName as ShaderSemanticsName, type Rn_ShaderSocket as ShaderSocket, type Rn_ShaderSources as ShaderSources, Rn_ShaderType as ShaderType, type Rn_ShaderTypeEnum as ShaderTypeEnum, type Rn_ShaderVariable as ShaderVariable, Rn_ShaderVariableType as ShaderVariableType, type Rn_ShaderVariableTypeEnum as ShaderVariableTypeEnum, Rn_ShaderityUtilityWebGL as ShaderityUtilityWebGL, Rn_ShadingModel as ShadingModel, type Rn_ShadingModelEnum as ShadingModelEnum, Rn_ShadowMap as ShadowMap, Rn_ShadowMapDecodeClassicMaterialContent as ShadowMapDecodeClassicMaterialContent, type Rn_ShadowMapEnum as ShadowMapEnum, Rn_ShadowMapType as ShadowMapType, Rn_ShadowSystem as ShadowSystem, Rn_SimpleVertexAttribute as SimpleVertexAttribute, type Rn_Size as Size, Rn_SkeletalComponent as SkeletalComponent, Rn_Some as Some, Rn_Sphere as Sphere, Rn_SphereCollider as SphereCollider, Rn_SphereColliderGizmo as SphereColliderGizmo, type Rn_SphereDescriptor as SphereDescriptor, Rn_SplitVectorShaderNode as SplitVectorShaderNode, type Rn_SquareMatrixComponentN as SquareMatrixComponentN, Rn_SymbolWeakMap as SymbolWeakMap, Rn_SynthesizeHdrMaterialContent as SynthesizeHdrMaterialContent, type Rn_Tag as Tag, Rn_TagGltf2NodeIndex as TagGltf2NodeIndex, Rn_Texture as Texture, Rn_Texture2DShader as Texture2DShader, Rn_Texture2DShaderNode as Texture2DShaderNode, type Rn_TextureData as TextureData, Rn_TextureDataFloat as TextureDataFloat, TextureFormat$1 as TextureFormat, type Rn_TextureFormatEnum as TextureFormatEnum, Rn_TextureParameter as TextureParameter, type Rn_TextureParameterEnum as TextureParameterEnum, type Rn_TextureParameters as TextureParameters, type Rn_TextureUID as TextureUID, Rn_Time as Time, Rn_ToneMappingType as ToneMappingType, type Rn_ToneMappingTypeEnum as ToneMappingTypeEnum, type Rn_TranscodeTarget as TranscodeTarget, type Rn_TranscodedImage as TranscodedImage, Rn_Transform3D as Transform3D, Rn_TransformComponent as TransformComponent, Rn_TranslationGizmo as TranslationGizmo, type Rn_TypedArray as TypedArray, type Rn_TypedArrayConstructor as TypedArrayConstructor, Rn_UastcImageTranscoder as UastcImageTranscoder, Rn_UniformDataShader as UniformDataShader, Rn_UniformDataShaderNode as UniformDataShaderNode, Rn_VERSION as VERSION, type Rn_VRM0x_Extension as VRM0x_Extension, Rn_VRMColliderGroup as VRMColliderGroup, Rn_VRMSpring as VRMSpring, Rn_VRMSpringBone as VRMSpringBone, Rn_VRMSpringBonePhysicsStrategy as VRMSpringBonePhysicsStrategy, Rn_VarianceShadowMapDecodeClassicMaterialContent as VarianceShadowMapDecodeClassicMaterialContent, Rn_VaryingVariableShader as VaryingVariableShader, Rn_Vector2 as Vector2, Rn_Vector2_ as Vector2_, Rn_Vector2d as Vector2d, type Rn_Vector2f as Vector2f, Rn_Vector3 as Vector3, Rn_Vector3_ as Vector3_, Rn_Vector3d as Vector3d, type Rn_Vector3f as Vector3f, Rn_Vector4 as Vector4, Rn_Vector4_ as Vector4_, Rn_Vector4d as Vector4d, type Rn_Vector4f as Vector4f, type Rn_VectorAndSquareMatrixComponentN as VectorAndSquareMatrixComponentN, type Rn_VectorComponentN as VectorComponentN, type Rn_VectorCompositionTypes as VectorCompositionTypes, Rn_VectorN as VectorN, Rn_VertexAttribute as VertexAttribute, Rn_VertexAttributeClass as VertexAttributeClass, type Rn_VertexAttributeComponent as VertexAttributeComponent, type Rn_VertexAttributeEnum as VertexAttributeEnum, type Rn_VertexAttributeSemanticsJoinedString as VertexAttributeSemanticsJoinedString, type Rn_VertexAttributeTypeName as VertexAttributeTypeName, type Rn_VertexAttributesLayout as VertexAttributesLayout, type Rn_VertexHandles as VertexHandles, Rn_VideoTexture as VideoTexture, type Rn_VideoTextureArguments as VideoTextureArguments, Rn_ViewMatrixShaderNode as ViewMatrixShaderNode, Rn_Visibility as Visibility, type Rn_VisibilityEnum as VisibilityEnum, type Rn_Vrm0x as Vrm0x, type Rn_Vrm0xBlendShapeBind as Vrm0xBlendShapeBind, type Rn_Vrm0xBlendShapeGroup as Vrm0xBlendShapeGroup, type Rn_Vrm0xBoneGroup as Vrm0xBoneGroup, type Rn_Vrm0xCollider as Vrm0xCollider, type Rn_Vrm0xColliderGroup as Vrm0xColliderGroup, type Rn_Vrm0xHumanBone as Vrm0xHumanBone, Rn_Vrm0xImporter as Vrm0xImporter, type Rn_Vrm0xLookAt as Vrm0xLookAt, type Rn_Vrm0xMaterialProperty as Vrm0xMaterialProperty, Rn_VrmComponent as VrmComponent, type Rn_VrmExpression as VrmExpression, type Rn_VrmExpressionMorphBind as VrmExpressionMorphBind, type Rn_VrmExpressionName as VrmExpressionName, Rn_VrmImporter as VrmImporter, Rn_VrmaImporter as VrmaImporter, Rn_WalkThroughCameraController as WalkThroughCameraController, Rn_WeakNone as WeakNone, Rn_WeakOption as WeakOption, Rn_WeakSome as WeakSome, Rn_WebGLContextWrapper as WebGLContextWrapper, Rn_WebGLExtension as WebGLExtension, type Rn_WebGLExtensionEnum as WebGLExtensionEnum, type Rn_WebGLResource as WebGLResource, type Rn_WebGLResourceHandle as WebGLResourceHandle, Rn_WebGLResourceRepository as WebGLResourceRepository, type Rn_WebGLStates as WebGLStates, type Rn_WebGLStrategy as WebGLStrategy, Rn_WebGLStrategyDataTexture as WebGLStrategyDataTexture, Rn_WebGLStrategyUniform as WebGLStrategyUniform, type Rn_WebGPUResourceHandle as WebGPUResourceHandle, Rn_WebGpuDeviceWrapper as WebGpuDeviceWrapper, type Rn_WebGpuResource as WebGpuResource, Rn_WebGpuResourceRepository as WebGpuResourceRepository, Rn_WebGpuStrategyBasic as WebGpuStrategyBasic, Rn_WebXRSystem as WebXRSystem, Rn_WellKnownComponentTIDs as WellKnownComponentTIDs, Rn_WireframeMaterialNode as WireframeMaterialNode, Rn_WorldMatrixShaderNode as WorldMatrixShaderNode, Rn__cleanupRenderPassHelperForEngine as _cleanupRenderPassHelperForEngine, Rn__cleanupWebGLStatesCacheForEngine as _cleanupWebGLStatesCacheForEngine, Rn__from as _from, Rn__fromString as _fromString, Rn__fromStringCaseSensitively as _fromStringCaseSensitively, Rn__getPropertyIndex2 as _getPropertyIndex2, Rn_add2 as add2, Rn_add2_offset as add2_offset, Rn_add3 as add3, Rn_add3_offset as add3_offset, Rn_add4 as add4, Rn_add4_offset as add4_offset, Rn_addLineNumberToCode as addLineNumberToCode, Rn_applyMixins as applyMixins, Rn_array2_lerp_offsetAsComposition as array2_lerp_offsetAsComposition, Rn_array3_lerp_offsetAsComposition as array3_lerp_offsetAsComposition, Rn_array4_lerp_offsetAsComposition as array4_lerp_offsetAsComposition, Rn_arrayN_lerp_offsetAsComposition as arrayN_lerp_offsetAsComposition, Rn_assertDoesNotHave as assertDoesNotHave, Rn_assertExist as assertExist, Rn_assertHas as assertHas, Rn_assertIsErr as assertIsErr, Rn_assertIsOk as assertIsOk, Rn_calcAlignedByteLength as calcAlignedByteLength, Rn_checkVersionOfGltf as checkVersionOfGltf, Rn_combineImages as combineImages, Rn_convertHTMLImageElementToCanvas as convertHTMLImageElementToCanvas, Rn_createCameraControllerEntity as createCameraControllerEntity, Rn_createCameraEntity as createCameraEntity, Rn_createEffekseer as createEffekseer, Rn_createGroupEntity as createGroupEntity, Rn_createLightEntity as createLightEntity, Rn_createLightWithCameraEntity as createLightWithCameraEntity, Rn_createMeshEntity as createMeshEntity, Rn_createMotionController as createMotionController, Rn_createPhysicsEntity as createPhysicsEntity, Rn_createSkeletalEntity as createSkeletalEntity, Rn_createTransformEntity as createTransformEntity, Rn_deepCopyUsingJsonStringify as deepCopyUsingJsonStringify, Rn_defaultAnimationTrackName as defaultAnimationTrackName, Rn_defaultAssetLoader as defaultAssetLoader, Rn_defaultValue as defaultValue, Rn_detectFormatByArrayBuffers as detectFormatByArrayBuffers, Rn_detectFormatByUri as detectFormatByUri, Rn_downloadArrayBuffer as downloadArrayBuffer, Rn_downloadTypedArray as downloadTypedArray, Rn_enhanceArray as enhanceArray, Rn_flattenHierarchy as flattenHierarchy, Rn_fromTensorToCompositionType as fromTensorToCompositionType, Rn_get1 as get1, Rn_get1_offset as get1_offset, Rn_get1_offsetAsComposition as get1_offsetAsComposition, Rn_get2 as get2, Rn_get2_offset as get2_offset, Rn_get2_offsetAsComposition as get2_offsetAsComposition, Rn_get3 as get3, Rn_get3_offset as get3_offset, Rn_get3_offsetAsComposition as get3_offsetAsComposition, Rn_get4 as get4, Rn_get4_offset as get4_offset, Rn_get4_offsetAsComposition as get4_offsetAsComposition, Rn_getEvent as getEvent, Rn_getMotionController as getMotionController, Rn_getN_offset as getN_offset, Rn_getN_offsetAsComposition as getN_offsetAsComposition, type Rn_getShaderPropertyFuncOfGlobalDataRepository as getShaderPropertyFuncOfGlobalDataRepository, type Rn_getShaderPropertyFuncOfMaterial as getShaderPropertyFuncOfMaterial, Rn_getTextureAndSamplerNames as getTextureAndSamplerNames, Rn_getWebXRSystem as getWebXRSystem, type Rn_glTF1 as glTF1, Rn_greaterThan as greaterThan, Rn_ifDefinedThen as ifDefinedThen, Rn_ifDefinedThenWithReturn as ifDefinedThenWithReturn, Rn_ifExistsThen as ifExistsThen, Rn_ifExistsThenWithReturn as ifExistsThenWithReturn, Rn_ifNotExistsThen as ifNotExistsThen, Rn_ifNotExistsThenWithReturn as ifNotExistsThenWithReturn, Rn_ifUndefinedThen as ifUndefinedThen, Rn_ifUndefinedThenWithReturn as ifUndefinedThenWithReturn, Rn_isBlend as isBlend, Rn_isBlendWithZWrite as isBlendWithZWrite, Rn_isBlendWithoutZWrite as isBlendWithoutZWrite, Rn_isOpaque as isOpaque, Rn_isSameGlTF2TextureSampler as isSameGlTF2TextureSampler, Rn_isSkipDrawing as isSkipDrawing, Rn_isTranslucent as isTranslucent, Rn_lessThan as lessThan, Rn_mulArray3WithScalar_offset as mulArray3WithScalar_offset, Rn_mulArray4WithScalar_offset as mulArray4WithScalar_offset, Rn_mulArrayNWithScalar_offset as mulArrayNWithScalar_offset, Rn_mulThatAndThisToOutAsMat44_offsetAsComposition as mulThatAndThisToOutAsMat44_offsetAsComposition, Rn_normalizeArray4 as normalizeArray4, Rn_nullishToEmptyArray as nullishToEmptyArray, Rn_nullishToEmptyMap as nullishToEmptyMap, Rn_objectCachify as objectCachify, Rn_primitiveCachify1 as primitiveCachify1, type Rn_primitives as primitives, Rn_qlerp_offsetAsComposition as qlerp_offsetAsComposition, Rn_scalar_lerp_offsetAsComposition as scalar_lerp_offsetAsComposition, Rn_setupShaderProgram as setupShaderProgram, Rn_updateGamePad as updateGamePad, Rn_updateMotionControllerModel as updateMotionControllerModel, Rn_valueWithCompensation as valueWithCompensation, Rn_valueWithDefault as valueWithDefault };
+  export { Rn_AABB as AABB, Rn_AABBGizmo as AABBGizmo, Rn_AbsoluteAnimation as AbsoluteAnimation, Rn_AbstractArrayBufferBaseMathNumber as AbstractArrayBufferBaseMathNumber, Rn_AbstractCameraController as AbstractCameraController, Rn_AbstractMaterialContent as AbstractMaterialContent, Rn_AbstractMatrix as AbstractMatrix, Rn_AbstractQuaternion as AbstractQuaternion, Rn_AbstractShaderNode as AbstractShaderNode, Rn_AbstractTexture as AbstractTexture, Rn_AbstractVector as AbstractVector, Rn_Accessor as Accessor, Rn_AddShaderNode as AddShaderNode, Rn_AlphaMode as AlphaMode, type Rn_AlphaModeEnum as AlphaModeEnum, Rn_AlphaTestShaderNode as AlphaTestShaderNode, Rn_AndShaderNode as AndShaderNode, Rn_AnimatedQuaternion as AnimatedQuaternion, Rn_AnimatedScalar as AnimatedScalar, Rn_AnimatedVector2 as AnimatedVector2, Rn_AnimatedVector3 as AnimatedVector3, Rn_AnimatedVector4 as AnimatedVector4, Rn_AnimatedVectorN as AnimatedVectorN, Rn_AnimationAssigner as AnimationAssigner, Rn_AnimationAttribute as AnimationAttribute, type Rn_AnimationAttributeEnum as AnimationAttributeEnum, type Rn_AnimationChannel as AnimationChannel, type Rn_AnimationChannelTarget as AnimationChannelTarget, Rn_AnimationComponent as AnimationComponent, type Rn_AnimationComponentEventType as AnimationComponentEventType, type Rn_AnimationInfo as AnimationInfo, Rn_AnimationInterpolation as AnimationInterpolation, type Rn_AnimationInterpolationEnum as AnimationInterpolationEnum, type Rn_AnimationPathName as AnimationPathName, type Rn_AnimationSampler as AnimationSampler, type Rn_AnimationSamplers as AnimationSamplers, Rn_AnimationStateComponent as AnimationStateComponent, type Rn_AnimationTrack as AnimationTrack, type Rn_AnimationTrackName as AnimationTrackName, type Rn_Array1 as Array1, type Rn_Array16 as Array16, type Rn_Array1to4 as Array1to4, type Rn_Array2 as Array2, type Rn_Array3 as Array3, type Rn_Array4 as Array4, type Rn_Array9 as Array9, type Rn_ArrayAsRn as ArrayAsRn, type Rn_ArrayType as ArrayType, Rn_AssetLoader as AssetLoader, type Rn_AssetLoaderConfig as AssetLoaderConfig, Rn_AttributeColorShaderNode as AttributeColorShaderNode, Rn_AttributeInstanceIdsShaderNode as AttributeInstanceIdsShaderNode, type Rn_AttributeName as AttributeName, type Rn_AttributeNames as AttributeNames, Rn_AttributeNormalShaderNode as AttributeNormalShaderNode, Rn_AttributePositionShaderNode as AttributePositionShaderNode, Rn_AttributeTangentShaderNode as AttributeTangentShaderNode, Rn_AttributeTexcoordShaderNode as AttributeTexcoordShaderNode, type Rn_Attributes as Attributes, Rn_Axis as Axis, type Rn_AxisDescriptor as AxisDescriptor, type Rn_BASIS_TYPE as BASIS_TYPE, Rn_BasisCompressionType as BasisCompressionType, type Rn_BasisCompressionTypeEnum as BasisCompressionTypeEnum, type Rn_BasisFile as BasisFile, Rn_BasisLzEtc1sImageTranscoder as BasisLzEtc1sImageTranscoder, type Rn_BasisTranscoder as BasisTranscoder, Rn_BlendShapeComponent as BlendShapeComponent, Rn_BlockBeginShader as BlockBeginShader, Rn_BlockBeginShaderNode as BlockBeginShaderNode, Rn_BlockEndShader as BlockEndShader, Rn_BlockEndShaderNode as BlockEndShaderNode, Rn_Bloom as Bloom, Rn_BoneDataType as BoneDataType, type Rn_BoneDataTypeEnum as BoneDataTypeEnum, Rn_BranchShaderNode as BranchShaderNode, Rn_Buffer as Buffer, Rn_BufferUse as BufferUse, type Rn_BufferUseEnum as BufferUseEnum, Rn_BufferView as BufferView, type Byte$1 as Byte, type Rn_CGAPIResourceHandle as CGAPIResourceHandle, Rn_CGAPIResourceRepository as CGAPIResourceRepository, Rn_Cache as Cache, Rn_CalcBitangentShaderNode as CalcBitangentShaderNode, type Rn_CalledSubscriberNumber as CalledSubscriberNumber, Rn_CameraComponent as CameraComponent, Rn_CameraControllerComponent as CameraControllerComponent, Rn_CameraControllerType as CameraControllerType, type Rn_CameraControllerTypeEnum as CameraControllerTypeEnum, type Rn_CameraSID as CameraSID, Rn_CameraType as CameraType, type Rn_CameraTypeEnum as CameraTypeEnum, Rn_Capsule as Capsule, Rn_CapsuleCollider as CapsuleCollider, Rn_CapsuleColliderGizmo as CapsuleColliderGizmo, type Rn_CapsuleDescriptor as CapsuleDescriptor, Rn_CastToFloatShaderNode as CastToFloatShaderNode, type Rn_ChangeAnimationInfoEvent as ChangeAnimationInfoEvent, Rn_ClampShaderNode as ClampShaderNode, type Rn_ColorComponentLetter as ColorComponentLetter, Rn_ColorGradingUsingLUTsMaterialContent as ColorGradingUsingLUTsMaterialContent, Rn_ColorRgb as ColorRgb, Rn_ColorRgba as ColorRgba, Rn_CommonShaderPart as CommonShaderPart, Rn_ComplexVertexAttribute as ComplexVertexAttribute, Rn_Component as Component, type Rn_ComponentMixinFunction as ComponentMixinFunction, Rn_ComponentRepository as ComponentRepository, type Rn_ComponentSID as ComponentSID, type Rn_ComponentTID as ComponentTID, type Rn_ComponentToComponentMethods as ComponentToComponentMethods, Rn_ComponentType as ComponentType, type Rn_ComponentTypeEnum as ComponentTypeEnum, Rn_CompositionType as CompositionType, type Rn_CompositionTypeEnum as CompositionTypeEnum, Rn_CompressionTextureType as CompressionTextureType, type Rn_CompressionTextureTypeEnum as CompressionTextureTypeEnum, Rn_Cone as Cone, type Rn_ConeDescriptor as ConeDescriptor, Rn_Config as Config, Rn_ConstRgbaBlack as ConstRgbaBlack, Rn_ConstRgbaWhite as ConstRgbaWhite, Rn_ConstVector2_0_0 as ConstVector2_0_0, Rn_ConstVector2_1_1 as ConstVector2_1_1, Rn_ConstVector3_0_0_0 as ConstVector3_0_0_0, Rn_ConstVector3_1_1_1 as ConstVector3_1_1_1, Rn_ConstVector4_0_0_0_0 as ConstVector4_0_0_0_0, Rn_ConstVector4_0_0_0_1 as ConstVector4_0_0_0_1, Rn_ConstVector4_1_1_1_1 as ConstVector4_1_1_1_1, Rn_ConstantScalarVariableShaderNode as ConstantScalarVariableShaderNode, Rn_ConstantVariableShader as ConstantVariableShader, Rn_ConstantVector2VariableShaderNode as ConstantVector2VariableShaderNode, Rn_ConstantVector3VariableShaderNode as ConstantVector3VariableShaderNode, Rn_ConstantVector4VariableShaderNode as ConstantVector4VariableShaderNode, Rn_ConstraintComponent as ConstraintComponent, Rn_CosShaderNode as CosShaderNode, type Rn_Count as Count, Rn_Cube as Cube, type Rn_CubeDescriptor as CubeDescriptor, Rn_CubeTexture as CubeTexture, Rn_CustomMaterialContent as CustomMaterialContent, Rn_DataUtil as DataUtil, Rn_DepthEncodeMaterialContent as DepthEncodeMaterialContent, Rn_DetectHighLuminanceMaterialContent as DetectHighLuminanceMaterialContent, type Rn_DirectTextureData as DirectTextureData, Rn_DiscardShaderNode as DiscardShaderNode, Rn_DotProductShaderNode as DotProductShaderNode, Rn_DrcPointCloudImporter as DrcPointCloudImporter, Rn_DummyTextures as DummyTextures, Rn_EVENT_CLICK as EVENT_CLICK, Rn_EVENT_KEY_DOWN as EVENT_KEY_DOWN, Rn_EVENT_KEY_PRESS as EVENT_KEY_PRESS, Rn_EVENT_KEY_UP as EVENT_KEY_UP, Rn_EVENT_MOUSE_DOWN as EVENT_MOUSE_DOWN, Rn_EVENT_MOUSE_ENTER as EVENT_MOUSE_ENTER, Rn_EVENT_MOUSE_LEAVE as EVENT_MOUSE_LEAVE, Rn_EVENT_MOUSE_MOVE as EVENT_MOUSE_MOVE, Rn_EVENT_MOUSE_OVER as EVENT_MOUSE_OVER, Rn_EVENT_MOUSE_UP as EVENT_MOUSE_UP, Rn_EVENT_MOUSE_WHEEL as EVENT_MOUSE_WHEEL, Rn_EVENT_MSPOINTER_DOWN as EVENT_MSPOINTER_DOWN, Rn_EVENT_MSPOINTER_MOVE as EVENT_MSPOINTER_MOVE, Rn_EVENT_MSPOINTER_UP as EVENT_MSPOINTER_UP, Rn_EVENT_ORIENTATION_CHANGE as EVENT_ORIENTATION_CHANGE, Rn_EVENT_POINTER_CANCEL as EVENT_POINTER_CANCEL, Rn_EVENT_POINTER_DOWN as EVENT_POINTER_DOWN, Rn_EVENT_POINTER_ENTER as EVENT_POINTER_ENTER, Rn_EVENT_POINTER_LEAVE as EVENT_POINTER_LEAVE, Rn_EVENT_POINTER_MOVE as EVENT_POINTER_MOVE, Rn_EVENT_POINTER_OUT as EVENT_POINTER_OUT, Rn_EVENT_POINTER_OVER as EVENT_POINTER_OVER, Rn_EVENT_POINTER_UP as EVENT_POINTER_UP, Rn_EVENT_RESIZE as EVENT_RESIZE, Rn_EVENT_TOUCH_CANCEL as EVENT_TOUCH_CANCEL, Rn_EVENT_TOUCH_DOUBLE_TAP as EVENT_TOUCH_DOUBLE_TAP, Rn_EVENT_TOUCH_DRAG as EVENT_TOUCH_DRAG, Rn_EVENT_TOUCH_END as EVENT_TOUCH_END, Rn_EVENT_TOUCH_ENTER as EVENT_TOUCH_ENTER, Rn_EVENT_TOUCH_HOLD as EVENT_TOUCH_HOLD, Rn_EVENT_TOUCH_LEAVE as EVENT_TOUCH_LEAVE, Rn_EVENT_TOUCH_LONG_TAP as EVENT_TOUCH_LONG_TAP, Rn_EVENT_TOUCH_MOVE as EVENT_TOUCH_MOVE, Rn_EVENT_TOUCH_OUT as EVENT_TOUCH_OUT, Rn_EVENT_TOUCH_OVER as EVENT_TOUCH_OVER, Rn_EVENT_TOUCH_PINCH as EVENT_TOUCH_PINCH, Rn_EVENT_TOUCH_START as EVENT_TOUCH_START, Rn_EVENT_TOUCH_SWIPE as EVENT_TOUCH_SWIPE, Rn_EVENT_TOUCH_TAP as EVENT_TOUCH_TAP, Rn_Effekseer as Effekseer, Rn_EffekseerComponent as EffekseerComponent, Rn_EndShader as EndShader, Rn_Engine as Engine, Rn_EngineState as EngineState, Rn_Entity as Entity, Rn_EntityRepository as EntityRepository, type Rn_EntityUID as EntityUID, Rn_EntityUIDOutputMaterialContent as EntityUIDOutputMaterialContent, Rn_EnumClass as EnumClass, type Rn_EnumIO as EnumIO, Rn_EqualShaderNode as EqualShaderNode, Rn_Err as Err, type Rn_EventHandler as EventHandler, Rn_EventPubSub as EventPubSub, type Rn_EventSubscriberIndex as EventSubscriberIndex, type Rn_EventType as EventType, Rn_Expression as Expression, Rn_FileType as FileType, type Rn_FileTypeEnum as FileTypeEnum, type Rn_FillArgsObject as FillArgsObject, type Rn_FloatTypedArray as FloatTypedArray, type Rn_FloatTypedArrayConstructor as FloatTypedArrayConstructor, Rn_ForwardRenderPipeline as ForwardRenderPipeline, Rn_Frame as Frame, Rn_FrameBuffer as FrameBuffer, type Rn_FrameBufferCubeMapDescriptor as FrameBufferCubeMapDescriptor, type Rn_FrameBufferDescriptor as FrameBufferDescriptor, type Rn_FrameBufferMSAADescriptor as FrameBufferMSAADescriptor, type Rn_FrameBufferTextureArrayDescriptor as FrameBufferTextureArrayDescriptor, type Rn_FrameBufferTextureArrayForMultiViewDescriptor as FrameBufferTextureArrayForMultiViewDescriptor, Rn_Frustum as Frustum, Rn_FurnaceTestMaterialContent as FurnaceTestMaterialContent, Rn_GLTF2_EXPORT_DRACO as GLTF2_EXPORT_DRACO, Rn_GLTF2_EXPORT_EMBEDDED as GLTF2_EXPORT_EMBEDDED, Rn_GLTF2_EXPORT_GLB as GLTF2_EXPORT_GLB, Rn_GLTF2_EXPORT_GLTF as GLTF2_EXPORT_GLTF, Rn_GLTF2_EXPORT_NO_DOWNLOAD as GLTF2_EXPORT_NO_DOWNLOAD, Rn_GL_ACTIVE_ATTRIBUTES as GL_ACTIVE_ATTRIBUTES, Rn_GL_ACTIVE_TEXTURE as GL_ACTIVE_TEXTURE, Rn_GL_ACTIVE_UNIFORMS as GL_ACTIVE_UNIFORMS, Rn_GL_ACTIVE_UNIFORM_BLOCKS as GL_ACTIVE_UNIFORM_BLOCKS, Rn_GL_ALIASED_LINE_WIDTH_RANGE as GL_ALIASED_LINE_WIDTH_RANGE, Rn_GL_ALIASED_POINT_SIZE_RANGE as GL_ALIASED_POINT_SIZE_RANGE, Rn_GL_ALPHA as GL_ALPHA, Rn_GL_ALPHA_BITS as GL_ALPHA_BITS, Rn_GL_ALREADY_SIGNALED as GL_ALREADY_SIGNALED, Rn_GL_ALWAYS as GL_ALWAYS, Rn_GL_ANY_SAMPLES_PASSED as GL_ANY_SAMPLES_PASSED, Rn_GL_ANY_SAMPLES_PASSED_CONSERVATIVE as GL_ANY_SAMPLES_PASSED_CONSERVATIVE, Rn_GL_ARRAY_BUFFER as GL_ARRAY_BUFFER, Rn_GL_ARRAY_BUFFER_BINDING as GL_ARRAY_BUFFER_BINDING, Rn_GL_ATTACHED_SHADERS as GL_ATTACHED_SHADERS, Rn_GL_BACK as GL_BACK, Rn_GL_BLEND as GL_BLEND, Rn_GL_BLEND_COLOR as GL_BLEND_COLOR, Rn_GL_BLEND_DST_ALPHA as GL_BLEND_DST_ALPHA, Rn_GL_BLEND_DST_RGB as GL_BLEND_DST_RGB, Rn_GL_BLEND_EQUATION as GL_BLEND_EQUATION, Rn_GL_BLEND_EQUATION_ALPHA as GL_BLEND_EQUATION_ALPHA, Rn_GL_BLEND_EQUATION_RGB as GL_BLEND_EQUATION_RGB, Rn_GL_BLEND_SRC_ALPHA as GL_BLEND_SRC_ALPHA, Rn_GL_BLEND_SRC_RGB as GL_BLEND_SRC_RGB, Rn_GL_BLUE_BITS as GL_BLUE_BITS, Rn_GL_BOOL as GL_BOOL, Rn_GL_BOOL_VEC2 as GL_BOOL_VEC2, Rn_GL_BOOL_VEC3 as GL_BOOL_VEC3, Rn_GL_BOOL_VEC4 as GL_BOOL_VEC4, Rn_GL_BROWSER_DEFAULT_WEBGL as GL_BROWSER_DEFAULT_WEBGL, Rn_GL_BUFFER_SIZE as GL_BUFFER_SIZE, Rn_GL_BUFFER_USAGE as GL_BUFFER_USAGE, Rn_GL_CCW as GL_CCW, Rn_GL_CLAMP_TO_EDGE as GL_CLAMP_TO_EDGE, Rn_GL_COLOR as GL_COLOR, Rn_GL_COLOR_ATTACHMENT0 as GL_COLOR_ATTACHMENT0, Rn_GL_COLOR_ATTACHMENT0_WEBGL as GL_COLOR_ATTACHMENT0_WEBGL, Rn_GL_COLOR_ATTACHMENT1 as GL_COLOR_ATTACHMENT1, Rn_GL_COLOR_ATTACHMENT10 as GL_COLOR_ATTACHMENT10, Rn_GL_COLOR_ATTACHMENT10_WEBGL as GL_COLOR_ATTACHMENT10_WEBGL, Rn_GL_COLOR_ATTACHMENT11 as GL_COLOR_ATTACHMENT11, Rn_GL_COLOR_ATTACHMENT11_WEBGL as GL_COLOR_ATTACHMENT11_WEBGL, Rn_GL_COLOR_ATTACHMENT12 as GL_COLOR_ATTACHMENT12, Rn_GL_COLOR_ATTACHMENT12_WEBGL as GL_COLOR_ATTACHMENT12_WEBGL, Rn_GL_COLOR_ATTACHMENT13 as GL_COLOR_ATTACHMENT13, Rn_GL_COLOR_ATTACHMENT13_WEBGL as GL_COLOR_ATTACHMENT13_WEBGL, Rn_GL_COLOR_ATTACHMENT14 as GL_COLOR_ATTACHMENT14, Rn_GL_COLOR_ATTACHMENT14_WEBGL as GL_COLOR_ATTACHMENT14_WEBGL, Rn_GL_COLOR_ATTACHMENT15 as GL_COLOR_ATTACHMENT15, Rn_GL_COLOR_ATTACHMENT15_WEBGL as GL_COLOR_ATTACHMENT15_WEBGL, Rn_GL_COLOR_ATTACHMENT1_WEBGL as GL_COLOR_ATTACHMENT1_WEBGL, Rn_GL_COLOR_ATTACHMENT2 as GL_COLOR_ATTACHMENT2, Rn_GL_COLOR_ATTACHMENT2_WEBGL as GL_COLOR_ATTACHMENT2_WEBGL, Rn_GL_COLOR_ATTACHMENT3 as GL_COLOR_ATTACHMENT3, Rn_GL_COLOR_ATTACHMENT3_WEBGL as GL_COLOR_ATTACHMENT3_WEBGL, Rn_GL_COLOR_ATTACHMENT4 as GL_COLOR_ATTACHMENT4, Rn_GL_COLOR_ATTACHMENT4_WEBGL as GL_COLOR_ATTACHMENT4_WEBGL, Rn_GL_COLOR_ATTACHMENT5 as GL_COLOR_ATTACHMENT5, Rn_GL_COLOR_ATTACHMENT5_WEBGL as GL_COLOR_ATTACHMENT5_WEBGL, Rn_GL_COLOR_ATTACHMENT6 as GL_COLOR_ATTACHMENT6, Rn_GL_COLOR_ATTACHMENT6_WEBGL as GL_COLOR_ATTACHMENT6_WEBGL, Rn_GL_COLOR_ATTACHMENT7 as GL_COLOR_ATTACHMENT7, Rn_GL_COLOR_ATTACHMENT7_WEBGL as GL_COLOR_ATTACHMENT7_WEBGL, Rn_GL_COLOR_ATTACHMENT8 as GL_COLOR_ATTACHMENT8, Rn_GL_COLOR_ATTACHMENT8_WEBGL as GL_COLOR_ATTACHMENT8_WEBGL, Rn_GL_COLOR_ATTACHMENT9 as GL_COLOR_ATTACHMENT9, Rn_GL_COLOR_ATTACHMENT9_WEBGL as GL_COLOR_ATTACHMENT9_WEBGL, Rn_GL_COLOR_BUFFER_BIT as GL_COLOR_BUFFER_BIT, Rn_GL_COLOR_CLEAR_VALUE as GL_COLOR_CLEAR_VALUE, Rn_GL_COLOR_WRITEMASK as GL_COLOR_WRITEMASK, Rn_GL_COMPARE_REF_TO_TEXTURE as GL_COMPARE_REF_TO_TEXTURE, Rn_GL_COMPILE_STATUS as GL_COMPILE_STATUS, Rn_GL_COMPRESSED_R11_EAC as GL_COMPRESSED_R11_EAC, Rn_GL_COMPRESSED_RG11_EAC as GL_COMPRESSED_RG11_EAC, Rn_GL_COMPRESSED_RGB8_ETC2 as GL_COMPRESSED_RGB8_ETC2, Rn_GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2 as GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2, Rn_GL_COMPRESSED_RGBA8_ETC2_EAC as GL_COMPRESSED_RGBA8_ETC2_EAC, Rn_GL_COMPRESSED_RGBA_ASTC_10X10_KHR as GL_COMPRESSED_RGBA_ASTC_10X10_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_10X5_KHR as GL_COMPRESSED_RGBA_ASTC_10X5_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_10X6_KHR as GL_COMPRESSED_RGBA_ASTC_10X6_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_10X8_KHR as GL_COMPRESSED_RGBA_ASTC_10X8_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_12X10_KHR as GL_COMPRESSED_RGBA_ASTC_12X10_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_12X12_KHR as GL_COMPRESSED_RGBA_ASTC_12X12_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_4X4_KHR as GL_COMPRESSED_RGBA_ASTC_4X4_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_5X4_KHR as GL_COMPRESSED_RGBA_ASTC_5X4_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_5X5_KHR as GL_COMPRESSED_RGBA_ASTC_5X5_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_6X5_KHR as GL_COMPRESSED_RGBA_ASTC_6X5_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_6X6_KHR as GL_COMPRESSED_RGBA_ASTC_6X6_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_8X5_KHR as GL_COMPRESSED_RGBA_ASTC_8X5_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_8X6_KHR as GL_COMPRESSED_RGBA_ASTC_8X6_KHR, Rn_GL_COMPRESSED_RGBA_ASTC_8X8_KHR as GL_COMPRESSED_RGBA_ASTC_8X8_KHR, Rn_GL_COMPRESSED_RGBA_ATC_EXPLICIT_ALPHA_WEBGL as GL_COMPRESSED_RGBA_ATC_EXPLICIT_ALPHA_WEBGL, Rn_GL_COMPRESSED_RGBA_ATC_INTERPOLATED_ALPHA_WEBGL as GL_COMPRESSED_RGBA_ATC_INTERPOLATED_ALPHA_WEBGL, Rn_GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG as GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG, Rn_GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG as GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, Rn_GL_COMPRESSED_RGBA_S3TC_DXT1_EXT as GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, Rn_GL_COMPRESSED_RGBA_S3TC_DXT3_EXT as GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, Rn_GL_COMPRESSED_RGBA_S3TC_DXT5_EXT as GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, Rn_GL_COMPRESSED_RGB_ATC_WEBGL as GL_COMPRESSED_RGB_ATC_WEBGL, Rn_GL_COMPRESSED_RGB_ETC1_WEBGL as GL_COMPRESSED_RGB_ETC1_WEBGL, Rn_GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG as GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG, Rn_GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG as GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, Rn_GL_COMPRESSED_RGB_S3TC_DXT1_EXT as GL_COMPRESSED_RGB_S3TC_DXT1_EXT, Rn_GL_COMPRESSED_SIGNED_R11_EAC as GL_COMPRESSED_SIGNED_R11_EAC, Rn_GL_COMPRESSED_SIGNED_RG11_EAC as GL_COMPRESSED_SIGNED_RG11_EAC, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X10_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X10_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X5_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X5_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X6_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X6_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X8_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X8_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X10_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X10_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X12_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X12_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4X4_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4X4_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X4_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X4_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X5_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X5_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X5_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X5_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X6_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X6_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X5_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X5_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X6_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X6_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X8_KHR as GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X8_KHR, Rn_GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC as GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC, Rn_GL_COMPRESSED_SRGB8_ETC2 as GL_COMPRESSED_SRGB8_ETC2, Rn_GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2 as GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2, Rn_GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT as GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT, Rn_GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT as GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT, Rn_GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT as GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT, Rn_GL_COMPRESSED_SRGB_S3TC_DXT1_EXT as GL_COMPRESSED_SRGB_S3TC_DXT1_EXT, Rn_GL_COMPRESSED_TEXTURE_FORMATS as GL_COMPRESSED_TEXTURE_FORMATS, Rn_GL_CONDITION_SATISFIED as GL_CONDITION_SATISFIED, Rn_GL_CONSTANT_ALPHA as GL_CONSTANT_ALPHA, Rn_GL_CONSTANT_COLOR as GL_CONSTANT_COLOR, Rn_GL_CONTEXT_LOST_WEBGL as GL_CONTEXT_LOST_WEBGL, Rn_GL_COPY_READ_BUFFER as GL_COPY_READ_BUFFER, Rn_GL_COPY_READ_BUFFER_BINDING as GL_COPY_READ_BUFFER_BINDING, Rn_GL_COPY_WRITE_BUFFER as GL_COPY_WRITE_BUFFER, Rn_GL_COPY_WRITE_BUFFER_BINDING as GL_COPY_WRITE_BUFFER_BINDING, Rn_GL_CULL_FACE as GL_CULL_FACE, Rn_GL_CULL_FACE_MODE as GL_CULL_FACE_MODE, Rn_GL_CURRENT_PROGRAM as GL_CURRENT_PROGRAM, Rn_GL_CURRENT_QUERY as GL_CURRENT_QUERY, Rn_GL_CURRENT_QUERY_EXT as GL_CURRENT_QUERY_EXT, Rn_GL_CURRENT_VERTEX_ATTRIB as GL_CURRENT_VERTEX_ATTRIB, Rn_GL_CW as GL_CW, Rn_GL_DATA_BYTE as GL_DATA_BYTE, Rn_GL_DATA_FLOAT as GL_DATA_FLOAT, Rn_GL_DATA_INT as GL_DATA_INT, Rn_GL_DATA_SHORT as GL_DATA_SHORT, Rn_GL_DATA_UNSIGNED_BYTE as GL_DATA_UNSIGNED_BYTE, Rn_GL_DATA_UNSIGNED_INT as GL_DATA_UNSIGNED_INT, Rn_GL_DATA_UNSIGNED_SHORT as GL_DATA_UNSIGNED_SHORT, Rn_GL_DECR as GL_DECR, Rn_GL_DECR_WRAP as GL_DECR_WRAP, Rn_GL_DELETE_STATUS as GL_DELETE_STATUS, Rn_GL_DEPTH as GL_DEPTH, Rn_GL_DEPTH24_STENCIL8 as GL_DEPTH24_STENCIL8, Rn_GL_DEPTH32F_STENCIL8 as GL_DEPTH32F_STENCIL8, Rn_GL_DEPTH_ATTACHMENT as GL_DEPTH_ATTACHMENT, Rn_GL_DEPTH_BITS as GL_DEPTH_BITS, Rn_GL_DEPTH_BUFFER_BIT as GL_DEPTH_BUFFER_BIT, Rn_GL_DEPTH_CLEAR_VALUE as GL_DEPTH_CLEAR_VALUE, Rn_GL_DEPTH_COMPONENT as GL_DEPTH_COMPONENT, Rn_GL_DEPTH_COMPONENT16 as GL_DEPTH_COMPONENT16, Rn_GL_DEPTH_COMPONENT24 as GL_DEPTH_COMPONENT24, Rn_GL_DEPTH_COMPONENT32F as GL_DEPTH_COMPONENT32F, Rn_GL_DEPTH_FUNC as GL_DEPTH_FUNC, Rn_GL_DEPTH_RANGE as GL_DEPTH_RANGE, Rn_GL_DEPTH_STENCIL as GL_DEPTH_STENCIL, Rn_GL_DEPTH_STENCIL_ATTACHMENT as GL_DEPTH_STENCIL_ATTACHMENT, Rn_GL_DEPTH_TEST as GL_DEPTH_TEST, Rn_GL_DEPTH_WRITEMASK as GL_DEPTH_WRITEMASK, Rn_GL_DITHER as GL_DITHER, Rn_GL_DONT_CARE as GL_DONT_CARE, Rn_GL_DRAW_BUFFER0 as GL_DRAW_BUFFER0, Rn_GL_DRAW_BUFFER0_WEBGL as GL_DRAW_BUFFER0_WEBGL, Rn_GL_DRAW_BUFFER1 as GL_DRAW_BUFFER1, Rn_GL_DRAW_BUFFER10 as GL_DRAW_BUFFER10, Rn_GL_DRAW_BUFFER10_WEBGL as GL_DRAW_BUFFER10_WEBGL, Rn_GL_DRAW_BUFFER11 as GL_DRAW_BUFFER11, Rn_GL_DRAW_BUFFER11_WEBGL as GL_DRAW_BUFFER11_WEBGL, Rn_GL_DRAW_BUFFER12 as GL_DRAW_BUFFER12, Rn_GL_DRAW_BUFFER12_WEBGL as GL_DRAW_BUFFER12_WEBGL, Rn_GL_DRAW_BUFFER13 as GL_DRAW_BUFFER13, Rn_GL_DRAW_BUFFER13_WEBGL as GL_DRAW_BUFFER13_WEBGL, Rn_GL_DRAW_BUFFER14 as GL_DRAW_BUFFER14, Rn_GL_DRAW_BUFFER14_WEBGL as GL_DRAW_BUFFER14_WEBGL, Rn_GL_DRAW_BUFFER15 as GL_DRAW_BUFFER15, Rn_GL_DRAW_BUFFER15_WEBGL as GL_DRAW_BUFFER15_WEBGL, Rn_GL_DRAW_BUFFER1_WEBGL as GL_DRAW_BUFFER1_WEBGL, Rn_GL_DRAW_BUFFER2 as GL_DRAW_BUFFER2, Rn_GL_DRAW_BUFFER2_WEBGL as GL_DRAW_BUFFER2_WEBGL, Rn_GL_DRAW_BUFFER3 as GL_DRAW_BUFFER3, Rn_GL_DRAW_BUFFER3_WEBGL as GL_DRAW_BUFFER3_WEBGL, Rn_GL_DRAW_BUFFER4 as GL_DRAW_BUFFER4, Rn_GL_DRAW_BUFFER4_WEBGL as GL_DRAW_BUFFER4_WEBGL, Rn_GL_DRAW_BUFFER5 as GL_DRAW_BUFFER5, Rn_GL_DRAW_BUFFER5_WEBGL as GL_DRAW_BUFFER5_WEBGL, Rn_GL_DRAW_BUFFER6 as GL_DRAW_BUFFER6, Rn_GL_DRAW_BUFFER6_WEBGL as GL_DRAW_BUFFER6_WEBGL, Rn_GL_DRAW_BUFFER7 as GL_DRAW_BUFFER7, Rn_GL_DRAW_BUFFER7_WEBGL as GL_DRAW_BUFFER7_WEBGL, Rn_GL_DRAW_BUFFER8 as GL_DRAW_BUFFER8, Rn_GL_DRAW_BUFFER8_WEBGL as GL_DRAW_BUFFER8_WEBGL, Rn_GL_DRAW_BUFFER9 as GL_DRAW_BUFFER9, Rn_GL_DRAW_BUFFER9_WEBGL as GL_DRAW_BUFFER9_WEBGL, Rn_GL_DRAW_FRAMEBUFFER as GL_DRAW_FRAMEBUFFER, Rn_GL_DRAW_FRAMEBUFFER_BINDING as GL_DRAW_FRAMEBUFFER_BINDING, Rn_GL_DST_ALPHA as GL_DST_ALPHA, Rn_GL_DST_COLOR as GL_DST_COLOR, Rn_GL_DYNAMIC_COPY as GL_DYNAMIC_COPY, Rn_GL_DYNAMIC_DRAW as GL_DYNAMIC_DRAW, Rn_GL_DYNAMIC_READ as GL_DYNAMIC_READ, Rn_GL_ELEMENT_ARRAY_BUFFER as GL_ELEMENT_ARRAY_BUFFER, Rn_GL_ELEMENT_ARRAY_BUFFER_BINDING as GL_ELEMENT_ARRAY_BUFFER_BINDING, Rn_GL_EQUAL as GL_EQUAL, Rn_GL_FASTEST as GL_FASTEST, Rn_GL_FLOAT_32_UNSIGNED_INT_24_8_REV as GL_FLOAT_32_UNSIGNED_INT_24_8_REV, Rn_GL_FLOAT_MAT2 as GL_FLOAT_MAT2, Rn_GL_FLOAT_MAT2X3 as GL_FLOAT_MAT2X3, Rn_GL_FLOAT_MAT2X4 as GL_FLOAT_MAT2X4, Rn_GL_FLOAT_MAT3 as GL_FLOAT_MAT3, Rn_GL_FLOAT_MAT3X2 as GL_FLOAT_MAT3X2, Rn_GL_FLOAT_MAT3X4 as GL_FLOAT_MAT3X4, Rn_GL_FLOAT_MAT4 as GL_FLOAT_MAT4, Rn_GL_FLOAT_MAT4X2 as GL_FLOAT_MAT4X2, Rn_GL_FLOAT_MAT4X3 as GL_FLOAT_MAT4X3, Rn_GL_FLOAT_VEC2 as GL_FLOAT_VEC2, Rn_GL_FLOAT_VEC3 as GL_FLOAT_VEC3, Rn_GL_FLOAT_VEC4 as GL_FLOAT_VEC4, Rn_GL_FRAGMENT_SHADER as GL_FRAGMENT_SHADER, Rn_GL_FRAGMENT_SHADER_DERIVATIVE_HINT as GL_FRAGMENT_SHADER_DERIVATIVE_HINT, Rn_GL_FRAGMENT_SHADER_DERIVATIVE_HINT_OES as GL_FRAGMENT_SHADER_DERIVATIVE_HINT_OES, Rn_GL_FRAMEBUFFER as GL_FRAMEBUFFER, Rn_GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE as GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, Rn_GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE as GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, Rn_GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING as GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, Rn_GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING_EXT as GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING_EXT, Rn_GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE as GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE, Rn_GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE_EXT as GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE_EXT, Rn_GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE as GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, Rn_GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE as GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, Rn_GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME as GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, Rn_GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE as GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, Rn_GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE as GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, Rn_GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE as GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, Rn_GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE as GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE, Rn_GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER as GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER, Rn_GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL as GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL, Rn_GL_FRAMEBUFFER_BINDING as GL_FRAMEBUFFER_BINDING, Rn_GL_FRAMEBUFFER_COMPLETE as GL_FRAMEBUFFER_COMPLETE, Rn_GL_FRAMEBUFFER_DEFAULT as GL_FRAMEBUFFER_DEFAULT, Rn_GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT as GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT, Rn_GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS as GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS, Rn_GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT as GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT, Rn_GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE as GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE, Rn_GL_FRAMEBUFFER_UNSUPPORTED as GL_FRAMEBUFFER_UNSUPPORTED, Rn_GL_FRONT as GL_FRONT, Rn_GL_FRONT_AND_BACK as GL_FRONT_AND_BACK, Rn_GL_FRONT_FACE as GL_FRONT_FACE, Rn_GL_FUNC_ADD as GL_FUNC_ADD, Rn_GL_FUNC_REVERSE_SUBTRACT as GL_FUNC_REVERSE_SUBTRACT, Rn_GL_FUNC_SUBSTRACT as GL_FUNC_SUBSTRACT, Rn_GL_GENERATE_MIPMAP_HINT as GL_GENERATE_MIPMAP_HINT, Rn_GL_GEQUAL as GL_GEQUAL, Rn_GL_GPU_DISJOINT_EXT as GL_GPU_DISJOINT_EXT, Rn_GL_GREATER as GL_GREATER, Rn_GL_GREEN_BITS as GL_GREEN_BITS, Rn_GL_HALF_FLOAT as GL_HALF_FLOAT, Rn_GL_HALF_FLOAT_OES as GL_HALF_FLOAT_OES, Rn_GL_HIGH_FLOAT as GL_HIGH_FLOAT, Rn_GL_HIGH_INT as GL_HIGH_INT, Rn_GL_IMPLEMENTATION_COLOR_READ_FORMAT as GL_IMPLEMENTATION_COLOR_READ_FORMAT, Rn_GL_IMPLEMENTATION_COLOR_READ_TYPE as GL_IMPLEMENTATION_COLOR_READ_TYPE, Rn_GL_INCR as GL_INCR, Rn_GL_INCR_WRAP as GL_INCR_WRAP, Rn_GL_INTERLEAVED_ATTRIBS as GL_INTERLEAVED_ATTRIBS, Rn_GL_INT_2_10_10_10_REV as GL_INT_2_10_10_10_REV, Rn_GL_INT_SAMPLER_2D as GL_INT_SAMPLER_2D, Rn_GL_INT_SAMPLER_2D_ARRAY as GL_INT_SAMPLER_2D_ARRAY, Rn_GL_INT_SAMPLER_3D as GL_INT_SAMPLER_3D, Rn_GL_INT_SAMPLER_CUBE as GL_INT_SAMPLER_CUBE, Rn_GL_INT_VEC2 as GL_INT_VEC2, Rn_GL_INT_VEC3 as GL_INT_VEC3, Rn_GL_INT_VEC4 as GL_INT_VEC4, Rn_GL_INVALID_ENUM as GL_INVALID_ENUM, Rn_GL_INVALID_FRAMEBUFFER_OPERATION as GL_INVALID_FRAMEBUFFER_OPERATION, Rn_GL_INVALID_INDEX as GL_INVALID_INDEX, Rn_GL_INVALID_OPERATION as GL_INVALID_OPERATION, Rn_GL_INVALID_VALUE as GL_INVALID_VALUE, Rn_GL_INVERT as GL_INVERT, Rn_GL_KEEP as GL_KEEP, Rn_GL_LEQUAL as GL_LEQUAL, Rn_GL_LESS as GL_LESS, Rn_GL_LINEAR as GL_LINEAR, Rn_GL_LINEAR_MIPMAP_LINEAR as GL_LINEAR_MIPMAP_LINEAR, Rn_GL_LINEAR_MIPMAP_NEAREST as GL_LINEAR_MIPMAP_NEAREST, Rn_GL_LINES as GL_LINES, Rn_GL_LINE_LOOP as GL_LINE_LOOP, Rn_GL_LINE_STRIP as GL_LINE_STRIP, Rn_GL_LINE_WIDTH as GL_LINE_WIDTH, Rn_GL_LINK_STATUS as GL_LINK_STATUS, Rn_GL_LOW_FLOAT as GL_LOW_FLOAT, Rn_GL_LOW_INT as GL_LOW_INT, Rn_GL_LUMINANCE as GL_LUMINANCE, Rn_GL_LUMINANCE_ALPHA as GL_LUMINANCE_ALPHA, Rn_GL_MAX as GL_MAX, Rn_GL_MAX_3D_TEXTURE_SIZE as GL_MAX_3D_TEXTURE_SIZE, Rn_GL_MAX_ARRAY_TEXTURE_LAYERS as GL_MAX_ARRAY_TEXTURE_LAYERS, Rn_GL_MAX_CLIENT_WAIT_TIMEOUT_WEBGL as GL_MAX_CLIENT_WAIT_TIMEOUT_WEBGL, Rn_GL_MAX_COLOR_ATTACHMENTS as GL_MAX_COLOR_ATTACHMENTS, Rn_GL_MAX_COLOR_ATTACHMENTS_WEBGL as GL_MAX_COLOR_ATTACHMENTS_WEBGL, Rn_GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS as GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS, Rn_GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS as GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, Rn_GL_MAX_COMBINED_UNIFORM_BLOCKS as GL_MAX_COMBINED_UNIFORM_BLOCKS, Rn_GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS as GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS, Rn_GL_MAX_CUBE_MAP_TEXTURE_SIZE as GL_MAX_CUBE_MAP_TEXTURE_SIZE, Rn_GL_MAX_DRAW_BUFFERS as GL_MAX_DRAW_BUFFERS, Rn_GL_MAX_DRAW_BUFFERS_WEBGL as GL_MAX_DRAW_BUFFERS_WEBGL, Rn_GL_MAX_ELEMENTS_INDICES as GL_MAX_ELEMENTS_INDICES, Rn_GL_MAX_ELEMENTS_VERTICES as GL_MAX_ELEMENTS_VERTICES, Rn_GL_MAX_ELEMENT_INDEX as GL_MAX_ELEMENT_INDEX, Rn_GL_MAX_EXT as GL_MAX_EXT, Rn_GL_MAX_FRAGMENT_INPUT_COMPONENTS as GL_MAX_FRAGMENT_INPUT_COMPONENTS, Rn_GL_MAX_FRAGMENT_UNIFORM_BLOCKS as GL_MAX_FRAGMENT_UNIFORM_BLOCKS, Rn_GL_MAX_FRAGMENT_UNIFORM_COMPONENTS as GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, Rn_GL_MAX_FRAGMENT_UNIFORM_VECTORS as GL_MAX_FRAGMENT_UNIFORM_VECTORS, Rn_GL_MAX_PROGRAM_TEXEL_OFFSET as GL_MAX_PROGRAM_TEXEL_OFFSET, Rn_GL_MAX_RENDERBUFFER_SIZE as GL_MAX_RENDERBUFFER_SIZE, Rn_GL_MAX_SAMPLES as GL_MAX_SAMPLES, Rn_GL_MAX_SERVER_WAIT_TIMEOUT as GL_MAX_SERVER_WAIT_TIMEOUT, Rn_GL_MAX_TEXTURE_IMAGE_UNITS as GL_MAX_TEXTURE_IMAGE_UNITS, Rn_GL_MAX_TEXTURE_LOD_BIAS as GL_MAX_TEXTURE_LOD_BIAS, Rn_GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT as GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, Rn_GL_MAX_TEXTURE_SIZE as GL_MAX_TEXTURE_SIZE, Rn_GL_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS as GL_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS, Rn_GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS as GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS, Rn_GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS as GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS, Rn_GL_MAX_UNIFORM_BLOCK_SIZE as GL_MAX_UNIFORM_BLOCK_SIZE, Rn_GL_MAX_UNIFORM_BUFFER_BINDINGS as GL_MAX_UNIFORM_BUFFER_BINDINGS, Rn_GL_MAX_VARYING_COMPONENTS as GL_MAX_VARYING_COMPONENTS, Rn_GL_MAX_VARYING_VECTORS as GL_MAX_VARYING_VECTORS, Rn_GL_MAX_VERTEX_ATTRIBS as GL_MAX_VERTEX_ATTRIBS, Rn_GL_MAX_VERTEX_OUTPUT_COMPONENTS as GL_MAX_VERTEX_OUTPUT_COMPONENTS, Rn_GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS as GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, Rn_GL_MAX_VERTEX_UNIFORM_BLOCKS as GL_MAX_VERTEX_UNIFORM_BLOCKS, Rn_GL_MAX_VERTEX_UNIFORM_COMPONENTS as GL_MAX_VERTEX_UNIFORM_COMPONENTS, Rn_GL_MAX_VERTEX_UNIFORM_VECTORS as GL_MAX_VERTEX_UNIFORM_VECTORS, Rn_GL_MAX_VIEWPORT_DIMS as GL_MAX_VIEWPORT_DIMS, Rn_GL_MEDIUM_FLOAT as GL_MEDIUM_FLOAT, Rn_GL_MEDIUM_INT as GL_MEDIUM_INT, Rn_GL_MIN as GL_MIN, Rn_GL_MIN_EXT as GL_MIN_EXT, Rn_GL_MIN_PROGRAM_TEXEL_OFFSET as GL_MIN_PROGRAM_TEXEL_OFFSET, Rn_GL_MIRRORED_REPEAT as GL_MIRRORED_REPEAT, Rn_GL_NEAREST as GL_NEAREST, Rn_GL_NEAREST_MIPMAP_LINEAR as GL_NEAREST_MIPMAP_LINEAR, Rn_GL_NEAREST_MIPMAP_NEAREST as GL_NEAREST_MIPMAP_NEAREST, Rn_GL_NEVER as GL_NEVER, Rn_GL_NICEST as GL_NICEST, Rn_GL_NONE as GL_NONE, Rn_GL_NOTEQUAL as GL_NOTEQUAL, Rn_GL_NO_ERROR as GL_NO_ERROR, Rn_GL_OBJECT_TYPE as GL_OBJECT_TYPE, Rn_GL_ONE as GL_ONE, Rn_GL_ONE_MINUS_CONSTANT_ALPHA as GL_ONE_MINUS_CONSTANT_ALPHA, Rn_GL_ONE_MINUS_CONSTANT_COLOR as GL_ONE_MINUS_CONSTANT_COLOR, Rn_GL_ONE_MINUS_DST_ALPHA as GL_ONE_MINUS_DST_ALPHA, Rn_GL_ONE_MINUS_DST_COLOR as GL_ONE_MINUS_DST_COLOR, Rn_GL_ONE_MINUS_SRC_ALPHA as GL_ONE_MINUS_SRC_ALPHA, Rn_GL_ONE_MINUS_SRC_COLOR as GL_ONE_MINUS_SRC_COLOR, Rn_GL_OUT_OF_MEMORY as GL_OUT_OF_MEMORY, Rn_GL_PACK_ALIGNMENT as GL_PACK_ALIGNMENT, Rn_GL_PACK_ROW_LENGTH as GL_PACK_ROW_LENGTH, Rn_GL_PACK_SKIP_PIXELS as GL_PACK_SKIP_PIXELS, Rn_GL_PACK_SKIP_ROWS as GL_PACK_SKIP_ROWS, Rn_GL_PIXEL_PACK_BUFFER as GL_PIXEL_PACK_BUFFER, Rn_GL_PIXEL_PACK_BUFFER_BINDING as GL_PIXEL_PACK_BUFFER_BINDING, Rn_GL_PIXEL_UNPACK_BUFFER as GL_PIXEL_UNPACK_BUFFER, Rn_GL_PIXEL_UNPACK_BUFFER_BINDING as GL_PIXEL_UNPACK_BUFFER_BINDING, Rn_GL_PIXEL_UNSIGNED_BYTE as GL_PIXEL_UNSIGNED_BYTE, Rn_GL_PIXEL_UNSIGNED_SHORT_4_4_4_4 as GL_PIXEL_UNSIGNED_SHORT_4_4_4_4, Rn_GL_PIXEL_UNSIGNED_SHORT_5_5_5_1 as GL_PIXEL_UNSIGNED_SHORT_5_5_5_1, Rn_GL_PIXEL_UNSIGNED_SHORT_5_6_5 as GL_PIXEL_UNSIGNED_SHORT_5_6_5, Rn_GL_POINTS as GL_POINTS, Rn_GL_POLYGON_OFFSET_FACTOR as GL_POLYGON_OFFSET_FACTOR, Rn_GL_POLYGON_OFFSET_FILL as GL_POLYGON_OFFSET_FILL, Rn_GL_POLYGON_OFFSET_UNITS as GL_POLYGON_OFFSET_UNITS, Rn_GL_QUERY_COUNTER_BITS_EXT as GL_QUERY_COUNTER_BITS_EXT, Rn_GL_QUERY_RESULT as GL_QUERY_RESULT, Rn_GL_QUERY_RESULT_AVAILABLE as GL_QUERY_RESULT_AVAILABLE, Rn_GL_QUERY_RESULT_AVAILABLE_EXT as GL_QUERY_RESULT_AVAILABLE_EXT, Rn_GL_QUERY_RESULT_EXT as GL_QUERY_RESULT_EXT, Rn_GL_R11F_G11F_B10F as GL_R11F_G11F_B10F, Rn_GL_R16F as GL_R16F, Rn_GL_R16I as GL_R16I, Rn_GL_R16UI as GL_R16UI, Rn_GL_R32F as GL_R32F, Rn_GL_R32I as GL_R32I, Rn_GL_R32UI as GL_R32UI, Rn_GL_R8 as GL_R8, Rn_GL_R8I as GL_R8I, Rn_GL_R8UI as GL_R8UI, Rn_GL_R8_SNORM as GL_R8_SNORM, Rn_GL_RASTERIZER_DISCARD as GL_RASTERIZER_DISCARD, Rn_GL_READ_BUFFER as GL_READ_BUFFER, Rn_GL_READ_FRAMEBUFFER as GL_READ_FRAMEBUFFER, Rn_GL_READ_FRAMEBUFFER_BINDING as GL_READ_FRAMEBUFFER_BINDING, Rn_GL_RED as GL_RED, Rn_GL_RED_BITS as GL_RED_BITS, Rn_GL_RED_INTEGER as GL_RED_INTEGER, Rn_GL_RENDERBUFFER as GL_RENDERBUFFER, Rn_GL_RENDERBUFFER_ALPHA_SIZE as GL_RENDERBUFFER_ALPHA_SIZE, Rn_GL_RENDERBUFFER_BINDING as GL_RENDERBUFFER_BINDING, Rn_GL_RENDERBUFFER_BLUE_SIZE as GL_RENDERBUFFER_BLUE_SIZE, Rn_GL_RENDERBUFFER_DEPTH_SIZE as GL_RENDERBUFFER_DEPTH_SIZE, Rn_GL_RENDERBUFFER_GREEN_SIZE as GL_RENDERBUFFER_GREEN_SIZE, Rn_GL_RENDERBUFFER_HEIGHT as GL_RENDERBUFFER_HEIGHT, Rn_GL_RENDERBUFFER_INTERNAL_FORMAT as GL_RENDERBUFFER_INTERNAL_FORMAT, Rn_GL_RENDERBUFFER_RED_SIZE as GL_RENDERBUFFER_RED_SIZE, Rn_GL_RENDERBUFFER_SAMPLES as GL_RENDERBUFFER_SAMPLES, Rn_GL_RENDERBUFFER_STENCIL_SIZE as GL_RENDERBUFFER_STENCIL_SIZE, Rn_GL_RENDERBUFFER_WIDTH as GL_RENDERBUFFER_WIDTH, Rn_GL_RENDERER as GL_RENDERER, Rn_GL_REPEAT as GL_REPEAT, Rn_GL_REPLACE as GL_REPLACE, Rn_GL_RG as GL_RG, Rn_GL_RG16F as GL_RG16F, Rn_GL_RG16I as GL_RG16I, Rn_GL_RG16UI as GL_RG16UI, Rn_GL_RG32F as GL_RG32F, Rn_GL_RG32I as GL_RG32I, Rn_GL_RG32UI as GL_RG32UI, Rn_GL_RG8 as GL_RG8, Rn_GL_RG8I as GL_RG8I, Rn_GL_RG8UI as GL_RG8UI, Rn_GL_RG8_SNORM as GL_RG8_SNORM, Rn_GL_RGB as GL_RGB, Rn_GL_RGB10_A2 as GL_RGB10_A2, Rn_GL_RGB10_A2UI as GL_RGB10_A2UI, Rn_GL_RGB16F as GL_RGB16F, Rn_GL_RGB16I as GL_RGB16I, Rn_GL_RGB16UI as GL_RGB16UI, Rn_GL_RGB32F as GL_RGB32F, Rn_GL_RGB32F_EXT as GL_RGB32F_EXT, Rn_GL_RGB32I as GL_RGB32I, Rn_GL_RGB32UI as GL_RGB32UI, Rn_GL_RGB565 as GL_RGB565, Rn_GL_RGB5_A1 as GL_RGB5_A1, Rn_GL_RGB8 as GL_RGB8, Rn_GL_RGB8I as GL_RGB8I, Rn_GL_RGB8UI as GL_RGB8UI, Rn_GL_RGB8_SNORM as GL_RGB8_SNORM, Rn_GL_RGB9_E5 as GL_RGB9_E5, Rn_GL_RGBA as GL_RGBA, Rn_GL_RGBA16F as GL_RGBA16F, Rn_GL_RGBA16I as GL_RGBA16I, Rn_GL_RGBA16UI as GL_RGBA16UI, Rn_GL_RGBA32F as GL_RGBA32F, Rn_GL_RGBA32F_EXT as GL_RGBA32F_EXT, Rn_GL_RGBA32I as GL_RGBA32I, Rn_GL_RGBA32UI as GL_RGBA32UI, Rn_GL_RGBA4 as GL_RGBA4, Rn_GL_RGBA8 as GL_RGBA8, Rn_GL_RGBA8I as GL_RGBA8I, Rn_GL_RGBA8UI as GL_RGBA8UI, Rn_GL_RGBA8_SNORM as GL_RGBA8_SNORM, Rn_GL_RGBA_INTEGER as GL_RGBA_INTEGER, Rn_GL_RGB_INTEGER as GL_RGB_INTEGER, Rn_GL_RG_INTEGER as GL_RG_INTEGER, Rn_GL_SAMPLER_2D as GL_SAMPLER_2D, Rn_GL_SAMPLER_2D_ARRAY as GL_SAMPLER_2D_ARRAY, Rn_GL_SAMPLER_2D_ARRAY_SHADOW as GL_SAMPLER_2D_ARRAY_SHADOW, Rn_GL_SAMPLER_2D_SHADOW as GL_SAMPLER_2D_SHADOW, Rn_GL_SAMPLER_3D as GL_SAMPLER_3D, Rn_GL_SAMPLER_BINDING as GL_SAMPLER_BINDING, Rn_GL_SAMPLER_CUBE as GL_SAMPLER_CUBE, Rn_GL_SAMPLER_CUBE_SHADOW as GL_SAMPLER_CUBE_SHADOW, Rn_GL_SAMPLES as GL_SAMPLES, Rn_GL_SAMPLE_ALPHA_TO_COVERAGE as GL_SAMPLE_ALPHA_TO_COVERAGE, Rn_GL_SAMPLE_BUFFERS as GL_SAMPLE_BUFFERS, Rn_GL_SAMPLE_COVERAGE as GL_SAMPLE_COVERAGE, Rn_GL_SAMPLE_COVERAGE_INVERT as GL_SAMPLE_COVERAGE_INVERT, Rn_GL_SAMPLE_COVERAGE_VALUE as GL_SAMPLE_COVERAGE_VALUE, Rn_GL_SCISSOR_BOX as GL_SCISSOR_BOX, Rn_GL_SCISSOR_TEST as GL_SCISSOR_TEST, Rn_GL_SEPARATE_ATTRIBS as GL_SEPARATE_ATTRIBS, Rn_GL_SHADER_TYPE as GL_SHADER_TYPE, Rn_GL_SHADING_LANGUAGE_VERSION as GL_SHADING_LANGUAGE_VERSION, Rn_GL_SIGNALED as GL_SIGNALED, Rn_GL_SIGNED_NORMALIZED as GL_SIGNED_NORMALIZED, Rn_GL_SRC_ALPHA as GL_SRC_ALPHA, Rn_GL_SRC_ALPHA_SATURATE as GL_SRC_ALPHA_SATURATE, Rn_GL_SRC_COLOR as GL_SRC_COLOR, Rn_GL_SRGB as GL_SRGB, Rn_GL_SRGB8 as GL_SRGB8, Rn_GL_SRGB8_ALPHA8 as GL_SRGB8_ALPHA8, Rn_GL_SRGB8_ALPHA8_EXT as GL_SRGB8_ALPHA8_EXT, Rn_GL_SRGB_ALPHA_EXT as GL_SRGB_ALPHA_EXT, Rn_GL_SRGB_EXT as GL_SRGB_EXT, Rn_GL_STATIC_COPY as GL_STATIC_COPY, Rn_GL_STATIC_DRAW as GL_STATIC_DRAW, Rn_GL_STATIC_READ as GL_STATIC_READ, Rn_GL_STENCIL as GL_STENCIL, Rn_GL_STENCIL_ATTACHMENT as GL_STENCIL_ATTACHMENT, Rn_GL_STENCIL_BACK_FAIL as GL_STENCIL_BACK_FAIL, Rn_GL_STENCIL_BACK_FUNC as GL_STENCIL_BACK_FUNC, Rn_GL_STENCIL_BACK_PASS_DEPTH_FAIL as GL_STENCIL_BACK_PASS_DEPTH_FAIL, Rn_GL_STENCIL_BACK_PASS_DEPTH_PASS as GL_STENCIL_BACK_PASS_DEPTH_PASS, Rn_GL_STENCIL_BACK_REF as GL_STENCIL_BACK_REF, Rn_GL_STENCIL_BACK_VALUE_MASK as GL_STENCIL_BACK_VALUE_MASK, Rn_GL_STENCIL_BACK_WRITEMASK as GL_STENCIL_BACK_WRITEMASK, Rn_GL_STENCIL_BITS as GL_STENCIL_BITS, Rn_GL_STENCIL_BUFFER_BIT as GL_STENCIL_BUFFER_BIT, Rn_GL_STENCIL_CLEAR_VALUE as GL_STENCIL_CLEAR_VALUE, Rn_GL_STENCIL_FAIL as GL_STENCIL_FAIL, Rn_GL_STENCIL_FUNC as GL_STENCIL_FUNC, Rn_GL_STENCIL_INDEX as GL_STENCIL_INDEX, Rn_GL_STENCIL_INDEX8 as GL_STENCIL_INDEX8, Rn_GL_STENCIL_PASS_DEPTH_FAIL as GL_STENCIL_PASS_DEPTH_FAIL, Rn_GL_STENCIL_PASS_DEPTH_PASS as GL_STENCIL_PASS_DEPTH_PASS, Rn_GL_STENCIL_REF as GL_STENCIL_REF, Rn_GL_STENCIL_TEST as GL_STENCIL_TEST, Rn_GL_STENCIL_VALUE_MASK as GL_STENCIL_VALUE_MASK, Rn_GL_STENCIL_WRITEMASK as GL_STENCIL_WRITEMASK, Rn_GL_STREAM_COPY as GL_STREAM_COPY, Rn_GL_STREAM_DRAW as GL_STREAM_DRAW, Rn_GL_STREAM_READ as GL_STREAM_READ, Rn_GL_SUBPIXEL_BITS as GL_SUBPIXEL_BITS, Rn_GL_SYNC_CONDITION as GL_SYNC_CONDITION, Rn_GL_SYNC_FENCE as GL_SYNC_FENCE, Rn_GL_SYNC_FLAGS as GL_SYNC_FLAGS, Rn_GL_SYNC_FLUSH_COMMANDS_BIT as GL_SYNC_FLUSH_COMMANDS_BIT, Rn_GL_SYNC_GPU_COMMANDS_COMPLETE as GL_SYNC_GPU_COMMANDS_COMPLETE, Rn_GL_SYNC_STATUS as GL_SYNC_STATUS, Rn_GL_TEXTURE as GL_TEXTURE, Rn_GL_TEXTURE0 as GL_TEXTURE0, Rn_GL_TEXTURE1 as GL_TEXTURE1, Rn_GL_TEXTURE10 as GL_TEXTURE10, Rn_GL_TEXTURE11 as GL_TEXTURE11, Rn_GL_TEXTURE12 as GL_TEXTURE12, Rn_GL_TEXTURE13 as GL_TEXTURE13, Rn_GL_TEXTURE14 as GL_TEXTURE14, Rn_GL_TEXTURE15 as GL_TEXTURE15, Rn_GL_TEXTURE16 as GL_TEXTURE16, Rn_GL_TEXTURE17 as GL_TEXTURE17, Rn_GL_TEXTURE18 as GL_TEXTURE18, Rn_GL_TEXTURE19 as GL_TEXTURE19, Rn_GL_TEXTURE2 as GL_TEXTURE2, Rn_GL_TEXTURE20 as GL_TEXTURE20, Rn_GL_TEXTURE21 as GL_TEXTURE21, Rn_GL_TEXTURE22 as GL_TEXTURE22, Rn_GL_TEXTURE23 as GL_TEXTURE23, Rn_GL_TEXTURE24 as GL_TEXTURE24, Rn_GL_TEXTURE25 as GL_TEXTURE25, Rn_GL_TEXTURE26 as GL_TEXTURE26, Rn_GL_TEXTURE27 as GL_TEXTURE27, Rn_GL_TEXTURE28 as GL_TEXTURE28, Rn_GL_TEXTURE29 as GL_TEXTURE29, Rn_GL_TEXTURE3 as GL_TEXTURE3, Rn_GL_TEXTURE30 as GL_TEXTURE30, Rn_GL_TEXTURE31 as GL_TEXTURE31, Rn_GL_TEXTURE4 as GL_TEXTURE4, Rn_GL_TEXTURE5 as GL_TEXTURE5, Rn_GL_TEXTURE6 as GL_TEXTURE6, Rn_GL_TEXTURE7 as GL_TEXTURE7, Rn_GL_TEXTURE8 as GL_TEXTURE8, Rn_GL_TEXTURE9 as GL_TEXTURE9, Rn_GL_TEXTURE_2D as GL_TEXTURE_2D, Rn_GL_TEXTURE_2D_ARRAY as GL_TEXTURE_2D_ARRAY, Rn_GL_TEXTURE_3D as GL_TEXTURE_3D, Rn_GL_TEXTURE_BASE_LEVEL as GL_TEXTURE_BASE_LEVEL, Rn_GL_TEXTURE_BINDING_2D as GL_TEXTURE_BINDING_2D, Rn_GL_TEXTURE_BINDING_2D_ARRAY as GL_TEXTURE_BINDING_2D_ARRAY, Rn_GL_TEXTURE_BINDING_3D as GL_TEXTURE_BINDING_3D, Rn_GL_TEXTURE_BINDING_CUBE_MAP as GL_TEXTURE_BINDING_CUBE_MAP, Rn_GL_TEXTURE_COMPARE_FUNC as GL_TEXTURE_COMPARE_FUNC, Rn_GL_TEXTURE_COMPARE_MODE as GL_TEXTURE_COMPARE_MODE, Rn_GL_TEXTURE_CUBE_MAP as GL_TEXTURE_CUBE_MAP, Rn_GL_TEXTURE_CUBE_MAP_NEGATIVE_X as GL_TEXTURE_CUBE_MAP_NEGATIVE_X, Rn_GL_TEXTURE_CUBE_MAP_NEGATIVE_Y as GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, Rn_GL_TEXTURE_CUBE_MAP_NEGATIVE_Z as GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, Rn_GL_TEXTURE_CUBE_MAP_POSITIVE_X as GL_TEXTURE_CUBE_MAP_POSITIVE_X, Rn_GL_TEXTURE_CUBE_MAP_POSITIVE_Y as GL_TEXTURE_CUBE_MAP_POSITIVE_Y, Rn_GL_TEXTURE_CUBE_MAP_POSITIVE_Z as GL_TEXTURE_CUBE_MAP_POSITIVE_Z, Rn_GL_TEXTURE_IMMUTABLE_FORMAT as GL_TEXTURE_IMMUTABLE_FORMAT, Rn_GL_TEXTURE_IMMUTABLE_LEVELS as GL_TEXTURE_IMMUTABLE_LEVELS, Rn_GL_TEXTURE_MAG_FILTER as GL_TEXTURE_MAG_FILTER, Rn_GL_TEXTURE_MAX_ANISOTROPY_EXT as GL_TEXTURE_MAX_ANISOTROPY_EXT, Rn_GL_TEXTURE_MAX_LEVEL as GL_TEXTURE_MAX_LEVEL, Rn_GL_TEXTURE_MAX_LOD as GL_TEXTURE_MAX_LOD, Rn_GL_TEXTURE_MIN_FILTER as GL_TEXTURE_MIN_FILTER, Rn_GL_TEXTURE_MIN_LOD as GL_TEXTURE_MIN_LOD, Rn_GL_TEXTURE_WRAP_R as GL_TEXTURE_WRAP_R, Rn_GL_TEXTURE_WRAP_S as GL_TEXTURE_WRAP_S, Rn_GL_TEXTURE_WRAP_T as GL_TEXTURE_WRAP_T, Rn_GL_TIMEOUT_EXPIRED as GL_TIMEOUT_EXPIRED, Rn_GL_TIMEOUT_IGNORED as GL_TIMEOUT_IGNORED, Rn_GL_TIMESTAMP_EXT as GL_TIMESTAMP_EXT, Rn_GL_TIME_ELAPSED_EXT as GL_TIME_ELAPSED_EXT, Rn_GL_TRANSFORM_FEEDBACK as GL_TRANSFORM_FEEDBACK, Rn_GL_TRANSFORM_FEEDBACK_ACTIVE as GL_TRANSFORM_FEEDBACK_ACTIVE, Rn_GL_TRANSFORM_FEEDBACK_BINDING as GL_TRANSFORM_FEEDBACK_BINDING, Rn_GL_TRANSFORM_FEEDBACK_BUFFER as GL_TRANSFORM_FEEDBACK_BUFFER, Rn_GL_TRANSFORM_FEEDBACK_BUFFER_BINDING as GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, Rn_GL_TRANSFORM_FEEDBACK_BUFFER_MODE as GL_TRANSFORM_FEEDBACK_BUFFER_MODE, Rn_GL_TRANSFORM_FEEDBACK_BUFFER_SIZE as GL_TRANSFORM_FEEDBACK_BUFFER_SIZE, Rn_GL_TRANSFORM_FEEDBACK_BUFFER_START as GL_TRANSFORM_FEEDBACK_BUFFER_START, Rn_GL_TRANSFORM_FEEDBACK_PAUSED as GL_TRANSFORM_FEEDBACK_PAUSED, Rn_GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN as GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, Rn_GL_TRANSFORM_FEEDBACK_VARYINGS as GL_TRANSFORM_FEEDBACK_VARYINGS, Rn_GL_TRIANGLES as GL_TRIANGLES, Rn_GL_TRIANGLE_FAN as GL_TRIANGLE_FAN, Rn_GL_TRIANGLE_STRIP as GL_TRIANGLE_STRIP, Rn_GL_UNIFORM_ARRAY_STRIDE as GL_UNIFORM_ARRAY_STRIDE, Rn_GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS as GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, Rn_GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES as GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, Rn_GL_UNIFORM_BLOCK_BINDING as GL_UNIFORM_BLOCK_BINDING, Rn_GL_UNIFORM_BLOCK_DATA_SIZE as GL_UNIFORM_BLOCK_DATA_SIZE, Rn_GL_UNIFORM_BLOCK_INDEX as GL_UNIFORM_BLOCK_INDEX, Rn_GL_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER as GL_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER, Rn_GL_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER as GL_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER, Rn_GL_UNIFORM_BUFFER as GL_UNIFORM_BUFFER, Rn_GL_UNIFORM_BUFFER_BINDING as GL_UNIFORM_BUFFER_BINDING, Rn_GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT as GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, Rn_GL_UNIFORM_BUFFER_SIZE as GL_UNIFORM_BUFFER_SIZE, Rn_GL_UNIFORM_BUFFER_START as GL_UNIFORM_BUFFER_START, Rn_GL_UNIFORM_IS_ROW_MAJOR as GL_UNIFORM_IS_ROW_MAJOR, Rn_GL_UNIFORM_MATRIX_STRIDE as GL_UNIFORM_MATRIX_STRIDE, Rn_GL_UNIFORM_OFFSET as GL_UNIFORM_OFFSET, Rn_GL_UNIFORM_SIZE as GL_UNIFORM_SIZE, Rn_GL_UNIFORM_TYPE as GL_UNIFORM_TYPE, Rn_GL_UNMASKED_RENDERER_WEBGL as GL_UNMASKED_RENDERER_WEBGL, Rn_GL_UNMASKED_VENDOR_WEBGL as GL_UNMASKED_VENDOR_WEBGL, Rn_GL_UNPACK_ALIGNMENT as GL_UNPACK_ALIGNMENT, Rn_GL_UNPACK_COLORSPACE_CONVERSION_WEBGL as GL_UNPACK_COLORSPACE_CONVERSION_WEBGL, Rn_GL_UNPACK_FLIP_Y_WEBGL as GL_UNPACK_FLIP_Y_WEBGL, Rn_GL_UNPACK_IMAGE_HEIGHT as GL_UNPACK_IMAGE_HEIGHT, Rn_GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL as GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL, Rn_GL_UNPACK_ROW_LENGTH as GL_UNPACK_ROW_LENGTH, Rn_GL_UNPACK_SKIP_IMAGES as GL_UNPACK_SKIP_IMAGES, Rn_GL_UNPACK_SKIP_PIXELS as GL_UNPACK_SKIP_PIXELS, Rn_GL_UNPACK_SKIP_ROWS as GL_UNPACK_SKIP_ROWS, Rn_GL_UNSIGNALED as GL_UNSIGNALED, Rn_GL_UNSIGNED_INT_10F_11F_11F_REV as GL_UNSIGNED_INT_10F_11F_11F_REV, Rn_GL_UNSIGNED_INT_24_8 as GL_UNSIGNED_INT_24_8, Rn_GL_UNSIGNED_INT_24_8_WEBGL as GL_UNSIGNED_INT_24_8_WEBGL, Rn_GL_UNSIGNED_INT_2_10_10_10_REV as GL_UNSIGNED_INT_2_10_10_10_REV, Rn_GL_UNSIGNED_INT_5_9_9_9_REV as GL_UNSIGNED_INT_5_9_9_9_REV, Rn_GL_UNSIGNED_INT_SAMPLER_2D as GL_UNSIGNED_INT_SAMPLER_2D, Rn_GL_UNSIGNED_INT_SAMPLER_2D_ARRAY as GL_UNSIGNED_INT_SAMPLER_2D_ARRAY, Rn_GL_UNSIGNED_INT_SAMPLER_3D as GL_UNSIGNED_INT_SAMPLER_3D, Rn_GL_UNSIGNED_INT_SAMPLER_CUBE as GL_UNSIGNED_INT_SAMPLER_CUBE, Rn_GL_UNSIGNED_INT_VEC2 as GL_UNSIGNED_INT_VEC2, Rn_GL_UNSIGNED_INT_VEC3 as GL_UNSIGNED_INT_VEC3, Rn_GL_UNSIGNED_INT_VEC4 as GL_UNSIGNED_INT_VEC4, Rn_GL_UNSIGNED_NORMALIZED as GL_UNSIGNED_NORMALIZED, Rn_GL_UNSIGNED_NORMALIZED_EXT as GL_UNSIGNED_NORMALIZED_EXT, Rn_GL_VALIDATE_STATUS as GL_VALIDATE_STATUS, Rn_GL_VENDOR as GL_VENDOR, Rn_GL_VERSION as GL_VERSION, Rn_GL_VERTEX_ARRAY_BINDING as GL_VERTEX_ARRAY_BINDING, Rn_GL_VERTEX_ARRAY_BINDING_OES as GL_VERTEX_ARRAY_BINDING_OES, Rn_GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING as GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, Rn_GL_VERTEX_ATTRIB_ARRAY_DIVISOR as GL_VERTEX_ATTRIB_ARRAY_DIVISOR, Rn_GL_VERTEX_ATTRIB_ARRAY_DIVISOR_ANGLE as GL_VERTEX_ATTRIB_ARRAY_DIVISOR_ANGLE, Rn_GL_VERTEX_ATTRIB_ARRAY_ENABLED as GL_VERTEX_ATTRIB_ARRAY_ENABLED, Rn_GL_VERTEX_ATTRIB_ARRAY_INTEGER as GL_VERTEX_ATTRIB_ARRAY_INTEGER, Rn_GL_VERTEX_ATTRIB_ARRAY_NORMALIZED as GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, Rn_GL_VERTEX_ATTRIB_ARRAY_POINTER as GL_VERTEX_ATTRIB_ARRAY_POINTER, Rn_GL_VERTEX_ATTRIB_ARRAY_SIZE as GL_VERTEX_ATTRIB_ARRAY_SIZE, Rn_GL_VERTEX_ATTRIB_ARRAY_STRIDE as GL_VERTEX_ATTRIB_ARRAY_STRIDE, Rn_GL_VERTEX_ATTRIB_ARRAY_TYPE as GL_VERTEX_ATTRIB_ARRAY_TYPE, Rn_GL_VERTEX_SHADER as GL_VERTEX_SHADER, Rn_GL_VIEWPORT as GL_VIEWPORT, Rn_GL_WAIT_FAILED as GL_WAIT_FAILED, Rn_GL_ZERO as GL_ZERO, Rn_GaussianBlur as GaussianBlur, Rn_GetComponentFromEntities as GetComponentFromEntities, type Rn_GetInstance as GetInstance, type Rn_GetProps as GetProps, Rn_Gizmo as Gizmo, Rn_GlobalDataRepository as GlobalDataRepository, Rn_GlobalRetarget as GlobalRetarget, Rn_GlobalRetargetReverse as GlobalRetargetReverse, type Rn_Gltf1AnyObject as Gltf1AnyObject, type Rn_Gltf2 as Gltf2, type Rn_Gltf2Accessor as Gltf2Accessor, type Rn_Gltf2AccessorComponentType as Gltf2AccessorComponentType, type Rn_Gltf2AccessorComponentTypeNumber as Gltf2AccessorComponentTypeNumber, type Rn_Gltf2AccessorCompositionType as Gltf2AccessorCompositionType, type Rn_Gltf2AccessorCompositionTypeString as Gltf2AccessorCompositionTypeString, type Rn_Gltf2AccessorEx as Gltf2AccessorEx, type Rn_Gltf2AccessorIndex as Gltf2AccessorIndex, type Rn_Gltf2Animation as Gltf2Animation, type Rn_Gltf2AnimationAccessorCompositionType as Gltf2AnimationAccessorCompositionType, type Rn_Gltf2AnimationAccessorCompositionTypeString as Gltf2AnimationAccessorCompositionTypeString, type Rn_Gltf2AnimationChannel as Gltf2AnimationChannel, type Rn_Gltf2AnimationChannelTarget as Gltf2AnimationChannelTarget, type Rn_Gltf2AnimationPathName as Gltf2AnimationPathName, type Rn_Gltf2AnimationSampler as Gltf2AnimationSampler, type Rn_Gltf2AnimationSamplerInterpolation as Gltf2AnimationSamplerInterpolation, type Rn_Gltf2AnyObject as Gltf2AnyObject, type Rn_Gltf2Asset as Gltf2Asset, type Rn_Gltf2AttributeAccessors as Gltf2AttributeAccessors, type Rn_Gltf2AttributeBlendShapes as Gltf2AttributeBlendShapes, type Rn_Gltf2AttributeBlendShapesAccessors as Gltf2AttributeBlendShapesAccessors, type Rn_Gltf2Attributes as Gltf2Attributes, type Rn_Gltf2Buffer as Gltf2Buffer, type Rn_Gltf2BufferView as Gltf2BufferView, type Rn_Gltf2BufferViewEx as Gltf2BufferViewEx, type Rn_Gltf2Camera as Gltf2Camera, type Rn_Gltf2CameraOrthographic as Gltf2CameraOrthographic, type Rn_Gltf2CameraPerspective as Gltf2CameraPerspective, type Rn_Gltf2Ex as Gltf2Ex, type Rn_Gltf2ExportType as Gltf2ExportType, Rn_Gltf2Exporter as Gltf2Exporter, type Rn_Gltf2ExporterArguments as Gltf2ExporterArguments, type Rn_Gltf2Image as Gltf2Image, type Rn_Gltf2ImageEx as Gltf2ImageEx, Rn_Gltf2Importer as Gltf2Importer, type Rn_Gltf2Material as Gltf2Material, type Rn_Gltf2MaterialEx as Gltf2MaterialEx, type Rn_Gltf2Mesh as Gltf2Mesh, type Rn_Gltf2Node as Gltf2Node, type Rn_Gltf2NormalTextureInfo as Gltf2NormalTextureInfo, type Rn_Gltf2OcclusionTextureInfo as Gltf2OcclusionTextureInfo, type Rn_Gltf2PbrMetallicRoughness as Gltf2PbrMetallicRoughness, type Rn_Gltf2PbrMetallicRoughnessEx as Gltf2PbrMetallicRoughnessEx, type Rn_Gltf2Primitive as Gltf2Primitive, type Rn_Gltf2Scene as Gltf2Scene, type Rn_Gltf2Skin as Gltf2Skin, type Rn_Gltf2Sparse as Gltf2Sparse, type Rn_Gltf2SparseIndices as Gltf2SparseIndices, type Rn_Gltf2SparseValues as Gltf2SparseValues, type Rn_Gltf2Texture as Gltf2Texture, type Rn_Gltf2TextureInfo as Gltf2TextureInfo, type Rn_Gltf2TextureSampler as Gltf2TextureSampler, type Rn_GltfFileBuffers as GltfFileBuffers, Rn_GltfImporter as GltfImporter, type Rn_GltfLoadOption as GltfLoadOption, Rn_GreaterOrEqualShaderNode as GreaterOrEqualShaderNode, Rn_GreaterShaderNode as GreaterShaderNode, Rn_GreaterThanShaderNode as GreaterThanShaderNode, Rn_Grid as Grid, type Rn_GridDescriptor as GridDescriptor, Rn_HdriFormat as HdriFormat, type Rn_HdriFormatEnum as HdriFormatEnum, type Rn_IAnimationEntity as IAnimationEntity, type Rn_IAnimationEntityMethods as IAnimationEntityMethods, type Rn_IAnimationRetarget as IAnimationRetarget, type Rn_IAnimationStateEntity as IAnimationStateEntity, type Rn_IAnimationStateEntityMethods as IAnimationStateEntityMethods, type Rn_IAnyPrimitiveDescriptor as IAnyPrimitiveDescriptor, type Rn_IArrayBufferBasedMathNumber as IArrayBufferBasedMathNumber, type Rn_IBlendShapeEntity as IBlendShapeEntity, type Rn_IBlendShapeEntityMethods as IBlendShapeEntityMethods, type Rn_ICGAPIResourceRepository as ICGAPIResourceRepository, type Rn_ICameraController as ICameraController, type Rn_ICameraControllerEntity as ICameraControllerEntity, type Rn_ICameraControllerEntityMethods as ICameraControllerEntityMethods, type Rn_ICameraEntity as ICameraEntity, type Rn_ICameraEntityMethods as ICameraEntityMethods, type Rn_IColorRgb as IColorRgb, type Rn_IColorRgba as IColorRgba, type Rn_IConstraintEntity as IConstraintEntity, type Rn_IConstraintEntityMethods as IConstraintEntityMethods, type Rn_IEffekseerEntityMethods as IEffekseerEntityMethods, type Rn_IEnhancedArrayMethods as IEnhancedArrayMethods, type Rn_IEntity as IEntity, type Rn_IEventPubSub as IEventPubSub, type Rn_ILightEntity as ILightEntity, type Rn_ILightEntityMethods as ILightEntityMethods, type Rn_ILoaderExtension as ILoaderExtension, type Rn_ILogQuaternion as ILogQuaternion, type Rn_IMatrix as IMatrix, type Rn_IMatrix22 as IMatrix22, type Rn_IMatrix33 as IMatrix33, type Rn_IMatrix44 as IMatrix44, type Rn_IMesh as IMesh, type Rn_IMeshEntity as IMeshEntity, type Rn_IMeshEntityMethods as IMeshEntityMethods, type Rn_IMeshRendererEntityMethods as IMeshRendererEntityMethods, type Rn_IMutableColorRgb as IMutableColorRgb, type Rn_IMutableColorRgba as IMutableColorRgba, type Rn_IMutableMatrix as IMutableMatrix, type Rn_IMutableMatrix22 as IMutableMatrix22, type Rn_IMutableMatrix33 as IMutableMatrix33, type Rn_IMutableMatrix44 as IMutableMatrix44, type Rn_IMutableQuaternion as IMutableQuaternion, type Rn_IMutableScalar as IMutableScalar, type Rn_IMutableVector as IMutableVector, type Rn_IMutableVector2 as IMutableVector2, type Rn_IMutableVector3 as IMutableVector3, type Rn_IMutableVector4 as IMutableVector4, Rn_INPUT_HANDLING_STATE_CAMERA_CONTROLLER as INPUT_HANDLING_STATE_CAMERA_CONTROLLER, Rn_INPUT_HANDLING_STATE_GIZMO_ROTATION as INPUT_HANDLING_STATE_GIZMO_ROTATION, Rn_INPUT_HANDLING_STATE_GIZMO_SCALE as INPUT_HANDLING_STATE_GIZMO_SCALE, Rn_INPUT_HANDLING_STATE_GIZMO_TRANSLATION as INPUT_HANDLING_STATE_GIZMO_TRANSLATION, Rn_INPUT_HANDLING_STATE_NONE as INPUT_HANDLING_STATE_NONE, type Rn_IPhysicsEntity as IPhysicsEntity, type Rn_IPhysicsEntityMethods as IPhysicsEntityMethods, type Rn_IQuaternion as IQuaternion, type Rn_IRaymarchingEntity as IRaymarchingEntity, type Rn_IRaymarchingEntityMethods as IRaymarchingEntityMethods, type Rn_IRenderable as IRenderable, type Rn_IRnObject as IRnObject, type Rn_IScalar as IScalar, type Rn_ISceneGraphEntity as ISceneGraphEntity, type Rn_ISceneGraphEntityMethods as ISceneGraphEntityMethods, type Rn_ISemanticVertexAttribute as ISemanticVertexAttribute, Rn_IShape as IShape, type Rn_ISkeletalEntity as ISkeletalEntity, type Rn_ISkeletalEntityMethods as ISkeletalEntityMethods, type Rn_ITransformEntity as ITransformEntity, type Rn_ITransformEntityMethods as ITransformEntityMethods, type Rn_IVector as IVector, type Rn_IVector2 as IVector2, type Rn_IVector3 as IVector3, type Rn_IVector4 as IVector4, type Rn_IVrmEntityMethods as IVrmEntityMethods, type Rn_IWeakOption as IWeakOption, Rn_IdentityMatrix33 as IdentityMatrix33, Rn_IdentityMatrix44 as IdentityMatrix44, type Rn_ImageBitmapData as ImageBitmapData, Rn_ImageInfo as ImageInfo, Rn_ImageUtil as ImageUtil, type Rn_Index as Index, type Rn_IndexInTheDataView as IndexInTheDataView, type Rn_IndexOf16Bytes as IndexOf16Bytes, type Rn_IndexOf4Bytes as IndexOf4Bytes, type Rn_IndexOfBufferViews as IndexOfBufferViews, type Rn_IndicesAccessOption as IndicesAccessOption, Rn_InitialPositionShaderNode as InitialPositionShaderNode, type Rn_InputHandlerInfo as InputHandlerInfo, type Rn_InputHandlingState as InputHandlingState, Rn_InputManager as InputManager, type Rn_IntegerTypedArray as IntegerTypedArray, Rn_Is as Is, Rn_IsObj as IsObj, type Rn_IsType as IsType, Rn_Joint as Joint, type Rn_JointDescriptor as JointDescriptor, Rn_JointGizmo as JointGizmo, type Rn_KHR_interactivity as KHR_interactivity, type Rn_KHR_interactivity_Configuration as KHR_interactivity_Configuration, type Rn_KHR_interactivity_Declaration as KHR_interactivity_Declaration, type Rn_KHR_interactivity_Event as KHR_interactivity_Event, type Rn_KHR_interactivity_Flow as KHR_interactivity_Flow, type Rn_KHR_interactivity_Graph as KHR_interactivity_Graph, type Rn_KHR_interactivity_Node as KHR_interactivity_Node, type Rn_KHR_interactivity_Type as KHR_interactivity_Type, type Rn_KHR_interactivity_Value as KHR_interactivity_Value, type Rn_KHR_interactivity_Variable as KHR_interactivity_Variable, type Rn_KHR_interactivity_value_type as KHR_interactivity_value_type, type Rn_KHR_lights_punctual as KHR_lights_punctual, type Rn_KHR_lights_punctual_Light as KHR_lights_punctual_Light, type Rn_KHR_materials_variants as KHR_materials_variants, type Rn_KHR_materials_variants_Mapping as KHR_materials_variants_Mapping, type Rn_KHR_materials_variants_PrimitiveExtension as KHR_materials_variants_PrimitiveExtension, type Rn_KHR_materials_variants_Variant as KHR_materials_variants_Variant, Rn_KTX2TextureLoader as KTX2TextureLoader, Rn_LengthShaderNode as LengthShaderNode, Rn_LessOrEqualShaderNode as LessOrEqualShaderNode, Rn_LessThanShaderNode as LessThanShaderNode, Rn_LightComponent as LightComponent, Rn_LightGizmo as LightGizmo, Rn_LightType as LightType, type Rn_LightTypeEnum as LightTypeEnum, Rn_Line as Line, type Rn_LineDescriptor as LineDescriptor, type Rn_LoadImageToMipLevelDescriptor as LoadImageToMipLevelDescriptor, Rn_LocatorGizmo as LocatorGizmo, Rn_LogLevel as LogLevel, Rn_LogQuaternion as LogQuaternion, Rn_Logger as Logger, type Rn_MSC_TRANSCODER_TYPE as MSC_TRANSCODER_TYPE, Rn_MToon0xMaterialContent as MToon0xMaterialContent, Rn_MToon1MaterialContent as MToon1MaterialContent, Rn_MatCapMaterialContent as MatCapMaterialContent, Rn_Material as Material, Rn_MaterialHelper as MaterialHelper, type MaterialNodeUID$1 as MaterialNodeUID, Rn_MaterialRepository as MaterialRepository, type Rn_MaterialSID as MaterialSID, type Rn_MaterialTID as MaterialTID, type Rn_MaterialTypeName as MaterialTypeName, type Rn_MaterialUID as MaterialUID, Rn_MathClassUtil as MathClassUtil, Rn_MathUtil as MathUtil, Rn_Matrix22 as Matrix22, Rn_Matrix33 as Matrix33, Rn_Matrix44 as Matrix44, type Rn_MemberInfo as MemberInfo, Rn_MemoryManager as MemoryManager, type Rn_MergeCtor as MergeCtor, Rn_MergeVectorShaderNode as MergeVectorShaderNode, Rn_Mesh as Mesh, Rn_MeshComponent as MeshComponent, Rn_MeshHelper as MeshHelper, Rn_MeshRendererComponent as MeshRendererComponent, type Rn_MeshUID as MeshUID, type Rn_MilliSecond as MilliSecond, Rn_MinShaderNode as MinShaderNode, Rn_MiscUtil as MiscUtil, type Rn_MixinBase as MixinBase, Rn_ModelConverter as ModelConverter, Rn_ModuleManager as ModuleManager, type Rn_MscTranscoderModule as MscTranscoderModule, Rn_MultiplyShaderNode as MultiplyShaderNode, Rn_MutableColorRgb as MutableColorRgb, Rn_MutableColorRgba as MutableColorRgba, Rn_MutableMatrix22 as MutableMatrix22, Rn_MutableMatrix33 as MutableMatrix33, Rn_MutableMatrix44 as MutableMatrix44, Rn_MutableQuaternion as MutableQuaternion, Rn_MutableScalar as MutableScalar, Rn_MutableScalar_ as MutableScalar_, Rn_MutableScalard as MutableScalard, type Rn_MutableScalarf as MutableScalarf, Rn_MutableVector2 as MutableVector2, Rn_MutableVector2_ as MutableVector2_, Rn_MutableVector2d as MutableVector2d, type Rn_MutableVector2f as MutableVector2f, Rn_MutableVector3 as MutableVector3, Rn_MutableVector3_ as MutableVector3_, Rn_MutableVector3d as MutableVector3d, type Rn_MutableVector3f as MutableVector3f, Rn_MutableVector4 as MutableVector4, Rn_MutableVector4_ as MutableVector4_, Rn_MutableVector4d as MutableVector4d, type Rn_MutableVector4f as MutableVector4f, type Rn_NodeJSON as NodeJSON, type Rn_NodeJSONConnection as NodeJSONConnection, type Rn_NodeJSONNode as NodeJSONNode, type Rn_NodeJSONNodeInput as NodeJSONNodeInput, type Rn_NodeJSONNodeOutput as NodeJSONNodeOutput, Rn_None as None, Rn_NormalMatrixShaderNode as NormalMatrixShaderNode, Rn_NormalizeShaderNode as NormalizeShaderNode, Rn_NotEqualShaderNode as NotEqualShaderNode, type Rn_ObjectUID as ObjectUID, type Rn_Offset as Offset, Rn_OimoPhysicsStrategy as OimoPhysicsStrategy, Rn_Ok as Ok, Rn_OpSubtractionShaderNode as OpSubtractionShaderNode, Rn_OpUnionShaderNode as OpUnionShaderNode, type Rn_Option as Option, Rn_OrShaderNode as OrShaderNode, Rn_OrbitCameraController as OrbitCameraController, Rn_OutColorShaderNode as OutColorShaderNode, Rn_OutDistanceShader as OutDistanceShader, Rn_OutDistanceShaderNode as OutDistanceShaderNode, Rn_OutPositionShaderNode as OutPositionShaderNode, Rn_OutUnionShaderNode as OutUnionShaderNode, type Rn_PartialRequire as PartialRequire, Rn_PbrAnisotropyPropsShaderNode as PbrAnisotropyPropsShaderNode, Rn_PbrAnisotropyRotationShaderNode as PbrAnisotropyRotationShaderNode, Rn_PbrBaseColorPropsShaderNode as PbrBaseColorPropsShaderNode, Rn_PbrClearcoatPropsShaderNode as PbrClearcoatPropsShaderNode, Rn_PbrDiffuseTransmissionPropsShaderNode as PbrDiffuseTransmissionPropsShaderNode, Rn_PbrEmissivePropsShaderNode as PbrEmissivePropsShaderNode, Rn_PbrIridescencePropsShaderNode as PbrIridescencePropsShaderNode, Rn_PbrMetallicRoughnessPropsShaderNode as PbrMetallicRoughnessPropsShaderNode, Rn_PbrNormalPropsShaderNode as PbrNormalPropsShaderNode, Rn_PbrOcclusionPropsShaderNode as PbrOcclusionPropsShaderNode, Rn_PbrShaderShaderNode as PbrShaderShaderNode, Rn_PbrSheenPropsShaderNode as PbrSheenPropsShaderNode, Rn_PbrSpecularPropsShaderNode as PbrSpecularPropsShaderNode, Rn_PbrTransmissionPropsShaderNode as PbrTransmissionPropsShaderNode, type Rn_PbrUberMaterialOptions as PbrUberMaterialOptions, Rn_PbrVolumePropsShaderNode as PbrVolumePropsShaderNode, Rn_PhysicsComponent as PhysicsComponent, type Rn_PhysicsProperty as PhysicsProperty, type Rn_PhysicsPropertyInner as PhysicsPropertyInner, Rn_PhysicsShape as PhysicsShape, type Rn_PhysicsShapeTypeEnum as PhysicsShapeTypeEnum, type Rn_PhysicsStrategy as PhysicsStrategy, type Rn_PhysicsWorldProperty as PhysicsWorldProperty, Rn_PixelFormat as PixelFormat, type Rn_PixelFormatEnum as PixelFormatEnum, Rn_Plane as Plane, type Rn_PlaneDescriptor as PlaneDescriptor, Rn_PointShadowMap as PointShadowMap, type Rn_PointType as PointType, Rn_PremultipliedAlphaShaderNode as PremultipliedAlphaShaderNode, Rn_Primitive as Primitive, type Rn_PrimitiveDescriptor as PrimitiveDescriptor, Rn_PrimitiveMode as PrimitiveMode, type Rn_PrimitiveModeEnum as PrimitiveModeEnum, type Rn_PrimitiveSortKey as PrimitiveSortKey, type Rn_PrimitiveSortKeyLength as PrimitiveSortKeyLength, type Rn_PrimitiveSortKeyOffset as PrimitiveSortKeyOffset, Rn_PrimitiveSortKey_BitLength_Depth as PrimitiveSortKey_BitLength_Depth, Rn_PrimitiveSortKey_BitLength_Material as PrimitiveSortKey_BitLength_Material, Rn_PrimitiveSortKey_BitLength_PrimitiveType as PrimitiveSortKey_BitLength_PrimitiveType, Rn_PrimitiveSortKey_BitLength_RenderQueue as PrimitiveSortKey_BitLength_RenderQueue, Rn_PrimitiveSortKey_BitLength_TranslucencyType as PrimitiveSortKey_BitLength_TranslucencyType, Rn_PrimitiveSortKey_BitOffset_Material as PrimitiveSortKey_BitOffset_Material, Rn_PrimitiveSortKey_BitOffset_PrimitiveType as PrimitiveSortKey_BitOffset_PrimitiveType, Rn_PrimitiveSortKey_BitOffset_RenderQueue as PrimitiveSortKey_BitOffset_RenderQueue, Rn_PrimitiveSortKey_BitOffset_TranslucencyType as PrimitiveSortKey_BitOffset_TranslucencyType, type Rn_PrimitiveUID as PrimitiveUID, Rn_ProcessApproach as ProcessApproach, Rn_ProcessApproachClass as ProcessApproachClass, type Rn_ProcessApproachEnum as ProcessApproachEnum, Rn_ProcessStage as ProcessStage, type Rn_ProcessStageEnum as ProcessStageEnum, Rn_ProjectionMatrixShaderNode as ProjectionMatrixShaderNode, Rn_Quaternion as Quaternion, Rn_Random_HashPRNGShaderNode as Random_HashPRNGShaderNode, Rn_Random_SinHashShaderNode as Random_SinHashShaderNode, type Rn_Ratio as Ratio, type Rn_RaycastResult as RaycastResult, type Rn_RaycastResultEx1 as RaycastResultEx1, type Rn_RaycastResultEx2 as RaycastResultEx2, Rn_RaymarchingComponent as RaymarchingComponent, Rn_RaymarchingShaderPart as RaymarchingShaderPart, Rn_RemapShaderNode as RemapShaderNode, Rn_RenderBuffer as RenderBuffer, Rn_RenderBufferTarget as RenderBufferTarget, type Rn_RenderBufferTargetEnum as RenderBufferTargetEnum, Rn_RenderPass as RenderPass, Rn_RenderPassHelper as RenderPassHelper, type Rn_RenderPassUID as RenderPassUID, Rn_RenderTargetTexture as RenderTargetTexture, Rn_RenderTargetTexture2DArray as RenderTargetTexture2DArray, Rn_RenderTargetTextureCube as RenderTargetTextureCube, Rn_RenderableHelper as RenderableHelper, type Rn_RenderingArgWebGL as RenderingArgWebGL, type Rn_RenderingArgWebGpu as RenderingArgWebGpu, type Rn_RequireOne as RequireOne, type Rn_Result as Result, Rn_RhodoniteImportExtension as RhodoniteImportExtension, Rn_Ring as Ring, type Rn_RingAxis as RingAxis, type Rn_RingDescriptor as RingDescriptor, type Rn_RnError as RnError, Rn_RnException as RnException, type Rn_RnM2 as RnM2, type Rn_RnM2Accessor as RnM2Accessor, type Rn_RnM2Animation as RnM2Animation, type Rn_RnM2AnimationChannel as RnM2AnimationChannel, type Rn_RnM2AnimationChannelTarget as RnM2AnimationChannelTarget, type Rn_RnM2AnimationSampler as RnM2AnimationSampler, type Rn_RnM2Asset as RnM2Asset, type Rn_RnM2AttributeAccessors as RnM2AttributeAccessors, type Rn_RnM2AttributeBlendShapes as RnM2AttributeBlendShapes, type Rn_RnM2AttributeBlendShapesAccessors as RnM2AttributeBlendShapesAccessors, type Rn_RnM2Attributes as RnM2Attributes, type Rn_RnM2AttributesObject as RnM2AttributesObject, type Rn_RnM2Buffer as RnM2Buffer, type Rn_RnM2BufferView as RnM2BufferView, type Rn_RnM2Camera as RnM2Camera, type Rn_RnM2CameraOrthographic as RnM2CameraOrthographic, type Rn_RnM2CameraPerspective as RnM2CameraPerspective, type Rn_RnM2ExtensionEffekseer as RnM2ExtensionEffekseer, type Rn_RnM2ExtensionRhodoniteMaterialsNode as RnM2ExtensionRhodoniteMaterialsNode, type Rn_RnM2ExtensionsEffekseerEffect as RnM2ExtensionsEffekseerEffect, type Rn_RnM2ExtensionsEffekseerTimeline as RnM2ExtensionsEffekseerTimeline, type Rn_RnM2ExtensionsEffekseerTimelineItem as RnM2ExtensionsEffekseerTimelineItem, type Rn_RnM2Image as RnM2Image, type Rn_RnM2Material as RnM2Material, type Rn_RnM2MaterialVariant as RnM2MaterialVariant, type Rn_RnM2Mesh as RnM2Mesh, type Rn_RnM2Node as RnM2Node, type Rn_RnM2NormalTextureInfo as RnM2NormalTextureInfo, type Rn_RnM2OcclusionTextureInfo as RnM2OcclusionTextureInfo, type Rn_RnM2PbrMetallicRoughness as RnM2PbrMetallicRoughness, type Rn_RnM2Primitive as RnM2Primitive, type Rn_RnM2Scene as RnM2Scene, type Rn_RnM2Skin as RnM2Skin, type Rn_RnM2Sparse as RnM2Sparse, type Rn_RnM2SparseIndices as RnM2SparseIndices, type Rn_RnM2SparseValues as RnM2SparseValues, type Rn_RnM2Texture as RnM2Texture, type Rn_RnM2TextureInfo as RnM2TextureInfo, type Rn_RnM2TextureSampler as RnM2TextureSampler, type Rn_RnM2TextureUniformValue as RnM2TextureUniformValue, type Rn_RnM2Vrma as RnM2Vrma, Rn_RnObject as RnObject, Rn_RnPromise as RnPromise, type Rn_RnPromiseCallback as RnPromiseCallback, type Rn_RnPromiseCallbackObj as RnPromiseCallbackObj, type Rn_RnTags as RnTags, type Rn_RnWebGLProgram as RnWebGLProgram, type Rn_RnWebGLTexture as RnWebGLTexture, type Rn_RnXR as RnXR, Rn_RotationGizmo as RotationGizmo, Rn_Sampler as Sampler, type Rn_SamplerDescriptor as SamplerDescriptor, Rn_Scalar as Scalar, Rn_Scalar_ as Scalar_, Rn_Scalard as Scalard, type Rn_Scalarf as Scalarf, Rn_ScaleGizmo as ScaleGizmo, Rn_SceneGraphComponent as SceneGraphComponent, Rn_SdApplyTransformShaderNode as SdApplyTransformShaderNode, Rn_SdApplyWorldMatrixShaderNode as SdApplyWorldMatrixShaderNode, Rn_SdBarXShaderNode as SdBarXShaderNode, Rn_SdBarYShaderNode as SdBarYShaderNode, Rn_SdBarZShaderNode as SdBarZShaderNode, Rn_SdBoxShaderNode as SdBoxShaderNode, Rn_SdRepeatShaderNode as SdRepeatShaderNode, Rn_SdRepeatXShaderNode as SdRepeatXShaderNode, Rn_SdRepeatXYShaderNode as SdRepeatXYShaderNode, Rn_SdRepeatYShaderNode as SdRepeatYShaderNode, Rn_SdRepeatYZShaderNode as SdRepeatYZShaderNode, Rn_SdRepeatZShaderNode as SdRepeatZShaderNode, Rn_SdRepeatZXShaderNode as SdRepeatZXShaderNode, Rn_SdSphereShaderNode as SdSphereShaderNode, Rn_SdTubeXShaderNode as SdTubeXShaderNode, Rn_SdTubeYShaderNode as SdTubeYShaderNode, Rn_SdTubeZShaderNode as SdTubeZShaderNode, Rn_SdfShapeType as SdfShapeType, type Rn_SdfShapeTypeEnum as SdfShapeTypeEnum, type Rn_Second as Second, type Rn_ShaderAttributeOrSemanticsOrString as ShaderAttributeOrSemanticsOrString, Rn_ShaderGraphResolver as ShaderGraphResolver, Rn_ShaderNode as ShaderNode, type Rn_ShaderNodeEnum as ShaderNodeEnum, type Rn_ShaderNodeJson as ShaderNodeJson, type Rn_ShaderNodeJsonConnection as ShaderNodeJsonConnection, type Rn_ShaderNodeJsonNode as ShaderNodeJsonNode, type Rn_ShaderNodeJsonNodeInput as ShaderNodeJsonNodeInput, type Rn_ShaderNodeJsonNodeOutput as ShaderNodeJsonNodeOutput, type Rn_ShaderNodeUID as ShaderNodeUID, Rn_ShaderSemantics as ShaderSemantics, Rn_ShaderSemanticsClass as ShaderSemanticsClass, type Rn_ShaderSemanticsEnum as ShaderSemanticsEnum, type Rn_ShaderSemanticsIndex as ShaderSemanticsIndex, type Rn_ShaderSemanticsInfo as ShaderSemanticsInfo, type Rn_ShaderSemanticsName as ShaderSemanticsName, type Rn_ShaderSocket as ShaderSocket, type Rn_ShaderSources as ShaderSources, Rn_ShaderType as ShaderType, type Rn_ShaderTypeEnum as ShaderTypeEnum, type Rn_ShaderVariable as ShaderVariable, Rn_ShaderVariableType as ShaderVariableType, type Rn_ShaderVariableTypeEnum as ShaderVariableTypeEnum, Rn_ShaderityUtilityWebGL as ShaderityUtilityWebGL, Rn_ShadingModel as ShadingModel, type Rn_ShadingModelEnum as ShadingModelEnum, Rn_ShadowMap as ShadowMap, Rn_ShadowMapDecodeClassicMaterialContent as ShadowMapDecodeClassicMaterialContent, type Rn_ShadowMapEnum as ShadowMapEnum, Rn_ShadowMapType as ShadowMapType, Rn_ShadowSystem as ShadowSystem, Rn_SimpleVertexAttribute as SimpleVertexAttribute, Rn_SinShaderNode as SinShaderNode, type Rn_Size as Size, Rn_SkeletalComponent as SkeletalComponent, Rn_SmoothStepShaderNode as SmoothStepShaderNode, Rn_Some as Some, Rn_Sphere as Sphere, Rn_SphereCollider as SphereCollider, Rn_SphereColliderGizmo as SphereColliderGizmo, type Rn_SphereDescriptor as SphereDescriptor, Rn_SplitVectorShaderNode as SplitVectorShaderNode, type Rn_SquareMatrixComponentN as SquareMatrixComponentN, Rn_StandardShaderPart as StandardShaderPart, Rn_StepShaderNode as StepShaderNode, Rn_SymbolWeakMap as SymbolWeakMap, Rn_SynthesizeHdrMaterialContent as SynthesizeHdrMaterialContent, type Rn_Tag as Tag, Rn_TagGltf2NodeIndex as TagGltf2NodeIndex, Rn_TanShaderNode as TanShaderNode, Rn_Texture as Texture, Rn_Texture2DShader as Texture2DShader, Rn_Texture2DShaderNode as Texture2DShaderNode, type Rn_TextureData as TextureData, Rn_TextureDataFloat as TextureDataFloat, TextureFormat$1 as TextureFormat, type Rn_TextureFormatEnum as TextureFormatEnum, Rn_TextureParameter as TextureParameter, type Rn_TextureParameterEnum as TextureParameterEnum, type Rn_TextureParameters as TextureParameters, type Rn_TextureUID as TextureUID, Rn_Time as Time, Rn_TimeShaderNode as TimeShaderNode, Rn_ToneMappingType as ToneMappingType, type Rn_ToneMappingTypeEnum as ToneMappingTypeEnum, type Rn_TranscodeTarget as TranscodeTarget, type Rn_TranscodedImage as TranscodedImage, Rn_Transform3D as Transform3D, Rn_TransformComponent as TransformComponent, Rn_TransformShaderNode as TransformShaderNode, Rn_TranslationGizmo as TranslationGizmo, type Rn_TypedArray as TypedArray, type Rn_TypedArrayConstructor as TypedArrayConstructor, Rn_UastcImageTranscoder as UastcImageTranscoder, Rn_UniformDataShader as UniformDataShader, Rn_UniformDataShaderNode as UniformDataShaderNode, Rn_VERSION as VERSION, type Rn_VRM0x_Extension as VRM0x_Extension, Rn_VRMColliderGroup as VRMColliderGroup, Rn_VRMSpring as VRMSpring, Rn_VRMSpringBone as VRMSpringBone, Rn_VRMSpringBonePhysicsStrategy as VRMSpringBonePhysicsStrategy, Rn_VarianceShadowMapDecodeClassicMaterialContent as VarianceShadowMapDecodeClassicMaterialContent, Rn_Vector2 as Vector2, Rn_Vector2_ as Vector2_, Rn_Vector2d as Vector2d, type Rn_Vector2f as Vector2f, Rn_Vector3 as Vector3, Rn_Vector3_ as Vector3_, Rn_Vector3d as Vector3d, type Rn_Vector3f as Vector3f, Rn_Vector4 as Vector4, Rn_Vector4_ as Vector4_, Rn_Vector4d as Vector4d, type Rn_Vector4f as Vector4f, type Rn_VectorAndSquareMatrixComponentN as VectorAndSquareMatrixComponentN, type Rn_VectorComponentN as VectorComponentN, type Rn_VectorCompositionTypes as VectorCompositionTypes, Rn_VectorN as VectorN, Rn_VertexAttribute as VertexAttribute, Rn_VertexAttributeClass as VertexAttributeClass, type Rn_VertexAttributeComponent as VertexAttributeComponent, type Rn_VertexAttributeEnum as VertexAttributeEnum, type Rn_VertexAttributeSemanticsJoinedString as VertexAttributeSemanticsJoinedString, type Rn_VertexAttributeTypeName as VertexAttributeTypeName, type Rn_VertexAttributesLayout as VertexAttributesLayout, type Rn_VertexHandles as VertexHandles, Rn_VideoTexture as VideoTexture, type Rn_VideoTextureArguments as VideoTextureArguments, Rn_ViewMatrixShaderNode as ViewMatrixShaderNode, Rn_Visibility as Visibility, type Rn_VisibilityEnum as VisibilityEnum, type Rn_Vrm0x as Vrm0x, type Rn_Vrm0xBlendShapeBind as Vrm0xBlendShapeBind, type Rn_Vrm0xBlendShapeGroup as Vrm0xBlendShapeGroup, type Rn_Vrm0xBoneGroup as Vrm0xBoneGroup, type Rn_Vrm0xCollider as Vrm0xCollider, type Rn_Vrm0xColliderGroup as Vrm0xColliderGroup, type Rn_Vrm0xHumanBone as Vrm0xHumanBone, Rn_Vrm0xImporter as Vrm0xImporter, type Rn_Vrm0xLookAt as Vrm0xLookAt, type Rn_Vrm0xMaterialProperty as Vrm0xMaterialProperty, Rn_VrmComponent as VrmComponent, type Rn_VrmExpression as VrmExpression, type Rn_VrmExpressionMorphBind as VrmExpressionMorphBind, type Rn_VrmExpressionName as VrmExpressionName, Rn_VrmImporter as VrmImporter, Rn_VrmaImporter as VrmaImporter, Rn_WalkThroughCameraController as WalkThroughCameraController, Rn_WeakNone as WeakNone, Rn_WeakOption as WeakOption, Rn_WeakSome as WeakSome, Rn_WebGLContextWrapper as WebGLContextWrapper, Rn_WebGLExtension as WebGLExtension, type Rn_WebGLExtensionEnum as WebGLExtensionEnum, type Rn_WebGLResource as WebGLResource, type Rn_WebGLResourceHandle as WebGLResourceHandle, Rn_WebGLResourceRepository as WebGLResourceRepository, type Rn_WebGLStates as WebGLStates, type Rn_WebGLStrategy as WebGLStrategy, Rn_WebGLStrategyDataTexture as WebGLStrategyDataTexture, Rn_WebGLStrategyUniform as WebGLStrategyUniform, type Rn_WebGPUResourceHandle as WebGPUResourceHandle, Rn_WebGpuDeviceWrapper as WebGpuDeviceWrapper, type Rn_WebGpuResource as WebGpuResource, Rn_WebGpuResourceRepository as WebGpuResourceRepository, Rn_WebGpuStrategyBasic as WebGpuStrategyBasic, Rn_WebXRSystem as WebXRSystem, Rn_WellKnownComponentTIDs as WellKnownComponentTIDs, Rn_WireframeMaterialNode as WireframeMaterialNode, Rn_WorldMatrixShaderNode as WorldMatrixShaderNode, Rn__cleanupRenderPassHelperForEngine as _cleanupRenderPassHelperForEngine, Rn__cleanupWebGLStatesCacheForEngine as _cleanupWebGLStatesCacheForEngine, Rn__from as _from, Rn__fromString as _fromString, Rn__fromStringCaseSensitively as _fromStringCaseSensitively, Rn__getPropertyIndex2 as _getPropertyIndex2, Rn_add2 as add2, Rn_add2_offset as add2_offset, Rn_add3 as add3, Rn_add3_offset as add3_offset, Rn_add4 as add4, Rn_add4_offset as add4_offset, Rn_addLineNumberToCode as addLineNumberToCode, Rn_applyMixins as applyMixins, Rn_array2_lerp_offsetAsComposition as array2_lerp_offsetAsComposition, Rn_array3_lerp_offsetAsComposition as array3_lerp_offsetAsComposition, Rn_array4_lerp_offsetAsComposition as array4_lerp_offsetAsComposition, Rn_arrayN_lerp_offsetAsComposition as arrayN_lerp_offsetAsComposition, Rn_assertDoesNotHave as assertDoesNotHave, Rn_assertExist as assertExist, Rn_assertHas as assertHas, Rn_assertIsErr as assertIsErr, Rn_assertIsOk as assertIsOk, Rn_calcAlignedByteLength as calcAlignedByteLength, Rn_checkVersionOfGltf as checkVersionOfGltf, Rn_combineImages as combineImages, Rn_convertHTMLImageElementToCanvas as convertHTMLImageElementToCanvas, Rn_createCameraControllerEntity as createCameraControllerEntity, Rn_createCameraEntity as createCameraEntity, Rn_createEffekseer as createEffekseer, Rn_createGroupEntity as createGroupEntity, Rn_createLightEntity as createLightEntity, Rn_createLightWithCameraEntity as createLightWithCameraEntity, Rn_createMeshEntity as createMeshEntity, Rn_createMotionController as createMotionController, Rn_createPhysicsEntity as createPhysicsEntity, Rn_createRaymarchingEntity as createRaymarchingEntity, Rn_createSkeletalEntity as createSkeletalEntity, Rn_createTransformEntity as createTransformEntity, Rn_deepCopyUsingJsonStringify as deepCopyUsingJsonStringify, Rn_defaultAnimationTrackName as defaultAnimationTrackName, Rn_defaultAssetLoader as defaultAssetLoader, Rn_defaultValue as defaultValue, Rn_detectFormatByArrayBuffers as detectFormatByArrayBuffers, Rn_detectFormatByUri as detectFormatByUri, Rn_downloadArrayBuffer as downloadArrayBuffer, Rn_downloadTypedArray as downloadTypedArray, Rn_enhanceArray as enhanceArray, Rn_flattenHierarchy as flattenHierarchy, Rn_fromTensorToCompositionType as fromTensorToCompositionType, Rn_get1 as get1, Rn_get1_offset as get1_offset, Rn_get1_offsetAsComposition as get1_offsetAsComposition, Rn_get2 as get2, Rn_get2_offset as get2_offset, Rn_get2_offsetAsComposition as get2_offsetAsComposition, Rn_get3 as get3, Rn_get3_offset as get3_offset, Rn_get3_offsetAsComposition as get3_offsetAsComposition, Rn_get4 as get4, Rn_get4_offset as get4_offset, Rn_get4_offsetAsComposition as get4_offsetAsComposition, Rn_getEvent as getEvent, Rn_getMotionController as getMotionController, Rn_getN_offset as getN_offset, Rn_getN_offsetAsComposition as getN_offsetAsComposition, type Rn_getShaderPropertyFuncOfGlobalDataRepository as getShaderPropertyFuncOfGlobalDataRepository, type Rn_getShaderPropertyFuncOfMaterial as getShaderPropertyFuncOfMaterial, Rn_getTextureAndSamplerNames as getTextureAndSamplerNames, Rn_getWebXRSystem as getWebXRSystem, type Rn_glTF1 as glTF1, Rn_greaterThan as greaterThan, Rn_ifDefinedThen as ifDefinedThen, Rn_ifDefinedThenWithReturn as ifDefinedThenWithReturn, Rn_ifExistsThen as ifExistsThen, Rn_ifExistsThenWithReturn as ifExistsThenWithReturn, Rn_ifNotExistsThen as ifNotExistsThen, Rn_ifNotExistsThenWithReturn as ifNotExistsThenWithReturn, Rn_ifUndefinedThen as ifUndefinedThen, Rn_ifUndefinedThenWithReturn as ifUndefinedThenWithReturn, Rn_isBlend as isBlend, Rn_isBlendWithZWrite as isBlendWithZWrite, Rn_isBlendWithoutZWrite as isBlendWithoutZWrite, Rn_isOpaque as isOpaque, Rn_isSameGlTF2TextureSampler as isSameGlTF2TextureSampler, Rn_isSkipDrawing as isSkipDrawing, Rn_isTranslucent as isTranslucent, Rn_lessThan as lessThan, Rn_mulArray3WithScalar_offset as mulArray3WithScalar_offset, Rn_mulArray4WithScalar_offset as mulArray4WithScalar_offset, Rn_mulArrayNWithScalar_offset as mulArrayNWithScalar_offset, Rn_mulThatAndThisToOutAsMat44_offsetAsComposition as mulThatAndThisToOutAsMat44_offsetAsComposition, Rn_normalizeArray4 as normalizeArray4, Rn_nullishToEmptyArray as nullishToEmptyArray, Rn_nullishToEmptyMap as nullishToEmptyMap, Rn_objectCachify as objectCachify, Rn_primitiveCachify1 as primitiveCachify1, type Rn_primitives as primitives, Rn_qlerp_offsetAsComposition as qlerp_offsetAsComposition, Rn_scalar_lerp_offsetAsComposition as scalar_lerp_offsetAsComposition, Rn_setupShaderProgram as setupShaderProgram, Rn_updateGamePad as updateGamePad, Rn_updateMotionControllerModel as updateMotionControllerModel, Rn_valueWithCompensation as valueWithCompensation, Rn_valueWithDefault as valueWithDefault };
 }
 
 export { Rn as default };
