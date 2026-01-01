@@ -2035,16 +2035,7 @@ function constructNodes(json: ShaderNodeJson): {
         break;
       }
       case 'SdRepeat': {
-        const socketName = node.outputs.outPosition.socket.name;
-        let nodeInstance: SdRepeatShaderNode;
-        if (socketName.startsWith('Vector2')) {
-          nodeInstance = new SdRepeatShaderNode(CompositionType.Vec2);
-        } else if (socketName.startsWith('Vector3')) {
-          nodeInstance = new SdRepeatShaderNode(CompositionType.Vec3);
-        } else {
-          Logger.default.error(`SdRepeat node: Unknown socket name: ${socketName}`);
-          break;
-        }
+        const nodeInstance = new SdRepeatShaderNode();
         nodeInstances[node.id] = nodeInstance;
         break;
       }
