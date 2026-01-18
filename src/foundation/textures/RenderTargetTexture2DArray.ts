@@ -7,6 +7,7 @@ import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFor
 import { Vector4 } from '../math/Vector4';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import type { FrameBuffer } from '../renderer/FrameBuffer';
+import { EngineState } from '../system/EngineState';
 import { AbstractTexture } from './AbstractTexture';
 import type { IRenderable } from './IRenderable';
 

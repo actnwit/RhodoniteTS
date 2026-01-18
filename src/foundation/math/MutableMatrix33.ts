@@ -4,6 +4,8 @@ import type { IMatrix33, IMatrix44, IMutableMatrix, IMutableMatrix33 } from './I
 import type { IQuaternion } from './IQuaternion';
 import type { IVector3 } from './IVector';
 import { Matrix33 } from './Matrix33';
+import type { Matrix44 } from './Matrix44';
+import type { Vector3 } from './Vector3';
 
 /**
  * A mutable 3x3 matrix class that extends Matrix33 and provides mutating operations.

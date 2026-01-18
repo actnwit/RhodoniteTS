@@ -31,6 +31,7 @@ import {
 import type { FrameBuffer } from '../foundation/renderer/FrameBuffer';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
 import type { Engine } from '../foundation/system/Engine.js';
+import { EngineState } from '../foundation/system/EngineState.js';
 import type { AbstractTexture } from '../foundation/textures/AbstractTexture';
 import type { CubeTexture } from '../foundation/textures/CubeTexture';
 import type { IRenderable } from '../foundation/textures/IRenderable';
@@ -38,6 +39,7 @@ import type { RenderBuffer } from '../foundation/textures/RenderBuffer';
 import { RenderTargetTexture } from '../foundation/textures/RenderTargetTexture';
 import { RenderTargetTexture2DArray } from '../foundation/textures/RenderTargetTexture2DArray';
 import { Sampler } from '../foundation/textures/Sampler';
+import { TextureArray } from '../foundation/textures/TextureArray';
 import type { BasisFile } from '../types/BasisTexture';
 import type {
   ArrayType,

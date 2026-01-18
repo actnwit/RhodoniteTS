@@ -404,10 +404,10 @@ export class ShaderityUtilityWebGL {
             shaderSemanticsInfo.compositionType === CompositionType.Texture2DShadow
           ) {
             const color = split[1].charAt(0).toUpperCase() + split[1].slice(1);
-            initialValue = [Number.parseInt(split[0], 10), (engine.dummyTextures as any)[`dummy${color}Texture`]];
+            initialValue = [Number.parseInt(split[0]), (engine.dummyTextures as any)[`dummy${color}Texture`]];
           } else if (shaderSemanticsInfo.compositionType === CompositionType.TextureCube) {
             const color = split[1].charAt(0).toUpperCase() + split[1].slice(1);
-            initialValue = [Number.parseInt(split[0], 10), (engine.dummyTextures as any)[`dummy${color}CubeTexture`]];
+            initialValue = [Number.parseInt(split[0]), (engine.dummyTextures as any)[`dummy${color}CubeTexture`]];
           } else {
             checkCompositionNumber(CompositionType.Vec2);
             initialValue = MutableVector2.fromCopyArray([Number.parseFloat(split[0]), Number.parseFloat(split[1])]);

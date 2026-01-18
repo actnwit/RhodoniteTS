@@ -1,7 +1,7 @@
 import PbrNormalPropsShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/PbrNormalProps.glsl';
 import PbrNormalPropsShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/PbrNormalProps.wgsl';
-import { ComponentType } from '../../definitions/ComponentType';
-import { CompositionType } from '../../definitions/CompositionType';
+import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { Scalar } from '../../math/Scalar';
 import { Vector2 } from '../../math/Vector2';
 import { Vector3 } from '../../math/Vector3';

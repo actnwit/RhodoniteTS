@@ -1,6 +1,7 @@
 import type { Index } from '../../../types/CommonTypes';
 import type { ShaderNodeJson } from '../../../types/ShaderNodeJson';
 import type { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
+import type { StandardShaderPart } from '../../../webgl/shaders/StandardShaderPart';
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
@@ -11,6 +12,7 @@ import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
 import { Logger } from '../../misc/Logger';
 import type { Engine } from '../../system/Engine';
+import { EngineState } from '../../system/EngineState';
 import { AddShaderNode } from '../nodes/AddShaderNode';
 import { AlphaTestShaderNode } from '../nodes/AlphaTestShaderNode';
 import { AndShaderNode } from '../nodes/AndShaderNode';
@@ -105,7 +107,7 @@ import { TransformShaderNode } from '../nodes/TransformShaderNode';
 import { UniformDataShaderNode } from '../nodes/UniformDataShaderNode';
 import { ViewMatrixShaderNode } from '../nodes/ViewMatrixShaderNode';
 import { WorldMatrixShaderNode } from '../nodes/WorldMatrixShaderNode';
-import { AbstractShaderNode } from './AbstractShaderNode';
+import { AbstractShaderNode, type ShaderNodeUID } from './AbstractShaderNode';
 import type { SocketDefaultValue, ValueTypes } from './Socket';
 
 /**
@@ -216,6 +218,28 @@ export class ShaderGraphResolver {
     const shader = pixelShaderPrerequisites + shaderBody;
 
     return shader;
+  }
+
+  /**
+   * Validates that all shader nodes have their required input connections properly set.
+   * This is a validation step to ensure the shader graph is complete before code generation.
+   *
+   * @param shaderNodes - Array of shader nodes to validate
+   * @returns True if all nodes are valid, false if any node has missing required connections
+   * @private
+   */
+  private static __validateShaderNodes(shaderNodes: AbstractShaderNode[]) {
+    const _shaderNodeUids: ShaderNodeUID[] = [];
+    for (let i = 0; i < shaderNodes.length; i++) {
+      const shaderNode = shaderNodes[i];
+      for (let j = 0; j < shaderNode.inputConnections.length; j++) {
+        const inputConnection = shaderNode.inputConnections[j];
+        if (inputConnection == null) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   /**

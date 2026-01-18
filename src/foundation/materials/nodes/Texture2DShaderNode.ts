@@ -1,8 +1,11 @@
 import { Texture2DShader } from '../../../webgl/shaders/nodes/Texture2DShader';
-import { ComponentType } from '../../definitions/ComponentType';
-import { CompositionType } from '../../definitions/CompositionType';
+import type { UniformDataShader } from '../../../webgl/shaders/nodes/UniformDataShader';
+import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
+import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { Scalar } from '../../math/Scalar';
 import { Vector2 } from '../../math/Vector2';
+import type { Engine } from '../../system/Engine';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
 

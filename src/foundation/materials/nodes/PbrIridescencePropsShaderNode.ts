@@ -1,7 +1,8 @@
 import PbrIridescencePropsShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/PbrIridescenceProps.glsl';
 import PbrIridescencePropsShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/PbrIridescenceProps.wgsl';
-import { ComponentType } from '../../definitions/ComponentType';
-import { CompositionType } from '../../definitions/CompositionType';
+import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
+import { Matrix33, Vector3 } from '../../math';
 import { Scalar } from '../../math/Scalar';
 import { Vector4 } from '../../math/Vector4';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';

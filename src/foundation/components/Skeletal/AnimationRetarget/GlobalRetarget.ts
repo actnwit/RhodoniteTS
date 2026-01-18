@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import type { ISceneGraphEntity } from '../../../helpers/EntityHelper';
-import { type IVector3, Quaternion, Vector3 } from '../../../math';
+import { type IVector3, Matrix44, Quaternion, Vector3 } from '../../../math';
 import type { IQuaternion } from '../../../math/IQuaternion';
 import { Is } from '../../../misc/Is';
 import type { IAnimationRetarget } from './AnimationRetarget';

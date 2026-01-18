@@ -1,5 +1,6 @@
 import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 import { PhysicsComponent } from '../components/Physics/PhysicsComponent';
+import { EntityRepository } from '../core/EntityRepository';
 import { PhysicsShape } from '../definitions/PhysicsShapeType';
 import { Mesh } from '../geometry/Mesh';
 import type { AxisDescriptor } from '../geometry/shapes/Axis';

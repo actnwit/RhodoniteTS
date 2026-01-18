@@ -359,7 +359,7 @@ export class Gltf2Importer {
       if (node.children) {
         for (const child_i of node.children) {
           node.childrenObjects![child_i] = gltfJson.nodes[child_i];
-          gltfJson.nodes[child_i].parent = Number.parseInt(node_i, 10);
+          gltfJson.nodes[child_i].parent = Number.parseInt(node_i);
           gltfJson.nodes[child_i].parentObject = node;
         }
       }

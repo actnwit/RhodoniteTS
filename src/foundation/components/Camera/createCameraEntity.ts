@@ -1,3 +1,4 @@
+import { EntityRepository } from '../../core/EntityRepository';
 import type { ICameraEntity } from '../../helpers/EntityHelper';
 import type { Engine } from '../../system/Engine';
 import { createGroupEntity } from '../SceneGraph/createGroupEntity';

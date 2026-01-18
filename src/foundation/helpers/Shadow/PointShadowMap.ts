@@ -1,4 +1,5 @@
 import type { ILightEntityMethods } from '../../components/Light/ILightEntity';
+import { Config } from '../../core/Config';
 import { TextureFormat } from '../../definitions/TextureFormat';
 import type { Material } from '../../materials/core/Material';
 import { Vector4 } from '../../math/Vector4';
@@ -15,6 +16,7 @@ import { RenderableHelper } from '../RenderableHelper';
  * for omnidirectional shadow mapping from point lights.
  */
 export class PointShadowMap {
+  private __engine: Engine;
   private __shadowMomentFramebuffer: FrameBuffer;
   private __shadowMomentFrontMaterials: Material[] = [];
   private __shadowMomentBackMaterials: Material[] = [];

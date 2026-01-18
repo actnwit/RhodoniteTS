@@ -1,4 +1,6 @@
 import type { Size } from '../../../types';
+import type { ISceneGraphEntityMethods } from '../../components';
+import { createRaymarchingEntity } from '../../components/Raymarching/createRaymarchingEntity';
 import { RaymarchingComponent } from '../../components/Raymarching/RaymarchingComponent';
 import { RnObject } from '../../core/RnObject';
 import { ComponentType, PixelFormat, ToneMappingType, type ToneMappingTypeEnum } from '../../definitions';
@@ -15,13 +17,15 @@ import { Vector4 } from '../../math/Vector4';
 import { MiscUtil } from '../../misc';
 import { Is } from '../../misc/Is';
 import { Logger } from '../../misc/Logger';
-import { None, type Option, Some } from '../../misc/Option';
+import { assertHas, None, type Option, Some } from '../../misc/Option';
 import { Err, Ok } from '../../misc/Result';
 import type { Engine } from '../../system/Engine';
+import { ModuleManager } from '../../system/ModuleManager';
 import type { CubeTexture } from '../../textures/CubeTexture';
 import type { RenderTargetTexture } from '../../textures/RenderTargetTexture';
 import type { RenderTargetTexture2DArray } from '../../textures/RenderTargetTexture2DArray';
 import { Sampler } from '../../textures/Sampler';
+import { CGAPIResourceRepository } from '../CGAPIResourceRepository';
 import { Expression } from '../Expression';
 import { Frame } from '../Frame';
 import type { FrameBuffer } from '../FrameBuffer';
@@ -1161,6 +1165,27 @@ export class ForwardRenderPipeline extends RnObject {
     expressionToneMappingEffect.addRenderPasses([renderPassToneMapping, renderPassToneMappingVr]);
 
     return expressionToneMappingEffect;
+  }
+
+  /**
+   * Creates a frame buffer for depth moment shadow mapping.
+   *
+   * @param shadowMapSize - Size of the shadow map in pixels
+   * @returns The configured depth moment frame buffer
+   *
+   * @internal
+   */
+  private __setupDepthMomentFramebuffer(shadowMapSize: number) {
+    return new Some(
+      RenderableHelper.createFrameBuffer(this.__engine, {
+        width: shadowMapSize,
+        height: shadowMapSize,
+        textureNum: 1,
+        textureFormats: [TextureFormat.RG32F],
+        createDepthBuffer: true,
+        depthTextureFormat: TextureFormat.Depth32F,
+      })
+    );
   }
 
   /**

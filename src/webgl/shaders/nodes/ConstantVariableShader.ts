@@ -1,9 +1,10 @@
 import { ComponentType, type ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
 import type { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { ProcessApproach } from '../../../foundation/definitions/ProcessApproach';
-import type { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
+import { VertexAttribute, type VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
 import type { IVector } from '../../../foundation/math/IVector';
 import type { Engine } from '../../../foundation/system/Engine';
+import { EngineState } from '../../../foundation/system/EngineState';
 import type { AttributeNames } from '../../types/CommonTypes';
 import { StandardShaderPart } from '../StandardShaderPart';
 

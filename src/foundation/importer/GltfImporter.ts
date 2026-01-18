@@ -1,4 +1,6 @@
 import type { GltfFileBuffers, GltfLoadOption } from '../../types';
+import type { glTF1 } from '../../types/glTF1';
+import type { RnM2 } from '../../types/RnM2';
 import { FileType } from '../definitions/FileType';
 import { DataUtil } from '../misc/DataUtil';
 import { assertIsErr, Err, Ok, type Result } from '../misc/Result';
@@ -207,6 +209,56 @@ export class GltfImporter {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Determine if an ArrayBuffer contains GLB (binary glTF) data.
+   * Checks the magic number at the beginning of the buffer.
+   *
+   * @param arrayBuffer - The ArrayBuffer to examine
+   * @returns True if the buffer contains GLB data, false otherwise
+   * @private
+   */
+  private static __isGlb(arrayBuffer: ArrayBuffer) {
+    const dataView = new DataView(arrayBuffer, 0, 20);
+    const isLittleEndian = true;
+    // Magic field
+    const magic = dataView.getUint32(0, isLittleEndian);
+    // The 0x46546C67 means 'glTF' string in glb files.
+    if (magic === 0x46546c67) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Extract the glTF version from a GLB ArrayBuffer.
+   * Reads the version field from the GLB header.
+   *
+   * @param glbArrayBuffer - The GLB ArrayBuffer to examine
+   * @returns The glTF version number (typically 1 or 2)
+   * @private
+   */
+  private static __getGlbVersion(glbArrayBuffer: ArrayBuffer) {
+    const dataView = new DataView(glbArrayBuffer, 0, 20);
+    const isLittleEndian = true;
+    const glbVer = dataView.getUint32(4, isLittleEndian);
+    return glbVer;
+  }
+
+  /**
+   * Determine the glTF version from parsed JSON data.
+   * Examines the asset.version field to determine if it's glTF 1.0 or 2.0.
+   *
+   * @param gltfJson - The parsed glTF JSON object
+   * @returns 2 for glTF 2.0, 1 for glTF 1.0 or older versions
+   * @private
+   */
+  private static __getGltfVersion(gltfJson: glTF1 | RnM2) {
+    if ((gltfJson as RnM2).asset?.version?.charAt(0) === '2') {
+      return 2;
+    }
+    return 1;
   }
 
   /**

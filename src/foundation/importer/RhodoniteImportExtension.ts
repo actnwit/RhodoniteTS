@@ -49,7 +49,12 @@ export class RhodoniteImportExtension {
    */
   static importBillboard(gltfJson: RnM2, groups: ISceneGraphEntity[]) {
     const RHODONITE_billboard = 'RHODONITE_billboard';
-    if (Is.not.exist(gltfJson.extensionsUsed) || gltfJson.extensionsUsed.indexOf(RHODONITE_billboard) === -1) {
+    if (
+      Is.not.exist(gltfJson.extensionsUsed) ||
+      gltfJson.extensionsUsed.findIndex(extension => {
+        return RHODONITE_billboard === extension;
+      }) === -1
+    ) {
       return;
     }
 
@@ -215,7 +220,9 @@ export class RhodoniteImportExtension {
     if (
       Is.not.exist(gltfJson.extensions) ||
       Is.not.exist(gltfJson.extensions.RHODONITE_effekseer) ||
-      gltfJson.extensionsUsed.indexOf(RHODONITE_effekseer) === -1
+      gltfJson.extensionsUsed.findIndex(extension => {
+        return RHODONITE_effekseer === extension;
+      }) === -1
     ) {
       return;
     }

@@ -1,3 +1,4 @@
+import { Index } from '../../types/CommonTypes';
 import type { Material } from '../materials/core/Material';
 import { _from, _fromString, _fromStringCaseSensitively, EnumClass, type EnumIO } from '../misc/EnumIO';
 import type { Engine } from '../system/Engine';

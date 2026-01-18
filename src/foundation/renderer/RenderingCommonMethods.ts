@@ -3,8 +3,12 @@
  * This module provides shared functionality used across different rendering components.
  */
 
+import { ProcessApproach } from '../definitions/ProcessApproach';
 import type { Primitive } from '../geometry';
+import { Mesh } from '../geometry/Mesh';
 import type { Material } from '../materials/core/Material';
+import { Is } from '../misc/Is';
+import { EngineState } from '../system/EngineState';
 
 /**
  * Determines whether drawing should be skipped for a given material and primitive combination.

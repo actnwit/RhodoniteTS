@@ -1,7 +1,7 @@
 import { ComponentType, type ComponentTypeEnum } from '../definitions/ComponentType';
 import { PixelFormat, type PixelFormatEnum } from '../definitions/PixelFormat';
 import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFormat';
-import type { TextureParameterEnum } from '../definitions/TextureParameter';
+import { TextureParameter, type TextureParameterEnum } from '../definitions/TextureParameter';
 import { FrameBuffer } from '../renderer/FrameBuffer';
 import type { Engine } from '../system/Engine';
 import { RenderTargetTexture2DArray, RenderTargetTextureCube } from '../textures';

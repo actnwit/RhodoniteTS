@@ -3,6 +3,7 @@ import { Component } from '../../core/Component';
 import type { IEntity } from '../../core/Entity';
 import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
+import { IPhysicsEntity } from '../../helpers/EntityHelper';
 import { Is } from '../../misc/Is';
 import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
 import type { PhysicsStrategy } from '../../physics/PhysicsStrategy';
@@ -10,6 +11,7 @@ import { VRMSpringBonePhysicsStrategy } from '../../physics/VRMSpring/VRMSpringB
 import type { Engine } from '../../system/Engine';
 import { AnimationComponent } from '../Animation/AnimationComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
+import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 /**

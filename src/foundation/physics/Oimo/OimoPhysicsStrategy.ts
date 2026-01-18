@@ -1,6 +1,6 @@
 import type { Config } from '../../core/Config';
 import type { ISceneGraphEntity } from '../../helpers';
-import { type IVector3, MathUtil, Quaternion } from '../../math';
+import { IQuaternion, type IVector3, MathUtil, Quaternion } from '../../math';
 import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
 import type { PhysicsPropertyInner } from '../PhysicsProperty';

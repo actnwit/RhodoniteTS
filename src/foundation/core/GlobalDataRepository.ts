@@ -1,22 +1,34 @@
-import type { ProcessApproachEnum } from '../../foundation/definitions/ProcessApproach';
+import { ProcessApproach, type ProcessApproachEnum } from '../../foundation/definitions/ProcessApproach';
 import type { Byte, CGAPIResourceHandle, Count, Index, IndexOf16Bytes } from '../../types/CommonTypes';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { BoneDataType } from '../definitions/BoneDataType';
 import { BufferUse } from '../definitions/BufferUse';
 import { ComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
-import type { getShaderPropertyFuncOfGlobalDataRepository, ShaderSemanticsName } from '../definitions/ShaderSemantics';
+import {
+  _getPropertyIndex2,
+  type getShaderPropertyFuncOfGlobalDataRepository,
+  ShaderSemantics,
+  ShaderSemanticsEnum,
+  ShaderSemanticsIndex,
+  type ShaderSemanticsName,
+} from '../definitions/ShaderSemantics';
 import { calcAlignedByteLength, type ShaderSemanticsInfo } from '../definitions/ShaderSemanticsInfo';
 import { ShaderType } from '../definitions/ShaderType';
 import { MathClassUtil } from '../math/MathClassUtil';
+import { MutableMatrix44 } from '../math/MutableMatrix44';
 import { Scalar } from '../math/Scalar';
 import { Vector2 } from '../math/Vector2';
+import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
 import { VectorN } from '../math/VectorN';
 import type { Accessor } from '../memory/Accessor';
 import type { BufferView } from '../memory/BufferView';
 import type { Result } from '../misc/Result';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import type { Engine } from '../system/Engine';
+import { Config } from './Config';
+import { MemoryManager } from './MemoryManager';
 
 type GlobalPropertyStruct = {
   shaderSemanticsInfo: ShaderSemanticsInfo;
@@ -32,6 +44,7 @@ type GlobalPropertyStruct = {
  */
 export class GlobalDataRepository {
   private __engine: Engine;
+  private static __instance: GlobalDataRepository;
   private __fields: Map<ShaderSemanticsName, GlobalPropertyStruct> = new Map();
 
   private constructor(engine: Engine) {

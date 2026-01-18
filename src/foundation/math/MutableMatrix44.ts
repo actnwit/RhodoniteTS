@@ -5,6 +5,8 @@ import type { IQuaternion } from './IQuaternion';
 import type { IVector3 } from './IVector';
 import { Matrix44 } from './Matrix44';
 import type { MutableVector3 } from './MutableVector3';
+import type { Quaternion } from './Quaternion';
+import type { Vector3 } from './Vector3';
 
 /**
  * A mutable 4x4 matrix class that extends the immutable Matrix44 class.

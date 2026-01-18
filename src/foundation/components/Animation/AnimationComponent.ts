@@ -8,22 +8,36 @@ import type {
   AnimationTrack,
   AnimationTrackName,
 } from '../../../types/AnimationTypes';
-import type { ComponentTID, Index, Second } from '../../../types/CommonTypes';
+import {
+  Array3,
+  Array4,
+  type ComponentSID,
+  type ComponentTID,
+  type EntityUID,
+  type Index,
+  type Second,
+  VectorComponentN,
+} from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
+import { ComponentRepository } from '../../core/ComponentRepository';
 import type { IEntity } from '../../core/Entity';
-import { applyMixins } from '../../core/EntityRepository';
+import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions';
 import { AnimationAttribute } from '../../definitions/AnimationAttribute';
+import { AnimationInterpolationEnum } from '../../definitions/AnimationInterpolation';
 import type { IAnimationEntity, ISceneGraphEntity } from '../../helpers/EntityHelper';
 import { MathUtil, type Scalar } from '../../math';
 import { AnimatedQuaternion } from '../../math/AnimatedQuaternion';
 import { AnimatedVector3 } from '../../math/AnimatedVector3';
 import type { AnimatedVectorN } from '../../math/AnimatedVectorN';
 import type { IAnimatedValue } from '../../math/IAnimatedValue';
+import { MutableQuaternion } from '../../math/MutableQuaternion';
+import { MutableVector3 } from '../../math/MutableVector3';
 import type { Quaternion } from '../../math/Quaternion';
 import type { Vector3 } from '../../math/Vector3';
 import { DataUtil } from '../../misc/DataUtil';
 import { Is } from '../../misc/Is';
+import { valueWithCompensation, valueWithDefault } from '../../misc/MiscUtil';
 import type { Engine } from '../../system/Engine';
 import { type EventHandler, EventPubSub } from '../../system/EventPubSub';
 import type { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
@@ -78,6 +92,10 @@ export class AnimationComponent extends Component {
     ChangeAnimationInfo,
     PlayEnd,
   };
+
+  private static __tmpQuat = MutableQuaternion.identity();
+  private static __tmpPos = MutableVector3.zero();
+  private static __tmpScale = MutableVector3.one();
 
   private static __pubsub = new EventPubSub();
 

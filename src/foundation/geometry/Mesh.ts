@@ -1,6 +1,7 @@
 import type { CGAPIResourceHandle, Index, MeshUID } from '../../types/CommonTypes';
 import type { VertexHandles } from '../../webgl/WebGLResourceRepository';
 import type { MeshComponent } from '../components/Mesh/MeshComponent';
+import { MemoryManager } from '../core/MemoryManager';
 import { BufferUse } from '../definitions/BufferUse';
 import { ComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
@@ -19,6 +20,7 @@ import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import type { Engine } from '../system/Engine';
+import { EngineState } from '../system/EngineState';
 import type { Primitive } from './Primitive';
 import {
   type IMesh,
@@ -45,6 +47,7 @@ export class Mesh implements IMesh {
   private __translucentPrimitives: Array<Primitive> = [];
   private __blendWithZWritePrimitives: Array<Primitive> = [];
   private __blendWithoutZWritePrimitives: Array<Primitive> = [];
+  private __morphPrimitives: Array<Primitive> = [];
   private __localAABB = new AABB();
   private __vaoUids: CGAPIResourceHandle[] = [];
   private __variationVBOUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -445,6 +448,47 @@ export class Mesh implements IMesh {
     }
 
     return this.__localAABB;
+  }
+
+  ///
+  ///
+  // Friend Members
+  ///
+  ///
+
+  ///
+  ///
+  /// Private Members
+  ///
+  ///
+
+  /**
+   * Calculates morph target primitives by blending vertex attributes.
+   * @private
+   */
+  private __calcMorphPrimitives() {
+    for (let i = 0; i < this.__primitives.length; i++) {
+      const morphPrimitive = this.__morphPrimitives[i];
+      const primitive = this.__primitives[i];
+      const target0Attributes = primitive.targets[0];
+      target0Attributes.forEach((_accessor, semantic) => {
+        const morphAccessor = morphPrimitive.getAttribute(semantic)!;
+        const elementCount = morphAccessor.elementCount;
+        for (let j = 0; j < elementCount; j++) {
+          morphAccessor.setElementFromSameCompositionAccessor(j, primitive.getAttribute(semantic)!);
+        }
+      });
+
+      // primitive.targets.forEach((targetAttributes, k)=>{
+      //   targetAttributes.forEach((accessor, semantic) => {
+      //     const morphAccessor = morphPrimitive.getAttribute(semantic)!;
+      //     const elementCount = morphAccessor.elementCount;
+      //     for (let j = 0; j < elementCount; j++) {
+      //       morphAccessor.addElementFromSameCompositionAccessor(j, accessor, this.weights[k]);
+      //     }
+      //   });
+      // });
+    }
   }
 
   /**

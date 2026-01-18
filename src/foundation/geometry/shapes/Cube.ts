@@ -4,8 +4,8 @@ import type { IColorRgba } from '../../math/IColor';
 import type { IVector3 } from '../../math/IVector';
 import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
-import type { PhysicsProperty } from '../../physics/PhysicsProperty';
-import type { IAnyPrimitiveDescriptor } from '../Primitive';
+import { type PhysicsProperty, PhysicsPropertyInner } from '../../physics/PhysicsProperty';
+import { type IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
 import { IShape } from './IShape';
 
 /**

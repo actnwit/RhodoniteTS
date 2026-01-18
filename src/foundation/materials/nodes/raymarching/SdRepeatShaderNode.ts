@@ -1,8 +1,10 @@
 import SdRepeatShaderityObjectGLSL from '../../../../webgl/shaderity_shaders/nodes/raymarching/SdRepeat.glsl';
 import SdRepeatShaderityObjectWGSL from '../../../../webgpu/shaderity_shaders/nodes/raymarching/SdRepeat.wgsl';
 import { ComponentType } from '../../../definitions/ComponentType';
-import { CompositionType } from '../../../definitions/CompositionType';
+import { CompositionType, type CompositionTypeEnum } from '../../../definitions/CompositionType';
+import { ProcessApproach } from '../../../definitions/ProcessApproach';
 import { Scalar } from '../../../math/Scalar';
+import type { Engine } from '../../../system/Engine';
 import { AbstractShaderNode } from '../../core/AbstractShaderNode';
 import { Socket } from '../../core/Socket';
 

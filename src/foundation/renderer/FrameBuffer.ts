@@ -3,6 +3,7 @@ import { RnObject } from '../core/RnObject';
 import { ProcessApproach } from '../definitions/ProcessApproach';
 import { RenderBufferTarget, type RenderBufferTargetEnum } from '../definitions/RenderBufferTarget';
 import type { Engine } from '../system/Engine';
+import { EngineState } from '../system/EngineState';
 import type { IRenderable } from '../textures/IRenderable';
 import { RenderTargetTexture } from '../textures/RenderTargetTexture';
 import { RenderTargetTexture2DArray } from '../textures/RenderTargetTexture2DArray';

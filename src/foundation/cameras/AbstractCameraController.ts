@@ -2,6 +2,7 @@ import type { CameraComponent } from '../components/Camera/CameraComponent';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { AABB } from '../math/AABB';
 import { Vector3 } from '../math/Vector3';
+import { Is } from '../misc/Is';
 
 /**
  * AbstractCameraController is an abstract class that defines the interface for camera controllers.

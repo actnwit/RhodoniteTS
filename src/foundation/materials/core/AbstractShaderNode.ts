@@ -1,4 +1,5 @@
 import type { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
+import type { StandardShaderPart } from '../../../webgl/shaders/StandardShaderPart';
 import { RnObject } from '../../core/RnObject';
 import { ProcessApproach } from '../../definitions';
 import type { ComponentTypeEnum } from '../../definitions/ComponentType';

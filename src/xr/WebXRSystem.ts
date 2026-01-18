@@ -3,6 +3,7 @@ import { createGroupEntity } from '../foundation/components/SceneGraph/createGro
 import type { IEntity } from '../foundation/core/Entity';
 import { ProcessApproach } from '../foundation/definitions/ProcessApproach';
 import type { ICameraEntity, ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
+import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import { MutableQuaternion } from '../foundation/math/MutableQuaternion';
 import { MutableScalar } from '../foundation/math/MutableScalar';
@@ -11,11 +12,16 @@ import { Vector3 } from '../foundation/math/Vector3';
 import { Vector4 } from '../foundation/math/Vector4';
 import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
+/* eslint-disable @typescript-eslint/no-empty-function */
+import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import type { Engine } from '../foundation/system/Engine';
+import { EngineState } from '../foundation/system/EngineState';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import type { Index } from '../types/CommonTypes';
 import type { WebGLContextWrapper } from '../webgl/WebGLContextWrapper';
 import type { WebGLResourceRepository } from '../webgl/WebGLResourceRepository';
+import type { WebGLStereoUtil } from '../webgl/WebGLStereoUtil';
+import type { WebGpuResourceRepository } from '../webgpu/WebGpuResourceRepository';
 import { createMotionController, getMotionController, updateGamePad, updateMotionControllerModel } from './WebXRInput';
 
 declare const navigator: Navigator;
@@ -47,6 +53,7 @@ export class WebXRSystem {
   private __glw?: WebGLContextWrapper;
   private __xrViewerPose?: XRViewerPose | null;
   private __isWebXRMode = false;
+  private __spaceType: XRReferenceSpaceType = 'local';
   private __requestedToEnterWebXR = false;
   private __isReadyForWebXR = false;
   private __defaultPositionInLocalSpaceMode = defaultUserPositionInVR;
@@ -62,6 +69,9 @@ export class WebXRSystem {
   private __viewerAzimuthAngle = MutableScalar.zero();
   private __viewerOrientation = MutableQuaternion.identity();
   private __viewerScale = MutableVector3.one();
+  private __multiviewFramebufferHandle = -1;
+  private __multiviewColorTextureHandle = -1;
+  private __webglStereoUtil?: WebGLStereoUtil;
   private __xrGpuBinding?: any;
   private __xrProjectionLayerWebGPU?: XRLayer;
   /**

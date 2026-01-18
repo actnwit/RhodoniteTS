@@ -8,8 +8,10 @@ import { AbsoluteAnimation, GlobalRetarget, type IAnimationRetarget } from '../c
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { AnimationStateComponent } from '../components/AnimationState/AnimationStateComponent';
 import { GlobalRetargetReverse } from '../components/Skeletal/AnimationRetarget/GlobalRetargetReverse';
+import { EntityRepository } from '../core/EntityRepository';
 import { AnimationInterpolation } from '../definitions/AnimationInterpolation';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { Vector3 } from '../math';
 import { AnimatedQuaternion } from '../math/AnimatedQuaternion';
 import { AnimatedVector3 } from '../math/AnimatedVector3';
 import { Is } from '../misc/Is';

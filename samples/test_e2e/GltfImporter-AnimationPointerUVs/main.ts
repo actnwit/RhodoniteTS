@@ -1,4 +1,5 @@
 import Rn from '../../../dist/esmdev/index.js';
+import { getGltfFilePath, getProcessApproach } from '../common/testHelpers.js';
 
 declare const window: any;
 

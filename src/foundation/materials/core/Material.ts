@@ -7,17 +7,23 @@ import type {
   PrimitiveUID,
 } from '../../../types/CommonTypes';
 import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
+import type { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
 import type { ShaderSources } from '../../../webgl/WebGLStrategy';
 import { Component } from '../../core/Component';
+import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { RnObject } from '../../core/RnObject';
 import { type ShaderSemanticsInfo, TextureParameter } from '../../definitions';
 import { AlphaMode, type AlphaModeEnum } from '../../definitions/AlphaMode';
 import { Blend, type BlendEnum } from '../../definitions/Blend';
 import { CompositionType } from '../../definitions/CompositionType';
-import type {
-  getShaderPropertyFuncOfGlobalDataRepository,
-  getShaderPropertyFuncOfMaterial,
-  ShaderSemanticsName,
+import {
+  _getPropertyIndex2,
+  type getShaderPropertyFuncOfGlobalDataRepository,
+  type getShaderPropertyFuncOfMaterial,
+  ShaderSemantics,
+  ShaderSemanticsEnum,
+  ShaderSemanticsIndex,
+  type ShaderSemanticsName,
 } from '../../definitions/ShaderSemantics';
 import { ShaderType } from '../../definitions/ShaderType';
 import type { Primitive } from '../../geometry/Primitive';
@@ -31,7 +37,9 @@ import type { IAnimatedValue } from '../../math/IAnimatedValue';
 import { MathClassUtil } from '../../math/MathClassUtil';
 import { Is } from '../../misc/Is';
 import { Logger } from '../../misc/Logger';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import type { Engine } from '../../system/Engine';
+import { Texture } from '../../textures';
 import type { AbstractTexture } from '../../textures/AbstractTexture';
 import { Sampler } from '../../textures/Sampler';
 import type { AbstractMaterialContent } from './AbstractMaterialContent';
@@ -40,6 +48,9 @@ import {
   _createProgramAsSingleOperationByUpdatedSources,
   _createProgramAsSingleOperationWebGL,
   _createProgramAsSingleOperationWebGpu,
+  _getAttributeInfo,
+  _outputVertexAttributeBindingInfo,
+  _setupGlobalShaderDefinitionWebGL,
 } from './ShaderHandler';
 
 type PrimitiveFingerPrint = string;

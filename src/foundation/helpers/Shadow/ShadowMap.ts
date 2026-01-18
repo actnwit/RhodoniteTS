@@ -20,6 +20,7 @@ import { RenderableHelper } from '../RenderableHelper';
  * better shadow quality and soft shadow effects compared to traditional shadow mapping.
  */
 export class ShadowMap {
+  private __engine: Engine;
   private __shadowMomentFramebuffer: FrameBuffer;
   private __shadowMomentMaterial: Material;
 

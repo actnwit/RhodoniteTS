@@ -8,6 +8,7 @@ import { Vector2 } from '../../math/Vector2';
 import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
 import type { Engine } from '../../system/Engine';
+import { EngineState } from '../../system/EngineState';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
 

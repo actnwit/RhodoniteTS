@@ -1,7 +1,10 @@
+import type { Size } from '../../types/CommonTypes';
 import { ComponentType, type ComponentTypeEnum } from '../definitions/ComponentType';
 import { PixelFormat, type PixelFormatEnum } from '../definitions/PixelFormat';
 import { TextureFormat } from '../definitions/TextureFormat';
-import type { TextureParameterEnum } from '../definitions/TextureParameter';
+import { TextureParameter, type TextureParameterEnum } from '../definitions/TextureParameter';
+import { DataUtil } from '../misc/DataUtil';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { AbstractTexture } from './AbstractTexture';
 
 /**
@@ -36,9 +39,59 @@ export type VideoTextureArguments = {
  * ```
  */
 export class VideoTexture extends AbstractTexture {
+  private __imageData?: ImageData;
   public autoResize = true;
   public autoDetectTransparency = false;
+  private static __loadedBasisFunc = false;
+  private static __basisLoadPromise?: Promise<void>;
   #htmlVideoElement?: HTMLVideoElement;
+
+  /**
+   * Creates a resized canvas from an image, maintaining aspect ratio and ensuring power-of-two dimensions.
+   * Optionally detects transparency in the image data.
+   *
+   * @param image - The source image to resize
+   * @param maxSize - Maximum size constraint for the output canvas
+   * @returns A canvas element containing the resized image
+   * @private
+   */
+  private __getResizedCanvas(image: HTMLImageElement, maxSize: Size) {
+    const canvas = document.createElement('canvas');
+    const potWidth = DataUtil.getNearestPowerOfTwo(image.width);
+    const potHeight = DataUtil.getNearestPowerOfTwo(image.height);
+
+    const aspect = potHeight / potWidth;
+    let dstWidth = 0;
+    let dstHeight = 0;
+    if (potWidth > potHeight) {
+      dstWidth = Math.min(potWidth, maxSize);
+      dstHeight = dstWidth * aspect;
+    } else {
+      dstHeight = Math.min(potHeight, maxSize);
+      dstWidth = dstHeight / aspect;
+    }
+    canvas.width = dstWidth;
+    canvas.height = dstHeight;
+
+    const ctx = canvas.getContext('2d')!;
+    ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, dstWidth, dstHeight);
+
+    if (this.autoDetectTransparency) {
+      this.__imageData = ctx.getImageData(0, 0, dstWidth, dstHeight);
+      for (let y = 0; y < dstHeight; y++) {
+        for (let x = 0; x < dstWidth; x++) {
+          const alpha = this.__imageData.data[(x + y * dstWidth) * 4 + 3];
+          if (alpha < 1) {
+            this.__hasTransparentPixels = true;
+            return canvas;
+          }
+        }
+      }
+      this.__hasTransparentPixels = false;
+    }
+
+    return canvas;
+  }
 
   /**
    * Generates a texture from an existing HTMLVideoElement.

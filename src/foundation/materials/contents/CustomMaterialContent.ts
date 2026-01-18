@@ -1,12 +1,16 @@
 import type { ShaderityObject } from 'shaderity';
+import { ComponentSID, MaterialSID } from '../../../types/CommonTypes';
 import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { HdriFormat } from '../../definitions/HdriFormat';
 import { ShaderSemantics } from '../../definitions/ShaderSemantics';
 import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import { MutableVector2 } from '../../math/MutableVector2';
 import { MutableVector4 } from '../../math/MutableVector4';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import type { Engine } from '../../system/Engine';
 import { Sampler } from '../../textures/Sampler';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';

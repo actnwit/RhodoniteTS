@@ -1,7 +1,7 @@
 import PbrShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/PbrShader.glsl';
 import PbrShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/PbrShader.wgsl';
-import { ComponentType } from '../../definitions/ComponentType';
-import { CompositionType } from '../../definitions/CompositionType';
+import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { Matrix33 } from '../../math/Matrix33';
 import { Scalar } from '../../math/Scalar';
 import { Vector2 } from '../../math/Vector2';

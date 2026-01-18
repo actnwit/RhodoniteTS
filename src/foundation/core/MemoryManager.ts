@@ -1,9 +1,10 @@
-import type { Byte, Count, Index } from '../../types/CommonTypes';
+import type { Byte, Count, Index, ObjectUID, Ratio, Size } from '../../types/CommonTypes';
 import { BufferUse, type BufferUseEnum } from '../definitions/BufferUse';
 import { Buffer } from '../memory/Buffer';
 import { DataUtil } from '../misc/DataUtil';
 import { MiscUtil } from '../misc/MiscUtil';
 import type { Engine } from '../system/Engine';
+import { Config } from './Config';
 
 /**
  * MemoryManager is a singleton class that manages the memory allocation and buffers for the Rhodonite library.
@@ -12,6 +13,7 @@ import type { Engine } from '../system/Engine';
 
 type IndexOfBufferLayer = Index;
 export class MemoryManager {
+  private __engine: Engine;
   private __buffers: Map<BufferUseEnum, Map<IndexOfBufferLayer, Buffer>> = new Map();
   private __countOfTheBufferUsageMap: Map<BufferUseEnum, Count> = new Map();
   private __maxGPUDataStorageSize: Byte = 0;
@@ -52,6 +54,15 @@ export class MemoryManager {
    */
   static createInstanceIfNotCreated(engine: Engine, maxGPUDataStorageSize: Byte) {
     return new MemoryManager(engine, maxGPUDataStorageSize);
+  }
+
+  /**
+   * Ensures the memory size is a multiple of 4 bytes for proper alignment.
+   * @param memorySize - The original memory size in bytes
+   * @returns The adjusted memory size that is a multiple of 4 bytes
+   */
+  private __makeMultipleOf4byteSize(memorySize: number) {
+    return memorySize + (memorySize % 4 === 0 ? 0 : 4 - (memorySize % 4));
   }
 
   /**

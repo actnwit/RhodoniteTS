@@ -1,5 +1,8 @@
 import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
+import type { RnXR } from '../../../xr/main';
 import { Component } from '../../core/Component';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { Config } from '../../core/Config';
 import type { IEntity } from '../../core/Entity';
 import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
 import { BufferUse } from '../../definitions/BufferUse';
@@ -9,6 +12,7 @@ import { CompositionType } from '../../definitions/CompositionType';
 import { LightType } from '../../definitions/LightType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { ProcessStage } from '../../definitions/ProcessStage';
+import { ShaderSemantics } from '../../definitions/ShaderSemantics';
 import { ShaderType } from '../../definitions/ShaderType';
 import { Frustum } from '../../geometry/Frustum';
 import type { ICameraEntity } from '../../helpers/EntityHelper';
@@ -20,9 +24,13 @@ import { MutableVector4 } from '../../math/MutableVector4';
 import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
 import { Is } from '../../misc/Is';
+import { RenderPass } from '../../renderer/RenderPass';
 import type { Engine } from '../../system/Engine';
+import { EngineState } from '../../system/EngineState';
+import { ModuleManager } from '../../system/ModuleManager';
 import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
+import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 import { TransformComponent } from '../Transform/TransformComponent';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
@@ -41,6 +49,7 @@ export class CameraComponent extends Component {
   private _directionInner: MutableVector3 = MutableVector3.fromCopy3(0, 0, -1);
   private _up: MutableVector3 = MutableVector3.fromCopy3(0, 1, 0);
   private _upInner: MutableVector3 = MutableVector3.fromCopy3(0, 1, 0);
+  private _filmWidth = 36; // mili meter
   private _filmHeight = 24; // mili meter
   private _focalLength = 20;
   private primitiveMode = false;

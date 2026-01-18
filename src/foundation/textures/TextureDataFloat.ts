@@ -1,4 +1,4 @@
-import type { Index, Size, TypedArrayConstructor } from '../../types/CommonTypes';
+import { FloatTypedArrayConstructor, type Index, type Size, type TypedArrayConstructor } from '../../types/CommonTypes';
 import type { ColorRgb } from '../math/ColorRgb';
 import type { ColorRgba } from '../math/ColorRgba';
 

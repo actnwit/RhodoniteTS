@@ -1,4 +1,4 @@
-import type { EffekseerComponent } from '../../effekseer/EffekseerComponent';
+import { type EffekseerComponent, IEffekseerEntityMethods } from '../../effekseer/EffekseerComponent';
 import type { Gltf2Ex } from '../../types/glTF2ForOutput';
 import type {
   RnM2ExtensionEffekseer,

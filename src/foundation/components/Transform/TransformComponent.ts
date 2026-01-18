@@ -1,7 +1,7 @@
-import type { Array3, Array4, ComponentTID } from '../../../types/CommonTypes';
+import type { Array3, Array4, ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
 import type { IEntity } from '../../core/Entity';
-import { applyMixins } from '../../core/EntityRepository';
+import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import type { ITransformEntity } from '../../helpers';
 import { Matrix44 } from '../../math';

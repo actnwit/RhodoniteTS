@@ -1,4 +1,4 @@
-import ShaderityModule, { type ShaderityObject, type TemplateObject } from 'shaderity';
+import ShaderityModule, { Reflection, type ShaderityObject, type TemplateObject } from 'shaderity';
 import { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
 import { TextureParameter } from '../../definitions';
 import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
@@ -118,7 +118,7 @@ export class ShaderityUtilityWebGPU {
 
         shaderSemanticsInfoArray.push(shaderSemanticsInfo);
       } else if (matchTextureDeclaration) {
-        const binding = Number.parseInt(matchTextureDeclaration[1], 10);
+        const binding = Number.parseInt(matchTextureDeclaration[1]);
         const variableName = matchTextureDeclaration[2];
         const type = matchTextureDeclaration[3];
         const info = matchTextureDeclaration[4];
@@ -136,7 +136,7 @@ export class ShaderityUtilityWebGPU {
 
         shaderSemanticsInfoArray.push(shaderSemanticsInfo);
       } else if (matchSamplerDeclaration) {
-        const binding = Number.parseInt(matchSamplerDeclaration[1], 10);
+        const binding = Number.parseInt(matchSamplerDeclaration[1]);
 
         if (textureMap.has(binding)) {
           const textureShaderSemanticsInfo = textureMap.get(binding);

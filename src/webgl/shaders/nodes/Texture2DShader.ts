@@ -1,4 +1,5 @@
-import type { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
+import type { ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { ProcessApproach } from '../../../foundation/definitions/ProcessApproach';
 import type { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
 import { getTextureAndSamplerNames } from '../../../foundation/helpers/ShaderHelper';

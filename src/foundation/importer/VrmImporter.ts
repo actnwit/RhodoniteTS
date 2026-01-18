@@ -1,4 +1,4 @@
-import type { GltfLoadOption, RnM2 } from '../../types';
+import { type GltfLoadOption, type RnM2, Vrm0x, Vrm0xMaterialProperty } from '../../types';
 import type { Vrm1 } from '../../types/VRM1';
 import type { Vrm1_Materials_MToon } from '../../types/VRMC_materials_mtoon';
 import { VrmComponent, type VrmExpression, type VrmExpressionMorphBind } from '../components';
@@ -8,10 +8,12 @@ import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphCom
 import { VrmAimConstraint } from '../constraints/VrmAimConstraint';
 import { VrmRollConstraint } from '../constraints/VrmRollConstraint';
 import { VrmRotationConstraint } from '../constraints/VrmRotationConstraint';
+import { EntityRepository } from '../core/EntityRepository';
 import { TextureParameter } from '../definitions/TextureParameter';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Vector3 } from '../math/Vector3';
 import { Is } from '../misc/Is';
+import { assertIsOk, Err, Ok, Result } from '../misc/Result';
 import { CapsuleCollider } from '../physics/VRMSpring/CapsuleCollider';
 import { SphereCollider } from '../physics/VRMSpring/SphereCollider';
 import { VRMColliderGroup } from '../physics/VRMSpring/VRMColliderGroup';

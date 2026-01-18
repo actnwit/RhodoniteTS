@@ -15,7 +15,7 @@ import type { MutableVector4 } from '../math/MutableVector4';
 import { VectorN } from '../math/VectorN';
 import type { Accessor } from '../memory/Accessor';
 import type { BufferView } from '../memory/BufferView';
-import { RnException } from '../misc';
+import { Logger, RnException } from '../misc';
 import { Err, Ok, type Result } from '../misc/Result';
 import type { RenderPass } from '../renderer/RenderPass';
 import type { Engine } from '../system/Engine';

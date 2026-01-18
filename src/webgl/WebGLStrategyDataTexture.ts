@@ -4,26 +4,34 @@ import { CameraComponent } from '../foundation/components/Camera/CameraComponent
 import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
 import { LightComponent } from '../foundation/components/Light/LightComponent';
 import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
+import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
 import { WellKnownComponentTIDs } from '../foundation/components/WellKnownComponentTIDs';
 import { Component, type MemberInfo } from '../foundation/core/Component';
-import { BufferUse } from '../foundation/definitions/BufferUse';
-import { ComponentType } from '../foundation/definitions/ComponentType';
-import { CompositionType } from '../foundation/definitions/CompositionType';
+import { ComponentRepository } from '../foundation/core/ComponentRepository';
+import { Config } from '../foundation/core/Config';
+import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
+import { MemoryManager } from '../foundation/core/MemoryManager';
+import { BufferUse, type BufferUseEnum } from '../foundation/definitions/BufferUse';
+import { ComponentType, type ComponentTypeEnum } from '../foundation/definitions/ComponentType';
+import { CompositionType, type CompositionTypeEnum } from '../foundation/definitions/CompositionType';
 import { PixelFormat } from '../foundation/definitions/PixelFormat';
-import type { ShaderSemanticsName } from '../foundation/definitions/ShaderSemantics';
+import { ShaderSemantics, type ShaderSemanticsName } from '../foundation/definitions/ShaderSemantics';
 import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
 import { ShaderType, type ShaderTypeEnum } from '../foundation/definitions/ShaderType';
 import { TextureFormat } from '../foundation/definitions/TextureFormat';
+import { TextureParameter } from '../foundation/definitions/TextureParameter';
 import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
 import type { Mesh } from '../foundation/geometry/Mesh';
 import { Primitive } from '../foundation/geometry/Primitive';
 import type { Material } from '../foundation/materials/core/Material';
+import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 import type { Vector2 } from '../foundation/math/Vector2';
 import type { VectorN } from '../foundation/math/VectorN';
 import type { Accessor } from '../foundation/memory/Accessor';
 import type { Buffer } from '../foundation/memory/Buffer';
+import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
 import { MiscUtil } from '../foundation/misc/MiscUtil';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
@@ -31,6 +39,8 @@ import type { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
 import type { Engine } from '../foundation/system/Engine';
+import { EngineState } from '../foundation/system/EngineState';
+import { ModuleManager } from '../foundation/system/ModuleManager';
 import type {
   Byte,
   CGAPIResourceHandle,
@@ -41,8 +51,11 @@ import type {
   PrimitiveUID,
   WebGLResourceHandle,
 } from '../types/CommonTypes';
+import type { RnXR } from '../xr/main';
+import type { WebXRSystem } from '../xr/WebXRSystem';
 import type { RenderingArgWebGL } from './types/CommonTypes';
 import type { WebGLContextWrapper } from './WebGLContextWrapper';
+import { WebGLResourceRepository } from './WebGLResourceRepository';
 import type { ShaderSources, WebGLStrategy } from './WebGLStrategy';
 import WebGLStrategyCommonMethod, { setupShaderProgram } from './WebGLStrategyCommonMethod';
 
@@ -68,6 +81,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private __lastMaterial?: WeakRef<Material>;
   private __lastMaterialStateVersion = -1;
   private __shaderProgram?: WebGLProgram;
+  private __lastRenderPassTickCount = -1;
   private __lightComponents?: LightComponent[];
   private __currentComponentSIDs?: VectorN;
   public _totalSizeOfGPUShaderDataStorageExceptMorphData = 0;

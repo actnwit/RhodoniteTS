@@ -2,9 +2,10 @@ import FurnaceTestShaderFragment from '../../../webgl/shaderity_shaders/FurnaceT
 import FurnaceTestShaderVertex from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.vert';
 import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { ComponentRepository } from '../../core/ComponentRepository';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
-import { ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
+import { ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
 import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { ShaderType } from '../../definitions/ShaderType';
 import { Scalar } from '../../math/Scalar';

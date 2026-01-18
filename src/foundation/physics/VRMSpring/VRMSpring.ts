@@ -1,5 +1,7 @@
+import { Index } from '../../../types/CommonTypes';
 import type { SceneGraphComponent } from '../../components/SceneGraph/SceneGraphComponent';
 import { RnObject } from '../../core/RnObject';
+import { Vector3 } from '../../math/Vector3';
 import type { VRMColliderGroup } from './VRMColliderGroup';
 import type { VRMSpringBone } from './VRMSpringBone';
 

@@ -1,5 +1,6 @@
 import type { Count, Index, Offset, PrimitiveUID, TypedArray } from '../../types/CommonTypes';
 import type { VertexHandles } from '../../webgl/WebGLResourceRepository';
+import { MemoryManager } from '../core/MemoryManager';
 import { RnObject } from '../core/RnObject';
 import { BufferUse } from '../definitions/BufferUse';
 import { ComponentType, type ComponentTypeEnum } from '../definitions/ComponentType';
@@ -17,6 +18,7 @@ import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
 import { None, type Option, Some } from '../misc/Option';
 import { RnException } from '../misc/RnException';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import type { Engine } from '../system/Engine';
 import type { Mesh } from './Mesh';
 import {
@@ -60,6 +62,7 @@ export class Primitive extends RnObject {
   private static __defaultMaterial?: Material;
   private __material: Material;
   private __materialVariants: Map<string, Material> = new Map();
+  private __currentVariantName = '';
   public _prevMaterial: WeakRef<Material>;
   private __attributes: Attributes = new Map();
   private __oIndices: Option<Accessor> = new None();
@@ -1173,5 +1176,35 @@ export class Primitive extends RnObject {
         v,
       },
     };
+  }
+
+  /**
+   * Calculates the normal vector from UV coordinates
+   * @param pos0IndexBase Index of first position
+   * @param pos1IndexBase Index of second position
+   * @param pos2IndexBase Index of third position
+   * @param u U coordinate
+   * @param v V coordinate
+   * @returns The calculated normal vector
+   */
+  private __calcNormalFromUV(
+    pos0IndexBase: Index,
+    pos1IndexBase: Index,
+    pos2IndexBase: Index,
+    u: number,
+    v: number
+  ): IVector3 {
+    const fDat = 1.0 - u - v;
+
+    const positionAccessor = this.__attributes.get(VertexAttribute.Position.XYZ)!;
+    const pos0Vec3 = positionAccessor.getVec3(pos0IndexBase, {});
+    const pos1Vec3 = positionAccessor.getVec3(pos1IndexBase, {});
+    const pos2Vec3 = positionAccessor.getVec3(pos2IndexBase, {});
+
+    const pos0 = Vector3.multiply(pos0Vec3, fDat);
+    const pos1 = Vector3.multiply(pos1Vec3, u);
+    const pos2 = Vector3.multiply(pos2Vec3, v);
+    const intersectedPosVec3 = MutableVector3.zero().add(pos0).add(pos1).add(pos2);
+    return intersectedPosVec3;
   }
 }

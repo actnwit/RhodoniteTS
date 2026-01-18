@@ -4,6 +4,7 @@ import NormalizeShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes
 import NormalizeShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Normalize.wgsl';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type { Engine } from '../../system/Engine';
+import { EngineState } from '../../system/EngineState';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 /**
