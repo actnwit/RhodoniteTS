@@ -1,6 +1,6 @@
 import type { TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
 import type { Gltf2AccessorComponentTypeNumber } from '../../types/glTF2';
-import { EnumClass, type EnumIO, _from, _fromString } from '../misc/EnumIO';
+import { _from, _fromString, EnumClass, type EnumIO } from '../misc/EnumIO';
 
 export interface ComponentTypeEnum extends EnumIO {
   wgsl: string;

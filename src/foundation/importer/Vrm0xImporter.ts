@@ -8,7 +8,7 @@ import { TextureParameter } from '../definitions';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Vector3 } from '../math/Vector3';
 import { Is } from '../misc/Is';
-import { type Err, Ok, type Result, assertIsOk } from '../misc/Result';
+import { assertIsOk, type Err, Ok, type Result } from '../misc/Result';
 import { SphereCollider } from '../physics/VRMSpring/SphereCollider';
 import { VRMColliderGroup } from '../physics/VRMSpring/VRMColliderGroup';
 import { VRMSpring } from '../physics/VRMSpring/VRMSpring';

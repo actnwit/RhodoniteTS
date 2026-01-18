@@ -2,7 +2,7 @@ import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/Commo
 import { Component } from '../../core/Component';
 import { Config } from '../../core/Config';
 import type { IEntity } from '../../core/Entity';
-import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
 import { BufferUse } from '../../definitions/BufferUse';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
@@ -915,8 +915,8 @@ export class SceneGraphComponent extends Component {
     }
 
     let rayDistance = Number.MAX_VALUE;
-    let intersectedPosition = undefined;
-    let selectedMeshComponent = undefined;
+    let intersectedPosition;
+    let selectedMeshComponent;
     let u = 0;
     let v = 0;
     for (const meshComponent of meshComponents) {
@@ -985,8 +985,8 @@ export class SceneGraphComponent extends Component {
     }
 
     let rayDistance = Number.MAX_VALUE;
-    let intersectedPosition = undefined;
-    let selectedMeshComponent = undefined;
+    let intersectedPosition;
+    let selectedMeshComponent;
     let u = 0;
     let v = 0;
     for (const meshComponent of meshComponents) {

@@ -444,7 +444,7 @@ export class Transform3D {
       json = JSON.parse(arg);
     }
     for (const key in json) {
-      if (Object.prototype.hasOwnProperty.call(json, key) && key in this) {
+      if (Object.hasOwn(json, key) && key in this) {
         if (key === 'quaternion') {
           this.rotation = Quaternion.fromCopyArray4((json as any)[key] as Array4<number>);
         } else if (key === 'matrix') {

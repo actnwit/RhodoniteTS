@@ -642,7 +642,7 @@ export class WalkThroughCameraController extends AbstractCameraController implem
       json = JSON.parse(arg);
     }
     for (const key in json) {
-      if (Object.prototype.hasOwnProperty.call(json, key) && key in this) {
+      if (Object.hasOwn(json, key) && key in this) {
         if (key === 'quaternion') {
           (this as any)[key] = MathClassUtil.cloneOfMathObjects(MathClassUtil.arrayToQuaternion(json[key]));
         } else {

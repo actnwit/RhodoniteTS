@@ -6,9 +6,9 @@ import type {
   MaterialUID,
   PrimitiveUID,
 } from '../../../types/CommonTypes';
+import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
 import type { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
 import type { ShaderSources } from '../../../webgl/WebGLStrategy';
-import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
 import { Component } from '../../core/Component';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { RnObject } from '../../core/RnObject';
@@ -17,13 +17,13 @@ import { AlphaMode, type AlphaModeEnum } from '../../definitions/AlphaMode';
 import { Blend, type BlendEnum } from '../../definitions/Blend';
 import { CompositionType } from '../../definitions/CompositionType';
 import {
+  _getPropertyIndex2,
+  type getShaderPropertyFuncOfGlobalDataRepository,
+  type getShaderPropertyFuncOfMaterial,
   ShaderSemantics,
   ShaderSemanticsEnum,
   ShaderSemanticsIndex,
   type ShaderSemanticsName,
-  _getPropertyIndex2,
-  type getShaderPropertyFuncOfGlobalDataRepository,
-  type getShaderPropertyFuncOfMaterial,
 } from '../../definitions/ShaderSemantics';
 import { ShaderType } from '../../definitions/ShaderType';
 import type { Primitive } from '../../geometry/Primitive';

@@ -56,13 +56,7 @@ export class EnumClass implements EnumIO {
   }
 }
 
-export function _from({
-  typeList,
-  index,
-}: {
-  typeList: Array<EnumIO>;
-  index: number;
-}): EnumIO | undefined {
+export function _from({ typeList, index }: { typeList: Array<EnumIO>; index: number }): EnumIO | undefined {
   const match = typeList.find(type => type.index === index);
   if (!match) {
     return void 0;
@@ -71,13 +65,7 @@ export function _from({
   return match;
 }
 
-export function _fromString({
-  typeList,
-  str,
-}: {
-  typeList: Array<EnumIO>;
-  str: string;
-}): EnumIO | undefined {
+export function _fromString({ typeList, str }: { typeList: Array<EnumIO>; str: string }): EnumIO | undefined {
   const match = typeList.find(type => type.str.toLowerCase() === str.toLowerCase());
   if (!match) {
     return void 0;

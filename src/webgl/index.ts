@@ -1,3 +1,7 @@
+export * from './getRenderingStrategy';
+export * from './shaders/index';
+export * from './textureLoader/index';
+export * from './types/index';
 export * from './WebGLContextWrapper';
 export * from './WebGLExtendedTypes';
 export * from './WebGLExtension';
@@ -6,8 +10,3 @@ export * from './WebGLStrategy';
 export * from './WebGLStrategyCommonMethod';
 export * from './WebGLStrategyDataTexture';
 export * from './WebGLStrategyUniform';
-export * from './getRenderingStrategy';
-
-export * from './shaders/index';
-export * from './textureLoader/index';
-export * from './types/index';

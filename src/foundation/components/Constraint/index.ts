@@ -1,2 +1,2 @@
-export * from './IConstraintEntity';
 export * from './ConstraintComponent';
+export * from './IConstraintEntity';

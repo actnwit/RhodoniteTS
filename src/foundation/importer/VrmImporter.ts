@@ -13,7 +13,7 @@ import { TextureParameter } from '../definitions/TextureParameter';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Vector3 } from '../math/Vector3';
 import { Is } from '../misc/Is';
-import { Err, Ok, Result, assertIsOk } from '../misc/Result';
+import { assertIsOk, Err, Ok, Result } from '../misc/Result';
 import { CapsuleCollider } from '../physics/VRMSpring/CapsuleCollider';
 import { SphereCollider } from '../physics/VRMSpring/SphereCollider';
 import { VRMColliderGroup } from '../physics/VRMSpring/VRMColliderGroup';

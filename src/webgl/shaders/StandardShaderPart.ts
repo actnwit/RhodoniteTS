@@ -7,9 +7,9 @@ import type { Socket, SocketDefaultValue } from '../../foundation/materials/core
 import type { Engine } from '../../foundation/system/Engine';
 import { EngineState } from '../../foundation/system/EngineState';
 import vertexInputWGSL from '../../webgpu/shaderity_shaders/common/vertexInput.wgsl';
-import { WebGLResourceRepository } from '../WebGLResourceRepository';
 import morphVariablesGLSL from '../shaderity_shaders/common/morphVariables.glsl';
 import type { AttributeNames } from '../types/CommonTypes';
+import { WebGLResourceRepository } from '../WebGLResourceRepository';
 import { CommonShaderPart } from './CommonShaderPart';
 
 /**

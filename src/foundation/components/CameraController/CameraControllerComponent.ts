@@ -4,7 +4,7 @@ import { OrbitCameraController } from '../../cameras/OrbitCameraController';
 import { WalkThroughCameraController } from '../../cameras/WalkThroughCameraController';
 import { Component } from '../../core/Component';
 import type { IEntity } from '../../core/Entity';
-import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions';
 import { CameraControllerType, type CameraControllerTypeEnum } from '../../definitions/CameraControllerType';
 import { ICameraControllerEntity } from '../../helpers/EntityHelper';

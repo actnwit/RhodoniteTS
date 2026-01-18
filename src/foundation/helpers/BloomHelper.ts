@@ -10,8 +10,8 @@ import type { Engine } from '../system/Engine';
 import type { AbstractTexture } from '../textures/AbstractTexture';
 import type { RenderTargetTexture } from '../textures/RenderTargetTexture';
 import { MaterialHelper } from './MaterialHelper';
-import { RenderPassHelper } from './RenderPassHelper';
 import { RenderableHelper } from './RenderableHelper';
+import { RenderPassHelper } from './RenderPassHelper';
 
 export class Bloom {
   private __engine: Engine;

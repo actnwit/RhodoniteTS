@@ -1,7 +1,5 @@
 import ShaderityModule, { type ShaderityObject } from 'shaderity';
 import type { CGAPIResourceHandle } from '../../../types/CommonTypes';
-import type { WebGLContextWrapper } from '../../../webgl/WebGLContextWrapper';
-import type { ShaderSources } from '../../../webgl/WebGLStrategy';
 import { alphaProcessGlsl } from '../../../webgl/shaderity_shaders/common/alphaProcess';
 import { enableVertexExtensionsGlsl } from '../../../webgl/shaderity_shaders/common/enableVertexExtensions';
 import { fullscreenGlsl } from '../../../webgl/shaderity_shaders/common/fullscreen';
@@ -18,6 +16,8 @@ import { vertexInGlsl } from '../../../webgl/shaderity_shaders/common/vertexIn';
 import { vertexInOutGlsl } from '../../../webgl/shaderity_shaders/common/vertexInOut';
 import { wireframeGlsl } from '../../../webgl/shaderity_shaders/common/wireframe';
 import type { AttributeNames } from '../../../webgl/types/CommonTypes';
+import type { WebGLContextWrapper } from '../../../webgl/WebGLContextWrapper';
+import type { ShaderSources } from '../../../webgl/WebGLStrategy';
 import { alphaProcessWgsl } from '../../../webgpu/shaderity_shaders/common/alphaProcess';
 import { fullscreenWgsl } from '../../../webgpu/shaderity_shaders/common/fullscreen';
 import { iblDefinitionWgsl } from '../../../webgpu/shaderity_shaders/common/iblDefinition';

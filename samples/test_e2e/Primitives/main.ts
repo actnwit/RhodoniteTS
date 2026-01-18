@@ -1,5 +1,6 @@
 import Rn from '../../../dist/esmdev/index.js';
 import { checkFinished } from '../common/testHelpers.js';
+
 let p: HTMLParagraphElement | undefined;
 
 // setup Rhodonite

@@ -24,11 +24,11 @@ import { EngineState } from '../system/EngineState';
 import type { Primitive } from './Primitive';
 import {
   type IMesh,
-  type RaycastResultEx1,
-  isBlendWithZWrite,
   isBlendWithoutZWrite,
+  isBlendWithZWrite,
   isOpaque,
   isTranslucent,
+  type RaycastResultEx1,
 } from './types/GeometryTypes';
 
 /**

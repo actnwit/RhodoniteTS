@@ -8,20 +8,20 @@ import type {
   ObjectUID,
   PrimitiveUID,
 } from '../../../types/CommonTypes';
+import type { RnWebGL, WebGLStrategy } from '../../../webgl/main';
 import type { WebGLStrategyDataTexture } from '../../../webgl/WebGLStrategyDataTexture';
 import type { WebGLStrategyUniform } from '../../../webgl/WebGLStrategyUniform';
-import type { RnWebGL, WebGLStrategy } from '../../../webgl/main';
-import type { WebGpuStrategyBasic } from '../../../webgpu/WebGpuStrategyBasic';
 import type { RnWebGpu } from '../../../webgpu/main';
+import type { WebGpuStrategyBasic } from '../../../webgpu/WebGpuStrategyBasic';
 import type { RnXR } from '../../../xr/main';
 import { Component } from '../../core/Component';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import type { IEntity } from '../../core/Entity';
-import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
 import { ProcessApproach, type ProcessApproachEnum } from '../../definitions/ProcessApproach';
 import { ProcessStage, type ProcessStageEnum } from '../../definitions/ProcessStage';
 import type { Primitive } from '../../geometry/Primitive';
-import { isBlend, isBlendWithZWrite, isBlendWithoutZWrite, isTranslucent } from '../../geometry/types/GeometryTypes';
+import { isBlend, isBlendWithoutZWrite, isBlendWithZWrite, isTranslucent } from '../../geometry/types/GeometryTypes';
 import type { CGAPIStrategy } from '../../renderer/CGAPIStrategy';
 import type { RenderPass } from '../../renderer/RenderPass';
 import type { Engine } from '../../system/Engine';

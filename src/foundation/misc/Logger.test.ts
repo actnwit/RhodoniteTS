@@ -1,4 +1,4 @@
-import { LogLevel, Logger } from './Logger';
+import { Logger, LogLevel } from './Logger';
 
 test('LogLevel.Debug', () => {
   Logger.default.logLevel = LogLevel.Debug;

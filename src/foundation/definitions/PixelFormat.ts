@@ -1,5 +1,5 @@
 import { GL_RG, GL_RGB } from '../../types';
-import { EnumClass, type EnumIO, _from } from '../misc/EnumIO';
+import { _from, EnumClass, type EnumIO } from '../misc/EnumIO';
 
 export type PixelFormatEnum = EnumIO;
 

@@ -5,7 +5,6 @@ import type {
   AnimationTrackName,
 } from '../../types/AnimationTypes';
 import type { Array1to4, Byte, Count, Index, VectorAndSquareMatrixComponentN } from '../../types/CommonTypes';
-import { GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER } from '../../types/WebGLConstants';
 import type {
   Gltf2,
   Gltf2AccessorCompositionTypeString,
@@ -26,6 +25,7 @@ import type {
   Gltf2ImageEx,
   Gltf2MaterialEx,
 } from '../../types/glTF2ForOutput';
+import { GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER } from '../../types/WebGLConstants';
 import { BufferUse, type ComponentTypeEnum, type CompositionTypeEnum } from '../definitions';
 import { ComponentType, type Gltf2AccessorComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';

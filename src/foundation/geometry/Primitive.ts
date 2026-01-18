@@ -24,8 +24,6 @@ import type { Mesh } from './Mesh';
 import {
   type IMesh,
   type PrimitiveSortKey,
-  type PrimitiveSortKeyLength,
-  type PrimitiveSortKeyOffset,
   PrimitiveSortKey_BitLength_Material,
   PrimitiveSortKey_BitLength_PrimitiveType,
   PrimitiveSortKey_BitLength_RenderQueue,
@@ -34,6 +32,8 @@ import {
   PrimitiveSortKey_BitOffset_PrimitiveType,
   PrimitiveSortKey_BitOffset_RenderQueue,
   PrimitiveSortKey_BitOffset_TranslucencyType,
+  type PrimitiveSortKeyLength,
+  type PrimitiveSortKeyOffset,
   type RaycastResult,
   type RaycastResultEx1,
 } from './types/GeometryTypes';

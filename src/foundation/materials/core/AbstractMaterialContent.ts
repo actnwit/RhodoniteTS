@@ -1,7 +1,7 @@
 import ShaderityModule, { type ShaderityObject } from 'shaderity';
-import { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
 import { StandardShaderPart } from '../../../webgl/shaders/StandardShaderPart';
 import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
+import { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
 import type { RnXR } from '../../../xr/main';
 import type { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
 import type { CameraComponent } from '../../components/Camera/CameraComponent';

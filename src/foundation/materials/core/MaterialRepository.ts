@@ -13,7 +13,7 @@ import { BufferUse } from '../../definitions/BufferUse';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ShaderSemanticsIndex, type ShaderSemanticsName } from '../../definitions/ShaderSemantics';
-import { type ShaderSemanticsInfo, calcAlignedByteLength } from '../../definitions/ShaderSemanticsInfo';
+import { calcAlignedByteLength, type ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { MathClassUtil } from '../../math/MathClassUtil';
 import type { Accessor } from '../../memory/Accessor';
 import type { BufferView } from '../../memory/BufferView';

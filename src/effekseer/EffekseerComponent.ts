@@ -5,7 +5,7 @@ import { WellKnownComponentTIDs } from '../foundation/components/WellKnownCompon
 import { Component } from '../foundation/core/Component';
 import { ComponentRepository } from '../foundation/core/ComponentRepository';
 import type { IEntity } from '../foundation/core/Entity';
-import { type EntityRepository, applyMixins } from '../foundation/core/EntityRepository';
+import { applyMixins, type EntityRepository } from '../foundation/core/EntityRepository';
 import { ProcessStage } from '../foundation/definitions/ProcessStage';
 import type { IVector3 } from '../foundation/math/IVector';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
@@ -16,8 +16,8 @@ import type { RenderPass } from '../foundation/renderer/RenderPass';
 import type { Engine } from '../foundation/system/Engine';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import type { ComponentSID, ComponentTID, EntityUID, Second } from '../types/CommonTypes';
-import type { WebXRSystem } from '../xr/WebXRSystem';
 import type { RnXR } from '../xr/main';
+import type { WebXRSystem } from '../xr/WebXRSystem';
 
 export class EffekseerComponent extends Component {
   public static readonly ANIMATION_EVENT_PLAY = 0;

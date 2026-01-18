@@ -39,6 +39,7 @@ import { Frame } from '../renderer/Frame';
 import { RenderPass } from '../renderer/RenderPass';
 import { EngineState } from './EngineState';
 import { ModuleManager } from './ModuleManager';
+
 declare const spector: any;
 
 import { _cleanupWebGLStatesCacheForEngine } from '../../webgl/WebGLStrategyCommonMethod';

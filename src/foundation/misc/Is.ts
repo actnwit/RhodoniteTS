@@ -269,10 +269,10 @@ export interface IsType extends IsImplType {
 
 // Add derivatives to the IsObj
 for (const subFn in Derivatives) {
-  if (Object.prototype.hasOwnProperty.call(Derivatives, subFn)) {
+  if (Object.hasOwn(Derivatives, subFn)) {
     (IsObj as any)[subFn] = {} as typeof IsObj;
     for (const fn in IsObj) {
-      if (Object.prototype.hasOwnProperty.call(IsObj, fn)) {
+      if (Object.hasOwn(IsObj, fn)) {
         if (subFn === 'not') {
           (IsObj as any)[subFn][fn] = (Derivatives as any)[subFn]((NotObj as never)[fn]);
         } else {

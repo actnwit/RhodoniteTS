@@ -1,6 +1,6 @@
 import { Index } from '../../types/CommonTypes';
 import type { Material } from '../materials/core/Material';
-import { EnumClass, type EnumIO, _from, _fromString, _fromStringCaseSensitively } from '../misc/EnumIO';
+import { _from, _fromString, _fromStringCaseSensitively, EnumClass, type EnumIO } from '../misc/EnumIO';
 import type { Engine } from '../system/Engine';
 import { CompositionType } from './CompositionType';
 import type { ShaderSemanticsInfo } from './ShaderSemanticsInfo';

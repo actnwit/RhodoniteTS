@@ -1,4 +1,5 @@
 import { None, type Option, Some } from './Option';
+
 test('unwrapOrDefault', () => {
   const val0: Option<number> = new Some(0);
   expect(val0.unwrapOrDefault(1)).toEqual(0);

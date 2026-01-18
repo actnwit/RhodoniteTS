@@ -36,8 +36,8 @@ import { Logger } from '../foundation/misc/Logger';
 import { MiscUtil } from '../foundation/misc/MiscUtil';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import type { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
-import type { RenderPass } from '../foundation/renderer/RenderPass';
 import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
+import type { RenderPass } from '../foundation/renderer/RenderPass';
 import type { Engine } from '../foundation/system/Engine';
 import { EngineState } from '../foundation/system/EngineState';
 import { ModuleManager } from '../foundation/system/ModuleManager';
@@ -51,13 +51,13 @@ import type {
   PrimitiveUID,
   WebGLResourceHandle,
 } from '../types/CommonTypes';
-import type { WebXRSystem } from '../xr/WebXRSystem';
 import type { RnXR } from '../xr/main';
+import type { WebXRSystem } from '../xr/WebXRSystem';
+import type { RenderingArgWebGL } from './types/CommonTypes';
 import type { WebGLContextWrapper } from './WebGLContextWrapper';
 import { WebGLResourceRepository } from './WebGLResourceRepository';
 import type { ShaderSources, WebGLStrategy } from './WebGLStrategy';
 import WebGLStrategyCommonMethod, { setupShaderProgram } from './WebGLStrategyCommonMethod';
-import type { RenderingArgWebGL } from './types/CommonTypes';
 
 declare const spector: any;
 

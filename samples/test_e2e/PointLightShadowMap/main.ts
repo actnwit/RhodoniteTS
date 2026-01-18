@@ -1,5 +1,6 @@
 import Rn from '../../../dist/esmdev/index.js';
 import { PointShadowMap } from './PointShadowMap.js';
+
 const p = document.createElement('p');
 document.body.appendChild(p);
 

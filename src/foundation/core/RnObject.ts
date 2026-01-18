@@ -210,7 +210,7 @@ export class RnObject implements IRnObject {
    * @returns True if the string contains only valid characters, false if it contains invalid characters
    */
   validateTagString(val: string): boolean {
-    const reg = new RegExp(/[!"#$%&'()\*\+\-\s\.,\/:;<=>?@\[\\\]^`{|}~]/g);
+    const reg = new RegExp(/[!"#$%&'()*+\-\s.,/:;<=>?@[\\\]^`{|}~]/g);
     if (reg.test(val)) {
       return false;
     }

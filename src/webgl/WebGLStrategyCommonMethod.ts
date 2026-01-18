@@ -12,8 +12,8 @@ import type { RenderPass } from '../foundation/renderer/RenderPass';
 import type { Engine } from '../foundation/system/Engine';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import { type Index, IndexOf16Bytes } from '../types/CommonTypes';
-import type { WebXRSystem } from '../xr/WebXRSystem';
 import type { RnXR } from '../xr/main';
+import type { WebXRSystem } from '../xr/WebXRSystem';
 import { WebGLResourceRepository } from './WebGLResourceRepository';
 import type { WebGLStrategy } from './WebGLStrategy';
 

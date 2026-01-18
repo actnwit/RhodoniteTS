@@ -14,9 +14,9 @@ import { BufferUse } from '../foundation/definitions/BufferUse';
 import { ComponentType } from '../foundation/definitions/ComponentType';
 import { CompositionType } from '../foundation/definitions/CompositionType';
 import type {
-  ShaderSemanticsName,
   getShaderPropertyFuncOfGlobalDataRepository,
   getShaderPropertyFuncOfMaterial,
+  ShaderSemanticsName,
 } from '../foundation/definitions/ShaderSemantics';
 import type { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
 import { ShaderType, type ShaderTypeEnum } from '../foundation/definitions/ShaderType';
@@ -30,8 +30,8 @@ import type { Buffer } from '../foundation/memory/Buffer';
 import { Logger } from '../foundation/misc/Logger';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import type { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
-import type { RenderPass } from '../foundation/renderer/RenderPass';
 import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
+import type { RenderPass } from '../foundation/renderer/RenderPass';
 import type { Engine } from '../foundation/system/Engine';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import type {
@@ -42,8 +42,8 @@ import type {
   IndexOf16Bytes,
   PrimitiveUID,
 } from '../types/CommonTypes';
-import type { WebXRSystem } from '../xr/WebXRSystem';
 import type { RnXR } from '../xr/main';
+import type { WebXRSystem } from '../xr/WebXRSystem';
 import { WebGpuResourceRepository } from './WebGpuResourceRepository';
 
 /**

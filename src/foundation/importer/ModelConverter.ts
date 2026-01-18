@@ -10,6 +10,7 @@ import {
   TypedArrayConstructor,
   type VectorComponentN,
 } from '../../types/CommonTypes';
+import { type GltfLoadOption, type KHR_lights_punctual_Light, TagGltf2NodeIndex } from '../../types/glTF2';
 import {
   type RnM2,
   type RnM2Accessor,
@@ -31,14 +32,13 @@ import {
 } from '../../types/RnM2';
 import type { Vrm0xMaterialProperty } from '../../types/VRM0x';
 import type { Vrm1_Material } from '../../types/VRMC_materials_mtoon';
-import { type GltfLoadOption, type KHR_lights_punctual_Light, TagGltf2NodeIndex } from '../../types/glTF2';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { AnimationStateComponent } from '../components/AnimationState/AnimationStateComponent';
 import { BlendShapeComponent } from '../components/BlendShape/BlendShapeComponent';
 import type { IBlendShapeEntityMethods } from '../components/BlendShape/IBlendShapeEntity';
 import { createCameraEntity } from '../components/Camera/createCameraEntity';
-import { LightComponent } from '../components/Light/LightComponent';
 import { createLightEntity } from '../components/Light/createLightEntity';
+import { LightComponent } from '../components/Light/LightComponent';
 import { MeshComponent } from '../components/Mesh/MeshComponent';
 import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
@@ -2672,7 +2672,7 @@ export class ModelConverter {
       const dracoAttributeId = primitive.extensions?.KHR_draco_mesh_compression.attributes[attributeName];
 
       const attributeGltf2Accessor = primitive.attributesObjects![attributeName];
-      let attributeRnAccessor: Accessor | undefined = undefined;
+      let attributeRnAccessor: Accessor | undefined;
 
       if (Is.not.exist(dracoAttributeId)) {
         // non-encoded data

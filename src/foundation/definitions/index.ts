@@ -28,6 +28,6 @@ export * from './ShadingModel';
 export * from './ShadowMap';
 export * from './TextureFormat';
 export * from './TextureParameter';
+export * from './ToneMappingType';
 export * from './VertexAttribute';
 export * from './Visibility';
-export * from './ToneMappingType';

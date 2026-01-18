@@ -1,12 +1,11 @@
 import { ComponentType, type ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 import type { Byte, Index, TypedArray } from '../../types/CommonTypes';
-import { BufferView } from './BufferView';
-
 import { BufferUse, type BufferUseEnum } from '../definitions/BufferUse';
 import { DataUtil } from '../misc/DataUtil';
 import { Logger } from '../misc/Logger';
 import { Err, Ok, type Result } from '../misc/Result';
+import { BufferView } from './BufferView';
 
 /**
  * A Buffer class that manages memory allocation and provides BufferView creation functionality.
@@ -146,13 +145,7 @@ export class Buffer {
    * }
    * ```
    */
-  takeBufferView({
-    byteLengthToNeed,
-    byteStride,
-  }: {
-    byteLengthToNeed: Byte;
-    byteStride: Byte;
-  }): Result<
+  takeBufferView({ byteLengthToNeed, byteStride }: { byteLengthToNeed: Byte; byteStride: Byte }): Result<
     BufferView,
     {
       'Buffer.byteLength': Byte;

@@ -21,7 +21,7 @@ import {
 import { Component } from '../../core/Component';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import type { IEntity } from '../../core/Entity';
-import { EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions';
 import { AnimationAttribute } from '../../definitions/AnimationAttribute';
 import { AnimationInterpolationEnum } from '../../definitions/AnimationInterpolation';

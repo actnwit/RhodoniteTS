@@ -1,4 +1,4 @@
-import { EnumClass, type EnumIO, _from } from '../misc/EnumIO';
+import { _from, EnumClass, type EnumIO } from '../misc/EnumIO';
 
 export type ToneMappingTypeEnum = EnumIO;
 

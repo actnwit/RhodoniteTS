@@ -2,7 +2,7 @@ import type { ComponentSID, ComponentTID, EntityUID, Index, TypedArray } from '.
 import { Component } from '../../core/Component';
 import { Config } from '../../core/Config';
 import type { IEntity } from '../../core/Entity';
-import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { BoneDataType, type BoneDataTypeEnum } from '../../definitions/BoneDataType';
 import { BufferUse } from '../../definitions/BufferUse';
@@ -26,8 +26,8 @@ import { Logger } from '../../misc/Logger';
 import type { Engine } from '../../system/Engine';
 import { AnimationStateRepository } from '../Animation/AnimationStateRepository';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
-import type { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import { createGroupEntity } from '../SceneGraph/createGroupEntity';
+import type { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import { TransformComponent } from '../Transform/TransformComponent';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 

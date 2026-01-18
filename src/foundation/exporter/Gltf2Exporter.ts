@@ -6,11 +6,11 @@ import {
   type Gltf2Node,
   type Gltf2Texture,
   type Gltf2TextureSampler,
+  isSameGlTF2TextureSampler,
   type KHR_lights_punctual,
   type KHR_lights_punctual_Light,
   type KHR_materials_variants,
   type KHR_materials_variants_PrimitiveExtension,
-  isSameGlTF2TextureSampler,
 } from '../../types/glTF2';
 import type { Gltf2Ex, Gltf2ImageEx, Gltf2MaterialEx } from '../../types/glTF2ForOutput';
 import { VERSION } from '../../version';
@@ -39,9 +39,6 @@ import type { Sampler } from '../textures/Sampler';
 import type { Texture } from '../textures/Texture';
 import { createEffekseer } from './Gltf2ExporterEffekseer';
 import {
-  type AnimationChannelTargetOverride,
-  type AnimationChannelTargetResolution,
-  type AnimationExportOptions,
   __collectAccessorIndicesFromAnimations,
   __collectAccessorIndicesFromMeshes,
   __collectAccessorIndicesFromSkins,
@@ -75,6 +72,9 @@ import {
   __removeUnusedAccessors,
   __removeUnusedAccessorsAndBufferViews,
   __removeUnusedBufferViews,
+  type AnimationChannelTargetOverride,
+  type AnimationChannelTargetResolution,
+  type AnimationExportOptions,
   generateGlbArrayBuffer,
   handleTextureImage,
   isNumericArrayBufferView,

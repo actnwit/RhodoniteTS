@@ -54,12 +54,12 @@ import type {
   WebGPUResourceHandle,
 } from '../types/CommonTypes';
 import { GL_TEXTURE_2D } from '../types/WebGLConstants';
+import getRenderingStrategy from './getRenderingStrategy';
+import type { AttributeNames } from './types';
 import { WebGLContextWrapper } from './WebGLContextWrapper';
 import type { RnWebGLProgram, RnWebGLTexture } from './WebGLExtendedTypes';
 import { WebGLExtension } from './WebGLExtension';
 import { WebGLStereoUtil } from './WebGLStereoUtil';
-import getRenderingStrategy from './getRenderingStrategy';
-import type { AttributeNames } from './types';
 
 export type VertexHandles = {
   vaoHandle: CGAPIResourceHandle;

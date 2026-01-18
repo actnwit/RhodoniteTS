@@ -6,14 +6,14 @@ import { BufferUse } from '../definitions/BufferUse';
 import { ComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
 import {
+  _getPropertyIndex2,
+  type getShaderPropertyFuncOfGlobalDataRepository,
   ShaderSemantics,
   ShaderSemanticsEnum,
   ShaderSemanticsIndex,
   type ShaderSemanticsName,
-  _getPropertyIndex2,
-  type getShaderPropertyFuncOfGlobalDataRepository,
 } from '../definitions/ShaderSemantics';
-import { type ShaderSemanticsInfo, calcAlignedByteLength } from '../definitions/ShaderSemanticsInfo';
+import { calcAlignedByteLength, type ShaderSemanticsInfo } from '../definitions/ShaderSemanticsInfo';
 import { ShaderType } from '../definitions/ShaderType';
 import { MathClassUtil } from '../math/MathClassUtil';
 import { MutableMatrix44 } from '../math/MutableMatrix44';

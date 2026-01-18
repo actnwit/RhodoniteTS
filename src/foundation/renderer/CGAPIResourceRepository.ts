@@ -1,10 +1,10 @@
 import type { BasisFile } from '../../types/BasisTexture';
 import type { CGAPIResourceHandle, Count, Index, Size, TypedArray } from '../../types/CommonTypes';
-import type { TextureData, VertexHandles, WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import type { RnWebGL } from '../../webgl/main';
 import type { AttributeNames } from '../../webgl/types/CommonTypes';
-import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
+import type { TextureData, VertexHandles, WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import type { RnWebGpu } from '../../webgpu/main';
+import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import type { Config } from '../core/Config';
 import {
   type CompressionTextureTypeEnum,

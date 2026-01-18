@@ -1,7 +1,7 @@
 import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
 import { Entity, type IEntity } from '../../core/Entity';
-import { EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import { ProcessApproachEnum } from '../../definitions/ProcessApproach';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import type { Mesh } from '../../geometry/Mesh';

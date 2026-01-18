@@ -10,6 +10,7 @@ import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import type { Engine } from '../system/Engine';
 import { EngineState } from '../system/EngineState';
 import { AbstractTexture } from './AbstractTexture';
+
 /**
  * Object type used for finalization registry to track texture resources
  */

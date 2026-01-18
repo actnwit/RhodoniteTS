@@ -370,13 +370,7 @@ export const defaultValue = <T>(defaultValue: T, value?: T): T => {
  * @param params.compensation - Function to execute if value doesn't exist
  * @returns The value if it exists, otherwise the result of the compensation function
  */
-export const valueWithCompensation = <T>({
-  value,
-  compensation,
-}: {
-  value?: T;
-  compensation: () => T;
-}): T => {
+export const valueWithCompensation = <T>({ value, compensation }: { value?: T; compensation: () => T }): T => {
   // eslint-disable-next-line eqeqeq
   if (value == null) {
     return compensation();
