@@ -2,10 +2,9 @@ import MatCapShaderFragment from '../../../webgl/shaderity_shaders/MatCapShader/
 import MatCapShaderVertex from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.vert';
 import type { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
-import { ComponentRepository } from '../../core/ComponentRepository';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
-import { ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
+import { ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
 import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { ShaderType } from '../../definitions/ShaderType';
 import { Scalar } from '../../math/Scalar';
@@ -16,7 +15,6 @@ import { AbstractTexture } from '../../textures/AbstractTexture';
 import type { Sampler } from '../../textures/Sampler';
 import { Texture } from '../../textures/Texture';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import type { Material } from '../core/Material';
 
 /**
  * Material content implementation for MatCap (Material Capture) rendering.

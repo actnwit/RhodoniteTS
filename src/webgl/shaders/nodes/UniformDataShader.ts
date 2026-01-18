@@ -3,7 +3,6 @@ import type { CompositionTypeEnum } from '../../../foundation/definitions/Compos
 import { ProcessApproach } from '../../../foundation/definitions/ProcessApproach';
 import type { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
 import type { Engine } from '../../../foundation/system/Engine';
-import { EngineState } from '../../../foundation/system/EngineState';
 import type { AttributeNames } from '../../types/CommonTypes';
 import { StandardShaderPart } from '../StandardShaderPart';
 

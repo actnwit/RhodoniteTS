@@ -22,7 +22,7 @@ import { GlobalDataRepository } from '../core/GlobalDataRepository';
 import { MemoryManager } from '../core/MemoryManager';
 import { CameraType } from '../definitions/CameraType';
 import { ProcessApproach, type ProcessApproachEnum } from '../definitions/ProcessApproach';
-import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';
+import { ProcessStage } from '../definitions/ProcessStage';
 import { Primitive } from '../geometry/Primitive';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { DummyTextures } from '../materials/core/DummyTextures';

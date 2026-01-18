@@ -102,51 +102,6 @@ export class DrcPointCloudImporter {
   }
 
   /**
-   * Internal method to load and process ArrayBuffer data.
-   * Determines whether the data is binary glTF or text JSON format and processes accordingly.
-   *
-   * @param arrayBuffer - The ArrayBuffer containing the file data
-   * @param defaultOptions - Default loading options
-   * @param basePath - Base path for resolving relative URIs
-   * @param options - Additional loading options
-   * @returns A Promise that resolves to the processed glTF JSON
-   * @private
-   */
-  private async __loadFromArrayBuffer(
-    arrayBuffer: ArrayBuffer,
-    defaultOptions: GltfLoadOption,
-    basePath: string,
-    options?: {}
-  ) {
-    const dataView = new DataView(arrayBuffer, 0, 20);
-    const isLittleEndian = true;
-    // Magic field
-    const magic = dataView.getUint32(0, isLittleEndian);
-    let result: any;
-    // 0x46546C67 is 'glTF' in ASCII codes.
-    if (magic !== 0x46546c67) {
-      //const json = await response.json();
-      const gotText = DataUtil.arrayBufferToString(arrayBuffer);
-      const json = JSON.parse(gotText);
-      result = await this._loadAsTextJson(json, options as GltfLoadOption, defaultOptions, basePath).catch(err => {
-        Logger.default.error(`this.__loadAsTextJson error: ${err}`);
-      });
-    } else {
-      result = await this._loadAsBinaryJson(
-        dataView,
-        isLittleEndian,
-        arrayBuffer,
-        options as GltfLoadOption,
-        defaultOptions,
-        basePath
-      ).catch(err => {
-        Logger.default.error(`this.__loadAsBinaryJson error: ${err}`);
-      });
-    }
-    return result;
-  }
-
-  /**
    * Merges default options with JSON-embedded options and user-provided options.
    * Priority: user options > JSON embedded options > default options.
    *

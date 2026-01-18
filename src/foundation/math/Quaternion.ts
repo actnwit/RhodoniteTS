@@ -1,14 +1,11 @@
-import { type Array4, TypedArray } from '../../types/CommonTypes';
+import type { Array4 } from '../../types/CommonTypes';
 import { CompositionType } from '../definitions/CompositionType';
 import { Logger } from '../misc/Logger';
 import { AbstractQuaternion } from './AbstractQuaternion';
 import type { IMatrix44 } from './IMatrix';
 import type { ILogQuaternion, IMutableQuaternion, IQuaternion } from './IQuaternion';
-import type { IMutableVector3 } from './IVector';
-import { IVector2, type IVector3, type IVector4 } from './IVector';
-import { LogQuaternion } from './LogQuaternion';
+import type { IMutableVector3, IVector3, IVector4 } from './IVector';
 import { MathUtil } from './MathUtil';
-import { Matrix44 } from './Matrix44';
 import { MutableMatrix44 } from './MutableMatrix44';
 import { MutableVector3 } from './MutableVector3';
 import { Vector3 } from './Vector3';

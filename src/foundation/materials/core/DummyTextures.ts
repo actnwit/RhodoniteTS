@@ -1,6 +1,4 @@
-import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type { Engine } from '../../system/Engine';
-import { EngineState } from '../../system/EngineState';
 import { CubeTexture } from '../../textures/CubeTexture';
 import { Texture } from '../../textures/Texture';
 import { TextureArray } from '../../textures/TextureArray';

@@ -17,11 +17,9 @@ import { Accessor } from './Accessor';
 export class BufferView {
   private __buffer: Buffer;
   private __byteOffsetInRawArrayBufferOfBuffer: Byte;
-  private __byteOffsetInBuffer: Byte;
   private __byteLength: Byte;
   private __defaultByteStride: Byte = 0;
   private __takenByte: Byte = 0;
-  private __takenAccessorCount = 0;
   private __raw: ArrayBuffer;
   private __accessors: Array<Accessor> = [];
 

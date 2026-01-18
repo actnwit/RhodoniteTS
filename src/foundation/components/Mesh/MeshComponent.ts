@@ -1,8 +1,7 @@
-import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
+import type { ComponentTID } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
-import { Entity, type IEntity } from '../../core/Entity';
-import { applyMixins, EntityRepository } from '../../core/EntityRepository';
-import { ProcessApproachEnum } from '../../definitions/ProcessApproach';
+import type { IEntity } from '../../core/Entity';
+import { applyMixins } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import type { Mesh } from '../../geometry/Mesh';
 import type { RaycastResultEx1 } from '../../geometry/types/GeometryTypes';
@@ -16,7 +15,6 @@ import { Vector4 } from '../../math/Vector4';
 import { Is } from '../../misc/Is';
 import { Logger } from '../../misc/Logger';
 import { assertExist } from '../../misc/MiscUtil';
-import { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
 import type { CameraComponent } from '../Camera/CameraComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
@@ -37,7 +35,6 @@ export class MeshComponent extends Component {
   private static __returnVector3: MutableVector3 = MutableVector3.zero();
 
   private static __tmpMatrix44_0: MutableMatrix44 = MutableMatrix44.zero();
-  private static __latestPrimitivePositionAccessorVersion = 0;
 
   /**
    * Gets the component type identifier for MeshComponent.

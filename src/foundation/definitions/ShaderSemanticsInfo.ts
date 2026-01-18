@@ -2,7 +2,7 @@ import type { Count } from '../../types/CommonTypes';
 import { Logger } from '../misc/Logger';
 import type { ComponentTypeEnum } from './ComponentType';
 import { CompositionType, type CompositionTypeEnum } from './CompositionType';
-import { ShaderSemanticsEnum, type ShaderSemanticsName } from './ShaderSemantics';
+import type { ShaderSemanticsName } from './ShaderSemantics';
 import type { ShaderTypeEnum } from './ShaderType';
 
 export type ShaderSemanticsInfo = {

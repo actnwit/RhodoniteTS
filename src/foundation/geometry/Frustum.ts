@@ -17,7 +17,6 @@ export class Frustum {
   public left = MutableVector4.zero();
   public zNear = MutableVector4.zero();
   public zFar = MutableVector4.zero();
-  private __updated = false;
   private __vp = MutableMatrix44.zero();
   private __invProjMat = MutableMatrix44.zero();
   private __invViewMat = MutableMatrix44.zero();

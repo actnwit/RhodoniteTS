@@ -1,15 +1,12 @@
 import type { ComponentSID, ComponentTID, EntityUID, Index, TypedArray } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
-import { Config } from '../../core/Config';
 import type { IEntity } from '../../core/Entity';
 import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
-import { GlobalDataRepository } from '../../core/GlobalDataRepository';
-import { BoneDataType, type BoneDataTypeEnum } from '../../definitions/BoneDataType';
+import { BoneDataType } from '../../definitions/BoneDataType';
 import { BufferUse } from '../../definitions/BufferUse';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessStage } from '../../definitions/ProcessStage';
-import { ShaderSemantics } from '../../definitions/ShaderSemantics';
 import { ShaderType } from '../../definitions/ShaderType';
 import type { ISceneGraphEntity, ISkeletalEntity } from '../../helpers/EntityHelper';
 import type { IMatrix44 } from '../../math/IMatrix';
@@ -22,13 +19,10 @@ import { MutableVector4 } from '../../math/MutableVector4';
 import { VectorN } from '../../math/VectorN';
 import type { Accessor } from '../../memory/Accessor';
 import { Is } from '../../misc';
-import { Logger } from '../../misc/Logger';
 import type { Engine } from '../../system/Engine';
 import { AnimationStateRepository } from '../Animation/AnimationStateRepository';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
-import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 import type { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
-import { TransformComponent } from '../Transform/TransformComponent';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 type SkinningCache = {
@@ -70,12 +64,10 @@ export class SkeletalComponent extends Component {
   _isCulled = false;
   private static __skinCalculationCache: Map<string, SkinningCache> = new Map();
   private static __accessorSignatureCache: WeakMap<Accessor, string> = new WeakMap();
-  private static __bindShapeSignatureMap: WeakMap<Matrix44, string> = new WeakMap();
 
   private __jointListKey?: string;
   private __skinCacheKey?: string;
   private __inverseBindMatricesSignature?: string;
-  private static __tookGlobalDataNum = 0;
   private static __tmpVec3_0 = MutableVector3.zero();
   private static __tmp_mat4 = MutableMatrix44.identity();
   private static __tmp_q: MutableQuaternion = MutableQuaternion.fromCopy4(0, 0, 0, 1);
@@ -930,19 +922,6 @@ export class SkeletalComponent extends Component {
     // ].join(':');
     const signature = hash.toString(16);
     this.__accessorSignatureCache.set(accessor, signature);
-    return signature;
-  }
-
-  private static __getBindShapeSignature(bindShapeMatrix?: Matrix44) {
-    if (!bindShapeMatrix) {
-      return 'no_bind_shape';
-    }
-    const cached = this.__bindShapeSignatureMap.get(bindShapeMatrix);
-    if (cached !== undefined) {
-      return cached;
-    }
-    const signature = Array.from(bindShapeMatrix._v).join(',');
-    this.__bindShapeSignatureMap.set(bindShapeMatrix, signature);
     return signature;
   }
 

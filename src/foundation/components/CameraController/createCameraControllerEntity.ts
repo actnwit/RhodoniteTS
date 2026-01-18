@@ -1,7 +1,5 @@
-import { EntityRepository } from '../../core/EntityRepository';
 import type { ICameraControllerEntity } from '../../helpers/EntityHelper';
 import type { Engine } from '../../system/Engine';
-import { CameraComponent } from '../Camera/CameraComponent';
 import { createCameraEntity } from '../Camera/createCameraEntity';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 

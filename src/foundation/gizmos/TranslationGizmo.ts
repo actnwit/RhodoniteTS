@@ -1,13 +1,8 @@
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
-import { ComponentRepository } from '../core/ComponentRepository';
-import { Config } from '../core/Config';
 import { AlphaMode } from '../definitions/AlphaMode';
-import { PrimitiveMode } from '../definitions/PrimitiveMode';
-import { VertexAttribute } from '../definitions/VertexAttribute';
 import { Mesh } from '../geometry/Mesh';
-import { Primitive } from '../geometry/Primitive';
 import { Cube } from '../geometry/shapes/Cube';
 import { Plane } from '../geometry/shapes/Plane';
 import type { RaycastResultEx1 } from '../geometry/types/GeometryTypes';
@@ -77,9 +72,6 @@ interface TranslationGizmoResources {
 export class TranslationGizmo extends Gizmo {
   /** Resources managed per-Engine instance */
   private static __resourcesMap: Map<number, TranslationGizmoResources> = new Map();
-
-  private static __originalX = 0;
-  private static __originalY = 0;
   private __pickStatedPoint = Vector3.zero();
   private __deltaPoint = Vector3.zero();
   private __targetPointBackup = Vector3.zero();
@@ -498,64 +490,6 @@ export class TranslationGizmo extends Gizmo {
     }
   }
 
-  ///
-  ///
-  /// Private Static Members
-  ///
-  ///
-
-  /**
-   * Generates a primitive for line-based gizmo visualization.
-   * Creates geometry for X, Y, and Z axis lines with appropriate colors.
-   * @returns A primitive containing the line geometry for the gizmo axes
-   */
-  private static __generatePrimitive(engine: Engine): Primitive {
-    const positions = new Float32Array([
-      // X axis
-      0,
-      0,
-      0,
-      this.__length,
-      0,
-      0,
-
-      // Y axis
-      0,
-      0,
-      0,
-      0,
-      this.__length,
-      0,
-
-      // Z axis
-      0,
-      0,
-      0,
-      0,
-      0,
-      this.__length,
-    ]);
-
-    const color = new Float32Array([
-      // X axis as Red
-      1, 0, 0, 1, 0, 0,
-
-      // Y axis as Green
-      0, 1, 0, 0, 1, 0,
-
-      // Z axis as Blue
-      0, 0, 1, 0, 0, 1,
-    ]);
-
-    const primitive = Primitive.createPrimitive(engine, {
-      attributeSemantics: [VertexAttribute.Position.XYZ, VertexAttribute.Color0.XYZ],
-      attributes: [positions, color],
-      primitiveMode: PrimitiveMode.Lines,
-    });
-
-    return primitive;
-  }
-
   /**
    * Handles pointer down events for starting gizmo interaction.
    * Determines which axis was clicked, sets up the initial state for dragging,
@@ -765,30 +699,6 @@ export class TranslationGizmo extends Gizmo {
     }
     InputManager.enableCameraController();
     this.__isCameraControllerDisabled = false;
-  }
-
-  /**
-   * Performs ray casting against the entire gizmo group entity.
-   * Used for general intersection testing with the gizmo.
-   * @param evt - The pointer event to cast a ray from
-   * @returns Ray casting result containing intersection information
-   */
-  private static castRay2(engine: Engine, evt: PointerEvent) {
-    const resources = TranslationGizmo.__getResources(engine);
-    if (!resources) {
-      return { result: false };
-    }
-    const rect = (evt.target as HTMLElement).getBoundingClientRect();
-    const width = (evt.target as HTMLElement).clientWidth;
-    const height = (evt.target as HTMLElement).clientHeight;
-    const x = evt.clientX - rect.left;
-    const y = rect.height - (evt.clientY - rect.top);
-    const viewport = Vector4.fromCopy4(0, 0, width, height) as Vector4;
-    const activeCamera = engine.componentRepository.getComponent(CameraComponent, CameraComponent.getCurrent(engine)) as
-      | CameraComponent
-      | undefined;
-    const result = resources.groupEntity.getSceneGraph().castRayFromScreen(x, y, activeCamera!, viewport, 0.0, []);
-    return result;
   }
 
   private static __castFromEntities(

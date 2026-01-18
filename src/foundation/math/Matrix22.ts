@@ -2,12 +2,11 @@ import type { Array4 } from '../../types';
 import { CompositionType } from '../definitions/CompositionType';
 import { Logger } from '../misc/Logger';
 import { AbstractMatrix } from './AbstractMatrix';
-import { IMatrix, type IMatrix22 } from './IMatrix';
+import type { IMatrix22 } from './IMatrix';
 import type { IVector2 } from './IVector';
 import { MathUtil } from './MathUtil';
 /* eslint-disable prettier/prettier */
 import type { Matrix33 } from './Matrix33';
-import { Matrix44 } from './Matrix44';
 import type { MutableMatrix22 } from './MutableMatrix22';
 import type { MutableVector2 } from './MutableVector2';
 import { Vector2 } from './Vector2';

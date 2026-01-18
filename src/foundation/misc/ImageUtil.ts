@@ -1,4 +1,4 @@
-import { ColorComponentLetter, type Index, type Size } from '../../types/CommonTypes';
+import type { Index, Size } from '../../types/CommonTypes';
 import { ColorRgb } from '../math/ColorRgb';
 import { MathUtil } from '../math/MathUtil';
 import { MutableMatrix33 } from '../math/MutableMatrix33';

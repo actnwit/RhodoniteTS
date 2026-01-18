@@ -1,4 +1,3 @@
-import { Err } from './Result';
 import { RnException } from './RnException';
 
 function RnExceptionTest() {

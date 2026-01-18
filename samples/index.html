@@ -191,7 +191,7 @@
     <iframe id="viewer" name="viewer" allowfullscreen></iframe>
 
     <script>
-      const sanitize = (str) => {
+      const _sanitize = (str) => {
         return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
       }
 
@@ -208,8 +208,8 @@
       }
 
       $(() => {
-        var redirect = () => {
-          window.location.href = window.location.protocol + '//' + window.location.host + window.location.pathname +  window.location.hash;
+        var _redirect = () => {
+          window.location.href = `${window.location.protocol}//${window.location.host}${window.location.pathname}${window.location.hash}`;
         };
 
         var files = null;
@@ -237,7 +237,7 @@
 
         if ( /(iPad|iPhone|iPod)/g.test( navigator.userAgent ) ) {
 
-          viewer.addEventListener( 'load', ( event ) => {
+          viewer.addEventListener( 'load', ( _event ) => {
 
             viewer.contentWindow.innerWidth -= 10;
             viewer.contentWindow.innerHeight -= 2;
@@ -252,7 +252,7 @@
         var button = document.createElement( 'div' );
         button.id = 'button';
         button.textContent = 'View source';
-        button.addEventListener( 'click', ( event ) => {
+        button.addEventListener( 'click', ( _event ) => {
 
           // "http://localhost:8086/examples/index.html#standalone/custom_shader_2"
           // -> "http://localhost:8086/examples"
@@ -284,14 +284,14 @@
 
             ( ( file ) => {
 
-              var name = key + '/' + file;
+              var name = `${key}/${file}`;
 
               var div = document.createElement( 'div' );
               var alink = document.createElement( 'a' );
               alink.textContent = file;
               alink.name = name;
               $(alink).addClass('example');
-              alink.href = './' + name;// + '/index.html';
+              alink.href = `./${name}`;// + '/index.html';
               $(alink).attr('target', 'viewer');
 
               alink.addEventListener("click", ()=> {
@@ -301,7 +301,7 @@
               div.appendChild(alink);
               container.appendChild( div );
 
-              divs.set(key + '/' + file, div);
+              divs.set(`${key}/${file}`, div);
 
             } )( section[ i ] );
 

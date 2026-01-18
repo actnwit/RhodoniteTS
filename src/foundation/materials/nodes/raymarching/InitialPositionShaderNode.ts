@@ -1,9 +1,7 @@
 import InitialPositionShaderityObjectGLSL from '../../../../webgl/shaderity_shaders/nodes/raymarching/InitialPosition.glsl';
-import { OutDistanceShader } from '../../../../webgl/shaders/nodes/OutDistance';
 import InitialPositionShaderityObjectWGSL from '../../../../webgpu/shaderity_shaders/nodes/raymarching/InitialPosition.wgsl';
 import { ComponentType } from '../../../definitions/ComponentType';
 import { CompositionType } from '../../../definitions/CompositionType';
-import { Scalar } from '../../../math/Scalar';
 import { Vector3 } from '../../../math/Vector3';
 import { AbstractShaderNode } from '../../core/AbstractShaderNode';
 import { Socket } from '../../core/Socket';

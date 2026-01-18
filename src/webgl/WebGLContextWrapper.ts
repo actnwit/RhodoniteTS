@@ -98,8 +98,6 @@ export class WebGLContextWrapper {
   private __default_viewport_width = 0;
   private __default_viewport_height = 0;
   #alignedMaxUniformBlockSize = INVALID_SIZE;
-  #maxUniformBlockSize = INVALID_SIZE;
-  #uniformBufferOffsetAlignment = INVALID_SIZE;
   #maxVertexUniformBlocks = INVALID_SIZE;
   #maxFragmentUniformBlocks = INVALID_SIZE;
   #maxConventionUniformBlocks = INVALID_SIZE;

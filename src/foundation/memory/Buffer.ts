@@ -107,22 +107,6 @@ export class Buffer {
   }
 
   /**
-   * Calculates padding bytes needed for proper alignment.
-   *
-   * @param byteLengthToNeed - The number of bytes that need to be allocated
-   * @param byteAlign - The alignment requirement in bytes
-   * @returns The number of padding bytes needed
-   * @private
-   */
-  private __padding(byteLengthToNeed: Byte, byteAlign: Byte) {
-    const paddingSize = DataUtil.calcPaddingBytes(byteLengthToNeed, byteAlign);
-    if (paddingSize > 0) {
-      Logger.default.info('Padding bytes added to takenBytesIndex.');
-    }
-    return paddingSize;
-  }
-
-  /**
    * Creates a new BufferView from the available space in this buffer.
    * This method allocates a portion of the buffer and returns a BufferView that provides
    * typed access to that memory region.

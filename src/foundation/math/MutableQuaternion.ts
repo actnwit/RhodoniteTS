@@ -1,4 +1,4 @@
-import { type Array4, TypedArray } from '../../types/CommonTypes';
+import type { Array4 } from '../../types/CommonTypes';
 import { Logger } from '../misc/Logger';
 import type { IMatrix44 } from './IMatrix';
 import type { ILogQuaternion, IMutableQuaternion, IQuaternion } from './IQuaternion';

@@ -9,7 +9,6 @@ import { Vector3 } from '../foundation/math/Vector3';
 import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
 import { None, type Option, Some } from '../foundation/misc/Option';
-import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import type { Engine } from '../foundation/system/Engine';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import type { WebGLContextWrapper } from '../webgl/WebGLContextWrapper';
@@ -33,12 +32,10 @@ declare const window: any;
  * ```
  */
 export class WebARSystem {
-  private static __instance: WebARSystem;
   private __oGlw: Option<WebGLContextWrapper> = new None();
   private __isReadyForWebAR = false;
   private __oArSession: Option<XRSession> = new None();
   private __oWebglLayer: Option<XRWebGLLayer> = new None();
-  private __spaceType: 'local' | 'local-floor' = 'local';
   private __isWebARMode = false;
   private __requestedToEnterWebAR = false;
   private __oArViewerPose: Option<XRViewerPose> = new None();

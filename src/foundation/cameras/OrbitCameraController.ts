@@ -30,7 +30,6 @@ export class OrbitCameraController extends AbstractCameraController implements I
 
   private __updated = false;
   private __updateCount = 0;
-  private __fixedLengthOfCenterToEye = 1;
   private __isMouseDown = false;
   private __lastMouseDownTimeStamp = 0;
   private __lastMouseUpTimeStamp = 0;
@@ -610,7 +609,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
   __resetDollyAndPosition(e: TouchEvent) {
     if (e.touches.length > 1) return;
 
-    const currentTime = new Date().getTime();
+    const currentTime = Date.now();
     if (currentTime - this.__resetDollyTouchTime < 300) {
       this.dolly = 0.5 ** (1.0 / 2.2);
       this.__mouseTranslateVec.zero();

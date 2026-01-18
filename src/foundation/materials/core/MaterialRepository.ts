@@ -7,12 +7,10 @@ import type {
   MaterialTID,
   MaterialUID,
 } from '../../../types/CommonTypes';
-import { Config } from '../../core/Config';
-import { MemoryManager } from '../../core/MemoryManager';
 import { BufferUse } from '../../definitions/BufferUse';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
-import { ShaderSemanticsIndex, type ShaderSemanticsName } from '../../definitions/ShaderSemantics';
+import type { ShaderSemanticsName } from '../../definitions/ShaderSemantics';
 import { calcAlignedByteLength, type ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { MathClassUtil } from '../../math/MathClassUtil';
 import type { Accessor } from '../../memory/Accessor';
@@ -23,7 +21,7 @@ import type { Result } from '../../misc/Result';
 import type { Engine } from '../../system/Engine';
 import type { AbstractMaterialContent } from './AbstractMaterialContent';
 import { Material } from './Material';
-import type { IndexInTheDataView, IndexOfBufferViews, MaterialTypeName, ShaderVariable } from './MaterialTypes';
+import type { IndexOfBufferViews, MaterialTypeName, ShaderVariable } from './MaterialTypes';
 
 /**
  * Repository class for managing material types and instances.

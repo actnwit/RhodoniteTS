@@ -2,7 +2,6 @@ import type { RequireOne } from '../../types/TypeGenerators';
 import { RnObject } from '../core/RnObject';
 import type { IVector4 } from '../math/IVector';
 import { Is } from '../misc/Is';
-import { assertExist } from '../misc/MiscUtil';
 import type { RenderTargetTexture } from '../textures/RenderTargetTexture';
 import type { Expression } from './Expression';
 import type { FrameBuffer } from './FrameBuffer';

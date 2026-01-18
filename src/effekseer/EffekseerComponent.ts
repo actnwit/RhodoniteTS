@@ -3,21 +3,16 @@ import { CameraComponent } from '../foundation/components/Camera/CameraComponent
 import type { ComponentToComponentMethods } from '../foundation/components/ComponentTypes';
 import { WellKnownComponentTIDs } from '../foundation/components/WellKnownComponentTIDs';
 import { Component } from '../foundation/core/Component';
-import { ComponentRepository } from '../foundation/core/ComponentRepository';
 import type { IEntity } from '../foundation/core/Entity';
-import { applyMixins, type EntityRepository } from '../foundation/core/EntityRepository';
+import { applyMixins } from '../foundation/core/EntityRepository';
 import { ProcessStage } from '../foundation/definitions/ProcessStage';
 import type { IVector3 } from '../foundation/math/IVector';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
-import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
 import type { Engine } from '../foundation/system/Engine';
-import { ModuleManager } from '../foundation/system/ModuleManager';
-import type { ComponentSID, ComponentTID, EntityUID, Second } from '../types/CommonTypes';
-import type { RnXR } from '../xr/main';
-import type { WebXRSystem } from '../xr/WebXRSystem';
+import type { ComponentSID, Second } from '../types/CommonTypes';
 
 export class EffekseerComponent extends Component {
   public static readonly ANIMATION_EVENT_PLAY = 0;
@@ -41,8 +36,6 @@ export class EffekseerComponent extends Component {
   private __isInitialized = false;
   private static __tmp_identityMatrix_0: MutableMatrix44 = MutableMatrix44.identity();
   private static __tmp_identityMatrix_1: MutableMatrix44 = MutableMatrix44.identity();
-
-  private isLoadEffect = false;
 
   static get componentTID() {
     return WellKnownComponentTIDs.EffekseerComponentTID;

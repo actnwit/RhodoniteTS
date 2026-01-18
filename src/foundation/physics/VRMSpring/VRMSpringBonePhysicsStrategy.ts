@@ -1,7 +1,6 @@
 import type { SceneGraphComponent } from '../../components/SceneGraph/SceneGraphComponent';
 import type { Config } from '../../core/Config';
 import type { IVector3 } from '../../math/IVector';
-import { Matrix44 } from '../../math/Matrix44';
 import { MutableQuaternion } from '../../math/MutableQuaternion';
 import { MutableVector3 } from '../../math/MutableVector3';
 import { Quaternion } from '../../math/Quaternion';
@@ -34,23 +33,16 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __tmp_process_vec3_2 = MutableVector3.zero();
   private static __tmp_process_vec3_3 = MutableVector3.zero();
   private static __tmp_process_vec3_4 = MutableVector3.zero();
-  private static __tmp_process_vec3_5 = MutableVector3.zero();
-  private static __tmp_process_vec3_6 = MutableVector3.zero();
   private static __tmp_process_vec3_7 = MutableVector3.zero();
   private static __tmp_process_vec3_8 = MutableVector3.zero();
   private static __tmp_process_vec3_9 = MutableVector3.zero();
   private static __tmp_process_vec3_10 = MutableVector3.zero();
   private static __tmp_process_quat_0 = MutableQuaternion.identity();
   private static __tmp_normalizeBoneLength_vec3_0 = MutableVector3.zero();
-  private static __tmp_normalizeBoneLength_vec3_1 = MutableVector3.zero();
-  private static __tmp_normalizeBoneLength_vec3_2 = MutableVector3.zero();
   private static __tmp_normalizeBoneLength_vec3_3 = MutableVector3.zero();
-  private static __tmp_normalizeBoneLength_vec3_4 = MutableVector3.zero();
-  private static __tmp_normalizeBoneLength_vec3_5 = MutableVector3.zero();
   private static __tmp_applyRotation_vec3_0 = MutableVector3.zero();
   private static __tmp_applyRotation_vec3_1 = MutableVector3.zero();
   private static __tmp_applyRotation_vec3_2 = MutableVector3.zero();
-  private static __tmp_applyRotation_vec3_3 = MutableVector3.zero();
   private static __tmp_applyRotation_quat_0 = MutableQuaternion.identity();
   private static __tmp_applyRotation_quat_1 = MutableQuaternion.identity();
   private static __tmp_applyRotation_quat_2 = MutableQuaternion.identity();
@@ -60,8 +52,6 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __tmp_getParentRotation_quat_1_identity = MutableQuaternion.identity();
   private static __tmp_collision_vec3_0 = MutableVector3.zero();
   private static __tmp_collision_vec3_1 = MutableVector3.zero();
-  private static __tmp_collision_vec3_2 = MutableVector3.zero();
-  private static __tmp_collision_vec3_3 = MutableVector3.zero();
 
   private __spring: VRMSpring | undefined;
 

@@ -1,6 +1,5 @@
 import type { CameraComponent } from '../components/Camera/CameraComponent';
 import type { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
-import { Entity } from '../core/Entity';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { AABB } from '../math/AABB';
 import { MathClassUtil } from '../math/MathClassUtil';
@@ -10,7 +9,6 @@ import { MutableMatrix33 } from '../math/MutableMatrix33';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
 import { MutableVector3 } from '../math/MutableVector3';
 import { Is } from '../misc/Is';
-import { MiscUtil } from '../misc/MiscUtil';
 import { INPUT_HANDLING_STATE_CAMERA_CONTROLLER, type InputHandlerInfo, InputManager } from '../system/InputManager';
 import { AbstractCameraController } from './AbstractCameraController';
 import type { ICameraController } from './ICameraController';
@@ -30,7 +28,6 @@ export class WalkThroughCameraController extends AbstractCameraController implem
   private _inverseVerticalRotating: boolean;
   private _inverseHorizontalRotating: boolean;
   private _onKeydown: KeyboardEventListener;
-  private _isKeyDown = false;
   private _isMouseDrag = false;
   private _lastKeyCode = -1;
   private _onKeyup: KeyboardEventListener;
@@ -54,7 +51,6 @@ export class WalkThroughCameraController extends AbstractCameraController implem
   private _mouseDownBind = (this._mouseDown as any).bind(this);
   private _mouseMoveBind = (this._mouseMove as any).bind(this);
   private _mouseWheelBind = (this._mouseWheel as any).bind(this);
-  private _eventTargetDom?: any;
   private __doPreventDefault = false;
   private _needInitialize = true;
   protected __targetEntities: ISceneGraphEntity[] = [];

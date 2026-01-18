@@ -1,4 +1,4 @@
-import { type NodeJSON, RnM2Material, type Vrm0xMaterialProperty } from '../../types';
+import type { NodeJSON, Vrm0xMaterialProperty } from '../../types';
 import type { Count } from '../../types/CommonTypes';
 import type { ShaderNodeJson } from '../../types/ShaderNodeJson';
 import type { Vrm1_Material } from '../../types/VRMC_materials_mtoon';
@@ -57,7 +57,6 @@ import ToneMappingShaderVertexWGSL from '../../webgpu/shaderity_shaders/ToneMapp
 import type { CameraComponent } from '../components/Camera/CameraComponent';
 import type { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
 import { RaymarchingComponent } from '../components/Raymarching/RaymarchingComponent';
-import { Config } from '../core/Config';
 import { ProcessApproach, TextureParameter } from '../definitions';
 import { ComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
@@ -89,7 +88,6 @@ import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
 import type { RenderPass } from '../renderer/RenderPass';
 import type { Engine } from '../system/Engine';
-import { EngineState } from '../system/EngineState';
 import type { AbstractTexture } from '../textures/AbstractTexture';
 import { Sampler } from '../textures/Sampler';
 import type { Texture } from '../textures/Texture';
