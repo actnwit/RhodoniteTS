@@ -119,7 +119,7 @@ const Derivatives = {
    * @returns A function that returns the opposite result of the input function
    */
   not(fn: FnType) {
-    // biome-ignore lint/complexity/useArrowFunction: <explanation>
+    // biome-ignore lint/complexity/useArrowFunction: need function for arguments object
     return function () {
       return fn.apply(null, [...arguments] as any);
     };

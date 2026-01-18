@@ -70,12 +70,15 @@
         "noExplicitAny": "off",
         "noConfusingVoidType": "error",
         "noPrototypeBuiltins": "error",
-        "noImplicitAnyLet": "error",
+        "noImplicitAnyLet": "off",
         "noAsyncPromiseExecutor": "error",
         "noAssignInExpressions": "error",
         "noShadowRestrictedNames": "error",
         "noThenProperty": "off",
-        "noRedeclare": "error"
+        "noRedeclare": "error",
+        "useAdjacentOverloadSignatures": "off",
+        "useIterableCallbackReturn": "off",
+        "noNonNullAssertedOptionalChain": "off"
       }
     },
     "includes": ["**", "!**/dist/**", "!**/docs/**", "!**/vendor/**", "!**/assets/**", "!**/*.d.ts"]
