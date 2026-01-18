@@ -2,7 +2,6 @@ import type { MeshComponent } from '../foundation/components/Mesh/MeshComponent'
 import type { Primitive } from '../foundation/geometry/Primitive';
 import type { Material } from '../foundation/materials/core/Material';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
-import type { Engine } from '../foundation/system/Engine';
 import type { CGAPIResourceHandle, Count, Index, PrimitiveUID, WebGLResourceHandle } from '../types/CommonTypes';
 import type { WebGLContextWrapper } from './WebGLContextWrapper';
 

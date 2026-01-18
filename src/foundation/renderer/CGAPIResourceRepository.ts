@@ -22,7 +22,6 @@ import type { Vector4 } from '../math/Vector4';
 import type { Accessor } from '../memory/Accessor';
 import type { FrameBuffer } from '../renderer/FrameBuffer';
 import type { Engine } from '../system/Engine';
-import { EngineState } from '../system/EngineState';
 import { ModuleManager } from '../system/ModuleManager';
 import type { IRenderable } from '../textures/IRenderable';
 import type { Sampler } from '../textures/Sampler';

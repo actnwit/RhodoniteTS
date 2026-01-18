@@ -1,6 +1,5 @@
 import type { ObjectUID, RnTags } from '../../types/CommonTypes';
 import { deepCopyUsingJsonStringify } from '../misc/MiscUtil';
-import { Config } from './Config';
 
 /**
  * A Tag interface representing a key-value pair for object metadata

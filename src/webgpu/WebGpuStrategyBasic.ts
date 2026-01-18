@@ -6,10 +6,6 @@ import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
 import { Component, type MemberInfo } from '../foundation/core/Component';
-import { ComponentRepository } from '../foundation/core/ComponentRepository';
-import { Config } from '../foundation/core/Config';
-import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
-import { MemoryManager } from '../foundation/core/MemoryManager';
 import { BufferUse } from '../foundation/definitions/BufferUse';
 import { ComponentType } from '../foundation/definitions/ComponentType';
 import { CompositionType } from '../foundation/definitions/CompositionType';
@@ -24,7 +20,6 @@ import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { getTextureAndSamplerNames } from '../foundation/helpers/ShaderHelper';
 import type { Material } from '../foundation/materials/core/Material';
-import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 import type { Accessor } from '../foundation/memory/Accessor';
 import type { Buffer } from '../foundation/memory/Buffer';
 import { Logger } from '../foundation/misc/Logger';
@@ -33,7 +28,6 @@ import type { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
 import type { Engine } from '../foundation/system/Engine';
-import { ModuleManager } from '../foundation/system/ModuleManager';
 import type {
   CGAPIResourceHandle,
   Count,
@@ -42,9 +36,6 @@ import type {
   IndexOf16Bytes,
   PrimitiveUID,
 } from '../types/CommonTypes';
-import type { RnXR } from '../xr/main';
-import type { WebXRSystem } from '../xr/WebXRSystem';
-import { WebGpuResourceRepository } from './WebGpuResourceRepository';
 
 /**
  * Basic WebGPU rendering strategy implementation that handles mesh rendering,

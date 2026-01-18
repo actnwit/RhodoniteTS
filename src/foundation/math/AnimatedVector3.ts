@@ -1,9 +1,4 @@
-import {
-  AnimationChannel,
-  type AnimationSampler,
-  type AnimationSamplers,
-  type AnimationTrackName,
-} from '../../types/AnimationTypes';
+import type { AnimationSampler, AnimationSamplers, AnimationTrackName } from '../../types/AnimationTypes';
 import { __interpolate } from '../components/Animation/AnimationOps';
 import { AnimationAttribute } from '../definitions/AnimationAttribute';
 import { Logger } from '../misc/Logger';

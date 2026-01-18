@@ -63,7 +63,11 @@
         background: #fafafa;
       }
 
-        #panel #content, #panel, #environment-selector {
+        #panel, #environment-selector {
+          padding: 0px 20px;
+        }
+
+        #panel #content {
           padding: 0px 20px;
         }
 
@@ -149,7 +153,7 @@
           overflow: hidden;
           border-bottom: 1px solid #dedede;
         }
-        #content {
+        #panel #content {
           position: absolute;
           left: 0;
           top: 60px;
@@ -191,25 +195,26 @@
     <iframe id="viewer" name="viewer" allowfullscreen></iframe>
 
     <script>
-      const sanitize = (str) => {
+      const _sanitize = (str) => {
         return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
       }
 
       // Checking GET Parameters
       var arg = new Object;
       var argStr = location.href.split('?')[1];
+      var pair, i, kv;
       if (argStr) {
         argStr = argStr.split('#')[0];
-        var pair = argStr.split('&');
-        for(var i=0; pair[i]; i++) {
-          var kv = pair[i].split('=');
+        pair = argStr.split('&');
+        for(i=0; pair[i]; i++) {
+          kv = pair[i].split('=');
           arg[kv[0]] = kv[1];
         }
       }
 
       $(() => {
-        var redirect = () => {
-          window.location.href = window.location.protocol + '//' + window.location.host + window.location.pathname +  window.location.hash;
+        var _redirect = () => {
+          window.location.href = `${window.location.protocol}//${window.location.host}${window.location.pathname}${window.location.hash}`;
         };
 
         var files = null;
@@ -237,7 +242,7 @@
 
         if ( /(iPad|iPhone|iPod)/g.test( navigator.userAgent ) ) {
 
-          viewer.addEventListener( 'load', ( event ) => {
+          viewer.addEventListener( 'load', ( _event ) => {
 
             viewer.contentWindow.innerWidth -= 10;
             viewer.contentWindow.innerHeight -= 2;
@@ -252,7 +257,7 @@
         var button = document.createElement( 'div' );
         button.id = 'button';
         button.textContent = 'View source';
-        button.addEventListener( 'click', ( event ) => {
+        button.addEventListener( 'click', ( _event ) => {
 
           // "http://localhost:8086/examples/index.html#standalone/custom_shader_2"
           // -> "http://localhost:8086/examples"
@@ -271,27 +276,28 @@
 
         var divs = new Map();
         var selected = null;
+        var section, div, i;
 
         for ( var key in files ) {
 
-          var section = files[ key ];
+          section = files[ key ];
 
-          var div = document.createElement( 'h2' );
+          div = document.createElement( 'h2' );
           div.textContent = key;
           container.appendChild( div );
 
-          for ( var i = 0; i < section.length; i ++ ) {
+          for ( i = 0; i < section.length; i ++ ) {
 
             ( ( file ) => {
 
-              var name = key + '/' + file;
+              var name = `${key}/${file}`;
 
               var div = document.createElement( 'div' );
               var alink = document.createElement( 'a' );
               alink.textContent = file;
               alink.name = name;
               $(alink).addClass('example');
-              alink.href = './' + name;// + '/index.html';
+              alink.href = `./${name}`;// + '/index.html';
               $(alink).attr('target', 'viewer');
 
               alink.addEventListener("click", ()=> {
@@ -301,7 +307,7 @@
               div.appendChild(alink);
               container.appendChild( div );
 
-              divs.set(key + '/' + file, div);
+              divs.set(`${key}/${file}`, div);
 
             } )( section[ i ] );
 

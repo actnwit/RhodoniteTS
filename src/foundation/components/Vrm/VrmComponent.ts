@@ -5,7 +5,6 @@ import { applyMixins, type EntityRepository } from '../../core/EntityRepository'
 import { ProcessStage } from '../../definitions/ProcessStage';
 import { Is } from '../../misc';
 import type { Engine } from '../../system/Engine';
-import type { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 

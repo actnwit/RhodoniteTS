@@ -5,7 +5,6 @@ import { ProcessApproach } from '../definitions/ProcessApproach';
 import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFormat';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import type { FrameBuffer } from '../renderer/FrameBuffer';
-import { EngineState } from '../system/EngineState';
 import { AbstractTexture } from './AbstractTexture';
 import type { IRenderable } from './IRenderable';
 

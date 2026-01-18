@@ -1,5 +1,4 @@
 import type { Array1, Array1to4, Array2, Array3, Array4, Index } from '../../types/CommonTypes';
-import { PrimitiveModeEnum } from '../definitions/PrimitiveMode';
 import type { VertexAttributeEnum } from '../definitions/VertexAttribute';
 import type { Accessor, IndicesAccessOption } from '../memory/Accessor';
 import type { ISemanticVertexAttribute } from './ISemanticVertexAttribute';

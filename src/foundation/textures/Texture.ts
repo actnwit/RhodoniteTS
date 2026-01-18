@@ -2,14 +2,14 @@ import type { ComponentTypeEnum } from '../../foundation/definitions/ComponentTy
 import type { BASIS_TYPE, BasisFile, BasisTranscoder } from '../../types/BasisTexture';
 import type { CGAPIResourceHandle, Count, Index, Offset, Size, TypedArray } from '../../types/CommonTypes';
 import { KTX2TextureLoader } from '../../webgl/textureLoader/KTX2TextureLoader';
-import { type TextureData, WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
+import type { TextureData } from '../../webgl/WebGLResourceRepository';
 import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import { ComponentType } from '../definitions/ComponentType';
 import type { CompressionTextureTypeEnum } from '../definitions/CompressionTextureType';
 import { PixelFormat, type PixelFormatEnum } from '../definitions/PixelFormat';
 import { ProcessApproach } from '../definitions/ProcessApproach';
 import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFormat';
-import { TextureParameter, type TextureParameterEnum } from '../definitions/TextureParameter';
+import type { TextureParameterEnum } from '../definitions/TextureParameter';
 import { DataUtil } from '../misc/DataUtil';
 import { Logger } from '../misc/Logger';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';

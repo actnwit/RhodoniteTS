@@ -1,6 +1,5 @@
 import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
-import { Config } from '../../core/Config';
 import type { IEntity } from '../../core/Entity';
 import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
 import { BufferUse } from '../../definitions/BufferUse';
@@ -15,7 +14,7 @@ import { LocatorGizmo } from '../../gizmos/LocatorGizmo';
 import { RotationGizmo } from '../../gizmos/RotationGizmo';
 import { ScaleGizmo } from '../../gizmos/ScaleGizmo';
 import { TranslationGizmo } from '../../gizmos/TranslationGizmo';
-import { type IMeshEntity, type ISceneGraphEntity, ITransformEntity } from '../../helpers/EntityHelper';
+import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
 import { AABB } from '../../math/AABB';
 import type { IMatrix44 } from '../../math/IMatrix';
 import type { IQuaternion } from '../../math/IQuaternion';

@@ -1,5 +1,5 @@
 import type { IMutableColorRgb } from './IColor';
-import { type IMutableVector3, type IVector3, IVector4 } from './IVector';
+import type { IMutableVector3, IVector3 } from './IVector';
 import { MutableVector3 } from './MutableVector3';
 
 /**

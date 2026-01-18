@@ -1,7 +1,7 @@
 import PbrDiffuseTransmissionPropsShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/PbrDiffuseTransmissionProps.glsl';
 import PbrDiffuseTransmissionPropsShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/PbrDiffuseTransmissionProps.wgsl';
-import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
-import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
 import { Scalar } from '../../math/Scalar';
 import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';

@@ -1,9 +1,6 @@
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
-import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { Scalar } from '../../math/Scalar';
-import type { Engine } from '../../system/Engine';
-import { EngineState } from '../../system/EngineState';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
 

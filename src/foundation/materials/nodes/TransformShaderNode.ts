@@ -1,6 +1,6 @@
 import MultiplyShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/Transform.glsl';
 import MultiplyShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Transform.wgsl';
-import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
+import type { ComponentTypeEnum } from '../../definitions/ComponentType';
 import type { CompositionTypeEnum } from '../../definitions/CompositionType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';

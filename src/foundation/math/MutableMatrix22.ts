@@ -3,9 +3,6 @@ import { Logger } from '../misc/Logger';
 import type { IMatrix22, IMatrix33, IMatrix44, IMutableMatrix, IMutableMatrix22 } from './IMatrix';
 import type { IVector2 } from './IVector';
 import { Matrix22 } from './Matrix22';
-import type { Matrix33 } from './Matrix33';
-import type { Matrix44 } from './Matrix44';
-import type { Vector2 } from './Vector2';
 
 /**
  * A mutable 2x2 matrix class that extends Matrix22 and provides modification capabilities.

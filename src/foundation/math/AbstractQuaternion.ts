@@ -1,4 +1,3 @@
-import { TypedArray } from '../../types/CommonTypes';
 import type { IQuaternion } from './IQuaternion';
 import type { IMutableVector3, IVector3 } from './IVector';
 

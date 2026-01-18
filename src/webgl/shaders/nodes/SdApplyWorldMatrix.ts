@@ -1,11 +1,9 @@
 import type { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { ProcessApproach } from '../../../foundation/definitions/ProcessApproach';
-import { ShaderNode } from '../../../foundation/definitions/ShaderNode';
 import type { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
 import type { Engine } from '../../../foundation/system/Engine';
 import type { AttributeNames } from '../../types/CommonTypes';
 import { RaymarchingShaderPart } from '../RaymarchingShaderPart';
-import { StandardShaderPart } from '../StandardShaderPart';
 
 /**
  * SdApplyWorldMatrixShader class provides the apply world matrix function for fragment shaders.

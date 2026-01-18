@@ -4,7 +4,6 @@ import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
 import type { AbstractShaderNode } from '../../foundation/materials/core/AbstractShaderNode';
 import type { Socket, SocketDefaultValue } from '../../foundation/materials/core/Socket';
 import type { Engine } from '../../foundation/system/Engine';
-import vertexInputWGSL from '../../webgpu/shaderity_shaders/common/vertexInput.wgsl';
 import { CommonShaderPart } from './CommonShaderPart';
 
 /**

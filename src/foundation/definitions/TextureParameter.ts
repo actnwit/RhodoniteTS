@@ -1,6 +1,4 @@
-import { GL_RG16F, GL_RG32F } from '../../types';
 import { _from, EnumClass, type EnumIO } from '../misc/EnumIO';
-import { PixelFormat, PixelFormatEnum } from './PixelFormat';
 
 export interface TextureParameterEnum extends EnumIO {
   webgpu: string;

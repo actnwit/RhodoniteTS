@@ -1,13 +1,11 @@
 import type { ObjectUID } from '../../types/CommonTypes';
 import { TextureParameter } from '../definitions/TextureParameter';
 import type { Material } from '../materials/core/Material';
-import { Is } from '../misc/Is';
 import { RenderPass } from '../renderer/RenderPass';
 
 import type { Engine } from '../system/Engine';
 import type { AbstractTexture } from '../textures/AbstractTexture';
 import { Sampler } from '../textures/Sampler';
-import { MeshHelper } from './MeshHelper';
 
 // cache samplers between engine instances
 const __samplerMap: Map<ObjectUID, Sampler> = new Map();

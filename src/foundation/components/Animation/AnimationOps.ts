@@ -3,7 +3,7 @@
  *
  * @internal
  */
-import { AnimationChannel, type AnimationSampler } from '../../../types/AnimationTypes';
+import type { AnimationSampler } from '../../../types/AnimationTypes';
 import type { Array1, Array2, Array3, Array4, Index } from '../../../types/CommonTypes';
 import { AnimationAttribute } from '../../definitions/AnimationAttribute';
 import { AnimationInterpolation } from '../../definitions/AnimationInterpolation';

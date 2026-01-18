@@ -1,6 +1,5 @@
 import type { CameraComponent } from '../components/Camera/CameraComponent';
 import type { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
-import { Entity } from '../core/Entity';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { AABB } from '../math/AABB';
 import { MathClassUtil } from '../math/MathClassUtil';
@@ -10,7 +9,6 @@ import { MutableMatrix33 } from '../math/MutableMatrix33';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
 import { MutableVector3 } from '../math/MutableVector3';
 import { Is } from '../misc/Is';
-import { MiscUtil } from '../misc/MiscUtil';
 import { INPUT_HANDLING_STATE_CAMERA_CONTROLLER, type InputHandlerInfo, InputManager } from '../system/InputManager';
 import { AbstractCameraController } from './AbstractCameraController';
 import type { ICameraController } from './ICameraController';

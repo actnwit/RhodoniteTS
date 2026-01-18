@@ -1,6 +1,6 @@
 import StepShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/SmoothStep.glsl';
 import StepShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/SmoothStep.wgsl';
-import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
+import type { ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type { Engine } from '../../system/Engine';

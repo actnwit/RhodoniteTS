@@ -1,14 +1,8 @@
 import FlatShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/FlatShader.glsl';
 import FlatShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/FlatShader.wgsl';
-import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
-import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
-import { ProcessApproach } from '../../definitions/ProcessApproach';
-import { Scalar } from '../../math/Scalar';
-import { Vector2 } from '../../math/Vector2';
-import { Vector3 } from '../../math/Vector3';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
 import { Vector4 } from '../../math/Vector4';
-import type { Engine } from '../../system/Engine';
-import { EngineState } from '../../system/EngineState';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
 

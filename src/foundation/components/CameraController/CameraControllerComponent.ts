@@ -7,7 +7,6 @@ import type { IEntity } from '../../core/Entity';
 import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions';
 import { CameraControllerType, type CameraControllerTypeEnum } from '../../definitions/CameraControllerType';
-import { ICameraControllerEntity } from '../../helpers/EntityHelper';
 import { Logger } from '../../misc/Logger';
 import type { Engine } from '../../system/Engine';
 import type { ComponentToComponentMethods } from '../ComponentTypes';

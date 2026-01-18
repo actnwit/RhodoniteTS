@@ -1,9 +1,7 @@
 import type { ComponentSID, ComponentTID, EntityUID } from '../../types/CommonTypes';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
-import { Is } from '../misc/Is';
 import type { Engine } from '../system/Engine';
 import type { Component } from './Component';
-import { Config } from './Config';
 import type { EntityRepository } from './EntityRepository';
 
 /**

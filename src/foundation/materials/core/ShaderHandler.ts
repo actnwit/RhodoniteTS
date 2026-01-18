@@ -31,10 +31,8 @@ import { shadowWgsl } from '../../../webgpu/shaderity_shaders/common/shadow';
 import { vertexInputWgsl } from '../../../webgpu/shaderity_shaders/common/vertexInput';
 import { vertexOutputWgsl } from '../../../webgpu/shaderity_shaders/common/vertexOutput';
 import { wireframeWgsl } from '../../../webgpu/shaderity_shaders/common/wireframe';
-import type { RnXR } from '../../../xr/main';
 import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
 import { Component } from '../../core/Component';
-import type { Config } from '../../core/Config';
 import { BoneDataType } from '../../definitions/BoneDataType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type {
@@ -44,12 +42,9 @@ import type {
 import type { VertexAttributeEnum } from '../../definitions/VertexAttribute';
 import type { Primitive } from '../../geometry/Primitive';
 import { Is } from '../../misc/Is';
-import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import type { Engine } from '../../system/Engine';
-import { ModuleManager } from '../../system/ModuleManager';
 import type { AbstractMaterialContent } from './AbstractMaterialContent';
 import type { Material } from './Material';
-import { MaterialRepository } from './MaterialRepository';
 import { ShaderityUtilityWebGL } from './ShaderityUtilityWebGL';
 import { ShaderityUtilityWebGPU } from './ShaderityUtilityWebGPU';
 

@@ -59,6 +59,7 @@
       },
       "correctness": {
         "noUnusedVariables": "error",
+        "noUnusedPrivateClassMembers": "off",
         "useExhaustiveDependencies": "error",
         "noUnreachable": "error",
         "noConstantCondition": "error",

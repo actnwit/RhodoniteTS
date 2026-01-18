@@ -1,6 +1,6 @@
 import TanShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/Tan.glsl';
 import TanShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Tan.wgsl';
-import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
+import type { ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type { Engine } from '../../system/Engine';
