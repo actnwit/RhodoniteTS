@@ -1,15 +1,12 @@
 import type { ComponentSID, ComponentTID, EntityUID, Index, TypedArray } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
-import { Config } from '../../core/Config';
 import type { IEntity } from '../../core/Entity';
-import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
-import { GlobalDataRepository } from '../../core/GlobalDataRepository';
-import { BoneDataType, type BoneDataTypeEnum } from '../../definitions/BoneDataType';
+import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
+import { BoneDataType } from '../../definitions/BoneDataType';
 import { BufferUse } from '../../definitions/BufferUse';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessStage } from '../../definitions/ProcessStage';
-import { ShaderSemantics } from '../../definitions/ShaderSemantics';
 import { ShaderType } from '../../definitions/ShaderType';
 import type { ISceneGraphEntity, ISkeletalEntity } from '../../helpers/EntityHelper';
 import type { IMatrix44 } from '../../math/IMatrix';
@@ -22,13 +19,10 @@ import { MutableVector4 } from '../../math/MutableVector4';
 import { VectorN } from '../../math/VectorN';
 import type { Accessor } from '../../memory/Accessor';
 import { Is } from '../../misc';
-import { Logger } from '../../misc/Logger';
 import type { Engine } from '../../system/Engine';
 import { AnimationStateRepository } from '../Animation/AnimationStateRepository';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import type { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
-import { createGroupEntity } from '../SceneGraph/createGroupEntity';
-import { TransformComponent } from '../Transform/TransformComponent';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 type SkinningCache = {

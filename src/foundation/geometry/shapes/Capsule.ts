@@ -4,7 +4,7 @@ import { VertexAttribute } from '../../definitions/VertexAttribute';
 import { Vector3 } from '../../math/Vector3';
 import { Logger } from '../../misc/Logger';
 import type { PhysicsProperty } from '../../physics/PhysicsProperty';
-import { type IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
+import type { IAnyPrimitiveDescriptor } from '../Primitive';
 import { IShape } from './IShape';
 
 /**

@@ -1,8 +1,8 @@
 import { ProcessApproach, type ProcessApproachEnum } from '../foundation/definitions/ProcessApproach';
 import type { Engine } from '../foundation/system/Engine';
 import { ModuleManager } from '../foundation/system/ModuleManager';
-import type { WebGLStrategy } from './WebGLStrategy';
 import type { RnWebGL } from './main';
+import type { WebGLStrategy } from './WebGLStrategy';
 
 const getRenderingStrategy = (engine: Engine, processApproach: ProcessApproachEnum): WebGLStrategy => {
   // Strategy

@@ -1,5 +1,6 @@
-export * from './EntityHelper';
+export * from './AssetLoader';
 export * from './BloomHelper';
+export * from './EntityHelper';
 export * from './GaussianBlurHelper';
 export * from './MaterialHelper';
 export * from './MeshHelper';
@@ -7,4 +8,3 @@ export * from './RenderableHelper';
 export * from './RenderPassHelper';
 export * from './ShaderHelper';
 export * from './Shadow/index';
-export * from './AssetLoader';

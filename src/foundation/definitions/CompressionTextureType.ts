@@ -1,4 +1,4 @@
-import { EnumClass, type EnumIO, _from, _fromString } from '../misc/EnumIO';
+import { _from, _fromString, EnumClass, type EnumIO } from '../misc/EnumIO';
 
 type BlockInfo = {
   byteSize: number;

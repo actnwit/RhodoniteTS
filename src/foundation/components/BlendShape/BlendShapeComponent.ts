@@ -1,8 +1,7 @@
 import type { ComponentSID, ComponentTID, EntityUID, Index, Offset } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
-import { ComponentRepository } from '../../core/ComponentRepository';
 import type { IEntity } from '../../core/Entity';
-import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import type { Engine } from '../../system/Engine';
 import type { ComponentToComponentMethods } from '../ComponentTypes';

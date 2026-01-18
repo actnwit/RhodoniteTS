@@ -1,4 +1,5 @@
 import Rn from '../../../dist/esmdev/index.js';
+
 // import Rn from '../../../dist/cjs';
 
 declare const window: any;

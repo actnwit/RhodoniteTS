@@ -1,7 +1,6 @@
 import type { CGAPIResourceHandle, Index, MeshUID } from '../../types/CommonTypes';
 import type { VertexHandles } from '../../webgl/WebGLResourceRepository';
 import type { MeshComponent } from '../components/Mesh/MeshComponent';
-import { MemoryManager } from '../core/MemoryManager';
 import { BufferUse } from '../definitions/BufferUse';
 import { ComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
@@ -20,15 +19,14 @@ import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import type { Engine } from '../system/Engine';
-import { EngineState } from '../system/EngineState';
 import type { Primitive } from './Primitive';
 import {
   type IMesh,
-  type RaycastResultEx1,
-  isBlendWithZWrite,
   isBlendWithoutZWrite,
+  isBlendWithZWrite,
   isOpaque,
   isTranslucent,
+  type RaycastResultEx1,
 } from './types/GeometryTypes';
 
 /**

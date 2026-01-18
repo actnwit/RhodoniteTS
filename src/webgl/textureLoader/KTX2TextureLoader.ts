@@ -16,9 +16,7 @@ import {
 } from '../../foundation/definitions/CompressionTextureType';
 import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
 import { Logger } from '../../foundation/misc/Logger';
-import { CGAPIResourceRepository } from '../../foundation/renderer/CGAPIResourceRepository';
 import type { Engine } from '../../foundation/system/Engine';
-import { EngineState } from '../../foundation/system/EngineState';
 import type {
   BasisLzEtc1sImageTranscoder,
   MSC_TRANSCODER_TYPE,

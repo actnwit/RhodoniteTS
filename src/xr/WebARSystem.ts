@@ -9,7 +9,6 @@ import { Vector3 } from '../foundation/math/Vector3';
 import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
 import { None, type Option, Some } from '../foundation/misc/Option';
-import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import type { Engine } from '../foundation/system/Engine';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import type { WebGLContextWrapper } from '../webgl/WebGLContextWrapper';

@@ -1,7 +1,6 @@
 import type { SceneGraphComponent } from '../../components/SceneGraph/SceneGraphComponent';
 import type { Config } from '../../core/Config';
 import type { IVector3 } from '../../math/IVector';
-import { Matrix44 } from '../../math/Matrix44';
 import { MutableQuaternion } from '../../math/MutableQuaternion';
 import { MutableVector3 } from '../../math/MutableVector3';
 import { Quaternion } from '../../math/Quaternion';

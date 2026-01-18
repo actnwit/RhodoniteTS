@@ -1,7 +1,7 @@
 import type { ObjectUID } from '../../types/CommonTypes';
 import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
-import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
+import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { Mesh } from '../geometry/Mesh';
 import { Joint } from '../geometry/shapes/Joint';
 import type { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';

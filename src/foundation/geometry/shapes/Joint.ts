@@ -3,7 +3,7 @@ import { VertexAttribute } from '../../definitions/VertexAttribute';
 import type { IVector3 } from '../../math/IVector';
 import { Vector3 } from '../../math/Vector3';
 import type { Accessor } from '../../memory/Accessor';
-import { type IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
+import type { IAnyPrimitiveDescriptor } from '../Primitive';
 import { IShape } from './IShape';
 
 export type JointDescriptor = IAnyPrimitiveDescriptor;

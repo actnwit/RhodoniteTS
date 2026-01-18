@@ -1,7 +1,7 @@
 import { CompositionType, type CompositionTypeEnum } from '../definitions/CompositionType';
 import { AbstractMatrix } from './AbstractMatrix';
 import type { IMatrix, IMatrix33 } from './IMatrix';
-import type { IMutableVector, IVector } from './IVector';
+import type { IVector } from './IVector';
 import type { Matrix33 } from './Matrix33';
 import type { MutableVector3 } from './MutableVector3';
 import { Vector3 } from './Vector3';

@@ -1,8 +1,6 @@
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
-import { ComponentRepository } from '../core/ComponentRepository';
-import { Config } from '../core/Config';
 import { AlphaMode } from '../definitions/AlphaMode';
 import { Mesh } from '../geometry/Mesh';
 import { Ring } from '../geometry/shapes/Ring';
@@ -12,9 +10,7 @@ import { MaterialHelper } from '../helpers/MaterialHelper';
 import type { Material } from '../materials/core/Material';
 import type { IQuaternion } from '../math/IQuaternion';
 import type { IVector3 } from '../math/IVector';
-import { MathClassUtil } from '../math/MathClassUtil';
 import { Matrix33 } from '../math/Matrix33';
-import { Matrix44 } from '../math/Matrix44';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
 import { MutableVector2 } from '../math/MutableVector2';
 import { MutableVector3 } from '../math/MutableVector3';
@@ -25,7 +21,7 @@ import { Vector4 } from '../math/Vector4';
 import { Is } from '../misc/Is';
 import { assertExist } from '../misc/MiscUtil';
 import type { Engine } from '../system/Engine';
-import { INPUT_HANDLING_STATE_GIZMO_ROTATION, InputManager, getEvent } from '../system/InputManager';
+import { getEvent, INPUT_HANDLING_STATE_GIZMO_ROTATION, InputManager } from '../system/InputManager';
 import { Gizmo } from './Gizmo';
 
 declare let window: any;

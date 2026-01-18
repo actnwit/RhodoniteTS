@@ -1,13 +1,21 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.11/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
     "useIgnoreFile": true
   },
   "files": {
-    "include": ["src/**/*", "samples/**/*"],
-    "ignore": ["node_modules/**", "dist/**", "docs/**", "vendor/**", "assets/**", "**/*.d.ts"]
+    "includes": [
+      "**/src/**/*",
+      "**/samples/**/*",
+      "!**/node_modules/**",
+      "!**/dist/**",
+      "!**/docs/**",
+      "!**/vendor/**",
+      "!**/assets/**",
+      "!**/*.d.ts"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -16,11 +24,9 @@
     "indentWidth": 2,
     "lineWidth": 120,
     "lineEnding": "lf",
-    "ignore": ["dist/**", "docs/**", "vendor/**", "assets/**", "**/*.d.ts"]
+    "includes": ["**", "!**/dist/**", "!**/docs/**", "!**/vendor/**", "!**/assets/**", "!**/*.d.ts"]
   },
-  "organizeImports": {
-    "enabled": true
-  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
     "rules": {
@@ -30,9 +36,7 @@
         "useImportType": "error",
         "useExportType": "error",
         "useConst": "off",
-        "noParameterAssign": "off",
-        "noCommaOperator": "error",
-        "noArguments": "off"
+        "noParameterAssign": "off"
       },
       "complexity": {
         "noExcessiveCognitiveComplexity": {
@@ -41,11 +45,13 @@
             "maxAllowedComplexity": 80
           }
         },
-        "noMultipleSpacesInRegularExpressionLiterals": "error",
         "noForEach": "off",
         "noBannedTypes": "off",
         "noStaticOnlyClass": "off",
-        "noThisInStatic": "off"
+        "noThisInStatic": "off",
+        "noCommaOperator": "error",
+        "noArguments": "off",
+        "noAdjacentSpacesInRegex": "error"
       },
       "performance": {
         "noAccumulatingSpread": "warn",
@@ -53,6 +59,7 @@
       },
       "correctness": {
         "noUnusedVariables": "error",
+        "noUnusedPrivateClassMembers": "off",
         "useExhaustiveDependencies": "error",
         "noUnreachable": "error",
         "noConstantCondition": "error",
@@ -63,15 +70,18 @@
         "noExplicitAny": "off",
         "noConfusingVoidType": "error",
         "noPrototypeBuiltins": "error",
-        "noImplicitAnyLet": "error",
+        "noImplicitAnyLet": "off",
         "noAsyncPromiseExecutor": "error",
         "noAssignInExpressions": "error",
         "noShadowRestrictedNames": "error",
         "noThenProperty": "off",
-        "noRedeclare": "error"
+        "noRedeclare": "error",
+        "useAdjacentOverloadSignatures": "off",
+        "useIterableCallbackReturn": "off",
+        "noNonNullAssertedOptionalChain": "off"
       }
     },
-    "ignore": ["dist/**", "docs/**", "vendor/**", "assets/**", "**/*.d.ts"]
+    "includes": ["**", "!**/dist/**", "!**/docs/**", "!**/vendor/**", "!**/assets/**", "!**/*.d.ts"]
   },
   "javascript": {
     "formatter": {

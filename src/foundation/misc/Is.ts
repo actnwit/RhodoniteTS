@@ -119,7 +119,7 @@ const Derivatives = {
    * @returns A function that returns the opposite result of the input function
    */
   not(fn: FnType) {
-    // biome-ignore lint/complexity/useArrowFunction: <explanation>
+    // biome-ignore lint/complexity/useArrowFunction: need function for arguments object
     return function () {
       return fn.apply(null, [...arguments] as any);
     };
@@ -269,10 +269,10 @@ export interface IsType extends IsImplType {
 
 // Add derivatives to the IsObj
 for (const subFn in Derivatives) {
-  if (Object.prototype.hasOwnProperty.call(Derivatives, subFn)) {
+  if (Object.hasOwn(Derivatives, subFn)) {
     (IsObj as any)[subFn] = {} as typeof IsObj;
     for (const fn in IsObj) {
-      if (Object.prototype.hasOwnProperty.call(IsObj, fn)) {
+      if (Object.hasOwn(IsObj, fn)) {
         if (subFn === 'not') {
           (IsObj as any)[subFn][fn] = (Derivatives as any)[subFn]((NotObj as never)[fn]);
         } else {

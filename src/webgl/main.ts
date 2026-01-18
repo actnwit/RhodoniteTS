@@ -1,10 +1,10 @@
+import getRenderingStrategy from './getRenderingStrategy';
+import { StandardShaderPart } from './shaders/StandardShaderPart';
 import { WebGLContextWrapper } from './WebGLContextWrapper';
-import { WebGLResourceRepository, type VertexHandles as vertexHandles } from './WebGLResourceRepository';
+import { type VertexHandles as vertexHandles, WebGLResourceRepository } from './WebGLResourceRepository';
 import type { WebGLStrategy as webGLStrategy } from './WebGLStrategy';
 import { WebGLStrategyDataTexture } from './WebGLStrategyDataTexture';
 import { WebGLStrategyUniform } from './WebGLStrategyUniform';
-import getRenderingStrategy from './getRenderingStrategy';
-import { StandardShaderPart } from './shaders/StandardShaderPart';
 
 const WebGL = Object.freeze({
   getRenderingStrategy,

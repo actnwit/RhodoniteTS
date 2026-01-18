@@ -1,7 +1,7 @@
 import type { GltfLoadOption } from '../../types';
 import type { Byte, Size } from '../../types/CommonTypes';
-import type { RnM2 } from '../../types/RnM2';
 import type { glTF1 } from '../../types/glTF1';
+import type { RnM2 } from '../../types/RnM2';
 import { Err, Ok, type Result } from './Result';
 import { RnPromise } from './RnPromise';
 

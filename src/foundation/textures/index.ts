@@ -5,7 +5,7 @@ export * from './RenderBuffer';
 export * from './RenderTargetTexture';
 export * from './RenderTargetTexture2DArray';
 export * from './RenderTargetTextureCube';
+export * from './Sampler';
 export * from './Texture';
 export * from './TextureDataFloat';
 export * from './VideoTexture';
-export * from './Sampler';

@@ -1,4 +1,4 @@
-import { EnumClass, type EnumIO, _from } from '../foundation/misc/EnumIO';
+import { _from, EnumClass, type EnumIO } from '../foundation/misc/EnumIO';
 
 export type WebGLExtensionEnum = EnumIO;
 

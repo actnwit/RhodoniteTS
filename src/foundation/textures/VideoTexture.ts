@@ -2,9 +2,8 @@ import type { Size } from '../../types/CommonTypes';
 import { ComponentType, type ComponentTypeEnum } from '../definitions/ComponentType';
 import { PixelFormat, type PixelFormatEnum } from '../definitions/PixelFormat';
 import { TextureFormat } from '../definitions/TextureFormat';
-import { TextureParameter, type TextureParameterEnum } from '../definitions/TextureParameter';
+import type { TextureParameterEnum } from '../definitions/TextureParameter';
 import { DataUtil } from '../misc/DataUtil';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { AbstractTexture } from './AbstractTexture';
 
 /**
@@ -305,7 +304,7 @@ export class VideoTexture extends AbstractTexture {
    * ```
    */
   getCurrentFramePixelData() {
-    let pixel: Uint8Array | undefined = undefined;
+    let pixel: Uint8Array | undefined;
     const webGLResourceRepository = this.__engine.webglResourceRepository;
     if (this.__isTextureReady && this.#htmlVideoElement) {
       pixel = webGLResourceRepository.getPixelDataFromTexture(this._textureResourceUid, 0, 0, this.width, this.height);

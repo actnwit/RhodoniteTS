@@ -1,10 +1,6 @@
 import type { CameraComponent } from '../foundation/components/Camera/CameraComponent';
-import { Entity } from '../foundation/core/Entity';
 import type { ShaderSemanticsEnum } from '../foundation/definitions/ShaderSemantics';
 import type { ILoaderExtension } from '../foundation/importer/ILoaderExtension';
-import { Material } from '../foundation/materials/core/Material';
-import { Accessor } from '../foundation/memory/Accessor';
-import { RnPromise } from '../foundation/misc/RnPromise';
 import type { Expression } from '../foundation/renderer/Expression';
 import type {
   GL_DATA_BYTE,

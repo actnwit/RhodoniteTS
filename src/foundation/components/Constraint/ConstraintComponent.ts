@@ -2,7 +2,7 @@ import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/Commo
 import type { IVrmConstraint } from '../../constraints/IVrmConstraint';
 import { Component } from '../../core/Component';
 import type { IEntity } from '../../core/Entity';
-import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import type { IConstraintEntity } from '../../helpers/EntityHelper';
 import type { Engine } from '../../system/Engine';

@@ -7,5 +7,5 @@ export * from './ILoaderExtension';
 export * from './ModelConverter';
 export * from './RhodoniteImportExtension';
 export * from './Vrm0xImporter';
-export * from './VrmImporter';
 export * from './VrmaImporter';
+export * from './VrmImporter';

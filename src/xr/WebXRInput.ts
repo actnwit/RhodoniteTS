@@ -17,6 +17,7 @@ import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
 import { valueWithDefault } from '../foundation/misc/MiscUtil';
 import type { Engine } from '../foundation/system/Engine';
+
 // const oculusProfile = require('webxr-input-profiles/packages/registry/profiles/oculus/oculus-touch.json');
 
 /**

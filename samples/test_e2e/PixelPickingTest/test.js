@@ -1,4 +1,5 @@
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
+
 expect.extend({ toMatchImageSnapshot });
 test('regression test PixelPickingTest', async () => {
   const page = await browser.newPage();

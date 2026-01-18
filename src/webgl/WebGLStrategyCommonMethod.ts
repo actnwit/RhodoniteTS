@@ -1,7 +1,6 @@
 import { AlphaMode } from '../foundation/definitions/AlphaMode';
 import { ComponentType } from '../foundation/definitions/ComponentType';
 import { CompositionType } from '../foundation/definitions/CompositionType';
-import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
 import { ShaderType } from '../foundation/definitions/ShaderType';
 import type { Primitive } from '../foundation/geometry/Primitive';
 import type { Material } from '../foundation/materials/core/Material';
@@ -10,11 +9,8 @@ import { Vector3 } from '../foundation/math/Vector3';
 import type { Vector4 } from '../foundation/math/Vector4';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
 import type { Engine } from '../foundation/system/Engine';
-import { ModuleManager } from '../foundation/system/ModuleManager';
-import { type Index, IndexOf16Bytes } from '../types/CommonTypes';
+import type { Index } from '../types/CommonTypes';
 import type { WebXRSystem } from '../xr/WebXRSystem';
-import type { RnXR } from '../xr/main';
-import { WebGLResourceRepository } from './WebGLResourceRepository';
 import type { WebGLStrategy } from './WebGLStrategy';
 
 /**

@@ -1,8 +1,6 @@
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
-import { ComponentRepository } from '../core/ComponentRepository';
-import { Config } from '../core/Config';
 import { AlphaMode } from '../definitions/AlphaMode';
 import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import { VertexAttribute } from '../definitions/VertexAttribute';
@@ -28,7 +26,7 @@ import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
 import { assertExist } from '../misc/MiscUtil';
 import type { Engine } from '../system/Engine';
-import { INPUT_HANDLING_STATE_GIZMO_TRANSLATION, InputManager, getEvent } from '../system/InputManager';
+import { getEvent, INPUT_HANDLING_STATE_GIZMO_TRANSLATION, InputManager } from '../system/InputManager';
 import { Gizmo } from './Gizmo';
 
 declare let window: any;

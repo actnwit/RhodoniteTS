@@ -1,4 +1,4 @@
-import { type NodeJSON, RnM2Material, type Vrm0xMaterialProperty } from '../../types';
+import type { NodeJSON, Vrm0xMaterialProperty } from '../../types';
 import type { Count } from '../../types/CommonTypes';
 import type { ShaderNodeJson } from '../../types/ShaderNodeJson';
 import type { Vrm1_Material } from '../../types/VRMC_materials_mtoon';
@@ -8,10 +8,10 @@ import DepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/Depth
 import DepthMomentEncodeShaderVertex from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert';
 import EnvConstantSingleShaderFragment from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
 import EnvConstantSingleShaderVertex from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.vert';
-import FXAA3QualityShaderFragment from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.frag';
-import FXAA3QualityShaderVertex from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.vert';
 import FlatSingleShaderFragment from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
 import FlatSingleShaderVertex from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
+import FXAA3QualityShaderFragment from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.frag';
+import FXAA3QualityShaderVertex from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.vert';
 import GammaCorrectionShaderFragment from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
 import GammaCorrectionShaderVertex from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
 import GaussianBlurForEncodedDepthSingleShaderFragment from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.frag';
@@ -57,7 +57,6 @@ import ToneMappingShaderVertexWGSL from '../../webgpu/shaderity_shaders/ToneMapp
 import type { CameraComponent } from '../components/Camera/CameraComponent';
 import type { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
 import { RaymarchingComponent } from '../components/Raymarching/RaymarchingComponent';
-import { Config } from '../core/Config';
 import { ProcessApproach, TextureParameter } from '../definitions';
 import { ComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
@@ -71,9 +70,9 @@ import { DepthEncodeMaterialContent } from '../materials/contents/DepthEncodeMat
 import { DetectHighLuminanceMaterialContent } from '../materials/contents/DetectHighLuminanceMaterialContent';
 import { EntityUIDOutputMaterialContent } from '../materials/contents/EntityUIDOutputMaterialContent';
 import { FurnaceTestMaterialContent } from '../materials/contents/FurnaceTestMaterialContent';
+import { MatCapMaterialContent } from '../materials/contents/MatCapMaterialContent';
 import { MToon0xMaterialContent } from '../materials/contents/MToon0xMaterialContent';
 import { MToon1MaterialContent } from '../materials/contents/MToon1MaterialContent';
-import { MatCapMaterialContent } from '../materials/contents/MatCapMaterialContent';
 import { ShadowMapDecodeClassicMaterialContent } from '../materials/contents/ShadowMapDecodeClassicMaterialContent';
 import { SynthesizeHdrMaterialContent as SynthesizeHDRMaterialContent } from '../materials/contents/SynthesizeHdrMaterialContent';
 import { VarianceShadowMapDecodeClassicMaterialContent } from '../materials/contents/VarianceShadowMapDecodeClassicMaterialContent';
@@ -89,7 +88,6 @@ import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
 import type { RenderPass } from '../renderer/RenderPass';
 import type { Engine } from '../system/Engine';
-import { EngineState } from '../system/EngineState';
 import type { AbstractTexture } from '../textures/AbstractTexture';
 import { Sampler } from '../textures/Sampler';
 import type { Texture } from '../textures/Texture';

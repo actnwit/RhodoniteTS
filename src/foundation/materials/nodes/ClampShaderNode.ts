@@ -1,6 +1,6 @@
 import ClampShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/Clamp.glsl';
 import ClampShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Clamp.wgsl';
-import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
+import type { ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import type { Engine } from '../../system/Engine';

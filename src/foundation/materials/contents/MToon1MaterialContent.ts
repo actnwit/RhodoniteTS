@@ -1,5 +1,3 @@
-import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-
 import type { Vrm1_Material } from '../../../types/VRMC_materials_mtoon';
 import mToon1SingleShaderFragment from '../../../webgl/shaderity_shaders/MToon1SingleShader/MToon1SingleShader.frag.glsl';
 import mToon1SingleShaderVertex from '../../../webgl/shaderity_shaders/MToon1SingleShader/MToon1SingleShader.vert.glsl';
@@ -7,21 +5,15 @@ import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types
 import mToon1SingleShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/MToon1SingleShader/MToon1SingleShader.frag.wgsl';
 import mToon1SingleShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/MToon1SingleShader/MToon1SingleShader.vert.wgsl';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
-import { ComponentRepository } from '../../core/ComponentRepository';
-import { Config } from '../../core/Config';
-import { ComponentType } from '../../definitions/ComponentType';
-import { CompositionType } from '../../definitions/CompositionType';
 import { HdriFormat } from '../../definitions/HdriFormat';
 import { ShaderSemantics } from '../../definitions/ShaderSemantics';
 import type { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-import { ShaderType } from '../../definitions/ShaderType';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import { MutableVector2 } from '../../math/MutableVector2';
 import { MutableVector4 } from '../../math/MutableVector4';
-import { VectorN } from '../../math/VectorN';
-import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import type { Engine } from '../../system/Engine';
 import { Sampler } from '../../textures/Sampler';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import type { Material } from '../core/Material';
 
 /**
@@ -146,13 +138,7 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
    * @param params.material - The material instance to update
    * @param params.args - WebGPU rendering arguments with entity and environment data
    */
-  _setInternalSettingParametersToGpuWebGpu({
-    material,
-    args,
-  }: {
-    material: Material;
-    args: RenderingArgWebGpu;
-  }) {
+  _setInternalSettingParametersToGpuWebGpu({ material, args }: { material: Material; args: RenderingArgWebGpu }) {
     const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
       MToon1MaterialContent.__setupHdriParameters(args);
     const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;

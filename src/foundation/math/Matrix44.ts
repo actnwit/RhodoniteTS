@@ -2,18 +2,17 @@ import type { Array16, ArrayType } from '../../types/CommonTypes';
 import { CompositionType, type CompositionTypeEnum } from '../definitions/CompositionType';
 import { Logger } from '../misc/Logger';
 import { AbstractMatrix } from './AbstractMatrix';
+import { IdentityMatrix44 } from './IdentityMatrix44';
 import type { IMatrix, IMatrix33, IMatrix44 } from './IMatrix';
 import type { IQuaternion } from './IQuaternion';
-import type { IVector3 } from './IVector';
-import type { IVector4 } from './IVector';
-import { IdentityMatrix44 } from './IdentityMatrix44';
+import type { IVector3, IVector4 } from './IVector';
 import { MathUtil } from './MathUtil';
 import type { MutableMatrix44 } from './MutableMatrix44';
 import type { MutableVector3 } from './MutableVector3';
 import type { MutableVector4 } from './MutableVector4';
+import { mulThatAndThisToOutAsMat44_offsetAsComposition } from './raw/raw_extension';
 import { Vector3 } from './Vector3';
 import { Vector4 } from './Vector4';
-import { mulThatAndThisToOutAsMat44_offsetAsComposition } from './raw/raw_extension';
 
 /**
  * Represents a 4x4 matrix stored in column-major order (OpenGL/WebGL style).

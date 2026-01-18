@@ -1,4 +1,4 @@
-import { type GltfLoadOption, RnM2 } from '../../types';
+import type { GltfLoadOption } from '../../types';
 import type { RnM2Vrma } from '../../types/RnM2Vrma';
 import type { HumanBoneNames, NodeId } from '../../types/VRMC_vrm_animation';
 import { Is } from '../misc/Is';

@@ -2,7 +2,7 @@ import type { AnimationTrackName } from '../../../types/AnimationTypes';
 import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
 import type { IEntity } from '../../core/Entity';
-import { type EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import type { IAnimationStateEntity, ISceneGraphEntity } from '../../helpers/EntityHelper';
 import type { Engine } from '../../system/Engine';

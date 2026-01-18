@@ -1,10 +1,10 @@
 /// <reference types="@webgpu/types" />
 
+import HDRImage from '../../vendor/hdrpng.js';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import type { Config } from '../foundation/core/Config';
 import { EntityRepository } from '../foundation/core/EntityRepository';
-import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import { AlphaMode } from '../foundation/definitions/AlphaMode';
 import { BasisCompressionType, type BasisCompressionTypeEnum } from '../foundation/definitions/BasisCompressionType';
 import { ComponentType, type ComponentTypeEnum } from '../foundation/definitions/ComponentType';
@@ -15,12 +15,13 @@ import { PixelFormat, type PixelFormatEnum } from '../foundation/definitions/Pix
 import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
 import { TextureFormat, type TextureFormatEnum } from '../foundation/definitions/TextureFormat';
 import { TextureParameter, type TextureParameterEnum } from '../foundation/definitions/TextureParameter';
-import { VertexAttribute, type VertexAttributeEnum } from '../foundation/definitions/VertexAttribute';
+import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
 import type { Mesh } from '../foundation/geometry/Mesh';
 import { Primitive } from '../foundation/geometry/Primitive';
 import type { Material } from '../foundation/materials/core/Material';
 import type { Vector4 } from '../foundation/math/Vector4';
 import type { Accessor } from '../foundation/memory/Accessor';
+import type { Buffer } from '../foundation/memory/Buffer';
 import { DataUtil } from '../foundation/misc/DataUtil';
 import { Is } from '../foundation/misc/Is';
 import { Logger } from '../foundation/misc/Logger';
@@ -33,7 +34,7 @@ import {
 } from '../foundation/renderer/CGAPIResourceRepository';
 import type { FrameBuffer } from '../foundation/renderer/FrameBuffer';
 import type { RenderPass } from '../foundation/renderer/RenderPass';
-import { EngineState } from '../foundation/system/EngineState';
+import type { Engine } from '../foundation/system/Engine';
 import type { AbstractTexture } from '../foundation/textures/AbstractTexture';
 import { CubeTexture } from '../foundation/textures/CubeTexture';
 import type { IRenderable } from '../foundation/textures/IRenderable';
@@ -41,19 +42,11 @@ import type { RenderBuffer } from '../foundation/textures/RenderBuffer';
 import { RenderTargetTexture2DArray } from '../foundation/textures/RenderTargetTexture2DArray';
 import { RenderTargetTextureCube } from '../foundation/textures/RenderTargetTextureCube';
 import { Sampler } from '../foundation/textures/Sampler';
+import { TextureArray } from '../foundation/textures/TextureArray';
 import type { BasisFile } from '../types/BasisTexture';
 import type { Count, Index, Size, TypedArray, WebGLResourceHandle, WebGPUResourceHandle } from '../types/CommonTypes';
 import type { TextureData, VertexHandles } from '../webgl/WebGLResourceRepository';
-import type { AttributeNames } from '../webgl/types/CommonTypes';
 import type { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
-
-import HDRImage from '../../vendor/hdrpng.js';
-import type { Buffer } from '../foundation/memory/Buffer';
-import type { Engine } from '../foundation/system/Engine';
-import { ModuleManager } from '../foundation/system/ModuleManager';
-import { TextureArray } from '../foundation/textures/TextureArray';
-import type { WebXRSystem } from '../xr/WebXRSystem';
-import type { RnXR } from '../xr/main';
 
 export type WebGpuResource =
   | GPUTexture
@@ -1739,7 +1732,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       renderPassDescriptor.colorAttachments = colorAttachments as GPURenderPassColorAttachment[];
       this.__renderPassEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
     } else if (framebuffer != null) {
-      let depthTextureView: GPUTextureView | undefined = undefined;
+      let depthTextureView: GPUTextureView | undefined;
       if (framebuffer.depthAttachment != null) {
         const depthTexture = this.__webGpuResources.get(framebuffer.depthAttachment._textureResourceUid) as GPUTexture;
         if (depthTexture != null) {
@@ -1748,7 +1741,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
           ) as GPUTextureView;
         }
       }
-      let depthStencilAttachment: GPURenderPassDepthStencilAttachment | undefined = undefined;
+      let depthStencilAttachment: GPURenderPassDepthStencilAttachment | undefined;
       if (depthTextureView != null) {
         depthStencilAttachment = {
           view: depthTextureView,
@@ -1991,7 +1984,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       ? renderPass._primitiveModeForBufferLessRendering
       : primitive.primitiveMode;
     const topology = mode.getWebGPUTypeStr();
-    let stripIndexFormat = undefined;
+    let stripIndexFormat;
     if (primitive.hasIndices() && (topology === 'triangle-strip' || topology === 'line-strip')) {
       stripIndexFormat = primitive.getIndexBitSize();
     }

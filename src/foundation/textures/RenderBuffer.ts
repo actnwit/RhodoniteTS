@@ -3,11 +3,10 @@ import type { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceReposi
 import { RnObject } from '../core/RnObject';
 import { ProcessApproach } from '../definitions/ProcessApproach';
 import { TextureFormat, type TextureFormatEnum } from '../definitions/TextureFormat';
-import { TextureParameter, type TextureParameterEnum } from '../definitions/TextureParameter';
+import type { TextureParameterEnum } from '../definitions/TextureParameter';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import type { FrameBuffer } from '../renderer/FrameBuffer';
 import type { Engine } from '../system/Engine';
-import { EngineState } from '../system/EngineState';
 import type { IRenderable } from './IRenderable';
 
 /**

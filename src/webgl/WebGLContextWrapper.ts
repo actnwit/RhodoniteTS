@@ -97,12 +97,12 @@ export class WebGLContextWrapper {
   private __default_viewport_top = 0;
   private __default_viewport_width = 0;
   private __default_viewport_height = 0;
-  #alignedMaxUniformBlockSize = INVALID_SIZE;
-  #maxUniformBlockSize = INVALID_SIZE;
-  #uniformBufferOffsetAlignment = INVALID_SIZE;
-  #maxVertexUniformBlocks = INVALID_SIZE;
-  #maxFragmentUniformBlocks = INVALID_SIZE;
-  #maxConventionUniformBlocks = INVALID_SIZE;
+  private __alignedMaxUniformBlockSize = INVALID_SIZE;
+  private __maxVertexUniformBlocks = INVALID_SIZE;
+  private __maxFragmentUniformBlocks = INVALID_SIZE;
+  private __maxConventionUniformBlocks = INVALID_SIZE;
+  private __uniformBufferOffsetAlignment = INVALID_SIZE;
+  private __maxUniformBlockSize = INVALID_SIZE;
   private __maxVertexUniformVectors = INVALID_SIZE;
   private __maxFragmentUniformVectors = INVALID_SIZE;
   private __maxTextureSize: Size = INVALID_SIZE;
@@ -597,12 +597,12 @@ export class WebGLContextWrapper {
     const gl: any = this.__gl;
     const offsetAlignment = gl.getParameter(gl.UNIFORM_BUFFER_OFFSET_ALIGNMENT) as number;
     const maxBlockSize = gl.getParameter(gl.MAX_UNIFORM_BLOCK_SIZE) as number;
-    this.#maxVertexUniformBlocks = gl.getParameter(gl.MAX_VERTEX_UNIFORM_BLOCKS) as number;
-    this.#maxFragmentUniformBlocks = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_BLOCKS) as number;
-    this.#maxConventionUniformBlocks = Math.min(this.#maxVertexUniformBlocks, this.#maxFragmentUniformBlocks);
-    this.#alignedMaxUniformBlockSize = maxBlockSize - (maxBlockSize % offsetAlignment);
-    this.#uniformBufferOffsetAlignment = offsetAlignment;
-    this.#maxUniformBlockSize = maxBlockSize;
+    this.__maxVertexUniformBlocks = gl.getParameter(gl.MAX_VERTEX_UNIFORM_BLOCKS) as number;
+    this.__maxFragmentUniformBlocks = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_BLOCKS) as number;
+    this.__maxConventionUniformBlocks = Math.min(this.__maxVertexUniformBlocks, this.__maxFragmentUniformBlocks);
+    this.__alignedMaxUniformBlockSize = maxBlockSize - (maxBlockSize % offsetAlignment);
+    this.__uniformBufferOffsetAlignment = offsetAlignment;
+    this.__maxUniformBlockSize = maxBlockSize;
   }
 
   /**
@@ -635,7 +635,7 @@ export class WebGLContextWrapper {
    * @returns The minimum of vertex and fragment shader uniform block limits
    */
   getMaxConventionUniformBlocks() {
-    return this.#maxConventionUniformBlocks;
+    return this.__maxConventionUniformBlocks;
   }
 
   /**
@@ -643,7 +643,7 @@ export class WebGLContextWrapper {
    * @returns The aligned maximum uniform block size in bytes
    */
   getAlignedMaxUniformBlockSize() {
-    return this.#alignedMaxUniformBlockSize;
+    return this.__alignedMaxUniformBlockSize;
   }
 
   /**

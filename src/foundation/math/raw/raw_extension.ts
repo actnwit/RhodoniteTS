@@ -453,12 +453,12 @@ declare global {
     [normalizeArray4](this: Array4<number>): Array4<number>;
   }
 
-  // biome-ignore lint/correctness/noUnusedVariables: <explanation>
+  // biome-ignore lint/correctness/noUnusedVariables: extending global Array interface
   interface Array<T> extends Extension {}
   // interface Array2<T> extends Extension {}
   // interface Array3<T> extends Extension {}
   // interface Array4<T> extends Extension {}
-  // biome-ignore lint/correctness/noUnusedVariables: <explanation>
+  // biome-ignore lint/correctness/noUnusedVariables: extending global ReadonlyArray interface
   interface ReadonlyArray<T> extends Extension {}
   interface Float32Array extends Extension {}
 }

@@ -1,10 +1,9 @@
 import Random_SinHashShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/Random_SinHash.glsl';
 import Random_SinHashShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Random_SinHash.wgsl';
-import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
-import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { Vector2 } from '../../math/Vector2';
-import { Vector3 } from '../../math/Vector3';
 import type { Engine } from '../../system/Engine';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';

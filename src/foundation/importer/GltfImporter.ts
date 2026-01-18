@@ -1,9 +1,9 @@
 import type { GltfFileBuffers, GltfLoadOption } from '../../types';
-import type { RnM2 } from '../../types/RnM2';
 import type { glTF1 } from '../../types/glTF1';
+import type { RnM2 } from '../../types/RnM2';
 import { FileType } from '../definitions/FileType';
 import { DataUtil } from '../misc/DataUtil';
-import { Err, Ok, type Result, assertIsErr } from '../misc/Result';
+import { assertIsErr, Err, Ok, type Result } from '../misc/Result';
 import type { RnPromiseCallback } from '../misc/RnPromise';
 import { Expression } from '../renderer/Expression';
 import { RenderPass } from '../renderer/RenderPass';

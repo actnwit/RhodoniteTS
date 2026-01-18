@@ -1,4 +1,5 @@
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
+
 expect.extend({ toMatchImageSnapshot });
 
 test('regression test GltfImporter-orbit-moving', async () => {

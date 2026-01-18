@@ -1,4 +1,5 @@
 import { Is } from './Is';
+
 // Inspired from https://scleapt.com/typescript_option/
 
 /**

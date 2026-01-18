@@ -6,18 +6,17 @@ import {
   type Gltf2Node,
   type Gltf2Texture,
   type Gltf2TextureSampler,
+  isSameGlTF2TextureSampler,
   type KHR_lights_punctual,
   type KHR_lights_punctual_Light,
   type KHR_materials_variants,
   type KHR_materials_variants_PrimitiveExtension,
-  isSameGlTF2TextureSampler,
 } from '../../types/glTF2';
 import type { Gltf2Ex, Gltf2ImageEx, Gltf2MaterialEx } from '../../types/glTF2ForOutput';
 import { VERSION } from '../../version';
 import type { CameraComponent } from '../components/Camera/CameraComponent';
 import type { LightComponent } from '../components/Light/LightComponent';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import { EntityRepository } from '../core/EntityRepository';
 import type { Tag } from '../core/RnObject';
 import { CameraType, LightType, TextureParameter } from '../definitions';
 import type { Mesh } from '../geometry/Mesh';
@@ -39,22 +38,10 @@ import type { Sampler } from '../textures/Sampler';
 import type { Texture } from '../textures/Texture';
 import { createEffekseer } from './Gltf2ExporterEffekseer';
 import {
-  type AnimationChannelTargetOverride,
-  type AnimationChannelTargetResolution,
-  type AnimationExportOptions,
-  __collectAccessorIndicesFromAnimations,
-  __collectAccessorIndicesFromMeshes,
-  __collectAccessorIndicesFromSkins,
-  __collectUsedAccessorIndices,
-  __collectUsedBufferViewIndices,
-  __collectUsedTexCoordSetIndices,
   __createBufferViewsAndAccessorsOfAnimation,
   __createBufferViewsAndAccessorsOfMesh,
   __createBufferViewsAndAccessorsOfSkin,
   __deleteEmptyArrays,
-  __doesMaterialRequireTangents,
-  __extractScalarParameter,
-  __filterItemsByUsage,
   __outputBaseMaterialInfo,
   __outputKhrMaterialsAnisotropyInfo,
   __outputKhrMaterialsClearcoatInfo,
@@ -68,13 +55,10 @@ import {
   __outputKhrMaterialsTransmissionInfo,
   __outputKhrMaterialsVolumeInfo,
   __pruneUnusedVertexAttributes,
-  __recalculateBufferViewAccumulators,
-  __remapAccessorAttributeRecord,
-  __remapAccessorReferences,
-  __remapBufferViewReferences,
-  __removeUnusedAccessors,
   __removeUnusedAccessorsAndBufferViews,
-  __removeUnusedBufferViews,
+  type AnimationChannelTargetOverride,
+  type AnimationChannelTargetResolution,
+  type AnimationExportOptions,
   generateGlbArrayBuffer,
   handleTextureImage,
   isNumericArrayBufferView,
@@ -274,7 +258,7 @@ export class Gltf2Exporter {
    * @returns Object containing the initialized JSON structure and processed filename
    */
   private static __createJsonBase(filename: string) {
-    const fileName = filename ? filename : `Rhodonite_${new Date().getTime()}`;
+    const fileName = filename ? filename : `Rhodonite_${Date.now()}`;
     const json: Gltf2Ex = {
       asset: {
         version: '2.0',

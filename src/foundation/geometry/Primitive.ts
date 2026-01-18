@@ -1,6 +1,5 @@
 import type { Count, Index, Offset, PrimitiveUID, TypedArray } from '../../types/CommonTypes';
 import type { VertexHandles } from '../../webgl/WebGLResourceRepository';
-import { MemoryManager } from '../core/MemoryManager';
 import { RnObject } from '../core/RnObject';
 import { BufferUse } from '../definitions/BufferUse';
 import { ComponentType, type ComponentTypeEnum } from '../definitions/ComponentType';
@@ -18,14 +17,11 @@ import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
 import { None, type Option, Some } from '../misc/Option';
 import { RnException } from '../misc/RnException';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import type { Engine } from '../system/Engine';
 import type { Mesh } from './Mesh';
 import {
   type IMesh,
   type PrimitiveSortKey,
-  type PrimitiveSortKeyLength,
-  type PrimitiveSortKeyOffset,
   PrimitiveSortKey_BitLength_Material,
   PrimitiveSortKey_BitLength_PrimitiveType,
   PrimitiveSortKey_BitLength_RenderQueue,
@@ -34,6 +30,8 @@ import {
   PrimitiveSortKey_BitOffset_PrimitiveType,
   PrimitiveSortKey_BitOffset_RenderQueue,
   PrimitiveSortKey_BitOffset_TranslucencyType,
+  type PrimitiveSortKeyLength,
+  type PrimitiveSortKeyOffset,
   type RaycastResult,
   type RaycastResultEx1,
 } from './types/GeometryTypes';

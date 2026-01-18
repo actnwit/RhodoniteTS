@@ -1,7 +1,7 @@
 import Random_HashPRNGShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/Random_HashPRNG.glsl';
 import Random_HashPRNGShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Random_HashPRNG.wgsl';
-import { ComponentType, type ComponentTypeEnum } from '../../definitions/ComponentType';
-import { CompositionType, type CompositionTypeEnum } from '../../definitions/CompositionType';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { Vector3 } from '../../math/Vector3';
 import type { Engine } from '../../system/Engine';
