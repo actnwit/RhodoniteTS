@@ -5,7 +5,7 @@ pre-commit:
   parallel: true
   commands:
     biome-check:
-      glob: "*.{js,ts,jsx,tsx,json}"
+      glob: "**/*.{js,ts,jsx,tsx,json}"
       run: ./node_modules/.bin/biome check --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
 
 pre-push:
