@@ -4,6 +4,7 @@ import { Vector4 } from '../foundation/math/Vector4';
 import { Logger } from '../foundation/misc/Logger';
 import type { Index, Size } from '../types/CommonTypes';
 import { WebGLExtension, type WebGLExtensionEnum } from './WebGLExtension';
+import type { WebGLResource } from './WebGLResourceRepository';
 
 const INVALID_SIZE = -1;
 
@@ -12,6 +13,21 @@ interface WEBGL_compressed_texture_etc {
 }
 interface WEBGL_compressed_texture_bptc {
   readonly COMPRESSED_RGBA_BPTC_UNORM_EXT: number;
+}
+
+/** PVRTC (often exposed via WEBKIT_ prefix); not always present in TS DOM libs */
+interface WEBKIT_WEBGL_compressed_texture_pvrtc {
+  readonly COMPRESSED_RGB_PVRTC_4BPPV1_IMG: number;
+  readonly COMPRESSED_RGB_PVRTC_2BPPV1_IMG: number;
+  readonly COMPRESSED_RGBA_PVRTC_4BPPV1_IMG: number;
+  readonly COMPRESSED_RGBA_PVRTC_2BPPV1_IMG: number;
+}
+
+/** ATC compression (mobile); not always present in TS DOM libs */
+interface WEBGL_compressed_texture_atc {
+  readonly COMPRESSED_RGB_ATC_WEBGL: number;
+  readonly COMPRESSED_RGBA_ATC_EXPLICIT_ALPHA_WEBGL: number;
+  readonly COMPRESSED_RGBA_ATC_INTERPOLATED_ALPHA_WEBGL: number;
 }
 
 interface WEBGL_multiview {
@@ -109,7 +125,8 @@ export class WebGLContextWrapper {
   private readonly __is_multiview: boolean;
   _isWebXRMode = false;
 
-  __extensions: Map<WebGLExtensionEnum, WebGLObject> = new Map();
+  /** Extension objects from getExtension (DOM lib dropped WebGLObject base in newer TS) */
+  __extensions: Map<WebGLExtensionEnum, WebGLResource> = new Map();
 
   /**
    * Creates a new WebGLContextWrapper instance.

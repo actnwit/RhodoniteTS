@@ -1,3 +1,4 @@
+/// <reference types="webxr" />
 import { createCameraEntity } from '../foundation/components/Camera/createCameraEntity';
 import { createGroupEntity } from '../foundation/components/SceneGraph/createGroupEntity';
 import type { IEntity } from '../foundation/core/Entity';
@@ -19,7 +20,6 @@ import type { WebGLResourceRepository } from '../webgl/WebGLResourceRepository';
 import type { WebGLStereoUtil } from '../webgl/WebGLStereoUtil';
 import { createMotionController, getMotionController, updateGamePad, updateMotionControllerModel } from './WebXRInput';
 
-declare const navigator: Navigator;
 declare const window: any;
 const defaultUserPositionInVR = Vector3.fromCopyArray([0.0, 1.1, 0]);
 
