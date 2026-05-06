@@ -6,9 +6,9 @@ pre-commit:
   commands:
     biome-check:
       glob: "**/*.{js,ts,jsx,tsx,json}"
-      run: ./node_modules/.bin/biome check --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
+      run: bash scripts/lefthook-with-node.sh ./node_modules/.bin/biome check --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
 
 pre-push:
   commands:
     biome-check-all:
-      run: ./node_modules/.bin/biome check ./src ./samples
+      run: bash scripts/lefthook-with-node.sh ./node_modules/.bin/biome check ./src ./samples
