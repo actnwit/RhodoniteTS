@@ -171,11 +171,12 @@ export type WebGLStates = {
 export type WebGLResource =
   | WebGLBuffer
   | WebGLFramebuffer
-  | WebGLObject
   | WebGLProgram
   | WebGLRenderbuffer
   | WebGLTexture
-  | WebGLTransformFeedback;
+  | WebGLTransformFeedback
+  | WebGLSampler
+  | WebGLVertexArrayObject;
 
 /**
  * A comprehensive repository for managing WebGL resources including buffers, textures, shaders, and framebuffers.
