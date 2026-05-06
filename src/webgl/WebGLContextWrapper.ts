@@ -4,7 +4,6 @@ import { Vector4 } from '../foundation/math/Vector4';
 import { Logger } from '../foundation/misc/Logger';
 import type { Index, Size } from '../types/CommonTypes';
 import { WebGLExtension, type WebGLExtensionEnum } from './WebGLExtension';
-import type { WebGLResource } from './WebGLResourceRepository';
 
 const INVALID_SIZE = -1;
 
@@ -125,8 +124,11 @@ export class WebGLContextWrapper {
   private readonly __is_multiview: boolean;
   _isWebXRMode = false;
 
-  /** Extension objects from getExtension (DOM lib dropped WebGLObject base in newer TS) */
-  __extensions: Map<WebGLExtensionEnum, WebGLResource> = new Map();
+  /**
+   * Cached results of getExtension / vendor-prefixed getExtension.
+   * Values are WebGL extension API objects (distinct from WebGLResource: buffers, textures, programs, etc.).
+   */
+  __extensions: Map<WebGLExtensionEnum, object | null> = new Map();
 
   /**
    * Creates a new WebGLContextWrapper instance.
