@@ -1,5 +1,3 @@
-/// <reference types="@webgpu/types" />
-
 import HDRImage from '../../vendor/hdrpng.js';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';

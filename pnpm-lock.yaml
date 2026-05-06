@@ -36,9 +36,6 @@ importers:
       '@vitest/coverage-v8':
         specifier: 3.1.2
         version: 3.1.2(vitest@3.2.4(@types/node@24.10.0)(happy-dom@20.8.9)(terser@5.46.1)(yaml@2.8.1))
-      '@webgpu/types':
-        specifier: ^0.1.66
-        version: 0.1.66
       cliui:
         specifier: ^9.0.1
         version: 9.0.1
@@ -757,9 +754,6 @@ packages:
 
   '@webassemblyjs/wast-printer@1.14.1':
     resolution: {integrity: sha512-kPSSXE6De1XOR820C90RIo2ogvZG+c3KiHzqUoO/F34Y2shGzesfqv7o57xrxovZJH/MetF5UjroJ/R/3isoiw==}
-
-  '@webgpu/types@0.1.66':
-    resolution: {integrity: sha512-YA2hLrwLpDsRueNDXIMqN9NTzD6bCDkuXbOSe0heS+f8YE8usA6Gbv1prj81pzVHrbaAma7zObnIC+I6/sXJgA==}
 
   '@xtuc/ieee754@1.2.0':
     resolution: {integrity: sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA==}
@@ -3122,8 +3116,6 @@ snapshots:
     dependencies:
       '@webassemblyjs/ast': 1.14.1
       '@xtuc/long': 4.2.2
-
-  '@webgpu/types@0.1.66': {}
 
   '@xtuc/ieee754@1.2.0': {}
 
