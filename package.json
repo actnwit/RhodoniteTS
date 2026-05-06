@@ -80,7 +80,7 @@
     "ts-loader": "^9.5.1",
     "tsc-watch": "^6.2.0",
     "tsup": "^8.4.0",
-    "typedoc": "^0.28.14",
+    "typedoc": "^0.28.18",
     "typescript": "6.0.3",
     "version-loader": "^0.1.0",
     "vitest": "^3.1.2",
