@@ -44,6 +44,7 @@
     "GltfImporter-walk-through-fixed-direction-moving",
     "IBLfromHDR/?mode=datatexture",
     "InstancedSkinMesh",
+    "MassCubes",
     "MatCap",
     "MultiEngines",
     "MultiPass",
