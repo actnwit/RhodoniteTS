@@ -1,27 +1,38 @@
 name: test
 
-on: [push]
+on:
+  push:
+    branches:
+      - develop
+      - main
+
+permissions:
+  contents: read
 
 jobs:
   build:
     runs-on: self-hosted
 
     steps:
-      - uses: actions/checkout@v4
+      # actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
           submodules: recursive
-      - uses: pnpm/action-setup@v2
+      # pnpm/action-setup@v6
+      - uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093
         with:
           version: 10
-      - uses: actions/setup-node@v4
+      # actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
           cache: 'pnpm'
       - name: Install safe-chain
-        run: curl -fsSL https://raw.githubusercontent.com/AikidoSec/safe-chain/main/install-scripts/install-safe-chain.sh | sh -s -- --ci
-      - run: pnpm install
+        run: curl -fsSL https://raw.githubusercontent.com/AikidoSec/safe-chain/6aec1bc4743028a99ab1ebace8e743549260ce82/install-scripts/install-safe-chain.sh | sh -s -- --ci
+      - run: pnpm install --frozen-lockfile
       - run: pnpm run build
-      - uses: actions/upload-artifact@v4
+      # actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: Rhodonite-distribution-files
           path: dist
