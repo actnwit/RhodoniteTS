@@ -71,6 +71,7 @@ export class EffekseerComponent extends Component {
   public randomSeed = -1;
   public isImageLoadWithCredential = false;
   public isSoundEnabled = false;
+  public autoResumeSoundByUserGesture = true;
 
   private __effect?: EffekseerEffect;
   private __context?: EffekseerContext;
@@ -81,6 +82,8 @@ export class EffekseerComponent extends Component {
   private __isDestroyed = false;
   private __loadPromise?: Promise<boolean>;
   private __reportedMissingModule = false;
+  private __autoResumeSoundEventTarget?: EventTarget;
+  private __autoResumeSoundEventHandler?: EventListener;
   private static __runtimeInitializationPromise?: Promise<void>;
   private static __runtimeInitializationKey?: string;
   private static __tmp_identityMatrix_0: MutableMatrix44 = MutableMatrix44.identity();
@@ -201,6 +204,7 @@ export class EffekseerComponent extends Component {
 
   async resumeSound(): Promise<boolean> {
     this.isSoundEnabled = true;
+    this.__unregisterAutoResumeSoundByUserGesture();
     if (Is.not.exist(this.__context?.resumeSound)) {
       return false;
     }
@@ -210,7 +214,63 @@ export class EffekseerComponent extends Component {
 
   pauseSound(): void {
     this.isSoundEnabled = false;
+    this.__unregisterAutoResumeSoundByUserGesture();
     this.__context?.pauseSound?.();
+  }
+
+  private __registerAutoResumeSoundByUserGesture(): void {
+    if (
+      !this.autoResumeSoundByUserGesture ||
+      this.isSoundEnabled ||
+      Is.not.exist(this.__context?.resumeSound) ||
+      Is.exist(this.__autoResumeSoundEventHandler)
+    ) {
+      return;
+    }
+
+    const glw = this.__engine.webglResourceRepository.currentWebGLContextWrapper;
+    const eventTarget = glw?.canvas ?? (typeof window !== 'undefined' ? window : undefined);
+    if (Is.not.exist(eventTarget)) {
+      return;
+    }
+
+    this.__autoResumeSoundEventTarget = eventTarget;
+    this.__autoResumeSoundEventHandler = () => {
+      void this.__resumeSoundByUserGesture();
+    };
+
+    eventTarget.addEventListener('pointerdown', this.__autoResumeSoundEventHandler, { once: true });
+    eventTarget.addEventListener('keydown', this.__autoResumeSoundEventHandler, { once: true });
+    eventTarget.addEventListener('touchstart', this.__autoResumeSoundEventHandler, { once: true, passive: true });
+  }
+
+  private __unregisterAutoResumeSoundByUserGesture(): void {
+    if (Is.not.exist(this.__autoResumeSoundEventTarget) || Is.not.exist(this.__autoResumeSoundEventHandler)) {
+      return;
+    }
+
+    this.__autoResumeSoundEventTarget.removeEventListener('pointerdown', this.__autoResumeSoundEventHandler);
+    this.__autoResumeSoundEventTarget.removeEventListener('keydown', this.__autoResumeSoundEventHandler);
+    this.__autoResumeSoundEventTarget.removeEventListener('touchstart', this.__autoResumeSoundEventHandler);
+    this.__autoResumeSoundEventTarget = undefined;
+    this.__autoResumeSoundEventHandler = undefined;
+  }
+
+  private async __resumeSoundByUserGesture(): Promise<void> {
+    this.__unregisterAutoResumeSoundByUserGesture();
+    if (this.__isDestroyed) {
+      return;
+    }
+
+    const shouldReplay = this.playJustAfterLoaded && !this.isLoop;
+    const resumed = await this.resumeSound();
+    if (!resumed || this.__isDestroyed) {
+      return;
+    }
+    if (shouldReplay) {
+      this.stop();
+      this.play();
+    }
   }
 
   setTime(targetSec: Second) {
@@ -294,6 +354,7 @@ export class EffekseerComponent extends Component {
     this.__context.setRestorationOfStatesFlag?.(true);
     if (!this.isSoundEnabled) {
       this.__context.pauseSound?.();
+      this.__registerAutoResumeSoundByUserGesture();
     }
 
     const data = Is.exist(this.uri) ? this.uri : this.arrayBuffer;
@@ -400,6 +461,7 @@ export class EffekseerComponent extends Component {
   }
 
   private __releaseEffekseerResources(effekseerModule?: EffekseerModule): void {
+    this.__unregisterAutoResumeSoundByUserGesture();
     if (Is.exist(this.__handle)) {
       this.__handle.stop();
       this.__handle = undefined;
