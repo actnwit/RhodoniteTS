@@ -38,6 +38,9 @@ type EffekseerContext = {
   releaseEffect(effect: EffekseerEffect): void;
   release?: () => void;
   play(effect: EffekseerEffect, x?: number, y?: number, z?: number): EffekseerHandle | null;
+  setSoundVolume?: (volume: number) => void;
+  resumeSound?: () => Promise<void>;
+  pauseSound?: () => void;
   setRestorationOfStatesFlag?: (flag: boolean) => void;
 };
 
@@ -67,6 +70,7 @@ export class EffekseerComponent extends Component {
   public isPause = false;
   public randomSeed = -1;
   public isImageLoadWithCredential = false;
+  public isSoundEnabled = false;
 
   private __effect?: EffekseerEffect;
   private __context?: EffekseerContext;
@@ -191,6 +195,24 @@ export class EffekseerComponent extends Component {
     return this.__speed;
   }
 
+  setSoundVolume(volume: number): void {
+    this.__context?.setSoundVolume?.(volume);
+  }
+
+  async resumeSound(): Promise<boolean> {
+    this.isSoundEnabled = true;
+    if (Is.not.exist(this.__context?.resumeSound)) {
+      return false;
+    }
+    await this.__context.resumeSound();
+    return true;
+  }
+
+  pauseSound(): void {
+    this.isSoundEnabled = false;
+    this.__context?.pauseSound?.();
+  }
+
   setTime(targetSec: Second) {
     if (!this.play()) {
       return false;
@@ -270,6 +292,9 @@ export class EffekseerComponent extends Component {
       enablePremultipliedAlpha: true,
     });
     this.__context.setRestorationOfStatesFlag?.(true);
+    if (!this.isSoundEnabled) {
+      this.__context.pauseSound?.();
+    }
 
     const data = Is.exist(this.uri) ? this.uri : this.arrayBuffer;
     try {
