@@ -38,6 +38,7 @@ type EffekseerContext = {
   releaseEffect(effect: EffekseerEffect): void;
   release?: () => void;
   play(effect: EffekseerEffect, x?: number, y?: number, z?: number): EffekseerHandle | null;
+  setRestorationOfStatesFlag?: (flag: boolean) => void;
 };
 
 type EffekseerModule = {
@@ -268,6 +269,7 @@ export class EffekseerComponent extends Component {
       graphicsContext: gl,
       enablePremultipliedAlpha: true,
     });
+    this.__context.setRestorationOfStatesFlag?.(true);
 
     const data = Is.exist(this.uri) ? this.uri : this.arrayBuffer;
     try {

@@ -914,6 +914,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
           gl.drawArrays(primitive.primitiveMode.index, 0, primitive.getVertexCountAsVerticesBased());
         }
       }
+      this.dettachVertexData(glw);
       renderedSomething = true;
     }
 

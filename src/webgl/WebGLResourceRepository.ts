@@ -3640,26 +3640,8 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
   }
 
   setWebGLStateToDefaultForEffekseer() {
-    const gl = this.__glw!.getRawContextAsWebGL2();
-    const maxTextureUnits = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS) as number;
-
-    // Vertex array binding must be released first because ELEMENT_ARRAY_BUFFER is VAO state.
-    gl.bindVertexArray(null);
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-
-    // Texture bindings
-    for (let i = 0; i < maxTextureUnits; i++) {
-      gl.activeTexture(gl.TEXTURE0 + i);
-      gl.bindTexture(gl.TEXTURE_2D, null);
-      // gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
-      // gl.bindTexture(gl.TEXTURE_3D, null);
-      // gl.bindTexture(gl.TEXTURE_2D_ARRAY, null);
-      gl.bindSampler(i, null);
-    }
-
-    // Restore active texture to TEXTURE0
-    gl.activeTexture(gl.TEXTURE0);
+    // Do not mutate raw WebGL state before Effekseer rendering. Effekseer keeps
+    // its own GL state cache, so pre-clearing Rhodonite bindings can desync it.
   }
 
   setWebGLStateToDefault() {
