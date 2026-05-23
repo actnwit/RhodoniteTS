@@ -27,7 +27,8 @@ export class ModuleManager {
    * const moduleManager = ModuleManager.getInstance();
    * const webglModule = await moduleManager.loadModule('webgl');
    * const effekseerModule = await moduleManager.loadModule('effekseer', {
-   *   wasm: '/path/to/effekseer.wasm'
+   *   wasm: '/path/to/effekseer-webgl.wasm',
+   *   nativeScript: '/path/to/effekseer-webgl.js'
    * });
    * ```
    */
@@ -35,6 +36,7 @@ export class ModuleManager {
     moduleName: string,
     options?: {
       wasm?: string;
+      nativeScript?: string;
     }
   ): Promise<any> {
     let module: any;
@@ -45,6 +47,7 @@ export class ModuleManager {
     } else if (moduleName.toLowerCase() === 'effekseer') {
       module = await (await import(/* webpackChunkName: "effekseer" */ '../../effekseer/main')).Effekseer;
       module.EffekseerComponent.wasmModuleUri = options?.wasm;
+      module.EffekseerComponent.nativeScriptUri = options?.nativeScript;
     } else if (moduleName.toLowerCase() === 'pbr') {
       module = await (await import(/* webpackChunkName: "pbr" */ '../../pbr/main')).default;
     } else if (moduleName.toLowerCase() === 'xr') {

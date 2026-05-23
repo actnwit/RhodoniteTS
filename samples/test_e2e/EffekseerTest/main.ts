@@ -6,8 +6,8 @@ declare const window: any;
 
 const moduleManager = Rn.ModuleManager.getInstance();
 const effekseerModule = await moduleManager.loadModule('effekseer', {
-  // Comment out for WASM version
-  // wasm: '../../../vendor/effekseer.wasm',
+  wasm: '../../../vendor/effekseer-webgl.wasm',
+  nativeScript: '../../../vendor/effekseer-webgl.js',
 });
 
 const engine = await Rn.Engine.init({

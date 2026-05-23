@@ -23332,12 +23332,14 @@ declare class ModuleManager {
      * const moduleManager = ModuleManager.getInstance();
      * const webglModule = await moduleManager.loadModule('webgl');
      * const effekseerModule = await moduleManager.loadModule('effekseer', {
-     *   wasm: '/path/to/effekseer.wasm'
+     *   wasm: '/path/to/effekseer-webgl.wasm',
+     *   nativeScript: '/path/to/effekseer-webgl.js'
      * });
      * ```
      */
     loadModule(moduleName: string, options?: {
         wasm?: string;
+        nativeScript?: string;
     }): Promise<any>;
     /**
      * Retrieves a previously loaded module from the internal registry.
@@ -48439,13 +48441,14 @@ declare class EffekseerComponent extends Component {
     static readonly ANIMATION_EVENT_PAUSE = 1;
     static readonly ANIMATION_EVENT_END = 2;
     static Unzip?: any;
+    static wasmModuleUri?: string;
+    static nativeScriptUri?: string;
     uri?: string;
     arrayBuffer?: ArrayBuffer;
     type: string;
     playJustAfterLoaded: boolean;
     isLoop: boolean;
     isPause: boolean;
-    static wasmModuleUri: undefined;
     randomSeed: number;
     isImageLoadWithCredential: boolean;
     private __effect?;
@@ -48454,10 +48457,17 @@ declare class EffekseerComponent extends Component {
     private __speed;
     private __timer?;
     private __isInitialized;
+    private __isDestroyed;
+    private __loadPromise?;
+    private __reportedMissingModule;
+    private static __runtimeInitializationPromise?;
+    private static __runtimeInitializationKey?;
     private static __tmp_identityMatrix_0;
     private static __tmp_identityMatrix_1;
-    private isLoadEffect;
     static get componentTID(): 13;
+    private static __getEffekseerModule;
+    private static __initializeRuntime;
+    private static __formatError;
     cancelLoop(): void;
     isPlay(): boolean;
     play(): boolean;
@@ -48477,6 +48487,7 @@ declare class EffekseerComponent extends Component {
     $load(): void;
     $logic(): void;
     _destroy(): void;
+    private __releaseEffekseerResources;
     private __drawEffekseerEffectNormal;
     private __drawEffekseerEffectWebXR;
     $render(): void;
