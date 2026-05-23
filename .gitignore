@@ -1,5 +1,6 @@
 node_modules/
 .node_modules/
+.pnpm-store/
 
 # Build artifacts
 coverage/
@@ -25,6 +26,7 @@ VERSION-FILE
 .vscode/workspace.code-workspace
 .idea
 .settings
+.serena/
 **/.DS_Store
 **/.vs
 
