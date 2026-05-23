@@ -3571,6 +3571,9 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
       sampler: WebGLSampler | null;
     }>;
     activeTexture: number;
+    vertexArray: WebGLVertexArrayObject | null;
+    arrayBuffer: WebGLBuffer | null;
+    elementArrayBuffer: WebGLBuffer | null;
   } {
     const gl = this.__glw!.getRawContextAsWebGL2();
     const maxTextureUnits = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS) as number;
@@ -3589,21 +3592,33 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     }
 
     const currentActiveTexture = gl.getParameter(gl.ACTIVE_TEXTURE) as number;
+    const vertexArray = gl.getParameter(gl.VERTEX_ARRAY_BINDING) as WebGLVertexArrayObject | null;
+    const arrayBuffer = gl.getParameter(gl.ARRAY_BUFFER_BINDING) as WebGLBuffer | null;
+    const elementArrayBuffer = gl.getParameter(gl.ELEMENT_ARRAY_BUFFER_BINDING) as WebGLBuffer | null;
     return {
       textureBindings: textureBindings,
       activeTexture: currentActiveTexture,
+      vertexArray,
+      arrayBuffer,
+      elementArrayBuffer,
     };
   }
 
   restoreTexture2DBindingsForEffekseer({
     textureBindings,
     activeTexture,
+    vertexArray,
+    arrayBuffer,
+    elementArrayBuffer,
   }: {
     textureBindings: Array<{
       texture2D: WebGLTexture | null;
       sampler: WebGLSampler | null;
     }>;
     activeTexture: number;
+    vertexArray: WebGLVertexArrayObject | null;
+    arrayBuffer: WebGLBuffer | null;
+    elementArrayBuffer: WebGLBuffer | null;
   }) {
     const gl = this.__glw!.getRawContextAsWebGL2();
     for (let i = 0; i < textureBindings.length; i++) {
@@ -3612,11 +3627,19 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
       gl.bindSampler(i, textureBindings[i].sampler);
     }
     gl.activeTexture(activeTexture);
+    gl.bindVertexArray(vertexArray);
+    gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementArrayBuffer);
   }
 
   setWebGLStateToDefaultForEffekseer() {
     const gl = this.__glw!.getRawContextAsWebGL2();
     const maxTextureUnits = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS) as number;
+
+    // Vertex array binding must be released first because ELEMENT_ARRAY_BUFFER is VAO state.
+    gl.bindVertexArray(null);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
     // Texture bindings
     for (let i = 0; i < maxTextureUnits; i++) {
