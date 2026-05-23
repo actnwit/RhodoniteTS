@@ -25,6 +25,7 @@ VERSION-FILE
 .vscode/workspace.code-workspace
 .idea
 .settings
+.serena/
 **/.DS_Store
 **/.vs
 
