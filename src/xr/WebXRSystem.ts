@@ -733,11 +733,12 @@ export class WebXRSystem {
     const rotateMatRight = rm;
 
     const scale = this.__viewerScale.x;
-    const pos = xrViewLeft.transform.position;
+    const posLeft = xrViewLeft.transform.position;
+    const posRight = xrViewRight.transform.position;
     const translateLeftScaled = MutableVector3.add(this.__defaultPositionInLocalSpaceMode, this.__viewerTranslate);
     const translateRightScaled = MutableVector3.add(this.__defaultPositionInLocalSpaceMode, this.__viewerTranslate);
-    const xrViewerPosLeft = Vector3.fromCopyArray([pos.x, pos.y, pos.z]);
-    const xrViewerPosRight = Vector3.fromCopyArray([pos.x, pos.y, pos.z]);
+    const xrViewerPosLeft = Vector3.fromCopyArray([posLeft.x, posLeft.y, posLeft.z]);
+    const xrViewerPosRight = Vector3.fromCopyArray([posRight.x, posRight.y, posRight.z]);
     const translateLeft = MutableVector3.add(this.__defaultPositionInLocalSpaceMode, this.__viewerTranslate).add(
       xrViewerPosLeft
     );
