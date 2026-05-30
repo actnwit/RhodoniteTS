@@ -473,10 +473,24 @@ export class EffekseerComponent extends Component {
       const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
       const webGpuDeviceWrapper = webGpuResourceRepository.getWebGpuDeviceWrapper();
       const { colorFormat, depthFormat } = webGpuResourceRepository.getEffekseerRenderPassOptions(this.__engine);
+      const canvasContext = webGpuDeviceWrapper.context;
+      const canvasSize = {
+        width: webGpuDeviceWrapper.canvas.width,
+        height: webGpuDeviceWrapper.canvas.height,
+      };
+      const externalCanvasContext = {
+        canvas: canvasSize,
+        configure: (_configuration: GPUCanvasConfiguration) => {
+          // Rhodonite owns the swapchain configuration.
+        },
+        unconfigure: canvasContext.unconfigure?.bind(canvasContext),
+        getCurrentTexture: () => {
+          return canvasContext.getCurrentTexture();
+        },
+      } as GPUCanvasContext;
       this.__context = await effekseerModule.createContext({
         backend,
-        canvas: webGpuDeviceWrapper.canvas,
-        canvasContext: webGpuDeviceWrapper.context,
+        canvasContext: externalCanvasContext,
         device: webGpuDeviceWrapper.gpuDevice,
         colorFormat,
         depthFormat,
