@@ -436,7 +436,7 @@ export class Engine extends RnObject {
     const effekseerRenderPassOptions = hasEffekseerEffects
       ? webGpuResourceRepository.getEffekseerRenderPassOptions(this, renderPass, displayIdx)
       : undefined;
-    if (effekseerRenderPassOptions != null) {
+    if (renderPass.toRenderEffekseerEffects && effekseerRenderPassOptions != null) {
       for (const effekseerComponent of effekseerComponents) {
         effekseerComponent.prepareWebGPURendering(effekseerRenderPassOptions);
       }
@@ -456,7 +456,7 @@ export class Engine extends RnObject {
       hasEffekseerEffects,
     });
 
-    if (hasEffekseerEffects) {
+    if (renderPass.toRenderEffekseerEffects && hasEffekseerEffects) {
       const renderPassEncoder =
         renderPassEncoderForEffekseer ??
         webGpuResourceRepository.getOrCreateRenderPassEncoderForExternalRendering(this, renderPass, displayIdx);
