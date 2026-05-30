@@ -463,7 +463,7 @@ export class Engine extends RnObject {
 
       if (renderPassEncoder != null) {
         for (const effekseerComponent of effekseerComponents) {
-          effekseerComponent.$renderWebGPU(renderPassEncoder, effekseerRenderPassOptions);
+          effekseerComponent.$renderWebGPU(renderPassEncoder, effekseerRenderPassOptions, displayIdx);
         }
       }
       webGpuResourceRepository.endRenderPassEncoderForExternalRendering();

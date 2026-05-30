@@ -657,7 +657,8 @@ export class EffekseerComponent extends Component {
 
   private __drawEffekseerEffectWebGPU(
     renderPassEncoder: GPURenderPassEncoder,
-    options?: WebGPUExternalRenderPassOptions
+    options?: WebGPUExternalRenderPassOptions,
+    displayIdx = 0
   ): void {
     const cameraComponent = this.__engine.componentRepository.getComponent(
       CameraComponent,
@@ -666,7 +667,17 @@ export class EffekseerComponent extends Component {
     const viewMatrix = EffekseerComponent.__tmp_identityMatrix_0;
     const projectionMatrix = EffekseerComponent.__tmp_identityMatrix_1;
 
-    if (cameraComponent) {
+    if (this.__engine.webXRSystem.isWebXRMode) {
+      const webXRProjectionMatrix = this.__engine.webXRSystem._getProjectMatrixAt(displayIdx);
+      const webXRViewMatrix = this.__engine.webXRSystem._getViewMatrixAt(displayIdx);
+      if (Is.exist(webXRProjectionMatrix) && Is.exist(webXRViewMatrix)) {
+        viewMatrix.copyComponents(webXRViewMatrix);
+        projectionMatrix.copyComponents(webXRProjectionMatrix);
+      } else {
+        viewMatrix.identity();
+        projectionMatrix.identity();
+      }
+    } else if (cameraComponent) {
       viewMatrix.copyComponents(cameraComponent.viewMatrix);
       projectionMatrix.copyComponents(cameraComponent.projectionMatrix);
     } else {
@@ -712,12 +723,12 @@ export class EffekseerComponent extends Component {
     this.moveStageTo(ProcessStage.Logic);
   }
 
-  $renderWebGPU(renderPassEncoder: GPURenderPassEncoder, options?: WebGPUExternalRenderPassOptions) {
+  $renderWebGPU(renderPassEncoder: GPURenderPassEncoder, options?: WebGPUExternalRenderPassOptions, displayIdx = 0) {
     if (Is.not.exist(this.__effect)) {
       this.moveStageTo(ProcessStage.Load);
       return;
     }
-    this.__drawEffekseerEffectWebGPU(renderPassEncoder, options);
+    this.__drawEffekseerEffectWebGPU(renderPassEncoder, options, displayIdx);
     this.moveStageTo(ProcessStage.Logic);
   }
 

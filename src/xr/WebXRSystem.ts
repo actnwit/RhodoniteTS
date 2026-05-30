@@ -271,7 +271,7 @@ export class WebXRSystem {
         this.__xrGpuBinding = xrGpuBinding;
         const projectionLayer = xrGpuBinding.createProjectionLayer({
           colorFormat: xrGpuBinding.getPreferredColorFormat(),
-          depthStencilFormat: 'depth24plus',
+          depthStencilFormat: 'depth32float',
         });
         this.__xrProjectionLayerWebGPU = projectionLayer;
         await this.__setupWebGPULayer(xrSession, projectionLayer, callbackOnXrSessionStart);
