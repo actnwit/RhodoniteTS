@@ -119,7 +119,6 @@ const Derivatives = {
    * @returns A function that returns the opposite result of the input function
    */
   not(fn: FnType) {
-    // biome-ignore lint/complexity/useArrowFunction: need function for arguments object
     return function () {
       return fn.apply(null, [...arguments] as any);
     };
@@ -131,7 +130,6 @@ const Derivatives = {
    * @returns A function that returns true if all values pass validation
    */
   all(fn: FnType) {
-    // biome-ignore lint/complexity/useArrowFunction: <explanation>
     return function () {
       if (Array.isArray(arguments[0])) {
         return arguments[0].every(fn);
@@ -146,7 +144,6 @@ const Derivatives = {
    * @returns A function that returns true if any value passes validation
    */
   any(fn: FnType) {
-    // biome-ignore lint/complexity/useArrowFunction: <explanation>
     return function () {
       if (Array.isArray(arguments[0])) {
         return arguments[0].some(fn);

@@ -3571,6 +3571,10 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
       sampler: WebGLSampler | null;
     }>;
     activeTexture: number;
+    vertexArray: WebGLVertexArrayObject | null;
+    arrayBuffer: WebGLBuffer | null;
+    elementArrayBuffer: WebGLBuffer | null;
+    currentProgram: WebGLProgram | null;
   } {
     const gl = this.__glw!.getRawContextAsWebGL2();
     const maxTextureUnits = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS) as number;
@@ -3589,21 +3593,37 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     }
 
     const currentActiveTexture = gl.getParameter(gl.ACTIVE_TEXTURE) as number;
+    const vertexArray = gl.getParameter(gl.VERTEX_ARRAY_BINDING) as WebGLVertexArrayObject | null;
+    const arrayBuffer = gl.getParameter(gl.ARRAY_BUFFER_BINDING) as WebGLBuffer | null;
+    const elementArrayBuffer = gl.getParameter(gl.ELEMENT_ARRAY_BUFFER_BINDING) as WebGLBuffer | null;
+    const currentProgram = gl.getParameter(gl.CURRENT_PROGRAM) as WebGLProgram | null;
     return {
       textureBindings: textureBindings,
       activeTexture: currentActiveTexture,
+      vertexArray,
+      arrayBuffer,
+      elementArrayBuffer,
+      currentProgram,
     };
   }
 
   restoreTexture2DBindingsForEffekseer({
     textureBindings,
     activeTexture,
+    vertexArray,
+    arrayBuffer,
+    elementArrayBuffer,
+    currentProgram,
   }: {
     textureBindings: Array<{
       texture2D: WebGLTexture | null;
       sampler: WebGLSampler | null;
     }>;
     activeTexture: number;
+    vertexArray: WebGLVertexArrayObject | null;
+    arrayBuffer: WebGLBuffer | null;
+    elementArrayBuffer: WebGLBuffer | null;
+    currentProgram: WebGLProgram | null;
   }) {
     const gl = this.__glw!.getRawContextAsWebGL2();
     for (let i = 0; i < textureBindings.length; i++) {
@@ -3612,24 +3632,16 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
       gl.bindSampler(i, textureBindings[i].sampler);
     }
     gl.activeTexture(activeTexture);
+    gl.bindVertexArray(vertexArray);
+    gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementArrayBuffer);
+    gl.useProgram(currentProgram);
+    (gl as any).__changedProgram = true;
   }
 
   setWebGLStateToDefaultForEffekseer() {
-    const gl = this.__glw!.getRawContextAsWebGL2();
-    const maxTextureUnits = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS) as number;
-
-    // Texture bindings
-    for (let i = 0; i < maxTextureUnits; i++) {
-      gl.activeTexture(gl.TEXTURE0 + i);
-      gl.bindTexture(gl.TEXTURE_2D, null);
-      // gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
-      // gl.bindTexture(gl.TEXTURE_3D, null);
-      // gl.bindTexture(gl.TEXTURE_2D_ARRAY, null);
-      gl.bindSampler(i, null);
-    }
-
-    // Restore active texture to TEXTURE0
-    gl.activeTexture(gl.TEXTURE0);
+    // Do not mutate raw WebGL state before Effekseer rendering. Effekseer keeps
+    // its own GL state cache, so pre-clearing Rhodonite bindings can desync it.
   }
 
   setWebGLStateToDefault() {

@@ -1,17 +1,22 @@
 import Rn from '../../../dist/esmdev/index.js';
+import { getProcessApproach } from '../common/testHelpers.js';
 
 let p: any;
 
 declare const window: any;
 
+const mode = new URLSearchParams(window.location.search).get('mode');
+const processApproach = mode == null ? Rn.ProcessApproach.Uniform : getProcessApproach(Rn);
 const moduleManager = Rn.ModuleManager.getInstance();
 const effekseerModule = await moduleManager.loadModule('effekseer', {
-  // Comment out for WASM version
-  // wasm: '../../../vendor/effekseer.wasm',
+  wasmWebGL: '../../../vendor/effekseer-webgl.wasm',
+  nativeScriptWebGL: '../../../vendor/effekseer-webgl.js',
+  wasmWebGPU: '../../../vendor/effekseer-webgpu.wasm',
+  nativeScriptWebGPU: '../../../vendor/effekseer-webgpu.js',
 });
 
 const engine = await Rn.Engine.init({
-  approach: Rn.ProcessApproach.Uniform,
+  approach: processApproach,
   canvas: document.getElementById('world') as HTMLCanvasElement,
   config: new Rn.Config({ cgApiDebugConsoleOutput: true, logLevel: Rn.LogLevel.Info }),
 });
@@ -51,6 +56,7 @@ controller.setTarget(rootGroup);
 const renderPass = new Rn.RenderPass(engine);
 renderPass.clearColor = Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.01]);
 renderPass.toClearColorBuffer = true;
+renderPass.toRenderEffekseerEffects = true;
 // renderPass.addEntities([effekseerEntity]);
 renderPass.addEntities([rootGroup, effekseerEntity]);
 

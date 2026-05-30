@@ -19,6 +19,10 @@ export class ModuleManager {
    *                     Supported modules: 'webgl', 'webgpu', 'effekseer', 'pbr', 'xr'
    * @param options - Optional configuration object for module loading
    * @param options.wasm - WASM module URI, currently used only for Effekseer module
+   * @param options.wasmWebGL - WebGL backend WASM module URI for Effekseer
+   * @param options.nativeScriptWebGL - WebGL backend native script URI for Effekseer
+   * @param options.wasmWebGPU - WebGPU backend WASM module URI for Effekseer
+   * @param options.nativeScriptWebGPU - WebGPU backend native script URI for Effekseer
    * @returns A promise that resolves to the loaded module
    * @throws Will throw an error if the module fails to load
    *
@@ -27,7 +31,8 @@ export class ModuleManager {
    * const moduleManager = ModuleManager.getInstance();
    * const webglModule = await moduleManager.loadModule('webgl');
    * const effekseerModule = await moduleManager.loadModule('effekseer', {
-   *   wasm: '/path/to/effekseer.wasm'
+   *   wasm: '/path/to/effekseer-webgl.wasm',
+   *   nativeScript: '/path/to/effekseer-webgl.js'
    * });
    * ```
    */
@@ -35,6 +40,11 @@ export class ModuleManager {
     moduleName: string,
     options?: {
       wasm?: string;
+      nativeScript?: string;
+      wasmWebGL?: string;
+      nativeScriptWebGL?: string;
+      wasmWebGPU?: string;
+      nativeScriptWebGPU?: string;
     }
   ): Promise<any> {
     let module: any;
@@ -45,6 +55,11 @@ export class ModuleManager {
     } else if (moduleName.toLowerCase() === 'effekseer') {
       module = await (await import(/* webpackChunkName: "effekseer" */ '../../effekseer/main')).Effekseer;
       module.EffekseerComponent.wasmModuleUri = options?.wasm;
+      module.EffekseerComponent.nativeScriptUri = options?.nativeScript;
+      module.EffekseerComponent.wasmModuleUriWebGL = options?.wasmWebGL;
+      module.EffekseerComponent.nativeScriptUriWebGL = options?.nativeScriptWebGL;
+      module.EffekseerComponent.wasmModuleUriWebGPU = options?.wasmWebGPU;
+      module.EffekseerComponent.nativeScriptUriWebGPU = options?.nativeScriptWebGPU;
     } else if (moduleName.toLowerCase() === 'pbr') {
       module = await (await import(/* webpackChunkName: "pbr" */ '../../pbr/main')).default;
     } else if (moduleName.toLowerCase() === 'xr') {

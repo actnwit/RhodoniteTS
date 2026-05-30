@@ -1315,6 +1315,18 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
   }
 
   /**
+   * Detaches vertex data after rendering to keep VAO state isolated from external renderers.
+   *
+   * @param glw - The WebGL context wrapper for WebGL operations
+   */
+  dettachVertexData(glw: WebGLContextWrapper): void {
+    const gl = glw.getRawContext();
+    glw.bindVertexArray(null);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+  }
+
+  /**
    * Gets the singleton instance of WebGLStrategyDataTexture.
    * Creates the instance if it doesn't exist and initializes the WebXR system reference.
    *
@@ -1612,6 +1624,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     const shaderProgramUid = material.getShaderProgramUid(primitive);
     if (shaderProgramUid !== this.__lastShader || (gl as any).__changedProgram) {
       if (isSkipDrawing(material, primitive)) {
+        this.dettachVertexData(glw);
         return false;
       }
 
@@ -1721,6 +1734,7 @@ ${returnType} get_${methodName}(highp uint _instanceId, const uint idxOfArray) {
     }
 
     this.__lastShader = shaderProgramUid;
+    this.dettachVertexData(glw);
 
     return true;
   }

@@ -824,6 +824,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       let firstTimeForMaterial = true;
       if (shaderProgramUid !== this.__lastShader || (gl as any).__changedProgram) {
         if (isSkipDrawing(material, primitive)) {
+          this.dettachVertexData(glw);
           return false;
         }
         firstTimeForShaderProgram = true;
@@ -914,6 +915,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
           gl.drawArrays(primitive.primitiveMode.index, 0, primitive.getVertexCountAsVerticesBased());
         }
       }
+      this.dettachVertexData(glw);
       renderedSomething = true;
     }
 
