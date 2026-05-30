@@ -4,6 +4,7 @@ import { WellKnownComponentTIDs } from '../foundation/components/WellKnownCompon
 import { Component } from '../foundation/core/Component';
 import type { IEntity } from '../foundation/core/Entity';
 import { applyMixins } from '../foundation/core/EntityRepository';
+import { ProcessApproach } from '../foundation/definitions/ProcessApproach';
 import { ProcessStage } from '../foundation/definitions/ProcessStage';
 import type { IVector3 } from '../foundation/math/IVector';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
@@ -33,6 +34,18 @@ type EffekseerContext = {
   setProjectionMatrix(matrixArray: ArrayLike<number>): void;
   setCameraMatrix(matrixArray: ArrayLike<number>): void;
   draw(): void;
+  configureSurface?: (options?: {
+    width?: number;
+    height?: number;
+    colorFormat?: GPUTextureFormat;
+    depthFormat?: GPUTextureFormat;
+    alphaMode?: GPUCanvasAlphaMode;
+    enablePremultipliedAlpha?: boolean;
+  }) => void;
+  drawToRenderPass?: (
+    renderPassEncoder: GPURenderPassEncoder,
+    options?: { colorFormat?: GPUTextureFormat; depthFormat?: GPUTextureFormat }
+  ) => void;
   loadEffect(data: string | ArrayBuffer, scale?: number): Promise<EffekseerEffect>;
   loadEffectPackage(data: string | ArrayBuffer, Unzip: unknown, scale?: number): Promise<EffekseerEffect>;
   releaseEffect(effect: EffekseerEffect): void;
@@ -42,18 +55,40 @@ type EffekseerContext = {
   resumeSound?: () => Promise<void>;
   pauseSound?: () => void;
   setRestorationOfStatesFlag?: (flag: boolean) => void;
+  getLastWebGPUError?: () => string | undefined;
 };
 
 type EffekseerModule = {
-  initRuntime(options: { backend: 'webgl'; wasmPath?: string; scriptPath?: string }): Promise<void>;
-  createContext(options: {
-    backend: 'webgl';
-    graphicsContext: WebGLRenderingContext | WebGL2RenderingContext;
-    enablePremultipliedAlpha?: boolean;
-  }): Promise<EffekseerContext>;
+  initRuntime(
+    options:
+      | { backend: 'webgl'; wasmPath?: string; scriptPath?: string }
+      | { backend: 'webgpu'; device?: GPUDevice; wasmPath?: string; scriptPath?: string }
+  ): Promise<void>;
+  createContext(
+    options:
+      | {
+          backend: 'webgl';
+          graphicsContext: WebGLRenderingContext | WebGL2RenderingContext;
+          enablePremultipliedAlpha?: boolean;
+        }
+      | {
+          backend: 'webgpu';
+          canvas?: HTMLCanvasElement | OffscreenCanvas;
+          canvasContext?: GPUCanvasContext;
+          device?: GPUDevice;
+          colorFormat?: GPUTextureFormat;
+          depthFormat?: GPUTextureFormat;
+          width?: number;
+          height?: number;
+          enablePremultipliedAlpha?: boolean;
+        }
+  ): Promise<EffekseerContext>;
   releaseContext(context: EffekseerContext): void;
   setImageCrossOrigin(crossOrigin: string): void;
 };
+
+type EffekseerBackend = 'webgl' | 'webgpu';
+type WebGPUExternalRenderPassOptions = { colorFormat?: GPUTextureFormat; depthFormat?: GPUTextureFormat };
 
 export class EffekseerComponent extends Component {
   public static readonly ANIMATION_EVENT_PLAY = 0;
@@ -62,6 +97,10 @@ export class EffekseerComponent extends Component {
   public static Unzip?: any;
   public static wasmModuleUri?: string;
   public static nativeScriptUri?: string;
+  public static wasmModuleUriWebGL?: string;
+  public static nativeScriptUriWebGL?: string;
+  public static wasmModuleUriWebGPU?: string;
+  public static nativeScriptUriWebGPU?: string;
   public uri?: string;
   public arrayBuffer?: ArrayBuffer;
   public type = 'efk';
@@ -84,8 +123,14 @@ export class EffekseerComponent extends Component {
   private __reportedMissingModule = false;
   private __autoResumeSoundEventTarget?: EventTarget;
   private __autoResumeSoundEventHandler?: EventListener;
+  private __webGpuSurfaceWidth = -1;
+  private __webGpuSurfaceHeight = -1;
+  private __webGpuSurfaceColorFormat?: GPUTextureFormat;
+  private __webGpuSurfaceDepthFormat?: GPUTextureFormat;
   private static __runtimeInitializationPromise?: Promise<void>;
   private static __runtimeInitializationKey?: string;
+  private static __webGpuDeviceIds: WeakMap<GPUDevice, number> = new WeakMap();
+  private static __webGpuDeviceIdCount = 0;
   private static __tmp_identityMatrix_0: MutableMatrix44 = MutableMatrix44.identity();
   private static __tmp_identityMatrix_1: MutableMatrix44 = MutableMatrix44.identity();
 
@@ -98,21 +143,58 @@ export class EffekseerComponent extends Component {
     return global.effekseer;
   }
 
-  private static async __initializeRuntime(effekseerModule: EffekseerModule): Promise<void> {
-    const runtimeInitializationKey = `${EffekseerComponent.wasmModuleUri ?? ''}\n${
-      EffekseerComponent.nativeScriptUri ?? ''
-    }`;
+  private static __getWebGpuDeviceId(device?: GPUDevice): number {
+    if (device == null) {
+      return -1;
+    }
+    let id = EffekseerComponent.__webGpuDeviceIds.get(device);
+    if (id == null) {
+      id = ++EffekseerComponent.__webGpuDeviceIdCount;
+      EffekseerComponent.__webGpuDeviceIds.set(device, id);
+    }
+    return id;
+  }
+
+  private static __getRuntimeUris(backend: EffekseerBackend): { wasmPath?: string; scriptPath?: string } {
+    if (backend === 'webgpu') {
+      return {
+        wasmPath: EffekseerComponent.wasmModuleUriWebGPU ?? EffekseerComponent.wasmModuleUri,
+        scriptPath: EffekseerComponent.nativeScriptUriWebGPU ?? EffekseerComponent.nativeScriptUri,
+      };
+    }
+    return {
+      wasmPath: EffekseerComponent.wasmModuleUriWebGL ?? EffekseerComponent.wasmModuleUri,
+      scriptPath: EffekseerComponent.nativeScriptUriWebGL ?? EffekseerComponent.nativeScriptUri,
+    };
+  }
+
+  private static async __initializeRuntime(
+    effekseerModule: EffekseerModule,
+    backend: EffekseerBackend,
+    device?: GPUDevice
+  ): Promise<void> {
+    const { wasmPath, scriptPath } = EffekseerComponent.__getRuntimeUris(backend);
+    const runtimeInitializationKey = `${backend}\n${wasmPath ?? ''}\n${scriptPath ?? ''}\n${EffekseerComponent.__getWebGpuDeviceId(device)}`;
     if (
       EffekseerComponent.__runtimeInitializationPromise == null ||
       EffekseerComponent.__runtimeInitializationKey !== runtimeInitializationKey
     ) {
       EffekseerComponent.__runtimeInitializationKey = runtimeInitializationKey;
       EffekseerComponent.__runtimeInitializationPromise = effekseerModule
-        .initRuntime({
-          backend: 'webgl',
-          wasmPath: EffekseerComponent.wasmModuleUri,
-          scriptPath: EffekseerComponent.nativeScriptUri,
-        })
+        .initRuntime(
+          backend === 'webgpu'
+            ? {
+                backend,
+                device,
+                wasmPath,
+                scriptPath,
+              }
+            : {
+                backend,
+                wasmPath,
+                scriptPath,
+              }
+        )
         .catch(error => {
           EffekseerComponent.__runtimeInitializationPromise = undefined;
           throw error;
@@ -228,8 +310,14 @@ export class EffekseerComponent extends Component {
       return;
     }
 
-    const glw = this.__engine.webglResourceRepository.currentWebGLContextWrapper;
-    const eventTarget = glw?.canvas ?? (typeof window !== 'undefined' ? window : undefined);
+    let eventTarget: EventTarget | undefined;
+    if (this.__getBackend() === 'webgpu') {
+      eventTarget = this.__engine.webGpuResourceRepository.getWebGpuDeviceWrapper().canvas;
+    } else {
+      const glw = this.__engine.webglResourceRepository.currentWebGLContextWrapper;
+      eventTarget = glw?.canvas;
+    }
+    eventTarget ??= typeof window !== 'undefined' ? window : undefined;
     if (Is.not.exist(eventTarget)) {
       return;
     }
@@ -333,24 +421,84 @@ export class EffekseerComponent extends Component {
     return this.entity.tryToGetTransform()!.localScale;
   }
 
+  private __getBackend(): EffekseerBackend {
+    return ProcessApproach.isWebGpuApproach(this.__engine.processApproach) ? 'webgpu' : 'webgl';
+  }
+
+  private __getWebGpuDevice(): GPUDevice | undefined {
+    if (this.__getBackend() !== 'webgpu') {
+      return undefined;
+    }
+    return this.__engine.webGpuResourceRepository.getWebGpuDeviceWrapper().gpuDevice;
+  }
+
+  prepareWebGPURendering(options?: WebGPUExternalRenderPassOptions): void {
+    if (this.__getBackend() !== 'webgpu' || Is.not.exist(this.__context?.configureSurface)) {
+      return;
+    }
+
+    const webGpuDeviceWrapper = this.__engine.webGpuResourceRepository.getWebGpuDeviceWrapper();
+    const width = webGpuDeviceWrapper.canvas.width;
+    const height = webGpuDeviceWrapper.canvas.height;
+    if (
+      this.__webGpuSurfaceWidth === width &&
+      this.__webGpuSurfaceHeight === height &&
+      this.__webGpuSurfaceColorFormat === options?.colorFormat &&
+      this.__webGpuSurfaceDepthFormat === options?.depthFormat
+    ) {
+      return;
+    }
+
+    this.__context.configureSurface({
+      width,
+      height,
+      colorFormat: options?.colorFormat,
+      depthFormat: options?.depthFormat,
+      enablePremultipliedAlpha: true,
+    });
+    this.__webGpuSurfaceWidth = width;
+    this.__webGpuSurfaceHeight = height;
+    this.__webGpuSurfaceColorFormat = options?.colorFormat;
+    this.__webGpuSurfaceDepthFormat = options?.depthFormat;
+  }
+
   private async __createEffekseerContext(effekseerModule: EffekseerModule): Promise<boolean> {
     if (Is.not.exist(this.uri) && Is.not.exist(this.arrayBuffer)) {
       return false;
     }
-    const webGLResourceRepository = this.__engine.webglResourceRepository;
-    const glw = webGLResourceRepository.currentWebGLContextWrapper;
-    if (Is.not.exist(glw)) {
-      Logger.default.error('WebGL context is not ready for Effekseer');
-      return false;
-    }
-
-    const gl = glw.getRawContext();
+    const backend = this.__getBackend();
     effekseerModule.setImageCrossOrigin(this.isImageLoadWithCredential ? 'use-credentials' : '');
-    this.__context = await effekseerModule.createContext({
-      backend: 'webgl',
-      graphicsContext: gl,
-      enablePremultipliedAlpha: true,
-    });
+
+    if (backend === 'webgpu') {
+      const webGpuResourceRepository = this.__engine.webGpuResourceRepository;
+      const webGpuDeviceWrapper = webGpuResourceRepository.getWebGpuDeviceWrapper();
+      const { colorFormat, depthFormat } = webGpuResourceRepository.getEffekseerRenderPassOptions(this.__engine);
+      this.__context = await effekseerModule.createContext({
+        backend,
+        canvas: webGpuDeviceWrapper.canvas,
+        canvasContext: webGpuDeviceWrapper.context,
+        device: webGpuDeviceWrapper.gpuDevice,
+        colorFormat,
+        depthFormat,
+        width: webGpuDeviceWrapper.canvas.width,
+        height: webGpuDeviceWrapper.canvas.height,
+        enablePremultipliedAlpha: true,
+      });
+    } else {
+      const webGLResourceRepository = this.__engine.webglResourceRepository;
+      const glw = webGLResourceRepository.currentWebGLContextWrapper;
+      if (Is.not.exist(glw)) {
+        Logger.default.error('WebGL context is not ready for Effekseer');
+        return false;
+      }
+
+      const gl = glw.getRawContext();
+      this.__context = await effekseerModule.createContext({
+        backend,
+        graphicsContext: gl,
+        enablePremultipliedAlpha: true,
+      });
+    }
     this.__context.setRestorationOfStatesFlag?.(true);
     if (!this.isSoundEnabled) {
       this.__context.pauseSound?.();
@@ -404,7 +552,7 @@ export class EffekseerComponent extends Component {
       }
 
       this.__loadPromise = (async () => {
-        await EffekseerComponent.__initializeRuntime(effekseerModule);
+        await EffekseerComponent.__initializeRuntime(effekseerModule, this.__getBackend(), this.__getWebGpuDevice());
         return this.__createEffekseerContext(effekseerModule);
       })();
       this.__loadPromise
@@ -479,6 +627,10 @@ export class EffekseerComponent extends Component {
     }
     this.__effect = undefined;
     this.__isInitialized = false;
+    this.__webGpuSurfaceWidth = -1;
+    this.__webGpuSurfaceHeight = -1;
+    this.__webGpuSurfaceColorFormat = undefined;
+    this.__webGpuSurfaceDepthFormat = undefined;
   }
 
   private __drawEffekseerEffectNormal(): void {
@@ -500,6 +652,35 @@ export class EffekseerComponent extends Component {
       this.__context.setProjectionMatrix(projectionMatrix._v);
       this.__context.setCameraMatrix(viewMatrix._v);
       this.__context.draw();
+    }
+  }
+
+  private __drawEffekseerEffectWebGPU(
+    renderPassEncoder: GPURenderPassEncoder,
+    options?: WebGPUExternalRenderPassOptions
+  ): void {
+    const cameraComponent = this.__engine.componentRepository.getComponent(
+      CameraComponent,
+      CameraComponent.getCurrent(this.__engine)
+    ) as CameraComponent;
+    const viewMatrix = EffekseerComponent.__tmp_identityMatrix_0;
+    const projectionMatrix = EffekseerComponent.__tmp_identityMatrix_1;
+
+    if (cameraComponent) {
+      viewMatrix.copyComponents(cameraComponent.viewMatrix);
+      projectionMatrix.copyComponents(cameraComponent.projectionMatrix);
+    } else {
+      viewMatrix.identity();
+      projectionMatrix.identity();
+    }
+    if (Is.exist(this.__context) && Is.exist(this.__context.drawToRenderPass)) {
+      this.__context.setProjectionMatrix(projectionMatrix._v);
+      this.__context.setCameraMatrix(viewMatrix._v);
+      this.__context.drawToRenderPass(renderPassEncoder, options);
+      const webGpuError = this.__context.getLastWebGPUError?.();
+      if (webGpuError) {
+        Logger.default.error(webGpuError);
+      }
     }
   }
 
@@ -528,6 +709,15 @@ export class EffekseerComponent extends Component {
       this.__drawEffekseerEffectNormal();
     }
 
+    this.moveStageTo(ProcessStage.Logic);
+  }
+
+  $renderWebGPU(renderPassEncoder: GPURenderPassEncoder, options?: WebGPUExternalRenderPassOptions) {
+    if (Is.not.exist(this.__effect)) {
+      this.moveStageTo(ProcessStage.Load);
+      return;
+    }
+    this.__drawEffekseerEffectWebGPU(renderPassEncoder, options);
     this.moveStageTo(ProcessStage.Logic);
   }
 

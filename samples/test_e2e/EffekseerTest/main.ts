@@ -56,6 +56,7 @@ controller.setTarget(rootGroup);
 const renderPass = new Rn.RenderPass(engine);
 renderPass.clearColor = Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.01]);
 renderPass.toClearColorBuffer = true;
+renderPass.toRenderEffekseerEffects = true;
 // renderPass.addEntities([effekseerEntity]);
 renderPass.addEntities([rootGroup, effekseerEntity]);
 

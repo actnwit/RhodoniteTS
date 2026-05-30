@@ -69,6 +69,7 @@ type RenderPipelineId = string;
 
 const _IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT = 16;
 const _IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT = 17;
+const DEFAULT_DEPTH_FORMAT = 'depth32float' as GPUTextureFormat;
 
 type DRAW_PARAMETERS_IDENTIFIER = string;
 
@@ -1629,8 +1630,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       depthStencilFormat = subImage.depthStencilTexture.format;
     } else {
       colorFormats = [navigator.gpu.getPreferredCanvasFormat()];
-      depthStencilFormat =
-        this.__systemDepthTexture != null ? this.__systemDepthTexture.format : ('depth24plus' as GPUTextureFormat);
+      depthStencilFormat = this.__systemDepthTexture != null ? this.__systemDepthTexture.format : DEFAULT_DEPTH_FORMAT;
     }
 
     if (colorFormats.length === 0) {
@@ -1641,6 +1641,25 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       colorFormats,
       depthStencilFormat,
       sampleCount,
+    };
+  }
+
+  getEffekseerRenderPassOptions(
+    engine: Engine,
+    renderPass?: RenderPass,
+    displayIdx = 0
+  ): { colorFormat?: GPUTextureFormat; depthFormat?: GPUTextureFormat } {
+    if (renderPass == null) {
+      return {
+        colorFormat: navigator.gpu.getPreferredCanvasFormat(),
+        depthFormat: this.__systemDepthTexture?.format ?? DEFAULT_DEPTH_FORMAT,
+      };
+    }
+
+    const renderBundleDescriptor = this.__getRenderBundleDescriptor(engine, renderPass, displayIdx);
+    return {
+      colorFormat: renderBundleDescriptor.colorFormats[0] ?? undefined,
+      depthFormat: renderBundleDescriptor.depthStencilFormat,
     };
   }
 
@@ -1858,6 +1877,32 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     return false;
   }
 
+  renderWithRenderBundleAndKeepRenderPass(
+    engine: Engine,
+    renderPass: RenderPass,
+    displayIdx: number
+  ): GPURenderPassEncoder | undefined {
+    this.__toClearRenderBundles(engine);
+    if (renderPass._isChangedSortRenderResult || !engine.config.cacheWebGpuRenderBundles) {
+      this.__renderBundles.clear();
+    }
+
+    const renderBundleKey = `${renderPass.renderPassUID}-${displayIdx}`;
+    const renderBundle = this.__renderBundles.get(renderBundleKey);
+    if (renderBundle != null) {
+      this.createRenderPassEncoder(engine, renderPass, displayIdx);
+
+      if (this.__renderPassEncoder != null) {
+        this.__renderPassEncoder.executeBundles([renderBundle]);
+        this.__renderBundleEncoder = undefined;
+        this.__renderBundleEncoderKey = undefined;
+        return this.__renderPassEncoder;
+      }
+    }
+
+    return undefined;
+  }
+
   finishRenderBundleEncoder(engine: Engine, renderPass: RenderPass, displayIdx: number) {
     this.createRenderPassEncoder(engine, renderPass, displayIdx);
 
@@ -1877,6 +1922,51 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     } else {
       console.log('renderPassEncoder is null');
     }
+  }
+
+  finishRenderBundleEncoderAndKeepRenderPass(
+    engine: Engine,
+    renderPass: RenderPass,
+    displayIdx: number
+  ): GPURenderPassEncoder | undefined {
+    this.createRenderPassEncoder(engine, renderPass, displayIdx);
+
+    if (this.__renderPassEncoder != null && this.__renderBundleEncoder != null) {
+      const renderBundle = this.__renderBundleEncoder.finish();
+      if (engine.config.cacheWebGpuRenderBundles) {
+        const renderBundleKey = `${renderPass.renderPassUID}-${displayIdx}`;
+        this.__renderBundles.set(renderBundleKey, renderBundle);
+      } else {
+        this.__renderBundles.clear();
+      }
+      this.__renderPassEncoder.executeBundles([renderBundle]);
+      this.__renderBundleEncoder = undefined;
+      this.__renderBundleEncoderKey = undefined;
+    }
+
+    return this.__renderPassEncoder;
+  }
+
+  getOrCreateRenderPassEncoderForExternalRendering(
+    engine: Engine,
+    renderPass: RenderPass,
+    displayIdx: number
+  ): GPURenderPassEncoder | undefined {
+    this.createRenderPassEncoder(engine, renderPass, displayIdx);
+    return this.__renderPassEncoder;
+  }
+
+  endRenderPassEncoderForExternalRendering() {
+    if (this.__renderPassEncoder == null) {
+      return;
+    }
+    if (this.__renderBundleEncoder != null) {
+      this.__renderPassEncoder.executeBundles([this.__renderBundleEncoder.finish()]);
+      this.__renderBundleEncoder = undefined;
+      this.__renderBundleEncoderKey = undefined;
+    }
+    this.__renderPassEncoder.end();
+    this.__renderPassEncoder = undefined;
   }
 
   getOrCreateRenderPipeline(
@@ -1994,7 +2084,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
         blend,
       },
     ];
-    let depthStencilFormat: GPUTextureFormat | undefined = 'depth24plus' as GPUTextureFormat;
+    let depthStencilFormat: GPUTextureFormat | undefined = DEFAULT_DEPTH_FORMAT;
     if (framebuffer != null) {
       targets = [];
       for (let colorAttachment of framebuffer.colorAttachments) {
@@ -3944,7 +4034,7 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     }
     this.__systemDepthTexture = gpuDevice.createTexture({
       size: [canvas.width, canvas.height],
-      format: 'depth24plus',
+      format: DEFAULT_DEPTH_FORMAT,
       usage: GPUTextureUsage.RENDER_ATTACHMENT,
     });
     this.__systemDepthTextureView = this.__systemDepthTexture.createView();
