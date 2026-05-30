@@ -22,11 +22,20 @@ declare global {
         requestDevice(descriptor?: GPUDeviceDescriptor): Promise<GPUDevice>;
     }
     interface GPUQueue {
+        submit(commandBuffers: unknown[]): void;
     }
     interface GPUDevice extends EventTarget {
         readonly queue: GPUQueue;
+        createCommandEncoder(descriptor?: Record<string, unknown>): GPUCommandEncoder;
+        createTexture(descriptor: Record<string, unknown>): GPUTexture;
+    }
+    interface GPUCommandEncoder {
+        beginRenderPass(descriptor: Record<string, unknown>): GPURenderPassEncoder;
+        finish(): unknown;
     }
     interface GPUTexture {
+        createView(): unknown;
+        destroy?(): void;
     }
     interface GPUCanvasConfiguration {
         device: GPUDevice;
@@ -40,6 +49,7 @@ declare global {
         getCurrentTexture(): GPUTexture;
     }
     interface GPURenderPassEncoder {
+        end(): void;
     }
     interface GPU {
         requestAdapter(options?: GPURequestAdapterOptions): Promise<GPUAdapter | null>;
@@ -150,6 +160,8 @@ export interface WebGPUContextOptions extends ContextOptionsBase {
     device?: GPUDevice;
     colorFormat?: GPUTextureFormat;
     depthFormat?: GPUTextureFormat;
+    enablePremultipliedAlpha?: boolean;
+    alphaMode?: GPUCanvasAlphaMode;
     width?: number;
     height?: number;
 }
@@ -190,7 +202,7 @@ export interface UnzipLike {
 export type UnzipConstructor = new (data: Uint8Array) => UnzipLike;
 interface NativeCore {
     InitWebGL(instanceMaxCount: number, squareMaxCount: number, extensions: number, premultipliedAlpha: number): number;
-    InitWebGPU(instanceMaxCount: number, squareMaxCount: number, width: number, height: number): number;
+    InitWebGPU(instanceMaxCount: number, squareMaxCount: number, width: number, height: number, premultipliedAlpha: number, nativeCanvasSurface: number): number;
     Terminate(context: number): void;
     Update(context: number, deltaFrames: number): void;
     BeginUpdate(context: number): void;
@@ -206,6 +218,7 @@ interface NativeCore {
     SubmitWebGPUFrame(context: number): void;
     ReadWebGPUFrameBuffer(context: number, data: number, size: number): Promise<number>;
     ResizeWebGPU(context: number, width: number, height: number): number;
+    SetWebGPUPremultipliedAlpha(context: number, premultipliedAlpha: number): number;
     DrawToExternalWebGPURenderPass(context: number, renderPassEncoder: number, colorFormat: number, depthFormat: number): number;
     ReleaseImportedWebGPURenderPassEncoder(renderPassEncoder: number): void;
     SetProjectionMatrix(context: number, matrix: number): void;
@@ -347,12 +360,18 @@ export declare class WebGLEffekseerContext extends BaseEffekseerContext {
 export declare class WebGPUEffekseerContext extends BaseEffekseerContext {
     readonly device: GPUDevice | undefined;
     readonly canvasContext: GPUCanvasContext | undefined;
+    private readonly nativeCanvasSurface;
     private frameActive;
     private renderPassActive;
     private colorFormat;
     private depthFormat;
+    private alphaMode;
     private width;
     private height;
+    private canvasDepthTexture;
+    private canvasDepthWidth;
+    private canvasDepthHeight;
+    private canvasDepthFormat;
     constructor(runtime: EffekseerRuntime, options: WebGPUContextOptions);
     configureSurface(options?: {
         width?: number;
@@ -360,9 +379,12 @@ export declare class WebGPUEffekseerContext extends BaseEffekseerContext {
         colorFormat?: GPUTextureFormat;
         depthFormat?: GPUTextureFormat;
         alphaMode?: GPUCanvasAlphaMode;
+        enablePremultipliedAlpha?: boolean;
     }): void;
     draw(): void;
     drawToCanvas(): void;
+    private drawToCanvasContext;
+    private getCanvasDepthTexture;
     beginRenderPass(): void;
     drawCurrentFrame(): void;
     drawToRenderPass(renderPassEncoder: GPURenderPassEncoder, options?: WebGPUExternalRenderPassOptions): void;
