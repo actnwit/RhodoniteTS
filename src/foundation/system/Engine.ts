@@ -437,7 +437,7 @@ export class Engine extends RnObject {
     primitiveUids: PrimitiveUID[];
     displayIdx: number;
     deferredEffekseerRenderJobs?: DeferredEffekseerWebGPURenderJob[];
-  }) {
+  }): boolean {
     // Run pre-render hook per-eye (ensures per-view framebuffer adjustments)
     renderPass.doPreRender();
 
@@ -496,6 +496,8 @@ export class Engine extends RnObject {
 
     renderPass._copyResolve1ToResolve2WebGpu();
     renderPass.doPostRender();
+
+    return shouldRenderEffekseerEffects;
   }
 
   private __renderDeferredEffekseerEffectsAfterResolveWebGPU({
@@ -608,6 +610,7 @@ export class Engine extends RnObject {
 
         for (let displayIdx = 0; displayIdx < displayCount; displayIdx++) {
           const deferredEffekseerRenderJobs: DeferredEffekseerWebGPURenderJob[] = [];
+          let renderedEffekseerEffectsInDisplay = false;
           for (const exp of expressions) {
             for (const renderPass of exp.renderPasses) {
               const renderPassUid = renderPass.renderPassUID;
@@ -622,7 +625,7 @@ export class Engine extends RnObject {
               const primitiveUids =
                 primitiveUidsMap.get(renderPassUid) ?? MeshRendererComponent.sort_$render(this, renderPass);
 
-              this.__processRenderPassWebGPU({
+              const renderedEffekseerEffects = this.__processRenderPassWebGPU({
                 webGpuResourceRepository,
                 renderPass,
                 renderPassTickCount,
@@ -630,6 +633,7 @@ export class Engine extends RnObject {
                 displayIdx,
                 deferredEffekseerRenderJobs,
               });
+              renderedEffekseerEffectsInDisplay ||= renderedEffekseerEffects;
               this.__renderDeferredEffekseerEffectsAfterResolveWebGPU({
                 webGpuResourceRepository,
                 currentRenderPass: renderPass,
@@ -644,6 +648,11 @@ export class Engine extends RnObject {
                 this.__renderPassTickCount++;
               }
             }
+          }
+          if (displayIdx < displayCount - 1 && renderedEffekseerEffectsInDisplay) {
+            // Effekseer WebGPU updates camera matrices in backend GPU state while Rhodonite is still recording commands.
+            // Submitting per eye prevents the right-eye update from being observed by left-eye draw commands.
+            webGpuResourceRepository.flush();
           }
         }
         webGpuResourceRepository.flush();
