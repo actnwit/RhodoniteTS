@@ -1,3 +1,4 @@
+import type { EffekseerComponent } from '../../effekseer/EffekseerComponent';
 import type { Byte, Index, ObjectUID, PrimitiveUID } from '../../types/CommonTypes';
 import { VERSION } from '../../version';
 import type { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
@@ -54,6 +55,15 @@ import { TranslationGizmo } from '../gizmos/TranslationGizmo';
 import { _cleanupRenderPassHelperForEngine } from '../helpers/RenderPassHelper';
 import { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
 import { MaterialRepository } from '../materials/core/MaterialRepository';
+
+type WebGPUExternalRenderPassOptions = { colorFormat?: GPUTextureFormat; depthFormat?: GPUTextureFormat };
+
+type DeferredEffekseerWebGPURenderJob = {
+  renderPass: RenderPass;
+  displayIdx: number;
+  renderPassOptions?: WebGPUExternalRenderPassOptions;
+  effekseerComponents: EffekseerComponent[];
+};
 
 /**
  * The argument type for Engine.init() method.
@@ -419,12 +429,14 @@ export class Engine extends RnObject {
     renderPassTickCount,
     primitiveUids,
     displayIdx,
+    deferredEffekseerRenderJobs,
   }: {
     webGpuResourceRepository: WebGpuResourceRepository;
     renderPass: RenderPass;
     renderPassTickCount: number;
     primitiveUids: PrimitiveUID[];
     displayIdx: number;
+    deferredEffekseerRenderJobs?: DeferredEffekseerWebGPURenderJob[];
   }) {
     // Run pre-render hook per-eye (ensures per-view framebuffer adjustments)
     renderPass.doPreRender();
@@ -436,10 +448,21 @@ export class Engine extends RnObject {
     const effekseerRenderPassOptions = hasEffekseerEffects
       ? webGpuResourceRepository.getEffekseerRenderPassOptions(this, renderPass, displayIdx)
       : undefined;
-    if (renderPass.toRenderEffekseerEffects && effekseerRenderPassOptions != null) {
+    const shouldRenderEffekseerEffects = renderPass.toRenderEffekseerEffects && hasEffekseerEffects;
+    const shouldDeferEffekseerEffects =
+      shouldRenderEffekseerEffects && renderPass.getResolveFramebuffer() != null && deferredEffekseerRenderJobs != null;
+    if (shouldRenderEffekseerEffects && effekseerRenderPassOptions != null) {
       for (const effekseerComponent of effekseerComponents) {
         effekseerComponent.prepareWebGPURendering(effekseerRenderPassOptions);
       }
+    }
+    if (shouldDeferEffekseerEffects) {
+      deferredEffekseerRenderJobs.push({
+        renderPass,
+        displayIdx,
+        renderPassOptions: effekseerRenderPassOptions,
+        effekseerComponents,
+      });
     }
 
     // clear Framebuffer
@@ -447,19 +470,21 @@ export class Engine extends RnObject {
 
     webGpuResourceRepository.createRenderBundleEncoder(this, renderPass, displayIdx);
 
-    const renderPassEncoderForEffekseer = this.__renderMeshesWebGPU({
+    this.__renderMeshesWebGPU({
       webGpuResourceRepository,
       renderPass,
       renderPassTickCount,
       primitiveUids,
       displayIdx,
-      hasEffekseerEffects,
+      shouldKeepRenderPassForEffekseer: shouldRenderEffekseerEffects && !shouldDeferEffekseerEffects,
     });
 
-    if (renderPass.toRenderEffekseerEffects && hasEffekseerEffects) {
-      const renderPassEncoder =
-        renderPassEncoderForEffekseer ??
-        webGpuResourceRepository.getOrCreateRenderPassEncoderForExternalRendering(this, renderPass, displayIdx);
+    if (shouldRenderEffekseerEffects && !shouldDeferEffekseerEffects) {
+      const renderPassEncoder = webGpuResourceRepository.getOrCreateRenderPassEncoderForEffekseerExternalRendering(
+        this,
+        renderPass,
+        displayIdx
+      );
 
       if (renderPassEncoder != null) {
         for (const effekseerComponent of effekseerComponents) {
@@ -473,25 +498,62 @@ export class Engine extends RnObject {
     renderPass.doPostRender();
   }
 
+  private __renderDeferredEffekseerEffectsAfterResolveWebGPU({
+    webGpuResourceRepository,
+    currentRenderPass,
+    deferredEffekseerRenderJobs,
+    displayIdx,
+  }: {
+    webGpuResourceRepository: WebGpuResourceRepository;
+    currentRenderPass: RenderPass;
+    deferredEffekseerRenderJobs: DeferredEffekseerWebGPURenderJob[];
+    displayIdx: number;
+  }) {
+    const currentResolveFramebuffer = currentRenderPass.getResolveFramebuffer();
+    if (currentResolveFramebuffer == null) {
+      return;
+    }
+
+    for (const job of deferredEffekseerRenderJobs) {
+      if (job.displayIdx !== displayIdx || job.renderPass.getResolveFramebuffer() !== currentResolveFramebuffer) {
+        continue;
+      }
+
+      const renderPassEncoder = webGpuResourceRepository.getOrCreateRenderPassEncoderForEffekseerExternalRendering(
+        this,
+        job.renderPass,
+        displayIdx
+      );
+
+      if (renderPassEncoder != null) {
+        for (const effekseerComponent of job.effekseerComponents) {
+          effekseerComponent.$renderWebGPU(renderPassEncoder, job.renderPassOptions, displayIdx);
+        }
+      }
+      webGpuResourceRepository.endRenderPassEncoderForExternalRendering();
+      job.renderPass._copyResolve1ToResolve2WebGpu();
+    }
+  }
+
   private __renderMeshesWebGPU({
     webGpuResourceRepository,
     renderPass,
     renderPassTickCount,
     primitiveUids,
     displayIdx,
-    hasEffekseerEffects,
+    shouldKeepRenderPassForEffekseer,
   }: {
     webGpuResourceRepository: WebGpuResourceRepository;
     renderPass: RenderPass;
     renderPassTickCount: number;
     primitiveUids: PrimitiveUID[];
     displayIdx: number;
-    hasEffekseerEffects: boolean;
+    shouldKeepRenderPassForEffekseer: boolean;
   }): GPURenderPassEncoder | undefined {
     let renderPassEncoderForEffekseer: GPURenderPassEncoder | undefined;
     let doRender = renderPass._renderedSomethingBefore;
     if (doRender) {
-      if (hasEffekseerEffects) {
+      if (shouldKeepRenderPassForEffekseer) {
         renderPassEncoderForEffekseer = webGpuResourceRepository.renderWithRenderBundleAndKeepRenderPass(
           this,
           renderPass,
@@ -520,7 +582,7 @@ export class Engine extends RnObject {
       return renderPassEncoderForEffekseer;
     }
 
-    if (hasEffekseerEffects) {
+    if (shouldKeepRenderPassForEffekseer) {
       return webGpuResourceRepository.finishRenderBundleEncoderAndKeepRenderPass(this, renderPass, displayIdx);
     }
 
@@ -545,6 +607,7 @@ export class Engine extends RnObject {
         const primitiveUidsMap = new Map<number, PrimitiveUID[]>();
 
         for (let displayIdx = 0; displayIdx < displayCount; displayIdx++) {
+          const deferredEffekseerRenderJobs: DeferredEffekseerWebGPURenderJob[] = [];
           for (const exp of expressions) {
             for (const renderPass of exp.renderPasses) {
               const renderPassUid = renderPass.renderPassUID;
@@ -564,6 +627,13 @@ export class Engine extends RnObject {
                 renderPass,
                 renderPassTickCount,
                 primitiveUids,
+                displayIdx,
+                deferredEffekseerRenderJobs,
+              });
+              this.__renderDeferredEffekseerEffectsAfterResolveWebGPU({
+                webGpuResourceRepository,
+                currentRenderPass: renderPass,
+                deferredEffekseerRenderJobs,
                 displayIdx,
               });
 

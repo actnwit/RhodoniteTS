@@ -1637,11 +1637,13 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
       colorFormats = [navigator.gpu.getPreferredCanvasFormat()];
     }
 
-    return {
+    const descriptor = {
       colorFormats,
       depthStencilFormat,
       sampleCount,
     };
+
+    return descriptor;
   }
 
   getEffekseerRenderPassOptions(
@@ -1650,17 +1652,127 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository implements
     displayIdx = 0
   ): { colorFormat?: GPUTextureFormat; depthFormat?: GPUTextureFormat } {
     if (renderPass == null) {
-      return {
+      const options = {
         colorFormat: navigator.gpu.getPreferredCanvasFormat(),
-        depthFormat: this.__systemDepthTexture?.format ?? DEFAULT_DEPTH_FORMAT,
+        depthFormat: undefined,
       };
+      return options;
     }
 
-    const renderBundleDescriptor = this.__getRenderBundleDescriptor(engine, renderPass, displayIdx);
-    return {
-      colorFormat: renderBundleDescriptor.colorFormats[0] ?? undefined,
-      depthFormat: renderBundleDescriptor.depthStencilFormat,
+    const framebuffer = renderPass.getFramebuffer();
+    const resolveFramebuffer = renderPass.getResolveFramebuffer();
+    let colorFormat: GPUTextureFormat | undefined;
+    if (resolveFramebuffer != null && resolveFramebuffer.colorAttachments.length > 0) {
+      const textureResourceUid = (
+        resolveFramebuffer.colorAttachments[0] as { _textureResourceUid?: WebGLResourceHandle }
+      )._textureResourceUid;
+      const texture =
+        textureResourceUid != null
+          ? (this.__webGpuResources.get(textureResourceUid) as GPUTexture | undefined)
+          : undefined;
+      colorFormat = texture?.format;
+    } else if (framebuffer != null && framebuffer.colorAttachments.length > 0) {
+      const textureResourceUid = (framebuffer.colorAttachments[0] as { _textureResourceUid?: WebGLResourceHandle })
+        ._textureResourceUid;
+      const texture =
+        textureResourceUid != null
+          ? (this.__webGpuResources.get(textureResourceUid) as GPUTexture | undefined)
+          : undefined;
+      colorFormat = texture?.format;
+    } else if (engine.webXRSystem.isWebXRMode && renderPass.isOutputForVr) {
+      const view = engine.engineState.xrPoseWebGPU!.views[displayIdx];
+      const subImage = engine.engineState.xrGpuBinding.getViewSubImage(
+        engine.engineState.xrProjectionLayerWebGPU!,
+        view
+      );
+      colorFormat = subImage.colorTexture.format;
+    } else {
+      colorFormat = navigator.gpu.getPreferredCanvasFormat();
+    }
+    const options = {
+      colorFormat,
+      depthFormat: undefined,
     };
+    return options;
+  }
+
+  getOrCreateRenderPassEncoderForEffekseerExternalRendering(
+    engine: Engine,
+    renderPass: RenderPass,
+    displayIdx: number
+  ): GPURenderPassEncoder | undefined {
+    if (this.__renderPassEncoder != null) {
+      if (this.__renderBundleEncoder != null) {
+        this.__renderPassEncoder.executeBundles([this.__renderBundleEncoder.finish()]);
+        this.__renderBundleEncoder = undefined;
+        this.__renderBundleEncoderKey = undefined;
+      }
+      this.__renderPassEncoder.end();
+      this.__renderPassEncoder = undefined;
+    } else if (this.__renderBundleEncoder != null) {
+      this.__renderBundleEncoder = undefined;
+      this.__renderBundleEncoderKey = undefined;
+    }
+
+    const framebuffer = renderPass.getFramebuffer();
+    const resolveFramebuffer = renderPass.getResolveFramebuffer();
+    const webxrSystem = engine.webXRSystem;
+    const colorAttachments: GPURenderPassColorAttachment[] = [];
+    if (resolveFramebuffer != null) {
+      for (const colorAttachment of resolveFramebuffer.colorAttachments) {
+        const textureView = this.__webGpuResources.get(
+          colorAttachment._textureViewAsRenderTargetResourceUid
+        ) as GPUTextureView;
+        colorAttachments.push({
+          view: textureView,
+          loadOp: 'load',
+          storeOp: 'store',
+        });
+      }
+    } else if (framebuffer != null) {
+      for (const colorAttachment of framebuffer.colorAttachments) {
+        const textureView = this.__webGpuResources.get(
+          colorAttachment._textureViewAsRenderTargetResourceUid
+        ) as GPUTextureView;
+        colorAttachments.push({
+          view: textureView,
+          loadOp: 'load',
+          storeOp: 'store',
+        });
+      }
+    } else if (webxrSystem.isWebXRMode && renderPass.isOutputForVr) {
+      const view = engine.engineState.xrPoseWebGPU!.views[displayIdx];
+      const subImage = engine.engineState.xrGpuBinding.getViewSubImage(
+        engine.engineState.xrProjectionLayerWebGPU!,
+        view
+      );
+      colorAttachments.push({
+        view: subImage.colorTexture.createView(subImage.getViewDescriptor()),
+        loadOp: 'load',
+        storeOp: 'store',
+      });
+    } else {
+      if (this.__contextCurrentTextureView == null) {
+        const context = this.__webGpuDeviceWrapper!.context;
+        this.__contextCurrentTextureView = context.getCurrentTexture().createView();
+      }
+      colorAttachments.push({
+        view: this.__contextCurrentTextureView,
+        loadOp: 'load',
+        storeOp: 'store',
+      });
+    }
+
+    if (colorAttachments.length === 0) {
+      return undefined;
+    }
+
+    const renderPassDescriptor: GPURenderPassDescriptor = {
+      colorAttachments,
+      label: `${renderPass.uniqueName}_EffekseerExternal`,
+    };
+    this.__renderPassEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
+    return this.__renderPassEncoder;
   }
 
   createRenderBundleEncoder(engine: Engine, renderPass: RenderPass, displayIdx: number) {
