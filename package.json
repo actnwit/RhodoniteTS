@@ -83,7 +83,7 @@
     "typedoc": "^0.28.18",
     "typescript": "6.0.3",
     "version-loader": "^0.1.0",
-    "vitest": "^3.1.2",
+    "vitest": "^4.1.0",
     "vitest-environment-puppeteer": "^11.0.3",
     "vitest-puppeteer": "^11.0.3",
     "webxr-input-profiles": "https://github.com/actnwit/webxr-input-profiles.git#21272c8a0a5512614e60dca5be26f7b1485ad6e7"
