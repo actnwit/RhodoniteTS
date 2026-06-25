@@ -179,30 +179,30 @@ dist/
 
 ```bash
 # Development
-yarn watch-esm-dev         # Watch mode for library development
-yarn start                 # Development server (port 8082)
+pnpm watch-esm-dev         # Watch mode for library development
+pnpm start                 # Development server (port 8082)
 
 # Building
-yarn build                 # Build all targets
-yarn build-samples         # Compile samples
+pnpm build                 # Build all targets
+pnpm build-samples         # Compile samples
 
 # Testing
-yarn test                  # Full test suite
-yarn test-unit             # Unit tests only
-yarn test-e2e              # E2E visual tests
+pnpm test                  # Full test suite
+pnpm test-unit             # Unit tests only
+pnpm test-e2e              # E2E visual tests
 
 # Quality
-yarn check:fix             # Auto-fix linting and formatting
-yarn doc                   # Generate API documentation
+pnpm check:fix             # Auto-fix linting and formatting
+pnpm doc                   # Generate API documentation
 ```
 
 ### Development Workflow
 
-1. **Setup**: `yarn install` (Node.js 22+ required)
-2. **Watch**: `yarn watch-esm-dev` for live development
-3. **Test**: `yarn test-unit` for validation
-4. **Quality**: `yarn check:fix` before commits
-5. **Build**: `yarn build && yarn test` before PRs
+1. **Setup**: `pnpm install` (Node.js 22+ required)
+2. **Watch**: `pnpm watch-esm-dev` for live development
+3. **Test**: `pnpm test-unit` for validation
+4. **Quality**: `pnpm check:fix` before commits
+5. **Build**: `pnpm build && pnpm test` before PRs
 
 ### Code Standards
 
