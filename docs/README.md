@@ -16,7 +16,7 @@
 | **[API Overview](./API_OVERVIEW.md)** | Detailed API reference with code examples | Library users & contributors |
 | **[Developer Workflow](./DEVELOPER_WORKFLOW.md)** | Complete development process guide | Contributors & maintainers |
 
-### 📖 **Project Documentation** 
+### 📖 **Project Documentation**
 
 | Document | Purpose | Location |
 |----------|---------|----------|
@@ -76,7 +76,7 @@ src/webgpu/             # WebGPU implementation
 - **[API Overview](./API_OVERVIEW.md)**: Complete API reference with usage examples
 - **[Generated API Docs](./api/)**: Detailed TypeDoc documentation for all classes and interfaces
 
-### **🏗️ Architecture Documentation**  
+### **🏗️ Architecture Documentation**
 - **[Project Index](./PROJECT_INDEX.md)**: System architecture and component relationships
 - **[CLAUDE.md](../CLAUDE.md)**: Comprehensive development patterns and guidelines
 
@@ -89,15 +89,15 @@ src/webgpu/             # WebGPU implementation
 ## 🎯 Documentation Goals
 
 ### **Comprehensive Coverage**
-✅ Architecture patterns and design decisions  
-✅ Complete API reference with examples  
-✅ Development workflow and best practices  
-✅ Quality assurance and testing strategies  
-✅ Cross-references and navigation aids  
+✅ Architecture patterns and design decisions
+✅ Complete API reference with examples
+✅ Development workflow and best practices
+✅ Quality assurance and testing strategies
+✅ Cross-references and navigation aids
 
 ### **Target Audiences**
 - **Library Users**: Installation, API usage, examples
-- **Contributors**: Development setup, patterns, guidelines  
+- **Contributors**: Development setup, patterns, guidelines
 - **Maintainers**: Architecture decisions, workflow processes
 - **Researchers**: Technical implementation details
 
@@ -107,7 +107,7 @@ src/webgpu/             # WebGPU implementation
 
 ### **Update Triggers**
 - API changes or additions
-- Architecture modifications  
+- Architecture modifications
 - New development tools or processes
 - Version releases
 - Community feedback
@@ -115,7 +115,7 @@ src/webgpu/             # WebGPU implementation
 ### **Maintenance Process**
 1. **Update Source**: Modify relevant documentation files
 2. **Cross-Reference**: Update links and references
-3. **Generate**: Rebuild TypeDoc API documentation (`yarn doc`)
+3. **Generate**: Rebuild TypeDoc API documentation (`pnpm doc`)
 4. **Validate**: Ensure all links and examples work
 5. **Review**: Check for completeness and accuracy
 

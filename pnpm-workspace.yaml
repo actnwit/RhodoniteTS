@@ -1,0 +1,5 @@
+allowBuilds:
+  '@swc/core': true
+  esbuild: true
+  lefthook: true
+  puppeteer: true

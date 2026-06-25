@@ -72,7 +72,7 @@ $ npm install rhodonite
 
 ### Note
 
-If you get an error like "webxr-input-profiles not found" when building a project using Rhodonite, Try "npm install" or "yarn install" again.
+If you get an error like "webxr-input-profiles not found" when building a project using Rhodonite, Try "npm install" or "pnpm install" again.
 
 ## Coding with Rhodonite
 
@@ -238,12 +238,12 @@ Input the following command in the VSCode command palette.
 > Remote-Containers: Reopen in Container
 ```
 
-After a new dev container window opens, You can work in the Debian Linux container environment. All dependencies (node, npm, yarn, typescript, chromium, and all packages for Rhodonite) are already set up.
+After a new dev container window opens, You can work in the Debian Linux container environment. All dependencies (node, npm, pnpm, typescript, chromium, and all packages for Rhodonite) are already set up.
 
 ## Debugging inside VSCode (Step execution in VSCode Debug tab)
 
 1. Install the "Debugger for Chrome" VSCode Extension.
-2. Start the local server with `$ yarn start`.
+2. Start the local server with `$ pnpm start`.
 3. Push the run icon by choosing "Launch Chrome to debug Rhodonite samples" in the RUN tab of VSCode's left pane to start debugging.
 
 If you use the VSCode devcontainer environment, You should open another RhodoniteTS VSCode window locally and do debug ops on it instead of the devcontainer VSCode window.
@@ -284,3 +284,4 @@ This library also uses the following assets.
 ### Contributors
 
 ![GitHub Contributors Image](https://contrib.rocks/image?repo=actnwit/RhodoniteTS)
+

@@ -1,3 +1,4 @@
 [tools]
 node = "22"
-pnpm = "latest"
+pnpm = "11.8.0"
+

@@ -13,11 +13,11 @@
 ```bash
 # Required versions
 Node.js >= 22.0.0
-Yarn >= 4.9.2 (packageManager: yarn@4.9.2)
+pnpm >= 11.8.0 (packageManager: pnpm@11.8.0)
 
 # Verify installation
 node --version    # Should be 22+
-yarn --version    # Should be 4.9.2+
+pnpm --version    # Should be 11.8.0+
 ```
 
 ### Initial Setup
@@ -28,22 +28,22 @@ git clone https://github.com/actnwit/RhodoniteTS.git
 cd RhodoniteTS
 
 # Install dependencies
-yarn install
+pnpm install
 
 # Verify setup
-yarn build        # Should complete without errors
-yarn test-unit    # Should pass unit tests
+pnpm build        # Should complete without errors
+pnpm test-unit    # Should pass unit tests
 ```
 
 ### Development Environment
 
 ```bash
 # Start development mode
-yarn watch-esm-dev    # Library development with auto-rebuild
-yarn watch-samples    # Sample development with dev server
+pnpm watch-esm-dev    # Library development with auto-rebuild
+pnpm watch-samples    # Sample development with dev server
 
 # Development server (port 8082)
-yarn start            # Serves samples at http://localhost:8082
+pnpm start            # Serves samples at http://localhost:8082
 ```
 
 ---
@@ -139,26 +139,26 @@ export class YourComponent extends Component {
 
 ```bash
 # Run tests frequently during development
-yarn test-unit                    # Quick unit test feedback
-yarn test-unit-part -- ./src/foundation/components/YourComponent
+pnpm test-unit                    # Quick unit test feedback
+pnpm test-unit-part -- ./src/foundation/components/YourComponent
 
 # Test specific functionality
-yarn test-unit-part -- ./src/foundation/math    # Math module tests
-yarn test-unit-part -- ./src/foundation/core    # Core system tests
+pnpm test-unit-part -- ./src/foundation/math    # Math module tests
+pnpm test-unit-part -- ./src/foundation/core    # Core system tests
 ```
 
 ### 4. Code Quality Checks
 
 ```bash
 # Auto-fix common issues
-yarn check:fix              # Fix linting and formatting
-yarn format:fix             # Format code only
-yarn lint:fix               # Fix linting only
+pnpm check:fix              # Fix linting and formatting
+pnpm format:fix             # Format code only
+pnpm lint:fix               # Fix linting only
 
 # Verify quality
-yarn check                  # Check without fixing
-yarn lint                   # Lint without fixing
-yarn format                 # Format check without fixing
+pnpm check                  # Check without fixing
+pnpm lint                   # Lint without fixing
+pnpm format                 # Format check without fixing
 ```
 
 ---
@@ -194,12 +194,12 @@ test('YourComponent should handle data correctly', () => {
 
 ```bash
 # Visual regression tests
-yarn test-e2e                     # Full E2E suite (environment-sensitive)
-yarn test-e2e-part -- ./samples/test_e2e/YourSample
+pnpm test-e2e                     # Full E2E suite (environment-sensitive)
+pnpm test-e2e-part -- ./samples/test_e2e/YourSample
 
 # Update snapshots when intentional changes made
-yarn test-e2e-update             # Update all snapshots
-yarn test-e2e-part -- --update ./samples/test_e2e/YourSample
+pnpm test-e2e-update             # Update all snapshots
+pnpm test-e2e-part -- --update ./samples/test_e2e/YourSample
 ```
 
 ### Sample Development
@@ -234,19 +234,19 @@ export default async function() {
 
 ```bash
 # 1. Code quality
-yarn check:fix              # Auto-fix issues
-yarn check                  # Verify no remaining issues
+pnpm check:fix              # Auto-fix issues
+pnpm check                  # Verify no remaining issues
 
 # 2. Build verification
-yarn build                  # Ensure all builds work
-yarn build-samples          # Ensure samples compile
+pnpm build                  # Ensure all builds work
+pnpm build-samples          # Ensure samples compile
 
 # 3. Test validation
-yarn test-unit              # Unit tests must pass
-yarn test-unit-part -- ./src/path/to/changed/code
+pnpm test-unit              # Unit tests must pass
+pnpm test-unit-part -- ./src/path/to/changed/code
 
 # 4. Documentation
-yarn doc                    # Generate updated API docs (if needed)
+pnpm doc                    # Generate updated API docs (if needed)
 ```
 
 ### Code Review Guidelines
@@ -274,23 +274,23 @@ yarn doc                    # Generate updated API docs (if needed)
 ```yaml
 # .github/workflows/test.yml (reference)
 - name: Install dependencies
-  run: yarn install
+  run: pnpm install
 
 - name: Check code quality
-  run: yarn check
+  run: pnpm check
 
 - name: Build library
-  run: yarn build
+  run: pnpm build
 
 - name: Build samples
-  run: yarn build-samples
+  run: pnpm build-samples
 
 - name: Run unit tests
-  run: yarn test-unit
+  run: pnpm test-unit
 
 # E2E tests are environment-sensitive
 - name: Run E2E tests (allowed to fail)
-  run: yarn test-e2e
+  run: pnpm test-e2e
   continue-on-error: true
 ```
 
@@ -302,15 +302,15 @@ yarn doc                    # Generate updated API docs (if needed)
 
 ```bash
 # Development builds (with source maps)
-yarn build-esm-dev          # ESM development build
-yarn build-iife-dev         # IIFE development bundle
+pnpm build-esm-dev          # ESM development build
+pnpm build-iife-dev         # IIFE development bundle
 
 # Production builds (optimized)
-yarn build-esm-prod         # ESM production build
-yarn build-iife-prod        # IIFE production bundle (minified)
+pnpm build-esm-prod         # ESM production build
+pnpm build-iife-prod        # IIFE production bundle (minified)
 
 # Complete build
-yarn build                  # All targets
+pnpm build                  # All targets
 ```
 
 ### Build Output Structure
@@ -344,7 +344,7 @@ git pull origin develop
 # Update version number manually
 
 # 3. Pre-release validation
-yarn preoutput             # Runs build + build-samples + test
+pnpm preoutput             # Runs build + build-samples + test
 
 # 4. Create release branch
 git checkout -b release/v0.x.x
@@ -358,7 +358,7 @@ git tag v0.x.x
 git push origin main --tags
 
 # 6. Publish to npm
-yarn yarn-pack            # Create package
+pnpm pnpm-pack            # Create package
 npm publish rhodonite-*.tgz
 ```
 
@@ -517,7 +517,7 @@ console.log('Draw calls:', stats.drawCalls);
 
 ```bash
 # Generate TypeDoc documentation
-yarn doc                   # Creates docs/api/ directory
+pnpm doc                   # Creates docs/api/ directory
 
 # Documentation files
 docs/
@@ -558,8 +558,8 @@ docs/
 - ✅ Update E2E snapshots when needed
 
 ### Quality
-- ✅ Auto-fix with `yarn check:fix`
-- ✅ Build before pushing: `yarn build && yarn build-samples && yarn test-unit`
+- ✅ Auto-fix with `pnpm check:fix`
+- ✅ Build before pushing: `pnpm build && pnpm build-samples && pnpm test-unit`
 - ✅ Follow TypeScript strict mode
 - ✅ Document public APIs
 
@@ -571,4 +571,4 @@ docs/
 
 ---
 
-**Happy Coding!** 🚀 | **Version**: 0.17.4 | **Node.js**: 22+ | **Package Manager**: Yarn 4.9.2
+**Happy Coding!** 🚀 | **Version**: 0.17.4 | **Node.js**: 22+ | **Package Manager**: pnpm 11.8.0
