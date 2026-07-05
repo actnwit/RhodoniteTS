@@ -29,7 +29,6 @@ import { Quaternion } from '../../math/Quaternion';
 import { Vector3 } from '../../math/Vector3';
 import type { Vector4 } from '../../math/Vector4';
 import { Is } from '../../misc/Is';
-import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
 import type { Engine } from '../../system/Engine';
 import type { CameraComponent } from '../Camera/CameraComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
@@ -588,14 +587,17 @@ export class SceneGraphComponent extends Component {
     const physicsComponent = this.entity.tryToGetPhysics();
     if (physicsComponent !== undefined) {
       if (physicsComponent.strategy !== undefined) {
-        if (physicsComponent.strategy instanceof OimoPhysicsStrategy) {
-          const sceneGraphComponent = this.entity.tryToGetSceneGraph();
-          if (sceneGraphComponent !== undefined) {
-            const eulerAngles = Quaternion.fromMatrix(matrix).toEulerAngles();
-            physicsComponent.strategy.setEulerAngle(eulerAngles);
-            physicsComponent.strategy.setPosition(matrix.getTranslate());
-            physicsComponent.strategy.setScale(matrix.getScale());
-          }
+        const strategy = physicsComponent.strategy;
+        if (strategy.setRotation != null) {
+          strategy.setRotation(Quaternion.fromMatrix(matrix));
+        } else if (strategy.setEulerAngle != null) {
+          strategy.setEulerAngle(Quaternion.fromMatrix(matrix).toEulerAngles());
+        }
+        if (strategy.setPosition != null) {
+          strategy.setPosition(matrix.getTranslate());
+        }
+        if (strategy.setScale != null) {
+          strategy.setScale(matrix.getScale());
         }
       }
     }
@@ -1121,12 +1123,7 @@ export class SceneGraphComponent extends Component {
     const physicsComponent = this.entity.tryToGetPhysics();
     if (physicsComponent !== undefined) {
       if (physicsComponent.strategy !== undefined) {
-        if (physicsComponent.strategy instanceof OimoPhysicsStrategy) {
-          const sceneGraphComponent = this.entity.tryToGetSceneGraph();
-          if (sceneGraphComponent !== undefined) {
-            physicsComponent.strategy.setPosition(vec);
-          }
-        }
+        physicsComponent.strategy.setPosition?.(vec);
       }
     }
   }
@@ -1190,11 +1187,11 @@ export class SceneGraphComponent extends Component {
     const physicsComponent = this.entity.tryToGetPhysics();
     if (physicsComponent !== undefined) {
       if (physicsComponent.strategy !== undefined) {
-        if (physicsComponent.strategy instanceof OimoPhysicsStrategy) {
-          const sceneGraphComponent = this.entity.tryToGetSceneGraph();
-          if (sceneGraphComponent !== undefined) {
-            physicsComponent.strategy.setEulerAngle(vec);
-          }
+        const strategy = physicsComponent.strategy;
+        if (strategy.setEulerAngle != null) {
+          strategy.setEulerAngle(vec);
+        } else if (strategy.setRotation != null) {
+          strategy.setRotation(Quaternion.fromMatrix(Matrix44.rotate(vec)));
         }
       }
     }
@@ -1239,11 +1236,11 @@ export class SceneGraphComponent extends Component {
     const physicsComponent = this.entity.tryToGetPhysics();
     if (physicsComponent !== undefined) {
       if (physicsComponent.strategy !== undefined) {
-        if (physicsComponent.strategy instanceof OimoPhysicsStrategy) {
-          const sceneGraphComponent = this.entity.tryToGetSceneGraph();
-          if (sceneGraphComponent !== undefined) {
-            physicsComponent.strategy.setEulerAngle(quat.toEulerAngles());
-          }
+        const strategy = physicsComponent.strategy;
+        if (strategy.setRotation != null) {
+          strategy.setRotation(quat);
+        } else if (strategy.setEulerAngle != null) {
+          strategy.setEulerAngle(quat.toEulerAngles());
         }
       }
     }
@@ -1352,12 +1349,7 @@ export class SceneGraphComponent extends Component {
     const physicsComponent = this.entity.tryToGetPhysics();
     if (physicsComponent !== undefined) {
       if (physicsComponent.strategy !== undefined) {
-        if (physicsComponent.strategy instanceof OimoPhysicsStrategy) {
-          const sceneGraphComponent = this.entity.tryToGetSceneGraph();
-          if (sceneGraphComponent !== undefined) {
-            physicsComponent.strategy.setScale(vec);
-          }
-        }
+        physicsComponent.strategy.setScale?.(vec);
       }
     }
   }

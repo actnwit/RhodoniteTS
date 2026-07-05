@@ -4,6 +4,14 @@ let p: any;
 
 declare const window: any;
 
+const physicsEngine: 'oimo' | 'rapier' = 'rapier';
+
+if (physicsEngine === 'rapier') {
+  const rapierModulePath = '../../../vendor/rapier3d-compat/rapier.mjs';
+  const RAPIER = await import(rapierModulePath);
+  await Rn.RapierPhysicsStrategy.initialize(RAPIER);
+}
+
 const engine = await Rn.Engine.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
@@ -15,6 +23,7 @@ const ground = Rn.MeshHelper.createCube(engine, {
   color: Rn.ColorRgba.fromCopy4(0.5, 0.5, 0.5, 1),
   physics: {
     use: true,
+    engine: physicsEngine,
     move: false,
     density: 1,
     friction: 0.5,
@@ -29,6 +38,7 @@ function createCubes(numberToCreate: number) {
     color: Rn.ColorRgba.fromCopy4(1.0, 0.5, 0.5, 1),
     physics: {
       use: true,
+      engine: physicsEngine,
       move: true,
       density: 1,
       friction: 0.5,
@@ -52,6 +62,7 @@ function createSpheres(numberToCreate: number) {
     heightSegments: 10,
     physics: {
       use: true,
+      engine: physicsEngine,
       move: true,
       density: 1,
       friction: 0.5,
