@@ -6,6 +6,7 @@ import { ProcessStage } from '../../definitions/ProcessStage';
 import { Is } from '../../misc/Is';
 import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
 import type { PhysicsStrategy } from '../../physics/PhysicsStrategy';
+import { RapierPhysicsStrategy } from '../../physics/Rapier/RapierPhysicsStrategy';
 import { VRMSpringBonePhysicsStrategy } from '../../physics/VRMSpring/VRMSpringBonePhysicsStrategy';
 import type { Engine } from '../../system/Engine';
 import { AnimationComponent } from '../Animation/AnimationComponent';
@@ -92,6 +93,7 @@ export class PhysicsComponent extends Component {
       return;
     }
     OimoPhysicsStrategy.update();
+    RapierPhysicsStrategy.update();
   }
 
   /**

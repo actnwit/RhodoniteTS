@@ -17,7 +17,17 @@ import { Sphere, type SphereDescriptor } from '../geometry/shapes/Sphere';
 import { Vector3 } from '../math/Vector3';
 import { Is } from '../misc';
 import { OimoPhysicsStrategy } from '../physics/Oimo/OimoPhysicsStrategy';
+import type { PhysicsEngineType } from '../physics/PhysicsProperty';
+import { RapierPhysicsStrategy } from '../physics/Rapier/RapierPhysicsStrategy';
 import type { Engine } from '../system/Engine';
+
+const createPhysicsStrategy = (physicsEngine: PhysicsEngineType = 'rapier') => {
+  if (physicsEngine === 'oimo') {
+    return new OimoPhysicsStrategy();
+  }
+
+  return new RapierPhysicsStrategy();
+};
 
 /**
  * Creates a plane mesh entity with configurable orientation.
@@ -158,7 +168,7 @@ const createCube = (engine: Engine, desc: CubeDescriptor = {}) => {
   if (Is.exist(desc.physics) && desc.physics.use) {
     const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, entity);
     const physicsComponent = newEntity.getPhysics();
-    const strategy = new OimoPhysicsStrategy();
+    const strategy = createPhysicsStrategy(desc.physics.engine);
     const property = {
       type: PhysicsShape.Box,
       size: desc.widthVector ?? Vector3.fromCopy3(1, 1, 1),
@@ -214,7 +224,7 @@ const createCubes = (engine: Engine, numberToCreate: number, desc: CubeDescripto
     if (Is.exist(desc.physics) && desc.physics.use) {
       const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, entity);
       const physicsComponent = newEntity.getPhysics();
-      const strategy = new OimoPhysicsStrategy();
+      const strategy = createPhysicsStrategy(desc.physics.engine);
       const property = {
         type: PhysicsShape.Box,
         size: desc.widthVector ?? Vector3.fromCopy3(1, 1, 1),
@@ -267,7 +277,7 @@ const createSphere = (engine: Engine, desc: SphereDescriptor = {}) => {
   if (Is.exist(desc.physics) && desc.physics.use) {
     const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, entity);
     const physicsComponent = newEntity.getPhysics();
-    const strategy = new OimoPhysicsStrategy();
+    const strategy = createPhysicsStrategy(desc.physics.engine);
     const property = {
       type: PhysicsShape.Sphere,
       size: Is.exist(desc.radius)
@@ -329,7 +339,7 @@ const createSpheres = (engine: Engine, numberToCreate: number, desc: SphereDescr
     if (Is.exist(desc.physics) && desc.physics.use) {
       const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, entity);
       const physicsComponent = newEntity.getPhysics();
-      const strategy = new OimoPhysicsStrategy();
+      const strategy = createPhysicsStrategy(desc.physics.engine);
       const property = {
         type: PhysicsShape.Sphere,
         size: Is.exist(desc.radius)
