@@ -1,0 +1,135 @@
+import type { IMatrix } from './IMatrix';
+/**
+ * Abstract base class for matrix implementations.
+ *
+ * This class provides a common interface and basic functionality for all matrix types
+ * in the system. It implements the IMatrix interface and serves as the foundation
+ * for concrete matrix classes like Matrix44, Matrix33, etc.
+ *
+ * @abstract
+ */
+export declare abstract class AbstractMatrix implements IMatrix {
+    /** Internal Float32Array storage for matrix elements */
+    _v: Float32Array;
+    /**
+     * Gets the matrix element at the specified row and column.
+     *
+     * @param row_i - The zero-based row index
+     * @param column_i - The zero-based column index
+     * @returns The matrix element value at the specified position
+     * @throws Error when not implemented in derived classes
+     */
+    at(_row_i: number, _column_i: number): number;
+    /**
+     * Converts the matrix to a string representation.
+     *
+     * @returns A string representation of the matrix
+     * @throws Error when not implemented in derived classes
+     */
+    toString(): string;
+    /**
+     * Converts the matrix to an approximate string representation.
+     *
+     * This method is useful for displaying matrices with rounded values
+     * for better readability in debugging or logging scenarios.
+     *
+     * @returns An approximate string representation of the matrix
+     * @throws Error when not implemented in derived classes
+     */
+    toStringApproximately(): string;
+    /**
+     * Flattens the matrix into a one-dimensional array.
+     *
+     * @returns A flat array containing all matrix elements in row-major order
+     * @throws Error when not implemented in derived classes
+     */
+    flattenAsArray(): number[];
+    /**
+     * Checks if this matrix is a dummy (uninitialized) matrix.
+     *
+     * A matrix is considered dummy if its internal storage has zero length,
+     * indicating it hasn't been properly initialized with matrix data.
+     *
+     * @returns True if the matrix is dummy/uninitialized, false otherwise
+     */
+    isDummy(): boolean;
+    /**
+     * Gets the matrix element at the specified flat index.
+     *
+     * This provides direct access to the underlying Float32Array storage
+     * using a single index rather than row/column coordinates.
+     *
+     * @param i - The zero-based flat index into the matrix storage
+     * @returns The matrix element value at the specified index
+     */
+    v(i: number): number;
+    /**
+     * Calculates the determinant of the matrix.
+     *
+     * @returns The determinant value of the matrix
+     * @throws Error when not implemented in derived classes
+     */
+    determinant(): number;
+    /**
+     * Gets the class name of this matrix instance.
+     *
+     * @returns The name of the constructor function (class name)
+     */
+    get className(): string;
+    /**
+     * Gets the GLSL string representation of the matrix as float values.
+     * @returns GLSL-formatted string for float values
+     * @throws Error - Must be implemented by subclasses
+     */
+    get glslStrAsFloat(): string;
+    /**
+     * Gets the GLSL string representation of the matrix as integer values.
+     * @returns GLSL-formatted string for integer values
+     * @throws Error - Must be implemented by subclasses
+     */
+    get glslStrAsInt(): string;
+    /**
+     * Gets the GLSL string representation of the matrix as unsigned integer values.
+     * @returns GLSL-formatted string for unsigned integer values with 'u' suffix
+     * @throws Error - Must be implemented by subclasses
+     */
+    get glslStrAsUint(): string;
+    /**
+     * Gets the WGSL string representation of the matrix as float values.
+     * @returns WGSL-formatted string for float values
+     * @throws Error - Must be implemented by subclasses
+     */
+    get wgslStrAsFloat(): string;
+    /**
+     * Gets the WGSL string representation of the matrix as integer values.
+     * @returns WGSL-formatted string for integer values
+     * @throws Error - Must be implemented by subclasses
+     */
+    get wgslStrAsInt(): string;
+    /**
+     * Gets the WGSL string representation of the matrix as unsigned integer values.
+     * @returns WGSL-formatted string for unsigned integer values with 'u' suffix
+     * @throws Error - Must be implemented by subclasses
+     */
+    get wgslStrAsUint(): string;
+    /**
+     * Indicates whether this matrix is an identity matrix class.
+     *
+     * This property should be overridden in derived classes that represent
+     * identity matrices to return true.
+     *
+     * @returns False for the base AbstractMatrix class
+     */
+    get isIdentityMatrixClass(): boolean;
+    /**
+     * Checks if the matrix's internal storage shares the same ArrayBuffer as the provided one.
+     *
+     * This method is useful for determining if two matrices share the same underlying
+     * memory, which can be important for performance optimizations and avoiding
+     * unnecessary data copying.
+     *
+     * @param arrayBuffer - The ArrayBuffer to compare against
+     * @returns True if the internal storage uses the same ArrayBuffer, false otherwise
+     */
+    isTheSourceSame(arrayBuffer: ArrayBuffer): boolean;
+}

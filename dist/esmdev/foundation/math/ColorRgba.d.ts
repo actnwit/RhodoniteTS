@@ -1,0 +1,188 @@
+import type { Array4 } from '../../types/CommonTypes';
+import type { IColorRgba } from './IColor';
+import type { IVector4 } from './IVector';
+import { Vector4 } from './Vector4';
+/**
+ * A RGBA color class that extends Vector4 to provide color-specific functionality.
+ * Represents colors with red, green, blue, and alpha (transparency) components,
+ * each ranging from 0.0 to 1.0.
+ *
+ * @example
+ * ```typescript
+ * // Create a red color with full opacity
+ * const red = ColorRgba.fromCopy4(1.0, 0.0, 0.0, 1.0);
+ *
+ * // Create from array
+ * const blue = ColorRgba.fromCopyArray([0.0, 0.0, 1.0, 1.0]);
+ * ```
+ */
+export declare class ColorRgba extends Vector4 implements IVector4, IColorRgba {
+    /**
+     * Gets the x component (equivalent to red component).
+     *
+     * @returns The x/red component value
+     */
+    get x(): number;
+    /**
+     * Gets the y component (equivalent to green component).
+     *
+     * @returns The y/green component value
+     */
+    get y(): number;
+    /**
+     * Gets the z component (equivalent to blue component).
+     *
+     * @returns The z/blue component value
+     */
+    get z(): number;
+    /**
+     * Gets the w component (equivalent to alpha component).
+     *
+     * @returns The w/alpha component value
+     */
+    get w(): number;
+    /**
+     * Gets the red component of the color.
+     *
+     * @returns The red component value (0.0 to 1.0)
+     */
+    get r(): number;
+    /**
+     * Gets the green component of the color.
+     *
+     * @returns The green component value (0.0 to 1.0)
+     */
+    get g(): number;
+    /**
+     * Gets the blue component of the color.
+     *
+     * @returns The blue component value (0.0 to 1.0)
+     */
+    get b(): number;
+    /**
+     * Gets the alpha (transparency) component of the color.
+     *
+     * @returns The alpha component value (0.0 = transparent, 1.0 = opaque)
+     */
+    get a(): number;
+    /**
+     * Creates a zero color (black with zero alpha).
+     *
+     * @returns A new ColorRgba instance with all components set to 0
+     */
+    static zero(): ColorRgba;
+    /**
+     * Creates a color with all components set to 1 (white with full opacity).
+     *
+     * @returns A new ColorRgba instance with all components set to 1
+     */
+    static one(): ColorRgba;
+    /**
+     * Creates a dummy color instance for initialization purposes.
+     *
+     * @returns A new ColorRgba instance with dummy values
+     */
+    static dummy(): ColorRgba;
+    /**
+     * Normalizes a color vector to unit length.
+     *
+     * @param vec - The color vector to normalize
+     * @returns A new normalized ColorRgba instance
+     */
+    static normalize(vec: IVector4): ColorRgba;
+    /**
+     * Adds two color vectors component-wise.
+     *
+     * @param l_vec - The left operand color vector
+     * @param r_vec - The right operand color vector
+     * @returns A new ColorRgba instance representing the sum
+     */
+    static add(l_vec: IVector4, r_vec: IVector4): ColorRgba;
+    /**
+     * Subtracts the right color vector from the left color vector component-wise.
+     *
+     * @param l_vec - The left operand color vector (minuend)
+     * @param r_vec - The right operand color vector (subtrahend)
+     * @returns A new ColorRgba instance representing the difference
+     */
+    static subtract(l_vec: IVector4, r_vec: IVector4): ColorRgba;
+    /**
+     * Multiplies a color vector by a scalar value.
+     *
+     * @param vec - The color vector to multiply
+     * @param value - The scalar value to multiply by
+     * @returns A new ColorRgba instance representing the scaled color
+     */
+    static multiply(vec: IVector4, value: number): ColorRgba;
+    /**
+     * Multiplies two color vectors component-wise (component multiplication).
+     *
+     * @param l_vec - The left operand color vector
+     * @param r_vec - The right operand color vector
+     * @returns A new ColorRgba instance representing the component-wise product
+     */
+    static multiplyVector(l_vec: IVector4, r_vec: IVector4): ColorRgba;
+    /**
+     * Divides a color vector by a scalar value.
+     *
+     * @param vec - The color vector to divide
+     * @param value - The scalar value to divide by
+     * @returns A new ColorRgba instance representing the scaled color
+     * @throws Error if value is zero
+     */
+    static divide(vec: IVector4, value: number): ColorRgba;
+    /**
+     * Divides the left color vector by the right color vector component-wise.
+     *
+     * @param l_vec - The left operand color vector (dividend)
+     * @param r_vec - The right operand color vector (divisor)
+     * @returns A new ColorRgba instance representing the component-wise quotient
+     * @throws Error if any component of r_vec is zero
+     */
+    static divideVector(l_vec: IVector4, r_vec: IVector4): ColorRgba;
+    /**
+     * Creates a deep copy of this color.
+     *
+     * @returns A new ColorRgba instance with the same component values
+     */
+    clone(): ColorRgba;
+    /**
+     * Creates a new ColorRgba instance from an array of numbers.
+     *
+     * @param array - An array containing RGBA values [r, g, b, a]
+     * @returns A new ColorRgba instance created from the array
+     */
+    static fromCopyArray(array: Array<number>): ColorRgba;
+    /**
+     * Creates a new ColorRgba instance from a 4-element tuple array.
+     *
+     * @param array - A 4-element tuple containing RGBA values [r, g, b, a]
+     * @returns A new ColorRgba instance created from the tuple
+     */
+    static fromCopyArray4(array: Array4<number>): ColorRgba;
+    /**
+     * Creates a new ColorRgba instance from individual RGBA component values.
+     *
+     * @param x - The red component value
+     * @param y - The green component value
+     * @param z - The blue component value
+     * @param w - The alpha component value
+     * @returns A new ColorRgba instance with the specified component values
+     */
+    static fromCopy4(x: number, y: number, z: number, w: number): ColorRgba;
+    /**
+     * Creates a new ColorRgba instance by copying values from another 4D vector.
+     *
+     * @param vec4 - The source vector to copy from
+     * @returns A new ColorRgba instance with copied values
+     */
+    static fromCopyVector4(vec4: IVector4): ColorRgba;
+}
+/**
+ * Predefined constant for white color with full opacity (1, 1, 1, 1).
+ */
+export declare const ConstRgbaWhite: ColorRgba;
+/**
+ * Predefined constant for black color with full opacity (0, 0, 0, 1).
+ */
+export declare const ConstRgbaBlack: ColorRgba;

@@ -1,0 +1,184 @@
+import { type CompositionTypeEnum } from '../definitions/CompositionType';
+import { AbstractMatrix } from './AbstractMatrix';
+import type { IMatrix, IMatrix33 } from './IMatrix';
+import type { IVector } from './IVector';
+import type { MutableVector3 } from './MutableVector3';
+import { Vector3 } from './Vector3';
+/**
+ * A 3x3 identity matrix implementation that represents the multiplicative identity for 3x3 matrices.
+ * This matrix has 1s on the main diagonal and 0s elsewhere:
+ * ```
+ * [1 0 0]
+ * [0 1 0]
+ * [0 0 1]
+ * ```
+ *
+ * This class is optimized for identity matrix operations and provides constant-time
+ * access to matrix elements without storing the actual matrix data.
+ */
+export declare class IdentityMatrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
+    /** Shared Float32Array containing the identity matrix values [1,0,0,0,1,0,0,0,1] */
+    static readonly __v: Float32Array<ArrayBuffer>;
+    /**
+     * Creates a new 3x3 identity matrix instance.
+     * Uses a shared static array for memory efficiency.
+     */
+    constructor();
+    /**
+     * Returns a string representation of the identity matrix in a readable format.
+     * @returns A formatted string showing the 3x3 identity matrix
+     */
+    toString(): string;
+    /**
+     * Returns an approximate string representation of the matrix.
+     * For identity matrix, this is identical to toString() since all values are exact.
+     * @returns A formatted string showing the 3x3 identity matrix
+     */
+    toStringApproximately(): string;
+    /**
+     * Returns the matrix elements as a flattened array in row-major order.
+     * @returns An array containing [1,0,0,0,1,0,0,0,1]
+     */
+    flattenAsArray(): number[];
+    /**
+     * Indicates whether this matrix is a dummy/placeholder matrix.
+     * Identity matrices are never considered dummy matrices.
+     * @returns Always false for identity matrices
+     */
+    isDummy(): boolean;
+    /**
+     * Checks if another matrix is approximately equal to this identity matrix within a tolerance.
+     * @param mat - The matrix to compare against
+     * @param delta - The tolerance for floating-point comparison (default: Number.EPSILON)
+     * @returns True if the matrix is approximately an identity matrix
+     */
+    isEqual(mat: IMatrix33, delta?: number): boolean;
+    /**
+     * Checks if another matrix is strictly equal to this identity matrix (exact comparison).
+     * Note: This method appears to have a bug - it checks 16 elements instead of 9 for a 3x3 matrix.
+     * @param mat - The matrix to compare against
+     * @returns True if the matrix is exactly an identity matrix
+     */
+    isStrictEqual(mat: IMatrix33): boolean;
+    /**
+     * Gets the matrix element at the specified row and column.
+     * For identity matrix: returns 1 if row equals column, 0 otherwise.
+     * @param row_i - The row index (0-2)
+     * @param column_i - The column index (0-2)
+     * @returns The matrix element value
+     */
+    at(row_i: number, column_i: number): number;
+    /**
+     * Calculates the determinant of the identity matrix.
+     * The determinant of any identity matrix is always 1.
+     * @returns Always returns 1
+     */
+    determinant(): number;
+    /**
+     * Multiplies this identity matrix with a vector.
+     * Since this is an identity matrix, the result is the original vector unchanged.
+     * @param vec - The vector to multiply
+     * @returns The same vector (identity operation)
+     */
+    multiplyVector(vec: IVector): IVector;
+    /**
+     * Multiplies this identity matrix with a vector and stores the result in an output vector.
+     * Since this is an identity matrix, this copies the input vector to the output vector.
+     * @param vec - The input vector to multiply
+     * @param outVec - The output vector to store the result
+     * @returns The output vector containing the result
+     */
+    multiplyVectorTo(vec: IVector, outVec: MutableVector3): MutableVector3;
+    /**
+     * Gets the scale components from this matrix.
+     * For identity matrix, all scale components are 1.
+     * @returns A Vector3 with components [1, 1, 1]
+     */
+    getScale(): Vector3;
+    /**
+     * Gets the scale components from this matrix and stores them in an output vector.
+     * For identity matrix, all scale components are 1.
+     * @param outVec - The output vector to store the scale values
+     * @returns The output vector containing [1, 1, 1]
+     */
+    getScaleTo(outVec: MutableVector3): MutableVector3;
+    /**
+     * Creates a copy of this identity matrix.
+     * @returns A new IdentityMatrix33 instance
+     */
+    clone(): IdentityMatrix33;
+    /**
+     * Extracts the rotation part of this matrix.
+     * For identity matrix, the rotation is also identity (no rotation).
+     * @returns A new IdentityMatrix33 instance representing no rotation
+     */
+    getRotate(): IdentityMatrix33;
+    /** Gets the matrix element at row 0, column 0 */
+    get m00(): number;
+    /** Gets the matrix element at row 1, column 0 */
+    get m10(): number;
+    /** Gets the matrix element at row 2, column 0 */
+    get m20(): number;
+    /** Gets the matrix element at row 3, column 0 (not applicable for 3x3 matrix) */
+    get m30(): number;
+    /** Gets the matrix element at row 0, column 1 */
+    get m01(): number;
+    /** Gets the matrix element at row 1, column 1 */
+    get m11(): number;
+    /** Gets the matrix element at row 2, column 1 */
+    get m21(): number;
+    /** Gets the matrix element at row 3, column 1 (not applicable for 3x3 matrix) */
+    get m31(): number;
+    /** Gets the matrix element at row 0, column 2 */
+    get m02(): number;
+    /** Gets the matrix element at row 1, column 2 */
+    get m12(): number;
+    /** Gets the matrix element at row 1, column 2 */
+    get m22(): number;
+    /** Gets the matrix element at row 3, column 2 (not applicable for 3x3 matrix) */
+    get m32(): number;
+    /** Gets the matrix element at row 0, column 3 (not applicable for 3x3 matrix) */
+    get m03(): number;
+    /** Gets the matrix element at row 1, column 3 (not applicable for 3x3 matrix) */
+    get m13(): number;
+    /** Gets the matrix element at row 2, column 3 (not applicable for 3x3 matrix) */
+    get m23(): number;
+    /** Gets the matrix element at row 3, column 3 (not applicable for 3x3 matrix) */
+    get m33(): number;
+    /** Gets the class name for debugging and reflection purposes */
+    get className(): string;
+    /** Gets the composition type for this matrix class */
+    static get compositionType(): CompositionTypeEnum;
+    /** Indicates that this is an identity matrix class implementation */
+    get isIdentityMatrixClass(): boolean;
+    /**
+     * Gets the GLSL string representation of the identity matrix as float values.
+     * @returns GLSL mat3 constructor string for identity matrix
+     */
+    get glslStrAsFloat(): string;
+    /**
+     * Gets the GLSL string representation of the identity matrix as integer values.
+     * @returns GLSL mat3 constructor string for identity matrix
+     */
+    get glslStrAsInt(): string;
+    /**
+     * Gets the GLSL string representation of the identity matrix as unsigned integer values.
+     * @returns GLSL mat3 constructor string for identity matrix
+     */
+    get glslStrAsUint(): string;
+    /**
+     * Gets the WGSL string representation of the identity matrix as float values.
+     * @returns WGSL mat3x3f constructor string for identity matrix
+     */
+    get wgslStrAsFloat(): string;
+    /**
+     * Gets the WGSL string representation of the identity matrix as integer values.
+     * @returns WGSL mat3x3i constructor string for identity matrix
+     */
+    get wgslStrAsInt(): string;
+    /**
+     * Gets the WGSL string representation of the identity matrix as unsigned integer values.
+     * @returns WGSL mat3x3u constructor string for identity matrix
+     */
+    get wgslStrAsUint(): string;
+}
