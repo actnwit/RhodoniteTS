@@ -1,0 +1,19 @@
+export declare const WellKnownComponentTIDs: {
+    readonly AnimationStateComponentTID: 1;
+    readonly AnimationComponentTID: 2;
+    readonly TransformComponentTID: 3;
+    readonly SceneGraphComponentTID: 4;
+    readonly MeshComponentTID: 5;
+    readonly MeshRendererComponentTID: 6;
+    readonly LightComponentTID: 7;
+    readonly CameraControllerComponentTID: 8;
+    readonly CameraComponentTID: 9;
+    readonly SkeletalComponentTID: 10;
+    readonly BlendShapeComponentTID: 11;
+    readonly PhysicsComponentTID: 12;
+    readonly EffekseerComponentTID: 13;
+    readonly VrmComponentTID: 14;
+    readonly ConstraintComponentTID: 15;
+    readonly RaymarchingComponentTID: 16;
+    readonly maxWellKnownTidNumber: 16;
+};

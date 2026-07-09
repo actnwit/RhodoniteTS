@@ -4,6 +4,7 @@
   "exclude": ["./simple/4DViews/"],
   "compilerOptions": {
     "module": "ESNext",
+    "rootDir": "..",
     "declaration": false,
     "declarationDir": null,
     "lib": ["ES2022", "DOM", "ESNext"],

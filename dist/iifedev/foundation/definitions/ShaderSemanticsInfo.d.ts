@@ -1,0 +1,24 @@
+import type { Count } from '../../types/CommonTypes';
+import type { ComponentTypeEnum } from './ComponentType';
+import { type CompositionTypeEnum } from './CompositionType';
+import type { ShaderSemanticsName } from './ShaderSemantics';
+import type { ShaderTypeEnum } from './ShaderType';
+export type ShaderSemanticsInfo = {
+    semantic: ShaderSemanticsName;
+    compositionType: CompositionTypeEnum;
+    componentType: ComponentTypeEnum;
+    stage: ShaderTypeEnum;
+    min: number;
+    max: number;
+    initialValue?: any;
+    isInternalSetting?: boolean;
+    arrayLength?: Count;
+    soloDatum?: boolean;
+    needUniformInDataTextureMode?: boolean;
+    valueStep?: number;
+    xName?: string;
+    yName?: string;
+    zName?: string;
+    wName?: string;
+};
+export declare function calcAlignedByteLength(semanticInfo: ShaderSemanticsInfo): number;

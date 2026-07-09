@@ -1,0 +1,150 @@
+import type { TypedArray } from '../../types/CommonTypes';
+import type { IVector } from './IVector';
+/**
+ * Abstract base class for vector implementations.
+ * Provides common functionality and defines the interface that all vector classes must implement.
+ * This class handles basic vector operations and serves as a foundation for specific vector types.
+ */
+export declare abstract class AbstractVector implements IVector {
+    /** Internal typed array storage for vector components */
+    _v: TypedArray;
+    /**
+     * Gets the x-component (first component) of the vector.
+     * @returns The x-component value
+     */
+    get x(): number;
+    /**
+     * Gets the GLSL string representation of the vector as float values.
+     * @returns GLSL-formatted string for float values
+     * @throws Error - Must be implemented by subclasses
+     */
+    get glslStrAsFloat(): string;
+    /**
+     * Gets the GLSL string representation of the vector as integer values.
+     * @returns GLSL-formatted string for integer values
+     * @throws Error - Must be implemented by subclasses
+     */
+    get glslStrAsInt(): string;
+    /**
+     * Gets the GLSL string representation of the vector as unsigned integer values.
+     * @returns GLSL-formatted string for unsigned integer values with 'u' suffix
+     * @throws Error - Must be implemented by subclasses
+     */
+    get glslStrAsUint(): string;
+    /**
+     * Gets the WGSL string representation of the vector as float values.
+     * @returns WGSL-formatted string for float values
+     * @throws Error - Must be implemented by subclasses
+     */
+    get wgslStrAsFloat(): string;
+    /**
+     * Gets the WGSL string representation of the vector as integer values.
+     * @returns WGSL-formatted string for integer values
+     * @throws Error - Must be implemented by subclasses
+     */
+    get wgslStrAsInt(): string;
+    /**
+     * Gets the WGSL string representation of the vector as unsigned integer values.
+     * @returns WGSL-formatted string for unsigned integer values with 'u' suffix
+     * @throws Error - Must be implemented by subclasses
+     */
+    get wgslStrAsUint(): string;
+    /**
+     * Checks if this vector is approximately equal to another vector within a specified tolerance.
+     * @param vec - The vector to compare against
+     * @param delta - Optional tolerance value for comparison
+     * @returns True if vectors are approximately equal, false otherwise
+     * @throws Error - Must be implemented by subclasses
+     */
+    isEqual(_vec: IVector, _delta?: number): boolean;
+    /**
+     * Checks if this vector is strictly equal to another vector (exact equality).
+     * @param vec - The vector to compare against
+     * @returns True if vectors are exactly equal, false otherwise
+     * @throws Error - Must be implemented by subclasses
+     */
+    isStrictEqual(_vec: IVector): boolean;
+    /**
+     * Calculates the length (magnitude) of the vector.
+     * @returns The length of the vector
+     * @throws Error - Must be implemented by subclasses
+     */
+    length(): number;
+    /**
+     * Calculates the squared length of the vector.
+     * This is more efficient than length() when only relative comparisons are needed.
+     * @returns The squared length of the vector
+     * @throws Error - Must be implemented by subclasses
+     */
+    lengthSquared(): number;
+    /**
+     * Calculates the distance from this vector to another vector.
+     * @param vec - The target vector
+     * @returns The distance between the vectors
+     * @throws Error - Must be implemented by subclasses
+     */
+    lengthTo(_vec: IVector): number;
+    /**
+     * Calculates the dot product between this vector and another vector.
+     * @param vec - The vector to calculate dot product with
+     * @returns The dot product result
+     * @throws Error - Must be implemented by subclasses
+     */
+    dot(_vec: IVector): number;
+    /**
+     * Gets the component value at the specified index.
+     * @param i - The index of the component to retrieve
+     * @returns The component value at the given index
+     */
+    at(i: number): number;
+    /**
+     * Converts the vector to its string representation.
+     * @returns String representation of the vector
+     * @throws Error - Must be implemented by subclasses
+     */
+    toString(): string;
+    /**
+     * Converts the vector to an approximate string representation.
+     * Useful for debugging when exact precision is not required.
+     * @returns Approximate string representation of the vector
+     * @throws Error - Must be implemented by subclasses
+     */
+    toStringApproximately(): string;
+    /**
+     * Converts the vector to a flat array of numbers.
+     * @returns Array containing all vector components
+     * @throws Error - Must be implemented by subclasses
+     */
+    flattenAsArray(): number[];
+    /**
+     * Checks if this vector is a dummy (empty) vector.
+     * A dummy vector has no components and is typically used as a placeholder.
+     * @returns True if the vector is dummy, false otherwise
+     */
+    isDummy(): boolean;
+    /**
+     * Gets the component value at the specified index.
+     * Alias for the at() method for convenience.
+     * @param i - The index of the component to retrieve
+     * @returns The component value at the given index
+     */
+    v(i: number): number;
+    /**
+     * Checks if the internal storage shares the same ArrayBuffer as the provided one.
+     * Useful for determining if vectors share underlying memory.
+     * @param arrayBuffer - The ArrayBuffer to compare against
+     * @returns True if the same ArrayBuffer is used, false otherwise
+     */
+    isTheSourceSame(arrayBuffer: ArrayBuffer): boolean;
+    /**
+     * Gets the class name of this vector instance.
+     * @returns The constructor name of the class
+     */
+    get className(): string;
+    /**
+     * Gets the number of bytes per component in the underlying typed array.
+     * @returns Bytes per component
+     * @throws Error - Must be implemented by subclasses
+     */
+    get bytesPerComponent(): number;
+}
