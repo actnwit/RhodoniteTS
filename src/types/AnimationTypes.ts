@@ -14,6 +14,7 @@ export type AnimationPathName =
   | 'quaternion'
   | 'scale'
   | 'weights'
+  | 'visibility'
   | `material/${string}`
   | 'light_color'
   | 'light_intensity'
