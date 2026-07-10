@@ -108,6 +108,7 @@ export declare class Gltf2Exporter {
     private static __registerMaterialIndex;
     private static __shouldEmitPointerTarget;
     private static __resolveAnimationTarget;
+    private static __resolveVisibilityAnimationTarget;
     private static __resolveMaterialAnimationTarget;
     private static __findMaterialIndicesForAnimatedValue;
     private static __resolveLightAnimationTarget;

@@ -96,6 +96,9 @@ export declare class ModelConverter {
      * @param rnEntities - Array of Rhodonite entities to organize in hierarchy
      */
     static _setupHierarchy(gltfModel: RnM2, rnEntities: ISceneGraphEntity[]): void;
+    private static __setupNodeVisibility;
+    private static __applyNodeVisibility;
+    private static __getNodeVisibility;
     /**
      * Sets up animation data from glTF animations
      * @param gltfModel - The glTF model data

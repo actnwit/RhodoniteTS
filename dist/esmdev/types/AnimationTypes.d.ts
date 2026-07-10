@@ -7,7 +7,7 @@ import type { Second, VectorComponentN } from './CommonTypes';
  * type of animation.channel.target.path in glTF2
  * See: https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#_animation_channels
  */
-export type AnimationPathName = 'undefined' | 'translate' | 'quaternion' | 'scale' | 'weights' | `material/${string}` | 'light_color' | 'light_intensity' | 'light_range' | 'light_spot_innerConeAngle' | 'light_spot_outerConeAngle' | 'camera_znear' | 'camera_zfar' | 'camera_fovy' | 'camera_xmag' | 'camera_ymag' | 'effekseer';
+export type AnimationPathName = 'undefined' | 'translate' | 'quaternion' | 'scale' | 'weights' | 'visibility' | `material/${string}` | 'light_color' | 'light_intensity' | 'light_range' | 'light_spot_innerConeAngle' | 'light_spot_outerConeAngle' | 'camera_znear' | 'camera_zfar' | 'camera_fovy' | 'camera_xmag' | 'camera_ymag' | 'effekseer';
 export type AnimationTrackName = string;
 export interface AnimationInfo {
     name: AnimationTrackName;
