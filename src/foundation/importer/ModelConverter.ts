@@ -1,6 +1,13 @@
 import type { AnimationPathName, AnimationSampler, AnimationTrackName } from '../../types/AnimationTypes';
 import type { Array3, Byte, Count, Index, Size, TypedArray, VectorComponentN } from '../../types/CommonTypes';
-import { type GltfLoadOption, type KHR_lights_punctual_Light, TagGltf2NodeIndex } from '../../types/glTF2';
+import {
+  type GltfLoadOption,
+  type KHR_lights_punctual_Light,
+  type KHR_node_visibility,
+  TagGltf2NodeIndex,
+  TagKhrNodeVisibilityEnabled,
+  TagKhrNodeVisibilityVisible,
+} from '../../types/glTF2';
 import type {
   RnM2,
   RnM2Accessor,
@@ -246,6 +253,8 @@ export class ModelConverter {
     // Hierarchy
     this._setupHierarchy(gltfModel, rnEntities);
 
+    this.__setupNodeVisibility(gltfModel, rnEntities);
+
     if (gltfModel.scenes[0].nodes) {
       for (const nodesIndex of gltfModel.scenes[0].nodes) {
         const sg = rnEntities[nodesIndex].getSceneGraph();
@@ -303,6 +312,8 @@ export class ModelConverter {
 
     // Hierarchy
     this._setupHierarchy(gltfModel, rnEntities);
+
+    this.__setupNodeVisibility(gltfModel, rnEntities);
 
     rootGroup.tryToSetUniqueName('FileRoot', true);
     rootGroup.tryToSetTag({ tag: 'ObjectType', value: 'top' });
@@ -427,6 +438,63 @@ export class ModelConverter {
         }
       }
     }
+  }
+
+  private static __setupNodeVisibility(gltfModel: RnM2, rnEntities: ISceneGraphEntity[]) {
+    const visitedNodeIndices = new Set<number>();
+    const sceneRootNodeIndices = gltfModel.scenes?.[0]?.nodes ?? [];
+
+    for (const nodeIndex of sceneRootNodeIndices) {
+      this.__applyNodeVisibility(gltfModel, rnEntities, nodeIndex, true, visitedNodeIndices);
+    }
+
+    for (const nodeIndexString in gltfModel.nodes) {
+      const nodeIndex = Number.parseInt(nodeIndexString, 10);
+      if (!visitedNodeIndices.has(nodeIndex)) {
+        this.__applyNodeVisibility(gltfModel, rnEntities, nodeIndex, true, visitedNodeIndices);
+      }
+    }
+  }
+
+  private static __applyNodeVisibility(
+    gltfModel: RnM2,
+    rnEntities: ISceneGraphEntity[],
+    nodeIndex: number,
+    parentVisible: boolean,
+    visitedNodeIndices: Set<number>
+  ) {
+    if (visitedNodeIndices.has(nodeIndex)) {
+      return;
+    }
+    visitedNodeIndices.add(nodeIndex);
+
+    const node = gltfModel.nodes[nodeIndex];
+    const entity = rnEntities[nodeIndex];
+    if (Is.not.exist(node) || Is.not.exist(entity)) {
+      return;
+    }
+
+    const localVisible = this.__getNodeVisibility(node);
+    entity.tryToSetTag({ tag: TagKhrNodeVisibilityVisible, value: localVisible });
+    if (Is.exist(node.extensions?.KHR_node_visibility)) {
+      entity.tryToSetTag({ tag: TagKhrNodeVisibilityEnabled, value: true });
+    }
+    entity.getSceneGraph().isVisible = parentVisible && localVisible;
+
+    for (const childNodeIndex of node.children ?? []) {
+      this.__applyNodeVisibility(
+        gltfModel,
+        rnEntities,
+        childNodeIndex,
+        parentVisible && localVisible,
+        visitedNodeIndices
+      );
+    }
+  }
+
+  private static __getNodeVisibility(node: RnM2Node): boolean {
+    const extension = node.extensions?.KHR_node_visibility as KHR_node_visibility | undefined;
+    return extension?.visible ?? true;
   }
 
   /**
@@ -831,6 +899,9 @@ export class ModelConverter {
       animationComponent.setAnimation('scale', animatedValue);
     } else if (pointer.includes('weights')) {
       animationComponent.setAnimation('weights', animatedValue);
+    } else if (pointer.includes('KHR_node_visibility/visible')) {
+      rnEntity.tryToSetTag({ tag: TagKhrNodeVisibilityEnabled, value: true });
+      animationComponent.setAnimation('visibility', animatedValue);
     }
   }
 

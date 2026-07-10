@@ -118,6 +118,10 @@
         top: 12px;
         width: 32px;
         height: 32px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
       }
 
         #expandButton span {
@@ -185,14 +189,14 @@
 
     <div id="panel" class="collapsed">
       <h1><a href="https://github.com/emadurandal/RhodoniteTS">RhodoniteTS</a><br> Test Samples</h1>
-      <a id="expandButton" href="#">
+      <button id="expandButton" type="button" aria-label="Toggle sample menu">
         <span></span>
         <span></span>
         <span></span>
-      </a>
+      </button>
       <div id="content"></div>
     </div>
-    <iframe id="viewer" name="viewer" allowfullscreen></iframe>
+    <iframe id="viewer" name="viewer" title="Sample viewer" allowfullscreen></iframe>
 
     <script>
       const _sanitize = (str) => {

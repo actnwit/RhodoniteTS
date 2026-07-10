@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
 
 <head>
   <title>FurnaceTest-whiteFurnace</title>
@@ -28,8 +28,8 @@
       <h2>Rendering Test Image</h2>
       <canvas id="world" width="512" height="512"></canvas>
       <div>
-        <button onclick="setMode(0);">Board</button>
-        <button onclick="setMode(1);">Sphere</button>
+        <button type="button" onclick="setMode(0);">Board</button>
+        <button type="button" onclick="setMode(1);">Sphere</button>
         <p>
           You can call these functions to set properties via browser console.<br>
           function setRoughness(floatValue: number);<br>
@@ -42,7 +42,7 @@
     </section>
     <section class="correct">
       <h2>Correct PNG Image</h2>
-      <img src="__image_snapshots__/test-js-regression-test-furnace-test-white-furnace-1-snap.png" />
+      <img src="__image_snapshots__/test-js-regression-test-furnace-test-white-furnace-1-snap.png" alt="Expected rendering result" />
     </section>
   </main>
   <script src="../../assets/navigate.js"></script>

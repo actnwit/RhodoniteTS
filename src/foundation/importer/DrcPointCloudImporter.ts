@@ -496,12 +496,11 @@ export class DrcPointCloudImporter {
           emissiveTexture.texture = gltfJson.textures[emissiveTexture.index];
         }
 
-        if (
-          this._checkRnGltfLoaderOptionsExist(gltfJson) &&
-          gltfJson.asset.extras!.rnLoaderOptions!.loaderExtension &&
-          gltfJson.asset.extras!.rnLoaderOptions!.loaderExtension.setTextures
-        ) {
-          gltfJson.asset.extras!.rnLoaderOptions!.loaderExtension.setTextures(gltfJson, material);
+        const loaderExtension = this._checkRnGltfLoaderOptionsExist(gltfJson)
+          ? gltfJson.asset.extras!.rnLoaderOptions!.loaderExtension
+          : undefined;
+        if (loaderExtension?.setTextures) {
+          loaderExtension.setTextures(gltfJson, material);
         }
       }
     }

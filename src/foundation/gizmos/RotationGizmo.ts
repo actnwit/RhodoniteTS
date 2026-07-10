@@ -622,10 +622,10 @@ export class RotationGizmo extends Gizmo {
 
   private __resolvePointerElement(evt: PointerEvent): HTMLElement | undefined {
     let element = evt.target as HTMLElement | null;
-    if (!element || !element.getBoundingClientRect) {
+    if (!element?.getBoundingClientRect) {
       element = this.__engine.config.eventTargetDom ?? null;
     }
-    if (!element || !element.getBoundingClientRect) {
+    if (!element?.getBoundingClientRect) {
       return undefined;
     }
     return element;

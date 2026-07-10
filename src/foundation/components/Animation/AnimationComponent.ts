@@ -9,6 +9,7 @@ import type {
   AnimationTrackName,
 } from '../../../types/AnimationTypes';
 import type { ComponentTID, Index, Second } from '../../../types/CommonTypes';
+import { TagKhrNodeVisibilityVisible } from '../../../types/glTF2';
 import { Component } from '../../core/Component';
 import type { IEntity } from '../../core/Entity';
 import { applyMixins } from '../../core/EntityRepository';
@@ -30,6 +31,7 @@ import type { Engine } from '../../system/Engine';
 import { type EventHandler, EventPubSub } from '../../system/EventPubSub';
 import type { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
+import type { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import type { IAnimationRetarget } from '../Skeletal';
 import type { TransformComponent } from '../Transform/TransformComponent';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
@@ -204,6 +206,7 @@ export class AnimationComponent extends Component {
   ) {
     if (this.__applyTransformAnimation(pathName, channel, transformComponent)) return;
     if (this.__applyBlendShapeAnimation(pathName, channel, blendShapeComponent)) return;
+    if (this.__applyVisibilityAnimation(pathName, channel)) return;
     if (this.__applyMaterialAnimation(pathName, channel)) return;
     if (this.__applyLightAnimation(pathName, channel)) return;
     if (this.__applyCameraAnimation(pathName, channel)) return;
@@ -240,6 +243,33 @@ export class AnimationComponent extends Component {
       return true;
     }
     return false;
+  }
+
+  private __applyVisibilityAnimation(pathName: string, channel: AnimationChannel): boolean {
+    if (pathName !== 'visibility') {
+      return false;
+    }
+
+    const sceneGraph = (this.entity as unknown as ISceneGraphEntity).getSceneGraph();
+    const localVisible = (channel.animatedValue as unknown as Scalar).x > 0.5;
+    sceneGraph.entity.tryToSetTag({ tag: TagKhrNodeVisibilityVisible, value: localVisible });
+    this.__applyEffectiveVisibility(sceneGraph, sceneGraph.parent?.isVisible ?? true);
+    return true;
+  }
+
+  private __applyEffectiveVisibility(sceneGraph: SceneGraphComponent, parentVisible: boolean): void {
+    const localVisible = this.__getLocalVisibility(sceneGraph);
+    const effectiveVisible = parentVisible && localVisible;
+    sceneGraph.isVisible = effectiveVisible;
+
+    for (const child of sceneGraph.children) {
+      this.__applyEffectiveVisibility(child, effectiveVisible);
+    }
+  }
+
+  private __getLocalVisibility(sceneGraph: SceneGraphComponent): boolean {
+    const localVisible = sceneGraph.entity.getTagValue(TagKhrNodeVisibilityVisible);
+    return typeof localVisible === 'boolean' ? localVisible : sceneGraph.isVisible;
   }
 
   private __applyMaterialAnimation(pathName: string, channel: AnimationChannel): boolean {

@@ -11,6 +11,8 @@ import {
   type KHR_lights_punctual_Light,
   type KHR_materials_variants,
   type KHR_materials_variants_PrimitiveExtension,
+  TagKhrNodeVisibilityEnabled,
+  TagKhrNodeVisibilityVisible,
 } from '../../types/glTF2';
 import type { Gltf2Ex, Gltf2ImageEx, Gltf2MaterialEx } from '../../types/glTF2ForOutput';
 import { VERSION } from '../../version';
@@ -393,6 +395,17 @@ export class Gltf2Exporter {
         }
       }
 
+      const localVisible = entity.getTagValue(TagKhrNodeVisibilityVisible);
+      if (entity.getTagValue(TagKhrNodeVisibilityEnabled) === true && typeof localVisible === 'boolean') {
+        if (Is.not.exist(node.extensions)) {
+          node.extensions = {};
+        }
+        node.extensions.KHR_node_visibility = {
+          visible: localVisible,
+        };
+        this.__ensureExtensionUsed(json, 'KHR_node_visibility');
+      }
+
       // matrix
       const transform = entity.getTransform()!;
       // glTF requires unit quaternions, so normalize and clamp to keep values within the spec range
@@ -669,7 +682,51 @@ export class Gltf2Exporter {
       return this.__resolveCameraAnimationTarget(json, channel, pathName, trackName);
     }
 
+    if (pathName === 'visibility') {
+      return this.__resolveVisibilityAnimationTarget(json, channel, trackName);
+    }
+
     return undefined;
+  }
+
+  private static __resolveVisibilityAnimationTarget(
+    json: Gltf2Ex,
+    channel: AnimationChannel,
+    trackName: string
+  ): AnimationChannelTargetOverride | null {
+    const nodeIndex = (channel.target.entity as any).gltfNodeIndex;
+    if (Is.not.exist(nodeIndex)) {
+      return null;
+    }
+
+    const node = json.nodes?.[nodeIndex];
+    if (Is.not.exist(node)) {
+      return null;
+    }
+    const localVisible = channel.target.entity.getTagValue(TagKhrNodeVisibilityVisible);
+    if (Is.not.exist(node.extensions)) {
+      node.extensions = {};
+    }
+    node.extensions.KHR_node_visibility = {
+      visible: typeof localVisible === 'boolean' ? localVisible : channel.target.entity.getSceneGraph().isVisible,
+    };
+
+    const pointer = `/nodes/${nodeIndex}/extensions/KHR_node_visibility/visible`;
+    if (!this.__shouldEmitPointerTarget(trackName, pointer)) {
+      return null;
+    }
+
+    this.__ensureExtensionUsed(json, 'KHR_animation_pointer');
+    this.__ensureExtensionUsed(json, 'KHR_node_visibility');
+
+    return {
+      path: 'pointer',
+      extensions: {
+        KHR_animation_pointer: {
+          pointer,
+        },
+      },
+    };
   }
 
   private static __resolveMaterialAnimationTarget(

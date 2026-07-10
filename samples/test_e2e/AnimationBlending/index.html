@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
 
 <head>
   <title>Animation Blending</title>
@@ -28,14 +28,14 @@
       <h2>Rendering Test Image</h2>
       <canvas id="world" width="600" height="600"></canvas>
       <div>
-        <button onclick="window.isAnimating = true;">Animate</button>
-        <button onclick="exportGltf2();">Export as glTF2</button>
+        <button type="button" onclick="window.isAnimating = true;">Animate</button>
+        <button type="button" onclick="exportGltf2();">Export as glTF2</button>
         <input id="slider" type="range" min="0" max="1" step="0.01" value="0.5" />
       </div>
     </section>
     <section class="correct">
       <h2>Correct PNG Image</h2>
-      <img src="__image_snapshots__/test-js-animation-blending-datatexture-1-snap.png" />
+      <img src="__image_snapshots__/test-js-animation-blending-datatexture-1-snap.png" alt="Expected rendering result" />
     </section>
   </main>
   <script src="../../assets/navigate.js"></script>

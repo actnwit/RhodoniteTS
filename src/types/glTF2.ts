@@ -355,6 +355,10 @@ export type KHR_lights_punctual = {
   lights: KHR_lights_punctual_Light[];
 };
 
+export type KHR_node_visibility = {
+  visible?: boolean;
+};
+
 export interface KHR_materials_variants_Variant {
   name?: string;
   extensions?: Gltf2AnyObject;
@@ -431,6 +435,8 @@ export type GltfLoadOption = {
 };
 
 export const TagGltf2NodeIndex = 'gltf_node_index';
+export const TagKhrNodeVisibilityEnabled = 'KHR_node_visibility_enabled';
+export const TagKhrNodeVisibilityVisible = 'KHR_node_visibility_visible';
 
 export function isSameGlTF2TextureSampler(lhs: Gltf2TextureSampler, rhs: Gltf2TextureSampler) {
   return (
