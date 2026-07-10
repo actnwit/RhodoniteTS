@@ -266,6 +266,7 @@ export class Gltf2Importer {
     basePath?: string,
     callback?: RnPromiseCallback
   ): RnPromise<any[]> {
+    this._normalizeOptionalArrays(gltfJson);
     const promises = [];
 
     // Load resources to above resources object.
@@ -280,6 +281,31 @@ export class Gltf2Importer {
     );
 
     return RnPromise.all(promises);
+  }
+
+  /**
+   * Normalizes optional glTF collection properties for the internal RnM2
+   * processing pipeline. A valid glTF document may omit every collection that
+   * it does not use, including buffers for collision-only scenes.
+   */
+  static _normalizeOptionalArrays(gltfJson: RnM2): void {
+    gltfJson.accessors ??= [];
+    gltfJson.animations ??= [];
+    gltfJson.buffers ??= [];
+    gltfJson.bufferViews ??= [];
+    gltfJson.cameras ??= [];
+    gltfJson.images ??= [];
+    gltfJson.materials ??= [];
+    gltfJson.meshes ??= [];
+    gltfJson.nodes ??= [];
+    gltfJson.samplers ??= [];
+    gltfJson.skins ??= [];
+    gltfJson.textures ??= [];
+    gltfJson.extensionsUsed ??= [];
+    gltfJson.extensionsRequired ??= [];
+    gltfJson.extensions ??= {};
+    gltfJson.scenes ??= [{ nodes: [] }];
+    gltfJson.scene ??= 0;
   }
 
   /**
