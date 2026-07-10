@@ -1,0 +1,47 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "RhodoniteTS KHR physics sample"
+  },
+  "extensionsUsed": [
+    "KHR_implicit_shapes",
+    "KHR_physics_rigid_bodies"
+  ],
+  "extensions": {
+    "KHR_implicit_shapes": {
+      "shapes": [
+        {
+          "name": "FloorBox",
+          "type": "box",
+          "box": {
+            "size": [20, 0.2, 20]
+          }
+        }
+      ]
+    }
+  },
+  "buffers": [],
+  "bufferViews": [],
+  "accessors": [],
+  "scene": 0,
+  "scenes": [
+    {
+      "nodes": [0]
+    }
+  ],
+  "nodes": [
+    {
+      "name": "FloorCollider",
+      "translation": [0, -0.1, 0],
+      "extensions": {
+        "KHR_physics_rigid_bodies": {
+          "collider": {
+            "geometry": {
+              "shape": 0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

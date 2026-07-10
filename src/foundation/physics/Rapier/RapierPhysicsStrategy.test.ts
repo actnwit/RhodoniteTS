@@ -201,3 +201,29 @@ test('RapierPhysicsStrategy recreates the collider when scale changes', async ()
   expect(world.removedBodies).toBe(1);
   expect(world.colliders[world.colliders.length - 1]?.size).toEqual([2, 6, 12]);
 });
+
+test('RapierPhysicsStrategy applies absolute initial scale to a collider', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const strategy = new RapierPhysicsStrategy();
+  const { entity } = createSceneGraphEntity();
+
+  strategy.setShape(createPhysicsProperty(), entity, Vector3.fromCopy3(-2, 3, -4));
+
+  expect(lastWorld?.colliders[0]?.size).toEqual([2, 6, 12]);
+});
+
+test('RapierPhysicsStrategy disables and recreates a collider across zero scale', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const strategy = new RapierPhysicsStrategy();
+  const { entity } = createSceneGraphEntity();
+  strategy.setShape(createPhysicsProperty(), entity);
+  const world = lastWorld!;
+
+  strategy.setScale(Vector3.fromCopy3(0, 1, 1));
+  expect(world.removedBodies).toBe(1);
+  expect(world.colliders).toHaveLength(1);
+
+  strategy.setScale(Vector3.fromCopy3(2, 3, 4));
+  expect(world.colliders).toHaveLength(2);
+  expect(world.colliders[1]?.size).toEqual([2, 6, 12]);
+});

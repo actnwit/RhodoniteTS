@@ -76,6 +76,7 @@
     "GaussianBlurDepth",
     "Gltf2ImporterShadow",
     "GltfImporter-iOS",
+    "GltfPhysicsBoxCollider",
     "Physics",
     "ShadowMapping",
     "SkinShader",

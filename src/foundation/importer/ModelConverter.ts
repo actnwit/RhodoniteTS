@@ -87,6 +87,7 @@ import type { RenderPass } from '../renderer/RenderPass';
 import type { Engine } from '../system/Engine';
 import { Sampler } from '../textures/Sampler';
 import { Texture } from '../textures/Texture';
+import { setupKhrStaticBoxColliders } from './KhrPhysicsImporter';
 import { RhodoniteImportExtension } from './RhodoniteImportExtension';
 
 declare let DracoDecoderModule: any;
@@ -253,6 +254,8 @@ export class ModelConverter {
     // Hierarchy
     this._setupHierarchy(gltfModel, rnEntities);
 
+    setupKhrStaticBoxColliders(gltfModel, rnEntities);
+
     this.__setupNodeVisibility(gltfModel, rnEntities);
 
     if (gltfModel.scenes[0].nodes) {
@@ -313,6 +316,8 @@ export class ModelConverter {
     // Hierarchy
     this._setupHierarchy(gltfModel, rnEntities);
 
+    setupKhrStaticBoxColliders(gltfModel, rnEntities);
+
     this.__setupNodeVisibility(gltfModel, rnEntities);
 
     rootGroup.tryToSetUniqueName('FileRoot', true);
@@ -369,7 +374,7 @@ export class ModelConverter {
    */
   private static __createRnBuffer(gltfModel: RnM2): Buffer[] {
     const rnBuffers = [];
-    for (const buffer of gltfModel.buffers) {
+    for (const buffer of gltfModel.buffers ?? []) {
       const rnBuffer = new Buffer({
         byteLength: buffer.byteLength,
         buffer: buffer.buffer as unknown as ArrayBuffer,

@@ -126,7 +126,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
    * @param prop - Physics properties defining shape and material values
    * @param entity - Scene graph entity associated with the physics body
    */
-  setShape(prop: PhysicsPropertyInner, entity: ISceneGraphEntity): void {
+  setShape(prop: PhysicsPropertyInner, entity: ISceneGraphEntity, worldScale: IVector3 = Vector3.one()): void {
     this.__entity = entity;
     this.__localScale = Vector3.fromCopy3(prop.size.x, prop.size.y, prop.size.z);
     this.__property = {
@@ -140,12 +140,15 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       restitution: prop.restitution,
     };
 
-    this.__createBody(
-      this.__property,
-      this.__property.size,
-      this.__property.position,
-      RapierPhysicsStrategy.__eulerToQuaternion(this.__property.rotation)
-    );
+    const scaledSize = this.__createScaledSize(worldScale);
+    if (this.__isValidSize(this.__property, scaledSize)) {
+      this.__createBody(
+        this.__property,
+        scaledSize,
+        this.__property.position,
+        RapierPhysicsStrategy.__eulerToQuaternion(this.__property.rotation)
+      );
+    }
   }
 
   /**
@@ -167,6 +170,9 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
    * @param worldPosition - New world position
    */
   setPosition(worldPosition: IVector3): void {
+    if (this.__property != null) {
+      this.__property.position = Vector3.fromCopy3(worldPosition.x, worldPosition.y, worldPosition.z);
+    }
     if (this.__rigidBody == null) {
       return;
     }
@@ -178,6 +184,14 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
    * @param worldRotation - New world rotation
    */
   setRotation(worldRotation: IQuaternion): void {
+    if (this.__property != null) {
+      this.__property.rotation = Quaternion.fromCopy4(
+        worldRotation.x,
+        worldRotation.y,
+        worldRotation.z,
+        worldRotation.w
+      ).toEulerAngles();
+    }
     if (this.__rigidBody == null) {
       return;
     }
@@ -197,24 +211,46 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
    * @param worldScale - World scale
    */
   setScale(worldScale: IVector3): void {
-    if (this.__property == null || this.__rigidBody == null) {
+    if (this.__property == null) {
       return;
     }
 
-    const position = this.__rigidBody.translation();
-    const rotation = this.__rigidBody.rotation();
-    const scaledSize = Vector3.fromCopy3(
-      this.__localScale.x * worldScale.x,
-      this.__localScale.y * worldScale.y,
-      this.__localScale.z * worldScale.z
-    );
+    const position = this.__rigidBody?.translation() ?? this.__property.position;
+    const rotation =
+      this.__rigidBody?.rotation() ?? RapierPhysicsStrategy.__eulerToQuaternion(this.__property.rotation);
+    const scaledSize = this.__createScaledSize(worldScale);
 
     this.__removeBody();
+    if (!this.__isValidSize(this.__property, scaledSize)) {
+      return;
+    }
     this.__createBody(
       this.__property,
       scaledSize,
       Vector3.fromCopy3(position.x, position.y, position.z),
       Quaternion.fromCopy4(rotation.x, rotation.y, rotation.z, rotation.w)
+    );
+  }
+
+  private __createScaledSize(worldScale: IVector3): Vector3 {
+    return Vector3.fromCopy3(
+      this.__localScale.x * Math.abs(worldScale.x),
+      this.__localScale.y * Math.abs(worldScale.y),
+      this.__localScale.z * Math.abs(worldScale.z)
+    );
+  }
+
+  private __isValidSize(prop: StoredPhysicsProperty, size: IVector3): boolean {
+    if (prop.type === PhysicsShape.Sphere) {
+      return Number.isFinite(size.x) && size.x > 0;
+    }
+    return (
+      Number.isFinite(size.x) &&
+      Number.isFinite(size.y) &&
+      Number.isFinite(size.z) &&
+      size.x > 0 &&
+      size.y > 0 &&
+      size.z > 0
     );
   }
 
