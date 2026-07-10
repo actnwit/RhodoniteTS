@@ -6,45 +6,65 @@ import type { PhysicsPropertyInner } from '../PhysicsProperty';
 import type { PhysicsStrategy } from '../PhysicsStrategy';
 import type { PhysicsWorldProperty } from '../PhysicsWorldProperty';
 
-type RapierVector3Like = {
+export type RapierVector3Like = {
   x: number;
   y: number;
   z: number;
 };
 
-type RapierQuaternionLike = {
+export type RapierQuaternionLike = {
   x: number;
   y: number;
   z: number;
   w: number;
 };
 
-type RapierRigidBodyDescLike = {
+export type RapierRigidBodyDescLike = {
   setTranslation(x: number, y: number, z: number): RapierRigidBodyDescLike;
   setRotation(rotation: RapierQuaternionLike): RapierRigidBodyDescLike;
 };
 
-type RapierColliderDescLike = {
+export type RapierColliderDescLike = {
+  setTranslation?(x: number, y: number, z: number): RapierColliderDescLike;
   setDensity?(density: number): RapierColliderDescLike;
   setFriction?(friction: number): RapierColliderDescLike;
   setRestitution?(restitution: number): RapierColliderDescLike;
 };
 
-type RapierRigidBodyLike = {
+export type RapierRigidBodyLike = {
   translation(): RapierVector3Like;
   rotation(): RapierQuaternionLike;
   setTranslation(translation: RapierVector3Like, wakeUp: boolean): void;
   setRotation(rotation: RapierQuaternionLike, wakeUp: boolean): void;
+  setNextKinematicTranslation?(translation: RapierVector3Like): void;
 };
 
-type RapierColliderLike = unknown;
+export type RapierColliderLike = unknown;
 
-type RapierWorldLike = {
+export type RapierCharacterControllerLike = {
+  enableAutostep(maxHeight: number, minWidth: number, includeDynamicBodies: boolean): void;
+  enableSnapToGround(distance: number): void;
+  setMaxSlopeClimbAngle(angle: number): void;
+  setMinSlopeSlideAngle(angle: number): void;
+  setApplyImpulsesToDynamicBodies(enabled: boolean): void;
+  computeColliderMovement(collider: RapierColliderLike, desiredTranslationDelta: RapierVector3Like): void;
+  computedMovement(): RapierVector3Like;
+  computedGrounded(): boolean;
+};
+
+export type RapierWorldLike = {
   step(): void;
   createRigidBody(desc: RapierRigidBodyDescLike): RapierRigidBodyLike;
   createCollider(desc: RapierColliderDescLike, rigidBody?: RapierRigidBodyLike): RapierColliderLike;
   removeRigidBody?(rigidBody: RapierRigidBodyLike): void;
+  createCharacterController?(offset: number): RapierCharacterControllerLike;
+  removeCharacterController?(controller: RapierCharacterControllerLike): void;
 };
+
+export interface RapierStepParticipant {
+  preStep(deltaTime: number): void;
+  postStep(): void;
+}
 
 export type RapierPhysicsModuleLike = {
   default?: RapierPhysicsModuleLike;
@@ -53,10 +73,12 @@ export type RapierPhysicsModuleLike = {
   RigidBodyDesc: {
     dynamic(): RapierRigidBodyDescLike;
     fixed(): RapierRigidBodyDescLike;
+    kinematicPositionBased?(): RapierRigidBodyDescLike;
   };
   ColliderDesc: {
     cuboid(x: number, y: number, z: number): RapierColliderDescLike;
     ball(radius: number): RapierColliderDescLike;
+    capsule?(halfHeight: number, radius: number): RapierColliderDescLike;
   };
 };
 
@@ -80,6 +102,8 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
 
   private static __rapier?: RapierPhysicsModuleLike;
   private static __world?: RapierWorldLike;
+  private static __stepParticipants = new Set<RapierStepParticipant>();
+  private static __lastFrameId?: number;
 
   private __rigidBody?: RapierRigidBodyLike;
   private __collider?: RapierColliderLike;
@@ -108,6 +132,8 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       y: worldProperty.gravity.y,
       z: worldProperty.gravity.z,
     });
+    RapierPhysicsStrategy.__stepParticipants.clear();
+    RapierPhysicsStrategy.__lastFrameId = undefined;
   }
 
   /**
@@ -257,8 +283,39 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
   /**
    * Advances the shared Rapier physics world by one step.
    */
-  static update(): void {
+  static update(frameId?: number, deltaTime = 1 / 60): void {
+    if (frameId != null && RapierPhysicsStrategy.__lastFrameId === frameId) {
+      return;
+    }
+    RapierPhysicsStrategy.__lastFrameId = frameId;
+
+    for (const participant of RapierPhysicsStrategy.__stepParticipants) {
+      participant.preStep(deltaTime);
+    }
     RapierPhysicsStrategy.__world?.step();
+    for (const participant of RapierPhysicsStrategy.__stepParticipants) {
+      participant.postStep();
+    }
+  }
+
+  /** @internal */
+  static _registerStepParticipant(participant: RapierStepParticipant): void {
+    RapierPhysicsStrategy.__stepParticipants.add(participant);
+  }
+
+  /** @internal */
+  static _unregisterStepParticipant(participant: RapierStepParticipant): void {
+    RapierPhysicsStrategy.__stepParticipants.delete(participant);
+  }
+
+  /** @internal */
+  static _getRapier(): RapierPhysicsModuleLike {
+    return RapierPhysicsStrategy.__getRapier();
+  }
+
+  /** @internal */
+  static _getWorld(): RapierWorldLike {
+    return RapierPhysicsStrategy.__getWorld();
   }
 
   private __createBody(prop: StoredPhysicsProperty, size: IVector3, position: IVector3, rotation: IQuaternion): void {

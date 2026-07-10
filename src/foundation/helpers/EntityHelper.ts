@@ -4,6 +4,7 @@ import type { IAnimationStateEntityMethods } from '../components/AnimationState'
 import type { IBlendShapeEntityMethods } from '../components/BlendShape/IBlendShapeEntity';
 import type { ICameraEntityMethods } from '../components/Camera/ICameraEntity';
 import type { ICameraControllerEntityMethods } from '../components/CameraController/ICameraControllerEntity';
+import type { ICharacterControllerEntityMethods } from '../components/CharacterController/ICharacterControllerEntity';
 import type { IConstraintEntityMethods } from '../components/Constraint/IConstraintEntity';
 import type { ILightEntityMethods } from '../components/Light/ILightEntity';
 import type { IMeshEntityMethods } from '../components/Mesh/IMeshEntity';
@@ -64,6 +65,9 @@ export type ILightEntity = ISceneGraphEntity & ILightEntityMethods;
  * Extends scene graph entity with physics methods.
  */
 export type IPhysicsEntity = ISceneGraphEntity & IPhysicsEntityMethods;
+
+/** An entity controlled by a kinematic character controller. */
+export type ICharacterControllerEntity = ISceneGraphEntity & ICharacterControllerEntityMethods;
 
 /**
  * An entity that supports blend shape animation.

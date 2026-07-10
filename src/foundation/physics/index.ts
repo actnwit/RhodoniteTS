@@ -1,3 +1,4 @@
+export * from './CharacterControllerStrategy';
 export * from './Oimo';
 export * from './PhysicsProperty';
 export * from './PhysicsStrategy';

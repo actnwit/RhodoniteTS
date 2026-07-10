@@ -3,6 +3,7 @@ export * from './AnimationState/index';
 export * from './BlendShape/index';
 export * from './Camera/index';
 export * from './CameraController/index';
+export * from './CharacterController/index';
 export * from './ComponentTypes';
 export * from './Constraint/index';
 export * from './Light/index';

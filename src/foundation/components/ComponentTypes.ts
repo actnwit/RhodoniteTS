@@ -6,6 +6,7 @@ import type { IAnimationStateEntityMethods } from './AnimationState';
 import type { IBlendShapeEntityMethods } from './BlendShape/IBlendShapeEntity';
 import type { ICameraEntityMethods } from './Camera/ICameraEntity';
 import type { ICameraControllerEntityMethods } from './CameraController/ICameraControllerEntity';
+import type { ICharacterControllerEntityMethods } from './CharacterController/ICharacterControllerEntity';
 import type { IConstraintEntityMethods } from './Constraint/IConstraintEntity';
 import type { ILightEntityMethods } from './Light/ILightEntity';
 import type { IMeshEntityMethods } from './Mesh/IMeshEntity';
@@ -48,6 +49,7 @@ interface ComponentTIDToMethodsMap {
   [WellKnownComponentTIDs.VrmComponentTID]: IVrmEntityMethods;
   [WellKnownComponentTIDs.ConstraintComponentTID]: IConstraintEntityMethods;
   [WellKnownComponentTIDs.RaymarchingComponentTID]: IRaymarchingEntityMethods;
+  [WellKnownComponentTIDs.CharacterControllerComponentTID]: ICharacterControllerEntityMethods;
 }
 
 /**

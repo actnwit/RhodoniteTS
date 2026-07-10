@@ -4,6 +4,7 @@ import type { IEntity } from '../../core/Entity';
 import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import { Is } from '../../misc/Is';
+import { Time } from '../../misc/Time';
 import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
 import type { PhysicsStrategy } from '../../physics/PhysicsStrategy';
 import { RapierPhysicsStrategy } from '../../physics/Rapier/RapierPhysicsStrategy';
@@ -93,7 +94,7 @@ export class PhysicsComponent extends Component {
       return;
     }
     OimoPhysicsStrategy.update();
-    RapierPhysicsStrategy.update();
+    RapierPhysicsStrategy.update(Time.timeAtProcessBeginMilliseconds, Time.intervalProcessBegin);
   }
 
   /**

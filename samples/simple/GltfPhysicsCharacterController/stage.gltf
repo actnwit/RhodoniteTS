@@ -1,0 +1,66 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "RhodoniteTS character controller sample"
+  },
+  "extensionsUsed": [
+    "KHR_implicit_shapes",
+    "KHR_physics_rigid_bodies"
+  ],
+  "extensions": {
+    "KHR_implicit_shapes": {
+      "shapes": [
+        { "name": "Floor", "type": "box", "box": { "size": [12, 0.2, 12] } },
+        { "name": "Step", "type": "box", "box": { "size": [2, 0.2, 0.5] } },
+        { "name": "Landing", "type": "box", "box": { "size": [3, 0.2, 3] } }
+      ]
+    }
+  },
+  "buffers": [],
+  "bufferViews": [],
+  "accessors": [],
+  "scene": 0,
+  "scenes": [{ "nodes": [0, 1, 2, 3, 4, 5, 6, 7] }],
+  "nodes": [
+    {
+      "name": "FloorCollider",
+      "translation": [0, -0.1, 0],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 0 } } } }
+    },
+    {
+      "name": "Step1Collider",
+      "translation": [0, 0.1, 1.5],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 1 } } } }
+    },
+    {
+      "name": "Step2Collider",
+      "translation": [0, 0.3, 1.0],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 1 } } } }
+    },
+    {
+      "name": "Step3Collider",
+      "translation": [0, 0.5, 0.5],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 1 } } } }
+    },
+    {
+      "name": "Step4Collider",
+      "translation": [0, 0.7, 0.0],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 1 } } } }
+    },
+    {
+      "name": "Step5Collider",
+      "translation": [0, 0.9, -0.5],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 1 } } } }
+    },
+    {
+      "name": "Step6Collider",
+      "translation": [0, 1.1, -1.0],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 1 } } } }
+    },
+    {
+      "name": "LandingCollider",
+      "translation": [0, 1.1, -2.75],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 2 } } } }
+    }
+  ]
+}

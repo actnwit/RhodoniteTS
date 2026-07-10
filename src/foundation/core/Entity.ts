@@ -5,6 +5,7 @@ import type { AnimationStateComponent } from '../components/AnimationState/Anima
 import type { BlendShapeComponent } from '../components/BlendShape/BlendShapeComponent';
 import type { CameraComponent } from '../components/Camera/CameraComponent';
 import type { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
+import type { CharacterControllerComponent } from '../components/CharacterController/CharacterControllerComponent';
 import type { ConstraintComponent } from '../components/Constraint/ConstraintComponent';
 import type { LightComponent } from '../components/Light/LightComponent';
 import type { MeshComponent } from '../components/Mesh/MeshComponent';
@@ -107,6 +108,9 @@ export interface IEntity extends IRnObject {
    * @returns The PhysicsComponent if present, undefined otherwise
    */
   tryToGetPhysics(): PhysicsComponent | undefined;
+
+  /** Attempts to retrieve the CharacterControllerComponent from this entity. */
+  tryToGetCharacterController(): CharacterControllerComponent | undefined;
 
   /**
    * Attempts to retrieve the SceneGraphComponent from this entity.
@@ -413,6 +417,13 @@ export class Entity extends RnObject implements IEntity {
    */
   tryToGetPhysics() {
     return this.getComponentByComponentTID(WellKnownComponentTIDs.PhysicsComponentTID) as PhysicsComponent | undefined;
+  }
+
+  /** Attempts to retrieve the CharacterControllerComponent from this entity. */
+  tryToGetCharacterController() {
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.CharacterControllerComponentTID) as
+      | CharacterControllerComponent
+      | undefined;
   }
 
   /**

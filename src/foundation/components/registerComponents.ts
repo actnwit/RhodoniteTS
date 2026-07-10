@@ -5,6 +5,7 @@ import { AnimationStateComponent } from './AnimationState/AnimationStateComponen
 import { BlendShapeComponent } from './BlendShape/BlendShapeComponent';
 import { CameraComponent } from './Camera/CameraComponent';
 import { CameraControllerComponent } from './CameraController/CameraControllerComponent';
+import { CharacterControllerComponent } from './CharacterController/CharacterControllerComponent';
 import { ConstraintComponent } from './Constraint/ConstraintComponent';
 import { LightComponent } from './Light/LightComponent';
 import { MeshComponent } from './Mesh/MeshComponent';
@@ -32,3 +33,4 @@ ComponentRepository.registerComponentClass(EffekseerComponent);
 ComponentRepository.registerComponentClass(VrmComponent);
 ComponentRepository.registerComponentClass(ConstraintComponent);
 ComponentRepository.registerComponentClass(RaymarchingComponent);
+ComponentRepository.registerComponentClass(CharacterControllerComponent);
