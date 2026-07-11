@@ -141,6 +141,7 @@ export class PhysicsComponent extends Component {
     }
     const resolved: PhysicsShapeInstanceBinding[] = [];
     let move: boolean | undefined;
+    let isKinematic: boolean | undefined;
     for (const binding of bindings.values()) {
       const shapeIndex = binding.shapeIndex ?? 0;
       const shape = binding.shapeComponent.getShape(shapeIndex);
@@ -150,7 +151,15 @@ export class PhysicsComponent extends Component {
       if (move != null && move !== binding.body.move) {
         throw new Error('All shape bindings on one PhysicsComponent must use the same body.move value.');
       }
+      const bindingIsKinematic = binding.body.isKinematic ?? false;
+      if (isKinematic != null && isKinematic !== bindingIsKinematic) {
+        throw new Error('All shape bindings on one PhysicsComponent must use the same body.isKinematic value.');
+      }
+      if (!binding.body.move && bindingIsKinematic) {
+        throw new Error('A kinematic physics body must have body.move enabled.');
+      }
       move = binding.body.move;
+      isKinematic = bindingIsKinematic;
       resolved.push({ shape, body: { ...binding.body }, collider: { ...binding.collider } });
     }
     const entity = this.entity as import('../../helpers/EntityHelper').ISceneGraphEntity;

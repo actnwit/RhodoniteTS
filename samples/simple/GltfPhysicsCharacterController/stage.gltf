@@ -14,7 +14,9 @@
         { "name": "Step", "type": "box", "box": { "size": [2, 0.2, 0.5] } },
         { "name": "Landing", "type": "box", "box": { "size": [3, 0.2, 3] } },
         { "name": "CylinderObstacle", "type": "cylinder", "cylinder": { "height": 1.5, "radiusBottom": 0.4, "radiusTop": 0.4 } },
-        { "name": "CapsuleObstacle", "type": "capsule", "capsule": { "height": 1.0, "radiusBottom": 0.3, "radiusTop": 0.3 } }
+        { "name": "CapsuleObstacle", "type": "capsule", "capsule": { "height": 1.0, "radiusBottom": 0.3, "radiusTop": 0.3 } },
+        { "name": "GatePost", "type": "box", "box": { "size": [0.3, 2, 0.4] } },
+        { "name": "GateTop", "type": "box", "box": { "size": [2.1, 0.2, 0.4] } }
       ]
     }
   },
@@ -22,7 +24,7 @@
   "bufferViews": [],
   "accessors": [],
   "scene": 0,
-  "scenes": [{ "nodes": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] }],
+  "scenes": [{ "nodes": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }],
   "nodes": [
     {
       "name": "FloorCollider",
@@ -73,6 +75,27 @@
       "name": "CapsuleCollider",
       "translation": [-3, 0.8, 1],
       "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 4 } } } }
+    },
+    {
+      "name": "GateBody",
+      "translation": [0, 1.2, -3.5],
+      "children": [11, 12, 13],
+      "extensions": { "KHR_physics_rigid_bodies": { "motion": { "isKinematic": true } } }
+    },
+    {
+      "name": "GateLeftPostCollider",
+      "translation": [-0.9, 1, 0],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 5 } } } }
+    },
+    {
+      "name": "GateRightPostCollider",
+      "translation": [0.9, 1, 0],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 5 } } } }
+    },
+    {
+      "name": "GateTopCollider",
+      "translation": [0, 2.1, 0],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 6 } } } }
     }
   ]
 }

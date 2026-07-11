@@ -3,6 +3,7 @@ import type {
   KHRImplicitShape,
   KHRImplicitShapes,
   KHRPhysicsMaterial,
+  KHRPhysicsMotion,
   KHRPhysicsRigidBodies,
   KHRPhysicsRigidBodiesNode,
   RnM2,
@@ -11,6 +12,9 @@ import { PhysicsComponent } from '../components/Physics/PhysicsComponent';
 import { ShapeComponent } from '../components/Shape/ShapeComponent';
 import { normalizeShapeDescriptor, type ShapeDescriptor } from '../geometry/Shape';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
+import type { IMatrix44 } from '../math/IMatrix';
+import { Matrix44 } from '../math/Matrix44';
+import { Quaternion } from '../math/Quaternion';
 import { Vector3 } from '../math/Vector3';
 import { Logger } from '../misc/Logger';
 import { RapierPhysicsStrategy } from '../physics/Rapier/RapierPhysicsStrategy';
@@ -47,6 +51,22 @@ export interface NormalizedKhrCollider {
 
 export interface KhrColliderCollection {
   colliders: NormalizedKhrCollider[];
+  warnings: string[];
+}
+
+export interface NormalizedKhrBodyCollider extends NormalizedKhrCollider {
+  localPosition: Vector3;
+  localRotation: Quaternion;
+}
+
+export interface NormalizedKhrRigidBodyGroup {
+  bodyNodeIndex: number;
+  motion?: KHRPhysicsMotion;
+  colliders: NormalizedKhrBodyCollider[];
+}
+
+export interface KhrRigidBodyGroupCollection {
+  groups: NormalizedKhrRigidBodyGroup[];
   warnings: string[];
 }
 
@@ -129,6 +149,207 @@ function normalizeMaterial(
   }
 
   return { dynamicFriction, restitution };
+}
+
+function createNodeLocalMatrix(node: RnM2['nodes'][number]): Matrix44 {
+  if (node.matrix != null) {
+    return Matrix44.fromCopyArrayColumnMajor(node.matrix);
+  }
+  const translation = Vector3.fromCopyArray(node.translation ?? [0, 0, 0]);
+  const rotation = Quaternion.fromCopyArray(node.rotation ?? [0, 0, 0, 1]);
+  const scale = Vector3.fromCopyArray(node.scale ?? [1, 1, 1]);
+  return Matrix44.multiply(
+    Matrix44.multiply(Matrix44.translate(translation), Matrix44.fromCopyQuaternion(rotation)),
+    Matrix44.scale(scale)
+  );
+}
+
+function scaleDescriptor(descriptor: ShapeDescriptor, scale: Vector3): ShapeDescriptor {
+  const x = Math.abs(scale.x);
+  const y = Math.abs(scale.y);
+  const z = Math.abs(scale.z);
+  if (descriptor.type === 'box') {
+    return normalizeShapeDescriptor({
+      type: 'box',
+      size: Vector3.fromCopy3(descriptor.size.x * x, descriptor.size.y * y, descriptor.size.z * z),
+    });
+  }
+  if (descriptor.type === 'sphere') {
+    return normalizeShapeDescriptor({ type: 'sphere', radius: descriptor.radius * Math.max(x, y, z) });
+  }
+  if (descriptor.type === 'cylinder') {
+    const radialScale = Math.max(x, z);
+    return normalizeShapeDescriptor({
+      type: 'cylinder',
+      height: descriptor.height * y,
+      radiusBottom: descriptor.radiusBottom * radialScale,
+      radiusTop: descriptor.radiusTop * radialScale,
+    });
+  }
+  const radialScale = Math.max(x, y, z);
+  return normalizeShapeDescriptor({
+    type: 'capsule',
+    height: descriptor.height * y,
+    radiusBottom: descriptor.radiusBottom * radialScale,
+    radiusTop: descriptor.radiusTop * radialScale,
+  });
+}
+
+function hasShear(matrix: IMatrix44, scale: Vector3): boolean {
+  if (scale.x === 0 || scale.y === 0 || scale.z === 0) {
+    return false;
+  }
+  const xy = (matrix.m00 * matrix.m01 + matrix.m10 * matrix.m11 + matrix.m20 * matrix.m21) / (scale.x * scale.y);
+  const xz = (matrix.m00 * matrix.m02 + matrix.m10 * matrix.m12 + matrix.m20 * matrix.m22) / (scale.x * scale.z);
+  const yz = (matrix.m01 * matrix.m02 + matrix.m11 * matrix.m12 + matrix.m21 * matrix.m22) / (scale.y * scale.z);
+  return Math.abs(xy) > 0.000001 || Math.abs(xz) > 0.000001 || Math.abs(yz) > 0.000001;
+}
+
+/** Resolves collider ownership and body-relative transforms according to the KHR node hierarchy rules. */
+export function collectKhrRigidBodyGroups(gltfModel: RnM2): KhrRigidBodyGroupCollection {
+  const warnings: string[] = [];
+  const groups = new Map<number, NormalizedKhrRigidBodyGroup>();
+  const parentIndices = new Array<number | undefined>(gltfModel.nodes.length);
+  for (let parentIndex = 0; parentIndex < gltfModel.nodes.length; parentIndex++) {
+    for (const childIndex of gltfModel.nodes[parentIndex].children ?? []) {
+      parentIndices[childIndex] = parentIndex;
+    }
+  }
+  const localMatrices = gltfModel.nodes.map(createNodeLocalMatrix);
+  const worldMatrices = new Map<number, Matrix44>();
+  const getWorldMatrix = (nodeIndex: number): Matrix44 => {
+    const cached = worldMatrices.get(nodeIndex);
+    if (cached != null) {
+      return cached;
+    }
+    const parentIndex = parentIndices[nodeIndex];
+    const matrix =
+      parentIndex == null
+        ? localMatrices[nodeIndex]
+        : Matrix44.multiply(getWorldMatrix(parentIndex), localMatrices[nodeIndex]);
+    worldMatrices.set(nodeIndex, matrix);
+    return matrix;
+  };
+  const implicitShapesExtension = gltfModel.extensions?.[KHR_IMPLICIT_SHAPES] as KHRImplicitShapes | undefined;
+  const rigidBodiesExtension = gltfModel.extensions?.[KHR_PHYSICS_RIGID_BODIES] as KHRPhysicsRigidBodies | undefined;
+  const sourceDescriptors = new Map<number, ShapeDescriptor>();
+
+  for (let nodeIndex = 0; nodeIndex < gltfModel.nodes.length; nodeIndex++) {
+    const nodeExtension = gltfModel.nodes[nodeIndex].extensions?.[KHR_PHYSICS_RIGID_BODIES] as
+      | KHRPhysicsRigidBodiesNode
+      | undefined;
+    const collider = nodeExtension?.collider;
+    if (collider == null) {
+      continue;
+    }
+    if (collider.collisionFilter != null) {
+      warnings.push(
+        `${KHR_PHYSICS_RIGID_BODIES}: collider node ${nodeIndex} uses an unsupported collisionFilter; the filter is ignored.`
+      );
+    }
+    const geometry = collider.geometry;
+    if (geometry == null || geometry.shape == null || geometry.mesh != null) {
+      warnings.push(
+        `${KHR_PHYSICS_RIGID_BODIES}: node ${nodeIndex} must reference exactly one implicit shape; its collider was skipped.`
+      );
+      continue;
+    }
+    const shapeIndex = geometry.shape;
+    const implicitShape = implicitShapesExtension?.shapes?.[shapeIndex];
+    if (!Number.isInteger(shapeIndex) || shapeIndex < 0 || implicitShape == null) {
+      warnings.push(
+        `${KHR_PHYSICS_RIGID_BODIES}: node ${nodeIndex} references missing implicit shape ${shapeIndex}; its collider was skipped.`
+      );
+      continue;
+    }
+    let sourceDescriptor = sourceDescriptors.get(shapeIndex);
+    if (sourceDescriptor == null) {
+      sourceDescriptor = normalizeKhrShape(implicitShape);
+      if (sourceDescriptor != null) {
+        sourceDescriptors.set(shapeIndex, sourceDescriptor);
+      }
+    }
+    if (sourceDescriptor == null) {
+      const isBuiltIn = ['box', 'sphere', 'cylinder', 'capsule'].includes(implicitShape.type);
+      const reason = isBuiltIn
+        ? `invalid ${implicitShape.type} shape`
+        : `unsupported shape type '${implicitShape.type}'`;
+      warnings.push(`${KHR_PHYSICS_RIGID_BODIES}: node ${nodeIndex} references ${reason}; its collider was skipped.`);
+      continue;
+    }
+
+    let bodyNodeIndex = nodeIndex;
+    let motion: KHRPhysicsMotion | undefined;
+    let ancestorIndex: number | undefined = nodeIndex;
+    while (ancestorIndex != null) {
+      const ancestorExtension = gltfModel.nodes[ancestorIndex].extensions?.[KHR_PHYSICS_RIGID_BODIES] as
+        | KHRPhysicsRigidBodiesNode
+        | undefined;
+      if (ancestorExtension?.motion != null) {
+        bodyNodeIndex = ancestorIndex;
+        motion = ancestorExtension.motion;
+        break;
+      }
+      ancestorIndex = parentIndices[ancestorIndex];
+    }
+
+    const relativeMatrix =
+      bodyNodeIndex === nodeIndex
+        ? Matrix44.identity()
+        : Matrix44.multiply(Matrix44.invert(getWorldMatrix(bodyNodeIndex)), getWorldMatrix(nodeIndex));
+    const relativeScale = relativeMatrix.getScale();
+    if (relativeMatrix.determinant() < 0) {
+      warnings.push(
+        `${KHR_PHYSICS_RIGID_BODIES}: collider node ${nodeIndex} has reflected body-relative scale; absolute dimensions are used.`
+      );
+    }
+    if (hasShear(relativeMatrix, relativeScale)) {
+      warnings.push(
+        `${KHR_PHYSICS_RIGID_BODIES}: collider node ${nodeIndex} has body-relative shear; its transform is approximated as TRS.`
+      );
+    }
+    const nonUniform =
+      Math.abs(relativeScale.x - relativeScale.y) > 0.000001 || Math.abs(relativeScale.y - relativeScale.z) > 0.000001;
+    if (nonUniform && sourceDescriptor.type !== 'box') {
+      warnings.push(
+        `${KHR_PHYSICS_RIGID_BODIES}: collider node ${nodeIndex} has non-uniform body-relative scale; its ${sourceDescriptor.type} shape is conservatively approximated.`
+      );
+    }
+    const descriptor =
+      bodyNodeIndex === nodeIndex ? sourceDescriptor : scaleDescriptor(sourceDescriptor, relativeScale);
+    const material = normalizeMaterial(collider.physicsMaterial, rigidBodiesExtension, warnings, nodeIndex);
+    let group = groups.get(bodyNodeIndex);
+    if (group == null) {
+      group = { bodyNodeIndex, motion, colliders: [] };
+      groups.set(bodyNodeIndex, group);
+      if (motion != null) {
+        const unsupported = [
+          'mass',
+          'centerOfMass',
+          'inertiaDiagonal',
+          'inertiaOrientation',
+          'linearVelocity',
+          'angularVelocity',
+          'gravityFactor',
+        ].filter(name => motion[name as keyof KHRPhysicsMotion] != null);
+        if (unsupported.length > 0) {
+          warnings.push(
+            `${KHR_PHYSICS_RIGID_BODIES}: motion node ${bodyNodeIndex} uses unsupported properties (${unsupported.join(', ')}); only its body type is imported.`
+          );
+        }
+      }
+    }
+    group.colliders.push({
+      nodeIndex,
+      shapeIndex,
+      descriptor,
+      dynamicFriction: material.dynamicFriction,
+      restitution: material.restitution,
+      localPosition: relativeMatrix.getTranslate(),
+      localRotation: Quaternion.fromMatrix(relativeMatrix.getRotate()),
+    });
+  }
+  return { groups: [...groups.values()], warnings };
 }
 
 /** Resolves supported static implicit-shape colliders without mutating the glTF model. */
@@ -218,52 +439,51 @@ export function collectKhrStaticBoxColliders(gltfModel: RnM2): KhrBoxColliderCol
  * Creates Rapier fixed bodies for supported KHR_physics_rigid_bodies colliders.
  */
 export function setupKhrStaticColliders(gltfModel: RnM2, rnEntities: ISceneGraphEntity[]): void {
-  const collection = collectKhrStaticColliders(gltfModel);
+  const collection = collectKhrRigidBodyGroups(gltfModel);
   for (const warning of collection.warnings) {
     Logger.default.warn(warning);
   }
 
-  if (collection.colliders.length === 0) {
+  if (collection.groups.length === 0) {
     return;
   }
 
-  const sharedDescriptors = new Map<number, ShapeDescriptor>();
   const bindings: Array<{
-    collider: NormalizedKhrCollider;
+    group: NormalizedKhrRigidBodyGroup;
     entity: ISceneGraphEntity;
     shapeComponent: ShapeComponent;
-    shapeIndex: number;
+    shapeIndices: number[];
   }> = [];
 
-  for (const collider of collection.colliders) {
-    const entity = rnEntities[collider.nodeIndex];
+  for (const group of collection.groups) {
+    const entity = rnEntities[group.bodyNodeIndex];
     if (entity == null) {
       Logger.default.warn(
-        `${KHR_PHYSICS_RIGID_BODIES}: Rhodonite entity for node ${collider.nodeIndex} was not found.`
+        `${KHR_PHYSICS_RIGID_BODIES}: Rhodonite entity for body node ${group.bodyNodeIndex} was not found.`
       );
       continue;
     }
     if (entity.tryToGetPhysics() != null) {
       Logger.default.warn(
-        `${KHR_PHYSICS_RIGID_BODIES}: node ${collider.nodeIndex} already has a PhysicsComponent; its collider was skipped.`
+        `${KHR_PHYSICS_RIGID_BODIES}: body node ${group.bodyNodeIndex} already has a PhysicsComponent; its colliders were skipped.`
       );
       continue;
     }
-
-    let descriptor = sharedDescriptors.get(collider.shapeIndex);
-    if (descriptor == null) {
-      descriptor = collider.descriptor;
-      sharedDescriptors.set(collider.shapeIndex, descriptor);
-    }
     const shapeComponent =
       entity.tryToGetShape() ?? entity.engine.entityRepository.addComponentToEntity(ShapeComponent, entity).getShape();
-    const shapeIndex = shapeComponent.addShape(descriptor);
-    bindings.push({ collider, entity, shapeComponent, shapeIndex });
+    const shapeIndices = group.colliders.map(collider =>
+      shapeComponent.addShape(collider.descriptor, {
+        position: collider.localPosition,
+        rotation: collider.localRotation,
+      })
+    );
+    bindings.push({ group, entity, shapeComponent, shapeIndices });
   }
 
   if (!RapierPhysicsStrategy.isInitialized) {
+    const colliderCount = bindings.reduce((sum, binding) => sum + binding.shapeIndices.length, 0);
     Logger.default.warn(
-      `${KHR_PHYSICS_RIGID_BODIES}: Rapier is not initialized; ${bindings.length} physics binding(s) were skipped.`
+      `${KHR_PHYSICS_RIGID_BODIES}: Rapier is not initialized; ${colliderCount} physics binding(s) were skipped.`
     );
     return;
   }
@@ -272,15 +492,22 @@ export function setupKhrStaticColliders(gltfModel: RnM2, rnEntities: ISceneGraph
     const physicsEntity = binding.entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, binding.entity);
     const physicsComponent = physicsEntity.getPhysics();
     physicsComponent.setStrategy(new RapierPhysicsStrategy());
-    physicsComponent.bindShape({
-      shapeComponent: binding.shapeComponent,
-      shapeIndex: binding.shapeIndex,
-      body: { move: false, density: 1 },
-      collider: {
-        friction: binding.collider.dynamicFriction,
-        restitution: binding.collider.restitution,
-      },
-    });
+    for (let i = 0; i < binding.group.colliders.length; i++) {
+      const collider = binding.group.colliders[i];
+      physicsComponent.bindShape({
+        shapeComponent: binding.shapeComponent,
+        shapeIndex: binding.shapeIndices[i],
+        body: {
+          move: binding.group.motion != null,
+          isKinematic: binding.group.motion?.isKinematic ?? false,
+          density: 1,
+        },
+        collider: {
+          friction: collider.dynamicFriction,
+          restitution: collider.restitution,
+        },
+      });
+    }
   }
 }
 

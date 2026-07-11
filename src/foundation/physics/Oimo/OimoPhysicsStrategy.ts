@@ -117,6 +117,9 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     entity: ISceneGraphEntity,
     worldScale: IVector3 = Vector3.one()
   ): void {
+    if (body.isKinematic) {
+      throw new Error('OimoPhysicsStrategy does not support kinematic generic shape bodies.');
+    }
     if (shape.shape.type === 'capsule') {
       throw new Error('OimoPhysicsStrategy does not support capsule shapes.');
     }

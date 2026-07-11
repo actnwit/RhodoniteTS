@@ -6,6 +6,8 @@ export type PhysicsEngineType = 'oimo' | 'rapier';
 export type PhysicsBodyProperty = {
   /** Whether the body is dynamic. False creates a fixed body. */
   move: boolean;
+  /** Whether a moving body is position-based kinematic instead of dynamic. */
+  isKinematic?: boolean;
   /** Density used to derive mass. */
   density: number;
 };

@@ -1,6 +1,8 @@
 import type { RnM2 } from '../../types';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { Vector3 } from '../math/Vector3';
 import {
+  collectKhrRigidBodyGroups,
   collectKhrStaticBoxColliders,
   collectKhrStaticColliders,
   setupKhrStaticBoxColliders,
@@ -224,4 +226,60 @@ test('rejects a box shape containing parameters for a different built-in shape',
 
   expect(result.colliders).toEqual([]);
   expect(result.warnings[0]).toContain('invalid box shape');
+});
+
+test('groups colliders by their nearest motion ancestor and keeps static colliders independent', () => {
+  const gltf = createGltf(
+    [
+      {
+        translation: [10, 0, 0],
+        scale: [2, 2, 2],
+        children: [1, 2, 3],
+        extensions: { KHR_physics_rigid_bodies: { motion: { isKinematic: true, mass: 5 } } },
+      },
+      {
+        translation: [1, 0, 0],
+        extensions: { KHR_physics_rigid_bodies: { collider: { geometry: { shape: 0 } } } },
+      },
+      {
+        translation: [0, 2, 0],
+        scale: [2, 3, 4],
+        extensions: { KHR_physics_rigid_bodies: { collider: { geometry: { shape: 1 } } } },
+      },
+      {
+        translation: [0, 0, 3],
+        children: [4],
+        extensions: { KHR_physics_rigid_bodies: { motion: {} } },
+      },
+      {
+        translation: [0, 1, 0],
+        extensions: { KHR_physics_rigid_bodies: { collider: { geometry: { shape: 0 } } } },
+      },
+      {
+        translation: [-2, 0, 0],
+        extensions: { KHR_physics_rigid_bodies: { collider: { geometry: { shape: 0 } } } },
+      },
+    ],
+    {
+      KHR_implicit_shapes: {
+        shapes: [
+          { type: 'box', box: { size: [1, 1, 1] } },
+          { type: 'sphere', sphere: { radius: 0.5 } },
+        ],
+      },
+    }
+  );
+
+  const result = collectKhrRigidBodyGroups(gltf);
+
+  expect(result.groups.map(group => group.bodyNodeIndex)).toEqual([0, 3, 5]);
+  expect(result.groups[0].colliders).toHaveLength(2);
+  expect(result.groups[0].motion?.isKinematic).toBe(true);
+  expect(result.groups[0].colliders[0].localPosition.isEqual(Vector3.fromCopy3(1, 0, 0))).toBe(true);
+  expect(result.groups[0].colliders[1].descriptor).toEqual({ type: 'sphere', radius: 2 });
+  expect(result.groups[1].colliders[0].localPosition.isEqual(Vector3.fromCopy3(0, 1, 0))).toBe(true);
+  expect(result.groups[2].motion).toBeUndefined();
+  expect(result.groups[2].colliders[0].localPosition.isEqual(Vector3.zero())).toBe(true);
+  expect(result.warnings.some(warning => warning.includes('mass'))).toBe(true);
+  expect(result.warnings.some(warning => warning.includes('non-uniform'))).toBe(true);
 });

@@ -190,8 +190,18 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       return;
     }
     const move = bindings[0].body.move;
+    const isKinematic = bindings[0].body.isKinematic ?? false;
     if (bindings.some(binding => binding.body.move !== move)) {
       throw new Error('All Rapier colliders on one rigid body must use the same body.move value.');
+    }
+    if (bindings.some(binding => (binding.body.isKinematic ?? false) !== isKinematic)) {
+      throw new Error('All Rapier colliders on one rigid body must use the same body.isKinematic value.');
+    }
+    if (!move && isKinematic) {
+      throw new Error('A kinematic Rapier body must have body.move enabled.');
+    }
+    if (isKinematic && RapierPhysicsStrategy.__getRapier().RigidBodyDesc.kinematicPositionBased == null) {
+      throw new Error('The injected Rapier module does not support position-based kinematic bodies.');
     }
     const scale = Vector3.fromCopy3(Math.abs(worldScale.x), Math.abs(worldScale.y), Math.abs(worldScale.z));
     for (const binding of bindings) {
@@ -412,7 +422,12 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
   private __createBody(prop: StoredPhysicsProperty, size: IVector3, position: IVector3, rotation: IQuaternion): void {
     const rapier = RapierPhysicsStrategy.__getRapier();
     const world = RapierPhysicsStrategy.__getWorld();
-    const rigidBodyDesc = prop.move ? rapier.RigidBodyDesc.dynamic() : rapier.RigidBodyDesc.fixed();
+    const isKinematic = this.__shapeBindings?.[0]?.body.isKinematic ?? false;
+    const rigidBodyDesc = isKinematic
+      ? rapier.RigidBodyDesc.kinematicPositionBased!()
+      : prop.move
+        ? rapier.RigidBodyDesc.dynamic()
+        : rapier.RigidBodyDesc.fixed();
     rigidBodyDesc
       .setTranslation(position.x, position.y, position.z)
       .setRotation(RapierPhysicsStrategy.__toRapierQuaternion(rotation));

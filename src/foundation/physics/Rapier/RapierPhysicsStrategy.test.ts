@@ -9,6 +9,8 @@ class FakeRigidBodyDesc {
   translation = { x: 0, y: 0, z: 0 };
   rotation = { x: 0, y: 0, z: 0, w: 1 };
 
+  constructor(readonly kind: 'dynamic' | 'fixed' | 'kinematic' = 'dynamic') {}
+
   setTranslation(x: number, y: number, z: number): FakeRigidBodyDesc {
     this.translation = { x, y, z };
     return this;
@@ -65,7 +67,10 @@ class FakeRigidBody {
   constructor(desc: FakeRigidBodyDesc) {
     this.translationValue = { ...desc.translation };
     this.rotationValue = { ...desc.rotation };
+    this.kind = desc.kind;
   }
+
+  readonly kind: 'dynamic' | 'fixed' | 'kinematic';
 
   translation() {
     return this.translationValue;
@@ -129,8 +134,9 @@ function createFakeRapier(onInit?: () => void): RapierPhysicsModuleLike {
     },
     World: FakeWorld,
     RigidBodyDesc: {
-      dynamic: () => new FakeRigidBodyDesc(),
-      fixed: () => new FakeRigidBodyDesc(),
+      dynamic: () => new FakeRigidBodyDesc('dynamic'),
+      fixed: () => new FakeRigidBodyDesc('fixed'),
+      kinematicPositionBased: () => new FakeRigidBodyDesc('kinematic'),
     },
     ColliderDesc: {
       cuboid: (x: number, y: number, z: number) => new FakeColliderDesc('cuboid', [x, y, z]),
@@ -361,4 +367,27 @@ test('RapierPhysicsStrategy creates one body with multiple colliders and rebuild
   strategy.clearShapeInstances();
   expect(world.bodies).toHaveLength(0);
   expect(world.removedBodies).toBe(2);
+});
+
+test('RapierPhysicsStrategy creates a position-based kinematic compound body', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const strategy = new RapierPhysicsStrategy();
+  const { entity } = createSceneGraphEntity();
+
+  strategy.setShapeInstances(
+    [
+      {
+        shape: {
+          shape: { type: 'box', size: Vector3.one() },
+          localPosition: Vector3.zero(),
+          localRotation: Quaternion.identity(),
+        },
+        body: { move: true, isKinematic: true, density: 1 },
+        collider: { friction: 0.5, restitution: 0 },
+      },
+    ],
+    entity
+  );
+
+  expect(lastWorld?.bodies[0].kind).toBe('kinematic');
 });
