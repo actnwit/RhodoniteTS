@@ -156,6 +156,64 @@ test('uses every explicit semantic track generated from a VRMA animation set', (
   }
 });
 
+test('keeps the intended run track and cadence through transient stair slowdowns', () => {
+  const tracks = {
+    idle: 'Idle',
+    walk: 'Walk',
+    run: 'Run',
+  };
+  const mapping = {
+    idle: [tracks.idle],
+    walk: [tracks.walk],
+    run: [tracks.run],
+  };
+  const calls = {
+    first: [] as string[],
+    transitions: [] as Array<[string, number]>,
+  };
+  const animationState = {
+    setUseGlobalTime: vi.fn(),
+    setFirstActiveAnimationTrack: (track: string) => calls.first.push(track),
+    forceTransitionTo: (track: string, duration: number) => calls.transitions.push([track, duration]),
+    setIsLoop: vi.fn(),
+    setTime: vi.fn(),
+  };
+  const child = {
+    tryToGetAnimation: () => ({ getAnimationTrackNames: () => Object.values(tracks) }),
+    children: [],
+  };
+  const engine = {};
+  const root = {
+    tryToGetAnimation: () => undefined,
+    tryToGetAnimationState: () => animationState,
+    children: [{ entity: child }],
+    engine,
+  } as unknown as ISceneGraphEntity;
+  vi.spyOn(AnimationComponent, 'getAnimationInfo').mockReturnValue(
+    new Map(Object.values(tracks).map(track => [track, { name: track, minStartInputTime: 0, maxEndInputTime: 1 }]))
+  );
+  const characterState: { motionState: CharacterMotionState; desiredHorizontalSpeed?: number } = {
+    motionState: createMotion('grounded', 4),
+    desiredHorizontalSpeed: 4,
+  };
+  const controller = new CharacterAnimationController(characterState as CharacterControllerComponent, root, mapping);
+
+  controller.update(1 / 60);
+  expect(controller.selection).toMatchObject({ semantic: 'run', activeTrack: 'Run', playbackSpeed: 1 });
+  for (const physicalSpeed of [1.94, 3.13, 2.78, 3.94, 2.64, 3.89]) {
+    characterState.motionState = createMotion('grounded', physicalSpeed);
+    controller.update(1 / 60);
+    expect(controller.selection).toMatchObject({ semantic: 'run', activeTrack: 'Run', playbackSpeed: 1 });
+  }
+  expect(calls.transitions).toEqual([]);
+
+  characterState.desiredHorizontalSpeed = 2.2;
+  characterState.motionState = createMotion('grounded', 2.2);
+  controller.update(1 / 60);
+  expect(controller.selection).toMatchObject({ semantic: 'walk', activeTrack: 'Walk', playbackSpeed: 1 });
+  expect(calls.transitions).toEqual([['Walk', 0.15]]);
+});
+
 test('validates time and speed options', () => {
   const character = { motionState: createMotion('falling') } as CharacterControllerComponent;
   const root = {

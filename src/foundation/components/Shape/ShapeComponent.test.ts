@@ -149,6 +149,10 @@ describe('ShapeComponent', async () => {
 
     entity.getCharacterController().setup(strategy as never, { radius: 0.3, height: 1.6 });
 
+    expect(entity.getCharacterController().desiredHorizontalSpeed).toBeUndefined();
+    entity.getCharacterController().setDesiredHorizontalVelocity(Rn.Vector3.fromCopy3(3, 99, 4));
+    expect(entity.getCharacterController().desiredHorizontalSpeed).toBe(5);
+
     expect(entity.getShape().getShape(0)?.shape).toEqual({
       type: 'capsule',
       height: 1,

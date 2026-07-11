@@ -64,7 +64,9 @@ const initialSelection: CharacterAnimationSelection = {
  *
  * When tracks come from external VRMA files, assign them to `animationRoot` before creating
  * this controller. `AnimationAssigner.assignCharacterAnimationsWithVrma()` returns the
- * `CharacterAnimationMapping` accepted by this constructor.
+ * `CharacterAnimationMapping` accepted by this constructor. Grounded locomotion uses the
+ * requested movement speed when it is available, so collision correction on steps does not
+ * repeatedly switch walk and run tracks.
  */
 export class CharacterAnimationController {
   private readonly __options: ResolvedOptions;
@@ -174,11 +176,13 @@ export class CharacterAnimationController {
   private __resolveSemantic(): CharacterAnimationSemantic {
     const motion = this.__characterController.motionState;
     switch (motion.state) {
-      case 'grounded':
-        if (motion.horizontalSpeed < this.__options.walkSpeedThreshold) {
+      case 'grounded': {
+        const locomotionSpeed = this.__getLocomotionSpeed();
+        if (locomotionSpeed < this.__options.walkSpeedThreshold) {
           return 'idle';
         }
-        return motion.horizontalSpeed >= this.__options.runSpeedThreshold ? 'run' : 'walk';
+        return locomotionSpeed >= this.__options.runSpeedThreshold ? 'run' : 'walk';
+      }
       case 'rising':
         return 'jump';
       case 'landing':
@@ -216,8 +220,16 @@ export class CharacterAnimationController {
       return 1;
     }
     const referenceSpeed = semantic === 'walk' ? this.__options.referenceWalkSpeed : this.__options.referenceRunSpeed;
-    const ratio = this.__characterController.motionState.horizontalSpeed / referenceSpeed;
+    const ratio = this.__getLocomotionSpeed() / referenceSpeed;
     return Math.min(this.__options.maxPlaybackSpeed, Math.max(this.__options.minPlaybackSpeed, ratio));
+  }
+
+  private __getLocomotionSpeed(): number {
+    const desiredHorizontalSpeed = this.__characterController.desiredHorizontalSpeed;
+    if (desiredHorizontalSpeed != null && Number.isFinite(desiredHorizontalSpeed)) {
+      return desiredHorizontalSpeed;
+    }
+    return this.__characterController.motionState.horizontalSpeed;
   }
 
   private __collectAnimationTracks(root: ISceneGraphEntity): AnimationTrackName[] {

@@ -57,6 +57,7 @@ export class CharacterControllerComponent extends Component {
   private readonly __zeroMovement = Vector3.zero();
   private readonly __pubsub = new EventPubSub();
   private __lastObservedMotionState: CharacterMotionState = initialMotionState;
+  private __desiredHorizontalSpeed?: number;
 
   constructor(
     engine: Engine,
@@ -149,7 +150,16 @@ export class CharacterControllerComponent extends Component {
   }
 
   setDesiredHorizontalVelocity(velocity: IVector3): void {
+    this.__desiredHorizontalSpeed = Math.hypot(velocity.x, velocity.z);
     this.__strategy?.setDesiredHorizontalVelocity(velocity);
+  }
+
+  /**
+   * Horizontal speed requested through {@link setDesiredHorizontalVelocity}, before
+   * collision and step correction. It is undefined until a desired velocity is supplied.
+   */
+  get desiredHorizontalSpeed(): number | undefined {
+    return this.__desiredHorizontalSpeed;
   }
 
   requestJump(): void {
@@ -214,6 +224,7 @@ export class CharacterControllerComponent extends Component {
     this.__pubsub.unsubscribeAll('stateChanged');
     this.__pubsub.unsubscribeAll('landed');
     this.__lastObservedMotionState = initialMotionState;
+    this.__desiredHorizontalSpeed = undefined;
     super._destroy();
   }
 
