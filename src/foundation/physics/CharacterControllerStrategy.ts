@@ -1,6 +1,17 @@
+import type { IEntity } from '../core/Entity';
 import type { ShapeInstance } from '../geometry/Shape';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import type { IVector3 } from '../math/IVector';
+
+export interface CharacterGroundContact {
+  entity: IEntity;
+  bindingId?: number;
+  position: IVector3;
+  normal: IVector3;
+  distance: number;
+  slopeAngle: number;
+  isWalkable: boolean;
+}
 
 export interface CharacterControllerOptions {
   /** Index of the capsule in the entity's ShapeComponent. */
@@ -19,6 +30,10 @@ export interface CharacterControllerOptions {
   jumpSpeed?: number;
   maxDeltaTime?: number;
   applyImpulsesToDynamicBodies?: boolean;
+  groundProbeDistance?: number;
+  groundProbeStartOffset?: number;
+  groundCollisionGroup?: number;
+  groundCollisionMask?: number;
 }
 
 export interface CharacterControllerStrategy {
@@ -28,6 +43,7 @@ export interface CharacterControllerStrategy {
   teleport(position: IVector3): void;
   readonly isGrounded: boolean;
   readonly computedMovement: IVector3;
+  readonly groundContact: CharacterGroundContact | undefined;
   enabled: boolean;
   destroy(): void;
 }

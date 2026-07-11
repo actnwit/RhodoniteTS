@@ -9,6 +9,7 @@ import { Time } from '../../misc/Time';
 import type {
   CharacterControllerOptions,
   CharacterControllerStrategy,
+  CharacterGroundContact,
 } from '../../physics/CharacterControllerStrategy';
 import { RapierPhysicsStrategy } from '../../physics/Rapier/RapierPhysicsStrategy';
 import type { Engine } from '../../system/Engine';
@@ -107,6 +108,11 @@ export class CharacterControllerComponent extends Component {
 
   get computedMovement(): IVector3 {
     return this.__strategy?.computedMovement ?? this.__zeroMovement;
+  }
+
+  /** Detailed ground information from the controller's foot probe. */
+  get groundContact(): CharacterGroundContact | undefined {
+    return this.__strategy?.groundContact;
   }
 
   set enabled(value: boolean) {

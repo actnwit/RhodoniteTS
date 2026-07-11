@@ -2,14 +2,21 @@ import type { ShapeInstance } from '../../geometry/Shape';
 import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
 import { type IVector3, MutableVector3, Vector3 } from '../../math';
 import { Logger } from '../../misc/Logger';
-import type { CharacterControllerOptions, CharacterControllerStrategy } from '../CharacterControllerStrategy';
+import type {
+  CharacterControllerOptions,
+  CharacterControllerStrategy,
+  CharacterGroundContact,
+} from '../CharacterControllerStrategy';
+import { PhysicsWorldQuery } from '../PhysicsWorldQuery';
 import {
   type RapierCharacterControllerLike,
   type RapierColliderLike,
   RapierPhysicsStrategy,
   type RapierRigidBodyLike,
   type RapierStepParticipant,
+  type RapierVector3Like,
 } from './RapierPhysicsStrategy';
+import { RapierPhysicsWorldQueryStrategy } from './RapierPhysicsWorldQueryStrategy';
 
 type ResolvedOptions = Required<Omit<CharacterControllerOptions, 'shapeIndex' | 'radius' | 'height'>>;
 
@@ -24,6 +31,10 @@ const defaultOptions: ResolvedOptions = {
   jumpSpeed: 4.5,
   maxDeltaTime: 1 / 15,
   applyImpulsesToDynamicBodies: false,
+  groundProbeDistance: 0.3,
+  groundProbeStartOffset: 0.01,
+  groundCollisionGroup: 0xffff,
+  groundCollisionMask: 0xffff,
 };
 
 /** Rapier-backed kinematic capsule character controller. */
@@ -39,6 +50,9 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
   private __isGrounded = false;
   private __jumpRequested = false;
   private __enabled = true;
+  private __groundContact?: CharacterGroundContact;
+  private __capsuleBottomOffset = Vector3.zero();
+  private readonly __worldQuery = new PhysicsWorldQuery(new RapierPhysicsWorldQueryStrategy());
 
   setup(entity: ISceneGraphEntity, shapeInstance: ShapeInstance, options: CharacterControllerOptions = {}): void {
     if (this.__rigidBody != null) {
@@ -46,7 +60,14 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     }
 
     const { shapeIndex: _shapeIndex, radius: _radius, height: _height, ...movementOptions } = options;
-    this.__options = { ...defaultOptions, ...movementOptions };
+    this.__options = {
+      ...defaultOptions,
+      ...movementOptions,
+      groundProbeDistance:
+        options.groundProbeDistance ??
+        Math.max(options.snapToGroundDistance ?? defaultOptions.snapToGroundDistance, 0.3),
+      groundProbeStartOffset: options.groundProbeStartOffset ?? options.contactOffset ?? defaultOptions.contactOffset,
+    };
     this.__validateOptions(this.__options);
 
     const rapier = RapierPhysicsStrategy._getRapier();
@@ -84,6 +105,15 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     }
     const radius =
       Math.max(capsule.radiusBottom, capsule.radiusTop) * Math.max(absoluteScale.x, absoluteScale.y, absoluteScale.z);
+    const scaledLocalPosition = Vector3.fromCopy3(
+      shapeInstance.localPosition.x * absoluteScale.x,
+      shapeInstance.localPosition.y * absoluteScale.y,
+      shapeInstance.localPosition.z * absoluteScale.z
+    );
+    const downwardExtent = shapeInstance.localRotation.transformVector3(
+      Vector3.fromCopy3(0, -(capsule.height * absoluteScale.y * 0.5 + radius), 0)
+    );
+    this.__capsuleBottomOffset = Vector3.add(scaledLocalPosition, downwardExtent);
     let colliderDesc = rapier.ColliderDesc.capsule(capsule.height * absoluteScale.y * 0.5, radius);
     colliderDesc =
       colliderDesc.setTranslation?.(
@@ -130,6 +160,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     this.__isGrounded = false;
     this.__jumpRequested = false;
     this.__computedMovement.setComponents(0, 0, 0);
+    this.__groundContact = undefined;
   }
 
   preStep(deltaTime: number): void {
@@ -180,6 +211,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     }
     const position = this.__rigidBody.translation();
     this.__entity.getSceneGraph().setPositionWithoutPhysics(Vector3.fromCopy3(position.x, position.y, position.z));
+    this.__updateGroundContact(position);
   }
 
   get isGrounded(): boolean {
@@ -190,8 +222,15 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     return this.__computedMovement;
   }
 
+  get groundContact(): CharacterGroundContact | undefined {
+    return this.__groundContact;
+  }
+
   set enabled(value: boolean) {
     this.__enabled = value;
+    if (!value) {
+      this.__groundContact = undefined;
+    }
   }
 
   get enabled(): boolean {
@@ -212,6 +251,40 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     this.__collider = undefined;
     this.__rigidBody = undefined;
     this.__entity = undefined;
+    this.__groundContact = undefined;
+  }
+
+  private __updateGroundContact(position: RapierVector3Like): void {
+    if (this.__entity == null) {
+      this.__groundContact = undefined;
+      return;
+    }
+    const capsuleBottom = Vector3.add(
+      Vector3.fromCopy3(position.x, position.y, position.z),
+      this.__capsuleBottomOffset
+    );
+    const start = Vector3.add(capsuleBottom, Vector3.fromCopy3(0, this.__options.groundProbeStartOffset, 0));
+    const hit = this.__worldQuery.castRay(start, Vector3.fromCopy3(0, -1, 0), this.__options.groundProbeDistance, {
+      includeSensors: false,
+      collisionGroup: this.__options.groundCollisionGroup,
+      collisionMask: this.__options.groundCollisionMask,
+      excludeEntities: [this.__entity],
+    });
+    if (hit == null) {
+      this.__groundContact = undefined;
+      return;
+    }
+    const normal = Vector3.normalize(hit.normal);
+    const slopeAngle = Math.acos(Math.min(1, Math.max(-1, normal.y)));
+    this.__groundContact = {
+      entity: hit.entity,
+      bindingId: hit.bindingId,
+      position: hit.position,
+      normal,
+      distance: hit.distance,
+      slopeAngle,
+      isWalkable: slopeAngle <= this.__options.maxSlopeClimbAngle,
+    };
   }
 
   private __validateOptions(options: ResolvedOptions): void {
@@ -223,6 +296,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
       options.gravity,
       options.jumpSpeed,
       options.maxDeltaTime,
+      options.groundProbeDistance,
     ];
     if (positiveValues.some(value => !Number.isFinite(value) || value <= 0)) {
       throw new Error('Character controller dimensions and movement settings must be finite positive values.');
@@ -230,5 +304,9 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     if (!Number.isFinite(options.maxSlopeClimbAngle) || !Number.isFinite(options.minSlopeSlideAngle)) {
       throw new Error('Character controller slope angles must be finite values.');
     }
+    if (!Number.isFinite(options.groundProbeStartOffset) || options.groundProbeStartOffset < 0) {
+      throw new Error('Character controller groundProbeStartOffset must be a finite non-negative value.');
+    }
+    RapierPhysicsStrategy._packCollisionGroups(options.groundCollisionGroup, options.groundCollisionMask);
   }
 }
