@@ -132,6 +132,17 @@ describe('ShapeComponent', async () => {
       teleport: () => {},
       isGrounded: false,
       computedMovement: Rn.Vector3.zero(),
+      isRecovering: false,
+      motionState: {
+        state: 'falling',
+        velocity: Rn.Vector3.zero(),
+        horizontalSpeed: 0,
+        verticalSpeed: 0,
+        groundedDuration: 0,
+        airborneDuration: 0,
+        stateElapsedTime: 0,
+        landingImpactSpeed: 0,
+      },
       enabled: true,
       destroy: () => {},
     };
@@ -146,6 +157,53 @@ describe('ShapeComponent', async () => {
     });
     expect(entity.getShape().getShape(0)?.localPosition.y).toBeCloseTo(0.8);
     expect(receivedShape).toBe(entity.getShape().getShape(0));
+  });
+
+  test('CharacterController publishes state changes and landing once', () => {
+    const entity = Rn.createCharacterControllerEntity(engine);
+    const falling = {
+      state: 'falling' as const,
+      velocity: Rn.Vector3.zero(),
+      horizontalSpeed: 0,
+      verticalSpeed: -1,
+      groundedDuration: 0,
+      airborneDuration: 0.1,
+      stateElapsedTime: 0.1,
+      landingImpactSpeed: 0,
+    };
+    const strategy = {
+      setup: () => {},
+      setDesiredHorizontalVelocity: () => {},
+      requestJump: () => {},
+      teleport: () => {},
+      isGrounded: false,
+      computedMovement: Rn.Vector3.zero(),
+      groundContact: undefined,
+      isRecovering: false,
+      motionState: falling as Rn.CharacterMotionState,
+      enabled: true,
+      destroy: () => {},
+    };
+    const component = entity.getCharacterController();
+    component.setup(strategy, { radius: 0.3, height: 1.6 });
+    const states: string[] = [];
+    const impacts: number[] = [];
+    component.subscribe('stateChanged', event => states.push(`${event.previous.state}>${event.current.state}`));
+    component.subscribe('landed', event => impacts.push(event.impactSpeed));
+
+    strategy.motionState = {
+      ...falling,
+      state: 'landing',
+      verticalSpeed: 0,
+      landingImpactSpeed: 3.5,
+    };
+    component.$logic();
+    component.$logic();
+    strategy.motionState = { ...strategy.motionState, state: 'grounded' };
+    component.$logic();
+
+    expect(states).toEqual(['falling>landing', 'landing>grounded']);
+    expect(impacts).toEqual([3.5]);
   });
 
   test('CharacterController rejects an explicitly selected non-capsule shape', () => {

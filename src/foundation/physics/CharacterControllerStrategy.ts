@@ -13,6 +13,20 @@ export interface CharacterGroundContact {
   isWalkable: boolean;
 }
 
+export type CharacterMovementState = 'grounded' | 'rising' | 'falling' | 'landing' | 'sliding' | 'recovering';
+
+export interface CharacterMotionState {
+  state: CharacterMovementState;
+  velocity: IVector3;
+  horizontalSpeed: number;
+  verticalSpeed: number;
+  groundedDuration: number;
+  airborneDuration: number;
+  stateElapsedTime: number;
+  landingImpactSpeed: number;
+  groundContact?: CharacterGroundContact;
+}
+
 export interface CharacterControllerOptions {
   /** Index of the capsule in the entity's ShapeComponent. */
   shapeIndex?: number;
@@ -50,6 +64,7 @@ export interface CharacterControllerStrategy {
   readonly computedMovement: IVector3;
   readonly groundContact: CharacterGroundContact | undefined;
   readonly isRecovering: boolean;
+  readonly motionState: CharacterMotionState;
   enabled: boolean;
   destroy(): void;
 }

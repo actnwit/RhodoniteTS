@@ -66,6 +66,7 @@ class FakeCharacterController implements RapierCharacterControllerLike {
   applyImpulses?: boolean;
   normalNudgeFactor?: number;
   forceAirborneStuck = false;
+  forceAirborne = false;
   enableAutostep(maxHeight: number, minWidth: number, includeDynamicBodies: boolean) {
     this.autostep = [maxHeight, minWidth, includeDynamicBodies];
   }
@@ -88,6 +89,11 @@ class FakeCharacterController implements RapierCharacterControllerLike {
     if (this.forceAirborneStuck && desired.y < 0) {
       this.grounded = false;
       this.movement = { x: 0, y: 0, z: 0 };
+      return;
+    }
+    if (this.forceAirborne) {
+      this.grounded = false;
+      this.movement = { ...desired };
       return;
     }
     this.grounded = desired.y <= 0;
@@ -247,6 +253,15 @@ test('moves once per frame, reports grounding, and synchronizes the entity', asy
   expect(strategy.isGrounded).toBe(true);
   expect(state.position.x).toBeCloseTo(1);
   expect(state.position.z).toBeCloseTo(-0.5);
+  expect(strategy.motionState.state).toBe('landing');
+  expect(strategy.motionState.horizontalSpeed).toBeCloseTo(Math.hypot(2, 1));
+  expect(strategy.motionState.groundedDuration).toBeCloseTo(0.5);
+  expect(strategy.motionState.landingImpactSpeed).toBeCloseTo(4.9);
+
+  RapierPhysicsStrategy.update(2, 0.5);
+  expect(strategy.motionState.state).toBe('grounded');
+  expect(strategy.motionState.groundedDuration).toBeCloseTo(1);
+  expect(strategy.motionState.landingImpactSpeed).toBeCloseTo(4.9);
 });
 
 test('jumps only after grounding and releases Rapier resources', async () => {
@@ -260,9 +275,20 @@ test('jumps only after grounding and releases Rapier resources', async () => {
   RapierPhysicsStrategy.update(2, 0.1);
   expect(state.position.y).toBeCloseTo(0.4);
   expect(strategy.isGrounded).toBe(false);
+  expect(strategy.motionState.state).toBe('rising');
+  expect(strategy.motionState.verticalSpeed).toBeCloseTo(4);
+  expect(strategy.motionState.airborneDuration).toBeCloseTo(0.1);
 
   strategy.teleport(Vector3.fromCopy3(3, 2, 1));
   expect(state.position.isEqual(Vector3.fromCopy3(3, 2, 1))).toBe(true);
+  expect(strategy.motionState).toMatchObject({
+    state: 'falling',
+    horizontalSpeed: 0,
+    verticalSpeed: 0,
+    groundedDuration: 0,
+    airborneDuration: 0,
+    landingImpactSpeed: 0,
+  });
   strategy.destroy();
   expect(world.removedControllers).toBe(1);
   expect(world.removedBodies).toBe(1);
@@ -320,7 +346,25 @@ test('nudges the character away after consecutive airborne downward movement is 
   expect(strategy.groundContact).toBeDefined();
   RapierPhysicsStrategy.update(2, 0.1);
   expect(strategy.isRecovering).toBe(true);
+  expect(strategy.motionState.state).toBe('recovering');
   expect(strategy.isGrounded).toBe(false);
   expect(strategy.computedMovement.x).toBeCloseTo(0.02);
   expect(state.position.x).toBeCloseTo(0.02);
+});
+
+test('reports sliding while descending above a non-walkable contact', async () => {
+  await RapierPhysicsStrategy.initialize(fakeRapier());
+  const { entity: characterEntity } = fakeEntity();
+  const { entity: slopeEntity } = fakeEntity();
+  const strategy = new RapierCharacterControllerStrategy();
+  strategy.setup(characterEntity, capsuleShape(), { maxSlopeClimbAngle: Math.PI / 4 });
+  const slopeCollider = world.createCollider(new FakeColliderDesc(0, 0));
+  RapierPhysicsStrategy._registerExternalCollider(slopeCollider, slopeEntity);
+  world.controller!.forceAirborne = true;
+  world.rayHitNormal = { x: Math.sqrt(0.75), y: 0.5, z: 0 };
+
+  RapierPhysicsStrategy.update(1, 0.1);
+
+  expect(strategy.motionState.state).toBe('sliding');
+  expect(strategy.motionState.groundContact?.isWalkable).toBe(false);
 });

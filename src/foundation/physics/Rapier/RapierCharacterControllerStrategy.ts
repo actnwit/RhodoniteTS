@@ -6,6 +6,8 @@ import type {
   CharacterControllerOptions,
   CharacterControllerStrategy,
   CharacterGroundContact,
+  CharacterMotionState,
+  CharacterMovementState,
 } from '../CharacterControllerStrategy';
 import { PhysicsWorldQuery } from '../PhysicsWorldQuery';
 import {
@@ -42,6 +44,17 @@ const defaultOptions: ResolvedOptions = {
   stuckRecoveryDistance: 0.01,
 };
 
+const initialMotionState: CharacterMotionState = {
+  state: 'falling',
+  velocity: Vector3.zero(),
+  horizontalSpeed: 0,
+  verticalSpeed: 0,
+  groundedDuration: 0,
+  airborneDuration: 0,
+  stateElapsedTime: 0,
+  landingImpactSpeed: 0,
+};
+
 /** Rapier-backed kinematic capsule character controller. */
 export class RapierCharacterControllerStrategy implements CharacterControllerStrategy, RapierStepParticipant {
   private __entity?: ISceneGraphEntity;
@@ -60,6 +73,11 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
   private readonly __worldQuery = new PhysicsWorldQuery(new RapierPhysicsWorldQueryStrategy());
   private __stuckFrameCount = 0;
   private __isRecovering = false;
+  private __motionState: CharacterMotionState = initialMotionState;
+  private __lastStepDeltaTime = 0;
+  private __wasGrounded = false;
+  private __stateVerticalVelocity = 0;
+  private __landingImpactSpeed = 0;
 
   setup(entity: ISceneGraphEntity, shapeInstance: ShapeInstance, options: CharacterControllerOptions = {}): void {
     if (this.__rigidBody != null) {
@@ -181,6 +199,11 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     this.__groundContact = undefined;
     this.__stuckFrameCount = 0;
     this.__isRecovering = false;
+    this.__motionState = initialMotionState;
+    this.__lastStepDeltaTime = 0;
+    this.__wasGrounded = false;
+    this.__stateVerticalVelocity = 0;
+    this.__landingImpactSpeed = 0;
   }
 
   preStep(deltaTime: number): void {
@@ -190,6 +213,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
 
     this.__isRecovering = false;
     const dt = Math.min(Math.max(deltaTime, 0), this.__options.maxDeltaTime);
+    this.__lastStepDeltaTime = dt;
     if (this.__jumpRequested && this.__isGrounded) {
       this.__verticalVelocity = this.__options.jumpSpeed;
       this.__isGrounded = false;
@@ -231,7 +255,11 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
       this.__stuckFrameCount = 0;
     }
     this.__computedMovement.setComponents(movement.x, movement.y, movement.z);
+    this.__stateVerticalVelocity = this.__verticalVelocity;
     if (this.__isGrounded && this.__verticalVelocity < 0) {
+      if (!this.__wasGrounded) {
+        this.__landingImpactSpeed = -this.__verticalVelocity;
+      }
       this.__verticalVelocity = 0;
     }
 
@@ -254,6 +282,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     const position = this.__rigidBody.translation();
     this.__entity.getSceneGraph().setPositionWithoutPhysics(Vector3.fromCopy3(position.x, position.y, position.z));
     this.__updateGroundContact(position);
+    this.__updateMotionState();
   }
 
   get isGrounded(): boolean {
@@ -270,6 +299,10 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
 
   get isRecovering(): boolean {
     return this.__isRecovering;
+  }
+
+  get motionState(): CharacterMotionState {
+    return this.__motionState;
   }
 
   set enabled(value: boolean) {
@@ -302,6 +335,54 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     this.__groundContact = undefined;
     this.__stuckFrameCount = 0;
     this.__isRecovering = false;
+    this.__motionState = initialMotionState;
+    this.__lastStepDeltaTime = 0;
+    this.__wasGrounded = false;
+    this.__stateVerticalVelocity = 0;
+    this.__landingImpactSpeed = 0;
+  }
+
+  private __updateMotionState(): void {
+    const dt = this.__lastStepDeltaTime;
+    const velocity =
+      dt > 0
+        ? Vector3.fromCopy3(
+            this.__computedMovement.x / dt,
+            this.__computedMovement.y / dt,
+            this.__computedMovement.z / dt
+          )
+        : Vector3.zero();
+    const state = this.__resolveMovementState();
+    const previous = this.__motionState;
+    const isGroundedNow = this.__isGrounded;
+    this.__motionState = {
+      state,
+      velocity,
+      horizontalSpeed: Math.hypot(velocity.x, velocity.z),
+      verticalSpeed: velocity.y,
+      groundedDuration: isGroundedNow ? previous.groundedDuration + dt : 0,
+      airborneDuration: isGroundedNow ? 0 : previous.airborneDuration + dt,
+      stateElapsedTime: state === previous.state ? previous.stateElapsedTime + dt : dt,
+      landingImpactSpeed: this.__landingImpactSpeed,
+      groundContact: this.__groundContact,
+    };
+    this.__wasGrounded = isGroundedNow;
+  }
+
+  private __resolveMovementState(): CharacterMovementState {
+    if (this.__isRecovering) {
+      return 'recovering';
+    }
+    if (!this.__wasGrounded && this.__isGrounded) {
+      return 'landing';
+    }
+    if (this.__isGrounded) {
+      return 'grounded';
+    }
+    if (this.__groundContact != null && !this.__groundContact.isWalkable && this.__stateVerticalVelocity <= 0) {
+      return 'sliding';
+    }
+    return this.__stateVerticalVelocity > 0.000001 ? 'rising' : 'falling';
   }
 
   private __getCollisionNormals(): RapierVector3Like[] {

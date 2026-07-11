@@ -63,6 +63,9 @@ const recordTriggerEvent = (type: string) => {
   triggerEvent = type;
   if (triggerEventHistory.at(-1) !== type) {
     triggerEventHistory.push(type);
+    if (triggerEventHistory.length > 8) {
+      triggerEventHistory.shift();
+    }
   }
 };
 checkpointTrigger.subscribe('enter', () => {
@@ -73,6 +76,19 @@ checkpointTrigger.subscribe('stay', () => {
 });
 checkpointTrigger.subscribe('exit', () => {
   recordTriggerEvent('exit');
+});
+const motionEventHistory: string[] = [];
+const recordMotionEvent = (event: string) => {
+  motionEventHistory.push(event);
+  if (motionEventHistory.length > 8) {
+    motionEventHistory.shift();
+  }
+};
+characterController.subscribe('stateChanged', event => {
+  recordMotionEvent(event.current.state);
+});
+characterController.subscribe('landed', event => {
+  recordMotionEvent(`landed:${event.impactSpeed.toFixed(1)}`);
 });
 
 const material = Rn.MaterialHelper.createClassicUberMaterial(engine);
@@ -222,7 +238,8 @@ engine.startRenderLoop(() => {
     groundContact == null
       ? 'none'
       : `entity ${groundContact.entity.entityUID}, ${groundContact.distance.toFixed(2)}m, ${Rn.MathUtil.radianToDegree(groundContact.slopeAngle).toFixed(1)}deg, ${groundContact.isWalkable ? 'walkable' : 'steep'}`;
-  status.textContent = `Grounded: ${characterController.isGrounded ? 'yes' : 'no'} | Recovery: ${characterController.isRecovering ? 'yes' : 'no'} | Trigger: ${triggerEvent} (${checkpointTrigger.activeOverlapCount}) [${triggerEventHistory.join('>')}] | Ground: ${groundStatus} | Position: ${position.x.toFixed(
+  const motionState = characterController.motionState;
+  status.textContent = `State: ${motionState.state} | Speed: ${motionState.horizontalSpeed.toFixed(2)}, ${motionState.verticalSpeed.toFixed(2)} | Air/Ground: ${motionState.airborneDuration.toFixed(2)}/${motionState.groundedDuration.toFixed(2)}s | Impact: ${motionState.landingImpactSpeed.toFixed(2)} | Events: [${motionEventHistory.join('>')}] | Trigger: ${triggerEvent} (${checkpointTrigger.activeOverlapCount}) [${triggerEventHistory.join('>')}] | Ground: ${groundStatus} | Position: ${position.x.toFixed(
     2
   )}, ${position.y.toFixed(2)}, ${position.z.toFixed(2)}`;
 });
