@@ -6,6 +6,12 @@ import type { IVector3 } from '../math/IVector';
 import type { PhysicsBodyProperty, PhysicsColliderProperty } from './PhysicsProperty';
 import type { VRMSpring } from './VRMSpring/VRMSpring';
 
+export type PhysicsShapeInstanceBinding = {
+  shape: ShapeInstance;
+  body: PhysicsBodyProperty;
+  collider: PhysicsColliderProperty;
+};
+
 export interface PhysicsStrategy {
   update(config: Config): void;
 
@@ -17,6 +23,16 @@ export interface PhysicsStrategy {
     entity: ISceneGraphEntity,
     worldScale?: IVector3
   ): void;
+
+  /** Replaces the complete collider set attached to one physical body. */
+  setShapeInstances?(
+    bindings: readonly PhysicsShapeInstanceBinding[],
+    entity: ISceneGraphEntity,
+    worldScale?: IVector3
+  ): void;
+
+  /** Removes the body and all generic analytic-shape colliders. */
+  clearShapeInstances?(): void;
 
   /**
    * Sets the world position of the physics body.

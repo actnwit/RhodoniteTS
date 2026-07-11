@@ -175,6 +175,15 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     this.__body = OimoPhysicsStrategy.__world.add(this.__property);
   }
 
+  clearShapeInstances(): void {
+    this.__body?.remove();
+    this.__body = undefined;
+    this.__entity = undefined;
+    this.__property = undefined;
+    this.__usesShapeInstance = false;
+    this.__shapeType = undefined;
+  }
+
   /**
    * Updates the associated entity's transform based on the physics body's current state.
    * This method should be called each frame to synchronize the visual representation

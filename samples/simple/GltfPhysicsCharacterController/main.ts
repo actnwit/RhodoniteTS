@@ -97,6 +97,50 @@ const capsuleVisual = Rn.MeshHelper.createCapsule(engine, {
 capsuleVisual.position = Rn.Vector3.fromCopy3(-3, 0.8, 1);
 renderPass.addEntities([capsuleVisual]);
 
+const gateBase = Rn.createGroupEntity(engine);
+const gateWithShape = engine.entityRepository.addComponentToEntity(Rn.ShapeComponent, gateBase);
+const gateEntity = engine.entityRepository.addComponentToEntity(Rn.PhysicsComponent, gateWithShape);
+gateEntity.position = Rn.Vector3.fromCopy3(0, 1.2, -3.5);
+const gateShape = gateEntity.getShape();
+const gateParts = [
+  { size: Rn.Vector3.fromCopy3(0.3, 2, 0.4), position: Rn.Vector3.fromCopy3(-0.9, 1, 0) },
+  { size: Rn.Vector3.fromCopy3(0.3, 2, 0.4), position: Rn.Vector3.fromCopy3(0.9, 1, 0) },
+  { size: Rn.Vector3.fromCopy3(2.1, 0.2, 0.4), position: Rn.Vector3.fromCopy3(0, 2.1, 0) },
+];
+const gateShapeIndices = gateParts.map(part =>
+  gateShape.addShape({ type: 'box', size: part.size }, { position: part.position })
+);
+const gatePhysics = gateEntity.getPhysics();
+gatePhysics.setStrategy(new Rn.RapierPhysicsStrategy());
+const gateBindingIds = gateShapeIndices.map(shapeIndex =>
+  gatePhysics.bindShape({
+    shapeComponent: gateShape,
+    shapeIndex,
+    body: { move: false, density: 1 },
+    collider: { friction: 0.6, restitution: 0 },
+  })
+);
+gatePhysics.updateShapeBinding(gateBindingIds[2], {
+  shapeComponent: gateShape,
+  shapeIndex: gateShapeIndices[2],
+  body: { move: false, density: 1 },
+  collider: { friction: 0.7, restitution: 0 },
+});
+gatePhysics.rebuildShapeBindings();
+
+for (const part of gateParts) {
+  const visual = Rn.MeshHelper.createCube(engine, {
+    widthVector: part.size,
+    color: Rn.ColorRgba.fromCopy4(0.35, 0.7, 0.8, 1),
+    material,
+  });
+  visual.localPosition = part.position;
+  gateEntity.addChild(visual.getSceneGraph());
+}
+gateShape.isShapeGizmoVisible = true;
+gizmoRenderPass.addEntities([gateShape.shapeGizmo!.topEntity!]);
+renderPass.addEntities([gateEntity]);
+
 const light = Rn.createLightEntity(engine);
 light.getLight().type = Rn.LightType.Directional;
 light.getLight().intensity = 1.2;

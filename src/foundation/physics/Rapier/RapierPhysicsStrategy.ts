@@ -5,7 +5,7 @@ import type { ISceneGraphEntity } from '../../helpers';
 import { type IQuaternion, type IVector3, Matrix44, Quaternion, Vector3 } from '../../math';
 import { Logger } from '../../misc/Logger';
 import type { PhysicsBodyProperty, PhysicsColliderProperty, PhysicsPropertyInner } from '../PhysicsProperty';
-import type { PhysicsStrategy } from '../PhysicsStrategy';
+import type { PhysicsShapeInstanceBinding, PhysicsStrategy } from '../PhysicsStrategy';
 import type { PhysicsWorldProperty } from '../PhysicsWorldProperty';
 
 export type RapierVector3Like = {
@@ -110,13 +110,13 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
   private static __lastFrameId?: number;
 
   private __rigidBody?: RapierRigidBodyLike;
-  private __collider?: RapierColliderLike;
+  private __colliders: RapierColliderLike[] = [];
   private __entity?: ISceneGraphEntity;
   private __property?: StoredPhysicsProperty;
   private __localScale: IVector3 = Vector3.one();
   private __shapeLocalPosition: IVector3 = Vector3.zero();
   private __shapeLocalRotation: IQuaternion = Quaternion.identity();
-  private __shapeInstance?: ShapeInstance;
+  private __shapeBindings?: PhysicsShapeInstanceBinding[];
   private __shapeWorldScale: IVector3 = Vector3.one();
   private __warnedAsymmetricRadius = false;
   private __warnedNonUniformScale = false;
@@ -163,7 +163,8 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
    * @param entity - Scene graph entity associated with the physics body
    */
   setShape(prop: PhysicsPropertyInner, entity: ISceneGraphEntity, worldScale: IVector3 = Vector3.one()): void {
-    this.__shapeInstance = undefined;
+    this.__removeBody();
+    this.__shapeBindings = undefined;
     this.__shapeLocalPosition = Vector3.zero();
     this.__shapeLocalRotation = Quaternion.identity();
     this.__setShape(prop, entity, worldScale);
@@ -176,32 +177,57 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     entity: ISceneGraphEntity,
     worldScale: IVector3 = Vector3.one()
   ): void {
-    this.__shapeInstance = shape;
+    this.setShapeInstances([{ shape, body, collider }], entity, worldScale);
+  }
+
+  setShapeInstances(
+    bindings: readonly PhysicsShapeInstanceBinding[],
+    entity: ISceneGraphEntity,
+    worldScale: IVector3 = Vector3.one()
+  ): void {
+    if (bindings.length === 0) {
+      this.clearShapeInstances();
+      return;
+    }
+    const move = bindings[0].body.move;
+    if (bindings.some(binding => binding.body.move !== move)) {
+      throw new Error('All Rapier colliders on one rigid body must use the same body.move value.');
+    }
+    const scale = Vector3.fromCopy3(Math.abs(worldScale.x), Math.abs(worldScale.y), Math.abs(worldScale.z));
+    for (const binding of bindings) {
+      RapierPhysicsStrategy.__validateShapeSupport(binding.shape, scale);
+    }
+    this.__shapeBindings = bindings.map(binding => ({
+      shape: binding.shape,
+      body: { ...binding.body },
+      collider: { ...binding.collider },
+    }));
     this.__shapeWorldScale = Vector3.fromCopy3(Math.abs(worldScale.x), Math.abs(worldScale.y), Math.abs(worldScale.z));
     this.__warnedAsymmetricRadius = false;
     this.__warnedNonUniformScale = false;
-    this.__shapeLocalPosition = Vector3.fromCopy3(shape.localPosition.x, shape.localPosition.y, shape.localPosition.z);
-    this.__shapeLocalRotation = Quaternion.fromCopy4(
-      shape.localRotation.x,
-      shape.localRotation.y,
-      shape.localRotation.z,
-      shape.localRotation.w
-    );
-    const size = shape.shape.type === 'box' ? shape.shape.size : Vector3.one();
+    const first = bindings[0];
+    const size = first.shape.shape.type === 'box' ? first.shape.shape.size : Vector3.one();
+    this.__removeBody();
     this.__setShape(
       {
-        type: shape.shape.type === 'box' ? PhysicsShape.Box : PhysicsShape.Sphere,
+        type: first.shape.shape.type === 'box' ? PhysicsShape.Box : PhysicsShape.Sphere,
         size,
         position: entity.getSceneGraph().position,
         rotation: entity.getSceneGraph().eulerAngles,
-        move: body.move,
-        density: body.density,
-        friction: collider.friction,
-        restitution: collider.restitution,
+        move: first.body.move,
+        density: first.body.density,
+        friction: first.collider.friction,
+        restitution: first.collider.restitution,
       },
       entity,
       worldScale
     );
+  }
+
+  clearShapeInstances(): void {
+    this.__removeBody();
+    this.__shapeBindings = undefined;
+    this.__property = undefined;
   }
 
   private __setShape(prop: PhysicsPropertyInner, entity: ISceneGraphEntity, worldScale: IVector3): void {
@@ -219,7 +245,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     };
 
     if (
-      this.__shapeInstance != null &&
+      this.__shapeBindings != null &&
       (this.__shapeWorldScale.x === 0 || this.__shapeWorldScale.y === 0 || this.__shapeWorldScale.z === 0)
     ) {
       return;
@@ -307,12 +333,12 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
 
     this.__removeBody();
     if (
-      this.__shapeInstance != null &&
+      this.__shapeBindings != null &&
       (this.__shapeWorldScale.x === 0 || this.__shapeWorldScale.y === 0 || this.__shapeWorldScale.z === 0)
     ) {
       return;
     }
-    if (this.__shapeInstance == null && !this.__isValidSize(this.__property, scaledSize)) {
+    if (this.__shapeBindings == null && !this.__isValidSize(this.__property, scaledSize)) {
       return;
     }
     this.__createBody(
@@ -392,11 +418,14 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       .setRotation(RapierPhysicsStrategy.__toRapierQuaternion(rotation));
 
     this.__rigidBody = world.createRigidBody(rigidBodyDesc);
-    const colliderDesc =
-      this.__shapeInstance != null
-        ? this.__createShapeInstanceColliderDesc(this.__shapeInstance)
-        : this.__createColliderDesc(prop, size);
-    this.__collider = world.createCollider(colliderDesc, this.__rigidBody);
+    if (this.__shapeBindings != null) {
+      for (const binding of this.__shapeBindings) {
+        const colliderDesc = this.__createShapeInstanceColliderDesc(binding);
+        this.__colliders.push(world.createCollider(colliderDesc, this.__rigidBody));
+      }
+    } else {
+      this.__colliders.push(world.createCollider(this.__createColliderDesc(prop, size), this.__rigidBody));
+    }
   }
 
   private __createColliderDesc(prop: StoredPhysicsProperty, size: IVector3): RapierColliderDescLike {
@@ -425,8 +454,9 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     return colliderDesc;
   }
 
-  private __createShapeInstanceColliderDesc(shapeInstance: ShapeInstance): RapierColliderDescLike {
+  private __createShapeInstanceColliderDesc(binding: PhysicsShapeInstanceBinding): RapierColliderDescLike {
     const rapier = RapierPhysicsStrategy.__getRapier();
+    const shapeInstance = binding.shape;
     const shape = shapeInstance.shape;
     const scale = this.__shapeWorldScale;
     let colliderDesc: RapierColliderDescLike;
@@ -460,10 +490,9 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       );
     }
 
-    const property = this.__property!;
-    colliderDesc = colliderDesc.setDensity?.(property.density) ?? colliderDesc;
-    colliderDesc = colliderDesc.setFriction?.(property.friction) ?? colliderDesc;
-    colliderDesc = colliderDesc.setRestitution?.(property.restitution) ?? colliderDesc;
+    colliderDesc = colliderDesc.setDensity?.(binding.body.density) ?? colliderDesc;
+    colliderDesc = colliderDesc.setFriction?.(binding.collider.friction) ?? colliderDesc;
+    colliderDesc = colliderDesc.setRestitution?.(binding.collider.restitution) ?? colliderDesc;
     colliderDesc =
       colliderDesc.setTranslation?.(
         shapeInstance.localPosition.x * scale.x,
@@ -508,7 +537,21 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
 
     world.removeRigidBody(this.__rigidBody);
     this.__rigidBody = undefined;
-    this.__collider = undefined;
+    this.__colliders.length = 0;
+  }
+
+  private static __validateShapeSupport(shapeInstance: ShapeInstance, scale: IVector3): void {
+    if (scale.x === 0 || scale.y === 0 || scale.z === 0) {
+      return;
+    }
+    const shape = shapeInstance.shape;
+    const rapier = RapierPhysicsStrategy.__getRapier();
+    if (shape.type === 'cylinder' && rapier.ColliderDesc.cylinder == null) {
+      throw new Error('The injected Rapier module does not support cylinder colliders.');
+    }
+    if (shape.type === 'capsule' && rapier.ColliderDesc.capsule == null) {
+      throw new Error('The injected Rapier module does not support capsule colliders.');
+    }
   }
 
   private static __assertInitialized(): void {

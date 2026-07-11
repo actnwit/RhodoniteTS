@@ -301,3 +301,64 @@ test('RapierPhysicsStrategy converts cylinder and capsule shapes conservatively'
   expect(lastWorld?.colliders[1]?.size[0]).toBeCloseTo(1.5);
   expect(lastWorld?.colliders[1]?.size[1]).toBeCloseTo(1.2);
 });
+
+test('RapierPhysicsStrategy creates one body with multiple colliders and rebuilds them together', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const strategy = new RapierPhysicsStrategy();
+  const { entity } = createSceneGraphEntity();
+  const bindings = [
+    {
+      shape: {
+        shape: { type: 'box' as const, size: Vector3.fromCopy3(2, 4, 6) },
+        localPosition: Vector3.fromCopy3(1, 2, 3),
+        localRotation: Quaternion.identity(),
+      },
+      body: { move: false, density: 1 },
+      collider: { friction: 0.2, restitution: 0.1 },
+    },
+    {
+      shape: {
+        shape: { type: 'sphere' as const, radius: 0.5 },
+        localPosition: Vector3.fromCopy3(-1, 0, 0),
+        localRotation: Quaternion.identity(),
+      },
+      body: { move: false, density: 2 },
+      collider: { friction: 0.4, restitution: 0.3 },
+    },
+    {
+      shape: {
+        shape: { type: 'capsule' as const, height: 1, radiusBottom: 0.25, radiusTop: 0.25 },
+        localPosition: Vector3.zero(),
+        localRotation: Quaternion.identity(),
+      },
+      body: { move: false, density: 3 },
+      collider: { friction: 0.6, restitution: 0.5 },
+    },
+  ];
+
+  strategy.setShapeInstances(bindings, entity);
+  const world = lastWorld!;
+  expect(world.bodies).toHaveLength(1);
+  expect(world.colliders).toHaveLength(3);
+  expect(world.colliders.map(collider => collider.density)).toEqual([1, 2, 3]);
+  expect(world.colliders.map(collider => collider.friction)).toEqual([0.2, 0.4, 0.6]);
+  expect(world.colliders[0].translation).toEqual({ x: 1, y: 2, z: 3 });
+
+  strategy.setScale(Vector3.fromCopy3(2, 3, 4));
+  expect(world.removedBodies).toBe(1);
+  expect(world.bodies).toHaveLength(1);
+  expect(world.colliders).toHaveLength(6);
+  expect(world.colliders[3].size).toEqual([2, 6, 12]);
+  expect(world.colliders[3].translation).toEqual({ x: 2, y: 6, z: 12 });
+
+  const bodyBeforeInvalidUpdate = world.bodies[0];
+  expect(() =>
+    strategy.setShapeInstances([bindings[0], { ...bindings[1], body: { ...bindings[1].body, move: true } }], entity)
+  ).toThrow('same body.move');
+  expect(world.bodies[0]).toBe(bodyBeforeInvalidUpdate);
+  expect(world.removedBodies).toBe(1);
+
+  strategy.clearShapeInstances();
+  expect(world.bodies).toHaveLength(0);
+  expect(world.removedBodies).toBe(2);
+});

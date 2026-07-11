@@ -7,7 +7,7 @@ import { Is } from '../../misc/Is';
 import { Time } from '../../misc/Time';
 import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
 import type { PhysicsBodyProperty, PhysicsColliderProperty } from '../../physics/PhysicsProperty';
-import type { PhysicsStrategy } from '../../physics/PhysicsStrategy';
+import type { PhysicsShapeInstanceBinding, PhysicsStrategy } from '../../physics/PhysicsStrategy';
 import { RapierPhysicsStrategy } from '../../physics/Rapier/RapierPhysicsStrategy';
 import { VRMSpringBonePhysicsStrategy } from '../../physics/VRMSpring/VRMSpringBonePhysicsStrategy';
 import type { Engine } from '../../system/Engine';
@@ -30,7 +30,8 @@ export type PhysicsShapeBinding = {
  */
 export class PhysicsComponent extends Component {
   private __strategy?: PhysicsStrategy;
-  private __hasShapeBinding = false;
+  private __shapeBindings = new Map<number, PhysicsShapeBinding>();
+  private __nextShapeBindingId = 0;
 
   /**
    * Creates a new PhysicsComponent instance.
@@ -85,21 +86,96 @@ export class PhysicsComponent extends Component {
     return this.__strategy;
   }
 
-  /** Binds one generic ShapeComponent instance to this physical body. */
-  bindShape(binding: PhysicsShapeBinding): void {
-    if (this.__hasShapeBinding) {
-      throw new Error('PhysicsComponent currently supports only one shape binding.');
+  /** Adds one generic ShapeComponent instance to this physical body. */
+  bindShape(binding: PhysicsShapeBinding): number {
+    const id = this.__nextShapeBindingId;
+    const next = new Map(this.__shapeBindings);
+    next.set(id, PhysicsComponent.__copyBinding(binding));
+    this.__applyShapeBindings(next);
+    this.__shapeBindings = next;
+    this.__nextShapeBindingId++;
+    return id;
+  }
+
+  updateShapeBinding(bindingId: number, binding: PhysicsShapeBinding): void {
+    if (!this.__shapeBindings.has(bindingId)) {
+      throw new Error(`Physics shape binding ${bindingId} does not exist.`);
     }
-    if (this.__strategy?.setShapeInstance == null) {
-      throw new Error('The current physics strategy does not support ShapeComponent bindings.');
+    const next = new Map(this.__shapeBindings);
+    next.set(bindingId, PhysicsComponent.__copyBinding(binding));
+    this.__applyShapeBindings(next);
+    this.__shapeBindings = next;
+  }
+
+  removeShapeBinding(bindingId: number): boolean {
+    if (!this.__shapeBindings.has(bindingId)) {
+      return false;
     }
-    const shape = binding.shapeComponent.getShape(binding.shapeIndex ?? 0);
-    if (shape == null) {
-      throw new Error(`ShapeComponent does not contain shape index ${binding.shapeIndex ?? 0}.`);
+    const next = new Map(this.__shapeBindings);
+    next.delete(bindingId);
+    this.__applyShapeBindings(next);
+    this.__shapeBindings = next;
+    return true;
+  }
+
+  clearShapeBindings(): void {
+    if (this.__shapeBindings.size === 0) {
+      return;
+    }
+    this.__applyShapeBindings(new Map());
+    this.__shapeBindings.clear();
+  }
+
+  rebuildShapeBindings(): void {
+    this.__applyShapeBindings(this.__shapeBindings);
+  }
+
+  get shapeBindingCount(): number {
+    return this.__shapeBindings.size;
+  }
+
+  private __applyShapeBindings(bindings: ReadonlyMap<number, PhysicsShapeBinding>): void {
+    const strategy = this.__strategy;
+    if (strategy == null) {
+      throw new Error('A physics strategy must be set before binding shapes.');
+    }
+    const resolved: PhysicsShapeInstanceBinding[] = [];
+    let move: boolean | undefined;
+    for (const binding of bindings.values()) {
+      const shapeIndex = binding.shapeIndex ?? 0;
+      const shape = binding.shapeComponent.getShape(shapeIndex);
+      if (shape == null) {
+        throw new Error(`ShapeComponent does not contain shape index ${shapeIndex}.`);
+      }
+      if (move != null && move !== binding.body.move) {
+        throw new Error('All shape bindings on one PhysicsComponent must use the same body.move value.');
+      }
+      move = binding.body.move;
+      resolved.push({ shape, body: { ...binding.body }, collider: { ...binding.collider } });
     }
     const entity = this.entity as import('../../helpers/EntityHelper').ISceneGraphEntity;
-    this.__strategy.setShapeInstance(shape, binding.body, binding.collider, entity, entity.getSceneGraph().scale);
-    this.__hasShapeBinding = true;
+    if (resolved.length === 0) {
+      if (strategy.clearShapeInstances == null) {
+        throw new Error('The current physics strategy cannot clear ShapeComponent bindings.');
+      }
+      strategy.clearShapeInstances();
+    } else if (strategy.setShapeInstances != null) {
+      strategy.setShapeInstances(resolved, entity, entity.getSceneGraph().scale);
+    } else if (resolved.length === 1 && strategy.setShapeInstance != null) {
+      const binding = resolved[0];
+      strategy.setShapeInstance(binding.shape, binding.body, binding.collider, entity, entity.getSceneGraph().scale);
+    } else {
+      throw new Error('The current physics strategy does not support multiple ShapeComponent bindings.');
+    }
+  }
+
+  private static __copyBinding(binding: PhysicsShapeBinding): PhysicsShapeBinding {
+    return {
+      shapeComponent: binding.shapeComponent,
+      shapeIndex: binding.shapeIndex,
+      body: { ...binding.body },
+      collider: { ...binding.collider },
+    };
   }
 
   getVrmSpring() {
@@ -153,9 +229,10 @@ export class PhysicsComponent extends Component {
    * @override
    */
   _destroy(): void {
+    this.__strategy?.clearShapeInstances?.();
     super._destroy();
     this.__strategy = undefined;
-    this.__hasShapeBinding = false;
+    this.__shapeBindings.clear();
   }
 
   /**
