@@ -48,6 +48,7 @@ characterController.setup(new Rn.RapierCharacterControllerStrategy(), {
   minStepWidth: 0.2,
   snapToGroundDistance: 0.15,
 });
+const characterAnimation = new Rn.CharacterAnimationController(characterController, vrmRoot);
 
 const stageGltf = await Rn.Gltf2Importer.importFromUrl('./stage.gltf');
 const stageColliderRoot = await Rn.ModelConverter.convertToRhodoniteObject(engine, stageGltf);
@@ -224,6 +225,7 @@ engine.startRenderLoop(() => {
   }
 
   engine.process([vrmExpression]);
+  characterAnimation.update(Rn.Time.intervalProcessBegin);
   const position = characterEntity.position;
   const groundContact = characterController.groundContact;
   groundProbeVisual.position = Rn.Vector3.fromCopy3(position.x, position.y + 0.25, position.z);
@@ -239,7 +241,8 @@ engine.startRenderLoop(() => {
       ? 'none'
       : `entity ${groundContact.entity.entityUID}, ${groundContact.distance.toFixed(2)}m, ${Rn.MathUtil.radianToDegree(groundContact.slopeAngle).toFixed(1)}deg, ${groundContact.isWalkable ? 'walkable' : 'steep'}`;
   const motionState = characterController.motionState;
-  status.textContent = `State: ${motionState.state} | Speed: ${motionState.horizontalSpeed.toFixed(2)}, ${motionState.verticalSpeed.toFixed(2)} | Air/Ground: ${motionState.airborneDuration.toFixed(2)}/${motionState.groundedDuration.toFixed(2)}s | Impact: ${motionState.landingImpactSpeed.toFixed(2)} | Events: [${motionEventHistory.join('>')}] | Trigger: ${triggerEvent} (${checkpointTrigger.activeOverlapCount}) [${triggerEventHistory.join('>')}] | Ground: ${groundStatus} | Position: ${position.x.toFixed(
+  const animationSelection = characterAnimation.selection;
+  status.textContent = `State: ${motionState.state} | Animation: ${animationSelection.semantic}/${animationSelection.activeTrack ?? 'none'} ${animationSelection.playbackSpeed.toFixed(2)}x ${animationSelection.hasTrack ? (animationSelection.isFallback ? 'fallback' : 'mapped') : 'no-track'} | Speed: ${motionState.horizontalSpeed.toFixed(2)}, ${motionState.verticalSpeed.toFixed(2)} | Air/Ground: ${motionState.airborneDuration.toFixed(2)}/${motionState.groundedDuration.toFixed(2)}s | Impact: ${motionState.landingImpactSpeed.toFixed(2)} | Events: [${motionEventHistory.join('>')}] | Trigger: ${triggerEvent} (${checkpointTrigger.activeOverlapCount}) [${triggerEventHistory.join('>')}] | Ground: ${groundStatus} | Position: ${position.x.toFixed(
     2
   )}, ${position.y.toFixed(2)}, ${position.z.toFixed(2)}`;
 });
