@@ -37,6 +37,49 @@ test('selects semantics safely when the character has no animation tracks', () =
   expect(controller.selection).toMatchObject({ semantic: 'jump', requestedTrack: 'Jump', hasTrack: false });
 });
 
+test('initializes an explicit idle track without blending from the rest pose', () => {
+  const calls = {
+    first: [] as string[],
+    transitions: [] as Array<[string, number]>,
+  };
+  const animationState = {
+    setUseGlobalTime: vi.fn(),
+    setFirstActiveAnimationTrack: (track: string) => calls.first.push(track),
+    forceTransitionTo: (track: string, duration: number) => calls.transitions.push([track, duration]),
+    setIsLoop: vi.fn(),
+    setTime: vi.fn(),
+  };
+  const child = {
+    tryToGetAnimation: () => ({ getAnimationTrackNames: () => ['Idle', 'Walk'] }),
+    children: [],
+  };
+  const engine = {};
+  const root = {
+    tryToGetAnimation: () => undefined,
+    tryToGetAnimationState: () => animationState,
+    children: [{ entity: child }],
+    engine,
+  } as unknown as ISceneGraphEntity;
+  vi.spyOn(AnimationComponent, 'getAnimationInfo').mockReturnValue(
+    new Map([
+      ['Idle', { name: 'Idle', minStartInputTime: 0, maxEndInputTime: 1 }],
+      ['Walk', { name: 'Walk', minStartInputTime: 0, maxEndInputTime: 1 }],
+    ])
+  );
+  const characterState: { motionState: CharacterMotionState } = { motionState: createMotion('falling') };
+  const controller = new CharacterAnimationController(characterState as CharacterControllerComponent, root);
+
+  controller.initialize('idle');
+
+  expect(controller.selection).toMatchObject({ semantic: 'idle', activeTrack: 'Idle', hasTrack: true });
+  expect(calls.first).toEqual(['Idle']);
+  expect(calls.transitions).toEqual([]);
+
+  characterState.motionState = createMotion('grounded', 2.2);
+  controller.update(0.1);
+  expect(calls.transitions).toEqual([['Walk', 0.15]]);
+});
+
 test('resolves tracks, speed, transitions, fallback, and landing one-shot', () => {
   const calls = {
     first: [] as string[],

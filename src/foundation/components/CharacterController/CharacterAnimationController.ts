@@ -115,6 +115,30 @@ export class CharacterAnimationController {
     return this.__availableTracks;
   }
 
+  /**
+   * Applies an initial track immediately, without blending from the rest pose.
+   * Call this before the first `engine.process()` when a character should
+   * appear in a known pose from its first rendered frame.
+   */
+  initialize(semantic: CharacterAnimationSemantic = 'idle'): void {
+    if (this.__destroyed) {
+      return;
+    }
+
+    const resolved = this.__resolveTrack(semantic);
+    const playbackSpeed = this.__resolvePlaybackSpeed(semantic);
+    this.__activateTrack(semantic, resolved, false);
+    this.__selection = {
+      semantic,
+      requestedTrack: this.__mapping[semantic][0],
+      activeTrack: resolved.activeTrack,
+      playbackSpeed,
+      isFallback: resolved.isFallback,
+      hasTrack: resolved.activeTrack != null,
+      isOneShotPlaying: this.__oneShotEndTime != null,
+    };
+  }
+
   update(deltaTime: number): void {
     if (this.__destroyed) {
       return;
@@ -138,19 +162,7 @@ export class CharacterAnimationController {
     const playbackSpeed = this.__resolvePlaybackSpeed(semantic);
     const trackChanged = resolved.activeTrack !== this.__selection.activeTrack;
     if (resolved.activeTrack != null && (trackChanged || !this.__hasSelectedTrack)) {
-      const info = AnimationComponent.getAnimationInfo(this.__animationRoot.engine).get(resolved.activeTrack);
-      this.__playbackTime = info?.minStartInputTime ?? 0;
-      this.__animationState?.setIsLoop(semantic !== 'landing' || resolved.isFallback);
-      this.__animationState?.setTime(this.__playbackTime);
-      if (this.__hasSelectedTrack) {
-        this.__animationState?.forceTransitionTo(resolved.activeTrack, this.__options.crossFadeDuration);
-      } else {
-        this.__animationState?.setFirstActiveAnimationTrack(resolved.activeTrack);
-      }
-      this.__hasSelectedTrack = true;
-      if (semantic === 'landing' && !resolved.isFallback && info != null) {
-        this.__oneShotEndTime = info.maxEndInputTime;
-      }
+      this.__activateTrack(semantic, resolved, this.__hasSelectedTrack);
     } else if (this.__oneShotEndTime == null) {
       this.__animationState?.setIsLoop(true);
     }
@@ -213,6 +225,30 @@ export class CharacterAnimationController {
       }
     }
     return { activeTrack: this.__availableTracks[0], isFallback: this.__availableTracks.length > 0 };
+  }
+
+  private __activateTrack(
+    semantic: CharacterAnimationSemantic,
+    resolved: { activeTrack?: AnimationTrackName; isFallback: boolean },
+    blend: boolean
+  ): void {
+    const activeTrack = resolved.activeTrack;
+    if (activeTrack == null) {
+      return;
+    }
+
+    const info = AnimationComponent.getAnimationInfo(this.__animationRoot.engine).get(activeTrack);
+    this.__playbackTime = info?.minStartInputTime ?? 0;
+    this.__animationState?.setIsLoop(semantic !== 'landing' || resolved.isFallback);
+    this.__animationState?.setTime(this.__playbackTime);
+    if (blend) {
+      this.__animationState?.forceTransitionTo(activeTrack, this.__options.crossFadeDuration);
+    } else {
+      this.__animationState?.setFirstActiveAnimationTrack(activeTrack);
+    }
+    this.__hasSelectedTrack = true;
+    this.__oneShotEndTime =
+      semantic === 'landing' && !resolved.isFallback && info != null ? info.maxEndInputTime : undefined;
   }
 
   private __resolvePlaybackSpeed(semantic: CharacterAnimationSemantic): number {

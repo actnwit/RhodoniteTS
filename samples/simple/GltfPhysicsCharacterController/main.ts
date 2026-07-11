@@ -228,6 +228,14 @@ window.addEventListener('keyup', event => pressedKeys.delete(event.code));
 window.addEventListener('blur', () => pressedKeys.clear());
 
 const status = document.getElementById('status')!;
+
+// Resolve the initial ground contact and apply idle before the first render.
+// Otherwise the first rendered frame can show the VRM rest pose before idle is selected.
+for (let step = 0; step < 8 && !characterController.isGrounded; step++) {
+  Rn.RapierPhysicsStrategy.update(undefined, 1 / 60);
+}
+characterAnimation.initialize('idle');
+
 engine.startRenderLoop(() => {
   const forwardInput =
     Number(pressedKeys.has('KeyW') || pressedKeys.has('ArrowUp')) -
