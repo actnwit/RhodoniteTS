@@ -40,6 +40,10 @@ export type PhysicsColliderProperty = {
   friction: number;
   /** Surface restitution coefficient. */
   restitution: number;
+  /** 16-bit collision-group membership mask. Defaults to all groups. */
+  collisionGroup?: number;
+  /** 16-bit mask of collision groups this collider may interact with. Defaults to all groups. */
+  collisionMask?: number;
 };
 
 /**

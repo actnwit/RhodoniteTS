@@ -124,6 +124,12 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     motion?: PhysicsMotionProperty
   ): void {
     if (
+      (collider.collisionGroup != null && collider.collisionGroup !== 0xffff) ||
+      (collider.collisionMask != null && collider.collisionMask !== 0xffff)
+    ) {
+      throw new Error('OimoPhysicsStrategy does not support collision groups.');
+    }
+    if (
       motion?.mass != null ||
       motion?.centerOfMass != null ||
       motion?.inertiaDiagonal != null ||

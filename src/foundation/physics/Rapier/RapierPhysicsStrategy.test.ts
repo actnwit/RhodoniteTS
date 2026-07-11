@@ -46,6 +46,7 @@ class FakeColliderDesc {
   restitution = 0;
   translation = { x: 0, y: 0, z: 0 };
   rotation = { x: 0, y: 0, z: 0, w: 1 };
+  collisionGroups = 0xffffffff;
 
   constructor(
     readonly type: 'ball' | 'cuboid' | 'capsule' | 'cylinder',
@@ -74,6 +75,11 @@ class FakeColliderDesc {
 
   setRotation(rotation: { x: number; y: number; z: number; w: number }): FakeColliderDesc {
     this.rotation = rotation;
+    return this;
+  }
+
+  setCollisionGroups(groups: number): FakeColliderDesc {
+    this.collisionGroups = groups;
     return this;
   }
 }
@@ -388,7 +394,7 @@ test('RapierPhysicsStrategy creates one body with multiple colliders and rebuild
         localRotation: Quaternion.identity(),
       },
       body: { move: false, density: 1 },
-      collider: { friction: 0.2, restitution: 0.1 },
+      collider: { friction: 0.2, restitution: 0.1, collisionGroup: 1, collisionMask: 0x8002 },
     },
     {
       shape: {
@@ -397,7 +403,7 @@ test('RapierPhysicsStrategy creates one body with multiple colliders and rebuild
         localRotation: Quaternion.identity(),
       },
       body: { move: false, density: 2 },
-      collider: { friction: 0.4, restitution: 0.3 },
+      collider: { friction: 0.4, restitution: 0.3, collisionGroup: 2, collisionMask: 0x8001 },
     },
     {
       shape: {
@@ -416,6 +422,7 @@ test('RapierPhysicsStrategy creates one body with multiple colliders and rebuild
   expect(world.colliders).toHaveLength(3);
   expect(world.colliders.map(collider => collider.density)).toEqual([1, 2, 3]);
   expect(world.colliders.map(collider => collider.friction)).toEqual([0.2, 0.4, 0.6]);
+  expect(world.colliders.map(collider => collider.collisionGroups)).toEqual([0x00018002, 0x00028001, 0xffffffff]);
   expect(world.colliders[0].translation).toEqual({ x: 1, y: 2, z: 3 });
 
   strategy.setScale(Vector3.fromCopy3(2, 3, 4));
@@ -424,6 +431,7 @@ test('RapierPhysicsStrategy creates one body with multiple colliders and rebuild
   expect(world.colliders).toHaveLength(6);
   expect(world.colliders[3].size).toEqual([2, 6, 12]);
   expect(world.colliders[3].translation).toEqual({ x: 2, y: 6, z: 12 });
+  expect(world.colliders[3].collisionGroups).toBe(0x00018002);
 
   const bodyBeforeInvalidUpdate = world.bodies[0];
   expect(() =>

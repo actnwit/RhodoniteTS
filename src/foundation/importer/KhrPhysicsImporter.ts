@@ -2,6 +2,7 @@ import type {
   KHRImplicitBoxSize,
   KHRImplicitShape,
   KHRImplicitShapes,
+  KHRPhysicsCollisionFilter,
   KHRPhysicsMaterial,
   KHRPhysicsMotion,
   KHRPhysicsRigidBodies,
@@ -27,6 +28,15 @@ const DEFAULT_HEIGHT = 0.5;
 const DEFAULT_RADIUS = 0.25;
 const DEFAULT_DYNAMIC_FRICTION = 0.6;
 const DEFAULT_RESTITUTION = 0;
+const FALLBACK_COLLISION_GROUP = 0x8000;
+const ALL_COLLISION_GROUPS = 0xffff;
+const MAX_KHR_FILTER_PROFILES = 15;
+
+type NormalizedCollisionFilterProfile = {
+  collisionSystems: readonly string[];
+  mode: 'all' | 'allow' | 'deny';
+  targetSystems: readonly string[];
+};
 
 export interface NormalizedKhrBoxCollider {
   nodeIndex: number;
@@ -47,6 +57,8 @@ export interface NormalizedKhrCollider {
   descriptor: ShapeDescriptor;
   dynamicFriction: number;
   restitution: number;
+  collisionGroup: number;
+  collisionMask: number;
 }
 
 export interface KhrColliderCollection {
@@ -57,6 +69,8 @@ export interface KhrColliderCollection {
 export interface NormalizedKhrBodyCollider extends NormalizedKhrCollider {
   localPosition: Vector3;
   localRotation: Quaternion;
+  /** @internal Index used while resolving the scene-wide filter table. */
+  collisionFilterIndex?: number;
 }
 
 export interface NormalizedKhrRigidBodyGroup {
@@ -72,6 +86,131 @@ export interface KhrRigidBodyGroupCollection {
 
 function isFiniteNonNegative(value: number): boolean {
   return Number.isFinite(value) && value >= 0;
+}
+
+function normalizeCollisionFilterProfile(
+  filter: KHRPhysicsCollisionFilter,
+  warnings: string[],
+  filterIndex: number
+): NormalizedCollisionFilterProfile | undefined {
+  if (filter.collideWithSystems != null && filter.notCollideWithSystems != null) {
+    warnings.push(
+      `${KHR_PHYSICS_RIGID_BODIES}: collision filter ${filterIndex} defines both collideWithSystems and notCollideWithSystems; fallback collision is used.`
+    );
+    return undefined;
+  }
+  const normalizeStrings = (value: unknown, propertyName: string): string[] | undefined => {
+    if (value == null) {
+      return [];
+    }
+    if (!Array.isArray(value) || value.some(item => typeof item !== 'string')) {
+      warnings.push(
+        `${KHR_PHYSICS_RIGID_BODIES}: collision filter ${filterIndex} has invalid ${propertyName}; fallback collision is used.`
+      );
+      return undefined;
+    }
+    return [...new Set(value)].sort();
+  };
+  const collisionSystems = normalizeStrings(filter.collisionSystems, 'collisionSystems');
+  const targetSource = filter.collideWithSystems ?? filter.notCollideWithSystems;
+  const targetSystems = normalizeStrings(
+    targetSource,
+    filter.collideWithSystems != null ? 'collideWithSystems' : 'notCollideWithSystems'
+  );
+  if (collisionSystems == null || targetSystems == null) {
+    return undefined;
+  }
+  return {
+    collisionSystems,
+    mode: filter.collideWithSystems != null ? 'allow' : filter.notCollideWithSystems != null ? 'deny' : 'all',
+    targetSystems,
+  };
+}
+
+function collisionFilterProfileKey(profile: NormalizedCollisionFilterProfile): string {
+  return JSON.stringify([profile.collisionSystems, profile.mode, profile.targetSystems]);
+}
+
+function profilePermits(profile: NormalizedCollisionFilterProfile, other: NormalizedCollisionFilterProfile): boolean {
+  if (profile.mode === 'all') {
+    return true;
+  }
+  const targets = new Set(profile.targetSystems);
+  if (profile.mode === 'allow') {
+    return other.collisionSystems.every(system => targets.has(system));
+  }
+  return other.collisionSystems.every(system => !targets.has(system));
+}
+
+function resolveCollisionFilters(
+  groups: Map<number, NormalizedKhrRigidBodyGroup>,
+  extension: KHRPhysicsRigidBodies | undefined,
+  warnings: string[]
+): void {
+  const profileByKey = new Map<string, { profile: NormalizedCollisionFilterProfile; bit: number }>();
+  const resolvedByFilterIndex = new Map<
+    number,
+    { profile: NormalizedCollisionFilterProfile; bit: number } | undefined
+  >();
+  let overflowWarned = false;
+
+  for (const group of groups.values()) {
+    for (const collider of group.colliders) {
+      const filterIndex = collider.collisionFilterIndex;
+      if (filterIndex == null) {
+        continue;
+      }
+      let resolved = resolvedByFilterIndex.get(filterIndex);
+      if (!resolvedByFilterIndex.has(filterIndex)) {
+        const source = extension?.collisionFilters?.[filterIndex];
+        if (!Number.isInteger(filterIndex) || filterIndex < 0 || source == null) {
+          warnings.push(
+            `${KHR_PHYSICS_RIGID_BODIES}: collider node ${collider.nodeIndex} references missing collision filter ${filterIndex}; fallback collision is used.`
+          );
+          resolvedByFilterIndex.set(filterIndex, undefined);
+        } else {
+          const profile = normalizeCollisionFilterProfile(source, warnings, filterIndex);
+          if (profile != null) {
+            const key = collisionFilterProfileKey(profile);
+            resolved = profileByKey.get(key);
+            if (resolved == null && profileByKey.size < MAX_KHR_FILTER_PROFILES) {
+              resolved = { profile, bit: 1 << profileByKey.size };
+              profileByKey.set(key, resolved);
+            } else if (resolved == null && !overflowWarned) {
+              warnings.push(
+                `${KHR_PHYSICS_RIGID_BODIES}: more than ${MAX_KHR_FILTER_PROFILES} collision filter profiles are used; profile ${filterIndex} and subsequent overflow profiles use fallback collision.`
+              );
+              overflowWarned = true;
+            }
+          }
+          resolvedByFilterIndex.set(filterIndex, resolved);
+        }
+      }
+      if (resolved != null) {
+        collider.collisionGroup = resolved.bit;
+      }
+    }
+  }
+
+  const profiles = [...profileByKey.values()];
+  for (const group of groups.values()) {
+    for (const collider of group.colliders) {
+      const resolved =
+        collider.collisionFilterIndex == null ? undefined : resolvedByFilterIndex.get(collider.collisionFilterIndex);
+      if (resolved == null) {
+        collider.collisionGroup = FALLBACK_COLLISION_GROUP;
+        collider.collisionMask = ALL_COLLISION_GROUPS;
+        continue;
+      }
+      let mask = FALLBACK_COLLISION_GROUP;
+      for (const other of profiles) {
+        if (profilePermits(resolved.profile, other.profile) && profilePermits(other.profile, resolved.profile)) {
+          mask |= other.bit;
+        }
+      }
+      collider.collisionMask = mask;
+    }
+  }
 }
 
 function normalizeMotion(
@@ -305,11 +444,6 @@ export function collectKhrRigidBodyGroups(gltfModel: RnM2): KhrRigidBodyGroupCol
     if (collider == null) {
       continue;
     }
-    if (collider.collisionFilter != null) {
-      warnings.push(
-        `${KHR_PHYSICS_RIGID_BODIES}: collider node ${nodeIndex} uses an unsupported collisionFilter; the filter is ignored.`
-      );
-    }
     const geometry = collider.geometry;
     if (geometry == null || geometry.shape == null || geometry.mesh != null) {
       warnings.push(
@@ -392,10 +526,14 @@ export function collectKhrRigidBodyGroups(gltfModel: RnM2): KhrRigidBodyGroupCol
       descriptor,
       dynamicFriction: material.dynamicFriction,
       restitution: material.restitution,
+      collisionGroup: FALLBACK_COLLISION_GROUP,
+      collisionMask: ALL_COLLISION_GROUPS,
+      collisionFilterIndex: collider.collisionFilter,
       localPosition: relativeMatrix.getTranslate(),
       localRotation: Quaternion.fromMatrix(relativeMatrix.getRotate()),
     });
   }
+  resolveCollisionFilters(groups, rigidBodiesExtension, warnings);
   return { groups: [...groups.values()], warnings };
 }
 
@@ -453,6 +591,8 @@ export function collectKhrStaticColliders(gltfModel: RnM2): KhrColliderCollectio
       descriptor,
       dynamicFriction: material.dynamicFriction,
       restitution: material.restitution,
+      collisionGroup: FALLBACK_COLLISION_GROUP,
+      collisionMask: ALL_COLLISION_GROUPS,
     });
   }
 
@@ -578,6 +718,8 @@ export function setupKhrStaticColliders(gltfModel: RnM2, rnEntities: ISceneGraph
         collider: {
           friction: collider.dynamicFriction,
           restitution: collider.restitution,
+          collisionGroup: collider.collisionGroup,
+          collisionMask: collider.collisionMask,
         },
       });
     }

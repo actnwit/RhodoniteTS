@@ -40,6 +40,7 @@ export type RapierColliderDescLike = {
   setDensity?(density: number): RapierColliderDescLike;
   setFriction?(friction: number): RapierColliderDescLike;
   setRestitution?(restitution: number): RapierColliderDescLike;
+  setCollisionGroups?(groups: number): RapierColliderDescLike;
 };
 
 export type RapierRigidBodyLike = {
@@ -630,6 +631,13 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     colliderDesc = colliderDesc.setFriction?.(binding.collider.friction) ?? colliderDesc;
     colliderDesc = colliderDesc.setRestitution?.(binding.collider.restitution) ?? colliderDesc;
     colliderDesc =
+      colliderDesc.setCollisionGroups?.(
+        RapierPhysicsStrategy.__packCollisionGroups(
+          binding.collider.collisionGroup ?? 0xffff,
+          binding.collider.collisionMask ?? 0xffff
+        )
+      ) ?? colliderDesc;
+    colliderDesc =
       colliderDesc.setTranslation?.(
         shapeInstance.localPosition.x * scale.x,
         shapeInstance.localPosition.y * scale.y,
@@ -639,6 +647,16 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       colliderDesc.setRotation?.(RapierPhysicsStrategy.__toRapierQuaternion(shapeInstance.localRotation)) ??
       colliderDesc;
     return colliderDesc;
+  }
+
+  private static __packCollisionGroups(group: number, mask: number): number {
+    if (!Number.isInteger(group) || group < 0 || group > 0xffff) {
+      throw new Error(`Rapier collisionGroup must be a 16-bit unsigned integer: ${group}`);
+    }
+    if (!Number.isInteger(mask) || mask < 0 || mask > 0xffff) {
+      throw new Error(`Rapier collisionMask must be a 16-bit unsigned integer: ${mask}`);
+    }
+    return ((group << 16) | mask) >>> 0;
   }
 
   private __getScaledVolume(binding: PhysicsShapeInstanceBinding): number {
