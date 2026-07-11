@@ -222,7 +222,7 @@ engine.startRenderLoop(() => {
     groundContact == null
       ? 'none'
       : `entity ${groundContact.entity.entityUID}, ${groundContact.distance.toFixed(2)}m, ${Rn.MathUtil.radianToDegree(groundContact.slopeAngle).toFixed(1)}deg, ${groundContact.isWalkable ? 'walkable' : 'steep'}`;
-  status.textContent = `Grounded: ${characterController.isGrounded ? 'yes' : 'no'} | Trigger: ${triggerEvent} (${checkpointTrigger.activeOverlapCount}) [${triggerEventHistory.join('>')}] | Ground: ${groundStatus} | Position: ${position.x.toFixed(
+  status.textContent = `Grounded: ${characterController.isGrounded ? 'yes' : 'no'} | Recovery: ${characterController.isRecovering ? 'yes' : 'no'} | Trigger: ${triggerEvent} (${checkpointTrigger.activeOverlapCount}) [${triggerEventHistory.join('>')}] | Ground: ${groundStatus} | Position: ${position.x.toFixed(
     2
   )}, ${position.y.toFixed(2)}, ${position.z.toFixed(2)}`;
 });

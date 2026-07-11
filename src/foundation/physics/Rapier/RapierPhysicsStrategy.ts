@@ -98,6 +98,7 @@ export type RapierCharacterControllerLike = {
   setMaxSlopeClimbAngle(angle: number): void;
   setMinSlopeSlideAngle(angle: number): void;
   setApplyImpulsesToDynamicBodies(enabled: boolean): void;
+  setNormalNudgeFactor?(value: number): void;
   computeColliderMovement(
     collider: RapierColliderLike,
     desiredTranslationDelta: RapierVector3Like,
@@ -107,6 +108,12 @@ export type RapierCharacterControllerLike = {
   ): void;
   computedMovement(): RapierVector3Like;
   computedGrounded(): boolean;
+  numComputedCollisions?(): number;
+  computedCollision?(index: number): RapierCharacterCollisionLike | null;
+};
+
+export type RapierCharacterCollisionLike = {
+  normal1: RapierVector3Like;
 };
 
 export type RapierWorldLike = {

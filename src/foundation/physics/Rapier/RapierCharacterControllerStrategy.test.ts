@@ -64,6 +64,8 @@ class FakeCharacterController implements RapierCharacterControllerLike {
   climbAngle?: number;
   slideAngle?: number;
   applyImpulses?: boolean;
+  normalNudgeFactor?: number;
+  forceAirborneStuck = false;
   enableAutostep(maxHeight: number, minWidth: number, includeDynamicBodies: boolean) {
     this.autostep = [maxHeight, minWidth, includeDynamicBodies];
   }
@@ -79,7 +81,15 @@ class FakeCharacterController implements RapierCharacterControllerLike {
   setApplyImpulsesToDynamicBodies(enabled: boolean) {
     this.applyImpulses = enabled;
   }
+  setNormalNudgeFactor(value: number) {
+    this.normalNudgeFactor = value;
+  }
   computeColliderMovement(_collider: unknown, desired: RapierVector3Like) {
+    if (this.forceAirborneStuck && desired.y < 0) {
+      this.grounded = false;
+      this.movement = { x: 0, y: 0, z: 0 };
+      return;
+    }
     this.grounded = desired.y <= 0;
     this.movement = { x: desired.x, y: this.grounded ? 0 : desired.y, z: desired.z };
   }
@@ -88,6 +98,12 @@ class FakeCharacterController implements RapierCharacterControllerLike {
   }
   computedGrounded() {
     return this.grounded;
+  }
+  numComputedCollisions() {
+    return this.forceAirborneStuck ? 1 : 0;
+  }
+  computedCollision() {
+    return this.forceAirborneStuck ? { normal1: { x: 1, y: 0, z: 0 } } : null;
   }
 }
 
@@ -214,6 +230,7 @@ test('creates a foot-anchored kinematic capsule and configures traversal', async
   expect(world.controller?.autostep).toEqual([0.25, 0.2, false]);
   expect(world.controller?.snapDistance).toBe(0.15);
   expect(world.controller?.applyImpulses).toBe(false);
+  expect(world.controller?.normalNudgeFactor).toBe(0.001);
 });
 
 test('moves once per frame, reports grounding, and synchronizes the entity', async () => {
@@ -282,4 +299,28 @@ test('reports flat and steep ground contacts and clears stale contact state', as
   expect(strategy.groundContact).toBeDefined();
   strategy.enabled = false;
   expect(strategy.groundContact).toBeUndefined();
+});
+
+test('nudges the character away after consecutive airborne downward movement is blocked', async () => {
+  await RapierPhysicsStrategy.initialize(fakeRapier());
+  const { entity, state } = fakeEntity();
+  const strategy = new RapierCharacterControllerStrategy();
+  strategy.setup(entity, capsuleShape(), {
+    maxDeltaTime: 1,
+    stuckRecoveryFrameCount: 2,
+    stuckRecoveryDistance: 0.02,
+  });
+  const { entity: nearbyGroundEntity } = fakeEntity();
+  const nearbyGroundCollider = world.createCollider(new FakeColliderDesc(0, 0));
+  RapierPhysicsStrategy._registerExternalCollider(nearbyGroundCollider, nearbyGroundEntity);
+  world.controller!.forceAirborneStuck = true;
+
+  RapierPhysicsStrategy.update(1, 0.1);
+  expect(strategy.isRecovering).toBe(false);
+  expect(strategy.groundContact).toBeDefined();
+  RapierPhysicsStrategy.update(2, 0.1);
+  expect(strategy.isRecovering).toBe(true);
+  expect(strategy.isGrounded).toBe(false);
+  expect(strategy.computedMovement.x).toBeCloseTo(0.02);
+  expect(state.position.x).toBeCloseTo(0.02);
 });

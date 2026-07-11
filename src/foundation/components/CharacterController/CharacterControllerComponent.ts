@@ -115,6 +115,11 @@ export class CharacterControllerComponent extends Component {
     return this.__strategy?.groundContact;
   }
 
+  /** True during a frame where obstacle-stuck recovery adjusted movement. */
+  get isRecovering(): boolean {
+    return this.__strategy?.isRecovering ?? false;
+  }
+
   set enabled(value: boolean) {
     if (this.__strategy != null) {
       this.__strategy.enabled = value;

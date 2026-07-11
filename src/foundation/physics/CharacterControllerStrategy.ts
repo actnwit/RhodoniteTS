@@ -35,6 +35,10 @@ export interface CharacterControllerOptions {
   groundCollisionGroup?: number;
   groundCollisionMask?: number;
   groundProbeRadius?: number;
+  normalNudgeFactor?: number;
+  stuckRecoveryEnabled?: boolean;
+  stuckRecoveryFrameCount?: number;
+  stuckRecoveryDistance?: number;
 }
 
 export interface CharacterControllerStrategy {
@@ -45,6 +49,7 @@ export interface CharacterControllerStrategy {
   readonly isGrounded: boolean;
   readonly computedMovement: IVector3;
   readonly groundContact: CharacterGroundContact | undefined;
+  readonly isRecovering: boolean;
   enabled: boolean;
   destroy(): void;
 }

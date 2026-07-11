@@ -36,6 +36,10 @@ const defaultOptions: ResolvedOptions = {
   groundCollisionGroup: 0xffff,
   groundCollisionMask: 0xffff,
   groundProbeRadius: 0.24,
+  normalNudgeFactor: 0.001,
+  stuckRecoveryEnabled: true,
+  stuckRecoveryFrameCount: 2,
+  stuckRecoveryDistance: 0.01,
 };
 
 /** Rapier-backed kinematic capsule character controller. */
@@ -54,6 +58,8 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
   private __groundContact?: CharacterGroundContact;
   private __capsuleBottomOffset = Vector3.zero();
   private readonly __worldQuery = new PhysicsWorldQuery(new RapierPhysicsWorldQueryStrategy());
+  private __stuckFrameCount = 0;
+  private __isRecovering = false;
 
   setup(entity: ISceneGraphEntity, shapeInstance: ShapeInstance, options: CharacterControllerOptions = {}): void {
     if (this.__rigidBody != null) {
@@ -148,6 +154,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     this.__controller.setMaxSlopeClimbAngle(this.__options.maxSlopeClimbAngle);
     this.__controller.setMinSlopeSlideAngle(this.__options.minSlopeSlideAngle);
     this.__controller.setApplyImpulsesToDynamicBodies(this.__options.applyImpulsesToDynamicBodies);
+    this.__controller.setNormalNudgeFactor?.(this.__options.normalNudgeFactor);
     RapierPhysicsStrategy._registerStepParticipant(this);
   }
 
@@ -172,6 +179,8 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     this.__jumpRequested = false;
     this.__computedMovement.setComponents(0, 0, 0);
     this.__groundContact = undefined;
+    this.__stuckFrameCount = 0;
+    this.__isRecovering = false;
   }
 
   preStep(deltaTime: number): void {
@@ -179,6 +188,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
       return;
     }
 
+    this.__isRecovering = false;
     const dt = Math.min(Math.max(deltaTime, 0), this.__options.maxDeltaTime);
     if (this.__jumpRequested && this.__isGrounded) {
       this.__verticalVelocity = this.__options.jumpSpeed;
@@ -188,18 +198,39 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     }
     this.__jumpRequested = false;
 
-    this.__controller.computeColliderMovement(
-      this.__collider,
-      {
-        x: this.__desiredHorizontalVelocity.x * dt,
-        y: this.__verticalVelocity * dt,
-        z: this.__desiredHorizontalVelocity.z * dt,
-      },
-      RapierPhysicsStrategy._getRapier().QueryFilterFlags?.EXCLUDE_SENSORS ?? 8
-    );
-    const movement = this.__controller.computedMovement();
-    this.__computedMovement.setComponents(movement.x, movement.y, movement.z);
+    const desiredMovement = {
+      x: this.__desiredHorizontalVelocity.x * dt,
+      y: this.__verticalVelocity * dt,
+      z: this.__desiredHorizontalVelocity.z * dt,
+    };
+    const filterFlags = RapierPhysicsStrategy._getRapier().QueryFilterFlags?.EXCLUDE_SENSORS ?? 8;
+    this.__controller.computeColliderMovement(this.__collider, desiredMovement, filterFlags);
+    let movement = this.__controller.computedMovement();
+    const collisionNormals = this.__getCollisionNormals();
+    if (this.__verticalVelocity > 0 && collisionNormals.some(normal => normal.y < -0.5)) {
+      this.__verticalVelocity = 0;
+    }
     this.__isGrounded = this.__controller.computedGrounded();
+    const isDownwardMovementBlocked =
+      this.__options.stuckRecoveryEnabled &&
+      !this.__isGrounded &&
+      this.__verticalVelocity < 0 &&
+      desiredMovement.y < -0.000001 &&
+      movement.y > -0.000001;
+    this.__stuckFrameCount = isDownwardMovementBlocked ? this.__stuckFrameCount + 1 : 0;
+    if (this.__stuckFrameCount >= this.__options.stuckRecoveryFrameCount) {
+      this.__controller.computeColliderMovement(this.__collider, { x: 0, y: desiredMovement.y, z: 0 }, filterFlags);
+      const verticalMovement = this.__controller.computedMovement();
+      if (verticalMovement.y < -0.000001) {
+        movement = verticalMovement;
+      } else {
+        movement = this.__createNudgeMovement(movement, collisionNormals);
+      }
+      this.__isGrounded = this.__controller.computedGrounded();
+      this.__isRecovering = true;
+      this.__stuckFrameCount = 0;
+    }
+    this.__computedMovement.setComponents(movement.x, movement.y, movement.z);
     if (this.__isGrounded && this.__verticalVelocity < 0) {
       this.__verticalVelocity = 0;
     }
@@ -237,10 +268,16 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     return this.__groundContact;
   }
 
+  get isRecovering(): boolean {
+    return this.__isRecovering;
+  }
+
   set enabled(value: boolean) {
     this.__enabled = value;
     if (!value) {
       this.__groundContact = undefined;
+      this.__stuckFrameCount = 0;
+      this.__isRecovering = false;
     }
   }
 
@@ -263,6 +300,35 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     this.__rigidBody = undefined;
     this.__entity = undefined;
     this.__groundContact = undefined;
+    this.__stuckFrameCount = 0;
+    this.__isRecovering = false;
+  }
+
+  private __getCollisionNormals(): RapierVector3Like[] {
+    const count = this.__controller?.numComputedCollisions?.() ?? 0;
+    const normals: RapierVector3Like[] = [];
+    for (let i = 0; i < count; i++) {
+      const collision = this.__controller?.computedCollision?.(i);
+      if (collision != null) {
+        normals.push(collision.normal1);
+      }
+    }
+    return normals;
+  }
+
+  private __createNudgeMovement(movement: RapierVector3Like, normals: readonly RapierVector3Like[]): RapierVector3Like {
+    let x = 0;
+    let z = 0;
+    for (const normal of normals) {
+      x += normal.x;
+      z += normal.z;
+    }
+    const length = Math.hypot(x, z);
+    if (length <= 0.000001) {
+      return movement;
+    }
+    const scale = this.__options.stuckRecoveryDistance / length;
+    return { x: x * scale, y: Math.min(movement.y, 0), z: z * scale };
   }
 
   private __updateGroundContact(position: RapierVector3Like): void {
@@ -317,6 +383,8 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
       options.jumpSpeed,
       options.maxDeltaTime,
       options.groundProbeDistance,
+      options.normalNudgeFactor,
+      options.stuckRecoveryDistance,
     ];
     if (positiveValues.some(value => !Number.isFinite(value) || value <= 0)) {
       throw new Error('Character controller dimensions and movement settings must be finite positive values.');
@@ -328,5 +396,8 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
       throw new Error('Character controller groundProbeStartOffset must be a finite non-negative value.');
     }
     RapierPhysicsStrategy._packCollisionGroups(options.groundCollisionGroup, options.groundCollisionMask);
+    if (!Number.isInteger(options.stuckRecoveryFrameCount) || options.stuckRecoveryFrameCount <= 0) {
+      throw new Error('Character controller stuckRecoveryFrameCount must be a positive integer.');
+    }
   }
 }
