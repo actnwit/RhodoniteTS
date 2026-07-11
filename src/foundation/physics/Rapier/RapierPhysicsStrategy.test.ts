@@ -3,7 +3,9 @@ import { PhysicsShape } from '../../definitions/PhysicsShapeType';
 import type { ISceneGraphEntity } from '../../helpers';
 import { Quaternion, Vector3 } from '../../math';
 import type { PhysicsPropertyInner } from '../PhysicsProperty';
+import { PhysicsWorldQuery } from '../PhysicsWorldQuery';
 import { type RapierPhysicsModuleLike, RapierPhysicsStrategy } from './RapierPhysicsStrategy';
+import { RapierPhysicsWorldQueryStrategy } from './RapierPhysicsWorldQueryStrategy';
 
 class FakeRigidBodyDesc {
   translation = { x: 0, y: 0, z: 0 };
@@ -188,6 +190,7 @@ class FakeWorld {
   bodies: FakeRigidBody[] = [];
   colliders: FakeColliderDesc[] = [];
   removedBodies = 0;
+  lastRaycast?: { maxToi: number; solid: boolean; filterFlags?: number; filterGroups?: number };
 
   constructor(readonly gravity: { x: number; y: number; z: number }) {
     lastWorld = this;
@@ -219,12 +222,34 @@ class FakeWorld {
     this.removedBodies++;
     this.bodies = this.bodies.filter(body => body !== rigidBody);
   }
+
+  castRayAndGetNormal(
+    _ray: unknown,
+    maxToi: number,
+    solid: boolean,
+    filterFlags?: number,
+    filterGroups?: number,
+    _excludeCollider?: FakeColliderDesc,
+    _excludeRigidBody?: FakeRigidBody,
+    predicate?: (collider: FakeColliderDesc) => boolean
+  ) {
+    this.lastRaycast = { maxToi, solid, filterFlags, filterGroups };
+    const collider = this.colliders.find(item => predicate?.(item) ?? true);
+    return collider == null ? null : { collider, timeOfImpact: Math.min(2, maxToi), normal: { x: 0, y: 1, z: 0 } };
+  }
 }
 
 let lastWorld: FakeWorld | undefined;
 
 class FakeEventQueue {
   drainCollisionEvents(_callback: (handle1: number, handle2: number, started: boolean) => void): void {}
+}
+
+class FakeRay {
+  constructor(
+    readonly origin: { x: number; y: number; z: number },
+    readonly direction: { x: number; y: number; z: number }
+  ) {}
 }
 
 function createFakeRapier(onInit?: () => void): RapierPhysicsModuleLike {
@@ -247,6 +272,7 @@ function createFakeRapier(onInit?: () => void): RapierPhysicsModuleLike {
     ActiveEvents: { COLLISION_EVENTS: 1 },
     ActiveCollisionTypes: { ALL: 0xffff },
     QueryFilterFlags: { EXCLUDE_SENSORS: 8 },
+    Ray: FakeRay,
     EventQueue: FakeEventQueue,
   };
 }
@@ -259,6 +285,7 @@ function createSceneGraphEntity() {
 
   return {
     entity: {
+      entityUID: nextEntityUID++,
       getSceneGraph: () => ({
         get position() {
           return state.position;
@@ -277,6 +304,8 @@ function createSceneGraphEntity() {
     state,
   };
 }
+
+let nextEntityUID = 1;
 
 function createPhysicsProperty(type = PhysicsShape.Box): PhysicsPropertyInner {
   return {
@@ -316,6 +345,28 @@ test('RapierPhysicsStrategy syncs Rapier body transforms to the scene graph enti
   strategy.update({} as Config);
 
   expect(state.position.isEqual(Vector3.fromCopy3(1, 2, 5))).toBe(true);
+});
+
+test('RapierPhysicsWorldQueryStrategy resolves hits through collider metadata and filters', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const physics = new RapierPhysicsStrategy();
+  const { entity } = createSceneGraphEntity();
+  physics.setShape(createPhysicsProperty(), entity);
+  const query = new PhysicsWorldQuery(new RapierPhysicsWorldQueryStrategy());
+
+  const hit = query.castRay(Vector3.fromCopy3(1, 5, 3), Vector3.fromCopy3(0, -4, 0), 5, {
+    collisionGroup: 2,
+    collisionMask: 4,
+  });
+
+  expect(hit?.entity).toBe(entity);
+  expect(hit?.distance).toBe(2);
+  expect(hit?.fraction).toBe(0.4);
+  expect(hit?.position.isEqual(Vector3.fromCopy3(1, 3, 3))).toBe(true);
+  expect(hit?.normal.isEqual(Vector3.fromCopy3(0, 1, 0))).toBe(true);
+  expect(lastWorld?.lastRaycast).toEqual({ maxToi: 5, solid: true, filterFlags: 8, filterGroups: 0x00020004 });
+  expect(query.castRay(Vector3.zero(), Vector3.fromCopy3(0, -1, 0), 5, { excludeEntities: [entity] })).toBe(undefined);
+  expect(query.castRay(Vector3.zero(), Vector3.fromCopy3(0, -1, 0), 5, { predicate: () => false })).toBeUndefined();
 });
 
 test('RapierPhysicsStrategy recreates the collider when scale changes', async () => {

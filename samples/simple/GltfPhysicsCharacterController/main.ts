@@ -48,6 +48,7 @@ characterController.setup(new Rn.RapierCharacterControllerStrategy(), {
   minStepWidth: 0.2,
   snapToGroundDistance: 0.15,
 });
+const physicsWorldQuery = new Rn.PhysicsWorldQuery(new Rn.RapierPhysicsWorldQueryStrategy());
 
 const stageGltf = await Rn.Gltf2Importer.importFromUrl('./stage.gltf');
 const stageColliderRoot = await Rn.ModelConverter.convertToRhodoniteObject(engine, stageGltf);
@@ -76,6 +77,17 @@ checkpointTrigger.subscribe('exit', () => {
 });
 
 const material = Rn.MaterialHelper.createClassicUberMaterial(engine);
+const footRayVisual = Rn.MeshHelper.createCylinder(engine, {
+  radiusBottom: 0.012,
+  radiusTop: 0.012,
+  height: 2.5,
+  material,
+});
+const footRayHitVisual = Rn.MeshHelper.createSphere(engine, {
+  radius: 0.06,
+  material,
+});
+renderPass.addEntities([footRayVisual, footRayHitVisual]);
 const floorVisual = Rn.MeshHelper.createCube(engine, {
   widthVector: Rn.Vector3.fromCopy3(12, 0.2, 12),
   color: Rn.ColorRgba.fromCopy4(0.45, 0.5, 0.55, 1),
@@ -191,7 +203,24 @@ engine.startRenderLoop(() => {
 
   engine.process([vrmExpression]);
   const position = characterEntity.position;
-  status.textContent = `Grounded: ${characterController.isGrounded ? 'yes' : 'no'} | Trigger: ${triggerEvent} (${checkpointTrigger.activeOverlapCount}) [${triggerEventHistory.join('>')}] | Position: ${position.x.toFixed(
+  const rayStart = Rn.Vector3.fromCopy3(position.x, position.y + 0.5, position.z);
+  const rayEnd = Rn.Vector3.fromCopy3(position.x, position.y - 2, position.z);
+  const footHit = physicsWorldQuery.castRaySegment(rayStart, rayEnd, {
+    includeSensors: false,
+    excludeEntities: [characterEntity],
+  });
+  footRayVisual.position = Rn.Vector3.fromCopy3(position.x, position.y - 0.75, position.z);
+  if (footHit != null) {
+    footRayHitVisual.position = footHit.position;
+    footRayHitVisual.scale = Rn.Vector3.one();
+  } else {
+    footRayHitVisual.scale = Rn.Vector3.zero();
+  }
+  const rayStatus =
+    footHit == null
+      ? 'none'
+      : `entity ${footHit.entity.entityUID}, ${footHit.distance.toFixed(2)}m, nY ${footHit.normal.y.toFixed(2)}`;
+  status.textContent = `Grounded: ${characterController.isGrounded ? 'yes' : 'no'} | Trigger: ${triggerEvent} (${checkpointTrigger.activeOverlapCount}) [${triggerEventHistory.join('>')}] | Ray: ${rayStatus} | Position: ${position.x.toFixed(
     2
   )}, ${position.y.toFixed(2)}, ${position.z.toFixed(2)}`;
 });

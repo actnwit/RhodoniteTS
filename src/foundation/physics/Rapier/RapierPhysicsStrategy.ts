@@ -73,6 +73,18 @@ export type RapierColliderLike = {
   setDensity?(density: number): void;
 };
 
+export type RapierRayIntersectionLike = {
+  collider: RapierColliderLike;
+  timeOfImpact: number;
+  normal: RapierVector3Like;
+};
+
+export type RapierColliderMetadata = {
+  entity: ISceneGraphEntity;
+  bindingId?: number;
+  isSensor: boolean;
+};
+
 export type RapierCharacterControllerLike = {
   enableAutostep(maxHeight: number, minWidth: number, includeDynamicBodies: boolean): void;
   enableSnapToGround(distance: number): void;
@@ -97,6 +109,16 @@ export type RapierWorldLike = {
   removeRigidBody?(rigidBody: RapierRigidBodyLike): void;
   createCharacterController?(offset: number): RapierCharacterControllerLike;
   removeCharacterController?(controller: RapierCharacterControllerLike): void;
+  castRayAndGetNormal?(
+    ray: unknown,
+    maxToi: number,
+    solid: boolean,
+    filterFlags?: number,
+    filterGroups?: number,
+    filterExcludeCollider?: RapierColliderLike,
+    filterExcludeRigidBody?: RapierRigidBodyLike,
+    filterPredicate?: (collider: RapierColliderLike) => boolean
+  ): RapierRayIntersectionLike | null;
 };
 
 export type RapierEventQueueLike = {
@@ -128,6 +150,7 @@ export type RapierPhysicsModuleLike = {
   ActiveEvents?: { COLLISION_EVENTS: number };
   ActiveCollisionTypes?: { ALL: number };
   QueryFilterFlags?: { EXCLUDE_SENSORS: number };
+  Ray?: new (origin: RapierVector3Like, direction: RapierVector3Like) => unknown;
 };
 
 type StoredPhysicsProperty = Omit<PhysicsPropertyInner, 'position' | 'rotation' | 'size'> & {
@@ -153,10 +176,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
   private static __stepParticipants = new Set<RapierStepParticipant>();
   private static __lastFrameId?: number;
   private static __eventQueue?: RapierEventQueueLike;
-  private static __colliderMetadata = new Map<
-    number,
-    { entity: ISceneGraphEntity; bindingId?: number; isSensor: boolean }
-  >();
+  private static __colliderMetadata = new Map<number, RapierColliderMetadata>();
 
   private __rigidBody?: RapierRigidBodyLike;
   private __colliders: RapierColliderLike[] = [];
@@ -539,6 +559,16 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     return RapierPhysicsStrategy.__getWorld();
   }
 
+  /** @internal */
+  static _getColliderMetadata(collider: RapierColliderLike): RapierColliderMetadata | undefined {
+    return collider.handle == null ? undefined : RapierPhysicsStrategy.__colliderMetadata.get(collider.handle);
+  }
+
+  /** @internal */
+  static _packCollisionGroups(group: number, mask: number): number {
+    return RapierPhysicsStrategy.__packCollisionGroups(group, mask);
+  }
+
   private __createBody(prop: StoredPhysicsProperty, size: IVector3, position: IVector3, rotation: IQuaternion): void {
     const rapier = RapierPhysicsStrategy.__getRapier();
     const world = RapierPhysicsStrategy.__getWorld();
@@ -586,7 +616,14 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       }
       this.__applyCompleteMassProperties(prop.move, isKinematic);
     } else {
-      this.__colliders.push(world.createCollider(this.__createColliderDesc(prop, size), this.__rigidBody));
+      const collider = world.createCollider(this.__createColliderDesc(prop, size), this.__rigidBody);
+      this.__colliders.push(collider);
+      if (collider.handle != null && this.__entity != null) {
+        RapierPhysicsStrategy.__colliderMetadata.set(collider.handle, {
+          entity: this.__entity,
+          isSensor: false,
+        });
+      }
     }
   }
 
