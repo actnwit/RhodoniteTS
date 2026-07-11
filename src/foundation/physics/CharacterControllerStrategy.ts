@@ -34,6 +34,7 @@ export interface CharacterControllerOptions {
   groundProbeStartOffset?: number;
   groundCollisionGroup?: number;
   groundCollisionMask?: number;
+  groundProbeRadius?: number;
 }
 
 export interface CharacterControllerStrategy {

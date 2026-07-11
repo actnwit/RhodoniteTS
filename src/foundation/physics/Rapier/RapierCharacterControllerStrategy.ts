@@ -35,6 +35,7 @@ const defaultOptions: ResolvedOptions = {
   groundProbeStartOffset: 0.01,
   groundCollisionGroup: 0xffff,
   groundCollisionMask: 0xffff,
+  groundProbeRadius: 0.24,
 };
 
 /** Rapier-backed kinematic capsule character controller. */
@@ -105,6 +106,16 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     }
     const radius =
       Math.max(capsule.radiusBottom, capsule.radiusTop) * Math.max(absoluteScale.x, absoluteScale.y, absoluteScale.z);
+    this.__options.groundProbeRadius = options.groundProbeRadius ?? radius * 0.8;
+    if (
+      !Number.isFinite(this.__options.groundProbeRadius) ||
+      this.__options.groundProbeRadius <= 0 ||
+      this.__options.groundProbeRadius > radius
+    ) {
+      throw new Error(
+        'Character controller groundProbeRadius must be positive and no greater than the capsule radius.'
+      );
+    }
     const scaledLocalPosition = Vector3.fromCopy3(
       shapeInstance.localPosition.x * absoluteScale.x,
       shapeInstance.localPosition.y * absoluteScale.y,
@@ -263,14 +274,23 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
       Vector3.fromCopy3(position.x, position.y, position.z),
       this.__capsuleBottomOffset
     );
-    const start = Vector3.add(capsuleBottom, Vector3.fromCopy3(0, this.__options.groundProbeStartOffset, 0));
-    const hit = this.__worldQuery.castRay(start, Vector3.fromCopy3(0, -1, 0), this.__options.groundProbeDistance, {
-      includeSensors: false,
-      collisionGroup: this.__options.groundCollisionGroup,
-      collisionMask: this.__options.groundCollisionMask,
-      excludeEntities: [this.__entity],
-    });
-    if (hit == null) {
+    const start = Vector3.add(
+      capsuleBottom,
+      Vector3.fromCopy3(0, this.__options.groundProbeRadius + this.__options.groundProbeStartOffset, 0)
+    );
+    const hit = this.__worldQuery.castSphere(
+      start,
+      this.__options.groundProbeRadius,
+      Vector3.fromCopy3(0, -1, 0),
+      this.__options.groundProbeDistance,
+      {
+        includeSensors: false,
+        collisionGroup: this.__options.groundCollisionGroup,
+        collisionMask: this.__options.groundCollisionMask,
+        excludeEntities: [this.__entity],
+      }
+    );
+    if (hit == null || hit.normal.y <= 0) {
       this.__groundContact = undefined;
       return;
     }

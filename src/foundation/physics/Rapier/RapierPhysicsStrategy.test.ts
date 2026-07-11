@@ -191,6 +191,7 @@ class FakeWorld {
   colliders: FakeColliderDesc[] = [];
   removedBodies = 0;
   lastRaycast?: { maxToi: number; solid: boolean; filterFlags?: number; filterGroups?: number };
+  lastSpherecast?: { targetDistance: number; maxToi: number; stopAtPenetration: boolean; filterFlags?: number };
 
   constructor(readonly gravity: { x: number; y: number; z: number }) {
     lastWorld = this;
@@ -237,6 +238,32 @@ class FakeWorld {
     const collider = this.colliders.find(item => predicate?.(item) ?? true);
     return collider == null ? null : { collider, timeOfImpact: Math.min(2, maxToi), normal: { x: 0, y: 1, z: 0 } };
   }
+
+  castShape(
+    _origin: unknown,
+    _rotation: unknown,
+    _direction: unknown,
+    _shape: unknown,
+    targetDistance: number,
+    maxToi: number,
+    stopAtPenetration: boolean,
+    filterFlags?: number,
+    _filterGroups?: number,
+    _excludeCollider?: FakeColliderDesc,
+    _excludeRigidBody?: FakeRigidBody,
+    predicate?: (collider: FakeColliderDesc) => boolean
+  ) {
+    this.lastSpherecast = { targetDistance, maxToi, stopAtPenetration, filterFlags };
+    const collider = this.colliders.find(item => predicate?.(item) ?? true);
+    return collider == null
+      ? null
+      : {
+          collider,
+          time_of_impact: Math.min(1, maxToi),
+          normal1: { x: 0, y: 1, z: 0 },
+          witness1: { x: 1, y: 4, z: 3 },
+        };
+  }
 }
 
 let lastWorld: FakeWorld | undefined;
@@ -250,6 +277,10 @@ class FakeRay {
     readonly origin: { x: number; y: number; z: number },
     readonly direction: { x: number; y: number; z: number }
   ) {}
+}
+
+class FakeBall {
+  constructor(readonly radius: number) {}
 }
 
 function createFakeRapier(onInit?: () => void): RapierPhysicsModuleLike {
@@ -273,6 +304,7 @@ function createFakeRapier(onInit?: () => void): RapierPhysicsModuleLike {
     ActiveCollisionTypes: { ALL: 0xffff },
     QueryFilterFlags: { EXCLUDE_SENSORS: 8 },
     Ray: FakeRay,
+    Ball: FakeBall,
     EventQueue: FakeEventQueue,
   };
 }
@@ -367,6 +399,18 @@ test('RapierPhysicsWorldQueryStrategy resolves hits through collider metadata an
   expect(lastWorld?.lastRaycast).toEqual({ maxToi: 5, solid: true, filterFlags: 8, filterGroups: 0x00020004 });
   expect(query.castRay(Vector3.zero(), Vector3.fromCopy3(0, -1, 0), 5, { excludeEntities: [entity] })).toBe(undefined);
   expect(query.castRay(Vector3.zero(), Vector3.fromCopy3(0, -1, 0), 5, { predicate: () => false })).toBeUndefined();
+
+  const sphereHit = query.castSphere(Vector3.fromCopy3(1, 5, 3), 0.5, Vector3.fromCopy3(0, -2, 0), 4);
+  expect(sphereHit?.entity).toBe(entity);
+  expect(sphereHit?.distance).toBe(1);
+  expect(sphereHit?.fraction).toBe(0.25);
+  expect(sphereHit?.position.isEqual(Vector3.fromCopy3(1, 4, 3))).toBe(true);
+  expect(lastWorld?.lastSpherecast).toEqual({
+    targetDistance: 0,
+    maxToi: 4,
+    stopAtPenetration: true,
+    filterFlags: 8,
+  });
 });
 
 test('RapierPhysicsStrategy recreates the collider when scale changes', async () => {

@@ -76,6 +76,13 @@ checkpointTrigger.subscribe('exit', () => {
 });
 
 const material = Rn.MaterialHelper.createClassicUberMaterial(engine);
+const probeMaterial = Rn.MaterialHelper.createClassicUberMaterial(engine);
+probeMaterial.setParameter('diffuseColorFactor', Rn.Vector4.fromCopy4(0.2, 1, 0.25, 0.25));
+probeMaterial.alphaMode = Rn.AlphaMode.Blend;
+const groundProbeVisual = Rn.MeshHelper.createSphere(engine, {
+  radius: 0.24,
+  material: probeMaterial,
+});
 const footRayVisual = Rn.MeshHelper.createCylinder(engine, {
   radiusBottom: 0.012,
   radiusTop: 0.012,
@@ -86,7 +93,7 @@ const footRayHitVisual = Rn.MeshHelper.createSphere(engine, {
   radius: 0.06,
   material,
 });
-renderPass.addEntities([footRayVisual, footRayHitVisual]);
+renderPass.addEntities([groundProbeVisual, footRayVisual, footRayHitVisual]);
 const floorVisual = Rn.MeshHelper.createCube(engine, {
   widthVector: Rn.Vector3.fromCopy3(12, 0.2, 12),
   color: Rn.ColorRgba.fromCopy4(0.45, 0.5, 0.55, 1),
@@ -203,6 +210,7 @@ engine.startRenderLoop(() => {
   engine.process([vrmExpression]);
   const position = characterEntity.position;
   const groundContact = characterController.groundContact;
+  groundProbeVisual.position = Rn.Vector3.fromCopy3(position.x, position.y + 0.25, position.z);
   footRayVisual.position = Rn.Vector3.fromCopy3(position.x, position.y - 0.75, position.z);
   if (groundContact != null) {
     footRayHitVisual.position = groundContact.position;

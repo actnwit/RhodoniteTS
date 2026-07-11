@@ -129,10 +129,14 @@ class FakeWorld {
       this.body.current = { ...this.body.next };
     }
   }
-  castRayAndGetNormal(
-    _ray: unknown,
+  castShape(
+    _origin: RapierVector3Like,
+    _rotation: unknown,
+    _direction: RapierVector3Like,
+    _shape: unknown,
+    _targetDistance: number,
     _maxToi: number,
-    _solid: boolean,
+    _stopAtPenetration: boolean,
     _filterFlags?: number,
     _filterGroups?: number,
     _excludeCollider?: FakeColliderDesc,
@@ -140,7 +144,14 @@ class FakeWorld {
     predicate?: (collider: FakeColliderDesc) => boolean
   ) {
     const collider = this.colliders.find(candidate => predicate?.(candidate) ?? true);
-    return collider == null ? null : { collider, timeOfImpact: 0.02, normal: this.rayHitNormal };
+    return collider == null
+      ? null
+      : {
+          collider,
+          time_of_impact: 0.02,
+          normal1: this.rayHitNormal,
+          witness1: { x: 0, y: 0, z: 0 },
+        };
   }
 }
 
@@ -159,11 +170,8 @@ function fakeRapier(): RapierPhysicsModuleLike {
       ball: () => new FakeColliderDesc(0, 0),
       capsule: (halfHeight, radius) => new FakeColliderDesc(halfHeight, radius),
     },
-    Ray: class {
-      constructor(
-        readonly origin: RapierVector3Like,
-        readonly direction: RapierVector3Like
-      ) {}
+    Ball: class {
+      constructor(readonly radius: number) {}
     },
     QueryFilterFlags: { EXCLUDE_SENSORS: 8 },
   };
@@ -263,9 +271,14 @@ test('reports flat and steep ground contacts and clears stale contact state', as
   expect(strategy.groundContact?.slopeAngle).toBeCloseTo(Math.PI / 3);
   expect(strategy.groundContact?.isWalkable).toBe(false);
 
+  world.rayHitNormal = { x: 1, y: 0, z: 0 };
+  RapierPhysicsStrategy.update(3, 0.1);
+  expect(strategy.groundContact).toBeUndefined();
+
   strategy.teleport(Vector3.fromCopy3(0, 2, 0));
   expect(strategy.groundContact).toBeUndefined();
-  RapierPhysicsStrategy.update(3, 0.1);
+  world.rayHitNormal = { x: 0, y: 1, z: 0 };
+  RapierPhysicsStrategy.update(4, 0.1);
   expect(strategy.groundContact).toBeDefined();
   strategy.enabled = false;
   expect(strategy.groundContact).toBeUndefined();

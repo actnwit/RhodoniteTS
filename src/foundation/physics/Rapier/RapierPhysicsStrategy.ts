@@ -79,6 +79,13 @@ export type RapierRayIntersectionLike = {
   normal: RapierVector3Like;
 };
 
+export type RapierShapeCastHitLike = {
+  collider: RapierColliderLike;
+  time_of_impact: number;
+  normal1: RapierVector3Like;
+  witness1: RapierVector3Like;
+};
+
 export type RapierColliderMetadata = {
   entity: ISceneGraphEntity;
   bindingId?: number;
@@ -119,6 +126,20 @@ export type RapierWorldLike = {
     filterExcludeRigidBody?: RapierRigidBodyLike,
     filterPredicate?: (collider: RapierColliderLike) => boolean
   ): RapierRayIntersectionLike | null;
+  castShape?(
+    shapePos: RapierVector3Like,
+    shapeRot: RapierQuaternionLike,
+    shapeVel: RapierVector3Like,
+    shape: unknown,
+    targetDistance: number,
+    maxToi: number,
+    stopAtPenetration: boolean,
+    filterFlags?: number,
+    filterGroups?: number,
+    filterExcludeCollider?: RapierColliderLike,
+    filterExcludeRigidBody?: RapierRigidBodyLike,
+    filterPredicate?: (collider: RapierColliderLike) => boolean
+  ): RapierShapeCastHitLike | null;
 };
 
 export type RapierEventQueueLike = {
@@ -151,6 +172,7 @@ export type RapierPhysicsModuleLike = {
   ActiveCollisionTypes?: { ALL: number };
   QueryFilterFlags?: { EXCLUDE_SENSORS: number };
   Ray?: new (origin: RapierVector3Like, direction: RapierVector3Like) => unknown;
+  Ball?: new (radius: number) => unknown;
 };
 
 type StoredPhysicsProperty = Omit<PhysicsPropertyInner, 'position' | 'rotation' | 'size'> & {
