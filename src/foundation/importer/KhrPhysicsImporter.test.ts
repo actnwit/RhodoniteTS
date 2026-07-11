@@ -275,11 +275,45 @@ test('groups colliders by their nearest motion ancestor and keeps static collide
   expect(result.groups.map(group => group.bodyNodeIndex)).toEqual([0, 3, 5]);
   expect(result.groups[0].colliders).toHaveLength(2);
   expect(result.groups[0].motion?.isKinematic).toBe(true);
+  expect(result.groups[0].motion?.mass).toBe(5);
   expect(result.groups[0].colliders[0].localPosition.isEqual(Vector3.fromCopy3(1, 0, 0))).toBe(true);
   expect(result.groups[0].colliders[1].descriptor).toEqual({ type: 'sphere', radius: 2 });
   expect(result.groups[1].colliders[0].localPosition.isEqual(Vector3.fromCopy3(0, 1, 0))).toBe(true);
   expect(result.groups[2].motion).toBeUndefined();
   expect(result.groups[2].colliders[0].localPosition.isEqual(Vector3.zero())).toBe(true);
-  expect(result.warnings.some(warning => warning.includes('mass'))).toBe(true);
+  expect(result.warnings.some(warning => warning.includes('unsupported') && warning.includes('mass'))).toBe(false);
   expect(result.warnings.some(warning => warning.includes('non-uniform'))).toBe(true);
+});
+
+test('normalizes supported motion values and diagnoses malformed or deferred mass properties', () => {
+  const gltf = createGltf(
+    [
+      {
+        children: [1],
+        extensions: {
+          KHR_physics_rigid_bodies: {
+            motion: {
+              mass: 0,
+              linearVelocity: [1, 2],
+              angularVelocity: [0, 1, 2],
+              gravityFactor: -1,
+              centerOfMass: [0, 0, 0],
+            },
+          },
+        },
+      },
+      { extensions: { KHR_physics_rigid_bodies: { collider: { geometry: { shape: 0 } } } } },
+    ],
+    { KHR_implicit_shapes: { shapes: [{ type: 'box' }] } }
+  );
+
+  const result = collectKhrRigidBodyGroups(gltf);
+
+  expect(result.groups[0].motion?.mass).toBeUndefined();
+  expect(result.groups[0].motion?.linearVelocity).toBeUndefined();
+  expect(result.groups[0].motion?.angularVelocity).toEqual([0, 1, 2]);
+  expect(result.groups[0].motion?.gravityFactor).toBe(-1);
+  expect(result.warnings.some(warning => warning.includes('infinite mass'))).toBe(true);
+  expect(result.warnings.some(warning => warning.includes('invalid linearVelocity'))).toBe(true);
+  expect(result.warnings.some(warning => warning.includes('centerOfMass'))).toBe(true);
 });

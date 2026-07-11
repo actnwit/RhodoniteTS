@@ -10,12 +10,14 @@ describe('PhysicsComponent shape bindings', async () => {
     shape.addShape({ type: 'sphere', radius: 0.5 });
     const entity = engine.entityRepository.addComponentToEntity(Rn.PhysicsComponent, shapeEntity);
     const calls: Array<readonly Rn.PhysicsShapeInstanceBinding[]> = [];
+    const motionCalls: Array<Rn.PhysicsMotionProperty | undefined> = [];
     let clearCount = 0;
     const strategy = {
       update: () => {},
       setShapeInstances: multiple
-        ? (bindings: readonly Rn.PhysicsShapeInstanceBinding[]) => {
+        ? (bindings: readonly Rn.PhysicsShapeInstanceBinding[], _entity, _scale, motion) => {
             calls.push(bindings);
+            motionCalls.push(motion);
           }
         : undefined,
       setShapeInstance: () => {},
@@ -28,6 +30,7 @@ describe('PhysicsComponent shape bindings', async () => {
       entity,
       shape,
       calls,
+      motionCalls,
       get clearCount() {
         return clearCount;
       },
@@ -121,5 +124,22 @@ describe('PhysicsComponent shape bindings', async () => {
       })
     ).toThrow('does not support multiple');
     expect(physics.shapeBindingCount).toBe(1);
+  });
+
+  test('stores body-level motion once and rebuilds existing bindings when it changes', () => {
+    const fixture = createFixture();
+    const physics = fixture.entity.getPhysics();
+    physics.setMotionProperty({ move: true, mass: 5, gravityFactor: 0 });
+    physics.bindShape({
+      shapeComponent: fixture.shape,
+      body: { move: true, density: 1 },
+      collider,
+    });
+    expect(fixture.motionCalls.at(-1)?.mass).toBe(5);
+
+    physics.setMotionProperty({ move: true, mass: 8, gravityFactor: -1 });
+    expect(fixture.calls.at(-1)).toHaveLength(1);
+    expect(fixture.motionCalls.at(-1)?.mass).toBe(8);
+    expect(physics.motionProperty?.gravityFactor).toBe(-1);
   });
 });

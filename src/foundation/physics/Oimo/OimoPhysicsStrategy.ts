@@ -6,7 +6,12 @@ import { type IQuaternion, type IVector3, MathUtil, Matrix44, Quaternion } from 
 import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
 import { Logger } from '../../misc/Logger';
-import type { PhysicsBodyProperty, PhysicsColliderProperty, PhysicsPropertyInner } from '../PhysicsProperty';
+import type {
+  PhysicsBodyProperty,
+  PhysicsColliderProperty,
+  PhysicsMotionProperty,
+  PhysicsPropertyInner,
+} from '../PhysicsProperty';
 import type { PhysicsStrategy } from '../PhysicsStrategy';
 import type { PhysicsWorldProperty } from '../PhysicsWorldProperty';
 
@@ -115,8 +120,17 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     body: PhysicsBodyProperty,
     collider: PhysicsColliderProperty,
     entity: ISceneGraphEntity,
-    worldScale: IVector3 = Vector3.one()
+    worldScale: IVector3 = Vector3.one(),
+    motion?: PhysicsMotionProperty
   ): void {
+    if (
+      motion?.mass != null ||
+      motion?.linearVelocity != null ||
+      motion?.angularVelocity != null ||
+      motion?.gravityFactor != null
+    ) {
+      throw new Error('OimoPhysicsStrategy does not support rigid-body motion parameters.');
+    }
     if (body.isKinematic) {
       throw new Error('OimoPhysicsStrategy does not support kinematic generic shape bodies.');
     }

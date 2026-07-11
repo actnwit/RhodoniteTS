@@ -74,6 +74,52 @@ function isFiniteNonNegative(value: number): boolean {
   return Number.isFinite(value) && value >= 0;
 }
 
+function normalizeMotion(
+  motion: KHRPhysicsMotion | undefined,
+  warnings: string[],
+  nodeIndex: number
+): KHRPhysicsMotion | undefined {
+  if (motion == null) {
+    return undefined;
+  }
+  const normalized: KHRPhysicsMotion = {
+    isKinematic: motion.isKinematic,
+    centerOfMass: motion.centerOfMass,
+    inertiaDiagonal: motion.inertiaDiagonal,
+    inertiaOrientation: motion.inertiaOrientation,
+  };
+  if (motion.mass != null) {
+    if (!Number.isFinite(motion.mass) || motion.mass < 0) {
+      warnings.push(`${KHR_PHYSICS_RIGID_BODIES}: motion node ${nodeIndex} has invalid mass; it is ignored.`);
+    } else if (motion.mass === 0) {
+      warnings.push(
+        `${KHR_PHYSICS_RIGID_BODIES}: motion node ${nodeIndex} uses infinite mass (mass: 0), which is not yet supported; mass is derived from collider density.`
+      );
+    } else {
+      normalized.mass = motion.mass;
+    }
+  }
+  for (const name of ['linearVelocity', 'angularVelocity'] as const) {
+    const value = motion[name];
+    if (value == null) {
+      continue;
+    }
+    if (value.length !== 3 || value.some(component => !Number.isFinite(component))) {
+      warnings.push(`${KHR_PHYSICS_RIGID_BODIES}: motion node ${nodeIndex} has invalid ${name}; it is ignored.`);
+    } else {
+      normalized[name] = [...value];
+    }
+  }
+  if (motion.gravityFactor != null) {
+    if (!Number.isFinite(motion.gravityFactor)) {
+      warnings.push(`${KHR_PHYSICS_RIGID_BODIES}: motion node ${nodeIndex} has invalid gravityFactor; it is ignored.`);
+    } else {
+      normalized.gravityFactor = motion.gravityFactor;
+    }
+  }
+  return normalized;
+}
+
 function normalizeKhrShape(shape: KHRImplicitShape): ShapeDescriptor | undefined {
   const parameterNames = ['plane', 'sphere', 'box', 'cylinder', 'capsule'] as const;
   const suppliedParameters = parameterNames.filter(name => shape[name] != null);
@@ -320,21 +366,15 @@ export function collectKhrRigidBodyGroups(gltfModel: RnM2): KhrRigidBodyGroupCol
     const material = normalizeMaterial(collider.physicsMaterial, rigidBodiesExtension, warnings, nodeIndex);
     let group = groups.get(bodyNodeIndex);
     if (group == null) {
-      group = { bodyNodeIndex, motion, colliders: [] };
+      group = { bodyNodeIndex, motion: normalizeMotion(motion, warnings, bodyNodeIndex), colliders: [] };
       groups.set(bodyNodeIndex, group);
       if (motion != null) {
-        const unsupported = [
-          'mass',
-          'centerOfMass',
-          'inertiaDiagonal',
-          'inertiaOrientation',
-          'linearVelocity',
-          'angularVelocity',
-          'gravityFactor',
-        ].filter(name => motion[name as keyof KHRPhysicsMotion] != null);
+        const unsupported = ['centerOfMass', 'inertiaDiagonal', 'inertiaOrientation'].filter(
+          name => motion[name as keyof KHRPhysicsMotion] != null
+        );
         if (unsupported.length > 0) {
           warnings.push(
-            `${KHR_PHYSICS_RIGID_BODIES}: motion node ${bodyNodeIndex} uses unsupported properties (${unsupported.join(', ')}); only its body type is imported.`
+            `${KHR_PHYSICS_RIGID_BODIES}: motion node ${bodyNodeIndex} uses unsupported mass properties (${unsupported.join(', ')}); they are ignored.`
           );
         }
       }
@@ -492,6 +532,20 @@ export function setupKhrStaticColliders(gltfModel: RnM2, rnEntities: ISceneGraph
     const physicsEntity = binding.entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, binding.entity);
     const physicsComponent = physicsEntity.getPhysics();
     physicsComponent.setStrategy(new RapierPhysicsStrategy());
+    physicsComponent.setMotionProperty({
+      move: binding.group.motion != null,
+      isKinematic: binding.group.motion?.isKinematic ?? false,
+      mass: binding.group.motion?.mass,
+      linearVelocity:
+        binding.group.motion?.linearVelocity == null
+          ? undefined
+          : Vector3.fromCopyArray(binding.group.motion.linearVelocity),
+      angularVelocity:
+        binding.group.motion?.angularVelocity == null
+          ? undefined
+          : Vector3.fromCopyArray(binding.group.motion.angularVelocity),
+      gravityFactor: binding.group.motion?.gravityFactor,
+    });
     for (let i = 0; i < binding.group.colliders.length; i++) {
       const collider = binding.group.colliders[i];
       physicsComponent.bindShape({

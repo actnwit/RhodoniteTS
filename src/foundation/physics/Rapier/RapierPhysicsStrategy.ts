@@ -4,7 +4,12 @@ import type { ShapeInstance } from '../../geometry/Shape';
 import type { ISceneGraphEntity } from '../../helpers';
 import { type IQuaternion, type IVector3, Matrix44, Quaternion, Vector3 } from '../../math';
 import { Logger } from '../../misc/Logger';
-import type { PhysicsBodyProperty, PhysicsColliderProperty, PhysicsPropertyInner } from '../PhysicsProperty';
+import type {
+  PhysicsBodyProperty,
+  PhysicsColliderProperty,
+  PhysicsMotionProperty,
+  PhysicsPropertyInner,
+} from '../PhysicsProperty';
 import type { PhysicsShapeInstanceBinding, PhysicsStrategy } from '../PhysicsStrategy';
 import type { PhysicsWorldProperty } from '../PhysicsWorldProperty';
 
@@ -24,6 +29,9 @@ export type RapierQuaternionLike = {
 export type RapierRigidBodyDescLike = {
   setTranslation(x: number, y: number, z: number): RapierRigidBodyDescLike;
   setRotation(rotation: RapierQuaternionLike): RapierRigidBodyDescLike;
+  setLinvel?(x: number, y: number, z: number): RapierRigidBodyDescLike;
+  setAngvel?(velocity: RapierVector3Like): RapierRigidBodyDescLike;
+  setGravityScale?(factor: number): RapierRigidBodyDescLike;
 };
 
 export type RapierColliderDescLike = {
@@ -117,6 +125,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
   private __shapeLocalPosition: IVector3 = Vector3.zero();
   private __shapeLocalRotation: IQuaternion = Quaternion.identity();
   private __shapeBindings?: PhysicsShapeInstanceBinding[];
+  private __motion?: PhysicsMotionProperty;
   private __shapeWorldScale: IVector3 = Vector3.one();
   private __warnedAsymmetricRadius = false;
   private __warnedNonUniformScale = false;
@@ -165,6 +174,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
   setShape(prop: PhysicsPropertyInner, entity: ISceneGraphEntity, worldScale: IVector3 = Vector3.one()): void {
     this.__removeBody();
     this.__shapeBindings = undefined;
+    this.__motion = undefined;
     this.__shapeLocalPosition = Vector3.zero();
     this.__shapeLocalRotation = Quaternion.identity();
     this.__setShape(prop, entity, worldScale);
@@ -175,22 +185,28 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     body: PhysicsBodyProperty,
     collider: PhysicsColliderProperty,
     entity: ISceneGraphEntity,
-    worldScale: IVector3 = Vector3.one()
+    worldScale: IVector3 = Vector3.one(),
+    motion?: PhysicsMotionProperty
   ): void {
-    this.setShapeInstances([{ shape, body, collider }], entity, worldScale);
+    this.setShapeInstances([{ shape, body, collider }], entity, worldScale, motion);
   }
 
   setShapeInstances(
     bindings: readonly PhysicsShapeInstanceBinding[],
     entity: ISceneGraphEntity,
-    worldScale: IVector3 = Vector3.one()
+    worldScale: IVector3 = Vector3.one(),
+    motion?: PhysicsMotionProperty
   ): void {
     if (bindings.length === 0) {
       this.clearShapeInstances();
       return;
     }
-    const move = bindings[0].body.move;
-    const isKinematic = bindings[0].body.isKinematic ?? false;
+    const resolvedMotion = motion ?? {
+      move: bindings[0].body.move,
+      isKinematic: bindings[0].body.isKinematic,
+    };
+    const move = resolvedMotion.move;
+    const isKinematic = resolvedMotion.isKinematic ?? false;
     if (bindings.some(binding => binding.body.move !== move)) {
       throw new Error('All Rapier colliders on one rigid body must use the same body.move value.');
     }
@@ -199,6 +215,16 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     }
     if (!move && isKinematic) {
       throw new Error('A kinematic Rapier body must have body.move enabled.');
+    }
+    const hasDynamicParameters =
+      resolvedMotion.mass != null ||
+      resolvedMotion.linearVelocity != null ||
+      resolvedMotion.angularVelocity != null ||
+      resolvedMotion.gravityFactor != null;
+    if ((!move || isKinematic) && hasDynamicParameters) {
+      Logger.default.warn(
+        `Rapier ignores mass, initial velocity, and gravityFactor on ${isKinematic ? 'kinematic' : 'fixed'} bodies.`
+      );
     }
     if (isKinematic && RapierPhysicsStrategy.__getRapier().RigidBodyDesc.kinematicPositionBased == null) {
       throw new Error('The injected Rapier module does not support position-based kinematic bodies.');
@@ -212,6 +238,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       body: { ...binding.body },
       collider: { ...binding.collider },
     }));
+    this.__motion = RapierPhysicsStrategy.__copyMotion(resolvedMotion);
     this.__shapeWorldScale = Vector3.fromCopy3(Math.abs(worldScale.x), Math.abs(worldScale.y), Math.abs(worldScale.z));
     this.__warnedAsymmetricRadius = false;
     this.__warnedNonUniformScale = false;
@@ -224,7 +251,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
         size,
         position: entity.getSceneGraph().position,
         rotation: entity.getSceneGraph().eulerAngles,
-        move: first.body.move,
+        move: resolvedMotion.move,
         density: first.body.density,
         friction: first.collider.friction,
         restitution: first.collider.restitution,
@@ -237,6 +264,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
   clearShapeInstances(): void {
     this.__removeBody();
     this.__shapeBindings = undefined;
+    this.__motion = undefined;
     this.__property = undefined;
   }
 
@@ -422,7 +450,8 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
   private __createBody(prop: StoredPhysicsProperty, size: IVector3, position: IVector3, rotation: IQuaternion): void {
     const rapier = RapierPhysicsStrategy.__getRapier();
     const world = RapierPhysicsStrategy.__getWorld();
-    const isKinematic = this.__shapeBindings?.[0]?.body.isKinematic ?? false;
+    const motion = this.__motion;
+    const isKinematic = motion?.isKinematic ?? this.__shapeBindings?.[0]?.body.isKinematic ?? false;
     const rigidBodyDesc = isKinematic
       ? rapier.RigidBodyDesc.kinematicPositionBased!()
       : prop.move
@@ -431,6 +460,23 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     rigidBodyDesc
       .setTranslation(position.x, position.y, position.z)
       .setRotation(RapierPhysicsStrategy.__toRapierQuaternion(rotation));
+
+    if (prop.move && !isKinematic && motion != null) {
+      const velocityRotation = this.__entity?.getSceneGraph().getQuaternionRecursively() ?? rotation;
+      const linearVelocity =
+        motion.linearVelocity == null ? undefined : velocityRotation.transformVector3(motion.linearVelocity);
+      const angularVelocity =
+        motion.angularVelocity == null ? undefined : velocityRotation.transformVector3(motion.angularVelocity);
+      if (linearVelocity != null) {
+        rigidBodyDesc.setLinvel?.(linearVelocity.x, linearVelocity.y, linearVelocity.z);
+      }
+      if (angularVelocity != null) {
+        rigidBodyDesc.setAngvel?.({ x: angularVelocity.x, y: angularVelocity.y, z: angularVelocity.z });
+      }
+      if (motion.gravityFactor != null) {
+        rigidBodyDesc.setGravityScale?.(motion.gravityFactor);
+      }
+    }
 
     this.__rigidBody = world.createRigidBody(rigidBodyDesc);
     if (this.__shapeBindings != null) {
@@ -505,7 +551,12 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       );
     }
 
-    colliderDesc = colliderDesc.setDensity?.(binding.body.density) ?? colliderDesc;
+    const explicitMass = this.__motion?.move && !this.__motion.isKinematic ? this.__motion.mass : undefined;
+    const density =
+      explicitMass != null && explicitMass > 0
+        ? explicitMass / this.__shapeBindings!.reduce((sum, item) => sum + this.__getScaledVolume(item), 0)
+        : binding.body.density;
+    colliderDesc = colliderDesc.setDensity?.(density) ?? colliderDesc;
     colliderDesc = colliderDesc.setFriction?.(binding.collider.friction) ?? colliderDesc;
     colliderDesc = colliderDesc.setRestitution?.(binding.collider.restitution) ?? colliderDesc;
     colliderDesc =
@@ -518,6 +569,39 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       colliderDesc.setRotation?.(RapierPhysicsStrategy.__toRapierQuaternion(shapeInstance.localRotation)) ??
       colliderDesc;
     return colliderDesc;
+  }
+
+  private __getScaledVolume(binding: PhysicsShapeInstanceBinding): number {
+    const shape = binding.shape.shape;
+    const scale = this.__shapeWorldScale;
+    if (shape.type === 'box') {
+      return shape.size.x * scale.x * shape.size.y * scale.y * shape.size.z * scale.z;
+    }
+    if (shape.type === 'sphere') {
+      const radius = shape.radius * Math.max(scale.x, scale.y, scale.z);
+      return (4 / 3) * Math.PI * radius ** 3;
+    }
+    const radius = Math.max(shape.radiusBottom, shape.radiusTop) * Math.max(scale.x, scale.z);
+    const cylinderVolume = Math.PI * radius ** 2 * shape.height * scale.y;
+    if (shape.type === 'cylinder') {
+      return cylinderVolume;
+    }
+    const capsuleRadius = Math.max(shape.radiusBottom, shape.radiusTop) * Math.max(scale.x, scale.y, scale.z);
+    return Math.PI * capsuleRadius ** 2 * shape.height * scale.y + (4 / 3) * Math.PI * capsuleRadius ** 3;
+  }
+
+  private static __copyMotion(motion: PhysicsMotionProperty): PhysicsMotionProperty {
+    return {
+      ...motion,
+      linearVelocity:
+        motion.linearVelocity == null
+          ? undefined
+          : Vector3.fromCopy3(motion.linearVelocity.x, motion.linearVelocity.y, motion.linearVelocity.z),
+      angularVelocity:
+        motion.angularVelocity == null
+          ? undefined
+          : Vector3.fromCopy3(motion.angularVelocity.x, motion.angularVelocity.y, motion.angularVelocity.z),
+    };
   }
 
   private __getApproximatedRadius(radiusBottom: number, radiusTop: number, shapeType: string): number {

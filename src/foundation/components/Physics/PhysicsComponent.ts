@@ -3,10 +3,15 @@ import { Component } from '../../core/Component';
 import type { IEntity } from '../../core/Entity';
 import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
+import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
 import { Time } from '../../misc/Time';
 import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
-import type { PhysicsBodyProperty, PhysicsColliderProperty } from '../../physics/PhysicsProperty';
+import type {
+  PhysicsBodyProperty,
+  PhysicsColliderProperty,
+  PhysicsMotionProperty,
+} from '../../physics/PhysicsProperty';
 import type { PhysicsShapeInstanceBinding, PhysicsStrategy } from '../../physics/PhysicsStrategy';
 import { RapierPhysicsStrategy } from '../../physics/Rapier/RapierPhysicsStrategy';
 import { VRMSpringBonePhysicsStrategy } from '../../physics/VRMSpring/VRMSpringBonePhysicsStrategy';
@@ -32,6 +37,7 @@ export class PhysicsComponent extends Component {
   private __strategy?: PhysicsStrategy;
   private __shapeBindings = new Map<number, PhysicsShapeBinding>();
   private __nextShapeBindingId = 0;
+  private __motion?: PhysicsMotionProperty;
 
   /**
    * Creates a new PhysicsComponent instance.
@@ -84,6 +90,27 @@ export class PhysicsComponent extends Component {
    */
   get strategy() {
     return this.__strategy;
+  }
+
+  /** Sets properties shared by the complete rigid body and rebuilds its colliders. */
+  setMotionProperty(motion: PhysicsMotionProperty): void {
+    if (!motion.move && motion.isKinematic) {
+      throw new Error('A kinematic physics body must have motion.move enabled.');
+    }
+    const previous = this.__motion;
+    this.__motion = PhysicsComponent.__copyMotion(motion);
+    try {
+      if (this.__shapeBindings.size > 0) {
+        this.__applyShapeBindings(this.__shapeBindings);
+      }
+    } catch (error) {
+      this.__motion = previous;
+      throw error;
+    }
+  }
+
+  get motionProperty(): PhysicsMotionProperty | undefined {
+    return this.__motion == null ? undefined : PhysicsComponent.__copyMotion(this.__motion);
   }
 
   /** Adds one generic ShapeComponent instance to this physical body. */
@@ -163,16 +190,24 @@ export class PhysicsComponent extends Component {
       resolved.push({ shape, body: { ...binding.body }, collider: { ...binding.collider } });
     }
     const entity = this.entity as import('../../helpers/EntityHelper').ISceneGraphEntity;
+    const motion = this.__motion ?? (move == null ? undefined : { move, isKinematic });
     if (resolved.length === 0) {
       if (strategy.clearShapeInstances == null) {
         throw new Error('The current physics strategy cannot clear ShapeComponent bindings.');
       }
       strategy.clearShapeInstances();
     } else if (strategy.setShapeInstances != null) {
-      strategy.setShapeInstances(resolved, entity, entity.getSceneGraph().scale);
+      strategy.setShapeInstances(resolved, entity, entity.getSceneGraph().scale, motion);
     } else if (resolved.length === 1 && strategy.setShapeInstance != null) {
       const binding = resolved[0];
-      strategy.setShapeInstance(binding.shape, binding.body, binding.collider, entity, entity.getSceneGraph().scale);
+      strategy.setShapeInstance(
+        binding.shape,
+        binding.body,
+        binding.collider,
+        entity,
+        entity.getSceneGraph().scale,
+        motion
+      );
     } else {
       throw new Error('The current physics strategy does not support multiple ShapeComponent bindings.');
     }
@@ -184,6 +219,20 @@ export class PhysicsComponent extends Component {
       shapeIndex: binding.shapeIndex,
       body: { ...binding.body },
       collider: { ...binding.collider },
+    };
+  }
+
+  private static __copyMotion(motion: PhysicsMotionProperty): PhysicsMotionProperty {
+    return {
+      ...motion,
+      linearVelocity:
+        motion.linearVelocity == null
+          ? undefined
+          : Vector3.fromCopy3(motion.linearVelocity.x, motion.linearVelocity.y, motion.linearVelocity.z),
+      angularVelocity:
+        motion.angularVelocity == null
+          ? undefined
+          : Vector3.fromCopy3(motion.angularVelocity.x, motion.angularVelocity.y, motion.angularVelocity.z),
     };
   }
 

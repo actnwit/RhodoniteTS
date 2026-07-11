@@ -8,6 +8,9 @@ import { type RapierPhysicsModuleLike, RapierPhysicsStrategy } from './RapierPhy
 class FakeRigidBodyDesc {
   translation = { x: 0, y: 0, z: 0 };
   rotation = { x: 0, y: 0, z: 0, w: 1 };
+  linearVelocity = { x: 0, y: 0, z: 0 };
+  angularVelocity = { x: 0, y: 0, z: 0 };
+  gravityScale = 1;
 
   constructor(readonly kind: 'dynamic' | 'fixed' | 'kinematic' = 'dynamic') {}
 
@@ -18,6 +21,21 @@ class FakeRigidBodyDesc {
 
   setRotation(rotation: { x: number; y: number; z: number; w: number }): FakeRigidBodyDesc {
     this.rotation = rotation;
+    return this;
+  }
+
+  setLinvel(x: number, y: number, z: number): FakeRigidBodyDesc {
+    this.linearVelocity = { x, y, z };
+    return this;
+  }
+
+  setAngvel(velocity: { x: number; y: number; z: number }): FakeRigidBodyDesc {
+    this.angularVelocity = { ...velocity };
+    return this;
+  }
+
+  setGravityScale(factor: number): FakeRigidBodyDesc {
+    this.gravityScale = factor;
     return this;
   }
 }
@@ -68,9 +86,15 @@ class FakeRigidBody {
     this.translationValue = { ...desc.translation };
     this.rotationValue = { ...desc.rotation };
     this.kind = desc.kind;
+    this.linearVelocity = { ...desc.linearVelocity };
+    this.angularVelocity = { ...desc.angularVelocity };
+    this.gravityScale = desc.gravityScale;
   }
 
   readonly kind: 'dynamic' | 'fixed' | 'kinematic';
+  readonly linearVelocity: { x: number; y: number; z: number };
+  readonly angularVelocity: { x: number; y: number; z: number };
+  readonly gravityScale: number;
 
   translation() {
     return this.translationValue;
@@ -160,6 +184,8 @@ function createSceneGraphEntity() {
           return state.position;
         },
         eulerAngles: Vector3.zero(),
+        scale: Vector3.one(),
+        getQuaternionRecursively: () => state.rotation,
         setPositionWithoutPhysics: (position: Vector3) => {
           state.position = position;
         },
@@ -390,4 +416,42 @@ test('RapierPhysicsStrategy creates a position-based kinematic compound body', a
   );
 
   expect(lastWorld?.bodies[0].kind).toBe('kinematic');
+});
+
+test('RapierPhysicsStrategy applies explicit total mass, local velocities, and gravity factor', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const strategy = new RapierPhysicsStrategy();
+  const { entity, state } = createSceneGraphEntity();
+  state.rotation = Quaternion.fromAxisAngle(Vector3.fromCopy3(0, 1, 0), Math.PI / 2);
+  const box = {
+    shape: { type: 'box' as const, size: Vector3.one() },
+    localPosition: Vector3.zero(),
+    localRotation: Quaternion.identity(),
+  };
+
+  strategy.setShapeInstances(
+    [
+      { shape: box, body: { move: true, density: 99 }, collider: { friction: 0.5, restitution: 0 } },
+      {
+        shape: { ...box, localPosition: Vector3.fromCopy3(2, 0, 0) },
+        body: { move: true, density: 99 },
+        collider: { friction: 0.5, restitution: 0 },
+      },
+    ],
+    entity,
+    Vector3.one(),
+    {
+      move: true,
+      mass: 10,
+      linearVelocity: Vector3.fromCopy3(1, 0, 0),
+      angularVelocity: Vector3.fromCopy3(0, 0, 2),
+      gravityFactor: -0.5,
+    }
+  );
+
+  expect(lastWorld?.colliders.map(collider => collider.density)).toEqual([5, 5]);
+  expect(lastWorld?.bodies[0].linearVelocity.x).toBeCloseTo(0);
+  expect(lastWorld?.bodies[0].linearVelocity.z).toBeCloseTo(-1);
+  expect(lastWorld?.bodies[0].angularVelocity.x).toBeCloseTo(2);
+  expect(lastWorld?.bodies[0].gravityScale).toBe(-0.5);
 });

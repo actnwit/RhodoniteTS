@@ -12,6 +12,22 @@ export type PhysicsBodyProperty = {
   density: number;
 };
 
+/** Properties shared by all colliders belonging to one rigid body. */
+export type PhysicsMotionProperty = {
+  /** Whether the simulation may move the body. False creates a fixed body. */
+  move: boolean;
+  /** Whether a moving body is position-based kinematic instead of dynamic. */
+  isKinematic?: boolean;
+  /** Explicit total mass in kilograms. Omit to derive mass from collider density. */
+  mass?: number;
+  /** Initial linear velocity expressed in the entity's local axes. */
+  linearVelocity?: IVector3;
+  /** Initial angular velocity expressed in the entity's local axes, in radians per second. */
+  angularVelocity?: IVector3;
+  /** Multiplier applied to the world's gravity for this body. */
+  gravityFactor?: number;
+};
+
 export type PhysicsColliderProperty = {
   /** Surface friction coefficient. */
   friction: number;
