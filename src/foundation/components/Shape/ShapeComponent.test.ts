@@ -61,6 +61,52 @@ describe('ShapeComponent', async () => {
     expect(() => component.addShape({ type: 'capsule', height: 1, radiusBottom: 0, radiusTop: 0 })).toThrow();
   });
 
+  test('fits a capsule to an AABB with a height-relative radius limit', () => {
+    const aabb = new Rn.AABB();
+    aabb.addPosition(Rn.Vector3.fromCopy3(-2, 1, -0.5));
+    aabb.addPosition(Rn.Vector3.fromCopy3(2, 11, 0.5));
+    const component = Rn.createShapeEntity(engine).getShape();
+    const index = component.addCapsuleFromAabb(aabb, {
+      origin: Rn.Vector3.fromCopy3(0, 1, 0),
+    });
+
+    expect(component.getShape(index)?.shape).toEqual({
+      type: 'capsule',
+      height: 6,
+      radiusBottom: 2,
+      radiusTop: 2,
+    });
+    expect(component.getShape(index)?.localPosition.isEqual(Rn.Vector3.fromCopy3(0, 5, 0))).toBe(true);
+  });
+
+  test('supports capsule fitting options and rejects invalid AABBs', () => {
+    const aabb = new Rn.AABB();
+    aabb.addPosition(Rn.Vector3.fromCopy3(-1, 0, -0.5));
+    aabb.addPosition(Rn.Vector3.fromCopy3(1, 10, 0.5));
+    const component = Rn.createShapeEntity(engine).getShape();
+    const index = component.addCapsuleFromAabb(aabb, {
+      radiusScale: 0.5,
+      maxRadiusToHeightRatio: 0.1,
+    });
+
+    expect(component.getShape(index)?.shape).toEqual({
+      type: 'capsule',
+      height: 9,
+      radiusBottom: 0.5,
+      radiusTop: 0.5,
+    });
+    expect(() => component.addCapsuleFromAabb(new Rn.AABB())).toThrow('uninitialized AABB');
+    expect(() => component.addCapsuleFromAabb(aabb, { maxRadiusToHeightRatio: 0.5 })).toThrow('between 0 and 0.5');
+  });
+
+  test('creates and toggles an empty shape gizmo without a rendering backend', () => {
+    const component = Rn.createShapeEntity(engine).getShape();
+    component.isShapeGizmoVisible = true;
+    expect(component.isShapeGizmoVisible).toBe(true);
+    component.isShapeGizmoVisible = false;
+    expect(component.isShapeGizmoVisible).toBe(false);
+  });
+
   test('MeshHelper creates generic shapes without enabling physics', () => {
     const cubes = Rn.MeshHelper.createCubes(engine, 2, { widthVector: Rn.Vector3.fromCopy3(2, 3, 4) });
     expect(cubes[0].tryToGetPhysics()).toBeUndefined();

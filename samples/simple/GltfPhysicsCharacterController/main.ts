@@ -26,6 +26,7 @@ const vrmRoot = renderPass.sceneTopLevelGraphComponents[0].entity;
 
 const characterEntity = Rn.createCharacterControllerEntity(engine);
 const vrmAabb = vrmRoot.getSceneGraph().worldMergedAABB;
+const vrmFootCenter = Rn.Vector3.fromCopy3(vrmAabb.centerPoint.x, vrmAabb.minPoint.y, vrmAabb.centerPoint.z);
 characterEntity.addChild(vrmRoot.getSceneGraph());
 vrmRoot.getTransform().localPosition = Rn.Vector3.fromCopy3(
   -vrmAabb.centerPoint.x,
@@ -35,15 +36,12 @@ vrmRoot.getTransform().localPosition = Rn.Vector3.fromCopy3(
 characterEntity.position = Rn.Vector3.fromCopy3(0, 0.05, 4);
 
 const characterController = characterEntity.getCharacterController();
-const characterShapeIndex = characterEntity.getShape().addShape(
-  {
-    type: 'capsule',
-    height: 1.0,
-    radiusBottom: 0.3,
-    radiusTop: 0.3,
-  },
-  { position: Rn.Vector3.fromCopy3(0, 0.8, 0) }
-);
+const characterShape = characterEntity.getShape();
+const characterShapeIndex = characterShape.addCapsuleFromAabb(vrmAabb, { origin: vrmFootCenter });
+characterShape.isShapeGizmoVisible = true;
+const gizmoRenderPass = new Rn.RenderPass(engine);
+gizmoRenderPass.addEntities([characterShape.shapeGizmo!.topEntity!]);
+vrmExpression.addRenderPasses([gizmoRenderPass]);
 characterController.setup(new Rn.RapierCharacterControllerStrategy(), {
   shapeIndex: characterShapeIndex,
   maxStepHeight: 0.25,
@@ -82,11 +80,10 @@ const landing = Rn.MeshHelper.createCube(engine, {
 landing.position = Rn.Vector3.fromCopy3(0, 1.1, -2.75);
 renderPass.addEntities([landing]);
 
-// Rhodonite does not currently expose a cylinder mesh primitive, so a rounded
-// capsule with the same overall height visualizes the exact glTF cylinder collider.
-const cylinderVisual = Rn.MeshHelper.createCapsule(engine, {
-  radius: 0.4,
-  height: 0.7,
+const cylinderVisual = Rn.MeshHelper.createCylinder(engine, {
+  radiusBottom: 0.4,
+  radiusTop: 0.4,
+  height: 1.5,
   material,
 });
 cylinderVisual.position = Rn.Vector3.fromCopy3(3, 0.75, 1);

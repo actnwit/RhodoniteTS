@@ -8,6 +8,7 @@ import { Axis } from '../geometry/shapes/Axis';
 import { Capsule, type CapsuleDescriptor } from '../geometry/shapes/Capsule';
 import { Cone, type ConeDescriptor } from '../geometry/shapes/Cone';
 import { Cube, type CubeDescriptor } from '../geometry/shapes/Cube';
+import { Cylinder, type CylinderDescriptor } from '../geometry/shapes/Cylinder';
 import { Grid, type GridDescriptor } from '../geometry/shapes/Grid';
 import type { IShape } from '../geometry/shapes/IShape';
 import { Joint, type JointDescriptor } from '../geometry/shapes/Joint';
@@ -135,6 +136,13 @@ const createCone = (engine: Engine, desc: ConeDescriptor = {}) => {
   primitive.generate(desc);
   const entity = createShape(engine, primitive);
   return entity;
+};
+
+/** Creates a centered cylinder or truncated-cone mesh entity. */
+const createCylinder = (engine: Engine, desc: CylinderDescriptor = {}) => {
+  const primitive = new Cylinder(engine);
+  primitive.generate(desc);
+  return createShape(engine, primitive);
 };
 
 /**
@@ -488,6 +496,7 @@ export const MeshHelper = Object.freeze({
   createLine,
   createGrid,
   createCone,
+  createCylinder,
   createCube,
   createCubes,
   createSphere,
