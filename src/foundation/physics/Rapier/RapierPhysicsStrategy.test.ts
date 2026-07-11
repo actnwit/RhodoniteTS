@@ -28,7 +28,7 @@ class FakeColliderDesc {
   rotation = { x: 0, y: 0, z: 0, w: 1 };
 
   constructor(
-    readonly type: 'ball' | 'cuboid',
+    readonly type: 'ball' | 'cuboid' | 'capsule' | 'cylinder',
     readonly size: number[]
   ) {}
 
@@ -135,6 +135,8 @@ function createFakeRapier(onInit?: () => void): RapierPhysicsModuleLike {
     ColliderDesc: {
       cuboid: (x: number, y: number, z: number) => new FakeColliderDesc('cuboid', [x, y, z]),
       ball: (radius: number) => new FakeColliderDesc('ball', [radius]),
+      capsule: (halfHeight: number, radius: number) => new FakeColliderDesc('capsule', [halfHeight, radius]),
+      cylinder: (halfHeight: number, radius: number) => new FakeColliderDesc('cylinder', [halfHeight, radius]),
     },
   };
 }
@@ -263,4 +265,39 @@ test('RapierPhysicsStrategy consumes a generic shape instance with a local trans
 
   expect(lastWorld?.colliders[0]?.size).toEqual([2, 6, 12]);
   expect(lastWorld?.colliders[0]?.translation).toEqual({ x: 2, y: 6, z: 12 });
+});
+
+test('RapierPhysicsStrategy converts cylinder and capsule shapes conservatively', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const { entity } = createSceneGraphEntity();
+  const cylinder = new RapierPhysicsStrategy();
+  cylinder.setShapeInstance(
+    {
+      shape: { type: 'cylinder', height: 0.5, radiusBottom: 0.25, radiusTop: 0.5 },
+      localPosition: Vector3.zero(),
+      localRotation: Quaternion.identity(),
+    },
+    { move: false, density: 1 },
+    { friction: 0.5, restitution: 0 },
+    entity,
+    Vector3.fromCopy3(2, 3, 4)
+  );
+  const capsule = new RapierPhysicsStrategy();
+  capsule.setShapeInstance(
+    {
+      shape: { type: 'capsule', height: 1, radiusBottom: 0.2, radiusTop: 0.3 },
+      localPosition: Vector3.zero(),
+      localRotation: Quaternion.identity(),
+    },
+    { move: false, density: 1 },
+    { friction: 0.5, restitution: 0 },
+    entity,
+    Vector3.fromCopy3(2, 3, 4)
+  );
+
+  expect(lastWorld?.colliders[0]?.type).toBe('cylinder');
+  expect(lastWorld?.colliders[0]?.size).toEqual([0.75, 2]);
+  expect(lastWorld?.colliders[1]?.type).toBe('capsule');
+  expect(lastWorld?.colliders[1]?.size[0]).toBeCloseTo(1.5);
+  expect(lastWorld?.colliders[1]?.size[1]).toBeCloseTo(1.2);
 });

@@ -35,9 +35,17 @@ vrmRoot.getTransform().localPosition = Rn.Vector3.fromCopy3(
 characterEntity.position = Rn.Vector3.fromCopy3(0, 0.05, 4);
 
 const characterController = characterEntity.getCharacterController();
+const characterShapeIndex = characterEntity.getShape().addShape(
+  {
+    type: 'capsule',
+    height: 1.0,
+    radiusBottom: 0.3,
+    radiusTop: 0.3,
+  },
+  { position: Rn.Vector3.fromCopy3(0, 0.8, 0) }
+);
 characterController.setup(new Rn.RapierCharacterControllerStrategy(), {
-  radius: 0.3,
-  height: 1.6,
+  shapeIndex: characterShapeIndex,
   maxStepHeight: 0.25,
   minStepWidth: 0.2,
   snapToGroundDistance: 0.15,
@@ -73,6 +81,24 @@ const landing = Rn.MeshHelper.createCube(engine, {
 });
 landing.position = Rn.Vector3.fromCopy3(0, 1.1, -2.75);
 renderPass.addEntities([landing]);
+
+// Rhodonite does not currently expose a cylinder mesh primitive, so a rounded
+// capsule with the same overall height visualizes the exact glTF cylinder collider.
+const cylinderVisual = Rn.MeshHelper.createCapsule(engine, {
+  radius: 0.4,
+  height: 0.7,
+  material,
+});
+cylinderVisual.position = Rn.Vector3.fromCopy3(3, 0.75, 1);
+renderPass.addEntities([cylinderVisual]);
+
+const capsuleVisual = Rn.MeshHelper.createCapsule(engine, {
+  radius: 0.3,
+  height: 1.0,
+  material,
+});
+capsuleVisual.position = Rn.Vector3.fromCopy3(-3, 0.8, 1);
+renderPass.addEntities([capsuleVisual]);
 
 const light = Rn.createLightEntity(engine);
 light.getLight().type = Rn.LightType.Directional;

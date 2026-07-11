@@ -63,3 +63,43 @@ test('OimoPhysicsStrategy maps a local generic shape pose to and from the body p
   strategy.update({} as never);
   expect(state.position.isEqual(Vector3.fromCopy3(10, 0, 0))).toBe(true);
 });
+
+test('OimoPhysicsStrategy converts a generic cylinder and rejects capsules explicitly', async () => {
+  const { OimoPhysicsStrategy } = await import('./OimoPhysicsStrategy');
+  const entity = {
+    getSceneGraph: () => ({
+      position: Vector3.zero(),
+      getQuaternionRecursively: () => Quaternion.identity(),
+    }),
+  } as unknown as ISceneGraphEntity;
+  const pose = {
+    localPosition: Vector3.zero(),
+    localRotation: Quaternion.identity(),
+  };
+  const strategy = new OimoPhysicsStrategy();
+
+  strategy.setShapeInstance(
+    {
+      shape: { type: 'cylinder', height: 2, radiusBottom: 0.25, radiusTop: 0.5 },
+      ...pose,
+    },
+    { move: false, density: 1 },
+    { friction: 0.5, restitution: 0 },
+    entity,
+    Vector3.fromCopy3(2, 3, 4)
+  );
+
+  expect(lastProperty.type).toBe('cylinder');
+  expect(lastProperty.size).toEqual([2, 6, 2]);
+  expect(() =>
+    strategy.setShapeInstance(
+      {
+        shape: { type: 'capsule', height: 1, radiusBottom: 0.25, radiusTop: 0.25 },
+        ...pose,
+      },
+      { move: false, density: 1 },
+      { friction: 0.5, restitution: 0 },
+      entity
+    )
+  ).toThrow('does not support capsule');
+});

@@ -18,6 +18,9 @@ import { RapierPhysicsStrategy } from '../physics/Rapier/RapierPhysicsStrategy';
 const KHR_IMPLICIT_SHAPES = 'KHR_implicit_shapes';
 const KHR_PHYSICS_RIGID_BODIES = 'KHR_physics_rigid_bodies';
 const DEFAULT_BOX_SIZE: KHRImplicitBoxSize = [1, 1, 1];
+const DEFAULT_SPHERE_RADIUS = 0.5;
+const DEFAULT_HEIGHT = 0.5;
+const DEFAULT_RADIUS = 0.25;
 const DEFAULT_DYNAMIC_FRICTION = 0.6;
 const DEFAULT_RESTITUTION = 0;
 
@@ -34,27 +37,61 @@ export interface KhrBoxColliderCollection {
   warnings: string[];
 }
 
+export interface NormalizedKhrCollider {
+  nodeIndex: number;
+  shapeIndex: number;
+  descriptor: ShapeDescriptor;
+  dynamicFriction: number;
+  restitution: number;
+}
+
+export interface KhrColliderCollection {
+  colliders: NormalizedKhrCollider[];
+  warnings: string[];
+}
+
 function isFiniteNonNegative(value: number): boolean {
   return Number.isFinite(value) && value >= 0;
 }
 
-function normalizeBoxSize(shape: KHRImplicitShape): KHRImplicitBoxSize | undefined {
-  if (shape.type !== 'box') {
-    return undefined;
-  }
-
+function normalizeKhrShape(shape: KHRImplicitShape): ShapeDescriptor | undefined {
   const parameterNames = ['plane', 'sphere', 'box', 'cylinder', 'capsule'] as const;
   const suppliedParameters = parameterNames.filter(name => shape[name] != null);
-  if (suppliedParameters.some(name => name !== 'box') || suppliedParameters.length > 1) {
+  if (suppliedParameters.some(name => name !== shape.type) || suppliedParameters.length > 1) {
     return undefined;
   }
 
-  const size = shape.box?.size ?? DEFAULT_BOX_SIZE;
-  if (size.length !== 3 || !size.every(component => Number.isFinite(component) && component > 0)) {
+  try {
+    if (shape.type === 'box') {
+      const size = shape.box?.size ?? DEFAULT_BOX_SIZE;
+      if (size.length !== 3) {
+        return undefined;
+      }
+      return normalizeShapeDescriptor({ type: 'box', size: Vector3.fromCopyArray(size) });
+    }
+    if (shape.type === 'sphere') {
+      return normalizeShapeDescriptor({ type: 'sphere', radius: shape.sphere?.radius ?? DEFAULT_SPHERE_RADIUS });
+    }
+    if (shape.type === 'cylinder') {
+      return normalizeShapeDescriptor({
+        type: 'cylinder',
+        height: shape.cylinder?.height ?? DEFAULT_HEIGHT,
+        radiusBottom: shape.cylinder?.radiusBottom ?? DEFAULT_RADIUS,
+        radiusTop: shape.cylinder?.radiusTop ?? DEFAULT_RADIUS,
+      });
+    }
+    if (shape.type === 'capsule') {
+      return normalizeShapeDescriptor({
+        type: 'capsule',
+        height: shape.capsule?.height ?? DEFAULT_HEIGHT,
+        radiusBottom: shape.capsule?.radiusBottom ?? DEFAULT_RADIUS,
+        radiusTop: shape.capsule?.radiusTop ?? DEFAULT_RADIUS,
+      });
+    }
+  } catch (_error) {
     return undefined;
   }
-
-  return [size[0], size[1], size[2]];
+  return undefined;
 }
 
 function normalizeMaterial(
@@ -94,13 +131,10 @@ function normalizeMaterial(
   return { dynamicFriction, restitution };
 }
 
-/**
- * Resolves the supported static box colliders without mutating the glTF model.
- * Unsupported or malformed collider declarations are returned as diagnostics.
- */
-export function collectKhrStaticBoxColliders(gltfModel: RnM2): KhrBoxColliderCollection {
+/** Resolves supported static implicit-shape colliders without mutating the glTF model. */
+export function collectKhrStaticColliders(gltfModel: RnM2): KhrColliderCollection {
   const warnings: string[] = [];
-  const colliders: NormalizedKhrBoxCollider[] = [];
+  const colliders: NormalizedKhrCollider[] = [];
   const implicitShapesExtension = gltfModel.extensions?.[KHR_IMPLICIT_SHAPES] as KHRImplicitShapes | undefined;
   const rigidBodiesExtension = gltfModel.extensions?.[KHR_PHYSICS_RIGID_BODIES] as KHRPhysicsRigidBodies | undefined;
 
@@ -136,9 +170,10 @@ export function collectKhrStaticBoxColliders(gltfModel: RnM2): KhrBoxColliderCol
       continue;
     }
 
-    const size = normalizeBoxSize(shape);
-    if (size == null) {
-      const reason = shape.type === 'box' ? 'invalid box shape' : `unsupported shape type '${shape.type}'`;
+    const descriptor = normalizeKhrShape(shape);
+    if (descriptor == null) {
+      const isBuiltIn = ['box', 'sphere', 'cylinder', 'capsule'].includes(shape.type);
+      const reason = isBuiltIn ? `invalid ${shape.type} shape` : `unsupported shape type '${shape.type}'`;
       warnings.push(`${KHR_PHYSICS_RIGID_BODIES}: node ${nodeIndex} references ${reason}; its collider was skipped.`);
       continue;
     }
@@ -147,7 +182,7 @@ export function collectKhrStaticBoxColliders(gltfModel: RnM2): KhrBoxColliderCol
     colliders.push({
       nodeIndex,
       shapeIndex,
-      size,
+      descriptor,
       dynamicFriction: material.dynamicFriction,
       restitution: material.restitution,
     });
@@ -156,11 +191,34 @@ export function collectKhrStaticBoxColliders(gltfModel: RnM2): KhrBoxColliderCol
   return { colliders, warnings };
 }
 
+/** @deprecated Use collectKhrStaticColliders. */
+export function collectKhrStaticBoxColliders(gltfModel: RnM2): KhrBoxColliderCollection {
+  const collection = collectKhrStaticColliders(gltfModel);
+  const colliders: NormalizedKhrBoxCollider[] = [];
+  const warnings = [...collection.warnings];
+  for (const collider of collection.colliders) {
+    if (collider.descriptor.type !== 'box') {
+      warnings.push(
+        `${KHR_PHYSICS_RIGID_BODIES}: node ${collider.nodeIndex} references unsupported shape type '${collider.descriptor.type}'; its collider was skipped.`
+      );
+      continue;
+    }
+    colliders.push({
+      nodeIndex: collider.nodeIndex,
+      shapeIndex: collider.shapeIndex,
+      size: [collider.descriptor.size.x, collider.descriptor.size.y, collider.descriptor.size.z],
+      dynamicFriction: collider.dynamicFriction,
+      restitution: collider.restitution,
+    });
+  }
+  return { colliders, warnings };
+}
+
 /**
  * Creates Rapier fixed bodies for supported KHR_physics_rigid_bodies colliders.
  */
-export function setupKhrStaticBoxColliders(gltfModel: RnM2, rnEntities: ISceneGraphEntity[]): void {
-  const collection = collectKhrStaticBoxColliders(gltfModel);
+export function setupKhrStaticColliders(gltfModel: RnM2, rnEntities: ISceneGraphEntity[]): void {
+  const collection = collectKhrStaticColliders(gltfModel);
   for (const warning of collection.warnings) {
     Logger.default.warn(warning);
   }
@@ -171,7 +229,7 @@ export function setupKhrStaticBoxColliders(gltfModel: RnM2, rnEntities: ISceneGr
 
   const sharedDescriptors = new Map<number, ShapeDescriptor>();
   const bindings: Array<{
-    collider: NormalizedKhrBoxCollider;
+    collider: NormalizedKhrCollider;
     entity: ISceneGraphEntity;
     shapeComponent: ShapeComponent;
     shapeIndex: number;
@@ -194,10 +252,7 @@ export function setupKhrStaticBoxColliders(gltfModel: RnM2, rnEntities: ISceneGr
 
     let descriptor = sharedDescriptors.get(collider.shapeIndex);
     if (descriptor == null) {
-      descriptor = normalizeShapeDescriptor({
-        type: 'box',
-        size: Vector3.fromCopyArray(collider.size),
-      });
+      descriptor = collider.descriptor;
       sharedDescriptors.set(collider.shapeIndex, descriptor);
     }
     const shapeComponent =
@@ -227,4 +282,9 @@ export function setupKhrStaticBoxColliders(gltfModel: RnM2, rnEntities: ISceneGr
       },
     });
   }
+}
+
+/** @deprecated Use setupKhrStaticColliders. */
+export function setupKhrStaticBoxColliders(gltfModel: RnM2, rnEntities: ISceneGraphEntity[]): void {
+  setupKhrStaticColliders(gltfModel, rnEntities);
 }

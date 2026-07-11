@@ -3,6 +3,7 @@ import { PhysicsShape } from '../../definitions/PhysicsShapeType';
 import type { ShapeInstance } from '../../geometry/Shape';
 import type { ISceneGraphEntity } from '../../helpers';
 import { type IQuaternion, type IVector3, Matrix44, Quaternion, Vector3 } from '../../math';
+import { Logger } from '../../misc/Logger';
 import type { PhysicsBodyProperty, PhysicsColliderProperty, PhysicsPropertyInner } from '../PhysicsProperty';
 import type { PhysicsStrategy } from '../PhysicsStrategy';
 import type { PhysicsWorldProperty } from '../PhysicsWorldProperty';
@@ -81,6 +82,7 @@ export type RapierPhysicsModuleLike = {
     cuboid(x: number, y: number, z: number): RapierColliderDescLike;
     ball(radius: number): RapierColliderDescLike;
     capsule?(halfHeight: number, radius: number): RapierColliderDescLike;
+    cylinder?(halfHeight: number, radius: number): RapierColliderDescLike;
   };
 };
 
@@ -114,6 +116,10 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
   private __localScale: IVector3 = Vector3.one();
   private __shapeLocalPosition: IVector3 = Vector3.zero();
   private __shapeLocalRotation: IQuaternion = Quaternion.identity();
+  private __shapeInstance?: ShapeInstance;
+  private __shapeWorldScale: IVector3 = Vector3.one();
+  private __warnedAsymmetricRadius = false;
+  private __warnedNonUniformScale = false;
 
   /**
    * Injects Rapier.js bindings and creates the shared physics world.
@@ -157,6 +163,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
    * @param entity - Scene graph entity associated with the physics body
    */
   setShape(prop: PhysicsPropertyInner, entity: ISceneGraphEntity, worldScale: IVector3 = Vector3.one()): void {
+    this.__shapeInstance = undefined;
     this.__shapeLocalPosition = Vector3.zero();
     this.__shapeLocalRotation = Quaternion.identity();
     this.__setShape(prop, entity, worldScale);
@@ -169,6 +176,10 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     entity: ISceneGraphEntity,
     worldScale: IVector3 = Vector3.one()
   ): void {
+    this.__shapeInstance = shape;
+    this.__shapeWorldScale = Vector3.fromCopy3(Math.abs(worldScale.x), Math.abs(worldScale.y), Math.abs(worldScale.z));
+    this.__warnedAsymmetricRadius = false;
+    this.__warnedNonUniformScale = false;
     this.__shapeLocalPosition = Vector3.fromCopy3(shape.localPosition.x, shape.localPosition.y, shape.localPosition.z);
     this.__shapeLocalRotation = Quaternion.fromCopy4(
       shape.localRotation.x,
@@ -176,10 +187,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       shape.localRotation.z,
       shape.localRotation.w
     );
-    const size =
-      shape.shape.type === 'box'
-        ? shape.shape.size
-        : Vector3.fromCopy3(shape.shape.radius, shape.shape.radius, shape.shape.radius);
+    const size = shape.shape.type === 'box' ? shape.shape.size : Vector3.one();
     this.__setShape(
       {
         type: shape.shape.type === 'box' ? PhysicsShape.Box : PhysicsShape.Sphere,
@@ -210,6 +218,12 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       restitution: prop.restitution,
     };
 
+    if (
+      this.__shapeInstance != null &&
+      (this.__shapeWorldScale.x === 0 || this.__shapeWorldScale.y === 0 || this.__shapeWorldScale.z === 0)
+    ) {
+      return;
+    }
     const scaledSize = this.__createScaledSize(worldScale);
     if (this.__isValidSize(this.__property, scaledSize)) {
       this.__createBody(
@@ -288,10 +302,17 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     const position = this.__rigidBody?.translation() ?? this.__property.position;
     const rotation =
       this.__rigidBody?.rotation() ?? RapierPhysicsStrategy.__eulerToQuaternion(this.__property.rotation);
+    this.__shapeWorldScale = Vector3.fromCopy3(Math.abs(worldScale.x), Math.abs(worldScale.y), Math.abs(worldScale.z));
     const scaledSize = this.__createScaledSize(worldScale);
 
     this.__removeBody();
-    if (!this.__isValidSize(this.__property, scaledSize)) {
+    if (
+      this.__shapeInstance != null &&
+      (this.__shapeWorldScale.x === 0 || this.__shapeWorldScale.y === 0 || this.__shapeWorldScale.z === 0)
+    ) {
+      return;
+    }
+    if (this.__shapeInstance == null && !this.__isValidSize(this.__property, scaledSize)) {
       return;
     }
     this.__createBody(
@@ -371,7 +392,10 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       .setRotation(RapierPhysicsStrategy.__toRapierQuaternion(rotation));
 
     this.__rigidBody = world.createRigidBody(rigidBodyDesc);
-    const colliderDesc = this.__createColliderDesc(prop, size);
+    const colliderDesc =
+      this.__shapeInstance != null
+        ? this.__createShapeInstanceColliderDesc(this.__shapeInstance)
+        : this.__createColliderDesc(prop, size);
     this.__collider = world.createCollider(colliderDesc, this.__rigidBody);
   }
 
@@ -399,6 +423,77 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     colliderDesc =
       colliderDesc.setRotation?.(RapierPhysicsStrategy.__toRapierQuaternion(this.__shapeLocalRotation)) ?? colliderDesc;
     return colliderDesc;
+  }
+
+  private __createShapeInstanceColliderDesc(shapeInstance: ShapeInstance): RapierColliderDescLike {
+    const rapier = RapierPhysicsStrategy.__getRapier();
+    const shape = shapeInstance.shape;
+    const scale = this.__shapeWorldScale;
+    let colliderDesc: RapierColliderDescLike;
+
+    if (shape.type === 'box') {
+      colliderDesc = rapier.ColliderDesc.cuboid(
+        shape.size.x * scale.x * 0.5,
+        shape.size.y * scale.y * 0.5,
+        shape.size.z * scale.z * 0.5
+      );
+    } else if (shape.type === 'sphere') {
+      const radialScale = Math.max(scale.x, scale.y, scale.z);
+      this.__warnNonUniformScaleIfNeeded(shape.type, scale);
+      colliderDesc = rapier.ColliderDesc.ball(shape.radius * radialScale);
+    } else if (shape.type === 'cylinder') {
+      if (rapier.ColliderDesc.cylinder == null) {
+        throw new Error('The injected Rapier module does not support cylinder colliders.');
+      }
+      const radius = this.__getApproximatedRadius(shape.radiusBottom, shape.radiusTop, shape.type);
+      this.__warnNonUniformScaleIfNeeded(shape.type, Vector3.fromCopy3(scale.x, scale.x, scale.z));
+      colliderDesc = rapier.ColliderDesc.cylinder(shape.height * scale.y * 0.5, radius * Math.max(scale.x, scale.z));
+    } else {
+      if (rapier.ColliderDesc.capsule == null) {
+        throw new Error('The injected Rapier module does not support capsule colliders.');
+      }
+      const radius = this.__getApproximatedRadius(shape.radiusBottom, shape.radiusTop, shape.type);
+      this.__warnNonUniformScaleIfNeeded(shape.type, scale);
+      colliderDesc = rapier.ColliderDesc.capsule(
+        shape.height * scale.y * 0.5,
+        radius * Math.max(scale.x, scale.y, scale.z)
+      );
+    }
+
+    const property = this.__property!;
+    colliderDesc = colliderDesc.setDensity?.(property.density) ?? colliderDesc;
+    colliderDesc = colliderDesc.setFriction?.(property.friction) ?? colliderDesc;
+    colliderDesc = colliderDesc.setRestitution?.(property.restitution) ?? colliderDesc;
+    colliderDesc =
+      colliderDesc.setTranslation?.(
+        shapeInstance.localPosition.x * scale.x,
+        shapeInstance.localPosition.y * scale.y,
+        shapeInstance.localPosition.z * scale.z
+      ) ?? colliderDesc;
+    colliderDesc =
+      colliderDesc.setRotation?.(RapierPhysicsStrategy.__toRapierQuaternion(shapeInstance.localRotation)) ??
+      colliderDesc;
+    return colliderDesc;
+  }
+
+  private __getApproximatedRadius(radiusBottom: number, radiusTop: number, shapeType: string): number {
+    if (radiusBottom !== radiusTop && !this.__warnedAsymmetricRadius) {
+      Logger.default.warn(
+        `Rapier approximates asymmetric ${shapeType} radii (${radiusBottom}, ${radiusTop}) with the maximum radius.`
+      );
+      this.__warnedAsymmetricRadius = true;
+    }
+    return Math.max(radiusBottom, radiusTop);
+  }
+
+  private __warnNonUniformScaleIfNeeded(shapeType: string, scale: IVector3): void {
+    if (
+      !this.__warnedNonUniformScale &&
+      (Math.abs(scale.x - scale.y) > 0.000001 || Math.abs(scale.y - scale.z) > 0.000001)
+    ) {
+      Logger.default.warn(`Rapier conservatively approximates non-uniform scale for ${shapeType} shapes.`);
+      this.__warnedNonUniformScale = true;
+    }
   }
 
   private __removeBody(): void {

@@ -12,7 +12,9 @@
       "shapes": [
         { "name": "Floor", "type": "box", "box": { "size": [12, 0.2, 12] } },
         { "name": "Step", "type": "box", "box": { "size": [2, 0.2, 0.5] } },
-        { "name": "Landing", "type": "box", "box": { "size": [3, 0.2, 3] } }
+        { "name": "Landing", "type": "box", "box": { "size": [3, 0.2, 3] } },
+        { "name": "CylinderObstacle", "type": "cylinder", "cylinder": { "height": 1.5, "radiusBottom": 0.4, "radiusTop": 0.4 } },
+        { "name": "CapsuleObstacle", "type": "capsule", "capsule": { "height": 1.0, "radiusBottom": 0.3, "radiusTop": 0.3 } }
       ]
     }
   },
@@ -20,7 +22,7 @@
   "bufferViews": [],
   "accessors": [],
   "scene": 0,
-  "scenes": [{ "nodes": [0, 1, 2, 3, 4, 5, 6, 7] }],
+  "scenes": [{ "nodes": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] }],
   "nodes": [
     {
       "name": "FloorCollider",
@@ -61,6 +63,16 @@
       "name": "LandingCollider",
       "translation": [0, 1.1, -2.75],
       "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 2 } } } }
+    },
+    {
+      "name": "CylinderCollider",
+      "translation": [3, 0.75, 1],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 3 } } } }
+    },
+    {
+      "name": "CapsuleCollider",
+      "translation": [-3, 0.8, 1],
+      "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 4 } } } }
     }
   ]
 }

@@ -1,5 +1,5 @@
 import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
-import { Vector3 } from '../../math';
+import { Quaternion, Vector3 } from '../../math';
 import { RapierCharacterControllerStrategy } from './RapierCharacterControllerStrategy';
 import {
   type RapierCharacterControllerLike,
@@ -27,6 +27,9 @@ class FakeColliderDesc {
   ) {}
   setTranslation(x: number, y: number, z: number) {
     this.translation = { x, y, z };
+    return this;
+  }
+  setRotation() {
     return this;
   }
 }
@@ -148,6 +151,7 @@ function fakeEntity() {
       get position() {
         return state.position;
       },
+      scale: Vector3.one(),
       setPositionWithoutPhysics(position: Vector3) {
         state.position = position;
       },
@@ -156,10 +160,18 @@ function fakeEntity() {
   return { entity, state };
 }
 
+function capsuleShape() {
+  return {
+    shape: { type: 'capsule' as const, height: 1, radiusBottom: 0.3, radiusTop: 0.3 },
+    localPosition: Vector3.fromCopy3(0, 0.8, 0),
+    localRotation: Quaternion.identity(),
+  };
+}
+
 test('creates a foot-anchored kinematic capsule and configures traversal', async () => {
   await RapierPhysicsStrategy.initialize(fakeRapier());
   const strategy = new RapierCharacterControllerStrategy();
-  strategy.setup(fakeEntity().entity, { radius: 0.3, height: 1.6 });
+  strategy.setup(fakeEntity().entity, capsuleShape());
 
   expect(world.collider?.halfHeight).toBeCloseTo(0.5);
   expect(world.collider?.translation.y).toBeCloseTo(0.8);
@@ -172,7 +184,7 @@ test('moves once per frame, reports grounding, and synchronizes the entity', asy
   await RapierPhysicsStrategy.initialize(fakeRapier());
   const { entity, state } = fakeEntity();
   const strategy = new RapierCharacterControllerStrategy();
-  strategy.setup(entity, { maxDeltaTime: 1 });
+  strategy.setup(entity, capsuleShape(), { maxDeltaTime: 1 });
   strategy.setDesiredHorizontalVelocity(Vector3.fromCopy3(2, 99, -1));
 
   RapierPhysicsStrategy.update(1, 0.5);
@@ -188,7 +200,7 @@ test('jumps only after grounding and releases Rapier resources', async () => {
   await RapierPhysicsStrategy.initialize(fakeRapier());
   const { entity, state } = fakeEntity();
   const strategy = new RapierCharacterControllerStrategy();
-  strategy.setup(entity, { maxDeltaTime: 1, gravity: 10, jumpSpeed: 4 });
+  strategy.setup(entity, capsuleShape(), { maxDeltaTime: 1, gravity: 10, jumpSpeed: 4 });
   RapierPhysicsStrategy.update(1, 0.1);
 
   strategy.requestJump();

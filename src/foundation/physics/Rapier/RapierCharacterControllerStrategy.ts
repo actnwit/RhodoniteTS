@@ -1,5 +1,7 @@
+import type { ShapeInstance } from '../../geometry/Shape';
 import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
 import { type IVector3, MutableVector3, Vector3 } from '../../math';
+import { Logger } from '../../misc/Logger';
 import type { CharacterControllerOptions, CharacterControllerStrategy } from '../CharacterControllerStrategy';
 import {
   type RapierCharacterControllerLike,
@@ -9,11 +11,9 @@ import {
   type RapierStepParticipant,
 } from './RapierPhysicsStrategy';
 
-type ResolvedOptions = Required<CharacterControllerOptions>;
+type ResolvedOptions = Required<Omit<CharacterControllerOptions, 'shapeIndex' | 'radius' | 'height'>>;
 
 const defaultOptions: ResolvedOptions = {
-  radius: 0.3,
-  height: 1.6,
   contactOffset: 0.01,
   maxStepHeight: 0.25,
   minStepWidth: 0.2,
@@ -40,12 +40,13 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
   private __jumpRequested = false;
   private __enabled = true;
 
-  setup(entity: ISceneGraphEntity, options: CharacterControllerOptions = {}): void {
+  setup(entity: ISceneGraphEntity, shapeInstance: ShapeInstance, options: CharacterControllerOptions = {}): void {
     if (this.__rigidBody != null) {
       throw new Error('RapierCharacterControllerStrategy has already been set up.');
     }
 
-    this.__options = { ...defaultOptions, ...options };
+    const { shapeIndex: _shapeIndex, radius: _radius, height: _height, ...movementOptions } = options;
+    this.__options = { ...defaultOptions, ...movementOptions };
     this.__validateOptions(this.__options);
 
     const rapier = RapierPhysicsStrategy._getRapier();
@@ -56,6 +57,9 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     if (world.createCharacterController == null) {
       throw new Error('The injected Rapier world does not support character controllers.');
     }
+    if (shapeInstance.shape.type !== 'capsule') {
+      throw new Error('RapierCharacterControllerStrategy requires a capsule ShapeInstance.');
+    }
 
     this.__entity = entity;
     const initialPosition = entity.getSceneGraph().position;
@@ -64,9 +68,36 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
       .setRotation({ x: 0, y: 0, z: 0, w: 1 });
     this.__rigidBody = world.createRigidBody(rigidBodyDesc);
 
-    const halfHeight = (this.__options.height - this.__options.radius * 2) / 2;
-    let colliderDesc = rapier.ColliderDesc.capsule(halfHeight, this.__options.radius);
-    colliderDesc = colliderDesc.setTranslation?.(0, this.__options.height / 2, 0) ?? colliderDesc;
+    const scale = entity.getSceneGraph().scale;
+    const absoluteScale = Vector3.fromCopy3(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z));
+    const capsule = shapeInstance.shape;
+    if (capsule.radiusBottom !== capsule.radiusTop) {
+      Logger.default.warn(
+        `Rapier approximates asymmetric character capsule radii (${capsule.radiusBottom}, ${capsule.radiusTop}) with the maximum radius.`
+      );
+    }
+    if (
+      Math.abs(absoluteScale.x - absoluteScale.y) > 0.000001 ||
+      Math.abs(absoluteScale.y - absoluteScale.z) > 0.000001
+    ) {
+      Logger.default.warn('Rapier conservatively approximates non-uniform scale for the character capsule.');
+    }
+    const radius =
+      Math.max(capsule.radiusBottom, capsule.radiusTop) * Math.max(absoluteScale.x, absoluteScale.y, absoluteScale.z);
+    let colliderDesc = rapier.ColliderDesc.capsule(capsule.height * absoluteScale.y * 0.5, radius);
+    colliderDesc =
+      colliderDesc.setTranslation?.(
+        shapeInstance.localPosition.x * absoluteScale.x,
+        shapeInstance.localPosition.y * absoluteScale.y,
+        shapeInstance.localPosition.z * absoluteScale.z
+      ) ?? colliderDesc;
+    colliderDesc =
+      colliderDesc.setRotation?.({
+        x: shapeInstance.localRotation.x,
+        y: shapeInstance.localRotation.y,
+        z: shapeInstance.localRotation.z,
+        w: shapeInstance.localRotation.w,
+      }) ?? colliderDesc;
     this.__collider = world.createCollider(colliderDesc, this.__rigidBody);
 
     this.__controller = world.createCharacterController(this.__options.contactOffset);
@@ -179,8 +210,6 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
 
   private __validateOptions(options: ResolvedOptions): void {
     const positiveValues = [
-      options.radius,
-      options.height,
       options.contactOffset,
       options.maxStepHeight,
       options.minStepWidth,
@@ -189,7 +218,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
       options.jumpSpeed,
       options.maxDeltaTime,
     ];
-    if (positiveValues.some(value => !Number.isFinite(value) || value <= 0) || options.height <= options.radius * 2) {
+    if (positiveValues.some(value => !Number.isFinite(value) || value <= 0)) {
       throw new Error('Character controller dimensions and movement settings must be finite positive values.');
     }
     if (!Number.isFinite(options.maxSlopeClimbAngle) || !Number.isFinite(options.minSlopeSlideAngle)) {

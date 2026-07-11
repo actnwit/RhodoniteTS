@@ -1,6 +1,10 @@
 import type { RnM2 } from '../../types';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
-import { collectKhrStaticBoxColliders, setupKhrStaticBoxColliders } from './KhrPhysicsImporter';
+import {
+  collectKhrStaticBoxColliders,
+  collectKhrStaticColliders,
+  setupKhrStaticBoxColliders,
+} from './KhrPhysicsImporter';
 
 function createGltf(nodes: unknown[], extensions: Record<string, unknown>): RnM2 {
   return {
@@ -56,6 +60,54 @@ test('collects shared static box shapes and applies schema defaults', () => {
       restitution: 0.75,
     },
   ]);
+});
+
+test('applies KHR defaults for finite implicit shapes', () => {
+  const gltf = createGltf(
+    ['box', 'sphere', 'cylinder', 'capsule'].map((_, shape) => ({
+      extensions: { KHR_physics_rigid_bodies: { collider: { geometry: { shape } } } },
+    })),
+    {
+      KHR_implicit_shapes: {
+        shapes: [{ type: 'box' }, { type: 'sphere' }, { type: 'cylinder' }, { type: 'capsule' }],
+      },
+    }
+  );
+
+  const result = collectKhrStaticColliders(gltf);
+
+  expect(result.warnings).toEqual([]);
+  expect(result.colliders.map(collider => collider.descriptor)).toEqual([
+    { type: 'box', size: expect.objectContaining({ x: 1, y: 1, z: 1 }) },
+    { type: 'sphere', radius: 0.5 },
+    { type: 'cylinder', height: 0.5, radiusBottom: 0.25, radiusTop: 0.25 },
+    { type: 'capsule', height: 0.5, radiusBottom: 0.25, radiusTop: 0.25 },
+  ]);
+});
+
+test('preserves asymmetric radii and rejects degenerate finite shapes', () => {
+  const gltf = createGltf(
+    [0, 1, 2].map(shape => ({
+      extensions: { KHR_physics_rigid_bodies: { collider: { geometry: { shape } } } },
+    })),
+    {
+      KHR_implicit_shapes: {
+        shapes: [
+          { type: 'cylinder', cylinder: { height: 2, radiusBottom: 0, radiusTop: 1 } },
+          { type: 'capsule', capsule: { height: 1, radiusBottom: 0.25, radiusTop: 0.5 } },
+          { type: 'capsule', capsule: { height: 1, radiusBottom: 0, radiusTop: 0 } },
+        ],
+      },
+    }
+  );
+
+  const result = collectKhrStaticColliders(gltf);
+
+  expect(result.colliders.map(collider => collider.descriptor)).toEqual([
+    { type: 'cylinder', height: 2, radiusBottom: 0, radiusTop: 1 },
+    { type: 'capsule', height: 1, radiusBottom: 0.25, radiusTop: 0.5 },
+  ]);
+  expect(result.warnings[0]).toContain('invalid capsule shape');
 });
 
 test('creates shared generic shapes even when Rapier is not initialized', () => {
@@ -144,10 +196,10 @@ test('skips malformed, dynamic, and unsupported collider declarations with diagn
 
   expect(result.colliders).toEqual([]);
   expect(result.warnings).toHaveLength(4);
-  expect(result.warnings[0]).toContain('invalid box shape');
-  expect(result.warnings[1]).toContain('dynamic motion');
-  expect(result.warnings[2]).toContain("unsupported shape type 'sphere'");
-  expect(result.warnings[3]).toContain('missing implicit shape 99');
+  expect(result.warnings.some(warning => warning.includes('invalid box shape'))).toBe(true);
+  expect(result.warnings.some(warning => warning.includes('dynamic motion'))).toBe(true);
+  expect(result.warnings.some(warning => warning.includes("unsupported shape type 'sphere'"))).toBe(true);
+  expect(result.warnings.some(warning => warning.includes('missing implicit shape 99'))).toBe(true);
 });
 
 test('rejects a box shape containing parameters for a different built-in shape', () => {

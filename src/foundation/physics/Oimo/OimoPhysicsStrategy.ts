@@ -1,10 +1,11 @@
 import type { Config } from '../../core/Config';
 import { PhysicsShape } from '../../definitions/PhysicsShapeType';
-import type { ShapeInstance } from '../../geometry/Shape';
+import type { ShapeDescriptor, ShapeInstance } from '../../geometry/Shape';
 import type { ISceneGraphEntity } from '../../helpers';
 import { type IQuaternion, type IVector3, MathUtil, Matrix44, Quaternion } from '../../math';
 import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
+import { Logger } from '../../misc/Logger';
 import type { PhysicsBodyProperty, PhysicsColliderProperty, PhysicsPropertyInner } from '../PhysicsProperty';
 import type { PhysicsStrategy } from '../PhysicsStrategy';
 import type { PhysicsWorldProperty } from '../PhysicsWorldProperty';
@@ -55,6 +56,7 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
   private __shapeLocalRotation: IQuaternion = Quaternion.identity();
   private __worldScale: IVector3 = Vector3.one();
   private __usesShapeInstance = false;
+  private __shapeType?: ShapeDescriptor['type'];
 
   /**
    * Creates a new OimoPhysicsStrategy instance.
@@ -88,6 +90,11 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
    */
   setShape(prop: PhysicsPropertyInner, entity: ISceneGraphEntity) {
     const world = OimoPhysicsStrategy.__world;
+    this.__usesShapeInstance = false;
+    this.__shapeType = undefined;
+    this.__shapeLocalPosition = Vector3.zero();
+    this.__shapeLocalRotation = Quaternion.identity();
+    this.__worldScale = Vector3.one();
     this.__localScale = prop.size;
     this.__property = {
       type: prop.type.str.toLowerCase(),
@@ -110,10 +117,27 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     entity: ISceneGraphEntity,
     worldScale: IVector3 = Vector3.one()
   ): void {
-    const localSize =
-      shape.shape.type === 'box'
-        ? shape.shape.size
-        : Vector3.fromCopy3(shape.shape.radius, shape.shape.radius, shape.shape.radius);
+    if (shape.shape.type === 'capsule') {
+      throw new Error('OimoPhysicsStrategy does not support capsule shapes.');
+    }
+    let localSize: IVector3;
+    let physicsType: string;
+    if (shape.shape.type === 'box') {
+      localSize = shape.shape.size;
+      physicsType = PhysicsShape.Box.str.toLowerCase();
+    } else if (shape.shape.type === 'sphere') {
+      localSize = Vector3.fromCopy3(shape.shape.radius, shape.shape.radius, shape.shape.radius);
+      physicsType = PhysicsShape.Sphere.str.toLowerCase();
+    } else {
+      const radius = Math.max(shape.shape.radiusBottom, shape.shape.radiusTop);
+      if (shape.shape.radiusBottom !== shape.shape.radiusTop) {
+        Logger.default.warn(
+          `Oimo approximates asymmetric cylinder radii (${shape.shape.radiusBottom}, ${shape.shape.radiusTop}) with the maximum radius.`
+        );
+      }
+      localSize = Vector3.fromCopy3(radius, shape.shape.height, radius);
+      physicsType = 'cylinder';
+    }
     this.__localScale = Vector3.fromCopy3(localSize.x, localSize.y, localSize.z);
     this.__shapeLocalPosition = Vector3.fromCopy3(shape.localPosition.x, shape.localPosition.y, shape.localPosition.z);
     this.__shapeLocalRotation = Quaternion.fromCopy4(
@@ -124,13 +148,19 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     );
     this.__worldScale = Vector3.fromCopy3(Math.abs(worldScale.x), Math.abs(worldScale.y), Math.abs(worldScale.z));
     this.__usesShapeInstance = true;
+    this.__shapeType = shape.shape.type;
     this.__entity = entity;
 
     const pose = this.__toBodyPose(entity.getSceneGraph().position, entity.getSceneGraph().getQuaternionRecursively());
     const bodyEuler = pose.rotation.toEulerAngles();
+    const radialScale = Math.max(this.__worldScale.x, this.__worldScale.z);
+    const scaledSize =
+      shape.shape.type === 'cylinder'
+        ? [localSize.x * radialScale, localSize.y * this.__worldScale.y, localSize.z * radialScale]
+        : [localSize.x * this.__worldScale.x, localSize.y * this.__worldScale.y, localSize.z * this.__worldScale.z];
     this.__property = {
-      type: (shape.shape.type === 'box' ? PhysicsShape.Box : PhysicsShape.Sphere).str.toLowerCase(),
-      size: [localSize.x * this.__worldScale.x, localSize.y * this.__worldScale.y, localSize.z * this.__worldScale.z],
+      type: physicsType,
+      size: scaledSize,
       pos: [pose.position.x, pose.position.y, pose.position.z],
       rot: [
         MathUtil.radianToDegree(bodyEuler.x),
@@ -262,13 +292,22 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     const bodyEuler = pose.rotation.toEulerAngles();
     this.__body.remove();
     const prop = this.__property;
+    const radialScale = Math.max(this.__worldScale.x, this.__worldScale.z);
+    const scaledSize =
+      this.__shapeType === 'cylinder'
+        ? [
+            this.__localScale.x * radialScale,
+            this.__localScale.y * this.__worldScale.y,
+            this.__localScale.z * radialScale,
+          ]
+        : [
+            this.__localScale.x * this.__worldScale.x,
+            this.__localScale.y * this.__worldScale.y,
+            this.__localScale.z * this.__worldScale.z,
+          ];
     this.__property = {
       type: prop.type,
-      size: [
-        this.__localScale.x * this.__worldScale.x,
-        this.__localScale.y * this.__worldScale.y,
-        this.__localScale.z * this.__worldScale.z,
-      ],
+      size: scaledSize,
       pos: [pose.position.x, pose.position.y, pose.position.z],
       rot: [
         MathUtil.radianToDegree(bodyEuler.x),
