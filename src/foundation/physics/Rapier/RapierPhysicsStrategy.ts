@@ -1,8 +1,9 @@
 import type { Config } from '../../core/Config';
 import { PhysicsShape } from '../../definitions/PhysicsShapeType';
+import type { ShapeInstance } from '../../geometry/Shape';
 import type { ISceneGraphEntity } from '../../helpers';
 import { type IQuaternion, type IVector3, Matrix44, Quaternion, Vector3 } from '../../math';
-import type { PhysicsPropertyInner } from '../PhysicsProperty';
+import type { PhysicsBodyProperty, PhysicsColliderProperty, PhysicsPropertyInner } from '../PhysicsProperty';
 import type { PhysicsStrategy } from '../PhysicsStrategy';
 import type { PhysicsWorldProperty } from '../PhysicsWorldProperty';
 
@@ -26,6 +27,7 @@ export type RapierRigidBodyDescLike = {
 
 export type RapierColliderDescLike = {
   setTranslation?(x: number, y: number, z: number): RapierColliderDescLike;
+  setRotation?(rotation: RapierQuaternionLike): RapierColliderDescLike;
   setDensity?(density: number): RapierColliderDescLike;
   setFriction?(friction: number): RapierColliderDescLike;
   setRestitution?(restitution: number): RapierColliderDescLike;
@@ -110,6 +112,8 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
   private __entity?: ISceneGraphEntity;
   private __property?: StoredPhysicsProperty;
   private __localScale: IVector3 = Vector3.one();
+  private __shapeLocalPosition: IVector3 = Vector3.zero();
+  private __shapeLocalRotation: IQuaternion = Quaternion.identity();
 
   /**
    * Injects Rapier.js bindings and creates the shared physics world.
@@ -153,6 +157,46 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
    * @param entity - Scene graph entity associated with the physics body
    */
   setShape(prop: PhysicsPropertyInner, entity: ISceneGraphEntity, worldScale: IVector3 = Vector3.one()): void {
+    this.__shapeLocalPosition = Vector3.zero();
+    this.__shapeLocalRotation = Quaternion.identity();
+    this.__setShape(prop, entity, worldScale);
+  }
+
+  setShapeInstance(
+    shape: ShapeInstance,
+    body: PhysicsBodyProperty,
+    collider: PhysicsColliderProperty,
+    entity: ISceneGraphEntity,
+    worldScale: IVector3 = Vector3.one()
+  ): void {
+    this.__shapeLocalPosition = Vector3.fromCopy3(shape.localPosition.x, shape.localPosition.y, shape.localPosition.z);
+    this.__shapeLocalRotation = Quaternion.fromCopy4(
+      shape.localRotation.x,
+      shape.localRotation.y,
+      shape.localRotation.z,
+      shape.localRotation.w
+    );
+    const size =
+      shape.shape.type === 'box'
+        ? shape.shape.size
+        : Vector3.fromCopy3(shape.shape.radius, shape.shape.radius, shape.shape.radius);
+    this.__setShape(
+      {
+        type: shape.shape.type === 'box' ? PhysicsShape.Box : PhysicsShape.Sphere,
+        size,
+        position: entity.getSceneGraph().position,
+        rotation: entity.getSceneGraph().eulerAngles,
+        move: body.move,
+        density: body.density,
+        friction: collider.friction,
+        restitution: collider.restitution,
+      },
+      entity,
+      worldScale
+    );
+  }
+
+  private __setShape(prop: PhysicsPropertyInner, entity: ISceneGraphEntity, worldScale: IVector3): void {
     this.__entity = entity;
     this.__localScale = Vector3.fromCopy3(prop.size.x, prop.size.y, prop.size.z);
     this.__property = {
@@ -346,6 +390,14 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     colliderDesc = colliderDesc.setDensity?.(prop.density) ?? colliderDesc;
     colliderDesc = colliderDesc.setFriction?.(prop.friction) ?? colliderDesc;
     colliderDesc = colliderDesc.setRestitution?.(prop.restitution) ?? colliderDesc;
+    colliderDesc =
+      colliderDesc.setTranslation?.(
+        this.__shapeLocalPosition.x * Math.abs(size.x / this.__localScale.x),
+        this.__shapeLocalPosition.y * Math.abs(size.y / this.__localScale.y),
+        this.__shapeLocalPosition.z * Math.abs(size.z / this.__localScale.z)
+      ) ?? colliderDesc;
+    colliderDesc =
+      colliderDesc.setRotation?.(RapierPhysicsStrategy.__toRapierQuaternion(this.__shapeLocalRotation)) ?? colliderDesc;
     return colliderDesc;
   }
 

@@ -27,6 +27,7 @@ function fromString(str: string): PhysicsShapeTypeEnum {
   return _fromString({ typeList, str }) as PhysicsShapeTypeEnum;
 }
 
+/** @deprecated Use ShapeDescriptor and ShapeComponent for new code. */
 export const PhysicsShape = Object.freeze({
   Sphere,
   Box,

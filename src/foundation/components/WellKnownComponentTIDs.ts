@@ -18,5 +18,6 @@ export const WellKnownComponentTIDs = {
   ConstraintComponentTID: 15,
   RaymarchingComponentTID: 16,
   CharacterControllerComponentTID: 17,
-  maxWellKnownTidNumber: 17,
+  ShapeComponentTID: 18,
+  maxWellKnownTidNumber: 18,
 } as const;

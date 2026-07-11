@@ -13,6 +13,7 @@ import type { MeshRendererComponent } from '../components/MeshRenderer/MeshRende
 import type { PhysicsComponent } from '../components/Physics/PhysicsComponent';
 import type { RaymarchingComponent } from '../components/Raymarching/RaymarchingComponent';
 import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
+import type { ShapeComponent } from '../components/Shape/ShapeComponent';
 import type { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
 import type { TransformComponent } from '../components/Transform/TransformComponent';
 import type { VrmComponent } from '../components/Vrm/VrmComponent';
@@ -111,6 +112,9 @@ export interface IEntity extends IRnObject {
 
   /** Attempts to retrieve the CharacterControllerComponent from this entity. */
   tryToGetCharacterController(): CharacterControllerComponent | undefined;
+
+  /** Attempts to retrieve the ShapeComponent from this entity. */
+  tryToGetShape(): ShapeComponent | undefined;
 
   /**
    * Attempts to retrieve the SceneGraphComponent from this entity.
@@ -424,6 +428,11 @@ export class Entity extends RnObject implements IEntity {
     return this.getComponentByComponentTID(WellKnownComponentTIDs.CharacterControllerComponentTID) as
       | CharacterControllerComponent
       | undefined;
+  }
+
+  /** Attempts to retrieve the ShapeComponent from this entity. */
+  tryToGetShape() {
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.ShapeComponentTID) as ShapeComponent | undefined;
   }
 
   /**

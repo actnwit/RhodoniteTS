@@ -24,6 +24,8 @@ class FakeColliderDesc {
   density = 0;
   friction = 0;
   restitution = 0;
+  translation = { x: 0, y: 0, z: 0 };
+  rotation = { x: 0, y: 0, z: 0, w: 1 };
 
   constructor(
     readonly type: 'ball' | 'cuboid',
@@ -42,6 +44,16 @@ class FakeColliderDesc {
 
   setRestitution(restitution: number): FakeColliderDesc {
     this.restitution = restitution;
+    return this;
+  }
+
+  setTranslation(x: number, y: number, z: number): FakeColliderDesc {
+    this.translation = { x, y, z };
+    return this;
+  }
+
+  setRotation(rotation: { x: number; y: number; z: number; w: number }): FakeColliderDesc {
+    this.rotation = rotation;
     return this;
   }
 }
@@ -136,6 +148,10 @@ function createSceneGraphEntity() {
   return {
     entity: {
       getSceneGraph: () => ({
+        get position() {
+          return state.position;
+        },
+        eulerAngles: Vector3.zero(),
         setPositionWithoutPhysics: (position: Vector3) => {
           state.position = position;
         },
@@ -226,4 +242,25 @@ test('RapierPhysicsStrategy disables and recreates a collider across zero scale'
   strategy.setScale(Vector3.fromCopy3(2, 3, 4));
   expect(world.colliders).toHaveLength(2);
   expect(world.colliders[1]?.size).toEqual([2, 6, 12]);
+});
+
+test('RapierPhysicsStrategy consumes a generic shape instance with a local transform', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const strategy = new RapierPhysicsStrategy();
+  const { entity } = createSceneGraphEntity();
+
+  strategy.setShapeInstance(
+    {
+      shape: { type: 'box', size: Vector3.fromCopy3(2, 4, 6) },
+      localPosition: Vector3.fromCopy3(1, 2, 3),
+      localRotation: Quaternion.identity(),
+    },
+    { move: false, density: 1 },
+    { friction: 0.5, restitution: 0.1 },
+    entity,
+    Vector3.fromCopy3(2, 3, 4)
+  );
+
+  expect(lastWorld?.colliders[0]?.size).toEqual([2, 6, 12]);
+  expect(lastWorld?.colliders[0]?.translation).toEqual({ x: 2, y: 6, z: 12 });
 });

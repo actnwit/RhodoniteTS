@@ -1,5 +1,6 @@
 import type { RnM2 } from '../../types';
-import { collectKhrStaticBoxColliders } from './KhrPhysicsImporter';
+import type { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { collectKhrStaticBoxColliders, setupKhrStaticBoxColliders } from './KhrPhysicsImporter';
 
 function createGltf(nodes: unknown[], extensions: Record<string, unknown>): RnM2 {
   return {
@@ -55,6 +56,44 @@ test('collects shared static box shapes and applies schema defaults', () => {
       restitution: 0.75,
     },
   ]);
+});
+
+test('creates shared generic shapes even when Rapier is not initialized', () => {
+  const gltf = createGltf(
+    [
+      { extensions: { KHR_physics_rigid_bodies: { collider: { geometry: { shape: 0 } } } } },
+      { extensions: { KHR_physics_rigid_bodies: { collider: { geometry: { shape: 0 } } } } },
+    ],
+    {
+      KHR_implicit_shapes: { shapes: [{ type: 'box', box: { size: [2, 3, 4] } }] },
+    }
+  );
+  const descriptors: unknown[] = [];
+  const entities = [0, 1].map(
+    () =>
+      ({
+        tryToGetPhysics: () => undefined,
+        tryToGetShape: () => undefined,
+        engine: {
+          entityRepository: {
+            addComponentToEntity: (_component: unknown, entity: object) => ({
+              ...entity,
+              getShape: () => ({
+                addShape: (descriptor: unknown) => {
+                  descriptors.push(descriptor);
+                  return 0;
+                },
+              }),
+            }),
+          },
+        },
+      }) as unknown as ISceneGraphEntity
+  );
+
+  setupKhrStaticBoxColliders(gltf, entities);
+
+  expect(descriptors).toHaveLength(2);
+  expect(descriptors[0]).toBe(descriptors[1]);
 });
 
 test('skips malformed, dynamic, and unsupported collider declarations with diagnostics', () => {

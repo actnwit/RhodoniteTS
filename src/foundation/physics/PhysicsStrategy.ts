@@ -1,10 +1,22 @@
 import type { Config } from '../core/Config';
+import type { ShapeInstance } from '../geometry/Shape';
+import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import type { IQuaternion } from '../math/IQuaternion';
 import type { IVector3 } from '../math/IVector';
+import type { PhysicsBodyProperty, PhysicsColliderProperty } from './PhysicsProperty';
 import type { VRMSpring } from './VRMSpring/VRMSpring';
 
 export interface PhysicsStrategy {
   update(config: Config): void;
+
+  /** Configures a physical collider from a generic analytic shape. */
+  setShapeInstance?(
+    shape: ShapeInstance,
+    body: PhysicsBodyProperty,
+    collider: PhysicsColliderProperty,
+    entity: ISceneGraphEntity,
+    worldScale?: IVector3
+  ): void;
 
   /**
    * Sets the world position of the physics body.

@@ -13,6 +13,7 @@ import type { IPhysicsEntityMethods } from '../components/Physics/IPhysicsEntity
 import type { IRaymarchingEntityMethods } from '../components/Raymarching/IRaymarchingEntity';
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
 import type { ISceneGraphEntityMethods } from '../components/SceneGraph/ISceneGraphEntity';
+import type { IShapeEntityMethods } from '../components/Shape/IShapeEntity';
 import type { ISkeletalEntityMethods } from '../components/Skeletal/ISkeletalEntity';
 import type { ITransformEntityMethods } from '../components/Transform/ITransformEntity';
 import type { IEntity } from '../core/Entity';
@@ -68,6 +69,9 @@ export type IPhysicsEntity = ISceneGraphEntity & IPhysicsEntityMethods;
 
 /** An entity controlled by a kinematic character controller. */
 export type ICharacterControllerEntity = ISceneGraphEntity & ICharacterControllerEntityMethods;
+
+/** An entity carrying one or more lightweight analytic shapes. */
+export type IShapeEntity = ISceneGraphEntity & IShapeEntityMethods;
 
 /**
  * An entity that supports blend shape animation.

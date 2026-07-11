@@ -1,9 +1,11 @@
 import type { Config } from '../../core/Config';
+import { PhysicsShape } from '../../definitions/PhysicsShapeType';
+import type { ShapeInstance } from '../../geometry/Shape';
 import type { ISceneGraphEntity } from '../../helpers';
-import { type IVector3, MathUtil, Quaternion } from '../../math';
+import { type IQuaternion, type IVector3, MathUtil, Matrix44, Quaternion } from '../../math';
 import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
-import type { PhysicsPropertyInner } from '../PhysicsProperty';
+import type { PhysicsBodyProperty, PhysicsColliderProperty, PhysicsPropertyInner } from '../PhysicsProperty';
 import type { PhysicsStrategy } from '../PhysicsStrategy';
 import type { PhysicsWorldProperty } from '../PhysicsWorldProperty';
 
@@ -49,6 +51,10 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
    * The original local scale of the physics shape before any transformations.
    */
   private __localScale: IVector3 = Vector3.one();
+  private __shapeLocalPosition: IVector3 = Vector3.zero();
+  private __shapeLocalRotation: IQuaternion = Quaternion.identity();
+  private __worldScale: IVector3 = Vector3.one();
+  private __usesShapeInstance = false;
 
   /**
    * Creates a new OimoPhysicsStrategy instance.
@@ -97,6 +103,48 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     this.__entity = entity;
   }
 
+  setShapeInstance(
+    shape: ShapeInstance,
+    body: PhysicsBodyProperty,
+    collider: PhysicsColliderProperty,
+    entity: ISceneGraphEntity,
+    worldScale: IVector3 = Vector3.one()
+  ): void {
+    const localSize =
+      shape.shape.type === 'box'
+        ? shape.shape.size
+        : Vector3.fromCopy3(shape.shape.radius, shape.shape.radius, shape.shape.radius);
+    this.__localScale = Vector3.fromCopy3(localSize.x, localSize.y, localSize.z);
+    this.__shapeLocalPosition = Vector3.fromCopy3(shape.localPosition.x, shape.localPosition.y, shape.localPosition.z);
+    this.__shapeLocalRotation = Quaternion.fromCopy4(
+      shape.localRotation.x,
+      shape.localRotation.y,
+      shape.localRotation.z,
+      shape.localRotation.w
+    );
+    this.__worldScale = Vector3.fromCopy3(Math.abs(worldScale.x), Math.abs(worldScale.y), Math.abs(worldScale.z));
+    this.__usesShapeInstance = true;
+    this.__entity = entity;
+
+    const pose = this.__toBodyPose(entity.getSceneGraph().position, entity.getSceneGraph().getQuaternionRecursively());
+    const bodyEuler = pose.rotation.toEulerAngles();
+    this.__property = {
+      type: (shape.shape.type === 'box' ? PhysicsShape.Box : PhysicsShape.Sphere).str.toLowerCase(),
+      size: [localSize.x * this.__worldScale.x, localSize.y * this.__worldScale.y, localSize.z * this.__worldScale.z],
+      pos: [pose.position.x, pose.position.y, pose.position.z],
+      rot: [
+        MathUtil.radianToDegree(bodyEuler.x),
+        MathUtil.radianToDegree(bodyEuler.y),
+        MathUtil.radianToDegree(bodyEuler.z),
+      ],
+      move: body.move,
+      density: body.density,
+      friction: collider.friction,
+      restitution: collider.restitution,
+    };
+    this.__body = OimoPhysicsStrategy.__world.add(this.__property);
+  }
+
   /**
    * Updates the associated entity's transform based on the physics body's current state.
    * This method should be called each frame to synchronize the visual representation
@@ -108,8 +156,21 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     }
     const pos = this.__body.getPosition();
     const rot = this.__body.getQuaternion();
-    this.__entity.getSceneGraph().setPositionWithoutPhysics(Vector3.fromCopy3(pos.x, pos.y, pos.z));
-    this.__entity.getSceneGraph().setRotationWithoutPhysics(Quaternion.fromCopy4(rot.x, rot.y, rot.z, rot.w));
+    const bodyRotation = Quaternion.fromCopy4(rot.x, rot.y, rot.z, rot.w);
+    if (this.__usesShapeInstance) {
+      const entityRotation = Quaternion.multiply(bodyRotation, Quaternion.invert(this.__shapeLocalRotation));
+      const scaledOffset = Vector3.multiplyVector(this.__shapeLocalPosition, this.__worldScale);
+      const worldOffset = Vector3.multiplyQuaternion(entityRotation, scaledOffset);
+      this.__entity
+        .getSceneGraph()
+        .setPositionWithoutPhysics(
+          Vector3.fromCopy3(pos.x - worldOffset.x, pos.y - worldOffset.y, pos.z - worldOffset.z)
+        );
+      this.__entity.getSceneGraph().setRotationWithoutPhysics(entityRotation);
+    } else {
+      this.__entity.getSceneGraph().setPositionWithoutPhysics(Vector3.fromCopy3(pos.x, pos.y, pos.z));
+      this.__entity.getSceneGraph().setRotationWithoutPhysics(bodyRotation);
+    }
   }
 
   /**
@@ -125,10 +186,13 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     }
     this.__body.remove();
     const prop = this.__property;
+    const pose = this.__usesShapeInstance
+      ? this.__toBodyPose(worldPosition, this.__entity.getSceneGraph().getQuaternionRecursively())
+      : { position: worldPosition, rotation: this.__entity.getSceneGraph().getQuaternionRecursively() };
     this.__property = {
       type: prop.type,
       size: [prop.size[0], prop.size[1], prop.size[2]],
-      pos: [worldPosition.x, worldPosition.y, worldPosition.z],
+      pos: [pose.position.x, pose.position.y, pose.position.z],
       rot: [this.__entity.eulerAngles.x, this.__entity.eulerAngles.y, this.__entity.eulerAngles.z],
       move: prop.move,
       density: prop.density,
@@ -149,17 +213,21 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     if (this.__entity === undefined) {
       return;
     }
-    const pos = this.__body.getPosition();
+    const entityRotation = Quaternion.fromMatrix(Matrix44.rotateXYZ(eulerAngles.x, eulerAngles.y, eulerAngles.z));
+    const pose = this.__usesShapeInstance
+      ? this.__toBodyPose(this.__entity.getSceneGraph().position, entityRotation)
+      : { position: this.__body.getPosition(), rotation: entityRotation };
+    const bodyEuler = pose.rotation.toEulerAngles();
     this.__body.remove();
     const prop = this.__property;
     this.__property = {
       type: prop.type,
       size: [prop.size[0], prop.size[1], prop.size[2]],
-      pos: [pos.x, pos.y, pos.z],
+      pos: [pose.position.x, pose.position.y, pose.position.z],
       rot: [
-        MathUtil.radianToDegree(eulerAngles.x),
-        MathUtil.radianToDegree(eulerAngles.y),
-        MathUtil.radianToDegree(eulerAngles.z),
+        MathUtil.radianToDegree(bodyEuler.x),
+        MathUtil.radianToDegree(bodyEuler.y),
+        MathUtil.radianToDegree(bodyEuler.z),
       ],
       move: prop.move,
       density: prop.density,
@@ -181,20 +249,51 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     if (this.__entity === undefined) {
       return;
     }
-    const pos = this.__body.getPosition();
+    this.__worldScale = Vector3.fromCopy3(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z));
+    const pose = this.__usesShapeInstance
+      ? this.__toBodyPose(
+          this.__entity.getSceneGraph().position,
+          this.__entity.getSceneGraph().getQuaternionRecursively()
+        )
+      : {
+          position: this.__body.getPosition(),
+          rotation: this.__entity.getSceneGraph().getQuaternionRecursively(),
+        };
+    const bodyEuler = pose.rotation.toEulerAngles();
     this.__body.remove();
     const prop = this.__property;
     this.__property = {
       type: prop.type,
-      size: [this.__localScale.x * scale.x, this.__localScale.y * scale.y, this.__localScale.z * scale.z],
-      pos: [pos.x, pos.y, pos.z],
-      rot: [this.__entity.eulerAngles.x, this.__entity.eulerAngles.y, this.__entity.eulerAngles.z],
+      size: [
+        this.__localScale.x * this.__worldScale.x,
+        this.__localScale.y * this.__worldScale.y,
+        this.__localScale.z * this.__worldScale.z,
+      ],
+      pos: [pose.position.x, pose.position.y, pose.position.z],
+      rot: [
+        MathUtil.radianToDegree(bodyEuler.x),
+        MathUtil.radianToDegree(bodyEuler.y),
+        MathUtil.radianToDegree(bodyEuler.z),
+      ],
       move: prop.move,
       density: prop.density,
       friction: prop.friction,
       restitution: prop.restitution,
     };
     this.__body = world.add(this.__property);
+  }
+
+  private __toBodyPose(entityPosition: IVector3, entityRotation: IQuaternion) {
+    const scaledOffset = Vector3.multiplyVector(this.__shapeLocalPosition, this.__worldScale);
+    const worldOffset = Vector3.multiplyQuaternion(entityRotation, scaledOffset);
+    return {
+      position: Vector3.fromCopy3(
+        entityPosition.x + worldOffset.x,
+        entityPosition.y + worldOffset.y,
+        entityPosition.z + worldOffset.z
+      ),
+      rotation: Quaternion.multiply(entityRotation, this.__shapeLocalRotation),
+    };
   }
 
   /**

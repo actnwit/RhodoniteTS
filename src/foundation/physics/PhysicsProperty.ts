@@ -3,9 +3,24 @@ import type { IVector3 } from '../math';
 
 export type PhysicsEngineType = 'oimo' | 'rapier';
 
+export type PhysicsBodyProperty = {
+  /** Whether the body is dynamic. False creates a fixed body. */
+  move: boolean;
+  /** Density used to derive mass. */
+  density: number;
+};
+
+export type PhysicsColliderProperty = {
+  /** Surface friction coefficient. */
+  friction: number;
+  /** Surface restitution coefficient. */
+  restitution: number;
+};
+
 /**
  * Internal physics property configuration containing detailed shape physics parameters.
  * type defines complete set properties needed physics simulation.
+ * @deprecated Use ShapeComponent with PhysicsBodyProperty and PhysicsColliderProperty.
  */
 export type PhysicsPropertyInner = {
   /** The type of physics shape (box, sphere, capsule, etc.) */

@@ -8,7 +8,8 @@ import type {
   RnM2,
 } from '../../types';
 import { PhysicsComponent } from '../components/Physics/PhysicsComponent';
-import { PhysicsShape } from '../definitions/PhysicsShapeType';
+import { ShapeComponent } from '../components/Shape/ShapeComponent';
+import { normalizeShapeDescriptor, type ShapeDescriptor } from '../geometry/Shape';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Vector3 } from '../math/Vector3';
 import { Logger } from '../misc/Logger';
@@ -168,12 +169,13 @@ export function setupKhrStaticBoxColliders(gltfModel: RnM2, rnEntities: ISceneGr
     return;
   }
 
-  if (!RapierPhysicsStrategy.isInitialized) {
-    Logger.default.warn(
-      `${KHR_PHYSICS_RIGID_BODIES}: Rapier is not initialized; ${collection.colliders.length} collider(s) were skipped.`
-    );
-    return;
-  }
+  const sharedDescriptors = new Map<number, ShapeDescriptor>();
+  const bindings: Array<{
+    collider: NormalizedKhrBoxCollider;
+    entity: ISceneGraphEntity;
+    shapeComponent: ShapeComponent;
+    shapeIndex: number;
+  }> = [];
 
   for (const collider of collection.colliders) {
     const entity = rnEntities[collider.nodeIndex];
@@ -190,30 +192,39 @@ export function setupKhrStaticBoxColliders(gltfModel: RnM2, rnEntities: ISceneGr
       continue;
     }
 
-    const sceneGraph = entity.getSceneGraph();
-    const worldScale = sceneGraph.scale;
-    const absoluteWorldScale = Vector3.fromCopy3(
-      Math.abs(worldScale.x),
-      Math.abs(worldScale.y),
-      Math.abs(worldScale.z)
-    );
-    const strategy = new RapierPhysicsStrategy();
-    strategy.setShape(
-      {
-        type: PhysicsShape.Box,
+    let descriptor = sharedDescriptors.get(collider.shapeIndex);
+    if (descriptor == null) {
+      descriptor = normalizeShapeDescriptor({
+        type: 'box',
         size: Vector3.fromCopyArray(collider.size),
-        position: sceneGraph.position,
-        rotation: sceneGraph.eulerAngles,
-        move: false,
-        density: 1,
-        friction: collider.dynamicFriction,
-        restitution: collider.restitution,
-      },
-      entity,
-      absoluteWorldScale
-    );
+      });
+      sharedDescriptors.set(collider.shapeIndex, descriptor);
+    }
+    const shapeComponent =
+      entity.tryToGetShape() ?? entity.engine.entityRepository.addComponentToEntity(ShapeComponent, entity).getShape();
+    const shapeIndex = shapeComponent.addShape(descriptor);
+    bindings.push({ collider, entity, shapeComponent, shapeIndex });
+  }
 
-    const physicsEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, entity);
-    physicsEntity.getPhysics().setStrategy(strategy);
+  if (!RapierPhysicsStrategy.isInitialized) {
+    Logger.default.warn(
+      `${KHR_PHYSICS_RIGID_BODIES}: Rapier is not initialized; ${bindings.length} physics binding(s) were skipped.`
+    );
+    return;
+  }
+
+  for (const binding of bindings) {
+    const physicsEntity = binding.entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, binding.entity);
+    const physicsComponent = physicsEntity.getPhysics();
+    physicsComponent.setStrategy(new RapierPhysicsStrategy());
+    physicsComponent.bindShape({
+      shapeComponent: binding.shapeComponent,
+      shapeIndex: binding.shapeIndex,
+      body: { move: false, density: 1 },
+      collider: {
+        friction: binding.collider.dynamicFriction,
+        restitution: binding.collider.restitution,
+      },
+    });
   }
 }

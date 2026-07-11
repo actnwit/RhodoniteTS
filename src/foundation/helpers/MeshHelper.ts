@@ -1,7 +1,8 @@
 import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 import { PhysicsComponent } from '../components/Physics/PhysicsComponent';
-import { PhysicsShape } from '../definitions/PhysicsShapeType';
+import { ShapeComponent } from '../components/Shape/ShapeComponent';
 import { Mesh } from '../geometry/Mesh';
+import { normalizeShapeDescriptor } from '../geometry/Shape';
 import type { AxisDescriptor } from '../geometry/shapes/Axis';
 import { Axis } from '../geometry/shapes/Axis';
 import { Capsule, type CapsuleDescriptor } from '../geometry/shapes/Capsule';
@@ -20,6 +21,7 @@ import { OimoPhysicsStrategy } from '../physics/Oimo/OimoPhysicsStrategy';
 import type { PhysicsEngineType } from '../physics/PhysicsProperty';
 import { RapierPhysicsStrategy } from '../physics/Rapier/RapierPhysicsStrategy';
 import type { Engine } from '../system/Engine';
+import type { IMeshEntity } from './EntityHelper';
 
 const createPhysicsStrategy = (physicsEngine: PhysicsEngineType = 'rapier') => {
   if (physicsEngine === 'oimo') {
@@ -160,30 +162,27 @@ const createCone = (engine: Engine, desc: ConeDescriptor = {}) => {
  * });
  * ```
  */
-const createCube = (engine: Engine, desc: CubeDescriptor = {}) => {
+const createCube = (engine: Engine, desc: CubeDescriptor = {}): IMeshEntity => {
   const primitive = new Cube(engine);
   primitive.generate(desc);
   const entity = createShape(engine, primitive);
+  const shapeEntity = entity.engine.entityRepository.addComponentToEntity(ShapeComponent, entity);
+  const shapeComponent = shapeEntity.getShape();
+  shapeComponent.addShape({ type: 'box', size: desc.widthVector ?? Vector3.one() });
 
   if (Is.exist(desc.physics) && desc.physics.use) {
-    const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, entity);
+    const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, shapeEntity);
     const physicsComponent = newEntity.getPhysics();
     const strategy = createPhysicsStrategy(desc.physics.engine);
-    const property = {
-      type: PhysicsShape.Box,
-      size: desc.widthVector ?? Vector3.fromCopy3(1, 1, 1),
-      position: Vector3.fromCopy3(0, 0, 0),
-      rotation: Vector3.fromCopy3(0, 0, 0),
-      move: desc.physics.move,
-      density: desc.physics.density,
-      friction: desc.physics.friction,
-      restitution: desc.physics.restitution,
-    };
-    strategy.setShape(property, newEntity);
     physicsComponent.setStrategy(strategy);
+    physicsComponent.bindShape({
+      shapeComponent,
+      body: { move: desc.physics.move, density: desc.physics.density },
+      collider: { friction: desc.physics.friction, restitution: desc.physics.restitution },
+    });
   }
 
-  return entity;
+  return shapeEntity;
 };
 
 /**
@@ -208,37 +207,35 @@ const createCube = (engine: Engine, desc: CubeDescriptor = {}) => {
  * });
  * ```
  */
-const createCubes = (engine: Engine, numberToCreate: number, desc: CubeDescriptor = {}) => {
+const createCubes = (engine: Engine, numberToCreate: number, desc: CubeDescriptor = {}): IMeshEntity[] => {
   const primitive = new Cube(engine);
   primitive.generate(desc);
   const mesh = new Mesh(engine);
   mesh.addPrimitive(primitive);
+  const sharedShape = normalizeShapeDescriptor({ type: 'box', size: desc.widthVector ?? Vector3.one() });
 
-  const entities = [];
+  const entities: IMeshEntity[] = [];
 
   for (let i = 0; i < numberToCreate; i++) {
     const entity = createMeshEntity(engine);
     const meshComponent = entity.getMesh();
     meshComponent.setMesh(mesh);
+    const shapeEntity = entity.engine.entityRepository.addComponentToEntity(ShapeComponent, entity);
+    const shapeComponent = shapeEntity.getShape();
+    shapeComponent.addShape(sharedShape);
 
     if (Is.exist(desc.physics) && desc.physics.use) {
-      const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, entity);
+      const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, shapeEntity);
       const physicsComponent = newEntity.getPhysics();
       const strategy = createPhysicsStrategy(desc.physics.engine);
-      const property = {
-        type: PhysicsShape.Box,
-        size: desc.widthVector ?? Vector3.fromCopy3(1, 1, 1),
-        position: Vector3.fromCopy3(0, 0, 0),
-        rotation: Vector3.fromCopy3(0, 0, 0),
-        move: desc.physics.move,
-        density: desc.physics.density,
-        friction: desc.physics.friction,
-        restitution: desc.physics.restitution,
-      };
-      strategy.setShape(property, newEntity);
       physicsComponent.setStrategy(strategy);
+      physicsComponent.bindShape({
+        shapeComponent,
+        body: { move: desc.physics.move, density: desc.physics.density },
+        collider: { friction: desc.physics.friction, restitution: desc.physics.restitution },
+      });
     }
-    entities.push(entity);
+    entities.push(shapeEntity);
   }
 
   return entities;
@@ -269,32 +266,27 @@ const createCubes = (engine: Engine, numberToCreate: number, desc: CubeDescripto
  * });
  * ```
  */
-const createSphere = (engine: Engine, desc: SphereDescriptor = {}) => {
+const createSphere = (engine: Engine, desc: SphereDescriptor = {}): IMeshEntity => {
   const primitive = new Sphere(engine);
   primitive.generate(desc);
   const entity = createShape(engine, primitive);
+  const shapeEntity = entity.engine.entityRepository.addComponentToEntity(ShapeComponent, entity);
+  const shapeComponent = shapeEntity.getShape();
+  shapeComponent.addShape({ type: 'sphere', radius: desc.radius ?? 1 });
 
   if (Is.exist(desc.physics) && desc.physics.use) {
-    const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, entity);
+    const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, shapeEntity);
     const physicsComponent = newEntity.getPhysics();
     const strategy = createPhysicsStrategy(desc.physics.engine);
-    const property = {
-      type: PhysicsShape.Sphere,
-      size: Is.exist(desc.radius)
-        ? Vector3.fromCopy3(desc.radius, desc.radius, desc.radius)
-        : Vector3.fromCopy3(1, 1, 1),
-      position: Vector3.fromCopy3(0, 0, 0),
-      rotation: Vector3.fromCopy3(0, 0, 0),
-      move: desc.physics.move,
-      density: desc.physics.density,
-      friction: desc.physics.friction,
-      restitution: desc.physics.restitution,
-    };
-    strategy.setShape(property, newEntity);
     physicsComponent.setStrategy(strategy);
+    physicsComponent.bindShape({
+      shapeComponent,
+      body: { move: desc.physics.move, density: desc.physics.density },
+      collider: { friction: desc.physics.friction, restitution: desc.physics.restitution },
+    });
   }
 
-  return entity;
+  return shapeEntity;
 };
 
 /**
@@ -323,39 +315,35 @@ const createSphere = (engine: Engine, desc: SphereDescriptor = {}) => {
  * });
  * ```
  */
-const createSpheres = (engine: Engine, numberToCreate: number, desc: SphereDescriptor = {}) => {
+const createSpheres = (engine: Engine, numberToCreate: number, desc: SphereDescriptor = {}): IMeshEntity[] => {
   const primitive = new Sphere(engine);
   primitive.generate(desc);
   const mesh = new Mesh(engine);
   mesh.addPrimitive(primitive);
+  const sharedShape = normalizeShapeDescriptor({ type: 'sphere', radius: desc.radius ?? 1 });
 
-  const entities = [];
+  const entities: IMeshEntity[] = [];
 
   for (let i = 0; i < numberToCreate; i++) {
     const entity = createMeshEntity(engine);
     const meshComponent = entity.getMesh();
     meshComponent.setMesh(mesh);
+    const shapeEntity = entity.engine.entityRepository.addComponentToEntity(ShapeComponent, entity);
+    const shapeComponent = shapeEntity.getShape();
+    shapeComponent.addShape(sharedShape);
 
     if (Is.exist(desc.physics) && desc.physics.use) {
-      const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, entity);
+      const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, shapeEntity);
       const physicsComponent = newEntity.getPhysics();
       const strategy = createPhysicsStrategy(desc.physics.engine);
-      const property = {
-        type: PhysicsShape.Sphere,
-        size: Is.exist(desc.radius)
-          ? Vector3.fromCopy3(desc.radius, desc.radius, desc.radius)
-          : Vector3.fromCopy3(1, 1, 1),
-        position: Vector3.fromCopy3(0, 0, 0),
-        rotation: Vector3.fromCopy3(0, 0, 0),
-        move: desc.physics.move,
-        density: desc.physics.density,
-        friction: desc.physics.friction,
-        restitution: desc.physics.restitution,
-      };
-      strategy.setShape(property, newEntity);
       physicsComponent.setStrategy(strategy);
+      physicsComponent.bindShape({
+        shapeComponent,
+        body: { move: desc.physics.move, density: desc.physics.density },
+        collider: { friction: desc.physics.friction, restitution: desc.physics.restitution },
+      });
     }
-    entities.push(entity);
+    entities.push(shapeEntity);
   }
 
   return entities;

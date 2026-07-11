@@ -6,13 +6,22 @@ import { ProcessStage } from '../../definitions/ProcessStage';
 import { Is } from '../../misc/Is';
 import { Time } from '../../misc/Time';
 import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
+import type { PhysicsBodyProperty, PhysicsColliderProperty } from '../../physics/PhysicsProperty';
 import type { PhysicsStrategy } from '../../physics/PhysicsStrategy';
 import { RapierPhysicsStrategy } from '../../physics/Rapier/RapierPhysicsStrategy';
 import { VRMSpringBonePhysicsStrategy } from '../../physics/VRMSpring/VRMSpringBonePhysicsStrategy';
 import type { Engine } from '../../system/Engine';
 import { AnimationComponent } from '../Animation/AnimationComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
+import type { ShapeComponent } from '../Shape/ShapeComponent';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
+
+export type PhysicsShapeBinding = {
+  shapeComponent: ShapeComponent;
+  shapeIndex?: number;
+  body: PhysicsBodyProperty;
+  collider: PhysicsColliderProperty;
+};
 
 /**
  * PhysicsComponent is a component that manages the physics simulation for an entity.
@@ -21,6 +30,7 @@ import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
  */
 export class PhysicsComponent extends Component {
   private __strategy?: PhysicsStrategy;
+  private __hasShapeBinding = false;
 
   /**
    * Creates a new PhysicsComponent instance.
@@ -73,6 +83,23 @@ export class PhysicsComponent extends Component {
    */
   get strategy() {
     return this.__strategy;
+  }
+
+  /** Binds one generic ShapeComponent instance to this physical body. */
+  bindShape(binding: PhysicsShapeBinding): void {
+    if (this.__hasShapeBinding) {
+      throw new Error('PhysicsComponent currently supports only one shape binding.');
+    }
+    if (this.__strategy?.setShapeInstance == null) {
+      throw new Error('The current physics strategy does not support ShapeComponent bindings.');
+    }
+    const shape = binding.shapeComponent.getShape(binding.shapeIndex ?? 0);
+    if (shape == null) {
+      throw new Error(`ShapeComponent does not contain shape index ${binding.shapeIndex ?? 0}.`);
+    }
+    const entity = this.entity as import('../../helpers/EntityHelper').ISceneGraphEntity;
+    this.__strategy.setShapeInstance(shape, binding.body, binding.collider, entity, entity.getSceneGraph().scale);
+    this.__hasShapeBinding = true;
   }
 
   getVrmSpring() {
@@ -128,6 +155,7 @@ export class PhysicsComponent extends Component {
   _destroy(): void {
     super._destroy();
     this.__strategy = undefined;
+    this.__hasShapeBinding = false;
   }
 
   /**
