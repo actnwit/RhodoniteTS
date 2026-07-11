@@ -20,9 +20,9 @@ cameraComponent.aspect = 800 / 600;
 const [vrmExpression, standingIdleVrma, walkVrma, mediumRunVrma, jumpUpVrma, floatingVrma, jumpDownVrma] =
   await Promise.all([
     Rn.GltfImporter.importFromUrl(engine, '../../../assets/vrm/test.vrm', { cameraComponent }),
-    Rn.VrmaImporter.importFromUrl('../../../assets/vrma/StandingIdle.vrma'),
+    Rn.VrmaImporter.importFromUrl('../../../assets/vrma/Idle.vrma'),
     Rn.VrmaImporter.importFromUrl('../../../assets/vrma/Walk.vrma'),
-    Rn.VrmaImporter.importFromUrl('../../../assets/vrma/MediumRun.vrma'),
+    Rn.VrmaImporter.importFromUrl('../../../assets/vrma/Run.vrma'),
     Rn.VrmaImporter.importFromUrl('../../../assets/vrma/JumpUp.vrma'),
     Rn.VrmaImporter.importFromUrl('../../../assets/vrma/Floating.vrma'),
     Rn.VrmaImporter.importFromUrl('../../../assets/vrma/JumpDown.vrma'),
