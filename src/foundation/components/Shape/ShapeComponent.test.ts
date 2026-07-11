@@ -100,9 +100,15 @@ describe('ShapeComponent', async () => {
   });
 
   test('creates and toggles an empty shape gizmo without a rendering backend', () => {
-    const component = Rn.createShapeEntity(engine).getShape();
+    const entity = Rn.createShapeEntity(engine);
+    const component = entity.getShape();
     component.isShapeGizmoVisible = true;
     expect(component.isShapeGizmoVisible).toBe(true);
+    entity.position = Rn.Vector3.fromCopy3(1, 2, 3);
+    component.$logic();
+    expect(component.shapeGizmo?.topEntity?.getTransform().localMatrixInner.translateX).toBeCloseTo(1);
+    expect(component.shapeGizmo?.topEntity?.getTransform().localMatrixInner.translateY).toBeCloseTo(2);
+    expect(component.shapeGizmo?.topEntity?.getTransform().localMatrixInner.translateZ).toBeCloseTo(3);
     component.isShapeGizmoVisible = false;
     expect(component.isShapeGizmoVisible).toBe(false);
   });

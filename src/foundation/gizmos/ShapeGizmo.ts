@@ -38,6 +38,7 @@ export class ShapeGizmo extends Gizmo {
     }
     this.__topEntity = createGroupEntity(this.__engine);
     this.__topEntity.tryToSetUniqueName(`ShapeGizmo_of_${this.__target.uniqueName}`, true);
+    this.__topEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
     this.__target.getSceneGraph()._addGizmoChild(this.__topEntity.getSceneGraph());
 
     this.__material = MaterialHelper.createPbrUberMaterial(this.__engine, {
@@ -52,10 +53,19 @@ export class ShapeGizmo extends Gizmo {
     this.__populateShapes();
     this.setGizmoTag();
     this.__topEntity.tryToSetTag({ tag: 'Gizmo', value: 'Shape' });
+    this._update();
     this.__setVisible(this.isVisible);
   }
 
-  _update(): void {}
+  _update(): void {
+    if (this.__topEntity == null) {
+      return;
+    }
+    const targetSceneGraph = this.__target.getSceneGraph();
+    this.__target.getTransform().$logic();
+    targetSceneGraph.logicForce();
+    this.__topEntity.getTransform().localMatrixWithoutPhysics = targetSceneGraph.matrixInner;
+  }
 
   rebuild(): void {
     if (!this.isSetup || this.__material == null) {

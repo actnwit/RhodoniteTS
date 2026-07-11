@@ -1,7 +1,8 @@
-import type { ComponentTID } from '../../../types/CommonTypes';
+import type { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
 import type { IEntity } from '../../core/Entity';
-import { applyMixins } from '../../core/EntityRepository';
+import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
+import { ProcessStage } from '../../definitions/ProcessStage';
 import {
   normalizeShapeDescriptor,
   type ShapeDescriptor,
@@ -12,6 +13,7 @@ import { ShapeGizmo } from '../../gizmos/ShapeGizmo';
 import { Quaternion, Vector3 } from '../../math';
 import type { AABB } from '../../math/AABB';
 import type { IVector3 } from '../../math/IVector';
+import type { Engine } from '../../system/Engine';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
@@ -19,6 +21,17 @@ import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 export class ShapeComponent extends Component {
   private __shapes: ShapeInstance[] = [];
   private __shapeGizmo?: ShapeGizmo;
+
+  constructor(
+    engine: Engine,
+    entityUid: EntityUID,
+    componentSid: ComponentSID,
+    entityRepository: EntityRepository,
+    isReUse: boolean
+  ) {
+    super(engine, entityUid, componentSid, entityRepository, isReUse);
+    this.moveStageTo(ProcessStage.Logic);
+  }
 
   static get componentTID() {
     return WellKnownComponentTIDs.ShapeComponentTID;
@@ -101,6 +114,12 @@ export class ShapeComponent extends Component {
 
   get shapeCount(): number {
     return this.__shapes.length;
+  }
+
+  $logic(): void {
+    if (this.__shapeGizmo?.isVisible) {
+      this.__shapeGizmo._update();
+    }
   }
 
   set isShapeGizmoVisible(visible: boolean) {
