@@ -76,6 +76,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
   private __motionState: CharacterMotionState = initialMotionState;
   private __lastStepDeltaTime = 0;
   private __wasGrounded = false;
+  private __hasEstablishedGrounding = false;
   private __stateVerticalVelocity = 0;
   private __landingImpactSpeed = 0;
 
@@ -202,6 +203,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     this.__motionState = initialMotionState;
     this.__lastStepDeltaTime = 0;
     this.__wasGrounded = false;
+    this.__hasEstablishedGrounding = false;
     this.__stateVerticalVelocity = 0;
     this.__landingImpactSpeed = 0;
   }
@@ -257,7 +259,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     this.__computedMovement.setComponents(movement.x, movement.y, movement.z);
     this.__stateVerticalVelocity = this.__verticalVelocity;
     if (this.__isGrounded && this.__verticalVelocity < 0) {
-      if (!this.__wasGrounded) {
+      if (!this.__wasGrounded && this.__hasEstablishedGrounding) {
         this.__landingImpactSpeed = -this.__verticalVelocity;
       }
       this.__verticalVelocity = 0;
@@ -338,6 +340,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     this.__motionState = initialMotionState;
     this.__lastStepDeltaTime = 0;
     this.__wasGrounded = false;
+    this.__hasEstablishedGrounding = false;
     this.__stateVerticalVelocity = 0;
     this.__landingImpactSpeed = 0;
   }
@@ -367,11 +370,17 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
       groundContact: this.__groundContact,
     };
     this.__wasGrounded = isGroundedNow;
+    if (isGroundedNow) {
+      this.__hasEstablishedGrounding = true;
+    }
   }
 
   private __resolveMovementState(): CharacterMovementState {
     if (this.__isRecovering) {
       return 'recovering';
+    }
+    if (!this.__hasEstablishedGrounding && this.__isGrounded) {
+      return 'grounded';
     }
     if (!this.__wasGrounded && this.__isGrounded) {
       return 'landing';

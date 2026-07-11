@@ -239,7 +239,7 @@ test('creates a foot-anchored kinematic capsule and configures traversal', async
   expect(world.controller?.normalNudgeFactor).toBe(0.001);
 });
 
-test('moves once per frame, reports grounding, and synchronizes the entity', async () => {
+test('moves once per frame, reports initial grounding without landing, and synchronizes the entity', async () => {
   await RapierPhysicsStrategy.initialize(fakeRapier());
   const { entity, state } = fakeEntity();
   const strategy = new RapierCharacterControllerStrategy();
@@ -253,15 +253,52 @@ test('moves once per frame, reports grounding, and synchronizes the entity', asy
   expect(strategy.isGrounded).toBe(true);
   expect(state.position.x).toBeCloseTo(1);
   expect(state.position.z).toBeCloseTo(-0.5);
-  expect(strategy.motionState.state).toBe('landing');
+  expect(strategy.motionState.state).toBe('grounded');
   expect(strategy.motionState.horizontalSpeed).toBeCloseTo(Math.hypot(2, 1));
   expect(strategy.motionState.groundedDuration).toBeCloseTo(0.5);
-  expect(strategy.motionState.landingImpactSpeed).toBeCloseTo(4.9);
+  expect(strategy.motionState.landingImpactSpeed).toBe(0);
 
   RapierPhysicsStrategy.update(2, 0.5);
   expect(strategy.motionState.state).toBe('grounded');
   expect(strategy.motionState.groundedDuration).toBeCloseTo(1);
-  expect(strategy.motionState.landingImpactSpeed).toBeCloseTo(4.9);
+  expect(strategy.motionState.landingImpactSpeed).toBe(0);
+});
+
+test('does not report landing while settling onto the initial ground', async () => {
+  await RapierPhysicsStrategy.initialize(fakeRapier());
+  const { entity } = fakeEntity();
+  const strategy = new RapierCharacterControllerStrategy();
+  strategy.setup(entity, capsuleShape(), { maxDeltaTime: 1, gravity: 10 });
+
+  world.controller!.forceAirborne = true;
+  RapierPhysicsStrategy.update(1, 0.1);
+  expect(strategy.motionState.state).toBe('falling');
+
+  world.controller!.forceAirborne = false;
+  RapierPhysicsStrategy.update(2, 0.1);
+
+  expect(strategy.motionState.state).toBe('grounded');
+  expect(strategy.motionState.landingImpactSpeed).toBe(0);
+});
+
+test('reports landing after a real airborne movement', async () => {
+  await RapierPhysicsStrategy.initialize(fakeRapier());
+  const { entity } = fakeEntity();
+  const strategy = new RapierCharacterControllerStrategy();
+  strategy.setup(entity, capsuleShape(), { maxDeltaTime: 1, gravity: 10, jumpSpeed: 1.5 });
+
+  RapierPhysicsStrategy.update(1, 0.1);
+  expect(strategy.motionState.state).toBe('grounded');
+
+  strategy.requestJump();
+  RapierPhysicsStrategy.update(2, 0.1);
+  expect(strategy.motionState.state).toBe('rising');
+  RapierPhysicsStrategy.update(3, 0.1);
+  expect(strategy.motionState.state).toBe('rising');
+  RapierPhysicsStrategy.update(4, 0.1);
+
+  expect(strategy.motionState.state).toBe('landing');
+  expect(strategy.motionState.landingImpactSpeed).toBeCloseTo(0.5);
 });
 
 test('jumps only after grounding and releases Rapier resources', async () => {
