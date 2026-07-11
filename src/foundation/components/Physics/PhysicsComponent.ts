@@ -3,6 +3,7 @@ import { Component } from '../../core/Component';
 import type { IEntity } from '../../core/Entity';
 import { applyMixins, type EntityRepository } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
+import { Quaternion } from '../../math/Quaternion';
 import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
 import { Time } from '../../misc/Time';
@@ -233,6 +234,16 @@ export class PhysicsComponent extends Component {
         motion.angularVelocity == null
           ? undefined
           : Vector3.fromCopy3(motion.angularVelocity.x, motion.angularVelocity.y, motion.angularVelocity.z),
+      centerOfMass:
+        motion.centerOfMass == null
+          ? undefined
+          : Vector3.fromCopy3(motion.centerOfMass.x, motion.centerOfMass.y, motion.centerOfMass.z),
+      inertiaDiagonal:
+        motion.inertiaDiagonal == null
+          ? undefined
+          : Vector3.fromCopy3(motion.inertiaDiagonal.x, motion.inertiaDiagonal.y, motion.inertiaDiagonal.z),
+      inertiaOrientation:
+        motion.inertiaOrientation == null ? undefined : Quaternion.fromCopyQuaternion(motion.inertiaOrientation),
     };
   }
 

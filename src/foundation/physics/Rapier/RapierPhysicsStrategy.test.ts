@@ -95,6 +95,13 @@ class FakeRigidBody {
   readonly linearVelocity: { x: number; y: number; z: number };
   readonly angularVelocity: { x: number; y: number; z: number };
   readonly gravityScale: number;
+  recomputeMassPropertiesCount = 0;
+  additionalMassProperties?: {
+    mass: number;
+    centerOfMass: { x: number; y: number; z: number };
+    inertia: { x: number; y: number; z: number };
+    orientation: { x: number; y: number; z: number; w: number };
+  };
 
   translation() {
     return this.translationValue;
@@ -110,6 +117,41 @@ class FakeRigidBody {
 
   setRotation(rotation: { x: number; y: number; z: number; w: number }, _wakeUp: boolean): void {
     this.rotationValue = { ...rotation };
+  }
+
+  mass(): number {
+    return 12;
+  }
+
+  localCom() {
+    return { x: 1, y: 2, z: 3 };
+  }
+
+  principalInertia() {
+    return { x: 4, y: 5, z: 6 };
+  }
+
+  principalInertiaLocalFrame() {
+    return { x: 0, y: 0, z: 0, w: 1 };
+  }
+
+  recomputeMassPropertiesFromColliders(): void {
+    this.recomputeMassPropertiesCount++;
+  }
+
+  setAdditionalMassProperties(
+    mass: number,
+    centerOfMass: { x: number; y: number; z: number },
+    inertia: { x: number; y: number; z: number },
+    orientation: { x: number; y: number; z: number; w: number },
+    _wakeUp: boolean
+  ): void {
+    this.additionalMassProperties = {
+      mass,
+      centerOfMass: { ...centerOfMass },
+      inertia: { ...inertia },
+      orientation: { ...orientation },
+    };
   }
 }
 
@@ -454,4 +496,71 @@ test('RapierPhysicsStrategy applies explicit total mass, local velocities, and g
   expect(lastWorld?.bodies[0].linearVelocity.z).toBeCloseTo(-1);
   expect(lastWorld?.bodies[0].angularVelocity.x).toBeCloseTo(2);
   expect(lastWorld?.bodies[0].gravityScale).toBe(-0.5);
+});
+
+test('RapierPhysicsStrategy merges explicit and automatically computed complete mass properties', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const strategy = new RapierPhysicsStrategy();
+  const { entity } = createSceneGraphEntity();
+  strategy.setShapeInstances(
+    [
+      {
+        shape: {
+          shape: { type: 'box', size: Vector3.one() },
+          localPosition: Vector3.zero(),
+          localRotation: Quaternion.identity(),
+        },
+        body: { move: true, density: 2 },
+        collider: { friction: 0.5, restitution: 0 },
+      },
+    ],
+    entity,
+    Vector3.one(),
+    {
+      move: true,
+      centerOfMass: Vector3.fromCopy3(7, 8, 9),
+      inertiaOrientation: Quaternion.fromAxisAngle(Vector3.fromCopy3(0, 1, 0), Math.PI / 2),
+    }
+  );
+
+  const body = lastWorld!.bodies[0];
+  expect(lastWorld?.colliders[0].density).toBe(0);
+  expect(body.recomputeMassPropertiesCount).toBe(2);
+  expect(body.additionalMassProperties?.mass).toBe(12);
+  expect(body.additionalMassProperties?.centerOfMass).toEqual({ x: 7, y: 8, z: 9 });
+  expect(body.additionalMassProperties?.inertia).toEqual({ x: 4, y: 5, z: 6 });
+  expect(body.additionalMassProperties?.orientation.y).toBeCloseTo(Math.SQRT1_2);
+
+  strategy.setScale(Vector3.fromCopy3(2, 2, 2));
+  expect(lastWorld?.bodies[0].additionalMassProperties?.centerOfMass).toEqual({ x: 7, y: 8, z: 9 });
+  expect(lastWorld?.colliders.at(-1)?.density).toBe(0);
+});
+
+test('RapierPhysicsStrategy represents mass zero without converting the body to kinematic', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const strategy = new RapierPhysicsStrategy();
+  const { entity } = createSceneGraphEntity();
+  strategy.setShapeInstance(
+    {
+      shape: { type: 'sphere', radius: 1 },
+      localPosition: Vector3.zero(),
+      localRotation: Quaternion.identity(),
+    },
+    { move: true, density: 1 },
+    { friction: 0.5, restitution: 0 },
+    entity,
+    Vector3.one(),
+    {
+      move: true,
+      mass: 0,
+      inertiaDiagonal: Vector3.fromCopy3(0, 2, 0),
+      linearVelocity: Vector3.fromCopy3(1, 0, 0),
+    }
+  );
+
+  const body = lastWorld!.bodies[0];
+  expect(body.kind).toBe('dynamic');
+  expect(body.additionalMassProperties?.mass).toBe(0);
+  expect(body.additionalMassProperties?.inertia).toEqual({ x: 0, y: 2, z: 0 });
+  expect(lastWorld?.colliders[0].density).toBe(0);
 });

@@ -48,9 +48,23 @@ export type RapierRigidBodyLike = {
   setTranslation(translation: RapierVector3Like, wakeUp: boolean): void;
   setRotation(rotation: RapierQuaternionLike, wakeUp: boolean): void;
   setNextKinematicTranslation?(translation: RapierVector3Like): void;
+  mass?(): number;
+  localCom?(): RapierVector3Like;
+  principalInertia?(): RapierVector3Like;
+  principalInertiaLocalFrame?(): RapierQuaternionLike;
+  recomputeMassPropertiesFromColliders?(): void;
+  setAdditionalMassProperties?(
+    mass: number,
+    centerOfMass: RapierVector3Like,
+    principalAngularInertia: RapierVector3Like,
+    angularInertiaLocalFrame: RapierQuaternionLike,
+    wakeUp: boolean
+  ): void;
 };
 
-export type RapierColliderLike = unknown;
+export type RapierColliderLike = {
+  setDensity?(density: number): void;
+};
 
 export type RapierCharacterControllerLike = {
   enableAutostep(maxHeight: number, minWidth: number, includeDynamicBodies: boolean): void;
@@ -218,12 +232,15 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     }
     const hasDynamicParameters =
       resolvedMotion.mass != null ||
+      resolvedMotion.centerOfMass != null ||
+      resolvedMotion.inertiaDiagonal != null ||
+      resolvedMotion.inertiaOrientation != null ||
       resolvedMotion.linearVelocity != null ||
       resolvedMotion.angularVelocity != null ||
       resolvedMotion.gravityFactor != null;
     if ((!move || isKinematic) && hasDynamicParameters) {
       Logger.default.warn(
-        `Rapier ignores mass, initial velocity, and gravityFactor on ${isKinematic ? 'kinematic' : 'fixed'} bodies.`
+        `Rapier ignores mass properties, initial velocity, and gravityFactor on ${isKinematic ? 'kinematic' : 'fixed'} bodies.`
       );
     }
     if (isKinematic && RapierPhysicsStrategy.__getRapier().RigidBodyDesc.kinematicPositionBased == null) {
@@ -484,9 +501,62 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
         const colliderDesc = this.__createShapeInstanceColliderDesc(binding);
         this.__colliders.push(world.createCollider(colliderDesc, this.__rigidBody));
       }
+      this.__applyCompleteMassProperties(prop.move, isKinematic);
     } else {
       this.__colliders.push(world.createCollider(this.__createColliderDesc(prop, size), this.__rigidBody));
     }
+  }
+
+  private __applyCompleteMassProperties(move: boolean, isKinematic: boolean): void {
+    const motion = this.__motion;
+    const rigidBody = this.__rigidBody;
+    if (motion == null || rigidBody == null || !move || isKinematic) {
+      return;
+    }
+    const needsCompleteMassProperties =
+      motion.mass === 0 ||
+      motion.centerOfMass != null ||
+      motion.inertiaDiagonal != null ||
+      motion.inertiaOrientation != null;
+    if (!needsCompleteMassProperties) {
+      return;
+    }
+    if (
+      rigidBody.mass == null ||
+      rigidBody.localCom == null ||
+      rigidBody.principalInertia == null ||
+      rigidBody.principalInertiaLocalFrame == null ||
+      rigidBody.recomputeMassPropertiesFromColliders == null ||
+      rigidBody.setAdditionalMassProperties == null ||
+      this.__colliders.some(collider => collider.setDensity == null)
+    ) {
+      throw new Error('The injected Rapier module does not support complete rigid-body mass properties.');
+    }
+
+    rigidBody.recomputeMassPropertiesFromColliders();
+    const automaticMass = rigidBody.mass();
+    const automaticCenterOfMass = rigidBody.localCom();
+    const automaticInertia = rigidBody.principalInertia();
+    const automaticInertiaOrientation = rigidBody.principalInertiaLocalFrame();
+    for (const collider of this.__colliders) {
+      collider.setDensity!(0);
+    }
+    rigidBody.recomputeMassPropertiesFromColliders();
+    const centerOfMass = motion.centerOfMass ?? automaticCenterOfMass;
+    const inertia = motion.inertiaDiagonal ?? automaticInertia;
+    const inertiaOrientation = motion.inertiaOrientation ?? automaticInertiaOrientation;
+    rigidBody.setAdditionalMassProperties(
+      motion.mass ?? automaticMass,
+      { x: centerOfMass.x, y: centerOfMass.y, z: centerOfMass.z },
+      { x: inertia.x, y: inertia.y, z: inertia.z },
+      {
+        x: inertiaOrientation.x,
+        y: inertiaOrientation.y,
+        z: inertiaOrientation.z,
+        w: inertiaOrientation.w,
+      },
+      false
+    );
   }
 
   private __createColliderDesc(prop: StoredPhysicsProperty, size: IVector3): RapierColliderDescLike {
@@ -601,6 +671,16 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
         motion.angularVelocity == null
           ? undefined
           : Vector3.fromCopy3(motion.angularVelocity.x, motion.angularVelocity.y, motion.angularVelocity.z),
+      centerOfMass:
+        motion.centerOfMass == null
+          ? undefined
+          : Vector3.fromCopy3(motion.centerOfMass.x, motion.centerOfMass.y, motion.centerOfMass.z),
+      inertiaDiagonal:
+        motion.inertiaDiagonal == null
+          ? undefined
+          : Vector3.fromCopy3(motion.inertiaDiagonal.x, motion.inertiaDiagonal.y, motion.inertiaDiagonal.z),
+      inertiaOrientation:
+        motion.inertiaOrientation == null ? undefined : Quaternion.fromCopyQuaternion(motion.inertiaOrientation),
     };
   }
 

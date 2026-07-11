@@ -125,6 +125,9 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
   ): void {
     if (
       motion?.mass != null ||
+      motion?.centerOfMass != null ||
+      motion?.inertiaDiagonal != null ||
+      motion?.inertiaOrientation != null ||
       motion?.linearVelocity != null ||
       motion?.angularVelocity != null ||
       motion?.gravityFactor != null

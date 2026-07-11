@@ -84,22 +84,15 @@ function normalizeMotion(
   }
   const normalized: KHRPhysicsMotion = {
     isKinematic: motion.isKinematic,
-    centerOfMass: motion.centerOfMass,
-    inertiaDiagonal: motion.inertiaDiagonal,
-    inertiaOrientation: motion.inertiaOrientation,
   };
   if (motion.mass != null) {
     if (!Number.isFinite(motion.mass) || motion.mass < 0) {
       warnings.push(`${KHR_PHYSICS_RIGID_BODIES}: motion node ${nodeIndex} has invalid mass; it is ignored.`);
-    } else if (motion.mass === 0) {
-      warnings.push(
-        `${KHR_PHYSICS_RIGID_BODIES}: motion node ${nodeIndex} uses infinite mass (mass: 0), which is not yet supported; mass is derived from collider density.`
-      );
     } else {
       normalized.mass = motion.mass;
     }
   }
-  for (const name of ['linearVelocity', 'angularVelocity'] as const) {
+  for (const name of ['centerOfMass', 'linearVelocity', 'angularVelocity'] as const) {
     const value = motion[name];
     if (value == null) {
       continue;
@@ -108,6 +101,30 @@ function normalizeMotion(
       warnings.push(`${KHR_PHYSICS_RIGID_BODIES}: motion node ${nodeIndex} has invalid ${name}; it is ignored.`);
     } else {
       normalized[name] = [...value];
+    }
+  }
+  if (motion.inertiaDiagonal != null) {
+    if (
+      motion.inertiaDiagonal.length !== 3 ||
+      motion.inertiaDiagonal.some(component => !Number.isFinite(component) || component < 0)
+    ) {
+      warnings.push(
+        `${KHR_PHYSICS_RIGID_BODIES}: motion node ${nodeIndex} has invalid inertiaDiagonal; it is ignored.`
+      );
+    } else {
+      normalized.inertiaDiagonal = [...motion.inertiaDiagonal];
+    }
+  }
+  if (motion.inertiaOrientation != null) {
+    const value = motion.inertiaOrientation;
+    const lengthSquared = value.reduce((sum, component) => sum + component * component, 0);
+    if (value.length !== 4 || value.some(component => !Number.isFinite(component)) || lengthSquared === 0) {
+      warnings.push(
+        `${KHR_PHYSICS_RIGID_BODIES}: motion node ${nodeIndex} has invalid inertiaOrientation; it is ignored.`
+      );
+    } else {
+      const inverseLength = 1 / Math.sqrt(lengthSquared);
+      normalized.inertiaOrientation = value.map(component => component * inverseLength);
     }
   }
   if (motion.gravityFactor != null) {
@@ -368,16 +385,6 @@ export function collectKhrRigidBodyGroups(gltfModel: RnM2): KhrRigidBodyGroupCol
     if (group == null) {
       group = { bodyNodeIndex, motion: normalizeMotion(motion, warnings, bodyNodeIndex), colliders: [] };
       groups.set(bodyNodeIndex, group);
-      if (motion != null) {
-        const unsupported = ['centerOfMass', 'inertiaDiagonal', 'inertiaOrientation'].filter(
-          name => motion[name as keyof KHRPhysicsMotion] != null
-        );
-        if (unsupported.length > 0) {
-          warnings.push(
-            `${KHR_PHYSICS_RIGID_BODIES}: motion node ${bodyNodeIndex} uses unsupported mass properties (${unsupported.join(', ')}); they are ignored.`
-          );
-        }
-      }
     }
     group.colliders.push({
       nodeIndex,
@@ -536,6 +543,18 @@ export function setupKhrStaticColliders(gltfModel: RnM2, rnEntities: ISceneGraph
       move: binding.group.motion != null,
       isKinematic: binding.group.motion?.isKinematic ?? false,
       mass: binding.group.motion?.mass,
+      centerOfMass:
+        binding.group.motion?.centerOfMass == null
+          ? undefined
+          : Vector3.fromCopyArray(binding.group.motion.centerOfMass),
+      inertiaDiagonal:
+        binding.group.motion?.inertiaDiagonal == null
+          ? undefined
+          : Vector3.fromCopyArray(binding.group.motion.inertiaDiagonal),
+      inertiaOrientation:
+        binding.group.motion?.inertiaOrientation == null
+          ? undefined
+          : Quaternion.fromCopyArray(binding.group.motion.inertiaOrientation),
       linearVelocity:
         binding.group.motion?.linearVelocity == null
           ? undefined

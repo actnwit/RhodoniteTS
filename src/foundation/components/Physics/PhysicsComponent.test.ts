@@ -137,9 +137,25 @@ describe('PhysicsComponent shape bindings', async () => {
     });
     expect(fixture.motionCalls.at(-1)?.mass).toBe(5);
 
-    physics.setMotionProperty({ move: true, mass: 8, gravityFactor: -1 });
+    const centerOfMass = Rn.MutableVector3.fromCopy3(1, 2, 3);
+    const inertiaDiagonal = Rn.MutableVector3.fromCopy3(4, 5, 6);
+    const inertiaOrientation = Rn.MutableQuaternion.identity();
+    physics.setMotionProperty({
+      move: true,
+      mass: 8,
+      gravityFactor: -1,
+      centerOfMass,
+      inertiaDiagonal,
+      inertiaOrientation,
+    });
     expect(fixture.calls.at(-1)).toHaveLength(1);
     expect(fixture.motionCalls.at(-1)?.mass).toBe(8);
     expect(physics.motionProperty?.gravityFactor).toBe(-1);
+    centerOfMass.x = 99;
+    inertiaDiagonal.y = 99;
+    inertiaOrientation.z = 1;
+    expect(physics.motionProperty?.centerOfMass?.x).toBe(1);
+    expect(physics.motionProperty?.inertiaDiagonal?.y).toBe(5);
+    expect(physics.motionProperty?.inertiaOrientation?.z).toBe(0);
   });
 });

@@ -298,6 +298,8 @@ test('normalizes supported motion values and diagnoses malformed or deferred mas
               angularVelocity: [0, 1, 2],
               gravityFactor: -1,
               centerOfMass: [0, 0, 0],
+              inertiaDiagonal: [0, 2, -1],
+              inertiaOrientation: [0, 0, 0, 2],
             },
           },
         },
@@ -309,11 +311,15 @@ test('normalizes supported motion values and diagnoses malformed or deferred mas
 
   const result = collectKhrRigidBodyGroups(gltf);
 
-  expect(result.groups[0].motion?.mass).toBeUndefined();
+  expect(result.groups[0].motion?.mass).toBe(0);
+  expect(result.groups[0].motion?.centerOfMass).toEqual([0, 0, 0]);
+  expect(result.groups[0].motion?.inertiaDiagonal).toBeUndefined();
+  expect(result.groups[0].motion?.inertiaOrientation).toEqual([0, 0, 0, 1]);
   expect(result.groups[0].motion?.linearVelocity).toBeUndefined();
   expect(result.groups[0].motion?.angularVelocity).toEqual([0, 1, 2]);
   expect(result.groups[0].motion?.gravityFactor).toBe(-1);
-  expect(result.warnings.some(warning => warning.includes('infinite mass'))).toBe(true);
+  expect(result.warnings.some(warning => warning.includes('infinite mass'))).toBe(false);
   expect(result.warnings.some(warning => warning.includes('invalid linearVelocity'))).toBe(true);
-  expect(result.warnings.some(warning => warning.includes('centerOfMass'))).toBe(true);
+  expect(result.warnings.some(warning => warning.includes('centerOfMass'))).toBe(false);
+  expect(result.warnings.some(warning => warning.includes('invalid inertiaDiagonal'))).toBe(true);
 });

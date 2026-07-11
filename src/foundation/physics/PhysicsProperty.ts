@@ -1,5 +1,6 @@
 import type { PhysicsShapeTypeEnum } from '../definitions/PhysicsShapeType';
 import type { IVector3 } from '../math';
+import type { IQuaternion } from '../math/IQuaternion';
 
 export type PhysicsEngineType = 'oimo' | 'rapier';
 
@@ -20,6 +21,12 @@ export type PhysicsMotionProperty = {
   isKinematic?: boolean;
   /** Explicit total mass in kilograms. Omit to derive mass from collider density. */
   mass?: number;
+  /** Center of mass expressed in the entity's local space. */
+  centerOfMass?: IVector3;
+  /** Principal angular inertia values expressed in kg*m^2. Zero means infinite inertia on that axis. */
+  inertiaDiagonal?: IVector3;
+  /** Rotation from the principal inertia axes to the entity's local axes. */
+  inertiaOrientation?: IQuaternion;
   /** Initial linear velocity expressed in the entity's local axes. */
   linearVelocity?: IVector3;
   /** Initial angular velocity expressed in the entity's local axes, in radians per second. */
