@@ -47,6 +47,10 @@ class FakeColliderDesc {
   translation = { x: 0, y: 0, z: 0 };
   rotation = { x: 0, y: 0, z: 0, w: 1 };
   collisionGroups = 0xffffffff;
+  sensor = false;
+  activeEvents = 0;
+  activeCollisionTypes = 0;
+  handle?: number;
 
   constructor(
     readonly type: 'ball' | 'cuboid' | 'capsule' | 'cylinder',
@@ -80,6 +84,25 @@ class FakeColliderDesc {
 
   setCollisionGroups(groups: number): FakeColliderDesc {
     this.collisionGroups = groups;
+    return this;
+  }
+
+  setSensor(sensor: boolean): FakeColliderDesc {
+    this.sensor = sensor;
+    return this;
+  }
+
+  isSensor(): boolean {
+    return this.sensor;
+  }
+
+  setActiveEvents(events: number): FakeColliderDesc {
+    this.activeEvents = events;
+    return this;
+  }
+
+  setActiveCollisionTypes(types: number): FakeColliderDesc {
+    this.activeCollisionTypes = types;
     return this;
   }
 }
@@ -187,6 +210,7 @@ class FakeWorld {
   }
 
   createCollider(desc: FakeColliderDesc, _rigidBody?: FakeRigidBody): FakeColliderDesc {
+    desc.handle = this.colliders.length;
     this.colliders.push(desc);
     return desc;
   }
@@ -198,6 +222,10 @@ class FakeWorld {
 }
 
 let lastWorld: FakeWorld | undefined;
+
+class FakeEventQueue {
+  drainCollisionEvents(_callback: (handle1: number, handle2: number, started: boolean) => void): void {}
+}
 
 function createFakeRapier(onInit?: () => void): RapierPhysicsModuleLike {
   return {
@@ -216,6 +244,10 @@ function createFakeRapier(onInit?: () => void): RapierPhysicsModuleLike {
       capsule: (halfHeight: number, radius: number) => new FakeColliderDesc('capsule', [halfHeight, radius]),
       cylinder: (halfHeight: number, radius: number) => new FakeColliderDesc('cylinder', [halfHeight, radius]),
     },
+    ActiveEvents: { COLLISION_EVENTS: 1 },
+    ActiveCollisionTypes: { ALL: 0xffff },
+    QueryFilterFlags: { EXCLUDE_SENSORS: 8 },
+    EventQueue: FakeEventQueue,
   };
 }
 
@@ -571,4 +603,29 @@ test('RapierPhysicsStrategy represents mass zero without converting the body to 
   expect(body.additionalMassProperties?.mass).toBe(0);
   expect(body.additionalMassProperties?.inertia).toEqual({ x: 0, y: 2, z: 0 });
   expect(lastWorld?.colliders[0].density).toBe(0);
+});
+
+test('RapierPhysicsStrategy configures sensors with collision events and binding metadata', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const strategy = new RapierPhysicsStrategy();
+  const { entity } = createSceneGraphEntity();
+  strategy.setShapeInstances(
+    [
+      {
+        bindingId: 42,
+        shape: {
+          shape: { type: 'box', size: Vector3.one() },
+          localPosition: Vector3.zero(),
+          localRotation: Quaternion.identity(),
+        },
+        body: { move: false, density: 1 },
+        collider: { friction: 0, restitution: 0, isSensor: true },
+      },
+    ],
+    entity
+  );
+
+  expect(lastWorld?.colliders[0].sensor).toBe(true);
+  expect(lastWorld?.colliders[0].activeEvents).toBe(1);
+  expect(lastWorld?.colliders[0].activeCollisionTypes).toBe(0xffff);
 });

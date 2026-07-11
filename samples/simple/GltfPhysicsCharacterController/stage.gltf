@@ -16,7 +16,8 @@
         { "name": "CylinderObstacle", "type": "cylinder", "cylinder": { "height": 1.5, "radiusBottom": 0.4, "radiusTop": 0.4 } },
         { "name": "CapsuleObstacle", "type": "capsule", "capsule": { "height": 1.0, "radiusBottom": 0.3, "radiusTop": 0.3 } },
         { "name": "GatePost", "type": "box", "box": { "size": [0.3, 2, 0.4] } },
-        { "name": "GateTop", "type": "box", "box": { "size": [2.1, 0.2, 0.4] } }
+        { "name": "GateTop", "type": "box", "box": { "size": [2.1, 0.2, 0.4] } },
+        { "name": "Checkpoint", "type": "box", "box": { "size": [2.5, 1.5, 0.8] } }
       ]
     }
   },
@@ -24,7 +25,7 @@
   "bufferViews": [],
   "accessors": [],
   "scene": 0,
-  "scenes": [{ "nodes": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }],
+  "scenes": [{ "nodes": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 14] }],
   "nodes": [
     {
       "name": "FloorCollider",
@@ -96,6 +97,11 @@
       "name": "GateTopCollider",
       "translation": [0, 2.1, 0],
       "extensions": { "KHR_physics_rigid_bodies": { "collider": { "geometry": { "shape": 6 } } } }
+    },
+    {
+      "name": "CheckpointTrigger",
+      "translation": [0, 1.75, -1.8],
+      "extensions": { "KHR_physics_rigid_bodies": { "trigger": { "geometry": { "shape": 7 } } } }
     }
   ]
 }

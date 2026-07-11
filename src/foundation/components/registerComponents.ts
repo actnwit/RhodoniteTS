@@ -16,6 +16,7 @@ import { SceneGraphComponent } from './SceneGraph/SceneGraphComponent';
 import { ShapeComponent } from './Shape/ShapeComponent';
 import { SkeletalComponent } from './Skeletal/SkeletalComponent';
 import { TransformComponent } from './Transform/TransformComponent';
+import { TriggerComponent } from './Trigger/TriggerComponent';
 import { VrmComponent } from './Vrm/VrmComponent';
 
 ComponentRepository.registerComponentClass(AnimationStateComponent);
@@ -36,3 +37,4 @@ ComponentRepository.registerComponentClass(ConstraintComponent);
 ComponentRepository.registerComponentClass(RaymarchingComponent);
 ComponentRepository.registerComponentClass(CharacterControllerComponent);
 ComponentRepository.registerComponentClass(ShapeComponent);
+ComponentRepository.registerComponentClass(TriggerComponent);

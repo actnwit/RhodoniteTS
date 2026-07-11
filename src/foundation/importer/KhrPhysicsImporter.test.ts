@@ -386,3 +386,40 @@ test('uses fallback collision for invalid filters and profiles beyond the 15-pro
   expect(result.warnings.some(warning => warning.includes('defines both'))).toBe(true);
   expect(result.warnings.some(warning => warning.includes('missing collision filter 99'))).toBe(true);
 });
+
+test('collects simple and compound trigger geometries without duplicating compound children', () => {
+  const gltf = createGltf(
+    [
+      {
+        children: [1, 2],
+        extensions: { KHR_physics_rigid_bodies: { trigger: { nodes: [1, 2, 2] } } },
+      },
+      {
+        extensions: {
+          KHR_physics_rigid_bodies: { trigger: { geometry: { shape: 0 } } },
+        },
+      },
+      {
+        extensions: {
+          KHR_physics_rigid_bodies: { trigger: { geometry: { shape: 1 } } },
+        },
+      },
+      {
+        extensions: {
+          KHR_physics_rigid_bodies: { trigger: { geometry: { shape: 0 } } },
+        },
+      },
+    ],
+    {
+      KHR_implicit_shapes: { shapes: [{ type: 'box' }, { type: 'sphere' }] },
+    }
+  );
+
+  const result = collectKhrRigidBodyGroups(gltf);
+  const sensors = result.groups.flatMap(group => group.colliders).filter(collider => collider.isSensor);
+
+  expect(result.warnings).toEqual([]);
+  expect(sensors).toHaveLength(3);
+  expect(sensors.map(sensor => sensor.nodeIndex)).toEqual([1, 2, 3]);
+  expect(sensors.map(sensor => sensor.triggerNodeIndex)).toEqual([0, 0, 3]);
+});

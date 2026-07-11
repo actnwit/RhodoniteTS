@@ -7,6 +7,7 @@ import type { PhysicsBodyProperty, PhysicsColliderProperty, PhysicsMotionPropert
 import type { VRMSpring } from './VRMSpring/VRMSpring';
 
 export type PhysicsShapeInstanceBinding = {
+  bindingId?: number;
   shape: ShapeInstance;
   body: PhysicsBodyProperty;
   collider: PhysicsColliderProperty;

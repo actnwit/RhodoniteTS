@@ -99,6 +99,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
         w: shapeInstance.localRotation.w,
       }) ?? colliderDesc;
     this.__collider = world.createCollider(colliderDesc, this.__rigidBody);
+    RapierPhysicsStrategy._registerExternalCollider(this.__collider, entity);
 
     this.__controller = world.createCharacterController(this.__options.contactOffset);
     this.__controller.enableAutostep(this.__options.maxStepHeight, this.__options.minStepWidth, false);
@@ -145,11 +146,15 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     }
     this.__jumpRequested = false;
 
-    this.__controller.computeColliderMovement(this.__collider, {
-      x: this.__desiredHorizontalVelocity.x * dt,
-      y: this.__verticalVelocity * dt,
-      z: this.__desiredHorizontalVelocity.z * dt,
-    });
+    this.__controller.computeColliderMovement(
+      this.__collider,
+      {
+        x: this.__desiredHorizontalVelocity.x * dt,
+        y: this.__verticalVelocity * dt,
+        z: this.__desiredHorizontalVelocity.z * dt,
+      },
+      RapierPhysicsStrategy._getRapier().QueryFilterFlags?.EXCLUDE_SENSORS ?? 8
+    );
     const movement = this.__controller.computedMovement();
     this.__computedMovement.setComponents(movement.x, movement.y, movement.z);
     this.__isGrounded = this.__controller.computedGrounded();
@@ -195,6 +200,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
 
   destroy(): void {
     RapierPhysicsStrategy._unregisterStepParticipant(this);
+    RapierPhysicsStrategy._unregisterExternalCollider(this.__collider);
     const world = RapierPhysicsStrategy._getWorld();
     if (this.__controller != null) {
       world.removeCharacterController?.(this.__controller);

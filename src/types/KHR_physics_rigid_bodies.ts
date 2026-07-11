@@ -43,10 +43,16 @@ export interface KHRPhysicsMotion extends KHRPhysicsRigidBodiesProperty {
   gravityFactor?: number;
 }
 
+export interface KHRPhysicsTrigger extends KHRPhysicsRigidBodiesProperty {
+  geometry?: KHRPhysicsGeometry;
+  nodes?: number[];
+  collisionFilter?: number;
+}
+
 export interface KHRPhysicsRigidBodiesNode extends KHRPhysicsRigidBodiesProperty {
   motion?: KHRPhysicsMotion;
   collider?: KHRPhysicsCollider;
-  trigger?: Gltf2AnyObject;
+  trigger?: KHRPhysicsTrigger;
   joint?: Gltf2AnyObject;
 }
 

@@ -44,6 +44,8 @@ export type PhysicsColliderProperty = {
   collisionGroup?: number;
   /** 16-bit mask of collision groups this collider may interact with. Defaults to all groups. */
   collisionMask?: number;
+  /** Whether this collider detects overlap without generating contact response. */
+  isSensor?: boolean;
 };
 
 /**

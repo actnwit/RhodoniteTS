@@ -170,7 +170,7 @@ export class PhysicsComponent extends Component {
     const resolved: PhysicsShapeInstanceBinding[] = [];
     let move: boolean | undefined;
     let isKinematic: boolean | undefined;
-    for (const binding of bindings.values()) {
+    for (const [bindingId, binding] of bindings) {
       const shapeIndex = binding.shapeIndex ?? 0;
       const shape = binding.shapeComponent.getShape(shapeIndex);
       if (shape == null) {
@@ -188,7 +188,7 @@ export class PhysicsComponent extends Component {
       }
       move = binding.body.move;
       isKinematic = bindingIsKinematic;
-      resolved.push({ shape, body: { ...binding.body }, collider: { ...binding.collider } });
+      resolved.push({ bindingId, shape, body: { ...binding.body }, collider: { ...binding.collider } });
     }
     const entity = this.entity as import('../../helpers/EntityHelper').ISceneGraphEntity;
     const motion = this.__motion ?? (move == null ? undefined : { move, isKinematic });

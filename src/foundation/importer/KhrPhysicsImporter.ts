@@ -3,6 +3,7 @@ import type {
   KHRImplicitShape,
   KHRImplicitShapes,
   KHRPhysicsCollisionFilter,
+  KHRPhysicsGeometry,
   KHRPhysicsMaterial,
   KHRPhysicsMotion,
   KHRPhysicsRigidBodies,
@@ -11,6 +12,7 @@ import type {
 } from '../../types';
 import { PhysicsComponent } from '../components/Physics/PhysicsComponent';
 import { ShapeComponent } from '../components/Shape/ShapeComponent';
+import { TriggerComponent } from '../components/Trigger/TriggerComponent';
 import { normalizeShapeDescriptor, type ShapeDescriptor } from '../geometry/Shape';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import type { IMatrix44 } from '../math/IMatrix';
@@ -71,6 +73,8 @@ export interface NormalizedKhrBodyCollider extends NormalizedKhrCollider {
   localRotation: Quaternion;
   /** @internal Index used while resolving the scene-wide filter table. */
   collisionFilterIndex?: number;
+  isSensor?: boolean;
+  triggerNodeIndex?: number;
 }
 
 export interface NormalizedKhrRigidBodyGroup {
@@ -436,14 +440,84 @@ export function collectKhrRigidBodyGroups(gltfModel: RnM2): KhrRigidBodyGroupCol
   const rigidBodiesExtension = gltfModel.extensions?.[KHR_PHYSICS_RIGID_BODIES] as KHRPhysicsRigidBodies | undefined;
   const sourceDescriptors = new Map<number, ShapeDescriptor>();
 
+  const declarations: Array<{
+    nodeIndex: number;
+    collider: { geometry: KHRPhysicsGeometry; physicsMaterial?: number; collisionFilter?: number };
+    isSensor: boolean;
+    triggerNodeIndex?: number;
+  }> = [];
+  const claimedTriggerNodes = new Set<number>();
+  const isDescendantOf = (nodeIndex: number, ancestorIndex: number): boolean => {
+    let current = parentIndices[nodeIndex];
+    while (current != null) {
+      if (current === ancestorIndex) return true;
+      current = parentIndices[current];
+    }
+    return false;
+  };
   for (let nodeIndex = 0; nodeIndex < gltfModel.nodes.length; nodeIndex++) {
-    const nodeExtension = gltfModel.nodes[nodeIndex].extensions?.[KHR_PHYSICS_RIGID_BODIES] as
+    const extension = gltfModel.nodes[nodeIndex].extensions?.[KHR_PHYSICS_RIGID_BODIES] as
       | KHRPhysicsRigidBodiesNode
       | undefined;
-    const collider = nodeExtension?.collider;
-    if (collider == null) {
+    if (extension?.collider != null) {
+      declarations.push({ nodeIndex, collider: extension.collider, isSensor: false });
+    }
+    const trigger = extension?.trigger;
+    if (trigger?.nodes == null) continue;
+    if (trigger.geometry != null) {
+      warnings.push(
+        `${KHR_PHYSICS_RIGID_BODIES}: trigger node ${nodeIndex} defines both geometry and nodes; it was skipped.`
+      );
       continue;
     }
+    for (const childIndex of new Set(trigger.nodes)) {
+      const childTrigger = gltfModel.nodes[childIndex]?.extensions?.[KHR_PHYSICS_RIGID_BODIES] as
+        | KHRPhysicsRigidBodiesNode
+        | undefined;
+      if (
+        !Number.isInteger(childIndex) ||
+        !isDescendantOf(childIndex, nodeIndex) ||
+        childTrigger?.trigger?.geometry == null
+      ) {
+        warnings.push(
+          `${KHR_PHYSICS_RIGID_BODIES}: compound trigger node ${nodeIndex} references invalid descendant ${childIndex}; it was ignored.`
+        );
+        continue;
+      }
+      if (childTrigger.trigger.nodes != null) {
+        warnings.push(`${KHR_PHYSICS_RIGID_BODIES}: nested compound trigger node ${childIndex} is not supported.`);
+        continue;
+      }
+      claimedTriggerNodes.add(childIndex);
+      declarations.push({
+        nodeIndex: childIndex,
+        collider: {
+          geometry: childTrigger.trigger.geometry,
+          collisionFilter: childTrigger.trigger.collisionFilter ?? trigger.collisionFilter,
+        },
+        isSensor: true,
+        triggerNodeIndex: nodeIndex,
+      });
+    }
+  }
+  for (let nodeIndex = 0; nodeIndex < gltfModel.nodes.length; nodeIndex++) {
+    if (claimedTriggerNodes.has(nodeIndex)) continue;
+    const trigger = (
+      gltfModel.nodes[nodeIndex].extensions?.[KHR_PHYSICS_RIGID_BODIES] as KHRPhysicsRigidBodiesNode | undefined
+    )?.trigger;
+    if (trigger?.geometry != null && trigger.nodes == null) {
+      declarations.push({
+        nodeIndex,
+        collider: { geometry: trigger.geometry, collisionFilter: trigger.collisionFilter },
+        isSensor: true,
+        triggerNodeIndex: nodeIndex,
+      });
+    }
+  }
+
+  for (const declaration of declarations) {
+    const nodeIndex = declaration.nodeIndex;
+    const collider = declaration.collider;
     const geometry = collider.geometry;
     if (geometry == null || geometry.shape == null || geometry.mesh != null) {
       warnings.push(
@@ -529,6 +603,8 @@ export function collectKhrRigidBodyGroups(gltfModel: RnM2): KhrRigidBodyGroupCol
       collisionGroup: FALLBACK_COLLISION_GROUP,
       collisionMask: ALL_COLLISION_GROUPS,
       collisionFilterIndex: collider.collisionFilter,
+      isSensor: declaration.isSensor,
+      triggerNodeIndex: declaration.triggerNodeIndex,
       localPosition: relativeMatrix.getTranslate(),
       localRotation: Quaternion.fromMatrix(relativeMatrix.getRotate()),
     });
@@ -707,7 +783,7 @@ export function setupKhrStaticColliders(gltfModel: RnM2, rnEntities: ISceneGraph
     });
     for (let i = 0; i < binding.group.colliders.length; i++) {
       const collider = binding.group.colliders[i];
-      physicsComponent.bindShape({
+      const bindingId = physicsComponent.bindShape({
         shapeComponent: binding.shapeComponent,
         shapeIndex: binding.shapeIndices[i],
         body: {
@@ -720,8 +796,22 @@ export function setupKhrStaticColliders(gltfModel: RnM2, rnEntities: ISceneGraph
           restitution: collider.restitution,
           collisionGroup: collider.collisionGroup,
           collisionMask: collider.collisionMask,
+          isSensor: collider.isSensor,
         },
       });
+      if (collider.isSensor && collider.triggerNodeIndex != null) {
+        const triggerEntity = rnEntities[collider.triggerNodeIndex];
+        if (triggerEntity == null) {
+          Logger.default.warn(
+            `${KHR_PHYSICS_RIGID_BODIES}: Rhodonite entity for trigger node ${collider.triggerNodeIndex} was not found.`
+          );
+          continue;
+        }
+        const triggerComponent =
+          triggerEntity.tryToGetTrigger() ??
+          triggerEntity.engine.entityRepository.addComponentToEntity(TriggerComponent, triggerEntity).getTrigger();
+        triggerComponent._registerSensorBinding(binding.entity.entityUID, bindingId);
+      }
     }
   }
 }

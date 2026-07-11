@@ -16,5 +16,6 @@ export * from './SceneGraph/index';
 export * from './Shape/index';
 export * from './Skeletal/index';
 export * from './Transform/index';
+export * from './Trigger/index';
 export * from './Vrm/index';
 export * from './WellKnownComponentTIDs';

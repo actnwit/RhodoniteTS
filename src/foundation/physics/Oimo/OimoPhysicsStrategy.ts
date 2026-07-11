@@ -123,6 +123,9 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     worldScale: IVector3 = Vector3.one(),
     motion?: PhysicsMotionProperty
   ): void {
+    if (collider.isSensor) {
+      throw new Error('OimoPhysicsStrategy does not support sensor colliders.');
+    }
     if (
       (collider.collisionGroup != null && collider.collisionGroup !== 0xffff) ||
       (collider.collisionMask != null && collider.collisionMask !== 0xffff)

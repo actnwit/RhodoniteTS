@@ -56,6 +56,24 @@ const stageEntities = stageGltf.asset.extras!.rnEntities as Rn.ISceneGraphEntity
 const gateShape = stageEntities[10].tryToGetShape()!;
 gateShape.isShapeGizmoVisible = true;
 gizmoRenderPass.addEntities([gateShape.shapeGizmo!.topEntity!]);
+const checkpointTrigger = stageEntities[14].tryToGetTrigger()!;
+let triggerEvent = 'none';
+const triggerEventHistory: string[] = [];
+const recordTriggerEvent = (type: string) => {
+  triggerEvent = type;
+  if (triggerEventHistory.at(-1) !== type) {
+    triggerEventHistory.push(type);
+  }
+};
+checkpointTrigger.subscribe('enter', () => {
+  recordTriggerEvent('enter');
+});
+checkpointTrigger.subscribe('stay', () => {
+  recordTriggerEvent('stay');
+});
+checkpointTrigger.subscribe('exit', () => {
+  recordTriggerEvent('exit');
+});
 
 const material = Rn.MaterialHelper.createClassicUberMaterial(engine);
 const floorVisual = Rn.MeshHelper.createCube(engine, {
@@ -173,7 +191,7 @@ engine.startRenderLoop(() => {
 
   engine.process([vrmExpression]);
   const position = characterEntity.position;
-  status.textContent = `Grounded: ${characterController.isGrounded ? 'yes' : 'no'} | Position: ${position.x.toFixed(
+  status.textContent = `Grounded: ${characterController.isGrounded ? 'yes' : 'no'} | Trigger: ${triggerEvent} (${checkpointTrigger.activeOverlapCount}) [${triggerEventHistory.join('>')}] | Position: ${position.x.toFixed(
     2
   )}, ${position.y.toFixed(2)}, ${position.z.toFixed(2)}`;
 });

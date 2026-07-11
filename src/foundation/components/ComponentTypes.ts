@@ -18,6 +18,7 @@ import type { IShapeEntityMethods } from './Shape/IShapeEntity';
 import type { ISkeletalEntityMethods } from './Skeletal/ISkeletalEntity';
 import type { ITransformEntityMethods } from './Transform/ITransformEntity';
 import type { TransformComponent } from './Transform/TransformComponent';
+import type { ITriggerEntityMethods } from './Trigger/ITriggerEntity';
 import type { IVrmEntityMethods } from './Vrm/IVrmEntity';
 import { WellKnownComponentTIDs } from './WellKnownComponentTIDs';
 
@@ -52,6 +53,7 @@ interface ComponentTIDToMethodsMap {
   [WellKnownComponentTIDs.RaymarchingComponentTID]: IRaymarchingEntityMethods;
   [WellKnownComponentTIDs.CharacterControllerComponentTID]: ICharacterControllerEntityMethods;
   [WellKnownComponentTIDs.ShapeComponentTID]: IShapeEntityMethods;
+  [WellKnownComponentTIDs.TriggerComponentTID]: ITriggerEntityMethods;
 }
 
 /**

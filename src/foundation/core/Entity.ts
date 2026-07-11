@@ -16,6 +16,7 @@ import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphCom
 import type { ShapeComponent } from '../components/Shape/ShapeComponent';
 import type { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
 import type { TransformComponent } from '../components/Transform/TransformComponent';
+import type { TriggerComponent } from '../components/Trigger/TriggerComponent';
 import type { VrmComponent } from '../components/Vrm/VrmComponent';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { Is } from '../misc/Is';
@@ -115,6 +116,9 @@ export interface IEntity extends IRnObject {
 
   /** Attempts to retrieve the ShapeComponent from this entity. */
   tryToGetShape(): ShapeComponent | undefined;
+
+  /** Attempts to retrieve the TriggerComponent from this entity. */
+  tryToGetTrigger(): TriggerComponent | undefined;
 
   /**
    * Attempts to retrieve the SceneGraphComponent from this entity.
@@ -433,6 +437,11 @@ export class Entity extends RnObject implements IEntity {
   /** Attempts to retrieve the ShapeComponent from this entity. */
   tryToGetShape() {
     return this.getComponentByComponentTID(WellKnownComponentTIDs.ShapeComponentTID) as ShapeComponent | undefined;
+  }
+
+  /** Attempts to retrieve the TriggerComponent from this entity. */
+  tryToGetTrigger() {
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.TriggerComponentTID) as TriggerComponent | undefined;
   }
 
   /**
