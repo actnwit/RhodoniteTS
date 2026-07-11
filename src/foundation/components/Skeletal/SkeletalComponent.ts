@@ -26,7 +26,7 @@ import type { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 type SkinningCache = {
-  globalTime: number; // Use globalTime instead of updateCount for cache validity
+  processFrameToken: number;
   jointMatrices?: number[];
   boneMatrix?: TypedArray;
   boneTranslatePackedQuat?: TypedArray;
@@ -395,16 +395,15 @@ export class SkeletalComponent extends Component {
     // --- Frame Transition: Swap cached entity UIDs ---
     // When a new frame starts, move current frame's cached UIDs to previous frame.
     // AnimationComponent uses previous frame's data because it runs before SkeletalComponent.
-    const currentGlobalTime = AnimationStateRepository.getGlobalTime(this.__engine);
-    AnimationStateRepository.handleFrameTransitionIfNeeded(this.__engine, currentGlobalTime);
+    const currentProcessFrameToken = AnimationStateRepository.getProcessFrameToken(this.__engine);
+    AnimationStateRepository.handleFrameTransitionIfNeeded(this.__engine, currentProcessFrameToken);
 
     // --- Skinning Cache Lookup ---
     this.__updateSkinCacheKey();
     const cacheKey = this.__skinCacheKey;
-    // Use globalTime instead of TransformComponent.updateCount for cache validity.
-    // updateCount changes when ANY AnimationComponent updates joints, which invalidates
-    // the cache even within the same frame. globalTime only changes once per frame.
-    // Note: currentGlobalTime is already declared above for frame transition.
+    // Use the Engine.process() token instead of TransformComponent.updateCount for cache
+    // validity. updateCount changes when AnimationComponents update joints, including while
+    // this frame is still being processed. The process token stays stable for the whole frame.
 
     // ============================================================================
     // Skinning Cache Hit/Miss Logic with Leader/Follower Pattern
@@ -433,8 +432,8 @@ export class SkeletalComponent extends Component {
       const cache = SkeletalComponent.__skinCalculationCache.get(cacheKey);
 
       // --- Cache Hit: Reuse existing skinning result ---
-      // Check if a valid cache exists for this frame (same globalTime)
-      if (cache?.globalTime === currentGlobalTime) {
+      // Check if a valid cache exists for this Engine.process() frame.
+      if (cache?.processFrameToken === currentProcessFrameToken) {
         // Determine if this SkeletalComponent is the "leader" for this cache key.
         // Leaders computed the skinning result, so their joints must continue animating.
         const isLeader = cacheLeaders.get(cacheKey) === this.entityUID;
@@ -631,7 +630,7 @@ export class SkeletalComponent extends Component {
     }
 
     if (cacheKey) {
-      SkeletalComponent.__skinCalculationCache.set(cacheKey, this.__createSkinningCache(currentGlobalTime));
+      SkeletalComponent.__skinCalculationCache.set(cacheKey, this.__createSkinningCache(currentProcessFrameToken));
     }
   }
 
@@ -1011,10 +1010,10 @@ export class SkeletalComponent extends Component {
     }
   }
 
-  private __createSkinningCache(globalTime: number): SkinningCache {
+  private __createSkinningCache(processFrameToken: number): SkinningCache {
     const hasQtsInfo = this.__qtsInfo != null && this.__qtsInfo._v.length >= 4;
     return {
-      globalTime,
+      processFrameToken,
       jointMatrices: this.__jointMatrices,
       boneMatrix: this._boneMatrix.isDummy() ? undefined : this._boneMatrix._v,
       boneTranslatePackedQuat: this._boneTranslatePackedQuat.isDummy() ? undefined : this._boneTranslatePackedQuat._v,

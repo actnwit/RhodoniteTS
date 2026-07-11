@@ -4,13 +4,15 @@ import { AnimationComponent } from '../Animation/AnimationComponent';
 import { AnimationStateComponent } from '../AnimationState/AnimationStateComponent';
 import type { CharacterControllerComponent } from './CharacterControllerComponent';
 
-export type CharacterAnimationSemantic = 'idle' | 'walk' | 'jump' | 'fall' | 'landing' | 'slide';
+export type CharacterAnimationSemantic = 'idle' | 'walk' | 'run' | 'jump' | 'fall' | 'landing' | 'slide';
 
 export type CharacterAnimationMapping = Partial<Record<CharacterAnimationSemantic, readonly AnimationTrackName[]>>;
 
 export interface CharacterAnimationControllerOptions {
   walkSpeedThreshold?: number;
   referenceWalkSpeed?: number;
+  runSpeedThreshold?: number;
+  referenceRunSpeed?: number;
   minPlaybackSpeed?: number;
   maxPlaybackSpeed?: number;
   crossFadeDuration?: number;
@@ -31,6 +33,8 @@ type ResolvedOptions = Required<CharacterAnimationControllerOptions>;
 const defaultOptions: ResolvedOptions = {
   walkSpeedThreshold: 0.1,
   referenceWalkSpeed: 2.2,
+  runSpeedThreshold: 3.0,
+  referenceRunSpeed: 4.0,
   minPlaybackSpeed: 0.5,
   maxPlaybackSpeed: 1.5,
   crossFadeDuration: 0.15,
@@ -39,6 +43,7 @@ const defaultOptions: ResolvedOptions = {
 const defaultMapping: Record<CharacterAnimationSemantic, readonly AnimationTrackName[]> = {
   idle: ['Idle', 'idle'],
   walk: ['Walk', 'walk'],
+  run: ['Run', 'run', 'Walk', 'walk'],
   jump: ['Jump', 'jump'],
   fall: ['Fall', 'fall'],
   landing: ['Landing', 'landing', 'Land', 'land'],
@@ -54,7 +59,13 @@ const initialSelection: CharacterAnimationSelection = {
   isOneShotPlaying: false,
 };
 
-/** Maps character movement state to animation tracks and controls playback transitions. */
+/**
+ * Maps character movement state to animation tracks and controls playback transitions.
+ *
+ * When tracks come from external VRMA files, assign them to `animationRoot` before creating
+ * this controller. `AnimationAssigner.assignCharacterAnimationsWithVrma()` returns the
+ * `CharacterAnimationMapping` accepted by this constructor.
+ */
 export class CharacterAnimationController {
   private readonly __options: ResolvedOptions;
   private readonly __mapping: Record<CharacterAnimationSemantic, readonly AnimationTrackName[]>;
@@ -77,6 +88,7 @@ export class CharacterAnimationController {
     this.__mapping = {
       idle: mapping.idle ?? defaultMapping.idle,
       walk: mapping.walk ?? defaultMapping.walk,
+      run: mapping.run ?? defaultMapping.run,
       jump: mapping.jump ?? defaultMapping.jump,
       fall: mapping.fall ?? defaultMapping.fall,
       landing: mapping.landing ?? defaultMapping.landing,
@@ -163,7 +175,10 @@ export class CharacterAnimationController {
     const motion = this.__characterController.motionState;
     switch (motion.state) {
       case 'grounded':
-        return motion.horizontalSpeed < this.__options.walkSpeedThreshold ? 'idle' : 'walk';
+        if (motion.horizontalSpeed < this.__options.walkSpeedThreshold) {
+          return 'idle';
+        }
+        return motion.horizontalSpeed >= this.__options.runSpeedThreshold ? 'run' : 'walk';
       case 'rising':
         return 'jump';
       case 'landing':
@@ -197,10 +212,11 @@ export class CharacterAnimationController {
   }
 
   private __resolvePlaybackSpeed(semantic: CharacterAnimationSemantic): number {
-    if (semantic !== 'walk') {
+    if (semantic !== 'walk' && semantic !== 'run') {
       return 1;
     }
-    const ratio = this.__characterController.motionState.horizontalSpeed / this.__options.referenceWalkSpeed;
+    const referenceSpeed = semantic === 'walk' ? this.__options.referenceWalkSpeed : this.__options.referenceRunSpeed;
+    const ratio = this.__characterController.motionState.horizontalSpeed / referenceSpeed;
     return Math.min(this.__options.maxPlaybackSpeed, Math.max(this.__options.minPlaybackSpeed, ratio));
   }
 
@@ -222,6 +238,8 @@ export class CharacterAnimationController {
     const positive = [
       options.walkSpeedThreshold,
       options.referenceWalkSpeed,
+      options.runSpeedThreshold,
+      options.referenceRunSpeed,
       options.minPlaybackSpeed,
       options.maxPlaybackSpeed,
     ];
@@ -230,6 +248,9 @@ export class CharacterAnimationController {
     }
     if (options.minPlaybackSpeed > options.maxPlaybackSpeed) {
       throw new Error('Character animation minPlaybackSpeed must not exceed maxPlaybackSpeed.');
+    }
+    if (options.runSpeedThreshold <= options.walkSpeedThreshold) {
+      throw new Error('Character animation runSpeedThreshold must exceed walkSpeedThreshold.');
     }
     if (!Number.isFinite(options.crossFadeDuration) || options.crossFadeDuration < 0) {
       throw new Error('Character animation crossFadeDuration must be a finite non-negative value.');

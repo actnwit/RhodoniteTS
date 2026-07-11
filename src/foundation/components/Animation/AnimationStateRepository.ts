@@ -36,11 +36,18 @@ export class AnimationStateRepository {
   private static __previousFrameCachedEntityUIDsMap: Map<Engine, Set<EntityUID>> = new Map();
 
   /**
-   * Tracks the last frame's global time to detect frame transitions.
-   * Used to trigger the swap of current/previous cached EntityUIDs.
+   * Process-frame tokens used to scope skinning-cache work to one Engine.process() call.
+   * These are intentionally separate from animation playback time: local-time animations
+   * may advance while the global animation clock remains unchanged.
+   */
+  private static __processFrameTokenMap: Map<Engine, number> = new Map();
+  private static __nextProcessFrameToken = 0;
+
+  /**
+   * Tracks the last process-frame token that swapped cached EntityUID sets.
    * Managed per Engine instance for multi-engine support.
    */
-  private static __lastCacheFrameGlobalTimeMap: Map<Engine, number> = new Map();
+  private static __lastCacheFrameTokenMap: Map<Engine, number> = new Map();
 
   /**
    * Maps each cache key to the EntityUID of its "leader" SkeletalComponent.
@@ -132,12 +139,30 @@ export class AnimationStateRepository {
     this.__previousFrameCachedEntityUIDsMap.set(engine, set);
   }
 
-  static getLastCacheFrameGlobalTime(engine: Engine): number {
-    return this.__lastCacheFrameGlobalTimeMap.get(engine) ?? -1;
+  /**
+   * Starts a new process frame for skinning-cache purposes.
+   * The token is globally unique so the static skinning cache cannot be shared across engines.
+   */
+  static beginProcessFrame(engine: Engine): number {
+    const token = ++this.__nextProcessFrameToken;
+    this.__processFrameTokenMap.set(engine, token);
+    return token;
   }
 
-  static setLastCacheFrameGlobalTime(engine: Engine, time: number) {
-    this.__lastCacheFrameGlobalTimeMap.set(engine, time);
+  /**
+   * Gets the current process-frame token. A lazily-created token keeps manual component
+   * processing safe before the first Engine.process() call.
+   */
+  static getProcessFrameToken(engine: Engine): number {
+    return this.__processFrameTokenMap.get(engine) ?? this.beginProcessFrame(engine);
+  }
+
+  static getLastCacheFrameToken(engine: Engine): number {
+    return this.__lastCacheFrameTokenMap.get(engine) ?? -1;
+  }
+
+  static setLastCacheFrameToken(engine: Engine, token: number) {
+    this.__lastCacheFrameTokenMap.set(engine, token);
   }
 
   // ============================================================================
@@ -168,18 +193,18 @@ export class AnimationStateRepository {
 
   /**
    * Handles frame transition by swapping current/previous cached entity UIDs.
-   * Should be called when a new frame starts (detected by globalTime change).
+   * Should be called when a new Engine.process() frame starts.
    * @param engine - The engine instance
-   * @param currentGlobalTime - The current global time
+   * @param currentProcessFrameToken - The current Engine.process() frame token
    * @returns True if frame transition occurred, false otherwise
    */
-  static handleFrameTransitionIfNeeded(engine: Engine, currentGlobalTime: number): boolean {
-    const lastCacheFrameGlobalTime = this.getLastCacheFrameGlobalTime(engine);
-    if (lastCacheFrameGlobalTime !== currentGlobalTime) {
+  static handleFrameTransitionIfNeeded(engine: Engine, currentProcessFrameToken: number): boolean {
+    const lastCacheFrameToken = this.getLastCacheFrameToken(engine);
+    if (lastCacheFrameToken !== currentProcessFrameToken) {
       const currentFrameSet = this.getOrCreateCurrentFrameCachedEntityUIDs(engine);
       this.setPreviousFrameCachedEntityUIDs(engine, currentFrameSet);
       this.setCurrentFrameCachedEntityUIDs(engine, new Set());
-      this.setLastCacheFrameGlobalTime(engine, currentGlobalTime);
+      this.setLastCacheFrameToken(engine, currentProcessFrameToken);
       return true;
     }
     return false;
@@ -189,10 +214,10 @@ export class AnimationStateRepository {
    * Handles frame transition and clears leader tracking.
    * Used by SkeletalComponent.isEntityCached which runs before SkeletalComponent.$logic.
    * @param engine - The engine instance
-   * @param currentGlobalTime - The current global time
+   * @param currentProcessFrameToken - The current Engine.process() frame token
    */
-  static handleFrameTransitionWithLeaderClear(engine: Engine, currentGlobalTime: number): void {
-    if (this.handleFrameTransitionIfNeeded(engine, currentGlobalTime)) {
+  static handleFrameTransitionWithLeaderClear(engine: Engine, currentProcessFrameToken: number): void {
+    if (this.handleFrameTransitionIfNeeded(engine, currentProcessFrameToken)) {
       // Clear leader tracking for the new frame
       const cacheLeaders = this.getOrCreateCacheLeaders(engine);
       const leaderJointIndexToEntityUID = this.getOrCreateLeaderJointIndexToEntityUID(engine);
@@ -215,8 +240,8 @@ export class AnimationStateRepository {
    */
   static isEntityCached(entityUID: EntityUID, engine: Engine): boolean {
     // Handle frame transition first
-    const currentGlobalTime = this.getGlobalTime(engine);
-    this.handleFrameTransitionWithLeaderClear(engine, currentGlobalTime);
+    const currentProcessFrameToken = this.getProcessFrameToken(engine);
+    this.handleFrameTransitionWithLeaderClear(engine, currentProcessFrameToken);
 
     // Check if this entity was registered as "cacheable" in the previous frame.
     // Leader joints are NOT in this set, so they will return false and continue animating.
@@ -236,9 +261,10 @@ export class AnimationStateRepository {
   static _cleanupForEngine(engine: Engine): void {
     this.__globalTimeMap.delete(engine);
     this.__isAnimatingMap.delete(engine);
+    this.__processFrameTokenMap.delete(engine);
     this.__currentFrameCachedEntityUIDsMap.delete(engine);
     this.__previousFrameCachedEntityUIDsMap.delete(engine);
-    this.__lastCacheFrameGlobalTimeMap.delete(engine);
+    this.__lastCacheFrameTokenMap.delete(engine);
     this.__cacheLeadersMap.delete(engine);
     this.__leaderJointIndexToEntityUIDMap.delete(engine);
   }

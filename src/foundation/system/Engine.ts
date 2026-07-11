@@ -402,6 +402,7 @@ export class Engine extends RnObject {
   public process(expressions: Expression[]): void;
   public process(value: any) {
     Time._processBegin();
+    AnimationStateRepository.beginProcessFrame(this);
     let expressions: Expression[] = value;
     if (value instanceof Frame) {
       expressions = value.expressions;

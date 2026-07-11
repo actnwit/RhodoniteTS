@@ -1,12 +1,17 @@
-import type { AnimationSampler, AnimationTrackName, RnM2Vrma } from '../../types';
+import type { AnimationPathName, AnimationSampler, AnimationTrackName, RnM2Vrma } from '../../types';
 import type { Index } from '../../types/CommonTypes';
 import type { RnM2 } from '../../types/RnM2';
 import type { VRM } from '../../types/VRM';
 import type { Vrm0x } from '../../types/VRM0x';
 import type { Vrm1 } from '../../types/VRM1';
+import type { HumanBoneNames, NodeId } from '../../types/VRMC_vrm_animation';
 import { AbsoluteAnimation, GlobalRetarget, type IAnimationRetarget } from '../components';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { AnimationStateComponent } from '../components/AnimationState/AnimationStateComponent';
+import type {
+  CharacterAnimationMapping,
+  CharacterAnimationSemantic,
+} from '../components/CharacterController/CharacterAnimationController';
 import { GlobalRetargetReverse } from '../components/Skeletal/AnimationRetarget/GlobalRetargetReverse';
 import { AnimationInterpolation } from '../definitions/AnimationInterpolation';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
@@ -18,6 +23,46 @@ import type { Engine } from '../system/Engine';
 import { ModelConverter } from './ModelConverter';
 
 type RetargetMode = 'none' | 'global' | 'absolute';
+
+const characterAnimationSemantics: readonly CharacterAnimationSemantic[] = [
+  'idle',
+  'walk',
+  'run',
+  'jump',
+  'fall',
+  'landing',
+  'slide',
+];
+
+/** Controls how a VRMA's hips translation is handled during retargeting. */
+export type VrmaRootMotionPolicy = 'preserve' | 'ignoreHipsTranslation';
+
+/** Optional behavior for a single VRMA assignment. */
+export interface VrmaAnimationAssignmentOptions {
+  /**
+   * Whether translation channels that target the humanoid hips are retargeted.
+   * Defaults to `preserve` for compatibility with the existing VRMA assignment API.
+   */
+  rootMotion?: VrmaRootMotionPolicy;
+}
+
+/** VRMA files to assign to one or more character controller semantic motion states. */
+export type CharacterVrmaAnimationSet = Readonly<Partial<Record<CharacterAnimationSemantic, RnM2Vrma>>>;
+
+/** Optional behavior for assigning a character VRMA set. */
+export interface CharacterVrmaAnimationAssignmentOptions {
+  /**
+   * Defaults to `ignoreHipsTranslation` so the physics character controller remains
+   * the sole authority for the character's world position.
+   */
+  rootMotion?: VrmaRootMotionPolicy;
+}
+
+/** The controller mapping and concrete tracks created from a character VRMA set. */
+export interface CharacterVrmaAnimationAssignmentResult {
+  mapping: CharacterAnimationMapping;
+  trackNames: Readonly<Partial<Record<CharacterAnimationSemantic, readonly AnimationTrackName[]>>>;
+}
 
 export class AnimationAssigner {
   constructor(private readonly __engine: Engine) {}
@@ -53,20 +98,33 @@ export class AnimationAssigner {
    * @param rootEntity - The root entity of the model to which animation will be assigned
    * @param vrmaModel - The VRMA model containing animation data and humanoid bone mappings
    * @param postfixToTrackName - Optional postfix to append to animation track names for identification
+   * @param options - Optional root-motion behavior. Existing callers preserve hips translation by default.
    * @returns An array of animation track names that were created
    */
-  assignAnimationWithVrma(rootEntity: ISceneGraphEntity, vrmaModel: RnM2Vrma, postfixToTrackName?: string) {
+  assignAnimationWithVrma(
+    rootEntity: ISceneGraphEntity,
+    vrmaModel: RnM2Vrma,
+    postfixToTrackName?: string,
+    options: VrmaAnimationAssignmentOptions = {}
+  ) {
+    const rootVrm = rootEntity.tryToGetVrm();
+    if (rootVrm == null) {
+      throw new Error('VRMA animation assignment requires a VRM root entity.');
+    }
+    if (rootVrm._version !== '0.x' && rootVrm._version !== '1.0') {
+      throw new Error(`Unsupported VRM version '${rootVrm._version}' for VRMA animation assignment.`);
+    }
+
     const entityVrma = ModelConverter.convertToRhodoniteObjectSimple(this.__engine, vrmaModel);
-
-    this.__resetAnimationAndPose(rootEntity, postfixToTrackName);
-
-    let trackNames: Set<string> = new Set();
+    const rootMotion = options.rootMotion ?? 'preserve';
+    const trackNames = new Set<AnimationTrackName>();
     const setRetarget = (vrma: RnM2Vrma) => {
       if (vrma.animations == null || vrma.animations.length === 0) {
         return;
       }
 
-      this.__engine.entityRepository.addComponentToEntity(AnimationStateComponent, rootEntity);
+      rootEntity.tryToGetAnimationState() ??
+        this.__engine.entityRepository.addComponentToEntity(AnimationStateComponent, rootEntity);
 
       for (const animation of vrma.animations) {
         for (const sampler of animation.samplers) {
@@ -77,25 +135,43 @@ export class AnimationAssigner {
 
       for (const animation of vrma.animations) {
         for (const channel of animation.channels) {
+          const nodeIndex = channel.target?.node;
+          if (nodeIndex == null) {
+            continue;
+          }
+
+          const humanBones = this.__getVrmaHumanoidBoneNameMap(vrma);
+          const humanoidBoneName = humanBones?.get(nodeIndex);
+          if (
+            rootMotion === 'ignoreHipsTranslation' &&
+            humanoidBoneName === 'hips' &&
+            channel.target?.path === 'translation'
+          ) {
+            continue;
+          }
+
           // find the corresponding joint entity
           // const node = gltfModel.nodes[channel.target!.node!];
-          const rnEntity = this.__getCorrespondingEntityWithVrma(rootEntity, vrma, channel.target!.node!);
+          const rnEntity = this.__getCorrespondingEntityWithVrma(rootEntity, vrma, nodeIndex);
           if (rnEntity) {
             const newRnEntity = this.__engine.entityRepository.addComponentToEntity(AnimationComponent, rnEntity);
             const animationComponent = newRnEntity.getAnimation();
 
-            const gltfEntity = vrma.extras.rnEntities[channel.target!.node!];
-            const humanBones = vrma.extensions.VRMC_vrm_animation.humanoidBoneNameMap!;
-            const humanoidBoneName = humanBones.get(channel.target!.node!)!;
+            const gltfEntity = vrma.extras.rnEntities[nodeIndex];
+            if (humanoidBoneName == null) {
+              continue;
+            }
             gltfEntity.tryToSetUniqueName(humanoidBoneName, true);
 
             let retarget: IAnimationRetarget | undefined;
-            if (rootEntity.tryToGetVrm()!._version === '0.x') {
+            if (rootVrm._version === '0.x') {
               retarget = new GlobalRetargetReverse(gltfEntity);
-            } else if (rootEntity.tryToGetVrm()!._version === '1.0') {
+            } else if (rootVrm._version === '1.0') {
               retarget = new GlobalRetarget(gltfEntity);
             }
-            const names = animationComponent._setRetarget(retarget!, postfixToTrackName);
+            const excludedPathNames: readonly AnimationPathName[] | undefined =
+              rootMotion === 'ignoreHipsTranslation' && humanoidBoneName === 'hips' ? ['translate'] : undefined;
+            const names = animationComponent._setRetarget(retarget!, postfixToTrackName, excludedPathNames);
             names.forEach(name => {
               trackNames.add(name);
             });
@@ -104,12 +180,65 @@ export class AnimationAssigner {
       }
     };
 
-    // Set retarget
-    setRetarget(vrmaModel);
-
-    this.__engine.entityRepository.deleteEntityRecursively(entityVrma.entityUID);
+    try {
+      this.__resetAnimationAndPose(rootEntity, postfixToTrackName);
+      setRetarget(vrmaModel);
+    } finally {
+      this.__engine.entityRepository.deleteEntityRecursively(entityVrma.entityUID);
+    }
 
     return Array.from(trackNames);
+  }
+
+  /**
+   * Retargets the supplied semantic character motions and returns a mapping that can be
+   * passed directly to {@link CharacterAnimationController}.
+   *
+   * Every source track receives a stable semantic suffix, so unnamed or identically named
+   * animations in separate VRMA files do not collide. The suffix is scoped to the target root
+   * entity so tracks from multiple characters also remain distinct. Each supplied semantic VRMA
+   * must create exactly one track; omitted semantics use `CharacterAnimationController` fallback
+   * behavior. The default root-motion policy keeps
+   * hips translation out of the target skeleton, leaving position and collision resolution to
+   * the physics character controller.
+   */
+  assignCharacterAnimationsWithVrma(
+    rootEntity: ISceneGraphEntity,
+    vrmaAnimations: CharacterVrmaAnimationSet,
+    options: CharacterVrmaAnimationAssignmentOptions = {}
+  ): CharacterVrmaAnimationAssignmentResult {
+    const rootMotion = options.rootMotion ?? 'ignoreHipsTranslation';
+    const suppliedSemantics = characterAnimationSemantics.filter(semantic => vrmaAnimations[semantic] != null);
+    if (suppliedSemantics.length === 0) {
+      throw new Error('Character VRMA animation assignment requires at least one semantic VRMA animation.');
+    }
+    this.__validateCharacterVrmaAnimationSet(rootEntity, vrmaAnimations, suppliedSemantics, rootMotion);
+
+    const mapping: CharacterAnimationMapping = {};
+    const trackNames: Partial<Record<CharacterAnimationSemantic, readonly AnimationTrackName[]>> = {};
+    const assignedPostfixes: string[] = [];
+
+    try {
+      for (const semantic of suppliedSemantics) {
+        const postfix = `__character_${rootEntity.entityUID}_${semantic}`;
+        assignedPostfixes.push(postfix);
+        const names = this.assignAnimationWithVrma(rootEntity, vrmaAnimations[semantic]!, postfix, { rootMotion });
+        if (names.length !== 1) {
+          throw new Error(
+            `Character VRMA animation '${semantic}' must create exactly one retargeted track, but created ${names.length}.`
+          );
+        }
+        mapping[semantic] = names;
+        trackNames[semantic] = names;
+      }
+    } catch (error) {
+      for (const postfix of assignedPostfixes) {
+        this.__resetAnimationAndPose(rootEntity, postfix);
+      }
+      throw error;
+    }
+
+    return { mapping, trackNames };
   }
 
   /**
@@ -225,13 +354,20 @@ export class AnimationAssigner {
    */
   private __getCorrespondingEntityWithVrma(rootEntity: ISceneGraphEntity, gltfModel: RnM2Vrma, nodeIndex: Index) {
     // VRM1.0
-    const humanBones = gltfModel.extensions.VRMC_vrm_animation.humanoidBoneNameMap!;
-    const humanoidBoneName = humanBones.get(nodeIndex)!;
+    const humanBones = this.__getVrmaHumanoidBoneNameMap(gltfModel);
+    const humanoidBoneName = humanBones?.get(nodeIndex);
+    if (humanoidBoneName == null) {
+      return void 0;
+    }
     const dstMapNameNodeId = rootEntity.getTagValue('humanoid_map_name_nodeId')! as Map<string, number>;
     const dstBoneNodeId = dstMapNameNodeId.get(humanoidBoneName!);
     if (dstBoneNodeId != null) {
-      const rnEntities = rootEntity.getTagValue('rnEntities')! as ISceneGraphEntity[];
-      const rnEntity = rnEntities[dstBoneNodeId];
+      const rnEntities = rootEntity.getTagValue('rnEntities') as ISceneGraphEntity[] | undefined;
+      const rnEntity = rnEntities?.[dstBoneNodeId];
+      if (rnEntity == null) {
+        Logger.default.info(`humanoidBoneName: ${humanoidBoneName}, nodeIndex: ${nodeIndex}`);
+        return void 0;
+      }
       // if (humanoidBoneName === 'hips') {
       //   rnEntity.parent!.scale = Vector3.fromCopy3(100, 100, 100);
       // }
@@ -240,6 +376,90 @@ export class AnimationAssigner {
     }
     Logger.default.info(`humanoidBoneName: ${humanoidBoneName}, nodeIndex: ${nodeIndex}`);
     return void 0;
+  }
+
+  private __getVrmaHumanoidBoneNameMap(vrmaModel: RnM2Vrma): Map<NodeId, HumanBoneNames> | undefined {
+    const vrmaExtension = vrmaModel.extensions?.VRMC_vrm_animation;
+    if (vrmaExtension == null) {
+      return void 0;
+    }
+
+    if (vrmaExtension.humanoidBoneNameMap != null) {
+      return vrmaExtension.humanoidBoneNameMap;
+    }
+
+    const humanBones = vrmaExtension.humanoid?.humanBones;
+    if (humanBones == null) {
+      return void 0;
+    }
+
+    const humanoidBoneNameMap = new Map<NodeId, HumanBoneNames>();
+    for (const boneName in humanBones) {
+      const bone = humanBones[boneName as HumanBoneNames];
+      humanoidBoneNameMap.set(bone.node, boneName as HumanBoneNames);
+    }
+    vrmaExtension.humanoidBoneNameMap = humanoidBoneNameMap;
+    return humanoidBoneNameMap;
+  }
+
+  private __validateCharacterVrmaAnimationSet(
+    rootEntity: ISceneGraphEntity,
+    vrmaAnimations: CharacterVrmaAnimationSet,
+    suppliedSemantics: readonly CharacterAnimationSemantic[],
+    rootMotion: VrmaRootMotionPolicy
+  ): void {
+    const rootVrm = rootEntity.tryToGetVrm();
+    if (rootVrm == null) {
+      throw new Error('Character VRMA animation assignment requires a VRM root entity.');
+    }
+    if (rootVrm._version !== '0.x' && rootVrm._version !== '1.0') {
+      throw new Error(`Unsupported VRM version '${rootVrm._version}' for character VRMA animation assignment.`);
+    }
+
+    const targetHumanoidBoneMap = rootEntity.getTagValue('humanoid_map_name_nodeId') as Map<string, number> | undefined;
+    if (targetHumanoidBoneMap == null) {
+      throw new Error('Character VRMA animation assignment requires humanoid bone mappings on the VRM root entity.');
+    }
+    const targetEntities = rootEntity.getTagValue('rnEntities') as ISceneGraphEntity[] | undefined;
+    if (targetEntities == null) {
+      throw new Error('Character VRMA animation assignment requires humanoid entities on the VRM root entity.');
+    }
+
+    for (const semantic of suppliedSemantics) {
+      const vrmaModel = vrmaAnimations[semantic]!;
+      if (vrmaModel.animations == null || vrmaModel.animations.length === 0) {
+        throw new Error(`Character VRMA animation '${semantic}' does not contain any animations.`);
+      }
+
+      const humanoidBoneMap = this.__getVrmaHumanoidBoneNameMap(vrmaModel);
+      if (humanoidBoneMap == null) {
+        throw new Error(`Character VRMA animation '${semantic}' does not define VRMC_vrm_animation humanoid bones.`);
+      }
+
+      const hasRetargetableChannel = vrmaModel.animations.some(animation =>
+        animation.channels.some(channel => {
+          const nodeIndex = channel.target?.node;
+          const humanoidBoneName = nodeIndex == null ? undefined : humanoidBoneMap.get(nodeIndex);
+          const path = channel.target?.path;
+          if (path !== 'translation' && path !== 'rotation' && path !== 'scale') {
+            return false;
+          }
+          if (rootMotion === 'ignoreHipsTranslation' && humanoidBoneName === 'hips' && path === 'translation') {
+            return false;
+          }
+          if (humanoidBoneName == null) {
+            return false;
+          }
+          const targetNodeIndex = targetHumanoidBoneMap.get(humanoidBoneName);
+          return targetNodeIndex != null && targetEntities[targetNodeIndex] != null;
+        })
+      );
+      if (!hasRetargetableChannel) {
+        throw new Error(
+          `Character VRMA animation '${semantic}' does not target a humanoid bone available on the VRM root entity.`
+        );
+      }
+    }
   }
 
   /**

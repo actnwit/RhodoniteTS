@@ -71,7 +71,12 @@ test('resolves tracks, speed, transitions, fallback, and landing one-shot', () =
   );
   const characterState: { motionState: CharacterMotionState } = { motionState: createMotion('grounded') };
   const character = characterState as CharacterControllerComponent;
-  const controller = new CharacterAnimationController(character, root, {}, { crossFadeDuration: 0.2 });
+  const controller = new CharacterAnimationController(
+    character,
+    root,
+    {},
+    { crossFadeDuration: 0.2, runSpeedThreshold: 10 }
+  );
 
   controller.update(0.1);
   expect(controller.selection).toMatchObject({ semantic: 'idle', activeTrack: 'IDLE', isFallback: false });
@@ -96,6 +101,61 @@ test('resolves tracks, speed, transitions, fallback, and landing one-shot', () =
   expect(controller.selection.semantic).toBe('idle');
 });
 
+test('uses every explicit semantic track generated from a VRMA animation set', () => {
+  const semantics = ['idle', 'walk', 'run', 'jump', 'fall', 'landing', 'slide'] as const;
+  const tracks = Object.fromEntries(semantics.map(semantic => [semantic, `Clip__character_42_${semantic}`])) as Record<
+    (typeof semantics)[number],
+    string
+  >;
+  const animationState = {
+    setUseGlobalTime: vi.fn(),
+    setFirstActiveAnimationTrack: vi.fn(),
+    forceTransitionTo: vi.fn(),
+    setIsLoop: vi.fn(),
+    setTime: vi.fn(),
+  };
+  const child = {
+    tryToGetAnimation: () => ({ getAnimationTrackNames: () => Object.values(tracks) }),
+    children: [],
+  };
+  const engine = {};
+  const root = {
+    tryToGetAnimation: () => undefined,
+    tryToGetAnimationState: () => animationState,
+    children: [{ entity: child }],
+    engine,
+  } as unknown as ISceneGraphEntity;
+  vi.spyOn(AnimationComponent, 'getAnimationInfo').mockReturnValue(
+    new Map(Object.values(tracks).map(track => [track, { name: track, minStartInputTime: 0, maxEndInputTime: 1 }]))
+  );
+  const characterState: { motionState: CharacterMotionState } = { motionState: createMotion('grounded') };
+  const mapping = Object.fromEntries(semantics.map(semantic => [semantic, [tracks[semantic]]])) as Record<
+    (typeof semantics)[number],
+    readonly string[]
+  >;
+  const controller = new CharacterAnimationController(characterState as CharacterControllerComponent, root, mapping);
+
+  const transitions: Array<[CharacterMotionState['state'], number, keyof typeof tracks]> = [
+    ['grounded', 0, 'idle'],
+    ['grounded', 2.2, 'walk'],
+    ['grounded', 4, 'run'],
+    ['rising', 0, 'jump'],
+    ['falling', 0, 'fall'],
+    ['sliding', 0, 'slide'],
+    ['landing', 0, 'landing'],
+  ];
+  for (const [motionState, horizontalSpeed, semantic] of transitions) {
+    characterState.motionState = createMotion(motionState, horizontalSpeed);
+    controller.update(0.01);
+    expect(controller.selection).toMatchObject({
+      semantic,
+      activeTrack: tracks[semantic],
+      isFallback: false,
+      hasTrack: true,
+    });
+  }
+});
+
 test('validates time and speed options', () => {
   const character = { motionState: createMotion('falling') } as CharacterControllerComponent;
   const root = {
@@ -106,6 +166,9 @@ test('validates time and speed options', () => {
   } as unknown as ISceneGraphEntity;
   expect(() => new CharacterAnimationController(character, root, {}, { referenceWalkSpeed: 0 })).toThrow(
     'speed settings'
+  );
+  expect(() => new CharacterAnimationController(character, root, {}, { runSpeedThreshold: 0.1 })).toThrow(
+    'runSpeedThreshold'
   );
   const controller = new CharacterAnimationController(character, root);
   expect(() => controller.update(-1)).toThrow('deltaTime');

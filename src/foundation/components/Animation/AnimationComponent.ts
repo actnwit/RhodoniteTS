@@ -958,10 +958,15 @@ export class AnimationComponent extends Component {
    * Sets up animation retargeting from a source entity to this entity.
    * @param retarget - The retargeting interface that defines how to map animations
    * @param postfixToTrackName - Optional postfix to append to track names
+   * @param excludedPathNames - Animation paths to omit while copying source tracks
    * @returns An array of created track names
    * @private
    */
-  _setRetarget(retarget: IAnimationRetarget, postfixToTrackName?: string): string[] {
+  _setRetarget(
+    retarget: IAnimationRetarget,
+    postfixToTrackName?: string,
+    excludedPathNames: readonly AnimationPathName[] = []
+  ): string[] {
     const srcEntity = retarget.getEntity();
     const srcAnim = srcEntity.tryToGetAnimation();
     const dstEntity = this.entity;
@@ -972,6 +977,9 @@ export class AnimationComponent extends Component {
     srcAnim.useGlobalTime = false;
     const trackNames: string[] = [];
     for (const [pathName, channel] of srcAnim.__animationTrack) {
+      if (excludedPathNames.includes(channel.target.pathName)) {
+        continue;
+      }
       const animatedValue = channel.animatedValue;
       for (const _trackName of animatedValue.getAllTrackNames()) {
         const trackName = _trackName + (postfixToTrackName ?? '');

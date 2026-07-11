@@ -17,12 +17,28 @@ cameraComponent.zFar = 100;
 cameraComponent.setFovyAndChangeFocalLength(50);
 cameraComponent.aspect = 800 / 600;
 
-const vrmExpression = await Rn.GltfImporter.importFromUrl(engine, '../../../assets/vrm/test.vrm', {
-  cameraComponent,
-});
+const [vrmExpression, standingIdleVrma, walkVrma, mediumRunVrma, jumpUpVrma, floatingVrma, jumpDownVrma] =
+  await Promise.all([
+    Rn.GltfImporter.importFromUrl(engine, '../../../assets/vrm/test.vrm', { cameraComponent }),
+    Rn.VrmaImporter.importFromUrl('../../../assets/vrma/StandingIdle.vrma'),
+    Rn.VrmaImporter.importFromUrl('../../../assets/vrma/Walk.vrma'),
+    Rn.VrmaImporter.importFromUrl('../../../assets/vrma/MediumRun.vrma'),
+    Rn.VrmaImporter.importFromUrl('../../../assets/vrma/JumpUp.vrma'),
+    Rn.VrmaImporter.importFromUrl('../../../assets/vrma/Floating.vrma'),
+    Rn.VrmaImporter.importFromUrl('../../../assets/vrma/JumpDown.vrma'),
+  ]);
 const renderPass = vrmExpression.renderPasses[0];
 renderPass.toClearColorBuffer = true;
 const vrmRoot = renderPass.sceneTopLevelGraphComponents[0].entity;
+const vrmaAnimationAssigner = new Rn.AnimationAssigner(engine);
+const characterAnimationAssignment = vrmaAnimationAssigner.assignCharacterAnimationsWithVrma(vrmRoot, {
+  idle: standingIdleVrma,
+  walk: walkVrma,
+  run: mediumRunVrma,
+  jump: jumpUpVrma,
+  fall: floatingVrma,
+  landing: jumpDownVrma,
+});
 
 const characterEntity = Rn.createCharacterControllerEntity(engine);
 const vrmAabb = vrmRoot.getSceneGraph().worldMergedAABB;
@@ -48,7 +64,18 @@ characterController.setup(new Rn.RapierCharacterControllerStrategy(), {
   minStepWidth: 0.2,
   snapToGroundDistance: 0.15,
 });
-const characterAnimation = new Rn.CharacterAnimationController(characterController, vrmRoot);
+const walkSpeed = 2.2;
+const runSpeed = 4.0;
+const characterAnimation = new Rn.CharacterAnimationController(
+  characterController,
+  vrmRoot,
+  characterAnimationAssignment.mapping,
+  {
+    referenceWalkSpeed: walkSpeed,
+    referenceRunSpeed: runSpeed,
+    runSpeedThreshold: (walkSpeed + runSpeed) * 0.5,
+  }
+);
 
 const stageGltf = await Rn.Gltf2Importer.importFromUrl('./stage.gltf');
 const stageColliderRoot = await Rn.ModelConverter.convertToRhodoniteObject(engine, stageGltf);
@@ -201,7 +228,6 @@ window.addEventListener('keyup', event => pressedKeys.delete(event.code));
 window.addEventListener('blur', () => pressedKeys.clear());
 
 const status = document.getElementById('status')!;
-const moveSpeed = 2.2;
 engine.startRenderLoop(() => {
   const forwardInput =
     Number(pressedKeys.has('KeyW') || pressedKeys.has('ArrowUp')) -
@@ -218,7 +244,8 @@ engine.startRenderLoop(() => {
   if (movement.length() > 1) {
     movement = Rn.Vector3.normalize(movement);
   }
-  characterController.setDesiredHorizontalVelocity(Rn.Vector3.multiply(movement, moveSpeed));
+  const movementSpeed = pressedKeys.has('ShiftLeft') || pressedKeys.has('ShiftRight') ? runSpeed : walkSpeed;
+  characterController.setDesiredHorizontalVelocity(Rn.Vector3.multiply(movement, movementSpeed));
 
   if (movement.lengthSquared() > 0.0001) {
     characterEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopy3(0, Math.atan2(movement.x, movement.z), 0);
