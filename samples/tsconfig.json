@@ -1,6 +1,6 @@
 {
   "extends": "./../tsconfig.json",
-  "include": ["./simple", "./test_e2e/"],
+  "include": ["./simple", "./test_e2e/", "./issues/"],
   "exclude": ["./simple/4DViews/"],
   "compilerOptions": {
     "module": "ESNext",

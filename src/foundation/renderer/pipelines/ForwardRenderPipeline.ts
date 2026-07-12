@@ -1,7 +1,13 @@
 import type { Size } from '../../../types';
 import { RaymarchingComponent } from '../../components/Raymarching/RaymarchingComponent';
 import { RnObject } from '../../core/RnObject';
-import { ComponentType, PixelFormat, ToneMappingType, type ToneMappingTypeEnum } from '../../definitions';
+import {
+  ComponentType,
+  PixelFormat,
+  ProcessApproach,
+  ToneMappingType,
+  type ToneMappingTypeEnum,
+} from '../../definitions';
 import { TextureFormat } from '../../definitions/TextureFormat';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import { Bloom } from '../../helpers/BloomHelper';
@@ -113,6 +119,7 @@ export class ForwardRenderPipeline extends RnObject {
   private __oRaymarchingExpression: Option<Expression> = new None();
   private __oRaymarchingRenderPass: Option<RenderPass> = new None();
   private __engine: Engine;
+  private __isMsaaEnabled = true;
 
   constructor(engine: Engine) {
     super();
@@ -197,6 +204,15 @@ export class ForwardRenderPipeline extends RnObject {
     canvasHeight: number,
     { isShadow = false, isBloom = false, shadowMapSize = 1024, isSimple = false } = {}
   ) {
+    const isMacChromeWebGpu =
+      this.__engine.processApproach === ProcessApproach.WebGPU &&
+      typeof navigator !== 'undefined' &&
+      /Macintosh/.test(navigator.userAgent) &&
+      /Chrome\//.test(navigator.userAgent);
+    // Chrome's WebGPU backend on macOS currently produces triangle-edge artifacts when resolving
+    // this pipeline's multisampled MToon render target. Keep MSAA on other supported backends.
+    this.__isMsaaEnabled = !isMacChromeWebGpu;
+
     this.__width = canvasWidth;
     this.__height = canvasHeight;
     this.__isBloom = isBloom;
@@ -327,6 +343,9 @@ export class ForwardRenderPipeline extends RnObject {
   private __getMainFrameBuffer(): Option<FrameBuffer> {
     if (this.__oFrameBufferMultiView.has()) {
       return this.__oFrameBufferMultiView;
+    }
+    if (!this.__isMsaaEnabled) {
+      return this.__oFrameBufferResolve;
     }
     return this.__oFrameBufferMsaa;
   }
@@ -825,7 +844,7 @@ export class ForwardRenderPipeline extends RnObject {
         // rp.depthWriteMask = false;
         if (!this.__isSimple) {
           rp.setFramebuffer(this.__getMainFrameBuffer().unwrapForce());
-          if (this.__oFrameBufferResolve.has()) {
+          if (this.__oFrameBufferMsaa.has() && this.__oFrameBufferResolve.has()) {
             rp.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
           }
           for (const entity of rp.entities) {
@@ -981,15 +1000,17 @@ export class ForwardRenderPipeline extends RnObject {
     } else {
       console.log(`canvasWidth: ${canvasWidth}, canvasHeight: ${canvasHeight}`);
       // MSAA depth
-      const framebufferMsaa = RenderableHelper.createFrameBufferMSAA(this.__engine, {
-        width: canvasWidth,
-        height: canvasHeight,
-        colorBufferNum: 1,
-        colorFormats: [this.__isBloom ? TextureFormat.R11F_G11F_B10F : TextureFormat.RGBA8],
-        sampleCountMSAA: 4,
-        depthBufferFormat: TextureFormat.Depth32F,
-      });
-      framebufferMsaa.tryToSetUniqueName('FramebufferTargetOfToneMappingMsaa', true);
+      const framebufferMsaa = this.__isMsaaEnabled
+        ? RenderableHelper.createFrameBufferMSAA(this.__engine, {
+            width: canvasWidth,
+            height: canvasHeight,
+            colorBufferNum: 1,
+            colorFormats: [this.__isBloom ? TextureFormat.R11F_G11F_B10F : TextureFormat.RGBA8],
+            sampleCountMSAA: 4,
+            depthBufferFormat: TextureFormat.Depth32F,
+          })
+        : undefined;
+      framebufferMsaa?.tryToSetUniqueName('FramebufferTargetOfToneMappingMsaa', true);
 
       // Resolve Color 1
       const framebufferResolve = RenderableHelper.createFrameBuffer(this.__engine, {
@@ -1016,7 +1037,7 @@ export class ForwardRenderPipeline extends RnObject {
       this.__oFrameBufferMultiView = new None();
       this.__oFrameBufferMultiViewBlit = new None();
       this.__oFrameBufferMultiViewBlitBackBuffer = new None();
-      this.__oFrameBufferMsaa = new Some(framebufferMsaa);
+      this.__oFrameBufferMsaa = framebufferMsaa == null ? new None() : new Some(framebufferMsaa);
       this.__oFrameBufferResolve = new Some(framebufferResolve);
       this.__oFrameBufferResolveForReference = new Some(framebufferResolveForReference);
     }
