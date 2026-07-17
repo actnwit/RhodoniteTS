@@ -137,7 +137,7 @@ export class PhysicsComponent extends Component {
     this.__applyShapeBindings(next);
     this.__shapeBindings = next;
     if (previous.collider.isSensor && !binding.collider.isSensor) {
-      TriggerComponent._unregisterSensorBinding(this.entity.entityUID, bindingId);
+      TriggerComponent._unregisterSensorBinding(this.__engine, this.entity.entityUID, bindingId);
     }
   }
 
@@ -151,7 +151,7 @@ export class PhysicsComponent extends Component {
     this.__applyShapeBindings(next);
     this.__shapeBindings = next;
     if (removed.collider.isSensor) {
-      TriggerComponent._unregisterSensorBinding(this.entity.entityUID, bindingId);
+      TriggerComponent._unregisterSensorBinding(this.__engine, this.entity.entityUID, bindingId);
     }
     return true;
   }
@@ -237,7 +237,7 @@ export class PhysicsComponent extends Component {
   private __unregisterSensorBindings(bindings: ReadonlyMap<number, PhysicsShapeBinding>): void {
     for (const [bindingId, binding] of bindings) {
       if (binding.collider.isSensor) {
-        TriggerComponent._unregisterSensorBinding(this.entity.entityUID, bindingId);
+        TriggerComponent._unregisterSensorBinding(this.__engine, this.entity.entityUID, bindingId);
       }
     }
   }

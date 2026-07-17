@@ -111,6 +111,7 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
       friction: prop.friction,
       restitution: prop.restitution,
     };
+    this.__body?.remove();
     this.__body = world.add(this.__property);
     this.__entity = entity;
   }
@@ -201,6 +202,7 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
       friction: collider.friction,
       restitution: collider.restitution,
     };
+    this.__body?.remove();
     this.__body = OimoPhysicsStrategy.__world.add(this.__property);
   }
 

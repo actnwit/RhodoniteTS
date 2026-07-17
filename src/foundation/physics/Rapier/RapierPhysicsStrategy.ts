@@ -551,6 +551,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       }
       if (first.isSensor && first.bindingId != null) {
         TriggerComponent._processOverlap(
+          first.entity.engine,
           first.entity.entityUID,
           first.bindingId,
           second.entity,
@@ -560,6 +561,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       }
       if (second.isSensor && second.bindingId != null) {
         TriggerComponent._processOverlap(
+          second.entity.engine,
           second.entity.entityUID,
           second.bindingId,
           first.entity,
@@ -903,7 +905,11 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       if (collider.handle != null) {
         const metadata = RapierPhysicsStrategy.__colliderMetadata.get(collider.handle);
         if (metadata?.isSensor && metadata.bindingId != null) {
-          TriggerComponent._deactivateSensorBinding(metadata.entity.entityUID, metadata.bindingId);
+          TriggerComponent._deactivateSensorBinding(
+            metadata.entity.engine,
+            metadata.entity.entityUID,
+            metadata.bindingId
+          );
         }
         RapierPhysicsStrategy.__colliderMetadata.delete(collider.handle);
       }

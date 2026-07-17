@@ -27,7 +27,7 @@ type ActiveOverlap = {
 
 /** Groups one or more physics sensors into a logical trigger volume. */
 export class TriggerComponent extends Component {
-  private static __sensorOwners = new Map<string, TriggerComponent>();
+  private static __sensorOwners = new WeakMap<Engine, Map<string, TriggerComponent>>();
   private static __components = new Set<TriggerComponent>();
   private __pubsub = new EventPubSub();
   private __sensorKeys = new Set<string>();
@@ -68,35 +68,48 @@ export class TriggerComponent extends Component {
   /** @internal Associates a PhysicsComponent binding with this logical trigger. */
   _registerSensorBinding(physicsEntityUid: EntityUID, bindingId: number): void {
     const key = TriggerComponent.__sensorKey(physicsEntityUid, bindingId);
-    const existing = TriggerComponent.__sensorOwners.get(key);
+    let owners = TriggerComponent.__sensorOwners.get(this.__engine);
+    if (owners == null) {
+      owners = new Map();
+      TriggerComponent.__sensorOwners.set(this.__engine, owners);
+    }
+    const existing = owners.get(key);
     if (existing != null && existing !== this) {
       throw new Error(`Physics sensor binding ${key} is already owned by another TriggerComponent.`);
     }
-    TriggerComponent.__sensorOwners.set(key, this);
+    owners.set(key, this);
     this.__sensorKeys.add(key);
   }
 
   /** @internal Removes ownership when a sensor binding is permanently deleted. */
-  static _unregisterSensorBinding(physicsEntityUid: EntityUID, sensorBindingId: number): void {
+  static _unregisterSensorBinding(engine: Engine, physicsEntityUid: EntityUID, sensorBindingId: number): void {
     const key = this.__sensorKey(physicsEntityUid, sensorBindingId);
-    const trigger = this.__sensorOwners.get(key);
+    const owners = this.__sensorOwners.get(engine);
+    if (owners == null) {
+      return;
+    }
+    const trigger = owners.get(key);
     if (trigger == null) {
       return;
     }
-    this._deactivateSensorBinding(physicsEntityUid, sensorBindingId);
-    this.__sensorOwners.delete(key);
+    this._deactivateSensorBinding(engine, physicsEntityUid, sensorBindingId);
+    owners.delete(key);
+    if (owners.size === 0) {
+      this.__sensorOwners.delete(engine);
+    }
     trigger.__sensorKeys.delete(key);
   }
 
   /** @internal Called by the Rapier event bridge. */
   static _processOverlap(
+    engine: Engine,
     sensorEntityUid: EntityUID,
     sensorBindingId: number,
     otherEntity: IEntity,
     otherBindingId: number | undefined,
     started: boolean
   ): void {
-    const trigger = this.__sensorOwners.get(this.__sensorKey(sensorEntityUid, sensorBindingId));
+    const trigger = this.__sensorOwners.get(engine)?.get(this.__sensorKey(sensorEntityUid, sensorBindingId));
     if (trigger == null || otherEntity.entityUID === trigger.entity.entityUID) {
       return;
     }
@@ -138,8 +151,8 @@ export class TriggerComponent extends Component {
   }
 
   /** @internal Ends overlaps owned by a sensor collider that is being removed or rebuilt. */
-  static _deactivateSensorBinding(physicsEntityUid: EntityUID, sensorBindingId: number): void {
-    const trigger = this.__sensorOwners.get(this.__sensorKey(physicsEntityUid, sensorBindingId));
+  static _deactivateSensorBinding(engine: Engine, physicsEntityUid: EntityUID, sensorBindingId: number): void {
+    const trigger = this.__sensorOwners.get(engine)?.get(this.__sensorKey(physicsEntityUid, sensorBindingId));
     if (trigger == null) return;
     for (const [otherEntityUid, overlap] of [...trigger.__activeOverlaps]) {
       const removed = [...overlap.pairs.entries()].filter(
@@ -170,8 +183,12 @@ export class TriggerComponent extends Component {
   }
 
   _destroy(): void {
+    const owners = TriggerComponent.__sensorOwners.get(this.__engine);
     for (const key of this.__sensorKeys) {
-      TriggerComponent.__sensorOwners.delete(key);
+      owners?.delete(key);
+    }
+    if (owners?.size === 0) {
+      TriggerComponent.__sensorOwners.delete(this.__engine);
     }
     this.__sensorKeys.clear();
     this.__activeOverlaps.clear();

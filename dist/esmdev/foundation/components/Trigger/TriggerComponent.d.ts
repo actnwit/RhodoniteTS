@@ -30,13 +30,13 @@ export declare class TriggerComponent extends Component {
     /** @internal Associates a PhysicsComponent binding with this logical trigger. */
     _registerSensorBinding(physicsEntityUid: EntityUID, bindingId: number): void;
     /** @internal Removes ownership when a sensor binding is permanently deleted. */
-    static _unregisterSensorBinding(physicsEntityUid: EntityUID, sensorBindingId: number): void;
+    static _unregisterSensorBinding(engine: Engine, physicsEntityUid: EntityUID, sensorBindingId: number): void;
     /** @internal Called by the Rapier event bridge. */
-    static _processOverlap(sensorEntityUid: EntityUID, sensorBindingId: number, otherEntity: IEntity, otherBindingId: number | undefined, started: boolean): void;
+    static _processOverlap(engine: Engine, sensorEntityUid: EntityUID, sensorBindingId: number, otherEntity: IEntity, otherBindingId: number | undefined, started: boolean): void;
     /** @internal Emits one Stay event per active logical overlap after each physics step. */
     static _publishStayEvents(): void;
     /** @internal Ends overlaps owned by a sensor collider that is being removed or rebuilt. */
-    static _deactivateSensorBinding(physicsEntityUid: EntityUID, sensorBindingId: number): void;
+    static _deactivateSensorBinding(engine: Engine, physicsEntityUid: EntityUID, sensorBindingId: number): void;
     private __publish;
     private static __sensorKey;
     _destroy(): void;

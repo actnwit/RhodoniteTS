@@ -134,7 +134,7 @@ describe('PhysicsComponent shape bindings', async () => {
 
     expect(physics.removeShapeBinding(bindingId)).toBe(true);
     expect(() => secondTrigger._registerSensorBinding(fixture.entity.entityUID, bindingId)).not.toThrow();
-    Rn.TriggerComponent._unregisterSensorBinding(fixture.entity.entityUID, bindingId);
+    Rn.TriggerComponent._unregisterSensorBinding(engine, fixture.entity.entityUID, bindingId);
 
     const destroyedFixture = createFixture();
     const destroyedPhysics = destroyedFixture.entity.getPhysics();
@@ -150,7 +150,7 @@ describe('PhysicsComponent shape bindings', async () => {
     expect(() =>
       secondTrigger._registerSensorBinding(destroyedFixture.entity.entityUID, destroyedBindingId)
     ).not.toThrow();
-    Rn.TriggerComponent._unregisterSensorBinding(destroyedFixture.entity.entityUID, destroyedBindingId);
+    Rn.TriggerComponent._unregisterSensorBinding(engine, destroyedFixture.entity.entityUID, destroyedBindingId);
   });
 
   test('rejects incompatible changes without committing them', () => {

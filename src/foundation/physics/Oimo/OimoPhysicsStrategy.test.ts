@@ -2,8 +2,11 @@ import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
 import { Quaternion, Vector3 } from '../../math';
 
 let lastProperty: any;
+const bodies: FakeBody[] = [];
 
 class FakeBody {
+  removeCount = 0;
+
   constructor(private property: any) {}
   getPosition() {
     return { x: this.property.pos[0], y: this.property.pos[1], z: this.property.pos[2] };
@@ -11,13 +14,17 @@ class FakeBody {
   getQuaternion() {
     return { x: 0, y: 0, z: 0, w: 1 };
   }
-  remove() {}
+  remove() {
+    this.removeCount++;
+  }
 }
 
 class FakeWorld {
   add(property: any) {
     lastProperty = property;
-    return new FakeBody(property);
+    const body = new FakeBody(property);
+    bodies.push(body);
+    return body;
   }
   step() {}
 }
@@ -133,4 +140,41 @@ test('OimoPhysicsStrategy preserves local shape rotation when repositioned', asy
   expect(lastProperty.rot[0]).toBeCloseTo(initialRotation[0]);
   expect(lastProperty.rot[1]).toBeCloseTo(initialRotation[1]);
   expect(lastProperty.rot[2]).toBeCloseTo(initialRotation[2]);
+});
+
+test('OimoPhysicsStrategy removes the previous body when replacing a shape instance', async () => {
+  const { OimoPhysicsStrategy } = await import('./OimoPhysicsStrategy');
+  const entity = {
+    getSceneGraph: () => ({
+      position: Vector3.zero(),
+      getQuaternionRecursively: () => Quaternion.identity(),
+    }),
+  } as unknown as ISceneGraphEntity;
+  const strategy = new OimoPhysicsStrategy();
+  const pose = {
+    localPosition: Vector3.zero(),
+    localRotation: Quaternion.identity(),
+  };
+  bodies.length = 0;
+
+  strategy.setShapeInstance(
+    { shape: { type: 'box', size: Vector3.one() }, ...pose },
+    { move: false, density: 1 },
+    { friction: 0.5, restitution: 0 },
+    entity
+  );
+  const firstBody = bodies[0];
+  strategy.setShapeInstance(
+    { shape: { type: 'sphere', radius: 0.5 }, ...pose },
+    { move: false, density: 1 },
+    { friction: 0.5, restitution: 0 },
+    entity
+  );
+
+  expect(bodies).toHaveLength(2);
+  expect(firstBody.removeCount).toBe(1);
+  expect(bodies[1].removeCount).toBe(0);
+  strategy.clearShapeInstances();
+  expect(firstBody.removeCount).toBe(1);
+  expect(bodies[1].removeCount).toBe(1);
 });
