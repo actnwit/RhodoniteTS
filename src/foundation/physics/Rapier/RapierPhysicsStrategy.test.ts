@@ -260,8 +260,10 @@ class FakeWorld {
       : {
           collider,
           time_of_impact: Math.min(1, maxToi),
-          normal1: { x: 0, y: 1, z: 0 },
+          normal1: { x: 0, y: -1, z: 0 },
           witness1: { x: 1, y: 4, z: 3 },
+          normal2: { x: 0, y: 1, z: 0 },
+          witness2: { x: 1, y: 3.5, z: 3 },
         };
   }
 }
@@ -404,7 +406,8 @@ test('RapierPhysicsWorldQueryStrategy resolves hits through collider metadata an
   expect(sphereHit?.entity).toBe(entity);
   expect(sphereHit?.distance).toBe(1);
   expect(sphereHit?.fraction).toBe(0.25);
-  expect(sphereHit?.position.isEqual(Vector3.fromCopy3(1, 4, 3))).toBe(true);
+  expect(sphereHit?.position.isEqual(Vector3.fromCopy3(1, 3.5, 3))).toBe(true);
+  expect(sphereHit?.normal.isEqual(Vector3.fromCopy3(0, 1, 0))).toBe(true);
   expect(lastWorld?.lastSpherecast).toEqual({
     targetDistance: 0,
     maxToi: 4,

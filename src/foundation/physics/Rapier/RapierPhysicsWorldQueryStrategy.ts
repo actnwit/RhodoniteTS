@@ -84,10 +84,10 @@ export class RapierPhysicsWorldQueryStrategy implements PhysicsWorldQueryStrateg
       return undefined;
     }
     const distance = hit.time_of_impact;
-    const normal = Vector3.normalize(Vector3.fromCopy3(hit.normal1.x, hit.normal1.y, hit.normal1.z));
+    const normal = Vector3.normalize(Vector3.fromCopy3(hit.normal2.x, hit.normal2.y, hit.normal2.z));
     return {
       ...metadata,
-      position: Vector3.fromCopy3(hit.witness1.x, hit.witness1.y, hit.witness1.z),
+      position: Vector3.fromCopy3(hit.witness2.x, hit.witness2.y, hit.witness2.z),
       normal,
       distance,
       fraction: distance / maxDistance,

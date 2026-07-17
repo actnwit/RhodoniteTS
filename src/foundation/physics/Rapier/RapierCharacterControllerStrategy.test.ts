@@ -171,8 +171,10 @@ class FakeWorld {
       : {
           collider,
           time_of_impact: 0.02,
-          normal1: this.rayHitNormal,
-          witness1: { x: 0, y: 0, z: 0 },
+          normal1: { x: -this.rayHitNormal.x, y: -this.rayHitNormal.y, z: -this.rayHitNormal.z },
+          witness1: { x: 0, y: 0.5, z: 0 },
+          normal2: this.rayHitNormal,
+          witness2: { x: 0, y: 0, z: 0 },
         };
   }
 }
@@ -343,6 +345,7 @@ test('reports flat and steep ground contacts and clears stale contact state', as
   RapierPhysicsStrategy.update(1, 0.1);
   expect(strategy.groundContact?.entity).toBe(groundEntity);
   expect(strategy.groundContact?.distance).toBeCloseTo(0.02);
+  expect(strategy.groundContact?.position.y).toBeCloseTo(0);
   expect(strategy.groundContact?.slopeAngle).toBeCloseTo(0);
   expect(strategy.groundContact?.isWalkable).toBe(true);
 

@@ -84,6 +84,8 @@ export type RapierShapeCastHitLike = {
   time_of_impact: number;
   normal1: RapierVector3Like;
   witness1: RapierVector3Like;
+  normal2: RapierVector3Like;
+  witness2: RapierVector3Like;
 };
 
 export type RapierColliderMetadata = {
