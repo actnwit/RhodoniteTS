@@ -19,7 +19,11 @@ export class Cylinder extends IShape {
     const radiusBottom = _desc.radiusBottom ?? 0.5;
     const radiusTop = _desc.radiusTop ?? 0.5;
     const height = _desc.height ?? 1;
-    const radialSegments = Math.max(3, _desc.radialSegments ?? 16);
+    const requestedRadialSegments = _desc.radialSegments ?? 16;
+    if (!Number.isFinite(requestedRadialSegments) || !Number.isInteger(requestedRadialSegments)) {
+      throw new Error('Cylinder radialSegments must be a finite integer.');
+    }
+    const radialSegments = Math.max(3, requestedRadialSegments);
     const includeCaps = _desc.includeCaps ?? true;
     if (
       !Number.isFinite(radiusBottom) ||

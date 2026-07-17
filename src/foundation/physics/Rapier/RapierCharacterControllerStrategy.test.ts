@@ -177,10 +177,10 @@ class FakeWorld {
       : {
           collider,
           time_of_impact: 0.02,
-          normal1: { x: -this.rayHitNormal.x, y: -this.rayHitNormal.y, z: -this.rayHitNormal.z },
-          witness1: { x: 0, y: 0.5, z: 0 },
-          normal2: this.rayHitNormal,
-          witness2: { x: 0, y: 0, z: 0 },
+          normal1: this.rayHitNormal,
+          witness1: { x: 0, y: 0, z: 0 },
+          normal2: { x: -this.rayHitNormal.x, y: -this.rayHitNormal.y, z: -this.rayHitNormal.z },
+          witness2: { x: 0, y: -0.25, z: 0 },
         };
   }
 }

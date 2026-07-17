@@ -261,10 +261,10 @@ class FakeWorld {
       : {
           collider,
           time_of_impact: Math.min(1, maxToi),
-          normal1: { x: 0, y: -1, z: 0 },
-          witness1: { x: 1, y: 4, z: 3 },
-          normal2: { x: 0, y: 1, z: 0 },
-          witness2: { x: 1, y: 3.5, z: 3 },
+          normal1: { x: 0, y: 1, z: 0 },
+          witness1: { x: 1, y: 3.5, z: 3 },
+          normal2: { x: 0, y: -1, z: 0 },
+          witness2: { x: 0, y: -0.5, z: 0 },
         };
   }
 }
