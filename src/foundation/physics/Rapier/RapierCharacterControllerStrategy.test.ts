@@ -10,11 +10,13 @@ import {
 
 class FakeBodyDesc {
   translation = { x: 0, y: 0, z: 0 };
+  rotation = { x: 0, y: 0, z: 0, w: 1 };
   setTranslation(x: number, y: number, z: number) {
     this.translation = { x, y, z };
     return this;
   }
-  setRotation(_rotation: { x: number; y: number; z: number; w: number }) {
+  setRotation(rotation: { x: number; y: number; z: number; w: number }) {
+    this.rotation = { ...rotation };
     return this;
   }
 }
@@ -37,20 +39,24 @@ class FakeColliderDesc {
 
 class FakeBody {
   current: RapierVector3Like;
+  currentRotation: { x: number; y: number; z: number; w: number };
   next?: RapierVector3Like;
   constructor(desc: FakeBodyDesc) {
     this.current = { ...desc.translation };
+    this.currentRotation = { ...desc.rotation };
   }
   translation() {
     return this.current;
   }
   rotation() {
-    return { x: 0, y: 0, z: 0, w: 1 };
+    return this.currentRotation;
   }
   setTranslation(value: RapierVector3Like) {
     this.current = { ...value };
   }
-  setRotation() {}
+  setRotation(rotation: { x: number; y: number; z: number; w: number }) {
+    this.currentRotation = { ...rotation };
+  }
   setNextKinematicTranslation(value: RapierVector3Like) {
     this.next = { ...value };
   }
@@ -201,8 +207,8 @@ function fakeRapier(): RapierPhysicsModuleLike {
   };
 }
 
-function fakeEntity() {
-  const state = { position: Vector3.fromCopy3(0, 0, 0) };
+function fakeEntity(rotation = Quaternion.identity()) {
+  const state = { position: Vector3.fromCopy3(0, 0, 0), rotation };
   const entity = {
     entityUID: nextEntityUID++,
     getSceneGraph: () => ({
@@ -210,6 +216,7 @@ function fakeEntity() {
         return state.position;
       },
       scale: Vector3.one(),
+      getQuaternionRecursively: () => state.rotation,
       setPositionWithoutPhysics(position: Vector3) {
         state.position = position;
       },
@@ -239,6 +246,29 @@ test('creates a foot-anchored kinematic capsule and configures traversal', async
   expect(world.controller?.snapDistance).toBe(0.15);
   expect(world.controller?.applyImpulses).toBe(false);
   expect(world.controller?.normalNudgeFactor).toBe(0.001);
+});
+
+test('applies the entity world rotation to the character body and ground probe offset', async () => {
+  await RapierPhysicsStrategy.initialize(fakeRapier());
+  const rotation = Quaternion.fromAxisAngle(Vector3.fromCopy3(0, 0, 1), Math.PI / 2);
+  const { entity } = fakeEntity(rotation);
+  const strategy = new RapierCharacterControllerStrategy();
+  strategy.setup(entity, {
+    ...capsuleShape(),
+    localPosition: Vector3.fromCopy3(1, 0.8, 0),
+  });
+
+  expect(world.body?.rotation().x).toBeCloseTo(rotation.x);
+  expect(world.body?.rotation().y).toBeCloseTo(rotation.y);
+  expect(world.body?.rotation().z).toBeCloseTo(rotation.z);
+  expect(world.body?.rotation().w).toBeCloseTo(rotation.w);
+
+  const castShapeSpy = vi.spyOn(world, 'castShape');
+  strategy.postStep();
+  const probeOrigin = castShapeSpy.mock.calls[0]?.[0];
+  expect(probeOrigin?.x).toBeCloseTo(0);
+  expect(probeOrigin?.y).toBeCloseTo(1.25);
+  expect(probeOrigin?.z).toBeCloseTo(0);
 });
 
 test('moves once per frame, reports initial grounding without landing, and synchronizes the entity', async () => {

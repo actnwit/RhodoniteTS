@@ -213,6 +213,7 @@ export declare class RapierPhysicsStrategy implements PhysicsStrategy {
     static _registerExternalCollider(collider: RapierColliderLike, entity: ISceneGraphEntity): void;
     /** @internal */
     static _unregisterExternalCollider(collider: RapierColliderLike | undefined): void;
+    private static __unregisterColliderMetadata;
     private static __drainCollisionEvents;
     /** @internal */
     static _registerStepParticipant(participant: RapierStepParticipant): void;

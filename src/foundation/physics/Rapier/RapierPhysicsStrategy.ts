@@ -538,8 +538,20 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
   /** @internal */
   static _unregisterExternalCollider(collider: RapierColliderLike | undefined): void {
     if (collider?.handle != null) {
-      this.__colliderMetadata.delete(collider.handle);
+      this.__unregisterColliderMetadata(collider.handle);
     }
+  }
+
+  private static __unregisterColliderMetadata(handle: number): void {
+    const metadata = this.__colliderMetadata.get(handle);
+    if (metadata == null) {
+      return;
+    }
+    if (metadata.isSensor && metadata.bindingId != null) {
+      TriggerComponent._deactivateSensorBinding(metadata.entity.engine, metadata.entity.entityUID, metadata.bindingId);
+    }
+    TriggerComponent._deactivateOtherBinding(metadata.entity, metadata.bindingId);
+    this.__colliderMetadata.delete(handle);
   }
 
   private static __drainCollisionEvents(): void {
@@ -903,15 +915,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
 
     for (const collider of this.__colliders) {
       if (collider.handle != null) {
-        const metadata = RapierPhysicsStrategy.__colliderMetadata.get(collider.handle);
-        if (metadata?.isSensor && metadata.bindingId != null) {
-          TriggerComponent._deactivateSensorBinding(
-            metadata.entity.engine,
-            metadata.entity.entityUID,
-            metadata.bindingId
-          );
-        }
-        RapierPhysicsStrategy.__colliderMetadata.delete(collider.handle);
+        RapierPhysicsStrategy.__unregisterColliderMetadata(collider.handle);
       }
     }
     world.removeRigidBody(this.__rigidBody);

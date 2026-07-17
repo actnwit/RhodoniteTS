@@ -37,6 +37,8 @@ export declare class TriggerComponent extends Component {
     static _publishStayEvents(): void;
     /** @internal Ends overlaps owned by a sensor collider that is being removed or rebuilt. */
     static _deactivateSensorBinding(engine: Engine, physicsEntityUid: EntityUID, sensorBindingId: number): void;
+    /** @internal Ends overlaps in which a collider being removed is the non-owning side. */
+    static _deactivateOtherBinding(otherEntity: IEntity, otherBindingId: number | undefined): void;
     private __publish;
     private static __sensorKey;
     _destroy(): void;

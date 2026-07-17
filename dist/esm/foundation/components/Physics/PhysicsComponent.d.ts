@@ -63,7 +63,9 @@ export declare class PhysicsComponent extends Component {
     clearShapeBindings(): void;
     rebuildShapeBindings(): void;
     get shapeBindingCount(): number;
+    private __applyShapeBindingsTransaction;
     private __applyShapeBindings;
+    private __applyBackendUpdate;
     private static __copyBinding;
     private __unregisterSensorBindings;
     private static __copyMotion;

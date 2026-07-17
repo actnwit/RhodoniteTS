@@ -1,3 +1,4 @@
+import { TriggerComponent } from '../../components/Trigger/TriggerComponent';
 import type { Config } from '../../core/Config';
 import { PhysicsShape } from '../../definitions/PhysicsShapeType';
 import type { ISceneGraphEntity } from '../../helpers';
@@ -311,7 +312,7 @@ function createFakeRapier(onInit?: () => void): RapierPhysicsModuleLike {
   };
 }
 
-function createSceneGraphEntity() {
+function createSceneGraphEntity(entityUID = nextEntityUID++) {
   const state = {
     position: Vector3.zero(),
     rotation: Quaternion.identity(),
@@ -319,7 +320,7 @@ function createSceneGraphEntity() {
 
   return {
     entity: {
-      entityUID: nextEntityUID++,
+      entityUID,
       getSceneGraph: () => ({
         get position() {
           return state.position;
@@ -414,6 +415,37 @@ test('RapierPhysicsWorldQueryStrategy resolves hits through collider metadata an
     stopAtPenetration: true,
     filterFlags: 8,
   });
+});
+
+test('RapierPhysicsWorldQueryStrategy distinguishes exclusion targets with identical UIDs', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const excludedPhysics = new RapierPhysicsStrategy();
+  const candidatePhysics = new RapierPhysicsStrategy();
+  const { entity: excludedEntity } = createSceneGraphEntity(12345);
+  const { entity: candidateEntity } = createSceneGraphEntity(12345);
+  const createBinding = () => ({
+    bindingId: 7,
+    shape: {
+      shape: { type: 'box' as const, size: Vector3.one() },
+      localPosition: Vector3.zero(),
+      localRotation: Quaternion.identity(),
+    },
+    body: { move: false, density: 1 },
+    collider: { friction: 0.5, restitution: 0 },
+  });
+  excludedPhysics.setShapeInstances([createBinding()], excludedEntity);
+  candidatePhysics.setShapeInstances([createBinding()], candidateEntity);
+  const query = new PhysicsWorldQuery(new RapierPhysicsWorldQueryStrategy());
+
+  const entityFilteredHit = query.castRay(Vector3.zero(), Vector3.fromCopy3(0, -1, 0), 5, {
+    excludeEntities: [excludedEntity],
+  });
+  const colliderFilteredHit = query.castRay(Vector3.zero(), Vector3.fromCopy3(0, -1, 0), 5, {
+    excludeColliders: [{ entity: excludedEntity, bindingId: 7 }],
+  });
+
+  expect(entityFilteredHit?.entity).toBe(candidateEntity);
+  expect(colliderFilteredHit?.entity).toBe(candidateEntity);
 });
 
 test('RapierPhysicsStrategy recreates the collider when scale changes', async () => {
@@ -726,4 +758,35 @@ test('RapierPhysicsStrategy configures sensors with collision events and binding
   expect(lastWorld?.colliders[0].sensor).toBe(true);
   expect(lastWorld?.colliders[0].activeEvents).toBe(1);
   expect(lastWorld?.colliders[0].activeCollisionTypes).toBe(0xffff);
+});
+
+test('RapierPhysicsStrategy deactivates overlaps when a non-sensor collider is removed', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const strategy = new RapierPhysicsStrategy();
+  const { entity } = createSceneGraphEntity();
+  const deactivateSpy = vi.spyOn(TriggerComponent, '_deactivateOtherBinding');
+  try {
+    strategy.setShapeInstances(
+      [
+        {
+          bindingId: 42,
+          shape: {
+            shape: { type: 'box', size: Vector3.one() },
+            localPosition: Vector3.zero(),
+            localRotation: Quaternion.identity(),
+          },
+          body: { move: false, density: 1 },
+          collider: { friction: 0.5, restitution: 0 },
+        },
+      ],
+      entity
+    );
+
+    strategy.clearShapeInstances();
+
+    expect(deactivateSpy).toHaveBeenCalledTimes(1);
+    expect(deactivateSpy).toHaveBeenCalledWith(entity, 42);
+  } finally {
+    deactivateSpy.mockRestore();
+  }
 });

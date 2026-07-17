@@ -31,7 +31,7 @@ export class TriggerComponent extends Component {
   private static __components = new Set<TriggerComponent>();
   private __pubsub = new EventPubSub();
   private __sensorKeys = new Set<string>();
-  private __activeOverlaps = new Map<EntityUID, ActiveOverlap>();
+  private __activeOverlaps = new Map<IEntity, ActiveOverlap>();
 
   constructor(
     engine: Engine,
@@ -110,15 +110,15 @@ export class TriggerComponent extends Component {
     started: boolean
   ): void {
     const trigger = this.__sensorOwners.get(engine)?.get(this.__sensorKey(sensorEntityUid, sensorBindingId));
-    if (trigger == null || otherEntity.entityUID === trigger.entity.entityUID) {
+    if (trigger == null || otherEntity === trigger.entity) {
       return;
     }
     const pairKey = `${sensorEntityUid}:${sensorBindingId}:${otherBindingId ?? 'external'}`;
-    let overlap = trigger.__activeOverlaps.get(otherEntity.entityUID);
+    let overlap = trigger.__activeOverlaps.get(otherEntity);
     if (started) {
       if (overlap == null) {
         overlap = { otherEntity, pairs: new Map(), enteredThisStep: true };
-        trigger.__activeOverlaps.set(otherEntity.entityUID, overlap);
+        trigger.__activeOverlaps.set(otherEntity, overlap);
       }
       const wasEmpty = overlap.pairs.size === 0;
       overlap.pairs.set(pairKey, { sensorEntityUid, sensorBindingId, otherBindingId });
@@ -128,7 +128,7 @@ export class TriggerComponent extends Component {
     } else if (overlap != null) {
       overlap.pairs.delete(pairKey);
       if (overlap.pairs.size === 0) {
-        trigger.__activeOverlaps.delete(otherEntity.entityUID);
+        trigger.__activeOverlaps.delete(otherEntity);
         trigger.__publish('exit', overlap.otherEntity, sensorBindingId, otherBindingId);
       }
     }
@@ -154,13 +154,32 @@ export class TriggerComponent extends Component {
   static _deactivateSensorBinding(engine: Engine, physicsEntityUid: EntityUID, sensorBindingId: number): void {
     const trigger = this.__sensorOwners.get(engine)?.get(this.__sensorKey(physicsEntityUid, sensorBindingId));
     if (trigger == null) return;
-    for (const [otherEntityUid, overlap] of [...trigger.__activeOverlaps]) {
+    for (const [otherEntity, overlap] of [...trigger.__activeOverlaps]) {
       const removed = [...overlap.pairs.entries()].filter(
         ([, pair]) => pair.sensorEntityUid === physicsEntityUid && pair.sensorBindingId === sensorBindingId
       );
       for (const [pairKey] of removed) overlap.pairs.delete(pairKey);
       if (removed.length > 0 && overlap.pairs.size === 0) {
-        trigger.__activeOverlaps.delete(otherEntityUid);
+        trigger.__activeOverlaps.delete(otherEntity);
+        const pair = removed[0][1];
+        trigger.__publish('exit', overlap.otherEntity, pair.sensorBindingId, pair.otherBindingId);
+      }
+    }
+  }
+
+  /** @internal Ends overlaps in which a collider being removed is the non-owning side. */
+  static _deactivateOtherBinding(otherEntity: IEntity, otherBindingId: number | undefined): void {
+    for (const trigger of this.__components) {
+      const overlap = trigger.__activeOverlaps.get(otherEntity);
+      if (overlap == null) {
+        continue;
+      }
+      const removed = [...overlap.pairs.entries()].filter(([, pair]) => pair.otherBindingId === otherBindingId);
+      for (const [pairKey] of removed) {
+        overlap.pairs.delete(pairKey);
+      }
+      if (removed.length > 0 && overlap.pairs.size === 0) {
+        trigger.__activeOverlaps.delete(otherEntity);
         const pair = removed[0][1];
         trigger.__publish('exit', overlap.otherEntity, pair.sensorBindingId, pair.otherBindingId);
       }

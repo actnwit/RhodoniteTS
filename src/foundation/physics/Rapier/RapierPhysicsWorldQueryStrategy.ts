@@ -95,15 +95,15 @@ export class RapierPhysicsWorldQueryStrategy implements PhysicsWorldQueryStrateg
   }
 
   private __createPredicate(options: ResolvedPhysicsRaycastOptions): (collider: RapierColliderLike) => boolean {
-    const excludedEntityUIDs = new Set(options.excludeEntities.map(entity => entity.entityUID));
+    const excludedEntities = new Set(options.excludeEntities);
     return collider => {
       const metadata = RapierPhysicsStrategy._getColliderMetadata(collider);
-      if (metadata == null || excludedEntityUIDs.has(metadata.entity.entityUID)) {
+      if (metadata == null || excludedEntities.has(metadata.entity)) {
         return false;
       }
       if (
         options.excludeColliders.some(
-          target => target.entity.entityUID === metadata.entity.entityUID && target.bindingId === metadata.bindingId
+          target => target.entity === metadata.entity && target.bindingId === metadata.bindingId
         )
       ) {
         return false;

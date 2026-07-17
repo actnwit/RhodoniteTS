@@ -185,6 +185,61 @@ describe('PhysicsComponent shape bindings', async () => {
     expect(physics.shapeBindingCount).toBe(1);
   });
 
+  test('restores the previous backend state when applying a binding throws', () => {
+    const shapeEntity = Rn.createShapeEntity(engine);
+    const shape = shapeEntity.getShape();
+    shape.addShape({ type: 'box', size: Rn.Vector3.one() });
+    shape.addShape({ type: 'sphere', radius: 0.5 });
+    const entity = engine.entityRepository.addComponentToEntity(Rn.PhysicsComponent, shapeEntity);
+    const physics = entity.getPhysics();
+    let backendBindingIds: Array<number | undefined> = [];
+    let clearCount = 0;
+    physics.setStrategy({
+      update: () => {},
+      setShapeInstances: bindings => {
+        backendBindingIds = bindings.map(binding => binding.bindingId);
+        if (bindings.some(binding => binding.collider.isSensor)) {
+          throw new Error('The backend does not support sensor collision events.');
+        }
+      },
+      clearShapeInstances: () => {
+        backendBindingIds = [];
+        clearCount++;
+      },
+    });
+
+    expect(() =>
+      physics.bindShape({
+        shapeComponent: shape,
+        shapeIndex: 0,
+        body: { move: false, density: 1 },
+        collider: { ...collider, isSensor: true },
+      })
+    ).toThrow('does not support sensor');
+    expect(physics.shapeBindingCount).toBe(0);
+    expect(backendBindingIds).toEqual([]);
+    expect(clearCount).toBe(1);
+
+    expect(
+      physics.bindShape({
+        shapeComponent: shape,
+        shapeIndex: 0,
+        body: { move: false, density: 1 },
+        collider,
+      })
+    ).toBe(0);
+    expect(() =>
+      physics.bindShape({
+        shapeComponent: shape,
+        shapeIndex: 1,
+        body: { move: false, density: 1 },
+        collider: { ...collider, isSensor: true },
+      })
+    ).toThrow('does not support sensor');
+    expect(physics.shapeBindingCount).toBe(1);
+    expect(backendBindingIds).toEqual([0]);
+  });
+
   test('keeps single-shape strategies compatible and rejects a second binding', () => {
     const fixture = createFixture(false);
     const physics = fixture.entity.getPhysics();

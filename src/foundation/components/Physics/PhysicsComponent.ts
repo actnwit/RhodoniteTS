@@ -104,7 +104,10 @@ export class PhysicsComponent extends Component {
     this.__motion = PhysicsComponent.__copyMotion(motion);
     try {
       if (this.__shapeBindings.size > 0) {
-        this.__applyShapeBindings(this.__shapeBindings);
+        this.__applyShapeBindings(this.__shapeBindings, () => {
+          this.__motion = previous;
+          this.__applyShapeBindings(this.__shapeBindings);
+        });
       }
     } catch (error) {
       this.__motion = previous;
@@ -121,7 +124,7 @@ export class PhysicsComponent extends Component {
     const id = this.__nextShapeBindingId;
     const next = new Map(this.__shapeBindings);
     next.set(id, PhysicsComponent.__copyBinding(binding));
-    this.__applyShapeBindings(next);
+    this.__applyShapeBindingsTransaction(next);
     this.__shapeBindings = next;
     this.__nextShapeBindingId++;
     return id;
@@ -134,7 +137,7 @@ export class PhysicsComponent extends Component {
     }
     const next = new Map(this.__shapeBindings);
     next.set(bindingId, PhysicsComponent.__copyBinding(binding));
-    this.__applyShapeBindings(next);
+    this.__applyShapeBindingsTransaction(next);
     this.__shapeBindings = next;
     if (previous.collider.isSensor && !binding.collider.isSensor) {
       TriggerComponent._unregisterSensorBinding(this.__engine, this.entity.entityUID, bindingId);
@@ -148,7 +151,7 @@ export class PhysicsComponent extends Component {
     }
     const next = new Map(this.__shapeBindings);
     next.delete(bindingId);
-    this.__applyShapeBindings(next);
+    this.__applyShapeBindingsTransaction(next);
     this.__shapeBindings = next;
     if (removed.collider.isSensor) {
       TriggerComponent._unregisterSensorBinding(this.__engine, this.entity.entityUID, bindingId);
@@ -160,7 +163,7 @@ export class PhysicsComponent extends Component {
     if (this.__shapeBindings.size === 0) {
       return;
     }
-    this.__applyShapeBindings(new Map());
+    this.__applyShapeBindingsTransaction(new Map());
     this.__unregisterSensorBindings(this.__shapeBindings);
     this.__shapeBindings.clear();
   }
@@ -173,7 +176,11 @@ export class PhysicsComponent extends Component {
     return this.__shapeBindings.size;
   }
 
-  private __applyShapeBindings(bindings: ReadonlyMap<number, PhysicsShapeBinding>): void {
+  private __applyShapeBindingsTransaction(bindings: ReadonlyMap<number, PhysicsShapeBinding>): void {
+    this.__applyShapeBindings(bindings, () => this.__applyShapeBindings(this.__shapeBindings));
+  }
+
+  private __applyShapeBindings(bindings: ReadonlyMap<number, PhysicsShapeBinding>, rollback?: () => void): void {
     const strategy = this.__strategy;
     if (strategy == null) {
       throw new Error('A physics strategy must be set before binding shapes.');
@@ -207,21 +214,48 @@ export class PhysicsComponent extends Component {
       if (strategy.clearShapeInstances == null) {
         throw new Error('The current physics strategy cannot clear ShapeComponent bindings.');
       }
-      strategy.clearShapeInstances();
+      this.__applyBackendUpdate(() => strategy.clearShapeInstances!(), rollback);
     } else if (strategy.setShapeInstances != null) {
-      strategy.setShapeInstances(resolved, entity, entity.getSceneGraph().scale, motion);
+      this.__applyBackendUpdate(
+        () => strategy.setShapeInstances!(resolved, entity, entity.getSceneGraph().scale, motion),
+        rollback
+      );
     } else if (resolved.length === 1 && strategy.setShapeInstance != null) {
       const binding = resolved[0];
-      strategy.setShapeInstance(
-        binding.shape,
-        binding.body,
-        binding.collider,
-        entity,
-        entity.getSceneGraph().scale,
-        motion
+      this.__applyBackendUpdate(
+        () =>
+          strategy.setShapeInstance!(
+            binding.shape,
+            binding.body,
+            binding.collider,
+            entity,
+            entity.getSceneGraph().scale,
+            motion
+          ),
+        rollback
       );
     } else {
       throw new Error('The current physics strategy does not support multiple ShapeComponent bindings.');
+    }
+  }
+
+  private __applyBackendUpdate(update: () => void, rollback?: () => void): void {
+    try {
+      update();
+    } catch (error) {
+      if (rollback == null) {
+        throw error;
+      }
+      try {
+        rollback();
+      } catch (rollbackError) {
+        const updateMessage = error instanceof Error ? error.message : String(error);
+        const rollbackMessage = rollbackError instanceof Error ? rollbackError.message : String(rollbackError);
+        throw new Error(
+          `Physics backend update failed (${updateMessage}) and restoring the previous bindings failed (${rollbackMessage}).`
+        );
+      }
+      throw error;
     }
   }
 

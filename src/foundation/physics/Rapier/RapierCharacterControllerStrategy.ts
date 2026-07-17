@@ -1,6 +1,6 @@
 import type { ShapeInstance } from '../../geometry/Shape';
 import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
-import { type IVector3, MutableVector3, Vector3 } from '../../math';
+import { type IVector3, MutableVector3, Quaternion, Vector3 } from '../../math';
 import { Logger } from '../../misc/Logger';
 import type {
   CharacterControllerOptions,
@@ -110,9 +110,15 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
 
     this.__entity = entity;
     const initialPosition = entity.getSceneGraph().position;
+    const initialRotation = entity.getSceneGraph().getQuaternionRecursively();
     const rigidBodyDesc = rapier.RigidBodyDesc.kinematicPositionBased()
       .setTranslation(initialPosition.x, initialPosition.y, initialPosition.z)
-      .setRotation({ x: 0, y: 0, z: 0, w: 1 });
+      .setRotation({
+        x: initialRotation.x,
+        y: initialRotation.y,
+        z: initialRotation.z,
+        w: initialRotation.w,
+      });
     this.__rigidBody = world.createRigidBody(rigidBodyDesc);
 
     const scale = entity.getSceneGraph().scale;
@@ -426,10 +432,14 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
       this.__groundContact = undefined;
       return;
     }
-    const capsuleBottom = Vector3.add(
-      Vector3.fromCopy3(position.x, position.y, position.z),
-      this.__capsuleBottomOffset
-    );
+    const bodyRotation = this.__rigidBody?.rotation();
+    const capsuleBottomOffset =
+      bodyRotation == null
+        ? this.__capsuleBottomOffset
+        : Quaternion.fromCopy4(bodyRotation.x, bodyRotation.y, bodyRotation.z, bodyRotation.w).transformVector3(
+            this.__capsuleBottomOffset
+          );
+    const capsuleBottom = Vector3.add(Vector3.fromCopy3(position.x, position.y, position.z), capsuleBottomOffset);
     const start = Vector3.add(
       capsuleBottom,
       Vector3.fromCopy3(0, this.__options.groundProbeRadius + this.__options.groundProbeStartOffset, 0)
