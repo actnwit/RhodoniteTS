@@ -16,6 +16,7 @@ import { RapierPhysicsStrategy } from '../../physics/Rapier/RapierPhysicsStrateg
 import type { Engine } from '../../system/Engine';
 import { EventPubSub, type EventSubscriberIndex } from '../../system/EventPubSub';
 import { AnimationComponent } from '../Animation/AnimationComponent';
+import { AnimationStateRepository } from '../Animation/AnimationStateRepository';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import { ShapeComponent } from '../Shape/ShapeComponent';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
@@ -82,7 +83,7 @@ export class CharacterControllerComponent extends Component {
     if (!AnimationComponent.getIsAnimating(engine)) {
       return;
     }
-    RapierPhysicsStrategy.update(Time.timeAtProcessBeginMilliseconds, Time.intervalProcessBegin);
+    RapierPhysicsStrategy.update(AnimationStateRepository.getProcessFrameToken(engine), Time.intervalProcessBegin);
   }
 
   $logic(): void {

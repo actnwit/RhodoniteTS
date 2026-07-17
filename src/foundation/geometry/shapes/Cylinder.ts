@@ -58,7 +58,7 @@ export class Cylinder extends IShape {
       const top = bottom + 1;
       const nextBottom = next * 2;
       const nextTop = nextBottom + 1;
-      indices.push(bottom, nextBottom, top, nextBottom, nextTop, top);
+      indices.push(bottom, top, nextBottom, nextBottom, top, nextTop);
     }
 
     if (includeCaps) {
@@ -105,9 +105,9 @@ export class Cylinder extends IShape {
       const current = ring + i;
       const next = ring + ((i + 1) % radialSegments);
       if (normalY > 0) {
-        indices.push(center, current, next);
-      } else {
         indices.push(center, next, current);
+      } else {
+        indices.push(center, current, next);
       }
     }
   }

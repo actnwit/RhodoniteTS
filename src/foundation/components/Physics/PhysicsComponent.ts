@@ -18,6 +18,7 @@ import { RapierPhysicsStrategy } from '../../physics/Rapier/RapierPhysicsStrateg
 import { VRMSpringBonePhysicsStrategy } from '../../physics/VRMSpring/VRMSpringBonePhysicsStrategy';
 import type { Engine } from '../../system/Engine';
 import { AnimationComponent } from '../Animation/AnimationComponent';
+import { AnimationStateRepository } from '../Animation/AnimationStateRepository';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import type { ShapeComponent } from '../Shape/ShapeComponent';
 import { TriggerComponent } from '../Trigger/TriggerComponent';
@@ -284,7 +285,7 @@ export class PhysicsComponent extends Component {
       return;
     }
     OimoPhysicsStrategy.update();
-    RapierPhysicsStrategy.update(Time.timeAtProcessBeginMilliseconds, Time.intervalProcessBegin);
+    RapierPhysicsStrategy.update(AnimationStateRepository.getProcessFrameToken(engine), Time.intervalProcessBegin);
   }
 
   /**

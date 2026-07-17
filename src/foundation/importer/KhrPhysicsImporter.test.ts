@@ -381,6 +381,34 @@ test('resolves KHR collision filter set semantics into deterministic Rapier prof
   expect(colliders.map(collider => collider.collisionMask)).toEqual([0x8002, 0x8007, 0x8006, 0x8002, 0xffff]);
 });
 
+test('allows collision systems when the allow sets have a non-empty intersection', () => {
+  const filters = [
+    { collisionSystems: ['character'], collideWithSystems: ['landscape'] },
+    { collisionSystems: ['landscape', 'static'] },
+    { collisionSystems: [], collideWithSystems: [] },
+  ];
+  const gltf = createGltf(
+    filters.map((_, collisionFilter) => ({
+      extensions: {
+        KHR_physics_rigid_bodies: {
+          collider: { geometry: { shape: 0 }, collisionFilter },
+        },
+      },
+    })),
+    {
+      KHR_implicit_shapes: { shapes: [{ type: 'box' }] },
+      KHR_physics_rigid_bodies: { collisionFilters: filters },
+    }
+  );
+
+  const result = collectKhrRigidBodyGroups(gltf);
+  const colliders = result.groups.flatMap(group => group.colliders);
+
+  expect(result.warnings).toEqual([]);
+  expect(colliders.map(collider => collider.collisionGroup)).toEqual([1, 2, 4]);
+  expect(colliders.map(collider => collider.collisionMask)).toEqual([0x8002, 0x8003, 0x8000]);
+});
+
 test('uses fallback collision for invalid filters and profiles beyond the 15-profile limit', () => {
   const filters = Array.from({ length: 16 }, (_, index) => ({ collisionSystems: [`system-${index}`] }));
   filters.push({

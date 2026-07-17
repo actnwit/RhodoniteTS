@@ -141,7 +141,7 @@ function profilePermits(profile: NormalizedCollisionFilterProfile, other: Normal
   }
   const targets = new Set(profile.targetSystems);
   if (profile.mode === 'allow') {
-    return other.collisionSystems.every(system => targets.has(system));
+    return other.collisionSystems.some(system => targets.has(system));
   }
   return other.collisionSystems.every(system => !targets.has(system));
 }
