@@ -27,6 +27,8 @@ describe('ShapeComponent', async () => {
     expect(component.getShape(0)?.localPosition.y).toBe(2);
     expect(component.removeShape(0)).toBe(true);
     expect(component.shapeCount).toBe(1);
+    expect(component.getShape(1)?.shape.type).toBe('sphere');
+    expect(component.addShape({ type: 'box', size: Rn.Vector3.one() })).toBe(2);
     component.clearShapes();
     expect(component.shapeCount).toBe(0);
   });
@@ -111,6 +113,38 @@ describe('ShapeComponent', async () => {
     expect(component.shapeGizmo?.topEntity?.getTransform().localMatrixInner.translateZ).toBeCloseTo(3);
     component.isShapeGizmoVisible = false;
     expect(component.isShapeGizmoVisible).toBe(false);
+  });
+
+  test('removes rebuilt and destroyed shape gizmo entities from the repository', () => {
+    const barycentricSpy = vi.spyOn(Rn.MeshComponent.prototype, 'calcBaryCentricCoord').mockImplementation(() => {});
+    try {
+      const entity = Rn.createShapeEntity(engine);
+      const component = entity.getShape();
+      component.addShape({ type: 'sphere', radius: 0.5 });
+      component.isShapeGizmoVisible = true;
+      const topEntity = component.shapeGizmo!.topEntity!;
+      const firstGroup = topEntity.getSceneGraph().children[0];
+      const firstGroupEntity = firstGroup.entity;
+      const firstMeshEntity = firstGroup.children[0].entity;
+
+      component.addShape({ type: 'box', size: Rn.Vector3.one() });
+
+      expect(firstGroupEntity._isAlive).toBe(false);
+      expect(firstMeshEntity._isAlive).toBe(false);
+      expect(engine.entityRepository.getEntity(firstGroupEntity.entityUID)).not.toBe(firstGroupEntity);
+      expect(engine.entityRepository.getEntity(firstMeshEntity.entityUID)).not.toBe(firstMeshEntity);
+
+      const rebuiltGroup = topEntity.getSceneGraph().children[0];
+      const rebuiltGroupUid = rebuiltGroup.entity.entityUID;
+      const rebuiltMeshUid = rebuiltGroup.children[0].entity.entityUID;
+      engine.entityRepository.removeComponentFromEntity(Rn.ShapeComponent, entity);
+
+      expect(engine.entityRepository.getEntity(topEntity.entityUID)).toBeUndefined();
+      expect(engine.entityRepository.getEntity(rebuiltGroupUid)).toBeUndefined();
+      expect(engine.entityRepository.getEntity(rebuiltMeshUid)).toBeUndefined();
+    } finally {
+      barycentricSpy.mockRestore();
+    }
   });
 
   test('MeshHelper creates generic shapes without enabling physics', () => {

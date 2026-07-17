@@ -512,6 +512,10 @@ export class SceneGraphComponent extends Component {
     if (index >= 0) {
       this.__children.splice(index, 1);
     }
+    const gizmoIndex = this.__gizmoChildren.indexOf(sg);
+    if (gizmoIndex >= 0) {
+      this.__gizmoChildren.splice(gizmoIndex, 1);
+    }
     sg.__parent = undefined;
   }
 

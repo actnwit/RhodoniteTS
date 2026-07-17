@@ -2,6 +2,7 @@ export * from './Axis';
 export * from './Capsule';
 export * from './Cone';
 export * from './Cube';
+export * from './Cylinder';
 export * from './Grid';
 export * from './IShape';
 export * from './Joint';

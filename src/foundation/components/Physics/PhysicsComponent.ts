@@ -20,6 +20,7 @@ import type { Engine } from '../../system/Engine';
 import { AnimationComponent } from '../Animation/AnimationComponent';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
 import type { ShapeComponent } from '../Shape/ShapeComponent';
+import { TriggerComponent } from '../Trigger/TriggerComponent';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 export type PhysicsShapeBinding = {
@@ -126,23 +127,31 @@ export class PhysicsComponent extends Component {
   }
 
   updateShapeBinding(bindingId: number, binding: PhysicsShapeBinding): void {
-    if (!this.__shapeBindings.has(bindingId)) {
+    const previous = this.__shapeBindings.get(bindingId);
+    if (previous == null) {
       throw new Error(`Physics shape binding ${bindingId} does not exist.`);
     }
     const next = new Map(this.__shapeBindings);
     next.set(bindingId, PhysicsComponent.__copyBinding(binding));
     this.__applyShapeBindings(next);
     this.__shapeBindings = next;
+    if (previous.collider.isSensor && !binding.collider.isSensor) {
+      TriggerComponent._unregisterSensorBinding(this.entity.entityUID, bindingId);
+    }
   }
 
   removeShapeBinding(bindingId: number): boolean {
-    if (!this.__shapeBindings.has(bindingId)) {
+    const removed = this.__shapeBindings.get(bindingId);
+    if (removed == null) {
       return false;
     }
     const next = new Map(this.__shapeBindings);
     next.delete(bindingId);
     this.__applyShapeBindings(next);
     this.__shapeBindings = next;
+    if (removed.collider.isSensor) {
+      TriggerComponent._unregisterSensorBinding(this.entity.entityUID, bindingId);
+    }
     return true;
   }
 
@@ -151,6 +160,7 @@ export class PhysicsComponent extends Component {
       return;
     }
     this.__applyShapeBindings(new Map());
+    this.__unregisterSensorBindings(this.__shapeBindings);
     this.__shapeBindings.clear();
   }
 
@@ -221,6 +231,14 @@ export class PhysicsComponent extends Component {
       body: { ...binding.body },
       collider: { ...binding.collider },
     };
+  }
+
+  private __unregisterSensorBindings(bindings: ReadonlyMap<number, PhysicsShapeBinding>): void {
+    for (const [bindingId, binding] of bindings) {
+      if (binding.collider.isSensor) {
+        TriggerComponent._unregisterSensorBinding(this.entity.entityUID, bindingId);
+      }
+    }
   }
 
   private static __copyMotion(motion: PhysicsMotionProperty): PhysicsMotionProperty {
@@ -299,6 +317,7 @@ export class PhysicsComponent extends Component {
    */
   _destroy(): void {
     this.__strategy?.clearShapeInstances?.();
+    this.__unregisterSensorBindings(this.__shapeBindings);
     super._destroy();
     this.__strategy = undefined;
     this.__shapeBindings.clear();

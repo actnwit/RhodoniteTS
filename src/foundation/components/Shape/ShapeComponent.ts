@@ -19,7 +19,8 @@ import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 /** Stores lightweight analytic shapes independently from their consumers. */
 export class ShapeComponent extends Component {
-  private __shapes: ShapeInstance[] = [];
+  private __shapes = new Map<number, ShapeInstance>();
+  private __nextShapeIndex = 0;
   private __shapeGizmo?: ShapeGizmo;
 
   constructor(
@@ -57,9 +58,10 @@ export class ShapeComponent extends Component {
         localTransform.rotation?.w ?? 1
       ),
     });
-    this.__shapes.push(instance);
+    const index = this.__nextShapeIndex++;
+    this.__shapes.set(index, instance);
     this.__shapeGizmo?.rebuild();
-    return this.__shapes.length - 1;
+    return index;
   }
 
   /** Fits a foot-to-head capsule to an AABB and returns its new shape index. */
@@ -95,25 +97,29 @@ export class ShapeComponent extends Component {
   }
 
   getShape(index = 0): ShapeInstance | undefined {
-    return this.__shapes[index];
+    return this.__shapes.get(index);
   }
 
   removeShape(index: number): boolean {
-    if (!Number.isInteger(index) || index < 0 || index >= this.__shapes.length) {
+    if (!Number.isInteger(index) || index < 0 || !this.__shapes.delete(index)) {
       return false;
     }
-    this.__shapes.splice(index, 1);
     this.__shapeGizmo?.rebuild();
     return true;
   }
 
   clearShapes(): void {
-    this.__shapes.length = 0;
+    this.__shapes.clear();
     this.__shapeGizmo?.rebuild();
   }
 
   get shapeCount(): number {
-    return this.__shapes.length;
+    return this.__shapes.size;
+  }
+
+  /** @internal Iterates stable shape indices and their instances. */
+  _getShapeEntries(): IterableIterator<[number, ShapeInstance]> {
+    return this.__shapes.entries();
   }
 
   $logic(): void {
@@ -144,6 +150,7 @@ export class ShapeComponent extends Component {
     this.__shapeGizmo?._destroy();
     this.__shapeGizmo = undefined;
     this.clearShapes();
+    this.__nextShapeIndex = 0;
     super._destroy();
   }
 

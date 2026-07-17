@@ -21,7 +21,7 @@ export interface TriggerEvent {
 
 type ActiveOverlap = {
   otherEntity: IEntity;
-  pairs: Map<string, { sensorBindingId: number; otherBindingId?: number }>;
+  pairs: Map<string, { sensorEntityUid: EntityUID; sensorBindingId: number; otherBindingId?: number }>;
   enteredThisStep: boolean;
 };
 
@@ -76,6 +76,18 @@ export class TriggerComponent extends Component {
     this.__sensorKeys.add(key);
   }
 
+  /** @internal Removes ownership when a sensor binding is permanently deleted. */
+  static _unregisterSensorBinding(physicsEntityUid: EntityUID, sensorBindingId: number): void {
+    const key = this.__sensorKey(physicsEntityUid, sensorBindingId);
+    const trigger = this.__sensorOwners.get(key);
+    if (trigger == null) {
+      return;
+    }
+    this._deactivateSensorBinding(physicsEntityUid, sensorBindingId);
+    this.__sensorOwners.delete(key);
+    trigger.__sensorKeys.delete(key);
+  }
+
   /** @internal Called by the Rapier event bridge. */
   static _processOverlap(
     sensorEntityUid: EntityUID,
@@ -88,7 +100,7 @@ export class TriggerComponent extends Component {
     if (trigger == null || otherEntity.entityUID === trigger.entity.entityUID) {
       return;
     }
-    const pairKey = `${sensorBindingId}:${otherBindingId ?? 'external'}`;
+    const pairKey = `${sensorEntityUid}:${sensorBindingId}:${otherBindingId ?? 'external'}`;
     let overlap = trigger.__activeOverlaps.get(otherEntity.entityUID);
     if (started) {
       if (overlap == null) {
@@ -96,7 +108,7 @@ export class TriggerComponent extends Component {
         trigger.__activeOverlaps.set(otherEntity.entityUID, overlap);
       }
       const wasEmpty = overlap.pairs.size === 0;
-      overlap.pairs.set(pairKey, { sensorBindingId, otherBindingId });
+      overlap.pairs.set(pairKey, { sensorEntityUid, sensorBindingId, otherBindingId });
       if (wasEmpty) {
         trigger.__publish('enter', overlap.otherEntity, sensorBindingId, otherBindingId);
       }
@@ -130,7 +142,9 @@ export class TriggerComponent extends Component {
     const trigger = this.__sensorOwners.get(this.__sensorKey(physicsEntityUid, sensorBindingId));
     if (trigger == null) return;
     for (const [otherEntityUid, overlap] of [...trigger.__activeOverlaps]) {
-      const removed = [...overlap.pairs.entries()].filter(([, pair]) => pair.sensorBindingId === sensorBindingId);
+      const removed = [...overlap.pairs.entries()].filter(
+        ([, pair]) => pair.sensorEntityUid === physicsEntityUid && pair.sensorBindingId === sensorBindingId
+      );
       for (const [pairKey] of removed) overlap.pairs.delete(pairKey);
       if (removed.length > 0 && overlap.pairs.size === 0) {
         trigger.__activeOverlaps.delete(otherEntityUid);

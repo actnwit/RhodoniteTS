@@ -257,11 +257,16 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     const pose = this.__usesShapeInstance
       ? this.__toBodyPose(worldPosition, this.__entity.getSceneGraph().getQuaternionRecursively())
       : { position: worldPosition, rotation: this.__entity.getSceneGraph().getQuaternionRecursively() };
+    const bodyEuler = pose.rotation.toEulerAngles();
     this.__property = {
       type: prop.type,
       size: [prop.size[0], prop.size[1], prop.size[2]],
       pos: [pose.position.x, pose.position.y, pose.position.z],
-      rot: [this.__entity.eulerAngles.x, this.__entity.eulerAngles.y, this.__entity.eulerAngles.z],
+      rot: [
+        MathUtil.radianToDegree(bodyEuler.x),
+        MathUtil.radianToDegree(bodyEuler.y),
+        MathUtil.radianToDegree(bodyEuler.z),
+      ],
       move: prop.move,
       density: prop.density,
       friction: prop.friction,

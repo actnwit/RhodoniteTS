@@ -37,4 +37,32 @@ describe('TriggerComponent logical overlaps', async () => {
     expect(events.map(event => event.type)).toEqual(['enter', 'stay', 'exit', 'enter', 'exit']);
     expect(trigger.activeOverlapCount).toBe(0);
   });
+
+  test('keeps identical binding ids from compound trigger children distinct', () => {
+    const triggerEntity = engine.entityRepository.addComponentToEntity(
+      Rn.TriggerComponent,
+      Rn.createGroupEntity(engine)
+    );
+    const firstSensorEntity = Rn.createGroupEntity(engine);
+    const secondSensorEntity = Rn.createGroupEntity(engine);
+    const otherEntity = Rn.createGroupEntity(engine);
+    const trigger = triggerEntity.getTrigger();
+    const events: Rn.TriggerEvent[] = [];
+    trigger.subscribe('enter', event => events.push(event));
+    trigger.subscribe('exit', event => events.push(event));
+    trigger._registerSensorBinding(firstSensorEntity.entityUID, 0);
+    trigger._registerSensorBinding(secondSensorEntity.entityUID, 0);
+
+    Rn.TriggerComponent._processOverlap(firstSensorEntity.entityUID, 0, otherEntity, 0, true);
+    Rn.TriggerComponent._processOverlap(secondSensorEntity.entityUID, 0, otherEntity, 0, true);
+    expect(events.map(event => event.type)).toEqual(['enter']);
+
+    Rn.TriggerComponent._deactivateSensorBinding(firstSensorEntity.entityUID, 0);
+    expect(trigger.activeOverlapCount).toBe(1);
+    expect(events.map(event => event.type)).toEqual(['enter']);
+
+    Rn.TriggerComponent._processOverlap(secondSensorEntity.entityUID, 0, otherEntity, 0, false);
+    expect(trigger.activeOverlapCount).toBe(0);
+    expect(events.map(event => event.type)).toEqual(['enter', 'exit']);
+  });
 });

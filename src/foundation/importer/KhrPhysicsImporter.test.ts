@@ -285,6 +285,33 @@ test('groups colliders by their nearest motion ancestor and keeps static collide
   expect(result.warnings.some(warning => warning.includes('non-uniform'))).toBe(true);
 });
 
+test('skips child colliders with zero body-relative scale', () => {
+  const gltf = createGltf(
+    [
+      {
+        children: [1, 2],
+        extensions: { KHR_physics_rigid_bodies: { motion: {} } },
+      },
+      {
+        scale: [1, 0, 1],
+        extensions: { KHR_physics_rigid_bodies: { collider: { geometry: { shape: 0 } } } },
+      },
+      {
+        extensions: { KHR_physics_rigid_bodies: { collider: { geometry: { shape: 0 } } } },
+      },
+    ],
+    { KHR_implicit_shapes: { shapes: [{ type: 'box' }] } }
+  );
+
+  const result = collectKhrRigidBodyGroups(gltf);
+
+  expect(result.groups).toHaveLength(1);
+  expect(result.groups[0].colliders.map(collider => collider.nodeIndex)).toEqual([2]);
+  expect(result.warnings).toContain(
+    'KHR_physics_rigid_bodies: collider node 1 has zero body-relative scale; its collider was skipped.'
+  );
+});
+
 test('normalizes supported motion values and diagnoses malformed or deferred mass properties', () => {
   const gltf = createGltf(
     [

@@ -3,6 +3,7 @@ export * from './Frustum';
 export * from './ISemanticVertexAttribute';
 export * from './Mesh';
 export * from './Primitive';
+export * from './Shape';
 export * from './SimpleVertexAttribute';
 export * from './shapes/index';
 export * from './types/index';

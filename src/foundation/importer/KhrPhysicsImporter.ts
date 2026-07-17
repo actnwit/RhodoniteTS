@@ -569,6 +569,12 @@ export function collectKhrRigidBodyGroups(gltfModel: RnM2): KhrRigidBodyGroupCol
         ? Matrix44.identity()
         : Matrix44.multiply(Matrix44.invert(getWorldMatrix(bodyNodeIndex)), getWorldMatrix(nodeIndex));
     const relativeScale = relativeMatrix.getScale();
+    if (relativeScale.x === 0 || relativeScale.y === 0 || relativeScale.z === 0) {
+      warnings.push(
+        `${KHR_PHYSICS_RIGID_BODIES}: collider node ${nodeIndex} has zero body-relative scale; its collider was skipped.`
+      );
+      continue;
+    }
     if (relativeMatrix.determinant() < 0) {
       warnings.push(
         `${KHR_PHYSICS_RIGID_BODIES}: collider node ${nodeIndex} has reflected body-relative scale; absolute dimensions are used.`

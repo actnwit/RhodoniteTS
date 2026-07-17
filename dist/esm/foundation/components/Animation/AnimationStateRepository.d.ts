@@ -24,11 +24,17 @@ export declare class AnimationStateRepository {
      */
     private static __previousFrameCachedEntityUIDsMap;
     /**
-     * Tracks the last frame's global time to detect frame transitions.
-     * Used to trigger the swap of current/previous cached EntityUIDs.
+     * Process-frame tokens used to scope skinning-cache work to one Engine.process() call.
+     * These are intentionally separate from animation playback time: local-time animations
+     * may advance while the global animation clock remains unchanged.
+     */
+    private static __processFrameTokenMap;
+    private static __nextProcessFrameToken;
+    /**
+     * Tracks the last process-frame token that swapped cached EntityUID sets.
      * Managed per Engine instance for multi-engine support.
      */
-    private static __lastCacheFrameGlobalTimeMap;
+    private static __lastCacheFrameTokenMap;
     /**
      * Maps each cache key to the EntityUID of its "leader" SkeletalComponent.
      * The leader is the first SkeletalComponent to compute skinning for a given cache key.
@@ -71,25 +77,35 @@ export declare class AnimationStateRepository {
     static getOrCreatePreviousFrameCachedEntityUIDs(engine: Engine): Set<EntityUID>;
     static setCurrentFrameCachedEntityUIDs(engine: Engine, set: Set<EntityUID>): void;
     static setPreviousFrameCachedEntityUIDs(engine: Engine, set: Set<EntityUID>): void;
-    static getLastCacheFrameGlobalTime(engine: Engine): number;
-    static setLastCacheFrameGlobalTime(engine: Engine, time: number): void;
+    /**
+     * Starts a new process frame for skinning-cache purposes.
+     * The token is globally unique so the static skinning cache cannot be shared across engines.
+     */
+    static beginProcessFrame(engine: Engine): number;
+    /**
+     * Gets the current process-frame token. A lazily-created token keeps manual component
+     * processing safe before the first Engine.process() call.
+     */
+    static getProcessFrameToken(engine: Engine): number;
+    static getLastCacheFrameToken(engine: Engine): number;
+    static setLastCacheFrameToken(engine: Engine, token: number): void;
     static getOrCreateCacheLeaders(engine: Engine): Map<string, EntityUID>;
     static getOrCreateLeaderJointIndexToEntityUID(engine: Engine): Map<number, EntityUID>;
     /**
      * Handles frame transition by swapping current/previous cached entity UIDs.
-     * Should be called when a new frame starts (detected by globalTime change).
+     * Should be called when a new Engine.process() frame starts.
      * @param engine - The engine instance
-     * @param currentGlobalTime - The current global time
+     * @param currentProcessFrameToken - The current Engine.process() frame token
      * @returns True if frame transition occurred, false otherwise
      */
-    static handleFrameTransitionIfNeeded(engine: Engine, currentGlobalTime: number): boolean;
+    static handleFrameTransitionIfNeeded(engine: Engine, currentProcessFrameToken: number): boolean;
     /**
      * Handles frame transition and clears leader tracking.
      * Used by SkeletalComponent.isEntityCached which runs before SkeletalComponent.$logic.
      * @param engine - The engine instance
-     * @param currentGlobalTime - The current global time
+     * @param currentProcessFrameToken - The current Engine.process() frame token
      */
-    static handleFrameTransitionWithLeaderClear(engine: Engine, currentGlobalTime: number): void;
+    static handleFrameTransitionWithLeaderClear(engine: Engine, currentProcessFrameToken: number): void;
     /**
      * Checks if an entity's AnimationComponent can perform early return.
      *

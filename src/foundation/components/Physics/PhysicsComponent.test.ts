@@ -75,6 +75,60 @@ describe('PhysicsComponent shape bindings', async () => {
     expect(fixture.clearCount).toBe(1);
   });
 
+  test('keeps shape references stable when an earlier shape is removed', () => {
+    const fixture = createFixture();
+    const physics = fixture.entity.getPhysics();
+    physics.bindShape({
+      shapeComponent: fixture.shape,
+      shapeIndex: 1,
+      body: { move: false, density: 1 },
+      collider,
+    });
+
+    expect(fixture.shape.removeShape(0)).toBe(true);
+    physics.rebuildShapeBindings();
+
+    expect(fixture.calls.at(-1)?.[0].shape.shape.type).toBe('sphere');
+  });
+
+  test('unregisters sensor ownership when bindings are removed or destroyed', () => {
+    const firstTrigger = engine.entityRepository
+      .addComponentToEntity(Rn.TriggerComponent, Rn.createGroupEntity(engine))
+      .getTrigger();
+    const secondTrigger = engine.entityRepository
+      .addComponentToEntity(Rn.TriggerComponent, Rn.createGroupEntity(engine))
+      .getTrigger();
+    const fixture = createFixture();
+    const physics = fixture.entity.getPhysics();
+    const bindingId = physics.bindShape({
+      shapeComponent: fixture.shape,
+      shapeIndex: 0,
+      body: { move: false, density: 1 },
+      collider: { ...collider, isSensor: true },
+    });
+    firstTrigger._registerSensorBinding(fixture.entity.entityUID, bindingId);
+
+    expect(physics.removeShapeBinding(bindingId)).toBe(true);
+    expect(() => secondTrigger._registerSensorBinding(fixture.entity.entityUID, bindingId)).not.toThrow();
+    Rn.TriggerComponent._unregisterSensorBinding(fixture.entity.entityUID, bindingId);
+
+    const destroyedFixture = createFixture();
+    const destroyedPhysics = destroyedFixture.entity.getPhysics();
+    const destroyedBindingId = destroyedPhysics.bindShape({
+      shapeComponent: destroyedFixture.shape,
+      shapeIndex: 0,
+      body: { move: false, density: 1 },
+      collider: { ...collider, isSensor: true },
+    });
+    firstTrigger._registerSensorBinding(destroyedFixture.entity.entityUID, destroyedBindingId);
+
+    engine.entityRepository.removeComponentFromEntity(Rn.PhysicsComponent, destroyedFixture.entity);
+    expect(() =>
+      secondTrigger._registerSensorBinding(destroyedFixture.entity.entityUID, destroyedBindingId)
+    ).not.toThrow();
+    Rn.TriggerComponent._unregisterSensorBinding(destroyedFixture.entity.entityUID, destroyedBindingId);
+  });
+
   test('rejects incompatible changes without committing them', () => {
     const fixture = createFixture();
     const physics = fixture.entity.getPhysics();

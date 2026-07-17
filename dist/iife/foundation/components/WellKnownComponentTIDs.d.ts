@@ -15,5 +15,8 @@ export declare const WellKnownComponentTIDs: {
     readonly VrmComponentTID: 14;
     readonly ConstraintComponentTID: 15;
     readonly RaymarchingComponentTID: 16;
-    readonly maxWellKnownTidNumber: 16;
+    readonly CharacterControllerComponentTID: 17;
+    readonly ShapeComponentTID: 18;
+    readonly TriggerComponentTID: 19;
+    readonly maxWellKnownTidNumber: 19;
 };

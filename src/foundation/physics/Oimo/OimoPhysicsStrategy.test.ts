@@ -103,3 +103,34 @@ test('OimoPhysicsStrategy converts a generic cylinder and rejects capsules expli
     )
   ).toThrow('does not support capsule');
 });
+
+test('OimoPhysicsStrategy preserves local shape rotation when repositioned', async () => {
+  const { OimoPhysicsStrategy } = await import('./OimoPhysicsStrategy');
+  const entity = {
+    eulerAngles: Vector3.zero(),
+    getSceneGraph: () => ({
+      position: Vector3.zero(),
+      getQuaternionRecursively: () => Quaternion.identity(),
+    }),
+  } as unknown as ISceneGraphEntity;
+  const strategy = new OimoPhysicsStrategy();
+
+  strategy.setShapeInstance(
+    {
+      shape: { type: 'box', size: Vector3.one() },
+      localPosition: Vector3.zero(),
+      localRotation: Quaternion.fromCopy4(0, Math.SQRT1_2, 0, Math.SQRT1_2),
+    },
+    { move: false, density: 1 },
+    { friction: 0.5, restitution: 0 },
+    entity
+  );
+  const initialRotation = [...lastProperty.rot];
+  strategy.setPosition(Vector3.fromCopy3(1, 2, 3));
+
+  expect(lastProperty.pos).toEqual([1, 2, 3]);
+  expect(initialRotation[1]).toBeGreaterThan(89);
+  expect(lastProperty.rot[0]).toBeCloseTo(initialRotation[0]);
+  expect(lastProperty.rot[1]).toBeCloseTo(initialRotation[1]);
+  expect(lastProperty.rot[2]).toBeCloseTo(initialRotation[2]);
+});

@@ -4,6 +4,7 @@ export * from './FormatDetector';
 export * from './Gltf2Importer';
 export * from './GltfImporter';
 export * from './ILoaderExtension';
+export * from './KhrPhysicsImporter';
 export * from './ModelConverter';
 export * from './RhodoniteImportExtension';
 export * from './Vrm0xImporter';

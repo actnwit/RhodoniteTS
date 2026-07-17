@@ -5,6 +5,7 @@ import type { AnimationStateComponent } from '../components/AnimationState/Anima
 import type { BlendShapeComponent } from '../components/BlendShape/BlendShapeComponent';
 import type { CameraComponent } from '../components/Camera/CameraComponent';
 import type { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
+import type { CharacterControllerComponent } from '../components/CharacterController/CharacterControllerComponent';
 import type { ConstraintComponent } from '../components/Constraint/ConstraintComponent';
 import type { LightComponent } from '../components/Light/LightComponent';
 import type { MeshComponent } from '../components/Mesh/MeshComponent';
@@ -12,8 +13,10 @@ import type { MeshRendererComponent } from '../components/MeshRenderer/MeshRende
 import type { PhysicsComponent } from '../components/Physics/PhysicsComponent';
 import type { RaymarchingComponent } from '../components/Raymarching/RaymarchingComponent';
 import type { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
+import type { ShapeComponent } from '../components/Shape/ShapeComponent';
 import type { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
 import type { TransformComponent } from '../components/Transform/TransformComponent';
+import type { TriggerComponent } from '../components/Trigger/TriggerComponent';
 import type { VrmComponent } from '../components/Vrm/VrmComponent';
 import type { Engine } from '../system/Engine';
 import type { Component } from './Component';
@@ -92,6 +95,12 @@ export interface IEntity extends IRnObject {
      * @returns The PhysicsComponent if present, undefined otherwise
      */
     tryToGetPhysics(): PhysicsComponent | undefined;
+    /** Attempts to retrieve the CharacterControllerComponent from this entity. */
+    tryToGetCharacterController(): CharacterControllerComponent | undefined;
+    /** Attempts to retrieve the ShapeComponent from this entity. */
+    tryToGetShape(): ShapeComponent | undefined;
+    /** Attempts to retrieve the TriggerComponent from this entity. */
+    tryToGetTrigger(): TriggerComponent | undefined;
     /**
      * Attempts to retrieve the SceneGraphComponent from this entity.
      * @returns The SceneGraphComponent if present, undefined otherwise
@@ -315,6 +324,12 @@ export declare class Entity extends RnObject implements IEntity {
      * @returns The PhysicsComponent if this entity has one, undefined otherwise
      */
     tryToGetPhysics(): PhysicsComponent | undefined;
+    /** Attempts to retrieve the CharacterControllerComponent from this entity. */
+    tryToGetCharacterController(): CharacterControllerComponent | undefined;
+    /** Attempts to retrieve the ShapeComponent from this entity. */
+    tryToGetShape(): ShapeComponent | undefined;
+    /** Attempts to retrieve the TriggerComponent from this entity. */
+    tryToGetTrigger(): TriggerComponent | undefined;
     /**
      * Attempts to retrieve the SceneGraphComponent from this entity.
      *

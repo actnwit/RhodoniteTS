@@ -72,7 +72,7 @@ export class ShapeGizmo extends Gizmo {
       return;
     }
     for (const entity of this.__shapeEntities) {
-      entity._destroy();
+      this.__engine.entityRepository.deleteEntityRecursively(entity.entityUID);
     }
     this.__shapeEntities.length = 0;
     this.__populateShapes();
@@ -80,18 +80,17 @@ export class ShapeGizmo extends Gizmo {
   }
 
   _destroy(): void {
-    this.__topEntity?._destroy();
+    if (this.__topEntity != null) {
+      this.__engine.entityRepository.deleteEntityRecursively(this.__topEntity.entityUID);
+    }
     this.__topEntity = undefined;
     this.__shapeEntities.length = 0;
     this.__material = undefined;
   }
 
   private __populateShapes(): void {
-    for (let i = 0; i < this.__shapeComponent.shapeCount; i++) {
-      const instance = this.__shapeComponent.getShape(i);
-      if (instance != null) {
-        this.__addShape(instance, i, this.__material!);
-      }
+    for (const [index, instance] of this.__shapeComponent._getShapeEntries()) {
+      this.__addShape(instance, index, this.__material!);
     }
   }
 
