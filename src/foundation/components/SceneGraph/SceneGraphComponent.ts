@@ -588,21 +588,58 @@ export class SceneGraphComponent extends Component {
   }
 
   setMatrixToPhysics(matrix: IMatrix44) {
+    this.__setMatrixToOwnPhysics(matrix, true, true, true);
+    this.__syncDescendantPhysicsTransforms(true, true, true);
+  }
+
+  private __setMatrixToOwnPhysics(
+    matrix: IMatrix44,
+    updatePosition: boolean,
+    updateRotation: boolean,
+    updateScale: boolean
+  ) {
     const physicsComponent = this.entity.tryToGetPhysics();
     if (physicsComponent !== undefined) {
       if (physicsComponent.strategy !== undefined) {
         const strategy = physicsComponent.strategy;
-        if (strategy.setRotation != null) {
-          strategy.setRotation(Quaternion.fromMatrix(matrix));
-        } else if (strategy.setEulerAngle != null) {
-          strategy.setEulerAngle(Quaternion.fromMatrix(matrix).toEulerAngles());
+        if (updateRotation) {
+          if (strategy.setRotation != null) {
+            strategy.setRotation(Quaternion.fromMatrix(matrix));
+          } else if (strategy.setEulerAngle != null) {
+            strategy.setEulerAngle(Quaternion.fromMatrix(matrix).toEulerAngles());
+          }
         }
-        if (strategy.setPosition != null) {
+        if (updatePosition && strategy.setPosition != null) {
           strategy.setPosition(matrix.getTranslate());
         }
-        if (strategy.setScale != null) {
+        if (updateScale && strategy.setScale != null) {
           strategy.setScale(matrix.getScale());
         }
+      }
+    }
+  }
+
+  private __syncDescendantPhysicsTransforms(updatePosition: boolean, updateRotation: boolean, updateScale: boolean) {
+    if (this.__children.length === 0) {
+      return;
+    }
+
+    // TransformComponent dirties matrices during its logic stage. Materialize the
+    // current cache first so dirty propagation reaches every descendant now.
+    this.matrixInner;
+    this.setWorldMatrixDirty();
+    for (const child of this.__children) {
+      if (!child.toMakeWorldMatrixTheSameAsLocalMatrix) {
+        child.__syncPhysicsTransformRecursively(updatePosition, updateRotation, updateScale);
+      }
+    }
+  }
+
+  private __syncPhysicsTransformRecursively(updatePosition: boolean, updateRotation: boolean, updateScale: boolean) {
+    this.__setMatrixToOwnPhysics(this.matrixInner, updatePosition, updateRotation, updateScale);
+    for (const child of this.__children) {
+      if (!child.toMakeWorldMatrixTheSameAsLocalMatrix) {
+        child.__syncPhysicsTransformRecursively(updatePosition, updateRotation, updateScale);
       }
     }
   }
@@ -1130,6 +1167,7 @@ export class SceneGraphComponent extends Component {
         physicsComponent.strategy.setPosition?.(vec);
       }
     }
+    this.__syncDescendantPhysicsTransforms(true, false, false);
   }
 
   /**
@@ -1199,6 +1237,7 @@ export class SceneGraphComponent extends Component {
         }
       }
     }
+    this.__syncDescendantPhysicsTransforms(true, true, false);
   }
 
   /**
@@ -1248,6 +1287,7 @@ export class SceneGraphComponent extends Component {
         }
       }
     }
+    this.__syncDescendantPhysicsTransforms(true, true, false);
   }
 
   /**
@@ -1356,6 +1396,7 @@ export class SceneGraphComponent extends Component {
         physicsComponent.strategy.setScale?.(vec);
       }
     }
+    this.__syncDescendantPhysicsTransforms(true, true, true);
   }
 
   /**

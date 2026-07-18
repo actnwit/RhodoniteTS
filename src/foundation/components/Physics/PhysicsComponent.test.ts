@@ -63,6 +63,49 @@ describe('PhysicsComponent shape bindings', async () => {
     }
   });
 
+  test('synchronizes descendant physics when an ancestor transform changes', () => {
+    const root = Rn.createGroupEntity(engine);
+    const intermediate = Rn.createGroupEntity(engine);
+    const child = engine.entityRepository.addComponentToEntity(Rn.PhysicsComponent, Rn.createGroupEntity(engine));
+    child.localPosition = Rn.Vector3.fromCopy3(1, 0, 0);
+    root.addChild(intermediate.getSceneGraph());
+    intermediate.addChild(child.getSceneGraph());
+
+    const setPosition = vi.fn();
+    const setRotation = vi.fn();
+    const setScale = vi.fn();
+    child.getPhysics().setStrategy({
+      update: () => {},
+      setPosition,
+      setRotation,
+      setScale,
+    });
+
+    root.localPosition = Rn.Vector3.fromCopy3(2, 0, 0);
+    expect(setPosition.mock.calls.at(-1)?.[0].x).toBeCloseTo(3);
+    expect(setPosition.mock.calls.at(-1)?.[0].y).toBeCloseTo(0);
+    expect(setRotation).not.toHaveBeenCalled();
+    expect(setScale).not.toHaveBeenCalled();
+
+    setPosition.mockClear();
+    const rotation = Rn.Quaternion.fromAxisAngle(Rn.Vector3.fromCopy3(0, 0, 1), Math.PI / 2);
+    root.localRotation = rotation;
+    expect(setPosition.mock.calls.at(-1)?.[0].x).toBeCloseTo(2);
+    expect(setPosition.mock.calls.at(-1)?.[0].y).toBeCloseTo(1);
+    expect(setRotation.mock.calls.at(-1)?.[0].z).toBeCloseTo(rotation.z);
+    expect(setRotation.mock.calls.at(-1)?.[0].w).toBeCloseTo(rotation.w);
+    expect(setScale).not.toHaveBeenCalled();
+
+    setPosition.mockClear();
+    setRotation.mockClear();
+    root.localScale = Rn.Vector3.fromCopy3(2, 3, 1);
+    expect(setPosition.mock.calls.at(-1)?.[0].x).toBeCloseTo(2);
+    expect(setPosition.mock.calls.at(-1)?.[0].y).toBeCloseTo(2);
+    expect(setRotation).toHaveBeenCalledOnce();
+    expect(setScale.mock.calls.at(-1)?.[0].x).toBeCloseTo(2);
+    expect(setScale.mock.calls.at(-1)?.[0].y).toBeCloseTo(3);
+  });
+
   test('manages stable binding IDs and rebuilds the complete collider set', () => {
     const fixture = createFixture();
     const physics = fixture.entity.getPhysics();

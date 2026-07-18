@@ -41,6 +41,7 @@ class FakeBody {
   current: RapierVector3Like;
   currentRotation: { x: number; y: number; z: number; w: number };
   next?: RapierVector3Like;
+  nextRotation?: { x: number; y: number; z: number; w: number };
   constructor(desc: FakeBodyDesc) {
     this.current = { ...desc.translation };
     this.currentRotation = { ...desc.rotation };
@@ -59,6 +60,9 @@ class FakeBody {
   }
   setNextKinematicTranslation(value: RapierVector3Like) {
     this.next = { ...value };
+  }
+  setNextKinematicRotation(rotation: { x: number; y: number; z: number; w: number }) {
+    this.nextRotation = { ...rotation };
   }
 }
 
@@ -155,6 +159,9 @@ class FakeWorld {
     this.stepCount++;
     if (this.body?.next != null) {
       this.body.current = { ...this.body.next };
+    }
+    if (this.body?.nextRotation != null) {
+      this.body.currentRotation = { ...this.body.nextRotation };
     }
   }
   castShape(
@@ -287,6 +294,22 @@ test('applies the entity world rotation to the character body and ground probe o
   expect(probeOrigin?.x).toBeCloseTo(0);
   expect(probeOrigin?.y).toBeCloseTo(1.25);
   expect(probeOrigin?.z).toBeCloseTo(0);
+});
+
+test('synchronizes character rotation changed after setup', async () => {
+  await RapierPhysicsStrategy.initialize(fakeRapier());
+  const { entity, state } = fakeEntity();
+  const strategy = new RapierCharacterControllerStrategy();
+  strategy.setup(entity, capsuleShape());
+  const rotation = Quaternion.fromAxisAngle(Vector3.fromCopy3(1, 0, 0), Math.PI / 3);
+
+  state.rotation = rotation;
+  RapierPhysicsStrategy.update(1, 0.1);
+
+  expect(world.body?.rotation().x).toBeCloseTo(rotation.x);
+  expect(world.body?.rotation().y).toBeCloseTo(rotation.y);
+  expect(world.body?.rotation().z).toBeCloseTo(rotation.z);
+  expect(world.body?.rotation().w).toBeCloseTo(rotation.w);
 });
 
 test('moves once per frame, reports initial grounding without landing, and synchronizes the entity', async () => {

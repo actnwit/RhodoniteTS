@@ -219,9 +219,25 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
   }
 
   preStep(deltaTime: number): void {
-    if (!this.__enabled || this.__rigidBody == null || this.__collider == null || this.__controller == null) {
+    if (
+      !this.__enabled ||
+      this.__entity == null ||
+      this.__rigidBody == null ||
+      this.__collider == null ||
+      this.__controller == null
+    ) {
       return;
     }
+    if (this.__rigidBody.setNextKinematicRotation == null) {
+      throw new Error('The injected Rapier rigid body does not support kinematic rotation.');
+    }
+    const worldRotation = this.__entity.getSceneGraph().getQuaternionRecursively();
+    this.__rigidBody.setNextKinematicRotation({
+      x: worldRotation.x,
+      y: worldRotation.y,
+      z: worldRotation.z,
+      w: worldRotation.w,
+    });
 
     this.__isRecovering = false;
     const dt = Math.min(Math.max(deltaTime, 0), this.__options.maxDeltaTime);

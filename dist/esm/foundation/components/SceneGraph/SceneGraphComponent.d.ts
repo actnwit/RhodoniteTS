@@ -264,6 +264,9 @@ export declare class SceneGraphComponent extends Component {
     get matrix(): MutableMatrix44;
     setMatrixWithoutPhysics(matrix: IMatrix44): void;
     setMatrixToPhysics(matrix: IMatrix44): void;
+    private __setMatrixToOwnPhysics;
+    private __syncDescendantPhysicsTransforms;
+    private __syncPhysicsTransformRecursively;
     set matrix(matrix: MutableMatrix44);
     /**
      * Gets the internal world matrix in rest pose (mutable reference).
