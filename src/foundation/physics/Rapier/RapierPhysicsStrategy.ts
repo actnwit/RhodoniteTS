@@ -603,9 +603,13 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
   }
 
   /** @internal */
-  static _unregisterExternalCollider(collider: RapierColliderLike | undefined, engine?: Engine): void {
+  static _unregisterExternalCollider(
+    collider: RapierColliderLike | undefined,
+    engine?: Engine,
+    isRebuilding = false
+  ): void {
     if (collider?.handle != null) {
-      this.__unregisterColliderMetadata(this.__getWorldState(engine), collider.handle);
+      this.__unregisterColliderMetadata(this.__getWorldState(engine), collider.handle, isRebuilding);
     }
   }
 

@@ -165,6 +165,13 @@ export class ShapeComponent extends Component {
     return this.__shapeGizmo;
   }
 
+  /** @internal Copies immutable ShapeInstances while preserving their stable indices. */
+  _shallowCopyFrom(component_: Component): void {
+    const component = component_ as ShapeComponent;
+    this.__shapes = new Map(component.__shapes);
+    this.__nextShapeIndex = component.__nextShapeIndex;
+  }
+
   _destroy(): void {
     this.__shapeGizmo?._destroy();
     this.__shapeGizmo = undefined;

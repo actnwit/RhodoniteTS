@@ -327,6 +327,34 @@ test('scales a rotated character capsule along its transformed axis', async () =
   expect(probeOrigin?.y).toBeCloseTo(0.49);
 });
 
+test.each([
+  ['a derived probe radius', {}, 0.48],
+  ['an explicit probe radius', { groundProbeRadius: 0.2 }, 0.2],
+])('rebuilds the character capsule with %s when its world scale changes', async (_caseName, options, expectedRadius) => {
+  await RapierPhysicsStrategy.initialize(fakeRapier());
+  const { entity, state } = fakeEntity();
+  const strategy = new RapierCharacterControllerStrategy();
+  strategy.setup(entity, capsuleShape(), options);
+  const initialBody = world.body;
+  const castShapeSpy = vi.spyOn(world, 'castShape');
+
+  state.scale = Vector3.fromCopy3(2, 2, 2);
+  RapierPhysicsStrategy.update(1, 0.1);
+
+  expect(world.body).not.toBe(initialBody);
+  expect(world.removedBodies).toBe(1);
+  expect(world.collider?.halfHeight).toBeCloseTo(1);
+  expect(world.collider?.radius).toBeCloseTo(0.6);
+  expect(world.collider?.translation.y).toBeCloseTo(1.6);
+  const probeOrigin = castShapeSpy.mock.calls[0]?.[0];
+  const probeShape = castShapeSpy.mock.calls[0]?.[3] as { radius: number } | undefined;
+  expect(probeOrigin?.y).toBeCloseTo(expectedRadius + 0.01);
+  expect(probeShape?.radius).toBeCloseTo(expectedRadius);
+
+  RapierPhysicsStrategy.update(2, 0.1);
+  expect(world.removedBodies).toBe(1);
+});
+
 test('synchronizes character rotation changed after setup', async () => {
   await RapierPhysicsStrategy.initialize(fakeRapier());
   const { entity, state } = fakeEntity();

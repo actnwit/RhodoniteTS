@@ -43,6 +43,30 @@ describe('ShapeComponent', async () => {
     expect(first.getShape(0)?.shape).toBe(second.getShape(0)?.shape);
   });
 
+  test('preserves stable shape indices when shallow copying an entity', () => {
+    const entity = Rn.createShapeEntity(engine);
+    const component = entity.getShape();
+    component.addShape({ type: 'box', size: Rn.Vector3.one() });
+    component.addShape(
+      { type: 'sphere', radius: 0.5 },
+      {
+        position: Rn.Vector3.fromCopy3(1, 2, 3),
+        rotation: Rn.Quaternion.fromAxisAngle(Rn.Vector3.fromCopy3(0, 1, 0), Math.PI / 4),
+      }
+    );
+    component.removeShape(0);
+
+    const copiedEntity = engine.entityRepository.shallowCopyEntity(entity) as typeof entity;
+    const copied = copiedEntity.getShape();
+
+    expect(copied.shapeCount).toBe(1);
+    expect(copied.getShape(0)).toBeUndefined();
+    expect(copied.getShape(1)).toBe(component.getShape(1));
+    expect(copied.addShape({ type: 'box', size: Rn.Vector3.one() })).toBe(2);
+    copied.removeShape(1);
+    expect(component.getShape(1)?.shape.type).toBe('sphere');
+  });
+
   test('validates and normalizes local shape transforms', () => {
     const component = Rn.createShapeEntity(engine).getShape();
     const descriptor = { type: 'sphere' as const, radius: 0.5 };

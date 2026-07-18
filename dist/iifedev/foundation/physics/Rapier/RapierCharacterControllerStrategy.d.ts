@@ -27,6 +27,10 @@ export declare class RapierCharacterControllerStrategy implements CharacterContr
     private __hasEstablishedGrounding;
     private __stateVerticalVelocity;
     private __landingImpactSpeed;
+    private __shapeInstance?;
+    private __absoluteScale;
+    private __isGroundProbeRadiusDerived;
+    private __warnedNonUniformScale;
     setup(entity: ISceneGraphEntity, shapeInstance: ShapeInstance, options?: CharacterControllerOptions): void;
     setDesiredHorizontalVelocity(velocity: IVector3): void;
     requestJump(): void;
@@ -41,6 +45,9 @@ export declare class RapierCharacterControllerStrategy implements CharacterContr
     set enabled(value: boolean);
     get enabled(): boolean;
     destroy(): void;
+    private __resolveCharacterCapsule;
+    private __createCharacterColliderDesc;
+    private __synchronizeScale;
     private __updateMotionState;
     private __resolveMovementState;
     private __getCollisionNormals;

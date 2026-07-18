@@ -214,7 +214,7 @@ export declare class RapierPhysicsStrategy implements PhysicsStrategy {
     /** @internal Registers colliders created outside PhysicsComponent, such as a character controller. */
     static _registerExternalCollider(collider: RapierColliderLike, entity: ISceneGraphEntity): void;
     /** @internal */
-    static _unregisterExternalCollider(collider: RapierColliderLike | undefined, engine?: Engine): void;
+    static _unregisterExternalCollider(collider: RapierColliderLike | undefined, engine?: Engine, isRebuilding?: boolean): void;
     private static __unregisterColliderMetadata;
     private static __drainCollisionEvents;
     /** @internal */

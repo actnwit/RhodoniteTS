@@ -29,6 +29,8 @@ export declare class ShapeComponent extends Component {
     set isShapeGizmoVisible(visible: boolean);
     get isShapeGizmoVisible(): boolean;
     get shapeGizmo(): ShapeGizmo | undefined;
+    /** @internal Copies immutable ShapeInstances while preserving their stable indices. */
+    _shallowCopyFrom(component_: Component): void;
     _destroy(): void;
     addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): ComponentToComponentMethods<SomeComponentClass> & EntityBase;
 }
