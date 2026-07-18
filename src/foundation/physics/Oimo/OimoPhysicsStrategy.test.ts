@@ -111,6 +111,64 @@ test('OimoPhysicsStrategy converts a generic cylinder and rejects capsules expli
   ).toThrow('does not support capsule');
 });
 
+test('OimoPhysicsStrategy scales a rotated cylinder along its transformed axis', async () => {
+  const { OimoPhysicsStrategy } = await import('./OimoPhysicsStrategy');
+  const entity = {
+    getSceneGraph: () => ({
+      position: Vector3.zero(),
+      getQuaternionRecursively: () => Quaternion.identity(),
+    }),
+  } as unknown as ISceneGraphEntity;
+  const strategy = new OimoPhysicsStrategy();
+
+  strategy.setShapeInstance(
+    {
+      shape: { type: 'cylinder', height: 2, radiusBottom: 0.5, radiusTop: 0.5 },
+      localPosition: Vector3.zero(),
+      localRotation: Quaternion.fromAxisAngle(Vector3.fromCopy3(0, 0, 1), -Math.PI / 2),
+    },
+    { move: false, density: 1 },
+    { friction: 0.5, restitution: 0 },
+    entity,
+    Vector3.fromCopy3(2, 1, 1)
+  );
+
+  expect(lastProperty.size[0]).toBeCloseTo(0.5);
+  expect(lastProperty.size[1]).toBeCloseTo(4);
+  expect(lastProperty.size[2]).toBeCloseTo(0.5);
+  expect(Math.abs(lastProperty.rot[2])).toBeGreaterThan(89);
+});
+
+test('OimoPhysicsStrategy conservatively encloses a sheared box transform', async () => {
+  const { OimoPhysicsStrategy } = await import('./OimoPhysicsStrategy');
+  const entity = {
+    getSceneGraph: () => ({
+      position: Vector3.zero(),
+      getQuaternionRecursively: () => Quaternion.identity(),
+    }),
+  } as unknown as ISceneGraphEntity;
+  const strategy = new OimoPhysicsStrategy();
+
+  strategy.setShapeInstance(
+    {
+      shape: { type: 'box', size: Vector3.fromCopy3(2, 2, 2) },
+      localPosition: Vector3.zero(),
+      localRotation: Quaternion.fromAxisAngle(Vector3.fromCopy3(0, 0, 1), Math.PI / 4),
+    },
+    { move: false, density: 1 },
+    { friction: 0.5, restitution: 0 },
+    entity,
+    Vector3.fromCopy3(2, 1, 1)
+  );
+
+  expect(lastProperty.size[0]).toBeCloseTo(4 * Math.SQRT2);
+  expect(lastProperty.size[1]).toBeCloseTo(2 * Math.SQRT2);
+  expect(lastProperty.size[2]).toBeCloseTo(2);
+  expect(lastProperty.rot[0]).toBeCloseTo(0);
+  expect(lastProperty.rot[1]).toBeCloseTo(0);
+  expect(lastProperty.rot[2]).toBeCloseTo(0);
+});
+
 test('OimoPhysicsStrategy conservatively scales a generic sphere by the largest axis', async () => {
   const { OimoPhysicsStrategy } = await import('./OimoPhysicsStrategy');
   const entity = {

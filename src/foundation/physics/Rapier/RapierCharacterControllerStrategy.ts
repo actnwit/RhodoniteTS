@@ -10,6 +10,7 @@ import type {
   CharacterMovementState,
 } from '../CharacterControllerStrategy';
 import { PhysicsWorldQuery } from '../PhysicsWorldQuery';
+import { resolveScaledCapsule } from '../ShapeTransformResolver';
 import {
   type RapierCharacterControllerLike,
   type RapierColliderLike,
@@ -116,14 +117,16 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
         `Rapier approximates asymmetric character capsule radii (${capsule.radiusBottom}, ${capsule.radiusTop}) with the maximum radius.`
       );
     }
-    if (
-      Math.abs(absoluteScale.x - absoluteScale.y) > 0.000001 ||
-      Math.abs(absoluteScale.y - absoluteScale.z) > 0.000001
-    ) {
+    const resolvedCapsule = resolveScaledCapsule(
+      capsule.height,
+      Math.max(capsule.radiusBottom, capsule.radiusTop),
+      shapeInstance.localRotation,
+      absoluteScale
+    );
+    if (resolvedCapsule.approximated) {
       Logger.default.warn('Rapier conservatively approximates non-uniform scale for the character capsule.');
     }
-    const radius =
-      Math.max(capsule.radiusBottom, capsule.radiusTop) * Math.max(absoluteScale.x, absoluteScale.y, absoluteScale.z);
+    const radius = resolvedCapsule.radius;
     resolvedOptions.groundProbeRadius = options.groundProbeRadius ?? radius * 0.8;
     if (
       !Number.isFinite(resolvedOptions.groundProbeRadius) ||
@@ -139,11 +142,11 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
       shapeInstance.localPosition.y * absoluteScale.y,
       shapeInstance.localPosition.z * absoluteScale.z
     );
-    const downwardExtent = shapeInstance.localRotation.transformVector3(
-      Vector3.fromCopy3(0, -(capsule.height * absoluteScale.y * 0.5 + radius), 0)
+    const downwardExtent = resolvedCapsule.rotation.transformVector3(
+      Vector3.fromCopy3(0, -(resolvedCapsule.halfHeight + radius), 0)
     );
     const capsuleBottomOffset = Vector3.add(scaledLocalPosition, downwardExtent);
-    let colliderDesc = rapier.ColliderDesc.capsule(capsule.height * absoluteScale.y * 0.5, radius);
+    let colliderDesc = rapier.ColliderDesc.capsule(resolvedCapsule.halfHeight, radius);
     colliderDesc =
       colliderDesc.setTranslation?.(
         shapeInstance.localPosition.x * absoluteScale.x,
@@ -152,10 +155,10 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
       ) ?? colliderDesc;
     colliderDesc =
       colliderDesc.setRotation?.({
-        x: shapeInstance.localRotation.x,
-        y: shapeInstance.localRotation.y,
-        z: shapeInstance.localRotation.z,
-        w: shapeInstance.localRotation.w,
+        x: resolvedCapsule.rotation.x,
+        y: resolvedCapsule.rotation.y,
+        z: resolvedCapsule.rotation.z,
+        w: resolvedCapsule.rotation.w,
       }) ?? colliderDesc;
 
     const initialPosition = entity.getSceneGraph().position;

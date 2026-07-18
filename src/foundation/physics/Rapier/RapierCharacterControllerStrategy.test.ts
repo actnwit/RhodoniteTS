@@ -24,6 +24,7 @@ class FakeBodyDesc {
 class FakeColliderDesc {
   handle?: number;
   translation = { x: 0, y: 0, z: 0 };
+  rotation = { x: 0, y: 0, z: 0, w: 1 };
   constructor(
     readonly halfHeight: number,
     readonly radius: number
@@ -32,7 +33,8 @@ class FakeColliderDesc {
     this.translation = { x, y, z };
     return this;
   }
-  setRotation() {
+  setRotation(rotation: { x: number; y: number; z: number; w: number }) {
+    this.rotation = { ...rotation };
     return this;
   }
 }
@@ -294,6 +296,35 @@ test('applies the entity world rotation to the character body and ground probe o
   expect(probeOrigin?.x).toBeCloseTo(0);
   expect(probeOrigin?.y).toBeCloseTo(1.25);
   expect(probeOrigin?.z).toBeCloseTo(0);
+});
+
+test('scales a rotated character capsule along its transformed axis', async () => {
+  await RapierPhysicsStrategy.initialize(fakeRapier());
+  const strategy = new RapierCharacterControllerStrategy();
+  const localRotation = Quaternion.fromAxisAngle(Vector3.fromCopy3(0, 0, 1), -Math.PI / 2);
+  strategy.setup(fakeEntity(Quaternion.identity(), Vector3.fromCopy3(2, 1, 1)).entity, {
+    ...capsuleShape(),
+    localPosition: Vector3.zero(),
+    localRotation,
+  });
+
+  expect(world.collider?.halfHeight).toBeCloseTo(1);
+  expect(world.collider?.radius).toBeCloseTo(0.6);
+  const colliderRotation = Quaternion.fromCopy4(
+    world.collider!.rotation.x,
+    world.collider!.rotation.y,
+    world.collider!.rotation.z,
+    world.collider!.rotation.w
+  );
+  const colliderAxis = colliderRotation.transformVector3(Vector3.fromCopy3(0, 1, 0));
+  expect(colliderAxis.x).toBeCloseTo(1);
+  expect(colliderAxis.y).toBeCloseTo(0);
+
+  const castShapeSpy = vi.spyOn(world, 'castShape');
+  strategy.postStep();
+  const probeOrigin = castShapeSpy.mock.calls[0]?.[0];
+  expect(probeOrigin?.x).toBeCloseTo(-1.6);
+  expect(probeOrigin?.y).toBeCloseTo(0.49);
 });
 
 test('synchronizes character rotation changed after setup', async () => {

@@ -755,6 +755,53 @@ test('RapierPhysicsStrategy converts cylinder and capsule shapes conservatively'
   expect(lastWorld?.colliders[1]?.size[1]).toBeCloseTo(1.2);
 });
 
+test('RapierPhysicsStrategy scales rotated axial shapes along their transformed axes', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const { entity } = createSceneGraphEntity();
+  const localRotation = Quaternion.fromAxisAngle(Vector3.fromCopy3(0, 0, 1), -Math.PI / 2);
+  const pose = { localPosition: Vector3.zero(), localRotation };
+  const cylinder = new RapierPhysicsStrategy();
+  cylinder.setShapeInstance(
+    {
+      shape: { type: 'cylinder', height: 2, radiusBottom: 0.5, radiusTop: 0.5 },
+      ...pose,
+    },
+    { move: false, density: 1 },
+    { friction: 0.5, restitution: 0 },
+    entity,
+    Vector3.fromCopy3(2, 1, 1)
+  );
+  const capsule = new RapierPhysicsStrategy();
+  capsule.setShapeInstance(
+    {
+      shape: { type: 'capsule', height: 2, radiusBottom: 0.5, radiusTop: 0.5 },
+      ...pose,
+    },
+    { move: false, density: 1 },
+    { friction: 0.5, restitution: 0 },
+    entity,
+    Vector3.fromCopy3(2, 1, 1)
+  );
+
+  const cylinderCollider = lastWorld!.colliders[0];
+  expect(cylinderCollider.size[0]).toBeCloseTo(2);
+  expect(cylinderCollider.size[1]).toBeCloseTo(0.5);
+  const capsuleCollider = lastWorld!.colliders[1];
+  expect(capsuleCollider.size[0]).toBeCloseTo(2);
+  expect(capsuleCollider.size[1]).toBeCloseTo(1);
+  for (const collider of [cylinderCollider, capsuleCollider]) {
+    const rotation = Quaternion.fromCopy4(
+      collider.rotation.x,
+      collider.rotation.y,
+      collider.rotation.z,
+      collider.rotation.w
+    );
+    const axis = rotation.transformVector3(Vector3.fromCopy3(0, 1, 0));
+    expect(axis.x).toBeCloseTo(1);
+    expect(axis.y).toBeCloseTo(0);
+  }
+});
+
 test('RapierPhysicsStrategy creates one body with multiple colliders and rebuilds them together', async () => {
   await RapierPhysicsStrategy.initialize(createFakeRapier());
   const strategy = new RapierPhysicsStrategy();

@@ -14,6 +14,7 @@ import type {
 } from '../PhysicsProperty';
 import type { PhysicsStrategy } from '../PhysicsStrategy';
 import type { PhysicsWorldProperty } from '../PhysicsWorldProperty';
+import { resolveScaledBox, resolveScaledCylinder } from '../ShapeTransformResolver';
 
 declare const OIMO: any;
 
@@ -59,9 +60,11 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
   private __localScale: IVector3 = Vector3.one();
   private __shapeLocalPosition: IVector3 = Vector3.zero();
   private __shapeLocalRotation: IQuaternion = Quaternion.identity();
+  private __resolvedShapeLocalRotation: IQuaternion = Quaternion.identity();
   private __worldScale: IVector3 = Vector3.one();
   private __usesShapeInstance = false;
   private __shapeType?: ShapeDescriptor['type'];
+  private __warnedScaleApproximation = false;
 
   /**
    * Creates a new OimoPhysicsStrategy instance.
@@ -99,6 +102,7 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     this.__shapeType = undefined;
     this.__shapeLocalPosition = Vector3.zero();
     this.__shapeLocalRotation = Quaternion.identity();
+    this.__resolvedShapeLocalRotation = Quaternion.identity();
     this.__worldScale = Vector3.one();
     this.__localScale = prop.size;
     this.__property = {
@@ -179,14 +183,16 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     this.__worldScale = Vector3.fromCopy3(Math.abs(worldScale.x), Math.abs(worldScale.y), Math.abs(worldScale.z));
     this.__usesShapeInstance = true;
     this.__shapeType = shape.shape.type;
+    this.__warnedScaleApproximation = false;
     this.__entity = entity;
 
+    const resolvedShape = this.__resolveScaledShape();
+    this.__resolvedShapeLocalRotation = resolvedShape.rotation;
     const pose = this.__toBodyPose(entity.getSceneGraph().position, entity.getSceneGraph().getQuaternionRecursively());
     const bodyEuler = pose.rotation.toEulerAngles();
-    const scaledSize = this.__createScaledSize();
     this.__property = {
       type: physicsType,
-      size: scaledSize,
+      size: resolvedShape.size,
       pos: [pose.position.x, pose.position.y, pose.position.z],
       rot: [
         MathUtil.radianToDegree(bodyEuler.x),
@@ -209,6 +215,7 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     this.__property = undefined;
     this.__usesShapeInstance = false;
     this.__shapeType = undefined;
+    this.__resolvedShapeLocalRotation = Quaternion.identity();
   }
 
   /**
@@ -224,7 +231,7 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     const rot = this.__body.getQuaternion();
     const bodyRotation = Quaternion.fromCopy4(rot.x, rot.y, rot.z, rot.w);
     if (this.__usesShapeInstance) {
-      const entityRotation = Quaternion.multiply(bodyRotation, Quaternion.invert(this.__shapeLocalRotation));
+      const entityRotation = Quaternion.multiply(bodyRotation, Quaternion.invert(this.__resolvedShapeLocalRotation));
       const scaledOffset = Vector3.multiplyVector(this.__shapeLocalPosition, this.__worldScale);
       const worldOffset = Vector3.multiplyQuaternion(entityRotation, scaledOffset);
       this.__entity
@@ -321,6 +328,10 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
       return;
     }
     this.__worldScale = Vector3.fromCopy3(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z));
+    const resolvedShape = this.__usesShapeInstance ? this.__resolveScaledShape() : undefined;
+    if (resolvedShape != null) {
+      this.__resolvedShapeLocalRotation = resolvedShape.rotation;
+    }
     const pose = this.__usesShapeInstance
       ? this.__toBodyPose(
           this.__entity.getSceneGraph().position,
@@ -333,7 +344,7 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     const bodyEuler = pose.rotation.toEulerAngles();
     this.__body.remove();
     const prop = this.__property;
-    const scaledSize = this.__createScaledSize();
+    const scaledSize = resolvedShape?.size ?? this.__createLegacyScaledSize();
     this.__property = {
       type: prop.type,
       size: scaledSize,
@@ -351,19 +362,42 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     this.__body = world.add(this.__property);
   }
 
-  private __createScaledSize(): number[] {
+  private __resolveScaledShape(): { size: number[]; rotation: IQuaternion } {
     if (this.__shapeType === 'sphere') {
       const radialScale = Math.max(this.__worldScale.x, this.__worldScale.y, this.__worldScale.z);
-      return [this.__localScale.x * radialScale, this.__localScale.y * radialScale, this.__localScale.z * radialScale];
+      return {
+        size: [this.__localScale.x * radialScale, this.__localScale.y * radialScale, this.__localScale.z * radialScale],
+        rotation: this.__shapeLocalRotation,
+      };
     }
     if (this.__shapeType === 'cylinder') {
-      const radialScale = Math.max(this.__worldScale.x, this.__worldScale.z);
-      return [
-        this.__localScale.x * radialScale,
-        this.__localScale.y * this.__worldScale.y,
-        this.__localScale.z * radialScale,
-      ];
+      const resolved = resolveScaledCylinder(
+        this.__localScale.y,
+        Math.max(this.__localScale.x, this.__localScale.z),
+        this.__shapeLocalRotation,
+        this.__worldScale
+      );
+      if (resolved.approximated && !this.__warnedScaleApproximation) {
+        Logger.default.warn('Oimo conservatively approximates a locally rotated cylinder under non-uniform scale.');
+        this.__warnedScaleApproximation = true;
+      }
+      return {
+        size: [resolved.radius, resolved.halfHeight * 2, resolved.radius],
+        rotation: resolved.rotation,
+      };
     }
+    const resolved = resolveScaledBox(this.__localScale, this.__shapeLocalRotation, this.__worldScale);
+    if (resolved.approximated && !this.__warnedScaleApproximation) {
+      Logger.default.warn('Oimo conservatively approximates a sheared box with an entity-local axis-aligned box.');
+      this.__warnedScaleApproximation = true;
+    }
+    return {
+      size: [resolved.halfExtents.x * 2, resolved.halfExtents.y * 2, resolved.halfExtents.z * 2],
+      rotation: resolved.rotation,
+    };
+  }
+
+  private __createLegacyScaledSize(): number[] {
     return [
       this.__localScale.x * this.__worldScale.x,
       this.__localScale.y * this.__worldScale.y,
@@ -380,7 +414,7 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
         entityPosition.y + worldOffset.y,
         entityPosition.z + worldOffset.z
       ),
-      rotation: Quaternion.multiply(entityRotation, this.__shapeLocalRotation),
+      rotation: Quaternion.multiply(entityRotation, this.__resolvedShapeLocalRotation),
     };
   }
 

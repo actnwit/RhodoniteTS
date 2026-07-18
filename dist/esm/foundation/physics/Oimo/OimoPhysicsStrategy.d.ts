@@ -39,9 +39,11 @@ export declare class OimoPhysicsStrategy implements PhysicsStrategy {
     private __localScale;
     private __shapeLocalPosition;
     private __shapeLocalRotation;
+    private __resolvedShapeLocalRotation;
     private __worldScale;
     private __usesShapeInstance;
     private __shapeType?;
+    private __warnedScaleApproximation;
     /**
      * Creates a new OimoPhysicsStrategy instance.
      * Initializes the shared Oimo physics world if it doesn't exist yet.
@@ -85,7 +87,8 @@ export declare class OimoPhysicsStrategy implements PhysicsStrategy {
      * @param scale - The scale factors to apply to the physics body's dimensions
      */
     setScale(scale: IVector3): void;
-    private __createScaledSize;
+    private __resolveScaledShape;
+    private __createLegacyScaledSize;
     private __toBodyPose;
     /**
      * Advances the physics simulation by one time step.

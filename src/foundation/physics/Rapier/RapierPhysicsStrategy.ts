@@ -14,6 +14,7 @@ import type {
 } from '../PhysicsProperty';
 import type { PhysicsShapeInstanceBinding, PhysicsStrategy } from '../PhysicsStrategy';
 import type { PhysicsWorldProperty } from '../PhysicsWorldProperty';
+import { resolveScaledBox, resolveScaledCapsule, resolveScaledCylinder } from '../ShapeTransformResolver';
 
 export type RapierVector3Like = {
   x: number;
@@ -206,11 +207,6 @@ type RapierWorldState = {
   eventQueue?: RapierEventQueueLike;
   colliderMetadata: Map<number, RapierColliderMetadata>;
   lastFrameId?: number;
-};
-
-type ResolvedBoxCollider = {
-  halfExtents: IVector3;
-  rotation: IQuaternion;
 };
 
 /**
@@ -905,18 +901,23 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
         throw new Error('The injected Rapier module does not support cylinder colliders.');
       }
       const radius = this.__getApproximatedRadius(shape.radiusBottom, shape.radiusTop, shape.type);
-      this.__warnNonUniformScaleIfNeeded(shape.type, Vector3.fromCopy3(scale.x, scale.x, scale.z));
-      colliderDesc = rapier.ColliderDesc.cylinder(shape.height * scale.y * 0.5, radius * Math.max(scale.x, scale.z));
+      const resolvedCylinder = resolveScaledCylinder(shape.height, radius, shapeInstance.localRotation, scale);
+      if (resolvedCylinder.approximated) {
+        this.__warnNonUniformScaleIfNeeded(shape.type, scale);
+      }
+      colliderDesc = rapier.ColliderDesc.cylinder(resolvedCylinder.halfHeight, resolvedCylinder.radius);
+      colliderRotation = resolvedCylinder.rotation;
     } else {
       if (rapier.ColliderDesc.capsule == null) {
         throw new Error('The injected Rapier module does not support capsule colliders.');
       }
       const radius = this.__getApproximatedRadius(shape.radiusBottom, shape.radiusTop, shape.type);
-      this.__warnNonUniformScaleIfNeeded(shape.type, scale);
-      colliderDesc = rapier.ColliderDesc.capsule(
-        shape.height * scale.y * 0.5,
-        radius * Math.max(scale.x, scale.y, scale.z)
-      );
+      const resolvedCapsule = resolveScaledCapsule(shape.height, radius, shapeInstance.localRotation, scale);
+      if (resolvedCapsule.approximated) {
+        this.__warnNonUniformScaleIfNeeded(shape.type, scale);
+      }
+      colliderDesc = rapier.ColliderDesc.capsule(resolvedCapsule.halfHeight, resolvedCapsule.radius);
+      colliderRotation = resolvedCapsule.rotation;
     }
 
     const explicitMass = this.__motion?.move && !this.__motion.isKinematic ? this.__motion.mass : undefined;
@@ -988,96 +989,36 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       const radius = shape.radius * Math.max(scale.x, scale.y, scale.z);
       return (4 / 3) * Math.PI * radius ** 3;
     }
-    const radius = Math.max(shape.radiusBottom, shape.radiusTop) * Math.max(scale.x, scale.z);
-    const cylinderVolume = Math.PI * radius ** 2 * shape.height * scale.y;
     if (shape.type === 'cylinder') {
-      return cylinderVolume;
+      const resolved = resolveScaledCylinder(
+        shape.height,
+        Math.max(shape.radiusBottom, shape.radiusTop),
+        binding.shape.localRotation,
+        scale
+      );
+      return Math.PI * resolved.radius ** 2 * resolved.halfHeight * 2;
     }
-    const capsuleRadius = Math.max(shape.radiusBottom, shape.radiusTop) * Math.max(scale.x, scale.y, scale.z);
-    return Math.PI * capsuleRadius ** 2 * shape.height * scale.y + (4 / 3) * Math.PI * capsuleRadius ** 3;
+    const resolved = resolveScaledCapsule(
+      shape.height,
+      Math.max(shape.radiusBottom, shape.radiusTop),
+      binding.shape.localRotation,
+      scale
+    );
+    return Math.PI * resolved.radius ** 2 * resolved.halfHeight * 2 + (4 / 3) * Math.PI * resolved.radius ** 3;
   }
 
-  private __resolveBoxCollider(shapeInstance: ShapeInstance): ResolvedBoxCollider {
+  private __resolveBoxCollider(shapeInstance: ShapeInstance) {
     if (shapeInstance.shape.type !== 'box') {
       throw new Error('A box ShapeInstance is required.');
     }
-    const halfSize = Vector3.fromCopy3(
-      shapeInstance.shape.size.x * 0.5,
-      shapeInstance.shape.size.y * 0.5,
-      shapeInstance.shape.size.z * 0.5
-    );
-    const localRotation = shapeInstance.localRotation;
-    const rotatedAxes = [
-      localRotation.transformVector3(Vector3.fromCopy3(1, 0, 0)),
-      localRotation.transformVector3(Vector3.fromCopy3(0, 1, 0)),
-      localRotation.transformVector3(Vector3.fromCopy3(0, 0, 1)),
-    ];
-    const scaledAxes = rotatedAxes.map(axis =>
-      Vector3.fromCopy3(
-        axis.x * this.__shapeWorldScale.x,
-        axis.y * this.__shapeWorldScale.y,
-        axis.z * this.__shapeWorldScale.z
-      )
-    );
-    const axisLengths = scaledAxes.map(axis => Math.hypot(axis.x, axis.y, axis.z));
-    const normalizedAxes = scaledAxes.map((axis, index) => Vector3.multiply(axis, 1 / axisLengths[index]));
-    const hasShear =
-      Math.abs(Vector3.dot(normalizedAxes[0], normalizedAxes[1])) > 0.00001 ||
-      Math.abs(Vector3.dot(normalizedAxes[0], normalizedAxes[2])) > 0.00001 ||
-      Math.abs(Vector3.dot(normalizedAxes[1], normalizedAxes[2])) > 0.00001;
-
-    if (!hasShear) {
-      const rotationMatrix = Matrix44.fromCopy16RowMajor(
-        normalizedAxes[0].x,
-        normalizedAxes[1].x,
-        normalizedAxes[2].x,
-        0,
-        normalizedAxes[0].y,
-        normalizedAxes[1].y,
-        normalizedAxes[2].y,
-        0,
-        normalizedAxes[0].z,
-        normalizedAxes[1].z,
-        normalizedAxes[2].z,
-        0,
-        0,
-        0,
-        0,
-        1
-      );
-      return {
-        halfExtents: Vector3.fromCopy3(
-          halfSize.x * axisLengths[0],
-          halfSize.y * axisLengths[1],
-          halfSize.z * axisLengths[2]
-        ),
-        rotation: Quaternion.normalize(Quaternion.fromMatrix(rotationMatrix)),
-      };
-    }
-
-    if (!this.__warnedShearedBoxApproximation) {
+    const resolved = resolveScaledBox(shapeInstance.shape.size, shapeInstance.localRotation, this.__shapeWorldScale);
+    if (resolved.approximated && !this.__warnedShearedBoxApproximation) {
       Logger.default.warn(
         'Rapier conservatively approximates a locally rotated box under non-uniform scale with an axis-aligned box.'
       );
       this.__warnedShearedBoxApproximation = true;
     }
-    return {
-      halfExtents: Vector3.fromCopy3(
-        this.__shapeWorldScale.x *
-          (Math.abs(rotatedAxes[0].x) * halfSize.x +
-            Math.abs(rotatedAxes[1].x) * halfSize.y +
-            Math.abs(rotatedAxes[2].x) * halfSize.z),
-        this.__shapeWorldScale.y *
-          (Math.abs(rotatedAxes[0].y) * halfSize.x +
-            Math.abs(rotatedAxes[1].y) * halfSize.y +
-            Math.abs(rotatedAxes[2].y) * halfSize.z),
-        this.__shapeWorldScale.z *
-          (Math.abs(rotatedAxes[0].z) * halfSize.x +
-            Math.abs(rotatedAxes[1].z) * halfSize.y +
-            Math.abs(rotatedAxes[2].z) * halfSize.z)
-      ),
-      rotation: Quaternion.identity(),
-    };
+    return resolved;
   }
 
   private static __copyMotion(motion: PhysicsMotionProperty): PhysicsMotionProperty {
