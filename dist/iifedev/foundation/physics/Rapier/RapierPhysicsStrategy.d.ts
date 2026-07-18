@@ -2,6 +2,7 @@ import type { Config } from '../../core/Config';
 import type { ShapeInstance } from '../../geometry/Shape';
 import type { ISceneGraphEntity } from '../../helpers';
 import { type IQuaternion, type IVector3 } from '../../math';
+import type { Engine } from '../../system/Engine';
 import type { PhysicsBodyProperty, PhysicsColliderProperty, PhysicsMotionProperty, PhysicsPropertyInner } from '../PhysicsProperty';
 import type { PhysicsShapeInstanceBinding, PhysicsStrategy } from '../PhysicsStrategy';
 import type { PhysicsWorldProperty } from '../PhysicsWorldProperty';
@@ -209,7 +210,7 @@ export declare class RapierPhysicsStrategy implements PhysicsStrategy {
     /**
      * Advances the shared Rapier physics world by one step.
      */
-    static update(frameId?: number, deltaTime?: number): void;
+    static update(frameId?: number, deltaTime?: number, engine?: Engine): void;
     /** @internal Registers colliders created outside PhysicsComponent, such as a character controller. */
     static _registerExternalCollider(collider: RapierColliderLike, entity: ISceneGraphEntity): void;
     /** @internal */

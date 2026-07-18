@@ -411,6 +411,18 @@ test('RapierPhysicsStrategy syncs Rapier body transforms to the scene graph enti
   expect(state.position.isEqual(Vector3.fromCopy3(1, 2, 5))).toBe(true);
 });
 
+test('RapierPhysicsStrategy scopes stay events to the processed engine', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const engine = {} as Engine;
+  const publishStayEventsSpy = vi.spyOn(TriggerComponent, '_publishStayEvents');
+  try {
+    RapierPhysicsStrategy.update(1, 1 / 60, engine);
+    expect(publishStayEventsSpy).toHaveBeenCalledWith(engine);
+  } finally {
+    publishStayEventsSpy.mockRestore();
+  }
+});
+
 test('RapierPhysicsWorldQueryStrategy resolves hits through collider metadata and filters', async () => {
   await RapierPhysicsStrategy.initialize(createFakeRapier());
   const physics = new RapierPhysicsStrategy();

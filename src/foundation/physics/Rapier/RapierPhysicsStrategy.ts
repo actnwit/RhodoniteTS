@@ -5,6 +5,7 @@ import type { ShapeInstance } from '../../geometry/Shape';
 import type { ISceneGraphEntity } from '../../helpers';
 import { type IQuaternion, type IVector3, Matrix44, Quaternion, Vector3 } from '../../math';
 import { Logger } from '../../misc/Logger';
+import type { Engine } from '../../system/Engine';
 import type {
   PhysicsBodyProperty,
   PhysicsColliderProperty,
@@ -538,7 +539,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
   /**
    * Advances the shared Rapier physics world by one step.
    */
-  static update(frameId?: number, deltaTime = 1 / 60): void {
+  static update(frameId?: number, deltaTime = 1 / 60, engine?: Engine): void {
     if (frameId != null && RapierPhysicsStrategy.__lastFrameId === frameId) {
       return;
     }
@@ -552,7 +553,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     for (const participant of RapierPhysicsStrategy.__stepParticipants) {
       participant.postStep();
     }
-    TriggerComponent._publishStayEvents();
+    TriggerComponent._publishStayEvents(engine);
   }
 
   /** @internal Registers colliders created outside PhysicsComponent, such as a character controller. */

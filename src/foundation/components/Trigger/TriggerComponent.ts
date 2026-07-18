@@ -118,8 +118,15 @@ export class TriggerComponent extends Component {
     started: boolean,
     otherColliderHandle?: number
   ): void {
-    const trigger = this.__sensorOwners.get(engine)?.get(this.__sensorKey(sensorEntityUid, sensorBindingId));
-    if (trigger == null || otherEntity === trigger.entity) {
+    const owners = this.__sensorOwners.get(engine);
+    const trigger = owners?.get(this.__sensorKey(sensorEntityUid, sensorBindingId));
+    if (
+      trigger == null ||
+      otherEntity === trigger.entity ||
+      (otherBindingId != null &&
+        otherEntity.engine === engine &&
+        owners?.get(this.__sensorKey(otherEntity.entityUID, otherBindingId)) === trigger)
+    ) {
       return;
     }
     const otherKey =
@@ -146,8 +153,11 @@ export class TriggerComponent extends Component {
   }
 
   /** @internal Emits one Stay event per active logical overlap after each physics step. */
-  static _publishStayEvents(): void {
+  static _publishStayEvents(engine?: Engine): void {
     for (const trigger of this.__components) {
+      if (engine != null && trigger.entity.engine !== engine) {
+        continue;
+      }
       for (const overlap of trigger.__activeOverlaps.values()) {
         if (overlap.enteredThisStep) {
           overlap.enteredThisStep = false;

@@ -34,7 +34,7 @@ export declare class TriggerComponent extends Component {
     /** @internal Called by the Rapier event bridge. */
     static _processOverlap(engine: Engine, sensorEntityUid: EntityUID, sensorBindingId: number, otherEntity: IEntity, otherBindingId: number | undefined, started: boolean, otherColliderHandle?: number): void;
     /** @internal Emits one Stay event per active logical overlap after each physics step. */
-    static _publishStayEvents(): void;
+    static _publishStayEvents(engine?: Engine): void;
     /** @internal Ends overlaps owned by a sensor collider that is being removed or rebuilt. */
     static _deactivateSensorBinding(engine: Engine, physicsEntityUid: EntityUID, sensorBindingId: number): void;
     /** @internal Ends overlaps in which a collider being removed is the non-owning side. */

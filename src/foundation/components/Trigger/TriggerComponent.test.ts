@@ -66,6 +66,47 @@ describe('TriggerComponent logical overlaps', async () => {
     expect(events.map(event => event.type)).toEqual(['enter', 'exit']);
   });
 
+  test('ignores collisions between sensors owned by the same compound trigger', async () => {
+    const compoundEngine = await Rn.Engine.init({ approach: Rn.ProcessApproach.None });
+    const triggerEntity = compoundEngine.entityRepository.addComponentToEntity(
+      Rn.TriggerComponent,
+      Rn.createGroupEntity(compoundEngine)
+    );
+    const firstSensorEntity = Rn.createGroupEntity(compoundEngine);
+    const secondSensorEntity = Rn.createGroupEntity(compoundEngine);
+    const trigger = triggerEntity.getTrigger();
+    const events: Rn.TriggerEvent[] = [];
+    trigger.subscribe('enter', event => events.push(event));
+    trigger.subscribe('stay', event => events.push(event));
+    trigger.subscribe('exit', event => events.push(event));
+    trigger._registerSensorBinding(firstSensorEntity.entityUID, 0);
+    trigger._registerSensorBinding(secondSensorEntity.entityUID, 0);
+
+    Rn.TriggerComponent._processOverlap(
+      compoundEngine,
+      firstSensorEntity.entityUID,
+      0,
+      secondSensorEntity,
+      0,
+      true,
+      101
+    );
+    Rn.TriggerComponent._processOverlap(
+      compoundEngine,
+      secondSensorEntity.entityUID,
+      0,
+      firstSensorEntity,
+      0,
+      true,
+      100
+    );
+    Rn.TriggerComponent._publishStayEvents(compoundEngine);
+
+    expect(trigger.activeOverlapCount).toBe(0);
+    expect(events).toHaveLength(0);
+    compoundEngine.entityRepository.removeComponentFromEntity(Rn.TriggerComponent, triggerEntity);
+  });
+
   test('ends overlap pairs when a non-sensor collider binding is removed', () => {
     const triggerEntity = engine.entityRepository.addComponentToEntity(
       Rn.TriggerComponent,
@@ -153,6 +194,46 @@ describe('TriggerComponent logical overlaps', async () => {
     Rn.TriggerComponent._deactivateSensorBinding(firstEngine, firstTriggerEntity.entityUID, 0);
     expect(firstTrigger.activeOverlapCount).toBe(0);
     expect(secondTrigger.activeOverlapCount).toBe(1);
+    Rn.TriggerComponent._deactivateSensorBinding(secondEngine, secondTriggerEntity.entityUID, 0);
+    firstEngine.entityRepository.removeComponentFromEntity(Rn.TriggerComponent, firstTriggerEntity);
+    secondEngine.entityRepository.removeComponentFromEntity(Rn.TriggerComponent, secondTriggerEntity);
+  });
+
+  test('publishes stay events only for the processed engine', async () => {
+    const firstEngine = await Rn.Engine.init({ approach: Rn.ProcessApproach.None });
+    const secondEngine = await Rn.Engine.init({ approach: Rn.ProcessApproach.None });
+    const firstTriggerEntity = firstEngine.entityRepository.addComponentToEntity(
+      Rn.TriggerComponent,
+      Rn.createGroupEntity(firstEngine)
+    );
+    const secondTriggerEntity = secondEngine.entityRepository.addComponentToEntity(
+      Rn.TriggerComponent,
+      Rn.createGroupEntity(secondEngine)
+    );
+    const firstOther = Rn.createGroupEntity(firstEngine);
+    const secondOther = Rn.createGroupEntity(secondEngine);
+    const firstTrigger = firstTriggerEntity.getTrigger();
+    const secondTrigger = secondTriggerEntity.getTrigger();
+    const firstStayEvents: Rn.TriggerEvent[] = [];
+    const secondStayEvents: Rn.TriggerEvent[] = [];
+    firstTrigger.subscribe('stay', event => firstStayEvents.push(event));
+    secondTrigger.subscribe('stay', event => secondStayEvents.push(event));
+    firstTrigger._registerSensorBinding(firstTriggerEntity.entityUID, 0);
+    secondTrigger._registerSensorBinding(secondTriggerEntity.entityUID, 0);
+    Rn.TriggerComponent._processOverlap(firstEngine, firstTriggerEntity.entityUID, 0, firstOther, 0, true);
+    Rn.TriggerComponent._processOverlap(secondEngine, secondTriggerEntity.entityUID, 0, secondOther, 0, true);
+
+    Rn.TriggerComponent._publishStayEvents(firstEngine);
+    Rn.TriggerComponent._publishStayEvents(firstEngine);
+    expect(firstStayEvents).toHaveLength(1);
+    expect(secondStayEvents).toHaveLength(0);
+
+    Rn.TriggerComponent._publishStayEvents(secondEngine);
+    Rn.TriggerComponent._publishStayEvents(secondEngine);
+    expect(firstStayEvents).toHaveLength(1);
+    expect(secondStayEvents).toHaveLength(1);
+
+    Rn.TriggerComponent._deactivateSensorBinding(firstEngine, firstTriggerEntity.entityUID, 0);
     Rn.TriggerComponent._deactivateSensorBinding(secondEngine, secondTriggerEntity.entityUID, 0);
     firstEngine.entityRepository.removeComponentFromEntity(Rn.TriggerComponent, firstTriggerEntity);
     secondEngine.entityRepository.removeComponentFromEntity(Rn.TriggerComponent, secondTriggerEntity);

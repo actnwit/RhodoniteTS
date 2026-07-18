@@ -83,7 +83,11 @@ export class CharacterControllerComponent extends Component {
     if (!AnimationComponent.getIsAnimating(engine)) {
       return;
     }
-    RapierPhysicsStrategy.update(AnimationStateRepository.getProcessFrameToken(engine), Time.intervalProcessBegin);
+    RapierPhysicsStrategy.update(
+      AnimationStateRepository.getProcessFrameToken(engine),
+      Time.intervalProcessBegin,
+      engine
+    );
   }
 
   $logic(): void {
