@@ -208,6 +208,12 @@ export class PhysicsComponent extends Component {
       isKinematic = bindingIsKinematic;
       resolved.push({ bindingId, shape, body: { ...binding.body }, collider: { ...binding.collider } });
     }
+    if (this.__motion != null && move != null && this.__motion.move !== move) {
+      throw new Error('Physics motion.move must match body.move on every shape binding.');
+    }
+    if (this.__motion != null && isKinematic != null && (this.__motion.isKinematic ?? false) !== isKinematic) {
+      throw new Error('Physics motion.isKinematic must match body.isKinematic on every shape binding.');
+    }
     const entity = this.entity as import('../../helpers/EntityHelper').ISceneGraphEntity;
     const motion = this.__motion ?? (move == null ? undefined : { move, isKinematic });
     if (resolved.length === 0) {

@@ -183,11 +183,7 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
 
     const pose = this.__toBodyPose(entity.getSceneGraph().position, entity.getSceneGraph().getQuaternionRecursively());
     const bodyEuler = pose.rotation.toEulerAngles();
-    const radialScale = Math.max(this.__worldScale.x, this.__worldScale.z);
-    const scaledSize =
-      shape.shape.type === 'cylinder'
-        ? [localSize.x * radialScale, localSize.y * this.__worldScale.y, localSize.z * radialScale]
-        : [localSize.x * this.__worldScale.x, localSize.y * this.__worldScale.y, localSize.z * this.__worldScale.z];
+    const scaledSize = this.__createScaledSize();
     this.__property = {
       type: physicsType,
       size: scaledSize,
@@ -337,19 +333,7 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     const bodyEuler = pose.rotation.toEulerAngles();
     this.__body.remove();
     const prop = this.__property;
-    const radialScale = Math.max(this.__worldScale.x, this.__worldScale.z);
-    const scaledSize =
-      this.__shapeType === 'cylinder'
-        ? [
-            this.__localScale.x * radialScale,
-            this.__localScale.y * this.__worldScale.y,
-            this.__localScale.z * radialScale,
-          ]
-        : [
-            this.__localScale.x * this.__worldScale.x,
-            this.__localScale.y * this.__worldScale.y,
-            this.__localScale.z * this.__worldScale.z,
-          ];
+    const scaledSize = this.__createScaledSize();
     this.__property = {
       type: prop.type,
       size: scaledSize,
@@ -365,6 +349,26 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
       restitution: prop.restitution,
     };
     this.__body = world.add(this.__property);
+  }
+
+  private __createScaledSize(): number[] {
+    if (this.__shapeType === 'sphere') {
+      const radialScale = Math.max(this.__worldScale.x, this.__worldScale.y, this.__worldScale.z);
+      return [this.__localScale.x * radialScale, this.__localScale.y * radialScale, this.__localScale.z * radialScale];
+    }
+    if (this.__shapeType === 'cylinder') {
+      const radialScale = Math.max(this.__worldScale.x, this.__worldScale.z);
+      return [
+        this.__localScale.x * radialScale,
+        this.__localScale.y * this.__worldScale.y,
+        this.__localScale.z * radialScale,
+      ];
+    }
+    return [
+      this.__localScale.x * this.__worldScale.x,
+      this.__localScale.y * this.__worldScale.y,
+      this.__localScale.z * this.__worldScale.z,
+    ];
   }
 
   private __toBodyPose(entityPosition: IVector3, entityRotation: IQuaternion) {

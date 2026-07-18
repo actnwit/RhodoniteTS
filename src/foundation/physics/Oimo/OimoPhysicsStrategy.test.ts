@@ -111,6 +111,33 @@ test('OimoPhysicsStrategy converts a generic cylinder and rejects capsules expli
   ).toThrow('does not support capsule');
 });
 
+test('OimoPhysicsStrategy conservatively scales a generic sphere by the largest axis', async () => {
+  const { OimoPhysicsStrategy } = await import('./OimoPhysicsStrategy');
+  const entity = {
+    getSceneGraph: () => ({
+      position: Vector3.zero(),
+      getQuaternionRecursively: () => Quaternion.identity(),
+    }),
+  } as unknown as ISceneGraphEntity;
+  const strategy = new OimoPhysicsStrategy();
+
+  strategy.setShapeInstance(
+    {
+      shape: { type: 'sphere', radius: 0.5 },
+      localPosition: Vector3.zero(),
+      localRotation: Quaternion.identity(),
+    },
+    { move: false, density: 1 },
+    { friction: 0.5, restitution: 0 },
+    entity,
+    Vector3.fromCopy3(1, 3, 2)
+  );
+
+  expect(lastProperty.size).toEqual([1.5, 1.5, 1.5]);
+  strategy.setScale(Vector3.fromCopy3(4, 1, 2));
+  expect(lastProperty.size).toEqual([2, 2, 2]);
+});
+
 test('OimoPhysicsStrategy preserves local shape rotation when repositioned', async () => {
   const { OimoPhysicsStrategy } = await import('./OimoPhysicsStrategy');
   const entity = {

@@ -291,4 +291,22 @@ describe('PhysicsComponent shape bindings', async () => {
     expect(physics.motionProperty?.inertiaDiagonal?.y).toBe(5);
     expect(physics.motionProperty?.inertiaOrientation?.z).toBe(0);
   });
+
+  test('rejects body mode mismatches between motion and shape bindings', () => {
+    const fixture = createFixture();
+    const physics = fixture.entity.getPhysics();
+    physics.bindShape({
+      shapeComponent: fixture.shape,
+      body: { move: true, density: 1 },
+      collider,
+    });
+    const callCount = fixture.calls.length;
+
+    expect(() => physics.setMotionProperty({ move: false })).toThrow('motion.move must match body.move');
+    expect(() => physics.setMotionProperty({ move: true, isKinematic: true })).toThrow(
+      'motion.isKinematic must match body.isKinematic'
+    );
+    expect(physics.motionProperty).toBeUndefined();
+    expect(fixture.calls).toHaveLength(callCount);
+  });
 });
