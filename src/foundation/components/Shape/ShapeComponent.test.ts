@@ -188,6 +188,15 @@ describe('ShapeComponent', async () => {
     expect(spheres[0].getShape().getShape(0)?.shape).toBe(spheres[1].getShape().getShape(0)?.shape);
   });
 
+  test('MeshHelper registers the absolute radius for inward-facing sphere meshes', () => {
+    const sphere = Rn.MeshHelper.createSphere(engine, { radius: -2 });
+    const spheres = Rn.MeshHelper.createSpheres(engine, 2, { radius: -3 });
+
+    expect(sphere.getShape().getShape(0)?.shape).toEqual({ type: 'sphere', radius: 2 });
+    expect(spheres[0].getShape().getShape(0)?.shape).toEqual({ type: 'sphere', radius: 3 });
+    expect(spheres[0].getShape().getShape(0)?.shape).toBe(spheres[1].getShape().getShape(0)?.shape);
+  });
+
   test('CharacterController creates a compatible capsule for legacy radius and height options', () => {
     const entity = Rn.createCharacterControllerEntity(engine);
     let receivedShape: unknown;

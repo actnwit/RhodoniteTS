@@ -33,7 +33,7 @@ const createPhysicsStrategy = (physicsEngine: PhysicsEngineType = 'rapier') => {
   return new RapierPhysicsStrategy();
 };
 
-const resolveSphereRadius = (radius = 1) => (Math.abs(radius) < Number.EPSILON ? 0.001 : radius);
+const resolveSphereRadius = (radius = 1) => (Math.abs(radius) < Number.EPSILON ? 0.001 : Math.abs(radius));
 
 const resolveBoxShapeDescriptor = (size: IVector3, required: boolean) => {
   const canRepresentAsShape =
