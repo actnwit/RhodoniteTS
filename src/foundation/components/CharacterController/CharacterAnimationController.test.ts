@@ -199,6 +199,44 @@ test('uses every explicit semantic track generated from a VRMA animation set', (
   }
 });
 
+test('uses an assigned suffixed walk track when the run mapping is omitted', () => {
+  const walkTrack = 'Walk__character_42_walk';
+  const animationState = {
+    setUseGlobalTime: vi.fn(),
+    setFirstActiveAnimationTrack: vi.fn(),
+    forceTransitionTo: vi.fn(),
+    setIsLoop: vi.fn(),
+    setTime: vi.fn(),
+  };
+  const child = {
+    tryToGetAnimation: () => ({ getAnimationTrackNames: () => [walkTrack] }),
+    children: [],
+  };
+  const root = {
+    tryToGetAnimation: () => undefined,
+    tryToGetAnimationState: () => animationState,
+    children: [{ entity: child }],
+    engine: {},
+  } as unknown as ISceneGraphEntity;
+  vi.spyOn(AnimationComponent, 'getAnimationInfo').mockReturnValue(
+    new Map([[walkTrack, { name: walkTrack, minStartInputTime: 0, maxEndInputTime: 1 }]])
+  );
+  const character = {
+    motionState: createMotion('grounded', 4),
+  } as CharacterControllerComponent;
+  const controller = new CharacterAnimationController(character, root, { walk: [walkTrack] });
+
+  controller.update(1 / 60);
+
+  expect(controller.selection).toMatchObject({
+    semantic: 'run',
+    requestedTrack: 'Run',
+    activeTrack: walkTrack,
+    isFallback: false,
+    hasTrack: true,
+  });
+});
+
 test('keeps the intended run track and cadence through transient stair slowdowns', () => {
   const tracks = {
     idle: 'Idle',

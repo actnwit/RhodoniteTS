@@ -51,6 +51,8 @@ export type RapierColliderDescLike = {
 export type RapierRigidBodyLike = {
   translation(): RapierVector3Like;
   rotation(): RapierQuaternionLike;
+  linvel?(): RapierVector3Like;
+  angvel?(): RapierVector3Like;
   setTranslation(translation: RapierVector3Like, wakeUp: boolean): void;
   setRotation(rotation: RapierQuaternionLike, wakeUp: boolean): void;
   setNextKinematicTranslation?(translation: RapierVector3Like): void;
@@ -94,6 +96,11 @@ export type RapierColliderMetadata = {
   entity: ISceneGraphEntity;
   bindingId?: number;
   isSensor: boolean;
+};
+
+type PreservedDynamicBodyState = {
+  linearVelocity: RapierVector3Like;
+  angularVelocity: RapierVector3Like;
 };
 
 export type RapierCharacterControllerLike = {
@@ -269,12 +276,13 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
    * @param entity - Scene graph entity associated with the physics body
    */
   setShape(prop: PhysicsPropertyInner, entity: ISceneGraphEntity, worldScale: IVector3 = Vector3.one()): void {
+    const preservedState = this.__captureDynamicBodyState();
     this.__removeBody(true);
     this.__shapeBindings = undefined;
     this.__motion = undefined;
     this.__shapeLocalPosition = Vector3.zero();
     this.__shapeLocalRotation = Quaternion.identity();
-    this.__setShape(prop, entity, worldScale);
+    this.__setShape(prop, entity, worldScale, preservedState);
   }
 
   setShapeInstance(
@@ -333,6 +341,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     for (const binding of bindings) {
       RapierPhysicsStrategy.__validateShapeSupport(binding.shape, scale);
     }
+    const preservedState = this.__captureDynamicBodyState();
     this.__shapeBindings = bindings.map(binding => ({
       bindingId: binding.bindingId,
       shape: binding.shape,
@@ -359,7 +368,8 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
         restitution: first.collider.restitution,
       },
       entity,
-      worldScale
+      worldScale,
+      preservedState
     );
   }
 
@@ -370,7 +380,12 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     this.__property = undefined;
   }
 
-  private __setShape(prop: PhysicsPropertyInner, entity: ISceneGraphEntity, worldScale: IVector3): void {
+  private __setShape(
+    prop: PhysicsPropertyInner,
+    entity: ISceneGraphEntity,
+    worldScale: IVector3,
+    preservedState?: PreservedDynamicBodyState
+  ): void {
     this.__entity = entity;
     this.__localScale = Vector3.fromCopy3(prop.size.x, prop.size.y, prop.size.z);
     this.__property = {
@@ -396,7 +411,8 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
         this.__property,
         scaledSize,
         this.__property.position,
-        RapierPhysicsStrategy.__eulerToQuaternion(this.__property.rotation)
+        RapierPhysicsStrategy.__eulerToQuaternion(this.__property.rotation),
+        preservedState
       );
     }
   }
@@ -490,6 +506,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     const nextKinematicRotation = isKinematic
       ? RapierPhysicsStrategy.__eulerToQuaternion(this.__property.rotation)
       : undefined;
+    const preservedState = this.__captureDynamicBodyState();
     this.__shapeWorldScale = Vector3.fromCopy3(Math.abs(worldScale.x), Math.abs(worldScale.y), Math.abs(worldScale.z));
     const scaledSize = this.__createScaledSize(worldScale);
 
@@ -505,7 +522,8 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       this.__property,
       scaledSize,
       Vector3.fromCopy3(position.x, position.y, position.z),
-      Quaternion.fromCopy4(rotation.x, rotation.y, rotation.z, rotation.w)
+      Quaternion.fromCopy4(rotation.x, rotation.y, rotation.z, rotation.w),
+      preservedState
     );
     if (nextKinematicPosition != null && nextKinematicRotation != null) {
       this.setPosition(nextKinematicPosition);
@@ -656,7 +674,13 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     return RapierPhysicsStrategy.__packCollisionGroups(group, mask);
   }
 
-  private __createBody(prop: StoredPhysicsProperty, size: IVector3, position: IVector3, rotation: IQuaternion): void {
+  private __createBody(
+    prop: StoredPhysicsProperty,
+    size: IVector3,
+    position: IVector3,
+    rotation: IQuaternion,
+    preservedState?: PreservedDynamicBodyState
+  ): void {
     const rapier = RapierPhysicsStrategy.__getRapier();
     const world = RapierPhysicsStrategy.__getWorld();
     const motion = this.__motion;
@@ -670,19 +694,21 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       .setTranslation(position.x, position.y, position.z)
       .setRotation(RapierPhysicsStrategy.__toRapierQuaternion(rotation));
 
-    if (prop.move && !isKinematic && motion != null) {
+    if (prop.move && !isKinematic) {
       const velocityRotation = this.__entity?.getSceneGraph().getQuaternionRecursively() ?? rotation;
       const linearVelocity =
-        motion.linearVelocity == null ? undefined : velocityRotation.transformVector3(motion.linearVelocity);
+        preservedState?.linearVelocity ??
+        (motion?.linearVelocity == null ? undefined : velocityRotation.transformVector3(motion.linearVelocity));
       const angularVelocity =
-        motion.angularVelocity == null ? undefined : velocityRotation.transformVector3(motion.angularVelocity);
+        preservedState?.angularVelocity ??
+        (motion?.angularVelocity == null ? undefined : velocityRotation.transformVector3(motion.angularVelocity));
       if (linearVelocity != null) {
         rigidBodyDesc.setLinvel?.(linearVelocity.x, linearVelocity.y, linearVelocity.z);
       }
       if (angularVelocity != null) {
         rigidBodyDesc.setAngvel?.({ x: angularVelocity.x, y: angularVelocity.y, z: angularVelocity.z });
       }
-      if (motion.gravityFactor != null) {
+      if (motion?.gravityFactor != null) {
         rigidBodyDesc.setGravityScale?.(motion.gravityFactor);
       }
     }
@@ -716,6 +742,21 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
 
   private __isKinematicBody(): boolean {
     return this.__motion?.isKinematic ?? this.__shapeBindings?.[0]?.body.isKinematic ?? false;
+  }
+
+  private __captureDynamicBodyState(): PreservedDynamicBodyState | undefined {
+    if (this.__rigidBody == null || !this.__property?.move || this.__isKinematicBody()) {
+      return undefined;
+    }
+    const linearVelocity = this.__rigidBody.linvel?.();
+    const angularVelocity = this.__rigidBody.angvel?.();
+    if (linearVelocity == null || angularVelocity == null) {
+      return undefined;
+    }
+    return {
+      linearVelocity: { x: linearVelocity.x, y: linearVelocity.y, z: linearVelocity.z },
+      angularVelocity: { x: angularVelocity.x, y: angularVelocity.y, z: angularVelocity.z },
+    };
   }
 
   private __applyCompleteMassProperties(move: boolean, isKinematic: boolean): void {

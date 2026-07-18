@@ -146,6 +146,14 @@ class FakeRigidBody {
     return this.rotationValue;
   }
 
+  linvel() {
+    return this.linearVelocity;
+  }
+
+  angvel() {
+    return this.angularVelocity;
+  }
+
   setTranslation(translation: { x: number; y: number; z: number }, _wakeUp: boolean): void {
     this.translationValue = { ...translation };
   }
@@ -646,6 +654,52 @@ test('RapierPhysicsStrategy creates one body with multiple colliders and rebuild
   strategy.clearShapeInstances();
   expect(world.bodies).toHaveLength(0);
   expect(world.removedBodies).toBe(2);
+});
+
+test('RapierPhysicsStrategy preserves current dynamic velocities while rebuilding colliders', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const strategy = new RapierPhysicsStrategy();
+  const { entity } = createSceneGraphEntity();
+  const binding = {
+    shape: {
+      shape: { type: 'box' as const, size: Vector3.one() },
+      localPosition: Vector3.zero(),
+      localRotation: Quaternion.identity(),
+    },
+    body: { move: true, density: 1 },
+    collider: { friction: 0.5, restitution: 0 },
+  };
+  const initialMotion = {
+    move: true,
+    linearVelocity: Vector3.fromCopy3(1, 2, 3),
+    angularVelocity: Vector3.fromCopy3(4, 5, 6),
+  };
+  strategy.setShapeInstances([binding], entity, Vector3.one(), initialMotion);
+  const originalBody = lastWorld!.bodies[0];
+  originalBody.linearVelocity.x = 7;
+  originalBody.linearVelocity.y = 8;
+  originalBody.linearVelocity.z = 9;
+  originalBody.angularVelocity.x = 10;
+  originalBody.angularVelocity.y = 11;
+  originalBody.angularVelocity.z = 12;
+
+  strategy.setShapeInstances(
+    [{ ...binding, collider: { ...binding.collider, friction: 0.8 } }],
+    entity,
+    Vector3.one(),
+    initialMotion
+  );
+
+  const rebuiltBody = lastWorld!.bodies[0];
+  expect(rebuiltBody).not.toBe(originalBody);
+  expect(rebuiltBody.linearVelocity).toEqual({ x: 7, y: 8, z: 9 });
+  expect(rebuiltBody.angularVelocity).toEqual({ x: 10, y: 11, z: 12 });
+
+  rebuiltBody.linearVelocity.x = 13;
+  rebuiltBody.angularVelocity.z = 14;
+  strategy.setScale(Vector3.fromCopy3(2, 2, 2));
+  expect(lastWorld!.bodies[0].linearVelocity).toEqual({ x: 13, y: 8, z: 9 });
+  expect(lastWorld!.bodies[0].angularVelocity).toEqual({ x: 10, y: 11, z: 14 });
 });
 
 test('RapierPhysicsStrategy creates a position-based kinematic compound body', async () => {

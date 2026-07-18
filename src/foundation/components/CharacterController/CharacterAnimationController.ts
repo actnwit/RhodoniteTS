@@ -87,10 +87,11 @@ export class CharacterAnimationController {
   ) {
     this.__options = { ...defaultOptions, ...options };
     this.__validateOptions(this.__options);
+    const walkMapping = mapping.walk ?? defaultMapping.walk;
     this.__mapping = {
       idle: mapping.idle ?? defaultMapping.idle,
-      walk: mapping.walk ?? defaultMapping.walk,
-      run: mapping.run ?? defaultMapping.run,
+      walk: walkMapping,
+      run: mapping.run ?? [...defaultMapping.run.slice(0, 2), ...walkMapping],
       jump: mapping.jump ?? defaultMapping.jump,
       fall: mapping.fall ?? defaultMapping.fall,
       landing: mapping.landing ?? defaultMapping.landing,
