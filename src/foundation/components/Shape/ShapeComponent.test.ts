@@ -154,6 +154,31 @@ describe('ShapeComponent', async () => {
     expect(cubes[0].tryToGetShape()?.getShape(0)?.shape).toBe(cubes[1].tryToGetShape()?.getShape(0)?.shape);
   });
 
+  test('MeshHelper preserves mesh-only cubes with a degenerate dimension', () => {
+    const widthVector = Rn.Vector3.fromCopy3(1, 0, 1);
+    const cube = Rn.MeshHelper.createCube(engine, { widthVector });
+    const cubes = Rn.MeshHelper.createCubes(engine, 2, { widthVector });
+
+    expect(cube.getMesh()).toBeDefined();
+    expect(cube.tryToGetShape()).toBeUndefined();
+    expect(cube.tryToGetPhysics()).toBeUndefined();
+    for (const meshOnlyCube of cubes) {
+      expect(meshOnlyCube.getMesh()).toBeDefined();
+      expect(meshOnlyCube.tryToGetShape()).toBeUndefined();
+      expect(meshOnlyCube.tryToGetPhysics()).toBeUndefined();
+    }
+  });
+
+  test('MeshHelper rejects degenerate cube shapes when physics is enabled', () => {
+    const descriptor = {
+      widthVector: Rn.Vector3.fromCopy3(1, 0, 1),
+      physics: { use: true, move: false, density: 1, friction: 0.5, restitution: 0 },
+    };
+
+    expect(() => Rn.MeshHelper.createCube(engine, descriptor)).toThrow('Box shape size');
+    expect(() => Rn.MeshHelper.createCubes(engine, 2, descriptor)).toThrow('Box shape size');
+  });
+
   test('MeshHelper registers the effective radius for zero-radius spheres', () => {
     const sphere = Rn.MeshHelper.createSphere(engine, { radius: 0 });
     const spheres = Rn.MeshHelper.createSpheres(engine, 2, { radius: 0 });
