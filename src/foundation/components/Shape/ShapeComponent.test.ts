@@ -154,6 +154,15 @@ describe('ShapeComponent', async () => {
     expect(cubes[0].tryToGetShape()?.getShape(0)?.shape).toBe(cubes[1].tryToGetShape()?.getShape(0)?.shape);
   });
 
+  test('MeshHelper registers the effective radius for zero-radius spheres', () => {
+    const sphere = Rn.MeshHelper.createSphere(engine, { radius: 0 });
+    const spheres = Rn.MeshHelper.createSpheres(engine, 2, { radius: 0 });
+
+    expect(sphere.getShape().getShape(0)?.shape).toEqual({ type: 'sphere', radius: 0.001 });
+    expect(spheres[0].getShape().getShape(0)?.shape).toEqual({ type: 'sphere', radius: 0.001 });
+    expect(spheres[0].getShape().getShape(0)?.shape).toBe(spheres[1].getShape().getShape(0)?.shape);
+  });
+
   test('CharacterController creates a compatible capsule for legacy radius and height options', () => {
     const entity = Rn.createCharacterControllerEntity(engine);
     let receivedShape: unknown;

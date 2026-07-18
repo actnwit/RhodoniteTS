@@ -70,11 +70,13 @@ export class Cylinder extends IShape {
       this.__appendCap(halfHeight, radiusTop, 1, radialSegments, positions, normals, texcoords, indices);
     }
 
+    const indexArray = positions.length / 3 > 0x10000 ? new Uint32Array(indices) : new Uint16Array(indices);
+
     this.copyVertexData({
       attributes: [new Float32Array(positions), new Float32Array(normals), new Float32Array(texcoords)],
       attributeSemantics: [VertexAttribute.Position.XYZ, VertexAttribute.Normal.XYZ, VertexAttribute.Texcoord0.XY],
       primitiveMode: PrimitiveMode.Triangles,
-      indices: new Uint16Array(indices),
+      indices: indexArray,
       material: _desc.material,
     });
   }

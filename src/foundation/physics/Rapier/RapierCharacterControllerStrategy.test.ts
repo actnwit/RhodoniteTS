@@ -207,15 +207,17 @@ function fakeRapier(): RapierPhysicsModuleLike {
   };
 }
 
-function fakeEntity(rotation = Quaternion.identity()) {
-  const state = { position: Vector3.fromCopy3(0, 0, 0), rotation };
+function fakeEntity(rotation = Quaternion.identity(), scale = Vector3.one()) {
+  const state = { position: Vector3.fromCopy3(0, 0, 0), rotation, scale };
   const entity = {
     entityUID: nextEntityUID++,
     getSceneGraph: () => ({
       get position() {
         return state.position;
       },
-      scale: Vector3.one(),
+      get scale() {
+        return state.scale;
+      },
       getQuaternionRecursively: () => state.rotation,
       setPositionWithoutPhysics(position: Vector3) {
         state.position = position;
@@ -246,6 +248,22 @@ test('creates a foot-anchored kinematic capsule and configures traversal', async
   expect(world.controller?.snapDistance).toBe(0.15);
   expect(world.controller?.applyImpulses).toBe(false);
   expect(world.controller?.normalNudgeFactor).toBe(0.001);
+});
+
+test.each([
+  ['an oversized ground probe', Vector3.one(), { groundProbeRadius: 0.31 }],
+  ['a zero entity scale', Vector3.zero(), {}],
+])('validates %s before creating a Rapier body and remains reusable', async (_caseName, scale, options) => {
+  await RapierPhysicsStrategy.initialize(fakeRapier());
+  const strategy = new RapierCharacterControllerStrategy();
+
+  expect(() => strategy.setup(fakeEntity(Quaternion.identity(), scale).entity, capsuleShape(), options)).toThrow(
+    'groundProbeRadius'
+  );
+  expect(world.body).toBeUndefined();
+
+  expect(() => strategy.setup(fakeEntity().entity, capsuleShape())).not.toThrow();
+  strategy.destroy();
 });
 
 test('applies the entity world rotation to the character body and ground probe offset', async () => {

@@ -32,6 +32,8 @@ const createPhysicsStrategy = (physicsEngine: PhysicsEngineType = 'rapier') => {
   return new RapierPhysicsStrategy();
 };
 
+const resolveSphereRadius = (radius = 1) => (Math.abs(radius) < Number.EPSILON ? 0.001 : radius);
+
 /**
  * Creates a plane mesh entity with configurable orientation.
  *
@@ -280,7 +282,7 @@ const createSphere = (engine: Engine, desc: SphereDescriptor = {}): IMeshEntity 
   const entity = createShape(engine, primitive);
   const shapeEntity = entity.engine.entityRepository.addComponentToEntity(ShapeComponent, entity);
   const shapeComponent = shapeEntity.getShape();
-  shapeComponent.addShape({ type: 'sphere', radius: desc.radius ?? 1 });
+  shapeComponent.addShape({ type: 'sphere', radius: resolveSphereRadius(desc.radius) });
 
   if (Is.exist(desc.physics) && desc.physics.use) {
     const newEntity = entity.engine.entityRepository.addComponentToEntity(PhysicsComponent, shapeEntity);
@@ -328,7 +330,7 @@ const createSpheres = (engine: Engine, numberToCreate: number, desc: SphereDescr
   primitive.generate(desc);
   const mesh = new Mesh(engine);
   mesh.addPrimitive(primitive);
-  const sharedShape = normalizeShapeDescriptor({ type: 'sphere', radius: desc.radius ?? 1 });
+  const sharedShape = normalizeShapeDescriptor({ type: 'sphere', radius: resolveSphereRadius(desc.radius) });
 
   const entities: IMeshEntity[] = [];
 

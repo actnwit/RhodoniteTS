@@ -27,6 +27,21 @@ test.each([
   expect(() => cylinder.generate({ radialSegments })).toThrow('Cylinder radialSegments must be a finite integer.');
 });
 
+test('Cylinder uses 32-bit indices when its vertex indices exceed the Uint16 range', async () => {
+  const engine = await Rn.Engine.init({ approach: Rn.ProcessApproach.None });
+  const cylinder = new Rn.Cylinder(engine);
+  cylinder.generate({ radialSegments: 16384 });
+
+  const indices = cylinder.indicesAccessor!.getTypedArray();
+  let maxIndex = 0;
+  for (const index of indices) {
+    maxIndex = Math.max(maxIndex, index);
+  }
+
+  expect(indices).toBeInstanceOf(Uint32Array);
+  expect(maxIndex).toBe(65537);
+});
+
 test('Cylinder uses outward-facing counter-clockwise triangle winding', async () => {
   const engine = await Rn.Engine.init({ approach: Rn.ProcessApproach.None });
   const cylinder = new Rn.Cylinder(engine);

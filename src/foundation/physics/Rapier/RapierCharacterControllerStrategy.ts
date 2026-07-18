@@ -86,7 +86,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     }
 
     const { shapeIndex: _shapeIndex, radius: _radius, height: _height, ...movementOptions } = options;
-    this.__options = {
+    const resolvedOptions: ResolvedOptions = {
       ...defaultOptions,
       ...movementOptions,
       groundProbeDistance:
@@ -94,7 +94,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
         Math.max(options.snapToGroundDistance ?? defaultOptions.snapToGroundDistance, 0.3),
       groundProbeStartOffset: options.groundProbeStartOffset ?? options.contactOffset ?? defaultOptions.contactOffset,
     };
-    this.__validateOptions(this.__options);
+    this.__validateOptions(resolvedOptions);
 
     const rapier = RapierPhysicsStrategy._getRapier();
     const world = RapierPhysicsStrategy._getWorld();
@@ -107,19 +107,6 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     if (shapeInstance.shape.type !== 'capsule') {
       throw new Error('RapierCharacterControllerStrategy requires a capsule ShapeInstance.');
     }
-
-    this.__entity = entity;
-    const initialPosition = entity.getSceneGraph().position;
-    const initialRotation = entity.getSceneGraph().getQuaternionRecursively();
-    const rigidBodyDesc = rapier.RigidBodyDesc.kinematicPositionBased()
-      .setTranslation(initialPosition.x, initialPosition.y, initialPosition.z)
-      .setRotation({
-        x: initialRotation.x,
-        y: initialRotation.y,
-        z: initialRotation.z,
-        w: initialRotation.w,
-      });
-    this.__rigidBody = world.createRigidBody(rigidBodyDesc);
 
     const scale = entity.getSceneGraph().scale;
     const absoluteScale = Vector3.fromCopy3(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z));
@@ -137,11 +124,11 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     }
     const radius =
       Math.max(capsule.radiusBottom, capsule.radiusTop) * Math.max(absoluteScale.x, absoluteScale.y, absoluteScale.z);
-    this.__options.groundProbeRadius = options.groundProbeRadius ?? radius * 0.8;
+    resolvedOptions.groundProbeRadius = options.groundProbeRadius ?? radius * 0.8;
     if (
-      !Number.isFinite(this.__options.groundProbeRadius) ||
-      this.__options.groundProbeRadius <= 0 ||
-      this.__options.groundProbeRadius > radius
+      !Number.isFinite(resolvedOptions.groundProbeRadius) ||
+      resolvedOptions.groundProbeRadius <= 0 ||
+      resolvedOptions.groundProbeRadius > radius
     ) {
       throw new Error(
         'Character controller groundProbeRadius must be positive and no greater than the capsule radius.'
@@ -155,7 +142,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     const downwardExtent = shapeInstance.localRotation.transformVector3(
       Vector3.fromCopy3(0, -(capsule.height * absoluteScale.y * 0.5 + radius), 0)
     );
-    this.__capsuleBottomOffset = Vector3.add(scaledLocalPosition, downwardExtent);
+    const capsuleBottomOffset = Vector3.add(scaledLocalPosition, downwardExtent);
     let colliderDesc = rapier.ColliderDesc.capsule(capsule.height * absoluteScale.y * 0.5, radius);
     colliderDesc =
       colliderDesc.setTranslation?.(
@@ -170,6 +157,22 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
         z: shapeInstance.localRotation.z,
         w: shapeInstance.localRotation.w,
       }) ?? colliderDesc;
+
+    const initialPosition = entity.getSceneGraph().position;
+    const initialRotation = entity.getSceneGraph().getQuaternionRecursively();
+    const rigidBodyDesc = rapier.RigidBodyDesc.kinematicPositionBased()
+      .setTranslation(initialPosition.x, initialPosition.y, initialPosition.z)
+      .setRotation({
+        x: initialRotation.x,
+        y: initialRotation.y,
+        z: initialRotation.z,
+        w: initialRotation.w,
+      });
+
+    this.__entity = entity;
+    this.__options = resolvedOptions;
+    this.__capsuleBottomOffset = capsuleBottomOffset;
+    this.__rigidBody = world.createRigidBody(rigidBodyDesc);
     this.__collider = world.createCollider(colliderDesc, this.__rigidBody);
     RapierPhysicsStrategy._registerExternalCollider(this.__collider, entity);
 
