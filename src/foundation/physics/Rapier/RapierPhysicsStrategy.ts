@@ -213,7 +213,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
 
   private static __rapier?: RapierPhysicsModuleLike;
   private static __world?: RapierWorldLike;
-  private static __stepParticipants = new Set<RapierStepParticipant>();
+  private static __stepParticipants = new Map<RapierStepParticipant, Engine>();
   private static __lastFrameId?: number;
   private static __eventQueue?: RapierEventQueueLike;
   private static __colliderMetadata = new Map<number, RapierColliderMetadata>();
@@ -562,15 +562,19 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     }
     RapierPhysicsStrategy.__lastFrameId = frameId;
 
-    for (const participant of RapierPhysicsStrategy.__stepParticipants) {
-      participant.preStep(deltaTime);
+    for (const [participant, participantEngine] of RapierPhysicsStrategy.__stepParticipants) {
+      if (engine == null || participantEngine === engine) {
+        participant.preStep(deltaTime);
+      }
     }
     TriggerComponent._beginPhysicsStep();
     RapierPhysicsStrategy.__world?.step(RapierPhysicsStrategy.__eventQueue);
     RapierPhysicsStrategy.__drainCollisionEvents();
     TriggerComponent._finalizeRebuiltOverlaps();
-    for (const participant of RapierPhysicsStrategy.__stepParticipants) {
-      participant.postStep();
+    for (const [participant, participantEngine] of RapierPhysicsStrategy.__stepParticipants) {
+      if (engine == null || participantEngine === engine) {
+        participant.postStep();
+      }
     }
     TriggerComponent._publishStayEvents(engine);
   }
@@ -645,8 +649,8 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
   }
 
   /** @internal */
-  static _registerStepParticipant(participant: RapierStepParticipant): void {
-    RapierPhysicsStrategy.__stepParticipants.add(participant);
+  static _registerStepParticipant(participant: RapierStepParticipant, engine: Engine): void {
+    RapierPhysicsStrategy.__stepParticipants.set(participant, engine);
   }
 
   /** @internal */

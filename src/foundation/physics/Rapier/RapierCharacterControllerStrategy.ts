@@ -183,7 +183,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     this.__controller.setMinSlopeSlideAngle(this.__options.minSlopeSlideAngle);
     this.__controller.setApplyImpulsesToDynamicBodies(this.__options.applyImpulsesToDynamicBodies);
     this.__controller.setNormalNudgeFactor?.(this.__options.normalNudgeFactor);
-    RapierPhysicsStrategy._registerStepParticipant(this);
+    RapierPhysicsStrategy._registerStepParticipant(this, entity.engine);
   }
 
   setDesiredHorizontalVelocity(velocity: IVector3): void {

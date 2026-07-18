@@ -431,6 +431,32 @@ test('RapierPhysicsStrategy scopes stay events to the processed engine', async (
   }
 });
 
+test('RapierPhysicsStrategy scopes step participants to the processed engine', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const firstEngine = {} as Engine;
+  const secondEngine = {} as Engine;
+  const firstParticipant = { preStep: vi.fn(), postStep: vi.fn() };
+  const secondParticipant = { preStep: vi.fn(), postStep: vi.fn() };
+  RapierPhysicsStrategy._registerStepParticipant(firstParticipant, firstEngine);
+  RapierPhysicsStrategy._registerStepParticipant(secondParticipant, secondEngine);
+
+  RapierPhysicsStrategy.update(1, 0.25, firstEngine);
+
+  expect(firstParticipant.preStep).toHaveBeenCalledOnce();
+  expect(firstParticipant.preStep).toHaveBeenCalledWith(0.25);
+  expect(firstParticipant.postStep).toHaveBeenCalledOnce();
+  expect(secondParticipant.preStep).not.toHaveBeenCalled();
+  expect(secondParticipant.postStep).not.toHaveBeenCalled();
+
+  RapierPhysicsStrategy.update(2, 0.5, secondEngine);
+
+  expect(firstParticipant.preStep).toHaveBeenCalledOnce();
+  expect(firstParticipant.postStep).toHaveBeenCalledOnce();
+  expect(secondParticipant.preStep).toHaveBeenCalledOnce();
+  expect(secondParticipant.preStep).toHaveBeenCalledWith(0.5);
+  expect(secondParticipant.postStep).toHaveBeenCalledOnce();
+});
+
 test('RapierPhysicsWorldQueryStrategy resolves hits through collider metadata and filters', async () => {
   await RapierPhysicsStrategy.initialize(createFakeRapier());
   const physics = new RapierPhysicsStrategy();

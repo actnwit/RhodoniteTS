@@ -44,18 +44,37 @@ export class ShapeComponent extends Component {
 
   addShape(descriptor: ShapeDescriptor, localTransform: ShapeLocalTransform = {}): number {
     const shape = normalizeShapeDescriptor(descriptor);
+    const positionX = localTransform.position?.x ?? 0;
+    const positionY = localTransform.position?.y ?? 0;
+    const positionZ = localTransform.position?.z ?? 0;
+    if (![positionX, positionY, positionZ].every(Number.isFinite)) {
+      throw new Error('Shape local position components must be finite.');
+    }
+    const localPosition = Vector3.fromCopy3(positionX, positionY, positionZ);
+    if (![localPosition.x, localPosition.y, localPosition.z].every(Number.isFinite)) {
+      throw new Error('Shape local position components must be representable as finite numbers.');
+    }
+
+    const rotationX = localTransform.rotation?.x ?? 0;
+    const rotationY = localTransform.rotation?.y ?? 0;
+    const rotationZ = localTransform.rotation?.z ?? 0;
+    const rotationW = localTransform.rotation?.w ?? 1;
+    if (![rotationX, rotationY, rotationZ, rotationW].every(Number.isFinite)) {
+      throw new Error('Shape local rotation components must be finite.');
+    }
+    const rotationLength = Math.hypot(rotationX, rotationY, rotationZ, rotationW);
+    if (!Number.isFinite(rotationLength) || rotationLength === 0) {
+      throw new Error('Shape local rotation must be a non-zero quaternion.');
+    }
+    const inverseRotationLength = 1 / rotationLength;
     const instance: ShapeInstance = Object.freeze({
       shape,
-      localPosition: Vector3.fromCopy3(
-        localTransform.position?.x ?? 0,
-        localTransform.position?.y ?? 0,
-        localTransform.position?.z ?? 0
-      ),
+      localPosition,
       localRotation: Quaternion.fromCopy4(
-        localTransform.rotation?.x ?? 0,
-        localTransform.rotation?.y ?? 0,
-        localTransform.rotation?.z ?? 0,
-        localTransform.rotation?.w ?? 1
+        rotationX * inverseRotationLength,
+        rotationY * inverseRotationLength,
+        rotationZ * inverseRotationLength,
+        rotationW * inverseRotationLength
       ),
     });
     const index = this.__nextShapeIndex++;

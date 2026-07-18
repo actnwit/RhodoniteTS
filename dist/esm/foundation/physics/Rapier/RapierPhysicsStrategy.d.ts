@@ -220,7 +220,7 @@ export declare class RapierPhysicsStrategy implements PhysicsStrategy {
     private static __unregisterColliderMetadata;
     private static __drainCollisionEvents;
     /** @internal */
-    static _registerStepParticipant(participant: RapierStepParticipant): void;
+    static _registerStepParticipant(participant: RapierStepParticipant, engine: Engine): void;
     /** @internal */
     static _unregisterStepParticipant(participant: RapierStepParticipant): void;
     /** @internal */

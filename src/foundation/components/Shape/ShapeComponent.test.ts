@@ -43,6 +43,28 @@ describe('ShapeComponent', async () => {
     expect(first.getShape(0)?.shape).toBe(second.getShape(0)?.shape);
   });
 
+  test('validates and normalizes local shape transforms', () => {
+    const component = Rn.createShapeEntity(engine).getShape();
+    const descriptor = { type: 'sphere' as const, radius: 0.5 };
+
+    expect(() => component.addShape(descriptor, { position: Rn.Vector3.fromCopy3(Number.NaN, 0, 0) })).toThrow(
+      'position components must be finite'
+    );
+    expect(() =>
+      component.addShape(descriptor, { rotation: Rn.Quaternion.fromCopy4(0, Number.POSITIVE_INFINITY, 0, 1) })
+    ).toThrow('rotation components must be finite');
+    expect(() => component.addShape(descriptor, { rotation: Rn.Quaternion.fromCopy4(0, 0, 0, 0) })).toThrow(
+      'non-zero quaternion'
+    );
+
+    const shapeIndex = component.addShape(descriptor, { rotation: Rn.Quaternion.fromCopy4(0, 0, 0, 2) });
+    const rotation = component.getShape(shapeIndex)?.localRotation;
+    expect(rotation?.x).toBe(0);
+    expect(rotation?.y).toBe(0);
+    expect(rotation?.z).toBe(0);
+    expect(rotation?.w).toBe(1);
+  });
+
   test('normalizes cylinder and capsule descriptors', () => {
     const component = Rn.createShapeEntity(engine).getShape();
     component.addShape({ type: 'cylinder', height: 2, radiusBottom: 0, radiusTop: 1 });
