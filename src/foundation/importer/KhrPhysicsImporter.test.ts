@@ -1,5 +1,6 @@
 import type { RnM2 } from '../../types';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { Quaternion } from '../math/Quaternion';
 import { Vector3 } from '../math/Vector3';
 import {
   collectKhrRigidBodyGroups,
@@ -283,6 +284,32 @@ test('groups colliders by their nearest motion ancestor and keeps static collide
   expect(result.groups[2].colliders[0].localPosition.isEqual(Vector3.zero())).toBe(true);
   expect(result.warnings.some(warning => warning.includes('unsupported') && warning.includes('mass'))).toBe(false);
   expect(result.warnings.some(warning => warning.includes('non-uniform'))).toBe(true);
+});
+
+test('extracts compound collider rotation from a non-uniformly scaled child node', () => {
+  const expectedRotation = Quaternion.fromAxisAngle(Vector3.normalize(Vector3.fromCopy3(1, 2, 3)), 0.9);
+  const gltf = createGltf(
+    [
+      {
+        children: [1],
+        extensions: { KHR_physics_rigid_bodies: { motion: {} } },
+      },
+      {
+        rotation: expectedRotation.flattenAsArray(),
+        scale: [2, 3, 4],
+        extensions: { KHR_physics_rigid_bodies: { collider: { geometry: { shape: 0 } } } },
+      },
+    ],
+    { KHR_implicit_shapes: { shapes: [{ type: 'box' }] } }
+  );
+
+  const result = collectKhrRigidBodyGroups(gltf);
+  const actualRotation = result.groups[0].colliders[0].localRotation;
+  const direction = Vector3.fromCopy3(0.25, -0.5, 0.75);
+
+  expect(
+    actualRotation.transformVector3(direction).isEqual(expectedRotation.transformVector3(direction), 0.000001)
+  ).toBe(true);
 });
 
 test('skips child colliders with zero body-relative scale', () => {

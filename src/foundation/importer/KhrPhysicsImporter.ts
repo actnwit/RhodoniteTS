@@ -612,7 +612,7 @@ export function collectKhrRigidBodyGroups(gltfModel: RnM2): KhrRigidBodyGroupCol
       isSensor: declaration.isSensor,
       triggerNodeIndex: declaration.triggerNodeIndex,
       localPosition: relativeMatrix.getTranslate(),
-      localRotation: Quaternion.fromMatrix(relativeMatrix.getRotate()),
+      localRotation: Quaternion.fromMatrix(relativeMatrix),
     });
   }
   resolveCollisionFilters(groups, rigidBodiesExtension, warnings);
