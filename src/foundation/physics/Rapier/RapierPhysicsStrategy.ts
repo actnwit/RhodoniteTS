@@ -820,9 +820,14 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     }
 
     const explicitMass = this.__motion?.move && !this.__motion.isKinematic ? this.__motion.mass : undefined;
-    const density =
-      explicitMass != null && explicitMass > 0
-        ? explicitMass / this.__shapeBindings!.reduce((sum, item) => sum + this.__getScaledVolume(item), 0)
+    const density = binding.collider.isSensor
+      ? 0
+      : explicitMass != null && explicitMass > 0
+        ? explicitMass /
+          this.__shapeBindings!.reduce(
+            (sum, item) => (item.collider.isSensor ? sum : sum + this.__getScaledVolume(item)),
+            0
+          )
         : binding.body.density;
     colliderDesc = colliderDesc.setDensity?.(density) ?? colliderDesc;
     colliderDesc = colliderDesc.setFriction?.(binding.collider.friction) ?? colliderDesc;

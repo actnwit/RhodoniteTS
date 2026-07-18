@@ -815,6 +815,39 @@ test('RapierPhysicsStrategy configures sensors with collision events and binding
   expect(lastWorld?.colliders[0].activeCollisionTypes).toBe(0xffff);
 });
 
+test('RapierPhysicsStrategy excludes sensors from dynamic body mass properties', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const strategy = new RapierPhysicsStrategy();
+  const { entity } = createSceneGraphEntity();
+  strategy.setShapeInstances(
+    [
+      {
+        shape: {
+          shape: { type: 'box', size: Vector3.one() },
+          localPosition: Vector3.zero(),
+          localRotation: Quaternion.identity(),
+        },
+        body: { move: true, density: 99 },
+        collider: { friction: 0, restitution: 0 },
+      },
+      {
+        shape: {
+          shape: { type: 'box', size: Vector3.fromCopy3(2, 2, 2) },
+          localPosition: Vector3.zero(),
+          localRotation: Quaternion.identity(),
+        },
+        body: { move: true, density: 99 },
+        collider: { friction: 0, restitution: 0, isSensor: true },
+      },
+    ],
+    entity,
+    Vector3.one(),
+    { move: true, mass: 10 }
+  );
+
+  expect(lastWorld?.colliders.map(collider => collider.density)).toEqual([10, 0]);
+});
+
 test('RapierPhysicsStrategy ignores collision events between different engines', async () => {
   await RapierPhysicsStrategy.initialize(createFakeRapier());
   const firstEngine = {} as Engine;
