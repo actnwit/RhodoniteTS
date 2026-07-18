@@ -19,17 +19,17 @@ export interface TriggerEvent {
   otherBindingId?: number;
 }
 
+type OverlapPair = {
+  sensorEntityUid: EntityUID;
+  sensorBindingId: number;
+  otherBindingId?: number;
+  otherColliderHandle?: number;
+};
+
 type ActiveOverlap = {
   otherEntity: IEntity;
-  pairs: Map<
-    string,
-    {
-      sensorEntityUid: EntityUID;
-      sensorBindingId: number;
-      otherBindingId?: number;
-      otherColliderHandle?: number;
-    }
-  >;
+  pairs: Map<string, OverlapPair>;
+  rebuildingPairs: Map<string, OverlapPair & { suspendedAtStep: number }>;
   enteredThisStep: boolean;
 };
 
@@ -37,6 +37,7 @@ type ActiveOverlap = {
 export class TriggerComponent extends Component {
   private static __sensorOwners = new WeakMap<Engine, Map<string, TriggerComponent>>();
   private static __components = new Set<TriggerComponent>();
+  private static __physicsStep = 0;
   private __pubsub = new EventPubSub();
   private __sensorKeys = new Set<string>();
   private __activeOverlaps = new Map<IEntity, ActiveOverlap>();
@@ -135,19 +136,44 @@ export class TriggerComponent extends Component {
     let overlap = trigger.__activeOverlaps.get(otherEntity);
     if (started) {
       if (overlap == null) {
-        overlap = { otherEntity, pairs: new Map(), enteredThisStep: true };
+        overlap = { otherEntity, pairs: new Map(), rebuildingPairs: new Map(), enteredThisStep: true };
         trigger.__activeOverlaps.set(otherEntity, overlap);
       }
-      const wasEmpty = overlap.pairs.size === 0;
+      const wasEmpty = overlap.pairs.size === 0 && overlap.rebuildingPairs.size === 0;
       overlap.pairs.set(pairKey, { sensorEntityUid, sensorBindingId, otherBindingId, otherColliderHandle });
+      overlap.rebuildingPairs.clear();
       if (wasEmpty) {
         trigger.__publish('enter', overlap.otherEntity, sensorBindingId, otherBindingId);
       }
     } else if (overlap != null) {
       overlap.pairs.delete(pairKey);
-      if (overlap.pairs.size === 0) {
+      if (overlap.pairs.size === 0 && overlap.rebuildingPairs.size === 0) {
         trigger.__activeOverlaps.delete(otherEntity);
         trigger.__publish('exit', overlap.otherEntity, sensorBindingId, otherBindingId);
+      }
+    }
+  }
+
+  /** @internal Starts reconciliation of collider pairs suspended before this physics step. */
+  static _beginPhysicsStep(): void {
+    this.__physicsStep++;
+  }
+
+  /** @internal Ends suspended overlaps that were not restored by the current physics step. */
+  static _finalizeRebuiltOverlaps(): void {
+    for (const trigger of this.__components) {
+      for (const [otherEntity, overlap] of [...trigger.__activeOverlaps]) {
+        const expired = [...overlap.rebuildingPairs.entries()].filter(
+          ([, pair]) => pair.suspendedAtStep < this.__physicsStep
+        );
+        for (const [pairKey] of expired) {
+          overlap.rebuildingPairs.delete(pairKey);
+        }
+        if (expired.length > 0 && overlap.pairs.size === 0 && overlap.rebuildingPairs.size === 0) {
+          trigger.__activeOverlaps.delete(otherEntity);
+          const pair = expired[0][1];
+          trigger.__publish('exit', overlap.otherEntity, pair.sensorBindingId, pair.otherBindingId);
+        }
       }
     }
   }
@@ -171,18 +197,60 @@ export class TriggerComponent extends Component {
     }
   }
 
-  /** @internal Ends overlaps owned by a sensor collider that is being removed or rebuilt. */
+  /** @internal Temporarily suspends overlaps owned by a sensor collider that is being rebuilt. */
+  static _suspendSensorBinding(engine: Engine, physicsEntityUid: EntityUID, sensorBindingId: number): void {
+    const trigger = this.__sensorOwners.get(engine)?.get(this.__sensorKey(physicsEntityUid, sensorBindingId));
+    if (trigger == null) return;
+    for (const overlap of trigger.__activeOverlaps.values()) {
+      const suspended = [...overlap.pairs.entries()].filter(
+        ([, pair]) => pair.sensorEntityUid === physicsEntityUid && pair.sensorBindingId === sensorBindingId
+      );
+      for (const [pairKey, pair] of suspended) {
+        overlap.pairs.delete(pairKey);
+        overlap.rebuildingPairs.set(pairKey, { ...pair, suspendedAtStep: this.__physicsStep });
+      }
+    }
+  }
+
+  /** @internal Temporarily suspends overlaps in which a collider being rebuilt is the non-owning side. */
+  static _suspendOtherBinding(
+    otherEntity: IEntity,
+    otherBindingId: number | undefined,
+    otherColliderHandle?: number
+  ): void {
+    for (const trigger of this.__components) {
+      const overlap = trigger.__activeOverlaps.get(otherEntity);
+      if (overlap == null) {
+        continue;
+      }
+      const suspended = [...overlap.pairs.entries()].filter(([, pair]) =>
+        this.__matchesOtherBinding(pair, otherBindingId, otherColliderHandle)
+      );
+      for (const [pairKey, pair] of suspended) {
+        overlap.pairs.delete(pairKey);
+        overlap.rebuildingPairs.set(pairKey, { ...pair, suspendedAtStep: this.__physicsStep });
+      }
+    }
+  }
+
+  /** @internal Ends overlaps owned by a sensor collider that is being permanently removed. */
   static _deactivateSensorBinding(engine: Engine, physicsEntityUid: EntityUID, sensorBindingId: number): void {
     const trigger = this.__sensorOwners.get(engine)?.get(this.__sensorKey(physicsEntityUid, sensorBindingId));
     if (trigger == null) return;
     for (const [otherEntity, overlap] of [...trigger.__activeOverlaps]) {
-      const removed = [...overlap.pairs.entries()].filter(
-        ([, pair]) => pair.sensorEntityUid === physicsEntityUid && pair.sensorBindingId === sensorBindingId
-      );
+      const matches = ([, pair]: [string, OverlapPair]) =>
+        pair.sensorEntityUid === physicsEntityUid && pair.sensorBindingId === sensorBindingId;
+      const removed = [...overlap.pairs.entries()].filter(matches);
+      const removedRebuilding = [...overlap.rebuildingPairs.entries()].filter(matches);
       for (const [pairKey] of removed) overlap.pairs.delete(pairKey);
-      if (removed.length > 0 && overlap.pairs.size === 0) {
+      for (const [pairKey] of removedRebuilding) overlap.rebuildingPairs.delete(pairKey);
+      if (
+        removed.length + removedRebuilding.length > 0 &&
+        overlap.pairs.size === 0 &&
+        overlap.rebuildingPairs.size === 0
+      ) {
         trigger.__activeOverlaps.delete(otherEntity);
-        const pair = removed[0][1];
+        const pair = (removed[0] ?? removedRebuilding[0])[1];
         trigger.__publish('exit', overlap.otherEntity, pair.sensorBindingId, pair.otherBindingId);
       }
     }
@@ -199,17 +267,23 @@ export class TriggerComponent extends Component {
       if (overlap == null) {
         continue;
       }
-      const removed = [...overlap.pairs.entries()].filter(([, pair]) =>
-        otherColliderHandle == null
-          ? pair.otherBindingId === otherBindingId
-          : pair.otherColliderHandle === otherColliderHandle
-      );
+      const matches = ([, pair]: [string, OverlapPair]) =>
+        this.__matchesOtherBinding(pair, otherBindingId, otherColliderHandle);
+      const removed = [...overlap.pairs.entries()].filter(matches);
+      const removedRebuilding = [...overlap.rebuildingPairs.entries()].filter(matches);
       for (const [pairKey] of removed) {
         overlap.pairs.delete(pairKey);
       }
-      if (removed.length > 0 && overlap.pairs.size === 0) {
+      for (const [pairKey] of removedRebuilding) {
+        overlap.rebuildingPairs.delete(pairKey);
+      }
+      if (
+        removed.length + removedRebuilding.length > 0 &&
+        overlap.pairs.size === 0 &&
+        overlap.rebuildingPairs.size === 0
+      ) {
         trigger.__activeOverlaps.delete(otherEntity);
-        const pair = removed[0][1];
+        const pair = (removed[0] ?? removedRebuilding[0])[1];
         trigger.__publish('exit', overlap.otherEntity, pair.sensorBindingId, pair.otherBindingId);
       }
     }
@@ -228,6 +302,17 @@ export class TriggerComponent extends Component {
 
   private static __sensorKey(entityUid: EntityUID, bindingId: number): string {
     return `${entityUid}:${bindingId}`;
+  }
+
+  private static __matchesOtherBinding(
+    pair: OverlapPair,
+    otherBindingId: number | undefined,
+    otherColliderHandle: number | undefined
+  ): boolean {
+    if (otherBindingId != null) {
+      return pair.otherBindingId === otherBindingId;
+    }
+    return otherColliderHandle == null ? pair.otherBindingId == null : pair.otherColliderHandle === otherColliderHandle;
   }
 
   _destroy(): void {

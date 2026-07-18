@@ -269,7 +269,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
    * @param entity - Scene graph entity associated with the physics body
    */
   setShape(prop: PhysicsPropertyInner, entity: ISceneGraphEntity, worldScale: IVector3 = Vector3.one()): void {
-    this.__removeBody();
+    this.__removeBody(true);
     this.__shapeBindings = undefined;
     this.__motion = undefined;
     this.__shapeLocalPosition = Vector3.zero();
@@ -345,7 +345,8 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     this.__warnedNonUniformScale = false;
     const first = bindings[0];
     const size = first.shape.shape.type === 'box' ? first.shape.shape.size : Vector3.one();
-    this.__removeBody();
+    const willRebuild = scale.x > 0 && scale.y > 0 && scale.z > 0;
+    this.__removeBody(willRebuild);
     this.__setShape(
       {
         type: first.shape.shape.type === 'box' ? PhysicsShape.Box : PhysicsShape.Sphere,
@@ -492,14 +493,12 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     this.__shapeWorldScale = Vector3.fromCopy3(Math.abs(worldScale.x), Math.abs(worldScale.y), Math.abs(worldScale.z));
     const scaledSize = this.__createScaledSize(worldScale);
 
-    this.__removeBody();
-    if (
-      this.__shapeBindings != null &&
-      (this.__shapeWorldScale.x === 0 || this.__shapeWorldScale.y === 0 || this.__shapeWorldScale.z === 0)
-    ) {
-      return;
-    }
-    if (this.__shapeBindings == null && !this.__isValidSize(this.__property, scaledSize)) {
+    const willRebuild =
+      this.__shapeBindings != null
+        ? this.__shapeWorldScale.x > 0 && this.__shapeWorldScale.y > 0 && this.__shapeWorldScale.z > 0
+        : this.__isValidSize(this.__property, scaledSize);
+    this.__removeBody(willRebuild);
+    if (!willRebuild) {
       return;
     }
     this.__createBody(
@@ -548,8 +547,10 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     for (const participant of RapierPhysicsStrategy.__stepParticipants) {
       participant.preStep(deltaTime);
     }
+    TriggerComponent._beginPhysicsStep();
     RapierPhysicsStrategy.__world?.step(RapierPhysicsStrategy.__eventQueue);
     RapierPhysicsStrategy.__drainCollisionEvents();
+    TriggerComponent._finalizeRebuiltOverlaps();
     for (const participant of RapierPhysicsStrategy.__stepParticipants) {
       participant.postStep();
     }
@@ -570,15 +571,26 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     }
   }
 
-  private static __unregisterColliderMetadata(handle: number): void {
+  private static __unregisterColliderMetadata(handle: number, isRebuilding = false): void {
     const metadata = this.__colliderMetadata.get(handle);
     if (metadata == null) {
       return;
     }
-    if (metadata.isSensor && metadata.bindingId != null) {
-      TriggerComponent._deactivateSensorBinding(metadata.entity.engine, metadata.entity.entityUID, metadata.bindingId);
+    if (isRebuilding) {
+      if (metadata.isSensor && metadata.bindingId != null) {
+        TriggerComponent._suspendSensorBinding(metadata.entity.engine, metadata.entity.entityUID, metadata.bindingId);
+      }
+      TriggerComponent._suspendOtherBinding(metadata.entity, metadata.bindingId, handle);
+    } else {
+      if (metadata.isSensor && metadata.bindingId != null) {
+        TriggerComponent._deactivateSensorBinding(
+          metadata.entity.engine,
+          metadata.entity.entityUID,
+          metadata.bindingId
+        );
+      }
+      TriggerComponent._deactivateOtherBinding(metadata.entity, metadata.bindingId, handle);
     }
-    TriggerComponent._deactivateOtherBinding(metadata.entity, metadata.bindingId, handle);
     this.__colliderMetadata.delete(handle);
   }
 
@@ -942,7 +954,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     }
   }
 
-  private __removeBody(): void {
+  private __removeBody(isRebuilding = false): void {
     if (this.__rigidBody == null) {
       return;
     }
@@ -954,7 +966,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
 
     for (const collider of this.__colliders) {
       if (collider.handle != null) {
-        RapierPhysicsStrategy.__unregisterColliderMetadata(collider.handle);
+        RapierPhysicsStrategy.__unregisterColliderMetadata(collider.handle, isRebuilding);
       }
     }
     world.removeRigidBody(this.__rigidBody);

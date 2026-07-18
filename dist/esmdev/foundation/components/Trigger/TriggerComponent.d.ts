@@ -18,6 +18,7 @@ export interface TriggerEvent {
 export declare class TriggerComponent extends Component {
     private static __sensorOwners;
     private static __components;
+    private static __physicsStep;
     private __pubsub;
     private __sensorKeys;
     private __activeOverlaps;
@@ -33,14 +34,23 @@ export declare class TriggerComponent extends Component {
     static _unregisterSensorBinding(engine: Engine, physicsEntityUid: EntityUID, sensorBindingId: number): void;
     /** @internal Called by the Rapier event bridge. */
     static _processOverlap(engine: Engine, sensorEntityUid: EntityUID, sensorBindingId: number, otherEntity: IEntity, otherBindingId: number | undefined, started: boolean, otherColliderHandle?: number): void;
+    /** @internal Starts reconciliation of collider pairs suspended before this physics step. */
+    static _beginPhysicsStep(): void;
+    /** @internal Ends suspended overlaps that were not restored by the current physics step. */
+    static _finalizeRebuiltOverlaps(): void;
     /** @internal Emits one Stay event per active logical overlap after each physics step. */
     static _publishStayEvents(engine?: Engine): void;
-    /** @internal Ends overlaps owned by a sensor collider that is being removed or rebuilt. */
+    /** @internal Temporarily suspends overlaps owned by a sensor collider that is being rebuilt. */
+    static _suspendSensorBinding(engine: Engine, physicsEntityUid: EntityUID, sensorBindingId: number): void;
+    /** @internal Temporarily suspends overlaps in which a collider being rebuilt is the non-owning side. */
+    static _suspendOtherBinding(otherEntity: IEntity, otherBindingId: number | undefined, otherColliderHandle?: number): void;
+    /** @internal Ends overlaps owned by a sensor collider that is being permanently removed. */
     static _deactivateSensorBinding(engine: Engine, physicsEntityUid: EntityUID, sensorBindingId: number): void;
     /** @internal Ends overlaps in which a collider being removed is the non-owning side. */
     static _deactivateOtherBinding(otherEntity: IEntity, otherBindingId: number | undefined, otherColliderHandle?: number): void;
     private __publish;
     private static __sensorKey;
+    private static __matchesOtherBinding;
     _destroy(): void;
     addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): ComponentToComponentMethods<SomeComponentClass> & EntityBase;
 }

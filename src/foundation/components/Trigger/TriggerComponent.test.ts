@@ -38,6 +38,46 @@ describe('TriggerComponent logical overlaps', async () => {
     expect(trigger.activeOverlapCount).toBe(0);
   });
 
+  test('keeps a logical overlap active while its sensor collider is rebuilt', async () => {
+    const rebuildEngine = await Rn.Engine.init({ approach: Rn.ProcessApproach.None });
+    const triggerEntity = rebuildEngine.entityRepository.addComponentToEntity(
+      Rn.TriggerComponent,
+      Rn.createGroupEntity(rebuildEngine)
+    );
+    const otherEntity = Rn.createGroupEntity(rebuildEngine);
+    const trigger = triggerEntity.getTrigger();
+    const events: Rn.TriggerEvent[] = [];
+    trigger.subscribe('enter', event => events.push(event));
+    trigger.subscribe('stay', event => events.push(event));
+    trigger.subscribe('exit', event => events.push(event));
+    trigger._registerSensorBinding(triggerEntity.entityUID, 10);
+
+    Rn.TriggerComponent._processOverlap(rebuildEngine, triggerEntity.entityUID, 10, otherEntity, 20, true, 100);
+    Rn.TriggerComponent._publishStayEvents(rebuildEngine);
+    Rn.TriggerComponent._suspendSensorBinding(rebuildEngine, triggerEntity.entityUID, 10);
+    expect(events.map(event => event.type)).toEqual(['enter']);
+    expect(trigger.activeOverlapCount).toBe(1);
+
+    Rn.TriggerComponent._beginPhysicsStep();
+    Rn.TriggerComponent._processOverlap(rebuildEngine, triggerEntity.entityUID, 10, otherEntity, 20, true, 100);
+    Rn.TriggerComponent._finalizeRebuiltOverlaps();
+    Rn.TriggerComponent._publishStayEvents(rebuildEngine);
+    expect(events.map(event => event.type)).toEqual(['enter', 'stay']);
+
+    Rn.TriggerComponent._suspendSensorBinding(rebuildEngine, triggerEntity.entityUID, 10);
+    Rn.TriggerComponent._beginPhysicsStep();
+    Rn.TriggerComponent._finalizeRebuiltOverlaps();
+    expect(events.map(event => event.type)).toEqual(['enter', 'stay', 'exit']);
+    expect(trigger.activeOverlapCount).toBe(0);
+
+    Rn.TriggerComponent._processOverlap(rebuildEngine, triggerEntity.entityUID, 10, otherEntity, 20, true, 101);
+    Rn.TriggerComponent._suspendSensorBinding(rebuildEngine, triggerEntity.entityUID, 10);
+    Rn.TriggerComponent._deactivateSensorBinding(rebuildEngine, triggerEntity.entityUID, 10);
+    expect(events.map(event => event.type)).toEqual(['enter', 'stay', 'exit', 'enter', 'exit']);
+    expect(trigger.activeOverlapCount).toBe(0);
+    rebuildEngine.entityRepository.removeComponentFromEntity(Rn.TriggerComponent, triggerEntity);
+  });
+
   test('keeps identical binding ids from compound trigger children distinct', () => {
     const triggerEntity = engine.entityRepository.addComponentToEntity(
       Rn.TriggerComponent,

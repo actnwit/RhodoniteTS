@@ -827,6 +827,44 @@ test('RapierPhysicsStrategy configures sensors with collision events and binding
   expect(lastWorld?.colliders[0].activeCollisionTypes).toBe(0xffff);
 });
 
+test('RapierPhysicsStrategy suspends sensor overlaps during rebuilds and deactivates them on removal', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const strategy = new RapierPhysicsStrategy();
+  const { entity } = createSceneGraphEntity();
+  const binding = {
+    bindingId: 42,
+    shape: {
+      shape: { type: 'box' as const, size: Vector3.one() },
+      localPosition: Vector3.zero(),
+      localRotation: Quaternion.identity(),
+    },
+    body: { move: false, density: 1 },
+    collider: { friction: 0, restitution: 0, isSensor: true },
+  };
+  const suspendSensorSpy = vi.spyOn(TriggerComponent, '_suspendSensorBinding');
+  const suspendOtherSpy = vi.spyOn(TriggerComponent, '_suspendOtherBinding');
+  const deactivateSensorSpy = vi.spyOn(TriggerComponent, '_deactivateSensorBinding');
+  const deactivateOtherSpy = vi.spyOn(TriggerComponent, '_deactivateOtherBinding');
+  try {
+    strategy.setShapeInstances([binding], entity);
+    strategy.setShapeInstances([binding], entity);
+
+    expect(suspendSensorSpy).toHaveBeenCalledWith(entity.engine, entity.entityUID, 42);
+    expect(suspendOtherSpy).toHaveBeenCalledWith(entity, 42, 0);
+    expect(deactivateSensorSpy).not.toHaveBeenCalled();
+    expect(deactivateOtherSpy).not.toHaveBeenCalled();
+
+    strategy.clearShapeInstances();
+    expect(deactivateSensorSpy).toHaveBeenCalledWith(entity.engine, entity.entityUID, 42);
+    expect(deactivateOtherSpy).toHaveBeenCalledWith(entity, 42, 1);
+  } finally {
+    suspendSensorSpy.mockRestore();
+    suspendOtherSpy.mockRestore();
+    deactivateSensorSpy.mockRestore();
+    deactivateOtherSpy.mockRestore();
+  }
+});
+
 test('RapierPhysicsStrategy excludes sensors from dynamic body mass properties', async () => {
   await RapierPhysicsStrategy.initialize(createFakeRapier());
   const strategy = new RapierPhysicsStrategy();
