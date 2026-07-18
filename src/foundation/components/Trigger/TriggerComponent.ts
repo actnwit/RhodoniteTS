@@ -37,7 +37,8 @@ type ActiveOverlap = {
 export class TriggerComponent extends Component {
   private static __sensorOwners = new WeakMap<Engine, Map<string, TriggerComponent>>();
   private static __components = new Set<TriggerComponent>();
-  private static __physicsStep = 0;
+  private static __physicsSteps = new WeakMap<Engine, number>();
+  private static __fallbackPhysicsStep = 0;
   private __pubsub = new EventPubSub();
   private __sensorKeys = new Set<string>();
   private __activeOverlaps = new Map<IEntity, ActiveOverlap>();
@@ -155,17 +156,23 @@ export class TriggerComponent extends Component {
   }
 
   /** @internal Starts reconciliation of collider pairs suspended before this physics step. */
-  static _beginPhysicsStep(): void {
-    this.__physicsStep++;
+  static _beginPhysicsStep(engine?: Engine): void {
+    if (engine == null) {
+      this.__fallbackPhysicsStep++;
+      return;
+    }
+    this.__physicsSteps.set(engine, this.__getPhysicsStep(engine) + 1);
   }
 
   /** @internal Ends suspended overlaps that were not restored by the current physics step. */
-  static _finalizeRebuiltOverlaps(): void {
+  static _finalizeRebuiltOverlaps(engine?: Engine): void {
+    const physicsStep = this.__getPhysicsStep(engine);
     for (const trigger of this.__components) {
+      if (engine != null && trigger.entity.engine !== engine) {
+        continue;
+      }
       for (const [otherEntity, overlap] of [...trigger.__activeOverlaps]) {
-        const expired = [...overlap.rebuildingPairs.entries()].filter(
-          ([, pair]) => pair.suspendedAtStep < this.__physicsStep
-        );
+        const expired = [...overlap.rebuildingPairs.entries()].filter(([, pair]) => pair.suspendedAtStep < physicsStep);
         for (const [pairKey] of expired) {
           overlap.rebuildingPairs.delete(pairKey);
         }
@@ -207,7 +214,7 @@ export class TriggerComponent extends Component {
       );
       for (const [pairKey, pair] of suspended) {
         overlap.pairs.delete(pairKey);
-        overlap.rebuildingPairs.set(pairKey, { ...pair, suspendedAtStep: this.__physicsStep });
+        overlap.rebuildingPairs.set(pairKey, { ...pair, suspendedAtStep: this.__getPhysicsStep(engine) });
       }
     }
   }
@@ -228,7 +235,10 @@ export class TriggerComponent extends Component {
       );
       for (const [pairKey, pair] of suspended) {
         overlap.pairs.delete(pairKey);
-        overlap.rebuildingPairs.set(pairKey, { ...pair, suspendedAtStep: this.__physicsStep });
+        overlap.rebuildingPairs.set(pairKey, {
+          ...pair,
+          suspendedAtStep: this.__getPhysicsStep(otherEntity.engine),
+        });
       }
     }
   }
@@ -302,6 +312,10 @@ export class TriggerComponent extends Component {
 
   private static __sensorKey(entityUid: EntityUID, bindingId: number): string {
     return `${entityUid}:${bindingId}`;
+  }
+
+  private static __getPhysicsStep(engine?: Engine): number {
+    return engine == null ? this.__fallbackPhysicsStep : (this.__physicsSteps.get(engine) ?? 0);
   }
 
   private static __matchesOtherBinding(

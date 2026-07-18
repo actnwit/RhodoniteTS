@@ -58,15 +58,21 @@ describe('TriggerComponent logical overlaps', async () => {
     expect(events.map(event => event.type)).toEqual(['enter']);
     expect(trigger.activeOverlapCount).toBe(1);
 
-    Rn.TriggerComponent._beginPhysicsStep();
+    const unrelatedEngine = {} as Rn.Engine;
+    Rn.TriggerComponent._beginPhysicsStep(unrelatedEngine);
+    Rn.TriggerComponent._finalizeRebuiltOverlaps(unrelatedEngine);
+    expect(events.map(event => event.type)).toEqual(['enter']);
+    expect(trigger.activeOverlapCount).toBe(1);
+
+    Rn.TriggerComponent._beginPhysicsStep(rebuildEngine);
     Rn.TriggerComponent._processOverlap(rebuildEngine, triggerEntity.entityUID, 10, otherEntity, 20, true, 100);
-    Rn.TriggerComponent._finalizeRebuiltOverlaps();
+    Rn.TriggerComponent._finalizeRebuiltOverlaps(rebuildEngine);
     Rn.TriggerComponent._publishStayEvents(rebuildEngine);
     expect(events.map(event => event.type)).toEqual(['enter', 'stay']);
 
     Rn.TriggerComponent._suspendSensorBinding(rebuildEngine, triggerEntity.entityUID, 10);
-    Rn.TriggerComponent._beginPhysicsStep();
-    Rn.TriggerComponent._finalizeRebuiltOverlaps();
+    Rn.TriggerComponent._beginPhysicsStep(rebuildEngine);
+    Rn.TriggerComponent._finalizeRebuiltOverlaps(rebuildEngine);
     expect(events.map(event => event.type)).toEqual(['enter', 'stay', 'exit']);
     expect(trigger.activeOverlapCount).toBe(0);
 

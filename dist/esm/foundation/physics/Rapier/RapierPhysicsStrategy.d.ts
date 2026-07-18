@@ -91,6 +91,7 @@ export type RapierCharacterCollisionLike = {
     normal1: RapierVector3Like;
 };
 export type RapierWorldLike = {
+    free?(): void;
     step(eventQueue?: RapierEventQueueLike): void;
     createRigidBody(desc: RapierRigidBodyDescLike): RapierRigidBodyLike;
     createCollider(desc: RapierColliderDescLike, rigidBody?: RapierRigidBodyLike): RapierColliderLike;
@@ -145,11 +146,9 @@ export type RapierPhysicsModuleLike = {
 export declare class RapierPhysicsStrategy implements PhysicsStrategy {
     static __worldProperty: PhysicsWorldProperty;
     private static __rapier?;
-    private static __world?;
+    private static __defaultWorldState?;
+    private static __worldStates;
     private static __stepParticipants;
-    private static __lastFrameId?;
-    private static __eventQueue?;
-    private static __colliderMetadata;
     private __rigidBody?;
     private __colliders;
     private __entity?;
@@ -162,8 +161,9 @@ export declare class RapierPhysicsStrategy implements PhysicsStrategy {
     private __shapeWorldScale;
     private __warnedAsymmetricRadius;
     private __warnedNonUniformScale;
+    private __warnedShearedBoxApproximation;
     /**
-     * Injects Rapier.js bindings and creates the shared physics world.
+     * Injects Rapier.js bindings. Physics worlds are created lazily per Engine.
      * @param rapierModule - Rapier module or compat module default export
      * @param worldProperty - Optional world settings
      */
@@ -209,26 +209,26 @@ export declare class RapierPhysicsStrategy implements PhysicsStrategy {
     setScale(worldScale: IVector3): void;
     private __createScaledSize;
     private __isValidSize;
-    /**
-     * Advances the shared Rapier physics world by one step.
-     */
+    /** Advances one Engine's Rapier world, or every initialized Engine world when omitted. */
     static update(frameId?: number, deltaTime?: number, engine?: Engine): void;
     /** @internal Registers colliders created outside PhysicsComponent, such as a character controller. */
     static _registerExternalCollider(collider: RapierColliderLike, entity: ISceneGraphEntity): void;
     /** @internal */
-    static _unregisterExternalCollider(collider: RapierColliderLike | undefined): void;
+    static _unregisterExternalCollider(collider: RapierColliderLike | undefined, engine?: Engine): void;
     private static __unregisterColliderMetadata;
     private static __drainCollisionEvents;
     /** @internal */
     static _registerStepParticipant(participant: RapierStepParticipant, engine: Engine): void;
     /** @internal */
     static _unregisterStepParticipant(participant: RapierStepParticipant): void;
+    /** @internal Releases the Rapier world owned by a destroyed Engine. */
+    static _cleanupForEngine(engine: Engine): void;
     /** @internal */
     static _getRapier(): RapierPhysicsModuleLike;
     /** @internal */
-    static _getWorld(): RapierWorldLike;
+    static _getWorld(engine?: Engine): RapierWorldLike;
     /** @internal */
-    static _getColliderMetadata(collider: RapierColliderLike): RapierColliderMetadata | undefined;
+    static _getColliderMetadata(collider: RapierColliderLike, engine?: Engine): RapierColliderMetadata | undefined;
     /** @internal */
     static _packCollisionGroups(group: number, mask: number): number;
     private __createBody;
@@ -239,6 +239,7 @@ export declare class RapierPhysicsStrategy implements PhysicsStrategy {
     private __createShapeInstanceColliderDesc;
     private static __packCollisionGroups;
     private __getScaledVolume;
+    private __resolveBoxCollider;
     private static __copyMotion;
     private __getApproximatedRadius;
     private __warnNonUniformScaleIfNeeded;
@@ -247,6 +248,9 @@ export declare class RapierPhysicsStrategy implements PhysicsStrategy {
     private static __assertInitialized;
     private static __getRapier;
     private static __getWorld;
+    private static __getWorldState;
+    private static __createWorldState;
+    private static __disposeWorldState;
     private static __eulerToQuaternion;
     private static __toRapierQuaternion;
 }

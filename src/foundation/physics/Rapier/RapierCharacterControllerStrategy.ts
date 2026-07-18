@@ -70,7 +70,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
   private __enabled = true;
   private __groundContact?: CharacterGroundContact;
   private __capsuleBottomOffset = Vector3.zero();
-  private readonly __worldQuery = new PhysicsWorldQuery(new RapierPhysicsWorldQueryStrategy());
+  private __worldQuery?: PhysicsWorldQuery;
   private __stuckFrameCount = 0;
   private __isRecovering = false;
   private __motionState: CharacterMotionState = initialMotionState;
@@ -97,7 +97,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     this.__validateOptions(resolvedOptions);
 
     const rapier = RapierPhysicsStrategy._getRapier();
-    const world = RapierPhysicsStrategy._getWorld();
+    const world = RapierPhysicsStrategy._getWorld(entity.engine);
     if (rapier.RigidBodyDesc.kinematicPositionBased == null || rapier.ColliderDesc.capsule == null) {
       throw new Error('The injected Rapier module does not support kinematic capsule bodies.');
     }
@@ -170,6 +170,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
       });
 
     this.__entity = entity;
+    this.__worldQuery = new PhysicsWorldQuery(new RapierPhysicsWorldQueryStrategy(entity.engine));
     this.__options = resolvedOptions;
     this.__capsuleBottomOffset = capsuleBottomOffset;
     this.__rigidBody = world.createRigidBody(rigidBodyDesc);
@@ -331,8 +332,9 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
 
   destroy(): void {
     RapierPhysicsStrategy._unregisterStepParticipant(this);
-    RapierPhysicsStrategy._unregisterExternalCollider(this.__collider);
-    const world = RapierPhysicsStrategy._getWorld();
+    const engine = this.__entity?.engine;
+    RapierPhysicsStrategy._unregisterExternalCollider(this.__collider, engine);
+    const world = RapierPhysicsStrategy._getWorld(engine);
     if (this.__controller != null) {
       world.removeCharacterController?.(this.__controller);
     }
@@ -343,6 +345,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     this.__collider = undefined;
     this.__rigidBody = undefined;
     this.__entity = undefined;
+    this.__worldQuery = undefined;
     this.__groundContact = undefined;
     this.__stuckFrameCount = 0;
     this.__isRecovering = false;
@@ -447,7 +450,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
       capsuleBottom,
       Vector3.fromCopy3(0, this.__options.groundProbeRadius + this.__options.groundProbeStartOffset, 0)
     );
-    const hit = this.__worldQuery.castSphere(
+    const hit = this.__worldQuery?.castSphere(
       start,
       this.__options.groundProbeRadius,
       Vector3.fromCopy3(0, -1, 0),

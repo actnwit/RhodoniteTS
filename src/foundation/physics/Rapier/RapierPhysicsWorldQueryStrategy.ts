@@ -1,4 +1,5 @@
 import { type IVector3, Vector3 } from '../../math';
+import type { Engine } from '../../system/Engine';
 import type {
   PhysicsRaycastHit,
   PhysicsShapeCastHit,
@@ -8,8 +9,10 @@ import type {
 } from '../PhysicsWorldQuery';
 import { type RapierColliderLike, RapierPhysicsStrategy } from './RapierPhysicsStrategy';
 
-/** Physics scene queries backed by the shared Rapier world. */
+/** Physics scene queries backed by one Engine's Rapier world. */
 export class RapierPhysicsWorldQueryStrategy implements PhysicsWorldQueryStrategy {
+  constructor(private readonly __engine?: Engine) {}
+
   castRay(
     origin: IVector3,
     normalizedDirection: IVector3,
@@ -17,7 +20,7 @@ export class RapierPhysicsWorldQueryStrategy implements PhysicsWorldQueryStrateg
     options: ResolvedPhysicsRaycastOptions
   ): PhysicsRaycastHit | undefined {
     const rapier = RapierPhysicsStrategy._getRapier();
-    const world = RapierPhysicsStrategy._getWorld();
+    const world = RapierPhysicsStrategy._getWorld(this.__engine);
     if (rapier.Ray == null || world.castRayAndGetNormal == null) {
       throw new Error('The injected Rapier module does not support ray casting.');
     }
@@ -36,7 +39,7 @@ export class RapierPhysicsWorldQueryStrategy implements PhysicsWorldQueryStrateg
     if (hit == null) {
       return undefined;
     }
-    const metadata = RapierPhysicsStrategy._getColliderMetadata(hit.collider);
+    const metadata = RapierPhysicsStrategy._getColliderMetadata(hit.collider, this.__engine);
     if (metadata == null) {
       return undefined;
     }
@@ -58,7 +61,7 @@ export class RapierPhysicsWorldQueryStrategy implements PhysicsWorldQueryStrateg
     options: ResolvedPhysicsShapeCastOptions
   ): PhysicsShapeCastHit | undefined {
     const rapier = RapierPhysicsStrategy._getRapier();
-    const world = RapierPhysicsStrategy._getWorld();
+    const world = RapierPhysicsStrategy._getWorld(this.__engine);
     if (rapier.Ball == null || world.castShape == null) {
       throw new Error('The injected Rapier module does not support sphere casting.');
     }
@@ -79,7 +82,7 @@ export class RapierPhysicsWorldQueryStrategy implements PhysicsWorldQueryStrateg
     if (hit == null) {
       return undefined;
     }
-    const metadata = RapierPhysicsStrategy._getColliderMetadata(hit.collider);
+    const metadata = RapierPhysicsStrategy._getColliderMetadata(hit.collider, this.__engine);
     if (metadata == null) {
       return undefined;
     }
@@ -98,7 +101,7 @@ export class RapierPhysicsWorldQueryStrategy implements PhysicsWorldQueryStrateg
   private __createPredicate(options: ResolvedPhysicsRaycastOptions): (collider: RapierColliderLike) => boolean {
     const excludedEntities = new Set(options.excludeEntities);
     return collider => {
-      const metadata = RapierPhysicsStrategy._getColliderMetadata(collider);
+      const metadata = RapierPhysicsStrategy._getColliderMetadata(collider, this.__engine);
       if (metadata == null || excludedEntities.has(metadata.entity)) {
         return false;
       }

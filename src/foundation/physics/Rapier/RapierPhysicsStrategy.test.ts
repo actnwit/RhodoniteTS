@@ -3,6 +3,7 @@ import type { Config } from '../../core/Config';
 import { PhysicsShape } from '../../definitions/PhysicsShapeType';
 import type { ISceneGraphEntity } from '../../helpers';
 import { Quaternion, Vector3 } from '../../math';
+import { Logger } from '../../misc/Logger';
 import type { Engine } from '../../system/Engine';
 import type { PhysicsPropertyInner } from '../PhysicsProperty';
 import { PhysicsWorldQuery } from '../PhysicsWorldQuery';
@@ -209,6 +210,9 @@ class FakeRigidBody {
 class FakeWorld {
   bodies: FakeRigidBody[] = [];
   colliders: FakeColliderDesc[] = [];
+  eventQueue?: FakeEventQueue;
+  stepCount = 0;
+  freed = false;
   removedBodies = 0;
   lastRaycast?: { maxToi: number; solid: boolean; filterFlags?: number; filterGroups?: number };
   lastSpherecast?: { targetDistance: number; maxToi: number; stopAtPenetration: boolean; filterFlags?: number };
@@ -218,6 +222,7 @@ class FakeWorld {
   }
 
   step(): void {
+    this.stepCount++;
     for (const body of this.bodies) {
       body.translationValue = {
         x: body.translationValue.x,
@@ -225,6 +230,10 @@ class FakeWorld {
         z: body.translationValue.z,
       };
     }
+  }
+
+  free(): void {
+    this.freed = true;
   }
 
   createRigidBody(desc: FakeRigidBodyDesc): FakeRigidBody {
@@ -289,13 +298,14 @@ class FakeWorld {
 }
 
 let lastWorld: FakeWorld | undefined;
-let lastEventQueue: FakeEventQueue | undefined;
 
 class FakeEventQueue {
   private __events: Array<[number, number, boolean]> = [];
 
   constructor(_autoDrain: boolean) {
-    lastEventQueue = this;
+    if (lastWorld != null) {
+      lastWorld.eventQueue = this;
+    }
   }
 
   emit(handle1: number, handle2: number, started: boolean): void {
@@ -402,9 +412,10 @@ test('RapierPhysicsStrategy initializes from an externally injected module', asy
 
   expect(initCalled).toBe(true);
   expect(RapierPhysicsStrategy.isInitialized).toBe(true);
-  expect(lastWorld?.gravity.x).toBe(0);
-  expect(lastWorld?.gravity.y).toBeCloseTo(-9.8);
-  expect(lastWorld?.gravity.z).toBe(0);
+  const world = RapierPhysicsStrategy._getWorld() as FakeWorld;
+  expect(world.gravity.x).toBe(0);
+  expect(world.gravity.y).toBeCloseTo(-9.8);
+  expect(world.gravity.z).toBe(0);
 });
 
 test('RapierPhysicsStrategy syncs Rapier body transforms to the scene graph entity', async () => {
@@ -455,6 +466,47 @@ test('RapierPhysicsStrategy scopes step participants to the processed engine', a
   expect(secondParticipant.preStep).toHaveBeenCalledOnce();
   expect(secondParticipant.preStep).toHaveBeenCalledWith(0.5);
   expect(secondParticipant.postStep).toHaveBeenCalledOnce();
+});
+
+test('RapierPhysicsStrategy creates and advances an independent world for each Engine', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const firstEngine = {} as Engine;
+  const secondEngine = {} as Engine;
+  const firstStrategy = new RapierPhysicsStrategy();
+  const secondStrategy = new RapierPhysicsStrategy();
+  firstStrategy.setShape(createPhysicsProperty(), createSceneGraphEntity(100, firstEngine).entity);
+  secondStrategy.setShape(createPhysicsProperty(), createSceneGraphEntity(100, secondEngine).entity);
+  const firstWorld = RapierPhysicsStrategy._getWorld(firstEngine) as FakeWorld;
+  const secondWorld = RapierPhysicsStrategy._getWorld(secondEngine) as FakeWorld;
+
+  expect(firstWorld).not.toBe(secondWorld);
+  expect(firstWorld.bodies).toHaveLength(1);
+  expect(secondWorld.bodies).toHaveLength(1);
+
+  RapierPhysicsStrategy.update(1, 1 / 60, firstEngine);
+  expect(firstWorld.stepCount).toBe(1);
+  expect(firstWorld.bodies[0].translation().y).toBe(2);
+  expect(secondWorld.stepCount).toBe(0);
+  expect(secondWorld.bodies[0].translation().y).toBe(3);
+
+  RapierPhysicsStrategy.update(2, 1 / 60, secondEngine);
+  expect(firstWorld.stepCount).toBe(1);
+  expect(firstWorld.bodies[0].translation().y).toBe(2);
+  expect(secondWorld.stepCount).toBe(1);
+  expect(secondWorld.bodies[0].translation().y).toBe(2);
+});
+
+test('RapierPhysicsStrategy releases an Engine world during cleanup', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const engine = {} as Engine;
+  const strategy = new RapierPhysicsStrategy();
+  strategy.setShape(createPhysicsProperty(), createSceneGraphEntity(200, engine).entity);
+  const originalWorld = RapierPhysicsStrategy._getWorld(engine) as FakeWorld;
+
+  RapierPhysicsStrategy._cleanupForEngine(engine);
+
+  expect(originalWorld.freed).toBe(true);
+  expect(RapierPhysicsStrategy._getWorld(engine)).not.toBe(originalWorld);
 });
 
 test('RapierPhysicsWorldQueryStrategy resolves hits through collider metadata and filters', async () => {
@@ -523,6 +575,23 @@ test('RapierPhysicsWorldQueryStrategy distinguishes exclusion targets with ident
   expect(colliderFilteredHit?.entity).toBe(candidateEntity);
 });
 
+test('RapierPhysicsWorldQueryStrategy queries only the selected Engine world', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const firstEngine = {} as Engine;
+  const secondEngine = {} as Engine;
+  const firstStrategy = new RapierPhysicsStrategy();
+  const secondStrategy = new RapierPhysicsStrategy();
+  const { entity: firstEntity } = createSceneGraphEntity(77, firstEngine);
+  const { entity: secondEntity } = createSceneGraphEntity(77, secondEngine);
+  firstStrategy.setShape(createPhysicsProperty(), firstEntity);
+  secondStrategy.setShape(createPhysicsProperty(), secondEntity);
+  const firstQuery = new PhysicsWorldQuery(new RapierPhysicsWorldQueryStrategy(firstEngine));
+  const secondQuery = new PhysicsWorldQuery(new RapierPhysicsWorldQueryStrategy(secondEngine));
+
+  expect(firstQuery.castRay(Vector3.zero(), Vector3.fromCopy3(0, -1, 0), 5)?.entity).toBe(firstEntity);
+  expect(secondQuery.castRay(Vector3.zero(), Vector3.fromCopy3(0, -1, 0), 5)?.entity).toBe(secondEntity);
+});
+
 test('RapierPhysicsStrategy recreates the collider when scale changes', async () => {
   await RapierPhysicsStrategy.initialize(createFakeRapier());
   const strategy = new RapierPhysicsStrategy();
@@ -582,6 +651,68 @@ test('RapierPhysicsStrategy consumes a generic shape instance with a local trans
 
   expect(lastWorld?.colliders[0]?.size).toEqual([2, 6, 12]);
   expect(lastWorld?.colliders[0]?.translation).toEqual({ x: 2, y: 6, z: 12 });
+});
+
+test('RapierPhysicsStrategy applies non-uniform scale along a rotated box local axes', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const strategy = new RapierPhysicsStrategy();
+  const { entity } = createSceneGraphEntity();
+  const localRotation = Quaternion.fromAxisAngle(Vector3.fromCopy3(0, 0, 1), Math.PI / 2);
+
+  strategy.setShapeInstance(
+    {
+      shape: { type: 'box', size: Vector3.fromCopy3(2, 4, 6) },
+      localPosition: Vector3.zero(),
+      localRotation,
+    },
+    { move: false, density: 1 },
+    { friction: 0.5, restitution: 0 },
+    entity,
+    Vector3.fromCopy3(2, 1, 1)
+  );
+
+  const collider = lastWorld!.colliders[0];
+  expect(collider.size[0]).toBeCloseTo(1);
+  expect(collider.size[1]).toBeCloseTo(4);
+  expect(collider.size[2]).toBeCloseTo(3);
+  const resolvedRotation = Quaternion.fromCopy4(
+    collider.rotation.x,
+    collider.rotation.y,
+    collider.rotation.z,
+    collider.rotation.w
+  );
+  const resolvedXAxis = resolvedRotation.transformVector3(Vector3.fromCopy3(1, 0, 0));
+  expect(resolvedXAxis.x).toBeCloseTo(0);
+  expect(resolvedXAxis.y).toBeCloseTo(1);
+});
+
+test('RapierPhysicsStrategy warns and conservatively encloses a sheared box transform', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const strategy = new RapierPhysicsStrategy();
+  const { entity } = createSceneGraphEntity();
+  const warnSpy = vi.spyOn(Logger.default, 'warn').mockImplementation(() => undefined);
+  try {
+    strategy.setShapeInstance(
+      {
+        shape: { type: 'box', size: Vector3.fromCopy3(2, 2, 2) },
+        localPosition: Vector3.zero(),
+        localRotation: Quaternion.fromAxisAngle(Vector3.fromCopy3(0, 0, 1), Math.PI / 4),
+      },
+      { move: false, density: 1 },
+      { friction: 0.5, restitution: 0 },
+      entity,
+      Vector3.fromCopy3(2, 1, 1)
+    );
+
+    const collider = lastWorld!.colliders[0];
+    expect(collider.size[0]).toBeCloseTo(2 * Math.SQRT2);
+    expect(collider.size[1]).toBeCloseTo(Math.SQRT2);
+    expect(collider.size[2]).toBeCloseTo(1);
+    expect(collider.rotation).toEqual({ x: 0, y: 0, z: 0, w: 1 });
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('axis-aligned box'));
+  } finally {
+    warnSpy.mockRestore();
+  }
 });
 
 test('RapierPhysicsStrategy converts cylinder and capsule shapes conservatively', async () => {
@@ -1004,7 +1135,7 @@ test('RapierPhysicsStrategy applies explicit mass to a dynamic body containing o
   expect(body.additionalMassProperties?.mass).toBe(10);
 });
 
-test('RapierPhysicsStrategy ignores collision events between different engines', async () => {
+test('RapierPhysicsStrategy isolates collision events and collider handles between Engine worlds', async () => {
   await RapierPhysicsStrategy.initialize(createFakeRapier());
   const firstEngine = {} as Engine;
   const secondEngine = {} as Engine;
@@ -1042,14 +1173,20 @@ test('RapierPhysicsStrategy ignores collision events between different engines',
 
   const processOverlapSpy = vi.spyOn(TriggerComponent, '_processOverlap');
   try {
-    lastEventQueue?.emit(0, 1, true);
-    RapierPhysicsStrategy.update();
+    const firstWorld = RapierPhysicsStrategy._getWorld(firstEngine) as FakeWorld;
+    const secondWorld = RapierPhysicsStrategy._getWorld(secondEngine) as FakeWorld;
+    expect(firstWorld).not.toBe(secondWorld);
+    expect(firstWorld.colliders).toHaveLength(2);
+    expect(secondWorld.colliders).toHaveLength(1);
+
+    secondWorld.eventQueue?.emit(0, 0, true);
+    RapierPhysicsStrategy.update(1, 1 / 60, secondEngine);
     expect(processOverlapSpy).not.toHaveBeenCalled();
 
-    lastEventQueue?.emit(0, 2, true);
-    RapierPhysicsStrategy.update();
+    firstWorld.eventQueue?.emit(0, 1, true);
+    RapierPhysicsStrategy.update(2, 1 / 60, firstEngine);
     expect(processOverlapSpy).toHaveBeenCalledTimes(1);
-    expect(processOverlapSpy).toHaveBeenCalledWith(firstEngine, 1001, 42, sameEngineEntity, undefined, true, 2);
+    expect(processOverlapSpy).toHaveBeenCalledWith(firstEngine, 1001, 42, sameEngineEntity, undefined, true, 1);
   } finally {
     processOverlapSpy.mockRestore();
   }
