@@ -402,6 +402,11 @@ function createPhysicsProperty(type = PhysicsShape.Box): PhysicsPropertyInner {
   };
 }
 
+test('RapierPhysicsStrategy update is a no-op before initialization', () => {
+  expect(RapierPhysicsStrategy.isInitialized).toBe(false);
+  expect(() => RapierPhysicsStrategy.update(1, 1 / 60, {} as Engine)).not.toThrow();
+});
+
 test('RapierPhysicsStrategy initializes from an externally injected module', async () => {
   let initCalled = false;
   await RapierPhysicsStrategy.initialize(

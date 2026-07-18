@@ -566,6 +566,9 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
 
   /** Advances one Engine's Rapier world, or every initialized Engine world when omitted. */
   static update(frameId?: number, deltaTime = 1 / 60, engine?: Engine): void {
+    if (!RapierPhysicsStrategy.isInitialized) {
+      return;
+    }
     const states =
       engine != null
         ? [RapierPhysicsStrategy.__getWorldState(engine)]

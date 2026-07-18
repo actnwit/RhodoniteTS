@@ -18,7 +18,7 @@ export declare class RapierCharacterControllerStrategy implements CharacterContr
     private __enabled;
     private __groundContact?;
     private __capsuleBottomOffset;
-    private readonly __worldQuery;
+    private __worldQuery?;
     private __stuckFrameCount;
     private __isRecovering;
     private __motionState;
