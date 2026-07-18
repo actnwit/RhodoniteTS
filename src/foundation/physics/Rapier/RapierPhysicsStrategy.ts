@@ -478,9 +478,16 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       return;
     }
 
+    const isKinematic = this.__isKinematicBody();
     const position = this.__rigidBody?.translation() ?? this.__property.position;
     const rotation =
       this.__rigidBody?.rotation() ?? RapierPhysicsStrategy.__eulerToQuaternion(this.__property.rotation);
+    const nextKinematicPosition = isKinematic
+      ? Vector3.fromCopy3(this.__property.position.x, this.__property.position.y, this.__property.position.z)
+      : undefined;
+    const nextKinematicRotation = isKinematic
+      ? RapierPhysicsStrategy.__eulerToQuaternion(this.__property.rotation)
+      : undefined;
     this.__shapeWorldScale = Vector3.fromCopy3(Math.abs(worldScale.x), Math.abs(worldScale.y), Math.abs(worldScale.z));
     const scaledSize = this.__createScaledSize(worldScale);
 
@@ -500,6 +507,10 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       Vector3.fromCopy3(position.x, position.y, position.z),
       Quaternion.fromCopy4(rotation.x, rotation.y, rotation.z, rotation.w)
     );
+    if (nextKinematicPosition != null && nextKinematicRotation != null) {
+      this.setPosition(nextKinematicPosition);
+      this.setRotation(nextKinematicRotation);
+    }
   }
 
   private __createScaledSize(worldScale: IVector3): Vector3 {
@@ -566,7 +577,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     if (metadata.isSensor && metadata.bindingId != null) {
       TriggerComponent._deactivateSensorBinding(metadata.entity.engine, metadata.entity.entityUID, metadata.bindingId);
     }
-    TriggerComponent._deactivateOtherBinding(metadata.entity, metadata.bindingId);
+    TriggerComponent._deactivateOtherBinding(metadata.entity, metadata.bindingId, handle);
     this.__colliderMetadata.delete(handle);
   }
 
@@ -574,7 +585,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     this.__eventQueue?.drainCollisionEvents((handle1, handle2, started) => {
       const first = this.__colliderMetadata.get(handle1);
       const second = this.__colliderMetadata.get(handle2);
-      if (first == null || second == null) {
+      if (first == null || second == null || first.entity.engine !== second.entity.engine) {
         return;
       }
       if (first.isSensor && first.bindingId != null) {
@@ -584,7 +595,8 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
           first.bindingId,
           second.entity,
           second.bindingId,
-          started
+          started,
+          handle2
         );
       }
       if (second.isSensor && second.bindingId != null) {
@@ -594,7 +606,8 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
           second.bindingId,
           first.entity,
           first.bindingId,
-          started
+          started,
+          handle1
         );
       }
     });

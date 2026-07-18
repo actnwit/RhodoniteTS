@@ -93,6 +93,31 @@ describe('TriggerComponent logical overlaps', async () => {
     engine.entityRepository.removeComponentFromEntity(Rn.TriggerComponent, triggerEntity);
   });
 
+  test('tracks bindingless colliders by their Rapier handles', () => {
+    const triggerEntity = engine.entityRepository.addComponentToEntity(
+      Rn.TriggerComponent,
+      Rn.createGroupEntity(engine)
+    );
+    const otherEntity = Rn.createGroupEntity(engine);
+    const trigger = triggerEntity.getTrigger();
+    const events: Rn.TriggerEvent[] = [];
+    trigger.subscribe('enter', event => events.push(event));
+    trigger.subscribe('exit', event => events.push(event));
+    trigger._registerSensorBinding(triggerEntity.entityUID, 13);
+
+    Rn.TriggerComponent._processOverlap(engine, triggerEntity.entityUID, 13, otherEntity, undefined, true, 100);
+    Rn.TriggerComponent._processOverlap(engine, triggerEntity.entityUID, 13, otherEntity, undefined, true, 101);
+    Rn.TriggerComponent._deactivateOtherBinding(otherEntity, undefined, 100);
+
+    expect(trigger.activeOverlapCount).toBe(1);
+    expect(events.map(event => event.type)).toEqual(['enter']);
+
+    Rn.TriggerComponent._deactivateOtherBinding(otherEntity, undefined, 101);
+    expect(trigger.activeOverlapCount).toBe(0);
+    expect(events.map(event => event.type)).toEqual(['enter', 'exit']);
+    engine.entityRepository.removeComponentFromEntity(Rn.TriggerComponent, triggerEntity);
+  });
+
   test('isolates identical sensor ownership keys across engines', async () => {
     const firstEngine = await Rn.Engine.init({ approach: Rn.ProcessApproach.None });
     const secondEngine = await Rn.Engine.init({ approach: Rn.ProcessApproach.None });

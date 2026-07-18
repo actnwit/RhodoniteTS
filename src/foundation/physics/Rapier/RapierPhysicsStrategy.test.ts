@@ -3,6 +3,7 @@ import type { Config } from '../../core/Config';
 import { PhysicsShape } from '../../definitions/PhysicsShapeType';
 import type { ISceneGraphEntity } from '../../helpers';
 import { Quaternion, Vector3 } from '../../math';
+import type { Engine } from '../../system/Engine';
 import type { PhysicsPropertyInner } from '../PhysicsProperty';
 import { PhysicsWorldQuery } from '../PhysicsWorldQuery';
 import { type RapierPhysicsModuleLike, RapierPhysicsStrategy } from './RapierPhysicsStrategy';
@@ -280,9 +281,24 @@ class FakeWorld {
 }
 
 let lastWorld: FakeWorld | undefined;
+let lastEventQueue: FakeEventQueue | undefined;
 
 class FakeEventQueue {
-  drainCollisionEvents(_callback: (handle1: number, handle2: number, started: boolean) => void): void {}
+  private __events: Array<[number, number, boolean]> = [];
+
+  constructor(_autoDrain: boolean) {
+    lastEventQueue = this;
+  }
+
+  emit(handle1: number, handle2: number, started: boolean): void {
+    this.__events.push([handle1, handle2, started]);
+  }
+
+  drainCollisionEvents(callback: (handle1: number, handle2: number, started: boolean) => void): void {
+    for (const [handle1, handle2, started] of this.__events.splice(0)) {
+      callback(handle1, handle2, started);
+    }
+  }
 }
 
 class FakeRay {
@@ -322,7 +338,9 @@ function createFakeRapier(onInit?: () => void): RapierPhysicsModuleLike {
   };
 }
 
-function createSceneGraphEntity(entityUID = nextEntityUID++) {
+const defaultEngine = {} as Engine;
+
+function createSceneGraphEntity(entityUID = nextEntityUID++, engine = defaultEngine) {
   const state = {
     position: Vector3.zero(),
     rotation: Quaternion.identity(),
@@ -330,6 +348,7 @@ function createSceneGraphEntity(entityUID = nextEntityUID++) {
 
   return {
     entity: {
+      engine,
       entityUID,
       getSceneGraph: () => ({
         get position() {
@@ -652,6 +671,18 @@ test('RapierPhysicsStrategy creates a position-based kinematic compound body', a
   expect(body?.nextRotationValue?.y).toBeCloseTo(nextRotation.y);
   expect(body?.nextRotationValue?.z).toBeCloseTo(nextRotation.z);
   expect(body?.nextRotationValue?.w).toBeCloseTo(nextRotation.w);
+
+  strategy.setScale(Vector3.fromCopy3(2, 3, 4));
+
+  const rebuiltBody = lastWorld?.bodies[0];
+  expect(rebuiltBody).not.toBe(body);
+  expect(rebuiltBody?.translationValue).toEqual({ x: 0, y: 0, z: 0 });
+  expect(rebuiltBody?.nextTranslationValue).toEqual({ x: 2, y: 3, z: 4 });
+  expect(rebuiltBody?.rotationValue).toEqual({ x: 0, y: 0, z: 0, w: 1 });
+  expect(rebuiltBody?.nextRotationValue?.x).toBeCloseTo(nextRotation.x);
+  expect(rebuiltBody?.nextRotationValue?.y).toBeCloseTo(nextRotation.y);
+  expect(rebuiltBody?.nextRotationValue?.z).toBeCloseTo(nextRotation.z);
+  expect(rebuiltBody?.nextRotationValue?.w).toBeCloseTo(nextRotation.w);
 });
 
 test('RapierPhysicsStrategy applies explicit total mass, local velocities, and gravity factor', async () => {
@@ -784,6 +815,57 @@ test('RapierPhysicsStrategy configures sensors with collision events and binding
   expect(lastWorld?.colliders[0].activeCollisionTypes).toBe(0xffff);
 });
 
+test('RapierPhysicsStrategy ignores collision events between different engines', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const firstEngine = {} as Engine;
+  const secondEngine = {} as Engine;
+  const sensorStrategy = new RapierPhysicsStrategy();
+  const crossEngineStrategy = new RapierPhysicsStrategy();
+  const sameEngineStrategy = new RapierPhysicsStrategy();
+  const { entity: sensorEntity } = createSceneGraphEntity(1001, firstEngine);
+  const { entity: crossEngineEntity } = createSceneGraphEntity(1002, secondEngine);
+  const { entity: sameEngineEntity } = createSceneGraphEntity(1003, firstEngine);
+  const shape = {
+    shape: { type: 'box' as const, size: Vector3.one() },
+    localPosition: Vector3.zero(),
+    localRotation: Quaternion.identity(),
+  };
+
+  sensorStrategy.setShapeInstances(
+    [
+      {
+        bindingId: 42,
+        shape,
+        body: { move: false, density: 1 },
+        collider: { friction: 0, restitution: 0, isSensor: true },
+      },
+    ],
+    sensorEntity
+  );
+  crossEngineStrategy.setShapeInstances(
+    [{ shape, body: { move: false, density: 1 }, collider: { friction: 0, restitution: 0 } }],
+    crossEngineEntity
+  );
+  sameEngineStrategy.setShapeInstances(
+    [{ shape, body: { move: false, density: 1 }, collider: { friction: 0, restitution: 0 } }],
+    sameEngineEntity
+  );
+
+  const processOverlapSpy = vi.spyOn(TriggerComponent, '_processOverlap');
+  try {
+    lastEventQueue?.emit(0, 1, true);
+    RapierPhysicsStrategy.update();
+    expect(processOverlapSpy).not.toHaveBeenCalled();
+
+    lastEventQueue?.emit(0, 2, true);
+    RapierPhysicsStrategy.update();
+    expect(processOverlapSpy).toHaveBeenCalledTimes(1);
+    expect(processOverlapSpy).toHaveBeenCalledWith(firstEngine, 1001, 42, sameEngineEntity, undefined, true, 2);
+  } finally {
+    processOverlapSpy.mockRestore();
+  }
+});
+
 test('RapierPhysicsStrategy deactivates overlaps when a non-sensor collider is removed', async () => {
   await RapierPhysicsStrategy.initialize(createFakeRapier());
   const strategy = new RapierPhysicsStrategy();
@@ -809,7 +891,7 @@ test('RapierPhysicsStrategy deactivates overlaps when a non-sensor collider is r
     strategy.clearShapeInstances();
 
     expect(deactivateSpy).toHaveBeenCalledTimes(1);
-    expect(deactivateSpy).toHaveBeenCalledWith(entity, 42);
+    expect(deactivateSpy).toHaveBeenCalledWith(entity, 42, 0);
   } finally {
     deactivateSpy.mockRestore();
   }

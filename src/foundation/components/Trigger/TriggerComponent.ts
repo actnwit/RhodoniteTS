@@ -21,7 +21,15 @@ export interface TriggerEvent {
 
 type ActiveOverlap = {
   otherEntity: IEntity;
-  pairs: Map<string, { sensorEntityUid: EntityUID; sensorBindingId: number; otherBindingId?: number }>;
+  pairs: Map<
+    string,
+    {
+      sensorEntityUid: EntityUID;
+      sensorBindingId: number;
+      otherBindingId?: number;
+      otherColliderHandle?: number;
+    }
+  >;
   enteredThisStep: boolean;
 };
 
@@ -107,13 +115,16 @@ export class TriggerComponent extends Component {
     sensorBindingId: number,
     otherEntity: IEntity,
     otherBindingId: number | undefined,
-    started: boolean
+    started: boolean,
+    otherColliderHandle?: number
   ): void {
     const trigger = this.__sensorOwners.get(engine)?.get(this.__sensorKey(sensorEntityUid, sensorBindingId));
     if (trigger == null || otherEntity === trigger.entity) {
       return;
     }
-    const pairKey = `${sensorEntityUid}:${sensorBindingId}:${otherBindingId ?? 'external'}`;
+    const otherKey =
+      otherColliderHandle == null ? `binding:${otherBindingId ?? 'external'}` : `collider:${otherColliderHandle}`;
+    const pairKey = `${sensorEntityUid}:${sensorBindingId}:${otherKey}`;
     let overlap = trigger.__activeOverlaps.get(otherEntity);
     if (started) {
       if (overlap == null) {
@@ -121,7 +132,7 @@ export class TriggerComponent extends Component {
         trigger.__activeOverlaps.set(otherEntity, overlap);
       }
       const wasEmpty = overlap.pairs.size === 0;
-      overlap.pairs.set(pairKey, { sensorEntityUid, sensorBindingId, otherBindingId });
+      overlap.pairs.set(pairKey, { sensorEntityUid, sensorBindingId, otherBindingId, otherColliderHandle });
       if (wasEmpty) {
         trigger.__publish('enter', overlap.otherEntity, sensorBindingId, otherBindingId);
       }
@@ -168,13 +179,21 @@ export class TriggerComponent extends Component {
   }
 
   /** @internal Ends overlaps in which a collider being removed is the non-owning side. */
-  static _deactivateOtherBinding(otherEntity: IEntity, otherBindingId: number | undefined): void {
+  static _deactivateOtherBinding(
+    otherEntity: IEntity,
+    otherBindingId: number | undefined,
+    otherColliderHandle?: number
+  ): void {
     for (const trigger of this.__components) {
       const overlap = trigger.__activeOverlaps.get(otherEntity);
       if (overlap == null) {
         continue;
       }
-      const removed = [...overlap.pairs.entries()].filter(([, pair]) => pair.otherBindingId === otherBindingId);
+      const removed = [...overlap.pairs.entries()].filter(([, pair]) =>
+        otherColliderHandle == null
+          ? pair.otherBindingId === otherBindingId
+          : pair.otherColliderHandle === otherColliderHandle
+      );
       for (const [pairKey] of removed) {
         overlap.pairs.delete(pairKey);
       }
