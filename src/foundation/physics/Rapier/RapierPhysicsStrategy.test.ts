@@ -113,6 +113,8 @@ class FakeColliderDesc {
 class FakeRigidBody {
   translationValue: { x: number; y: number; z: number };
   rotationValue: { x: number; y: number; z: number; w: number };
+  nextTranslationValue?: { x: number; y: number; z: number };
+  nextRotationValue?: { x: number; y: number; z: number; w: number };
 
   constructor(desc: FakeRigidBodyDesc) {
     this.translationValue = { ...desc.translation };
@@ -149,6 +151,14 @@ class FakeRigidBody {
 
   setRotation(rotation: { x: number; y: number; z: number; w: number }, _wakeUp: boolean): void {
     this.rotationValue = { ...rotation };
+  }
+
+  setNextKinematicTranslation(translation: { x: number; y: number; z: number }): void {
+    this.nextTranslationValue = { ...translation };
+  }
+
+  setNextKinematicRotation(rotation: { x: number; y: number; z: number; w: number }): void {
+    this.nextRotationValue = { ...rotation };
   }
 
   mass(): number {
@@ -627,7 +637,21 @@ test('RapierPhysicsStrategy creates a position-based kinematic compound body', a
     entity
   );
 
-  expect(lastWorld?.bodies[0].kind).toBe('kinematic');
+  const body = lastWorld?.bodies[0];
+  expect(body?.kind).toBe('kinematic');
+
+  const nextPosition = Vector3.fromCopy3(2, 3, 4);
+  const nextRotation = Quaternion.fromAxisAngle(Vector3.fromCopy3(0, 1, 0), Math.PI / 2);
+  strategy.setPosition(nextPosition);
+  strategy.setRotation(nextRotation);
+
+  expect(body?.translationValue).toEqual({ x: 0, y: 0, z: 0 });
+  expect(body?.nextTranslationValue).toEqual({ x: 2, y: 3, z: 4 });
+  expect(body?.rotationValue).toEqual({ x: 0, y: 0, z: 0, w: 1 });
+  expect(body?.nextRotationValue?.x).toBeCloseTo(nextRotation.x);
+  expect(body?.nextRotationValue?.y).toBeCloseTo(nextRotation.y);
+  expect(body?.nextRotationValue?.z).toBeCloseTo(nextRotation.z);
+  expect(body?.nextRotationValue?.w).toBeCloseTo(nextRotation.w);
 });
 
 test('RapierPhysicsStrategy applies explicit total mass, local velocities, and gravity factor', async () => {

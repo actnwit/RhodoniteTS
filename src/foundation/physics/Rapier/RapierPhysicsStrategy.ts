@@ -53,6 +53,7 @@ export type RapierRigidBodyLike = {
   setTranslation(translation: RapierVector3Like, wakeUp: boolean): void;
   setRotation(rotation: RapierQuaternionLike, wakeUp: boolean): void;
   setNextKinematicTranslation?(translation: RapierVector3Like): void;
+  setNextKinematicRotation?(rotation: RapierQuaternionLike): void;
   mass?(): number;
   localCom?(): RapierVector3Like;
   principalInertia?(): RapierVector3Like;
@@ -423,6 +424,13 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     if (this.__rigidBody == null) {
       return;
     }
+    if (this.__isKinematicBody()) {
+      if (this.__rigidBody.setNextKinematicTranslation == null) {
+        throw new Error('The injected Rapier rigid body does not support next kinematic translation.');
+      }
+      this.__rigidBody.setNextKinematicTranslation({ x: worldPosition.x, y: worldPosition.y, z: worldPosition.z });
+      return;
+    }
     this.__rigidBody.setTranslation({ x: worldPosition.x, y: worldPosition.y, z: worldPosition.z }, true);
   }
 
@@ -442,7 +450,15 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     if (this.__rigidBody == null) {
       return;
     }
-    this.__rigidBody.setRotation(RapierPhysicsStrategy.__toRapierQuaternion(worldRotation), true);
+    const rotation = RapierPhysicsStrategy.__toRapierQuaternion(worldRotation);
+    if (this.__isKinematicBody()) {
+      if (this.__rigidBody.setNextKinematicRotation == null) {
+        throw new Error('The injected Rapier rigid body does not support next kinematic rotation.');
+      }
+      this.__rigidBody.setNextKinematicRotation(rotation);
+      return;
+    }
+    this.__rigidBody.setRotation(rotation, true);
   }
 
   /**
@@ -618,7 +634,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     const rapier = RapierPhysicsStrategy.__getRapier();
     const world = RapierPhysicsStrategy.__getWorld();
     const motion = this.__motion;
-    const isKinematic = motion?.isKinematic ?? this.__shapeBindings?.[0]?.body.isKinematic ?? false;
+    const isKinematic = this.__isKinematicBody();
     const rigidBodyDesc = isKinematic
       ? rapier.RigidBodyDesc.kinematicPositionBased!()
       : prop.move
@@ -670,6 +686,10 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
         });
       }
     }
+  }
+
+  private __isKinematicBody(): boolean {
+    return this.__motion?.isKinematic ?? this.__shapeBindings?.[0]?.body.isKinematic ?? false;
   }
 
   private __applyCompleteMassProperties(move: boolean, isKinematic: boolean): void {

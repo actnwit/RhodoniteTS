@@ -40,6 +40,7 @@ export type RapierRigidBodyLike = {
     setTranslation(translation: RapierVector3Like, wakeUp: boolean): void;
     setRotation(rotation: RapierQuaternionLike, wakeUp: boolean): void;
     setNextKinematicTranslation?(translation: RapierVector3Like): void;
+    setNextKinematicRotation?(rotation: RapierQuaternionLike): void;
     mass?(): number;
     localCom?(): RapierVector3Like;
     principalInertia?(): RapierVector3Like;
@@ -228,6 +229,7 @@ export declare class RapierPhysicsStrategy implements PhysicsStrategy {
     /** @internal */
     static _packCollisionGroups(group: number, mask: number): number;
     private __createBody;
+    private __isKinematicBody;
     private __applyCompleteMassProperties;
     private __createColliderDesc;
     private __createShapeInstanceColliderDesc;
