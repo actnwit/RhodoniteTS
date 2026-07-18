@@ -724,8 +724,10 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     if (motion == null || rigidBody == null || !move || isKinematic) {
       return;
     }
+    const hasOnlySensorColliders = this.__shapeBindings?.every(binding => binding.collider.isSensor === true) === true;
     const needsCompleteMassProperties =
       motion.mass === 0 ||
+      (hasOnlySensorColliders && motion.mass != null && motion.mass > 0) ||
       motion.centerOfMass != null ||
       motion.inertiaDiagonal != null ||
       motion.inertiaOrientation != null;
