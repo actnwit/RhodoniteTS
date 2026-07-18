@@ -378,6 +378,32 @@ test('normalizes supported motion values and diagnoses malformed or deferred mas
   expect(result.warnings.some(warning => warning.includes('invalid inertiaDiagonal'))).toBe(true);
 });
 
+test.each([
+  12,
+  { x: 0, y: 0, z: 0, w: 1 },
+])('ignores a non-array inertiaOrientation value without aborting the import', inertiaOrientation => {
+  const gltf = createGltf(
+    [
+      {
+        children: [1],
+        extensions: {
+          KHR_physics_rigid_bodies: {
+            motion: { inertiaOrientation },
+          },
+        },
+      },
+      { extensions: { KHR_physics_rigid_bodies: { collider: { geometry: { shape: 0 } } } } },
+    ],
+    { KHR_implicit_shapes: { shapes: [{ type: 'box' }] } }
+  );
+
+  const result = collectKhrRigidBodyGroups(gltf);
+
+  expect(result.groups).toHaveLength(1);
+  expect(result.groups[0].motion?.inertiaOrientation).toBeUndefined();
+  expect(result.warnings.some(warning => warning.includes('invalid inertiaOrientation'))).toBe(true);
+});
+
 test('resolves KHR collision filter set semantics into deterministic Rapier profiles', () => {
   const filters = [
     { collisionSystems: ['character', 'character'], collideWithSystems: ['landscape'] },

@@ -240,7 +240,7 @@ function normalizeMotion(
     if (value == null) {
       continue;
     }
-    if (value.length !== 3 || value.some(component => !Number.isFinite(component))) {
+    if (!Array.isArray(value) || value.length !== 3 || value.some(component => !Number.isFinite(component))) {
       warnings.push(`${KHR_PHYSICS_RIGID_BODIES}: motion node ${nodeIndex} has invalid ${name}; it is ignored.`);
     } else {
       normalized[name] = [...value];
@@ -248,6 +248,7 @@ function normalizeMotion(
   }
   if (motion.inertiaDiagonal != null) {
     if (
+      !Array.isArray(motion.inertiaDiagonal) ||
       motion.inertiaDiagonal.length !== 3 ||
       motion.inertiaDiagonal.some(component => !Number.isFinite(component) || component < 0)
     ) {
@@ -260,8 +261,10 @@ function normalizeMotion(
   }
   if (motion.inertiaOrientation != null) {
     const value = motion.inertiaOrientation;
-    const lengthSquared = value.reduce((sum, component) => sum + component * component, 0);
-    if (value.length !== 4 || value.some(component => !Number.isFinite(component)) || lengthSquared === 0) {
+    const hasValidComponents =
+      Array.isArray(value) && value.length === 4 && value.every(component => Number.isFinite(component));
+    const lengthSquared = hasValidComponents ? value.reduce((sum, component) => sum + component * component, 0) : 0;
+    if (!hasValidComponents || lengthSquared === 0) {
       warnings.push(
         `${KHR_PHYSICS_RIGID_BODIES}: motion node ${nodeIndex} has invalid inertiaOrientation; it is ignored.`
       );
