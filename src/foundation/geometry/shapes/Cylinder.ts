@@ -44,23 +44,23 @@ export class Cylinder extends IShape {
     const halfHeight = height / 2;
     const slope = (radiusBottom - radiusTop) / height;
 
-    for (let i = 0; i < radialSegments; i++) {
-      const theta = (i / radialSegments) * Math.PI * 2;
+    for (let i = 0; i <= radialSegments; i++) {
+      const u = i / radialSegments;
+      const theta = i === radialSegments ? 0 : u * Math.PI * 2;
       const cos = Math.cos(theta);
       const sin = Math.sin(theta);
       const normalLength = Math.hypot(cos, slope, sin);
       positions.push(radiusBottom * cos, -halfHeight, radiusBottom * sin);
       normals.push(cos / normalLength, slope / normalLength, sin / normalLength);
-      texcoords.push(i / radialSegments, 0);
+      texcoords.push(u, 0);
       positions.push(radiusTop * cos, halfHeight, radiusTop * sin);
       normals.push(cos / normalLength, slope / normalLength, sin / normalLength);
-      texcoords.push(i / radialSegments, 1);
+      texcoords.push(u, 1);
     }
     for (let i = 0; i < radialSegments; i++) {
-      const next = (i + 1) % radialSegments;
       const bottom = i * 2;
       const top = bottom + 1;
-      const nextBottom = next * 2;
+      const nextBottom = (i + 1) * 2;
       const nextTop = nextBottom + 1;
       indices.push(bottom, top, nextBottom, nextBottom, top, nextTop);
     }
