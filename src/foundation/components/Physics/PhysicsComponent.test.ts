@@ -106,6 +106,48 @@ describe('PhysicsComponent shape bindings', async () => {
     expect(setScale.mock.calls.at(-1)?.[0].y).toBeCloseTo(3);
   });
 
+  test('skips physics-free subtrees and tracks physics hierarchy changes', () => {
+    const root = Rn.createGroupEntity(engine);
+    const intermediate = Rn.createGroupEntity(engine);
+    const leaf = Rn.createGroupEntity(engine);
+    root.addChild(intermediate.getSceneGraph());
+    intermediate.addChild(leaf.getSceneGraph());
+
+    const dirtySpy = vi.spyOn(root.getSceneGraph(), 'setWorldMatrixDirty');
+    root.localPosition = Rn.Vector3.fromCopy3(1, 0, 0);
+    expect(dirtySpy).not.toHaveBeenCalled();
+
+    const physicalLeaf = engine.entityRepository.addComponentToEntity(Rn.PhysicsComponent, leaf);
+    const setPosition = vi.fn();
+    physicalLeaf.getPhysics().setStrategy({
+      update: () => {},
+      setPosition,
+    });
+
+    root.localPosition = Rn.Vector3.fromCopy3(2, 0, 0);
+    expect(dirtySpy).toHaveBeenCalledOnce();
+    expect(setPosition).toHaveBeenCalledOnce();
+
+    dirtySpy.mockClear();
+    setPosition.mockClear();
+    intermediate.removeChild(leaf.getSceneGraph());
+    root.localPosition = Rn.Vector3.fromCopy3(3, 0, 0);
+    expect(dirtySpy).not.toHaveBeenCalled();
+    expect(setPosition).not.toHaveBeenCalled();
+
+    intermediate.addChild(leaf.getSceneGraph());
+    root.localPosition = Rn.Vector3.fromCopy3(4, 0, 0);
+    expect(dirtySpy).toHaveBeenCalledOnce();
+    expect(setPosition).toHaveBeenCalledOnce();
+
+    dirtySpy.mockClear();
+    setPosition.mockClear();
+    engine.entityRepository.removeComponentFromEntity(Rn.PhysicsComponent, physicalLeaf);
+    root.localPosition = Rn.Vector3.fromCopy3(5, 0, 0);
+    expect(dirtySpy).not.toHaveBeenCalled();
+    expect(setPosition).not.toHaveBeenCalled();
+  });
+
   test('manages stable binding IDs and rebuilds the complete collider set', () => {
     const fixture = createFixture();
     const physics = fixture.entity.getPhysics();

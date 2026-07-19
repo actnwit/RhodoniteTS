@@ -45,6 +45,7 @@ export class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
   private __children: SceneGraphComponent[] = [];
   private __gizmoChildren: SceneGraphComponent[] = [];
+  private __physicsComponentCountInSubtree = 0;
   private _worldMatrix: MutableMatrix44 = MutableMatrix44.dummy();
   private _worldMatrixRest: MutableMatrix44 = MutableMatrix44.identity();
   private _normalMatrix: MutableMatrix33 = MutableMatrix33.dummy();
@@ -493,6 +494,7 @@ export class SceneGraphComponent extends Component {
     }
     sg.__parent = this;
     this.__children.push(sg);
+    this.__adjustPhysicsComponentCountInSubtree(sg.__physicsComponentCountInSubtree);
 
     if (keepPoseInWorldSpace) {
       if (Is.exist(worldMatrixBeforeReparent)) {
@@ -510,6 +512,7 @@ export class SceneGraphComponent extends Component {
   public removeChild(sg: SceneGraphComponent): void {
     const index = this.__children.indexOf(sg);
     if (index >= 0) {
+      this.__adjustPhysicsComponentCountInSubtree(-sg.__physicsComponentCountInSubtree);
       this.__children.splice(index, 1);
     }
     const gizmoIndex = this.__gizmoChildren.indexOf(sg);
@@ -620,7 +623,8 @@ export class SceneGraphComponent extends Component {
   }
 
   private __syncDescendantPhysicsTransforms(updatePosition: boolean, updateRotation: boolean, updateScale: boolean) {
-    if (this.__children.length === 0) {
+    const ownPhysicsComponentCount = this.entity.tryToGetPhysics() === undefined ? 0 : 1;
+    if (this.__physicsComponentCountInSubtree === ownPhysicsComponentCount) {
       return;
     }
 
@@ -629,18 +633,54 @@ export class SceneGraphComponent extends Component {
     this.matrixInner;
     this.setWorldMatrixDirty();
     for (const child of this.__children) {
-      if (!child.toMakeWorldMatrixTheSameAsLocalMatrix) {
+      if (!child.toMakeWorldMatrixTheSameAsLocalMatrix && child.__physicsComponentCountInSubtree > 0) {
         child.__syncPhysicsTransformRecursively(updatePosition, updateRotation, updateScale);
       }
     }
   }
 
   private __syncPhysicsTransformRecursively(updatePosition: boolean, updateRotation: boolean, updateScale: boolean) {
+    if (this.__physicsComponentCountInSubtree === 0) {
+      return;
+    }
     this.__setMatrixToOwnPhysics(this.matrixInner, updatePosition, updateRotation, updateScale);
     for (const child of this.__children) {
-      if (!child.toMakeWorldMatrixTheSameAsLocalMatrix) {
+      if (!child.toMakeWorldMatrixTheSameAsLocalMatrix && child.__physicsComponentCountInSubtree > 0) {
         child.__syncPhysicsTransformRecursively(updatePosition, updateRotation, updateScale);
       }
+    }
+  }
+
+  /**
+   * Records that this entity acquired a PhysicsComponent.
+   * @internal
+   */
+  _onPhysicsComponentAdded(): void {
+    this.__adjustPhysicsComponentCountInSubtree(1);
+  }
+
+  /**
+   * Records that this entity lost its PhysicsComponent.
+   * @internal
+   */
+  _onPhysicsComponentRemoved(): void {
+    this.__adjustPhysicsComponentCountInSubtree(-1);
+  }
+
+  /**
+   * Returns whether this node or one of its descendants has a PhysicsComponent.
+   * @internal
+   */
+  get _hasPhysicsComponentInSubtree(): boolean {
+    return this.__physicsComponentCountInSubtree > 0;
+  }
+
+  private __adjustPhysicsComponentCountInSubtree(delta: number): void {
+    this.__physicsComponentCountInSubtree += delta;
+
+    const parent = this.__parent;
+    if (parent?.__children.includes(this)) {
+      parent.__adjustPhysicsComponentCountInSubtree(delta);
     }
   }
 
@@ -1427,9 +1467,11 @@ export class SceneGraphComponent extends Component {
 
     this.__parent = component.__parent;
     this.__children = [];
+    this.__physicsComponentCountInSubtree = 0;
     for (let i = 0; i < component.__children.length; i++) {
       const copyChild = this.__copyChild(component.__children[i]).getSceneGraph();
       this.__children.push(copyChild);
+      this.__adjustPhysicsComponentCountInSubtree(copyChild.__physicsComponentCountInSubtree);
     }
 
     this.__gizmoChildren = component.__gizmoChildren.concat();

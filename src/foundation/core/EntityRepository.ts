@@ -396,6 +396,16 @@ export class EntityRepository {
     const entityClass = component.addThisComponentToEntity(entity, componentClass);
     entity._setComponent(componentClass, component);
 
+    if (
+      componentClass.componentTID === WellKnownComponentTIDs.PhysicsComponentTID ||
+      componentClass.componentTID === WellKnownComponentTIDs.SceneGraphComponentTID
+    ) {
+      const sceneGraph = entity.tryToGetSceneGraph();
+      if (sceneGraph !== undefined && entity.tryToGetPhysics() !== undefined) {
+        sceneGraph._onPhysicsComponentAdded();
+      }
+    }
+
     EntityRepository.__updateCount++;
 
     return entity as unknown as typeof entityClass;
@@ -429,6 +439,9 @@ export class EntityRepository {
     const component = map.get(componentClass.componentTID);
     if (Is.exist(component)) {
       component._destroy();
+      if (componentClass.componentTID === WellKnownComponentTIDs.PhysicsComponentTID) {
+        entity.tryToGetSceneGraph()?._onPhysicsComponentRemoved();
+      }
       map.delete(componentClass.componentTID);
       entity._removeComponent(componentClass.componentTID);
     }

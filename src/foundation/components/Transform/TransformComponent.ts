@@ -166,7 +166,7 @@ export class TransformComponent extends Component {
   set localPosition(vec: IVector3) {
     this.__pose.position = vec;
     const sceneGraph = this.entity.tryToGetSceneGraph();
-    if (sceneGraph !== undefined) {
+    if (sceneGraph?._hasPhysicsComponentInSubtree) {
       const parent = sceneGraph.parent;
       if (parent !== undefined) {
         sceneGraph.setPositionToPhysics(parent.matrixInner.multiplyVector3(vec));
@@ -246,7 +246,7 @@ export class TransformComponent extends Component {
   set localEulerAngles(vec: IVector3) {
     this.__pose.eulerAngles = vec;
     const sceneGraph = this.entity.tryToGetSceneGraph();
-    if (sceneGraph !== undefined) {
+    if (sceneGraph?._hasPhysicsComponentInSubtree) {
       const sx = Math.sin(vec._v[0] * 0.5);
       const cx = Math.cos(vec._v[0] * 0.5);
       const sy = Math.sin(vec._v[1] * 0.5);
@@ -331,7 +331,7 @@ export class TransformComponent extends Component {
     this.__pose.scale = vec;
 
     const sceneGraph = this.entity.tryToGetSceneGraph();
-    if (sceneGraph !== undefined) {
+    if (sceneGraph?._hasPhysicsComponentInSubtree) {
       const parent = sceneGraph.parent;
       if (parent !== undefined) {
         sceneGraph.setScaleToPhysics(Vector3.multiplyVector(parent.matrixInner.getScale(), vec));
@@ -411,7 +411,7 @@ export class TransformComponent extends Component {
   set localRotation(quat: IQuaternion) {
     this.__pose.rotation = quat;
     const sceneGraph = this.entity.tryToGetSceneGraph();
-    if (sceneGraph !== undefined) {
+    if (sceneGraph?._hasPhysicsComponentInSubtree) {
       const parent = sceneGraph.parent;
       if (parent !== undefined) {
         sceneGraph.setRotationToPhysics(Quaternion.multiply(parent.rotationInner, quat));
@@ -491,7 +491,7 @@ export class TransformComponent extends Component {
   set localMatrix(mat: IMatrix44) {
     this.__pose.matrix = mat;
     const sceneGraph = this.entity.tryToGetSceneGraph();
-    if (sceneGraph !== undefined) {
+    if (sceneGraph?._hasPhysicsComponentInSubtree) {
       const parent = sceneGraph.parent;
       if (parent !== undefined) {
         sceneGraph.setMatrixToPhysics(Matrix44.multiply(parent.matrix, mat));

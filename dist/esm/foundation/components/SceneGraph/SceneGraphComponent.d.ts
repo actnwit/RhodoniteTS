@@ -27,6 +27,7 @@ export declare class SceneGraphComponent extends Component {
     private __parent?;
     private __children;
     private __gizmoChildren;
+    private __physicsComponentCountInSubtree;
     private _worldMatrix;
     private _worldMatrixRest;
     private _normalMatrix;
@@ -267,6 +268,22 @@ export declare class SceneGraphComponent extends Component {
     private __setMatrixToOwnPhysics;
     private __syncDescendantPhysicsTransforms;
     private __syncPhysicsTransformRecursively;
+    /**
+     * Records that this entity acquired a PhysicsComponent.
+     * @internal
+     */
+    _onPhysicsComponentAdded(): void;
+    /**
+     * Records that this entity lost its PhysicsComponent.
+     * @internal
+     */
+    _onPhysicsComponentRemoved(): void;
+    /**
+     * Returns whether this node or one of its descendants has a PhysicsComponent.
+     * @internal
+     */
+    get _hasPhysicsComponentInSubtree(): boolean;
+    private __adjustPhysicsComponentCountInSubtree;
     set matrix(matrix: MutableMatrix44);
     /**
      * Gets the internal world matrix in rest pose (mutable reference).
