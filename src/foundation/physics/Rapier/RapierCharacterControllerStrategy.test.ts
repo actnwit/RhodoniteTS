@@ -282,14 +282,15 @@ test('creates a foot-anchored kinematic capsule and configures traversal', async
 });
 
 test.each([
-  ['an oversized ground probe', Vector3.one(), { groundProbeRadius: 0.31 }],
-  ['a zero entity scale', Vector3.zero(), {}],
-])('validates %s before creating a Rapier body and remains reusable', async (_caseName, scale, options) => {
+  ['an oversized ground probe', Vector3.one(), { groundProbeRadius: 0.31 }, 'groundProbeRadius'],
+  ['a zero axial scale', Vector3.fromCopy3(1, 0, 1), {}, 'scale components'],
+  ['a non-finite scale', Vector3.fromCopy3(1, Number.NaN, 1), {}, 'scale components'],
+])('validates %s before creating a Rapier body and remains reusable', async (_caseName, scale, options, message) => {
   await RapierPhysicsStrategy.initialize(fakeRapier());
   const strategy = new RapierCharacterControllerStrategy();
 
   expect(() => strategy.setup(fakeEntity(Quaternion.identity(), scale).entity, capsuleShape(), options)).toThrow(
-    'groundProbeRadius'
+    message
   );
   expect(world.body).toBeUndefined();
 

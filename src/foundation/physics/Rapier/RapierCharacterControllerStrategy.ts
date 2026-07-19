@@ -121,6 +121,10 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     }
 
     const scale = entity.getSceneGraph()._getPhysicsWorldScale();
+    const absoluteScale = [Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z)];
+    if (!absoluteScale.every(Number.isFinite) || absoluteScale.some(component => component <= 0)) {
+      throw new Error('Character controller scale components must be finite and non-zero at setup.');
+    }
     const capsule = shapeInstance.shape;
     if (capsule.radiusBottom !== capsule.radiusTop) {
       Logger.default.warn(

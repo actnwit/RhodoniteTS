@@ -198,6 +198,36 @@ describe('PhysicsComponent shape bindings', async () => {
     expect(rotatedAxis?.z).toBeCloseTo(expectedAxis.z);
   });
 
+  test.each([
+    'localMatrix',
+    'worldMatrix',
+  ] as const)('uses the new rotation when setting %s after the rotation cache was populated', matrixKind => {
+    const shapeEntity = Rn.createShapeEntity(engine);
+    const entity = engine.entityRepository.addComponentToEntity(Rn.PhysicsComponent, shapeEntity);
+    const rotations: Rn.IQuaternion[] = [];
+    entity.getPhysics().setStrategy({
+      update: () => {},
+      setRotation: rotation => {
+        rotations.push(Rn.Quaternion.fromCopyQuaternion(rotation));
+      },
+    });
+    const sceneGraph = entity.getSceneGraph();
+    sceneGraph.rotation;
+    const targetRotation = Rn.Quaternion.fromAxisAngle(Rn.Vector3.fromCopy3(0, 1, 0), Math.PI / 3);
+
+    if (matrixKind === 'localMatrix') {
+      entity.localMatrix = Rn.Matrix44.fromCopyQuaternion(targetRotation);
+    } else {
+      sceneGraph.matrix = Rn.MutableMatrix44.fromCopyQuaternion(targetRotation);
+    }
+
+    const actualAxis = rotations.at(-1)?.transformVector3(Rn.Vector3.fromCopy3(1, 0, 0));
+    const expectedAxis = targetRotation.transformVector3(Rn.Vector3.fromCopy3(1, 0, 0));
+    expect(actualAxis?.x).toBeCloseTo(expectedAxis.x);
+    expect(actualAxis?.y).toBeCloseTo(expectedAxis.y);
+    expect(actualAxis?.z).toBeCloseTo(expectedAxis.z);
+  });
+
   test('manages stable binding IDs and rebuilds the complete collider set', () => {
     const fixture = createFixture();
     const physics = fixture.entity.getPhysics();
