@@ -88,6 +88,8 @@ export declare class OimoPhysicsStrategy implements PhysicsStrategy {
      * @param scale - The scale factors to apply to the physics body's dimensions
      */
     setScale(scale: IVector3): void;
+    private __canCreateBody;
+    private __removeBody;
     private __resolveScaledShape;
     private __createLegacyScaledSize;
     private __toBodyPose;

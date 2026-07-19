@@ -189,9 +189,31 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     this.__warnedScaleApproximation = false;
     this.__entity = entity;
 
+    const entityPosition = entity.getSceneGraph().position;
+    const entityRotation = entity.getSceneGraph().getQuaternionRecursively();
+    const entityEuler = entityRotation.toEulerAngles();
+    this.__property = {
+      type: physicsType,
+      size: [localSize.x, localSize.y, localSize.z],
+      pos: [entityPosition.x, entityPosition.y, entityPosition.z],
+      rot: [
+        MathUtil.radianToDegree(entityEuler.x),
+        MathUtil.radianToDegree(entityEuler.y),
+        MathUtil.radianToDegree(entityEuler.z),
+      ],
+      move: body.move,
+      density: body.density,
+      friction: collider.friction,
+      restitution: collider.restitution,
+    };
+    this.__removeBody();
+    if (!this.__canCreateBody()) {
+      return;
+    }
+
     const resolvedShape = this.__resolveScaledShape();
     this.__resolvedShapeLocalRotation = resolvedShape.rotation;
-    const pose = this.__toBodyPose(entity.getSceneGraph().position, entity.getSceneGraph().getQuaternionRecursively());
+    const pose = this.__toBodyPose(entityPosition, entityRotation);
     const bodyEuler = pose.rotation.toEulerAngles();
     this.__property = {
       type: physicsType,
@@ -207,13 +229,11 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
       friction: collider.friction,
       restitution: collider.restitution,
     };
-    this.__body?.remove();
     this.__body = OimoPhysicsStrategy.__world.add(this.__property);
   }
 
   clearShapeInstances(): void {
-    this.__body?.remove();
-    this.__body = undefined;
+    this.__removeBody();
     this.__entity = undefined;
     this.__property = undefined;
     this.__usesShapeInstance = false;
@@ -227,7 +247,7 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
    * with the physics simulation results.
    */
   update(_config: Config): void {
-    if (this.__entity === undefined) {
+    if (this.__entity === undefined || this.__body === undefined) {
       return;
     }
     const pos = this.__body.getPosition();
@@ -260,7 +280,6 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     if (this.__entity === undefined) {
       return;
     }
-    this.__body.remove();
     const prop = this.__property;
     const pose = this.__usesShapeInstance
       ? this.__toBodyPose(worldPosition, this.__entity.getSceneGraph().getQuaternionRecursively())
@@ -280,6 +299,10 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
       friction: prop.friction,
       restitution: prop.restitution,
     };
+    this.__removeBody();
+    if (!this.__canCreateBody()) {
+      return;
+    }
     this.__body = world.add(this.__property);
   }
 
@@ -299,7 +322,6 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
       ? this.__toBodyPose(this.__entity.getSceneGraph().position, entityRotation)
       : { position: this.__body.getPosition(), rotation: entityRotation };
     const bodyEuler = pose.rotation.toEulerAngles();
-    this.__body.remove();
     const prop = this.__property;
     this.__property = {
       type: prop.type,
@@ -315,6 +337,10 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
       friction: prop.friction,
       restitution: prop.restitution,
     };
+    this.__removeBody();
+    if (!this.__canCreateBody()) {
+      return;
+    }
     this.__body = world.add(this.__property);
   }
 
@@ -332,6 +358,10 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     }
     this.__worldScale = Vector3.fromCopy3(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z));
     this.__worldSignedScale = Vector3.fromCopy3(scale.x, scale.y, scale.z);
+    if (!this.__canCreateBody()) {
+      this.__removeBody();
+      return;
+    }
     const resolvedShape = this.__usesShapeInstance ? this.__resolveScaledShape() : undefined;
     if (resolvedShape != null) {
       this.__resolvedShapeLocalRotation = resolvedShape.rotation;
@@ -346,7 +376,6 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
           rotation: this.__entity.getSceneGraph().getQuaternionRecursively(),
         };
     const bodyEuler = pose.rotation.toEulerAngles();
-    this.__body.remove();
     const prop = this.__property;
     const scaledSize = resolvedShape?.size ?? this.__createLegacyScaledSize();
     this.__property = {
@@ -363,7 +392,27 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
       friction: prop.friction,
       restitution: prop.restitution,
     };
+    this.__removeBody();
     this.__body = world.add(this.__property);
+  }
+
+  private __canCreateBody(): boolean {
+    if (!this.__usesShapeInstance) {
+      return true;
+    }
+    return (
+      Number.isFinite(this.__worldScale.x) &&
+      Number.isFinite(this.__worldScale.y) &&
+      Number.isFinite(this.__worldScale.z) &&
+      this.__worldScale.x > 0 &&
+      this.__worldScale.y > 0 &&
+      this.__worldScale.z > 0
+    );
+  }
+
+  private __removeBody(): void {
+    this.__body?.remove();
+    this.__body = undefined;
   }
 
   private __resolveScaledShape(): { size: number[]; rotation: IQuaternion } {

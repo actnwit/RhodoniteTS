@@ -276,6 +276,83 @@ test('OimoPhysicsStrategy preserves local shape rotation when repositioned', asy
   expect(lastProperty.rot[2]).toBeCloseTo(initialRotation[2]);
 });
 
+test('OimoPhysicsStrategy disables and recreates a generic body across zero scale', async () => {
+  const { OimoPhysicsStrategy } = await import('./OimoPhysicsStrategy');
+  const entity = {
+    getSceneGraph: () => ({
+      position: Vector3.zero(),
+      getQuaternionRecursively: () => Quaternion.identity(),
+    }),
+  } as unknown as ISceneGraphEntity;
+  const strategy = new OimoPhysicsStrategy();
+  bodies.length = 0;
+
+  strategy.setShapeInstance(
+    {
+      shape: { type: 'box', size: Vector3.one() },
+      localPosition: Vector3.zero(),
+      localRotation: Quaternion.identity(),
+    },
+    { move: false, density: 1 },
+    { friction: 0.5, restitution: 0 },
+    entity
+  );
+  const initialBody = bodies[0];
+
+  strategy.setScale(Vector3.fromCopy3(0, 1, 1));
+  expect(initialBody.removeCount).toBe(1);
+  expect(bodies).toHaveLength(1);
+  expect(() => strategy.update({} as never)).not.toThrow();
+
+  strategy.setScale(Vector3.fromCopy3(2, 3, 4));
+  expect(bodies).toHaveLength(2);
+  expect(lastProperty.size).toEqual([2, 3, 4]);
+});
+
+test('OimoPhysicsStrategy defers initial generic body creation until scale becomes valid', async () => {
+  const { OimoPhysicsStrategy } = await import('./OimoPhysicsStrategy');
+  const state = {
+    position: Vector3.zero(),
+    rotation: Quaternion.identity(),
+  };
+  const entity = {
+    getSceneGraph: () => ({
+      get position() {
+        return state.position;
+      },
+      getQuaternionRecursively: () => state.rotation,
+    }),
+  } as unknown as ISceneGraphEntity;
+  const strategy = new OimoPhysicsStrategy();
+  bodies.length = 0;
+
+  strategy.setShapeInstance(
+    {
+      shape: { type: 'box', size: Vector3.one() },
+      localPosition: Vector3.zero(),
+      localRotation: Quaternion.identity(),
+    },
+    { move: false, density: 1 },
+    { friction: 0.5, restitution: 0 },
+    entity,
+    Vector3.fromCopy3(1, 0, 1)
+  );
+
+  expect(bodies).toHaveLength(0);
+  expect(() => strategy.update({} as never)).not.toThrow();
+  state.position = Vector3.fromCopy3(2, 3, 4);
+  strategy.setPosition(state.position);
+  state.rotation = Quaternion.fromAxisAngle(Vector3.fromCopy3(0, 1, 0), Math.PI / 4);
+  strategy.setEulerAngle(state.rotation.toEulerAngles());
+  expect(bodies).toHaveLength(0);
+
+  strategy.setScale(Vector3.fromCopy3(2, 3, 4));
+  expect(bodies).toHaveLength(1);
+  expect(lastProperty.size).toEqual([2, 3, 4]);
+  expect(lastProperty.pos).toEqual([2, 3, 4]);
+  expect(lastProperty.rot[1]).toBeCloseTo(45);
+});
+
 test('OimoPhysicsStrategy removes the previous body when replacing a shape instance', async () => {
   const { OimoPhysicsStrategy } = await import('./OimoPhysicsStrategy');
   const entity = {
