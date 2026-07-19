@@ -223,7 +223,7 @@ export class PhysicsComponent extends Component {
       this.__applyBackendUpdate(() => strategy.clearShapeInstances!(), rollback);
     } else if (strategy.setShapeInstances != null) {
       this.__applyBackendUpdate(
-        () => strategy.setShapeInstances!(resolved, entity, entity.getSceneGraph().scale, motion),
+        () => strategy.setShapeInstances!(resolved, entity, entity.getSceneGraph()._getPhysicsWorldScale(), motion),
         rollback
       );
     } else if (resolved.length === 1 && strategy.setShapeInstance != null) {
@@ -235,7 +235,7 @@ export class PhysicsComponent extends Component {
             binding.body,
             binding.collider,
             entity,
-            entity.getSceneGraph().scale,
+            entity.getSceneGraph()._getPhysicsWorldScale(),
             motion
           ),
         rollback

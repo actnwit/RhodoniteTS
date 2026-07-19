@@ -658,6 +658,43 @@ test('RapierPhysicsStrategy consumes a generic shape instance with a local trans
   expect(lastWorld?.colliders[0]?.translation).toEqual({ x: 2, y: 6, z: 12 });
 });
 
+test('RapierPhysicsStrategy preserves mirrored local shape offsets', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const strategy = new RapierPhysicsStrategy();
+  const { entity, state } = createSceneGraphEntity();
+  state.rotation = Quaternion.fromAxisAngle(Vector3.fromCopy3(0, 0, 1), Math.PI / 2);
+
+  strategy.setShapeInstance(
+    {
+      shape: { type: 'box', size: Vector3.fromCopy3(2, 4, 6) },
+      localPosition: Vector3.fromCopy3(1, 2, 3),
+      localRotation: Quaternion.identity(),
+    },
+    { move: false, density: 1 },
+    { friction: 0.5, restitution: 0.1 },
+    entity,
+    Vector3.fromCopy3(-2, 3, -4)
+  );
+
+  expect(lastWorld?.colliders[0]?.size).toEqual([2, 6, 12]);
+  expect(lastWorld?.colliders[0]?.translation).toEqual({ x: -2, y: 6, z: -12 });
+  const bodyRotation = lastWorld!.bodies[0].rotationValue;
+  const rotatedAxis = Quaternion.fromCopy4(
+    bodyRotation.x,
+    bodyRotation.y,
+    bodyRotation.z,
+    bodyRotation.w
+  ).transformVector3(Vector3.fromCopy3(1, 0, 0));
+  const expectedAxis = state.rotation.transformVector3(Vector3.fromCopy3(1, 0, 0));
+  expect(rotatedAxis.x).toBeCloseTo(expectedAxis.x);
+  expect(rotatedAxis.y).toBeCloseTo(expectedAxis.y);
+  expect(rotatedAxis.z).toBeCloseTo(expectedAxis.z);
+
+  strategy.setScale(Vector3.fromCopy3(5, -6, 7));
+  expect(lastWorld?.colliders.at(-1)?.size).toEqual([5, 12, 21]);
+  expect(lastWorld?.colliders.at(-1)?.translation).toEqual({ x: 5, y: -12, z: 21 });
+});
+
 test('RapierPhysicsStrategy applies non-uniform scale along a rotated box local axes', async () => {
   await RapierPhysicsStrategy.initialize(createFakeRapier());
   const strategy = new RapierPhysicsStrategy();

@@ -1,5 +1,5 @@
 import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
-import { Quaternion, Vector3 } from '../../math';
+import { Matrix44, Quaternion, Vector3 } from '../../math';
 
 let lastProperty: any;
 const bodies: FakeBody[] = [];
@@ -12,7 +12,14 @@ class FakeBody {
     return { x: this.property.pos[0], y: this.property.pos[1], z: this.property.pos[2] };
   }
   getQuaternion() {
-    return { x: 0, y: 0, z: 0, w: 1 };
+    const rotation = Quaternion.fromMatrix(
+      Matrix44.rotateXYZ(
+        (this.property.rot[0] * Math.PI) / 180,
+        (this.property.rot[1] * Math.PI) / 180,
+        (this.property.rot[2] * Math.PI) / 180
+      )
+    );
+    return { x: rotation.x, y: rotation.y, z: rotation.z, w: rotation.w };
   }
   remove() {
     this.removeCount++;
@@ -69,6 +76,48 @@ test('OimoPhysicsStrategy maps a local generic shape pose to and from the body p
   expect(lastProperty.size).toEqual([2, 3, 4]);
   strategy.update({} as never);
   expect(state.position.isEqual(Vector3.fromCopy3(10, 0, 0))).toBe(true);
+});
+
+test('OimoPhysicsStrategy preserves mirrored local shape offsets', async () => {
+  const { OimoPhysicsStrategy } = await import('./OimoPhysicsStrategy');
+  const state = {
+    position: Vector3.fromCopy3(10, 0, 0),
+    rotation: Quaternion.identity(),
+  };
+  const entity = {
+    getSceneGraph: () => ({
+      get position() {
+        return state.position;
+      },
+      getQuaternionRecursively: () => state.rotation,
+      setPositionWithoutPhysics: (position: Vector3) => {
+        state.position = position;
+      },
+      setRotationWithoutPhysics: (rotation: Quaternion) => {
+        state.rotation = rotation;
+      },
+    }),
+  } as unknown as ISceneGraphEntity;
+  const strategy = new OimoPhysicsStrategy();
+
+  strategy.setShapeInstance(
+    {
+      shape: { type: 'box', size: Vector3.one() },
+      localPosition: Vector3.fromCopy3(1, 2, 3),
+      localRotation: Quaternion.identity(),
+    },
+    { move: false, density: 1 },
+    { friction: 0.5, restitution: 0 },
+    entity,
+    Vector3.fromCopy3(-2, 3, -4)
+  );
+
+  expect(lastProperty.pos).toEqual([8, 6, -12]);
+  expect(lastProperty.size).toEqual([2, 3, 4]);
+  strategy.update({} as never);
+  expect(state.position.x).toBeCloseTo(10);
+  expect(state.position.y).toBeCloseTo(0);
+  expect(state.position.z).toBeCloseTo(0);
 });
 
 test('OimoPhysicsStrategy converts a generic cylinder and rejects capsules explicitly', async () => {

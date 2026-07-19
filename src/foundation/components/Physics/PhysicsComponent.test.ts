@@ -148,6 +148,56 @@ describe('PhysicsComponent shape bindings', async () => {
     expect(setPosition).not.toHaveBeenCalled();
   });
 
+  test('passes mirrored world-scale signs through a rotated hierarchy', () => {
+    const parent = Rn.createGroupEntity(engine);
+    const shapeEntity = Rn.createShapeEntity(engine);
+    parent.localScale = Rn.Vector3.fromCopy3(-2, 3, 4);
+    const childRotation = Rn.Quaternion.fromAxisAngle(Rn.Vector3.fromCopy3(0, 0, 1), Math.PI / 2);
+    shapeEntity.localRotation = childRotation;
+    parent.addChild(shapeEntity.getSceneGraph());
+    shapeEntity
+      .getShape()
+      .addShape({ type: 'box', size: Rn.Vector3.one() }, { position: Rn.Vector3.fromCopy3(1, 0, 0) });
+
+    const entity = engine.entityRepository.addComponentToEntity(Rn.PhysicsComponent, shapeEntity);
+    const scales: Rn.IVector3[] = [];
+    const rotations: Rn.IQuaternion[] = [];
+    entity.getPhysics().setStrategy({
+      update: () => {},
+      setShapeInstances: (_bindings, _entity, scale) => {
+        scales.push(Rn.Vector3.fromCopy3(scale!.x, scale!.y, scale!.z));
+      },
+      setScale: scale => {
+        scales.push(Rn.Vector3.fromCopy3(scale.x, scale.y, scale.z));
+      },
+      setRotation: rotation => {
+        rotations.push(Rn.Quaternion.fromCopyQuaternion(rotation));
+      },
+    });
+    entity.getPhysics().bindShape({
+      shapeComponent: shapeEntity.getShape(),
+      body: { move: false, density: 1 },
+      collider,
+    });
+
+    expect(scales.at(-1)?.x).toBeCloseTo(3);
+    expect(scales.at(-1)?.y).toBeCloseTo(-2);
+    expect(scales.at(-1)?.z).toBeCloseTo(4);
+
+    parent.localScale = Rn.Vector3.fromCopy3(-5, 6, 7);
+    expect(scales.at(-1)?.x).toBeCloseTo(6);
+    expect(scales.at(-1)?.y).toBeCloseTo(-5);
+    expect(scales.at(-1)?.z).toBeCloseTo(7);
+    const rotatedAxis = rotations.at(-1)?.transformVector3(Rn.Vector3.fromCopy3(1, 0, 0));
+    const expectedAxis = shapeEntity
+      .getSceneGraph()
+      .getQuaternionRecursively()
+      .transformVector3(Rn.Vector3.fromCopy3(1, 0, 0));
+    expect(rotatedAxis?.x).toBeCloseTo(expectedAxis.x);
+    expect(rotatedAxis?.y).toBeCloseTo(expectedAxis.y);
+    expect(rotatedAxis?.z).toBeCloseTo(expectedAxis.z);
+  });
+
   test('manages stable binding IDs and rebuilds the complete collider set', () => {
     const fixture = createFixture();
     const physics = fixture.entity.getPhysics();

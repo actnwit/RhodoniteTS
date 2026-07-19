@@ -85,7 +85,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
   private __stateVerticalVelocity = 0;
   private __landingImpactSpeed = 0;
   private __shapeInstance?: ShapeInstance;
-  private __absoluteScale = Vector3.one();
+  private __worldScale = Vector3.one();
   private __isGroundProbeRadiusDerived = true;
   private __warnedNonUniformScale = false;
 
@@ -113,19 +113,21 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     if (world.createCharacterController == null) {
       throw new Error('The injected Rapier world does not support character controllers.');
     }
+    if (world.removeRigidBody == null || world.removeCharacterController == null) {
+      throw new Error('The injected Rapier world does not support character-controller resource cleanup.');
+    }
     if (shapeInstance.shape.type !== 'capsule') {
       throw new Error('RapierCharacterControllerStrategy requires a capsule ShapeInstance.');
     }
 
-    const scale = entity.getSceneGraph().scale;
-    const absoluteScale = Vector3.fromCopy3(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z));
+    const scale = entity.getSceneGraph()._getPhysicsWorldScale();
     const capsule = shapeInstance.shape;
     if (capsule.radiusBottom !== capsule.radiusTop) {
       Logger.default.warn(
         `Rapier approximates asymmetric character capsule radii (${capsule.radiusBottom}, ${capsule.radiusTop}) with the maximum radius.`
       );
     }
-    const resolvedCapsule = this.__resolveCharacterCapsule(shapeInstance, absoluteScale);
+    const resolvedCapsule = this.__resolveCharacterCapsule(shapeInstance, scale);
     const radius = resolvedCapsule.radius;
     resolvedOptions.groundProbeRadius = options.groundProbeRadius ?? radius * 0.8;
     if (
@@ -150,25 +152,50 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
         w: initialRotation.w,
       });
 
+    let rigidBody: RapierRigidBodyLike | undefined;
+    let collider: RapierColliderLike | undefined;
+    let controller: RapierCharacterControllerLike | undefined;
+    try {
+      rigidBody = world.createRigidBody(rigidBodyDesc);
+      collider = world.createCollider(colliderDesc, rigidBody);
+      RapierPhysicsStrategy._registerExternalCollider(collider, entity);
+      controller = world.createCharacterController(resolvedOptions.contactOffset);
+      controller.enableAutostep(resolvedOptions.maxStepHeight, resolvedOptions.minStepWidth, false);
+      controller.enableSnapToGround(resolvedOptions.snapToGroundDistance);
+      controller.setMaxSlopeClimbAngle(resolvedOptions.maxSlopeClimbAngle);
+      controller.setMinSlopeSlideAngle(resolvedOptions.minSlopeSlideAngle);
+      controller.setApplyImpulsesToDynamicBodies(resolvedOptions.applyImpulsesToDynamicBodies);
+      controller.setNormalNudgeFactor?.(resolvedOptions.normalNudgeFactor);
+      RapierPhysicsStrategy._registerStepParticipant(this, entity.engine);
+    } catch (error) {
+      RapierPhysicsStrategy._unregisterStepParticipant(this);
+      try {
+        RapierPhysicsStrategy._unregisterExternalCollider(collider, entity.engine);
+      } finally {
+        try {
+          if (controller != null) {
+            world.removeCharacterController(controller);
+          }
+        } finally {
+          if (rigidBody != null) {
+            world.removeRigidBody(rigidBody);
+          }
+        }
+      }
+      this.__warnedNonUniformScale = false;
+      throw error;
+    }
+
     this.__entity = entity;
     this.__worldQuery = new PhysicsWorldQuery(new RapierPhysicsWorldQueryStrategy(entity.engine));
     this.__options = resolvedOptions;
     this.__capsuleBottomOffset = resolvedCapsule.bottomOffset;
-    this.__rigidBody = world.createRigidBody(rigidBodyDesc);
-    this.__collider = world.createCollider(colliderDesc, this.__rigidBody);
-    RapierPhysicsStrategy._registerExternalCollider(this.__collider, entity);
+    this.__rigidBody = rigidBody;
+    this.__collider = collider;
+    this.__controller = controller;
     this.__shapeInstance = shapeInstance;
-    this.__absoluteScale = absoluteScale;
+    this.__worldScale = Vector3.fromCopy3(scale.x, scale.y, scale.z);
     this.__isGroundProbeRadiusDerived = options.groundProbeRadius == null;
-
-    this.__controller = world.createCharacterController(this.__options.contactOffset);
-    this.__controller.enableAutostep(this.__options.maxStepHeight, this.__options.minStepWidth, false);
-    this.__controller.enableSnapToGround(this.__options.snapToGroundDistance);
-    this.__controller.setMaxSlopeClimbAngle(this.__options.maxSlopeClimbAngle);
-    this.__controller.setMinSlopeSlideAngle(this.__options.minSlopeSlideAngle);
-    this.__controller.setApplyImpulsesToDynamicBodies(this.__options.applyImpulsesToDynamicBodies);
-    this.__controller.setNormalNudgeFactor?.(this.__options.normalNudgeFactor);
-    RapierPhysicsStrategy._registerStepParticipant(this, entity.engine);
   }
 
   setDesiredHorizontalVelocity(velocity: IVector3): void {
@@ -357,12 +384,12 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     this.__stateVerticalVelocity = 0;
     this.__landingImpactSpeed = 0;
     this.__shapeInstance = undefined;
-    this.__absoluteScale = Vector3.one();
+    this.__worldScale = Vector3.one();
     this.__isGroundProbeRadiusDerived = true;
     this.__warnedNonUniformScale = false;
   }
 
-  private __resolveCharacterCapsule(shapeInstance: ShapeInstance, absoluteScale: IVector3): ResolvedCharacterCapsule {
+  private __resolveCharacterCapsule(shapeInstance: ShapeInstance, worldScale: IVector3): ResolvedCharacterCapsule {
     if (shapeInstance.shape.type !== 'capsule') {
       throw new Error('RapierCharacterControllerStrategy requires a capsule ShapeInstance.');
     }
@@ -371,16 +398,16 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
       capsule.height,
       Math.max(capsule.radiusBottom, capsule.radiusTop),
       shapeInstance.localRotation,
-      absoluteScale
+      worldScale
     );
     if (resolved.approximated && !this.__warnedNonUniformScale) {
       Logger.default.warn('Rapier conservatively approximates non-uniform scale for the character capsule.');
       this.__warnedNonUniformScale = true;
     }
     const localPosition = Vector3.fromCopy3(
-      shapeInstance.localPosition.x * absoluteScale.x,
-      shapeInstance.localPosition.y * absoluteScale.y,
-      shapeInstance.localPosition.z * absoluteScale.z
+      shapeInstance.localPosition.x * worldScale.x,
+      shapeInstance.localPosition.y * worldScale.y,
+      shapeInstance.localPosition.z * worldScale.z
     );
     const downwardExtent = resolved.rotation.transformVector3(
       Vector3.fromCopy3(0, -(resolved.halfHeight + resolved.radius), 0)
@@ -412,12 +439,12 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     if (this.__entity == null || this.__rigidBody == null || this.__collider == null || this.__shapeInstance == null) {
       return;
     }
-    const scale = this.__entity.getSceneGraph().scale;
+    const scale = this.__entity.getSceneGraph()._getPhysicsWorldScale();
     const absoluteScale = Vector3.fromCopy3(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z));
     const hasChanged =
-      Math.abs(absoluteScale.x - this.__absoluteScale.x) > 0.000001 ||
-      Math.abs(absoluteScale.y - this.__absoluteScale.y) > 0.000001 ||
-      Math.abs(absoluteScale.z - this.__absoluteScale.z) > 0.000001;
+      Math.abs(scale.x - this.__worldScale.x) > 0.000001 ||
+      Math.abs(scale.y - this.__worldScale.y) > 0.000001 ||
+      Math.abs(scale.z - this.__worldScale.z) > 0.000001;
     if (!hasChanged) {
       return;
     }
@@ -434,7 +461,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     if (world.removeRigidBody == null) {
       throw new Error('The injected Rapier world does not support rebuilding a scaled character body.');
     }
-    const resolved = this.__resolveCharacterCapsule(this.__shapeInstance, absoluteScale);
+    const resolved = this.__resolveCharacterCapsule(this.__shapeInstance, scale);
     const groundProbeRadius = this.__isGroundProbeRadiusDerived
       ? resolved.radius * 0.8
       : this.__options.groundProbeRadius;
@@ -467,7 +494,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     this.__collider = collider;
     this.__capsuleBottomOffset = resolved.bottomOffset;
     this.__options.groundProbeRadius = groundProbeRadius;
-    this.__absoluteScale = absoluteScale;
+    this.__worldScale = Vector3.fromCopy3(scale.x, scale.y, scale.z);
   }
 
   private __updateMotionState(): void {

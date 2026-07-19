@@ -13,7 +13,6 @@ import { MutableQuaternion } from '../../math/MutableQuaternion';
 import type { MutableVector3 } from '../../math/MutableVector3';
 import { Quaternion } from '../../math/Quaternion';
 import { Transform3D } from '../../math/Transform3D';
-import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc';
 import type { Engine } from '../../system/Engine';
 import type { ComponentToComponentMethods } from '../ComponentTypes';
@@ -333,11 +332,9 @@ export class TransformComponent extends Component {
     const sceneGraph = this.entity.tryToGetSceneGraph();
     if (sceneGraph?._hasPhysicsComponentInSubtree) {
       const parent = sceneGraph.parent;
-      if (parent !== undefined) {
-        sceneGraph.setScaleToPhysics(Vector3.multiplyVector(parent.matrixInner.getScale(), vec));
-      } else {
-        sceneGraph.setScaleToPhysics(vec);
-      }
+      const worldMatrix =
+        parent === undefined ? this.__pose.matrixInner : Matrix44.multiply(parent.matrixInner, this.__pose.matrixInner);
+      sceneGraph.setScaleToPhysics(sceneGraph._getPhysicsWorldScale(worldMatrix));
     }
     TransformComponent.__incrementUpdateCount(this.__engine);
   }

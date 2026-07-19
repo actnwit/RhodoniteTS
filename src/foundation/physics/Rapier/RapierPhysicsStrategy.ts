@@ -236,6 +236,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
   private __shapeBindings?: PhysicsShapeInstanceBinding[];
   private __motion?: PhysicsMotionProperty;
   private __shapeWorldScale: IVector3 = Vector3.one();
+  private __shapeWorldSignedScale: IVector3 = Vector3.one();
   private __warnedAsymmetricRadius = false;
   private __warnedNonUniformScale = false;
   private __warnedShearedBoxApproximation = false;
@@ -288,6 +289,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     this.__motion = undefined;
     this.__shapeLocalPosition = Vector3.zero();
     this.__shapeLocalRotation = Quaternion.identity();
+    this.__shapeWorldSignedScale = Vector3.one();
     this.__setShape(prop, entity, worldScale, preservedState);
   }
 
@@ -356,6 +358,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     }));
     this.__motion = RapierPhysicsStrategy.__copyMotion(resolvedMotion);
     this.__shapeWorldScale = Vector3.fromCopy3(Math.abs(worldScale.x), Math.abs(worldScale.y), Math.abs(worldScale.z));
+    this.__shapeWorldSignedScale = Vector3.fromCopy3(worldScale.x, worldScale.y, worldScale.z);
     this.__warnedAsymmetricRadius = false;
     this.__warnedNonUniformScale = false;
     this.__warnedShearedBoxApproximation = false;
@@ -368,7 +371,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
         type: first.shape.shape.type === 'box' ? PhysicsShape.Box : PhysicsShape.Sphere,
         size,
         position: entity.getSceneGraph().position,
-        rotation: entity.getSceneGraph().eulerAngles,
+        rotation: entity.getSceneGraph().getQuaternionRecursively().toEulerAngles(),
         move: resolvedMotion.move,
         density: first.body.density,
         friction: first.collider.friction,
@@ -515,6 +518,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       : undefined;
     const preservedState = this.__captureDynamicBodyState();
     this.__shapeWorldScale = Vector3.fromCopy3(Math.abs(worldScale.x), Math.abs(worldScale.y), Math.abs(worldScale.z));
+    this.__shapeWorldSignedScale = Vector3.fromCopy3(worldScale.x, worldScale.y, worldScale.z);
     const scaledSize = this.__createScaledSize(worldScale);
 
     const willRebuild =
@@ -884,7 +888,8 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     const rapier = RapierPhysicsStrategy.__getRapier();
     const shapeInstance = binding.shape;
     const shape = shapeInstance.shape;
-    const scale = this.__shapeWorldScale;
+    const scale = this.__shapeWorldSignedScale;
+    const absoluteScale = this.__shapeWorldScale;
     let colliderDesc: RapierColliderDescLike;
     let colliderRotation = shapeInstance.localRotation;
 
@@ -897,8 +902,8 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       );
       colliderRotation = resolvedBox.rotation;
     } else if (shape.type === 'sphere') {
-      const radialScale = Math.max(scale.x, scale.y, scale.z);
-      this.__warnNonUniformScaleIfNeeded(shape.type, scale);
+      const radialScale = Math.max(absoluteScale.x, absoluteScale.y, absoluteScale.z);
+      this.__warnNonUniformScaleIfNeeded(shape.type, absoluteScale);
       colliderDesc = rapier.ColliderDesc.ball(shape.radius * radialScale);
     } else if (shape.type === 'cylinder') {
       if (rapier.ColliderDesc.cylinder == null) {
@@ -907,7 +912,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       const radius = this.__getApproximatedRadius(shape.radiusBottom, shape.radiusTop, shape.type);
       const resolvedCylinder = resolveScaledCylinder(shape.height, radius, shapeInstance.localRotation, scale);
       if (resolvedCylinder.approximated) {
-        this.__warnNonUniformScaleIfNeeded(shape.type, scale);
+        this.__warnNonUniformScaleIfNeeded(shape.type, absoluteScale);
       }
       colliderDesc = rapier.ColliderDesc.cylinder(resolvedCylinder.halfHeight, resolvedCylinder.radius);
       colliderRotation = resolvedCylinder.rotation;
@@ -918,7 +923,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       const radius = this.__getApproximatedRadius(shape.radiusBottom, shape.radiusTop, shape.type);
       const resolvedCapsule = resolveScaledCapsule(shape.height, radius, shapeInstance.localRotation, scale);
       if (resolvedCapsule.approximated) {
-        this.__warnNonUniformScaleIfNeeded(shape.type, scale);
+        this.__warnNonUniformScaleIfNeeded(shape.type, absoluteScale);
       }
       colliderDesc = rapier.ColliderDesc.capsule(resolvedCapsule.halfHeight, resolvedCapsule.radius);
       colliderRotation = resolvedCapsule.rotation;
@@ -984,13 +989,14 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
 
   private __getScaledVolume(binding: PhysicsShapeInstanceBinding): number {
     const shape = binding.shape.shape;
-    const scale = this.__shapeWorldScale;
+    const scale = this.__shapeWorldSignedScale;
+    const absoluteScale = this.__shapeWorldScale;
     if (shape.type === 'box') {
       const halfExtents = this.__resolveBoxCollider(binding.shape).halfExtents;
       return 8 * halfExtents.x * halfExtents.y * halfExtents.z;
     }
     if (shape.type === 'sphere') {
-      const radius = shape.radius * Math.max(scale.x, scale.y, scale.z);
+      const radius = shape.radius * Math.max(absoluteScale.x, absoluteScale.y, absoluteScale.z);
       return (4 / 3) * Math.PI * radius ** 3;
     }
     if (shape.type === 'cylinder') {
@@ -1015,7 +1021,11 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
     if (shapeInstance.shape.type !== 'box') {
       throw new Error('A box ShapeInstance is required.');
     }
-    const resolved = resolveScaledBox(shapeInstance.shape.size, shapeInstance.localRotation, this.__shapeWorldScale);
+    const resolved = resolveScaledBox(
+      shapeInstance.shape.size,
+      shapeInstance.localRotation,
+      this.__shapeWorldSignedScale
+    );
     if (resolved.approximated && !this.__warnedShearedBoxApproximation) {
       Logger.default.warn(
         'Rapier conservatively approximates a locally rotated box under non-uniform scale with an axis-aligned box.'

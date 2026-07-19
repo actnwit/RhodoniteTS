@@ -41,6 +41,7 @@ export declare class OimoPhysicsStrategy implements PhysicsStrategy {
     private __shapeLocalRotation;
     private __resolvedShapeLocalRotation;
     private __worldScale;
+    private __worldSignedScale;
     private __usesShapeInstance;
     private __shapeType?;
     private __warnedScaleApproximation;

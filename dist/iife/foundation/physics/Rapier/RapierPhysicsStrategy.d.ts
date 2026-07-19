@@ -159,6 +159,7 @@ export declare class RapierPhysicsStrategy implements PhysicsStrategy {
     private __shapeBindings?;
     private __motion?;
     private __shapeWorldScale;
+    private __shapeWorldSignedScale;
     private __warnedAsymmetricRadius;
     private __warnedNonUniformScale;
     private __warnedShearedBoxApproximation;

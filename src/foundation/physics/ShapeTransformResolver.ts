@@ -72,15 +72,15 @@ export function resolveScaledBox(size: IVector3, localRotation: IQuaternion, sca
 
   return {
     halfExtents: Vector3.fromCopy3(
-      scale.x *
+      Math.abs(scale.x) *
         (Math.abs(rotatedAxes[0].x) * halfSize.x +
           Math.abs(rotatedAxes[1].x) * halfSize.y +
           Math.abs(rotatedAxes[2].x) * halfSize.z),
-      scale.y *
+      Math.abs(scale.y) *
         (Math.abs(rotatedAxes[0].y) * halfSize.x +
           Math.abs(rotatedAxes[1].y) * halfSize.y +
           Math.abs(rotatedAxes[2].y) * halfSize.z),
-      scale.z *
+      Math.abs(scale.z) *
         (Math.abs(rotatedAxes[0].z) * halfSize.x +
           Math.abs(rotatedAxes[1].z) * halfSize.y +
           Math.abs(rotatedAxes[2].z) * halfSize.z)
@@ -138,8 +138,9 @@ export function resolveScaledCapsule(
   const scaledAxis = Vector3.fromCopy3(axialVector.x * scale.x, axialVector.y * scale.y, axialVector.z * scale.z);
   const axialScale = Math.hypot(scaledAxis.x, scaledAxis.y, scaledAxis.z);
   const normalizedAxis = Vector3.multiply(scaledAxis, 1 / axialScale);
-  const maxScale = Math.max(scale.x, scale.y, scale.z);
-  const minScale = Math.min(scale.x, scale.y, scale.z);
+  const absoluteScale = [Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z)];
+  const maxScale = Math.max(...absoluteScale);
+  const minScale = Math.min(...absoluteScale);
   return {
     halfHeight: height * axialScale * 0.5,
     radius: radius * maxScale,

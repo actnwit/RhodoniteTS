@@ -54,6 +54,9 @@ export declare class SceneGraphComponent extends Component {
     jointIndex: number;
     _isCulled: boolean;
     private static readonly __originVector3;
+    private static readonly __axisX;
+    private static readonly __axisY;
+    private static readonly __axisZ;
     private static returnVector3;
     private static __sceneGraphs;
     private static invertedMatrix44;
@@ -541,6 +544,12 @@ export declare class SceneGraphComponent extends Component {
      * @returns The world scale vector
      */
     get scale(): MutableVector3;
+    /**
+     * Resolves world-scale magnitudes with signs relative to the entity's proper world rotation.
+     * Physics bodies use that rotation separately, so reflected local offsets need these signs.
+     * @internal
+     */
+    _getPhysicsWorldScale(matrix?: IMatrix44): Vector3;
     /**
      * Creates a shallow copy of a child scene graph component.
      * @param child - The child component to copy

@@ -28,7 +28,7 @@ export declare class RapierCharacterControllerStrategy implements CharacterContr
     private __stateVerticalVelocity;
     private __landingImpactSpeed;
     private __shapeInstance?;
-    private __absoluteScale;
+    private __worldScale;
     private __isGroundProbeRadiusDerived;
     private __warnedNonUniformScale;
     setup(entity: ISceneGraphEntity, shapeInstance: ShapeInstance, options?: CharacterControllerOptions): void;

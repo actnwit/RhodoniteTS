@@ -73,6 +73,9 @@ export class SceneGraphComponent extends Component {
   public jointIndex = -1;
   _isCulled = false;
   private static readonly __originVector3 = Vector3.zero();
+  private static readonly __axisX = Vector3.fromCopy3(1, 0, 0);
+  private static readonly __axisY = Vector3.fromCopy3(0, 1, 0);
+  private static readonly __axisZ = Vector3.fromCopy3(0, 0, 1);
   private static returnVector3 = MutableVector3.zero();
   private static __sceneGraphs: WeakRef<SceneGraphComponent>[] = [];
   private static invertedMatrix44 = MutableMatrix44.fromCopyArray16ColumnMajor([
@@ -606,17 +609,18 @@ export class SceneGraphComponent extends Component {
       if (physicsComponent.strategy !== undefined) {
         const strategy = physicsComponent.strategy;
         if (updateRotation) {
+          const worldRotation = this.getQuaternionRecursively();
           if (strategy.setRotation != null) {
-            strategy.setRotation(Quaternion.fromMatrix(matrix));
+            strategy.setRotation(worldRotation);
           } else if (strategy.setEulerAngle != null) {
-            strategy.setEulerAngle(Quaternion.fromMatrix(matrix).toEulerAngles());
+            strategy.setEulerAngle(worldRotation.toEulerAngles());
           }
         }
         if (updatePosition && strategy.setPosition != null) {
           strategy.setPosition(matrix.getTranslate());
         }
         if (updateScale && strategy.setScale != null) {
-          strategy.setScale(matrix.getScale());
+          strategy.setScale(this._getPhysicsWorldScale(matrix));
         }
       }
     }
@@ -1445,6 +1449,27 @@ export class SceneGraphComponent extends Component {
    */
   get scale(): MutableVector3 {
     return this.matrixInner.getScale();
+  }
+
+  /**
+   * Resolves world-scale magnitudes with signs relative to the entity's proper world rotation.
+   * Physics bodies use that rotation separately, so reflected local offsets need these signs.
+   * @internal
+   */
+  _getPhysicsWorldScale(matrix: IMatrix44 = this.matrixInner): Vector3 {
+    const rotation = this.getQuaternionRecursively();
+    const axisX = rotation.transformVector3(SceneGraphComponent.__axisX);
+    const axisY = rotation.transformVector3(SceneGraphComponent.__axisY);
+    const axisZ = rotation.transformVector3(SceneGraphComponent.__axisZ);
+    const scale = matrix.getScale();
+    const projectionX = matrix.m00 * axisX.x + matrix.m10 * axisX.y + matrix.m20 * axisX.z;
+    const projectionY = matrix.m01 * axisY.x + matrix.m11 * axisY.y + matrix.m21 * axisY.z;
+    const projectionZ = matrix.m02 * axisZ.x + matrix.m12 * axisZ.y + matrix.m22 * axisZ.z;
+    return Vector3.fromCopy3(
+      projectionX < 0 ? -scale.x : scale.x,
+      projectionY < 0 ? -scale.y : scale.y,
+      projectionZ < 0 ? -scale.z : scale.z
+    );
   }
 
   /**

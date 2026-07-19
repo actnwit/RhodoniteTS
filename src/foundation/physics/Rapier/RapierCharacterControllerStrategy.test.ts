@@ -1,5 +1,6 @@
 import type { ISceneGraphEntity } from '../../helpers/EntityHelper';
 import { Quaternion, Vector3 } from '../../math';
+import { PhysicsWorldQuery } from '../PhysicsWorldQuery';
 import { RapierCharacterControllerStrategy } from './RapierCharacterControllerStrategy';
 import {
   type RapierCharacterControllerLike,
@@ -7,6 +8,10 @@ import {
   RapierPhysicsStrategy,
   type RapierVector3Like,
 } from './RapierPhysicsStrategy';
+import { RapierPhysicsWorldQueryStrategy } from './RapierPhysicsWorldQueryStrategy';
+
+type SetupFailureStage = 'createCollider' | 'createCharacterController' | 'configureController';
+let setupFailureStage: SetupFailureStage | undefined;
 
 class FakeBodyDesc {
   translation = { x: 0, y: 0, z: 0 };
@@ -80,6 +85,9 @@ class FakeCharacterController implements RapierCharacterControllerLike {
   forceAirborneStuck = false;
   forceAirborne = false;
   enableAutostep(maxHeight: number, minWidth: number, includeDynamicBodies: boolean) {
+    if (setupFailureStage === 'configureController') {
+      throw new Error('configureController failed');
+    }
     this.autostep = [maxHeight, minWidth, includeDynamicBodies];
   }
   enableSnapToGround(distance: number) {
@@ -142,20 +150,32 @@ class FakeWorld {
     return this.body;
   }
   createCollider(desc: FakeColliderDesc) {
+    if (setupFailureStage === 'createCollider') {
+      throw new Error('createCollider failed');
+    }
     desc.handle = this.colliders.length;
     this.colliders.push(desc);
     this.collider = desc;
     return desc;
   }
   createCharacterController(_offset: number) {
+    if (setupFailureStage === 'createCharacterController') {
+      throw new Error('createCharacterController failed');
+    }
     this.controller = new FakeCharacterController();
     return this.controller;
   }
-  removeCharacterController() {
+  removeCharacterController(controller: FakeCharacterController) {
     this.removedControllers++;
+    if (this.controller === controller) {
+      this.controller = undefined;
+    }
   }
-  removeRigidBody() {
+  removeRigidBody(body: FakeBody) {
     this.removedBodies++;
+    if (this.body === body) {
+      this.body = undefined;
+    }
   }
   step() {
     this.stepCount++;
@@ -196,7 +216,8 @@ class FakeWorld {
 
 let world: FakeWorld;
 
-function fakeRapier(): RapierPhysicsModuleLike {
+function fakeRapier(failureStage?: SetupFailureStage): RapierPhysicsModuleLike {
+  setupFailureStage = failureStage;
   return {
     World: FakeWorld,
     RigidBodyDesc: {
@@ -227,6 +248,7 @@ function fakeEntity(rotation = Quaternion.identity(), scale = Vector3.one()) {
       get scale() {
         return state.scale;
       },
+      _getPhysicsWorldScale: () => state.scale,
       getQuaternionRecursively: () => state.rotation,
       setPositionWithoutPhysics(position: Vector3) {
         state.position = position;
@@ -272,6 +294,28 @@ test.each([
   expect(world.body).toBeUndefined();
 
   expect(() => strategy.setup(fakeEntity().entity, capsuleShape())).not.toThrow();
+  strategy.destroy();
+});
+
+test.each([
+  ['createCollider', 0],
+  ['createCharacterController', 0],
+  ['configureController', 1],
+] as const)('rolls back Rapier resources when %s fails during setup', async (failureStage, removedControllers) => {
+  await RapierPhysicsStrategy.initialize(fakeRapier(failureStage));
+  const strategy = new RapierCharacterControllerStrategy();
+  const { entity } = fakeEntity();
+
+  expect(() => strategy.setup(entity, capsuleShape())).toThrow(`${failureStage} failed`);
+  expect(world.removedBodies).toBe(1);
+  expect(world.removedControllers).toBe(removedControllers);
+  expect(world.body).toBeUndefined();
+  expect(world.controller).toBeUndefined();
+  const query = new PhysicsWorldQuery(new RapierPhysicsWorldQueryStrategy(entity.engine));
+  expect(query.castSphere(Vector3.zero(), 0.1, Vector3.fromCopy3(0, -1, 0), 1)).toBeUndefined();
+
+  setupFailureStage = undefined;
+  expect(() => strategy.setup(entity, capsuleShape())).not.toThrow();
   strategy.destroy();
 });
 
@@ -325,6 +369,19 @@ test('scales a rotated character capsule along its transformed axis', async () =
   const probeOrigin = castShapeSpy.mock.calls[0]?.[0];
   expect(probeOrigin?.x).toBeCloseTo(-1.6);
   expect(probeOrigin?.y).toBeCloseTo(0.49);
+});
+
+test('preserves a mirrored character capsule offset', async () => {
+  await RapierPhysicsStrategy.initialize(fakeRapier());
+  const strategy = new RapierCharacterControllerStrategy();
+  strategy.setup(fakeEntity(Quaternion.identity(), Vector3.fromCopy3(-2, 3, -4)).entity, {
+    ...capsuleShape(),
+    localPosition: Vector3.fromCopy3(1, 0.8, 3),
+  });
+
+  expect(world.collider?.translation.x).toBeCloseTo(-2);
+  expect(world.collider?.translation.y).toBeCloseTo(2.4);
+  expect(world.collider?.translation.z).toBeCloseTo(-12);
 });
 
 test.each([
