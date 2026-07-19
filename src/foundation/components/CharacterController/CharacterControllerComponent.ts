@@ -122,34 +122,48 @@ export class CharacterControllerComponent extends Component {
       throw new Error('CharacterControllerComponent has already been set up.');
     }
     const entity = this.entity as ISceneGraphEntity;
+    const existingShapeComponent = entity.tryToGetShape();
+    const addedShapeComponent = existingShapeComponent == null;
     const shapeComponent =
-      entity.tryToGetShape() ?? this.__engine.entityRepository.addComponentToEntity(ShapeComponent, entity).getShape();
-    let shapeIndex = options.shapeIndex;
-    let shape = shapeIndex == null ? shapeComponent.getShape(0) : shapeComponent.getShape(shapeIndex);
-    if (shape == null && shapeIndex == null) {
-      const radius = options.radius ?? 0.3;
-      const totalHeight = options.height ?? 1.6;
-      if (!Number.isFinite(radius) || radius <= 0 || !Number.isFinite(totalHeight) || totalHeight <= radius * 2) {
-        throw new Error('Legacy character capsule height must be greater than twice its positive radius.');
+      existingShapeComponent ?? this.__engine.entityRepository.addComponentToEntity(ShapeComponent, entity).getShape();
+    let generatedShapeIndex: number | undefined;
+    try {
+      let shapeIndex = options.shapeIndex;
+      let shape = shapeIndex == null ? shapeComponent.getShape(0) : shapeComponent.getShape(shapeIndex);
+      if (shape == null && shapeIndex == null) {
+        const radius = options.radius ?? 0.3;
+        const totalHeight = options.height ?? 1.6;
+        if (!Number.isFinite(radius) || radius <= 0 || !Number.isFinite(totalHeight) || totalHeight <= radius * 2) {
+          throw new Error('Legacy character capsule height must be greater than twice its positive radius.');
+        }
+        shapeIndex = shapeComponent.addShape(
+          {
+            type: 'capsule',
+            height: totalHeight - radius * 2,
+            radiusBottom: radius,
+            radiusTop: radius,
+          },
+          { position: Vector3.fromCopy3(0, totalHeight / 2, 0) }
+        );
+        generatedShapeIndex = shapeIndex;
+        shape = shapeComponent.getShape(shapeIndex);
       }
-      shapeIndex = shapeComponent.addShape(
-        {
-          type: 'capsule',
-          height: totalHeight - radius * 2,
-          radiusBottom: radius,
-          radiusTop: radius,
-        },
-        { position: Vector3.fromCopy3(0, totalHeight / 2, 0) }
-      );
-      shape = shapeComponent.getShape(shapeIndex);
+      if (shape == null) {
+        throw new Error(`ShapeComponent does not contain character shape index ${shapeIndex}.`);
+      }
+      if (shape.shape.type !== 'capsule') {
+        throw new Error('CharacterControllerComponent requires a capsule ShapeInstance.');
+      }
+      strategy.setup(entity, shape, options);
+    } catch (error) {
+      if (generatedShapeIndex != null) {
+        shapeComponent.removeShape(generatedShapeIndex);
+      }
+      if (addedShapeComponent) {
+        this.__engine.entityRepository.removeComponentFromEntity(ShapeComponent, entity);
+      }
+      throw error;
     }
-    if (shape == null) {
-      throw new Error(`ShapeComponent does not contain character shape index ${shapeIndex}.`);
-    }
-    if (shape.shape.type !== 'capsule') {
-      throw new Error('CharacterControllerComponent requires a capsule ShapeInstance.');
-    }
-    strategy.setup(entity, shape, options);
     this.__strategy = strategy;
     this.__lastObservedMotionState = strategy.motionState;
   }

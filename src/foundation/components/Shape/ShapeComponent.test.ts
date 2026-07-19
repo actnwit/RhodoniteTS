@@ -286,6 +286,70 @@ describe('ShapeComponent', async () => {
     expect(receivedShape).toBe(entity.getShape().getShape(0));
   });
 
+  test('CharacterController rolls back a generated legacy capsule after setup failure', () => {
+    const entity = Rn.createCharacterControllerEntity(engine);
+    const component = entity.getCharacterController();
+    expect(() =>
+      component.setup(
+        {
+          setup: () => {
+            throw new Error('setup failed');
+          },
+        } as never,
+        { radius: 0.3, height: 1.6 }
+      )
+    ).toThrow('setup failed');
+    expect(entity.getShape().shapeCount).toBe(0);
+
+    let receivedShape: Rn.ShapeInstance | undefined;
+    component.setup(
+      {
+        setup: (_entity: unknown, shape: Rn.ShapeInstance) => {
+          receivedShape = shape;
+        },
+        motionState: {
+          state: 'falling',
+          velocity: Rn.Vector3.zero(),
+          horizontalSpeed: 0,
+          verticalSpeed: 0,
+          groundedDuration: 0,
+          airborneDuration: 0,
+          stateElapsedTime: 0,
+          landingImpactSpeed: 0,
+        },
+      } as never,
+      { radius: 0.4, height: 2 }
+    );
+
+    expect(receivedShape?.shape).toEqual({
+      type: 'capsule',
+      height: 1.2,
+      radiusBottom: 0.4,
+      radiusTop: 0.4,
+    });
+    expect(receivedShape?.localPosition.y).toBeCloseTo(1);
+  });
+
+  test('CharacterController removes an automatically added ShapeComponent after setup failure', () => {
+    const entity = engine.entityRepository.addComponentToEntity(
+      Rn.CharacterControllerComponent,
+      Rn.createGroupEntity(engine)
+    );
+    expect(entity.tryToGetShape()).toBeUndefined();
+
+    expect(() =>
+      entity.getCharacterController().setup(
+        {
+          setup: () => {
+            throw new Error('setup failed');
+          },
+        } as never,
+        { radius: 0.3, height: 1.6 }
+      )
+    ).toThrow('setup failed');
+    expect(entity.tryToGetShape()).toBeUndefined();
+  });
+
   test('CharacterController publishes state changes and landing once', () => {
     const entity = Rn.createCharacterControllerEntity(engine);
     const falling = {

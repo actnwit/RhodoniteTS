@@ -91,6 +91,7 @@ export type RapierCharacterCollisionLike = {
     normal1: RapierVector3Like;
 };
 export type RapierWorldLike = {
+    timestep: number;
     free?(): void;
     step(eventQueue?: RapierEventQueueLike): void;
     createRigidBody(desc: RapierRigidBodyDescLike): RapierRigidBodyLike;

@@ -129,6 +129,7 @@ export type RapierCharacterCollisionLike = {
 };
 
 export type RapierWorldLike = {
+  timestep: number;
   free?(): void;
   step(eventQueue?: RapierEventQueueLike): void;
   createRigidBody(desc: RapierRigidBodyDescLike): RapierRigidBodyLike;
@@ -580,6 +581,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
         continue;
       }
       state.lastFrameId = frameId;
+      state.world.timestep = deltaTime;
 
       for (const [participant, participantEngine] of RapierPhysicsStrategy.__stepParticipants) {
         if (participantEngine === state.engine) {

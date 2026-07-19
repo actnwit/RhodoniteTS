@@ -134,6 +134,7 @@ class FakeCharacterController implements RapierCharacterControllerLike {
 }
 
 class FakeWorld {
+  timestep = 1 / 60;
   body?: FakeBody;
   collider?: FakeColliderDesc;
   controller?: FakeCharacterController;

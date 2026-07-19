@@ -208,6 +208,7 @@ class FakeRigidBody {
 }
 
 class FakeWorld {
+  timestep = 1 / 60;
   bodies: FakeRigidBody[] = [];
   colliders: FakeColliderDesc[] = [];
   eventQueue?: FakeEventQueue;
@@ -458,6 +459,7 @@ test('RapierPhysicsStrategy scopes step participants to the processed engine', a
 
   RapierPhysicsStrategy.update(1, 0.25, firstEngine);
 
+  expect((RapierPhysicsStrategy._getWorld(firstEngine) as FakeWorld).timestep).toBe(0.25);
   expect(firstParticipant.preStep).toHaveBeenCalledOnce();
   expect(firstParticipant.preStep).toHaveBeenCalledWith(0.25);
   expect(firstParticipant.postStep).toHaveBeenCalledOnce();
@@ -466,6 +468,7 @@ test('RapierPhysicsStrategy scopes step participants to the processed engine', a
 
   RapierPhysicsStrategy.update(2, 0.5, secondEngine);
 
+  expect((RapierPhysicsStrategy._getWorld(secondEngine) as FakeWorld).timestep).toBe(0.5);
   expect(firstParticipant.preStep).toHaveBeenCalledOnce();
   expect(firstParticipant.postStep).toHaveBeenCalledOnce();
   expect(secondParticipant.preStep).toHaveBeenCalledOnce();
