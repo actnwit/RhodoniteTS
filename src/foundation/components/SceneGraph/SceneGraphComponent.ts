@@ -1281,7 +1281,7 @@ export class SceneGraphComponent extends Component {
         }
       }
     }
-    this.__syncDescendantPhysicsTransforms(true, true, false);
+    this.__syncPhysicsTransformsAfterRotation();
   }
 
   /**
@@ -1331,7 +1331,20 @@ export class SceneGraphComponent extends Component {
         }
       }
     }
-    this.__syncDescendantPhysicsTransforms(true, true, false);
+    this.__syncPhysicsTransformsAfterRotation();
+  }
+
+  private __syncPhysicsTransformsAfterRotation() {
+    const strategy = this.entity.tryToGetPhysics()?.strategy;
+    if (strategy?.setScale != null) {
+      // Transform setters update their pose before this call, while the cached
+      // world matrix is dirtied later in the logic stage. Materialize the old
+      // cache first so dirty propagation is not skipped, then resolve the new scale.
+      this.matrixInner;
+      this.setWorldMatrixDirty();
+      strategy.setScale(this._getPhysicsWorldScale(this.matrixInner));
+    }
+    this.__syncDescendantPhysicsTransforms(true, true, true);
   }
 
   /**

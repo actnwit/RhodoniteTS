@@ -501,6 +501,7 @@ export declare class SceneGraphComponent extends Component {
      * @param quat - The quaternion rotation to set in physics
      */
     setRotationToPhysics(quat: IQuaternion): void;
+    private __syncPhysicsTransformsAfterRotation;
     /**
      * Updates the cached world rotation if it is dirty.
      * This avoids repeated recursive traversal across the hierarchy.

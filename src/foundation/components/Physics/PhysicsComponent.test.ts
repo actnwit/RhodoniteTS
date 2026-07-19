@@ -94,10 +94,13 @@ describe('PhysicsComponent shape bindings', async () => {
     expect(setPosition.mock.calls.at(-1)?.[0].y).toBeCloseTo(1);
     expect(setRotation.mock.calls.at(-1)?.[0].z).toBeCloseTo(rotation.z);
     expect(setRotation.mock.calls.at(-1)?.[0].w).toBeCloseTo(rotation.w);
-    expect(setScale).not.toHaveBeenCalled();
+    expect(setScale).toHaveBeenCalledOnce();
+    expect(setScale.mock.calls[0][0].x).toBeCloseTo(1);
+    expect(setScale.mock.calls[0][0].y).toBeCloseTo(1);
 
     setPosition.mockClear();
     setRotation.mockClear();
+    setScale.mockClear();
     root.localScale = Rn.Vector3.fromCopy3(2, 3, 1);
     expect(setPosition.mock.calls.at(-1)?.[0].x).toBeCloseTo(2);
     expect(setPosition.mock.calls.at(-1)?.[0].y).toBeCloseTo(2);
@@ -226,6 +229,42 @@ describe('PhysicsComponent shape bindings', async () => {
     expect(actualAxis?.x).toBeCloseTo(expectedAxis.x);
     expect(actualAxis?.y).toBeCloseTo(expectedAxis.y);
     expect(actualAxis?.z).toBeCloseTo(expectedAxis.z);
+  });
+
+  test('resynchronizes physical scales when rotating under a non-uniformly scaled parent', () => {
+    const scaledParent = Rn.createGroupEntity(engine);
+    const rotatingEntity = Rn.createGroupEntity(engine);
+    const physicalDescendant = Rn.createGroupEntity(engine);
+    scaledParent.localScale = Rn.Vector3.fromCopy3(2, 1, 1);
+    scaledParent.addChild(rotatingEntity.getSceneGraph());
+    rotatingEntity.addChild(physicalDescendant.getSceneGraph());
+
+    const rotatingPhysicsEntity = engine.entityRepository.addComponentToEntity(Rn.PhysicsComponent, rotatingEntity);
+    const descendantPhysicsEntity = engine.entityRepository.addComponentToEntity(
+      Rn.PhysicsComponent,
+      physicalDescendant
+    );
+    const ownSetScale = vi.fn();
+    const descendantSetScale = vi.fn();
+    rotatingPhysicsEntity.getPhysics().setStrategy({
+      update: () => {},
+      setRotation: vi.fn(),
+      setScale: ownSetScale,
+    });
+    descendantPhysicsEntity.getPhysics().setStrategy({
+      update: () => {},
+      setRotation: vi.fn(),
+      setScale: descendantSetScale,
+    });
+
+    rotatingEntity.localRotation = Rn.Quaternion.fromAxisAngle(Rn.Vector3.fromCopy3(0, 0, 1), Math.PI / 2);
+
+    for (const setScale of [ownSetScale, descendantSetScale]) {
+      expect(setScale).toHaveBeenCalledOnce();
+      expect(setScale.mock.calls[0][0].x).toBeCloseTo(1);
+      expect(setScale.mock.calls[0][0].y).toBeCloseTo(2);
+      expect(setScale.mock.calls[0][0].z).toBeCloseTo(1);
+    }
   });
 
   test('manages stable binding IDs and rebuilds the complete collider set', () => {
