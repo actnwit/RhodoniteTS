@@ -327,7 +327,7 @@ export class PhysicsComponent extends Component {
     OimoPhysicsStrategy.update();
     RapierPhysicsStrategy.update(
       AnimationStateRepository.getProcessFrameToken(engine),
-      Time.intervalProcessBegin,
+      Time.getIntervalProcessBegin(engine),
       engine
     );
   }

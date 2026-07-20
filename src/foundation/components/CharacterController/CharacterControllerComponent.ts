@@ -85,7 +85,7 @@ export class CharacterControllerComponent extends Component {
     }
     RapierPhysicsStrategy.update(
       AnimationStateRepository.getProcessFrameToken(engine),
-      Time.intervalProcessBegin,
+      Time.getIntervalProcessBegin(engine),
       engine
     );
   }

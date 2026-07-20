@@ -57,6 +57,7 @@ describe('PhysicsComponent shape bindings', async () => {
 
       expect(secondToken).not.toBe(firstToken);
       expect(updateSpy.mock.calls.map(call => call[0])).toEqual([firstToken, firstToken, secondToken, secondToken]);
+      expect(updateSpy.mock.calls.map(call => call[1])).toEqual([1 / 60, 1 / 60, 1 / 60, 1 / 60]);
     } finally {
       updateSpy.mockRestore();
       AnimationStateRepository._cleanupForEngine(frameEngine);
