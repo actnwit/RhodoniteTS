@@ -217,6 +217,9 @@ type RapierWorldState = {
  * RapierPhysicsStrategy.initialize(RAPIER) before creating this strategy.
  */
 export class RapierPhysicsStrategy implements PhysicsStrategy {
+  private static readonly __defaultTimestep = 1 / 60;
+  private static readonly __maxTimestep = 1 / 15;
+
   static __worldProperty: PhysicsWorldProperty = {
     gravity: Vector3.fromCopy3(0, -9.8, 0),
     random: true,
@@ -576,16 +579,18 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
         : RapierPhysicsStrategy.__worldStates.size > 0
           ? [...RapierPhysicsStrategy.__worldStates.values()]
           : [RapierPhysicsStrategy.__getWorldState()];
+    const safeDeltaTime = Number.isFinite(deltaTime) ? Math.max(deltaTime, 0) : RapierPhysicsStrategy.__defaultTimestep;
+    const timestep = Math.min(safeDeltaTime, RapierPhysicsStrategy.__maxTimestep);
     for (const state of states) {
       if (frameId != null && state.lastFrameId === frameId) {
         continue;
       }
       state.lastFrameId = frameId;
-      state.world.timestep = deltaTime;
+      state.world.timestep = timestep;
 
       for (const [participant, participantEngine] of RapierPhysicsStrategy.__stepParticipants) {
         if (participantEngine === state.engine) {
-          participant.preStep(deltaTime);
+          participant.preStep(safeDeltaTime);
         }
       }
       TriggerComponent._beginPhysicsStep(state.engine);
@@ -810,7 +815,9 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       return;
     }
     const hasOnlySensorColliders = this.__shapeBindings?.every(binding => binding.collider.isSensor === true) === true;
+    const derivesSensorOnlyMass = hasOnlySensorColliders && motion.mass == null;
     const needsCompleteMassProperties =
+      derivesSensorOnlyMass ||
       motion.mass === 0 ||
       (hasOnlySensorColliders && motion.mass != null && motion.mass > 0) ||
       motion.centerOfMass != null ||
@@ -831,6 +838,11 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
       throw new Error('The injected Rapier module does not support complete rigid-body mass properties.');
     }
 
+    if (derivesSensorOnlyMass) {
+      for (let i = 0; i < this.__colliders.length; i++) {
+        this.__colliders[i].setDensity!(this.__shapeBindings![i].body.density);
+      }
+    }
     rigidBody.recomputeMassPropertiesFromColliders();
     const automaticMass = rigidBody.mass();
     const automaticCenterOfMass = rigidBody.localCom();

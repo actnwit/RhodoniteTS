@@ -145,6 +145,8 @@ export type RapierPhysicsModuleLike = {
  * RapierPhysicsStrategy.initialize(RAPIER) before creating this strategy.
  */
 export declare class RapierPhysicsStrategy implements PhysicsStrategy {
+    private static readonly __defaultTimestep;
+    private static readonly __maxTimestep;
     static __worldProperty: PhysicsWorldProperty;
     private static __rapier?;
     private static __defaultWorldState?;

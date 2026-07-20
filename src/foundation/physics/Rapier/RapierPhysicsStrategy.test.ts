@@ -47,6 +47,7 @@ class FakeRigidBodyDesc {
 
 class FakeColliderDesc {
   density = 0;
+  readonly densityHistory: number[] = [];
   friction = 0;
   restitution = 0;
   translation = { x: 0, y: 0, z: 0 };
@@ -64,6 +65,7 @@ class FakeColliderDesc {
 
   setDensity(density: number): FakeColliderDesc {
     this.density = density;
+    this.densityHistory.push(density);
     return this;
   }
 
@@ -457,23 +459,42 @@ test('RapierPhysicsStrategy scopes step participants to the processed engine', a
   RapierPhysicsStrategy._registerStepParticipant(firstParticipant, firstEngine);
   RapierPhysicsStrategy._registerStepParticipant(secondParticipant, secondEngine);
 
-  RapierPhysicsStrategy.update(1, 0.25, firstEngine);
+  RapierPhysicsStrategy.update(1, 0.025, firstEngine);
 
-  expect((RapierPhysicsStrategy._getWorld(firstEngine) as FakeWorld).timestep).toBe(0.25);
+  expect((RapierPhysicsStrategy._getWorld(firstEngine) as FakeWorld).timestep).toBe(0.025);
   expect(firstParticipant.preStep).toHaveBeenCalledOnce();
-  expect(firstParticipant.preStep).toHaveBeenCalledWith(0.25);
+  expect(firstParticipant.preStep).toHaveBeenCalledWith(0.025);
   expect(firstParticipant.postStep).toHaveBeenCalledOnce();
   expect(secondParticipant.preStep).not.toHaveBeenCalled();
   expect(secondParticipant.postStep).not.toHaveBeenCalled();
 
-  RapierPhysicsStrategy.update(2, 0.5, secondEngine);
+  RapierPhysicsStrategy.update(2, 0.05, secondEngine);
 
-  expect((RapierPhysicsStrategy._getWorld(secondEngine) as FakeWorld).timestep).toBe(0.5);
+  expect((RapierPhysicsStrategy._getWorld(secondEngine) as FakeWorld).timestep).toBe(0.05);
   expect(firstParticipant.preStep).toHaveBeenCalledOnce();
   expect(firstParticipant.postStep).toHaveBeenCalledOnce();
   expect(secondParticipant.preStep).toHaveBeenCalledOnce();
-  expect(secondParticipant.preStep).toHaveBeenCalledWith(0.5);
+  expect(secondParticipant.preStep).toHaveBeenCalledWith(0.05);
   expect(secondParticipant.postStep).toHaveBeenCalledOnce();
+});
+
+test.each([
+  { elapsedTime: 10, expectedTimestep: 1 / 15, expectedParticipantDeltaTime: 10 },
+  { elapsedTime: Number.NaN, expectedTimestep: 1 / 60, expectedParticipantDeltaTime: 1 / 60 },
+])('RapierPhysicsStrategy normalizes an unsafe elapsed time before stepping', async ({
+  elapsedTime,
+  expectedTimestep,
+  expectedParticipantDeltaTime,
+}) => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const engine = {} as Engine;
+  const participant = { preStep: vi.fn(), postStep: vi.fn() };
+  RapierPhysicsStrategy._registerStepParticipant(participant, engine);
+
+  RapierPhysicsStrategy.update(1, elapsedTime, engine);
+
+  expect((RapierPhysicsStrategy._getWorld(engine) as FakeWorld).timestep).toBeCloseTo(expectedTimestep);
+  expect(participant.preStep).toHaveBeenCalledWith(expectedParticipantDeltaTime);
 });
 
 test('RapierPhysicsStrategy creates and advances an independent world for each Engine', async () => {
@@ -1225,6 +1246,35 @@ test('RapierPhysicsStrategy applies explicit mass to a dynamic body containing o
   const body = lastWorld!.bodies[0];
   expect(lastWorld?.colliders[0].density).toBe(0);
   expect(body.additionalMassProperties?.mass).toBe(10);
+});
+
+test('RapierPhysicsStrategy derives mass properties for a dynamic body containing only sensors', async () => {
+  await RapierPhysicsStrategy.initialize(createFakeRapier());
+  const strategy = new RapierPhysicsStrategy();
+  const { entity } = createSceneGraphEntity();
+  strategy.setShapeInstances(
+    [
+      {
+        shape: {
+          shape: { type: 'box', size: Vector3.one() },
+          localPosition: Vector3.zero(),
+          localRotation: Quaternion.identity(),
+        },
+        body: { move: true, density: 3 },
+        collider: { friction: 0, restitution: 0, isSensor: true },
+      },
+    ],
+    entity,
+    Vector3.one(),
+    { move: true }
+  );
+
+  const collider = lastWorld!.colliders[0];
+  const body = lastWorld!.bodies[0];
+  expect(collider.density).toBe(0);
+  expect(collider.densityHistory).toEqual([0, 3, 0]);
+  expect(body.recomputeMassPropertiesCount).toBe(2);
+  expect(body.additionalMassProperties?.mass).toBe(12);
 });
 
 test('RapierPhysicsStrategy isolates collision events and collider handles between Engine worlds', async () => {
