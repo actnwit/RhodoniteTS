@@ -48,6 +48,7 @@ export declare class RapierCharacterControllerStrategy implements CharacterContr
     private __resolveCharacterCapsule;
     private __createCharacterColliderDesc;
     private __synchronizeScale;
+    private __synchronizePosition;
     private __updateMotionState;
     private __resolveMovementState;
     private __getCollisionNormals;

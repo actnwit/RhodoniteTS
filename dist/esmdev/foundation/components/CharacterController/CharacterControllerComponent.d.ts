@@ -30,6 +30,9 @@ export declare class CharacterControllerComponent extends Component {
     private readonly __pubsub;
     private __lastObservedMotionState;
     private __desiredHorizontalSpeed?;
+    private __generatedShapeComponent?;
+    private __generatedShapeIndex?;
+    private __ownsGeneratedShapeComponent;
     constructor(engine: Engine, entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean);
     static get componentTID(): 17;
     get componentTID(): ComponentTID;
@@ -59,5 +62,6 @@ export declare class CharacterControllerComponent extends Component {
     set enabled(value: boolean);
     get enabled(): boolean;
     _destroy(): void;
+    private __cleanupGeneratedShape;
     addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): ComponentToComponentMethods<SomeComponentClass> & EntityBase;
 }

@@ -244,6 +244,7 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
       return;
     }
     this.__synchronizeScale();
+    const current = this.__synchronizePosition();
     if (this.__rigidBody.setNextKinematicRotation == null) {
       throw new Error('The injected Rapier rigid body does not support kinematic rotation.');
     }
@@ -307,7 +308,6 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
       this.__verticalVelocity = 0;
     }
 
-    const current = this.__rigidBody.translation();
     const next = {
       x: current.x + movement.x,
       y: current.y + movement.y,
@@ -499,6 +499,27 @@ export class RapierCharacterControllerStrategy implements CharacterControllerStr
     this.__capsuleBottomOffset = resolved.bottomOffset;
     this.__options.groundProbeRadius = groundProbeRadius;
     this.__worldScale = Vector3.fromCopy3(scale.x, scale.y, scale.z);
+  }
+
+  private __synchronizePosition(): RapierVector3Like {
+    const rigidBody = this.__rigidBody!;
+    const current = rigidBody.translation();
+    const sceneGraphPosition = this.__entity!.getSceneGraph().position;
+    const hasChanged =
+      Math.abs(sceneGraphPosition.x - current.x) > 0.000001 ||
+      Math.abs(sceneGraphPosition.y - current.y) > 0.000001 ||
+      Math.abs(sceneGraphPosition.z - current.z) > 0.000001;
+    if (!hasChanged) {
+      return current;
+    }
+
+    const synchronized = {
+      x: sceneGraphPosition.x,
+      y: sceneGraphPosition.y,
+      z: sceneGraphPosition.z,
+    };
+    rigidBody.setTranslation(synchronized, true);
+    return synchronized;
   }
 
   private __updateMotionState(): void {

@@ -430,6 +430,19 @@ test('synchronizes character rotation changed after setup', async () => {
   expect(world.body?.rotation().w).toBeCloseTo(rotation.w);
 });
 
+test('synchronizes a character world position changed through its parent', async () => {
+  await RapierPhysicsStrategy.initialize(fakeRapier());
+  const { entity, state } = fakeEntity();
+  const strategy = new RapierCharacterControllerStrategy();
+  strategy.setup(entity, capsuleShape());
+
+  state.position = Vector3.fromCopy3(5, 2, -3);
+  RapierPhysicsStrategy.update(1, 0.1);
+
+  expect(world.body?.translation()).toEqual({ x: 5, y: 2, z: -3 });
+  expect(state.position.isEqual(Vector3.fromCopy3(5, 2, -3))).toBe(true);
+});
+
 test('moves once per frame, reports initial grounding without landing, and synchronizes the entity', async () => {
   await RapierPhysicsStrategy.initialize(fakeRapier());
   const { entity, state } = fakeEntity();

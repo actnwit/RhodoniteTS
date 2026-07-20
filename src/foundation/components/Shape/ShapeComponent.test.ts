@@ -286,6 +286,58 @@ describe('ShapeComponent', async () => {
     expect(receivedShape).toBe(entity.getShape().getShape(0));
   });
 
+  test('CharacterController cleans up an internally generated capsule and ShapeComponent on removal', () => {
+    const entity = engine.entityRepository.addComponentToEntity(
+      Rn.CharacterControllerComponent,
+      Rn.createGroupEntity(engine)
+    );
+    const motionState = {
+      state: 'falling' as const,
+      velocity: Rn.Vector3.zero(),
+      horizontalSpeed: 0,
+      verticalSpeed: 0,
+      groundedDuration: 0,
+      airborneDuration: 0,
+      stateElapsedTime: 0,
+      landingImpactSpeed: 0,
+    };
+    const firstDestroy = vi.fn();
+    entity.getCharacterController().setup(
+      {
+        setup: () => {},
+        motionState,
+        destroy: firstDestroy,
+      } as never,
+      { radius: 0.3, height: 1.6 }
+    );
+    expect(entity.tryToGetShape()?.getShape(0)?.shape).toMatchObject({ radiusBottom: 0.3, radiusTop: 0.3 });
+
+    engine.entityRepository.removeComponentFromEntity(Rn.CharacterControllerComponent, entity);
+
+    expect(firstDestroy).toHaveBeenCalledOnce();
+    expect(entity.tryToGetShape()).toBeUndefined();
+
+    const recreatedEntity = engine.entityRepository.addComponentToEntity(Rn.CharacterControllerComponent, entity);
+    let recreatedShape: Rn.ShapeInstance | undefined;
+    recreatedEntity.getCharacterController().setup(
+      {
+        setup: (_entity: unknown, shape: Rn.ShapeInstance) => {
+          recreatedShape = shape;
+        },
+        motionState,
+        destroy: () => {},
+      } as never,
+      { radius: 0.5, height: 2 }
+    );
+
+    expect(recreatedShape?.shape).toEqual({
+      type: 'capsule',
+      height: 1,
+      radiusBottom: 0.5,
+      radiusTop: 0.5,
+    });
+  });
+
   test('CharacterController rolls back a generated legacy capsule after setup failure', () => {
     const entity = Rn.createCharacterControllerEntity(engine);
     const component = entity.getCharacterController();

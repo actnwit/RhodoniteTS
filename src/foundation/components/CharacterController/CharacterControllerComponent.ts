@@ -59,6 +59,9 @@ export class CharacterControllerComponent extends Component {
   private readonly __pubsub = new EventPubSub();
   private __lastObservedMotionState: CharacterMotionState = initialMotionState;
   private __desiredHorizontalSpeed?: number;
+  private __generatedShapeComponent?: ShapeComponent;
+  private __generatedShapeIndex?: number;
+  private __ownsGeneratedShapeComponent = false;
 
   constructor(
     engine: Engine,
@@ -165,6 +168,11 @@ export class CharacterControllerComponent extends Component {
       throw error;
     }
     this.__strategy = strategy;
+    if (generatedShapeIndex != null) {
+      this.__generatedShapeComponent = shapeComponent;
+      this.__generatedShapeIndex = generatedShapeIndex;
+      this.__ownsGeneratedShapeComponent = addedShapeComponent;
+    }
     this.__lastObservedMotionState = strategy.motionState;
   }
 
@@ -240,11 +248,33 @@ export class CharacterControllerComponent extends Component {
   _destroy(): void {
     this.__strategy?.destroy();
     this.__strategy = undefined;
+    this.__cleanupGeneratedShape();
     this.__pubsub.unsubscribeAll('stateChanged');
     this.__pubsub.unsubscribeAll('landed');
     this.__lastObservedMotionState = initialMotionState;
     this.__desiredHorizontalSpeed = undefined;
     super._destroy();
+  }
+
+  private __cleanupGeneratedShape(): void {
+    const shapeComponent = this.__generatedShapeComponent;
+    const shapeIndex = this.__generatedShapeIndex;
+    const ownsShapeComponent = this.__ownsGeneratedShapeComponent;
+    this.__generatedShapeComponent = undefined;
+    this.__generatedShapeIndex = undefined;
+    this.__ownsGeneratedShapeComponent = false;
+    if (shapeComponent == null || shapeIndex == null) {
+      return;
+    }
+
+    const entity = this.entity as ISceneGraphEntity;
+    if (entity.tryToGetShape() !== shapeComponent) {
+      return;
+    }
+    shapeComponent.removeShape(shapeIndex);
+    if (ownsShapeComponent && shapeComponent.shapeCount === 0) {
+      this.__engine.entityRepository.removeComponentFromEntity(ShapeComponent, entity);
+    }
   }
 
   addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(
