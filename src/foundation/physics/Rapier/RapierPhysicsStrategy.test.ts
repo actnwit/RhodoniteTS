@@ -479,7 +479,7 @@ test('RapierPhysicsStrategy scopes step participants to the processed engine', a
 });
 
 test.each([
-  { elapsedTime: 10, expectedTimestep: 1 / 15, expectedParticipantDeltaTime: 10 },
+  { elapsedTime: 10, expectedTimestep: 1 / 15, expectedParticipantDeltaTime: 1 / 15 },
   { elapsedTime: Number.NaN, expectedTimestep: 1 / 60, expectedParticipantDeltaTime: 1 / 60 },
 ])('RapierPhysicsStrategy normalizes an unsafe elapsed time before stepping', async ({
   elapsedTime,

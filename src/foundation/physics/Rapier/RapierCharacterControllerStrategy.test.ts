@@ -443,28 +443,29 @@ test('synchronizes a character world position changed through its parent', async
   expect(state.position.isEqual(Vector3.fromCopy3(5, 2, -3))).toBe(true);
 });
 
-test('moves once per frame, reports initial grounding without landing, and synchronizes the entity', async () => {
+test('uses the world-clamped timestep, moves once per frame, and synchronizes the entity', async () => {
   await RapierPhysicsStrategy.initialize(fakeRapier());
   const { entity, state } = fakeEntity();
   const strategy = new RapierCharacterControllerStrategy();
   strategy.setup(entity, capsuleShape(), { maxDeltaTime: 1 });
   strategy.setDesiredHorizontalVelocity(Vector3.fromCopy3(2, 99, -1));
+  const timestep = 1 / 15;
 
   RapierPhysicsStrategy.update(1, 0.5);
   RapierPhysicsStrategy.update(1, 0.5);
 
   expect(world.stepCount).toBe(1);
   expect(strategy.isGrounded).toBe(true);
-  expect(state.position.x).toBeCloseTo(1);
-  expect(state.position.z).toBeCloseTo(-0.5);
+  expect(state.position.x).toBeCloseTo(2 * timestep);
+  expect(state.position.z).toBeCloseTo(-timestep);
   expect(strategy.motionState.state).toBe('grounded');
   expect(strategy.motionState.horizontalSpeed).toBeCloseTo(Math.hypot(2, 1));
-  expect(strategy.motionState.groundedDuration).toBeCloseTo(0.5);
+  expect(strategy.motionState.groundedDuration).toBeCloseTo(timestep);
   expect(strategy.motionState.landingImpactSpeed).toBe(0);
 
   RapierPhysicsStrategy.update(2, 0.5);
   expect(strategy.motionState.state).toBe('grounded');
-  expect(strategy.motionState.groundedDuration).toBeCloseTo(1);
+  expect(strategy.motionState.groundedDuration).toBeCloseTo(timestep * 2);
   expect(strategy.motionState.landingImpactSpeed).toBe(0);
 });
 
@@ -473,13 +474,14 @@ test('does not report landing while settling onto the initial ground', async () 
   const { entity } = fakeEntity();
   const strategy = new RapierCharacterControllerStrategy();
   strategy.setup(entity, capsuleShape(), { maxDeltaTime: 1, gravity: 10 });
+  const timestep = 1 / 15;
 
   world.controller!.forceAirborne = true;
-  RapierPhysicsStrategy.update(1, 0.1);
+  RapierPhysicsStrategy.update(1, timestep);
   expect(strategy.motionState.state).toBe('falling');
 
   world.controller!.forceAirborne = false;
-  RapierPhysicsStrategy.update(2, 0.1);
+  RapierPhysicsStrategy.update(2, timestep);
 
   expect(strategy.motionState.state).toBe('grounded');
   expect(strategy.motionState.landingImpactSpeed).toBe(0);
@@ -490,16 +492,19 @@ test('reports landing after a real airborne movement', async () => {
   const { entity } = fakeEntity();
   const strategy = new RapierCharacterControllerStrategy();
   strategy.setup(entity, capsuleShape(), { maxDeltaTime: 1, gravity: 10, jumpSpeed: 1.5 });
+  const timestep = 1 / 15;
 
-  RapierPhysicsStrategy.update(1, 0.1);
+  RapierPhysicsStrategy.update(1, timestep);
   expect(strategy.motionState.state).toBe('grounded');
 
   strategy.requestJump();
-  RapierPhysicsStrategy.update(2, 0.1);
+  RapierPhysicsStrategy.update(2, timestep);
   expect(strategy.motionState.state).toBe('rising');
-  RapierPhysicsStrategy.update(3, 0.1);
+  RapierPhysicsStrategy.update(3, timestep);
   expect(strategy.motionState.state).toBe('rising');
-  RapierPhysicsStrategy.update(4, 0.1);
+  RapierPhysicsStrategy.update(4, timestep);
+  expect(strategy.motionState.state).toBe('rising');
+  RapierPhysicsStrategy.update(5, timestep);
 
   expect(strategy.motionState.state).toBe('landing');
   expect(strategy.motionState.landingImpactSpeed).toBeCloseTo(0.5);
@@ -510,15 +515,16 @@ test('jumps only after grounding and releases Rapier resources', async () => {
   const { entity, state } = fakeEntity();
   const strategy = new RapierCharacterControllerStrategy();
   strategy.setup(entity, capsuleShape(), { maxDeltaTime: 1, gravity: 10, jumpSpeed: 4 });
-  RapierPhysicsStrategy.update(1, 0.1);
+  const timestep = 1 / 15;
+  RapierPhysicsStrategy.update(1, timestep);
 
   strategy.requestJump();
-  RapierPhysicsStrategy.update(2, 0.1);
-  expect(state.position.y).toBeCloseTo(0.4);
+  RapierPhysicsStrategy.update(2, timestep);
+  expect(state.position.y).toBeCloseTo(4 * timestep);
   expect(strategy.isGrounded).toBe(false);
   expect(strategy.motionState.state).toBe('rising');
   expect(strategy.motionState.verticalSpeed).toBeCloseTo(4);
-  expect(strategy.motionState.airborneDuration).toBeCloseTo(0.1);
+  expect(strategy.motionState.airborneDuration).toBeCloseTo(timestep);
 
   strategy.teleport(Vector3.fromCopy3(3, 2, 1));
   expect(state.position.isEqual(Vector3.fromCopy3(3, 2, 1))).toBe(true);

@@ -590,7 +590,7 @@ export class RapierPhysicsStrategy implements PhysicsStrategy {
 
       for (const [participant, participantEngine] of RapierPhysicsStrategy.__stepParticipants) {
         if (participantEngine === state.engine) {
-          participant.preStep(safeDeltaTime);
+          participant.preStep(timestep);
         }
       }
       TriggerComponent._beginPhysicsStep(state.engine);
