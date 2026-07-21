@@ -206,6 +206,7 @@ export class AnimationComponent extends Component {
   ) {
     if (this.__applyTransformAnimation(pathName, channel, transformComponent)) return;
     if (this.__applyBlendShapeAnimation(pathName, channel, blendShapeComponent)) return;
+    if (this.__applyVrmExpressionAnimation(pathName, channel)) return;
     if (this.__applyVisibilityAnimation(pathName, channel)) return;
     if (this.__applyMaterialAnimation(pathName, channel)) return;
     if (this.__applyLightAnimation(pathName, channel)) return;
@@ -243,6 +244,20 @@ export class AnimationComponent extends Component {
       return true;
     }
     return false;
+  }
+
+  private __applyVrmExpressionAnimation(pathName: string, channel: AnimationChannel): boolean {
+    const prefix = 'vrmExpression/';
+    if (!pathName.startsWith(prefix)) {
+      return false;
+    }
+
+    const vrmComponent = this.entity.tryToGetVrm();
+    if (Is.exist(vrmComponent)) {
+      const expressionName = pathName.substring(prefix.length);
+      vrmComponent.setExpressionWeight(expressionName, (channel.animatedValue as unknown as Scalar).x);
+    }
+    return true;
   }
 
   private __applyVisibilityAnimation(pathName: string, channel: AnimationChannel): boolean {

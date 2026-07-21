@@ -64,6 +64,7 @@ import {
   generateGlbArrayBuffer,
   handleTextureImage,
   isNumericArrayBufferView,
+  isRuntimeOnlyAnimationPath,
 } from './Gltf2ExporterOps';
 
 export const GLTF2_EXPORT_GLTF = 'glTF';
@@ -667,6 +668,10 @@ export class Gltf2Exporter {
     const pathName = channel.target.pathName as AnimationPathName;
     if (typeof pathName !== 'string') {
       return undefined;
+    }
+
+    if (isRuntimeOnlyAnimationPath(pathName)) {
+      return null;
     }
 
     if (pathName.startsWith('material/')) {

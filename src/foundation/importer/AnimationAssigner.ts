@@ -1,6 +1,6 @@
 import type { AnimationPathName, AnimationSampler, AnimationTrackName, RnM2Vrma } from '../../types';
 import type { Index } from '../../types/CommonTypes';
-import type { RnM2 } from '../../types/RnM2';
+import type { RnM2, RnM2Animation, RnM2AnimationChannel } from '../../types/RnM2';
 import type { VRM } from '../../types/VRM';
 import type { Vrm0x } from '../../types/VRM0x';
 import type { Vrm1 } from '../../types/VRM1';
@@ -16,11 +16,13 @@ import { GlobalRetargetReverse } from '../components/Skeletal/AnimationRetarget/
 import { AnimationInterpolation } from '../definitions/AnimationInterpolation';
 import type { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { AnimatedQuaternion } from '../math/AnimatedQuaternion';
+import { AnimatedScalar } from '../math/AnimatedScalar';
 import { AnimatedVector3 } from '../math/AnimatedVector3';
 import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
 import type { Engine } from '../system/Engine';
 import { ModelConverter } from './ModelConverter';
+import { VrmaImporter } from './VrmaImporter';
 
 type RetargetMode = 'none' | 'global' | 'absolute';
 
@@ -93,7 +95,7 @@ export class AnimationAssigner {
 
   /**
    * Assigns animation data from a VRMA (VRM Animation) model to a root entity.
-   * This method specifically handles VRM animation format with humanoid bone mapping.
+   * This method handles humanoid retargeting and expression-weight animation.
    *
    * @param rootEntity - The root entity of the model to which animation will be assigned
    * @param vrmaModel - The VRMA model containing animation data and humanoid bone mappings
@@ -142,6 +144,17 @@ export class AnimationAssigner {
 
           const humanBones = this.__getVrmaHumanoidBoneNameMap(vrma);
           const humanoidBoneName = humanBones?.get(nodeIndex);
+          const expressionNames = this.__getVrmaExpressionNamesMap(vrma)?.get(nodeIndex);
+          if (channel.target.path === 'translation' && expressionNames != null) {
+            this.__setVrmaExpressionAnimation(
+              rootEntity,
+              animation,
+              channel,
+              expressionNames,
+              postfixToTrackName,
+              trackNames
+            );
+          }
           if (
             rootMotion === 'ignoreHipsTranslation' &&
             humanoidBoneName === 'hips' &&
@@ -400,6 +413,66 @@ export class AnimationAssigner {
     }
     vrmaExtension.humanoidBoneNameMap = humanoidBoneNameMap;
     return humanoidBoneNameMap;
+  }
+
+  private __getVrmaExpressionNamesMap(vrmaModel: RnM2Vrma): Map<NodeId, string[]> | undefined {
+    const vrmaExtension = vrmaModel.extensions?.VRMC_vrm_animation;
+    if (vrmaExtension == null) {
+      return void 0;
+    }
+
+    if (vrmaExtension.expressionNamesMap == null) {
+      VrmaImporter.readExpressions(vrmaModel);
+    }
+    return vrmaExtension.expressionNamesMap;
+  }
+
+  private __setVrmaExpressionAnimation(
+    rootEntity: ISceneGraphEntity,
+    animation: RnM2Animation,
+    channel: RnM2AnimationChannel,
+    expressionNames: readonly string[],
+    postfixToTrackName: string | undefined,
+    trackNames: Set<AnimationTrackName>
+  ): void {
+    const samplerObject = channel.samplerObject;
+    const input = samplerObject?.inputObject?.extras?.typedDataArray;
+    const output = samplerObject?.outputObject?.extras?.typedDataArray;
+    if (samplerObject == null || input == null || output == null) {
+      return;
+    }
+
+    const scalarOutput = new Float32Array(output.length / 3);
+    for (let i = 0; i < scalarOutput.length; i++) {
+      scalarOutput[i] = output[i * 3];
+    }
+
+    const rootVrm = rootEntity.tryToGetVrm()!;
+    const trackName = `${animation.name ?? 'Untitled_Animation'}${postfixToTrackName ?? ''}`;
+    let animationComponent = rootEntity.tryToGetAnimation();
+    for (const expressionName of expressionNames) {
+      if (rootVrm.getExpressionWeight(expressionName) == null) {
+        Logger.default.info(`VRMA expression '${expressionName}' is not available on the target VRM.`);
+        continue;
+      }
+
+      if (animationComponent == null) {
+        const animationEntity = this.__engine.entityRepository.addComponentToEntity(AnimationComponent, rootEntity);
+        animationComponent = animationEntity.getAnimation();
+      }
+      const animationSamplers = new Map<AnimationTrackName, AnimationSampler>();
+      animationSamplers.set(trackName, {
+        input,
+        output: scalarOutput,
+        outputComponentN: 1,
+        interpolationMethod: AnimationInterpolation.fromString(samplerObject.interpolation ?? 'LINEAR'),
+      });
+      animationComponent.setAnimation(
+        `vrmExpression/${expressionName}`,
+        new AnimatedScalar(animationSamplers, trackName)
+      );
+      trackNames.add(trackName);
+    }
   }
 
   private __validateCharacterVrmaAnimationSet(

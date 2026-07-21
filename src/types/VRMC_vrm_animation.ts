@@ -55,4 +55,5 @@ export interface VRMC_vrm_animation {
 
 export interface RnM2_VRMC_vrm_animation extends VRMC_vrm_animation {
   humanoidBoneNameMap?: Map<NodeId, HumanBoneNames>;
+  expressionNamesMap?: Map<NodeId, string[]>;
 }

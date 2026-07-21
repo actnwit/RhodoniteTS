@@ -150,31 +150,39 @@ export class VrmImporter {
   static _readExpressions(gltfModel: Vrm1, rootEntity: ISceneGraphEntity) {
     const vrmExpressions: VrmExpression[] = [];
 
-    if (Is.not.exist(gltfModel.extensions.VRMC_vrm?.expressions?.preset)) {
+    const expressionGroups = [
+      gltfModel.extensions.VRMC_vrm?.expressions?.preset,
+      gltfModel.extensions.VRMC_vrm?.expressions?.custom,
+    ];
+    if (expressionGroups.every(Is.not.exist)) {
       return;
     }
 
-    const expressions = gltfModel.extensions.VRMC_vrm.expressions.preset;
-    for (const expressionName in expressions) {
-      const expression = expressions[expressionName];
-      let binds: VrmExpressionMorphBind[] = [];
-      if (Is.exist(expression.morphTargetBinds)) {
-        binds = expression.morphTargetBinds.map(bind => {
-          const rnEntity = gltfModel.extras.rnEntities[bind.node];
-          return {
-            entityIdx: rnEntity.entityUID,
-            blendShapeIdx: bind.index,
-            weight: bind.weight,
-          };
-        });
+    for (const expressions of expressionGroups) {
+      if (Is.not.exist(expressions)) {
+        continue;
       }
+      for (const expressionName in expressions) {
+        const expression = expressions[expressionName];
+        let binds: VrmExpressionMorphBind[] = [];
+        if (Is.exist(expression.morphTargetBinds)) {
+          binds = expression.morphTargetBinds.map(bind => {
+            const rnEntity = gltfModel.extras.rnEntities[bind.node];
+            return {
+              entityIdx: rnEntity.entityUID,
+              blendShapeIdx: bind.index,
+              weight: bind.weight,
+            };
+          });
+        }
 
-      const vrmExpression: VrmExpression = {
-        name: expressionName,
-        isBinary: expression.isBinary,
-        binds: binds,
-      };
-      vrmExpressions.push(vrmExpression);
+        const vrmExpression: VrmExpression = {
+          name: expressionName,
+          isBinary: expression.isBinary ?? false,
+          binds: binds,
+        };
+        vrmExpressions.push(vrmExpression);
+      }
     }
     const vrmEntity = rootEntity.engine.entityRepository.addComponentToEntity(VrmComponent, rootEntity);
     vrmEntity.getVrm().setVrmExpressions(vrmExpressions);

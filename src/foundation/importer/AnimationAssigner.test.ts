@@ -43,6 +43,40 @@ function createCharacterVrmaSet(): CharacterVrmaAnimationSet {
   return Object.fromEntries(semantics.map(semantic => [semantic, createVrma()])) as CharacterVrmaAnimationSet;
 }
 
+function createExpressionVrma({
+  interpolation = 'CUBICSPLINE',
+  output = new Float32Array([-1, 9, 9, 0.25, 9, 9, 2, 9, 9, -2, 9, 9, 1.5, 9, 9, 3, 9, 9]),
+}: {
+  interpolation?: 'LINEAR' | 'STEP' | 'CUBICSPLINE';
+  output?: Float32Array;
+} = {}): RnM2Vrma {
+  const input = new Float32Array([0, 1]);
+  const samplerObject = {
+    interpolation,
+    inputObject: { extras: { typedDataArray: input } },
+    outputObject: { extras: { typedDataArray: output } },
+  };
+  return {
+    animations: [
+      {
+        name: 'Face',
+        samplers: [samplerObject],
+        channels: [{ samplerObject, target: { node: 2, path: 'translation' } }],
+      },
+    ],
+    extensions: {
+      VRMC_vrm_animation: {
+        specVersion: '1.0',
+        expressions: {
+          preset: { happy: { node: 2 } },
+          custom: { smirk: { node: 2 } },
+        },
+      },
+    },
+    extras: { rnEntities: [] },
+  } as unknown as RnM2Vrma;
+}
+
 function createAssignerFixture({ version = '1.0' }: { version?: string } = {}) {
   const hipsRetarget = vi.fn((_retarget: unknown, postfix: string | undefined) => [`Clip${postfix ?? ''}`]);
   const spineRetarget = vi.fn((_retarget: unknown, postfix: string | undefined) => [`Clip${postfix ?? ''}`]);
@@ -76,6 +110,32 @@ function createAssignerFixture({ version = '1.0' }: { version?: string } = {}) {
   const assigner = new AnimationAssigner({ entityRepository } as any);
 
   return { assigner, entityRepository, hipsRetarget, root, spineRetarget };
+}
+
+function createExpressionAssignerFixture(availableExpressions = new Set(['happy', 'smirk'])) {
+  const setAnimation = vi.fn();
+  const rootAnimation = {
+    resetAnimationTracks: vi.fn(),
+    resetAnimationTrackByPostfix: vi.fn(),
+    setAnimation,
+  };
+  const root = {
+    entityUID: 42,
+    tryToGetVrm: () => ({
+      _version: '1.0',
+      getExpressionWeight: (name: string) => (availableExpressions.has(name) ? 0 : undefined),
+    }),
+    tryToGetAnimationState: () => ({}),
+    tryToGetAnimation: () => rootAnimation,
+    getTransform: () => ({ _restoreTransformFromRest: vi.fn() }),
+    children: [],
+  } as unknown as ISceneGraphEntity;
+  const entityRepository = {
+    addComponentToEntity: vi.fn((_component: unknown, entity: unknown) => entity),
+    deleteEntityRecursively: vi.fn(),
+  };
+  const assigner = new AnimationAssigner({ entityRepository } as any);
+  return { assigner, entityRepository, root, setAnimation };
 }
 
 function mockModelConversion() {
@@ -151,6 +211,55 @@ test('rejects unsupported target VRM versions before converting a VRMA', () => {
 
   expect(() => assigner.assignAnimationWithVrma(root, createVrma())).toThrow("Unsupported VRM version 'unsupported'");
   expect(ModelConverter.convertToRhodoniteObjectSimple).not.toHaveBeenCalled();
+});
+
+test('assigns preset and custom VRMA expressions as scalar root tracks', () => {
+  mockModelConversion();
+  const { assigner, entityRepository, root, setAnimation } = createExpressionAssignerFixture();
+  const vrma = createExpressionVrma();
+
+  const trackNames = assigner.assignAnimationWithVrma(root, vrma, '__expression');
+
+  expect(trackNames).toEqual(['Face__expression']);
+  expect(setAnimation.mock.calls.map(([pathName]) => pathName)).toEqual(['vrmExpression/happy', 'vrmExpression/smirk']);
+  for (const [, animatedValue] of setAnimation.mock.calls) {
+    const sampler = animatedValue.getAnimationSampler('Face__expression');
+    expect(Array.from(sampler.input)).toEqual([0, 1]);
+    expect(Array.from(sampler.output)).toEqual([-1, 0.25, 2, -2, 1.5, 3]);
+    expect(sampler.outputComponentN).toBe(1);
+    expect(sampler.interpolationMethod).toBe(AnimationInterpolation.CubicSpline);
+  }
+  expect(vrma.extensions.VRMC_vrm_animation.expressionNamesMap?.get(2)).toEqual(['happy', 'smirk']);
+  expect(entityRepository.deleteEntityRecursively).toHaveBeenCalledWith(99);
+});
+
+test.each([
+  ['LINEAR', AnimationInterpolation.Linear],
+  ['STEP', AnimationInterpolation.Step],
+] as const)('preserves %s interpolation for VRMA expression tracks', (interpolation, expectedInterpolation) => {
+  mockModelConversion();
+  const { assigner, root, setAnimation } = createExpressionAssignerFixture(new Set(['happy']));
+  const vrma = createExpressionVrma({
+    interpolation,
+    output: new Float32Array([-0.2, 9, 9, 1.2, 9, 9]),
+  });
+
+  assigner.assignAnimationWithVrma(root, vrma);
+
+  const sampler = setAnimation.mock.calls[0][1].getAnimationSampler('Face');
+  expect(Array.from(sampler.output)).toEqual(Array.from(new Float32Array([-0.2, 1.2])));
+  expect(sampler.interpolationMethod).toBe(expectedInterpolation);
+});
+
+test('skips VRMA expressions that do not exist on the target model', () => {
+  mockModelConversion();
+  const { assigner, root, setAnimation } = createExpressionAssignerFixture(new Set(['happy']));
+
+  const trackNames = assigner.assignAnimationWithVrma(root, createExpressionVrma());
+
+  expect(trackNames).toEqual(['Face']);
+  expect(setAnimation).toHaveBeenCalledTimes(1);
+  expect(setAnimation.mock.calls[0][0]).toBe('vrmExpression/happy');
 });
 
 test('omits filtered retarget paths while retaining other paths', () => {

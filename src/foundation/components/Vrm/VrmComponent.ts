@@ -80,7 +80,8 @@ export class VrmComponent extends Component {
 
   /**
    * Sets the weight for a specific VRM expression.
-   * This method updates the expression weight and applies it to all associated blend shape binds.
+   * This method clamps the input, applies binary-expression behavior, and updates
+   * all associated blend shape binds using their configured weights.
    * @param expressionName - The name of the expression to modify
    * @param weight - The weight value to apply (typically between 0 and 1)
    */
@@ -89,12 +90,14 @@ export class VrmComponent extends Component {
     if (Is.not.exist(expression)) {
       return;
     }
-    this.__weights.set(expressionName, weight);
+    const clampedWeight = Math.min(1, Math.max(0, weight));
+    const appliedWeight = expression.isBinary ? (clampedWeight > 0.5 ? 1 : 0) : clampedWeight;
+    this.__weights.set(expressionName, appliedWeight);
     for (const bind of expression.binds) {
       const entity = this.__engine.entityRepository.getEntity(bind.entityIdx);
       const blendShapeComponent = entity.tryToGetBlendShape();
       if (Is.exist(blendShapeComponent)) {
-        blendShapeComponent.setWeightByIndex(bind.blendShapeIdx, weight);
+        blendShapeComponent.setWeightByIndex(bind.blendShapeIdx, appliedWeight * bind.weight);
       }
     }
   }

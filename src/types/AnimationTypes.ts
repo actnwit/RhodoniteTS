@@ -26,6 +26,7 @@ export type AnimationPathName =
   | 'camera_fovy'
   | 'camera_xmag'
   | 'camera_ymag'
+  | `vrmExpression/${string}`
   | 'effekseer';
 
 export type AnimationTrackName = string;
